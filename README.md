@@ -1,51 +1,93 @@
-# oneprovider-gui
+About
+=====
 
-This README outlines the details of collaborating on this Ember application.
-A short introduction of this app could easily go here.
+*oneprovider-gui* is GUI written in Ember distributed with OP worker.
 
-## Prerequisites
+Goals
+-----
 
-You will need the following things properly installed on your computer.
+This repo allows to separate GUI from OZ worker repos, which improves
+ease of maintenance and lowers build times.
 
-* [Git](https://git-scm.com/)
-* [Node.js](https://nodejs.org/) (with npm)
-* [Ember CLI](https://ember-cli.com/)
-* [Google Chrome](https://google.com/chrome/)
+It is able to build a release containing only compiled GUI static files
+and create a static docker with those files.
 
-## Installation
+Getting Started
+---------------
+Before building make sure submodules are initialized:
+```
+make submodules
+```
 
-* `git clone <repository-url>` this repository
-* `cd oneprovider-gui`
-* `npm install`
+To build a development release of GUI:
 
-## Running / Development
+```
+make             # run natively (requires npm, bower, ember)
+./make.py        # run in docker (onedata/gui_builder) that has all deps
+```
+<br />
 
-* `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
-* Visit your tests at [http://localhost:4200/tests](http://localhost:4200/tests).
+To build a production release of GUI:
 
-### Code Generators
+```
+make rel         # run natively (requires npm, bower, ember)
+./make.py rel    # run in docker (onedata/gui_builder) that has all deps
+```
+<br />
 
-Make use of the many generators for code, try `ember help generate` for more details
+To package a built release into a static docker:
 
-### Running Tests
+```
+./sr-dockerbuild
+```
+<br />
 
-* `ember test`
-* `ember test --server`
+To package a built release into a static docker and
+push it to docker repo:
 
-### Building
+```
+./sr-dockerbuild --push --remove
+```
+<br />
 
-* `ember build` (development)
-* `ember build --environment production` (production)
+To get more info on ****sr-dockerbuild.sh**** usage:
 
-### Deploying
+```
+./sr-dockerbuild --help
+```
+<br />
 
-Specify what it takes to deploy your app.
+To start an ember build process that watches for changes and rebuilds:
 
-## Further Reading / Useful Links
+```
+./build_watch.sh
+```
+<br />
 
-* [ember.js](https://emberjs.com/)
-* [ember-cli](https://ember-cli.com/)
-* Development Browser Extensions
-  * [ember inspector for chrome](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi)
-  * [ember inspector for firefox](https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/)
+To find all broken symbolic links (those that point to nothing):
+
+```
+./find_broken_links.sh
+```
+<br />
+
+Development
+-----------
+
+For development with one-env, please start oz-worker from sources, then build
+this project to the source dir, eg.:
+
+```
+ember build --environment=development-backend --output-path=/Users/kliput/Onedata/env-develop-oz/op-worker-18.07/_build/default/rel/op_worker/data/gui_static --watch
+```
+
+and start rsync watcher in one-env:
+
+```
+./onenv watch krakow
+```
+
+Support
+-------
+
+For more information visit onedata.org
