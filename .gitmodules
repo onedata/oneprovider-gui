@@ -1,0 +1,9 @@
+[submodule "bamboos"]
+	path = bamboos
+	url = ssh://git@git.plgrid.pl:7999/vfs/bamboos.git
+[submodule "src/lib/onedata-gui-websocket-client"]
+	path = src/lib/onedata-gui-websocket-client
+	url = ssh://git@git.plgrid.pl:7999/vfs/onedata-gui-websocket-client.git
+[submodule "src/lib/onedata-gui-common"]
+	path = src/lib/onedata-gui-common
+	url = ssh://git@git.plgrid.pl:7999/vfs/onedata-gui-common.git
