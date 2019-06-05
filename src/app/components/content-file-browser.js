@@ -10,16 +10,20 @@ import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-compon
 export default OneEmbeddedComponent.extend({
   classNames: ['content-file-browser'],
 
+  /**
+   * @override
+   */
+  iframeInjectedProperties: Object.freeze(['spaceId', 'fileId']),
+
   init() {
     this._super(...arguments);
-    this.copyExternalProperty('spaceId');
-    this.copyExternalProperty('fileId');
+    this.get('iframeInjectedProperties').forEach((propertyName) => {
+      this.copyExternalProperty(propertyName);
+    });
   },
 
   didInsertElement() {
     this._super(...arguments);
-    this.callParent('sayHello', 'world');
+    this.callParent('sayHello', 'Content file browser loaded');
   },
-
-  actions: {},
 });

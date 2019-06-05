@@ -19,17 +19,6 @@ module.exports = function (environment) {
         Date: false,
       },
     },
-    /**
-     * Objects in collection:
-     * - id: string
-     * - icon: string
-     * - [defaultAspect]: string
-     */
-    onedataTabs: [
-      { id: 'data', icon: 'folder', isDefault: true, allowIndex: true },
-      { id: 'shares', icon: 'menu-shared', allowIndex: true },
-      { id: 'transfers', icon: 'menu-transfers', allowIndex: true },
-    ],
     layoutConfig: {
       formLabelColumns: 'col-xs-12 col-sm-5',
       formInputColumns: 'col-xs-12 col-sm-7',
@@ -39,6 +28,10 @@ module.exports = function (environment) {
     },
     i18n: {
       defaultLocale: 'en',
+    },
+    validationConfig: {
+      minNameLength: 2,
+      maxNameLength: 50,
     },
     APP: {
       // Here you can pass flags/options to your application instance
@@ -60,6 +53,8 @@ module.exports = function (environment) {
   }
 
   if (environment === 'test') {
+    ENV.rootURL = '/';
+
     // Testem prefers this...
     ENV.locationType = 'none';
 

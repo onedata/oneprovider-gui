@@ -1,0 +1,11 @@
+// various styles used directly in routes templates
+
+.embedded-content {
+  position: absolute;
+  @include fill-container();
+  padding-top: $content-row-vertical-padding;
+  padding-right: $content-col-padding;
+  padding-bottom: $content-col-padding;
+  padding-left: $content-col-padding;
+  overflow: auto;
+}
