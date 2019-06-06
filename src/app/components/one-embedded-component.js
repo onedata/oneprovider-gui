@@ -11,6 +11,10 @@
  */
 
 import Component from '@ember/component';
+import {
+  sharedObjectName,
+  getSharedProperty,
+} from 'onedata-gui-common/utils/one-embedded-common';
 
 export default Component.extend({
   classNames: ['one-embedded-component'],
@@ -52,13 +56,13 @@ export default Component.extend({
     if (frameElement) {
       // notification of property change from parent will cause the property
       // value to be copied into this component instance
-      frameElement.appProxy.propertyChanged =
+      frameElement[sharedObjectName].propertyChanged =
         this.copyExternalProperty.bind(this);
 
       // create local callParent method that will simply invoke callParent
       // injected by parent frame
       this.callParent = function callParent() {
-        return frameElement.appProxy.callParent(...arguments);
+        return frameElement[sharedObjectName].callParent(...arguments);
       };
 
       // standard property injected by parent frame
@@ -93,7 +97,10 @@ export default Component.extend({
   copyExternalProperty(key) {
     return this.set(
       key,
-      this.get(`frameElement.appProxy.${key}`)
+      getSharedProperty(
+        this.get(`frameElement.${sharedObjectName}`),
+        key
+      )
     );
   },
 });
