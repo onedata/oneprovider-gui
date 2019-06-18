@@ -1,0 +1,19 @@
+{{!-- TODO: loading parent dirs --}}
+{{!-- TODO: collapsing --}}
+
+{{#each dirPath as |parentDir i|}}
+  <div class="fb-breadcrumbs-dir fb-breadcrumbs-element">
+    <a class="fb-breadcrumbs-dir-link azure" {{action "changeDir" parentDir}}>
+      {{#if (eq i 0)}}
+        <div class="inline-icon-container">
+          {{one-icon icon="home"}}          
+        </div>
+      {{else}}
+        {{parentDir.name}}
+      {{/if}}
+    </a>
+  </div>
+  <div class="fb-breadcrumbs-separator fb-breadcrumbs-element"></div>
+{{/each}}
+{{!-- TODO: with dropdown? --}}
+{{dir.name}}

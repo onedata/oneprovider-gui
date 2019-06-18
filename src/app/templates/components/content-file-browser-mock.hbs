@@ -1,0 +1,20 @@
+{{!-- {{file-browser
+  spaceId=spaceId
+  dirId=dirId
+  dirIdChanged=(action (mut dirId))
+}} --}}
+
+<div class="row content-row">
+  <h3>breadcrumbs</h3>
+  {{file-browser/fb-breadcrumbs
+    dir=dir
+  }}
+</div>
+
+<div class="row content-row">
+  <h3>toolbar</h3>
+  {{file-browser/fb-toolbar
+    dir=dir
+  }}
+</div>
+

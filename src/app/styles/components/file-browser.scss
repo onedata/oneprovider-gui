@@ -1,0 +1,39 @@
+.file-browser {
+  
+}
+
+.fb-toolbar {
+  display: block;
+  position: relative;
+  letter-spacing: 4px;
+  
+  .fb-toolbar-button {
+    display: inline-block;
+    font-size: 32px;
+    font-weight: bold;
+  }
+}
+
+.fb-breadcrumbs {
+  display: block;
+  position: relative;
+  
+  .fb-breadcrumbs-element {
+    display: inline-block;
+  }
+  .fb-breadcrumbs-dir {
+    .fb-breadcrumbs-dir-link {
+      
+    }
+  }
+  .fb-breadcrumbs-separator {
+    width: 0.8em;
+    &::before {
+      content: '/';
+      font-size: 1.2em;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%) translateX(0.1em);
+    }
+  }
+}

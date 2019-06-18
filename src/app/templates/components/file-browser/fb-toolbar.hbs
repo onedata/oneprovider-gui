@@ -1,0 +1,11 @@
+{{#each buttons as |button|}}
+  <div
+    {{action "buttonClicked" button.id}}
+    class="fb-toolbar-button {{if button.disabled "disabled"}} {{button.elementClass}}"
+    disabled={{button.disabled}}>
+    {{one-icon icon=button.icon}}
+    {{#if button.hint}}
+      {{one-tooltip title=button.hint}}
+    {{/if}}
+  </div>
+{{/each}}
