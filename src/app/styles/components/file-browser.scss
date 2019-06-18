@@ -37,3 +37,17 @@
     }
   }
 }
+
+.fb-table {
+  .fb-table-thead {
+    .fb-table-col-files {
+      text-align: left;
+    }
+  }
+  .fb-table-col-size {
+    width: 100px;
+  }
+  .fb-table-col-modification {
+    width: 200px;
+  }
+}

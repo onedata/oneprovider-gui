@@ -1,6 +1,17 @@
-{{file-browser/fb-table/fbt-header}}
-{{#each files as |file|}}
-  {{file-browser/fb-table/fbt-row
-    file=file
-  }}
-{{/each}}
+<table class="table one-table one-infinite-list">
+  <thead class="fb-table-thead">
+    <tr>
+      <th class="fb-table-col-files">{{tt this "header.files"}}</th>
+      <th class="fb-table-col-size">{{tt this "header.size"}}</th>
+      <th class="fb-table-col-modification">{{tt this "header.modification"}}</th>
+    </tr>
+  </thead>
+  <tbody class="fb-table-tbody">
+    {{!-- <tr class="first-row">
+      <td colspan="9999" style={{firstRowStyle}}></td>
+    </tr> --}}
+    {{#each filesArray as |file|}}
+      {{file-browser/fb-table-row file=file}}
+    {{/each}}
+  </tbody>
+</table>
