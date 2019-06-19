@@ -1,3 +1,11 @@
-{{file-browser/fb-breadcrumbs}}
-{{file-browser/fb-toolbar}}
-{{file-browser/fb-table}}
+<div class="row file-browser-head-container hidden-xs">
+  <div class="col-sm-6 fb-breadcrumbs-container">
+    {{file-browser/fb-breadcrumbs dir=dir}}
+  </div>
+  <div class="col-sm-6 text-right fb-toolbar-container">
+    {{file-browser/fb-toolbar dir=dir}}
+  </div>
+</div>
+<div class="fb-table-container">
+  {{file-browser/fb-table dir=dir}}
+</div>

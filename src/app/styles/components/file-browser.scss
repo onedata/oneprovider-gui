@@ -1,5 +1,10 @@
+$-file-browser-header-height: 45px;
+
 .file-browser {
-  
+  .file-browser-head-container {
+    height: $-file-browser-header-height;
+    line-height: $-file-browser-header-height;
+  }
 }
 
 .fb-toolbar {
@@ -11,6 +16,9 @@
     display: inline-block;
     font-size: 32px;
     font-weight: bold;
+    .one-icon {
+      line-height: $-file-browser-header-height;
+    }
   }
 }
 
@@ -26,6 +34,9 @@
       
     }
   }
+  .fb-breadcrumbs-dir-root .inline-icon-container .one-icon {
+    font-size: 210%;
+  }
   .fb-breadcrumbs-separator {
     width: 0.8em;
     &::before {
@@ -39,6 +50,12 @@
 }
 
 .fb-table {
+  @media (max-width: $screen-xs-max) {
+    .fb-table-col-size, .fb-table-col-modification {
+      display: none;
+    }
+  }
+  
   .fb-table-thead {
     .fb-table-col-files {
       text-align: left;
@@ -46,8 +63,25 @@
   }
   .fb-table-col-size {
     width: 100px;
+    text-align: center;
   }
   .fb-table-col-modification {
     width: 200px;
+    text-align: center;
+  }
+}
+
+.fb-table-row {
+  .file-name {
+    margin-left: 10px;
+  }
+  .file-icon-container .one-icon {
+    font-size: 200%;
+  }
+  &.fb-table-row-dir .file-icon {
+    color: $color-directory;
+  }
+  &.fb-table-row-file .file-icon {
+    color: $color-file;
   }
 }

@@ -12,7 +12,8 @@ export default Component.extend(I18n, {
 
   dir: undefined,
 
+  // TODO: replacing chunks array abstraction
   filesArray: computed('dir.children', function filesArray() {
-
+    return this.get('dir.children');
   }),
 });
