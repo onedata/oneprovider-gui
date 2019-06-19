@@ -84,4 +84,13 @@ $-file-browser-header-height: 45px;
   &.fb-table-row-file .file-icon {
     color: $color-file;
   }
+  // FIXME: something here is wrong it should be positioned without these special
+  // classes
+  .actions-toolbar-file {
+    @include vertical-align-middle;
+    right: 0;
+    .collapsible-toolbar-toggle {
+      padding: 6px;
+    }
+  }
 }

@@ -3,6 +3,15 @@
     {{one-icon icon=icon class="file-icon"}}
   </div>
   <span class="file-name">{{displayName}}</span>
+  {{!-- FIXME: context for file actions (other for dir etc.) --}}
+  {{actions-toolbar
+    isMinimized=true
+    toolbarClasses="actions-toolbar-file"
+    toolbarToggleClasses="btn-menu-toggle"
+    dropdownPlacement="auto"
+    actionsArray=fileActions.buttons
+    actionsArg=index
+  }}
 </td>
 <td class="fb-table-col-size">
   {{bytes-to-string file.size}}

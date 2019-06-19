@@ -1,3 +1,9 @@
+// FIXME: define everything with variables
+
+$screen-sm: def-screenSm() - 250px;
+$screen-md: def-screenMd() - 250px + 63px;
+$screen-lg: def-screenLg() - 325px + 63px;
+
 @import 'onedata-gui-common';
 
 @import 'layout';

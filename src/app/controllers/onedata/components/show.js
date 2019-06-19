@@ -3,7 +3,7 @@ import { computed } from '@ember/object';
 
 export default Controller.extend({
   originInfo: computed(function originInfo() {
-    return `Cluster ID: ${/https:\/\/.*?\/opw\/(.*?)\/.*/.exec(location.href)[1]
-      }`;
+    const m = /https:\/\/.*?\/opw\/(.*?)\/.*/.exec(location.href);
+    return m && `Cluster ID: ${m[1]}`;
   }),
 });
