@@ -1,6 +1,6 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -12,8 +12,148 @@ export default Component.extend(I18n, {
 
   dir: undefined,
 
+  /**
+   * @virtual
+   */
+  selectedFiles: undefined,
+
+  lastSelectedFile: undefined,
+
   // TODO: replacing chunks array abstraction
   filesArray: computed('dir.children', function filesArray() {
     return this.get('dir.children');
   }),
+
+  clearFilesSelection() {
+    this.get('selectedFiles').clear();
+  },
+
+  /**
+   * Do something if user clicks on a file. Consider modifier keys
+   * @param {object} file
+   * @param {boolean} ctrlKey
+   * @param {boolean} shiftKey
+   * @returns {undefined}
+   */
+  fileClicked(file, ctrlKey, shiftKey) {
+    /** @type {Array<object>} */
+    const selectedFiles = this.get('selectedFiles');
+    const selectedCount = get(selectedFiles, 'length');
+    const fileIsSelected = selectedFiles.includes(file);
+    const otherFilesSelected = selectedCount > (fileIsSelected ? 1 : 0);
+    if (otherFilesSelected) {
+      if (fileIsSelected) {
+        if (ctrlKey) {
+          this.selectRemoveSingleFile(selectedFiles, file);
+        } else {
+          this.selectOnlySingleFile(selectedFiles, file);
+        }
+      } else {
+        if (ctrlKey) {
+          this.selectAddSingleFile(selectedFiles, file);
+        } else {
+          if (shiftKey) {
+            this.selectRangeToFile(file);
+          } else {
+            this.selectOnlySingleFile(selectedFiles, file);
+          }
+        }
+      }
+    } else {
+      if (fileIsSelected) {
+        this.selectRemoveSingleFile(selectedFiles, file);
+      } else {
+        this.selectAddSingleFile(selectedFiles, file);
+      }
+    }
+  },
+
+  selectRemoveSingleFile(selectedFiles, file) {
+    selectedFiles.removeObject(file);
+    this.set('lastSelectedFile', null);
+  },
+
+  selectAddSingleFile(selectedFiles, file) {
+    selectedFiles.pushObject(file);
+    this.set('lastSelectedFile', file);
+  },
+
+  selectOnlySingleFile(selectedFiles, file) {
+    this.clearFilesSelection(selectedFiles, file);
+    this.selectAddSingleFile(selectedFiles, file);
+  },
+
+  /**
+   * Select files range using shift.
+   * Use nearest selected file as range start.
+   * @param {File} file
+   * @returns {undefined}
+   */
+  selectRangeToFile(file) {
+    let { filesArray, selectedFiles, lastSelectedFile } = this.getProperties(
+      'selectedFiles',
+      'filesArray',
+      'lastSelectedFile'
+    );
+    let fileIndex = filesArray.indexOf(file);
+
+    let startIndex;
+    if (lastSelectedFile) {
+      startIndex = filesArray.indexOf(lastSelectedFile);
+    } else {
+      startIndex = this.findNearestSelectedIndex(fileIndex);
+    }
+
+    let indexA = Math.min(startIndex, fileIndex);
+    let indexB = Math.max(startIndex, fileIndex);
+    selectedFiles.addObjects(filesArray.slice(indexA, indexB + 1));
+  },
+
+  findNearestSelectedIndex(fileIndex) {
+    let { visibleFiles, selectedFiles } =
+    this.getProperties('visibleFiles', 'selectedFiles');
+
+    // [index: Number, distanceFromFile: Number]
+    let selectedFilesIndexes = selectedFiles.map(sf => {
+      let index = visibleFiles.indexOf(sf);
+      return [index, Math.abs(index - fileIndex)];
+    });
+    let nearest = selectedFilesIndexes.reduce((prev, current) => {
+      return current[1] < prev[1] ? current : prev;
+    }, [-1, Infinity]);
+    let [nearestIndex, nearestDist] = nearest;
+    if (nearestDist === Infinity) {
+      nearestIndex = fileIndex;
+    }
+    return nearestIndex;
+  },
+
+  actions: {
+    openContextMenu(contextmenuEvent) {
+      const { clientX, clientY } = contextmenuEvent;
+      this.$('.file-actions-trigger').css({
+        top: clientY,
+        left: clientX,
+      });
+      this.actions.toggleFileActions.bind(this)(true);
+    },
+    toggleFileActions(open) {
+      this.set('fileActionsOpen', open);
+    },
+
+    /**
+     * @param {object} file 
+     * @param {MouseEvent} clickEvent
+     * @returns {any} result of this.fileClicked
+     */
+    fileClicked(file, clickEvent) {
+      const { ctrlKey, metaKey, shiftKey } = clickEvent;
+      return this.fileClicked(
+        file,
+        ctrlKey || metaKey,
+        shiftKey
+      );
+      // this.get('selectedFiles')[selected ? 'add' : 'delete'](file);
+    },
+  },
 });

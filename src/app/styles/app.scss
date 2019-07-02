@@ -1,19 +1,20 @@
-// FIXME: define everything with variables
-
-$screen-sm: def-screenSm() - 250px;
-$screen-md: def-screenMd() - 250px + 63px;
-$screen-lg: def-screenLg() - 325px + 63px;
-
 @import 'onedata-gui-common';
 
 @import 'layout';
 @import 'components/file-browser';
 
-// TODO: remove when development ends
+// FIXME: remove when development ends
 
 .oneprovider-origin-info {
   position: fixed;
   right: 10px;
+  bottom: 10px;
+  opacity: 0.5;
+}
+
+.breakpoint-test {
+  position: fixed;
+  left: 10px;
   bottom: 10px;
   opacity: 0.5;
 }

@@ -1,107 +1,68 @@
 import Service from '@ember/service';
-import { computed } from '@ember/object';
-import { collect } from '@ember/object/computed';
 
 export default Service.extend({
-  btnNewDir: computed(function btnNewDir() {
-    return {
-      action: () => {},
-      title: 'Create new directory',
-      icon: 'browser-new-directory',
-    };
-  }),
+  // #region Actions implementation
 
-  btnShare: computed(function btnShare() {
-    return {
-      action: () => {},
-      title: 'Share element',
-      icon: 'browser-share',
-    };
-  }),
+  actUpload( /* files */ ) {
+    alert('upload');
+  },
 
-  btnMetadata: computed(function btnMetadata() {
-    return {
-      action: () => {},
-      title: 'Show element metadata',
-      icon: 'browser-metadata',
-    };
-  }),
+  actNewDirectory( /* files */ ) {
+    alert('new directory');
+  },
 
-  btnInfo: computed(function btnInfo() {
-    return {
-      action: () => {},
-      title: 'Show element info',
-      icon: 'browser-info',
-    };
-  }),
+  actInfo(files) {
+    alert('info: ' + files);
+  },
 
-  btnRename: computed(function btnRename() {
-    return {
-      action: () => {},
-      title: 'Rename element',
-      icon: 'browser-rename',
-    };
-  }),
+  actShare(files) {
+    alert('share: ' + files);
+  },
 
-  btnPermissions: computed(function btnPermissions() {
-    return {
-      action: () => {},
-      title: 'Show element permissions',
-      icon: 'browser-permissions',
-    };
-  }),
+  actMetadata(files) {
+    alert('metadata: ' + files);
+  },
 
-  btnCopy: computed(function btnCopy() {
-    return {
-      action: () => {},
-      title: 'Copy element',
-      icon: 'browser-copy',
-    };
-  }),
+  actPermissions(files) {
+    alert('permissions: ' + files);
+  },
 
-  btnCut: computed(function btnCut() {
-    return {
-      action: () => {},
-      title: 'Cut element',
-      icon: 'browser-cut',
-    };
-  }),
+  actDistribution(files) {
+    alert('distribution: ' + files);
+  },
 
-  btnDelete: computed(function btnDelete() {
-    return {
-      action: () => {},
-      title: 'Delete element',
-      icon: 'browser-delete',
-    };
-  }),
+  actRename(files) {
+    alert('rename: ' + files);
+  },
 
-  btnDistribution: computed(function btnDistribution() {
-    return {
-      action: () => {},
-      title: 'Show data distribution',
-      icon: 'browser-distribution',
-    };
-  }),
+  actCopy(files) {
+    alert('copy: ' + files);
+  },
 
-  btnUpload: computed(function btnUpload() {
-    return {
-      action: () => {},
-      title: 'Upload files',
-      icon: 'browser-upload',
-    };
-  }),
+  actCut(files) {
+    alert('cut: ' + files);
+  },
 
-  buttons: collect(
-    'btnNewDir',
-    'btnShare',
-    'btnMetadata',
-    'btnInfo',
-    'btnRename',
-    'btnPermissions',
-    'btnCopy',
-    'btnCut',
-    'btnDelete',
-    'btnDistribution',
-    'btnUpload',
-  ),
+  actDelete(files) {
+    alert('delete: ' + files);
+  },
+
+  // #endregion
+
+  // FIXME: old order, just to remember and remove in production
+  // buttons: collect(
+  //   'btnUpload',
+  //   'btnNewDir',
+  //   'separator',
+  //   'btnInfo',
+  //   'btnShare',
+  //   'btnMetadata',
+  //   'btnPermissions',
+  //   'btnDistribution',
+  //   'separator',
+  //   'btnRename',
+  //   'btnCopy',
+  //   'btnCut',
+  //   'btnDelete',
+  // ),
 });

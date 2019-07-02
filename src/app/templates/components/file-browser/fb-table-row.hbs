@@ -1,17 +1,45 @@
 <td class="fb-table-col-files">
-  <div class="inline-icon-container file-icon-container">
-    {{one-icon icon=icon class="file-icon"}}
+  <div class="file-info-container">
+    
+    <div class="inline-icon-container file-icon-container">
+      {{one-icon icon=icon class="file-icon"}}
+    </div>
+    <div class="file-name">
+      {{#truncated-string}}
+        {{displayName}}
+      {{/truncated-string}}
+    </div>
+    
+    {{!-- FIXME: maybe common component for dots trigger --}}
+    {{!-- {{#render-later triggerRender=mouseOver}}
+      <div class="menu-toggle -on-hover" onclick={{disable-bubbling (action "toggleActions")}}>
+        <div class="icon-dot"></div>
+        <div class="icon-dot"></div>
+        <div class="icon-dot"></div>
+      </div>
+    {{/render-later}} --}}
+
+    {{!-- optimization: rendering actions popover on user click instead of rendering it on init --}}
+    {{!-- {{#render-later triggerRender=actionsOpened}}
+      {{#one-webui-popover
+        class="line-actions"
+        popoverStyle="with-dropdown"
+        padding=false
+        triggerSelector=(concat ".actions-relation-" elementId)
+        open=actionsOpened
+        onToggle=(action "toggleActions")
+      }}
+        {{#click-outside action=(action "toggleActions" false) except-selector=(concat ".actions-relation-" elementId)}}
+          {{actions-popover-content
+            actionsArray=relationActions
+            actionClicked=(action "toggleActions" false)
+            class="groups-hierarchy-visualiser-actions"}}
+        {{/click-outside}}
+      {{/one-webui-popover}}
+    {{/render-later}} --}}
+    
+    
   </div>
-  <span class="file-name">{{displayName}}</span>
-  {{!-- FIXME: context for file actions (other for dir etc.) --}}
-  {{actions-toolbar
-    isMinimized=true
-    toolbarClasses="actions-toolbar-file"
-    toolbarToggleClasses="btn-menu-toggle"
-    dropdownPlacement="auto"
-    actionsArray=fileActions.buttons
-    actionsArg=index
-  }}
 </td>
 <td class="fb-table-col-size">
   {{bytes-to-string file.size}}

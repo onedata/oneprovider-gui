@@ -11,7 +11,28 @@
       <td colspan="9999" style={{firstRowStyle}}></td>
     </tr> --}}
     {{#each filesArray as |file|}}
-      {{file-browser/fb-table-row file=file}}
+      {{file-browser/fb-table-row
+        file=file
+        isSelected=(contains file selectedFiles)
+        click=(action "fileClicked" file)
+        openContextMenu=(action "openContextMenu")
+      }}
     {{/each}}
   </tbody>
 </table>
+{{!-- TODO: trigger selector for multiple file tables --}}
+{{#one-webui-popover
+  class="file-actions-popover"
+  popoverStyle="with-dropdown"
+  padding=false
+  triggerSelector=(concat "#" elementId " .file-actions-trigger")
+  open=fileActionsOpen
+}}
+  {{#click-outside action=(action "toggleFileActions" false)}}
+    {{actions-popover-content
+      actionsArray=selectedFilesActions
+      __actionClicked=(action "toggleFileActions" false)
+      class="file-actions"}}
+  {{/click-outside}}
+{{/one-webui-popover}}
+<div class="file-actions-trigger"></div>

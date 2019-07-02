@@ -11,11 +11,17 @@ $-file-browser-header-height: 45px;
   display: block;
   position: relative;
   letter-spacing: 4px;
+  user-select: none;
   
   .fb-toolbar-button {
     display: inline-block;
     font-size: 32px;
     font-weight: bold;
+    &[disabled], &.disabled {
+      cursor: default;
+      pointer-events: none;
+      color: $main-text-color-disabled;
+    }
     .one-icon {
       line-height: $-file-browser-header-height;
     }
@@ -55,7 +61,6 @@ $-file-browser-header-height: 45px;
       display: none;
     }
   }
-  
   .fb-table-thead {
     .fb-table-col-files {
       text-align: left;
@@ -69,11 +74,34 @@ $-file-browser-header-height: 45px;
     width: 200px;
     text-align: center;
   }
+  // FIXME: do not block clicks; 0x0
+  .file-actions-trigger {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+  }
 }
 
 .fb-table-row {
-  .file-name {
-    margin-left: 10px;
+  &.file-selected {
+    background-color: $color-file-selected;
+  }
+  .fb-table-col-files {
+    .file-info-container {
+      // display: flex;
+      .file-icon-container, .file-name {
+        // display: inline-flex;
+      }
+      .file-name {
+        padding-left: 10px;
+        .truncated-string {
+          max-width: calc(100% - 100px);
+        }
+      }
+    }
   }
   .file-icon-container .one-icon {
     font-size: 200%;
@@ -89,7 +117,7 @@ $-file-browser-header-height: 45px;
   .actions-toolbar-file {
     @include vertical-align-middle;
     right: 0;
-    .collapsible-toolbar-toggle {
+    .menu-toggle {
       padding: 6px;
     }
   }
