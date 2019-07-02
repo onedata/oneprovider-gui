@@ -1,10 +1,13 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
 import File from 'oneprovider-gui/models/file';
 import _ from 'lodash';
 
 export default Component.extend({
   classNames: ['file-browser'],
+
+  uploadingManager: service(),
 
   dir: computed(function dir() {
     return File.create({
@@ -40,4 +43,19 @@ export default Component.extend({
       ],
     });
   }),
+
+  didInsertElement() {
+    this._super(...arguments);
+
+    const {
+      element,
+      uploadingManager,
+    } = this.getProperties('element', 'uploadingManager');
+
+    const uploadingDropElement = element.querySelector('.fb-table-container');
+    uploadingManager.assignUploadingDrop(uploadingDropElement);
+
+    const uploadingBrowseElement = element.querySelector('.browser-upload');
+    uploadingManager.assignUploadingBrowse(uploadingBrowseElement);
+  },
 });

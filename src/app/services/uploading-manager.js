@@ -1,5 +1,6 @@
-import Service from '@ember/service';
-import { computed } from '@ember/object';
+import Service, { inject as service } from '@ember/service';
+import { computed, observer, get, getProperties } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import Resumable from 'npm:resumablejs';
 import { v4 as uuidV4 } from 'ember-uuid';
 import { resolve } from 'rsvp';
@@ -12,11 +13,18 @@ import { resolve } from 'rsvp';
 // - startNewUploadSession method
 
 export default Service.extend({
+  appProxy: service(),
+
   /**
    * Id of directory where files should be uploaded
    * @type {string}
    */
   targetDirectoryId: undefined,
+
+  /**
+   * @type {Ember.ComputedProperty<Object>}
+   */
+  injectedUploadState: reads('appProxy.injectedData.uploadingFiles'),
 
   resumable: computed(function resumable() {
     const oneproviderApiOrigin = '???';
@@ -26,6 +34,7 @@ export default Service.extend({
       chunkSize: 1 * 1024 * 1024,
       simultaneousUploads: 4,
       testChunks: false,
+      minFileSize: 0,
       throttleProgressCallbacks: 1,
       permanentErrors: [400, 404, 405, 415, 500, 501],
       headers: {
@@ -43,6 +52,30 @@ export default Service.extend({
     });
   }),
 
+  injectedUploadStateObserver: observer(
+    'injectedUploadState',
+    function injectedUploadStateObserver() {
+      const {
+        injectedUploadState,
+        resumable,
+      } = this.getProperties('injectedUploadState', 'resumable');
+
+      if (injectedUploadState) {
+        // cancel all uploads, that are not present in injected list
+        get(resumable, 'files')
+          .reject(resumableFile => {
+            const {
+              uploadId,
+              relativePath,
+            } = getProperties(resumableFile, 'uploadId', 'relativePath');
+            const upload = injectedUploadState[uploadId];
+            return upload && get(upload, 'files').findBy('path', relativePath);
+          })
+          .invoke('cancel');
+      }
+    }
+  ),
+
   init() {
     this._super(...arguments);
 
@@ -51,6 +84,8 @@ export default Service.extend({
     resumable.on('fileProgress', (...args) => this.fileUploadProgress(...args));
     resumable.on('fileSuccess', (file) => this.fileUploadSuccess(file));
     resumable.on('fileError', (file) => this.fileUploadFailure(file));
+
+    this.injectedUploadStateObserver();
   },
 
   /**
@@ -72,15 +107,12 @@ export default Service.extend({
             size: file.size,
           })),
         };
-        // TODO notify OZ
-        console.log(notifyObject);
+        this.notifyParent(notifyObject, 'addNewUpload');
       })
       .catch((/* error */) => {
         files.invoke('cancel');
         // TODO global-notify with error
-      });   
-    console.log('filesAdded');
-    console.log(arguments);
+      });
   },
 
   /**
@@ -97,7 +129,7 @@ export default Service.extend({
         path: file.relativePath,
         bytesUploaded: Math.floor(file.progress() * file.size),
       };
-      console.log(notifyObject);
+      this.notifyParent(notifyObject);
     }
   },
 
@@ -112,7 +144,7 @@ export default Service.extend({
       path: file.relativePath,
       bytesUploaded: file.size,
     };
-    console.log(notifyObject);
+    this.notifyParent(notifyObject);
   },
 
   /**
@@ -127,7 +159,7 @@ export default Service.extend({
       path: file.relativePath,
       error: message,
     };
-    console.log(notifyObject);
+    this.notifyParent(notifyObject);
   },
 
   /**
@@ -140,7 +172,7 @@ export default Service.extend({
   },
 
   /**
-   * Makes `dropElement` a target for browse upload
+   * Makes `browseElement` a target for browse upload
    * @param {HTMLElement} browseElement
    * @return {undefined}
    */
@@ -163,5 +195,9 @@ export default Service.extend({
    */
   changeTargetDirectoryId(targetDirectoryId) {
     this.set('targetDirectoryId', targetDirectoryId);
+  },
+
+  notifyParent(notifyObject, method = 'updateUploadProgress') {
+    this.get('appProxy').callParent(method, notifyObject);
   },
 });

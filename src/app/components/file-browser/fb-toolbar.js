@@ -86,6 +86,8 @@ export default Component.extend({
 
   btnUpload: computed(function btnUpload() {
     return {
+      id: 'browser-upload',
+      elementClass: 'browser-upload',
       hint: 'Upload files',
       icon: 'browser-upload',
     };
@@ -107,7 +109,9 @@ export default Component.extend({
 
   actions: {
     buttonClicked(buttonId) {
-      this.get('buttonClicked')(buttonId);
+      if (buttonId !== 'browser-upload') {
+        this.get('buttonClicked')(buttonId);
+      }
     },
   },
 });
