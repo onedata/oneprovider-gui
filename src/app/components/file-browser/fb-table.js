@@ -1,6 +1,8 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed } from '@ember/object';
+import { isContextMenuOpened } from 'oneprovider-gui/components/file-browser';
+import { later } from '@ember/runloop';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -14,6 +16,17 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  getActions: undefined,
+
+  /**
+   * @virtual
+   */
+  selectionContext: undefined,
+
+  /**
+   * @virtual
    */
   selectedFiles: undefined,
 
@@ -22,6 +35,12 @@ export default Component.extend(I18n, {
   // TODO: replacing chunks array abstraction
   filesArray: computed('dir.children', function filesArray() {
     return this.get('dir.children');
+  }),
+
+  contextMenuButtons: computed('selectionContext', function buttons() {
+    const selectionContext = this.get('selectionContext');
+    const getActions = this.get('getActions');
+    return getActions(selectionContext);
   }),
 
   clearFilesSelection() {
@@ -36,6 +55,11 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   fileClicked(file, ctrlKey, shiftKey) {
+    // do not change selection if only clicking to close context menu
+    if (isContextMenuOpened()) {
+      return;
+    }
+
     /** @type {Array<object>} */
     const selectedFiles = this.get('selectedFiles');
     const selectedCount = get(selectedFiles, 'length');
@@ -129,16 +153,21 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    openContextMenu(contextmenuEvent) {
+    // FIXME: allow to right click and open new menu when there is already opened
+    openContextMenu(file, contextmenuEvent) {
+      const selectedFiles = this.get('selectedFiles');
+      if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
+        this.selectOnlySingleFile(selectedFiles, file);
+      }
       const { clientX, clientY } = contextmenuEvent;
       this.$('.file-actions-trigger').css({
         top: clientY,
         left: clientX,
       });
-      this.actions.toggleFileActions.bind(this)(true);
+      this.actions.toggleFileActions.bind(this)(true, file);
     },
-    toggleFileActions(open) {
-      this.set('fileActionsOpen', open);
+    toggleFileActions(open, file) {
+      this.set('fileActionsOpen', open, file);
     },
 
     /**

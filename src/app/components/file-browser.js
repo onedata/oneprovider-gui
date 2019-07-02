@@ -7,8 +7,9 @@ import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
+import { hash } from 'ember-awesome-macros';
 
-const actionContext = {
+export const actionContext = {
   none: 'none',
   inDir: 'inDir',
   singleDir: 'singleDir',
@@ -19,6 +20,12 @@ const actionContext = {
   desktopToolbar: 'desktopToolbar',
 };
 
+export function isContextMenuOpened() {
+  return Boolean(document.querySelector(
+    '.webui-popover.in .file-actions-popover'
+  ));
+}
+
 const anySelected = [
   actionContext.singleDir,
   actionContext.singleFile,
@@ -27,8 +34,23 @@ const anySelected = [
   actionContext.multiMixed,
 ];
 
+const buttonNames = [
+  'btnUpload',
+  'btnNewDirectory',
+  'btnInfo',
+  'btnShare',
+  'btnMetadata',
+  'btnPermissions',
+  'btnDistribution',
+  'btnRename',
+  'btnCopy',
+  'btnCut',
+  'btnDelete',
+];
+
 export default Component.extend(I18n, {
   i18n: service(),
+  fileActions: service(),
   classNames: ['file-browser'],
 
   /**
@@ -107,19 +129,9 @@ export default Component.extend(I18n, {
 
   // #region Action buttons
 
-  allButtons: collect(
-    'btnUpload',
-    'btnNewDirectory',
-    'btnInfo',
-    'btnShare',
-    'btnMetadata',
-    'btnPermissions',
-    'btnDistribution',
-    'btnRename',
-    'btnCopy',
-    'btnCut',
-    'btnDelete',
-  ),
+  allButtonsArray: collect(...buttonNames),
+
+  allButtonsHash: hash(...buttonNames),
 
   btnUpload: computed(function btnUpload() {
     return this.createFileAction({
@@ -218,12 +230,45 @@ export default Component.extend(I18n, {
 
   // #endregion
 
+  init() {
+    this._super(...arguments);
+    this.set('selectedFiles', A());
+  },
+
+  clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
+    const component = this;
+    return function clickOutsideDeselect(mouseEvent) {
+      if (!isContextMenuOpened() &&
+        !mouseEvent.target.matches(
+          '.fb-table-row *, .fb-breadcrumbs-dir *, .fb-toolbar-button *')) {
+        component.clearFilesSelection();
+      }
+    };
+  }),
+
+  didInsertElement() {
+    this._super(...arguments);
+    document.body.addEventListener(
+      'click',
+      this.get('clickOutsideDeselectHandler')
+    );
+  },
+
+  willDestroyElement() {
+    this._super(...arguments);
+    document.body.removeEventListener(
+      'click',
+      this.get('clickOutsideDeselectHandler')
+    );
+  },
+
   // FIXME: invoke with selected files
   createFileAction(actionProto) {
     const id = get(actionProto, 'id');
+    const fileActions = this.get('fileActions');
     return Object.assign({
       action: () => {
-        return this[camelize(`act-${id}`)](this.get(''));
+        return fileActions[camelize(`act-${id}`)](this.get('selectedFiles'));
       },
       icon: `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
@@ -231,14 +276,14 @@ export default Component.extend(I18n, {
     }, actionProto);
   },
 
+  // FIXME: move to util or something
   getActions(context) {
-    const allButtons = this.get('allButtons');
-    return allButtons.filter(btn => get(btn, 'showIn').includes(context));
+    const allButtonsArray = this.get('allButtonsArray');
+    return allButtonsArray.filter(btn => get(btn, 'showIn').includes(context));
   },
 
-  init() {
-    this._super(...arguments);
-    this.set('selectedFiles', A());
+  clearFilesSelection() {
+    this.get('selectedFiles').clear();
   },
 
   actions: {

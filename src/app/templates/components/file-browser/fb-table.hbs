@@ -15,7 +15,7 @@
         file=file
         isSelected=(contains file selectedFiles)
         click=(action "fileClicked" file)
-        openContextMenu=(action "openContextMenu")
+        openContextMenu=(action "openContextMenu" file)
       }}
     {{/each}}
   </tbody>
@@ -30,9 +30,10 @@
 }}
   {{#click-outside action=(action "toggleFileActions" false)}}
     {{actions-popover-content
-      actionsArray=selectedFilesActions
+      actionsArray=contextMenuButtons
       __actionClicked=(action "toggleFileActions" false)
-      class="file-actions"}}
+      class="file-actions"
+    }}
   {{/click-outside}}
 {{/one-webui-popover}}
 <div class="file-actions-trigger"></div>
