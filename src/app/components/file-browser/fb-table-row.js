@@ -56,6 +56,16 @@ export default Component.extend({
     };
   }),
 
+  hideMenuTrigger: computed(
+    'selectionContext',
+    'isSelected',
+    function hideMenuTrigger() {
+      const isSelected = this.get('isSelected');
+      const selectionContext = this.get('selectionContext');
+      return isSelected && selectionContext.startsWith('multi');
+    }
+  ),
+
   didInsertElement() {
     this._super(...arguments);
     this.element.addEventListener('contextmenu', this.get('contextMenuHandler'));
@@ -84,6 +94,9 @@ export default Component.extend({
     toggleActions(open) {
       const actionsOpen = (open === undefined) ? !this.get('actionsOpened') : open;
       this.set('actionsOpened', actionsOpen);
+    },
+    openContextMenu() {
+      this.openContextMenu(...arguments);
     },
   },
 });

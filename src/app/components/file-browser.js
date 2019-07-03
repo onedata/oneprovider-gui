@@ -67,6 +67,7 @@ export default Component.extend(I18n, {
   dir: computed(function dir() {
     return File.create({
       id: this.get('dirId'),
+      entityId: '1',
       name: 'My directory',
       size: 350000000,
       modificationTime: Date.now(),
@@ -76,21 +77,25 @@ export default Component.extend(I18n, {
       permissions: 0o644,
       parent: null,
       children: [{
+          entityId: '2',
           name: lipsum,
           size: 29311232312312,
           type: 'file',
         },
         {
+          entityId: '3',
           name: 'Some directory',
           size: 29311232312312,
           type: 'dir',
         },
         {
+          entityId: '4',
           name: 'Other directory',
           size: 29311232312312,
           type: 'dir',
         },
         ..._.range(1, 10).map(i => ({
+          entityId: String(i + 4),
           name: `File ${i}`,
           size: 3000000 * i,
           type: 'file',

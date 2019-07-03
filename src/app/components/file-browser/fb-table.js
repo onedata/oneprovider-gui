@@ -3,6 +3,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed } from '@ember/object';
 import { isContextMenuOpened } from 'oneprovider-gui/components/file-browser';
 import { reads } from '@ember/object/computed';
+import $ from 'jquery';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -153,15 +154,26 @@ export default Component.extend(I18n, {
 
   actions: {
     // FIXME: allow to right click and open new menu when there is already opened
-    openContextMenu(file, contextmenuEvent) {
+    openContextMenu(file, mouseEvent) {
       const selectedFiles = this.get('selectedFiles');
       if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
         this.selectOnlySingleFile(selectedFiles, file);
       }
-      const { clientX, clientY } = contextmenuEvent;
+      let left;
+      let top;
+      const trigger = mouseEvent.currentTarget;
+      if (trigger.matches('.one-menu-toggle')) {
+        const $trigger = $(trigger);
+        const toggleOffset = $trigger.offset();
+        left = toggleOffset.left + trigger.clientWidth / 2;
+        top = toggleOffset.top + trigger.clientHeight / 2;
+      } else {
+        left = mouseEvent.clientX;
+        top = mouseEvent.clientY;
+      }
       this.$('.file-actions-trigger').css({
-        top: clientY,
-        left: clientX,
+        top,
+        left,
       });
       this.actions.toggleFileActions.bind(this)(true, file);
     },

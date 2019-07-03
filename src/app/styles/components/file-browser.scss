@@ -79,6 +79,14 @@ $-file-browser-header-height: 45px;
     width: 200px;
     text-align: center;
   }
+  .fb-table-col-actions-menu {
+    position: relative;
+    width: 40px;
+    padding: 0;
+    .file-row-actions-trigger {
+      @include vertical-align-middle;
+    }
+  }
   // FIXME: do not block clicks; 0x0
   .file-actions-trigger {
     position: fixed;
