@@ -25,7 +25,7 @@ export const actionContext = {
 
 export function isContextMenuOpened() {
   return Boolean(document.querySelector(
-    '.webui-popover.in .file-actions-popover'
+    '.webui-popover.in'
   ));
 }
 
@@ -243,7 +243,7 @@ export default Component.extend(I18n, {
     return function clickOutsideDeselect(mouseEvent) {
       if (!isContextMenuOpened() &&
         !mouseEvent.target.matches(
-          '.fb-table-row *, .fb-breadcrumbs-dir *, .fb-toolbar-button *')) {
+          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *')) {
         component.clearFilesSelection();
       }
     };

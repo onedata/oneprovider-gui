@@ -19,4 +19,7 @@ export default {
       modification: 'Modification',
     },
   },
+  fbToolbar: {
+    moreTools: 'More tools',
+  },
 };

@@ -16,6 +16,7 @@ $-file-browser-header-height: 45px;
   .fb-toolbar-button {
     display: inline-block;
     font-size: 32px;
+    height: 32px;
     font-weight: bold;
     &[disabled], &.disabled {
       cursor: default;
@@ -116,11 +117,11 @@ $-file-browser-header-height: 45px;
   }
   // FIXME: something here is wrong it should be positioned without these special
   // classes
-  .actions-toolbar-file {
-    @include vertical-align-middle;
-    right: 0;
-    .menu-toggle {
-      padding: 6px;
-    }
-  }
+  // .actions-toolbar-file {
+  //   @include vertical-align-middle;
+  //   right: 0;
+  //   .menu-toggle {
+  //     padding: 6px;
+  //   }
+  // }
 }

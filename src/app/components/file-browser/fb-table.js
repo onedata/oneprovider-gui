@@ -16,12 +16,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Function}
-   */
-  getActions: undefined,
-
-  /**
-   * @virtual
    */
   selectionContext: undefined,
 
@@ -40,10 +34,13 @@ export default Component.extend(I18n, {
   visibleFiles: reads('filesArray'),
 
   contextMenuButtons: computed('selectionContext', function buttons() {
-    const selectionContext = this.get('selectionContext');
-    const getActions = this.get('getActions');
-    return getActions(selectionContext);
+    return this.getButtonActions(this.get('selectionContext'));
   }),
+
+  getButtonActions(context) {
+    return this.get('allButtonsArray')
+      .filter(b => get(b, 'showIn').includes(context));
+  },
 
   clearFilesSelection() {
     this.get('selectedFiles').clear();

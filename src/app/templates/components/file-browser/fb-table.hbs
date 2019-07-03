@@ -31,7 +31,7 @@
   {{#click-outside action=(action "toggleFileActions" false)}}
     {{actions-popover-content
       actionsArray=contextMenuButtons
-      __actionClicked=(action "toggleFileActions" false)
+      actionClicked=(action "toggleFileActions" false)
       class="file-actions"
     }}
   {{/click-outside}}

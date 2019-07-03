@@ -1,12 +1,42 @@
-{{#each toolbarButtons as |button|}}
-  <div
-    onclick={{action "buttonClicked" button}}
-    class="fb-toolbar-button {{if button.disabled "disabled"}} {{button.elementClass}}"
-    disabled={{button.disabled}}
-  >
-    {{one-icon icon=button.icon}}
-    {{#if button.title}}
-      {{one-tooltip title=button.title}}
-    {{/if}}
-  </div>
-{{/each}}
+<div class="toolbar-buttons">
+  {{#each toolbarButtons as |button|}}
+    <div
+      onclick={{action "buttonClicked" button}}
+      class="fb-toolbar-button {{if button.disabled "disabled"}} {{button.elementClass}}"
+      disabled={{button.disabled}}
+    >
+      {{#one-icon icon=button.icon}}
+        {{#if button.title}}
+          {{one-tooltip title=button.title}}
+        {{/if}}
+      {{/one-icon}}
+    </div>
+  {{/each}}
+  
+  {{#one-menu-toggle
+    class="fb-toolbar-button more-file-actions-trigger"
+    disabled=moreMenuDisabled
+    click=(unless menuDisabled (disable-bubbling (action "toggleMoreTools" true)))
+  }}
+    {{#unless moreToolsOpen}}
+      {{one-tooltip title=(tt this "moreTools")}}
+    {{/unless}}
+  {{/one-menu-toggle}}
+  
+  {{#one-webui-popover
+    class="toolbar-more-file-actions-popover"
+    popoverStyle="with-dropdown"
+    padding=false
+    triggerSelector=(concat "#" elementId " .more-file-actions-trigger")
+    open=moreToolsOpen
+    popoverTrigger="manual"
+  }}
+    {{#click-outside action=(action "toggleMoreTools" false)}}
+      {{actions-popover-content
+        actionsArray=moreMenuButtons
+        actionClicked=(action "toggleMoreTools" false)
+        class="toolbar-more-file-actions"
+      }}
+    {{/click-outside}}
+  {{/one-webui-popover}}
+</div>
