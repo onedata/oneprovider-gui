@@ -66,6 +66,10 @@ $-file-browser-header-height: 45px;
       text-align: left;
     }
   }
+  .fb-table-col-files {
+    // enables text truncate inside
+    max-width: 0;
+  }
   .fb-table-col-size {
     width: 100px;
     text-align: center;
@@ -86,20 +90,18 @@ $-file-browser-header-height: 45px;
 }
 
 .fb-table-row {
+  user-select: none;
   &.file-selected {
     background-color: $color-file-selected;
   }
   .fb-table-col-files {
     .file-info-container {
-      // display: flex;
+      display: flex;
       .file-icon-container, .file-name {
-        // display: inline-flex;
+        min-width: 2em;
       }
       .file-name {
         padding-left: 10px;
-        .truncated-string {
-          max-width: calc(100% - 100px);
-        }
       }
     }
   }

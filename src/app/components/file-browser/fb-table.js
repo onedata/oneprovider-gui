@@ -2,7 +2,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed } from '@ember/object';
 import { isContextMenuOpened } from 'oneprovider-gui/components/file-browser';
-import { later } from '@ember/runloop';
+import { reads } from '@ember/object/computed';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -36,6 +36,8 @@ export default Component.extend(I18n, {
   filesArray: computed('dir.children', function filesArray() {
     return this.get('dir.children');
   }),
+
+  visibleFiles: reads('filesArray'),
 
   contextMenuButtons: computed('selectionContext', function buttons() {
     const selectionContext = this.get('selectionContext');
@@ -114,35 +116,35 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   selectRangeToFile(file) {
-    let { filesArray, selectedFiles, lastSelectedFile } = this.getProperties(
+    const { visibleFiles, selectedFiles, lastSelectedFile } = this.getProperties(
       'selectedFiles',
-      'filesArray',
+      'visibleFiles',
       'lastSelectedFile'
     );
-    let fileIndex = filesArray.indexOf(file);
+    let fileIndex = visibleFiles.indexOf(file);
 
     let startIndex;
     if (lastSelectedFile) {
-      startIndex = filesArray.indexOf(lastSelectedFile);
+      startIndex = visibleFiles.indexOf(lastSelectedFile);
     } else {
       startIndex = this.findNearestSelectedIndex(fileIndex);
     }
 
     let indexA = Math.min(startIndex, fileIndex);
     let indexB = Math.max(startIndex, fileIndex);
-    selectedFiles.addObjects(filesArray.slice(indexA, indexB + 1));
+    selectedFiles.addObjects(visibleFiles.slice(indexA, indexB + 1));
   },
 
   findNearestSelectedIndex(fileIndex) {
-    let { visibleFiles, selectedFiles } =
+    const { visibleFiles, selectedFiles } =
     this.getProperties('visibleFiles', 'selectedFiles');
 
     // [index: Number, distanceFromFile: Number]
-    let selectedFilesIndexes = selectedFiles.map(sf => {
-      let index = visibleFiles.indexOf(sf);
+    const selectedFilesIndexes = selectedFiles.map(sf => {
+      const index = visibleFiles.indexOf(sf);
       return [index, Math.abs(index - fileIndex)];
     });
-    let nearest = selectedFilesIndexes.reduce((prev, current) => {
+    const nearest = selectedFilesIndexes.reduce((prev, current) => {
       return current[1] < prev[1] ? current : prev;
     }, [-1, Infinity]);
     let [nearestIndex, nearestDist] = nearest;

@@ -9,6 +9,9 @@ import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
 import { hash } from 'ember-awesome-macros';
 
+const lipsum =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vestibulum dapibus urna eget sollicitudin. Pellentesque at rutrum ligula. Cras id commodo nunc. In faucibus, mauris vitae dapibus mollis, ipsum erat faucibus justo, eget tincidunt nulla neque in tellus. Donec et consequat leo. Aenean viverra ante ut nisi ultricies vehicula. Sed ultrices eu leo ultrices volutpat. Aliquam et odio et ligula varius finibus. Nunc iaculis posuere dui et rutrum. Quisque sit amet tincidunt elit, ut fermentum nulla. ';
+
 export const actionContext = {
   none: 'none',
   inDir: 'inDir',
@@ -73,7 +76,7 @@ export default Component.extend(I18n, {
       permissions: 0o644,
       parent: null,
       children: [{
-          name: 'Other file with very long name the longest the longest the longest the longest the longest the longest the longest the longest the longest the longest the longest the longest the longest the longest the longest the longest',
+          name: lipsum,
           size: 29311232312312,
           type: 'file',
         },

@@ -1,6 +1,6 @@
 {{#each toolbarButtons as |button|}}
   <div
-    {{action "buttonClicked" button}}
+    onclick={{action "buttonClicked" button}}
     class="fb-toolbar-button {{if button.disabled "disabled"}} {{button.elementClass}}"
     disabled={{button.disabled}}
   >
