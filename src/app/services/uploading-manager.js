@@ -143,6 +143,7 @@ export default Service.extend({
       uploadId: file.uploadId,
       path: file.relativePath,
       bytesUploaded: file.size,
+      success: true,
     };
     this.notifyParent(notifyObject);
   },
