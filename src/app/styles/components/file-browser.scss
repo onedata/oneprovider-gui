@@ -2,9 +2,29 @@ $-file-browser-header-height: 45px;
 
 .file-browser {
   .file-browser-head-container {
-    height: $-file-browser-header-height;
+    position: fixed;
+    z-index: 1;
+    padding-top: $content-row-vertical-padding;
+    padding-left: $content-col-padding;
+    padding-right: $content-col-padding;
+    top: 0;
+    left: 0;
+    right: 20px;
     line-height: $-file-browser-header-height;
+    background-color: $color-one-white;
+    .fb-head-inner {
+      margin-right: -20px;
+    }
   }
+}
+.fb-table-container {
+  // FIXME: use variables
+  margin-top: 67px;
+}
+
+.fb-toolbar-container {
+  display: flex;
+  flex-direction: row-reverse;
 }
 
 .fb-toolbar {
@@ -26,6 +46,29 @@ $-file-browser-header-height: 45px;
     .one-icon {
       line-height: $-file-browser-header-height;
     }
+  }
+}
+
+.fb-selection-toolkit {
+  overflow: hidden;
+  max-width: 200px;
+  opacity: 1;
+  margin-left: 20px;
+  transition: $collapse-transition-vertical;
+  .selection-toolkit-inner {
+    position: relative;
+    border-radius: 50px;
+    border: 1px $main-border-color solid;
+    padding: 0 50px 0 20px;
+    height: 50px;
+    .selection-toolkit-actions-trigger {
+      @include vertical-align-middle;
+    }
+  }
+  &.closed {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
   }
 }
 
@@ -72,7 +115,7 @@ $-file-browser-header-height: 45px;
     max-width: 0;
   }
   .fb-table-col-size {
-    width: 100px;
+    width: 120px;
     text-align: center;
   }
   .fb-table-col-modification {

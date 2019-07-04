@@ -36,24 +36,13 @@ export default Component.extend(I18n, {
   // name of element: directory, directories, file, files, elements or current directory
   // To avoid using "element"
 
+  // FIXME: maybe to remove
   moreMenuDisabled: computed('selectionContext', function moreMenuDisabled() {
     return !this.get('selectionContext').startsWith('single');
   }),
 
-  toolbarButtons: computed('selectionContext', function buttons() {
-    const selectionContext = this.get('selectionContext');
-    let multiMixed = this.getButtonActions('multiMixed');
-    if (selectionContext === 'none') {
-      multiMixed = multiMixed.map(action =>
-        Object.assign({ disabled: true }, action)
-      );
-    }
-    return [
-      ...this.getButtonActions('inDir'),
-      { id: 'separator', type: 'separator' },
-      // show only buttons that can handle any multiple selection
-      ...multiMixed,
-    ];
+  toolbarButtons: computed(function buttons() {
+    return this.getButtonActions('inDir');
   }),
 
   toolbarButtonIds: computed('toolbarButtons.@each.id', function toolbarButtonIds() {

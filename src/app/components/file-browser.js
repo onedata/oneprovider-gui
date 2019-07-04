@@ -94,7 +94,7 @@ export default Component.extend(I18n, {
           size: 29311232312312,
           type: 'dir',
         },
-        ..._.range(1, 10).map(i => ({
+        ..._.range(1, 40).map(i => ({
           entityId: String(i + 4),
           name: `File ${i}`,
           size: 3000000 * i,
@@ -248,7 +248,8 @@ export default Component.extend(I18n, {
     return function clickOutsideDeselect(mouseEvent) {
       if (!isContextMenuOpened() &&
         !mouseEvent.target.matches(
-          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *')) {
+          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-toolbar *, .fb-selection-toolkit *'
+          )) {
         component.clearFilesSelection();
       }
     };

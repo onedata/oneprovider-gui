@@ -1,0 +1,29 @@
+<div class="selection-toolkit-inner">
+  <span class="selection-count-text">
+    {{tt
+      this
+      (if (eq itemsCount 1) "singleItemSelected" "itemsSelected")
+      itemsCount=lastPositiveItemsCount
+    }}
+  </span>
+  {{one-menu-toggle
+    class="selection-toolkit-actions-trigger"
+    click=(disable-bubbling (action "toggleFileActions"))
+  }}
+  {{#one-webui-popover
+    class="file-actions-popover"
+    popoverStyle="with-dropdown"
+    padding=false
+    triggerSelector=(concat "#" elementId " .selection-toolkit-actions-trigger")
+    open=fileActionsOpen
+  }}
+    {{#click-outside action=(action "toggleFileActions" false)}}
+      {{actions-popover-content
+        actionsArray=menuButtons
+        actionClicked=(action "toggleFileActions" false)
+        class="file-actions"
+      }}
+    {{/click-outside}}
+  {{/one-webui-popover}}
+  
+</div>
