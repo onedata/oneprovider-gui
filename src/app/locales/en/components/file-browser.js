@@ -13,6 +13,7 @@ export default {
     delete: 'Delete',
   },
   fbTable: {
+    menuSelection: 'Selection ({{selectionCount}})',
     header: {
       files: 'Files',
       size: 'Size',

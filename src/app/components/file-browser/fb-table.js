@@ -27,6 +27,8 @@ export default Component.extend(I18n, {
 
   lastSelectedFile: undefined,
 
+  selectionCount: reads('selectedFiles.length'),
+
   // TODO: replacing chunks array abstraction
   filesArray: computed('dir.children', function filesArray() {
     return this.get('dir.children');
@@ -34,9 +36,17 @@ export default Component.extend(I18n, {
 
   visibleFiles: reads('filesArray'),
 
-  contextMenuButtons: computed('selectionContext', function buttons() {
-    return this.getButtonActions(this.get('selectionContext'));
-  }),
+  contextMenuButtons: computed('selectionContext', 'selectionCount',
+    function buttons() {
+      const {
+        selectionContext,
+        selectionCount,
+      } = this.getProperties('selectionContext', 'selectionCount');
+      return [
+        { separator: true, title: this.t('menuSelection', { selectionCount }) },
+        ...this.getButtonActions(selectionContext),
+      ];
+    }),
 
   getButtonActions(context) {
     return this.get('allButtonsArray')
