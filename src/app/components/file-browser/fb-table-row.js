@@ -2,14 +2,23 @@ import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
   classNameBindings: ['typeClass', 'isSelected:file-selected'],
 
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileBrowser.fbTableRow',
+
   fileActions: service(),
 
+  /**
+   * @virtual
+   */
   file: undefined,
 
   mouseOver: false,
@@ -65,6 +74,10 @@ export default Component.extend({
       return isSelected && selectionContext.startsWith('multi');
     }
   ),
+
+  isShared: reads('file.isShared'),
+
+  hasMetadata: reads('file.hasMetadata'),
 
   didInsertElement() {
     this._super(...arguments);

@@ -153,9 +153,20 @@ $-file-browser-header-height: 45px;
         min-width: 2em;
       }
       .file-name {
+        flex-grow: 1;
         padding-left: 10px;
       }
+      .file-status-icon {
+        display: inline-block;
+        color: $main-text-color-disabled;
+      }
     }
+    // FIXME: design
+    // &:hover {
+    //   .file-status-icon {
+    //     color: $main-text-color;
+    //   }
+    // }
   }
   .file-icon-container .one-icon {
     font-size: 200%;

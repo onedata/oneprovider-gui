@@ -81,24 +81,29 @@ export default Component.extend(I18n, {
           name: lipsum,
           size: 29311232312312,
           type: 'file',
+          hasMetadata: true,
         },
         {
           entityId: '3',
           name: 'Some directory',
           size: 29311232312312,
           type: 'dir',
+          isShared: true,
+          hasMetadata: true,
         },
         {
           entityId: '4',
           name: 'Other directory',
           size: 29311232312312,
           type: 'dir',
+          isShared: true,
         },
         ..._.range(1, 40).map(i => ({
           entityId: String(i + 4),
           name: `File ${i}`,
           size: 3000000 * i,
           type: 'file',
+          hasMetadata: (i % 10 === 0),
         })),
       ],
     });
@@ -249,7 +254,7 @@ export default Component.extend(I18n, {
       if (!isContextMenuOpened() &&
         !mouseEvent.target.matches(
           '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-toolbar *, .fb-selection-toolkit *'
-          )) {
+        )) {
         component.clearFilesSelection();
       }
     };

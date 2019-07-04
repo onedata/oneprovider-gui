@@ -8,6 +8,26 @@
         {{displayName}}
       {{/truncated-string}}
     </div> 
+    <div class="file-status-bar">
+      {{#if isShared}}
+        <div class="file-status-icon file-status-shared">
+          <div class="inline-icon-container file-icon-container">
+            {{#one-icon icon="browser-share"}}
+              {{one-tooltip title=(tt this "isShared" type=(tt this file.type))}}
+            {{/one-icon}}
+          </div>
+        </div>
+      {{/if}}
+      {{#if hasMetadata}}
+        <div class="file-status-icon file-status-metadata">
+          <div class="inline-icon-container file-icon-container">
+            {{#one-icon icon="browser-metadata"}}
+              {{one-tooltip title=(tt this "hasMetadata" type=(tt this file.type))}}
+            {{/one-icon}}
+          </div>
+        </div>
+      {{/if}}
+    </div>
   </div>
 </td>
 <td class="fb-table-col-size">
