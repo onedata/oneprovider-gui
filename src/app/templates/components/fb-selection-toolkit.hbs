@@ -1,14 +1,10 @@
-<div class="selection-toolkit-inner">
-  <span class="selection-count-text">
-    {{tt
-      this
-      (if (eq itemsCount 1) "singleItemSelected" "itemsSelected")
-      itemsCount=lastPositiveItemsCount
-    }}
-  </span>
+<div class="selection-toolkit-inner" onclick={{action (disable-bubbling (action "toggleFileActions"))}}>
+  <div class="selection-count-text">
+    {{tt this "itemsSelected"}}
+    <span class="selection-count-number">({{lastPositiveItemsCount}})</span>
+  </div>
   {{one-menu-toggle
     class="selection-toolkit-actions-trigger"
-    click=(disable-bubbling (action "toggleFileActions"))
   }}
   {{#one-webui-popover
     class="file-actions-popover"

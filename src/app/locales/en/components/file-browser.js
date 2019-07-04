@@ -29,7 +29,6 @@ export default {
     moreTools: 'More tools',
   },
   fbSelectionToolkit: {
-    itemsSelected: '{{itemsCount}} items selected',
-    singleItemSelected: '1 item selected',
+    itemsSelected: 'Selection',
   },
 };
