@@ -163,7 +163,6 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    // FIXME: allow to right click and open new menu when there is already opened
     openContextMenu(file, mouseEvent) {
       const selectedFiles = this.get('selectedFiles');
       if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
@@ -181,10 +180,18 @@ export default Component.extend(I18n, {
         left = mouseEvent.clientX;
         top = mouseEvent.clientY;
       }
+      const $this = this.$();
+      const tableOffset = $this.offset();
+      left = left - tableOffset.left + this.element.offsetLeft;
+      top = top - tableOffset.top + this.element.offsetTop;
       this.$('.file-actions-trigger').css({
         top,
         left,
       });
+      // cause popover refresh
+      if (this.get('fileActionsOpen')) {
+        window.dispatchEvent(new Event('resize'));
+      }
       this.actions.toggleFileActions.bind(this)(true, file);
     },
     toggleFileActions(open, file) {

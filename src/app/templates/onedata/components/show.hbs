@@ -1,4 +1,7 @@
-{{#perfect-scrollbar-element class="embedded-content"}}
+{{#perfect-scrollbar-element
+  class="embedded-content"
+  onScroll=(action "scrollOccurred")
+}}
   {{component model.componentId externalData=model.data externalActions=model.actions}}
 {{/perfect-scrollbar-element}}
 

@@ -3,6 +3,7 @@ import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -21,9 +22,15 @@ export default Component.extend(I18n, {
    */
   file: undefined,
 
-  mouseOver: false,
+  /**
+   * @virtual
+   */
+  openContextMenu: notImplementedThrow,
 
-  actionsOpened: false,
+  /**
+   * @virtual
+   */
+  fileActionsOpen: false,
 
   /**
    * @virtual
@@ -89,25 +96,7 @@ export default Component.extend(I18n, {
     this.element.removeEventListener('contextmenu', this.get('contextMenuHandler'));
   },
 
-  /**
-   * @override event hook
-   */
-  mouseEnter() {
-    this.set('mouseOver', true);
-  },
-
-  /**
-   * @override event hook
-   */
-  mouseLeave() {
-    this.set('mouseOver', false);
-  },
-
   actions: {
-    toggleActions(open) {
-      const actionsOpen = (open === undefined) ? !this.get('actionsOpened') : open;
-      this.set('actionsOpened', actionsOpen);
-    },
     openContextMenu() {
       this.openContextMenu(...arguments);
     },

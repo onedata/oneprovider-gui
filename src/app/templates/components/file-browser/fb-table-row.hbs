@@ -40,7 +40,7 @@
   {{#unless hideMenuTrigger}}
     {{one-menu-toggle
       class="file-row-actions-trigger"
-      click=(disable-bubbling (action "openContextMenu"))
+      click=(unless fileActionsOpen (disable-bubbling (action "openContextMenu")))
     }}
   {{/unless}}
 </td>

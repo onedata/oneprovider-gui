@@ -4,7 +4,8 @@ $-file-browser-item-height: 32px;
 .file-browser {
   .file-browser-head-container {
     position: fixed;
-    z-index: 1;
+    // above popovers
+    z-index: 10000;
     padding-top: $content-row-vertical-padding;
     padding-left: $content-col-padding;
     padding-right: $content-col-padding;
@@ -149,14 +150,14 @@ $-file-browser-item-height: 32px;
       @include vertical-align-middle;
     }
   }
-  // FIXME: do not block clicks; 0x0
   .file-actions-trigger {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 0px;
     height: 0px;
-    background-color: red;
+    // TODO: color for development
+    // background-color: red;
   }
 }
 
