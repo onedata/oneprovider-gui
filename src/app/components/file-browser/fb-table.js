@@ -4,39 +4,99 @@ import { get, computed } from '@ember/object';
 import { isContextMenuOpened } from 'oneprovider-gui/components/file-browser';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
+import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
+import { inject as service } from '@ember/service';
+import ListWatcher from 'onedata-gui-common/utils/list-watcher';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { htmlSafe } from '@ember/string';
+
+function compareIndex(a, b) {
+  const ai = get(a, 'index');
+  const bi = get(b, 'index');
+  if (ai < bi) {
+    return -1;
+  } else if (ai > bi) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
+
+  fileServer: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbTable',
 
+  /**
+   * @virtual
+   * @type {models/File}
+   */
   dir: undefined,
 
   /**
    * @virtual
+   * @type {string}
    */
   selectionContext: undefined,
 
   /**
    * @virtual
+   * @type {Array<models/File>}
    */
   selectedFiles: undefined,
 
+  /**
+   * @type {models/File}
+   */
   lastSelectedFile: undefined,
+
+  rowHeight: 61,
+
+  /**
+   * @type {boolean}
+   */
+  headerVisible: undefined,
 
   selectionCount: reads('selectedFiles.length'),
 
+  firstRowHeight: computed(
+    'rowHeight',
+    'filesArray._start',
+    function firstRowHeight() {
+      const _start = this.get('filesArray._start');
+      return _start ? _start * this.get('rowHeight') : 0;
+    }
+  ),
+
+  firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
+    return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
+  }),
+
   // TODO: replacing chunks array abstraction
-  filesArray: computed('dir.children', function filesArray() {
-    return this.get('dir.children');
+  filesArray: computed('dir.entityId', function filesArray() {
+    const dirId = this.get('dir.entityId');
+    // FIXME: debug, chunks array in window object
+    const rca = ReplacingChunksArray.create({
+      fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
+      sortFun: compareIndex,
+      startIndex: 0,
+      endIndex: 50,
+      indexMargin: 10,
+    });
+    window.rca = rca;
+    return rca;
   }),
 
   visibleFiles: reads('filesArray'),
 
-  contextMenuButtons: computed('selectionContext', 'selectionCount',
+  contextMenuButtons: computed(
+    'selectionContext',
+    'selectionCount',
     function buttons() {
       const {
         selectionContext,
@@ -46,7 +106,58 @@ export default Component.extend(I18n, {
         { separator: true, title: this.t('menuSelection', { selectionCount }) },
         ...this.getButtonActions(selectionContext),
       ];
-    }),
+    }
+  ),
+
+  onTableScroll(items, headerVisible) {
+    const filesArray = this.get('filesArray');
+    const sourceArray = get(filesArray, 'sourceArray');
+    const filesArrayIds = sourceArray.mapBy('entityId');
+    const firstId = items[0] && items[0].getAttribute('data-row-id') || null;
+    const lastId = items[items.length - 1] &&
+      items[items.length - 1].getAttribute('data-row-id') || null;
+    let startIndex, endIndex;
+    if (firstId === null && get(sourceArray, 'length') !== 0) {
+      const rowHeight = this.get('rowHeight');
+      const $firstRow = $('.first-row');
+      const blankStart = $firstRow.offset().top * -1;
+      const blankEnd = blankStart + window.innerHeight;
+      startIndex = Math.floor(blankStart / rowHeight);
+      endIndex = Math.floor(blankEnd / rowHeight);
+    } else {
+      startIndex = filesArrayIds.indexOf(firstId);
+      endIndex = filesArrayIds.indexOf(lastId, startIndex);
+    }
+    filesArray.setProperties({ startIndex, endIndex });
+    safeExec(this, 'set', 'headerVisible', headerVisible);
+  },
+
+  createListWatcher() {
+    return new ListWatcher(
+      $('.embedded-content'),
+      '.data-row',
+      (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
+      '.table-start-row',
+    );
+  },
+
+  didInsertElement() {
+    this._super(...arguments);
+    const listWatcher = this.set('listWatcher', this.createListWatcher());
+    listWatcher.scrollHandler();
+  },
+
+  willDestroyElement() {
+    try {
+      this.get('listWatcher').destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  fetchDirChildren(dirId, ...fetchArgs) {
+    return this.get('fileServer').fetchDirChildren(dirId, ...fetchArgs);
+  },
 
   getButtonActions(context) {
     return this.get('allButtonsArray')
@@ -124,23 +235,26 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   selectRangeToFile(file) {
-    const { visibleFiles, selectedFiles, lastSelectedFile } = this.getProperties(
+    const { filesArray, selectedFiles, lastSelectedFile } = this.getProperties(
+      'filesArray',
       'selectedFiles',
-      'visibleFiles',
       'lastSelectedFile'
     );
-    let fileIndex = visibleFiles.indexOf(file);
+
+    const sourceArray = get(filesArray, 'sourceArray');
+
+    let fileIndex = sourceArray.indexOf(file);
 
     let startIndex;
     if (lastSelectedFile) {
-      startIndex = visibleFiles.indexOf(lastSelectedFile);
+      startIndex = sourceArray.indexOf(lastSelectedFile);
     } else {
       startIndex = this.findNearestSelectedIndex(fileIndex);
     }
 
     let indexA = Math.min(startIndex, fileIndex);
     let indexB = Math.max(startIndex, fileIndex);
-    selectedFiles.addObjects(visibleFiles.slice(indexA, indexB + 1));
+    selectedFiles.addObjects(sourceArray.slice(indexA, indexB + 1));
   },
 
   findNearestSelectedIndex(fileIndex) {

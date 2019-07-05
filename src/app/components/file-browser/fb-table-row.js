@@ -9,6 +9,7 @@ export default Component.extend(I18n, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
   classNameBindings: ['typeClass', 'isSelected:file-selected'],
+  attributeBindings: ['fileEntityId:data-row-id'],
 
   /**
    * @override
@@ -39,6 +40,8 @@ export default Component.extend(I18n, {
   isSelected: undefined,
 
   displayName: reads('file.name'),
+
+  fileEntityId: reads('file.entityId'),
 
   typeClass: computed('type', function typeClass() {
     return `fb-table-row-${this.get('type')}`;

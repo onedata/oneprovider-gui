@@ -35,6 +35,7 @@ $-file-browser-item-height: 32px;
   position: relative;
   letter-spacing: 4px;
   user-select: none;
+  -moz-user-select: none;
   
   .fb-toolbar-button {
     display: inline-block;

@@ -7,11 +7,13 @@
     </tr>
   </thead>
   <tbody class="fb-table-tbody">
-    {{!-- <tr class="first-row">
+    <tr class="first-row">
       <td colspan="9999" style={{firstRowStyle}}></td>
-    </tr> --}}
+    </tr>
+    <div class="table-start-row"></div>
     {{#each filesArray as |file|}}
       {{file-browser/fb-table-row
+        class="data-row"
         file=file
         isSelected=(contains file selectedFiles)
         click=(action "fileClicked" file)
