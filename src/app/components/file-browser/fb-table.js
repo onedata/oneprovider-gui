@@ -1,6 +1,6 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { get, computed } from '@ember/object';
+import { get, computed, observer } from '@ember/object';
 import { isContextMenuOpened } from 'oneprovider-gui/components/file-browser';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -9,6 +9,7 @@ import { inject as service } from '@ember/service';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe } from '@ember/string';
+import { scheduleOnce } from '@ember/runloop';
 
 function compareIndex(a, b) {
   const ai = get(a, 'index');
@@ -77,20 +78,26 @@ export default Component.extend(I18n, {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
   }),
 
-  // TODO: replacing chunks array abstraction
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
-    // FIXME: debug, chunks array in window object
-    const rca = ReplacingChunksArray.create({
+    return ReplacingChunksArray.create({
       fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
       sortFun: compareIndex,
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
     });
-    window.rca = rca;
-    return rca;
   }),
+
+  watchFilesArrayInitialLoad: observer(
+    'filesArray.initialLoad.isFulfilled',
+    function watchFilesArrayInitialLoad() {
+      const listWatcher = this.get('listWatcher');
+      scheduleOnce('afterRender', () => {
+        listWatcher.scrollHandler();
+      });
+    }
+  ),
 
   visibleFiles: reads('filesArray'),
 
