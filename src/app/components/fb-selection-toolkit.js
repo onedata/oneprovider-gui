@@ -1,7 +1,8 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { observer, get, computed } from '@ember/object';
+import { observer, computed } from '@ember/object';
 import { gt } from '@ember/object/computed';
+import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 
 export default Component.extend(I18n, {
   classNames: ['fb-selection-toolkit'],
@@ -38,14 +39,17 @@ export default Component.extend(I18n, {
     }
   ),
 
-  menuButtons: computed('selectionContext', function buttons() {
-    return this.getButtonActions(this.get('selectionContext'));
-  }),
-
-  getButtonActions(context) {
-    return this.get('allButtonsArray')
-      .filter(b => get(b, 'showIn').includes(context));
-  },
+  menuButtons: computed(
+    'allButtonsArray',
+    'selectionContext',
+    function menuButtons() {
+      const {
+        allButtonsArray,
+        selectionContext,
+      } = this.getProperties('allButtonsArray', 'selectionContext');
+      return getButtonActions(allButtonsArray, selectionContext);
+    }
+  ),
 
   opened: gt('itemsCount', 0),
 

@@ -3,6 +3,9 @@ import { computed, get } from '@ember/object';
 import _ from 'lodash';
 import { resolve } from 'rsvp';
 
+const testFileName =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+
 export default Service.extend({
   fetchDirChildren(dirId, startFromIndex, size, offset) {
     return resolve(this.mockGetDirChildren(dirId, startFromIndex, size, offset));
@@ -34,7 +37,18 @@ export default Service.extend({
         permissions: 0o644,
         parent: null,
       })),
-      ..._.range(10, 1000).map(i => ({
+      {
+        index: '0010',
+        id: 'file.file-10.instance:protected',
+        entityId: 'file-10',
+        type: 'file',
+        name: testFileName,
+        size: 10000,
+        modificationTime: now,
+        permissions: 0o644,
+        parent: null,
+      },
+      ..._.range(11, 1000).map(i => ({
         index: ('0000' + i).substr(-4, 4),
         id: `file.file-${i}.instance:protected`,
         entityId: `file-${i}`,

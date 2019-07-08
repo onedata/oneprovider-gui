@@ -1,6 +1,7 @@
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 
 export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
@@ -24,12 +25,6 @@ export default Component.extend(I18n, {
    */
   selectionContext: 'none',
 
-  /**
-   * @virtual
-   * @type {Function}
-   */
-  getActions: undefined,
-
   moreToolsOpen: false,
 
   // TODO: title should be a translation key, when rendered, it will get
@@ -41,24 +36,33 @@ export default Component.extend(I18n, {
     return !this.get('selectionContext').startsWith('single');
   }),
 
-  toolbarButtons: computed(function buttons() {
-    return this.getButtonActions('inDir');
+  toolbarButtons: computed('allButtonsArray', function buttons() {
+    return getButtonActions(this.get('allButtonsArray'), 'inDir');
   }),
 
   toolbarButtonIds: computed('toolbarButtons.@each.id', function toolbarButtonIds() {
     return this.get('toolbarButtons').mapBy('id');
   }),
 
-  moreMenuButtons: computed('selectionContext', function menuButtons() {
-    const toolbarButtonIds = this.get('toolbarButtonIds');
-    const allContextButtons = this.getButtonActions(this.get('selectionContext'));
-    return allContextButtons.filter(b => !toolbarButtonIds.includes(get(b, 'id')));
-  }),
+  moreMenuButtons: computed(
+    'allButtonsArray',
+    'toolbarButtonIds',
+    'selectionContext',
+    function moreMenuButtons() {
+      const {
+        allButtonsArray,
+        toolbarButtonIds,
+        selectionContext,
+      } = this.getProperties(
+        'allButtonsArray',
+        'toolbarButtonIds',
+        'selectionContext',
+      );
 
-  getButtonActions(context) {
-    return this.get('allButtonsArray')
-      .filter(b => get(b, 'showIn').includes(context));
-  },
+      const allContextButtons = getButtonActions(allButtonsArray, selectionContext);
+      return allContextButtons.filter(b => !toolbarButtonIds.includes(get(b, 'id')));
+    }
+  ),
 
   actions: {
     buttonClicked(button) {

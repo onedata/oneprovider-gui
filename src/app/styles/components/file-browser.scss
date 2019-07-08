@@ -100,14 +100,10 @@ $-file-browser-item-height: 32px;
 .fb-breadcrumbs {
   display: block;
   position: relative;
+  overflow-y: hidden;
   
   .fb-breadcrumbs-element {
     display: inline-block;
-  }
-  .fb-breadcrumbs-dir {
-    .fb-breadcrumbs-dir-link {
-      
-    }
   }
   .fb-breadcrumbs-dir-root .inline-icon-container .one-icon {
     font-size: 210%;
@@ -168,6 +164,7 @@ $-file-browser-item-height: 32px;
 
 .fb-table-row {
   user-select: none;
+  overflow-y: hidden;
   &.file-selected {
     background-color: $color-file-selected;
   }

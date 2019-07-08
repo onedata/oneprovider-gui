@@ -29,6 +29,11 @@ export function isContextMenuOpened() {
   ));
 }
 
+export function getButtonActions(buttonsArray, context) {
+  return buttonsArray
+    .filter(b => get(b, 'showIn').includes(context));
+}
+
 const anySelected = [
   actionContext.singleDir,
   actionContext.singleFile,
@@ -290,19 +295,7 @@ export default Component.extend(I18n, {
     }, actionProto);
   },
 
-  // FIXME: move to util or something
-  getActions(context) {
-    const allButtonsArray = this.get('allButtonsArray');
-    return allButtonsArray.filter(btn => get(btn, 'showIn').includes(context));
-  },
-
   clearFilesSelection() {
     this.get('selectedFiles').clear();
-  },
-
-  actions: {
-    getActions() {
-      return this.getActions(...arguments);
-    },
   },
 });
