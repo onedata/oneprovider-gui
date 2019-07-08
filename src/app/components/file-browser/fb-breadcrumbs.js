@@ -9,11 +9,20 @@ export default Component.extend(
     classNames: ['fb-breadcrumbs'],
 
     /**
+     * @virtual
      * @type {models/file} file model of dir type
      */
     dir: undefined,
 
     changeDir: notImplementedReject,
+
+    /**
+     * How many breadcrumbs items should be rendered.
+     * A special element: (...) is always additionally rendered,
+     * so there will be N+1 elements visible.
+     * @type {Number}
+     */
+    elementsToShow: Infinity,
 
     init() {
       this._super(...arguments);
@@ -41,14 +50,16 @@ export default Component.extend(
   }
 );
 
+// FIXME: mocked dir path
+
 const rootDir = {
   name: 'Some Space',
 };
 
-const dir1 = {
-  name: 'One Dir',
-};
+const dirs = _.range(1, 10).map(i => ({
+  name: `Directory ${i}`,
+}));
 
-const dir2 = {
-  name: 'Second',
-};
+for (let i; i < 10; ++i) {
+  dirs[i].parent = resolve();
+}
