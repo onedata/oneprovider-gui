@@ -1,16 +1,23 @@
+/**
+ * A complete file browser with infinite-scrolled file list, directory
+ * breadcrumbs and toolkit for selected files.
+ * 
+ * @module components/file-browser
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { camelize, dasherize } from '@ember/string';
 import File from 'oneprovider-gui/models/file';
-import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
 import { hash } from 'ember-awesome-macros';
-
-const lipsum =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vestibulum dapibus urna eget sollicitudin. Pellentesque at rutrum ligula. Cras id commodo nunc. In faucibus, mauris vitae dapibus mollis, ipsum erat faucibus justo, eget tincidunt nulla neque in tellus. Donec et consequat leo. Aenean viverra ante ut nisi ultricies vehicula. Sed ultrices eu leo ultrices volutpat. Aliquam et odio et ligula varius finibus. Nunc iaculis posuere dui et rutrum. Quisque sit amet tincidunt elit, ut fermentum nulla. ';
+import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 
 export const actionContext = {
   none: 'none',
@@ -22,12 +29,6 @@ export const actionContext = {
   multiMixed: 'multiMixed',
   desktopToolbar: 'desktopToolbar',
 };
-
-export function isContextMenuOpened() {
-  return Boolean(document.querySelector(
-    '.webui-popover.in'
-  ));
-}
 
 export function getButtonActions(buttonsArray, context) {
   return buttonsArray
@@ -57,18 +58,23 @@ const buttonNames = [
 ];
 
 export default Component.extend(I18n, {
+  classNames: ['file-browser'],
+
   i18n: service(),
   fileActions: service(),
-  classNames: ['file-browser'],
 
   /**
    * @override
    */
   i18nPrefix: 'components.fileBrowser',
 
+  /**
+   * Array of selected file records.
+   * Initialized to empty array in init.
+   * @type EmberArray<object>
+   */
   selectedFiles: undefined,
 
-  // FIXME: mock
   dir: computed(function dir() {
     return File.create({
       id: this.get('dirId'),
@@ -81,36 +87,6 @@ export default Component.extend(I18n, {
       canViewDir: true,
       permissions: 0o644,
       parent: null,
-      children: [{
-          entityId: '2',
-          name: lipsum,
-          size: 29311232312312,
-          type: 'file',
-          hasMetadata: true,
-        },
-        {
-          entityId: '3',
-          name: 'Some directory',
-          size: 29311232312312,
-          type: 'dir',
-          isShared: true,
-          hasMetadata: true,
-        },
-        {
-          entityId: '4',
-          name: 'Other directory',
-          size: 29311232312312,
-          type: 'dir',
-          isShared: true,
-        },
-        ..._.range(1, 40).map(i => ({
-          entityId: String(i + 4),
-          name: `File ${i}`,
-          size: 3000000 * i,
-          type: 'file',
-          hasMetadata: (i % 10 === 0),
-        })),
-      ],
     });
   }),
 
@@ -119,7 +95,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<string>}
    */
   selectionContext: computed('selectedFiles.[]', function selectionContext() {
-    /** @type Array<object> */
     const selectedFiles = this.get('selectedFiles');
     if (selectedFiles) {
       const count = get(selectedFiles, 'length');
@@ -132,8 +107,8 @@ export default Component.extend(I18n, {
           return actionContext.singleFile;
         }
       } else {
-        if (selectedFiles.some(file => get(file, 'type') === 'dir')) {
-          if (selectedFiles.some(file => get(file, 'type') === 'file')) {
+        if (selectedFiles.isAny('type', 'dir')) {
+          if (selectedFiles.isAny('type', 'file')) {
             return actionContext.multiMixed;
           } else {
             return actionContext.multiDir;
@@ -248,15 +223,10 @@ export default Component.extend(I18n, {
 
   // #endregion
 
-  init() {
-    this._super(...arguments);
-    this.set('selectedFiles', A());
-  },
-
   clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
     const component = this;
     return function clickOutsideDeselect(mouseEvent) {
-      if (!isContextMenuOpened() &&
+      if (!isPopoverOpened() &&
         !mouseEvent.target.matches(
           '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-toolbar *, .fb-selection-toolkit *'
         )) {
@@ -264,6 +234,11 @@ export default Component.extend(I18n, {
       }
     };
   }),
+
+  init() {
+    this._super(...arguments);
+    this.set('selectedFiles', A());
+  },
 
   didInsertElement() {
     this._super(...arguments);
@@ -281,18 +256,18 @@ export default Component.extend(I18n, {
     );
   },
 
-  // FIXME: invoke with selected files
-  createFileAction(actionProto) {
-    const id = get(actionProto, 'id');
+  createFileAction(actionProperties) {
+    const id = get(actionProperties, 'id');
     const fileActions = this.get('fileActions');
     return Object.assign({
       action: () => {
-        return fileActions[camelize(`act-${id}`)](this.get('selectedFiles'));
+        return fileActions[camelize(`act-${id}`)](
+          this.get('selectedFiles'));
       },
       icon: `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
       showIn: [],
-    }, actionProto);
+    }, actionProperties);
   },
 
   clearFilesSelection() {

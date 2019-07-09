@@ -34,12 +34,7 @@ $-file-browser-item-height: 32px;
   display: block;
   position: relative;
   letter-spacing: 4px;
-  user-select: none;
-  
-  td {
-    -moz-user-select: none;
-  }
-  
+  @include vendor-prefix(user-select, none); 
   
   .fb-toolbar-button {
     display: inline-block;
@@ -67,7 +62,7 @@ $-file-browser-item-height: 32px;
     @include vertical-align-middle;
     position: relative;
     cursor: pointer;
-    user-select: none;
+    @include vendor-prefix(user-select, none);
     border-radius: $border-radius-large;
     border: 2px $main-text-color solid;
     padding: 0 30px 0 15px;
@@ -163,7 +158,7 @@ $-file-browser-item-height: 32px;
 }
 
 .fb-table-row {
-  user-select: none;
+  @include vendor-prefix(user-select, none);
   overflow-y: hidden;
   &.file-selected {
     background-color: $color-file-selected;

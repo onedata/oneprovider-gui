@@ -1,3 +1,13 @@
+/**
+ * Icon buttons with some operations on the currenlty opened directory.
+ * Currently there are only operations of creating/uploading new files.
+ * 
+ * @module components/file-browser/fb-toolbar
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -31,38 +41,13 @@ export default Component.extend(I18n, {
   // name of element: directory, directories, file, files, elements or current directory
   // To avoid using "element"
 
-  // FIXME: maybe to remove
-  moreMenuDisabled: computed('selectionContext', function moreMenuDisabled() {
-    return !this.get('selectionContext').startsWith('single');
-  }),
-
-  toolbarButtons: computed('allButtonsArray', function buttons() {
+  toolbarButtons: computed('allButtonsArray', function toolbarButtons() {
     return getButtonActions(this.get('allButtonsArray'), 'inDir');
   }),
 
   toolbarButtonIds: computed('toolbarButtons.@each.id', function toolbarButtonIds() {
     return this.get('toolbarButtons').mapBy('id');
   }),
-
-  moreMenuButtons: computed(
-    'allButtonsArray',
-    'toolbarButtonIds',
-    'selectionContext',
-    function moreMenuButtons() {
-      const {
-        allButtonsArray,
-        toolbarButtonIds,
-        selectionContext,
-      } = this.getProperties(
-        'allButtonsArray',
-        'toolbarButtonIds',
-        'selectionContext',
-      );
-
-      const allContextButtons = getButtonActions(allButtonsArray, selectionContext);
-      return allContextButtons.filter(b => !toolbarButtonIds.includes(get(b, 'id')));
-    }
-  ),
 
   actions: {
     buttonClicked(button) {

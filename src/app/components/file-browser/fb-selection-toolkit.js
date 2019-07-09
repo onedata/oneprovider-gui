@@ -1,3 +1,12 @@
+/**
+ * Tools (actions) for selected files.
+ * 
+ * @module components/file-browser/fb-selection-toolkit
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { observer, computed } from '@ember/object';

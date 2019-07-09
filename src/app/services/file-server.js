@@ -1,3 +1,13 @@
+/**
+ * Non-model server-side file procedures.
+ * Currently file list fetching methods to use with infinite scroll list.
+ * 
+ * @module services/file-server
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service from '@ember/service';
 import { computed, get } from '@ember/object';
 import _ from 'lodash';
@@ -11,6 +21,7 @@ export default Service.extend({
     return resolve(this.mockGetDirChildren(dirId, startFromIndex, size, offset));
   },
 
+  // FIXME: mock, remove in future
   mockGetDirChildren(dirId, index, limit = 100000000, offset = 0) {
     const mockChildren = this.get('mockChildren');
     let arrIndex = _.findIndex(mockChildren, i => get(i, 'index') === index);
@@ -20,6 +31,7 @@ export default Service.extend({
     return mockChildren.slice(arrIndex + offset, arrIndex + offset + limit);
   },
 
+  // FIXME: mock, remove in future
   mockChildren: computed(function mockChildren() {
     const now = Date.now() / 1000;
     return [

@@ -1,7 +1,17 @@
+/**
+ * A container with table of files (children of selected dir).
+ * Supports infinite scroll.
+ * 
+ * @module components/file-browser/fb-table
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed, observer } from '@ember/object';
-import { isContextMenuOpened } from 'oneprovider-gui/components/file-browser';
+import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
@@ -176,7 +186,7 @@ export default Component.extend(I18n, {
    */
   fileClicked(file, ctrlKey, shiftKey) {
     // do not change selection if only clicking to close context menu
-    if (isContextMenuOpened()) {
+    if (isPopoverOpened()) {
       return;
     }
 
