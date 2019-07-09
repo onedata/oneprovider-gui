@@ -1,0 +1,27 @@
+<div class="row file-browser-head-container hidden-xs">
+  <div class="fb-head-inner">
+    <div class="col-sm-6 fb-breadcrumbs-container">
+      {{file-browser/fb-breadcrumbs dir=dir}}
+    </div>
+    <div class="col-sm-6 text-right fb-toolbar-container">
+      {{file-browser/fb-selection-toolkit
+        itemsCount=selectedFiles.length
+        selectionContext=selectionContext
+        allButtonsArray=allButtonsArray
+      }}
+      {{file-browser/fb-toolbar
+        dir=dir
+        selectionContext=selectionContext
+        allButtonsArray=allButtonsArray
+      }}
+    </div>
+  </div>
+</div>
+<div class="fb-table-container">
+  {{file-browser/fb-table
+    dir=dir
+    selectedFiles=selectedFiles
+    selectionContext=selectionContext
+    allButtonsArray=allButtonsArray
+  }}
+</div>
