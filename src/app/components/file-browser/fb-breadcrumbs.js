@@ -1,8 +1,16 @@
+/**
+ * An auto-collapsible path to selected dir.
+ * 
+ * @module components/file-browser/fb-breadcrumbs
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve } from 'rsvp';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import _ from 'lodash';
 
 export default Component.extend(
   createDataProxyMixin('dirPath', { type: 'array' }), {
@@ -14,6 +22,11 @@ export default Component.extend(
      */
     dir: undefined,
 
+    /**
+     * @virtual
+     * @type {Function}
+     * @param {models/File} dir a File record with directory to change
+     */
     changeDir: notImplementedReject,
 
     /**

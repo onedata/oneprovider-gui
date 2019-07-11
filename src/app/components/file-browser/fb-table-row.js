@@ -1,3 +1,12 @@
+/**
+ * Single file/directory row in files list.
+ * 
+ * @module components/file-browser/fb-table-row
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
@@ -11,12 +20,12 @@ export default Component.extend(I18n, {
   classNameBindings: ['typeClass', 'isSelected:file-selected'],
   attributeBindings: ['fileEntityId:data-row-id'],
 
+  fileActions: service(),
+
   /**
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbTableRow',
-
-  fileActions: service(),
 
   /**
    * @virtual
@@ -47,7 +56,7 @@ export default Component.extend(I18n, {
     return `fb-table-row-${this.get('type')}`;
   }),
 
-  type: computed('file.type', function icon() {
+  type: computed('file.type', function type() {
     const fileType = this.get('file.type');
     if (fileType === 'dir' || fileType === 'file') {
       return fileType;
@@ -79,8 +88,10 @@ export default Component.extend(I18n, {
     'selectionContext',
     'isSelected',
     function hideMenuTrigger() {
-      const isSelected = this.get('isSelected');
-      const selectionContext = this.get('selectionContext');
+      const {
+        isSelected,
+        selectionContext,
+      } = this.getProperties('isSelected', 'selectionContext');
       return isSelected && selectionContext.startsWith('multi');
     }
   ),

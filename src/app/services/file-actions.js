@@ -1,3 +1,12 @@
+/**
+ * Globally available implementation of actions invoked on file sets.
+ * 
+ * @module services/file-actions
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service from '@ember/service';
 
 export default Service.extend({
@@ -48,21 +57,4 @@ export default Service.extend({
   },
 
   // #endregion
-
-  // FIXME: old order, just to remember and remove in production
-  // buttons: collect(
-  //   'btnUpload',
-  //   'btnNewDir',
-  //   'separator',
-  //   'btnInfo',
-  //   'btnShare',
-  //   'btnMetadata',
-  //   'btnPermissions',
-  //   'btnDistribution',
-  //   'separator',
-  //   'btnRename',
-  //   'btnCopy',
-  //   'btnCut',
-  //   'btnDelete',
-  // ),
 });

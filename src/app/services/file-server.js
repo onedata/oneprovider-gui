@@ -1,16 +1,27 @@
+/**
+ * Non-model server-side file procedures.
+ * Currently file list fetching methods to use with infinite scroll list.
+ * 
+ * @module services/file-server
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service from '@ember/service';
 import { computed, get } from '@ember/object';
 import _ from 'lodash';
 import { resolve } from 'rsvp';
 
-const lipsum =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vestibulum dapibus urna eget sollicitudin. Pellentesque at rutrum ligula. Cras id commodo nunc. In faucibus, mauris vitae dapibus mollis, ipsum erat faucibus justo, eget tincidunt nulla neque in tellus. Donec et consequat leo. Aenean viverra ante ut nisi ultricies vehicula. Sed ultrices eu leo ultrices volutpat. Aliquam et odio et ligula varius finibus. Nunc iaculis posuere dui et rutrum. Quisque sit amet tincidunt elit, ut fermentum nulla. ';
+const testFileName =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
 
 export default Service.extend({
   fetchDirChildren(dirId, startFromIndex, size, offset) {
     return resolve(this.mockGetDirChildren(dirId, startFromIndex, size, offset));
   },
 
+  // FIXME: mock, remove in future
   mockGetDirChildren(dirId, index, limit = 100000000, offset = 0) {
     const mockChildren = this.get('mockChildren');
     let arrIndex = _.findIndex(mockChildren, i => get(i, 'index') === index);
@@ -20,6 +31,7 @@ export default Service.extend({
     return mockChildren.slice(arrIndex + offset, arrIndex + offset + limit);
   },
 
+  // FIXME: mock, remove in future
   mockChildren: computed(function mockChildren() {
     const now = Date.now() / 1000;
     return [
@@ -43,10 +55,11 @@ export default Service.extend({
         id: 'file.file-10.instance:protected',
         entityId: 'file-10',
         type: 'file',
-        name: lipsum,
+        name: testFileName,
         size: 10000,
         modificationTime: now,
         permissions: 0o644,
+        parent: null,
       },
       ..._.range(11, 1000).map(i => ({
         index: ('0000' + i).substr(-4, 4),

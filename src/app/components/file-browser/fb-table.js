@@ -1,7 +1,17 @@
+/**
+ * A container with table of files (children of selected dir).
+ * Supports infinite scroll.
+ * 
+ * @module components/file-browser/fb-table
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed, observer } from '@ember/object';
-import { isContextMenuOpened } from 'oneprovider-gui/components/file-browser';
+import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
@@ -10,18 +20,10 @@ import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
+import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
+import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 
-function compareIndex(a, b) {
-  const ai = get(a, 'index');
-  const bi = get(b, 'index');
-  if (ai < bi) {
-    return -1;
-  } else if (ai > bi) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
+const compareIndex = createPropertyComparator('index');
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -89,6 +91,28 @@ export default Component.extend(I18n, {
     });
   }),
 
+  visibleFiles: reads('filesArray'),
+
+  contextMenuButtons: computed(
+    'selectionContext',
+    'selectionCount',
+    function contextMenuButtons() {
+      const {
+        allButtonsArray,
+        selectionContext,
+        selectionCount,
+      } = this.getProperties(
+        'allButtonsArray',
+        'selectionContext',
+        'selectionCount'
+      );
+      return [
+        { separator: true, title: this.t('menuSelection', { selectionCount }) },
+        ...getButtonActions(allButtonsArray, selectionContext),
+      ];
+    }
+  ),
+
   watchFilesArrayInitialLoad: observer(
     'filesArray.initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
@@ -99,22 +123,19 @@ export default Component.extend(I18n, {
     }
   ),
 
-  visibleFiles: reads('filesArray'),
+  didInsertElement() {
+    this._super(...arguments);
+    const listWatcher = this.set('listWatcher', this.createListWatcher());
+    listWatcher.scrollHandler();
+  },
 
-  contextMenuButtons: computed(
-    'selectionContext',
-    'selectionCount',
-    function buttons() {
-      const {
-        selectionContext,
-        selectionCount,
-      } = this.getProperties('selectionContext', 'selectionCount');
-      return [
-        { separator: true, title: this.t('menuSelection', { selectionCount }) },
-        ...this.getButtonActions(selectionContext),
-      ];
+  willDestroyElement() {
+    try {
+      this.get('listWatcher').destroy();
+    } finally {
+      this._super(...arguments);
     }
-  ),
+  },
 
   onTableScroll(items, headerVisible) {
     const filesArray = this.get('filesArray');
@@ -148,27 +169,8 @@ export default Component.extend(I18n, {
     );
   },
 
-  didInsertElement() {
-    this._super(...arguments);
-    const listWatcher = this.set('listWatcher', this.createListWatcher());
-    listWatcher.scrollHandler();
-  },
-
-  willDestroyElement() {
-    try {
-      this.get('listWatcher').destroy();
-    } finally {
-      this._super(...arguments);
-    }
-  },
-
   fetchDirChildren(dirId, ...fetchArgs) {
     return this.get('fileServer').fetchDirChildren(dirId, ...fetchArgs);
-  },
-
-  getButtonActions(context) {
-    return this.get('allButtonsArray')
-      .filter(b => get(b, 'showIn').includes(context));
   },
 
   clearFilesSelection() {
@@ -184,7 +186,7 @@ export default Component.extend(I18n, {
    */
   fileClicked(file, ctrlKey, shiftKey) {
     // do not change selection if only clicking to close context menu
-    if (isContextMenuOpened()) {
+    if (isPopoverOpened()) {
       return;
     }
 
@@ -242,7 +244,11 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   selectRangeToFile(file) {
-    const { filesArray, selectedFiles, lastSelectedFile } = this.getProperties(
+    const {
+      filesArray,
+      selectedFiles,
+      lastSelectedFile,
+    } = this.getProperties(
       'filesArray',
       'selectedFiles',
       'lastSelectedFile'
@@ -250,7 +256,7 @@ export default Component.extend(I18n, {
 
     const sourceArray = get(filesArray, 'sourceArray');
 
-    let fileIndex = sourceArray.indexOf(file);
+    const fileIndex = sourceArray.indexOf(file);
 
     let startIndex;
     if (lastSelectedFile) {
@@ -259,21 +265,26 @@ export default Component.extend(I18n, {
       startIndex = this.findNearestSelectedIndex(fileIndex);
     }
 
-    let indexA = Math.min(startIndex, fileIndex);
-    let indexB = Math.max(startIndex, fileIndex);
+    const indexA = Math.min(startIndex, fileIndex);
+    const indexB = Math.max(startIndex, fileIndex);
     selectedFiles.addObjects(sourceArray.slice(indexA, indexB + 1));
   },
 
   findNearestSelectedIndex(fileIndex) {
-    const { visibleFiles, selectedFiles } =
-    this.getProperties('visibleFiles', 'selectedFiles');
+    const {
+      visibleFiles,
+      selectedFiles,
+    } = this.getProperties(
+      'visibleFiles',
+      'selectedFiles'
+    );
 
-    // [index: Number, distanceFromFile: Number]
-    const selectedFilesIndexes = selectedFiles.map(sf => {
+    // Array<[index: Number, distanceFromFile: Number]>
+    const selectedFilesIndices = selectedFiles.map(sf => {
       const index = visibleFiles.indexOf(sf);
       return [index, Math.abs(index - fileIndex)];
     });
-    const nearest = selectedFilesIndexes.reduce((prev, current) => {
+    const nearest = selectedFilesIndices.reduce((prev, current) => {
       return current[1] < prev[1] ? current : prev;
     }, [-1, Infinity]);
     let [nearestIndex, nearestDist] = nearest;
@@ -331,7 +342,6 @@ export default Component.extend(I18n, {
         ctrlKey || metaKey,
         shiftKey
       );
-      // this.get('selectedFiles')[selected ? 'add' : 'delete'](file);
     },
   },
 });
