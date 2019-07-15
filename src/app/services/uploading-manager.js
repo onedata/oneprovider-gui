@@ -1,3 +1,13 @@
+/**
+ * Manages uploading files using resumable.js and external state of upload
+ * received from Onezone.
+ * 
+ * @module services/uploading-manager
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service, { inject as service } from '@ember/service';
 import { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -99,7 +109,7 @@ export default Service.extend({
 
     this.startNewUploadSession()
       .then(({ uploadId }) => {
-        files.forEach(file => file.uploadId = uploadId);
+        files.setEach('uploadId', uploadId);
         const notifyObject = {
           uploadId,
           files: files.map(file => ({
@@ -111,7 +121,8 @@ export default Service.extend({
       })
       .catch((/* error */) => {
         files.invoke('cancel');
-        // TODO global-notify with error
+        // TODO global-notify with error depending on whether or not errors
+        // should be shown from backend
       });
   },
 
@@ -215,6 +226,12 @@ export default Service.extend({
     this.set('targetDirectoryId', targetDirectoryId);
   },
 
+  /**
+   * Notifies Onezone about upload state change
+   * @param {Object} notifyObject
+   * @param {string} method
+   * @returns {undefined}
+   */
   notifyParent(notifyObject, method = 'updateUploadProgress') {
     this.get('appProxy').callParent(method, notifyObject);
   },
