@@ -244,18 +244,23 @@ export default Component.extend(I18n, {
 
   didInsertElement() {
     this._super(...arguments);
-    document.body.addEventListener(
-      'click',
-      this.get('clickOutsideDeselectHandler')
-    );
-
 
     const {
       element,
       uploadingManager,
-    } = this.getProperties('element', 'uploadingManager');
+      clickOutsideDeselectHandler,
+    } = this.getProperties(
+      'element',
+      'uploadingManager',
+      'clickOutsideDeselectHandler'
+    );
 
-    const uploadingDropElement = element.querySelector('.fb-table-container');
+    document.body.addEventListener(
+      'click',
+      clickOutsideDeselectHandler
+    );    
+
+    const uploadingDropElement = element.parentElement;
     uploadingManager.assignUploadingDrop(uploadingDropElement);
 
     const uploadingBrowseElement = document.querySelectorAll('.browser-upload');

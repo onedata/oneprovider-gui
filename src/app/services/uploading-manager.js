@@ -170,6 +170,23 @@ export default Service.extend({
    */
   assignUploadingDrop(dropElement) {
     this.get('resumable').assignDrop(dropElement);
+
+    let lastEnter;
+    const startDrag = function (event) {
+      lastEnter = event.target;
+      dropElement.classList.add('file-drag');
+    };
+
+    const endDrag = function (event) {
+      if (lastEnter === event.target) {
+        dropElement.classList.remove('file-drag');
+      }
+    };
+
+    dropElement.addEventListener('dragenter', startDrag);
+    dropElement.addEventListener('dragleave', endDrag);
+    dropElement.addEventListener('dragend', endDrag);
+    dropElement.addEventListener('drop', endDrag);
   },
 
   /**

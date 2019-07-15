@@ -1,0 +1,31 @@
+.content-file-browser {
+  flex-grow: 1;
+
+  .upload-drop-zone {
+    position: fixed;
+    $-rect-margin: $padding-small-horizontal;
+    top: $-rect-margin;
+    bottom: $-rect-margin;
+    left: $-rect-margin;
+    right: $-rect-margin;
+    display: none;
+    border: 3px dashed darken($color-one-light-blue, 10%);
+    background-color: rgba($color-one-light-blue, 0.75);
+    z-index: 10000;
+    
+    .one-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      font-size: 15em;
+      color: darken($color-one-light-blue, 10%);
+    }
+  }
+
+  &.file-drag {
+    .upload-drop-zone {
+      display: block;
+    }
+  }
+}
