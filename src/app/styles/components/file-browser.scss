@@ -1,38 +1,104 @@
 $-file-browser-header-height: 45px;
+$-file-browser-item-height: 32px;
 
 .file-browser {
   .file-browser-head-container {
-    height: $-file-browser-header-height;
+    position: fixed;
+    // above popovers
+    z-index: 10000;
+    padding-top: $content-row-vertical-padding;
+    padding-left: $content-col-padding;
+    padding-right: $content-col-padding;
+    top: 0;
+    left: 0;
+    right: 20px;
     line-height: $-file-browser-header-height;
+    background-color: $color-one-white;
+    .fb-head-inner {
+      margin-right: -20px;
+    }
   }
+}
+.fb-table-container {
+  // FIXME: use variables
+  margin-top: 67px;
+}
+
+.fb-toolbar-container {
+  display: flex;
+  flex-direction: row-reverse;
+  height: $-file-browser-header-height;
 }
 
 .fb-toolbar {
   display: block;
   position: relative;
   letter-spacing: 4px;
+  @include vendor-prefix(user-select, none); 
   
   .fb-toolbar-button {
     display: inline-block;
-    font-size: 32px;
+    font-size: $-file-browser-item-height;
+    height: $-file-browser-item-height;
     font-weight: bold;
+    &[disabled], &.disabled {
+      cursor: default;
+      pointer-events: none;
+      color: $main-text-color-disabled;
+    }
     .one-icon {
       line-height: $-file-browser-header-height;
     }
   }
 }
 
+.fb-selection-toolkit {
+  overflow: hidden;
+  max-width: 200px;
+  opacity: 1;
+  margin-left: 20px;
+  transition: $collapse-transition-vertical;
+  .selection-toolkit-inner {
+    @include vertical-align-middle;
+    position: relative;
+    cursor: pointer;
+    @include vendor-prefix(user-select, none);
+    border-radius: $border-radius-large;
+    border: 2px $main-text-color solid;
+    padding: 0 30px 0 15px;
+    height: $-file-browser-item-height + 8px;
+    &:hover {
+      background-color: $color-file-selected;
+    }
+    .selection-toolkit-actions-trigger {
+      @include vertical-align-middle;
+      right: 8px;
+      pointer-events: none;
+      &.one-menu-toggle {
+        padding: 0;
+      }
+    }
+  }
+  .selection-count-text {
+    line-height: 40px - 4px;
+  }
+  .selection-count-number {
+    color: $main-text-color-disabled;
+  }
+  &.closed {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
+  }
+}
+
 .fb-breadcrumbs {
   display: block;
   position: relative;
+  overflow-y: hidden;
   
   .fb-breadcrumbs-element {
     display: inline-block;
-  }
-  .fb-breadcrumbs-dir {
-    .fb-breadcrumbs-dir-link {
-      
-    }
   }
   .fb-breadcrumbs-dir-root .inline-icon-container .one-icon {
     font-size: 210%;
@@ -55,25 +121,69 @@ $-file-browser-header-height: 45px;
       display: none;
     }
   }
-  
   .fb-table-thead {
     .fb-table-col-files {
       text-align: left;
     }
   }
+  .fb-table-col-files {
+    // enables text truncate inside
+    max-width: 0;
+  }
   .fb-table-col-size {
-    width: 100px;
+    width: 120px;
     text-align: center;
   }
   .fb-table-col-modification {
     width: 200px;
     text-align: center;
   }
+  .fb-table-col-actions-menu {
+    position: relative;
+    width: 40px;
+    padding: 0;
+    .file-row-actions-trigger {
+      @include vertical-align-middle;
+    }
+  }
+  .file-actions-trigger {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0px;
+    height: 0px;
+    // TODO: color for development
+    // background-color: red;
+  }
 }
 
 .fb-table-row {
-  .file-name {
-    margin-left: 10px;
+  @include vendor-prefix(user-select, none);
+  overflow-y: hidden;
+  &.file-selected {
+    background-color: $color-file-selected;
+  }
+  .fb-table-col-files {
+    .file-info-container {
+      display: flex;
+      .file-icon-container, .file-name {
+        min-width: 2em;
+      }
+      .file-name {
+        flex-grow: 1;
+        padding-left: 10px;
+      }
+      .file-status-icon {
+        display: inline-block;
+        color: $main-text-color-disabled;
+      }
+    }
+    // FIXME: design
+    // &:hover {
+    //   .file-status-icon {
+    //     color: $main-text-color;
+    //   }
+    // }
   }
   .file-icon-container .one-icon {
     font-size: 200%;
@@ -84,4 +194,13 @@ $-file-browser-header-height: 45px;
   &.fb-table-row-file .file-icon {
     color: $color-file;
   }
+  // FIXME: something here is wrong it should be positioned without these special
+  // classes
+  // .actions-toolbar-file {
+  //   @include vertical-align-middle;
+  //   right: 0;
+  //   .menu-toggle {
+  //     padding: 6px;
+  //   }
+  // }
 }

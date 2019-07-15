@@ -7,11 +7,37 @@
     </tr>
   </thead>
   <tbody class="fb-table-tbody">
-    {{!-- <tr class="first-row">
+    <tr class="first-row">
       <td colspan="9999" style={{firstRowStyle}}></td>
-    </tr> --}}
+    </tr>
+    <div class="table-start-row"></div>
     {{#each filesArray as |file|}}
-      {{file-browser/fb-table-row file=file}}
+      {{file-browser/fb-table-row
+        class="data-row"
+        file=file
+        isSelected=(contains file selectedFiles)
+        click=(action "fileClicked" file)
+        openContextMenu=(action "openContextMenu" file)
+        fileActionsOpen=fileActionsOpen
+        selectionContext=selectionContext
+      }}
     {{/each}}
   </tbody>
 </table>
+{{!-- TODO: trigger selector for multiple file tables --}}
+{{#one-webui-popover
+  class="file-actions-popover"
+  popoverStyle="with-dropdown"
+  padding=false
+  triggerSelector=(concat "#" elementId " .file-actions-trigger")
+  open=fileActionsOpen
+}}
+  {{#click-outside action=(action "toggleFileActions" false)}}
+    {{actions-popover-content
+      actionsArray=contextMenuButtons
+      actionClicked=(action "toggleFileActions" false)
+      class="file-actions"
+    }}
+  {{/click-outside}}
+{{/one-webui-popover}}
+<div class="file-actions-trigger"></div>

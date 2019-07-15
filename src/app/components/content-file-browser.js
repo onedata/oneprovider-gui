@@ -1,5 +1,5 @@
 /**
- * TODO: this component data is now mocked, only injected properties are real
+ * Container for file browser to use in an iframe with injected properties.
  * 
  * @module component/content-file-browser
  * @author Jakub Liput

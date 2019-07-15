@@ -1,12 +1,46 @@
 <td class="fb-table-col-files">
-  <div class="inline-icon-container file-icon-container">
-    {{one-icon icon=icon class="file-icon"}}
+  <div class="file-info-container">
+    <div class="inline-icon-container file-icon-container">
+      {{one-icon icon=icon class="file-icon"}}
+    </div>
+    <div class="file-name">
+      {{#truncated-string}}
+        {{displayName}}
+      {{/truncated-string}}
+    </div> 
+    <div class="file-status-bar">
+      {{#if isShared}}
+        <div class="file-status-icon file-status-shared">
+          <div class="inline-icon-container file-icon-container">
+            {{#one-icon icon="browser-share"}}
+              {{one-tooltip title=(tt this "isShared" type=(tt this file.type))}}
+            {{/one-icon}}
+          </div>
+        </div>
+      {{/if}}
+      {{#if hasMetadata}}
+        <div class="file-status-icon file-status-metadata">
+          <div class="inline-icon-container file-icon-container">
+            {{#one-icon icon="browser-metadata"}}
+              {{one-tooltip title=(tt this "hasMetadata" type=(tt this file.type))}}
+            {{/one-icon}}
+          </div>
+        </div>
+      {{/if}}
+    </div>
   </div>
-  <span class="file-name">{{displayName}}</span>
 </td>
 <td class="fb-table-col-size">
   {{bytes-to-string file.size}}
 </td>
 <td class="fb-table-col-modification">
-  {{date-format file.modification format="dateWithMinutes" blank="—"}}
+  {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+</td>
+<td class="fb-table-col-actions-menu">
+  {{#unless hideMenuTrigger}}
+    {{one-menu-toggle
+      class="file-row-actions-trigger"
+      click=(unless fileActionsOpen (disable-bubbling (action "openContextMenu")))
+    }}
+  {{/unless}}
 </td>

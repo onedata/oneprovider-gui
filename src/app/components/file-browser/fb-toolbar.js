@@ -1,117 +1,60 @@
-import Component from '@ember/component';
-import { computed } from '@ember/object';
-import { collect } from '@ember/object/computed';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+/**
+ * Icon buttons with some operations on the currenlty opened directory.
+ * Currently there are only operations of creating/uploading new files.
+ * 
+ * @module components/file-browser/fb-toolbar
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
-export default Component.extend({
+import Component from '@ember/component';
+import { get, computed } from '@ember/object';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+
+export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileBrowser.fbToolbar',
 
   dir: undefined,
 
-  buttonClicked: notImplementedReject,
+  /**
+   * @virtual
+   * @type {Array<object>}
+   */
+  allButtonsArray: undefined,
 
-  // TODO: hint should be a translation key, when rendered, it will get
+  /**
+   * @virtual
+   * @type {string}
+   */
+  selectionContext: 'none',
+
+  moreToolsOpen: false,
+
+  // TODO: title should be a translation key, when rendered, it will get
   // name of element: directory, directories, file, files, elements or current directory
   // To avoid using "element"
 
-  btnNewDir: computed(function btnNewDir() {
-    return {
-      hint: 'Create new directory',
-      icon: 'browser-new-directory',
-    };
+  toolbarButtons: computed('allButtonsArray', function toolbarButtons() {
+    return getButtonActions(this.get('allButtonsArray'), 'inDir');
   }),
 
-  btnShare: computed(function btnShare() {
-    return {
-      hint: 'Share element',
-      icon: 'browser-share',
-    };
+  toolbarButtonIds: computed('toolbarButtons.@each.id', function toolbarButtonIds() {
+    return this.get('toolbarButtons').mapBy('id');
   }),
-
-  btnMetadata: computed(function btnMetadata() {
-    return {
-      hint: 'Show element metadata',
-      icon: 'browser-metadata',
-    };
-  }),
-
-  btnInfo: computed(function btnInfo() {
-    return {
-      hint: 'Show element info',
-      icon: 'browser-info',
-    };
-  }),
-
-  btnRename: computed(function btnRename() {
-    return {
-      hint: 'Rename element',
-      icon: 'browser-rename',
-    };
-  }),
-
-  btnPermissions: computed(function btnPermissions() {
-    return {
-      hint: 'Show element permissions',
-      icon: 'browser-permissions',
-    };
-  }),
-
-  btnCopy: computed(function btnCopy() {
-    return {
-      hint: 'Copy element',
-      icon: 'browser-copy',
-    };
-  }),
-
-  btnCut: computed(function btnCut() {
-    return {
-      hint: 'Cut element',
-      icon: 'browser-cut',
-    };
-  }),
-
-  btnDelete: computed(function btnDelete() {
-    return {
-      hint: 'Delete element',
-      icon: 'browser-delete',
-    };
-  }),
-
-  btnDistribution: computed(function btnDistribution() {
-    return {
-      hint: 'Show data distribution',
-      icon: 'browser-distribution',
-    };
-  }),
-
-  btnUpload: computed(function btnUpload() {
-    return {
-      id: 'browser-upload',
-      elementClass: 'browser-upload',
-      hint: 'Upload files',
-      icon: 'browser-upload',
-    };
-  }),
-
-  buttons: collect(
-    'btnNewDir',
-    'btnShare',
-    'btnMetadata',
-    'btnInfo',
-    'btnRename',
-    'btnPermissions',
-    'btnCopy',
-    'btnCut',
-    'btnDelete',
-    'btnDistribution',
-    'btnUpload',
-  ),
 
   actions: {
-    buttonClicked(buttonId) {
-      if (buttonId !== 'browser-upload') {
-        this.get('buttonClicked')(buttonId);
-      }
+    buttonClicked(button) {
+      return get(button, 'action')();
+    },
+    toggleMoreTools(open) {
+      this.set('moreToolsOpen', open);
     },
   },
 });

@@ -1,11 +1,15 @@
-{{#each buttons as |button|}}
-  <div
-    onclick={{action "buttonClicked" button.id}}
-    class="fb-toolbar-button {{if button.disabled "disabled"}} {{button.elementClass}}"
-    disabled={{button.disabled}}>
-    {{one-icon icon=button.icon}}
-    {{#if button.hint}}
-      {{one-tooltip title=button.hint}}
-    {{/if}}
-  </div>
-{{/each}}
+<div class="toolbar-buttons">
+  {{#each toolbarButtons as |button|}}
+    <div
+      onclick={{action "buttonClicked" button}}
+      class="fb-toolbar-button {{if button.disabled "disabled"}} {{button.elementClass}}"
+      disabled={{button.disabled}}
+    >
+      {{#one-icon icon=button.icon}}
+        {{#if button.title}}
+          {{one-tooltip title=button.title}}
+        {{/if}}
+      {{/one-icon}}
+    </div>
+  {{/each}}
+</div>

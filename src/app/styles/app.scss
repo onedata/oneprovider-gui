@@ -3,9 +3,25 @@
 @import 'layout';
 @import 'components/file-browser';
 
-// TODO: remove when development ends
+// FIXME: remove when development ends
 
 .oneprovider-origin-info {
+  display: none !important;
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  opacity: 0.5;
+}
+
+.breakpoint-test {
+  display: none !important;
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  opacity: 0.5;
+}
+
+.test-data {
   position: fixed;
   right: 10px;
   bottom: 10px;
