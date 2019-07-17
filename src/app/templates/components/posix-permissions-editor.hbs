@@ -1,0 +1,31 @@
+<div class="permissions-representations">
+  <div class="permissions-string-container">{{permissions.stringRepresentation}}</div>
+  <div class="permissions-octal-container">
+    <input
+      class="permissions-octal"
+      value={{permissions.octalRepresentation}}
+      oninput={{action "octalChanged" value="target.value"}}>
+    {{isOctalInputValid}}
+  </div>
+</div>
+<div class="row entity-permissions-row">
+{{#each (array "user" "group" "other") as |entity|}}
+  <div class="col-xs-12 col-sm-4 entity-permissions">
+    <strong>{{tt this (concat "entities." entity)}}</strong>
+    <ul class="permissions-list">
+      {{#each (array "read" "write" "execute") as |permission|}}
+        <li>
+          <label for={{concat elementId entity permission}}>
+            {{one-checkbox
+              inputId=(concat elementId entity permission)
+              checked=(get (get permissions entity) permission)
+              update=(action "checkboxChanged" entity permission)}}
+            <span class="one-label checkbox-label">{{tt this (concat "permissions." permission)}}</span>
+          </label>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+{{/each}}
+</div>
+{{yield}}

@@ -1,0 +1,31 @@
+.posix-permissions-editor {
+  $checkbox-col-left-padding: 50px;
+
+  .permissions-list {
+    padding: 0;
+    list-style-type: none;
+  }
+  .one-checkbox, .checkbox-label {
+    vertical-align: middle;
+  }
+  .one-checkbox {
+    margin-right: $padding-xs-horizontal;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    overflow: hidden;
+
+    .entity-permissions-row {
+      margin-left: -$checkbox-col-left-padding;
+      margin-right: -$checkbox-col-left-padding;
+    }
+    .entity-permissions {
+      border-right: 1px solid $main-border-color;
+      padding-left: $checkbox-col-left-padding;
+
+      &:last-child {
+        border-right: 0;
+      }
+    }
+  }
+}

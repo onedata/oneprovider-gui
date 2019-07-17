@@ -56,9 +56,10 @@ describe('Unit | Utility | posix permissions', function () {
             .to.equal(permissionsLetters[permission]);
           expect(stringRepresentation.split('').filter(c => c !== ' ' && c !== '-'))
             .to.have.length(1);
-          expect(octalRepresentation).to.equal(
-            permissionsOctalNumbers[permission] * Math.pow(10, 2 - entityIndex)
-          );
+          const correctOctal = _.repeat('0', entityIndex) +
+            String(permissionsOctalNumbers[permission]) +
+            _.repeat('0', 2 - entityIndex);
+          expect(octalRepresentation).to.equal(correctOctal);
         }
       );
     });
@@ -66,32 +67,32 @@ describe('Unit | Utility | posix permissions', function () {
 
   [
     {
-      octal: 421,
+      octal: '421',
       booleans: [true, false, false, false, true, false, false, false, true],
       str: 'r-- -w- --x',
     },
     {
-      octal: 142,
+      octal: '142',
       booleans: [false, false, true, true, false, false, false, true, false],
       str: '--x r-- -w-',
     },
     {
-      octal: 214,
+      octal: '214',
       booleans: [false, true, false, false, false, true, true, false, false],
       str: '-w- --x r--',
     },
     {
-      octal: 664,
+      octal: '664',
       booleans: [true, true, false, true, true, false, true, false, false],
       str: 'rw- rw- r--',
     },
     {
-      octal: 0,
+      octal: '000',
       booleans: [false, false, false, false, false, false, false, false, false],
       str: '--- --- ---',
     },
     {
-      octal: 777,
+      octal: '777',
       booleans: [true, true, true, true, true, true, true, true, true],
       str: 'rwx rwx rwx',
     },

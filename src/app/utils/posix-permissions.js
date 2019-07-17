@@ -9,7 +9,7 @@
  */
 
 import EmberObject, { computed } from '@ember/object';
-import { array, collect, raw, multiply, sum } from 'ember-awesome-macros';
+import { array, collect, raw } from 'ember-awesome-macros';
 
 export default EmberObject.extend({
   /**
@@ -40,18 +40,21 @@ export default EmberObject.extend({
   ),
 
   /**
-   * @type {Ember.ComputedProperty<number>}
+   * @type {Ember.ComputedProperty<string>}
    */
-  octalRepresentation: sum(
-    multiply('user.octalRepresentation', raw(100)),
-    multiply('group.octalRepresentation', raw(10)),
-    'other.octalRepresentation'
+  octalRepresentation: array.join(
+    collect(
+      'user.octalRepresentation',
+      'group.octalRepresentation',
+      'other.octalRepresentation'
+    ),
+    raw('')
   ),
 
   /**
    * Sets permissions using given octal representation
-   * @param {number} octal permissions representation
-   *   (octal number in range 0-777)
+   * @param {string} octal permissions representation
+   *   (octal number in range 000-777)
    * @return {undefined}
    */
   fromOctalRepresentation(octal) {
@@ -61,9 +64,9 @@ export default EmberObject.extend({
       other,
     } = this.getProperties('user', 'group', 'other');
 
-    user.fromOctalRepresentation(Math.floor(octal / 100));
-    group.fromOctalRepresentation(Math.floor(octal / 10) % 10);
-    other.fromOctalRepresentation(Math.floor(octal % 10));
+    user.fromOctalRepresentation(octal[0]);
+    group.fromOctalRepresentation(octal[1]);
+    other.fromOctalRepresentation(octal[2]);
   },
 });
 
@@ -108,7 +111,7 @@ const EntityPermissions = EmberObject.extend({
   ),
 
   /**
-   * @type {Ember.ComputedProperty<number>}
+   * @type {Ember.ComputedProperty<string>}
    */
   octalRepresentation: computed(
     'read',
@@ -120,20 +123,22 @@ const EntityPermissions = EmberObject.extend({
         write,
         execute,
       } = this.getProperties('read', 'write', 'execute');
-      return (read ? 4 : 0) + (write ? 2 : 0) + (execute ? 1 : 0);
+      return String((read ? 4 : 0) + (write ? 2 : 0) + (execute ? 1 : 0));
     }
   ),
 
   /**
    * Sets permissions using given octal representation
-   * @param {number} octal permissions representation (number in range 0-7)
+   * @param {string} octal permissions representation (stringified number
+   *   in range 0-7)
    * @return {undefined}
    */
   fromOctalRepresentation(octal) {
+    const octalNumber = Number.parseInt(octal);
     this.setProperties({
-      read: Boolean(octal & 4),
-      write: Boolean(octal & 2),
-      execute: Boolean(octal & 1),
+      read: Boolean(octalNumber & 4),
+      write: Boolean(octalNumber & 2),
+      execute: Boolean(octalNumber & 1),
     });
   },
 });
