@@ -1,20 +1,22 @@
 <div class="permissions-representations">
   <div class="permissions-string-container">{{permissions.stringRepresentation}}</div>
-  <div class="permissions-octal-container">
+  <div class="permissions-octal-container {{unless isOctalInputValid "has-error"}}">
     <input
-      class="permissions-octal"
+      class="permissions-octal form-control"
       value={{permissions.octalRepresentation}}
-      oninput={{action "octalChanged" value="target.value"}}>
-    {{isOctalInputValid}}
+      maxlength="3"
+      size="3"
+      oninput={{action "octalChanged" value="target.value"}}
+      onkeydown={{invoke-on-enter (action "save")}}>
   </div>
 </div>
 <div class="row entity-permissions-row">
 {{#each (array "user" "group" "other") as |entity|}}
   <div class="col-xs-12 col-sm-4 entity-permissions">
-    <strong>{{tt this (concat "entities." entity)}}</strong>
+    <div class="entity-name">{{tt this (concat "entities." entity)}}</div>
     <ul class="permissions-list">
       {{#each (array "read" "write" "execute") as |permission|}}
-        <li>
+        <li class="permission">
           <label for={{concat elementId entity permission}}>
             {{one-checkbox
               inputId=(concat elementId entity permission)

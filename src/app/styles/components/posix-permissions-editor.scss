@@ -1,13 +1,59 @@
 .posix-permissions-editor {
   $checkbox-col-left-padding: 50px;
 
+  .permissions-representations {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid $main-border-color;
+    padding-bottom: $padding-base-vertical;
+    margin-bottom: $padding-base-vertical;
+  }
+
+  .permissions-string-container {
+    flex-grow: 1;
+    font-family: monospace;
+    font-size: 150%;
+  }
+
+  .permissions-octal {
+    padding: 0.7 * $padding-base-vertical $padding-xs-horizontal;
+    height: initial;
+    text-align: center;
+  }
+
+  .entity-permissions {
+    margin: $padding-base-vertical 0;
+    padding: $padding-small-vertical 0;
+  }
+
+  .entity-name {
+    font-weight: bold;
+    margin-bottom: $padding-large-vertical;
+  }
+
   .permissions-list {
     padding: 0;
+    margin: 0;
     list-style-type: none;
   }
+
+  .permission {
+    margin-bottom: $padding-base-vertical;
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: inline-block;
+      margin: 0;
+      cursor: pointer;
+    }
+  }
+
   .one-checkbox, .checkbox-label {
     vertical-align: middle;
   }
+
   .one-checkbox {
     margin-right: $padding-xs-horizontal;
   }
