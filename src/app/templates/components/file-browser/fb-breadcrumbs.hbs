@@ -1,19 +1,28 @@
 {{!-- TODO: loading parent dirs --}}
-{{!-- TODO: collapsing --}}
 
-{{#each dirPath as |parentDir i|}}
-  <div class="fb-breadcrumbs-dir fb-breadcrumbs-element {{if (eq i 0) "fb-breadcrumbs-dir-root"}}">
-    <a class="fb-breadcrumbs-dir-link azure" {{action "changeDir" parentDir}}>
-      {{#if (eq i 0)}}
-        <div class="inline-icon-container">
-          {{one-icon icon="home"}}          
-        </div>
+<div class="fb-breadcrumbs-inner">
+  {{#each parentItems as |item i|}}
+    <div class="fb-breadcrumbs-dir fb-breadcrumbs-element {{if (eq i 0) "fb-breadcrumbs-dir-root"}}">
+      {{#if item.isEllipsis}}
+        <span class="fb-breadcrumbs-dir-ellipsis fb-breadcrumbs-dir-name">
+          {{item.name}}
+        </span>
       {{else}}
-        {{parentDir.name}}
+        <a class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name" {{action "changeDir" item}}>
+          {{#if (eq i 0)}}
+            <div class="inline-icon-container">
+              {{one-icon icon="home"}}  
+            </div>
+          {{else}}
+            {{item.name}}
+          {{/if}}
+        </a>
       {{/if}}
-    </a>
-  </div>
-  <div class="fb-breadcrumbs-separator fb-breadcrumbs-element"></div>
-{{/each}}
-{{!-- TODO: with dropdown? --}}
-{{dir.name}}
+    </div>
+    <div class="fb-breadcrumbs-separator fb-breadcrumbs-element"></div>
+  {{/each}}
+  {{!-- TODO: with dropdown? --}}
+  <span class="fb-breadcrumbs-current-dir fb-breadcrumbs-dir-name">
+    {{currentItem.name}}
+  </span>
+</div>

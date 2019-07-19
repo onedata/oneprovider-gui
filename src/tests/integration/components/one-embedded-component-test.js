@@ -15,10 +15,12 @@ describe('Integration | Component | one embedded component', function () {
     const callParent = sinon.spy();
     const frameElement = {
       appProxy: {
-        parentInfo: {},
+        data: {
+          parentInfo: {},
+          iprop: 'hello',
+        },
         callParent,
         propertyChanged: () => {},
-        iprop: 'hello',
       },
     };
     frameElement.iprop = 'hello';
@@ -33,7 +35,7 @@ describe('Integration | Component | one embedded component', function () {
     {{/one-embedded-component}}`);
 
     next(() => {
-      frameElement.appProxy.iprop = 'world';
+      frameElement.appProxy.data.iprop = 'world';
       frameElement.appProxy.propertyChanged('iprop');
     });
     expect(this.$('#iprop-val')).to.contain('hello');

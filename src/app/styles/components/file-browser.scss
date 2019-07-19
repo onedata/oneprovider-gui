@@ -15,6 +15,7 @@ $-file-browser-item-height: 32px;
     line-height: $-file-browser-header-height;
     background-color: $color-one-white;
     .fb-head-inner {
+      display: flex;
       margin-right: -20px;
     }
   }
@@ -28,6 +29,7 @@ $-file-browser-item-height: 32px;
   display: flex;
   flex-direction: row-reverse;
   height: $-file-browser-header-height;
+  min-width: 250px;
 }
 
 .fb-toolbar {
@@ -92,10 +94,28 @@ $-file-browser-item-height: 32px;
   }
 }
 
+.fb-breadcrumbs-container {
+  flex-grow: 1;
+  white-space: nowrap;
+}
+
 .fb-breadcrumbs {
   display: block;
   position: relative;
   overflow-y: hidden;
+  overflow-x: hidden;
+  
+  .fb-breadcrumbs-inner {
+    display: inline-block;
+    white-space: nowrap;
+    position: relative;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+    &.breadcrumbs-recomputing {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+  }
   
   .fb-breadcrumbs-element {
     display: inline-block;
