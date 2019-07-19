@@ -15,7 +15,7 @@ import Resumable from 'npm:resumablejs';
 import { v4 as uuidV4 } from 'ember-uuid';
 import { resolve } from 'rsvp';
 
-// TODO
+// TODO:
 // - get oneproviderApiOrigin for targetUrl in resumable
 // - get authToken for X-Auth-Token in resumable (maybe with getGuiAuthToken from websocket-client),
 //   but it need initialization due to async character
@@ -105,7 +105,7 @@ export default Service.extend({
    */
   filesAdded(files) {
     const targetDirectoryId = this.get('targetDirectoryId');
-    files.forEach(file => file.targetDirectoryId = targetDirectoryId);
+    files.setEach('targetDirectoryId', targetDirectoryId);
 
     this.startNewUploadSession()
       .then(({ uploadId }) => {

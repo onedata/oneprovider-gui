@@ -1,19 +1,20 @@
 .content-file-browser {
+  $drop-zone-rect-margin: $padding-small-horizontal;
+
   flex-grow: 1;
 
   .upload-drop-zone {
     position: fixed;
-    $-rect-margin: $padding-small-horizontal;
-    top: $-rect-margin;
-    bottom: $-rect-margin;
-    left: $-rect-margin;
-    right: $-rect-margin;
+    top: $drop-zone-rect-margin;
+    bottom: $drop-zone-rect-margin;
+    left: $drop-zone-rect-margin;
+    right: $drop-zone-rect-margin;
     display: none;
     border: 3px dashed darken($color-one-light-blue, 10%);
     background-color: rgba($color-one-light-blue, 0.75);
     z-index: 10000;
     
-    .one-icon {
+    .upload-watermark-icon {
       position: absolute;
       top: 50%;
       left: 50%;
