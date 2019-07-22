@@ -62,6 +62,7 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   fileActions: service(),
+  uploadingManager: service(),
 
   /**
    * @override
@@ -129,6 +130,7 @@ export default Component.extend(I18n, {
   btnUpload: computed(function btnUpload() {
     return this.createFileAction({
       id: 'upload',
+      elementClass: 'browser-upload',
       showIn: [
         actionContext.inDir,
       ],
@@ -242,10 +244,27 @@ export default Component.extend(I18n, {
 
   didInsertElement() {
     this._super(...arguments);
+
+    const {
+      element,
+      uploadingManager,
+      clickOutsideDeselectHandler,
+    } = this.getProperties(
+      'element',
+      'uploadingManager',
+      'clickOutsideDeselectHandler'
+    );
+
     document.body.addEventListener(
       'click',
-      this.get('clickOutsideDeselectHandler')
-    );
+      clickOutsideDeselectHandler
+    );    
+
+    const uploadingDropElement = element.parentElement;
+    uploadingManager.assignUploadingDrop(uploadingDropElement);
+
+    const uploadingBrowseElement = document.querySelectorAll('.browser-upload');
+    uploadingManager.assignUploadingBrowse(uploadingBrowseElement);
   },
 
   willDestroyElement() {
