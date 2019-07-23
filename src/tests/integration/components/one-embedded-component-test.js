@@ -15,12 +15,12 @@ describe('Integration | Component | one embedded component', function () {
     const callParent = sinon.spy();
     const frameElement = {
       appProxy: {
-        data: {
-          parentInfo: {},
-          iprop: 'hello',
-        },
         callParent,
         propertyChanged: () => {},
+        data: {
+          iprop: 'hello',
+          parentInfo: {},
+        },
       },
     };
     frameElement.iprop = 'hello';

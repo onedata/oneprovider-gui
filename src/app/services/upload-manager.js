@@ -2,7 +2,7 @@
  * Manages uploading files using resumable.js and external state of upload
  * received from Onezone.
  * 
- * @module services/uploading-manager
+ * @module services/upload-manager
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -34,7 +34,7 @@ export default Service.extend({
   /**
    * @type {Ember.ComputedProperty<Object>}
    */
-  injectedUploadState: reads('appProxy.injectedData.uploadingFiles'),
+  injectedUploadState: reads('appProxy.injectedData.uploadFiles'),
 
   resumable: computed(function resumable() {
     const oneproviderApiOrigin = '???';
@@ -179,7 +179,7 @@ export default Service.extend({
    * @param {HTMLElement} dropElement
    * @return {undefined}
    */
-  assignUploadingDrop(dropElement) {
+  assignUploadDrop(dropElement) {
     this.get('resumable').assignDrop(dropElement);
 
     let lastEnter;
@@ -205,7 +205,7 @@ export default Service.extend({
    * @param {HTMLElement} browseElement
    * @return {undefined}
    */
-  assignUploadingBrowse(browseElement) {
+  assignUploadBrowse(browseElement) {
     this.get('resumable').assignBrowse(browseElement);
   },
 
