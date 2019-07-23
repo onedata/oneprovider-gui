@@ -20,7 +20,7 @@ import { get } from '@ember/object';
 import { resolve } from 'rsvp';
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 
-const ellipsisString = '...';
+export const ellipsisString = '...';
 
 /**
  * @param {Ember.A<FileBreadcrumbsItem>} items
@@ -28,7 +28,10 @@ const ellipsisString = '...';
  * @returns {Promise<Ember.A<FileBreadcrumbsItem>>} resolves with reference to altered `items`
  */
 function addEllipsisBreadcrumbsItem(items, child) {
-  assert('child item cannot be null or undefined', child);
+  assert(
+    'utils/add-ellipsis-breadcrumbs-item: child item cannot be null or undefined',
+    child
+  );
   const hasEllipsisFile = child.get('file.hasParent');
   if (hasEllipsisFile) {
     return get(child, 'file.parent').then(ellipsisFile => {
@@ -44,7 +47,7 @@ function addEllipsisBreadcrumbsItem(items, child) {
       } else {
         assert(
           childIndex > -1,
-          'when adding ellipsis item, the child of ellipsis item should be present in items array'
+          'utils/add-ellipsis-breadcrumbs-item: when adding ellipsis item, the child of ellipsis item should be present in items array'
         );
         const ellipsisItem = FileBreadcrumbsItem.create({
           file: ellipsisFile,

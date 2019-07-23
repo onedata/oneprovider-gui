@@ -2,81 +2,81 @@
  * A function for reducing number of breadcrumbs items (for long paths).
  * @module utils/filter-breadcrumbs-items
  * @author Jakub Liput
- * @copyright (C) 2016 ACK CYFRONET AGH
+ * @copyright (C) 2016-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import { resolve } from 'rsvp';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import addEllipsisBreadcrumbsItem from 'oneprovider-gui/utils/add-ellipsis-breadcrumbs-item';
+import addEllipsisBreadcrumbsItem, { ellipsisString } from 'oneprovider-gui/utils/add-ellipsis-breadcrumbs-item';
+import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
+
+function addEllipsisForLastItem(items, resultArray) {
+  return get(items, 'lastObject.file.parent').then(parentOfLast => {
+    const ellipsisItem = FileBreadcrumbsItem.create({
+      file: parentOfLast,
+      name: ellipsisString,
+      isEllipsis: true,
+    });
+    resultArray.push(ellipsisItem);
+    return resolve(resultArray);
+  });
+}
 
 /**
- * Filters elements of given breadcrumbs items array
- * to get array with reduced number of breadcrumbs items.
- * 
- * The filter chooses items using priority algorithm for adding items to result,
- * preservig their order from original array. The priority is:
- * 1. add last item (current dir),
- * 2. add root item,
- * 3. add parent of last item,
- * 4. add first child of root item,
- * 5. add parents of parent of last item, starting from last parent.
- * 
+ * Filters elements of given breadcrumbs items array to get array with reduced
+ * number of breadcrumbs items WITHOUT last element.
+ *  
  * Also an "ellispis item" presented as "..." is added, which is a link to parent
  * of right item on its right.
  * 
  * Example: we got items: `root > a > b > c > d > e > f > current_dir`.
- * Invoking `filterBreadcrumbsItems(items, 5)` willl give us:
- * `root > a > ... > e > f > current_dir` where "..." is "ellipsis item".
+ * Invoking `filterBreadcrumbsItems(items, 5)` will give us:
+ * `root > a > ... > e > f` where "..." is "ellipsis item".
+ * 
+ * See tests for more examples.
  * 
  * @param {Ember.A<FileBreadcrumbsItem>} items
- * @param {Number} count max. number of dir names from `items` that should be included
- *                       in result array
+ * @param {Number} count max. number entries in result array, NOTE: 0, 1, 2 will give result for 2
  * @returns {RSVP.Promise<Ember.A<FileBreadcrumbsItem>>} resolves with reduced breadcrumbs
  *                                         items array;
- *                                         max. lenght of the array is `count+1`
+ *                                         max. length of the array is `count+1`
  *                                         or `items` length
  */
-function filterBreadcrumbsItems(items, count) {
+export default function filterBreadcrumbsItems(items, count) {
   let resultArray = A();
   const itemsCount = get(items, 'length');
-  // at least 1
-  if (count > 0 && itemsCount > 0) {
-    // add last element (current dir)
-    // [current_dir]
-    resultArray.push(get(items, 'lastObject'));
+  if (itemsCount > 1) {
+    // add first element (root) and current dir
+    // [root]
+    resultArray.push(get(items, 'firstObject'));
+
+    // we got at least root, some directory and last directory,
+    if (itemsCount > 2) {
+      // add ellipsis for last item at the end
+      // return [root > ellipsis_of_last]
+      if (count <= 2) {
+        return addEllipsisForLastItem(items, resultArray);
+      } else {
+        // [root > parent_of_last] and iterate
+        resultArray.push(items.objectAt(get(items, 'length') - 2));
+      }
+    } else {
+      return addEllipsisBreadcrumbsItem(resultArray, resultArray.objectAt(0));
+    }
   } else {
     // return empty array
     // []
     return resolve(resultArray);
   }
-  // 2 or more: []
-  if (count > 1 && itemsCount > 1) {
-    // add root item at the front of items
-    // [root > pwd]
-    resultArray.splice(0, 0, items.get('firstObject'));
-  } else {
-    // only one element, but add ellipsis item if can
-    // [... > pwd]
-    return addEllipsisBreadcrumbsItem(resultArray, get(resultArray, 'firstObject'));
-  }
-  // 3 or more
-  if (count > 2 && itemsCount > 2) {
-    // add parent of current dir before current dir
-    // [root > pwd_parent > pwd]
-    resultArray.splice(1, 0, items.objectAt(items.length - 2));
-  } else {
-    // [root > ... > pwd]
-    return addEllipsisBreadcrumbsItem(resultArray, get(resultArray, 'lastObject'));
-  }
   // 4 or more
-  if (count > 3 && itemsCount > 3) {
+  if (count > 3 && itemsCount > 4) {
     // add first child of root
-    // [root > root_child > pwd_parent > pwd]
+    // [root > root_child > parent_of_last]
     resultArray.splice(1, 0, items.objectAt(1));
   } else {
-    // [root > ... > pwd_parent > pwd]
+    // [root > ... > parent_of_last]
     return addEllipsisBreadcrumbsItem(resultArray, resultArray.objectAt(1));
   }
   // 5 or more
@@ -97,5 +97,3 @@ function filterBreadcrumbsItems(items, count) {
 
   return addEllipsisBreadcrumbsItem(resultArray, resultArray.objectAt(2));
 }
-
-export default filterBreadcrumbsItems;

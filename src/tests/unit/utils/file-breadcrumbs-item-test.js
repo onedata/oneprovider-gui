@@ -7,7 +7,7 @@ import {
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 import EmberObject from '@ember/object';
 
-describe('FileBreadcrumbsItem', function () {
+describe('Unit | Utility | file breadcrumbs item', function () {
   it('uses file name as its name by default', function () {
     let file = EmberObject.create({
       name: 'hello',

@@ -12,13 +12,16 @@ const FakeFile = EmberObject.extend({
   }),
 });
 
-function generateBreadcrumbsItems(numberOfFiles) {
+function generateBreadcrumbsItems(numberOfFiles = 0) {
   let result = {};
   result.fileNames = [...Array(numberOfFiles).keys()].map(i => `file-${i}`);
   result.files = result.fileNames.map(name => FakeFile.create({
     name: name,
     id: name + '-id',
   }));
+  if (numberOfFiles > 0) {
+    result.files[0].hasParent = false;
+  }
   for (let i = 0; i < result.files.length; i += 1) {
     /* jshint loopfunc: true */
     let ic = i;

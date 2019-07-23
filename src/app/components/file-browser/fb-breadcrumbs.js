@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { observer, computed, get } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, not } from '@ember/object/computed';
 import { next, debounce, later } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve } from 'rsvp';
@@ -17,13 +17,30 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-items';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
-import { difference, array } from 'ember-awesome-macros';
+import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+
+/**
+ * @type {number}
+ * In milliseconds
+ */
+const recomputePathAnimationDuration = 200;
+
+/**
+ * @type {number}
+ * In milliseconds
+ */
+const checkWidthOnResizeDelay = 100;
 
 export default Component.extend(
   createDataProxyMixin('dirPath', { type: 'array' }),
   createDataProxyMixin('breadcrumbsItems', { type: 'array' }),
   createDataProxyMixin('filteredBreadcrumbsItems', { type: 'array' }), {
     classNames: ['fb-breadcrumbs'],
+
+    /**
+     * @virtual
+     */
+    allButtonsArray: undefined,
 
     /**
      * @virtual
@@ -52,7 +69,29 @@ export default Component.extend(
      */
     elementsToShow: Infinity,
 
+    /**
+     * @type {boolean}
+     */
+    dirActionsOpen: undefined,
+
     _window: window,
+
+    isRootDir: not('dir.hasParent'),
+
+    menuButtons: computed(
+      'allButtonsArray',
+      'isRootDir',
+      function menuButtons() {
+        const {
+          allButtonsArray,
+          isRootDir,
+        } = this.getProperties('allButtonsArray', 'isRootDir');
+        return getButtonActions(
+          allButtonsArray,
+          isRootDir ? 'spaceRootDir' : 'currentDir'
+        );
+      }
+    ),
 
     checkWidthOnResize() {
       this.set('elementsToShow', Infinity);
@@ -60,7 +99,7 @@ export default Component.extend(
       later(() => {
         this.updateFilteredBreadcrumbsItemsProxy()
           .then(() => next(() => this.checkWidth(true)));
-      }, 200);
+      }, recomputePathAnimationDuration);
     },
 
     init() {
@@ -74,7 +113,7 @@ export default Component.extend(
         next(() => this.checkWidth());
       });
       this.set('__checkWidthFun', () => {
-        debounce(this, 'checkWidthOnResize', 100);
+        debounce(this, 'checkWidthOnResize', checkWidthOnResizeDelay);
       });
       this.get('_window').addEventListener('resize', this.get('__checkWidthFun'));
     },
@@ -84,7 +123,7 @@ export default Component.extend(
     },
 
     /**
-     * Watch changes on properites that can cause change the width of fb-breadcrumbs.
+     * Watch changes on properties that can cause change the width of fb-breadcrumbs.
      * As fb-breadcrumbs-inner can overflow its parent, thus it can have width greater than
      * fb-breadcrumbs, decrement `elementsToShow` count to try to fit fb-breadcrumbs-inner
      * into its container.
@@ -94,16 +133,12 @@ export default Component.extend(
       'breadcrumbsItems.content.[]',
       function checkWidth(noAnimation) {
         const itemsCount = this.get('filteredBreadcrumbsItems.length');
-        if (!itemsCount) {
-          console.log('no items count ' + itemsCount);
-          return;
-        }
         const $fileBreadcrumbs = this.$();
         const $fileBreadcrumbsInner = this.$('.fb-breadcrumbs-inner');
         const elementsToShow = this.get('elementsToShow');
         const innerBreadcrumbsWidth = $fileBreadcrumbsInner.width();
         const containerWidth = $fileBreadcrumbs.width();
-        if (innerBreadcrumbsWidth > containerWidth) {
+        if (innerBreadcrumbsWidth > containerWidth && elementsToShow !== 0) {
           if (elementsToShow > itemsCount) {
             this.set('elementsToShow', itemsCount);
           } else {
@@ -115,7 +150,7 @@ export default Component.extend(
           later(() => {
             this.updateFilteredBreadcrumbsItemsProxy()
               .then(() => next(() => this.checkWidth(true)));
-          }, noAnimation ? 0 : 200);
+          }, noAnimation ? 0 : recomputePathAnimationDuration);
         } else {
           $fileBreadcrumbsInner.removeClass('breadcrumbs-recomputing');
         }
@@ -134,13 +169,7 @@ export default Component.extend(
       return !dirsPath || !dirsPath.isAny('name');
     }),
 
-    parentItems: array.slice(
-      'filteredBreadcrumbsItemsProxy.content',
-      0,
-      difference('filteredBreadcrumbsItemsProxy.length', 1)
-    ),
-
-    currentItem: reads('filteredBreadcrumbsItems.lastObject'),
+    currentItem: reads('breadcrumbsItems.lastObject'),
 
     /**
      * @override
@@ -196,6 +225,11 @@ export default Component.extend(
     actions: {
       changeDir(dir) {
         this.get('changeDir')(dir);
+      },
+      toggleDirActions(open) {
+        const _open =
+          (typeof open === 'boolean') ? open : !this.get('dirActionsOpen');
+        this.set('dirActionsOpen', _open);
       },
     },
   }

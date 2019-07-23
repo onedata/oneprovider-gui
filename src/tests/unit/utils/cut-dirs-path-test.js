@@ -7,7 +7,7 @@ import {
 } from 'mocha';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 
-describe('cutDirsPath', function () {
+describe('Unit | Utility | cut dirs path', function () {
   it('returns modified dirsPath with rootDir as first element', function () {
     const f0 = EmberObject.create({
       id: '0',
