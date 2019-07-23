@@ -62,7 +62,7 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   fileActions: service(),
-  uploadingManager: service(),
+  uploadManager: service(),
 
   /**
    * @override
@@ -247,11 +247,11 @@ export default Component.extend(I18n, {
 
     const {
       element,
-      uploadingManager,
+      uploadManager,
       clickOutsideDeselectHandler,
     } = this.getProperties(
       'element',
-      'uploadingManager',
+      'uploadManager',
       'clickOutsideDeselectHandler'
     );
 
@@ -260,11 +260,11 @@ export default Component.extend(I18n, {
       clickOutsideDeselectHandler
     );    
 
-    const uploadingDropElement = element.parentElement;
-    uploadingManager.assignUploadingDrop(uploadingDropElement);
+    const uploadDropElement = element.parentElement;
+    uploadManager.assignUploadDrop(uploadDropElement);
 
-    const uploadingBrowseElement = document.querySelectorAll('.browser-upload');
-    uploadingManager.assignUploadingBrowse(uploadingBrowseElement);
+    const uploadBrowseElement = document.querySelectorAll('.browser-upload');
+    uploadManager.assignUploadBrowse(uploadBrowseElement);
   },
 
   willDestroyElement() {
