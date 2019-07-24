@@ -3,6 +3,7 @@
 .embedded-content {
   position: absolute;
   @include fill-container();
+  display: flex;
   padding-top: $content-row-vertical-padding;
   padding-right: $content-col-padding;
   padding-bottom: $content-col-padding;
