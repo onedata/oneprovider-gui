@@ -14,10 +14,12 @@ import { next, debounce, later } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve } from 'rsvp';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-items';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 /**
  * @type {number}
@@ -32,10 +34,16 @@ const recomputePathAnimationDuration = 200;
 const checkWidthOnResizeDelay = 100;
 
 export default Component.extend(
+  I18n,
   createDataProxyMixin('dirPath', { type: 'array' }),
   createDataProxyMixin('breadcrumbsItems', { type: 'array' }),
   createDataProxyMixin('filteredBreadcrumbsItems', { type: 'array' }), {
     classNames: ['fb-breadcrumbs'],
+
+    /**
+     * @override
+     */
+    i18nPrefix: 'components.fileBrowser.fbBreadcrumbs',
 
     /**
      * @virtual
@@ -62,6 +70,13 @@ export default Component.extend(
     changeDir: notImplementedReject,
 
     /**
+     * @virtual
+     * @type {Function}
+     * @param {boolean} opened true if the dropdown changed to opened state
+     */
+    dirActionsToggled: notImplementedThrow,
+
+    /**
      * How many breadcrumbs items should be rendered.
      * A special element: (...) is always additionally rendered,
      * so there will be N+1 elements visible.
@@ -86,10 +101,13 @@ export default Component.extend(
           allButtonsArray,
           isRootDir,
         } = this.getProperties('allButtonsArray', 'isRootDir');
-        return getButtonActions(
-          allButtonsArray,
-          isRootDir ? 'spaceRootDir' : 'currentDir'
-        );
+        return [
+          { separator: true, title: this.t('menuCurrentDir') },
+          ...getButtonActions(
+            allButtonsArray,
+            isRootDir ? 'spaceRootDir' : 'currentDir'
+          ),
+        ];
       }
     ),
 
@@ -202,7 +220,6 @@ export default Component.extend(
 
     /**
      * @override
-     * FIXME: comment
      * BreadcrumbsItems filtered with `filterBreadcrumbsItems` function.
      * It should contain max. `elementsToShow` + ellipsis elements. 
      * @type {ObjectPromiseProxy<Ember.Array<FileBreadcrumbsItem>>}
@@ -230,6 +247,9 @@ export default Component.extend(
         const _open =
           (typeof open === 'boolean') ? open : !this.get('dirActionsOpen');
         this.set('dirActionsOpen', _open);
+      },
+      dirActionsToggled(opened) {
+        this.get('dirActionsToggled')(opened);
       },
     },
   }

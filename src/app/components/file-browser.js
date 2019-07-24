@@ -293,4 +293,13 @@ export default Component.extend(I18n, {
   clearFilesSelection() {
     this.get('selectedFiles').clear();
   },
+
+  actions: {
+    selectCurrentDir(select) {
+      this.clearFilesSelection();
+      if (select) {
+        this.selectedFiles.push(this.get('dir'));
+      }
+    },
+  },
 });

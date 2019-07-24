@@ -9,6 +9,10 @@
 
 import Service from '@ember/service';
 
+function dummyAction(message, files) {
+  alert(message + files.mapBy('name'));
+}
+
 export default Service.extend({
   // #region Actions implementation
 
@@ -21,39 +25,39 @@ export default Service.extend({
   },
 
   actInfo(files) {
-    alert('info: ' + files);
+    dummyAction('info: ', files);
   },
 
   actShare(files) {
-    alert('share: ' + files);
+    dummyAction('share: ', files);
   },
 
   actMetadata(files) {
-    alert('metadata: ' + files);
+    dummyAction('metadata: ', files);
   },
 
   actPermissions(files) {
-    alert('permissions: ' + files);
+    dummyAction('permissions: ', files);
   },
 
   actDistribution(files) {
-    alert('distribution: ' + files);
+    dummyAction('distribution: ', files);
   },
 
   actRename(files) {
-    alert('rename: ' + files);
+    dummyAction('rename: ', files);
   },
 
   actCopy(files) {
-    alert('copy: ' + files);
+    dummyAction('copy: ', files);
   },
 
   actCut(files) {
-    alert('cut: ' + files);
+    dummyAction('cut: ', files);
   },
 
   actDelete(files) {
-    alert('delete: ' + files);
+    dummyAction('delete: ', files);
   },
 
   // #endregion

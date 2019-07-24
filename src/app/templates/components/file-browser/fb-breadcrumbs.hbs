@@ -25,12 +25,11 @@
       {{one-icon icon="arrow-down"}}
     </div>
     {{#one-webui-popover
-      class="dir-actions-popover"
-      popoverStyle="with-dropdown"
+      popoverStyle="with-dropdown webui-popover-in-fb-head"
       padding=false
       popoverTrigger="manual"
-      __triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
       triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
+      onToggle=(action "dirActionsToggled")
       open=dirActionsOpen
     }}
       {{#click-outside action=(action "toggleDirActions" false)}}
