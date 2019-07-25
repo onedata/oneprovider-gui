@@ -1,4 +1,10 @@
 .acl-editor {
+  .acl-entry-editor.type-deny {
+    .one-way-toggle.checked .one-way-toggle-control {
+      background-color: $color-one-danger;
+    }
+  }
+
   .acl-type-presenter {
     display: flex;
     position: relative;
