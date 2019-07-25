@@ -1,5 +1,6 @@
 export default [{
   groupName: 'data',
+  icon: 'browser-directory',
   privileges: [
     {
       name: 'read_object',
@@ -45,6 +46,7 @@ export default [{
   ],
 }, {
   groupName: 'acl',
+  icon: 'browser-permissions',
   privileges: [
     {
       name: 'read_acl',
@@ -58,6 +60,7 @@ export default [{
   ],
 }, {
   groupName: 'metadata',
+  icon: 'browser-metadata',
   privileges: [
     {
       name: 'read_metadata',
@@ -71,6 +74,7 @@ export default [{
   ],
 }, {
   groupName: 'attributes',
+  icon: 'browser-attribute',
   privileges: [
     {
       name: 'read_attributes',
@@ -84,6 +88,7 @@ export default [{
   ],
 }, {
   groupName: 'general',
+  icon: 'browser-permission',
   privileges: [
     {
       name: 'delete',

@@ -1,1 +1,6 @@
-{{yield}}
+{{#each entries as |aclEntry|}}
+  {{acl-editor/acl-entry
+    entry=aclEntry
+    context="file"
+    onChange=(action "aclChanged")}}
+{{/each}}

@@ -1,0 +1,57 @@
+.acl-editor {
+  .acl-type-presenter {
+    display: flex;
+    position: relative;
+    height: 28px;
+    align-items: center
+  }
+
+  .acl-type-label {
+    @include font-semibold();
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 0;
+    width: 51px;
+  }
+
+  .acl-type-selector {
+    flex-grow: 1;
+    display: block;
+    margin-right: -2px;
+    .btn {
+      width: 50%;
+    }
+  }
+
+  .btn.active {
+    box-shadow: none;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    .one-dynamic-tree {
+      max-width: initial;
+    }
+
+    .one-tree .one-tree-list > li {
+      &.has-checkbox-group {
+        padding-left: 50px;
+        &.subtree-expanded > .tree-item-content-container .tree-circle {
+          left: 46px;
+        }
+        .one-tree {
+          background-color: transparent;
+        }
+      }
+      > .tree-item-content-container > .tree-circle {
+        left: 46px;
+      }
+      &::before {
+        width: 45px;
+      }
+    }
+    .form-group {
+      padding-right: 0;
+      transition: padding-right 0.2s ease;
+    }
+  }
+}

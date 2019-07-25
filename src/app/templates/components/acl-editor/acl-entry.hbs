@@ -1,0 +1,23 @@
+
+<div class="acl-type-presenter">
+  <label class="acl-type-label">{{tt this "aclType"}}</label>
+  {{#bs-button-group
+    class="acl-type-selector"
+    value=aclType
+    type="radio"
+    onChange=(action "aclTypeChanged") as |bg|}}
+    {{#bg.button type=(if (eq aclType "allow") "primary" "default") class="btn-sm acl-type acl-type-allow" value="allow"}}
+      {{one-icon icon="checkbox-filled"}} {{tt this "aclTypes.allow"}}
+    {{/bg.button}}
+    {{#bg.button type=(if (eq aclType "deny") "danger" "default") class="btn-sm acl-type acl-type-deny" value="deny"}}
+      {{one-icon icon="checkbox-filled-x"}}{{tt this "aclTypes.deny"}}
+    {{/bg.button}}
+  {{/bs-button-group}}  
+</div>
+{{privileges-tree-editor
+  privilegesGroups=permissionsSpecification
+  privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
+  privilegesTranslationsPath="components.aclEditor.permissions"
+  comparePrivileges=persistedPermissionsTree
+  overridePrivileges=initialPermissionsTree
+  onChange=(action "permissionsChanged")}}
