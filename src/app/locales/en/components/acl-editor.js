@@ -36,5 +36,8 @@ export default {
       deny: 'denied',
       allow: 'allowed',
     },
+    moveDown: 'Move down',
+    moveUp: 'Move up',
+    remove: 'Remove',
   },
 };

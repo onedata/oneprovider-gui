@@ -1,11 +1,18 @@
-{{#one-collapsible-list as |list|}}
-  {{#list.item as |listItem|}}
-    {{#each entries as |aclEntry|}}
-      {{acl-editor/acl-entry
-        listItem=listItem
-        entry=aclEntry
-        context="file"
-        onChange=(action "aclChanged")}}
+{{#promise-proxy-container proxy=aclCollectionSnapshotProxy}}
+  {{#one-collapsible-list accordionMode=true as |list|}}
+    {{#each aclCollectionSnapshot as |aclEntry|}}
+      {{#list.item as |listItem|}}
+        {{acl-editor/acl-entry
+          listItem=listItem
+          entry=aclEntry
+          context="file"
+          onChange=(action "aclChanged" aclEntry)
+          onMoveUp=(action "moveUp" aclEntry)
+          onMoveDown=(action "moveDown" aclEntry)
+          onRemove=(action "remove" aclEntry)
+          isFirstEntry=(eq aclEntry aclCollectionSnapshot.firstObject)
+          isLastEntry=(eq aclEntry aclCollectionSnapshot.lastObject)}}
+      {{/list.item}}
     {{/each}}
-  {{/list.item}}
-{{/one-collapsible-list}}
+  {{/one-collapsible-list}}
+{{/promise-proxy-container}}

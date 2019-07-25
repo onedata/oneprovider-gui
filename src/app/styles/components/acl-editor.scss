@@ -23,6 +23,7 @@
       }
     }
     .status-toolbar-icon {
+      transition: color 0.2s ease;
       &.mixed {
         color: $color-one-warning;
       }
@@ -36,13 +37,12 @@
     line-height: 0;
   }
 
-  .one-collapsible-list-item-content {
-    padding: $padding-base-horizontal;
-  }
-
-  .acl-entry-editor.type-deny {
-    .one-way-toggle.checked .one-way-toggle-control {
-      background-color: $color-one-danger;
+  .acl-entry-editor {
+    margin: $padding-base-horizontal;
+    &.type-deny {
+      .one-way-toggle.checked .one-way-toggle-control {
+        background-color: $color-one-danger;
+      }
     }
   }
 
@@ -76,6 +76,14 @@
   }
 
   @media (min-width: $screen-sm-min) {
+    .one-collapsible-list .list-header-row {
+      padding-right: 230px;
+    }
+
+    .acl-entry-editor {
+      max-width: 300px;
+    }
+
     .form > .one-tree {
       background-color: $main-content-hover-background;
     }

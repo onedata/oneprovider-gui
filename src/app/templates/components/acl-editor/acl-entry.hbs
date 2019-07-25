@@ -4,11 +4,17 @@
     {{one-tooltip title=subject.name}}
   </span>
   <span class="one-label">{{subject.name}}</span>
-  {{#status-toolbar as |toolbar|}}
-    {{#each statusIcons as |status|}}
+  {{#status-toolbar class="hidden-xs" as |toolbar|}}
+    {{#each statusIcons key="icon" as |status|}}
       {{toolbar.icon icon=status.icon hint=status.tooltipText status=status.stateClass}}
     {{/each}}
   {{/status-toolbar}}
+  {{actions-toolbar
+    isMinimized=true
+    toolbarClasses=""
+    toolbarToggleClasses="btn-menu-toggle"
+    dropdownPlacement="auto"
+    actionsArray=actionsArray}}
 {{/listItem.header}}
 {{#listItem.content}}
   <div class="acl-entry-editor type-{{aclType}}">

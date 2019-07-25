@@ -1,6 +1,6 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
-import { reads, alias } from '@ember/object/computed';
+import { reads, alias, collect } from '@ember/object/computed';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -39,6 +39,36 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   onChange: notImplementedIgnore,
+
+  /**
+   * @type {Function}
+   * @returns {undefined}
+   */
+  onMoveUp: notImplementedIgnore,
+
+  /**
+   * @type {Function}
+   * @returns {undefined}
+   */
+  onMoveDown: notImplementedIgnore,
+
+  /**
+   * @type {Function}
+   * @returns {undefined}
+   */
+  onRemove: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  isFirstEntry: false,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  isLastEntry: false,
 
   /**
    * @type {Object}
@@ -102,6 +132,13 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * Array of objects with fields:
+   *   - icon: string,
+   *   - stateClass: 'unset'|'checked'|'mixed',
+   *   - tooltipText: string.
+   * @type {Ember.ComputedProperty<Array<Object>>}
+   */
   statusIcons: computed(
     'permissionsTree',
     'permissionsSpecification',
@@ -148,6 +185,46 @@ export default Component.extend(I18n, {
       });
     }
   ),
+
+  /**
+   * @type {Ember.ComputedProperty<Action>}
+   */
+  moveUpAction: computed('isFirstEntry', function moveUpAction() {
+    return {
+      action: () => this.get('onMoveUp')(),
+      title: this.t('moveUp'),
+      class: 'move-up-action',
+      icon: 'move-up',
+      disabled: this.get('isFirstEntry'),
+    };
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<Action>}
+   */
+  moveDownAction: computed('isLastEntry', function moveDownAction() {
+    return {
+      action: () => this.get('onMoveDown')(),
+      title: this.t('moveDown'),
+      class: 'move-down-action',
+      icon: 'move-down',
+      disabled: this.get('isLastEntry'),
+    };
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<Action>}
+   */
+  removeAction: computed(function removeAction() {
+    return {
+      action: () => this.get('onRemove')(),
+      title: this.t('remove'),
+      class: 'remove-action',
+      icon: 'remove',
+    };
+  }),
+
+  actionsArray: collect('moveUpAction', 'moveDownAction', 'removeAction'),
 
   init() {
     this._super(...arguments);
