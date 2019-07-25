@@ -17,6 +17,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Components.OneCollapsibleListItem}
+   */
+  listItem: undefined,
+
+  /**
+   * @virtual
    */
   entry: undefined,
 
@@ -33,6 +39,16 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   onChange: notImplementedIgnore,
+
+  /**
+   * @type {Object}
+   */
+  permissionsTree: undefined,
+
+  /**
+   * 
+   */
+  subject: reads('entry.subject'),
 
   /**
    * @type {Ember.ComputedProperty}
@@ -60,16 +76,15 @@ export default Component.extend(I18n, {
     }
   ),
 
+  icon: computed('subject', function icon() {
+    return 'user';
+  }),
+
   /**
    * @virtual
    * @type {number}
    */
   permissions: reads('entry.permissions'),
-
-  /**
-   * @type {Object}
-   */
-  permissionsTree: undefined,
 
   /**
    * Mapping: permsGroupName -> { permName -> boolean }
@@ -84,6 +99,53 @@ export default Component.extend(I18n, {
         context,
       } = this.getProperties('permissions', 'context');
       return numberToTree(permissions, context);
+    }
+  ),
+
+  statusIcons: computed(
+    'permissionsTree',
+    'permissionsSpecification',
+    'aclType',
+    function statusIcons() {
+      const {
+        permissionsTree,
+        permissionsSpecification,
+        aclType,
+        i18n,
+      } = this.getProperties('permissionsTree', 'permissionsSpecification', 'aclType', 'i18n');
+      return permissionsSpecification.map(permissionsGroup => {
+        const {
+          groupName,
+          privileges: permissions,
+        } = permissionsGroup;
+
+        let checkedPermissionsCount = 0;
+        permissions.forEach(({ name }) => {
+          if (permissionsTree[groupName][name]) {
+            checkedPermissionsCount++;
+          }
+        });
+        let stateClass;
+        if (checkedPermissionsCount === 0) {
+          stateClass = 'unset';
+        } else if (checkedPermissionsCount === permissions.length) {
+          stateClass = 'checked';
+        } else {
+          stateClass = 'mixed';
+        }
+
+        const groupNameTranslation = i18n.t(`components.aclEditor.permissionGroups.${groupName}`);
+        const permissionsCounterString =
+          `${checkedPermissionsCount}/${permissions.length}`;
+        const permissonsStateTranslation =
+          this.t(`aclPermissionState.${aclType}`);
+        return {
+          icon: permissionsGroup.icon,
+          stateClass,
+          tooltipText:
+            `${groupNameTranslation}: ${permissionsCounterString} ${permissonsStateTranslation}`,
+        };
+      });
     }
   ),
 

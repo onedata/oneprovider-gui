@@ -6,6 +6,9 @@ export default Component.extend({
   entries: Object.freeze([{
     type: 'allow',
     permissions: 393219,
+    subject: {
+      name: 'Borzo Zborzowy',
+    },
   }]),
 
   actions: {

@@ -1,6 +1,11 @@
-{{#each entries as |aclEntry|}}
-  {{acl-editor/acl-entry
-    entry=aclEntry
-    context="file"
-    onChange=(action "aclChanged")}}
-{{/each}}
+{{#one-collapsible-list as |list|}}
+  {{#list.item as |listItem|}}
+    {{#each entries as |aclEntry|}}
+      {{acl-editor/acl-entry
+        listItem=listItem
+        entry=aclEntry
+        context="file"
+        onChange=(action "aclChanged")}}
+    {{/each}}
+  {{/list.item}}
+{{/one-collapsible-list}}

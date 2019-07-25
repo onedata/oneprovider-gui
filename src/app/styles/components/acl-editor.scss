@@ -1,4 +1,45 @@
 .acl-editor {
+  .one-collapsible-list-item-header {
+    .one-icon-tag {
+      color: $color-one-white;
+    }
+    .one-icon-tag-circle {
+      transition: background-color 0.2s ease;
+    }
+    &.type-allow { 
+      .one-icon-tag-circle {
+        background-color: $color-one-success;
+      }
+      .status-toolbar-icon.checked {
+        color: $color-one-success;
+      }
+    }
+    &.type-deny { 
+      .one-icon-tag-circle {
+        background-color: $color-one-danger;
+      }
+      .status-toolbar-icon.checked {
+        color: $color-one-danger;
+      }
+    }
+    .status-toolbar-icon {
+      &.mixed {
+        color: $color-one-warning;
+      }
+      &.unset {
+        color: $main-text-color-disabled;
+      }
+    }
+  }
+
+  .item-icon, .item-icon .one-icon-tagged-main {
+    line-height: 0;
+  }
+
+  .one-collapsible-list-item-content {
+    padding: $padding-base-horizontal;
+  }
+
   .acl-entry-editor.type-deny {
     .one-way-toggle.checked .one-way-toggle-control {
       background-color: $color-one-danger;
@@ -9,7 +50,8 @@
     display: flex;
     position: relative;
     height: 28px;
-    align-items: center
+    align-items: center;
+    overflow: hidden;
   }
 
   .acl-type-label {
@@ -34,6 +76,9 @@
   }
 
   @media (min-width: $screen-sm-min) {
+    .form > .one-tree {
+      background-color: $main-content-hover-background;
+    }
     .one-dynamic-tree {
       max-width: initial;
     }

@@ -1,25 +1,38 @@
-
-<div class="acl-entry-editor type-{{aclType}}">
-  <div class="acl-type-presenter">
-    <label class="acl-type-label">{{tt this "aclType"}}</label>
-    {{#bs-button-group
-      class="acl-type-selector"
-      value=aclType
-      type="radio"
-      onChange=(action "aclTypeChanged") as |bg|}}
-      {{#bg.button type=(if (eq aclType "allow") "primary" "default") class="btn-sm acl-type acl-type-allow" value="allow"}}
-        {{one-icon icon="checkbox-filled"}} {{tt this "aclTypes.allow"}}
-      {{/bg.button}}
-      {{#bg.button type=(if (eq aclType "deny") "danger" "default") class="btn-sm acl-type acl-type-deny" value="deny"}}
-        {{one-icon icon="checkbox-filled-x"}}{{tt this "aclTypes.deny"}}
-      {{/bg.button}}
-    {{/bs-button-group}}  
+{{#listItem.header disableToggleIcon=true class=(concat "type-" aclType)}}
+  <span class="item-icon-container">
+    {{one-icon-tagged class="item-icon" icon=icon tagIcon=(if (eq aclType "allow") "checked" "x")}}
+    {{one-tooltip title=subject.name}}
+  </span>
+  <span class="one-label">{{subject.name}}</span>
+  {{#status-toolbar as |toolbar|}}
+    {{#each statusIcons as |status|}}
+      {{toolbar.icon icon=status.icon hint=status.tooltipText status=status.stateClass}}
+    {{/each}}
+  {{/status-toolbar}}
+{{/listItem.header}}
+{{#listItem.content}}
+  <div class="acl-entry-editor type-{{aclType}}">
+    <div class="acl-type-presenter">
+      <label class="acl-type-label">{{tt this "aclType"}}</label>
+      {{#bs-button-group
+        class="acl-type-selector"
+        value=aclType
+        type="radio"
+        onChange=(action "aclTypeChanged") as |bg|}}
+        {{#bg.button type=(if (eq aclType "allow") "primary" "default") class="btn-sm acl-type acl-type-allow" value="allow"}}
+          {{one-icon icon="checkbox-filled"}} {{tt this "aclTypes.allow"}}
+        {{/bg.button}}
+        {{#bg.button type=(if (eq aclType "deny") "danger" "default") class="btn-sm acl-type acl-type-deny" value="deny"}}
+          {{one-icon icon="checkbox-filled-x"}}{{tt this "aclTypes.deny"}}
+        {{/bg.button}}
+      {{/bs-button-group}}  
+    </div>
+    {{privileges-tree-editor
+      privilegesGroups=permissionsSpecification
+      privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
+      privilegesTranslationsPath="components.aclEditor.permissions"
+      comparePrivileges=persistedPermissionsTree
+      overridePrivileges=initialPermissionsTree
+      onChange=(action "permissionsChanged")}}
   </div>
-  {{privileges-tree-editor
-    privilegesGroups=permissionsSpecification
-    privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
-    privilegesTranslationsPath="components.aclEditor.permissions"
-    comparePrivileges=persistedPermissionsTree
-    overridePrivileges=initialPermissionsTree
-    onChange=(action "permissionsChanged")}}
-</div>
+{{/listItem.content}}

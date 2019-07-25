@@ -32,5 +32,9 @@ export default {
       allow: 'Allow',
       deny: 'Deny',
     },
+    aclPermissionState: {
+      deny: 'denied',
+      allow: 'allowed',
+    },
   },
 };
