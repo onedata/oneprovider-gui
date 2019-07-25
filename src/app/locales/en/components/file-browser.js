@@ -35,4 +35,14 @@ export default {
   fbBreadcrumbs: {
     menuCurrentDir: 'Current directory',
   },
+  fbCreateItemModal: {
+    create: 'Create',
+    cancel: 'Cancel',
+    createHeader: {
+      dir: 'Create new directory',
+    },
+    createIntro: {
+      dir: 'Enter new directory name',
+    },
+  },
 };

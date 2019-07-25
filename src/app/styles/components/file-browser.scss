@@ -1,16 +1,24 @@
 $-file-browser-header-height: 45px;
 $-file-browser-item-height: 32px;
+// the same padding as distance of provider tab icon in Onezone GUI
+$-file-browser-padding-left: 12px;
+// light padding at the right to make some space for scrollbar rail
+$-file-browser-padding-right: 16px;
+
+.content-file-browser + .ps-scrollbar-x-rail + .ps-scrollbar-y-rail {
+  z-index: 20000;
+}
 
 .file-browser {
   .file-browser-head-container {
     position: fixed;
     z-index: $zindex-tooltip - 1;
     padding-top: $content-row-vertical-padding;
-    padding-left: $content-col-padding;
-    padding-right: $content-col-padding;
+    padding-left: $-file-browser-padding-left;
+    padding-right: $-file-browser-padding-right;
     top: 0;
     left: 0;
-    right: 20px;
+    right: 0;
     line-height: $-file-browser-header-height;
     background-color: $color-one-white;
     .fb-head-inner {
@@ -150,14 +158,13 @@ $-file-browser-item-height: 32px;
       max-width: 100%;
     }
     .inline-icon-container.current-dir-actions-trigger .one-icon {
-      transform: translateY(-50%);
+      position: absolute;
+      right: 0;
+      left: 6px;
+      padding-bottom: 2px;
+      font-size: 110%;
+      font-weight: bold;
     }
-  }
-  .current-dir-actions-trigger {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
   }
   .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
     max-width: calc(100% - 80px);
@@ -169,6 +176,11 @@ $-file-browser-item-height: 32px;
 }
 
 .fb-table {
+  
+  thead > tr > th.fb-table-col-files, 
+  .table:not(.bt) > tbody > tr > td:first-child.fb-table-col-files {
+    padding-left: $-file-browser-padding-left;
+  }
   @media (max-width: $screen-xs-max) {
     .fb-table-col-size, .fb-table-col-modification {
       display: none;
@@ -193,7 +205,7 @@ $-file-browser-item-height: 32px;
   }
   .fb-table-col-actions-menu {
     position: relative;
-    width: 40px;
+    width: 56px;
     padding: 0;
     .file-row-actions-trigger {
       @include vertical-align-middle;

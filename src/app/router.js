@@ -20,6 +20,7 @@ Router.map(function () {
     location: 'hash',
     rootURL: null,
   });
+  this.route('login');
   this.route('onedata', function onedataRoute() {
     this.route('components', function onedataComponentsRoute() {
       this.route('show', { path: ':component_id' });

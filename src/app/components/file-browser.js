@@ -9,7 +9,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { camelize, dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -17,6 +17,7 @@ import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
 import { hash } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 export const actionContext = {
   none: 'none',
@@ -78,9 +79,18 @@ export default Component.extend(I18n, {
   selectedFiles: undefined,
 
   /**
-   * TODO: it should be fetched using dirId
+   * File model with dir type. It is the currently displayed directory.
+   * @type {Models/File}
    */
   dir: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} files array with one element, which is parent
+   *  of new directory
+   */
+  openCreateNewDirectory: notImplementedThrow,
 
   /**
    * One of values from `actionContext` enum object
@@ -112,6 +122,18 @@ export default Component.extend(I18n, {
     }
   }),
 
+  clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
+    const component = this;
+    return function clickOutsideDeselect(mouseEvent) {
+      if (!isPopoverOpened() &&
+        !mouseEvent.target.matches(
+          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-toolbar *, .fb-selection-toolkit *'
+        )) {
+        component.clearFilesSelection();
+      }
+    };
+  }),
+
   // #region Action buttons
 
   allButtonsArray: collect(...buttonNames),
@@ -133,6 +155,7 @@ export default Component.extend(I18n, {
   btnNewDirectory: computed(function btnNewDirectory() {
     return this.createFileAction({
       id: 'newDirectory',
+      action: () => this.get('openCreateNewDirectory')(this.get('dir')),
       showIn: [
         actionContext.inDir,
         actionContext.currentDir,
@@ -226,18 +249,6 @@ export default Component.extend(I18n, {
 
   // #endregion
 
-  clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
-    const component = this;
-    return function clickOutsideDeselect(mouseEvent) {
-      if (!isPopoverOpened() &&
-        !mouseEvent.target.matches(
-          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-toolbar *, .fb-selection-toolkit *'
-        )) {
-        component.clearFilesSelection();
-      }
-    };
-  }),
-
   init() {
     this._super(...arguments);
     this.set('selectedFiles', A());
@@ -277,13 +288,16 @@ export default Component.extend(I18n, {
   },
 
   createFileAction(actionProperties) {
-    const id = get(actionProperties, 'id');
+    const {
+      id,
+      action,
+    } = getProperties(actionProperties, 'id', 'action');
     const fileActions = this.get('fileActions');
     return Object.assign({
-      action: () => {
+      action: action || (() => {
         return fileActions[camelize(`act-${id}`)](
           this.get('selectedFiles'));
-      },
+      }),
       icon: `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
       showIn: [],
@@ -300,6 +314,9 @@ export default Component.extend(I18n, {
       if (select) {
         this.selectedFiles.push(this.get('dir'));
       }
+    },
+    changeDir(dir) {
+      this.set('dir', dir);
     },
   },
 });

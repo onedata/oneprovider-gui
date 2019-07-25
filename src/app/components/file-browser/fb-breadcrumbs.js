@@ -111,6 +111,12 @@ export default Component.extend(
       }
     ),
 
+    recomputePath: observer('dir', function recomputePath() {
+      this.updateDirPathProxy()
+        .then(() => this.updateBreadcrumbsItemsProxy())
+        .then(() => this.updateFilteredBreadcrumbsItemsProxy());
+    }),
+
     checkWidthOnResize() {
       this.set('elementsToShow', Infinity);
       this.$('.fb-breadcrumbs-inner').addClass('breadcrumbs-recomputing');

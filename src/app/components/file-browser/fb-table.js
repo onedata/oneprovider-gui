@@ -343,5 +343,11 @@ export default Component.extend(I18n, {
         shiftKey
       );
     },
+    fileDoubleClicked(file /*, clickEvent */ ) {
+      const isDir = get(file, 'type') === 'dir';
+      if (isDir) {
+        this.get('changeDir')(file);
+      }
+    },
   },
 });

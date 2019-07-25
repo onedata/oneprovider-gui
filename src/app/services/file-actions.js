@@ -7,21 +7,24 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import Service from '@ember/service';
+import Service, { inject as service } from '@ember/service';
+import { get } from '@ember/object';
 
 function dummyAction(message, files) {
   alert(message + files.mapBy('name'));
 }
 
 export default Service.extend({
+  store: service(),
+
   // #region Actions implementation
 
-  actUpload( /* files */ ) {
-    alert('upload');
+  actUpload([parentDir]) {
+    alert('upload to ' + get(parentDir, 'name'));
   },
 
-  actNewDirectory( /* files */ ) {
-    alert('new directory');
+  actNewDirectory([parentDir]) {
+    alert('new directory in ' + get(parentDir, 'name'));
   },
 
   actInfo(files) {

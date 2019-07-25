@@ -12,6 +12,7 @@ import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
@@ -22,6 +23,11 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.fileBrowser.fbToolbar',
 
   dir: undefined,
+
+  /**
+   * @virtual
+   */
+  selectCurrentDir: notImplementedReject,
 
   /**
    * @virtual
@@ -51,6 +57,7 @@ export default Component.extend(I18n, {
 
   actions: {
     buttonClicked(button) {
+      this.get('selectCurrentDir')();
       return get(button, 'action')();
     },
   },
