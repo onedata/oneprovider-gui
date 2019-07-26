@@ -1,6 +1,6 @@
-{{#promise-proxy-container proxy=aclCollectionSnapshotProxy}}
+{{#promise-proxy-container proxy=aclRulesSnapshotProxy}}
   {{#one-collapsible-list accordionMode=true as |list|}}
-    {{#each aclCollectionSnapshot as |aclEntry|}}
+    {{#each aclRulesSnapshot as |aclEntry|}}
       {{#list.item as |listItem|}}
         {{acl-editor/acl-entry
           listItem=listItem
@@ -10,8 +10,8 @@
           onMoveUp=(action "moveUp" aclEntry)
           onMoveDown=(action "moveDown" aclEntry)
           onRemove=(action "remove" aclEntry)
-          isFirstEntry=(eq aclEntry aclCollectionSnapshot.firstObject)
-          isLastEntry=(eq aclEntry aclCollectionSnapshot.lastObject)}}
+          isFirstEntry=(eq aclEntry aclRulesSnapshot.firstObject)
+          isLastEntry=(eq aclEntry aclRulesSnapshot.lastObject)}}
       {{/list.item}}
     {{/each}}
   {{/one-collapsible-list}}

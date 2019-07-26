@@ -10,7 +10,7 @@
 
 import Component from '@ember/component';
 import PosixPermissions from 'oneprovider-gui/utils/posix-permissions';
-import { computed, observer, get } from '@ember/object';
+import { observer, get } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
@@ -29,7 +29,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {string}
    */
-  sourcePermissions: undefined,
+  initialPermissions: undefined,
 
   /**
    * @virtual
@@ -48,9 +48,9 @@ export default Component.extend(I18n, {
 
   /**
    * Posix permissions visible to user (with modifications)
-   * @type {Ember.ComputedProperty<Utils.PosixPermissions>}
+   * @type {Utils.PosixPermissions}
    */
-  permissions: computed(() => PosixPermissions.create()),
+  permissions: undefined,
 
   /**
    * @type {boolean}
@@ -58,15 +58,17 @@ export default Component.extend(I18n, {
   isOctalInputValid: true,
 
   sourcePermissionsObserver: observer(
-    'sourcePermissions',
+    'initialPermissions',
     function sourcePermissionsObserver() {
-      // When source permissions change, reset modified permissions
+      // Init permissions object only one time
       const {
-        sourcePermissions,
+        initialPermissions,
         permissions,
-      } = this.getProperties('sourcePermissions', 'permissions');
-      if (sourcePermissions) {
-        permissions.fromOctalRepresentation(sourcePermissions);
+      } = this.getProperties('initialPermissions', 'permissions');
+      if (initialPermissions && !permissions) {
+        const initialPermissionsObject = PosixPermissions.create();
+        initialPermissionsObject.fromOctalRepresentation(initialPermissions);
+        this.set('permissions', initialPermissionsObject);
       }
     }
   ),

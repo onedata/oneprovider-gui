@@ -7,42 +7,36 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 // import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 export default Component.extend(
-  createDataProxyMixin('aclCollectionSnapshot', { type: 'array' }), {
+  createDataProxyMixin('aclRulesSnapshot', { type: 'array' }), {
     classNames: ['acl-editor'],
 
     // userManager: service(),
     // groupManager: service(),
     
-    aclCollection: Object.freeze([{
-      type: 'allow',
-      permissions: 393219,
-      subject: 'jakiesId',
-    }, {
-      type: 'deny',
-      permissions: 1,
-      subject: 'jakiesId1',
-    }]),
+    /**
+     * @virtual
+     */
+    aclRules: undefined,
 
     /**
      * @type {Function}
-     * @param {Array<Object>} change has the same format as `aclCollection`
-     *   field
+     * @param {Array<Object>} change has the same format as `aclRules` field
      * @returns {undefined}
      */
     onChange: notImplementedIgnore,
 
-    fetchAclCollectionSnapshot() {
+    fetchAclRulesSnapshot() {
       const {
-        aclCollection,
+        aclRules,
         userManager,
         groupManager,
       } = this.getProperties(
-        'aclCollection',
+        'aclRules',
         'userManager',
         'groupManager'
       );
 
-      return Promise.all(aclCollection.map(acl => {
+      return Promise.all(aclRules.map(acl => {
         const {
           permissions,
           type,
@@ -68,11 +62,10 @@ export default Component.extend(
 
     notifyAboutChange() {
       const {
-        aclCollectionSnapshot,
+        aclRulesSnapshot,
         onChange,
-      } = this.getProperties('aclCollectionSnapshot', 'onChange');
-      onChange(aclCollectionSnapshot);
-      console.log(aclCollectionSnapshot);
+      } = this.getProperties('aclRulesSnapshot', 'onChange');
+      onChange(aclRulesSnapshot);
     },
 
     actions: {
@@ -81,29 +74,29 @@ export default Component.extend(
         this.notifyAboutChange();
       },
       moveUp(entry) {
-        const aclCollectionSnapshot = this.get('aclCollectionSnapshot');
-        const entryIndex = aclCollectionSnapshot.indexOf(entry);
+        const aclRulesSnapshot = this.get('aclRulesSnapshot');
+        const entryIndex = aclRulesSnapshot.indexOf(entry);
         if (entryIndex > 0) {
-          const prevEntry = aclCollectionSnapshot.objectAt(entryIndex - 1);
-          aclCollectionSnapshot
+          const prevEntry = aclRulesSnapshot.objectAt(entryIndex - 1);
+          aclRulesSnapshot
             .replace(entryIndex - 1, 1, [entry])
             .replace(entryIndex, 1, [prevEntry]);
           this.notifyAboutChange();
         }
       },
       moveDown(entry) {
-        const aclCollectionSnapshot = this.get('aclCollectionSnapshot');
-        const entryIndex = aclCollectionSnapshot.indexOf(entry);
-        if (entryIndex < get(aclCollectionSnapshot, 'length') - 1) {
-          const nextEntry = aclCollectionSnapshot.objectAt(entryIndex + 1);
-          aclCollectionSnapshot
+        const aclRulesSnapshot = this.get('aclRulesSnapshot');
+        const entryIndex = aclRulesSnapshot.indexOf(entry);
+        if (entryIndex < get(aclRulesSnapshot, 'length') - 1) {
+          const nextEntry = aclRulesSnapshot.objectAt(entryIndex + 1);
+          aclRulesSnapshot
             .replace(entryIndex + 1, 1, [entry])
             .replace(entryIndex, 1, [nextEntry]);
           this.notifyAboutChange();
         }
       },
       remove(entry) {
-        this.get('aclCollectionSnapshot').removeObject(entry);
+        this.get('aclRulesSnapshot').removeObject(entry);
         this.notifyAboutChange();
       },
     },

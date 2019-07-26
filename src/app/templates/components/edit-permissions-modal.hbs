@@ -1,0 +1,48 @@
+{{#bs-modal
+  class="edit-permissions-modal"
+  open=true
+  onHidden=(action "close")
+  as |modal|}}
+  {{#modal.header}}
+    <h1>{{tt this "header"}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    {{#promise-proxy-container proxy=permissionsProxy}}
+      <div class="active-permissions-type-container">
+        <span class="one-label">{{tt this "activePermissions"}}</span>
+        {{#bs-button-group
+          class="active-permissions-type-selector"
+          value=activePermissionsType
+          type="radio"
+          onChange=(action "activePermissionsTypeChanged") as |bg|}}
+          {{#bg.button type="default" class="btn-sm permissions-type-posix" value="posix"}}
+            {{tt this "permisionsTypes.posix"}}
+          {{/bg.button}}
+          {{#bg.button type="default" class="btn-sm permissions-type-acl" value="acl"}}
+            {{tt this "permisionsTypes.acl"}}
+          {{/bg.button}}
+        {{/bs-button-group}}
+      </div>
+      {{posix-permissions-editor
+        initialPermissions=initialPosixPermissions
+        onChange=(action "posixPermissionsChanged")
+        onSave=(action "save" modal.close)
+        class=(if (not-eq activePermissionsType "posix") "hidden")}}
+      {{acl-editor
+        aclRules=initialAclRules
+        onChange=(action "aclRulesChanged")
+        class=(if (not-eq activePermissionsType "acl") "hidden")}}
+    {{/promise-proxy-container}}
+  {{/modal.body}}
+  {{#modal.footer class="btn-toolbar"}}
+    {{#bs-button disabled=isSaving onClick=modal.close}}
+      {{tt this "cancel"}}
+    {{/bs-button}}
+    {{#one-spin-button
+      action=(action "save" modal.close)
+      class="btn btn-primary"
+      disabled=(not isSaveEnabled)}}
+      {{tt this "save"}}
+    {{/one-spin-button}}
+  {{/modal.footer}}
+{{/bs-modal}}
