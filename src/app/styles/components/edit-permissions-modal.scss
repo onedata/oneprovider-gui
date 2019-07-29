@@ -8,8 +8,12 @@
     .one-label {
       flex-grow: 1;
       @include font-semibold();
+
+      .one-label-tip {
+        vertical-align: middle;
+      }
     }
-    
+
     .btn-group {
       display: flex;
     }

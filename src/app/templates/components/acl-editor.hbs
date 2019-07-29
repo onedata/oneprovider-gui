@@ -14,5 +14,26 @@
           isLastEntry=(eq aclEntry aclRulesSnapshot.lastObject)}}
       {{/list.item}}
     {{/each}}
+    {{#list.item class="add-user-group-acl" as |listItem|}}
+      {{#listItem.header isCollapsible=false truncate=false}}
+        <span class="item-icon-container">
+          {{one-icon icon="group-invite" class="item-icon"}}
+        </span>
+        {{#power-select
+          dropdownClass="add-user-group-acl"
+          options=sortedGroupAndUserList
+          onchange=(action "addEntitySelected")
+          renderInPlace=true
+          placeholder=(tt this "addUserOrGroup")
+          as |entity|}}
+          <div class="option-container">
+            {{#truncated-string}}
+              {{one-icon icon=(if (eq entity.constructor.modelName "user") "user" "group")}}
+              <span class="text">{{entity.name}}</span>
+            {{/truncated-string}}
+          </div>
+        {{/power-select}}
+      {{/listItem.header}}
+    {{/list.item}}
   {{/one-collapsible-list}}
 {{/promise-proxy-container}}

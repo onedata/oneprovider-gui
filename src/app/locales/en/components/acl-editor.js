@@ -40,4 +40,5 @@ export default {
     moveUp: 'Move up',
     remove: 'Remove',
   },
+  addUserOrGroup: 'Add user or group...',
 };

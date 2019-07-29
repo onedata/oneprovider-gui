@@ -9,7 +9,7 @@
   {{#modal.body}}
     {{#promise-proxy-container proxy=permissionsProxy}}
       <div class="active-permissions-type-container">
-        <span class="one-label">{{tt this "activePermissions"}}</span>
+        <span class="one-label">{{tt this "permissionsType"}}&nbsp;{{one-label-tip title=(tt this "permissionsTypeHint")}}</span>
         {{#bs-button-group
           class="active-permissions-type-selector"
           value=activePermissionsType
@@ -23,15 +23,43 @@
           {{/bg.button}}
         {{/bs-button-group}}
       </div>
+      {{#if (not activePermissionsTypeCompatible)}}
+        <div class="alert alert-warning alert-simple-info">{{tt this "differentPermissionsTypes"}}</div>
+      {{/if}}
+      {{#if (and posixViewActive (not posixPermissionsCompatible))}}
+        <div class="alert alert-warning alert-simple-info">
+          {{tt this "differentPosix"}} {{tt this "openEditorToOverride"}}
+          <div class="row alert-simple-info-btn">
+            {{#bs-button
+              class="btn btn-warning btn-sm open-posix-editor"
+              onClick=(action "acceptPosixIncompatibility")}}
+              {{tt this "openEditor"}}
+            {{/bs-button}}
+          </div>
+        </div>
+      {{/if}}
       {{posix-permissions-editor
         initialPermissions=initialPosixPermissions
         onChange=(action "posixPermissionsChanged")
         onSave=(action "save" modal.close)
-        class=(if (not-eq activePermissionsType "posix") "hidden")}}
+        class=(if (not (and posixViewActive posixPermissionsCompatible)) "hidden")}}
+      {{#if (and aclViewActive (not aclRulesCompatible))}}
+        <div class="alert alert-warning alert-simple-info">
+          {{tt this "differentAcl"}} {{tt this "openEditorToOverride"}}
+          <div class="row alert-simple-info-btn">
+            {{#bs-button
+              class="btn btn-warning btn-sm open-acl-editor"
+              onClick=(action "acceptAclIncompatibility")}}
+              {{tt this "openEditor"}}
+            {{/bs-button}}
+          </div>
+        </div>
+      {{/if}}
       {{acl-editor
+        space=space
         aclRules=initialAclRules
         onChange=(action "aclRulesChanged")
-        class=(if (not-eq activePermissionsType "acl") "hidden")}}
+        class=(if (not (and aclViewActive aclRulesCompatible)) "hidden")}}
     {{/promise-proxy-container}}
   {{/modal.body}}
   {{#modal.footer class="btn-toolbar"}}

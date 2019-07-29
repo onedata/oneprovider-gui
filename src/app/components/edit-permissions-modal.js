@@ -10,11 +10,11 @@
  */
 
 import Component from '@ember/component';
-import { get, computed, setProperties, getProperties } from '@ember/object';
+import { get, computed, set, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { Promise, reject } from 'rsvp';
-import { conditional, raw, array, equal, and, not } from 'ember-awesome-macros';
+import { conditional, raw, array, equal, and, not, or } from 'ember-awesome-macros';
 import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -32,6 +32,12 @@ export default Component.extend(
      * @override
      */
     i18nPrefix: 'components.editPermissionsModal',
+
+    /**
+     * @virtual
+     * @type {Models.Space}
+     */
+    space: undefined,
 
     /**
      * @virtual
@@ -88,6 +94,19 @@ export default Component.extend(
     ),
 
     /**
+     * @type {boolean}
+     */
+    isActivePermissionsTypeIncompatibilityAccepted: false,
+
+    /**
+     * @type {Ember.ComputedProperty<boolean>}
+     */
+    activePermissionsTypeCompatible: or(
+      'filesHaveCompatibleActivePermissionsType',
+      'isActivePermissionsTypeIncompatibilityAccepted'
+    ),
+
+    /**
      * Active permissions type value inferred from files permissions. Fallbacks
      * to default 'posix' value if files have different permissions types.
      * @type {Ember.ComputedProperty<string>}
@@ -109,6 +128,19 @@ export default Component.extend(
     ),
 
     /**
+     * @type {boolean}
+     */
+    isPosixPermissionsIncompatibilityAccepted: false,
+
+    /**
+     * @type {Ember.ComputedProperty<boolean>}
+     */
+    posixPermissionsCompatible: or(
+      'filesHaveCompatiblePosixPermissions',
+      'isPosixPermissionsIncompatibilityAccepted'
+    ),
+
+    /**
      * Posix permissions octal value inferred from files permissions. Fallbacks
      * to default '000' value if files have different posix permissions.
      * @type {Ember.ComputedProperty<string>}
@@ -116,7 +148,7 @@ export default Component.extend(
     initialPosixPermissions: conditional(
       'filesHaveCompatiblePosixPermissions',
       'permissions.firstObject.posixValue',
-      raw('000'),
+      raw('664'),
     ),
 
     /**
@@ -141,6 +173,19 @@ export default Component.extend(
     ),
 
     /**
+     * @type {boolean}
+     */
+    isAclRulesIncompatibilityAccepted: false,
+
+    /**
+     * @type {Ember.ComputedProperty<boolean>}
+     */
+    aclRulesCompatible: or(
+      'filesHaveCompatibleAclRules',
+      'isAclRulesIncompatibilityAccepted'
+    ),
+
+    /**
      * ACL rules inferred from files permissions. Fallbacks to default `[]`
      * value if files have different ACL rules.
      * @type {Ember.ComputedProperty<Array<Object>>}
@@ -154,9 +199,21 @@ export default Component.extend(
     /**
      * @type {Ember.ComputedProperty<boolean>}
      */
+    posixViewActive: equal('activePermissionsType', raw('posix')),
+
+    /**
+     * @type {Ember.ComputedProperty<boolean>}
+     */
+    aclViewActive: equal('activePermissionsType', raw('acl')),
+
+    /**
+     * @type {Ember.ComputedProperty<boolean>}
+     */
     isSaveEnabled: and(
+      'activePermissionsTypeCompatible',
+      or(not('posixViewActive'), 'posixPermissionsCompatible'),
+      or(not('aclViewActive'), 'aclRulesCompatible'),
       'permissionsProxy.isFulfilled',
-      'activePermissionsType',
       'arePosixPermissionsValid',
       not('isSaving')
     ),
@@ -211,26 +268,29 @@ export default Component.extend(
 
       // All files share the same ACL rules array, so it can be prepared
       // earlier.
-      const aclRulesToSave = aclRules.map(aclRule => {
-        const {
-          permissions: aclPermissions,
-          type,
-        } = getProperties(aclRule, 'permissions', 'type');
-        const subjectId = get(aclRule, 'subject.id');
-        return {
-          permissions: aclPermissions,
-          type,
-          subject: subjectId,
-        };
-      });
+      let aclRulesToSave;
+      if (activePermissionsType === 'acl') {
+        aclRulesToSave = aclRules.map(aclRule => {
+          const {
+            permissions: aclPermissions,
+            type,
+          } = getProperties(aclRule, 'permissions', 'type');
+          const subjectId = get(aclRule, 'subject.id');
+          return {
+            permissions: aclPermissions,
+            type,
+            subject: subjectId,
+          };
+        });
+      }
 
       return Promise.all(permissions.map(filePermissions => {
-        setProperties(filePermissions, {
-          type: activePermissionsType,
-          posixValue: posixPermissions,
-          aclValue: aclRulesToSave,
-        });
-
+        set(filePermissions, 'type', activePermissionsType);
+        if (activePermissionsType === 'posix') {
+          set(filePermissions, 'posixValue', posixPermissions);
+        } else {
+          set(filePermissions, 'aclValue', aclRulesToSave);
+        }
         // Convert errors to normal values to not reject Promise.all on first
         // error - try to fulfill as much save requests as possible.
         return filePermissions.save()
@@ -259,7 +319,16 @@ export default Component.extend(
 
     actions: {
       activePermissionsTypeChanged(mode) {
-        this.set('activePermissionsType', mode);
+        this.setProperties({
+          activePermissionsType: mode,
+          isActivePermissionsTypeIncompatibilityAccepted: true,
+        });
+      },
+      acceptPosixIncompatibility() {
+        this.set('isPosixPermissionsIncompatibilityAccepted', true);
+      },
+      acceptAclIncompatibility() {
+        this.set('isAclRulesIncompatibilityAccepted', true);
       },
       posixPermissionsChanged({ permissions, isValid }) {
         this.setProperties({

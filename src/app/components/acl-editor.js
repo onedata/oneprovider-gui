@@ -1,22 +1,50 @@
 import Component from '@ember/component';
 import { getProperties, setProperties, get } from '@ember/object';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { inject as service } from '@ember/service';
-import { Promise } from 'rsvp';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-// import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { array } from 'ember-awesome-macros';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { Promise } from 'rsvp';
 
 export default Component.extend(
+  I18n,
   createDataProxyMixin('aclRulesSnapshot', { type: 'array' }), {
     classNames: ['acl-editor'],
 
-    // userManager: service(),
-    // groupManager: service(),
+    /**
+     * @override
+     */
+    i18nPrefix: 'components.aclEditor',
     
     /**
      * @virtual
      */
     aclRules: undefined,
+
+    /**
+     * @type {Models.Space}
+     */
+    space: undefined,
+
+    /**
+     * @type {Array<Models.Group>}
+     */
+    groupList: Object.freeze([]),
+
+    /**
+     * @type {Array<Models.User>}
+     */
+    userList: Object.freeze([]),
+
+    /**
+     * @type {Array<Models.Group|Models.User>}
+     */
+    sortedGroupAndUserList: array.sort(
+      array.concat('groupList', 'userList'),
+      ['name']
+    ),
 
     /**
      * @type {Function}
@@ -26,37 +54,50 @@ export default Component.extend(
     onChange: notImplementedIgnore,
 
     fetchAclRulesSnapshot() {
-      const {
-        aclRules,
-        userManager,
-        groupManager,
-      } = this.getProperties(
-        'aclRules',
-        'userManager',
-        'groupManager'
-      );
-
-      return Promise.all(aclRules.map(acl => {
+      return this.fetchUsersAndGroups().then(() => {
         const {
-          permissions,
-          type,
-          subject: subjectId,
-        } = getProperties(acl, 'permissions', 'type', 'subject');
+          userList,
+          groupList,
+          aclRules,
+        } = this.getProperties('userList', 'groupList', 'aclRules');
 
-        let fetchSubjectPromise;
-        // if (parseGri(subjectId).entityType === 'op_user') {
-        //   fetchSubjectPromise = userManager.findRecord(subjectId);
-        // } else {
-        //   fetchSubjectPromise = groupManager.findRecord(subjectId);
-        // }
-        fetchSubjectPromise = Promise.resolve({
-          name: 'Borzo Zborzowy',
-        });
-        return fetchSubjectPromise.then(subject => ({
-          permissions,
-          type,
-          subject,
+        return Promise.all(aclRules.map(acl => {
+          const {
+            permissions,
+            type,
+            subject: subjectId,
+          } = getProperties(acl, 'permissions', 'type', 'subject');
+  
+          let subject;
+          const parsedSubjectGri = parseGri(subjectId);
+          if (parsedSubjectGri.entityType === 'op_user') {
+            subject = userList.findBy('entityId', parsedSubjectGri.entityId);
+          } else {
+            subject = groupList.findBy('entityId', parsedSubjectGri.entityId);
+          }
+
+          return {
+            permissions,
+            type,
+            subject,
+          };
         }));
+      });
+    },
+
+    /**
+     * @returns {Promise<Array>}
+     */
+    fetchUsersAndGroups() {
+      const space = this.get('space');
+      return Promise.all([
+        get(space, 'effUserList').then(userList => get(userList, 'list')),
+        get(space, 'effGroupList').then(groupList => get(groupList, 'list')),
+      ]).then(lists => safeExec(this, () => {
+        this.setProperties({
+          userList: lists[0],
+          groupList: lists[1],
+        });
       }));
     },
 
@@ -97,6 +138,15 @@ export default Component.extend(
       },
       remove(entry) {
         this.get('aclRulesSnapshot').removeObject(entry);
+        this.notifyAboutChange();
+      },
+      addEntitySelected(entity) {
+        const newRule = {
+          permissions: 0,
+          type: 'allow',
+          subject: entity,
+        };
+        this.get('aclRulesSnapshot').pushObject(newRule);
         this.notifyAboutChange();
       },
     },

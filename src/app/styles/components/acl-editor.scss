@@ -116,4 +116,20 @@
       transition: padding-right 0.2s ease;
     }
   }
+
+  .add-user-group-acl {
+    .header-content-container {
+      display: flex;
+      align-items: center;
+    }
+    .ember-basic-dropdown {
+      flex-grow: 1;
+      display: inline-block;
+      height: 0;
+      margin-top: -$input-height-base;
+    }
+    .ember-power-select-options {
+      max-height: 200px;
+    }
+  }
 }
