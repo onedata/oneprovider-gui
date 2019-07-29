@@ -41,4 +41,5 @@ export default {
     remove: 'Remove',
   },
   addUserOrGroup: 'Add user or group...',
+  noAclEntry: 'No ACL rules defined.',
 };

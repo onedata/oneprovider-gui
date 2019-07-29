@@ -132,4 +132,13 @@
       max-height: 200px;
     }
   }
+
+  .no-acl-entry {
+    font-style: italic;
+    text-align: center;
+
+    .list-header-row {
+      padding-right: $padding-large-vertical;
+    }
+  }
 }

@@ -7,6 +7,7 @@ import { array } from 'ember-awesome-macros';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { Promise } from 'rsvp';
+import _ from 'lodash';
 
 export default Component.extend(
   I18n,
@@ -148,6 +149,11 @@ export default Component.extend(
         };
         this.get('aclRulesSnapshot').pushObject(newRule);
         this.notifyAboutChange();
+      },
+      recordMatcher(model, term) {
+        term = term.toLocaleLowerCase();
+        const name = get(model, 'name').toLocaleLowerCase();
+        return _.includes(name, term) ? 1 : -1;
       },
     },
   }

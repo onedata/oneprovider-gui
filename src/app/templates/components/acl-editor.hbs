@@ -13,6 +13,10 @@
           isFirstEntry=(eq aclEntry aclRulesSnapshot.firstObject)
           isLastEntry=(eq aclEntry aclRulesSnapshot.lastObject)}}
       {{/list.item}}
+    {{else}}
+      {{#list.item class="no-acl-entry" as |listItem|}}
+        {{#listItem.header isCollapsible=false}}{{tt this "noAclEntry"}}{{/listItem.header}}
+      {{/list.item}}  
     {{/each}}
     {{#list.item class="add-user-group-acl" as |listItem|}}
       {{#listItem.header isCollapsible=false truncate=false}}
@@ -25,6 +29,7 @@
           onchange=(action "addEntitySelected")
           renderInPlace=true
           placeholder=(tt this "addUserOrGroup")
+          matcher=(action "recordMatcher")
           as |entity|}}
           <div class="option-container">
             {{#truncated-string}}
