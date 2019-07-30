@@ -1,9 +1,13 @@
-<div class="row file-browser-head-container hidden-xs">
+<div class="file-browser-head-container hidden-xs">
   <div class="fb-head-inner">
-    <div class="col-sm-6 fb-breadcrumbs-container">
-      {{file-browser/fb-breadcrumbs dir=dir}}
+    <div class="fb-breadcrumbs-container">
+      {{file-browser/fb-breadcrumbs
+        dir=dir
+        allButtonsArray=allButtonsArray
+        dirActionsToggled=(action "selectCurrentDir")
+      }}
     </div>
-    <div class="col-sm-6 text-right fb-toolbar-container">
+    <div class="text-right fb-toolbar-container">
       {{file-browser/fb-selection-toolkit
         itemsCount=selectedFiles.length
         selectionContext=selectionContext

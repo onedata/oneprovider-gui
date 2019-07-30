@@ -1,8 +1,8 @@
 export default {
   fileActions: {
-    upload: 'Upload',
+    upload: 'Upload files',
     newDirectory: 'New directory',
-    info: 'File info',
+    info: 'Information',
     share: 'Share',
     metadata: 'Metadata',
     permissions: 'Permissions',
@@ -31,5 +31,8 @@ export default {
   },
   fbSelectionToolkit: {
     itemsSelected: 'Selection',
+  },
+  fbBreadcrumbs: {
+    menuCurrentDir: 'Current directory',
   },
 };

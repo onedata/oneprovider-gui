@@ -53,8 +53,5 @@ export default Component.extend(I18n, {
     buttonClicked(button) {
       return get(button, 'action')();
     },
-    toggleMoreTools(open) {
-      this.set('moreToolsOpen', open);
-    },
   },
 });

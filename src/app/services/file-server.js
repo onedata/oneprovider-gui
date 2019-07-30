@@ -47,6 +47,7 @@ export default Service.extend({
         totalChildrenCount: 0,
         canViewDir: true,
         permissions: 0o644,
+        // FIXME: resolve prev object
         parent: null,
       })),
       {

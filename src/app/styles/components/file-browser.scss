@@ -4,8 +4,7 @@ $-file-browser-item-height: 32px;
 .file-browser {
   .file-browser-head-container {
     position: fixed;
-    // above popovers
-    z-index: 10000;
+    z-index: $zindex-tooltip - 1;
     padding-top: $content-row-vertical-padding;
     padding-left: $content-col-padding;
     padding-right: $content-col-padding;
@@ -15,6 +14,8 @@ $-file-browser-item-height: 32px;
     line-height: $-file-browser-header-height;
     background-color: $color-one-white;
     .fb-head-inner {
+      display: flex;
+      max-width: 100%;
       margin-right: -20px;
     }
   }
@@ -27,6 +28,9 @@ $-file-browser-item-height: 32px;
 .fb-toolbar-container {
   display: flex;
   flex-direction: row-reverse;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 250px;
   height: $-file-browser-header-height;
 }
 
@@ -92,13 +96,37 @@ $-file-browser-item-height: 32px;
   }
 }
 
+.fb-breadcrumbs-container {
+  flex-grow: 1;
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+
 .fb-breadcrumbs {
   display: block;
   position: relative;
   overflow-y: hidden;
+  overflow-x: hidden;
+  
+  .fb-breadcrumbs-inner {
+    display: inline-block;
+    white-space: nowrap;
+    position: relative;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+    &.breadcrumbs-recomputing {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    &.truncate {
+      max-width: 100%;
+    }
+  }
   
   .fb-breadcrumbs-element {
     display: inline-block;
+    vertical-align: middle;
+    user-select: none;
   }
   .fb-breadcrumbs-dir-root .inline-icon-container .one-icon {
     font-size: 210%;
@@ -113,6 +141,31 @@ $-file-browser-item-height: 32px;
       transform: translateY(-50%) translateX(0.1em);
     }
   }
+  .fb-breadcrumbs-current-dir-button {
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    padding-right: 30px;
+    &.truncate {
+      max-width: 100%;
+    }
+    .inline-icon-container.current-dir-actions-trigger .one-icon {
+      transform: translateY(-50%);
+    }
+  }
+  .current-dir-actions-trigger {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
+    max-width: calc(100% - 80px);
+  }
+}
+
+.webui-popover-in-fb-head {
+  z-index: $zindex-tooltip;
 }
 
 .fb-table {
@@ -194,13 +247,4 @@ $-file-browser-item-height: 32px;
   &.fb-table-row-file .file-icon {
     color: $color-file;
   }
-  // FIXME: something here is wrong it should be positioned without these special
-  // classes
-  // .actions-toolbar-file {
-  //   @include vertical-align-middle;
-  //   right: 0;
-  //   .menu-toggle {
-  //     padding: 6px;
-  //   }
-  // }
 }

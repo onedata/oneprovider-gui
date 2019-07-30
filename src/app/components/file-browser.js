@@ -12,7 +12,6 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { camelize, dasherize } from '@ember/string';
-import File from 'oneprovider-gui/models/file';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
@@ -28,6 +27,8 @@ export const actionContext = {
   multiFile: 'multiFile',
   multiMixed: 'multiMixed',
   desktopToolbar: 'desktopToolbar',
+  currentDir: 'currentDir',
+  spaceRootDir: 'spaceRootDir',
 };
 
 export function getButtonActions(buttonsArray, context) {
@@ -76,20 +77,10 @@ export default Component.extend(I18n, {
    */
   selectedFiles: undefined,
 
-  dir: computed(function dir() {
-    return File.create({
-      id: this.get('dirId'),
-      entityId: '1',
-      name: 'My directory',
-      size: 350000000,
-      modificationTime: Date.now(),
-      provider: null,
-      totalChildrenCount: 0,
-      canViewDir: true,
-      permissions: 0o644,
-      parent: null,
-    });
-  }),
+  /**
+   * TODO: it should be fetched using dirId
+   */
+  dir: undefined,
 
   /**
    * One of values from `actionContext` enum object
@@ -133,6 +124,8 @@ export default Component.extend(I18n, {
       elementClass: 'browser-upload',
       showIn: [
         actionContext.inDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
       ],
     });
   }),
@@ -142,6 +135,8 @@ export default Component.extend(I18n, {
       id: 'newDirectory',
       showIn: [
         actionContext.inDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
       ],
     });
   }),
@@ -151,6 +146,8 @@ export default Component.extend(I18n, {
       id: 'share',
       showIn: [
         actionContext.singleDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
       ],
     });
   }),
@@ -161,6 +158,9 @@ export default Component.extend(I18n, {
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,
+        actionContext.currentDir,
+        // TODO: ?
+        // actionContext.spaceRootDir,
       ],
     });
   }),
@@ -168,7 +168,7 @@ export default Component.extend(I18n, {
   btnInfo: computed(function btnInfo() {
     return this.createFileAction({
       id: 'info',
-      showIn: anySelected,
+      showIn: [...anySelected, actionContext.currentDir],
     });
   }),
 
@@ -178,6 +178,7 @@ export default Component.extend(I18n, {
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,
+        actionContext.currentDir,
       ],
     });
   }),
@@ -185,7 +186,7 @@ export default Component.extend(I18n, {
   btnPermissions: computed(function btnPermissions() {
     return this.createFileAction({
       id: 'permissions',
-      showIn: anySelected,
+      showIn: [...anySelected, actionContext.currentDir],
     });
   }),
 
@@ -213,7 +214,7 @@ export default Component.extend(I18n, {
   btnDistribution: computed(function btnDistribution() {
     return this.createFileAction({
       id: 'distribution',
-      showIn: anySelected,
+      showIn: [...anySelected, actionContext.currentDir],
     });
   }),
 
@@ -258,7 +259,7 @@ export default Component.extend(I18n, {
     document.body.addEventListener(
       'click',
       clickOutsideDeselectHandler
-    );    
+    );
 
     const uploadDropElement = element.parentElement;
     uploadManager.assignUploadDrop(uploadDropElement);
@@ -291,5 +292,14 @@ export default Component.extend(I18n, {
 
   clearFilesSelection() {
     this.get('selectedFiles').clear();
+  },
+
+  actions: {
+    selectCurrentDir(select) {
+      this.clearFilesSelection();
+      if (select) {
+        this.selectedFiles.push(this.get('dir'));
+      }
+    },
   },
 });

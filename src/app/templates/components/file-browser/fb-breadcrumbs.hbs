@@ -1,19 +1,44 @@
 {{!-- TODO: loading parent dirs --}}
-{{!-- TODO: collapsing --}}
-
-{{#each dirPath as |parentDir i|}}
-  <div class="fb-breadcrumbs-dir fb-breadcrumbs-element {{if (eq i 0) "fb-breadcrumbs-dir-root"}}">
-    <a class="fb-breadcrumbs-dir-link azure" {{action "changeDir" parentDir}}>
-      {{#if (eq i 0)}}
-        <div class="inline-icon-container">
-          {{one-icon icon="home"}}          
-        </div>
-      {{else}}
-        {{parentDir.name}}
-      {{/if}}
-    </a>
-  </div>
-  <div class="fb-breadcrumbs-separator fb-breadcrumbs-element"></div>
-{{/each}}
-{{!-- TODO: with dropdown? --}}
-{{dir.name}}
+<div class="something"></div>
+<div class="fb-breadcrumbs-inner {{if (lt elementsToShow 3) "truncate"}}">
+  {{#each filteredBreadcrumbsItemsProxy as |item i|}}
+    <div class="fb-breadcrumbs-dir fb-breadcrumbs-element {{if (eq i 0) "fb-breadcrumbs-dir-root"}}">
+      <a class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name" {{action "changeDir" item}}>
+        {{#if (eq i 0)}}
+          <div class="inline-icon-container">
+            {{one-icon icon="home"}}  
+          </div>
+        {{else}}
+          {{item.name}}
+        {{/if}}
+      </a>
+    </div>
+    <div class="fb-breadcrumbs-separator fb-breadcrumbs-element"></div>
+  {{/each}}
+  <a class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button black truncate {{if dirActionsOpen "active"}}"
+    onclick={{disable-bubbling (action "toggleDirActions")}}
+  >
+    <span class="fb-breadcrumbs-dir-name">
+      {{currentItem.name}}
+    </span>
+    <div class="inline-icon-container current-dir-actions-trigger">
+      {{one-icon icon="arrow-down"}}
+    </div>
+    {{#one-webui-popover
+      popoverStyle="with-dropdown webui-popover-in-fb-head"
+      padding=false
+      popoverTrigger="manual"
+      triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
+      onToggle=(action "dirActionsToggled")
+      open=dirActionsOpen
+    }}
+      {{#click-outside action=(action "toggleDirActions" false)}}
+        {{actions-popover-content
+          actionsArray=menuButtons
+          actionClicked=(action "toggleDirActions" false)
+          class="dir-actions"
+        }}
+      {{/click-outside}}
+    {{/one-webui-popover}}
+  </a>
+</div>

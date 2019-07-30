@@ -9,4 +9,8 @@
   padding-bottom: $content-col-padding;
   padding-left: $content-col-padding;
   overflow: auto;
+  > * {
+    flex-grow: 1;
+    max-width: 100%;
+  }
 }
