@@ -9,9 +9,8 @@ export default {
     posix: 'POSIX',
     acl: 'ACL',
   },
-  openEditor: 'Open editor',
-  differentPermissionsTypes: 'Selected files use different permissions types. To modify permissions, you must choose a type.',
-  differentPosix: 'Selected files have different POSIX permissions.',
-  differentAcl: 'Selected files have different ACL rules.',
-  openEditorToOverride: 'Opening editor and saving changes will override permissions in each file permanently. Are you sure?',
+  editAnyway: 'Edit anyway',
+  differentPermissionsTypes: 'Selected files use different permissions types. You can choose one of the types (POSIX or ACL) to be applied for all files - current permissions will be <strong>irreversibly overwritten</strong> upon save.',
+  differentPosix: 'Selected files have different POSIX permissions. You can edit them, but saving your changes will cause the permissions of all files to be <strong>irreversibly overwritten</strong> with the new ones.',
+  differentAcl: 'Selected files have different ACL rules. You can edit them, but saving your changes will cause the ACL rules of all files to be <strong>irreversibly overwritten</strong> with the new ones.',
 };

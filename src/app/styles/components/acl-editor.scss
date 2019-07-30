@@ -40,7 +40,7 @@
     line-height: 0;
   }
 
-  .acl-entry-editor {
+  .ace-editor-form {
     margin: $padding-base-horizontal;
     &.type-deny {
       .one-way-toggle.checked .one-way-toggle-control {
@@ -49,7 +49,7 @@
     }
   }
 
-  .acl-type-presenter {
+  .ace-type-presenter {
     display: flex;
     position: relative;
     height: 28px;
@@ -57,7 +57,7 @@
     overflow: hidden;
   }
 
-  .acl-type-label {
+  .ace-type-label {
     @include font-semibold();
     text-transform: uppercase;
     display: inline-block;
@@ -65,7 +65,7 @@
     width: 51px;
   }
 
-  .acl-type-selector {
+  .ace-type-selector {
     flex-grow: 1;
     display: block;
     margin-right: -2px;
@@ -83,7 +83,7 @@
       padding-right: 230px;
     }
 
-    .acl-entry-editor {
+    .ace-editor-form {
       max-width: 300px;
     }
 
@@ -117,7 +117,7 @@
     }
   }
 
-  .add-user-group-acl {
+  .add-user-group-ace {
     .header-content-container {
       display: flex;
       align-items: center;
@@ -133,7 +133,7 @@
     }
   }
 
-  .no-acl-entry {
+  .no-ace {
     font-style: italic;
     text-align: center;
 

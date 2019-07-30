@@ -28,12 +28,12 @@
       {{/if}}
       {{#if (and posixViewActive (not posixPermissionsCompatible))}}
         <div class="alert alert-warning alert-simple-info">
-          {{tt this "differentPosix"}} {{tt this "openEditorToOverride"}}
+          {{tt this "differentPosix"}}
           <div class="row alert-simple-info-btn">
             {{#bs-button
               class="btn btn-warning btn-sm open-posix-editor"
               onClick=(action "acceptPosixIncompatibility")}}
-              {{tt this "openEditor"}}
+              {{tt this "editAnyway"}}
             {{/bs-button}}
           </div>
         </div>
@@ -43,23 +43,23 @@
         onChange=(action "posixPermissionsChanged")
         onSave=(action "save" modal.close)
         class=(if (not (and posixViewActive posixPermissionsCompatible)) "hidden")}}
-      {{#if (and aclViewActive (not aclRulesCompatible))}}
+      {{#if (and aclViewActive (not aclCompatible))}}
         <div class="alert alert-warning alert-simple-info">
-          {{tt this "differentAcl"}} {{tt this "openEditorToOverride"}}
+          {{tt this "differentAcl"}}
           <div class="row alert-simple-info-btn">
             {{#bs-button
               class="btn btn-warning btn-sm open-acl-editor"
               onClick=(action "acceptAclIncompatibility")}}
-              {{tt this "openEditor"}}
+              {{tt this "editAnyway"}}
             {{/bs-button}}
           </div>
         </div>
       {{/if}}
       {{acl-editor
         space=space
-        aclRules=initialAclRules
-        onChange=(action "aclRulesChanged")
-        class=(if (not (and aclViewActive aclRulesCompatible)) "hidden")}}
+        acl=initialAcl
+        onChange=(action "aclChanged")
+        class=(if (not (and aclViewActive aclCompatible)) "hidden")}}
     {{/promise-proxy-container}}
   {{/modal.body}}
   {{#modal.footer class="btn-toolbar"}}

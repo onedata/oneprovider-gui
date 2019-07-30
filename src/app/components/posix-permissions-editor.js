@@ -57,9 +57,9 @@ export default Component.extend(I18n, {
    */
   isOctalInputValid: true,
 
-  sourcePermissionsObserver: observer(
+  initialPermissionsObserver: observer(
     'initialPermissions',
-    function sourcePermissionsObserver() {
+    function initialPermissionsObserver() {
       // Init permissions object only one time
       const {
         initialPermissions,
@@ -84,7 +84,7 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
 
-    this.sourcePermissionsObserver();
+    this.initialPermissionsObserver();
   },
 
   didInsertElement() {

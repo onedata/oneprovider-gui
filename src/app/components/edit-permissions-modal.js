@@ -77,11 +77,32 @@ export default Component.extend(
     arePosixPermissionsValid: true,
 
     /**
-     * Array of acl rules from acl editor, ready to be saved
-     * (with some preprocessing).
+     * Array of ACE from ACL editor, ready to be saved (with some
+     * preprocessing).
      * @type {Array<Object>}
      */
-    aclRules: undefined,
+    acl: undefined,
+
+    /**
+     * If true, user has accepted permissions type conflict and allowed
+     * edition.
+     * @type {boolean}
+     */
+    isActivePermissionsTypeIncompatibilityAccepted: false,
+
+    /**
+     * If true, user has accepted posix permissions conflict and allowed
+     * edition.
+     * @type {boolean}
+     */
+    isPosixPermissionsIncompatibilityAccepted: false,
+
+    /**
+     * If true, user has accepted ACL permissions conflict and allowed
+     * edition.
+     * @type {boolean}
+     */
+    isAclIncompatibilityAccepted: false,
 
     /**
      * True only if all files have consistent `type` value in permissions
@@ -94,11 +115,7 @@ export default Component.extend(
     ),
 
     /**
-     * @type {boolean}
-     */
-    isActivePermissionsTypeIncompatibilityAccepted: false,
-
-    /**
+     * True if permissions types are not conflicted or conflict was accepted.
      * @type {Ember.ComputedProperty<boolean>}
      */
     activePermissionsTypeCompatible: or(
@@ -128,11 +145,7 @@ export default Component.extend(
     ),
 
     /**
-     * @type {boolean}
-     */
-    isPosixPermissionsIncompatibilityAccepted: false,
-
-    /**
+     * True if Posix permissions are not conflicted or conflict was accepted.
      * @type {Ember.ComputedProperty<boolean>}
      */
     posixPermissionsCompatible: or(
@@ -142,7 +155,7 @@ export default Component.extend(
 
     /**
      * Posix permissions octal value inferred from files permissions. Fallbacks
-     * to default '000' value if files have different posix permissions.
+     * to default '664' value if files have different posix permissions.
      * @type {Ember.ComputedProperty<string>}
      */
     initialPosixPermissions: conditional(
@@ -156,7 +169,7 @@ export default Component.extend(
      * model.
      * @type {Ember.ComputedProperty<boolean>}
      */
-    filesHaveCompatibleAclRules: computed(
+    filesHaveCompatibleAcl: computed(
       'permissions',
       function filesHaveCompatibleAclRules() {
         const permissions = this.get('permissions');
@@ -173,16 +186,12 @@ export default Component.extend(
     ),
 
     /**
-     * @type {boolean}
-     */
-    isAclRulesIncompatibilityAccepted: false,
-
-    /**
+     * True if ACLs are not conflicted or conflict was accepted.
      * @type {Ember.ComputedProperty<boolean>}
      */
-    aclRulesCompatible: or(
-      'filesHaveCompatibleAclRules',
-      'isAclRulesIncompatibilityAccepted'
+    aclCompatible: or(
+      'filesHaveCompatibleAcl',
+      'isAclIncompatibilityAccepted'
     ),
 
     /**
@@ -190,8 +199,8 @@ export default Component.extend(
      * value if files have different ACL rules.
      * @type {Ember.ComputedProperty<Array<Object>>}
      */
-    initialAclRules: conditional(
-      'filesHaveCompatibleAclRules',
+    initialAcl: conditional(
+      'filesHaveCompatibleAcl',
       'permissions.firstObject.aclValue',
       raw([]),
     ),
@@ -212,7 +221,7 @@ export default Component.extend(
     isSaveEnabled: and(
       'activePermissionsTypeCompatible',
       or(not('posixViewActive'), 'posixPermissionsCompatible'),
-      or(not('aclViewActive'), 'aclRulesCompatible'),
+      or(not('aclViewActive'), 'aclCompatible'),
       'permissionsProxy.isFulfilled',
       'arePosixPermissionsValid',
       not('isSaving')
@@ -225,18 +234,18 @@ export default Component.extend(
         const {
           initialActivePermissionsType,
           initialPosixPermissions,
-          initialAclRules,
+          initialAcl,
         } = this.getProperties(
           'initialActivePermissionsType',
           'initialPosixPermissions',
-          'initialAclRules'
+          'initialAcl'
         );
         
         // Set initial values to save
         this.setProperties({
           activePermissionsType: initialActivePermissionsType,
           posixPermissions: initialPosixPermissions,
-          aclRules: initialAclRules,
+          acl: initialAcl,
         });
       }));
     },
@@ -255,27 +264,27 @@ export default Component.extend(
      */
     save() {
       const {
-        aclRules,
+        acl,
         posixPermissions,
         permissions,
         activePermissionsType,
       } = this.getProperties(
-        'aclRules',
+        'acl',
         'posixPermissions',
         'permissions',
         'activePermissionsType'
       );
 
-      // All files share the same ACL rules array, so it can be prepared
+      // All files share the same ACE array, so it can be prepared
       // earlier.
-      let aclRulesToSave;
+      let aclToSave;
       if (activePermissionsType === 'acl') {
-        aclRulesToSave = aclRules.map(aclRule => {
+        aclToSave = acl.map(ace => {
           const {
             permissions: aclPermissions,
             type,
-          } = getProperties(aclRule, 'permissions', 'type');
-          const subjectId = get(aclRule, 'subject.id');
+          } = getProperties(ace, 'permissions', 'type');
+          const subjectId = get(ace, 'subject.id');
           return {
             permissions: aclPermissions,
             type,
@@ -289,7 +298,7 @@ export default Component.extend(
         if (activePermissionsType === 'posix') {
           set(filePermissions, 'posixValue', posixPermissions);
         } else {
-          set(filePermissions, 'aclValue', aclRulesToSave);
+          set(filePermissions, 'aclValue', aclToSave);
         }
         // Convert errors to normal values to not reject Promise.all on first
         // error - try to fulfill as much save requests as possible.
@@ -328,7 +337,7 @@ export default Component.extend(
         this.set('isPosixPermissionsIncompatibilityAccepted', true);
       },
       acceptAclIncompatibility() {
-        this.set('isAclRulesIncompatibilityAccepted', true);
+        this.set('isAclIncompatibilityAccepted', true);
       },
       posixPermissionsChanged({ permissions, isValid }) {
         this.setProperties({
@@ -336,8 +345,8 @@ export default Component.extend(
           arePosixPermissionsValid: isValid,
         });
       },
-      aclRulesChanged(aclRules) {
-        this.set('aclRules', aclRules);
+      aclChanged(acl) {
+        this.set('acl', acl);
       },
       close() {
         this.get('onClose')();

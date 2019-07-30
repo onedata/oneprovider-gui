@@ -1,3 +1,14 @@
+/**
+ * Specification of permissions used in ACLs.
+ * 
+ * @module utils/acl-permissions-specification
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
+// TODO: some of this permissions may change
+
 export default [{
   groupName: 'data',
   icon: 'browser-directory',
@@ -41,7 +52,7 @@ export default [{
     }, {
       name: 'delete_object',
       context: ['directory'],
-      mask: 0x00100000, // TODO changed number, consult backend
+      mask: 0x00100000, // TODO: changed number, consult backend
     },
   ],
 }, {

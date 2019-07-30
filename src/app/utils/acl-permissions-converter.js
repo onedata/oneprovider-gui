@@ -1,9 +1,25 @@
+/**
+ * Functions, that allows to convert ACE permissions between number and object
+ * representations.
+ * 
+ * @module utils/acl-permissions-converter
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
 import _ from 'lodash';
 
 const aclSpecificationList =
   _.flatten(aclPermissionsSpecification.mapBy('privileges'));
 
+/**
+ * Converts number to object representation of ACE permissions.
+ * @param {number} permissions 
+ * @param {string} context one of `file`, `directory`
+ * @returns {Object} mapping: groupName -> { permissionName -> boolean }
+ */
 export function numberToTree(permissions, context) {
   const convertedPermissions = {};
   aclPermissionsSpecification.forEach(permissionsGroup => {
@@ -20,6 +36,13 @@ export function numberToTree(permissions, context) {
   return convertedPermissions;
 }
 
+/**
+ * Converts object representation of ACE permissions to number.
+ * @param {Object} permissionsTree
+ *   mapping: groupName -> { permissionName -> boolean }
+ * @param {string} context one of `file`, `directory`
+ * @returns {number}
+ */
 export function treeToNumber(permissionsTree, context) {
   const aclSpecListForContext = aclSpecificationList
     .filter(spec => spec.context.includes(context));

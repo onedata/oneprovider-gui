@@ -25,3 +25,10 @@
     allButtonsArray=allButtonsArray
   }}
 </div>
+{{!-- TODO: Introduce space and proper file permissions model generation --}}
+{{#if fileActions.isEditPermissionsModalVisible}}
+  {{edit-permissions-modal
+    files=fileActions.editPermissionsModalFiles
+    space=space
+    onClose=(action fileActions.closePermissionsEditor)}}
+{{/if}}

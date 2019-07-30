@@ -1,3 +1,7 @@
+/**
+ * TODO: Demo file - to remove
+ */
+
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { Promise, resolve } from 'rsvp';

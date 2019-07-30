@@ -8,8 +8,23 @@
  */
 
 import Service from '@ember/service';
+import { notEmpty } from 'ember-awesome-macros';
 
 export default Service.extend({
+  /**
+   * @type {Array<Models.File>}
+   */
+  editPermissionsModalFiles: Object.freeze([]),
+
+  /**
+   * @type {boolean}
+   */
+  isEditPermissionsModalVisible: notEmpty('editPermissionsModalFiles'),
+
+  closePermissionsEditor: () => {
+    this.set('editPermissionsModalFiles', []);
+  },
+
   // #region Actions implementation
 
   actUpload( /* files */ ) {
@@ -33,7 +48,7 @@ export default Service.extend({
   },
 
   actPermissions(files) {
-    alert('permissions: ' + files);
+    this.set('editPermissionsModalFiles', files);
   },
 
   actDistribution(files) {

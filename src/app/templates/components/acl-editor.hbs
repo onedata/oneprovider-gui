@@ -1,35 +1,35 @@
-{{#promise-proxy-container proxy=aclRulesSnapshotProxy}}
+{{#promise-proxy-container proxy=aclSnapshotProxy}}
   {{#one-collapsible-list accordionMode=true as |list|}}
-    {{#each aclRulesSnapshot as |aclEntry|}}
+    {{#each aclSnapshot as |ace|}}
       {{#list.item as |listItem|}}
-        {{acl-editor/acl-entry
+        {{acl-editor/ace-editor
           listItem=listItem
-          entry=aclEntry
+          ace=ace
           context="file"
-          onChange=(action "aclChanged" aclEntry)
-          onMoveUp=(action "moveUp" aclEntry)
-          onMoveDown=(action "moveDown" aclEntry)
-          onRemove=(action "remove" aclEntry)
-          isFirstEntry=(eq aclEntry aclRulesSnapshot.firstObject)
-          isLastEntry=(eq aclEntry aclRulesSnapshot.lastObject)}}
+          onChange=(action "aceChanged" ace)
+          onMoveUp=(action "moveUp" ace)
+          onMoveDown=(action "moveDown" ace)
+          onRemove=(action "remove" ace)
+          isFirstAce=(eq ace aclSnapshotProxy.firstObject)
+          isLastAce=(eq ace aclSnapshotProxy.lastObject)}}
       {{/list.item}}
     {{else}}
-      {{#list.item class="no-acl-entry" as |listItem|}}
-        {{#listItem.header isCollapsible=false}}{{tt this "noAclEntry"}}{{/listItem.header}}
+      {{#list.item class="no-ace" as |listItem|}}
+        {{#listItem.header isCollapsible=false}}{{tt this "noAce"}}{{/listItem.header}}
       {{/list.item}}  
     {{/each}}
-    {{#list.item class="add-user-group-acl" as |listItem|}}
+    {{#list.item class="add-user-group-ace" as |listItem|}}
       {{#listItem.header isCollapsible=false truncate=false}}
         <span class="item-icon-container">
           {{one-icon icon="group-invite" class="item-icon"}}
         </span>
         {{#power-select
-          dropdownClass="add-user-group-acl"
+          dropdownClass="add-user-group-ace"
           options=sortedGroupAndUserList
           onchange=(action "addEntitySelected")
           renderInPlace=true
           placeholder=(tt this "addUserOrGroup")
-          matcher=(action "recordMatcher")
+          matcher=(action "nameMatcher")
           as |entity|}}
           <div class="option-container">
             {{#truncated-string}}

@@ -1,6 +1,6 @@
-{{#listItem.header disableToggleIcon=true class=(concat "type-" aclType)}}
+{{#listItem.header disableToggleIcon=true class=(concat "type-" aceType)}}
   <span class="item-icon-container">
-    {{one-icon-tagged class="item-icon" icon=icon tagIcon=(if (eq aclType "allow") "checked" "x")}}
+    {{one-icon-tagged class="item-icon" icon=icon tagIcon=(if (eq aceType "allow") "checked" "x")}}
     {{one-tooltip title=subject.name}}
   </span>
   <span class="one-label">{{subject.name}}</span>
@@ -18,19 +18,19 @@
     actionsArray=actionsArray}}
 {{/listItem.header}}
 {{#listItem.content}}
-  <div class="acl-entry-editor type-{{aclType}}">
-    <div class="acl-type-presenter">
-      <label class="acl-type-label">{{tt this "aclType"}}</label>
+  <div class="ace-editor-form type-{{aceType}}">
+    <div class="ace-type-presenter">
+      <label class="ace-type-label">{{tt this "aceType"}}</label>
       {{#bs-button-group
-        class="acl-type-selector"
-        value=aclType
+        class="ace-type-selector"
+        value=aceType
         type="radio"
-        onChange=(action "aclTypeChanged") as |bg|}}
-        {{#bg.button type=(if (eq aclType "allow") "primary" "default") class="btn-sm acl-type acl-type-allow" value="allow"}}
-          {{one-icon icon="checkbox-filled"}} {{tt this "aclTypes.allow"}}
+        onChange=(action "aceTypeChanged") as |bg|}}
+        {{#bg.button type=(if (eq aceType "allow") "primary" "default") class="btn-sm ace-type ace-type-allow" value="allow"}}
+          {{one-icon icon="checkbox-filled"}} {{tt this "aceTypes.allow"}}
         {{/bg.button}}
-        {{#bg.button type=(if (eq aclType "deny") "danger" "default") class="btn-sm acl-type acl-type-deny" value="deny"}}
-          {{one-icon icon="checkbox-filled-x"}}{{tt this "aclTypes.deny"}}
+        {{#bg.button type=(if (eq aceType "deny") "danger" "default") class="btn-sm ace-type ace-type-deny" value="deny"}}
+          {{one-icon icon="checkbox-filled-x"}}{{tt this "aceTypes.deny"}}
         {{/bg.button}}
       {{/bs-button-group}}  
     </div>

@@ -26,13 +26,13 @@ export default {
     delete: 'Delete',
     change_owner: 'Change owner',
   },
-  aclEntry: {
-    aclType: 'Type',
-    aclTypes: {
+  aceEditor: {
+    aceType: 'Type',
+    aceTypes: {
       allow: 'Allow',
       deny: 'Deny',
     },
-    aclPermissionState: {
+    acePermissionState: {
       deny: 'denied',
       allow: 'allowed',
     },
@@ -41,5 +41,5 @@ export default {
     remove: 'Remove',
   },
   addUserOrGroup: 'Add user or group...',
-  noAclEntry: 'No ACL rules defined.',
+  noAce: 'No ACE defined.',
 };

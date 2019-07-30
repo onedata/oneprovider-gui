@@ -1,6 +1,16 @@
+/**
+ * An ACE editor. Includes tree editor and the whole collapsible-list
+ * item content.
+ * 
+ * @module components/acl-editor/ace-editor
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
-import { computed } from '@ember/object';
-import { reads, alias, collect } from '@ember/object/computed';
+import { computed, get } from '@ember/object';
+import { reads, collect } from '@ember/object/computed';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -8,12 +18,12 @@ import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
-  classNames: ['acl-entry'],
+  classNames: ['ace-editor'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.aclEditor.aclEntry',
+  i18nPrefix: 'components.aclEditor.aceEditor',
 
   /**
    * @virtual
@@ -23,8 +33,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Ace}
    */
-  entry: undefined,
+  ace: undefined,
 
   /**
    * One of: `file`, `directory`
@@ -34,6 +45,7 @@ export default Component.extend(I18n, {
   context: undefined,
 
   /**
+   * @virtual
    * @type {Function}
    * @param {Object} change { type: string, permissions: number }
    * @returns {undefined}
@@ -41,18 +53,21 @@ export default Component.extend(I18n, {
   onChange: notImplementedIgnore,
 
   /**
+   * @virtual
    * @type {Function}
    * @returns {undefined}
    */
   onMoveUp: notImplementedIgnore,
 
   /**
+   * @virtual
    * @type {Function}
    * @returns {undefined}
    */
   onMoveDown: notImplementedIgnore,
 
   /**
+   * @virtual
    * @type {Function}
    * @returns {undefined}
    */
@@ -62,31 +77,42 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {boolean}
    */
-  isFirstEntry: false,
+  isFirstAce: false,
 
   /**
    * @virtual
    * @type {boolean}
    */
-  isLastEntry: false,
+  isLastAce: false,
 
   /**
+   * Permissions modified by editor. Object format the same as returned from
+   * `numberToTree`.
    * @type {Object}
    */
   permissionsTree: undefined,
 
   /**
-   * 
-   */
-  subject: reads('entry.subject'),
-
-  /**
-   * @type {Ember.ComputedProperty}
-   */
-  aclType: alias('entry.type'),
-
-  /**
+   * First permissions injected to component. Object format the same as
+   * returned from `numberToTree`.
    * @type {Object}
+   */
+  initialPermissionsTree: undefined,
+
+  /**
+   * @type {Ember.ComputedProperty<Models.User|Models.Group>}
+   */
+  subject: reads('ace.subject'),
+
+  /**
+   * One of `allow`, `deny`. Value can be changed by editor
+   * @type {Ember.ComputedProperty<string>}
+   */
+  aceType: reads('ace.type'),
+
+  /**
+   * `aclPermissionsSpecification` object narrowed to the passed `context`
+   * @type {Ember.ComputedProperty<Object>}
    */
   permissionsSpecification: computed(
     'context',
@@ -106,29 +132,25 @@ export default Component.extend(I18n, {
     }
   ),
 
-  icon: computed('subject', function icon() {
-    return 'user';
-  }),
-
   /**
-   * @virtual
-   * @type {number}
+   * @type {Ember.ComputedProperty<string>}
    */
-  permissions: reads('entry.permissions'),
+  icon: reads('subject.constructor.modelName'),
 
   /**
-   * Mapping: permsGroupName -> { permName -> boolean }
+   * Mapping: permsGroupName -> { permName -> boolean }. Represents persisted
+   * permissions before edition.
    * @type {Ember.ComputedProperty<Object>}
    */
   persistedPermissionsTree: computed(
-    'permissions',
+    'ace.permissions',
     'context',
-    function initialPermissionsTree() {
+    function persistedPermissionsTree() {
       const {
-        permissions,
+        ace,
         context,
-      } = this.getProperties('permissions', 'context');
-      return numberToTree(permissions, context);
+      } = this.getProperties('ace', 'context');
+      return numberToTree(get(ace, 'permissions'), context);
     }
   ),
 
@@ -142,14 +164,20 @@ export default Component.extend(I18n, {
   statusIcons: computed(
     'permissionsTree',
     'permissionsSpecification',
-    'aclType',
+    'aceType',
     function statusIcons() {
       const {
         permissionsTree,
         permissionsSpecification,
-        aclType,
+        aceType,
         i18n,
-      } = this.getProperties('permissionsTree', 'permissionsSpecification', 'aclType', 'i18n');
+      } = this.getProperties(
+        'permissionsTree',
+        'permissionsSpecification',
+        'aceType',
+        'i18n'
+      );
+
       return permissionsSpecification.map(permissionsGroup => {
         const {
           groupName,
@@ -171,11 +199,12 @@ export default Component.extend(I18n, {
           stateClass = 'mixed';
         }
 
-        const groupNameTranslation = i18n.t(`components.aclEditor.permissionGroups.${groupName}`);
+        const groupNameTranslation =
+          i18n.t(`components.aclEditor.permissionGroups.${groupName}`);
         const permissionsCounterString =
           `${checkedPermissionsCount}/${permissions.length}`;
         const permissonsStateTranslation =
-          this.t(`aclPermissionState.${aclType}`);
+          this.t(`acePermissionState.${aceType}`);
         return {
           icon: permissionsGroup.icon,
           stateClass,
@@ -189,26 +218,26 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  moveUpAction: computed('isFirstEntry', function moveUpAction() {
+  moveUpAction: computed('isFirstAce', function moveUpAction() {
     return {
       action: () => this.get('onMoveUp')(),
       title: this.t('moveUp'),
       class: 'move-up-action',
       icon: 'move-up',
-      disabled: this.get('isFirstEntry'),
+      disabled: this.get('isFirstAce'),
     };
   }),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  moveDownAction: computed('isLastEntry', function moveDownAction() {
+  moveDownAction: computed('isLastAce', function moveDownAction() {
     return {
       action: () => this.get('onMoveDown')(),
       title: this.t('moveDown'),
       class: 'move-down-action',
       icon: 'move-down',
-      disabled: this.get('isLastEntry'),
+      disabled: this.get('isLastAce'),
     };
   }),
 
@@ -224,40 +253,47 @@ export default Component.extend(I18n, {
     };
   }),
 
+  /**
+   * @type {Ember.ComputedProperty<Array<Action>>}
+   */
   actionsArray: collect('moveUpAction', 'moveDownAction', 'removeAction'),
 
   init() {
     this._super(...arguments);
-    const persistedPermissionsTree = this.get('persistedPermissionsTree');
 
+    const persistedPermissionsTree = this.get('persistedPermissionsTree');
     this.setProperties({
       permissionsTree: persistedPermissionsTree,
       initialPermissionsTree: persistedPermissionsTree,
     });
   },
 
+  /**
+   * @returns {undefined}
+   */
   notifyAboutChange() {
     const {
       context,
-      aclType,
+      aceType,
       permissionsTree,
       onChange,
     } = this.getProperties(
       'context',
-      'aclType',
+      'aceType',
       'permissionsTree',
       'onChange'
     );
+
     const permissions = treeToNumber(permissionsTree, context);
     onChange({
-      type: aclType,
+      type: aceType,
       permissions,
     });
   },
 
   actions: {
-    aclTypeChanged(type) {
-      this.set('aclType', type);
+    aceTypeChanged(type) {
+      this.set('aceType', type);
       this.notifyAboutChange();
     },
     permissionsChanged(newPermissionsTree) {

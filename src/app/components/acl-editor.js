@@ -1,3 +1,20 @@
+/**
+ * An ACL editor component. Automatically fetches users and groups lists from
+ * passed space.
+ * 
+ * @module components/acl-editor
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
+/**
+ * @typedef {Object} Ace
+ * @property {number} permissions
+ * @property {string} type 'allow' | 'deny'
+ * @property {Models.User|Models.Group} subject
+ */
+
 import Component from '@ember/component';
 import { getProperties, setProperties, get } from '@ember/object';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -11,7 +28,7 @@ import _ from 'lodash';
 
 export default Component.extend(
   I18n,
-  createDataProxyMixin('aclRulesSnapshot', { type: 'array' }), {
+  createDataProxyMixin('aclSnapshot', { type: 'array' }), {
     classNames: ['acl-editor'],
 
     /**
@@ -20,14 +37,26 @@ export default Component.extend(
     i18nPrefix: 'components.aclEditor',
     
     /**
+     * Array of { permissions: number, type: string, subjectId: string }
      * @virtual
+     * @type {Array<Object>}
      */
-    aclRules: undefined,
+    acl: undefined,
 
     /**
+     * Needed to fetch users and groups for possible new ACE
+     * @virtual
      * @type {Models.Space}
      */
     space: undefined,
+
+    /**
+     * @type {Function}
+     * @param {Array<Object>} change has the same format as `acl` field
+     *   (without `subjectId`)
+     * @returns {undefined}
+     */
+    onChange: notImplementedIgnore,
 
     /**
      * @type {Array<Models.Group>}
@@ -40,7 +69,7 @@ export default Component.extend(
     userList: Object.freeze([]),
 
     /**
-     * @type {Array<Models.Group|Models.User>}
+     * @type {Ember.ComputedProperty<Array<Models.Group|Models.User>>}
      */
     sortedGroupAndUserList: array.sort(
       array.concat('groupList', 'userList'),
@@ -48,26 +77,22 @@ export default Component.extend(
     ),
 
     /**
-     * @type {Function}
-     * @param {Array<Object>} change has the same format as `aclRules` field
-     * @returns {undefined}
+     * @override
      */
-    onChange: notImplementedIgnore,
-
-    fetchAclRulesSnapshot() {
+    fetchAclSnapshot() {
       return this.fetchUsersAndGroups().then(() => {
         const {
           userList,
           groupList,
-          aclRules,
-        } = this.getProperties('userList', 'groupList', 'aclRules');
+          acl,
+        } = this.getProperties('userList', 'groupList', 'acl');
 
-        return Promise.all(aclRules.map(acl => {
+        return Promise.all(acl.map(ace => {
           const {
             permissions,
             type,
             subject: subjectId,
-          } = getProperties(acl, 'permissions', 'type', 'subject');
+          } = getProperties(ace, 'permissions', 'type', 'subject');
   
           let subject;
           const parsedSubjectGri = parseGri(subjectId);
@@ -102,55 +127,58 @@ export default Component.extend(
       }));
     },
 
+    /**
+     * @returns {undefined}
+     */
     notifyAboutChange() {
       const {
-        aclRulesSnapshot,
+        aclSnapshot,
         onChange,
-      } = this.getProperties('aclRulesSnapshot', 'onChange');
-      onChange(aclRulesSnapshot);
+      } = this.getProperties('aclSnapshot', 'onChange');
+      onChange(aclSnapshot);
     },
 
     actions: {
-      aclChanged(entry, change) {
-        setProperties(entry, getProperties(change, 'permissions', 'type'));
+      aceChanged(ace, change) {
+        setProperties(ace, getProperties(change, 'permissions', 'type'));
         this.notifyAboutChange();
       },
-      moveUp(entry) {
-        const aclRulesSnapshot = this.get('aclRulesSnapshot');
-        const entryIndex = aclRulesSnapshot.indexOf(entry);
-        if (entryIndex > 0) {
-          const prevEntry = aclRulesSnapshot.objectAt(entryIndex - 1);
-          aclRulesSnapshot
-            .replace(entryIndex - 1, 1, [entry])
-            .replace(entryIndex, 1, [prevEntry]);
+      moveUp(ace) {
+        const aclSnapshot = this.get('aclSnapshot');
+        const aceIndex = aclSnapshot.indexOf(ace);
+        if (aceIndex > 0) {
+          const prevAce = aclSnapshot.objectAt(aceIndex - 1);
+          aclSnapshot
+            .replace(aceIndex - 1, 1, [ace])
+            .replace(aceIndex, 1, [prevAce]);
           this.notifyAboutChange();
         }
       },
-      moveDown(entry) {
-        const aclRulesSnapshot = this.get('aclRulesSnapshot');
-        const entryIndex = aclRulesSnapshot.indexOf(entry);
-        if (entryIndex < get(aclRulesSnapshot, 'length') - 1) {
-          const nextEntry = aclRulesSnapshot.objectAt(entryIndex + 1);
-          aclRulesSnapshot
-            .replace(entryIndex + 1, 1, [entry])
-            .replace(entryIndex, 1, [nextEntry]);
+      moveDown(ace) {
+        const aclSnapshot = this.get('aclSnapshot');
+        const aceIndex = aclSnapshot.indexOf(ace);
+        if (aceIndex < get(aclSnapshot, 'length') - 1) {
+          const nextAce = aclSnapshot.objectAt(aceIndex + 1);
+          aclSnapshot
+            .replace(aceIndex + 1, 1, [ace])
+            .replace(aceIndex, 1, [nextAce]);
           this.notifyAboutChange();
         }
       },
-      remove(entry) {
-        this.get('aclRulesSnapshot').removeObject(entry);
+      remove(ace) {
+        this.get('aclSnapshot').removeObject(ace);
         this.notifyAboutChange();
       },
       addEntitySelected(entity) {
-        const newRule = {
+        const newAce = {
           permissions: 0,
           type: 'allow',
           subject: entity,
         };
-        this.get('aclRulesSnapshot').pushObject(newRule);
+        this.get('aclSnapshot').pushObject(newAce);
         this.notifyAboutChange();
       },
-      recordMatcher(model, term) {
+      nameMatcher(model, term) {
         term = term.toLocaleLowerCase();
         const name = get(model, 'name').toLocaleLowerCase();
         return _.includes(name, term) ? 1 : -1;

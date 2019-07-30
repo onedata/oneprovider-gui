@@ -10,24 +10,24 @@
       onkeydown={{invoke-on-enter (action "save")}}>
   </div>
 </div>
-<div class="row entity-permissions-row">
-{{#each (array "user" "group" "other") as |entity|}}
-  <div class="col-xs-12 col-sm-4 entity-permissions">
-    <div class="entity-name">{{tt this (concat "entities." entity)}}</div>
-    <ul class="permissions-list">
-      {{#each (array "read" "write" "execute") as |permission|}}
-        <li class="permission">
-          <label for={{concat elementId entity permission}}>
-            {{one-checkbox
-              inputId=(concat elementId entity permission)
-              checked=(get (get permissions entity) permission)
-              update=(action "checkboxChanged" entity permission)}}
-            <span class="one-label checkbox-label">{{tt this (concat "permissions." permission)}}</span>
-          </label>
-        </li>
-      {{/each}}
-    </ul>
-  </div>
-{{/each}}
+  <div class="row entity-permissions-row">
+  {{#each (array "user" "group" "other") as |entity|}}
+    <div class="col-xs-12 col-sm-4 entity-permissions">
+      <div class="entity-name">{{tt this (concat "entities." entity)}}</div>
+      <ul class="permissions-list">
+        {{#each (array "read" "write" "execute") as |permission|}}
+          <li class="permission">
+            <label for={{concat elementId entity permission}}>
+              {{one-checkbox
+                inputId=(concat elementId entity permission)
+                checked=(get (get permissions entity) permission)
+                update=(action "checkboxChanged" entity permission)}}
+              <span class="one-label checkbox-label">{{tt this (concat "permissions." permission)}}</span>
+            </label>
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+  {{/each}}
 </div>
 {{yield}}
