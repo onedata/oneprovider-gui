@@ -81,14 +81,15 @@ function createSpaceRecords(store) {
 function createFileRecords(store, parent) {
   const now = Date.now();
   const parentEntityId = get(parent, 'entityId');
-  return Promise.all(_.range(numberOfFiles).map((index) => {
-    const id = generateFileGri(index, parentEntityId);
+  return Promise.all(_.range(numberOfFiles).map((i) => {
+    const entityId = generateFileEntityId(i, parentEntityId);
+    const id = generateFileGri(entityId);
     return store.createRecord('file', {
       id,
-      name: `File ${index}`,
-      index: id,
+      name: `File ${String(i).padStart(4, '0')}`,
+      index: entityId,
       type: 'file',
-      size: index * 1000000,
+      size: i * 1000000,
       modificationTime: now * 1000,
       parent,
     }).save();
@@ -118,10 +119,14 @@ function createUserRecord(store, listRecords) {
   return userRecord.save();
 }
 
-export function generateFileGri(index, parentEntityId) {
+export function generateFileEntityId(i, parentEntityId) {
+  return `${parentEntityId}-file-${String(i).padStart(4, '0')}`;
+}
+
+export function generateFileGri(entityId) {
   return gri({
     entityType: 'file',
-    entityId: `${parentEntityId}-file-${index}`,
+    entityId: entityId,
     aspect: 'instance',
     scope: 'private',
   });

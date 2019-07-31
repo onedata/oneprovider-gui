@@ -38,11 +38,10 @@ function addEllipsisForLastItem(items, resultArray) {
  * See tests for more examples.
  * 
  * @param {Ember.A<FileBreadcrumbsItem>} items
- * @param {Number} count max. number entries in result array, NOTE: 0, 1, 2 will give result for 2
+ * @param {Number} count max. number of entries in result array
+ *  NOTE: 0, 1, 2 will give result for 2
  * @returns {RSVP.Promise<Ember.A<FileBreadcrumbsItem>>} resolves with reduced breadcrumbs
- *                                         items array;
- *                                         max. length of the array is `count+1`
- *                                         or `items` length
+ *  items array; max. length of the array is `count+1` or `items` length
  */
 export default function filterBreadcrumbsItems(items, count) {
   let resultArray = A();

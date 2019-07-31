@@ -12,7 +12,7 @@
     display: none;
     border: 3px dashed darken($color-one-light-blue, 10%);
     background-color: rgba($color-one-light-blue, 0.75);
-    z-index: $zindex-tooltip;;
+    z-index: $zindex-tooltip;
     
     .upload-watermark-icon {
       position: absolute;

@@ -11,11 +11,13 @@
 import OnedataRpc from 'onedata-gui-websocket-client/services/mocks/onedata-rpc';
 import { resolve } from 'rsvp';
 import _ from 'lodash';
-import { get, computed } from '@ember/object';
+import { computed } from '@ember/object';
 import {
   numberOfFiles,
+  generateFileEntityId,
   generateFileGri,
 } from 'oneprovider-gui/utils/generate-development-model';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 export default OnedataRpc.extend({
   childrenIdsCache: computed(() => ({})),
@@ -32,7 +34,9 @@ export default OnedataRpc.extend({
 
   getMockChildrenSlice(dirEntityId, index, limit = 100000000, offset = 0) {
     const mockChildren = this.getMockChildren(dirEntityId);
-    let arrIndex = _.findIndex(mockChildren, i => get(i, 'index') === index);
+    let arrIndex = mockChildren.findIndex(childGri =>
+      parseGri(childGri).entityId === index
+    );
     if (arrIndex === -1) {
       arrIndex = 0;
     }
@@ -45,7 +49,7 @@ export default OnedataRpc.extend({
       return childrenIdsCache[dirEntityId];
     } else {
       childrenIdsCache[dirEntityId] = _.range(numberOfFiles).map(i =>
-        generateFileGri(i, dirEntityId)
+        generateFileGri(generateFileEntityId(i, dirEntityId))
       );
       return childrenIdsCache[dirEntityId];
     }

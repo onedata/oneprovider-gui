@@ -182,8 +182,7 @@ export default Component.extend(I18n, {
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
-        // TODO: ?
-        // actionContext.spaceRootDir,
+        actionContext.spaceRootDir,
       ],
     });
   }),

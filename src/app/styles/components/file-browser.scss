@@ -6,6 +6,7 @@ $-file-browser-padding-left: 12px;
 $-file-browser-padding-right: 16px;
 
 .content-file-browser + .ps-scrollbar-x-rail + .ps-scrollbar-y-rail {
+  // FIXME: use variables
   z-index: 20000;
 }
 
@@ -118,6 +119,7 @@ $-file-browser-padding-right: 16px;
   
   .fb-breadcrumbs-inner {
     display: inline-block;
+    width: 100%;
     white-space: nowrap;
     position: relative;
     opacity: 1;
@@ -157,17 +159,22 @@ $-file-browser-padding-right: 16px;
     &.truncate {
       max-width: 100%;
     }
-    .inline-icon-container.current-dir-actions-trigger .one-icon {
-      position: absolute;
-      right: 0;
-      left: 6px;
-      padding-bottom: 2px;
-      font-size: 110%;
-      font-weight: bold;
+    .inline-icon-container.current-dir-actions-trigger {
+      @include vertical-align-middle;
+      right: 2px;
+      
+      .one-icon {
+        position: absolute;
+        right: 0;
+        left: 6px;
+        padding-bottom: 2px;
+        font-size: 110%;
+        font-weight: bold;
+      }
     }
   }
   .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
-    max-width: calc(100% - 80px);
+    max-width: calc(100% - 48px);
   }
 }
 

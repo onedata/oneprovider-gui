@@ -1,4 +1,4 @@
-<div class="file-browser-head-container hidden-xs">
+<div class="file-browser-head-container">
   <div class="fb-head-inner">
     <div class="fb-breadcrumbs-container">
       {{file-browser/fb-breadcrumbs
@@ -8,7 +8,7 @@
         changeDir=(action "changeDir")
       }}
     </div>
-    <div class="text-right fb-toolbar-container">
+    <div class="text-right fb-toolbar-container hidden-xs">
       {{file-browser/fb-selection-toolkit
         itemsCount=selectedFiles.length
         selectionContext=selectionContext
