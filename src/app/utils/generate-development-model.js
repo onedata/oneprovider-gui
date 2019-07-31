@@ -55,13 +55,13 @@ function createListRecord(store, type, records) {
 }
 
 function createSpaceRecords(store) {
-  const now = Date.now();
-  return Promise.all(_.range(numberOfSpaces).map((index) =>
+  const timestamp = Math.floor(Date.now() / 1000);
+  return Promise.all(_.range(numberOfSpaces).map((i) =>
     // root dirs
     store.createRecord('file', {
-      name: `Space ${index}`,
+      name: `Space ${i}`,
       type: 'dir',
-      mtime: now,
+      mtime: timestamp + i * 3600,
       parent: null,
     }).save()
   )).then(rootDirs => Promise.all(_.range(numberOfSpaces).map((index) =>
@@ -79,7 +79,7 @@ function createSpaceRecords(store) {
 }
 
 function createFileRecords(store, parent) {
-  const now = Date.now();
+  const timestamp = Math.floor(Date.now() / 1000);
   const parentEntityId = get(parent, 'entityId');
   return Promise.all(_.range(numberOfFiles).map((i) => {
     const entityId = generateFileEntityId(i, parentEntityId);
@@ -90,7 +90,7 @@ function createFileRecords(store, parent) {
       index: entityId,
       type: 'file',
       size: i * 1000000,
-      modificationTime: now * 1000,
+      mtime: timestamp + i * 3600,
       parent,
     }).save();
   }));

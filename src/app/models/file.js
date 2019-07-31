@@ -20,8 +20,12 @@ export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
   type: attr('string'),
   size: attr('number'),
-  mtime: attr('string'),
   parent: belongsTo('file'),
+
+  /**
+   * Modification time in UNIX timestamp format.
+   */
+  mtime: attr('number'),
 
   modificationTime: alias('mtime'),
 
