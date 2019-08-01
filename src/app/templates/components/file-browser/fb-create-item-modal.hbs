@@ -1,5 +1,6 @@
 {{#bs-modal
   open=open
+  onShown=(action "onShown")
   onHide=(action "onHide")
   onHidden=(action "onHidden")
   as |modal|
@@ -17,6 +18,7 @@
         oninput={{action (mut editValue) value="target.value"}}
         onkeydown={{invoke-on-enter (action "submit")}}
         disabled={{isSaving}}
+        autofocus=true
       >
     </div>
   {{/modal.body}}

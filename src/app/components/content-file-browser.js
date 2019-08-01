@@ -18,6 +18,7 @@ export default OneEmbeddedComponent.extend(
     classNames: ['content-file-browser'],
 
     store: service(),
+    fileServer: service(),
 
     /**
      * @override
@@ -47,18 +48,35 @@ export default OneEmbeddedComponent.extend(
     },
 
     actions: {
-      toggleCreateItemModal(open, itemType, parentDir) {
-        if (open) {
-          this.setProperties({
-            createItemParentDir: parentDir,
-            itemType,
-          });
-        } else {
-          this.setProperties({
-            createItemParentDir: null,
-            itemType: null,
-          });
+      openCreateItemModal(itemType, parentDir) {
+        this.setProperties({
+          createItemParentDir: parentDir,
+          createItemType: itemType,
+        });
+      },
+      closeCreateItemModal(isCreated /*, submitResult */ ) {
+        const createItemParentDir = this.get('createItemParentDir');
+        if (isCreated) {
+          this.get('fileServer').trigger('dirChildrenRefresh', createItemParentDir);
         }
+        this.setProperties({
+          createItemParentDir: null,
+          createItemType: null,
+        });
+      },
+      openRemoveModal(files) {
+        this.set('filesToRemove', files);
+      },
+      closeRemoveModal(removeInvoked /*, removeResults */ ) {
+        if (removeInvoked) {
+          const {
+            dir,
+            fileServer,
+          } = this.getProperties('dir', 'fileServer');
+          fileServer.trigger('dirChildrenRefresh', dir);
+          // FIXME: use remove results to show if all/some/no files were removed
+        }
+        this.set('filesToRemove', null);
       },
     },
   }

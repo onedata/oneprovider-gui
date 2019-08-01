@@ -123,6 +123,20 @@ export default Component.extend(I18n, {
     }
   ),
 
+  init() {
+    this._super(...arguments);
+    this.get('fileServer').on('dirChildrenRefresh', parentDir => {
+      if (this.get('dir') === parentDir) {
+        const filesArray = this.get('filesArray');
+        filesArray.reload()
+          .then(() => filesArray.reload({
+            minSize: 50,
+            head: true,
+          }));
+      }
+    });
+  },
+
   didInsertElement() {
     this._super(...arguments);
     const listWatcher = this.set('listWatcher', this.createListWatcher());

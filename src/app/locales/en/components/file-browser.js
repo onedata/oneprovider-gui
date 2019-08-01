@@ -39,10 +39,22 @@ export default {
     create: 'Create',
     cancel: 'Cancel',
     createHeader: {
-      dir: 'Create new directory',
+      dir: 'Create new directory:',
     },
     createIntro: {
       dir: 'Enter new directory name',
+    },
+  },
+  fbRemoveModal: {
+    delete: 'Delete',
+    yes: 'Yes',
+    no: 'No',
+    questionPrefix: 'Are you sure you want to permanently delete',
+    questionSuffix: {
+      file: 'this file?',
+      dir: 'this directory and its contents?',
+      multi: 'these {{count}} items?',
+      multiMany: '{{count}} selected items?',
     },
   },
 };

@@ -10,8 +10,9 @@
 
 import Service, { inject as service } from '@ember/service';
 import { all } from 'rsvp';
+import Evented from '@ember/object/evented';
 
-export default Service.extend({
+export default Service.extend(Evented, {
   store: service(),
   onedataRpc: service(),
 

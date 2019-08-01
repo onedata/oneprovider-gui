@@ -93,6 +93,13 @@ export default Component.extend(I18n, {
   openCreateNewDirectory: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} files array with files/directories to remove
+   */
+  openRemove: notImplementedThrow,
+
+  /**
    * One of values from `actionContext` enum object
    * @type {ComputedProperty<string>}
    */
@@ -127,7 +134,7 @@ export default Component.extend(I18n, {
     return function clickOutsideDeselect(mouseEvent) {
       if (!isPopoverOpened() &&
         !mouseEvent.target.matches(
-          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-toolbar *, .fb-selection-toolkit *'
+          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *'
         )) {
         component.clearFilesSelection();
       }
@@ -229,6 +236,7 @@ export default Component.extend(I18n, {
   btnDelete: computed(function btnDelete() {
     return this.createFileAction({
       id: 'delete',
+      action: () => this.get('openRemove')(this.get('selectedFiles')),
       showIn: anySelected,
     });
   }),

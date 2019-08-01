@@ -2,8 +2,10 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { isEmpty } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { next } from '@ember/runloop';
 
-// FIXME: validate to disallow empty and / names
+// FIXME: validate to disallow / names
 
 export default Component.extend(I18n, {
   /**
@@ -13,30 +15,68 @@ export default Component.extend(I18n, {
 
   store: service(),
 
-  itemType: 'dir',
-
-  parentDir: undefined,
-
-  onHide: undefined,
-
+  /**
+   * @virtual
+   * If true, the modal will open
+   * @type {boolean}
+   */
   open: false,
 
+  /**
+   * @virtual optional
+   * One of: dir, file - File type to create with this modal
+   * @type {string}
+   */
+  itemType: 'dir',
+
+  /**
+   * @virtual
+   * Parent dir for newly created dir/file
+   * @type {models/File}
+   */
+  parentDir: undefined,
+
+  /**
+   * @virtual
+   * Callback when the modal is starting to hide
+   * @type {Function}
+   * @param {boolean} isCreated
+   * @param {submitResult}
+   */
+  onHide: notImplementedIgnore,
+
+  /**
+   * @virtual optional
+   * @type {Function}
+   * @param {result}
+   */
+  onFinish: notImplementedIgnore,
+
+  /**
+   * Stores current value of input
+   * @type {string}
+   */
   editValue: '',
 
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
   submitDisabled: isEmpty('editValue'),
-
-  didInsertElement() {
-    this._super(...arguments);
-    this.$('.new-item-name').focus();
-  },
 
   actions: {
     onHide() {
-      return this.get('onHide')(...arguments);
+      return this.get('onHide')(false);
     },
     onHidden() {
       this.setProperties({
         editValue: '',
+      });
+    },
+    onShown() {
+      next(() => {
+        if (this.get('open')) {
+          this.$('.new-item-name').focus();
+        }
       });
     },
     submit() {
@@ -69,7 +109,7 @@ export default Component.extend(I18n, {
           // FIXME: handle errors - maybe it should be presented in backend error or the same modal
           throw error;
         })
-        .then(onHide.bind(this));
+        .then(file => onHide.bind(this)(true, file));
     },
   },
 });

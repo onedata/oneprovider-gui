@@ -1,18 +1,28 @@
 {{#promise-proxy-container proxy=spaceRootDirProxy}}
   {{file-browser
     dir=spaceRootDirProxy.content
-    openCreateNewDirectory=(action "toggleCreateItemModal" true "dir")
+    selectedFileName=selectedFileName
+    openCreateNewDirectory=(action "openCreateItemModal" "dir")
+    openRemove=(action "openRemoveModal")
   }}
-  {{!-- FIXME: @Borzo - shouldn't be this in the file-browser component? --}}
   <div class="upload-drop-zone">
     {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
   </div>
 {{/promise-proxy-container}}
 
-{{#render-later triggerRender=createItemParentDir}}
+{{#if createItemParentDir}}
   {{file-browser/fb-create-item-modal
-    open=createItemParentDir
+    open=true
     parentDir=createItemParentDir
-    onHide=(action "toggleCreateItemModal" false)
+    itemType=createItemType
+    onHide=(action "closeCreateItemModal")
   }}
-{{/render-later}}
+{{/if}}
+
+{{#if filesToRemove}}
+  {{file-browser/fb-remove-modal
+    open=true
+    files=filesToRemove
+    onHide=(action "closeRemoveModal")
+  }}
+{{/if}}

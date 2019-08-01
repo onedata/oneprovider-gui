@@ -13,7 +13,7 @@ $-file-browser-padding-right: 16px;
 .file-browser {
   .file-browser-head-container {
     position: fixed;
-    z-index: $zindex-tooltip - 1;
+    z-index: $zindex-modal-background - 1;
     padding-top: $content-row-vertical-padding;
     padding-left: $-file-browser-padding-left;
     padding-right: $-file-browser-padding-right;
@@ -265,5 +265,22 @@ $-file-browser-padding-right: 16px;
   }
   &.fb-table-row-file .file-icon {
     color: $color-file;
+  }
+}
+
+.fb-remove-modal {
+  .row-delete-files-list {
+    .row-delete-file-item {
+      padding-top: $padding-small-vertical;
+    }
+    .delete-file-name {
+      display: inline-block;
+      max-width: calc(100% - 50px);
+      vertical-align: middle;
+    }
+    .delete-file-size {
+      display: inline-block;
+      vertical-align: middle;
+    }
   }
 }
