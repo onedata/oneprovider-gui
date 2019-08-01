@@ -1,0 +1,22 @@
+.file-distribution-modal {
+  .chunks-visualizer {
+    display: flex;
+    align-items: center;
+
+    .never-synchronized-text {
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .chunks-canvas {
+      flex-grow: 1;
+      height: 18px;
+      background-color: $color-one-light-blue;
+    }
+
+    .percentage-text {
+      width: 3em;
+      text-align: right;
+    }
+  }
+}
