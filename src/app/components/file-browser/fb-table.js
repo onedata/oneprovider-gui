@@ -128,11 +128,10 @@ export default Component.extend(I18n, {
     this.get('fileServer').on('dirChildrenRefresh', parentDir => {
       if (this.get('dir') === parentDir) {
         const filesArray = this.get('filesArray');
-        filesArray.reload()
-          .then(() => filesArray.reload({
-            minSize: 50,
-            head: true,
-          }));
+        filesArray.reload({
+          offset: -1,
+          minSize: 50,
+        });
       }
     });
   },
