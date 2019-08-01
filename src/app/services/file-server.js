@@ -9,7 +9,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { all } from 'rsvp';
+import { resolve, all } from 'rsvp';
 import Evented from '@ember/object/evented';
 
 export default Service.extend(Evented, {
@@ -21,13 +21,17 @@ export default Service.extend(Evented, {
       store,
       onedataRpc,
     } = this.getProperties('store', 'onedataRpc');
-    return onedataRpc
-      .request('getDirChildren', {
-        guid: dirId,
-        index: startFromIndex,
-        limit: size,
-        offset,
-      })
-      .then(fileIds => all(fileIds.map(id => store.findRecord('file', id))));
+    if (!size || size <= 0) {
+      return resolve([]);
+    } else {
+      return onedataRpc
+        .request('getDirChildren', {
+          guid: dirId,
+          index: startFromIndex,
+          limit: size,
+          offset,
+        })
+        .then(fileIds => all(fileIds.map(id => store.findRecord('file', id))));
+    }
   },
 });

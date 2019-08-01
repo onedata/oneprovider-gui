@@ -14,7 +14,9 @@ import _ from 'lodash';
 import { computed } from '@ember/object';
 import {
   numberOfFiles,
+  numberOfDirs,
   generateFileEntityId,
+  generateDirEntityId,
   generateFileGri,
 } from 'oneprovider-gui/utils/generate-development-model';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -48,9 +50,14 @@ export default OnedataRpc.extend({
     if (childrenIdsCache[dirEntityId]) {
       return childrenIdsCache[dirEntityId];
     } else {
-      childrenIdsCache[dirEntityId] = _.range(numberOfFiles).map(i =>
-        generateFileGri(generateFileEntityId(i, dirEntityId))
-      );
+      childrenIdsCache[dirEntityId] = [
+        ..._.range(numberOfDirs).map(i =>
+          generateFileGri(generateDirEntityId(i, dirEntityId))
+        ),
+        ..._.range(numberOfFiles).map(i =>
+          generateFileGri(generateFileEntityId(i, dirEntityId))
+        ),
+      ];
       return childrenIdsCache[dirEntityId];
     }
   },

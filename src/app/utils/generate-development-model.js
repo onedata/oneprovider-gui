@@ -17,6 +17,7 @@ export const names = ['One'];
 
 export const numberOfSpaces = 1;
 export const numberOfFiles = 1000;
+export const numberOfDirs = 3;
 
 export default function generateDevelopmentModel(store) {
   // let spaces;
@@ -81,19 +82,31 @@ function createSpaceRecords(store) {
 function createFileRecords(store, parent) {
   const timestamp = Math.floor(Date.now() / 1000);
   const parentEntityId = get(parent, 'entityId');
-  return Promise.all(_.range(numberOfFiles).map((i) => {
-    const entityId = generateFileEntityId(i, parentEntityId);
-    const id = generateFileGri(entityId);
-    return store.createRecord('file', {
-      id,
-      name: `File ${String(i).padStart(4, '0')}`,
-      index: entityId,
-      type: 'file',
-      size: i * 1000000,
-      mtime: timestamp + i * 3600,
-      parent,
-    }).save();
-  }));
+  return Promise.all(_.range(numberOfDirs).map((i) => {
+      const entityId = generateDirEntityId(i, parentEntityId);
+      const id = generateFileGri(entityId);
+      return store.createRecord('file', {
+        id,
+        name: `Directory ${String(i).padStart(4, '0')}`,
+        index: entityId,
+        type: 'dir',
+        mtime: timestamp + i * 3600,
+        parent,
+      }).save();
+    }))
+    .then(Promise.all(_.range(numberOfFiles).map((i) => {
+      const entityId = generateFileEntityId(i, parentEntityId);
+      const id = generateFileGri(entityId);
+      return store.createRecord('file', {
+        id,
+        name: `File ${String(i).padStart(4, '0')}`,
+        index: entityId,
+        type: 'file',
+        size: i * 1000000,
+        mtime: timestamp + i * 3600,
+        parent,
+      }).save();
+    })));
 }
 
 function createEntityRecords(store, type, names, additionalInfo) {
@@ -121,6 +134,10 @@ function createUserRecord(store, listRecords) {
 
 export function generateFileEntityId(i, parentEntityId) {
   return `${parentEntityId}-file-${String(i).padStart(4, '0')}`;
+}
+
+export function generateDirEntityId(i, parentEntityId) {
+  return `${parentEntityId}-dir-${String(i).padStart(4, '0')}`;
 }
 
 export function generateFileGri(entityId) {
