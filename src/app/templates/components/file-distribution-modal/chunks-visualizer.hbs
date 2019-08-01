@@ -1,5 +1,6 @@
 {{#if neverSynchronized}}
-  <div class="never-synchronized-text">{{tt this "neverSynchronized"}}</div>
+  <div class="never-synchronized-text hidden-xs">{{tt this "neverSynchronized"}}</div>
+  <div class="percentage-text"><span class="hidden-sm hidden-md hidden-lg">{{tt this "na"}}</span></div>
 {{else}}
   <canvas width={{chunksRange}} height="18" class="chunks-canvas" />
   <div class="percentage-text">{{percentageText}}</div>

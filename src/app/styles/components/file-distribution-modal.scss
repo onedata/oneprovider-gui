@@ -1,4 +1,38 @@
 .file-distribution-modal {
+  .oneproviders-distribution ul {
+    padding-left: 0;
+    list-style-type: none;
+  }
+
+  .oneproviders-distribution-item {
+    display: flex;
+    padding: $padding-small-vertical 0;
+    border-bottom: 1px solid $main-border-color;
+
+    .name-section {
+      display: flex;
+      flex-grow: 1;
+      width: 60%;
+      min-width: 0;
+    }
+
+    .oneprovider-name {
+      flex-grow: 1;
+    }
+
+    .transfer-actions {
+      font-size: 1.6em;
+      line-height: 0;
+      white-space: nowrap;
+      margin: 0 $padding-small-horizontal;
+    }
+
+    .chunks-visualizer {
+      display: flex;
+      width: 40%;
+    }
+  }
+
   .chunks-visualizer {
     display: flex;
     align-items: center;
@@ -10,13 +44,28 @@
 
     .chunks-canvas {
       flex-grow: 1;
+      min-width: 0;
       height: 18px;
       background-color: $color-one-light-blue;
     }
 
     .percentage-text {
+      flex-shrink: 0;
       width: 3em;
       text-align: right;
+    }
+  }
+  @media (max-width: $screen-xs-max) {
+    .oneproviders-distribution-item {
+      .transfer-actions {
+        margin-right: 0;
+      }
+      .chunks-visualizer {
+        width: 3em;
+      }
+      .chunks-canvas {
+        display: none;
+      }
     }
   }
 }

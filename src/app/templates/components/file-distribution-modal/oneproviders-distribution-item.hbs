@@ -1,0 +1,13 @@
+<div class="name-section">
+  {{#truncated-string class="oneprovider-name"}}{{oneprovider.name}}{{/truncated-string}}
+  <div class="transfer-actions">
+    {{one-icon icon="replicate"}}
+    {{one-icon icon="migrate"}}
+    {{one-icon icon="invalidate"}}
+  </div>
+</div>
+{{file-distribution-modal/chunks-visualizer
+  neverSynchronized=(eq (get (reject-by "neverSynchronized" fileDistributions) "length") 0)
+  fileSize=filesSize
+  chunks=chunksBarData
+  percentage=percentage}}

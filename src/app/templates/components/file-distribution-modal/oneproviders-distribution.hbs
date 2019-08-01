@@ -1,0 +1,9 @@
+<ul>
+  {{#each oneproviders key="id" as |oneprovider|}}
+    {{file-distribution-modal/oneproviders-distribution-item
+      oneprovider=oneprovider
+      files=files
+      fileDistributions=(map-by oneprovider.entityId (map-by "distribution" fileDistributions))}}
+  {{/each}}
+</ul>
+{{yield}}
