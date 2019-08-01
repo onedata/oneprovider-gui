@@ -18,6 +18,7 @@ import { A } from '@ember/array';
 import { hash } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import { all } from 'rsvp';
 
 export const actionContext = {
   none: 'none',
@@ -56,6 +57,7 @@ const buttonNames = [
   'btnRename',
   'btnCopy',
   'btnCut',
+  'btnPaste',
   'btnDelete',
 ];
 
@@ -65,6 +67,7 @@ export default Component.extend(I18n, {
   i18n: service(),
   fileActions: service(),
   uploadManager: service(),
+  fileServer: service(),
 
   /**
    * @override
@@ -250,6 +253,21 @@ export default Component.extend(I18n, {
     });
   }),
 
+  btnPaste: computed(function btnCut() {
+    return this.createFileAction({
+      id: 'paste',
+      icon: 'clipboard-copy',
+      action: () => {
+        return this.pasteFiles();
+      },
+      showIn: [
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+        actionContext.desktopToolbar,
+      ],
+    });
+  }),
+
   btnDelete: computed(function btnDelete() {
     return this.createFileAction({
       id: 'delete',
@@ -314,15 +332,16 @@ export default Component.extend(I18n, {
   createFileAction(actionProperties) {
     const {
       id,
+      icon,
       action,
-    } = getProperties(actionProperties, 'id', 'action');
+    } = getProperties(actionProperties, 'id', 'icon', 'action');
     const fileActions = this.get('fileActions');
     return Object.assign({
       action: action || (() => {
         return fileActions[camelize(`act-${id}`)](
           this.get('selectedFiles'));
       }),
-      icon: `browser-${dasherize(id)}`,
+      icon: icon || `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
       showIn: [],
     }, actionProperties);
@@ -330,6 +349,19 @@ export default Component.extend(I18n, {
 
   clearFilesSelection() {
     this.get('selectedFiles').clear();
+  },
+
+  pasteFiles() {
+    const {
+      dir,
+      fileServer,
+    } = this.getProperties('dir', 'fileServer');
+    const fileClipboardMode = get(fileServer, 'fileClipboardMode');
+    const fileClipboardFiles = get(fileServer, 'fileClipboardFiles');
+    const dirEntityId = get(dir, 'entityId');
+    return all(fileClipboardFiles.map(file =>
+      fileServer.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
+    ));
   },
 
   actions: {

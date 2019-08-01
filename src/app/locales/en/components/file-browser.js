@@ -15,6 +15,7 @@ export default {
     copy: 'Copy',
     cut: 'Cut',
     delete: 'Delete',
+    paste: 'Paste',
   },
   fbTable: {
     menuSelection: 'Selection ({{selectionCount}})',

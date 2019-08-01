@@ -9,6 +9,7 @@
 
 import Service, { inject as service } from '@ember/service';
 import { get } from '@ember/object';
+import { setProperties } from '@ember/object';
 
 function dummyAction(message, files) {
   alert(message + files.mapBy('name'));
@@ -16,15 +17,12 @@ function dummyAction(message, files) {
 
 export default Service.extend({
   store: service(),
+  fileServer: service(),
 
   // #region Actions implementation
 
   actUpload([parentDir]) {
     alert('upload to ' + get(parentDir, 'name'));
-  },
-
-  actNewDirectory([parentDir]) {
-    alert('new directory in ' + get(parentDir, 'name'));
   },
 
   actInfo(files) {
@@ -47,16 +45,24 @@ export default Service.extend({
     dummyAction('distribution: ', files);
   },
 
-  actRename(files) {
-    dummyAction('rename: ', files);
-  },
-
   actCopy(files) {
-    dummyAction('copy: ', files);
+    const fileServer = this.get('fileServer');
+    setProperties(
+      fileServer, {
+        fileClipboardFiles: files,
+        fileClipboardMode: 'copy',
+      }
+    );
   },
 
   actCut(files) {
-    dummyAction('cut: ', files);
+    const fileServer = this.get('fileServer');
+    setProperties(
+      fileServer, {
+        fileClipboardFiles: files,
+        fileClipboardMode: 'move',
+      }
+    );
   },
 
   actDelete(files) {

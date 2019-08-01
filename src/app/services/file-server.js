@@ -11,10 +11,15 @@
 import Service, { inject as service } from '@ember/service';
 import { resolve, all } from 'rsvp';
 import Evented from '@ember/object/evented';
+import { get, computed } from '@ember/object';
 
 export default Service.extend(Evented, {
   store: service(),
   onedataRpc: service(),
+
+  fileClipboardMode: null,
+
+  fileClipboardFiles: computed(() => ([])),
 
   fetchDirChildren(dirId, startFromIndex, size, offset) {
     const {
@@ -40,6 +45,24 @@ export default Service.extend(Evented, {
       guid: fileEntityId,
       targetParentGuid: parentDirEntityId,
       targetName,
+    });
+  },
+
+  copyFile(file, parentDirEntityId) {
+    return this.copyOrMoveFile(file, parentDirEntityId, 'copy');
+  },
+
+  moveFile(file, parentDirEntityId) {
+    return this.copyOrMoveFile(file, parentDirEntityId, 'move');
+  },
+
+  copyOrMoveFile(file, parentDirEntityId, operation) {
+    const name = get(file, 'name');
+    const entityId = get(file, 'entityId');
+    return this.get('onedataRpc').request(`${operation}File`, {
+      guid: entityId,
+      targetParentGuid: parentDirEntityId,
+      targetName: name,
     });
   },
 });
