@@ -34,4 +34,12 @@ export default Service.extend(Evented, {
         .then(fileIds => all(fileIds.map(id => store.findRecord('file', id))));
     }
   },
+
+  renameFile(fileEntityId, parentDirEntityId, targetName) {
+    return this.get('onedataRpc').request('moveFile', {
+      guid: fileEntityId,
+      targetParentGuid: parentDirEntityId,
+      targetName,
+    });
+  },
 });

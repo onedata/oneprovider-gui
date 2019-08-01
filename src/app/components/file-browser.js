@@ -87,8 +87,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {Function}
-   * @param {Array<Models/File>} files array with one element, which is parent
-   *  of new directory
+   * @param {Models/File} file parent of new directory
    */
   openCreateNewDirectory: notImplementedThrow,
 
@@ -98,6 +97,16 @@ export default Component.extend(I18n, {
    * @param {Array<Models/File>} files array with files/directories to remove
    */
   openRemove: notImplementedThrow,
+
+  // FIXME: parent dir is not necessary here - use parent resolve
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models/File} file file to rename
+   * @param {Models/File} parentDir parentDir of file to rename
+   */
+  openRename: notImplementedThrow,
 
   /**
    * One of values from `actionContext` enum object
@@ -204,6 +213,14 @@ export default Component.extend(I18n, {
   btnRename: computed(function btnRename() {
     return this.createFileAction({
       id: 'rename',
+      action: () => {
+        const {
+          openRename,
+          selectedFiles,
+          dir,
+        } = this.getProperties('openRename', 'selectedFiles', 'dir');
+        return openRename(selectedFiles[0], dir);
+      },
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,

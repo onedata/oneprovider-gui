@@ -129,9 +129,14 @@ export default Component.extend(I18n, {
       if (this.get('dir') === parentDir) {
         const filesArray = this.get('filesArray');
         filesArray.reload({
-          offset: -1,
+          head: true,
           minSize: 50,
-        });
+        }).then(() => filesArray.reload());
+        // FIXME: more efficient, but buggy way
+        // filesArray.reload({
+        //   offset: -1,
+        //   minSize: 50,
+        // });
       }
     });
   },

@@ -68,6 +68,8 @@ export default OneEmbeddedComponent.extend(
         this.set('filesToRemove', files);
       },
       closeRemoveModal(removeInvoked /*, removeResults */ ) {
+        // FIXME: refactor here and in modal to use only file-server service
+        // for create/remove/rename/refresh operations
         if (removeInvoked) {
           const {
             dir,
@@ -77,6 +79,32 @@ export default OneEmbeddedComponent.extend(
           // FIXME: use remove results to show if all/some/no files were removed
         }
         this.set('filesToRemove', null);
+      },
+      openRenameModal(file, parentDir) {
+        this.setProperties({
+          fileToRename: file,
+          renameParentDir: parentDir,
+        });
+      },
+      closeRenameModal(isRenamed, fileId) {
+        // FIXME: refactor here and in modal to use only file-server service
+        // for create/remove/rename/refresh operations
+        const {
+          renameParentDir,
+          fileServer,
+          store,
+        } = this.getProperties('renameParentDir', 'fileServer', 'store');
+        if (isRenamed) {
+          store.findRecord('file', fileId)
+            .then(file => file.reload())
+            .then(() =>
+              fileServer.trigger('dirChildrenRefresh', renameParentDir)
+            );
+        }
+        this.setProperties({
+          fileToRename: null,
+          renameParentDir: null,
+        });
       },
     },
   }

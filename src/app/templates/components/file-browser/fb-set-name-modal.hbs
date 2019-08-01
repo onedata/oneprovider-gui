@@ -6,12 +6,13 @@
   as |modal|
 }}
   {{#modal.header}}
-    <h1>{{tt this (concat "createHeader." itemType)}}</h1>
+    <h1>{{tt this (concat "header." itemType)}}</h1>
   {{/modal.header}}
   {{#modal.body}}
-    <p>{{tt this (concat "createIntro." itemType)}}</p>
+    <p>{{tt this (concat "intro." itemType)}}</p>
     <div class="row">
       <input
+        id={{inputId}}
         type="text"
         class="form-control new-item-name"
         value={{editValue}}
@@ -31,7 +32,7 @@
       class="btn btn-primary"
       disabled=submitDisabled
     }}
-      {{tt this "create"}}
+      {{tt this "submit"}}
     {{/one-spin-button}}
   {{/modal.footer}}
 {{/bs-modal}}

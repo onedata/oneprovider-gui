@@ -4,6 +4,7 @@
     selectedFileName=selectedFileName
     openCreateNewDirectory=(action "openCreateItemModal" "dir")
     openRemove=(action "openRemoveModal")
+    openRename=(action "openRenameModal")
   }}
   <div class="upload-drop-zone">
     {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
@@ -16,6 +17,15 @@
     parentDir=createItemParentDir
     itemType=createItemType
     onHide=(action "closeCreateItemModal")
+  }}
+{{/if}}
+
+{{#if fileToRename}}
+  {{file-browser/fb-rename-modal
+    open=true
+    file=fileToRename
+    parentDir=renameParentDir
+    onHide=(action "closeRenameModal")
   }}
 {{/if}}
 

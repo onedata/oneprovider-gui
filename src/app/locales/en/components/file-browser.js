@@ -1,3 +1,7 @@
+const renameModalHeader = 'Rename';
+const newNameFileIntro = 'Enter new file name:';
+const newNameDirIntro = 'Enter new directory name:';
+
 export default {
   fileActions: {
     upload: 'Upload files',
@@ -36,13 +40,15 @@ export default {
     menuCurrentDir: 'Current directory',
   },
   fbCreateItemModal: {
-    create: 'Create',
+    submit: 'Create',
     cancel: 'Cancel',
-    createHeader: {
+    header: {
       dir: 'Create new directory:',
+      file: 'Create new file',
     },
-    createIntro: {
-      dir: 'Enter new directory name',
+    intro: {
+      dir: newNameDirIntro,
+      file: newNameFileIntro,
     },
   },
   fbRemoveModal: {
@@ -55,6 +61,18 @@ export default {
       dir: 'this directory and its contents?',
       multi: 'these {{count}} items?',
       multiMany: '{{count}} selected items?',
+    },
+  },
+  fbRenameModal: {
+    submit: 'Rename',
+    cancel: 'Cancel',
+    header: {
+      dir: renameModalHeader,
+      file: renameModalHeader,
+    },
+    intro: {
+      dir: newNameDirIntro,
+      file: newNameFileIntro,
     },
   },
 };
