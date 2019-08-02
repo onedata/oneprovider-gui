@@ -9,21 +9,26 @@
     .one-icon-tag-circle {
       transition: background-color 0.2s ease;
     }
-    &.type-allow { 
-      .one-icon-tag-circle {
-        background-color: $color-one-success;
+    &.has-active-permissions {
+      &.type-allow { 
+        .one-icon-tag-circle {
+          background-color: $color-one-success;
+        }
+        .status-toolbar-icon.checked {
+          color: $color-one-success;
+        }
       }
-      .status-toolbar-icon.checked {
-        color: $color-one-success;
+      &.type-deny { 
+        .one-icon-tag-circle {
+          background-color: $color-one-danger;
+        }
+        .status-toolbar-icon.checked {
+          color: $color-one-danger;
+        }
       }
     }
-    &.type-deny { 
-      .one-icon-tag-circle {
-        background-color: $color-one-danger;
-      }
-      .status-toolbar-icon.checked {
-        color: $color-one-danger;
-      }
+    .one-icon-tag-circle {
+      background-color: $color-one-light-gray;
     }
     .status-toolbar-icon {
       transition: color 0.2s ease;

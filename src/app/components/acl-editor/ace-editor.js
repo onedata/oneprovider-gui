@@ -18,7 +18,7 @@ import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
-  classNames: ['ace-editor'],
+  tagName: '',
 
   /**
    * @override
@@ -151,6 +151,20 @@ export default Component.extend(I18n, {
         context,
       } = this.getProperties('ace', 'context');
       return numberToTree(get(ace, 'permissions'), context);
+    }
+  ),
+
+  /**
+   * True if any of ACE permissions are true
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  hasActivePermissions: computed(
+    'permissionsTree',
+    function hasActivePermissions() {
+      const tree = this.get('permissionsTree');
+      return _.flatten(
+        _.values(tree).map(group => _.values(group))
+      ).includes(true);
     }
   ),
 
