@@ -1,6 +1,7 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { resolve } from 'rsvp';
+import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend({
   space: computed(function () {
@@ -30,9 +31,10 @@ export default Component.extend({
   files: computed(function () {
     return [
       {
+        name: 'adsf',
         size: 1024,
         type: 'file',
-        fileDistribution: resolve({
+        fileDistribution: PromiseObject.create({ promise: resolve({
           distribution: {
             123: {
               blocksPercentage: 50,
@@ -58,12 +60,13 @@ export default Component.extend({
               neverSynchronized: true,
             },
           },
-        }),
+        })}),
       },
       {
+        name: 'zxcv',
         size: 2048,
         type: 'file',
-        fileDistribution: resolve({
+        fileDistribution: PromiseObject.create({ promise: resolve({
           distribution: {
             123: {
               blocksPercentage: 100,
@@ -87,7 +90,7 @@ export default Component.extend({
               neverSynchronized: false,
             },
           },
-        }),
+        })}),
       },
     ];
   }),

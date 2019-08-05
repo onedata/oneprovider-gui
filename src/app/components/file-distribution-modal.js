@@ -39,23 +39,27 @@ export default Component.extend(
      */
     onClose: notImplementedIgnore,
 
-    /**
-     * @type {Ember.ComputedProperty<number>}
-     */
-    filesNumber: array.length(array.filterBy(
+    filesOfTypeFile: array.filterBy(
       'files',
       raw('type'),
       raw('file')
-    )),
+    ),
+
+    filesOfTypeDir: array.filterBy(
+      'files',
+      raw('type'),
+      raw('directory')
+    ),
 
     /**
      * @type {Ember.ComputedProperty<number>}
      */
-    directoriesNumber: array.length(array.filterBy(
-      'files',
-      raw('type'),
-      raw('directory')
-    )),
+    filesNumber: array.length('filesOfTypeFile'),
+
+    /**
+     * @type {Ember.ComputedProperty<number>}
+     */
+    directoriesNumber: array.length('filesOfTypeDir'),
 
     selectedItemsText: computed(
       'files',
@@ -85,11 +89,12 @@ export default Component.extend(
      * This is only an initial value. May by overriden by action `changeTab`.
      * @type {Ember.ComputedProperty<string>}
      */
-    activeTab: writable(conditional(
-      gt('files.length'), raw(1),
-      raw('distribution-summary'),
-      raw('distribution-details'),
-    )),
+    // activeTab: writable(conditional(
+    //   gt('files.length'), raw(1),
+    //   raw('distribution-summary'),
+    //   raw('distribution-details'),
+    // )),
+    activeTab: 'distribution-details',
 
     init() {
       this._super(...arguments);
@@ -111,8 +116,7 @@ export default Component.extend(
      */
     fetchFileDistributions() {
       return Promise.all(
-        this.get('files')
-          .filterBy('type', 'file')
+        this.get('filesOfTypeFile')
           .mapBy('fileDistribution')
       );
     },

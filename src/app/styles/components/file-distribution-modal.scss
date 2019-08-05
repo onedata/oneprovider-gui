@@ -68,4 +68,20 @@
       }
     }
   }
+
+  .detailed-list {
+    .one-collapsible-list-item-header {
+      padding-right: $padding-large-vertical;
+    }
+    .header-content-container {
+      display: flex;
+    }
+    .file-name {
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .list-content {
+      padding: $padding-large-vertical;
+    }
+  }
 }

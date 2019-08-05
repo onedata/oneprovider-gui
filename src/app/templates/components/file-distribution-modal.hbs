@@ -20,7 +20,34 @@
             fileDistributions=fileDistributions}}
           <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
         {{else}}
-          details
+          {{#one-collapsible-list class="detailed-list" as |list|}}
+            {{#each files as |file|}}
+              {{#list.item as |listItem|}}
+                {{#listItem.header disableToggleIcon=true}}
+                  <span class="item-icon-container">
+                    {{one-icon class="item-icon" icon=(concat "browser-" file.type)}}
+                    {{one-tooltip
+                      title=file.name
+                      placement="top"
+                      arrowPlacement="left"
+                      triggerEvents="hover"}}
+                  </span>
+                  <span class="file-name truncate">
+                    {{file.name}}
+                  </span>
+                  <span class="file-size">{{bytes-to-string file.size}}</span>
+                {{/listItem.header}}
+                {{#listItem.content}}
+                  <div class="list-content">
+                    {{file-distribution-modal/oneproviders-distribution
+                      oneproviders=oneproviders
+                      files=(array file)
+                      fileDistributions=(if (eq file.type "file") (array file.fileDistribution.content))}}
+                  </div>
+                {{/listItem.content}}
+              {{/list.item}}
+            {{/each}}
+          {{/one-collapsible-list}}
         {{/if}}
       {{/promise-proxy-container}}
     {{/promise-proxy-container}}
