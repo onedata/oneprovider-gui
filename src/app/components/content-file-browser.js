@@ -64,21 +64,27 @@ export default OneEmbeddedComponent.extend(
           createItemType: null,
         });
       },
-      openRemoveModal(files) {
-        this.set('filesToRemove', files);
+      openRemoveModal(files, parentDir) {
+        this.setProperties({
+          filesToRemove: files,
+          removeParentDir: parentDir,
+        });
       },
       closeRemoveModal(removeInvoked /*, removeResults */ ) {
         // FIXME: refactor here and in modal to use only file-server service
         // for create/remove/rename/refresh operations
         if (removeInvoked) {
           const {
-            dir,
+            removeParentDir,
             fileServer,
-          } = this.getProperties('dir', 'fileServer');
-          fileServer.trigger('dirChildrenRefresh', dir);
+          } = this.getProperties('removeParentDir', 'fileServer');
+          fileServer.trigger('dirChildrenRefresh', removeParentDir);
           // FIXME: use remove results to show if all/some/no files were removed
         }
-        this.set('filesToRemove', null);
+        this.setProperties({
+          filesToRemove: null,
+          removeParentDir: null,
+        });
       },
       openRenameModal(file, parentDir) {
         this.setProperties({

@@ -53,6 +53,10 @@ export default Component.extend(I18n, {
    */
   selectedFiles: undefined,
 
+  changeDir: undefined,
+
+  downloadFile: undefined,
+
   /**
    * @type {models/File}
    */
@@ -365,6 +369,8 @@ export default Component.extend(I18n, {
       const isDir = get(file, 'type') === 'dir';
       if (isDir) {
         this.get('changeDir')(file);
+      } else {
+        this.get('fileServer').download(get(file, 'entityId'));
       }
     },
   },

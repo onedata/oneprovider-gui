@@ -65,4 +65,11 @@ export default Service.extend(Evented, {
       targetName: name,
     });
   },
+
+  download(fileEntityId) {
+    // FIXME: change download to work like in old op-gui-default
+    this.get('onedataRpc').request('getFileDownloadUrl', {
+      guid: fileEntityId,
+    }).then(({ fileUrl }) => window.open(fileUrl, '_blank'));
+  },
 });

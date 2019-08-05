@@ -271,7 +271,10 @@ export default Component.extend(I18n, {
   btnDelete: computed(function btnDelete() {
     return this.createFileAction({
       id: 'delete',
-      action: () => this.get('openRemove')(this.get('selectedFiles')),
+      action: () => this.get('openRemove')(
+        this.get('selectedFiles'),
+        this.get('dir')
+      ),
       showIn: anySelected,
     });
   }),

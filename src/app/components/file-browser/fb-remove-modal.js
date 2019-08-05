@@ -72,7 +72,7 @@ export default Component.extend(I18n, {
       } = this.getProperties('files', 'onHide');
       const filesToRemove = [...files];
       this.set('processing', true);
-      return hashSettled(filesToRemove.map(file => file.destroy()))
+      return hashSettled(filesToRemove.map(file => file.destroyRecord()))
         .then(results => {
           safeExec(this, 'set', 'processing', false);
           onHide.bind(this)(true, results);
