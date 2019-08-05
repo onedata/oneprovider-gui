@@ -93,7 +93,7 @@ export default Component.extend(I18n, {
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       // Calculate start point for each chunk
-      const chunkStarts = chunks ? Object.keys(chunks).map(x => parseInt(x)) : [];
+      const chunkStarts = chunks ? Object.keys(chunks).map(x => parseFloat(x)) : [];
       chunkStarts.sort((x, y) => x - y);
       let chunksNumber = chunkStarts.length;
       if (chunksNumber && chunkStarts[chunksNumber - 1] !== chunksRange) {

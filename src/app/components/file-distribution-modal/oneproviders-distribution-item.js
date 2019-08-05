@@ -60,27 +60,37 @@ export default Component.extend({
    * @type {Ember.ComputedProperty<Object>}
    */
   chunksBarData: computed(
-    'percentage',
+    'filesSize',
+    'files.@each.size',
     'fileDistributions.@each.{chunksBarData}',
     function chunksBarData() {
       const {
         fileDistributions,
-        percentage,
-      } = this.getProperties('fileDistributions', 'percentage');
+        filesSize,
+        files,
+      } = this.getProperties('fileDistributions', 'filesSize', 'files');
 
       if (get(fileDistributions, 'length') === 1) {
         return get(fileDistributions[0], 'chunksBarData');
+      } else if (filesSize === 0) {
+        return { 0: 0 };
       } else {
-        if (percentage) {
-          return {
-            0: 100,
-            [Math.floor(percentage * 320 / 100)]: 0,
-          };
-        } else {
-          return {
-            0: 0,
-          };
-        }
+        const chunksBarData = {};
+        let chunksOffset = 0;
+        files.forEach((file, index) => {
+          const fileSize = get(file, 'size');
+          if (fileSize) {
+            const fileShare = fileSize / filesSize;
+            const fileChunks = get(fileDistributions[index], 'chunksBarData');
+
+            Object.keys(fileChunks).forEach(key => {
+              chunksBarData[Number(key) * fileShare + chunksOffset] = get(fileChunks, key);
+            });
+
+            chunksOffset += fileShare * 320;
+          }
+        });
+        return chunksBarData;
       }
     }
   ),
