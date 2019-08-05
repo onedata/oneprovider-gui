@@ -8,6 +8,9 @@
   {{/modal.header}}
   {{#modal.body}}
     {{#promise-proxy-container proxy=permissionsProxy}}
+      {{#if (not filesHaveCompatibleActivePermissionsType)}}
+        <div class="alert alert-warning alert-simple-info">{{tt this "differentPermissionsTypes"}}</div>
+      {{/if}}
       <div class="active-permissions-type-container">
         <span class="one-label">{{tt this "permissionsType"}}&nbsp;{{one-label-tip title=(tt this "permissionsTypeHint")}}</span>
         {{#bs-button-group
@@ -23,19 +26,18 @@
           {{/bg.button}}
         {{/bs-button-group}}
       </div>
-      {{#if (not activePermissionsTypeCompatible)}}
-        <div class="alert alert-warning alert-simple-info">{{tt this "differentPermissionsTypes"}}</div>
-      {{/if}}
-      {{#if (and posixViewActive (not posixPermissionsCompatible))}}
+      {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
         <div class="alert alert-warning alert-simple-info">
           {{tt this "differentPosix"}}
-          <div class="row alert-simple-info-btn">
-            {{#bs-button
-              class="btn btn-warning btn-sm open-posix-editor"
-              onClick=(action "acceptPosixIncompatibility")}}
-              {{tt this "editAnyway"}}
-            {{/bs-button}}
-          </div>
+          {{#unless posixPermissionsCompatible}}
+            <div class="row alert-simple-info-btn">
+              {{#bs-button
+                class="btn btn-warning btn-sm open-posix-editor"
+                onClick=(action "acceptPosixIncompatibility")}}
+                {{tt this "editAnyway"}}
+              {{/bs-button}}
+            </div>
+          {{/unless}}
         </div>
       {{/if}}
       {{posix-permissions-editor
@@ -43,16 +45,18 @@
         onChange=(action "posixPermissionsChanged")
         onSave=(action "save" modal.close)
         class=(if (not (and posixViewActive posixPermissionsCompatible)) "hidden")}}
-      {{#if (and aclViewActive (not aclCompatible))}}
+      {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
         <div class="alert alert-warning alert-simple-info">
           {{tt this "differentAcl"}}
-          <div class="row alert-simple-info-btn">
-            {{#bs-button
-              class="btn btn-warning btn-sm open-acl-editor"
-              onClick=(action "acceptAclIncompatibility")}}
-              {{tt this "editAnyway"}}
-            {{/bs-button}}
-          </div>
+          {{#unless aclCompatible}}
+            <div class="row alert-simple-info-btn">
+              {{#bs-button
+                class="btn btn-warning btn-sm open-acl-editor"
+                onClick=(action "acceptAclIncompatibility")}}
+                {{tt this "editAnyway"}}
+              {{/bs-button}}
+            </div>
+          {{/unless}}
         </div>
       {{/if}}
       {{acl-editor
