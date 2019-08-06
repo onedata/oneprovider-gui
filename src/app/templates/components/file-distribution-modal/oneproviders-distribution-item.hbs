@@ -7,7 +7,7 @@
   </div>
 </div>
 {{file-distribution-modal/chunks-visualizer
-  neverSynchronized=(eq (get (reject-by "neverSynchronized" fileDistributions) "length") 0)
+  neverSynchronized=neverSynchronized
   fileSize=filesSize
   chunks=chunksBarData
   percentage=percentage}}

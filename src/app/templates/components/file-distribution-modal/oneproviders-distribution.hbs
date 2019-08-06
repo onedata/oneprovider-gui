@@ -2,8 +2,7 @@
   {{#each oneproviders key="id" as |oneprovider|}}
     {{file-distribution-modal/oneproviders-distribution-item
       oneprovider=oneprovider
-      files=files
-      fileDistributions=(map-by oneprovider.entityId (map-by "distribution" fileDistributions))}}
+      fileDistributionData=fileDistributionData}}
   {{/each}}
 </ul>
 {{yield}}

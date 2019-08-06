@@ -9,19 +9,14 @@ export default Component.extend({
    * @type {Array<Models.Provider>}
    */
   oneproviders: undefined,
-
-  /**
-   * @type {Array<Models.File>}
-   */
-  files: undefined,
   
   /**
-   * @type {Array<Models.File>}
+   * @type {Array<Utils.FileDistributionDataContainer>}
    */
-  fileDistributions: undefined,
+  fileDistributionData: undefined,
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasSingleFile: equal('files.length', raw(1)),
+  hasSingleFile: equal('fileDistributionData.length', raw(1)),
 });

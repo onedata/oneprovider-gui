@@ -8,7 +8,7 @@
   {{/modal.header}}
   {{#modal.body}}
     {{#promise-proxy-container proxy=oneprovidersProxy}}
-      {{#promise-proxy-container proxy=fileDistributionsProxy}}
+      {{#promise-proxy-container proxy=fileDistributionDataProxy}}
         {{#bs-tab class="bs-tab-onedata bs-tab-modern" activeId=activeTab onChange=(action "changeTab") as |tab|}}
           {{tab.pane id="distribution-summary" title=(tt this "summary")}}
           {{tab.pane id="distribution-details" title=(tt this "details")}}
@@ -16,33 +16,31 @@
         {{#if (eq activeTab "distribution-summary")}}
           {{file-distribution-modal/oneproviders-distribution
             oneproviders=oneproviders
-            files=(filter-by "type" "file" files)
-            fileDistributions=fileDistributions}}
+            fileDistributionData=(filter-by "fileType" "file" fileDistributionData)}}
           <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
         {{else}}
           {{#one-collapsible-list class="detailed-list" as |list|}}
-            {{#each files as |file|}}
+            {{#each fileDistributionData as |fileDistDataContainer|}}
               {{#list.item as |listItem|}}
                 {{#listItem.header disableToggleIcon=true}}
                   <span class="item-icon-container">
-                    {{one-icon class="item-icon" icon=(concat "browser-" file.type)}}
+                    {{one-icon class="item-icon" icon=(concat "browser-" fileDistDataContainer.file.type)}}
                     {{one-tooltip
-                      title=file.name
+                      title=fileDistDataContainer.file.name
                       placement="top"
                       arrowPlacement="left"
                       triggerEvents="hover"}}
                   </span>
                   <span class="file-name truncate">
-                    {{file.name}}
+                    {{fileDistDataContainer.file.name}}
                   </span>
-                  <span class="file-size">{{bytes-to-string file.size}}</span>
+                  <span class="file-size">{{bytes-to-string fileDistDataContainer.file.size}}</span>
                 {{/listItem.header}}
                 {{#listItem.content}}
                   <div class="list-content">
                     {{file-distribution-modal/oneproviders-distribution
                       oneproviders=oneproviders
-                      files=(array file)
-                      fileDistributions=(if (eq file.type "file") (array file.fileDistribution.content))}}
+                      fileDistributionData=(array fileDistDataContainer)}}
                   </div>
                 {{/listItem.content}}
               {{/list.item}}

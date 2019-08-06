@@ -4,13 +4,14 @@ import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { Promise } from 'rsvp';
-import { writable, conditional, raw, gt, array } from 'ember-awesome-macros';
+import { allSettled, Promise } from 'rsvp';
+import { raw, array } from 'ember-awesome-macros';
+import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 
 export default Component.extend(
   I18n,
   createDataProxyMixin('oneproviders', { type: 'array' }),
-  createDataProxyMixin('fileDistributions', { type: 'array' }), {
+  createDataProxyMixin('fileDistributionData', { type: 'array' }), {
     tagName: '',
 
     i18n: service(),
@@ -114,10 +115,14 @@ export default Component.extend(
     /**
      * @override
      */
-    fetchFileDistributions() {
+    fetchFileDistributionData() {
       return Promise.all(
-        this.get('filesOfTypeFile')
-          .mapBy('fileDistribution')
+        this.get('files')
+          .map(file => FileDistributionDataContainer.create({ file }))
+          .map(fddc => allSettled([
+            get(fddc, 'fileDistributionModelProxy'),
+            get(fddc, 'activeTransfersProxy'),
+          ]).then(() => fddc))
       );
     },
 

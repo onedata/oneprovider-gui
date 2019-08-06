@@ -1,5 +1,6 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { sum, array, equal, raw } from 'ember-awesome-macros';
 
 export default Component.extend({
@@ -12,15 +13,32 @@ export default Component.extend({
    */
   oneprovider: undefined,
 
-  /**
-   * @type {Array<Models.File>}
-   */
-  files: undefined,
+  oneproviderEntityId: reads('oneprovider.entityId'),
   
   /**
    * @type {Array<Models.File>}
    */
-  fileDistributions: undefined,
+  fileDistributionData: undefined,
+
+  hasAllFilesDistributions: array.isEvery(
+    'fileDistributionData',
+    raw('fileDistributionModelProxy.isFulfilled')
+  ),
+
+  neverSynchronized: computed(
+    'fileDistributionData.@each.fileDistribution',
+    'oneprovider',
+    function neverSynchronized() {
+      const {
+        fileDistributionData,
+        oneprovider,
+      } = this.getProperties('fileDistributionData', 'oneprovider');
+      return fileDistributionData
+        .map(fileDistDataContainer =>
+          fileDistDataContainer.getDistributionForOneprovider(oneprovider)
+        ).isEvery('neverSynchronized');
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
@@ -30,29 +48,50 @@ export default Component.extend({
   /**
    * @type {Ember.ComputedProperty<number>}
    */
-  filesSize: sum(array.mapBy('files', raw('size'))),
+  filesSize: sum(array.mapBy('fileDistributionData', raw('fileSize'))),
 
   /**
    * @type {Ember.ComputedProperty<number>}
    */
   percentage: computed(
+    'hasAllFilesDistributions',
     'filesSize',
-    'files.@each.size',
-    'fileDistributions.@each.blocksPercentage',
+    'fileDistributionData.@each.{fileSize,fileDistribution}',
+    'oneprovider',
     function () {
       const {
         filesSize,
-        files,
-        fileDistributions,
-      } = this.getProperties('filesSize', 'files', 'fileDistributions');
+        fileDistributionData,
+        hasAllFilesDistributions,
+        oneprovider,
+      } = this.getProperties(
+        'filesSize',
+        'fileDistributionData',
+        'hasAllFilesDistributions',
+        'oneprovider'
+      );
 
-      let availableBytes = 0;
-      files.forEach((file, index) => {
-        availableBytes += get(file, 'size') *
-          ((get(fileDistributions[index], 'blocksPercentage') || 0) / 100);
-      });
-
-      return Math.floor((availableBytes / filesSize) * 100);
+      if (hasAllFilesDistributions) {
+        // check filesSize to not divide by 0 (in return statement)
+        if (filesSize) {
+          let availableBytes = 0;
+          fileDistributionData.forEach(fileDistDataContainer => {
+            const fileSize = get(fileDistDataContainer, 'fileSize');
+            const fileDistribution =
+              fileDistDataContainer.getDistributionForOneprovider(oneprovider);
+            const blocksPercentage = get(fileDistribution, 'blocksPercentage');
+            availableBytes += fileSize * ((blocksPercentage || 0) / 100);
+          });
+    
+          return Math.floor(
+            (Math.min(availableBytes, filesSize) / filesSize) * 100
+          );
+        } else {
+          return 100;
+        }
+      } else {
+        return 0;
+      }
     }
   ),
 
@@ -60,37 +99,51 @@ export default Component.extend({
    * @type {Ember.ComputedProperty<Object>}
    */
   chunksBarData: computed(
+    'hasAllFilesDistributions',
     'filesSize',
-    'files.@each.size',
-    'fileDistributions.@each.{chunksBarData}',
+    'fileDistributionData.@each.{fileSize,fileDistribution}',
+    'hasSingleFile',
+    'oneprovider',
     function chunksBarData() {
       const {
-        fileDistributions,
+        fileDistributionData,
         filesSize,
-        files,
-      } = this.getProperties('fileDistributions', 'filesSize', 'files');
+        hasAllFilesDistributions,
+        hasSingleFile,
+        oneprovider,
+      } = this.getProperties(
+        'fileDistributionData',
+        'filesSize',
+        'hasAllFilesDistributions',
+        'hasSingleFile',
+        'oneprovider'
+      );
 
-      if (get(fileDistributions, 'length') === 1) {
-        return get(fileDistributions[0], 'chunksBarData');
-      } else if (filesSize === 0) {
+      if (!hasAllFilesDistributions || !filesSize) {
         return { 0: 0 };
+      } else if (hasSingleFile) {
+        const fileDistribution =
+          fileDistributionData[0].getDistributionForOneprovider(oneprovider);
+        return get(fileDistribution, 'chunksBarData');
       } else {
-        const chunksBarData = {};
+        const chunks = {};
         let chunksOffset = 0;
-        files.forEach((file, index) => {
-          const fileSize = get(file, 'size');
+        fileDistributionData.forEach(fileDistDataContainer => {
+          const fileSize = get(fileDistDataContainer, 'fileSize');
           if (fileSize) {
             const fileShare = fileSize / filesSize;
-            const fileChunks = get(fileDistributions[index], 'chunksBarData');
-
-            Object.keys(fileChunks).forEach(key => {
-              chunksBarData[Number(key) * fileShare + chunksOffset] = get(fileChunks, key);
-            });
-
+            const fileDistribution =
+              fileDistDataContainer.getDistributionForOneprovider(oneprovider);
+            const chunksBarData = get(fileDistribution, 'chunksBarData');
+            if (chunksBarData) {
+              Object.keys(chunksBarData).forEach(key => {
+                chunks[Number(key) * fileShare + chunksOffset] = get(chunksBarData, key);
+              });
+            }
             chunksOffset += fileShare * 320;
           }
         });
-        return chunksBarData;
+        return chunks;
       }
     }
   ),
