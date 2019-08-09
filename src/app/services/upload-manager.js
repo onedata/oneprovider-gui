@@ -12,9 +12,12 @@ import Service, { inject as service } from '@ember/service';
 import EmberObject, { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import Resumable from 'npm:resumablejs';
-import { resolve } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 import { getOwner } from '@ember/application';
 import getGuiAuthToken from 'onedata-gui-websocket-client/utils/get-gui-auth-token';
+import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
+import moment from 'moment';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 // TODO:
 // - get oneproviderApiOrigin for targetUrl in resumable
@@ -29,6 +32,7 @@ export default Service.extend({
   fileManager: service(),
   fileServer: service(),
   onedataRpc: service(),
+  errorExtractor: service(),
 
   /**
    * @type {Ember.ComputedProperty<EmberObject>}
@@ -37,6 +41,16 @@ export default Service.extend({
     file: -1,
     upload: -1,
   })),
+
+  /**
+   * @type {PromiseObject<string>}
+   */
+  tokenProxy: undefined,
+
+  /**
+   * @type {number}
+   */
+  tokenExpirationTimestamp: 0,
 
   /**
    * Id of directory where files should be uploaded
@@ -67,13 +81,31 @@ export default Service.extend({
           .then(fileModel => {
             file.fileModel = fileModel;
             return this.get('onedataRpc')
-              .request('initializeFileUpload', { guid: get(fileModel, 'entityId') });
+              .request('initializeFileUpload', { guid: get(fileModel, 'entityId') })
+              .then(() => file.isUploadInitialized = true);
           });
         }
-        file.createFilePromise.then(() => fileChunk.preprocessFinished());
+        Promise.all([
+          file.createFilePromise,
+          this.getAuthToken(),
+        ]).then(
+          () => fileChunk.preprocessFinished(),
+          (error) => {
+            file.cancel();
+            fileChunk.resumableObj.uploadNextChunk();
+
+            this.notifyParent({
+              uploadId: file.uploadId,
+              path: file.relativePath,
+              error: this.get('errorExtractor').getMessage(error),
+            });
+            
+            this.deleteFailedFile(file).finally(() => this.finalizeFileUpload(file));
+          }
+        );
       },
       headers: () => {
-        return { 'X-Auth-Token': this.get('token') };
+        return { 'X-Auth-Token': this.get('tokenProxy.content') };
       },
       query(file) {
         return { guid: get(file.fileModel, 'entityId') };
@@ -101,7 +133,11 @@ export default Service.extend({
             const upload = injectedUploadState[uploadId];
             return upload && get(upload, 'files').findBy('path', relativePath);
           })
-          .invoke('cancel');
+          .forEach(resumableFile => {
+            resumableFile.cancel();
+            this.deleteFailedFile(resumableFile)
+              .finally(() => this.finalizeFileUpload(resumableFile));
+          });
       }
     }
   ),
@@ -109,17 +145,13 @@ export default Service.extend({
   init() {
     this._super(...arguments);
 
-    getGuiAuthToken().then(token => {
-      this.set('token', token);
+    const resumable = this.get('resumable');
+    resumable.on('filesAdded', (files) => this.filesAdded(files));
+    resumable.on('fileProgress', (...args) => this.fileUploadProgress(...args));
+    resumable.on('fileSuccess', (file) => this.fileUploadSuccess(file));
+    resumable.on('fileError', (file) => this.fileUploadFailure(file));
 
-      const resumable = this.get('resumable');
-      resumable.on('filesAdded', (files) => this.filesAdded(files));
-      resumable.on('fileProgress', (...args) => this.fileUploadProgress(...args));
-      resumable.on('fileSuccess', (file) => this.fileUploadSuccess(file));
-      resumable.on('fileError', (file) => this.fileUploadFailure(file));
-
-      this.injectedUploadStateObserver();
-    });
+    this.injectedUploadStateObserver();
   },
 
   /**
@@ -128,6 +160,36 @@ export default Service.extend({
    */
   generateUniqueIdentifier(type) {
     return String(this.get('uniqueIdentifierCounter').incrementProperty(type));
+  },
+
+  /**
+   * @returns {Promise<string>}
+   */
+  getAuthToken() {
+    const {
+      tokenExpirationTimestamp,
+      tokenProxy,
+    } = this.getProperties('tokenExpirationTimestamp', 'tokenProxy');
+    const nowTimestamp = moment().unix();
+    
+    if (tokenExpirationTimestamp < nowTimestamp + 180) {
+      this.set('tokenExpirationTimestamp', nowTimestamp + 600);
+
+      const newTokenProxy = PromiseObject.create({
+        promise: getGuiAuthToken(),
+      });
+      newTokenProxy
+        .catch(() => safeExec(this, () => this.set('tokenExpirationTimestamp', 0)));
+      if (tokenProxy) {
+        newTokenProxy
+          .then(() => safeExec(this, () => this.set('tokenProxy', newTokenProxy)));
+        return tokenProxy;
+      } else {
+        return this.set('tokenProxy', newTokenProxy);
+      }
+    } else {
+      return tokenProxy;
+    }
   },
 
   /**
@@ -194,15 +256,26 @@ export default Service.extend({
    * @returns {undefined}
    */
   fileUploadSuccess(file) {
-    this.get('onedataRpc')
-      .request('finalizeFileUpload', { guid: get(file, 'fileModel.entityId') });
-    const notifyObject = {
-      uploadId: file.uploadId,
-      path: file.relativePath,
-      bytesUploaded: file.size,
-      success: true,
-    };
-    this.notifyParent(notifyObject);
+    this.finalizeFileUpload(file)
+      .then(
+        () => {
+          this.notifyParent({
+            uploadId: file.uploadId,
+            path: file.relativePath,
+            bytesUploaded: file.size,
+            success: true,
+          });
+        },
+        (error) => {
+          this.notifyParent({
+            uploadId: file.uploadId,
+            path: file.relativePath,
+            error: this.get('errorExtractor').getMessage(error),
+          });
+
+          this.deleteFailedFile(file);
+        }
+      );
   },
 
   /**
@@ -212,12 +285,47 @@ export default Service.extend({
    * @returns {undefined}
    */
   fileUploadFailure(file, message) {
-    const notifyObject = {
+    this.notifyParent({
       uploadId: file.uploadId,
       path: file.relativePath,
       error: message,
-    };
-    this.notifyParent(notifyObject);
+    });
+
+    // GUI does not have to wait for result
+    this.deleteFailedFile(file).finally(() => this.finalizeFileUpload(file));
+  },
+
+  /**
+   * Sends an RPC call that ends upload of given file.
+   * @param {ResumableFile} resumableFile 
+   * @returns {Promise}
+   */
+  finalizeFileUpload(resumableFile) {
+    if (resumableFile.isUploadInitialized) {
+      const guid = get(resumableFile, 'fileModel.entityId');
+      return this.get('onedataRpc').request('finalizeFileUpload', { guid });
+    } else {
+      return resolve();
+    }
+  },
+
+  /**
+   * Deletes file, that was used as a target for failed upload.
+   * @param {ResumableFile} resumableFile 
+   * @returns {Promise}
+   */
+  deleteFailedFile(resumableFile) {
+    const fileModelPromise = resumableFile.createFileModelPromise ||
+      resolve(resumableFile.fileModel);
+    return fileModelPromise.then(fileModel => {
+      if (fileModel) {
+        get(fileModel, 'parent').then(parent => {
+          return fileModel.destroyRecord().then(() =>
+            this.get('fileServer').trigger('dirChildrenRefresh', parent)
+          );
+        });
+      }
+    });
   },
 
   /**
@@ -314,7 +422,11 @@ export default Service.extend({
     return createPromise.then(parent => {
       const createFilePromise =
         fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
-      createFilePromise.then(() => fileServer.trigger('dirChildrenRefresh', parent));
+      createFilePromise.then(() => {
+        fileServer.trigger('dirChildrenRefresh', parent);
+        file.createFileModelPromise = null;
+      });
+      file.createFileModelPromise = createFilePromise;
       return createFilePromise;
     });
   },
