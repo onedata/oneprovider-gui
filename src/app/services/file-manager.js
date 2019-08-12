@@ -16,7 +16,7 @@ export default Service.extend({
     if (createAttempts) {
       _meta = {
         createRequestFields: {
-          createAttempts: 50,
+          createAttempts,
         },
       };
     }

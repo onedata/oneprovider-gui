@@ -9,7 +9,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import EmberObject, { computed, observer, get, getProperties } from '@ember/object';
+import { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import Resumable from 'npm:resumablejs';
 import { Promise, resolve } from 'rsvp';
@@ -18,29 +18,22 @@ import getGuiAuthToken from 'onedata-gui-websocket-client/utils/get-gui-auth-tok
 import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 import moment from 'moment';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { later } from '@ember/runloop';
+import { v4 as uuid } from 'ember-uuid';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-// TODO:
-// - get oneproviderApiOrigin for targetUrl in resumable
-// - get authToken for X-Auth-Token in resumable (maybe with getGuiAuthToken from websocket-client),
-//   but it need initialization due to async character
-// - add parentId to each resumable file at `fileAdded` event
-// - startNewUploadSession method
-
-export default Service.extend({
+export default Service.extend(I18n, {
   appProxy: service(),
-  store: service(),
   fileManager: service(),
   fileServer: service(),
   onedataRpc: service(),
   errorExtractor: service(),
+  i18n: service(),
 
   /**
-   * @type {Ember.ComputedProperty<EmberObject>}
+   * @override
    */
-  uniqueIdentifierCounter: computed(() => EmberObject.create({
-    file: -1,
-    upload: -1,
-  })),
+  i18nPrefix: 'services.uploadManager',
 
   /**
    * @type {PromiseObject<string>}
@@ -63,6 +56,9 @@ export default Service.extend({
    */
   injectedUploadState: reads('appProxy.injectedData.uploadFiles'),
 
+  /**
+   * @type {Ember.ComputedProperty<Resumable>}
+   */
   resumable: computed(function resumable() {
     const oneproviderApiOrigin = getOwner(this).application.guiContext.apiOrigin;
     return new Resumable({
@@ -74,33 +70,43 @@ export default Service.extend({
       throttleProgressCallbacks: 1,
       permanentErrors: [400, 404, 405, 415, 500, 501],
       identifierParameterName: null,
+      maxChunkRetries: 5,
       preprocess: (fileChunk) => {
-        const file = fileChunk.fileObj;
-        if(!file.createFilePromise) {
-          file.createFilePromise = this.createCorrespondingFile(file)
-          .then(fileModel => {
-            file.fileModel = fileModel;
-            return this.get('onedataRpc')
-              .request('initializeFileUpload', { guid: get(fileModel, 'entityId') })
-              .then(() => file.isUploadInitialized = true);
-          });
+        const resumableFile = fileChunk.fileObj;
+
+        if(!resumableFile.initializeUploadPromise) {
+          resumableFile.initializeUploadPromise =
+            this.createCorrespondingFile(resumableFile)
+              .then(() => this.initializeFileUpload(resumableFile));
         }
+        
         Promise.all([
-          file.createFilePromise,
+          resumableFile.initializeUploadPromise,
           this.getAuthToken(),
         ]).then(
           () => fileChunk.preprocessFinished(),
           (error) => {
-            file.cancel();
+            // Error occurred in chunk preprocessing so either cannot create
+            // directory/file or cannot get auth token. In both cases the whole
+            // file upload must be cancelled.
+            resumableFile.cancel();
+            // BUGFIX: Resumable does not replace cancelled not-started chunk
+            // with a new one in upload queue. We need to invoke `uploadNextChunk`
+            // manually.
             fileChunk.resumableObj.uploadNextChunk();
 
+            const errorMessage = get(
+              this.get('errorExtractor').getMessage(error),
+              'message.string'
+            ) || this.t('unknownError');
             this.notifyParent({
-              uploadId: file.uploadId,
-              path: file.relativePath,
-              error: this.get('errorExtractor').getMessage(error),
+              uploadId: resumableFile.uploadId,
+              path: resumableFile.relativePath,
+              error: errorMessage,
             });
             
-            this.deleteFailedFile(file).finally(() => this.finalizeFileUpload(file));
+            this.deleteFailedFile(resumableFile)
+              .finally(() => this.finalizeFileUpload(resumableFile));
           }
         );
       },
@@ -110,7 +116,7 @@ export default Service.extend({
       query(file) {
         return { guid: get(file.fileModel, 'entityId') };
       },
-      generateUniqueIdentifier: () => this.generateUniqueIdentifier('file'),
+      generateUniqueIdentifier: () => uuid(),
     });
   }),
 
@@ -134,9 +140,18 @@ export default Service.extend({
             return upload && get(upload, 'files').findBy('path', relativePath);
           })
           .forEach(resumableFile => {
+            resumableFile.isCancelled = true;
             resumableFile.cancel();
-            this.deleteFailedFile(resumableFile)
-              .finally(() => this.finalizeFileUpload(resumableFile));
+            // Make cleanup after 1s delay to let xhr connections abort
+            // (it is not always an immediate process). Unfortunately `abort()`
+            // method of xhr object (used in Resumable) does not return any
+            // information when connection is REALLY closed.
+            later(
+              this,
+              () => this.deleteFailedFile(resumableFile)
+                .finally(() => this.finalizeFileUpload(resumableFile)),
+              1000
+            );
           });
       }
     }
@@ -146,20 +161,12 @@ export default Service.extend({
     this._super(...arguments);
 
     const resumable = this.get('resumable');
-    resumable.on('filesAdded', (files) => this.filesAdded(files));
+    resumable.on('filesAdded', (...args) => this.filesAdded(...args));
     resumable.on('fileProgress', (...args) => this.fileUploadProgress(...args));
-    resumable.on('fileSuccess', (file) => this.fileUploadSuccess(file));
-    resumable.on('fileError', (file) => this.fileUploadFailure(file));
+    resumable.on('fileSuccess', (...args) => this.fileUploadSuccess(...args));
+    resumable.on('fileError', (...args) => this.fileUploadFailure(...args));
 
     this.injectedUploadStateObserver();
-  },
-
-  /**
-   * @param {string} type `file` or `upload`
-   * @returns {string}
-   */
-  generateUniqueIdentifier(type) {
-    return String(this.get('uniqueIdentifierCounter').incrementProperty(type));
   },
 
   /**
@@ -194,35 +201,35 @@ export default Service.extend({
 
   /**
    * Event handler for Resumable.js
-   * @param {Array<ResumableFile>} files
+   * @param {Array<ResumableFile>} resumableFiles
    * @returns {undefined}
    */
-  filesAdded(files) {
+  filesAdded(resumableFiles) {
     const {
       targetDirectory,
       resumable,
     } = this.getProperties('targetDirectory', 'resumable');
     
-    const uploadId = this.generateUniqueIdentifier('upload');
+    const uploadId = uuid();
     const createdDirectories = {};
 
-    files.setEach('uploadId', uploadId);
-    files.setEach('targetRootDirectory', targetDirectory);
-    files.setEach('createdDirectories', createdDirectories);
+    resumableFiles.setEach('uploadId', uploadId);
+    resumableFiles.setEach('targetRootDirectory', targetDirectory);
+    resumableFiles.setEach('createdDirectories', createdDirectories);
 
-    const filesTree = buildFilesTree(files);
+    const filesTree = buildFilesTree(resumableFiles);
     const sortedFiles = sortFilesToUpload(filesTree);
 
-    for (let i = 0; i < files.length; i++) {
+    for (let i = 0; i < resumableFiles.length; i++) {
       resumable.files.pop();
     }
-    for (let i = 0; i < files.length; i++) {
+    for (let i = 0; i < resumableFiles.length; i++) {
       resumable.files.push(sortedFiles[i]);
     }
 
     const notifyObject = {
       uploadId,
-      files: files.map(file => ({
+      files: resumableFiles.map(file => ({
         path: file.relativePath,
         size: file.size,
       })),
@@ -234,65 +241,98 @@ export default Service.extend({
 
   /**
    * Event handler for Resumable.js
-   * @param {ResumableFile} file
+   * @param {ResumableFile} resumableFile
    * @returns {undefined}
    */
-  fileUploadProgress(file) {
-    const progress = file.progress();
-    // Notifying about 0% progress is not useful
-    if (progress > 0) {
-      const notifyObject = {
-        uploadId: file.uploadId,
-        path: file.relativePath,
-        bytesUploaded: Math.floor(file.progress() * file.size),
-      };
-      this.notifyParent(notifyObject);
+  fileUploadProgress(resumableFile) {
+    const progress = resumableFile.progress();
+    // Notifying about 0% progress is not useful. Also sometimes Resumable
+    // treats cancelled files as finished
+    const isFakeComplete =
+      progress === 1 && (resumableFile.isCancelled || !resumableFile.isComplete());
+    if (progress > 0 && !isFakeComplete) {
+      this.notifyParent({
+        uploadId: resumableFile.uploadId,
+        path: resumableFile.relativePath,
+        bytesUploaded: Math.floor(resumableFile.progress() * resumableFile.size),
+      });
     }
   },
 
   /**
    * Event handler for Resumable.js
-   * @param {ResumableFile} file
+   * @param {ResumableFile} resumableFile
    * @returns {undefined}
    */
-  fileUploadSuccess(file) {
-    this.finalizeFileUpload(file)
-      .then(
-        () => {
-          this.notifyParent({
-            uploadId: file.uploadId,
-            path: file.relativePath,
-            bytesUploaded: file.size,
-            success: true,
-          });
-        },
-        (error) => {
-          this.notifyParent({
-            uploadId: file.uploadId,
-            path: file.relativePath,
-            error: this.get('errorExtractor').getMessage(error),
-          });
+  fileUploadSuccess(resumableFile) {
+    // Sometimes Resumable treats cancelled files as finished
+    if (!resumableFile.isCancelled) {
+      this.finalizeFileUpload(resumableFile)
+        .then(
+          () => {
+            this.notifyParent({
+              uploadId: resumableFile.uploadId,
+              path: resumableFile.relativePath,
+              bytesUploaded: resumableFile.size,
+              success: true,
+            });
+            resumableFile.fileModel.poolSize(10, 2000, resumableFile.size);
+          },
+          (error) => {
+            const errorMessage = get(
+              this.get('errorExtractor').getMessage(error),
+              'message.string'
+            ) || this.t('unknownError');
+            this.notifyParent({
+              uploadId: resumableFile.uploadId,
+              path: resumableFile.relativePath,
+              error: errorMessage,
+            });
 
-          this.deleteFailedFile(file);
-        }
-      );
+            this.deleteFailedFile(resumableFile);
+          }
+        );
+    }
   },
 
   /**
    * Event handler for Resumable.js
-   * @param {ResumableFile} file
+   * @param {ResumableFile} resumableFile
    * @param {string} message
    * @returns {undefined}
    */
-  fileUploadFailure(file, message) {
+  fileUploadFailure(resumableFile, message) {
+    let stringMessage;
+    try {
+      stringMessage = (JSON.parse(message) || {}).error || message;
+    } catch (e) {
+      stringMessage = message;
+    }
     this.notifyParent({
-      uploadId: file.uploadId,
-      path: file.relativePath,
-      error: message,
+      uploadId: resumableFile.uploadId,
+      path: resumableFile.relativePath,
+      error: stringMessage || this.t('unknownError'),
     });
 
-    // GUI does not have to wait for result
-    this.deleteFailedFile(file).finally(() => this.finalizeFileUpload(file));
+    // GUI does not have to wait for result, because error has been already
+    // passed to Onezone.
+    this.deleteFailedFile(resumableFile)
+      .finally(() => this.finalizeFileUpload(resumableFile));
+  },
+
+  /**
+   * Sends an RPC call that initializes upload of given file.
+   * @param {ResumableFile} resumableFile 
+   * @returns {Promise}
+   */
+  initializeFileUpload(resumableFile) {
+    if (!resumableFile.isUploadInitialized) {
+      const guid = get(resumableFile, 'fileModel.entityId');
+      return this.get('onedataRpc').request('initializeFileUpload', { guid })
+        .then(() => resumableFile.isUploadInitialized = true);
+    } else {
+      return resolve();
+    }
   },
 
   /**
@@ -318,10 +358,10 @@ export default Service.extend({
     const fileModelPromise = resumableFile.createFileModelPromise ||
       resolve(resumableFile.fileModel);
     return fileModelPromise.then(fileModel => {
-      if (fileModel) {
-        get(fileModel, 'parent').then(parent => {
+      if (fileModel && !get(fileModel, 'isDeleted')) {
+        return get(fileModel, 'parent').then(parent => {
           return fileModel.destroyRecord().then(() =>
-            this.get('fileServer').trigger('dirChildrenRefresh', parent)
+            this.refreshDirectoryChildren(parent)
           );
         });
       }
@@ -364,20 +404,12 @@ export default Service.extend({
   },
 
   /**
-   * Creates new upload session to group all files in the same upload
-   * @returns {Promise<{ uploadId: string }>}
-   */
-  startNewUploadSession() {
-    return resolve({ uploadId: String(Math.floor(Math.random() * 1000000)) });
-  },
-
-  /**
-   * Changes target directory ID where files should be uploaded
-   * @param {string} targetDirectoryId 
+   * Changes target directory where files should be uploaded
+   * @param {Models.File} targetDirectory
    * @returns {undefined}
    */
-  changeTargetDirectoryId(targetDirectoryId) {
-    this.set('targetDirectoryId', targetDirectoryId);
+  changeTargetDirectory(targetDirectory) {
+    this.set('targetDirectory', targetDirectory);
   },
 
   /**
@@ -391,28 +423,43 @@ export default Service.extend({
   },
 
   /**
-   * @param {ResumableFile} file
+   * @param {Models.File} directory 
+   * @returns {undefined}
+   */
+  refreshDirectoryChildren(directory) {
+    this.get('fileServer').trigger('dirChildrenRefresh', directory);
+  },
+
+  /**
+   * Creates directories which are needed to upload file. After that, an empty
+   * file is created, that will be a target for upload. Created directories are
+   * reused by the same batch upload - all files have the same
+   * `createdDirectories` map to remember state of directories creation.
+   * @param {ResumableFile} resumableFile
    * @returns {Promise<Models.File>}
    */
-  createCorrespondingFile(file) {
-    const {
-      fileManager,
-      fileServer,
-    } = this.getProperties('fileManager', 'fileServer');
-    const pathSections = get(file, 'relativePath').split('/');
+  createCorrespondingFile(resumableFile) {
+    const fileManager = this.get('fileManager');
+    const pathSections = get(resumableFile, 'relativePath').split('/');
 
-    let createPromise = resolve(file.targetRootDirectory);
+    // Root upload directory is already created, so just resolve
+    let createPromise = resolve(resumableFile.targetRootDirectory);
+    // If file is in nested directory...
     if (pathSections.length > 1) {
-      const createdDirectories = file.createdDirectories;
+      const createdDirectories = resumableFile.createdDirectories;
+      // iterate over all nested directories in file path...
       for (let i = 0; i < pathSections.length - 1; i++) {
         const directoryPath = pathSections.slice(0, i + 1).join('/');
-
+        // when parent diretory is created, then...
         createPromise = createPromise.then(parent => {
+          // reuse existing (ealier created) directory if possible...
           let nextLevelDirPromise = createdDirectories[directoryPath];
+          // or create a new one and remember Promise to reuse it later for
+          // another files.
           if (!nextLevelDirPromise) {
             nextLevelDirPromise = fileManager.createDirectory(pathSections[i], parent, 50);
             createdDirectories[directoryPath] = nextLevelDirPromise;
-            nextLevelDirPromise.then(() => fileServer.trigger('dirChildrenRefresh', parent));
+            nextLevelDirPromise.then(() => this.refreshDirectoryChildren(parent));
           }
           return nextLevelDirPromise;
         });
@@ -420,28 +467,45 @@ export default Service.extend({
     }
 
     return createPromise.then(parent => {
-      const createFilePromise =
+      // When all directories needed to upload file are created, create file itself.
+      const createFileModelPromise =
         fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
-      createFilePromise.then(() => {
-        fileServer.trigger('dirChildrenRefresh', parent);
-        file.createFileModelPromise = null;
+      createFileModelPromise.then((fileModel) => {
+        this.refreshDirectoryChildren(parent);
+        resumableFile.createFileModelPromise = null;
+        resumableFile.fileModel = fileModel;
       });
-      file.createFileModelPromise = createFilePromise;
-      return createFilePromise;
+      resumableFile.createFileModelPromise = createFileModelPromise;
+      return createFileModelPromise;
     });
   },
 });
 
 
 /**
- * @param {Array<ResumableFile>} files
+ * Builds a simple tree representation of passed files similar to:
+ * {
+ *   dir1Name: {
+ *     subdir11Name: {
+ *       file111Name: ResumableFile,
+ *     }
+ *     ... other directories ...
+ *     file11Name: ResumableFile,
+ *     file12Name: ResumableFile,
+ *     ... other files ...
+ *   }
+ *   ... other directories ...
+ *   file1Name: ResumableFile,
+ *   ... other files ...
+ * }
+ * @param {Array<ResumableFile>} resumableFiles
  * @returns {Object}
  */
-function buildFilesTree(files) {
+function buildFilesTree(resumableFiles) {
   const tree = {};
 
-  files.forEach(file => {
-    const pathSections = get(file, 'relativePath').split('/');
+  resumableFiles.forEach(resumableFile => {
+    const pathSections = get(resumableFile, 'relativePath').split('/');
     let targetDirectory = tree;
     for (let i = 0; i < pathSections.length - 1; i++) {
       const pathSection = pathSections[i];
@@ -450,12 +514,19 @@ function buildFilesTree(files) {
       }
       targetDirectory = targetDirectory[pathSection];
     }
-    targetDirectory[get(pathSections, 'lastObject')] = file;
+    targetDirectory[get(pathSections, 'lastObject')] = resumableFile;
   });
 
   return tree;
 }
 
+/**
+ * Converts tree back to array of files, but ordered in a way, that minimizes
+ * the number of unnecessary created directories in case of file upload failure.
+ * Order: 'Files first, then run itself recurrently on each directory`.
+ * @param {Object} tree 
+ * @returns {Array<ResumableFile>}
+ */
 function sortFilesToUpload(tree) {
   const filesAndDirs = Object.keys(tree).sort().map(key => tree[key]);
 

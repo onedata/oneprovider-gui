@@ -9,7 +9,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, get, set, getProperties } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { camelize, dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -306,10 +306,12 @@ export default Component.extend(I18n, {
       element,
       uploadManager,
       clickOutsideDeselectHandler,
+      dir,
     } = this.getProperties(
       'element',
       'uploadManager',
-      'clickOutsideDeselectHandler'
+      'clickOutsideDeselectHandler',
+      'dir'
     );
 
     document.body.addEventListener(
@@ -322,7 +324,7 @@ export default Component.extend(I18n, {
 
     const uploadBrowseElement = document.querySelectorAll('.browser-upload');
     uploadManager.assignUploadBrowse(uploadBrowseElement);
-    set(uploadManager,'targetDirectory', this.get('dir'));
+    uploadManager.changeTargetDirectory(dir);
   },
 
   willDestroyElement() {
@@ -377,7 +379,7 @@ export default Component.extend(I18n, {
     },
     changeDir(dir) {
       this.set('dir', dir);
-      set(this.get('uploadManager'),'targetDirectory', dir);
+      this.get('uploadManager').changeTargetDirectory(dir);
     },
   },
 });
