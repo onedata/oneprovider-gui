@@ -217,12 +217,15 @@ export default Service.extend(I18n, {
     resumableFiles.setEach('targetRootDirectory', targetDirectory);
     resumableFiles.setEach('createdDirectories', createdDirectories);
 
+    // Sort files to optimize directories creation
     const filesTree = buildFilesTree(resumableFiles);
     const sortedFiles = sortFilesToUpload(filesTree);
 
+    // Remove added files...
     for (let i = 0; i < resumableFiles.length; i++) {
       resumable.files.pop();
     }
+    // ... and restore them in changed order
     for (let i = 0; i < resumableFiles.length; i++) {
       resumable.files.push(sortedFiles[i]);
     }

@@ -2,7 +2,7 @@
  * Single file or directory model.
  * 
  * @module models/file
- * @author Jakub Liput
+ * @author Jakub Liput, Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
@@ -63,7 +63,7 @@ export default Model.extend(GraphSingleModelMixin, {
         isDeleted,
       } = this.getProperties('size', 'isDeleted');
       if (poolSizeTimerId === this.get('poolSizeTimerId')) {
-        if (size !== targetSize && !isDeleted && attempts > 0) {
+        if (size !== targetSize && !isDeleted && attempts > 1) {
           this.set(
             'poolSizeTimerId',
             later(this, 'poolSize', attempts - 1, interval, targetSize, interval)
