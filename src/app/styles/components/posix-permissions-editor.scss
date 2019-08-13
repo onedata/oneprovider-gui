@@ -13,12 +13,15 @@
     flex-grow: 1;
     font-family: monospace;
     font-size: 150%;
+    text-align: right;
   }
 
   .permissions-octal {
-    padding: 0.7 * $padding-base-vertical $padding-xs-horizontal;
+    padding: 0.5 * $padding-base-vertical $padding-xs-horizontal;
     height: initial;
     text-align: center;
+    font-size: 130%;
+    @include font-semibold();
   }
 
   .entity-permissions {

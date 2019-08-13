@@ -123,6 +123,9 @@
   }
 
   .add-user-group-ace {
+    .list-header-row {
+      padding-right: $padding-large-vertical;
+    }
     .header-content-container {
       display: flex;
       align-items: center;
@@ -131,6 +134,7 @@
       flex-grow: 1;
       display: inline-block;
       height: 0;
+      min-width: 0;
       margin-top: -$input-height-base;
     }
     .ember-power-select-options {

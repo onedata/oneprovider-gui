@@ -1,5 +1,4 @@
 <div class="permissions-representations">
-  <div class="permissions-string-container">{{permissions.stringRepresentation}}</div>
   <div class="permissions-octal-container {{unless isOctalInputValid "has-error"}}">
     <input
       class="permissions-octal form-control"
@@ -9,6 +8,7 @@
       oninput={{action "octalChanged" value="target.value"}}
       onkeydown={{invoke-on-enter (action "save")}}>
   </div>
+  <div class="permissions-string-container">{{permissions.stringRepresentation}}</div>
 </div>
   <div class="row entity-permissions-row">
   {{#each (array "user" "group" "other") as |entity|}}
