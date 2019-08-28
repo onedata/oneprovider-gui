@@ -13,8 +13,9 @@ import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, FastDoubleClick, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
   classNameBindings: ['typeClass', 'isSelected:file-selected'],
@@ -103,15 +104,18 @@ export default Component.extend(I18n, {
   didInsertElement() {
     this._super(...arguments);
     this.element.addEventListener('contextmenu', this.get('contextMenuHandler'));
-    this.element.addEventListener('dblclick', this.get('customDoubleClick'));
   },
 
   willDestroyElement() {
     this._super(...arguments);
     this.element.removeEventListener('contextmenu', this.get('contextMenuHandler'));
-    this.element.removeEventListener('dblclick', this.get('customDoubleClick'));
   },
 
+  click(clickEvent) {
+    this._super(...arguments);
+    this.get('fastClick')(clickEvent);
+  },
+  
   actions: {
     openContextMenu() {
       this.openContextMenu(...arguments);
