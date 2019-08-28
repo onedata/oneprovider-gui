@@ -550,8 +550,17 @@ function sortFilesToUpload(tree) {
   const filesAndDirs = Object.keys(tree).sort().map(key => tree[key]);
 
   const files = filesAndDirs
-    .filter(file => typeof file.progress === 'function');
+    .filter(file => isResumableFile(file));
   const directories = _.difference(filesAndDirs, files);
 
   return files.concat(...directories.map(sortFilesToUpload));
+}
+
+/**
+ * Returns true if passed object is a ResumableFile
+ * @param {any} object
+ * @returns {boolean}
+ */
+function isResumableFile(object) {
+  return object && typeof object.progress === 'function';
 }
