@@ -110,7 +110,8 @@ describe('Integration | Component | file browser', function () {
     let clickCount = 8;
     const enterDir = () => {
       const $row = this.$('.fb-table-row');
-      $row.dblclick();
+      $row.click();
+      $row.click();
       return wait().then(() => {
         if (clickCount > 0) {
           clickCount = clickCount - 1;

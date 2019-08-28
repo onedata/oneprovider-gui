@@ -178,6 +178,9 @@ export default Component.extend(I18n, {
       const blankEnd = blankStart + window.innerHeight;
       startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.floor(blankEnd / rowHeight);
+      if (endIndex < 0) {
+        endIndex = 50;
+      }
     } else {
       startIndex = filesArrayIds.indexOf(firstId);
       endIndex = filesArrayIds.indexOf(lastId, startIndex);
