@@ -9,9 +9,11 @@ import Evented from '@ember/object/evented';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
+import { click } from 'ember-native-dom-helpers';
 
 const FileServer = Service.extend(Evented, {
   fetchDirChildren() {},
+  copyOrMoveFile() {},
 });
 
 const I18n = Service.extend({
@@ -132,6 +134,85 @@ describe('Integration | Component | file browser', function () {
       expect(this.$('.fb-table-row')).to.have.length(1);
       return enterDir().then(() => {
         expect(this.$('.fb-table-row').text()).to.contain('Directory 9');
+      });
+    });
+  });
+
+  it('shows paste button when invoked file copy from context menu', function () {
+    const dir = {
+      entityId: 'root',
+      name: 'Test directory',
+      index: 'Test directory',
+      type: 'dir',
+      hasParent: false,
+      parent: resolve(null),
+    };
+    const b1 = {
+      entityId: 'f2',
+      name: 'B1',
+      index: 'B1',
+      type: 'dir',
+      hasParent: true,
+      parent: resolve(dir),
+    };
+    const a1 = {
+      entityId: 'f1',
+      name: 'A1',
+      index: 'A1',
+      type: 'file',
+      hasParent: true,
+      parent: resolve(dir),
+    };
+    const files1 = [
+      a1,
+      b1,
+    ];
+    const files2 = [{
+      entityId: 'f3',
+      name: 'A2',
+      index: 'A2',
+      type: 'file',
+      hasParent: true,
+      parent: resolve(dir),
+    }];
+    this.set('dir', dir);
+    const fileServer = lookupService(this, 'fileServer');
+    const fetchDirChildren = sinon.stub(fileServer, 'fetchDirChildren');
+    const copyOrMoveFile = sinon.spy(fileServer, 'copyOrMoveFile');
+    fetchDirChildren.withArgs(
+      'root',
+      sinon.match.any,
+      sinon.match.any,
+      sinon.match.any
+    ).resolves(files1);
+    fetchDirChildren.withArgs(
+      'f2',
+      sinon.match.any,
+      sinon.match.any,
+      sinon.match.any
+    ).resolves(files2);
+
+    this.render(hbs `{{file-browser dir=dir}}`);
+
+    return wait().then(() => {
+      expect(this.$('.fb-table-row')).to.exist;
+      this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
+      return wait().then(() => {
+        return click('.file-action-copy').then(() => {
+          expect(this.$('.file-action-paste')).to.exist;
+          const dirRow = this.$('.fb-table-row')[1];
+          dirRow.click();
+          return wait().then(() => {
+            dirRow.click();
+            dirRow.click();
+            return wait().then(() => {
+              return click('.file-action-paste').then(() => {
+                expect(copyOrMoveFile)
+                  .have.been.calledWith(a1, 'f2', 'copy');
+              });
+            });
+          });
+        });
       });
     });
   });

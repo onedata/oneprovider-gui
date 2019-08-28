@@ -132,18 +132,9 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    this.get('fileServer').on('dirChildrenRefresh', parentDir => {
-      if (this.get('dir') === parentDir) {
-        const filesArray = this.get('filesArray');
-        filesArray.reload({
-          head: true,
-          minSize: 50,
-        }).then(() => filesArray.reload());
-        // FIXME: more efficient, but buggy way
-        // filesArray.reload({
-        //   offset: -1,
-        //   minSize: 50,
-        // });
+    this.get('fileServer').on('dirChildrenRefresh', parentDirEntityId => {
+      if (this.get('dir.entityId') === parentDirEntityId) {
+        this.refreshFileList();
       }
     });
   },
@@ -160,6 +151,19 @@ export default Component.extend(I18n, {
     } finally {
       this._super(...arguments);
     }
+  },
+
+  refreshFileList() {
+    const filesArray = this.get('filesArray');
+    filesArray.reload({
+      head: true,
+      minSize: 50,
+    }).then(() => filesArray.reload());
+    // FIXME: more efficient, but buggy way
+    // filesArray.reload({
+    //   offset: -1,
+    //   minSize: 50,
+    // });
   },
 
   onTableScroll(items, headerVisible) {

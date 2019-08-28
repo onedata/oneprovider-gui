@@ -166,7 +166,7 @@ export default Component.extend(I18n, {
   btnUpload: computed(function btnUpload() {
     return this.createFileAction({
       id: 'upload',
-      elementClass: 'browser-upload',
+      class: 'browser-upload',
       showIn: [
         actionContext.inDir,
         actionContext.currentDir,
@@ -339,7 +339,7 @@ export default Component.extend(I18n, {
    *  - icon: optional string, if not provided will be generated
    *  - title: string
    *  - showIn: array of strings from arrayContext
-   *  - elementClass: string, classes added to element
+   *  - class: string, classes added to element
    * @returns {EmberObject}
    */
   createFileAction(actionProperties) {
@@ -347,8 +347,8 @@ export default Component.extend(I18n, {
       id,
       icon,
       action,
-      elementClass,
-    } = getProperties(actionProperties, 'id', 'icon', 'action', 'elementClass');
+      class: elementClass,
+    } = getProperties(actionProperties, 'id', 'icon', 'action', 'class');
     const fileActions = this.get('fileActions');
     return Object.assign({
       action: action || (() => {
@@ -357,7 +357,7 @@ export default Component.extend(I18n, {
       icon: icon || `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
       showIn: [],
-      elementClass: [`file-action-${id}`, ...(elementClass || [])],
+      class: [`file-action-${id}`, ...(elementClass || [])],
     }, actionProperties);
   },
 
@@ -382,7 +382,7 @@ export default Component.extend(I18n, {
     selectCurrentDir(select) {
       this.clearFilesSelection();
       if (select) {
-        this.selectedFiles.push(this.get('dir'));
+        this.get('selectedFiles').push(this.get('dir'));
       }
     },
     changeDir(dir) {
