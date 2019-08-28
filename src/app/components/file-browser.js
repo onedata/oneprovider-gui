@@ -67,7 +67,7 @@ export default Component.extend(I18n, {
   i18n: service(),
   fileActions: service(),
   uploadManager: service(),
-  fileServer: service(),
+  fileManager: service(),
 
   /**
    * @override
@@ -322,7 +322,7 @@ export default Component.extend(I18n, {
     const uploadDropElement = element.parentElement;
     uploadManager.assignUploadDrop(uploadDropElement);
 
-    const uploadBrowseElement = document.querySelectorAll('.browser-upload');
+    const uploadBrowseElement = document.querySelector('.fb-upload-trigger');
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);
   },
@@ -344,8 +344,11 @@ export default Component.extend(I18n, {
     const fileActions = this.get('fileActions');
     return Object.assign({
       action: action || (() => {
-        return fileActions[camelize(`act-${id}`)](
-          this.get('selectedFiles'));
+        let predefinedAction = fileActions[camelize(`act-${id}`)];
+        if (typeof predefinedAction === 'function') {
+          predefinedAction = predefinedAction.bind(fileActions);
+          return predefinedAction(this.get('selectedFiles'));
+        }
       }),
       icon: icon || `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
@@ -360,13 +363,13 @@ export default Component.extend(I18n, {
   pasteFiles() {
     const {
       dir,
-      fileServer,
-    } = this.getProperties('dir', 'fileServer');
-    const fileClipboardMode = get(fileServer, 'fileClipboardMode');
-    const fileClipboardFiles = get(fileServer, 'fileClipboardFiles');
+      fileManager,
+    } = this.getProperties('dir', 'fileManager');
+    const fileClipboardMode = get(fileManager, 'fileClipboardMode');
+    const fileClipboardFiles = get(fileManager, 'fileClipboardFiles');
     const dirEntityId = get(dir, 'entityId');
     return all(fileClipboardFiles.map(file =>
-      fileServer.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
+      fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
     ));
   },
 

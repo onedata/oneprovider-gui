@@ -28,7 +28,7 @@ const compareIndex = createPropertyComparator('index');
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
 
-  fileServer: service(),
+  fileManager: service(),
 
   /**
    * @override
@@ -129,7 +129,7 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    this.get('fileServer').on('dirChildrenRefresh', parentDir => {
+    this.get('fileManager').on('dirChildrenRefresh', parentDir => {
       if (this.get('dir') === parentDir) {
         const filesArray = this.get('filesArray');
         filesArray.reload({
@@ -192,7 +192,7 @@ export default Component.extend(I18n, {
   },
 
   fetchDirChildren(dirId, ...fetchArgs) {
-    return this.get('fileServer').fetchDirChildren(dirId, ...fetchArgs);
+    return this.get('fileManager').fetchDirChildren(dirId, ...fetchArgs);
   },
 
   clearFilesSelection() {
@@ -370,7 +370,7 @@ export default Component.extend(I18n, {
       if (isDir) {
         this.get('changeDir')(file);
       } else {
-        this.get('fileServer').download(get(file, 'entityId'));
+        this.get('fileManager').download(get(file, 'entityId'));
       }
     },
   },

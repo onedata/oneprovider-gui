@@ -11,9 +11,10 @@ import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import { alias } from '@ember/object/computed';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { later, cancel } from '@ember/runloop';
 
+import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export default Model.extend(GraphSingleModelMixin, {
@@ -33,45 +34,66 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {boolean}
    */
-  isPoolingSize: false,
+  isPollingSize: false,
 
   /**
    * @type {any}
    */
-  poolSizeTimerId: null,
+  pollSizeTimerId: null,
 
   hasParent: computed(function hasParent() {
     return Boolean(this.belongsTo('parent').id());
   }),
 
   /**
-   * Pools file size. Will stop after `attempts` retries or when fetched size
+   * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
    * @param {number} attempts 
    * @param {number} interval time in milliseconds
    * @param {number} [targetSize=undefined]
    * @returns {undefined}
    */
-  poolSize(attempts, interval, targetSize = undefined) {
-    const poolSizeTimerId = this.get('poolSizeTimerId');
-    cancel(poolSizeTimerId);
+  pollSize(attempts, interval, targetSize = undefined) {
+    const pollSizeTimerId = this.get('pollSizeTimerId');
+    cancel(pollSizeTimerId);
     
-    this.set('isPoolingSize', true);
+    this.set('isPollingSize', true);
     this.reload().then(() => {
       const {
         size,
         isDeleted,
       } = this.getProperties('size', 'isDeleted');
-      if (poolSizeTimerId === this.get('poolSizeTimerId')) {
+      if (pollSizeTimerId === this.get('pollSizeTimerId')) {
         if (size !== targetSize && !isDeleted && attempts > 1) {
           this.set(
-            'poolSizeTimerId',
-            later(this, 'poolSize', attempts - 1, interval, targetSize, interval)
+            'pollSizeTimerId',
+            later(this, 'pollSize', attempts - 1, interval, targetSize, interval)
           );
         } else {
-          this.set('isPoolingSize', false);
+          this.set('isPollingSize', false);
         }
       }
     });
+  },
+}).reopenClass(StaticGraphModelMixin, {
+  /**
+   * @override
+   */
+  findBlockingRequests(activeRequests, operation, model) {
+    const superRequests = this._super(...arguments);
+    
+    switch (operation) {
+      case 'create': {
+        const rpcRequests = get(activeRequests, 'rpcRequests');
+        // Block on listing parent dir files
+        const listParentDirRequests = rpcRequests.filter(request => {
+          return get(request, 'rpcMethodName') === 'getDirChildren' &&
+            get(request, 'data.guid') === get(model.belongsTo('parent').value(), 'entityId');
+        });
+        return superRequests.concat(listParentDirRequests);
+      }
+      default:
+        return superRequests;
+    }
   },
 });

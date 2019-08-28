@@ -8,7 +8,6 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { get } from '@ember/object';
 import { setProperties } from '@ember/object';
 
 function dummyAction(message, files) {
@@ -17,12 +16,13 @@ function dummyAction(message, files) {
 
 export default Service.extend({
   store: service(),
-  fileServer: service(),
+  fileManager: service(),
+  uploadManager: service(),
 
   // #region Actions implementation
 
-  actUpload([parentDir]) {
-    alert('upload to ' + get(parentDir, 'name'));
+  actUpload() {
+    this.get('uploadManager').triggerUploadDialog();
   },
 
   actInfo(files) {
@@ -46,9 +46,9 @@ export default Service.extend({
   },
 
   actCopy(files) {
-    const fileServer = this.get('fileServer');
+    const fileManager = this.get('fileManager');
     setProperties(
-      fileServer, {
+      fileManager, {
         fileClipboardFiles: files,
         fileClipboardMode: 'copy',
       }
@@ -56,9 +56,9 @@ export default Service.extend({
   },
 
   actCut(files) {
-    const fileServer = this.get('fileServer');
+    const fileManager = this.get('fileManager');
     setProperties(
-      fileServer, {
+      fileManager, {
         fileClipboardFiles: files,
         fileClipboardMode: 'move',
       }
