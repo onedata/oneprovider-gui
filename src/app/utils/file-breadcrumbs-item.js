@@ -1,5 +1,5 @@
 import EmberObject from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, not } from '@ember/object/computed';
 
 /**
  * An envelope Ember Class for `FileBreadcrumbs`.
@@ -37,7 +37,7 @@ const FileBreadcrumbsItem = EmberObject.extend({
    */
   name: reads('file.name'),
 
-  isRoot: reads('file.hasParent'),
+  isRoot: not('file.hasParent'),
 });
 
 export default FileBreadcrumbsItem;

@@ -103,11 +103,13 @@ export default Component.extend(I18n, {
   didInsertElement() {
     this._super(...arguments);
     this.element.addEventListener('contextmenu', this.get('contextMenuHandler'));
+    this.element.addEventListener('dblclick', this.get('customDoubleClick'));
   },
 
   willDestroyElement() {
     this._super(...arguments);
     this.element.removeEventListener('contextmenu', this.get('contextMenuHandler'));
+    this.element.removeEventListener('dblclick', this.get('customDoubleClick'));
   },
 
   actions: {

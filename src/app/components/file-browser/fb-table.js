@@ -29,6 +29,7 @@ export default Component.extend(I18n, {
   classNames: ['fb-table'],
 
   fileServer: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -56,6 +57,8 @@ export default Component.extend(I18n, {
   changeDir: undefined,
 
   downloadFile: undefined,
+
+  _window: window,
 
   /**
    * @type {models/File}
@@ -170,9 +173,10 @@ export default Component.extend(I18n, {
     if (firstId === null && get(sourceArray, 'length') !== 0) {
       const rowHeight = this.get('rowHeight');
       const $firstRow = $('.first-row');
-      const blankStart = $firstRow.offset().top * -1;
+      const firstRowTop = $firstRow.offset().top;
+      const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + window.innerHeight;
-      startIndex = Math.floor(blankStart / rowHeight);
+      startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.floor(blankEnd / rowHeight);
     } else {
       startIndex = filesArrayIds.indexOf(firstId);
@@ -207,6 +211,8 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   fileClicked(file, ctrlKey, shiftKey) {
+    console.log('FIXME: clicked');
+
     // do not change selection if only clicking to close context menu
     if (isPopoverOpened()) {
       return;
@@ -358,6 +364,7 @@ export default Component.extend(I18n, {
      * @returns {any} result of this.fileClicked
      */
     fileClicked(file, clickEvent) {
+      console.log('FIXME: file single clicked: ' + get(file, 'name'));
       const { ctrlKey, metaKey, shiftKey } = clickEvent;
       return this.fileClicked(
         file,
@@ -365,9 +372,12 @@ export default Component.extend(I18n, {
         shiftKey
       );
     },
+
     fileDoubleClicked(file /*, clickEvent */ ) {
+      console.log('FIXME: file double clicked');
       const isDir = get(file, 'type') === 'dir';
       if (isDir) {
+        console.log('FIXME: send changeDir');
         this.get('changeDir')(file);
       } else {
         this.get('fileServer').download(get(file, 'entityId'));

@@ -12,10 +12,13 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { observer, computed } from '@ember/object';
 import { gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['fb-selection-toolkit'],
   classNameBindings: ['opened:opened:closed'],
+
+  i18n: service(),
 
   /**
    * @override

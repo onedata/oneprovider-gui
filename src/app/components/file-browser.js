@@ -15,7 +15,7 @@ import { camelize, dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
-import { hash } from 'ember-awesome-macros';
+import { hash, notEmpty } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { all } from 'rsvp';
@@ -28,7 +28,6 @@ export const actionContext = {
   multiDir: 'multiDir',
   multiFile: 'multiFile',
   multiMixed: 'multiMixed',
-  desktopToolbar: 'desktopToolbar',
   currentDir: 'currentDir',
   spaceRootDir: 'spaceRootDir',
 };
@@ -75,14 +74,9 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.fileBrowser',
 
   /**
-   * Array of selected file records.
-   * Initialized to empty array in init.
-   * @type EmberArray<object>
-   */
-  selectedFiles: undefined,
-
-  /**
+   * @virtual
    * File model with dir type. It is the currently displayed directory.
+   * Can be replaced internally with `changeDir` action.
    * @type {Models/File}
    */
   dir: undefined,
@@ -101,8 +95,6 @@ export default Component.extend(I18n, {
    */
   openRemove: notImplementedThrow,
 
-  // FIXME: parent dir is not necessary here - use parent resolve
-
   /**
    * @virtual
    * @type {Function}
@@ -110,6 +102,18 @@ export default Component.extend(I18n, {
    * @param {Models/File} parentDir parentDir of file to rename
    */
   openRename: notImplementedThrow,
+
+  /**
+   * If true, the paste from clipboard button should be available
+   * @type {Computed<boolean>}
+   */
+  clipboardReady: notEmpty('fileServer.fileClipboardFiles'),
+
+  /**
+   * Array of selected file records.
+   * @type {EmberArray<object>}
+   */
+  selectedFiles: computed(() => A()),
 
   /**
    * One of values from `actionContext` enum object
@@ -263,7 +267,7 @@ export default Component.extend(I18n, {
       showIn: [
         actionContext.currentDir,
         actionContext.spaceRootDir,
-        actionContext.desktopToolbar,
+        actionContext.inDir,
       ],
     });
   }),
@@ -293,11 +297,6 @@ export default Component.extend(I18n, {
   }),
 
   // #endregion
-
-  init() {
-    this._super(...arguments);
-    this.set('selectedFiles', A());
-  },
 
   didInsertElement() {
     this._super(...arguments);
@@ -332,21 +331,33 @@ export default Component.extend(I18n, {
     );
   },
 
+  /**
+   * Create button or popover menu item for controlling files.
+   * @param {object} actionProperties properties of action button:
+   *  - id: string
+   *  - action: optional function
+   *  - icon: optional string, if not provided will be generated
+   *  - title: string
+   *  - showIn: array of strings from arrayContext
+   *  - elementClass: string, classes added to element
+   * @returns {EmberObject}
+   */
   createFileAction(actionProperties) {
     const {
       id,
       icon,
       action,
-    } = getProperties(actionProperties, 'id', 'icon', 'action');
+      elementClass,
+    } = getProperties(actionProperties, 'id', 'icon', 'action', 'elementClass');
     const fileActions = this.get('fileActions');
     return Object.assign({
       action: action || (() => {
-        return fileActions[camelize(`act-${id}`)](
-          this.get('selectedFiles'));
+        return fileActions[camelize(`act-${id}`)](this.get('selectedFiles'));
       }),
       icon: icon || `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
       showIn: [],
+      elementClass: [`file-action-${id}`, ...(elementClass || [])],
     }, actionProperties);
   },
 
@@ -375,6 +386,7 @@ export default Component.extend(I18n, {
       }
     },
     changeDir(dir) {
+      console.log('FIXME: file-browser change dir: ' + get(dir, 'name'));
       this.set('dir', dir);
     },
   },

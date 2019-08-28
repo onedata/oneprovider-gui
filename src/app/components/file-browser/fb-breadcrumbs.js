@@ -21,6 +21,7 @@ import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
+import { inject as service } from '@ember/service';
 
 /**
  * @type {number}
@@ -35,6 +36,8 @@ export default Component.extend(
   createDataProxyMixin('breadcrumbsItems', { type: 'array' }),
   createDataProxyMixin('filteredBreadcrumbsItems', { type: 'array' }), {
     classNames: ['fb-breadcrumbs'],
+
+    i18n: service(),
 
     /**
      * @override
@@ -75,6 +78,12 @@ export default Component.extend(
     dirActionsToggled: notImplementedThrow,
 
     /**
+     * @virtual
+     * @type {boolean}
+     */
+    clipboardReady: undefined,
+
+    /**
      * If true, add breadcrumbs-recomputing CSS class to breadcrumbs-inner
      * to hide breadcrumbs smoothly for the time of testing its width.
      * @type {boolean}
@@ -98,20 +107,35 @@ export default Component.extend(
 
     isRootDir: not('dir.hasParent'),
 
+    innerElementTruncate: computed(
+      'elementsToShow',
+      'filteredBreadcrumbsItems.length',
+      function innerElementTruncate() {
+        return this.get('elementsToShow') < 3 ||
+          this.get('filterBreadcrumbsItems.length') <= 1;
+      }
+    ),
+
     menuButtons: computed(
       'allButtonsArray',
       'isRootDir',
+      'clipboardReady',
       function menuButtons() {
         const {
           allButtonsArray,
           isRootDir,
-        } = this.getProperties('allButtonsArray', 'isRootDir');
+          clipboardReady,
+        } = this.getProperties('allButtonsArray', 'isRootDir', 'clipboardReady');
+        let importedActions = getButtonActions(
+          allButtonsArray,
+          isRootDir ? 'spaceRootDir' : 'currentDir'
+        );
+        if (!clipboardReady) {
+          importedActions = importedActions.rejectBy('id', 'paste');
+        }
         return [
           { separator: true, title: this.t('menuCurrentDir') },
-          ...getButtonActions(
-            allButtonsArray,
-            isRootDir ? 'spaceRootDir' : 'currentDir'
-          ),
+          ...importedActions,
         ];
       }
     ),

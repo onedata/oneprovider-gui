@@ -39,7 +39,7 @@ $-file-browser-padding-right: 16px;
   flex-direction: row-reverse;
   flex-grow: 0;
   flex-shrink: 0;
-  flex-basis: 250px;
+  flex-basis: 280px;
   height: $-file-browser-header-height;
 }
 
@@ -119,7 +119,6 @@ $-file-browser-padding-right: 16px;
   
   .fb-breadcrumbs-inner {
     display: inline-block;
-    width: 100%;
     white-space: nowrap;
     position: relative;
     opacity: 1;
@@ -129,6 +128,7 @@ $-file-browser-padding-right: 16px;
       transition: opacity 0.2s ease;
     }
     &.truncate {
+      width: 100%;
       max-width: 100%;
     }
   }

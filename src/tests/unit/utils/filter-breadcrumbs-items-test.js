@@ -55,15 +55,18 @@ describe('Unit | Utility | filter breadcrumbs items', function () {
       return filterBreadcrumbsItems(bitems, 3)
         .then(resultItems => {
           expect(resultItems).to.have.lengthOf(3);
-          expect(get(resultItems[0], 'isRoot')).to.equal(true);
-          expect(get(resultItems[1], 'isEllipsis')).to.equal(true);
-          expect(get(resultItems[1], 'file.name')).to.equal('file-7');
-          expect(get(resultItems[2], 'name')).to.equal('file-8');
+          expect(get(resultItems[0], 'isRoot'), 'root first').to.equal(true);
+          expect(get(resultItems[1], 'isEllipsis'), 'ellipsis second')
+            .to.equal(true);
+          expect(get(resultItems[1], 'file.name'), 'ellipsis is file-7')
+            .to.equal('file-7');
+          expect(get(resultItems[2], 'name'), 'last item is file-8')
+            .to.equal('file-8');
         });
     }
   );
 
-  it('should return root, ellipsis and parent of last for count 4 and 4 files',
+  it('should return root, a, b for count 4 and 4 files',
     function () {
       const numberOfFiles = 4;
       const { bitems } = generateBreadcrumbsItems(numberOfFiles);
@@ -72,8 +75,7 @@ describe('Unit | Utility | filter breadcrumbs items', function () {
         .then(resultItems => {
           expect(resultItems).to.have.lengthOf(3);
           expect(get(resultItems[0], 'isRoot'), 'root').to.equal(true);
-          expect(get(resultItems[1], 'isEllipsis'), 'ellipsis').to.equal(true);
-          expect(get(resultItems[1], 'file.name')).to.equal('file-1');
+          expect(get(resultItems[1], 'name')).to.equal('file-1');
           expect(get(resultItems[2], 'name')).to.equal('file-2');
         });
     }
@@ -163,6 +165,22 @@ describe('Unit | Utility | filter breadcrumbs items', function () {
           expect(get(resultItems[1], 'name')).to.equal('file-1');
           expect(get(resultItems[2], 'name')).to.equal('file-2');
           expect(get(resultItems[3], 'name')).to.equal('file-3');
+        });
+    }
+  );
+
+  it('should return root, 1st and 2nd dir for 4 files available',
+    function () {
+      const numberOfFiles = 4;
+      const { bitems } = generateBreadcrumbsItems(numberOfFiles);
+
+      return filterBreadcrumbsItems(bitems, 10)
+        .then(resultItems => {
+          expect(resultItems).to.have.lengthOf(3);
+          expect(get(resultItems[0], 'isRoot')).to.equal(true);
+          expect(get(resultItems[0], 'name')).to.equal('file-0');
+          expect(get(resultItems[1], 'name')).to.equal('file-1');
+          expect(get(resultItems[2], 'name')).to.equal('file-2');
         });
     }
   );

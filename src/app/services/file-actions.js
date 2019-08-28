@@ -49,7 +49,7 @@ export default Service.extend({
     const fileServer = this.get('fileServer');
     setProperties(
       fileServer, {
-        fileClipboardFiles: files,
+        fileClipboardFiles: files.toArray(),
         fileClipboardMode: 'copy',
       }
     );
@@ -59,14 +59,10 @@ export default Service.extend({
     const fileServer = this.get('fileServer');
     setProperties(
       fileServer, {
-        fileClipboardFiles: files,
+        fileClipboardFiles: files.toArray(),
         fileClipboardMode: 'move',
       }
     );
-  },
-
-  actDelete(files) {
-    dummyAction('delete: ', files);
   },
 
   // #endregion
