@@ -57,7 +57,10 @@ export default OneEmbeddedComponent.extend(
       closeCreateItemModal(isCreated /*, submitResult */ ) {
         const createItemParentDir = this.get('createItemParentDir');
         if (isCreated) {
-          this.get('fileManager').trigger('dirChildrenRefresh', createItemParentDir);
+          this.get('fileManager').trigger(
+            'dirChildrenRefresh',
+            get(createItemParentDir, 'entityId')
+          );
         }
         this.setProperties({
           createItemParentDir: null,

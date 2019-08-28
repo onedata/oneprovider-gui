@@ -29,6 +29,7 @@ export default Component.extend(I18n, {
   classNames: ['fb-table'],
 
   fileManager: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -56,6 +57,8 @@ export default Component.extend(I18n, {
   changeDir: undefined,
 
   downloadFile: undefined,
+
+  _window: window,
 
   /**
    * @type {models/File}
@@ -129,18 +132,9 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    this.get('fileManager').on('dirChildrenRefresh', parentDir => {
-      if (this.get('dir') === parentDir) {
-        const filesArray = this.get('filesArray');
-        filesArray.reload({
-          head: true,
-          minSize: 50,
-        }).then(() => filesArray.reload());
-        // FIXME: more efficient, but buggy way
-        // filesArray.reload({
-        //   offset: -1,
-        //   minSize: 50,
-        // });
+    this.get('fileManager').on('dirChildrenRefresh', parentDirEntityId => {
+      if (this.get('dir.entityId') === parentDirEntityId) {
+        this.refreshFileList();
       }
     });
   },
@@ -159,6 +153,19 @@ export default Component.extend(I18n, {
     }
   },
 
+  refreshFileList() {
+    const filesArray = this.get('filesArray');
+    filesArray.reload({
+      head: true,
+      minSize: 50,
+    }).then(() => filesArray.reload());
+    // FIXME: more efficient, but buggy way
+    // filesArray.reload({
+    //   offset: -1,
+    //   minSize: 50,
+    // });
+  },
+
   onTableScroll(items, headerVisible) {
     const filesArray = this.get('filesArray');
     const sourceArray = get(filesArray, 'sourceArray');
@@ -170,10 +177,14 @@ export default Component.extend(I18n, {
     if (firstId === null && get(sourceArray, 'length') !== 0) {
       const rowHeight = this.get('rowHeight');
       const $firstRow = $('.first-row');
-      const blankStart = $firstRow.offset().top * -1;
+      const firstRowTop = $firstRow.offset().top;
+      const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + window.innerHeight;
-      startIndex = Math.floor(blankStart / rowHeight);
+      startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.floor(blankEnd / rowHeight);
+      if (endIndex < 0) {
+        endIndex = 50;
+      }
     } else {
       startIndex = filesArrayIds.indexOf(firstId);
       endIndex = filesArrayIds.indexOf(lastId, startIndex);
@@ -207,6 +218,8 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   fileClicked(file, ctrlKey, shiftKey) {
+    console.log('FIXME: clicked');
+
     // do not change selection if only clicking to close context menu
     if (isPopoverOpened()) {
       return;
@@ -358,6 +371,7 @@ export default Component.extend(I18n, {
      * @returns {any} result of this.fileClicked
      */
     fileClicked(file, clickEvent) {
+      console.log('FIXME: file single clicked: ' + get(file, 'name'));
       const { ctrlKey, metaKey, shiftKey } = clickEvent;
       return this.fileClicked(
         file,
@@ -365,9 +379,12 @@ export default Component.extend(I18n, {
         shiftKey
       );
     },
+
     fileDoubleClicked(file /*, clickEvent */ ) {
+      console.log('FIXME: file double clicked');
       const isDir = get(file, 'type') === 'dir';
       if (isDir) {
+        console.log('FIXME: send changeDir');
         this.get('changeDir')(file);
       } else {
         this.get('fileManager').download(get(file, 'entityId'));

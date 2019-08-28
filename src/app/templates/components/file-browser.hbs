@@ -5,6 +5,7 @@
       {{file-browser/fb-breadcrumbs
         dir=dir
         allButtonsArray=allButtonsArray
+        clipboardReady=clipboardReady
         dirActionsToggled=(action "selectCurrentDir")
         changeDir=(action "changeDir")
       }}
@@ -17,9 +18,10 @@
       }}
       {{file-browser/fb-toolbar
         dir=dir
-        selectCurrentDir=(action "selectCurrentDir")
+        clipboardReady=clipboardReady
         selectionContext=selectionContext
         allButtonsArray=allButtonsArray
+        selectCurrentDir=(action "selectCurrentDir")
       }}
     </div>
   </div>

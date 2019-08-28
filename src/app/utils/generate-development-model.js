@@ -1,6 +1,6 @@
 import { camelize } from '@ember/string';
-import { get } from '@ember/object';
-import { Promise } from 'rsvp';
+import { get, set } from '@ember/object';
+import { all } from 'rsvp';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import _ from 'lodash';
 import { generateSpaceEntityId } from 'onedata-gui-websocket-client/utils/development-model-common';
@@ -18,10 +18,11 @@ export const names = ['One'];
 export const numberOfSpaces = 1;
 export const numberOfFiles = 1000;
 export const numberOfDirs = 3;
+export const numberOfChainDirs = 10;
 
 export default function generateDevelopmentModel(store) {
   // let spaces;
-  return Promise.all(
+  return all(
       types.map(type =>
         createEntityRecords(store, type, names)
         .then(records => {
@@ -34,14 +35,16 @@ export default function generateDevelopmentModel(store) {
         })
       )
     )
-    .then(([spaceList]) => {
+    .then((listRecords) => {
+      const [spaceList] = listRecords;
       return get(spaceList, 'list').then(list => {
-        return list.forEach(space => {
-          return get(space, 'rootDir').then(rootDir => {
-            return createFileRecords(store, rootDir);
+          return list.forEach(space => {
+            return get(space, 'rootDir').then(rootDir => {
+              return createFileRecords(store, rootDir);
+            });
           });
-        });
-      });
+        })
+        .then(() => listRecords);
     })
     .then(listRecords => createUserRecord(store, listRecords));
 }
@@ -57,7 +60,7 @@ function createListRecord(store, type, records) {
 
 function createSpaceRecords(store) {
   const timestamp = Math.floor(Date.now() / 1000);
-  return Promise.all(_.range(numberOfSpaces).map((i) =>
+  return all(_.range(numberOfSpaces).map((i) =>
     // root dirs
     store.createRecord('file', {
       name: `Space ${i}`,
@@ -65,7 +68,7 @@ function createSpaceRecords(store) {
       mtime: timestamp + i * 3600,
       parent: null,
     }).save()
-  )).then(rootDirs => Promise.all(_.range(numberOfSpaces).map((index) =>
+  )).then(rootDirs => all(_.range(numberOfSpaces).map((index) =>
     store.createRecord('space', {
       id: gri({
         entityType: 'op_space',
@@ -82,19 +85,47 @@ function createSpaceRecords(store) {
 function createFileRecords(store, parent) {
   const timestamp = Math.floor(Date.now() / 1000);
   const parentEntityId = get(parent, 'entityId');
-  return Promise.all(_.range(numberOfDirs).map((i) => {
+  return all(_.range(numberOfDirs).map((i) => {
       const entityId = generateDirEntityId(i, parentEntityId);
       const id = generateFileGri(entityId);
       return store.createRecord('file', {
         id,
-        name: `Directory ${String(i).padStart(4, '0')}`,
+        name: `Directory long long long long long long long long long long long long long long long long name ${String(i).padStart(4, '0')}`,
         index: entityId,
         type: 'dir',
         mtime: timestamp + i * 3600,
         parent,
       }).save();
     }))
-    .then(Promise.all(_.range(numberOfFiles).map((i) => {
+    .then(([firstDir]) => {
+      if (numberOfDirs > 0) {
+        all(_.range(numberOfChainDirs).map((i) => {
+          const entityId = generateDirEntityId(
+            0,
+            parentEntityId,
+            `-c${String(i).padStart(4, '0')}`
+          );
+          const id = generateFileGri(entityId);
+          return store.createRecord('file', {
+            id,
+            name: `Chain directory long long long long long name ${String(i).padStart(4, '0')}`,
+            index: entityId,
+            type: 'dir',
+            mtime: timestamp + i * 3600,
+          }).save();
+        })).then(chainDirs => {
+          let saves = [];
+          set(chainDirs[0], 'parent', firstDir);
+          saves.push(chainDirs[0].save());
+          for (let i = 1; i < chainDirs.length; ++i) {
+            set(chainDirs[i], 'parent', chainDirs[i - 1]);
+            saves.push(chainDirs[i].save());
+          }
+          return all(saves);
+        });
+      }
+    })
+    .then(all(_.range(numberOfFiles).map((i) => {
       const entityId = generateFileEntityId(i, parentEntityId);
       const id = generateFileGri(entityId);
       return store.createRecord('file', {
@@ -114,7 +145,7 @@ function createEntityRecords(store, type, names, additionalInfo) {
     case 'space':
       return createSpaceRecords(store, additionalInfo);
     default:
-      return Promise.all(names.map(number =>
+      return all(names.map(number =>
         store.createRecord(type, { name: `${type} ${number}` }).save()
       ));
   }
@@ -136,8 +167,8 @@ export function generateFileEntityId(i, parentEntityId) {
   return `${parentEntityId}-file-${String(i).padStart(4, '0')}`;
 }
 
-export function generateDirEntityId(i, parentEntityId) {
-  return `${parentEntityId}-dir-${String(i).padStart(4, '0')}`;
+export function generateDirEntityId(i, parentEntityId, suffix = '') {
+  return `${parentEntityId}-dir-${String(i).padStart(4, '0')}${suffix}`;
 }
 
 export function generateFileGri(entityId) {

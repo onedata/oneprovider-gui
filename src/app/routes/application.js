@@ -17,7 +17,7 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   onedataWebsocket: service(),
 
   developmentModelConfig: Object.freeze({
-    clearOnReload: true,
+    clearOnReload: false,
   }),
   generateDevelopmentModel,
   clearDevelopmentModel: clearLocalStorageModel,

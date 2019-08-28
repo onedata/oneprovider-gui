@@ -6,17 +6,22 @@ import { get, computed } from '@ember/object';
 import { collect } from '@ember/object/computed';
 
 const rootDir = {
-  id: 'root',
+  id: 'file.root.instance:private',
+  entityId: 'root',
   name: 'Some Space',
   hasParent: false,
 };
 
-const childrenCount = 10;
+const childrenCount = 4;
 
-const dirs = _.range(0, childrenCount).map(i => ({
-  id: `file-${i}`,
-  name: `Directory ${i}`,
-}));
+const dirs = _.range(0, childrenCount).map(i => {
+  const entityId = `file-${i}`;
+  return {
+    id: `file.${entityId}.instance:private`,
+    name: `Directory ${i}`,
+    entityId,
+  };
+});
 
 for (let i = 0; i < childrenCount; ++i) {
   dirs[i].parent = PromiseObject.create({

@@ -128,11 +128,13 @@ export default Service.extend(Evented, {
   copyOrMoveFile(file, parentDirEntityId, operation) {
     const name = get(file, 'name');
     const entityId = get(file, 'entityId');
-    return this.get('onedataRpc').request(`${operation}File`, {
-      guid: entityId,
-      targetParentGuid: parentDirEntityId,
-      targetName: name,
-    });
+    return this.get('onedataRpc')
+      .request(`${operation}File`, {
+        guid: entityId,
+        targetParentGuid: parentDirEntityId,
+        targetName: name,
+      })
+      .then(() => this.trigger('dirChildrenRefresh', parentDirEntityId));
   },
 
   download(fileEntityId) {
