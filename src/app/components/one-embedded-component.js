@@ -74,7 +74,7 @@ export default Component.extend({
       });
     } else {
       throw new Error(
-        'component:one-embedded-component: view with this component must be rendered in a iframe'
+        'component:one-embedded-component: view with this component must be rendered in an iframe'
       );
     }
   },
@@ -95,12 +95,10 @@ export default Component.extend({
    * @return {any} value of the injected property
    */
   copyExternalProperty(key) {
-    return this.set(
-      key,
-      getSharedProperty(
-        this.get(`frameElement.${sharedObjectName}`),
-        key
-      )
+    const value = getSharedProperty(
+      this.get(`frameElement.${sharedObjectName}`),
+      key
     );
+    return this.set(key, value);
   },
 });

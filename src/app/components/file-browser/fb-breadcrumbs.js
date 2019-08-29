@@ -8,18 +8,60 @@
  */
 
 import Component from '@ember/component';
+import { observer, computed, get } from '@ember/object';
+import { reads, not } from '@ember/object/computed';
+import { next, later } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve } from 'rsvp';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
+import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-items';
+import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
+import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
+import { inject as service } from '@ember/service';
+
+/**
+ * @type {number}
+ * In milliseconds
+ */
+const recomputePathAnimationDuration = 200;
 
 export default Component.extend(
-  createDataProxyMixin('dirPath', { type: 'array' }), {
+  I18n,
+  WindowResizeHandler,
+  createDataProxyMixin('dirPath', { type: 'array' }),
+  createDataProxyMixin('breadcrumbsItems', { type: 'array' }),
+  createDataProxyMixin('filteredBreadcrumbsItems', { type: 'array' }), {
     classNames: ['fb-breadcrumbs'],
 
+    i18n: service(),
+
     /**
-     * @type {models/file} file model of dir type
+     * @override
+     */
+    i18nPrefix: 'components.fileBrowser.fbBreadcrumbs',
+
+    /**
+     * @virtual
+     * Array of buttons objects defined in file-browser component
+     * @type {ComputedProperty<Array<EmberObject>>}
+     */
+    allButtonsArray: undefined,
+
+    /**
+     * @virtual
+     * @type {models/File} file model of dir type
      */
     dir: undefined,
+
+    /**
+     * @virtual
+     * @type {models/File}
+     */
+    rootDir: undefined,
 
     /**
      * @virtual
@@ -28,40 +70,233 @@ export default Component.extend(
      */
     changeDir: notImplementedReject,
 
+    /**
+     * @virtual
+     * @type {Function}
+     * @param {boolean} opened true if the dropdown changed to opened state
+     */
+    dirActionsToggled: notImplementedThrow,
+
+    /**
+     * @virtual
+     * @type {boolean}
+     */
+    clipboardReady: undefined,
+
+    /**
+     * If true, add breadcrumbs-recomputing CSS class to breadcrumbs-inner
+     * to hide breadcrumbs smoothly for the time of testing its width.
+     * @type {boolean}
+     */
+    breadcrumbsRecomputing: false,
+
+    /**
+     * How many breadcrumbs items should be rendered.
+     * A special element: (...) is always additionally rendered,
+     * so there will be N+1 elements visible.
+     * @type {Number}
+     */
+    elementsToShow: Infinity,
+
+    /**
+     * @type {boolean}
+     */
+    dirActionsOpen: undefined,
+
+    _window: window,
+
+    isRootDir: not('dir.hasParent'),
+
+    innerElementTruncate: computed(
+      'elementsToShow',
+      'filteredBreadcrumbsItems.length',
+      function innerElementTruncate() {
+        return this.get('elementsToShow') < 3 ||
+          this.get('filterBreadcrumbsItems.length') <= 1;
+      }
+    ),
+
+    menuButtons: computed(
+      'allButtonsArray',
+      'isRootDir',
+      'clipboardReady',
+      function menuButtons() {
+        const {
+          allButtonsArray,
+          isRootDir,
+          clipboardReady,
+        } = this.getProperties('allButtonsArray', 'isRootDir', 'clipboardReady');
+        let importedActions = getButtonActions(
+          allButtonsArray,
+          isRootDir ? 'spaceRootDir' : 'currentDir'
+        );
+        if (!clipboardReady) {
+          importedActions = importedActions.rejectBy('id', 'paste');
+        }
+        return [
+          { separator: true, title: this.t('menuCurrentDir') },
+          ...importedActions,
+        ];
+      }
+    ),
+
+    recomputePath: observer('dir', function recomputePath() {
+      this.updateDirPathProxy()
+        .then(() => this.updateBreadcrumbsItemsProxy())
+        .then(() => this.updateFilteredBreadcrumbsItemsProxy());
+    }),
+
+    /**
+     * Watch changes on properties that can cause change the width of fb-breadcrumbs.
+     * As fb-breadcrumbs-inner can overflow its parent, thus it can have width greater than
+     * fb-breadcrumbs, decrement `elementsToShow` count to try to fit fb-breadcrumbs-inner
+     * into its container.
+     */
+    checkWidth: observer(
+      'isLoading',
+      'breadcrumbsItems.content.[]',
+      function checkWidth(noAnimation) {
+        const itemsCount = this.get('filteredBreadcrumbsItems.length');
+        const $fileBreadcrumbs = this.$();
+        const $fileBreadcrumbsInner = this.$('.fb-breadcrumbs-inner');
+        const elementsToShow = this.get('elementsToShow');
+        const innerBreadcrumbsWidth = $fileBreadcrumbsInner.width();
+        const containerWidth = $fileBreadcrumbs.width();
+        if (innerBreadcrumbsWidth > containerWidth && elementsToShow !== 0) {
+          if (elementsToShow > itemsCount) {
+            this.set('elementsToShow', itemsCount);
+          } else {
+            this.decrementProperty('elementsToShow');
+          }
+          if (!noAnimation) {
+            this.set('breadcrumbsRecomputing', true);
+          }
+          later(() => {
+            this.updateFilteredBreadcrumbsItemsProxy()
+              .then(() => next(() => this.checkWidth(true)));
+          }, noAnimation ? 0 : recomputePathAnimationDuration);
+        } else {
+          this.set('breadcrumbsRecomputing', false);
+        }
+      }
+    ),
+
+    autoUpdateFilteredBreadcrumbsItems: observer(
+      'breadcrumbsItemsProxy.content.[]',
+      function autoUpdateFilteredBreadcrumbsItems() {
+        this.updateFilteredBreadcrumbsItemsProxy();
+      }
+    ),
+
+    isLoading: computed('dirPath.content.@each.name', function isLoading() {
+      const dirsPath = this.get('dirPath.content');
+      return !dirsPath || !dirsPath.isAny('name');
+    }),
+
+    currentItem: reads('breadcrumbsItems.lastObject'),
+
     init() {
       this._super(...arguments);
       this.updateDirPathProxy();
+    },
+
+    didInsertElement() {
+      this._super(...arguments);
+      this.get('filteredBreadcrumbsItemsProxy').then(() => {
+        next(() => this.checkWidth());
+      });
+    },
+
+    /**
+     * @override
+     */
+    onWindowResize() {
+      return this.checkWidthOnResize();
     },
 
     /**
      * @override
      */
     fetchDirPath() {
-      return resolve([
+      const {
+        dir,
         rootDir,
-        dir1,
-        dir2,
-        // TODO: development of the breadcrumbs component
-        // ..._.range(3, 6).map(i => ({ name: `Directory ${i}` })),
-      ]);
+      } = this.getProperties('dir', 'rootDir');
+      const array = [dir];
+      return resolveParent(dir, array).then(dirPath =>
+        rootDir ? cutDirsPath(dirPath, rootDir) : dirPath
+      );
+    },
+
+    /**
+     * @override
+     */
+    fetchBreadcrumbsItems() {
+      return this.get('dirPathProxy').then(dirPath => {
+        const rootId = this.get('rootDir.id') || get(dirPath, 'firstObject.id');
+        return dirPath.map(dir =>
+          FileBreadcrumbsItem.create({
+            file: dir,
+            isRoot: get(dir, 'id') === rootId,
+          })
+        );
+      });
+    },
+
+    /**
+     * @override
+     * BreadcrumbsItems filtered with `filterBreadcrumbsItems` function.
+     * It should contain max. `elementsToShow` + ellipsis elements. 
+     * @type {ObjectPromiseProxy<Ember.Array<FileBreadcrumbsItem>>}
+     * @returns {Promise}
+     */
+    fetchFilteredBreadcrumbsItems() {
+      const {
+        breadcrumbsItemsProxy,
+        elementsToShow,
+      } = this.getProperties('breadcrumbsItemsProxy', 'elementsToShow');
+
+      return breadcrumbsItemsProxy.then(breadcrumbsItems =>
+        filterBreadcrumbsItems(
+          breadcrumbsItems,
+          elementsToShow
+        )
+      );
+    },
+
+    checkWidthOnResize() {
+      this.set('elementsToShow', Infinity);
+      // this.$('.fb-breadcrumbs-inner').addClass('breadcrumbs-recomputing');
+      this.set('breadcrumbsRecomputing', true);
+      later(() => {
+        this.updateFilteredBreadcrumbsItemsProxy()
+          .then(() => next(() => this.checkWidth(true)));
+      }, recomputePathAnimationDuration);
     },
 
     actions: {
       changeDir(dir) {
         this.get('changeDir')(dir);
       },
+      toggleDirActions(open) {
+        const _open =
+          (typeof open === 'boolean') ? open : !this.get('dirActionsOpen');
+        this.set('dirActionsOpen', _open);
+      },
+      dirActionsToggled(opened) {
+        this.get('dirActionsToggled')(opened);
+      },
     },
   }
 );
 
-const rootDir = {
-  name: 'Some Space',
-};
-
-const dir1 = {
-  name: 'One Dir',
-};
-
-const dir2 = {
-  name: 'Second',
-};
+function resolveParent(dir, array) {
+  if (get(dir, 'hasParent')) {
+    return get(dir, 'parent').then(parent => {
+      array.unshift(parent);
+      return resolveParent(parent, array);
+    });
+  } else {
+    return resolve(array);
+  }
+}

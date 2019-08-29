@@ -1,9 +1,16 @@
-<div class="row file-browser-head-container hidden-xs">
+<div class="file-browser-head-container">
+  <div class="fb-upload-trigger"></div>
   <div class="fb-head-inner">
-    <div class="col-sm-6 fb-breadcrumbs-container">
-      {{file-browser/fb-breadcrumbs dir=dir}}
+    <div class="fb-breadcrumbs-container">
+      {{file-browser/fb-breadcrumbs
+        dir=dir
+        allButtonsArray=allButtonsArray
+        clipboardReady=clipboardReady
+        dirActionsToggled=(action "selectCurrentDir")
+        changeDir=(action "changeDir")
+      }}
     </div>
-    <div class="col-sm-6 text-right fb-toolbar-container">
+    <div class="text-right fb-toolbar-container hidden-xs">
       {{file-browser/fb-selection-toolkit
         itemsCount=selectedFiles.length
         selectionContext=selectionContext
@@ -11,8 +18,10 @@
       }}
       {{file-browser/fb-toolbar
         dir=dir
+        clipboardReady=clipboardReady
         selectionContext=selectionContext
         allButtonsArray=allButtonsArray
+        selectCurrentDir=(action "selectCurrentDir")
       }}
     </div>
   </div>
@@ -23,6 +32,7 @@
     selectedFiles=selectedFiles
     selectionContext=selectionContext
     allButtonsArray=allButtonsArray
+    changeDir=(action "changeDir")
   }}
 </div>
 {{!-- TODO: Introduce space and proper file permissions model generation --}}

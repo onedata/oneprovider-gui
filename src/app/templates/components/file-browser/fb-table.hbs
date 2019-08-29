@@ -16,7 +16,8 @@
         class="data-row"
         file=file
         isSelected=(contains file selectedFiles)
-        click=(action "fileClicked" file)
+        fastClick=(action "fileClicked" file)
+        fastDoubleClick=(action "fileDoubleClicked" file)
         openContextMenu=(action "openContextMenu" file)
         fileActionsOpen=fileActionsOpen
         selectionContext=selectionContext

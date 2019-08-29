@@ -1,8 +1,12 @@
+const renameModalHeader = 'Rename';
+const newNameFileIntro = 'Enter new file name:';
+const newNameDirIntro = 'Enter new directory name:';
+
 export default {
   fileActions: {
-    upload: 'Upload',
+    upload: 'Upload files',
     newDirectory: 'New directory',
-    info: 'File info',
+    info: 'Information',
     share: 'Share',
     metadata: 'Metadata',
     permissions: 'Permissions',
@@ -11,6 +15,7 @@ export default {
     copy: 'Copy',
     cut: 'Cut',
     delete: 'Delete',
+    paste: 'Paste',
   },
   fbTable: {
     menuSelection: 'Selection ({{selectionCount}})',
@@ -31,5 +36,44 @@ export default {
   },
   fbSelectionToolkit: {
     itemsSelected: 'Selection',
+  },
+  fbBreadcrumbs: {
+    menuCurrentDir: 'Current directory',
+  },
+  fbCreateItemModal: {
+    submit: 'Create',
+    cancel: 'Cancel',
+    header: {
+      dir: 'Create new directory:',
+      file: 'Create new file',
+    },
+    intro: {
+      dir: newNameDirIntro,
+      file: newNameFileIntro,
+    },
+  },
+  fbRemoveModal: {
+    delete: 'Delete',
+    yes: 'Yes',
+    no: 'No',
+    questionPrefix: 'Are you sure you want to permanently delete',
+    questionSuffix: {
+      file: 'this file?',
+      dir: 'this directory and its contents?',
+      multi: 'these {{count}} items?',
+      multiMany: '{{count}} selected items?',
+    },
+  },
+  fbRenameModal: {
+    submit: 'Rename',
+    cancel: 'Cancel',
+    header: {
+      dir: renameModalHeader,
+      file: renameModalHeader,
+    },
+    intro: {
+      dir: newNameDirIntro,
+      file: newNameFileIntro,
+    },
   },
 };

@@ -7,10 +7,19 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import Service from '@ember/service';
+import Service, { inject as service } from '@ember/service';
+import { setProperties } from '@ember/object';
 import { notEmpty } from 'ember-awesome-macros';
 
+function dummyAction(message, files) {
+  alert(message + files.mapBy('name'));
+}
+
 export default Service.extend({
+  store: service(),
+  fileManager: service(),
+  uploadManager: service(),
+
   /**
    * @type {Array<Models.File>}
    */
@@ -27,24 +36,20 @@ export default Service.extend({
 
   // #region Actions implementation
 
-  actUpload( /* files */ ) {
-    alert('upload');
-  },
-
-  actNewDirectory( /* files */ ) {
-    alert('new directory');
+  actUpload() {
+    this.get('uploadManager').triggerUploadDialog();
   },
 
   actInfo(files) {
-    alert('info: ' + files);
+    dummyAction('info: ', files);
   },
 
   actShare(files) {
-    alert('share: ' + files);
+    dummyAction('share: ', files);
   },
 
   actMetadata(files) {
-    alert('metadata: ' + files);
+    dummyAction('metadata: ', files);
   },
 
   actPermissions(files) {
@@ -52,23 +57,27 @@ export default Service.extend({
   },
 
   actDistribution(files) {
-    alert('distribution: ' + files);
-  },
-
-  actRename(files) {
-    alert('rename: ' + files);
+    dummyAction('distribution: ', files);
   },
 
   actCopy(files) {
-    alert('copy: ' + files);
+    const fileManager = this.get('fileManager');
+    setProperties(
+      fileManager, {
+        fileClipboardFiles: files.toArray(),
+        fileClipboardMode: 'copy',
+      }
+    );
   },
 
   actCut(files) {
-    alert('cut: ' + files);
-  },
-
-  actDelete(files) {
-    alert('delete: ' + files);
+    const fileManager = this.get('fileManager');
+    setProperties(
+      fileManager, {
+        fileClipboardFiles: files.toArray(),
+        fileClipboardMode: 'move',
+      }
+    );
   },
 
   // #endregion

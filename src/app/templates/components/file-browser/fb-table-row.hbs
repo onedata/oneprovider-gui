@@ -31,7 +31,15 @@
   </div>
 </td>
 <td class="fb-table-col-size">
-  {{bytes-to-string file.size}}
+  {{#if (eq file.type "file")}}
+    {{#if file.isPollingSize}}
+      {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+    {{else}}
+      {{bytes-to-string file.size}}
+    {{/if}}
+  {{else}}
+    —
+  {{/if}}
 </td>
 <td class="fb-table-col-modification">
   {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}

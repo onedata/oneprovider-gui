@@ -12,6 +12,7 @@ import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
@@ -25,6 +26,11 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   */
+  selectCurrentDir: notImplementedReject,
+
+  /**
+   * @virtual
    * @type {Array<object>}
    */
   allButtonsArray: undefined,
@@ -35,15 +41,33 @@ export default Component.extend(I18n, {
    */
   selectionContext: 'none',
 
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  clipboardReady: undefined,
+
   moreToolsOpen: false,
 
   // TODO: title should be a translation key, when rendered, it will get
   // name of element: directory, directories, file, files, elements or current directory
   // To avoid using "element"
 
-  toolbarButtons: computed('allButtonsArray', function toolbarButtons() {
-    return getButtonActions(this.get('allButtonsArray'), 'inDir');
-  }),
+  toolbarButtons: computed(
+    'allButtonsArray',
+    'clipboardReady',
+    function toolbarButtons() {
+      const {
+        allButtonsArray,
+        clipboardReady,
+      } = this.getProperties('allButtonsArray', 'clipboardReady');
+      let actions = getButtonActions(allButtonsArray, 'inDir');
+      if (!clipboardReady) {
+        actions = actions.rejectBy('id', 'paste');
+      }
+      return actions;
+    }
+  ),
 
   toolbarButtonIds: computed('toolbarButtons.@each.id', function toolbarButtonIds() {
     return this.get('toolbarButtons').mapBy('id');
@@ -51,10 +75,8 @@ export default Component.extend(I18n, {
 
   actions: {
     buttonClicked(button) {
+      this.get('selectCurrentDir')();
       return get(button, 'action')();
-    },
-    toggleMoreTools(open) {
-      this.set('moreToolsOpen', open);
     },
   },
 });

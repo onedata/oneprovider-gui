@@ -1,20 +1,30 @@
 $-file-browser-header-height: 45px;
 $-file-browser-item-height: 32px;
+// the same padding as distance of provider tab icon in Onezone GUI
+$-file-browser-padding-left: 12px;
+// light padding at the right to make some space for scrollbar rail
+$-file-browser-padding-right: 16px;
+
+.content-file-browser + .ps-scrollbar-x-rail + .ps-scrollbar-y-rail {
+  // FIXME: use variables
+  z-index: 20000;
+}
 
 .file-browser {
   .file-browser-head-container {
     position: fixed;
-    // above popovers
-    z-index: 10000;
+    z-index: $zindex-modal-background - 1;
     padding-top: $content-row-vertical-padding;
-    padding-left: $content-col-padding;
-    padding-right: $content-col-padding;
+    padding-left: $-file-browser-padding-left;
+    padding-right: $-file-browser-padding-right;
     top: 0;
     left: 0;
-    right: 20px;
+    right: 0;
     line-height: $-file-browser-header-height;
     background-color: $color-one-white;
     .fb-head-inner {
+      display: flex;
+      max-width: 100%;
       margin-right: -20px;
     }
   }
@@ -27,6 +37,9 @@ $-file-browser-item-height: 32px;
 .fb-toolbar-container {
   display: flex;
   flex-direction: row-reverse;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 280px;
   height: $-file-browser-header-height;
 }
 
@@ -92,13 +105,38 @@ $-file-browser-item-height: 32px;
   }
 }
 
+.fb-breadcrumbs-container {
+  flex-grow: 1;
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+
 .fb-breadcrumbs {
   display: block;
   position: relative;
   overflow-y: hidden;
+  overflow-x: hidden;
+  
+  .fb-breadcrumbs-inner {
+    display: inline-block;
+    white-space: nowrap;
+    position: relative;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+    &.breadcrumbs-recomputing {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    &.truncate {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
   
   .fb-breadcrumbs-element {
     display: inline-block;
+    vertical-align: middle;
+    user-select: none;
   }
   .fb-breadcrumbs-dir-root .inline-icon-container .one-icon {
     font-size: 210%;
@@ -113,9 +151,43 @@ $-file-browser-item-height: 32px;
       transform: translateY(-50%) translateX(0.1em);
     }
   }
+  .fb-breadcrumbs-current-dir-button {
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    padding-right: 30px;
+    &.truncate {
+      max-width: 100%;
+    }
+    .inline-icon-container.current-dir-actions-trigger {
+      @include vertical-align-middle;
+      right: 2px;
+      
+      .one-icon {
+        position: absolute;
+        right: 0;
+        left: 6px;
+        padding-bottom: 2px;
+        font-size: 110%;
+        font-weight: bold;
+      }
+    }
+  }
+  .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
+    max-width: calc(100% - 48px);
+  }
+}
+
+.webui-popover-in-fb-head {
+  z-index: $zindex-tooltip;
 }
 
 .fb-table {
+  
+  thead > tr > th.fb-table-col-files, 
+  .table:not(.bt) > tbody > tr > td:first-child.fb-table-col-files {
+    padding-left: $-file-browser-padding-left;
+  }
   @media (max-width: $screen-xs-max) {
     .fb-table-col-size, .fb-table-col-modification {
       display: none;
@@ -131,6 +203,7 @@ $-file-browser-item-height: 32px;
     max-width: 0;
   }
   .fb-table-col-size {
+    position: relative;
     width: 120px;
     text-align: center;
   }
@@ -140,7 +213,7 @@ $-file-browser-item-height: 32px;
   }
   .fb-table-col-actions-menu {
     position: relative;
-    width: 40px;
+    width: 56px;
     padding: 0;
     .file-row-actions-trigger {
       @include vertical-align-middle;
@@ -194,13 +267,21 @@ $-file-browser-item-height: 32px;
   &.fb-table-row-file .file-icon {
     color: $color-file;
   }
-  // FIXME: something here is wrong it should be positioned without these special
-  // classes
-  // .actions-toolbar-file {
-  //   @include vertical-align-middle;
-  //   right: 0;
-  //   .menu-toggle {
-  //     padding: 6px;
-  //   }
-  // }
+}
+
+.fb-remove-modal {
+  .row-delete-files-list {
+    .row-delete-file-item {
+      padding-top: $padding-small-vertical;
+    }
+    .delete-file-name {
+      display: inline-block;
+      max-width: calc(100% - 50px);
+      vertical-align: middle;
+    }
+    .delete-file-size {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
 }

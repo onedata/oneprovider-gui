@@ -5,9 +5,12 @@
 @import 'components/content-file-browser';
 @import 'components/edit-permissions-modal';
 @import 'components/file-browser';
+@import 'components/bs-modal';
 @import 'components/posix-permissions-editor';
 
 // FIXME: remove when development ends
+
+
 
 .oneprovider-origin-info {
   display: none !important;
