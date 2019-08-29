@@ -11,6 +11,7 @@ import { hashSettled } from 'rsvp';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import _ from 'lodash';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -48,6 +49,8 @@ export default Component.extend(I18n, {
 
   processing: false,
 
+  modalClass: 'fb-remove-item-modal',
+
   /**
    * @type {ComputedProperty<string>}
    */
@@ -62,8 +65,6 @@ export default Component.extend(I18n, {
     }
   }),
 
-  modalClass: 'fb-remove-item-modal',
-
   actions: {
     remove() {
       const {
@@ -72,7 +73,10 @@ export default Component.extend(I18n, {
       } = this.getProperties('files', 'onHide');
       const filesToRemove = [...files];
       this.set('processing', true);
-      return hashSettled(filesToRemove.map(file => file.destroyRecord()))
+      return hashSettled(_.zipObject(
+          filesToRemove,
+          filesToRemove.map(file => file.destroyRecord())
+        ))
         .then(results => {
           safeExec(this, 'set', 'processing', false);
           onHide.bind(this)(true, results);

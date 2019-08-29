@@ -3,6 +3,14 @@ const newNameFileIntro = 'Enter new file name:';
 const newNameDirIntro = 'Enter new directory name:';
 
 export default {
+  pasteFailed: {
+    move: 'moving some of files',
+    copy: 'copying some of files',
+  },
+  pasteFailedDetails: {
+    single: '{{reason}}',
+    multi: '{{reason}} and {{moreCount}} more errors',
+  },
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',

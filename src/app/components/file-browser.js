@@ -18,7 +18,8 @@ import { A } from '@ember/array';
 import { hash, notEmpty } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { all } from 'rsvp';
+import { hashSettled } from 'rsvp';
+import _ from 'lodash';
 
 export const actionContext = {
   none: 'none',
@@ -67,6 +68,8 @@ export default Component.extend(I18n, {
   fileActions: service(),
   uploadManager: service(),
   fileManager: service(),
+  globalNotify: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -376,13 +379,40 @@ export default Component.extend(I18n, {
     const {
       dir,
       fileManager,
-    } = this.getProperties('dir', 'fileManager');
+      globalNotify,
+      errorExtractor,
+    } = this.getProperties('dir', 'fileManager', 'globalNotify', 'errorExtractor');
     const fileClipboardMode = get(fileManager, 'fileClipboardMode');
     const fileClipboardFiles = get(fileManager, 'fileClipboardFiles');
     const dirEntityId = get(dir, 'entityId');
-    return all(fileClipboardFiles.map(file =>
+    return hashSettled(_.zipObject(fileClipboardFiles, fileClipboardFiles.map(file =>
       fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
-    ));
+    ))).then(promisesHash => {
+      const rejected = [];
+      for (let key in promisesHash) {
+        const value = promisesHash[key];
+        if (get(value, 'state') === 'rejected') {
+          rejected.push({
+            file: key,
+            reason: get(value, 'reason'),
+          });
+        }
+      }
+      const failedCount = get(rejected, 'length');
+      if (failedCount) {
+        globalNotify.backendError(
+          this.t('pasteFailed.' + fileClipboardMode),
+          this.t('pasteFailedDetails.' + (failedCount > 1 ? 'multi' : 'single'), {
+            reason: get(
+              errorExtractor.getMessage(get(rejected[0], 'reason')),
+              'message'
+            ),
+            moreCount: failedCount - 1,
+          })
+        );
+        throw rejected;
+      }
+    });
   },
 
   actions: {

@@ -134,7 +134,7 @@ export default Service.extend(Evented, {
         targetParentGuid: parentDirEntityId,
         targetName: name,
       })
-      .then(() => this.trigger('dirChildrenRefresh', parentDirEntityId));
+      .finally(() => this.trigger('dirChildrenRefresh', parentDirEntityId));
   },
 
   download(fileEntityId) {
