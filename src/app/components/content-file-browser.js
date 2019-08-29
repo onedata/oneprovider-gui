@@ -18,7 +18,7 @@ export default OneEmbeddedComponent.extend(
     classNames: ['content-file-browser'],
 
     store: service(),
-    fileServer: service(),
+    fileManager: service(),
 
     /**
      * @override
@@ -57,7 +57,7 @@ export default OneEmbeddedComponent.extend(
       closeCreateItemModal(isCreated /*, submitResult */ ) {
         const createItemParentDir = this.get('createItemParentDir');
         if (isCreated) {
-          this.get('fileServer').trigger(
+          this.get('fileManager').trigger(
             'dirChildrenRefresh',
             get(createItemParentDir, 'entityId')
           );
@@ -74,14 +74,14 @@ export default OneEmbeddedComponent.extend(
         });
       },
       closeRemoveModal(removeInvoked /*, removeResults */ ) {
-        // FIXME: refactor here and in modal to use only file-server service
+        // FIXME: refactor here and in modal to use only file-manager service
         // for create/remove/rename/refresh operations
         if (removeInvoked) {
           const {
             removeParentDir,
-            fileServer,
-          } = this.getProperties('removeParentDir', 'fileServer');
-          fileServer.trigger('dirChildrenRefresh', removeParentDir);
+            fileManager,
+          } = this.getProperties('removeParentDir', 'fileManager');
+          fileManager.trigger('dirChildrenRefresh', removeParentDir);
           // FIXME: use remove results to show if all/some/no files were removed
         }
         this.setProperties({
@@ -96,18 +96,18 @@ export default OneEmbeddedComponent.extend(
         });
       },
       closeRenameModal(isRenamed, fileId) {
-        // FIXME: refactor here and in modal to use only file-server service
+        // FIXME: refactor here and in modal to use only file-manager service
         // for create/remove/rename/refresh operations
         const {
           renameParentDir,
-          fileServer,
+          fileManager,
           store,
-        } = this.getProperties('renameParentDir', 'fileServer', 'store');
+        } = this.getProperties('renameParentDir', 'fileManager', 'store');
         if (isRenamed) {
           store.findRecord('file', fileId)
             .then(file => file.reload())
             .then(() =>
-              fileServer.trigger('dirChildrenRefresh', renameParentDir)
+              fileManager.trigger('dirChildrenRefresh', renameParentDir)
             );
         }
         this.setProperties({

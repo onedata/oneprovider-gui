@@ -1,9 +1,8 @@
 /**
- * Non-model server-side file procedures.
- * Currently file list fetching methods to use with infinite scroll list.
+ * Provides model functions related to files and directories.
  * 
- * @module services/file-server
- * @author Jakub Liput
+ * @module services/file-manager
+ * @author Michał Borzęcki, Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
@@ -20,6 +19,76 @@ export default Service.extend(Evented, {
   fileClipboardMode: null,
 
   fileClipboardFiles: computed(() => ([])),
+
+  /**
+   * Creates new file or directory
+   * @param {string} type `file` or `dir`
+   * @param {string} name 
+   * @param {Models.File} parent 
+   * @param {number} [createAttempts=undefined]
+   * @returns {Promise<Models.File>}
+   */
+  createFileOrDirectory(type, name, parent, createAttempts = undefined) {
+    let _meta;
+    if (createAttempts) {
+      _meta = {
+        additionalData: {
+          createAttempts,
+        },
+      };
+    }
+
+    return this.get('store').createRecord('file', {
+      type,
+      name,
+      parent,
+      _meta,
+    }).save();
+  },
+
+  /**
+   * Creates new file
+   * @param {string} name 
+   * @param {Models.File} parent 
+   * @param {number} [createAttempts=undefined]
+   * @returns {Promise<Models.File>}
+   */
+  createFile(name, parent, createAttempts = undefined) {
+    return this.createFileOrDirectory('file', name, parent, createAttempts);
+  },
+
+  /**
+   * Creates new directory
+   * @param {string} name 
+   * @param {Models.File} parent 
+   * @param {number} [createAttempts=undefined]
+   * @returns {Promise<Models.File>}
+   */
+  createDirectory(name, parent, createAttempts = undefined) {
+    return this.createFileOrDirectory('dir', name, parent, createAttempts);
+  },
+
+  /**
+   * Sends an RPC call that initializes upload of given file.
+   * @param {Models.File} file
+   * @returns {Promise}
+   */
+  initializeFileUpload(file) {
+    return this.get('onedataRpc').request('initializeFileUpload', {
+      guid: get(file, 'entityId'),
+    });
+  },
+
+  /**
+   * Sends an RPC call that ends upload of given file.
+   * @param {Models.File} file 
+   * @returns {Promise}
+   */
+  finalizeFileUpload(file) {
+    return this.get('onedataRpc').request('finalizeFileUpload', {
+      guid: get(file, 'entityId'),
+    });
+  },
 
   fetchDirChildren(dirId, startFromIndex, size, offset) {
     const {

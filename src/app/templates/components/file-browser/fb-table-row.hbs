@@ -32,7 +32,11 @@
 </td>
 <td class="fb-table-col-size">
   {{#if (eq file.type "file")}}
-    {{bytes-to-string file.size}}
+    {{#if file.isPollingSize}}
+      {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+    {{else}}
+      {{bytes-to-string file.size}}
+    {{/if}}
   {{else}}
     —
   {{/if}}

@@ -8,9 +8,10 @@
 import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
+import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
   rootDir: belongsTo('file'),
-});
+}).reopenClass(StaticGraphModelMixin);

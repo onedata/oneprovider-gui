@@ -7,7 +7,7 @@ import { reads } from '@ember/object/computed';
 // FIXME: validate to disallow / names
 
 export default FbSetNameModal.extend(I18n, {
-  fileServer: service(),
+  fileManager: service(),
 
   /**
    * @override
@@ -32,14 +32,14 @@ export default FbSetNameModal.extend(I18n, {
      */
     submit() {
       const {
-        fileServer,
+        fileManager,
         editValue,
         submitDisabled,
         parentDir,
         file,
         onHide,
       } = this.getProperties(
-        'fileServer',
+        'fileManager',
         'editValue',
         'submitDisabled',
         'parentDir',
@@ -49,7 +49,7 @@ export default FbSetNameModal.extend(I18n, {
       if (submitDisabled) {
         return;
       }
-      return fileServer
+      return fileManager
         .renameFile(get(file, 'entityId'), get(parentDir, 'entityId'), editValue)
         .catch(error => {
           // FIXME: handle errors - maybe it should be presented in backend error or the same modal

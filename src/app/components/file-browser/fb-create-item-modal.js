@@ -5,7 +5,7 @@ import FbSetNameModal from 'oneprovider-gui/components/file-browser/fb-set-name-
 // FIXME: validate to disallow / names
 
 export default FbSetNameModal.extend(I18n, {
-  store: service(),
+  fileManager: service(),
 
   /**
    * @override
@@ -18,14 +18,14 @@ export default FbSetNameModal.extend(I18n, {
      */
     submit() {
       const {
-        store,
+        fileManager,
         editValue,
         itemType,
         submitDisabled,
         parentDir,
         onHide,
       } = this.getProperties(
-        'store',
+        'fileManager',
         'editValue',
         'submitDisabled',
         'itemType',
@@ -35,13 +35,7 @@ export default FbSetNameModal.extend(I18n, {
       if (submitDisabled) {
         return;
       }
-      return store
-        .createRecord('file', {
-          name: editValue,
-          type: itemType,
-          parent: parentDir,
-        })
-        .save()
+      return fileManager.createFileOrDirectory(itemType, editValue, parentDir)
         .catch(error => {
           // FIXME: handle errors - maybe it should be presented in backend error or the same modal
           throw error;
