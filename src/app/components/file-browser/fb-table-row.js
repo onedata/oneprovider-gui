@@ -82,6 +82,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     return function oncontextmenu(contextmenuEvent) {
       openContextMenu(contextmenuEvent);
       contextmenuEvent.preventDefault();
+      contextmenuEvent.stopImmediatePropagation();
     };
   }),
 
@@ -115,7 +116,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     this._super(...arguments);
     this.get('fastClick')(clickEvent);
   },
-  
+
   actions: {
     openContextMenu() {
       this.openContextMenu(...arguments);

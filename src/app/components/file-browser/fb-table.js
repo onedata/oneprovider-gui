@@ -133,11 +133,6 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.get('fileManager').on('dirChildrenRefresh', parentDirEntityId => {
-      console.log(
-        'FIXME: refresh invoke ',
-        parentDirEntityId,
-        this.get('dir.entityId')
-      );
       if (this.get('dir.entityId') === parentDirEntityId) {
         this.refreshFileList();
       }
@@ -364,6 +359,7 @@ export default Component.extend(I18n, {
       }
       this.actions.toggleFileActions.bind(this)(true, file);
     },
+
     toggleFileActions(open, file) {
       this.set('fileActionsOpen', open, file);
     },

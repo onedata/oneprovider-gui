@@ -30,14 +30,14 @@
       {{/if}}
       {{currentItem.name}}
     </span>
-    <div class="inline-icon-container current-dir-actions-trigger">
+    <div class="inline-icon-container breadcrumbs-current-dir-actions-trigger">
       {{one-icon icon="arrow-down"}}
     </div>
     {{#one-webui-popover
       popoverStyle="with-dropdown webui-popover-in-fb-head"
       padding=false
       popoverTrigger="manual"
-      triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
+      triggerSelector=(concat "#" elementId " .breadcrumbs-current-dir-actions-trigger")
       onToggle=(action "dirActionsToggled")
       open=dirActionsOpen
     }}

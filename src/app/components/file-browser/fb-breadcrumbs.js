@@ -84,6 +84,11 @@ export default Component.extend(
     clipboardReady: undefined,
 
     /**
+     * @virtual
+     */
+    menuButtons: undefined,
+
+    /**
      * If true, add breadcrumbs-recomputing CSS class to breadcrumbs-inner
      * to hide breadcrumbs smoothly for the time of testing its width.
      * @type {boolean}
@@ -105,38 +110,12 @@ export default Component.extend(
 
     _window: window,
 
-    isRootDir: not('dir.hasParent'),
-
     innerElementTruncate: computed(
       'elementsToShow',
       'filteredBreadcrumbsItems.length',
       function innerElementTruncate() {
         return this.get('elementsToShow') < 3 ||
           this.get('filterBreadcrumbsItems.length') <= 1;
-      }
-    ),
-
-    menuButtons: computed(
-      'allButtonsArray',
-      'isRootDir',
-      'clipboardReady',
-      function menuButtons() {
-        const {
-          allButtonsArray,
-          isRootDir,
-          clipboardReady,
-        } = this.getProperties('allButtonsArray', 'isRootDir', 'clipboardReady');
-        let importedActions = getButtonActions(
-          allButtonsArray,
-          isRootDir ? 'spaceRootDir' : 'currentDir'
-        );
-        if (!clipboardReady) {
-          importedActions = importedActions.rejectBy('id', 'paste');
-        }
-        return [
-          { separator: true, title: this.t('menuCurrentDir') },
-          ...importedActions,
-        ];
       }
     ),
 

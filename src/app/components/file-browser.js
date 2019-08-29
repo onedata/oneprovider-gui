@@ -15,7 +15,7 @@ import { camelize, dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
-import { hash, notEmpty } from 'ember-awesome-macros';
+import { hash, notEmpty, not } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { hashSettled } from 'rsvp';
@@ -112,6 +112,8 @@ export default Component.extend(I18n, {
    */
   clipboardReady: notEmpty('fileManager.fileClipboardFiles'),
 
+  isRootDir: not('dir.hasParent'),
+
   /**
    * Array of selected file records.
    * @type {EmberArray<object>}
@@ -157,6 +159,39 @@ export default Component.extend(I18n, {
         )) {
         component.clearFilesSelection();
       }
+    };
+  }),
+
+  currentDirMenuButtons: computed(
+    'allButtonsArray',
+    'isRootDir',
+    'clipboardReady',
+    function menuButtons() {
+      const {
+        allButtonsArray,
+        isRootDir,
+        clipboardReady,
+      } = this.getProperties('allButtonsArray', 'isRootDir', 'clipboardReady');
+      let importedActions = getButtonActions(
+        allButtonsArray,
+        isRootDir ? 'spaceRootDir' : 'currentDir'
+      );
+      if (!clipboardReady) {
+        importedActions = importedActions.rejectBy('id', 'paste');
+      }
+      return [
+        { separator: true, title: this.t('menuCurrentDir') },
+        ...importedActions,
+      ];
+    }
+  ),
+
+  currentDirContextMenuHandler: computed(function currentDirContextMenuHandler() {
+    const component = this;
+    const openCurrentDirContextMenu = component.get('openCurrentDirContextMenu');
+    return function oncontextmenu(contextmenuEvent) {
+      openCurrentDirContextMenu(contextmenuEvent);
+      contextmenuEvent.preventDefault();
     };
   }),
 
@@ -327,6 +362,11 @@ export default Component.extend(I18n, {
     const uploadBrowseElement = document.querySelector('.fb-upload-trigger');
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);
+
+    this.element.addEventListener(
+      'contextmenu',
+      this.get('currentDirContextMenuHandler')
+    );
   },
 
   willDestroyElement() {
@@ -334,6 +374,10 @@ export default Component.extend(I18n, {
     document.body.removeEventListener(
       'click',
       this.get('clickOutsideDeselectHandler')
+    );
+    this.element.removeEventListener(
+      'contextmenu',
+      this.get('currentDirContextMenuHandler')
     );
   },
 
@@ -415,6 +459,30 @@ export default Component.extend(I18n, {
     });
   },
 
+  openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
+    return (mouseEvent) => {
+      // FIXME: ignore clicks on files or table headings
+      // const trigger = mouseEvent.currentTarget;
+      // if (trigger.matches('.fb-table') && !trigger.matches('.fb-table-container')) {
+      //   return;
+      // }
+      const $this = this.$();
+      const tableOffset = $this.offset();
+      const left = mouseEvent.clientX - tableOffset.left + this.element
+        .offsetLeft;
+      const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
+      this.$('.current-dir-actions-trigger').css({
+        top,
+        left,
+      });
+      // cause popover refresh
+      if (this.get('currentDirActionsOpen')) {
+        window.dispatchEvent(new Event('resize'));
+      }
+      this.actions.toggleCurrentDirActions.bind(this)(true);
+    };
+  }),
+
   actions: {
     selectCurrentDir(select) {
       this.clearFilesSelection();
@@ -425,6 +493,14 @@ export default Component.extend(I18n, {
     changeDir(dir) {
       this.set('dir', dir);
       this.get('uploadManager').changeTargetDirectory(dir);
+    },
+    toggleCurrentDirActions(open) {
+      const _open =
+        (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
+      this.set('currentDirActionsOpen', _open);
+    },
+    currentDirActionsToggled(opened) {
+      this.get('currentDirActionsToggled')(opened);
     },
   },
 });
