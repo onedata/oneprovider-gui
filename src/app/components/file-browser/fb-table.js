@@ -218,8 +218,6 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   fileClicked(file, ctrlKey, shiftKey) {
-    console.log('FIXME: clicked');
-
     // do not change selection if only clicking to close context menu
     if (isPopoverOpened()) {
       return;
@@ -371,7 +369,6 @@ export default Component.extend(I18n, {
      * @returns {any} result of this.fileClicked
      */
     fileClicked(file, clickEvent) {
-      console.log('FIXME: file single clicked: ' + get(file, 'name'));
       const { ctrlKey, metaKey, shiftKey } = clickEvent;
       return this.fileClicked(
         file,
@@ -381,10 +378,8 @@ export default Component.extend(I18n, {
     },
 
     fileDoubleClicked(file /*, clickEvent */ ) {
-      console.log('FIXME: file double clicked');
       const isDir = get(file, 'type') === 'dir';
       if (isDir) {
-        console.log('FIXME: send changeDir');
         this.get('changeDir')(file);
       } else {
         this.get('fileManager').download(get(file, 'entityId'));

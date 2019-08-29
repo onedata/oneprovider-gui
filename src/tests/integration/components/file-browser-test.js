@@ -11,7 +11,13 @@ import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
 import { click } from 'ember-native-dom-helpers';
 
-const FileServer = Service.extend(Evented, {
+const UploadManager = Service.extend({
+  assignUploadDrop() {},
+  assignUploadBrowse() {},
+  changeTargetDirectory() {},
+});
+
+const FileManager = Service.extend(Evented, {
   fetchDirChildren() {},
   copyOrMoveFile() {},
 });
@@ -26,7 +32,8 @@ describe('Integration | Component | file browser', function () {
   });
 
   beforeEach(function () {
-    registerService(this, 'fileServer', FileServer);
+    registerService(this, 'uploadManager', UploadManager);
+    registerService(this, 'fileManager', FileManager);
     registerService(this, 'i18n', I18n);
   });
 
@@ -56,8 +63,8 @@ describe('Integration | Component | file browser', function () {
       },
     ];
     this.set('dir', dir);
-    const fileServer = lookupService(this, 'fileServer');
-    const fetchDirChildren = sinon.stub(fileServer, 'fetchDirChildren')
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves(files);
 
     this.render(hbs `{{file-browser dir=dir}}`);
@@ -95,8 +102,8 @@ describe('Integration | Component | file browser', function () {
     }
 
     this.set('dir', rootDir);
-    const fileServer = lookupService(this, 'fileServer');
-    const fetchDirChildren = sinon.stub(fileServer, 'fetchDirChildren');
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
     for (let i = -1; i < numberOfDirs; ++i) {
       fetchDirChildren.withArgs(
@@ -176,9 +183,9 @@ describe('Integration | Component | file browser', function () {
       parent: resolve(dir),
     }];
     this.set('dir', dir);
-    const fileServer = lookupService(this, 'fileServer');
-    const fetchDirChildren = sinon.stub(fileServer, 'fetchDirChildren');
-    const copyOrMoveFile = sinon.spy(fileServer, 'copyOrMoveFile');
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+    const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
     fetchDirChildren.withArgs(
       'root',
       sinon.match.any,

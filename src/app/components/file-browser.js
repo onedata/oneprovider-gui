@@ -107,7 +107,7 @@ export default Component.extend(I18n, {
    * If true, the paste from clipboard button should be available
    * @type {Computed<boolean>}
    */
-  clipboardReady: notEmpty('fileServer.fileClipboardFiles'),
+  clipboardReady: notEmpty('fileManager.fileClipboardFiles'),
 
   /**
    * Array of selected file records.
@@ -393,7 +393,6 @@ export default Component.extend(I18n, {
       }
     },
     changeDir(dir) {
-      console.log('FIXME: file-browser change dir: ' + get(dir, 'name'));
       this.set('dir', dir);
       this.get('uploadManager').changeTargetDirectory(dir);
     },
