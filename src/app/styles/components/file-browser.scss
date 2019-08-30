@@ -14,6 +14,13 @@ $-fb-table-margin-top: 67px;
 
 .file-browser {
   height: calc(100% - #{$-fb-table-margin-top});
+  &.empty-dir {
+    @extend .world-map;
+    @extend .light;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
   .file-browser-head-container {
     position: fixed;
     z-index: $zindex-modal-background - 1;
@@ -195,6 +202,49 @@ $-fb-table-margin-top: 67px;
 }
 
 .fb-table {
+  position: relative;
+  height: 100%;
+  &.empty-dir {
+    .table {
+      display: none;
+    }
+    .empty-dir-box {
+      display: block;
+    }
+  }
+  .empty-dir-box {
+    @include absolute-align-middle-center();
+    display: none;
+    width: 100%;
+    
+    .empty-dir-image {
+      height: 260px;
+      margin: $padding-large-vertical * 2 auto;
+      background-image: url($root-url + 'images/empty-directory.svg');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+    }
+    .empty-dir-text {
+      text-align: center;
+    }
+    h1 {
+      @include font-semibold();
+      text-transform: uppercase;
+    }
+    
+    @media (max-width: $screen-xs-max) {
+      .empty-dir-image {
+        height: 180px;
+      }
+      h1 {
+        font-size: 26px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+    }
+  }
   th {
     user-select: none;
   }

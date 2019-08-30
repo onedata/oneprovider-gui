@@ -33,6 +33,10 @@ export default {
       size: 'Size',
       modification: 'Modification',
     },
+    emptyDirBox: {
+      emptyDirectory: 'Empty directory',
+      prompt: '',
+    },
   },
   fbTableRow: {
     file: 'file',

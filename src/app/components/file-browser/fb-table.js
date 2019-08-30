@@ -11,6 +11,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed, observer } from '@ember/object';
+import { equal } from '@ember/object/computed';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -22,11 +23,14 @@ import { htmlSafe } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import { and, not } from 'ember-awesome-macros';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const compareIndex = createPropertyComparator('index');
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
+  classNameBindings: ['hasEmptyDirClass:empty-dir'],
 
   fileManager: service(),
   i18n: service(),
@@ -54,6 +58,18 @@ export default Component.extend(I18n, {
    */
   selectedFiles: undefined,
 
+  /**
+   * @virtual
+   * @type {Array<Object>}
+   */
+  allButtonsArray: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Function} (boolean) => any
+   */
+  hasEmptyDirClassChanged: notImplementedIgnore,
+
   changeDir: undefined,
 
   downloadFile: undefined,
@@ -73,6 +89,28 @@ export default Component.extend(I18n, {
   headerVisible: undefined,
 
   selectionCount: reads('selectedFiles.length'),
+
+  /**
+   * True if there is initially loaded file list, but it is empty.
+   * False if there is initially loaded file list, but it is not empty.
+   * Undefined if the file list is not yet loaded.
+   * @type {boolean|undefined}
+   */
+  isDirEmpty: and('filesArray.initialLoad.isFulfilled', not('filesArray.length')),
+
+  /**
+   * If true, the `empty-dir` class should be added
+   * @type {ComputedProperty<boolean>}
+   */
+  hasEmptyDirClass: equal('isDirEmpty', true),
+
+  uploadAction: computed('allButtonsArray.[]', function uploadAction() {
+    return this.get('allButtonsArray').findBy('id', 'upload');
+  }),
+
+  newDirectoryAction: computed('allButtonsArray.[]', function newDirectory() {
+    return this.get('allButtonsArray').findBy('id', 'newDirectory');
+  }),
 
   firstRowHeight: computed(
     'rowHeight',
@@ -127,6 +165,17 @@ export default Component.extend(I18n, {
       scheduleOnce('afterRender', () => {
         listWatcher.scrollHandler();
       });
+    }
+  ),
+
+  hasEmptyDirClassObserver: observer(
+    'hasEmptyDirClass',
+    function hasEmptyDirObserver() {
+      const {
+        hasEmptyDirClassChanged,
+        hasEmptyDirClass,
+      } = this.getProperties('hasEmptyDirClassChanged', 'hasEmptyDirClass');
+      hasEmptyDirClassChanged(hasEmptyDirClass);
     }
   ),
 
@@ -385,6 +434,14 @@ export default Component.extend(I18n, {
       } else {
         this.get('fileManager').download(get(file, 'entityId'));
       }
+    },
+
+    emptyDirUpload() {
+      return this.get('uploadAction.action')(...arguments);
+    },
+
+    emptyDirNewDirectory() {
+      return this.get('newDirectoryAction.action')(...arguments);
     },
   },
 });

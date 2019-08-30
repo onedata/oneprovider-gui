@@ -25,6 +25,25 @@
     {{/each}}
   </tbody>
 </table>
+<div class="empty-dir-box">
+  <h1 class="empty-dir-text">{{tt this "emptyDirBox.emptyDirectory"}}</h1>
+  <div class="empty-dir-image"></div>
+  {{!-- FIXME: i18n when translations will be stable --}}
+  <h2 class="empty-dir-text">
+    Drag files here to
+    <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>
+      <div class="inline-icon-container bind-right-text">
+        {{one-icon icon="browser-upload"}}
+      </div>&nbsp;upload
+    </a>
+    or
+    <a class="empty-dir-new-directory-action" {{action "emptyDirNewDirectory"}}>
+      <div class="inline-icon-container bind-right-text">
+        {{one-icon icon="browser-new-directory"}}
+      </div>&nbsp;create a new directory</a>.
+  </h2>
+  {{!-- <h2 class="empty-dir-text">{{tt this "emptyDirBox.prompt"}}</h2> --}}
+</div>
 {{#one-webui-popover
   class="file-actions-popover"
   popoverStyle="with-dropdown"

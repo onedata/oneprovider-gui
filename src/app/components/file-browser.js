@@ -63,6 +63,7 @@ const buttonNames = [
 
 export default Component.extend(I18n, {
   classNames: ['file-browser'],
+  classNameBindings: ['hasEmptyDirClass:empty-dir'],
 
   i18n: service(),
   fileActions: service(),
@@ -75,6 +76,12 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileBrowser',
+
+  /**
+   * If true, add `empty-dir` class to element
+   * @type {boolean}
+   */
+  hasEmptyDirClass: false,
 
   /**
    * @virtual
@@ -461,11 +468,6 @@ export default Component.extend(I18n, {
 
   openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
     return (mouseEvent) => {
-      // FIXME: ignore clicks on files or table headings
-      // const trigger = mouseEvent.currentTarget;
-      // if (trigger.matches('.fb-table') && !trigger.matches('.fb-table-container')) {
-      //   return;
-      // }
       const $this = this.$();
       const tableOffset = $this.offset();
       const left = mouseEvent.clientX - tableOffset.left + this.element
