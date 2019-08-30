@@ -15,10 +15,11 @@ import { camelize, dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
-import { hash, notEmpty } from 'ember-awesome-macros';
+import { hash, notEmpty, not } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { all } from 'rsvp';
+import { hashSettled } from 'rsvp';
+import _ from 'lodash';
 
 export const actionContext = {
   none: 'none',
@@ -67,6 +68,8 @@ export default Component.extend(I18n, {
   fileActions: service(),
   uploadManager: service(),
   fileManager: service(),
+  globalNotify: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -114,7 +117,9 @@ export default Component.extend(I18n, {
    * If true, the paste from clipboard button should be available
    * @type {Computed<boolean>}
    */
-  clipboardReady: notEmpty('fileServer.fileClipboardFiles'),
+  clipboardReady: notEmpty('fileManager.fileClipboardFiles'),
+
+  isRootDir: not('dir.hasParent'),
 
   /**
    * Array of selected file records.
@@ -164,6 +169,40 @@ export default Component.extend(I18n, {
         )) {
         component.clearFilesSelection();
       }
+    };
+  }),
+
+  currentDirMenuButtons: computed(
+    'allButtonsArray',
+    'isRootDir',
+    'clipboardReady',
+    function menuButtons() {
+      const {
+        allButtonsArray,
+        isRootDir,
+        clipboardReady,
+      } = this.getProperties('allButtonsArray', 'isRootDir', 'clipboardReady');
+      let importedActions = getButtonActions(
+        allButtonsArray,
+        isRootDir ? 'spaceRootDir' : 'currentDir'
+      );
+      if (!clipboardReady) {
+        importedActions = importedActions.rejectBy('id', 'paste');
+      }
+      return [
+        { separator: true, title: this.t('menuCurrentDir') },
+        ...importedActions,
+      ];
+    }
+  ),
+
+  currentDirContextMenuHandler: computed(function currentDirContextMenuHandler() {
+    const component = this;
+    const openCurrentDirContextMenu = component.get('openCurrentDirContextMenu');
+    return function oncontextmenu(contextmenuEvent) {
+      component.selectCurrentDir();
+      openCurrentDirContextMenu(contextmenuEvent);
+      contextmenuEvent.preventDefault();
     };
   }),
 
@@ -234,9 +273,8 @@ export default Component.extend(I18n, {
         const {
           openRename,
           selectedFiles,
-          dir,
-        } = this.getProperties('openRename', 'selectedFiles', 'dir');
-        return openRename(selectedFiles[0], dir);
+        } = this.getProperties('openRename', 'selectedFiles');
+        return openRename(selectedFiles[0]);
       },
       showIn: [
         actionContext.singleDir,
@@ -313,6 +351,25 @@ export default Component.extend(I18n, {
     };
   }),
 
+  openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
+    return (mouseEvent) => {
+      const $this = this.$();
+      const tableOffset = $this.offset();
+      const left = mouseEvent.clientX - tableOffset.left + this.element
+        .offsetLeft;
+      const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
+      this.$('.current-dir-actions-trigger').css({
+        top,
+        left,
+      });
+      // cause popover refresh
+      if (this.get('currentDirActionsOpen')) {
+        window.dispatchEvent(new Event('resize'));
+      }
+      this.actions.toggleCurrentDirActions.bind(this)(true);
+    };
+  }),
+
   // #endregion
 
   didInsertElement() {
@@ -341,6 +398,11 @@ export default Component.extend(I18n, {
     const uploadBrowseElement = document.querySelector('.fb-upload-trigger');
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);
+
+    this.element.addEventListener(
+      'contextmenu',
+      this.get('currentDirContextMenuHandler')
+    );
   },
 
   willDestroyElement() {
@@ -348,6 +410,10 @@ export default Component.extend(I18n, {
     document.body.removeEventListener(
       'click',
       this.get('clickOutsideDeselectHandler')
+    );
+    this.element.removeEventListener(
+      'contextmenu',
+      this.get('currentDirContextMenuHandler')
     );
   },
 
@@ -393,26 +459,70 @@ export default Component.extend(I18n, {
     const {
       dir,
       fileManager,
-    } = this.getProperties('dir', 'fileManager');
+      globalNotify,
+      errorExtractor,
+    } = this.getProperties('dir', 'fileManager', 'globalNotify', 'errorExtractor');
     const fileClipboardMode = get(fileManager, 'fileClipboardMode');
     const fileClipboardFiles = get(fileManager, 'fileClipboardFiles');
     const dirEntityId = get(dir, 'entityId');
-    return all(fileClipboardFiles.map(file =>
-      fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
-    ));
+    return hashSettled(_.zipObject(fileClipboardFiles, fileClipboardFiles.map(file =>
+        fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
+      )))
+      .then(promisesHash => {
+        const rejected = [];
+        for (let key in promisesHash) {
+          const value = promisesHash[key];
+          if (get(value, 'state') === 'rejected') {
+            rejected.push({
+              file: key,
+              reason: get(value, 'reason'),
+            });
+          }
+        }
+        const failedCount = get(rejected, 'length');
+        if (failedCount) {
+          globalNotify.backendError(
+            this.t('pasteFailed.' + fileClipboardMode),
+            this.t('pasteFailedDetails.' + (failedCount > 1 ? 'multi' : 'single'), {
+              reason: get(
+                errorExtractor.getMessage(get(rejected[0], 'reason')),
+                'message'
+              ),
+              moreCount: failedCount - 1,
+            })
+          );
+          throw rejected;
+        }
+      })
+      .finally(() => {
+        if (fileClipboardMode === 'move') {
+          fileManager.clearFileClipboard();
+        }
+      });
+  },
+
+  selectCurrentDir(select = true) {
+    this.clearFilesSelection();
+    if (select) {
+      this.get('selectedFiles').push(this.get('dir'));
+    }
   },
 
   actions: {
     selectCurrentDir(select) {
-      this.clearFilesSelection();
-      if (select) {
-        this.get('selectedFiles').push(this.get('dir'));
-      }
+      this.selectCurrentDir(select);
     },
     changeDir(dir) {
-      console.log('FIXME: file-browser change dir: ' + get(dir, 'name'));
       this.set('dir', dir);
       this.get('uploadManager').changeTargetDirectory(dir);
+    },
+    toggleCurrentDirActions(open) {
+      const _open =
+        (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
+      this.set('currentDirActionsOpen', _open);
+    },
+    currentDirActionsToggled(opened) {
+      this.get('currentDirActionsToggled')(opened);
     },
   },
 });

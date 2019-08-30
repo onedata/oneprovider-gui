@@ -18,7 +18,7 @@ import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-cl
 export default Component.extend(I18n, FastDoubleClick, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
-  classNameBindings: ['typeClass', 'isSelected:file-selected'],
+  classNameBindings: ['typeClass', 'isSelected:file-selected', 'fileCut:file-cut'],
   attributeBindings: ['fileEntityId:data-row-id'],
 
   fileActions: service(),
@@ -48,6 +48,13 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {boolean}
    */
   isSelected: undefined,
+
+  /**
+   * @virtual
+   * Set to true if this file is cut in clipboard
+   * @type {boolean}
+   */
+  fileCut: undefined,
 
   displayName: reads('file.name'),
 
@@ -82,6 +89,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     return function oncontextmenu(contextmenuEvent) {
       openContextMenu(contextmenuEvent);
       contextmenuEvent.preventDefault();
+      contextmenuEvent.stopImmediatePropagation();
     };
   }),
 
@@ -115,7 +123,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     this._super(...arguments);
     this.get('fastClick')(clickEvent);
   },
-  
+
   actions: {
     openContextMenu() {
       this.openContextMenu(...arguments);

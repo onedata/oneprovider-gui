@@ -11,6 +11,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed, observer } from '@ember/object';
+import { equal } from '@ember/object/computed';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -22,11 +23,14 @@ import { htmlSafe } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import { and, not } from 'ember-awesome-macros';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const compareIndex = createPropertyComparator('index');
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
+  classNameBindings: ['hasEmptyDirClass:empty-dir'],
 
   fileManager: service(),
   i18n: service(),
@@ -54,6 +58,18 @@ export default Component.extend(I18n, {
    */
   selectedFiles: undefined,
 
+  /**
+   * @virtual
+   * @type {Array<Object>}
+   */
+  allButtonsArray: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Function} (boolean) => any
+   */
+  hasEmptyDirClassChanged: notImplementedIgnore,
+
   changeDir: undefined,
 
   downloadFile: undefined,
@@ -73,6 +89,36 @@ export default Component.extend(I18n, {
   headerVisible: undefined,
 
   selectionCount: reads('selectedFiles.length'),
+
+  fileClipboardMode: reads('fileManager.fileClipboardMode'),
+
+  fileClipboardFiles: reads('fileManager.fileClipboardFiles'),
+
+  /**
+   * True if there is initially loaded file list, but it is empty.
+   * False if there is initially loaded file list, but it is not empty.
+   * Undefined if the file list is not yet loaded.
+   * @type {boolean|undefined}
+   */
+  isDirEmpty: and('filesArray.initialLoad.isFulfilled', not('filesArray.length')),
+
+  /**
+   * If true, the `empty-dir` class should be added
+   * @type {ComputedProperty<boolean>}
+   */
+  hasEmptyDirClass: equal('isDirEmpty', true),
+
+  uploadAction: computed('allButtonsArray.[]', function uploadAction() {
+    return this.get('allButtonsArray').findBy('id', 'upload');
+  }),
+
+  newDirectoryAction: computed('allButtonsArray.[]', function newDirectoryAction() {
+    return this.get('allButtonsArray').findBy('id', 'newDirectory');
+  }),
+
+  pasteAction: computed('allButtonsArray.[]', function pasteAction() {
+    return this.get('allButtonsArray').findBy('id', 'paste');
+  }),
 
   firstRowHeight: computed(
     'rowHeight',
@@ -218,8 +264,6 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   fileClicked(file, ctrlKey, shiftKey) {
-    console.log('FIXME: clicked');
-
     // do not change selection if only clicking to close context menu
     if (isPopoverOpened()) {
       return;
@@ -350,7 +394,7 @@ export default Component.extend(I18n, {
       const $this = this.$();
       const tableOffset = $this.offset();
       left = left - tableOffset.left + this.element.offsetLeft;
-      top = top - tableOffset.top + this.element.offsetTop;
+      top = top - tableOffset.top - this.element.offsetTop + this.element.offsetTop;
       this.$('.file-actions-trigger').css({
         top,
         left,
@@ -361,6 +405,7 @@ export default Component.extend(I18n, {
       }
       this.actions.toggleFileActions.bind(this)(true, file);
     },
+
     toggleFileActions(open, file) {
       this.set('fileActionsOpen', open, file);
     },
@@ -371,7 +416,6 @@ export default Component.extend(I18n, {
      * @returns {any} result of this.fileClicked
      */
     fileClicked(file, clickEvent) {
-      console.log('FIXME: file single clicked: ' + get(file, 'name'));
       const { ctrlKey, metaKey, shiftKey } = clickEvent;
       return this.fileClicked(
         file,
@@ -381,14 +425,24 @@ export default Component.extend(I18n, {
     },
 
     fileDoubleClicked(file /*, clickEvent */ ) {
-      console.log('FIXME: file double clicked');
       const isDir = get(file, 'type') === 'dir';
       if (isDir) {
-        console.log('FIXME: send changeDir');
         this.get('changeDir')(file);
       } else {
         this.get('fileManager').download(get(file, 'entityId'));
       }
+    },
+
+    emptyDirUpload() {
+      return this.get('uploadAction.action')(...arguments);
+    },
+
+    emptyDirNewDirectory() {
+      return this.get('newDirectoryAction.action')(...arguments);
+    },
+
+    emptyDirPaste() {
+      return this.get('pasteAction.action')(...arguments);
     },
   },
 });

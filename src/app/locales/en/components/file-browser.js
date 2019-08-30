@@ -3,6 +3,15 @@ const newNameFileIntro = 'Enter new file name:';
 const newNameDirIntro = 'Enter new directory name:';
 
 export default {
+  menuCurrentDir: 'Current directory',
+  pasteFailed: {
+    move: 'moving some of files',
+    copy: 'copying some of files',
+  },
+  pasteFailedDetails: {
+    single: '{{reason}}',
+    multi: '{{reason}} and {{moreCount}} more errors',
+  },
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',
@@ -24,6 +33,10 @@ export default {
       size: 'Size',
       modification: 'Modification',
     },
+    emptyDirBox: {
+      emptyDirectory: 'Empty directory',
+      prompt: '',
+    },
   },
   fbTableRow: {
     file: 'file',
@@ -36,9 +49,6 @@ export default {
   },
   fbSelectionToolkit: {
     itemsSelected: 'Selection',
-  },
-  fbBreadcrumbs: {
-    menuCurrentDir: 'Current directory',
   },
   fbCreateItemModal: {
     submit: 'Create',

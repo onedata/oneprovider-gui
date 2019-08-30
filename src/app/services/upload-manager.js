@@ -74,16 +74,16 @@ export default Service.extend(I18n, {
       preprocess: (fileChunk) => {
         const resumableFile = fileChunk.fileObj;
 
-        if(!resumableFile.initializeUploadPromise) {
+        if (!resumableFile.initializeUploadPromise) {
           resumableFile.initializeUploadPromise =
             this.createCorrespondingFile(resumableFile)
-              .then(() => this.initializeFileUpload(resumableFile));
+            .then(() => this.initializeFileUpload(resumableFile));
         }
-        
+
         Promise.all([
-          resumableFile.initializeUploadPromise,
-          this.getAuthToken(),
-        ])
+            resumableFile.initializeUploadPromise,
+            this.getAuthToken(),
+          ])
           .then(() => fileChunk.preprocessFinished())
           .catch(error => {
             // Error occurred in chunk preprocessing so either cannot create
@@ -104,7 +104,7 @@ export default Service.extend(I18n, {
               path: resumableFile.relativePath,
               error: errorMessage,
             });
-            
+
             this.deleteFailedFile(resumableFile)
               .finally(() => this.finalizeFileUpload(resumableFile));
           });
@@ -148,7 +148,7 @@ export default Service.extend(I18n, {
             later(
               this,
               () => this.deleteFailedFile(resumableFile)
-                .finally(() => this.finalizeFileUpload(resumableFile)),
+              .finally(() => this.finalizeFileUpload(resumableFile)),
               1000
             );
           });
@@ -177,7 +177,7 @@ export default Service.extend(I18n, {
       tokenProxy,
     } = this.getProperties('tokenRegenerateTimestamp', 'tokenProxy');
     const nowTimestamp = moment().unix();
-    
+
     if (tokenRegenerateTimestamp <= nowTimestamp) {
       // When new token will be loading, disable token regeneration
       this.set('tokenRegenerateTimestamp', nowTimestamp + 9999999);
@@ -193,7 +193,7 @@ export default Service.extend(I18n, {
           this.set('tokenRegenerateTimestamp', moment().unix() + ttl / 2)
         ))
         .catch(() => safeExec(this, () => this.set('tokenExpirationTimestamp', 0)));
-      
+
       if (tokenProxy) {
         newTokenProxy
           .then(() => safeExec(this, () => this.set('tokenProxy', newTokenProxy)));
@@ -216,7 +216,7 @@ export default Service.extend(I18n, {
       targetDirectory,
       resumable,
     } = this.getProperties('targetDirectory', 'resumable');
-    
+
     const uploadId = uuid();
     const createdDirectories = {};
 
@@ -279,13 +279,13 @@ export default Service.extend(I18n, {
     if (!resumableFile.isCancelled) {
       this.finalizeFileUpload(resumableFile)
         .then(() => {
-            this.notifyParent({
-              uploadId: resumableFile.uploadId,
-              path: resumableFile.relativePath,
-              bytesUploaded: resumableFile.size,
-              success: true,
-            });
-            resumableFile.fileModel.pollSize(10, 2000, resumableFile.size);
+          this.notifyParent({
+            uploadId: resumableFile.uploadId,
+            path: resumableFile.relativePath,
+            bytesUploaded: resumableFile.size,
+            success: true,
+          });
+          resumableFile.fileModel.pollSize(10, 2000, resumableFile.size);
         })
         .catch(error => {
           const errorMessage = get(
@@ -409,7 +409,7 @@ export default Service.extend(I18n, {
    */
   assignUploadBrowse(browseElement) {
     this.set('browseElement', browseElement);
-    this.get('resumable').assignBrowse(browseElement, true);
+    this.get('resumable').assignBrowse(browseElement);
   },
 
   /**
@@ -446,7 +446,7 @@ export default Service.extend(I18n, {
    * @returns {undefined}
    */
   refreshDirectoryChildren(directory) {
-    this.get('fileManager').trigger('dirChildrenRefresh', directory);
+    this.get('fileManager').trigger('dirChildrenRefresh', get(directory, 'entityId'));
   },
 
   /**
@@ -476,7 +476,8 @@ export default Service.extend(I18n, {
           // or create a new one and remember Promise to reuse it later for
           // another files.
           if (!nextLevelDirPromise) {
-            nextLevelDirPromise = fileManager.createDirectory(pathSections[i], parent, 50);
+            nextLevelDirPromise = fileManager.createDirectory(pathSections[i],
+              parent, 50);
             createdDirectories[directoryPath] = nextLevelDirPromise;
             nextLevelDirPromise.then(() => this.refreshDirectoryChildren(parent));
           }
@@ -499,7 +500,6 @@ export default Service.extend(I18n, {
     });
   },
 });
-
 
 /**
  * Builds a simple tree representation of passed files similar to:

@@ -8,6 +8,7 @@
         clipboardReady=clipboardReady
         dirActionsToggled=(action "selectCurrentDir")
         changeDir=(action "changeDir")
+        menuButtons=currentDirMenuButtons
       }}
     </div>
     <div class="text-right fb-toolbar-container hidden-xs">
@@ -35,3 +36,20 @@
     changeDir=(action "changeDir")
   }}
 </div>
+
+{{#one-webui-popover
+  class="current-dir-actions-popover"
+  popoverStyle="with-dropdown"
+  padding=false
+  triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
+  open=currentDirActionsOpen
+}}
+  {{#click-outside action=(action "toggleCurrentDirActions" false)}}
+    {{actions-popover-content
+      actionsArray=currentDirMenuButtons
+      actionClicked=(action "toggleCurrentDirActions" false)
+      class="current-dir-actions"
+    }}
+  {{/click-outside}}
+{{/one-webui-popover}}
+<div class="current-dir-actions-trigger floating-actions-trigger"></div>

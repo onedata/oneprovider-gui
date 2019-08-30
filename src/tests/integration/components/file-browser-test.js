@@ -11,7 +11,13 @@ import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
 import { click } from 'ember-native-dom-helpers';
 
-const FileServer = Service.extend(Evented, {
+const UploadManager = Service.extend({
+  assignUploadDrop() {},
+  assignUploadBrowse() {},
+  changeTargetDirectory() {},
+});
+
+const FileManager = Service.extend(Evented, {
   fetchDirChildren() {},
   copyOrMoveFile() {},
 });
@@ -26,7 +32,8 @@ describe('Integration | Component | file browser', function () {
   });
 
   beforeEach(function () {
-    registerService(this, 'fileServer', FileServer);
+    registerService(this, 'uploadManager', UploadManager);
+    registerService(this, 'fileManager', FileManager);
     registerService(this, 'i18n', I18n);
   });
 
@@ -56,8 +63,8 @@ describe('Integration | Component | file browser', function () {
       },
     ];
     this.set('dir', dir);
-    const fileServer = lookupService(this, 'fileServer');
-    const fetchDirChildren = sinon.stub(fileServer, 'fetchDirChildren')
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves(files);
 
     this.render(hbs `{{file-browser dir=dir}}`);
@@ -95,8 +102,8 @@ describe('Integration | Component | file browser', function () {
     }
 
     this.set('dir', rootDir);
-    const fileServer = lookupService(this, 'fileServer');
-    const fetchDirChildren = sinon.stub(fileServer, 'fetchDirChildren');
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
     for (let i = -1; i < numberOfDirs; ++i) {
       fetchDirChildren.withArgs(
@@ -138,81 +145,152 @@ describe('Integration | Component | file browser', function () {
     });
   });
 
-  it('shows paste button when invoked file copy from context menu', function () {
-    const dir = {
-      entityId: 'root',
-      name: 'Test directory',
-      index: 'Test directory',
-      type: 'dir',
-      hasParent: false,
-      parent: resolve(null),
-    };
-    const b1 = {
-      entityId: 'f2',
-      name: 'B1',
-      index: 'B1',
-      type: 'dir',
-      hasParent: true,
-      parent: resolve(dir),
-    };
-    const a1 = {
-      entityId: 'f1',
-      name: 'A1',
-      index: 'A1',
-      type: 'file',
-      hasParent: true,
-      parent: resolve(dir),
-    };
-    const files1 = [
-      a1,
-      b1,
-    ];
-    const files2 = [{
-      entityId: 'f3',
-      name: 'A2',
-      index: 'A2',
-      type: 'file',
-      hasParent: true,
-      parent: resolve(dir),
-    }];
-    this.set('dir', dir);
-    const fileServer = lookupService(this, 'fileServer');
-    const fetchDirChildren = sinon.stub(fileServer, 'fetchDirChildren');
-    const copyOrMoveFile = sinon.spy(fileServer, 'copyOrMoveFile');
-    fetchDirChildren.withArgs(
-      'root',
-      sinon.match.any,
-      sinon.match.any,
-      sinon.match.any
-    ).resolves(files1);
-    fetchDirChildren.withArgs(
-      'f2',
-      sinon.match.any,
-      sinon.match.any,
-      sinon.match.any
-    ).resolves(files2);
+  it('shows working paste button when invoked file copy from context menu',
+    function () {
+      const dir = {
+        entityId: 'root',
+        name: 'Test directory',
+        index: 'Test directory',
+        type: 'dir',
+        hasParent: false,
+        parent: resolve(null),
+      };
+      const b1 = {
+        entityId: 'f2',
+        name: 'B1',
+        index: 'B1',
+        type: 'dir',
+        hasParent: true,
+        parent: resolve(dir),
+      };
+      const a1 = {
+        entityId: 'f1',
+        name: 'A1',
+        index: 'A1',
+        type: 'file',
+        hasParent: true,
+        parent: resolve(dir),
+      };
+      const files1 = [
+        a1,
+        b1,
+      ];
+      const files2 = [{
+        entityId: 'f3',
+        name: 'A2',
+        index: 'A2',
+        type: 'file',
+        hasParent: true,
+        parent: resolve(dir),
+      }];
+      this.set('dir', dir);
+      const fileManager = lookupService(this, 'fileManager');
+      const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+      const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
+      fetchDirChildren.withArgs(
+        'root',
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any
+      ).resolves(files1);
+      fetchDirChildren.withArgs(
+        'f2',
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any
+      ).resolves(files2);
 
-    this.render(hbs `{{file-browser dir=dir}}`);
+      this.render(hbs `{{file-browser dir=dir}}`);
 
-    return wait().then(() => {
-      expect(this.$('.fb-table-row')).to.exist;
-      this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
       return wait().then(() => {
-        return click('.file-action-copy').then(() => {
-          expect(this.$('.file-action-paste')).to.exist;
-          const dirRow = this.$('.fb-table-row')[1];
-          dirRow.click();
-          return wait().then(() => {
-            dirRow.click();
+        expect(this.$('.fb-table-row')).to.exist;
+        this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
+        return wait().then(() => {
+          return click('.file-action-copy').then(() => {
+            expect(this.$('.file-action-paste')).to.exist;
+            const dirRow = this.$('.fb-table-row')[1];
             dirRow.click();
             return wait().then(() => {
-              return click('.file-action-paste').then(() => {
-                expect(copyOrMoveFile)
-                  .have.been.calledWith(a1, 'f2', 'copy');
+              dirRow.click();
+              dirRow.click();
+              return wait().then(() => {
+                return click('.file-action-paste').then(() => {
+                  expect(copyOrMoveFile)
+                    .have.been.calledWith(a1, 'f2', 'copy');
+                });
               });
             });
           });
         });
+      });
+    }
+  );
+
+  it('shows empty dir message with working new directory button', function () {
+    const entityId = 'deid';
+    const name = 'Test directory';
+    const dir = {
+      entityId,
+      name,
+      type: 'dir',
+      parent: resolve(null),
+    };
+    const files = [];
+    this.set('dir', dir);
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
+      .resolves(files);
+    const openCreateNewDirectory = sinon.spy();
+    this.set('openCreateNewDirectory', openCreateNewDirectory);
+
+    this.render(hbs `{{file-browser
+      dir=dir
+      openCreateNewDirectory=openCreateNewDirectory
+    }}`);
+
+    return wait().then(() => {
+      expect(fetchDirChildren).to.have.been.called;
+      return wait().then(() => {
+        expect(this.$('.fb-table-row')).to.have.length(0);
+        expect(this.$('.empty-dir')).to.exist;
+        return click('.empty-dir-new-directory-action').then(() => {
+          expect(openCreateNewDirectory).to.have.been.calledOnce;
+          expect(openCreateNewDirectory).to.have.been.calledWith(dir);
+        });
+      });
+    });
+  });
+
+  it('adds file-cut class if file is in clipboard in move mode', function () {
+    const entityId = 'deid';
+    const name = 'Test directory';
+    const dir = {
+      entityId,
+      name,
+      type: 'dir',
+      parent: resolve(null),
+    };
+    const f1 = {
+      entityId: 'f1',
+      name: 'File 1',
+      index: 'File 1',
+    };
+    const files = [f1];
+    this.set('dir', dir);
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
+      .resolves(files);
+    fileManager.setProperties({
+      fileClipboardMode: 'move',
+      fileClipboardFiles: [f1],
+    });
+
+    this.render(hbs `{{file-browser dir=dir}}`);
+
+    return wait().then(() => {
+      expect(fetchDirChildren).to.have.been.called;
+      return wait().then(() => {
+        expect(this.$('.fb-table-row')).to.have.class('file-cut');
       });
     });
   });

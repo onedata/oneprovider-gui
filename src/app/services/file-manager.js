@@ -10,15 +10,27 @@
 import Service, { inject as service } from '@ember/service';
 import { resolve, all } from 'rsvp';
 import Evented from '@ember/object/evented';
-import { get, computed } from '@ember/object';
+import { get } from '@ember/object';
 
 export default Service.extend(Evented, {
   store: service(),
   onedataRpc: service(),
 
-  fileClipboardMode: null,
+  fileClipboardMode: undefined,
 
-  fileClipboardFiles: computed(() => ([])),
+  fileClipboardFiles: undefined,
+
+  init() {
+    this._super(...arguments);
+    this.clearFileClipboard();
+  },
+
+  clearFileClipboard() {
+    this.setProperties({
+      fileClipboardMode: null,
+      fileClipboardFiles: [],
+    });
+  },
 
   /**
    * Creates new file or directory
@@ -134,7 +146,7 @@ export default Service.extend(Evented, {
         targetParentGuid: parentDirEntityId,
         targetName: name,
       })
-      .then(() => this.trigger('dirChildrenRefresh', parentDirEntityId));
+      .finally(() => this.trigger('dirChildrenRefresh', parentDirEntityId));
   },
 
   download(fileEntityId) {
