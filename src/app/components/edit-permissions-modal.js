@@ -10,7 +10,7 @@
  */
 
 import Component from '@ember/component';
-import { get, computed, observer, set, getProperties } from '@ember/object';
+import { get, computed, set, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { Promise, reject, resolve, allSettled } from 'rsvp';
