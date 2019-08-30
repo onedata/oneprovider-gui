@@ -14,13 +14,6 @@ $-fb-table-margin-top: 67px;
 
 .file-browser {
   height: calc(100% - #{$-fb-table-margin-top});
-  &.empty-dir {
-    @extend .world-map;
-    @extend .light;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-  }
   .file-browser-head-container {
     position: fixed;
     z-index: $zindex-modal-background - 1;
@@ -205,6 +198,11 @@ $-fb-table-margin-top: 67px;
   position: relative;
   height: 100%;
   &.empty-dir {
+    @extend .world-map;
+    @extend .light;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
     .table {
       display: none;
     }
@@ -290,6 +288,11 @@ $-fb-table-margin-top: 67px;
   overflow-y: hidden;
   &.file-selected {
     background-color: $color-file-selected;
+  }
+  &.file-cut {
+    .file-icon-container, .file-item-text {
+      opacity: 0.6;
+    }
   }
   .fb-table-col-files {
     .file-info-container {

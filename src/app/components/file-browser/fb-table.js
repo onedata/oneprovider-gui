@@ -90,6 +90,10 @@ export default Component.extend(I18n, {
 
   selectionCount: reads('selectedFiles.length'),
 
+  fileClipboardMode: reads('fileManager.fileClipboardMode'),
+
+  fileClipboardFiles: reads('fileManager.fileClipboardFiles'),
+
   /**
    * True if there is initially loaded file list, but it is empty.
    * False if there is initially loaded file list, but it is not empty.
@@ -108,8 +112,12 @@ export default Component.extend(I18n, {
     return this.get('allButtonsArray').findBy('id', 'upload');
   }),
 
-  newDirectoryAction: computed('allButtonsArray.[]', function newDirectory() {
+  newDirectoryAction: computed('allButtonsArray.[]', function newDirectoryAction() {
     return this.get('allButtonsArray').findBy('id', 'newDirectory');
+  }),
+
+  pasteAction: computed('allButtonsArray.[]', function pasteAction() {
+    return this.get('allButtonsArray').findBy('id', 'paste');
   }),
 
   firstRowHeight: computed(
@@ -165,17 +173,6 @@ export default Component.extend(I18n, {
       scheduleOnce('afterRender', () => {
         listWatcher.scrollHandler();
       });
-    }
-  ),
-
-  hasEmptyDirClassObserver: observer(
-    'hasEmptyDirClass',
-    function hasEmptyDirObserver() {
-      const {
-        hasEmptyDirClassChanged,
-        hasEmptyDirClass,
-      } = this.getProperties('hasEmptyDirClassChanged', 'hasEmptyDirClass');
-      hasEmptyDirClassChanged(hasEmptyDirClass);
     }
   ),
 
@@ -442,6 +439,10 @@ export default Component.extend(I18n, {
 
     emptyDirNewDirectory() {
       return this.get('newDirectoryAction.action')(...arguments);
+    },
+
+    emptyDirPaste() {
+      return this.get('pasteAction.action')(...arguments);
     },
   },
 });

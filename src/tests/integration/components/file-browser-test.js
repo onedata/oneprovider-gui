@@ -260,4 +260,38 @@ describe('Integration | Component | file browser', function () {
       });
     });
   });
+
+  it('adds file-cut class if file is in clipboard in move mode', function () {
+    const entityId = 'deid';
+    const name = 'Test directory';
+    const dir = {
+      entityId,
+      name,
+      type: 'dir',
+      parent: resolve(null),
+    };
+    const f1 = {
+      entityId: 'f1',
+      name: 'File 1',
+      index: 'File 1',
+    };
+    const files = [f1];
+    this.set('dir', dir);
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
+      .resolves(files);
+    fileManager.setProperties({
+      fileClipboardMode: 'move',
+      fileClipboardFiles: [f1],
+    });
+
+    this.render(hbs `{{file-browser dir=dir}}`);
+
+    return wait().then(() => {
+      expect(fetchDirChildren).to.have.been.called;
+      return wait().then(() => {
+        expect(this.$('.fb-table-row')).to.have.class('file-cut');
+      });
+    });
+  });
 });

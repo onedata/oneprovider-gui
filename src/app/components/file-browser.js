@@ -63,7 +63,6 @@ const buttonNames = [
 
 export default Component.extend(I18n, {
   classNames: ['file-browser'],
-  classNameBindings: ['hasEmptyDirClass:empty-dir'],
 
   i18n: service(),
   fileActions: service(),
@@ -76,12 +75,6 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileBrowser',
-
-  /**
-   * If true, add `empty-dir` class to element
-   * @type {boolean}
-   */
-  hasEmptyDirClass: false,
 
   /**
    * @virtual
@@ -456,33 +449,39 @@ export default Component.extend(I18n, {
     const fileClipboardFiles = get(fileManager, 'fileClipboardFiles');
     const dirEntityId = get(dir, 'entityId');
     return hashSettled(_.zipObject(fileClipboardFiles, fileClipboardFiles.map(file =>
-      fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
-    ))).then(promisesHash => {
-      const rejected = [];
-      for (let key in promisesHash) {
-        const value = promisesHash[key];
-        if (get(value, 'state') === 'rejected') {
-          rejected.push({
-            file: key,
-            reason: get(value, 'reason'),
-          });
+        fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
+      )))
+      .then(promisesHash => {
+        const rejected = [];
+        for (let key in promisesHash) {
+          const value = promisesHash[key];
+          if (get(value, 'state') === 'rejected') {
+            rejected.push({
+              file: key,
+              reason: get(value, 'reason'),
+            });
+          }
         }
-      }
-      const failedCount = get(rejected, 'length');
-      if (failedCount) {
-        globalNotify.backendError(
-          this.t('pasteFailed.' + fileClipboardMode),
-          this.t('pasteFailedDetails.' + (failedCount > 1 ? 'multi' : 'single'), {
-            reason: get(
-              errorExtractor.getMessage(get(rejected[0], 'reason')),
-              'message'
-            ),
-            moreCount: failedCount - 1,
-          })
-        );
-        throw rejected;
-      }
-    });
+        const failedCount = get(rejected, 'length');
+        if (failedCount) {
+          globalNotify.backendError(
+            this.t('pasteFailed.' + fileClipboardMode),
+            this.t('pasteFailedDetails.' + (failedCount > 1 ? 'multi' : 'single'), {
+              reason: get(
+                errorExtractor.getMessage(get(rejected[0], 'reason')),
+                'message'
+              ),
+              moreCount: failedCount - 1,
+            })
+          );
+          throw rejected;
+        }
+      })
+      .finally(() => {
+        if (fileClipboardMode === 'move') {
+          fileManager.clearFileClipboard();
+        }
+      });
   },
 
   selectCurrentDir(select = true) {
