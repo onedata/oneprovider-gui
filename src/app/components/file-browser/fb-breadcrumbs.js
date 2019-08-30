@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { observer, computed, get } from '@ember/object';
-import { reads, not } from '@ember/object/computed';
+import { reads } from '@ember/object/computed';
 import { next, later } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve } from 'rsvp';
@@ -18,7 +18,6 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-items';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
-import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import { inject as service } from '@ember/service';

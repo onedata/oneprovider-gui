@@ -397,7 +397,7 @@ export default Component.extend(I18n, {
       const $this = this.$();
       const tableOffset = $this.offset();
       left = left - tableOffset.left + this.element.offsetLeft;
-      top = top - tableOffset.top + this.element.offsetTop;
+      top = top - tableOffset.top - this.element.offsetTop + this.element.offsetTop;
       this.$('.file-actions-trigger').css({
         top,
         left,

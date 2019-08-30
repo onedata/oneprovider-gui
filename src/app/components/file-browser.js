@@ -197,6 +197,7 @@ export default Component.extend(I18n, {
     const component = this;
     const openCurrentDirContextMenu = component.get('openCurrentDirContextMenu');
     return function oncontextmenu(contextmenuEvent) {
+      component.selectCurrentDir();
       openCurrentDirContextMenu(contextmenuEvent);
       contextmenuEvent.preventDefault();
     };
@@ -269,9 +270,8 @@ export default Component.extend(I18n, {
         const {
           openRename,
           selectedFiles,
-          dir,
-        } = this.getProperties('openRename', 'selectedFiles', 'dir');
-        return openRename(selectedFiles[0], dir);
+        } = this.getProperties('openRename', 'selectedFiles');
+        return openRename(selectedFiles[0]);
       },
       showIn: [
         actionContext.singleDir,
@@ -338,6 +338,25 @@ export default Component.extend(I18n, {
   separator: computed(function separator() {
     return {
       type: 'separator',
+    };
+  }),
+
+  openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
+    return (mouseEvent) => {
+      const $this = this.$();
+      const tableOffset = $this.offset();
+      const left = mouseEvent.clientX - tableOffset.left + this.element
+        .offsetLeft;
+      const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
+      this.$('.current-dir-actions-trigger').css({
+        top,
+        left,
+      });
+      // cause popover refresh
+      if (this.get('currentDirActionsOpen')) {
+        window.dispatchEvent(new Event('resize'));
+      }
+      this.actions.toggleCurrentDirActions.bind(this)(true);
     };
   }),
 
@@ -466,31 +485,16 @@ export default Component.extend(I18n, {
     });
   },
 
-  openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
-    return (mouseEvent) => {
-      const $this = this.$();
-      const tableOffset = $this.offset();
-      const left = mouseEvent.clientX - tableOffset.left + this.element
-        .offsetLeft;
-      const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
-      this.$('.current-dir-actions-trigger').css({
-        top,
-        left,
-      });
-      // cause popover refresh
-      if (this.get('currentDirActionsOpen')) {
-        window.dispatchEvent(new Event('resize'));
-      }
-      this.actions.toggleCurrentDirActions.bind(this)(true);
-    };
-  }),
+  selectCurrentDir(select = true) {
+    this.clearFilesSelection();
+    if (select) {
+      this.get('selectedFiles').push(this.get('dir'));
+    }
+  },
 
   actions: {
     selectCurrentDir(select) {
-      this.clearFilesSelection();
-      if (select) {
-        this.get('selectedFiles').push(this.get('dir'));
-      }
+      this.selectCurrentDir(select);
     },
     changeDir(dir) {
       this.set('dir', dir);

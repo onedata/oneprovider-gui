@@ -75,7 +75,7 @@ export default Component.extend(I18n, {
 
   actions: {
     buttonClicked(button) {
-      this.get('selectCurrentDir')();
+      this.get('selectCurrentDir')(false);
       return get(button, 'action')();
     },
   },
