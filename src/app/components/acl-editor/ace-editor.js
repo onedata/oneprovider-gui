@@ -11,6 +11,7 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads, collect } from '@ember/object/computed';
+import { string, writable } from 'ember-awesome-macros';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -108,7 +109,7 @@ export default Component.extend(I18n, {
    * One of `allow`, `deny`. Value can be changed by editor
    * @type {Ember.ComputedProperty<string>}
    */
-  aceType: reads('ace.type'),
+  aceType: writable(string.toLower('ace.aceType')),
 
   /**
    * `aclPermissionsSpecification` object narrowed to the passed `context`
@@ -143,14 +144,14 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<Object>}
    */
   persistedPermissionsTree: computed(
-    'ace.permissions',
+    'ace.aceMask',
     'context',
     function persistedPermissionsTree() {
       const {
         ace,
         context,
       } = this.getProperties('ace', 'context');
-      return numberToTree(get(ace, 'permissions'), context);
+      return numberToTree(get(ace, 'aceMask'), context);
     }
   ),
 
@@ -300,8 +301,8 @@ export default Component.extend(I18n, {
 
     const permissions = treeToNumber(permissionsTree, context);
     onChange({
-      type: aceType,
-      permissions,
+      aceType: aceType.toUpperCase(),
+      aceMask: permissions,
     });
   },
 

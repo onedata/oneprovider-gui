@@ -1,7 +1,7 @@
 /**
  * Modal with posix/acl permissions editor for single/multiple files passed via
- * `files` field. This component should be removed just after modal close
- * (`onCancel` invocation) to optimize rendering.
+ * `files` field. This component should be removed just after modal close to
+ * optimize rendering.
  * 
  * @module components/edit-permissions-modal
  * @author Michał Borzęcki
@@ -10,19 +10,22 @@
  */
 
 import Component from '@ember/component';
-import { get, computed, set, getProperties } from '@ember/object';
+import { get, computed, observer, set, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { Promise, reject } from 'rsvp';
+import { Promise, reject, resolve, allSettled } from 'rsvp';
 import { conditional, raw, array, equal, and, not, or } from 'ember-awesome-macros';
 import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend(
   I18n,
-  createDataProxyMixin('permissions', { type: 'array' }), {
+  createDataProxyMixin('spaceUsers', { type: 'array' }),
+  createDataProxyMixin('spaceGroups', { type: 'array' }),
+  createDataProxyMixin('acls', { type: 'array' }), {
     tagName: '',
 
     i18n: service(),
@@ -105,12 +108,26 @@ export default Component.extend(
     isAclIncompatibilityAccepted: false,
 
     /**
-     * True only if all files have consistent `type` value in permissions
-     * model.
+     * One of: `file`, `directory`, `mixed`
+     * @type {Ember.ComputedProperty<string>}
+     */
+    filesType: computed('files.@each.type', function filesType() {
+      const types = this.get('files').mapBy('type').uniq();
+      if (types.length > 1) {
+        return 'mixed';
+      } else if (types[0] === 'dir') {
+        return 'directory';
+      } else {
+        return 'file';
+      }
+    }),
+
+    /**
+     * True only if all files have consistent `activePermissionsType` value.
      * @type {Ember.ComputedProperty<boolean>}
      */
     filesHaveCompatibleActivePermissionsType: equal(
-      array.length(array.uniqBy('permissions', raw('type'))),
+      array.length(array.uniqBy('files', raw('activePermissionsType'))),
       raw(1)
     ),
 
@@ -124,23 +141,22 @@ export default Component.extend(
     ),
 
     /**
-     * Active permissions type value inferred from files permissions. Fallbacks
-     * to default 'posix' value if files have different permissions types.
+     * Active permissions type value inferred from files. Fallbacks
+     * to `undefined` value if files have different permissions types.
      * @type {Ember.ComputedProperty<string>}
      */
     initialActivePermissionsType: conditional(
       'filesHaveCompatibleActivePermissionsType',
-      'permissions.firstObject.type',
+      'files.firstObject.activePermissionsType',
       raw(undefined),
     ),
 
     /**
-     * True only if all files have consistent `posixValue` value in permissions
-     * model.
+     * True only if all files have consistent `posixPermissions` value.
      * @type {Ember.ComputedProperty<boolean>}
      */
     filesHaveCompatiblePosixPermissions: equal(
-      array.length(array.uniqBy('permissions', raw('posixValue'))),
+      array.length(array.uniqBy('files', raw('posixPermissions'))),
       raw(1)
     ),
 
@@ -155,32 +171,37 @@ export default Component.extend(
 
     /**
      * Posix permissions octal value inferred from files permissions. Fallbacks
-     * to default '664' value if files have different posix permissions.
+     * to default '664' for files and '775' for directories and mixed if
+     * files/directories have different posix permissions.
      * @type {Ember.ComputedProperty<string>}
      */
     initialPosixPermissions: conditional(
       'filesHaveCompatiblePosixPermissions',
-      'permissions.firstObject.posixValue',
-      raw('664'),
+      'files.firstObject.posixPermissions',
+      conditional(
+        equal('filesType', raw('file')),
+        raw('664'),
+        raw('775')
+      )
     ),
 
     /**
-     * True only if all files have consistent `aclValue` value in permissions
-     * model.
+     * True only if all files have consistent ACLs.
      * @type {Ember.ComputedProperty<boolean>}
      */
     filesHaveCompatibleAcl: computed(
-      'permissions',
+      'acls',
       function filesHaveCompatibleAclRules() {
-        const permissions = this.get('permissions');
-        if (get(permissions, 'length') === 1) {
-          return true;
+        const acls = this.get('acls');
+        if (acls) {
+          if (get(acls, 'length') === 1) {
+            return true;
+          } else {
+            const firstFileAcl = acls[0];
+            return acls.every(acl => _.isEqual(acl, firstFileAcl));
+          }
         } else {
-          const filesAclRules = permissions.mapBy('aclValue');
-          const firstFileAclRules = filesAclRules[0];
-          return filesAclRules
-            .without(firstFileAclRules)
-            .every(aclRules => _.isEqual(aclRules, firstFileAclRules));
+          return false;
         }
       }
     ),
@@ -201,7 +222,7 @@ export default Component.extend(
      */
     initialAcl: conditional(
       'filesHaveCompatibleAcl',
-      'permissions.firstObject.aclValue',
+      'acls.firstObject',
       raw([]),
     ),
 
@@ -219,44 +240,92 @@ export default Component.extend(
      * @type {Ember.ComputedProperty<boolean>}
      */
     isSaveEnabled: and(
+      not('isSaving'),
       'activePermissionsTypeCompatible',
-      or(not('posixViewActive'), 'posixPermissionsCompatible'),
-      or(not('aclViewActive'), 'aclCompatible'),
-      'permissionsProxy.isFulfilled',
-      'arePosixPermissionsValid',
-      not('isSaving')
+      conditional(
+        'posixViewActive',
+        and('posixPermissionsCompatible', 'arePosixPermissionsValid'),
+        and('aclsProxy.isFulfilled', 'aclCompatible')
+      )
     ),
 
     init() {
       this._super(...arguments);
+      
+      const {
+        initialActivePermissionsType,
+        initialPosixPermissions,
+      } = this.getProperties(
+        'initialActivePermissionsType',
+        'initialPosixPermissions',
+      );
+      
+      this.setProperties({
+        activePermissionsType: initialActivePermissionsType,
+        posixPermissions: initialPosixPermissions,
+      });
 
-      this.get('permissionsProxy').then(() => safeExec(this, () => {
-        const {
-          initialActivePermissionsType,
-          initialPosixPermissions,
-          initialAcl,
-        } = this.getProperties(
-          'initialActivePermissionsType',
-          'initialPosixPermissions',
-          'initialAcl'
-        );
-        
-        // Set initial values to save
-        this.setProperties({
-          activePermissionsType: initialActivePermissionsType,
-          posixPermissions: initialPosixPermissions,
-          acl: initialAcl,
-        });
-      }));
+      if (initialActivePermissionsType === 'acl') {
+        this.initAclValuesOnProxyLoad();
+      }
     },
 
     /**
      * @override
      */
-    fetchPermissions() {
-      return Promise.all(this.get('files')
-        .map(file => get(file, 'permissions'))
-      );
+    fetchSpaceUsers() {
+      return get(this.get('space'), 'effUserList')
+        .then(userList => get(userList, 'list'));
+    },
+
+    /**
+     * @override
+     */
+    fetchSpaceGroups() {
+      return get(this.get('space'), 'effGroupList')
+        .then(userList => get(userList, 'list'));
+    },
+
+    /**
+     * @override
+     */
+    fetchAcls() {
+      const {
+        spaceUsersProxy,
+        spaceGroupsProxy,
+        files,
+      } = this.getProperties('spaceUsersProxy', 'spaceGroupsProxy', 'files');
+      return Promise.all([spaceUsersProxy, spaceGroupsProxy])
+        // Fetch space users and groups
+        .then(([users, groups]) => Promise.all(files.map(file =>
+          // Fetch each file ACL
+          get(file, 'acl').then(acl =>
+            // Add subject (user/group model) to each ACE
+            get(acl, 'list').map(ace => {
+              const {
+                identifier,
+                aceFlags,
+              } = getProperties(ace, 'identifier', 'aceFlags');
+              let subject;
+              // TODO: deal with special identifiers
+              if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
+                subject = groups.findBy('entityId', identifier);
+              } else {
+                subject = users.findBy('entityId', identifier);
+              }
+              return _.assign({ subject }, ace);
+            })
+          )
+        )));
+    },
+
+    initAclValuesOnProxyLoad() {
+      const aclsProxy = this.get('aclsProxy');
+      if (!get(aclsProxy, 'isSettled')) {
+        aclsProxy.then(() => {
+          safeExec(this,  () => this.set('acl', this.get('initialAcl')));
+        });
+      }
     },
 
     /**
@@ -266,57 +335,63 @@ export default Component.extend(
       const {
         acl,
         posixPermissions,
-        permissions,
         activePermissionsType,
+        files,
       } = this.getProperties(
         'acl',
         'posixPermissions',
-        'permissions',
-        'activePermissionsType'
+        'activePermissionsType',
+        'files',
       );
 
-      // All files share the same ACE array, so it can be prepared
-      // earlier.
-      let aclToSave;
+      let saveAclsPromises = [];
       if (activePermissionsType === 'acl') {
-        aclToSave = acl.map(ace => {
-          const {
-            permissions: aclPermissions,
-            type,
-          } = getProperties(ace, 'permissions', 'type');
-          const subjectId = get(ace, 'subject.id');
-          return {
-            permissions: aclPermissions,
-            type,
-            subject: subjectId,
-          };
-        });
+        // All files share the same ACE array, so it can be prepared
+        // earlier.
+        let aclToSave;
+        if (activePermissionsType === 'acl') {
+          aclToSave = acl.map(ace =>
+            getProperties(ace, 'aceType', 'identifier', 'aceFlags', 'aceMask')
+          );
+        }
+
+        saveAclsPromises = files.map(file => get(file, 'acl').then(fileAcl => {
+          if (_.isEqual(get(fileAcl, 'list'), aclToSave)) {
+            // Nothing to save, ACL model has already an edited value
+            return resolve();
+          } else {
+            set(fileAcl, 'list', aclToSave);
+
+            const promise = fileAcl.save();
+            promise.catch(() => fileAcl.rollbackAttributes());
+            return promise;
+          }
+        }));
       }
 
-      return Promise.all(permissions.map(filePermissions => {
-        set(filePermissions, 'type', activePermissionsType);
-        if (activePermissionsType === 'posix') {
-          set(filePermissions, 'posixValue', posixPermissions);
-        } else {
-          set(filePermissions, 'aclValue', aclToSave);
+      const saveFilesPromises = files.map(file => {
+        const {
+          posixPermissions: filePosixPermissions,
+          activePermissionsType: fileActivePermissionsType,
+        } = getProperties(file, 'posixPermissions', 'activePermissionsType');
+        let isFileModified = false;
+        if (fileActivePermissionsType !== activePermissionsType) {
+          set(file, 'activePermissionsType', activePermissionsType);
+          isFileModified = true;
         }
-        // Convert errors to normal values to not reject Promise.all on first
-        // error - try to fulfill as much save requests as possible.
-        return filePermissions.save()
-          .then(
-            () => undefined,
-            error => {
-              filePermissions.rollbackAttributes();
-              return error;
-            }
-          );
-      })).then(errors => {
-        errors = errors.filter(e => e);
-        // If errors occurred, get first of them and show to user. The rest of
-        // them just log to console.
-        const errorsCount = get(errors, 'length');
-        if (errorsCount) {
-          if (errorsCount > 1) {
+        if (activePermissionsType === 'posix' && filePosixPermissions !== posixPermissions) {
+          set(file, 'posixPermissions', posixPermissions);
+          isFileModified = true;
+        }
+        const promise = isFileModified ? file.save() : resolve(file);
+        promise.catch(() => file.rollbackAttributes());
+        return promise;
+      });
+
+      return allSettled(saveAclsPromises.concat(saveFilesPromises)).then(results => {
+        const errors = results.filterBy('state', 'rejected').mapBy('reason');
+        if (errors.length) {
+          if (errors.length > 1) {
             errors.slice(1).forEach(error =>
               console.error('edit-permissions-modal:save()', error)
             );
@@ -332,6 +407,10 @@ export default Component.extend(
           activePermissionsType: mode,
           isActivePermissionsTypeIncompatibilityAccepted: true,
         });
+
+        if (mode === 'acl') {
+          this.initAclValuesOnProxyLoad();
+        }
       },
       acceptPosixIncompatibility() {
         this.set('isPosixPermissionsIncompatibilityAccepted', true);
@@ -363,9 +442,10 @@ export default Component.extend(
               // Trigger modal close
               closeCallback();
             })
+            .then(() => globalNotify.success(this.t('permissionsModifySuccess')))
             .catch(error => {
               globalNotify
-                .backendError(this.tt('modifyingPermissions'), error);
+                .backendError(this.t('modifyingPermissions'), error);
               // Close without animation to prepare place for error modal
               onClose();
               throw error;

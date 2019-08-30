@@ -14,6 +14,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { computed, get } from '@ember/object';
 
 export default OneEmbeddedComponent.extend(
+  createDataProxyMixin('space'),
   createDataProxyMixin('spaceRootDir'), {
     classNames: ['content-file-browser'],
 
@@ -37,13 +38,20 @@ export default OneEmbeddedComponent.extend(
     /**
      * @override
      */
-    fetchSpaceRootDir() {
+    fetchSpace() {
       const {
         store,
         spaceGri,
       } = this.getProperties('store', 'spaceGri');
 
-      return store.findRecord('space', spaceGri)
+      return store.findRecord('space', spaceGri);
+    },
+
+    /**
+     * @override
+     */
+    fetchSpaceRootDir() {
+      return this.get('spaceProxy')
         .then(space => get(space, 'rootDir'));
     },
 
@@ -114,6 +122,12 @@ export default OneEmbeddedComponent.extend(
           fileToRename: null,
           renameParentDir: null,
         });
+      },
+      openEditPermissionsModal(files) {
+        this.set('filesToEditPermissions', files);
+      },
+      closeEditPermissionsModal() {
+        this.set('filesToEditPermissions', null);
       },
     },
   }

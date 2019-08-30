@@ -14,4 +14,6 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
   rootDir: belongsTo('file'),
+  effUserList: belongsTo('user-list'),
+  effGroupList: belongsTo('group-list'),
 }).reopenClass(StaticGraphModelMixin);

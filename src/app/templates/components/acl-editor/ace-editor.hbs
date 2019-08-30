@@ -34,12 +34,14 @@
         {{/bg.button}}
       {{/bs-button-group}}  
     </div>
-    {{privileges-tree-editor
-      privilegesGroups=permissionsSpecification
-      privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
-      privilegesTranslationsPath="components.aclEditor.permissions"
-      comparePrivileges=persistedPermissionsTree
-      overridePrivileges=initialPermissionsTree
-      onChange=(action "permissionsChanged")}}
+    {{#render-later triggerRender=listItem.isActive}}
+      {{privileges-tree-editor
+        privilegesGroups=permissionsSpecification
+        privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
+        privilegesTranslationsPath="components.aclEditor.permissions"
+        comparePrivileges=persistedPermissionsTree
+        overridePrivileges=initialPermissionsTree
+        onChange=(action "permissionsChanged")}}
+    {{/render-later}}
   </div>
 {{/listItem.content}}

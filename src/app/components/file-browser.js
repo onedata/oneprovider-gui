@@ -104,6 +104,13 @@ export default Component.extend(I18n, {
   openRename: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} filed files to edit permissions
+   */
+  openEditPermissions: notImplementedThrow,
+
+  /**
    * If true, the paste from clipboard button should be available
    * @type {Computed<boolean>}
    */
@@ -148,7 +155,10 @@ export default Component.extend(I18n, {
   clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
     const component = this;
     return function clickOutsideDeselect(mouseEvent) {
-      if (!isPopoverOpened() &&
+      // Check for matching `body *` to not clear selection on destroyed elements click
+      // (issue of some elements, that are removed from DOM just after click, like
+      // dynamic popover menu items or contextual buttons).
+      if (!isPopoverOpened() && mouseEvent.target.matches('body *') &&
         !mouseEvent.target.matches(
           '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *'
         )) {
@@ -239,6 +249,13 @@ export default Component.extend(I18n, {
   btnPermissions: computed(function btnPermissions() {
     return this.createFileAction({
       id: 'permissions',
+      action: () => {
+        const {
+          openEditPermissions,
+          selectedFiles,
+        } = this.getProperties('openEditPermissions', 'selectedFiles');
+        return openEditPermissions(selectedFiles);
+      },
       showIn: [...anySelected, actionContext.currentDir],
     });
   }),

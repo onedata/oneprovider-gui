@@ -29,6 +29,18 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   mtime: attr('number'),
 
+  /**
+   * Posix permissions in octal three digit format.
+   */
+  posixPermissions: attr('string'),
+  
+  /**
+   * One of: `posix`, `acl`
+   */
+  activePermissionsType: attr('string'),
+
+  acl: belongsTo('acl'),
+
   modificationTime: alias('mtime'),
 
   /**

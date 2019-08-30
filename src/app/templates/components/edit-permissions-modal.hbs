@@ -1,70 +1,80 @@
 {{#bs-modal
   class="edit-permissions-modal"
   open=true
-  onHidden=(action "close")
+  onHide=(action "close")
   as |modal|}}
   {{#modal.header}}
     <h1>{{tt this "header"}}</h1>
   {{/modal.header}}
   {{#modal.body}}
-    {{#promise-proxy-container proxy=permissionsProxy}}
-      {{#if (not filesHaveCompatibleActivePermissionsType)}}
-        <div class="alert alert-warning alert-simple-info">{{tt this "differentPermissionsTypes"}}</div>
-      {{/if}}
-      <div class="active-permissions-type-container">
-        <span class="one-label">{{tt this "permissionsType"}}&nbsp;{{one-label-tip title=(tt this "permissionsTypeHint")}}</span>
-        {{#bs-button-group
-          class="active-permissions-type-selector"
-          value=activePermissionsType
-          type="radio"
-          onChange=(action "activePermissionsTypeChanged") as |bg|}}
-          {{#bg.button type="default" class="btn-sm permissions-type-posix" value="posix"}}
-            {{tt this "permisionsTypes.posix"}}
-          {{/bg.button}}
-          {{#bg.button type="default" class="btn-sm permissions-type-acl" value="acl"}}
-            {{tt this "permisionsTypes.acl"}}
-          {{/bg.button}}
-        {{/bs-button-group}}
+    {{#if (not filesHaveCompatibleActivePermissionsType)}}
+      <div class="alert alert-warning alert-simple-info">{{tt this "differentPermissionsTypes"}}</div>
+    {{/if}}
+    <div class="active-permissions-type-container">
+      <span class="one-label">{{tt this "permissionsType"}}&nbsp;{{one-label-tip title=(tt this "permissionsTypeHint")}}</span>
+      {{#bs-button-group
+        class="active-permissions-type-selector"
+        value=activePermissionsType
+        type="radio"
+        onChange=(action "activePermissionsTypeChanged") as |bg|}}
+        {{#bg.button type="default" class="btn-sm permissions-type-posix" value="posix"}}
+          {{tt this "permisionsTypes.posix"}}
+        {{/bg.button}}
+        {{#bg.button type="default" class="btn-sm permissions-type-acl" value="acl"}}
+          {{tt this "permisionsTypes.acl"}}
+        {{/bg.button}}
+      {{/bs-button-group}}
+    </div>
+    {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
+      <div class="alert alert-warning alert-simple-info">
+        {{tt this "differentPosix"}}
+        {{#unless posixPermissionsCompatible}}
+          <div class="row alert-simple-info-btn">
+            {{#bs-button
+              class="btn btn-warning btn-sm open-posix-editor"
+              onClick=(action "acceptPosixIncompatibility")}}
+              {{tt this "editAnyway"}}
+            {{/bs-button}}
+          </div>
+        {{/unless}}
       </div>
-      {{#if (and posixViewActive (not filesHaveCompatiblePosixPermissions))}}
-        <div class="alert alert-warning alert-simple-info">
-          {{tt this "differentPosix"}}
-          {{#unless posixPermissionsCompatible}}
-            <div class="row alert-simple-info-btn">
-              {{#bs-button
-                class="btn btn-warning btn-sm open-posix-editor"
-                onClick=(action "acceptPosixIncompatibility")}}
-                {{tt this "editAnyway"}}
-              {{/bs-button}}
+    {{/if}}
+    {{posix-permissions-editor
+      initialPermissions=initialPosixPermissions
+      onChange=(action "posixPermissionsChanged")
+      onSave=(action "save" modal.close)
+      class=(if (not (and posixViewActive posixPermissionsCompatible)) "hidden")}}
+    {{#render-later tagName="div" triggerRender=aclViewActive class=(unless aclViewActive "hidden")}}
+      {{#unless (eq filesType "mixed")}}
+        {{#promise-proxy-container proxy=aclsProxy}}
+          {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
+            <div class="alert alert-warning alert-simple-info">
+              {{tt this "differentAcl"}}
+              {{#unless aclCompatible}}
+                <div class="row alert-simple-info-btn">
+                  {{#bs-button
+                    class="btn btn-warning btn-sm open-acl-editor"
+                    onClick=(action "acceptAclIncompatibility")}}
+                    {{tt this "editAnyway"}}
+                  {{/bs-button}}
+                </div>
+              {{/unless}}
             </div>
-          {{/unless}}
+          {{/if}}
+          {{acl-editor
+            users=spaceUsers
+            group=spaceGroups
+            acl=initialAcl
+            onChange=(action "aclChanged")
+            context=filesType
+            class=(unless aclCompatible "hidden")}}
+        {{/promise-proxy-container}}
+      {{else}}
+        <div class="alert alert-warning">
+          {{tt this "noAclDueToMixedFileTypes"}}
         </div>
-      {{/if}}
-      {{posix-permissions-editor
-        initialPermissions=initialPosixPermissions
-        onChange=(action "posixPermissionsChanged")
-        onSave=(action "save" modal.close)
-        class=(if (not (and posixViewActive posixPermissionsCompatible)) "hidden")}}
-      {{#if (and aclViewActive (not filesHaveCompatibleAcl))}}
-        <div class="alert alert-warning alert-simple-info">
-          {{tt this "differentAcl"}}
-          {{#unless aclCompatible}}
-            <div class="row alert-simple-info-btn">
-              {{#bs-button
-                class="btn btn-warning btn-sm open-acl-editor"
-                onClick=(action "acceptAclIncompatibility")}}
-                {{tt this "editAnyway"}}
-              {{/bs-button}}
-            </div>
-          {{/unless}}
-        </div>
-      {{/if}}
-      {{acl-editor
-        space=space
-        acl=initialAcl
-        onChange=(action "aclChanged")
-        class=(if (not (and aclViewActive aclCompatible)) "hidden")}}
-    {{/promise-proxy-container}}
+      {{/unless}}
+    {{/render-later}}
   {{/modal.body}}
   {{#modal.footer class="btn-toolbar"}}
     {{#bs-button disabled=isSaving onClick=modal.close}}

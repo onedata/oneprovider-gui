@@ -112,3 +112,8 @@ export default [{
     },
   ],
 }];
+
+export const AceFlagsMasks = {
+  NO_FLAGS: 0x00000000,
+  IDENTIFIER_GROUP: 0x00000040,
+};

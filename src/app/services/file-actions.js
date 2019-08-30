@@ -9,7 +9,6 @@
 
 import Service, { inject as service } from '@ember/service';
 import { setProperties } from '@ember/object';
-import { notEmpty } from 'ember-awesome-macros';
 
 function dummyAction(message, files) {
   alert(message + files.mapBy('name'));
@@ -19,20 +18,6 @@ export default Service.extend({
   store: service(),
   fileManager: service(),
   uploadManager: service(),
-
-  /**
-   * @type {Array<Models.File>}
-   */
-  editPermissionsModalFiles: Object.freeze([]),
-
-  /**
-   * @type {boolean}
-   */
-  isEditPermissionsModalVisible: notEmpty('editPermissionsModalFiles'),
-
-  closePermissionsEditor: () => {
-    this.set('editPermissionsModalFiles', []);
-  },
 
   // #region Actions implementation
 
@@ -50,10 +35,6 @@ export default Service.extend({
 
   actMetadata(files) {
     dummyAction('metadata: ', files);
-  },
-
-  actPermissions(files) {
-    this.set('editPermissionsModalFiles', files);
   },
 
   actDistribution(files) {

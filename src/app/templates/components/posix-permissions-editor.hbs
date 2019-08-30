@@ -17,11 +17,11 @@
       <ul class="permissions-list">
         {{#each (array "read" "write" "execute") as |permission|}}
           <li class="permission">
+            {{one-checkbox
+              inputId=(concat elementId entity permission)
+              checked=(get (get permissions entity) permission)
+              update=(action "checkboxChanged" entity permission)}}
             <label for={{concat elementId entity permission}}>
-              {{one-checkbox
-                inputId=(concat elementId entity permission)
-                checked=(get (get permissions entity) permission)
-                update=(action "checkboxChanged" entity permission)}}
               <span class="one-label checkbox-label">{{tt this (concat "permissions." permission)}}</span>
             </label>
           </li>
