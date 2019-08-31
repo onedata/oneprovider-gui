@@ -51,6 +51,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Array<Object>}
+   */
+  systemSubjects: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    * @param {Array<Object>} change has the same format as `acl` field
    * @returns {undefined}
@@ -70,6 +76,11 @@ export default Component.extend(I18n, {
     }),
     ['name']
   ),
+
+  /**
+   * @type {Ember.ComputedProperty<Array<Models.Group|Models.User|Object>>}
+   */
+  subjectsList: array.concat('sortedGroupAndUserList', 'systemSubjects'),
 
   /**
    * @returns {undefined}
@@ -118,7 +129,7 @@ export default Component.extend(I18n, {
         aceMask: 0,
         aceType: 'ALLOW',
         identifier: get(entity, 'entityId'),
-        aceFlags: entity.constructor.modelName === 'group' ?
+        aceFlags: get(entity, 'constructor.modelName') === 'group' ?
           AceFlagsMasks.IDENTIFIER_GROUP : AceFlagsMasks.NO_FLAGS,
         subject: entity,
       };

@@ -10,7 +10,7 @@
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
-import { reads, collect } from '@ember/object/computed';
+import { reads, collect, or } from '@ember/object/computed';
 import { string, writable } from 'ember-awesome-macros';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
@@ -136,7 +136,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  icon: reads('subject.constructor.modelName'),
+  icon: or('subject.constructor.modelName', 'subject.equivalentType'),
 
   /**
    * Mapping: permsGroupName -> { permName -> boolean }. Represents persisted

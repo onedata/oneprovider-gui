@@ -24,16 +24,22 @@
       </span>
       {{#power-select
         dropdownClass="add-user-group-ace"
-        options=sortedGroupAndUserList
+        options=subjectsList
         onchange=(action "addEntitySelected")
         renderInPlace=true
         placeholder=(tt this "addUserOrGroup")
         matcher=(action "nameMatcher")
         as |entity|}}
-        <div class="option-container">
+        <div class="option-container" data-entity-id={{entity.entityId}}>
           {{#truncated-string}}
-            {{one-icon icon=(if (eq entity.constructor.modelName "user") "user" "group")}}
-            <span class="text">{{entity.name}}</span>
+            {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
+            <span class="text">
+              {{#if entity.isSystemSubject}}
+                <em>{{entity.name}}</em>
+              {{else}}
+                {{entity.name}}
+              {{/if}}
+            </span>
           {{/truncated-string}}
         </div>
       {{/power-select}}

@@ -3,7 +3,13 @@
     {{one-icon-tagged class="item-icon" icon=icon tagIcon=(if (eq aceType "allow") "checked" "x")}}
     {{one-tooltip title=subject.name}}
   </span>
-  <span class="one-label">{{subject.name}}</span>
+  <span class="one-label">
+    {{#if subject.isSystemSubject}}
+      <em>{{subject.name}}</em>
+    {{else}}
+      {{subject.name}}
+    {{/if}}
+  </span>
   {{#status-toolbar class="hidden-xs" as |toolbar|}}
     {{#each statusIcons key="icon" as |status|}}
       {{toolbar.icon icon=status.icon hint=status.tooltipText status=status.stateClass}}

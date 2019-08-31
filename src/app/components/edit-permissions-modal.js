@@ -108,6 +108,32 @@ export default Component.extend(
     isAclIncompatibilityAccepted: false,
 
     /**
+     * List of system subjects, that represents owner of a file/directory, owning
+     * group and everyone. These are used to define ACE, that are not tied to
+     * specific user/group, but rather to some type of user/group. Are provided to
+     * preserve compatibility with CDMI.
+     * @type {Ember.ComputedProperty<Object>}
+     */
+    systemSubjects: computed(function systemSubjects() {
+      return [{
+        isSystemSubject: true,
+        entityId: 'OWNER@',
+        equivalentType: 'user',
+        name: this.t('ownerSystemSubject'),
+      }, {
+        isSystemSubject: true,
+        entityId: 'GROUP@',
+        equivalentType: 'group',
+        name: this.t('groupSystemSubject'),
+      }, {
+        isSystemSubject: true,
+        entityId: 'EVERYONE@',
+        equivalentType: 'group',
+        name: this.t('everyoneSystemSubject'),
+      }];
+    }),
+
+    /**
      * One of: `file`, `directory`, `mixed`
      * @type {Ember.ComputedProperty<string>}
      */
@@ -293,8 +319,14 @@ export default Component.extend(
       const {
         spaceUsersProxy,
         spaceGroupsProxy,
+        systemSubjects,
         files,
-      } = this.getProperties('spaceUsersProxy', 'spaceGroupsProxy', 'files');
+      } = this.getProperties(
+        'spaceUsersProxy',
+        'spaceGroupsProxy',
+        'systemSubjects',
+        'files'
+      );
       return Promise.all([spaceUsersProxy, spaceGroupsProxy])
         // Fetch space users and groups
         .then(([users, groups]) => Promise.all(files.map(file =>
@@ -307,8 +339,9 @@ export default Component.extend(
                 aceFlags,
               } = getProperties(ace, 'identifier', 'aceFlags');
               let subject;
-              // TODO: deal with special identifiers
-              if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
+              if (identifier.indexOf('@') !== -1) {
+                subject = systemSubjects.findBy('entityId', identifier);
+              } else if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
                 subject = groups.findBy('entityId', identifier);
               } else {
                 subject = users.findBy('entityId', identifier);
