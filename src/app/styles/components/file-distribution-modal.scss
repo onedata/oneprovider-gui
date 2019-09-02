@@ -6,6 +6,7 @@
 
   .oneproviders-distribution-item {
     display: flex;
+    align-items: center;
     padding: $padding-small-vertical 0;
     border-bottom: 1px solid $main-border-color;
 
@@ -29,7 +30,13 @@
 
     .chunks-visualizer {
       display: flex;
+      flex-shrink: 0;
       width: 40%;
+    }
+
+    .collapsible-toolbar-toggle {
+      padding: $padding-xs-horizontal;
+      margin-left: $padding-xs-horizontal;
     }
   }
 

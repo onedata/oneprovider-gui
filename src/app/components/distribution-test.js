@@ -6,7 +6,7 @@ import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 export default Component.extend({
   space: computed(function () {
     return {
-      providerList: resolve({
+      oneproviderList: resolve({
         list: resolve([
           {
             id: 'provider.123.instance:private',

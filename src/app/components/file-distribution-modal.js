@@ -108,8 +108,8 @@ export default Component.extend(
      * @override
      */
     fetchOneproviders() {
-      return get(this.get('space'), 'providerList')
-        .then(providerList => get(providerList, 'list'));
+      return get(this.get('space'), 'oneproviderList')
+        .then(oneproviderList => get(oneproviderList, 'list'));
     },
 
     /**
@@ -132,6 +132,15 @@ export default Component.extend(
       },
       close() {
         this.get('onClose')();
+      },
+      replicate(files, destinationOneprovider) {
+        console.log(...arguments);
+      },
+      migrate(files, sourceProvider, destinationOneprovider) {
+        console.log(...arguments);
+      },
+      invalidate(files, sourceOneprovider) {
+        console.log(...arguments);
       },
     },
   }

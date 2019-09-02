@@ -23,11 +23,13 @@ export default EmberObject.extend(
       raw(0)
     ),
 
-    blocksPercentage: reads('fileDistribution.blocksPercentage'),
+    isFileDistributionModelLoaded: reads('fileDistributionModelProxy.isFulfilled'),
 
-    chunksBarData: reads('fileDistribution.chunksBarData'),
+    blocksPercentage: reads('fileDistributionModel.blocksPercentage'),
 
-    neverSynchronized: reads('fileDistribution.neverSynchronized'),
+    chunksBarData: reads('fileDistributionModel.chunksBarData'),
+
+    neverSynchronized: reads('fileDistributionModel.neverSynchronized'),
 
     fileDistribution: reads('fileDistributionModel.distribution'),
 
@@ -51,10 +53,10 @@ export default EmberObject.extend(
 
     getDistributionForOneprovider(oneprovider) {
       const {
-        fileDistributionModelProxy,
+        isFileDistributionModelLoaded,
         fileDistribution,
-      } = this.getProperties('fileDistributionModelProxy', 'fileDistribution');
-      if (get(fileDistributionModelProxy, 'isFulfilled')) {
+      } = this.getProperties('isFileDistributionModelLoaded', 'fileDistribution');
+      if (isFileDistributionModelLoaded) {
         return get(fileDistribution, get(oneprovider, 'entityId'));
       } else {
         return {};

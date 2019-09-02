@@ -15,8 +15,11 @@
         {{/bs-tab}}
         {{#if (eq activeTab "distribution-summary")}}
           {{file-distribution-modal/oneproviders-distribution
+            fileDistributionData=(filter-by "fileType" "file" fileDistributionData)
             oneproviders=oneproviders
-            fileDistributionData=(filter-by "fileType" "file" fileDistributionData)}}
+            onReplicate=(action "replicate" files)
+            onMigrate=(action "migrate" files)
+            onInvaludate=(action "invalidate" files)}}
           <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
         {{else}}
           {{#one-collapsible-list class="detailed-list" as |list|}}
@@ -40,7 +43,10 @@
                   <div class="list-content">
                     {{file-distribution-modal/oneproviders-distribution
                       oneproviders=oneproviders
-                      fileDistributionData=(array fileDistDataContainer)}}
+                      fileDistributionData=(array fileDistDataContainer)
+                      onReplicate=(action "replicate" (array fileDistDataContainer.file))
+                      onMigrate=(action "migrate" (array fileDistDataContainer.file))
+                      onInvaludate=(action "invalidate" (array fileDistDataContainer.file))}}
                   </div>
                 {{/listItem.content}}
               {{/list.item}}

@@ -10,4 +10,9 @@ export default {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',
   },
+  oneprovidersDistributionItem: {
+    replicateHere: 'Replicate here',
+    migrate: 'Migrate...',
+    invalidate: 'Invalidate',
+  },
 };

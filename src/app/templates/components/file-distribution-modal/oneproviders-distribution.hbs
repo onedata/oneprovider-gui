@@ -2,7 +2,10 @@
   {{#each oneproviders key="id" as |oneprovider|}}
     {{file-distribution-modal/oneproviders-distribution-item
       oneprovider=oneprovider
-      fileDistributionData=fileDistributionData}}
+      fileDistributionData=fileDistributionData
+      onReplicate=(action onReplicate oneprovider)
+      onMigrate=(action onMigrate oneprovider)
+      onInvaludate=(action onInvalidate oneprovider)}}
   {{/each}}
 </ul>
 {{yield}}

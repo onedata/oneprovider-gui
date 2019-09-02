@@ -1,11 +1,18 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, collect } from '@ember/object/computed';
 import { sum, array, equal, raw } from 'ember-awesome-macros';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: 'li',
   classNames: ['oneproviders-distribution-item'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileDistributionModal.oneprovidersDistributionItem',
 
   /**
    * @virtual
@@ -13,16 +20,34 @@ export default Component.extend({
    */
   oneprovider: undefined,
 
-  oneproviderEntityId: reads('oneprovider.entityId'),
+  // oneproviderEntityId: reads('oneprovider.entityId'),
+
+  /**
+   * @type {Function}
+   * @returns {undefined}
+   */
+  onReplicate: notImplementedThrow,
+
+  /**
+   * @type {Function}
+   * @returns {undefined}
+   */
+  onMigrate: notImplementedThrow,
+
+  /**
+   * @type {Function}
+   * @returns {undefined}
+   */
+  onInvalidate: notImplementedThrow,
   
   /**
-   * @type {Array<Models.File>}
+   * @type {Array<Utils.FileDistributionDataContainer>}
    */
   fileDistributionData: undefined,
 
   hasAllFilesDistributions: array.isEvery(
     'fileDistributionData',
-    raw('fileDistributionModelProxy.isFulfilled')
+    raw('isFileDistributionModelLoaded')
   ),
 
   neverSynchronized: computed(
@@ -146,5 +171,59 @@ export default Component.extend({
         return chunks;
       }
     }
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<Action>}
+   */
+  replicateHereAction: computed(function replicateHereAction() {
+    // FIXME disabled conditions
+    // FIMXE tip
+    return {
+      icon: 'replicate',
+      title: this.t('replicateHere'),
+      // tip: this.t('btnAdd.hint'),
+      class: 'replicate-here-action-trigger',
+      action: this.get('onReplicate'),
+    };
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<Action>}
+   */
+  migrateAction: computed(function migrateAction() {
+    // FIXME disabled conditions
+    // FIMXE tip
+    return {
+      icon: 'migrate',
+      title: this.t('migrate'),
+      // tip: this.t('btnAdd.hint'),
+      class: 'migrate-action-trigger',
+      action: this.get('onMigrate'),
+    };
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<Action>}
+   */
+  invalidateAction: computed(function invalidateAction() {
+    // FIXME disabled conditions
+    // FIMXE tip
+    return {
+      icon: 'invalidate',
+      title: this.t('invalidate'),
+      // tip: this.t('btnAdd.hint'),
+      class: 'invalidate-action-trigger',
+      action: this.get('onInvalidate'),
+    };
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<Array<Action>>}
+   */
+  actionsArray: collect(
+    'replicateHereAction',
+    'migrateAction',
+    'invalidateAction'
   ),
 });
