@@ -9,8 +9,8 @@
 
 import Component from '@ember/component';
 import { observer, computed, get } from '@ember/object';
-import { reads, not } from '@ember/object/computed';
-import { next, debounce, later } from '@ember/runloop';
+import { reads } from '@ember/object/computed';
+import { next, later } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve } from 'rsvp';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
@@ -18,8 +18,9 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-items';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
-import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
+import { inject as service } from '@ember/service';
 
 /**
  * @type {number}
@@ -27,18 +28,15 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
  */
 const recomputePathAnimationDuration = 200;
 
-/**
- * @type {number}
- * In milliseconds
- */
-const checkWidthOnResizeDelay = 100;
-
 export default Component.extend(
   I18n,
+  WindowResizeHandler,
   createDataProxyMixin('dirPath', { type: 'array' }),
   createDataProxyMixin('breadcrumbsItems', { type: 'array' }),
   createDataProxyMixin('filteredBreadcrumbsItems', { type: 'array' }), {
     classNames: ['fb-breadcrumbs'],
+
+    i18n: service(),
 
     /**
      * @override
@@ -47,6 +45,8 @@ export default Component.extend(
 
     /**
      * @virtual
+     * Array of buttons objects defined in file-browser component
+     * @type {ComputedProperty<Array<EmberObject>>}
      */
     allButtonsArray: undefined,
 
@@ -77,6 +77,24 @@ export default Component.extend(
     dirActionsToggled: notImplementedThrow,
 
     /**
+     * @virtual
+     * @type {boolean}
+     */
+    clipboardReady: undefined,
+
+    /**
+     * @virtual
+     */
+    menuButtons: undefined,
+
+    /**
+     * If true, add breadcrumbs-recomputing CSS class to breadcrumbs-inner
+     * to hide breadcrumbs smoothly for the time of testing its width.
+     * @type {boolean}
+     */
+    breadcrumbsRecomputing: false,
+
+    /**
      * How many breadcrumbs items should be rendered.
      * A special element: (...) is always additionally rendered,
      * so there will be N+1 elements visible.
@@ -91,54 +109,20 @@ export default Component.extend(
 
     _window: window,
 
-    isRootDir: not('dir.hasParent'),
-
-    menuButtons: computed(
-      'allButtonsArray',
-      'isRootDir',
-      function menuButtons() {
-        const {
-          allButtonsArray,
-          isRootDir,
-        } = this.getProperties('allButtonsArray', 'isRootDir');
-        return [
-          { separator: true, title: this.t('menuCurrentDir') },
-          ...getButtonActions(
-            allButtonsArray,
-            isRootDir ? 'spaceRootDir' : 'currentDir'
-          ),
-        ];
+    innerElementTruncate: computed(
+      'elementsToShow',
+      'filteredBreadcrumbsItems.length',
+      function innerElementTruncate() {
+        return this.get('elementsToShow') < 3 ||
+          this.get('filterBreadcrumbsItems.length') <= 1;
       }
     ),
 
-    checkWidthOnResize() {
-      this.set('elementsToShow', Infinity);
-      this.$('.fb-breadcrumbs-inner').addClass('breadcrumbs-recomputing');
-      later(() => {
-        this.updateFilteredBreadcrumbsItemsProxy()
-          .then(() => next(() => this.checkWidth(true)));
-      }, recomputePathAnimationDuration);
-    },
-
-    init() {
-      this._super(...arguments);
-      this.updateDirPathProxy();
-    },
-
-    didInsertElement() {
-      this._super(...arguments);
-      this.get('filteredBreadcrumbsItemsProxy').then(() => {
-        next(() => this.checkWidth());
-      });
-      this.set('__checkWidthFun', () => {
-        debounce(this, 'checkWidthOnResize', checkWidthOnResizeDelay);
-      });
-      this.get('_window').addEventListener('resize', this.get('__checkWidthFun'));
-    },
-
-    willDestroyElement() {
-      this.get('_window').removeEventListener('resize', this.get('__checkWidthFun'));
-    },
+    recomputePath: observer('dir', function recomputePath() {
+      this.updateDirPathProxy()
+        .then(() => this.updateBreadcrumbsItemsProxy())
+        .then(() => this.updateFilteredBreadcrumbsItemsProxy());
+    }),
 
     /**
      * Watch changes on properties that can cause change the width of fb-breadcrumbs.
@@ -163,14 +147,14 @@ export default Component.extend(
             this.decrementProperty('elementsToShow');
           }
           if (!noAnimation) {
-            $fileBreadcrumbsInner.addClass('breadcrumbs-recomputing');
+            this.set('breadcrumbsRecomputing', true);
           }
           later(() => {
             this.updateFilteredBreadcrumbsItemsProxy()
               .then(() => next(() => this.checkWidth(true)));
           }, noAnimation ? 0 : recomputePathAnimationDuration);
         } else {
-          $fileBreadcrumbsInner.removeClass('breadcrumbs-recomputing');
+          this.set('breadcrumbsRecomputing', false);
         }
       }
     ),
@@ -188,6 +172,25 @@ export default Component.extend(
     }),
 
     currentItem: reads('breadcrumbsItems.lastObject'),
+
+    init() {
+      this._super(...arguments);
+      this.updateDirPathProxy();
+    },
+
+    didInsertElement() {
+      this._super(...arguments);
+      this.get('filteredBreadcrumbsItemsProxy').then(() => {
+        next(() => this.checkWidth());
+      });
+    },
+
+    /**
+     * @override
+     */
+    onWindowResize() {
+      return this.checkWidthOnResize();
+    },
 
     /**
      * @override
@@ -237,6 +240,16 @@ export default Component.extend(
           elementsToShow
         )
       );
+    },
+
+    checkWidthOnResize() {
+      this.set('elementsToShow', Infinity);
+      // this.$('.fb-breadcrumbs-inner').addClass('breadcrumbs-recomputing');
+      this.set('breadcrumbsRecomputing', true);
+      later(() => {
+        this.updateFilteredBreadcrumbsItemsProxy()
+          .then(() => next(() => this.checkWidth(true)));
+      }, recomputePathAnimationDuration);
     },
 
     actions: {

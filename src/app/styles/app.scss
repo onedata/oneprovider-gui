@@ -3,9 +3,12 @@
 @import 'layout';
 @import 'components/content-file-browser';
 @import 'components/file-browser';
+@import 'components/bs-modal';
 @import 'components/file-distribution-modal';
 
 // FIXME: remove when development ends
+
+
 
 .oneprovider-origin-info {
   display: none !important;

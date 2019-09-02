@@ -68,8 +68,5 @@ src/tests/test-results.xml
 jsconfig.json
 typings/
 
-# ES Lint (currently we force developers to use only JSHint)
-.eslintrc.js
-
 # currently not using package-lock
 package-lock.json

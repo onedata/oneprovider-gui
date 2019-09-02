@@ -13,11 +13,12 @@ import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, FastDoubleClick, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
-  classNameBindings: ['typeClass', 'isSelected:file-selected'],
+  classNameBindings: ['typeClass', 'isSelected:file-selected', 'fileCut:file-cut'],
   attributeBindings: ['fileEntityId:data-row-id'],
 
   fileActions: service(),
@@ -47,6 +48,13 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   isSelected: undefined,
+
+  /**
+   * @virtual
+   * Set to true if this file is cut in clipboard
+   * @type {boolean}
+   */
+  fileCut: undefined,
 
   displayName: reads('file.name'),
 
@@ -81,6 +89,7 @@ export default Component.extend(I18n, {
     return function oncontextmenu(contextmenuEvent) {
       openContextMenu(contextmenuEvent);
       contextmenuEvent.preventDefault();
+      contextmenuEvent.stopImmediatePropagation();
     };
   }),
 
@@ -108,6 +117,11 @@ export default Component.extend(I18n, {
   willDestroyElement() {
     this._super(...arguments);
     this.element.removeEventListener('contextmenu', this.get('contextMenuHandler'));
+  },
+
+  click(clickEvent) {
+    this._super(...arguments);
+    this.get('fastClick')(clickEvent);
   },
 
   actions: {

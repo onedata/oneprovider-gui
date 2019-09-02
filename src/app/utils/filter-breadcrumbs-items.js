@@ -28,21 +28,20 @@ function addEllipsisForLastItem(items, resultArray) {
  * Filters elements of given breadcrumbs items array to get array with reduced
  * number of breadcrumbs items WITHOUT last element.
  *  
- * Also an "ellispis item" presented as "..." is added, which is a link to parent
- * of right item on its right.
+ * Also an "ellispis item" presented as "..." is added, which is a link to
+ * a parent on its right.
  * 
  * Example: we got items: `root > a > b > c > d > e > f > current_dir`.
  * Invoking `filterBreadcrumbsItems(items, 5)` will give us:
- * `root > a > ... > e > f` where "..." is "ellipsis item".
+ * `root > a > ... > e > f` where "..." is "ellipsis item" (a link to "d").
  * 
  * See tests for more examples.
  * 
  * @param {Ember.A<FileBreadcrumbsItem>} items
- * @param {Number} count max. number entries in result array, NOTE: 0, 1, 2 will give result for 2
+ * @param {Number} count max. desired number of entries in result array
+ *  NOTE: 0, 1, 2 will give result for 2
  * @returns {RSVP.Promise<Ember.A<FileBreadcrumbsItem>>} resolves with reduced breadcrumbs
- *                                         items array;
- *                                         max. length of the array is `count+1`
- *                                         or `items` length
+ *  items array; max. length of the array is `count+1` or `items` length
  */
 export default function filterBreadcrumbsItems(items, count) {
   let resultArray = A();
@@ -71,7 +70,7 @@ export default function filterBreadcrumbsItems(items, count) {
     return resolve(resultArray);
   }
   // 4 or more
-  if (count > 3 && itemsCount > 4) {
+  if (count > 3 && itemsCount >= 4) {
     // add first child of root
     // [root > root_child > parent_of_last]
     resultArray.splice(1, 0, items.objectAt(1));

@@ -1,4 +1,3 @@
-/* jshint expr:true */
 import EmberObject from '@ember/object';
 import { expect } from 'chai';
 import {

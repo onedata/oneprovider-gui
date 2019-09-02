@@ -15,8 +15,10 @@
       {{file-browser/fb-table-row
         class="data-row"
         file=file
+        fileCut=(and (eq fileClipboardMode "move") (contains file fileClipboardFiles))
         isSelected=(contains file selectedFiles)
-        click=(action "fileClicked" file)
+        fastClick=(action "fileClicked" file)
+        fastDoubleClick=(action "fileDoubleClicked" file)
         openContextMenu=(action "openContextMenu" file)
         fileActionsOpen=fileActionsOpen
         selectionContext=selectionContext
@@ -24,7 +26,33 @@
     {{/each}}
   </tbody>
 </table>
-{{!-- TODO: trigger selector for multiple file tables --}}
+<div class="empty-dir-box">
+  <h1 class="empty-dir-text">{{tt this "emptyDirBox.emptyDirectory"}}</h1>
+  <div class="empty-dir-image"></div>
+  {{!-- FIXME: i18n when translations will be stable --}}
+  <h2 class="empty-dir-text">
+    Drag files here to
+    <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>
+      <div class="inline-icon-container bind-right-text">
+        {{one-icon icon="browser-upload"}}
+      </div>&nbsp;upload
+    </a>
+    or
+    <a class="empty-dir-new-directory-action" {{action "emptyDirNewDirectory"}}>
+      <div class="inline-icon-container bind-right-text">
+        {{one-icon icon="browser-new-directory"}}
+      </div>&nbsp;create a new directory</a>.
+  </h2>
+  {{#if fileManager.fileClipboardFiles.length}}
+    <h2 class="empty-dir-text">
+      You can also
+      <a class="empty-dir-new-directory-action" {{action "emptyDirPaste"}}>
+        <div class="inline-icon-container bind-right-text">
+          {{one-icon icon="clipboard-copy"}}
+        </div>&nbsp;paste</a> files from clipboard.
+    </h2>
+  {{/if}}
+</div>
 {{#one-webui-popover
   class="file-actions-popover"
   popoverStyle="with-dropdown"
@@ -40,4 +68,4 @@
     }}
   {{/click-outside}}
 {{/one-webui-popover}}
-<div class="file-actions-trigger"></div>
+<div class="file-actions-trigger floating-actions-trigger"></div>

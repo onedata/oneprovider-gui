@@ -11,6 +11,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed, observer } from '@ember/object';
+import { equal } from '@ember/object/computed';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -22,13 +23,17 @@ import { htmlSafe } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import { and, not } from 'ember-awesome-macros';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const compareIndex = createPropertyComparator('index');
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
+  classNameBindings: ['hasEmptyDirClass:empty-dir'],
 
-  fileServer: service(),
+  fileManager: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -54,6 +59,24 @@ export default Component.extend(I18n, {
   selectedFiles: undefined,
 
   /**
+   * @virtual
+   * @type {Array<Object>}
+   */
+  allButtonsArray: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Function} (boolean) => any
+   */
+  hasEmptyDirClassChanged: notImplementedIgnore,
+
+  changeDir: undefined,
+
+  downloadFile: undefined,
+
+  _window: window,
+
+  /**
    * @type {models/File}
    */
   lastSelectedFile: undefined,
@@ -66,6 +89,36 @@ export default Component.extend(I18n, {
   headerVisible: undefined,
 
   selectionCount: reads('selectedFiles.length'),
+
+  fileClipboardMode: reads('fileManager.fileClipboardMode'),
+
+  fileClipboardFiles: reads('fileManager.fileClipboardFiles'),
+
+  /**
+   * True if there is initially loaded file list, but it is empty.
+   * False if there is initially loaded file list, but it is not empty.
+   * Undefined if the file list is not yet loaded.
+   * @type {boolean|undefined}
+   */
+  isDirEmpty: and('filesArray.initialLoad.isFulfilled', not('filesArray.length')),
+
+  /**
+   * If true, the `empty-dir` class should be added
+   * @type {ComputedProperty<boolean>}
+   */
+  hasEmptyDirClass: equal('isDirEmpty', true),
+
+  uploadAction: computed('allButtonsArray.[]', function uploadAction() {
+    return this.get('allButtonsArray').findBy('id', 'upload');
+  }),
+
+  newDirectoryAction: computed('allButtonsArray.[]', function newDirectoryAction() {
+    return this.get('allButtonsArray').findBy('id', 'newDirectory');
+  }),
+
+  pasteAction: computed('allButtonsArray.[]', function pasteAction() {
+    return this.get('allButtonsArray').findBy('id', 'paste');
+  }),
 
   firstRowHeight: computed(
     'rowHeight',
@@ -123,6 +176,15 @@ export default Component.extend(I18n, {
     }
   ),
 
+  init() {
+    this._super(...arguments);
+    this.get('fileManager').on('dirChildrenRefresh', parentDirEntityId => {
+      if (this.get('dir.entityId') === parentDirEntityId) {
+        this.refreshFileList();
+      }
+    });
+  },
+
   didInsertElement() {
     this._super(...arguments);
     const listWatcher = this.set('listWatcher', this.createListWatcher());
@@ -137,6 +199,19 @@ export default Component.extend(I18n, {
     }
   },
 
+  refreshFileList() {
+    const filesArray = this.get('filesArray');
+    filesArray.reload({
+      head: true,
+      minSize: 50,
+    }).then(() => filesArray.reload());
+    // FIXME: more efficient, but buggy way
+    // filesArray.reload({
+    //   offset: -1,
+    //   minSize: 50,
+    // });
+  },
+
   onTableScroll(items, headerVisible) {
     const filesArray = this.get('filesArray');
     const sourceArray = get(filesArray, 'sourceArray');
@@ -148,10 +223,14 @@ export default Component.extend(I18n, {
     if (firstId === null && get(sourceArray, 'length') !== 0) {
       const rowHeight = this.get('rowHeight');
       const $firstRow = $('.first-row');
-      const blankStart = $firstRow.offset().top * -1;
+      const firstRowTop = $firstRow.offset().top;
+      const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + window.innerHeight;
-      startIndex = Math.floor(blankStart / rowHeight);
+      startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.floor(blankEnd / rowHeight);
+      if (endIndex < 0) {
+        endIndex = 50;
+      }
     } else {
       startIndex = filesArrayIds.indexOf(firstId);
       endIndex = filesArrayIds.indexOf(lastId, startIndex);
@@ -170,7 +249,7 @@ export default Component.extend(I18n, {
   },
 
   fetchDirChildren(dirId, ...fetchArgs) {
-    return this.get('fileServer').fetchDirChildren(dirId, ...fetchArgs);
+    return this.get('fileManager').fetchDirChildren(dirId, ...fetchArgs);
   },
 
   clearFilesSelection() {
@@ -315,7 +394,7 @@ export default Component.extend(I18n, {
       const $this = this.$();
       const tableOffset = $this.offset();
       left = left - tableOffset.left + this.element.offsetLeft;
-      top = top - tableOffset.top + this.element.offsetTop;
+      top = top - tableOffset.top - this.element.offsetTop + this.element.offsetTop;
       this.$('.file-actions-trigger').css({
         top,
         left,
@@ -326,6 +405,7 @@ export default Component.extend(I18n, {
       }
       this.actions.toggleFileActions.bind(this)(true, file);
     },
+
     toggleFileActions(open, file) {
       this.set('fileActionsOpen', open, file);
     },
@@ -342,6 +422,27 @@ export default Component.extend(I18n, {
         ctrlKey || metaKey,
         shiftKey
       );
+    },
+
+    fileDoubleClicked(file /*, clickEvent */ ) {
+      const isDir = get(file, 'type') === 'dir';
+      if (isDir) {
+        this.get('changeDir')(file);
+      } else {
+        this.get('fileManager').download(get(file, 'entityId'));
+      }
+    },
+
+    emptyDirUpload() {
+      return this.get('uploadAction.action')(...arguments);
+    },
+
+    emptyDirNewDirectory() {
+      return this.get('newDirectoryAction.action')(...arguments);
+    },
+
+    emptyDirPaste() {
+      return this.get('pasteAction.action')(...arguments);
     },
   },
 });

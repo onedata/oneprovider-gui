@@ -1,4 +1,5 @@
-import EmberObject, { computed } from '@ember/object';
+import EmberObject from '@ember/object';
+import { reads, not } from '@ember/object/computed';
 
 /**
  * An envelope Ember Class for `FileBreadcrumbs`.
@@ -15,16 +16,17 @@ import EmberObject, { computed } from '@ember/object';
  */
 const FileBreadcrumbsItem = EmberObject.extend({
   /**
-   * @required
+   * @virtual
    * @type {File}
    */
   file: null,
 
   /**
-   * Overriden name of file.
-   * Do not set it manually - use `set('name')`.
+   * @virtual
+   * Set to true if this item is an ellipsis
+   * @type {boolean}
    */
-  __name: undefined,
+  isEllipsis: undefined,
 
   /**
    * A name of item displayed in breadcrumbs.
@@ -33,33 +35,9 @@ const FileBreadcrumbsItem = EmberObject.extend({
    * 
    * NOTE that it can be shortened with CSS ellipsis later before rendering.
    */
-  name: computed('__name', 'file.name', {
-    get() {
-      return this.get('__name') || this.get('file.name');
-    },
-    set(key, value) {
-      this.set('__name', value);
-      return this.get('__name');
-    },
-  }),
+  name: reads('file.name'),
 
-  __isRoot: undefined,
-
-  // TODO: automatic isRoot detection seems not to work with template
-  isRoot: computed('__isRoot', 'file.hasParent', {
-    get() {
-      let __isRoot = this.get('__isRoot');
-      if (this.get('__isRoot') === undefined) {
-        return this.get('file.hasParent') === false;
-      } else {
-        return __isRoot;
-      }
-    },
-    set(key, value) {
-      this.set('__isRoot', value);
-      return this.get('__isRoot');
-    },
-  }),
+  isRoot: not('file.hasParent'),
 });
 
 export default FileBreadcrumbsItem;

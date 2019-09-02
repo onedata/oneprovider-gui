@@ -9,14 +9,17 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { camelize, dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
-import { hash } from 'ember-awesome-macros';
+import { hash, notEmpty, not } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import { hashSettled } from 'rsvp';
+import _ from 'lodash';
 
 export const actionContext = {
   none: 'none',
@@ -26,7 +29,6 @@ export const actionContext = {
   multiDir: 'multiDir',
   multiFile: 'multiFile',
   multiMixed: 'multiMixed',
-  desktopToolbar: 'desktopToolbar',
   currentDir: 'currentDir',
   spaceRootDir: 'spaceRootDir',
 };
@@ -55,6 +57,7 @@ const buttonNames = [
   'btnRename',
   'btnCopy',
   'btnCut',
+  'btnPaste',
   'btnDelete',
 ];
 
@@ -64,6 +67,9 @@ export default Component.extend(I18n, {
   i18n: service(),
   fileActions: service(),
   uploadManager: service(),
+  fileManager: service(),
+  globalNotify: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -71,16 +77,48 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.fileBrowser',
 
   /**
-   * Array of selected file records.
-   * Initialized to empty array in init.
-   * @type EmberArray<object>
-   */
-  selectedFiles: undefined,
-
-  /**
-   * TODO: it should be fetched using dirId
+   * @virtual
+   * File model with dir type. It is the currently displayed directory.
+   * Can be replaced internally with `changeDir` action.
+   * @type {Models/File}
    */
   dir: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models/File} file parent of new directory
+   */
+  openCreateNewDirectory: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} files array with files/directories to remove
+   */
+  openRemove: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models/File} file file to rename
+   * @param {Models/File} parentDir parentDir of file to rename
+   */
+  openRename: notImplementedThrow,
+
+  /**
+   * If true, the paste from clipboard button should be available
+   * @type {Computed<boolean>}
+   */
+  clipboardReady: notEmpty('fileManager.fileClipboardFiles'),
+
+  isRootDir: not('dir.hasParent'),
+
+  /**
+   * Array of selected file records.
+   * @type {EmberArray<object>}
+   */
+  selectedFiles: computed(() => A()),
 
   /**
    * One of values from `actionContext` enum object
@@ -112,6 +150,52 @@ export default Component.extend(I18n, {
     }
   }),
 
+  clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
+    const component = this;
+    return function clickOutsideDeselect(mouseEvent) {
+      if (!isPopoverOpened() &&
+        !mouseEvent.target.matches(
+          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *'
+        )) {
+        component.clearFilesSelection();
+      }
+    };
+  }),
+
+  currentDirMenuButtons: computed(
+    'allButtonsArray',
+    'isRootDir',
+    'clipboardReady',
+    function menuButtons() {
+      const {
+        allButtonsArray,
+        isRootDir,
+        clipboardReady,
+      } = this.getProperties('allButtonsArray', 'isRootDir', 'clipboardReady');
+      let importedActions = getButtonActions(
+        allButtonsArray,
+        isRootDir ? 'spaceRootDir' : 'currentDir'
+      );
+      if (!clipboardReady) {
+        importedActions = importedActions.rejectBy('id', 'paste');
+      }
+      return [
+        { separator: true, title: this.t('menuCurrentDir') },
+        ...importedActions,
+      ];
+    }
+  ),
+
+  currentDirContextMenuHandler: computed(function currentDirContextMenuHandler() {
+    const component = this;
+    const openCurrentDirContextMenu = component.get('openCurrentDirContextMenu');
+    return function oncontextmenu(contextmenuEvent) {
+      component.selectCurrentDir();
+      openCurrentDirContextMenu(contextmenuEvent);
+      contextmenuEvent.preventDefault();
+    };
+  }),
+
   // #region Action buttons
 
   allButtonsArray: collect(...buttonNames),
@@ -121,7 +205,7 @@ export default Component.extend(I18n, {
   btnUpload: computed(function btnUpload() {
     return this.createFileAction({
       id: 'upload',
-      elementClass: 'browser-upload',
+      class: 'browser-upload',
       showIn: [
         actionContext.inDir,
         actionContext.currentDir,
@@ -133,6 +217,7 @@ export default Component.extend(I18n, {
   btnNewDirectory: computed(function btnNewDirectory() {
     return this.createFileAction({
       id: 'newDirectory',
+      action: () => this.get('openCreateNewDirectory')(this.get('dir')),
       showIn: [
         actionContext.inDir,
         actionContext.currentDir,
@@ -159,8 +244,7 @@ export default Component.extend(I18n, {
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
-        // TODO: ?
-        // actionContext.spaceRootDir,
+        actionContext.spaceRootDir,
       ],
     });
   }),
@@ -175,6 +259,13 @@ export default Component.extend(I18n, {
   btnRename: computed(function btnRename() {
     return this.createFileAction({
       id: 'rename',
+      action: () => {
+        const {
+          openRename,
+          selectedFiles,
+        } = this.getProperties('openRename', 'selectedFiles');
+        return openRename(selectedFiles[0]);
+      },
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,
@@ -204,9 +295,28 @@ export default Component.extend(I18n, {
     });
   }),
 
+  btnPaste: computed(function btnCut() {
+    return this.createFileAction({
+      id: 'paste',
+      icon: 'clipboard-copy',
+      action: () => {
+        return this.pasteFiles();
+      },
+      showIn: [
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+        actionContext.inDir,
+      ],
+    });
+  }),
+
   btnDelete: computed(function btnDelete() {
     return this.createFileAction({
       id: 'delete',
+      action: () => this.get('openRemove')(
+        this.get('selectedFiles'),
+        this.get('dir')
+      ),
       showIn: anySelected,
     });
   }),
@@ -224,24 +334,26 @@ export default Component.extend(I18n, {
     };
   }),
 
-  // #endregion
-
-  clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
-    const component = this;
-    return function clickOutsideDeselect(mouseEvent) {
-      if (!isPopoverOpened() &&
-        !mouseEvent.target.matches(
-          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-toolbar *, .fb-selection-toolkit *'
-        )) {
-        component.clearFilesSelection();
+  openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
+    return (mouseEvent) => {
+      const $this = this.$();
+      const tableOffset = $this.offset();
+      const left = mouseEvent.clientX - tableOffset.left + this.element
+        .offsetLeft;
+      const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
+      this.$('.current-dir-actions-trigger').css({
+        top,
+        left,
+      });
+      // cause popover refresh
+      if (this.get('currentDirActionsOpen')) {
+        window.dispatchEvent(new Event('resize'));
       }
+      this.actions.toggleCurrentDirActions.bind(this)(true);
     };
   }),
 
-  init() {
-    this._super(...arguments);
-    this.set('selectedFiles', A());
-  },
+  // #endregion
 
   didInsertElement() {
     this._super(...arguments);
@@ -250,10 +362,12 @@ export default Component.extend(I18n, {
       element,
       uploadManager,
       clickOutsideDeselectHandler,
+      dir,
     } = this.getProperties(
       'element',
       'uploadManager',
-      'clickOutsideDeselectHandler'
+      'clickOutsideDeselectHandler',
+      'dir'
     );
 
     document.body.addEventListener(
@@ -264,8 +378,14 @@ export default Component.extend(I18n, {
     const uploadDropElement = element.parentElement;
     uploadManager.assignUploadDrop(uploadDropElement);
 
-    const uploadBrowseElement = document.querySelectorAll('.browser-upload');
+    const uploadBrowseElement = document.querySelector('.fb-upload-trigger');
     uploadManager.assignUploadBrowse(uploadBrowseElement);
+    uploadManager.changeTargetDirectory(dir);
+
+    this.element.addEventListener(
+      'contextmenu',
+      this.get('currentDirContextMenuHandler')
+    );
   },
 
   willDestroyElement() {
@@ -274,19 +394,43 @@ export default Component.extend(I18n, {
       'click',
       this.get('clickOutsideDeselectHandler')
     );
+    this.element.removeEventListener(
+      'contextmenu',
+      this.get('currentDirContextMenuHandler')
+    );
   },
 
+  /**
+   * Create button or popover menu item for controlling files.
+   * @param {object} actionProperties properties of action button:
+   *  - id: string
+   *  - action: optional function
+   *  - icon: optional string, if not provided will be generated
+   *  - title: string
+   *  - showIn: array of strings from arrayContext
+   *  - class: string, classes added to element
+   * @returns {EmberObject}
+   */
   createFileAction(actionProperties) {
-    const id = get(actionProperties, 'id');
+    const {
+      id,
+      icon,
+      action,
+      class: elementClass,
+    } = getProperties(actionProperties, 'id', 'icon', 'action', 'class');
     const fileActions = this.get('fileActions');
     return Object.assign({
-      action: () => {
-        return fileActions[camelize(`act-${id}`)](
-          this.get('selectedFiles'));
-      },
-      icon: `browser-${dasherize(id)}`,
+      action: action || (() => {
+        let predefinedAction = fileActions[camelize(`act-${id}`)];
+        if (typeof predefinedAction === 'function') {
+          predefinedAction = predefinedAction.bind(fileActions);
+          return predefinedAction(this.get('selectedFiles'));
+        }
+      }),
+      icon: icon || `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
       showIn: [],
+      class: [`file-action-${id}`, ...(elementClass || [])],
     }, actionProperties);
   },
 
@@ -294,12 +438,74 @@ export default Component.extend(I18n, {
     this.get('selectedFiles').clear();
   },
 
+  pasteFiles() {
+    const {
+      dir,
+      fileManager,
+      globalNotify,
+      errorExtractor,
+    } = this.getProperties('dir', 'fileManager', 'globalNotify', 'errorExtractor');
+    const fileClipboardMode = get(fileManager, 'fileClipboardMode');
+    const fileClipboardFiles = get(fileManager, 'fileClipboardFiles');
+    const dirEntityId = get(dir, 'entityId');
+    return hashSettled(_.zipObject(fileClipboardFiles, fileClipboardFiles.map(file =>
+        fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
+      )))
+      .then(promisesHash => {
+        const rejected = [];
+        for (let key in promisesHash) {
+          const value = promisesHash[key];
+          if (get(value, 'state') === 'rejected') {
+            rejected.push({
+              file: key,
+              reason: get(value, 'reason'),
+            });
+          }
+        }
+        const failedCount = get(rejected, 'length');
+        if (failedCount) {
+          globalNotify.backendError(
+            this.t('pasteFailed.' + fileClipboardMode),
+            this.t('pasteFailedDetails.' + (failedCount > 1 ? 'multi' : 'single'), {
+              reason: get(
+                errorExtractor.getMessage(get(rejected[0], 'reason')),
+                'message'
+              ),
+              moreCount: failedCount - 1,
+            })
+          );
+          throw rejected;
+        }
+      })
+      .finally(() => {
+        if (fileClipboardMode === 'move') {
+          fileManager.clearFileClipboard();
+        }
+      });
+  },
+
+  selectCurrentDir(select = true) {
+    this.clearFilesSelection();
+    if (select) {
+      this.get('selectedFiles').push(this.get('dir'));
+    }
+  },
+
   actions: {
     selectCurrentDir(select) {
-      this.clearFilesSelection();
-      if (select) {
-        this.selectedFiles.push(this.get('dir'));
-      }
+      this.selectCurrentDir(select);
+    },
+    changeDir(dir) {
+      this.set('dir', dir);
+      this.get('uploadManager').changeTargetDirectory(dir);
+    },
+    toggleCurrentDirActions(open) {
+      const _open =
+        (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
+      this.set('currentDirActionsOpen', _open);
+    },
+    currentDirActionsToggled(opened) {
+      this.get('currentDirActionsToggled')(opened);
     },
   },
 });

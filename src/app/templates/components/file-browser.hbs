@@ -1,13 +1,17 @@
-<div class="file-browser-head-container hidden-xs">
+<div class="file-browser-head-container">
+  <div class="fb-upload-trigger"></div>
   <div class="fb-head-inner">
     <div class="fb-breadcrumbs-container">
       {{file-browser/fb-breadcrumbs
         dir=dir
         allButtonsArray=allButtonsArray
+        clipboardReady=clipboardReady
         dirActionsToggled=(action "selectCurrentDir")
+        changeDir=(action "changeDir")
+        menuButtons=currentDirMenuButtons
       }}
     </div>
-    <div class="text-right fb-toolbar-container">
+    <div class="text-right fb-toolbar-container hidden-xs">
       {{file-browser/fb-selection-toolkit
         itemsCount=selectedFiles.length
         selectionContext=selectionContext
@@ -15,8 +19,10 @@
       }}
       {{file-browser/fb-toolbar
         dir=dir
+        clipboardReady=clipboardReady
         selectionContext=selectionContext
         allButtonsArray=allButtonsArray
+        selectCurrentDir=(action "selectCurrentDir")
       }}
     </div>
   </div>
@@ -27,5 +33,23 @@
     selectedFiles=selectedFiles
     selectionContext=selectionContext
     allButtonsArray=allButtonsArray
+    changeDir=(action "changeDir")
   }}
 </div>
+
+{{#one-webui-popover
+  class="current-dir-actions-popover"
+  popoverStyle="with-dropdown"
+  padding=false
+  triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
+  open=currentDirActionsOpen
+}}
+  {{#click-outside action=(action "toggleCurrentDirActions" false)}}
+    {{actions-popover-content
+      actionsArray=currentDirMenuButtons
+      actionClicked=(action "toggleCurrentDirActions" false)
+      class="current-dir-actions"
+    }}
+  {{/click-outside}}
+{{/one-webui-popover}}
+<div class="current-dir-actions-trigger floating-actions-trigger"></div>

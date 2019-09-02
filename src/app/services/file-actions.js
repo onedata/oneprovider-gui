@@ -7,21 +7,22 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import Service from '@ember/service';
+import Service, { inject as service } from '@ember/service';
+import { setProperties } from '@ember/object';
 
 function dummyAction(message, files) {
   alert(message + files.mapBy('name'));
 }
 
 export default Service.extend({
+  store: service(),
+  fileManager: service(),
+  uploadManager: service(),
+
   // #region Actions implementation
 
-  actUpload( /* files */ ) {
-    alert('upload');
-  },
-
-  actNewDirectory( /* files */ ) {
-    alert('new directory');
+  actUpload() {
+    this.get('uploadManager').triggerUploadDialog();
   },
 
   actInfo(files) {
@@ -44,20 +45,24 @@ export default Service.extend({
     dummyAction('distribution: ', files);
   },
 
-  actRename(files) {
-    dummyAction('rename: ', files);
-  },
-
   actCopy(files) {
-    dummyAction('copy: ', files);
+    const fileManager = this.get('fileManager');
+    setProperties(
+      fileManager, {
+        fileClipboardFiles: files.toArray(),
+        fileClipboardMode: 'copy',
+      }
+    );
   },
 
   actCut(files) {
-    dummyAction('cut: ', files);
-  },
-
-  actDelete(files) {
-    dummyAction('delete: ', files);
+    const fileManager = this.get('fileManager');
+    setProperties(
+      fileManager, {
+        fileClipboardFiles: files.toArray(),
+        fileClipboardMode: 'move',
+      }
+    );
   },
 
   // #endregion

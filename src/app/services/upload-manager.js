@@ -12,53 +12,110 @@ import Service, { inject as service } from '@ember/service';
 import { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import Resumable from 'npm:resumablejs';
-import { v4 as uuidV4 } from 'ember-uuid';
-import { resolve } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
+import { getOwner } from '@ember/application';
+import getGuiAuthToken from 'onedata-gui-websocket-client/utils/get-gui-auth-token';
+import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
+import moment from 'moment';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { later } from '@ember/runloop';
+import { v4 as uuid } from 'ember-uuid';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import _ from 'lodash';
 
-// TODO:
-// - get oneproviderApiOrigin for targetUrl in resumable
-// - get authToken for X-Auth-Token in resumable (maybe with getGuiAuthToken from websocket-client),
-//   but it need initialization due to async character
-// - add parentId to each resumable file at `fileAdded` event
-// - startNewUploadSession method
-
-export default Service.extend({
+export default Service.extend(I18n, {
   appProxy: service(),
+  fileManager: service(),
+  onedataRpc: service(),
+  errorExtractor: service(),
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'services.uploadManager',
+
+  /**
+   * @type {PromiseObject<string>}
+   */
+  tokenProxy: undefined,
+
+  /**
+   * @type {number}
+   */
+  tokenRegenerateTimestamp: 0,
 
   /**
    * Id of directory where files should be uploaded
-   * @type {string}
+   * @type {Models.File}
    */
-  targetDirectoryId: undefined,
+  targetDirectory: undefined,
 
   /**
    * @type {Ember.ComputedProperty<Object>}
    */
   injectedUploadState: reads('appProxy.injectedData.uploadFiles'),
 
+  /**
+   * @type {Ember.ComputedProperty<Resumable>}
+   */
   resumable: computed(function resumable() {
-    const oneproviderApiOrigin = '???';
-    const authToken = '???';
+    const oneproviderApiOrigin = getOwner(this).application.guiContext.apiOrigin;
     return new Resumable({
-      target: `https://${oneproviderApiOrigin}/upload`,
+      target: `https://${oneproviderApiOrigin}/file_upload`,
       chunkSize: 1 * 1024 * 1024,
       simultaneousUploads: 4,
       testChunks: false,
       minFileSize: 0,
       throttleProgressCallbacks: 1,
       permanentErrors: [400, 404, 405, 415, 500, 501],
-      headers: {
-        'X-Auth-Token': authToken,
+      identifierParameterName: null,
+      maxChunkRetries: 5,
+      preprocess: (fileChunk) => {
+        const resumableFile = fileChunk.fileObj;
+
+        if (!resumableFile.initializeUploadPromise) {
+          resumableFile.initializeUploadPromise =
+            this.createCorrespondingFile(resumableFile)
+            .then(() => this.initializeFileUpload(resumableFile));
+        }
+
+        Promise.all([
+            resumableFile.initializeUploadPromise,
+            this.getAuthToken(),
+          ])
+          .then(() => fileChunk.preprocessFinished())
+          .catch(error => {
+            // Error occurred in chunk preprocessing so either cannot create
+            // directory/file or cannot get auth token. In both cases the whole
+            // file upload must be cancelled.
+            resumableFile.cancel();
+            // BUGFIX: Resumable does not replace cancelled not-started chunk
+            // with a new one in upload queue. We need to invoke `uploadNextChunk`
+            // manually.
+            fileChunk.resumableObj.uploadNextChunk();
+
+            const errorMessage = get(
+              this.get('errorExtractor').getMessage(error),
+              'message.string'
+            ) || this.t('unknownError');
+            this.notifyParent({
+              uploadId: resumableFile.uploadId,
+              path: resumableFile.relativePath,
+              error: errorMessage,
+            });
+
+            this.deleteFailedFile(resumableFile)
+              .finally(() => this.finalizeFileUpload(resumableFile));
+          });
+      },
+      headers: () => {
+        return { 'X-Auth-Token': this.get('tokenProxy.content') };
       },
       query(file) {
-        return {
-          uploadId: file.uploadId,
-          parentId: file.parentId,
-        };
+        return { guid: get(file.fileModel, 'entityId') };
       },
-      generateUniqueIdentifier() {
-        return uuidV4();
-      },
+      generateUniqueIdentifier: () => uuid(),
     });
   }),
 
@@ -81,7 +138,20 @@ export default Service.extend({
             const upload = injectedUploadState[uploadId];
             return upload && get(upload, 'files').findBy('path', relativePath);
           })
-          .invoke('cancel');
+          .forEach(resumableFile => {
+            resumableFile.isCancelled = true;
+            resumableFile.cancel();
+            // Make cleanup after 1s delay to let xhr connections abort
+            // (it is not always an immediate process). Unfortunately `abort()`
+            // method of xhr object (used in Resumable) does not return any
+            // information when connection is REALLY closed.
+            later(
+              this,
+              () => this.deleteFailedFile(resumableFile)
+              .finally(() => this.finalizeFileUpload(resumableFile)),
+              1000
+            );
+          });
       }
     }
   ),
@@ -90,88 +160,220 @@ export default Service.extend({
     this._super(...arguments);
 
     const resumable = this.get('resumable');
-    resumable.on('filesAdded', (files) => this.filesAdded(files));
+    resumable.on('filesAdded', (...args) => this.filesAdded(...args));
     resumable.on('fileProgress', (...args) => this.fileUploadProgress(...args));
-    resumable.on('fileSuccess', (file) => this.fileUploadSuccess(file));
-    resumable.on('fileError', (file) => this.fileUploadFailure(file));
+    resumable.on('fileSuccess', (...args) => this.fileUploadSuccess(...args));
+    resumable.on('fileError', (...args) => this.fileUploadFailure(...args));
 
     this.injectedUploadStateObserver();
   },
 
   /**
-   * Event handler for Resumable.js
-   * @param {Array<ResumableFile>} files
-   * @returns {undefined}
+   * @returns {Promise<string>}
    */
-  filesAdded(files) {
-    const targetDirectoryId = this.get('targetDirectoryId');
-    files.setEach('targetDirectoryId', targetDirectoryId);
+  getAuthToken() {
+    const {
+      tokenRegenerateTimestamp,
+      tokenProxy,
+    } = this.getProperties('tokenRegenerateTimestamp', 'tokenProxy');
+    const nowTimestamp = moment().unix();
 
-    this.startNewUploadSession()
-      .then(({ uploadId }) => {
-        files.setEach('uploadId', uploadId);
-        const notifyObject = {
-          uploadId,
-          files: files.map(file => ({
-            path: file.relativePath,
-            size: file.size,
-          })),
-        };
-        this.notifyParent(notifyObject, 'addNewUpload');
-      })
-      .catch((/* error */) => {
-        files.invoke('cancel');
-        // TODO global-notify with error depending on whether or not errors
-        // should be shown from backend
+    if (tokenRegenerateTimestamp <= nowTimestamp) {
+      // When new token will be loading, disable token regeneration
+      this.set('tokenRegenerateTimestamp', nowTimestamp + 9999999);
+
+      const newTokenPromise = getGuiAuthToken();
+      const newTokenProxy = PromiseObject.create({
+        promise: newTokenPromise.then(({ token }) => token),
       });
-  },
+      newTokenPromise
+        .then(({ ttl }) => safeExec(this, () =>
+          // After successfull generation, set regeneration timestamp to the
+          // half of the token lifetime.
+          this.set('tokenRegenerateTimestamp', moment().unix() + ttl / 2)
+        ))
+        .catch(() => safeExec(this, () => this.set('tokenExpirationTimestamp', 0)));
 
-  /**
-   * Event handler for Resumable.js
-   * @param {ResumableFile} file
-   * @returns {undefined}
-   */
-  fileUploadProgress(file) {
-    const progress = file.progress();
-    // Notifying about 0% progress is not useful
-    if (progress > 0) {
-      const notifyObject = {
-        uploadId: file.uploadId,
-        path: file.relativePath,
-        bytesUploaded: Math.floor(file.progress() * file.size),
-      };
-      this.notifyParent(notifyObject);
+      if (tokenProxy) {
+        newTokenProxy
+          .then(() => safeExec(this, () => this.set('tokenProxy', newTokenProxy)));
+        return tokenProxy;
+      } else {
+        return this.set('tokenProxy', newTokenProxy);
+      }
+    } else {
+      return tokenProxy;
     }
   },
 
   /**
    * Event handler for Resumable.js
-   * @param {ResumableFile} file
+   * @param {Array<ResumableFile>} resumableFiles
    * @returns {undefined}
    */
-  fileUploadSuccess(file) {
+  filesAdded(resumableFiles) {
+    const {
+      targetDirectory,
+      resumable,
+    } = this.getProperties('targetDirectory', 'resumable');
+
+    const uploadId = uuid();
+    const createdDirectories = {};
+
+    resumableFiles.setEach('uploadId', uploadId);
+    resumableFiles.setEach('targetRootDirectory', targetDirectory);
+    resumableFiles.setEach('createdDirectories', createdDirectories);
+
+    // Sort files to optimize directories creation
+    const filesTree = buildFilesTree(resumableFiles);
+    const sortedFiles = sortFilesToUpload(filesTree);
+
+    // Remove added files...
+    for (let i = 0; i < resumableFiles.length; i++) {
+      resumable.files.pop();
+    }
+    // ... and restore them in changed order
+    for (let i = 0; i < resumableFiles.length; i++) {
+      resumable.files.push(sortedFiles[i]);
+    }
+
     const notifyObject = {
-      uploadId: file.uploadId,
-      path: file.relativePath,
-      bytesUploaded: file.size,
-      success: true,
+      uploadId,
+      files: resumableFiles.map(file => ({
+        path: file.relativePath,
+        size: file.size,
+      })),
     };
-    this.notifyParent(notifyObject);
+    this.notifyParent(notifyObject, 'addNewUpload');
+
+    this.get('resumable').upload();
   },
 
   /**
    * Event handler for Resumable.js
-   * @param {ResumableFile} file
+   * @param {ResumableFile} resumableFile
+   * @returns {undefined}
+   */
+  fileUploadProgress(resumableFile) {
+    const progress = resumableFile.progress();
+    // Notifying about 0% progress is not useful. Also sometimes Resumable
+    // treats cancelled files as finished
+    const isFakeComplete =
+      progress === 1 && (resumableFile.isCancelled || !resumableFile.isComplete());
+    if (progress > 0 && !isFakeComplete) {
+      this.notifyParent({
+        uploadId: resumableFile.uploadId,
+        path: resumableFile.relativePath,
+        bytesUploaded: Math.floor(resumableFile.progress() * resumableFile.size),
+      });
+    }
+  },
+
+  /**
+   * Event handler for Resumable.js
+   * @param {ResumableFile} resumableFile
+   * @returns {undefined}
+   */
+  fileUploadSuccess(resumableFile) {
+    // Sometimes Resumable treats cancelled files as finished
+    if (!resumableFile.isCancelled) {
+      this.finalizeFileUpload(resumableFile)
+        .then(() => {
+          this.notifyParent({
+            uploadId: resumableFile.uploadId,
+            path: resumableFile.relativePath,
+            bytesUploaded: resumableFile.size,
+            success: true,
+          });
+          resumableFile.fileModel.pollSize(10, 2000, resumableFile.size);
+        })
+        .catch(error => {
+          const errorMessage = get(
+            this.get('errorExtractor').getMessage(error),
+            'message.string'
+          ) || this.t('unknownError');
+          this.notifyParent({
+            uploadId: resumableFile.uploadId,
+            path: resumableFile.relativePath,
+            error: errorMessage,
+          });
+
+          this.deleteFailedFile(resumableFile);
+        });
+    }
+  },
+
+  /**
+   * Event handler for Resumable.js
+   * @param {ResumableFile} resumableFile
    * @param {string} message
    * @returns {undefined}
    */
-  fileUploadFailure(file, message) {
-    const notifyObject = {
-      uploadId: file.uploadId,
-      path: file.relativePath,
-      error: message,
-    };
-    this.notifyParent(notifyObject);
+  fileUploadFailure(resumableFile, message) {
+    let stringMessage;
+    try {
+      stringMessage = (JSON.parse(message) || {}).error || message;
+    } catch (e) {
+      stringMessage = message;
+    }
+    this.notifyParent({
+      uploadId: resumableFile.uploadId,
+      path: resumableFile.relativePath,
+      error: stringMessage || this.t('unknownError'),
+    });
+
+    // GUI does not have to wait for result, because error has been already
+    // passed to Onezone.
+    this.deleteFailedFile(resumableFile)
+      .finally(() => this.finalizeFileUpload(resumableFile));
+  },
+
+  /**
+   * Initializes upload of given file.
+   * @param {ResumableFile} resumableFile 
+   * @returns {Promise}
+   */
+  initializeFileUpload(resumableFile) {
+    if (!resumableFile.isUploadInitialized) {
+      return this.get('fileManager')
+        .initializeFileUpload(get(resumableFile, 'fileModel'))
+        .then(() => resumableFile.isUploadInitialized = true);
+    } else {
+      return resolve();
+    }
+  },
+
+  /**
+   * Ends upload of given file.
+   * @param {ResumableFile} resumableFile 
+   * @returns {Promise}
+   */
+  finalizeFileUpload(resumableFile) {
+    if (resumableFile.isUploadInitialized) {
+      return this.get('fileManager')
+        .finalizeFileUpload(get(resumableFile, 'fileModel'));
+    } else {
+      return resolve();
+    }
+  },
+
+  /**
+   * Deletes file, that was used as a target for failed upload.
+   * @param {ResumableFile} resumableFile 
+   * @returns {Promise}
+   */
+  deleteFailedFile(resumableFile) {
+    const fileModelPromise = resumableFile.createFileModelPromise ||
+      resolve(resumableFile.fileModel);
+    return fileModelPromise.then(fileModel => {
+      if (fileModel && !get(fileModel, 'isDeleted')) {
+        return get(fileModel, 'parent').then(parent => {
+          return fileModel.destroyRecord().then(() =>
+            this.refreshDirectoryChildren(parent)
+          );
+        });
+      }
+    });
   },
 
   /**
@@ -206,24 +408,27 @@ export default Service.extend({
    * @return {undefined}
    */
   assignUploadBrowse(browseElement) {
+    this.set('browseElement', browseElement);
     this.get('resumable').assignBrowse(browseElement);
   },
 
   /**
-   * Creates new upload session to group all files in the same upload
-   * @returns {Promise<{ uploadId: string }>}
+   * @returns {undefined}
    */
-  startNewUploadSession() {
-    return resolve({ uploadId: String(Math.floor(Math.random() * 1000000)) });
+  triggerUploadDialog() {
+    const browseElement = this.get('browseElement');
+    if (browseElement) {
+      browseElement.click();
+    }
   },
 
   /**
-   * Changes target directory ID where files should be uploaded
-   * @param {string} targetDirectoryId 
+   * Changes target directory where files should be uploaded
+   * @param {Models.File} targetDirectory
    * @returns {undefined}
    */
-  changeTargetDirectoryId(targetDirectoryId) {
-    this.set('targetDirectoryId', targetDirectoryId);
+  changeTargetDirectory(targetDirectory) {
+    this.set('targetDirectory', targetDirectory);
   },
 
   /**
@@ -235,4 +440,127 @@ export default Service.extend({
   notifyParent(notifyObject, method = 'updateUploadProgress') {
     this.get('appProxy').callParent(method, notifyObject);
   },
+
+  /**
+   * @param {Models.File} directory 
+   * @returns {undefined}
+   */
+  refreshDirectoryChildren(directory) {
+    this.get('fileManager').trigger('dirChildrenRefresh', get(directory, 'entityId'));
+  },
+
+  /**
+   * Creates directories which are needed to upload file. After that, an empty
+   * file is created, that will be a target for upload. Created directories are
+   * reused by the same batch upload - all files have the same
+   * `createdDirectories` map to remember state of directories creation.
+   * @param {ResumableFile} resumableFile
+   * @returns {Promise<Models.File>}
+   */
+  createCorrespondingFile(resumableFile) {
+    const fileManager = this.get('fileManager');
+    const pathSections = get(resumableFile, 'relativePath').split('/');
+
+    // Root upload directory is already created, so just resolve
+    let createPromise = resolve(resumableFile.targetRootDirectory);
+    // If file is in nested directory...
+    if (pathSections.length > 1) {
+      const createdDirectories = resumableFile.createdDirectories;
+      // iterate over all nested directories in file path...
+      for (let i = 0; i < pathSections.length - 1; i++) {
+        const directoryPath = pathSections.slice(0, i + 1).join('/');
+        // when parent diretory is created, then...
+        createPromise = createPromise.then(parent => {
+          // reuse existing (ealier created) directory if possible...
+          let nextLevelDirPromise = createdDirectories[directoryPath];
+          // or create a new one and remember Promise to reuse it later for
+          // another files.
+          if (!nextLevelDirPromise) {
+            nextLevelDirPromise = fileManager.createDirectory(pathSections[i],
+              parent, 50);
+            createdDirectories[directoryPath] = nextLevelDirPromise;
+            nextLevelDirPromise.then(() => this.refreshDirectoryChildren(parent));
+          }
+          return nextLevelDirPromise;
+        });
+      }
+    }
+
+    return createPromise.then(parent => {
+      // When all directories needed to upload file are created, create file itself.
+      const createFileModelPromise =
+        fileManager.createFile(get(pathSections, 'lastObject'), parent, 50);
+      createFileModelPromise.then((fileModel) => {
+        this.refreshDirectoryChildren(parent);
+        resumableFile.createFileModelPromise = null;
+        resumableFile.fileModel = fileModel;
+      });
+      resumableFile.createFileModelPromise = createFileModelPromise;
+      return createFileModelPromise;
+    });
+  },
 });
+
+/**
+ * Builds a simple tree representation of passed files similar to:
+ * {
+ *   dir1Name: {
+ *     subdir11Name: {
+ *       file111Name: ResumableFile,
+ *     }
+ *     ... other directories ...
+ *     file11Name: ResumableFile,
+ *     file12Name: ResumableFile,
+ *     ... other files ...
+ *   }
+ *   ... other directories ...
+ *   file1Name: ResumableFile,
+ *   ... other files ...
+ * }
+ * @param {Array<ResumableFile>} resumableFiles
+ * @returns {Object}
+ */
+function buildFilesTree(resumableFiles) {
+  const tree = {};
+
+  resumableFiles.forEach(resumableFile => {
+    const pathSections = get(resumableFile, 'relativePath').split('/');
+    let targetDirectory = tree;
+    for (let i = 0; i < pathSections.length - 1; i++) {
+      const pathSection = pathSections[i];
+      if (!targetDirectory[pathSection]) {
+        targetDirectory[pathSection] = {};
+      }
+      targetDirectory = targetDirectory[pathSection];
+    }
+    targetDirectory[get(pathSections, 'lastObject')] = resumableFile;
+  });
+
+  return tree;
+}
+
+/**
+ * Converts tree back to array of files, but ordered in a way, that minimizes
+ * the number of unnecessary created directories in case of file upload failure.
+ * Order: 'Files first, then run itself recurrently on each directory`.
+ * @param {Object} tree 
+ * @returns {Array<ResumableFile>}
+ */
+function sortFilesToUpload(tree) {
+  const filesAndDirs = Object.keys(tree).sort().map(key => tree[key]);
+
+  const files = filesAndDirs
+    .filter(file => isResumableFile(file));
+  const directories = _.difference(filesAndDirs, files);
+
+  return files.concat(...directories.map(sortFilesToUpload));
+}
+
+/**
+ * Returns true if passed object is a ResumableFile
+ * @param {any} object
+ * @returns {boolean}
+ */
+function isResumableFile(object) {
+  return object && typeof object.progress === 'function';
+}

@@ -1,0 +1,38 @@
+{{#bs-modal
+  open=open
+  onShown=(action "onShown")
+  onHide=(action "onHide")
+  onHidden=(action "onHidden")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this (concat "header." itemType)}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    <p>{{tt this (concat "intro." itemType)}}</p>
+    <div class="row">
+      <input
+        id={{inputId}}
+        type="text"
+        class="form-control new-item-name"
+        value={{editValue}}
+        oninput={{action (mut editValue) value="target.value"}}
+        onkeydown={{invoke-on-enter (action "submit")}}
+        disabled={{isSaving}}
+        autofocus=true
+      >
+    </div>
+  {{/modal.body}}
+  {{#modal.footer}}
+    {{#bs-button onClick=modal.close}}
+      {{tt this "cancel"}}
+    {{/bs-button}}
+    {{#one-spin-button
+      action=(action "submit")
+      class="btn btn-primary"
+      disabled=submitDisabled
+    }}
+      {{tt this "submit"}}
+    {{/one-spin-button}}
+  {{/modal.footer}}
+{{/bs-modal}}
