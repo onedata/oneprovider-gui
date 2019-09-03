@@ -27,6 +27,7 @@ export default {
     paste: 'Paste',
   },
   fbTable: {
+    startingDownload: 'starting file download',
     menuSelection: 'Selection ({{selectionCount}})',
     header: {
       files: 'Files',
