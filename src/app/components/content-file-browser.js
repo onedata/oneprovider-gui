@@ -118,6 +118,12 @@ export default OneEmbeddedComponent.extend(
           renameParentDir: null,
         });
       },
+      openInfoModal(file) {
+        this.set('fileToShowInfo', file);
+      },
+      closeInfoModal() {
+        this.set('fileToShowInfo', null);
+      },
     },
   }
 );

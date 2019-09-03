@@ -252,7 +252,19 @@ export default Component.extend(I18n, {
   btnInfo: computed(function btnInfo() {
     return this.createFileAction({
       id: 'info',
-      showIn: [...anySelected, actionContext.currentDir],
+      action: () => {
+        const {
+          openInfo,
+          selectedFiles,
+        } = this.getProperties('openInfo', 'selectedFiles');
+        return openInfo(selectedFiles[0]);
+      },
+      showIn: [
+        actionContext.spaceRootDir,
+        actionContext.singleDir,
+        actionContext.singleFile,
+        actionContext.currentDir,
+      ],
     });
   }),
 

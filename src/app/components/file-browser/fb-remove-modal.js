@@ -1,4 +1,6 @@
 /**
+ * Shows confirmation modal to remove a file and implements remove action
+ * 
  * @module components/fb-remove-modal
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH

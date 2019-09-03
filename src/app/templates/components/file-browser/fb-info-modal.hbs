@@ -1,0 +1,84 @@
+{{#bs-modal
+  open=open
+  close=(action "close")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header" type=typeTranslation}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    <table class="table table-info table-info-large">
+      <tbody>
+        <tr class="file-info-row-name">
+          <td class="property-name">{{tt this "name" type=typeTranslation}}</td>
+          <td class="property-value">
+            {{#truncated-string}}
+              {{fileName}}
+            {{/truncated-string}}
+          </td>
+        </tr>
+        <tr class="file-info-row-path">
+          <td class="property-name with-input">{{tt this "path" type=typeTranslation}}</td>
+          <td class="property-value">
+            {{clipboard-line
+              value=filePathProxy.content
+              showText=false
+            }}
+          </td>
+        </tr>
+        {{!-- FIXME: enable this if we will have space if from Borzo's branch --}}
+        {{!-- <tr class="file-info-row-space-id">
+          <td class="property-name">{{tt this "spaceId"}}</td>
+          <td class="property-value">
+            {{clipboard-line
+              value=spaceId
+              size="sm"
+            }}
+          </td>
+        </tr> --}}
+        <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
+          <td class="property-name with-input">{{tt this "cdmiObjectId"}}</td>
+          <td class="property-value">
+            <div class="input-group input-group input-group-clipboard-textarea">
+              <textarea
+                spellcheck="false"
+                class="cdmi-object-id form-control"
+                rows="5"
+                readonly="true">{{cdmiObjectId}}</textarea>
+              <div class="btn-container text-right">
+                <div class="btn-row">
+                  {{one-copy-button
+                    class="btn btn-default btn-sm"
+                    parentElementId=cdmiRowId
+                    localTarget=".cdmi-object-id"
+                  }}
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr class="file-info-row-modification-time">
+          <td class="property-name">{{tt this "modificationTime"}}</td>
+          <td class="property-value">
+            {{#truncated-string}}
+              {{date-format modificationTime format="dateWithMinutes" blank="—"}}
+            {{/truncated-string}}
+          </td>
+        </tr>
+        <tr class="file-info-row-owner">
+          <td class="property-name">{{tt this "owner"}}</td>
+          <td class="property-value">
+            {{#truncated-string}}
+              {{ownerFullNameProxy.content}}
+            {{/truncated-string}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  {{/modal.body}}
+  {{#modal.footer}}
+    {{#bs-button onClick=modal.close}}
+      {{tt this "close"}}
+    {{/bs-button}}
+  {{/modal.footer}}
+{{/bs-modal}}
