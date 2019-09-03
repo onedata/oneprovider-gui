@@ -1,13 +1,23 @@
+/**
+ * 
+ * 
+ * @module components/file-browser/fb-rename-modal
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
 import FbSetNameModal from 'oneprovider-gui/components/file-browser/fb-set-name-modal';
 import { reads } from '@ember/object/computed';
 
-// FIXME: validate to disallow / names
+// TODO: validate to disallow / names
 
 export default FbSetNameModal.extend(I18n, {
   fileManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -38,6 +48,7 @@ export default FbSetNameModal.extend(I18n, {
         parentDir,
         file,
         onHide,
+        globalNotify,
       } = this.getProperties(
         'fileManager',
         'editValue',
@@ -45,6 +56,7 @@ export default FbSetNameModal.extend(I18n, {
         'parentDir',
         'file',
         'onHide',
+        'globalNotify',
       );
       if (submitDisabled) {
         return;
@@ -52,7 +64,8 @@ export default FbSetNameModal.extend(I18n, {
       return fileManager
         .renameFile(get(file, 'entityId'), get(parentDir, 'entityId'), editValue)
         .catch(error => {
-          // FIXME: handle errors - maybe it should be presented in backend error or the same modal
+          onHide.bind(this)(false);
+          globalNotify.backendError(this.t('renaming'), error);
           throw error;
         })
         .then(({ id: fileId }) => onHide.bind(this)(true, fileId));

@@ -64,6 +64,7 @@ export default {
     },
   },
   fbRemoveModal: {
+    deleting: 'deleting file(s)',
     delete: 'Delete',
     yes: 'Yes',
     no: 'No',
@@ -76,6 +77,7 @@ export default {
     },
   },
   fbRenameModal: {
+    renaming: 'renaming the file',
     submit: 'Rename',
     cancel: 'Cancel',
     header: {
