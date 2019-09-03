@@ -15,4 +15,9 @@ export default {
     migrate: 'Migrate...',
     invalidate: 'Invalidate',
   },
+  destinationOneproviderSelector: {
+    migrationArrowText: 'migrate to',
+    cancelButton: 'Cancel',
+    migrateButton: 'Migrate',
+  },
 };

@@ -1,11 +1,19 @@
-<ul>
-  {{#each oneproviders key="id" as |oneprovider|}}
-    {{file-distribution-modal/oneproviders-distribution-item
-      oneprovider=oneprovider
-      fileDistributionData=fileDistributionData
-      onReplicate=(action onReplicate oneprovider)
-      onMigrate=(action onMigrate oneprovider)
-      onInvaludate=(action onInvalidate oneprovider)}}
-  {{/each}}
-</ul>
+{{#if isMigrationDestinationSelectorVisible}}
+  {{file-distribution-modal/destination-oneprovider-selector
+    oneproviders=oneproviders
+    sourceOneprovider=newMigrationSourceOneprovider
+    onMigrate=(action "migrate")
+    onCancel=(action "cancelNewMigration")}}
+{{else}}
+  <ul>
+    {{#each oneproviders key="id" as |oneprovider|}}
+      {{file-distribution-modal/oneproviders-distribution-item
+        oneprovider=oneprovider
+        fileDistributionData=fileDistributionData
+        onReplicate=(action onReplicate oneprovider)
+        onMigrate=(action "initializeNewMigration" oneprovider)
+        onInvaludate=(action onInvalidate oneprovider)}}
+    {{/each}}
+  </ul>
+{{/if}}
 {{yield}}

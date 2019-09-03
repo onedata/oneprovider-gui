@@ -1,4 +1,8 @@
 .file-distribution-modal {
+  .one-collapsible-list-item-content.opened {
+    overflow: visible;
+  }
+
   .oneproviders-distribution ul {
     padding-left: 0;
     list-style-type: none;
@@ -37,6 +41,70 @@
     .collapsible-toolbar-toggle {
       padding: $padding-xs-horizontal;
       margin-left: $padding-xs-horizontal;
+    }
+  }
+
+  .destination-oneprovider-selector {
+    max-width: 600px;
+    margin: 0 auto;
+    
+    .source-oneprovider-visualization {
+      .oneprovider-icon {
+        font-size: 40px;
+      }
+      .oneprovider-name {
+        font-size: 90%;
+        word-break: break-all;
+      }
+    }
+
+    .ember-basic-dropdown {
+      max-width: 170px;
+    }
+    
+    .btn-toolbar {
+      text-align: right;
+    }
+
+    @media (min-width: $screen-sm-min) {
+      .source-oneprovider-visualization {
+        max-width: 100px;
+        text-align: center;
+        font-size: 90%;
+        white-space: break-all;
+      }
+
+      .one-arrow {
+        flex-grow: 1;
+        margin: 0 $padding-large-horizontal;
+      }
+
+      .visualization-container {
+        display: flex;
+        align-items: center;
+        margin: 0 30px;
+      }
+    }
+
+    @media (max-width: $screen-xs-max) {
+      .visualization-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .source-oneprovider-visualization {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+      }
+
+      .one-arrow {
+        height: 60px;
+        // -5px fixes margin around oneprovider oneicon
+        margin-top: $padding-large-vertical - 5px;
+        margin-bottom: $padding-large-vertical;
+      }
     }
   }
 
