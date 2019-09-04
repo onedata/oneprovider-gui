@@ -9,6 +9,8 @@ import posixPermissionsEditor from './components/posix-permissions-editor';
 
 import uploadManager from './services/upload-manager';
 
+import handleMultiFilesOperation from './utils/handle-multi-files-operation';
+
 const translations = {
   components: {
     aclEditor,
@@ -18,6 +20,9 @@ const translations = {
   },
   services: {
     uploadManager,
+  },
+  utils: {
+    handleMultiFilesOperation,
   },
 };
 

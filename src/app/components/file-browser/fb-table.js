@@ -25,6 +25,7 @@ import createPropertyComparator from 'onedata-gui-common/utils/create-property-c
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { and, not } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { later } from '@ember/runloop';
 
 const compareIndex = createPropertyComparator('index');
 
@@ -34,6 +35,7 @@ export default Component.extend(I18n, {
 
   fileManager: service(),
   i18n: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -71,8 +73,6 @@ export default Component.extend(I18n, {
   hasEmptyDirClassChanged: notImplementedIgnore,
 
   changeDir: undefined,
-
-  downloadFile: undefined,
 
   _window: window,
 
@@ -373,6 +373,30 @@ export default Component.extend(I18n, {
     return nearestIndex;
   },
 
+  downloadFile(fileEntityId) {
+    const {
+      fileManager,
+      globalNotify,
+    } = this.getProperties('fileManager', 'globalNotify');
+    return fileManager.getFileDownloadUrl(fileEntityId)
+      .then((data) => {
+        const fileUrl = data && get(data, 'fileUrl');
+        if (fileUrl) {
+          const iframe = $('<iframe/>').attr({
+            src: fileUrl,
+            style: 'visibility:hidden;display:none',
+          }).appendTo($('body'));
+          later(() => iframe.remove(), 1000);
+        } else {
+          throw { isOnedataCustomError: true, type: 'empty-file-url' };
+        }
+      })
+      .catch((error) => {
+        globalNotify.backendError(this.t('startingDownload'), error);
+        throw error;
+      });
+  },
+
   actions: {
     openContextMenu(file, mouseEvent) {
       const selectedFiles = this.get('selectedFiles');
@@ -429,7 +453,7 @@ export default Component.extend(I18n, {
       if (isDir) {
         this.get('changeDir')(file);
       } else {
-        this.get('fileManager').download(get(file, 'entityId'));
+        return this.downloadFile(get(file, 'entityId'));
       }
     },
 

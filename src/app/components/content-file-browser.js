@@ -12,6 +12,7 @@ import { inject as service } from '@ember/service';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { computed, get } from '@ember/object';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('space'),
@@ -25,6 +26,11 @@ export default OneEmbeddedComponent.extend(
      * @override
      */
     iframeInjectedProperties: Object.freeze(['spaceEntityId']),
+
+    /**
+     * @virtual optional
+     */
+    containerScrollTop: notImplementedIgnore,
 
     spaceGri: computed(function spaceGri() {
       return gri({
@@ -82,16 +88,12 @@ export default OneEmbeddedComponent.extend(
         });
       },
       closeRemoveModal(removeInvoked /*, removeResults*/ ) {
-        // FIXME: refactor here and in modal to use only file-manager service
-        // for create/remove/rename/refresh operations
         if (removeInvoked) {
           const {
             removeParentDir,
             fileManager,
           } = this.getProperties('removeParentDir', 'fileManager');
-          console.log('FIXME: refresh dir from which we removed: ' + removeParentDir);
           fileManager.trigger('dirChildrenRefresh', get(removeParentDir, 'entityId'));
-          // FIXME: use remove results to show if all/some/no files were removed
         }
         this.setProperties({
           filesToRemove: null,
@@ -126,11 +128,20 @@ export default OneEmbeddedComponent.extend(
           renameParentDir: null,
         });
       },
+      openInfoModal(file) {
+        this.set('fileToShowInfo', file);
+      },
+      closeInfoModal() {
+        this.set('fileToShowInfo', null);
+      },
       openEditPermissionsModal(files) {
         this.set('filesToEditPermissions', files);
       },
       closeEditPermissionsModal() {
         this.set('filesToEditPermissions', null);
+      },
+      containerScrollTop() {
+        return this.get('containerScrollTop')(...arguments);
       },
     },
   }

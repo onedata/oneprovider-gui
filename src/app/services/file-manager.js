@@ -149,10 +149,13 @@ export default Service.extend(Evented, {
       .finally(() => this.trigger('dirChildrenRefresh', parentDirEntityId));
   },
 
-  download(fileEntityId) {
-    // FIXME: change download to work like in old op-gui-default
-    this.get('onedataRpc').request('getFileDownloadUrl', {
+  getFileDownloadUrl(fileEntityId) {
+    return this.get('onedataRpc').request('getFileDownloadUrl', {
       guid: fileEntityId,
-    }).then(({ fileUrl }) => window.open(fileUrl, '_blank'));
+    });
+  },
+
+  dirChildrenRefresh(parentDirEntityId) {
+    return this.trigger('dirChildrenRefresh', parentDirEntityId);
   },
 });

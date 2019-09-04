@@ -12,7 +12,6 @@ import { observer, computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { next, later } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { resolve } from 'rsvp';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
@@ -21,6 +20,7 @@ import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import { inject as service } from '@ember/service';
+import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 
 /**
  * @type {number}
@@ -200,8 +200,7 @@ export default Component.extend(
         dir,
         rootDir,
       } = this.getProperties('dir', 'rootDir');
-      const array = [dir];
-      return resolveParent(dir, array).then(dirPath =>
+      return resolveFilePath(dir).then(dirPath =>
         rootDir ? cutDirsPath(dirPath, rootDir) : dirPath
       );
     },
@@ -267,14 +266,3 @@ export default Component.extend(
     },
   }
 );
-
-function resolveParent(dir, array) {
-  if (get(dir, 'hasParent')) {
-    return get(dir, 'parent').then(parent => {
-      array.unshift(parent);
-      return resolveParent(parent, array);
-    });
-  } else {
-    return resolve(array);
-  }
-}

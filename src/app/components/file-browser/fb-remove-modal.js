@@ -1,4 +1,6 @@
 /**
+ * Shows confirmation modal to remove a file and implements remove action
+ * 
  * @module components/fb-remove-modal
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -7,14 +9,19 @@
 
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
-import { hashSettled } from 'rsvp';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import _ from 'lodash';
+import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   tagName: '',
+
+  fileManager: service(),
+  i18n: service(),
+  errorExtractor: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -70,17 +77,34 @@ export default Component.extend(I18n, {
       const {
         files,
         onHide,
-      } = this.getProperties('files', 'onHide');
+        globalNotify,
+        errorExtractor,
+        i18n,
+        i18nPrefix,
+      } = this.getProperties(
+        'files',
+        'onHide',
+        'globalNotify',
+        'errorExtractor',
+        'i18n',
+        'i18nPrefix',
+      );
       const filesToRemove = [...files];
       this.set('processing', true);
-      return hashSettled(_.zipObject(
-          filesToRemove,
-          filesToRemove.map(file => file.destroyRecord())
-        ))
-        .then(results => {
-          safeExec(this, 'set', 'processing', false);
-          onHide.bind(this)(true, results);
-        });
+
+      return handleMultiFilesOperation({
+          files: filesToRemove,
+          globalNotify,
+          errorExtractor,
+          i18n,
+          operationErrorKey: `${i18nPrefix}.deleting`,
+        },
+        (file) => file.destroyRecord()
+      ).then(results => {
+        onHide.bind(this)(true, results);
+      }).finally(() => {
+        safeExec(this, 'set', 'processing', false);
+      });
     },
     close() {
       return this.get('onHide')(false);
