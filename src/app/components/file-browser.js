@@ -9,7 +9,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, get, getProperties } from '@ember/object';
+import { computed, get, getProperties, observer } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { camelize, dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -18,6 +18,7 @@ import { A } from '@ember/array';
 import { hash, notEmpty, not } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 
 export const actionContext = {
@@ -111,6 +112,11 @@ export default Component.extend(I18n, {
    * @param {Array<Models/File>} filed files to edit permissions
    */
   openEditPermissions: notImplementedThrow,
+
+  /**
+   * @virtual optional
+   */
+  containerScrollTop: notImplementedIgnore,
 
   /**
    * If true, the paste from clipboard button should be available
@@ -382,6 +388,15 @@ export default Component.extend(I18n, {
   }),
 
   // #endregion
+
+  dirChangedObserver: observer('dir', function dirChangedObserver() {
+    this.get('containerScrollTop')(0);
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.dirChangedObserver();
+  },
 
   didInsertElement() {
     this._super(...arguments);

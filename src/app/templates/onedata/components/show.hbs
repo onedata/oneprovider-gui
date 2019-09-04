@@ -1,17 +1,12 @@
 {{#perfect-scrollbar-element
   class="embedded-content"
   onScroll=(action "scrollOccurred")
+  as |scrollbarElement|
 }}
-  {{component model.componentId externalData=model.data externalActions=model.actions}}
+  {{component
+    model.componentId
+    externalData=model.data
+    externalActions=model.actions
+    containerScrollTop=scrollbarElement.scrollTop
+  }}
 {{/perfect-scrollbar-element}}
-
-{{!-- TODO: remove when development ends --}}
-
-<div class="oneprovider-origin-info">
-  {{originInfo}}
-</div>
-
-<div class="visible-xs-block breakpoint-test">XS</div>
-<div class="visible-sm-block breakpoint-test">SM</div>
-<div class="visible-md-block breakpoint-test">MD</div>
-<div class="visible-lg-block breakpoint-test">LG</div>

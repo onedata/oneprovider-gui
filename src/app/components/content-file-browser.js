@@ -12,6 +12,7 @@ import { inject as service } from '@ember/service';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { computed, get } from '@ember/object';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('space'),
@@ -25,6 +26,11 @@ export default OneEmbeddedComponent.extend(
      * @override
      */
     iframeInjectedProperties: Object.freeze(['spaceEntityId']),
+
+    /**
+     * @virtual optional
+     */
+    containerScrollTop: notImplementedIgnore,
 
     spaceGri: computed(function spaceGri() {
       return gri({
@@ -133,6 +139,9 @@ export default OneEmbeddedComponent.extend(
       },
       closeEditPermissionsModal() {
         this.set('filesToEditPermissions', null);
+      },
+      containerScrollTop() {
+        return this.get('containerScrollTop')(...arguments);
       },
     },
   }
