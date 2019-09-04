@@ -5,42 +5,50 @@
     openRemove=(action "openRemoveModal")
     openRename=(action "openRenameModal")
     openInfo=(action "openInfoModal")
+    openEditPermissions=(action "openEditPermissionsModal")
   }}
   <div class="upload-drop-zone">
     {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
   </div>
+
+  {{#if createItemParentDir}}
+    {{file-browser/fb-create-item-modal
+      open=true
+      parentDir=createItemParentDir
+      itemType=createItemType
+      onHide=(action "closeCreateItemModal")
+    }}
+  {{/if}}
+
+  {{#if fileToRename}}
+    {{file-browser/fb-rename-modal
+      open=true
+      file=fileToRename
+      parentDir=renameParentDir
+      onHide=(action "closeRenameModal")
+    }}
+  {{/if}}
+
+  {{#if fileToShowInfo}}
+    {{file-browser/fb-info-modal
+      open=true
+      file=fileToShowInfo
+      onHide=(action "closeInfoModal")
+    }}
+  {{/if}}
+
+  {{#if filesToRemove}}
+    {{file-browser/fb-remove-modal
+      open=true
+      files=filesToRemove
+      onHide=(action "closeRemoveModal")
+    }}
+  {{/if}}
+
+  {{#if filesToEditPermissions}}
+    {{edit-permissions-modal
+      files=filesToEditPermissions
+      space=space
+      onClose=(action "closeEditPermissionsModal")}}
+  {{/if}}
 {{/promise-proxy-container}}
-
-{{#if createItemParentDir}}
-  {{file-browser/fb-create-item-modal
-    open=true
-    parentDir=createItemParentDir
-    itemType=createItemType
-    onHide=(action "closeCreateItemModal")
-  }}
-{{/if}}
-
-{{#if fileToRename}}
-  {{file-browser/fb-rename-modal
-    open=true
-    file=fileToRename
-    parentDir=renameParentDir
-    onHide=(action "closeRenameModal")
-  }}
-{{/if}}
-
-{{#if filesToRemove}}
-  {{file-browser/fb-remove-modal
-    open=true
-    files=filesToRemove
-    onHide=(action "closeRemoveModal")
-  }}
-{{/if}}
-
-{{#if fileToShowInfo}}
-  {{file-browser/fb-info-modal
-    open=true
-    file=fileToShowInfo
-    onHide=(action "closeInfoModal")
-  }}
-{{/if}}

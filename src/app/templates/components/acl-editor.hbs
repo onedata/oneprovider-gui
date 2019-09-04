@@ -1,0 +1,48 @@
+{{#one-collapsible-list accordionMode=true as |list|}}
+  {{#each acl as |ace|}}
+    {{#list.item as |listItem|}}
+      {{acl-editor/ace-editor
+        listItem=listItem
+        ace=ace
+        context=context
+        onChange=(action "aceChanged" ace)
+        onMoveUp=(action "moveUp" ace)
+        onMoveDown=(action "moveDown" ace)
+        onRemove=(action "remove" ace)
+        isFirstAce=(eq ace acl.firstObject)
+        isLastAce=(eq ace acl.lastObject)}}
+    {{/list.item}}
+  {{else}}
+    {{#list.item class="no-ace" as |listItem|}}
+      {{#listItem.header isCollapsible=false}}{{tt this "noAce"}}{{/listItem.header}}
+    {{/list.item}}  
+  {{/each}}
+  {{#list.item class="add-user-group-ace" as |listItem|}}
+    {{#listItem.header isCollapsible=false truncate=false}}
+      <span class="item-icon-container">
+        {{one-icon icon="group-invite" class="item-icon"}}
+      </span>
+      {{#power-select
+        dropdownClass="add-user-group-ace"
+        options=subjectsList
+        onchange=(action "addEntitySelected")
+        renderInPlace=true
+        placeholder=(tt this "addUserOrGroup")
+        matcher=(action "nameMatcher")
+        as |entity|}}
+        <div class="option-container" data-entity-id={{entity.entityId}}>
+          {{#truncated-string}}
+            {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
+            <span class="text">
+              {{#if entity.isSystemSubject}}
+                <em>{{entity.name}}</em>
+              {{else}}
+                {{entity.name}}
+              {{/if}}
+            </span>
+          {{/truncated-string}}
+        </div>
+      {{/power-select}}
+    {{/listItem.header}}
+  {{/list.item}}
+{{/one-collapsible-list}}
