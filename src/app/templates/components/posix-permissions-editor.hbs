@@ -20,7 +20,8 @@
             {{one-checkbox
               inputId=(concat elementId entity permission)
               checked=(get (get permissions entity) permission)
-              update=(action "checkboxChanged" entity permission)}}
+              update=(action "checkboxChanged" entity permission)
+              class=(concat entity "-" permission "-checkbox permission-checkbox")}}
             <label for={{concat elementId entity permission}}>
               <span class="one-label checkbox-label">{{tt this (concat "permissions." permission)}}</span>
             </label>

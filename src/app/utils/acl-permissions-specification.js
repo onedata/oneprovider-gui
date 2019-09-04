@@ -7,8 +7,6 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-// TODO: some of this permissions may change
-
 export default [{
   groupName: 'data',
   icon: 'browser-directory',
@@ -19,7 +17,7 @@ export default [{
       mask: 0x00000001,
     }, {
       name: 'list_container',
-      context: ['directory'],
+      context: ['dir'],
       mask: 0x00000001,
     }, {
       name: 'write_object',
@@ -27,7 +25,7 @@ export default [{
       mask: 0x00000002,
     }, {
       name: 'add_object',
-      context: ['directory'],
+      context: ['dir'],
       mask: 0x00000002,
     }, {
       name: 'append_data',
@@ -35,7 +33,7 @@ export default [{
       mask: 0x00000004,
     }, {
       name: 'add_subcontainer',
-      context: ['directory'],
+      context: ['dir'],
       mask: 0x00000004,
     }, {
       name: 'execute',
@@ -43,16 +41,12 @@ export default [{
       mask: 0x00000020,
     }, {
       name: 'traverse_container',
-      context: ['directory'],
+      context: ['dir'],
       mask: 0x00000020,
     }, {
-      name: 'delete_subcontainer',
-      context: ['directory'],
+      name: 'delete_child',
+      context: ['dir'],
       mask: 0x00000040,
-    }, {
-      name: 'delete_object',
-      context: ['directory'],
-      mask: 0x00100000, // TODO: changed number, consult backend
     },
   ],
 }, {
@@ -61,11 +55,11 @@ export default [{
   privileges: [
     {
       name: 'read_acl',
-      context: ['directory', 'file'],
+      context: ['dir', 'file'],
       mask: 0x00020000,
     }, {
       name: 'change_acl',
-      context: ['directory', 'file'],
+      context: ['dir', 'file'],
       mask: 0x00040000,
     },
   ],
@@ -75,11 +69,11 @@ export default [{
   privileges: [
     {
       name: 'read_metadata',
-      context: ['directory', 'file'],
+      context: ['dir', 'file'],
       mask: 0x00000008,
     }, {
       name: 'write_metadata',
-      context: ['directory', 'file'],
+      context: ['dir', 'file'],
       mask: 0x00000010,
     },
   ],
@@ -89,11 +83,11 @@ export default [{
   privileges: [
     {
       name: 'read_attributes',
-      context: ['directory', 'file'],
+      context: ['dir', 'file'],
       mask: 0x00000080,
     }, {
       name: 'write_attributes',
-      context: ['directory', 'file'],
+      context: ['dir', 'file'],
       mask: 0x00000100,
     },
   ],
@@ -103,17 +97,24 @@ export default [{
   privileges: [
     {
       name: 'delete',
-      context: ['directory', 'file'],
+      context: ['dir', 'file'],
       mask: 0x00010000,
     }, {
       name: 'change_owner',
-      context: ['directory', 'file'],
+      context: ['dir', 'file'],
       mask: 0x00080000,
     },
   ],
 }];
 
+/**
+ * @type {Object}
+ * ACE flags definition. These values can be used to construct `aceFlags` field
+ * in ACE. Multiple flags should be joined using bitwise union. For now there is
+ * only one meaningful flag - `IDENTIFIER_GROUP`.
+ */
 export const AceFlagsMasks = {
   NO_FLAGS: 0x00000000,
-  IDENTIFIER_GROUP: 0x00000040,
+  IDENTIFIER_GROUP: 0x00000040, // Passed `identifier` in ACE object describes
+    // group, not user.
 };

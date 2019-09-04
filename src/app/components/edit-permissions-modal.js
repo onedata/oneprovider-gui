@@ -14,12 +14,22 @@ import { get, computed, set, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { Promise, reject, resolve, allSettled } from 'rsvp';
-import { conditional, raw, array, equal, and, not, or } from 'ember-awesome-macros';
+import { conditional, raw, equal, and, not, or } from 'ember-awesome-macros';
+import isEveryTheSame from 'onedata-gui-common/macros/is-every-the-same';
 import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+
+/**
+ * @typedef {Object} AceSubjectEquivalent Object similar to Models.User/Group,
+ *   but representing not existing model interpreted by backend.
+ * @property {boolean} isSystemSubject is always `true`
+ * @property {string} entityId
+ * @property {string} equivalentType 'user' or 'group'
+ * @property {string} name
+ */
 
 export default Component.extend(
   I18n,
@@ -67,6 +77,11 @@ export default Component.extend(
     isSaving: false,
 
     /**
+     * @type {boolean}
+     */
+    valuesHaveChanged: false,
+
+    /**
      * String with octal value from posix editor, ready to be saved.
      * Warning: may be `undefined` if posix editor has invalid values.
      * @type {string|undefined}
@@ -110,7 +125,7 @@ export default Component.extend(
     /**
      * List of system subjects, that represents owner of a file/directory, owning
      * group and everyone. These are used to define ACE, that are not tied to
-     * specific user/group, but rather to some type of user/group. Are provided to
+     * specific user/group, but rather to some type of user/group. These are provided to
      * preserve compatibility with CDMI.
      * @type {Ember.ComputedProperty<Object>}
      */
@@ -134,17 +149,15 @@ export default Component.extend(
     }),
 
     /**
-     * One of: `file`, `directory`, `mixed`
+     * One of: `file`, `dir`, `mixed`
      * @type {Ember.ComputedProperty<string>}
      */
     filesType: computed('files.@each.type', function filesType() {
       const types = this.get('files').mapBy('type').uniq();
       if (types.length > 1) {
         return 'mixed';
-      } else if (types[0] === 'dir') {
-        return 'directory';
       } else {
-        return 'file';
+        return types[0];
       }
     }),
 
@@ -152,9 +165,10 @@ export default Component.extend(
      * True only if all files have consistent `activePermissionsType` value.
      * @type {Ember.ComputedProperty<boolean>}
      */
-    filesHaveCompatibleActivePermissionsType: equal(
-      array.length(array.uniqBy('files', raw('activePermissionsType'))),
-      raw(1)
+    
+    filesHaveCompatibleActivePermissionsType: isEveryTheSame(
+      'files',
+      raw('activePermissionsType')
     ),
 
     /**
@@ -181,9 +195,9 @@ export default Component.extend(
      * True only if all files have consistent `posixPermissions` value.
      * @type {Ember.ComputedProperty<boolean>}
      */
-    filesHaveCompatiblePosixPermissions: equal(
-      array.length(array.uniqBy('files', raw('posixPermissions'))),
-      raw(1)
+    filesHaveCompatiblePosixPermissions: isEveryTheSame(
+      'files',
+      raw('posixPermissions')
     ),
 
     /**
@@ -266,6 +280,7 @@ export default Component.extend(
      * @type {Ember.ComputedProperty<boolean>}
      */
     isSaveEnabled: and(
+      'valuesHaveChanged',
       not('isSaving'),
       'activePermissionsTypeCompatible',
       conditional(
@@ -353,8 +368,11 @@ export default Component.extend(
     },
 
     initAclValuesOnProxyLoad() {
-      const aclsProxy = this.get('aclsProxy');
-      if (!get(aclsProxy, 'isSettled')) {
+      const {
+        aclsProxy,
+        acl,
+      } = this.getProperties('aclsProxy', 'acl');
+      if (!acl) {
         aclsProxy.then(() => {
           safeExec(this,  () => this.set('acl', this.get('initialAcl')));
         });
@@ -424,12 +442,7 @@ export default Component.extend(
       return allSettled(saveAclsPromises.concat(saveFilesPromises)).then(results => {
         const errors = results.filterBy('state', 'rejected').mapBy('reason');
         if (errors.length) {
-          if (errors.length > 1) {
-            errors.slice(1).forEach(error =>
-              console.error('edit-permissions-modal:save()', error)
-            );
-          }
-          return reject(errors[0]);
+          return reject(errors);
         }
       });
     },
@@ -439,6 +452,7 @@ export default Component.extend(
         this.setProperties({
           activePermissionsType: mode,
           isActivePermissionsTypeIncompatibilityAccepted: true,
+          valuesHaveChanged: true,
         });
 
         if (mode === 'acl') {
@@ -446,19 +460,29 @@ export default Component.extend(
         }
       },
       acceptPosixIncompatibility() {
-        this.set('isPosixPermissionsIncompatibilityAccepted', true);
+        this.setProperties({
+          isPosixPermissionsIncompatibilityAccepted: true,
+          valuesHaveChanged: true,
+        });
       },
       acceptAclIncompatibility() {
-        this.set('isAclIncompatibilityAccepted', true);
+        this.setProperties({
+          isAclIncompatibilityAccepted: true,
+          valuesHaveChanged: true,
+        });
       },
       posixPermissionsChanged({ permissions, isValid }) {
         this.setProperties({
           posixPermissions: permissions,
           arePosixPermissionsValid: isValid,
+          valuesHaveChanged: true,
         });
       },
       aclChanged(acl) {
-        this.set('acl', acl);
+        this.setProperties({
+          acl,
+          valuesHaveChanged: true,
+        });
       },
       close() {
         this.get('onClose')();
@@ -476,12 +500,17 @@ export default Component.extend(
               closeCallback();
             })
             .then(() => globalNotify.success(this.t('permissionsModifySuccess')))
-            .catch(error => {
+            .catch(errors => {
+              if (errors.length > 1) {
+                errors.slice(1).forEach(error =>
+                  console.error('edit-permissions-modal:save()', error)
+                );
+              }
               globalNotify
-                .backendError(this.t('modifyingPermissions'), error);
+                .backendError(this.t('modifyingPermissions'), errors[0]);
               // Close without animation to prepare place for error modal
               onClose();
-              throw error;
+              throw errors;
             });
         }
       },

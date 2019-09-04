@@ -12,11 +12,13 @@ import { getProperties, setProperties, get, computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { array } from 'ember-awesome-macros';
-import _ from 'lodash';
-import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
+import { inject as service } from '@ember/service';
+import _ from 'lodash';import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 
 export default Component.extend(I18n, {
   classNames: ['acl-editor'],
+
+  i18n: service(),
 
   /**
    * @override
@@ -31,7 +33,7 @@ export default Component.extend(I18n, {
   acl: undefined,
 
   /**
-   * One of `file`, `directory`
+   * One of `file`, `dir`
    * @virtual
    * @type {string}
    */
@@ -62,25 +64,24 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   onChange: notImplementedIgnore,
+  
+  groupsAndUsers: computed('groups.[]', 'users.[]', function groupsAndUsers() {
+    const {
+      groups,
+      users,
+    } = this.getProperties('groups', 'users');
+    return groups.toArray().concat(users.toArray());
+  }),
 
   /**
    * @type {Ember.ComputedProperty<Array<Models.Group|Models.User>>}
    */
-  sortedGroupAndUserList: array.sort(
-    computed('groups.[]', 'users.[]', function concatenatedGroupsAndUsers() {
-      const {
-        groups,
-        users,
-      } = this.getProperties('groups', 'users');
-      return groups.toArray().concat(users.toArray());
-    }),
-    ['name']
-  ),
+  sortedGroupsAndUsers: array.sort('groupsAndUsers', ['name']),
 
   /**
    * @type {Ember.ComputedProperty<Array<Models.Group|Models.User|Object>>}
    */
-  subjectsList: array.concat('sortedGroupAndUserList', 'systemSubjects'),
+  subjectsList: array.concat('sortedGroupsAndUsers', 'systemSubjects'),
 
   /**
    * @returns {undefined}

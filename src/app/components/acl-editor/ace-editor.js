@@ -11,15 +11,32 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads, collect, or } from '@ember/object/computed';
-import { string, writable } from 'ember-awesome-macros';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { inject as service } from '@ember/service';
+
+const permissionsSpecifications = ['file', 'dir'].reduce((spec, context) => {
+  const filteredPermissions = [];
+  aclPermissionsSpecification.forEach(group => {
+    const filteredGroup = _.assign({}, group);
+    filteredGroup.privileges = group.privileges.filter(permission =>
+      permission.context.includes(context)
+    );
+    if (filteredGroup.privileges.length) {
+      filteredPermissions.push(filteredGroup);
+    }
+  });
+  spec[context] = filteredPermissions;
+  return spec;
+}, {});
 
 export default Component.extend(I18n, {
   tagName: '',
+
+  i18n: service(),
 
   /**
    * @override
@@ -39,7 +56,7 @@ export default Component.extend(I18n, {
   ace: undefined,
 
   /**
-   * One of: `file`, `directory`
+   * One of: `file`, `dir`
    * @virtual
    * @type {string}
    */
@@ -48,7 +65,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {Function}
-   * @param {Object} change { type: string, permissions: number }
+   * @param {Object} change { aceType: string, aceMask: number }
    * @returns {undefined}
    */
   onChange: notImplementedIgnore,
@@ -101,15 +118,16 @@ export default Component.extend(I18n, {
   initialPermissionsTree: undefined,
 
   /**
-   * @type {Ember.ComputedProperty<Models.User|Models.Group>}
+   * @type {Ember.ComputedProperty<Models.User|Models.Group|AceSubjectEquivalent>}
    */
   subject: reads('ace.subject'),
 
   /**
-   * One of `allow`, `deny`. Value can be changed by editor
-   * @type {Ember.ComputedProperty<string>}
+   * One of `allow`, `deny`. Value is initialized in `init()` can be changed by
+   * editor
+   * @type {string}
    */
-  aceType: writable(string.toLower('ace.aceType')),
+  aceType: undefined,
 
   /**
    * `aclPermissionsSpecification` object narrowed to the passed `context`
@@ -118,18 +136,7 @@ export default Component.extend(I18n, {
   permissionsSpecification: computed(
     'context',
     function permissionsSpecification() {
-      const context = this.get('context');
-      const filteredPermissions = [];
-      aclPermissionsSpecification.forEach(group => {
-        const filteredGroup = _.assign({}, group);
-        filteredGroup.privileges = group.privileges.filter(permission =>
-          permission.context.includes(context)
-        );
-        if (filteredGroup.privileges.length) {
-          filteredPermissions.push(filteredGroup);
-        }
-      });
-      return filteredPermissions;
+      return permissionsSpecifications[this.get('context')];
     }
   ),
 
@@ -278,6 +285,7 @@ export default Component.extend(I18n, {
 
     const persistedPermissionsTree = this.get('persistedPermissionsTree');
     this.setProperties({
+      aceType: this.get('ace.aceType').toLowerCase(),
       permissionsTree: persistedPermissionsTree,
       initialPermissionsTree: persistedPermissionsTree,
     });

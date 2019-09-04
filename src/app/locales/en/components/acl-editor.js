@@ -15,8 +15,7 @@ export default {
     add_subcontainer: 'Add subdirectory',
     execute: 'Execute',
     traverse_container: 'Traverse directory',
-    delete_subcontainer: 'Delete subdirectory',
-    delete_object: 'Delete element',
+    delete_child: 'Delete child',
     read_acl: 'Read ACL',
     change_acl: 'Change ACL',
     read_metadata: 'Read metadata',
@@ -41,5 +40,5 @@ export default {
     remove: 'Remove',
   },
   addUserOrGroup: 'Add user or group...',
-  noAce: 'No ACE defined.',
+  noAce: 'No Access Control Entries defined.',
 };

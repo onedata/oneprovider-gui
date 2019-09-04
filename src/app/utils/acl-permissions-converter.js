@@ -13,11 +13,19 @@ import _ from 'lodash';
 
 const aclSpecificationList =
   _.flatten(aclPermissionsSpecification.mapBy('privileges'));
+  
+const aclPermissionsMasks = aclSpecificationList.reduce((map, permission) => {
+  permission.context.forEach(context => {
+    map[context][permission.name] = permission.mask;
+  });
+  return map;
+}, { file: {}, dir: {} });
+
 
 /**
  * Converts number to object representation of ACE permissions.
  * @param {number} permissions 
- * @param {string} context one of `file`, `directory`
+ * @param {string} context one of `file`, `dir`
  * @returns {Object} mapping: groupName -> { permissionName -> boolean }
  */
 export function numberToTree(permissions, context) {
@@ -40,13 +48,10 @@ export function numberToTree(permissions, context) {
  * Converts object representation of ACE permissions to number.
  * @param {Object} permissionsTree
  *   mapping: groupName -> { permissionName -> boolean }
- * @param {string} context one of `file`, `directory`
+ * @param {string} context one of `file`, `dir`
  * @returns {number}
  */
 export function treeToNumber(permissionsTree, context) {
-  const aclSpecListForContext = aclSpecificationList
-    .filter(spec => spec.context.includes(context));
-  
   const flattenedPermissionsTree = _.assign({}, ..._.values(permissionsTree));
   // only permissions with `true` value
   const permissionNamesList = _.keys(flattenedPermissionsTree)
@@ -54,11 +59,7 @@ export function treeToNumber(permissionsTree, context) {
   
   let permissionsNumber = 0;
   permissionNamesList.forEach(permissionName => {
-    const permissionSpec =
-      aclSpecListForContext.findBy('name', permissionName);
-    if (permissionSpec) {
-      permissionsNumber |= permissionSpec.mask;
-    }
+    permissionsNumber |= aclPermissionsMasks[context][permissionName] || 0;
   });
 
   return permissionsNumber;

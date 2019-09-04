@@ -1,6 +1,6 @@
 {{#one-collapsible-list accordionMode=true as |list|}}
   {{#each acl as |ace|}}
-    {{#list.item as |listItem|}}
+    {{#list.item class="ace" as |listItem|}}
       {{acl-editor/ace-editor
         listItem=listItem
         ace=ace
@@ -33,12 +33,8 @@
         <div class="option-container" data-entity-id={{entity.entityId}}>
           {{#truncated-string}}
             {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
-            <span class="text">
-              {{#if entity.isSystemSubject}}
-                <em>{{entity.name}}</em>
-              {{else}}
-                {{entity.name}}
-              {{/if}}
+            <span class="text {{if subject.isSystemSubject "system-subject-name"}}">
+              {{entity.name}}
             </span>
           {{/truncated-string}}
         </div>
