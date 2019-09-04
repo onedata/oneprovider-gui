@@ -74,16 +74,12 @@ export default OneEmbeddedComponent.extend(
         });
       },
       closeRemoveModal(removeInvoked /*, removeResults*/ ) {
-        // FIXME: refactor here and in modal to use only file-manager service
-        // for create/remove/rename/refresh operations
         if (removeInvoked) {
           const {
             removeParentDir,
             fileManager,
           } = this.getProperties('removeParentDir', 'fileManager');
-          console.log('FIXME: refresh dir from which we removed: ' + removeParentDir);
           fileManager.trigger('dirChildrenRefresh', get(removeParentDir, 'entityId'));
-          // FIXME: use remove results to show if all/some/no files were removed
         }
         this.setProperties({
           filesToRemove: null,

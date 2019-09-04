@@ -154,4 +154,8 @@ export default Service.extend(Evented, {
       guid: fileEntityId,
     });
   },
+
+  dirChildrenRefresh(parentDirEntityId) {
+    return this.trigger('dirChildrenRefresh', parentDirEntityId);
+  },
 });

@@ -18,8 +18,7 @@ import { A } from '@ember/array';
 import { hash, notEmpty, not } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { hashSettled } from 'rsvp';
-import _ from 'lodash';
+import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 
 export const actionContext = {
   none: 'none',
@@ -456,44 +455,39 @@ export default Component.extend(I18n, {
       fileManager,
       globalNotify,
       errorExtractor,
-    } = this.getProperties('dir', 'fileManager', 'globalNotify', 'errorExtractor');
+      i18n,
+      i18nPrefix,
+    } = this.getProperties(
+      'dir',
+      'fileManager',
+      'globalNotify',
+      'errorExtractor',
+      'i18n',
+      'i18nPrefix',
+    );
     const fileClipboardMode = get(fileManager, 'fileClipboardMode');
     const fileClipboardFiles = get(fileManager, 'fileClipboardFiles');
     const dirEntityId = get(dir, 'entityId');
-    return hashSettled(_.zipObject(fileClipboardFiles, fileClipboardFiles.map(file =>
-        fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
-      )))
-      .then(promisesHash => {
-        const rejected = [];
-        for (let key in promisesHash) {
-          const value = promisesHash[key];
-          if (get(value, 'state') === 'rejected') {
-            rejected.push({
-              file: key,
-              reason: get(value, 'reason'),
-            });
-          }
-        }
-        const failedCount = get(rejected, 'length');
-        if (failedCount) {
-          globalNotify.backendError(
-            this.t('pasteFailed.' + fileClipboardMode),
-            this.t('pasteFailedDetails.' + (failedCount > 1 ? 'multi' : 'single'), {
-              reason: get(
-                errorExtractor.getMessage(get(rejected[0], 'reason')),
-                'message'
-              ),
-              moreCount: failedCount - 1,
-            })
-          );
-          throw rejected;
-        }
-      })
-      .finally(() => {
-        if (fileClipboardMode === 'move') {
-          fileManager.clearFileClipboard();
-        }
-      });
+
+    return handleMultiFilesOperation({
+        files: fileClipboardFiles,
+        globalNotify,
+        errorExtractor,
+        i18n,
+        operationErrorKey: `${i18nPrefix}.pasteFailed.${fileClipboardMode}`,
+        operationOptions: {
+          dirEntityId,
+          fileClipboardMode,
+        },
+      },
+      (file, { dirEntityId, fileClipboardMode }) => {
+        return fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode);
+      }
+    ).finally(() => {
+      if (fileClipboardMode === 'move') {
+        fileManager.clearFileClipboard();
+      }
+    });
   },
 
   selectCurrentDir(select = true) {
