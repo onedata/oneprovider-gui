@@ -47,6 +47,11 @@
   .destination-oneprovider-selector {
     max-width: 600px;
     margin: 0 auto;
+
+    .description {
+      margin-bottom: $padding-large-horizontal;
+      word-break: break-word;
+    }
     
     .source-oneprovider-visualization {
       .oneprovider-icon {

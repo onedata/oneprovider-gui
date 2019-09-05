@@ -1,4 +1,5 @@
 import Component from '@ember/component';
+import { computed, get } from '@ember/object';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { array, and, not } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -14,6 +15,12 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileDistributionModal.destinationOneproviderSelector',
+
+  /**
+   * @virtual
+   * @type {Array<Models.File>}
+   */
+  files: undefined,
 
   /**
    * @virtual
@@ -51,6 +58,26 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   isSavingNewMigration: false,
+
+  /**
+   * @type {Ember.ComputedProperty<string>}
+   */
+  descriptionText: computed(
+    'files.{@each.name,length}',
+    function descriptionText() {
+      const files = this.get('files');
+      if (files) {
+        const filesNumber = get(files, 'length') || 0;
+        if (filesNumber > 1) {
+          return this.t('descriptionForManyFiles');
+        } else {
+          return this.t('descriptionForOneFile', {
+            fileName: get(files, 'firstObject.name'),
+          });
+        }
+      }
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Array<Models.Oneprovider>>}

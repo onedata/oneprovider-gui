@@ -1,5 +1,6 @@
 {{#if isMigrationDestinationSelectorVisible}}
   {{file-distribution-modal/destination-oneprovider-selector
+    files=(map-by "file" fileDistributionData)
     oneproviders=oneproviders
     sourceOneprovider=newMigrationSourceOneprovider
     onMigrate=(action "migrate")
