@@ -346,7 +346,7 @@ export default Component.extend(
         // Fetch space users and groups
         .then(([users, groups]) => Promise.all(files.map(file =>
           // Fetch each file ACL
-          get(file, 'acl').then(acl =>
+          file.belongsTo('acl').reload().then(acl =>
             // Add subject (user/group model) to each ACE
             get(acl, 'list').map(ace => {
               const {
@@ -395,7 +395,11 @@ export default Component.extend(
         'files',
       );
 
-      let saveAclsPromises = [];
+      const savePromises = files.map(file => ({
+        file,
+        promise: resolve(),
+      }));
+
       if (activePermissionsType === 'acl') {
         // All files share the same ACE array, so it can be prepared
         // earlier.
@@ -406,21 +410,20 @@ export default Component.extend(
           );
         }
 
-        saveAclsPromises = files.map(file => get(file, 'acl').then(fileAcl => {
-          if (_.isEqual(get(fileAcl, 'list'), aclToSave)) {
-            // Nothing to save, ACL model has already an edited value
-            return resolve();
-          } else {
-            set(fileAcl, 'list', aclToSave);
+        savePromises.forEach(savePromise =>
+          get(savePromise.file, 'acl').then(fileAcl => {
+            if (!_.isEqual(get(fileAcl, 'list'), aclToSave)) {
+              set(fileAcl, 'list', aclToSave);
 
-            const promise = fileAcl.save();
-            promise.catch(() => fileAcl.rollbackAttributes());
-            return promise;
-          }
-        }));
+              const promise = fileAcl.save();
+              promise.catch(() => fileAcl.rollbackAttributes());
+              savePromise.promise = savePromise.promise.then(() => promise);
+            }
+          }));
       }
 
-      const saveFilesPromises = files.map(file => {
+      savePromises.forEach(savePromise => {
+        const file = savePromise.file;
         const {
           posixPermissions: filePosixPermissions,
           activePermissionsType: fileActivePermissionsType,
@@ -436,10 +439,10 @@ export default Component.extend(
         }
         const promise = isFileModified ? file.save() : resolve(file);
         promise.catch(() => file.rollbackAttributes());
-        return promise;
+        savePromise.promise = savePromise.promise.then(() => promise);
       });
 
-      return allSettled(saveAclsPromises.concat(saveFilesPromises)).then(results => {
+      return allSettled(savePromises.mapBy('promise')).then(results => {
         const errors = results.filterBy('state', 'rejected').mapBy('reason');
         if (errors.length) {
           return reject(errors);

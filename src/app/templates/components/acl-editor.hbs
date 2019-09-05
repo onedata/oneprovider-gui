@@ -33,7 +33,7 @@
         <div class="option-container" data-entity-id={{entity.entityId}}>
           {{#truncated-string}}
             {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
-            <span class="text {{if subject.isSystemSubject "system-subject-name"}}">
+            <span class="text {{if entity.isSystemSubject "system-subject-name"}}">
               {{entity.name}}
             </span>
           {{/truncated-string}}
