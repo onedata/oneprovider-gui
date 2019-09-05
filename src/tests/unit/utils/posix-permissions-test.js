@@ -52,6 +52,7 @@ describe('Unit | Utility | posix permissions', function () {
             'stringRepresentation',
             'octalRepresentation'
           );
+
           expect(stringRepresentation[entityIndex * 3 + entityIndex + permIndex])
             .to.equal(permissionsLetters[permission]);
           expect(stringRepresentation.split('').filter(c => c !== ' ' && c !== '-'))
@@ -111,6 +112,7 @@ describe('Unit | Utility | posix permissions', function () {
           'stringRepresentation',
           'octalRepresentation'
         );
+        
         expect(stringRepresentation).to.equal(str);
         expect(octalRepresentation).to.equal(octal);
         expect(dumpBooleanValues(posixPermissions)).to.deep.equal(booleans);

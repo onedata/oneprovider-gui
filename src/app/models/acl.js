@@ -9,9 +9,9 @@
  * @typedef {Object} Ace
  * @property {string} aceType 'ALLOW' | 'DENY'
  * @property {string} identifier subject id or 'OWNER@' | 'GROUP@' | 'EVERYONE@'
- * @property {number} aceFlags union of ACE related flags. Available flags:
- *   - IDENTIFIER_GROUP == 0x00000040 - passed `identifier` is related
- *     to group, not user. Flags definition is in utils/acl-permissions-specification.
+ * @property {number} aceFlags bitwise union of ACE related flags. Description 
+ *   and definition of possible flags is located in
+ *   utils/acl-permissions-specification.
  * @property {number} aceMask union of ACE permissions. Available flags are
  *   described in utils/acl-permissions-specification
  * @property {Models.User|Models.Group} subject

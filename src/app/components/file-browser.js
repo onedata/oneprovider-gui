@@ -109,7 +109,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {Function}
-   * @param {Array<Models/File>} filed files to edit permissions
+   * @param {Array<Models/File>} files files to edit permissions
    */
   openEditPermissions: notImplementedThrow,
 

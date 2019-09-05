@@ -7,7 +7,7 @@
       color: $color-one-white;
     }
     .one-icon-tag-circle {
-      transition: background-color 0.2s ease;
+      transition: transition-ease(background-color);
     }
     &.has-active-permissions {
       &.type-allow { 
@@ -31,7 +31,7 @@
       background-color: $color-one-light-gray;
     }
     .status-toolbar-icon {
-      transition: color 0.2s ease;
+      transition: transition-ease(color);
       &.mixed {
         color: $color-one-warning;
       }
@@ -83,6 +83,11 @@
     box-shadow: none;
   }
 
+  .system-subject-name {
+    font-style: italic;
+    text-transform: uppercase;
+  }
+
   @media (min-width: $screen-sm-min) {
     .one-collapsible-list .list-header-row {
       padding-right: 230px;
@@ -118,7 +123,7 @@
     }
     .form-group {
       padding-right: 0;
-      transition: padding-right 0.2s ease;
+      transition: transition-ease(padding-right);
     }
   }
 
