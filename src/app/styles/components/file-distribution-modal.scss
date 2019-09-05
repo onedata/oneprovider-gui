@@ -71,6 +71,74 @@
       text-align: right;
     }
 
+    .transfer-animation-positioner {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateY(-100%) translateX(-50%);
+    }
+
+    .transfer-animation-container {
+      display: flex;
+      animation: transfer-animation-container 1s ease-in infinite;
+
+      .file-icon {
+        font-size: 25px;
+        vertical-align: middle;
+        color: $color-one-azure;
+      }
+
+      @keyframes transfer-animation-wind {
+        0% {
+          transform: translateX(100%);
+        }
+        50%, 100% {
+          transform: translateX(-200%);
+        }
+      }
+
+      @keyframes transfer-animation-container {
+        0%, 10%, 100%  {
+          transform: translateX(-10%);
+        }
+        20% {
+          transform: translateX(-5%);
+        }
+      }
+
+      .wind-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-evenly;
+        padding: 10% 0;
+        width: 1em;
+        overflow: hidden;
+      }
+
+      .wind-element {
+        background-color: $color-one-azure;
+        height: 10%;
+        width: 50%;
+        border-radius: 100%;
+        opacity: 0.7;
+        animation: transfer-animation-wind 1s ease-in infinite;
+      }
+
+      @for $i from 0 to 3 {
+        .wind-element:nth-child(#{$i + 1}) {
+          animation-delay: .15s * $i;
+        }
+      }
+
+      .wind-element:nth {
+        background-color: $color-one-azure;
+        height: 10%;
+        width: 50%;
+        animation: wind 1s linear infinite;
+      }
+    }
+
     @media (min-width: $screen-sm-min) {
       .source-oneprovider-visualization {
         max-width: 100px;
@@ -82,6 +150,10 @@
       .one-arrow {
         flex-grow: 1;
         margin: 0 $padding-large-horizontal;
+      }
+
+      .arrow-text {
+        transform: translateX(-50%) translateY(-50%) translateY(1em);
       }
 
       .visualization-container {
@@ -109,6 +181,10 @@
         // -5px fixes margin around oneprovider oneicon
         margin-top: $padding-large-vertical - 5px;
         margin-bottom: $padding-large-vertical;
+      }
+
+      .transfer-animation-positioner {
+        transform: rotate(90deg) rotateX(180deg) translateY(-150%) translateX(50%);
       }
     }
   }

@@ -4,7 +4,18 @@
     {{one-icon icon="provider" class="oneprovider-icon"}}
     <div class="oneprovider-name">{{sourceOneprovider.name}}</div>
   </div>
-  {{one-arrow direction=(if media.isMobile "down" "right") arrowText=(tt this "migrationArrowText")}}
+  {{#one-arrow direction=(if media.isMobile "down" "right") arrowText=(tt this "migrationArrowText")}}
+    <div class="transfer-animation-positioner">
+      <div class="transfer-animation-container">
+        <div class="wind-container">
+          <div class="wind-element"></div>
+          <div class="wind-element"></div>
+          <div class="wind-element"></div>
+        </div>
+        {{one-icon class="file-icon" icon="browser-file"}}
+      </div>
+    </div>
+  {{/one-arrow}}
   {{#power-select
     triggerClass="small"
     dropdownClass="small"
