@@ -38,7 +38,7 @@ export default Component.extend(I18n, {
    * @type {Function}
    * @returns {undefined}
    */
-  onInvalidate: notImplementedThrow,
+  onEvict: notImplementedThrow,
   
   /**
    * @type {Array<Utils.FileDistributionDataContainer>}
@@ -206,15 +206,15 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  invalidateAction: computed(function invalidateAction() {
+  evictAction: computed(function evictAction() {
     // FIXME disabled conditions
     // FIMXE tip
     return {
       icon: 'invalidate',
-      title: this.t('invalidate'),
+      title: this.t('evict'),
       // tip: this.t('btnAdd.hint'),
-      class: 'invalidate-action-trigger',
-      action: this.get('onInvalidate'),
+      class: 'evict-action-trigger',
+      action: this.get('onEvict'),
     };
   }),
 
@@ -224,6 +224,6 @@ export default Component.extend(I18n, {
   actionsArray: collect(
     'replicateHereAction',
     'migrateAction',
-    'invalidateAction'
+    'evictAction'
   ),
 });

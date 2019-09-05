@@ -31,6 +31,7 @@ export default Component.extend({
   files: computed(function () {
     return [
       {
+        entityId: 'file1',
         name: 'adsf',
         size: 1024,
         type: 'file',
@@ -63,6 +64,7 @@ export default Component.extend({
         })}),
       },
       {
+        entityId: 'file2',
         name: 'zxcv',
         size: 2048,
         type: 'file',

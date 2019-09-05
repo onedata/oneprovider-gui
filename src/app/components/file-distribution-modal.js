@@ -15,6 +15,7 @@ export default Component.extend(
     tagName: '',
 
     i18n: service(),
+    transferManager: service(),
 
     /**
      * @override
@@ -134,13 +135,26 @@ export default Component.extend(
         this.get('onClose')();
       },
       replicate(files, destinationOneprovider) {
-        console.log(...arguments);
+        const transferManager = this.get('transferManager');
+        return Promise.all(files.map(file =>
+          transferManager.startReplication(file, destinationOneprovider)
+        ));
       },
       migrate(files, sourceProvider, destinationOneprovider) {
-        console.log(...arguments);
+        const transferManager = this.get('transferManager');
+        return Promise.all(files.map(file =>
+          transferManager.startMigration(
+            file,
+            sourceProvider,
+            destinationOneprovider
+          )
+        ));
       },
-      invalidate(files, sourceOneprovider) {
-        console.log(...arguments);
+      evict(files, sourceOneprovider) {
+        const transferManager = this.get('transferManager');
+        return Promise.all(files.map(file =>
+          transferManager.startEviction(file, sourceOneprovider)
+        ));
       },
     },
   }

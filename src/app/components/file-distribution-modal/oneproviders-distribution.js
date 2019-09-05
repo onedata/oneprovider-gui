@@ -38,7 +38,7 @@ export default Component.extend({
    * @param {Models.Oneprovider} sourceOneprovider
    * @returns {undefined}
    */
-  onInvalidate: notImplementedThrow,
+  onEvict: notImplementedThrow,
 
   /**
    * @type {Models.Oneprovider}

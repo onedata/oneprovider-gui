@@ -19,7 +19,7 @@
             oneproviders=oneproviders
             onReplicate=(action "replicate" files)
             onMigrate=(action "migrate" files)
-            onInvaludate=(action "invalidate" files)}}
+            onEvict=(action "evict" files)}}
           <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
         {{else}}
           {{#one-collapsible-list class="detailed-list" as |list|}}
@@ -46,7 +46,7 @@
                       fileDistributionData=(array fileDistDataContainer)
                       onReplicate=(action "replicate" (array fileDistDataContainer.file))
                       onMigrate=(action "migrate" (array fileDistDataContainer.file))
-                      onInvaludate=(action "invalidate" (array fileDistDataContainer.file))}}
+                      onEvict=(action "evict" (array fileDistDataContainer.file))}}
                   </div>
                 {{/listItem.content}}
               {{/list.item}}

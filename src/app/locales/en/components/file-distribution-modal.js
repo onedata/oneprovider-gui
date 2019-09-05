@@ -13,7 +13,7 @@ export default {
   oneprovidersDistributionItem: {
     replicateHere: 'Replicate here',
     migrate: 'Migrate...',
-    invalidate: 'Invalidate',
+    evict: 'Evict',
   },
   destinationOneproviderSelector: {
     descriptionForManyFiles: 'Select destination for migrating selected files and directories:',
