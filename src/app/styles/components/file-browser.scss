@@ -134,10 +134,10 @@ $-fb-table-margin-top: 67px;
     white-space: nowrap;
     position: relative;
     opacity: 1;
-    transition: opacity 0.2s ease;
+    transition: transition-ease(opacity);
     &.breadcrumbs-recomputing {
       opacity: 0;
-      transition: opacity 0.2s ease;
+      transition: transition-ease(opacity);
     }
     &.truncate {
       width: 100%;

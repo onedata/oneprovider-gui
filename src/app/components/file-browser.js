@@ -9,7 +9,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, get, getProperties } from '@ember/object';
+import { computed, get, getProperties, observer } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { camelize, dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -18,8 +18,8 @@ import { A } from '@ember/array';
 import { hash, notEmpty, not } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { hashSettled } from 'rsvp';
-import _ from 'lodash';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 
 export const actionContext = {
   none: 'none',
@@ -107,6 +107,18 @@ export default Component.extend(I18n, {
   openRename: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} files files to edit permissions
+   */
+  openEditPermissions: notImplementedThrow,
+
+  /**
+   * @virtual optional
+   */
+  containerScrollTop: notImplementedIgnore,
+
+  /**
    * If true, the paste from clipboard button should be available
    * @type {Computed<boolean>}
    */
@@ -153,7 +165,10 @@ export default Component.extend(I18n, {
   clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
     const component = this;
     return function clickOutsideDeselect(mouseEvent) {
-      if (!isPopoverOpened() &&
+      // Check for matching `body *` to not clear selection on destroyed elements click
+      // (issue of some elements, that are removed from DOM just after click, like
+      // dynamic popover menu items or contextual buttons).
+      if (!isPopoverOpened() && mouseEvent.target.matches('body *') &&
         !mouseEvent.target.matches(
           '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *'
         )) {
@@ -252,7 +267,19 @@ export default Component.extend(I18n, {
   btnInfo: computed(function btnInfo() {
     return this.createFileAction({
       id: 'info',
-      showIn: [...anySelected, actionContext.currentDir],
+      action: () => {
+        const {
+          openInfo,
+          selectedFiles,
+        } = this.getProperties('openInfo', 'selectedFiles');
+        return openInfo(selectedFiles[0]);
+      },
+      showIn: [
+        actionContext.spaceRootDir,
+        actionContext.singleDir,
+        actionContext.singleFile,
+        actionContext.currentDir,
+      ],
     });
   }),
 
@@ -277,6 +304,13 @@ export default Component.extend(I18n, {
   btnPermissions: computed(function btnPermissions() {
     return this.createFileAction({
       id: 'permissions',
+      action: () => {
+        const {
+          openEditPermissions,
+          selectedFiles,
+        } = this.getProperties('openEditPermissions', 'selectedFiles');
+        return openEditPermissions(selectedFiles);
+      },
       showIn: [...anySelected, actionContext.currentDir],
     });
   }),
@@ -354,6 +388,15 @@ export default Component.extend(I18n, {
   }),
 
   // #endregion
+
+  dirChangedObserver: observer('dir', function dirChangedObserver() {
+    this.get('containerScrollTop')(0);
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.dirChangedObserver();
+  },
 
   didInsertElement() {
     this._super(...arguments);
@@ -444,44 +487,39 @@ export default Component.extend(I18n, {
       fileManager,
       globalNotify,
       errorExtractor,
-    } = this.getProperties('dir', 'fileManager', 'globalNotify', 'errorExtractor');
+      i18n,
+      i18nPrefix,
+    } = this.getProperties(
+      'dir',
+      'fileManager',
+      'globalNotify',
+      'errorExtractor',
+      'i18n',
+      'i18nPrefix',
+    );
     const fileClipboardMode = get(fileManager, 'fileClipboardMode');
     const fileClipboardFiles = get(fileManager, 'fileClipboardFiles');
     const dirEntityId = get(dir, 'entityId');
-    return hashSettled(_.zipObject(fileClipboardFiles, fileClipboardFiles.map(file =>
-        fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode)
-      )))
-      .then(promisesHash => {
-        const rejected = [];
-        for (let key in promisesHash) {
-          const value = promisesHash[key];
-          if (get(value, 'state') === 'rejected') {
-            rejected.push({
-              file: key,
-              reason: get(value, 'reason'),
-            });
-          }
-        }
-        const failedCount = get(rejected, 'length');
-        if (failedCount) {
-          globalNotify.backendError(
-            this.t('pasteFailed.' + fileClipboardMode),
-            this.t('pasteFailedDetails.' + (failedCount > 1 ? 'multi' : 'single'), {
-              reason: get(
-                errorExtractor.getMessage(get(rejected[0], 'reason')),
-                'message'
-              ),
-              moreCount: failedCount - 1,
-            })
-          );
-          throw rejected;
-        }
-      })
-      .finally(() => {
-        if (fileClipboardMode === 'move') {
-          fileManager.clearFileClipboard();
-        }
-      });
+
+    return handleMultiFilesOperation({
+        files: fileClipboardFiles,
+        globalNotify,
+        errorExtractor,
+        i18n,
+        operationErrorKey: `${i18nPrefix}.pasteFailed.${fileClipboardMode}`,
+        operationOptions: {
+          dirEntityId,
+          fileClipboardMode,
+        },
+      },
+      (file, { dirEntityId, fileClipboardMode }) => {
+        return fileManager.copyOrMoveFile(file, dirEntityId, fileClipboardMode);
+      }
+    ).finally(() => {
+      if (fileClipboardMode === 'move') {
+        fileManager.clearFileClipboard();
+      }
+    });
   },
 
   selectCurrentDir(select = true) {

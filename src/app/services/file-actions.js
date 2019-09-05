@@ -37,10 +37,6 @@ export default Service.extend({
     dummyAction('metadata: ', files);
   },
 
-  actPermissions(files) {
-    dummyAction('permissions: ', files);
-  },
-
   actDistribution(files) {
     dummyAction('distribution: ', files);
   },

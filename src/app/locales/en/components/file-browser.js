@@ -27,6 +27,7 @@ export default {
     paste: 'Paste',
   },
   fbTable: {
+    startingDownload: 'starting file download',
     menuSelection: 'Selection ({{selectionCount}})',
     header: {
       files: 'Files',
@@ -63,6 +64,7 @@ export default {
     },
   },
   fbRemoveModal: {
+    deleting: 'deleting file(s)',
     delete: 'Delete',
     yes: 'Yes',
     no: 'No',
@@ -75,6 +77,7 @@ export default {
     },
   },
   fbRenameModal: {
+    renaming: 'renaming the file',
     submit: 'Rename',
     cancel: 'Cancel',
     header: {
@@ -85,5 +88,17 @@ export default {
       dir: newNameDirIntro,
       file: newNameFileIntro,
     },
+  },
+  fbInfoModal: {
+    header: '{{type}} details',
+    file: 'File',
+    dir: 'Directory',
+    name: '{{type}} name',
+    path: '{{type}} path',
+    spaceId: 'Space ID',
+    cdmiObjectId: 'CDMI Object ID',
+    modificationTime: 'Modified at',
+    owner: 'Owner',
+    close: 'Close',
   },
 };

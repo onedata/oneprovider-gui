@@ -1,0 +1,49 @@
+{{#listItem.header disableToggleIcon=true class=(concat-classes (concat "type-" aceType) (if hasActivePermissions 'has-active-permissions'))}}
+  <span class="item-icon-container">
+    {{one-icon-tagged class="item-icon" icon=icon tagIcon=(if (eq aceType "allow") "checked" "x")}}
+    {{one-tooltip title=subject.name}}
+  </span>
+  <span class="subject-name {{if subject.isSystemSubject "system-subject-name"}}">
+    {{subject.name}}
+  </span>
+  {{#status-toolbar class="hidden-xs" as |toolbar|}}
+    {{#each statusIcons key="icon" as |status|}}
+      {{toolbar.icon icon=status.icon hint=status.tooltipText status=status.stateClass}}
+    {{/each}}
+  {{/status-toolbar}}
+  {{actions-toolbar
+    isMinimized=true
+    toolbarClasses=""
+    toolbarToggleClasses="btn-menu-toggle"
+    dropdownPlacement="auto"
+    dropdownOverModals=true
+    actionsArray=actionsArray}}
+{{/listItem.header}}
+{{#listItem.content}}
+  <div class="ace-editor-form type-{{aceType}}">
+    <div class="ace-type-presenter">
+      <label class="ace-type-label">{{tt this "aceType"}}</label>
+      {{#bs-button-group
+        class="ace-type-selector"
+        value=aceType
+        type="radio"
+        onChange=(action "aceTypeChanged") as |bg|}}
+        {{#bg.button type=(if (eq aceType "allow") "primary" "default") class="btn-sm ace-type ace-type-allow" value="allow"}}
+          {{one-icon icon="checkbox-filled"}} {{tt this "aceTypes.allow"}}
+        {{/bg.button}}
+        {{#bg.button type=(if (eq aceType "deny") "danger" "default") class="btn-sm ace-type ace-type-deny" value="deny"}}
+          {{one-icon icon="checkbox-filled-x"}}{{tt this "aceTypes.deny"}}
+        {{/bg.button}}
+      {{/bs-button-group}}  
+    </div>
+    {{#render-later triggerRender=listItem.isActive}}
+      {{privileges-tree-editor
+        privilegesGroups=permissionsSpecification
+        privilegeGroupsTranslationsPath="components.aclEditor.permissionGroups"
+        privilegesTranslationsPath="components.aclEditor.permissions"
+        comparePrivileges=persistedPermissionsTree
+        overridePrivileges=initialPermissionsTree
+        onChange=(action "permissionsChanged")}}
+    {{/render-later}}
+  </div>
+{{/listItem.content}}

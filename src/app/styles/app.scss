@@ -1,9 +1,12 @@
 @import 'onedata-gui-common';
 
 @import 'layout';
+@import 'components/acl-editor';
 @import 'components/content-file-browser';
+@import 'components/edit-permissions-modal';
 @import 'components/file-browser';
 @import 'components/bs-modal';
+@import 'components/posix-permissions-editor';
 @import 'components/file-distribution-modal';
 
 // FIXME: remove when development ends
