@@ -12,6 +12,35 @@ import { get } from '@ember/object';
 
 export default Service.extend({
   store: service(),
+  onedataRpc: service(),
+
+  /**
+   * @param {string} id gri
+   * @returns {Promise<Models.Transfer>}
+   */
+  getTransfer(id) {
+    return this.get('store').findRecord('transfer', id);
+  },
+
+  /**
+   * @param {Models.File} file
+   * @param {string} [endedInfo='count'] one of: count, ids
+   * @returns {RSVP.Promise} A backend operation completion:
+   * - `resolve(object: data)` when successfully fetched the list
+   *  - `data.ongoing: Array<string>` - list of non-ended transfers (waiting
+   *       and outgoing) transfer IDs for the file
+   *  - `data.ended: Array<string>|Number` - list of ended transfer IDs for the file,
+   *       which size is limited to the value of
+   *       `session.sessionDetails.config.transfersHistoryLimitPerFile`
+   *        or number of ended transfers if endedInfo is "count"
+   * - `reject(object: error)` on failure
+   */
+  getTransfersForFile(file, endedInfo = 'count') {
+    return this.get('onedataRpc').request('getTransfersForFile', {
+      guid: get(file, 'entityId'),
+      endedInfo,
+    });
+  },
 
   /**
    * @param {Models.File} file 

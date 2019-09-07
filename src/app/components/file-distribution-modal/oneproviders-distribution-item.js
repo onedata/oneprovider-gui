@@ -1,6 +1,6 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
-import { reads, collect } from '@ember/object/computed';
+import { collect } from '@ember/object/computed';
 import { sum, array, equal, raw } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -19,8 +19,6 @@ export default Component.extend(I18n, {
    * @type {Models.Provider}
    */
   oneprovider: undefined,
-
-  // oneproviderEntityId: reads('oneprovider.entityId'),
 
   /**
    * @type {Function}
@@ -45,20 +43,30 @@ export default Component.extend(I18n, {
    */
   fileDistributionData: undefined,
 
-  hasAllFilesDistributions: array.isEvery(
+  /**
+   * `fileDistributionData` narrowed to files only
+   * @type {Array<Utils.FileDistributionDataContainer>}
+   */
+  filesOnlyDistributionData: array.filterBy(
     'fileDistributionData',
+    raw('fileType'),
+    raw('file')
+  ),
+
+  hasAllFilesDistributions: array.isEvery(
+    'filesOnlyDistributionData',
     raw('isFileDistributionModelLoaded')
   ),
 
   neverSynchronized: computed(
-    'fileDistributionData.@each.fileDistribution',
+    'filesOnlyDistributionData.@each.fileDistribution',
     'oneprovider',
     function neverSynchronized() {
       const {
-        fileDistributionData,
+        filesOnlyDistributionData,
         oneprovider,
-      } = this.getProperties('fileDistributionData', 'oneprovider');
-      return fileDistributionData
+      } = this.getProperties('filesOnlyDistributionData', 'oneprovider');
+      return filesOnlyDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForOneprovider(oneprovider)
         ).isEvery('neverSynchronized');
@@ -73,7 +81,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<number>}
    */
-  filesSize: sum(array.mapBy('fileDistributionData', raw('fileSize'))),
+  filesSize: sum(array.mapBy('filesOnlyDistributionData', raw('fileSize'))),
 
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -81,17 +89,17 @@ export default Component.extend(I18n, {
   percentage: computed(
     'hasAllFilesDistributions',
     'filesSize',
-    'fileDistributionData.@each.{fileSize,fileDistribution}',
+    'filesOnlyDistributionData.@each.{fileSize,fileDistribution}',
     'oneprovider',
     function () {
       const {
         filesSize,
-        fileDistributionData,
+        filesOnlyDistributionData,
         hasAllFilesDistributions,
         oneprovider,
       } = this.getProperties(
         'filesSize',
-        'fileDistributionData',
+        'filesOnlyDistributionData',
         'hasAllFilesDistributions',
         'oneprovider'
       );
@@ -100,7 +108,7 @@ export default Component.extend(I18n, {
         // check filesSize to not divide by 0 (in return statement)
         if (filesSize) {
           let availableBytes = 0;
-          fileDistributionData.forEach(fileDistDataContainer => {
+          filesOnlyDistributionData.forEach(fileDistDataContainer => {
             const fileSize = get(fileDistDataContainer, 'fileSize');
             const fileDistribution =
               fileDistDataContainer.getDistributionForOneprovider(oneprovider);
@@ -126,18 +134,18 @@ export default Component.extend(I18n, {
   chunksBarData: computed(
     'hasAllFilesDistributions',
     'filesSize',
-    'fileDistributionData.@each.{fileSize,fileDistribution}',
+    'filesOnlyDistributionData.@each.{fileSize,fileDistribution}',
     'hasSingleFile',
     'oneprovider',
     function chunksBarData() {
       const {
-        fileDistributionData,
+        filesOnlyDistributionData,
         filesSize,
         hasAllFilesDistributions,
         hasSingleFile,
         oneprovider,
       } = this.getProperties(
-        'fileDistributionData',
+        'filesOnlyDistributionData',
         'filesSize',
         'hasAllFilesDistributions',
         'hasSingleFile',
@@ -148,12 +156,12 @@ export default Component.extend(I18n, {
         return { 0: 0 };
       } else if (hasSingleFile) {
         const fileDistribution =
-          fileDistributionData[0].getDistributionForOneprovider(oneprovider);
+          filesOnlyDistributionData[0].getDistributionForOneprovider(oneprovider);
         return get(fileDistribution, 'chunksBarData');
       } else {
         const chunks = {};
         let chunksOffset = 0;
-        fileDistributionData.forEach(fileDistDataContainer => {
+        filesOnlyDistributionData.forEach(fileDistDataContainer => {
           const fileSize = get(fileDistDataContainer, 'fileSize');
           if (fileSize) {
             const fileShare = fileSize / filesSize;
@@ -173,50 +181,119 @@ export default Component.extend(I18n, {
     }
   ),
 
-  /**
-   * @type {Ember.ComputedProperty<Action>}
-   */
-  replicateHereAction: computed(function replicateHereAction() {
-    // FIXME disabled conditions
-    // FIMXE tip
-    return {
-      icon: 'replicate',
-      title: this.t('replicateHere'),
-      // tip: this.t('btnAdd.hint'),
-      class: 'replicate-here-action-trigger',
-      action: this.get('onReplicate'),
-    };
+  replicateHereTooltip: computed(function replicateHereTooltip() {
+    // FIXME: implement
+  }),
+
+  isReplicationHereEnabled: computed(function isReplicationHereEnabled() {
+    // FIXME: implement
+    return true;
+  }),
+
+  migrateTooltip: computed(function replicateHereTooltip() {
+    // FIXME: implement
+  }),
+
+  isMigrationEnabled: computed(function isMigrationEnabled() {
+    // FIXME: implement
+    return true;
+  }),
+
+  evictTooltip: computed(function replicateHereTooltip() {
+    // FIXME: implement
+  }),
+
+  isEvictionEnabled: computed(function isMigrationEnabled() {
+    // FIXME: implement
+    return true;
   }),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  migrateAction: computed(function migrateAction() {
-    // FIXME disabled conditions
-    // FIMXE tip
-    return {
-      icon: 'migrate',
-      title: this.t('migrate'),
-      // tip: this.t('btnAdd.hint'),
-      class: 'migrate-action-trigger',
-      action: this.get('onMigrate'),
-    };
-  }),
+  replicateHereAction: computed(
+    'onReplicate',
+    'replicateHereTooltip',
+    'isReplicationHereEnabled',
+    function replicateHereAction() {
+      const {
+        onReplicate,
+        replicateHereTooltip,
+        isReplicationHereEnabled,
+      } = this.getProperties(
+        'onReplicate',
+        'replicateHereTooltip',
+        'isReplicationHereEnabled'
+      );
+
+      return {
+        icon: 'replicate',
+        title: this.t('replicateHere'),
+        tip: replicateHereTooltip,
+        class: 'replicate-here-action-trigger',
+        action: onReplicate,
+        disabled: !isReplicationHereEnabled,
+      };
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  evictAction: computed(function evictAction() {
-    // FIXME disabled conditions
-    // FIMXE tip
-    return {
-      icon: 'invalidate',
-      title: this.t('evict'),
-      // tip: this.t('btnAdd.hint'),
-      class: 'evict-action-trigger',
-      action: this.get('onEvict'),
-    };
-  }),
+  migrateAction: computed(
+    'onMigrate',
+    'migrateTooltip',
+    'isMigrationEnabled',
+    function migrateAction() {
+      const {
+        onMigrate,
+        migrateTooltip,
+        isMigrationEnabled,
+      } = this.getProperties(
+        'onMigrate',
+        'migrateTooltip',
+        'isMigrationEnabled'
+      );
+
+      return {
+        icon: 'migrate',
+        title: this.t('migrate'),
+        tip: migrateTooltip,
+        class: 'migrate-action-trigger',
+        action: onMigrate,
+        disabled: !isMigrationEnabled,
+      };
+    }
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<Action>}
+   */
+  evictAction: computed(
+    'onEvict',
+    'evictTooltip',
+    'isEvictionEnabled',
+    function evictAction() {
+      const {
+        onEvict,
+        evictTooltip,
+        isEvictionEnabled,
+      } = this.getProperties(
+        'onEvict',
+        'evictTooltip',
+        'isEvictionEnabled'
+      );
+
+      return {
+        icon: 'invalidate',
+        title: this.t('evict'),
+        tip: evictTooltip,
+        class: 'evict-action-trigger',
+        action: onEvict,
+        disabled: !isEvictionEnabled,
+      };
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Array<Action>>}

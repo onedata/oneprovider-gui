@@ -6,11 +6,13 @@
     {{one-icon icon="invalidate"}}
   </div>
 </div>
-{{file-distribution-modal/chunks-visualizer
-  neverSynchronized=neverSynchronized
-  fileSize=filesSize
-  chunks=chunksBarData
-  percentage=percentage}}
+{{#if filesOnlyDistributionData.length}}
+  {{file-distribution-modal/chunks-visualizer
+    neverSynchronized=neverSynchronized
+    fileSize=filesSize
+    chunks=chunksBarData
+    percentage=percentage}}
+{{/if}}
 {{actions-toolbar
   isMinimized=true
   toolbarClasses=""

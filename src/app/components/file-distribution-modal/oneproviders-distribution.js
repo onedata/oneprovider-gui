@@ -1,10 +1,19 @@
 import Component from '@ember/component';
+import { observer } from '@ember/object';
 import { equal, raw, notEmpty } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend({
   classNames: ['oneproviders-distribution'],
+
+  /**
+   * Change of this property will enable/disable continuous fetching transfers
+   * and data distribution
+   * @virtual
+   * @type {boolean}
+   */
+  isVisible: false,
 
   /**
    * @virtual
@@ -54,6 +63,27 @@ export default Component.extend({
    * @type {Ember.ComputedProperty<boolean>}
    */
   hasSingleFile: equal('fileDistributionData.length', raw(1)),
+
+  isVisibleObserver: observer('isVisible', function isVisibleObserver() {
+    this.get('fileDistributionData').setEach(
+      'keepDataUpdated',
+      this.get('isVisible')
+    );
+  }),
+
+  init() {
+    this._super(...arguments);
+
+    this.isVisibleObserver();
+  },
+
+  willDestroyElement() {
+    try {
+      this.get('fileDistributionData').setEach('keepDataUpdated', false);
+    } finally {
+      this._super(...arguments);
+    }
+  },
 
   actions: {
     initializeNewMigration(sourceOneprovider) {

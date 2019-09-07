@@ -2,6 +2,8 @@ export default {
   header: 'Data distribution',
   summary: 'Summary',
   details: 'Details',
+  summarizedFilesDistribution: 'Summarized data distribution of selected files:',
+  dirsDontHaveDistributionTip: 'Data distribution for directories is not available.',
   selectedItems: 'Selected items:',
   files: 'files',
   directories: 'directories',

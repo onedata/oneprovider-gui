@@ -5,8 +5,10 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { allSettled, Promise } from 'rsvp';
-import { raw, array } from 'ember-awesome-macros';
+import { raw, array, sum } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
+import { getOwner } from '@ember/application';
+import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 
 export default Component.extend(
   I18n,
@@ -50,7 +52,7 @@ export default Component.extend(
     filesOfTypeDir: array.filterBy(
       'files',
       raw('type'),
-      raw('directory')
+      raw('dir')
     ),
 
     /**
@@ -63,22 +65,33 @@ export default Component.extend(
      */
     directoriesNumber: array.length('filesOfTypeDir'),
 
+    /**
+     * @type {Ember.ComputedProperty<number>}
+     */
+    filesSize: sum(array.mapBy('filesOfTypeFile', raw('size'))),
+
     selectedItemsText: computed(
-      'files',
       'filesNumber',
       'directoriesNumber',
+      'filesSize',
       function selectedItemsText() {
         const {
           filesNumber,
           directoriesNumber,
-        } = this.getProperties('filesNumber', 'directoriesNumber');
+          filesSize,
+        } = this.getProperties(
+          'filesNumber',
+          'directoriesNumber',
+          'filesSize'
+        );
+        const readableFilesSize = bytesToString(filesSize);
 
         let text = `${filesNumber + directoriesNumber} `;
         if (directoriesNumber > 0 && filesNumber > 0) {
-          text += `(${filesNumber} ${this.t('files')}, `;
-          text += `${directoriesNumber} ${this.t('directories')})`;
+          text += `- ${filesNumber} ${this.t('files')} (${readableFilesSize}), `;
+          text += `${directoriesNumber} ${this.t('directories')}`;
         } else if (filesNumber > 0) {
-          text += `${this.t('files')}`;
+          text += `${this.t('files')} (${readableFilesSize})`;
         } else {
           text += `${this.t('directories')}`;
         }
@@ -88,21 +101,22 @@ export default Component.extend(
     ),
 
     /**
-     * This is only an initial value. May by overriden by action `changeTab`.
-     * @type {Ember.ComputedProperty<string>}
+     * One of: 'distribution-summary', 'distribution-details'.
+     * 'distribution-summary' is possible only for multiple files.
+     * @type {string}
      */
-    // activeTab: writable(conditional(
-    //   gt('files.length'), raw(1),
-    //   raw('distribution-summary'),
-    //   raw('distribution-details'),
-    // )),
-    activeTab: 'distribution-details',
+    activeTab: undefined,
 
     init() {
       this._super(...arguments);
 
       // Optimalization: get proxies to start loading data before initial render.
       this.getProperties('oneprovidersProxy', 'fileDistributionsProxy');
+
+      this.set(
+        'activeTab',
+        this.get('files.length') > 1 ? 'distribution-summary' : 'distribution-details'
+      );
     },
     
     /**
@@ -119,7 +133,9 @@ export default Component.extend(
     fetchFileDistributionData() {
       return Promise.all(
         this.get('files')
-          .map(file => FileDistributionDataContainer.create({ file }))
+          .map(file => FileDistributionDataContainer.create(
+            getOwner(this).ownerInjection(), { file }
+          ))
           .map(fddc => allSettled([
             get(fddc, 'fileDistributionModelProxy'),
             get(fddc, 'activeTransfersProxy'),
