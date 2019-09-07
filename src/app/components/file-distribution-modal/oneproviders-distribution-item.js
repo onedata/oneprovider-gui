@@ -1,7 +1,7 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { collect } from '@ember/object/computed';
-import { sum, array, equal, raw } from 'ember-awesome-macros';
+import { sum, array, equal, raw, and } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
@@ -19,6 +19,12 @@ export default Component.extend(I18n, {
    * @type {Models.Provider}
    */
   oneprovider: undefined,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  spaceHasSingleOneprovider: undefined,
 
   /**
    * @type {Function}
@@ -116,9 +122,10 @@ export default Component.extend(I18n, {
             availableBytes += fileSize * ((blocksPercentage || 0) / 100);
           });
     
-          return Math.floor(
+          const percentage = Math.floor(
             (Math.min(availableBytes, filesSize) / filesSize) * 100
           );
+          return availableBytes ? Math.max(percentage, 1) : 0;
         } else {
           return 100;
         }
@@ -185,28 +192,66 @@ export default Component.extend(I18n, {
     // FIXME: implement
   }),
 
-  isReplicationHereEnabled: computed(function isReplicationHereEnabled() {
-    // FIXME: implement
-    return true;
-  }),
+  isReplicationHereEnabled: computed(
+    'spaceHasSingleOneprovider',
+    'fileDistributionData.@each.{fileType,fileDistribution}',
+    'percentage',
+    'oneprovider',
+    function isReplicationHereEnabled() {
+      const {
+        spaceHasSingleOneprovider,
+        fileDistributionData,
+        percentage,
+        oneprovider,
+      } = this.getProperties(
+        'spaceHasSingleOneprovider',
+        'fileDistributionData',
+        'percentage',
+        'oneprovider'
+      );
+
+      const hasDirs = fileDistributionData.isAny('fileType', 'dir');
+      const someNeverSynchronized = hasDirs ? false : fileDistributionData
+        .map(fileDistDataContainer =>
+          fileDistDataContainer.getDistributionForOneprovider(oneprovider)
+        )
+        .isAny('neverSynchronized');
+      return !spaceHasSingleOneprovider && (hasDirs || someNeverSynchronized || percentage < 100);
+    }
+  ),
 
   migrateTooltip: computed(function replicateHereTooltip() {
     // FIXME: implement
   }),
 
-  isMigrationEnabled: computed(function isMigrationEnabled() {
-    // FIXME: implement
-    return true;
-  }),
+  isMigrationEnabled: computed(
+    'spaceHasSingleOneprovider',
+    'fileDistributionData.@each.fileType',
+    'neverSynchronized',
+    'percentage',
+    function isMigrationEnabled() {
+      const {
+        spaceHasSingleOneprovider,
+        fileDistributionData,
+        neverSynchronized,
+        percentage,
+      } = this.getProperties(
+        'spaceHasSingleOneprovider',
+        'fileDistributionData',
+        'neverSynchronized',
+        'percentage'
+      );
+
+      const hasDirs = fileDistributionData.isAny('fileType', 'dir');
+      return !spaceHasSingleOneprovider && (hasDirs || (!neverSynchronized && percentage));
+    }
+  ),
 
   evictTooltip: computed(function replicateHereTooltip() {
     // FIXME: implement
   }),
 
-  isEvictionEnabled: computed(function isMigrationEnabled() {
-    // FIXME: implement
-    return true;
-  }),
+  isEvictionEnabled: and('blocksExistOnOtherOneproviders', 'percentage'),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
@@ -302,5 +347,52 @@ export default Component.extend(I18n, {
     'replicateHereAction',
     'migrateAction',
     'evictAction'
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  blocksExistOnOtherOneproviders: computed(
+    'oneprovider',
+    'spaceHasSingleOneprovider',
+    'fileDistributionData.@each(fileType,fileDistribution}',
+    'filesSize',
+    function blocksExistOnOtherOneproviders() {
+      const {
+        fileDistributionData,
+        spaceHasSingleOneprovider,
+        oneprovider,
+        filesSize,
+      } = this.getProperties(
+        'fileDistributionData',
+        'spaceHasSingleOneprovider',
+        'oneprovider',
+        'filesSize'
+      );
+      const oneproviderId = get(oneprovider, 'entityId');
+
+      if (spaceHasSingleOneprovider) {
+        return false;
+      } else if (fileDistributionData.isAny('fileType', 'dir')) {
+        return true;
+      } else if (!filesSize) {
+        return false;
+      } else {
+        for (let i = 0; i < get(fileDistributionData, 'length'); i++) {
+          const singleFileDistribution = get(fileDistributionData.objectAt(i), 'fileDistribution');
+          const oneproviderIds = Object.keys(singleFileDistribution);
+          const otherOneproviderIds = oneproviderIds.without(oneproviderId);
+          for (let j = 0; j < get(otherOneproviderIds, 'length'); j++) {
+            const blocksPercentage = get(
+              singleFileDistribution,
+              `${otherOneproviderIds.objectAt(j)}.blocksPercentage`
+            );
+            if (blocksPercentage) {
+              return true;
+            }
+          }
+        }
+      }
+    }
   ),
 });

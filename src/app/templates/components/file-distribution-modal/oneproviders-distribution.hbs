@@ -10,6 +10,7 @@
     {{#each oneproviders key="id" as |oneprovider|}}
       {{file-distribution-modal/oneproviders-distribution-item
         oneprovider=oneprovider
+        spaceHasSingleOneprovider=(eq oneproviders.length 1)
         fileDistributionData=fileDistributionData
         onReplicate=(action onReplicate oneprovider)
         onMigrate=(action "initializeNewMigration" oneprovider)

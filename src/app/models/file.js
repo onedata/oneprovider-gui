@@ -25,6 +25,7 @@ export default Model.extend(GraphSingleModelMixin, {
   type: attr('string'),
   size: attr('number'),
   parent: belongsTo('file'),
+  fileDistribution: belongsTo('file-distribution'),
 
   // FIXME: test values:
   owner: promise.object(raw(resolve({ fullName: 'Test User' }))),

@@ -47,11 +47,13 @@ export default Component.extend({
               neverSynchronized: false,
             },
             456: {
-              blocksPercentage: 0,
+              blocksPercentage: 50,
               chunksBarData: {
-                0: 0,
+                0: 50,
+                120: 0,
+                220: 100,
               },
-              neverSynchronized: true,
+              neverSynchronized: false,
             },
             789: {
               blocksPercentage: 0,

@@ -70,6 +70,9 @@ export default Component.extend(
      */
     filesSize: sum(array.mapBy('filesOfTypeFile', raw('size'))),
 
+    /**
+     * @type {Ember.ComputedProperty<string>}
+     */
     selectedItemsText: computed(
       'filesNumber',
       'directoriesNumber',
@@ -143,6 +146,17 @@ export default Component.extend(
       );
     },
 
+    /**
+     * @param {Models.File} file 
+     * @returns {undefined}
+     */
+    reloadFileTransfers(file) {
+      const fileDistributionData = this.get('fileDistributionData').findBy('file', file);
+      if (fileDistributionData) {
+        fileDistributionData.updateTransfersProxy({ replace: true });
+      }
+    },
+
     actions: {
       changeTab(tab) {
         this.set('activeTab', tab);
@@ -154,6 +168,10 @@ export default Component.extend(
         const transferManager = this.get('transferManager');
         return Promise.all(files.map(file =>
           transferManager.startReplication(file, destinationOneprovider)
+            .then(result => {
+              this.reloadFileTransfers(file);
+              return result;
+            })
         ));
       },
       migrate(files, sourceProvider, destinationOneprovider) {
@@ -163,13 +181,19 @@ export default Component.extend(
             file,
             sourceProvider,
             destinationOneprovider
-          )
+          ).then(result => {
+            this.reloadFileTransfers(file);
+            return result;
+          })
         ));
       },
       evict(files, sourceOneprovider) {
         const transferManager = this.get('transferManager');
         return Promise.all(files.map(file =>
-          transferManager.startEviction(file, sourceOneprovider)
+          transferManager.startEviction(file, sourceOneprovider).then(result => {
+            this.reloadFileTransfers(file);
+            return result;
+          })
         ));
       },
     },

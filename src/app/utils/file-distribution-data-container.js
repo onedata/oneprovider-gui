@@ -78,12 +78,6 @@ export default EmberObject.extend(
       raw(false),
     ),
 
-    blocksPercentage: reads('fileDistributionModel.blocksPercentage'),
-
-    chunksBarData: reads('fileDistributionModel.chunksBarData'),
-
-    neverSynchronized: reads('fileDistributionModel.neverSynchronized'),
-
     fileDistribution: reads('fileDistributionModel.distribution'),
 
     activeTransfers: reads('transfers.ongoing'),
@@ -122,8 +116,7 @@ export default EmberObject.extend(
         this._super(...arguments);
       }
     },
-
-    // TODO: Maybe rename to fileDistribution (without `model`)
+    
     /**
      * @override
      */
