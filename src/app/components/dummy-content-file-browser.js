@@ -14,6 +14,8 @@ import { promise } from 'ember-awesome-macros';
 
 export default Component.extend({
   currentUser: service(),
+  onedataRpc: service(),
+  fileManager: service(),
 
   classNames: ['dummy-content-file-browser'],
 
@@ -24,4 +26,21 @@ export default Component.extend({
       .then(list => list.objectAt(0))
       .then(space => get(space, 'rootDir'));
   })),
+
+  actions: {
+    immediatelyRemove(files, parentDir) {
+      const {
+        onedataRpc,
+        fileManager,
+      } = this.getProperties('onedataRpc', 'fileManager');
+      const parentEntityId = get(parentDir, 'entityId');
+      files.forEach(f => {
+        onedataRpc.removeMockChild(
+          parentEntityId,
+          get(f, 'entityId')
+        );
+      });
+      fileManager.dirChildrenRefresh(parentEntityId);
+    },
+  },
 });

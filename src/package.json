@@ -10,10 +10,12 @@
   },
   "repository": "",
   "scripts": {
-    "build": "ember build",
     "lint:js": "eslint ./*.js app config lib server tests",
-    "start": "ember serve",
-    "test": "ember test"
+    "build": "ember build",
+    "start": "ember server",
+    "test": "ember test",
+    "deps": "npm install --no-package-lock && bower install",
+    "clean": "rm -rf tmp dist rel node_modules bower_components .sass-cache tests/test-results.xml"
   },
   "devDependencies": {
     "basictable": "git+https://github.com/kliput/basictable.git#f26107155103dbe7e924a3c9e150022087106cb4",
@@ -64,6 +66,7 @@
     "ember-load-initializers": "1.0.0",
     "ember-local-storage": "1.7.0",
     "ember-lodash": "4.19.4",
+    "ember-macro-helpers": "4.2.2",
     "ember-math-helpers": "2.11.3",
     "ember-models-table": "1.13.0",
     "ember-moment": "7.5.0",

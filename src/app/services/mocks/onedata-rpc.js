@@ -124,4 +124,9 @@ export default OnedataRpc.extend({
       return cache;
     }
   },
+
+  removeMockChild(dirEntityId, childEntityId) {
+    const childrenIdsCache = this.get('childrenIdsCache');
+    _.remove(childrenIdsCache[dirEntityId], fileId => fileId.match(childEntityId));
+  },
 });

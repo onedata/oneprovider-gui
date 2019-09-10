@@ -178,11 +178,9 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    this.get('fileManager').on('dirChildrenRefresh', parentDirEntityId => {
-      if (this.get('dir.entityId') === parentDirEntityId) {
-        this.refreshFileList();
-      }
-    });
+    this.get('fileManager').on('dirChildrenRefresh', parentDirEntityId =>
+      this.onDirChildrenRefresh(parentDirEntityId)
+    );
   },
 
   didInsertElement() {
@@ -199,24 +197,23 @@ export default Component.extend(I18n, {
     }
   },
 
+  onDirChildrenRefresh(parentDirEntityId) {
+    if (this.get('dir.entityId') === parentDirEntityId) {
+      this.refreshFileList();
+    }
+  },
+
   refreshFileList() {
-    const filesArray = this.get('filesArray');
-    filesArray.reload({
-      head: true,
-      minSize: 50,
-    }).then(() => filesArray.reload());
-    // FIXME: more efficient, but buggy way
-    // filesArray.reload({
-    //   offset: -1,
-    //   minSize: 50,
-    // });
+    return this.get('filesArray').reload();
   },
 
   onTableScroll(items, headerVisible) {
     const filesArray = this.get('filesArray');
     const sourceArray = get(filesArray, 'sourceArray');
     const filesArrayIds = sourceArray.mapBy('entityId');
-    const firstId = items[0] && items[0].getAttribute('data-row-id') || null;
+    const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
+    const firstId =
+      firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
     const lastId = items[items.length - 1] &&
       items[items.length - 1].getAttribute('data-row-id') || null;
     let startIndex, endIndex;
