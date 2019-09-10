@@ -1,6 +1,6 @@
 {{#bs-modal
   open=open
-  close=(action "close")
+  onHide=(action "close")
   as |modal|
 }}
   {{#modal.header}}
@@ -10,34 +10,41 @@
     <table class="table table-info table-info-large">
       <tbody>
         <tr class="file-info-row-name">
-          <td class="property-name">{{tt this "name" type=typeTranslation}}</td>
+          <td class="property-name with-input{{if smallContent "-sm"}}">
+            {{tt this "name" type=typeTranslation}}
+          </td>
           <td class="property-value">
-            {{#truncated-string}}
-              {{fileName}}
-            {{/truncated-string}}
+            {{clipboard-line
+              value=fileName
+              showText=false
+              size=(if smallContent "sm")
+            }}
           </td>
         </tr>
         <tr class="file-info-row-path">
-          <td class="property-name with-input">{{tt this "path" type=typeTranslation}}</td>
+          <td class="property-name">{{tt this "path" type=typeTranslation}}</td>
           <td class="property-value">
             {{clipboard-line
               value=filePathProxy.content
               showText=false
+              size=(if smallContent "sm")
             }}
           </td>
         </tr>
-        {{!-- FIXME: enable this if we will have space if from Borzo's branch --}}
-        {{!-- <tr class="file-info-row-space-id">
-          <td class="property-name">{{tt this "spaceId"}}</td>
+        <tr class="file-info-row-space-id">
+          <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
           <td class="property-value">
             {{clipboard-line
-              value=spaceId
-              size="sm"
+              value=spaceEntityId
+              showText=false
+              size=(if smallContent "sm")
             }}
           </td>
-        </tr> --}}
+        </tr>
         <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
-          <td class="property-name with-input">{{tt this "cdmiObjectId"}}</td>
+          <td class="property-name with-input">
+            {{tt this "cdmiObjectId"}}
+          </td>
           <td class="property-value">
             <div class="input-group input-group input-group-clipboard-textarea">
               <textarea
@@ -57,6 +64,14 @@
             </div>
           </td>
         </tr>
+        {{#if (eq itemType "file")}}
+          <tr class="file-info-row-size">
+            <td class="property-name">{{tt this "size"}}</td>
+            <td class="property-value">
+              {{bytes-to-string fileSize}}
+            </td>
+          </tr>
+        {{/if}}
         <tr class="file-info-row-modification-time">
           <td class="property-name">{{tt this "modificationTime"}}</td>
           <td class="property-value">

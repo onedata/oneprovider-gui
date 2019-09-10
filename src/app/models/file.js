@@ -13,8 +13,7 @@ import { alias } from '@ember/object/computed';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get } from '@ember/object';
 import { later, cancel } from '@ember/runloop';
-import { promise, raw } from 'ember-awesome-macros';
-import { resolve } from 'rsvp';
+import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
@@ -25,14 +24,7 @@ export default Model.extend(GraphSingleModelMixin, {
   type: attr('string'),
   size: attr('number'),
   parent: belongsTo('file'),
-
-  // FIXME: test values:
-  owner: promise.object(raw(resolve({ fullName: 'Test User' }))),
-  cdmiObjectId: '000000203203203012301203203020002030000000',
-
-  // FIXME: unlock when backend will be done
-  // cdmiObjectId: attr('string'),
-  // owner: belongsTo('sharedUser'),
+  owner: belongsTo('user'),
 
   /**
    * Modification time in UNIX timestamp format.
@@ -43,7 +35,7 @@ export default Model.extend(GraphSingleModelMixin, {
    * Posix permissions in octal three digit format.
    */
   posixPermissions: attr('string'),
-  
+
   /**
    * One of: `posix`, `acl`
    */
@@ -62,6 +54,16 @@ export default Model.extend(GraphSingleModelMixin, {
    * @type {any}
    */
   pollSizeTimerId: null,
+
+  cdmiObjectId: computed('entityId', function cdmiObjectId() {
+    try {
+      return guidToCdmiObjectId(this.get('entityId'));
+    } catch (error) {
+      console.trace();
+      console.error(error);
+      return 'error';
+    }
+  }),
 
   hasParent: computed(function hasParent() {
     return Boolean(this.belongsTo('parent').id());

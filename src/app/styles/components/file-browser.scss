@@ -329,9 +329,6 @@ $-fb-table-margin-top: 67px;
 
 .fb-remove-modal {
   .row-delete-files-list {
-    .row-delete-file-item {
-      padding-top: $padding-small-vertical;
-    }
     .delete-file-name {
       display: inline-block;
       max-width: calc(100% - 50px);

@@ -92,11 +92,13 @@ export default OnedataRpc.extend({
 
   getMockChildren(dirEntityId) {
     const childrenIdsCache = this.get('childrenIdsCache');
+    const decodedDirEntityId = atob(dirEntityId);
     if (childrenIdsCache[dirEntityId]) {
       return childrenIdsCache[dirEntityId];
     } else {
       let cache;
-      if (dirEntityId.length === 8) {
+      if (decodedDirEntityId === '-dir-0000') {
+        // root dir
         cache = [
           ..._.range(numberOfDirs).map(i =>
             generateFileGri(generateDirEntityId(i, dirEntityId))
@@ -105,11 +107,12 @@ export default OnedataRpc.extend({
             generateFileGri(generateFileEntityId(i, dirEntityId))
           ),
         ];
-      } else if (/.*dir-0000.*/.test(dirEntityId)) {
-        const rootParentEntityId = dirEntityId
+      } else if (/.*dir-0000.*/.test(decodedDirEntityId)) {
+        const rootParentEntityId = decodedDirEntityId
           .replace(/-dir-\d+/, '')
           .replace(/-c\d+/, '');
-        const parentChildNumber = dirEntityId.match(/.*dir-0000(-c(\d+))?.*/)[2] || -1;
+        const parentChildNumber = decodedDirEntityId
+          .match(/.*dir-0000(-c(\d+))?.*/)[2] || -1;
         const newChildNumber = String(parseInt(parentChildNumber) + 1)
           .padStart(4, '0');
         cache = [

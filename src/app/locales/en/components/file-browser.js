@@ -100,5 +100,6 @@ export default {
     modificationTime: 'Modified at',
     owner: 'Owner',
     close: 'Close',
+    size: 'Size',
   },
 };
