@@ -117,7 +117,11 @@ export default Service.extend(Evented, {
           limit: size,
           offset,
         })
-        .then(fileIds => all(fileIds.map(id => store.findRecord('file', id))));
+        .then(fileIds => all(fileIds.map(id => {
+          const cachedRecord = store.peekRecord('file', id);
+          return cachedRecord ? resolve(cachedRecord) : store.findRecord('file',
+            id);
+        })));
     }
   },
 
