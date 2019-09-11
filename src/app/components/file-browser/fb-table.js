@@ -25,7 +25,7 @@ import createPropertyComparator from 'onedata-gui-common/utils/create-property-c
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { and, not } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { later } from '@ember/runloop';
+import { next, later } from '@ember/runloop';
 
 const compareIndex = createPropertyComparator('index');
 
@@ -211,6 +211,14 @@ export default Component.extend(I18n, {
     const filesArray = this.get('filesArray');
     const sourceArray = get(filesArray, 'sourceArray');
     const filesArrayIds = sourceArray.mapBy('entityId');
+
+    if (items[0] && !items[0].getAttribute('data-row-id')) {
+      const listWatcher = this.get('listWatcher');
+      next(() => {
+        filesArray.fetchPrev().then(() => listWatcher.scrollHandler());
+      });
+    }
+
     const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
     const firstId =
       firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
