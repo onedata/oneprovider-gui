@@ -38,7 +38,7 @@ export default OnedataRpc.extend({
     });
   },
 
-  // FIXME: mock does not change the index when changing name, so it won't work
+  // TODO: mock does not change the index when changing name, so it won't work
 
   __handle_moveFile({ guid, targetParentGuid, targetName }) {
     return this.getFilesByEntityId([guid, targetParentGuid])
@@ -82,7 +82,7 @@ export default OnedataRpc.extend({
   getMockChildrenSlice(dirEntityId, index, limit = 100000000, offset = 0) {
     const mockChildren = this.getMockChildren(dirEntityId);
     let arrIndex = mockChildren.findIndex(childGri =>
-      parseGri(childGri).entityId === index
+      atob(parseGri(childGri).entityId) === index
     );
     if (arrIndex === -1) {
       arrIndex = 0;
