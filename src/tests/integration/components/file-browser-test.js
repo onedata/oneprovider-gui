@@ -10,6 +10,7 @@ import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
 import { click } from 'ember-native-dom-helpers';
+import $ from 'jquery';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -47,16 +48,19 @@ describe('Integration | Component | file browser', function () {
       parent: resolve(null),
     };
     const files = [{
+        id: 'f1',
         entityId: 'f1',
         name: 'File 1',
         index: 'File 1',
       },
       {
+        id: 'f2',
         entityId: 'f2',
         name: 'File 2',
         index: 'File 2',
       },
       {
+        id: 'f3',
         entityId: 'f3',
         name: 'File 3',
         index: 'File 3',
@@ -64,8 +68,11 @@ describe('Integration | Component | file browser', function () {
     ];
     this.set('dir', dir);
     const fileManager = lookupService(this, 'fileManager');
-    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+
+    fetchDirChildren.withArgs(entityId, null, sinon.match.any, sinon.match.any)
       .resolves(files);
+    fetchDirChildren.resolves([]);
 
     this.render(hbs `{{file-browser dir=dir}}`);
 
@@ -108,11 +115,12 @@ describe('Integration | Component | file browser', function () {
     for (let i = -1; i < numberOfDirs; ++i) {
       fetchDirChildren.withArgs(
         i === -1 ? 'root' : `file-${i}`,
+        null,
         sinon.match.any,
-        sinon.match.any,
-        sinon.match.any
+        0
       ).resolves(i === numberOfDirs - 1 ? [] : [dirs[i + 1]]);
     }
+    fetchDirChildren.resolves([]);
 
     this.render(hbs `{{file-browser dir=dir}}`);
 
@@ -189,16 +197,17 @@ describe('Integration | Component | file browser', function () {
       const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
       fetchDirChildren.withArgs(
         'root',
+        null,
         sinon.match.any,
-        sinon.match.any,
-        sinon.match.any
+        0
       ).resolves(files1);
       fetchDirChildren.withArgs(
         'f2',
+        null,
         sinon.match.any,
-        sinon.match.any,
-        sinon.match.any
+        0
       ).resolves(files2);
+      fetchDirChildren.resolves([]);
 
       this.render(hbs `{{file-browser dir=dir}}`);
 
@@ -207,7 +216,7 @@ describe('Integration | Component | file browser', function () {
         this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
         return wait().then(() => {
           return click('.file-action-copy').then(() => {
-            expect(this.$('.file-action-paste')).to.exist;
+            expect($('.file-action-paste')).to.exist;
             const dirRow = this.$('.fb-table-row')[1];
             dirRow.click();
             return wait().then(() => {

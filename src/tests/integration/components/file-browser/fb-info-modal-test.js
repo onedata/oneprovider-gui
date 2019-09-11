@@ -19,8 +19,9 @@ describe('Integration | Component | file browser/fb info modal', function () {
     }}`);
 
     return wait().then(() => {
-      expect(this.$('.file-info-row-name .property-value').text())
-        .to.contain(file1.name);
+      expect(
+        this.$('.file-info-row-name .property-value .clipboard-input').val()
+      ).to.contain(file1.name);
     });
   });
 });

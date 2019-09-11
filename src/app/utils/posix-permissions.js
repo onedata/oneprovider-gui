@@ -80,7 +80,7 @@ const EntityPermissions = EmberObject.extend({
    * @type {boolean}
    */
   read: false,
-  
+
   /**
    * @virtual
    * @type {boolean}
