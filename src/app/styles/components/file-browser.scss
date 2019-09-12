@@ -51,7 +51,7 @@ $-fb-table-margin-top: 67px;
   flex-direction: row-reverse;
   flex-grow: 0;
   flex-shrink: 0;
-  flex-basis: 280px;
+  flex-basis: 310px;
   height: $-file-browser-header-height;
 }
 
@@ -79,30 +79,13 @@ $-fb-table-margin-top: 67px;
 
 .fb-selection-toolkit {
   overflow: hidden;
-  max-width: 200px;
+  max-width: 220px;
   opacity: 1;
   margin-left: 20px;
   transition: $collapse-transition-vertical;
-  .selection-toolkit-inner {
+  .one-pill-button {
     @include vertical-align-middle;
     position: relative;
-    cursor: pointer;
-    @include vendor-prefix(user-select, none);
-    border-radius: $border-radius-large;
-    border: 2px $main-text-color solid;
-    padding: 0 30px 0 15px;
-    height: $-file-browser-item-height + 8px;
-    &:hover {
-      background-color: $color-file-selected;
-    }
-    .selection-toolkit-actions-trigger {
-      @include vertical-align-middle;
-      right: 8px;
-      pointer-events: none;
-      &.one-menu-toggle {
-        padding: 0;
-      }
-    }
   }
   .selection-count-text {
     line-height: 40px - 4px;

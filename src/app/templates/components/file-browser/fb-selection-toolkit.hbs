@@ -1,25 +1,8 @@
-<div class="selection-toolkit-inner" onclick={{action (disable-bubbling (action "toggleFileActions"))}}>
+{{#one-pill-button
+  menuItems=menuButtons
+}}
   <div class="selection-count-text">
     {{tt this "itemsSelected"}}
     <span class="selection-count-number">({{lastPositiveItemsCount}})</span>
   </div>
-  {{one-menu-toggle
-    class="selection-toolkit-actions-trigger"
-  }}
-  {{#one-webui-popover
-    class="file-actions-popover"
-    popoverStyle="with-dropdown webui-popover-in-fb-head"
-    padding=false
-    triggerSelector=(concat "#" elementId " .selection-toolkit-actions-trigger")
-    open=fileActionsOpen
-  }}
-    {{#click-outside action=(action "toggleFileActions" false)}}
-      {{actions-popover-content
-        actionsArray=menuButtons
-        actionClicked=(action "toggleFileActions" false)
-        class="file-actions"
-      }}
-    {{/click-outside}}
-  {{/one-webui-popover}}
-  
-</div>
+{{/one-pill-button}}
