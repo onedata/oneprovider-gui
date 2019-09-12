@@ -22,6 +22,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-res
 import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 /**
  * @type {number}
@@ -129,40 +130,12 @@ export default Component.extend(
      * fb-breadcrumbs, decrement `elementsToShow` count to try to fit fb-breadcrumbs-inner
      * into its container.
      */
-    checkWidth: observer(
+    checkWidthObserver: observer(
       'isLoading',
       'breadcrumbsItems.content.[]',
-      function checkWidth(noAnimation) {
-        const itemsCount = this.get('filteredBreadcrumbsItems.length');
-        const $fileBreadcrumbs = this.$();
-        const $fileBreadcrumbsInner = this.$('.fb-breadcrumbs-inner');
-        const elementsToShow = this.get('elementsToShow');
-        const innerBreadcrumbsWidth = $fileBreadcrumbsInner.width();
-        const containerWidth = $fileBreadcrumbs.width();
-        if (innerBreadcrumbsWidth > containerWidth && elementsToShow !== 0) {
-          if (elementsToShow > itemsCount) {
-            this.set('elementsToShow', itemsCount);
-          } else {
-            this.decrementProperty('elementsToShow');
-          }
-          if (!noAnimation) {
-            this.set('breadcrumbsRecomputing', true);
-          }
-          later(() => {
-            this.updateFilteredBreadcrumbsItemsProxy()
-              .then(() => next(() => this.checkWidth(true)));
-          }, noAnimation ? 0 : recomputePathAnimationDuration);
-        } else {
-          const lastItem =
-            this.$('.fb-breadcrumbs-current-dir-button')[0];
-          const lastItemLeft = lastItem.offsetLeft;
-          const containerWidth = this.element.offsetWidth;
-          const lastItemMaxWidth = containerWidth - lastItemLeft;
-          this.setProperties({
-            lastItemStyle: htmlSafe(`max-width: ${lastItemMaxWidth}px;`),
-            breadcrumbsRecomputing: false,
-          });
-        }
+      function checkWidthObserver() {
+        safeExec(this, 'set', 'elementsToShow', Infinity);
+        next(() => this.checkWidth());
       }
     ),
 
@@ -246,6 +219,39 @@ export default Component.extend(
           elementsToShow
         )
       );
+    },
+
+    checkWidth(noAnimation) {
+      const itemsCount = this.get('filteredBreadcrumbsItems.length');
+      const $fileBreadcrumbs = this.$();
+      const $fileBreadcrumbsInner = this.$('.fb-breadcrumbs-inner');
+      const elementsToShow = this.get('elementsToShow');
+      const innerBreadcrumbsWidth = $fileBreadcrumbsInner.width();
+      const containerWidth = $fileBreadcrumbs.width();
+      if (innerBreadcrumbsWidth > containerWidth && elementsToShow !== 0) {
+        if (elementsToShow > itemsCount) {
+          this.set('elementsToShow', itemsCount);
+        } else {
+          this.decrementProperty('elementsToShow');
+        }
+        if (!noAnimation) {
+          this.set('breadcrumbsRecomputing', true);
+        }
+        later(() => {
+          this.updateFilteredBreadcrumbsItemsProxy()
+            .then(() => next(() => this.checkWidth(true)));
+        }, noAnimation ? 0 : recomputePathAnimationDuration);
+      } else {
+        const lastItem =
+          this.$('.fb-breadcrumbs-current-dir-button')[0];
+        const lastItemLeft = lastItem.offsetLeft;
+        const containerWidth = this.element.offsetWidth;
+        const lastItemMaxWidth = containerWidth - lastItemLeft;
+        this.setProperties({
+          lastItemStyle: htmlSafe(`max-width: ${lastItemMaxWidth}px;`),
+          breadcrumbsRecomputing: false,
+        });
+      }
     },
 
     checkWidthOnResize() {

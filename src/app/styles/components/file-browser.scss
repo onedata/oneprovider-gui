@@ -167,6 +167,7 @@ $-fb-table-margin-top: 67px;
     display: inline-block;
     text-decoration: none;
     padding-right: 30px;
+    cursor: pointer;
     &.truncate {
       max-width: 100%;
     }
@@ -184,10 +185,6 @@ $-fb-table-margin-top: 67px;
       }
     }
   }
-  // FIXME:
-  // .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
-  //   max-width: calc(100% - 46px);
-  // }
 }
 
 .webui-popover-in-fb-head {
