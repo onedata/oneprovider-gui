@@ -1,6 +1,72 @@
-<h1>fb-breadcrumbs</h1>
-{{file-browser/fb-breadcrumbs
-  dir=dir
-  changeDir=(action "changeDir")
-  allButtonsArray=allButtonsArray
-}}
+<div class="container activate-dummy-hidden">
+  <div class="row dummy-hidden">
+    <h1 class="dummy-header">5 elements wide</h1>
+    <div class="col-xs-12 col-centered dummy-box">
+      {{file-browser/fb-breadcrumbs
+        dir=dirFive
+        changeDir=(action "changeDir")
+        allButtonsArray=allButtonsArray
+      }}
+    </div>
+  </div>
+  <div class="row dummy-hidden">
+    <h1 class="dummy-header">5 elements truncate</h1>
+    <div class="col-xs-8 col-centered dummy-box">
+      {{file-browser/fb-breadcrumbs
+        dir=dirFive
+        changeDir=(action "changeDir")
+        allButtonsArray=allButtonsArray
+      }}
+    </div>
+  </div>
+  <div class="row dummy-hidden">
+    <h1 class="dummy-header">5 elements truncate more</h1>
+    <div class="col-xs-6 col-centered dummy-box">
+      {{file-browser/fb-breadcrumbs
+        dir=dirFive
+        changeDir=(action "changeDir")
+        allButtonsArray=allButtonsArray
+      }}
+    </div>
+  </div>
+  <div class="row">
+    <h1 class="dummy-header">5 elements truncate much more</h1>
+    <div class="col-xs-4 col-centered dummy-box">
+      {{file-browser/fb-breadcrumbs
+        dir=dirFive
+        changeDir=(action "changeDir")
+        allButtonsArray=allButtonsArray
+      }}
+    </div>
+  </div>
+  <div class="row">
+    <h1 class="dummy-header">2 elements</h1>
+    <div class="col-xs-12 col-centered dummy-box">
+      {{file-browser/fb-breadcrumbs
+        dir=dirTwo
+        changeDir=(action "changeDir")
+        allButtonsArray=allButtonsArray
+      }}
+    </div>
+  </div>
+  <div class="row dummy-hidden">
+    <h1 class="dummy-header">1 element</h1>
+    <div class="col-xs-12 col-centered dummy-box">
+      {{file-browser/fb-breadcrumbs
+        dir=dirOne
+        changeDir=(action "changeDir")
+        allButtonsArray=allButtonsArray
+      }}
+    </div>
+  </div>
+  <div class="row dummy-hidden">
+    <h1 class="dummy-header">1 element truncated</h1>
+    <div class="col-xs-4 col-centered dummy-box">
+      {{file-browser/fb-breadcrumbs
+        dir=dirOne
+        changeDir=(action "changeDir")
+        allButtonsArray=allButtonsArray
+      }}
+    </div>
+  </div>
+</div>

@@ -8,7 +8,7 @@ import { collect } from '@ember/object/computed';
 const rootDir = {
   id: 'file.root.instance:private',
   entityId: 'root',
-  name: 'Some Space',
+  name: 'Some Space with very long name',
   hasParent: false,
 };
 
@@ -30,14 +30,18 @@ for (let i = 0; i < childrenCount; ++i) {
   dirs[i].hasParent = true;
 }
 
-const lastDir = dirs[dirs.length - 1] || rootDir;
-
+const dirsCount = dirs.length;
+const lastDir = dirs[dirsCount - 1] || rootDir;
 lastDir.name += ' with very long name';
 
 export default Component.extend({
-  classNames: ['dummy-fb-breadcrumbs'],
+  classNames: ['dummy-fb-breadcrumbs', 'dummy-component'],
 
-  dir: lastDir,
+  dirFive: lastDir,
+  dirFour: dirs[dirsCount - 2],
+  dirThree: dirs[dirsCount - 3],
+  dirTwo: dirs[dirsCount - 4],
+  dirOne: rootDir,
 
   allButtonsArray: collect('btnDummyCurrentDir', 'btnDummySpaceRootDir'),
 
