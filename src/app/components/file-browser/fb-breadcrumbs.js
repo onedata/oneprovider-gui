@@ -21,6 +21,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
+import { htmlSafe } from '@ember/string';
 
 /**
  * @type {number}
@@ -109,14 +110,12 @@ export default Component.extend(
 
     _window: window,
 
-    innerElementTruncate: computed(
-      'elementsToShow',
-      'filteredBreadcrumbsItems.length',
-      function innerElementTruncate() {
-        return this.get('elementsToShow') < 3 ||
-          this.get('filterBreadcrumbsItems.length') <= 1;
-      }
-    ),
+    /**
+     * Style assigned to current directory button - needed for truncating.
+     * Set in `checkWidth` method.
+     * @type {SafeString}
+     */
+    lastItemStyle: htmlSafe(''),
 
     recomputePath: observer('dir', function recomputePath() {
       this.updateDirPathProxy()
@@ -154,7 +153,15 @@ export default Component.extend(
               .then(() => next(() => this.checkWidth(true)));
           }, noAnimation ? 0 : recomputePathAnimationDuration);
         } else {
-          this.set('breadcrumbsRecomputing', false);
+          const lastItem =
+            this.$('.fb-breadcrumbs-current-dir-button')[0];
+          const lastItemLeft = lastItem.offsetLeft;
+          const containerWidth = this.element.offsetWidth;
+          const lastItemMaxWidth = containerWidth - lastItemLeft;
+          this.setProperties({
+            lastItemStyle: htmlSafe(`max-width: ${lastItemMaxWidth}px;`),
+            breadcrumbsRecomputing: false,
+          });
         }
       }
     ),

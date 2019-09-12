@@ -165,7 +165,6 @@ $-fb-table-margin-top: 67px;
   }
   .fb-breadcrumbs-current-dir-button {
     display: inline-block;
-    position: relative;
     text-decoration: none;
     padding-right: 30px;
     &.truncate {
@@ -173,7 +172,7 @@ $-fb-table-margin-top: 67px;
     }
     .inline-icon-container.breadcrumbs-current-dir-actions-trigger {
       @include vertical-align-middle;
-      right: 2px;
+      right: 0;
       
       .one-icon {
         position: absolute;
@@ -185,9 +184,10 @@ $-fb-table-margin-top: 67px;
       }
     }
   }
-  .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
-    max-width: calc(100% - 48px);
-  }
+  // FIXME:
+  // .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
+  //   max-width: calc(100% - 46px);
+  // }
 }
 
 .webui-popover-in-fb-head {
