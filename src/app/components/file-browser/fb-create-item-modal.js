@@ -6,6 +6,7 @@ import FbSetNameModal from 'oneprovider-gui/components/file-browser/fb-set-name-
 
 export default FbSetNameModal.extend(I18n, {
   fileManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -24,6 +25,7 @@ export default FbSetNameModal.extend(I18n, {
         submitDisabled,
         parentDir,
         onHide,
+        globalNotify,
       } = this.getProperties(
         'fileManager',
         'editValue',
@@ -31,13 +33,15 @@ export default FbSetNameModal.extend(I18n, {
         'itemType',
         'parentDir',
         'onHide',
+        'globalNotify',
       );
       if (submitDisabled) {
         return;
       }
       return fileManager.createFileOrDirectory(itemType, editValue, parentDir)
         .catch(error => {
-          // FIXME: handle errors - maybe it should be presented in backend error or the same modal
+          onHide.bind(this)(false);
+          globalNotify.backendError(this.t(`creating.${itemType}`), error);
           throw error;
         })
         .then(file => onHide.bind(this)(true, file));

@@ -62,6 +62,10 @@ export default {
       dir: newNameDirIntro,
       file: newNameFileIntro,
     },
+    creating: {
+      dir: 'creating directory',
+      file: 'creating file',
+    },
   },
   fbRemoveModal: {
     deleting: 'deleting file(s)',
