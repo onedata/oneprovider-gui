@@ -25,20 +25,39 @@ export default OneEmbeddedComponent.extend(
     /**
      * @override
      */
-    iframeInjectedProperties: Object.freeze(['spaceEntityId']),
+    iframeInjectedProperties: Object.freeze(['spaceEntityId', 'dirEntityId']),
 
     /**
      * @virtual optional
      */
     containerScrollTop: notImplementedIgnore,
 
-    spaceGri: computed(function spaceGri() {
+    /**
+     * @virtual optional
+     */
+    dirEntityId: undefined,
+
+    spaceGri: computed('spaceEntityId', function spaceGri() {
       return gri({
         entityType: 'op_space',
         entityId: this.get('spaceEntityId'),
         aspect: 'instance',
         scope: 'private',
       });
+    }),
+
+    injectedDirGri: computed('dirEntityId', function injectedDirGri() {
+      const dirEntityId = this.get('dirEntityId');
+      if (dirEntityId) {
+        return gri({
+          entityType: 'file',
+          entityId: dirEntityId,
+          aspect: 'instance',
+          scope: 'private',
+        });
+      } else {
+        return null;
+      }
     }),
 
     /**
@@ -53,12 +72,22 @@ export default OneEmbeddedComponent.extend(
       return store.findRecord('space', spaceGri);
     },
 
+    // FIXME: observer for changing dir that is injected to enable change in runtime
     /**
      * @override
      */
     fetchSpaceRootDir() {
-      return this.get('spaceProxy')
-        .then(space => get(space, 'rootDir'));
+      const injectedDirGri = this.get('injectedDirGri');
+      if (injectedDirGri) {
+        return this.get('store')
+          .findRecord(
+            'file',
+            injectedDirGri
+          );
+      } else {
+        return this.get('spaceProxy')
+          .then(space => get(space, 'rootDir'));
+      }
     },
 
     actions: {
@@ -142,6 +171,9 @@ export default OneEmbeddedComponent.extend(
       },
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
+      },
+      updateDirEntityId(dirEntityId) {
+        this.callParent('updateDirEntityId', dirEntityId);
       },
     },
   }

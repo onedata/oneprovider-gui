@@ -114,6 +114,12 @@ export default Component.extend(I18n, {
   openEditPermissions: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  updateDirEntityId: notImplementedIgnore,
+
+  /**
    * @virtual optional
    */
   containerScrollTop: notImplementedIgnore,
@@ -390,6 +396,7 @@ export default Component.extend(I18n, {
   // #endregion
 
   dirChangedObserver: observer('dir', function dirChangedObserver() {
+    this.get('updateDirEntityId')(this.get('dir.entityId'));
     this.get('containerScrollTop')(0);
   }),
 

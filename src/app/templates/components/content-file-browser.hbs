@@ -1,6 +1,7 @@
 {{#promise-proxy-container proxy=spaceRootDirProxy}}
   {{file-browser
     dir=spaceRootDirProxy.content
+    updateDirEntityId=(action "updateDirEntityId")
     openCreateNewDirectory=(action "openCreateItemModal" "dir")
     openRemove=(action "openRemoveModal")
     openRename=(action "openRenameModal")
