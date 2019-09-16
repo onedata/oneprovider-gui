@@ -13,6 +13,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { computed, get } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { getSpaceEntityIdFromFileEntityId } from 'oneprovider-gui/models/file';
 
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('space'),
@@ -47,8 +48,13 @@ export default OneEmbeddedComponent.extend(
     }),
 
     injectedDirGri: computed('dirEntityId', function injectedDirGri() {
-      const dirEntityId = this.get('dirEntityId');
-      if (dirEntityId) {
+      const {
+        spaceEntityId,
+        dirEntityId,
+      } = this.getProperties('spaceEntityId', 'dirEntityId');
+      const isValidDirEntityId = dirEntityId &&
+        getSpaceEntityIdFromFileEntityId(dirEntityId) === spaceEntityId;
+      if (isValidDirEntityId) {
         return gri({
           entityType: 'file',
           entityId: dirEntityId,

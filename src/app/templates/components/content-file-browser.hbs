@@ -51,7 +51,7 @@
   {{#if filesToEditPermissions}}
     {{edit-permissions-modal
       files=filesToEditPermissions
-      space=space
+      space=spaceProxy.content
       onClose=(action "closeEditPermissionsModal")}}
   {{/if}}
 {{/promise-proxy-container}}

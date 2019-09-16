@@ -18,6 +18,10 @@ import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
+export function getSpaceEntityIdFromFileEntityId(fileEntityId) {
+  return atob(fileEntityId).match(/guid#(.*)#(.*)/)[2];
+}
+
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
   index: attr('string'),
@@ -67,6 +71,10 @@ export default Model.extend(GraphSingleModelMixin, {
 
   hasParent: computed(function hasParent() {
     return Boolean(this.belongsTo('parent').id());
+  }),
+  
+  spaceEntityId: computed('entityId', function spaceEntityId() {
+    return getSpaceEntityIdFromFileEntityId(this.get('entityId'));
   }),
 
   /**
