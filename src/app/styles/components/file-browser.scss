@@ -12,14 +12,25 @@ $-fb-table-margin-top: 67px;
   z-index: 20000;
 }
 
+.embedded-content {
+  .file-browser-head-container {
+    @include before-bottom-shadow;
+  }
+  &.scroll-on-top {
+    .file-browser-head-container {
+      @include hide-shadow;
+    }
+  }
+}
+
 .file-browser {
   height: calc(100% - #{$-fb-table-margin-top});
   .file-browser-head-container {
     position: fixed;
     z-index: $zindex-modal-background - 1;
     padding-top: $content-row-vertical-padding;
-    padding-left: $-file-browser-padding-left;
-    padding-right: $-file-browser-padding-right;
+    padding-left: $content-col-padding + $-file-browser-padding-left;
+    padding-right: $content-col-padding + $-file-browser-padding-right;
     top: 0;
     left: 0;
     right: 0;
