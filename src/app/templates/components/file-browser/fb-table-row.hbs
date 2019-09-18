@@ -5,7 +5,12 @@
     </div>
     <div class="file-name file-item-text">
       {{#truncated-string}}
-        {{displayName}}
+        <span class="file-name-inner">
+          {{displayName}}
+          {{#if fileLoadError}}
+            {{one-tooltip title=fileLoadError.message}}
+          {{/if}}
+        </span>
       {{/truncated-string}}
     </div> 
     <div class="file-status-bar">

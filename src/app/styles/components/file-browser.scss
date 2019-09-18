@@ -177,7 +177,7 @@ $-fb-table-margin-top: 67px;
 .fb-table {
   position: relative;
   height: 100%;
-  &.empty-dir {
+  &.special-dir-view {
     @extend .world-map;
     @extend .light;
     background-position: center;
@@ -190,20 +190,24 @@ $-fb-table-margin-top: 67px;
       display: block;
     }
   }
-  .empty-dir-box {
+  .empty-dir-image {
+    background-image: url($root-url + 'images/empty-directory.svg');
+  }
+  .error-dir-image {
+    background-image: url($root-url + 'images/empty-directory.svg');
+  }
+  .dir-box {
     @include absolute-align-middle-center();
-    display: none;
     width: 100%;
     
-    .empty-dir-image {
+    .dir-box-image {
       height: 260px;
       margin: $padding-large-vertical * 2 auto;
-      background-image: url($root-url + 'images/empty-directory.svg');
       background-repeat: no-repeat;
       background-position: center;
       background-size: contain;
     }
-    .empty-dir-text {
+    .dir-box-text {
       text-align: center;
     }
     h1 {
@@ -304,6 +308,15 @@ $-fb-table-margin-top: 67px;
   }
   &.fb-table-row-file .file-icon {
     color: $color-file;
+  }
+  &.fb-table-row-broken {
+    .file-icon {
+      color: $color-one-red;
+    }
+    .file-name {
+      color: $color-one-red;
+      font-style: italic;
+    }
   }
 }
 

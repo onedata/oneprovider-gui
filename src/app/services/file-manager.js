@@ -8,9 +8,20 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, all } from 'rsvp';
+import { resolve, hashSettled } from 'rsvp';
 import Evented from '@ember/object/evented';
 import { get } from '@ember/object';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import _ from 'lodash';
+
+class BrokenFile {
+  constructor(id, reason) {
+    this.id = id;
+    this.entityId = parseGri(id).entityId;
+    this.type = 'broken';
+    this.error = reason;
+  }
+}
 
 export default Service.extend(Evented, {
   store: service(),
@@ -117,11 +128,21 @@ export default Service.extend(Evented, {
           limit: size,
           offset,
         })
-        .then(fileIds => all(fileIds.map(id => {
+        .then(fileIds => hashSettled(_.zipObject(fileIds, fileIds.map(id => {
           const cachedRecord = store.peekRecord('file', id);
-          return cachedRecord ? resolve(cachedRecord) : store.findRecord('file',
-            id);
-        })));
+          return cachedRecord ?
+            resolve(cachedRecord) : store.findRecord('file', id);
+        }))))
+        .then(resultsHash => {
+          return Object.keys(resultsHash).map(id => {
+            const result = resultsHash[id];
+            if (result.state === 'fulfilled') {
+              return result.value;
+            } else {
+              return new BrokenFile(id, result.reason);
+            }
+          });
+        });
     }
   },
 
@@ -142,7 +163,7 @@ export default Service.extend(Evented, {
   },
 
   copyOrMoveFile(file, parentDirEntityId, operation) {
-    const name = get(file, 'name');
+    const name = get(file, 'name') || 'unknown';
     const entityId = get(file, 'entityId');
     return this.get('onedataRpc')
       .request(`${operation}File`, {

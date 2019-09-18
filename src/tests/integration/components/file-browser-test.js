@@ -287,6 +287,14 @@ describe('Integration | Component | file browser', function () {
     const files = [f1];
     this.set('dir', dir);
     const fileManager = lookupService(this, 'fileManager');
+    const i18n = lookupService(this, 'i18n');
+
+    const i18nt = sinon.stub(i18n, 't');
+    i18nt.calledWith(
+      'errors.backendErrors.posix',
+      sinon.match.any,
+    );
+
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves(files);
     fileManager.setProperties({
@@ -300,6 +308,50 @@ describe('Integration | Component | file browser', function () {
       expect(fetchDirChildren).to.have.been.called;
       return wait().then(() => {
         expect(this.$('.fb-table-row')).to.have.class('file-cut');
+      });
+    });
+  });
+
+  it('shows error message when initial file list load fails', function () {
+    const dir = {
+      entityId: 'test',
+      name: 'test',
+      type: 'dir',
+      parent: resolve(null),
+    };
+    const defaultTranslation = 'nothing';
+    const errnoTranslation = 'some translation';
+    const errno = 'eacces';
+    const error = {
+      id: 'posix',
+      details: {
+        errno,
+        errnoTranslation,
+      },
+    };
+    this.set('dir', dir);
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+    const i18n = lookupService(this, 'i18n');
+    const i18nt = sinon.stub(i18n, 't');
+    i18nt.withArgs('errors.backendErrors.posix', sinon.match(error.details))
+      .returns('posix error: ' + errnoTranslation);
+    i18nt.withArgs('errors.backendErrors.posixErrno.eacces')
+      .returns(errnoTranslation);
+    i18nt.returns(defaultTranslation);
+    fetchDirChildren.rejects(error);
+
+    this.render(hbs `{{file-browser dir=dir}}`);
+
+    return wait().then(() => {
+      expect(fetchDirChildren).to.have.been.called;
+      expect(i18nt).to.have.been.calledWith(
+        'errors.backendErrors.posix', sinon.match(error.details)
+      );
+      return wait().then(() => {
+        const $errorDirBox = this.$('.error-dir-box');
+        expect($errorDirBox).to.exist;
+        expect($errorDirBox.text()).to.match(new RegExp(errnoTranslation));
       });
     });
   });

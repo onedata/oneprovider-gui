@@ -19,7 +19,8 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export function getSpaceEntityIdFromFileEntityId(fileEntityId) {
-  return atob(fileEntityId).match(/guid#(.*)#(.*)/)[2];
+  const m = atob(fileEntityId).match(/guid#(.*)#(.*)/);
+  return m && m[2];
 }
 
 export default Model.extend(GraphSingleModelMixin, {
@@ -72,7 +73,7 @@ export default Model.extend(GraphSingleModelMixin, {
   hasParent: computed(function hasParent() {
     return Boolean(this.belongsTo('parent').id());
   }),
-  
+
   spaceEntityId: computed('entityId', function spaceEntityId() {
     return getSpaceEntityIdFromFileEntityId(this.get('entityId'));
   }),

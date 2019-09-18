@@ -11,7 +11,6 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed, observer } from '@ember/object';
-import { equal } from '@ember/object/computed';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -23,7 +22,7 @@ import { htmlSafe } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { and, not } from 'ember-awesome-macros';
+import { equal, and, not, or } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { next, later } from '@ember/runloop';
 
@@ -31,11 +30,16 @@ const compareIndex = createPropertyComparator('index');
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
-  classNameBindings: ['hasEmptyDirClass:empty-dir'],
+  classNameBindings: [
+    'hasEmptyDirClass:empty-dir',
+    'dirLoadError:error-dir',
+    'specialViewClass:special-dir-view',
+  ],
 
   fileManager: service(),
   i18n: service(),
   globalNotify: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -106,7 +110,36 @@ export default Component.extend(I18n, {
    * If true, the `empty-dir` class should be added
    * @type {ComputedProperty<boolean>}
    */
-  hasEmptyDirClass: equal('isDirEmpty', true),
+  hasEmptyDirClass: and(
+    equal('isDirEmpty', true),
+    equal('dirLoadError', undefined),
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  showDirContextMenu: not('dirLoadError'),
+
+  specialViewClass: or('hasEmptyDirClass', 'isDirEmpty'),
+
+  /**
+   * @type {ComputedProperty<object>}
+   */
+  dirLoadError: computed(
+    'filesArray.initialLoad.{isRejected,reason}',
+    function dirLoadError() {
+      const initialLoad = this.get('filesArray.initialLoad');
+      if (get(initialLoad, 'isRejected')) {
+        const reason = get(initialLoad, 'reason');
+        if (reason) {
+          return this.get('errorExtractor').getMessage(reason) ||
+            this.t('unknownError');
+        } else {
+          return this.t('uknownError');
+        }
+      }
+    }
+  ),
 
   uploadAction: computed('allButtonsArray.[]', function uploadAction() {
     return this.get('allButtonsArray').findBy('id', 'upload');
@@ -169,10 +202,12 @@ export default Component.extend(I18n, {
   watchFilesArrayInitialLoad: observer(
     'filesArray.initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
-      const listWatcher = this.get('listWatcher');
-      scheduleOnce('afterRender', () => {
-        listWatcher.scrollHandler();
-      });
+      if (this.get('filesArray.initialLoad.isFulfilled')) {
+        const listWatcher = this.get('listWatcher');
+        scheduleOnce('afterRender', () => {
+          listWatcher.scrollHandler();
+        });
+      }
     }
   ),
 

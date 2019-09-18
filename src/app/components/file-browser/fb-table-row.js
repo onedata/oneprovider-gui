@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -22,6 +22,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   attributeBindings: ['fileEntityId:data-row-id'],
 
   fileActions: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -56,7 +57,14 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   fileCut: undefined,
 
-  displayName: reads('file.name'),
+  displayName: computed('file.{name,type}', function displayName() {
+    const file = this.get('file');
+    if (get(file, 'type') === 'broken') {
+      return this.t('brokenName');
+    } else {
+      return this.get('file.name');
+    }
+  }),
 
   fileEntityId: reads('file.entityId'),
 
@@ -66,7 +74,7 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   type: computed('file.type', function type() {
     const fileType = this.get('file.type');
-    if (fileType === 'dir' || fileType === 'file') {
+    if (fileType === 'dir' || fileType === 'file' || fileType === 'broken') {
       return fileType;
     }
   }),
@@ -78,6 +86,8 @@ export default Component.extend(I18n, FastDoubleClick, {
         return 'browser-directory';
       case 'file':
         return 'browser-file';
+      case 'broken':
+        return 'x';
       default:
         break;
     }
@@ -104,6 +114,13 @@ export default Component.extend(I18n, FastDoubleClick, {
       return isSelected && selectionContext.startsWith('multi');
     }
   ),
+
+  fileLoadError: computed('file.error', function fileLoadError() {
+    const fileError = this.get('file.error');
+    if (fileError) {
+      return this.get('errorExtractor').getMessage(fileError);
+    }
+  }),
 
   isShared: reads('file.isShared'),
 
