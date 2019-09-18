@@ -8,7 +8,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, hashSettled } from 'rsvp';
+import { resolve, allSettled } from 'rsvp';
 import Evented from '@ember/object/evented';
 import { get } from '@ember/object';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -128,20 +128,28 @@ export default Service.extend(Evented, {
           limit: size,
           offset,
         })
-        .then(fileIds => hashSettled(_.zipObject(fileIds, fileIds.map(id => {
-          const cachedRecord = store.peekRecord('file', id);
-          return cachedRecord ?
-            resolve(cachedRecord) : store.findRecord('file', id);
-        }))))
-        .then(resultsHash => {
-          return Object.keys(resultsHash).map(id => {
-            const result = resultsHash[id];
+        .then(fileIds => {
+          const promises = allSettled(fileIds.map(id => {
+            const cachedRecord = store.peekRecord('file', id);
+            return cachedRecord ?
+              resolve(cachedRecord) : store.findRecord('file', id);
+          }));
+          return promises.then(results => ([fileIds, results]));
+        })
+        .then(([fileIds, results]) => {
+          const files = new Array(fileIds.length);
+          for (let i = 0; i < fileIds.length; ++i) {
+            const id = fileIds[i];
+            const result = results[i];
+            let file;
             if (result.state === 'fulfilled') {
-              return result.value;
+              file = result.value;
             } else {
-              return new BrokenFile(id, result.reason);
+              file = new BrokenFile(id, result.reason);
             }
-          });
+            files[i] = file;
+          }
+          return files;
         });
     }
   },

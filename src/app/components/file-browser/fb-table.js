@@ -120,7 +120,7 @@ export default Component.extend(I18n, {
    */
   showDirContextMenu: not('dirLoadError'),
 
-  specialViewClass: or('hasEmptyDirClass', 'isDirEmpty'),
+  specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
   /**
    * @type {ComputedProperty<object>}
