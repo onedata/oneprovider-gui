@@ -77,7 +77,7 @@ export default Component.extend(I18n, {
   filePathProxy: promise.object(
     computed('file.parent', function filePathPromise() {
       return resolveFilePath(this.get('file'))
-        .then(path => path.mapBy('name').join('/'));
+        .then(path => '/' + path.mapBy('name').join('/'));
     })
   ),
 

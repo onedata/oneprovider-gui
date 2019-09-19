@@ -16,7 +16,6 @@
           <td class="property-value">
             {{clipboard-line
               value=fileName
-              showText=false
               size=(if smallContent "sm")
             }}
           </td>
@@ -26,7 +25,6 @@
           <td class="property-value">
             {{clipboard-line
               value=filePathProxy.content
-              showText=false
               size=(if smallContent "sm")
             }}
           </td>
@@ -36,7 +34,7 @@
           <td class="property-value">
             {{clipboard-line
               value=spaceEntityId
-              showText=false
+              class="monospace-font"
               size=(if smallContent "sm")
             }}
           </td>
@@ -47,20 +45,12 @@
           </td>
           <td class="property-value">
             <div class="input-group input-group input-group-clipboard-textarea">
-              <textarea
-                spellcheck="false"
-                class="cdmi-object-id form-control"
-                rows="5"
-                readonly="true">{{cdmiObjectId}}</textarea>
-              <div class="btn-container text-right">
-                <div class="btn-row">
-                  {{one-copy-button
-                    class="btn btn-default btn-sm"
-                    parentElementId=cdmiRowId
-                    localTarget=".cdmi-object-id"
-                  }}
-                </div>
-              </div>
+              {{clipboard-line
+                value=cdmiObjectId
+                type="textarea"
+                size=(if smallContent "sm")
+                class="monospace-font"
+              }}
             </div>
           </td>
         </tr>

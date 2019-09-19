@@ -338,7 +338,6 @@ export default Component.extend(I18n, {
   btnPaste: computed(function btnCut() {
     return this.createFileAction({
       id: 'paste',
-      icon: 'clipboard-copy',
       action: () => {
         return this.pasteFiles();
       },
