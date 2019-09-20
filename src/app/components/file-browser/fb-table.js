@@ -341,6 +341,15 @@ export default Component.extend(I18n, {
     }
   },
 
+  openFile(file) {
+    const isDir = get(file, 'type') === 'dir';
+    if (isDir) {
+      return this.get('changeDir')(file);
+    } else {
+      return this.downloadFile(get(file, 'entityId'));
+    }
+  },
+
   selectRemoveSingleFile(selectedFiles, file) {
     selectedFiles.removeObject(file);
     this.set('lastSelectedFile', null);
@@ -488,13 +497,30 @@ export default Component.extend(I18n, {
       );
     },
 
-    fileDoubleClicked(file /*, clickEvent */ ) {
-      const isDir = get(file, 'type') === 'dir';
-      if (isDir) {
-        this.get('changeDir')(file);
+    /**
+     * @param {object} file
+     * @param {TouchEvent} touchEvent
+     * @returns {any}
+     */
+    fileTouchHeld(file /*, touchEvent */ ) {
+      return this.fileClicked(file, true, false);
+    },
+
+    /**
+     * @param {object} file
+     * @returns {any}
+     */
+    fileTapped(file) {
+      const areSomeFilesSelected = Boolean(this.get('selectedFiles.length'));
+      if (areSomeFilesSelected) {
+        return this.fileClicked(file, true, false);
       } else {
-        return this.downloadFile(get(file, 'entityId'));
+        return this.openFile(file);
       }
+    },
+
+    fileDoubleClicked(file /*, clickEvent */ ) {
+      return this.openFile(file);
     },
 
     emptyDirUpload() {

@@ -17,6 +17,8 @@
         file=file
         fileCut=(and (eq fileClipboardMode "move") (contains file fileClipboardFiles))
         isSelected=(contains file selectedFiles)
+        touchTap=(action "fileTapped" file)
+        touchHold=(action "fileTouchHeld" file)
         fastClick=(action "fileClicked" file)
         fastDoubleClick=(action "fileDoubleClicked" file)
         openContextMenu=(action "openContextMenu" file)
