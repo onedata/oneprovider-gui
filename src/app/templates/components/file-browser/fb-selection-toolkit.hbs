@@ -1,8 +1,9 @@
 {{#one-pill-button
   menuItems=menuButtons
+  mobileMode=mobileMode
 }}
   <div class="selection-count-text">
     {{tt this "itemsSelected"}}
-    <span class="selection-count-number">({{lastPositiveItemsCount}})</span>
+    <span class="selection-count-number">(<span class="number">{{lastPositiveItemsCount}}</span>)</span>
   </div>
 {{/one-pill-button}}

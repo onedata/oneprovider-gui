@@ -12,11 +12,13 @@
       }}
     </div>
     <div class="text-right fb-toolbar-container hidden-xs">
-      {{file-browser/fb-selection-toolkit
-        itemsCount=selectedFiles.length
-        selectionContext=selectionContext
-        allButtonsArray=allButtonsArray
-      }}
+      {{#unless media.isMobile}}
+        {{file-browser/fb-selection-toolkit
+          itemsCount=selectedFiles.length
+          selectionContext=selectionContext
+          allButtonsArray=allButtonsArray
+        }}
+      {{/unless}}
       {{file-browser/fb-toolbar
         dir=dir
         clipboardReady=clipboardReady
@@ -53,3 +55,11 @@
   {{/click-outside}}
 {{/one-webui-popover}}
 <div class="current-dir-actions-trigger floating-actions-trigger"></div>
+{{#if media.isMobile}}
+  {{file-browser/fb-selection-toolkit
+    mobileMode=true
+    itemsCount=selectedFiles.length
+    selectionContext=selectionContext
+    allButtonsArray=allButtonsArray
+  }}
+{{/if}}

@@ -7,11 +7,6 @@ $-file-browser-padding-right: 16px;
 // FIXME: compute using variables
 $-fb-table-margin-top: 67px;
 
-.content-file-browser + .ps-scrollbar-x-rail + .ps-scrollbar-y-rail {
-  // FIXME: use variables
-  z-index: 20000;
-}
-
 .embedded-content {
   .file-browser-head-container {
     @include before-bottom-shadow;
@@ -41,6 +36,10 @@ $-fb-table-margin-top: 67px;
       max-width: 100%;
       margin-right: -20px;
     }
+    @media (max-width: $screen-xs-max) {
+      padding-left: 10px;
+      padding-right: 20px;
+    }
   }
 }
 
@@ -62,7 +61,7 @@ $-fb-table-margin-top: 67px;
   flex-direction: row-reverse;
   flex-grow: 0;
   flex-shrink: 0;
-  flex-basis: 310px;
+  flex-basis: 340px;
   height: $-file-browser-header-height;
 }
 
@@ -94,13 +93,6 @@ $-fb-table-margin-top: 67px;
   opacity: 1;
   margin-left: 20px;
   transition: $collapse-transition-vertical;
-  .one-pill-button {
-    @include vertical-align-middle;
-    position: relative;
-  }
-  .selection-count-text {
-    line-height: 40px - 4px;
-  }
   .selection-count-number {
     color: $main-text-color-disabled;
   }
@@ -108,6 +100,19 @@ $-fb-table-margin-top: 67px;
     max-width: 0;
     opacity: 0;
     margin-left: 0;
+  }
+  &.mobile-mode {
+    position: fixed;
+    display: block;
+    z-index: 1;
+    bottom: 0;
+    right: 10px;
+  }
+  &.desktop-mode {
+    .one-pill-button {
+      @include vertical-align-middle;
+      position: relative;
+    }
   }
 }
 
@@ -173,7 +178,7 @@ $-fb-table-margin-top: 67px;
         position: absolute;
         right: 0;
         left: 6px;
-        padding-bottom: 2px;
+        padding-top: 3px;
         font-size: 110%;
         font-weight: bold;
       }
@@ -289,19 +294,38 @@ $-fb-table-margin-top: 67px;
       opacity: 0.6;
     }
   }
-  .fb-table-col-files {
+  td.fb-table-col-files {
+    @media (max-width: $screen-xs-max) {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
     .file-info-container {
       display: flex;
-      .file-icon-container, .file-name {
+      .file-icon-container, .file-item-text {
         min-width: 2em;
       }
-      .file-name {
+      .file-item-text {
         flex-grow: 1;
         padding-left: 10px;
       }
       .file-status-icon {
         display: inline-block;
         color: $main-text-color-disabled;
+      }
+      .file-info-mobile {
+        display: none;
+      }
+      @media (max-width: $screen-xs-max) {
+        .file-info-mobile {
+          display: block;
+          padding-top: 4px;
+          .file-info-mobile-inner {
+            color: $color-one-light-gray;
+          }
+          .file-info-mobile-right {
+            float: right;
+          }
+        }
       }
     }
     // FIXME: design

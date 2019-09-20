@@ -1,3 +1,15 @@
+.content-file-browser + .ps-scrollbar-x-rail + .ps-scrollbar-y-rail {
+  // FIXME: use variables
+  z-index: 20000;
+}
+
+@media (max-width: $screen-xs-max) {
+  .one-embedded-component.content-file-browser {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 .content-file-browser {
   $drop-zone-rect-margin: $padding-small-horizontal;
 

@@ -26,6 +26,7 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   fileActions: service(),
   errorExtractor: service(),
+  media: service(),
 
   /**
    * @override
@@ -171,31 +172,39 @@ export default Component.extend(I18n, FastDoubleClick, {
      * @param {TouchEvent} touchstartEvent
      * @returns {undefined}
      */
-    return function ontouchstart( /* touchstartEvent */ ) {
-      const touchTimer = later(touchTimerHandler, get(component, 'holdTime'));
-      safeExec(component, 'setProperties', {
-        touching: true,
-        tapIncoming: true,
-        touchTimer,
-      });
+    return function ontouchstart(touchstartEvent) {
+      if (touchstartEvent.target.matches('.one-menu-toggle *')) {
+        return false;
+      } else {
+        const touchTimer = later(touchTimerHandler, get(component, 'holdTime'));
+        safeExec(component, 'setProperties', {
+          touching: true,
+          tapIncoming: true,
+          touchTimer,
+        });
+      }
     };
   }),
 
   touchendHandler: computed(function touchendHandler() {
     const component = this;
     return function ontouchend(touchendEvent) {
-      const {
-        tapIncoming,
-        touchTimer,
-      } = getProperties(component, 'tapIncoming', 'touchTimer');
-      if (touchTimer != null) {
-        cancel(touchTimer);
+      if (touchendEvent.target.matches('.one-menu-toggle *')) {
+        return false;
+      } else {
+        const {
+          tapIncoming,
+          touchTimer,
+        } = getProperties(component, 'tapIncoming', 'touchTimer');
+        if (touchTimer != null) {
+          cancel(touchTimer);
+        }
+        if (tapIncoming) {
+          get(component, 'touchTap')();
+        }
+        safeExec(component, 'set', 'touching', false);
+        touchendEvent.preventDefault();
       }
-      if (tapIncoming) {
-        get(component, 'touchTap')();
-      }
-      safeExec(component, 'set', 'touching', false);
-      touchendEvent.preventDefault();
     };
   }),
 

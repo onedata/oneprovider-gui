@@ -3,15 +3,35 @@
     <div class="inline-icon-container file-icon-container">
       {{one-icon icon=icon class="file-icon"}}
     </div>
-    <div class="file-name file-item-text">
-      {{#truncated-string}}
-        <span class="file-name-inner">
-          {{displayName}}
-          {{#if fileLoadError}}
-            {{one-tooltip title=fileLoadError.message}}
-          {{/if}}
-        </span>
-      {{/truncated-string}}
+    <div class="file-item-text">
+      <div class="file-name">
+        {{#truncated-string}}
+          <span class="file-name-inner">
+            {{displayName}}
+            {{#if fileLoadError}}
+              {{one-tooltip title=fileLoadError.message}}
+            {{/if}}
+          </span>
+        {{/truncated-string}}
+      </div>
+      {{#if media.isMobile}}
+        <div class="file-info-mobile">
+          <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
+            {{#if (eq file.type "file")}}
+              {{#if file.isPollingSize}}
+                {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+              {{else}}
+                {{bytes-to-string file.size}}
+              {{/if}}
+            {{else}}
+              —
+            {{/if}}
+          </span>
+          <span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-modification">
+            {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+          </span>
+        </div>
+      {{/if}}
     </div> 
     <div class="file-status-bar">
       {{#if isShared}}

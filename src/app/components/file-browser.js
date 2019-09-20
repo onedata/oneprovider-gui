@@ -70,6 +70,7 @@ export default Component.extend(I18n, {
   fileManager: service(),
   globalNotify: service(),
   errorExtractor: service(),
+  media: service(),
 
   /**
    * @override
