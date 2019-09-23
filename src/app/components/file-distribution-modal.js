@@ -9,6 +9,9 @@ import { raw, array, sum } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
+import { next } from '@ember/runloop';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import $ from 'jquery';
 
 export default Component.extend(
   I18n,
@@ -120,6 +123,24 @@ export default Component.extend(
         'activeTab',
         this.get('files.length') > 1 ? 'distribution-summary' : 'distribution-details'
       );
+    },
+
+    didInsertElement() {
+      this._super(...arguments);
+
+      const {
+        files,
+        fileDistributionDataProxy,
+      } = this.getProperties('files', 'fileDistributionDataProxy');
+
+      // Open file list item if there is only one file
+      if (get(files, 'length') === 1) {
+        fileDistributionDataProxy.then(() =>
+          next(()=> safeExec(this, () =>
+            $('.file-distribution-modal .one-collapsible-list-item-header').click()
+          ))
+        );
+      }
     },
     
     /**
