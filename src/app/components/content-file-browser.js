@@ -140,6 +140,12 @@ export default OneEmbeddedComponent.extend(
       closeEditPermissionsModal() {
         this.set('filesToEditPermissions', null);
       },
+      openFileDistributionModal(files) {
+        this.set('filesToShowDistribution', files);
+      },
+      closeFileDistributionModal() {
+        this.set('filesToShowDistribution', null);
+      },
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
       },

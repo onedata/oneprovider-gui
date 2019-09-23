@@ -114,6 +114,13 @@ export default Component.extend(I18n, {
   openEditPermissions: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} files files to show distribution
+   */
+  openFileDistributionModal: notImplementedThrow,
+
+  /**
    * @virtual optional
    */
   containerScrollTop: notImplementedIgnore,
@@ -359,6 +366,13 @@ export default Component.extend(I18n, {
     return this.createFileAction({
       id: 'distribution',
       showIn: [...anySelected, actionContext.currentDir],
+      action: () => {
+        const {
+          openFileDistributionModal,
+          selectedFiles,
+        } = this.getProperties('openFileDistributionModal', 'selectedFiles');
+        return openFileDistributionModal(selectedFiles);
+      },
     });
   }),
 
