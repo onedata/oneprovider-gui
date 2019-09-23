@@ -410,36 +410,46 @@ export default Component.extend(
           );
         }
 
-        savePromises.forEach(savePromise =>
-          get(savePromise.file, 'acl').then(fileAcl => {
-            if (!_.isEqual(get(fileAcl, 'list'), aclToSave)) {
-              set(fileAcl, 'list', aclToSave);
+        savePromises.forEach(savePromise => {
+          savePromise.promise = savePromise.promise.then(() =>
+            get(savePromise.file, 'acl').then(fileAcl => {
+              if (!_.isEqual(get(fileAcl, 'list'), aclToSave)) {
+                set(fileAcl, 'list', aclToSave);
 
-              const promise = fileAcl.save();
-              promise.catch(() => fileAcl.rollbackAttributes());
-              savePromise.promise = savePromise.promise.then(() => promise);
-            }
-          }));
+                const promise = fileAcl.save();
+                promise.catch(() => fileAcl.rollbackAttributes());
+                return promise;
+              } else {
+                return resolve();
+              }
+            })
+          );
+        });
       }
 
       savePromises.forEach(savePromise => {
-        const file = savePromise.file;
-        const {
-          posixPermissions: filePosixPermissions,
-          activePermissionsType: fileActivePermissionsType,
-        } = getProperties(file, 'posixPermissions', 'activePermissionsType');
-        let isFileModified = false;
-        if (fileActivePermissionsType !== activePermissionsType) {
-          set(file, 'activePermissionsType', activePermissionsType);
-          isFileModified = true;
-        }
-        if (activePermissionsType === 'posix' && filePosixPermissions !== posixPermissions) {
-          set(file, 'posixPermissions', posixPermissions);
-          isFileModified = true;
-        }
-        const promise = isFileModified ? file.save() : resolve(file);
-        promise.catch(() => file.rollbackAttributes());
-        savePromise.promise = savePromise.promise.then(() => promise);
+        savePromise.promise = savePromise.promise.then(() => {
+          const file = savePromise.file;
+          const {
+            posixPermissions: filePosixPermissions,
+            activePermissionsType: fileActivePermissionsType,
+          } = getProperties(file, 'posixPermissions', 'activePermissionsType');
+          let isFileModified = false;
+          if (fileActivePermissionsType !== activePermissionsType) {
+            set(file, 'activePermissionsType', activePermissionsType);
+            isFileModified = true;
+          }
+          if (
+            activePermissionsType === 'posix' &&
+            filePosixPermissions !== posixPermissions
+          ) {
+            set(file, 'posixPermissions', posixPermissions);
+            isFileModified = true;
+          }
+          const promise = isFileModified ? file.save() : resolve(file);
+          promise.catch(() => file.rollbackAttributes());
+          return promise;
+        });
       });
 
       return allSettled(savePromises.mapBy('promise')).then(results => {
