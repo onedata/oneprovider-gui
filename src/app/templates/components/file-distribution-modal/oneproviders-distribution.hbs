@@ -16,5 +16,26 @@
       onMigrate=(action "initializeNewMigration" oneprovider)
       onEvict=(action onEvict oneprovider)}}
   {{/each}}
+  {{#unless batchMode}}
+    <p class="transfers-counter-info">
+      {{#if activeTransfersExist}}
+        {{tt this "currentlyTransferredText" elementType=(tt this fileDistributionData.firstObject.file.type)}}
+        &ndash;
+        <a class="clickable" {{action "navigateToTransfers" fileDistributionData.firstObject.file}}>{{tt this "currentlyTransferredLink"}}</a>.
+      {{else if endedTransfersCount}}
+        {{tt this "endedTransfersText"
+          elementType=(tt this fileDistributionData.firstObject.file.type)
+          count=endedTransfersCount
+          countUnit=(tt this (if (gt endedTransfersCount 1) "times" "time"))}}
+        {{#if endedTransfersOverflow}}
+          {{tt this "orMore"}}
+        {{/if}}
+        &ndash;
+        <a class="clickable" {{action "navigateToTransfers" fileDistributionData.firstObject.file}}>{{tt this "endedTransfersLink"}}</a>.
+      {{else}}
+        {{tt this "noTransfersText" elementType=(tt this fileDistributionData.firstObject.file.type)}}
+      {{/if}}
+    </p>
+  {{/unless}}
 </ul>
 {{yield}}

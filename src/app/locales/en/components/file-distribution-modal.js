@@ -17,6 +17,18 @@ export default {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',
   },
+  oneprovidersDistribution: {
+    file: 'file',
+    dir: 'directory',
+    currentlyTransferredText: 'This {{elementType}} is currently transferred between Oneproviders',
+    currentlyTransferredLink: 'see ongoing transfers',
+    time: 'time',
+    times: 'times',
+    endedTransfersText: 'This {{elementType}} was transferred manually {{count}} {{countUnit}}',
+    orMore: 'or more',
+    endedTransfersLink: 'see history',
+    noTransfersText: 'This {{elementType}} has never been transferred manually.',
+  },
   oneprovidersDistributionItem: {
     replicationInProgress: 'The data is currently replicated to selected Oneprovider.',
     migrationInProgress: 'The data is currently migrated from selected Oneprovider.',

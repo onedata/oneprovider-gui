@@ -1,13 +1,20 @@
 import Component from '@ember/component';
 import { observer } from '@ember/object';
-import { equal, raw, notEmpty } from 'ember-awesome-macros';
+import { reads } from '@ember/object/computed';
+import { conditional, raw, notEmpty } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { Promise } from 'rsvp';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['oneproviders-distribution'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileDistributionModal.oneprovidersDistribution',
 
   /**
    * Change of this property will enable/disable continuous fetching transfers
@@ -16,6 +23,14 @@ export default Component.extend({
    * @type {boolean}
    */
   isVisible: false,
+
+  /**
+   * If true, then distribution represents (or is used at least in) a view for
+   * multiple selected files.
+   * @virtual
+   * @type {boolean}
+   */
+  batchMode: false,
 
   /**
    * @virtual
@@ -73,7 +88,21 @@ export default Component.extend({
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasSingleFile: equal('fileDistributionData.length', raw(1)),
+  activeTransfersExist: conditional(
+    'batchMode',
+    raw(false),
+    notEmpty('fileDistributionData.firstObject.activeTransfers')
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  endedTransfersCount: reads('fileDistributionData.firstObject.endedTransfersCount'),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  endedTransfersOverflow: reads('fileDistributionData.firstObject.endedTransfersOverflow'),
 
   isVisibleObserver: observer('isVisible', function isVisibleObserver() {
     this.get('fileDistributionData').setEach(
@@ -133,6 +162,9 @@ export default Component.extend({
         migrationPromiseResolveCallback: notImplementedIgnore,
       });
       return migrationPromiseResolveCallback();
+    },
+    navigateToTransfers(/* file */) {
+      // FIXME: implement
     },
   },
 });

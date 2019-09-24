@@ -10,6 +10,7 @@ export default EmberObject.extend(
   createDataProxyMixin('fileDistributionModel'), 
   createDataProxyMixin('transfers'), {
     transferManager: service(),
+    onedataConnection: service(),
 
     /**
      * If set to true, transfers and data distribution will be updated periodically
@@ -84,6 +85,8 @@ export default EmberObject.extend(
 
     endedTransfersCount: reads('transfers.ended'),
 
+    endedTransfersOverflow: reads('transfers.endedOverflow'),
+
     pollingTimeObserver: observer('pollingTime', function pollingTimeObserver() {
       const {
         dataUpdater,
@@ -129,20 +132,37 @@ export default EmberObject.extend(
     },
 
     /**
+     * Returns Promise, which resolves to object:
+     * ```
+     * {
+     *   ongoing: Array<Models.Transfer>,
+     *   ended: number,
+     *   endedOverflow: boolean, // true if ended transfers number is
+     *     (potentially) greater than backend listing limit
+     * }
+     * ```
+     * 
      * @override
      */
     fetchTransfers() {
       const {
         file,
         transferManager,
-      } = this.getProperties('file', 'transferManager');
+        onedataConnection,
+      } = this.getProperties('file', 'transferManager', 'onedataConnection');
+      const transfersHistoryLimitPerFile =
+        get(onedataConnection, 'transfersHistoryLimitPerFile');
+      
       return transferManager.getTransfersForFile(file, 'count').then(data =>
         Promise.all(data.ongoing.map(transferId =>
           transferManager.getTransfer(transferId).then(transfer =>
             get(transfer, 'currentStat').then(() => transfer)
           )
         )).then(transfers =>
-          Object.assign({}, data, { ongoing: transfers })
+          Object.assign({}, data, {
+            ongoing: transfers,
+            endedOverflow: get(data, 'ended') >= transfersHistoryLimitPerFile,
+          })
         )
       );
     },

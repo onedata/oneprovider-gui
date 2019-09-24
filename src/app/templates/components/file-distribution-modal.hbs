@@ -22,6 +22,7 @@
           <p>{{tt this "summarizedFilesDistribution"}} {{one-label-tip title=(tt this "dirsDontHaveDistributionTip")}}</p>
           {{file-distribution-modal/oneproviders-distribution
             isVisible=(eq activeTab "distribution-summary")
+            batchMode=true
             fileDistributionData=(filter-by "fileType" "file" fileDistributionData)
             oneproviders=oneproviders
             onReplicate=(action "replicate" files)
