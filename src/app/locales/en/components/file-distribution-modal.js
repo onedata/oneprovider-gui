@@ -8,7 +8,9 @@ export default {
   dirsDontHaveDistributionTip: 'Data distribution for directories is not available.',
   selectedItems: 'Selected items:',
   files: 'files',
+  file: 'file',
   directories: 'directories',
+  directory: 'directory',
   close: 'Close',
   onlySingleOneproviderSupport: 'Current space is supported by only one Oneprovider, thus advanced data replication or migration features are not available.',
   chunksVisualizer: {

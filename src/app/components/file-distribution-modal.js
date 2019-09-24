@@ -92,14 +92,17 @@ export default Component.extend(
         );
         const readableFilesSize = bytesToString(filesSize);
 
+        const filesNoun = this.t(filesNumber > 1 ? 'files' : 'file');
+        const dirNoun = this.t(directoriesNumber > 1 ? 'directories' : 'directory');
+
         let text = `${filesNumber + directoriesNumber} `;
-        if (directoriesNumber > 0 && filesNumber > 0) {
-          text += `- ${filesNumber} ${this.t('files')} (${readableFilesSize}), `;
-          text += `${directoriesNumber} ${this.t('directories')}`;
+        if (directoriesNumber && filesNumber) {
+          text += `- ${filesNumber} ${filesNoun} (${readableFilesSize}), `;
+          text += `${directoriesNumber} ${dirNoun}`;
         } else if (filesNumber > 0) {
-          text += `${this.t('files')} (${readableFilesSize})`;
+          text += `${filesNoun} (${readableFilesSize})`;
         } else {
-          text += `${this.t('directories')}`;
+          text += `${dirNoun}`;
         }
 
         return text;

@@ -128,9 +128,7 @@ export default Component.extend(I18n, {
         'oneprovider'
       );
 
-      if (hasAllFilesDistributions) {
-        // check filesSize to not divide by 0 (in return statement)
-        if (filesSize) {
+      if (hasAllFilesDistributions && filesSize) {
           let availableBytes = 0;
           filesOnlyDistributionData.forEach(fileDistDataContainer => {
             const fileSize = get(fileDistDataContainer, 'fileSize');
@@ -144,9 +142,6 @@ export default Component.extend(I18n, {
             (Math.min(availableBytes, filesSize) / filesSize) * 100
           );
           return availableBytes ? Math.max(percentage, 1) : 0;
-        } else {
-          return 100;
-        }
       } else {
         return 0;
       }
