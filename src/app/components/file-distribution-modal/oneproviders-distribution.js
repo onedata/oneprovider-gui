@@ -3,6 +3,8 @@ import { observer } from '@ember/object';
 import { equal, raw, notEmpty } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { Promise } from 'rsvp';
 
 export default Component.extend({
   classNames: ['oneproviders-distribution'],
@@ -60,6 +62,15 @@ export default Component.extend({
   isMigrationDestinationSelectorVisible: notEmpty('newMigrationSourceOneprovider'),
 
   /**
+   * `resolve()` callback for the promise binded to migration action. Should be
+   * eventually called either with no arguments (when choosing target
+   * oneprovider was cancelled) or with result promise of migration.
+   * @type {Function}
+   * @returns {Promise}
+   */
+  migrationPromiseResolveCallback: notImplementedIgnore,
+
+  /**
    * @type {Ember.ComputedProperty<boolean>}
    */
   hasSingleFile: equal('fileDistributionData.length', raw(1)),
@@ -88,15 +99,40 @@ export default Component.extend({
   actions: {
     initializeNewMigration(sourceOneprovider) {
       this.set('newMigrationSourceOneprovider', sourceOneprovider);
+      return new Promise(resolve => {
+        // Persist resolve function to call it when starting migration procedure
+        // will finish
+        this.set('migrationPromiseResolveCallback', resolve);
+      });
     },
     migrate(destinationOneprovider) {
-      return this.get('onMigrate')(
-        this.get('newMigrationSourceOneprovider'),
-        destinationOneprovider
-      ).then(() => safeExec(this, () => this.set('newMigrationSourceOneprovider', null)));
+      const {
+        migrationPromiseResolveCallback,
+        onMigrate,
+        newMigrationSourceOneprovider,
+      } = this.getProperties(
+        'migrationPromiseResolveCallback',
+        'onMigrate',
+        'newMigrationSourceOneprovider'
+      );
+      return migrationPromiseResolveCallback(
+        onMigrate(
+          newMigrationSourceOneprovider,
+          destinationOneprovider
+        ).then(() =>
+          safeExec(this, () => this.set('newMigrationSourceOneprovider', null))
+        ).finally(() => {
+          safeExec(this, () => this.set('migrationPromiseResolveCallback', notImplementedIgnore));
+        }
+      ));
     },
     cancelNewMigration() {
-      this.set('newMigrationSourceOneprovider', null);
+      const migrationPromiseResolveCallback = this.get('migrationPromiseResolveCallback');
+      this.setProperties({
+        newMigrationSourceOneprovider: null,
+        migrationPromiseResolveCallback: notImplementedIgnore,
+      });
+      return migrationPromiseResolveCallback();
     },
   },
 });

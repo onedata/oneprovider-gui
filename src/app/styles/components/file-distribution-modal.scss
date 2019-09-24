@@ -16,6 +16,7 @@
 
     .name-section {
       display: flex;
+      align-items: center;
       flex-grow: 1;
       width: 60%;
       min-width: 0;
@@ -25,17 +26,36 @@
       flex-grow: 1;
     }
 
-    .transfer-actions {
+    .transfer-status-icons {
       font-size: 1.6em;
       line-height: 0;
       white-space: nowrap;
       margin: 0 $padding-small-horizontal;
     }
 
+    .status-toolbar {
+      margin-left: $padding-small-horizontal;
+    }
+
+    .status-toolbar-icon {
+      &.inactive {
+        opacity: 0.3;
+      }
+
+      & + .status-toolbar-icon:not(.hidden) {
+        margin-left: 2px;
+      }
+
+      .one-icon {
+        display: block;
+      }
+    }
+
     .chunks-visualizer {
       display: flex;
       flex-shrink: 0;
       width: 40%;
+      margin-left: $padding-small-horizontal;
     }
 
     .collapsible-toolbar-toggle {
@@ -218,6 +238,7 @@
       }
       .chunks-visualizer {
         width: 3em;
+        margin-left: 0;
       }
       .chunks-canvas {
         display: none;

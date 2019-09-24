@@ -5,17 +5,16 @@
     sourceOneprovider=newMigrationSourceOneprovider
     onMigrate=(action "migrate")
     onCancel=(action "cancelNewMigration")}}
-{{else}}
-  <ul>
-    {{#each oneproviders key="id" as |oneprovider|}}
-      {{file-distribution-modal/oneproviders-distribution-item
-        oneprovider=oneprovider
-        spaceHasSingleOneprovider=(eq oneproviders.length 1)
-        fileDistributionData=fileDistributionData
-        onReplicate=(action onReplicate oneprovider)
-        onMigrate=(action "initializeNewMigration" oneprovider)
-        onEvict=(action onEvict oneprovider)}}
-    {{/each}}
-  </ul>
 {{/if}}
+<ul class="{{if isMigrationDestinationSelectorVisible "hidden"}}">
+  {{#each oneproviders key="id" as |oneprovider|}}
+    {{file-distribution-modal/oneproviders-distribution-item
+      oneprovider=oneprovider
+      spaceHasSingleOneprovider=(eq oneproviders.length 1)
+      fileDistributionData=fileDistributionData
+      onReplicate=(action onReplicate oneprovider)
+      onMigrate=(action "initializeNewMigration" oneprovider)
+      onEvict=(action onEvict oneprovider)}}
+  {{/each}}
+</ul>
 {{yield}}

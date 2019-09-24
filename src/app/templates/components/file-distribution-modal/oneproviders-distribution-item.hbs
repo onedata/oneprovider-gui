@@ -1,10 +1,10 @@
 <div class="name-section">
   {{#truncated-string class="oneprovider-name"}}{{oneprovider.name}}{{/truncated-string}}
-  <div class="transfer-actions">
-    {{one-icon icon="replicate"}}
-    {{one-icon icon="migrate"}}
-    {{one-icon icon="invalidate"}}
-  </div>
+  {{#status-toolbar as |toolbar|}}
+    {{toolbar.icon icon="replicate" class="replication-status-icon" status=(if isReplicationInProgress "inProgress" "inactive")}}
+    {{toolbar.icon icon="migrate" class="migration-status-icon" status=(if isMigrationInProgress "inProgress" "inactive")}}
+    {{toolbar.icon icon="invalidate" class="eviction-status-icon" status=(if isEvictionInProgress "inProgress" "inactive")}}
+  {{/status-toolbar}}
 </div>
 {{#if filesOnlyDistributionData.length}}
   {{file-distribution-modal/chunks-visualizer

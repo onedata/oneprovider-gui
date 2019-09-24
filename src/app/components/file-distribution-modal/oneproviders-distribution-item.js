@@ -1,9 +1,12 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { collect } from '@ember/object/computed';
-import { sum, array, equal, raw, and } from 'ember-awesome-macros';
+import { sum, array, equal, raw, and, or } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import _ from 'lodash';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend(I18n, {
   tagName: 'li',
@@ -48,6 +51,21 @@ export default Component.extend(I18n, {
    * @type {Array<Utils.FileDistributionDataContainer>}
    */
   fileDistributionData: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  replicationInvoked: false,
+
+  /**
+   * @type {boolean}
+   */
+  migrationInvoked: false,
+
+  /**
+   * @type {boolean}
+   */
+  evictionInvoked: false,
 
   /**
    * `fileDistributionData` narrowed to files only
@@ -188,6 +206,74 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * Array of roles in which oneprovider is used in active transfers. Possible
+   * roles:
+   *   - 'replicationSource',
+   *   - 'migrationSource',
+   *   - 'evictionSource'.
+   * @type {Ember.ComputedProperty<Array<string>>}
+   */
+  oneproviderRolesInTransfers: computed(
+    'fileDistributionData.@each.activeTransfers',
+    function oneproviderRolesInTransfers() {
+      const itemOneproviderId = this.get('oneprovider.entityId');
+      const fileDistributionData = this.get('fileDistributionData');
+
+      const roles = [];
+      fileDistributionData.forEach(fileDistributionDataContainer => {
+        const activeTransfers = get(fileDistributionDataContainer, 'activeTransfers');
+        if (activeTransfers) {
+          activeTransfers.forEach(transfer => {
+            const replicatingOneproviderGri = transfer.belongsTo('replicatingOneprovider').id();
+            const evictingOneproviderGri = transfer.belongsTo('evictingOneprovider').id();
+
+            const replicatingOneproviderId = replicatingOneproviderGri ?
+              parseGri(replicatingOneproviderGri).entityId : null;
+            const evictingOneproviderId = evictingOneproviderGri ? 
+              parseGri(evictingOneproviderGri).entityId : null;
+            
+            if (evictingOneproviderId === itemOneproviderId) {
+              if (replicatingOneproviderId) {
+                roles.push('migrationSource');
+              } else {
+                roles.push('evictionSource');
+              }
+            } else if (replicatingOneproviderId === itemOneproviderId) {
+              roles.push('replicationDestination');
+            }
+          });
+        }
+      });
+
+      return _.uniq(roles);
+    }
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isReplicationInProgress: or(
+    'replicationInvoked',
+    array.includes('oneproviderRolesInTransfers', raw('replicationSource'))
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isMigrationInProgress: or(
+    'migrationInvoked',
+    array.includes('oneproviderRolesInTransfers', raw('migrationSource'))
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isEvictionInProgress: or(
+    'evictionInvoked',
+    array.includes('oneproviderRolesInTransfers', raw('evictionSource'))
+  ),
+
   replicateHereTooltip: computed(function replicateHereTooltip() {
     // FIXME: implement
   }),
@@ -257,16 +343,13 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<Action>}
    */
   replicateHereAction: computed(
-    'onReplicate',
     'replicateHereTooltip',
     'isReplicationHereEnabled',
     function replicateHereAction() {
       const {
-        onReplicate,
         replicateHereTooltip,
         isReplicationHereEnabled,
       } = this.getProperties(
-        'onReplicate',
         'replicateHereTooltip',
         'isReplicationHereEnabled'
       );
@@ -276,7 +359,7 @@ export default Component.extend(I18n, {
         title: this.t('replicateHere'),
         tip: replicateHereTooltip,
         class: 'replicate-here-action-trigger',
-        action: onReplicate,
+        action: () => this.startReplication(),
         disabled: !isReplicationHereEnabled,
       };
     }
@@ -286,16 +369,13 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<Action>}
    */
   migrateAction: computed(
-    'onMigrate',
     'migrateTooltip',
     'isMigrationEnabled',
     function migrateAction() {
       const {
-        onMigrate,
         migrateTooltip,
         isMigrationEnabled,
       } = this.getProperties(
-        'onMigrate',
         'migrateTooltip',
         'isMigrationEnabled'
       );
@@ -305,7 +385,7 @@ export default Component.extend(I18n, {
         title: this.t('migrate'),
         tip: migrateTooltip,
         class: 'migrate-action-trigger',
-        action: onMigrate,
+        action: () => this.startMigration(),
         disabled: !isMigrationEnabled,
       };
     }
@@ -315,16 +395,13 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<Action>}
    */
   evictAction: computed(
-    'onEvict',
     'evictTooltip',
     'isEvictionEnabled',
     function evictAction() {
       const {
-        onEvict,
         evictTooltip,
         isEvictionEnabled,
       } = this.getProperties(
-        'onEvict',
         'evictTooltip',
         'isEvictionEnabled'
       );
@@ -334,7 +411,7 @@ export default Component.extend(I18n, {
         title: this.t('evict'),
         tip: evictTooltip,
         class: 'evict-action-trigger',
-        action: onEvict,
+        action: () => this.startEviction(),
         disabled: !isEvictionEnabled,
       };
     }
@@ -395,4 +472,25 @@ export default Component.extend(I18n, {
       }
     }
   ),
+
+  startReplication() {
+    this.set('replicationInvoked', true);
+    this.get('onReplicate')().finally(() =>
+      safeExec(this, () => this.set('replicationInvoked', false))
+    );
+  },
+
+  startMigration() {
+    this.set('migrationInvoked', true);
+    this.get('onMigrate')().finally(() =>
+      safeExec(this, () => this.set('migrationInvoked', false))
+    );
+  },
+
+  startEviction() {
+    this.set('evictionInvoked', true);
+    this.get('onEviction')().finally(() =>
+      safeExec(this, () => this.set('evictionInvoked', false))
+    );
+  },
 });
