@@ -103,7 +103,10 @@ export default Component.extend(I18n, {
 
   fileClipboardFiles: reads('fileManager.fileClipboardFiles'),
 
-  initialLoad: reads('filesArray.initialLoad'),
+  // NOTE: not using reads as a workaround to bug in Ember 2.18
+  initialLoad: computed('filesArray.initialLoad', function initialLoad() {
+    return this.get('filesArray.initialLoad');
+  }),
 
   /**
    * True if there is initially loaded file list, but it is empty.
@@ -182,12 +185,30 @@ export default Component.extend(I18n, {
       endIndex: 50,
       indexMargin: 10,
     });
-    array.on('fetchPrevStarted', () => this.fetchStateUpdate('prev', 'started'));
-    array.on('fetchPrevResolved', () => this.fetchStateUpdate('prev', 'resolved'));
-    array.on('fetchPrevRejected', () => this.fetchStateUpdate('prev', 'rejected'));
-    array.on('fetchNextStarted', () => this.fetchStateUpdate('next', 'started'));
-    array.on('fetchNextResolved', () => this.fetchStateUpdate('next', 'resolved'));
-    array.on('fetchNextRejected', () => this.fetchStateUpdate('next', 'rejected'));
+    array.on(
+      'fetchPrevStarted',
+      () => this.stateOfFetchUpdate('prev', 'started')
+    );
+    array.on(
+      'fetchPrevResolved',
+      () => this.stateOfFetchUpdate('prev', 'resolved')
+    );
+    array.on(
+      'fetchPrevRejected',
+      () => this.stateOfFetchUpdate('prev', 'rejected')
+    );
+    array.on(
+      'fetchNextStarted',
+      () => this.stateOfFetchUpdate('next', 'started')
+    );
+    array.on(
+      'fetchNextResolved',
+      () => this.stateOfFetchUpdate('next', 'resolved')
+    );
+    array.on(
+      'fetchNextRejected',
+      () => this.stateOfFetchUpdate('next', 'rejected')
+    );
     return array;
   }),
 
@@ -250,7 +271,7 @@ export default Component.extend(I18n, {
    * @param {string} state one of: started, resolved, rejected
    * @returns {undefined}
    */
-  fetchStateUpdate(type, state) {
+  stateOfFetchUpdate(type, state) {
     safeExec(
       this,
       'set',

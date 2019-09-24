@@ -4,7 +4,7 @@ import FbSetNameModal from 'oneprovider-gui/components/file-browser/fb-set-name-
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { get } from '@ember/object';
 
-// FIXME: validate to disallow / names
+// TODO: validate to disallow / names
 
 export default FbSetNameModal.extend(I18n, {
   fileManager: service(),
@@ -14,12 +14,6 @@ export default FbSetNameModal.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbCreateItemModal',
-
-  /**
-   * @virtual
-   * @type {models.File}
-   */
-  parentDir: undefined,
 
   actions: {
     /**

@@ -21,6 +21,9 @@ const UploadManager = Service.extend({
 const FileManager = Service.extend(Evented, {
   fetchDirChildren() {},
   copyOrMoveFile() {},
+  registerRefreshHandler() {},
+  deregisterRefreshHandler() {},
+  refreshDirChildren() {},
 });
 
 const I18n = Service.extend({

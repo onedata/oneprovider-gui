@@ -8,7 +8,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, allSettled, Promise } from 'rsvp';
+import { resolve, allSettled } from 'rsvp';
 import { get, computed } from '@ember/object';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
