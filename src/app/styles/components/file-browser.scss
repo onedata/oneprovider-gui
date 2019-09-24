@@ -193,6 +193,9 @@ $-fb-table-margin-top: 67px;
 .fb-table {
   position: relative;
   height: 100%;
+  .table {
+    margin-bottom: 0;
+  }
   &.special-dir-view {
     @extend .world-map;
     @extend .light;
@@ -287,6 +290,9 @@ $-fb-table-margin-top: 67px;
     .file-row-actions-trigger {
       @include vertical-align-middle;
     }
+  }
+  .table-bottom-spacing {
+    height: 122px;
   }
 }
 

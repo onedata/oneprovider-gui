@@ -432,7 +432,7 @@ export default Component.extend(I18n, {
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);
 
-    this.element.addEventListener(
+    this.$('.fb-table')[0].addEventListener(
       'contextmenu',
       this.get('currentDirContextMenuHandler')
     );

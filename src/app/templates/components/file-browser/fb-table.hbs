@@ -38,6 +38,7 @@
     {{/if}}
   </tbody>
 </table>
+<div class="table-bottom-spacing"></div>
 {{#if initialLoad.isPending}}
   <div class="loading-dir-box">
     {{spin-spinner-block
@@ -92,6 +93,7 @@
     {{/if}}
   </div>
 {{/if}}
+
 {{#if showDirContextMenu}}
   {{#one-webui-popover
     class="file-actions-popover"
