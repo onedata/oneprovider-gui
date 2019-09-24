@@ -1,5 +1,7 @@
 {{#bs-modal
   open=open
+  backdropClose=(not processing)
+  keyboard=(not processing)
   onShown=(action "onShown")
   onHide=(action "onHide")
   onHidden=(action "onHidden")
@@ -24,11 +26,12 @@
     </div>
   {{/modal.body}}
   {{#modal.footer}}
-    {{#bs-button onClick=modal.close}}
+    {{#bs-button disabled=processing onClick=modal.close}}
       {{tt this "cancel"}}
     {{/bs-button}}
     {{#one-spin-button
       action=(action "submit")
+      inFlight=processing
       class="btn btn-primary"
       disabled=submitDisabled
     }}

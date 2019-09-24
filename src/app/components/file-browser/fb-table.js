@@ -18,13 +18,14 @@ import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-arra
 import { inject as service } from '@ember/service';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { htmlSafe } from '@ember/string';
+import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { next, later } from '@ember/runloop';
+import { resolve } from 'rsvp';
 
 const compareIndex = createPropertyComparator('index');
 
@@ -87,6 +88,10 @@ export default Component.extend(I18n, {
 
   rowHeight: 61,
 
+  fetchingPrev: false,
+
+  fetchingNext: false,
+
   /**
    * @type {boolean}
    */
@@ -98,13 +103,15 @@ export default Component.extend(I18n, {
 
   fileClipboardFiles: reads('fileManager.fileClipboardFiles'),
 
+  initialLoad: reads('filesArray.initialLoad'),
+
   /**
    * True if there is initially loaded file list, but it is empty.
    * False if there is initially loaded file list, but it is not empty.
    * Undefined if the file list is not yet loaded.
    * @type {boolean|undefined}
    */
-  isDirEmpty: and('filesArray.initialLoad.isFulfilled', not('filesArray.length')),
+  isDirEmpty: and('initialLoad.isFulfilled', not('filesArray.length')),
 
   /**
    * If true, the `empty-dir` class should be added
@@ -126,9 +133,9 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<object>}
    */
   dirLoadError: computed(
-    'filesArray.initialLoad.{isRejected,reason}',
+    'initialLoad.{isRejected,reason}',
     function dirLoadError() {
-      const initialLoad = this.get('filesArray.initialLoad');
+      const initialLoad = this.get('initialLoad');
       if (get(initialLoad, 'isRejected')) {
         const reason = get(initialLoad, 'reason');
         if (reason) {
@@ -168,13 +175,20 @@ export default Component.extend(I18n, {
 
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
-    return ReplacingChunksArray.create({
+    const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
       sortFun: compareIndex,
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
     });
+    array.on('fetchPrevStarted', () => this.fetchStateUpdate('prev', 'started'));
+    array.on('fetchPrevResolved', () => this.fetchStateUpdate('prev', 'resolved'));
+    array.on('fetchPrevRejected', () => this.fetchStateUpdate('prev', 'rejected'));
+    array.on('fetchNextStarted', () => this.fetchStateUpdate('next', 'started'));
+    array.on('fetchNextResolved', () => this.fetchStateUpdate('next', 'resolved'));
+    array.on('fetchNextRejected', () => this.fetchStateUpdate('next', 'rejected'));
+    return array;
   }),
 
   visibleFiles: reads('filesArray'),
@@ -200,9 +214,9 @@ export default Component.extend(I18n, {
   ),
 
   watchFilesArrayInitialLoad: observer(
-    'filesArray.initialLoad.isFulfilled',
+    'initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
-      if (this.get('filesArray.initialLoad.isFulfilled')) {
+      if (this.get('initialLoad.isFulfilled')) {
         const listWatcher = this.get('listWatcher');
         scheduleOnce('afterRender', () => {
           listWatcher.scrollHandler();
@@ -213,9 +227,7 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    this.get('fileManager').on('dirChildrenRefresh', parentDirEntityId =>
-      this.onDirChildrenRefresh(parentDirEntityId)
-    );
+    this.get('fileManager').registerRefreshHandler(this);
   },
 
   didInsertElement() {
@@ -227,14 +239,31 @@ export default Component.extend(I18n, {
   willDestroyElement() {
     try {
       this.get('listWatcher').destroy();
+      this.get('fileManager').deregisterRefreshHandler(this);
     } finally {
       this._super(...arguments);
     }
   },
 
+  /**
+   * @param {string} type one of: prev, next
+   * @param {string} state one of: started, resolved, rejected
+   * @returns {undefined}
+   */
+  fetchStateUpdate(type, state) {
+    safeExec(
+      this,
+      'set',
+      camelize(`fetching-${type}`),
+      state === 'started'
+    );
+  },
+
   onDirChildrenRefresh(parentDirEntityId) {
     if (this.get('dir.entityId') === parentDirEntityId) {
-      this.refreshFileList();
+      return this.refreshFileList();
+    } else {
+      return resolve();
     }
   },
 

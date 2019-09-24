@@ -26,8 +26,26 @@
         selectionContext=selectionContext
       }}
     {{/each}}
+    {{#if (and initialLoad.isSettled fetchingNext)}}
+      <tr class="loading-row">
+        <td colspan="9999" class="special-row-cell loading-row-cell">
+          {{spin-spinner-block
+            sizeClass="sm"
+            class="absolute-middle-centered"
+          }}
+        </td>
+      </tr>
+    {{/if}}
   </tbody>
 </table>
+{{#if initialLoad.isPending}}
+  <div class="loading-dir-box">
+    {{spin-spinner-block
+      sizeClass="lg"
+      class="absolute-middle-centered"
+    }}
+  </div>
+{{/if}}
 {{#if dirLoadError}}
   <div class="error-dir-box dir-box">
     <h1 class="error-dir-text dir-box-text">
@@ -50,7 +68,6 @@
   <div class="empty-dir-box dir-box">
     <h1 class="empty-dir-text dir-box-text">{{tt this "emptyDirBox.emptyDirectory"}}</h1>
     <div class="empty-dir-image dir-box-image"></div>
-    {{!-- FIXME: i18n when translations will be stable --}}
     <h2 class="empty-dir-text dir-box-text">
       {{tt this "emptyDirBox.dragFilesHere"}}
       <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>

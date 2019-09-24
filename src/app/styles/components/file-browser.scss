@@ -206,6 +206,13 @@ $-fb-table-margin-top: 67px;
       display: block;
     }
   }
+  .data-row td.special-row-cell, td.special-row-cell {
+    position: relative;
+    height: 61px;
+    &.loading-row-cell {
+      height: 76px;
+    }
+  }
   .empty-dir-image {
     background-image: url($root-url + 'images/empty-directory.svg');
   }
@@ -293,6 +300,10 @@ $-fb-table-margin-top: 67px;
     .file-icon-container, .file-item-text {
       opacity: 0.6;
     }
+  }
+  // FIXME: experimental
+  &.is-invalidated {
+    position: relative;
   }
   td.fb-table-col-files {
     @media (max-width: $screen-xs-max) {

@@ -446,7 +446,7 @@ export default Service.extend(I18n, {
    * @returns {undefined}
    */
   refreshDirectoryChildren(directory) {
-    this.get('fileManager').trigger('dirChildrenRefresh', get(directory, 'entityId'));
+    this.get('fileManager').dirChildrenRefresh(get(directory, 'entityId'));
   },
 
   /**

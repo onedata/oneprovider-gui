@@ -8,9 +8,8 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, allSettled } from 'rsvp';
-import Evented from '@ember/object/evented';
-import { get } from '@ember/object';
+import { resolve, allSettled, Promise } from 'rsvp';
+import { get, computed } from '@ember/object';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 
@@ -23,13 +22,18 @@ class BrokenFile {
   }
 }
 
-export default Service.extend(Evented, {
+export default Service.extend({
   store: service(),
   onedataRpc: service(),
 
   fileClipboardMode: undefined,
 
   fileClipboardFiles: undefined,
+
+  /**
+   * @type {Array<Ember.Component>}
+   */
+  fileTableComponents: computed(() => []),
 
   init() {
     this._super(...arguments);
@@ -179,7 +183,7 @@ export default Service.extend(Evented, {
         targetParentGuid: parentDirEntityId,
         targetName: name,
       })
-      .finally(() => this.trigger('dirChildrenRefresh', parentDirEntityId));
+      .finally(() => this.dirChildrenRefresh(parentDirEntityId));
   },
 
   getFileDownloadUrl(fileEntityId) {
@@ -188,7 +192,22 @@ export default Service.extend(Evented, {
     });
   },
 
+  /**
+   * Invokes request for refresh in all known file browser tables
+   * @param {Array<object>} parentDirEntityId 
+   * @returns {Array<object>}
+   */
   dirChildrenRefresh(parentDirEntityId) {
-    return this.trigger('dirChildrenRefresh', parentDirEntityId);
+    return allSettled(this.get('fileTableComponents').map(fileBrowser =>
+      fileBrowser.onDirChildrenRefresh(parentDirEntityId)
+    ));
+  },
+
+  registerRefreshHandler(fileBrowserComponent) {
+    this.get('fileTableComponents').push(fileBrowserComponent);
+  },
+
+  deregisterRefreshHandler(fileBrowserComponent) {
+    _.pull(this.get('fileTableComponents'), fileBrowserComponent);
   },
 });

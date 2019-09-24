@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
+import { reads, not } from '@ember/object/computed';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel } from '@ember/runloop';
@@ -21,7 +21,12 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 export default Component.extend(I18n, FastDoubleClick, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
-  classNameBindings: ['typeClass', 'isSelected:file-selected', 'fileCut:file-cut'],
+  classNameBindings: [
+    'typeClass',
+    'isSelected:file-selected',
+    'fileCut:file-cut',
+    'isInvalidated:is-invalidated',
+  ],
   attributeBindings: ['fileEntityId:data-row-id'],
 
   fileActions: service(),
@@ -110,6 +115,8 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {boolean}
    */
   tapIncoming: undefined,
+
+  isInvalidated: not('file.type'),
 
   displayName: computed('file.{name,type}', function displayName() {
     const file = this.get('file');

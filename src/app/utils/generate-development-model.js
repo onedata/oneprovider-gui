@@ -17,7 +17,7 @@ export const names = ['One'];
 
 export const numberOfSpaces = 1;
 // FIXME: debug values
-export const numberOfFiles = 50;
+export const numberOfFiles = 300;
 export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
 
