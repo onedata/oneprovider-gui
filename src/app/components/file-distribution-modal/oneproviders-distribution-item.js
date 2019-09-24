@@ -1,7 +1,7 @@
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { collect } from '@ember/object/computed';
-import { sum, array, equal, raw, and, or } from 'ember-awesome-macros';
+import { sum, array, equal, raw, or } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -273,27 +273,29 @@ export default Component.extend(I18n, {
     'evictionInvoked',
     array.includes('oneproviderRolesInTransfers', raw('evictionSource'))
   ),
-
-  replicateHereTooltip: computed(function replicateHereTooltip() {
-    // FIXME: implement
-  }),
-
-  isReplicationHereEnabled: computed(
+  
+  /**
+   * @type {Object} {enabled: boolean, tooltip: string}
+   */
+  replicateHereActionState: computed(
     'spaceHasSingleOneprovider',
     'fileDistributionData.@each.{fileType,fileDistribution}',
     'percentage',
     'oneprovider',
-    function isReplicationHereEnabled() {
+    'replicationInProgress',
+    function replicateHereActionState() {
       const {
         spaceHasSingleOneprovider,
         fileDistributionData,
         percentage,
         oneprovider,
+        replicationInProgress,
       } = this.getProperties(
         'spaceHasSingleOneprovider',
         'fileDistributionData',
         'percentage',
-        'oneprovider'
+        'oneprovider',
+        'replicationInProgress',
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
@@ -302,65 +304,128 @@ export default Component.extend(I18n, {
           fileDistDataContainer.getDistributionForOneprovider(oneprovider)
         )
         .isAny('neverSynchronized');
-      return !spaceHasSingleOneprovider && (hasDirs || someNeverSynchronized || percentage < 100);
+
+      const state = { enabled: false };
+
+      if (replicationInProgress) {
+        state.tooltip = this.t('disabledReplicationInProgress');
+      } else if (spaceHasSingleOneprovider) {
+        state.tooltip = this.t('disabledReplicationSingleOneprovider');
+      } else if (!(hasDirs || someNeverSynchronized || percentage < 100)) {
+        if (!someNeverSynchronized && percentage === 100) {
+          state.tooltip = this.t('disabledReplicationIsComplete');
+        }
+      } else {
+        state.enabled = true;
+        state.tooltip = this.t('replicationStart');
+      }
+
+      state.tooltip = state.tooltip.string;
+      return state;
     }
   ),
 
-  migrateTooltip: computed(function replicateHereTooltip() {
-    // FIXME: implement
-  }),
-
-  isMigrationEnabled: computed(
+  /**
+   * @type {Object} {enabled: boolean, tooltip: string}
+   */
+  migrateActionState: computed(
     'spaceHasSingleOneprovider',
     'fileDistributionData.@each.fileType',
     'neverSynchronized',
     'percentage',
-    function isMigrationEnabled() {
+    'migrationInProgress',
+    function migrateActionState() {
       const {
         spaceHasSingleOneprovider,
         fileDistributionData,
         neverSynchronized,
         percentage,
+        migrationInProgress,
       } = this.getProperties(
         'spaceHasSingleOneprovider',
         'fileDistributionData',
         'neverSynchronized',
-        'percentage'
+        'percentage',
+        'migrationInProgress'
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
-      return !spaceHasSingleOneprovider && (hasDirs || (!neverSynchronized && percentage));
+
+      const state = { enabled: false };
+
+      if (migrationInProgress) {
+        state.tooltip = this.t('disabledMigrationInProgress');
+      } else if (spaceHasSingleOneprovider) {
+        state.tooltip = this.t('disabledMigrationSingleOneprovider');
+      } else if (!hasDirs && (neverSynchronized || !percentage)) {
+        state.tooltip = this.t('disabledMigrationIsEmpty');
+      } else {
+        state.enabled = true;
+        state.tooltip = this.t('migrationStart');
+      }
+
+      state.tooltip = state.tooltip.string;
+      return state;
     }
   ),
 
-  evictTooltip: computed(function replicateHereTooltip() {
-    // FIXME: implement
-  }),
+  /**
+   * @type {Object} {enabled: boolean, tooltip: string}
+   */
+  evictActionState: computed(
+    'isEvictionInProgress',
+    'spaceHasSingleOneprovider',
+    'blocksExistOnOtherOneproviders',
+    'percentage',
+    function evictActionState() {
+      const {
+        isEvictionInProgress,
+        spaceHasSingleOneprovider,
+        blocksExistOnOtherOneproviders,
+        percentage,
+      } = this.getProperties(
+        'isEvictionInProgress',
+        'spaceHasSingleOneprovider',
+        'blocksExistOnOtherOneproviders',
+        'percentage'
+      );
 
-  isEvictionEnabled: and('blocksExistOnOtherOneproviders', 'percentage'),
+      const state = { enabled: false };
+      
+      if (isEvictionInProgress) {
+        state.tooltip = this.t('disabledEvictionInProgress');
+      } else if (spaceHasSingleOneprovider) {
+        state.tooltip = this.t('disabledEvictionSingleOneprovider');
+      } else if (!blocksExistOnOtherOneproviders || !percentage) {
+        state.tooltip = this.t('disabledEvictionNoBlocks');
+      } else {
+        state.enabled = true;
+        state.tooltip = this.t('migrationStart');
+      }
+
+      state.tooltip = state.tooltip.string;
+      return state;
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
   replicateHereAction: computed(
-    'replicateHereTooltip',
-    'isReplicationHereEnabled',
+    'replicateHereActionState.{enabled,tooltip}',
     function replicateHereAction() {
       const {
-        replicateHereTooltip,
-        isReplicationHereEnabled,
-      } = this.getProperties(
-        'replicateHereTooltip',
-        'isReplicationHereEnabled'
-      );
+        enabled,
+        tooltip,
+      } = getProperties(this.get('replicateHereActionState'), 'enabled', 'tooltip');
 
       return {
         icon: 'replicate',
         title: this.t('replicateHere'),
-        tip: replicateHereTooltip,
+        tip: tooltip,
         class: 'replicate-here-action-trigger',
         action: () => this.startReplication(),
-        disabled: !isReplicationHereEnabled,
+        disabled: !enabled,
       };
     }
   ),
@@ -368,54 +433,39 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  migrateAction: computed(
-    'migrateTooltip',
-    'isMigrationEnabled',
-    function migrateAction() {
-      const {
-        migrateTooltip,
-        isMigrationEnabled,
-      } = this.getProperties(
-        'migrateTooltip',
-        'isMigrationEnabled'
-      );
-
-      return {
-        icon: 'migrate',
-        title: this.t('migrate'),
-        tip: migrateTooltip,
-        class: 'migrate-action-trigger',
-        action: () => this.startMigration(),
-        disabled: !isMigrationEnabled,
-      };
-    }
-  ),
+  migrateAction: computed('migrateActionState', function migrateAction() {
+    const {
+      enabled,
+      tooltip,
+    } = getProperties(this.get('migrateActionState'), 'enabled', 'tooltip');
+    return {
+      icon: 'migrate',
+      title: this.t('migrate'),
+      tip: tooltip,
+      class: 'migrate-action-trigger',
+      action: () => this.startMigration(),
+      disabled: !enabled,
+    };
+  }),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  evictAction: computed(
-    'evictTooltip',
-    'isEvictionEnabled',
-    function evictAction() {
-      const {
-        evictTooltip,
-        isEvictionEnabled,
-      } = this.getProperties(
-        'evictTooltip',
-        'isEvictionEnabled'
-      );
+  evictAction: computed('evictActionState', function evictAction() {
+    const {
+      enabled,
+      tooltip,
+    } = getProperties(this.get('evictActionState'), 'enabled', 'tooltip');
 
-      return {
-        icon: 'invalidate',
-        title: this.t('evict'),
-        tip: evictTooltip,
-        class: 'evict-action-trigger',
-        action: () => this.startEviction(),
-        disabled: !isEvictionEnabled,
-      };
-    }
-  ),
+    return {
+      icon: 'invalidate',
+      title: this.t('evict'),
+      tip: tooltip,
+      class: 'evict-action-trigger',
+      action: () => this.startEviction(),
+      disabled: !enabled,
+    };
+  }),
 
   /**
    * @type {Ember.ComputedProperty<Array<Action>>}
