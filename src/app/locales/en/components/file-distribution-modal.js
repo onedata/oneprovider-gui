@@ -10,6 +10,7 @@ export default {
   files: 'files',
   directories: 'directories',
   close: 'Close',
+  onlySingleOneproviderSupport: 'Current space is supported by only one Oneprovider, thus advanced data replication or migration features are not available.',
   chunksVisualizer: {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',

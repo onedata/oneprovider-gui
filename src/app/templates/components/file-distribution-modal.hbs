@@ -9,6 +9,9 @@
   {{#modal.body}}
     {{#promise-proxy-container proxy=oneprovidersProxy}}
       {{#promise-proxy-container proxy=fileDistributionDataProxy}}
+        {{#if (eq oneproviders.length 1)}}
+          <div class="alert alert-info">{{tt this "onlySingleOneproviderSupport"}}</div>
+        {{/if}}
         {{#if (gt files.length 1)}}
           {{#bs-tab class="bs-tab-onedata bs-tab-modern" activeId=activeTab onChange=(action "changeTab") as |tab|}}
             {{tab.pane id="distribution-summary" title=(tt this "summary")}}
