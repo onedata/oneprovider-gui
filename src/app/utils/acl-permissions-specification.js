@@ -28,17 +28,9 @@ export default [{
       context: ['dir'],
       mask: 0x00000002,
     }, {
-      name: 'append_data',
-      context: ['file'],
-      mask: 0x00000004,
-    }, {
       name: 'add_subcontainer',
       context: ['dir'],
       mask: 0x00000004,
-    }, {
-      name: 'execute',
-      context: ['file'],
-      mask: 0x00000020,
     }, {
       name: 'traverse_container',
       context: ['dir'],
@@ -99,10 +91,6 @@ export default [{
       name: 'delete',
       context: ['dir', 'file'],
       mask: 0x00010000,
-    }, {
-      name: 'change_owner',
-      context: ['dir', 'file'],
-      mask: 0x00080000,
     },
   ],
 }];
