@@ -88,7 +88,7 @@ describe('Integration | Component | file browser', function () {
   });
 
   it('changes directories on double click', function () {
-    const numberOfDirs = 10;
+    const numberOfDirs = 5;
 
     const rootDir = {
       entityId: 'root',
@@ -127,7 +127,7 @@ describe('Integration | Component | file browser', function () {
 
     this.render(hbs `{{file-browser dir=dir}}`);
 
-    let clickCount = 8;
+    let clickCount = numberOfDirs - 2;
     const enterDir = () => {
       const $row = this.$('.fb-table-row');
       $row.click();
@@ -151,7 +151,7 @@ describe('Integration | Component | file browser', function () {
       );
       expect(this.$('.fb-table-row')).to.have.length(1);
       return enterDir().then(() => {
-        expect(this.$('.fb-table-row').text()).to.contain('Directory 9');
+        expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
       });
     });
   });

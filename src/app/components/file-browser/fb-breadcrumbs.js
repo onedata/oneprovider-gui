@@ -222,8 +222,11 @@ export default Component.extend(
     },
 
     checkWidth(noAnimation) {
-      const itemsCount = this.get('filteredBreadcrumbsItems.length');
       const $fileBreadcrumbs = this.$();
+      if (this.get('isDestroyed') || !$fileBreadcrumbs.length) {
+        return;
+      }
+      const itemsCount = this.get('filteredBreadcrumbsItems.length');
       const $fileBreadcrumbsInner = this.$('.fb-breadcrumbs-inner');
       const elementsToShow = this.get('elementsToShow');
       const innerBreadcrumbsWidth = $fileBreadcrumbsInner.width();
