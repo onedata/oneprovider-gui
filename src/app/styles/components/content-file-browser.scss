@@ -1,5 +1,5 @@
-.content-file-browser + .ps-scrollbar-x-rail + .ps-scrollbar-y-rail {
-  // FIXME: use variables
+.content-file-browser + .ps--scrollbar-x-rail + .ps--scrollbar-y-rail {
+  // TODO: use z-index variables
   z-index: 20000;
 }
 
