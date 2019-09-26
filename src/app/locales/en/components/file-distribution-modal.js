@@ -15,6 +15,7 @@ export default {
   chunksVisualizer: {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',
+    neverSynchronizedTip: 'This file was never read or modified on selected Oneprovider. File blocks will be synchronized when needed. You can also manually replicate the file to selected Oneprovider.',
   },
   oneprovidersDistribution: {
     summarizedFilesDistribution: 'Summarized data distribution of selected files:',

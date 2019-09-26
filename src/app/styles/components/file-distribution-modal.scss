@@ -14,6 +14,12 @@
     padding: $padding-small-vertical 0;
     border-bottom: 1px solid $main-border-color;
 
+    &:first-child {
+      .chunks-scale {
+        display: block;
+      }
+    }
+
     .name-section {
       display: flex;
       align-items: center;
@@ -61,6 +67,7 @@
     .collapsible-toolbar-toggle {
       padding: $padding-xs-horizontal;
       margin-left: $padding-xs-horizontal;
+      transform: scale(0.8);
     }
   }
   
@@ -220,12 +227,55 @@
   }
 
   .chunks-visualizer {
+    position: relative;
     display: flex;
     align-items: center;
 
     .never-synchronized-text {
-      flex-grow: 1;
-      text-align: center;
+      @include absolute-align-middle-center();
+      white-space: nowrap;
+      font-size: 80%;
+    }
+
+    .never-synchronized-background {
+      height: 18px;
+      width: 320px;
+      background-image: linear-gradient(
+        -45deg,
+        $color-one-light-blue 25%,
+        transparent 25%,
+        transparent 50%,
+        $color-one-light-blue 25%,
+        $color-one-light-blue 75%,
+        transparent 75%,
+        transparent
+      );
+      background-size: 50px 50px;
+    }
+
+    .chunks-container {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      border: 1px solid $main-text-color;
+      border-width: 0 1px;
+    }
+
+    .chunks-scale {
+      display: none;
+      position: absolute;
+      top: 0;
+      @include font-semibold();
+      font-size: 60%;
+    }
+
+    .lower-size {
+      transform: translateY(-125%) translateX(-50%);
+    }
+
+    .upper-size {
+      right: 0;
+      transform: translateY(-125%) translateX(50%);
     }
 
     .chunks-canvas {
@@ -233,7 +283,7 @@
       min-width: 0;
       height: 18px;
       background-color: $color-one-light-blue;
-    }
+    }    
 
     .percentage-text {
       flex-shrink: 0;

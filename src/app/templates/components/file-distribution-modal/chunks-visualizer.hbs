@@ -1,8 +1,21 @@
-{{#if neverSynchronized}}
-  <div class="never-synchronized-text hidden-xs">{{tt this "neverSynchronized"}}</div>
-  <div class="percentage-text"><span class="hidden-sm hidden-md hidden-lg">{{tt this "na"}}</span></div>
-{{else}}
-  <canvas width={{chunksRange}} height="18" class="chunks-canvas" />
-  <div class="percentage-text">{{percentageText}}</div>
-{{/if}}
+<div class="chunks-container">
+  {{#if neverSynchronized}}
+    <div class="never-synchronized-text hidden-xs">
+      {{tt this "neverSynchronized"}}
+      {{one-tooltip title=(tt this "neverSynchronizedTip")}}
+    </div>
+    <div class="never-synchronized-background"></div>
+  {{else}}
+    <div class="chunks-scale lower-size">0 B</div>
+    <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
+    <canvas width={{chunksRange}} height="18" class="chunks-canvas" />
+  {{/if}}
+</div>
+<div class="percentage-text">
+  {{#if neverSynchronized}}
+    <span>{{tt this "na"}}</span>
+  {{else}}
+    {{percentageText}}
+  {{/if}}
+</div>
 {{yield}}
