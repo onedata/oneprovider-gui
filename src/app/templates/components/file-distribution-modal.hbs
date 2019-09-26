@@ -19,11 +19,10 @@
           {{/bs-tab}}
         {{/if}}
         {{#if (eq activeTab "distribution-summary")}}
-          <p>{{tt this "summarizedFilesDistribution"}} {{one-label-tip title=(tt this "dirsDontHaveDistributionTip")}}</p>
           {{file-distribution-modal/oneproviders-distribution
             isVisible=(eq activeTab "distribution-summary")
             batchMode=true
-            fileDistributionData=(filter-by "fileType" "file" fileDistributionData)
+            fileDistributionData=fileDistributionData
             oneproviders=oneproviders
             onReplicate=(action "replicate" files)
             onMigrate=(action "migrate" files)

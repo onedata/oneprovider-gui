@@ -19,9 +19,10 @@
   {{#power-select
     triggerClass="small"
     dropdownClass="small"
+    placeholder="Select target..."
     disabled=(not canSelectOneprovider)
-    options=possibleDestinationOneproviders
-    selected=destinationOneprovider
+    options=oneprovidersDropdownOptions
+    selected=destinationOneproviderItem
     onchange=(action "selectOneprovider")
     searchField="name"
     searchEnabled=true
@@ -31,11 +32,11 @@
       <div class="inline-icon-container">
         {{one-icon icon="provider"}}
       </div>
-      <span class="oneprovider-name">{{item.name}}</span>
+      <span class="oneprovider-name">{{item.text}}</span>
     {{/truncated-string}}
   {{/power-select}}
 </div>
-<div class="btn-toolbar text-right">
+<div class="btn-toolbar">
   {{#bs-button onClick=onCancel disabled=(not canCancel) size="sm"}}
     {{tt this "cancelButton"}}
   {{/bs-button}}

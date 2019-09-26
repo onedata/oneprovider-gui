@@ -88,7 +88,7 @@
     }
 
     .ember-basic-dropdown {
-      max-width: 170px;
+      width: 170px;
     }
     
     .btn-toolbar {
@@ -210,6 +210,12 @@
       .transfer-animation-positioner {
         transform: rotate(90deg) rotateX(180deg) translateY(-150%) translateX(50%);
       }
+    }
+  }
+
+  .confirm-subsequent-transfer {
+    .btn-toolbar {
+      text-align: right;
     }
   }
 

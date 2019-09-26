@@ -1,7 +1,7 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { array, and, not } from 'ember-awesome-macros';
+import { and, not } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
@@ -29,6 +29,11 @@ export default Component.extend(I18n, {
   oneproviders: undefined,
 
   /**
+   * @type {Array<Models.Oneprovider>}
+   */
+  busyOneproviders: Object.freeze([]),
+
+  /**
    * @virtual
    * @type {Models.Oneprovider}
    */
@@ -52,7 +57,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Models.Oneprovider}
    */
-  destinationOneprovider: undefined,
+  destinationOneproviderItem: undefined,
 
   /**
    * @type {boolean}
@@ -82,9 +87,32 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Array<Models.Oneprovider>>}
    */
-  possibleDestinationOneproviders: array.without(
+  oneprovidersDropdownOptions: computed(
     'oneproviders',
-    'sourceOneprovider'
+    'busyOneproviders',
+    'sourceOneprovider',
+    function possibleDestinationOneproviders() {
+      const {
+        oneproviders,
+        busyOneproviders,
+        sourceOneprovider,
+      } = this.getProperties(
+        'oneproviders',
+        'busyOneproviders',
+        'sourceOneprovider'
+      );
+
+      return oneproviders
+        .without(sourceOneprovider)
+        .map(oneprovider => {
+          const disabled = busyOneproviders.includes(oneprovider);
+          return {
+            oneprovider,
+            text: get(oneprovider, 'name') + (disabled ? ` (${this.t('busy')})` : ''),
+            disabled,
+          };
+        });
+    }
   ),
 
   /**
@@ -97,7 +125,7 @@ export default Component.extend(I18n, {
    */
   canMigrate: and(
     not('isSavingNewMigration'),
-    'destinationOneprovider'
+    'destinationOneproviderItem'
   ),
 
   /**
@@ -109,23 +137,23 @@ export default Component.extend(I18n, {
     this._super(...arguments);
 
     this.set(
-      'destinationOneprovider',
-      this.get('possibleDestinationOneproviders')[0]
+      'destinationOneproviderItem',
+      this.get('oneprovidersDropdownOptions').rejectBy('disabled')[0]
     );
   },
 
   actions: {
     selectOneprovider(oneprovider) {
-      this.set('destinationOneprovider', oneprovider);
+      this.set('destinationOneproviderItem', oneprovider);
     },
     migrate() {
       const {
-        destinationOneprovider,
+        destinationOneproviderItem,
         onMigrate,
-      } = this.getProperties('destinationOneprovider', 'onMigrate');
+      } = this.getProperties('destinationOneproviderItem', 'onMigrate');
 
       this.set('isSavingNewMigration');
-      return onMigrate(destinationOneprovider)
+      return onMigrate(get(destinationOneproviderItem, 'oneprovider'))
         .finally(() => safeExec(this, () =>
           this.set('isSavingNewMigration', false)
         ));

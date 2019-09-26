@@ -1,6 +1,6 @@
 import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
-import { collect } from '@ember/object/computed';
+import { collect, notEmpty } from '@ember/object/computed';
 import { sum, array, equal, raw, or } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -248,6 +248,11 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
+  oneproviderHasActiveTransfers: notEmpty('oneproviderRolesInTransfers'),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
   isReplicationInProgress: or(
     'replicationInvoked',
     array.includes('oneproviderRolesInTransfers', raw('replicationSource'))
@@ -277,20 +282,17 @@ export default Component.extend(I18n, {
     'fileDistributionData.@each.{fileType,fileDistribution}',
     'percentage',
     'oneprovider',
-    'replicationInProgress',
     function replicateHereActionState() {
       const {
         spaceHasSingleOneprovider,
         fileDistributionData,
         percentage,
         oneprovider,
-        replicationInProgress,
       } = this.getProperties(
         'spaceHasSingleOneprovider',
         'fileDistributionData',
         'percentage',
         'oneprovider',
-        'replicationInProgress',
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
@@ -302,9 +304,7 @@ export default Component.extend(I18n, {
 
       const state = { enabled: false };
 
-      if (replicationInProgress) {
-        state.tooltip = this.t('disabledReplicationInProgress');
-      } else if (spaceHasSingleOneprovider) {
+      if (spaceHasSingleOneprovider) {
         state.tooltip = this.t('disabledReplicationSingleOneprovider');
       } else if (!(hasDirs || someNeverSynchronized || percentage < 100)) {
         if (!someNeverSynchronized && percentage === 100) {
@@ -328,29 +328,24 @@ export default Component.extend(I18n, {
     'fileDistributionData.@each.fileType',
     'neverSynchronized',
     'percentage',
-    'migrationInProgress',
     function migrateActionState() {
       const {
         spaceHasSingleOneprovider,
         fileDistributionData,
         neverSynchronized,
         percentage,
-        migrationInProgress,
       } = this.getProperties(
         'spaceHasSingleOneprovider',
         'fileDistributionData',
         'neverSynchronized',
         'percentage',
-        'migrationInProgress'
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
 
       const state = { enabled: false };
 
-      if (migrationInProgress) {
-        state.tooltip = this.t('disabledMigrationInProgress');
-      } else if (spaceHasSingleOneprovider) {
+      if (spaceHasSingleOneprovider) {
         state.tooltip = this.t('disabledMigrationSingleOneprovider');
       } else if (!hasDirs && (neverSynchronized || !percentage)) {
         state.tooltip = this.t('disabledMigrationIsEmpty');
@@ -368,30 +363,30 @@ export default Component.extend(I18n, {
    * @type {Object} {enabled: boolean, tooltip: string}
    */
   evictActionState: computed(
-    'isEvictionInProgress',
+    'fileDistributionData',
     'spaceHasSingleOneprovider',
     'blocksExistOnOtherOneproviders',
     'percentage',
     function evictActionState() {
       const {
-        isEvictionInProgress,
+        fileDistributionData,
         spaceHasSingleOneprovider,
         blocksExistOnOtherOneproviders,
         percentage,
       } = this.getProperties(
-        'isEvictionInProgress',
+        'fileDistributionData',
         'spaceHasSingleOneprovider',
         'blocksExistOnOtherOneproviders',
         'percentage'
       );
 
+      const hasDirs = fileDistributionData.isAny('fileType', 'dir');
+
       const state = { enabled: false };
       
-      if (isEvictionInProgress) {
-        state.tooltip = this.t('disabledEvictionInProgress');
-      } else if (spaceHasSingleOneprovider) {
+      if (spaceHasSingleOneprovider) {
         state.tooltip = this.t('disabledEvictionSingleOneprovider');
-      } else if (!blocksExistOnOtherOneproviders || !percentage) {
+      } else if (!blocksExistOnOtherOneproviders || (!percentage && !hasDirs)) {
         state.tooltip = this.t('disabledEvictionNoBlocks');
       } else {
         state.enabled = true;
@@ -519,22 +514,37 @@ export default Component.extend(I18n, {
   ),
 
   startReplication() {
+    const {
+      onReplicate,
+      oneproviderHasActiveTransfers,
+    } = this.getProperties('onReplicate', 'oneproviderHasActiveTransfers');
+
     this.set('replicationInvoked', true);
-    this.get('onReplicate')().finally(() =>
+    onReplicate(oneproviderHasActiveTransfers).finally(() =>
       safeExec(this, () => this.set('replicationInvoked', false))
     );
   },
 
   startMigration() {
+    const {
+      onMigrate,
+      oneproviderHasActiveTransfers,
+    } = this.getProperties('onMigrate', 'oneproviderHasActiveTransfers');
+
     this.set('migrationInvoked', true);
-    this.get('onMigrate')().finally(() =>
+    onMigrate(oneproviderHasActiveTransfers).finally(() =>
       safeExec(this, () => this.set('migrationInvoked', false))
     );
   },
 
   startEviction() {
+    const {
+      onEvict,
+      oneproviderHasActiveTransfers,
+    } = this.getProperties('onEvict', 'oneproviderHasActiveTransfers');
+    
     this.set('evictionInvoked', true);
-    this.get('onEviction')().finally(() =>
+    onEvict(oneproviderHasActiveTransfers).finally(() =>
       safeExec(this, () => this.set('evictionInvoked', false))
     );
   },

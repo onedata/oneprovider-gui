@@ -1,5 +1,5 @@
 import Component from '@ember/component';
-import { observer } from '@ember/object';
+import { observer, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { conditional, raw, notEmpty } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -74,7 +74,36 @@ export default Component.extend(I18n, {
   /**
    * @type {boolean}
    */
+  newMigrationSourceHasActiveTransfers: false,
+
+  /**
+   * @type {boolean}
+   */
   isMigrationDestinationSelectorVisible: notEmpty('newMigrationSourceOneprovider'),
+
+  /**
+   * @type {string}
+   */
+  startSubsequentTransferType: null,
+
+  /**
+   * ```
+   * {
+   *   sourceOneprovider: Models.Oneprovider|undefined,
+   *   destinationOneprovider: Models.Oneprovider|undefined,
+   * }
+   * ```
+   * @type {Object}
+   */
+  startSubsequentTransferData: null,
+
+  /**
+   * @type {boolean}
+   */
+  isStartSubsequentTransferConfirmationVisible: notEmpty('startSubsequentTransferType'),
+
+
+  startSubsequentTransferResolveCallback: notImplementedIgnore,
 
   /**
    * `resolve()` callback for the promise binded to migration action. Should be
@@ -83,7 +112,7 @@ export default Component.extend(I18n, {
    * @type {Function}
    * @returns {Promise}
    */
-  migrationPromiseResolveCallback: notImplementedIgnore,
+  startTransferPromiseResolveCallback: notImplementedIgnore,
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
@@ -103,6 +132,20 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<boolean>}
    */
   endedTransfersOverflow: reads('fileDistributionData.firstObject.endedTransfersOverflow'),
+
+  /**
+   * @type {Ember.ComputedProperty<Array<Models.Oneprovider>>}
+   */
+  disabledMigrationTargets: computed(
+    'fileDistributionData.@each.activeTransfers',
+    function disabledMigrationTargets() {
+      return this.get('fileDistributionData')
+        .mapBy('activeTransfers')
+        .compact()
+        .mapBy('evictingOneprovider')
+        .compact();
+    }
+  ),
 
   isVisibleObserver: observer('isVisible', function isVisibleObserver() {
     this.get('fileDistributionData').setEach(
@@ -125,43 +168,146 @@ export default Component.extend(I18n, {
     }
   },
 
+  startReplication(destinationOneprovider) {
+    return this.get('onReplicate')(destinationOneprovider)
+      .finally(() => this.resolveStartTransferPromise());
+  },
+
+  startMigration(sourceOneprovider, destinationOneprovider) {
+    return this.get('onMigrate')(sourceOneprovider, destinationOneprovider)
+      .finally(() => this.resolveStartTransferPromise());
+  },
+
+  startEviction(sourceOneprovider) {
+    return this.get('onEvict')(sourceOneprovider)
+      .finally(() => this.resolveStartTransferPromise());
+  },
+
+  newStartTransferPromise() {
+    return new Promise(resolve => {
+      this.set('startTransferPromiseResolveCallback', resolve);
+    });
+  },
+
+  resolveStartTransferPromise() {
+    const startTransferPromiseResolveCallback = this.get('startTransferPromiseResolveCallback');
+    if (startTransferPromiseResolveCallback) {
+      safeExec(this, () => this.set('startTransferPromiseResolveCallback', null));
+      startTransferPromiseResolveCallback();
+    }
+  },
+
   actions: {
-    initializeNewMigration(sourceOneprovider) {
-      this.set('newMigrationSourceOneprovider', sourceOneprovider);
-      return new Promise(resolve => {
-        // Persist resolve function to call it when starting migration procedure
-        // will finish
-        this.set('migrationPromiseResolveCallback', resolve);
+    checkForStartingSubsequentReplication(destinationOneprovider, hasActiveTransfers) {
+      if (hasActiveTransfers) {
+        this.setProperties({
+          startSubsequentTransferType: 'replication',
+          startSubsequentTransferData: {
+            destinationOneprovider,
+          },
+        });
+        return this.newStartTransferPromise();
+      } else {
+        return this.startReplication(destinationOneprovider);
+      }
+    },
+    selectMigrationDestination(sourceOneprovider, hasActiveTransfers) {
+      this.setProperties({
+        newMigrationSourceOneprovider: sourceOneprovider,
+        newMigrationSourceHasActiveTransfers: hasActiveTransfers,
       });
+      return this.newStartTransferPromise();
     },
-    migrate(destinationOneprovider) {
+    checkForStartingSubsequentMigration(destinationOneprovider) {
       const {
-        migrationPromiseResolveCallback,
-        onMigrate,
         newMigrationSourceOneprovider,
+        newMigrationSourceHasActiveTransfers,
+        startTransferPromiseResolveCallback,
       } = this.getProperties(
-        'migrationPromiseResolveCallback',
-        'onMigrate',
-        'newMigrationSourceOneprovider'
+        'newMigrationSourceOneprovider',
+        'newMigrationSourceHasActiveTransfers',
+        'startTransferPromiseResolveCallback',
       );
-      return migrationPromiseResolveCallback(
-        onMigrate(
-          newMigrationSourceOneprovider,
-          destinationOneprovider
-        ).then(() =>
-          safeExec(this, () => this.set('newMigrationSourceOneprovider', null))
-        ).finally(() => {
-          safeExec(this, () => this.set('migrationPromiseResolveCallback', notImplementedIgnore));
-        }
-      ));
-    },
-    cancelNewMigration() {
-      const migrationPromiseResolveCallback = this.get('migrationPromiseResolveCallback');
       this.setProperties({
         newMigrationSourceOneprovider: null,
-        migrationPromiseResolveCallback: notImplementedIgnore,
+        newMigrationSourceHasActiveTransfers: false,
       });
-      return migrationPromiseResolveCallback();
+
+      if (newMigrationSourceHasActiveTransfers) {
+        this.setProperties({
+          startSubsequentTransferType: 'migration',
+          startSubsequentTransferData: {
+            sourceOneprovider: newMigrationSourceOneprovider,
+            destinationOneprovider,
+          },
+        });
+        return startTransferPromiseResolveCallback;
+      } else {
+        return this.startMigration(newMigrationSourceOneprovider, destinationOneprovider);
+      }
+    },
+    checkForStartingSubsequentEviction(sourceOneprovider, hasActiveTransfers) {
+      if (hasActiveTransfers) {
+        this.setProperties({
+          startSubsequentTransferType: 'eviction',
+          startSubsequentTransferData: {
+            sourceOneprovider,
+          },
+        });
+        return this.newStartTransferPromise();
+      } else {
+        return this.startEviction(sourceOneprovider);
+      }
+    },
+    startSubsequentTransfer() {
+      const {
+        startSubsequentTransferType,
+        startSubsequentTransferData,
+      } = this.getProperties(
+        'startSubsequentTransferType',
+        'startSubsequentTransferData'
+      );
+      const {
+        sourceOneprovider,
+        destinationOneprovider,
+      } = getProperties(
+        startSubsequentTransferData,
+        'sourceOneprovider',
+        'destinationOneprovider'
+      );
+
+      let promise;
+      switch (startSubsequentTransferType) {
+        case 'replication':
+          promise = this.startReplication(destinationOneprovider);
+          break;
+        case 'migration':
+          promise = this.startMigration(sourceOneprovider, destinationOneprovider);
+          break;
+        case 'eviction':
+          promise = this.startEviction(sourceOneprovider);
+          break;
+      }
+      return promise.finally(() => safeExec(this, () => {
+        this.setProperties({
+          startSubsequentTransferType: null,
+          startSubsequentTransferData: null,
+        });
+      }));
+    },
+    cancelSubsequentTransfer() {
+      this.setProperties({
+        startSubsequentTransferType: null,
+        startSubsequentTransferData: null,
+      });
+      this.resolveStartTransferPromise();
+    },
+    cancelNewMigration() {
+      this.setProperties({
+        newMigrationSourceOneprovider: null,
+        newMigrationSourceHasActiveTransfers: false,
+      });
+      this.resolveStartTransferPromise();
     },
     navigateToTransfers(/* file */) {
       // FIXME: implement
