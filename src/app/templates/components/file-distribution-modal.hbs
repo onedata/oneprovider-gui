@@ -49,7 +49,7 @@
                 {{#listItem.content}}
                   <div class="list-content">
                     {{file-distribution-modal/oneproviders-distribution
-                      isVisible=listItem.isActive
+                      visible=listItem.isActive
                       oneproviders=oneproviders
                       fileDistributionData=(array fileDistDataContainer)
                       onReplicate=(action "replicate" (array fileDistDataContainer.file))

@@ -29,6 +29,7 @@ export default {
     orMore: 'or more',
     endedTransfersLink: 'see history',
     noTransfersText: 'This {{elementType}} has never been transferred manually.',
+    cannotLoadTransfers: 'Cannot load transfers',
   },
   oneprovidersDistributionItem: {
     replicationInProgress: 'The data is currently replicated to selected Oneprovider.',

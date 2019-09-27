@@ -22,7 +22,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {boolean}
    */
-  isVisible: false,
+  visible: false,
 
   /**
    * If true, then distribution represents (or is used at least in) a view for
@@ -147,17 +147,17 @@ export default Component.extend(I18n, {
     }
   ),
 
-  isVisibleObserver: observer('isVisible', function isVisibleObserver() {
+  visibleObserver: observer('visible', function visibleObserver() {
     this.get('fileDistributionData').setEach(
       'keepDataUpdated',
-      this.get('isVisible')
+      this.get('visible')
     );
   }),
 
   init() {
     this._super(...arguments);
 
-    this.isVisibleObserver();
+    this.visibleObserver();
   },
 
   willDestroyElement() {
