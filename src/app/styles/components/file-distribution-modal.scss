@@ -256,6 +256,7 @@
     .chunks-container {
       position: relative;
       display: flex;
+      flex-grow: 1;
       min-width: 0;
       border: 1px solid $main-text-color;
       border-width: 0 1px;
@@ -293,15 +294,28 @@
   }
   @media (max-width: $screen-xs-max) {
     .oneproviders-distribution-item {
-      .transfer-actions {
-        margin-right: 0;
+      
+      flex-flow: row wrap;
+      .name-section {
+        order: 1;
       }
-      .chunks-visualizer {
-        width: 3em;
+      .one-collapsible-toolbar {
+        order: 2;
+      }
+      .first-line-breaker {
+        flex-basis: 100%;
+        order: 3;
+      }
+      .status-toolbar {
+        order: 4;
         margin-left: 0;
       }
-      .chunks-canvas {
-        display: none;
+      .chunks-visualizer {
+        flex-grow: 1;
+        order: 5;
+        .chunks-scale {
+          display: none;
+        }
       }
     }
   }

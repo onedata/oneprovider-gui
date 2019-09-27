@@ -4,7 +4,6 @@ export default {
   header: 'Data distribution',
   summary: 'Summary',
   details: 'Details',
-  dirsDontHaveDistributionTip: 'Data distribution for directories is not available.',
   selectedItems: 'Selected items:',
   files: 'files',
   file: 'file',
@@ -19,6 +18,7 @@ export default {
   },
   oneprovidersDistribution: {
     summarizedFilesDistribution: 'Summarized data distribution of selected files:',
+    dirsDontHaveDistributionTip: 'Data distribution for directories is not available.',
     file: 'file',
     dir: 'directory',
     currentlyTransferredText: 'This {{elementType}} is currently transferred between Oneproviders',

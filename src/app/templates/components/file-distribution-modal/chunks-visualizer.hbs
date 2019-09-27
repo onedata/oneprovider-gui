@@ -2,9 +2,9 @@
   {{#if neverSynchronized}}
     <div class="never-synchronized-text hidden-xs">
       {{tt this "neverSynchronized"}}
-      {{one-tooltip title=(tt this "neverSynchronizedTip")}}
     </div>
     <div class="never-synchronized-background"></div>
+    {{one-tooltip title=(tt this "neverSynchronizedTip")}}
   {{else}}
     <div class="chunks-scale lower-size">0 B</div>
     <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
