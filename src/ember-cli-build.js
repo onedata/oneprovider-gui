@@ -53,6 +53,9 @@ module.exports = function (defaults) {
     'ember-cli-chartist': {
       useCustomCSS: true,
     },
+    'ember-cli-string-helpers': {
+      only: ['capitalize'],
+    },
     'nodeAssets': {
       'chartist-plugin-legend': {
         vendor: {

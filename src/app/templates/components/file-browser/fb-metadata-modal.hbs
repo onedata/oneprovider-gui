@@ -1,0 +1,83 @@
+{{#bs-modal
+  class="fb-metadata-modal"
+  open=open
+  size="lg"
+  backdropClose=false
+  keyboard=false
+  opShow=(action "onShow")
+  onHide=(action "onHide")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header" type=typeTranslation}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    {{#bs-tab
+      class="bs-tab bs-tab-onedata bs-tab-modern"
+      fade=false
+      customTabs=true
+      activeId=activeTab
+      as |bsTab|
+    }}
+      {{#bs-nav
+        type="tabs"
+        class="nav-tabs-metadata"
+        as |nav|
+      }}
+        {{#each metadataTypes as |type|}}
+          {{#nav.item active=(eq bsTab.activeId type)}}
+            <a href={{concat "#" type}}
+              class={{concat "nav-link nav-link-metadata-type nav-link-" type}}
+              role="tab"
+              {{action (mut activeTab) type}}
+            >
+              <span class={{concat "tab-name tab-state tab-state-" (get tabStateClassTypes (get this (concat type "TabState")))}}>
+                {{capitalize (tt this (concat "types." type))}}
+              </span>
+              {{one-tooltip
+                title=(tt this (concat "tabStateHint." (get this (concat type "TabState")))
+                  type=(tt this (concat "types." type))
+                  typeCapitalized=(capitalize (tt this (concat "types." type)))
+                )
+                triggerEvents="hover"
+              }}
+            </a>
+          {{/nav.item}}
+        {{/each}}
+      {{/bs-nav}}
+      <div class="tab-content tab-content-transfers-list no-vertical-padding">
+        {{#each metadataTypes as |type|}}
+          {{#bsTab.pane elementId=type}}
+            {{#render-later triggerRender=(eq bsTab.activeId type)}}
+              {{#promise-proxy-container proxy=(get this (concat type "OriginalProxy"))}}
+                {{component
+                  (concat "file-browser/fb-metadata-" type)
+                  metadata=(get this (concat type "Current"))
+                  metadataChanged=(action "metadataChanged" type)
+                  isModified=(get this (concat type "IsModified"))
+                }}
+              {{/promise-proxy-container}}
+            {{/render-later}}
+          {{/bsTab.pane}}
+        {{/each}}
+      </div>
+    {{/bs-tab}}
+  {{/modal.body}}
+  
+  {{#modal.footer}}
+    {{#bs-button
+      onClick=(action "onHide")
+      type=closeBtnType
+    }}
+      {{closeBtnText}}
+    {{/bs-button}}
+    {{#one-spin-button
+      action=(action "saveAll")
+      inFlight=processing
+      disabled=saveAllDisabled
+      class="btn btn-primary"
+    }}
+      {{tt this "saveAll"}}
+    {{/one-spin-button}}
+  {{/modal.footer}}
+{{/bs-modal}}

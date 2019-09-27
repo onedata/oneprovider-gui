@@ -1,0 +1,6 @@
+.fb-metadata-xattrs {
+  .xattrs-params-editor {
+    // this const number is em unit converted to pixels, because we cannot add em to px
+    width: calc(100% - #{$padding-small-horizontal + 17px});
+  }
+}

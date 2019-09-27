@@ -22,6 +22,9 @@
       .file-icon-container, .file-item-text {
         min-width: 2em;
       }
+      .file-status-bar {
+        display: inline-flex;
+      }
       .file-item-text {
         flex-grow: 1;
         padding-left: 10px;
@@ -53,12 +56,6 @@
         }
       }
     }
-    // TODO: design
-    // &:hover {
-    //   .file-status-icon {
-    //     color: $main-text-color;
-    //   }
-    // }
   }
   .file-icon-container .one-icon {
     font-size: 200%;

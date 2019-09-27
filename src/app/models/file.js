@@ -48,6 +48,7 @@ export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
   type: attr('string'),
   size: attr('number'),
+  hasMetadata: attr('boolean'),
   parent: belongsTo('file'),
   distribution: belongsTo('file-distribution'),
   owner: belongsTo('user'),

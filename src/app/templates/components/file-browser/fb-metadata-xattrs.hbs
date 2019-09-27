@@ -1,0 +1,11 @@
+<form role="form" class="form form-horizontal" onkeypress={{action "disableEnterKey"}}>
+  {{qos-params-editor
+    mode="edit"
+    qosParams=metadata
+    isFormOpened=true
+    class="xattrs-params-editor"
+    showHeader=false
+    layoutConfig=layoutConfig
+    onChange=(action "xattrsChanged")
+  }}
+</form>

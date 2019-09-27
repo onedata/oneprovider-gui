@@ -1,0 +1,13 @@
+{{#bs-form class="form-horizontal" as |form|}}
+  {{#form.group
+    validation=(if validationError "error")
+  }}
+    <textarea
+      value={{jsonString}}
+      oninput={{action "jsonStringChanged" value="target.value"}}
+      disabled={{disabled}}
+      rows="10"
+      class="form-control no-resize json-textarea"></textarea>
+    <div class="form-message {{unless validationError "hidden"}}">{{validationError}}</div>
+  {{/form.group}}
+{{/bs-form}}

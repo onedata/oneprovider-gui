@@ -40,6 +40,10 @@ export default OneEmbeddedComponent.extend(
      */
     dirEntityId: undefined,
 
+    fileToShowInfo: undefined,
+
+    fileToShowMetadata: undefined,
+
     injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
       const {
         spaceEntityId,
@@ -130,6 +134,12 @@ export default OneEmbeddedComponent.extend(
       },
       closeInfoModal() {
         this.set('fileToShowInfo', null);
+      },
+      openMetadataModal(file) {
+        this.set('fileToShowMetadata', file);
+      },
+      closeMetadataModal() {
+        this.set('fileToShowMetadata', null);
       },
       openShareModal(file) {
         this.set('fileToShare', file);
