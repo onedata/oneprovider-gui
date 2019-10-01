@@ -13,6 +13,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { computed, get } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { getSpaceEntityIdFromFileEntityId } from 'oneprovider-gui/models/file';
 
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('space'),
@@ -25,20 +26,44 @@ export default OneEmbeddedComponent.extend(
     /**
      * @override
      */
-    iframeInjectedProperties: Object.freeze(['spaceEntityId']),
+    iframeInjectedProperties: Object.freeze(['spaceEntityId', 'dirEntityId']),
 
     /**
      * @virtual optional
      */
     containerScrollTop: notImplementedIgnore,
 
-    spaceGri: computed(function spaceGri() {
+    /**
+     * @virtual optional
+     */
+    dirEntityId: undefined,
+
+    spaceGri: computed('spaceEntityId', function spaceGri() {
       return gri({
         entityType: 'op_space',
         entityId: this.get('spaceEntityId'),
         aspect: 'instance',
         scope: 'private',
       });
+    }),
+
+    injectedDirGri: computed('dirEntityId', function injectedDirGri() {
+      const {
+        spaceEntityId,
+        dirEntityId,
+      } = this.getProperties('spaceEntityId', 'dirEntityId');
+      const isValidDirEntityId = dirEntityId &&
+        getSpaceEntityIdFromFileEntityId(dirEntityId) === spaceEntityId;
+      if (isValidDirEntityId) {
+        return gri({
+          entityType: 'file',
+          entityId: dirEntityId,
+          aspect: 'instance',
+          scope: 'private',
+        });
+      } else {
+        return null;
+      }
     }),
 
     /**
@@ -53,12 +78,22 @@ export default OneEmbeddedComponent.extend(
       return store.findRecord('space', spaceGri);
     },
 
+    // FIXME: observer for changing dir that is injected to enable change in runtime
     /**
      * @override
      */
     fetchSpaceRootDir() {
-      return this.get('spaceProxy')
-        .then(space => get(space, 'rootDir'));
+      const injectedDirGri = this.get('injectedDirGri');
+      if (injectedDirGri) {
+        return this.get('store')
+          .findRecord(
+            'file',
+            injectedDirGri
+          );
+      } else {
+        return this.get('spaceProxy')
+          .then(space => get(space, 'rootDir'));
+      }
     },
 
     actions: {
@@ -68,14 +103,7 @@ export default OneEmbeddedComponent.extend(
           createItemType: itemType,
         });
       },
-      closeCreateItemModal(isCreated /*, submitResult */ ) {
-        const createItemParentDir = this.get('createItemParentDir');
-        if (isCreated) {
-          this.get('fileManager').trigger(
-            'dirChildrenRefresh',
-            get(createItemParentDir, 'entityId')
-          );
-        }
+      closeCreateItemModal( /* isCreated, submitResult */ ) {
         this.setProperties({
           createItemParentDir: null,
           createItemType: null,
@@ -87,14 +115,7 @@ export default OneEmbeddedComponent.extend(
           removeParentDir: parentDir,
         });
       },
-      closeRemoveModal(removeInvoked /*, removeResults*/ ) {
-        if (removeInvoked) {
-          const {
-            removeParentDir,
-            fileManager,
-          } = this.getProperties('removeParentDir', 'fileManager');
-          fileManager.trigger('dirChildrenRefresh', get(removeParentDir, 'entityId'));
-        }
+      closeRemoveModal() {
         this.setProperties({
           filesToRemove: null,
           removeParentDir: null,
@@ -108,21 +129,7 @@ export default OneEmbeddedComponent.extend(
           });
         });
       },
-      closeRenameModal(isRenamed, fileId) {
-        // FIXME: refactor here and in modal to use only file-manager service
-        // for create/remove/rename/refresh operations
-        const {
-          renameParentDir,
-          fileManager,
-          store,
-        } = this.getProperties('renameParentDir', 'fileManager', 'store');
-        if (isRenamed) {
-          store.findRecord('file', fileId)
-            .then(file => file.reload())
-            .then(() =>
-              fileManager.trigger('dirChildrenRefresh', get(renameParentDir, 'entityId'))
-            );
-        }
+      closeRenameModal() {
         this.setProperties({
           fileToRename: null,
           renameParentDir: null,
@@ -148,6 +155,9 @@ export default OneEmbeddedComponent.extend(
       },
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
+      },
+      updateDirEntityId(dirEntityId) {
+        this.callParent('updateDirEntityId', dirEntityId);
       },
     },
   }

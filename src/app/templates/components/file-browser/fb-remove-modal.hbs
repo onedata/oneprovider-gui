@@ -1,5 +1,7 @@
 {{#proceed-process-modal
   opened=open
+  backdropClose=(not processing)
+  keyboard=(not processing)
   close=(action "close")
   proceed=(action "remove")
   processing=processing
@@ -14,17 +16,17 @@
     {{tt this (concat "questionSuffix." itemsType) count=files.length}}
   </div>
   {{#if (lte files.length maxDisplayFiles)}}
-    <div class="row row-delete-files-list">
+    <ul class="row row-delete-files-list info info-gray info-condensed">
       {{#each files as |file|}}
-        <div class="row-delete-file-item">
+        <li class="row-delete-file-item">
           {{#truncated-string class="delete-file-name"}}
             <strong>{{file.name}}</strong>
           {{/truncated-string}}
           {{#if (eq file.type "file")}}
             <div class="delete-file-size">({{bytes-to-string file.size}})</div>
           {{/if}}
-        </div>
+        </li>
       {{/each}}
-    </div>
+    </ul>
   {{/if}}
 {{/proceed-process-modal}}

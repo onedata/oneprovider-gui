@@ -70,6 +70,7 @@ export default Component.extend(I18n, {
   fileManager: service(),
   globalNotify: service(),
   errorExtractor: service(),
+  media: service(),
 
   /**
    * @override
@@ -119,6 +120,11 @@ export default Component.extend(I18n, {
    * @param {Array<Models/File>} files files to show distribution
    */
   openFileDistributionModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   */
+  updateDirEntityId: notImplementedIgnore,
 
   /**
    * @virtual optional
@@ -339,7 +345,6 @@ export default Component.extend(I18n, {
   btnPaste: computed(function btnCut() {
     return this.createFileAction({
       id: 'paste',
-      icon: 'clipboard-copy',
       action: () => {
         return this.pasteFiles();
       },
@@ -404,6 +409,7 @@ export default Component.extend(I18n, {
   // #endregion
 
   dirChangedObserver: observer('dir', function dirChangedObserver() {
+    this.get('updateDirEntityId')(this.get('dir.entityId'));
     this.get('containerScrollTop')(0);
   }),
 
@@ -439,7 +445,7 @@ export default Component.extend(I18n, {
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);
 
-    this.element.addEventListener(
+    this.$('.fb-table')[0].addEventListener(
       'contextmenu',
       this.get('currentDirContextMenuHandler')
     );

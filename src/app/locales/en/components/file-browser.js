@@ -27,6 +27,7 @@ export default {
     paste: 'Paste',
   },
   fbTable: {
+    unknownError: 'Unknown error',
     startingDownload: 'starting file download',
     menuSelection: 'Selection ({{selectionCount}})',
     header: {
@@ -36,7 +37,16 @@ export default {
     },
     emptyDirBox: {
       emptyDirectory: 'Empty directory',
-      prompt: '',
+      dragFilesHere: 'Drag files here to',
+      upload: 'upload',
+      createNewDirectory: 'create a new directory',
+      youCanAlso: 'You can also',
+      paste: 'paste',
+      filesFromClipboard: 'files from clipboard',
+      or: 'or',
+    },
+    errorDirBox: {
+      errorOccured: 'Loading directory contents failed',
     },
   },
   fbTableRow: {
@@ -44,6 +54,7 @@ export default {
     dir: 'directory',
     isShared: 'This directory is shared',
     hasMetadata: 'This {{type}} has non-empty metadata',
+    brokenName: 'Cannot read',
   },
   fbToolbar: {
     moreTools: 'More tools',
@@ -61,6 +72,10 @@ export default {
     intro: {
       dir: newNameDirIntro,
       file: newNameFileIntro,
+    },
+    creating: {
+      dir: 'creating directory',
+      file: 'creating file',
     },
   },
   fbRemoveModal: {
@@ -100,5 +115,6 @@ export default {
     modificationTime: 'Modified at',
     owner: 'Owner',
     close: 'Close',
+    size: 'Size',
   },
 };

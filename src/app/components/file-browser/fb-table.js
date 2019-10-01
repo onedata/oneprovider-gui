@@ -11,7 +11,6 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed, observer } from '@ember/object';
-import { equal } from '@ember/object/computed';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -19,23 +18,29 @@ import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-arra
 import { inject as service } from '@ember/service';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { htmlSafe } from '@ember/string';
+import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { and, not } from 'ember-awesome-macros';
+import { equal, and, not, or } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { later } from '@ember/runloop';
+import { next, later } from '@ember/runloop';
+import { resolve } from 'rsvp';
 
 const compareIndex = createPropertyComparator('index');
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
-  classNameBindings: ['hasEmptyDirClass:empty-dir'],
+  classNameBindings: [
+    'hasEmptyDirClass:empty-dir',
+    'dirLoadError:error-dir',
+    'specialViewClass:special-dir-view',
+  ],
 
   fileManager: service(),
   i18n: service(),
   globalNotify: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -83,6 +88,10 @@ export default Component.extend(I18n, {
 
   rowHeight: 61,
 
+  fetchingPrev: false,
+
+  fetchingNext: false,
+
   /**
    * @type {boolean}
    */
@@ -94,19 +103,53 @@ export default Component.extend(I18n, {
 
   fileClipboardFiles: reads('fileManager.fileClipboardFiles'),
 
+  // NOTE: not using reads as a workaround to bug in Ember 2.18
+  initialLoad: computed('filesArray.initialLoad', function initialLoad() {
+    return this.get('filesArray.initialLoad');
+  }),
+
   /**
    * True if there is initially loaded file list, but it is empty.
    * False if there is initially loaded file list, but it is not empty.
    * Undefined if the file list is not yet loaded.
    * @type {boolean|undefined}
    */
-  isDirEmpty: and('filesArray.initialLoad.isFulfilled', not('filesArray.length')),
+  isDirEmpty: and('initialLoad.isFulfilled', not('filesArray.length')),
 
   /**
    * If true, the `empty-dir` class should be added
    * @type {ComputedProperty<boolean>}
    */
-  hasEmptyDirClass: equal('isDirEmpty', true),
+  hasEmptyDirClass: and(
+    equal('isDirEmpty', true),
+    equal('dirLoadError', undefined),
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  showDirContextMenu: not('dirLoadError'),
+
+  specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
+
+  /**
+   * @type {ComputedProperty<object>}
+   */
+  dirLoadError: computed(
+    'initialLoad.{isRejected,reason}',
+    function dirLoadError() {
+      const initialLoad = this.get('initialLoad');
+      if (get(initialLoad, 'isRejected')) {
+        const reason = get(initialLoad, 'reason');
+        if (reason) {
+          return this.get('errorExtractor').getMessage(reason) ||
+            this.t('unknownError');
+        } else {
+          return this.t('uknownError');
+        }
+      }
+    }
+  ),
 
   uploadAction: computed('allButtonsArray.[]', function uploadAction() {
     return this.get('allButtonsArray').findBy('id', 'upload');
@@ -135,13 +178,38 @@ export default Component.extend(I18n, {
 
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
-    return ReplacingChunksArray.create({
+    const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
       sortFun: compareIndex,
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
     });
+    array.on(
+      'fetchPrevStarted',
+      () => this.stateOfFetchUpdate('prev', 'started')
+    );
+    array.on(
+      'fetchPrevResolved',
+      () => this.stateOfFetchUpdate('prev', 'resolved')
+    );
+    array.on(
+      'fetchPrevRejected',
+      () => this.stateOfFetchUpdate('prev', 'rejected')
+    );
+    array.on(
+      'fetchNextStarted',
+      () => this.stateOfFetchUpdate('next', 'started')
+    );
+    array.on(
+      'fetchNextResolved',
+      () => this.stateOfFetchUpdate('next', 'resolved')
+    );
+    array.on(
+      'fetchNextRejected',
+      () => this.stateOfFetchUpdate('next', 'rejected')
+    );
+    return array;
   }),
 
   visibleFiles: reads('filesArray'),
@@ -167,22 +235,20 @@ export default Component.extend(I18n, {
   ),
 
   watchFilesArrayInitialLoad: observer(
-    'filesArray.initialLoad.isFulfilled',
+    'initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
-      const listWatcher = this.get('listWatcher');
-      scheduleOnce('afterRender', () => {
-        listWatcher.scrollHandler();
-      });
+      if (this.get('initialLoad.isFulfilled')) {
+        const listWatcher = this.get('listWatcher');
+        scheduleOnce('afterRender', () => {
+          listWatcher.scrollHandler();
+        });
+      }
     }
   ),
 
   init() {
     this._super(...arguments);
-    this.get('fileManager').on('dirChildrenRefresh', parentDirEntityId => {
-      if (this.get('dir.entityId') === parentDirEntityId) {
-        this.refreshFileList();
-      }
-    });
+    this.get('fileManager').registerRefreshHandler(this);
   },
 
   didInsertElement() {
@@ -194,29 +260,53 @@ export default Component.extend(I18n, {
   willDestroyElement() {
     try {
       this.get('listWatcher').destroy();
+      this.get('fileManager').deregisterRefreshHandler(this);
     } finally {
       this._super(...arguments);
     }
   },
 
+  /**
+   * @param {string} type one of: prev, next
+   * @param {string} state one of: started, resolved, rejected
+   * @returns {undefined}
+   */
+  stateOfFetchUpdate(type, state) {
+    safeExec(
+      this,
+      'set',
+      camelize(`fetching-${type}`),
+      state === 'started'
+    );
+  },
+
+  onDirChildrenRefresh(parentDirEntityId) {
+    if (this.get('dir.entityId') === parentDirEntityId) {
+      return this.refreshFileList();
+    } else {
+      return resolve();
+    }
+  },
+
   refreshFileList() {
-    const filesArray = this.get('filesArray');
-    filesArray.reload({
-      head: true,
-      minSize: 50,
-    }).then(() => filesArray.reload());
-    // FIXME: more efficient, but buggy way
-    // filesArray.reload({
-    //   offset: -1,
-    //   minSize: 50,
-    // });
+    return this.get('filesArray').reload();
   },
 
   onTableScroll(items, headerVisible) {
     const filesArray = this.get('filesArray');
     const sourceArray = get(filesArray, 'sourceArray');
     const filesArrayIds = sourceArray.mapBy('entityId');
-    const firstId = items[0] && items[0].getAttribute('data-row-id') || null;
+
+    if (items[0] && !items[0].getAttribute('data-row-id')) {
+      const listWatcher = this.get('listWatcher');
+      next(() => {
+        filesArray.fetchPrev().then(() => listWatcher.scrollHandler());
+      });
+    }
+
+    const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
+    const firstId =
+      firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
     const lastId = items[items.length - 1] &&
       items[items.length - 1].getAttribute('data-row-id') || null;
     let startIndex, endIndex;
@@ -298,6 +388,15 @@ export default Component.extend(I18n, {
       } else {
         this.selectAddSingleFile(selectedFiles, file);
       }
+    }
+  },
+
+  openFile(file) {
+    const isDir = get(file, 'type') === 'dir';
+    if (isDir) {
+      return this.get('changeDir')(file);
+    } else {
+      return this.downloadFile(get(file, 'entityId'));
     }
   },
 
@@ -417,7 +516,7 @@ export default Component.extend(I18n, {
       }
       const $this = this.$();
       const tableOffset = $this.offset();
-      left = left - tableOffset.left + this.element.offsetLeft;
+      left = left - tableOffset.left;
       top = top - tableOffset.top - this.element.offsetTop + this.element.offsetTop;
       this.$('.file-actions-trigger').css({
         top,
@@ -448,13 +547,30 @@ export default Component.extend(I18n, {
       );
     },
 
-    fileDoubleClicked(file /*, clickEvent */ ) {
-      const isDir = get(file, 'type') === 'dir';
-      if (isDir) {
-        this.get('changeDir')(file);
+    /**
+     * @param {object} file
+     * @param {TouchEvent} touchEvent
+     * @returns {any}
+     */
+    fileTouchHeld(file /*, touchEvent */ ) {
+      return this.fileClicked(file, true, false);
+    },
+
+    /**
+     * @param {object} file
+     * @returns {any}
+     */
+    fileTapped(file) {
+      const areSomeFilesSelected = Boolean(this.get('selectedFiles.length'));
+      if (areSomeFilesSelected) {
+        return this.fileClicked(file, true, false);
       } else {
-        return this.downloadFile(get(file, 'entityId'));
+        return this.openFile(file);
       }
+    },
+
+    fileDoubleClicked(file /*, clickEvent */ ) {
+      return this.openFile(file);
     },
 
     emptyDirUpload() {

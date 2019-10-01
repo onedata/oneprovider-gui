@@ -16,7 +16,7 @@ import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['fb-selection-toolkit'],
-  classNameBindings: ['opened:opened:closed'],
+  classNameBindings: ['opened:opened:closed', 'mobileMode:mobile-mode:desktop-mode'],
 
   i18n: service(),
 
@@ -34,6 +34,12 @@ export default Component.extend(I18n, {
    * @virtual
    */
   selectionContext: undefined,
+
+  /**
+   * Set to true, to make it floating
+   * @type {boolean}
+   */
+  mobileMode: false,
 
   itemsCount: 0,
 

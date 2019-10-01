@@ -53,10 +53,14 @@ describe('Unit | Utility | posix permissions', function () {
             'octalRepresentation'
           );
 
-          expect(stringRepresentation[entityIndex * 3 + entityIndex + permIndex])
-            .to.equal(permissionsLetters[permission]);
-          expect(stringRepresentation.split('').filter(c => c !== ' ' && c !== '-'))
-            .to.have.length(1);
+          expect(
+            stringRepresentation[entityIndex * 3 + entityIndex + permIndex]
+          ).to.equal(permissionsLetters[permission]);
+          expect(
+            stringRepresentation
+            .split('')
+            .filter(c => c !== ' ' && c !== '-')
+          ).to.have.length(1);
           const correctOctal = _.repeat('0', entityIndex) +
             String(permissionsOctalNumbers[permission]) +
             _.repeat('0', 2 - entityIndex);
@@ -66,8 +70,7 @@ describe('Unit | Utility | posix permissions', function () {
     });
   });
 
-  [
-    {
+  [{
       octal: '421',
       booleans: [true, false, false, false, true, false, false, false, true],
       str: 'r-- -w- --x',
@@ -112,7 +115,6 @@ describe('Unit | Utility | posix permissions', function () {
           'stringRepresentation',
           'octalRepresentation'
         );
-        
         expect(stringRepresentation).to.equal(str);
         expect(octalRepresentation).to.equal(octal);
         expect(dumpBooleanValues(posixPermissions)).to.deep.equal(booleans);

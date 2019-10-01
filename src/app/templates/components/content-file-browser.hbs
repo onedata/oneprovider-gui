@@ -1,6 +1,7 @@
 {{#promise-proxy-container proxy=spaceRootDirProxy}}
   {{file-browser
     dir=spaceRootDirProxy.content
+    updateDirEntityId=(action "updateDirEntityId")
     openCreateNewDirectory=(action "openCreateItemModal" "dir")
     openRemove=(action "openRemoveModal")
     openRename=(action "openRenameModal")
@@ -35,6 +36,7 @@
     {{file-browser/fb-info-modal
       open=true
       file=fileToShowInfo
+      spaceEntityId=spaceEntityId
       onHide=(action "closeInfoModal")
     }}
   {{/if}}
@@ -43,6 +45,7 @@
     {{file-browser/fb-remove-modal
       open=true
       files=filesToRemove
+      parentDir=removeParentDir
       onHide=(action "closeRemoveModal")
     }}
   {{/if}}
@@ -50,7 +53,7 @@
   {{#if filesToEditPermissions}}
     {{edit-permissions-modal
       files=filesToEditPermissions
-      space=space
+      space=spaceProxy.content
       onClose=(action "closeEditPermissionsModal")}}
   {{/if}}
 

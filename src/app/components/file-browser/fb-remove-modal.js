@@ -22,6 +22,7 @@ export default Component.extend(I18n, {
   i18n: service(),
   errorExtractor: service(),
   globalNotify: service(),
+  store: service(),
 
   /**
    * @override
@@ -37,6 +38,12 @@ export default Component.extend(I18n, {
    * @type {models/File}
    */
   files: undefined,
+
+  /**
+   * @virtual
+   * @type {models/File}
+   */
+  parentDir: undefined,
 
   /**
    * @virtual
@@ -81,6 +88,8 @@ export default Component.extend(I18n, {
         errorExtractor,
         i18n,
         i18nPrefix,
+        fileManager,
+        parentDir,
       } = this.getProperties(
         'files',
         'onHide',
@@ -88,23 +97,32 @@ export default Component.extend(I18n, {
         'errorExtractor',
         'i18n',
         'i18nPrefix',
+        'fileManager',
+        'parentDir',
       );
       const filesToRemove = [...files];
       this.set('processing', true);
 
       return handleMultiFilesOperation({
-          files: filesToRemove,
-          globalNotify,
-          errorExtractor,
-          i18n,
-          operationErrorKey: `${i18nPrefix}.deleting`,
-        },
-        (file) => file.destroyRecord()
-      ).then(results => {
-        onHide.bind(this)(true, results);
-      }).finally(() => {
-        safeExec(this, 'set', 'processing', false);
-      });
+            files: filesToRemove,
+            globalNotify,
+            errorExtractor,
+            i18n,
+            operationErrorKey: `${i18nPrefix}.deleting`,
+          },
+          (file) => file.destroyRecord()
+        )
+        .then(results => {
+          return fileManager.dirChildrenRefresh(
+            get(parentDir, 'entityId')
+          ).then(() => results);
+        })
+        .then(results => {
+          onHide.bind(this)(true, results);
+        })
+        .finally(() => {
+          safeExec(this, 'set', 'processing', false);
+        });
     },
     close() {
       return this.get('onHide')(false);

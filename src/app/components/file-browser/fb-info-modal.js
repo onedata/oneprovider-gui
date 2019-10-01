@@ -38,7 +38,19 @@ export default Component.extend(I18n, {
    * Callback when the modal is starting to hide
    * @type {Function}
    */
-  onHidden: notImplementedIgnore,
+  onHide: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  spaceEntityId: undefined,
+
+  /**
+   * If true, whole content will take up smaller amount of space
+   * @type {boolean}
+   */
+  smallContent: true,
 
   itemType: reads('file.type'),
 
@@ -54,16 +66,18 @@ export default Component.extend(I18n, {
 
   modificationTime: reads('file.modificationTime'),
 
+  fileSize: reads('file.size'),
+
   ownerFullNameProxy: promise.object(
     computed('file.owner', function ownerFullNamePromise() {
-      return this.get('file.owner').then(owner => get(owner, 'fullName'));
+      return this.get('file.owner').then(owner => owner && get(owner, 'fullName'));
     })
   ),
 
   filePathProxy: promise.object(
     computed('file.parent', function filePathPromise() {
       return resolveFilePath(this.get('file'))
-        .then(path => path.mapBy('name').join('/'));
+        .then(path => '/' + path.mapBy('name').join('/'));
     })
   ),
 
@@ -73,7 +87,7 @@ export default Component.extend(I18n, {
 
   actions: {
     close() {
-      return this.get('onHidden')();
+      return this.get('onHide')();
     },
   },
 });

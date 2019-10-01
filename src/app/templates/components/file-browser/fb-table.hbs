@@ -17,6 +17,8 @@
         file=file
         fileCut=(and (eq fileClipboardMode "move") (contains file fileClipboardFiles))
         isSelected=(contains file selectedFiles)
+        touchTap=(action "fileTapped" file)
+        touchHold=(action "fileTouchHeld" file)
         fastClick=(action "fileClicked" file)
         fastDoubleClick=(action "fileDoubleClicked" file)
         openContextMenu=(action "openContextMenu" file)
@@ -24,48 +26,89 @@
         selectionContext=selectionContext
       }}
     {{/each}}
+    {{#if (and initialLoad.isSettled fetchingNext)}}
+      <tr class="loading-row">
+        <td colspan="9999" class="special-row-cell loading-row-cell">
+          {{spin-spinner-block
+            sizeClass="sm"
+            class="absolute-middle-centered"
+          }}
+        </td>
+      </tr>
+    {{/if}}
   </tbody>
 </table>
-<div class="empty-dir-box">
-  <h1 class="empty-dir-text">{{tt this "emptyDirBox.emptyDirectory"}}</h1>
-  <div class="empty-dir-image"></div>
-  {{!-- FIXME: i18n when translations will be stable --}}
-  <h2 class="empty-dir-text">
-    Drag files here to
-    <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>
-      <div class="inline-icon-container bind-right-text">
-        {{one-icon icon="browser-upload"}}
-      </div>&nbsp;upload
-    </a>
-    or
-    <a class="empty-dir-new-directory-action" {{action "emptyDirNewDirectory"}}>
-      <div class="inline-icon-container bind-right-text">
-        {{one-icon icon="browser-new-directory"}}
-      </div>&nbsp;create a new directory</a>.
-  </h2>
-  {{#if fileManager.fileClipboardFiles.length}}
-    <h2 class="empty-dir-text">
-      You can also
-      <a class="empty-dir-new-directory-action" {{action "emptyDirPaste"}}>
-        <div class="inline-icon-container bind-right-text">
-          {{one-icon icon="clipboard-copy"}}
-        </div>&nbsp;paste</a> files from clipboard.
-    </h2>
-  {{/if}}
-</div>
-{{#one-webui-popover
-  class="file-actions-popover"
-  popoverStyle="with-dropdown"
-  padding=false
-  triggerSelector=(concat "#" elementId " .file-actions-trigger")
-  open=fileActionsOpen
-}}
-  {{#click-outside action=(action "toggleFileActions" false)}}
-    {{actions-popover-content
-      actionsArray=contextMenuButtons
-      actionClicked=(action "toggleFileActions" false)
-      class="file-actions"
+<div class="table-bottom-spacing"></div>
+{{#if initialLoad.isPending}}
+  <div class="loading-dir-box">
+    {{spin-spinner-block
+      sizeClass="lg"
+      class="absolute-middle-centered"
     }}
-  {{/click-outside}}
-{{/one-webui-popover}}
-<div class="file-actions-trigger floating-actions-trigger"></div>
+  </div>
+{{/if}}
+{{#if dirLoadError}}
+  <div class="error-dir-box dir-box">
+    <h1 class="error-dir-text dir-box-text">
+      {{tt this "errorDirBox.errorOccured"}}
+    </h1>
+    <div class="error-dir-image dir-box-image"></div>
+    <h2 class="error-dir-text dir-box-text">
+      {{dirLoadError.message}}
+    </h2>
+    <div class="error-dir-details application-error">
+      <div class="error-details active">
+        {{#if dirLoadError.errorJsonString}}
+          <div class="error-json">{{dirLoadError.errorJsonString}}</div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+{{/if}}
+{{#if hasEmptyDirClass}}
+  <div class="empty-dir-box dir-box">
+    <h1 class="empty-dir-text dir-box-text">{{tt this "emptyDirBox.emptyDirectory"}}</h1>
+    <div class="empty-dir-image dir-box-image"></div>
+    <h2 class="empty-dir-text dir-box-text">
+      {{tt this "emptyDirBox.dragFilesHere"}}
+      <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>
+        <div class="inline-icon-container bind-right-text">
+          {{one-icon icon="browser-upload"}}
+        </div>&nbsp;{{tt this "emptyDirBox.upload"}}
+      </a>
+      {{tt this "emptyDirBox.or"}}
+      <a class="empty-dir-new-directory-action" {{action "emptyDirNewDirectory"}}>
+        <div class="inline-icon-container bind-right-text">
+          {{one-icon icon="browser-new-directory"}}
+        </div>&nbsp;{{tt this "emptyDirBox.createNewDirectory"}}</a>.
+    </h2>
+    {{#if fileManager.fileClipboardFiles.length}}
+      <h2 class="empty-dir-text dir-box-text">
+        {{tt this "emptyDirBox.youCanAlso"}}
+        <a class="empty-dir-new-directory-action" {{action "emptyDirPaste"}}>
+          <div class="inline-icon-container bind-right-text">
+            {{one-icon icon="clipboard-copy"}}
+          </div>&nbsp;{{tt this "emptyDirBox.paste"}}</a> {{tt this "emptyDirBox.filesFromClipboard"}}.
+      </h2>
+    {{/if}}
+  </div>
+{{/if}}
+
+{{#if showDirContextMenu}}
+  {{#one-webui-popover
+    class="file-actions-popover"
+    popoverStyle="with-dropdown"
+    padding=false
+    triggerSelector=(concat "#" elementId " .file-actions-trigger")
+    open=fileActionsOpen
+  }}
+    {{#click-outside action=(action "toggleFileActions" false)}}
+      {{actions-popover-content
+        actionsArray=contextMenuButtons
+        actionClicked=(action "toggleFileActions" false)
+        class="file-actions"
+      }}
+    {{/click-outside}}
+  {{/one-webui-popover}}
+  <div class="file-actions-trigger floating-actions-trigger"></div>
+{{/if}}

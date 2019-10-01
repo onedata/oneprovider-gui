@@ -16,9 +16,10 @@ const types = [
 export const names = ['One'];
 
 export const numberOfSpaces = 1;
-export const numberOfFiles = 1000;
-export const numberOfDirs = 3;
-export const numberOfChainDirs = 10;
+// FIXME: debug values
+export const numberOfFiles = 300;
+export const numberOfDirs = 2;
+export const numberOfChainDirs = 5;
 
 export default function generateDevelopmentModel(store) {
   // let spaces;
@@ -37,16 +38,31 @@ export default function generateDevelopmentModel(store) {
     )
     .then((listRecords) => {
       const [spaceList] = listRecords;
-      return get(spaceList, 'list').then(list => {
-          return list.forEach(space => {
-            return get(space, 'rootDir').then(rootDir => {
-              return createFileRecords(store, rootDir);
+      return store.createRecord('user', {
+        fullName: 'John Smith',
+        username: 'smith',
+      }).save().then(owner => {
+        return get(spaceList, 'list').then(list => {
+            return list.forEach(space => {
+              return get(space, 'rootDir').then(rootDir => {
+                return createFileRecords(store, rootDir, owner);
+              });
             });
-          });
-        })
-        .then(() => listRecords);
+          })
+          .then(() => listRecords);
+      });
     })
-    .then(listRecords => createUserRecord(store, listRecords));
+    .then(listRecords => createUserRecord(store, listRecords))
+    .then(user => {
+      return user.get('spaceList')
+        .then(spaceList => get(spaceList, 'list'))
+        .then(list => all(list.toArray()))
+        .then(spaces => all(spaces.map(space => {
+          set(space, 'owner', user);
+          return space.save();
+        })))
+        .then(() => user);
+    });
 }
 
 function createListRecord(store, type, records) {
@@ -63,6 +79,7 @@ function createSpaceRecords(store) {
   return all(_.range(numberOfSpaces).map((i) =>
     // root dirs
     store.createRecord('file', {
+      id: generateFileGri(generateDirEntityId(0, '')),
       name: `Space ${i}`,
       type: 'dir',
       mtime: timestamp + i * 3600,
@@ -82,7 +99,7 @@ function createSpaceRecords(store) {
   )));
 }
 
-function createFileRecords(store, parent) {
+function createFileRecords(store, parent, owner) {
   const timestamp = Math.floor(Date.now() / 1000);
   const parentEntityId = get(parent, 'entityId');
   return all(_.range(numberOfDirs).map((i) => {
@@ -91,10 +108,11 @@ function createFileRecords(store, parent) {
       return store.createRecord('file', {
         id,
         name: `Directory long long long long long long long long long long long long long long long long name ${String(i).padStart(4, '0')}`,
-        index: entityId,
+        index: atob(entityId),
         type: 'dir',
         mtime: timestamp + i * 3600,
         parent,
+        owner,
       }).save();
     }))
     .then(([firstDir]) => {
@@ -109,9 +127,10 @@ function createFileRecords(store, parent) {
           return store.createRecord('file', {
             id,
             name: `Chain directory long long long long long name ${String(i).padStart(4, '0')}`,
-            index: entityId,
+            index: atob(entityId),
             type: 'dir',
             mtime: timestamp + i * 3600,
+            owner,
           }).save();
         })).then(chainDirs => {
           let saves = [];
@@ -130,12 +149,13 @@ function createFileRecords(store, parent) {
       const id = generateFileGri(entityId);
       return store.createRecord('file', {
         id,
-        name: `File ${String(i).padStart(4, '0')}`,
-        index: entityId,
+        name: `file-${String(i).padStart(4, '0')}`,
+        index: atob(entityId),
         type: 'file',
         size: i * 1000000,
         mtime: timestamp + i * 3600,
         parent,
+        owner,
       }).save();
     })));
 }
@@ -164,11 +184,11 @@ function createUserRecord(store, listRecords) {
 }
 
 export function generateFileEntityId(i, parentEntityId) {
-  return `${parentEntityId}-file-${String(i).padStart(4, '0')}`;
+  return btoa(`${parentEntityId}-file-${String(i).padStart(4, '0')}`);
 }
 
 export function generateDirEntityId(i, parentEntityId, suffix = '') {
-  return `${parentEntityId}-dir-${String(i).padStart(4, '0')}${suffix}`;
+  return btoa(`${parentEntityId}-dir-${String(i).padStart(4, '0')}${suffix}`);
 }
 
 export function generateFileGri(entityId) {

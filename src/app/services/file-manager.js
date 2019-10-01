@@ -8,17 +8,32 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, all } from 'rsvp';
-import Evented from '@ember/object/evented';
-import { get } from '@ember/object';
+import { resolve, allSettled } from 'rsvp';
+import { get, computed } from '@ember/object';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import _ from 'lodash';
 
-export default Service.extend(Evented, {
+class BrokenFile {
+  constructor(id, reason) {
+    this.id = id;
+    this.entityId = parseGri(id).entityId;
+    this.type = 'broken';
+    this.error = reason;
+  }
+}
+
+export default Service.extend({
   store: service(),
   onedataRpc: service(),
 
   fileClipboardMode: undefined,
 
   fileClipboardFiles: undefined,
+
+  /**
+   * @type {Array<Ember.Component>}
+   */
+  fileTableComponents: computed(() => []),
 
   init() {
     this._super(...arguments);
@@ -117,7 +132,29 @@ export default Service.extend(Evented, {
           limit: size,
           offset,
         })
-        .then(fileIds => all(fileIds.map(id => store.findRecord('file', id))));
+        .then(fileIds => {
+          const promises = allSettled(fileIds.map(id => {
+            const cachedRecord = store.peekRecord('file', id);
+            return cachedRecord ?
+              resolve(cachedRecord) : store.findRecord('file', id);
+          }));
+          return promises.then(results => ([fileIds, results]));
+        })
+        .then(([fileIds, results]) => {
+          const files = new Array(fileIds.length);
+          for (let i = 0; i < fileIds.length; ++i) {
+            const id = fileIds[i];
+            const result = results[i];
+            let file;
+            if (result.state === 'fulfilled') {
+              file = result.value;
+            } else {
+              file = new BrokenFile(id, result.reason);
+            }
+            files[i] = file;
+          }
+          return files;
+        });
     }
   },
 
@@ -138,7 +175,7 @@ export default Service.extend(Evented, {
   },
 
   copyOrMoveFile(file, parentDirEntityId, operation) {
-    const name = get(file, 'name');
+    const name = get(file, 'name') || 'unknown';
     const entityId = get(file, 'entityId');
     return this.get('onedataRpc')
       .request(`${operation}File`, {
@@ -146,7 +183,7 @@ export default Service.extend(Evented, {
         targetParentGuid: parentDirEntityId,
         targetName: name,
       })
-      .finally(() => this.trigger('dirChildrenRefresh', parentDirEntityId));
+      .finally(() => this.dirChildrenRefresh(parentDirEntityId));
   },
 
   getFileDownloadUrl(fileEntityId) {
@@ -155,7 +192,22 @@ export default Service.extend(Evented, {
     });
   },
 
+  /**
+   * Invokes request for refresh in all known file browser tables
+   * @param {Array<object>} parentDirEntityId 
+   * @returns {Array<object>}
+   */
   dirChildrenRefresh(parentDirEntityId) {
-    return this.trigger('dirChildrenRefresh', parentDirEntityId);
+    return allSettled(this.get('fileTableComponents').map(fileBrowser =>
+      fileBrowser.onDirChildrenRefresh(parentDirEntityId)
+    ));
+  },
+
+  registerRefreshHandler(fileBrowserComponent) {
+    this.get('fileTableComponents').push(fileBrowserComponent);
+  },
+
+  deregisterRefreshHandler(fileBrowserComponent) {
+    _.pull(this.get('fileTableComponents'), fileBrowserComponent);
   },
 });

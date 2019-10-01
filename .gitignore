@@ -51,6 +51,7 @@ crashlytics-build.properties
 # docker image artefact
 docker-build-list.json
 docker-build-report.txt
+gui-image.conf
 
 # compiled app
 rel
@@ -70,3 +71,6 @@ typings/
 
 # currently not using package-lock
 package-lock.json
+
+gui_static.tar.gz
+gui_static

@@ -11,9 +11,7 @@ export default {
     list_container: 'List files',
     write_object: 'Write',
     add_object: 'Add files',
-    append_data: 'Append data',
     add_subcontainer: 'Add subdirectory',
-    execute: 'Execute',
     traverse_container: 'Traverse directory',
     delete_child: 'Delete child',
     read_acl: 'Read ACL',
@@ -23,7 +21,6 @@ export default {
     read_attributes: 'Read attributes',
     write_attributes: 'Write attributes',
     delete: 'Delete',
-    change_owner: 'Change owner',
   },
   aceEditor: {
     aceType: 'Type',

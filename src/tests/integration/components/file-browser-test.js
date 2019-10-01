@@ -10,6 +10,7 @@ import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
 import { click } from 'ember-native-dom-helpers';
+import $ from 'jquery';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -20,6 +21,9 @@ const UploadManager = Service.extend({
 const FileManager = Service.extend(Evented, {
   fetchDirChildren() {},
   copyOrMoveFile() {},
+  registerRefreshHandler() {},
+  deregisterRefreshHandler() {},
+  refreshDirChildren() {},
 });
 
 const I18n = Service.extend({
@@ -47,16 +51,19 @@ describe('Integration | Component | file browser', function () {
       parent: resolve(null),
     };
     const files = [{
+        id: 'f1',
         entityId: 'f1',
         name: 'File 1',
         index: 'File 1',
       },
       {
+        id: 'f2',
         entityId: 'f2',
         name: 'File 2',
         index: 'File 2',
       },
       {
+        id: 'f3',
         entityId: 'f3',
         name: 'File 3',
         index: 'File 3',
@@ -64,8 +71,11 @@ describe('Integration | Component | file browser', function () {
     ];
     this.set('dir', dir);
     const fileManager = lookupService(this, 'fileManager');
-    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+
+    fetchDirChildren.withArgs(entityId, null, sinon.match.any, sinon.match.any)
       .resolves(files);
+    fetchDirChildren.resolves([]);
 
     this.render(hbs `{{file-browser dir=dir}}`);
 
@@ -78,7 +88,7 @@ describe('Integration | Component | file browser', function () {
   });
 
   it('changes directories on double click', function () {
-    const numberOfDirs = 10;
+    const numberOfDirs = 5;
 
     const rootDir = {
       entityId: 'root',
@@ -108,15 +118,16 @@ describe('Integration | Component | file browser', function () {
     for (let i = -1; i < numberOfDirs; ++i) {
       fetchDirChildren.withArgs(
         i === -1 ? 'root' : `file-${i}`,
+        null,
         sinon.match.any,
-        sinon.match.any,
-        sinon.match.any
+        0
       ).resolves(i === numberOfDirs - 1 ? [] : [dirs[i + 1]]);
     }
+    fetchDirChildren.resolves([]);
 
     this.render(hbs `{{file-browser dir=dir}}`);
 
-    let clickCount = 8;
+    let clickCount = numberOfDirs - 2;
     const enterDir = () => {
       const $row = this.$('.fb-table-row');
       $row.click();
@@ -140,7 +151,7 @@ describe('Integration | Component | file browser', function () {
       );
       expect(this.$('.fb-table-row')).to.have.length(1);
       return enterDir().then(() => {
-        expect(this.$('.fb-table-row').text()).to.contain('Directory 9');
+        expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
       });
     });
   });
@@ -189,16 +200,17 @@ describe('Integration | Component | file browser', function () {
       const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
       fetchDirChildren.withArgs(
         'root',
+        null,
         sinon.match.any,
-        sinon.match.any,
-        sinon.match.any
+        0
       ).resolves(files1);
       fetchDirChildren.withArgs(
         'f2',
+        null,
         sinon.match.any,
-        sinon.match.any,
-        sinon.match.any
+        0
       ).resolves(files2);
+      fetchDirChildren.resolves([]);
 
       this.render(hbs `{{file-browser dir=dir}}`);
 
@@ -207,7 +219,7 @@ describe('Integration | Component | file browser', function () {
         this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
         return wait().then(() => {
           return click('.file-action-copy').then(() => {
-            expect(this.$('.file-action-paste')).to.exist;
+            expect($('.file-action-paste')).to.exist;
             const dirRow = this.$('.fb-table-row')[1];
             dirRow.click();
             return wait().then(() => {
@@ -278,6 +290,14 @@ describe('Integration | Component | file browser', function () {
     const files = [f1];
     this.set('dir', dir);
     const fileManager = lookupService(this, 'fileManager');
+    const i18n = lookupService(this, 'i18n');
+
+    const i18nt = sinon.stub(i18n, 't');
+    i18nt.calledWith(
+      'errors.backendErrors.posix',
+      sinon.match.any,
+    );
+
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves(files);
     fileManager.setProperties({
@@ -291,6 +311,50 @@ describe('Integration | Component | file browser', function () {
       expect(fetchDirChildren).to.have.been.called;
       return wait().then(() => {
         expect(this.$('.fb-table-row')).to.have.class('file-cut');
+      });
+    });
+  });
+
+  it('shows error message when initial file list load fails', function () {
+    const dir = {
+      entityId: 'test',
+      name: 'test',
+      type: 'dir',
+      parent: resolve(null),
+    };
+    const defaultTranslation = 'nothing';
+    const errnoTranslation = 'some translation';
+    const errno = 'eacces';
+    const error = {
+      id: 'posix',
+      details: {
+        errno,
+        errnoTranslation,
+      },
+    };
+    this.set('dir', dir);
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+    const i18n = lookupService(this, 'i18n');
+    const i18nt = sinon.stub(i18n, 't');
+    i18nt.withArgs('errors.backendErrors.posix', sinon.match(error.details))
+      .returns('posix error: ' + errnoTranslation);
+    i18nt.withArgs('errors.backendErrors.posixErrno.eacces')
+      .returns(errnoTranslation);
+    i18nt.returns(defaultTranslation);
+    fetchDirChildren.rejects(error);
+
+    this.render(hbs `{{file-browser dir=dir}}`);
+
+    return wait().then(() => {
+      expect(fetchDirChildren).to.have.been.called;
+      expect(i18nt).to.have.been.calledWith(
+        'errors.backendErrors.posix', sinon.match(error.details)
+      );
+      return wait().then(() => {
+        const $errorDirBox = this.$('.error-dir-box');
+        expect($errorDirBox).to.exist;
+        expect($errorDirBox.text()).to.match(new RegExp(errnoTranslation));
       });
     });
   });

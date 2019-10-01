@@ -1,6 +1,7 @@
 @import 'onedata-gui-common';
 
 @import 'layout';
+@import 'dummy';
 @import 'components/acl-editor';
 @import 'components/content-file-browser';
 @import 'components/edit-permissions-modal';
@@ -8,30 +9,3 @@
 @import 'components/bs-modal';
 @import 'components/posix-permissions-editor';
 @import 'components/file-distribution-modal';
-
-// FIXME: remove when development ends
-
-
-
-.oneprovider-origin-info {
-  display: none !important;
-  position: fixed;
-  right: 10px;
-  bottom: 10px;
-  opacity: 0.5;
-}
-
-.breakpoint-test {
-  display: none !important;
-  position: fixed;
-  left: 10px;
-  bottom: 10px;
-  opacity: 0.5;
-}
-
-.test-data {
-  position: fixed;
-  right: 10px;
-  bottom: 10px;
-  opacity: 0.5;
-}

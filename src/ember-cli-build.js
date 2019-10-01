@@ -86,12 +86,16 @@ module.exports = function (defaults) {
     'webui-popover/dist/jquery.webui-popover.js',
   ];
 
-  BOWER_ASSETS.forEach(path => app.import(app.bowerDirectory + '/' + path));
+  const NODE_ASSETS = [
+    'perfect-scrollbar/css/perfect-scrollbar.css',
+  ];
 
   const VENDOR_ASSETS = [
     'chartist-plugin-legend/chartist-plugin-legend.js',
   ];
 
+  BOWER_ASSETS.forEach(path => app.import(app.bowerDirectory + '/' + path));
+  NODE_ASSETS.forEach(path => app.import(`node_modules/${path}`));
   VENDOR_ASSETS.forEach(path => app.import('vendor/' + path));
 
   return app.toTree();

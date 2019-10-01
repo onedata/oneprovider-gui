@@ -7,9 +7,15 @@ $-file-browser-padding-right: 16px;
 // FIXME: compute using variables
 $-fb-table-margin-top: 67px;
 
-.content-file-browser + .ps-scrollbar-x-rail + .ps-scrollbar-y-rail {
-  // FIXME: use variables
-  z-index: 20000;
+.embedded-content {
+  .file-browser-head-container {
+    @include before-bottom-shadow;
+  }
+  &.scroll-on-top {
+    .file-browser-head-container {
+      @include hide-shadow;
+    }
+  }
 }
 
 .file-browser {
@@ -18,8 +24,8 @@ $-fb-table-margin-top: 67px;
     position: fixed;
     z-index: $zindex-modal-background - 1;
     padding-top: $content-row-vertical-padding;
-    padding-left: $-file-browser-padding-left;
-    padding-right: $-file-browser-padding-right;
+    padding-left: $content-col-padding + $-file-browser-padding-left;
+    padding-right: $content-col-padding + $-file-browser-padding-right;
     top: 0;
     left: 0;
     right: 0;
@@ -29,6 +35,10 @@ $-fb-table-margin-top: 67px;
       display: flex;
       max-width: 100%;
       margin-right: -20px;
+    }
+    @media (max-width: $screen-xs-max) {
+      padding-left: 10px;
+      padding-right: 20px;
     }
   }
 }
@@ -51,7 +61,7 @@ $-fb-table-margin-top: 67px;
   flex-direction: row-reverse;
   flex-grow: 0;
   flex-shrink: 0;
-  flex-basis: 280px;
+  flex-basis: 340px;
   height: $-file-browser-header-height;
 }
 
@@ -79,34 +89,10 @@ $-fb-table-margin-top: 67px;
 
 .fb-selection-toolkit {
   overflow: hidden;
-  max-width: 200px;
+  max-width: 220px;
   opacity: 1;
   margin-left: 20px;
   transition: $collapse-transition-vertical;
-  .selection-toolkit-inner {
-    @include vertical-align-middle;
-    position: relative;
-    cursor: pointer;
-    @include vendor-prefix(user-select, none);
-    border-radius: $border-radius-large;
-    border: 2px $main-text-color solid;
-    padding: 0 30px 0 15px;
-    height: $-file-browser-item-height + 8px;
-    &:hover {
-      background-color: $color-file-selected;
-    }
-    .selection-toolkit-actions-trigger {
-      @include vertical-align-middle;
-      right: 8px;
-      pointer-events: none;
-      &.one-menu-toggle {
-        padding: 0;
-      }
-    }
-  }
-  .selection-count-text {
-    line-height: 40px - 4px;
-  }
   .selection-count-number {
     color: $main-text-color-disabled;
   }
@@ -114,6 +100,19 @@ $-fb-table-margin-top: 67px;
     max-width: 0;
     opacity: 0;
     margin-left: 0;
+  }
+  &.mobile-mode {
+    position: fixed;
+    display: block;
+    z-index: 1;
+    bottom: 0;
+    right: 10px;
+  }
+  &.desktop-mode {
+    .one-pill-button {
+      @include vertical-align-middle;
+      position: relative;
+    }
   }
 }
 
@@ -165,28 +164,25 @@ $-fb-table-margin-top: 67px;
   }
   .fb-breadcrumbs-current-dir-button {
     display: inline-block;
-    position: relative;
     text-decoration: none;
     padding-right: 30px;
+    cursor: pointer;
     &.truncate {
       max-width: 100%;
     }
     .inline-icon-container.breadcrumbs-current-dir-actions-trigger {
       @include vertical-align-middle;
-      right: 2px;
+      right: 0;
       
       .one-icon {
         position: absolute;
         right: 0;
         left: 6px;
-        padding-bottom: 2px;
+        padding-top: 3px;
         font-size: 110%;
         font-weight: bold;
       }
     }
-  }
-  .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
-    max-width: calc(100% - 48px);
   }
 }
 
@@ -197,7 +193,10 @@ $-fb-table-margin-top: 67px;
 .fb-table {
   position: relative;
   height: 100%;
-  &.empty-dir {
+  .table {
+    margin-bottom: 0;
+  }
+  &.special-dir-view {
     @extend .world-map;
     @extend .light;
     background-position: center;
@@ -210,20 +209,31 @@ $-fb-table-margin-top: 67px;
       display: block;
     }
   }
-  .empty-dir-box {
+  .data-row td.special-row-cell, td.special-row-cell {
+    position: relative;
+    height: 61px;
+    &.loading-row-cell {
+      height: 76px;
+    }
+  }
+  .empty-dir-image {
+    background-image: url($root-url + 'images/empty-directory.svg');
+  }
+  .error-dir-image {
+    background-image: url($root-url + 'images/empty-directory.svg');
+  }
+  .dir-box {
     @include absolute-align-middle-center();
-    display: none;
     width: 100%;
     
-    .empty-dir-image {
+    .dir-box-image {
       height: 260px;
       margin: $padding-large-vertical * 2 auto;
-      background-image: url($root-url + 'images/empty-directory.svg');
       background-repeat: no-repeat;
       background-position: center;
       background-size: contain;
     }
-    .empty-dir-text {
+    .dir-box-text {
       text-align: center;
     }
     h1 {
@@ -281,6 +291,9 @@ $-fb-table-margin-top: 67px;
       @include vertical-align-middle;
     }
   }
+  .table-bottom-spacing {
+    height: 122px;
+  }
 }
 
 .fb-table-row {
@@ -294,19 +307,42 @@ $-fb-table-margin-top: 67px;
       opacity: 0.6;
     }
   }
-  .fb-table-col-files {
+  // FIXME: experimental
+  &.is-invalidated {
+    position: relative;
+  }
+  td.fb-table-col-files {
+    @media (max-width: $screen-xs-max) {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
     .file-info-container {
       display: flex;
-      .file-icon-container, .file-name {
+      .file-icon-container, .file-item-text {
         min-width: 2em;
       }
-      .file-name {
+      .file-item-text {
         flex-grow: 1;
         padding-left: 10px;
       }
       .file-status-icon {
         display: inline-block;
         color: $main-text-color-disabled;
+      }
+      .file-info-mobile {
+        display: none;
+      }
+      @media (max-width: $screen-xs-max) {
+        .file-info-mobile {
+          display: block;
+          padding-top: 4px;
+          .file-info-mobile-inner {
+            color: $color-one-light-gray;
+          }
+          .file-info-mobile-right {
+            float: right;
+          }
+        }
       }
     }
     // FIXME: design
@@ -325,13 +361,19 @@ $-fb-table-margin-top: 67px;
   &.fb-table-row-file .file-icon {
     color: $color-file;
   }
+  &.fb-table-row-broken {
+    .file-icon {
+      color: $color-one-red;
+    }
+    .file-name {
+      color: $color-one-red;
+      font-style: italic;
+    }
+  }
 }
 
 .fb-remove-modal {
   .row-delete-files-list {
-    .row-delete-file-item {
-      padding-top: $padding-small-vertical;
-    }
     .delete-file-name {
       display: inline-block;
       max-width: calc(100% - 50px);

@@ -12,6 +12,8 @@ import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
 import FbSetNameModal from 'oneprovider-gui/components/file-browser/fb-set-name-modal';
 import { reads } from '@ember/object/computed';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { resolve } from 'rsvp';
 
 // TODO: validate to disallow / names
 
@@ -59,16 +61,34 @@ export default FbSetNameModal.extend(I18n, {
         'globalNotify',
       );
       if (submitDisabled) {
-        return;
+        return resolve();
       }
+      const parentEntityId = get(parentDir, 'entityId');
+      this.set('processing', true);
       return fileManager
-        .renameFile(get(file, 'entityId'), get(parentDir, 'entityId'), editValue)
+        .renameFile(get(file, 'entityId'), parentEntityId, editValue)
         .catch(error => {
           onHide.bind(this)(false);
           globalNotify.backendError(this.t('renaming'), error);
-          throw error;
+          return refreshFile(file, fileManager, parentEntityId)
+            .finally(() => {
+              throw error;
+            });
         })
-        .then(({ id: fileId }) => onHide.bind(this)(true, fileId));
+        .then(result => {
+          return refreshFile(file, fileManager, parentEntityId)
+            .then(() => result);
+        })
+        .then(({ id: fileId }) => onHide.bind(this)(true, fileId))
+        .finally(() => {
+          safeExec(this, 'set', 'processing', false);
+        });
     },
   },
 });
+
+function refreshFile(file, fileManager, parentEntityId) {
+  return file.reload().then(() =>
+    fileManager.dirChildrenRefresh(parentEntityId)
+  );
+}
