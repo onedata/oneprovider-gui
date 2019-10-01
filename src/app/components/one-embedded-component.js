@@ -101,4 +101,10 @@ export default Component.extend({
     );
     return this.set(key, value);
   },
+
+  actions: {
+    containerScrollTop() {
+      return this.get('containerScrollTop')(...arguments);
+    },
+  },
 });

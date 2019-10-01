@@ -12,16 +12,23 @@ import { inject as service } from '@ember/service';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { computed, get } from '@ember/object';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { getSpaceEntityIdFromFileEntityId } from 'oneprovider-gui/models/file';
+import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default OneEmbeddedComponent.extend(
-  createDataProxyMixin('space'),
+  ContentSpaceBaseMixin,
   createDataProxyMixin('spaceRootDir'), {
     classNames: ['content-file-browser'],
 
     store: service(),
     fileManager: service(),
+
+    /**
+     * @virtual optional
+     * @type {Function}
+     */
+    containerScrollTop: notImplementedIgnore,
 
     /**
      * @override
@@ -31,21 +38,7 @@ export default OneEmbeddedComponent.extend(
     /**
      * @virtual optional
      */
-    containerScrollTop: notImplementedIgnore,
-
-    /**
-     * @virtual optional
-     */
     dirEntityId: undefined,
-
-    spaceGri: computed('spaceEntityId', function spaceGri() {
-      return gri({
-        entityType: 'op_space',
-        entityId: this.get('spaceEntityId'),
-        aspect: 'instance',
-        scope: 'private',
-      });
-    }),
 
     injectedDirGri: computed('dirEntityId', function injectedDirGri() {
       const {
@@ -66,18 +59,6 @@ export default OneEmbeddedComponent.extend(
       }
     }),
 
-    /**
-     * @override
-     */
-    fetchSpace() {
-      const {
-        store,
-        spaceGri,
-      } = this.getProperties('store', 'spaceGri');
-
-      return store.findRecord('space', spaceGri);
-    },
-
     // FIXME: observer for changing dir that is injected to enable change in runtime
     /**
      * @override
@@ -97,6 +78,9 @@ export default OneEmbeddedComponent.extend(
     },
 
     actions: {
+      containerScrollTop() {
+        return this.get('containerScrollTop')(...arguments);
+      },
       openCreateItemModal(itemType, parentDir) {
         this.setProperties({
           createItemParentDir: parentDir,
@@ -152,9 +136,6 @@ export default OneEmbeddedComponent.extend(
       },
       closeFileDistributionModal() {
         this.set('filesToShowDistribution', null);
-      },
-      containerScrollTop() {
-        return this.get('containerScrollTop')(...arguments);
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);
