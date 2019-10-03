@@ -6,7 +6,7 @@ import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 export default Component.extend({
   space: computed(function () {
     return {
-      oneproviderList: resolve({
+      providerList: resolve({
         list: resolve([
           {
             id: 'provider.123.instance:private',
@@ -35,8 +35,8 @@ export default Component.extend({
         name: 'adsf',
         size: 1024,
         type: 'file',
-        fileDistribution: PromiseObject.create({ promise: resolve({
-          distribution: {
+        distribution: PromiseObject.create({ promise: resolve({
+          distributionPerProvider: {
             123: {
               blocksPercentage: 50,
               chunksBarData: {
@@ -70,8 +70,8 @@ export default Component.extend({
         name: 'zxcv',
         size: 2048,
         type: 'file',
-        fileDistribution: PromiseObject.create({ promise: resolve({
-          distribution: {
+        distribution: PromiseObject.create({ promise: resolve({
+          distributionPerProvider: {
             123: {
               blocksPercentage: 100,
               chunksBarData: {

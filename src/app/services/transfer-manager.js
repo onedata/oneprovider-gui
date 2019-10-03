@@ -36,7 +36,7 @@ export default Service.extend({
    * - `reject(object: error)` on failure
    */
   getTransfersForFile(file, endedInfo = 'count') {
-    return this.get('onedataRpc').request('getTransfersForFile', {
+    return this.get('onedataRpc').request('getFileTransfers', {
       guid: get(file, 'entityId'),
       endedInfo,
     });

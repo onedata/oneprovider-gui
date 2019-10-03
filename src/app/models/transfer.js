@@ -16,11 +16,11 @@ export default Model.extend(GraphSingleModelMixin, {
    * Destination of this transfer
    * @type {Models.Oneprovider}
    */
-  replicatingOneprovider: belongsTo('oneprovider'),
+  replicatingProvider: belongsTo('oneprovider'),
 
   /**
    * Oneprovider that will evict the file after this transfer
    * @type {Models.Oneprovider}
    */
-  evictingOneprovider: belongsTo('oneprovider'),
+  evictingProvider: belongsTo('oneprovider'),
 }).reopenClass(StaticGraphModelMixin);

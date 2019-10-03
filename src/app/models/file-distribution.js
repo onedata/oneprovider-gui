@@ -30,5 +30,5 @@ export default Model.extend(GraphSingleModelMixin, {
    * - from the half of the bar, the bar will have 50% opacity
    * - on the end (300-319 pixels) the bar will have 25% opacity
    */
-  distribution: attr('object'),
+  distributionPerProvider: attr('object'),
 }).reopenClass(StaticGraphModelMixin);

@@ -90,10 +90,12 @@ export default Component.extend(I18n, {
         filesOnlyDistributionData,
         oneprovider,
       } = this.getProperties('filesOnlyDistributionData', 'oneprovider');
-      return filesOnlyDistributionData
+      const distributions = filesOnlyDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForOneprovider(oneprovider)
-        ).isEvery('neverSynchronized');
+        )
+        .compact();
+      return get(distributions, 'length') === 0;
     }
   ),
 
@@ -134,8 +136,10 @@ export default Component.extend(I18n, {
             const fileSize = get(fileDistDataContainer, 'fileSize');
             const fileDistribution =
               fileDistDataContainer.getDistributionForOneprovider(oneprovider);
-            const blocksPercentage = get(fileDistribution, 'blocksPercentage');
-            availableBytes += fileSize * ((blocksPercentage || 0) / 100);
+            if (fileDistribution) {
+              const blocksPercentage = get(fileDistribution, 'blocksPercentage');
+              availableBytes += fileSize * ((blocksPercentage || 0) / 100);
+            }
           });
     
           const percentage = Math.floor(
@@ -177,7 +181,7 @@ export default Component.extend(I18n, {
       } else if (hasSingleFile) {
         const fileDistribution =
           filesOnlyDistributionData[0].getDistributionForOneprovider(oneprovider);
-        return get(fileDistribution, 'chunksBarData');
+        return (fileDistribution && get(fileDistribution, 'chunksBarData')) || { 0: 0 };
       } else {
         const chunks = {};
         let chunksOffset = 0;
@@ -187,7 +191,7 @@ export default Component.extend(I18n, {
             const fileShare = fileSize / filesSize;
             const fileDistribution =
               fileDistDataContainer.getDistributionForOneprovider(oneprovider);
-            const chunksBarData = get(fileDistribution, 'chunksBarData');
+            const chunksBarData = fileDistribution && get(fileDistribution, 'chunksBarData');
             if (chunksBarData) {
               Object.keys(chunksBarData).forEach(key => {
                 chunks[Number(key) * fileShare + chunksOffset] = get(chunksBarData, key);
@@ -220,8 +224,8 @@ export default Component.extend(I18n, {
         const activeTransfers = get(fileDistributionDataContainer, 'activeTransfers');
         if (activeTransfers) {
           activeTransfers.forEach(transfer => {
-            const replicatingOneproviderGri = transfer.belongsTo('replicatingOneprovider').id();
-            const evictingOneproviderGri = transfer.belongsTo('evictingOneprovider').id();
+            const replicatingOneproviderGri = transfer.belongsTo('replicatingProvider').id();
+            const evictingOneproviderGri = transfer.belongsTo('evictingProvider').id();
 
             const replicatingOneproviderId = replicatingOneproviderGri ?
               parseGri(replicatingOneproviderGri).entityId : null;
@@ -296,11 +300,12 @@ export default Component.extend(I18n, {
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
+
       const someNeverSynchronized = hasDirs ? false : fileDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForOneprovider(oneprovider)
         )
-        .isAny('neverSynchronized');
+        .includes(undefined);
 
       const state = { enabled: false };
 

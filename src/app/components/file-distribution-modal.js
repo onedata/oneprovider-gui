@@ -150,7 +150,7 @@ export default Component.extend(
      * @override
      */
     fetchOneproviders() {
-      return get(this.get('space'), 'oneproviderList')
+      return get(this.get('space'), 'providerList')
         .then(oneproviderList => get(oneproviderList, 'list'));
     },
 

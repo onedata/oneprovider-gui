@@ -79,7 +79,7 @@ export default EmberObject.extend(
       raw(false),
     ),
 
-    fileDistribution: reads('fileDistributionModel.distribution'),
+    fileDistribution: reads('fileDistributionModel.distributionPerProvider'),
 
     activeTransfers: reads('transfers.ongoing'),
 
@@ -125,7 +125,7 @@ export default EmberObject.extend(
      */
     fetchFileDistributionModel() {
       if (this.get('file.type') === 'file') {
-        return get(this.get('file'), 'fileDistribution');
+        return get(this.get('file'), 'distribution');
       } else {
         return resolve();
       }

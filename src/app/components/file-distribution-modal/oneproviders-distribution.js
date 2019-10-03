@@ -142,7 +142,7 @@ export default Component.extend(I18n, {
       return this.get('fileDistributionData')
         .mapBy('activeTransfers')
         .compact()
-        .mapBy('evictingOneprovider')
+        .mapBy('evictingProvider')
         .compact();
     }
   ),
