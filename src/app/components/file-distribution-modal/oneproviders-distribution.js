@@ -1,11 +1,11 @@
 import Component from '@ember/component';
 import { observer, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, notEmpty } from 'ember-awesome-macros';
+import { conditional, raw, notEmpty, array } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { Promise } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
@@ -103,8 +103,6 @@ export default Component.extend(I18n, {
   isStartSubsequentTransferConfirmationVisible: notEmpty('startSubsequentTransferType'),
 
 
-  startSubsequentTransferResolveCallback: notImplementedIgnore,
-
   /**
    * `resolve()` callback for the promise binded to migration action. Should be
    * eventually called either with no arguments (when choosing target
@@ -113,6 +111,18 @@ export default Component.extend(I18n, {
    * @returns {Promise}
    */
   startTransferPromiseResolveCallback: notImplementedIgnore,
+
+  isDistributionLoading: array.isAny('fileDistributionData', 'isFileDistributionLoading'),
+
+  isDistributionLoaded: computed('fileDistributionData.@each.fileDistribution', function isDistributionLoaded() {
+    return this.get('fileDistributionData').mapBy('fileDistribution').every(value => value);
+  }),
+
+  isDistributionError: array.isAny('fileDistributionData', 'isFileDistributionError'),
+  
+  distributionErrorReason: computed('fileDistributionData.@each.fileDistributionErrorReason', function distributionErrorReason() {
+    return this.get('fileDistributionData').mapBy('fileDistribution').compact().objectAt(0);
+  }),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
@@ -184,9 +194,11 @@ export default Component.extend(I18n, {
   },
 
   newStartTransferPromise() {
-    return new Promise(resolve => {
+    const promise = new Promise(resolve => {
       this.set('startTransferPromiseResolveCallback', resolve);
     });
+    this.set('startTransferPromise', promise);
+    return promise;
   },
 
   resolveStartTransferPromise() {
@@ -222,11 +234,9 @@ export default Component.extend(I18n, {
       const {
         newMigrationSourceOneprovider,
         newMigrationSourceHasActiveTransfers,
-        startTransferPromiseResolveCallback,
       } = this.getProperties(
         'newMigrationSourceOneprovider',
         'newMigrationSourceHasActiveTransfers',
-        'startTransferPromiseResolveCallback',
       );
       this.setProperties({
         newMigrationSourceOneprovider: null,
@@ -241,7 +251,8 @@ export default Component.extend(I18n, {
             destinationOneprovider,
           },
         });
-        return startTransferPromiseResolveCallback;
+        // Resolve immediately because transfer is not created now
+        return resolve();
       } else {
         return this.startMigration(newMigrationSourceOneprovider, destinationOneprovider);
       }

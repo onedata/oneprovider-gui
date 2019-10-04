@@ -1,4 +1,6 @@
 <div class="chunks-container">
+  <div class="chunks-scale lower-size">0 B</div>
+  <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
   {{#if neverSynchronized}}
     <div class="never-synchronized-text hidden-xs">
       {{tt this "neverSynchronized"}}
@@ -6,8 +8,6 @@
     <div class="never-synchronized-background"></div>
     {{one-tooltip title=(tt this "neverSynchronizedTip")}}
   {{else}}
-    <div class="chunks-scale lower-size">0 B</div>
-    <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
     <canvas width={{chunksRange}} height="18" class="chunks-canvas" />
   {{/if}}
 </div>

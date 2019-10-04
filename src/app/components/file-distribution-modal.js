@@ -4,8 +4,8 @@ import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { allSettled, Promise } from 'rsvp';
-import { raw, array, sum } from 'ember-awesome-macros';
+import { allSettled, Promise, resolve } from 'rsvp';
+import { raw, array, sum, promise } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
@@ -109,6 +109,10 @@ export default Component.extend(
       }
     ),
 
+    modalModelProxy: promise.object(
+      promise.all('oneprovidersProxy', 'fileDistributionDataProxy')
+    ),
+
     /**
      * One of: 'distribution-summary', 'distribution-details'.
      * 'distribution-summary' is possible only for multiple files.
@@ -133,13 +137,13 @@ export default Component.extend(
 
       const {
         files,
-        fileDistributionDataProxy,
-      } = this.getProperties('files', 'fileDistributionDataProxy');
+        modalModelProxy,
+      } = this.getProperties('files', 'modalModelProxy');
 
       // Open file list item if there is only one file
       if (get(files, 'length') === 1) {
-        fileDistributionDataProxy.then(() =>
-          next(()=> safeExec(this, () =>
+        modalModelProxy.then(() =>
+          next(() => safeExec(this, () =>
             $('.file-distribution-modal .one-collapsible-list-item-header').click()
           ))
         );
@@ -172,12 +176,14 @@ export default Component.extend(
 
     /**
      * @param {Models.File} file 
-     * @returns {undefined}
+     * @returns {Promise}
      */
     reloadFileTransfers(file) {
       const fileDistributionData = this.get('fileDistributionData').findBy('file', file);
       if (fileDistributionData) {
-        fileDistributionData.updateTransfersProxy({ replace: true });
+        return fileDistributionData.updateTransfersProxy({ replace: true });
+      } else {
+        return resolve();
       }
     },
 
@@ -192,10 +198,7 @@ export default Component.extend(
         const transferManager = this.get('transferManager');
         return Promise.all(files.map(file =>
           transferManager.startReplication(file, destinationOneprovider)
-            .then(result => {
-              this.reloadFileTransfers(file);
-              return result;
-            })
+            .then(result => this.reloadFileTransfers(file).then(() => result))
         ));
       },
       migrate(files, sourceProvider, destinationOneprovider) {
@@ -205,19 +208,14 @@ export default Component.extend(
             file,
             sourceProvider,
             destinationOneprovider
-          ).then(result => {
-            this.reloadFileTransfers(file);
-            return result;
-          })
+          ).then(result => this.reloadFileTransfers(file).then(() => result))
         ));
       },
       evict(files, sourceOneprovider) {
         const transferManager = this.get('transferManager');
         return Promise.all(files.map(file =>
-          transferManager.startEviction(file, sourceOneprovider).then(result => {
-            this.reloadFileTransfers(file);
-            return result;
-          })
+          transferManager.startEviction(file, sourceOneprovider)
+            .then(result => this.reloadFileTransfers(file).then(() => result))
         ));
       },
     },

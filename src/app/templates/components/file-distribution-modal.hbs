@@ -1,67 +1,65 @@
 {{#bs-modal
   class="file-distribution-modal"
   open=true
-  onHidden=(action "close")
+  onHide=(action "close")
   as |modal|}}
   {{#modal.header}}
     <h1>{{tt this "header"}}</h1>
   {{/modal.header}}
   {{#modal.body}}
-    {{#promise-proxy-container proxy=oneprovidersProxy}}
-      {{#promise-proxy-container proxy=fileDistributionDataProxy}}
-        {{#if (eq oneproviders.length 1)}}
-          <div class="alert alert-info">{{tt this "onlySingleOneproviderSupport"}}</div>
-        {{/if}}
-        {{#if (gt files.length 1)}}
-          {{#bs-tab class="bs-tab-onedata bs-tab-modern" activeId=activeTab onChange=(action "changeTab") as |tab|}}
-            {{tab.pane id="distribution-summary" title=(tt this "summary")}}
-            {{tab.pane id="distribution-details" title=(tt this "details")}}
-          {{/bs-tab}}
-        {{/if}}
-        {{#if (eq activeTab "distribution-summary")}}
-          {{file-distribution-modal/oneproviders-distribution
-            isVisible=(eq activeTab "distribution-summary")
-            batchMode=true
-            fileDistributionData=fileDistributionData
-            oneproviders=oneproviders
-            onReplicate=(action "replicate" files)
-            onMigrate=(action "migrate" files)
-            onEvict=(action "evict" files)}}
-          <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
-        {{else}}
-          {{#one-collapsible-list class="detailed-list" as |list|}}
-            {{#each fileDistributionData as |fileDistDataContainer|}}
-              {{#list.item as |listItem|}}
-                {{#listItem.header disableToggleIcon=true}}
-                  <span class="item-icon-container">
-                    {{one-icon class="item-icon" icon=(if (eq fileDistDataContainer.fileType "file") "browser-file" "browser-directory")}}
-                    {{one-tooltip
-                      title=fileDistDataContainer.file.name
-                      placement="top"
-                      arrowPlacement="left"
-                      triggerEvents="hover"}}
-                  </span>
-                  <span class="file-name truncate">
-                    {{fileDistDataContainer.file.name}}
-                  </span>
-                  <span class="file-size">{{bytes-to-string fileDistDataContainer.file.size}}</span>
-                {{/listItem.header}}
-                {{#listItem.content}}
-                  <div class="list-content">
-                    {{file-distribution-modal/oneproviders-distribution
-                      visible=listItem.isActive
-                      oneproviders=oneproviders
-                      fileDistributionData=(array fileDistDataContainer)
-                      onReplicate=(action "replicate" (array fileDistDataContainer.file))
-                      onMigrate=(action "migrate" (array fileDistDataContainer.file))
-                      onEvict=(action "evict" (array fileDistDataContainer.file))}}
-                  </div>
-                {{/listItem.content}}
-              {{/list.item}}
-            {{/each}}
-          {{/one-collapsible-list}}
-        {{/if}}
-      {{/promise-proxy-container}}
+    {{#promise-proxy-container proxy=modalModelProxy}}
+      {{#if (eq oneproviders.length 1)}}
+        <div class="alert alert-info">{{tt this "onlySingleOneproviderSupport"}}</div>
+      {{/if}}
+      {{#if (gt files.length 1)}}
+        {{#bs-tab class="bs-tab-onedata bs-tab-modern" activeId=activeTab onChange=(action "changeTab") as |tab|}}
+          {{tab.pane id="distribution-summary" title=(tt this "summary")}}
+          {{tab.pane id="distribution-details" title=(tt this "details")}}
+        {{/bs-tab}}
+      {{/if}}
+      {{#if (eq activeTab "distribution-summary")}}
+        {{file-distribution-modal/oneproviders-distribution
+          visible=(eq activeTab "distribution-summary")
+          batchMode=true
+          fileDistributionData=fileDistributionData
+          oneproviders=oneproviders
+          onReplicate=(action "replicate" files)
+          onMigrate=(action "migrate" files)
+          onEvict=(action "evict" files)}}
+        <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
+      {{else}}
+        {{#one-collapsible-list class="detailed-list" as |list|}}
+          {{#each fileDistributionData as |fileDistDataContainer|}}
+            {{#list.item as |listItem|}}
+              {{#listItem.header disableToggleIcon=true}}
+                <span class="item-icon-container">
+                  {{one-icon class="item-icon" icon=(if (eq fileDistDataContainer.fileType "file") "browser-file" "browser-directory")}}
+                  {{one-tooltip
+                    title=fileDistDataContainer.file.name
+                    placement="top"
+                    arrowPlacement="left"
+                    triggerEvents="hover"}}
+                </span>
+                <span class="file-name truncate">
+                  {{fileDistDataContainer.file.name}}
+                </span>
+                <span class="file-size">{{bytes-to-string fileDistDataContainer.file.size}}</span>
+              {{/listItem.header}}
+              {{#listItem.content}}
+                <div class="list-content">
+                  {{file-distribution-modal/oneproviders-distribution
+                    visible=listItem.isActive
+                    oneproviders=oneproviders
+                    fileDistributionData=(array fileDistDataContainer)
+                    onReplicate=(action "replicate" (array fileDistDataContainer.file))
+                    onMigrate=(action "migrate" (array fileDistDataContainer.file))
+                    onEvict=(action "evict" (array fileDistDataContainer.file))}}
+                </div>
+              {{/listItem.content}}
+            {{/list.item}}
+          {{/each}}
+        {{/one-collapsible-list}}
+      {{/if}}
     {{/promise-proxy-container}}
   {{/modal.body}}  
   {{#modal.footer class="btn-toolbar"}}

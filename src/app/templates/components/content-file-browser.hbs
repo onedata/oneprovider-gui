@@ -60,7 +60,7 @@
   {{#if filesToShowDistribution}}
     {{file-distribution-modal
       files=filesToShowDistribution
-      space=space
+      space=spaceProxy.content
       onClose=(action "closeFileDistributionModal")}}
   {{/if}}
 {{/promise-proxy-container}}

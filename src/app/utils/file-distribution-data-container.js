@@ -2,7 +2,7 @@ import EmberObject, { get, set, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve, Promise } from 'rsvp';
-import { conditional, equal, raw, gt } from 'ember-awesome-macros';
+import { conditional, equal, raw, gt, and, not } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 
@@ -72,12 +72,21 @@ export default EmberObject.extend(
       raw(0)
     ),
 
-    isFileDistributionModelLoaded: conditional(
+    isFileDistributionLoaded: conditional(
       equal('fileType', raw('file')),
-      'fileDistributionModelProxy.isFulfilled',
+      'fileDistributionModelProxy.content',
       // directories does not have file distribution
       raw(false),
     ),
+
+    isFileDistributionLoading: and(
+      'fileDistributionModelProxy.isPending',
+      not('isFileDistributionLoaded')
+    ),
+
+    isFileDistributionError: reads('fileDistributionModelProxy.isRejected'),
+
+    fileDistributionErrorReason: reads('fileDistributionModelProxy.reason'),
 
     fileDistribution: reads('fileDistributionModel.distributionPerProvider'),
 
@@ -125,7 +134,7 @@ export default EmberObject.extend(
      */
     fetchFileDistributionModel() {
       if (this.get('file.type') === 'file') {
-        return get(this.get('file'), 'distribution');
+        return this.get('file').belongsTo('distribution').reload();
       } else {
         return resolve();
       }
@@ -155,9 +164,7 @@ export default EmberObject.extend(
       
       return transferManager.getTransfersForFile(file, 'count').then(data =>
         Promise.all(data.ongoing.map(transferId =>
-          transferManager.getTransfer(transferId).then(transfer =>
-            get(transfer, 'currentStat').then(() => transfer)
-          )
+          transferManager.getTransfer(transferId)
         )).then(transfers =>
           Object.assign({}, data, {
             ongoing: transfers,
@@ -173,17 +180,17 @@ export default EmberObject.extend(
     updateData() {
       const fileType = this.get('fileType');
       return Promise.all([
-        fileType === 'file' ? this.updateFileDistributionModelProxy() : resolve(),
-        this.updateTransfersProxy(),
+        fileType === 'file' ? this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
+        this.updateTransfersProxy({ replace: true }),
       ]);
     },
 
     getDistributionForOneprovider(oneprovider) {
       const {
-        isFileDistributionModelLoaded,
+        isFileDistributionLoaded,
         fileDistribution,
-      } = this.getProperties('isFileDistributionModelLoaded', 'fileDistribution');
-      if (isFileDistributionModelLoaded) {
+      } = this.getProperties('isFileDistributionLoaded', 'fileDistribution');
+      if (isFileDistributionLoaded) {
         return get(fileDistribution, get(oneprovider, 'entityId'));
       } else {
         return {};

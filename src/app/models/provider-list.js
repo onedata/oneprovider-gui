@@ -1,5 +1,5 @@
 /**
- * @module models/oneprovider-list
+ * @module models/provider-list
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -12,5 +12,5 @@ import ListConflictModel from 'onedata-gui-websocket-client/mixins/models/list-c
 import GraphListModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-list-model';
 
 export default Model.extend(GraphListModelMixin, ListConflictModel, {
-  list: hasMany('oneprovider'),
+  list: hasMany('provider'),
 }).reopenClass(StaticGraphModelMixin);

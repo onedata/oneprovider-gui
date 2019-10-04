@@ -84,15 +84,14 @@ export default OneEmbeddedComponent.extend(
      */
     fetchSpaceRootDir() {
       const injectedDirGri = this.get('injectedDirGri');
+      const spaceProxy = this.get('spaceProxy');
+      
       if (injectedDirGri) {
-        return this.get('store')
-          .findRecord(
-            'file',
-            injectedDirGri
-          );
+        return spaceProxy.then(() =>
+          this.get('store').findRecord('file', injectedDirGri)
+        );
       } else {
-        return this.get('spaceProxy')
-          .then(space => get(space, 'rootDir'));
+        return spaceProxy.then(space => get(space, 'rootDir'));
       }
     },
 

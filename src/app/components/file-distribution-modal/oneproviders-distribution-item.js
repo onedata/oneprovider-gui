@@ -79,7 +79,7 @@ export default Component.extend(I18n, {
 
   hasAllFilesDistributions: array.isEvery(
     'filesOnlyDistributionData',
-    raw('isFileDistributionModelLoaded')
+    raw('isFileDistributionLoaded')
   ),
 
   neverSynchronized: computed(
@@ -102,7 +102,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasSingleFile: equal('files.length', raw(1)),
+  hasSingleFile: equal('fileDistributionData.length', raw(1)),
 
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -191,7 +191,7 @@ export default Component.extend(I18n, {
             const fileShare = fileSize / filesSize;
             const fileDistribution =
               fileDistDataContainer.getDistributionForOneprovider(oneprovider);
-            const chunksBarData = fileDistribution && get(fileDistribution, 'chunksBarData');
+            const chunksBarData = (fileDistribution && get(fileDistribution, 'chunksBarData')) || { 0: 0 };
             if (chunksBarData) {
               Object.keys(chunksBarData).forEach(key => {
                 chunks[Number(key) * fileShare + chunksOffset] = get(chunksBarData, key);
@@ -259,7 +259,7 @@ export default Component.extend(I18n, {
    */
   isReplicationInProgress: or(
     'replicationInvoked',
-    array.includes('oneproviderRolesInTransfers', raw('replicationSource'))
+    array.includes('oneproviderRolesInTransfers', raw('replicationDestination'))
   ),
 
   /**

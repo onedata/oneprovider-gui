@@ -8,7 +8,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { get } from '@ember/object';
+import { get, getProperties } from '@ember/object';
 
 export default Service.extend({
   store: service(),
@@ -48,8 +48,14 @@ export default Service.extend({
    * @returns {Promise<Models.Transfer>}
    */
   startReplication(file, destinationOneprovider) {
+    const {
+      entityId,
+      type,
+    } = getProperties(file, 'entityId', 'type');
+
     const transfer = this.get('store').createRecord('transfer', {
-      dataSourceIdentifier: get(file, 'entityId'),
+      dataSourceId: entityId,
+      dataSourceType: type,
       replicatingProvider: destinationOneprovider,
     });
     return deleteRecordIfFailed(transfer, transfer.save());
@@ -62,8 +68,14 @@ export default Service.extend({
    * @returns {Promise<Models.Transfer>}
    */
   startMigration(file, sourceOneprovider, destinationOneprovider) {
+    const {
+      entityId,
+      type,
+    } = getProperties(file, 'entityId', 'type');
+
     const transfer = this.get('store').createRecord('transfer', {
-      dataSourceIdentifier: get(file, 'entityId'),
+      dataSourceId: entityId,
+      dataSourceType: type,
       evictingProvider: sourceOneprovider,
       replicatingProvider: destinationOneprovider,
     });
@@ -76,9 +88,15 @@ export default Service.extend({
    * @returns {Promise<Models.Transfer>}
    */
   startEviction(file, sourceOneprovider) {
+    const {
+      entityId,
+      type,
+    } = getProperties(file, 'entityId', 'type');
+
     const transfer = this.get('store').createRecord('transfer', {
-      dataSourceIdentifier: get(file, 'entityId'),
-        evictingProvider: sourceOneprovider,
+      dataSourceId: entityId,
+      dataSourceType: type,
+      evictingProvider: sourceOneprovider,
     });
     return deleteRecordIfFailed(transfer, transfer.save());
   },
