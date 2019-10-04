@@ -11,12 +11,14 @@ import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-compon
 import { inject as service } from '@ember/service';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { computed } from '@ember/object';
 
 export default OneEmbeddedComponent.extend(
   ContentSpaceBaseMixin, {
     classNames: ['content-space-transfers'],
 
     store: service(),
+    transferManager: service(),
 
     /**
      * @virtual optional
@@ -28,6 +30,14 @@ export default OneEmbeddedComponent.extend(
      * @override
      */
     iframeInjectedProperties: Object.freeze(['spaceEntityId']),
+
+    shownTransfers: computed(function () {
+      return this.get('transferManager').getSpaceTransfers(
+        this.get('spaceEntityId'),
+        'waiting',
+
+      );
+    }),
 
     actions: {
       containerScrollTop() {

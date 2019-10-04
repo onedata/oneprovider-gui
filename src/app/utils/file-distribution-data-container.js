@@ -7,7 +7,7 @@ import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 
 export default EmberObject.extend(
-  createDataProxyMixin('fileDistributionModel'), 
+  createDataProxyMixin('fileDistributionModel'),
   createDataProxyMixin('transfers'), {
     transferManager: service(),
     onedataConnection: service(),
@@ -18,7 +18,7 @@ export default EmberObject.extend(
      * @type {boolean}
      */
     keepDataUpdated: false,
-    
+
     /**
      * @virtual
      * @type {Models.File}
@@ -95,7 +95,7 @@ export default EmberObject.extend(
         'dataUpdater',
         'pollingTime'
       );
-    
+
       if (get(dataUpdater, 'interval') !== pollingTime) {
         set(dataUpdater, 'interval', pollingTime);
       }
@@ -119,7 +119,7 @@ export default EmberObject.extend(
         this._super(...arguments);
       }
     },
-    
+
     /**
      * @override
      */
@@ -152,8 +152,8 @@ export default EmberObject.extend(
       } = this.getProperties('file', 'transferManager', 'onedataConnection');
       const transfersHistoryLimitPerFile =
         get(onedataConnection, 'transfersHistoryLimitPerFile');
-      
-      return transferManager.getTransfersForFile(file, 'count').then(data =>
+      const fileEntityId = get(file, 'entityId');
+      return transferManager.getFileTransfers(fileEntityId, 'count').then(data =>
         Promise.all(data.ongoing.map(transferId =>
           transferManager.getTransfer(transferId).then(transfer =>
             get(transfer, 'currentStat').then(() => transfer)

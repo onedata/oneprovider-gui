@@ -1,1 +1,7 @@
-{{yield}}
+<ul>
+  {{#each shownTransfers as |transfer|}}
+    <li>
+      {{transfer.dataSourceName}}
+    </li>
+  {{/each}}
+</ul>
