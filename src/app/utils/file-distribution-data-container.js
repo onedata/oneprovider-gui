@@ -1,7 +1,7 @@
 import EmberObject, { get, set, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { resolve, Promise } from 'rsvp';
+import { resolve, Promise, reject } from 'rsvp';
 import { conditional, equal, raw, gt, and, not } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -90,9 +90,9 @@ export default EmberObject.extend(
 
     fileDistribution: reads('fileDistributionModel.distributionPerProvider'),
 
-    activeTransfers: reads('transfers.ongoing'),
+    activeTransfers: reads('transfers.ongoingList'),
 
-    endedTransfersCount: reads('transfers.ended'),
+    endedTransfersCount: reads('transfers.endedCount'),
 
     endedTransfersOverflow: reads('transfers.endedOverflow'),
 
@@ -133,8 +133,21 @@ export default EmberObject.extend(
      * @override
      */
     fetchFileDistributionModel() {
+      const file = this.get('file');
+      const distributionLoadError = get(file, 'distributionLoadError');
+
       if (this.get('file.type') === 'file') {
-        return this.get('file').belongsTo('distribution').reload();
+        if (distributionLoadError) {
+          // If earlier fetching of distribution ended with error, then just
+          // rethrow it.
+          return reject(distributionLoadError);
+        } else {
+          return file.belongsTo('distribution').reload()
+            .catch(reloadError => {
+              set(file, 'distributionLoadError', reloadError);
+              throw reloadError;
+            });
+        }
       } else {
         return resolve();
       }
@@ -144,8 +157,8 @@ export default EmberObject.extend(
      * Returns Promise, which resolves to object:
      * ```
      * {
-     *   ongoing: Array<Models.Transfer>,
-     *   ended: number,
+     *   ongoingList: Array<Models.Transfer>,
+     *   endedCount: number,
      *   endedOverflow: boolean, // true if ended transfers number is
      *     (potentially) greater than backend listing limit
      * }
@@ -162,15 +175,14 @@ export default EmberObject.extend(
       const transfersHistoryLimitPerFile =
         get(onedataConnection, 'transfersHistoryLimitPerFile');
       
-      return transferManager.getTransfersForFile(file, 'count').then(data =>
-        Promise.all(data.ongoing.map(transferId =>
+      return transferManager.getTransfersForFile(file).then(({ ongoingList, endedCount}) =>
+        Promise.all(ongoingList.map(transferId =>
           transferManager.getTransfer(transferId)
-        )).then(transfers =>
-          Object.assign({}, data, {
-            ongoing: transfers,
-            endedOverflow: get(data, 'ended') >= transfersHistoryLimitPerFile,
-          })
-        )
+        )).then(transfers => ({
+            ongoingList: transfers,
+            endedCount,
+            endedOverflow: endedCount >= transfersHistoryLimitPerFile,
+        }))
       );
     },
 
@@ -178,10 +190,16 @@ export default EmberObject.extend(
      * @returns {Promise}
      */
     updateData() {
-      const fileType = this.get('fileType');
+      const {
+        fileType,
+        isFileDistributionError,
+        transfersProxy,
+      } = this.getProperties('fileType', 'isFileDistributionError', 'transfersProxy');
       return Promise.all([
-        fileType === 'file' ? this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
-        this.updateTransfersProxy({ replace: true }),
+        !isFileDistributionError && fileType === 'file' ?
+          this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
+        !get(transfersProxy, 'isRejected') ?
+          this.updateTransfersProxy({ replace: true }) : resolve(),
       ]);
     },
 

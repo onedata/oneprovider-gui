@@ -8,10 +8,12 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { get, getProperties } from '@ember/object';
+import { getProperties } from '@ember/object';
+import gri from 'onedata-gui-websocket-client/utils/gri';
 
 export default Service.extend({
   store: service(),
+  onedataGraph: service(),
   onedataRpc: service(),
 
   /**
@@ -24,21 +26,34 @@ export default Service.extend({
 
   /**
    * @param {Models.File} file
-   * @param {string} [endedInfo='count'] one of: count, ids
+   * @param {string} [includeEndedList=false]
    * @returns {RSVP.Promise} A backend operation completion:
    * - `resolve(object: data)` when successfully fetched the list
-   *  - `data.ongoing: Array<string>` - list of non-ended transfers (waiting
+   *  - `data.ongoingList: Array<string>` - list of non-ended transfers (waiting
    *       and outgoing) transfer IDs for the file
-   *  - `data.ended: Array<string>|Number` - list of ended transfer IDs for the file,
-   *       which size is limited to the value of
-   *       `session.sessionDetails.config.transfersHistoryLimitPerFile`
-   *        or number of ended transfers if endedInfo is "count"
+   *  - `data.endedCount` Math.min(number of ended transfers, transfersHistoryLimitPerFile)
+   *  - `data.endedList` (optional, exists if includeEndedList was true) list of ended
+   *       transfer IDs for the file, which size is limited to the value of
+   *       transfersHistoryLimitPerFile
    * - `reject(object: error)` on failure
    */
-  getTransfersForFile(file, endedInfo = 'count') {
-    return this.get('onedataRpc').request('getFileTransfers', {
-      guid: get(file, 'entityId'),
-      endedInfo,
+  getTransfersForFile(file, includeEndedList = false) {
+    const {
+      entityType,
+      entityId,
+    } = getProperties(file, 'entityType', 'entityId');
+    const transferGri = gri({
+      entityType,
+      entityId,
+      aspect: 'transfers',
+    });
+    return this.get('onedataGraph').request({
+      gri: transferGri,
+      operation: 'get',
+      data: {
+        include_ended_list: includeEndedList,
+      },
+      subscribe: false,
     });
   },
 

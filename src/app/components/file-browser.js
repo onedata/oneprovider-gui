@@ -370,13 +370,17 @@ export default Component.extend(I18n, {
   btnDistribution: computed(function btnDistribution() {
     return this.createFileAction({
       id: 'distribution',
-      showIn: [...anySelected, actionContext.currentDir],
+      showIn: [
+        ...anySelected,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
       action: () => {
         const {
           openFileDistributionModal,
           selectedFiles,
         } = this.getProperties('openFileDistributionModal', 'selectedFiles');
-        return openFileDistributionModal(selectedFiles);
+        return openFileDistributionModal(selectedFiles.toArray());
       },
     });
   }),

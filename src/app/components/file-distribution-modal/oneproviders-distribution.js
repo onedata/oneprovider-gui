@@ -114,14 +114,31 @@ export default Component.extend(I18n, {
 
   isDistributionLoading: array.isAny('fileDistributionData', 'isFileDistributionLoading'),
 
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
   isDistributionLoaded: computed('fileDistributionData.@each.fileDistribution', function isDistributionLoaded() {
-    return this.get('fileDistributionData').mapBy('fileDistribution').every(value => value);
+    const {
+      fileDistributionData,
+      isDistributionError,
+    } = this.getProperties('fileDistributionData', 'isDistributionError');
+
+    return !isDistributionError && fileDistributionData
+      .filterBy('fileType', 'file')
+      .mapBy('fileDistribution')
+      .every(value => value);
   }),
 
-  isDistributionError: array.isAny('fileDistributionData', 'isFileDistributionError'),
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isDistributionError: array.isAny('fileDistributionData', raw('isFileDistributionError')),
   
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
   distributionErrorReason: computed('fileDistributionData.@each.fileDistributionErrorReason', function distributionErrorReason() {
-    return this.get('fileDistributionData').mapBy('fileDistribution').compact().objectAt(0);
+    return this.get('fileDistributionData').mapBy('fileDistributionErrorReason').compact().objectAt(0);
   }),
 
   /**
