@@ -23,6 +23,7 @@
     <ul>
       {{#each oneproviders key="id" as |oneprovider|}}
         {{file-distribution-modal/oneproviders-distribution-item
+          class=(concat "oneprovider-" oneprovider.entityId)
           oneprovider=oneprovider
           spaceHasSingleOneprovider=(eq oneproviders.length 1)
           fileDistributionData=fileDistributionData

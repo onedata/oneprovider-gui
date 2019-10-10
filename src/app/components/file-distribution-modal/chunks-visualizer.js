@@ -15,6 +15,7 @@ import { scheduleOnce } from '@ember/runloop';
 
 export default Component.extend(I18n, {
   classNames: ['chunks-visualizer'],
+  classNameBindings: ['neverSynchronized:never-synchronized:synchronized'],
 
   i18n: service(),
 

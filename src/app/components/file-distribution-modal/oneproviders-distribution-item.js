@@ -17,12 +17,15 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { inject as service } from '@ember/service';
 
 const emptyChunksBarData = { 0: 0 };
 
 export default Component.extend(I18n, {
   tagName: 'li',
   classNames: ['oneproviders-distribution-item'],
+
+  i18n: service(),
 
   /**
    * @override
