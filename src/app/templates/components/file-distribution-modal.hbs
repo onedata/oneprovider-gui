@@ -7,7 +7,7 @@
     <h1>{{tt this "header"}}</h1>
   {{/modal.header}}
   {{#modal.body}}
-    {{#promise-proxy-container proxy=modalModelProxy}}
+    {{#promise-proxy-container proxy=oneprovidersProxy}}
       {{#if (eq oneproviders.length 1)}}
         <div class="alert alert-info">{{tt this "onlySingleOneproviderSupport"}}</div>
       {{/if}}
@@ -48,7 +48,7 @@
               {{#listItem.content}}
                 <div class="list-content">
                   {{file-distribution-modal/oneproviders-distribution
-                    visible=listItem.isActive
+                    visible=(if (eq fileDistributionData.length 1) true listItem.isActive)
                     oneproviders=oneproviders
                     fileDistributionData=(array fileDistDataContainer)
                     onReplicate=(action "replicate" (array fileDistDataContainer.file))

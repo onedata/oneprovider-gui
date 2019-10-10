@@ -36,15 +36,17 @@
             proxy=fileDistributionData.firstObject.transfersProxy
             isLoading=(and fileDistributionData.firstObject.transfersProxy.isPending (not fileDistributionData.firstObject.transfersProxy.content))
             alwaysRender=true
-            customErrorMessage=(tt this "cannotLoadTransfers")}}
+            customErrorMessage=(tt this "cannotLoadTransfers")
+            absoluteCentered=false
+            sizeClass="xxs"}}
             {{#if fileDistributionData.firstObject.transfersProxy.content}}
               {{#if activeTransfersExist}}
-                {{tt this "currentlyTransferredText" elementType=(tt this fileDistributionData.firstObject.file.type)}}
+                {{tt this "currentlyTransferredText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
                 &ndash;
                 <a class="clickable" {{action "navigateToTransfers" fileDistributionData.firstObject.file}}>{{tt this "currentlyTransferredLink"}}</a>.
               {{else if endedTransfersCount}}
                 {{tt this "endedTransfersText"
-                  elementType=(tt this fileDistributionData.firstObject.file.type)
+                  elementType=(tt this fileDistributionData.firstObject.fileType)
                   count=endedTransfersCount
                   countUnit=(tt this (if (gt endedTransfersCount 1) "times" "time"))}}
                 {{#if endedTransfersOverflow}}
@@ -53,7 +55,7 @@
                 &ndash;
                 <a class="clickable" {{action "navigateToTransfers" fileDistributionData.firstObject.file}}>{{tt this "endedTransfersLink"}}</a>.
               {{else}}
-                {{tt this "noTransfersText" elementType=(tt this fileDistributionData.firstObject.file.type)}}
+                {{tt this "noTransfersText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
               {{/if}}
             {{/if}}
           {{/promise-proxy-container}}

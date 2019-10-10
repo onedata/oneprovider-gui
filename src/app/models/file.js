@@ -55,7 +55,7 @@ export default Model.extend(GraphSingleModelMixin, {
    * Contains error of loading file distribution. Is null if distribution has not
    * been fetched yet or it has been fetched successfully. It is persisted in this place
    * due to the bug in Ember that makes belongsTo relationship unusable after
-   * rejected fetch (id and value becomes null).
+   * rejected fetch (id and value become null).
    * @type {Object}
    */
   distributionLoadError: null,

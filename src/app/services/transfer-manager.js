@@ -26,7 +26,7 @@ export default Service.extend({
 
   /**
    * @param {Models.File} file
-   * @param {string} [includeEndedList=false]
+   * @param {boolean} [includeEndedList=false]
    * @returns {RSVP.Promise} A backend operation completion:
    * - `resolve(object: data)` when successfully fetched the list
    *  - `data.ongoingList: Array<string>` - list of non-ended transfers (waiting
@@ -59,7 +59,7 @@ export default Service.extend({
 
   /**
    * @param {Models.File} file 
-   * @param {Models.Oneprovider} destinationOneprovider
+   * @param {Models.Provider} destinationOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startReplication(file, destinationOneprovider) {
@@ -78,8 +78,8 @@ export default Service.extend({
 
   /**
    * @param {Models.File} file 
-   * @param {Models.Oneprovider} sourceOneprovider
-   * @param {Models.Oneprovider} destinationOneprovider
+   * @param {Models.Provider} sourceOneprovider
+   * @param {Models.Provider} destinationOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startMigration(file, sourceOneprovider, destinationOneprovider) {
@@ -99,7 +99,7 @@ export default Service.extend({
 
   /**
    * @param {Models.File} file 
-   * @param {Models.Oneprovider} sourceOneprovider
+   * @param {Models.Provider} sourceOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startEviction(file, sourceOneprovider) {

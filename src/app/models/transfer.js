@@ -104,13 +104,13 @@ export default Model.extend(GraphSingleModelMixin, {
 
   /**
    * Destination of this transfer
-   * @type {Models.Oneprovider}
+   * @type {Models.Provider}
    */
   replicatingProvider: belongsTo('provider'),
 
   /**
    * Oneprovider that will evict the file after this transfer
-   * @type {Models.Oneprovider}
+   * @type {Models.Provider}
    */
   evictingProvider: belongsTo('provider'),
 

@@ -1,11 +1,20 @@
+/**
+ * Shows distribution and transfer-related operations for each passed Oneprovider
+ * in terms of selected files.
+ * 
+ * @module components/file-distribution-modal/oneproviders-distribution
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
-import { observer, getProperties, computed } from '@ember/object';
+import { observer, get, set, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { conditional, raw, notEmpty, array } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { Promise, resolve } from 'rsvp';
+import { Promise } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
@@ -46,32 +55,36 @@ export default Component.extend(I18n, {
 
   /**
    * @type {Function}
-   * @param {Models.Oneprovider} destinationOneprovider
+   * @param {Models.Provider} destinationOneprovider
    * @returns {undefined}
    */
   onReplicate: notImplementedThrow,
 
   /**
    * @type {Function}
-   * @param {Models.Oneprovider} sourceOneprovider
-   * @param {Models.Oneprovider} destinationOneprovider
+   * @param {Models.Provider} sourceOneprovider
+   * @param {Models.Provider} destinationOneprovider
    * @returns {undefined}
    */
   onMigrate: notImplementedThrow,
 
   /**
    * @type {Function}
-   * @param {Models.Oneprovider} sourceOneprovider
+   * @param {Models.Provider} sourceOneprovider
    * @returns {undefined}
    */
   onEvict: notImplementedThrow,
 
   /**
-   * @type {Models.Oneprovider}
+   * Migration source Oneprovider used in destination-oneprovider-selector. Needed to
+   * create new migration transfer.
+   * @type {Models.Provider}
    */
   newMigrationSourceOneprovider: null,
 
   /**
+   * If true, then Oneprovider under newMigrationSourceOneprovider has active transfers.
+   * Used to show (or not) confirmation of creating subsequent transfer.
    * @type {boolean}
    */
   newMigrationSourceHasActiveTransfers: false,
@@ -82,15 +95,22 @@ export default Component.extend(I18n, {
   isMigrationDestinationSelectorVisible: notEmpty('newMigrationSourceOneprovider'),
 
   /**
-   * @type {string}
+   * Type of transfer user want to create and which can result in starting a
+   * subsequent transfer on some Oneprovider.
+   * Possible values: replication, migration, eviction
+   * @type {string|null}
    */
   startSubsequentTransferType: null,
 
   /**
+   * Data needed by transfer user want to create and which can result in starting a
+   * subsequent transfer on some Oneprovider.
+   * 
+   * Format:
    * ```
    * {
-   *   sourceOneprovider: Models.Oneprovider|undefined,
-   *   destinationOneprovider: Models.Oneprovider|undefined,
+   *   sourceOneprovider: Models.Provider|undefined,
+   *   destinationOneprovider: Models.Provider|undefined,
    * }
    * ```
    * @type {Object}
@@ -98,50 +118,77 @@ export default Component.extend(I18n, {
   startSubsequentTransferData: null,
 
   /**
-   * @type {boolean}
+   * @type {Ember.ComputedProperty<boolean>}
    */
   isStartSubsequentTransferConfirmationVisible: notEmpty('startSubsequentTransferType'),
 
-
   /**
-   * `resolve()` callback for the promise binded to migration action. Should be
-   * eventually called either with no arguments (when choosing target
-   * oneprovider was cancelled) or with result promise of migration.
+   * `resolve()` callback for the startTransferPromise Promise. Is not empty only
+   * when startTransferPromise exists. Allows to fulfill startTransferPromise outside
+   * Promise inner function scope.
    * @type {Function}
    * @returns {Promise}
    */
-  startTransferPromiseResolveCallback: notImplementedIgnore,
+  startTransferPromiseResolveCallback: null,
 
-  isDistributionLoading: array.isAny('fileDistributionData', 'isFileDistributionLoading'),
+  /**
+   * Is null until user wants to start new transfer. In that case it becomes a Promise,
+   * which resolves when the process of creating new transfers ends (either successfully
+   * or by cancel). Allows to hide multistep logic of creating a transfer (asking
+   * for creating possible subsequent transfer, selecting migration target, etc.) behind a
+   * single Promise.
+   */
+  startTransferPromise: null,
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  isDistributionLoaded: computed('fileDistributionData.@each.fileDistribution', function isDistributionLoaded() {
-    const {
-      fileDistributionData,
-      isDistributionError,
-    } = this.getProperties('fileDistributionData', 'isDistributionError');
-
-    return !isDistributionError && fileDistributionData
-      .filterBy('fileType', 'file')
-      .mapBy('fileDistribution')
-      .every(value => value);
-  }),
+  isDistributionLoading: array.isAny(
+    'fileDistributionData',
+    'isFileDistributionLoading'
+  ),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  isDistributionError: array.isAny('fileDistributionData', raw('isFileDistributionError')),
+  isDistributionLoaded: computed(
+    'fileDistributionData.@each.fileDistribution',
+    function isDistributionLoaded() {
+      const {
+        fileDistributionData,
+        isDistributionError,
+      } = this.getProperties('fileDistributionData', 'isDistributionError');
+
+      return !isDistributionError && fileDistributionData
+        .filterBy('fileType', 'file')
+        .mapBy('fileDistribution')
+        .every(value => value);
+    }
+  ),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  isDistributionError: array.isAny(
+    'fileDistributionData',
+    raw('isFileDistributionError')
+  ),
   
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  distributionErrorReason: computed('fileDistributionData.@each.fileDistributionErrorReason', function distributionErrorReason() {
-    return this.get('fileDistributionData').mapBy('fileDistributionErrorReason').compact().objectAt(0);
-  }),
+  distributionErrorReason: computed(
+    'fileDistributionData.@each.fileDistributionErrorReason',
+    function distributionErrorReason() {
+      return this.get('fileDistributionData')
+        .mapBy('fileDistributionErrorReason')
+        .compact()
+        .objectAt(0);
+    }
+  ),
 
   /**
+   * Only for the first file (non-batch mode)
    * @type {Ember.ComputedProperty<boolean>}
    */
   activeTransfersExist: conditional(
@@ -151,17 +198,19 @@ export default Component.extend(I18n, {
   ),
 
   /**
+   * Only for the first file (non-batch mode)
    * @type {Ember.ComputedProperty<number>}
    */
   endedTransfersCount: reads('fileDistributionData.firstObject.endedTransfersCount'),
 
   /**
+   * Only for the first file (non-batch mode)
    * @type {Ember.ComputedProperty<boolean>}
    */
   endedTransfersOverflow: reads('fileDistributionData.firstObject.endedTransfersOverflow'),
 
   /**
-   * @type {Ember.ComputedProperty<Array<Models.Oneprovider>>}
+   * @type {Ember.ComputedProperty<Array<Models.Provider>>}
    */
   disabledMigrationTargets: computed(
     'fileDistributionData.@each.activeTransfers',
@@ -175,10 +224,12 @@ export default Component.extend(I18n, {
   ),
 
   visibleObserver: observer('visible', function visibleObserver() {
-    this.get('fileDistributionData').setEach(
-      'keepDataUpdated',
-      this.get('visible')
-    );
+    const visible = this.get('visible');
+    this.get('fileDistributionData').forEach(fileDistributionContainer => {
+      if (get(fileDistributionContainer, 'keepDataUpdated') !== visible) {
+        set(fileDistributionContainer, 'keepDataUpdated', visible);
+      }
+    });
   }),
 
   init() {
@@ -195,21 +246,39 @@ export default Component.extend(I18n, {
     }
   },
 
+  /**
+   * @param {Models.Provider} destinationOneprovider
+   * @returns {Promise}
+   */
   startReplication(destinationOneprovider) {
     return this.get('onReplicate')(destinationOneprovider)
       .finally(() => this.resolveStartTransferPromise());
   },
 
+  /**
+   * @param {Models.Provider} sourceOneprovider
+   * @param {Models.Provider} destinationOneprovider
+   * @returns {Promise}
+   */
   startMigration(sourceOneprovider, destinationOneprovider) {
     return this.get('onMigrate')(sourceOneprovider, destinationOneprovider)
       .finally(() => this.resolveStartTransferPromise());
   },
 
+  /**
+   * @param {Models.Provider} sourceOneprovider
+   * @returns {Promise}
+   */
   startEviction(sourceOneprovider) {
     return this.get('onEvict')(sourceOneprovider)
       .finally(() => this.resolveStartTransferPromise());
   },
 
+  /**
+   * Creates new Promise, which will resolve when starting transfer will be done
+   * (with success or not).
+   * @returns {Promise}
+   */
   newStartTransferPromise() {
     const promise = new Promise(resolve => {
       this.set('startTransferPromiseResolveCallback', resolve);
@@ -218,10 +287,17 @@ export default Component.extend(I18n, {
     return promise;
   },
 
+  /**
+   * Resolves promise previously created in `newStartTransferPromise` method.
+   * @returns {undefined}
+   */
   resolveStartTransferPromise() {
     const startTransferPromiseResolveCallback = this.get('startTransferPromiseResolveCallback');
     if (startTransferPromiseResolveCallback) {
-      safeExec(this, () => this.set('startTransferPromiseResolveCallback', null));
+      safeExec(this, () => this.setProperties({
+        startTransferPromise: null,
+        startTransferPromiseResolveCallback: null,
+      }));
       startTransferPromiseResolveCallback();
     }
   },
@@ -251,9 +327,11 @@ export default Component.extend(I18n, {
       const {
         newMigrationSourceOneprovider,
         newMigrationSourceHasActiveTransfers,
+        startTransferPromise,
       } = this.getProperties(
         'newMigrationSourceOneprovider',
         'newMigrationSourceHasActiveTransfers',
+        'startTransferPromise'
       );
       this.setProperties({
         newMigrationSourceOneprovider: null,
@@ -268,8 +346,7 @@ export default Component.extend(I18n, {
             destinationOneprovider,
           },
         });
-        // Resolve immediately because transfer is not created now
-        return resolve();
+        return startTransferPromise;
       } else {
         return this.startMigration(newMigrationSourceOneprovider, destinationOneprovider);
       }

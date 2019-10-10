@@ -238,8 +238,9 @@
     }
 
     .never-synchronized-background {
+      flex-grow: 1;
+      min-width: 0;
       height: 18px;
-      width: 320px;
       background-image: linear-gradient(
         -45deg,
         $color-one-light-blue 25%,

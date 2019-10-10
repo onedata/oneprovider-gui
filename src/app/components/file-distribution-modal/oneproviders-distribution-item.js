@@ -1,3 +1,13 @@
+/**
+ * Shows distribution and transfer-related operations for Oneprovider in
+ * terms of selected files.
+ * 
+ * @module components/file-distribution-modal/oneproviders-distribution-item
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { collect, notEmpty } from '@ember/object/computed';
@@ -7,6 +17,8 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+
+const emptyChunksBarData = { 0: 0 };
 
 export default Component.extend(I18n, {
   tagName: 'li',
@@ -66,6 +78,12 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   evictionInvoked: false,
+
+  /**
+   * Describes max index of chunk, that can be reseived from backend
+   * @type {number}
+   */
+  chunksRange: 320,
 
   /**
    * `fileDistributionData` narrowed to files only
@@ -161,6 +179,7 @@ export default Component.extend(I18n, {
     'filesOnlyDistributionData.@each.{fileSize,fileDistribution}',
     'hasSingleFile',
     'oneprovider',
+    'chunksRange',
     function chunksBarData() {
       const {
         filesOnlyDistributionData,
@@ -168,20 +187,22 @@ export default Component.extend(I18n, {
         hasAllFilesDistributions,
         hasSingleFile,
         oneprovider,
+        chunksRange,
       } = this.getProperties(
         'filesOnlyDistributionData',
         'filesSize',
         'hasAllFilesDistributions',
         'hasSingleFile',
-        'oneprovider'
+        'oneprovider',
+        'chunksRange'
       );
 
       if (!hasAllFilesDistributions || !filesSize) {
-        return { 0: 0 };
+        return emptyChunksBarData;
       } else if (hasSingleFile) {
         const fileDistribution =
           filesOnlyDistributionData[0].getDistributionForOneprovider(oneprovider);
-        return (fileDistribution && get(fileDistribution, 'chunksBarData')) || { 0: 0 };
+        return (fileDistribution && get(fileDistribution, 'chunksBarData')) || emptyChunksBarData;
       } else {
         const chunks = {};
         let chunksOffset = 0;
@@ -191,13 +212,12 @@ export default Component.extend(I18n, {
             const fileShare = fileSize / filesSize;
             const fileDistribution =
               fileDistDataContainer.getDistributionForOneprovider(oneprovider);
-            const chunksBarData = (fileDistribution && get(fileDistribution, 'chunksBarData')) || { 0: 0 };
-            if (chunksBarData) {
-              Object.keys(chunksBarData).forEach(key => {
-                chunks[Number(key) * fileShare + chunksOffset] = get(chunksBarData, key);
-              });
-            }
-            chunksOffset += fileShare * 320;
+            const chunksBarData =
+              (fileDistribution && get(fileDistribution, 'chunksBarData')) || emptyChunksBarData;
+            Object.keys(chunksBarData).forEach(key => {
+              chunks[Number(key) * fileShare + chunksOffset] = get(chunksBarData, key);
+            });
+            chunksOffset += fileShare * chunksRange;
           }
         });
         return chunks;
@@ -301,7 +321,7 @@ export default Component.extend(I18n, {
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
 
-      const someNeverSynchronized = hasDirs ? false : fileDistributionData
+      const someNeverSynchronized = hasDirs ? true : fileDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForOneprovider(oneprovider)
         )
@@ -311,10 +331,8 @@ export default Component.extend(I18n, {
 
       if (spaceHasSingleOneprovider) {
         state.tooltip = this.t('disabledReplicationSingleOneprovider');
-      } else if (!(hasDirs || someNeverSynchronized || percentage < 100)) {
-        if (!someNeverSynchronized && percentage === 100) {
-          state.tooltip = this.t('disabledReplicationIsComplete');
-        }
+      } else if (!(someNeverSynchronized || percentage < 100)) {
+        state.tooltip = this.t('disabledReplicationIsComplete');
       } else {
         state.enabled = true;
         state.tooltip = this.t('replicationStart');
@@ -428,39 +446,45 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  migrateAction: computed('migrateActionState', function migrateAction() {
-    const {
-      enabled,
-      tooltip,
-    } = getProperties(this.get('migrateActionState'), 'enabled', 'tooltip');
-    return {
-      icon: 'migrate',
-      title: this.t('migrate'),
-      tip: tooltip,
-      class: 'migrate-action-trigger',
-      action: () => this.startMigration(),
-      disabled: !enabled,
-    };
-  }),
+  migrateAction: computed(
+    'migrateActionState.{enabled,tooltip}',
+    function migrateAction() {
+      const {
+        enabled,
+        tooltip,
+      } = getProperties(this.get('migrateActionState'), 'enabled', 'tooltip');
+      return {
+        icon: 'migrate',
+        title: this.t('migrate'),
+        tip: tooltip,
+        class: 'migrate-action-trigger',
+        action: () => this.startMigration(),
+        disabled: !enabled,
+      };
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  evictAction: computed('evictActionState', function evictAction() {
-    const {
-      enabled,
-      tooltip,
-    } = getProperties(this.get('evictActionState'), 'enabled', 'tooltip');
+  evictAction: computed(
+    'evictActionState.{enabled,tooltip}',
+    function evictAction() {
+      const {
+        enabled,
+        tooltip,
+      } = getProperties(this.get('evictActionState'), 'enabled', 'tooltip');
 
-    return {
-      icon: 'invalidate',
-      title: this.t('evict'),
-      tip: tooltip,
-      class: 'evict-action-trigger',
-      action: () => this.startEviction(),
-      disabled: !enabled,
-    };
-  }),
+      return {
+        icon: 'invalidate',
+        title: this.t('evict'),
+        tip: tooltip,
+        class: 'evict-action-trigger',
+        action: () => this.startEviction(),
+        disabled: !enabled,
+      };
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Array<Action>>}
@@ -477,7 +501,7 @@ export default Component.extend(I18n, {
   blocksExistOnOtherOneproviders: computed(
     'oneprovider',
     'spaceHasSingleOneprovider',
-    'fileDistributionData.@each(fileType,fileDistribution}',
+    'fileDistributionData.@each.{fileType,fileDistribution}',
     'filesSize',
     function blocksExistOnOtherOneproviders() {
       const {

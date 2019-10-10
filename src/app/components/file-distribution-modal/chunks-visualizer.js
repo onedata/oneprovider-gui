@@ -1,3 +1,12 @@
+/**
+ * Renders visualization of file chunks presence.
+ * 
+ * @module components/file-distribution-modal/chunks-visualizer
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
@@ -39,9 +48,10 @@ export default Component.extend(I18n, {
   fileSize: undefined,
 
   /**
+   * @virtual
    * @type {number}
    */
-  chunksRange: 320,
+  chunksRange: undefined,
 
   /**
    * @type {string}

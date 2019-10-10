@@ -51,6 +51,7 @@ export default {
   destinationOneproviderSelector: {
     descriptionForManyFiles: 'Select destination for migrating selected files and directories:',
     descriptionForOneFile: 'Select destination for migrating {{fileName}}:',
+    selectTargetDropdownPlaceholder: 'Select target...',
     migrationArrowText: 'migrate to',
     busy: 'busy',
     cancelButton: 'Cancel',

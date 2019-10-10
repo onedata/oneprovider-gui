@@ -83,8 +83,10 @@ export default OneEmbeddedComponent.extend(
      * @override
      */
     fetchSpaceRootDir() {
-      const injectedDirGri = this.get('injectedDirGri');
-      const spaceProxy = this.get('spaceProxy');
+      const {
+        injectedDirGri,
+        spaceProxy,
+      } = this.getProperties('injectedDirGri', 'spaceProxy');
       
       if (injectedDirGri) {
         return spaceProxy.then(() =>

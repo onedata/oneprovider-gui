@@ -19,14 +19,13 @@
   {{#power-select
     triggerClass="small"
     dropdownClass="small"
-    placeholder="Select target..."
+    placeholder=(tt this "selectTargetDropdownPlaceholder")
     disabled=(not canSelectOneprovider)
     options=oneprovidersDropdownOptions
     selected=destinationOneproviderItem
     onchange=(action "selectOneprovider")
     searchField="name"
     searchEnabled=true
-    renderInPlace=true
     as |item|}}
     {{#truncated-string}}
       <div class="inline-icon-container">
