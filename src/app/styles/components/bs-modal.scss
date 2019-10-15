@@ -1,5 +1,6 @@
-.modal-dialog {
-  box-shadow: 0px 0px 40px 0px rgba(0, 0, 0, 0.2);
+.modal.in .modal-dialog {
+  max-height: calc(100% - 16px);
+  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.3);
   // a fix for the semi-transparent border of modal
   .modal-content {
     background-clip: unset;
@@ -9,7 +10,18 @@
 
 .modal-backdrop {
   &.in, &.fade {
-    opacity: 0;
-    filter: alpha(opacity=0);
+    background-color: $main-tabbed-content-background;
+  }
+}
+
+@media (max-width: $screen-xs-max) {
+  .modal.in .modal-dialog {
+    width: calc(100% - 16px);
+    .modal-content {
+      padding: 0;
+    }
+    .btn {
+      padding: 8px 24px;
+    }
   }
 }

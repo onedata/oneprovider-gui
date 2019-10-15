@@ -4,8 +4,8 @@ $-file-browser-item-height: 32px;
 $-file-browser-padding-left: 12px;
 // light padding at the right to make some space for scrollbar rail
 $-file-browser-padding-right: 16px;
-// FIXME: compute using variables
-$-fb-table-margin-top: 67px;
+$-fb-table-margin-top: 50px;
+$-fb-table-margin-top-mobile: 36px;
 
 .embedded-content {
   .file-browser-head-container {
@@ -20,6 +20,9 @@ $-fb-table-margin-top: 67px;
 
 .file-browser {
   height: calc(100% - #{$-fb-table-margin-top});
+  @media (max-width: $screen-xs-max) {
+    height: calc(100% - #{$-fb-table-margin-top-mobile});
+  }
   .file-browser-head-container {
     position: fixed;
     z-index: $zindex-modal-background - 1;
@@ -39,6 +42,7 @@ $-fb-table-margin-top: 67px;
     @media (max-width: $screen-xs-max) {
       padding-left: 10px;
       padding-right: 20px;
+      padding-top: 0;
     }
   }
 }
@@ -54,6 +58,9 @@ $-fb-table-margin-top: 67px;
 .fb-table-container {
   margin-top: $-fb-table-margin-top;
   height: 100%;
+  @media (max-width: $screen-xs-max) {
+    height: $-fb-table-margin-top-mobile;
+  }
 }
 
 .fb-toolbar-container {
