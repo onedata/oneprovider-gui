@@ -10,7 +10,6 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { resolve } from 'rsvp';
-import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend({
   space: computed(function space() {
@@ -42,70 +41,79 @@ export default Component.extend({
         name: 'adsf',
         size: 1024,
         type: 'file',
-        distribution: PromiseObject.create({
-          promise: resolve({
-            distributionPerProvider: {
-              123: {
-                blocksPercentage: 50,
-                chunksBarData: {
-                  0: 50,
-                  120: 0,
-                  220: 100,
+        belongsTo(relation) {
+          if (relation === 'distribution') {
+            return {
+              reload: () => resolve({
+                distributionPerProvider: {
+                  123: {
+                    blocksPercentage: 50,
+                    chunksBarData: {
+                      0: 50,
+                      120: 0,
+                      220: 100,
+                    },
+                    neverSynchronized: false,
+                  },
+                  456: {
+                    blocksPercentage: 50,
+                    chunksBarData: {
+                      0: 50,
+                      120: 0,
+                      220: 100,
+                    },
+                    neverSynchronized: false,
+                  },
+                  789: {
+                    blocksPercentage: 0,
+                    chunksBarData: {
+                      0: 0,
+                    },
+                    neverSynchronized: true,
+                  },
                 },
-                neverSynchronized: false,
-              },
-              456: {
-                blocksPercentage: 50,
-                chunksBarData: {
-                  0: 50,
-                  120: 0,
-                  220: 100,
-                },
-                neverSynchronized: false,
-              },
-              789: {
-                blocksPercentage: 0,
-                chunksBarData: {
-                  0: 0,
-                },
-                neverSynchronized: true,
-              },
-            },
-          }),
-        }),
+              }),
+            };
+          }
+        },
       },
       {
         entityId: 'file2',
         name: 'zxcv',
         size: 2048,
         type: 'file',
-        distribution: PromiseObject.create({
-          promise: resolve({
-            distributionPerProvider: {
-              123: {
-                blocksPercentage: 100,
-                chunksBarData: {
-                  0: 100,
+        belongsTo(relation) {
+          if (relation === 'distribution') {
+            return {
+              reload: () => resolve({
+                distributionPerProvider: {
+                  123: {
+                    blocksPercentage: 100,
+                    chunksBarData: {
+                      0: 100,
+                    },
+                    neverSynchronized: false,
+                  },
+                  456: {
+                    blocksPercentage: 0,
+                    chunksBarData: {
+                      0: 0,
+                    },
+                    neverSynchronized: true,
+                  },
+                  789: {
+                    blocksPercentage: 0,
+                    chunksBarData: {
+                      0: 0,
+                    },
+                    neverSynchronized: false,
+                  },
                 },
-                neverSynchronized: false,
-              },
-              456: {
-                blocksPercentage: 0,
-                chunksBarData: {
-                  0: 0,
-                },
-                neverSynchronized: true,
-              },
-              789: {
-                blocksPercentage: 0,
-                chunksBarData: {
-                  0: 0,
-                },
-                neverSynchronized: false,
-              },
-            },
-          }),
-        }),
+              
+              }),
+            };
+          }
+        },
       },
     ];
   }),

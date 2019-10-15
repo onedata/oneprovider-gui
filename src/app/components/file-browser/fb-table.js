@@ -41,6 +41,7 @@ export default Component.extend(I18n, {
   i18n: service(),
   globalNotify: service(),
   errorExtractor: service(),
+  isMobile: service(),
 
   /**
    * @override
@@ -391,6 +392,23 @@ export default Component.extend(I18n, {
     }
   },
 
+  downloadUsingIframe(fileUrl) {
+    const iframe = $('<iframe/>').attr({
+      src: fileUrl,
+      style: 'visibility:hidden;display:none',
+    }).appendTo($('body'));
+    // the time should be long to support some download extensions in Firefox desktop
+    later(() => iframe.remove(), 60000);
+  },
+
+  downloadUsingOpen(fileUrl) {
+    // Apple devices such as iPad tries to open file using its embedded viewer
+    // in any browser, but we cannot say if the file extension is currently supported
+    // so we try to open every file in new tab.
+    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
+    window.open(fileUrl, target);
+  },
+
   openFile(file) {
     const isDir = get(file, 'type') === 'dir';
     if (isDir) {
@@ -488,16 +506,18 @@ export default Component.extend(I18n, {
     const {
       fileManager,
       globalNotify,
-    } = this.getProperties('fileManager', 'globalNotify');
+      isMobile,
+    } = this.getProperties('fileManager', 'globalNotify', 'isMobile');
+    const isMobileBrowser = get(isMobile, 'any');
     return fileManager.getFileDownloadUrl(fileEntityId)
       .then((data) => {
         const fileUrl = data && get(data, 'fileUrl');
         if (fileUrl) {
-          const iframe = $('<iframe/>').attr({
-            src: fileUrl,
-            style: 'visibility:hidden;display:none',
-          }).appendTo($('body'));
-          later(() => iframe.remove(), 1000);
+          if (isMobileBrowser) {
+            this.downloadUsingOpen(fileUrl);
+          } else {
+            this.downloadUsingIframe(fileUrl);
+          }
         } else {
           throw { isOnedataCustomError: true, type: 'empty-file-url' };
         }
@@ -518,10 +538,10 @@ export default Component.extend(I18n, {
       let top;
       const trigger = mouseEvent.currentTarget;
       if (trigger.matches('.one-menu-toggle')) {
-        const $trigger = $(trigger);
-        const toggleOffset = $trigger.offset();
-        left = toggleOffset.left + trigger.clientWidth / 2;
-        top = toggleOffset.top + trigger.clientHeight / 2;
+        const $middleDot = $(trigger).find('.icon-dot').eq(1);
+        const middleDotOffset = $middleDot.offset();
+        left = middleDotOffset.left + 1;
+        top = middleDotOffset.top + 1;
       } else {
         left = mouseEvent.clientX;
         top = mouseEvent.clientY;
@@ -529,7 +549,7 @@ export default Component.extend(I18n, {
       const $this = this.$();
       const tableOffset = $this.offset();
       left = left - tableOffset.left;
-      top = top - tableOffset.top - this.element.offsetTop + this.element.offsetTop;
+      top = top - tableOffset.top;
       this.$('.file-actions-trigger').css({
         top,
         left,

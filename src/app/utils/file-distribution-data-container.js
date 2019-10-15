@@ -205,7 +205,7 @@ export default EmberObject.extend(
      *   ongoingList: Array<Models.Transfer>,
      *   endedCount: number,
      *   endedOverflow: boolean, // true if ended transfers number is
-     *     (potentially) greater than backend listing limit
+     *     greater than or equal to backend listing limit
      * }
      * ```
      * 

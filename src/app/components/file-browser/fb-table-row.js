@@ -18,6 +18,10 @@ import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-cl
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
+function isEventFromMenuToggle(event) {
+  return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
+}
+
 export default Component.extend(I18n, FastDoubleClick, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
@@ -32,11 +36,18 @@ export default Component.extend(I18n, FastDoubleClick, {
   fileActions: service(),
   errorExtractor: service(),
   media: service(),
+  visualLogger: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbTableRow',
+
+  /**
+   * @override
+   * Prevent adding pointer style
+   */
+  ignoreTouchAction: true,
 
   /**
    * @virtual
@@ -180,7 +191,7 @@ export default Component.extend(I18n, FastDoubleClick, {
      * @returns {undefined}
      */
     return function ontouchstart(touchstartEvent) {
-      if (touchstartEvent.target.matches('.one-menu-toggle *')) {
+      if (isEventFromMenuToggle(touchstartEvent)) {
         return false;
       } else {
         const touchTimer = later(touchTimerHandler, get(component, 'holdTime'));
@@ -196,7 +207,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   touchendHandler: computed(function touchendHandler() {
     const component = this;
     return function ontouchend(touchendEvent) {
-      if (touchendEvent.target.matches('.one-menu-toggle *')) {
+      if (isEventFromMenuToggle(touchendEvent)) {
         return false;
       } else {
         const {

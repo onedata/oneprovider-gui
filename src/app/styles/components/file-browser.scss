@@ -4,8 +4,8 @@ $-file-browser-item-height: 32px;
 $-file-browser-padding-left: 12px;
 // light padding at the right to make some space for scrollbar rail
 $-file-browser-padding-right: 16px;
-// FIXME: compute using variables
-$-fb-table-margin-top: 67px;
+$-fb-table-margin-top: 50px;
+$-fb-table-margin-top-mobile: 36px;
 
 .embedded-content {
   .file-browser-head-container {
@@ -20,6 +20,9 @@ $-fb-table-margin-top: 67px;
 
 .file-browser {
   height: calc(100% - #{$-fb-table-margin-top});
+  @media (max-width: $screen-xs-max) {
+    height: calc(100% - #{$-fb-table-margin-top-mobile});
+  }
   .file-browser-head-container {
     position: fixed;
     z-index: $zindex-modal-background - 1;
@@ -39,6 +42,7 @@ $-fb-table-margin-top: 67px;
     @media (max-width: $screen-xs-max) {
       padding-left: 10px;
       padding-right: 20px;
+      padding-top: 0;
     }
   }
 }
@@ -54,6 +58,9 @@ $-fb-table-margin-top: 67px;
 .fb-table-container {
   margin-top: $-fb-table-margin-top;
   height: 100%;
+  @media (max-width: $screen-xs-max) {
+    height: $-fb-table-margin-top-mobile;
+  }
 }
 
 .fb-toolbar-container {
@@ -110,8 +117,8 @@ $-fb-table-margin-top: 67px;
   }
   &.desktop-mode {
     .one-pill-button {
-      @include vertical-align-middle;
-      position: relative;
+      display: inline-block;
+      vertical-align: middle;
     }
   }
 }
@@ -283,12 +290,29 @@ $-fb-table-margin-top: 67px;
     width: 200px;
     text-align: center;
   }
-  .fb-table-col-actions-menu {
+  td.fb-table-col-actions-menu {
     position: relative;
     width: 56px;
+    min-height: 61px;
     padding: 0;
-    .file-row-actions-trigger {
-      @include vertical-align-middle;
+    // TODO: a style bug that is only in Firefox: menu toggle is not 100% height
+    // so the context menu displayed from menu trigger is not from center
+    .file-row-actions-trigger.one-menu-toggle {
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      &:hover {
+        .menu-toggle-frame {
+          background-color: transparent;
+        }
+      }
+      .menu-toggle-frame {
+        @include absolute-align-middle-center;
+        transform: translateY(-50%) translateX(-50%) translateX(-14px);
+        display: inline-block;
+        border: none;
+        padding: 0;
+      }
     }
   }
   .table-bottom-spacing {
@@ -331,6 +355,13 @@ $-fb-table-margin-top: 67px;
       }
       .file-info-mobile {
         display: none;
+      }
+      .file-icon-container {
+        .inline-icon-container-file {
+          position: relative;
+          top: 50%;
+          transform: translateY(-50%) translateY(-3px);
+        }
       }
       @media (max-width: $screen-xs-max) {
         .file-info-mobile {
