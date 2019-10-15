@@ -6,6 +6,7 @@ import aclEditor from './components/acl-editor';
 import editPermissionsModal from './components/edit-permissions-modal';
 import fileBrowser from './components/file-browser';
 import posixPermissionsEditor from './components/posix-permissions-editor';
+import fileDistributionModal from './components/file-distribution-modal';
 
 import uploadManager from './services/upload-manager';
 
@@ -17,6 +18,7 @@ const translations = {
     editPermissionsModal,
     fileBrowser,
     posixPermissionsEditor,
+    fileDistributionModal,
   },
   services: {
     uploadManager,

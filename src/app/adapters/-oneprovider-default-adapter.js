@@ -10,4 +10,14 @@ export default Adapter.extend({
    * @override
    */
   createScope: 'private',
+
+  /**
+   * @override
+   */
+  entityTypeToModelNameMap: Object.freeze(new Map([
+    ['op_group', 'group'],
+    ['op_space', 'space'],
+    ['op_transfer', 'transfer'],
+    ['op_user', 'user'],
+  ])),
 });

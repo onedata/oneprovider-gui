@@ -83,11 +83,6 @@
     box-shadow: none;
   }
 
-  .system-subject-name {
-    font-style: italic;
-    text-transform: uppercase;
-  }
-
   @media (min-width: $screen-sm-min) {
     .one-collapsible-list .list-header-row {
       padding-right: 230px;
@@ -135,15 +130,13 @@
       display: flex;
       align-items: center;
     }
-    .ember-basic-dropdown {
+    .ember-basic-dropdown-trigger {
       flex-grow: 1;
       display: inline-block;
       height: 0;
       min-width: 0;
-      margin-top: -$input-height-base;
-    }
-    .ember-power-select-options {
-      max-height: 200px;
+      margin-top: -$input-height-base / 2;
+      margin-bottom: -$input-height-base / 2;
     }
   }
 
@@ -156,3 +149,17 @@
     }
   }
 }
+
+.acl-editor, .add-user-group-ace-dropdown {
+  .system-subject-name {
+    font-style: italic;
+    text-transform: uppercase;
+  }
+}
+
+.add-user-group-ace-dropdown {
+  .ember-power-select-options {
+    max-height: 200px;
+  }
+}
+

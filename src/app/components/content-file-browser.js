@@ -83,17 +83,19 @@ export default OneEmbeddedComponent.extend(
      * @override
      */
     fetchSpaceRootDir() {
-      const injectedDirGri = this.get('injectedDirGri');
-      if (injectedDirGri) {
-        return this.get('store')
-          .findRecord(
-            'file',
-            injectedDirGri
-          );
-      } else {
-        return this.get('spaceProxy')
-          .then(space => get(space, 'rootDir'));
-      }
+      const {
+        injectedDirGri,
+        spaceProxy,
+        store,
+      } = this.getProperties('injectedDirGri', 'spaceProxy', 'store');
+
+      return spaceProxy.then(space => {
+        if (injectedDirGri) {
+          return store.findRecord('file', injectedDirGri);
+        } else {
+          return get(space, 'rootDir');
+        }
+      });
     },
 
     actions: {
@@ -146,6 +148,12 @@ export default OneEmbeddedComponent.extend(
       },
       closeEditPermissionsModal() {
         this.set('filesToEditPermissions', null);
+      },
+      openFileDistributionModal(files) {
+        this.set('filesToShowDistribution', files);
+      },
+      closeFileDistributionModal() {
+        this.set('filesToShowDistribution', null);
       },
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);

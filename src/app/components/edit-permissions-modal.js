@@ -165,7 +165,7 @@ export default Component.extend(
      * True only if all files have consistent `activePermissionsType` value.
      * @type {Ember.ComputedProperty<boolean>}
      */
-    
+
     filesHaveCompatibleActivePermissionsType: isEveryTheSame(
       'files',
       raw('activePermissionsType')
@@ -292,7 +292,7 @@ export default Component.extend(
 
     init() {
       this._super(...arguments);
-      
+
       const {
         initialActivePermissionsType,
         initialPosixPermissions,
@@ -300,7 +300,7 @@ export default Component.extend(
         'initialActivePermissionsType',
         'initialPosixPermissions',
       );
-      
+
       this.setProperties({
         activePermissionsType: initialActivePermissionsType,
         posixPermissions: initialPosixPermissions,
@@ -374,7 +374,7 @@ export default Component.extend(
       } = this.getProperties('aclsProxy', 'acl');
       if (!acl) {
         aclsProxy.then(() => {
-          safeExec(this,  () => this.set('acl', this.get('initialAcl')));
+          safeExec(this, () => this.set('acl', this.get('initialAcl')));
         });
       }
     },

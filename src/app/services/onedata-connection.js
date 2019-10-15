@@ -9,6 +9,12 @@
 import config from 'ember-get-config';
 import { environmentExport } from 'onedata-gui-websocket-client/utils/development-environment';
 import ProductionSymbol from 'onedata-gui-websocket-client/services/onedata-connection';
-import DevelopmentSymbol from 'onezone-gui/services/mocks/onedata-connection';
+import DevelopmentSymbol from 'oneprovider-gui/services/mocks/onedata-connection';
+import { reads } from '@ember/object/computed';
 
-export default environmentExport(config, ProductionSymbol, DevelopmentSymbol);
+export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).extend({
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  transfersHistoryLimitPerFile: reads('attributes.transfersHistoryLimitPerFile'),
+});

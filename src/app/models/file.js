@@ -29,6 +29,7 @@ export default Model.extend(GraphSingleModelMixin, {
   type: attr('string'),
   size: attr('number'),
   parent: belongsTo('file'),
+  distribution: belongsTo('file-distribution'),
   owner: belongsTo('user'),
 
   /**
@@ -49,6 +50,15 @@ export default Model.extend(GraphSingleModelMixin, {
   acl: belongsTo('acl'),
 
   modificationTime: alias('mtime'),
+
+  /**
+   * Contains error of loading file distribution. Is null if distribution has not
+   * been fetched yet or it has been fetched successfully. It is persisted in this place
+   * due to the bug in Ember that makes belongsTo relationship unusable after
+   * rejected fetch (id and value become null).
+   * @type {Object}
+   */
+  distributionLoadError: null,
 
   /**
    * @type {boolean}
@@ -116,16 +126,17 @@ export default Model.extend(GraphSingleModelMixin, {
     const superRequests = this._super(...arguments);
 
     switch (operation) {
-      case 'create': {
-        const rpcRequests = get(activeRequests, 'rpcRequests');
-        // Block on listing parent dir files
-        const listParentDirRequests = rpcRequests.filter(request => {
-          return get(request, 'rpcMethodName') === 'getDirChildren' &&
-            get(request, 'data.guid') === get(model.belongsTo('parent').value(),
-              'entityId');
-        });
-        return superRequests.concat(listParentDirRequests);
-      }
+      case 'create':
+        {
+          const rpcRequests = get(activeRequests, 'rpcRequests');
+          // Block on listing parent dir files
+          const listParentDirRequests = rpcRequests.filter(request => {
+            return get(request, 'rpcMethodName') === 'getDirChildren' &&
+              get(request, 'data.guid') === get(model.belongsTo('parent').value(),
+                'entityId');
+          });
+          return superRequests.concat(listParentDirRequests);
+        }
       default:
         return superRequests;
     }

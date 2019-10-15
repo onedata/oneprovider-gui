@@ -418,13 +418,25 @@ export default Component.extend(I18n, {
     }
   },
 
+  addToSelectedFiles(selectedFiles, newFiles) {
+    selectedFiles.addObjects(newFiles);
+
+    if (get(selectedFiles, 'length') > 1) {
+      const filesSourceArray = this.get('filesArray.sourceArray');
+      const filesIndices = new Map(
+        selectedFiles.map(file => [file, filesSourceArray.indexOf(file)])
+      );
+      selectedFiles.sort((a, b) => filesIndices.get(a) - filesIndices.get(b));
+    }
+  },
+
   selectRemoveSingleFile(selectedFiles, file) {
     selectedFiles.removeObject(file);
     this.set('lastSelectedFile', null);
   },
 
   selectAddSingleFile(selectedFiles, file) {
-    selectedFiles.pushObject(file);
+    this.addToSelectedFiles(selectedFiles, [file]);
     this.set('lastSelectedFile', file);
   },
 
@@ -463,7 +475,7 @@ export default Component.extend(I18n, {
 
     const indexA = Math.min(startIndex, fileIndex);
     const indexB = Math.max(startIndex, fileIndex);
-    selectedFiles.addObjects(sourceArray.slice(indexA, indexB + 1));
+    this.addToSelectedFiles(selectedFiles, sourceArray.slice(indexA, indexB + 1));
   },
 
   findNearestSelectedIndex(fileIndex) {

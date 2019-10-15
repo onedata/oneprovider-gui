@@ -117,6 +117,12 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {Function}
+   * @param {Array<Models/File>} files files to show distribution
+   */
+  openFileDistributionModal: notImplementedThrow,
+
+  /**
+   * @virtual
    */
   updateDirEntityId: notImplementedIgnore,
 
@@ -177,7 +183,7 @@ export default Component.extend(I18n, {
       // dynamic popover menu items or contextual buttons).
       if (!isPopoverOpened() && mouseEvent.target.matches('body *') &&
         !mouseEvent.target.matches(
-          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *'
+          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *, .ember-basic-dropdown-content *'
         )) {
         component.clearFilesSelection();
       }
@@ -364,7 +370,18 @@ export default Component.extend(I18n, {
   btnDistribution: computed(function btnDistribution() {
     return this.createFileAction({
       id: 'distribution',
-      showIn: [...anySelected, actionContext.currentDir],
+      showIn: [
+        ...anySelected,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
+      action: () => {
+        const {
+          openFileDistributionModal,
+          selectedFiles,
+        } = this.getProperties('openFileDistributionModal', 'selectedFiles');
+        return openFileDistributionModal(selectedFiles.toArray());
+      },
     });
   }),
 

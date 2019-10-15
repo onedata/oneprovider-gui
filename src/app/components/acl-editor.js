@@ -13,7 +13,8 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import _ from 'lodash';import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
+import _ from 'lodash';
+import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 
 export default Component.extend(I18n, {
   classNames: ['acl-editor'],
@@ -24,7 +25,7 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.aclEditor',
-  
+
   /**
    * Array of ACE (with additional `subject` field with fetched user/group model)
    * @virtual
@@ -64,7 +65,7 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   onChange: notImplementedIgnore,
-  
+
   groupsAndUsers: computed('groups.[]', 'users.[]', function groupsAndUsers() {
     const {
       groups,

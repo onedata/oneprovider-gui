@@ -7,6 +7,7 @@
     openRename=(action "openRenameModal")
     openInfo=(action "openInfoModal")
     openEditPermissions=(action "openEditPermissionsModal")
+    openFileDistributionModal=(action "openFileDistributionModal")
     containerScrollTop=(action "containerScrollTop")
   }}
   <div class="upload-drop-zone">
@@ -54,5 +55,12 @@
       files=filesToEditPermissions
       space=spaceProxy.content
       onClose=(action "closeEditPermissionsModal")}}
+  {{/if}}
+
+  {{#if filesToShowDistribution}}
+    {{file-distribution-modal
+      files=filesToShowDistribution
+      space=spaceProxy.content
+      onClose=(action "closeFileDistributionModal")}}
   {{/if}}
 {{/promise-proxy-container}}

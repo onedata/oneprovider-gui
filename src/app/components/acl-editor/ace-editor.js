@@ -230,8 +230,7 @@ export default Component.extend(I18n, {
         return {
           icon: permissionsGroup.icon,
           stateClass,
-          tooltipText:
-            `${groupNameTranslation}: ${permissionsCounterString} ${permissonsStateTranslation}`,
+          tooltipText: `${groupNameTranslation}: ${permissionsCounterString} ${permissonsStateTranslation}`,
         };
       });
     }
