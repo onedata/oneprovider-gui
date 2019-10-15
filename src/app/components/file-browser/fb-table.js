@@ -403,11 +403,13 @@ export default Component.extend(I18n, {
   addToSelectedFiles(selectedFiles, newFiles) {
     selectedFiles.addObjects(newFiles);
 
-    const filesSourceArray = this.get('filesArray.sourceArray');
-    const filesIndices = new Map(
-      selectedFiles.map(file => [file, filesSourceArray.indexOf(file)])
-    );
-    selectedFiles.sort((a, b) => filesIndices.get(a) - filesIndices.get(b));
+    if (get(selectedFiles, 'length') > 1) {
+      const filesSourceArray = this.get('filesArray.sourceArray');
+      const filesIndices = new Map(
+        selectedFiles.map(file => [file, filesSourceArray.indexOf(file)])
+      );
+      selectedFiles.sort((a, b) => filesIndices.get(a) - filesIndices.get(b));
+    }
   },
 
   selectRemoveSingleFile(selectedFiles, file) {

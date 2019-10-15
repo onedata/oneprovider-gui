@@ -12,11 +12,9 @@ import ProductionSymbol from 'onedata-gui-websocket-client/services/onedata-conn
 import DevelopmentSymbol from 'oneprovider-gui/services/mocks/onedata-connection';
 import { reads } from '@ember/object/computed';
 
-const ExtendedProductionSymbol = ProductionSymbol.extend({
+export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).extend({
   /**
    * @type {Ember.ComputedProperty<number>}
    */
   transfersHistoryLimitPerFile: reads('attributes.transfersHistoryLimitPerFile'),
 });
-
-export default environmentExport(config, ExtendedProductionSymbol, DevelopmentSymbol);
