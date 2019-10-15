@@ -49,7 +49,7 @@ export default Component.extend(I18n, {
    * @type {Array<Models.Provider>}
    */
   oneproviders: undefined,
-  
+
   /**
    * @virtual
    * @type {Array<Utils.FileDistributionDataContainer>}
@@ -148,35 +148,9 @@ export default Component.extend(I18n, {
    */
   isDistributionLoading: array.isAny(
     'fileDistributionData',
-    'isFileDistributionLoading'
+    raw('isFileDistributionLoading')
   ),
 
-  /**
-   * @type {Ember.ComputedProperty<boolean>}
-   */
-  isDistributionLoaded: computed(
-    'fileDistributionData.@each.fileDistribution',
-    function isDistributionLoaded() {
-      const {
-        fileDistributionData,
-        isDistributionError,
-      } = this.getProperties('fileDistributionData', 'isDistributionError');
-
-      return !isDistributionError && fileDistributionData
-        .filterBy('fileType', 'file')
-        .mapBy('fileDistribution')
-        .every(value => value);
-    }
-  ),
-
-  /**
-   * @type {Ember.ComputedProperty<boolean>}
-   */
-  isDistributionError: array.isAny(
-    'fileDistributionData',
-    raw('isFileDistributionError')
-  ),
-  
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
@@ -210,7 +184,9 @@ export default Component.extend(I18n, {
    * Only for the first file (non-batch mode)
    * @type {Ember.ComputedProperty<boolean>}
    */
-  endedTransfersOverflow: reads('fileDistributionData.firstObject.endedTransfersOverflow'),
+  endedTransfersOverflow: reads(
+    'fileDistributionData.firstObject.endedTransfersOverflow'
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Array<Models.Provider>>}
@@ -295,7 +271,8 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   resolveStartTransferPromise() {
-    const startTransferPromiseResolveCallback = this.get('startTransferPromiseResolveCallback');
+    const startTransferPromiseResolveCallback =
+      this.get('startTransferPromiseResolveCallback');
     if (startTransferPromiseResolveCallback) {
       safeExec(this, () => this.setProperties({
         startTransferPromise: null,
@@ -306,7 +283,7 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    checkForStartingSubsequentReplication(destinationOneprovider, hasActiveTransfers) {
+    tryStartReplication(destinationOneprovider, hasActiveTransfers) {
       if (hasActiveTransfers) {
         this.setProperties({
           startSubsequentTransferType: 'replication',
@@ -326,7 +303,7 @@ export default Component.extend(I18n, {
       });
       return this.newStartTransferPromise();
     },
-    checkForStartingSubsequentMigration(destinationOneprovider) {
+    tryStartMigration(destinationOneprovider) {
       const {
         newMigrationSourceOneprovider,
         newMigrationSourceHasActiveTransfers,
@@ -351,10 +328,13 @@ export default Component.extend(I18n, {
         });
         return startTransferPromise;
       } else {
-        return this.startMigration(newMigrationSourceOneprovider, destinationOneprovider);
+        return this.startMigration(
+          newMigrationSourceOneprovider,
+          destinationOneprovider
+        );
       }
     },
-    checkForStartingSubsequentEviction(sourceOneprovider, hasActiveTransfers) {
+    tryStartEviction(sourceOneprovider, hasActiveTransfers) {
       if (hasActiveTransfers) {
         this.setProperties({
           startSubsequentTransferType: 'eviction',
@@ -417,7 +397,7 @@ export default Component.extend(I18n, {
       });
       this.resolveStartTransferPromise();
     },
-    navigateToTransfers(/* file */) {
+    navigateToTransfers( /* file */ ) {
       // FIXME: implement
     },
   },

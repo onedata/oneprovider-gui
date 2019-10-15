@@ -18,14 +18,13 @@
     status=(if isEvictionInProgress "inProgress" "inactive")
     hint=(if isEvictionInProgress (tt this "evictionInProgress"))}}
 {{/status-toolbar}}
-{{#if filesOnlyDistributionData.length}}
-  {{file-distribution-modal/chunks-visualizer
-    neverSynchronized=neverSynchronized
-    fileSize=filesSize
-    chunks=chunksBarData
-    percentage=percentage
-    chunksRange=chunksRange}}
-{{/if}}
+{{file-distribution-modal/chunks-visualizer
+  neverSynchronized=neverSynchronized
+  fileType=(if hasOnlyDirs "dir" "file")
+  fileSize=filesSize
+  chunks=chunksBarData
+  percentage=percentage
+  chunksRange=chunksRange}}
 {{actions-toolbar
   isMinimized=true
   toolbarClasses=""

@@ -1,4 +1,5 @@
-const disabledActionSingleOneprovider = ' is available only with two or more supporting providers.';
+const disabledActionSingleOneprovider =
+  ' is available only with two or more supporting providers.';
 
 export default {
   header: 'Data distribution',
@@ -15,6 +16,7 @@ export default {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',
     neverSynchronizedTip: 'This file was never read or modified on selected Oneprovider. File blocks will be synchronized when needed. You can also manually replicate the file to selected Oneprovider.',
+    notAvailableForDirsTip: 'Data distribution visualization is not available for directories.',
   },
   oneprovidersDistribution: {
     summarizedFilesDistribution: 'Summarized data distribution of selected files:',
@@ -40,7 +42,7 @@ export default {
     evict: 'Evict',
     replicationStart: 'Replicate the data to selected Oneprovider.',
     migrationStart: 'Migrate the data to other Oneprovider...',
-    evictionStart: 'Evict redundant data blocks on this Oneprovider',
+    evictionStart: 'Evict redundant data blocks on this Oneprovider.',
     disabledReplicationSingleOneprovider: 'Replication' + disabledActionSingleOneprovider,
     disabledReplicationIsComplete: 'Cannot schedule replication as all file block are already on this Oneprovider.',
     disabledMigrationSingleOneprovider: 'Migration' + disabledActionSingleOneprovider,
@@ -62,7 +64,7 @@ export default {
       replication: 'replication',
       migration: 'migration',
       eviction: 'eviction',
-    },    
+    },
     messageText: 'There are pending transfers of selected files in {{oneproviderName}}. Starting a new {{transferType}} can interrupt existing transfers. Do you want to start a new {{transferType}} anyway?',
     startReplicationButton: 'Start replication',
     startMigrationButton: 'Start migration',

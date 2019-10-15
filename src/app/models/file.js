@@ -126,16 +126,17 @@ export default Model.extend(GraphSingleModelMixin, {
     const superRequests = this._super(...arguments);
 
     switch (operation) {
-      case 'create': {
-        const rpcRequests = get(activeRequests, 'rpcRequests');
-        // Block on listing parent dir files
-        const listParentDirRequests = rpcRequests.filter(request => {
-          return get(request, 'rpcMethodName') === 'getDirChildren' &&
-            get(request, 'data.guid') === get(model.belongsTo('parent').value(),
-              'entityId');
-        });
-        return superRequests.concat(listParentDirRequests);
-      }
+      case 'create':
+        {
+          const rpcRequests = get(activeRequests, 'rpcRequests');
+          // Block on listing parent dir files
+          const listParentDirRequests = rpcRequests.filter(request => {
+            return get(request, 'rpcMethodName') === 'getDirChildren' &&
+              get(request, 'data.guid') === get(model.belongsTo('parent').value(),
+                'entityId');
+          });
+          return superRequests.concat(listParentDirRequests);
+        }
       default:
         return superRequests;
     }

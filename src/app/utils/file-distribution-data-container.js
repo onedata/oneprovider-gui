@@ -1,3 +1,13 @@
+/**
+ * Class that allows to retrieve distribution-related data for specified file including
+ * distribution per Oneprovider and active transfers.
+ * 
+ * @module utils/file-distribution-data-container
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -7,7 +17,7 @@ import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 
 export default EmberObject.extend(
-  createDataProxyMixin('fileDistributionModel'), 
+  createDataProxyMixin('fileDistributionModel'),
   createDataProxyMixin('transfers'), {
     transferManager: service(),
     onedataConnection: service(),
@@ -18,7 +28,7 @@ export default EmberObject.extend(
      * @type {boolean}
      */
     keepDataUpdated: true,
-    
+
     /**
      * @virtual
      * @type {Models.File}
@@ -136,7 +146,7 @@ export default EmberObject.extend(
         'dataUpdater',
         'pollingTime'
       );
-    
+
       if (get(dataUpdater, 'interval') !== pollingTime) {
         setProperties(dataUpdater, {
           interval: pollingTime,
@@ -162,7 +172,7 @@ export default EmberObject.extend(
         this._super(...arguments);
       }
     },
-    
+
     /**
      * @override
      */
@@ -214,13 +224,13 @@ export default EmberObject.extend(
       const transfersHistoryLimitPerFile =
         get(onedataConnection, 'transfersHistoryLimitPerFile');
 
-      return transferManager.getTransfersForFile(file).then(({ ongoingList, endedCount}) =>
+      return transferManager.getTransfersForFile(file).then(({ ongoingList, endedCount }) =>
         Promise.all(ongoingList.map(transferId =>
           transferManager.getTransfer(transferId)
         )).then(transfers => ({
-            ongoingList: transfers,
-            endedCount,
-            endedOverflow: endedCount >= transfersHistoryLimitPerFile,
+          ongoingList: transfers,
+          endedCount,
+          endedOverflow: endedCount >= transfersHistoryLimitPerFile,
         }))
       );
     },
@@ -236,9 +246,9 @@ export default EmberObject.extend(
       } = this.getProperties('fileType', 'isFileDistributionError', 'transfersProxy');
       return Promise.all([
         !isFileDistributionError && fileType === 'file' ?
-          this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
+        this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
         !get(transfersProxy, 'isRejected') ?
-          this.updateTransfersProxy({ replace: true }) : resolve(),
+        this.updateTransfersProxy({ replace: true }) : resolve(),
       ]);
     },
 

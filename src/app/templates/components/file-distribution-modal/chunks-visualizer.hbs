@@ -1,21 +1,31 @@
 <div class="chunks-container">
-  <div class="chunks-scale lower-size">0 B</div>
-  <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
-  {{#if neverSynchronized}}
-    <div class="never-synchronized-text hidden-xs">
-      {{tt this "neverSynchronized"}}
+  {{#if (eq fileType "file")}}
+    <div class="chunks-scale lower-size">0 B</div>
+    <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
+    {{#if neverSynchronized}}
+      <div class="chunks-text never-synchronized-text hidden-xs">
+        {{tt this "neverSynchronized"}}
+      </div>
+      <div class="chunks-background never-synchronized-background"></div>
+      {{one-tooltip title=(tt this "neverSynchronizedTip")}}
+    {{else}}
+      <canvas width={{chunksRange}} height="18" class="chunks-canvas"></canvas>
+    {{/if}}
+  {{else}}
+    <div class="chunks-text not-available-text">
+      {{tt this "na"}}
     </div>
-    <div class="never-synchronized-background"></div>
-    {{one-tooltip title=(tt this "neverSynchronizedTip")}}
-  {{else}}
-    <canvas width={{chunksRange}} height="18" class="chunks-canvas" />
+    <div class="chunks-background not-available-background"></div>
+    {{one-tooltip title=(tt this "notAvailableForDirsTip")}}
   {{/if}}
 </div>
-<div class="percentage-text">
-  {{#if neverSynchronized}}
-    <span>{{tt this "na"}}</span>
-  {{else}}
-    {{percentageText}}
-  {{/if}}
-</div>
+{{#if (eq fileType "file")}}
+  <div class="percentage-text">
+    {{#if neverSynchronized}}
+      <span>{{tt this "na"}}</span>
+    {{else}}
+      {{percentageText}}
+    {{/if}}
+  </div>
+{{/if}}
 {{yield}}

@@ -28,7 +28,7 @@
           onEvict=(action "evict" files)}}
         <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
       {{else}}
-        {{#one-collapsible-list class="detailed-list" as |list|}}
+        {{#one-collapsible-list class="per-file-distribution-list" as |list|}}
           {{#each fileDistributionData as |fileDistDataContainer|}}
             {{#list.item as |listItem|}}
               {{#listItem.header disableToggleIcon=true}}

@@ -43,6 +43,13 @@ export default Component.extend(I18n, {
   percentage: undefined,
 
   /**
+   * One of 'file', 'dir'
+   * @virtual
+   * @type {string}
+   */
+  fileType: undefined,
+
+  /**
    * @virtual
    * @type {number}
    */
@@ -51,6 +58,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {number}
+   * Used to define proper coordinates while drawing chunks bar
    */
   chunksRange: undefined,
 
@@ -67,11 +75,11 @@ export default Component.extend(I18n, {
     return percentage !== undefined ? `${Math.floor(percentage)}%` : '';
   }),
 
-  canvasModifier: observer(
+  canvasRedrawer: observer(
     'neverSynchronized',
     'chunksRange',
     'chunks',
-    function canvasModifier() {
+    function canvasRedrawer() {
       scheduleOnce('afterRender', this, 'redrawCanvas');
     }
   ),

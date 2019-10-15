@@ -17,7 +17,7 @@ const translations = {
     aclEditor,
     editPermissionsModal,
     fileBrowser,
-    posixPermissionsEditor,    
+    posixPermissionsEditor,
     fileDistributionModal,
   },
   services: {

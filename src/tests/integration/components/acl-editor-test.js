@@ -8,7 +8,7 @@ import EmberPowerSelectHelper from '../../helpers/ember-power-select-helper';
 import $ from 'jquery';
 import sinon from 'sinon';
 
-describe('Integration | Component | acl editor', function() {
+describe('Integration | Component | acl editor', function () {
   setupComponentTest('acl-editor', {
     integration: true,
   });
@@ -98,17 +98,21 @@ describe('Integration | Component | acl editor', function() {
 
     let testPromise = resolve();
     toCheck.map(({ name, selected }, index) => {
-      const selectorPrefix = `.one-collapsible-list-item:nth-child(${index + 1}) `;
+      const selectorPrefix =
+        `.one-collapsible-list-item:nth-child(${index + 1}) `;
       testPromise = testPromise.then(() =>
         click(selectorPrefix + '.one-collapsible-list-item-header')
       ).then(() => {
         expect(this.$(selectorPrefix + '.subject-name')).to.contain(name);
         selected.forEach(toggleField => {
-          expect(this.$(selectorPrefix + '.' + toggleField)).to.have.class('checked');
+          expect(this.$(selectorPrefix + '.' + toggleField))
+            .to.have.class('checked');
         });
-        expect(this.$(selectorPrefix + '.has-checkbox-group .one-tree .one-way-toggle.checked')).to.have.length(selected.length);
+        expect(this.$(selectorPrefix +
+            '.has-checkbox-group .one-tree .one-way-toggle.checked'))
+          .to.have.length(selected.length);
       });
-      
+
     });
 
     return testPromise;
@@ -230,7 +234,7 @@ describe('Integration | Component | acl editor', function() {
     `);
 
     const acl = this.get('acl');
-    const targetAcl = [Object.assign({}, acl[0], {aceType: 'DENY'}), acl[1]];
+    const targetAcl = [Object.assign({}, acl[0], { aceType: 'DENY' }), acl[1]];
 
     const selectorPrefix = '.one-collapsible-list-item:first-child ';
     return click(selectorPrefix + '.one-collapsible-list-item-header')
@@ -252,7 +256,7 @@ describe('Integration | Component | acl editor', function() {
     `);
 
     const acl = this.get('acl');
-    const targetAcl = [Object.assign({}, acl[0], {aceMask: 0x00000003}), acl[1]];
+    const targetAcl = [Object.assign({}, acl[0], { aceMask: 0x00000003 }), acl[1]];
 
     const selectorPrefix = '.one-collapsible-list-item:first-child ';
     return click(selectorPrefix + '.one-collapsible-list-item-header')
@@ -274,7 +278,7 @@ describe('Integration | Component | acl editor', function() {
     `);
 
     const acl = this.get('acl');
-    const targetAcl = [Object.assign({}, acl[0], {aceMask: 0x00000000}), acl[1]];
+    const targetAcl = [Object.assign({}, acl[0], { aceMask: 0x00000000 }), acl[1]];
 
     const selectorPrefix = '.one-collapsible-list-item:first-child ';
     return click(selectorPrefix + '.one-collapsible-list-item-header')

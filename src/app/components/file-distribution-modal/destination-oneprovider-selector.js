@@ -40,6 +40,7 @@ export default Component.extend(I18n, {
   oneproviders: undefined,
 
   /**
+   * @virtual
    * @type {Array<Models.Provider>}
    */
   busyOneproviders: Object.freeze([]),
@@ -116,7 +117,8 @@ export default Component.extend(I18n, {
           const disabled = busyOneproviders.includes(oneprovider);
           return {
             oneprovider,
-            text: get(oneprovider, 'name') + (disabled ? ` (${this.t('busy')})` : ''),
+            text: get(oneprovider, 'name') +
+              (disabled ? ` (${this.t('busy')})` : ''),
             disabled,
           };
         });

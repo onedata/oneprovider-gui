@@ -86,15 +86,16 @@ export default OneEmbeddedComponent.extend(
       const {
         injectedDirGri,
         spaceProxy,
-      } = this.getProperties('injectedDirGri', 'spaceProxy');
-      
-      if (injectedDirGri) {
-        return spaceProxy.then(() =>
-          this.get('store').findRecord('file', injectedDirGri)
-        );
-      } else {
-        return spaceProxy.then(space => get(space, 'rootDir'));
-      }
+        store,
+      } = this.getProperties('injectedDirGri', 'spaceProxy', 'store');
+
+      return spaceProxy.then(space => {
+        if (injectedDirGri) {
+          return store.findRecord('file', injectedDirGri);
+        } else {
+          return get(space, 'rootDir');
+        }
+      });
     },
 
     actions: {

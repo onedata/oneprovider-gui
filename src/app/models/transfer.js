@@ -35,7 +35,7 @@ export default Model.extend(GraphSingleModelMixin, {
   isOngoing: attr('boolean'),
 
   dataSourceName: attr('string'),
-  
+
   /**
    * One of: file, dir, deleted, view, unknown
    */

@@ -1,7 +1,5 @@
 {{#loading-container
   isLoading=isDistributionLoading
-  isLoaded=isDistributionLoaded
-  isError=isDistributionError
   errorReason=distributionErrorReason}}
   {{#if isMigrationDestinationSelectorVisible}}
     {{file-distribution-modal/destination-oneprovider-selector
@@ -9,7 +7,7 @@
       oneproviders=oneproviders
       busyOneproviders=disabledMigrationTargets
       sourceOneprovider=newMigrationSourceOneprovider
-      onMigrate=(action "checkForStartingSubsequentMigration")
+      onMigrate=(action "tryStartMigration")
       onCancel=(action "cancelNewMigration")}}
   {{else if isStartSubsequentTransferConfirmationVisible}}
     {{file-distribution-modal/confirm-subsequent-transfer
@@ -27,9 +25,9 @@
           oneprovider=oneprovider
           spaceHasSingleOneprovider=(eq oneproviders.length 1)
           fileDistributionData=fileDistributionData
-          onReplicate=(action "checkForStartingSubsequentReplication" oneprovider)
+          onReplicate=(action "tryStartReplication" oneprovider)
           onMigrate=(action "selectMigrationDestination" oneprovider)
-          onEvict=(action "checkForStartingSubsequentEviction" oneprovider)}}
+          onEvict=(action "tryStartEviction" oneprovider)}}
       {{/each}}
       {{#unless batchMode}}
         <p class="transfers-counter-info">

@@ -35,6 +35,7 @@ export default Component.extend(I18n, {
   transferType: undefined,
 
   /**
+   * @virtual
    * @type {Models.Provider}
    */
   oneprovider: undefined,

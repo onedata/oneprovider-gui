@@ -128,7 +128,7 @@ export default Component.extend(
     /**
      * @type {Ember.ComputedProperty<Array<Utils.FileDistributionDataContainer>>}
      */
-    fileDistributionData: computed('files.[]', function () {
+    fileDistributionData: computed('files.[]', function fileDistributionData() {
       return this.get('files')
         .map(file => FileDistributionDataContainer.create(
           getOwner(this).ownerInjection(), { file }
@@ -168,7 +168,7 @@ export default Component.extend(
         );
       }
     },
-    
+
     /**
      * @override
      */
@@ -181,10 +181,10 @@ export default Component.extend(
      * @param {Models.File} file 
      * @returns {Promise}
      */
-    reloadFileTransfers(file) {
+    updateDataAfterTransferStart(file) {
       const fileDistributionData = this.get('fileDistributionData').findBy('file', file);
       if (fileDistributionData) {
-        return fileDistributionData.updateTransfersProxy({ replace: true });
+        return fileDistributionData.updateData();
       } else {
         return resolve();
       }
@@ -201,7 +201,7 @@ export default Component.extend(
         const transferManager = this.get('transferManager');
         return Promise.all(files.map(file =>
           transferManager.startReplication(file, destinationOneprovider)
-            .then(result => this.reloadFileTransfers(file).then(() => result))
+          .then(result => this.updateDataAfterTransferStart(file).then(() => result))
         ));
       },
       migrate(files, sourceProvider, destinationOneprovider) {
@@ -211,14 +211,14 @@ export default Component.extend(
             file,
             sourceProvider,
             destinationOneprovider
-          ).then(result => this.reloadFileTransfers(file).then(() => result))
+          ).then(result => this.updateDataAfterTransferStart(file).then(() => result))
         ));
       },
       evict(files, sourceOneprovider) {
         const transferManager = this.get('transferManager');
         return Promise.all(files.map(file =>
           transferManager.startEviction(file, sourceOneprovider)
-            .then(result => this.reloadFileTransfers(file).then(() => result))
+          .then(result => this.updateDataAfterTransferStart(file).then(() => result))
         ));
       },
     },

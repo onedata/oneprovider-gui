@@ -15,8 +15,6 @@ export default Adapter.extend({
    * @override
    */
   entityTypeToModelNameMap: Object.freeze(new Map([
-    ['op_file', 'file'],
-    ['file', 'file'],
     ['op_group', 'group'],
     ['op_space', 'space'],
     ['op_transfer', 'transfer'],
