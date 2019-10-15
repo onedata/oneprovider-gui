@@ -183,7 +183,7 @@ export default Component.extend(I18n, {
       // dynamic popover menu items or contextual buttons).
       if (!isPopoverOpened() && mouseEvent.target.matches('body *') &&
         !mouseEvent.target.matches(
-          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *'
+          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *, .ember-basic-dropdown-content *'
         )) {
         component.clearFilesSelection();
       }

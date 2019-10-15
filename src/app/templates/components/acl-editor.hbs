@@ -23,10 +23,10 @@
         {{one-icon icon="group-invite" class="item-icon"}}
       </span>
       {{#power-select
-        dropdownClass="add-user-group-ace"
+        triggerClass="add-user-group-ace-trigger"
+        dropdownClass="add-user-group-ace-dropdown"
         options=subjectsList
         onchange=(action "addEntitySelected")
-        renderInPlace=true
         placeholder=(tt this "addUserOrGroup")
         matcher=(action "nameMatcher")
         as |entity|}}
