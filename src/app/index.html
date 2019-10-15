@@ -6,6 +6,27 @@
     <title>Oneprovider</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      .index-loading-logo {
+        width: 100px;
+        height: 100px;
+        background: url('./assets/images/logo-short-dark.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+      }
+      .index-loading-text {
+        text-align: center;
+        font-size: 13px;
+        font-family: "Open Sans", sans-serif;
+      }
+      #index-pre-app-loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    </style>
 
     {{content-for "head"}}
 
@@ -15,11 +36,18 @@
     {{content-for "head-footer"}}
   </head>
   <body>
+    <div id="index-pre-app-loading">
+      <div class="index-loading-logo"></div>
+      <div class="index-loading-text">
+        Loading...
+      </div>
+    </div>
+    
     {{content-for "body"}}
 
     <script src="{{rootURL}}assets/vendor.js"></script>
     <script src="{{rootURL}}assets/oneprovider-gui.js"></script>
-
+    
     {{content-for "body-footer"}}
   </body>
 </html>
