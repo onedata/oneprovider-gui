@@ -1,0 +1,63 @@
+.fb-breadcrumbs {
+  display: block;
+  position: relative;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  
+  .fb-breadcrumbs-inner {
+    display: inline-block;
+    white-space: nowrap;
+    position: relative;
+    opacity: 1;
+    transition: transition-ease(opacity);
+    &.breadcrumbs-recomputing {
+      opacity: 0;
+      transition: transition-ease(opacity);
+    }
+    &.truncate {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+  
+  .fb-breadcrumbs-element {
+    display: inline-block;
+    vertical-align: middle;
+    user-select: none;
+  }
+  .fb-breadcrumbs-dir-root .inline-icon-container .one-icon {
+    font-size: 210%;
+  }
+  .fb-breadcrumbs-separator {
+    width: 0.8em;
+    &::before {
+      content: '/';
+      font-size: 1.2em;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%) translateX(0.1em);
+    }
+  }
+  .fb-breadcrumbs-current-dir-button {
+    display: inline-block;
+    text-decoration: none;
+    padding-right: 30px;
+    cursor: pointer;
+    &.truncate {
+      max-width: 100%;
+    }
+    .inline-icon-container.breadcrumbs-current-dir-actions-trigger {
+      @include vertical-align-middle;
+      right: 0;
+      
+      .one-icon {
+        position: absolute;
+        right: 0;
+        left: 6px;
+        padding-top: 3px;
+        font-size: 110%;
+        font-weight: bold;
+      }
+    }
+  }
+}

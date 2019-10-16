@@ -113,3 +113,9 @@
   {{/one-webui-popover}}
   <div class="file-actions-trigger floating-actions-trigger"></div>
 {{/if}}
+
+{{file-browser/fb-download-modal
+  file=downloadModalFile
+  confirmDownload=(action "confirmDownload")
+  onHide=(action "closeDownloadModal")
+}}

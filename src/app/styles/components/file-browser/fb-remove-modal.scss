@@ -1,0 +1,13 @@
+.fb-remove-modal {
+  .row-delete-files-list {
+    .delete-file-name {
+      display: inline-block;
+      max-width: calc(100% - 50px);
+      vertical-align: middle;
+    }
+    .delete-file-size {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}

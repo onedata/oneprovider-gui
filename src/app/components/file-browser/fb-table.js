@@ -98,6 +98,11 @@ export default Component.extend(I18n, {
    */
   headerVisible: undefined,
 
+  /**
+   * @type {models/File}
+   */
+  downloadModalFile: null,
+
   selectionCount: reads('selectedFiles.length'),
 
   fileClipboardMode: reads('fileManager.fileClipboardMode'),
@@ -312,11 +317,14 @@ export default Component.extend(I18n, {
       items[items.length - 1].getAttribute('data-row-id') || null;
     let startIndex, endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
-      const rowHeight = this.get('rowHeight');
+      const {
+        rowHeight,
+        _window,
+      } = this.getProperties('rowHeight', '_window');
       const $firstRow = $('.first-row');
       const firstRowTop = $firstRow.offset().top;
       const blankStart = firstRowTop * -1;
-      const blankEnd = blankStart + window.innerHeight;
+      const blankEnd = blankStart + _window.innerHeight;
       startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.floor(blankEnd / rowHeight);
       if (endIndex < 0) {
@@ -406,15 +414,19 @@ export default Component.extend(I18n, {
     // in any browser, but we cannot say if the file extension is currently supported
     // so we try to open every file in new tab.
     const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
-    window.open(fileUrl, target);
+    this.get('_window').open(fileUrl, target);
   },
 
-  openFile(file) {
+  openFile(file, confirmModal = false) {
     const isDir = get(file, 'type') === 'dir';
     if (isDir) {
       return this.get('changeDir')(file);
     } else {
-      return this.downloadFile(get(file, 'entityId'));
+      if (confirmModal) {
+        this.set('downloadModalFile', file);
+      } else {
+        this.downloadFile(get(file, 'entityId'));
+      }
     }
   },
 
@@ -556,7 +568,7 @@ export default Component.extend(I18n, {
       });
       // cause popover refresh
       if (this.get('fileActionsOpen')) {
-        window.dispatchEvent(new Event('resize'));
+        this.get('_window').dispatchEvent(new Event('resize'));
       }
       this.actions.toggleFileActions.bind(this)(true, file);
     },
@@ -597,7 +609,7 @@ export default Component.extend(I18n, {
       if (areSomeFilesSelected) {
         return this.fileClicked(file, true, false);
       } else {
-        return this.openFile(file);
+        return this.openFile(file, true);
       }
     },
 
@@ -615,6 +627,15 @@ export default Component.extend(I18n, {
 
     emptyDirPaste() {
       return this.get('pasteAction.action')(...arguments);
+    },
+
+    closeDownloadModal() {
+      this.set('downloadModalFile', null);
+    },
+
+    confirmDownload() {
+      return this.downloadFile(this.get('downloadModalFile.entityId'))
+        .finally(() => safeExec(this, 'set', 'downloadFile', null));
     },
   },
 });

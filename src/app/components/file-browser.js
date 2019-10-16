@@ -258,9 +258,10 @@ export default Component.extend(I18n, {
     return this.createFileAction({
       id: 'share',
       showIn: [
-        actionContext.singleDir,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
+        // TODO: disabled until implemented
+        // actionContext.singleDir,
+        // actionContext.currentDir,
+        // actionContext.spaceRootDir,
       ],
     });
   }),
@@ -269,10 +270,11 @@ export default Component.extend(I18n, {
     return this.createFileAction({
       id: 'metadata',
       showIn: [
-        actionContext.singleDir,
-        actionContext.singleFile,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
+        // TODO: disabled until implemented
+        // actionContext.singleDir,
+        // actionContext.singleFile,
+        // actionContext.currentDir,
+        // actionContext.spaceRootDir,
       ],
     });
   }),
