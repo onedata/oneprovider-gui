@@ -1,3 +1,12 @@
+/**
+ * Modal for setting name for new file/directory
+ * 
+ * @module components/file-browser/fb-create-item-modal
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import FbSetNameModal from 'oneprovider-gui/components/file-browser/fb-set-name-modal';

@@ -18,6 +18,6 @@ export default {
     or: 'or',
   },
   errorDirBox: {
-    errorOccured: 'Loading directory contents failed',
+    errorOccurred: 'Loading directory contents failed',
   },
 };

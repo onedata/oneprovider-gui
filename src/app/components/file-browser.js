@@ -131,6 +131,10 @@ export default Component.extend(I18n, {
    */
   containerScrollTop: notImplementedIgnore,
 
+  _document: document,
+
+  _body: document.body,
+
   /**
    * If true, the paste from clipboard button should be available
    * @type {Computed<boolean>}
@@ -141,7 +145,7 @@ export default Component.extend(I18n, {
 
   /**
    * Array of selected file records.
-   * @type {EmberArray<object>}
+   * @type {EmberArray<Models.File>}
    */
   selectedFiles: computed(() => A()),
 
@@ -305,8 +309,9 @@ export default Component.extend(I18n, {
         const {
           openRename,
           selectedFiles,
-        } = this.getProperties('openRename', 'selectedFiles');
-        return openRename(selectedFiles[0]);
+          dir,
+        } = this.getProperties('openRename', 'selectedFiles', 'dir');
+        return openRename(selectedFiles[0], dir);
       },
       showIn: [
         actionContext.singleDir,
@@ -344,12 +349,10 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnPaste: computed(function btnCut() {
+  btnPaste: computed(function btnPaste() {
     return this.createFileAction({
       id: 'paste',
-      action: () => {
-        return this.pasteFiles();
-      },
+      action: () => this.pasteFiles(),
       showIn: [
         actionContext.currentDir,
         actionContext.spaceRootDir,
@@ -395,11 +398,11 @@ export default Component.extend(I18n, {
 
   openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
     return (mouseEvent) => {
+      const element = this.get('element');
       const $this = this.$();
       const tableOffset = $this.offset();
-      const left = mouseEvent.clientX - tableOffset.left + this.element
-        .offsetLeft;
-      const top = mouseEvent.clientY - tableOffset.top + this.element.offsetTop;
+      const left = mouseEvent.clientX - tableOffset.left + element.offsetLeft;
+      const top = mouseEvent.clientY - tableOffset.top + element.offsetTop;
       this.$('.current-dir-actions-trigger').css({
         top,
         left,
@@ -408,7 +411,7 @@ export default Component.extend(I18n, {
       if (this.get('currentDirActionsOpen')) {
         window.dispatchEvent(new Event('resize'));
       }
-      this.actions.toggleCurrentDirActions.bind(this)(true);
+      this.send('toggleCurrentDirActions')(true);
     };
   }),
 
@@ -439,7 +442,7 @@ export default Component.extend(I18n, {
       'dir'
     );
 
-    document.body.addEventListener(
+    this.get('_body').addEventListener(
       'click',
       clickOutsideDeselectHandler
     );
@@ -447,7 +450,8 @@ export default Component.extend(I18n, {
     const uploadDropElement = element.parentElement;
     uploadManager.assignUploadDrop(uploadDropElement);
 
-    const uploadBrowseElement = document.querySelector('.fb-upload-trigger');
+    const uploadBrowseElement = this.get('_document')
+      .querySelector('.fb-upload-trigger');
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);
 
@@ -459,11 +463,11 @@ export default Component.extend(I18n, {
 
   willDestroyElement() {
     this._super(...arguments);
-    document.body.removeEventListener(
+    this.get('_body').removeEventListener(
       'click',
       this.get('clickOutsideDeselectHandler')
     );
-    this.element.removeEventListener(
+    this.get('element').removeEventListener(
       'contextmenu',
       this.get('currentDirContextMenuHandler')
     );
@@ -567,9 +571,6 @@ export default Component.extend(I18n, {
       const _open =
         (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
       this.set('currentDirActionsOpen', _open);
-    },
-    currentDirActionsToggled(opened) {
-      this.get('currentDirActionsToggled')(opened);
     },
   },
 });

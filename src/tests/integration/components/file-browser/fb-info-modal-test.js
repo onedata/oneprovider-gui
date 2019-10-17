@@ -18,10 +18,27 @@ describe('Integration | Component | file browser/fb info modal', function () {
       file=file1
     }}`);
 
-    return wait().then(() => {
-      expect(
-        this.$('.file-info-row-name .property-value .clipboard-input').val()
-      ).to.contain(file1.name);
-    });
+    return wait()
+      .then(() => {
+        expect(
+          this.$('.file-info-row-name .property-value .clipboard-input').val()
+        ).to.contain(file1.name);
+      });
+  });
+
+  it('renders file name', function () {
+    this.set('file1', file1);
+
+    this.render(hbs `{{file-browser/fb-info-modal
+      open=true
+      file=file1
+    }}`);
+
+    return wait()
+      .then(() => {
+        expect(
+          this.$('.file-info-row-name .property-value .clipboard-input').val()
+        ).to.contain(file1.name);
+      });
   });
 });

@@ -22,8 +22,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { equal, and, not, or } from 'ember-awesome-macros';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
 
@@ -72,15 +71,14 @@ export default Component.extend(I18n, {
    */
   allButtonsArray: undefined,
 
-  /**
-   * @virtual optional
-   * @type {Function} (boolean) => any
-   */
-  hasEmptyDirClassChanged: notImplementedIgnore,
-
   changeDir: undefined,
 
   _window: window,
+
+  /**
+   * @type {HTMLElement}
+   */
+  _body: document.body,
 
   /**
    * @type {models/File}
@@ -116,8 +114,8 @@ export default Component.extend(I18n, {
 
   /**
    * True if there is initially loaded file list, but it is empty.
-   * False if there is initially loaded file list, but it is not empty.
-   * Undefined if the file list is not yet loaded.
+   * False if there is initially loaded file list, but it is not empty or
+   * the list was not yet loaded or cannot be loaded.
    * @type {boolean|undefined}
    */
   isDirEmpty: and('initialLoad.isFulfilled', not('filesArray.length')),
@@ -157,17 +155,11 @@ export default Component.extend(I18n, {
     }
   ),
 
-  uploadAction: computed('allButtonsArray.[]', function uploadAction() {
-    return this.get('allButtonsArray').findBy('id', 'upload');
-  }),
+  uploadAction: array.findBy('allButtonsArray', raw('id'), raw('upload')),
 
-  newDirectoryAction: computed('allButtonsArray.[]', function newDirectoryAction() {
-    return this.get('allButtonsArray').findBy('id', 'newDirectory');
-  }),
+  newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
 
-  pasteAction: computed('allButtonsArray.[]', function pasteAction() {
-    return this.get('allButtonsArray').findBy('id', 'paste');
-  }),
+  pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
 
   firstRowHeight: computed(
     'rowHeight',
@@ -193,27 +185,27 @@ export default Component.extend(I18n, {
     });
     array.on(
       'fetchPrevStarted',
-      () => this.stateOfFetchUpdate('prev', 'started')
+      () => this.onFetchingStateUpdate('prev', 'started')
     );
     array.on(
       'fetchPrevResolved',
-      () => this.stateOfFetchUpdate('prev', 'resolved')
+      () => this.onFetchingStateUpdate('prev', 'resolved')
     );
     array.on(
       'fetchPrevRejected',
-      () => this.stateOfFetchUpdate('prev', 'rejected')
+      () => this.onFetchingStateUpdate('prev', 'rejected')
     );
     array.on(
       'fetchNextStarted',
-      () => this.stateOfFetchUpdate('next', 'started')
+      () => this.onFetchingStateUpdate('next', 'started')
     );
     array.on(
       'fetchNextResolved',
-      () => this.stateOfFetchUpdate('next', 'resolved')
+      () => this.onFetchingStateUpdate('next', 'resolved')
     );
     array.on(
       'fetchNextRejected',
-      () => this.stateOfFetchUpdate('next', 'rejected')
+      () => this.onFetchingStateUpdate('next', 'rejected')
     );
     return array;
   }),
@@ -277,7 +269,7 @@ export default Component.extend(I18n, {
    * @param {string} state one of: started, resolved, rejected
    * @returns {undefined}
    */
-  stateOfFetchUpdate(type, state) {
+  onFetchingStateUpdate(type, state) {
     safeExec(
       this,
       'set',
@@ -401,10 +393,11 @@ export default Component.extend(I18n, {
   },
 
   downloadUsingIframe(fileUrl) {
+    const _body = this.get('_body');
     const iframe = $('<iframe/>').attr({
       src: fileUrl,
-      style: 'visibility:hidden;display:none',
-    }).appendTo($('body'));
+      style: 'display:none;',
+    }).appendTo(_body);
     // the time should be long to support some download extensions in Firefox desktop
     later(() => iframe.remove(), 60000);
   },

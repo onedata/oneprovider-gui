@@ -47,7 +47,7 @@ export default OneEmbeddedComponent.extend(
       });
     }),
 
-    injectedDirGri: computed('dirEntityId', function injectedDirGri() {
+    injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
       const {
         spaceEntityId,
         dirEntityId,
@@ -123,12 +123,10 @@ export default OneEmbeddedComponent.extend(
           removeParentDir: null,
         });
       },
-      openRenameModal(file) {
-        return get(file, 'parent').then(parentDir => {
-          this.setProperties({
-            fileToRename: file,
-            renameParentDir: parentDir,
-          });
+      openRenameModal(file, parentDir) {
+        this.setProperties({
+          fileToRename: file,
+          renameParentDir: parentDir,
         });
       },
       closeRenameModal() {

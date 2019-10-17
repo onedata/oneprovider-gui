@@ -32,7 +32,6 @@ $-fb-table-margin-top-mobile: 36px;
   }
   .file-browser-head-container {
     position: fixed;
-    z-index: $zindex-modal-background - 1;
     padding-top: $content-row-vertical-padding;
     padding-left: $content-col-padding + $-file-browser-padding-left;
     padding-right: $content-col-padding + $-file-browser-padding-right;

@@ -14,6 +14,7 @@ import reject from 'rsvp';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 
 const backendEpochInfinity = 9999999999;
 const linkNameIdPartLength = 6;
@@ -131,7 +132,7 @@ export default Model.extend(GraphSingleModelMixin, {
       store,
     } = this.getProperties('userId', 'spaceId', 'store');
     const userGri = gri({
-      entityType: 'op-user',
+      entityType: userEntityType,
       entityId: userEntityId,
       scope: 'private',
       aspect: 'instance',

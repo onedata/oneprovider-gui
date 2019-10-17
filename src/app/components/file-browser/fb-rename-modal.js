@@ -1,5 +1,5 @@
 /**
- * 
+ * Modal for renaming file/directory
  * 
  * @module components/file-browser/fb-rename-modal
  * @author Jakub Liput
@@ -32,9 +32,9 @@ export default FbSetNameModal.extend(I18n, {
   itemType: reads('file.type'),
 
   onShownRender() {
+    this._super(...arguments);
     const inputElement = this.get('inputElement');
     inputElement.value = this.get('file.name');
-    this._super(...arguments);
     inputElement.select();
   },
 

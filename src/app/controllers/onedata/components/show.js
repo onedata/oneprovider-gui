@@ -11,6 +11,8 @@ import Controller from '@ember/controller';
 import { inject as service } from '@ember/service';
 import $ from 'jquery';
 
+const scrollOnTopClass = 'scroll-on-top';
+
 export default Controller.extend({
   scrollState: service(),
 
@@ -20,8 +22,13 @@ export default Controller.extend({
      * @returns {undefined}
      */
     scrollOccurred(scrollEvent) {
-      const scrollOnTop = scrollEvent.target.scrollTop === 0;
-      $('.embedded-content')[`${scrollOnTop ? 'add' : 'remove'}Class`]('scroll-on-top');
+      const scrollIsOnTop = scrollEvent.target.scrollTop === 0;
+      const $embeddedContent = $('.embedded-content');
+      if (scrollIsOnTop) {
+        $embeddedContent.addClass(scrollOnTopClass);
+      } else {
+        $embeddedContent.removeClass(scrollOnTopClass);
+      }
       this.get('scrollState').scrollOccurred(scrollEvent);
     },
   },
