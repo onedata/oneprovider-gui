@@ -111,9 +111,14 @@ export default Component.extend(I18n, {
           (file) => file.destroyRecord()
         )
         .then(results => {
-          return fileManager.dirChildrenRefresh(
-            get(parentDir, 'entityId')
-          ).then(() => results);
+          filesToRemove.forEach(file => {
+            const stateName = get(file, 'currentState.stateName');
+            if (stateName.endsWith('uncommitted')) {
+              file.rollbackAttributes();
+            }
+          });
+          return fileManager.dirChildrenRefresh(get(parentDir, 'entityId'))
+            .then(() => results);
         })
         .then(results => {
           onHide.bind(this)(true, results);
