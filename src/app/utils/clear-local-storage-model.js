@@ -1,7 +1,5 @@
 import { resolve } from 'rsvp';
 
-// FIXME: very similar to onezone-gui, consider unify
-
 /**
  * Clears out localStorage model
  *

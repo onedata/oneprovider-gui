@@ -16,24 +16,15 @@ const types = [
 export const names = ['One'];
 
 export const numberOfSpaces = 1;
-// FIXME: debug values
-export const numberOfFiles = 300;
+export const numberOfFiles = 100;
 export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
 
 export default function generateDevelopmentModel(store) {
-  // let spaces;
   return all(
       types.map(type =>
         createEntityRecords(store, type, names)
-        .then(records => {
-          switch (type) {
-            case 'space':
-              // spaces = records;
-              break;
-          }
-          return createListRecord(store, type, records);
-        })
+        .then(records => createListRecord(store, type, records))
       )
     )
     .then((listRecords) => {
