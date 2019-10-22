@@ -27,10 +27,15 @@
   .empty-dir-image {
     background-image: url($root-url + 'images/empty-directory.svg');
   }
-  
-  // FIXME: error image
   .error-dir-image {
-    background-image: url($root-url + 'images/empty-directory.svg');
+    background-image: url($root-url + 'images/data-error-generic.svg');
+    // override for known errnos
+    &.error-dir-image-enoent {
+      background-image: url($root-url + 'images/data-error-enoent.svg');
+    }
+    &.error-dir-image-eacces {
+      background-image: url($root-url + 'images/data-error-eacces.svg');
+    }
   }
   .dir-box {
     @include absolute-align-middle-center();

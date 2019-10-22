@@ -17,7 +17,7 @@ export const names = ['One'];
 
 export const numberOfSpaces = 1;
 export const numberOfFiles = 100;
-export const numberOfDirs = 2;
+export const numberOfDirs = 5;
 export const numberOfChainDirs = 5;
 
 export default function generateDevelopmentModel(store) {

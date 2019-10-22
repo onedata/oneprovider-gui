@@ -411,7 +411,7 @@ export default Component.extend(I18n, {
       if (this.get('currentDirActionsOpen')) {
         window.dispatchEvent(new Event('resize'));
       }
-      this.send('toggleCurrentDirActions')(true);
+      this.send('toggleCurrentDirActions', true);
     };
   }),
 

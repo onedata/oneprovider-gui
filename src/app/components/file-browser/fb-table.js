@@ -144,13 +144,37 @@ export default Component.extend(I18n, {
     function dirLoadError() {
       const initialLoad = this.get('initialLoad');
       if (get(initialLoad, 'isRejected')) {
-        const reason = get(initialLoad, 'reason');
-        if (reason) {
-          return this.get('errorExtractor').getMessage(reason) ||
-            this.t('unknownError');
-        } else {
-          return this.t('uknownError');
-        }
+        return get(initialLoad, 'reason');
+      }
+    }
+  ),
+
+  /**
+   * If the error is POSIX, returns string posix error code
+   * @type {ComputedProperty<string|undefined>}
+   */
+  dirLoadErrorPosix: computed(
+    'dirLoadError.{id,details.errno}',
+    function dirLoadErrorPosix() {
+      const dirLoadError = this.get('dirLoadError');
+      if (get(dirLoadError, 'id') === 'posix') {
+        return get(dirLoadError, 'details.errno');
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<object>} message object from error extractor
+   */
+  dirLoadErrorMessage: computed(
+    'dirLoadError',
+    function dirLoadErrorMessage() {
+      const reason = this.get('dirLoadError');
+      if (reason) {
+        return this.get('errorExtractor').getMessage(reason) ||
+          this.t('unknownError');
+      } else {
+        return this.t('uknownError');
       }
     }
   ),
