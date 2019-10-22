@@ -26,26 +26,10 @@ export default Service.extend({
   store: service(),
   onedataRpc: service(),
 
-  fileClipboardMode: undefined,
-
-  fileClipboardFiles: undefined,
-
   /**
    * @type {Array<Ember.Component>}
    */
   fileTableComponents: computed(() => []),
-
-  init() {
-    this._super(...arguments);
-    this.clearFileClipboard();
-  },
-
-  clearFileClipboard() {
-    this.setProperties({
-      fileClipboardMode: null,
-      fileClipboardFiles: [],
-    });
-  },
 
   /**
    * Creates new file or directory

@@ -11,7 +11,7 @@
 import Component from '@ember/component';
 import { computed, get, getProperties, observer } from '@ember/object';
 import { collect } from '@ember/object/computed';
-import { camelize, dasherize } from '@ember/string';
+import { dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { A } from '@ember/array';
@@ -65,7 +65,6 @@ export default Component.extend(I18n, {
   classNames: ['file-browser'],
 
   i18n: service(),
-  fileActions: service(),
   uploadManager: service(),
   fileManager: service(),
   globalNotify: service(),
@@ -131,17 +130,28 @@ export default Component.extend(I18n, {
    */
   containerScrollTop: notImplementedIgnore,
 
-  _document: document,
-
-  _body: document.body,
-
   /**
    * If true, the paste from clipboard button should be available
    * @type {Computed<boolean>}
    */
-  clipboardReady: notEmpty('fileManager.fileClipboardFiles'),
+  clipboardReady: notEmpty('fileClipboardFiles'),
 
   isRootDir: not('dir.hasParent'),
+
+  /**
+   * One of: move, copy
+   * @type {string}
+   */
+  fileClipboardMode: null,
+
+  /**
+   * @type {Array<Models/File}
+   */
+  fileClipboardFiles: computed(() => []),
+
+  _document: document,
+
+  _body: document.body,
 
   /**
    * Array of selected file records.
@@ -338,6 +348,13 @@ export default Component.extend(I18n, {
   btnCopy: computed(function btnCopy() {
     return this.createFileAction({
       id: 'copy',
+      action: () => {
+        const selectedFiles = this.get('selectedFiles');
+        this.setProperties({
+          fileClipboardFiles: selectedFiles.toArray(),
+          fileClipboardMode: 'copy',
+        });
+      },
       showIn: anySelected,
     });
   }),
@@ -345,6 +362,13 @@ export default Component.extend(I18n, {
   btnCut: computed(function btnCut() {
     return this.createFileAction({
       id: 'cut',
+      action: () => {
+        const selectedFiles = this.get('selectedFiles');
+        this.setProperties({
+          fileClipboardFiles: selectedFiles.toArray(),
+          fileClipboardMode: 'move',
+        });
+      },
       showIn: anySelected,
     });
   }),
@@ -488,18 +512,9 @@ export default Component.extend(I18n, {
     const {
       id,
       icon,
-      action,
       class: elementClass,
     } = getProperties(actionProperties, 'id', 'icon', 'action', 'class');
-    const fileActions = this.get('fileActions');
     return Object.assign({
-      action: action || (() => {
-        let predefinedAction = fileActions[camelize(`act-${id}`)];
-        if (typeof predefinedAction === 'function') {
-          predefinedAction = predefinedAction.bind(fileActions);
-          return predefinedAction(this.get('selectedFiles'));
-        }
-      }),
       icon: icon || `browser-${dasherize(id)}`,
       title: this.t(`fileActions.${id}`),
       showIn: [],
@@ -509,6 +524,13 @@ export default Component.extend(I18n, {
 
   clearFilesSelection() {
     this.get('selectedFiles').clear();
+  },
+
+  clearFileClipboard() {
+    this.setProperties({
+      fileClipboardMode: null,
+      fileClipboardFiles: [],
+    });
   },
 
   pasteFiles() {
@@ -527,8 +549,13 @@ export default Component.extend(I18n, {
       'i18n',
       'i18nPrefix',
     );
-    const fileClipboardMode = get(fileManager, 'fileClipboardMode');
-    const fileClipboardFiles = get(fileManager, 'fileClipboardFiles');
+    const {
+      fileClipboardMode,
+      fileClipboardFiles,
+    } = this.getProperties(
+      'fileClipboardMode',
+      'fileClipboardFiles',
+    );
     const dirEntityId = get(dir, 'entityId');
 
     return handleMultiFilesOperation({
@@ -547,7 +574,7 @@ export default Component.extend(I18n, {
       }
     ).finally(() => {
       if (fileClipboardMode === 'move') {
-        fileManager.clearFileClipboard();
+        this.clearFileClipboard();
       }
     });
   },

@@ -16,6 +16,11 @@ const scrollOnTopClass = 'scroll-on-top';
 export default Controller.extend({
   scrollState: service(),
 
+  /**
+   * @type {Object} with fields: `componentId: string` - name of component to render
+   */
+  model: undefined,
+
   actions: {
     /**
      * @param {Event} scrollEvent 

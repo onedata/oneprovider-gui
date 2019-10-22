@@ -71,6 +71,18 @@ export default Component.extend(I18n, {
    */
   allButtonsArray: undefined,
 
+  /**
+   * @virtual
+   * @type {string}
+   */
+  fileClipboardMode: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<Models.File>}
+   */
+  fileClipboardFiles: undefined,
+
   changeDir: undefined,
 
   _window: window,
@@ -102,10 +114,6 @@ export default Component.extend(I18n, {
   downloadModalFile: null,
 
   selectionCount: reads('selectedFiles.length'),
-
-  fileClipboardMode: reads('fileManager.fileClipboardMode'),
-
-  fileClipboardFiles: reads('fileManager.fileClipboardFiles'),
 
   // NOTE: not using reads as a workaround to bug in Ember 2.18
   initialLoad: computed('filesArray.initialLoad', function initialLoad() {

@@ -33,7 +33,6 @@ export default Component.extend(I18n, FastDoubleClick, {
   ],
   attributeBindings: ['fileEntityId:data-row-id'],
 
-  fileActions: service(),
   errorExtractor: service(),
   media: service(),
   visualLogger: service(),
