@@ -1,0 +1,21 @@
+{{#bs-modal
+  open=open
+  backdropClose=false
+  keyboard=false
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header"}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    {{tt this "content"}}
+  {{/modal.body}}
+  {{#modal.footer}}
+    {{#one-spin-button
+      action=(action "reload")
+      class="btn btn-primary"
+    }}
+      {{tt this "reload"}}
+    {{/one-spin-button}}
+  {{/modal.footer}}
+{{/bs-modal}}

@@ -7,6 +7,7 @@ import editPermissionsModal from './components/edit-permissions-modal';
 import fileBrowser from './components/file-browser';
 import posixPermissionsEditor from './components/posix-permissions-editor';
 import fileDistributionModal from './components/file-distribution-modal';
+import websocketConnectionModal from './components/websocket-connection-modal';
 
 import uploadManager from './services/upload-manager';
 
@@ -19,6 +20,7 @@ const translations = {
     fileBrowser,
     posixPermissionsEditor,
     fileDistributionModal,
+    websocketConnectionModal,
   },
   services: {
     uploadManager,
