@@ -8,24 +8,45 @@
  */
 
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
-import { computed } from '@ember/object';
+import { reads, not } from '@ember/object/computed';
+import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
+import { later, cancel } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
+import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
-export default Component.extend(I18n, {
+function isEventFromMenuToggle(event) {
+  return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
+}
+
+export default Component.extend(I18n, FastDoubleClick, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
-  classNameBindings: ['typeClass', 'isSelected:file-selected'],
+  classNameBindings: [
+    'typeClass',
+    'isSelected:file-selected',
+    'fileCut:file-cut',
+    'isInvalidated:is-invalidated',
+  ],
   attributeBindings: ['fileEntityId:data-row-id'],
 
-  fileActions: service(),
+  errorExtractor: service(),
+  media: service(),
+  visualLogger: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbTableRow',
+
+  /**
+   * @override
+   * Prevent adding pointer style
+   */
+  ignoreTouchAction: true,
 
   /**
    * @virtual
@@ -34,6 +55,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
    */
   openContextMenu: notImplementedThrow,
 
@@ -48,7 +70,84 @@ export default Component.extend(I18n, {
    */
   isSelected: undefined,
 
-  displayName: reads('file.name'),
+  /**
+   * @virtual
+   * Set to true if this file is cut in clipboard
+   * @type {boolean}
+   */
+  fileCut: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  touchTap: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  touchHold: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  fastClick: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  fastDoubleClick: notImplementedWarn,
+
+  /**
+   * Time in ms when the touch should be treated as a hold
+   * @type {number}
+   */
+  holdTime: 500,
+
+  /**
+   * ID of timer invoked when started touch
+   * @type {number}
+   */
+  touchTimer: null,
+
+  /**
+   * True when started touch but not yet ended
+   * @type {boolean}
+   */
+  beingTouched: false,
+
+  /**
+   * True when the start touch timer invoked hold function, but the touch ended
+   * before time so there should be tap handling rather than hold
+   * @type {boolean}
+   */
+  tapIncoming: undefined,
+
+  isInvalidated: not('file.type'),
+
+  enableContextMenuToggle: computed(
+    'fileActionsOpen',
+    'type',
+    function enableContextMenuToggle() {
+      const {
+        fileActionsOpen,
+        type,
+      } = this.getProperties('fileActionsOpen', 'type');
+      return !fileActionsOpen && type !== 'broken';
+    }
+  ),
+
+  displayName: computed('file.{name,type}', function displayName() {
+    const file = this.get('file');
+    if (get(file, 'type') === 'broken') {
+      return this.t('brokenName');
+    } else {
+      return this.get('file.name');
+    }
+  }),
 
   fileEntityId: reads('file.entityId'),
 
@@ -58,7 +157,7 @@ export default Component.extend(I18n, {
 
   type: computed('file.type', function type() {
     const fileType = this.get('file.type');
-    if (fileType === 'dir' || fileType === 'file') {
+    if (fileType === 'dir' || fileType === 'file' || fileType === 'broken') {
       return fileType;
     }
   }),
@@ -70,17 +169,84 @@ export default Component.extend(I18n, {
         return 'browser-directory';
       case 'file':
         return 'browser-file';
+      case 'broken':
+        return 'x';
       default:
         break;
     }
   }),
 
-  contextMenuHandler: computed(function contextMenuHandler() {
+  contextmenuHandler: computed(function contextmenuHandler() {
     const component = this;
     const openContextMenu = component.get('openContextMenu');
     return function oncontextmenu(contextmenuEvent) {
-      openContextMenu(contextmenuEvent);
+      if (!get(component, 'beingTouched')) {
+        openContextMenu(contextmenuEvent);
+      }
       contextmenuEvent.preventDefault();
+      contextmenuEvent.stopImmediatePropagation();
+    };
+  }),
+
+  touchstartHandler: computed(function touchstartHandler() {
+    const component = this;
+    const touchTimerHandler = function touchTimerHandler() {
+      safeExec(component, 'setProperties', {
+        touchTimer: null,
+        tapIncoming: false,
+      });
+      get(component, 'touchHold')();
+    };
+    /**
+     * @param {TouchEvent} touchstartEvent
+     * @returns {undefined}
+     */
+    return function ontouchstart(touchstartEvent) {
+      if (isEventFromMenuToggle(touchstartEvent)) {
+        return false;
+      } else {
+        const touchTimer = later(touchTimerHandler, get(component, 'holdTime'));
+        safeExec(component, 'setProperties', {
+          beingTouched: true,
+          tapIncoming: true,
+          touchTimer,
+        });
+      }
+    };
+  }),
+
+  touchendHandler: computed(function touchendHandler() {
+    const component = this;
+    return function ontouchend(touchendEvent) {
+      if (isEventFromMenuToggle(touchendEvent)) {
+        return false;
+      } else {
+        const {
+          tapIncoming,
+          touchTimer,
+        } = getProperties(component, 'tapIncoming', 'touchTimer');
+        if (touchTimer != null) {
+          cancel(touchTimer);
+        }
+        if (tapIncoming) {
+          get(component, 'touchTap')();
+        }
+        safeExec(component, 'set', 'beingTouched', false);
+        touchendEvent.preventDefault();
+      }
+    };
+  }),
+
+  touchmoveHandler: computed(function touchmoveHandler() {
+    const component = this;
+    return function ontouchmove( /* touchmoveEvent */ ) {
+      if (get(component, 'beingTouched')) {
+        cancel(get(component, 'touchTimer'));
+        safeExec(component, 'setProperties', {
+          tapIncoming: false,
+          touchTimer: null,
+        });
+      }
     };
   }),
 
@@ -96,18 +262,62 @@ export default Component.extend(I18n, {
     }
   ),
 
+  fileLoadError: computed('file.error', function fileLoadError() {
+    const fileError = this.get('file.error');
+    if (fileError) {
+      return this.get('errorExtractor').getMessage(fileError);
+    }
+  }),
+
   isShared: reads('file.isShared'),
 
   hasMetadata: reads('file.hasMetadata'),
 
   didInsertElement() {
     this._super(...arguments);
-    this.element.addEventListener('contextmenu', this.get('contextMenuHandler'));
+    const {
+      contextmenuHandler,
+      touchendHandler,
+      touchstartHandler,
+      touchmoveHandler,
+      element,
+    } = this.getProperties(
+      'contextmenuHandler',
+      'touchendHandler',
+      'touchstartHandler',
+      'touchmoveHandler',
+      'element',
+    );
+    element.addEventListener('contextmenu', contextmenuHandler);
+    element.addEventListener('touchend', touchendHandler);
+    element.addEventListener('touchstart', touchstartHandler, { passive: true });
+    element.addEventListener('touchmove', touchmoveHandler, { passive: true });
   },
 
   willDestroyElement() {
     this._super(...arguments);
-    this.element.removeEventListener('contextmenu', this.get('contextMenuHandler'));
+    const {
+      contextmenuHandler,
+      touchendHandler,
+      touchstartHandler,
+      touchmoveHandler,
+      element,
+    } = this.getProperties(
+      'contextmenuHandler',
+      'touchendHandler',
+      'touchstartHandler',
+      'touchmoveHandler',
+      'element',
+    );
+    element.removeEventListener('contextmenu', contextmenuHandler);
+    element.removeEventListener('touchstart', touchstartHandler);
+    element.removeEventListener('touchend', touchendHandler);
+    element.removeEventListener('touchmove', touchmoveHandler);
+  },
+
+  click(clickEvent) {
+    this._super(...arguments);
+    this.get('fastClick')(clickEvent);
   },
 
   actions: {

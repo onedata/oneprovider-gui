@@ -1,0 +1,32 @@
+{{#proceed-process-modal
+  opened=open
+  backdropClose=(not processing)
+  keyboard=(not processing)
+  close=(action "close")
+  proceed=(action "remove")
+  processing=processing
+  proceedButtonClass="btn btn-danger proceed remove-proceed"
+  headerText=(tt this "delete")
+  proceedButtonText=(tt this "yes")
+  cancelButtonText=(tt this "no")
+  modalClass="proceed-modal fb-remove-modal"
+}}
+  <div class="row row-delete-question">
+    {{tt this (concat "questionPrefix")}}
+    {{tt this (concat "questionSuffix." itemsType) count=files.length}}
+  </div>
+  {{#if (lte files.length maxDisplayFiles)}}
+    <ul class="row row-delete-files-list info info-gray info-condensed">
+      {{#each files as |file|}}
+        <li class="row-delete-file-item">
+          {{#truncated-string class="delete-file-name"}}
+            <strong>{{file.name}}</strong>
+          {{/truncated-string}}
+          {{#if (eq file.type "file")}}
+            <div class="delete-file-size">({{bytes-to-string file.size}})</div>
+          {{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+{{/proceed-process-modal}}

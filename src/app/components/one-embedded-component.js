@@ -74,7 +74,7 @@ export default Component.extend({
       });
     } else {
       throw new Error(
-        'component:one-embedded-component: view with this component must be rendered in a iframe'
+        'component:one-embedded-component: view with this component must be rendered in an iframe'
       );
     }
   },

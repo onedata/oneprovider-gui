@@ -1,0 +1,41 @@
+{{#proceed-process-modal
+  opened=open
+  backdropClose=(not processing)
+  keyboard=(not processing)
+  close=(action "close")
+  proceed=(action "download")
+  processing=processing
+  proceedButtonClass="btn btn-primary"
+  headerText=(tt this "header")
+  proceedButtonText=(tt this "confirmDownload")
+  cancelButtonText=(tt this "cancel")
+  modalClass="proceed-modal fb-download-modal"
+}}
+  <div class="row row-download-question">
+    {{tt this "question"}}
+  </div>
+  <div class="row row-download-info">
+    {{one-icon icon=fileIcon class="download-file-icon"}}
+    <div class="download-file-text">
+      <div class="row row-download-file-name">
+        {{#truncated-string class="download-file-name"}}
+          {{fileName}}
+        {{/truncated-string}}
+      </div>
+      <div class="row row-additional-file-info small">
+        <span class="download-info-label">
+          {{tt this "size"}}:
+        </span>
+        <span class="download-file-size">{{bytes-to-string fileSize}}</span>
+      </div>
+      <div class="row row-additional-file-info small">
+        <span class="download-info-label">
+          {{tt this "modificationTime"}}:
+        </span>
+        <span class="download-file-modification">
+          {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+        </span>
+      </div>
+    </div>
+  </div>
+{{/proceed-process-modal}}

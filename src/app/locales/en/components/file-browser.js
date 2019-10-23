@@ -1,4 +1,23 @@
+import fbTable from './file-browser/fb-table';
+import fbTableRow from './file-browser/fb-table-row';
+import fbToolbar from './file-browser/fb-toolbar';
+import fbSelectionToolkit from './file-browser/fb-selection-toolkit';
+import fbCreateItemModal from './file-browser/fb-create-item-modal';
+import fbRemoveModal from './file-browser/fb-remove-modal';
+import fbRenameModal from './file-browser/fb-rename-modal';
+import fbInfoModal from './file-browser/fb-info-modal';
+import fbDownloadModal from './file-browser/fb-download-modal';
+
 export default {
+  menuCurrentDir: 'Current directory',
+  pasteFailed: {
+    move: 'moving some of files',
+    copy: 'copying some of files',
+  },
+  pasteFailedDetails: {
+    single: '{{reason}}',
+    multi: '{{reason}} and {{moreCount}} more errors',
+  },
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',
@@ -11,28 +30,15 @@ export default {
     copy: 'Copy',
     cut: 'Cut',
     delete: 'Delete',
+    paste: 'Paste',
   },
-  fbTable: {
-    menuSelection: 'Selection ({{selectionCount}})',
-    header: {
-      files: 'Files',
-      size: 'Size',
-      modification: 'Modification',
-    },
-  },
-  fbTableRow: {
-    file: 'file',
-    dir: 'directory',
-    isShared: 'This directory is shared',
-    hasMetadata: 'This {{type}} has non-empty metadata',
-  },
-  fbToolbar: {
-    moreTools: 'More tools',
-  },
-  fbSelectionToolkit: {
-    itemsSelected: 'Selection',
-  },
-  fbBreadcrumbs: {
-    menuCurrentDir: 'Current directory',
-  },
+  fbTable,
+  fbTableRow,
+  fbToolbar,
+  fbSelectionToolkit,
+  fbCreateItemModal,
+  fbRemoveModal,
+  fbRenameModal,
+  fbInfoModal,
+  fbDownloadModal,
 };

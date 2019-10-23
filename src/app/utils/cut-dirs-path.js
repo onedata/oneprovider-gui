@@ -1,15 +1,18 @@
 /**
- * Create a new pathsDir from other pathsDir, with new dir root.
+ * Changes root in dirPath array to the passed rootDir by rejecting all dir
+ * element from the beginning up to the rootDir. The result will be a shortened 
+ * version of passed array (without some elements from the beginning).
+ * 
  * @module utils/cut-dirs-path
  * @author Jakub Liput
- * @copyright (C) 2016 ACK CYFRONET AGH
+ * @copyright (C) 2016-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import { get } from '@ember/object';
 
 /**
- * Cut dirs in path to create new root dir.
+ * Cuts down the dirs path to start from new root.
  *
  * @param {File[]} dirPath array of File objects represeting:
  *  original root dir > dir_1 > ... > file/dir_N

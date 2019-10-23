@@ -18,17 +18,29 @@ import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-arra
 import { inject as service } from '@ember/service';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { htmlSafe } from '@ember/string';
+import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
+import { next, later } from '@ember/runloop';
+import { resolve } from 'rsvp';
 
 const compareIndex = createPropertyComparator('index');
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
+  classNameBindings: [
+    'hasEmptyDirClass:empty-dir',
+    'dirLoadError:error-dir',
+    'specialViewClass:special-dir-view',
+  ],
 
-  fileServer: service(),
+  fileManager: service(),
+  i18n: service(),
+  globalNotify: service(),
+  errorExtractor: service(),
+  isMobile: service(),
 
   /**
    * @override
@@ -54,18 +66,132 @@ export default Component.extend(I18n, {
   selectedFiles: undefined,
 
   /**
+   * @virtual
+   * @type {Array<Object>}
+   */
+  allButtonsArray: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  fileClipboardMode: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<Models.File>}
+   */
+  fileClipboardFiles: undefined,
+
+  changeDir: undefined,
+
+  _window: window,
+
+  /**
+   * @type {HTMLElement}
+   */
+  _body: document.body,
+
+  /**
    * @type {models/File}
    */
   lastSelectedFile: undefined,
 
   rowHeight: 61,
 
+  fetchingPrev: false,
+
+  fetchingNext: false,
+
   /**
    * @type {boolean}
    */
   headerVisible: undefined,
 
+  /**
+   * @type {models/File}
+   */
+  downloadModalFile: null,
+
   selectionCount: reads('selectedFiles.length'),
+
+  // NOTE: not using reads as a workaround to bug in Ember 2.18
+  initialLoad: computed('filesArray.initialLoad', function initialLoad() {
+    return this.get('filesArray.initialLoad');
+  }),
+
+  /**
+   * True if there is initially loaded file list, but it is empty.
+   * False if there is initially loaded file list, but it is not empty or
+   * the list was not yet loaded or cannot be loaded.
+   * @type {boolean|undefined}
+   */
+  isDirEmpty: and('initialLoad.isFulfilled', not('filesArray.length')),
+
+  /**
+   * If true, the `empty-dir` class should be added
+   * @type {ComputedProperty<boolean>}
+   */
+  hasEmptyDirClass: and(
+    equal('isDirEmpty', true),
+    equal('dirLoadError', undefined),
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  showDirContextMenu: not('dirLoadError'),
+
+  specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
+
+  /**
+   * @type {ComputedProperty<object>}
+   */
+  dirLoadError: computed(
+    'initialLoad.{isRejected,reason}',
+    function dirLoadError() {
+      const initialLoad = this.get('initialLoad');
+      if (get(initialLoad, 'isRejected')) {
+        return get(initialLoad, 'reason');
+      }
+    }
+  ),
+
+  /**
+   * If the error is POSIX, returns string posix error code
+   * @type {ComputedProperty<string|undefined>}
+   */
+  dirLoadErrorPosix: computed(
+    'dirLoadError.{id,details.errno}',
+    function dirLoadErrorPosix() {
+      const dirLoadError = this.get('dirLoadError');
+      if (get(dirLoadError, 'id') === 'posix') {
+        return get(dirLoadError, 'details.errno');
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<object>} message object from error extractor
+   */
+  dirLoadErrorMessage: computed(
+    'dirLoadError',
+    function dirLoadErrorMessage() {
+      const reason = this.get('dirLoadError');
+      if (reason) {
+        return this.get('errorExtractor').getMessage(reason) ||
+          this.t('unknownError');
+      } else {
+        return this.t('uknownError');
+      }
+    }
+  ),
+
+  uploadAction: array.findBy('allButtonsArray', raw('id'), raw('upload')),
+
+  newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
+
+  pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
 
   firstRowHeight: computed(
     'rowHeight',
@@ -82,13 +208,38 @@ export default Component.extend(I18n, {
 
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
-    return ReplacingChunksArray.create({
+    const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
       sortFun: compareIndex,
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
     });
+    array.on(
+      'fetchPrevStarted',
+      () => this.onFetchingStateUpdate('prev', 'started')
+    );
+    array.on(
+      'fetchPrevResolved',
+      () => this.onFetchingStateUpdate('prev', 'resolved')
+    );
+    array.on(
+      'fetchPrevRejected',
+      () => this.onFetchingStateUpdate('prev', 'rejected')
+    );
+    array.on(
+      'fetchNextStarted',
+      () => this.onFetchingStateUpdate('next', 'started')
+    );
+    array.on(
+      'fetchNextResolved',
+      () => this.onFetchingStateUpdate('next', 'resolved')
+    );
+    array.on(
+      'fetchNextRejected',
+      () => this.onFetchingStateUpdate('next', 'rejected')
+    );
+    return array;
   }),
 
   visibleFiles: reads('filesArray'),
@@ -114,14 +265,21 @@ export default Component.extend(I18n, {
   ),
 
   watchFilesArrayInitialLoad: observer(
-    'filesArray.initialLoad.isFulfilled',
+    'initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
-      const listWatcher = this.get('listWatcher');
-      scheduleOnce('afterRender', () => {
-        listWatcher.scrollHandler();
-      });
+      if (this.get('initialLoad.isFulfilled')) {
+        const listWatcher = this.get('listWatcher');
+        scheduleOnce('afterRender', () => {
+          listWatcher.scrollHandler();
+        });
+      }
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.get('fileManager').registerRefreshHandler(this);
+  },
 
   didInsertElement() {
     this._super(...arguments);
@@ -132,26 +290,70 @@ export default Component.extend(I18n, {
   willDestroyElement() {
     try {
       this.get('listWatcher').destroy();
+      this.get('fileManager').deregisterRefreshHandler(this);
     } finally {
       this._super(...arguments);
     }
+  },
+
+  /**
+   * @param {string} type one of: prev, next
+   * @param {string} state one of: started, resolved, rejected
+   * @returns {undefined}
+   */
+  onFetchingStateUpdate(type, state) {
+    safeExec(
+      this,
+      'set',
+      camelize(`fetching-${type}`),
+      state === 'started'
+    );
+  },
+
+  onDirChildrenRefresh(parentDirEntityId) {
+    if (this.get('dir.entityId') === parentDirEntityId) {
+      return this.refreshFileList();
+    } else {
+      return resolve();
+    }
+  },
+
+  refreshFileList() {
+    return this.get('filesArray').reload();
   },
 
   onTableScroll(items, headerVisible) {
     const filesArray = this.get('filesArray');
     const sourceArray = get(filesArray, 'sourceArray');
     const filesArrayIds = sourceArray.mapBy('entityId');
-    const firstId = items[0] && items[0].getAttribute('data-row-id') || null;
+
+    if (items[0] && !items[0].getAttribute('data-row-id')) {
+      const listWatcher = this.get('listWatcher');
+      next(() => {
+        filesArray.fetchPrev().then(() => listWatcher.scrollHandler());
+      });
+    }
+
+    const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
+    const firstId =
+      firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
     const lastId = items[items.length - 1] &&
       items[items.length - 1].getAttribute('data-row-id') || null;
     let startIndex, endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
-      const rowHeight = this.get('rowHeight');
+      const {
+        rowHeight,
+        _window,
+      } = this.getProperties('rowHeight', '_window');
       const $firstRow = $('.first-row');
-      const blankStart = $firstRow.offset().top * -1;
-      const blankEnd = blankStart + window.innerHeight;
-      startIndex = Math.floor(blankStart / rowHeight);
+      const firstRowTop = $firstRow.offset().top;
+      const blankStart = firstRowTop * -1;
+      const blankEnd = blankStart + _window.innerHeight;
+      startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.floor(blankEnd / rowHeight);
+      if (endIndex < 0) {
+        endIndex = 50;
+      }
     } else {
       startIndex = filesArrayIds.indexOf(firstId);
       endIndex = filesArrayIds.indexOf(lastId, startIndex);
@@ -170,7 +372,7 @@ export default Component.extend(I18n, {
   },
 
   fetchDirChildren(dirId, ...fetchArgs) {
-    return this.get('fileServer').fetchDirChildren(dirId, ...fetchArgs);
+    return this.get('fileManager').fetchDirChildren(dirId, ...fetchArgs);
   },
 
   clearFilesSelection() {
@@ -222,14 +424,60 @@ export default Component.extend(I18n, {
     }
   },
 
+  downloadUsingIframe(fileUrl) {
+    const _body = this.get('_body');
+    const iframe = $('<iframe/>').attr({
+      src: fileUrl,
+      style: 'display:none;',
+    }).appendTo(_body);
+    // the time should be long to support some download extensions in Firefox desktop
+    later(() => iframe.remove(), 60000);
+  },
+
+  downloadUsingOpen(fileUrl) {
+    // Apple devices such as iPad tries to open file using its embedded viewer
+    // in any browser, but we cannot say if the file extension is currently supported
+    // so we try to open every file in new tab.
+    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
+    this.get('_window').open(fileUrl, target);
+  },
+
+  openFile(file, confirmModal = false) {
+    const isDir = get(file, 'type') === 'dir';
+    if (isDir) {
+      return this.get('changeDir')(file);
+    } else {
+      if (confirmModal) {
+        this.set('downloadModalFile', file);
+      } else {
+        this.downloadFile(get(file, 'entityId'));
+      }
+    }
+  },
+
+  addToSelectedFiles(selectedFiles, newFiles) {
+    const filesWithoutBroken = newFiles.filter(f => get(f, 'type') !== 'broken');
+    selectedFiles.addObjects(filesWithoutBroken);
+
+    if (get(selectedFiles, 'length') > 1) {
+      const filesSourceArray = this.get('filesArray.sourceArray');
+      const filesIndices = new Map(
+        selectedFiles.map(file => [file, filesSourceArray.indexOf(file)])
+      );
+      selectedFiles.sort((a, b) => filesIndices.get(a) - filesIndices.get(b));
+    }
+  },
+
   selectRemoveSingleFile(selectedFiles, file) {
     selectedFiles.removeObject(file);
     this.set('lastSelectedFile', null);
   },
 
   selectAddSingleFile(selectedFiles, file) {
-    selectedFiles.pushObject(file);
-    this.set('lastSelectedFile', file);
+    this.addToSelectedFiles(selectedFiles, [file]);
+    if (get(file, 'type') !== 'broken') {
+      this.set('lastSelectedFile', file);
+    }
   },
 
   selectOnlySingleFile(selectedFiles, file) {
@@ -267,7 +515,7 @@ export default Component.extend(I18n, {
 
     const indexA = Math.min(startIndex, fileIndex);
     const indexB = Math.max(startIndex, fileIndex);
-    selectedFiles.addObjects(sourceArray.slice(indexA, indexB + 1));
+    this.addToSelectedFiles(selectedFiles, sourceArray.slice(indexA, indexB + 1));
   },
 
   findNearestSelectedIndex(fileIndex) {
@@ -294,8 +542,37 @@ export default Component.extend(I18n, {
     return nearestIndex;
   },
 
+  downloadFile(fileEntityId) {
+    const {
+      fileManager,
+      globalNotify,
+      isMobile,
+    } = this.getProperties('fileManager', 'globalNotify', 'isMobile');
+    const isMobileBrowser = get(isMobile, 'any');
+    return fileManager.getFileDownloadUrl(fileEntityId)
+      .then((data) => {
+        const fileUrl = data && get(data, 'fileUrl');
+        if (fileUrl) {
+          if (isMobileBrowser) {
+            this.downloadUsingOpen(fileUrl);
+          } else {
+            this.downloadUsingIframe(fileUrl);
+          }
+        } else {
+          throw { isOnedataCustomError: true, type: 'empty-file-url' };
+        }
+      })
+      .catch((error) => {
+        globalNotify.backendError(this.t('startingDownload'), error);
+        throw error;
+      });
+  },
+
   actions: {
     openContextMenu(file, mouseEvent) {
+      if (get(file, 'type') === 'broken') {
+        return;
+      }
       const selectedFiles = this.get('selectedFiles');
       if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
         this.selectOnlySingleFile(selectedFiles, file);
@@ -304,28 +581,29 @@ export default Component.extend(I18n, {
       let top;
       const trigger = mouseEvent.currentTarget;
       if (trigger.matches('.one-menu-toggle')) {
-        const $trigger = $(trigger);
-        const toggleOffset = $trigger.offset();
-        left = toggleOffset.left + trigger.clientWidth / 2;
-        top = toggleOffset.top + trigger.clientHeight / 2;
+        const $middleDot = $(trigger).find('.icon-dot').eq(1);
+        const middleDotOffset = $middleDot.offset();
+        left = middleDotOffset.left + 1;
+        top = middleDotOffset.top + 1;
       } else {
         left = mouseEvent.clientX;
         top = mouseEvent.clientY;
       }
       const $this = this.$();
       const tableOffset = $this.offset();
-      left = left - tableOffset.left + this.element.offsetLeft;
-      top = top - tableOffset.top + this.element.offsetTop;
+      left = left - tableOffset.left;
+      top = top - tableOffset.top;
       this.$('.file-actions-trigger').css({
         top,
         left,
       });
       // cause popover refresh
       if (this.get('fileActionsOpen')) {
-        window.dispatchEvent(new Event('resize'));
+        this.get('_window').dispatchEvent(new Event('resize'));
       }
       this.actions.toggleFileActions.bind(this)(true, file);
     },
+
     toggleFileActions(open, file) {
       this.set('fileActionsOpen', open, file);
     },
@@ -342,6 +620,53 @@ export default Component.extend(I18n, {
         ctrlKey || metaKey,
         shiftKey
       );
+    },
+
+    /**
+     * @param {object} file
+     * @param {TouchEvent} touchEvent
+     * @returns {any}
+     */
+    fileTouchHeld(file /*, touchEvent */ ) {
+      return this.fileClicked(file, true, false);
+    },
+
+    /**
+     * @param {object} file
+     * @returns {any}
+     */
+    fileTapped(file) {
+      const areSomeFilesSelected = Boolean(this.get('selectedFiles.length'));
+      if (areSomeFilesSelected) {
+        return this.fileClicked(file, true, false);
+      } else {
+        return this.openFile(file, true);
+      }
+    },
+
+    fileDoubleClicked(file /*, clickEvent */ ) {
+      return this.openFile(file);
+    },
+
+    emptyDirUpload() {
+      return this.get('uploadAction.action')(...arguments);
+    },
+
+    emptyDirNewDirectory() {
+      return this.get('newDirectoryAction.action')(...arguments);
+    },
+
+    emptyDirPaste() {
+      return this.get('pasteAction.action')(...arguments);
+    },
+
+    closeDownloadModal() {
+      this.set('downloadModalFile', null);
+    },
+
+    confirmDownload() {
+      return this.downloadFile(this.get('downloadModalFile.entityId'))
+        .finally(() => safeExec(this, 'set', 'downloadFile', null));
     },
   },
 });

@@ -1,7 +1,66 @@
-{{file-browser
-  spaceId=spaceId
-  dirId=fileId
-}}
-<div class="upload-drop-zone">
-  {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
-</div>
+{{#promise-proxy-container proxy=spaceRootDirProxy}}
+  {{file-browser
+    dir=spaceRootDirProxy.content
+    updateDirEntityId=(action "updateDirEntityId")
+    openCreateNewDirectory=(action "openCreateItemModal" "dir")
+    openRemove=(action "openRemoveModal")
+    openRename=(action "openRenameModal")
+    openInfo=(action "openInfoModal")
+    openEditPermissions=(action "openEditPermissionsModal")
+    openFileDistributionModal=(action "openFileDistributionModal")
+    containerScrollTop=(action "containerScrollTop")
+  }}
+  <div class="upload-drop-zone">
+    {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
+  </div>
+
+  {{#if createItemParentDir}}
+    {{file-browser/fb-create-item-modal
+      open=true
+      parentDir=createItemParentDir
+      itemType=createItemType
+      onHide=(action "closeCreateItemModal")
+    }}
+  {{/if}}
+
+  {{#if fileToRename}}
+    {{file-browser/fb-rename-modal
+      open=true
+      file=fileToRename
+      parentDir=renameParentDir
+      onHide=(action "closeRenameModal")
+    }}
+  {{/if}}
+
+  {{#if fileToShowInfo}}
+    {{file-browser/fb-info-modal
+      open=true
+      file=fileToShowInfo
+      spaceEntityId=spaceEntityId
+      onHide=(action "closeInfoModal")
+    }}
+  {{/if}}
+
+  {{#if filesToRemove}}
+    {{file-browser/fb-remove-modal
+      open=true
+      files=filesToRemove
+      parentDir=removeParentDir
+      onHide=(action "closeRemoveModal")
+    }}
+  {{/if}}
+
+  {{#if filesToEditPermissions}}
+    {{edit-permissions-modal
+      files=filesToEditPermissions
+      space=spaceProxy.content
+      onClose=(action "closeEditPermissionsModal")}}
+  {{/if}}
+
+  {{#if filesToShowDistribution}}
+    {{file-distribution-modal
+      files=filesToShowDistribution
+      space=spaceProxy.content
+      onClose=(action "closeFileDistributionModal")}}
+  {{/if}}
+{{/promise-proxy-container}}

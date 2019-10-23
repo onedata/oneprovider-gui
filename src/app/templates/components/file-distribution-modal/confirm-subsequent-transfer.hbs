@@ -1,0 +1,10 @@
+<p class="confirm-subsequent-transfer-message break-word">{{messageText}}</p>
+<div class="btn-toolbar">
+  {{#bs-button onClick=onCancel disabled=(not canCancel) size="sm" class="cancel-subsequent-transfer"}}
+    {{tt this "cancelButton"}}
+  {{/bs-button}}
+  {{#one-spin-button action=(action "confirm") class="btn btn-primary btn-sm confirm-subsequent-transfer"}}
+    {{confirmButtonText}}
+  {{/one-spin-button}}
+</div>
+{{yield}}

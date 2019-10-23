@@ -1,0 +1,35 @@
+<div class="name-section">
+  {{#truncated-string class="oneprovider-name"}}{{oneprovider.name}}{{/truncated-string}}
+</div>
+{{#status-toolbar as |toolbar|}}
+  {{toolbar.icon
+    icon="replicate"
+    class="replication-status-icon"
+    status=(if isReplicationInProgress "inProgress" "inactive")
+    hint=(if isReplicationInProgress (tt this "replicationInProgress"))}}
+  {{toolbar.icon
+    icon="migrate"
+    class="migration-status-icon"
+    status=(if isMigrationInProgress "inProgress" "inactive")
+    hint=(if isMigrationInProgress (tt this "migrationInProgress"))}}
+  {{toolbar.icon
+    icon="invalidate"
+    class="eviction-status-icon"
+    status=(if isEvictionInProgress "inProgress" "inactive")
+    hint=(if isEvictionInProgress (tt this "evictionInProgress"))}}
+{{/status-toolbar}}
+{{file-distribution-modal/chunks-visualizer
+  neverSynchronized=neverSynchronized
+  fileType=(if hasOnlyDirs "dir" "file")
+  fileSize=filesSize
+  chunks=chunksBarData
+  percentage=percentage
+  chunksRange=chunksRange}}
+{{actions-toolbar
+  isMinimized=true
+  toolbarClasses=""
+  toolbarToggleClasses="btn-menu-toggle"
+  dropdownPlacement="auto"
+  dropdownOverModals=true
+  actionsArray=actionsArray}}
+<div class="first-line-breaker"></div>

@@ -3,11 +3,11 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'oneprovider-gui',
+    'modulePrefix': 'oneprovider-gui',
     environment,
-    rootURL: null,
-    locationType: 'hash',
-    EmberENV: {
+    'rootURL': null,
+    'locationType': 'hash',
+    'EmberENV': {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
         // e.g. 'with-controller': true
@@ -19,17 +19,23 @@ module.exports = function (environment) {
         Date: false,
       },
     },
-    layoutConfig: {
+    'layoutConfig': {
       formLabelColumns: 'col-xs-12 col-sm-5',
       formInputColumns: 'col-xs-12 col-sm-7',
       formSubmitColumns: 'col-xs-12 col-sm-7 col-sm-offset-5 text-xs-center',
       formToggleLabelColumns: 'col-xs-6 col-sm-5',
       formToggleInputColumns: 'col-xs-6 col-sm-7',
     },
-    i18n: {
+    'onedataWebsocket': {
+      defaultProtocolVersion: 3,
+    },
+    'i18n': {
       defaultLocale: 'en',
     },
-    APP: {
+    'ember-local-storage': {
+      namespace: true,
+    },
+    'APP': {
       // Here you can pass flags/options to your application instance
       // when it is created
     },

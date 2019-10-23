@@ -5,9 +5,9 @@
   @include fill-container();
   display: flex;
   padding-top: $content-row-vertical-padding;
-  padding-right: $content-col-padding;
+  padding-right: 0;
   padding-bottom: $content-col-padding;
-  padding-left: $content-col-padding;
+  padding-left: 0;
   overflow: auto;
   > * {
     flex-grow: 1;

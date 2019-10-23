@@ -1,0 +1,68 @@
+{{#loading-container
+  isLoading=isDistributionLoading
+  errorReason=distributionErrorReason}}
+  {{#if isMigrationDestinationSelectorVisible}}
+    {{file-distribution-modal/destination-oneprovider-selector
+      files=(map-by "file" fileDistributionData)
+      oneproviders=oneproviders
+      busyOneproviders=disabledMigrationTargets
+      sourceOneprovider=newMigrationSourceOneprovider
+      onMigrate=(action "tryStartMigration")
+      onCancel=(action "cancelNewMigration")}}
+  {{else if isStartSubsequentTransferConfirmationVisible}}
+    {{file-distribution-modal/confirm-subsequent-transfer
+      transferType=startSubsequentTransferType
+      oneprovider=(if (eq startSubsequentTransferType "replication") startSubsequentTransferData.destinationOneprovider startSubsequentTransferData.sourceOneprovider)
+      onConfirm=(action "startSubsequentTransfer")
+      onCancel=(action "cancelSubsequentTransfer")}}
+  {{/if}}
+  <div class="{{if (or isMigrationDestinationSelectorVisible isStartSubsequentTransferConfirmationVisible) "hidden"}}">
+    {{#if batchMode}}
+      <p>{{tt this "summarizedFilesDistribution"}} {{one-label-tip title=(tt this "dirsDontHaveDistributionTip")}}</p>
+    {{/if}}
+    <ul>
+      {{#each oneproviders key="id" as |oneprovider|}}
+        {{file-distribution-modal/oneproviders-distribution-item
+          class=(concat "oneprovider-" oneprovider.entityId)
+          oneprovider=oneprovider
+          spaceHasSingleOneprovider=(eq oneproviders.length 1)
+          fileDistributionData=fileDistributionData
+          onReplicate=(action "tryStartReplication" oneprovider)
+          onMigrate=(action "selectMigrationDestination" oneprovider)
+          onEvict=(action "tryStartEviction" oneprovider)}}
+      {{/each}}
+      {{#unless batchMode}}
+        <p class="transfers-counter-info">
+          {{#promise-proxy-container
+            proxy=fileDistributionData.firstObject.transfersProxy
+            isLoading=(and fileDistributionData.firstObject.transfersProxy.isPending (not fileDistributionData.firstObject.transfersProxy.content))
+            alwaysRender=true
+            customErrorMessage=(tt this "cannotLoadTransfers")
+            absoluteCentered=false
+            sizeClass="xxs"}}
+            {{#if fileDistributionData.firstObject.transfersProxy.content}}
+              {{#if activeTransfersExist}}
+                {{tt this "currentlyTransferredText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
+                &ndash;
+                <a class="clickable" {{action "navigateToTransfers" fileDistributionData.firstObject.file}}>{{tt this "currentlyTransferredLink"}}</a>.
+              {{else if endedTransfersCount}}
+                {{tt this "endedTransfersText"
+                  elementType=(tt this fileDistributionData.firstObject.fileType)
+                  count=endedTransfersCount
+                  countUnit=(tt this (if (gt endedTransfersCount 1) "times" "time"))}}
+                {{#if endedTransfersOverflow}}
+                  {{tt this "orMore"}}
+                {{/if}}
+                &ndash;
+                <a class="clickable" {{action "navigateToTransfers" fileDistributionData.firstObject.file}}>{{tt this "endedTransfersLink"}}</a>.
+              {{else}}
+                {{tt this "noTransfersText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
+              {{/if}}
+            {{/if}}
+          {{/promise-proxy-container}}
+        </p>
+      {{/unless}}
+    </ul>
+  </div>
+{{/loading-container}}
+{{yield}}

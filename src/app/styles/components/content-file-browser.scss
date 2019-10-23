@@ -1,3 +1,20 @@
+$zindex-file-browser-head: $zindex-modal-background - 10;
+
+.content-file-browser .file-browser-head-container {
+  z-index: $zindex-file-browser-head;
+}
+
+.content-file-browser + .ps__rail-x + .ps__rail-y {
+  z-index: $zindex-file-browser-head + 1;
+}
+
+@media (max-width: $screen-xs-max) {
+  .one-embedded-component.content-file-browser {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 .content-file-browser {
   $drop-zone-rect-margin: $padding-small-horizontal;
 
@@ -12,7 +29,7 @@
     display: none;
     border: 3px dashed darken($color-one-light-blue, 10%);
     background-color: rgba($color-one-light-blue, 0.75);
-    z-index: $zindex-tooltip;;
+    z-index: $zindex-tooltip;
     
     .upload-watermark-icon {
       position: absolute;

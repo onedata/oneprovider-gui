@@ -23,7 +23,6 @@ function generateBreadcrumbsItems(numberOfFiles = 0) {
     result.files[0].hasParent = false;
   }
   for (let i = 0; i < result.files.length; i += 1) {
-    /* jshint loopfunc: true */
     let ic = i;
     result.files[ic].set('__parent', result.files[ic - 1]);
   }

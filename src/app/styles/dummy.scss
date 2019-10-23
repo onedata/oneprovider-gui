@@ -1,0 +1,15 @@
+// Styles for dummy components
+
+.dummy-component {
+  h1.dummy-header {
+    font-size: 18px;
+  }
+  .dummy-box {
+    border: 1px solid $color-one-azure;
+  }
+  .activate-dummy-hidden {
+    .dummy-hidden {
+      display: none;
+    }
+  }
+}

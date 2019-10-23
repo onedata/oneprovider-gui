@@ -6,17 +6,22 @@ import { get, computed } from '@ember/object';
 import { collect } from '@ember/object/computed';
 
 const rootDir = {
-  id: 'root',
-  name: 'Some Space',
+  id: 'file.root.instance:private',
+  entityId: 'root',
+  name: 'Some Space with very long name',
   hasParent: false,
 };
 
-const childrenCount = 10;
+const childrenCount = 4;
 
-const dirs = _.range(0, childrenCount).map(i => ({
-  id: `file-${i}`,
-  name: `Directory ${i}`,
-}));
+const dirs = _.range(0, childrenCount).map(i => {
+  const entityId = `file-${i}`;
+  return {
+    id: `file.${entityId}.instance:private`,
+    name: `Directory ${i}`,
+    entityId,
+  };
+});
 
 for (let i = 0; i < childrenCount; ++i) {
   dirs[i].parent = PromiseObject.create({
@@ -25,14 +30,18 @@ for (let i = 0; i < childrenCount; ++i) {
   dirs[i].hasParent = true;
 }
 
-const lastDir = dirs[dirs.length - 1] || rootDir;
-
+const dirsCount = dirs.length;
+const lastDir = dirs[dirsCount - 1] || rootDir;
 lastDir.name += ' with very long name';
 
 export default Component.extend({
-  classNames: ['dummy-fb-breadcrumbs'],
+  classNames: ['dummy-fb-breadcrumbs', 'dummy-component'],
 
-  dir: lastDir,
+  dirFive: lastDir,
+  dirFour: dirs[dirsCount - 2],
+  dirThree: dirs[dirsCount - 3],
+  dirTwo: dirs[dirsCount - 4],
+  dirOne: rootDir,
 
   allButtonsArray: collect('btnDummyCurrentDir', 'btnDummySpaceRootDir'),
 

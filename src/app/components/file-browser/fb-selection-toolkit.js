@@ -12,10 +12,13 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { observer, computed } from '@ember/object';
 import { gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['fb-selection-toolkit'],
-  classNameBindings: ['opened:opened:closed'],
+  classNameBindings: ['opened:opened:closed', 'mobileMode:mobile-mode:desktop-mode'],
+
+  i18n: service(),
 
   /**
    * @override
@@ -31,6 +34,12 @@ export default Component.extend(I18n, {
    * @virtual
    */
   selectionContext: undefined,
+
+  /**
+   * Set to true, to make it floating
+   * @type {boolean}
+   */
+  mobileMode: false,
 
   itemsCount: 0,
 

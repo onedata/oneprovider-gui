@@ -1,46 +1,94 @@
-<td class="fb-table-col-files">
-  <div class="file-info-container">
-    <div class="inline-icon-container file-icon-container">
-      {{one-icon icon=icon class="file-icon"}}
-    </div>
-    <div class="file-name">
-      {{#truncated-string}}
-        {{displayName}}
-      {{/truncated-string}}
-    </div> 
-    <div class="file-status-bar">
-      {{#if isShared}}
-        <div class="file-status-icon file-status-shared">
-          <div class="inline-icon-container file-icon-container">
-            {{#one-icon icon="browser-share"}}
-              {{one-tooltip title=(tt this "isShared" type=(tt this file.type))}}
-            {{/one-icon}}
-          </div>
-        </div>
-      {{/if}}
-      {{#if hasMetadata}}
-        <div class="file-status-icon file-status-metadata">
-          <div class="inline-icon-container file-icon-container">
-            {{#one-icon icon="browser-metadata"}}
-              {{one-tooltip title=(tt this "hasMetadata" type=(tt this file.type))}}
-            {{/one-icon}}
-          </div>
-        </div>
-      {{/if}}
-    </div>
-  </div>
-</td>
-<td class="fb-table-col-size">
-  {{bytes-to-string file.size}}
-</td>
-<td class="fb-table-col-modification">
-  {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
-</td>
-<td class="fb-table-col-actions-menu">
-  {{#unless hideMenuTrigger}}
-    {{one-menu-toggle
-      class="file-row-actions-trigger"
-      click=(unless fileActionsOpen (disable-bubbling (action "openContextMenu")))
+{{#if isInvalidated}}
+  <td colspan="9999" class="special-row-cell invalidated-row-cell">
+    {{spin-spinner-block
+      sizeClass="xs"
+      class="absolute-middle-centered"
     }}
-  {{/unless}}
-</td>
+  </td>
+{{else}}
+  <td class="fb-table-col-files">
+    <div class="file-info-container">
+      <div class="file-icon-container">
+        <div class="inline-icon-container inline-icon-container-file">
+          {{one-icon icon=icon class="file-icon"}}
+        </div>
+      </div>
+      <div class="file-item-text">
+        <div class="file-name">
+          {{#truncated-string}}
+            <span class="file-name-inner">
+              {{displayName}}
+              {{#if fileLoadError}}
+                {{one-tooltip title=fileLoadError.message}}
+              {{/if}}
+            </span>
+          {{/truncated-string}}
+        </div>
+        {{#if media.isMobile}}
+          <div class="file-info-mobile">
+            <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
+              {{#if (eq file.type "file")}}
+                {{#if file.isPollingSize}}
+                  {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+                {{else}}
+                  {{bytes-to-string file.size}}
+                {{/if}}
+              {{else}}
+                —
+              {{/if}}
+            </span>
+            <span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-modification">
+              {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+            </span>
+          </div>
+        {{/if}}
+      </div> 
+      <div class="file-status-bar">
+        {{#if isShared}}
+          <div class="file-status-icon file-status-shared">
+            <div class="inline-icon-container file-icon-container">
+              {{#one-icon icon="browser-share"}}
+                {{one-tooltip title=(tt this "isShared" type=(tt this file.type))}}
+              {{/one-icon}}
+            </div>
+          </div>
+        {{/if}}
+        {{#if hasMetadata}}
+          <div class="file-status-icon file-status-metadata">
+            <div class="inline-icon-container file-icon-container">
+              {{#one-icon icon="browser-metadata"}}
+                {{one-tooltip title=(tt this "hasMetadata" type=(tt this file.type))}}
+              {{/one-icon}}
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  </td>
+  <td class="fb-table-col-size">
+    <span class="file-item-text">
+      {{#if (eq file.type "file")}}
+        {{#if file.isPollingSize}}
+          {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+        {{else}}
+          {{bytes-to-string file.size}}
+        {{/if}}
+      {{else}}
+        —
+      {{/if}}
+    </span>
+  </td>
+  <td class="fb-table-col-modification">
+    <span class="file-item-text">
+      {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+    </span>
+  </td>
+  <td class="fb-table-col-actions-menu">
+    {{#unless hideMenuTrigger}}
+      {{one-menu-toggle
+        class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
+        click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
+      }}
+    {{/unless}}
+  </td>
+{{/if}}

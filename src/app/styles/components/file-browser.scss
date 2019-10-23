@@ -1,16 +1,43 @@
 $-file-browser-header-height: 45px;
 $-file-browser-item-height: 32px;
+// the same padding as distance of provider tab icon in Onezone GUI
+$-file-browser-padding-left: 12px;
+// light padding at the right to make some space for scrollbar rail
+$-file-browser-padding-right: 16px;
+$-fb-table-margin-top: 50px;
+$-fb-table-margin-top-mobile: 36px;
+
+@import './file-browser/fb-breadcrumbs';
+@import './file-browser/fb-download-modal';
+@import './file-browser/fb-remove-modal';
+@import './file-browser/fb-selection-toolkit';
+@import './file-browser/fb-table-row';
+@import './file-browser/fb-table';
+
+.embedded-content {
+  .file-browser-head-container {
+    @include before-bottom-shadow;
+  }
+  &.scroll-on-top {
+    .file-browser-head-container {
+      @include hide-shadow;
+    }
+  }
+}
 
 .file-browser {
+  height: calc(100% - #{$-fb-table-margin-top});
+  @media (max-width: $screen-xs-max) {
+    height: calc(100% - #{$-fb-table-margin-top-mobile});
+  }
   .file-browser-head-container {
     position: fixed;
-    z-index: $zindex-tooltip - 1;
     padding-top: $content-row-vertical-padding;
-    padding-left: $content-col-padding;
-    padding-right: $content-col-padding;
+    padding-left: $content-col-padding + $-file-browser-padding-left;
+    padding-right: $content-col-padding + $-file-browser-padding-right;
     top: 0;
     left: 0;
-    right: 20px;
+    right: 0;
     line-height: $-file-browser-header-height;
     background-color: $color-one-white;
     .fb-head-inner {
@@ -18,11 +45,28 @@ $-file-browser-item-height: 32px;
       max-width: 100%;
       margin-right: -20px;
     }
+    @media (max-width: $screen-xs-max) {
+      padding-left: 10px;
+      padding-right: 20px;
+      padding-top: 0;
+    }
   }
 }
+
+.floating-actions-trigger {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0px;
+  height: 0px;
+}
+
 .fb-table-container {
-  // FIXME: use variables
-  margin-top: 67px;
+  margin-top: $-fb-table-margin-top;
+  height: 100%;
+  @media (max-width: $screen-xs-max) {
+    height: $-fb-table-margin-top-mobile;
+  }
 }
 
 .fb-toolbar-container {
@@ -30,7 +74,7 @@ $-file-browser-item-height: 32px;
   flex-direction: row-reverse;
   flex-grow: 0;
   flex-shrink: 0;
-  flex-basis: 250px;
+  flex-basis: 340px;
   height: $-file-browser-header-height;
 }
 
@@ -56,195 +100,14 @@ $-file-browser-item-height: 32px;
   }
 }
 
-.fb-selection-toolkit {
-  overflow: hidden;
-  max-width: 200px;
-  opacity: 1;
-  margin-left: 20px;
-  transition: $collapse-transition-vertical;
-  .selection-toolkit-inner {
-    @include vertical-align-middle;
-    position: relative;
-    cursor: pointer;
-    @include vendor-prefix(user-select, none);
-    border-radius: $border-radius-large;
-    border: 2px $main-text-color solid;
-    padding: 0 30px 0 15px;
-    height: $-file-browser-item-height + 8px;
-    &:hover {
-      background-color: $color-file-selected;
-    }
-    .selection-toolkit-actions-trigger {
-      @include vertical-align-middle;
-      right: 8px;
-      pointer-events: none;
-      &.one-menu-toggle {
-        padding: 0;
-      }
-    }
-  }
-  .selection-count-text {
-    line-height: 40px - 4px;
-  }
-  .selection-count-number {
-    color: $main-text-color-disabled;
-  }
-  &.closed {
-    max-width: 0;
-    opacity: 0;
-    margin-left: 0;
-  }
-}
-
 .fb-breadcrumbs-container {
   flex-grow: 1;
   overflow-x: hidden;
   white-space: nowrap;
 }
 
-.fb-breadcrumbs {
-  display: block;
-  position: relative;
-  overflow-y: hidden;
-  overflow-x: hidden;
-  
-  .fb-breadcrumbs-inner {
-    display: inline-block;
-    white-space: nowrap;
-    position: relative;
-    opacity: 1;
-    transition: opacity 0.2s ease;
-    &.breadcrumbs-recomputing {
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-    &.truncate {
-      max-width: 100%;
-    }
-  }
-  
-  .fb-breadcrumbs-element {
-    display: inline-block;
-    vertical-align: middle;
-    user-select: none;
-  }
-  .fb-breadcrumbs-dir-root .inline-icon-container .one-icon {
-    font-size: 210%;
-  }
-  .fb-breadcrumbs-separator {
-    width: 0.8em;
-    &::before {
-      content: '/';
-      font-size: 1.2em;
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%) translateX(0.1em);
-    }
-  }
-  .fb-breadcrumbs-current-dir-button {
-    display: inline-block;
-    position: relative;
-    text-decoration: none;
-    padding-right: 30px;
-    &.truncate {
-      max-width: 100%;
-    }
-    .inline-icon-container.current-dir-actions-trigger .one-icon {
-      transform: translateY(-50%);
-    }
-  }
-  .current-dir-actions-trigger {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .fb-breadcrumbs-element + .fb-breadcrumbs-current-dir-button.truncate {
-    max-width: calc(100% - 80px);
-  }
-}
-
 .webui-popover-in-fb-head {
   z-index: $zindex-tooltip;
 }
 
-.fb-table {
-  @media (max-width: $screen-xs-max) {
-    .fb-table-col-size, .fb-table-col-modification {
-      display: none;
-    }
-  }
-  .fb-table-thead {
-    .fb-table-col-files {
-      text-align: left;
-    }
-  }
-  .fb-table-col-files {
-    // enables text truncate inside
-    max-width: 0;
-  }
-  .fb-table-col-size {
-    width: 120px;
-    text-align: center;
-  }
-  .fb-table-col-modification {
-    width: 200px;
-    text-align: center;
-  }
-  .fb-table-col-actions-menu {
-    position: relative;
-    width: 40px;
-    padding: 0;
-    .file-row-actions-trigger {
-      @include vertical-align-middle;
-    }
-  }
-  .file-actions-trigger {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0px;
-    height: 0px;
-    // TODO: color for development
-    // background-color: red;
-  }
-}
 
-.fb-table-row {
-  @include vendor-prefix(user-select, none);
-  overflow-y: hidden;
-  &.file-selected {
-    background-color: $color-file-selected;
-  }
-  .fb-table-col-files {
-    .file-info-container {
-      display: flex;
-      .file-icon-container, .file-name {
-        min-width: 2em;
-      }
-      .file-name {
-        flex-grow: 1;
-        padding-left: 10px;
-      }
-      .file-status-icon {
-        display: inline-block;
-        color: $main-text-color-disabled;
-      }
-    }
-    // FIXME: design
-    // &:hover {
-    //   .file-status-icon {
-    //     color: $main-text-color;
-    //   }
-    // }
-  }
-  .file-icon-container .one-icon {
-    font-size: 200%;
-  }
-  &.fb-table-row-dir .file-icon {
-    color: $color-directory;
-  }
-  &.fb-table-row-file .file-icon {
-    color: $color-file;
-  }
-}

@@ -1,0 +1,28 @@
+.fb-selection-toolkit {
+  overflow: hidden;
+  max-width: 220px;
+  opacity: 1;
+  margin-left: 20px;
+  transition: $collapse-transition-vertical;
+  .selection-count-number {
+    color: $main-text-color-disabled;
+  }
+  &.closed {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
+  }
+  &.mobile-mode {
+    position: fixed;
+    display: block;
+    z-index: 1;
+    bottom: 0;
+    right: 10px;
+  }
+  &.desktop-mode {
+    .one-pill-button {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}

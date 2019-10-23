@@ -8,20 +8,32 @@
  */
 
 import Controller from '@ember/controller';
-import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
+import $ from 'jquery';
+
+const scrollOnTopClass = 'scroll-on-top';
 
 export default Controller.extend({
   scrollState: service(),
 
-  // FIXME: debug code, to remove on final integration
-  originInfo: computed(function originInfo() {
-    const m = /https:\/\/.*?\/opw\/(.*?)\/.*/.exec(location.href);
-    return m && `Cluster ID: ${m[1]}`;
-  }),
+  /**
+   * @type {Object} with fields: `componentId: string` - name of component to render
+   */
+  model: undefined,
 
   actions: {
+    /**
+     * @param {Event} scrollEvent 
+     * @returns {undefined}
+     */
     scrollOccurred(scrollEvent) {
+      const scrollIsOnTop = scrollEvent.target.scrollTop === 0;
+      const $embeddedContent = $('.embedded-content');
+      if (scrollIsOnTop) {
+        $embeddedContent.addClass(scrollOnTopClass);
+      } else {
+        $embeddedContent.removeClass(scrollOnTopClass);
+      }
       this.get('scrollState').scrollOccurred(scrollEvent);
     },
   },
