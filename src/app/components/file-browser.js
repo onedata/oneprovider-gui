@@ -248,6 +248,7 @@ export default Component.extend(I18n, {
     return this.createFileAction({
       id: 'upload',
       class: 'browser-upload',
+      action: () => this.get('uploadManager').triggerUploadDialog(),
       showIn: [
         actionContext.inDir,
         actionContext.currentDir,
