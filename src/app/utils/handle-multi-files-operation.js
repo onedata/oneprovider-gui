@@ -53,7 +53,7 @@ export function interpretPromises(promisesHash) {
   if (failedCount > 0) {
     if (failedCount === 1) {
       failQuantity = 'single';
-    } else if (failedCount === promisesHash.keys().length) {
+    } else if (failedCount === Object.keys(promisesHash).length) {
       failQuantity = 'all';
     } else {
       failQuantity = 'multi';
