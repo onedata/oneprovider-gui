@@ -456,7 +456,8 @@ export default Component.extend(I18n, {
   },
 
   addToSelectedFiles(selectedFiles, newFiles) {
-    selectedFiles.addObjects(newFiles);
+    const filesWithoutBroken = newFiles.filter(f => get(f, 'type') !== 'broken');
+    selectedFiles.addObjects(filesWithoutBroken);
 
     if (get(selectedFiles, 'length') > 1) {
       const filesSourceArray = this.get('filesArray.sourceArray');
@@ -474,7 +475,9 @@ export default Component.extend(I18n, {
 
   selectAddSingleFile(selectedFiles, file) {
     this.addToSelectedFiles(selectedFiles, [file]);
-    this.set('lastSelectedFile', file);
+    if (get(file, 'type') !== 'broken') {
+      this.set('lastSelectedFile', file);
+    }
   },
 
   selectOnlySingleFile(selectedFiles, file) {
@@ -567,6 +570,9 @@ export default Component.extend(I18n, {
 
   actions: {
     openContextMenu(file, mouseEvent) {
+      if (get(file, 'type') === 'broken') {
+        return;
+      }
       const selectedFiles = this.get('selectedFiles');
       if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
         this.selectOnlySingleFile(selectedFiles, file);

@@ -128,6 +128,18 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   isInvalidated: not('file.type'),
 
+  enableContextMenuToggle: computed(
+    'fileActionsOpen',
+    'type',
+    function enableContextMenuToggle() {
+      const {
+        fileActionsOpen,
+        type,
+      } = this.getProperties('fileActionsOpen', 'type');
+      return !fileActionsOpen && type !== 'broken';
+    }
+  ),
+
   displayName: computed('file.{name,type}', function displayName() {
     const file = this.get('file');
     if (get(file, 'type') === 'broken') {

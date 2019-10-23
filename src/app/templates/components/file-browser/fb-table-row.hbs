@@ -86,8 +86,8 @@
   <td class="fb-table-col-actions-menu">
     {{#unless hideMenuTrigger}}
       {{one-menu-toggle
-        class="file-row-actions-trigger"
-        click=(unless fileActionsOpen (disable-bubbling (action "openContextMenu")))
+        class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
+        click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
       }}
     {{/unless}}
   </td>
