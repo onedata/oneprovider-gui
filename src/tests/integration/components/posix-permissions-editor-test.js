@@ -38,7 +38,7 @@ describe('Integration | Component | posix permissions editor', function () {
         initialPermissions="000"
         onChange=(action "change")}}
     `);
-    
+
     return fillIn('.permissions-octal', '040')
       .then(() => {
         expect(this.$('.group-read-checkbox')).to.have.class('checked');
@@ -56,7 +56,7 @@ describe('Integration | Component | posix permissions editor', function () {
         initialPermissions="000"
         onChange=(action "change")}}
     `);
-    
+
     return click('.user-read-checkbox')
       .then(() => {
         expect(this.$('.permissions-octal').val()).to.equal('400');

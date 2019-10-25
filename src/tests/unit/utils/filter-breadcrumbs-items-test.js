@@ -98,7 +98,8 @@ describe('Unit | Utility | filter breadcrumbs items', function () {
     }
   );
 
-  it('should return root, first child, ellipsis, parent of next and parent of last for count 5',
+  it(
+    'should return root, first child, ellipsis, parent of next and parent of last for count 5',
     function () {
       const numberOfFiles = 10;
       const { bitems } = generateBreadcrumbsItems(numberOfFiles);

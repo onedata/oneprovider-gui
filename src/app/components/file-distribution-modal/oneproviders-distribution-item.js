@@ -1,3 +1,13 @@
+/**
+ * Shows distribution and transfer-related operations for Oneprovider in
+ * terms of selected files.
+ * 
+ * @module components/file-distribution-modal/oneproviders-distribution-item
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { collect, notEmpty } from '@ember/object/computed';
@@ -7,10 +17,15 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { inject as service } from '@ember/service';
+
+const emptyChunksBarData = { 0: 0 };
 
 export default Component.extend(I18n, {
   tagName: 'li',
   classNames: ['oneproviders-distribution-item'],
+
+  i18n: service(),
 
   /**
    * @override
@@ -46,7 +61,7 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   onEvict: notImplementedThrow,
-  
+
   /**
    * @type {Array<Utils.FileDistributionDataContainer>}
    */
@@ -68,6 +83,12 @@ export default Component.extend(I18n, {
   evictionInvoked: false,
 
   /**
+   * Describes max index of chunk, that can be reseived from backend
+   * @type {number}
+   */
+  chunksRange: 320,
+
+  /**
    * `fileDistributionData` narrowed to files only
    * @type {Array<Utils.FileDistributionDataContainer>}
    */
@@ -77,9 +98,9 @@ export default Component.extend(I18n, {
     raw('file')
   ),
 
-  hasAllFilesDistributions: array.isEvery(
+  allFilesDistributionsLoaded: array.isEvery(
     'filesOnlyDistributionData',
-    raw('isFileDistributionModelLoaded')
+    raw('isFileDistributionLoaded')
   ),
 
   neverSynchronized: computed(
@@ -90,17 +111,19 @@ export default Component.extend(I18n, {
         filesOnlyDistributionData,
         oneprovider,
       } = this.getProperties('filesOnlyDistributionData', 'oneprovider');
-      return filesOnlyDistributionData
+      const distributions = filesOnlyDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForOneprovider(oneprovider)
-        ).isEvery('neverSynchronized');
+        )
+        .compact();
+      return get(distributions, 'length') === 0;
     }
   ),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasSingleFile: equal('files.length', raw(1)),
+  hasSingleFile: equal('fileDistributionData.length', raw(1)),
 
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -108,10 +131,15 @@ export default Component.extend(I18n, {
   filesSize: sum(array.mapBy('filesOnlyDistributionData', raw('fileSize'))),
 
   /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  hasOnlyDirs: array.isEvery('filesOnlyDistributionData', raw('fileType'), raw('dir')),
+
+  /**
    * @type {Ember.ComputedProperty<number>}
    */
   percentage: computed(
-    'hasAllFilesDistributions',
+    'allFilesDistributionsLoaded',
     'filesSize',
     'filesOnlyDistributionData.@each.{fileSize,fileDistribution}',
     'oneprovider',
@@ -119,29 +147,31 @@ export default Component.extend(I18n, {
       const {
         filesSize,
         filesOnlyDistributionData,
-        hasAllFilesDistributions,
+        allFilesDistributionsLoaded,
         oneprovider,
       } = this.getProperties(
         'filesSize',
         'filesOnlyDistributionData',
-        'hasAllFilesDistributions',
+        'allFilesDistributionsLoaded',
         'oneprovider'
       );
 
-      if (hasAllFilesDistributions && filesSize) {
-          let availableBytes = 0;
-          filesOnlyDistributionData.forEach(fileDistDataContainer => {
-            const fileSize = get(fileDistDataContainer, 'fileSize');
-            const fileDistribution =
-              fileDistDataContainer.getDistributionForOneprovider(oneprovider);
+      if (allFilesDistributionsLoaded && filesSize) {
+        let availableBytes = 0;
+        filesOnlyDistributionData.forEach(fileDistDataContainer => {
+          const fileSize = get(fileDistDataContainer, 'fileSize');
+          const fileDistribution =
+            fileDistDataContainer.getDistributionForOneprovider(oneprovider);
+          if (fileDistribution) {
             const blocksPercentage = get(fileDistribution, 'blocksPercentage');
             availableBytes += fileSize * ((blocksPercentage || 0) / 100);
-          });
-    
-          const percentage = Math.floor(
-            (Math.min(availableBytes, filesSize) / filesSize) * 100
-          );
-          return availableBytes ? Math.max(percentage, 1) : 0;
+          }
+        });
+
+        const percentage = Math.floor(
+          (Math.min(availableBytes, filesSize) / filesSize) * 100
+        );
+        return availableBytes ? Math.max(percentage, 1) : 0;
       } else {
         return 0;
       }
@@ -152,32 +182,36 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<Object>}
    */
   chunksBarData: computed(
-    'hasAllFilesDistributions',
+    'allFilesDistributionsLoaded',
     'filesSize',
     'filesOnlyDistributionData.@each.{fileSize,fileDistribution}',
     'hasSingleFile',
     'oneprovider',
+    'chunksRange',
     function chunksBarData() {
       const {
         filesOnlyDistributionData,
         filesSize,
-        hasAllFilesDistributions,
+        allFilesDistributionsLoaded,
         hasSingleFile,
         oneprovider,
+        chunksRange,
       } = this.getProperties(
         'filesOnlyDistributionData',
         'filesSize',
-        'hasAllFilesDistributions',
+        'allFilesDistributionsLoaded',
         'hasSingleFile',
-        'oneprovider'
+        'oneprovider',
+        'chunksRange'
       );
 
-      if (!hasAllFilesDistributions || !filesSize) {
-        return { 0: 0 };
+      if (!allFilesDistributionsLoaded || !filesSize) {
+        return emptyChunksBarData;
       } else if (hasSingleFile) {
         const fileDistribution =
           filesOnlyDistributionData[0].getDistributionForOneprovider(oneprovider);
-        return get(fileDistribution, 'chunksBarData');
+        return (fileDistribution && get(fileDistribution, 'chunksBarData')) ||
+          emptyChunksBarData;
       } else {
         const chunks = {};
         let chunksOffset = 0;
@@ -187,13 +221,14 @@ export default Component.extend(I18n, {
             const fileShare = fileSize / filesSize;
             const fileDistribution =
               fileDistDataContainer.getDistributionForOneprovider(oneprovider);
-            const chunksBarData = get(fileDistribution, 'chunksBarData');
-            if (chunksBarData) {
-              Object.keys(chunksBarData).forEach(key => {
-                chunks[Number(key) * fileShare + chunksOffset] = get(chunksBarData, key);
-              });
-            }
-            chunksOffset += fileShare * 320;
+            const chunksBarData =
+              (fileDistribution && get(fileDistribution, 'chunksBarData')) ||
+              emptyChunksBarData;
+            Object.keys(chunksBarData).forEach(key => {
+              chunks[Number(key) * fileShare + chunksOffset] =
+                get(chunksBarData, key);
+            });
+            chunksOffset += fileShare * chunksRange;
           }
         });
         return chunks;
@@ -204,7 +239,7 @@ export default Component.extend(I18n, {
   /**
    * Array of roles in which oneprovider is used in active transfers. Possible
    * roles:
-   *   - 'replicationSource',
+   *   - 'replicationDestination',
    *   - 'migrationSource',
    *   - 'evictionSource'.
    * @type {Ember.ComputedProperty<Array<string>>}
@@ -217,17 +252,20 @@ export default Component.extend(I18n, {
 
       const roles = [];
       fileDistributionData.forEach(fileDistributionDataContainer => {
-        const activeTransfers = get(fileDistributionDataContainer, 'activeTransfers');
+        const activeTransfers =
+          get(fileDistributionDataContainer, 'activeTransfers');
         if (activeTransfers) {
           activeTransfers.forEach(transfer => {
-            const replicatingOneproviderGri = transfer.belongsTo('replicatingOneprovider').id();
-            const evictingOneproviderGri = transfer.belongsTo('evictingOneprovider').id();
+            const replicatingOneproviderGri =
+              transfer.belongsTo('replicatingProvider').id();
+            const evictingOneproviderGri =
+              transfer.belongsTo('evictingProvider').id();
 
             const replicatingOneproviderId = replicatingOneproviderGri ?
               parseGri(replicatingOneproviderGri).entityId : null;
-            const evictingOneproviderId = evictingOneproviderGri ? 
+            const evictingOneproviderId = evictingOneproviderGri ?
               parseGri(evictingOneproviderGri).entityId : null;
-            
+
             if (evictingOneproviderId === itemOneproviderId) {
               if (replicatingOneproviderId) {
                 roles.push('migrationSource');
@@ -255,7 +293,7 @@ export default Component.extend(I18n, {
    */
   isReplicationInProgress: or(
     'replicationInvoked',
-    array.includes('oneproviderRolesInTransfers', raw('replicationSource'))
+    array.includes('oneproviderRolesInTransfers', raw('replicationDestination'))
   ),
 
   /**
@@ -273,7 +311,7 @@ export default Component.extend(I18n, {
     'evictionInvoked',
     array.includes('oneproviderRolesInTransfers', raw('evictionSource'))
   ),
-  
+
   /**
    * @type {Object} {enabled: boolean, tooltip: string}
    */
@@ -296,26 +334,26 @@ export default Component.extend(I18n, {
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
-      const someNeverSynchronized = hasDirs ? false : fileDistributionData
+
+      const someNeverSynchronized = hasDirs ? true : fileDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForOneprovider(oneprovider)
         )
-        .isAny('neverSynchronized');
+        .includes(undefined);
 
       const state = { enabled: false };
+      let tooltipI18nKey;
 
       if (spaceHasSingleOneprovider) {
-        state.tooltip = this.t('disabledReplicationSingleOneprovider');
-      } else if (!(hasDirs || someNeverSynchronized || percentage < 100)) {
-        if (!someNeverSynchronized && percentage === 100) {
-          state.tooltip = this.t('disabledReplicationIsComplete');
-        }
+        tooltipI18nKey = 'disabledReplicationSingleOneprovider';
+      } else if (!(someNeverSynchronized || percentage < 100)) {
+        tooltipI18nKey = 'disabledReplicationIsComplete';
       } else {
         state.enabled = true;
-        state.tooltip = this.t('replicationStart');
+        tooltipI18nKey = 'replicationStart';
       }
 
-      state.tooltip = state.tooltip.string;
+      state.tooltip = this.t(tooltipI18nKey).string;
       return state;
     }
   ),
@@ -344,17 +382,18 @@ export default Component.extend(I18n, {
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
 
       const state = { enabled: false };
+      let tooltipI18nKey;
 
       if (spaceHasSingleOneprovider) {
-        state.tooltip = this.t('disabledMigrationSingleOneprovider');
+        tooltipI18nKey = 'disabledMigrationSingleOneprovider';
       } else if (!hasDirs && (neverSynchronized || !percentage)) {
-        state.tooltip = this.t('disabledMigrationIsEmpty');
+        tooltipI18nKey = 'disabledMigrationIsEmpty';
       } else {
         state.enabled = true;
-        state.tooltip = this.t('migrationStart');
+        tooltipI18nKey = 'migrationStart';
       }
 
-      state.tooltip = state.tooltip.string;
+      state.tooltip = this.t(tooltipI18nKey).string;
       return state;
     }
   ),
@@ -383,17 +422,18 @@ export default Component.extend(I18n, {
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
 
       const state = { enabled: false };
-      
+      let tooltipI18nKey;
+
       if (spaceHasSingleOneprovider) {
-        state.tooltip = this.t('disabledEvictionSingleOneprovider');
+        tooltipI18nKey = 'disabledEvictionSingleOneprovider';
       } else if (!blocksExistOnOtherOneproviders || (!percentage && !hasDirs)) {
-        state.tooltip = this.t('disabledEvictionNoBlocks');
+        tooltipI18nKey = 'disabledEvictionNoBlocks';
       } else {
         state.enabled = true;
-        state.tooltip = this.t('migrationStart');
+        tooltipI18nKey = 'evictionStart';
       }
 
-      state.tooltip = state.tooltip.string;
+      state.tooltip = this.t(tooltipI18nKey).string;
       return state;
     }
   ),
@@ -413,6 +453,7 @@ export default Component.extend(I18n, {
         icon: 'replicate',
         title: this.t('replicateHere'),
         tip: tooltip,
+        tipPlacement: 'left',
         class: 'replicate-here-action-trigger',
         action: () => this.startReplication(),
         disabled: !enabled,
@@ -423,39 +464,47 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  migrateAction: computed('migrateActionState', function migrateAction() {
-    const {
-      enabled,
-      tooltip,
-    } = getProperties(this.get('migrateActionState'), 'enabled', 'tooltip');
-    return {
-      icon: 'migrate',
-      title: this.t('migrate'),
-      tip: tooltip,
-      class: 'migrate-action-trigger',
-      action: () => this.startMigration(),
-      disabled: !enabled,
-    };
-  }),
+  migrateAction: computed(
+    'migrateActionState.{enabled,tooltip}',
+    function migrateAction() {
+      const {
+        enabled,
+        tooltip,
+      } = getProperties(this.get('migrateActionState'), 'enabled', 'tooltip');
+      return {
+        icon: 'migrate',
+        title: this.t('migrate'),
+        tip: tooltip,
+        tipPlacement: 'left',
+        class: 'migrate-action-trigger',
+        action: () => this.startMigration(),
+        disabled: !enabled,
+      };
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Action>}
    */
-  evictAction: computed('evictActionState', function evictAction() {
-    const {
-      enabled,
-      tooltip,
-    } = getProperties(this.get('evictActionState'), 'enabled', 'tooltip');
+  evictAction: computed(
+    'evictActionState.{enabled,tooltip}',
+    function evictAction() {
+      const {
+        enabled,
+        tooltip,
+      } = getProperties(this.get('evictActionState'), 'enabled', 'tooltip');
 
-    return {
-      icon: 'invalidate',
-      title: this.t('evict'),
-      tip: tooltip,
-      class: 'evict-action-trigger',
-      action: () => this.startEviction(),
-      disabled: !enabled,
-    };
-  }),
+      return {
+        icon: 'invalidate',
+        title: this.t('evict'),
+        tip: tooltip,
+        tipPlacement: 'left',
+        class: 'evict-action-trigger',
+        action: () => this.startEviction(),
+        disabled: !enabled,
+      };
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<Array<Action>>}
@@ -472,7 +521,7 @@ export default Component.extend(I18n, {
   blocksExistOnOtherOneproviders: computed(
     'oneprovider',
     'spaceHasSingleOneprovider',
-    'fileDistributionData.@each(fileType,fileDistribution}',
+    'fileDistributionData.@each.{fileType,fileDistribution}',
     'filesSize',
     function blocksExistOnOtherOneproviders() {
       const {
@@ -496,7 +545,8 @@ export default Component.extend(I18n, {
         return false;
       } else {
         for (let i = 0; i < get(fileDistributionData, 'length'); i++) {
-          const singleFileDistribution = get(fileDistributionData.objectAt(i), 'fileDistribution');
+          const singleFileDistribution =
+            get(fileDistributionData.objectAt(i), 'fileDistribution');
           const oneproviderIds = Object.keys(singleFileDistribution);
           const otherOneproviderIds = oneproviderIds.without(oneproviderId);
           for (let j = 0; j < get(otherOneproviderIds, 'length'); j++) {
@@ -542,7 +592,7 @@ export default Component.extend(I18n, {
       onEvict,
       oneproviderHasActiveTransfers,
     } = this.getProperties('onEvict', 'oneproviderHasActiveTransfers');
-    
+
     this.set('evictionInvoked', true);
     onEvict(oneproviderHasActiveTransfers).finally(() =>
       safeExec(this, () => this.set('evictionInvoked', false))

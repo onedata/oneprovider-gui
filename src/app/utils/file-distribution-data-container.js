@@ -1,8 +1,18 @@
-import EmberObject, { get, set, observer } from '@ember/object';
+/**
+ * Class that allows to retrieve distribution-related data for specified file including
+ * distribution per Oneprovider and active transfers.
+ * 
+ * @module utils/file-distribution-data-container
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
+import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { resolve, Promise } from 'rsvp';
-import { conditional, equal, raw, gt } from 'ember-awesome-macros';
+import { resolve, Promise, reject } from 'rsvp';
+import { conditional, equal, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 
@@ -17,7 +27,7 @@ export default EmberObject.extend(
      * @virtual
      * @type {boolean}
      */
-    keepDataUpdated: false,
+    keepDataUpdated: true,
 
     /**
      * @virtual
@@ -49,7 +59,7 @@ export default EmberObject.extend(
     fastDataUpdateEnabled: gt('activeTransfers.length', raw(0)),
 
     /**
-     * @type {Ember.ComputedProperty<number|null>}
+     * @type {Ember.ComputedProperty<number>}
      */
     pollingTime: conditional(
       'keepDataUpdated',
@@ -58,33 +68,74 @@ export default EmberObject.extend(
         'fastPollingTime',
         'slowPollingTime'
       ),
-      raw(null)
+      raw(-1)
     ),
 
     /**
-     * @type {Ember.ComputedPropert'y<string>}
+     * @type {Ember.ComputedProperty<string>}
      */
     fileType: reads('file.type'),
 
+    /**
+     * File size. If file is a directory, then size is 0.
+     * @type {Ember.ComputedProperty<number>}
+     */
     fileSize: conditional(
       equal('fileType', raw('file')),
       'file.size',
       raw(0)
     ),
 
-    isFileDistributionModelLoaded: conditional(
+    /**
+     * @type {Ember.ComputedProperty<boolean>}
+     */
+    isFileDistributionLoaded: conditional(
       equal('fileType', raw('file')),
-      'fileDistributionModelProxy.isFulfilled',
+      notEmpty('fileDistributionModelProxy.content'),
       // directories does not have file distribution
       raw(false),
     ),
 
-    fileDistribution: reads('fileDistributionModel.distribution'),
+    /**
+     * @type {Ember.ComputedProperty<boolean>}
+     */
+    isFileDistributionLoading: and(
+      'fileDistributionModelProxy.isPending',
+      not('isFileDistributionLoaded')
+    ),
 
-    activeTransfers: reads('transfers.ongoing'),
+    /**
+     * @type {Ember.ComputedProperty<boolean>}
+     */
+    isFileDistributionError: reads('fileDistributionModelProxy.isRejected'),
 
-    endedTransfersCount: reads('transfers.ended'),
+    /**
+     * @type {Ember.ComputedProperty<any>}
+     */
+    fileDistributionErrorReason: reads('fileDistributionModelProxy.reason'),
 
+    /**
+     * Mapping { oneproviderId -> distribution }. Not empty only if file
+     * distribution has been successfully loaded. Is empty for directories.
+     * @type {Ember.ComputedProperty<OneproviderDistribution>}
+     */
+    fileDistribution: reads('fileDistributionModel.distributionPerProvider'),
+
+    /**
+     * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
+     */
+    activeTransfers: reads('transfers.ongoingList'),
+
+    /**
+     * @type {Ember.ComputedProperty<number>}
+     */
+    endedTransfersCount: reads('transfers.endedCount'),
+
+    /**
+     * True if real number of ended transfers for file could overflow the limit
+     * (see `fetchTransfers` method). 
+     * @type {Ember.ComputedProperty<boolean>}
+     */
     endedTransfersOverflow: reads('transfers.endedOverflow'),
 
     pollingTimeObserver: observer('pollingTime', function pollingTimeObserver() {
@@ -97,7 +148,10 @@ export default EmberObject.extend(
       );
 
       if (get(dataUpdater, 'interval') !== pollingTime) {
-        set(dataUpdater, 'interval', pollingTime);
+        setProperties(dataUpdater, {
+          interval: pollingTime,
+          immediate: true,
+        });
       }
     }),
 
@@ -105,7 +159,6 @@ export default EmberObject.extend(
       this._super(...arguments);
 
       const dataUpdater = Looper.create({
-        immediate: true,
         interval: this.get('pollingTime'),
       });
       dataUpdater.on('tick', () => this.updateData());
@@ -124,8 +177,22 @@ export default EmberObject.extend(
      * @override
      */
     fetchFileDistributionModel() {
+      const file = this.get('file');
+      const distributionLoadError = get(file, 'distributionLoadError');
+
       if (this.get('file.type') === 'file') {
-        return get(this.get('file'), 'fileDistribution');
+        if (distributionLoadError) {
+          // If earlier fetching of distribution ended with error, then just
+          // rethrow it. We can't try to reload distribution model because
+          // rejected belongsTo relation cannot be reloaded (a bug in Ember).
+          return reject(distributionLoadError);
+        } else {
+          return file.belongsTo('distribution').reload()
+            .catch(reloadError => {
+              set(file, 'distributionLoadError', reloadError);
+              throw reloadError;
+            });
+        }
       } else {
         return resolve();
       }
@@ -135,10 +202,10 @@ export default EmberObject.extend(
      * Returns Promise, which resolves to object:
      * ```
      * {
-     *   ongoing: Array<Models.Transfer>,
-     *   ended: number,
+     *   ongoingList: Array<Models.Transfer>,
+     *   endedCount: number,
      *   endedOverflow: boolean, // true if ended transfers number is
-     *     (potentially) greater than backend listing limit
+     *     greater than or equal to backend listing limit
      * }
      * ```
      * 
@@ -149,21 +216,25 @@ export default EmberObject.extend(
         file,
         transferManager,
         onedataConnection,
-      } = this.getProperties('file', 'transferManager', 'onedataConnection');
+      } = this.getProperties(
+        'file',
+        'transferManager',
+        'onedataConnection'
+      );
       const transfersHistoryLimitPerFile =
         get(onedataConnection, 'transfersHistoryLimitPerFile');
-      const fileEntityId = get(file, 'entityId');
-      return transferManager.getFileTransfers(fileEntityId, 'count').then(data =>
-        Promise.all(data.ongoing.map(transferId =>
-          transferManager.getTransfer(transferId).then(transfer =>
-            get(transfer, 'currentStat').then(() => transfer)
-          )
-        )).then(transfers =>
-          Object.assign({}, data, {
-            ongoing: transfers,
-            endedOverflow: get(data, 'ended') >= transfersHistoryLimitPerFile,
-          })
-        )
+
+      return transferManager.getTransfersForFile(file).then(({
+          ongoingList,
+          endedCount,
+        }) =>
+        Promise.all(ongoingList.map(transferId =>
+          transferManager.getTransfer(transferId)
+        )).then(transfers => ({
+          ongoingList: transfers,
+          endedCount,
+          endedOverflow: endedCount >= transfersHistoryLimitPerFile,
+        }))
       );
     },
 
@@ -171,20 +242,32 @@ export default EmberObject.extend(
      * @returns {Promise}
      */
     updateData() {
-      const fileType = this.get('fileType');
+      const {
+        fileType,
+        isFileDistributionError,
+        transfersProxy,
+      } = this.getProperties('fileType', 'isFileDistributionError', 'transfersProxy');
       return Promise.all([
-        fileType === 'file' ? this.updateFileDistributionModelProxy() : resolve(),
-        this.updateTransfersProxy(),
+        !isFileDistributionError && fileType === 'file' ?
+        this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
+        !get(transfersProxy, 'isRejected') ?
+        this.updateTransfersProxy({ replace: true }) : resolve(),
       ]);
     },
 
+    /**
+     * Returns distribution information for given Oneprovider
+     * @param {Models.Provider} oneprovider
+     * @returns {OneproviderDistribution}
+     */
     getDistributionForOneprovider(oneprovider) {
       const {
-        isFileDistributionModelLoaded,
+        isFileDistributionLoaded,
         fileDistribution,
-      } = this.getProperties('isFileDistributionModelLoaded', 'fileDistribution');
-      if (isFileDistributionModelLoaded) {
-        return get(fileDistribution, get(oneprovider, 'entityId'));
+      } = this.getProperties('isFileDistributionLoaded', 'fileDistribution');
+      if (isFileDistributionLoaded) {
+        const oneproviderEntityId = get(oneprovider, 'entityId');
+        return get(fileDistribution, oneproviderEntityId);
       } else {
         return {};
       }

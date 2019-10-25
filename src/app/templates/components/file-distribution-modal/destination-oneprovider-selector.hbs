@@ -19,14 +19,13 @@
   {{#power-select
     triggerClass="small"
     dropdownClass="small"
-    placeholder="Select target..."
+    placeholder=(tt this "selectTargetDropdownPlaceholder")
     disabled=(not canSelectOneprovider)
     options=oneprovidersDropdownOptions
     selected=destinationOneproviderItem
     onchange=(action "selectOneprovider")
     searchField="name"
     searchEnabled=true
-    renderInPlace=true
     as |item|}}
     {{#truncated-string}}
       <div class="inline-icon-container">
@@ -40,7 +39,7 @@
   {{#bs-button onClick=onCancel disabled=(not canCancel) size="sm"}}
     {{tt this "cancelButton"}}
   {{/bs-button}}
-  {{#one-spin-button action=(action "migrate") class="btn btn-primary btn-sm" disabled=(not canMigrate)}}
+  {{#one-spin-button action=(action "migrate") class="btn btn-primary btn-sm start-migration" disabled=(not canMigrate)}}
     {{tt this "migrateButton"}}
   {{/one-spin-button}}
 </div>

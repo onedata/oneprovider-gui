@@ -12,6 +12,8 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
+export const entityType = 'op_user';
+
 export default Model.extend(GraphSingleModelMixin, {
   fullName: attr('string'),
   username: attr('string'),

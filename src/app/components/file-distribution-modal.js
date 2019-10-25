@@ -1,10 +1,21 @@
+/**
+ * Shows data distribution information and handles transfer-related operations
+ * for passed files. Allows to show summarized distribution when there are
+ * multiple files.
+ * 
+ * @module components/file-distribution-modal
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { allSettled, Promise } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 import { raw, array, sum } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
@@ -15,8 +26,7 @@ import $ from 'jquery';
 
 export default Component.extend(
   I18n,
-  createDataProxyMixin('oneproviders', { type: 'array' }),
-  createDataProxyMixin('fileDistributionData', { type: 'array' }), {
+  createDataProxyMixin('oneproviders', { type: 'array' }), {
     tagName: '',
 
     i18n: service(),
@@ -46,12 +56,18 @@ export default Component.extend(
      */
     onClose: notImplementedIgnore,
 
+    /**
+     * @type {Ember.ComputedProperty<Array<Models.File>>}
+     */
     filesOfTypeFile: array.filterBy(
       'files',
       raw('type'),
       raw('file')
     ),
 
+    /**
+     * @type {Ember.ComputedProperty<Array<Models.File>>}
+     */
     filesOfTypeDir: array.filterBy(
       'files',
       raw('type'),
@@ -110,6 +126,16 @@ export default Component.extend(
     ),
 
     /**
+     * @type {Ember.ComputedProperty<Array<Utils.FileDistributionDataContainer>>}
+     */
+    fileDistributionData: computed('files.[]', function fileDistributionData() {
+      return this.get('files')
+        .map(file => FileDistributionDataContainer.create(
+          getOwner(this).ownerInjection(), { file }
+        ));
+    }),
+
+    /**
      * One of: 'distribution-summary', 'distribution-details'.
      * 'distribution-summary' is possible only for multiple files.
      * @type {string}
@@ -118,9 +144,6 @@ export default Component.extend(
 
     init() {
       this._super(...arguments);
-
-      // Optimalization: get proxies to start loading data before initial render.
-      this.getProperties('oneprovidersProxy', 'fileDistributionsProxy');
 
       this.set(
         'activeTab',
@@ -133,51 +156,37 @@ export default Component.extend(
 
       const {
         files,
-        fileDistributionDataProxy,
-      } = this.getProperties('files', 'fileDistributionDataProxy');
+        oneprovidersProxy,
+      } = this.getProperties('files', 'oneprovidersProxy');
 
       // Open file list item if there is only one file
       if (get(files, 'length') === 1) {
-        fileDistributionDataProxy.then(() =>
-          next(()=> safeExec(this, () =>
+        oneprovidersProxy.then(() =>
+          next(() => safeExec(this, () =>
             $('.file-distribution-modal .one-collapsible-list-item-header').click()
           ))
         );
       }
     },
-    
+
     /**
      * @override
      */
     fetchOneproviders() {
-      return get(this.get('space'), 'oneproviderList')
-        .then(oneproviderList => get(oneproviderList, 'list'));
-    },
-
-    /**
-     * @override
-     */
-    fetchFileDistributionData() {
-      return Promise.all(
-        this.get('files')
-          .map(file => FileDistributionDataContainer.create(
-            getOwner(this).ownerInjection(), { file }
-          ))
-          .map(fddc => allSettled([
-            get(fddc, 'fileDistributionModelProxy'),
-            get(fddc, 'activeTransfersProxy'),
-          ]).then(() => fddc))
-      );
+      return get(this.get('space'), 'providerList')
+        .then(providerList => get(providerList, 'list'));
     },
 
     /**
      * @param {Models.File} file 
-     * @returns {undefined}
+     * @returns {Promise}
      */
-    reloadFileTransfers(file) {
+    updateDataAfterTransferStart(file) {
       const fileDistributionData = this.get('fileDistributionData').findBy('file', file);
       if (fileDistributionData) {
-        fileDistributionData.updateTransfersProxy({ replace: true });
+        return fileDistributionData.updateData();
+      } else {
+        return resolve();
       }
     },
 
@@ -192,10 +201,7 @@ export default Component.extend(
         const transferManager = this.get('transferManager');
         return Promise.all(files.map(file =>
           transferManager.startReplication(file, destinationOneprovider)
-            .then(result => {
-              this.reloadFileTransfers(file);
-              return result;
-            })
+          .then(result => this.updateDataAfterTransferStart(file).then(() => result))
         ));
       },
       migrate(files, sourceProvider, destinationOneprovider) {
@@ -205,19 +211,14 @@ export default Component.extend(
             file,
             sourceProvider,
             destinationOneprovider
-          ).then(result => {
-            this.reloadFileTransfers(file);
-            return result;
-          })
+          ).then(result => this.updateDataAfterTransferStart(file).then(() => result))
         ));
       },
       evict(files, sourceOneprovider) {
         const transferManager = this.get('transferManager');
         return Promise.all(files.map(file =>
-          transferManager.startEviction(file, sourceOneprovider).then(result => {
-            this.reloadFileTransfers(file);
-            return result;
-          })
+          transferManager.startEviction(file, sourceOneprovider)
+          .then(result => this.updateDataAfterTransferStart(file).then(() => result))
         ));
       },
     },

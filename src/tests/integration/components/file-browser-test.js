@@ -214,27 +214,33 @@ describe('Integration | Component | file browser', function () {
 
       this.render(hbs `{{file-browser dir=dir}}`);
 
-      return wait().then(() => {
-        expect(this.$('.fb-table-row')).to.exist;
-        this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
-        return wait().then(() => {
-          return click('.file-action-copy').then(() => {
-            expect($('.file-action-paste')).to.exist;
-            const dirRow = this.$('.fb-table-row')[1];
-            dirRow.click();
-            return wait().then(() => {
-              dirRow.click();
-              dirRow.click();
-              return wait().then(() => {
-                return click('.file-action-paste').then(() => {
-                  expect(copyOrMoveFile)
-                    .have.been.calledWith(a1, 'f2', 'copy');
-                });
-              });
-            });
-          });
+      return wait()
+        .then(() => {
+          expect(this.$('.fb-table-row')).to.exist;
+          this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
+          return wait();
+        })
+        .then(() => {
+          return click('.file-action-copy');
+        })
+        .then(() => {
+          expect($('.file-action-paste'), 'file-action-paste').to.exist;
+          const dirRow = this.$('.fb-table-row')[1];
+          dirRow.click();
+          return wait().then(() => ({ dirRow }));
+        })
+        .then(({ dirRow }) => {
+          dirRow.click();
+          dirRow.click();
+          return wait();
+        })
+        .then(() => {
+          return click('.file-action-paste');
+        })
+        .then(() => {
+          expect(copyOrMoveFile)
+            .have.been.calledWith(a1, 'f2', 'copy');
         });
-      });
     }
   );
 
@@ -289,6 +295,11 @@ describe('Integration | Component | file browser', function () {
     };
     const files = [f1];
     this.set('dir', dir);
+    this.setProperties({
+      dir,
+      fileClipboardMode: 'move',
+      fileClipboardFiles: [f1],
+    });
     const fileManager = lookupService(this, 'fileManager');
     const i18n = lookupService(this, 'i18n');
 
@@ -300,12 +311,12 @@ describe('Integration | Component | file browser', function () {
 
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves(files);
-    fileManager.setProperties({
-      fileClipboardMode: 'move',
-      fileClipboardFiles: [f1],
-    });
 
-    this.render(hbs `{{file-browser dir=dir}}`);
+    this.render(hbs `{{file-browser
+      dir=dir
+      fileClipboardMode=fileClipboardMode
+      fileClipboardFiles=fileClipboardFiles
+    }}`);
 
     return wait().then(() => {
       expect(fetchDirChildren).to.have.been.called;

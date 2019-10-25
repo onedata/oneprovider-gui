@@ -10,18 +10,18 @@
 import { get } from '@ember/object';
 import { resolve } from 'rsvp';
 
-export function resolveParent(dir, array) {
+export function resolveParent(dir, dirsOnPathToRoot) {
   if (get(dir, 'hasParent')) {
     return get(dir, 'parent').then(parent => {
-      array.unshift(parent);
-      return resolveParent(parent, array);
+      dirsOnPathToRoot.unshift(parent);
+      return resolveParent(parent, dirsOnPathToRoot);
     });
   } else {
-    return resolve(array);
+    return resolve(dirsOnPathToRoot);
   }
 }
 
 export default function resolveFilePath(file) {
-  const array = [file];
-  return resolveParent(file, array);
+  const dirsOnPathToRoot = [file];
+  return resolveParent(file, dirsOnPathToRoot);
 }

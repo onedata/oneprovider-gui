@@ -18,6 +18,10 @@ import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-cl
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
+function isEventFromMenuToggle(event) {
+  return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
+}
+
 export default Component.extend(I18n, FastDoubleClick, {
   tagName: 'tr',
   classNames: ['fb-table-row', 'menu-toggle-hover-parent'],
@@ -29,14 +33,20 @@ export default Component.extend(I18n, FastDoubleClick, {
   ],
   attributeBindings: ['fileEntityId:data-row-id'],
 
-  fileActions: service(),
   errorExtractor: service(),
   media: service(),
+  visualLogger: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbTableRow',
+
+  /**
+   * @override
+   * Prevent adding pointer style
+   */
+  ignoreTouchAction: true,
 
   /**
    * @virtual
@@ -107,7 +117,7 @@ export default Component.extend(I18n, FastDoubleClick, {
    * True when started touch but not yet ended
    * @type {boolean}
    */
-  touching: false,
+  beingTouched: false,
 
   /**
    * True when the start touch timer invoked hold function, but the touch ended
@@ -117,6 +127,18 @@ export default Component.extend(I18n, FastDoubleClick, {
   tapIncoming: undefined,
 
   isInvalidated: not('file.type'),
+
+  enableContextMenuToggle: computed(
+    'fileActionsOpen',
+    'type',
+    function enableContextMenuToggle() {
+      const {
+        fileActionsOpen,
+        type,
+      } = this.getProperties('fileActionsOpen', 'type');
+      return !fileActionsOpen && type !== 'broken';
+    }
+  ),
 
   displayName: computed('file.{name,type}', function displayName() {
     const file = this.get('file');
@@ -158,7 +180,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     const component = this;
     const openContextMenu = component.get('openContextMenu');
     return function oncontextmenu(contextmenuEvent) {
-      if (!get(component, 'touching')) {
+      if (!get(component, 'beingTouched')) {
         openContextMenu(contextmenuEvent);
       }
       contextmenuEvent.preventDefault();
@@ -180,12 +202,12 @@ export default Component.extend(I18n, FastDoubleClick, {
      * @returns {undefined}
      */
     return function ontouchstart(touchstartEvent) {
-      if (touchstartEvent.target.matches('.one-menu-toggle *')) {
+      if (isEventFromMenuToggle(touchstartEvent)) {
         return false;
       } else {
         const touchTimer = later(touchTimerHandler, get(component, 'holdTime'));
         safeExec(component, 'setProperties', {
-          touching: true,
+          beingTouched: true,
           tapIncoming: true,
           touchTimer,
         });
@@ -196,7 +218,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   touchendHandler: computed(function touchendHandler() {
     const component = this;
     return function ontouchend(touchendEvent) {
-      if (touchendEvent.target.matches('.one-menu-toggle *')) {
+      if (isEventFromMenuToggle(touchendEvent)) {
         return false;
       } else {
         const {
@@ -209,7 +231,7 @@ export default Component.extend(I18n, FastDoubleClick, {
         if (tapIncoming) {
           get(component, 'touchTap')();
         }
-        safeExec(component, 'set', 'touching', false);
+        safeExec(component, 'set', 'beingTouched', false);
         touchendEvent.preventDefault();
       }
     };
@@ -218,7 +240,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   touchmoveHandler: computed(function touchmoveHandler() {
     const component = this;
     return function ontouchmove( /* touchmoveEvent */ ) {
-      if (get(component, 'touching')) {
+      if (get(component, 'beingTouched')) {
         cancel(get(component, 'touchTimer'));
         safeExec(component, 'setProperties', {
           tapIncoming: false,
@@ -258,16 +280,18 @@ export default Component.extend(I18n, FastDoubleClick, {
       touchendHandler,
       touchstartHandler,
       touchmoveHandler,
+      element,
     } = this.getProperties(
       'contextmenuHandler',
       'touchendHandler',
       'touchstartHandler',
       'touchmoveHandler',
+      'element',
     );
-    this.element.addEventListener('contextmenu', contextmenuHandler);
-    this.element.addEventListener('touchend', touchendHandler);
-    this.element.addEventListener('touchstart', touchstartHandler, { passive: true });
-    this.element.addEventListener('touchmove', touchmoveHandler, { passive: true });
+    element.addEventListener('contextmenu', contextmenuHandler);
+    element.addEventListener('touchend', touchendHandler);
+    element.addEventListener('touchstart', touchstartHandler, { passive: true });
+    element.addEventListener('touchmove', touchmoveHandler, { passive: true });
   },
 
   willDestroyElement() {
@@ -277,16 +301,18 @@ export default Component.extend(I18n, FastDoubleClick, {
       touchendHandler,
       touchstartHandler,
       touchmoveHandler,
+      element,
     } = this.getProperties(
       'contextmenuHandler',
       'touchendHandler',
       'touchstartHandler',
       'touchmoveHandler',
+      'element',
     );
-    this.element.removeEventListener('contextmenu', contextmenuHandler);
-    this.element.removeEventListener('touchstart', touchstartHandler);
-    this.element.removeEventListener('touchend', touchendHandler);
-    this.element.removeEventListener('touchmove', touchmoveHandler);
+    element.removeEventListener('contextmenu', contextmenuHandler);
+    element.removeEventListener('touchstart', touchstartHandler);
+    element.removeEventListener('touchend', touchendHandler);
+    element.removeEventListener('touchmove', touchmoveHandler);
   },
 
   click(clickEvent) {

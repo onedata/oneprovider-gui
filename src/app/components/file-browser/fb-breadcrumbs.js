@@ -22,7 +22,6 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-res
 import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 /**
  * @type {number}
@@ -116,7 +115,7 @@ export default Component.extend(
      * Set in `checkWidth` method.
      * @type {SafeString}
      */
-    lastItemStyle: htmlSafe(''),
+    lastItemStyle: computed(() => htmlSafe('')),
 
     recomputePath: observer('dir', function recomputePath() {
       this.updateDirPathProxy()
@@ -134,7 +133,7 @@ export default Component.extend(
       'isLoading',
       'breadcrumbsItems.content.[]',
       function checkWidthObserver() {
-        safeExec(this, 'set', 'elementsToShow', Infinity);
+        this.set('elementsToShow', Infinity);
         next(() => this.checkWidth());
       }
     ),
@@ -248,7 +247,7 @@ export default Component.extend(
         const lastItem =
           this.$('.fb-breadcrumbs-current-dir-button')[0];
         const lastItemLeft = lastItem.offsetLeft;
-        const containerWidth = this.element.offsetWidth;
+        const containerWidth = this.get('element').offsetWidth;
         const lastItemMaxWidth = containerWidth - lastItemLeft;
         this.setProperties({
           lastItemStyle: htmlSafe(`max-width: ${lastItemMaxWidth}px;`),
@@ -258,9 +257,10 @@ export default Component.extend(
     },
 
     checkWidthOnResize() {
-      this.set('elementsToShow', Infinity);
-      // this.$('.fb-breadcrumbs-inner').addClass('breadcrumbs-recomputing');
-      this.set('breadcrumbsRecomputing', true);
+      this.setProperties({
+        elementsToShow: Infinity,
+        breadcrumbsRecomputing: true,
+      });
       later(() => {
         this.updateFilteredBreadcrumbsItemsProxy()
           .then(() => next(() => this.checkWidth(true)));

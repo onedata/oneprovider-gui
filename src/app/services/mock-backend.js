@@ -18,8 +18,7 @@ export const names = ['One'];
 
 export const numberOfProviders = 1;
 export const numberOfSpaces = 1;
-// FIXME: debug values
-export const numberOfFiles = 300;
+export const numberOfFiles = 100;
 export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 300;
@@ -40,9 +39,7 @@ export default Service.extend({
     return allFulfilled(
         types.map(type =>
           this.createEntityRecords(store, type, names)
-          .then(records => {
-            return this.createListRecord(store, type, records);
-          })
+          .then(records => this.createListRecord(store, type, records))
         )
       )
       .then((listRecords) => {
@@ -258,13 +255,13 @@ export function generateDirEntityId(i, parentEntityId, suffix = '') {
 export function generateTransferEntityId(i, state, scheduleTime, startTime) {
   let stateName;
   switch (state) {
-    case tsStarted:
+    case tsOngoing:
       stateName = 'started';
       break;
-    case tsScheduled:
+    case tsWaiting:
       stateName = 'scheduled';
       break;
-    case tsFinished:
+    case tsEnded:
       stateName = 'finished';
       break;
     default:

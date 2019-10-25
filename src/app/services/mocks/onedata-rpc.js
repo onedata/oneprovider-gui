@@ -9,7 +9,7 @@
  */
 
 import OnedataRpc from 'onedata-gui-websocket-client/services/mocks/onedata-rpc';
-import { resolve, all } from 'rsvp';
+import { resolve, reject, all } from 'rsvp';
 import _ from 'lodash';
 import { inject as service } from '@ember/service';
 import { get, setProperties, computed } from '@ember/object';
@@ -36,7 +36,24 @@ export default OnedataRpc.extend({
   spaceTransfersIdsCache: computed(() => ({})),
 
   __handle_getDirChildren({ guid, index, limit, offset }) {
-    return resolve(this.getMockChildrenSlice(guid, index, limit, offset));
+    const decodedGuid = atob(guid);
+    if (decodedGuid.match(/0002/)) {
+      return reject({
+        id: 'posix',
+        details: {
+          errno: 'eacces',
+        },
+      });
+    } else if (decodedGuid.match(/0003/)) {
+      return reject({
+        id: 'posix',
+        details: {
+          errno: 'enoent',
+        },
+      });
+    } else {
+      return resolve(this.getMockChildrenSlice(guid, index, limit, offset));
+    }
   },
 
   __handle_getFileDownloadUrl( /* { guid } */ ) {

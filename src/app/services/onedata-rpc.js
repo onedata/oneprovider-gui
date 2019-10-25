@@ -21,18 +21,20 @@ const ExtendedProductionSymbol = ProductionSymbol.extend({
     const superPromise = this._super(...arguments);
 
     const createRequests = this.get('activeRequests.createRequests');
-    
+
     switch (methodName) {
-      case 'getDirChildren': {
-        // Block on create child request
-        const createChildRequests = createRequests.filter(request => {
-          return get(request, 'modelClassName') === 'file' &&
-            get(get(request, 'model').belongsTo('parent').value(), 'entityId') === args.guid;
-        });
-        return superPromise.then(() =>
-          allSettled(createChildRequests.mapBy('promise'))
-        );
-      }
+      case 'getDirChildren':
+        {
+          // Block on create child request
+          const createChildRequests = createRequests.filter(request => {
+            return get(request, 'modelClassName') === 'file' &&
+              get(get(request, 'model').belongsTo('parent').value(), 'entityId') ===
+              args.guid;
+          });
+          return superPromise.then(() =>
+            allSettled(createChildRequests.mapBy('promise'))
+          );
+        }
       default:
         return superPromise;
     }

@@ -8,10 +8,12 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { get } from '@ember/object';
+import { getProperties } from '@ember/object';
+import gri from 'onedata-gui-websocket-client/utils/gri';
 
 export default Service.extend({
   store: service(),
+  onedataGraph: service(),
   onedataRpc: service(),
 
   /**
@@ -23,22 +25,35 @@ export default Service.extend({
   },
 
   /**
-   * @param {string} fileEntityId
-   * @param {string} [endedInfo='count'] one of: count, ids
-   * @returns {Promise<Object>} A backend operation completion:
+   * @param {Models.File} file
+   * @param {boolean} [includeEndedList=false]
+   * @returns {RSVP.Promise} A backend operation completion:
    * - `resolve(object: data)` when successfully fetched the list
-   *  - `data.ongoing: Array<string>` - list of non-ended transfers (waiting
+   *  - `data.ongoingList: Array<string>` - list of non-ended transfers (waiting
    *       and outgoing) transfer IDs for the file
-   *  - `data.ended: Array<string>|Number` - list of ended transfer IDs for the file,
-   *       which size is limited to the value of
-   *       `session.sessionDetails.config.transfersHistoryLimitPerFile`
-   *        or number of ended transfers if endedInfo is "count"
+   *  - `data.endedCount` Math.min(number of ended transfers, transfersHistoryLimitPerFile)
+   *  - `data.endedList` (optional, exists if includeEndedList was true) list of ended
+   *       transfer IDs for the file, which size is limited to the value of
+   *       transfersHistoryLimitPerFile
    * - `reject(object: error)` on failure
    */
-  getFileTransfers(fileEntityId, endedInfo = 'count') {
-    return this.get('onedataRpc').request('getFileTransfers', {
-      guid: fileEntityId,
-      endedInfo,
+  getTransfersForFile(file, includeEndedList = false) {
+    const {
+      entityType,
+      entityId,
+    } = getProperties(file, 'entityType', 'entityId');
+    const transferGri = gri({
+      entityType,
+      entityId,
+      aspect: 'transfers',
+    });
+    return this.get('onedataGraph').request({
+      gri: transferGri,
+      operation: 'get',
+      data: {
+        include_ended_list: includeEndedList,
+      },
+      subscribe: false,
     });
   },
 
@@ -64,12 +79,18 @@ export default Service.extend({
   // FIXME: pass only fileEntityId
   /**
    * @param {Models.File} file 
-   * @param {Models.Oneprovider} destinationOneprovider
+   * @param {Models.Provider} destinationOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startReplication(file, destinationOneprovider) {
+    const {
+      entityId,
+      type,
+    } = getProperties(file, 'entityId', 'type');
+
     const transfer = this.get('store').createRecord('transfer', {
-      dataSourceIdentifier: get(file, 'entityId'),
+      dataSourceId: entityId,
+      dataSourceType: type,
       replicatingProvider: destinationOneprovider,
     });
     return deleteRecordIfFailed(transfer, transfer.save());
@@ -78,13 +99,19 @@ export default Service.extend({
   // FIXME: pass only fileEntityId
   /**
    * @param {Models.File} file 
-   * @param {Models.Oneprovider} sourceOneprovider
-   * @param {Models.Oneprovider} destinationOneprovider
+   * @param {Models.Provider} sourceOneprovider
+   * @param {Models.Provider} destinationOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startMigration(file, sourceOneprovider, destinationOneprovider) {
+    const {
+      entityId,
+      type,
+    } = getProperties(file, 'entityId', 'type');
+
     const transfer = this.get('store').createRecord('transfer', {
-      dataSourceIdentifier: get(file, 'entityId'),
+      dataSourceId: entityId,
+      dataSourceType: type,
       evictingProvider: sourceOneprovider,
       replicatingProvider: destinationOneprovider,
     });
@@ -94,12 +121,18 @@ export default Service.extend({
   // FIXME: pass only fileEntityId
   /**
    * @param {Models.File} file 
-   * @param {Models.Oneprovider} sourceOneprovider
+   * @param {Models.Provider} sourceOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startEviction(file, sourceOneprovider) {
+    const {
+      entityId,
+      type,
+    } = getProperties(file, 'entityId', 'type');
+
     const transfer = this.get('store').createRecord('transfer', {
-      dataSourceIdentifier: get(file, 'entityId'),
+      dataSourceId: entityId,
+      dataSourceType: type,
       evictingProvider: sourceOneprovider,
     });
     return deleteRecordIfFailed(transfer, transfer.save());

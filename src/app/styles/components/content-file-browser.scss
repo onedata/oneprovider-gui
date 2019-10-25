@@ -1,6 +1,11 @@
-.content-file-browser + .ps--scrollbar-x-rail + .ps--scrollbar-y-rail {
-  // TODO: use z-index variables
-  z-index: 20000;
+$zindex-file-browser-head: $zindex-modal-background - 10;
+
+.content-file-browser .file-browser-head-container {
+  z-index: $zindex-file-browser-head;
+}
+
+.content-file-browser + .ps__rail-x + .ps__rail-y {
+  z-index: $zindex-file-browser-head + 1;
 }
 
 @media (max-width: $screen-xs-max) {

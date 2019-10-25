@@ -13,14 +13,13 @@ import _ from 'lodash';
 
 const aclSpecificationList =
   _.flatten(aclPermissionsSpecification.mapBy('privileges'));
-  
+
 const aclPermissionsMasks = aclSpecificationList.reduce((map, permission) => {
   permission.context.forEach(context => {
     map[context][permission.name] = permission.mask;
   });
   return map;
 }, { file: {}, dir: {} });
-
 
 /**
  * Converts number to object representation of ACE permissions.
@@ -56,7 +55,7 @@ export function treeToNumber(permissionsTree, context) {
   // only permissions with `true` value
   const permissionNamesList = _.keys(flattenedPermissionsTree)
     .filter(key => flattenedPermissionsTree[key]);
-  
+
   let permissionsNumber = 0;
   permissionNamesList.forEach(permissionName => {
     permissionsNumber |= aclPermissionsMasks[context][permissionName] || 0;

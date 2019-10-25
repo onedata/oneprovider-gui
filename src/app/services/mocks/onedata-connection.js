@@ -11,5 +11,10 @@
 import OnedataConnection from 'onedata-gui-websocket-client/services/mocks/onedata-connection';
 
 export default OnedataConnection.extend({
-  transfersHistoryLimitPerFile: 100,
+  /**
+   * @overrides
+   */
+  attributes: Object.freeze({
+    transfersHistoryLimitPerFile: 100,
+  }),
 });

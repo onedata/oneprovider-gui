@@ -22,8 +22,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { equal, and, not, or } from 'ember-awesome-macros';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
 
@@ -41,6 +40,7 @@ export default Component.extend(I18n, {
   i18n: service(),
   globalNotify: service(),
   errorExtractor: service(),
+  isMobile: service(),
 
   /**
    * @override
@@ -72,14 +72,25 @@ export default Component.extend(I18n, {
   allButtonsArray: undefined,
 
   /**
-   * @virtual optional
-   * @type {Function} (boolean) => any
+   * @virtual
+   * @type {string}
    */
-  hasEmptyDirClassChanged: notImplementedIgnore,
+  fileClipboardMode: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<Models.File>}
+   */
+  fileClipboardFiles: undefined,
 
   changeDir: undefined,
 
   _window: window,
+
+  /**
+   * @type {HTMLElement}
+   */
+  _body: document.body,
 
   /**
    * @type {models/File}
@@ -97,11 +108,12 @@ export default Component.extend(I18n, {
    */
   headerVisible: undefined,
 
+  /**
+   * @type {models/File}
+   */
+  downloadModalFile: null,
+
   selectionCount: reads('selectedFiles.length'),
-
-  fileClipboardMode: reads('fileManager.fileClipboardMode'),
-
-  fileClipboardFiles: reads('fileManager.fileClipboardFiles'),
 
   // NOTE: not using reads as a workaround to bug in Ember 2.18
   initialLoad: computed('filesArray.initialLoad', function initialLoad() {
@@ -110,8 +122,8 @@ export default Component.extend(I18n, {
 
   /**
    * True if there is initially loaded file list, but it is empty.
-   * False if there is initially loaded file list, but it is not empty.
-   * Undefined if the file list is not yet loaded.
+   * False if there is initially loaded file list, but it is not empty or
+   * the list was not yet loaded or cannot be loaded.
    * @type {boolean|undefined}
    */
   isDirEmpty: and('initialLoad.isFulfilled', not('filesArray.length')),
@@ -140,28 +152,46 @@ export default Component.extend(I18n, {
     function dirLoadError() {
       const initialLoad = this.get('initialLoad');
       if (get(initialLoad, 'isRejected')) {
-        const reason = get(initialLoad, 'reason');
-        if (reason) {
-          return this.get('errorExtractor').getMessage(reason) ||
-            this.t('unknownError');
-        } else {
-          return this.t('uknownError');
-        }
+        return get(initialLoad, 'reason');
       }
     }
   ),
 
-  uploadAction: computed('allButtonsArray.[]', function uploadAction() {
-    return this.get('allButtonsArray').findBy('id', 'upload');
-  }),
+  /**
+   * If the error is POSIX, returns string posix error code
+   * @type {ComputedProperty<string|undefined>}
+   */
+  dirLoadErrorPosix: computed(
+    'dirLoadError.{id,details.errno}',
+    function dirLoadErrorPosix() {
+      const dirLoadError = this.get('dirLoadError');
+      if (get(dirLoadError, 'id') === 'posix') {
+        return get(dirLoadError, 'details.errno');
+      }
+    }
+  ),
 
-  newDirectoryAction: computed('allButtonsArray.[]', function newDirectoryAction() {
-    return this.get('allButtonsArray').findBy('id', 'newDirectory');
-  }),
+  /**
+   * @type {ComputedProperty<object>} message object from error extractor
+   */
+  dirLoadErrorMessage: computed(
+    'dirLoadError',
+    function dirLoadErrorMessage() {
+      const reason = this.get('dirLoadError');
+      if (reason) {
+        return this.get('errorExtractor').getMessage(reason) ||
+          this.t('unknownError');
+      } else {
+        return this.t('uknownError');
+      }
+    }
+  ),
 
-  pasteAction: computed('allButtonsArray.[]', function pasteAction() {
-    return this.get('allButtonsArray').findBy('id', 'paste');
-  }),
+  uploadAction: array.findBy('allButtonsArray', raw('id'), raw('upload')),
+
+  newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
+
+  pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
 
   firstRowHeight: computed(
     'rowHeight',
@@ -187,27 +217,27 @@ export default Component.extend(I18n, {
     });
     array.on(
       'fetchPrevStarted',
-      () => this.stateOfFetchUpdate('prev', 'started')
+      () => this.onFetchingStateUpdate('prev', 'started')
     );
     array.on(
       'fetchPrevResolved',
-      () => this.stateOfFetchUpdate('prev', 'resolved')
+      () => this.onFetchingStateUpdate('prev', 'resolved')
     );
     array.on(
       'fetchPrevRejected',
-      () => this.stateOfFetchUpdate('prev', 'rejected')
+      () => this.onFetchingStateUpdate('prev', 'rejected')
     );
     array.on(
       'fetchNextStarted',
-      () => this.stateOfFetchUpdate('next', 'started')
+      () => this.onFetchingStateUpdate('next', 'started')
     );
     array.on(
       'fetchNextResolved',
-      () => this.stateOfFetchUpdate('next', 'resolved')
+      () => this.onFetchingStateUpdate('next', 'resolved')
     );
     array.on(
       'fetchNextRejected',
-      () => this.stateOfFetchUpdate('next', 'rejected')
+      () => this.onFetchingStateUpdate('next', 'rejected')
     );
     return array;
   }),
@@ -271,7 +301,7 @@ export default Component.extend(I18n, {
    * @param {string} state one of: started, resolved, rejected
    * @returns {undefined}
    */
-  stateOfFetchUpdate(type, state) {
+  onFetchingStateUpdate(type, state) {
     safeExec(
       this,
       'set',
@@ -311,11 +341,14 @@ export default Component.extend(I18n, {
       items[items.length - 1].getAttribute('data-row-id') || null;
     let startIndex, endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
-      const rowHeight = this.get('rowHeight');
+      const {
+        rowHeight,
+        _window,
+      } = this.getProperties('rowHeight', '_window');
       const $firstRow = $('.first-row');
       const firstRowTop = $firstRow.offset().top;
       const blankStart = firstRowTop * -1;
-      const blankEnd = blankStart + window.innerHeight;
+      const blankEnd = blankStart + _window.innerHeight;
       startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.floor(blankEnd / rowHeight);
       if (endIndex < 0) {
@@ -391,12 +424,47 @@ export default Component.extend(I18n, {
     }
   },
 
-  openFile(file) {
+  downloadUsingIframe(fileUrl) {
+    const _body = this.get('_body');
+    const iframe = $('<iframe/>').attr({
+      src: fileUrl,
+      style: 'display:none;',
+    }).appendTo(_body);
+    // the time should be long to support some download extensions in Firefox desktop
+    later(() => iframe.remove(), 60000);
+  },
+
+  downloadUsingOpen(fileUrl) {
+    // Apple devices such as iPad tries to open file using its embedded viewer
+    // in any browser, but we cannot say if the file extension is currently supported
+    // so we try to open every file in new tab.
+    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
+    this.get('_window').open(fileUrl, target);
+  },
+
+  openFile(file, confirmModal = false) {
     const isDir = get(file, 'type') === 'dir';
     if (isDir) {
       return this.get('changeDir')(file);
     } else {
-      return this.downloadFile(get(file, 'entityId'));
+      if (confirmModal) {
+        this.set('downloadModalFile', file);
+      } else {
+        this.downloadFile(get(file, 'entityId'));
+      }
+    }
+  },
+
+  addToSelectedFiles(selectedFiles, newFiles) {
+    const filesWithoutBroken = newFiles.filter(f => get(f, 'type') !== 'broken');
+    selectedFiles.addObjects(filesWithoutBroken);
+
+    if (get(selectedFiles, 'length') > 1) {
+      const filesSourceArray = this.get('filesArray.sourceArray');
+      const filesIndices = new Map(
+        selectedFiles.map(file => [file, filesSourceArray.indexOf(file)])
+      );
+      selectedFiles.sort((a, b) => filesIndices.get(a) - filesIndices.get(b));
     }
   },
 
@@ -406,8 +474,10 @@ export default Component.extend(I18n, {
   },
 
   selectAddSingleFile(selectedFiles, file) {
-    selectedFiles.pushObject(file);
-    this.set('lastSelectedFile', file);
+    this.addToSelectedFiles(selectedFiles, [file]);
+    if (get(file, 'type') !== 'broken') {
+      this.set('lastSelectedFile', file);
+    }
   },
 
   selectOnlySingleFile(selectedFiles, file) {
@@ -445,7 +515,7 @@ export default Component.extend(I18n, {
 
     const indexA = Math.min(startIndex, fileIndex);
     const indexB = Math.max(startIndex, fileIndex);
-    selectedFiles.addObjects(sourceArray.slice(indexA, indexB + 1));
+    this.addToSelectedFiles(selectedFiles, sourceArray.slice(indexA, indexB + 1));
   },
 
   findNearestSelectedIndex(fileIndex) {
@@ -476,16 +546,18 @@ export default Component.extend(I18n, {
     const {
       fileManager,
       globalNotify,
-    } = this.getProperties('fileManager', 'globalNotify');
+      isMobile,
+    } = this.getProperties('fileManager', 'globalNotify', 'isMobile');
+    const isMobileBrowser = get(isMobile, 'any');
     return fileManager.getFileDownloadUrl(fileEntityId)
       .then((data) => {
         const fileUrl = data && get(data, 'fileUrl');
         if (fileUrl) {
-          const iframe = $('<iframe/>').attr({
-            src: fileUrl,
-            style: 'visibility:hidden;display:none',
-          }).appendTo($('body'));
-          later(() => iframe.remove(), 1000);
+          if (isMobileBrowser) {
+            this.downloadUsingOpen(fileUrl);
+          } else {
+            this.downloadUsingIframe(fileUrl);
+          }
         } else {
           throw { isOnedataCustomError: true, type: 'empty-file-url' };
         }
@@ -498,6 +570,9 @@ export default Component.extend(I18n, {
 
   actions: {
     openContextMenu(file, mouseEvent) {
+      if (get(file, 'type') === 'broken') {
+        return;
+      }
       const selectedFiles = this.get('selectedFiles');
       if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
         this.selectOnlySingleFile(selectedFiles, file);
@@ -506,10 +581,10 @@ export default Component.extend(I18n, {
       let top;
       const trigger = mouseEvent.currentTarget;
       if (trigger.matches('.one-menu-toggle')) {
-        const $trigger = $(trigger);
-        const toggleOffset = $trigger.offset();
-        left = toggleOffset.left + trigger.clientWidth / 2;
-        top = toggleOffset.top + trigger.clientHeight / 2;
+        const $middleDot = $(trigger).find('.icon-dot').eq(1);
+        const middleDotOffset = $middleDot.offset();
+        left = middleDotOffset.left + 1;
+        top = middleDotOffset.top + 1;
       } else {
         left = mouseEvent.clientX;
         top = mouseEvent.clientY;
@@ -517,14 +592,14 @@ export default Component.extend(I18n, {
       const $this = this.$();
       const tableOffset = $this.offset();
       left = left - tableOffset.left;
-      top = top - tableOffset.top - this.element.offsetTop + this.element.offsetTop;
+      top = top - tableOffset.top;
       this.$('.file-actions-trigger').css({
         top,
         left,
       });
       // cause popover refresh
       if (this.get('fileActionsOpen')) {
-        window.dispatchEvent(new Event('resize'));
+        this.get('_window').dispatchEvent(new Event('resize'));
       }
       this.actions.toggleFileActions.bind(this)(true, file);
     },
@@ -565,7 +640,7 @@ export default Component.extend(I18n, {
       if (areSomeFilesSelected) {
         return this.fileClicked(file, true, false);
       } else {
-        return this.openFile(file);
+        return this.openFile(file, true);
       }
     },
 
@@ -583,6 +658,15 @@ export default Component.extend(I18n, {
 
     emptyDirPaste() {
       return this.get('pasteAction.action')(...arguments);
+    },
+
+    closeDownloadModal() {
+      this.set('downloadModalFile', null);
+    },
+
+    confirmDownload() {
+      return this.downloadFile(this.get('downloadModalFile.entityId'))
+        .finally(() => safeExec(this, 'set', 'downloadFile', null));
     },
   },
 });

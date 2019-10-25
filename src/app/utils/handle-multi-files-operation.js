@@ -12,6 +12,14 @@ import _ from 'lodash';
 import { resolve, hashSettled } from 'rsvp';
 import { get } from '@ember/object';
 
+/**
+ * Invoke async function `operation` on each file in `files`.
+ * Wait for all results and return hash with results (as in RSVP Promise lib).
+ * @param {Array<models/File>} opts.files
+ * @param {Object} opts.operationOptions
+ * @param {Function} operation `(file, operationOptions) => Promise`
+ * @returns {Object}
+ */
 export function wrapOperations({ files, operationOptions }, operation) {
   if (get(files, 'length') === 0) {
     return resolve();
@@ -22,6 +30,13 @@ export function wrapOperations({ files, operationOptions }, operation) {
   }
 }
 
+/**
+ * Looks what are the results of `RSVP.hash` with file operations and constructs
+ * object with summary used in other functions.
+ * @param {Object} promisesHash `RSVP.hash` result, eg. from `wrapOperations`
+ * @returns {Object} preprocessed information about multi files operation results
+ *   used by other functions
+ */
 export function interpretPromises(promisesHash) {
   const rejected = [];
   for (let key in promisesHash) {
@@ -38,7 +53,7 @@ export function interpretPromises(promisesHash) {
   if (failedCount > 0) {
     if (failedCount === 1) {
       failQuantity = 'single';
-    } else if (failedCount === get(promisesHash, 'length')) {
+    } else if (failedCount === Object.keys(promisesHash).length) {
       failQuantity = 'all';
     } else {
       failQuantity = 'multi';
@@ -50,6 +65,10 @@ export function interpretPromises(promisesHash) {
   return { failQuantity, rejected };
 }
 
+/**
+ * Using result of `interpretPromises`, informs user about errors if needed.
+ * @returns {undefined}
+ */
 export function notifyBatchError({
   promisesInterpretation,
   globalNotify,
@@ -74,6 +93,18 @@ export function notifyBatchError({
   );
 }
 
+/**
+ * Invoke async function `operation` on each file in `files` and if there were
+ * errors, inform user about it.
+ * @param {Array<models/File>} opts.files
+ * @param {Ember.Service} opts.globalNotify
+ * @param {Ember.Service} opts.errorExtractor
+ * @param {Ember.Service} opts.i18n
+ * @param {Object} [opts.operationOptions] optional second argument for `operation`
+ * @param {Object} opts.operationErrorKey i18n error key for `backendError`
+ * @param {Function} operation `(file, operationOptions) => Promise`
+ * @returns {Promise}
+ */
 export default function handleMultiFilesOperation({
     files,
     globalNotify,

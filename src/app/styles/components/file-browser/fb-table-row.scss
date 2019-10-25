@@ -1,0 +1,82 @@
+.fb-table-row {
+  @include vendor-prefix(user-select, none);
+  overflow-y: hidden;
+  &.file-selected {
+    background-color: $color-file-selected;
+  }
+  &.file-cut {
+    .file-icon-container, .file-item-text {
+      opacity: 0.6;
+    }
+  }
+  // FIXME: experimental
+  &.is-invalidated {
+    position: relative;
+  }
+  td.fb-table-col-files {
+    @media (max-width: $screen-xs-max) {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .file-info-container {
+      display: flex;
+      .file-icon-container, .file-item-text {
+        min-width: 2em;
+      }
+      .file-item-text {
+        flex-grow: 1;
+        padding-left: 10px;
+      }
+      .file-status-icon {
+        display: inline-block;
+        color: $main-text-color-disabled;
+      }
+      .file-info-mobile {
+        display: none;
+      }
+      .file-icon-container {
+        .inline-icon-container-file {
+          position: relative;
+          top: 50%;
+          transform: translateY(-50%) translateY(-3px);
+        }
+      }
+      @media (max-width: $screen-xs-max) {
+        .file-info-mobile {
+          display: block;
+          padding-top: 4px;
+          .file-info-mobile-inner {
+            color: $color-one-light-gray;
+          }
+          .file-info-mobile-right {
+            float: right;
+          }
+        }
+      }
+    }
+    // FIXME: design
+    // &:hover {
+    //   .file-status-icon {
+    //     color: $main-text-color;
+    //   }
+    // }
+  }
+  .file-icon-container .one-icon {
+    font-size: 200%;
+  }
+  &.fb-table-row-dir .file-icon {
+    color: $color-directory;
+  }
+  &.fb-table-row-file .file-icon {
+    color: $color-file;
+  }
+  &.fb-table-row-broken {
+    .file-icon {
+      color: $color-one-red;
+    }
+    .file-name {
+      color: $color-one-red;
+      font-style: italic;
+    }
+  }
+}

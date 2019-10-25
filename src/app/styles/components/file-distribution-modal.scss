@@ -1,8 +1,4 @@
 .file-distribution-modal {
-  .one-collapsible-list-item-content.opened {
-    overflow: visible;
-  }
-
   .oneproviders-distribution ul {
     padding-left: 0;
     list-style-type: none;
@@ -70,7 +66,7 @@
       transform: scale(0.8);
     }
   }
-  
+
   .transfers-counter-info {
     margin-top: $padding-base-vertical;
   }
@@ -83,7 +79,7 @@
       margin-bottom: $padding-large-horizontal;
       word-break: break-word;
     }
-    
+
     .source-oneprovider-visualization {
       .oneprovider-icon {
         font-size: 40px;
@@ -97,7 +93,7 @@
     .ember-basic-dropdown {
       width: 170px;
     }
-    
+
     .btn-toolbar {
       text-align: right;
     }
@@ -231,15 +227,16 @@
     display: flex;
     align-items: center;
 
-    .never-synchronized-text {
+    .chunks-text {
       @include absolute-align-middle-center();
       white-space: nowrap;
       font-size: 80%;
     }
 
-    .never-synchronized-background {
+    .chunks-background {
+      flex-grow: 1;
+      min-width: 0;
       height: 18px;
-      width: 320px;
       background-image: linear-gradient(
         -45deg,
         $color-one-light-blue 25%,
@@ -284,7 +281,7 @@
       min-width: 0;
       height: 18px;
       background-color: $color-one-light-blue;
-    }    
+    }
 
     .percentage-text {
       flex-shrink: 0;
@@ -294,7 +291,7 @@
   }
   @media (max-width: $screen-xs-max) {
     .oneproviders-distribution-item {
-      
+
       flex-flow: row wrap;
       .name-section {
         order: 1;
@@ -320,7 +317,7 @@
     }
   }
 
-  .detailed-list {
+  .per-file-distribution-list {
     .one-collapsible-list-item-header {
       padding-right: $padding-large-vertical;
     }
@@ -330,6 +327,9 @@
     .file-name {
       flex-grow: 1;
       min-width: 0;
+    }
+    .file-size {
+      margin-left: $padding-small-horizontal;
     }
     .list-content {
       padding: $padding-large-vertical;

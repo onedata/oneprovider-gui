@@ -1,3 +1,12 @@
+/**
+ * Base component of modal for setting new name of file list item
+ * 
+ * @module components/file-browser/fb-set-name-modal
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { isEmpty } from 'ember-awesome-macros';
@@ -7,7 +16,7 @@ import { next } from '@ember/runloop';
 import { computed } from '@ember/object';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-set-name-modal';
 
-// FIXME: validate to disallow / names
+// TODO: validate to disallow / names
 
 export default Component.extend(I18n, {
   layout,

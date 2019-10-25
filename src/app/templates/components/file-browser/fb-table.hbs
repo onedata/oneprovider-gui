@@ -4,6 +4,7 @@
       <th class="fb-table-col-files">{{tt this "header.files"}}</th>
       <th class="fb-table-col-size">{{tt this "header.size"}}</th>
       <th class="fb-table-col-modification">{{tt this "header.modification"}}</th>
+      <th class="fb-table-col-actions-menu"></th>
     </tr>
   </thead>
   <tbody class="fb-table-tbody">
@@ -50,19 +51,18 @@
 {{#if dirLoadError}}
   <div class="error-dir-box dir-box">
     <h1 class="error-dir-text dir-box-text">
-      {{tt this "errorDirBox.errorOccured"}}
+      {{dirLoadErrorMessage.message}}
     </h1>
-    <div class="error-dir-image dir-box-image"></div>
-    <h2 class="error-dir-text dir-box-text">
-      {{dirLoadError.message}}
-    </h2>
-    <div class="error-dir-details application-error">
-      <div class="error-details active">
-        {{#if dirLoadError.errorJsonString}}
-          <div class="error-json">{{dirLoadError.errorJsonString}}</div>
-        {{/if}}
+    <div class={{concat "error-dir-image dir-box-image error-dir-image-" dirLoadErrorPosix}}></div>
+    {{#unless dirLoadErrorPosix}}
+      <div class="error-dir-details application-error">
+        <div class="error-details active">
+          {{#if dirLoadError.errorJsonString}}
+            <div class="error-json">{{dirLoadErrorMessage.errorJsonString}}</div>
+          {{/if}}
+        </div>
       </div>
-    </div>
+    {{/unless}}
   </div>
 {{/if}}
 {{#if hasEmptyDirClass}}
@@ -112,3 +112,9 @@
   {{/one-webui-popover}}
   <div class="file-actions-trigger floating-actions-trigger"></div>
 {{/if}}
+
+{{file-browser/fb-download-modal
+  file=downloadModalFile
+  confirmDownload=(action "confirmDownload")
+  onHide=(action "closeDownloadModal")
+}}

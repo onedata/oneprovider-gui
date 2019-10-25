@@ -14,6 +14,7 @@ import reject from 'rsvp';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 
 const backendEpochInfinity = 9999999999;
 const linkNameIdPartLength = 6;
@@ -32,6 +33,11 @@ export default Model.extend(GraphSingleModelMixin, {
     } = this.getProperties('entityId', 'scheduleTime', 'finishTime');
     return computeTransferIndex(entityId, scheduleTime, finishTime);
   }),
+
+  /**
+   * If true, the transfer is in progress (should be in current transfers collection)
+   */
+  isOngoing: attr('boolean'),
 
   dataSourceName: attr('string'),
 
@@ -58,24 +64,12 @@ export default Model.extend(GraphSingleModelMixin, {
 
   finishTime: attr('number'),
 
-  transferProgress: belongsTo('transferProgress'),
+  // transferProgress: belongsTo('transferProgress'),
 
-  minuteChart: belongsTo('throughputChart'),
-  hourChart: belongsTo('throughputChart'),
-  dayChart: belongsTo('throughputChart'),
-  monthChart: belongsTo('throughputChart'),
-
-  /**
-   * Destination of this transfer
-   * @type {Models.Oneprovider}
-   */
-  replicatingProvider: belongsTo('oneprovider'),
-
-  /**
-   * Oneprovider that will evict the file after this transfer
-   * @type {Models.Oneprovider}
-   */
-  evictingProvider: belongsTo('oneprovider'),
+  // minuteChart: belongsTo('throughputChart'),
+  // hourChart: belongsTo('throughputChart'),
+  // dayChart: belongsTo('throughputChart'),
+  // monthChart: belongsTo('throughputChart'),
 
   dataSource: promise.object(
     computed('dataSourceType', 'dataSourceId', function dataSource() {
@@ -113,6 +107,18 @@ export default Model.extend(GraphSingleModelMixin, {
     })
   ),
 
+  /**
+   * Destination of this transfer
+   * @type {Models.Provider}
+   */
+  replicatingProvider: belongsTo('provider'),
+
+  /**
+   * Oneprovider that will evict the file after this transfer
+   * @type {Models.Provider}
+   */
+  evictingProvider: belongsTo('provider'),
+
   init() {
     this.user =
       promise.object(
@@ -130,7 +136,7 @@ export default Model.extend(GraphSingleModelMixin, {
       store,
     } = this.getProperties('userId', 'spaceId', 'store');
     const userGri = gri({
-      entityType: 'op-user',
+      entityType: userEntityType,
       entityId: userEntityId,
       scope: 'private',
       aspect: 'instance',

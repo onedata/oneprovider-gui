@@ -1,3 +1,13 @@
+/**
+ * Asks for confirmation before starting new transfer when there are active
+ * transfers in selected Oneprovider.
+ * 
+ * @module components/file-distribution-modal/confirm-subsequent-transfer
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -5,9 +15,12 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed, get } from '@ember/object';
 import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['confirm-subsequent-transfer'],
+
+  i18n: service(),
 
   /**
    * @override
@@ -22,7 +35,8 @@ export default Component.extend(I18n, {
   transferType: undefined,
 
   /**
-   * @type {Models.Oneprovider}
+   * @virtual
+   * @type {Models.Provider}
    */
   oneprovider: undefined,
 
@@ -51,7 +65,10 @@ export default Component.extend(I18n, {
     return this.t(`start${_.upperFirst(transferType)}Button`);
   }),
 
-  messageText: computed('transferType', 'oneprovider', function messageText() {
+  /**
+   * @type {Ember.ComputedProperty<SafeString>}
+   */
+  messageText: computed('transferType', 'oneprovider.name', function messageText() {
     const {
       transferType,
       oneprovider,

@@ -29,8 +29,6 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.fileBrowser.fbRemoveModal',
 
-  proceedButtonClass: 'btn btn-danger proceed remove-proceed',
-
   open: false,
 
   /**
@@ -63,12 +61,12 @@ export default Component.extend(I18n, {
 
   processing: false,
 
-  modalClass: 'fb-remove-item-modal',
-
   /**
+   * Controls message displayed to user what is going to be removed.
+   * One of: file, dir, multi, multiMany
    * @type {ComputedProperty<string>}
    */
-  itemsType: computed('files.[]', function itemsType() {
+  itemsType: computed('files.@each.type', function itemsType() {
     const files = this.get('files');
     const maxDisplayFiles = this.get('maxDisplayFiles');
     const filesCount = get(files, 'length');
@@ -113,9 +111,14 @@ export default Component.extend(I18n, {
           (file) => file.destroyRecord()
         )
         .then(results => {
-          return fileManager.dirChildrenRefresh(
-            get(parentDir, 'entityId')
-          ).then(() => results);
+          filesToRemove.forEach(file => {
+            const stateName = get(file, 'currentState.stateName');
+            if (stateName.endsWith('uncommitted')) {
+              file.rollbackAttributes();
+            }
+          });
+          return fileManager.dirChildrenRefresh(get(parentDir, 'entityId'))
+            .then(() => results);
         })
         .then(results => {
           onHide.bind(this)(true, results);

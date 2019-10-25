@@ -23,10 +23,17 @@
         <tr class="file-info-row-path">
           <td class="property-name">{{tt this "path" type=typeTranslation}}</td>
           <td class="property-value">
-            {{clipboard-line
-              value=filePathProxy.content
-              size=(if smallContent "sm")
+            {{#promise-proxy-container
+              proxy=filePathProxy
+              sizeClass="xs"
+              centered=false
+              spinnerBlockClass="loading-file-path"
             }}
+              {{clipboard-line
+                value=filePathProxy.content
+                size=(if smallContent "sm")
+              }}
+            {{/promise-proxy-container}}
           </td>
         </tr>
         <tr class="file-info-row-space-id">
@@ -73,9 +80,16 @@
         <tr class="file-info-row-owner">
           <td class="property-name">{{tt this "owner"}}</td>
           <td class="property-value">
-            {{#truncated-string}}
-              {{ownerFullNameProxy.content}}
-            {{/truncated-string}}
+            {{#promise-proxy-container
+              proxy=ownerFullNameProxy
+              sizeClass="xs"
+              centered=false
+              spinnerBlockClass="loading-owner-full-name"
+            }}
+              {{#truncated-string}}
+                {{ownerFullNameProxy.content}}
+              {{/truncated-string}}
+            {{/promise-proxy-container}}
           </td>
         </tr>
       </tbody>

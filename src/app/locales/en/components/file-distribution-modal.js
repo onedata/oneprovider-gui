@@ -1,4 +1,7 @@
-const disabledActionSingleOneprovider = ' is available only with two or more supporting providers.';
+const disabledActionSingleOneprovider =
+  ' is available only with two or more supporting providers.';
+const dirsDontHaveDistributionTip =
+  'Data distribution for directories is not available.';
 
 export default {
   header: 'Data distribution',
@@ -15,10 +18,11 @@ export default {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',
     neverSynchronizedTip: 'This file was never read or modified on selected Oneprovider. File blocks will be synchronized when needed. You can also manually replicate the file to selected Oneprovider.',
+    dirsDontHaveDistributionTip,
   },
   oneprovidersDistribution: {
-    summarizedFilesDistribution: 'Summarized data distribution of selected files:',
-    dirsDontHaveDistributionTip: 'Data distribution for directories is not available.',
+    summarizedFilesDistribution: 'Summarized data distribution of selected files (directories are omitted):',
+    dirsDontHaveDistributionTip,
     file: 'file',
     dir: 'directory',
     currentlyTransferredText: 'This {{elementType}} is currently transferred between Oneproviders',
@@ -40,7 +44,7 @@ export default {
     evict: 'Evict',
     replicationStart: 'Replicate the data to selected Oneprovider.',
     migrationStart: 'Migrate the data to other Oneprovider...',
-    evictionStart: 'Evict redundant data blocks on this Oneprovider',
+    evictionStart: 'Evict redundant data blocks on this Oneprovider.',
     disabledReplicationSingleOneprovider: 'Replication' + disabledActionSingleOneprovider,
     disabledReplicationIsComplete: 'Cannot schedule replication as all file block are already on this Oneprovider.',
     disabledMigrationSingleOneprovider: 'Migration' + disabledActionSingleOneprovider,
@@ -49,8 +53,9 @@ export default {
     disabledEvictionNoBlocks: 'Eviction is not possible unless some data blocks on this Oneprovider are redundant.',
   },
   destinationOneproviderSelector: {
-    descriptionForManyFiles: 'Select destination for migrating selected files and directories:',
+    descriptionForManyFiles: 'Select destination for migrating selected files:',
     descriptionForOneFile: 'Select destination for migrating {{fileName}}:',
+    selectTargetDropdownPlaceholder: 'Select target...',
     migrationArrowText: 'migrate to',
     busy: 'busy',
     cancelButton: 'Cancel',
@@ -61,7 +66,7 @@ export default {
       replication: 'replication',
       migration: 'migration',
       eviction: 'eviction',
-    },    
+    },
     messageText: 'There are pending transfers of selected files in {{oneproviderName}}. Starting a new {{transferType}} can interrupt existing transfers. Do you want to start a new {{transferType}} anyway?',
     startReplicationButton: 'Start replication',
     startMigrationButton: 'Start migration',

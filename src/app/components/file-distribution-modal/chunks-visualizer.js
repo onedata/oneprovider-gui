@@ -1,3 +1,12 @@
+/**
+ * Renders visualization of file chunks presence.
+ * 
+ * @module components/file-distribution-modal/chunks-visualizer
+ * @author Michał Borzęcki
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
@@ -6,6 +15,7 @@ import { scheduleOnce } from '@ember/runloop';
 
 export default Component.extend(I18n, {
   classNames: ['chunks-visualizer'],
+  classNameBindings: ['neverSynchronized:never-synchronized:synchronized'],
 
   i18n: service(),
 
@@ -33,15 +43,24 @@ export default Component.extend(I18n, {
   percentage: undefined,
 
   /**
+   * One of 'file', 'dir'
+   * @virtual
+   * @type {string}
+   */
+  fileType: undefined,
+
+  /**
    * @virtual
    * @type {number}
    */
   fileSize: undefined,
 
   /**
+   * @virtual
    * @type {number}
+   * Used to define proper coordinates while drawing chunks bar
    */
-  chunksRange: 320,
+  chunksRange: undefined,
 
   /**
    * @type {string}
@@ -56,11 +75,11 @@ export default Component.extend(I18n, {
     return percentage !== undefined ? `${Math.floor(percentage)}%` : '';
   }),
 
-  canvasModifier: observer(
+  canvasRedrawer: observer(
     'neverSynchronized',
     'chunksRange',
     'chunks',
-    function canvasModifier() {
+    function canvasRedrawer() {
       scheduleOnce('afterRender', this, 'redrawCanvas');
     }
   ),

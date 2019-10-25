@@ -35,7 +35,8 @@ describe('Unit | Utility | add ellipsis breadcrumbs item', function () {
     });
   });
 
-  it('does not add ellipsis for item if item parent is already predecessor of item in original array',
+  it(
+    'does not add ellipsis for item if item parent is already predecessor of item in original array',
     function () {
       const numberOfFiles = 10;
       const { bitems } = generateBreadcrumbsItems(numberOfFiles);

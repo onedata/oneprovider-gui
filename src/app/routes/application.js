@@ -16,6 +16,11 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   onedataWebsocket: service(),
   mockBackend: service(),
 
+  /**
+   * @override
+   */
+  clearLocalStoragePrefix: 'oneprovider-gui:',
+
   developmentModelConfig: Object.freeze({
     clearOnReload: true,
   }),

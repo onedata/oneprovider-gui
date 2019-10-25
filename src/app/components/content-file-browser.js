@@ -40,7 +40,7 @@ export default OneEmbeddedComponent.extend(
      */
     dirEntityId: undefined,
 
-    injectedDirGri: computed('dirEntityId', function injectedDirGri() {
+    injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
       const {
         spaceEntityId,
         dirEntityId,
@@ -64,17 +64,19 @@ export default OneEmbeddedComponent.extend(
      * @override
      */
     fetchSpaceRootDir() {
-      const injectedDirGri = this.get('injectedDirGri');
-      if (injectedDirGri) {
-        return this.get('store')
-          .findRecord(
-            'file',
-            injectedDirGri
-          );
-      } else {
-        return this.get('spaceProxy')
-          .then(space => get(space, 'rootDir'));
-      }
+      const {
+        injectedDirGri,
+        spaceProxy,
+        store,
+      } = this.getProperties('injectedDirGri', 'spaceProxy', 'store');
+
+      return spaceProxy.then(space => {
+        if (injectedDirGri) {
+          return store.findRecord('file', injectedDirGri);
+        } else {
+          return get(space, 'rootDir');
+        }
+      });
     },
 
     actions: {
@@ -105,12 +107,10 @@ export default OneEmbeddedComponent.extend(
           removeParentDir: null,
         });
       },
-      openRenameModal(file) {
-        return get(file, 'parent').then(parentDir => {
-          this.setProperties({
-            fileToRename: file,
-            renameParentDir: parentDir,
-          });
+      openRenameModal(file, parentDir) {
+        this.setProperties({
+          fileToRename: file,
+          renameParentDir: parentDir,
         });
       },
       closeRenameModal() {
