@@ -13,24 +13,25 @@ import { resolve, reject, all } from 'rsvp';
 import _ from 'lodash';
 import { inject as service } from '@ember/service';
 import { get, setProperties, computed } from '@ember/object';
-// FIXME: will be refactored
+// FIXME: implement transfers list fetching
 import {
   numberOfFiles,
   numberOfDirs,
-  numberOfTransfers,
+  // numberOfTransfers,
   generateFileEntityId,
   generateDirEntityId,
   generateFileGri,
-  generateTransferGri,
-  generateTransferEntityId,
-  decodeTransferEntityId,
+  // generateTransferGri,
+  // generateTransferEntityId,
+  // decodeTransferEntityId,
 } from 'oneprovider-gui/services/mock-backend';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-import { computeTransferIndex } from 'oneprovider-gui/models/transfer';
+// import { computeTransferIndex } from 'oneprovider-gui/models/transfer';
 
 export default OnedataRpc.extend({
   store: service(),
+  mockBackend: service(),
 
   childrenIdsCache: computed(() => ({})),
   spaceTransfersIdsCache: computed(() => ({})),
@@ -91,7 +92,8 @@ export default OnedataRpc.extend({
   },
 
   __handle_getSpaceTransfers({ spaceId, state, index, limit, offset }) {
-    return resolve(this.getMockSpaceTransfersSlice(state, index, limit, offset));
+    return resolve(this.getMockSpaceTransfersSlice(spaceId, state, index, limit,
+      offset));
   },
 
   getFilesByEntityId(entityIds) {
@@ -107,8 +109,8 @@ export default OnedataRpc.extend({
     }));
   },
 
-  getMockSpaceTransfersSlice(state, index, limit = 100000000, offset = 0) {
-    const mockSpaceTransfers = this.getMockSpaceTransfers(state);
+  getMockSpaceTransfersSlice(spaceId, state, index, limit = 100000000, offset = 0) {
+    const mockSpaceTransfers = this.getMockSpaceTransfers(spaceId, state);
     let arrIndex = mockSpaceTransfers.findBy('index', index);
     if (arrIndex === -1) {
       arrIndex = 0;
@@ -165,7 +167,7 @@ export default OnedataRpc.extend({
     }
   },
 
-  getMockSpaceTransfers(state) {
+  getMockSpaceTransfers(spaceId, state) {
     return this.get('mockBackend.allTransfers')[state];
   },
 

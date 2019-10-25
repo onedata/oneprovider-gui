@@ -32,7 +32,10 @@ const transferStates = ['waiting', 'ongoing', 'ended'];
 export default Service.extend({
   store: service(),
 
-  allTransfers: computed(() => ({})),
+  allTransfers: computed(() => transferStates.reduce((obj, state) => {
+    obj[state] = [];
+    return obj;
+  }, {})),
 
   generateDevelopmentModel() {
     const store = this.get('store');
