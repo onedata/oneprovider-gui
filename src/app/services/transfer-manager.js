@@ -106,6 +106,69 @@ export default Service.extend({
   },
 
   /**
+   * @param {Models.Transfer} transfer
+   * @param {string} timePeriod: one of: minute, hour, day, month
+   * @returns {Promise<Object>}  with fields: charts: Object, timestamp: Number
+   */
+  getThroughputCharts(transfer, timePeriod) {
+    const {
+      onedataGraph,
+    } = this.getProperties('onedataGraph');
+    const {
+      entityType,
+      entityId,
+    } = getProperties(transfer, 'entityType', 'entityId');
+    const chartsGri = gri({
+      entityType: entityType,
+      entityId: entityId,
+      aspect: 'throughput_charts',
+    });
+    return onedataGraph.request({
+      gri: chartsGri,
+      operation: 'get',
+      // FIXME: to refactor to chart_type
+      data: {
+        chartsType: timePeriod,
+      },
+      subscribe: false,
+    });
+  },
+
+  /**
+   * @param {Models.Space} space
+   * @param {string} transferType one of: job, onTheFly, all
+   * @param {string} timePeriod one of: minute, hour, day, month
+   * @param {string|undefined} providerId provider entityId
+   * @returns {Promise<Object>} with fields: inputCharts: Object, 
+   *  outputCharts: Object, timestamp: Number
+   */
+  getSpaceTransfersThroughputCharts(space, transferType, timePeriod, providerId) {
+    const {
+      onedataGraph,
+    } = this.getProperties('onedataGraph');
+    const {
+      entityType,
+      entityId,
+    } = getProperties(space, 'entityType', 'entityId');
+    const chartsGri = gri({
+      entityType: entityType,
+      entityId: entityId,
+      aspect: 'transfers_throughput_charts',
+      aspectId: providerId || 'undefined',
+    });
+    return onedataGraph.request({
+      gri: chartsGri,
+      operation: 'get',
+      // FIXME: to refactor to transfer_type and charts_type
+      data: {
+        transferType,
+        chartsType: timePeriod,
+      },
+      subscribe: false,
+    });
+  },
+
+  /**
    * @param {Models.File} file 
    * @param {Models.Provider} destinationOneprovider
    * @returns {Promise<Models.Transfer>}
@@ -145,7 +208,6 @@ export default Service.extend({
     return deleteRecordIfFailed(transfer, transfer.save());
   },
 
-  // FIXME: pass only fileEntityId
   /**
    * @param {Models.File} file 
    * @param {Models.Provider} sourceOneprovider
