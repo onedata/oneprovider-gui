@@ -225,17 +225,13 @@ export default EmberObject.extend(
         get(onedataConnection, 'transfersHistoryLimitPerFile');
 
       return transferManager.getTransfersForFile(file).then(({
-          ongoingList,
-          endedCount,
-        }) =>
-        Promise.all(ongoingList.map(transferId =>
-          transferManager.getTransfer(transferId)
-        )).then(transfers => ({
-          ongoingList: transfers,
-          endedCount,
-          endedOverflow: endedCount >= transfersHistoryLimitPerFile,
-        }))
-      );
+        ongoingList,
+        endedCount,
+      }) => ({
+        ongoingList,
+        endedCount,
+        endedOverflow: endedCount >= transfersHistoryLimitPerFile,
+      }));
     },
 
     /**

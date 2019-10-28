@@ -20,7 +20,7 @@ import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 const backendEpochInfinity = 9999999999;
 const linkNameIdPartLength = 6;
 
-export const entityId = 'op_transfer';
+export const entityType = 'op_transfer';
 
 export function computeTransferIndex(entityId, scheduleTime, finishTime) {
   const timestamp = finishTime || scheduleTime;

@@ -10,7 +10,7 @@ import attr from 'ember-data/attr';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
-export const entityId = 'op_group';
+export const entityType = 'op_group';
 
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),

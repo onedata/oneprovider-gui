@@ -10,6 +10,7 @@
 import Service, { inject as service } from '@ember/service';
 import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
+import { all as allFulfilled, resolve } from 'rsvp';
 
 export default Service.extend({
   store: service(),
@@ -29,11 +30,11 @@ export default Service.extend({
    * @param {boolean} [includeEndedList=false]
    * @returns {RSVP.Promise} A backend operation completion:
    * - `resolve(object: data)` when successfully fetched the list
-   *  - `data.ongoingList: Array<string>` - list of non-ended transfers (waiting
-   *       and outgoing) transfer IDs for the file
+   *  - `data.ongoingList: Array<Models.Transfer>` - list of non-ended transfers (waiting
+   *       and outgoing) for the file
    *  - `data.endedCount` Math.min(number of ended transfers, transfersHistoryLimitPerFile)
    *  - `data.endedList` (optional, exists if includeEndedList was true) list of ended
-   *       transfer IDs for the file, which size is limited to the value of
+   *       transfers for the file, which size is limited to the value of
    *       transfersHistoryLimitPerFile
    * - `reject(object: error)` on failure
    */
@@ -48,13 +49,25 @@ export default Service.extend({
       aspect: 'transfers',
     });
     return this.get('onedataGraph').request({
-      gri: transferGri,
-      operation: 'get',
-      data: {
-        include_ended_list: includeEndedList,
-      },
-      subscribe: false,
-    });
+        gri: transferGri,
+        operation: 'get',
+        data: {
+          include_ended_list: includeEndedList,
+        },
+        subscribe: false,
+      })
+      .then(({ ongoingList, endedCount, endedList }) => {
+        const ongoingTransfersFetch =
+          allFulfilled(ongoingList.map(tid => this.getTransfer(tid)));
+        const endedTransfersFetch = includeEndedList ?
+          allFulfilled(endedList.map(tid => this.getTransfer(tid))) : resolve();
+        return allFulfilled([ongoingTransfersFetch, endedTransfersFetch])
+          .then(([ongoingTransfers, endedTransfers]) => ({
+            ongoingList: ongoingTransfers,
+            endedList: endedTransfers,
+            endedCount,
+          }));
+      });
   },
 
   /**
@@ -69,26 +82,29 @@ export default Service.extend({
     const {
       entityType,
       entityId,
-    } = getProperties(space, 'entityType', 'entityId');
+      store,
+    } = getProperties(space, 'entityType', 'entityId', 'store');
     const transfersGri = gri({
       entityType,
       entityId,
       aspect: 'transfers',
     });
     return this.get('onedataGraph').request({
-      gri: transfersGri,
-      operation: 'get',
-      data: {
-        state,
-        offset,
-        limit,
-        page_token: startFromIndex,
-      },
-      subscribe: false,
-    });
+        gri: transfersGri,
+        operation: 'get',
+        data: {
+          state,
+          offset,
+          limit,
+          page_token: startFromIndex,
+        },
+        subscribe: false,
+      })
+      .then(({ list }) =>
+        allFulfilled(list.map(tid => store.findRecord('transfer', tid)))
+      );
   },
 
-  // FIXME: pass only fileEntityId
   /**
    * @param {Models.File} file 
    * @param {Models.Provider} destinationOneprovider
@@ -108,7 +124,6 @@ export default Service.extend({
     return deleteRecordIfFailed(transfer, transfer.save());
   },
 
-  // FIXME: pass only fileEntityId
   /**
    * @param {Models.File} file 
    * @param {Models.Provider} sourceOneprovider

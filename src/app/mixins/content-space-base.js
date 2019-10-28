@@ -11,10 +11,10 @@ import Mixin from '@ember/object/mixin';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { computed } from '@ember/object';
+import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 
 export default Mixin.create(
   createDataProxyMixin('space'), {
-
     /**
      * @virtual
      * @type {Ember.Service}
@@ -29,7 +29,7 @@ export default Mixin.create(
 
     spaceGri: computed('spaceEntityId', function spaceGri() {
       return gri({
-        entityType: 'op_space',
+        entityType: spaceEntityType,
         entityId: this.get('spaceEntityId'),
         aspect: 'instance',
         scope: 'private',
