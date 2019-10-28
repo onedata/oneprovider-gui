@@ -12,6 +12,8 @@ import { inject as service } from '@ember/service';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { computed } from '@ember/object';
+import { promise } from 'ember-awesome-macros';
+import { all as allFulfilled } from 'rsvp';
 
 export default OneEmbeddedComponent.extend(
   ContentSpaceBaseMixin, {
@@ -31,13 +33,23 @@ export default OneEmbeddedComponent.extend(
      */
     iframeInjectedProperties: Object.freeze(['spaceEntityId']),
 
-    shownTransfers: computed(function () {
-      return this.get('transferManager').getSpaceTransfers(
-        this.get('spaceEntityId'),
-        'waiting',
-
-      );
-    }),
+    // FIXME: debug method
+    shownTransfers: promise.array(
+      computed('spaceProxy.content', function shownTransfers() {
+        if (this.get('spaceProxy.isFulfilled')) {
+          const store = this.get('store');
+          return this.get('transferManager').getTransfersForSpace(
+            this.get('spaceProxy.content'),
+            'ended',
+            null,
+            100,
+            0,
+          ).then(({ list }) => allFulfilled(
+            list.map(gri => store.findRecord('transfer', gri))
+          ));
+        }
+      })
+    ),
 
     actions: {
       containerScrollTop() {

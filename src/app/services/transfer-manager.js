@@ -58,21 +58,33 @@ export default Service.extend({
   },
 
   /**
-   * 
-   * @param {string} spaceEntityId 
+   * @param {Models.Space} space 
    * @param {string} state one of: waiting, ongoing, ended
    * @param {string} startFromIndex 
    * @param {number} limit 
    * @param {number} offset 
    * @returns {Promise<Object>}
    */
-  getSpaceTransfers(spaceEntityId, state, startFromIndex, limit, offset) {
-    return this.get('onedataRpc').request('getSpaceTransfers', {
-      spaceId: spaceEntityId,
-      state,
-      index: startFromIndex,
-      limit,
-      offset,
+  getTransfersForSpace(space, state, startFromIndex, limit, offset) {
+    const {
+      entityType,
+      entityId,
+    } = getProperties(space, 'entityType', 'entityId');
+    const transfersGri = gri({
+      entityType,
+      entityId,
+      aspect: 'transfers',
+    });
+    return this.get('onedataGraph').request({
+      gri: transfersGri,
+      operation: 'get',
+      data: {
+        state,
+        offset,
+        limit,
+        page_token: startFromIndex,
+      },
+      subscribe: false,
     });
   },
 

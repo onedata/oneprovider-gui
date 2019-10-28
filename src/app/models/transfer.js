@@ -14,10 +14,13 @@ import reject from 'rsvp';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 
 const backendEpochInfinity = 9999999999;
 const linkNameIdPartLength = 6;
+
+export const entityId = 'op_transfer';
 
 export function computeTransferIndex(entityId, scheduleTime, finishTime) {
   const timestamp = finishTime || scheduleTime;
@@ -51,10 +54,12 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   dataSourceId: attr('string'),
 
+  // FIXME: maybe it should be userId
   /**
    * Creator of transfer entityId
+   * On init time it gets a GRI string, then this field is converted
    */
-  userId: attr('string'),
+  user: attr('string'),
 
   queryParams: attr('string'),
 
@@ -64,12 +69,26 @@ export default Model.extend(GraphSingleModelMixin, {
 
   finishTime: attr('number'),
 
-  // transferProgress: belongsTo('transferProgress'),
+  /**
+   * Destination of this transfer
+   * @type {Models.Provider}
+   */
+  replicatingProvider: belongsTo('provider'),
 
-  // minuteChart: belongsTo('throughputChart'),
-  // hourChart: belongsTo('throughputChart'),
-  // dayChart: belongsTo('throughputChart'),
-  // monthChart: belongsTo('throughputChart'),
+  /**
+   * Oneprovider that will evict the file after this transfer
+   * @type {Models.Provider}
+   */
+  evictingProvider: belongsTo('provider'),
+
+  userProxy: promise.object(computed('userId', 'spaceId', function userProxy() {
+    return this.getUser();
+  })),
+
+  // FIXME: temporary
+  userId: computed('user', function userId() {
+    return parseGri(this.get('user')).entityId;
+  }),
 
   dataSource: promise.object(
     computed('dataSourceType', 'dataSourceId', function dataSource() {
@@ -107,44 +126,29 @@ export default Model.extend(GraphSingleModelMixin, {
     })
   ),
 
-  /**
-   * Destination of this transfer
-   * @type {Models.Provider}
-   */
-  replicatingProvider: belongsTo('provider'),
+  // transferProgress: belongsTo('transferProgress'),
 
-  /**
-   * Oneprovider that will evict the file after this transfer
-   * @type {Models.Provider}
-   */
-  evictingProvider: belongsTo('provider'),
-
-  init() {
-    this.user =
-      promise.object(
-        computed('data.user', function space() {
-
-        })
-      );
-    this._super(...arguments);
-  },
+  // minuteChart: belongsTo('throughputChart'),
+  // hourChart: belongsTo('throughputChart'),
+  // dayChart: belongsTo('throughputChart'),
+  // monthChart: belongsTo('throughputChart'),
 
   getUser() {
     const {
-      userId: userEntityId,
-      spaceId: spaceEntityId,
       store,
-    } = this.getProperties('userId', 'spaceId', 'store');
+      userId,
+      spaceId,
+    } = this.getProperties('store', 'userId', 'spaceId');
     const userGri = gri({
       entityType: userEntityType,
-      entityId: userEntityId,
-      scope: 'private',
+      entityId: userId,
+      scope: 'shared',
       aspect: 'instance',
     });
     return store.findRecord('user', userGri, {
       adapterOptions: {
         _meta: {
-          authHint: ['throughSpace', spaceEntityId],
+          authHint: ['throughSpace', spaceId],
         },
       },
     });

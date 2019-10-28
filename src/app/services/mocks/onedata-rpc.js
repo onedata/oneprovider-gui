@@ -91,10 +91,11 @@ export default OnedataRpc.extend({
       });
   },
 
-  __handle_getSpaceTransfers({ spaceId, state, index, limit, offset }) {
-    return resolve(this.getMockSpaceTransfersSlice(spaceId, state, index, limit,
-      offset));
-  },
+  // FIXME: changed to graph sync get
+  // __handle_getSpaceTransfers({ spaceId, state, index, limit, offset }) {
+  //   return resolve(this.getMockSpaceTransfersSlice(spaceId, state, index, limit,
+  //     offset));
+  // },
 
   getFilesByEntityId(entityIds) {
     const store = this.get('store');
