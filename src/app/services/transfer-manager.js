@@ -169,6 +169,27 @@ export default Service.extend({
     });
   },
 
+  getTransferProgress(transfer) {
+    const {
+      onedataGraph,
+    } = this.getProperties('onedataGraph');
+    const {
+      entityType,
+      entityId,
+    } = transfer.getProperties('entityType', 'entityId');
+    const transferProgressGri = gri({
+      entityType,
+      entityId,
+      aspect: 'progress',
+      scope: 'private',
+    });
+    return onedataGraph.request({
+      gri: transferProgressGri,
+      operation: 'get',
+      subscribe: false,
+    });
+  },
+
   /**
    * @param {Models.File} file 
    * @param {Models.Provider} destinationOneprovider

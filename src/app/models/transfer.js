@@ -27,6 +27,17 @@ export function computeTransferIndex(entityId, scheduleTime, finishTime) {
   return `${backendEpochInfinity - timestamp}${entityId.slice(0, linkNameIdPartLength)}`;
 }
 
+/**
+ * @typedef {Object} TransferProgress
+ * @property {String} status one of:
+ *   scheduled, replicating, evicting, aborting, skipped, completed, cancelled,
+ *   failed
+ * @property {Number} timestamp
+ * @property {Number} replicatedBytes
+ * @property {Number} replicatedFiles
+ * @property {Number} evictedFiles
+ */
+
 export default Model.extend(GraphSingleModelMixin, {
   index: computed('entityId', 'scheduleTime', 'finishTime', function index() {
     const {
@@ -82,7 +93,7 @@ export default Model.extend(GraphSingleModelMixin, {
   evictingProvider: belongsTo('provider'),
 
   userProxy: promise.object(computed('userId', 'spaceId', function userProxy() {
-    return this.getUser();
+    return this.fetchUser();
   })),
 
   // FIXME: temporary
@@ -137,10 +148,7 @@ export default Model.extend(GraphSingleModelMixin, {
     })
   ),
 
-  // FIXME: in backend?
-  // transferProgress: belongsTo('transferProgress'),
-
-  getUser() {
+  fetchUser() {
     const {
       store,
       userId,
