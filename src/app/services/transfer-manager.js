@@ -89,7 +89,8 @@ export default Service.extend({
       entityId,
       aspect: 'transfers',
     });
-    return this.get('onedataGraph').request({
+    return this.get('onedataGraph')
+      .request({
         gri: transfersGri,
         operation: 'get',
         data: {

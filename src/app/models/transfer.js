@@ -90,6 +90,17 @@ export default Model.extend(GraphSingleModelMixin, {
     return parseGri(this.get('user')).entityId;
   }),
 
+  state: computed('scheduleTime', 'startTime', 'finishTime', function state() {
+    const {
+      scheduleTime,
+      startTime,
+      finishTime,
+    } = this.getProperties('scheduleTime', 'startTime', 'finishTime');
+    return finishTime && 'ended' ||
+      startTime && 'ongoing' ||
+      scheduleTime && 'waiting';
+  }),
+
   dataSource: promise.object(
     computed('dataSourceType', 'dataSourceId', function dataSource() {
       const {
@@ -126,12 +137,8 @@ export default Model.extend(GraphSingleModelMixin, {
     })
   ),
 
+  // FIXME: in backend?
   // transferProgress: belongsTo('transferProgress'),
-
-  // minuteChart: belongsTo('throughputChart'),
-  // hourChart: belongsTo('throughputChart'),
-  // dayChart: belongsTo('throughputChart'),
-  // monthChart: belongsTo('throughputChart'),
 
   getUser() {
     const {

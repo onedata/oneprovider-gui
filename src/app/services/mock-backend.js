@@ -1,3 +1,12 @@
+/**
+ * Creates and shares a state of mocked data model
+ * 
+ * @module services/mock-backend
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service, { inject as service } from '@ember/service';
 import { camelize } from '@ember/string';
 import { get, set, setProperties, computed } from '@ember/object';
@@ -10,13 +19,19 @@ const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
 const username = 'admin';
 
-const types = [
+const modelTypes = [
   'space',
+  'provider',
 ];
 
-export const names = ['One'];
+export const recordNames = {
+  provider: ['Cracow', 'Paris', 'Lisbon'],
+  space: ['One', 'Two', 'Three'],
+};
 
-export const numberOfProviders = 1;
+export const defaultRecordNames = ['One', 'Two', 'Three'];
+
+export const numberOfProviders = 3;
 export const numberOfSpaces = 1;
 export const numberOfFiles = 100;
 export const numberOfDirs = 2;
@@ -32,16 +47,25 @@ const transferStates = ['waiting', 'ongoing', 'ended'];
 export default Service.extend({
   store: service(),
 
+  /**
+   * Will generate: `{ <state>: [], ... }`
+   */
   allTransfers: computed(() => transferStates.reduce((obj, state) => {
     obj[state] = [];
     return obj;
   }, {})),
 
+  /**
+   * All entity records of some type.
+   * Is an object where key is model name and values are arrays with records.
+   */
+  entityRecords: computed(() => ({})),
+
   generateDevelopmentModel() {
     const store = this.get('store');
     return allFulfilled(
-        types.map(type =>
-          this.createEntityRecords(store, type, names)
+        modelTypes.map(type =>
+          this.createEntityRecords(store, type, recordNames[type] || defaultRecordNames)
           .then(records => this.createListRecord(store, type, records))
         )
       )
@@ -57,15 +81,16 @@ export default Service.extend({
                   return this.createFileRecords(store, rootDir, owner)
                     .then(() => this.createTransferRecords(store))
                     .then((transferList) => {
+                      const dataSourceId = get(rootDir, 'entityId');
+                      const firstProvider =
+                        this.get('entityRecords.provider')[0];
                       // currenlty to make it simpler, all files are rootDir
                       return allFulfilled(
                         transferList.map((transfer) => {
                           setProperties(transfer, {
-                            dataSourceId: get(
-                              rootDir,
-                              'entityId'
-                            ),
-                            userId: get(owner, 'entityId'),
+                            dataSourceId,
+                            user: owner,
+                            replicatingProvider: firstProvider,
                           });
                           return transfer.save();
                         })
@@ -99,65 +124,93 @@ export default Service.extend({
     });
   },
 
-  createSpaceRecords(store) {
+  createSpaceRecords(store, names) {
     const timestamp = Math.floor(Date.now() / 1000);
     return allFulfilled(_.range(numberOfSpaces).map((i) =>
-      // root dirs
-      store.createRecord('file', {
-        id: generateFileGri(generateDirEntityId(0, '')),
-        name: `Space ${i}`,
-        type: 'dir',
-        mtime: timestamp + i * 3600,
-        parent: null,
-      }).save()
-    )).then(rootDirs => allFulfilled(_.range(numberOfSpaces).map((index) =>
-      store.createRecord('space', {
-        id: gri({
-          entityType: 'op_space',
-          entityId: generateSpaceEntityId(index),
-          aspect: 'instance',
-          scope: 'private',
-        }),
-        name: `Space ${index}`,
-        rootDir: rootDirs[index],
-      }).save()
-    )));
+        // root dirs
+        store.createRecord('file', {
+          id: generateFileGri(generateDirEntityId(0, '')),
+          name: names[i],
+          type: 'dir',
+          mtime: timestamp + i * 3600,
+          parent: null,
+        }).save()
+      ))
+      .then(rootDirs => allFulfilled(_.range(numberOfSpaces).map((i) =>
+        store.createRecord('space', {
+          id: gri({
+            entityType: 'op_space',
+            entityId: generateSpaceEntityId(i),
+            aspect: 'instance',
+            scope: 'private',
+          }),
+          name: names[i],
+          rootDir: rootDirs[i],
+        }).save()
+      )))
+      .then((records) => {
+        this.set('entityRecords.space', records);
+        return records;
+      });
   },
 
   createTransferRecords(store) {
     const timestamp = Math.floor(Date.now() / 1000);
     return allFulfilled([tsWaiting, tsOngoing, tsEnded].map(stateNum => {
-      const transfersGroup = allFulfilled(_.range(numberOfTransfers).map(i => {
-        const scheduleTime = stateNum >= tsWaiting ?
-          timestamp + i * 3600 : null;
-        const startTime = stateNum >= tsOngoing ?
-          timestamp + (i + 1) * 3600 : null;
-        const finishTime = stateNum >= tsEnded ?
-          timestamp + (i + 2) * 3600 : null;
-        const entityId = generateTransferEntityId(i, stateNum, scheduleTime,
-          finishTime);
-        return store.createRecord('transfer', {
+        const transfersGroup = allFulfilled(_.range(numberOfTransfers).map(i => {
+          const scheduleTime = stateNum >= tsWaiting ?
+            timestamp + i * 3600 : null;
+          const startTime = stateNum >= tsOngoing ?
+            timestamp + (i + 1) * 3600 : null;
+          const finishTime = stateNum >= tsEnded ?
+            timestamp + (i + 2) * 3600 : null;
+          const entityId = generateTransferEntityId(i, stateNum, scheduleTime,
+            finishTime);
+          return store.createRecord('transfer', {
+            id: gri({
+              entityType: 'op_transfer',
+              entityId,
+              aspect: 'instance',
+              scope: 'private',
+            }),
+            dataSourceName: `/some/path/file-${i}`,
+            dataSourceType: 'dir',
+            queryParams: 'hello=1,world=2',
+            scheduleTime,
+            startTime,
+            finishTime,
+            // this will be set in main function to use generated records
+            // dataSourceId,
+            // user,
+            // replicatingProvider
+          }).save();
+        }));
+        this.get('allTransfers')[transferStates[stateNum]] = transfersGroup;
+        return transfersGroup;
+      }))
+      .then(transfers => _.flatten(transfers))
+      .then((records) => {
+        this.set('entityRecords.transfer', records);
+        return records;
+      });
+  },
+
+  createProviderRecords(store, names) {
+    return allFulfilled(_.range(numberOfProviders).map((i) =>
+        store.createRecord('provider', {
           id: gri({
-            entityType: 'op_transfer',
-            entityId,
+            entityType: 'op_provider',
+            entityId: `${i}abc1`,
             aspect: 'instance',
             scope: 'private',
           }),
-          dataSourceName: `/some/path/file-${i}`,
-          dataSourceType: 'dir',
-          // this will be set in main function to use generated records
-          // dataSourceId,
-          // userId,
-          // replicatingProvider
-          queryParams: 'hello=1,world=2',
-          scheduleTime,
-          startTime,
-          finishTime,
-        }).save();
-      }));
-      this.get('allTransfers')[transferStates[stateNum]] = transfersGroup;
-      return transfersGroup;
-    })).then(transfers => _.flatten(transfers));
+          name: names[i],
+        }).save()
+      ))
+      .then((records) => {
+        this.set('entityRecords.provider', records);
+        return records;
+      });
   },
 
   createFileRecords(store, parent, owner) {
@@ -218,20 +271,34 @@ export default Service.extend({
           parent,
           owner,
         }).save();
-      })));
+      })))
+      .then((records) => {
+        this.set('entityRecords.file', records);
+        return records;
+      });
   },
 
   createEntityRecords(store, type, names, additionalInfo) {
+    let createPromise;
     switch (type) {
       case 'space':
-        return this.createSpaceRecords(store, additionalInfo);
-      case 'transfer':
-        return this.createTransferRecords(store, additionalInfo);
+        createPromise = this.createSpaceRecords(store, names, additionalInfo);
+        break;
+      case 'provider':
+        createPromise = this.createProviderRecords(store, names, additionalInfo);
+        break;
       default:
-        return allFulfilled(names.map(number =>
+        createPromise = allFulfilled(names.map(number =>
           store.createRecord(type, { name: `${type} ${number}` }).save()
         ));
+        break;
     }
+    return createPromise;
+    // FIXME: experimental
+    // return createPromise.then((records) => {
+    //   entityRecords[type] = records;
+    //   return records;
+    // });
   },
 
   createUserRecord(store, listRecords) {
