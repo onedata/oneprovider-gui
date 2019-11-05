@@ -10,7 +10,6 @@
 import { inject as service } from '@ember/service';
 import OnedataApplicationRoute from 'onedata-gui-common/routes/application';
 import DevelopmentModelRouteMixin from 'onedata-gui-websocket-client/mixins/routes/development-model';
-import clearLocalStorageModel from 'oneprovider-gui/utils/clear-local-storage-model';
 
 export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   onedataWebsocket: service(),
@@ -28,8 +27,6 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   generateDevelopmentModel() {
     return this.get('mockBackend').generateDevelopmentModel();
   },
-
-  clearDevelopmentModel: clearLocalStorageModel,
 
   beforeModel() {
     const superResult = this._super(...arguments);

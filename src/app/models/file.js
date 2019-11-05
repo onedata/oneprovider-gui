@@ -14,9 +14,9 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get } from '@ember/object';
 import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
-
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import computedFileTransfersList from 'oneprovider-gui/utils/computed-file-transfers-list';
 
 export function getSpaceEntityIdFromFileEntityId(fileEntityId) {
   const m = atob(fileEntityId).match(/guid#(.*)#(.*)/);
@@ -89,6 +89,12 @@ export default Model.extend(GraphSingleModelMixin, {
   }),
 
   /**
+   * Contains transfers records associated with this file
+   * @type {Ember.ComputedProperty<FakeListRecordRelation>}
+   */
+  transferList: computedFileTransfersList('id'),
+
+  /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
    * @param {number} attempts 
@@ -118,6 +124,18 @@ export default Model.extend(GraphSingleModelMixin, {
       }
     });
   },
+
+  /**
+   * Fetch transfer records for this file
+   * @param {string} fileId should be set to this file ID
+   * @returns {Promise}
+   */
+  fetchTransfers(fileId) {
+    return this.get('transferManager').getTransfersForFile(fileId, true)
+      .then(({ ongoingList, endedList }) => {
+        return [...ongoingList, ...endedList];
+      });
+  },
 }).reopenClass(StaticGraphModelMixin, {
   /**
    * @override
@@ -126,17 +144,16 @@ export default Model.extend(GraphSingleModelMixin, {
     const superRequests = this._super(...arguments);
 
     switch (operation) {
-      case 'create':
-        {
-          const rpcRequests = get(activeRequests, 'rpcRequests');
-          // Block on listing parent dir files
-          const listParentDirRequests = rpcRequests.filter(request => {
-            return get(request, 'rpcMethodName') === 'getDirChildren' &&
-              get(request, 'data.guid') === get(model.belongsTo('parent').value(),
-                'entityId');
-          });
-          return superRequests.concat(listParentDirRequests);
-        }
+      case 'create': {
+        const rpcRequests = get(activeRequests, 'rpcRequests');
+        // Block on listing parent dir files
+        const listParentDirRequests = rpcRequests.filter(request => {
+          return get(request, 'rpcMethodName') === 'getDirChildren' &&
+            get(request, 'data.guid') === get(model.belongsTo('parent').value(),
+              'entityId');
+        });
+        return superRequests.concat(listParentDirRequests);
+      }
       default:
         return superRequests;
     }

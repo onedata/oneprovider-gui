@@ -30,7 +30,10 @@ export default OneEmbeddedComponent.extend(
     /**
      * @override
      */
-    iframeInjectedProperties: Object.freeze(['spaceEntityId']),
+    iframeInjectedProperties: Object.freeze([
+      'spaceEntityId',
+      'fileEntityId',
+    ]),
 
     // FIXME: debug method
     shownTransfers: promise.array(

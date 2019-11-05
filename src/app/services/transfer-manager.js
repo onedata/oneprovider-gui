@@ -11,6 +11,7 @@ import Service, { inject as service } from '@ember/service';
 import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { all as allFulfilled, resolve } from 'rsvp';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Service.extend({
   store: service(),
@@ -170,9 +171,7 @@ export default Service.extend({
   },
 
   getTransferProgress(transfer) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
+    const onedataGraph = this.get('onedataGraph');
     const {
       entityType,
       entityId,
@@ -185,6 +184,26 @@ export default Service.extend({
     });
     return onedataGraph.request({
       gri: transferProgressGri,
+      operation: 'get',
+      subscribe: false,
+    });
+  },
+
+  getSpaceTransfersActiveChannels(space) {
+    const {
+      onedataGraph,
+    } = this.getProperties('onedataGraph');
+    const {
+      entityType,
+      entityId,
+    } = getProperties(space, 'entityType', 'entityId');
+    const activeChannelsGri = gri({
+      entityType: entityType,
+      entityId: entityId,
+      aspect: 'transfers_active_channels',
+    });
+    return onedataGraph.request({
+      gri: activeChannelsGri,
       operation: 'get',
       subscribe: false,
     });
@@ -248,6 +267,12 @@ export default Service.extend({
     });
     return deleteRecordIfFailed(transfer, transfer.save());
   },
+
+  // FIXME:
+  rerunTransfer: notImplementedReject(),
+
+  // FIXME:
+  cancelTransfer: notImplementedReject(),
 });
 
 /**

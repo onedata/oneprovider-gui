@@ -52,6 +52,7 @@ module.exports = {
       {
         requireParamDescription: false,
         requireReturnDescription: false,
+        requireReturn: false,
       },
     ],
 

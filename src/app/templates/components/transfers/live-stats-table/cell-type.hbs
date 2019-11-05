@@ -1,0 +1,6 @@
+{{#if record.transferProgressError}}
+  {{error-inline}}
+{{else}}
+  {{one-icon icon=_icon class="transfer-type-icon"}}
+  {{bs-tooltip placement="top" title=_hint}}
+{{/if}}

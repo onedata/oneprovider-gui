@@ -210,7 +210,6 @@ export default Component.extend(I18n, {
     const dirId = this.get('dir.entityId');
     const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
-      sortFun: compareIndex,
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
