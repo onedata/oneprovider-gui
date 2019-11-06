@@ -1,0 +1,12 @@
+<div style="height: 2000px;">
+  {{#promise-proxy-container proxy=spaceProxy}}
+    {{space-transfers
+      space=spaceProxy.content
+      fileId=fileId
+      defaultTab=listTab
+      resetQueryParams=(action "resetQueryParams")
+      changeListTab=(action "changeListTab")
+      closeFileTab=(action "closeFileTab")
+    }}
+  {{/promise-proxy-container}}
+</div>

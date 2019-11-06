@@ -7,9 +7,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import _ from 'lodash';
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { A } from '@ember/array';
 
 export default Component.extend({
@@ -38,6 +37,13 @@ export default Component.extend({
 
   /**
    * @virtual
+   * Global colors for each provider
+   * @type {ComputedProperty <Object>}
+   */
+  providersColors: undefined,
+
+  /**
+   * @virtual
    * Collection of [src, dest] provider IDs to create lines on map.
    * Only one for pair!
    * @type {Array<Array[string,string]>}
@@ -45,13 +51,17 @@ export default Component.extend({
   providerTransferConnections: undefined,
 
   /**
-   * Maps provider id => Provider model
-   * @type {Ember.ComputedProperty<object>}
+   * Maps provider entityId => Provider model
+   * @type {ComputedProperty<object>}
    */
-  providersMap: computed('providers.[]', function () {
+  providersMap: computed('providers.@each.entityId', function () {
     const providers = this.get('providers');
     if (providers) {
-      return _.zipObject(_.map(providers, 'id'), providers);
+      return providers.reduce((map, provider) => {
+        map[get(provider, 'entityId')] = provider;
+        return map;
+      }, {});
+      // return _.zipObject(providers.mapBy('entityId'), providers.toArray());
     } else {
       console.warn('component:transfers/providers-map: providers list is null');
       return null;

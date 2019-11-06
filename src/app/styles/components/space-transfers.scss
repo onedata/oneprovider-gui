@@ -1,6 +1,8 @@
-// FIXME: to refactor
+@import './space-transfers/transfers-overview';
+@import './space-transfers/live-stats-table';
+@import './space-transfers/providers-map';
 
-.show-space-transfers {
+.space-transfers {
   $-table-padding: 8px;
   $-table-border-color: $main-border-color;
   
@@ -503,101 +505,38 @@
       }
     }
   }
-}
-
-.transfers-overview {
-  &:focus {
-    outline: none;
-  }
-  .row-active-transfers {
-    transition: top 0.25s ease-out;
-    padding-bottom: 50px;
-    &.sticky {
-      // on top of spinner
-      z-index: 2000000001;
-      position: fixed;
-      padding-bottom: 0;
-    }
-  }
   
-  .row-overview {
-    background-color: $color-one-white;
-  }
-  
-  .row-expand-handler {
-    opacity: 0;
-    display: block;
-    padding-left: 22px;
-    padding-right: 22px;
-    background-color: $color-one-light-gray;
-    line-height: 50px;
-    transition: opacity 0.5s linear;
-    pointer-events: none;
-  }
-  
-  .sticky {
-    .row-expand-handler {      
-      opacity: 1;
-      cursor: pointer;
-      pointer-events: all;
-    }
-  }
- 
-  
-  tr.transfer-row:nth-of-type(2) {
-    td {
-      border-top: none;
-    }
-  }
-}
-
-.middle-sticky {
-  position: fixed;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.1s linear;
-  &.middle-sticky-hide {
-    opacity: 0;
-  }
-}
-
-.show-space-transfers .transfers-table tr.first-row-space {
-  width: 100%;
-  td {
-    padding: 0;
-    width: 100%;
-  }
-}
-
-.nav-tabs-transfers {
-  .nav-link-file {
-    min-width: 120px;
-    padding-right: 20px;
-    .tab-icon {
-      @include vertical-align-middle();
-      left: 8px;
-      font-size: 28px;
-      &.oneicon-folder {
-        // custom pull up for folder icons
-        margin-top: -2px;
-      }
-    }
-    .tab-name {
-      padding-left: 10px;
-      padding-right: 8px;
-      &.truncate {
-        max-width: 200px;  
-      }
-    }
-    .tab-close {
-      .one-icon {
+  .nav-tabs-transfers {
+    .nav-link-file {
+      min-width: 120px;
+      padding-right: 20px;
+      .tab-icon {
         @include vertical-align-middle();
-        right: 8px;
-        font-size: 24px;
-        &:hover {
-          color: $color-one-red;
+        left: 8px;
+        font-size: 28px;
+        &.oneicon-folder {
+          // custom pull up for folder icons
+          margin-top: -2px;
+        }
+      }
+      .tab-name {
+        padding-left: 10px;
+        padding-right: 8px;
+        &.truncate {
+          max-width: 200px;  
+        }
+      }
+      .tab-close {
+        .one-icon {
+          @include vertical-align-middle();
+          right: 8px;
+          font-size: 24px;
+          &:hover {
+            color: $color-one-red;
+          }
         }
       }
     }
   }
+  
 }

@@ -154,7 +154,7 @@ export default EmberObject.extend({
         transfer.reload()
           .then(() =>
             get(transfer, 'transferProgressProxy.isPending') ?
-            null : transfer.updateTransferProgress()
+            null : transfer.updateTransferProgressProxy()
           )
           .finally(() => set(transfer, 'isReloading', false));
       }

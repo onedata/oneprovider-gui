@@ -2,10 +2,10 @@
   <div class="row row-overview">
     <div class="col-xs-12 col-md-7 col-providers-map map-column">
       <h2>
-        {{t "components.transfers.providersMapOfDist"}}
+        {{tt this "providersMapOfDist"}}
       </h2>
       <div class="row loadable-row">
-        {{transfers/providers-map
+        {{space-transfers/providers-map
           providers=providers
           providerTransferConnections=providerTransferConnections
           destinationProviderIds=destinationProviderIds
@@ -16,7 +16,7 @@
     </div>
     
     {{!-- <div class="col-xs-12 col-md-5 col-throughput-pie-chart">
-      <h2><span class="one-label">{{t "components.transfers.throughputDistribution.title"}}</span></h2>
+      <h2><span class="one-label">{{tt "throughputDistribution.title"}}</span></h2>
       <div class="row loadable-row">
         {{#loading-container isLoading=(not providersLoaded)}}
           {{#bs-tab
@@ -29,17 +29,17 @@
             }}
               {{#bs-nav-item active=(eq throughputTransferType "all")}}
                 <a class="nav-link" role="tab" {{action (mut throughputTransferType) "all"}}>
-                  {{t "components.transfers.throughputDistribution.all"}}
+                  {{tt this "throughputDistribution.all"}}
                 </a>
               {{/bs-nav-item}}
               {{#bs-nav-item active=(eq throughputTransferType "job")}}
                 <a class="nav-link" role="tab" {{action (mut throughputTransferType) "job"}}>
-                  {{t "components.transfers.throughputDistribution.jobs"}}
+                  {{tt this "throughputDistribution.jobs"}}
                 </a>
               {{/bs-nav-item}}
               {{#bs-nav-item active=(eq throughputTransferType "onTheFly")}}
                 <a class="nav-link" role="tab" {{action (mut throughputTransferType) "onTheFly"}}>
-                  {{t "components.transfers.throughputDistribution.onTheFly"}}
+                  {{tt this "throughputDistribution.onTheFly"}}
                 </a>
               {{/bs-nav-item}}
             {{/bs-nav}}
@@ -65,7 +65,7 @@
       {{one-icon class="toggle-icon" icon="arrow-down"}}
     </span>
     <span class="one-label">
-      {{t (concat "components.transfers.transfersOverview." (if overviewExpanded "hide" "show"))}}
+      {{tt this (if overviewExpanded "hide" "show")}}
     </span>
   </div>
 </div>

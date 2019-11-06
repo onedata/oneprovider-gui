@@ -3,9 +3,9 @@
  * 
  * Automatic sticky on scrolling
  *
- * @module components/show-space-transfers/transfers-overview
+ * @module components/space-transfers/transfers-overview
  * @author Jakub Liput
- * @copyright (C) 2018 ACK CYFRONET AGH
+ * @copyright (C) 2018-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -14,10 +14,16 @@ import Component from '@ember/component';
 import { htmlSafe } from '@ember/string';
 import { observer } from '@ember/object';
 import $ from 'jquery';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['transfers-overview', 'row', 'row-spacing'],
   attributeBindings: ['style'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceTransfers.transfersOverview',
 
   /**
    * @virtual
@@ -155,7 +161,7 @@ export default Component.extend({
     if (this.get('stickyOverview')) {
       const $rowActiveTransfers = this.$('.row-active-transfers');
       const height = $rowActiveTransfers.outerHeight();
-      const width = this.$().parents('.show-space-transfers').innerWidth();
+      const width = this.$().parents('.space-transfers').innerWidth();
       style = htmlSafe(`height: ${height}px; width: ${width}px;`);
     } else {
       style = htmlSafe();

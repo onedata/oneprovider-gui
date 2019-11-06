@@ -1,0 +1,46 @@
+.transfers-overview {
+  &:focus {
+    outline: none;
+  }
+  .row-active-transfers {
+    transition: top 0.25s ease-out;
+    padding-bottom: 50px;
+    &.sticky {
+      // on top of spinner
+      z-index: 2000000001;
+      position: fixed;
+      padding-bottom: 0;
+    }
+  }
+  
+  .row-overview {
+    background-color: $color-one-white;
+  }
+  
+  // FIXME: new styles for Oneprovider GUI
+  .row-expand-handler {
+    opacity: 0;
+    display: block;
+    padding-left: 22px;
+    padding-right: 22px;
+    background-color: $color-one-light-gray;
+    line-height: 50px;
+    transition: opacity 0.5s linear;
+    pointer-events: none;
+  }
+  
+  .sticky {
+    .row-expand-handler {      
+      opacity: 1;
+      cursor: pointer;
+      pointer-events: all;
+    }
+  }
+ 
+  
+  tr.transfer-row:nth-of-type(2) {
+    td {
+      border-top: none;
+    }
+  }
+}

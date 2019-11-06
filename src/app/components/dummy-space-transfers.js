@@ -1,3 +1,12 @@
+/**
+ * Visually test space-transfers component with mocked backend
+ * 
+ * @module components/dummy-space-transfers
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import { promise } from 'ember-awesome-macros';

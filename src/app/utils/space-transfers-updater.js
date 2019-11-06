@@ -544,7 +544,7 @@ export default EmberObject.extend({
         () => {
           // checking if updater is still in use
           if (!this.isDestroyed) {
-            transfer.updateTransferProgress()
+            transfer.updateTransferProgressProxy()
               .then(resolve)
               .catch(reject);
           }

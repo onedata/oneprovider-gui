@@ -1,6 +1,6 @@
 <div class="row loadable-row row-transfers-data-container">
   {{#loading-container isLoading=(not generalDataLoaded)}}
-    {{show-space-transfers/transfers-overview
+    {{space-transfers/transfers-overview
       space=space
       providers=providers
       providerTransferConnections=providerTransferConnections
@@ -61,7 +61,7 @@
               class="nav-link"
               role="tab" {{action select "scheduled"}}>
               <span class="tab-label">
-                {{t "components.transfers.scheduledTransfers"}}
+                {{tt this "scheduledTransfers"}}
               </span>
               {{#if (eq _tabJustChangedId "scheduled")}}
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
@@ -75,7 +75,7 @@
               class="nav-link"
               role="tab" {{action select "current"}}>
               <span class="tab-label">
-                {{t "components.transfers.activeTransfers"}}
+                {{tt this "activeTransfers"}}
               </span>
               {{#if (eq _tabJustChangedId "current")}}
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
@@ -89,7 +89,7 @@
               class="nav-link"
               role="tab" {{action select "completed"}}>
               <span class="tab-label">
-                {{t "components.transfers.completedTransfers"}}
+                {{tt this "completedTransfers"}}
               </span>
               {{#if (eq _tabJustChangedId "completed")}}
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
@@ -125,11 +125,11 @@
                           }}
                           {{#if _fileHistoryLimitReached}}
                             <p class="file-history-limit-message">
-                              {{t "components.transfers.fileHistoryLimitReached"}}
+                              {{tt this "fileHistoryLimitReached"}}
                             </p>
                           {{/if}}
                         {{else}}
-                          <p>{{t "components.transfers.fileNotExists"}}</p>
+                          <p>{{tt this "fileNotExists"}}</p>
                         {{/if}}
                       {{/loading-container}}
                     </div>

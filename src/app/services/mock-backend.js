@@ -116,6 +116,9 @@ export default Service.extend({
       .then(listRecords =>
         this.pushProviderListIntoSpaces(listRecords).then(() => listRecords)
       )
+      .then(listRecords =>
+        this.pushSpaceListIntoProviders(listRecords).then(() => listRecords)
+      )
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
         return user.get('spaceList')
@@ -223,6 +226,8 @@ export default Service.extend({
       });
   },
 
+  // FIXME: space provider / provider space lists method can be unified
+
   createSpaceProviderLists(providerList, spaceList) {
     const store = this.get('store');
     return allFulfilled(spaceList.map(space => {
@@ -243,6 +248,26 @@ export default Service.extend({
       );
   },
 
+  createProviderSpaceLists(providerList, spaceList) {
+    const store = this.get('store');
+    return allFulfilled(providerList.map(provider => {
+      return this.createListRecord(store, 'space', spaceList).then(
+        listRecord => {
+          provider.set('spaceList', listRecord);
+          return provider.save();
+        });
+    }));
+  },
+
+  pushSpaceListIntoProviders(listRecords) {
+    const providersPromise = listRecords[modelTypes.indexOf('provider')].get('list');
+    const spacesPromise = listRecords[modelTypes.indexOf('space')].get('list');
+    return allFulfilled([providersPromise, spacesPromise])
+      .then(([providerList, spaceList]) =>
+        this.createProviderSpaceLists(providerList, spaceList)
+      );
+  },
+
   createProviderRecords(store, names) {
     return allFulfilled(_.range(numberOfProviders).map((i) => {
         const [latitude, longitude] = getCoordinates(i, numberOfProviders);
@@ -257,6 +282,7 @@ export default Service.extend({
           name: names[i],
           latitude,
           longitude,
+          online: true,
         }).save();
       }))
       .then((records) => {

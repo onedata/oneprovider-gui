@@ -1,7 +1,7 @@
 /**
  * A view component for onedata.transfers.show route
  *
- * @module components/show-space-transfers
+ * @module components/space-transfers
  * @author Jakub Liput
  * @copyright (C) 2017-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -29,11 +29,17 @@ import { getOwner } from '@ember/application';
 import { fileEntityType } from 'oneprovider-gui/models/file';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
-  classNames: ['show-space-transfers', 'row'],
+export default Component.extend(I18n, {
+  classNames: ['space-transfers', 'row'],
   store: service(),
   onedataConnection: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceTransfers',
 
   //#region External properties
 
@@ -248,10 +254,10 @@ export default Component.extend({
    * Global colors for each provider
    * @type {Ember.ComputedProperty<Object>}
    */
-  providersColors: computed('providers.@each.id', function providersColors() {
+  providersColors: computed('providers.@each.entityId', function providersColors() {
     const providers = this.get('providers');
     if (providers) {
-      const providerIds = providers.mapBy('id').sort();
+      const providerIds = providers.mapBy('entityId').sort();
       const colors = generateColors(providerIds.length + 1);
       return _.assign(
         _.zipObject(providerIds, colors), { unknown: colors[colors.length - 1] }

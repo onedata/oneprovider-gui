@@ -7,6 +7,7 @@
 
 import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
+import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
@@ -14,7 +15,9 @@ export const entityType = 'op_provider';
 
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
-  // FIXME: this must be implemented in backend
+  // FIXME: below properties must be implemented in backend
   latitude: attr('number'),
   longitude: attr('number'),
+  online: attr('boolean'),
+  spaceList: belongsTo('space-list'),
 }).reopenClass(StaticGraphModelMixin);

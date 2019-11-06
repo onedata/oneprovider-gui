@@ -1,7 +1,5 @@
 <div class="map-container">
   {{#one-atlas as |atlas|}}
-    {{!-- FIXME: check what is this --}}
-    {{xyz}}
     <svg class="atlas-draw-layer" xmlns="http://www.w3.org/2000/svg">
       {{#each providerTransferConnections as |con|}}
         {{#atlas.position
@@ -27,7 +25,9 @@
             provider=provider
             atlasWidth=atlas.width
             circleSizeScale=1.5
-            circleColor=(get providersColors provider.id)}}
+            circleColor=(get providersColors provider.entityId)
+            renderDrop=false
+          }}
             {{provider-place/super-circle
               isSource=(contains provider.id sourceProviderIds)
               isDestination=(contains provider.id destinationProviderIds)
