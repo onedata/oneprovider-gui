@@ -1,7 +1,7 @@
 /**
  * Map of providers, their transfers and provider transfer states.
  *
- * @module components/transfers/providers-map
+ * @module components/space-transfers/providers-map
  * @author Jakub Liput
  * @copyright (C) 2017 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

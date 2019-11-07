@@ -1,5 +1,7 @@
 import transfersOverview from './space-transfers/transfers-overview';
 import throughputDistribution from './space-transfers/throughput-distribution';
+import providerSelector from './space-transfers/provider-selector';
+import transferChart from './space-transfers/transfer-chart';
 
 export default {
   scheduledTransfers: 'Waiting',
@@ -68,20 +70,8 @@ export default {
     label: 'Query parameters',
     empty: 'No query parameters provided for view transfer',
   },
-  transferChart: {
-    minute: 'Minute',
-    hour: 'Hour',
-    day: 'Day',
-    month: 'Month',
-    time: 'Time',
-    throughput: 'Throughput',
-    output: 'Output',
-    waitingForTransferStart: 'Waiting for the transfer to start...',
-    noStatsForUnit: 'No activity in the last {{timeUnit}}.',
-    waitingForStats: 'Gathering transfer statistics...',
-    waitingForStatsTip: 'Statistics are delayed due to synchronization ' +
-      'latency caused by data distribution.',
-  },
+  transferChart,
   throughputDistribution,
   transfersOverview,
+  providerSelector,
 };

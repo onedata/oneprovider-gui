@@ -19,7 +19,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get, set, computed, observer } from '@ember/object';
 import { reads, readOnly } from '@ember/object/computed';
-import { and, equal, raw } from 'ember-awesome-macros';
+import { and, equal, raw, promise } from 'ember-awesome-macros';
 import { A, isArray } from '@ember/array';
 import { resolve, all as allFulfilled } from 'rsvp';
 import { isEmpty } from '@ember/utils';
@@ -82,7 +82,7 @@ export default Component.extend(I18n, {
 
   listLocked: false,
 
-  activeTabId: reads('initialTab.content'),
+  activeTabId: reads('initialTabProxy.content'),
 
   /**
    * Holds tab ID that was opened recently.
@@ -268,21 +268,19 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<PromiseObject<string>>}
    */
-  initialTab: computed(function initialTab() {
+  initialTabProxy: promise.object(computed(function initialTabProxy() {
     const {
       defaultTab,
       fileId,
     } = this.getProperties('defaultTab', 'fileId');
-    if (defaultTab &&
-      (defaultTab === 'file' && fileId) || _.includes(['scheduled', 'current',
-        'complete',
-      ], defaultTab)
-    ) {
-      return PromiseObject.create({ promise: resolve(defaultTab) });
+    const defaultTabDefinedValid = defaultTab && (defaultTab === 'file' &&
+      fileId) || ['scheduled', 'current', 'complete'].includes(defaultTab);
+    if (defaultTabDefinedValid) {
+      return resolve(defaultTab);
     } else if (fileId) {
-      return PromiseObject.create({ promise: resolve('file') });
+      return resolve('file');
     } else {
-      const promise = allFulfilled(
+      return allFulfilled(
         ['scheduled', 'current', 'completed'].map(transferType =>
           this.get(transferType + 'TransferList')
         )
@@ -297,9 +295,8 @@ export default Component.extend(I18n, {
           return 'scheduled';
         }
       });
-      return PromiseObject.create({ promise });
     }
-  }),
+  })),
 
   /**
    * @type {ComputedProperty<String>}

@@ -10,7 +10,7 @@
     {{#one-collapsible-list as |list|}}
       {{#each _tableData as |tableRowData|}}
         {{#if tableRowData.firstRowSpace}}
-          {{transfers/live-stats-table/first-row-space
+          {{space-transfers/live-stats-table/first-row-space
             tagName="li"
             visibleColumnsCount=1
             firstRowListIndex=firstRowSpace.firstRowListIndex
@@ -25,11 +25,11 @@
                 data-transfer-id={{tableRowData.transferId}}
                 data-list-index={{tableRowData.listIndex}}
               >
-                {{transfers/live-stats-table/cell-data-name record=tableRowData}}
+                {{space-transfers/live-stats-table/cell-data-name record=tableRowData}}
               </div>
             {{/listItem.header}}
             {{#if tableRowData.actions.length}}
-              {{transfers/live-stats-table/cell-actions record=tableRowData}}
+              {{space-transfers/live-stats-table/cell-actions record=tableRowData}}
             {{/if}}
             {{#listItem.content}}
               <div class="item-table">
@@ -49,7 +49,7 @@
                   {{/each}}
                   {{#if listItem.isActive}}
                     <div class="row content-row chart-row">
-                      {{transfers/live-stats-table/expanded-row-template record=tableRowData}}
+                      {{space-transfers/live-stats-table/expanded-row-template record=tableRowData}}
                     </div>
                   {{/if}}
                 </div>

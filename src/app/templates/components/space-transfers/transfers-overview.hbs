@@ -14,50 +14,50 @@
         }}
       </div>
     </div>
-    
-    {{!-- <div class="col-xs-12 col-md-5 col-throughput-pie-chart">
-      <h2><span class="one-label">{{tt "throughputDistribution.title"}}</span></h2>
+    <div class="col-xs-12 col-md-5 col-throughput-pie-chart">
+      <h2><span class="one-label">{{tt this "throughputDistribution.title"}}</span></h2>
       <div class="row loadable-row">
         {{#loading-container isLoading=(not providersLoaded)}}
           {{#bs-tab
             fade=false
-            class="bs-tab"
+            class="bs-tab bs-tab-onedata bs-tab-modern"
             customTabs=true
-            activeId="throughput-chart-tab"}}
-            {{#bs-nav
-              type="tabs"
-            }}
-              {{#bs-nav-item active=(eq throughputTransferType "all")}}
-                <a class="nav-link" role="tab" {{action (mut throughputTransferType) "all"}}>
+            activeId="throughput-chart-tab"
+            as |tab|
+          }}
+            {{#bs-nav type="tabs" as |nav|}}
+              {{#nav.item active=(eq throughputTransferType "all")}}
+                <a class="nav-link" role="tab" onclick={{action (mut throughputTransferType) "all"}}>
                   {{tt this "throughputDistribution.all"}}
                 </a>
-              {{/bs-nav-item}}
-              {{#bs-nav-item active=(eq throughputTransferType "job")}}
-                <a class="nav-link" role="tab" {{action (mut throughputTransferType) "job"}}>
+              {{/nav.item}}
+              {{#nav.item active=(eq throughputTransferType "job")}}
+                <a class="nav-link" role="tab" onclick={{action (mut throughputTransferType) "job"}}>
                   {{tt this "throughputDistribution.jobs"}}
                 </a>
-              {{/bs-nav-item}}
-              {{#bs-nav-item active=(eq throughputTransferType "onTheFly")}}
-                <a class="nav-link" role="tab" {{action (mut throughputTransferType) "onTheFly"}}>
+              {{/nav.item}}
+              {{#nav.item active=(eq throughputTransferType "onTheFly")}}
+                <a class="nav-link" role="tab" onclick={{action (mut throughputTransferType) "onTheFly"}}>
                   {{tt this "throughputDistribution.onTheFly"}}
                 </a>
-              {{/bs-nav-item}}
+              {{/nav.item}}
             {{/bs-nav}}
             <div class="tab-content">
-              {{#bs-tab-pane elementId="throughput-chart-tab"}}
-                {{transfers/throughput-distribution
+              {{#tab.pane elementId="throughput-chart-tab"}}
+                {{space-transfers/throughput-distribution
                   space=space
                   providers=providers
                   providersColors=providersColors
                   transferStatProviderId=selectedTransferStatProviderId
                   selectTransferStatProvider=(action (mut selectedTransferStatProviderId))
-                  transferType=throughputTransferType}}
-              {{/bs-tab-pane}}
+                  transferType=throughputTransferType
+                }}
+              {{/tab.pane}}
             </div>
           {{/bs-tab}}
         {{/loading-container}}
       </div>
-    </div> --}}
+    </div>
   </div>
   
   <div class="col-xs-12 row-expand-handler" {{action "toggleOverview"}}>

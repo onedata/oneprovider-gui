@@ -1,38 +1,36 @@
 <div class="row loadable-row row-transfers-data-container">
-  {{#loading-container isLoading=(not generalDataLoaded)}}
-    {{space-transfers/transfers-overview
-      space=space
-      providers=providers
-      providerTransferConnections=providerTransferConnections
-      destinationProviderIds=destinationProviderIds
-      sourceProviderIds=sourceProviderIds
-      providersColors=providersColors
-      providersLoaded=providersLoaded
-    }}
-  {{/loading-container}}
+  {{space-transfers/transfers-overview
+    space=space
+    providers=providers
+    providerTransferConnections=providerTransferConnections
+    destinationProviderIds=destinationProviderIds
+    sourceProviderIds=sourceProviderIds
+    providersColors=providersColors
+    providersLoaded=providersLoaded
+  }}
   
-  {{!-- FIXME: uncomment --}}
-  {{!-- {{#loading-container isLoaded=initialTab.isSettled}}
+  {{!-- {{#promise-proxy-container proxy=initialTabProxy}}
     <div class="row row-transfers-tables">
       {{#bs-tab
-        class="bs-tab"
+        class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
         fade=false
         customTabs=true
         activeId=activeTabId
         action=(action (mut activeTabId))
-        as |activeTabId select|
+        as |tab|
       }}
         {{#bs-nav
           type="tabs"
           class="nav-tabs-transfers nav-tabs-with-loading"
+          as |nav|
         }}
           {{#if fileProxy.isSettled}}
-            {{#bs-nav-item
-              active=(eq activeTabId "file")
+            {{#nav.item
+              active=(eq tab.activeTabId "file")
             }}
               <a href="#file"
                 class="nav-link nav-link-file"
-                role="tab" {{action select "file"}}>
+                role="tab" {{action tab.select "file"}}>
                 <span class="tab-label">
                   {{#unless (eq _tabJustChangedId "file")}}
                     {{one-icon class="tab-icon" icon=_fileTabIcon}}
@@ -52,14 +50,14 @@
                   {{one-icon icon="close"}}
                 </span>
               </a>
-            {{/bs-nav-item}}
+            {{/nav.item}}
           {{/if}}
-          {{#bs-nav-item
-            active=(eq activeTabId "scheduled")
+          {{#nav.item
+            active=(eq tab.activeTabId "scheduled")
           }}
             <a href="#scheduled"
               class="nav-link"
-              role="tab" {{action select "scheduled"}}>
+              role="tab" {{action tab.select "scheduled"}}>
               <span class="tab-label">
                 {{tt this "scheduledTransfers"}}
               </span>
@@ -67,13 +65,13 @@
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
               {{/if}}
             </a>
-          {{/bs-nav-item}}
-          {{#bs-nav-item
-            active=(eq activeTabId "current")
+          {{/nav.item}}
+          {{#nav.item
+            active=(eq tab.activeTabId "current")
           }}
             <a href="#current"
               class="nav-link"
-              role="tab" {{action select "current"}}>
+              role="tab" {{action tab.select "current"}}>
               <span class="tab-label">
                 {{tt this "activeTransfers"}}
               </span>
@@ -81,13 +79,13 @@
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
               {{/if}}
             </a>
-          {{/bs-nav-item}}
-          {{#bs-nav-item
-            active=(eq activeTabId "completed")
+          {{/nav.item}}
+          {{#nav.item
+            active=(eq tab.activeTabId "completed")
           }}
             <a href="#completed"
               class="nav-link"
-              role="tab" {{action select "completed"}}>
+              role="tab" {{action tab.select "completed"}}>
               <span class="tab-label">
                 {{tt this "completedTransfers"}}
               </span>
@@ -95,12 +93,12 @@
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
               {{/if}}
             </a>
-          {{/bs-nav-item}}
+          {{/nav.item}}
         {{/bs-nav}}
         <div class="tab-content tab-content-transfers-list">
           {{#if fileId}}
-            {{#bs-tab-pane elementId="file"}}
-              {{#if (eq activeTabId "file")}}
+            {{#tab.pane elementId="file"}}
+              {{#if (eq tab.activeTabId "file")}}
                 <div class="row row-file-transfers">
                   <div class="col-xs-12 col-file-transfers">
                     <div class="row loadable-row">
@@ -111,7 +109,7 @@
                         class="loading-file-table"
                       }}
                         {{#if fileProxy.isFulfilled}}
-                          {{transfers/live-stats-table
+                          {{space-transfers/live-stats-table
                             transfers=fileTransfers
                             transferType="file"
                             providers=providers
@@ -136,10 +134,10 @@
                   </div>
                 </div>
               {{/if}}
-            {{/bs-tab-pane}}
+            {{/tab.pane}}
           {{/if}}
-          {{#bs-tab-pane elementId="scheduled"}}
-            {{#if (eq activeTabId "scheduled")}}
+          {{#tab.pane elementId="scheduled"}}
+            {{#if (eq tab.activeTabId "scheduled")}}
               <div class="row row-scheduled-transfers">
                 <div class="col-xs-12 col-scheduled-transfers">
                   <div class="row loadable-row">
@@ -149,7 +147,7 @@
                       )
                       class="loading-scheduled-table"
                     }}
-                      {{transfers/live-stats-table
+                      {{space-transfers/live-stats-table
                         transfers=scheduledTransfers
                         transferType="scheduled"
                         providers=providers
@@ -169,9 +167,9 @@
                 </div>
               </div>
             {{/if}}
-          {{/bs-tab-pane}}
-          {{#bs-tab-pane elementId="current"}}
-            {{#if (eq activeTabId "current")}}
+          {{/tab.pane}}
+          {{#tab.pane elementId="current"}}
+            {{#if (eq tab.activeTabId "current")}}
               <div class="row row-active-transfers-table">
                 <div class="col-xs-12 col-active-transfers">
                   <div class="row loadable-row">
@@ -181,7 +179,7 @@
                       )
                       class="loading-active-table"
                     }}
-                      {{transfers/live-stats-table
+                      {{space-transfers/live-stats-table
                         transfers=currentTransfers
                         transferType="current"
                         providers=providers
@@ -201,9 +199,9 @@
                 </div>
               </div>
             {{/if}}
-          {{/bs-tab-pane}}
-          {{#bs-tab-pane elementId="completed"}}
-            {{#if (eq activeTabId "completed")}}
+          {{/tab.pane}}
+          {{#tab.pane elementId="completed"}}
+            {{#if (eq tab.activeTabId "completed")}}
               <div class="row row-completed-transfers">
                 <div class="col-xs-12 col-completed-transfers">
                   <div class="row loadable-row">
@@ -213,7 +211,7 @@
                       )
                       class="loading-completed-table"
                     }}
-                      {{transfers/live-stats-table
+                      {{space-transfers/live-stats-table
                         transfers=completedTransfers
                         transferType="completed"
                         providers=providers
@@ -232,12 +230,12 @@
                 </div>
               </div>
             {{/if}}
-          {{/bs-tab-pane}}
+          {{/tab.pane}}
         </div>
       {{/bs-tab}}
       
     </div>
-  {{/loading-container}} --}}
+  {{/promise-proxy-container}} --}}
 </div>
 
 {{yield}}

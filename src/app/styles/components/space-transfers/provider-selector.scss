@@ -1,0 +1,14 @@
+.throughput-provider-selector {
+  display: inline-block;
+  max-width: 100%;
+  margin: 5px 0;
+}
+
+.provider-selector-dropdown {
+  // FIXME: this style looks so good, that it can be used in general
+  .dropdown-menu li a .one-icon + .truncated-string.one-label {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: calc(100% - 30px);
+  }
+}

@@ -1,7 +1,7 @@
 /**
  * A stacked line chart component for visualizing transfer throughput history.
  * 
- * @module components/transfers/transfer-chart
+ * @module components/space-transfers/transfer-chart
  * @author Michal Borzecki
  * @copyright (C) 2017-2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

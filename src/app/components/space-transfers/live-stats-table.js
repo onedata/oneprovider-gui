@@ -3,7 +3,7 @@
  * 
  * Works in two modes: desktop (models-table) or mobile (one-collapsible-list)
  *
- * @module components/transfers/live-stats-table
+ * @module components/space-transfers/live-stats-table
  * @author Michal Borzecki, Jakub Liput
  * @copyright (C) 2017-2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

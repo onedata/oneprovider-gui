@@ -2,7 +2,7 @@
  * A first pseudo-row of transfers table/list that adds spacing for upper
  * transfers items, that are currently not rendered
  *
- * @module components/transfers/live-stats-table/first-row-space
+ * @module components/space-transfers/live-stats-table/first-row-space
  * @author Jakub Liput
  * @copyright (C) 2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

@@ -1,11 +1,11 @@
 {{#if record.firstRowSpace}}
-  {{transfers/live-stats-table/first-row-space
+  {{space-transfers/live-stats-table/first-row-space
     processedColumnsCount=processedColumns.length
     firstRowListIndex=record.firstRowListIndex
     justOpened=justOpened
   }}
 {{else}}
-  {{transfers/live-stats-table/transfer-row
+  {{space-transfers/live-stats-table/transfer-row
     record=record
     selectedItems=_selectedItems
     expandedRowIndexes=_expandedRowIndexes

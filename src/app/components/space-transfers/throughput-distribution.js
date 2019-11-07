@@ -1,7 +1,7 @@
 /**
  * A stacked line chart component for visualizing all transfers throughput history.
  * 
- * @module components/transfers/throughput-distribution
+ * @module components/space-transfers/throughput-distribution
  * @author Michal Borzecki, Jakub Liput
  * @copyright (C) 2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -18,7 +18,6 @@ import customCss from 'oneprovider-gui/utils/chartist/custom-css';
 import centerXLabels from 'oneprovider-gui/utils/chartist/center-x-labels';
 import axisLabels from 'oneprovider-gui/utils/chartist/axis-labels';
 import eventListener from 'oneprovider-gui/utils/chartist/event-listener';
-import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 import $ from 'jquery';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
@@ -27,9 +26,11 @@ import ChartistTooltip from 'oneprovider-gui/mixins/components/chartist-tooltip'
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { htmlSafe } from '@ember/string';
-
-const I18N_PREFIX = 'components.transfers.throughputDistribution.';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { promise, array } from 'ember-awesome-macros';
 
 const subunitSuffix = {
   minute: 's',
@@ -45,10 +46,16 @@ const subunit = {
   month: 'day',
 };
 
-export default Component.extend(ChartistValuesLine, ChartistTooltip, {
+export default Component.extend(I18n, ChartistValuesLine, ChartistTooltip, {
   classNames: ['transfers-throughput-distribution'],
   i18n: service(),
   store: service(),
+  transferManager: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceTransfers.throughputDistribution',
 
   /**
    * @type {Space}
@@ -91,7 +98,7 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
    * @virtual
    * @type {function}
    */
-  selectTransferStatProvider: () => {},
+  selectTransferStatProvider: notImplementedIgnore,
 
   /**
    * @override
@@ -124,9 +131,104 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
   _statsError: undefined,
 
   /**
-   * @type {Ember.ComputedProperty<object>}
+   * True if data for chart is loaded
+   * @type {boolean}
    */
-  _providersNames: computed('providers.@each.name', function () {
+  _statsLoaded: reads('_timeStatForUnit.isFulfilled'),
+
+  /**
+   * Last update time (async -> _timeStatForUnit)
+   * @type {ComputedProperty<Date>}
+   */
+  _statEndTime: reads('_timeStatForUnit.timestamp'),
+
+  /**
+   * Number of points on chart.
+   * @type {ComputedProperty<number>}
+   */
+  _pointsNumber: reads('_chartPointsXValues.length'),
+
+  /**
+   * Proxy object that resolves with stats for specified type and time unit.
+   * @type {ComputedProperty<PromiseObject<SpaceTransferTimeStat>>}
+   */
+  _timeStatForUnit: promise.object(computed(
+    'space',
+    'timeUnit',
+    'transferStatProviderId',
+    'transferType',
+    function _timeStatForUnit() {
+      const {
+        transferManager,
+        space,
+        timeUnit,
+        transferType,
+        transferStatProviderId,
+      } = this.getProperties(
+        'transferManager',
+        'space',
+        'timeUnit',
+        'transferType',
+        'transferStatProviderId'
+      );
+
+      return transferManager.getSpaceTransfersThroughputCharts(
+        space,
+        transferType,
+        timeUnit,
+        transferStatProviderId
+      );
+    }
+  )),
+
+  /**
+   * @type {ComputedProperty<Object>}
+   */
+  _statsIn: computedPipe('_timeStatForUnit.inputCharts', '_removeZeroStats'),
+
+  /**
+   * @type {ComputedProperty<Object>}
+   */
+  _statsOut: computedPipe('_timeStatForUnit.outputCharts', '_removeZeroStats'),
+
+  /**
+   * Maximum input stats sum in all time slots
+   * @type {ComputedProperty<number>}
+   */
+  _maxStatsInSum: computedPipe('_statsIn', '_calculateStatsMaxSum'),
+
+  /**
+   * Maximum output stats sum in all time slots
+   * @type {ComputedProperty<number>}
+   */
+  _maxStatsOutSum: computedPipe('_statsOut', '_calculateStatsMaxSum'),
+
+  /**
+   * Expected stats number (number of chart points).
+   * @type {ComputedProperty<number>}
+   */
+  _expectedStatsNumber: computedPipe('timeUnit', '_getExpectedStatsNumberForUnit'),
+
+  /**
+   * Chart time period
+   * @type {ComputedProperty<number>}
+   */
+  _timePeriod: computedPipe('timeUnit', '_getTimePeriodForUnit'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  _tooltipInSum: computedPipe('_tooltipInProviders', '_generateTooltipItemsSum'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  _tooltipOutSum: computedPipe('_tooltipOutProviders', '_generateTooltipItemsSum'),
+
+  /**
+   * @type {ComputedProperty<object>}
+   */
+  _providersNames: computed('providers.@each.name', function _providersNames() {
     const providers = this.get('providers');
     const names = {};
     providers.forEach(provider => {
@@ -137,143 +239,52 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
   }),
 
   /**
-   * True if data for chart is loaded
-   * @type {boolean}
+   * @type {ComputedProperty<string|null>}
    */
-  _statsLoaded: computed.reads('_timeStatForUnit.isFulfilled'),
-
-  /**
-   * @type {Ember.ComputedProperty<string|null>}
-   */
-  statsError: computed('updater.fetchError', '_statsError', function () {
+  statsError: computed('updater.fetchError', '_statsError', function statsError() {
     return this.get('updater.fetchError') || this.get('_statsError');
   }),
 
   /**
-   * Proxy object that resolves with stats for specified type and time unit.
-   * @type {Ember.ComputedProperty<PromiseObject<SpaceTransferTimeStat>>}
-   */
-  _timeStatForUnit: computed(
-    'space',
-    'timeUnit',
-    'transferStatProviderId',
-    'transferType',
-    function () {
-      const {
-        store,
-        space,
-        timeUnit,
-        transferType,
-        transferStatProviderId,
-      } = this.getProperties(
-        'store',
-        'space',
-        'timeUnit',
-        'transferType',
-        'transferStatProviderId'
-      );
-
-      const transferProviderStat = get(space, 'transferProviderStat');
-      const providerStats = transferStatProviderId &&
-        get(transferProviderStat, transferStatProviderId);
-      const unitProp = `${timeUnit}Stat`;
-      let promise;
-      if (providerStats) {
-        const typeProp = `${transferType}Stat`;
-        promise = store
-          .findRecord('space-transfer-stat', get(providerStats, typeProp))
-          .then(typeStats => get(typeStats, unitProp));
-      } else {
-        const typeProp = `transfer${_.upperFirst(transferType)}Stat`;
-        promise = get(space, typeProp).then(typeStats => get(typeStats, unitProp));
-      }
-      return PromiseObject.create({ promise });
-    }
-  ),
-
-  /**
-   * @type {Ember.ComputedProperty<Object>}
-   */
-  _statsIn: computedPipe('_timeStatForUnit.statsIn', '_removeZeroStats'),
-
-  /**
-   * @type {Ember.ComputedProperty<Object>}
-   */
-  _statsOut: computedPipe('_timeStatForUnit.statsOut', '_removeZeroStats'),
-
-  /**
-   * Last update time (async -> _timeStatForUnit)
-   * @type {Ember.ComputedProperty<Date>}
-   */
-  _statEndTime: computed.reads('_timeStatForUnit.timestamp'),
-
-  /**
-   * Maximum input stats sum in all time slots
-   * @type {Ember.ComputedProperty<number>}
-   */
-  _maxStatsInSum: computedPipe('_statsIn', '_calculateStatsMaxSum'),
-
-  /**
-   * Maximum output stats sum in all time slots
-   * @type {Ember.ComputedProperty<number>}
-   */
-  _maxStatsOutSum: computedPipe('_statsOut', '_calculateStatsMaxSum'),
-
-  /**
-   * Expected stats number (number of chart points).
-   * @type {Ember.ComputedProperty<number>}
-   */
-  _expectedStatsNumber: computedPipe('timeUnit', '_getExpectedStatsNumberForUnit'),
-
-  /**
    * Sorted input provider ids.
-   * @type {Ember.ComputedProperty<Array<string>>}
+   * @type {ComputedProperty<Array<string>>}
    */
-  _sortedInProvidersIds: computed('_statsIn', function () {
+  _sortedInProvidersIds: computed('_statsIn', function _sortedInProvidersIds() {
     return Object.keys(this.get('_statsIn')).sort();
   }),
 
   /**
    * Sorted output provider ids.
-   * @type {Ember.ComputedProperty<Array<string>>}
+   * @type {ComputedProperty<Array<string>>}
    */
-  _sortedOutProvidersIds: computed('_statsOut', function () {
+  _sortedOutProvidersIds: computed('_statsOut', function _sortedOutProvidersIds() {
     return Object.keys(this.get('_statsOut')).sort();
   }),
 
   /**
    * Sorted provider ids (in order [...in, ...out]).
-   * @type {Ember.ComputedProperty<Array<string>>}
+   * @type {ComputedProperty<Array<string>>}
    */
-  _sortedProvidersIds: computed('_sortedInProvidersIds', '_sortedOutProvidersIds',
-    function () {
+  _sortedProvidersIds: array.concat('_sortedInProvidersIds', '_sortedOutProvidersIds'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  _noStatsForUnit: computed(
+    '_statsLoaded',
+    '_sortedProvidersIds',
+    function _noStatsForUnit() {
       const {
-        _sortedInProvidersIds,
-        _sortedOutProvidersIds,
-      } = this.getProperties('_sortedInProvidersIds', '_sortedOutProvidersIds');
-      return _sortedInProvidersIds.concat(_sortedOutProvidersIds);
-    }),
-
-  /**
-   * @type {Ember.ComputedProperty<boolean>}
-   */
-  _noStatsForUnit: computed('_statsLoaded', '_sortedProvidersIds', function () {
-    const {
-      _statsLoaded,
-      _sortedProvidersIds,
-    } = this.getProperties('_statsLoaded', '_sortedProvidersIds');
-    return _statsLoaded && _sortedProvidersIds.length === 0;
-  }),
-
-  /**
-   * Chart time period
-   * @type {Ember.ComputedProperty<number>}
-   */
-  _timePeriod: computedPipe('timeUnit', '_getTimePeriodForUnit'),
+        _statsLoaded,
+        _sortedProvidersIds,
+      } = this.getProperties('_statsLoaded', '_sortedProvidersIds');
+      return _statsLoaded && _sortedProvidersIds.length === 0;
+    }
+  ),
 
   /**
    * Chart time format
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<string>}
    */
   _timeFormat: computed('timeUnit', function () {
     switch (this.get('timeUnit')) {
@@ -290,9 +301,9 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
 
   /**
    * Number of stats, that will be grouped under the same x axis label
-   * @returns {Ember.ComputedProperty<number>}
+   * @returns {ComputedProperty<number>}
    */
-  _statsNumberPerLabel: computed('timeUnit', function () {
+  _statsNumberPerLabel: computed('timeUnit', function _statsNumberPerLabel() {
     switch (this.get('timeUnit')) {
       case 'month':
         return 3;
@@ -307,11 +318,14 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
 
   /**
    * Stats values (points x,y), that will be used as a source for chart values.
-   * @type {Ember.ComputedProperty<Array<number>|undefined>}
+   * @type {ComputedProperty<Array<number>|undefined>}
    */
-  _statsValues: computed('_statsIn', '_statsOut', '_sortedProvidersIds',
+  _statsValues: computed(
+    '_statsIn',
+    '_statsOut',
+    '_sortedProvidersIds',
     '_expectedStatsNumber',
-    function () {
+    function _statsValues() {
       const {
         _statsIn,
         _statsOut,
@@ -327,11 +341,12 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
         const inProvidersNo = Object.keys(_statsIn).length;
         return _.range(_sortedProvidersIds.length).map(index => {
           const providerId = _sortedProvidersIds[index];
-          let values = index < inProvidersNo ? _statsIn[providerId] : _statsOut[
-            providerId];
+          let values = index < inProvidersNo ?
+            _statsIn[providerId] : _statsOut[providerId];
           if (values.length < _expectedStatsNumber + 2) {
-            values = values.concat(_.times(_expectedStatsNumber + 2 - values
-              .length, _.constant(0)));
+            values = values.concat(
+              _.times(_expectedStatsNumber + 2 - values.length, _.constant(0))
+            );
           }
           if (index >= inProvidersNo) {
             values = values.map(v => typeof v === 'number' ? -v : v);
@@ -343,10 +358,13 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
 
   /**
    * Axis x labels
-   * @type {Ember.ComputedProperty<Array<string>>}
+   * @type {ComputedProperty<Array<string>>}
    */
-  _chartXTicks: computed('_timePeriod', '_statsNumberPerLabel', '_expectedStatsNumber',
-    function () {
+  _chartXTicks: computed(
+    '_timePeriod',
+    '_statsNumberPerLabel',
+    '_expectedStatsNumber',
+    function _chartXTicks() {
       const {
         _statsNumberPerLabel,
         _timePeriod,
@@ -362,9 +380,9 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
     }),
 
   /**
-   * @type {Ember.ComputedProperty<number>}
+   * @type {ComputedProperty<number>}
    */
-  _chartXMin: computed('_expectedStatsNumber', '_timePeriod', function () {
+  _chartXMin: computed('_expectedStatsNumber', '_timePeriod', function _chartXMin() {
     const {
       _timePeriod,
       _expectedStatsNumber,
@@ -377,13 +395,13 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
 
   /**
    * Array of x coordinates for chart points
-   * @type {Ember.ComputedProperty<Array<number>>}
+   * @type {ComputedProperty<Array<number>>}
    */
   _chartPointsXValues: computed(
     '_timePeriod',
     '_statEndTime',
     '_expectedStatsNumber',
-    function () {
+    function _chartPointsXValues() {
       let {
         _timePeriod,
         _statEndTime,
@@ -416,16 +434,10 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
   ),
 
   /**
-   * Number of points on chart.
-   * @type {Ember.ComputedProperty<number>}
-   */
-  _pointsNumber: computed.reads('_chartPointsXValues.length'),
-
-  /**
    * Maximum stats sum in all time slots
-   * @type {Ember.ComputedProperty<number>}
+   * @type {ComputedProperty<number>}
    */
-  _chartYMax: computed('_maxStatsInSum', '_maxStatsOutSum', function () {
+  _chartYMax: computed('_maxStatsInSum', '_maxStatsOutSum', function _chartYMax() {
     const {
       _maxStatsInSum,
       _maxStatsOutSum,
@@ -435,9 +447,9 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
 
   /**
    * Chart ticks for Y axis
-   * @type {Ember.ComputedProperty<number>}
+   * @type {ComputedProperty<number>}
    */
-  _chartYTicks: computed('_chartYMax', function () {
+  _chartYTicks: computed('_chartYMax', function _chartYTicks() {
     const numberOfTicksPerSide = 3;
     const _chartYMax = this.get('_chartYMax');
     const delta = _chartYMax / numberOfTicksPerSide;
@@ -515,14 +527,14 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
 
   /**
    * Data for chartist (async -> _statsValues)
-   * @type {Ember.ComputedProperty<Object|undefined>}
+   * @type {ComputedProperty<Object|undefined>}
    */
   _chartData: computed(
     '_statsValues',
     '_sortedProvidersIds',
     'providersColors',
     '_pointsNumber',
-    function () {
+    function _chartData() {
       const {
         _statsValues,
         _chartValues,
@@ -530,7 +542,6 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
         providersColors,
         _statsIn,
         _pointsNumber,
-        i18n,
         _statEndTime,
       } = this.getProperties(
         '_statsValues',
@@ -539,7 +550,6 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
         'providersColors',
         '_statsIn',
         '_pointsNumber',
-        'i18n',
         '_statEndTime'
       );
       if (_statsValues) {
@@ -592,13 +602,11 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
           })),
           customCss,
           axisLabels: {
-            xLabel: i18n.t(
-              I18N_PREFIX + 'timeLastUpdate', {
-                lastUpdate: this._formatStatTime(
-                  _statEndTime + 30, 'HH:mm:ss'),
-              }
-            ),
-            yLabel: i18n.t(I18N_PREFIX + 'throughput'),
+            xLabel: this.t('timeLastUpdate', {
+              lastUpdate: this._formatStatTime(
+                _statEndTime + 30, 'HH:mm:ss'),
+            }),
+            yLabel: this.t('throughput'),
           },
         };
       }
@@ -606,13 +614,13 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
   ),
 
   /**
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<string>}
    */
   _tooltipHeader: computed(
     '_statEndTime',
     'chartTooltipHoveredColumn',
     '_chartPointsXValues',
-    function () {
+    function _tooltipHeader() {
       let {
         _statEndTime,
         chartTooltipHoveredColumn,
@@ -636,7 +644,7 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
   ),
 
   /**
-   * @type {Ember.ComputedProperty<Array<object>>}
+   * @type {ComputedProperty<Array<object>>}
    */
   _tooltipInProviders: computed(
     '_sortedInProvidersIds',
@@ -644,7 +652,7 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
     'providers',
     '_statsIn',
     'chartTooltipHoveredColumn',
-    function () {
+    function _tooltipInProviders() {
       const {
         _sortedInProvidersIds,
         _statsIn,
@@ -657,12 +665,7 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
   ),
 
   /**
-   * @type {Ember.ComputedProperty<string>}
-   */
-  _tooltipInSum: computedPipe('_tooltipInProviders', '_generateTooltipItemsSum'),
-
-  /**
-   * @type {Ember.ComputedProperty<Array<object>>}
+   * @type {ComputedProperty<Array<object>>}
    */
   _tooltipOutProviders: computed(
     '_sortedOutProvidersIds',
@@ -670,7 +673,7 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
     'providers',
     '_statsOut',
     'chartTooltipHoveredColumn',
-    function () {
+    function _tooltipOutProviders() {
       const {
         _sortedOutProvidersIds,
         _statsOut,
@@ -682,15 +685,10 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
     }
   ),
 
-  /**
-   * @type {Ember.ComputedProperty<string>}
-   */
-  _tooltipOutSum: computedPipe('_tooltipOutProviders', '_generateTooltipItemsSum'),
-
   changeUpdaterUnit: observer(
     'updater',
     '_timeStatForUnit.content',
-    function observeChangeUpdaterUnit() {
+    function changeUpdaterUnit() {
       const timeStat = this.get('_timeStatForUnit.content');
       const updater = this.get('updater');
       if (updater && timeStat && timeStat !== this.get('updater.timeStat')) {
@@ -718,7 +716,6 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
 
   _createTimeStatsUpdater() {
     const gettingStats = this.get('_timeStatForUnit');
-
     console.debug('throughput-distribution: creating updater');
     gettingStats.then(timeStat => safeExec(this, 'setProperties', {
       _statsError: null,
@@ -841,7 +838,7 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
     }
     const reducedStats = {};
     Object.keys(stats)
-      .filter((providerId) => stats[providerId].some((s) => !!s))
+      .filter((providerId) => stats[providerId].some(s => Boolean(s)))
       .forEach((providerId) => reducedStats[providerId] = stats[providerId]);
     return reducedStats;
   },
@@ -871,8 +868,7 @@ export default Component.extend(ChartistValuesLine, ChartistTooltip, {
       if (index < 0 || !providerStats[index]) {
         return;
       }
-      const provider =
-        _.find(providers, (provider) => provider.get('id') === providerId) || {};
+      const provider = providers.findBy('entityId', providerId);
       const providerName = get(provider, 'name') || providerId;
       result.push({
         name: providerName,

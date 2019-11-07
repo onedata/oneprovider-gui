@@ -1,3 +1,5 @@
+import transferChart from './transfer-chart';
+
 export default {
   title: 'Providers throughput',
   input: 'Input',
@@ -9,7 +11,5 @@ export default {
   onTheFly: 'On-the-fly',
   all: 'All',
   jobs: 'Jobs',
-  providerSelector: {
-    allProviders: 'All providers',
-  },
+  transferChart,
 };

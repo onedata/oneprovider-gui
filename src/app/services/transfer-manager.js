@@ -268,11 +268,39 @@ export default Service.extend({
     return deleteRecordIfFailed(transfer, transfer.save());
   },
 
-  // FIXME:
-  rerunTransfer: notImplementedReject(),
+  rerunTransfer(transfer) {
+    const {
+      entityType,
+      entityId,
+    } = getProperties(transfer, 'entityType', 'entityId');
+    const rerunGri = gri({
+      entityType,
+      entityId,
+      aspect: 'rerun',
+    });
+    this.get('onedataGraph').request({
+      gri: rerunGri,
+      operation: 'create',
+      subscribe: false,
+    });
+  },
 
-  // FIXME:
-  cancelTransfer: notImplementedReject(),
+  cancelTransfer(transfer) {
+    const {
+      entityType,
+      entityId,
+    } = getProperties(transfer, 'entityType', 'entityId');
+    const rerunGri = gri({
+      entityType,
+      entityId,
+      aspect: 'instance',
+    });
+    this.get('onedataGraph').request({
+      gri: rerunGri,
+      operation: 'delete',
+      subscribe: false,
+    });
+  },
 });
 
 /**

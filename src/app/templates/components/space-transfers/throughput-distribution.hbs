@@ -1,0 +1,67 @@
+<div class="row chart-selectors">
+  {{space-transfers/provider-selector
+    providersNames=_providersNames
+    selectedProviderId=transferStatProviderId
+    selectProvider=selectTransferStatProvider
+  }}
+  {{#if (and (not statsError) _statsLoaded)}}
+    {{#bs-button-group
+      value=timeUnit
+      onChange=(action (mut timeUnit))
+      type="radio"
+      size="sm"
+      as |bg|
+    }}
+      {{#bg.button value="minute"}}{{tt this "transferChart.minute"}}{{/bg.button}}
+      {{#bg.button value="hour"}}{{tt this "transferChart.hour"}}{{/bg.button}}
+      {{#bg.button value="day"}}{{tt this "transferChart.day"}}{{/bg.button}}
+      {{#bg.button value="month"}}{{tt this "transferChart.month"}}{{/bg.button}}
+    {{/bs-button-group}}
+  {{/if}}
+</div>
+<div class="row loadable-row row-main-chart">
+  {{#if statsError}}
+    {{resource-load-error reason=statsError}}
+  {{else}}
+    {{#loading-container isLoading=(not _statsLoaded)}}
+      {{#if _noStatsForUnit}}
+        <div class="waiting-for-stats no-stats-for-unit-info">
+          <div class="chart-placeholder-image"></div>
+          <span class="one-label">
+            {{!-- TODO: timeUnit is not translated --}}
+            {{tt this "transferChart.noStatsForUnit" timeUnit=timeUnit}}
+          </span>
+        </div>
+      {{else}}
+        {{#one-chartist data=_chartData options=_chartOptions type="line"}}
+          <div class="ct-tooltip">
+            <div class="tooltip-header">
+              {{_tooltipHeader}}
+            </div>
+            {{#if _tooltipInProviders.length}}
+              {{space-transfers/tooltip-providers-list
+                providers=_tooltipInProviders
+                title=(tt this (if transferStatProviderId "receivedFrom" "input"))
+                sum=_tooltipInSum
+              }}
+            {{/if}}
+            {{#if _tooltipOutProviders.length}}
+              {{space-transfers/tooltip-providers-list
+                providers=_tooltipOutProviders
+                title=(tt this (if transferStatProviderId "sentTo" "output"))
+                sum=_tooltipOutSum
+              }}
+            {{/if}}
+            <div class="ct-tooltip-arrow"></div>
+          </div>
+          <div class="input-half half-description">
+            {{tt this (if transferStatProviderId "receivedFrom" "input")}}
+          </div>
+          <div class="output-half half-description">
+            {{tt this (if transferStatProviderId "sentTo" "output")}}
+          </div>
+        {{/one-chartist}}
+      {{/if}}
+    {{/loading-container}}
+  {{/if}}
+</div>

@@ -1,7 +1,7 @@
 /**
  * A table/list row representing single transfer
  *
- * @module components/transfers/live-stats-table/transfer-row
+ * @module components/space-transfers/live-stats-table/transfer-row
  * @author Jakub Liput
  * @copyright (C) 2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
