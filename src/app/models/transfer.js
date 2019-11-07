@@ -15,7 +15,7 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
-import { entityType as userEntityType } from 'oneprovider-gui/models/user';
+// import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
 
@@ -107,6 +107,10 @@ export default Model.extend(
       return parseGri(this.get('user')).entityId;
     }),
 
+    /**
+     * @type {String}
+     * One of: scheduled, current, completed
+     */
     state: computed('scheduleTime', 'startTime', 'finishTime', function state() {
       const {
         scheduleTime,
@@ -116,6 +120,21 @@ export default Model.extend(
       return finishTime && 'completed' ||
         startTime && 'current' ||
         scheduleTime && 'scheduled';
+    }),
+
+    /**
+     * @type {String}
+     * One of: migration, eviction, replication
+     */
+    type: computed('evictingProvider', 'replicatingProvider', function type() {
+      const evictingProviderGri = this.belongsTo('evictingProvider').id();
+      if (evictingProviderGri) {
+        const replicatingProviderGri =
+          this.belongsTo('replicatingProviderGri').id();
+        return replicatingProviderGri ? 'migration' : 'eviction';
+      } else {
+        return 'replication';
+      }
     }),
 
     dataSource: promise.object(
@@ -168,10 +187,17 @@ export default Model.extend(
         userId,
         spaceId,
       } = this.getProperties('store', 'userId', 'spaceId');
+      // FIXME: for backend
+      // const entityType = userEntityType;
+      // const scope = 'shared';
+      // FIXME: for development mock mode
+      const entityType = 'user';
+      const scope = 'private';
       const userGri = gri({
-        entityType: userEntityType,
+
+        entityType,
         entityId: userId,
-        scope: 'shared',
+        scope,
         aspect: 'instance',
       });
       return store.findRecord('user', userGri, {

@@ -10,6 +10,21 @@
   }} --}}
   
   <div class="row row-transfers-tables">
+    {{space-transfers/transfers-table
+      transfers=scheduledTransfers
+      transferType="scheduled"
+      providers=providers
+      providersColors=providersColors
+      updaterId=(concat transfersUpdater.updaterId "-scheduled")
+      notifyTransferListChanged=(action "transferListChanged")
+      justOpened=(eq _tabJustChangedId "scheduled")
+      clearJustOpened=(action "clearJustChangedTabId" "scheduled")
+      rerunTransfer=(action "rerunTransfer")
+      cancelTransfer=(action "cancelTransfer")
+    }}
+  </div>
+  
+  {{!-- <div class="row row-transfers-tables">
     {{#bs-tab
       class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
       fade=false
@@ -232,7 +247,7 @@
         {{/tab.pane}}
       </div>
     {{/bs-tab}}
-  </div>
+  </div> --}}
 </div>
 
 {{yield}}

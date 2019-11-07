@@ -1,0 +1,37 @@
+<table class="table one-table one-infinite-list">
+  <thead class="transfers-table-thead">
+    <tr>
+      {{#each visibleColumns as |column|}}
+        <th class={{concat "transfers-table-col-" column.id}}>
+          {{tt this column.id}}
+        </th>
+      {{/each}}
+    </tr>
+  </thead>
+  <tbody class="transfers-table-tbody">
+    {{#each transfers as |transfer|}}
+      <tr class="transfers-table-row transfer-row data-row">
+        {{#each visibleColumns as |column|}}
+          <td class={{concat "transfers-table-cell-" column.id}}>
+            {{!-- FIXME: actions column should be separate special column to avoid injecting actions --}}
+            {{!-- FIXME: refactor to use transfers-table component dir --}}
+            {{component
+              (concat "space-transfers/live-stats-table/" column.component)
+              record=(transfer-table-record
+                transfer=transfer
+                transfers=transfers
+                providers=providers
+                transferCollection=transferType
+                updaterId=updaterId
+                actions=FIXME
+              )
+              propertyName=column.propertyName
+              table=this
+            }}
+          </td>
+        {{/each}}
+      </tr>
+      {{!-- FIXME: if transfer is expanded, show expanded info here as tr --}}
+    {{/each}}
+  </tbody>
+</table>

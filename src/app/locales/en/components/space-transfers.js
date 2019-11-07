@@ -3,6 +3,7 @@ import throughputDistribution from './space-transfers/throughput-distribution';
 import providerSelector from './space-transfers/provider-selector';
 import transferChart from './space-transfers/transfer-chart';
 import liveStatsTable from './space-transfers/live-stats-table';
+import transfersTable from './space-transfers/transfers-table';
 
 export default {
   scheduledTransfers: 'Waiting',
@@ -19,6 +20,7 @@ export default {
     empty: 'No query parameters provided for view transfer',
   },
   liveStatsTable,
+  transfersTable,
   transferChart,
   throughputDistribution,
   transfersOverview,

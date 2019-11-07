@@ -19,7 +19,6 @@ export default Component.extend({
   classNames: ['cell-data-name', 'cell-file-name'],
   i18n: service(),
 
-  column: undefined,
   record: undefined,
 
   /**
@@ -34,27 +33,34 @@ export default Component.extend({
   dataSourceRecord: computed.reads('record.dataSourceRecord.content'),
   space: computed.reads('record.space'),
 
-  dataSourceName: computed('dataSourceType', 'viewName', 'filePath', function () {
-    switch (this.get('dataSourceType')) {
-      case 'file':
-      case 'dir':
-      case 'deleted':
-        return fileName(this.get('filePath'));
-      case 'view':
-        return this.get('viewName');
-      default:
-        break;
+  name: computed(
+    'dataSourceType',
+    'dataSourceName',
+    'viewName',
+    'filePath',
+    function name() {
+      switch (this.get('dataSourceType')) {
+        case 'file':
+        case 'dir':
+        case 'deleted':
+          return fileName(this.get('record.dataSourceName'));
+        case 'view':
+          return this.get('record.dataSourceName');
+        default:
+          break;
+      }
     }
-  }),
+  ),
 
   deletedIsDir: computed('totalFiles', function deletedType() {
     return this.get('totalFiles') > 1;
   }),
 
   icon: computed('dataSourceType', 'deletedIsDir', function () {
+    // FIXME: icons for deleted file and dir
     const {
       dataSourceType,
-      deletedIsDir,
+      // deletedIsDir,
     } = this.getProperties('dataSourceType', 'deletedIsDir');
     switch (dataSourceType) {
       case 'view':
@@ -64,7 +70,8 @@ export default Component.extend({
       case 'dir':
         return 'folder';
       case 'deleted':
-        return deletedIsDir ? 'folder-deleted' : 'file-deleted';
+        return 'x';
+        //   return deletedIsDir ? 'folder-deleted' : 'file-deleted';
       default:
         return 'unknown';
     }

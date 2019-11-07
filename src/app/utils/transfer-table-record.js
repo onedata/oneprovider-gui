@@ -7,13 +7,13 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import _ from 'lodash';
 import moment from 'moment';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import EmberObject, { computed, get, setProperties, set } from '@ember/object';
+import { reads } from '@ember/object/computed';
 
-const START_END_TIME_FORMAT = 'D MMM YYYY H:mm:ss';
+const startEndTimeFormat = 'D MMM YYYY H:mm:ss';
 
 const statusGroups = {
   // in file tab all transfers are on the right list
@@ -60,12 +60,6 @@ export default EmberObject.extend({
 
   /**
    * @virtual
-   * @type {object}
-   */
-  providersColors: undefined,
-
-  /**
-   * @virtual
    * @type {number}
    */
   updaterId: undefined,
@@ -76,23 +70,24 @@ export default EmberObject.extend({
    */
   transferCollection: undefined,
 
-  transferId: computed.reads('transfer.id'),
-  viewName: computed.reads('transfer.viewName'),
-  path: computed.reads('transfer.path'),
-  file: computed.reads('transfer.file'),
-  space: computed.reads('transfer.space'),
-  dataSourceType: computed.reads('transfer.dataSourceType'),
-  dataSourceIdentifier: computed.reads('transfer.dataSourceIdentifier'),
-  dataSourceRecord: computed.reads('transfer.dataSourceRecord'),
-  userName: computed.reads('transfer.userName'),
-  scheduledAtComparable: computed.reads('transfer.scheduleTime'),
-  startedAtComparable: computed.reads('transfer.startTime'),
-  finishedAtComparable: computed.reads('transfer.finishTime'),
-  replicatedFiles: computed.reads('transfer.replicatedFiles'),
-  evictedFiles: computed.reads('transfer.evictedFiles'),
-  status: computed.reads('transfer.status'),
-  transferProgressError: computed.reads('transfer.transferProgressError'),
-  type: computed.reads('transfer.type'),
+  transferId: reads('transfer.entityId'),
+
+  file: reads('transfer.file'),
+  space: reads('transfer.space'),
+  // dataSourceType: reads('transfer.dataSourceType'),
+  dataSourceType: 'deleted',
+  dataSourceName: reads('transfer.dataSourceName'),
+  dataSourceId: reads('transfer.dataSourceId'),
+  dataSourceRecord: reads('transfer.dataSourceRecord'),
+  userName: reads('transfer.userProxy.name'),
+  scheduledAtComparable: reads('transfer.scheduleTime'),
+  startedAtComparable: reads('transfer.startTime'),
+  finishedAtComparable: reads('transfer.finishTime'),
+  replicatedFiles: reads('transfer.transferProgressProxy.replicatedFiles'),
+  evictedFiles: reads('transfer.transferProgressProxy.evictedFiles'),
+  status: reads('transfer.transferProgressProxy.status'),
+  transferProgressError: reads('transfer.transferProgressProxy.reason'),
+  type: reads('transfer.type'),
 
   isLoading: computed('transfer.tableDataIsLoaded', 'isReloading', function () {
     return this.get('transfer.tableDataIsLoaded') === false || this.get(
@@ -103,13 +98,10 @@ export default EmberObject.extend({
   scheduledAtReadable: computedPipe('scheduledAtComparable', timeReadable),
   startedAtReadable: computedPipe('startedAtComparable', timeReadable),
   finishedAtReadable: computedPipe('finishedAtComparable', timeReadable),
-  totalBytesReadable: computedPipe('transfer.replicatedBytes', bytesToString),
-
-  listIndex: computed('transfer', 'transfers.@each.startIndex', function () {
-    const transfer = this.get('transfer');
-    const transfers = this.get('transfers');
-    return transfers.indexOf(transfer) + get(transfers, '_start');
-  }),
+  totalBytesReadable: computedPipe(
+    'transfer.transferProgressProxy.replicatedBytes',
+    bytesToString
+  ),
 
   /**
    * @type {ComputedProperty<String>}
@@ -117,8 +109,8 @@ export default EmberObject.extend({
   destination: computed(
     'providers.@each.{entityId,name}',
     'transfer.replicatingProvider',
-    function () {
-      const destinationId = this.get('transfer.replicatingProvider');
+    function _destination() {
+      const destinationId = this.get('transfer.replicatingProvider.entityId');
       // eviction transfer
       if (!destinationId) {
         return '-';
@@ -133,14 +125,18 @@ export default EmberObject.extend({
     }
   ),
 
-  isInCorrectCollection: computed('transferCollection', 'status', function () {
-    const {
-      transferCollection,
-      status,
-    } = this.getProperties('transferCollection', 'status');
-    return transferCollection && status ?
-      statusGroups[transferCollection].has(status) : true;
-  }),
+  isInCorrectCollection: computed(
+    'transferCollection',
+    'status',
+    function isInCorrectCollection() {
+      const {
+        transferCollection,
+        status,
+      } = this.getProperties('transferCollection', 'status');
+      return transferCollection && status ?
+        statusGroups[transferCollection].has(status) : true;
+    }
+  ),
 
   init() {
     const transfer = this.get('transfer');
@@ -172,7 +168,7 @@ export default EmberObject.extend({
         // VFS-4487 quick fix for inconsistent transfer ids
         // thus it can show some warnings/errors, but it's a temporary solution
         // TODO: remove this code when proper fix on backend will be made
-        .then(t => t.updateCurrentStatProxy());
+        .then(t => t.updateTransferProgressProxy());
     }
 
     if (this.get('transferCollection') === 'file') {
@@ -197,5 +193,5 @@ function getHash(input) {
 }
 
 function timeReadable(timestamp) {
-  return (timestamp && moment.unix(timestamp).format(START_END_TIME_FORMAT)) || '-';
+  return (timestamp && moment.unix(timestamp).format(startEndTimeFormat)) || '-';
 }

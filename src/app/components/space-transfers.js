@@ -30,6 +30,7 @@ import { fileEntityType } from 'oneprovider-gui/models/file';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import TransferTableRecord from 'oneprovider-gui/utils/transfer-table-record';
 
 export default Component.extend(I18n, {
   classNames: ['space-transfers', 'row'],
@@ -535,12 +536,16 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     this._spaceChanged(true);
     this.fileChanged();
+    // FIXME: debug
+    window.debugSpaceTransfers = this;
+    window.debugTransferTableRecord = TransferTableRecord;
   },
 
   didInsertElement() {
+    // FIXME: use top selector?
     const listWatcher = new ListWatcher(
       $('#content-scroll'),
-      '.transfer-row',
+      '.data-row',
       items => safeExec(this, 'onTableScroll', items)
     );
     this.set('listWatcher', listWatcher);
