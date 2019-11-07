@@ -82,7 +82,9 @@ export default Component.extend(I18n, {
 
   listLocked: false,
 
-  activeTabId: reads('initialTabProxy.content'),
+  // FIXME: enable initialTabProxy loading
+  // activeTabId: reads('initialTabProxy.content'),
+  activeTabId: 'scheduled',
 
   /**
    * Holds tab ID that was opened recently.

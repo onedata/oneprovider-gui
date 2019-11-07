@@ -111,8 +111,11 @@ export default EmberObject.extend({
     return transfers.indexOf(transfer) + get(transfers, '_start');
   }),
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   destination: computed(
-    'providers.@each.name',
+    'providers.@each.{entityId,name}',
     'transfer.replicatingProvider',
     function () {
       const destinationId = this.get('transfer.replicatingProvider');
@@ -121,9 +124,8 @@ export default EmberObject.extend({
         return '-';
       }
       let destination = this.get('destinationUnknownText');
-      const destProvider = destination ? _.find(this.get('providers'), provider =>
-        get(provider, 'id') === destinationId
-      ) : null;
+      const destProvider = destination ?
+        this.get('providers').findBy('entityId', destinationId) : null;
       if (destProvider) {
         destination = get(destProvider, 'name');
       }

@@ -18,7 +18,6 @@ const i18nPrefix = 'components.transfers.liveTableStats.cellFileName.';
 export default Component.extend({
   classNames: ['cell-data-name', 'cell-file-name'],
   i18n: service(),
-  commonModals: service(),
 
   column: undefined,
   record: undefined,

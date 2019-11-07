@@ -1,5 +1,5 @@
 <div class="row loadable-row row-transfers-data-container">
-  {{space-transfers/transfers-overview
+  {{!-- {{space-transfers/transfers-overview
     space=space
     providers=providers
     providerTransferConnections=providerTransferConnections
@@ -7,235 +7,232 @@
     sourceProviderIds=sourceProviderIds
     providersColors=providersColors
     providersLoaded=providersLoaded
-  }}
+  }} --}}
   
-  {{!-- {{#promise-proxy-container proxy=initialTabProxy}}
-    <div class="row row-transfers-tables">
-      {{#bs-tab
-        class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
-        fade=false
-        customTabs=true
-        activeId=activeTabId
-        action=(action (mut activeTabId))
-        as |tab|
+  <div class="row row-transfers-tables">
+    {{#bs-tab
+      class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
+      fade=false
+      customTabs=true
+      activeId=activeTabId
+      action=(action (mut activeTabId))
+      as |tab|
+    }}
+      {{#bs-nav
+        type="tabs"
+        class="nav-tabs-transfers nav-tabs-with-loading"
+        as |nav|
       }}
-        {{#bs-nav
-          type="tabs"
-          class="nav-tabs-transfers nav-tabs-with-loading"
-          as |nav|
-        }}
-          {{#if fileProxy.isSettled}}
-            {{#nav.item
-              active=(eq tab.activeTabId "file")
-            }}
-              <a href="#file"
-                class="nav-link nav-link-file"
-                role="tab" {{action tab.select "file"}}>
-                <span class="tab-label">
-                  {{#unless (eq _tabJustChangedId "file")}}
-                    {{one-icon class="tab-icon" icon=_fileTabIcon}}
-                  {{/unless}}
-                  {{#if fileProxy.isFulfilled}}
-                    {{#truncated-string class="one-label tab-name"}}
-                      {{file.name}}
-                    {{/truncated-string}}
-                  {{else}}
-                    ?
-                  {{/if}}
-                </span>
-                {{#if (eq _tabJustChangedId "file")}}
-                  {{spin-spinner-block sizeClass="xs" class="tab-spinner tab-spinner-left"}}
+        {{#if fileProxy.isSettled}}
+          {{#nav.item active=(eq tab.activeId "file")}}
+            <a href="#file"
+              class="nav-link nav-link-file"
+              role="tab"
+              {{action tab.select "file"}}
+            >
+              <span class="tab-label">
+                {{#unless (eq _tabJustChangedId "file")}}
+                  {{one-icon class="tab-icon" icon=_fileTabIcon}}
+                {{/unless}}
+                {{#if fileProxy.isFulfilled}}
+                  {{#truncated-string class="one-label tab-name"}}
+                    {{file.name}}
+                  {{/truncated-string}}
+                {{else}}
+                  ?
                 {{/if}}
-                <span class="tab-close clickable" {{action "closeFileTab"}}>
-                  {{one-icon icon="close"}}
-                </span>
-              </a>
-            {{/nav.item}}
-          {{/if}}
-          {{#nav.item
-            active=(eq tab.activeTabId "scheduled")
-          }}
-            <a href="#scheduled"
-              class="nav-link"
-              role="tab" {{action tab.select "scheduled"}}>
-              <span class="tab-label">
-                {{tt this "scheduledTransfers"}}
               </span>
-              {{#if (eq _tabJustChangedId "scheduled")}}
-                {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
+              {{#if (eq _tabJustChangedId "file")}}
+                {{spin-spinner-block sizeClass="xs" class="tab-spinner tab-spinner-left"}}
               {{/if}}
+              <span class="tab-close clickable" {{action "closeFileTab"}}>
+                {{one-icon icon="close"}}
+              </span>
             </a>
           {{/nav.item}}
-          {{#nav.item
-            active=(eq tab.activeTabId "current")
-          }}
-            <a href="#current"
-              class="nav-link"
-              role="tab" {{action tab.select "current"}}>
-              <span class="tab-label">
-                {{tt this "activeTransfers"}}
-              </span>
-              {{#if (eq _tabJustChangedId "current")}}
-                {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
-              {{/if}}
-            </a>
-          {{/nav.item}}
-          {{#nav.item
-            active=(eq tab.activeTabId "completed")
-          }}
-            <a href="#completed"
-              class="nav-link"
-              role="tab" {{action tab.select "completed"}}>
-              <span class="tab-label">
-                {{tt this "completedTransfers"}}
-              </span>
-              {{#if (eq _tabJustChangedId "completed")}}
-                {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
-              {{/if}}
-            </a>
-          {{/nav.item}}
-        {{/bs-nav}}
-        <div class="tab-content tab-content-transfers-list">
-          {{#if fileId}}
-            {{#tab.pane elementId="file"}}
-              {{#if (eq tab.activeTabId "file")}}
-                <div class="row row-file-transfers">
-                  <div class="col-xs-12 col-file-transfers">
-                    <div class="row loadable-row">
-                      {{#loading-container isLoading=(or
-                          (not providersLoaded)
-                          fileTransferList.isPending
-                        )
-                        class="loading-file-table"
-                      }}
-                        {{#if fileProxy.isFulfilled}}
-                          {{space-transfers/live-stats-table
-                            transfers=fileTransfers
-                            transferType="file"
-                            providers=providers
-                            providersColors=providersColors
-                            updaterId=(concat transfersUpdater.updaterId "-file-" file.id)
-                            notifyTransferListChanged=(action "transferListChanged")
-                            justOpened=(eq _tabJustChangedId "file")
-                            clearJustOpened=(action "clearJustChangedTabId" "file")
-                            rerunTransfer=(action "rerunTransfer")
-                            cancelTransfer=(action "cancelTransfer")
-                          }}
-                          {{#if _fileHistoryLimitReached}}
-                            <p class="file-history-limit-message">
-                              {{tt this "fileHistoryLimitReached"}}
-                            </p>
-                          {{/if}}
-                        {{else}}
-                          <p>{{tt this "fileNotExists"}}</p>
+        {{/if}}
+        {{#nav.item active=(eq tab.activeId "scheduled")}}
+          <a href="#scheduled"
+            class="nav-link"
+            role="tab"
+            {{action tab.select "scheduled"}}
+          >
+            <span class="tab-label">
+              {{tt this "scheduledTransfers"}}
+            </span>
+            {{#if (eq _tabJustChangedId "scheduled")}}
+              {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
+            {{/if}}
+          </a>
+        {{/nav.item}}
+        {{#nav.item active=(eq tab.activeId "current")}}
+          <a href="#current"
+            class="nav-link"
+            role="tab"
+            {{action tab.select "current"}}
+          >
+            <span class="tab-label">
+              {{tt this "activeTransfers"}}
+            </span>
+            {{#if (eq _tabJustChangedId "current")}}
+              {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
+            {{/if}}
+          </a>
+        {{/nav.item}}
+        {{#nav.item active=(eq tab.activeId "completed")}}
+          <a href="#completed"
+            class="nav-link"
+            role="tab"
+            {{action tab.select "completed"}}
+          >
+            <span class="tab-label">
+              {{tt this "completedTransfers"}}
+            </span>
+            {{#if (eq _tabJustChangedId "completed")}}
+              {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
+            {{/if}}
+          </a>
+        {{/nav.item}}
+      {{/bs-nav}}
+      <div class="tab-content tab-content-transfers-list">
+        {{#if fileId}}
+          {{#tab.pane elementId="file"}}
+            {{#if (eq tab.activeId "file")}}
+              <div class="row row-file-transfers">
+                <div class="col-xs-12 col-file-transfers">
+                  <div class="row loadable-row">
+                    {{#loading-container isLoading=(or
+                        (not providersLoaded)
+                        fileTransferList.isPending
+                      )
+                      class="loading-file-table"
+                    }}
+                      {{#if fileProxy.isFulfilled}}
+                        {{space-transfers/live-stats-table
+                          transfers=fileTransfers
+                          transferType="file"
+                          providers=providers
+                          providersColors=providersColors
+                          updaterId=(concat transfersUpdater.updaterId "-file-" file.id)
+                          notifyTransferListChanged=(action "transferListChanged")
+                          justOpened=(eq _tabJustChangedId "file")
+                          clearJustOpened=(action "clearJustChangedTabId" "file")
+                          rerunTransfer=(action "rerunTransfer")
+                          cancelTransfer=(action "cancelTransfer")
+                        }}
+                        {{#if _fileHistoryLimitReached}}
+                          <p class="file-history-limit-message">
+                            {{tt this "fileHistoryLimitReached"}}
+                          </p>
                         {{/if}}
-                      {{/loading-container}}
-                    </div>
+                      {{else}}
+                        <p>{{tt this "fileNotExists"}}</p>
+                      {{/if}}
+                    {{/loading-container}}
                   </div>
                 </div>
-              {{/if}}
-            {{/tab.pane}}
+              </div>
+            {{/if}}
+          {{/tab.pane}}
+        {{/if}}
+        {{#tab.pane elementId="scheduled"}}
+          {{#if (eq tab.activeId "scheduled")}}
+            <div class="row row-scheduled-transfers">
+              <div class="col-xs-12 col-scheduled-transfers">
+                <div class="row loadable-row">
+                  {{#loading-container isLoading=(or
+                      (not providersLoaded)
+                      (not scheduledTransfersLoaded)
+                    )
+                    class="loading-scheduled-table"
+                  }}
+                    {{space-transfers/live-stats-table
+                      transfers=scheduledTransfers
+                      transferType="scheduled"
+                      providers=providers
+                      providersColors=providersColors
+                      updaterId=(concat transfersUpdater.updaterId "-scheduled")
+                      notifyTransferListChanged=(action "transferListChanged")
+                      justOpened=(eq _tabJustChangedId "scheduled")
+                      clearJustOpened=(action "clearJustChangedTabId" "scheduled")
+                      rerunTransfer=(action "rerunTransfer")
+                      cancelTransfer=(action "cancelTransfer")
+                    }}
+                  {{/loading-container}}
+                </div>
+                {{#if scheduledTransfersLoadingMore}}
+                  {{loading-more-spinner}}
+                {{/if}}
+              </div>
+            </div>
           {{/if}}
-          {{#tab.pane elementId="scheduled"}}
-            {{#if (eq tab.activeTabId "scheduled")}}
-              <div class="row row-scheduled-transfers">
-                <div class="col-xs-12 col-scheduled-transfers">
-                  <div class="row loadable-row">
-                    {{#loading-container isLoading=(or
-                        (not providersLoaded)
-                        (not scheduledTransfersLoaded)
-                      )
-                      class="loading-scheduled-table"
+        {{/tab.pane}}
+        {{#tab.pane elementId="current"}}
+          {{#if (eq tab.activeId "current")}}
+            <div class="row row-active-transfers-table">
+              <div class="col-xs-12 col-active-transfers">
+                <div class="row loadable-row">
+                  {{#loading-container isLoading=(or
+                      (not providersLoaded)
+                      (not currentTransfersLoaded)
+                    )
+                    class="loading-active-table"
+                  }}
+                    {{space-transfers/live-stats-table
+                      transfers=currentTransfers
+                      transferType="current"
+                      providers=providers
+                      providersColors=providersColors
+                      updaterId=(concat transfersUpdater.updaterId "-current")
+                      notifyTransferListChanged=(action "transferListChanged")
+                      justOpened=(eq _tabJustChangedId "current")
+                      clearJustOpened=(action "clearJustChangedTabId" "current")
+                      rerunTransfer=(action "rerunTransfer")
+                      cancelTransfer=(action "cancelTransfer")
                     }}
-                      {{space-transfers/live-stats-table
-                        transfers=scheduledTransfers
-                        transferType="scheduled"
-                        providers=providers
-                        providersColors=providersColors
-                        updaterId=(concat transfersUpdater.updaterId "-scheduled")
-                        notifyTransferListChanged=(action "transferListChanged")
-                        justOpened=(eq _tabJustChangedId "scheduled")
-                        clearJustOpened=(action "clearJustChangedTabId" "scheduled")
-                        rerunTransfer=(action "rerunTransfer")
-                        cancelTransfer=(action "cancelTransfer")
-                      }}
-                    {{/loading-container}}
-                  </div>
-                  {{#if scheduledTransfersLoadingMore}}
-                    {{loading-more-spinner}}
-                  {{/if}}
+                  {{/loading-container}}
                 </div>
+                {{#if currentTransfersLoadingMore}}
+                  {{loading-more-spinner}}
+                {{/if}}
               </div>
-            {{/if}}
-          {{/tab.pane}}
-          {{#tab.pane elementId="current"}}
-            {{#if (eq tab.activeTabId "current")}}
-              <div class="row row-active-transfers-table">
-                <div class="col-xs-12 col-active-transfers">
-                  <div class="row loadable-row">
-                    {{#loading-container isLoading=(or
-                        (not providersLoaded)
-                        (not currentTransfersLoaded)
-                      )
-                      class="loading-active-table"
+            </div>
+          {{/if}}
+        {{/tab.pane}}
+        {{#tab.pane elementId="completed"}}
+          {{#if (eq tab.activeId "completed")}}
+            <div class="row row-completed-transfers">
+              <div class="col-xs-12 col-completed-transfers">
+                <div class="row loadable-row">
+                  {{#loading-container isLoading=(or
+                      (not providersLoaded)
+                      (not completedTransfersLoaded)
+                    )
+                    class="loading-completed-table"
+                  }}
+                    {{space-transfers/live-stats-table
+                      transfers=completedTransfers
+                      transferType="completed"
+                      providers=providers
+                      providersColors=providersColors
+                      updaterId=(concat transfersUpdater.updaterId "-completed")
+                      notifyTransferListChanged=(action "transferListChanged")
+                      justOpened=(eq _tabJustChangedId "completed")
+                      clearJustOpened=(action "clearJustChangedTabId" "completed")
+                      rerunTransfer=(action "rerunTransfer")
                     }}
-                      {{space-transfers/live-stats-table
-                        transfers=currentTransfers
-                        transferType="current"
-                        providers=providers
-                        providersColors=providersColors
-                        updaterId=(concat transfersUpdater.updaterId "-current")
-                        notifyTransferListChanged=(action "transferListChanged")
-                        justOpened=(eq _tabJustChangedId "current")
-                        clearJustOpened=(action "clearJustChangedTabId" "current")
-                        rerunTransfer=(action "rerunTransfer")
-                        cancelTransfer=(action "cancelTransfer")
-                      }}
-                    {{/loading-container}}
-                  </div>
-                  {{#if currentTransfersLoadingMore}}
-                    {{loading-more-spinner}}
-                  {{/if}}
+                  {{/loading-container}}
                 </div>
+                {{#if completedTransfersLoadingMore}}
+                  {{loading-more-spinner}}
+                {{/if}}
               </div>
-            {{/if}}
-          {{/tab.pane}}
-          {{#tab.pane elementId="completed"}}
-            {{#if (eq tab.activeTabId "completed")}}
-              <div class="row row-completed-transfers">
-                <div class="col-xs-12 col-completed-transfers">
-                  <div class="row loadable-row">
-                    {{#loading-container isLoading=(or
-                        (not providersLoaded)
-                        (not completedTransfersLoaded)
-                      )
-                      class="loading-completed-table"
-                    }}
-                      {{space-transfers/live-stats-table
-                        transfers=completedTransfers
-                        transferType="completed"
-                        providers=providers
-                        providersColors=providersColors
-                        updaterId=(concat transfersUpdater.updaterId "-completed")
-                        notifyTransferListChanged=(action "transferListChanged")
-                        justOpened=(eq _tabJustChangedId "completed")
-                        clearJustOpened=(action "clearJustChangedTabId" "completed")
-                        rerunTransfer=(action "rerunTransfer")
-                      }}
-                    {{/loading-container}}
-                  </div>
-                  {{#if completedTransfersLoadingMore}}
-                    {{loading-more-spinner}}
-                  {{/if}}
-                </div>
-              </div>
-            {{/if}}
-          {{/tab.pane}}
-        </div>
-      {{/bs-tab}}
-      
-    </div>
-  {{/promise-proxy-container}} --}}
+            </div>
+          {{/if}}
+        {{/tab.pane}}
+      </div>
+    {{/bs-tab}}
+  </div>
 </div>
 
 {{yield}}

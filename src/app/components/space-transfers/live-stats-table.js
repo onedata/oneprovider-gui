@@ -3,9 +3,9 @@
  * 
  * Works in two modes: desktop (models-table) or mobile (one-collapsible-list)
  *
- * @module components/space-transfers/live-stats-table
+ * @module components/space-space-transfers/live-stats-table
  * @author Michal Borzecki, Jakub Liput
- * @copyright (C) 2017-2018 ACK CYFRONET AGH
+ * @copyright (C) 2017-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -21,11 +21,11 @@ import EmberObject, {
   setProperties,
   observer,
 } from '@ember/object';
+import { reads, lt } from '@ember/object/computed';
 import { next, scheduleOnce } from '@ember/runloop';
 import { A } from '@ember/array';
-
-const COMMON_I18N_PREFIX = 'components.transfers.';
-const I18N_PREFIX = COMMON_I18N_PREFIX + 'liveTableStats.';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const tableExcludedColumns = {
   file: ['path'],
@@ -34,12 +34,17 @@ const tableExcludedColumns = {
   completed: ['scheduledAt'],
 };
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['transfers-live-stats-table', 'transfers-table'],
   classNameBindings: ['transferType'],
 
   i18n: service(),
   notify: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceTransfers.liveStatsTable',
 
   /**
    * @virtual 
@@ -58,7 +63,7 @@ export default Component.extend({
    * @virtual 
    * @type {Function}
    */
-  notifyLoaded: () => {},
+  notifyLoaded: notImplementedIgnore,
 
   /**
    * @virtual
@@ -84,13 +89,13 @@ export default Component.extend({
    * @virtual 
    * @type {Function}
    */
-  notifyTransferListChanged: () => {},
+  notifyTransferListChanged: notImplementedIgnore,
 
   /**
    * @virtual 
    * @type {Function} (boolean) => undefined
    */
-  stickyTableChanged: () => {},
+  stickyTableChanged: notImplementedIgnore,
 
   /**
    * Type of transfers. May be `scheduled`, `current` or `completed`
@@ -113,7 +118,7 @@ export default Component.extend({
    * table have been finished (see `justOpened` flag)
    * @type {Function}
    */
-  clearJustOpened: () => {},
+  clearJustOpened: notImplementedIgnore,
 
   /**
    * @type {EmberObject}
@@ -138,38 +143,43 @@ export default Component.extend({
   _stickyTableHeaderOffset: 0,
 
   /**
-   * True if the list is reloaded.
-   * Note, it is still false if fetching more data or particular records 
-   * are reloaded.
-   * @type {Ember.ComputedProperty<boolean>}
+   * @type {Array<Object>}
    */
-  _isReloading: computed.reads('transfers.isReloading'),
-
-  /**
-   * @type {ComputedProperty<any>}
-   */
-  _transfersError: computed.reads('transfers.error'),
-
-  /**
-   * Custom icons for ember-models-table addon.
-   * @type {Ember.Object}
-   */
-  _tableCustomIcons: EmberObject.create({
-    'sort-asc': 'oneicon oneicon-arrow-up',
-    'sort-desc': 'oneicon oneicon-arrow-down',
-  }),
+  _tableDataCache: null,
 
   /**
    * True if table has no data (except virtual rows)
    * @type {Ember.ComputedProperty<boolean>}
    */
-  _tableDataEmpty: computed.lt('_tableData.length', 2),
+  _tableDataEmpty: lt('_tableData.length', 2),
+
+  /**
+   * True if the list is reloaded.
+   * Note, it is still false if fetching more data or particular records 
+   * are reloaded.
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  _isReloading: reads('transfers.isReloading'),
+
+  /**
+   * @type {ComputedProperty<any>}
+   */
+  _transfersError: reads('transfers.error'),
+
+  /**
+   * Custom icons for ember-models-table addon.
+   * @type {Ember.Object}
+   */
+  _tableCustomIcons: computed(() => EmberObject.create({
+    'sort-asc': 'oneicon oneicon-arrow-up',
+    'sort-desc': 'oneicon oneicon-arrow-down',
+  })),
 
   /**
    * Custom classes for ember-models-table addon.
    * @type {Ember.Object}
    */
-  _tableCustomClasses: computed(function () {
+  _tableCustomClasses: computed(function _tableCustomClasses() {
     return EmberObject.create({
       table: 'table',
     });
@@ -179,24 +189,19 @@ export default Component.extend({
    * Custom messages for ember-models-table addon.
    * @type {Ember.Object}
    */
-  _tableCustomMessages: computed('transferType', function () {
+  _tableCustomMessages: computed('transferType', function _tableCustomMessages() {
     const messageId = `noTransfers.${this.get('transferType')}`;
     return EmberObject.create({
-      noDataToShow: this.get('i18n').t(COMMON_I18N_PREFIX + messageId),
+      noDataToShow: this.t(messageId),
     });
   }),
-
-  /**
-   * @type {Array<Object>}
-   */
-  _tableDataCache: null,
 
   _tableData: computed(
     'transfers.{[],startIndex,endIndex}',
     'providers',
     'providersColors',
     '_rowActions',
-    function () {
+    function _tableData() {
       const {
         transfers,
         providers,
@@ -286,12 +291,11 @@ export default Component.extend({
    * Table columns definition.
    * @type {Ember.ComputedProperty<Array<Object>>}
    */
-  _tableColumns: computed('transferType', '_mobileMode', function () {
+  _tableColumns: computed('transferType', '_mobileMode', function _tableColumns() {
     const {
-      i18n,
       transferType,
       _mobileMode,
-    } = this.getProperties('i18n', 'transferType', '_mobileMode');
+    } = this.getProperties('transferType', '_mobileMode');
     const excludedColumns = tableExcludedColumns[transferType];
 
     // field `id` is custom and is used only to check which column should be 
@@ -306,77 +310,80 @@ export default Component.extend({
       {
         id: 'path',
         propertyName: 'path',
-        title: i18n.t(I18N_PREFIX + 'path'),
+        title: this.t('path'),
         component: _mobileMode ?
-          undefined : 'transfers/live-stats-table/cell-data-name',
+          undefined : 'space-transfers/live-stats-table/cell-data-name',
       }, {
         id: 'userName',
         propertyName: 'userName',
-        title: i18n.t(I18N_PREFIX + 'userName'),
+        title: this.t('userName'),
         component: _mobileMode ?
-          undefined : 'transfers/live-stats-table/cell-truncated',
+          undefined : 'space-transfers/live-stats-table/cell-truncated',
       }, {
         id: 'destination',
         propertyName: 'destination',
-        title: i18n.t(I18N_PREFIX + 'destination'),
+        title: this.t('destination'),
         component: _mobileMode ?
-          undefined : 'transfers/live-stats-table/cell-truncated',
+          undefined : 'space-transfers/live-stats-table/cell-truncated',
       }, {
         id: 'scheduledAt',
         propertyName: 'scheduledAtReadable',
-        title: i18n.t(I18N_PREFIX + 'scheduledAt'),
+        title: this.t('scheduledAt'),
       }, {
         id: 'startedAt',
         propertyName: 'startedAtReadable',
-        title: i18n.t(I18N_PREFIX + 'startedAt'),
+        title: this.t('startedAt'),
       }, {
         id: 'finishedAt',
         propertyName: 'finishedAtReadable',
-        title: i18n.t(I18N_PREFIX + 'finishedAt'),
+        title: this.t('finishedAt'),
       }, {
         id: 'totalBytes',
         propertyName: 'totalBytesReadable',
-        title: i18n.t(I18N_PREFIX + 'totalBytes'),
-        component: 'transfers/live-stats-table/cell-errorable',
+        title: this.t('totalBytes'),
+        component: 'space-transfers/live-stats-table/cell-errorable',
       }, {
         id: 'totalFiles',
         propertyName: 'totalFiles',
-        title: i18n.t(I18N_PREFIX + 'totalFiles'),
-        component: 'transfers/live-stats-table/cell-total-files',
+        title: this.t('totalFiles'),
+        component: 'space-transfers/live-stats-table/cell-total-files',
       },
       {
         id: 'type',
         propertyName: 'type',
         className: 'col-icon',
-        title: i18n.t(I18N_PREFIX + 'type'),
+        title: this.t('type'),
         component: _mobileMode ? undefined :
-          'transfers/live-stats-table/cell-type',
+          'space-transfers/live-stats-table/cell-type',
       },
       {
         id: 'status',
         propertyName: 'status',
         className: 'col-icon',
-        title: i18n.t(I18N_PREFIX + 'status'),
-        component: 'transfers/live-stats-table/cell-status',
+        title: this.t('status'),
+        component: 'space-transfers/live-stats-table/cell-status',
       },
     ];
     if (!_mobileMode) {
       allColumns.push({
         id: 'actions',
-        component: 'transfers/live-stats-table/cell-actions',
+        component: 'space-transfers/live-stats-table/cell-actions',
         className: 'transfer-actions-cell',
       });
     }
     allColumns.forEach(column => column.disableSorting = true);
-    return _.differenceWith(allColumns, excludedColumns, (col, eid) => col.id ===
-      eid);
+    return _.differenceWith(
+      allColumns,
+      excludedColumns,
+      (col, eid) => col.id === eid
+    );
   }),
 
   /**
    * Window resize event handler.
    * @type {Ember.ComputedProperty<Function>}
    */
-  _resizeEventHandler: computed(function () {
+  _resizeEventHandler: computed(function _resizeEventHandler() {
     return () => {
       this.set('_mobileMode', this.get('_window.innerWidth') < 1200);
     };
@@ -393,13 +400,10 @@ export default Component.extend({
    * @param {object} record instance of model-table record for which the transfer
    *    has been canceled
    */
-  _cancelTransfer: computed('cancelTransfer', function () {
+  _cancelTransfer: computed('cancelTransfer', function _cancelTransfer() {
     const cancelTransfer = this.get('cancelTransfer');
     return cancelTransfer ? (record) => {
-      const {
-        notify,
-        i18n,
-      } = this.getProperties('notify', 'i18n');
+      const notify = this.get('notify');
       setProperties(record, {
         actionMessage: undefined,
         actionMessageType: undefined,
@@ -407,9 +411,9 @@ export default Component.extend({
       set(record, 'transfer.isCancelling', true);
       cancelTransfer(get(record, 'transfer.id'))
         .catch(error => {
-          notify.error(i18n.t(I18N_PREFIX + 'cancelFailure'));
+          notify.error(this.t('cancelFailure'));
           safeExec(record, () => setProperties(record, {
-            actionMessage: i18n.t(I18N_PREFIX + 'cancelFailure'),
+            actionMessage: this.t('cancelFailure'),
             actionMessageType: 'failure',
           }));
           safeExec(get(record, 'transfer'), 'set', 'isCancelling', false);
@@ -427,33 +431,30 @@ export default Component.extend({
    * @param {object} record instance of model-table record for which the transfer
    *    has been rerun
    */
-  _rerunTransfer: computed('rerunTransfer', function () {
+  _rerunTransfer: computed('rerunTransfer', function _rerunTransfer() {
     const rerunTransfer = this.get('rerunTransfer');
     return rerunTransfer ? (record) => {
-      const {
-        notify,
-        i18n,
-      } = this.getProperties('notify', 'i18n');
+      const notify = this.get('notify');
       setProperties(record, {
-        actionMessage: i18n.t(I18N_PREFIX + 'rerunStarting'),
+        actionMessage: this.t('rerunStarting'),
         actionMessageType: 'warning',
         isRerunning: true,
       });
       rerunTransfer(get(record, 'transfer.id'))
         .catch(error => {
           setProperties(record, {
-            actionMessage: i18n.t(I18N_PREFIX + 'rerunFailure'),
+            actionMessage: this.t('rerunFailure'),
             actionMessageType: 'failure',
           });
-          notify.error(i18n.t(I18N_PREFIX + 'rerunFailure'));
+          notify.error(this.t('rerunFailure'));
           throw error;
         })
         .then(() => {
           setProperties(record, {
-            actionMessage: i18n.t(I18N_PREFIX + 'rerunSuccess'),
+            actionMessage: this.t('rerunSuccess'),
             actionMessageType: 'success',
           });
-          notify.success(i18n.t(I18N_PREFIX + 'rerunSuccess'));
+          notify.success(this.t('rerunSuccess'));
           return record.transfer.reload();
         })
         .finally(() => {
@@ -465,7 +466,7 @@ export default Component.extend({
   /**
    * @type {Ember.ComputedProperty<Array<Object>>}
    */
-  _rowActions: computed('_cancelTransfer', '_rerunTransfer', function () {
+  _rowActions: computed('_cancelTransfer', '_rerunTransfer', function _rowActions() {
     const {
       _cancelTransfer,
       _rerunTransfer,
@@ -486,25 +487,32 @@ export default Component.extend({
     return actions;
   }),
 
-  transferListChanged: observer('_tableDataCache.[]', function () {
-    scheduleOnce(
-      'afterRender',
-      this,
-      'notifyTransferListChanged',
-      this.get('transferType')
-    );
-  }),
-
-  isReloadingFinished: observer('justOpened', '_isReloading', function () {
-    if (this.get('justOpened') && !this.get('_isReloading')) {
-      this.get('clearJustOpened')();
+  transferListChanged: observer(
+    '_tableDataCache.[]',
+    function transferListChanged() {
+      scheduleOnce(
+        'afterRender',
+        this,
+        'notifyTransferListChanged',
+        this.get('transferType')
+      );
     }
-  }),
+  ),
+
+  isReloadingFinished: observer(
+    'justOpened',
+    '_isReloading',
+    function isReloadingFinished() {
+      if (this.get('justOpened') && !this.get('_isReloading')) {
+        this.get('clearJustOpened')();
+      }
+    }
+  ),
 
   init() {
     this._super(...arguments);
 
-    let {
+    const {
       _resizeEventHandler,
       _window,
     } = this.getProperties('_resizeEventHandler', '_window');
