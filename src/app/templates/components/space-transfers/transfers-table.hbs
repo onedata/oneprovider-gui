@@ -9,8 +9,15 @@
     </tr>
   </thead>
   <tbody class="transfers-table-tbody">
+    <tr class="first-row">
+      <td colspan="9999" style={{firstRowStyle}}></td>
+    </tr>
+    <div class="table-start-row"></div>
     {{#each transfers as |transfer|}}
-      <tr class="transfers-table-row transfer-row data-row">
+      <tr
+        class="transfers-table-row transfer-row data-row"
+        data-row-id={{transfer.id}}
+      >
         {{#each visibleColumns as |column|}}
           <td class={{concat "transfers-table-cell-" column.id}}>
             {{!-- FIXME: actions column should be separate special column to avoid injecting actions --}}

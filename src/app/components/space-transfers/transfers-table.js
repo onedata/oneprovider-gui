@@ -3,6 +3,7 @@ import { computed } from '@ember/object';
 import _ from 'lodash';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { htmlSafe } from '@ember/string';
 
 const allColumnNames = [
   'path',
@@ -105,9 +106,26 @@ export default Component.extend(I18n, {
    */
   mobileMode: false,
 
+  rowHeight: 73,
+
   //#endregion
 
   //#region computed properties
+
+  firstRowHeight: computed(
+    'rowHeight',
+    'transfers._start',
+    function firstRowHeight() {
+      const _start = this.get('transfers._start');
+      const val = _start ? _start * this.get('rowHeight') : 0;
+      console.log('first row', val, _start);
+      return val;
+    }
+  ),
+
+  firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
+    return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
+  }),
 
   /**
    * @type {ComputedProperty<Array<String>>}

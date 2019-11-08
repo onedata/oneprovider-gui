@@ -74,8 +74,7 @@ export default EmberObject.extend({
 
   file: reads('transfer.file'),
   space: reads('transfer.space'),
-  // dataSourceType: reads('transfer.dataSourceType'),
-  dataSourceType: 'deleted',
+  dataSourceType: reads('transfer.dataSourceType'),
   dataSourceName: reads('transfer.dataSourceName'),
   dataSourceId: reads('transfer.dataSourceId'),
   dataSourceRecord: reads('transfer.dataSourceRecord'),
@@ -163,8 +162,8 @@ export default EmberObject.extend({
       transfer.on('didLoad', () => {
         transfer.updateTransferProgressProxy();
       });
-    } else {
-      transfer.store.findRecord('transfer', get(transfer, 'id'))
+    } else if (get(transfer, 'store')) {
+      get(transfer, 'store').findRecord('transfer', get(transfer, 'id'))
         // VFS-4487 quick fix for inconsistent transfer ids
         // thus it can show some warnings/errors, but it's a temporary solution
         // TODO: remove this code when proper fix on backend will be made

@@ -22,7 +22,8 @@
     // to hold an absolute-positioned spinner
     position: relative;
     &:hover {
-      background-color: $color-one-light-gray;
+      // FIXME: design
+      // background-color: $color-one-light-blue;
       cursor: pointer;
     }
     &.expanded-row {
@@ -48,7 +49,8 @@
   }
   
   table {
-    table-layout: fixed;
+    // FIXME: fixed?
+    table-layout: unset;
     thead {
       th {
         border-bottom-width: 1px;

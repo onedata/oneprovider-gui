@@ -32,6 +32,8 @@ import { debounce, later } from '@ember/runloop';
 import { Promise, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import ENV from 'oneprovider-gui/config/environment';
+import gri from 'onedata-gui-websocket-client/utils/gri';
+// import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 
 // TODO: (low) update providers if there is provider referenced that is not on
 // list; this can help with dynamically added providers
@@ -464,8 +466,18 @@ export default EmberObject.extend({
    */
   fetchSpecificRecords(ids, reload = false) {
     const store = this.get('store');
-    return allFulfilled(ids.map(id =>
-      store.findRecord('transfer', id, { reload })
+    // FIXME: backend
+    const gris = ids;
+    // const entityType = transferEntityType;
+    // const entityType = 'transfer';
+    // const gris = ids.map(id => gri({
+    //   entityType,
+    //   entityId: id,
+    //   aspect: 'instance',
+    //   scope: 'private',
+    // }));
+    return allFulfilled(gris.map(gri =>
+      store.findRecord('transfer', gri, { reload })
       .then(transfer => {
         if (reload) {
           return transfer.updateTransferProgressProxy();

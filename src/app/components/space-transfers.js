@@ -542,13 +542,7 @@ export default Component.extend(I18n, {
   },
 
   didInsertElement() {
-    // FIXME: use top selector?
-    const listWatcher = new ListWatcher(
-      $('#content-scroll'),
-      '.data-row',
-      items => safeExec(this, 'onTableScroll', items)
-    );
-    this.set('listWatcher', listWatcher);
+    this.set('listWatcher', this.createListWatcher());
   },
 
   willDestroyElement() {
@@ -567,6 +561,15 @@ export default Component.extend(I18n, {
   //#endregion
 
   //#region Methods
+
+  createListWatcher() {
+    // FIXME: use top selector?
+    return new ListWatcher(
+      $('#content-scroll'),
+      '.data-row',
+      items => safeExec(this, 'onTableScroll', items)
+    );
+  },
 
   initTransfersUpdater() {
     const {
@@ -694,6 +697,7 @@ export default Component.extend(I18n, {
       const startIndex = allTransferIds.indexOf(firstId);
       const endIndex = allTransferIds.indexOf(lastId, startIndex);
 
+      console.log('start end', startIndex, endIndex);
       const oldVisibleIds = openedTransfersChunksArray.mapBy('id');
       openedTransfersChunksArray.setProperties({ startIndex, endIndex });
       const newVisibleIds = openedTransfersChunksArray.mapBy('id');
