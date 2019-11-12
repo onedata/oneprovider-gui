@@ -37,6 +37,8 @@ const statusGroups = {
   ]),
 };
 
+// FIXME: check if all fields are needed and refactor
+
 export default EmberObject.extend({
   destinationUnknownText: 'unknown',
 
