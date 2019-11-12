@@ -23,7 +23,8 @@
             {{!-- FIXME: actions column should be separate special column to avoid injecting actions --}}
             {{!-- FIXME: refactor to use transfers-table component dir --}}
             {{component
-              (concat "space-transfers/live-stats-table/" column.component)
+              (concat "space-transfers/" column.component)
+              class=column.className
               record=(transfer-table-record
                 transfer=transfer
                 transfers=transfers

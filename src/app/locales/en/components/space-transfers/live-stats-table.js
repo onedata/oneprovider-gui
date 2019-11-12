@@ -1,3 +1,5 @@
+// FIXME: deprecated, to remove
+
 export default {
   type: 'Type',
   path: 'File/directory',

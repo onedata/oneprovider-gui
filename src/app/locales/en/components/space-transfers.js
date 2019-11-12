@@ -2,7 +2,6 @@ import transfersOverview from './space-transfers/transfers-overview';
 import throughputDistribution from './space-transfers/throughput-distribution';
 import providerSelector from './space-transfers/provider-selector';
 import transferChart from './space-transfers/transfer-chart';
-import liveStatsTable from './space-transfers/live-stats-table';
 import transfersTable from './space-transfers/transfers-table';
 
 export default {
@@ -19,7 +18,6 @@ export default {
     label: 'Query parameters',
     empty: 'No query parameters provided for view transfer',
   },
-  liveStatsTable,
   transfersTable,
   transferChart,
   throughputDistribution,

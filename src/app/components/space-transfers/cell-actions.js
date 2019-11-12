@@ -1,7 +1,7 @@
 /**
  * A cell component with transfer actions
  * 
- * @module components/space-transfers/live-stats-table/cell-actions
+ * @module components/space-transfers/cell-actions
  * @author Michal Borzecki
  * @copyright (C) 2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

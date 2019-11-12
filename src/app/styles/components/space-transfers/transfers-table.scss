@@ -1,0 +1,83 @@
+.transfers-table {  
+  th {
+    white-space: nowrap;
+    background-color: $color-one-white;
+  }
+  
+  .transfers-table-thead th,
+  .transfers-table-tbody td {
+    text-align: center;
+    padding: 2 * $space-transfers-table-padding $space-transfers-table-padding;
+    &:first-child {
+      text-align: left;
+    }
+  }
+  
+  tr {
+    .first-row-space {
+      width: 100%;
+      td {
+        padding: 0;
+        width: 100%;
+      }
+    }
+    .data-row {
+      // to hold an absolute-positioned spinner
+      position: relative;
+      &:hover {
+        // FIXME: design
+        // background-color: $color-one-light-blue;
+        cursor: pointer;
+      }
+      &.expanded-row {
+        background-color: darken($color-one-light-gray, 4%);
+        &:hover {
+          background-color: darken($color-one-light-gray, 9%);
+        }
+      }
+      .loadable-row {
+        min-height: 24px;
+      }
+    }
+  }
+  
+  .expand-row td {
+    background-color: $color-one-light-gray;
+  }
+  
+  &.scheduled {
+    tr.data-row:hover {
+      background-color: initial;
+      cursor: initial;
+    }
+  }
+  
+  table {
+    // FIXME: fixed?
+    table-layout: unset;
+    thead {
+      th {
+        border-bottom-width: 1px;
+        .oneicon {
+          vertical-align: middle;
+        }
+      }
+    } 
+  }
+  
+  .cell-status {
+    top: 1px;
+  }
+
+  // TODO: HACK for scheduled table, which does not have status column
+  th.table-header:nth-last-of-type(1) {
+    width: 70px;
+  }
+  &:not(.scheduled) th.table-header:nth-last-of-type(2) {
+    width: 70px;
+  }
+  &.scheduled th.table-header:nth-last-of-type(2) {
+    width: auto;
+  }
+}
+

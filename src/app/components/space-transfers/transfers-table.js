@@ -212,18 +212,21 @@ export default Component.extend(I18n, {
 
   typeColumn: computed(function typeColumn() {
     return this.createColumn('type', {
+      className: 'col-icon',
       component: 'cell-type',
     });
   }),
 
   actionsColumn: computed(function actionsColumn() {
     return this.createColumn('actions', {
+      className: 'transfer-actions-cell',
       component: 'cell-actions',
     });
   }),
 
   statusColumn: computed(function statusColumn() {
     return this.createColumn('status', {
+      className: 'col-icon',
       component: 'cell-status',
     });
   }),

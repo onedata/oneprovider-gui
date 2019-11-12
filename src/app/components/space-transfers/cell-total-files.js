@@ -1,7 +1,7 @@
 /**
  * Cell that shows total processed files number.
  *
- * @module components/live-stats-table/cell-total-files
+ * @module components/space-transfers/cell-total-files
  * @author Michal Borzecki
  * @copyright (C) 2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
