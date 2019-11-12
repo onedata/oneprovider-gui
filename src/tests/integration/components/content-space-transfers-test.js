@@ -26,7 +26,12 @@ describe('Integration | Component | content space transfers', function () {
 
   it('renders in an iframe', function () {
     const spaceEntityId = 'seid';
-    const space = {};
+    const transfersActiveChannels = {};
+    const space = {
+      updateTransfersActiveChannelsProxy: sinon.stub().resolves(
+        transfersActiveChannels
+      ),
+    };
     const store = lookupService(this, 'store');
     const transferManager = lookupService(this, 'transferManager');
     sinon.stub(store, 'findRecord')

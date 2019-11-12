@@ -54,6 +54,9 @@ export default OneEmbeddedComponent.extend(
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
       },
+      resetQueryParams: notImplementedIgnore,
+      changeListTab: notImplementedIgnore,
+      closeFileTab: notImplementedIgnore,
     },
   }
 );

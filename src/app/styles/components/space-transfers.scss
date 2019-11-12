@@ -67,7 +67,7 @@ $space-transfers-gray: #B6BAC0;
       margin-bottom: 0;
     }
     .ct-grid.ct-vertical {
-      stroke: darken($color-one-light-gray, 9%);
+      stroke: darken($color-one-semiwhite, 9%);
       &.x-axis-line {
         stroke: black;
       }
@@ -94,7 +94,7 @@ $space-transfers-gray: #B6BAC0;
       text-align: center;
       font-size: 70%;
       line-height: 30px;
-      background-color: $color-one-light-gray;
+      background-color: $color-one-semiwhite;
     }
   }
 
@@ -150,7 +150,7 @@ $space-transfers-gray: #B6BAC0;
       margin-bottom: 0;
     }
     .ct-grid.ct-vertical {
-      stroke: darken($color-one-light-gray, 9%);
+      stroke: darken($color-one-semiwhite, 9%);
     }
     .ct-tooltip-entry::before {
       height: 0;
@@ -296,7 +296,7 @@ $space-transfers-gray: #B6BAC0;
     padding-top: $padding-base-horizontal;
     padding-bottom: $padding-base-horizontal;
     .query-params-empty {
-      color: $color-one-light-gray;
+      color: $color-one-semiwhite;
     }
     .query-options {
       @include vertical-align-middle();

@@ -29,9 +29,9 @@
             renderDrop=false
           }}
             {{provider-place/super-circle
-              isSource=(contains provider.id sourceProviderIds)
-              isDestination=(contains provider.id destinationProviderIds)
-              circleColor=(get providersColors provider.id)
+              isSource=(contains provider.entityId sourceProviderIds)
+              isDestination=(contains provider.entityId destinationProviderIds)
+              circleColor=(get providersColors provider.entityId)
             }}
           {{/provider-place}}
         {{/position.point}}

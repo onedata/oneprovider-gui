@@ -1,18 +1,10 @@
-<ul>
-  {{#each shownTransfers as |transfer|}}
-    <li>
-      index: {{transfer.index}},
-      ongoing: {{transfer.isOngoing}},
-      dataSourceName: {{transfer.dataSourceName}},
-      dataSourceId: {{transfer.dataSourceId}},
-      dataSource.name: {{transfer.dataSource.name}},
-      userProxy.name: {{transfer.userProxy.name}},
-      queryParams: {{transfer.queryParams}},
-      scheduleTime: {{transfer.scheduleTime}},
-      startTime: {{transfer.startTime}},
-      finishTime: {{transfer.finishTime}},
-      replicatingProvider: {{transfer.replicatingProvider.name}},
-      evictingProvider: {{transfer.evictingProvider.name}},
-    </li>
-  {{/each}}
-</ul>
+{{#promise-proxy-container proxy=spaceProxy}}
+  {{space-transfers
+    space=spaceProxy.content
+    fileId=fileId
+    defaultTab=listTab
+    resetQueryParams=(action "resetQueryParams")
+    changeListTab=(action "changeListTab")
+    closeFileTab=(action "closeFileTab")
+  }}
+{{/promise-proxy-container}}

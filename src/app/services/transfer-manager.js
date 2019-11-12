@@ -11,7 +11,6 @@ import Service, { inject as service } from '@ember/service';
 import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { all as allFulfilled, resolve } from 'rsvp';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Service.extend({
   store: service(),

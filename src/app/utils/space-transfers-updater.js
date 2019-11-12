@@ -8,7 +8,7 @@
  *
  * @module utils/space-transfers-updater
  * @author Jakub Liput
- * @copyright (C) 2017-2018 ACK CYFRONET AGH
+ * @copyright (C) 2017-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -32,7 +32,6 @@ import { debounce, later } from '@ember/runloop';
 import { Promise, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import ENV from 'oneprovider-gui/config/environment';
-import gri from 'onedata-gui-websocket-client/utils/gri';
 // import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 
 // TODO: (low) update providers if there is provider referenced that is not on
