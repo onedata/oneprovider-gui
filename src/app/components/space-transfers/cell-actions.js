@@ -11,17 +11,21 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import EmberObject, { computed, get } from '@ember/object';
 import { A } from '@ember/array';
-
-const I18N_PREFIX = 'components.transfers.liveTableStats.cellActions.';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 const ACTION_ICONS = {
   cancelTransfer: 'cancelled',
   rerunTransfer: 'rerun',
 };
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['cell-actions'],
   i18n: service(),
+
+  /**
+   * @virtual
+   */
+  i18nPrefix: 'components.spaceTransfers.cellActions',
 
   /**
    * ember-models-table record
@@ -61,17 +65,11 @@ export default Component.extend({
     function () {
       const actions = this.get('record.actions');
       if (actions) {
-        const {
-          i18n,
-          record,
-        } = this.getProperties(
-          'i18n',
-          'record'
-        );
+        const record = this.get('record');
         return A(actions
           .filter(({ id }) => !this.isActionInvisible(id))
           .map(({ id, action }) => EmberObject.create({
-            title: i18n.t(I18N_PREFIX + id),
+            title: this.t(id),
             // TODO: optimize - a function is created for each cell
             action: () => action(record),
             icon: ACTION_ICONS[id],

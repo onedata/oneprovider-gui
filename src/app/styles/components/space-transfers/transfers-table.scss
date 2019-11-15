@@ -1,3 +1,18 @@
+.transfers-table.one-infinite-list {  
+  .data-row {
+    td {
+      height: 73px;
+    }
+  }
+  
+  .first-row td {
+    height: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+}
+
 .transfers-table {  
   th {
     white-space: nowrap;
@@ -45,7 +60,7 @@
     background-color: $color-one-light-gray;
   }
   
-  &.scheduled {
+  &.waiting {
     tr.data-row:hover {
       background-color: initial;
       cursor: initial;
@@ -69,14 +84,14 @@
     top: 1px;
   }
 
-  // TODO: HACK for scheduled table, which does not have status column
+  // TODO: HACK for waiting table, which does not have status column
   th.table-header:nth-last-of-type(1) {
     width: 70px;
   }
-  &:not(.scheduled) th.table-header:nth-last-of-type(2) {
+  &:not(.waiting) th.table-header:nth-last-of-type(2) {
     width: 70px;
   }
-  &.scheduled th.table-header:nth-last-of-type(2) {
+  &.waiting th.table-header:nth-last-of-type(2) {
     width: auto;
   }
 }

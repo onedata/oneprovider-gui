@@ -2,9 +2,11 @@
  * Updates transfers data for single space (except time statistics) by polling
  * 
  * Optionally update:
- * - collection of current transfers records with their current stats
- * - collection of completed transfers records
- * - handle updates of current stats when moving transfer from current to done
+ * - collection of waiting transfers records
+ * - collection of ongoing transfers records with their progress
+ * - collection of ended transfers records
+ * - handle updates of progress when moving transfer from ongoing to ended
+ * - transfers active channels
  *
  * @module utils/space-transfers-updater
  * @author Jakub Liput
@@ -19,8 +21,8 @@
 const transferCollectionDelay = 300;
 
 const defaultFileTime = 8 * 1000;
-const defaultScheduledTime = 4 * 1000;
-const defaultCompletedTime = 8 * 1000;
+const defaultWaitingTime = 4 * 1000;
+const defaultEndedTime = 8 * 1000;
 const mapTime = 5100;
 
 const minItemsCount = 50;
@@ -32,7 +34,8 @@ import { debounce, later } from '@ember/runloop';
 import { Promise, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import ENV from 'oneprovider-gui/config/environment';
-// import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
+import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
+import gri from 'onedata-gui-websocket-client/utils/gri';
 
 // TODO: (low) update providers if there is provider referenced that is not on
 // list; this can help with dynamically added providers
@@ -45,12 +48,17 @@ export default EmberObject.extend({
    */
   store: undefined,
 
+  // FIXME: probably to remove
   /**
    * @virtual
    * The model of space, will be used to perform fetching
    * @type {Space}
    */
   space: undefined,
+
+  waitingTransfersArray: undefined,
+  ongoingTransfersArray: undefined,
+  endedTransfersArray: undefined,
 
   /**
    * After init, update is disabled by default
@@ -72,16 +80,16 @@ export default EmberObject.extend({
   basePollingTime: 3 * 1000,
 
   /**
-   * Only transfers with these ids will be updated
+   * Only transfers with these ids (entity ids) will be updated
    * @type {Array<string>}
    */
   visibleIds: Object.freeze([]),
 
   /**
-   * Polling interval (ms) used for fetching scheduled transfers list
+   * Polling interval (ms) used for fetching waiting transfers list
    * @type {number}
    */
-  pollingTimeScheduled: defaultScheduledTime,
+  pollingTimeWaiting: defaultWaitingTime,
 
   /**
    * Polling interval (ms) used for fetching transfers list for file
@@ -90,25 +98,25 @@ export default EmberObject.extend({
   pollingTimeFile: defaultFileTime,
 
   /**
-   * Polling interval (ms) used for fetching current transfers
+   * Polling interval (ms) used for fetching ongoing transfers
    * @type {number}
    */
-  pollingTimeCurrent: computed(
+  pollingTimeOngoing: computed(
     'visibleIds.length',
     'basePollingTime',
-    function pollingTimeCurrent() {
-      const currentTransfersCount = this.get('visibleIds.length');
-      return currentTransfersCount ? this.computeCurrentPollingTime(
-          currentTransfersCount) :
+    function pollingTimeOngoing() {
+      const ongoingTransfersCount = this.get('visibleIds.length');
+      return ongoingTransfersCount ?
+        this.computeOngoingPollingTime(ongoingTransfersCount) :
         this.get('basePollingTime');
     }
   ),
 
   /**
-   * Polling interval (ms) used for fetching completed transfers
+   * Polling interval (ms) used for fetching ended transfers
    * @type {number}
    */
-  pollingTimeCompleted: defaultCompletedTime,
+  pollingTimeEnded: defaultEndedTime,
 
   /**
    * Polling interval (ms) used for fetching transfers map
@@ -124,12 +132,12 @@ export default EmberObject.extend({
   /**
    * @type {boolean}
    */
-  scheduledEnabled: true,
+  waitingEnabled: true,
 
   /**
    * @type {boolean}
    */
-  currentEnabled: true,
+  ongoingEnabled: true,
 
   /**
    * @type {boolean}
@@ -139,35 +147,35 @@ export default EmberObject.extend({
   /**
    * @type {boolean}
    */
-  completedEnabled: true,
+  endedEnabled: true,
 
   /**
    * @type {boolean}
    */
   mapEnabled: true,
 
-  _fileEnabled: computed('fileEnabled', 'isEnabled', function () {
+  _fileEnabled: computed('fileEnabled', 'isEnabled', function _fileEnabled() {
     return this.get('isEnabled') && this.get('fileEnabled');
   }),
 
-  _scheduledEnabled: computed('scheduledEnabled', 'isEnabled', function () {
-    return this.get('isEnabled') && this.get('scheduledEnabled');
+  _waitingEnabled: computed('waitingEnabled', 'isEnabled', function _waitingEnabled() {
+    return this.get('isEnabled') && this.get('waitingEnabled');
   }),
 
-  _currentEnabled: computed('currentEnabled', 'isEnabled', function () {
-    return this.get('isEnabled') && this.get('currentEnabled');
+  _ongoingEnabled: computed('ongoingEnabled', 'isEnabled', function _ongoingEnabled() {
+    return this.get('isEnabled') && this.get('ongoingEnabled');
   }),
 
   _transferProgressEnabled: computed('transferProgressEnabled', 'isEnabled',
-    function () {
+    function _transferProgressEnabled() {
       return this.get('isEnabled') && this.get('transferProgressEnabled');
     }),
 
-  _completedEnabled: computed('completedEnabled', 'isEnabled', function () {
-    return this.get('isEnabled') && this.get('completedEnabled');
+  _endedEnabled: computed('endedEnabled', 'isEnabled', function _endedEnabled() {
+    return this.get('isEnabled') && this.get('endedEnabled');
   }),
 
-  _mapEnabled: computed('mapEnabled', 'isEnabled', function () {
+  _mapEnabled: computed('mapEnabled', 'isEnabled', function _mapEnabled() {
     return this.get('isEnabled') && this.get('mapEnabled');
   }),
 
@@ -180,22 +188,20 @@ export default EmberObject.extend({
 
   /**
    * Initialized with `_createWatchers`.
-   * Updates info about scheduled transfers
+   * Updates info about waiting transfers
    * @type {Looper}
    */
-  _scheduledWatcher: undefined,
+  _waitingWatcher: undefined,
 
   /**
    * Initialized with `_createWatchers`.
-   * Updates info about current transfers:
-   * - space.currentTransferList
-   *   - for each transfer: transfer.transferProgress
+   * Updates info about ongoing transfers and for each: transfer.transferProgress
    * @type {Looper}
    */
-  _currentWatcher: undefined,
+  _ongoingWatcher: undefined,
 
   /**
-   * Update visible transfers current stats
+   * Update visible transfers ongoing stats
    * @type {Looper}
    */
   _transferProgressWatcher: undefined,
@@ -203,7 +209,7 @@ export default EmberObject.extend({
   /**
    * @type {Looper}
    */
-  _completedWatcher: undefined,
+  _endedWatcher: undefined,
 
   /**
    * @type {Looper}
@@ -211,43 +217,43 @@ export default EmberObject.extend({
   _mapWatcher: undefined,
 
   /**
-   * If true, currently fetching info about current transfers
-   * Set by some interval watcher
+   * If true, currently fetching info about ongoing transfers.
+   * Set by some interval watcher.
    * @type {boolean}
    */
-  currentIsUpdating: undefined,
+  ongoingIsUpdating: undefined,
 
   /**
-   * If true, currently fetching info about providers transfer mapping
-   * Set by some interval watcher
+   * If true, currently fetching info about providers transfer mapping.
+   * Set by some interval watcher.
    * @type {boolean}
    */
   mapIsUpdating: undefined,
 
   /**
-   * If true, currently fetching info about completed transfers
-   * Set by some interval watcher
+   * If true, currently fetching info about ended transfers.
+   * Set by some interval watcher.
    * @type {boolean}
    */
-  completedIsUpdating: undefined,
+  endedIsUpdating: undefined,
 
   /**
-   * Error object from fetching current transfers info
+   * Error object from fetching ongoing transfers info.
    * @type {any} typically a request error object
    */
-  currentError: null,
+  ongoingError: null,
 
   /**
-   * Error object from fetching providers transfer mapping info
+   * Error object from fetching providers transfer mapping info.
    * @type {any} typically a request error object
    */
   mapError: null,
 
   /**
-   * Error object from fetching completed transfers info
+   * Error object from fetching ended transfers info.
    * @type {any} typically a request error object
    */
-  completedError: null,
+  endedError: null,
 
   /**
    * How much time [ms] to debounce when some property changes that
@@ -259,15 +265,15 @@ export default EmberObject.extend({
 
   observeToggleWatchers: observer(
     '_fileEnabled',
-    '_scheduledEnabled',
-    '_currentEnabled',
+    '_waitingEnabled',
+    '_ongoingEnabled',
     '_transferProgressEnabled',
-    '_completedEnabled',
+    '_endedEnabled',
     '_mapEnabled',
     'pollingTimeFile',
-    'pollingTimeScheduled',
-    'pollingTimeCurrent',
-    'pollingTimeCompleted',
+    'pollingTimeWaiting',
+    'pollingTimeOngoing',
+    'pollingTimeEnded',
     'pollingTimeMap',
     '_toggleWatchersDelay',
     function observeToggleWatchers() {
@@ -275,15 +281,18 @@ export default EmberObject.extend({
     }),
 
   init() {
+    // FIXME: debug
+    window.spaceTransfersUpdater = this;
+
     this._super(...arguments);
 
     this.set('updaterId', new Date().getTime());
 
     this.setProperties({
       fileIsUpdating: false,
-      scheduledIsUpdating: false,
-      currentIsUpdating: false,
-      completedIsUpdating: false,
+      waitingIsUpdating: false,
+      ongoingIsUpdating: false,
+      endedIsUpdating: false,
       mapIsUpdating: false,
     });
 
@@ -293,10 +302,10 @@ export default EmberObject.extend({
     // enable observers for properties
     this.getProperties(
       '_fileEnabled',
-      '_scheduledEnabled',
-      '_currentEnabled',
+      '_waitingEnabled',
+      '_ongoingEnabled',
       '_transferProgressEnabled',
-      '_completedEnabled',
+      '_endedEnabled',
       '_mapEnabled'
     );
   },
@@ -307,10 +316,10 @@ export default EmberObject.extend({
         _.values(
           this.getProperties(
             '_fileWatcher',
-            '_scheduledWatcher',
-            '_currentWatcher',
+            '_waitingWatcher',
+            '_ongoingWatcher',
             '_transferProgressWatcher',
-            '_completedWatcher',
+            '_endedWatcher',
             '_mapWatcher'
           )
         ),
@@ -333,20 +342,20 @@ export default EmberObject.extend({
         safeExec(this, 'fetchFile')
       );
 
-    const _scheduledWatcher = Looper.create({
+    const _waitingWatcher = Looper.create({
       immediate: true,
     });
-    _scheduledWatcher
+    _waitingWatcher
       .on('tick', () =>
-        safeExec(this, 'fetchScheduled')
+        safeExec(this, 'fetchWaiting')
       );
 
-    const _currentWatcher = Looper.create({
+    const _ongoingWatcher = Looper.create({
       immediate: true,
     });
-    _currentWatcher
+    _ongoingWatcher
       .on('tick', () =>
-        safeExec(this, 'fetchCurrent')
+        safeExec(this, 'fetchOngoing')
       );
 
     const _transferProgressWatcher = Looper.create({
@@ -354,15 +363,15 @@ export default EmberObject.extend({
     });
     _transferProgressWatcher
       .on('tick', () =>
-        safeExec(this, 'updateCurrentStats')
+        safeExec(this, 'updateVisibleTransfersProgress')
       );
 
-    const _completedWatcher = Looper.create({
+    const _endedWatcher = Looper.create({
       immediate: true,
     });
-    _completedWatcher
+    _endedWatcher
       .on('tick', () =>
-        safeExec(this, 'fetchCompleted')
+        safeExec(this, 'fetchEnded')
       );
 
     const _mapWatcher = Looper.create({
@@ -375,10 +384,10 @@ export default EmberObject.extend({
 
     this.setProperties({
       _fileWatcher,
-      _scheduledWatcher,
-      _currentWatcher,
+      _waitingWatcher,
+      _ongoingWatcher,
       _transferProgressWatcher,
-      _completedWatcher,
+      _endedWatcher,
       _mapWatcher,
     });
   },
@@ -388,39 +397,39 @@ export default EmberObject.extend({
     safeExec(this, () => {
       const {
         _fileEnabled,
-        _scheduledEnabled,
-        _currentEnabled,
+        _waitingEnabled,
+        _ongoingEnabled,
         _transferProgressEnabled,
-        _completedEnabled,
+        _endedEnabled,
         _mapEnabled,
         _fileWatcher,
-        _scheduledWatcher,
-        _currentWatcher,
+        _waitingWatcher,
+        _ongoingWatcher,
         _transferProgressWatcher,
-        _completedWatcher,
+        _endedWatcher,
         _mapWatcher,
         pollingTimeFile,
-        pollingTimeScheduled,
-        pollingTimeCurrent,
-        pollingTimeCompleted,
+        pollingTimeWaiting,
+        pollingTimeOngoing,
+        pollingTimeEnded,
         pollingTimeMap,
       } = this.getProperties(
         '_fileEnabled',
-        '_scheduledEnabled',
-        '_currentEnabled',
+        '_waitingEnabled',
+        '_ongoingEnabled',
         '_transferProgressEnabled',
-        '_completedEnabled',
+        '_endedEnabled',
         '_mapEnabled',
         '_fileWatcher',
-        '_scheduledWatcher',
-        '_currentWatcher',
+        '_waitingWatcher',
+        '_ongoingWatcher',
         '_transferProgressWatcher',
-        '_completedWatcher',
+        '_endedWatcher',
         '_mapWatcher',
         'pollingTimeFile',
-        'pollingTimeScheduled',
-        'pollingTimeCurrent',
-        'pollingTimeCompleted',
+        'pollingTimeWaiting',
+        'pollingTimeOngoing',
+        'pollingTimeEnded',
         'pollingTimeMap'
       );
 
@@ -430,19 +439,19 @@ export default EmberObject.extend({
         _fileEnabled ? pollingTimeFile : null
       );
       set(
-        _scheduledWatcher,
+        _waitingWatcher,
         'interval',
-        _scheduledEnabled ? pollingTimeScheduled : null
+        _waitingEnabled ? pollingTimeWaiting : null
       );
       set(
-        _currentWatcher,
+        _ongoingWatcher,
         'interval',
-        _currentEnabled ? pollingTimeCurrent : null
+        _ongoingEnabled ? pollingTimeOngoing : null
       );
       set(
-        _completedWatcher,
+        _endedWatcher,
         'interval',
-        _completedEnabled ? pollingTimeCompleted : null
+        _endedEnabled ? pollingTimeEnded : null
       );
       set(
         _mapWatcher,
@@ -452,34 +461,32 @@ export default EmberObject.extend({
       set(
         _transferProgressWatcher,
         'interval',
-        _transferProgressEnabled ? pollingTimeCurrent : null
+        _transferProgressEnabled ? pollingTimeOngoing : null
       );
     });
   },
 
   /**
-   * Fetch or reload transfers with given Ids
+   * Fetch or reload transfers with given Ids (entity ids)
    * @param {Array<string>} ids 
    * @param {boolean} reload 
    * @returns {Promise<Array<Model.Transfer>>}
    */
   fetchSpecificRecords(ids, reload = false) {
     const store = this.get('store');
-    // FIXME: backend
-    const gris = ids;
-    // const entityType = transferEntityType;
-    // const entityType = 'transfer';
-    // const gris = ids.map(id => gri({
-    //   entityType,
-    //   entityId: id,
-    //   aspect: 'instance',
-    //   scope: 'private',
-    // }));
+    const entityType = transferEntityType;
+    const gris = ids.map(id => gri({
+      entityType,
+      entityId: id,
+      aspect: 'instance',
+      scope: 'private',
+    }));
     return allFulfilled(gris.map(gri =>
       store.findRecord('transfer', gri, { reload })
       .then(transfer => {
         if (reload) {
-          return transfer.updateTransferProgressProxy();
+          return transfer.updateTransferProgressProxy({ replace: true })
+            .then(() => transfer);
         } else {
           return transfer;
         }
@@ -487,10 +494,11 @@ export default EmberObject.extend({
     ));
   },
 
+  // FIXME: new implementation
   /**
    * Function invoked when file transfers should be updated by polling timer
-   * @return {Promise<Array<TransferCurrentStat>>} resolves with current stats
-   *    of updated current transfers
+   * @return {Promise<Array<TransferOngoingStat>>} resolves with ongoing stats
+   *    of updated ongoing transfers
    */
   fetchFile() {
     this.set('fileIsUpdating', true);
@@ -505,26 +513,21 @@ export default EmberObject.extend({
   },
 
   /**
-   * Function invoked when current transfers should be updated by polling timer
-   * @return {Promise<Array<TransferCurrentStat>>} resolves with current stats
-   *    of updated current transfers
+   * Function invoked when ongoing transfers should be updated by polling timer
+   * @return {Promise<Array<TransferOngoingStat>>} resolves with ongoing stats
+   *    of updated ongoing transfers
    */
-  fetchCurrent() {
-    this.set('currentIsUpdating', true);
+  fetchOngoing() {
+    this.set('ongoingIsUpdating', true);
 
-    const {
-      space,
-    } = this.getProperties('space');
-
-    return get(space, 'currentTransferList').reload({
-        head: true,
+    return this.get('ongoingTransfersArray').reload({
         minSize: minItemsCount,
       })
-      .catch(error => safeExec(this, () => this.set('currentError', error)))
-      .finally(() => safeExec(this, () => this.set('currentIsUpdating', false)));
+      .catch(error => safeExec(this, () => this.set('ongoingError', error)))
+      .finally(() => safeExec(this, () => this.set('ongoingIsUpdating', false)));
   },
 
-  updateCurrentStats(immediate = false) {
+  updateVisibleTransfersProgress(immediate = false) {
     return this.fetchSpecificRecords(this.get('visibleIds'), false)
       .then(list => safeExec(this, () => {
         const transfersCount = get(list, 'length');
@@ -537,7 +540,7 @@ export default EmberObject.extend({
             list.map((transfer, i) =>
               safeExec(
                 this,
-                '_reloadTransferCurrentStat',
+                '_reloadTransferProgress',
                 transfer,
                 i,
                 transfersCount
@@ -547,15 +550,15 @@ export default EmberObject.extend({
       }));
   },
 
-  _reloadTransferCurrentStat(transfer, index, transfersCount) {
-    const pollingTimeCurrent = this.get('pollingTimeCurrent');
-    const delay = (pollingTimeCurrent * index) / transfersCount;
+  _reloadTransferProgress(transfer, index, transfersCount) {
+    const pollingTimeOngoing = this.get('pollingTimeOngoing');
+    const delay = (pollingTimeOngoing * index) / transfersCount;
     return new Promise((resolve, reject) => {
       later(
         () => {
           // checking if updater is still in use
           if (!this.isDestroyed) {
-            transfer.updateTransferProgressProxy()
+            transfer.updateTransferProgressProxy({ replace: true })
               .then(resolve)
               .catch(reject);
           }
@@ -565,7 +568,7 @@ export default EmberObject.extend({
     });
   },
 
-  computeCurrentPollingTime(transfersCount) {
+  computeOngoingPollingTime(transfersCount) {
     return transferCollectionDelay * transfersCount + this.get('basePollingTime');
   },
 
@@ -576,49 +579,44 @@ export default EmberObject.extend({
    */
   fetchProviderMap() {
     this.set('mapIsUpdating', true);
-    return this.get('space').updateTransfersActiveChannelsProxy()
+    // FIXME: refactor to push channels indepently
+    return this.get('space').updateTransfersActiveChannelsProxy({ replace: true })
       .catch(error => safeExec(this, () => this.set('mapError', error)))
       .finally(() => safeExec(this, () => this.set('mapIsUpdating', false)));
   },
 
   /**
-   * Get front of completed transfers list
-   * @returns {Promise<Array<Transfer>>} transfers that was added to completed list
+   * Get front of ended transfers list
+   * @returns {Promise<Array<Transfer>>} transfers that was added to ended list
    */
-  fetchCompleted() {
-    if (this.get('completedIsUpdating') !== true) {
-      const space = this.get('space');
+  fetchEnded() {
+    if (this.get('endedIsUpdating') !== true) {
+      this.set('endedIsUpdating', true);
 
-      this.set('completedIsUpdating', true);
-
-      return get(space, 'completedTransferList').reload({
-          head: true,
+      return this.get('endedTransfersArray').reload({
           minSize: minItemsCount,
         })
-        .catch(error => safeExec(this, () => this.set('completedError', error)))
-        .finally(() => safeExec(this, () => this.set('completedIsUpdating', false)));
+        .catch(error => safeExec(this, () => this.set('endedError', error)))
+        .finally(() => safeExec(this, () => this.set('endedIsUpdating', false)));
     } else {
-      console.debug('util:space-transfers-updater: fetchCompleted skipped');
+      console.debug('util:space-transfers-updater: fetchEnded skipped');
     }
   },
 
   /**
    * @returns {Promise<Array<Transfer>>}
    */
-  fetchScheduled() {
-    if (this.get('completedIsUpdating') !== true) {
-      const space = this.get('space');
+  fetchWaiting() {
+    if (this.get('endedIsUpdating') !== true) {
+      this.set('waitingIsUpdating', true);
 
-      this.set('scheduledIsUpdating', true);
-
-      return get(space, 'scheduledTransferList').reload({
-          head: true,
+      return this.get('waitingTransfersArray').reload({
           minSize: minItemsCount,
         })
-        .catch(error => safeExec(this, () => this.set('scheduledError', error)))
-        .finally(() => safeExec(this, () => this.set('scheduledIsUpdating', false)));
+        .catch(error => safeExec(this, () => this.set('waitingError', error)))
+        .finally(() => safeExec(this, () => this.set('waitingIsUpdating', false)));
     } else {
-      console.debug('util:space-transfers-updater: fetchScheduled skipped');
+      console.debug('util:space-transfers-updater: fetchWaiting skipped');
     }
   },
 });

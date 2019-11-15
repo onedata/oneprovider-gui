@@ -5,19 +5,22 @@
     {{#loading-container isLoading=(not _statsLoaded)}}
       {{#if _transferIsScheduled}}
         <div class="waiting-for-stats transfer-scheduled-info">
-          {{t "components.transfers.transferChart.waitingForTransferStart"}}
+          {{tt this "waitingForTransferStart"}}
         </div>
       {{else if _isWaitingForStats}}
         <div class="waiting-for-stats stats-delay-info">
-          {{t "components.transfers.transferChart.waitingForStats"}}
+          {{tt this "waitingForStats"}}
           {{#one-icon icon="sign-question"}}
-            {{bs-tooltip placement="top" title=(t "components.transfers.transferChart.waitingForStatsTip")}}
+            {{bs-tooltip
+              placement="top"
+              title=(tt this "waitingForStatsTip")
+            }}
           {{/one-icon}}
         </div>
       {{else if (and _noStatsForUnit ignoreTransferState)}}
         <div class="waiting-for-stats no-stats-for-unit-info">
           <div class="chart-placeholder-image"></div>
-          <span class="one-label">{{t "components.transfers.transferChart.noStatsForUnit" timeUnit=timeUnit}}</span>
+          <span class="one-label">{{tt this "noStatsForUnit" timeUnit=timeUnit}}</span>
         </div>
       {{else}}
         {{#one-chartist data=_chartData options=_chartOptions type="line"}}
@@ -27,8 +30,9 @@
             </div>
             {{space-transfers/tooltip-providers-list
               providers=_tooltipProviders
-              title=(t "components.transfers.transferChart.output")
-              sum=_tooltipSum}}
+              title=(tt this "output")
+              sum=_tooltipSum
+            }}
             <div class="ct-tooltip-arrow"></div>
           </div>
         {{/one-chartist}}
@@ -37,10 +41,10 @@
   {{/if}}
 </div>
 {{#if _showUnitButtons}}
-  {{#bs-button-group value=timeUnit type="radio" size="sm"}}
-    {{#if _unitVisibility.minute}}{{#bs-button value="minute"}}{{t "components.transfers.transferChart.minute"}}{{/bs-button}}{{/if}}
-    {{#if _unitVisibility.hour}}{{#bs-button value="hour"}}{{t "components.transfers.transferChart.hour"}}{{/bs-button}}{{/if}}
-    {{#if _unitVisibility.day}}{{#bs-button value="day"}}{{t "components.transfers.transferChart.day"}}{{/bs-button}}{{/if}}
-    {{#if _unitVisibility.month}}{{#bs-button value="month"}}{{t "components.transfers.transferChart.month"}}{{/bs-button}}{{/if}}
+  {{#bs-button-group value=timeUnit onChange=(action (mut timeUnit)) type="radio" size="sm" as |bg|}}
+    {{#if _unitVisibility.minute}}{{#bg.button value="minute"}}{{tt this "minute"}}{{/bg.button}}{{/if}}
+    {{#if _unitVisibility.hour}}{{#bg.button value="hour"}}{{tt this "hour"}}{{/bg.button}}{{/if}}
+    {{#if _unitVisibility.day}}{{#bg.button value="day"}}{{tt this "day"}}{{/bg.button}}{{/if}}
+    {{#if _unitVisibility.month}}{{#bg.button value="month"}}{{tt this "month"}}{{/bg.button}}{{/if}}
   {{/bs-button-group}}
 {{/if}}

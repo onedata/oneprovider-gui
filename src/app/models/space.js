@@ -11,7 +11,6 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { inject as service } from '@ember/service';
-import computedTransfersList from 'oneprovider-gui/utils/computed-transfers-list';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
 export const entityType = 'op_space';
@@ -28,27 +27,13 @@ export default Model.extend(
     effGroupList: belongsTo('group-list'),
 
     /**
-     * @type {Ember.ComputedProperty<FakeListRecordRelation>}
-     */
-    scheduledTransferList: computedTransfersList('scheduled'),
-
-    /**
-     * @type {Ember.ComputedProperty<FakeListRecordRelation>}
-     */
-    currentTransferList: computedTransfersList('current'),
-
-    /**
-     * @type {Ember.ComputedProperty<FakeListRecordRelation>}
-     */
-    completedTransferList: computedTransfersList('completed'),
-
-    /**
      * @override
      */
     fetchTransfersActiveChannels() {
       return this.get('transferManager').getSpaceTransfersActiveChannels(this);
     },
 
+    // FIXME: remove from here
     /**
      * Fetch partial list of space transfer records.
      * Implements 
@@ -60,8 +45,9 @@ export default Model.extend(
      */
     fetchTransfers(state, startFromIndex, size, offset) {
       const transferManager = this.get('transferManager');
+      const space = this;
       return transferManager.getTransfersForSpace(
-        this,
+        space,
         state,
         startFromIndex,
         size,

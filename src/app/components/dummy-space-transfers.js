@@ -17,7 +17,7 @@ export default Component.extend({
 
   fileId: undefined,
 
-  defaultTab: 'current',
+  defaultTab: 'ongoing',
 
   spaceProxy: promise.object(computed(function dirProxy() {
     return this.get('currentUser').getCurrentUserRecord()

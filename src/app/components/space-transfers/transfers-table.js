@@ -4,6 +4,7 @@ import _ from 'lodash';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
+import { A } from '@ember/array';
 
 const allColumnNames = [
   'path',
@@ -21,30 +22,30 @@ const allColumnNames = [
 
 const tableExcludedColumnNames = {
   file: ['path'],
-  scheduled: ['startedAt', 'finishedAt', 'totalBytes', 'totalFiles'],
-  current: ['scheduledAt', 'finishedAt'],
-  completed: ['scheduledAt'],
+  waiting: ['startedAt', 'finishedAt', 'totalBytes', 'totalFiles'],
+  ongoing: ['scheduledAt', 'finishedAt'],
+  ended: ['scheduledAt'],
 };
 
 export default Component.extend(I18n, {
-  classNames: ['transfers-table'],
+  classNames: ['transfers-table', 'one-infinite-list'],
 
   /**
    * @override
    */
   i18nPrefix: 'components.spaceTransfers.transfersTable',
 
-  //#region virtual
+  //#region Virtual
 
   /**
    * @virtual
-   * @type {Array<Model.Transfer>}
+   * @type {ReplacingChunksArray<Model.Transfer>}
    */
   transfers: undefined,
 
   /**
    * @virtual
-   * Type of transfers in the table, one of: scheduled, current, completed
+   * Type of transfers in the table, one of: waiting, ongoing, ended
    */
   transferType: undefined,
 
@@ -65,6 +66,12 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   updaterId: undefined,
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  spaceId: undefined,
 
   /**
    * @virtual
@@ -98,7 +105,7 @@ export default Component.extend(I18n, {
 
   //#endregion
 
-  //#region private properties
+  //#region Private properties
 
   /**
    * If true, component is rendered in mobile mode.
@@ -108,9 +115,11 @@ export default Component.extend(I18n, {
 
   rowHeight: 73,
 
+  expandedTransferIds: computed(() => A()),
+
   //#endregion
 
-  //#region computed properties
+  //#region Computed properties
 
   firstRowHeight: computed(
     'rowHeight',
@@ -118,6 +127,7 @@ export default Component.extend(I18n, {
     function firstRowHeight() {
       const _start = this.get('transfers._start');
       const val = _start ? _start * this.get('rowHeight') : 0;
+      // FIXME: debug log
       console.log('first row', val, _start);
       return val;
     }
@@ -159,7 +169,7 @@ export default Component.extend(I18n, {
 
   //#endregion
 
-  //#region columns computed properties
+  //#region Columns computed properties
 
   pathColumn: computed(function pathColumn() {
     return this.createColumn('path', {
@@ -233,7 +243,7 @@ export default Component.extend(I18n, {
 
   //#endregion
 
-  //#region methods
+  //#region Methods
 
   createColumn(id, customData) {
     return Object.assign({
@@ -241,6 +251,27 @@ export default Component.extend(I18n, {
       propertyName: id,
       component: 'cell-generic',
     }, customData);
+  },
+
+  //#endregion
+
+  //#region Actions
+
+  actions: {
+    toggleTransferDetails(transferId, open) {
+      const expandedTransferIds = this.get('expandedTransferIds');
+      let _open;
+      if (typeof open === 'boolean') {
+        _open = open;
+      } else {
+        _open = !expandedTransferIds.includes(transferId);
+      }
+      if (_open) {
+        expandedTransferIds.pushObject(transferId);
+      } else {
+        expandedTransferIds.removeObject(transferId);
+      }
+    },
   },
 
   //#endregion

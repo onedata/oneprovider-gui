@@ -5,6 +5,7 @@ $space-transfers-gray: #B6BAC0;
 @import './space-transfers/transfers-table';
 @import './space-transfers/providers-map';
 @import './space-transfers/provider-selector';
+@import './space-transfers/transfer-details';
 
 .space-transfers {
   $-table-border-color: $main-border-color;
@@ -96,6 +97,17 @@ $space-transfers-gray: #B6BAC0;
       line-height: 30px;
       background-color: $color-one-semiwhite;
     }
+    .chart-selectors {
+      display: flex;
+      align-items: center;
+      .ember-basic-dropdown {
+        flex-grow: 1;
+        margin-right: 20px;
+      }
+      .btn-group-time-unit {
+        flex-shrink: 0;
+      }
+    }
   }
 
   .map-column {
@@ -127,43 +139,6 @@ $space-transfers-gray: #B6BAC0;
     background-image: url($root-url + "images/chart-placeholder.svg");
     background-position-x: center;
     opacity: 0.15;
-  }
-
-  .transfers-transfer-chart {
-    $-ct-chart-padding-top: 40px;
-    
-    position: relative;
-    .loadable-row {
-      // height of chart + top-padding (TODO: parametrize height of chart?)
-      min-height: 160px + $-ct-chart-padding-top;
-    }
-    .btn-group {
-      position: absolute;
-      top: $padding-small-vertical;
-      right: $padding-small-vertical;
-      .btn.btn-default:not(.active) {
-        background-color: transparent;
-      }
-    }
-    .ct-chart {
-      margin-top: $-ct-chart-padding-top;
-      margin-bottom: 0;
-    }
-    .ct-grid.ct-vertical {
-      stroke: darken($color-one-semiwhite, 9%);
-    }
-    .ct-tooltip-entry::before {
-      height: 0;
-      width: 0;
-      border-color: inherit;
-      border-width: 5px;
-    }
-
-    .row-main-chart > .resource-load-error{
-      margin-top: 64px;
-      margin-left: 5%;
-      margin-right: 5%;
-    }
   }
 
   .ct-tooltip {
@@ -285,31 +260,6 @@ $space-transfers-gray: #B6BAC0;
     margin: 0 $padding-large-horizontal;
     &:last-child {
       border-bottom: none;
-    }
-  }
-  
-  .row-transfer-query-params {
-    position: relative;
-    margin-left: $padding-base-horizontal;
-    margin-right: $padding-base-horizontal / 2;
-    margin-bottom: $padding-base-horizontal;
-    padding-top: $padding-base-horizontal;
-    padding-bottom: $padding-base-horizontal;
-    .query-params-empty {
-      color: $color-one-semiwhite;
-    }
-    .query-options {
-      @include vertical-align-middle();
-      margin-left: 140px;
-      width: calc(100% - 140px);
-    }
-    .query-string-input-copy {
-      .query-string-input-copy.truncate {
-        max-width: 500px;
-      }
-      .query-string {
-        @include vertical-align-middle();
-      }
     }
   }
   

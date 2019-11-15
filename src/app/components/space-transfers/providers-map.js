@@ -48,7 +48,7 @@ export default Component.extend({
    * Only one for pair!
    * @type {Array<Array[string,string]>}
    */
-  providerTransferConnections: undefined,
+  transfersActiveChannels: undefined,
 
   /**
    * Maps provider entityId => Provider model

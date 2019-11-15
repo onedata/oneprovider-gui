@@ -15,10 +15,10 @@ import { run } from '@ember/runloop';
 export default EmberObject.extend({
   /**
    * @virtual
-   * The model of TransferTimeStat that should be updated periodically
-   * @type {TransferTimeStat}
+   * When this method is invoked, transfer charts should be updated
+   * @returns {Promise<Object>} where object is data resolved by `getThroughputCharts`
    */
-  timeStat: undefined,
+  update: undefined,
 
   /**
    * After init, update is disabled by default
@@ -28,10 +28,11 @@ export default EmberObject.extend({
   isEnabled: false,
 
   /**
-   * Will be one of: minute, hour, day
-   * @type {Ember.ComputedProperty<string>}
+   * @virtual
+   * Will be one of: minute, hour, day, month
+   * @type {String}
    */
-  timespan: computed.reads('timeStat.type'),
+  timespan: undefined,
 
   /**
    * Initialized with `_createWatcher`.
@@ -40,14 +41,14 @@ export default EmberObject.extend({
   _watcher: undefined,
 
   /**
-   * If true, currently fetching info about current transfers
+   * If true, currently fetching info about ongoing transfers
    * Set by some interval watcher
    * @type {boolean}
    */
   isUpdating: undefined,
 
   /**
-   * Error object from fetching current transfers info
+   * Error object from fetching ongoing transfers info
    * @type {any} typically a request error object
    */
   fetchError: null,
@@ -77,6 +78,8 @@ export default EmberObject.extend({
 
   init() {
     this._super(...arguments);
+    // FIXME: debug
+    window.transferTimeStatUpdater = this;
 
     this.setProperties({
       isUpdating: true,
@@ -137,11 +140,10 @@ export default EmberObject.extend({
     }
   },
 
-  fetch() {
-    const timeStat = this.get('timeStat');
+  fetch(completeReload) {
     this.set('isUpdating', true);
 
-    return timeStat.reload()
+    return this.get('update')({ replace: !completeReload })
       .then(record => {
         if (!this.get('isDestroyed')) {
           this.set('fetchError', null);

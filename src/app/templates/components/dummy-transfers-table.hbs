@@ -1,0 +1,14 @@
+{{space-transfers/transfers-table
+  transfers=transfersArray
+  transferType="ongoing"
+  providers=providers
+  providersColors=providersColors
+  spaceId=spaceId
+  updaterId=updaterId
+  notifyTransferListChanged=(action "transferListChanged")
+  justOpened=false
+  expandedTransferIds=expandedTransferIds
+  clearJustOpened=(action "clearJustChangedTabId" "ongoing")
+  rerunTransfer=(action "rerunTransfer")
+  cancelTransfer=(action "cancelTransfer")
+}}

@@ -23,9 +23,11 @@
           batchMode=true
           fileDistributionData=fileDistributionData
           oneproviders=oneproviders
+          space=space
           onReplicate=(action "replicate" files)
           onMigrate=(action "migrate" files)
-          onEvict=(action "evict" files)}}
+          onEvict=(action "evict" files)
+        }}
         <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
       {{else}}
         {{#one-collapsible-list class="per-file-distribution-list" as |list|}}
@@ -51,6 +53,7 @@
                     visible=(if (eq fileDistributionData.length 1) true listItem.isActive)
                     oneproviders=oneproviders
                     fileDistributionData=(array fileDistDataContainer)
+                    space=space
                     onReplicate=(action "replicate" (array fileDistDataContainer.file))
                     onMigrate=(action "migrate" (array fileDistDataContainer.file))
                     onEvict=(action "evict" (array fileDistDataContainer.file))}}

@@ -1,18 +1,18 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import providerTransferConnections from 'oneprovider-gui/utils/provider-transfer-connections';
+import bidirectionalPairs from 'oneprovider-gui/utils/bidirectional-pairs';
 
 import _ from 'lodash';
 
-describe('Unit | Utility | provider transfer connections', function () {
-  it('generates an array of undirected connection between providers', function () {
+describe('Unit | Utility | bidirectional pairs', function () {
+  it('generates an array of undirected connections', function () {
     const mapping = {
       p1: ['p0'],
       p2: ['p0', 'p1'],
       p0: ['p1'],
     };
 
-    let result = providerTransferConnections(mapping);
+    let result = bidirectionalPairs(mapping);
     expect(result).to.have.length(3);
     expect(_.find(result, pair => _.isEqual(pair, ['p0', 'p1'])), 'p0-p1')
       .to.be.ok;

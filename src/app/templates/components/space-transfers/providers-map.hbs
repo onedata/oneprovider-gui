@@ -1,7 +1,7 @@
 <div class="map-container">
   {{#one-atlas as |atlas|}}
     <svg class="atlas-draw-layer" xmlns="http://www.w3.org/2000/svg">
-      {{#each providerTransferConnections as |con|}}
+      {{#each transfersActiveChannels as |con|}}
         {{#atlas.position
           latitude=(get (get providersMap con.[0]) "latitude")
           longitude=(get (get providersMap con.[0]) "longitude")

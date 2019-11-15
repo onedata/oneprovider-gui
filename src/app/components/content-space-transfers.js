@@ -35,21 +35,6 @@ export default OneEmbeddedComponent.extend(
       'fileEntityId',
     ]),
 
-    // FIXME: debug method
-    shownTransfers: promise.array(
-      computed('spaceProxy.content', function shownTransfers() {
-        if (this.get('spaceProxy.isFulfilled')) {
-          return this.get('transferManager').getTransfersForSpace(
-            this.get('spaceProxy.content'),
-            'ended',
-            null,
-            100,
-            0,
-          );
-        }
-      })
-    ),
-
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);

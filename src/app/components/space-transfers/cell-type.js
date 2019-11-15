@@ -10,12 +10,20 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+const allowedTypes = new Set(['replication', 'migration', 'eviction']);
+
+export default Component.extend(I18n, {
   tagName: 'span',
   classNames: ['cell-icon', 'cell-type'],
   classNameBindings: ['type'],
   i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceTransfers.cellType',
 
   /**
    * ember-models-table record
@@ -34,7 +42,7 @@ export default Component.extend({
    * Status icon.
    * @type {Ember.ComputedProperty<string>}
    */
-  _icon: computed('type', function _getIcon() {
+  icon: computed('type', function icon() {
     switch (this.get('type')) {
       case 'migration':
         return 'migrate';
@@ -51,11 +59,9 @@ export default Component.extend({
    * Status tooltip content.
    * @type {Ember.ComputedProperty<string>}
    */
-  _hint: computed('type', function () {
-    const {
-      i18n,
-      type,
-    } = this.getProperties('i18n', 'type');
-    return i18n.t(`components.transfers.liveTableStats.cellType.${type}`);
+  hint: computed('type', function hint() {
+    const type = this.get('type');
+    const translationKey = allowedTypes.has(type) ? type : 'unknown';
+    return this.t(translationKey);
   }),
 });

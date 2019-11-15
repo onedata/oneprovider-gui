@@ -45,13 +45,11 @@ export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 300;
 
-const tsScheduled = 0;
-const tsCurrent = 1;
-const tsCompleted = 2;
+const tsWaiting = 0;
+const tsOngoing = 1;
+const tsEnded = 2;
 
-// FIXME: remove comment
-// const transferStates = ['waiting', 'ongoing', 'ended'];
-const transferStates = ['scheduled', 'current', 'completed'];
+const transferStates = ['waiting', 'ongoing', 'ended'];
 
 export default Service.extend({
   store: service(),
@@ -182,14 +180,14 @@ export default Service.extend({
    */
   createTransferRecords(store) {
     const timestamp = Math.floor(Date.now() / 1000);
-    return allFulfilled([tsScheduled, tsCurrent, tsCompleted].map(stateNum => {
+    return allFulfilled([tsWaiting, tsOngoing, tsEnded].map(stateNum => {
         const transfersGroup = allFulfilled(_.range(numberOfTransfers).map(
           i => {
-            const scheduleTime = stateNum >= tsScheduled ?
+            const scheduleTime = stateNum >= tsWaiting ?
               timestamp + i * 3600 : null;
-            const startTime = stateNum >= tsCurrent ?
+            const startTime = stateNum >= tsOngoing ?
               timestamp + (i + 1) * 3600 : null;
-            const finishTime = stateNum >= tsCompleted ?
+            const finishTime = stateNum >= tsEnded ?
               timestamp + (i + 2) * 3600 : null;
             const entityId = generateTransferEntityId(
               i,
@@ -404,13 +402,13 @@ export function generateDirEntityId(i, parentEntityId, suffix = '') {
 export function generateTransferEntityId(i, state, scheduleTime, startTime) {
   let stateName;
   switch (state) {
-    case tsCurrent:
+    case tsOngoing:
       stateName = 'started';
       break;
-    case tsScheduled:
-      stateName = 'scheduled';
+    case tsWaiting:
+      stateName = 'waiting';
       break;
-    case tsCompleted:
+    case tsEnded:
       stateName = 'finished';
       break;
     default:

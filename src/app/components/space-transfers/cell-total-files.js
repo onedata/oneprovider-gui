@@ -10,14 +10,18 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, getProperties } from '@ember/object';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-const I18N_PREFIX = 'components.transfers.liveTableStats.cellTotalFiles.';
-
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: 'span',
   classNames: ['cell-total-files'],
 
   i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceTransfers.cellTotalFiles',
 
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -38,8 +42,7 @@ export default Component.extend({
       replicatedFiles,
       evictedFiles,
     } = getProperties(this.get('record'), 'replicatedFiles', 'evictedFiles');
-    const i18n = this.get('i18n');
-    return `${replicatedFiles || 0} ${i18n.t(I18N_PREFIX + 'replicated')}, ` +
-      `${evictedFiles || 0} ${i18n.t(I18N_PREFIX + 'evicted')}`;
+    return `${replicatedFiles || 0} ${this.t('replicated')}, ` +
+      `${evictedFiles || 0} ${this.t('evicted')}`;
   }),
 });

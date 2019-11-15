@@ -8,10 +8,9 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
-import FakeListHasMany from 'oneprovider-gui/utils/fake-list-has-many';
-import EmberObject, { computed, get } from '@ember/object';
-import { resolve } from 'rsvp';
+import EmberObject, { computed } from '@ember/object';
+
+// FIXME: remove this and use replacing chunks array directly
 
 export default EmberObject.extend({
   /**
@@ -20,32 +19,9 @@ export default EmberObject.extend({
    */
   initChunksArray: undefined,
 
-  /**
-   * @type {FakeListHasMany}
-   */
-  _listHasMany: undefined,
-
   chunksArray: computed.reads('_chunksArray'),
 
   length: computed.reads('chunksArray.length'),
-
-  // FIXME: use awesome-macros
-  /**
-   * @type {PromiseObject<ReplacingChunksArray>}
-   */
-  list: computed(function () {
-    const _chunksArray = this.get('_chunksArray');
-    return PromiseObject.create({ promise: resolve(_chunksArray) });
-  }),
-
-  hasMany(relation) {
-    if (relation === 'list') {
-      return this.get('_listHasMany');
-    } else {
-      throw new Error(
-        'FakeListRecord: hasMany for non-"list" relation is not implemented');
-    }
-  },
 
   reload() {
     return this.get('_chunksArray')
@@ -55,10 +31,6 @@ export default EmberObject.extend({
 
   init() {
     this._super(...arguments);
-    const _chunksArray = this.set('_chunksArray', this.get('initChunksArray'));
-    this.set(
-      '_listHasMany',
-      new FakeListHasMany(get(_chunksArray, 'sourceArray'))
-    );
+    this.set('_chunksArray', this.get('initChunksArray'));
   },
 });

@@ -10,8 +10,15 @@
 import moment from 'moment';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
-import EmberObject, { computed, get, setProperties, set } from '@ember/object';
+import EmberObject, {
+  computed,
+  get,
+  setProperties,
+  getProperties,
+  set,
+} from '@ember/object';
 import { reads } from '@ember/object/computed';
+import { promise } from 'ember-awesome-macros';
 
 const startEndTimeFormat = 'D MMM YYYY H:mm:ss';
 
@@ -24,12 +31,12 @@ const statusGroups = {
     'scheduled',
     'enqueued',
   ]),
-  current: new Set([
+  ongoing: new Set([
     'replicating',
     'evicting',
     'cancelling',
   ]),
-  completed: new Set([
+  ended: new Set([
     'failed',
     'cancelled',
     'skipped',
@@ -68,19 +75,24 @@ export default EmberObject.extend({
 
   /**
    * @virtual
-   * @type {string} one of: scheduled, current, completed
+   * @type {string} one of: scheduled, ongoing, ended
    */
   transferCollection: undefined,
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  spaceId: undefined,
 
   transferId: reads('transfer.entityId'),
 
   file: reads('transfer.file'),
-  space: reads('transfer.space'),
   dataSourceType: reads('transfer.dataSourceType'),
   dataSourceName: reads('transfer.dataSourceName'),
   dataSourceId: reads('transfer.dataSourceId'),
   dataSourceRecord: reads('transfer.dataSourceRecord'),
-  userName: reads('transfer.userProxy.name'),
+  userName: reads('userNameProxy.content.name'),
   scheduledAtComparable: reads('transfer.scheduleTime'),
   startedAtComparable: reads('transfer.startTime'),
   finishedAtComparable: reads('transfer.finishTime'),
@@ -94,6 +106,14 @@ export default EmberObject.extend({
     return this.get('transfer.tableDataIsLoaded') === false || this.get(
       'isReloading');
   }),
+
+  userNameProxy: promise.object(computed('spaceId', function userNameProxy() {
+    const {
+      transfer,
+      spaceId,
+    } = this.getProperties('transfer', 'spaceId');
+    return transfer.fetchUser(spaceId);
+  })),
 
   transferIndex: computedPipe('transferId', getHash),
   scheduledAtReadable: computedPipe('scheduledAtComparable', timeReadable),
@@ -140,36 +160,46 @@ export default EmberObject.extend({
   ),
 
   init() {
-    const transfer = this.get('transfer');
-    if (get(transfer, 'isLoaded')) {
-      const currentUpdaterId = this.get('updaterId');
-      if (get(transfer, 'updaterId') !== currentUpdaterId) {
+    const {
+      transfer,
+      updaterId,
+    } = this.getProperties('transfer', 'updaterId');
+    console.log('>>>', get(transfer, 'id'));
+    const {
+      id: transferGri,
+      isLoaded,
+      isLoading,
+      updaterId: transferUpdaterId,
+      store,
+    } = getProperties(transfer, 'id', 'isLoaded', 'isLoading', 'store');
+    if (isLoaded) {
+      if (transferUpdaterId !== updaterId) {
         setProperties(
           transfer, {
-            updaterId: currentUpdaterId,
+            updaterId,
             isReloading: true,
           }
         );
         transfer.reload()
           .then(() =>
             get(transfer, 'transferProgressProxy.isPending') ?
-            null : transfer.updateTransferProgressProxy()
+            null : transfer.updateTransferProgressProxy({ replace: true })
           )
           .finally(() => set(transfer, 'isReloading', false));
       }
-    } else if (get(transfer, 'isLoading')) {
+    } else if (isLoading) {
       // VFS-4487 quick fix for inconsistent transfer ids
       // thus it can show some warnings/errors, but it's a temporary solution
       // TODO: remove this code when proper fix on backend will be made
       transfer.on('didLoad', () => {
-        transfer.updateTransferProgressProxy();
+        transfer.updateTransferProgressProxy({ replace: true });
       });
-    } else if (get(transfer, 'store')) {
-      get(transfer, 'store').findRecord('transfer', get(transfer, 'id'))
+    } else if (store) {
+      store.findRecord('transfer', transferGri)
         // VFS-4487 quick fix for inconsistent transfer ids
         // thus it can show some warnings/errors, but it's a temporary solution
         // TODO: remove this code when proper fix on backend will be made
-        .then(t => t.updateTransferProgressProxy());
+        .then(t => t.updateTransferProgressProxy({ replace: true }));
     }
 
     if (this.get('transferCollection') === 'file') {

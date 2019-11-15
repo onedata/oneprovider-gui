@@ -14,32 +14,32 @@
     </tr>
     <div class="table-start-row"></div>
     {{#each transfers as |transfer|}}
-      <tr
-        class="transfers-table-row transfer-row data-row"
-        data-row-id={{transfer.id}}
-      >
-        {{#each visibleColumns as |column|}}
-          <td class={{concat "transfers-table-cell-" column.id}}>
-            {{!-- FIXME: actions column should be separate special column to avoid injecting actions --}}
-            {{!-- FIXME: refactor to use transfers-table component dir --}}
-            {{component
-              (concat "space-transfers/" column.component)
-              class=column.className
-              record=(transfer-table-record
-                transfer=transfer
-                transfers=transfers
-                providers=providers
-                transferCollection=transferType
-                updaterId=updaterId
-                actions=FIXME
-              )
-              propertyName=column.propertyName
-              table=this
-            }}
-          </td>
-        {{/each}}
-      </tr>
-      {{!-- FIXME: if transfer is expanded, show expanded info here as tr --}}
+      {{space-transfers/transfer-row
+        columns=visibleColumns
+        transfer=transfer
+        transfers=transfers
+        providers=providers
+        transferType=transferType
+        updaterId=updaterId
+        spaceId=spaceId
+        transfersTable=this
+        click=(action "toggleTransferDetails" transfer.entityId undefined)
+      }}
+      {{#if (contains transfer.entityId expandedTransferIds)}}
+        {{space-transfers/transfer-details
+          record=(transfer-table-record
+            transfer=transfer
+            transfers=transfers
+            providers=providers
+            transferCollection=transferType
+            updaterId=updaterId
+            actions=FIXME
+            providersColors=providersColors
+          )
+          providersColors=providersColors
+          columnsCount=visibleColumns.length
+        }}
+      {{/if}}
     {{/each}}
   </tbody>
 </table>

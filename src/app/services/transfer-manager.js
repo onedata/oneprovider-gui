@@ -89,6 +89,9 @@ export default Service.extend({
       entityId,
       aspect: 'transfers',
     });
+    if (limit <= 0) {
+      return resolve([]);
+    }
     return this.get('onedataGraph')
       .request({
         gri: transfersGri,
@@ -127,7 +130,7 @@ export default Service.extend({
     return onedataGraph.request({
       gri: chartsGri,
       operation: 'get',
-      // FIXME: to refactor to chart_type
+      // FIXME: to refactor to charts_type
       data: {
         chartsType: timePeriod,
       },
@@ -144,9 +147,7 @@ export default Service.extend({
    *  outputCharts: Object, timestamp: Number
    */
   getSpaceTransfersThroughputCharts(space, transferType, timePeriod, providerId) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
+    const onedataGraph = this.get('onedataGraph');
     const {
       entityType,
       entityId,

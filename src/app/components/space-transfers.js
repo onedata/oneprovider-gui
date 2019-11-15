@@ -9,7 +9,7 @@
 
 import _ from 'lodash';
 import SpaceTransfersUpdater from 'oneprovider-gui/utils/space-transfers-updater';
-import providerTransferConnections from 'oneprovider-gui/utils/provider-transfer-connections';
+import bidirectionalPairs from 'oneprovider-gui/utils/bidirectional-pairs';
 import mutateArray from 'onedata-gui-common/utils/mutate-array';
 import generateColors from 'onedata-gui-common/utils/generate-colors';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -18,7 +18,7 @@ import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get, set, computed, observer } from '@ember/object';
-import { reads, readOnly } from '@ember/object/computed';
+import { reads } from '@ember/object/computed';
 import { and, equal, raw, promise } from 'ember-awesome-macros';
 import { A, isArray } from '@ember/array';
 import { resolve, all as allFulfilled } from 'rsvp';
@@ -30,12 +30,15 @@ import { fileEntityType } from 'oneprovider-gui/models/file';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import TransferTableRecord from 'oneprovider-gui/utils/transfer-table-record';
+import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
+
+// FIXME: loading states can be reached using ...IsUpdating in SpaceTransfersUpdater
 
 export default Component.extend(I18n, {
   classNames: ['space-transfers', 'row'],
   store: service(),
   onedataConnection: service(),
+  transferManager: service(),
 
   /**
    * @override
@@ -83,29 +86,21 @@ export default Component.extend(I18n, {
 
   listLocked: false,
 
-  // FIXME: enable initialTabProxy loading
-  // activeTabId: reads('initialTabProxy.content'),
-  activeTabId: 'scheduled',
+  activeTabId: reads('initialTabProxy.content'),
 
   /**
    * Holds tab ID that was opened recently.
    * It should be cleared if some operations after opening has been done.
    * @type {string|null}
    */
-  _tabJustChangedId: null,
+  tabJustChangedId: null,
 
   /**
    * @type {boolean}
    */
-  _isTransfersTableBegin: undefined,
+  isTransfersTableBegin: false,
 
   transfersUpdaterEnabled: true,
-
-  // FIXME: these loading more properties are never set
-  scheduledTransfersLoadingMore: false,
-  currentTransfersLoadingMore: false,
-  completedTransfersLoadingMore: false,
-  fileTransfersLoadingMore: false,
 
   /**
    * Updates transfers data needed by most of visible components.
@@ -115,29 +110,30 @@ export default Component.extend(I18n, {
   transfersUpdater: undefined,
 
   /**
-   * Collection of Transfer model for scheduled transfers.
+   * Collection of Transfer model for waiting transfers.
    * Set in `initTransfers`.
-   * @type {Ember.ComputedProperty<ReplacingChunksArray<Transfer>>}
+   * @type {ComputedProperty<ReplacingChunksArray<Transfer>>}
    */
-  scheduledTransfers: undefined,
+  waitingTransfersArray: computedSpaceTransfersArray('waiting'),
 
   /**
-   * Collection of Transfer model for current transfers.
+   * Collection of Transfer model for ongoing transfers.
    * Set in `initTransfers`.
-   * @type {Ember.ComputedProperty<ReplacingChunksArray<Transfer>>}
+   * @type {ComputedProperty<ReplacingChunksArray<Transfer>>}
    */
-  currentTransfers: undefined,
+  ongoingTransfersArray: computedSpaceTransfersArray('ongoing'),
 
   /**
-   * Collection of Transfer model for completed transfers.
+   * Collection of Transfer model for ended transfers.
    * Set in `initTransfers`.
-   * @type {Ember.ComputedProperty<ReplacingChunksArray<Transfer>>}
+   * @type {ComputedProperty<ReplacingChunksArray<Transfer>>}
    */
-  completedTransfers: undefined,
+  endedTransfersArray: computedSpaceTransfersArray('ended'),
 
+  // FIXME: refactor to fileTransfersArray which is replacing chunks array
   /**
    * Collection of Transfer model for file transfers
-   * @type {Ember.ComputedProperty<ReplacingChunksArray<Transfer>>}
+   * @type {ComputedProperty<ReplacingChunksArray<Transfer>>}
    */
   fileTransfers: undefined,
 
@@ -148,10 +144,10 @@ export default Component.extend(I18n, {
   _scrolledToSelectedTransfers: false,
 
   /**
-   * Cache for `providerTransferConnections`
+   * Cache for `transfersActiveChannels`
    * @type {Ember.Array<ProviderTransferConnection>}
    */
-  _ptcCache: undefined,
+  transfersActiveChannelsCache: undefined,
 
   /**
    * @type {ListWatcher}
@@ -159,25 +155,25 @@ export default Component.extend(I18n, {
    */
   listWatcher: undefined,
 
+  _window: window,
+
+  rowHeight: 73,
+
+  destinationProviderIdsCache: computed(() => A()),
+
+  sourceProviderIdsCache: computed(() => A()),
+
   //#endregion
 
   //#region Computed properties
 
-  _transfersUpdaterEnabled: readOnly('transfersUpdaterEnabled'),
+  spaceId: reads('space.entityId'),
 
   providersLoaded: reads('providerList.list.isSettled'),
   providersError: reads('providerList.list.reason'),
 
-  scheduledTransfersLoaded: reads('scheduledTransferList.isLoaded'),
-  currentTransfersLoaded: reads('currentTransferList.isLoaded'),
-  completedTransfersLoaded: reads('completedTransferList.isLoaded'),
-
-  scheduledTransferList: reads('space.scheduledTransferList'),
-  currentTransferList: reads('space.currentTransferList'),
-  completedTransferList: reads('space.completedTransferList'),
-
   /**
-   * @type {Ember.ComputedProperty<FakeListRecordRelation|undefined>}
+   * @type {ComputedProperty<FakeListRecordRelation|undefined>}
    */
   fileTransferList: reads('file.transferList'),
 
@@ -185,13 +181,13 @@ export default Component.extend(I18n, {
   providersMap: reads('space.transfersActiveChannels.channelDestinations'),
 
   /**
-   * @type {Ember.ComputedProperty<models.File>}
+   * @type {ComputedProperty<models.File>}
    */
   file: reads('fileProxy.content'),
 
   /**
    * Max number of ended transfers that can be fetched for transfer
-   * @type {Ember.ComputedProperty<number>}
+   * @type {ComputedProperty<number>}
    */
   _historyLimitPerFile: reads(
     'onedataConnection.transfersHistoryLimitPerFile'
@@ -199,34 +195,37 @@ export default Component.extend(I18n, {
 
   /**
    * List of providers that support this space
-   * @type {Ember.ComputedProperty<Ember.Array<Provider>>}
+   * @type {ComputedProperty<Ember.Array<Provider>>}
    */
   providers: reads('space.providerList.list.content'),
 
   generalDataLoaded: and(
-    equal('isSupportedByCurrentProvider', raw(true)),
+    // legacy, probably can be removed in future
+    equal('isSupportedByOngoingProvider', raw(true)),
+    // needed by overview
     'providersLoaded',
-    'currentTransfersLoaded',
+    // ongoing data is needed by overview
+    'ongoingTransfersArray.isLoaded',
   ),
 
   /**
    * A "pointer" to ReplacingChunksArray with transfers for currently opened tab
    * @type {ComputedProperty<ReplacingChunksArray>}
    */
-  openedTransfersChunksArray: computed(
-    'scheduledTransfers',
-    'currentTransfers',
-    'completedTransfers',
+  openedTransfersArray: computed(
+    'waitingTransfersArray',
+    'ongoingTransfersArray',
+    'endedTransfersArray',
     'activeTabId',
-    function openedTransfersChunksArray() {
-      return this.get(`${this.get('activeTabId')}Transfers`);
+    function openedTransfersArray() {
+      return this.get(`${this.get('activeTabId')}TransfersArray`);
     }
   ),
 
   /**
    * Creates an array of provider ids that are destination of transfers for space
    * NOTE: returns new array every recomputation
-   * @type {Ember.ComputedProperty<Array<string>>}
+   * @type {ComputedProperty<Array<string>>}
    */
   destinationProviderIds: computed(
     'providersMap',
@@ -241,7 +240,7 @@ export default Component.extend(I18n, {
   /**
    * Creates an array of provider ids that are source of transfers for space
    * NOTE: returns new array every recomputation
-   * @type {Ember.ComputedProperty<Array<string>>}
+   * @type {ComputedProperty<Array<string>>}
    */
   sourceProviderIds: computed(
     'providersMap',
@@ -255,7 +254,7 @@ export default Component.extend(I18n, {
 
   /**
    * Global colors for each provider
-   * @type {Ember.ComputedProperty<Object>}
+   * @type {ComputedProperty<Object>}
    */
   providersColors: computed('providers.@each.entityId', function providersColors() {
     const providers = this.get('providers');
@@ -269,7 +268,7 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {Ember.ComputedProperty<PromiseObject<string>>}
+   * @type {ComputedProperty<PromiseObject<string>>}
    */
   initialTabProxy: promise.object(computed(function initialTabProxy() {
     const {
@@ -277,25 +276,25 @@ export default Component.extend(I18n, {
       fileId,
     } = this.getProperties('defaultTab', 'fileId');
     const defaultTabDefinedValid = defaultTab && (defaultTab === 'file' &&
-      fileId) || ['scheduled', 'current', 'complete'].includes(defaultTab);
+      fileId) || ['waiting', 'ongoing', 'complete'].includes(defaultTab);
     if (defaultTabDefinedValid) {
       return resolve(defaultTab);
     } else if (fileId) {
       return resolve('file');
     } else {
       return allFulfilled(
-        ['scheduled', 'current', 'completed'].map(transferType =>
-          this.get(transferType + 'TransferList')
+        ['waiting', 'ongoing', 'ended'].map(transferType =>
+          this.get(transferType + 'TransfersArray.initialLoad')
         )
-      ).then(([scheduledList, currentList, completedList]) => {
-        if (get(scheduledList, 'length') > 0) {
-          return 'scheduled';
-        } else if (get(currentList, 'length') > 0) {
-          return 'current';
-        } else if (get(completedList, 'length') > 0) {
-          return 'completed';
+      ).then(([waitingArray, ongoingArray, endedArray]) => {
+        if (get(waitingArray, 'length') > 0) {
+          return 'waiting';
+        } else if (get(ongoingArray, 'length') > 0) {
+          return 'ongoing';
+        } else if (get(endedArray, 'length') > 0) {
+          return 'ended';
         } else {
-          return 'scheduled';
+          return 'waiting';
         }
       });
     }
@@ -305,14 +304,17 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   providerId: computed(function providerId() {
-    return getOwner(this).application.guiContext.clusterId;
+    const application = getOwner(this).application;
+    if (application) {
+      return application.guiContext.clusterId;
+    }
   }),
 
   /**
    * A file record for which a special tab will be rendered.
    * If no `fileId` is provided - undefined.
    * If file is broken - rejects.
-   * @type {Ember.ComputedProperty<PromiseObject<models.File>>|undefined}
+   * @type {ComputedProperty<PromiseObject<models.File>>|undefined}
    */
   fileProxy: computed(
     'fileId',
@@ -342,7 +344,7 @@ export default Component.extend(I18n, {
 
   /**
    * Name of icon to use in file tab
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<string>}
    */
   _fileTabIcon: computed(
     'file.isDir',
@@ -352,14 +354,14 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * True if transfers can be listed because space is supported by current
+   * True if transfers can be listed because space is supported by ongoing
    * provider.
-   * @type {Ember.ComputedProperty<boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  isSupportedByCurrentProvider: computed(
+  isSupportedByOngoingProvider: computed(
     'providerId',
     'providers.[]',
-    function isSupportedByCurrentProvider() {
+    function isSupportedByOngoingProvider() {
       const {
         providers,
         providerId,
@@ -374,7 +376,7 @@ export default Component.extend(I18n, {
 
   /**
    * Number of loaded ended transfers for file tab.
-   * @type {Ember.ComputedProperty<number>}
+   * @type {ComputedProperty<number>}
    */
   _fileEndedTransfersCount: computed(
     'fileTransfers.sourceArray.@each.finishTime',
@@ -409,12 +411,11 @@ export default Component.extend(I18n, {
     }
   ),
 
-  // FIXME: maybe the table should be updated no matter where we are
   activeListUpdaterId: computed(
     'activeTabId',
-    '_isTransfersTableBegin',
+    'isTransfersTableBegin',
     function activeListUpdaterId() {
-      if (this.get('_isTransfersTableBegin')) {
+      if (this.get('isTransfersTableBegin')) {
         return this.get('activeTabId');
       }
     }
@@ -423,26 +424,26 @@ export default Component.extend(I18n, {
   /**
    * Collection of connection between two providers (for map display)
    * Order in connection is random; each pair can occur once.
-   * See `util:transfers/provider-transfer-connections`
+   * See `util:transfers/bidirectional-pairs`
    * `[['a', 'b'], ['c', 'a'], ['b', 'c']]`
-   * @type {Ember.ComputedProperty<Array<ProviderTransferConnection|undefined>>}
+   * @type {ComputedProperty<Array<ProviderTransferConnection|undefined>>}
    */
-  providerTransferConnections: computed(
+  transfersActiveChannels: computed(
     'providersMap',
-    '_ptcCache',
-    function _providerTransferConnections() {
+    'transfersActiveChannelsCache',
+    function transfersActiveChannels() {
       const {
         providersMap,
-        _ptcCache,
-      } = this.getProperties('providersMap', '_ptcCache');
+        transfersActiveChannelsCache,
+      } = this.getProperties('providersMap', 'transfersActiveChannelsCache');
       if (providersMap) {
         mutateArray(
-          _ptcCache,
-          providerTransferConnections(providersMap),
+          transfersActiveChannelsCache,
+          bidirectionalPairs(providersMap),
           (x, y) => x[0] === y[0] && x[1] === y[1]
         );
       }
-      return _ptcCache;
+      return transfersActiveChannelsCache;
     }
   ),
 
@@ -454,18 +455,18 @@ export default Component.extend(I18n, {
    * Watches updater settings dependecies and changes its settings
    */
   configureTransfersUpdater: observer(
-    '_transfersUpdaterEnabled',
+    'transfersUpdaterEnabled',
     'space',
     function configureTransfersUpdater() {
       const {
-        _transfersUpdaterEnabled,
+        transfersUpdaterEnabled,
         space,
       } = this.getProperties(
-        '_transfersUpdaterEnabled',
+        'transfersUpdaterEnabled',
         'space'
       );
       this.get('transfersUpdater').setProperties({
-        isEnabled: _transfersUpdaterEnabled,
+        isEnabled: transfersUpdaterEnabled,
         space: space,
       });
     }
@@ -477,7 +478,7 @@ export default Component.extend(I18n, {
       changeListTab,
     } = this.getProperties('activeTabId', 'changeListTab');
     changeListTab(activeTabId);
-    this.set('_tabJustChangedId', activeTabId);
+    this.set('tabJustChangedId', activeTabId);
   }),
 
   // FIXME: refactor? this observer is configuring watcher, so maybe it should be
@@ -502,13 +503,13 @@ export default Component.extend(I18n, {
         'fileProxy'
       );
       transfersUpdater.setProperties({
-        scheduledEnabled: activeListUpdaterId === 'scheduled',
-        currentEnabled: activeListUpdaterId === 'current',
+        waitingEnabled: activeListUpdaterId === 'waiting',
+        ongoingEnabled: activeListUpdaterId === 'ongoing',
         transferProgressEnabled: _.includes(
-          ['scheduled', 'current', 'file'],
+          ['waiting', 'ongoing', 'file'],
           activeTabId
         ),
-        completedEnabled: activeListUpdaterId === 'completed',
+        endedEnabled: activeListUpdaterId === 'ended',
         fileEnabled: (
           activeTabId === 'file' &&
           fileProxy &&
@@ -518,11 +519,12 @@ export default Component.extend(I18n, {
       });
     }),
 
-  fileChanged: observer('fileProxy.content', function fileChanged() {
-    if (this.get('file')) {
-      this.initTransfers('file');
-    }
-  }),
+  // FIXME: computed instead of observer/init
+  // fileChanged: observer('fileProxy.content', function fileChanged() {
+  //   if (this.get('file')) {
+  //     this.initTransfers('file');
+  //   }
+  // }),
 
   spaceChanged: observer('space', function spaceChanged() {
     this._spaceChanged();
@@ -535,10 +537,11 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this._spaceChanged(true);
-    this.fileChanged();
+    this.initTransfersUpdater();
+    // FIXME: method will be probably removed
+    // this.fileChanged();
     // FIXME: debug
-    window.debugSpaceTransfers = this;
-    window.debugTransferTableRecord = TransferTableRecord;
+    window.spaceTransfers = this;
   },
 
   didInsertElement() {
@@ -551,8 +554,12 @@ export default Component.extend(I18n, {
         listWatcher,
         transfersUpdater,
       } = this.getProperties('listWatcher', 'transfersUpdater');
-      listWatcher.destroy();
-      transfersUpdater.destroy();
+      if (listWatcher) {
+        listWatcher.destroy();
+      }
+      if (transfersUpdater) {
+        transfersUpdater.destroy();
+      }
     } finally {
       this._super(...arguments);
     }
@@ -573,7 +580,7 @@ export default Component.extend(I18n, {
 
   initTransfersUpdater() {
     const {
-      _transfersUpdaterEnabled,
+      transfersUpdaterEnabled,
       space,
       store,
       transfersUpdater: oldTransfersUpdater,
@@ -581,15 +588,21 @@ export default Component.extend(I18n, {
       activeTabId,
       fileProxy,
       file,
+      waitingTransfersArray,
+      ongoingTransfersArray,
+      endedTransfersArray,
     } = this.getProperties(
-      '_transfersUpdaterEnabled',
+      'transfersUpdaterEnabled',
       'space',
       'store',
       'activeTabId',
       'activeListUpdaterId',
       'transfersUpdater',
       'fileProxy',
-      'file'
+      'file',
+      'waitingTransfersArray',
+      'ongoingTransfersArray',
+      'endedTransfersArray',
     );
 
     if (oldTransfersUpdater) {
@@ -597,25 +610,28 @@ export default Component.extend(I18n, {
     }
     const transfersUpdater = SpaceTransfersUpdater.create({
       store,
-      isEnabled: _transfersUpdaterEnabled,
-      scheduledEnabled: activeListUpdaterId === 'scheduled',
-      currentEnabled: activeListUpdaterId === 'current',
+      space,
+      file,
+      waitingTransfersArray,
+      ongoingTransfersArray,
+      endedTransfersArray,
+      isEnabled: transfersUpdaterEnabled,
+      waitingEnabled: activeListUpdaterId === 'waiting',
+      ongoingEnabled: activeListUpdaterId === 'ongoing',
       transferProgressEnabled: (
-        activeTabId === 'scheduled' ||
-        activeTabId === 'current'
+        activeTabId === 'waiting' ||
+        activeTabId === 'ongoing'
       ),
-      completedEnabled: activeListUpdaterId === 'completed',
+      endedEnabled: activeListUpdaterId === 'ended',
       fileEnabled: (
         activeTabId === 'file' &&
         fileProxy &&
         get(fileProxy, 'isFulfilled')
       ),
-      space,
-      file,
     });
 
     this.setProperties({
-      _ptcCache: A(),
+      transfersActiveChannelsCache: A(),
       transfersUpdater,
     });
 
@@ -624,38 +640,19 @@ export default Component.extend(I18n, {
 
   _spaceChanged(isInit = false) {
     if (!isInit) {
+      // file tab should not be persisted, because it is probably from other space
       this._clearFileId();
     }
-    this.reinitializeTransfers();
   },
 
   _clearFileId() {
     return this.get('closeFileTab')();
   },
 
-  reinitializeTransfers() {
-    this.initTransfersUpdater();
-    ['scheduled', 'current', 'completed'].forEach(type => {
-      this.initTransfers(type);
-    });
-    const listWatcher = this.get('listWatcher');
-    if (listWatcher) {
-      listWatcher.scrollHandler();
-    }
-    this.set('listLocked', false);
-  },
-
   // FIXME: maybe to refactor this, detach fake transfers lists from
   // space record and make only lists here
-  initTransfers(type) {
-    this.get(`${type}TransferList`).then(listRecord => {
-      get(listRecord, 'list').then(list => {
-        safeExec(this, 'set', `${type}Transfers`, list);
-      });
-      const visibleIds = listRecord.hasMany('list').ids();
-      this.get('transfersUpdater').fetchSpecificRecords(visibleIds);
-    });
-  },
+  // FIXME: removed this.get('transfersUpdater').fetchSpecificRecords(visibleIds);
+  // after computing replacing chunks array
 
   // FIXME: compare with new version of onTableScroll from file browser
   /**
@@ -663,62 +660,79 @@ export default Component.extend(I18n, {
    */
   onTableScroll(items) {
     const {
-      activeTabId,
-      openedTransfersChunksArray,
+      openedTransfersArray,
       transfersUpdater,
       listLocked,
       listWatcher,
     } = this.getProperties(
-      'activeTabId',
-      'openedTransfersChunksArray',
+      'openedTransfersArray',
       'transfersUpdater',
       'listLocked',
       'listWatcher',
     );
     if (!listLocked) {
-      const transferListContent = this.get(`${activeTabId}TransferList.content`);
-      if (!transferListContent) {
+      if (!openedTransfersArray) {
         return;
       }
       if (items[0] && !items[0].getAttribute('data-row-id')) {
         next(() => {
-          openedTransfersChunksArray.fetchPrev().then(() =>
+          openedTransfersArray.fetchPrev().then(() =>
             listWatcher.scrollHandler()
           );
         });
       }
-      const allTransferIds = transferListContent.hasMany('list').ids();
-      /** @type {Array<string>} */
+      const sourceArray = get(openedTransfersArray, 'sourceArray');
+      const transfersArrayIds = sourceArray.mapBy('entityId');
       const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
       const firstId =
         firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
       const lastId = items[items.length - 1] &&
         items[items.length - 1].getAttribute('data-row-id') || null;
-      const startIndex = allTransferIds.indexOf(firstId);
-      const endIndex = allTransferIds.indexOf(lastId, startIndex);
 
-      console.log('start end', startIndex, endIndex);
-      const oldVisibleIds = openedTransfersChunksArray.mapBy('id');
-      openedTransfersChunksArray.setProperties({ startIndex, endIndex });
-      const newVisibleIds = openedTransfersChunksArray.mapBy('id');
+      let startIndex, endIndex;
+      if (firstId === null && get(sourceArray, 'length') !== 0) {
+        const {
+          _window,
+          rowHeight,
+        } = this.getProperties('_window', 'rowHeight');
+        const $firstRow = $('.first-row');
+        const firstRowTop = $firstRow.offset().top;
+        const blankStart = firstRowTop * -1;
+        const blankEnd = blankStart + _window.innerHeight;
+        startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
+        endIndex = Math.max(Math.floor(blankEnd / rowHeight), 0);
+      } else {
+        startIndex = transfersArrayIds.indexOf(firstId);
+        endIndex = transfersArrayIds.indexOf(lastId, startIndex);
+      }
+
+      // FIXME: debug log
+      console.log('startIndex endIndex', startIndex, endIndex);
+      const oldVisibleIds = openedTransfersArray.mapBy('entityId');
+      openedTransfersArray.setProperties({ startIndex, endIndex });
+      const newVisibleIds = openedTransfersArray.mapBy('entityId');
       set(transfersUpdater, 'visibleIds', newVisibleIds);
 
-      transfersUpdater.fetchSpecificRecords(_.difference(newVisibleIds, oldVisibleIds));
+      transfersUpdater.fetchSpecificRecords(_.difference(newVisibleIds,
+        oldVisibleIds));
 
       next(() => {
-        if (startIndex > 0 && get(openedTransfersChunksArray, 'firstObject.id') ===
+        if (startIndex > 0 && get(openedTransfersArray, 'firstObject.id') ===
           firstId) {
           listWatcher.scrollHandler();
         } else {
-          this.set('_isTransfersTableBegin', startIndex <= 0);
+          this.set('isTransfersTableBegin', startIndex <= 0);
         }
       });
 
-      const isLoadingMore = (
-        get(openedTransfersChunksArray, 'lastObject') !==
-        get(openedTransfersChunksArray, 'sourceArray.lastObject')
-      );
-      this.set(`${activeTabId}TransfersLoadingMore`, isLoadingMore);
+      // FIXME: rewrite
+      // const isLoadingMore = (
+      //   get(openedTransfersArray, 'lastObject') !==
+      //   get(openedTransfersArray, 'sourceArray.lastObject')
+      // );
+      // this.set(`${activeTabId}TransfersLoadingMore`, isLoadingMore);
+    } else {
+      set(transfersUpdater, 'visibleIds', []);
     }
   },
 
@@ -750,13 +764,33 @@ export default Component.extend(I18n, {
       }
     },
     clearJustChangedTabId(type) {
-      if (this.get('_tabJustChangedId') === type) {
-        this.set('_tabJustChangedId', null);
+      if (this.get('tabJustChangedId') === type) {
+        this.set('tabJustChangedId', null);
       }
     },
     closeFileTab() {
-      this.set('activeTabId', 'scheduled');
+      this.set('activeTabId', 'waiting');
       this._clearFileId();
     },
   },
 });
+
+function computedSpaceTransfersArray(type) {
+  return computed('space', function () {
+    const {
+      transferManager,
+      space,
+    } = this.getProperties('transferManager', 'space');
+    // FIXME: debug
+    return ReplacingChunksArray.create({
+      fetch: (...args) => transferManager.getTransfersForSpace(
+        space,
+        type,
+        ...args,
+      ),
+      startIndex: 0,
+      endIndex: 50,
+      indexMargin: 10,
+    });
+  });
+}

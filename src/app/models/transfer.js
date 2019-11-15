@@ -14,25 +14,27 @@ import reject from 'rsvp';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
-// import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
+import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 
 const backendEpochInfinity = 9999999999;
 const linkNameIdPartLength = 6;
 
 export const entityType = 'op_transfer';
 
+// FIXME: use collection type
 export function computeTransferIndex(entityId, scheduleTime, finishTime) {
   const timestamp = finishTime || scheduleTime;
-  return `${backendEpochInfinity - timestamp}${entityId.slice(0, linkNameIdPartLength)}`;
+  const firstIdPartMatch = entityId.match(/(.*)(ip2.*)/);
+  const idForIndex = firstIdPartMatch && firstIdPartMatch[1] || entityId;
+  return `${backendEpochInfinity - timestamp}${(idForIndex).slice(0, linkNameIdPartLength)}`;
 }
 
 /**
  * @typedef {Object} TransferProgress
  * @property {String} status one of:
- *   scheduled, replicating, evicting, aborting, skipped, completed, cancelled,
+ *   waiting, replicating, evicting, aborting, skipped, completed, cancelled,
  *   failed
  * @property {Number} timestamp
  * @property {Number} replicatedBytes
@@ -55,7 +57,7 @@ export default Model.extend(
     }),
 
     /**
-     * If true, the transfer is in progress (should be in current transfers collection)
+     * If true, the transfer is in progress (should be in ongoing transfers collection)
      */
     isOngoing: attr('boolean'),
 
@@ -71,14 +73,13 @@ export default Model.extend(
      */
     dataSourceId: attr('string'),
 
-    // FIXME: maybe it should be userId
     /**
      * Creator of transfer entityId
      * On init time it gets a GRI string, then this field is converted
      */
-    user: attr('string'),
+    userId: attr('string'),
 
-    queryParams: attr('string'),
+    queryParams: attr('object'),
 
     scheduleTime: attr('number'),
 
@@ -98,18 +99,9 @@ export default Model.extend(
      */
     evictingProvider: belongsTo('provider'),
 
-    userProxy: promise.object(computed('userId', 'spaceId', function userProxy() {
-      return this.fetchUser();
-    })),
-
-    // FIXME: temporary
-    userId: computed('user', function userId() {
-      return parseGri(this.get('user')).entityId;
-    }),
-
     /**
      * @type {String}
-     * One of: scheduled, current, completed
+     * One of: waiting, ongoing, ended
      */
     state: computed('scheduleTime', 'startTime', 'finishTime', function state() {
       const {
@@ -117,9 +109,9 @@ export default Model.extend(
         startTime,
         finishTime,
       } = this.getProperties('scheduleTime', 'startTime', 'finishTime');
-      return finishTime && 'completed' ||
-        startTime && 'current' ||
-        scheduleTime && 'scheduled';
+      return finishTime && 'ended' ||
+        startTime && 'ongoing' ||
+        scheduleTime && 'waiting';
     }),
 
     /**
@@ -130,7 +122,7 @@ export default Model.extend(
       const evictingProviderGri = this.belongsTo('evictingProvider').id();
       if (evictingProviderGri) {
         const replicatingProviderGri =
-          this.belongsTo('replicatingProviderGri').id();
+          this.belongsTo('replicatingProvider').id();
         return replicatingProviderGri ? 'migration' : 'eviction';
       } else {
         return 'replication';
@@ -181,20 +173,18 @@ export default Model.extend(
       return this.get('transferManager').getTransferProgress(this);
     },
 
-    fetchUser() {
+    fetchUser(spaceId) {
       const {
         store,
         userId,
-        spaceId,
-      } = this.getProperties('store', 'userId', 'spaceId');
+      } = this.getProperties('store', 'userId');
       // FIXME: for backend
-      // const entityType = userEntityType;
-      // const scope = 'shared';
+      const entityType = userEntityType;
+      const scope = 'shared';
       // FIXME: for development mock mode
-      const entityType = 'user';
-      const scope = 'private';
+      // const entityType = 'user';
+      // const scope = 'private';
       const userGri = gri({
-
         entityType,
         entityId: userId,
         scope,
@@ -208,9 +198,5 @@ export default Model.extend(
         },
       });
     },
-
-    // FIXME: removed viewName (dataSourceName)
-    // FIXME: removed path (dataSourceName)
-
   }
 ).reopenClass(StaticGraphModelMixin);

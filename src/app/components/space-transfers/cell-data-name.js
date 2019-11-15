@@ -11,12 +11,18 @@ import fileName from 'oneprovider-gui/utils/file-name';
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-const i18nPrefix = 'components.transfers.liveTableStats.cellFileName.';
+const i18nPrefix = 'components.spaceTransfers.cellFileName.';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['cell-data-name', 'cell-file-name'],
   i18n: service(),
+
+  /**
+   * @virtual
+   */
+  i18nPrefix: 'components.spaceTransfers.cellActions',
 
   record: undefined,
 

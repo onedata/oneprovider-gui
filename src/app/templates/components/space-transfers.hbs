@@ -3,7 +3,7 @@
     {{space-transfers/transfers-overview
       space=space
       providers=providers
-      providerTransferConnections=providerTransferConnections
+      transfersActiveChannels=transfersActiveChannels
       destinationProviderIds=destinationProviderIds
       sourceProviderIds=sourceProviderIds
       providersColors=providersColors
@@ -11,12 +11,14 @@
     }}
     
     <div class="row row-transfers-tables">
+      <h2>
+        {{tt this "transferJobsHistory"}}
+      </h2>
       {{#bs-tab
         class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
         fade=false
         customTabs=true
         activeId=activeTabId
-        action=(action (mut activeTabId))
         as |tab|
       }}
         {{#bs-nav
@@ -33,7 +35,7 @@
                 {{action tab.select "file"}}
               >
                 <span class="tab-label">
-                  {{#unless (eq _tabJustChangedId "file")}}
+                  {{#unless (eq tabJustChangedId "file")}}
                     {{one-icon class="tab-icon" icon=_fileTabIcon}}
                   {{/unless}}
                   {{#if fileProxy.isFulfilled}}
@@ -44,7 +46,7 @@
                     ?
                   {{/if}}
                 </span>
-                {{#if (eq _tabJustChangedId "file")}}
+                {{#if (eq tabJustChangedId "file")}}
                   {{spin-spinner-block sizeClass="xs" class="tab-spinner tab-spinner-left"}}
                 {{/if}}
                 <span class="tab-close clickable" {{action "closeFileTab"}}>
@@ -53,46 +55,49 @@
               </a>
             {{/nav.item}}
           {{/if}} --}}
-          {{#nav.item active=(eq tab.activeId "scheduled")}}
-            <a href="#scheduled"
+          {{#nav.item active=(eq tab.activeId "waiting")}}
+            <a href="#waiting"
               class="nav-link"
               role="tab"
-              {{action tab.select "scheduled"}}
+              {{action (mut activeTabId) "waiting"}}
             >
               <span class="tab-label">
-                {{tt this "scheduledTransfers"}}
+                {{tt this "waitingTransfers"}}
               </span>
-              {{#if (eq _tabJustChangedId "scheduled")}}
+              {{!-- FIXME: implement --}}
+              {{!-- {{#if (eq tabJustChangedId "waiting")}}
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
-              {{/if}}
+              {{/if}} --}}
             </a>
           {{/nav.item}}
-          {{#nav.item active=(eq tab.activeId "current")}}
-            <a href="#current"
+          {{#nav.item active=(eq tab.activeId "ongoing")}}
+            <a href="#ongoing"
               class="nav-link"
               role="tab"
-              {{action tab.select "current"}}
+              {{action (mut activeTabId) "ongoing"}}
             >
               <span class="tab-label">
-                {{tt this "activeTransfers"}}
+                {{tt this "ongoingTransfers"}}
               </span>
-              {{#if (eq _tabJustChangedId "current")}}
+              {{!-- FIXME: implement --}}
+              {{!-- {{#if (eq tabJustChangedId "ongoing")}}
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
-              {{/if}}
+              {{/if}} --}}
             </a>
           {{/nav.item}}
-          {{#nav.item active=(eq tab.activeId "completed")}}
-            <a href="#completed"
+          {{#nav.item active=(eq tab.activeId "ended")}}
+            <a href="#ended"
               class="nav-link"
               role="tab"
-              {{action tab.select "completed"}}
+              {{action (mut activeTabId) "ended"}}
             >
               <span class="tab-label">
-                {{tt this "completedTransfers"}}
+                {{tt this "endedTransfers"}}
               </span>
-              {{#if (eq _tabJustChangedId "completed")}}
+              {{!-- FIXME: implement --}}
+              {{!-- {{#if (eq tabJustChangedId "ended")}}
                 {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
-              {{/if}}
+              {{/if}} --}}
             </a>
           {{/nav.item}}
         {{/bs-nav}}
@@ -118,7 +123,7 @@
                             providersColors=providersColors
                             updaterId=(concat transfersUpdater.updaterId "-file-" file.id)
                             notifyTransferListChanged=(action "transferListChanged")
-                            justOpened=(eq _tabJustChangedId "file")
+                            justOpened=(eq tabJustChangedId "file")
                             clearJustOpened=(action "clearJustChangedTabId" "file")
                             rerunTransfer=(action "rerunTransfer")
                             cancelTransfer=(action "cancelTransfer")
@@ -138,96 +143,99 @@
               {{/if}}
             {{/tab.pane}}
           {{/if}} --}}
-          {{#tab.pane elementId="scheduled"}}
-            {{#if (eq tab.activeId "scheduled")}}
-              <div class="row row-scheduled-transfers">
-                <div class="col-xs-12 col-scheduled-transfers">
+          {{#tab.pane elementId="waiting"}}
+            {{#if (eq tab.activeId "waiting")}}
+              <div class="row row-waiting-transfers">
+                <div class="col-xs-12 col-waiting-transfers">
                   <div class="row loadable-row">
                     {{#loading-container isLoading=(or
                         (not providersLoaded)
-                        (not scheduledTransfersLoaded)
+                        waitingTransfersArray.isLoading
                       )
-                      class="loading-scheduled-table"
+                      class="loading-waiting-table"
                     }}
                       {{space-transfers/transfers-table
-                        transfers=scheduledTransfers
-                        transferType="scheduled"
+                        transfers=waitingTransfersArray
+                        transferType="waiting"
                         providers=providers
                         providersColors=providersColors
-                        updaterId=(concat transfersUpdater.updaterId "-scheduled")
+                        spaceId=spaceId
+                        updaterId=(concat transfersUpdater.updaterId "-waiting")
                         notifyTransferListChanged=(action "transferListChanged")
-                        justOpened=(eq _tabJustChangedId "scheduled")
-                        clearJustOpened=(action "clearJustChangedTabId" "scheduled")
+                        justOpened=(eq tabJustChangedId "waiting")
+                        clearJustOpened=(action "clearJustChangedTabId" "waiting")
                         rerunTransfer=(action "rerunTransfer")
                         cancelTransfer=(action "cancelTransfer")
                       }}
                     {{/loading-container}}
                   </div>
-                  {{#if scheduledTransfersLoadingMore}}
+                  {{#if waitingTransfersLoadingMore}}
                     {{!-- FIXME: loading more spinner --}}
                   {{/if}}
                 </div>
               </div>
             {{/if}}
           {{/tab.pane}}
-          {{#tab.pane elementId="current"}}
-            {{#if (eq tab.activeId "current")}}
+          {{#tab.pane elementId="ongoing"}}
+            {{#if (eq tab.activeId "ongoing")}}
               <div class="row row-active-transfers-table">
                 <div class="col-xs-12 col-active-transfers">
                   <div class="row loadable-row">
                     {{#loading-container isLoading=(or
                         (not providersLoaded)
-                        (not currentTransfersLoaded)
+                        ongoingTransfersArray.isLoading
                       )
                       class="loading-active-table"
                     }}
                       {{space-transfers/transfers-table
-                        transfers=currentTransfers
-                        transferType="current"
+                        transfers=ongoingTransfersArray
+                        transferType="ongoing"
                         providers=providers
                         providersColors=providersColors
-                        updaterId=(concat transfersUpdater.updaterId "-current")
+                        spaceId=spaceId
+                        updaterId=(concat transfersUpdater.updaterId "-ongoing")
                         notifyTransferListChanged=(action "transferListChanged")
-                        justOpened=(eq _tabJustChangedId "current")
-                        clearJustOpened=(action "clearJustChangedTabId" "current")
+                        justOpened=(eq tabJustChangedId "ongoing")
+                        clearJustOpened=(action "clearJustChangedTabId" "ongoing")
                         rerunTransfer=(action "rerunTransfer")
                         cancelTransfer=(action "cancelTransfer")
                       }}
                     {{/loading-container}}
                   </div>
-                  {{#if currentTransfersLoadingMore}}
+                  {{#if ongoingTransfersLoadingMore}}
                     {{!-- FIXME: loading more spinner --}}
                   {{/if}}
                 </div>
               </div>
             {{/if}}
           {{/tab.pane}}
-          {{#tab.pane elementId="completed"}}
-            {{#if (eq tab.activeId "completed")}}
-              <div class="row row-completed-transfers">
-                <div class="col-xs-12 col-completed-transfers">
+          {{#tab.pane elementId="ended"}}
+            {{#if (eq tab.activeId "ended")}}
+              <div class="row row-ended-transfers">
+                <div class="col-xs-12 col-ended-transfers">
                   <div class="row loadable-row">
                     {{#loading-container isLoading=(or
                         (not providersLoaded)
-                        (not completedTransfersLoaded)
+                        endedTransfersArray.isLoading
                       )
-                      class="loading-completed-table"
+                      class="loading-ended-table"
                     }}
                       {{space-transfers/transfers-table
-                        transfers=completedTransfers
-                        transferType="completed"
+                        transfers=endedTransfersArray
+                        transferType="ended"
                         providers=providers
                         providersColors=providersColors
-                        updaterId=(concat transfersUpdater.updaterId "-completed")
+                        spaceId=spaceId
+                        updaterId=(concat transfersUpdater.updaterId "-ended")
                         notifyTransferListChanged=(action "transferListChanged")
-                        justOpened=(eq _tabJustChangedId "completed")
-                        clearJustOpened=(action "clearJustChangedTabId" "completed")
+                        justOpened=(eq tabJustChangedId "ended")
+                        clearJustOpened=(action "clearJustChangedTabId" "ended")
                         rerunTransfer=(action "rerunTransfer")
                         cancelTransfer=(action "cancelTransfer")
                       }}
                     {{/loading-container}}
                   </div>
-                  {{#if completedTransfersLoadingMore}}
+                  {{#if endedTransfersLoadingMore}}
                     {{!-- FIXME: loading more spinner --}}
                   {{/if}}
                 </div>

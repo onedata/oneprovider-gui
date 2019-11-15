@@ -1,15 +1,31 @@
-<div class="row chart-selectors">
-  {{space-transfers/provider-selector
-    providersNames=_providersNames
-    selectedProviderId=transferStatProviderId
-    selectProvider=selectTransferStatProvider
+<div class="row chart-selectors">  
+  {{#power-select
+    triggerClass="provider-select-trigger small"
+    dropdownClass="provider-select-dropdown small"
+    options=_providersOptions
+    selected=selectedProviderItem
+    renderInPlace=true
+    onchange=(action "selectProvider")
+    matcher=(action "nameMatcher")
+    as |provider|
   }}
+    <div class="option-container">
+      {{#truncated-string}}
+        {{one-icon icon=(if (eq transferStatProviderId "__all__") "providers" "provider")}}
+        <span class="text">
+          {{provider.name}}
+        </span>
+      {{/truncated-string}}
+    </div>
+  {{/power-select}}
+  
   {{#if (and (not statsError) _statsLoaded)}}
     {{#bs-button-group
       value=timeUnit
       onChange=(action (mut timeUnit))
       type="radio"
       size="sm"
+      class="btn-group-time-unit"
       as |bg|
     }}
       {{#bg.button value="minute"}}{{tt this "transferChart.minute"}}{{/bg.button}}

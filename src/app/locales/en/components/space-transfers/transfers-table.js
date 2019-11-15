@@ -15,40 +15,10 @@ export default {
   rerunFailure: 'Error occurred during transfer rerun.',
   rerunStarting: 'Rerunning transfer...',
   rerunSuccess: 'Rerun transfer may be found in "Waiting" tab.',
-  cellActions: {
-    cancelTransfer: 'Cancel transfer',
-    rerunTransfer: 'Rerun transfer',
-  },
-  cellFileName: {
-    file: 'File:',
-    dir: 'Directory',
-    view: 'View',
-    deleted: 'deleted',
-  },
-  cellStatus: {
-    completed: 'Completed',
-    skipped: 'Skipped',
-    cancelled: 'Cancelled',
-    failed: 'Failed',
-    replicating: 'Replicating',
-    scheduled: 'Scheduled',
-    enqueued: 'Enqueued',
-    aborting: 'Aborting',
-    evicting: 'Evicting',
-  },
-  cellType: {
-    replication: 'Replication',
-    migration: 'Migration',
-    eviction: 'Eviction',
-  },
-  cellTotalFiles: {
-    evicted: 'evicted',
-    replicated: 'replicated',
-  },
   noTransfers: {
     file: 'There are no transfers for selected file or directory',
-    scheduled: 'There are no waiting transfers',
-    current: 'There are no ongoing transfers',
-    completed: 'There are no ended transfers',
+    waiting: 'There are no waiting transfers',
+    ongoing: 'There are no ongoing transfers',
+    ended: 'There are no ended transfers',
   },
 };

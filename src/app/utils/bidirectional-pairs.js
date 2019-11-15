@@ -1,8 +1,8 @@
 /**
- * Reduce transfers data to create just pairs of current connections between providers
- * caused by transfers
+ * Reduce directional graph data to create bidirectional array of pairs.
+ * Originally implemented for Oneprovider active channels manipulation
  *
- * @module utils/transfers/provider-transfer-connections
+ * @module utils/bidirectional-pairs
  * @author Jakub Liput, Michal Borzecki
  * @copyright (C) 2017-2018 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

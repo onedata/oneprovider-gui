@@ -1,0 +1,13 @@
+{{#each columns as |column|}}
+  <td class={{concat "transfers-table-cell-" column.id}}>
+    {{!-- FIXME: actions column should be separate special column to avoid injecting actions --}}
+    {{!-- FIXME: table could be unnecessary --}}
+    {{component
+      (concat "space-transfers/" column.component)
+      class=column.className
+      record=record
+      propertyName=column.propertyName
+      table=transfersTable
+    }}
+  </td>
+{{/each}}

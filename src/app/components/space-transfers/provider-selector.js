@@ -32,6 +32,7 @@ export default Component.extend(I18n, {
   selectedProviderId: null,
 
   /**
+   * @virtual
    * @type {object}
    */
   providersNames: Object.freeze({}),

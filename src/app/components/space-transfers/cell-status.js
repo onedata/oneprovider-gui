@@ -10,12 +10,19 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: 'span',
   classNames: ['cell-icon', 'cell-status'],
   classNameBindings: ['_status'],
   i18n: service(),
+
+  /**
+   * @virtual
+   */
+  i18nPrefix: 'components.spaceTransfers.cellStatus',
 
   /**
    * ember-models-table record
@@ -26,19 +33,19 @@ export default Component.extend({
 
   /**
    * Transfer status.
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<string>}
    */
-  transferStatus: computed.reads('record.status'),
+  transferStatus: reads('record.status'),
 
   /**
-   * @type {Ember.ComputedProperty<boolean|undefined>}
+   * @type {ComputedProperty<boolean|undefined>}
    */
-  isCancelling: computed.reads('record.transfer.isCancelling'),
+  isCancelling: reads('record.transfer.isCancelling'),
 
   /**
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<string>}
    */
-  _status: computed('transferStatus', 'isCancelling', function () {
+  _status: computed('transferStatus', 'isCancelling', function _status() {
     if (this.get('isCancelling')) {
       return 'aborting';
     } else {
@@ -48,9 +55,9 @@ export default Component.extend({
 
   /**
    * Status icon.
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<string>}
    */
-  _icon: computed('_status', function () {
+  _icon: computed('_status', function _icon() {
     switch (this.get('_status')) {
       case 'completed':
         return 'checkbox-filled';
@@ -72,13 +79,9 @@ export default Component.extend({
 
   /**
    * Status tooltip content.
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<string>}
    */
-  _hint: computed('_status', function () {
-    const {
-      i18n,
-      _status,
-    } = this.getProperties('i18n', '_status');
-    return i18n.t(`components.transfers.liveTableStats.cellStatus.${_status}`);
+  _hint: computed('_status', function _hint() {
+    return this.t(this.get('_status'));
   }),
 });

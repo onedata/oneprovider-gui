@@ -55,6 +55,11 @@ export default Component.extend(I18n, {
    * @type {Array<Utils.FileDistributionDataContainer>}
    */
   fileDistributionData: undefined,
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
 
   /**
    * @type {Function}
@@ -396,9 +401,6 @@ export default Component.extend(I18n, {
         newMigrationSourceHasActiveTransfers: false,
       });
       this.resolveStartTransferPromise();
-    },
-    navigateToTransfers( /* file */ ) {
-      // FIXME: implement
     },
   },
 });

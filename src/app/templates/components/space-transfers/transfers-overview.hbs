@@ -7,7 +7,7 @@
       <div class="row loadable-row">
         {{space-transfers/providers-map
           providers=providers
-          providerTransferConnections=providerTransferConnections
+          transfersActiveChannels=transfersActiveChannels
           destinationProviderIds=destinationProviderIds
           sourceProviderIds=sourceProviderIds
           providersColors=providersColors
@@ -25,7 +25,7 @@
             activeId="throughput-chart-tab"
             as |tab|
           }}
-            {{#bs-nav type="tabs" as |nav|}}
+            {{#bs-nav type="tabs" class="throughput-tabs" as |nav|}}
               {{#nav.item active=(eq throughputTransferType "all")}}
                 <a class="nav-link" role="tab" onclick={{action (mut throughputTransferType) "all"}}>
                   {{tt this "throughputDistribution.all"}}
@@ -41,6 +41,10 @@
                   {{tt this "throughputDistribution.onTheFly"}}
                 </a>
               {{/nav.item}}
+              {{one-label-tip
+                class="throughput-tabs-hint vertical-align-middle"
+                title=(tt this "throughputTabsHint")
+              }}
             {{/bs-nav}}
             <div class="tab-content">
               {{#tab.pane elementId="throughput-chart-tab"}}

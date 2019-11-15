@@ -3,21 +3,51 @@ import throughputDistribution from './space-transfers/throughput-distribution';
 import providerSelector from './space-transfers/provider-selector';
 import transferChart from './space-transfers/transfer-chart';
 import transfersTable from './space-transfers/transfers-table';
+import transferDetails from './space-transfers/transfer-details';
 
 export default {
-  scheduledTransfers: 'Waiting',
-  activeTransfers: 'Ongoing',
-  completedTransfers: 'Ended',
+  transferJobsHistory: 'Transfer jobs history',
+  waitingTransfers: 'Waiting',
+  ongoingTransfers: 'Ongoing',
+  endedTransfers: 'Ended',
   onTheFlyTransfers: 'On-the-fly',
   initializingTransfers: 'Initializing transfers...',
   in: 'Input',
   out: 'Output',
   fileHistoryLimitReached: 'History limit per file reached',
   fileNotExists: 'Selected file or directory does not exist',
-  queryParams: {
-    label: 'Query parameters',
-    empty: 'No query parameters provided for view transfer',
+  cellActions: {
+    cancelTransfer: 'Cancel transfer',
+    rerunTransfer: 'Rerun transfer',
   },
+  cellFileName: {
+    file: 'File:',
+    dir: 'Directory',
+    view: 'View',
+    deleted: 'deleted',
+  },
+  cellStatus: {
+    ended: 'Ended',
+    skipped: 'Skipped',
+    cancelled: 'Cancelled',
+    failed: 'Failed',
+    replicating: 'Replicating',
+    scheduled: 'Scheduled',
+    enqueued: 'Enqueued',
+    aborting: 'Aborting',
+    evicting: 'Evicting',
+  },
+  cellType: {
+    replication: 'Replication',
+    migration: 'Migration',
+    eviction: 'Eviction',
+    unknown: 'Unknown',
+  },
+  cellTotalFiles: {
+    evicted: 'evicted',
+    replicated: 'replicated',
+  },
+  transferDetails,
   transfersTable,
   transferChart,
   throughputDistribution,

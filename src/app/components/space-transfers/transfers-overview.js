@@ -40,9 +40,9 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {Array<Array<String>>}
-   * See `util:transfers/provider-transfer-connections`
+   * See output format of `util:transfers/bidirectional-pairs`
    */
-  providerTransferConnections: undefined,
+  transfersActiveChannels: undefined,
 
   /**
    * @virtual
