@@ -13,33 +13,41 @@
       <td colspan="9999" style={{firstRowStyle}}></td>
     </tr>
     <div class="table-start-row"></div>
-    {{#each transfers as |transfer|}}
-      {{space-transfers/transfer-row
-        columns=visibleColumns
-        transfer=transfer
-        transfers=transfers
-        providers=providers
-        transferType=transferType
-        updaterId=updaterId
-        spaceId=spaceId
-        transfersTable=this
-        click=(action "toggleTransferDetails" transfer.entityId undefined)
-      }}
-      {{#if (contains transfer.entityId expandedTransferIds)}}
-        {{space-transfers/transfer-details
-          record=(transfer-table-record
-            transfer=transfer
-            transfers=transfers
-            providers=providers
-            transferCollection=transferType
-            updaterId=updaterId
-            actions=FIXME
-            providersColors=providersColors
-          )
-          providersColors=providersColors
-          columnsCount=visibleColumns.length
+    {{#if (is-empty transfers)}}
+      <tr class="table-is-empty-row">
+        <td class="table-is-empty-cell" colspan="9999">
+          {{tt this (concat "noTransfers." transferType)}}
+        </td>
+      </tr>
+    {{else}}
+      {{#each transfers as |transfer|}}
+        {{space-transfers/transfer-row
+          columns=visibleColumns
+          transfer=transfer
+          transfers=transfers
+          providers=providers
+          transferType=transferType
+          updaterId=updaterId
+          spaceId=spaceId
+          transfersTable=this
+          click=(action "toggleTransferDetails" transfer.entityId undefined)
         }}
-      {{/if}}
-    {{/each}}
+        {{#if (contains transfer.entityId expandedTransferIds)}}
+          {{space-transfers/transfer-details
+            record=(transfer-table-record
+              transfer=transfer
+              transfers=transfers
+              providers=providers
+              transferCollection=transferType
+              updaterId=updaterId
+              actions=FIXME
+              providersColors=providersColors
+            )
+            providersColors=providersColors
+            columnsCount=visibleColumns.length
+          }}
+        {{/if}}
+      {{/each}}
+    {{/if}}
   </tbody>
 </table>
