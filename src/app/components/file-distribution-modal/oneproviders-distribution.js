@@ -55,6 +55,7 @@ export default Component.extend(I18n, {
    * @type {Array<Utils.FileDistributionDataContainer>}
    */
   fileDistributionData: undefined,
+
   /**
    * @virtual
    * @type {Models.Space}
@@ -62,6 +63,13 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  getTransfersUrl: notImplementedThrow,
+
+  /**
+   * @virtual
    * @type {Function}
    * @param {Models.Provider} destinationOneprovider
    * @returns {undefined}
@@ -69,6 +77,7 @@ export default Component.extend(I18n, {
   onReplicate: notImplementedThrow,
 
   /**
+   * @virtual
    * @type {Function}
    * @param {Models.Provider} sourceOneprovider
    * @param {Models.Provider} destinationOneprovider
@@ -77,6 +86,7 @@ export default Component.extend(I18n, {
   onMigrate: notImplementedThrow,
 
   /**
+   * @virtual
    * @type {Function}
    * @param {Models.Provider} sourceOneprovider
    * @returns {undefined}
@@ -149,6 +159,12 @@ export default Component.extend(I18n, {
   startTransferPromise: null,
 
   /**
+   * Frame name, where Onezone space transfers link should be opened
+   * @type {String}
+   */
+  navigateTransfersTarget: '_top',
+
+  /**
    * @type {Ember.ComputedProperty<boolean>}
    */
   isDistributionLoading: array.isAny(
@@ -167,6 +183,28 @@ export default Component.extend(I18n, {
         .compact()
         .objectAt(0);
     }
+  ),
+
+  /**
+   * A full URL for Onezone GUI window to show transfers for this distribution
+   * @type {ComputedProperty<String>}
+   */
+  navigateTransfersHref: computed(
+    function navigateTransfersHref() {
+      const {
+        fileDistributionData,
+        getTransfersUrl,
+        activeTransfersExist,
+      } = this.getProperties(
+        'fileDistributionData',
+        'getTransfersUrl',
+        'activeTransfersExist',
+      );
+      return getTransfersUrl({
+        fileId: get(fileDistributionData, 'firstObject.file.entityId'),
+        tabId: activeTransfersExist ? 'ongoing' : 'ended',
+      });
+    },
   ),
 
   /**
@@ -401,6 +439,9 @@ export default Component.extend(I18n, {
         newMigrationSourceHasActiveTransfers: false,
       });
       this.resolveStartTransferPromise();
+    },
+    getTransfersUrl(...args) {
+      return this.get('getTransfersUrl')(...args);
     },
   },
 });

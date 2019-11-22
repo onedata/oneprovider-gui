@@ -49,10 +49,13 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       this.set('transferStatProviderId', id);
     });
     const transferManager = lookupService(this, 'transferManager');
-    sinon.stub(transferManager, 'getSpaceTransfersThroughputCharts').withArgs(
-      this.space,
-      this.transferType,
-      this.timeUnit,
+    const getSpaceTransfersThroughputCharts =
+      sinon.stub(transferManager, 'getSpaceTransfersThroughputCharts');
+    getSpaceTransfersThroughputCharts.rejects();
+    getSpaceTransfersThroughputCharts.withArgs(
+      this.get('space'),
+      this.get('transferType'),
+      this.get('timeUnit'),
       undefined,
     ).resolves({});
 
@@ -64,6 +67,7 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       selectTransferStatProvider=(action "selectTransferStatProvider")
       transferType=transferType
       timeUnit=timeUnit
+      updaterEnabled=false
     }}`);
 
     return wait().then(() => {
@@ -102,10 +106,13 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       this.set('transferStatProviderId', id);
     });
     const transferManager = lookupService(this, 'transferManager');
-    sinon.stub(transferManager, 'getSpaceTransfersThroughputCharts').withArgs(
-      this.space,
-      this.transferType,
-      this.timeUnit,
+    const getSpaceTransfersThroughputCharts =
+      sinon.stub(transferManager, 'getSpaceTransfersThroughputCharts');
+    getSpaceTransfersThroughputCharts.rejects();
+    getSpaceTransfersThroughputCharts.withArgs(
+      this.get('space'),
+      this.get('transferType'),
+      this.get('timeUnit'),
       undefined,
     ).resolves({});
 
@@ -117,6 +124,7 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       selectTransferStatProvider=(action "selectTransferStatProvider")
       transferType=transferType
       timeUnit=timeUnit
+      updaterEnabled=false
     }}`);
 
     return wait().then(() => {

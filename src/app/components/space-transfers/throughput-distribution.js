@@ -132,7 +132,7 @@ export default Component.extend(
     /**
      * @type {boolean}
      */
-    _updaterEnabled: true,
+    updaterEnabled: true,
 
     /**
      * Set this value if want to override updater.fetchError (eg. if updater cannot be
@@ -765,13 +765,13 @@ export default Component.extend(
     _createTimeStatsUpdater() {
       // FIXME: removed statsError assign
       const {
-        _updaterEnabled,
+        updaterEnabled,
         timeUnit,
-      } = this.getProperties('_updaterEnabled', 'timeUnit');
+      } = this.getProperties('updaterEnabled', 'timeUnit');
       this.setProperties({
         _statsError: null,
         updater: TransferTimeStatUpdater.create({
-          isEnabled: _updaterEnabled,
+          isEnabled: updaterEnabled,
           timespan: timeUnit,
           update: (...args) => this.updateTimeStatForUnitProxy(...args),
         }),

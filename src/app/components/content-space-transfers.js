@@ -11,8 +11,6 @@ import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-compon
 import { inject as service } from '@ember/service';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { computed } from '@ember/object';
-import { promise } from 'ember-awesome-macros';
 
 export default OneEmbeddedComponent.extend(
   ContentSpaceBaseMixin, {

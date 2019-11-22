@@ -29,7 +29,8 @@
           fileDistributionData=fileDistributionData
           onReplicate=(action "tryStartReplication" oneprovider)
           onMigrate=(action "selectMigrationDestination" oneprovider)
-          onEvict=(action "tryStartEviction" oneprovider)}}
+          onEvict=(action "tryStartEviction" oneprovider)
+        }}
       {{/each}}
       {{#unless batchMode}}
         <p class="transfers-counter-info">
@@ -39,22 +40,24 @@
             alwaysRender=true
             customErrorMessage=(tt this "cannotLoadTransfers")
             absoluteCentered=false
-            sizeClass="xxs"}}
+            sizeClass="xxs"
+          }}
             {{#if fileDistributionData.firstObject.transfersProxy.content}}
               {{#if activeTransfersExist}}
                 {{tt this "currentlyTransferredText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
                 &ndash;
-                <a class="clickable" {{action "navigateToTransfers" fileDistributionData.firstObject.file}}>{{tt this "currentlyTransferredLink"}}</a>.
+                <a class="link-to-transfers link-to-transfers-ongoing" href={{navigateTransfersHref}} target={{navigateTransfersTarget}}>{{tt this "currentlyTransferredLink"}}</a>.
               {{else if endedTransfersCount}}
                 {{tt this "endedTransfersText"
                   elementType=(tt this fileDistributionData.firstObject.fileType)
                   count=endedTransfersCount
-                  countUnit=(tt this (if (gt endedTransfersCount 1) "times" "time"))}}
+                  countUnit=(tt this (if (gt endedTransfersCount 1) "times" "time"))
+                }}
                 {{#if endedTransfersOverflow}}
                   {{tt this "orMore"}}
                 {{/if}}
                 &ndash;
-                <a class="clickable" {{action "navigateToTransfers" fileDistributionData.firstObject.file}}>{{tt this "endedTransfersLink"}}</a>.
+                <a class="link-to-transfers link-to-transfers-ended" href={{navigateTransfersHref}} target={{navigateTransfersTarget}}>{{tt this "endedTransfersLink"}}</a>.
               {{else}}
                 {{tt this "noTransfersText" elementType=(tt this fileDistributionData.firstObject.fileType)}}
               {{/if}}

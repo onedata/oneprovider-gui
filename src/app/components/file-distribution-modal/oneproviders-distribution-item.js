@@ -45,18 +45,21 @@ export default Component.extend(I18n, {
   spaceHasSingleOneprovider: undefined,
 
   /**
+   * @virtual
    * @type {Function}
    * @returns {undefined}
    */
   onReplicate: notImplementedThrow,
 
   /**
+   * @virtual
    * @type {Function}
    * @returns {undefined}
    */
   onMigrate: notImplementedThrow,
 
   /**
+   * @virtual
    * @type {Function}
    * @returns {undefined}
    */

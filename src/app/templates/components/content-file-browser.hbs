@@ -54,13 +54,16 @@
     {{edit-permissions-modal
       files=filesToEditPermissions
       space=spaceProxy.content
-      onClose=(action "closeEditPermissionsModal")}}
+      onClose=(action "closeEditPermissionsModal")
+    }}
   {{/if}}
 
   {{#if filesToShowDistribution}}
     {{file-distribution-modal
       files=filesToShowDistribution
       space=spaceProxy.content
-      onClose=(action "closeFileDistributionModal")}}
+      onClose=(action "closeFileDistributionModal")
+      getTransfersUrl=(action "getTransfersUrl")
+    }}
   {{/if}}
 {{/promise-proxy-container}}

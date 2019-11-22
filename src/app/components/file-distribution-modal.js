@@ -57,6 +57,12 @@ export default Component.extend(
     onClose: notImplementedIgnore,
 
     /**
+     * @virtual
+     * @type {Function}
+     */
+    getTransfersUrl: notImplementedIgnore,
+
+    /**
      * @type {Ember.ComputedProperty<Array<Models.File>>}
      */
     filesOfTypeFile: array.filterBy(
@@ -220,6 +226,9 @@ export default Component.extend(
           transferManager.startEviction(file, sourceOneprovider)
           .then(result => this.updateDataAfterTransferStart(file).then(() => result))
         ));
+      },
+      getTransfersUrl(...args) {
+        return this.get('getTransfersUrl')(...args);
       },
     },
   }

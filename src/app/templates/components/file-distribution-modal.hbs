@@ -27,6 +27,7 @@
           onReplicate=(action "replicate" files)
           onMigrate=(action "migrate" files)
           onEvict=(action "evict" files)
+          getTransfersUrl=(action "getTransfersUrl")
         }}
         <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
       {{else}}
@@ -56,7 +57,9 @@
                     space=space
                     onReplicate=(action "replicate" (array fileDistDataContainer.file))
                     onMigrate=(action "migrate" (array fileDistDataContainer.file))
-                    onEvict=(action "evict" (array fileDistDataContainer.file))}}
+                    onEvict=(action "evict" (array fileDistDataContainer.file))
+                    getTransfersUrl=(action "getTransfersUrl")
+                  }}
                 </div>
               {{/listItem.content}}
             {{/list.item}}

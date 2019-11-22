@@ -140,6 +140,9 @@ export default OneEmbeddedComponent.extend(
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);
       },
+      getTransfersUrl({ fileId, tabId }) {
+        return this.callParent('getTransfersUrl', { fileId, tabId });
+      },
     },
   }
 );
