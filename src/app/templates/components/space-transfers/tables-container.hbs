@@ -1,0 +1,88 @@
+<h2>
+  {{tt this "transferJobsHistory"}}
+</h2>
+{{#bs-tab
+  class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
+  fade=false
+  customTabs=true
+  activeId=activeTabId
+  as |tab|
+}}
+  {{#bs-nav
+    type="tabs"
+    class="nav-tabs-transfers nav-tabs-with-loading"
+    as |nav|
+  }}
+    {{#each tabIds as |type|}}
+      {{#nav.item active=(eq tab.activeId type)}}
+        <a href={{concat "#" type}}
+          class={{concat "nav-link nav-link-" type}}
+          role="tab"
+          {{action (mut activeTabId) type}}
+        >
+          {{#if (eq type "file")}}
+            <span class="tab-label">
+              {{!-- FIXME: there was code: unless (eq tabJustChangedId "file") --}}
+              {{#one-icon class="tab-icon" icon=fileTabIcon}}
+                {{one-tooltip title=fileTabHint}}
+              {{/one-icon}}
+              {{#if fileProxy.isFulfilled}}
+                {{#truncated-string class="one-label tab-name"}}
+                  {{or file.name (tt this "unknownFileName")}}
+                {{/truncated-string}}
+              {{else}}
+                <div class="one-label tab-name">
+                  {{tt this "unknownFileName"}}
+                </div>
+              {{/if}}
+            </span>
+            {{!-- FIXME: implement --}}
+            {{!-- {{#if (eq tabJustChangedId "file")}}
+              {{spin-spinner-block sizeClass="xs" class="tab-spinner tab-spinner-left"}}
+            {{/if}} --}}
+            <span class="tab-close clickable" {{action "closeFileTab"}}>
+              {{one-icon icon="close"}}
+            </span>
+          {{else}}
+            <span class="tab-label">
+              {{tt this (concat type "Transfers")}}
+            </span>
+            {{!-- FIXME: implement --}}
+            {{!-- {{#if (eq tabJustChangedId type)}}
+              {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
+            {{/if}} --}}
+          {{/if}}
+        </a>
+      {{/nav.item}}
+    {{/each}}
+  {{/bs-nav}}
+  <div class="tab-content tab-content-transfers-list">
+    {{#each tabIds as |type|}}
+      {{#tab.pane elementId=type}}
+        {{#if (eq tab.activeId type)}}
+          <div class={{concat "row row-" type "-transfers"}}>
+            <div class={{concat "col-xs-12 col-" type "-transfers"}}>
+              {{#if (or (not (eq type "file")) fileProxy.isFulfilled)}}
+                {{component
+                  (concat "space-transfers/" (if (eq type "file") "file-" "") "transfers-table-container")
+                  type=type
+                  providers=providers
+                  providersColors=providersColors
+                  space=space
+                  file=(if (eq type "file") file undefined)
+                  justOpened=(eq tabJustChangedId type)
+                  clearJustOpened=(action "clearJustChangedTabId" type)
+                }}
+              {{/if}}
+              {{#if (and (eq type "file") fileHistoryLimitReached)}}
+                <p class="file-history-limit-message">
+                  {{tt this "fileHistoryLimitReached"}}
+                </p>
+              {{/if}}
+            </div>
+          </div>
+        {{/if}}
+      {{/tab.pane}}
+    {{/each}}
+  </div>
+{{/bs-tab}}

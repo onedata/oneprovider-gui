@@ -16,7 +16,8 @@ import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import computedFileTransfersList from 'oneprovider-gui/utils/computed-file-transfers-list';
+
+export const entityType = 'file';
 
 export function getSpaceEntityIdFromFileEntityId(fileEntityId) {
   const m = atob(fileEntityId).match(/guid#(.*)#(.*)/);
@@ -89,12 +90,6 @@ export default Model.extend(GraphSingleModelMixin, {
   }),
 
   /**
-   * Contains transfers records associated with this file
-   * @type {Ember.ComputedProperty<FakeListRecordRelation>}
-   */
-  transferList: computedFileTransfersList('id'),
-
-  /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
    * @param {number} attempts 
@@ -123,18 +118,6 @@ export default Model.extend(GraphSingleModelMixin, {
         }
       }
     });
-  },
-
-  /**
-   * Fetch transfer records for this file
-   * @param {string} fileId should be set to this file ID
-   * @returns {Promise}
-   */
-  fetchTransfers(fileId) {
-    return this.get('transferManager').getTransfersForFile(fileId, true)
-      .then(({ ongoingList, endedList }) => {
-        return [...ongoingList, ...endedList];
-      });
   },
 }).reopenClass(StaticGraphModelMixin, {
   /**

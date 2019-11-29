@@ -15,7 +15,14 @@ export default {
   in: 'Input',
   out: 'Output',
   fileHistoryLimitReached: 'History limit per file reached',
-  fileNotExists: 'Selected file or directory does not exist',
+  fileError: 'Error loading file data: {{reason}}',
+  unknownFileName: 'File',
+  fileTabHint: 'Shows transfers related to selected {{type}}',
+  fileTabHintType: {
+    file: 'file',
+    dir: 'directory',
+    unknown: 'data item',
+  },
   cellActions: {
     cancelTransfer: 'Cancel transfer',
     rerunTransfer: 'Rerun transfer',
@@ -27,7 +34,7 @@ export default {
     deleted: 'deleted',
   },
   cellStatus: {
-    ended: 'Ended',
+    completed: 'Completed',
     skipped: 'Skipped',
     cancelled: 'Cancelled',
     failed: 'Failed',

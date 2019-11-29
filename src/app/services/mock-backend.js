@@ -43,7 +43,7 @@ export const numberOfSpaces = 1;
 export const numberOfFiles = 100;
 export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
-export const numberOfTransfers = 300;
+export const numberOfTransfers = 60;
 
 const tsWaiting = 0;
 const tsOngoing = 1;
@@ -87,6 +87,7 @@ export default Service.extend({
           return get(spaceList, 'list').then(list => {
               return list.forEach(space => {
                 return get(space, 'rootDir').then(rootDir => {
+                  this.set('entityRecords.rootDir', [rootDir]);
                   return this.createFileRecords(store, rootDir, owner)
                     .then(() => this.createTransferRecords(store))
                     .then((transferList) => {
@@ -334,7 +335,7 @@ export default Service.extend({
           });
         }
       })
-      .then(allFulfilled(_.range(numberOfFiles).map((i) => {
+      .then(() => allFulfilled(_.range(numberOfFiles).map((i) => {
         const entityId = generateFileEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         return store.createRecord('file', {

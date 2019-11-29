@@ -79,11 +79,11 @@ export default Service.extend({
    * @returns {Promise<Object>}
    */
   getTransfersForSpace(space, state, startFromIndex, limit, offset) {
+    const store = this.get('store');
     const {
       entityType,
       entityId,
-      store,
-    } = getProperties(space, 'entityType', 'entityId', 'store');
+    } = getProperties(space, 'entityType', 'entityId');
     const transfersGri = gri({
       entityType,
       entityId,
@@ -189,6 +189,11 @@ export default Service.extend({
     });
   },
 
+  /**
+   * @param {Models.Space} space
+   * @returns {Promise<Object>} with property `channelDestinaions` which maps:
+   *   `sourceProviderId -> [destinationProviderId, ...]`
+   */
   getSpaceTransfersActiveChannels(space) {
     const {
       onedataGraph,

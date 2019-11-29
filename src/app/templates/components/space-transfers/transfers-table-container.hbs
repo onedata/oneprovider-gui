@@ -1,0 +1,22 @@
+<div class="row loadable-row">
+  {{#loading-container
+    isLoading=transfersArray.isLoading
+    class=(concat "loading-" type "-table")
+  }}
+    {{space-transfers/transfers-table
+      transfers=transfersArray
+      transferType=type
+      providers=providers
+      providersColors=providersColors
+      spaceId=spaceId
+      notifyTransferListChanged=(action "transferListChanged")
+      clearJustOpened=(action "clearJustChangedTabId" type)
+      rerunTransfer=(action "rerunTransfer")
+      cancelTransfer=(action "cancelTransfer")
+    }}
+  {{/loading-container}}
+</div>
+{{!-- FIXME: currently this property is not moved --}}
+{{#if (get this (concat type "TransfersLoadingMore"))}}
+  {{!-- FIXME: loading more spinner --}}
+{{/if}}

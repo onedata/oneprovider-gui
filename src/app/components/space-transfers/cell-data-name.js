@@ -62,7 +62,6 @@ export default Component.extend(I18n, {
   }),
 
   icon: computed('dataSourceType', 'deletedIsDir', function () {
-    // FIXME: icons for deleted file and dir
     const {
       dataSourceType,
       // deletedIsDir,
@@ -71,11 +70,12 @@ export default Component.extend(I18n, {
       case 'view':
         return 'index';
       case 'file':
-        return 'file';
+        return 'browser-file';
       case 'dir':
-        return 'folder';
+        return 'browser-directory';
       case 'deleted':
         return 'x';
+        // TODO: icons for deleted file and dir
         //   return deletedIsDir ? 'folder-deleted' : 'file-deleted';
       default:
         return 'unknown';

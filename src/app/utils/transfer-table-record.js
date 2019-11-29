@@ -164,7 +164,6 @@ export default EmberObject.extend({
       transfer,
       updaterId,
     } = this.getProperties('transfer', 'updaterId');
-    console.log('>>>', get(transfer, 'id'));
     const {
       id: transferGri,
       isLoaded,

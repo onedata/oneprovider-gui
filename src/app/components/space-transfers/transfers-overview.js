@@ -63,16 +63,10 @@ export default Component.extend(I18n, {
   sourceProviderIds: undefined,
 
   /**
-   * @virtual
-   * @type {Boolean}
-   */
-  providersLoaded: undefined,
-
-  /**
    * Set in `changeStyle`
    * @type {String}
    */
-  style: '',
+  style: htmlSafe(''),
 
   /**
    * Set by scroll/resize event handler
@@ -194,10 +188,10 @@ export default Component.extend(I18n, {
 
   initSticky($contentScroll) {
     const $rowExpandHandler = this.$('.row-expand-handler');
-    if ($rowExpandHandler) {
+    if ($rowExpandHandler.length) {
       this.set('initialHandlerTop', $rowExpandHandler.offset().top);
     }
-    if ($contentScroll) {
+    if ($contentScroll && $contentScroll.length) {
       this.set('contentScrollTop', $contentScroll.offset().top);
     }
   },

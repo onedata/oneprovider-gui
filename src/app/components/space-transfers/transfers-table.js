@@ -126,10 +126,7 @@ export default Component.extend(I18n, {
     'transfers._start',
     function firstRowHeight() {
       const _start = this.get('transfers._start');
-      const val = _start ? _start * this.get('rowHeight') : 0;
-      // FIXME: debug log
-      console.log('first row', val, _start);
-      return val;
+      return _start ? _start * this.get('rowHeight') : 0;
     }
   ),
 

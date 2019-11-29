@@ -1,44 +1,44 @@
-<div class="map-container">
-  {{#one-atlas as |atlas|}}
-    <svg class="atlas-draw-layer" xmlns="http://www.w3.org/2000/svg">
-      {{#each transfersActiveChannels as |con|}}
-        {{#atlas.position
-          latitude=(get (get providersMap con.[0]) "latitude")
-          longitude=(get (get providersMap con.[0]) "longitude")
-          as |pa|
-        }}
+{{#promise-proxy-container proxy=generalDataProxy}}
+  <div class="map-container">
+    {{#one-atlas as |atlas|}}
+      <svg class="atlas-draw-layer" xmlns="http://www.w3.org/2000/svg">
+        {{#each transfersActiveChannels as |con|}}
           {{#atlas.position
-            latitude=(get (get providersMap con.[1]) "latitude")
-            longitude=(get (get providersMap con.[1]) "longitude")
-            as |pb|
+            latitude=(get (get providersMap con.[0]) "latitude")
+            longitude=(get (get providersMap con.[0]) "longitude")
+            as |pa|
           }}
-            {{bezier-curve class="transfer animated fadeIn" x1=pa.x y1=pa.y x2=pb.x y2=pb.y}}
+            {{#atlas.position
+              latitude=(get (get providersMap con.[1]) "latitude")
+              longitude=(get (get providersMap con.[1]) "longitude")
+              as |pb|
+            }}
+              {{bezier-curve class="transfer animated fadeIn" x1=pa.x y1=pa.y x2=pb.x y2=pb.y}}
+            {{/atlas.position}}
           {{/atlas.position}}
+        {{/each}}
+      </svg>
+      
+      {{#each providers as |provider|}}
+        {{#atlas.position latitude=provider.latitude longitude=provider.longitude as |position|}}
+          {{#position.point}}
+            {{#provider-place
+              provider=provider
+              atlasWidth=atlas.width
+              circleSizeScale=1.5
+              circleColor=(get providersColors provider.entityId)
+              renderDrop=false
+            }}
+              {{provider-place/super-circle
+                isSource=(contains provider.entityId sourceProviderIds)
+                isDestination=(contains provider.entityId destinationProviderIds)
+                circleColor=(get providersColors provider.entityId)
+              }}
+            {{/provider-place}}
+          {{/position.point}}
         {{/atlas.position}}
       {{/each}}
-    </svg>
-    
-    {{#each providers as |provider|}}
-      {{#atlas.position latitude=provider.latitude longitude=provider.longitude as |position|}}
-        {{#position.point}}
-          {{#provider-place
-            provider=provider
-            atlasWidth=atlas.width
-            circleSizeScale=1.5
-            circleColor=(get providersColors provider.entityId)
-            renderDrop=false
-          }}
-            {{provider-place/super-circle
-              isSource=(contains provider.entityId sourceProviderIds)
-              isDestination=(contains provider.entityId destinationProviderIds)
-              circleColor=(get providersColors provider.entityId)
-            }}
-          {{/provider-place}}
-        {{/position.point}}
-      {{/atlas.position}}
-    {{/each}}
-    
-  {{/one-atlas}}
-</div>
-
-{{yield}}
+      
+    {{/one-atlas}}
+  </div>
+{{/promise-proxy-container}}

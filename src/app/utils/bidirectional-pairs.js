@@ -18,7 +18,7 @@ import _ from 'lodash';
  * @return {Array<Array>} each array element has 2 elements, eg.
  *    `[['a', 'b'], ['c', 'a'], ['b', 'c']]`
  */
-export default function transfersProviderConnections(mapping) {
+export default function bidirectionalPairs(mapping) {
   return _(Object.keys(mapping))
     .flatMap(sourceId => mapping[sourceId].map(destId => [sourceId, destId].sort()))
     .uniqWith((a, b) => _.isEqual(a, b))

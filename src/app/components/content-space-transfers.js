@@ -33,13 +33,20 @@ export default OneEmbeddedComponent.extend(
       'fileEntityId',
     ]),
 
+    init() {
+      this._super(...arguments);
+      window.contentSpaceTransfers = this;
+    },
+
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
       },
       resetQueryParams: notImplementedIgnore,
       changeListTab: notImplementedIgnore,
-      closeFileTab: notImplementedIgnore,
+      closeFileTab() {
+        return this.callParent('closeFileTab');
+      },
     },
   }
 );
