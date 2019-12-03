@@ -23,10 +23,14 @@ export default TransfersTableContainer.extend({
       file,
     } = this.getProperties('transferManager', 'file');
     if (startIndex == null) {
-      return transferManager.getTransfersForFile(file, true)
-        .then(({ ongoingList, endedList }) => {
-          return [...ongoingList, ...endedList];
-        });
+      if (size <= 0 || offset < 0) {
+        return resolve([]);
+      } else {
+        return transferManager.getTransfersForFile(file, true)
+          .then(({ ongoingList, endedList }) => {
+            return [...ongoingList, ...endedList];
+          });
+      }
     } else if (startIndex === array.get('sourceArray.lastObject.index')) {
       return resolve([]);
     } else {

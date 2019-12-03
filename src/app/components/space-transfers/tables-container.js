@@ -181,7 +181,6 @@ export default Component.extend(I18n, {
     } = this.getProperties('defaultTab', 'fileId');
     const defaultTabDefinedValid = defaultTab && (defaultTab === 'file' &&
       fileId) || ['waiting', 'ongoing', 'ended'].includes(defaultTab);
-    console.log('defaultTab', defaultTabDefinedValid);
     if (defaultTabDefinedValid) {
       return resolve(defaultTab);
     } else if (fileId) {

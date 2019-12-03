@@ -52,7 +52,7 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     const updater = Looper.create({
-      immediate: true,
+      immediate: false,
       interval: updateInterval,
     });
     updater.on('tick', this.updateTransfersArray.bind(this));

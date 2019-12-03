@@ -113,7 +113,11 @@ describe('Integration | Component | space transfers', function () {
     const transferManager = this.get('transferManager');
     const store = this.get('store');
     const getTransfersForFile =
-      stub(transferManager, 'getTransfersForFile').resolves([]);
+      stub(transferManager, 'getTransfersForFile').resolves({
+        ongoingList: [],
+        endedList: [],
+        endedCount: 0,
+      });
     stub(transferManager, 'getTransfersForSpace').resolves([]);
     stub(transferManager, 'getSpaceTransfersActiveChannels').resolves({});
     stub(transferManager, 'getSpaceTransfersThroughputCharts').resolves({
