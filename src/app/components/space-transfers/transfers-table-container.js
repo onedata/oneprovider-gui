@@ -38,6 +38,8 @@ export default Component.extend({
 
   tableTopVisible: true,
 
+  _window: window,
+
   spaceId: reads('space.entityId'),
 
   transfersArray: computed(function transfersArray() {

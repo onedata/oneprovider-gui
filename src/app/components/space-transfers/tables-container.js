@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-import { all as allFulfilled, resolve } from 'rsvp';
+import { resolve } from 'rsvp';
 import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
@@ -186,21 +186,7 @@ export default Component.extend(I18n, {
     } else if (fileId) {
       return resolve('file');
     } else {
-      return allFulfilled(
-        ['waiting', 'ongoing', 'ended'].map(transferType =>
-          this.get(transferType + 'TransfersArray.initialLoad')
-        )
-      ).then(([waitingArray, ongoingArray, endedArray]) => {
-        if (get(waitingArray, 'length') > 0) {
-          return 'waiting';
-        } else if (get(ongoingArray, 'length') > 0) {
-          return 'ongoing';
-        } else if (get(endedArray, 'length') > 0) {
-          return 'ended';
-        } else {
-          return 'waiting';
-        }
-      });
+      return this.findNonEmptyCollection();
     }
   })),
 
@@ -238,6 +224,42 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+  },
+
+  findNonEmptyCollection() {
+    const {
+      transferManager,
+      space,
+    } = this.getProperties('transferManager', 'space');
+    return transferManager.getTransfersForSpace(space, 'waiting', null, 1, 0)
+      .then(result => {
+        console.log(result);
+        if (get(result, 'length') > 0) {
+          return 'waiting';
+        } else {
+          return transferManager.getTransfersForSpace(space, 'ongoing', null, 1, 0);
+        }
+      })
+      .then(result => {
+        console.log(result);
+        if (typeof result === 'string') {
+          return result;
+        } else if (get(result, 'length') > 0) {
+          return 'ongoing';
+        } else {
+          return transferManager.getTransfersForSpace(space, 'ended', null, 1, 0);
+        }
+      })
+      .then(result => {
+        console.log(result);
+        if (typeof result === 'string') {
+          return result;
+        } else if (get(result, 'length') > 0) {
+          return 'ended';
+        } else {
+          return 'waiting';
+        }
+      });
   },
 
   actions: {

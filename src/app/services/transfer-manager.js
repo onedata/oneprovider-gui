@@ -76,7 +76,7 @@ export default Service.extend({
    * @param {string} startFromIndex 
    * @param {number} limit 
    * @param {number} offset 
-   * @returns {Promise<Object>}
+   * @returns {Promise<Array<Models.Transfer>>}
    */
   getTransfersForSpace(space, state, startFromIndex, limit, offset) {
     const store = this.get('store');
