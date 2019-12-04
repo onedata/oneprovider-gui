@@ -9,7 +9,7 @@ import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { promise } from 'ember-awesome-macros';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import reject from 'rsvp';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
@@ -20,6 +20,13 @@ import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 
 const backendEpochInfinity = 9999999999;
 const linkNameIdPartLength = 6;
+
+const endedStates = [
+  'completed',
+  'skipped',
+  'cancelled',
+  'failed',
+];
 
 export const entityType = 'op_transfer';
 
@@ -46,6 +53,12 @@ export default Model.extend(
   GraphSingleModelMixin,
   createDataProxyMixin('transferProgress'), {
     transferManager: service(),
+
+    /**
+     * Helper property for `isCancelling` computed property.
+     * @type {boolean}
+     */
+    _isCancelling: false,
 
     index: computed('entityId', 'scheduleTime', 'finishTime', function index() {
       const {
@@ -164,6 +177,45 @@ export default Model.extend(
         }
       })
     ),
+
+    /**
+     * If true, user has invoked transfer cancellation
+     * @type {boolean}
+     */
+    isCancelling: computed(
+      '_isCancelling',
+      'transferProgress.status',
+      'isEnded', {
+        get() {
+          const {
+            transferProgress,
+            isEnded,
+            _isCancelling,
+          } = this.getProperties('_isCancelling', 'isEnded', 'transferProgress');
+          const status = get(transferProgress, 'status');
+
+          // if transfer is finished, then cancelling is not possible
+          return status === 'aborting' || (_isCancelling && !isEnded);
+        },
+        set(key, value) {
+          const {
+            status,
+            state,
+          } = this.getProperties('status', 'state');
+          const isEnded = state === 'ended';
+          this.set('_isCancelling', value);
+          return status === 'aborting' || (value && !isEnded);
+        },
+      }
+    ),
+
+    /**
+     * @type {ComputedProperty<boolean>}
+     */
+    isEnded: computed('transferProgress.status', function isEnded() {
+      return this.get('state') === 'ended' ||
+        endedStates.includes(this.get('transferProgress.status'));
+    }),
 
     /**
      * @override

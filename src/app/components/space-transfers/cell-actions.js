@@ -12,8 +12,9 @@ import { inject as service } from '@ember/service';
 import EmberObject, { computed, get } from '@ember/object';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { tag } from 'ember-awesome-macros';
 
-const ACTION_ICONS = {
+const actionIcons = {
   cancelTransfer: 'cancelled',
   rerunTransfer: 'rerun',
 };
@@ -36,6 +37,17 @@ export default Component.extend(I18n, {
   record: undefined,
 
   /**
+   * @virtual
+   * @type {Array<Object>}
+   */
+  transferActions: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  actionsOpened: false,
+
+  /**
    * @type {Ember.ComputedProperty<boolean>}
    */
   isCancelling: computed.reads('record.transfer.isCancelling'),
@@ -46,33 +58,40 @@ export default Component.extend(I18n, {
   transferFilesDeleted: computed.equal('record.transfer.dataSourceType', 'deleted'),
 
   /**
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<String>}
    */
   message: computed.reads('record.actionMessage'),
 
   /**
-   * @type {Ember.ComputedProperty<string>}
+   * @type {ComputedProperty<String>}
    */
   messageType: computed.reads('record.actionMessageType'),
+
+  triggerClass: computed('elementId', function triggerClass() {
+    return `actions-transfer-${this.get('elementId')}`;
+  }),
+
+  triggerSelector: tag `.${'triggerClass'}`,
 
   /**
    * @type {Ember.ComputedProperty<Ember.A<EmberObject>>}
    */
   menuActions: computed(
-    'record.{actions,isRerunning,transfer.isEnded}',
+    'transferActions',
+    'record.{isRerunning,transfer.isEnded}',
     'isCancelling',
     'transferFilesDeleted',
-    function () {
-      const actions = this.get('record.actions');
-      if (actions) {
+    function menuActions() {
+      const transferActions = this.get('transferActions');
+      if (transferActions) {
         const record = this.get('record');
-        return A(actions
+        return A(transferActions
           .filter(({ id }) => !this.isActionInvisible(id))
           .map(({ id, action }) => EmberObject.create({
             title: this.t(id),
             // TODO: optimize - a function is created for each cell
             action: () => action(record),
-            icon: ACTION_ICONS[id],
+            icon: actionIcons[id],
             disabled: this.isActionDisabled(id),
           }))
         );
@@ -112,5 +131,12 @@ export default Component.extend(I18n, {
       case 'rerunTransfer':
         return transferFilesDeleted || get(record, 'isRerunning');
     }
+  },
+
+  actions: {
+    toggleActions(open) {
+      const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
+      this.set('actionsOpened', _open);
+    },
   },
 });

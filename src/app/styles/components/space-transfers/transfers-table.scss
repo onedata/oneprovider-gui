@@ -94,5 +94,12 @@
   &.waiting th.table-header:nth-last-of-type(2) {
     width: auto;
   }
+
+  .transfers-table-row {
+    .transfers-table-cell-actions {
+      width: 40px;
+      position: relative;
+    }
+  }
 }
 

@@ -2,7 +2,8 @@ import Component from '@ember/component';
 import EmberObject, { computed } from '@ember/object';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { resolve } from 'rsvp';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import { Promise, resolve } from 'rsvp';
 import Evented from '@ember/object/evented';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
@@ -19,6 +20,8 @@ const FakeTransfer = EmberObject.extend(Evented, {
   init() {
     this._super(...arguments);
     this.set('scheduleTime', Math.floor(Date.now() / 1000));
+    this.set('startTime', Math.floor(Date.now() / 1000));
+    this.set('finishTime', Math.floor(Date.now() / 1000));
   },
 
   fetchUser() {
@@ -72,7 +75,7 @@ export default Component.extend({
   })),
 
   progress1: computed(() => ({
-    status: 'waiting',
+    status: 'failed',
     timestamp: () => Math.floor(Date.now() / 1000),
     replicatedBytes: 100000,
     replicatedFiles: 12,
@@ -111,7 +114,7 @@ function someReduce() {
       dataSourceType: 'view',
       dataSourceId: 'vi1',
       entityId: 't1',
-      isOngoing: true,
+      isEnded: true,
       dataSource: promiseObject(resolve(this.get('index1'))),
       type: 'eviction',
       transferProgressProxy: promiseObject(resolve(this.get('progress1'))),
@@ -131,8 +134,12 @@ function someReduce() {
   actions: {
     transferListChanged: notImplementedIgnore,
     clearJustOpened: notImplementedIgnore,
-    rerunTransfer: notImplementedIgnore,
-    cancelTransfer: notImplementedIgnore,
     clearJustChangedTabId: notImplementedIgnore,
+    rerunTransfer: notImplementedReject,
+    cancelTransfer() {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(), 4000);
+      });
+    },
   },
 });

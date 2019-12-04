@@ -6,6 +6,7 @@
           {{tt this column.id}}
         </th>
       {{/each}}
+      <th class="transfers-table-col-actions"></th>
     </tr>
   </thead>
   <tbody class="transfers-table-tbody">
@@ -13,7 +14,7 @@
       <td colspan="9999" style={{firstRowStyle}}></td>
     </tr>
     <div class="table-start-row"></div>
-    {{#if (is-empty transfers)}}
+    {{#unless transfers.length}}
       <tr class="table-is-empty-row">
         <td class="table-is-empty-cell" colspan="9999">
           {{tt this (concat "noTransfers." transferType)}}
@@ -30,6 +31,7 @@
           updaterId=updaterId
           spaceId=spaceId
           transfersTable=this
+          transferActions=transferActions
           click=(action "toggleTransferDetails" transfer.entityId undefined)
         }}
         {{#if (contains transfer.entityId expandedTransferIds)}}
@@ -40,14 +42,14 @@
               providers=providers
               transferCollection=transferType
               updaterId=updaterId
-              actions=FIXME
               providersColors=providersColors
+              transferActions=transferActions
             )
             providersColors=providersColors
-            columnsCount=visibleColumns.length
+            columnsCount=allColumnsCount
           }}
         {{/if}}
       {{/each}}
-    {{/if}}
+    {{/unless}}
   </tbody>
 </table>

@@ -283,7 +283,7 @@ export default Service.extend({
       entityId,
       aspect: 'rerun',
     });
-    this.get('onedataGraph').request({
+    return this.get('onedataGraph').request({
       gri: rerunGri,
       operation: 'create',
       subscribe: false,
@@ -300,7 +300,7 @@ export default Service.extend({
       entityId,
       aspect: 'instance',
     });
-    this.get('onedataGraph').request({
+    return this.get('onedataGraph').request({
       gri: rerunGri,
       operation: 'delete',
       subscribe: false,

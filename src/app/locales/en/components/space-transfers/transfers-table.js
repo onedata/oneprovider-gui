@@ -13,6 +13,8 @@ export default {
   destinationUnknown: '-',
   cancelFailure: 'Error occurred during transfer cancellation.',
   rerunFailure: 'Error occurred during transfer rerun.',
+  cancellation: 'transfer cancellation',
+  rerunning: 'transfer rerun',
   rerunStarting: 'Rerunning transfer...',
   rerunSuccess: 'Rerun transfer may be found in "Waiting" tab.',
   noTransfers: {

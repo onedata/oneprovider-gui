@@ -1,10 +1,12 @@
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { computed, get, set, setProperties } from '@ember/object';
 import _ from 'lodash';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe } from '@ember/string';
 import { A } from '@ember/array';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { inject as service } from '@ember/service';
 
 const allColumnNames = [
   'path',
@@ -17,7 +19,6 @@ const allColumnNames = [
   'totalFiles',
   'type',
   'status',
-  'actions',
 ];
 
 const tableExcludedColumnNames = {
@@ -29,6 +30,8 @@ const tableExcludedColumnNames = {
 
 export default Component.extend(I18n, {
   classNames: ['transfers-table', 'one-infinite-list'],
+
+  globalNotify: service(),
 
   /**
    * @override
@@ -107,6 +110,7 @@ export default Component.extend(I18n, {
 
   //#region Private properties
 
+  // FIXME: where this value is set?
   /**
    * If true, component is rendered in mobile mode.
    * @type {boolean}
@@ -139,16 +143,11 @@ export default Component.extend(I18n, {
    */
   visibleColumnNames: computed(
     'transferType',
-    'mobileMode',
     function tableColumnNames() {
       const {
         transferType,
-        mobileMode,
-      } = this.getProperties('transferType', 'mobileMode');
+      } = this.getProperties('transferType');
       const excludedColumns = [...tableExcludedColumnNames[transferType]];
-      if (mobileMode) {
-        excludedColumns.push('actions');
-      }
       return _.differenceWith(
         allColumnNames,
         excludedColumns,
@@ -162,6 +161,116 @@ export default Component.extend(I18n, {
     return Object.values(
       this.getProperties(...visibleColumnNames.map(name => `${name}Column`))
     );
+  }),
+
+  /**
+   * Add columns rendered beside visibleColumns
+   * @type {number}
+   */
+  allColumnsCount: computed('visibleColumns.length', function allColumnsCount() {
+    return this.get('visibleColumns.length') + 1;
+  }),
+
+  /**
+   * Internal cancel of transfer which knows which row (table record) invoked
+   * the procedure, so it can modify row (record) state.
+   * @param {object} record instance of model-table record for which the transfer
+   *    has been canceled
+   */
+  _cancelTransfer: computed('cancelTransfer', function _cancelTransfer() {
+    const {
+      cancelTransfer,
+      globalNotify,
+    } = this.getProperties('cancelTransfer', 'globalNotify');
+    return cancelTransfer ? (record) => {
+      setProperties(record, {
+        actionMessage: undefined,
+        actionMessageType: undefined,
+      });
+      set(record, 'transfer.isCancelling', true);
+      const transfer = get(record, 'transfer');
+      return cancelTransfer(transfer)
+        .catch(error => {
+          globalNotify.backendError(this.t('cancellation'), error);
+          safeExec(record, () => setProperties(record, {
+            actionMessage: this.t('cancelFailure'),
+            actionMessageType: 'failure',
+          }));
+          safeExec(transfer, 'set', 'isCancelling', false);
+          throw error;
+        })
+        .then(() => {
+          return transfer.reload()
+            .then(transfer => transfer.updateTransferProgressProxy());
+        });
+    } : undefined;
+  }),
+
+  /**
+   * Internal rerun of transfer which knows which row (table record) invoked
+   * the procedure, so it can modify row (record) state.
+   * @param {object} record instance of model-table record for which the transfer
+   *    has been rerun
+   */
+  _rerunTransfer: computed('rerunTransfer', function _rerunTransfer() {
+    const {
+      rerunTransfer,
+      globalNotify,
+    } = this.getProperties('rerunTransfer', 'globalNotify');
+    return rerunTransfer ? (record) => {
+      setProperties(record, {
+        actionMessage: this.t('rerunStarting'),
+        actionMessageType: 'warning',
+        isRerunning: true,
+      });
+      const transfer = get(record, 'transfer');
+      return rerunTransfer(transfer)
+        .catch(error => {
+          // TODO: consider clearing isRerunning flag and reload progress
+          setProperties(record, {
+            actionMessage: this.t('rerunFailure'),
+            actionMessageType: 'failure',
+          });
+          globalNotify.backendError(this.t('rerunning'));
+          throw error;
+        })
+        .then(() => {
+          setProperties(record, {
+            actionMessage: this.t('rerunSuccess'),
+            actionMessageType: 'success',
+          });
+          globalNotify.success(this.t('rerunSuccess'));
+          return transfer.reload()
+            .then(transfer => transfer.updateTransferProgressProxy());
+        })
+        .finally(() => {
+          record.set('isRerunning', false);
+        });
+    } : undefined;
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<Array<Object>>}
+   */
+  transferActions: computed('_cancelTransfer', '_rerunTransfer', function () {
+    const {
+      _cancelTransfer,
+      _rerunTransfer,
+    } = this.getProperties('_cancelTransfer', '_rerunTransfer');
+    const actions = [];
+    if (_cancelTransfer) {
+      actions.push({
+        id: 'cancelTransfer',
+        action: _cancelTransfer,
+      });
+    }
+    if (_rerunTransfer) {
+      actions.push({
+        id: 'rerunTransfer',
+        action: _rerunTransfer,
+      });
+    }
+    return actions;
   }),
 
   //#endregion
@@ -224,13 +333,6 @@ export default Component.extend(I18n, {
     });
   }),
 
-  actionsColumn: computed(function actionsColumn() {
-    return this.createColumn('actions', {
-      className: 'transfer-actions-cell',
-      component: 'cell-actions',
-    });
-  }),
-
   statusColumn: computed(function statusColumn() {
     return this.createColumn('status', {
       className: 'col-icon',
@@ -239,6 +341,11 @@ export default Component.extend(I18n, {
   }),
 
   //#endregion
+
+  init() {
+    this._super(...arguments);
+    window.transfersTable = this;
+  },
 
   //#region Methods
 

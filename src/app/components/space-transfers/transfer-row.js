@@ -54,6 +54,12 @@ export default Component.extend({
    */
   spaceId: undefined,
 
+  /**
+   * @virtual
+   * @type {Array<Object>}
+   */
+  transferActions: undefined,
+
   dataRowId: reads('transfer.entityId'),
 
   record: computed(
@@ -89,8 +95,4 @@ export default Component.extend({
       });
     }
   ),
-
-  init() {
-    this._super(...arguments);
-  },
 });
