@@ -1,13 +1,13 @@
 <div class="row loadable-row row-transfers-data-container">
   {{#loading-container isLoading=(not generalDataLoaded)}}
-    {{space-transfers/transfers-overview
+    {{!-- {{space-transfers/transfers-overview
       space=space
       providers=providers
       transfersActiveChannels=transfersActiveChannels
       destinationProviderIds=destinationProviderIds
       sourceProviderIds=sourceProviderIds
       providersColors=providersColors
-    }}
+    }} --}}
     <div class="row row-transfers-tables">
       {{space-transfers/tables-container
         providers=providers

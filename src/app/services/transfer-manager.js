@@ -8,9 +8,19 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { getProperties } from '@ember/object';
+import { get, getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { all as allFulfilled, resolve } from 'rsvp';
+import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
+
+function replicaGri(fileId) {
+  return gri({
+    entityType: 'op_replica',
+    entityId: fileId,
+    aspect: 'instance',
+  });
+}
 
 export default Service.extend({
   store: service(),
@@ -18,11 +28,17 @@ export default Service.extend({
   onedataRpc: service(),
 
   /**
-   * @param {string} id gri
+   * @param {string} entityId entityId of transfer
    * @returns {Promise<Models.Transfer>}
    */
-  getTransfer(id) {
-    return this.get('store').findRecord('transfer', id);
+  getTransferById(entityId) {
+    const transferGri = gri({
+      entityType: transferEntityType,
+      entityId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return this.get('store').findRecord('transfer', transferGri);
   },
 
   /**
@@ -58,9 +74,9 @@ export default Service.extend({
       })
       .then(({ ongoingList, endedCount, endedList }) => {
         const ongoingTransfersFetch =
-          allFulfilled(ongoingList.map(tid => this.getTransfer(tid)));
+          allFulfilled(ongoingList.map(tid => this.getTransferById(tid)));
         const endedTransfersFetch = includeEndedList ?
-          allFulfilled(endedList.map(tid => this.getTransfer(tid))) : resolve();
+          allFulfilled(endedList.map(tid => this.getTransferById(tid))) : resolve();
         return allFulfilled([ongoingTransfersFetch, endedTransfersFetch])
           .then(([ongoingTransfers, endedTransfers]) => ({
             ongoingList: ongoingTransfers,
@@ -220,17 +236,20 @@ export default Service.extend({
    * @returns {Promise<Models.Transfer>}
    */
   startReplication(file, destinationOneprovider) {
-    const {
-      entityId,
-      type,
-    } = getProperties(file, 'entityId', 'type');
+    const fileId = get(file, 'entityId');
+    const destinationOneproviderId = get(destinationOneprovider, 'entityId');
 
-    const transfer = this.get('store').createRecord('transfer', {
-      dataSourceId: entityId,
-      dataSourceType: type,
-      replicatingProvider: destinationOneprovider,
-    });
-    return deleteRecordIfFailed(transfer, transfer.save());
+    return this.get('onedataGraph').request({
+        operation: 'create',
+        gri: replicaGri(fileId),
+        data: {
+          provider_id: destinationOneproviderId,
+        },
+        subscribe: false,
+      })
+      // FIXME: remove when api changes
+      .then(({ transferId }) => ({ transferId: parseGri(transferId).entityId }))
+      .then(({ transferId }) => this.getTransferById(transferId));
   },
 
   /**
@@ -240,18 +259,22 @@ export default Service.extend({
    * @returns {Promise<Models.Transfer>}
    */
   startMigration(file, sourceOneprovider, destinationOneprovider) {
-    const {
-      entityId,
-      type,
-    } = getProperties(file, 'entityId', 'type');
+    const fileId = get(file, 'entityId');
+    const sourceOneproviderId = get(sourceOneprovider, 'entityId');
+    const destinationOneproviderId = get(destinationOneprovider, 'entityId');
 
-    const transfer = this.get('store').createRecord('transfer', {
-      dataSourceId: entityId,
-      dataSourceType: type,
-      evictingProvider: sourceOneprovider,
-      replicatingProvider: destinationOneprovider,
-    });
-    return deleteRecordIfFailed(transfer, transfer.save());
+    return this.get('onedataGraph').request({
+        operation: 'delete',
+        gri: replicaGri(fileId),
+        data: {
+          provider_id: sourceOneproviderId,
+          migration_provider_id: destinationOneproviderId,
+        },
+        subscribe: false,
+      })
+      // FIXME: remove when api changes
+      .then(({ transferId }) => ({ transferId: parseGri(transferId).entityId }))
+      .then(({ transferId }) => this.getTransferById(transferId));
   },
 
   /**
@@ -260,17 +283,20 @@ export default Service.extend({
    * @returns {Promise<Models.Transfer>}
    */
   startEviction(file, sourceOneprovider) {
-    const {
-      entityId,
-      type,
-    } = getProperties(file, 'entityId', 'type');
+    const fileId = get(file, 'entityId');
+    const sourceOneproviderId = get(sourceOneprovider, 'entityId');
 
-    const transfer = this.get('store').createRecord('transfer', {
-      dataSourceId: entityId,
-      dataSourceType: type,
-      evictingProvider: sourceOneprovider,
-    });
-    return deleteRecordIfFailed(transfer, transfer.save());
+    return this.get('onedataGraph').request({
+        operation: 'delete',
+        gri: replicaGri(fileId),
+        data: {
+          provider_id: sourceOneproviderId,
+        },
+        subscribe: false,
+      })
+      // FIXME: remove when api changes
+      .then(({ transferId }) => ({ transferId: parseGri(transferId).entityId }))
+      .then(({ transferId }) => this.getTransferById(transferId));
   },
 
   rerunTransfer(transfer) {
@@ -278,13 +304,13 @@ export default Service.extend({
       entityType,
       entityId,
     } = getProperties(transfer, 'entityType', 'entityId');
-    const rerunGri = gri({
+    const requestGri = gri({
       entityType,
       entityId,
       aspect: 'rerun',
     });
     return this.get('onedataGraph').request({
-      gri: rerunGri,
+      gri: requestGri,
       operation: 'create',
       subscribe: false,
     });
@@ -295,25 +321,15 @@ export default Service.extend({
       entityType,
       entityId,
     } = getProperties(transfer, 'entityType', 'entityId');
-    const rerunGri = gri({
+    const requestGri = gri({
       entityType,
       entityId,
-      aspect: 'instance',
+      aspect: 'cancel',
     });
     return this.get('onedataGraph').request({
-      gri: rerunGri,
+      gri: requestGri,
       operation: 'delete',
       subscribe: false,
     });
   },
 });
-
-/**
- * @param {DS.Model} record 
- * @param {Promise} promise 
- * @returns {Promise} the same as `promise` arguments
- */
-function deleteRecordIfFailed(record, promise) {
-  promise.catch(() => record.deleteRecord());
-  return promise;
-}

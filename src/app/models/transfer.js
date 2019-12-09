@@ -192,19 +192,21 @@ export default Model.extend(
             isEnded,
             _isCancelling,
           } = this.getProperties('_isCancelling', 'isEnded', 'transferProgress');
-          const status = get(transferProgress, 'status');
+          const isAborting = transferProgress ?
+            get(transferProgress, 'status') === 'aborting' : undefined;
 
           // if transfer is finished, then cancelling is not possible
-          return status === 'aborting' || (_isCancelling && !isEnded);
+          return isAborting || (_isCancelling && !isEnded);
         },
         set(key, value) {
           const {
-            status,
-            state,
-          } = this.getProperties('status', 'state');
-          const isEnded = state === 'ended';
+            transferProgress,
+            isEnded,
+          } = this.getProperties('transferProgress', 'isEnded');
+          const isAborting = transferProgress ?
+            get(transferProgress, 'status') === 'aborting' : undefined;
           this.set('_isCancelling', value);
-          return status === 'aborting' || (value && !isEnded);
+          return isAborting || (value && !isEnded);
         },
       }
     ),
