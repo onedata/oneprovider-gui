@@ -5,6 +5,8 @@ import { computed, get } from '@ember/object';
 import generateColors from 'onedata-gui-common/utils/generate-colors';
 
 export default Component.extend({
+  classNames: ['dummy-providers-map'],
+
   mockBackend: service(),
 
   space: reads('mockBackend.entityRecords.space.firstObject'),

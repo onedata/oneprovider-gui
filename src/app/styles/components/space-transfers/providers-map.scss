@@ -1,15 +1,31 @@
 $-color-channel: #B6B6B6;
 
-.atlas-draw-layer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+.providers-map {
+  .one-map {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  path.transfer {
+    stroke: $-color-channel;
+    fill: none;
+    stroke-width: 5px;
+  }
+  
+  .atlas-draw-layer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
 }
 
-path.transfer {
-  stroke: $-color-channel;
-  fill: none;
-  stroke-width: 3px;
+
+.dummy-providers-map {
+  .one-map {
+    height: 300px;
+  }
 }

@@ -1,5 +1,5 @@
 /**
- * Map of Oneproviders, their transfers and Oneprovider transfer states.
+ * Map of providers, their transfers and Oneprovider transfer states.
  *
  * @module components/space-transfers/providers-map
  * @author Jakub Liput
@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { get, computed } from '@ember/object';
+import { get, computed, getProperties } from '@ember/object';
 import { isEmpty } from '@ember/utils';
 import { A } from '@ember/array';
 import _ from 'lodash';
@@ -17,15 +17,17 @@ import bidirectionalPairs from 'oneprovider-gui/utils/bidirectional-pairs';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
 import { assert } from '@ember/debug';
-import { promise } from 'ember-awesome-macros';
+import { promise, quotient, raw, sum } from 'ember-awesome-macros';
 import Looper from 'onedata-gui-common/utils/looper';
+import clusterizeProviders from 'onedata-gui-common/utils/clusterize-providers-by-coordinates';
+import mapPositionForCoordinates from 'onedata-gui-common/utils/map-position-for-coordinates';
 
 const pollingTime = 5100;
 
 export default Component.extend(
   createDataProxyMixin('channelDestinations'),
   createDataProxyMixin('providers', { type: 'array' }), {
-    classNames: ['transfers-providers-map'],
+    classNames: ['transfers-providers-map', 'providers-map'],
 
     i18n: service(),
     transferManager: service(),
@@ -49,11 +51,34 @@ export default Component.extend(
      */
     updater: undefined,
 
+    /**
+     * @type {number}
+     */
+    mapScale: 1,
+
     generalDataProxy: promise.object(
-      promise.all('channelDestinationsProxy', 'providersProxy')
+      promise.all('channelDestinationsProxy', 'providersProxy', 'mapInitialStateProxy')
     ),
 
     transfersActiveChannelsCache: computed(() => A()),
+
+    /**
+     * @type {Ember.ComputedProperty<Array<Object>>}
+     */
+    clusteredOneproviders: computed(
+      'providers.@each.{latitude,longitude}',
+      'mapScale',
+      function clusteredOneproviders() {
+        const {
+          providers,
+          mapScale,
+        } = this.getProperties('providers', 'mapScale');
+        const squareSideLength = 15 / (mapScale || 1);
+        return clusterizeProviders(
+          providers || [], squareSideLength, squareSideLength
+        );
+      }
+    ),
 
     /**
      * Creates an array of provider ids that are destination of transfers for space
@@ -126,8 +151,30 @@ export default Component.extend(
       }
     }),
 
+    /**
+     * @type {Ember.ComputedProperty<number>}
+     */
+    oneproviderCircleScale: sum(raw(2), quotient('mapScale', raw(3))),
+
+    mapInitialStateProxy: promise.object(computed('providersProxy',
+      function mapInitialStateProxy() {
+        return this.get('providersProxy').then((providers) => {
+          const points =
+            providers.map(p => getProperties(p, 'latitude', 'longitude'));
+          const mapPosition = mapPositionForCoordinates(points);
+          return {
+            lat: mapPosition.latitude,
+            lng: mapPosition.longitude,
+            scale: mapPosition.scale,
+          };
+        });
+      }
+    )),
+
     init() {
       this._super(...arguments);
+      // FIXME: debug
+      window.providersMap = this;
       assert('space cannot be null', this.get('space'));
       const updater = Looper.create({
         immediate: false,

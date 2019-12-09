@@ -1,0 +1,30 @@
+<defs>
+  <linearGradient id={{strokeGradientId}} x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color={{get providersColors oneproviderA.entityId}} />
+    <stop offset="100%" stop-color={{get providersColors oneproviderB.entityId}} />
+  </linearGradient>
+</defs>
+
+{{#map.position
+  useContainerElement=false
+  latitude=(get oneproviderA "latitude")
+  longitude=(get oneproviderA "longitude")
+  as |pax pay|
+}}
+  {{#map.position
+    useContainerElement=false
+    latitude=(get oneproviderB "latitude")
+    longitude=(get oneproviderB "longitude")
+    as |pbx pby|
+  }}
+    {{log pax pay pbx pby}}
+    {{bezier-curve
+      class="transfer animated fadeIn"
+      style=strokeStyle
+      x1=pax
+      y1=pay
+      x2=pbx
+      y2=pby
+    }}
+  {{/map.position}}
+{{/map.position}}

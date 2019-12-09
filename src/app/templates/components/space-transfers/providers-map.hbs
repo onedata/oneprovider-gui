@@ -1,5 +1,46 @@
 {{#promise-proxy-container proxy=generalDataProxy}}
   <div class="map-container">
+    {{#one-map
+      initialState=mapInitialStateProxy.content
+      triggerWindowEventName="transfersMapResize"
+      as |map|
+    }}
+      <svg class="atlas-draw-layer" xmlns="http://www.w3.org/2000/svg">      
+        {{#each transfersActiveChannels as |channel|}}
+          {{space-transfers/active-channel
+            map=map
+            providersMap=providersMap
+            providersColors=providersColors
+            channel=channel
+            scale=oneproviderCircleScale
+            mapSize=(max map.width map.height 1200)
+          }}
+        {{/each}}
+      </svg>
+    
+      {{#each clusteredOneproviders key="id" as |square|}}
+        {{#map.position latitude=square.latitude longitude=square.longitude as |x y|}}
+          {{#if (and (gte x 0) (lte x map.width) (gte y 0) (lte y map.height))}}
+            {{#oneprovider-map-circle
+              class=(concat "oneprovider-map-circle-" (model-routable-id square.providers.[0]))
+              mapSize=(max map.width map.height 1200)
+              scale=oneproviderCircleScale
+              oneproviders=square.providers
+              color=(get providersColors square.providers.[0].entityId)
+            }}
+              {{provider-place/super-circle
+                isSource=(contains provider.entityId sourceProviderIds)
+                isDestination=(contains provider.entityId destinationProviderIds)
+                circleColor=(get providersColors square.providers.[0].entityId)
+              }}
+            {{/oneprovider-map-circle}}
+          {{/if}}
+        {{/map.position}}
+      {{/each}}
+    {{/one-map}}
+  </div>
+
+  {{!-- <div class="map-container">
     {{#one-atlas as |atlas|}}
       <svg class="atlas-draw-layer" xmlns="http://www.w3.org/2000/svg">
         {{#each transfersActiveChannels as |con|}}
@@ -40,5 +81,5 @@
       {{/each}}
       
     {{/one-atlas}}
-  </div>
+  </div> --}}
 {{/promise-proxy-container}}

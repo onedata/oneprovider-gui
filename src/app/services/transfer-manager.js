@@ -32,12 +32,18 @@ export default Service.extend({
    * @returns {Promise<Models.Transfer>}
    */
   getTransferById(entityId) {
-    const transferGri = gri({
-      entityType: transferEntityType,
-      entityId,
-      aspect: 'instance',
-      scope: 'private',
-    });
+    // FIXME: quick fix for backend bug
+    let transferGri;
+    if (entityId.startsWith('op_transfer')) {
+      transferGri = entityId;
+    } else {
+      transferGri = gri({
+        entityType: transferEntityType,
+        entityId,
+        aspect: 'instance',
+        scope: 'private',
+      });
+    }
     return this.get('store').findRecord('transfer', transferGri);
   },
 
