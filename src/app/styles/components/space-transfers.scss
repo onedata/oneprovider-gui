@@ -321,13 +321,14 @@ $space-transfers-gray: #B6BAC0;
   .cell-icon {
     display: block;
     position: relative;
-    top: -4px;
+    
   }
 }
 .cell-icon {
+  display: block;
+  position: relative;
   font-size: 2em;
-  line-height: 0;
-  vertical-align: middle;
+  top: -5px;
   &.completed {
     color: $color-one-success;
   }

@@ -80,10 +80,6 @@
     } 
   }
   
-  .cell-status {
-    top: 1px;
-  }
-
   // TODO: HACK for waiting table, which does not have status column
   th.table-header:nth-last-of-type(1) {
     width: 70px;
