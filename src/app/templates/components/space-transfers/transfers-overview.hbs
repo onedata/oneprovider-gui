@@ -1,17 +1,17 @@
 <div class="row row-active-transfers {{if stickyOverview "sticky"}}" style={{stickyOverviewStyle}} onclick={{action "stickyFocused"}}>
   <div class="row row-overview">
-    <div class="col-xs-12 col-md-7 col-providers-map map-column">
+    <div class="col-xs-12 col-md-6 col-providers-map map-column">
       <h2>
         {{tt this "providersMapOfDist"}}
       </h2>
-      <div class="row loadable-row">
+      <div class="row loadable-row row-providers-map-inner">
         {{space-transfers/providers-map
           space=space
           providersColors=providersColors
         }}
       </div>
     </div>
-    <div class="col-xs-12 col-md-5 col-throughput-pie-chart">
+    <div class="col-xs-12 col-md-5 col-md-offset-1 col-throughput-pie-chart">
       <h2><span class="one-label">{{tt this "throughputDistribution.title"}}</span></h2>
       <div class="row loadable-row">
         {{#bs-tab

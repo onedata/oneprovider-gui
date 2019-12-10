@@ -27,8 +27,8 @@ export default TransfersTableContainer.extend({
         return resolve([]);
       } else {
         return transferManager.getTransfersForFile(file, true)
-          .then(({ ongoingList, endedList }) => {
-            return [...ongoingList, ...endedList];
+          .then(({ ongoingIds, endedIds }) => {
+            return [...ongoingIds, ...endedIds];
           });
       }
     } else if (startIndex === array.get('sourceArray.lastObject.index')) {

@@ -173,8 +173,6 @@ export default Component.extend(
 
     init() {
       this._super(...arguments);
-      // FIXME: debug
-      window.providersMap = this;
       assert('space cannot be null', this.get('space'));
       const updater = Looper.create({
         immediate: false,
@@ -185,6 +183,11 @@ export default Component.extend(
       this.setProperties({
         _providersInfoCache: A(),
       });
+    },
+
+    didInsertElement() {
+      this._super(...arguments);
+      this.$().on('wheel', (event) => event.stopPropagation());
     },
 
     destroy() {

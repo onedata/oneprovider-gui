@@ -35,6 +35,14 @@
     }
   }
   
+  .col-providers-map {
+    height: 530px;
+  }
+  
+  .row-providers-map-inner {
+    height: calc(100% - 49px);
+  }
+  
   .sticky {
     .row-expand-handler {      
       opacity: 1;

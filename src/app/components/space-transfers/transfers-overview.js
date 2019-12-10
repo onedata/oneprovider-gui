@@ -15,6 +15,7 @@ import { htmlSafe } from '@ember/string';
 import { observer } from '@ember/object';
 import $ from 'jquery';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { scheduleOnce } from '@ember/runloop';
 
 export default Component.extend(I18n, {
   classNames: ['transfers-overview', 'row', 'row-spacing'],
@@ -128,6 +129,9 @@ export default Component.extend(I18n, {
   },
 
   didInsertElement() {
+    scheduleOnce('afterRender', () => {
+      this.onResize();
+    });
     const $contentScroll = $('#content-scroll');
     this.initSticky($contentScroll);
     $contentScroll.on(
@@ -137,10 +141,7 @@ export default Component.extend(I18n, {
     $(window).on(
       this.eventName('resize'),
       () => safeExec(this, () => {
-        this.updateMobileMode();
-        this.computeSticky();
-        this.changeStyle();
-        this.changeStickyOverviewStyle();
+        this.onResize();
       })
     );
   },
@@ -148,6 +149,13 @@ export default Component.extend(I18n, {
   willDestroyElement() {
     $('#content-scroll').off(this.eventName('scroll'));
     $(window).off(this.eventName('resize'));
+  },
+
+  onResize() {
+    this.updateMobileMode();
+    this.computeSticky();
+    this.changeStyle();
+    this.changeStickyOverviewStyle();
   },
 
   changeStyle() {

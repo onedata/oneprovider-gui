@@ -387,12 +387,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           let transfers;
           if (transfersActive) {
             transfers = {
-              ongoingList: [transfer],
+              ongoingIds: [transfer],
               endedCount: 1,
             };
           } else {
             transfers = {
-              ongoingList: [],
+              ongoingIds: [],
               endedCount: 1,
             };
           }

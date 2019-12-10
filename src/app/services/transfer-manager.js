@@ -10,7 +10,6 @@
 import Service, { inject as service } from '@ember/service';
 import { get, getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { all as allFulfilled, resolve } from 'rsvp';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 
@@ -32,18 +31,12 @@ export default Service.extend({
    * @returns {Promise<Models.Transfer>}
    */
   getTransferById(entityId) {
-    // FIXME: quick fix for backend bug
-    let transferGri;
-    if (entityId.startsWith('op_transfer')) {
-      transferGri = entityId;
-    } else {
-      transferGri = gri({
-        entityType: transferEntityType,
-        entityId,
-        aspect: 'instance',
-        scope: 'private',
-      });
-    }
+    const transferGri = gri({
+      entityType: transferEntityType,
+      entityId,
+      aspect: 'instance',
+      scope: 'private',
+    });
     return this.get('store').findRecord('transfer', transferGri);
   },
 
@@ -52,10 +45,10 @@ export default Service.extend({
    * @param {boolean} [includeEndedList=false]
    * @returns {RSVP.Promise} A backend operation completion:
    * - `resolve(object: data)` when successfully fetched the list
-   *  - `data.ongoingList: Array<Models.Transfer>` - list of non-ended transfers (waiting
+   *  - `data.ongoingIds: Array<Models.Transfer>` - list of non-ended transfers (waiting
    *       and outgoing) for the file
    *  - `data.endedCount` Math.min(number of ended transfers, transfersHistoryLimitPerFile)
-   *  - `data.endedList` (optional, exists if includeEndedList was true) list of ended
+   *  - `data.endedIds` (optional, exists if includeEndedList was true) list of ended
    *       transfers for the file, which size is limited to the value of
    *       transfersHistoryLimitPerFile
    * - `reject(object: error)` on failure
@@ -74,19 +67,19 @@ export default Service.extend({
         gri: transferGri,
         operation: 'get',
         data: {
-          include_ended_list: includeEndedList,
+          include_ended_ids: includeEndedList,
         },
         subscribe: false,
       })
-      .then(({ ongoingList, endedCount, endedList }) => {
+      .then(({ ongoingIds, endedCount, endedIds }) => {
         const ongoingTransfersFetch =
-          allFulfilled(ongoingList.map(tid => this.getTransferById(tid)));
+          allFulfilled(ongoingIds.map(tid => this.getTransferById(tid)));
         const endedTransfersFetch = includeEndedList ?
-          allFulfilled(endedList.map(tid => this.getTransferById(tid))) : resolve();
+          allFulfilled(endedIds.map(tid => this.getTransferById(tid))) : resolve();
         return allFulfilled([ongoingTransfersFetch, endedTransfersFetch])
           .then(([ongoingTransfers, endedTransfers]) => ({
-            ongoingList: ongoingTransfers,
-            endedList: endedTransfers,
+            ongoingIds: ongoingTransfers,
+            endedIds: endedTransfers,
             endedCount,
           }));
       });
@@ -152,9 +145,8 @@ export default Service.extend({
     return onedataGraph.request({
       gri: chartsGri,
       operation: 'get',
-      // FIXME: to refactor to charts_type
       data: {
-        chartsType: timePeriod,
+        charts_type: timePeriod,
       },
       subscribe: false,
     });
@@ -183,10 +175,9 @@ export default Service.extend({
     return onedataGraph.request({
       gri: chartsGri,
       operation: 'get',
-      // FIXME: to refactor to transfer_type and charts_type
       data: {
-        transferType,
-        chartsType: timePeriod,
+        transfer_type: transferType,
+        charts_type: timePeriod,
       },
       subscribe: false,
     });
@@ -253,8 +244,6 @@ export default Service.extend({
         },
         subscribe: false,
       })
-      // FIXME: remove when api changes
-      .then(({ transferId }) => ({ transferId: parseGri(transferId).entityId }))
       .then(({ transferId }) => this.getTransferById(transferId));
   },
 
@@ -278,8 +267,6 @@ export default Service.extend({
         },
         subscribe: false,
       })
-      // FIXME: remove when api changes
-      .then(({ transferId }) => ({ transferId: parseGri(transferId).entityId }))
       .then(({ transferId }) => this.getTransferById(transferId));
   },
 
@@ -300,8 +287,6 @@ export default Service.extend({
         },
         subscribe: false,
       })
-      // FIXME: remove when api changes
-      .then(({ transferId }) => ({ transferId: parseGri(transferId).entityId }))
       .then(({ transferId }) => this.getTransferById(transferId));
   },
 

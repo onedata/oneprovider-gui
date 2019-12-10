@@ -1,54 +1,101 @@
+/**
+ * Connection between two Oneproviders on the map, showing that the transfer is in progress
+ * 
+ * @module components/space-transfers/active-channels
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { htmlSafe } from '@ember/string';
-import { reads } from '@ember/object/computed';
+import oneproviderPlaceSizes from 'onedata-gui-common/utils/oneprovider-place-sizes';
 
 export default Component.extend({
   tagName: '',
 
   map: undefined,
 
-  oneproviderA: computed('providersMap', 'channel', function oneproviderA() {
-    const {
-      providersMap,
-      channel,
-    } = this.getProperties('providersMap', 'channel');
-    return get(providersMap, channel[0]);
-  }),
+  providerA: oneproviderFromChannel(0),
 
-  oneproviderB: computed('providersMap', 'channel', function oneproviderB() {
-    const {
-      providersMap,
-      channel,
-    } = this.getProperties('providersMap', 'channel');
-    return get(providersMap, channel[1]);
-  }),
+  providerB: oneproviderFromChannel(1),
 
-  strokeGradientId: computed(
-    'oneproviderA',
-    'oneproviderB',
-    function strokeGradientId() {
-      return `${this.get('oneproviderA.entityId')}-${this.get('oneproviderB.entityId')}`;
+  /**
+   * Pair of colors to render gradient: first color is for the left part,
+   * second to the right.
+   * @type {Array<number>}
+   */
+  gradientColors: computed(
+    'oneproviderA.{entityId,longitude}',
+    'oneproviderB.{entityId,longitude}',
+    'providersColors',
+    function gradientColors() {
+      const {
+        providerA,
+        providerB,
+        providersColors,
+      } = this.getProperties('providerA', 'providerB', 'providersColors');
+      let leftProvider;
+      let rightProvider;
+      if (get(providerA, 'longitude') <= get(providerB, 'longitude')) {
+        leftProvider = providerA;
+        rightProvider = providerB;
+      } else {
+        leftProvider = providerB;
+        rightProvider = providerA;
+      }
+      return [
+        providersColors[get(leftProvider, 'entityId')],
+        providersColors[get(rightProvider, 'entityId')],
+      ];
     }
   ),
 
-  // FIXME: the algorithm is copied from circle - it should be common
-  /**
-   * @type {Ember.ComputedProperty<string>}
-   */
-  strokeStyle: computed('scale', 'mapSize', 'strokeGradientId', function style() {
+  strokeGradientId: computed(
+    'providerA',
+    'providerB',
+    function strokeGradientId() {
+      return `${this.get('providerA.entityId')}-${this.get('providerB.entityId')}`;
+    }
+  ),
+
+  baseStrokeWidth: computed('scale', 'mapSize', function baseStrokeWidth() {
     const {
       scale,
       mapSize,
-      strokeGradientId,
-    } = this.getProperties('scale', 'mapSize', 'strokeGradientId');
-    let styles = '';
+    } = this.getProperties('scale', 'mapSize');
     if (mapSize != null && scale != null) {
-      const width = mapSize * 0.01 * scale;
-      styles +=
-        `stroke-width: ${width / 15}px; stroke: url(#${strokeGradientId});`;
+      return get(oneproviderPlaceSizes(mapSize, scale), 'borderWidth');
+    } else {
+      return 5;
     }
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<string>}
+   */
+  strokeStyle: computed('baseStrokeWidth', 'strokeGradientId', function style() {
+    const {
+      baseStrokeWidth,
+      strokeGradientId,
+    } = this.getProperties('baseStrokeWidth', 'strokeGradientId');
+    const styles =
+      `stroke-width: ${baseStrokeWidth}px; stroke: url(#${strokeGradientId});`;
     return htmlSafe(styles);
   }),
 
+  backgroundStrokeStyle: computed('baseStrokeWidth', function backgroundStrokeStyle() {
+    return htmlSafe(`stroke-width: ${this.get('baseStrokeWidth') * 2}px;`);
+  }),
 });
+
+function oneproviderFromChannel(index) {
+  return computed('providersMap', 'channel', function oneproviderX() {
+    const {
+      providersMap,
+      channel,
+    } = this.getProperties('providersMap', 'channel');
+    return get(providersMap, channel[index]);
+  });
+}
