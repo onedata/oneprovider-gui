@@ -21,6 +21,16 @@
         </td>
       </tr>
     {{else}}
+      {{#if (and transfers.initialLoad.isSettled fetchingPrev)}}
+        <tr class="loading-row loading-prev-row">
+          <td colspan="9999" class="special-row-cell loading-row-cell loading-prev-cell">
+            {{spin-spinner-block
+              sizeClass="sm"
+              class="absolute-middle-centered"
+            }}
+          </td>
+        </tr>
+      {{/if}}
       {{#each transfers as |transfer|}}
         {{space-transfers/transfer-row
           columns=visibleColumns
@@ -50,6 +60,16 @@
           }}
         {{/if}}
       {{/each}}
+      {{#if (and transfers.initialLoad.isSettled fetchingNext)}}
+        <tr class="loading-row loading-next-row">
+          <td colspan="9999" class="special-row-cell loading-row-cell loading-next-cell">
+            {{spin-spinner-block
+              sizeClass="sm"
+              class="absolute-middle-centered"
+            }}
+          </td>
+        </tr>
+      {{/if}}
     {{/unless}}
   </tbody>
 </table>

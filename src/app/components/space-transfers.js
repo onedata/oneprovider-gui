@@ -19,8 +19,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import generateColors from 'onedata-gui-common/utils/generate-colors';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 
-// FIXME: loading states can be reached using ...IsUpdating in SpaceTransfersUpdater
-
 export default Component.extend(I18n, {
   classNames: ['space-transfers', 'row'],
   i18n: service(),
@@ -126,9 +124,6 @@ export default Component.extend(I18n, {
       }
     }
   ),
-
-  // FIXME: removed fileTransfersLoadingMore check, fix when working on loading
-  // indicators
 
   spaceChanged: observer('space', function spaceChanged() {
     this._spaceChanged();

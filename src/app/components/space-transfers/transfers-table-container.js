@@ -155,13 +155,6 @@ export default Component.extend({
       }
       this.set('tableTopVisible', headerVisible && !isBackwardLoading);
     });
-
-    // FIXME: rewrite
-    // const isLoadingMore = (
-    //   get(openedTransfersArray, 'lastObject') !==
-    //   get(openedTransfersArray, 'sourceArray.lastObject')
-    // );
-    // this.set(`${activeTabId}TransfersLoadingMore`, isLoadingMore);
   },
 
   updateTransfersArray() {

@@ -3,7 +3,7 @@ import { computed, get, set, setProperties } from '@ember/object';
 import _ from 'lodash';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { htmlSafe } from '@ember/string';
+import { htmlSafe, camelize } from '@ember/string';
 import { A } from '@ember/array';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
@@ -118,6 +118,10 @@ export default Component.extend(I18n, {
   mobileMode: false,
 
   rowHeight: 73,
+
+  fetchingPrev: false,
+
+  fetchingNext: false,
 
   expandedTransferIds: computed(() => A()),
 
@@ -344,7 +348,9 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    // FIXME: debug
     window.transfersTable = this;
+    this.registerArrayLoadingHandlers();
   },
 
   //#region Methods
@@ -355,6 +361,48 @@ export default Component.extend(I18n, {
       propertyName: id,
       component: 'cell-generic',
     }, customData);
+  },
+
+  registerArrayLoadingHandlers() {
+    const array = this.get('transfers');
+    array.on(
+      'fetchPrevStarted',
+      () => this.onFetchingStateUpdate('prev', 'started')
+    );
+    array.on(
+      'fetchPrevResolved',
+      () => this.onFetchingStateUpdate('prev', 'resolved')
+    );
+    array.on(
+      'fetchPrevRejected',
+      () => this.onFetchingStateUpdate('prev', 'rejected')
+    );
+    array.on(
+      'fetchNextStarted',
+      () => this.onFetchingStateUpdate('next', 'started')
+    );
+    array.on(
+      'fetchNextResolved',
+      () => this.onFetchingStateUpdate('next', 'resolved')
+    );
+    array.on(
+      'fetchNextRejected',
+      () => this.onFetchingStateUpdate('next', 'rejected')
+    );
+  },
+
+  /**
+   * @param {string} type one of: prev, next
+   * @param {string} state one of: started, resolved, rejected
+   * @returns {undefined}
+   */
+  onFetchingStateUpdate(type, state) {
+    safeExec(
+      this,
+      'set',
+      camelize(`fetching-${type}`),
+      state === 'started'
+    );
   },
 
   //#endregion

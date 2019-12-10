@@ -86,7 +86,7 @@ export default Component.extend({
   }),
 
   backgroundStrokeStyle: computed('baseStrokeWidth', function backgroundStrokeStyle() {
-    return htmlSafe(`stroke-width: ${this.get('baseStrokeWidth') * 2}px;`);
+    return htmlSafe(`stroke-width: ${this.get('baseStrokeWidth') * 2.5}px;`);
   }),
 });
 

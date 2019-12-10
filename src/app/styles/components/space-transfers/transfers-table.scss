@@ -60,6 +60,14 @@
     background-color: $color-one-light-gray;
   }
   
+  .data-row td.special-row-cell, td.special-row-cell {
+    position: relative;
+    height: 73px;
+    &.loading-row-cell {
+      height: 76px;
+    }
+  }
+  
   &.waiting {
     tr.data-row:hover {
       background-color: initial;
