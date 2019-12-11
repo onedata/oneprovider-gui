@@ -59,6 +59,12 @@ export default Component.extend(I18n, {
    */
   fileId: undefined,
 
+  /**
+   * @virtual
+   * @type {String}
+   */
+  defaultTab: undefined,
+
   providers: reads('providersProxy.content'),
 
   /**
@@ -153,8 +159,8 @@ export default Component.extend(I18n, {
       this._clearFileId();
     },
 
-    changeListTab() {
-      return this.get('changeListTab');
+    changeListTab(tab) {
+      return this.get('changeListTab')(tab);
     },
   },
 });

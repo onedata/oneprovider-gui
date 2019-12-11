@@ -37,10 +37,22 @@
                 {{tt this "throughputDistribution.onTheFly"}}
               </a>
             {{/nav.item}}
-            {{one-label-tip
-              class="throughput-tabs-hint vertical-align-middle"
-              title=(tt this "throughputTabsHint")
+            {{one-icon
+              icon="sign-question-rounded"
+              class="throughput-tabs-hint-trigger vertical-align-middle clickable"
             }}
+            {{#one-webui-popover
+              class="throughput-tabs-hint"
+              triggerSelector=(concat "#" elementId " .throughput-tabs-hint-trigger")
+            }}
+              <p>{{tt this "throughputTabsHint.intro"}}</p>
+              <h1>{{tt this "throughputTabsHint.total"}}</h1>
+              <p>{{tt this "throughputTabsHint.totalInfo"}}</p>
+              <h1>{{tt this "throughputTabsHint.transferJobs"}}</h1>
+              <p>{{tt this "throughputTabsHint.transferJobsInfo"}}</p>
+              <h1>{{tt this "throughputTabsHint.onTheFly"}}</h1>
+              <p>{{tt this "throughputTabsHint.onTheFlyInfo"}}</p>
+            {{/one-webui-popover}}
           {{/bs-nav}}
           <div class="tab-content">
             {{#tab.pane elementId="throughput-chart-tab"}}

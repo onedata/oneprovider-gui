@@ -31,6 +31,7 @@ export default OneEmbeddedComponent.extend(
     iframeInjectedProperties: Object.freeze([
       'spaceEntityId',
       'fileEntityId',
+      'tab',
     ]),
 
     init() {
@@ -42,8 +43,12 @@ export default OneEmbeddedComponent.extend(
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
       },
-      resetQueryParams: notImplementedIgnore,
-      changeListTab: notImplementedIgnore,
+      resetQueryParams() {
+        return this.callParent('resetQueryParams');
+      },
+      changeListTab(tab) {
+        return this.callParent('changeListTab', tab);
+      },
       closeFileTab() {
         return this.callParent('closeFileTab');
       },
