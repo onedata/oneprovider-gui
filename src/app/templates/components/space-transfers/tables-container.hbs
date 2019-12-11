@@ -22,7 +22,6 @@
         >
           {{#if (eq type "file")}}
             <span class="tab-label">
-              {{!-- FIXME: there was code: unless (eq tabJustChangedId "file") --}}
               {{#one-icon class="tab-icon" icon=fileTabIcon}}
                 {{one-tooltip title=fileTabHint}}
               {{/one-icon}}
@@ -36,10 +35,6 @@
                 </div>
               {{/if}}
             </span>
-            {{!-- FIXME: implement --}}
-            {{!-- {{#if (eq tabJustChangedId "file")}}
-              {{spin-spinner-block sizeClass="xs" class="tab-spinner tab-spinner-left"}}
-            {{/if}} --}}
             <span class="tab-close clickable" {{action "closeFileTab"}}>
               {{one-icon icon="close"}}
             </span>
@@ -47,16 +42,12 @@
             <span class="tab-label">
               {{tt this (concat type "Transfers")}}
             </span>
-            {{!-- FIXME: implement --}}
-            {{!-- {{#if (eq tabJustChangedId type)}}
-              {{spin-spinner-block sizeClass="xs" class="tab-spinner"}}
-            {{/if}} --}}
           {{/if}}
         </a>
       {{/nav.item}}
     {{/each}}
   {{/bs-nav}}
-  <div class="tab-content tab-content-transfers-list">
+  <div class="tab-content tab-content-transfers-list no-vertical-padding">
     {{#each tabIds as |type|}}
       {{#tab.pane elementId=type}}
         {{#if (eq tab.activeId type)}}

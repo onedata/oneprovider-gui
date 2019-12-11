@@ -8,6 +8,7 @@
         {{space-transfers/providers-map
           space=space
           providersColors=providersColors
+          zoomOnScroll=false
         }}
       </div>
     </div>
@@ -54,7 +55,7 @@
               <p>{{tt this "throughputTabsHint.onTheFlyInfo"}}</p>
             {{/one-webui-popover}}
           {{/bs-nav}}
-          <div class="tab-content">
+          <div class="tab-content no-vertical-padding">
             {{#tab.pane elementId="throughput-chart-tab"}}
               {{space-transfers/throughput-distribution
                 space=space

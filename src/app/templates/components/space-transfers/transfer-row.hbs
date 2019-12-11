@@ -1,7 +1,5 @@
 {{#each columns as |column|}}
-  <td class={{concat "transfers-table-cell-" column.id}}>
-    {{!-- FIXME: actions column should be separate special column to avoid injecting actions --}}
-    {{!-- FIXME: table could be unnecessary --}}
+  <td class={{concat-classes (concat "transfers-table-cell-" column.id) column.className}}>
     {{component
       (concat "space-transfers/" column.component)
       class=column.className

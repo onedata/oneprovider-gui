@@ -28,6 +28,12 @@
     }
   }
   
+  @include hide-on-breakpoint(col-hide-1, 960px);
+  @include hide-on-breakpoint(col-hide-2, 760px);
+  @include hide-on-breakpoint(col-hide-3, 660px);
+  @include hide-on-breakpoint(col-hide-4, 560px);
+  @include hide-on-breakpoint(col-hide-5, 500px);
+  
   tr {
     .first-row-space {
       width: 100%;

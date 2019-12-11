@@ -2,7 +2,7 @@
   <thead class="transfers-table-thead">
     <tr>
       {{#each visibleColumns as |column|}}
-        <th class={{concat "transfers-table-col-" column.id}}>
+        <th class={{concat-classes (concat "transfers-table-col-" column.id) column.className}}>
           {{tt this column.id}}
         </th>
       {{/each}}

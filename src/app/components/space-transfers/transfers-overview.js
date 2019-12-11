@@ -12,7 +12,7 @@
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import Component from '@ember/component';
 import { htmlSafe } from '@ember/string';
-import { observer } from '@ember/object';
+import { observer, get } from '@ember/object';
 import $ from 'jquery';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { scheduleOnce } from '@ember/runloop';
@@ -250,7 +250,10 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<Function>}
    */
   updateMobileMode() {
-    this.set('_mobileMode', this.get('_window.innerWidth') < 1261);
+    const _window = this.get('_window');
+    const innerWidth = get(_window, 'innerWidth');
+    const innerHeight = get(_window, 'innerHeight');
+    this.set('_mobileMode', innerWidth < 1320 || innerHeight < 580);
   },
 
   actions: {

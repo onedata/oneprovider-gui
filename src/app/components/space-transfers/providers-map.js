@@ -56,6 +56,8 @@ export default Component.extend(
      */
     mapScale: 1,
 
+    zoomOnScroll: true,
+
     generalDataProxy: promise.object(
       promise.all('channelDestinationsProxy', 'providersProxy', 'mapInitialStateProxy')
     ),
@@ -183,11 +185,6 @@ export default Component.extend(
       this.setProperties({
         _providersInfoCache: A(),
       });
-    },
-
-    didInsertElement() {
-      this._super(...arguments);
-      this.$().on('wheel', (event) => event.stopPropagation());
     },
 
     destroy() {

@@ -151,11 +151,10 @@ export default Component.extend(I18n, {
       const {
         transferType,
       } = this.getProperties('transferType');
-      const excludedColumns = [...tableExcludedColumnNames[transferType]];
+      const excludedColumnNames = [...tableExcludedColumnNames[transferType]];
       return _.differenceWith(
         allColumnNames,
-        excludedColumns,
-        (col, eid) => col.id === eid
+        excludedColumnNames
       );
     }
   ),
@@ -290,30 +289,35 @@ export default Component.extend(I18n, {
   userNameColumn: computed(function userNameColumn() {
     return this.createColumn('userName', {
       component: 'cell-truncated',
+      className: 'col-hide-2',
     });
   }),
 
   destinationColumn: computed(function destinationColumn() {
     return this.createColumn('destination', {
       component: 'cell-truncated',
+      className: 'col-hide-3',
     });
   }),
 
   scheduledAtColumn: computed(function scheduledAtColumn() {
     return this.createColumn('scheduledAt', {
       propertyName: 'scheduledAtReadable',
+      className: 'col-hide-5',
     });
   }),
 
   startedAtColumn: computed(function startedAtColumn() {
     return this.createColumn('startedAt', {
       propertyName: 'startedAtReadable',
+      className: 'col-hide-4',
     });
   }),
 
   finishedAtColumn: computed(function finishedAtColumn() {
     return this.createColumn('finishedAt', {
       propertyName: 'finishedAtReadable',
+      className: 'col-hide-4',
     });
   }),
 
@@ -327,6 +331,7 @@ export default Component.extend(I18n, {
   totalFilesColumn: computed(function totalFilesColumn() {
     return this.createColumn('totalFiles', {
       component: 'cell-total-files',
+      className: 'col-hide-1',
     });
   }),
 
