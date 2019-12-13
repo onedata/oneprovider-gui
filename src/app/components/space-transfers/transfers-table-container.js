@@ -22,6 +22,8 @@ import { isEmpty } from '@ember/utils';
 
 const updateInterval = 5000;
 
+const endedStates = new Set(['completed', 'skipped', 'cancelled', 'failed']);
+
 export default Component.extend({
   classNames: ['transfers-table-container'],
 
@@ -171,7 +173,10 @@ export default Component.extend({
       .then(transfersArray => {
         return allFulfilled(
           transfersArray
-          .filter(transfer => get(transfer, 'state') !== 'ended')
+          .filter(transfer => {
+            return get(transfer, 'state') !== 'ended' ||
+              !endedStates.has(get(transfer, 'transferProgress.status'));
+          })
           .map(transfer => transfer.updateTransferProgressProxy({ replace: true }))
         );
       });

@@ -372,11 +372,6 @@ export default Service.extend({
         break;
     }
     return createPromise;
-    // FIXME: experimental
-    // return createPromise.then((records) => {
-    //   entityRecords[type] = records;
-    //   return records;
-    // });
   },
 
   createUserRecord(store, listRecords) {
@@ -404,7 +399,7 @@ export function generateTransferEntityId(i, state, scheduleTime, startTime) {
   let stateName;
   switch (state) {
     case tsOngoing:
-      stateName = 'started';
+      stateName = 'ongoing';
       break;
     case tsWaiting:
       stateName = 'waiting';

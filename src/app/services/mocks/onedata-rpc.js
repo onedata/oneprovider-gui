@@ -13,21 +13,16 @@ import { resolve, reject, all } from 'rsvp';
 import _ from 'lodash';
 import { inject as service } from '@ember/service';
 import { get, setProperties, computed } from '@ember/object';
-// FIXME: implement transfers list fetching
+
 import {
   numberOfFiles,
   numberOfDirs,
-  // numberOfTransfers,
   generateFileEntityId,
   generateDirEntityId,
   generateFileGri,
-  // generateTransferGri,
-  // generateTransferEntityId,
-  // decodeTransferEntityId,
 } from 'oneprovider-gui/services/mock-backend';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-// import { computeTransferIndex } from 'oneprovider-gui/models/transfer';
 
 export default OnedataRpc.extend({
   store: service(),
@@ -90,12 +85,6 @@ export default OnedataRpc.extend({
           .then(file => ({ id: get(file, 'id') }));
       });
   },
-
-  // FIXME: changed to graph sync get
-  // __handle_getSpaceTransfers({ spaceId, state, index, limit, offset }) {
-  //   return resolve(this.getMockSpaceTransfersSlice(spaceId, state, index, limit,
-  //     offset));
-  // },
 
   getFilesByEntityId(entityIds) {
     const store = this.get('store');
