@@ -1,0 +1,5 @@
+{{#if functionString}}
+  {{#code-block language="javascript" class="function-source"}}{{formattedSource}}{{/code-block}}
+{{else}}
+  <p>{{tt this (concat "empty." functionType)}}</p>
+{{/if}}

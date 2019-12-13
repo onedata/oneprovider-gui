@@ -202,5 +202,9 @@ export default Component.extend({
     rerunTransfer(transferId) {
       return this.get('transferManager').rerunTransfer(transferId);
     },
+
+    openDbViewModal() {
+      return this.get('openDbViewModal')(...arguments);
+    },
   },
 });

@@ -2,6 +2,7 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import TransferTableRecord from 'oneprovider-gui/utils/transfer-table-record';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 export default Component.extend({
   tagName: 'tr',
@@ -60,6 +61,12 @@ export default Component.extend({
    */
   transferActions: undefined,
 
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  openDbViewModal: notImplementedThrow,
+
   dataRowId: reads('transfer.entityId'),
 
   record: computed(
@@ -95,4 +102,10 @@ export default Component.extend({
       });
     }
   ),
+
+  actions: {
+    openDbViewModal() {
+      return this.get('openDbViewModal')(...arguments);
+    },
+  },
 });

@@ -13,10 +13,7 @@
       clearJustOpened=(action "clearJustChangedTabId" type)
       rerunTransfer=(action "rerunTransfer")
       cancelTransfer=(action "cancelTransfer")
+      openDbViewModal=(action "openDbViewModal")
     }}
   {{/loading-container}}
 </div>
-{{!-- FIXME: currently this property is not moved --}}
-{{#if (get this (concat type "TransfersLoadingMore"))}}
-  {{!-- FIXME: loading more spinner --}}
-{{/if}}

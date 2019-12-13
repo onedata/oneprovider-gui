@@ -2,6 +2,7 @@ import Component from '@ember/component';
 import { computed, get, set, setProperties } from '@ember/object';
 import _ from 'lodash';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { htmlSafe, camelize } from '@ember/string';
 import { A } from '@ember/array';
@@ -105,6 +106,12 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   cancelTransfer: notImplementedReject,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  openDbViewModal: notImplementedThrow,
 
   //#endregion
 
@@ -428,6 +435,9 @@ export default Component.extend(I18n, {
       } else {
         expandedTransferIds.removeObject(transferId);
       }
+    },
+    openDbViewModal() {
+      return this.get('openDbViewModal')(...arguments);
     },
   },
 

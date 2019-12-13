@@ -27,7 +27,7 @@ export default {
     cancelTransfer: 'Cancel transfer',
     rerunTransfer: 'Rerun transfer',
   },
-  cellFileName: {
+  cellDataName: {
     file: 'File:',
     dir: 'Directory',
     view: 'View',

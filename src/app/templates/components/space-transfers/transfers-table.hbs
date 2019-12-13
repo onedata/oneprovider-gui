@@ -42,6 +42,7 @@
           spaceId=spaceId
           transfersTable=this
           transferActions=transferActions
+          openDbViewModal=(action "openDbViewModal")
           click=(action "toggleTransferDetails" transfer.entityId undefined)
         }}
         {{#if (contains transfer.entityId expandedTransferIds)}}

@@ -268,5 +268,14 @@ export default Component.extend(I18n, {
         this.set('tabJustChangedId', null);
       }
     },
+    openDbViewModal(dbViewName) {
+      return this.setProperties({
+        dbViewModalOpened: true,
+        dbViewModalName: dbViewName,
+      });
+    },
+    dbViewModalHidden() {
+      this.set('dbViewModalName', null);
+    },
   },
 });

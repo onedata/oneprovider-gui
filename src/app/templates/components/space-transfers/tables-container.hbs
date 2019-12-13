@@ -63,6 +63,7 @@
                   file=(if (eq type "file") file undefined)
                   justOpened=(eq tabJustChangedId type)
                   clearJustOpened=(action "clearJustChangedTabId" type)
+                  openDbViewModal=(action "openDbViewModal")
                 }}
               {{/if}}
               {{#if (and (eq type "file") fileHistoryLimitReached)}}
@@ -77,3 +78,11 @@
     {{/each}}
   </div>
 {{/bs-tab}}
+
+{{db-view-modal
+  open=dbViewModalOpened
+  space=space
+  dbViewName=dbViewModalName
+  close=(action (mut dbViewModalOpened) false)
+  onHidden=(action "dbViewModalHidden")
+}}

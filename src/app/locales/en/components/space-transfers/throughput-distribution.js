@@ -1,7 +1,7 @@
 import transferChart from './transfer-chart';
 
 export default {
-  title: 'Providers throughput',
+  title: 'Oneproviders throughput',
   input: 'Input',
   output: 'Output',
   receivedFrom: 'Inbound',

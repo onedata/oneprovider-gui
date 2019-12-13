@@ -1,4 +1,4 @@
-/* eslint-env node */
+7; /* eslint-env node */
 'use strict';
 
 var EmberApp = require('ember-cli/lib/broccoli/ember-app');
@@ -84,6 +84,7 @@ module.exports = function (defaults) {
     'basictable/basictable.css',
     'webui-popover/dist/jquery.webui-popover.css',
     'webui-popover/dist/jquery.webui-popover.js',
+    'js-beautify/js/lib/beautify.js',
   ];
 
   const NODE_ASSETS = [

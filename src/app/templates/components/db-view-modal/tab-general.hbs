@@ -1,0 +1,22 @@
+<table class="table table-info table-info-large table-info-collapsible">
+  <tbody>
+    {{#each displayedProperties as |property|}}
+      <tr class="db-view-row">
+        <td class="property-name">
+          {{tt this property}}
+        </td>
+        <td class="property-value">
+          {{get this property}}
+        </td>
+      </tr>
+    {{/each}}
+    <tr class="db-view-row row-query-options">
+      <td class="property-name">
+        {{tt this "viewOptions"}}
+      </td>
+      <td class="property-value">
+        {{query-options options=viewOptions}}
+      </td>
+    </tr>
+  </tbody>
+</table>

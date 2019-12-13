@@ -194,15 +194,12 @@ export default Component.extend(I18n, {
       const {
         fileDistributionData,
         getTransfersUrl,
-        activeTransfersExist,
       } = this.getProperties(
         'fileDistributionData',
         'getTransfersUrl',
-        'activeTransfersExist',
       );
       return getTransfersUrl({
         fileId: get(fileDistributionData, 'firstObject.file.entityId'),
-        tabId: activeTransfersExist ? 'ongoing' : 'ended',
       });
     },
   ),

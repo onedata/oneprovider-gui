@@ -8,7 +8,8 @@
 {{else if (eq dataSourceType "view")}}
   <a
     class="transfer-file-name transfer-data-name"
-    onclick={{action "openViewModal" bubbles=false}}>
+    onclick={{action "openDbViewModal" bubbles=false}}
+  >
     {{name}}
   </a>
 {{else}}
