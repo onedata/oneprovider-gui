@@ -6,7 +6,7 @@
           {{tt this property}}
         </td>
         <td class="property-value">
-          {{get this property}}
+          {{if (is-empty (get this property)) "‐" (get this property)}}
         </td>
       </tr>
     {{/each}}

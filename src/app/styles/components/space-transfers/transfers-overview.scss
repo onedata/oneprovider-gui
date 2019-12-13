@@ -17,7 +17,6 @@
     background-color: $color-one-white;
   }
   
-  // FIXME: new styles for Oneprovider GUI
   .row-expand-handler {
     opacity: 0;
     display: block;
@@ -36,7 +35,10 @@
   }
   
   .col-providers-map {
-    height: 530px;
+    height: 510px;
+    @media (max-width: $screen-sm-max) {
+      margin-bottom: $padding-large-vertical;
+    }
   }
   
   .row-providers-map-inner {
