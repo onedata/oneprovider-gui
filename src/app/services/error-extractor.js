@@ -9,7 +9,7 @@
  */
 
 import ErrorExtractor from 'onedata-gui-common/services/error-extractor';
-import getErrorDescription from 'onedata-gui-websocket-client/utils/get-error-description';
+import getErrorDescription from 'onedata-gui-common/utils/get-error-description';
 
 export default ErrorExtractor.extend({
   /**

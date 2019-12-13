@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import onedataCommonTranslations from './onedata-gui-common';
-import onedataWebsocketClientTranslations from './onedata-gui-websocket-client';
 
 import aclEditor from './components/acl-editor';
 import editPermissionsModal from './components/edit-permissions-modal';
@@ -36,6 +35,5 @@ const translations = {
 
 export default _.merge({},
   onedataCommonTranslations,
-  onedataWebsocketClientTranslations,
   translations
 );
