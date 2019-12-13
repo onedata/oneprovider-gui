@@ -18,6 +18,7 @@ import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import $ from 'jquery';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { isEmpty } from '@ember/utils';
 
 const updateInterval = 5000;
 
@@ -113,14 +114,14 @@ export default Component.extend({
       'transfersArray',
       'listWatcher',
     );
-    if (items[0] && !items[0].getAttribute('data-row-id')) {
-      next(() => {
-        transfersArray.fetchPrev().then(() =>
-          listWatcher.scrollHandler()
-        );
-      });
-    }
     const sourceArray = get(transfersArray, 'sourceArray');
+
+    if (isEmpty(items) && !isEmpty(sourceArray)) {
+      transfersArray.setProperties({ startIndex: 0, endIndex: 50 });
+      this.set('tableTopVisible', headerVisible);
+      return;
+    }
+
     const transfersArrayIds = sourceArray.mapBy('entityId');
     const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
     const firstId =
