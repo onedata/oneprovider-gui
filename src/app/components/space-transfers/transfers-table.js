@@ -79,24 +79,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * FIXME: Seems to be not used, but was used in legacy live-stats-table
-   */
-  notifyTransferListChanged: undefined,
-
-  /**
-   * @virtual
-   * FIXME: to use
-   */
-  justOpened: undefined,
-
-  /**
-   * @virtual
-   * FIXME: to use
-   */
-  clearJustOpened: undefined,
-
-  /**
-   * @virtual
    * @type {Function}
    */
   rerunTransfer: notImplementedReject,
@@ -113,23 +95,32 @@ export default Component.extend(I18n, {
    */
   openDbViewModal: notImplementedThrow,
 
+  /**
+   * @virtual optional
+   * @type {Number}
+   */
+  rowHeight: 73,
+
   //#endregion
 
   //#region Private properties
 
-  // FIXME: where this value is set?
   /**
-   * If true, component is rendered in mobile mode.
    * @type {boolean}
+   * If true, should render top loading indicator
    */
-  mobileMode: false,
-
-  rowHeight: 73,
-
   fetchingPrev: false,
 
+  /**
+   * If true, should render bottom loading indicator
+   * @type {boolean}
+   */
   fetchingNext: false,
 
+  /**
+   * List of transfer EntityIds that are expanded on the view
+   * @type {Array<Srting>}
+   */
   expandedTransferIds: computed(() => A()),
 
   //#endregion
@@ -360,8 +351,6 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // FIXME: debug
-    window.transfersTable = this;
     this.registerArrayLoadingHandlers();
   },
 

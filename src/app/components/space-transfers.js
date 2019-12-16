@@ -79,7 +79,7 @@ export default Component.extend(I18n, {
     })
   ),
 
-  // FIXME: falsy isSupportedByOngoingProvider will cause infinite loading
+  // TODO: falsy isSupportedByOngoingProvider will cause infinite loading
   generalDataLoaded: and(
     equal('isSupportedByOngoingProvider', raw(true)),
     'providersProxy.isSettled',
@@ -138,8 +138,6 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this._spaceChanged(true);
-    // FIXME: debug
-    window.spaceTransfers = this;
   },
 
   _spaceChanged(isInit = false) {

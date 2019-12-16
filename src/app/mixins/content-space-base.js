@@ -1,6 +1,6 @@
 /**
- * FIXME: doc; components mixing this should have injected `spaceEntityId`
- * 
+ * Base for components that have space entity injected and use space as model
+ *  
  * @module mixins/content-space-base
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH

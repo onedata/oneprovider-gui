@@ -1,5 +1,5 @@
 /**
- * FIXME: description
+ * Container for development tests of db-view-modal
  * 
  * @module components/dummy-db-view-modal
  * @author Jakub Liput

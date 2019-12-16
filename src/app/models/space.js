@@ -32,27 +32,5 @@ export default Model.extend(
     fetchTransfersActiveChannels() {
       return this.get('transferManager').getSpaceTransfersActiveChannels(this);
     },
-
-    // FIXME: remove from here
-    /**
-     * Fetch partial list of space transfer records.
-     * Implements 
-     * @param {String} state one of: waiting, ongoing, ended
-     * @param {String} startFromIndex
-     * @param {Number} size
-     * @param {Number} offset
-     * @returns {Promise<object>} promise of backend request with transfers list
-     */
-    fetchTransfers(state, startFromIndex, size, offset) {
-      const transferManager = this.get('transferManager');
-      const space = this;
-      return transferManager.getTransfersForSpace(
-        space,
-        state,
-        startFromIndex,
-        size,
-        offset
-      );
-    },
   }
 ).reopenClass(StaticGraphModelMixin);

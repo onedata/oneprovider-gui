@@ -33,13 +33,16 @@
       {{/if}}
       {{#each transfers as |transfer|}}
         {{space-transfers/transfer-row
+          record=(transfer-table-record
+            transfer=transfer
+            transfers=transfers
+            providers=providers
+            transferCollection=transferType
+            updaterId=updaterId
+            providersColors=providersColors
+            transferActions=transferActions
+          )
           columns=visibleColumns
-          transfer=transfer
-          transfers=transfers
-          providers=providers
-          transferType=transferType
-          updaterId=updaterId
-          spaceId=spaceId
           transfersTable=this
           transferActions=transferActions
           openDbViewModal=(action "openDbViewModal")

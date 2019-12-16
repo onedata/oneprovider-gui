@@ -1,5 +1,5 @@
 /**
- * FIXME: doc
+ * Container for all transfer tables in space transfers view
  * 
  * @module components/space-transfers/tables-container
  * @author Jakub Liput
@@ -32,6 +32,8 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * File EntityId which tab should be redered
+   * @type {String}
    */
   fileId: undefined,
 
@@ -63,8 +65,6 @@ export default Component.extend(I18n, {
    * Initialized in `didInsertElement`
    */
   listWatcher: undefined,
-
-  rowHeight: 73,
 
   listLocked: false,
 

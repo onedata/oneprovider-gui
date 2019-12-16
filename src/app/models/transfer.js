@@ -30,7 +30,8 @@ const endedStates = [
 
 export const entityType = 'op_transfer';
 
-// FIXME: use collection type
+// TODO: use collection type
+
 export function computeTransferIndex(entityId, scheduleTime, finishTime) {
   const timestamp = finishTime || scheduleTime;
   const firstIdPartMatch = entityId.match(/(.*)(ip2.*)/);
@@ -232,12 +233,9 @@ export default Model.extend(
         store,
         userId,
       } = this.getProperties('store', 'userId');
-      // FIXME: for backend
+      // TODO: doesn't work for mock mode, which uses: entity type user and scoper private
       const entityType = userEntityType;
       const scope = 'shared';
-      // FIXME: for development mock mode
-      // const entityType = 'user';
-      // const scope = 'private';
       const userGri = gri({
         entityType,
         entityId: userId,

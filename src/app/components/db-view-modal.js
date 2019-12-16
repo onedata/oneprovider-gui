@@ -1,5 +1,5 @@
 /**
- * FIXME: description
+ * Modal for showing information and source of functions od Database View (aka Index)
  * 
  * @module components/db-view-modal
  * @author Jakub Liput
@@ -83,7 +83,7 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {PromiseArray<>}
+   * @type {PromiseArray<String>}
    */
   providerNamesProxy: promise.array(
     computed('dbViewProxy.content.providers', function providerNamesProxy() {

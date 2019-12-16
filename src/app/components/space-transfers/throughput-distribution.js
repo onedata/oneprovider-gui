@@ -763,7 +763,7 @@ export default Component.extend(
     },
 
     _createTimeStatsUpdater() {
-      // FIXME: removed statsError assign
+      // TODO: removed statsError assign
       const {
         updaterEnabled,
         timeUnit,

@@ -1,5 +1,5 @@
 /**
- * FIXME: doc
+ * Container for transfers table providing infinite scroll and auto-update support
  * 
  * @module components/space-transfers/transfers-table-container
  * @author Jakub Liput
@@ -37,9 +37,9 @@ export default Component.extend({
 
   space: undefined,
 
-  justOpened: undefined,
-
   tableTopVisible: true,
+
+  rowHeight: 73,
 
   _window: window,
 
@@ -185,10 +185,6 @@ export default Component.extend({
   actions: {
     clearJustChangedTabId() {
       return this.get('clearJustChangedTabId')(...arguments);
-    },
-
-    transferListChanged() {
-      return this.get('transferListChanged')(...arguments);
     },
 
     /**

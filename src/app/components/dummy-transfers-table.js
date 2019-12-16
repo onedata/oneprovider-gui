@@ -132,8 +132,6 @@ function someReduce() {
   },
 
   actions: {
-    transferListChanged: notImplementedIgnore,
-    clearJustOpened: notImplementedIgnore,
     clearJustChangedTabId: notImplementedIgnore,
     rerunTransfer: notImplementedReject,
     cancelTransfer() {

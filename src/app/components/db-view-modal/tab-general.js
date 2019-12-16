@@ -1,5 +1,5 @@
 /**
- * FIXME: description
+ * Content of db-view-modal for showing general info of Database View (Index)
  * 
  * @module components/db-view-modal/tab-function
  * @author Jakub Liput
@@ -47,6 +47,10 @@ export default Component.extend(I18n, {
    */
   viewOptions: undefined,
 
+  /**
+   * List of Oneprovider names
+   * @type {ComputedProperty<String>}
+   */
   providers: computed('providerNames.[]', function providers() {
     const providerNames = this.get('providerNames');
     if (providerNames) {

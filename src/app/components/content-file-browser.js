@@ -59,7 +59,8 @@ export default OneEmbeddedComponent.extend(
       }
     }),
 
-    // FIXME: observer for changing dir that is injected to enable change in runtime
+    // TODO: observer for changing dir that is injected to enable change in runtime
+
     /**
      * @override
      */

@@ -78,8 +78,6 @@ export default EmberObject.extend({
 
   init() {
     this._super(...arguments);
-    // FIXME: debug
-    window.transferTimeStatUpdater = this;
 
     this.setProperties({
       isUpdating: true,

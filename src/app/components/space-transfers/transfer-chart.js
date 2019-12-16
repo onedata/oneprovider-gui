@@ -646,9 +646,6 @@ export default Component.extend(
       this.set('_chartValues', []);
       const transfer = this.get('transfer');
 
-      // FIXME: debug
-      window.transferChart = this;
-
       if (get(transfer, 'isLoaded')) {
         this._createTimeStatsUpdater();
       } else {

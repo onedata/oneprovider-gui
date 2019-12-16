@@ -1,5 +1,5 @@
 /**
- * FIXME: doc
+ * Extension of transfers-table-container for file transfers table
  * 
  * @module components/space-transfers/file-transfers-table-container
  * @author Jakub Liput

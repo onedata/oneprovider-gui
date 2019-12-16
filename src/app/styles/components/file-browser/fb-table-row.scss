@@ -9,7 +9,6 @@
       opacity: 0.6;
     }
   }
-  // FIXME: experimental
   &.is-invalidated {
     position: relative;
   }
@@ -54,7 +53,7 @@
         }
       }
     }
-    // FIXME: design
+    // TODO: design
     // &:hover {
     //   .file-status-icon {
     //     color: $main-text-color;

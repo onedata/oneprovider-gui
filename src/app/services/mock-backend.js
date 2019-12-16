@@ -225,7 +225,7 @@ export default Service.extend({
       });
   },
 
-  // FIXME: space provider / provider space lists method can be unified
+  // TODO: space provider / provider space lists method can be unified
 
   createSpaceProviderLists(providerList, spaceList) {
     const store = this.get('store');

@@ -15,10 +15,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import UnauthenticatedRouteMixin from 'ember-simple-auth/mixins/unauthenticated-route-mixin';
 import AuthenticationErrorHandlerMixin from 'onedata-gui-common/mixins/authentication-error-handler';
 
-// FIXME: until production Oneprovider: implement authRedirect support
-// maybe something like in onepanel-gui
-
-// export default Login.extend();
+// TODO: until production Oneprovider: implement authRedirect support, maybe something like in onepanel-gui
 
 export default Route.extend(
   UnauthenticatedRouteMixin,
@@ -26,7 +23,8 @@ export default Route.extend(
   AuthenticationErrorHandlerMixin, {
     i18n: service(),
 
-    // FIXME: this route should have some other title or no title at all
+    // TODO: this route should have some other title or no title at all
+
     /**
      * @override
      */
