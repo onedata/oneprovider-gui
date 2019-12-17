@@ -120,7 +120,7 @@ export default Component.extend({
 
     if (isEmpty(items) && !isEmpty(sourceArray)) {
       transfersArray.setProperties({ startIndex: 0, endIndex: 50 });
-      this.set('tableTopVisible', headerVisible);
+      safeExec(this, 'set', 'tableTopVisible', headerVisible);
       return;
     }
 

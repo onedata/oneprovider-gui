@@ -407,7 +407,6 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           const getTransfersUrl = sinon.stub();
           const expectedArgs = sinon.match({
             fileId,
-            tabId: transferStatus,
           });
           getTransfersUrl.returns('invalidGeneratedHref');
           getTransfersUrl.withArgs(expectedArgs).returns(generatedHref);

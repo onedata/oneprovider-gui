@@ -89,7 +89,7 @@ describe('Integration | Component | space transfers', function () {
       timestamp: 0,
     });
 
-    this.render(hbs `{{space-transfers
+    this.render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=undefined
       defaultTab=defaultTab
@@ -97,7 +97,7 @@ describe('Integration | Component | space transfers', function () {
       resetQueryParams=(action "resetQueryParams")
       changeListTab=(action "changeListTab")
       closeFileTab=(action "closeFileTab")
-    }}`);
+    }}</div>`);
 
     return wait().then(() => {
       expect(getTransfersForFile).to.have.not.been.called;
@@ -130,7 +130,7 @@ describe('Integration | Component | space transfers', function () {
     findRecord.withArgs('file', expectedFileGri).resolves(file);
     this.set('defaultTab', 'file');
 
-    this.render(hbs `{{space-transfers
+    this.render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=fileId
       defaultTab=defaultTab
@@ -138,7 +138,7 @@ describe('Integration | Component | space transfers', function () {
       resetQueryParams=(action "resetQueryParams")
       changeListTab=(action "changeListTab")
       closeFileTab=(action "closeFileTab")
-    }}`);
+    }}</div>`);
 
     return wait()
       .then(() => {
@@ -172,14 +172,14 @@ describe('Integration | Component | space transfers', function () {
       findRecord.withArgs('file', `op_file.${fileId}.instance:private`)
         .resolves(file);
 
-      this.render(hbs `{{space-transfers
-      space=space
-      defaultTab=defaultTab
-      providerId=providerId
-      resetQueryParams=(action "resetQueryParams")
-      changeListTab=(action "changeListTab")
-      closeFileTab=(action "closeFileTab")
-    }}`);
+      this.render(hbs `<div id="content-scroll">{{space-transfers
+        space=space
+        defaultTab=defaultTab
+        providerId=providerId
+        resetQueryParams=(action "resetQueryParams")
+        changeListTab=(action "changeListTab")
+        closeFileTab=(action "closeFileTab")
+      }}</div>`);
 
       return wait()
         .then(() => {
@@ -208,7 +208,7 @@ describe('Integration | Component | space transfers', function () {
       findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      this.render(hbs `{{space-transfers
+      this.render(hbs `<div id="content-scroll">{{space-transfers
         space=space
         defaultTab=defaultTab
         fileId=fileId
@@ -216,7 +216,7 @@ describe('Integration | Component | space transfers', function () {
         resetQueryParams=(action "resetQueryParams")
         changeListTab=(action "changeListTab")
         closeFileTab=(action "closeFileTab")
-      }}`);
+      }}</div>`);
 
       return wait()
         .then(() => {
