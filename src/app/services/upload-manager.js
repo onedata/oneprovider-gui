@@ -312,7 +312,11 @@ export default Service.extend(I18n, {
   fileUploadFailure(resumableFile, message) {
     let stringMessage;
     try {
-      stringMessage = (JSON.parse(message) || {}).error || message;
+      const parsedMessage = (JSON.parse(message) || {}).error || message;
+      stringMessage = get(
+        this.get('errorExtractor').getMessage(parsedMessage),
+        'message.string'
+      ) || JSON.stringify(message);
     } catch (e) {
       stringMessage = message;
     }
