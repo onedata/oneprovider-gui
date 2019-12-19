@@ -181,19 +181,6 @@ const transferHandlers = {
   },
 };
 
-const providerHandlers = {
-  spaces(operation, entityId) {
-    if (operation === 'get') {
-      return {
-        gri: `provider.${entityId}.spaces`,
-        list: ['space1', 'space2', 'space3', 'space4'],
-      };
-    } else {
-      return messageNotSupported;
-    }
-  },
-};
-
 const fileHandlers = {
   transfers(operation, entityId, data) {
     if (operation !== 'get') {
@@ -223,7 +210,6 @@ const fileHandlers = {
 
 export default OnedataGraphMock.extend({
   _handlers: Object.freeze({
-    op_provider: providerHandlers,
     op_space: spaceHandlers,
     op_transfer: transferHandlers,
     file: fileHandlers,
