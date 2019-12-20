@@ -1,0 +1,40 @@
+{{#promise-proxy-container proxy=generalDataProxy}}
+  {{file-browser
+    dir=dirProxy.content
+    customRootDir=rootDirProxy.content
+    customFetchDirChildren=(if isInShareRoot (action "fetchShareRootDirChildren") undefined)
+    updateDirEntityId=(action "updateDirId")
+    openInfo=(action "openInfoModal")
+    openEditPermissions=(action "openEditPermissionsModal")
+    openFileDistributionModal=(action "openFileDistributionModal")
+    containerScrollTop=(action "containerScrollTop")
+  }}
+
+  {{#if fileToShowInfo}}
+    {{file-browser/fb-info-modal
+      open=true
+      file=fileToShowInfo
+      spaceEntityId=spaceEntityId
+      onHide=(action "closeInfoModal")
+    }}
+  {{/if}}
+
+  {{!-- FIXME: no edit, just show --}}
+  {{#if filesToEditPermissions}}
+    {{edit-permissions-modal
+      files=filesToEditPermissions
+      space=spaceProxy.content
+      onClose=(action "closeEditPermissionsModal")
+    }}
+  {{/if}}
+
+  {{!-- FIXME: no edit, just show --}}
+  {{#if filesToShowDistribution}}
+    {{file-distribution-modal
+      files=filesToShowDistribution
+      space=spaceProxy.content
+      onClose=(action "closeFileDistributionModal")
+      getTransfersUrl=(action "getTransfersUrl")
+    }}
+  {{/if}}
+{{/promise-proxy-container}}

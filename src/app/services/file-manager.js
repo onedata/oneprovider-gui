@@ -10,8 +10,10 @@
 import Service, { inject as service } from '@ember/service';
 import { resolve, allSettled } from 'rsvp';
 import { get, computed } from '@ember/object';
+import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
+import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 
 class BrokenFile {
   constructor(id, reason) {
@@ -25,11 +27,26 @@ class BrokenFile {
 export default Service.extend({
   store: service(),
   onedataRpc: service(),
+  onedataGraph: service(),
 
   /**
    * @type {Array<Ember.Component>}
    */
   fileTableComponents: computed(() => []),
+
+  /**
+   * @param {String} fileId 
+   * @returns {Promise<Models.File>}
+   */
+  getFile(fileId) {
+    const requestGri = gri({
+      entityType: fileEntityType,
+      entityId: fileId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return this.get('store').findRecord('file', requestGri);
+  },
 
   /**
    * Creates new file or directory
@@ -104,19 +121,36 @@ export default Service.extend({
   fetchDirChildren(dirId, startFromIndex, size, offset) {
     const {
       store,
-      onedataRpc,
-    } = this.getProperties('store', 'onedataRpc');
+      onedataGraph,
+    } = this.getProperties('store', 'onedataGraph');
     if (!size || size <= 0) {
       return resolve([]);
     } else {
-      return onedataRpc
-        .request('getDirChildren', {
-          guid: dirId,
-          index: startFromIndex,
-          limit: size,
-          offset,
+      const requestGri = gri({
+        entityId: dirId,
+        entityType: fileEntityType,
+        aspect: 'children',
+      });
+      return onedataGraph
+        .request({
+          operation: 'get',
+          gri: requestGri,
+          data: {
+            // FIXME: to remove
+            guid: dirId,
+            index: startFromIndex,
+            limit: size,
+            offset,
+          },
+          subscribe: false,
         })
-        .then(fileIds => {
+        .then(({ children }) => {
+          const fileIds = children.map(entityId => gri({
+            entityType: fileEntityType,
+            entityId,
+            aspect: 'instance',
+            scope: 'private',
+          }));
           const promises = allSettled(fileIds.map(id => {
             const cachedRecord = store.peekRecord('file', id);
             return cachedRecord ?
@@ -171,8 +205,15 @@ export default Service.extend({
   },
 
   getFileDownloadUrl(fileEntityId) {
-    return this.get('onedataRpc').request('getFileDownloadUrl', {
-      guid: fileEntityId,
+    return this.get('onedataGraph').request({
+      operation: 'get',
+      gri: gri({
+        entityType: fileEntityType,
+        entityId: fileEntityId,
+        aspect: 'download_url',
+        scope: 'private',
+      }),
+      subscribe: false,
     });
   },
 

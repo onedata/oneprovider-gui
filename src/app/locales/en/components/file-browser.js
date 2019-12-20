@@ -7,6 +7,7 @@ import fbRemoveModal from './file-browser/fb-remove-modal';
 import fbRenameModal from './file-browser/fb-rename-modal';
 import fbInfoModal from './file-browser/fb-info-modal';
 import fbDownloadModal from './file-browser/fb-download-modal';
+import fbShareModal from './file-browser/fb-share-modal';
 
 export default {
   menuCurrentDir: 'Current directory',
@@ -41,4 +42,5 @@ export default {
   fbRenameModal,
   fbInfoModal,
   fbDownloadModal,
+  fbShareModal,
 };

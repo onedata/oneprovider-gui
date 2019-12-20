@@ -4,6 +4,7 @@
     <div class="fb-breadcrumbs-container">
       {{file-browser/fb-breadcrumbs
         dir=dir
+        rootDir=customRootDir
         allButtonsArray=allButtonsArray
         clipboardReady=clipboardReady
         dirActionsToggled=(action "selectCurrentDir")
@@ -37,6 +38,7 @@
     allButtonsArray=allButtonsArray
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
+    customFetchDirChildren=customFetchDirChildren
     changeDir=(action "changeDir")
   }}
 </div>

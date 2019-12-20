@@ -21,11 +21,17 @@ Router.map(function () {
     rootURL: null,
   });
   this.route('login');
+  this.route('public', function publicRoute() {
+    this.route('components', function publicComponentsRoute() {
+      this.route('show', { path: ':component_id' });
+    });
+  });
   this.route('onedata', function onedataRoute() {
     this.route('components', function onedataComponentsRoute() {
       this.route('show', { path: ':component_id' });
     });
   });
+
   // TODO: authorization, login and public paths
   // paths that are displayed standalone, changing path support
   // WS connection is made with nobody account

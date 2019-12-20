@@ -9,7 +9,9 @@
 
 import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
-import { alias } from '@ember/object/computed';
+import { promise } from 'ember-awesome-macros';
+import { alias, not } from '@ember/object/computed';
+import { inject as service } from '@ember/service';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get } from '@ember/object';
 import { later, cancel } from '@ember/runloop';
@@ -19,9 +21,19 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 
 export const entityType = 'file';
 
-export function getSpaceEntityIdFromFileEntityId(fileEntityId) {
-  const m = atob(fileEntityId).match(/guid#(.*)#(.*)/);
+const guidRegexp = /guid#(.*)#(.*)/;
+const shareGuidRegexp = /shareGuid#(.*)#(.*)#(.*)/;
+
+export function getSpaceIdFromFileId(fileEntityId) {
+  const decoded = atob(fileEntityId);
+  const m = decoded.match(guidRegexp) || decoded.match(shareGuidRegexp);
   return m && m[2];
+}
+
+export function getShareIdFromFileId(fileEntityId) {
+  const decoded = atob(fileEntityId);
+  const m = decoded.match(shareGuidRegexp);
+  return m && m[3];
 }
 
 export default Model.extend(GraphSingleModelMixin, {
@@ -52,6 +64,8 @@ export default Model.extend(GraphSingleModelMixin, {
 
   modificationTime: alias('mtime'),
 
+  secondaryType: null,
+
   /**
    * Contains error of loading file distribution. Is null if distribution has not
    * been fetched yet or it has been fetched successfully. It is persisted in this place
@@ -71,6 +85,12 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   pollSizeTimerId: null,
 
+  isShared: computed('share', function isShared() {
+    return Boolean(this.belongsTo('share').id());
+  }),
+
+  share: belongsTo('share'),
+
   cdmiObjectId: computed('entityId', function cdmiObjectId() {
     try {
       return guidToCdmiObjectId(this.get('entityId'));
@@ -86,7 +106,7 @@ export default Model.extend(GraphSingleModelMixin, {
   }),
 
   spaceEntityId: computed('entityId', function spaceEntityId() {
-    return getSpaceEntityIdFromFileEntityId(this.get('entityId'));
+    return getSpaceIdFromFileId(this.get('entityId'));
   }),
 
   /**
@@ -129,7 +149,7 @@ export default Model.extend(GraphSingleModelMixin, {
     switch (operation) {
       case 'create': {
         const rpcRequests = get(activeRequests, 'rpcRequests');
-        // Block on listing parent dir files
+        // Block on listing parent dir files FIXME: new API
         const listParentDirRequests = rpcRequests.filter(request => {
           return get(request, 'rpcMethodName') === 'getDirChildren' &&
             get(request, 'data.guid') === get(model.belongsTo('parent').value(),

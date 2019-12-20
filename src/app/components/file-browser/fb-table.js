@@ -25,6 +25,10 @@ import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
 
+function _fetchDirChildren(dirId, ...fetchArgs) {
+  return this.get('fileManager').fetchDirChildren(dirId, ...fetchArgs);
+}
+
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
   classNameBindings: [
@@ -79,6 +83,13 @@ export default Component.extend(I18n, {
    * @type {Array<Models.File>}
    */
   fileClipboardFiles: undefined,
+
+  /**
+   * @virtual optional
+   * If defined replace `fetchDirChildren` with this function
+   * @type {Function}
+   */
+  customFetchDirChildren: undefined,
 
   changeDir: undefined,
 
@@ -206,7 +217,8 @@ export default Component.extend(I18n, {
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
     const array = ReplacingChunksArray.create({
-      fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
+      fetch: (...fetchArgs) => this.get('fetchDirChildren')(dirId, ...
+        fetchArgs),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
@@ -274,6 +286,8 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    // FIXME: debug
+    window.fbTable = this;
     this.get('fileManager').registerRefreshHandler(this);
   },
 
@@ -367,9 +381,9 @@ export default Component.extend(I18n, {
     );
   },
 
-  fetchDirChildren(dirId, ...fetchArgs) {
-    return this.get('fileManager').fetchDirChildren(dirId, ...fetchArgs);
-  },
+  fetchDirChildren: computed('customFetchDirChildren', function fetchDirChildren() {
+    return this.get('customFetchDirChildren') || _fetchDirChildren.bind(this);
+  }),
 
   clearFilesSelection() {
     this.get('selectedFiles').clear();
