@@ -14,7 +14,6 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import EmberObject, { computed, get } from '@ember/object';
 import { getShareIdFromFileId } from 'oneprovider-gui/models/file';
-import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { promise, equal, raw } from 'ember-awesome-macros';
@@ -33,7 +32,6 @@ const ShareRootDir = EmberObject.extend({
 });
 
 export default OneEmbeddedComponent.extend(
-  ContentSpaceBaseMixin,
   createDataProxyMixin('share'),
   createDataProxyMixin('rootDir'), {
     classNames: ['content-file-browser'],

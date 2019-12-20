@@ -10,11 +10,12 @@
     containerScrollTop=(action "containerScrollTop")
   }}
 
+  {{!-- FIXME: make info modal to not need spaceEntityId --}}
   {{#if fileToShowInfo}}
     {{file-browser/fb-info-modal
       open=true
       file=fileToShowInfo
-      spaceEntityId=spaceEntityId
+      spaceEntityId=undefined
       onHide=(action "closeInfoModal")
     }}
   {{/if}}
@@ -22,8 +23,8 @@
   {{!-- FIXME: no edit, just show --}}
   {{#if filesToEditPermissions}}
     {{edit-permissions-modal
-      files=filesToEditPermissions
-      space=spaceProxy.content
+      files=filesToEditPermissionsa
+      space=undefined
       onClose=(action "closeEditPermissionsModal")
     }}
   {{/if}}
@@ -32,7 +33,7 @@
   {{#if filesToShowDistribution}}
     {{file-distribution-modal
       files=filesToShowDistribution
-      space=spaceProxy.content
+      space=undefined
       onClose=(action "closeFileDistributionModal")
       getTransfersUrl=(action "getTransfersUrl")
     }}
