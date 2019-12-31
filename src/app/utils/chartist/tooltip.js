@@ -35,8 +35,7 @@ import _ from 'lodash';
 import dynamicRound from 'oneprovider-gui/utils/dynamic-round';
 import $ from 'jquery';
 
-const TOOLTIP_HTML =
-  `
+const TOOLTIP_HTML = `
   <div class="chart-tooltip">
     <div class="chart-tooltip-title"></div>
     <ul class="ct-legend">
@@ -48,7 +47,7 @@ const TOOLTIP_HTML =
 let chartsIndex = [];
 
 export default function tooltip(options) {
-  let defaultOptions = {
+  const defaultOptions = {
     chartType: 'bar',
     rangeInTitle: false,
     renderAboveBarDescription: false,
@@ -59,14 +58,14 @@ export default function tooltip(options) {
   options = Chartist.extend({}, defaultOptions, options);
 
   return (chart) => {
-    let tooltipNode,
-      container = $(chart.container);
+    let tooltipNode;
+    const container = $(chart.container);
 
-    let chartEntry = getChartRenderEntry(chart);
+    const chartEntry = getChartRenderEntry(chart);
 
-    let prepareTooltip = function (tooltipData, data) {
+    const prepareTooltip = function (tooltipData, data) {
       // title
-      let title = tooltipNode.find('.chart-tooltip-title');
+      const title = tooltipNode.find('.chart-tooltip-title');
       title.empty();
       title.append(chart.data.labels[data.index]);
       if (options.rangeInTitle) {
@@ -77,9 +76,9 @@ export default function tooltip(options) {
       }
 
       // data series and values
-      let ul = tooltipNode.find('.ct-legend');
+      const ul = tooltipNode.find('.ct-legend');
       ul.empty();
-      let suffix = options.valueSuffix ? ' ' + options.valueSuffix : '';
+      const suffix = options.valueSuffix ? ' ' + options.valueSuffix : '';
       tooltipData.forEach(d => {
         let value = d.value;
         if (options.roundValues && typeof value === 'number') {
@@ -101,12 +100,14 @@ export default function tooltip(options) {
       if (tooltipNode.length === 0) {
         tooltipNode = $($.parseHTML(TOOLTIP_HTML));
         container.append(tooltipNode);
-        tooltipNode.css('transform',
-          `translateY(-100%) translateY(${options.topOffset}px) translateX(-50%)`);
+        tooltipNode.css(
+          'transform',
+          `translateY(-100%) translateY(${options.topOffset}px) translateX(-50%)`
+        );
       } else {
         if (chartEntry.x !== null) {
-          let element = document.elementFromPoint(chartEntry.x, chartEntry.y);
-          let elementIndex = chartEntry.showCallbacksTargets.indexOf(element);
+          const element = document.elementFromPoint(chartEntry.x, chartEntry.y);
+          const elementIndex = chartEntry.showCallbacksTargets.indexOf(element);
           if (elementIndex > -1) {
             chartEntry.showCallbacks[elementIndex](chartEntry.x, chartEntry.y);
           } else {
@@ -136,25 +137,28 @@ export default function tooltip(options) {
       }));
 
       if (data.type === 'bar' && options.chartType === 'bar') {
-        let groupNode = $(data.group._node),
-          barNode = $(data.element._node);
+        const groupNode = $(data.group._node);
+        const barNode = $(data.element._node);
 
         barNode.mouseover(() => {
-          let lastGroupNode = groupNode.parent().children().last();
-          let lastGroupBar = $(lastGroupNode.children('line')[data.index]);
+          const lastGroupNode = groupNode.parent().children().last();
+          const lastGroupBar = $(lastGroupNode.children('line')[data.index]);
 
           // top position
           if (options.renderAboveBarDescription) {
-            let sumLabel = $(lastGroupNode.children('text')[data.index]);
-            tooltipNode.css('top', (sumLabel.offset().top - container.offset()
-                .top) +
-              'px');
+            const sumLabel = $(lastGroupNode.children('text')[data.index]);
+            tooltipNode.css(
+              'top',
+              (sumLabel.offset().top - container.offset().top) + 'px'
+            );
           } else {
-            tooltipNode.css('top', (lastGroupBar.offset().top - container.offset()
-              .top) + 'px');
+            tooltipNode.css(
+              'top',
+              (lastGroupBar.offset().top - container.offset().top) + 'px'
+            );
           }
           // left position
-          let rect = lastGroupBar[0].getBoundingClientRect();
+          const rect = lastGroupBar[0].getBoundingClientRect();
           tooltipNode.css('left', (rect.left + rect.width / 2 - container.offset()
             .left) + 'px');
 
@@ -166,26 +170,31 @@ export default function tooltip(options) {
         });
       }
       if (data.type === 'point' && options.chartType === 'line') {
-        let groupNode = $(data.group._node),
-          pointNode = $(data.element._node);
+        const groupNode = $(data.group._node);
+        const pointNode = $(data.element._node);
         tooltipData = data.series.tooltipElements && data.series.tooltipElements[data
             .index] ?
           data.series.tooltipElements[data.index] : tooltipData;
         pointNode.mouseover(() => {
           // top position
-          let rect = pointNode[0].getBoundingClientRect();
+          const rect = pointNode[0].getBoundingClientRect();
           if (options.renderAboveBarDescription) {
-            let sumLabel = $(groupNode.children('text')[data.index]);
-            tooltipNode.css('top', (sumLabel.offset().top - container.offset()
-                .top) +
-              'px');
+            const sumLabel = $(groupNode.children('text')[data.index]);
+            tooltipNode.css(
+              'top',
+              (sumLabel.offset().top - container.offset().top) + 'px'
+            );
           } else {
-            tooltipNode.css('top', (rect.top - container.offset()
-              .top) + 'px');
+            tooltipNode.css(
+              'top',
+              (rect.top - container.offset().top) + 'px'
+            );
           }
           // left position
-          tooltipNode.css('left', (rect.left + rect.width / 2 - container.offset()
-            .left) + 'px');
+          tooltipNode.css(
+            'left',
+            (rect.left + rect.width / 2 - container.offset().left) + 'px'
+          );
 
           prepareTooltip(tooltipData, data);
 
@@ -195,15 +204,20 @@ export default function tooltip(options) {
         });
       }
       if (data.type === 'slice' && options.chartType === 'pie') {
-        data.series.tooltipElements.forEach(element => element.className =
-          'no-padding');
-        let tooltipData = data.series.tooltipElements;
-        let sliceNode = $(data.element._node);
-        let showTooltip = (x, y) => {
-          tooltipNode.css('top', (y - container.offset().top - 10) +
-            'px');
-          tooltipNode.css('left', (x - container.offset()
-            .left) + 'px');
+        data.series.tooltipElements.forEach((element) =>
+          element.className = 'no-padding'
+        );
+        const tooltipData = data.series.tooltipElements;
+        const sliceNode = $(data.element._node);
+        const showTooltip = (x, y) => {
+          tooltipNode.css(
+            'top',
+            (y - container.offset().top - 10) + 'px'
+          );
+          tooltipNode.css(
+            'left',
+            (x - container.offset().left) + 'px'
+          );
 
           prepareTooltip(tooltipData, data);
 
@@ -229,7 +243,7 @@ function isPluginEnabled(chart) {
 }
 
 function getChartRenderEntry(chart) {
-  let node = chart.container;
+  const node = chart.container;
   let chartRender = _.find(chartsIndex, { node });
   if (!chartRender) {
     chartRender = {

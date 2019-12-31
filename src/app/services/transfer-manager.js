@@ -78,8 +78,8 @@ export default Service.extend({
           allFulfilled(endedIds.map(tid => this.getTransferById(tid))) : resolve();
         return allFulfilled([ongoingTransfersFetch, endedTransfersFetch])
           .then(([ongoingTransfers, endedTransfers]) => ({
-            ongoingIds: ongoingTransfers,
-            endedIds: endedTransfers,
+            ongoingTransfers,
+            endedTransfers,
             endedCount,
           }));
       });
@@ -94,7 +94,10 @@ export default Service.extend({
    * @returns {Promise<Array<Models.Transfer>>}
    */
   getTransfersForSpace(space, state, startFromIndex, limit, offset) {
-    const store = this.get('store');
+    const {
+      store,
+      onedataGraph,
+    } = this.getProperties('store', 'onedataGraph');
     const {
       entityType,
       entityId,
@@ -107,7 +110,7 @@ export default Service.extend({
     if (limit <= 0) {
       return resolve([]);
     }
-    return this.get('onedataGraph')
+    return onedataGraph
       .request({
         gri: transfersGri,
         operation: 'get',
@@ -127,12 +130,9 @@ export default Service.extend({
   /**
    * @param {Models.Transfer} transfer
    * @param {string} timePeriod: one of: minute, hour, day, month
-   * @returns {Promise<Object>}  with fields: charts: Object, timestamp: Number
+   * @returns {Promise<TransferThroughputCharts>}
    */
   getThroughputCharts(transfer, timePeriod) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
     const {
       entityType,
       entityId,
@@ -142,7 +142,7 @@ export default Service.extend({
       entityId: entityId,
       aspect: 'throughput_charts',
     });
-    return onedataGraph.request({
+    return this.get('onedataGraph').request({
       gri: chartsGri,
       operation: 'get',
       data: {
@@ -157,8 +157,7 @@ export default Service.extend({
    * @param {string} transferType one of: job, onTheFly, all
    * @param {string} timePeriod one of: minute, hour, day, month
    * @param {string|undefined} providerId provider entityId
-   * @returns {Promise<Object>} with fields: inputCharts: Object, 
-   *  outputCharts: Object, timestamp: Number
+   * @returns {Promise<TransferThroughputCharts>}
    */
   getSpaceTransfersThroughputCharts(space, transferType, timePeriod, providerId) {
     const onedataGraph = this.get('onedataGraph');
@@ -204,13 +203,10 @@ export default Service.extend({
 
   /**
    * @param {Models.Space} space
-   * @returns {Promise<Object>} with property `channelDestinaions` which maps:
+   * @returns {Promise<Object>} with property `channelDestinations` which maps:
    *   `sourceProviderId -> [destinationProviderId, ...]`
    */
   getSpaceTransfersActiveChannels(space) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
     const {
       entityType,
       entityId,
@@ -220,7 +216,7 @@ export default Service.extend({
       entityId: entityId,
       aspect: 'transfers_active_channels',
     });
-    return onedataGraph.request({
+    return this.get('onedataGraph').request({
       gri: activeChannelsGri,
       operation: 'get',
       subscribe: false,

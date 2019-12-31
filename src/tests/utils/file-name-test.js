@@ -4,11 +4,17 @@ import fileName from 'oneprovider-gui/utils/file-name';
 
 describe('Unit | Utility | file name', function () {
   it('parses file name from POSIX path with subdirs', function () {
-    let result = fileName('/one/two/three.zip');
+    const result = fileName('/one/two/three.zip');
     expect(result).to.equal('three.zip');
   });
+
   it('parses file name in root of filesystem', function () {
-    let result = fileName('/file.zip');
+    const result = fileName('/file.zip');
+    expect(result).to.equal('file.zip');
+  });
+
+  it('parses file name only', function () {
+    const result = fileName('file.zip');
     expect(result).to.equal('file.zip');
   });
 });

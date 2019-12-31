@@ -29,11 +29,13 @@ import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { htmlSafe } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { array, collect, raw } from 'ember-awesome-macros';
+import { and, equal, array, collect, raw } from 'ember-awesome-macros';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
-import { next } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+
+function decapitalize(text) {
+  return text.charAt(0).toLowerCase() + text.substring(1);
+}
 
 const allOneprovidersId = '__all__';
 
@@ -105,13 +107,6 @@ export default Component.extend(
     providersColors: undefined,
 
     /**
-     * Selects stats provider
-     * @virtual
-     * @type {function}
-     */
-    selectTransferStatProvider: notImplementedThrow,
-
-    /**
      * @override
      * @type {string}
      */
@@ -141,8 +136,6 @@ export default Component.extend(
      */
     _statsError: undefined,
 
-    transferProviderId: undefined,
-
     /**
      * True if data for chart is loaded
      * @type {boolean}
@@ -160,6 +153,11 @@ export default Component.extend(
      * @type {ComputedProperty<number>}
      */
     _pointsNumber: reads('_chartPointsXValues.length'),
+
+    /**
+     * @type {ComputedProperty<boolean>}
+     */
+    _noStatsForUnit: and('_statsLoaded', equal('_sortedProvidersIds', raw(0))),
 
     /**
      * @type {ComputedProperty<Object>}
@@ -274,21 +272,6 @@ export default Component.extend(
     ),
 
     /**
-     * @type {ComputedProperty<boolean>}
-     */
-    _noStatsForUnit: computed(
-      '_statsLoaded',
-      '_sortedProvidersIds',
-      function _noStatsForUnit() {
-        const {
-          _statsLoaded,
-          _sortedProvidersIds,
-        } = this.getProperties('_statsLoaded', '_sortedProvidersIds');
-        return _statsLoaded && _sortedProvidersIds.length === 0;
-      }
-    ),
-
-    /**
      * Chart time format
      * @type {ComputedProperty<string>}
      */
@@ -357,7 +340,7 @@ export default Component.extend(
             if (index >= inProvidersNo) {
               values = values.map(v => typeof v === 'number' ? -v : v);
             }
-            return this._scaleStatValue(values);
+            return this._generateChartPoints(values);
           });
         }
       }
@@ -365,7 +348,7 @@ export default Component.extend(
 
     /**
      * Axis x labels
-     * @type {ComputedProperty<Array<string>>}
+     * @type {ComputedProperty<Array<number>>}
      */
     _chartXTicks: computed(
       '_timePeriod',
@@ -501,8 +484,8 @@ export default Component.extend(
             low: -_chartYMax,
             high: _chartYMax,
             type: Chartist.FixedScaleAxis,
-            labelInterpolationFnc: value => bytesToString(Math.abs(
-              value), { format: 'bit' }) + 'ps',
+            labelInterpolationFnc: (value) =>
+              bytesToString(Math.abs(value), { format: 'bit' }) + 'ps',
             ticks: _chartYTicks,
             position: 'end',
           },
@@ -706,12 +689,22 @@ export default Component.extend(
           timeUnit,
           updater,
         } = this.getProperties('timeUnit', 'updater');
-        if (updater && timeUnit && timeUnit !== this.get('updater.timeUnit')) {
+        if (updater && timeUnit && timeUnit !== this.get('updater.timespan')) {
           this.set('updater.timespan', timeUnit);
           this.get('updater').fetch(true);
         }
       }
     ),
+
+    /**
+     * Text displayed when there are no stats for unit
+     * @type {ComputedProperty<string>}
+     */
+    noStatsForUnitText: computed('timeUnit', function noStatsForUnitText() {
+      return this.t('transferChart.noStatsForUnit', {
+        timeUnit: decapitalize(this.t(`timeUnit.${this.get('timeUnit')}`)),
+      });
+    }),
 
     init() {
       this._super(...arguments);
@@ -719,9 +712,6 @@ export default Component.extend(
       this._createTimeStatsUpdater();
       if (this.get('transferStatProviderId') == null) {
         this.set('transferStatProviderId', allOneprovidersId);
-        next(() => {
-          this.get('selectTransferStatProvider')(allOneprovidersId);
-        });
       }
     },
 
@@ -767,7 +757,10 @@ export default Component.extend(
       const {
         updaterEnabled,
         timeUnit,
-      } = this.getProperties('updaterEnabled', 'timeUnit');
+        timeStatForUnitProxy,
+      } = this.getProperties('updaterEnabled', 'timeUnit', 'timeStatForUnitProxy');
+      timeStatForUnitProxy
+        .catch(error => safeExec(this, 'set', '_statsError', error));
       this.setProperties({
         _statsError: null,
         updater: TransferTimeStatUpdater.create({
@@ -779,17 +772,13 @@ export default Component.extend(
     },
 
     /**
-     * Calculates throughput value for given bytes number and time step index
+     * Combines array of x coordinates for chart points with throuput values
+     * to (x, y) points, that will be used as a source for chart values.
      * @param {Array<number>} statValues transfered bytes/s for chart value
-     * @returns {number} average throughput in bytes per second
+     * @returns {Array<number>|undefined} average throughput in bytes per second
      */
-    _scaleStatValue(statValues) {
-      const {
-        _chartPointsXValues,
-      } = this.getProperties(
-        '_chartPointsXValues'
-      );
-      return _chartPointsXValues.map((x, i) => ({
+    _generateChartPoints(statValues) {
+      return this.get('_chartPointsXValues').map((x, i) => ({
         x,
         y: statValues[i],
       })).reverse();
@@ -993,7 +982,7 @@ export default Component.extend(
 
     actions: {
       selectProvider(oneproviderItem) {
-        this.get('selectTransferStatProvider')(get(oneproviderItem, 'id'));
+        this.set('transferStatProviderId', get(oneproviderItem, 'id'));
       },
       nameMatcher(model, term) {
         term = term.toLocaleLowerCase();

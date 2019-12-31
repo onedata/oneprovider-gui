@@ -12,6 +12,8 @@ import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
+  classNames: ['tab-general'],
+
   /**
    * @override
    */
@@ -31,7 +33,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {string}
+   * @type {boolean}
    */
   spatial: undefined,
 
@@ -48,10 +50,10 @@ export default Component.extend(I18n, {
   viewOptions: undefined,
 
   /**
-   * List of Oneprovider names
+   * Stringified list of Oneprovider names
    * @type {ComputedProperty<String>}
    */
-  providers: computed('providerNames.[]', function providers() {
+  providerNamesString: computed('providerNames.[]', function providers() {
     const providerNames = this.get('providerNames');
     if (providerNames) {
       return providerNames.join(', ');
@@ -61,7 +63,7 @@ export default Component.extend(I18n, {
   displayedProperties: Object.freeze([
     'viewName',
     'spaceName',
-    'providers',
+    'providerNamesString',
     'spatial',
   ]),
 });

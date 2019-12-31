@@ -30,6 +30,13 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads, equal } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
+/**
+ * @typedef TransferThroughputCharts
+ * @property {ThroughputCharts} inputCharts
+ * @property {ThroughputCharts} outputCharts
+ * @property {Number} timestamp
+ */
+
 export default Component.extend(
   I18n,
   ChartistValuesLine,
@@ -324,7 +331,7 @@ export default Component.extend(
               values = values.concat(_.times(_expectedStatsNumber - values.length, _
                 .constant(null)));
             }
-            return this._scaleStatValue(values);
+            return this._scaleStatValues(values);
           });
         }
       }),
@@ -668,6 +675,7 @@ export default Component.extend(
 
     /**
      * @override
+     * @returns {Promise<ThroughputCharts>}
      */
     fetchTimeStatForUnit() {
       const {
@@ -704,7 +712,6 @@ export default Component.extend(
       );
       const isOngoing = get(transfer, 'isOngoing');
 
-      console.debug('transfer-chart: creating updater');
       timeStatForUnitProxy
         .then(() => safeExec(this, () => {
           this.set('_statsError', null);
@@ -730,7 +737,7 @@ export default Component.extend(
      * @param {Array<number>} statValues transfered bytes/s for chart value
      * @returns {number} average throughput in bytes per second
      */
-    _scaleStatValue(statValues) {
+    _scaleStatValues(statValues) {
       const {
         _timePeriod,
         _transferLastUpdateTime,

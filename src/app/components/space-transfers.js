@@ -7,7 +7,6 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import { getOwner } from '@ember/application';
 import { isArray } from '@ember/array';
 import Component from '@ember/component';
 import { computed, get, observer } from '@ember/object';
@@ -26,6 +25,7 @@ export default Component.extend(I18n, {
   onedataConnection: service(),
   transferManager: service(),
   errorExtractor: service(),
+  guiContext: service(),
 
   /**
    * @override
@@ -104,10 +104,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   providerId: computed(function providerId() {
-    const application = getOwner(this).application;
-    if (application) {
-      return application.guiContext.clusterId;
-    }
+    return this.get('guiContext.clusterId');
   }),
 
   /**

@@ -10,7 +10,7 @@
 import Service, { inject as service } from '@ember/service';
 import { camelize } from '@ember/string';
 import { get, set, setProperties, computed } from '@ember/object';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, hash as hashFulfilled } from 'rsvp';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import _ from 'lodash';
 import {
@@ -31,12 +31,12 @@ const modelTypes = [
   'provider',
 ];
 
+export const defaultRecordNames = ['One', 'Two', 'Three'];
+
 export const recordNames = {
   provider: ['Cracow', 'Paris', 'Lisbon'],
-  space: ['One', 'Two', 'Three'],
+  space: defaultRecordNames,
 };
-
-export const defaultRecordNames = ['One', 'Two', 'Three'];
 
 export const numberOfProviders = 3;
 export const numberOfSpaces = 1;
@@ -45,17 +45,13 @@ export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 150;
 
-const tsWaiting = 0;
-const tsOngoing = 1;
-const tsEnded = 2;
-
 const transferStates = ['waiting', 'ongoing', 'ended'];
 
 export default Service.extend({
   store: service(),
 
   /**
-   * WARNING: Will be initialzed only after generating development model.
+   * WARNING: Will be initialized only after generating development model.
    * Will generate: `{ <state>: [], ... }`
    */
   allTransfers: computed(() => transferStates.reduce((obj, state) => {
@@ -64,7 +60,7 @@ export default Service.extend({
   }, {})),
 
   /**
-   * WARNING: Will be initialzed only after generating development model.
+   * WARNING: Will be initialized only after generating development model.
    * All entity records of some type.
    * Is an object where key is model name and values are arrays with records.
    */
@@ -72,14 +68,21 @@ export default Service.extend({
 
   generateDevelopmentModel() {
     const store = this.get('store');
-    return allFulfilled(
-        modelTypes.map(type =>
-          this.createEntityRecords(store, type, recordNames[type] || defaultRecordNames)
-          .then(records => this.createListRecord(store, type, records))
-        )
+    return hashFulfilled(
+        modelTypes.reduce((promiseHash, type) => {
+          promiseHash[type] =
+            this.createEntityRecords(
+              store,
+              type,
+              recordNames[type] ||
+              defaultRecordNames
+            )
+            .then(records => this.createListRecord(store, type, records));
+          return promiseHash;
+        }, {})
       )
       .then((listRecords) => {
-        const [spaceList] = listRecords;
+        const { space: spaceList } = listRecords;
         return store.createRecord('user', {
           fullName: 'John Smith',
           username: 'smith',
@@ -123,10 +126,6 @@ export default Service.extend({
         return user.get('spaceList')
           .then(spaceList => get(spaceList, 'list'))
           .then(list => allFulfilled(list.toArray()))
-          .then(spaces => allFulfilled(spaces.map(space => {
-            set(space, 'owner', user);
-            return space.save();
-          })))
           .then(() => user);
       });
   },
@@ -181,18 +180,21 @@ export default Service.extend({
    */
   createTransferRecords(store) {
     const timestamp = Math.floor(Date.now() / 1000);
-    return allFulfilled([tsWaiting, tsOngoing, tsEnded].map(stateNum => {
+    const waitingStateIndex = transferStates.indexOf('waiting');
+    const ongoingStateIndex = transferStates.indexOf('ongoing');
+    const endedStateIndex = transferStates.indexOf('ended');
+    return allFulfilled(transferStates.map((state, stateIndex) => {
         const transfersGroup = allFulfilled(_.range(numberOfTransfers).map(
           i => {
-            const scheduleTime = stateNum >= tsWaiting ?
+            const scheduleTime = stateIndex >= waitingStateIndex ?
               timestamp + i * 3600 : null;
-            const startTime = stateNum >= tsOngoing ?
+            const startTime = stateIndex >= ongoingStateIndex ?
               timestamp + (i + 1) * 3600 : null;
-            const finishTime = stateNum >= tsEnded ?
+            const finishTime = stateIndex >= endedStateIndex ?
               timestamp + (i + 2) * 3600 : null;
             const entityId = generateTransferEntityId(
               i,
-              stateNum,
+              stateIndex,
               scheduleTime,
               finishTime
             );
@@ -215,7 +217,7 @@ export default Service.extend({
               // replicatingProvider
             }).save();
           }));
-        this.get('allTransfers')[transferStates[stateNum]] = transfersGroup;
+        this.get('allTransfers')[state] = transfersGroup;
         return transfersGroup;
       }))
       .then(transfers => _.flatten(transfers))
@@ -239,8 +241,8 @@ export default Service.extend({
   },
 
   pushProviderListIntoSpaces(listRecords) {
-    const providersPromise = listRecords[modelTypes.indexOf('provider')].get('list');
-    const spacesPromise = listRecords[modelTypes.indexOf('space')].get('list');
+    const providersPromise = listRecords.provider.get('list');
+    const spacesPromise = listRecords.space.get('list');
     return allFulfilled([providersPromise, spacesPromise])
       .then(([providerList, spaceList]) =>
         this.createSpaceProviderLists(providerList, spaceList)
@@ -259,8 +261,8 @@ export default Service.extend({
   },
 
   pushSpaceListIntoProviders(listRecords) {
-    const providersPromise = listRecords[modelTypes.indexOf('provider')].get('list');
-    const spacesPromise = listRecords[modelTypes.indexOf('space')].get('list');
+    const providersPromise = listRecords.provider.get('list');
+    const spacesPromise = listRecords.space.get('list');
     return allFulfilled([providersPromise, spacesPromise])
       .then(([providerList, spaceList]) =>
         this.createProviderSpaceLists(providerList, spaceList)
@@ -324,7 +326,7 @@ export default Service.extend({
               owner,
             }).save();
           })).then(chainDirs => {
-            let saves = [];
+            const saves = [];
             set(chainDirs[0], 'parent', firstDir);
             saves.push(chainDirs[0].save());
             for (let i = 1; i < chainDirs.length; ++i) {
@@ -362,8 +364,7 @@ export default Service.extend({
         createPromise = this.createSpaceRecords(store, names, additionalInfo);
         break;
       case 'provider':
-        createPromise = this.createProviderRecords(store, names,
-          additionalInfo);
+        createPromise = this.createProviderRecords(store, names, additionalInfo);
         break;
       default:
         createPromise = allFulfilled(names.map(name =>
@@ -380,7 +381,7 @@ export default Service.extend({
       fullName,
       username,
     });
-    listRecords.forEach(lr =>
+    Object.values(listRecords).forEach(lr =>
       userRecord.set(camelize(lr.constructor.modelName), lr)
     );
     return userRecord.save();
@@ -396,45 +397,12 @@ export function generateDirEntityId(i, parentEntityId, suffix = '') {
 }
 
 export function generateTransferEntityId(i, state, scheduleTime, startTime) {
-  let stateName;
-  switch (state) {
-    case tsOngoing:
-      stateName = 'ongoing';
-      break;
-    case tsWaiting:
-      stateName = 'waiting';
-      break;
-    case tsEnded:
-      stateName = 'finished';
-      break;
-    default:
-      break;
-  }
-  return btoa(`transfer-${stateName}-${i}-${scheduleTime}-${startTime}`);
-}
-
-export function decodeTransferEntityId(entityId) {
-  const segments = atob(entityId).split('-');
-  return {
-    i: segments[1],
-    state: segments[2],
-    startTime: segments[3],
-    finishTime: segments[4],
-  };
+  return btoa(`transfer-${state}-${i}-${scheduleTime}-${startTime}`);
 }
 
 export function generateFileGri(entityId) {
   return gri({
     entityType: 'file',
-    entityId: entityId,
-    aspect: 'instance',
-    scope: 'private',
-  });
-}
-
-export function generateTransferGri(entityId) {
-  return gri({
-    entityType: transferEntityType,
     entityId: entityId,
     aspect: 'instance',
     scope: 'private',

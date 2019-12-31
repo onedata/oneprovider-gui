@@ -28,10 +28,9 @@
       class="btn-group-time-unit"
       as |bg|
     }}
-      {{#bg.button value="minute"}}{{tt this "transferChart.minute"}}{{/bg.button}}
-      {{#bg.button value="hour"}}{{tt this "transferChart.hour"}}{{/bg.button}}
-      {{#bg.button value="day"}}{{tt this "transferChart.day"}}{{/bg.button}}
-      {{#bg.button value="month"}}{{tt this "transferChart.month"}}{{/bg.button}}
+      {{#each (array "minute" "hour" "day" "month") as |unit|}}
+        {{#bg.button value=unit}}{{tt this (concat "timeUnit." unit)}}{{/bg.button}}
+      {{/each}}
     {{/bs-button-group}}
   {{/if}}
 </div>
@@ -44,8 +43,7 @@
         <div class="waiting-for-stats no-stats-for-unit-info">
           <div class="chart-placeholder-image"></div>
           <span class="one-label">
-            {{!-- TODO: timeUnit is not translated --}}
-            {{tt this "transferChart.noStatsForUnit" timeUnit=timeUnit}}
+            {{noStatsForUnitText}}
           </span>
         </div>
       {{else}}

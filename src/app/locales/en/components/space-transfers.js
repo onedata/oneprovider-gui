@@ -1,6 +1,5 @@
 import transfersOverview from './space-transfers/transfers-overview';
 import throughputDistribution from './space-transfers/throughput-distribution';
-import providerSelector from './space-transfers/provider-selector';
 import transferChart from './space-transfers/transfer-chart';
 import transfersTable from './space-transfers/transfers-table';
 import transferDetails from './space-transfers/transfer-details';
@@ -28,7 +27,7 @@ export default {
     rerunTransfer: 'Rerun transfer',
   },
   cellDataName: {
-    file: 'File:',
+    file: 'File',
     dir: 'Directory',
     view: 'View',
     deleted: 'deleted',
@@ -59,5 +58,4 @@ export default {
   transferChart,
   throughputDistribution,
   transfersOverview,
-  providerSelector,
 };

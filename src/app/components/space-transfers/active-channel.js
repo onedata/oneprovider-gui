@@ -1,7 +1,7 @@
 /**
  * Connection between two Oneproviders on the map, showing that the transfer is in progress
  * 
- * @module components/space-transfers/active-channels
+ * @module components/space-transfers/active-channel
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -16,6 +16,12 @@ export default Component.extend({
   tagName: '',
 
   map: undefined,
+
+  /**
+   * @virtual
+   * @type {Object} maps Oneprovider entityId => Model.Provider
+   */
+  idToProviderMapping: undefined,
 
   providerA: oneproviderFromChannel(0),
 
@@ -91,11 +97,11 @@ export default Component.extend({
 });
 
 function oneproviderFromChannel(index) {
-  return computed('providersMap', 'channel', function oneproviderX() {
+  return computed('idToProviderMapping', 'channel', function oneproviderX() {
     const {
-      providersMap,
+      idToProviderMapping,
       channel,
-    } = this.getProperties('providersMap', 'channel');
-    return get(providersMap, channel[index]);
+    } = this.getProperties('idToProviderMapping', 'channel');
+    return get(idToProviderMapping, channel[index]);
   });
 }

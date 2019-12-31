@@ -130,11 +130,10 @@ export default Component.extend(I18n, {
     function fileEndedTransfersCount() {
       const allFileTransfers = this.get('fileTransfers.sourceArray');
       if (allFileTransfers) {
-        return allFileTransfers
-          .reduce(
-            (sum, transfer) => sum + (get(transfer, 'finishTime') ? 1 : 0),
-            0
-          );
+        return get(
+          allFileTransfers.filterBy('finishTime'),
+          'length'
+        );
       }
     }
   ),
@@ -222,10 +221,6 @@ export default Component.extend(I18n, {
     this.set('tabJustChangedId', activeTabId);
   }),
 
-  init() {
-    this._super(...arguments);
-  },
-
   findNonEmptyCollection() {
     const {
       transferManager,
@@ -233,7 +228,6 @@ export default Component.extend(I18n, {
     } = this.getProperties('transferManager', 'space');
     return transferManager.getTransfersForSpace(space, 'waiting', null, 1, 0)
       .then(result => {
-        console.log(result);
         if (get(result, 'length') > 0) {
           return 'waiting';
         } else {
@@ -241,7 +235,6 @@ export default Component.extend(I18n, {
         }
       })
       .then(result => {
-        console.log(result);
         if (typeof result === 'string') {
           return result;
         } else if (get(result, 'length') > 0) {

@@ -1,5 +1,3 @@
-import throughputDistribution from './throughput-distribution';
-
 export default {
   providersMapOfDist: 'Ongoing transfers map',
   hide: 'Hide transfers overview',
@@ -13,5 +11,9 @@ export default {
     onTheFly: 'On-the-fly',
     onTheFlyInfo: 'Throughput of all data transfers that were triggered by remote data access. On-the-fly transfers are performed in the background by Oneproviders when they are requested to serve file fragments that reside in a remote location. On-the-fly transfers do not show up on the transfer jobs list, only summarized statistics are available.',
   },
-  throughputDistribution,
+  title: 'Oneproviders throughput',
+  all: 'Total',
+  jobs: 'Transfer jobs',
+  onTheFly: 'On-the-fly',
+  close: 'Close',
 };

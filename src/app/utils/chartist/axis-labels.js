@@ -20,7 +20,7 @@
 import $ from 'jquery';
 
 export default function axisLabel(options) {
-  let defaultOptions = {
+  const defaultOptions = {
     xLabel: '',
     yLabel: '',
     xLabelXOffset: 15,
@@ -38,8 +38,8 @@ export default function axisLabel(options) {
         options.xLabel = dataAxisLabels.xLabel;
         options.yLabel = dataAxisLabels.yLabel;
       }
-      let svgNode = $(chart.svg._node);
-      let axisLabelsGroup = chart.svg.elem('g', {}, 'ct-axis-labels');
+      const svgNode = $(chart.svg._node);
+      const axisLabelsGroup = chart.svg.elem('g', {}, 'ct-axis-labels');
       axisLabelsGroup.elem('text', {
         x: (options.yAlignment === 'right' ? -1 : 1) *
           (-svgNode.innerHeight() / 2 + options.yLabelYOffset),

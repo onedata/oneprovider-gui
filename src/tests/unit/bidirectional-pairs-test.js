@@ -12,7 +12,7 @@ describe('Unit | Utility | bidirectional pairs', function () {
       p0: ['p1'],
     };
 
-    let result = bidirectionalPairs(mapping);
+    const result = bidirectionalPairs(mapping);
     expect(result).to.have.length(3);
     expect(_.find(result, pair => _.isEqual(pair, ['p0', 'p1'])), 'p0-p1')
       .to.be.ok;

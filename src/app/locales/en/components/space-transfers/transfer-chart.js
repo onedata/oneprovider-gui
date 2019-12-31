@@ -1,8 +1,7 @@
+import timeUnit from './-time-unit';
+
 export default {
-  minute: 'Minute',
-  hour: 'Hour',
-  day: 'Day',
-  month: 'Month',
+  timeUnit,
   time: 'Time',
   throughput: 'Throughput',
   output: 'Output',

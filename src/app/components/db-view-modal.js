@@ -10,22 +10,21 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
-import { get, getProperties, computed } from '@ember/object';
-import gri from 'onedata-gui-websocket-client/utils/gri';
-import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
+import { get, computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { promise } from 'ember-awesome-macros';
-import { notImplementedThrow } from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { all as allSettled } from 'rsvp';
 
 export default Component.extend(I18n, {
+  spaceManager: service(),
+  providerManager: service(),
+
   /**
    * @override
    */
   i18nPrefix: 'components.dbViewModal',
-
-  store: service(),
-  onedataGraph: service(),
 
   /**
    * @virtual
@@ -42,7 +41,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  onHidden: notImplementedThrow,
+  onHidden: notImplementedIgnore,
 
   /**
    * @virtual
@@ -50,6 +49,10 @@ export default Component.extend(I18n, {
    */
   close: notImplementedThrow,
 
+  /**
+   * @virtual
+   * @type {boolean}
+   */
   open: false,
 
   spaceName: reads('space.name'),
@@ -61,24 +64,9 @@ export default Component.extend(I18n, {
       const {
         space,
         dbViewName,
-        onedataGraph,
-      } = this.getProperties('space', 'dbViewName', 'onedataGraph');
-      const {
-        entityType,
-        entityId,
-      } = getProperties(space, 'entityType', 'entityId');
-      const requestGri = gri({
-        entityType,
-        entityId,
-        aspect: 'view',
-        aspectId: dbViewName,
-        scope: 'private',
-      });
-      return onedataGraph.request({
-        operation: 'get',
-        gri: requestGri,
-        subscribe: false,
-      });
+        spaceManager,
+      } = this.getProperties('space', 'dbViewName', 'spaceManager');
+      return spaceManager.getDbView(space, dbViewName);
     }),
   ),
 
@@ -87,17 +75,14 @@ export default Component.extend(I18n, {
    */
   providerNamesProxy: promise.array(
     computed('dbViewProxy.content.providers', function providerNamesProxy() {
-      const store = this.get('store');
-      return this.get('dbViewProxy').then((dbView) => {
+      const {
+        providerManager,
+        dbViewProxy,
+      } = this.getProperties('providerManager', 'dbViewProxy');
+      return dbViewProxy.then((dbView) => {
         const providers = get(dbView, 'providers');
         return allSettled(providers.map((providerId) => {
-          const providerGri = gri({
-            entityType: providerEntityType,
-            entityId: providerId,
-            aspect: 'instance',
-            scope: 'protected',
-          });
-          return store.findRecord('provider', providerGri)
+          return providerManager.getProviderById(providerId)
             .then(provider => get(provider, 'name'))
             .catch(() => providerId);
         }));

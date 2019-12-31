@@ -4,7 +4,6 @@ $space-transfers-gray: #B6BAC0;
 @import './space-transfers/transfers-overview';
 @import './space-transfers/transfers-table';
 @import './space-transfers/providers-map';
-@import './space-transfers/provider-selector';
 @import './space-transfers/transfer-details';
 
 .space-transfers {
@@ -98,14 +97,30 @@ $space-transfers-gray: #B6BAC0;
       background-color: $color-one-semiwhite;
     }
     .chart-selectors {
-      display: flex;
-      align-items: center;
+      @media (max-width: $screen-xs-max) {
+        position: relative;
+      }
+      @media (min-width: $screen-sm-min) {
+        display: flex;
+        align-items: center;
+      }
       .ember-basic-dropdown {
-        flex-grow: 1;
-        margin-right: 20px;
+        @media (min-width: $screen-sm-min) {
+          flex-grow: 1;
+          margin-right: 20px;
+        }
       }
       .btn-group-time-unit {
-        flex-shrink: 0;
+        @media (max-width: $screen-xs-max) {
+          position: relative;
+          left: 50%;
+          transform: translateX(-50%);
+          margin-top: 20px;
+          float: none;
+        }
+        @media (min-width: $screen-sm-min) {
+          flex-shrink: 0;
+        }
       }
     }
   }
@@ -270,14 +285,14 @@ $space-transfers-gray: #B6BAC0;
       .tab-icon {
         @include vertical-align-middle();
         left: 8px;
-        font-size: 28px;
+        font-size: 26px;
         &.oneicon-folder {
           // custom pull up for folder icons
-          margin-top: -2px;
+          margin-top: -4px;
         }
       }
       .tab-name {
-        padding-left: 10px;
+        padding-left: 4px;
         padding-right: 8px;
         &.truncate {
           max-width: 200px;  

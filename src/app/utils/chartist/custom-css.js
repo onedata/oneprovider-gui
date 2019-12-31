@@ -50,10 +50,10 @@ export default function customCss(options) {
       if (options.filterBySeriesIndex) {
         css = css[data.seriesIndex];
       }
-      let elementCss = css && css[data.index] && css[data.index][data.type];
+      const elementCss = css && css[data.index] && css[data.index][data.type];
       if (elementCss) {
-        let element = $(data.element.getNode());
-        let transitionProperties = elementCss.transitionProperties;
+        const element = $(data.element.getNode());
+        const transitionProperties = elementCss.transitionProperties;
         delete elementCss.transitionProperties;
         element.css(elementCss);
         if (transitionProperties) {

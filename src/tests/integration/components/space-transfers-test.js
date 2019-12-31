@@ -13,6 +13,7 @@ import { resolve } from 'rsvp';
 
 const {
   stub,
+  spy,
 } = sinon;
 
 const TransferManager = Service.extend({
@@ -44,9 +45,9 @@ describe('Integration | Component | space transfers', function () {
       entityId: providerId,
     };
     const providers = [provider];
-    const resetQueryParams = sinon.spy();
-    const changeListTab = sinon.spy();
-    const closeFileTab = sinon.spy();
+    const resetQueryParams = spy();
+    const changeListTab = spy();
+    const closeFileTab = spy();
     this.on('resetQueryParams', resetQueryParams);
     this.on('changeListTab', changeListTab);
     this.on('closeFileTab', closeFileTab);
@@ -114,8 +115,8 @@ describe('Integration | Component | space transfers', function () {
     const store = this.get('store');
     const getTransfersForFile =
       stub(transferManager, 'getTransfersForFile').resolves({
-        ongoingIds: [],
-        endedIds: [],
+        ongoingTransfers: [],
+        endedTransfers: [],
         endedCount: 0,
       });
     stub(transferManager, 'getTransfersForSpace').resolves([]);
@@ -169,7 +170,7 @@ describe('Integration | Component | space transfers', function () {
         timestamp: 0,
       });
       const findRecord = stub(store, 'findRecord');
-      findRecord.withArgs('file', `op_file.${fileId}.instance:private`)
+      findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
       this.render(hbs `<div id="content-scroll">{{space-transfers
@@ -222,7 +223,7 @@ describe('Integration | Component | space transfers', function () {
         .then(() => {
           const navLinkFile = this.$('.nav-link-file');
           expect(navLinkFile, '.nav-link-file').to.exist;
-          expect(navLinkFile.text()).to.match(new RegExp(file.name));
+          expect(navLinkFile.text().trim()).to.equal(file.name);
         });
     });
 });

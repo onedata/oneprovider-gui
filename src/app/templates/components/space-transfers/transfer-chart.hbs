@@ -20,6 +20,7 @@
       {{else if (and _noStatsForUnit ignoreTransferState)}}
         <div class="waiting-for-stats no-stats-for-unit-info">
           <div class="chart-placeholder-image"></div>
+          {{!-- FIXME: time unit translated text --}}
           <span class="one-label">{{tt this "noStatsForUnit" timeUnit=timeUnit}}</span>
         </div>
       {{else}}
@@ -42,9 +43,12 @@
 </div>
 {{#if _showUnitButtons}}
   {{#bs-button-group value=timeUnit onChange=(action (mut timeUnit)) type="radio" size="sm" as |bg|}}
-    {{#if _unitVisibility.minute}}{{#bg.button value="minute"}}{{tt this "minute"}}{{/bg.button}}{{/if}}
-    {{#if _unitVisibility.hour}}{{#bg.button value="hour"}}{{tt this "hour"}}{{/bg.button}}{{/if}}
-    {{#if _unitVisibility.day}}{{#bg.button value="day"}}{{tt this "day"}}{{/bg.button}}{{/if}}
-    {{#if _unitVisibility.month}}{{#bg.button value="month"}}{{tt this "month"}}{{/bg.button}}{{/if}}
+    {{#each (array "minute" "hour" "day" "month") as |unit|}}
+      {{#if (get _unitVisibility unit)}}
+        {{#bg.button value=unit}}
+          {{tt this (concat "timeUnit." unit)}}
+        {{/bg.button}}
+      {{/if}}
+    {{/each}}
   {{/bs-button-group}}
 {{/if}}
