@@ -1,0 +1,43 @@
+{{#promise-proxy-container proxy=generalDataProxy}}
+  <div class="map-container">
+    {{#one-map
+      initialState=mapInitialStateProxy.content
+      triggerWindowEventName="transfersMapResize"
+      zoomOnScroll=zoomOnScroll
+      as |map|
+    }}
+      <svg class="atlas-draw-layer" xmlns="http://www.w3.org/2000/svg">
+        {{#each transfersActiveChannels as |channel|}}
+          {{space-transfers/active-channel
+            map=map
+            idToProviderMapping=idToProviderMapping
+            providersColors=providersColors
+            channel=channel
+            scale=oneproviderCircleScale
+            mapSize=(max map.width map.height 1200)
+          }}
+        {{/each}}
+      </svg>
+    
+      {{#each providers key="id" as |provider|}}
+        {{#map.position latitude=provider.latitude longitude=provider.longitude as |x y|}}
+          {{#if (and (gte x 0) (lte x map.width) (gte y 0) (lte y map.height))}}
+            {{#oneprovider-map-circle
+              class=(concat "oneprovider-map-circle-" (model-routable-id provider))
+              mapSize=(max map.width map.height 1200)
+              scale=oneproviderCircleScale
+              oneproviders=(array provider)
+              color=(get providersColors provider.entityId)
+            }}
+              {{provider-place/super-circle
+                isSource=(contains provider.entityId sourceProviderIds)
+                isDestination=(contains provider.entityId destinationProviderIds)
+                circleColor=(get providersColors provider.entityId)
+              }}
+            {{/oneprovider-map-circle}}
+          {{/if}}
+        {{/map.position}}
+      {{/each}}
+    {{/one-map}}
+  </div>
+{{/promise-proxy-container}}

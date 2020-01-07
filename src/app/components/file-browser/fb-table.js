@@ -20,13 +20,10 @@ import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
-import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
-
-const compareIndex = createPropertyComparator('index');
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -210,7 +207,6 @@ export default Component.extend(I18n, {
     const dirId = this.get('dir.entityId');
     const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
-      sortFun: compareIndex,
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
@@ -339,7 +335,8 @@ export default Component.extend(I18n, {
       firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
     const lastId = items[items.length - 1] &&
       items[items.length - 1].getAttribute('data-row-id') || null;
-    let startIndex, endIndex;
+    let startIndex;
+    let endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
       const {
         rowHeight,
@@ -364,7 +361,7 @@ export default Component.extend(I18n, {
 
   createListWatcher() {
     return new ListWatcher(
-      $('.embedded-content'),
+      $('#content-scroll'),
       '.data-row',
       (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
       '.table-start-row',

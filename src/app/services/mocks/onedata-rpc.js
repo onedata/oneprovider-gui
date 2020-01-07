@@ -13,18 +13,20 @@ import { resolve, reject, all } from 'rsvp';
 import _ from 'lodash';
 import { inject as service } from '@ember/service';
 import { get, setProperties, computed } from '@ember/object';
+
 import {
   numberOfFiles,
   numberOfDirs,
   generateFileEntityId,
   generateDirEntityId,
   generateFileGri,
-} from 'oneprovider-gui/utils/generate-development-model';
+} from 'oneprovider-gui/services/mock-backend';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 
 export default OnedataRpc.extend({
   store: service(),
+  mockBackend: service(),
 
   childrenIdsCache: computed(() => ({})),
 
@@ -96,6 +98,15 @@ export default OnedataRpc.extend({
     }));
   },
 
+  getMockSpaceTransfersSlice(spaceId, state, index, limit = 100000000, offset = 0) {
+    const mockSpaceTransfers = this.getMockSpaceTransfers(spaceId, state);
+    let arrIndex = mockSpaceTransfers.findBy('index', index);
+    if (arrIndex === -1) {
+      arrIndex = 0;
+    }
+    return mockSpaceTransfers.slice(arrIndex + offset, arrIndex + offset + limit);
+  },
+
   getMockChildrenSlice(dirEntityId, index, limit = 100000000, offset = 0) {
     const mockChildren = this.getMockChildren(dirEntityId);
     let arrIndex = mockChildren.findIndex(childGri =>
@@ -143,6 +154,10 @@ export default OnedataRpc.extend({
       childrenIdsCache[dirEntityId] = cache;
       return cache;
     }
+  },
+
+  getMockSpaceTransfers(spaceId, state) {
+    return this.get('mockBackend.allTransfers')[state];
   },
 
   removeMockChild(dirEntityId, childEntityId) {

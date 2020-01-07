@@ -14,9 +14,10 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get } from '@ember/object';
 import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
-
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+
+export const entityType = 'file';
 
 export function getSpaceEntityIdFromFileEntityId(fileEntityId) {
   const m = atob(fileEntityId).match(/guid#(.*)#(.*)/);
@@ -126,17 +127,16 @@ export default Model.extend(GraphSingleModelMixin, {
     const superRequests = this._super(...arguments);
 
     switch (operation) {
-      case 'create':
-        {
-          const rpcRequests = get(activeRequests, 'rpcRequests');
-          // Block on listing parent dir files
-          const listParentDirRequests = rpcRequests.filter(request => {
-            return get(request, 'rpcMethodName') === 'getDirChildren' &&
-              get(request, 'data.guid') === get(model.belongsTo('parent').value(),
-                'entityId');
-          });
-          return superRequests.concat(listParentDirRequests);
-        }
+      case 'create': {
+        const rpcRequests = get(activeRequests, 'rpcRequests');
+        // Block on listing parent dir files
+        const listParentDirRequests = rpcRequests.filter(request => {
+          return get(request, 'rpcMethodName') === 'getDirChildren' &&
+            get(request, 'data.guid') === get(model.belongsTo('parent').value(),
+              'entityId');
+        });
+        return superRequests.concat(listParentDirRequests);
+      }
       default:
         return superRequests;
     }

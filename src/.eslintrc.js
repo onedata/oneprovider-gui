@@ -52,7 +52,20 @@ module.exports = {
       {
         requireParamDescription: false,
         requireReturnDescription: false,
+        requireReturn: false,
       },
+    ],
+    'prefer-const': [
+      1,
+      {
+        'destructuring': 'all',
+        'ignoreReadBeforeAssign': true
+      }
+    ],
+    'no-var': 1,
+    'one-var': [
+      1,
+      "never",
     ],
 
     'promise/always-return': 'off', // default: error

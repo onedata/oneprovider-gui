@@ -36,7 +36,7 @@
  */
 
 export function crc16(arr) {
-  var table = [
+  const table = [
     0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
     0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
     0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
@@ -70,9 +70,9 @@ export function crc16(arr) {
     0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
   ];
-  var crc = 0x0000;
-  for (var i = 0; i < arr.length; i++) {
-    var byte = arr[i];
+  let crc = 0x0000;
+  for (let i = 0; i < arr.length; i++) {
+    const byte = arr[i];
     crc = crc >>> 8 ^ table[(crc ^ byte) & 0xff];
   }
   return [(crc & 0xff00) >> 8, crc & 0x00ff];
@@ -80,14 +80,14 @@ export function crc16(arr) {
 
 export default function guidToCdmiObjectId(guidB64) {
   const guidDecoded = atob(guidB64);
-  var _length = guidDecoded.length;
+  const _length = guidDecoded.length;
   if (_length <= 320) {
-    var bin = [0, 0, 0, 0, 0, _length, 0, 0];
-    for (var i = 0; i < _length; i++) {
+    const bin = [0, 0, 0, 0, 0, _length, 0, 0];
+    for (let i = 0; i < _length; i++) {
       bin.push(guidDecoded.charCodeAt(i) || 0);
     }
-    var crc = crc16(bin);
-    var bin2 = [0, 0, 0, 0, 0, _length, crc[0], crc[1]];
+    const crc = crc16(bin);
+    const bin2 = [0, 0, 0, 0, 0, _length, crc[0], crc[1]];
     for (let i = 0; i < _length; i++) {
       bin2.push(guidDecoded.charCodeAt(i) || 0);
     }

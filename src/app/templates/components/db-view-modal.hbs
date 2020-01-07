@@ -1,0 +1,44 @@
+{{#one-modal
+  class="db-view-modal"
+  open=open
+  onHide=(action "close")
+  onHidden=(action "onHidden")
+  size="lg"
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header"}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    {{#promise-proxy-container proxy=dbViewProxy}}
+      {{#bs-tab class="bs-tab-onedata bs-tab-modern" as |tab|}}
+        {{#tab.pane title=(tt this "tabs.general")}}
+          {{db-view-modal/tab-general
+            viewName=dbViewName
+            spaceName=space.name
+            spatial=dbView.spatial
+            providerNames=providerNamesProxy.content
+            viewOptions=dbView.viewOptions
+          }}
+        {{/tab.pane}}
+        {{#tab.pane title=(tt this "tabs.mapFunction")}}
+          {{db-view-modal/tab-function
+            functionType="map"
+            functionString=dbView.mapFunction
+          }}
+        {{/tab.pane}}
+        {{#tab.pane title=(tt this "tabs.reduceFunction")}}
+          {{db-view-modal/tab-function
+            functionType="reduce"
+            functionString=dbView.reduceFunction
+          }}
+        {{/tab.pane}}
+      {{/bs-tab}}
+    {{/promise-proxy-container}}
+  {{/modal.body}}  
+  {{#modal.footer class="btn-toolbar"}}
+    {{#bs-button type="primary" onClick=modal.close}}
+      {{tt this "close"}}
+    {{/bs-button}}
+  {{/modal.footer}}
+{{/one-modal}}

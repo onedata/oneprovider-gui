@@ -1,0 +1,19 @@
+<td colspan={{columnsCount}}>
+  {{#if isViewTransfer}}
+    <div class="row row-transfer-query-params">
+      {{#unless (is-empty transferQueryParams)}}
+        <div class="query-label">{{tt this "queryParams.label"}}:</div>
+        {{query-options options=transferQueryParams}}
+      {{else}}
+        <p class="query-params-empty"><em>{{tt this "queryParams.empty"}}</em></p>
+      {{/unless}}
+    </div>
+  {{/if}}
+  <div class="row-transfer-chart">
+    {{space-transfers/transfer-chart
+      transfer=record.transfer
+      providers=record.providers
+      providersColors=providersColors
+    }}
+  </div>
+</td>

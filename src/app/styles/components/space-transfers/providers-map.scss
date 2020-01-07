@@ -1,0 +1,35 @@
+$-color-channel: #B6B6B6;
+
+.providers-map {
+  .one-map {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  path.transfer {
+    stroke: $-color-channel;
+    fill: none;
+    stroke-width: 5px;
+  }
+  
+  path.transfer.active-channel-background {
+    stroke: $color-one-white;
+  }
+  
+  .atlas-draw-layer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+}
+
+
+.dummy-providers-map {
+  .one-map {
+    height: 300px;
+  }
+}

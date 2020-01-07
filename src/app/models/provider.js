@@ -10,6 +10,11 @@ import attr from 'ember-data/attr';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
+export const entityType = 'op_provider';
+
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
+  latitude: attr('number'),
+  longitude: attr('number'),
+  online: attr('boolean'),
 }).reopenClass(StaticGraphModelMixin);

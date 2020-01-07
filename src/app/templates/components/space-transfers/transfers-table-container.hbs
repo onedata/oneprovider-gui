@@ -1,0 +1,18 @@
+<div class="row loadable-row">
+  {{#loading-container
+    isLoading=transfersArray.isLoading
+    class=(concat "loading-" type "-table")
+  }}
+    {{space-transfers/transfers-table
+      transfers=transfersArray
+      transferType=type
+      providers=providers
+      providersColors=providersColors
+      spaceId=spaceId
+      rowHeight=rowHeight
+      rerunTransfer=(action "rerunTransfer")
+      cancelTransfer=(action "cancelTransfer")
+      openDbViewModal=(action "openDbViewModal")
+    }}
+  {{/loading-container}}
+</div>

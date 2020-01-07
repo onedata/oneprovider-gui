@@ -124,7 +124,7 @@ export default EmberObject.extend(
     /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
      */
-    activeTransfers: reads('transfers.ongoingList'),
+    activeTransfers: reads('transfers.ongoingTransfers'),
 
     /**
      * @type {Ember.ComputedProperty<number>}
@@ -202,7 +202,7 @@ export default EmberObject.extend(
      * Returns Promise, which resolves to object:
      * ```
      * {
-     *   ongoingList: Array<Models.Transfer>,
+     *   ongoingTransfers: Array<Models.Transfer>,
      *   endedCount: number,
      *   endedOverflow: boolean, // true if ended transfers number is
      *     greater than or equal to backend listing limit
@@ -224,15 +224,14 @@ export default EmberObject.extend(
       const transfersHistoryLimitPerFile =
         get(onedataConnection, 'transfersHistoryLimitPerFile');
 
-      return transferManager.getTransfersForFile(file).then(({ ongoingList, endedCount }) =>
-        Promise.all(ongoingList.map(transferId =>
-          transferManager.getTransfer(transferId)
-        )).then(transfers => ({
-          ongoingList: transfers,
-          endedCount,
-          endedOverflow: endedCount >= transfersHistoryLimitPerFile,
-        }))
-      );
+      return transferManager.getTransfersForFile(file).then(({
+        ongoingTransfers,
+        endedCount,
+      }) => ({
+        ongoingTransfers,
+        endedCount,
+        endedOverflow: endedCount >= transfersHistoryLimitPerFile,
+      }));
     },
 
     /**

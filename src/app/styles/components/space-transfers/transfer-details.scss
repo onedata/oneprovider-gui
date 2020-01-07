@@ -1,0 +1,63 @@
+.transfer-details {
+  .row-transfer-query-params {
+    position: relative;
+    margin-left: $padding-base-horizontal;
+    margin-right: $padding-base-horizontal / 2;
+    margin-bottom: $padding-base-horizontal;
+    padding-top: $padding-base-horizontal;
+    padding-bottom: $padding-base-horizontal;
+    .query-params-empty {
+      color: $color-one-light-gray;
+    }
+    .query-options {
+      @include vertical-align-middle();
+      margin-left: 140px;
+      width: calc(100% - 140px);
+    }
+    .query-string-input-copy {
+      .query-string-input-copy.truncate {
+        max-width: 500px;
+      }
+      .query-string {
+        @include vertical-align-middle();
+      }
+    }
+  }
+  .transfers-transfer-chart {
+    $-ct-chart-padding-top: 40px;
+    
+    position: relative;
+    .loadable-row {
+      // height of chart + top-padding (TODO: parametrize height of chart?)
+      min-height: 160px + $-ct-chart-padding-top;
+    }
+    .btn-group {
+      position: absolute;
+      top: $padding-small-vertical;
+      right: $padding-small-vertical;
+    }
+    .ct-chart {
+      margin-top: $-ct-chart-padding-top;
+      margin-bottom: 0;
+    }
+    .ct-grid.ct-vertical {
+      stroke: darken($color-one-semiwhite, 9%);
+    }
+    .ct-tooltip-entry::before {
+      height: 0;
+      width: 0;
+      border-color: inherit;
+      border-width: 5px;
+    }
+
+    .row-main-chart > .resource-load-error{
+      margin-top: 64px;
+      margin-left: 5%;
+      margin-right: 5%;
+    }
+  }
+}
+
+.table tbody tr.transfer-details td {
+  border-top: none;
+}

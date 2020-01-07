@@ -13,7 +13,6 @@ import { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import Resumable from 'npm:resumablejs';
 import { Promise, resolve } from 'rsvp';
-import { getOwner } from '@ember/application';
 import getGuiAuthToken from 'onedata-gui-websocket-client/utils/get-gui-auth-token';
 import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 import moment from 'moment';
@@ -29,6 +28,7 @@ export default Service.extend(I18n, {
   onedataRpc: service(),
   errorExtractor: service(),
   i18n: service(),
+  guiContext: service(),
 
   /**
    * @override
@@ -60,7 +60,7 @@ export default Service.extend(I18n, {
    * @type {Ember.ComputedProperty<Resumable>}
    */
   resumable: computed(function resumable() {
-    const oneproviderApiOrigin = getOwner(this).application.guiContext.apiOrigin;
+    const oneproviderApiOrigin = this.get('guiContext.apiOrigin');
     return new Resumable({
       target: `https://${oneproviderApiOrigin}/file_upload`,
       chunkSize: 1 * 1024 * 1024,
@@ -312,7 +312,11 @@ export default Service.extend(I18n, {
   fileUploadFailure(resumableFile, message) {
     let stringMessage;
     try {
-      stringMessage = (JSON.parse(message) || {}).error || message;
+      const parsedMessage = (JSON.parse(message) || {}).error || message;
+      stringMessage = get(
+        this.get('errorExtractor').getMessage(parsedMessage),
+        'message.string'
+      ) || JSON.stringify(message);
     } catch (e) {
       stringMessage = message;
     }

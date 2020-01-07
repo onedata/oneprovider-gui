@@ -1,0 +1,77 @@
+<table class="table one-table one-infinite-list">
+  <thead class="transfers-table-thead">
+    <tr>
+      {{#each visibleColumns as |column|}}
+        <th class={{concat-classes (concat "transfers-table-col-" column.id) column.className}}>
+          {{tt this column.id}}
+        </th>
+      {{/each}}
+      <th class="transfers-table-col-actions"></th>
+    </tr>
+  </thead>
+  <tbody class="transfers-table-tbody">
+    <tr class="first-row">
+      <td colspan="9999" style={{firstRowStyle}}></td>
+    </tr>
+    <div class="table-start-row"></div>
+    {{#unless transfers.length}}
+      <tr class="table-is-empty-row">
+        <td class="table-is-empty-cell" colspan="9999">
+          {{tt this (concat "noTransfers." transferType)}}
+        </td>
+      </tr>
+    {{else}}
+      {{#if (and transfers.initialLoad.isSettled fetchingPrev)}}
+        <tr class="loading-row loading-prev-row">
+          <td colspan="9999" class="special-row-cell loading-row-cell loading-prev-cell">
+            {{spin-spinner-block
+              sizeClass="sm"
+              class="absolute-middle-centered"
+            }}
+          </td>
+        </tr>
+      {{/if}}
+      {{#each transfers as |transfer|}}
+        {{space-transfers/transfer-row
+          record=(transfer-table-record
+            transfer=transfer
+            transfers=transfers
+            providers=providers
+            transferCollection=transferType
+            providersColors=providersColors
+            transferActions=transferActions
+          )
+          columns=visibleColumns
+          transfersTable=this
+          transferActions=transferActions
+          openDbViewModal=(action "openDbViewModal")
+          click=(action "toggleTransferDetails" transfer.entityId undefined)
+        }}
+        {{#if (contains transfer.entityId expandedTransferIds)}}
+          {{space-transfers/transfer-details
+            record=(transfer-table-record
+              transfer=transfer
+              transfers=transfers
+              providers=providers
+              transferCollection=transferType
+              providersColors=providersColors
+              transferActions=transferActions
+            )
+            providersColors=providersColors
+            columnsCount=allColumnsCount
+          }}
+        {{/if}}
+      {{/each}}
+      {{#if (and transfers.initialLoad.isSettled fetchingNext)}}
+        <tr class="loading-row loading-next-row">
+          <td colspan="9999" class="special-row-cell loading-row-cell loading-next-cell">
+            {{spin-spinner-block
+              sizeClass="sm"
+              class="absolute-middle-centered"
+            }}
+          </td>
+        </tr>
+      {{/if}}
+    {{/unless}}
+  </tbody>
+</table>

@@ -1,0 +1,86 @@
+<h2>
+  {{tt this "transferJobsHistory"}}
+</h2>
+{{#bs-tab
+  class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
+  fade=false
+  customTabs=true
+  activeId=verifiedTab
+  as |bsTab|
+}}
+  {{#bs-nav
+    type="tabs"
+    class="nav-tabs-transfers nav-tabs-with-loading"
+    as |nav|
+  }}
+    {{#each tabIds as |type|}}
+      {{#nav.item active=(eq bsTab.activeId type)}}
+        <a href={{concat "#" type}}
+          class={{concat "nav-link nav-link-" type}}
+          role="tab"
+          {{action (mut tab) type}}
+        >
+          {{#if (eq type "file")}}
+            <span class="tab-label">
+              {{#one-icon class="tab-icon" icon=fileTabIcon}}
+                {{one-tooltip title=fileTabHint}}
+              {{/one-icon}}
+              {{#if fileProxy.isFulfilled}}
+                {{#truncated-string class="one-label tab-name"}}
+                  {{or file.name (tt this "unknownFileName")}}
+                {{/truncated-string}}
+              {{else}}
+                <div class="one-label tab-name">
+                  {{tt this "unknownFileName"}}
+                </div>
+              {{/if}}
+            </span>
+            <span class="tab-close clickable" {{action "closeFileTab"}}>
+              {{one-icon icon="close"}}
+            </span>
+          {{else}}
+            <span class="tab-label">
+              {{tt this (concat type "Transfers")}}
+            </span>
+          {{/if}}
+        </a>
+      {{/nav.item}}
+    {{/each}}
+  {{/bs-nav}}
+  <div class="tab-content tab-content-transfers-list no-vertical-padding">
+    {{#each tabIds as |type|}}
+      {{#bsTab.pane elementId=type}}
+        {{#if (eq bsTab.activeId type)}}
+          <div class={{concat "row row-" type "-transfers"}}>
+            <div class={{concat "col-xs-12 col-" type "-transfers"}}>
+              {{#if (or (not (eq type "file")) fileProxy.isFulfilled)}}
+                {{component
+                  (concat "space-transfers/" (if (eq type "file") "file-" "") "transfers-table-container")
+                  type=type
+                  providers=providers
+                  providersColors=providersColors
+                  space=space
+                  file=(if (eq type "file") file undefined)
+                  openDbViewModal=(action "openDbViewModal")
+                }}
+              {{/if}}
+              {{#if (and (eq type "file") fileHistoryLimitReached)}}
+                <p class="file-history-limit-message">
+                  {{tt this "fileHistoryLimitReached"}}
+                </p>
+              {{/if}}
+            </div>
+          </div>
+        {{/if}}
+      {{/bsTab.pane}}
+    {{/each}}
+  </div>
+{{/bs-tab}}
+
+{{db-view-modal
+  open=dbViewModalOpened
+  space=space
+  dbViewName=dbViewModalName
+  close=(action (mut dbViewModalOpened) false)
+  onHidden=(action "dbViewModalHidden")
+}}

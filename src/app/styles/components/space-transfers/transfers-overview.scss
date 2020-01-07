@@ -1,0 +1,70 @@
+.transfers-overview {
+  &:focus {
+    outline: none;
+  }
+  .row-active-transfers {
+    transition: top 0.25s ease-out;
+    padding-bottom: 10px;
+    &.sticky {
+      // on top of spinner
+      z-index: 2000000001;
+      position: fixed;
+      padding-bottom: 0;
+    }
+  }
+  
+  .row-overview {
+    background-color: $color-one-white;
+  }
+  
+  .row-expand-handler {
+    opacity: 0;
+    display: block;
+    width: calc(100% + #{$content-col-padding * 2});
+    margin-left: -$content-col-padding;
+    padding-left: $padding-large-horizontal + $content-col-padding;
+    padding-right: $padding-large-horizontal + $content-col-padding;
+    background-color: darken($main-tabbed-content-background, 2%);
+    line-height: 50px;
+    transition: opacity 0.5s linear;
+    pointer-events: none;
+    @include before-bottom-shadow;
+    .toggle-expand .toggle-icon {
+      left: 20px + $content-col-padding;
+    }
+  }
+  
+  .col-providers-map {
+    height: 510px;
+    @media (max-width: $screen-sm-max) {
+      margin-bottom: $padding-large-vertical;
+    }
+  }
+  
+  .row-providers-map-inner {
+    height: calc(100% - 49px);
+  }
+  
+  .sticky {
+    .row-expand-handler {      
+      opacity: 1;
+      cursor: pointer;
+      pointer-events: all;
+    }
+  }
+ 
+  
+  tr.transfer-row:nth-of-type(2) {
+    td {
+      border-top: none;
+    }
+  }
+  
+  .throughput-tabs {
+    position: relative;
+    .throughput-tabs-hint-trigger {
+      font-size: 1.2em;
+      right: $padding-large-horizontal;
+    }
+  }
+}

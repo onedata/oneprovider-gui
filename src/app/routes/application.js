@@ -10,10 +10,10 @@
 import { inject as service } from '@ember/service';
 import OnedataApplicationRoute from 'onedata-gui-common/routes/application';
 import DevelopmentModelRouteMixin from 'onedata-gui-websocket-client/mixins/routes/development-model';
-import generateDevelopmentModel from 'oneprovider-gui/utils/generate-development-model';
 
 export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   onedataWebsocket: service(),
+  mockBackend: service(),
 
   /**
    * @override
@@ -21,10 +21,12 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   clearLocalStoragePrefix: 'oneprovider-gui:',
 
   developmentModelConfig: Object.freeze({
-    clearOnReload: false,
+    clearOnReload: true,
   }),
 
-  generateDevelopmentModel,
+  generateDevelopmentModel() {
+    return this.get('mockBackend').generateDevelopmentModel();
+  },
 
   beforeModel() {
     const superResult = this._super(...arguments);

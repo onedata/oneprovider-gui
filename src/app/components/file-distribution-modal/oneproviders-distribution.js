@@ -57,6 +57,19 @@ export default Component.extend(I18n, {
   fileDistributionData: undefined,
 
   /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  getTransfersUrl: notImplementedThrow,
+
+  /**
+   * @virtual
    * @type {Function}
    * @param {Models.Provider} destinationOneprovider
    * @returns {undefined}
@@ -64,6 +77,7 @@ export default Component.extend(I18n, {
   onReplicate: notImplementedThrow,
 
   /**
+   * @virtual
    * @type {Function}
    * @param {Models.Provider} sourceOneprovider
    * @param {Models.Provider} destinationOneprovider
@@ -72,6 +86,7 @@ export default Component.extend(I18n, {
   onMigrate: notImplementedThrow,
 
   /**
+   * @virtual
    * @type {Function}
    * @param {Models.Provider} sourceOneprovider
    * @returns {undefined}
@@ -144,6 +159,12 @@ export default Component.extend(I18n, {
   startTransferPromise: null,
 
   /**
+   * Frame name, where Onezone space transfers link should be opened
+   * @type {String}
+   */
+  navigateTransfersTarget: '_top',
+
+  /**
    * @type {Ember.ComputedProperty<boolean>}
    */
   isDistributionLoading: array.isAny(
@@ -162,6 +183,25 @@ export default Component.extend(I18n, {
         .compact()
         .objectAt(0);
     }
+  ),
+
+  /**
+   * A full URL for Onezone GUI window to show transfers for this distribution
+   * @type {ComputedProperty<String>}
+   */
+  navigateTransfersHref: computed(
+    function navigateTransfersHref() {
+      const {
+        fileDistributionData,
+        getTransfersUrl,
+      } = this.getProperties(
+        'fileDistributionData',
+        'getTransfersUrl',
+      );
+      return getTransfersUrl({
+        fileId: get(fileDistributionData, 'firstObject.file.entityId'),
+      });
+    },
   ),
 
   /**
@@ -396,9 +436,6 @@ export default Component.extend(I18n, {
         newMigrationSourceHasActiveTransfers: false,
       });
       this.resolveStartTransferPromise();
-    },
-    navigateToTransfers( /* file */ ) {
-      // FIXME: implement
     },
   },
 });

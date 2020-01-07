@@ -1,0 +1,37 @@
+<defs>
+  <linearGradient id={{strokeGradientId}} x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color={{gradientColors.[0]}} />
+    <stop offset="100%" stop-color={{gradientColors.[1]}} />
+  </linearGradient>
+</defs>
+
+{{#map.position
+  useContainerElement=false
+  latitude=(get providerA "latitude")
+  longitude=(get providerA "longitude")
+  as |pax pay|
+}}
+  {{#map.position
+    useContainerElement=false
+    latitude=(get providerB "latitude")
+    longitude=(get providerB "longitude")
+    as |pbx pby|
+  }}
+    {{bezier-curve
+      class="transfer animated fadeIn active-channel-background"
+      style=backgroundStrokeStyle
+      x1=pax
+      y1=pay
+      x2=pbx
+      y2=pby
+    }}
+    {{bezier-curve
+      class="transfer animated fadeIn"
+      style=strokeStyle
+      x1=pax
+      y1=pay
+      x2=pbx
+      y2=pby
+    }}
+  {{/map.position}}
+{{/map.position}}

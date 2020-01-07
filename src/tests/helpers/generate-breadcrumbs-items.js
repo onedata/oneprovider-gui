@@ -13,7 +13,7 @@ const FakeFile = EmberObject.extend({
 });
 
 function generateBreadcrumbsItems(numberOfFiles = 0) {
-  let result = {};
+  const result = {};
   result.fileNames = [...Array(numberOfFiles).keys()].map(i => `file-${i}`);
   result.files = result.fileNames.map(name => FakeFile.create({
     name: name,
@@ -23,7 +23,7 @@ function generateBreadcrumbsItems(numberOfFiles = 0) {
     result.files[0].hasParent = false;
   }
   for (let i = 0; i < result.files.length; i += 1) {
-    let ic = i;
+    const ic = i;
     result.files[ic].set('__parent', result.files[ic - 1]);
   }
   result.bitems = A(result.files.map(file => FileBreadcrumbsItem.create({

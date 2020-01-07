@@ -1,0 +1,23 @@
+<div class="row loadable-row row-transfers-data-container">
+  {{#loading-container isLoading=(not generalDataLoaded)}}
+    {{space-transfers/transfers-overview
+      space=space
+      providers=providers
+      destinationProviderIds=destinationProviderIds
+      sourceProviderIds=sourceProviderIds
+      providersColors=providersColors
+    }}
+    <div class="row row-transfers-tables">
+      {{space-transfers/tables-container
+        providers=providers
+        providersColors=providersColors
+        space=space
+        fileId=fileId
+        tab=tab
+        changeListTab=(action "changeListTab")
+        closeFileTab=(action "closeFileTab")
+      }}
+    </div>
+  {{/loading-container}}
+</div>
+{{yield}}

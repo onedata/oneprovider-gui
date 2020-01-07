@@ -39,7 +39,7 @@ export function wrapOperations({ files, operationOptions }, operation) {
  */
 export function interpretPromises(promisesHash) {
   const rejected = [];
-  for (let key in promisesHash) {
+  for (const key in promisesHash) {
     const value = promisesHash[key];
     if (get(value, 'state') === 'rejected') {
       rejected.push({

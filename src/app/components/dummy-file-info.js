@@ -39,7 +39,7 @@ export const fileParent1 = {
   type: 'dir',
   hasParent: true,
   cdmiObjectId: exampleCdmiObjectId,
-  modificationTime: Date.now() / 1000,
+  modificationTime: Math.floor(Date.now() / 1000),
 };
 
 export const file1 = {
@@ -49,7 +49,7 @@ export const file1 = {
   type: 'file',
   hasParent: true,
   cdmiObjectId: exampleCdmiObjectId,
-  modificationTime: Date.now() / 1000,
+  modificationTime: Math.floor(Date.now() / 1000),
   owner: resolve(owner1),
 };
 

@@ -1,0 +1,10 @@
+{{#promise-proxy-container proxy=spaceProxy}}
+  {{space-transfers
+    space=spaceProxy.content
+    fileId=fileEntityId
+    tab=tab
+    resetQueryParams=(action "resetQueryParams")
+    changeListTab=(action "changeListTab")
+    closeFileTab=(action "closeFileTab")
+  }}
+{{/promise-proxy-container}}

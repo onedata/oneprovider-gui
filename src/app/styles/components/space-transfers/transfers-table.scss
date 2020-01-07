@@ -1,0 +1,112 @@
+.transfers-table.one-infinite-list {  
+  .data-row {
+    td {
+      height: 73px;
+    }
+  }
+  
+  .first-row td {
+    height: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+}
+
+.transfers-table {  
+  th {
+    white-space: nowrap;
+    background-color: $color-one-white;
+  }
+  
+  .transfers-table-thead th,
+  .transfers-table-tbody td {
+    text-align: center;
+    padding: 2 * $space-transfers-table-padding $space-transfers-table-padding;
+    &:first-child {
+      text-align: left;
+    }
+  }
+  
+  @include hide-on-breakpoint(col-hide-1, 960px);
+  @include hide-on-breakpoint(col-hide-2, 800px);
+  @include hide-on-breakpoint(col-hide-3, 710px);
+  @include hide-on-breakpoint(col-hide-4, 600px);
+  @include hide-on-breakpoint(col-hide-5, 500px);
+  
+  tr {
+    .first-row-space {
+      width: 100%;
+      td {
+        padding: 0;
+        width: 100%;
+      }
+    }
+    .data-row {
+      // to hold an absolute-positioned spinner
+      position: relative;
+      &:hover {
+        cursor: pointer;
+      }
+      &.expanded-row {
+        background-color: darken($color-one-light-gray, 4%);
+        &:hover {
+          background-color: darken($color-one-light-gray, 9%);
+        }
+      }
+      .loadable-row {
+        min-height: 24px;
+      }
+    }
+  }
+  
+  .expand-row td {
+    background-color: $color-one-light-gray;
+  }
+  
+  .data-row td.special-row-cell, td.special-row-cell {
+    position: relative;
+    height: 73px;
+    &.loading-row-cell {
+      height: 76px;
+    }
+  }
+  
+  &.waiting {
+    tr.data-row:hover {
+      background-color: initial;
+      cursor: initial;
+    }
+  }
+  
+  table {
+    table-layout: unset;
+    thead {
+      th {
+        border-bottom-width: 1px;
+        .oneicon {
+          vertical-align: middle;
+        }
+      }
+    } 
+  }
+  
+  // TODO: HACK for waiting table, which does not have status column
+  th.table-header:nth-last-of-type(1) {
+    width: 70px;
+  }
+  &:not(.waiting) th.table-header:nth-last-of-type(2) {
+    width: 70px;
+  }
+  &.waiting th.table-header:nth-last-of-type(2) {
+    width: auto;
+  }
+
+  .transfers-table-row {
+    .transfers-table-cell-actions {
+      width: 40px;
+      position: relative;
+    }
+  }
+}
+
