@@ -19,6 +19,8 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 const basicTabs = Object.freeze(['waiting', 'ongoing', 'ended']);
+const allTabs = [].concat('file', basicTabs);
+const defaultTab = basicTabs[0];
 
 export default Component.extend(I18n, {
   classNames: ['tables-container'],
@@ -38,11 +40,10 @@ export default Component.extend(I18n, {
   fileId: undefined,
 
   /**
-   * @virtual optional
-   * If set, skip auto select of first opened tab and use injected tab ID
-   * @type {string|null}
+   * @virtual
+   * @type {String} one of: file, waiting, ongoing, ended
    */
-  defaultTab: undefined,
+  tab: undefined,
 
   /**
    * @virtual
@@ -56,8 +57,20 @@ export default Component.extend(I18n, {
    */
   closeFileTab: notImplementedWarn,
 
+  /**
+   * Returns tab name if it is allowed and null otherwise.
+   * @type {String}
+   */
+  verifiedTab: computed('tab', 'fileId', function verifiedTab() {
+    const {
+      tab,
+      fileId,
+    } = this.getProperties('tab', 'fileId');
+    return (fileId ? allTabs : basicTabs).includes(tab) ? tab : defaultTab;
+  }),
+
   tabIds: computed('fileId', function tabIds() {
-    return this.get('fileId') ? [].concat('file', basicTabs) : basicTabs;
+    return this.get('fileId') ? allTabs : basicTabs;
   }),
 
   /**
@@ -81,8 +94,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<models.File>}
    */
   file: reads('fileProxy.content'),
-
-  activeTabId: reads('initialTabProxy.content'),
 
   /**
    * Max number of ended transfers that can be fetched for transfer
@@ -175,13 +186,13 @@ export default Component.extend(I18n, {
    */
   initialTabProxy: promise.object(computed(function initialTabProxy() {
     const {
-      defaultTab,
+      tab,
       fileId,
-    } = this.getProperties('defaultTab', 'fileId');
-    const defaultTabDefinedValid = defaultTab && (defaultTab === 'file' &&
-      fileId) || ['waiting', 'ongoing', 'ended'].includes(defaultTab);
-    if (defaultTabDefinedValid) {
-      return resolve(defaultTab);
+    } = this.getProperties('tab', 'fileId');
+    const tabDefinedValid = tab && (tab === 'file' &&
+      fileId) || basicTabs.includes(tab);
+    if (tabDefinedValid) {
+      return resolve(null);
     } else if (fileId) {
       return resolve('file');
     } else {
@@ -212,13 +223,13 @@ export default Component.extend(I18n, {
     }
   ),
 
-  activeTabIdObserver: observer('activeTabId', function activeTabIdObserver() {
+  tabObserver: observer('tab', function tabObserver() {
     const {
-      activeTabId,
+      tab,
       changeListTab,
-    } = this.getProperties('activeTabId', 'changeListTab');
-    changeListTab(activeTabId);
-    this.set('tabJustChangedId', activeTabId);
+    } = this.getProperties('tab', 'changeListTab');
+    changeListTab(tab);
+    this.set('tabJustChangedId', tab);
   }),
 
   findNonEmptyCollection() {
@@ -244,7 +255,6 @@ export default Component.extend(I18n, {
         }
       })
       .then(result => {
-        console.log(result);
         if (typeof result === 'string') {
           return result;
         } else if (get(result, 'length') > 0) {
@@ -253,6 +263,19 @@ export default Component.extend(I18n, {
           return 'waiting';
         }
       });
+  },
+
+  init() {
+    this._super(...arguments);
+    const {
+      initialTabProxy,
+      changeListTab,
+    } = this.getProperties('initialTabProxy', 'changeListTab');
+    initialTabProxy.then((tab) => {
+      if (tab) {
+        changeListTab(tab);
+      }
+    });
   },
 
   actions: {
@@ -269,6 +292,9 @@ export default Component.extend(I18n, {
     },
     dbViewModalHidden() {
       this.set('dbViewModalName', null);
+    },
+    closeFileTab() {
+      this.get('closeFileTab')();
     },
   },
 });

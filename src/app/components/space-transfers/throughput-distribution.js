@@ -3,7 +3,7 @@
  * 
  * @module components/space-transfers/throughput-distribution
  * @author Michal Borzecki, Jakub Liput
- * @copyright (C) 2018 ACK CYFRONET AGH
+ * @copyright (C) 2018-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -32,10 +32,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { and, equal, array, collect, raw } from 'ember-awesome-macros';
 import createPropertyComparator from 'onedata-gui-common/utils/create-property-comparator';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-
-function decapitalize(text) {
-  return text.charAt(0).toLowerCase() + text.substring(1);
-}
+import decapitalize from 'onedata-gui-common/utils/decapitalize';
 
 const allOneprovidersId = '__all__';
 
@@ -140,7 +137,7 @@ export default Component.extend(
      * True if data for chart is loaded
      * @type {boolean}
      */
-    _statsLoaded: reads('timeStatForUnitProxy.isFulfilled'),
+    _statsLoaded: reads('timeStatForUnitProxy.isSettled'),
 
     /**
      * Last update time(async - > timeStatForUnitProxy)
@@ -157,7 +154,10 @@ export default Component.extend(
     /**
      * @type {ComputedProperty<boolean>}
      */
-    _noStatsForUnit: and('_statsLoaded', equal('_sortedProvidersIds', raw(0))),
+    _noStatsForUnit: and(
+      '_statsLoaded',
+      equal('_sortedProvidersIds.length', raw(0))
+    ),
 
     /**
      * @type {ComputedProperty<Object>}
@@ -575,8 +575,8 @@ export default Component.extend(
           }
           // setting colors
           const customCss = _sortedProvidersIds.map((providerId) => {
-            const color = providersColors[providerId] || providersColors[
-              'unknown'];
+            const color = providersColors[providerId] ||
+              providersColors['unknown'];
             return _.times(_pointsNumber, _.constant({
               line: {
                 stroke: color,
@@ -689,9 +689,11 @@ export default Component.extend(
           timeUnit,
           updater,
         } = this.getProperties('timeUnit', 'updater');
-        if (updater && timeUnit && timeUnit !== this.get('updater.timespan')) {
-          this.set('updater.timespan', timeUnit);
-          this.get('updater').fetch(true);
+        if (updater) {
+          if (timeUnit && timeUnit !== this.get('updater.timespan')) {
+            this.set('updater.timespan', timeUnit);
+          }
+          updater.fetch(true);
         }
       }
     ),
@@ -701,7 +703,7 @@ export default Component.extend(
      * @type {ComputedProperty<string>}
      */
     noStatsForUnitText: computed('timeUnit', function noStatsForUnitText() {
-      return this.t('transferChart.noStatsForUnit', {
+      return this.t('noStatsForUnit', {
         timeUnit: decapitalize(this.t(`timeUnit.${this.get('timeUnit')}`)),
       });
     }),
@@ -753,7 +755,6 @@ export default Component.extend(
     },
 
     _createTimeStatsUpdater() {
-      // TODO: removed statsError assign
       const {
         updaterEnabled,
         timeUnit,

@@ -5,8 +5,8 @@
   class="bs-tab bs-tab-onedata bs-tab-modern s-tab-transfer-list-types"
   fade=false
   customTabs=true
-  activeId=activeTabId
-  as |tab|
+  activeId=verifiedTab
+  as |bsTab|
 }}
   {{#bs-nav
     type="tabs"
@@ -14,11 +14,11 @@
     as |nav|
   }}
     {{#each tabIds as |type|}}
-      {{#nav.item active=(eq tab.activeId type)}}
+      {{#nav.item active=(eq bsTab.activeId type)}}
         <a href={{concat "#" type}}
           class={{concat "nav-link nav-link-" type}}
           role="tab"
-          {{action (mut activeTabId) type}}
+          {{action (mut tab) type}}
         >
           {{#if (eq type "file")}}
             <span class="tab-label">
@@ -35,10 +35,9 @@
                 </div>
               {{/if}}
             </span>
-            {{!-- TODO: close file tab button --}}
-            {{!-- <span class="tab-close clickable" {{action "closeFileTab"}}>
+            <span class="tab-close clickable" {{action "closeFileTab"}}>
               {{one-icon icon="close"}}
-            </span> --}}
+            </span>
           {{else}}
             <span class="tab-label">
               {{tt this (concat type "Transfers")}}
@@ -50,8 +49,8 @@
   {{/bs-nav}}
   <div class="tab-content tab-content-transfers-list no-vertical-padding">
     {{#each tabIds as |type|}}
-      {{#tab.pane elementId=type}}
-        {{#if (eq tab.activeId type)}}
+      {{#bsTab.pane elementId=type}}
+        {{#if (eq bsTab.activeId type)}}
           <div class={{concat "row row-" type "-transfers"}}>
             <div class={{concat "col-xs-12 col-" type "-transfers"}}>
               {{#if (or (not (eq type "file")) fileProxy.isFulfilled)}}
@@ -73,7 +72,7 @@
             </div>
           </div>
         {{/if}}
-      {{/tab.pane}}
+      {{/bsTab.pane}}
     {{/each}}
   </div>
 {{/bs-tab}}

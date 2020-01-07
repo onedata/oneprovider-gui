@@ -17,24 +17,24 @@
       <div class="row loadable-row">
         {{#bs-tab
           fade=false
-          class="bs-tab bs-tab-onedata bs-tab-modern"
+          class="bs-tab bs-tab-onedata bs-tab-modern throughput-chart-tab"
           customTabs=true
-          activeId="throughput-chart-tab"
+          activeId="throughput-chart-tab-pane"
           as |tab|
         }}
           {{#bs-nav type="tabs" class="throughput-tabs" as |nav|}}
             {{#nav.item active=(eq throughputTransferType "all")}}
-              <a class="nav-link" role="tab" onclick={{action (mut throughputTransferType) "all"}}>
+              <a class="nav-link" role="tab" {{action (mut throughputTransferType) "all"}}>
                 {{tt this "all"}}
               </a>
             {{/nav.item}}
             {{#nav.item active=(eq throughputTransferType "job")}}
-              <a class="nav-link" role="tab" onclick={{action (mut throughputTransferType) "job"}}>
+              <a class="nav-link" role="tab" {{action (mut throughputTransferType) "job"}}>
                 {{tt this "jobs"}}
               </a>
             {{/nav.item}}
             {{#nav.item active=(eq throughputTransferType "onTheFly")}}
-              <a class="nav-link" role="tab" onclick={{action (mut throughputTransferType) "onTheFly"}}>
+              <a class="nav-link" role="tab" {{action (mut throughputTransferType) "onTheFly"}}>
                 {{tt this "onTheFly"}}
               </a>
             {{/nav.item}}
@@ -60,21 +60,9 @@
                 {{/bs-button}}
               </div>
             {{/one-switchable-popover-modal}}
-            {{!-- {{#one-webui-popover
-              class="throughput-tabs-hint"
-              triggerSelector=(concat "#" elementId " .throughput-tabs-hint-trigger")
-            }}
-              <p>{{tt this "throughputTabsHint.intro"}}</p>
-              <h1>{{tt this "throughputTabsHint.total"}}</h1>
-              <p>{{tt this "throughputTabsHint.totalInfo"}}</p>
-              <h1>{{tt this "throughputTabsHint.transferJobs"}}</h1>
-              <p>{{tt this "throughputTabsHint.transferJobsInfo"}}</p>
-              <h1>{{tt this "throughputTabsHint.onTheFly"}}</h1>
-              <p>{{tt this "throughputTabsHint.onTheFlyInfo"}}</p>
-            {{/one-webui-popover}} --}}
           {{/bs-nav}}
           <div class="tab-content no-vertical-padding">
-            {{#tab.pane elementId="throughput-chart-tab"}}
+            {{#tab.pane elementId="throughput-chart-tab-pane"}}
               {{space-transfers/throughput-distribution
                 space=space
                 providers=providers

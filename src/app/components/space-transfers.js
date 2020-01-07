@@ -63,7 +63,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {String}
    */
-  defaultTab: undefined,
+  tab: undefined,
 
   providers: reads('providersProxy.content'),
 
@@ -140,18 +140,13 @@ export default Component.extend(I18n, {
   _spaceChanged(isInit = false) {
     if (!isInit) {
       // file tab should not be persisted, because it is probably from other space
-      this._clearFileId();
+      this.get('closeFileTab')();
     }
-  },
-
-  _clearFileId() {
-    return this.get('closeFileTab')();
   },
 
   actions: {
     closeFileTab() {
-      this.set('activeTabId', 'waiting');
-      this._clearFileId();
+      this.get('closeFileTab')();
     },
 
     changeListTab(tab) {

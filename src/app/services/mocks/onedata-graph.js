@@ -204,7 +204,7 @@ const fileHandlers = {
       return messageNotSupported;
     }
     const {
-      include_ended_list: includeEndedList,
+      include_ended_ids: includeEndedIds,
     } = data;
     const fileTransfers = this.get('mockBackend.entityRecords.transfer')
       .filterBy('dataSourceId', entityId);
@@ -218,7 +218,7 @@ const fileHandlers = {
       ongoingIds,
       endedCount: get(endedIds, 'length'),
     };
-    if (includeEndedList) {
+    if (includeEndedIds) {
       response.endedIds = endedIds;
     }
     return response;

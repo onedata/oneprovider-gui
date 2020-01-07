@@ -3,7 +3,7 @@
  * 
  * @module components/space-transfers/transfer-chart
  * @author Michal Borzecki
- * @copyright (C) 2017-2018 ACK CYFRONET AGH
+ * @copyright (C) 2017-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -29,6 +29,7 @@ import { htmlSafe } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads, equal } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import decapitalize from 'onedata-gui-common/utils/decapitalize';
 
 /**
  * @typedef TransferThroughputCharts
@@ -142,15 +143,15 @@ export default Component.extend(
      * @type {boolean}
      */
     _statsLoaded: computed(
-      'timeStatForUnitProxy.isFulfilled',
+      'timeStatForUnitProxy.isSettled',
       'ignoreTransferState',
-      'transfer.transferProgressProxy.isFulfilled',
+      'transfer.transferProgressProxy.isSettled',
       function _statsLoaded() {
-        const result = this.get('timeStatForUnitProxy.isFulfilled');
+        const result = this.get('timeStatForUnitProxy.isSettled');
         if (this.get('ignoreTransferState')) {
           return result;
         }
-        return result && this.get('transfer.transferProgressProxy.isFulfilled');
+        return result && this.get('transfer.transferProgressProxy.isSettled');
       }
     ),
 
@@ -164,8 +165,10 @@ export default Component.extend(
         const {
           _transferIsScheduled,
           _isWaitingForStats,
-        } = this.getProperties('_transferIsScheduled', '_statsLoaded',
-          '_isWaitingForStats');
+        } = this.getProperties(
+          '_transferIsScheduled',
+          '_isWaitingForStats'
+        );
         return !_transferIsScheduled && !_isWaitingForStats;
       }
     ),
@@ -631,6 +634,16 @@ export default Component.extend(
     _tooltipSum: computed('_tooltipProviders', function _tooltipSum() {
       const bytes = _.sum(this.get('_tooltipProviders').map(p => p.valueNumber));
       return bytesToString(bytes, { format: 'bit' }) + 'ps';
+    }),
+
+    /**
+     * Text displayed when there are no stats for unit
+     * @type {ComputedProperty<string>}
+     */
+    noStatsForUnitText: computed('timeUnit', function noStatsForUnitText() {
+      return this.t('noStatsForUnit', {
+        timeUnit: decapitalize(this.t(`timeUnit.${this.get('timeUnit')}`)),
+      });
     }),
 
     changeUpdaterUnit: observer(

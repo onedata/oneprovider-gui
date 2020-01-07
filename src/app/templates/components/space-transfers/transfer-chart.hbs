@@ -1,45 +1,40 @@
 <div class="row loadable-row row-main-chart">
-  {{#if statsError}}
-    {{resource-load-error reason=statsError}}
-  {{else}}
-    {{#loading-container isLoading=(not _statsLoaded)}}
-      {{#if _transferIsScheduled}}
-        <div class="waiting-for-stats transfer-scheduled-info">
-          {{tt this "waitingForTransferStart"}}
-        </div>
-      {{else if _isWaitingForStats}}
-        <div class="waiting-for-stats stats-delay-info">
-          {{tt this "waitingForStats"}}
-          {{#one-icon icon="sign-question"}}
-            {{bs-tooltip
-              placement="top"
-              title=(tt this "waitingForStatsTip")
-            }}
-          {{/one-icon}}
-        </div>
-      {{else if (and _noStatsForUnit ignoreTransferState)}}
-        <div class="waiting-for-stats no-stats-for-unit-info">
-          <div class="chart-placeholder-image"></div>
-          {{!-- FIXME: time unit translated text --}}
-          <span class="one-label">{{tt this "noStatsForUnit" timeUnit=timeUnit}}</span>
-        </div>
-      {{else}}
-        {{#one-chartist data=_chartData options=_chartOptions type="line"}}
-          <div class="ct-tooltip">
-            <div class="tooltip-header">
-              {{_tooltipHeader}}
-            </div>
-            {{space-transfers/tooltip-providers-list
-              providers=_tooltipProviders
-              title=(tt this "output")
-              sum=_tooltipSum
-            }}
-            <div class="ct-tooltip-arrow"></div>
+  {{#loading-container isLoading=(not _statsLoaded) errorReason=statsError}}
+    {{#if _transferIsScheduled}}
+      <div class="waiting-for-stats transfer-scheduled-info">
+        {{tt this "waitingForTransferStart"}}
+      </div>
+    {{else if _isWaitingForStats}}
+      <div class="waiting-for-stats stats-delay-info">
+        {{tt this "waitingForStats"}}
+        {{#one-icon icon="sign-question"}}
+          {{bs-tooltip
+            placement="top"
+            title=(tt this "waitingForStatsTip")
+          }}
+        {{/one-icon}}
+      </div>
+    {{else if (and _noStatsForUnit ignoreTransferState)}}
+      <div class="waiting-for-stats no-stats-for-unit-info">
+        <div class="chart-placeholder-image"></div>
+        <span class="one-label">{{noStatsForUnitText}}</span>
+      </div>
+    {{else}}
+      {{#one-chartist data=_chartData options=_chartOptions type="line"}}
+        <div class="ct-tooltip">
+          <div class="tooltip-header">
+            {{_tooltipHeader}}
           </div>
-        {{/one-chartist}}
-      {{/if}}
-    {{/loading-container}}
-  {{/if}}
+          {{space-transfers/tooltip-providers-list
+            providers=_tooltipProviders
+            title=(tt this "output")
+            sum=_tooltipSum
+          }}
+          <div class="ct-tooltip-arrow"></div>
+        </div>
+      {{/one-chartist}}
+    {{/if}}
+  {{/loading-container}}
 </div>
 {{#if _showUnitButtons}}
   {{#bs-button-group value=timeUnit onChange=(action (mut timeUnit)) type="radio" size="sm" as |bg|}}

@@ -8,5 +8,6 @@ export default {
   timeLastUpdate: 'Time (last update: {{lastUpdate}})',
   throughput: 'Throughput',
   allProviders: 'All Oneproviders',
+  noStatsForUnit: 'No activity in the last {{timeUnit}}.',
   timeUnit,
 };
