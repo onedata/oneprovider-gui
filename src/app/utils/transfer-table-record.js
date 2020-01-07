@@ -149,31 +149,39 @@ export default EmberObject.extend({
       id: transferGri,
       isLoaded: transferIsLoaded,
       isLoading: transferIsLoading,
+      transferCollection,
       store,
-    } = getProperties(transfer, 'id', 'isLoaded', 'isLoading', 'store');
-    if (transferIsLoaded) {
-      // FIXME: should be optimized to not reload transfer records every time
-      // when transfer table record is created (scrolling)
-      this.set('isLoading', true);
-      transfer.reload()
-        .then(() =>
-          get(transfer, 'transferProgressProxy.isPending') ?
-          null : transfer.updateTransferProgressProxy({ replace: true })
-        )
-        .finally(() => safeExec(this, 'set', 'isLoading', false));
-    } else if (transferIsLoading) {
-      // VFS-4487 quick fix for inconsistent transfer ids
-      // thus it can show some warnings/errors, but it's a temporary solution
-      // TODO: remove this code when proper fix on backend will be made
-      transfer.on('didLoad', () => {
-        transfer.updateTransferProgressProxy({ replace: true });
-      });
-    } else if (store) {
-      store.findRecord('transfer', transferGri)
+    } = getProperties(
+      transfer,
+      'id',
+      'isLoaded',
+      'isLoading',
+      'store',
+      'transferCollection'
+    );
+    if (get(transfer, 'state') !== transferCollection) {
+      if (transferIsLoaded) {
+        this.set('isLoading', true);
+        transfer.reload()
+          .then(() =>
+            get(transfer, 'transferProgressProxy.isPending') ?
+            null : transfer.updateTransferProgressProxy({ replace: true })
+          )
+          .finally(() => safeExec(this, 'set', 'isLoading', false));
+      } else if (transferIsLoading) {
         // VFS-4487 quick fix for inconsistent transfer ids
         // thus it can show some warnings/errors, but it's a temporary solution
         // TODO: remove this code when proper fix on backend will be made
-        .then(t => t.updateTransferProgressProxy({ replace: true }));
+        transfer.on('didLoad', () => {
+          transfer.updateTransferProgressProxy({ replace: true });
+        });
+      } else if (store) {
+        store.findRecord('transfer', transferGri)
+          // VFS-4487 quick fix for inconsistent transfer ids
+          // thus it can show some warnings/errors, but it's a temporary solution
+          // TODO: remove this code when proper fix on backend will be made
+          .then(t => t.updateTransferProgressProxy({ replace: true }));
+      }
     }
   },
 });

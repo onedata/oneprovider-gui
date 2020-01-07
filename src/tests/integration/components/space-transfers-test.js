@@ -129,12 +129,12 @@ describe('Integration | Component | space transfers', function () {
     const findRecord = stub(store, 'findRecord');
     const expectedFileGri = `file.${fileId}.instance:private`;
     findRecord.withArgs('file', expectedFileGri).resolves(file);
-    this.set('defaultTab', 'file');
+    this.set('tab', 'file');
 
     this.render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=fileId
-      defaultTab=defaultTab
+      tab=tab
       providerId=providerId
       resetQueryParams=(action "resetQueryParams")
       changeListTab=(action "changeListTab")

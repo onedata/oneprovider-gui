@@ -97,9 +97,9 @@ describe('Integration | Component | content space transfers', function () {
     frameElement.spaceEntityId = 'space-entity-id';
     this.set('frameElement', frameElement);
 
-    this.render(hbs `{{content-space-transfers
+    this.render(hbs `<div id="content-scroll">{{content-space-transfers
       frameElement=frameElement
-    }}`);
+    }}</div>`);
 
     return wait()
       .then(() => {

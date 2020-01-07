@@ -218,9 +218,11 @@ export default Component.extend(I18n, {
       sticky = false;
     } else {
       const contentScroll = document.getElementById('content-scroll');
-      sticky = this.get('overviewExpanded') ?
-        (contentScroll.scrollTop !== 0) :
-        (initialHandlerTop - contentScrollTop <= contentScroll.scrollTop);
+      if (contentScroll) {
+        sticky = this.get('overviewExpanded') ?
+          (contentScroll.scrollTop !== 0) :
+          (initialHandlerTop - contentScrollTop <= contentScroll.scrollTop);
+      }
     }
     if (!sticky && stickyOverview) {
       this.set('overviewExpanded', false);
