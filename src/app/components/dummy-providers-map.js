@@ -15,10 +15,8 @@ export default Component.extend({
     const providers = this.get('space.providerList.list');
     if (providers) {
       const colors = generateColors(get(providers, 'length'));
-      let i = 0;
-      return providers.reduce((result, provider) => {
+      return providers.reduce((result, provider, i) => {
         result[get(provider, 'entityId')] = colors[i];
-        i += 1;
         return result;
       }, {});
     } else {

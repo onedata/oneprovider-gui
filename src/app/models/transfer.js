@@ -34,6 +34,8 @@ export const entityType = 'op_transfer';
 
 export function computeTransferIndex(entityId, scheduleTime, finishTime) {
   const timestamp = finishTime || scheduleTime;
+  // "ip2" is a separator used with ids in database (the name was probably
+  // a mistake and should be "id2", but it's not our business)
   const firstIdPartMatch = entityId.match(/(.*)(ip2.*)/);
   const idForIndex = firstIdPartMatch && firstIdPartMatch[1] || entityId;
   return `${backendEpochInfinity - timestamp}${(idForIndex).slice(0, linkNameIdPartLength)}`;
@@ -61,6 +63,10 @@ export default Model.extend(
      */
     _isCancelling: false,
 
+    /**
+     * An index for querying backend for record in selected range
+     * @type {ComputedProperty<string>}
+     */
     index: computed('entityId', 'scheduleTime', 'finishTime', function index() {
       const {
         entityId,
@@ -75,6 +81,9 @@ export default Model.extend(
      */
     isOngoing: attr('boolean'),
 
+    /**
+     * Path of the file/dir or name of db index
+     */
     dataSourceName: attr('string'),
 
     /**
@@ -88,8 +97,7 @@ export default Model.extend(
     dataSourceId: attr('string'),
 
     /**
-     * Creator of transfer entityId
-     * On init time it gets a GRI string, then this field is converted
+     * EntityId of transfer creator
      */
     userId: attr('string'),
 
@@ -114,7 +122,7 @@ export default Model.extend(
     evictingProvider: belongsTo('provider'),
 
     /**
-     * @type {String}
+     * @type {String|null}
      * One of: waiting, ongoing, ended
      */
     state: computed('scheduleTime', 'startTime', 'finishTime', function state() {
@@ -125,7 +133,8 @@ export default Model.extend(
       } = this.getProperties('scheduleTime', 'startTime', 'finishTime');
       return finishTime && 'ended' ||
         startTime && 'ongoing' ||
-        scheduleTime && 'waiting';
+        scheduleTime && 'waiting' ||
+        null;
     }),
 
     /**
@@ -215,10 +224,14 @@ export default Model.extend(
     /**
      * @type {ComputedProperty<boolean>}
      */
-    isEnded: computed('transferProgress.status', function isEnded() {
-      return this.get('state') === 'ended' ||
-        endedStates.includes(this.get('transferProgress.status'));
-    }),
+    isEnded: computed(
+      'state',
+      'transferProgress.status',
+      function isEnded() {
+        return this.get('state') === 'ended' ||
+          endedStates.includes(this.get('transferProgress.status'));
+      }
+    ),
 
     /**
      * @override
@@ -228,12 +241,17 @@ export default Model.extend(
       return this.get('transferManager').getTransferProgress(this);
     },
 
+    /**
+     * 
+     * @param {string} spaceId 
+     * @return {Promise<Models.User>}
+     */
     fetchUser(spaceId) {
       const {
         store,
         userId,
       } = this.getProperties('store', 'userId');
-      // TODO: doesn't work for mock mode, which uses: entity type user and scoper private
+      // TODO: doesn't work for mock mode, which uses: entity type user and scope private
       const entityType = userEntityType;
       const scope = 'shared';
       const userGri = gri({

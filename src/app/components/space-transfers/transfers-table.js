@@ -1,3 +1,17 @@
+/**
+ * Lists transfers using replacing chunks array.
+ * 
+ * For each transfer it provides set of available actions and allows to open
+ * transfer details (charts, etc.).
+ * 
+ * To get infinite scroll support, see `space-transfers/transfers-table-container`
+ * 
+ * @module components/space-transfers/transfers-table
+ * @author Jakub Liput
+ * @copyright (C) 2019 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get, set, setProperties } from '@ember/object';
 import _ from 'lodash';
@@ -8,6 +22,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { A } from '@ember/array';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
+import { sum } from 'ember-awesome-macros';
 
 const allColumnNames = [
   'path',
@@ -64,12 +79,6 @@ export default Component.extend(I18n, {
    * @type {Object}
    */
   providersColors: undefined,
-
-  /**
-   * @virtual
-   * @type {String}
-   */
-  updaterId: undefined,
 
   /**
    * @virtual
@@ -146,10 +155,9 @@ export default Component.extend(I18n, {
   visibleColumnNames: computed(
     'transferType',
     function tableColumnNames() {
-      const {
-        transferType,
-      } = this.getProperties('transferType');
-      const excludedColumnNames = [...tableExcludedColumnNames[transferType]];
+      const excludedColumnNames = [
+        ...tableExcludedColumnNames[this.get('transferType')],
+      ];
       return _.differenceWith(
         allColumnNames,
         excludedColumnNames
@@ -166,11 +174,9 @@ export default Component.extend(I18n, {
 
   /**
    * Add columns rendered beside visibleColumns
-   * @type {number}
+   * @type {ComputedProperty<number>}
    */
-  allColumnsCount: computed('visibleColumns.length', function allColumnsCount() {
-    return this.get('visibleColumns.length') + 1;
-  }),
+  allColumnsCount: sum('visibleColumns.length', 1),
 
   /**
    * Internal cancel of transfer which knows which row (table record) invoked
@@ -253,26 +259,30 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Array<Object>>}
    */
-  transferActions: computed('_cancelTransfer', '_rerunTransfer', function () {
-    const {
-      _cancelTransfer,
-      _rerunTransfer,
-    } = this.getProperties('_cancelTransfer', '_rerunTransfer');
-    const actions = [];
-    if (_cancelTransfer) {
-      actions.push({
-        id: 'cancelTransfer',
-        action: _cancelTransfer,
-      });
+  transferActions: computed(
+    '_cancelTransfer',
+    '_rerunTransfer',
+    function transferActions() {
+      const {
+        _cancelTransfer,
+        _rerunTransfer,
+      } = this.getProperties('_cancelTransfer', '_rerunTransfer');
+      const actions = [];
+      if (_cancelTransfer) {
+        actions.push({
+          id: 'cancelTransfer',
+          action: _cancelTransfer,
+        });
+      }
+      if (_rerunTransfer) {
+        actions.push({
+          id: 'rerunTransfer',
+          action: _rerunTransfer,
+        });
+      }
+      return actions;
     }
-    if (_rerunTransfer) {
-      actions.push({
-        id: 'rerunTransfer',
-        action: _rerunTransfer,
-      });
-    }
-    return actions;
-  }),
+  ),
 
   //#endregion
 

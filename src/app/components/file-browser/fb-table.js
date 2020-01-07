@@ -349,7 +349,8 @@ export default Component.extend(I18n, {
       firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
     const lastId = items[items.length - 1] &&
       items[items.length - 1].getAttribute('data-row-id') || null;
-    let startIndex, endIndex;
+    let startIndex;
+    let endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
       const {
         rowHeight,

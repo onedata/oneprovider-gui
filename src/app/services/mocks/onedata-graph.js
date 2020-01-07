@@ -8,7 +8,7 @@
  */
 
 import OnedataGraphMock, { messageNotSupported } from 'onedata-gui-websocket-client/services/mocks/onedata-graph';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
 import _ from 'lodash';
 
 const transferStatusToProgressState = {
@@ -16,6 +16,12 @@ const transferStatusToProgressState = {
   ongoing: 'replicating',
   ended: 'completed',
 };
+
+const messageNotFound = Object.freeze({
+  success: false,
+  error: { id: 'notFound' },
+  data: {},
+});
 
 const spaceHandlers = {
   transfers(operation, entityId, data) {
@@ -87,9 +93,11 @@ const spaceHandlers = {
       return messageNotSupported;
     }
     const allProviders = this.get('mockBackend.entityRecords.provider');
-    const firstProviderId = get(allProviders[0], 'entityId');
-    const secondProviderId = get(allProviders[1], 'entityId');
-    const thirdProviderId = get(allProviders[2], 'entityId');
+    const [
+      firstProviderId,
+      secondProviderId,
+      thirdProviderId,
+    ] = allProviders.slice(0, 3).mapBy('entityId');
     return {
       channelDestinations: {
         [firstProviderId]: [secondProviderId],
@@ -156,7 +164,15 @@ const transferHandlers = {
     }
     const allTransfers = this.get('mockBackend.entityRecords.transfer');
     const transfer = allTransfers.findBy('entityId', entityId);
-    const status = transferStatusToProgressState[get(transfer, 'state')] || 'failed';
+    if (!transfer) {
+      return messageNotFound;
+    }
+    let status;
+    if (this.get('cancelledTransfers').includes(transfer)) {
+      status = 'cancelled';
+    } else {
+      status = transferStatusToProgressState[get(transfer, 'state')] || 'failed';
+    }
     return {
       status,
       timestamp: Math.floor(Date.now() / 1000),
@@ -169,28 +185,16 @@ const transferHandlers = {
     if (operation !== 'create') {
       return messageNotSupported;
     }
-    // TODO: complete the mock: change status of transfer to reruned
     return null;
   },
-  instance(operation /*, entityId, data*/ ) {
+  cancel(operation, entityId /*, data*/ ) {
     if (operation !== 'delete') {
       return messageNotSupported;
     }
-    // TODO: complete the mock: change status of transfer to cancelled
+    const allTransfers = this.get('mockBackend.entityRecords.transfer');
+    const transfer = allTransfers.findBy('entityId', entityId);
+    this.get('cancelledTransfers').push(transfer);
     return null;
-  },
-};
-
-const providerHandlers = {
-  spaces(operation, entityId) {
-    if (operation === 'get') {
-      return {
-        gri: `provider.${entityId}.spaces`,
-        list: ['space1', 'space2', 'space3', 'space4'],
-      };
-    } else {
-      return messageNotSupported;
-    }
   },
 };
 
@@ -200,7 +204,7 @@ const fileHandlers = {
       return messageNotSupported;
     }
     const {
-      include_ended_list: includeEndedList,
+      include_ended_ids: includeEndedIds,
     } = data;
     const fileTransfers = this.get('mockBackend.entityRecords.transfer')
       .filterBy('dataSourceId', entityId);
@@ -214,7 +218,7 @@ const fileHandlers = {
       ongoingIds,
       endedCount: get(endedIds, 'length'),
     };
-    if (includeEndedList) {
+    if (includeEndedIds) {
       response.endedIds = endedIds;
     }
     return response;
@@ -222,18 +226,18 @@ const fileHandlers = {
 };
 
 export default OnedataGraphMock.extend({
-  _handlers: Object.freeze({
-    op_provider: providerHandlers,
-    op_space: spaceHandlers,
-    op_transfer: transferHandlers,
-    file: fileHandlers,
-  }),
+  cancelledTransfers: computed(() => []),
 
   init() {
     this._super(...arguments);
+    const _handlers = Object.freeze({
+      op_space: spaceHandlers,
+      op_transfer: transferHandlers,
+      file: fileHandlers,
+    });
     this.set(
       'handlers',
-      _.merge({}, this.get('handlers'), this.get('_handlers'))
+      _.merge({}, this.get('handlers'), _handlers)
     );
   },
 });

@@ -437,8 +437,5 @@ export default Component.extend(I18n, {
       });
       this.resolveStartTransferPromise();
     },
-    getTransfersUrl(...args) {
-      return this.get('getTransfersUrl')(...args);
-    },
   },
 });

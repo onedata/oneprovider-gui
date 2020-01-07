@@ -11,13 +11,11 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { inject as service } from '@ember/service';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
 export const entityType = 'op_space';
 
 export default Model.extend(
-  GraphSingleModelMixin,
-  createDataProxyMixin('transfersActiveChannels'), {
+  GraphSingleModelMixin, {
     transferManager: service(),
 
     name: attr('string'),

@@ -6,7 +6,7 @@
  */
 export default function fileName(path) {
   if (path) {
-    const matched = path.match(/.*\/(.*)/);
-    return matched && matched[1];
+    const matched = path.match(/(.*\/)?(.*)/);
+    return matched && matched[2];
   }
 }

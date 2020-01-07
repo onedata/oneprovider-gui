@@ -3,7 +3,7 @@
  *
  * @module utils/transfer-table-record
  * @author Jakub Liput
- * @copyright (C) 2018 ACK CYFRONET AGH
+ * @copyright (C) 2018-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,12 +13,11 @@ import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import EmberObject, {
   computed,
   get,
-  setProperties,
   getProperties,
-  set,
 } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const startEndTimeFormat = 'D MMM YYYY H:mm:ss';
 
@@ -44,34 +43,12 @@ const statusGroups = {
   ]),
 };
 
-// FIXME: check if all fields are needed and refactor
-
 export default EmberObject.extend({
-  destinationUnknownText: 'unknown',
-
   /**
    * @virtual
    * @type {models/Transfer}
    */
   transfer: undefined,
-
-  /**
-   * @virtual
-   * @type {ArraySlice<models/Transfer>}
-   */
-  transfers: undefined,
-
-  /**
-   * @virtual
-   * @type {Array<models/Provider>}
-   */
-  providers: undefined,
-
-  /**
-   * @virtual
-   * @type {number}
-   */
-  updaterId: undefined,
 
   /**
    * @virtual
@@ -85,29 +62,17 @@ export default EmberObject.extend({
    */
   spaceId: undefined,
 
-  transferId: reads('transfer.entityId'),
+  isLoading: false,
 
-  file: reads('transfer.file'),
-  dataSourceType: reads('transfer.dataSourceType'),
-  dataSourceName: reads('transfer.dataSourceName'),
-  dataSourceId: reads('transfer.dataSourceId'),
-  dataSourceRecord: reads('transfer.dataSourceRecord'),
-  userName: reads('userNameProxy.content.name'),
-  scheduledAtComparable: reads('transfer.scheduleTime'),
-  startedAtComparable: reads('transfer.startTime'),
-  finishedAtComparable: reads('transfer.finishTime'),
+  transferId: reads('transfer.entityId'),
+  userName: reads('userProxy.content.name'),
   replicatedFiles: reads('transfer.transferProgressProxy.replicatedFiles'),
   evictedFiles: reads('transfer.transferProgressProxy.evictedFiles'),
   status: reads('transfer.transferProgressProxy.status'),
   transferProgressError: reads('transfer.transferProgressProxy.reason'),
   type: reads('transfer.type'),
 
-  isLoading: computed('transfer.tableDataIsLoaded', 'isReloading', function () {
-    return this.get('transfer.tableDataIsLoaded') === false || this.get(
-      'isReloading');
-  }),
-
-  userNameProxy: promise.object(computed('spaceId', function userNameProxy() {
+  userProxy: promise.object(computed('spaceId', function userProxy() {
     const {
       transfer,
       spaceId,
@@ -115,37 +80,42 @@ export default EmberObject.extend({
     return transfer.fetchUser(spaceId);
   })),
 
-  transferIndex: computedPipe('transferId', getHash),
-  scheduledAtReadable: computedPipe('scheduledAtComparable', timeReadable),
-  startedAtReadable: computedPipe('startedAtComparable', timeReadable),
-  finishedAtReadable: computedPipe('finishedAtComparable', timeReadable),
+  scheduledAtReadable: computedPipe('transfer.scheduleTime', timeReadable),
+  startedAtReadable: computedPipe('transfer.startTime', timeReadable),
+  finishedAtReadable: computedPipe('transfer.finishTime', timeReadable),
   totalBytesReadable: computedPipe(
     'transfer.transferProgressProxy.replicatedBytes',
     bytesToString
   ),
 
   /**
+   * Displayet desitnation name
    * @type {ComputedProperty<String>}
    */
   destination: computed(
     'providers.@each.{entityId,name}',
     'transfer.replicatingProvider',
-    function _destination() {
+    function destination() {
       const destinationId = this.get('transfer.replicatingProvider.entityId');
       // eviction transfer
       if (!destinationId) {
-        return '-';
+        return '‐';
       }
-      let destination = this.get('destinationUnknownText');
-      const destProvider = destination ?
+      let _destination = '?';
+      const destProvider = _destination ?
         this.get('providers').findBy('entityId', destinationId) : null;
       if (destProvider) {
-        destination = get(destProvider, 'name');
+        _destination = get(destProvider, 'name');
       }
-      return destination;
+      return _destination;
     }
   ),
 
+  /**
+   * Check if status is one of the allowed states in the claimed collection
+   * (table type).
+   * @type {ComputedProperty<boolean>}
+   */
   isInCorrectCollection: computed(
     'transferCollection',
     'status',
@@ -162,66 +132,60 @@ export default EmberObject.extend({
   init() {
     const {
       transfer,
-      updaterId,
-    } = this.getProperties('transfer', 'updaterId');
-    const {
-      id: transferGri,
-      isLoaded,
-      isLoading,
-      updaterId: transferUpdaterId,
-      store,
-    } = getProperties(transfer, 'id', 'isLoaded', 'isLoading', 'store');
-    if (isLoaded) {
-      if (transferUpdaterId !== updaterId) {
-        setProperties(
-          transfer, {
-            updaterId,
-            isReloading: true,
-          }
-        );
-        transfer.reload()
-          .then(() =>
-            get(transfer, 'transferProgressProxy.isPending') ?
-            null : transfer.updateTransferProgressProxy({ replace: true })
-          )
-          .finally(() => set(transfer, 'isReloading', false));
-      }
-    } else if (isLoading) {
-      // VFS-4487 quick fix for inconsistent transfer ids
-      // thus it can show some warnings/errors, but it's a temporary solution
-      // TODO: remove this code when proper fix on backend will be made
-      transfer.on('didLoad', () => {
-        transfer.updateTransferProgressProxy({ replace: true });
-      });
-    } else if (store) {
-      store.findRecord('transfer', transferGri)
-        // VFS-4487 quick fix for inconsistent transfer ids
-        // thus it can show some warnings/errors, but it's a temporary solution
-        // TODO: remove this code when proper fix on backend will be made
-        .then(t => t.updateTransferProgressProxy({ replace: true }));
-    }
-
-    if (this.get('transferCollection') === 'file') {
-      this.addObserver('status', function () {
+      transferCollection,
+    } = this.getProperties('transfer', 'transferCollection');
+    this.reloadRecordIfNeeded(transfer);
+    if (transferCollection === 'file') {
+      this.addObserver('status', function statusObserver() {
         transfer.reload();
       });
       // enable observer
       this.get('status');
     }
   },
+
+  reloadRecordIfNeeded(transfer = this.get('transfer')) {
+    const {
+      id: transferGri,
+      isLoaded: transferIsLoaded,
+      isLoading: transferIsLoading,
+      transferCollection,
+      store,
+    } = getProperties(
+      transfer,
+      'id',
+      'isLoaded',
+      'isLoading',
+      'store',
+      'transferCollection'
+    );
+    if (get(transfer, 'state') !== transferCollection) {
+      if (transferIsLoaded) {
+        this.set('isLoading', true);
+        transfer.reload()
+          .then(() =>
+            get(transfer, 'transferProgressProxy.isPending') ?
+            null : transfer.updateTransferProgressProxy({ replace: true })
+          )
+          .finally(() => safeExec(this, 'set', 'isLoading', false));
+      } else if (transferIsLoading) {
+        // VFS-4487 quick fix for inconsistent transfer ids
+        // thus it can show some warnings/errors, but it's a temporary solution
+        // TODO: remove this code when proper fix on backend will be made
+        transfer.on('didLoad', () => {
+          transfer.updateTransferProgressProxy({ replace: true });
+        });
+      } else if (store) {
+        store.findRecord('transfer', transferGri)
+          // VFS-4487 quick fix for inconsistent transfer ids
+          // thus it can show some warnings/errors, but it's a temporary solution
+          // TODO: remove this code when proper fix on backend will be made
+          .then(t => t.updateTransferProgressProxy({ replace: true }));
+      }
+    }
+  },
 });
 
-// https://stackoverflow.com/a/40958826
-function getHash(input) {
-  let hash = 0,
-    len = input.length;
-  for (let i = 0; i < len; i++) {
-    hash = ((hash << 5) - hash) + input.charCodeAt(i);
-    hash |= 0;
-  }
-  return hash;
-}
-
 function timeReadable(timestamp) {
-  return (timestamp && moment.unix(timestamp).format(startEndTimeFormat)) || '-';
+  return (timestamp && moment.unix(timestamp).format(startEndTimeFormat)) || '‐';
 }

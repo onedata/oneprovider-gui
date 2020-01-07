@@ -23,7 +23,7 @@ export default Component.extend({
 
   fileId: reads('firstFile.entityId'),
 
-  spaceProxy: promise.object(computed(function dirProxy() {
+  spaceProxy: promise.object(computed(function spaceProxy() {
     return this.get('currentUser').getCurrentUserRecord()
       .then(user => get(user, 'spaceList'))
       .then(spaceList => get(spaceList, 'list'))

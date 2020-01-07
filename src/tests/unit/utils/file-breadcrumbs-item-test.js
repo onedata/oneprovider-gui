@@ -8,10 +8,10 @@ import EmberObject from '@ember/object';
 
 describe('Unit | Utility | file breadcrumbs item', function () {
   it('uses file name as its name by default', function () {
-    let file = EmberObject.create({
+    const file = EmberObject.create({
       name: 'hello',
     });
-    let fbi = FileBreadcrumbsItem.create({
+    const fbi = FileBreadcrumbsItem.create({
       file: file,
     });
 
@@ -19,10 +19,10 @@ describe('Unit | Utility | file breadcrumbs item', function () {
   });
 
   it('allows to set custom name without altering file name', function () {
-    let file = EmberObject.create({
+    const file = EmberObject.create({
       name: 'hello',
     });
-    let fbi = FileBreadcrumbsItem.create({
+    const fbi = FileBreadcrumbsItem.create({
       file: file,
       name: 'world',
     });

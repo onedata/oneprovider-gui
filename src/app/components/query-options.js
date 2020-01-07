@@ -4,9 +4,9 @@ import { htmlSafe } from '@ember/string';
 import { inject as service } from '@ember/service';
 import $ from 'jquery';
 
-const queryStringRegex = /(.*?)(=)(.*)(&)|(.*?)(=)(.*)/g;
+const queryStringRegex = /([^&]*?)(=)([^&]*)(&)?/g;
 const queryStringReplace =
-  '<span class="query-string-key">$1$5</span><span class="query-string-equal">$2$6</span><span class="query-string-value">$3$7</span><span class="query-string-amp">$4</span>';
+  '<span class="query-string-key">$1</span><span class="query-string-equal">$2</span><span class="query-string-value">$3</span><span class="query-string-amp">$4</span>';
 
 export default Component.extend({
   classNames: ['query-options'],

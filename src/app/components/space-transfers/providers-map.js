@@ -19,7 +19,6 @@ import { inject as service } from '@ember/service';
 import { assert } from '@ember/debug';
 import { promise, quotient, raw, sum } from 'ember-awesome-macros';
 import Looper from 'onedata-gui-common/utils/looper';
-import clusterizeProviders from 'onedata-gui-common/utils/clusterize-providers-by-coordinates';
 import mapPositionForCoordinates from 'onedata-gui-common/utils/map-position-for-coordinates';
 
 const pollingTime = 5100;
@@ -63,24 +62,6 @@ export default Component.extend(
     ),
 
     transfersActiveChannelsCache: computed(() => A()),
-
-    /**
-     * @type {Ember.ComputedProperty<Array<Object>>}
-     */
-    clusteredOneproviders: computed(
-      'providers.@each.{latitude,longitude}',
-      'mapScale',
-      function clusteredOneproviders() {
-        const {
-          providers,
-          mapScale,
-        } = this.getProperties('providers', 'mapScale');
-        const squareSideLength = 15 / (mapScale || 1);
-        return clusterizeProviders(
-          providers || [], squareSideLength, squareSideLength
-        );
-      }
-    ),
 
     /**
      * Creates an array of provider ids that are destination of transfers for space
@@ -141,17 +122,20 @@ export default Component.extend(
      * Maps provider entityId => Provider model
      * @type {ComputedProperty<object>}
      */
-    providersMap: computed('providers.@each.entityId', function () {
-      const providers = this.get('providers');
-      if (providers) {
-        return providers.reduce((map, provider) => {
-          map[get(provider, 'entityId')] = provider;
-          return map;
-        }, {});
-      } else {
-        return {};
+    idToProviderMapping: computed(
+      'providers.@each.entityId',
+      function idToProviderMapping() {
+        const providers = this.get('providers');
+        if (providers) {
+          return providers.reduce((map, provider) => {
+            map[get(provider, 'entityId')] = provider;
+            return map;
+          }, {});
+        } else {
+          return {};
+        }
       }
-    }),
+    ),
 
     /**
      * @type {Ember.ComputedProperty<number>}

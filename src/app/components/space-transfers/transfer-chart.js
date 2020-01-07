@@ -3,7 +3,7 @@
  * 
  * @module components/space-transfers/transfer-chart
  * @author Michal Borzecki
- * @copyright (C) 2017-2018 ACK CYFRONET AGH
+ * @copyright (C) 2017-2019 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -29,6 +29,14 @@ import { htmlSafe } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads, equal } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import decapitalize from 'onedata-gui-common/utils/decapitalize';
+
+/**
+ * @typedef TransferThroughputCharts
+ * @property {ThroughputCharts} inputCharts
+ * @property {ThroughputCharts} outputCharts
+ * @property {Number} timestamp
+ */
 
 export default Component.extend(
   I18n,
@@ -135,15 +143,15 @@ export default Component.extend(
      * @type {boolean}
      */
     _statsLoaded: computed(
-      'timeStatForUnitProxy.isFulfilled',
+      'timeStatForUnitProxy.isSettled',
       'ignoreTransferState',
-      'transfer.transferProgressProxy.isFulfilled',
+      'transfer.transferProgressProxy.isSettled',
       function _statsLoaded() {
-        const result = this.get('timeStatForUnitProxy.isFulfilled');
+        const result = this.get('timeStatForUnitProxy.isSettled');
         if (this.get('ignoreTransferState')) {
           return result;
         }
-        return result && this.get('transfer.transferProgressProxy.isFulfilled');
+        return result && this.get('transfer.transferProgressProxy.isSettled');
       }
     ),
 
@@ -157,8 +165,10 @@ export default Component.extend(
         const {
           _transferIsScheduled,
           _isWaitingForStats,
-        } = this.getProperties('_transferIsScheduled', '_statsLoaded',
-          '_isWaitingForStats');
+        } = this.getProperties(
+          '_transferIsScheduled',
+          '_isWaitingForStats'
+        );
         return !_transferIsScheduled && !_isWaitingForStats;
       }
     ),
@@ -324,7 +334,7 @@ export default Component.extend(
               values = values.concat(_.times(_expectedStatsNumber - values.length, _
                 .constant(null)));
             }
-            return this._scaleStatValue(values);
+            return this._scaleStatValues(values);
           });
         }
       }),
@@ -626,6 +636,16 @@ export default Component.extend(
       return bytesToString(bytes, { format: 'bit' }) + 'ps';
     }),
 
+    /**
+     * Text displayed when there are no stats for unit
+     * @type {ComputedProperty<string>}
+     */
+    noStatsForUnitText: computed('timeUnit', function noStatsForUnitText() {
+      return this.t('noStatsForUnit', {
+        timeUnit: decapitalize(this.t(`timeUnit.${this.get('timeUnit')}`)),
+      });
+    }),
+
     changeUpdaterUnit: observer(
       'updater',
       'timeUnit',
@@ -668,6 +688,7 @@ export default Component.extend(
 
     /**
      * @override
+     * @returns {Promise<ThroughputCharts>}
      */
     fetchTimeStatForUnit() {
       const {
@@ -704,7 +725,6 @@ export default Component.extend(
       );
       const isOngoing = get(transfer, 'isOngoing');
 
-      console.debug('transfer-chart: creating updater');
       timeStatForUnitProxy
         .then(() => safeExec(this, () => {
           this.set('_statsError', null);
@@ -730,7 +750,7 @@ export default Component.extend(
      * @param {Array<number>} statValues transfered bytes/s for chart value
      * @returns {number} average throughput in bytes per second
      */
-    _scaleStatValue(statValues) {
+    _scaleStatValues(statValues) {
       const {
         _timePeriod,
         _transferLastUpdateTime,

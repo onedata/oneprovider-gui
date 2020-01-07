@@ -23,7 +23,7 @@ const DEFAULT_FONT_SIZE = '10%';
 const DEFAULT_MAX_WIDTH = '40%';
 
 export default function centeredText(options) {
-  let defaultOptions = {
+  const defaultOptions = {
     text: '',
     fontSize: DEFAULT_FONT_SIZE,
     maxWidth: DEFAULT_MAX_WIDTH,
@@ -32,26 +32,26 @@ export default function centeredText(options) {
   _.defaults(options, defaultOptions);
   return (chart) => {
     chart.on('created', () => {
-      let svg = chart.svg;
-      let relativeSize = Math.min(svg.width(), svg.height());
+      const svg = chart.svg;
+      const relativeSize = Math.min(svg.width(), svg.height());
 
-      let fontSize =
+      const fontSize =
         normalizeSize(options.fontSize, relativeSize, DEFAULT_FONT_SIZE);
 
-      let textAttributes = {
+      const textAttributes = {
         'dx': svg.width() / 2,
         'dy': svg.height() / 2,
         'text-anchor': 'middle',
         'style': `dominant-baseline: middle; font-size: ${fontSize}px`,
       };
 
-      let textElement = svg.elem('text', textAttributes, 'ct-centered-text')
+      const textElement = svg.elem('text', textAttributes, 'ct-centered-text')
         .text(options.text);
-      let textWidth = textElement.width();
-      let maxTextWidth =
+      const textWidth = textElement.width();
+      const maxTextWidth =
         normalizeSize(options.maxWidth, relativeSize, DEFAULT_MAX_WIDTH) - 10;
       if (textWidth > maxTextWidth) {
-        let scaleRatio = maxTextWidth / textWidth;
+        const scaleRatio = maxTextWidth / textWidth;
         textElement.getNode().style.fontSize = fontSize * scaleRatio + 'px';
       }
       svg.append(textElement);

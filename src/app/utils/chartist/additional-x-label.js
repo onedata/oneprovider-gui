@@ -19,23 +19,23 @@
 import $ from 'jquery';
 
 export default function additionalXLabel(options) {
-  let defaultOptions = {
+  const defaultOptions = {
     xOffsetMultiply: 1,
     insertBefore: false,
   };
   options = Chartist.extend({}, defaultOptions, options);
   return (chart) => {
     chart.on('created', () => {
-      let labelsNode = $(chart.svg._node).find('.ct-labels');
-      let labels = labelsNode.find('.ct-label.ct-horizontal.ct-end');
-      let lastLabelNode = labelsNode.find('.ct-label.ct-horizontal.ct-end').last()
+      const labelsNode = $(chart.svg._node).find('.ct-labels');
+      const labels = labelsNode.find('.ct-label.ct-horizontal.ct-end');
+      const lastLabelNode = labelsNode.find('.ct-label.ct-horizontal.ct-end').last()
         .parent();
       let sourceLabelNode = lastLabelNode;
       if (labels.length > 1) {
         sourceLabelNode = $(labels[labels.length - 2]).parent();
       }
 
-      let newLabelNode = sourceLabelNode.clone();
+      const newLabelNode = sourceLabelNode.clone();
       newLabelNode.attr('x',
         parseFloat(lastLabelNode.attr('x')) + options.xOffsetMultiply * parseFloat(
           sourceLabelNode.attr('width'))

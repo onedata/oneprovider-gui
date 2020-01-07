@@ -13,6 +13,7 @@ import { resolve } from 'rsvp';
 
 const {
   stub,
+  spy,
 } = sinon;
 
 const TransferManager = Service.extend({
@@ -44,9 +45,9 @@ describe('Integration | Component | space transfers', function () {
       entityId: providerId,
     };
     const providers = [provider];
-    const resetQueryParams = sinon.spy();
-    const changeListTab = sinon.spy();
-    const closeFileTab = sinon.spy();
+    const resetQueryParams = spy();
+    const changeListTab = spy();
+    const closeFileTab = spy();
     this.on('resetQueryParams', resetQueryParams);
     this.on('changeListTab', changeListTab);
     this.on('closeFileTab', closeFileTab);
@@ -89,7 +90,7 @@ describe('Integration | Component | space transfers', function () {
       timestamp: 0,
     });
 
-    this.render(hbs `{{space-transfers
+    this.render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=undefined
       defaultTab=defaultTab
@@ -97,7 +98,7 @@ describe('Integration | Component | space transfers', function () {
       resetQueryParams=(action "resetQueryParams")
       changeListTab=(action "changeListTab")
       closeFileTab=(action "closeFileTab")
-    }}`);
+    }}</div>`);
 
     return wait().then(() => {
       expect(getTransfersForFile).to.have.not.been.called;
@@ -114,8 +115,8 @@ describe('Integration | Component | space transfers', function () {
     const store = this.get('store');
     const getTransfersForFile =
       stub(transferManager, 'getTransfersForFile').resolves({
-        ongoingIds: [],
-        endedIds: [],
+        ongoingTransfers: [],
+        endedTransfers: [],
         endedCount: 0,
       });
     stub(transferManager, 'getTransfersForSpace').resolves([]);
@@ -128,17 +129,17 @@ describe('Integration | Component | space transfers', function () {
     const findRecord = stub(store, 'findRecord');
     const expectedFileGri = `file.${fileId}.instance:private`;
     findRecord.withArgs('file', expectedFileGri).resolves(file);
-    this.set('defaultTab', 'file');
+    this.set('tab', 'file');
 
-    this.render(hbs `{{space-transfers
+    this.render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=fileId
-      defaultTab=defaultTab
+      tab=tab
       providerId=providerId
       resetQueryParams=(action "resetQueryParams")
       changeListTab=(action "changeListTab")
       closeFileTab=(action "closeFileTab")
-    }}`);
+    }}</div>`);
 
     return wait()
       .then(() => {
@@ -169,17 +170,17 @@ describe('Integration | Component | space transfers', function () {
         timestamp: 0,
       });
       const findRecord = stub(store, 'findRecord');
-      findRecord.withArgs('file', `op_file.${fileId}.instance:private`)
+      findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      this.render(hbs `{{space-transfers
-      space=space
-      defaultTab=defaultTab
-      providerId=providerId
-      resetQueryParams=(action "resetQueryParams")
-      changeListTab=(action "changeListTab")
-      closeFileTab=(action "closeFileTab")
-    }}`);
+      this.render(hbs `<div id="content-scroll">{{space-transfers
+        space=space
+        defaultTab=defaultTab
+        providerId=providerId
+        resetQueryParams=(action "resetQueryParams")
+        changeListTab=(action "changeListTab")
+        closeFileTab=(action "closeFileTab")
+      }}</div>`);
 
       return wait()
         .then(() => {
@@ -208,7 +209,7 @@ describe('Integration | Component | space transfers', function () {
       findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      this.render(hbs `{{space-transfers
+      this.render(hbs `<div id="content-scroll">{{space-transfers
         space=space
         defaultTab=defaultTab
         fileId=fileId
@@ -216,13 +217,13 @@ describe('Integration | Component | space transfers', function () {
         resetQueryParams=(action "resetQueryParams")
         changeListTab=(action "changeListTab")
         closeFileTab=(action "closeFileTab")
-      }}`);
+      }}</div>`);
 
       return wait()
         .then(() => {
           const navLinkFile = this.$('.nav-link-file');
           expect(navLinkFile, '.nav-link-file').to.exist;
-          expect(navLinkFile.text()).to.match(new RegExp(file.name));
+          expect(navLinkFile.text().trim()).to.equal(file.name);
         });
     });
 });

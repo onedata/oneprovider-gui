@@ -39,7 +39,6 @@ const FakeTransfer = EmberObject.extend(Evented, {
 
 export default Component.extend({
   spaceId: 's1',
-  updaterId: 'u1',
 
   transfersArray: computed(function transfersArray() {
     return ReplacingChunksArray.create({

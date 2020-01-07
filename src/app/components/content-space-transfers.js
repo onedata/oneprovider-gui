@@ -34,11 +34,6 @@ export default OneEmbeddedComponent.extend(
       'tab',
     ]),
 
-    init() {
-      this._super(...arguments);
-      window.contentSpaceTransfers = this;
-    },
-
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);

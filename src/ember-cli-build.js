@@ -1,7 +1,7 @@
-7; /* eslint-env node */
+/* eslint-env node */
 'use strict';
 
-var EmberApp = require('ember-cli/lib/broccoli/ember-app');
+const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 const defineSassColors = require(
   './lib/onedata-gui-common/addon/utils/define-sass-colors'
 );
@@ -13,7 +13,7 @@ const breakpointValues =
   require('./lib/onedata-gui-common/addon/breakpoint-values').default;
 
 module.exports = function (defaults) {
-  var app = new EmberApp(defaults, {
+  const app = new EmberApp(defaults, {
     'fingerprint': {
       extensions: ['js', 'css', 'map'],
     },
@@ -84,7 +84,6 @@ module.exports = function (defaults) {
     'basictable/basictable.css',
     'webui-popover/dist/jquery.webui-popover.css',
     'webui-popover/dist/jquery.webui-popover.js',
-    'js-beautify/js/lib/beautify.js',
   ];
 
   const NODE_ASSETS = [

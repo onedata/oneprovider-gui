@@ -24,10 +24,9 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.spaceTransfers.cellStatus',
 
-  /**
-   * ember-models-table record
+  /** 
    * @virtual
-   * @type {Object}
+   * @type {TransferTableRecord}
    */
   record: undefined,
 

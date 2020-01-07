@@ -9,7 +9,7 @@ export default {
   tabGeneral: {
     viewName: 'View name',
     spaceName: 'Space name',
-    providers: 'Oneproviders',
+    providerNamesString: 'Oneproviders',
     spatial: 'Spatial',
     viewOptions: 'View options',
   },

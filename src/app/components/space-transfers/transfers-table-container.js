@@ -65,6 +65,7 @@ export default Component.extend({
   },
 
   didInsertElement() {
+    this._super(...arguments);
     this.set('listWatcher', this.createListWatcher());
     this.get('transfersArray.initialLoad').then(() => {
       next(() => {
@@ -120,7 +121,7 @@ export default Component.extend({
 
     if (isEmpty(items) && !isEmpty(sourceArray)) {
       transfersArray.setProperties({ startIndex: 0, endIndex: 50 });
-      this.set('tableTopVisible', headerVisible);
+      safeExec(this, 'set', 'tableTopVisible', headerVisible);
       return;
     }
 
@@ -131,7 +132,8 @@ export default Component.extend({
     const lastId = items[items.length - 1] &&
       items[items.length - 1].getAttribute('data-row-id') || null;
 
-    let startIndex, endIndex;
+    let startIndex;
+    let endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
       const {
         _window,

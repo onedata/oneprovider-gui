@@ -42,18 +42,18 @@ export default Service.extend({
 
   /**
    * @param {Models.File} file
-   * @param {boolean} [includeEndedList=false]
+   * @param {boolean} [includeEndedIds=false]
    * @returns {RSVP.Promise} A backend operation completion:
    * - `resolve(object: data)` when successfully fetched the list
    *  - `data.ongoingIds: Array<Models.Transfer>` - list of non-ended transfers (waiting
    *       and outgoing) for the file
    *  - `data.endedCount` Math.min(number of ended transfers, transfersHistoryLimitPerFile)
-   *  - `data.endedIds` (optional, exists if includeEndedList was true) list of ended
+   *  - `data.endedIds` (optional, exists if includeEndedIds was true) list of ended
    *       transfers for the file, which size is limited to the value of
    *       transfersHistoryLimitPerFile
    * - `reject(object: error)` on failure
    */
-  getTransfersForFile(file, includeEndedList = false) {
+  getTransfersForFile(file, includeEndedIds = false) {
     const {
       entityType,
       entityId,
@@ -67,19 +67,19 @@ export default Service.extend({
         gri: transferGri,
         operation: 'get',
         data: {
-          include_ended_ids: includeEndedList,
+          include_ended_ids: includeEndedIds,
         },
         subscribe: false,
       })
       .then(({ ongoingIds, endedCount, endedIds }) => {
         const ongoingTransfersFetch =
           allFulfilled(ongoingIds.map(tid => this.getTransferById(tid)));
-        const endedTransfersFetch = includeEndedList ?
+        const endedTransfersFetch = includeEndedIds ?
           allFulfilled(endedIds.map(tid => this.getTransferById(tid))) : resolve();
         return allFulfilled([ongoingTransfersFetch, endedTransfersFetch])
           .then(([ongoingTransfers, endedTransfers]) => ({
-            ongoingIds: ongoingTransfers,
-            endedIds: endedTransfers,
+            ongoingTransfers,
+            endedTransfers,
             endedCount,
           }));
       });
@@ -94,7 +94,10 @@ export default Service.extend({
    * @returns {Promise<Array<Models.Transfer>>}
    */
   getTransfersForSpace(space, state, startFromIndex, limit, offset) {
-    const store = this.get('store');
+    const {
+      store,
+      onedataGraph,
+    } = this.getProperties('store', 'onedataGraph');
     const {
       entityType,
       entityId,
@@ -107,7 +110,7 @@ export default Service.extend({
     if (limit <= 0) {
       return resolve([]);
     }
-    return this.get('onedataGraph')
+    return onedataGraph
       .request({
         gri: transfersGri,
         operation: 'get',
@@ -127,12 +130,9 @@ export default Service.extend({
   /**
    * @param {Models.Transfer} transfer
    * @param {string} timePeriod: one of: minute, hour, day, month
-   * @returns {Promise<Object>}  with fields: charts: Object, timestamp: Number
+   * @returns {Promise<TransferThroughputCharts>}
    */
   getThroughputCharts(transfer, timePeriod) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
     const {
       entityType,
       entityId,
@@ -142,7 +142,7 @@ export default Service.extend({
       entityId: entityId,
       aspect: 'throughput_charts',
     });
-    return onedataGraph.request({
+    return this.get('onedataGraph').request({
       gri: chartsGri,
       operation: 'get',
       data: {
@@ -157,8 +157,7 @@ export default Service.extend({
    * @param {string} transferType one of: job, onTheFly, all
    * @param {string} timePeriod one of: minute, hour, day, month
    * @param {string|undefined} providerId provider entityId
-   * @returns {Promise<Object>} with fields: inputCharts: Object, 
-   *  outputCharts: Object, timestamp: Number
+   * @returns {Promise<TransferThroughputCharts>}
    */
   getSpaceTransfersThroughputCharts(space, transferType, timePeriod, providerId) {
     const onedataGraph = this.get('onedataGraph');
@@ -204,13 +203,10 @@ export default Service.extend({
 
   /**
    * @param {Models.Space} space
-   * @returns {Promise<Object>} with property `channelDestinaions` which maps:
+   * @returns {Promise<Object>} with property `channelDestinations` which maps:
    *   `sourceProviderId -> [destinationProviderId, ...]`
    */
   getSpaceTransfersActiveChannels(space) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
     const {
       entityType,
       entityId,
@@ -220,7 +216,7 @@ export default Service.extend({
       entityId: entityId,
       aspect: 'transfers_active_channels',
     });
-    return onedataGraph.request({
+    return this.get('onedataGraph').request({
       gri: activeChannelsGri,
       operation: 'get',
       subscribe: false,

@@ -15,10 +15,10 @@ import $ from 'jquery';
 export default function centerLineChart() {
   return (chart) => {
     chart.on('created', function () {
-      let series = $(chart.svg._node).find('.ct-series');
+      const series = $(chart.svg._node).find('.ct-series');
       let deltaX = 0;
       series.each(function () {
-        let points = $(this).find('.ct-point');
+        const points = $(this).find('.ct-point');
         if (points.length > 0) {
           deltaX = $(points[1]).attr('x1') - points.first().attr('x1');
         }

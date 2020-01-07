@@ -11,6 +11,7 @@
  */
 
 import Component from '@ember/component';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import {
   sharedObjectName,
   getSharedProperty,
@@ -18,6 +19,12 @@ import {
 
 export default Component.extend({
   classNames: ['one-embedded-component'],
+
+  /**
+   * @virtual optional
+   * @type {Function}
+   */
+  containerScrollTop: notImplementedIgnore,
 
   /**
    * @type {Element}

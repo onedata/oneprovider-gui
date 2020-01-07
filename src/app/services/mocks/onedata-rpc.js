@@ -29,7 +29,6 @@ export default OnedataRpc.extend({
   mockBackend: service(),
 
   childrenIdsCache: computed(() => ({})),
-  spaceTransfersIdsCache: computed(() => ({})),
 
   __handle_getDirChildren({ guid, index, limit, offset }) {
     const decodedGuid = atob(guid);

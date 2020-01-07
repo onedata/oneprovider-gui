@@ -40,13 +40,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Array<Array<String>>}
-   * See output format of `util:transfers/bidirectional-pairs`
-   */
-  transfersActiveChannels: undefined,
-
-  /**
-   * @virtual
    * @type {Object} providerId: String => color: String
    */
   providersColors: undefined,
@@ -92,12 +85,6 @@ export default Component.extend(I18n, {
   initialHandlerTop: undefined,
 
   /**
-   * Id of provider selected in throughput chart.
-   * @type {string}
-   */
-  selectedTransferStatProviderId: null,
-
-  /**
    * @type {string}
    */
   throughputTransferType: 'all',
@@ -110,17 +97,20 @@ export default Component.extend(I18n, {
    */
   _mobileMode: false,
 
-  stickyOverviewChanged: observer('stickyOverview', function () {
+  stickyOverviewChanged: observer('stickyOverview', function stickyOverviewChanged() {
     this.changeStyle();
     this.changeStickyOverviewStyle();
   }),
 
-  overviewExpandedChanged: observer('overviewExpanded', function () {
-    if (!this.get('overviewExpanded')) {
-      this.computeSticky();
+  overviewExpandedChanged: observer(
+    'overviewExpanded',
+    function overviewExpandedChanged() {
+      if (!this.get('overviewExpanded')) {
+        this.computeSticky();
+      }
+      this.changeStickyOverviewStyle();
     }
-    this.changeStickyOverviewStyle();
-  }),
+  ),
 
   init() {
     this._super(...arguments);
@@ -129,6 +119,7 @@ export default Component.extend(I18n, {
   },
 
   didInsertElement() {
+    this._super(...arguments);
     scheduleOnce('afterRender', () => {
       this.onResize();
     });
@@ -147,6 +138,7 @@ export default Component.extend(I18n, {
   },
 
   willDestroyElement() {
+    this._super(...arguments);
     $('#content-scroll').off(this.eventName('scroll'));
     $(window).off(this.eventName('resize'));
   },
@@ -226,9 +218,11 @@ export default Component.extend(I18n, {
       sticky = false;
     } else {
       const contentScroll = document.getElementById('content-scroll');
-      sticky = this.get('overviewExpanded') ?
-        (contentScroll.scrollTop !== 0) :
-        (initialHandlerTop - contentScrollTop <= contentScroll.scrollTop);
+      if (contentScroll) {
+        sticky = this.get('overviewExpanded') ?
+          (contentScroll.scrollTop !== 0) :
+          (initialHandlerTop - contentScrollTop <= contentScroll.scrollTop);
+      }
     }
     if (!sticky && stickyOverview) {
       this.set('overviewExpanded', false);
@@ -261,7 +255,6 @@ export default Component.extend(I18n, {
       this.toggleProperty('overviewExpanded');
     },
 
-    // TODO: this not prevents bad focus when 
     stickyFocused() {
       if (!this.get('stickyOverview')) {
         this.$()[0].setAttribute('tabindex', 0);

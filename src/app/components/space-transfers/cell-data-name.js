@@ -35,11 +35,9 @@ export default Component.extend(I18n, {
    * Same as in `Transfer.dataSourceType`.
    * One of: dir, file, deleted, view, unknown
    */
-  dataSourceType: computed.reads('record.dataSourceType'),
-  dataSourceName: computed.reads('record.dataSourceName'),
+  dataSourceType: computed.reads('record.transfer.dataSourceType'),
+  dataSourceName: computed.reads('record.transfer.dataSourceName'),
   totalFiles: computed.reads('record.totalFiles'),
-  dataSourceRecordProxy: computed.reads('record.dataSourceRecord'),
-  dataSourceRecord: computed.reads('record.dataSourceRecord.content'),
   space: computed.reads('record.space'),
 
   name: computed(
@@ -106,7 +104,7 @@ export default Component.extend(I18n, {
         case 'dir':
           return `${this.t('dir')}: ${dataSourceName}`;
         case 'deleted':
-          return `${this.t((deletedIsDir ? 'file' : 'dir'))}: ${dataSourceName}`;
+          return `${this.t((deletedIsDir ? 'file' : 'dir'))}: ${dataSourceName} (${this.t('deleted')})`;
         case 'view':
           return `${this.t('view')}: ${dataSourceName}`;
         default:

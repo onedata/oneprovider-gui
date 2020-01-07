@@ -41,12 +41,8 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       space: {},
       providers: [providerZ, providerA],
       providersColors: {},
-      transferStatProviderId: undefined,
       transferType: 'waiting',
       timeUnit: 'minute',
-    });
-    this.on('selectTransferStatProvider', (id) => {
-      this.set('transferStatProviderId', id);
     });
     const transferManager = lookupService(this, 'transferManager');
     const getSpaceTransfersThroughputCharts =
@@ -63,8 +59,6 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       space=space
       providers=providers
       providersColors=providersColors
-      transferStatProviderId=transferStatProviderId
-      selectTransferStatProvider=(action "selectTransferStatProvider")
       transferType=transferType
       timeUnit=timeUnit
       updaterEnabled=false
@@ -96,14 +90,9 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       space: {},
       providers: [providerZ],
       providersColors: {},
-      selectTransferStatProviderId: (id) =>
-        this.set('selectTransferStatProvider', id),
       transferStatProviderId: undefined,
       transferType: 'waiting',
       timeUnit: 'minute',
-    });
-    this.on('selectTransferStatProvider', (id) => {
-      this.set('transferStatProviderId', id);
     });
     const transferManager = lookupService(this, 'transferManager');
     const getSpaceTransfersThroughputCharts =
@@ -120,8 +109,6 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       space=space
       providers=providers
       providersColors=providersColors
-      transferStatProviderId=transferStatProviderId
-      selectTransferStatProvider=(action "selectTransferStatProvider")
       transferType=transferType
       timeUnit=timeUnit
       updaterEnabled=false
