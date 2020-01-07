@@ -124,7 +124,7 @@ export default EmberObject.extend(
     /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
      */
-    activeTransfers: reads('transfers.ongoingIds'),
+    activeTransfers: reads('transfers.ongoingTransfers'),
 
     /**
      * @type {Ember.ComputedProperty<number>}
@@ -202,7 +202,7 @@ export default EmberObject.extend(
      * Returns Promise, which resolves to object:
      * ```
      * {
-     *   ongoingIds: Array<Models.Transfer>,
+     *   ongoingTransfers: Array<Models.Transfer>,
      *   endedCount: number,
      *   endedOverflow: boolean, // true if ended transfers number is
      *     greater than or equal to backend listing limit
