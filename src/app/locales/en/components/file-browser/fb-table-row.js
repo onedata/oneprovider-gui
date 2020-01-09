@@ -1,7 +1,9 @@
 export default {
-  file: 'file',
-  dir: 'directory',
-  isShared: 'This directory is shared',
-  hasMetadata: 'This {{type}} has non-empty metadata',
+  fileType: {
+    file: 'file',
+    dir: 'dir',
+  },
+  isShared: 'This {{type}} is shared',
+  hasMetadata: 'This {{type}} has metadata',
   brokenName: 'Cannot read',
 };

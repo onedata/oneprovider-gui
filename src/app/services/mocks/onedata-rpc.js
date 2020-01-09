@@ -9,47 +9,14 @@
  */
 
 import OnedataRpc from 'onedata-gui-websocket-client/services/mocks/onedata-rpc';
-import { resolve, reject, all } from 'rsvp';
-import _ from 'lodash';
+import { resolve, all } from 'rsvp';
 import { inject as service } from '@ember/service';
-import { get, setProperties, computed } from '@ember/object';
-
-import {
-  numberOfFiles,
-  numberOfDirs,
-  generateFileEntityId,
-  generateDirEntityId,
-  generateFileGri,
-} from 'oneprovider-gui/services/mock-backend';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import { get, setProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 
 export default OnedataRpc.extend({
   store: service(),
   mockBackend: service(),
-
-  childrenIdsCache: computed(() => ({})),
-
-  __handle_getDirChildren({ guid, index, limit, offset }) {
-    const decodedGuid = atob(guid);
-    if (decodedGuid.match(/0002/)) {
-      return reject({
-        id: 'posix',
-        details: {
-          errno: 'eacces',
-        },
-      });
-    } else if (decodedGuid.match(/0003/)) {
-      return reject({
-        id: 'posix',
-        details: {
-          errno: 'enoent',
-        },
-      });
-    } else {
-      return resolve(this.getMockChildrenSlice(guid, index, limit, offset));
-    }
-  },
 
   __handle_getFileDownloadUrl( /* { guid } */ ) {
     return resolve({
@@ -98,70 +65,7 @@ export default OnedataRpc.extend({
     }));
   },
 
-  getMockSpaceTransfersSlice(spaceId, state, index, limit = 100000000, offset = 0) {
-    const mockSpaceTransfers = this.getMockSpaceTransfers(spaceId, state);
-    let arrIndex = mockSpaceTransfers.findBy('index', index);
-    if (arrIndex === -1) {
-      arrIndex = 0;
-    }
-    return mockSpaceTransfers.slice(arrIndex + offset, arrIndex + offset + limit);
-  },
-
-  getMockChildrenSlice(dirEntityId, index, limit = 100000000, offset = 0) {
-    const mockChildren = this.getMockChildren(dirEntityId);
-    let arrIndex = mockChildren.findIndex(childGri =>
-      atob(parseGri(childGri).entityId) === index
-    );
-    if (arrIndex === -1) {
-      arrIndex = 0;
-    }
-    return mockChildren.slice(arrIndex + offset, arrIndex + offset + limit);
-  },
-
-  getMockChildren(dirEntityId) {
-    const childrenIdsCache = this.get('childrenIdsCache');
-    const decodedDirEntityId = atob(dirEntityId);
-    if (childrenIdsCache[dirEntityId]) {
-      return childrenIdsCache[dirEntityId];
-    } else {
-      let cache;
-      if (decodedDirEntityId === '-dir-0000') {
-        // root dir
-        cache = [
-          ..._.range(numberOfDirs).map(i =>
-            generateFileGri(generateDirEntityId(i, dirEntityId))
-          ),
-          ..._.range(numberOfFiles).map(i =>
-            generateFileGri(generateFileEntityId(i, dirEntityId))
-          ),
-        ];
-      } else if (/.*dir-0000.*/.test(decodedDirEntityId)) {
-        const rootParentEntityId = decodedDirEntityId
-          .replace(/-dir-\d+/, '')
-          .replace(/-c\d+/, '');
-        const parentChildNumber = decodedDirEntityId
-          .match(/.*dir-0000(-c(\d+))?.*/)[2] || -1;
-        const newChildNumber = String(parseInt(parentChildNumber) + 1)
-          .padStart(4, '0');
-        cache = [
-          generateFileGri(
-            generateDirEntityId(0, rootParentEntityId, `-c${newChildNumber}`)
-          ),
-        ];
-      } else {
-        cache = [];
-      }
-      childrenIdsCache[dirEntityId] = cache;
-      return cache;
-    }
-  },
-
   getMockSpaceTransfers(spaceId, state) {
     return this.get('mockBackend.allTransfers')[state];
-  },
-
-  removeMockChild(dirEntityId, childEntityId) {
-    const childrenIdsCache = this.get('childrenIdsCache');
-    _.remove(childrenIdsCache[dirEntityId], fileId => fileId.match(childEntityId));
   },
 });

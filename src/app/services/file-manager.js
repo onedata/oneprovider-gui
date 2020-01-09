@@ -118,7 +118,7 @@ export default Service.extend({
     });
   },
 
-  fetchDirChildren(dirId, startFromIndex, size, offset) {
+  fetchDirChildren(dirId, scope, startFromIndex, size, offset) {
     const {
       store,
       onedataGraph,
@@ -130,6 +130,7 @@ export default Service.extend({
         entityId: dirId,
         entityType: fileEntityType,
         aspect: 'children',
+        scope,
       });
       return onedataGraph
         .request({

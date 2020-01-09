@@ -11,6 +11,7 @@ import Service from '@ember/service';
 import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
+import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 
 /**
  * @typedef DbView
@@ -24,6 +25,17 @@ import { inject as service } from '@ember/service';
 
 export default Service.extend({
   onedataGraph: service(),
+  store: service(),
+
+  getSpace(spaceId) {
+    const requestGri = gri({
+      entityType: spaceEntityType,
+      entityId: spaceId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return this.get('store').findRecord('space', requestGri);
+  },
 
   /**
    * @param {Models.Space} space 

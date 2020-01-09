@@ -1,0 +1,12 @@
+{{#promise-proxy-container
+  proxy=shareProxy
+  spinnerBlockClass="absolute-middle-centered"
+}}
+  {{space-shares/share-show
+    showSharePath=true
+    showSharePublicUrl=true
+    share=shareProxy.content
+    updateDirId=(action "updateDirId")
+    getDataUrl=(action "getDataUrl")
+  }}
+{{/promise-proxy-container}}

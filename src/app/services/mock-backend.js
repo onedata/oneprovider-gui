@@ -20,6 +20,7 @@ import {
 import { mockGuiContext } from 'onedata-gui-common/initializers/fetch-gui-context';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
+import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 
 const userEntityId = 'stub_user_id';
@@ -63,6 +64,8 @@ export default Service.extend({
    * WARNING: Will be initialized only after generating development model.
    * All entity records of some type.
    * Is an object where key is model name and values are arrays with records.
+   * Contains also special collections:
+   * - chainDir - files records that are chained directories
    */
   entityRecords: computed(() => ({})),
 
@@ -97,7 +100,7 @@ export default Service.extend({
                       const dataSourceId = get(rootDir, 'entityId');
                       const firstProvider =
                         this.get('entityRecords.provider')[0];
-                      // currenlty to make it simpler, all files are rootDir
+                      // currently to make it simpler, all files are rootDir
                       return allFulfilled(
                         transferList.map((transfer) => {
                           setProperties(transfer, {
@@ -121,6 +124,9 @@ export default Service.extend({
       .then(listRecords =>
         this.pushSpaceListIntoProviders(listRecords).then(() => listRecords)
       )
+      .then(listRecords => {
+        return this.createAndAddShare(store).then(() => listRecords);
+      })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
         return user.get('spaceList')
@@ -137,6 +143,65 @@ export default Service.extend({
       list.pushObjects(records);
       return list.save().then(() => listRecord.save());
     });
+  },
+
+  createAndAddShare(store) {
+    const entityRecords = this.get('entityRecords');
+    const rootFile = get(entityRecords, 'chainDir')[2];
+    const space = get(entityRecords, 'space')[0];
+    const handle = store.createRecord('handle', {
+      url: 'https://example.com/1234',
+      metadataString: '<test></test>',
+    });
+    const share = store.createRecord('share', {
+      id: gri({
+        entityType: shareEntityType,
+        entityId: '12345',
+        aspect: 'instance',
+        scope: 'private',
+      }),
+      fileType: 'dir',
+      name: 'My Share',
+      spaceId: get(space, 'entityId'),
+      rootFile,
+      privateRootFile: rootFile,
+      handle,
+    });
+    set(
+      share,
+      'publicUrl',
+      location.origin + '/shares/' + get(share, 'entityId')
+    );
+    return handle.save()
+      .then(() => share.save())
+      .then(share => {
+        const shareList = store.createRecord('shareList');
+        return get(shareList, 'list')
+          .then(list => {
+            list.pushObject(share);
+            return list.save();
+          })
+          .then(() => shareList.save())
+          .then(() => {
+            set(rootFile, 'shareList', shareList);
+            return rootFile.save();
+          })
+          .then(() => share);
+      })
+      .then(share => {
+        this.set('entityRecords.share', [share]);
+        const shareList = store.createRecord('shareList');
+        return get(shareList, 'list')
+          .then(list => {
+            list.pushObject(share);
+            return list.save();
+          })
+          .then(() => shareList.save())
+          .then(() => {
+            set(space, 'shareList', shareList);
+            return space.save();
+          });
+      });
   },
 
   /**
@@ -326,6 +391,7 @@ export default Service.extend({
               owner,
             }).save();
           })).then(chainDirs => {
+            this.set('entityRecords.chainDir', chainDirs);
             const saves = [];
             set(chainDirs[0], 'parent', firstDir);
             saves.push(chainDirs[0].save());
@@ -393,7 +459,13 @@ export function generateFileEntityId(i, parentEntityId) {
 }
 
 export function generateDirEntityId(i, parentEntityId, suffix = '') {
-  return btoa(`${parentEntityId}-dir-${String(i).padStart(4, '0')}${suffix}`);
+  const internalFileId = `${parentEntityId}-dir-${String(i).padStart(4, '0')}${suffix}`;
+  return btoa(`guid#${internalFileId}#${generateSpaceEntityId(0)}`);
+}
+
+export function parseDecodedDirEntityId(entityId) {
+  const [, internalFileId, spaceId] = entityId.match(/guid#(.*)#(.*)/);
+  return { internalFileId, spaceId };
 }
 
 export function generateTransferEntityId(i, state, scheduleTime, startTime) {

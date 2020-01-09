@@ -17,7 +17,9 @@ export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
   publicUrl: attr('string'),
   spaceId: attr('string'),
-  handleId: attr('string'),
+  fileType: attr('string'),
+  handle: belongsTo('handle'),
 
   rootFile: belongsTo('file'),
+  privateRootFile: belongsTo('file'),
 }).reopenClass(StaticGraphModelMixin);

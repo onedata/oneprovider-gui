@@ -253,12 +253,14 @@ export default Component.extend(I18n, FastDoubleClick, {
   hideMenuTrigger: computed(
     'selectionContext',
     'isSelected',
+    'previewMode',
     function hideMenuTrigger() {
       const {
         isSelected,
         selectionContext,
-      } = this.getProperties('isSelected', 'selectionContext');
-      return isSelected && selectionContext.startsWith('multi');
+        previewMode,
+      } = this.getProperties('isSelected', 'selectionContext', 'previewMode');
+      return previewMode || isSelected && selectionContext.startsWith('multi');
     }
   ),
 

@@ -1,0 +1,6 @@
+.space-share-list-item {
+  .share-menu-trigger {
+    @include vertical-align-middle;
+    right: $padding-small-horizontal;
+  }
+}

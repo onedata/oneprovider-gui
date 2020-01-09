@@ -1,0 +1,24 @@
+{{#proceed-process-modal
+  opened=opened
+  i18nPrefix="components.spaceShares.renameModal"
+  proceed=(action "submit")
+  modalClass="rename-share-modal"
+  close=(action "close")
+  onShown=(action (mut editValue) share.name)
+  onHidden=(action (mut editValue) "")
+  as |proceedModal|
+}}
+  <p>{{tt this "intro"}}:</p>
+  <div class="row">
+    <input
+      id={{inputId}}
+      type="text"
+      class="form-control new-share-name"
+      value={{editValue}}
+      oninput={{action (mut editValue) value="target.value"}}
+      onkeydown={{invoke-on-enter proceedModal.proceed}}
+      disabled={{proceedModal.processing}}
+      autofocus=true
+    >
+  </div>
+{{/proceed-process-modal}}

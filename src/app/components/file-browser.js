@@ -123,6 +123,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   * @param {Models/File} file file to share
+   */
+  openShare: notImplementedThrow,
+
+  /**
+   * @virtual
    */
   updateDirEntityId: notImplementedIgnore,
 
@@ -143,6 +150,12 @@ export default Component.extend(I18n, {
    * @type {Models.File}
    */
   customRootDir: undefined,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  previewMode: false,
 
   /**
    * If true, the paste from clipboard button should be available
@@ -288,11 +301,10 @@ export default Component.extend(I18n, {
       id: 'share',
       action: () => {
         const {
+          openShare,
           selectedFiles,
-          shareManager,
-        } = this.getProperties('selectedFiles', 'shareManager');
-        const file = selectedFiles[0];
-        return shareManager.createShare(file);
+        } = this.getProperties('openShare', 'selectedFiles');
+        return openShare(selectedFiles[0]);
       },
       showIn: [
         actionContext.singleFile,
@@ -471,8 +483,6 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // FIXME: debug
-    window.fileBrowser = this;
     this.dirChangedObserver();
   },
 

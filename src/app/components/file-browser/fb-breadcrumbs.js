@@ -22,6 +22,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-res
 import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
+import { conditional, raw } from 'ember-awesome-macros';
 
 /**
  * @type {number}
@@ -65,6 +66,13 @@ export default Component.extend(
 
     /**
      * @virtual
+     * It must stay undefined by default for `resolveFilePath` function
+     * @type {Function}
+     */
+    resolveFileParentFun: undefined,
+
+    /**
+     * @virtual
      * @type {Function}
      * @param {models/File} dir a File record with directory to change
      */
@@ -85,8 +93,15 @@ export default Component.extend(
 
     /**
      * @virtual
+     * @type {Array<Object>}
      */
     menuButtons: undefined,
+
+    /**
+     * @virtual
+     * @type {boolean}
+     */
+    previewMode: false,
 
     /**
      * If true, add breadcrumbs-recomputing CSS class to breadcrumbs-inner
@@ -109,6 +124,8 @@ export default Component.extend(
     dirActionsOpen: undefined,
 
     _window: window,
+
+    rootIcon: conditional('previewMode', raw('share'), raw('home')),
 
     /**
      * Style assigned to current directory button - needed for truncating.
@@ -178,10 +195,12 @@ export default Component.extend(
       const {
         dir,
         rootDir,
-      } = this.getProperties('dir', 'rootDir');
-      return resolveFilePath(dir).then(dirPath =>
-        rootDir ? cutDirsPath(dirPath, rootDir) : dirPath
-      );
+        resolveFileParentFun,
+      } = this.getProperties('dir', 'rootDir', 'resolveFileParentFun');
+      return resolveFilePath(dir, resolveFileParentFun)
+        .then(dirPath => {
+          return rootDir ? cutDirsPath(dirPath, rootDir) : dirPath;
+        });
     },
 
     /**

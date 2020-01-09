@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import { conditional, equal, promise, raw } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { computed, get } from '@ember/object';
-import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
@@ -77,7 +77,7 @@ export default Component.extend(I18n, {
   filePathProxy: promise.object(
     computed('file.parent', function filePathPromise() {
       return resolveFilePath(this.get('file'))
-        .then(path => '/' + path.mapBy('name').join('/'));
+        .then(path => stringifyFilePath(path));
     })
   ),
 

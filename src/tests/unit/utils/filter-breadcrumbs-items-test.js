@@ -81,6 +81,20 @@ describe('Unit | Utility | filter breadcrumbs items', function () {
     }
   );
 
+  it('should return root, a, b for count Infinity and 3 files',
+    function () {
+      const numberOfFiles = 3;
+      const { bitems } = generateBreadcrumbsItems(numberOfFiles);
+
+      return filterBreadcrumbsItems(bitems, Infinity)
+        .then(resultItems => {
+          expect(resultItems).to.have.lengthOf(2);
+          expect(get(resultItems[0], 'isRoot'), 'root').to.equal(true);
+          expect(get(resultItems[1], 'name')).to.equal('file-1');
+        });
+    }
+  );
+
   it('should return root, first child, ellipsis and parent of last for count 4',
     function () {
       const numberOfFiles = 10;

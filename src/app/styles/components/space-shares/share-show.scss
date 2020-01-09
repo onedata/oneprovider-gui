@@ -1,0 +1,91 @@
+.share-show {
+  $header-height-single: 82px;
+  $header-height-double: 132px;
+  $header-height-triple: 202px;
+  &.with-header-single {
+    .share-header-panel {
+      position: fixed;
+      height: $header-height-single;
+    }
+    .file-browser-head-container {
+      top: $header-height-single;
+    }
+    .fb-table-container {
+      margin-top: $header-height-single + $fb-table-margin-top;
+      // FIXME: mobile
+    }
+  }
+  &.with-header-double {
+    .share-header-panel {
+      height: $header-height-double;
+    }
+    .file-browser-head-container {
+      top: $header-height-double;
+    }
+    .fb-table-container {
+      margin-top: $header-height-double + $fb-table-margin-top;
+      // FIXME: mobile
+    }
+  }
+  &.with-header-triple {
+    .share-header-panel {
+      height: $header-height-triple;
+    }
+    .file-browser-head-container {
+      top: $header-height-triple;
+    }
+    .fb-table-container {
+      margin-top: $header-height-triple + $fb-table-margin-top;
+      // FIXME: mobile
+    }
+  }
+  .share-header-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: $zindex-file-browser-head;
+    height: 0;
+    padding-top: $padding-large-vertical;
+    padding-left: $content-col-padding;
+    padding-right: $content-col-padding;
+    background-color: $main-tabbed-content-background;
+  }
+  .share-header-row {
+    $col-btn-width: 200px;
+    $col-menu-width: 30px;
+    $key-width: 140px;
+    position: relative;
+    .col-key {
+      @include vertical-align-middle;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      width: $key-width;
+      padding-left: $file-browser-padding-left;
+      padding-right: $padding-large-horizontal;
+    }
+    .col-value {
+      padding-left: $key-width;
+    }
+    + .share-header-row {
+      margin-top: $padding-large-vertical;
+    }
+    &.with-btn {
+      padding-right: $col-btn-width;
+    }
+    &.with-menu {
+      padding-right: $col-menu-width;
+    }
+    .col-btn, .col-menu {
+      @include vertical-align-middle();
+      right: 0;
+    }
+  }
+  .share-header-public-url {
+    position: relative;
+  }
+  .clipboard-line-public-url {
+    max-width: $screen-sm-min;
+  }
+}

@@ -1,5 +1,3 @@
-$zindex-file-browser-head: $zindex-modal-background - 10;
-
 .content-file-browser .file-browser-head-container {
   z-index: $zindex-file-browser-head;
 }
@@ -18,6 +16,7 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 .content-file-browser {
   $drop-zone-rect-margin: $padding-small-horizontal;
 
+  height: 100%;
   flex-grow: 1;
 
   .upload-drop-zone {

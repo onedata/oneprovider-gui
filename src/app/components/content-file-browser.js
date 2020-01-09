@@ -45,8 +45,13 @@ export default OneEmbeddedComponent.extend(
         spaceEntityId,
         dirEntityId,
       } = this.getProperties('spaceEntityId', 'dirEntityId');
-      const isValidDirEntityId = dirEntityId &&
-        getSpaceIdFromFileId(dirEntityId) === spaceEntityId;
+      let isValidDirEntityId;
+      try {
+        isValidDirEntityId = dirEntityId &&
+          getSpaceIdFromFileId(dirEntityId) === spaceEntityId;
+      } catch (error) {
+        isValidDirEntityId = false;
+      }
       if (isValidDirEntityId) {
         return gri({
           entityType: 'file',
@@ -126,6 +131,16 @@ export default OneEmbeddedComponent.extend(
       closeInfoModal() {
         this.set('fileToShowInfo', null);
       },
+      openShareModal(file) {
+        this.setProperties({
+          fileToShare: file,
+        });
+      },
+      closeShareModal() {
+        this.setProperties({
+          fileToShare: null,
+        });
+      },
       openEditPermissionsModal(files) {
         this.set('filesToEditPermissions', files);
       },
@@ -143,6 +158,9 @@ export default OneEmbeddedComponent.extend(
       },
       getTransfersUrl({ fileId, tabId }) {
         return this.callParent('getTransfersUrl', { fileId, tabId });
+      },
+      getShareUrl({ shareId }) {
+        return this.callParent('getShareUrl', { shareId });
       },
     },
   }

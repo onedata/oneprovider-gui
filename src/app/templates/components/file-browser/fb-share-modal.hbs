@@ -1,104 +1,67 @@
 {{#bs-modal
   open=open
+  onShow=(action "onShow")
   onHide=(action "close")
-  onHidden=(action "onHidden")
   as |modal|
 }}
   {{#modal.header}}
-    <h1>{{tt this "header" type=typeTranslation}}</h1>
+    <h1>{{tt this "header" fileType=(tt this (concat 'fileType.' file.type))}}</h1>
   {{/modal.header}}
   {{#modal.body}}
-    <table class="table table-info table-info-large table-info-collapsible">
-      <tbody>
-        <tr class="file-info-row-name">
-          <td class="property-name with-input{{if smallContent "-sm"}}">
-            {{tt this "name" type=typeTranslation}}
-          </td>
-          <td class="property-value">
-            {{clipboard-line
-              value=fileName
-              size=(if smallContent "sm")
-            }}
-          </td>
-        </tr>
-        <tr class="file-info-row-path">
-          <td class="property-name">{{tt this "path" type=typeTranslation}}</td>
-          <td class="property-value">
-            {{#promise-proxy-container
-              proxy=filePathProxy
-              sizeClass="xs"
-              centered=false
-              spinnerBlockClass="loading-file-path"
-            }}
-              {{clipboard-line
-                value=filePathProxy.content
-                size=(if smallContent "sm")
-              }}
-            {{/promise-proxy-container}}
-          </td>
-        </tr>
-        <tr class="file-info-row-space-id">
-          <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
-          <td class="property-value">
-            {{clipboard-line
-              value=spaceEntityId
-              class="monospace-font"
-              size=(if smallContent "sm")
-            }}
-          </td>
-        </tr>
-        <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
-          <td class="property-name with-input">
-            {{tt this "cdmiObjectId"}}
-          </td>
-          <td class="property-value">
-            <div class="input-group input-group input-group-clipboard-textarea">
-              {{clipboard-line
-                value=cdmiObjectId
-                type="textarea"
-                size=(if smallContent "sm")
-                class="monospace-font"
-              }}
-            </div>
-          </td>
-        </tr>
-        {{#if (eq itemType "file")}}
-          <tr class="file-info-row-size">
-            <td class="property-name">{{tt this "size"}}</td>
-            <td class="property-value">
-              {{bytes-to-string fileSize}}
-            </td>
-          </tr>
-        {{/if}}
-        <tr class="file-info-row-modification-time">
-          <td class="property-name">{{tt this "modificationTime"}}</td>
-          <td class="property-value">
-            {{#truncated-string}}
-              {{date-format modificationTime format="dateWithMinutes" blank="—"}}
-            {{/truncated-string}}
-          </td>
-        </tr>
-        <tr class="file-info-row-owner">
-          <td class="property-name">{{tt this "owner"}}</td>
-          <td class="property-value">
-            {{#promise-proxy-container
-              proxy=ownerFullNameProxy
-              sizeClass="xs"
-              centered=false
-              spinnerBlockClass="loading-owner-full-name"
-            }}
-              {{#truncated-string}}
-                {{ownerFullNameProxy.content}}
-              {{/truncated-string}}
-            {{/promise-proxy-container}}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    {{#promise-proxy-container proxy=modeProxy}}
+      {{#if (eq mode "new")}}
+        <p>{{tt this "setName"}}</p>
+        <div class="row">
+          <input
+            id={{inputId}}
+            type="text"
+            class="form-control new-share-name"
+            value={{editValue}}
+            oninput={{action (mut editValue) value="target.value"}}
+            onkeydown={{invoke-on-enter (action "submitNew")}}
+            disabled={{isSaving}}
+            autofocus=true
+          >
+        </div>
+      {{else if (eq mode "show")}}
+        <p class="row-share-intro">
+          {{tt
+            this
+            "showIntro"
+            fileType=(tt this (concat 'fileType.' file.type))
+            fileName=file.name
+            shareCount=shareCount
+            times=(tt this (concat 'times.' (if (gt shareCount 1) "plural" "singular")))
+          }}:
+        </p>
+        {{#each shares as |share|}}
+          {{file-browser/fb-share-modal-item
+            share=share
+            getShareUrl=(action "getShareUrl")
+          }}
+        {{/each}}
+      {{/if}}
+    {{/promise-proxy-container}}
   {{/modal.body}}
   {{#modal.footer}}
-    {{#bs-button onClick=modal.close}}
-      {{tt this "close"}}
+    {{#bs-button
+      onClick=(if addAnotherOneMode (action (mut addAnotherOneMode) false) modal.close)
+    }}
+      {{tt this (if addAnotherOneMode "cancel" "close")}}
     {{/bs-button}}
+    {{#if (eq mode "new")}}
+      {{#one-spin-button
+        action=(action "submitNew")
+        inFlight=isSaving
+        class="btn btn-primary"
+        disabled=submitNewDisabled
+      }}
+        {{tt this "createNew"}}
+      {{/one-spin-button}}
+    {{else if (eq mode "show")}}
+      {{#bs-button type="primary" onClick=(action (mut addAnotherOneMode) true)}}
+        {{tt this "createAnotherOne"}}
+      {{/bs-button}}
+    {{/if}}
   {{/modal.footer}}
 {{/bs-modal}}

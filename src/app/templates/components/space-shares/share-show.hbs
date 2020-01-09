@@ -1,0 +1,126 @@
+<div class="row share-header-panel">
+  {{#if showSharePath}}
+    <div class="row share-header-row share-header-path with-menu">
+      <div class="col-key">
+        {{tt this "path"}}
+      </div>
+      <div class="col-value">
+        {{#promise-proxy-container proxy=share.privateRootFile}}
+          <div class="fb-breadcrumbs-container">
+            {{file-browser/fb-breadcrumbs
+              dir=share.privateRootFile.content
+              allButtonsArray=allButtonsArray
+              menuButtons=currentDirMenuButtons
+              previewMode=true
+              rootIcon="space"
+              changeDir=(action "openSpaceDir")
+            }}
+          </div>
+        {{/promise-proxy-container}}
+      </div>
+      <div class="col-menu">
+        {{one-menu-toggle
+          class=(concat-classes menuTriggerClass "share-menu-trigger")
+          click=(disable-bubbling (action "toggleActions"))
+        }}
+      </div>
+    </div>
+  {{/if}}
+  {{#if showSharePublicUrl}}
+    <div class="row share-header-row share-header-public-url {{unless share.handle "with-btn"}}">
+      <div class="col-key">
+        {{tt this "publicUrl"}}
+      </div>
+      <div class="col-value">
+        {{clipboard-line
+          class="clipboard-line-public-url"
+          value=share.publicUrl
+        }}
+      </div>
+      {{#if (and showPublishButton (not share.handle))}}
+        {{#bs-button type="primary" onClick=(action "startPublish") class="col-btn"}}
+          {{tt this "publish"}}
+        {{/bs-button}}
+      {{/if}}
+    </div>
+  {{/if}}
+  {{#if (and showHandleUrl share.handle)}}
+    <div class="row share-header-row share-header-handle-url with-btn">
+      <div class="col-key">
+        {{tt this "handle"}}
+      </div>
+      <div class="col-value">
+        {{clipboard-line
+          class="clipboard-line-public-url"
+          value=share.handle.url
+        }}
+      </div>
+      {{#bs-button type="primary" onClick=(action "showMetadata") class="col-btn"}}
+        {{tt this "showMetadata"}}
+      {{/bs-button}}
+    </div>
+  {{/if}}
+</div>
+{{#promise-proxy-container proxy=requiredDataProxy}}
+  {{file-browser
+    dir=dirProxy.content
+    customRootDir=rootDir
+    customFetchDirChildren=(if isInShareRoot (action "fetchShareRootDirChildren") undefined)
+    previewMode=true
+    resolveFileParentFun=(action "resolveFileParentFun")
+    updateDirEntityId=(action "updateDirId")
+    containerScrollTop=(action "containerScrollTop")
+  }}
+{{/promise-proxy-container}}
+
+{{#render-later triggerRender=publishModalOpened}}
+  {{space-shares/publish-modal
+    open=publishModalOpened
+    share=share
+    close=(action (mut publishModalOpened) false)
+  }}
+{{/render-later}}
+
+{{#render-later triggerRender=actionsOpened}}
+  {{#one-webui-popover
+    class="transfer-actions"
+    popoverStyle="with-dropdown"
+    padding=false
+    triggerSelector=menuTriggerSelector
+    open=actionsOpened
+    onToggle=(action "toggleActions")
+  }}
+    {{#click-outside action=(action "toggleActions" false) except-selector=menuTriggerSelector}}
+      {{actions-popover-content
+        actionsArray=menuActions
+        actionClicked=(action "toggleActions" false)
+        class="share-actions"
+      }}
+    {{/click-outside}}
+  {{/one-webui-popover}}
+{{/render-later}}
+
+{{#render-later triggerRender=shareMetadataOpened}}
+  {{space-shares/share-metadata-modal
+    open=shareMetadataOpened
+    metadataString=share.handle.metadataString
+    close=(action (mut shareMetadataOpened) false)
+  }}
+{{/render-later}}
+
+{{#render-later triggerRender=removeShareOpened}}
+  {{space-shares/remove-modal
+    share=share
+    opened=removeShareOpened
+    showShareList=(action "showShareList")
+    close=(action (mut removeShareOpened) false)
+  }}
+{{/render-later}}
+
+{{#render-later triggerRender=renameShareOpened}}
+  {{space-shares/rename-modal
+    share=share
+    opened=renameShareOpened
+    close=(action (mut renameShareOpened) false)
+  }}
+{{/render-later}}

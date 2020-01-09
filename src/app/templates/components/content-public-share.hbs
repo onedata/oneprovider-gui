@@ -1,41 +1,12 @@
-{{#promise-proxy-container proxy=generalDataProxy}}
-  {{file-browser
-    dir=dirProxy.content
-    customRootDir=rootDirProxy.content
-    customFetchDirChildren=(if isInShareRoot (action "fetchShareRootDirChildren") undefined)
-    updateDirEntityId=(action "updateDirId")
-    openInfo=(action "openInfoModal")
-    openEditPermissions=(action "openEditPermissionsModal")
-    openFileDistributionModal=(action "openFileDistributionModal")
-    containerScrollTop=(action "containerScrollTop")
+{{#promise-proxy-container
+  proxy=shareProxy
+  spinnerBlockClass="absolute-middle-centered"
+}}
+  {{space-shares/share-show
+    showSharePath=false
+    showSharePublicUrl=true
+    showPublishButton=false
+    share=shareProxy.content
+    updateDirId=(action "updateDirId")
   }}
-
-  {{!-- FIXME: make info modal to not need spaceEntityId --}}
-  {{#if fileToShowInfo}}
-    {{file-browser/fb-info-modal
-      open=true
-      file=fileToShowInfo
-      spaceEntityId=undefined
-      onHide=(action "closeInfoModal")
-    }}
-  {{/if}}
-
-  {{!-- FIXME: no edit, just show --}}
-  {{#if filesToEditPermissions}}
-    {{edit-permissions-modal
-      files=filesToEditPermissionsa
-      space=undefined
-      onClose=(action "closeEditPermissionsModal")
-    }}
-  {{/if}}
-
-  {{!-- FIXME: no edit, just show --}}
-  {{#if filesToShowDistribution}}
-    {{file-distribution-modal
-      files=filesToShowDistribution
-      space=undefined
-      onClose=(action "closeFileDistributionModal")
-      getTransfersUrl=(action "getTransfersUrl")
-    }}
-  {{/if}}
 {{/promise-proxy-container}}

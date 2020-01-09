@@ -25,10 +25,6 @@ import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
 
-function _fetchDirChildren(dirId, ...fetchArgs) {
-  return this.get('fileManager').fetchDirChildren(dirId, ...fetchArgs);
-}
-
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
   classNameBindings: [
@@ -91,6 +87,12 @@ export default Component.extend(I18n, {
    */
   customFetchDirChildren: undefined,
 
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  previewMode: false,
+
   changeDir: undefined,
 
   _window: window,
@@ -148,7 +150,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  showDirContextMenu: not('dirLoadError'),
+  showDirContextMenu: and(not('dirLoadError'), not('previewMode')),
 
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
@@ -272,6 +274,10 @@ export default Component.extend(I18n, {
     }
   ),
 
+  fetchDirChildren: computed('customFetchDirChildren', function fetchDirChildren() {
+    return this.get('customFetchDirChildren') || this._fetchDirChildren.bind(this);
+  }),
+
   watchFilesArrayInitialLoad: observer(
     'initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
@@ -382,9 +388,14 @@ export default Component.extend(I18n, {
     );
   },
 
-  fetchDirChildren: computed('customFetchDirChildren', function fetchDirChildren() {
-    return this.get('customFetchDirChildren') || _fetchDirChildren.bind(this);
-  }),
+  _fetchDirChildren(dirId, ...fetchArgs) {
+    const {
+      fileManager,
+      previewMode,
+    } = this.getProperties('fileManager', 'previewMode');
+    return fileManager
+      .fetchDirChildren(dirId, previewMode ? 'public' : 'private', ...fetchArgs);
+  },
 
   clearFilesSelection() {
     this.get('selectedFiles').clear();
@@ -398,7 +409,7 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   fileClicked(file, ctrlKey, shiftKey) {
-    // do not change selection if only clicking to close context menu
+    // do not change selection if in preview or only clicking to close context menu
     if (isPopoverOpened()) {
       return;
     }
@@ -581,7 +592,7 @@ export default Component.extend(I18n, {
 
   actions: {
     openContextMenu(file, mouseEvent) {
-      if (get(file, 'type') === 'broken') {
+      if (this.get('previewMode') || get(file, 'type') === 'broken') {
         return;
       }
       const selectedFiles = this.get('selectedFiles');

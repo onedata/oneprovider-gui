@@ -73,7 +73,7 @@
   }
   thead > tr > th.fb-table-col-files, 
   .table:not(.bt) > tbody > tr > td:first-child.fb-table-col-files {
-    padding-left: $-file-browser-padding-left;
+    padding-left: $file-browser-padding-left;
   }
   @media (max-width: $screen-xs-max) {
     .fb-table-col-size, .fb-table-col-modification {

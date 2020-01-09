@@ -1,5 +1,5 @@
 import Service, { inject as service } from '@ember/service';
-import { get, getProperties } from '@ember/object';
+import { get, set } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 
@@ -8,38 +8,38 @@ export default Service.extend({
   onedataGraph: service(),
 
   /**
-   * @param {Models.File} file
-   * @returns {String} GRI of share instance for specific file
-   */
-  shareGriForFile(file) {
-    const {
-      entityId,
-    } = getProperties(file, 'entityId');
-    return gri({
-      entityType: shareEntityType,
-      entityId,
-      aspect: 'shared_dir',
-    });
-  },
-
-  /**
    * @param {Models.File} file 
    * @param {String} name 
-   * @returns {Object} data
-   * @returns {String} data.shareId
+   * @returns {Models.Share} share
    */
   createShare(file, name) {
     const shareName = name ? name : get(file, 'name');
 
-    return this.get('onedataGraph').request({
-        operation: 'create',
-        gri: this.shareGriForFile(file),
-        data: {
-          name: shareName,
+    return this.get('store').createRecord('share', {
+        name: shareName,
+        _meta: {
+          additionalData: {
+            fileId: get(file, 'cdmiObjectId'),
+          },
         },
-        subscribe: false,
       })
-      .then(({ shareId }) => this.getShare(shareId));
+      .save();
+  },
+
+  // FIXME: test this on recent backend
+  removeShare(share) {
+    return share.destroyRecord();
+  },
+
+  // FIXME: test this on recent backend
+  renameShare(share, name) {
+    const currentName = get(share, name);
+    set(share, 'name', name);
+    return share.save()
+      .catch((error) => {
+        set(share, 'name', currentName);
+        throw error;
+      });
   },
 
   getShare(shareId, scope = 'private') {
@@ -50,5 +50,21 @@ export default Service.extend({
       scope,
     });
     return this.get('store').findRecord('share', requestGri);
+  },
+
+  getHandleServices() {
+    return this.get('store');
+  },
+
+  createHandle(metadataString, shareId, handleServiceId) {
+    return this.get('store').createRecord('handle', {
+      metadataString,
+      _meta: {
+        additionalData: {
+          shareId,
+          handleServiceId,
+        },
+      },
+    }).save();
   },
 });

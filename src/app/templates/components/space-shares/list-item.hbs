@@ -1,0 +1,43 @@
+<a href={{href}} target={{target}} class="space-share-list-item list-item one-collapsible-list-item">
+  <div class="one-collapsible-list-item-header row list-header-row truncate hoverable">
+    <div class="list-header-content">
+      {{#truncated-string}}
+        <span class="item-icon-container">
+          {{one-icon class="item-icon" icon=icon}}
+        </span>
+        {{name-conflict tagName="span" item=share tagName="span" class="one-label share-name-header"}}
+      {{/truncated-string}}
+      
+      {{one-menu-toggle
+        class=(concat-classes triggerClass "share-menu-trigger")
+        click=(disable-bubbling (action "toggleActions"))
+      }}
+      
+      {{#render-later triggerRender=actionsOpened}}
+        {{#one-webui-popover
+          class="transfer-actions"
+          popoverStyle="with-dropdown"
+          padding=false
+          triggerSelector=triggerSelector
+          open=actionsOpened
+          onToggle=(action "toggleActions")
+        }}
+          {{#click-outside action=(action "toggleActions" false) except-selector=triggerSelector}}
+            {{actions-popover-content
+              actionsArray=menuActions
+              actionClicked=(action "toggleActions" false)
+              class="share-actions"
+            }}
+          {{/click-outside}}
+        {{/one-webui-popover}}
+      {{/render-later}}
+    </div>
+  </div>
+</a>
+
+{{#copy-button
+  clipboardText=share.publicUrl
+  class="hidden btn-public-url"
+  success=(action "clipboardSuccess")
+  error=(action "clipboardError")
+}}{{/copy-button}}

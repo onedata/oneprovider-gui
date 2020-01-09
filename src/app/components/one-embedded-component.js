@@ -11,14 +11,17 @@
  */
 
 import Component from '@ember/component';
+import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { inject as service } from '@ember/service';
 import {
   sharedObjectName,
-  getSharedProperty,
 } from 'onedata-gui-common/utils/one-embedded-common';
 
 export default Component.extend({
   classNames: ['one-embedded-component'],
+
+  appProxy: service(),
 
   /**
    * @virtual optional
@@ -48,36 +51,20 @@ export default Component.extend({
    */
   callParent: undefined,
 
-  /**
-   * Array with property names that are injected to common `appProxy` object
-   * and are read on the init.
-   * @virtual optional
-   * @type {Array<string>}
-   */
-  iframeInjectedProperties: Object.freeze([]),
-
   init() {
     this._super(...arguments);
     const frameElement = this.get('frameElement');
 
     if (frameElement) {
-      // notification of property change from parent will cause the property
-      // value to be copied into this component instance
-      frameElement[sharedObjectName].propertyChanged =
-        this.copyExternalProperty.bind(this);
-
       // create local callParent method that will simply invoke callParent
       // injected by parent frame
       this.callParent = function callParent() {
         return frameElement[sharedObjectName].callParent(...arguments);
       };
 
-      // standard property injected by parent frame
-      this.copyExternalProperty('parentInfo');
-
       // fetch declared injected properties
       this.get('iframeInjectedProperties').forEach(propertyName => {
-        this.copyExternalProperty(propertyName);
+        this[propertyName] = reads(`appProxy.injectedData.${propertyName}`);
       });
     } else {
       throw new Error(
@@ -92,21 +79,6 @@ export default Component.extend({
     } finally {
       this._super(...arguments);
     }
-  },
-
-  /**
-   * Get property injected by iframe container and set it in this component
-   * instance. This should be done right after container (parent) updates
-   * the property. The parent should do it using observers.
-   * @param {string} key 
-   * @return {any} value of the injected property
-   */
-  copyExternalProperty(key) {
-    const value = getSharedProperty(
-      this.get(`frameElement.${sharedObjectName}`),
-      key
-    );
-    return this.set(key, value);
   },
 
   actions: {

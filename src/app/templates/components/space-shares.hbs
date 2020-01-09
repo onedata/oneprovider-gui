@@ -1,0 +1,41 @@
+{{#if shareId}}
+  {{#promise-proxy-container
+    proxy=shareProxy
+    spinnerBlockClass="absolute-middle-centered"
+  }}
+    {{space-shares/share-show
+      share=shareProxy.content
+      spaceId=spaceId
+      updateDirId=(action "updateDirId")
+      getDataUrl=(action "getDataUrl")
+      showShareList=(action "showShareList")
+      reloadShareList=(action "reloadShareList")
+    }}
+  {{/promise-proxy-container}}
+{{else}}
+  {{space-shares/shares-list
+    spaceId=spaceId
+    sharesProxy=sharesProxy
+    getShareUrl=(action "getShareUrl")
+    getDataUrl=(action "getDataUrl")
+    startRemoveShare=(action "startRemoveShare")
+    startRenameShare=(action "startRenameShare")
+  }}
+{{/if}}
+
+{{#render-later triggerRender=shareToRemove}}
+  {{space-shares/remove-modal
+    share=shareToRemove
+    fileSharesCount=fileSharesCount
+    opened=(and shareToRemove (not shareToRemove.isDeleted))
+    close=(action "closeRemoveShare")
+  }}
+{{/render-later}}
+
+{{#render-later triggerRender=shareToRename}}
+  {{space-shares/rename-modal
+    opened=(and shareToRename)
+    close=(action "closeRenameShare")
+    share=shareToRename
+  }}
+{{/render-later}}

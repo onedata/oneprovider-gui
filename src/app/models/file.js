@@ -9,9 +9,7 @@
 
 import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
-import { promise } from 'ember-awesome-macros';
-import { alias, not } from '@ember/object/computed';
-import { inject as service } from '@ember/service';
+import { alias } from '@ember/object/computed';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get } from '@ember/object';
 import { later, cancel } from '@ember/runloop';
@@ -21,8 +19,16 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 
 export const entityType = 'file';
 
+// file entity id holds few values: <guid_type>#<internal_file_id>#<space_id>#<share_id>
+
 const guidRegexp = /guid#(.*)#(.*)/;
 const shareGuidRegexp = /shareGuid#(.*)#(.*)#(.*)/;
+
+export function getInternalFileIdFromFileId(fileEntityId) {
+  const decoded = atob(fileEntityId);
+  const m = decoded.match(guidRegexp) || decoded.match(shareGuidRegexp);
+  return m && m[1];
+}
 
 export function getSpaceIdFromFileId(fileEntityId) {
   const decoded = atob(fileEntityId);
@@ -85,11 +91,11 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   pollSizeTimerId: null,
 
-  isShared: computed('share', function isShared() {
-    return Boolean(this.belongsTo('share').id());
+  isShared: computed('shareList', function isShared() {
+    return Boolean(this.belongsTo('shareList').id());
   }),
 
-  share: belongsTo('share'),
+  shareList: belongsTo('share-list'),
 
   cdmiObjectId: computed('entityId', function cdmiObjectId() {
     try {
@@ -107,6 +113,10 @@ export default Model.extend(GraphSingleModelMixin, {
 
   spaceEntityId: computed('entityId', function spaceEntityId() {
     return getSpaceIdFromFileId(this.get('entityId'));
+  }),
+
+  internalFileId: computed('entityId', function internalFileId() {
+    return getInternalFileIdFromFileId(this.get('entityId'));
   }),
 
   /**
