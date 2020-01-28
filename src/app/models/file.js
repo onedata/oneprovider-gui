@@ -11,7 +11,8 @@ import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import { alias } from '@ember/object/computed';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
-import { computed, get } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
@@ -158,12 +159,33 @@ export default Model.extend(GraphSingleModelMixin, {
 
     switch (operation) {
       case 'create': {
-        const rpcRequests = get(activeRequests, 'rpcRequests');
-        // Block on listing parent dir files FIXME: new API
-        const listParentDirRequests = rpcRequests.filter(request => {
-          return get(request, 'rpcMethodName') === 'getDirChildren' &&
-            get(request, 'data.guid') === get(model.belongsTo('parent').value(),
-              'entityId');
+        const graphRequests = get(activeRequests, 'graphRequests');
+        // Block on listing parent dir files 
+        const listParentDirRequests = graphRequests.filter(request => {
+          const {
+            operation: requestOperation,
+            gri: requestGri,
+          } = getProperties(
+            get(request, 'data'),
+            'operation',
+            'gri'
+          );
+          const {
+            entityType: requestEntityType,
+            entityId: requestEntityId,
+            aspect: requestAspect,
+          } = getProperties(
+            parseGri(requestGri),
+            'entityType',
+            'entityId',
+            'aspect'
+          );
+
+          return requestOperation === 'get' &&
+            requestEntityType === entityType &&
+            requestEntityId ===
+            get(model.belongsTo('parent').value(), 'entityId') &&
+            requestAspect === 'children';
         });
         return superRequests.concat(listParentDirRequests);
       }
