@@ -6,6 +6,7 @@
   close=(action "close")
   onShown=(action (mut editValue) share.name)
   onHidden=(action (mut editValue) "")
+  proceedDisabled=(not isNewNameValid)
   as |proceedModal|
 }}
   <p>{{tt this "intro"}}:</p>
@@ -16,7 +17,7 @@
       class="form-control new-share-name"
       value={{editValue}}
       oninput={{action (mut editValue) value="target.value"}}
-      onkeydown={{invoke-on-enter proceedModal.proceed}}
+      onkeydown={{if isNewNameValid (invoke-on-enter proceedModal.proceed)}}
       disabled={{proceedModal.processing}}
       autofocus=true
     >
