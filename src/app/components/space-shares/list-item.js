@@ -8,8 +8,6 @@ import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
 
 export default Component.extend(I18n, {
-  tagName: '',
-
   globalNotify: service(),
 
   /**
