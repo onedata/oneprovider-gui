@@ -62,7 +62,7 @@ export default OneEmbeddedComponent.extend(
       },
 
       showShareList() {
-        return this.callParent('showShareList')();
+        return this.callParent('showShareList');
       },
     },
   }

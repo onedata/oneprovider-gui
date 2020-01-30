@@ -12,7 +12,7 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { htmlSafe } from '@ember/string';
-import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default ProceedProcessModal.extend({
   shareManager: service(),
@@ -21,7 +21,7 @@ export default ProceedProcessModal.extend({
    * @virtual
    * @type {Function}
    */
-  showShareList: notImplementedThrow,
+  showShareList: notImplementedIgnore,
 
   /**
    * @override
