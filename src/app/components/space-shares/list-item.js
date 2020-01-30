@@ -54,7 +54,7 @@ export default Component.extend(I18n, {
    */
   menuActions: collect('btnRename', 'btnRemove', 'btnCopyPublicUrl'),
 
-  componentUuid: computed(function componentUuid() {
+  componentGuid: computed(function componentGuid() {
     return guidFor(this);
   }),
 
@@ -107,9 +107,7 @@ export default Component.extend(I18n, {
     return htmlSafe(getShareUrl({ shareId: get(share, 'entityId') }));
   }),
 
-  triggerClass: computed('elementId', function triggerClass() {
-    return `actions-share-${this.get('elementId')}`;
-  }),
+  triggerClass: tag `actions-share-${'componentGuid'}`,
 
   triggerSelector: tag `.${'triggerClass'}`,
 
