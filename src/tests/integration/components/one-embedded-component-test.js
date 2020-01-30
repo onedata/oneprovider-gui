@@ -5,6 +5,8 @@ import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { next } from '@ember/runloop';
 import wait from 'ember-test-helpers/wait';
+import { lookupService } from '../../helpers/stub-service';
+import { set } from '@ember/object';
 
 describe('Integration | Component | one embedded component', function () {
   setupComponentTest('one-embedded-component', {
@@ -13,21 +15,24 @@ describe('Integration | Component | one embedded component', function () {
 
   it('exposes updated injected properties', function () {
     const callParent = sinon.spy();
-    const frameElement = {
-      appProxy: {
-        callParent,
-        propertyChanged: () => {},
-        data: {
-          iprop: 'hello',
-          parentInfo: {},
+    const appProxyService = lookupService(this, 'app-proxy');
+    const _window = {
+      frameElement: {
+        appProxy: {
+          callParent,
+          propertyChanged: () => {},
+          data: {
+            iprop: 'hello',
+            parentInfo: {},
+          },
         },
       },
     };
-    frameElement.iprop = 'hello';
-    this.set('frameElement', frameElement);
+    set(appProxyService, '_window', _window);
 
+    this.set('_window', _window);
     this.render(hbs `{{#one-embedded-component
-      frameElement=frameElement
+      _window=_window
       iframeInjectedProperties=(array "iprop")
       as |component|
     }}
@@ -35,8 +40,8 @@ describe('Integration | Component | one embedded component', function () {
     {{/one-embedded-component}}`);
 
     next(() => {
-      frameElement.appProxy.data.iprop = 'world';
-      frameElement.appProxy.propertyChanged('iprop');
+      _window.frameElement.appProxy.data.iprop = 'world';
+      _window.frameElement.appProxy.propertyChanged('iprop');
     });
     expect(this.$('#iprop-val')).to.contain('hello');
     return wait().then(() => {

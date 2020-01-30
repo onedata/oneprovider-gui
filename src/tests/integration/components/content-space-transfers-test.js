@@ -7,6 +7,7 @@ import Service from '@ember/service';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import wait from 'ember-test-helpers/wait';
 import { resolve } from 'rsvp';
+import { set } from '@ember/object';
 
 const Store = Service.extend({
   findRecord() {},
@@ -56,6 +57,7 @@ describe('Integration | Component | content space transfers', function () {
     const store = lookupService(this, 'store');
     const transferManager = lookupService(this, 'transferManager');
     const guiContext = lookupService(this, 'guiContext');
+    const appProxy = lookupService(this, 'app-proxy');
     sinon.stub(store, 'findRecord')
       .rejects()
       .withArgs('space', sinon.match(new RegExp(spaceEntityId)))
@@ -84,22 +86,26 @@ describe('Integration | Component | content space transfers', function () {
       });
     guiContext.clusterId = provider1.entityId;
     const callParent = sinon.spy();
-    const frameElement = {
-      appProxy: {
-        callParent,
-        propertyChanged: () => {},
-        data: {
-          spaceEntityId,
-          parentInfo: {},
+    const _window = {
+      frameElement: {
+        appProxy: {
+          callParent,
+          propertyChanged: () => {},
+          data: {
+            spaceEntityId,
+            parentInfo: {},
+          },
         },
       },
     };
-    frameElement.spaceEntityId = 'space-entity-id';
-    this.set('frameElement', frameElement);
 
-    this.render(hbs `<div id="content-scroll">{{content-space-transfers
-      frameElement=frameElement
-    }}</div>`);
+    set(appProxy, '_window', _window);
+    this.set('_window', _window);
+    this.render(hbs `
+      <div id="content-scroll">
+        {{content-space-transfers _window=_window}}
+      </div>
+    `);
 
     return wait()
       .then(() => {

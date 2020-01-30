@@ -14,9 +14,6 @@ import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
-import {
-  sharedObjectName,
-} from 'onedata-gui-common/utils/one-embedded-common';
 
 export default Component.extend({
   classNames: ['one-embedded-component'],
@@ -32,7 +29,7 @@ export default Component.extend({
   /**
    * @type {Element}
    */
-  frameElement: window.frameElement,
+  frameElement: reads('_window.frameElement'),
 
   /**
    * Properties:
@@ -51,6 +48,11 @@ export default Component.extend({
    */
   callParent: undefined,
 
+  /**
+   * @type {Window}
+   */
+  _window: window,
+
   init() {
     this._super(...arguments);
     const frameElement = this.get('frameElement');
@@ -59,7 +61,7 @@ export default Component.extend({
       // create local callParent method that will simply invoke callParent
       // injected by parent frame
       this.callParent = function callParent() {
-        return frameElement[sharedObjectName].callParent(...arguments);
+        return this.get('appProxy').callParent(...arguments);
       };
 
       // fetch declared injected properties
