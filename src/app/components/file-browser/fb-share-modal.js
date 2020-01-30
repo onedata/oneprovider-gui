@@ -13,7 +13,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { computed, observer, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { promise, or, isEmpty, conditional, raw } from 'ember-awesome-macros';
+import { promise, or, conditional, raw, string, lt } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -53,7 +53,10 @@ export default Component.extend(
 
     addAnotherOneMode: false,
 
-    submitNewDisabled: or('isSaving', isEmpty('editValue')),
+    submitNewDisabled: or(
+      'isSaving',
+      lt(string.length(string.trim('editValue')), raw(2))
+    ),
 
     modeProxy: promise.object(computed('sharesProxy.content', function modeProxy() {
       return this.get('sharesProxy').then(share => share ? 'show' : 'new');
@@ -113,7 +116,7 @@ export default Component.extend(
           editValue: name,
         } = this.getProperties('shareManager', 'globalNotify', 'file', 'editValue');
         this.set('isSaving', true);
-        return shareManager.createShare(file, name)
+        return shareManager.createShare(file, name.trim())
           .then(() => this.updateSharesProxy())
           .catch(error => {
             globalNotify.backendError(this.t('creatingShare'), error);
