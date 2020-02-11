@@ -10,18 +10,26 @@
   {{#modal.body}}
     {{#promise-proxy-container proxy=modeProxy}}
       {{#if (eq mode "new")}}
-        <p>{{tt this "setName"}}</p>
+        <p>{{tt this "setName"}}:</p>
         <div class="row">
-          <input
-            id={{inputId}}
-            type="text"
-            class="form-control new-share-name"
-            value={{editValue}}
-            oninput={{action (mut editValue) value="target.value"}}
-            onkeydown={{invoke-on-enter (action "submitNew")}}
-            disabled={{isSaving}}
-            autofocus=true
-          >
+          {{#bs-form class="form-horizontal" as |form|}}
+            {{#form.group
+              validation=(if validationError "error")
+              class=(if validationError "has-message")
+            }}
+              <input
+                id={{inputId}}
+                type="text"
+                class="form-control new-share-name"
+                value={{editValue}}
+                oninput={{action (mut editValue) value="target.value"}}
+                onkeydown={{invoke-on-enter (action "submitNew")}}
+                disabled={{isSaving}}
+                autofocus=true
+              >
+              <div class="form-message {{unless validationError "hidden"}}">{{validationError}}</div>
+            {{/form.group}}
+          {{/bs-form}}
         </div>
       {{else if (eq mode "show")}}
         <p class="row-share-intro">

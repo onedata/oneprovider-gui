@@ -15,6 +15,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import _ from 'lodash';
 import {
   generateSpaceEntityId,
+  generateShareEntityId,
   getCoordinates,
 } from 'onedata-gui-websocket-client/utils/development-model-common';
 import { mockGuiContext } from 'onedata-gui-common/initializers/fetch-gui-context';
@@ -156,7 +157,7 @@ export default Service.extend({
     const share = store.createRecord('share', {
       id: gri({
         entityType: shareEntityType,
-        entityId: '12345',
+        entityId: generateShareEntityId(get(space, 'entityId')),
         aspect: 'instance',
         scope: 'private',
       }),

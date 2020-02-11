@@ -13,10 +13,23 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { computed, observer, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { promise, or, conditional, raw, string, lt } from 'ember-awesome-macros';
+import {
+  promise,
+  or,
+  conditional,
+  raw,
+  string,
+  lt,
+  gt,
+  notEmpty,
+} from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import computedT from 'onedata-gui-common/utils/computed-t';
+import { reject } from 'rsvp';
+
+const shareNameLimit = 50;
 
 export default Component.extend(
   I18n,
@@ -54,6 +67,7 @@ export default Component.extend(
     addAnotherOneMode: false,
 
     submitNewDisabled: or(
+      notEmpty('validationError'),
       'isSaving',
       lt(string.length(string.trim('editValue')), raw(2))
     ),
@@ -71,6 +85,12 @@ export default Component.extend(
     inputId: computed('elementId', function inputId() {
       return `${this.elementId}-name-input`;
     }),
+
+    validationError: conditional(
+      gt('editValue.length', raw(shareNameLimit)),
+      computedT('validations.nameTooLong', { length: shareNameLimit }),
+      raw(''),
+    ),
 
     shareCount: reads('sharesProxy.content.length'),
 
@@ -109,6 +129,9 @@ export default Component.extend(
         return this.get('getShareUrl')(...args);
       },
       submitNew() {
+        if (this.get('validationError')) {
+          return reject();
+        }
         const {
           shareManager,
           globalNotify,

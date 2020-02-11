@@ -89,12 +89,14 @@
       {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
     </span>
   </td>
-  <td class="fb-table-col-actions-menu">
-    {{#unless hideMenuTrigger}}
-      {{one-menu-toggle
-        class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
-        click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
-      }}
-    {{/unless}}
-  </td>
+  {{#unless previewMode}}
+    <td class="fb-table-col-actions-menu">
+      {{#unless hideMenuTrigger}}
+        {{one-menu-toggle
+          class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
+          click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
+        }}
+      {{/unless}}
+    </td>
+  {{/unless}}
 {{/if}}

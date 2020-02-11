@@ -129,13 +129,15 @@ export default Component.extend(I18n, {
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
     const dirId = this.get('dirId');
     if (dirId) {
-      return this.get('fileManager').getFile(dirId);
+      return this.get('fileManager').getFileById(dirId);
     } else {
       return resolve(this.get('rootDir'));
     }
   })),
 
   requiredDataProxy: promise.object(promise.all('dirProxy', 'share.rootFile')),
+
+  infinite: promise.object(new Promise(() => {})),
 
   /**
    * @type {Array<object>}

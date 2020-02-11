@@ -2,6 +2,10 @@
   $header-height-single: 82px;
   $header-height-double: 132px;
   $header-height-triple: 202px;
+  @media (max-width: $screen-xs-max) {
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+  }
   &.with-header-single {
     .share-header-panel {
       position: fixed;
@@ -12,7 +16,6 @@
     }
     .fb-table-container {
       margin-top: $header-height-single + $fb-table-margin-top;
-      // FIXME: mobile
     }
   }
   &.with-header-double {
@@ -24,7 +27,6 @@
     }
     .fb-table-container {
       margin-top: $header-height-double + $fb-table-margin-top;
-      // FIXME: mobile
     }
   }
   &.with-header-triple {
@@ -36,7 +38,6 @@
     }
     .fb-table-container {
       margin-top: $header-height-triple + $fb-table-margin-top;
-      // FIXME: mobile
     }
   }
   .share-header-panel {
@@ -52,7 +53,7 @@
     background-color: $main-tabbed-content-background;
   }
   .share-header-row {
-    $col-btn-width: 200px;
+    $col-btn-width: 160px;
     $col-menu-width: 30px;
     $key-width: 140px;
     position: relative;
@@ -64,9 +65,15 @@
       width: $key-width;
       padding-left: $file-browser-padding-left;
       padding-right: $padding-large-horizontal;
+      @media (max-width: $screen-xs-max) {
+        display: none;
+      }
     }
     .col-value {
       padding-left: $key-width;
+      @media (max-width: $screen-xs-max) {
+        padding-left: 0;
+      }
     }
     + .share-header-row {
       margin-top: $padding-large-vertical;

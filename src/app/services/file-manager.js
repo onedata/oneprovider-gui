@@ -38,7 +38,7 @@ export default Service.extend({
    * @param {String} fileId 
    * @returns {Promise<Models.File>}
    */
-  getFile(fileId) {
+  getFileById(fileId) {
     const requestGri = gri({
       entityType: fileEntityType,
       entityId: fileId,

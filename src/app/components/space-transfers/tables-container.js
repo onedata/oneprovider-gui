@@ -162,7 +162,7 @@ export default Component.extend(I18n, {
         fileId,
       } = this.getProperties('fileManager', 'fileId');
       if (fileId) {
-        return fileManager.getFile(fileId)
+        return fileManager.getFileById(fileId)
           .then(record => {
             if (get(record, 'type') === 'broken') {
               throw { message: 'not_found' };
