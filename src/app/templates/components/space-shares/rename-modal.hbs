@@ -4,8 +4,8 @@
   proceed=(action "submit")
   modalClass="rename-share-modal"
   close=(action "close")
-  onShown=(action (mut editValue) share.name)
-  onHidden=(action (mut editValue) "")
+  onShown=(action (mut newName) share.name)
+  onHidden=(action (mut newName) "")
   proceedDisabled=(not isNewNameValid)
   as |proceedModal|
 }}
@@ -15,8 +15,8 @@
       id={{inputId}}
       type="text"
       class="form-control new-share-name"
-      value={{editValue}}
-      oninput={{action (mut editValue) value="target.value"}}
+      value={{newName}}
+      oninput={{action (mut newName) value="target.value"}}
       onkeydown={{if isNewNameValid (invoke-on-enter proceedModal.proceed)}}
       disabled={{proceedModal.processing}}
       autofocus=true

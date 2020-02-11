@@ -71,8 +71,6 @@ export default Model.extend(GraphSingleModelMixin, {
 
   modificationTime: alias('mtime'),
 
-  secondaryType: null,
-
   /**
    * Contains error of loading file distribution. Is null if distribution has not
    * been fetched yet or it has been fetched successfully. It is persisted in this place

@@ -27,7 +27,7 @@
     </div>
   {{/if}}
   {{#if showSharePublicUrl}}
-    <div class="row share-header-row share-header-public-url {{unless share.handle "with-btn"}}">
+    <div class="row share-header-row share-header-public-url {{if (and showPublishButton (not share.handle)) "with-btn"}}">
       <div class="col-key">
         {{tt this "publicUrl"}}
       </div>

@@ -1,7 +1,7 @@
 export default {
   fileType: {
     file: 'file',
-    dir: 'dir',
+    dir: 'directory',
   },
   isShared: 'This {{type}} is shared',
   hasMetadata: 'This {{type}} has metadata',

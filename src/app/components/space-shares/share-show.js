@@ -13,13 +13,9 @@ import EmberObject, { computed, get } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import { promise, equal, raw, tag, collect } from 'ember-awesome-macros';
+import { promise, bool, raw, tag, collect } from 'ember-awesome-macros';
 import { Promise, resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-
-// TODO: observer for changing dir that is injected to enable change in runtime
-
-// FIXME: reading cdmiObjectId, distribution etc. should be blocked for root dir - add isVirtual or something
 
 const shareRootId = 'shareRoot';
 
@@ -27,7 +23,7 @@ const ShareRootDir = EmberObject.extend({
   id: shareRootId,
   entityId: shareRootId,
   type: 'dir',
-  secondaryType: 'shareRoot',
+  isShareRoot: true,
   hasParent: false,
   parent: promise.object(raw(resolve(null))),
 });
@@ -123,15 +119,22 @@ export default Component.extend(I18n, {
 
   actionsOpened: false,
 
-  isInShareRoot: equal('dirProxy.content.secondaryType', raw('shareRoot')),
+  isInShareRoot: bool('dirProxy.content.isShareRoot'),
 
-  // FIXME: ignore injected dirId if it is not child of selected share
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
-    const dirId = this.get('dirId');
+    const {
+      fileManager,
+      dirId,
+      rootDir,
+    } = this.getProperties('fileManager', 'dirId', 'rootDir');
     if (dirId) {
-      return this.get('fileManager').getFileById(dirId);
+      return fileManager.getFileById(dirId)
+        .then(file => this.isChildOfShare(file)
+          .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
+        );
+
     } else {
-      return resolve(this.get('rootDir'));
+      return resolve(rootDir);
     }
   })),
 
@@ -167,7 +170,7 @@ export default Component.extend(I18n, {
   }),
 
   withHeaderClass: computed('showSharePath', 'showSharePublicUrl',
-    function headerPanelClass() {
+    function withHeaderClass() {
       const {
         showSharePath,
         showSharePublicUrl,
@@ -198,22 +201,29 @@ export default Component.extend(I18n, {
     }
   ),
 
-  rootDir: computed(function rootDir() {
+  rootDir: computed('share.{name,entityId}', function rootDir() {
     return ShareRootDir.create({
       name: this.get('share.name'),
       shareRootId: this.get('share.entityId'),
     });
   }),
 
-  menuTriggerClass: computed('elementId', function triggerClass() {
-    return `actions-share-${this.get('elementId')}`;
-  }),
+  menuTriggerClass: tag `actions-share-${'elementId'}`,
 
   menuTriggerSelector: tag `.${'menuTriggerClass'}`,
 
+  isChildOfShare(file) {
+    return this.get('share.rootFile').then(shareRootFile => {
+      const rootInternalId = get(shareRootFile, 'internalFileId');
+      return checkOnPath(
+        file,
+        (currentFile) => get(currentFile, 'internalFileId') === rootInternalId);
+    });
+  },
+
   actions: {
     fetchShareRootDirChildren(dirId, startIndex, size, offset, array) {
-      if (dirId !== 'shareRoot') {
+      if (dirId !== shareRootId) {
         return reject('cannot use fetchShareRootDirChildren for non-share-root');
       }
       if (startIndex == null) {
@@ -279,3 +289,15 @@ export default Component.extend(I18n, {
     },
   },
 });
+
+function checkOnPath(file, condition = () => false) {
+  if (file) {
+    if (condition(file)) {
+      return resolve(true);
+    } else {
+      return get(file, 'parent').then(checkOnPath);
+    }
+  } else {
+    return false;
+  }
+}

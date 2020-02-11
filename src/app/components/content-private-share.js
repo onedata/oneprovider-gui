@@ -1,5 +1,5 @@
 /**
- * Container for public share file browser to use in an iframe with injected properties.
+ * Container for private share file browser to use in an iframe with injected properties.
  * 
  * @module component/content-private-share
  * @author Jakub Liput
@@ -43,7 +43,7 @@ export default OneEmbeddedComponent.extend(
     /**
      * @override
      */
-    iframeInjectedProperties: Object.freeze(['shareId', 'dirId']),
+    iframeInjectedProperties: Object.freeze(['shareId', 'spaceId', 'dirId']),
 
     shareProxy: promise.object(computed('shareId', function shareProxy() {
       const {
@@ -58,8 +58,9 @@ export default OneEmbeddedComponent.extend(
       updateDirId(dirId) {
         return this.callParent('updateDirId', dirId);
       },
-      getDataUrl({ spaceId, dirId }) {
+      getDataUrl({ dirId }) {
         const providerId = this.get('guiContext.clusterId');
+        const spaceId = this.get('spaceId');
         return this.callParent('getDataUrl', { spaceId, dirId, providerId });
       },
     },

@@ -1,5 +1,5 @@
 /**
- * Modal which can create a share or show link to it
+ * Single already created share presented in share modal
  * 
  * @module components/file-browser/fb-share-modal-item
  * @author Jakub Liput

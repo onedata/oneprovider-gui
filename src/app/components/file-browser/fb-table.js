@@ -292,8 +292,6 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // FIXME: debug
-    window.fbTable = this;
     this.get('fileManager').registerRefreshHandler(this);
   },
 
@@ -409,7 +407,7 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   fileClicked(file, ctrlKey, shiftKey) {
-    // do not change selection if in preview or only clicking to close context menu
+    // do not change selection if only clicking to close context menu
     if (isPopoverOpened()) {
       return;
     }

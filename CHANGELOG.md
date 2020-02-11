@@ -1,4 +1,4 @@
-# Release notes for project onezone-gui
+# Release notes for project oneprovider-gui
 
 
 CHANGELOG

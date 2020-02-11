@@ -1,3 +1,12 @@
+/**
+ * Modal showing metadata set for share published in handle service 
+ * 
+ * @module components/space-shares/share-metadata-modal
+ * @author Jakub Liput
+ * @copyright (C) 2020 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';

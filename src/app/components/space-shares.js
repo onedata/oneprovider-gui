@@ -1,3 +1,12 @@
+/**
+ * List and show share browsers that belong to some space
+ * 
+ * @module components/space-shares
+ * @author Jakub Liput
+ * @copyright (C) 2020 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { promise, collect } from 'ember-awesome-macros';

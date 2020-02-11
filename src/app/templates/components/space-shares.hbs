@@ -34,8 +34,8 @@
 
 {{#render-later triggerRender=shareToRename}}
   {{space-shares/rename-modal
+    share=shareToRename
     opened=(and shareToRename)
     close=(action "closeRenameShare")
-    share=shareToRename
   }}
 {{/render-later}}

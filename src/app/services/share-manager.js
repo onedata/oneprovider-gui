@@ -26,14 +26,12 @@ export default Service.extend({
       .save();
   },
 
-  // FIXME: test this on recent backend
   removeShare(share) {
     return share.destroyRecord();
   },
 
-  // FIXME: test this on recent backend
   renameShare(share, name) {
-    const currentName = get(share, name);
+    const currentName = get(share, 'name');
     set(share, 'name', name);
     return share.save()
       .catch((error) => {
@@ -50,21 +48,5 @@ export default Service.extend({
       scope,
     });
     return this.get('store').findRecord('share', requestGri);
-  },
-
-  getHandleServices() {
-    return this.get('store');
-  },
-
-  createHandle(metadataString, shareId, handleServiceId) {
-    return this.get('store').createRecord('handle', {
-      metadataString,
-      _meta: {
-        additionalData: {
-          shareId,
-          handleServiceId,
-        },
-      },
-    }).save();
   },
 });

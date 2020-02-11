@@ -8,7 +8,6 @@
  */
 
 import Component from '@ember/component';
-import { get } from '@ember/object';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { tag, string, gte, raw } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -41,26 +40,25 @@ export default Component.extend(I18n, {
    */
   close: notImplementedThrow,
 
-  editValue: '',
+  newName: '',
 
   inputId: tag `${'elementId'}-input`,
 
   /**
    * @type {ComputedProperty<boolean>}
    */
-  isNewNameValid: gte(string.length(string.trim('editValue')), raw(2)),
+  isNewNameValid: gte(string.length(string.trim('newName')), raw(2)),
 
   actions: {
     submit() {
       const {
         share,
         shareManager,
-        editValue,
+        newName,
         globalNotify,
-      } = this.getProperties('share', 'shareManager', 'editValue', 'globalNotify');
-      return shareManager.renameShare(share, editValue.trim())
+      } = this.getProperties('share', 'shareManager', 'newName', 'globalNotify');
+      return shareManager.renameShare(share, newName.trim())
         .catch(error => {
-          this.set('editValue', get(share, 'name'));
           globalNotify.backendError(this.t('renaming'), error);
           throw error;
         })

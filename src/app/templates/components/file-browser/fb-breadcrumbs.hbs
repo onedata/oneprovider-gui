@@ -21,7 +21,7 @@
   {{!-- last element - current dir --}}
   {{#if previewMode}}
     <div class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button {{if (eq filteredBreadcrumbsItemsProxy.length 0) "fb-breadcrumbs-dir-root"}}">
-      <a class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name {{if (eq currentItem.file.type "file") "fake-text"}}"
+      <a class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name truncate {{if (eq currentItem.file.type "file") "fake-text"}}"
         data-dir-guid={{currentItem.file.entityId}}
         {{action "changeDir" currentItem.file}}
       >
