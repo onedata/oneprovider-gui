@@ -163,7 +163,6 @@ export default Service.extend({
       }),
       fileType: 'dir',
       name: 'My Share',
-      spaceId: get(space, 'entityId'),
       rootFile,
       privateRootFile: rootFile,
       handle,
@@ -175,34 +174,10 @@ export default Service.extend({
     );
     return handle.save()
       .then(() => share.save())
-      .then(share => {
-        const shareList = store.createRecord('shareList');
-        return get(shareList, 'list')
-          .then(list => {
-            list.pushObject(share);
-            return list.save();
-          })
-          .then(() => shareList.save())
-          .then(() => {
-            set(rootFile, 'shareList', shareList);
-            return rootFile.save();
-          })
-          .then(() => share);
-      })
-      .then(share => {
-        this.set('entityRecords.share', [share]);
-        const shareList = store.createRecord('shareList');
-        return get(shareList, 'list')
-          .then(list => {
-            list.pushObject(share);
-            return list.save();
-          })
-          .then(() => shareList.save())
-          .then(() => {
-            set(space, 'shareList', shareList);
-            return space.save();
-          });
-      });
+      .then(share => allFulfilled([
+        addShareList(rootFile, [share], store),
+        addShareList(space, [share], store),
+      ]));
   },
 
   /**
@@ -480,4 +455,18 @@ export function generateFileGri(entityId) {
     aspect: 'instance',
     scope: 'private',
   });
+}
+
+function addShareList(parentRecord, shares, store) {
+  const shareList = store.createRecord('shareList');
+  return get(shareList, 'list')
+    .then(list => {
+      list.pushObjects(shares);
+      return list.save();
+    })
+    .then(() => shareList.save())
+    .then(() => {
+      set(parentRecord, 'shareList', shareList);
+      return parentRecord.save();
+    });
 }

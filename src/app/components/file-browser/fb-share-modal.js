@@ -122,11 +122,8 @@ export default Component.extend(
     },
 
     actions: {
-      close() {
-        this.get('onHide')();
-      },
-      getShareUrl(...args) {
-        return this.get('getShareUrl')(...args);
+      getShareUrl() {
+        return this.get('getShareUrl')(...arguments);
       },
       submitNew() {
         if (this.get('validationError')) {
@@ -152,6 +149,9 @@ export default Component.extend(
       },
       onShow() {
         return this.updateSharesProxy();
+      },
+      onHide() {
+        this.get('onHide')();
       },
     },
   }

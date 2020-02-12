@@ -132,14 +132,10 @@ export default OneEmbeddedComponent.extend(
         this.set('fileToShowInfo', null);
       },
       openShareModal(file) {
-        this.setProperties({
-          fileToShare: file,
-        });
+        this.set('fileToShare', file);
       },
       closeShareModal() {
-        this.setProperties({
-          fileToShare: null,
-        });
+        this.set('fileToShare', null);
       },
       openEditPermissionsModal(files) {
         this.set('filesToEditPermissions', files);

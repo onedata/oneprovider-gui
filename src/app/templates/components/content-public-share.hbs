@@ -2,11 +2,13 @@
   proxy=shareProxy
   spinnerBlockClass="absolute-middle-centered"
 }}
+  shareProxy: {{shareProxy.entityId}}
   {{space-shares/share-show
     showSharePath=false
     showSharePublicUrl=true
     showPublishButton=false
     share=shareProxy.content
+    dirId=dirId
     updateDirId=(action "updateDirId")
   }}
 {{/promise-proxy-container}}

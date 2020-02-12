@@ -1,3 +1,12 @@
+/**
+ * Backend operations for shares
+ * 
+ * @module services/share-manager
+ * @author Jakub Liput
+ * @copyright (C) 2020 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service, { inject as service } from '@ember/service';
 import { get, set } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';

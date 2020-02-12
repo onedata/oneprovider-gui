@@ -14,10 +14,6 @@ import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { promise } from 'ember-awesome-macros';
 
-// TODO: observer for changing dir that is injected to enable change in runtime
-
-// FIXME: reading cdmiObjectId, distribution etc. should be blocked for root dir - add isVirtual or something
-
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('share'),
   createDataProxyMixin('rootDir'), {
@@ -51,7 +47,6 @@ export default OneEmbeddedComponent.extend(
         shareManager,
         shareId,
       } = this.getProperties('shareManager', 'shareId');
-      // FIXME: no such share error (share manager try to get share id and lack of share id)
       return shareId ? shareManager.getShare(shareId, 'public') : null;
     })),
 

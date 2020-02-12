@@ -14,5 +14,12 @@ export default Component.extend(I18n, {
   classNames: ['content-shares-empty'],
   i18nPrefix: 'components.contentSharesEmpty',
 
+  /**
+   * @virtual optional
+   * Can be used on space-mode view to show link to data tab to current space
+   * @type {String}
+   */
+  dataTabUrl: undefined,
+
   forSpace: false,
 });
