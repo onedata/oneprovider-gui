@@ -22,7 +22,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-res
 import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional, raw, isEmpty } from 'ember-awesome-macros';
 
 /**
  * @type {number}
@@ -124,6 +124,8 @@ export default Component.extend(
     dirActionsOpen: undefined,
 
     _window: window,
+
+    areItemsEmpty: isEmpty('filteredBreadcrumbsItemsProxy'),
 
     rootIcon: conditional('previewMode', raw('share'), raw('home')),
 

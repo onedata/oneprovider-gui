@@ -49,7 +49,6 @@ export default OneEmbeddedComponent.extend(
        * @param {Object} data
        * @param {String} data.spaceId
        * @param {String} data.dirId
-       * @param {String} data.providerId
        * @returns {String} Onezone URL for directory in file browser
        */
       getDataUrl({ spaceId, dirId }) {

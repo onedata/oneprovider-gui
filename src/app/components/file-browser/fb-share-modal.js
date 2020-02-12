@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { computed, observer, get } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import {
@@ -62,14 +62,14 @@ export default Component.extend(
 
     isSaving: false,
 
-    editValue: '',
+    newShareName: '',
 
     addAnotherOneMode: false,
 
     submitNewDisabled: or(
       notEmpty('validationError'),
       'isSaving',
-      lt(string.length(string.trim('editValue')), raw(2))
+      lt(string.length(string.trim('newShareName')), raw(2))
     ),
 
     modeProxy: promise.object(computed('sharesProxy.content', function modeProxy() {
@@ -87,7 +87,7 @@ export default Component.extend(
     }),
 
     validationError: conditional(
-      gt('editValue.length', raw(shareNameLimit)),
+      gt('newShareName.length', raw(shareNameLimit)),
       computedT('validations.nameTooLong', { length: shareNameLimit }),
       raw(''),
     ),
@@ -95,15 +95,6 @@ export default Component.extend(
     shareCount: reads('sharesProxy.content.length'),
 
     publicShareUrl: reads('share.publicUrl'),
-
-    setDefaultName: observer('file', function setDefaultName() {
-      this.set('editValue', this.get('file.name') || '');
-    }),
-
-    init() {
-      this._super(...arguments);
-      this.setDefaultName();
-    },
 
     /**
      * @override
@@ -133,8 +124,8 @@ export default Component.extend(
           shareManager,
           globalNotify,
           file,
-          editValue: name,
-        } = this.getProperties('shareManager', 'globalNotify', 'file', 'editValue');
+          newShareName: name,
+        } = this.getProperties('shareManager', 'globalNotify', 'file', 'newShareName');
         this.set('isSaving', true);
         return shareManager.createShare(file, name.trim())
           .then(() => this.updateSharesProxy())
@@ -148,9 +139,11 @@ export default Component.extend(
           }));
       },
       onShow() {
+        this.set('newShareName', this.get('file.name') || '');
         return this.updateSharesProxy();
       },
       onHide() {
+        this.set('newShareName', '');
         this.get('onHide')();
       },
     },

@@ -11,7 +11,6 @@ import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { promise, or, isEmpty, conditional } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
@@ -40,26 +39,6 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   navigateShareTarget: '_top',
-
-  open: false,
-
-  isSaving: false,
-
-  editValue: '',
-
-  addAnotherOneMode: false,
-
-  submitNewDisabled: or('isSaving', isEmpty('editValue')),
-
-  modeProxy: promise.object(computed('shareProxy.content', function modeProxy() {
-    return this.get('shareProxy').then(share => share ? 'show' : 'new');
-  })),
-
-  mode: conditional(
-    'addOtherMode',
-    'new',
-    'modeProxy.content',
-  ),
 
   shareUrl: computed('share.entityId', function shareUrl() {
     return this.getShareUrl({ shareId: this.get('share.entityId') });

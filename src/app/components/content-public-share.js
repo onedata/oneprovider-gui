@@ -13,11 +13,12 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { promise } from 'ember-awesome-macros';
+import { tag, eq, raw } from 'ember-awesome-macros';
 
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('share'),
   createDataProxyMixin('rootDir'), {
-    classNames: ['content-public-share'],
+    classNameBindings: ['contentComponentClass'],
 
     shareManager: service(),
 
@@ -26,6 +27,14 @@ export default OneEmbeddedComponent.extend(
      * @type {Function}
      */
     containerScrollTop: notImplementedIgnore,
+
+    contentComponentClass: tag `content-${'scope'}-share`,
+
+    /**
+     * One of: public, private
+     * @type {String}
+     */
+    scope: 'public',
 
     /**
      * @type {String}
@@ -42,12 +51,19 @@ export default OneEmbeddedComponent.extend(
      */
     iframeInjectedProperties: Object.freeze(['shareId', 'dirId']),
 
+    /**
+     * Public view can be turned into private by setting scope
+     * @type {ComputedProperty<boolean>}
+     */
+    isPrivate: eq('scope', raw('private')),
+
     shareProxy: promise.object(computed('shareId', function shareProxy() {
       const {
         shareManager,
         shareId,
-      } = this.getProperties('shareManager', 'shareId');
-      return shareId ? shareManager.getShare(shareId, 'public') : null;
+        scope,
+      } = this.getProperties('shareManager', 'shareId', 'scope');
+      return shareId ? shareManager.getShare(shareId, scope) : null;
     })),
 
     actions: {

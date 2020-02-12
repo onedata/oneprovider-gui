@@ -21,8 +21,8 @@
                 id={{inputId}}
                 type="text"
                 class="form-control new-share-name"
-                value={{editValue}}
-                oninput={{action (mut editValue) value="target.value"}}
+                value={{newShareName}}
+                oninput={{action (mut newShareName) value="target.value"}}
                 onkeydown={{invoke-on-enter (action "submitNew")}}
                 disabled={{isSaving}}
                 autofocus=true

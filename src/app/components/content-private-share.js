@@ -7,59 +7,24 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { computed } from '@ember/object';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { promise } from 'ember-awesome-macros';
+import ContentPublicShare from 'oneprovider-gui/components/content-public-share';
+import layout from 'oneprovider-gui/templates/components/content-public-share';
 
-export default OneEmbeddedComponent.extend(
-  createDataProxyMixin('share'),
-  createDataProxyMixin('rootDir'), {
-    classNames: ['content-private-share'],
+export default ContentPublicShare.extend({
+  layout,
+  guiContext: service(),
 
-    shareManager: service(),
-    guiContext: service(),
+  /**
+   * @override
+   */
+  scope: 'private',
 
-    /**
-     * @virtual optional
-     * @type {Function}
-     */
-    containerScrollTop: notImplementedIgnore,
-
-    /**
-     * @type {String}
-     */
-    spaceId: undefined,
-
-    /**
-     * @type {String}
-     */
-    dirId: undefined,
-
-    /**
-     * @override
-     */
-    iframeInjectedProperties: Object.freeze(['shareId', 'spaceId', 'dirId']),
-
-    shareProxy: promise.object(computed('shareId', function shareProxy() {
-      const {
-        shareManager,
-        shareId,
-      } = this.getProperties('shareManager', 'shareId');
-      return shareId ? shareManager.getShare(shareId, 'private') : null;
-    })),
-
-    actions: {
-      updateDirId(dirId) {
-        return this.callParent('updateDirId', dirId);
-      },
-      getDataUrl({ dirId }) {
-        const providerId = this.get('guiContext.clusterId');
-        const spaceId = this.get('spaceId');
-        return this.callParent('getDataUrl', { spaceId, dirId, providerId });
-      },
+  actions: {
+    getDataUrl({ dirId }) {
+      const providerId = this.get('guiContext.clusterId');
+      const spaceId = this.get('spaceId');
+      return this.callParent('getDataUrl', { spaceId, dirId, providerId });
     },
-  }
-);
+  },
+});
