@@ -80,6 +80,19 @@ export default Component.extend(I18n, {
    */
   fileClipboardFiles: undefined,
 
+  /**
+   * @virtual optional
+   * If defined replace `fetchDirChildren` with this function
+   * @type {Function}
+   */
+  customFetchDirChildren: undefined,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  previewMode: false,
+
   changeDir: undefined,
 
   _window: window,
@@ -137,7 +150,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  showDirContextMenu: not('dirLoadError'),
+  showDirContextMenu: and(not('dirLoadError'), not('previewMode')),
 
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
@@ -206,7 +219,8 @@ export default Component.extend(I18n, {
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
     const array = ReplacingChunksArray.create({
-      fetch: (...fetchArgs) => this.fetchDirChildren(dirId, ...fetchArgs),
+      fetch: (...fetchArgs) => this.get('fetchDirChildren')(dirId, ...
+        fetchArgs),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
@@ -259,6 +273,10 @@ export default Component.extend(I18n, {
       ];
     }
   ),
+
+  fetchDirChildren: computed('customFetchDirChildren', function fetchDirChildren() {
+    return this.get('customFetchDirChildren') || this._fetchDirChildren.bind(this);
+  }),
 
   watchFilesArrayInitialLoad: observer(
     'initialLoad.isFulfilled',
@@ -368,8 +386,13 @@ export default Component.extend(I18n, {
     );
   },
 
-  fetchDirChildren(dirId, ...fetchArgs) {
-    return this.get('fileManager').fetchDirChildren(dirId, ...fetchArgs);
+  _fetchDirChildren(dirId, ...fetchArgs) {
+    const {
+      fileManager,
+      previewMode,
+    } = this.getProperties('fileManager', 'previewMode');
+    return fileManager
+      .fetchDirChildren(dirId, previewMode ? 'public' : 'private', ...fetchArgs);
   },
 
   clearFilesSelection() {
@@ -567,7 +590,7 @@ export default Component.extend(I18n, {
 
   actions: {
     openContextMenu(file, mouseEvent) {
-      if (get(file, 'type') === 'broken') {
+      if (this.get('previewMode') || get(file, 'type') === 'broken') {
         return;
       }
       const selectedFiles = this.get('selectedFiles');

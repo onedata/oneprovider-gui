@@ -23,5 +23,13 @@ export default Model.extend(
     providerList: belongsTo('provider-list'),
     effUserList: belongsTo('user-list'),
     effGroupList: belongsTo('group-list'),
+    shareList: belongsTo('share-list'),
+
+    /**
+     * @override
+     */
+    fetchTransfersActiveChannels() {
+      return this.get('transferManager').getSpaceTransfersActiveChannels(this);
+    },
   }
 ).reopenClass(StaticGraphModelMixin);

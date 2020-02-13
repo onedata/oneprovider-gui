@@ -4,28 +4,33 @@
     <div class="fb-breadcrumbs-container">
       {{file-browser/fb-breadcrumbs
         dir=dir
+        rootDir=customRootDir
         allButtonsArray=allButtonsArray
         clipboardReady=clipboardReady
+        menuButtons=currentDirMenuButtons
+        resolveFileParentFun=resolveFileParentFun
+        previewMode=previewMode
         dirActionsToggled=(action "selectCurrentDir")
         changeDir=(action "changeDir")
-        menuButtons=currentDirMenuButtons
       }}
     </div>
     <div class="text-right fb-toolbar-container hidden-xs">
-      {{#unless media.isMobile}}
+      {{#unless (or previewMode media.isMobile)}}
         {{file-browser/fb-selection-toolkit
           itemsCount=selectedFiles.length
           selectionContext=selectionContext
           allButtonsArray=allButtonsArray
         }}
       {{/unless}}
-      {{file-browser/fb-toolbar
-        dir=dir
-        clipboardReady=clipboardReady
-        selectionContext=selectionContext
-        allButtonsArray=allButtonsArray
-        selectCurrentDir=(action "selectCurrentDir")
-      }}
+      {{#unless previewMode}}
+        {{file-browser/fb-toolbar
+          dir=dir
+          clipboardReady=clipboardReady
+          selectionContext=selectionContext
+          allButtonsArray=allButtonsArray
+          selectCurrentDir=(action "selectCurrentDir")
+        }}
+      {{/unless}}
     </div>
   </div>
 </div>
@@ -37,27 +42,32 @@
     allButtonsArray=allButtonsArray
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
+    customFetchDirChildren=customFetchDirChildren
+    previewMode=previewMode
     changeDir=(action "changeDir")
   }}
 </div>
 
-{{#one-webui-popover
-  class="current-dir-actions-popover"
-  popoverStyle="with-dropdown"
-  padding=false
-  triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
-  open=currentDirActionsOpen
-}}
-  {{#click-outside action=(action "toggleCurrentDirActions" false)}}
-    {{actions-popover-content
-      actionsArray=currentDirMenuButtons
-      actionClicked=(action "toggleCurrentDirActions" false)
-      class="current-dir-actions"
-    }}
-  {{/click-outside}}
-{{/one-webui-popover}}
-<div class="current-dir-actions-trigger floating-actions-trigger"></div>
-{{#if media.isMobile}}
+{{#unless previewMode}}
+  {{#one-webui-popover
+    class="current-dir-actions-popover"
+    popoverStyle="with-dropdown"
+    padding=false
+    triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
+    open=currentDirActionsOpen
+  }}
+    {{#click-outside action=(action "toggleCurrentDirActions" false)}}
+      {{actions-popover-content
+        actionsArray=currentDirMenuButtons
+        actionClicked=(action "toggleCurrentDirActions" false)
+        class="current-dir-actions"
+      }}
+    {{/click-outside}}
+  {{/one-webui-popover}}
+  <div class="current-dir-actions-trigger floating-actions-trigger"></div>
+{{/unless}}
+
+{{#if (and (not previewMode) media.isMobile)}}
   {{file-browser/fb-selection-toolkit
     mobileMode=true
     itemsCount=selectedFiles.length

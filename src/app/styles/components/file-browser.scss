@@ -1,18 +1,10 @@
-$-file-browser-header-height: 45px;
-$-file-browser-item-height: 32px;
-// the same padding as distance of provider tab icon in Onezone GUI
-$-file-browser-padding-left: 12px;
-// light padding at the right to make some space for scrollbar rail
-$-file-browser-padding-right: 16px;
-$-fb-table-margin-top: 50px;
-$-fb-table-margin-top-mobile: 36px;
-
 @import './file-browser/fb-breadcrumbs';
 @import './file-browser/fb-download-modal';
 @import './file-browser/fb-remove-modal';
 @import './file-browser/fb-selection-toolkit';
 @import './file-browser/fb-table-row';
 @import './file-browser/fb-table';
+@import './file-browser/fb-share-modal-item';
 
 .embedded-content {
   .file-browser-head-container {
@@ -25,20 +17,20 @@ $-fb-table-margin-top-mobile: 36px;
   }
 }
 
-.file-browser {
-  height: calc(100% - #{$-fb-table-margin-top});
+.file-browser {  
+  height: calc(100% - #{$fb-table-margin-top});
   @media (max-width: $screen-xs-max) {
-    height: calc(100% - #{$-fb-table-margin-top-mobile});
+    height: calc(100% - #{$fb-table-margin-top-mobile});
   }
   .file-browser-head-container {
     position: fixed;
     padding-top: $content-row-vertical-padding;
-    padding-left: $content-col-padding + $-file-browser-padding-left;
-    padding-right: $content-col-padding + $-file-browser-padding-right;
+    padding-left: $content-col-padding + $file-browser-padding-left;
+    padding-right: $content-col-padding + $file-browser-padding-right;
     top: 0;
     left: 0;
     right: 0;
-    line-height: $-file-browser-header-height;
+    line-height: $file-browser-header-height;
     background-color: $color-one-white;
     .fb-head-inner {
       display: flex;
@@ -62,10 +54,10 @@ $-fb-table-margin-top-mobile: 36px;
 }
 
 .fb-table-container {
-  margin-top: $-fb-table-margin-top;
+  margin-top: $fb-table-margin-top;
   height: 100%;
   @media (max-width: $screen-xs-max) {
-    height: $-fb-table-margin-top-mobile;
+    height: $fb-table-margin-top-mobile;
   }
 }
 
@@ -75,7 +67,7 @@ $-fb-table-margin-top-mobile: 36px;
   flex-grow: 0;
   flex-shrink: 0;
   flex-basis: 340px;
-  height: $-file-browser-header-height;
+  height: $file-browser-header-height;
 }
 
 .fb-toolbar {
@@ -86,8 +78,8 @@ $-fb-table-margin-top-mobile: 36px;
   
   .fb-toolbar-button {
     display: inline-block;
-    font-size: $-file-browser-item-height;
-    height: $-file-browser-item-height;
+    font-size: $file-browser-item-height;
+    height: $file-browser-item-height;
     font-weight: bold;
     &[disabled], &.disabled {
       cursor: default;
@@ -95,7 +87,7 @@ $-fb-table-margin-top-mobile: 36px;
       color: $main-text-color-disabled;
     }
     .one-icon {
-      line-height: $-file-browser-header-height;
+      line-height: $file-browser-header-height;
     }
   }
 }

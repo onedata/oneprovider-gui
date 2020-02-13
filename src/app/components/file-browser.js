@@ -67,6 +67,7 @@ export default Component.extend(I18n, {
   i18n: service(),
   uploadManager: service(),
   fileManager: service(),
+  shareManager: service(),
   globalNotify: service(),
   errorExtractor: service(),
   media: service(),
@@ -122,6 +123,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   * @param {Models/File} file file to share
+   */
+  openShare: notImplementedThrow,
+
+  /**
+   * @virtual
    */
   updateDirEntityId: notImplementedIgnore,
 
@@ -129,6 +137,25 @@ export default Component.extend(I18n, {
    * @virtual optional
    */
   containerScrollTop: notImplementedIgnore,
+
+  /**
+   * @virtual optional
+   * Passed to component inside
+   * @type {Function}
+   */
+  customFetchDirChildren: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.File}
+   */
+  customRootDir: undefined,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  previewMode: false,
 
   /**
    * If true, the paste from clipboard button should be available
@@ -272,11 +299,18 @@ export default Component.extend(I18n, {
   btnShare: computed(function btnShare() {
     return this.createFileAction({
       id: 'share',
+      action: () => {
+        const {
+          openShare,
+          selectedFiles,
+        } = this.getProperties('openShare', 'selectedFiles');
+        return openShare(selectedFiles[0]);
+      },
       showIn: [
-        // TODO: disabled until implemented
-        // actionContext.singleDir,
-        // actionContext.currentDir,
-        // actionContext.spaceRootDir,
+        actionContext.singleFile,
+        actionContext.singleDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
       ],
     });
   }),

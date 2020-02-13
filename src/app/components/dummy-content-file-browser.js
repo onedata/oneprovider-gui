@@ -14,7 +14,7 @@ import { promise } from 'ember-awesome-macros';
 
 export default Component.extend({
   currentUser: service(),
-  onedataRpc: service(),
+  onedataGraph: service(),
   fileManager: service(),
 
   classNames: ['dummy-content-file-browser'],
@@ -30,12 +30,12 @@ export default Component.extend({
   actions: {
     immediatelyRemove(files, parentDir) {
       const {
-        onedataRpc,
+        onedataGraph,
         fileManager,
-      } = this.getProperties('onedataRpc', 'fileManager');
+      } = this.getProperties('onedataGraph', 'fileManager');
       const parentEntityId = get(parentDir, 'entityId');
       files.forEach(f => {
-        onedataRpc.removeMockChild(
+        onedataGraph.removeMockChild(
           parentEntityId,
           get(f, 'entityId')
         );

@@ -1,0 +1,75 @@
+{{#bs-modal
+  open=open
+  onShow=(action "onShow")
+  onHide=(action "onHide")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header" fileType=(tt this (concat 'fileType.' file.type))}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    {{#promise-proxy-container proxy=modeProxy}}
+      {{#if (eq mode "new")}}
+        <p>{{tt this "setName"}}:</p>
+        <div class="row">
+          {{#bs-form class="form-horizontal" as |form|}}
+            {{#form.group
+              validation=(if validationError "error")
+              class=(if validationError "has-message")
+            }}
+              <input
+                id={{inputId}}
+                type="text"
+                class="form-control new-share-name"
+                value={{newShareName}}
+                oninput={{action (mut newShareName) value="target.value"}}
+                onkeydown={{invoke-on-enter (action "submitNew")}}
+                disabled={{isSaving}}
+                autofocus=true
+              >
+              <div class="form-message {{unless validationError "hidden"}}">{{validationError}}</div>
+            {{/form.group}}
+          {{/bs-form}}
+        </div>
+      {{else if (eq mode "show")}}
+        <p class="row-share-intro">
+          {{tt
+            this
+            "showIntro"
+            fileType=(tt this (concat 'fileType.' file.type))
+            fileName=file.name
+            shareCount=shareCount
+            times=(tt this (concat 'times.' (if (gt shareCount 1) "plural" "singular")))
+          }}:
+        </p>
+        {{#each shares as |share|}}
+          {{file-browser/fb-share-modal-item
+            share=share
+            getShareUrl=(action "getShareUrl")
+          }}
+        {{/each}}
+      {{/if}}
+    {{/promise-proxy-container}}
+  {{/modal.body}}
+  {{#modal.footer}}
+    {{#bs-button
+      onClick=(if addAnotherOneMode (action (mut addAnotherOneMode) false) modal.close)
+    }}
+      {{tt this (if addAnotherOneMode "cancel" "close")}}
+    {{/bs-button}}
+    {{#if (eq mode "new")}}
+      {{#one-spin-button
+        action=(action "submitNew")
+        inFlight=isSaving
+        class="btn btn-primary"
+        disabled=submitNewDisabled
+      }}
+        {{tt this "createNew"}}
+      {{/one-spin-button}}
+    {{else if (eq mode "show")}}
+      {{#bs-button type="primary" onClick=(action (mut addAnotherOneMode) true)}}
+        {{tt this "createAnotherOne"}}
+      {{/bs-button}}
+    {{/if}}
+  {{/modal.footer}}
+{{/bs-modal}}

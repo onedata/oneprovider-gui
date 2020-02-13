@@ -10,6 +10,14 @@
 import OnedataGraphMock, { messageNotSupported } from 'onedata-gui-websocket-client/services/mocks/onedata-graph';
 import { get, computed } from '@ember/object';
 import _ from 'lodash';
+import {
+  numberOfFiles,
+  numberOfDirs,
+  generateFileEntityId,
+  generateDirEntityId,
+  parseDecodedDirEntityId,
+} from 'oneprovider-gui/services/mock-backend';
+import { inject as service } from '@ember/service';
 
 const transferStatusToProgressState = {
   waiting: 'scheduled',
@@ -223,9 +231,36 @@ const fileHandlers = {
     }
     return response;
   },
+  children(operation, entityId, { index, limit, offset }) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    const decodedGuid = atob(entityId);
+    if (decodedGuid.match(/0010/)) {
+      return {
+        success: false,
+        error: { id: 'posix', details: { errno: 'eacces' } },
+        data: {},
+      };
+    } else if (decodedGuid.match(/0011/)) {
+      return {
+        success: false,
+        error: { id: 'posix', details: { errno: 'enoent' } },
+        data: {},
+      };
+    } else {
+      return {
+        children: this.getMockChildrenSlice(entityId, index, limit, offset),
+      };
+    }
+  },
 };
 
 export default OnedataGraphMock.extend({
+  mockBackend: service(),
+
+  childrenIdsCache: computed(() => ({})),
+
   cancelledTransfers: computed(() => []),
 
   init() {
@@ -239,5 +274,70 @@ export default OnedataGraphMock.extend({
       'handlers',
       _.merge({}, this.get('handlers'), _handlers)
     );
+  },
+
+  getMockSpaceTransfersSlice(spaceId, state, index, limit = 100000000, offset = 0) {
+    const mockSpaceTransfers = this.getMockSpaceTransfers(spaceId, state);
+    let arrIndex = mockSpaceTransfers.findBy('index', index);
+    if (arrIndex === -1) {
+      arrIndex = 0;
+    }
+    return mockSpaceTransfers.slice(arrIndex + offset, arrIndex + offset + limit);
+  },
+
+  getMockChildrenSlice(dirEntityId, index, limit = 100000000, offset = 0) {
+    const mockChildren = this.getMockChildren(dirEntityId);
+    let arrIndex = mockChildren.findIndex(childEntityId =>
+      atob(childEntityId) === index
+    );
+    if (arrIndex === -1) {
+      arrIndex = 0;
+    }
+    return mockChildren.slice(arrIndex + offset, arrIndex + offset + limit);
+  },
+
+  getMockChildren(dirEntityId) {
+    const childrenIdsCache = this.get('childrenIdsCache');
+    const decodedDirEntityId = atob(dirEntityId);
+    if (childrenIdsCache[dirEntityId]) {
+      return childrenIdsCache[dirEntityId];
+    } else {
+      let cache;
+      if (/.*#-dir-0000.*/.test(decodedDirEntityId)) {
+        // root dir
+        cache = [
+          ..._.range(numberOfDirs).map(i =>
+            generateDirEntityId(i, dirEntityId)
+          ),
+          ..._.range(numberOfFiles).map(i =>
+            generateFileEntityId(i, dirEntityId)
+          ),
+        ];
+      } else if (/.*dir-0000.*/.test(decodedDirEntityId)) {
+        const rootParentEntityId = decodedDirEntityId
+          .replace(/-dir-\d+/, '')
+          .replace(/-c\d+/, '');
+        const parentChildNumber = decodedDirEntityId
+          .match(/.*dir-0000(-c(\d+))?.*/)[2] || -1;
+        const newChildNumber = String(parseInt(parentChildNumber) + 1)
+          .padStart(4, '0');
+        cache = [
+          generateDirEntityId(
+            0,
+            parseDecodedDirEntityId(rootParentEntityId).internalFileId,
+            `-c${newChildNumber}`
+          ),
+        ];
+      } else {
+        cache = [];
+      }
+      childrenIdsCache[dirEntityId] = cache;
+      return cache;
+    }
+  },
+
+  removeMockChild(dirEntityId, childEntityId) {
+    const childrenIdsCache = this.get('childrenIdsCache');
+    _.remove(childrenIdsCache[dirEntityId], fileId => fileId.match(childEntityId));
   },
 });

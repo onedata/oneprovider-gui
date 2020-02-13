@@ -4,7 +4,9 @@
       <th class="fb-table-col-files">{{tt this "header.files"}}</th>
       <th class="fb-table-col-size">{{tt this "header.size"}}</th>
       <th class="fb-table-col-modification">{{tt this "header.modification"}}</th>
-      <th class="fb-table-col-actions-menu"></th>
+      {{#unless previewMode}}
+        <th class="fb-table-col-actions-menu"></th>
+      {{/unless}}
     </tr>
   </thead>
   <tbody class="fb-table-tbody">
@@ -16,6 +18,7 @@
       {{file-browser/fb-table-row
         class="data-row"
         file=file
+        previewMode=previewMode
         fileCut=(and (eq fileClipboardMode "move") (contains file fileClipboardFiles))
         isSelected=(contains file selectedFiles)
         touchTap=(action "fileTapped" file)
@@ -69,28 +72,30 @@
   <div class="empty-dir-box dir-box">
     <h1 class="empty-dir-text dir-box-text">{{tt this "emptyDirBox.emptyDirectory"}}</h1>
     <div class="empty-dir-image dir-box-image"></div>
-    <h2 class="empty-dir-text dir-box-text">
-      {{tt this "emptyDirBox.dragFilesHere"}}
-      <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>
-        <div class="inline-icon-container bind-right-text">
-          {{one-icon icon="browser-upload"}}
-        </div>&nbsp;{{tt this "emptyDirBox.upload"}}
-      </a>
-      {{tt this "emptyDirBox.or"}}
-      <a class="empty-dir-new-directory-action" {{action "emptyDirNewDirectory"}}>
-        <div class="inline-icon-container bind-right-text">
-          {{one-icon icon="browser-new-directory"}}
-        </div>&nbsp;{{tt this "emptyDirBox.createNewDirectory"}}</a>.
-    </h2>
-    {{#if fileManager.fileClipboardFiles.length}}
+    {{#unless previewMode}}
       <h2 class="empty-dir-text dir-box-text">
-        {{tt this "emptyDirBox.youCanAlso"}}
-        <a class="empty-dir-new-directory-action" {{action "emptyDirPaste"}}>
+        {{tt this "emptyDirBox.dragFilesHere"}}
+        <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>
           <div class="inline-icon-container bind-right-text">
-            {{one-icon icon="clipboard-copy"}}
-          </div>&nbsp;{{tt this "emptyDirBox.paste"}}</a> {{tt this "emptyDirBox.filesFromClipboard"}}.
+            {{one-icon icon="browser-upload"}}
+          </div>&nbsp;{{tt this "emptyDirBox.upload"}}
+        </a>
+        {{tt this "emptyDirBox.or"}}
+        <a class="empty-dir-new-directory-action" {{action "emptyDirNewDirectory"}}>
+          <div class="inline-icon-container bind-right-text">
+            {{one-icon icon="browser-new-directory"}}
+          </div>&nbsp;{{tt this "emptyDirBox.createNewDirectory"}}</a>.
       </h2>
-    {{/if}}
+      {{#if fileManager.fileClipboardFiles.length}}
+        <h2 class="empty-dir-text dir-box-text">
+          {{tt this "emptyDirBox.youCanAlso"}}
+          <a class="empty-dir-new-directory-action" {{action "emptyDirPaste"}}>
+            <div class="inline-icon-container bind-right-text">
+              {{one-icon icon="clipboard-copy"}}
+            </div>&nbsp;{{tt this "emptyDirBox.paste"}}</a> {{tt this "emptyDirBox.filesFromClipboard"}}.
+        </h2>
+      {{/if}}
+    {{/unless}}
   </div>
 {{/if}}
 

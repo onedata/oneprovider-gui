@@ -6,7 +6,7 @@
       >
         {{#if (eq i 0)}}
           <div class="inline-icon-container">
-            {{one-icon icon="home"}}
+            {{one-icon icon=rootIcon}}
           </div>
         {{else}}
           {{item.name}}
@@ -18,37 +18,57 @@
     </div>
     <div class="fb-breadcrumbs-separator fb-breadcrumbs-element"></div>
   {{/each}}
-  <a class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button black truncate {{if dirActionsOpen "active"}} {{if (eq filteredBreadcrumbsItemsProxy.length 0) "fb-breadcrumbs-dir-root"}}"
-    onclick={{disable-bubbling (action "toggleDirActions")}}
-    data-dir-guid={{currentItem.file.entityId}}
-    style={{lastItemStyle}}
-  >
-    <span class="fb-breadcrumbs-dir-name">
-      {{#if (eq filteredBreadcrumbsItemsProxy.length 0)}}
-        <div class="inline-icon-container">
-          {{one-icon icon="home"}}  
+  {{!-- last element - current dir --}}
+  {{#if previewMode}}
+    <div class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}">
+      <a class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name truncate {{if (eq currentItem.file.type "file") "fake-text"}}"
+        data-dir-guid={{currentItem.file.entityId}}
+        {{action "changeDir" currentItem.file}}
+      >
+        {{#if areItemsEmpty}}
+          <div class="inline-icon-container">
+            {{one-icon icon=rootIcon}}
+          </div>
+        {{/if}}
+        {{currentItem.name}}
+        {{#if currentItem.isRoot}}
+          {{one-tooltip title=currentItem.name}}
+        {{/if}}
+      </a>
+    </div>
+  {{else}}
+    <a class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button black truncate {{if dirActionsOpen "active"}} {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}"
+      onclick={{disable-bubbling (action "toggleDirActions")}}
+      data-dir-guid={{currentItem.file.entityId}}
+      style={{lastItemStyle}}
+    >
+      <span class="fb-breadcrumbs-dir-name">
+        {{#if areItemsEmpty}}
+          <div class="inline-icon-container">
+            {{one-icon icon=rootIcon}}  
+          </div>
+        {{/if}}
+        {{currentItem.name}}
+        <div class="inline-icon-container breadcrumbs-current-dir-actions-trigger">
+          {{one-icon icon="arrow-down"}}
         </div>
-      {{/if}}
-      {{currentItem.name}}
-      <div class="inline-icon-container breadcrumbs-current-dir-actions-trigger">
-        {{one-icon icon="arrow-down"}}
-      </div>
-      {{#one-webui-popover
-        popoverStyle="with-dropdown webui-popover-in-fb-head"
-        padding=false
-        popoverTrigger="manual"
-        triggerSelector=(concat "#" elementId " .breadcrumbs-current-dir-actions-trigger")
-        onToggle=(action "dirActionsToggled")
-        open=dirActionsOpen
-      }}
-        {{#click-outside action=(action "toggleDirActions" false)}}
-          {{actions-popover-content
-            actionsArray=menuButtons
-            actionClicked=(action "toggleDirActions" false)
-            class="dir-actions"
-          }}
-        {{/click-outside}}
-      {{/one-webui-popover}}
-    </span>
-  </a>
+        {{#one-webui-popover
+          popoverStyle="with-dropdown webui-popover-in-fb-head"
+          padding=false
+          popoverTrigger="manual"
+          triggerSelector=(concat "#" elementId " .breadcrumbs-current-dir-actions-trigger")
+          onToggle=(action "dirActionsToggled")
+          open=dirActionsOpen
+        }}
+          {{#click-outside action=(action "toggleDirActions" false)}}
+            {{actions-popover-content
+              actionsArray=menuButtons
+              actionClicked=(action "toggleDirActions" false)
+              class="dir-actions"
+            }}
+          {{/click-outside}}
+        {{/one-webui-popover}}
+      </span>
+    </a>
+  {{/if}}
 </div>

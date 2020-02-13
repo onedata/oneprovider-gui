@@ -6,6 +6,7 @@
     openRemove=(action "openRemoveModal")
     openRename=(action "openRenameModal")
     openInfo=(action "openInfoModal")
+    openShare=(action "openShareModal")
     openEditPermissions=(action "openEditPermissionsModal")
     openFileDistributionModal=(action "openFileDistributionModal")
     containerScrollTop=(action "containerScrollTop")
@@ -38,6 +39,15 @@
       file=fileToShowInfo
       spaceEntityId=spaceEntityId
       onHide=(action "closeInfoModal")
+    }}
+  {{/if}}
+
+  {{#if fileToShare}}
+    {{file-browser/fb-share-modal
+      open=true
+      file=fileToShare
+      onHide=(action "closeShareModal")
+      getShareUrl=(action "getShareUrl")
     }}
   {{/if}}
 

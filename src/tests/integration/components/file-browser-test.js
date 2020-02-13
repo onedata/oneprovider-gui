@@ -73,8 +73,13 @@ describe('Integration | Component | file browser', function () {
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
-    fetchDirChildren.withArgs(entityId, null, sinon.match.any, sinon.match.any)
-      .resolves(files);
+    fetchDirChildren.withArgs(
+      entityId,
+      sinon.match.any,
+      null,
+      sinon.match.any,
+      sinon.match.any
+    ).resolves(files);
     fetchDirChildren.resolves([]);
 
     this.render(hbs `{{file-browser dir=dir}}`);
@@ -118,6 +123,7 @@ describe('Integration | Component | file browser', function () {
     for (let i = -1; i < numberOfDirs; ++i) {
       fetchDirChildren.withArgs(
         i === -1 ? 'root' : `file-${i}`,
+        sinon.match.any,
         null,
         sinon.match.any,
         0
@@ -145,6 +151,7 @@ describe('Integration | Component | file browser', function () {
     return wait().then(() => {
       expect(fetchDirChildren).to.have.been.calledWith(
         'root',
+        sinon.match.any,
         sinon.match.any,
         sinon.match.any,
         sinon.match.any
@@ -200,12 +207,14 @@ describe('Integration | Component | file browser', function () {
       const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
       fetchDirChildren.withArgs(
         'root',
+        sinon.match.any,
         null,
         sinon.match.any,
         0
       ).resolves(files1);
       fetchDirChildren.withArgs(
         'f2',
+        sinon.match.any,
         null,
         sinon.match.any,
         0

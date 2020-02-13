@@ -8,6 +8,7 @@ import posixPermissionsEditor from './components/posix-permissions-editor';
 import fileDistributionModal from './components/file-distribution-modal';
 import websocketConnectionModal from './components/websocket-connection-modal';
 import spaceTransfers from './components/space-transfers';
+import spaceShares from './components/space-shares';
 import dbViewModal from './components/db-view-modal';
 
 import uploadManager from './services/upload-manager';
@@ -23,6 +24,7 @@ const translations = {
     fileDistributionModal,
     websocketConnectionModal,
     spaceTransfers,
+    spaceShares,
     dbViewModal,
   },
   services: {

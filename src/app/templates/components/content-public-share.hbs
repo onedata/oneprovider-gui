@@ -1,0 +1,14 @@
+{{#promise-proxy-container
+  proxy=shareProxy
+  spinnerBlockClass="absolute-middle-centered"
+}}
+  {{space-shares/share-show
+    showSharePath=isPrivate
+    showSharePublicUrl=true
+    showPublishButton=isPrivate
+    share=shareProxy.content
+    dirId=dirId
+    updateDirId=(action "updateDirId")
+    getDataUrl=(if isPrivate (action "getDataUrl"))
+  }}
+{{/promise-proxy-container}}

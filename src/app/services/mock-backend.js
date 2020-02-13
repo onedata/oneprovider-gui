@@ -15,11 +15,13 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import _ from 'lodash';
 import {
   generateSpaceEntityId,
+  generateShareEntityId,
   getCoordinates,
 } from 'onedata-gui-websocket-client/utils/development-model-common';
 import { mockGuiContext } from 'onedata-gui-common/initializers/fetch-gui-context';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
+import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 
 const userEntityId = 'stub_user_id';
@@ -63,6 +65,8 @@ export default Service.extend({
    * WARNING: Will be initialized only after generating development model.
    * All entity records of some type.
    * Is an object where key is model name and values are arrays with records.
+   * Contains also special collections:
+   * - chainDir - files records that are chained directories
    */
   entityRecords: computed(() => ({})),
 
@@ -97,7 +101,7 @@ export default Service.extend({
                       const dataSourceId = get(rootDir, 'entityId');
                       const firstProvider =
                         this.get('entityRecords.provider')[0];
-                      // currenlty to make it simpler, all files are rootDir
+                      // currently to make it simpler, all files are rootDir
                       return allFulfilled(
                         transferList.map((transfer) => {
                           setProperties(transfer, {
@@ -121,6 +125,9 @@ export default Service.extend({
       .then(listRecords =>
         this.pushSpaceListIntoProviders(listRecords).then(() => listRecords)
       )
+      .then(listRecords => {
+        return this.createAndAddShare(store).then(() => listRecords);
+      })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
         return user.get('spaceList')
@@ -137,6 +144,40 @@ export default Service.extend({
       list.pushObjects(records);
       return list.save().then(() => listRecord.save());
     });
+  },
+
+  createAndAddShare(store) {
+    const entityRecords = this.get('entityRecords');
+    const rootFile = get(entityRecords, 'chainDir')[2];
+    const space = get(entityRecords, 'space')[0];
+    const handle = store.createRecord('handle', {
+      url: 'https://example.com/1234',
+      metadataString: '<test></test>',
+    });
+    const share = store.createRecord('share', {
+      id: gri({
+        entityType: shareEntityType,
+        entityId: generateShareEntityId(get(space, 'entityId')),
+        aspect: 'instance',
+        scope: 'private',
+      }),
+      fileType: 'dir',
+      name: 'My Share',
+      rootFile,
+      privateRootFile: rootFile,
+      handle,
+    });
+    set(
+      share,
+      'publicUrl',
+      location.origin + '/shares/' + get(share, 'entityId')
+    );
+    return handle.save()
+      .then(() => share.save())
+      .then(share => allFulfilled([
+        addShareList(rootFile, [share], store),
+        addShareList(space, [share], store),
+      ]));
   },
 
   /**
@@ -326,6 +367,7 @@ export default Service.extend({
               owner,
             }).save();
           })).then(chainDirs => {
+            this.set('entityRecords.chainDir', chainDirs);
             const saves = [];
             set(chainDirs[0], 'parent', firstDir);
             saves.push(chainDirs[0].save());
@@ -393,7 +435,13 @@ export function generateFileEntityId(i, parentEntityId) {
 }
 
 export function generateDirEntityId(i, parentEntityId, suffix = '') {
-  return btoa(`${parentEntityId}-dir-${String(i).padStart(4, '0')}${suffix}`);
+  const internalFileId = `${parentEntityId}-dir-${String(i).padStart(4, '0')}${suffix}`;
+  return btoa(`guid#${internalFileId}#${generateSpaceEntityId(0)}`);
+}
+
+export function parseDecodedDirEntityId(entityId) {
+  const [, internalFileId, spaceId] = entityId.match(/guid#(.*)#(.*)/);
+  return { internalFileId, spaceId };
 }
 
 export function generateTransferEntityId(i, state, scheduleTime, startTime) {
@@ -407,4 +455,18 @@ export function generateFileGri(entityId) {
     aspect: 'instance',
     scope: 'private',
   });
+}
+
+function addShareList(parentRecord, shares, store) {
+  const shareList = store.createRecord('shareList');
+  return get(shareList, 'list')
+    .then(list => {
+      list.pushObjects(shares);
+      return list.save();
+    })
+    .then(() => shareList.save())
+    .then(() => {
+      set(parentRecord, 'shareList', shareList);
+      return parentRecord.save();
+    });
 }

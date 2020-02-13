@@ -10,18 +10,33 @@
 import { get } from '@ember/object';
 import { resolve } from 'rsvp';
 
-export function resolveParent(dir, dirsOnPathToRoot) {
+function defaultResolveParentFun(dir) {
   if (get(dir, 'hasParent')) {
-    return get(dir, 'parent').then(parent => {
-      dirsOnPathToRoot.unshift(parent);
-      return resolveParent(parent, dirsOnPathToRoot);
-    });
+    return get(dir, 'parent');
   } else {
-    return resolve(dirsOnPathToRoot);
+    return resolve(null);
   }
 }
 
-export default function resolveFilePath(file) {
+export function resolveParent(
+  dir,
+  dirsOnPathToRoot,
+  resolveFileParentFun = defaultResolveParentFun) {
+  return resolveFileParentFun(dir).then(parent => {
+    if (parent) {
+      dirsOnPathToRoot.unshift(parent);
+      return resolveParent(parent, dirsOnPathToRoot, resolveFileParentFun);
+    } else {
+      return resolve(dirsOnPathToRoot);
+    }
+  });
+}
+
+export function stringifyFilePath(path) {
+  return '/' + path.mapBy('name').join('/');
+}
+
+export default function resolveFilePath(file, resolveFileParentFun) {
   const dirsOnPathToRoot = [file];
-  return resolveParent(file, dirsOnPathToRoot);
+  return resolveParent(file, dirsOnPathToRoot, resolveFileParentFun);
 }

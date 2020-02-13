@@ -11,7 +11,8 @@ import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import { alias } from '@ember/object/computed';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
-import { computed, get } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
@@ -19,9 +20,27 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 
 export const entityType = 'file';
 
-export function getSpaceEntityIdFromFileEntityId(fileEntityId) {
-  const m = atob(fileEntityId).match(/guid#(.*)#(.*)/);
+// file entity id holds few values: <guid_type>#<internal_file_id>#<space_id>#<share_id>
+
+const guidRegexp = /guid#(.*)#(.*)/;
+const shareGuidRegexp = /shareGuid#(.*)#(.*)#(.*)/;
+
+export function getInternalFileIdFromFileId(fileEntityId) {
+  const decoded = atob(fileEntityId);
+  const m = decoded.match(guidRegexp) || decoded.match(shareGuidRegexp);
+  return m && m[1];
+}
+
+export function getSpaceIdFromFileId(fileEntityId) {
+  const decoded = atob(fileEntityId);
+  const m = decoded.match(guidRegexp) || decoded.match(shareGuidRegexp);
   return m && m[2];
+}
+
+export function getShareIdFromFileId(fileEntityId) {
+  const decoded = atob(fileEntityId);
+  const m = decoded.match(shareGuidRegexp);
+  return m && m[3];
 }
 
 export default Model.extend(GraphSingleModelMixin, {
@@ -71,6 +90,12 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   pollSizeTimerId: null,
 
+  isShared: computed('shareList', function isShared() {
+    return Boolean(this.belongsTo('shareList').id());
+  }),
+
+  shareList: belongsTo('share-list'),
+
   cdmiObjectId: computed('entityId', function cdmiObjectId() {
     try {
       return guidToCdmiObjectId(this.get('entityId'));
@@ -86,7 +111,11 @@ export default Model.extend(GraphSingleModelMixin, {
   }),
 
   spaceEntityId: computed('entityId', function spaceEntityId() {
-    return getSpaceEntityIdFromFileEntityId(this.get('entityId'));
+    return getSpaceIdFromFileId(this.get('entityId'));
+  }),
+
+  internalFileId: computed('entityId', function internalFileId() {
+    return getInternalFileIdFromFileId(this.get('entityId'));
   }),
 
   /**
@@ -128,12 +157,33 @@ export default Model.extend(GraphSingleModelMixin, {
 
     switch (operation) {
       case 'create': {
-        const rpcRequests = get(activeRequests, 'rpcRequests');
-        // Block on listing parent dir files
-        const listParentDirRequests = rpcRequests.filter(request => {
-          return get(request, 'rpcMethodName') === 'getDirChildren' &&
-            get(request, 'data.guid') === get(model.belongsTo('parent').value(),
-              'entityId');
+        const graphRequests = get(activeRequests, 'graphRequests');
+        // Block on listing parent dir files 
+        const listParentDirRequests = graphRequests.filter(request => {
+          const {
+            operation: requestOperation,
+            gri: requestGri,
+          } = getProperties(
+            get(request, 'data'),
+            'operation',
+            'gri'
+          );
+          const {
+            entityType: requestEntityType,
+            entityId: requestEntityId,
+            aspect: requestAspect,
+          } = getProperties(
+            parseGri(requestGri),
+            'entityType',
+            'entityId',
+            'aspect'
+          );
+
+          return requestOperation === 'get' &&
+            requestEntityType === entityType &&
+            requestEntityId ===
+            get(model.belongsTo('parent').value(), 'entityId') &&
+            requestAspect === 'children';
         });
         return superRequests.concat(listParentDirRequests);
       }

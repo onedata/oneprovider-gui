@@ -69,6 +69,9 @@ export default function filterBreadcrumbsItems(items, count) {
     // []
     return resolve(resultArray);
   }
+  if (itemsCount === 3) {
+    return resolve(resultArray);
+  }
   // 4 or more
   if (count > 3 && itemsCount >= 4) {
     // add first child of root

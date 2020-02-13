@@ -19,6 +19,7 @@ export default Model.extend(GraphSingleModelMixin, {
   username: attr('string'),
 
   spaceList: belongsTo('spaceList'),
+  handleServiceList: belongsTo('handleServiceList'),
 
   name: alias('fullName'),
 }).reopenClass(StaticGraphModelMixin);

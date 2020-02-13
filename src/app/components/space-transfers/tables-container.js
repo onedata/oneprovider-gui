@@ -8,8 +8,6 @@
  */
 
 import Component from '@ember/component';
-import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
-import gri from 'onedata-gui-websocket-client/utils/gri';
 import { resolve } from 'rsvp';
 import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -29,6 +27,7 @@ export default Component.extend(I18n, {
   store: service(),
   onedataConnection: service(),
   transferManager: service(),
+  fileManager: service(),
 
   i18nPrefix: 'components.spaceTransfers',
 
@@ -159,17 +158,11 @@ export default Component.extend(I18n, {
     'fileId',
     function fileProxy() {
       const {
-        store,
+        fileManager,
         fileId,
-      } = this.getProperties('store', 'fileId');
+      } = this.getProperties('fileManager', 'fileId');
       if (fileId) {
-        const fileGri = gri({
-          entityType: fileEntityType,
-          entityId: fileId,
-          aspect: 'instance',
-          scope: 'private',
-        });
-        return store.findRecord('file', fileGri)
+        return fileManager.getFileById(fileId)
           .then(record => {
             if (get(record, 'type') === 'broken') {
               throw { message: 'not_found' };
