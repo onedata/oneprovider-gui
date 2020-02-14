@@ -10,5 +10,7 @@
     dirId=dirId
     updateDirId=(action "updateDirId")
     getDataUrl=(if isPrivate (action "getDataUrl"))
+    showShareList=(if isPrivate (action "showShareList"))
+    reloadShareList=(if isPrivate (action "reloadShareList"))
   }}
 {{/promise-proxy-container}}
