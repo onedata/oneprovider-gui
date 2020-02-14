@@ -9,8 +9,8 @@
     share=shareProxy.content
     dirId=dirId
     updateDirId=(action "updateDirId")
-    getDataUrl=(if isPrivate (action "getDataUrl"))
-    showShareList=(if isPrivate (action "showShareList"))
-    reloadShareList=(if isPrivate (action "reloadShareList"))
+    getDataUrl=(action (if isPrivate "getDataUrl" notImplementedIgnore))
+    showShareList=(action (if isPrivate "showShareList" notImplementedIgnore))
+    reloadShareList=(action (if isPrivate "reloadShareList" notImplementedIgnore))
   }}
 {{/promise-proxy-container}}

@@ -1,0 +1,15 @@
+.content-public-share {
+  // some header adjustmets - it's because header heights are poorly written and should be
+  // refactored in future, sorry for that
+  .share-show.with-header-double {
+    .share-header-panel {
+      height: $content-header-height-double + $padding-base-vertical;
+    }
+    .file-browser-head-container {
+      top: $content-header-height-double + $padding-base-vertical;
+    }
+    .fb-table-container {
+      margin-top: $content-header-height-double + $padding-base-vertical + $fb-table-margin-top;
+    }
+  }
+}

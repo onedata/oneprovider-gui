@@ -30,6 +30,8 @@ export default OneEmbeddedComponent.extend(
 
     contentComponentClass: tag `content-${'scope'}-share`,
 
+    notImplementedIgnore,
+
     /**
      * One of: public, private
      * @type {String}

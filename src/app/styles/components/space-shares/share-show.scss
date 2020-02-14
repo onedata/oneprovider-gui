@@ -1,7 +1,4 @@
 .share-show {
-  $header-height-single: 82px;
-  $header-height-double: 132px;
-  $header-height-triple: 202px;
   @media (max-width: $screen-xs-max) {
     margin-left: -$content-col-padding;
     margin-right: -$content-col-padding;
@@ -9,35 +6,35 @@
   &.with-header-single {
     .share-header-panel {
       position: fixed;
-      height: $header-height-single;
+      height: $content-header-height-single;
     }
     .file-browser-head-container {
-      top: $header-height-single;
+      top: $content-header-height-single;
     }
     .fb-table-container {
-      margin-top: $header-height-single + $fb-table-margin-top;
+      margin-top: $content-header-height-single + $fb-table-margin-top;
     }
   }
   &.with-header-double {
     .share-header-panel {
-      height: $header-height-double;
+      height: $content-header-height-double;
     }
     .file-browser-head-container {
-      top: $header-height-double;
+      top: $content-header-height-double;
     }
     .fb-table-container {
-      margin-top: $header-height-double + $fb-table-margin-top;
+      margin-top: $content-header-height-double + $fb-table-margin-top;
     }
   }
   &.with-header-triple {
     .share-header-panel {
-      height: $header-height-triple;
+      height: $content-header-height-triple;
     }
     .file-browser-head-container {
-      top: $header-height-triple;
+      top: $content-header-height-triple;
     }
     .fb-table-container {
-      margin-top: $header-height-triple + $fb-table-margin-top;
+      margin-top: $content-header-height-triple + $fb-table-margin-top;
     }
   }
   .share-header-panel {

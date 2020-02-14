@@ -46,7 +46,7 @@ export default Component.extend(I18n, createDataProxyMixin('handleServices'), {
 
   handleService: undefined,
 
-  editValue: '',
+  shareMetadata: '',
 
   /**
    * @override
@@ -65,18 +65,18 @@ export default Component.extend(I18n, createDataProxyMixin('handleServices'), {
       const {
         share,
         handleManager,
-        editValue,
+        shareMetadata,
         handleService,
         globalNotify,
       } = this.getProperties(
         'share',
         'handleManager',
-        'editValue',
+        'shareMetadata',
         'handleService',
         'globalNotify'
       );
       const handleServiceId = get(handleService, 'entityId');
-      return handleManager.createHandle(share, handleServiceId, editValue)
+      return handleManager.createHandle(share, handleServiceId, shareMetadata)
         .catch(error => {
           globalNotify.backendError(this.t('publishing'), error);
           throw error;
@@ -84,9 +84,6 @@ export default Component.extend(I18n, createDataProxyMixin('handleServices'), {
         .then(() => {
           this.get('close')();
         });
-    },
-    onShow() {
-      this.set('editValue', '');
     },
     close() {
       this.get('close')();
