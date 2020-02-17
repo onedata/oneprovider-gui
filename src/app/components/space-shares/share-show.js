@@ -170,7 +170,11 @@ export default Component.extend(I18n, {
     };
   }),
 
-  withHeaderClass: computed('showSharePath', 'showSharePublicUrl',
+  withHeaderClass: computed(
+    'showSharePath',
+    'showSharePublicUrl',
+    'showHandleUrl',
+    'share.handle',
     function withHeaderClass() {
       const {
         showSharePath,
