@@ -219,8 +219,8 @@ export default Component.extend(I18n, {
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
     const array = ReplacingChunksArray.create({
-      fetch: (...fetchArgs) => this.get('fetchDirChildren')(dirId, ...
-        fetchArgs),
+      fetch: (...fetchArgs) =>
+        this.get('fetchDirChildren')(dirId, ...fetchArgs),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
@@ -567,9 +567,13 @@ export default Component.extend(I18n, {
       fileManager,
       globalNotify,
       isMobile,
-    } = this.getProperties('fileManager', 'globalNotify', 'isMobile');
+      previewMode,
+    } = this.getProperties('fileManager', 'globalNotify', 'isMobile', 'previewMode');
     const isMobileBrowser = get(isMobile, 'any');
-    return fileManager.getFileDownloadUrl(fileEntityId)
+    return fileManager.getFileDownloadUrl(
+        fileEntityId,
+        previewMode ? 'public' : 'private'
+      )
       .then((data) => {
         const fileUrl = data && get(data, 'fileUrl');
         if (fileUrl) {

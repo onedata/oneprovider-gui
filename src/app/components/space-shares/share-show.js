@@ -129,7 +129,7 @@ export default Component.extend(I18n, {
       rootDir,
     } = this.getProperties('fileManager', 'dirId', 'rootDir');
     if (dirId) {
-      return fileManager.getFileById(dirId)
+      return fileManager.getFileById(dirId, 'public')
         .then(file => this.isChildOfShare(file)
           .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
         );
@@ -300,10 +300,10 @@ function checkOnPath(file, condition = () => false) {
     if (condition(file)) {
       return resolve(true);
     } else {
-      // workaround for bug in backend that sends parent: 'file.null.instance:private'
+      // FIXME: workaround for bug in backend that sends parent: 'file.null.instance:private'
       const parentId = file.belongsTo('parent').id();
-      const parentIdValid = parentId && parseGri(parentId).entityId !== 'null';
-      if (parentIdValid) {
+      // const parentIdValid = parentId && parseGri(parentId).entityId !== 'null';
+      if (parentId) {
         return get(file, 'parent').then(parent => checkOnPath(parent, condition));
       } else {
         return resolve(false);
