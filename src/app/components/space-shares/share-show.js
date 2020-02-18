@@ -16,7 +16,6 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import { promise, bool, raw, tag, collect } from 'ember-awesome-macros';
 import { Promise, resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 const shareRootId = 'shareRoot';
 
@@ -300,9 +299,7 @@ function checkOnPath(file, condition = () => false) {
     if (condition(file)) {
       return resolve(true);
     } else {
-      // FIXME: workaround for bug in backend that sends parent: 'file.null.instance:private'
       const parentId = file.belongsTo('parent').id();
-      // const parentIdValid = parentId && parseGri(parentId).entityId !== 'null';
       if (parentId) {
         return get(file, 'parent').then(parent => checkOnPath(parent, condition));
       } else {

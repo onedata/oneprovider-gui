@@ -1,15 +1,25 @@
+/**
+ * Backend operations on file metadata
+ * 
+ * @module services/metadata-manager
+ * @author Jakub Liput
+ * @copyright (C) 2020 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service, { inject as service } from '@ember/service';
 import { get } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 
-export const BackendMetadataType = Object.freeze({
+const BackendMetadataType = Object.freeze({
   xattrs: 'xattrs',
   json: 'json_metadata',
   rdf: 'rdf_metadata',
 });
 
-export function metadataGri(fileId, aspect) {
+function metadataGri(fileId, metadataType) {
+  const aspect = BackendMetadataType[metadataType];
   return gri({
     entityType: fileEntityType,
     entityId: fileId,
@@ -26,12 +36,9 @@ export default Service.extend({
    * @returns {Promise<Object>} with `metadata` key
    */
   getMetadata(file, metadataType) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
-    return onedataGraph.request({
+    return this.get('onedataGraph').request({
       operation: 'get',
-      gri: metadataGri(get(file, 'entityId'), BackendMetadataType[metadataType]),
+      gri: metadataGri(get(file, 'entityId'), metadataType),
       subscribe: false,
     });
   },
@@ -43,12 +50,9 @@ export default Service.extend({
    * @returns {Promise<Object>} with `metadata` key
    */
   setMetadata(file, metadataType, metadata) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
-    return onedataGraph.request({
+    return this.get('onedataGraph').request({
       operation: 'create',
-      gri: metadataGri(get(file, 'entityId'), BackendMetadataType[metadataType]),
+      gri: metadataGri(get(file, 'entityId'), metadataType),
       data: {
         metadata,
       },
@@ -62,10 +66,7 @@ export default Service.extend({
    * @returns {Promise}
    */
   removeXattrs(file, keys) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
-    return onedataGraph.request({
+    return this.get('onedataGraph').request({
       operation: 'delete',
       gri: metadataGri(get(file, 'entityId'), 'xattrs'),
       data: { keys },
@@ -79,12 +80,9 @@ export default Service.extend({
    * @returns {Promise}
    */
   removeMetadata(file, metadataType) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
-    return onedataGraph.request({
+    return this.get('onedataGraph').request({
       operation: 'delete',
-      gri: metadataGri(get(file, 'entityId'), BackendMetadataType[metadataType]),
+      gri: metadataGri(get(file, 'entityId'), metadataType),
       subscribe: false,
     });
   },

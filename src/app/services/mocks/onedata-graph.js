@@ -261,24 +261,27 @@ const fileHandlers = {
     }
   },
   xattrs(operation, entityId, data) {
-    if (operation === 'get') {
-      return {
-        metadata: _.cloneDeep(metaXattrs),
-      };
-    } else if (operation === 'create') {
-      const xattrs = data.metadata;
-      for (const key in xattrs) {
-        metaXattrs[key] = xattrs[key];
+    switch (operation) {
+      case 'get':
+        return {
+          metadata: _.cloneDeep(metaXattrs),
+        };
+      case 'create': {
+        const xattrs = data.metadata;
+        for (const key in xattrs) {
+          metaXattrs[key] = xattrs[key];
+        }
+        return {};
       }
-      return {};
-    } else if (operation === 'delete') {
-      const keys = data.keys;
-      keys.forEach(key => {
-        delete metaXattrs[key];
-      });
-      return {};
-    } else {
-      return messageNotSupported;
+      case 'delete': {
+        const keys = data.keys;
+        keys.forEach(key => {
+          delete metaXattrs[key];
+        });
+        return {};
+      }
+      default:
+        return messageNotSupported;
     }
   },
   json_metadata(operation, entityId, data) {
@@ -455,7 +458,7 @@ export default OnedataGraphMock.extend({
 
   cancelledTransfers: computed(() => []),
 
-  emptyJsonMetadata: true,
+  emptyJsonMetadata: false,
 
   metaJson,
 

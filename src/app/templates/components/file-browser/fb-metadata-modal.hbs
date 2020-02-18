@@ -54,7 +54,6 @@
                   (concat "file-browser/fb-metadata-" type)
                   metadata=(get this (concat type "Current"))
                   metadataChanged=(action "metadataChanged" type)
-                  isModified=(get this (concat type "IsModified"))
                 }}
               {{/promise-proxy-container}}
             {{/render-later}}

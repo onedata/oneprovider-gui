@@ -1,6 +1,6 @@
 <textarea
-  value={{metadata}}
-  oninput={{action (mut metadata) value="target.value"}}
+  value={{metadataForEditor}}
+  oninput={{action "rdfChanged" value="target.value"}}
   disabled={{disabled}}
   rows="10"
-  class="form-control no-resize rdf-textarea"></textarea>
+  class="form-control no-resize code-textarea rdf-textarea"></textarea>

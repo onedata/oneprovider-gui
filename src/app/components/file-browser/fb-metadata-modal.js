@@ -21,6 +21,8 @@ import { camelize } from '@ember/string';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { all as allFulfilled } from 'rsvp';
 
+export const emptyValue = { ___empty___: true };
+
 const metadataTypes = ['xattrs', 'json', 'rdf'];
 
 /**
@@ -71,7 +73,7 @@ export default Component.extend(
 
     tabStateClassTypes: Object.freeze(tabStateClassTypes),
 
-    activeTab: metadataTypes[0],
+    activeTab: reads('metadataTypes.firstObject'),
 
     /**
      * @type {ComputedProperty<string>} one of: file, dir
@@ -134,9 +136,9 @@ export default Component.extend(
         this[isModifiedName] = computed(currentName, originalName, function () {
           const currentValue = this.get(currentName);
           const originalValue = this.get(originalName);
-          return currentValue != null && !_.isEqual(currentValue, originalValue);
+          return originalValue !== emptyValue && currentValue === emptyValue ||
+            !_.isEqual(currentValue, originalValue);
         });
-        // eg. `fetchXattrsOriginal`
         this[metadataFetcherName(type)] = function () {
           const {
             metadataManager,
@@ -146,7 +148,7 @@ export default Component.extend(
             .getMetadata(file, type)
             .then(({ metadata }) => {
               if (type === 'xattrs' && _.isEmpty(metadata)) {
-                return null;
+                return emptyValue;
               } else {
                 return metadata;
               }
@@ -155,12 +157,11 @@ export default Component.extend(
               const isNoDataError = error && error.id === 'posix' &&
                 error.details && error.details.errno === 'enodata';
               if (isNoDataError) {
-                return null;
+                return emptyValue;
               } else {
                 throw error;
               }
             });
-
         };
         const tabStateDeps = [
           currentName,
@@ -173,7 +174,7 @@ export default Component.extend(
             const currentValue = this.get(currentName);
             const isModified = this.get(isModifiedName);
             const isValid = this.get(isValidName);
-            if (currentValue == null && !isModified) {
+            if (currentValue === emptyValue && !isModified) {
               return 'blank';
             } else {
               if (isValid === false) {
@@ -201,19 +202,13 @@ export default Component.extend(
       if (type === 'xattrs') {
         savePromise = this.saveXattrs(originalValue, currentValue);
       } else {
-        if (currentValue) {
-          savePromise = metadataManager.setMetadata(file, type, currentValue);
-        } else {
+        if (currentValue === emptyValue) {
           savePromise = metadataManager.removeMetadata(file, type);
+        } else {
+          savePromise = metadataManager.setMetadata(file, type, currentValue);
         }
       }
       return savePromise
-        .then(() => this[metadataUpdaterName(type)]())
-        .then(() => {
-          safeExec(this, function setAliasedValueProperty() {
-            this.set(currentName, this.get(originalName));
-          });
-        })
         .catch(error => {
           this.get('globalNotify').backendError(
             this.t('updatingMetadata', {
@@ -221,6 +216,7 @@ export default Component.extend(
             }),
             error
           );
+          throw error;
         });
     },
 
@@ -236,7 +232,8 @@ export default Component.extend(
       const modifiedData = {};
       const errors = [];
       for (const key in newXattrs) {
-        if (originalXattrs == null || !_.isEqual(newXattrs[key], originalXattrs[key])) {
+        if (originalXattrs === emptyValue ||
+          !_.isEqual(newXattrs[key], originalXattrs[key])) {
           modifiedData[key] = newXattrs[key];
         }
       }
@@ -247,6 +244,9 @@ export default Component.extend(
         .catch(error => errors.push(error))
         .finally(() => {
           if (errors.length) {
+            for (let i = 0; i < errors.length; ++i) {
+              console.error(`fb-metadata-modal#saveXattrs: ${errors[i]}`);
+            }
             throw errors[0];
           }
         });
@@ -263,12 +263,25 @@ export default Component.extend(
         this.set('activeTab', tabId);
       },
       saveAll() {
+        const modifiedTypes = metadataTypes
+          .filter(type => this.get(metadataIsModifiedName(type)));
         return allFulfilled(
-            metadataTypes
-            .filter(type => this.get(metadataIsModifiedName(type)))
+            modifiedTypes
             .map(type => this.save(type))
           )
-          .then(() => this.get('file').reload())
+          .then(() => {
+            this.get('file').reload().then(() => {
+              modifiedTypes.forEach(type => {
+                const currentName = metadataCurrentName(type);
+                const originalName = metadataOriginalName(type);
+                this[metadataUpdaterName(type)]({ replace: true }).then(() => {
+                  safeExec(this, function setAliasedValueProperty() {
+                    this.set(currentName, this.get(originalName));
+                  });
+                });
+              });
+            });
+          })
           .then(() => {
             this.get('onHide')();
           });

@@ -1,6 +1,6 @@
 .fb-metadata-xattrs {
   .xattrs-params-editor {
-    // this const number is em unit converted to pixels, because we cannot add em to px
-    width: calc(100% - #{$padding-small-horizontal + 17px});
+    // 1.2em - qos params editor remove icon width
+    width: calc(100% - #{$padding-small-horizontal} - 1.2em);
   }
 }
