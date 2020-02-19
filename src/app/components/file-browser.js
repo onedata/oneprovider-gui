@@ -130,6 +130,20 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   * @param {Models/File} file file to show its info
+   */
+  openInfo: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models/File} file file to edit its metadata
+   */
+  openMetadata: notImplementedThrow,
+
+  /**
+   * @virtual
    */
   updateDirEntityId: notImplementedIgnore,
 
@@ -318,12 +332,18 @@ export default Component.extend(I18n, {
   btnMetadata: computed(function btnMetadata() {
     return this.createFileAction({
       id: 'metadata',
+      action: () => {
+        const {
+          openMetadata,
+          selectedFiles,
+        } = this.getProperties('openMetadata', 'selectedFiles');
+        return openMetadata(selectedFiles[0]);
+      },
       showIn: [
-        // TODO: disabled until implemented
-        // actionContext.singleDir,
-        // actionContext.singleFile,
-        // actionContext.currentDir,
-        // actionContext.spaceRootDir,
+        actionContext.singleDir,
+        actionContext.singleFile,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
       ],
     });
   }),

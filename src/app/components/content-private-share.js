@@ -26,5 +26,11 @@ export default ContentPublicShare.extend({
       const spaceId = this.get('spaceId');
       return this.callParent('getDataUrl', { spaceId, dirId, providerId });
     },
+    showShareList() {
+      return this.callParent('showSharesIndex');
+    },
+    reloadShareList() {
+      return this.callParent('reloadShareList');
+    },
   },
 });

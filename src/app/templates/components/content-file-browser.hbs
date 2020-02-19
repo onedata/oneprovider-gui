@@ -7,6 +7,7 @@
     openRename=(action "openRenameModal")
     openInfo=(action "openInfoModal")
     openShare=(action "openShareModal")
+    openMetadata=(action "openMetadataModal")
     openEditPermissions=(action "openEditPermissionsModal")
     openFileDistributionModal=(action "openFileDistributionModal")
     containerScrollTop=(action "containerScrollTop")
@@ -74,6 +75,14 @@
       space=spaceProxy.content
       onClose=(action "closeFileDistributionModal")
       getTransfersUrl=(action "getTransfersUrl")
+    }}
+  {{/if}}
+  
+  {{#if fileToShowMetadata}}
+    {{file-browser/fb-metadata-modal
+      open=true
+      file=fileToShowMetadata
+      onHide=(action "closeMetadataModal")
     }}
   {{/if}}
 {{/promise-proxy-container}}

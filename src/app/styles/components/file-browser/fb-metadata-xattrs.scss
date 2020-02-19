@@ -1,0 +1,6 @@
+.fb-metadata-xattrs {
+  .xattrs-params-editor {
+    // 1.2em - qos params editor remove icon width
+    width: calc(100% - #{$padding-small-horizontal} - 1.2em);
+  }
+}

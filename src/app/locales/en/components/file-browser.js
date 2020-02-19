@@ -8,6 +8,8 @@ import fbRenameModal from './file-browser/fb-rename-modal';
 import fbInfoModal from './file-browser/fb-info-modal';
 import fbDownloadModal from './file-browser/fb-download-modal';
 import fbShareModal from './file-browser/fb-share-modal';
+import fbMetadataModal from './file-browser/fb-metadata-modal';
+import fbMetadataXattrs from './file-browser/fb-metadata-xattrs';
 
 export default {
   menuCurrentDir: 'Current directory',
@@ -43,4 +45,6 @@ export default {
   fbInfoModal,
   fbDownloadModal,
   fbShareModal,
+  fbMetadataModal,
+  fbMetadataXattrs,
 };

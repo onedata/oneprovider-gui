@@ -7,8 +7,7 @@
   modalClass="publish-share-modal"
   size="lg"
   close=(action "close")
-  onShown=(action (mut editValue) share.name)
-  onHidden=(action (mut editValue) "")
+  onHidden=(action (mut shareMetadata) "")
   as |proceedModal|
 }}
   {{#promise-proxy-container proxy=handleServicesProxy}}
@@ -35,8 +34,8 @@
       <p class="text-separated">{{tt this "dublinCoreLabel"}}</p>
       <div class="row">
         <textarea
-          value={{editValue}}
-          oninput={{action (mut editValue) value="target.value"}}
+          value={{shareMetadata}}
+          oninput={{action (mut shareMetadata) value="target.value"}}
           disabled={{proceedModal.processing}}
           spellcheck="false"
           rows="10"

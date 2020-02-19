@@ -36,14 +36,15 @@ export default Service.extend({
 
   /**
    * @param {String} fileId 
+   * @param {String} scope one of: private, public
    * @returns {Promise<Models.File>}
    */
-  getFileById(fileId) {
+  getFileById(fileId, scope = 'private') {
     const requestGri = gri({
       entityType: fileEntityType,
       entityId: fileId,
       aspect: 'instance',
-      scope: 'private',
+      scope,
     });
     return this.get('store').findRecord('file', requestGri);
   },
@@ -137,8 +138,6 @@ export default Service.extend({
           operation: 'get',
           gri: requestGri,
           data: {
-            // FIXME: to remove
-            guid: dirId,
             index: startFromIndex,
             limit: size,
             offset,
@@ -150,7 +149,7 @@ export default Service.extend({
             entityType: fileEntityType,
             entityId,
             aspect: 'instance',
-            scope: 'private',
+            scope,
           }));
           const promises = allSettled(fileIds.map(id => {
             const cachedRecord = store.peekRecord('file', id);
@@ -205,14 +204,14 @@ export default Service.extend({
       .finally(() => this.dirChildrenRefresh(parentDirEntityId));
   },
 
-  getFileDownloadUrl(fileEntityId) {
+  getFileDownloadUrl(fileEntityId, scope = 'private') {
     return this.get('onedataGraph').request({
       operation: 'get',
       gri: gri({
         entityType: fileEntityType,
         entityId: fileEntityId,
         aspect: 'download_url',
-        scope: 'private',
+        scope,
       }),
       subscribe: false,
     });

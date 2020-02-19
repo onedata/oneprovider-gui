@@ -9,12 +9,16 @@ $file-browser-padding-right: 16px;
 $fb-table-margin-top: 50px;
 $fb-table-margin-top-mobile: 36px;
 $zindex-file-browser-head: $zindex-modal-background - 10;
+$content-header-height-single: 82px;
+$content-header-height-double: 132px;
+$content-header-height-triple: 202px;
 
 @import 'layout';
 @import 'dummy';
 @import 'components/acl-editor';
 @import 'components/content-file-browser';
 @import 'components/content-space-shares';
+@import 'components/content-public-share';
 @import 'components/edit-permissions-modal';
 @import 'components/file-browser';
 @import 'components/bs-modal';

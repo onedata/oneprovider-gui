@@ -19,6 +19,12 @@ import {
 } from 'oneprovider-gui/services/mock-backend';
 import { inject as service } from '@ember/service';
 
+const messagePosixError = (errno) => ({
+  id: 'posix',
+  details: { errno },
+  description: `Operation failed with POSIX error: ${errno}.`,
+});
+
 const transferStatusToProgressState = {
   waiting: 'scheduled',
   ongoing: 'replicating',
@@ -254,6 +260,195 @@ const fileHandlers = {
       };
     }
   },
+  xattrs(operation, entityId, data) {
+    switch (operation) {
+      case 'get':
+        return {
+          metadata: _.cloneDeep(metaXattrs),
+        };
+      case 'create': {
+        const xattrs = data.metadata;
+        for (const key in xattrs) {
+          metaXattrs[key] = xattrs[key];
+        }
+        return {};
+      }
+      case 'delete': {
+        const keys = data.keys;
+        keys.forEach(key => {
+          delete metaXattrs[key];
+        });
+        return {};
+      }
+      default:
+        return messageNotSupported;
+    }
+  },
+  json_metadata(operation, entityId, data) {
+    if (operation === 'get') {
+      if (this.get('emptyJsonMetadata')) {
+        return messagePosixError('enodata');
+      } else {
+        return {
+          metadata: this.get('metaJson'),
+        };
+      }
+    } else if (operation === 'create') {
+      this.set('metaJson', data && data.metadata);
+      this.set('emptyJsonMetadata', false);
+      return {};
+    } else if (operation === 'delete') {
+      this.set('emptyJsonMetadata', true);
+      this.set('metaJson', null);
+      return {};
+    } else {
+      return messageNotSupported;
+    }
+  },
+  rdf_metadata(operation, entityId, data) {
+    if (operation === 'get') {
+      return {
+        metadata: this.get('metaRdf'),
+      };
+    } else if (operation === 'create') {
+      this.set('metaRdf', data && data.metadata);
+      return {};
+    } else if (operation === 'delete') {
+      this.set('metaRdf', null);
+      return {};
+    } else {
+      return messageNotSupported;
+    }
+  },
+};
+
+const metaJson = {
+  query: {
+    count: 10,
+    created: '2011-06-21T08:10:46Z',
+    lang: 'en-US',
+    results: {
+      photo: [{
+          farm: '6',
+          id: '5855620975',
+          isfamily: '0',
+          isfriend: '0',
+          ispublic: '1',
+          owner: '32021554@N04',
+          secret: 'f1f5e8515d',
+          server: '5110',
+          title: '7087 bandit cat',
+        },
+        {
+          farm: '4',
+          id: '5856170534',
+          isfamily: '0',
+          isfriend: '0',
+          ispublic: '1',
+          owner: '32021554@N04',
+          secret: 'ff1efb2a6f',
+          server: '3217',
+          title: '6975 rusty cat',
+        },
+        {
+          farm: '6',
+          id: '5856172972',
+          isfamily: '0',
+          isfriend: '0',
+          ispublic: '1',
+          owner: '51249875@N03',
+          secret: '6c6887347c',
+          server: '5192',
+          title: 'watermarked-cats',
+        },
+        {
+          farm: '6',
+          id: '5856168328',
+          isfamily: '0',
+          isfriend: '0',
+          ispublic: '1',
+          owner: '32021554@N04',
+          secret: '0c1cfdf64c',
+          server: '5078',
+          title: '7020 mandy cat',
+        },
+        {
+          farm: '3',
+          id: '5856171774',
+          isfamily: '0',
+          isfriend: '0',
+          ispublic: '1',
+          owner: '32021554@N04',
+          secret: '7f5a3180ab',
+          server: '2696',
+          title: '7448 bobby cat',
+        },
+      ],
+    },
+  },
+};
+
+const metaRdf = `<?xml version="1.0" encoding="UTF-8"?>
+<query xmlns:yahoo="http://www.yahooapis.com/v1/base.rng"
+    yahoo:count="7" yahoo:created="2011-10-11T08:40:23Z" yahoo:lang="en-US">
+    <diagnostics>
+        <publiclyCallable>true</publiclyCallable>
+        <url execution-start-time="0" execution-stop-time="25" execution-time="25"><![CDATA[http://where.yahooapis.com/v1/continents;start=0;count=10]]></url>
+        <user-time>26</user-time>
+        <service-time>25</service-time>
+        <build-version>21978</build-version>
+    </diagnostics> 
+    <results>
+        <place xmlns="http://where.yahooapis.com/v1/schema.rng"
+            xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/24865670">
+            <woeid>24865670</woeid>
+            <placeTypeName code="29">Continent</placeTypeName>
+            <name>Africa</name>
+        </place>
+        <place xmlns="http://where.yahooapis.com/v1/schema.rng"
+            xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/24865675">
+            <woeid>24865675</woeid>
+            <placeTypeName code="29">Continent</placeTypeName>
+            <name>Europe</name>
+        </place>
+        <place xmlns="http://where.yahooapis.com/v1/schema.rng"
+            xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/24865673">
+            <woeid>24865673</woeid>
+            <placeTypeName code="29">Continent</placeTypeName>
+            <name>South America</name>
+        </place>
+        <place xmlns="http://where.yahooapis.com/v1/schema.rng"
+            xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/28289421">
+            <woeid>28289421</woeid>
+            <placeTypeName code="29">Continent</placeTypeName>
+            <name>Antarctic</name>
+        </place>
+        <place xmlns="http://where.yahooapis.com/v1/schema.rng"
+            xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/24865671">
+            <woeid>24865671</woeid>
+            <placeTypeName code="29">Continent</placeTypeName>
+            <name>Asia</name>
+        </place>
+        <place xmlns="http://where.yahooapis.com/v1/schema.rng"
+            xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/24865672">
+            <woeid>24865672</woeid>
+            <placeTypeName code="29">Continent</placeTypeName>
+            <name>North America</name>
+        </place>
+        <place xmlns="http://where.yahooapis.com/v1/schema.rng"
+            xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/55949070">
+            <woeid>55949070</woeid>
+            <placeTypeName code="29">Continent</placeTypeName>
+            <name>Australia</name>
+        </place>
+    </results>
+</query>
+`;
+
+const metaXattrs = {
+  one: 'hello',
+  two: 'world',
+  three: 'foo',
 };
 
 export default OnedataGraphMock.extend({
@@ -262,6 +457,12 @@ export default OnedataGraphMock.extend({
   childrenIdsCache: computed(() => ({})),
 
   cancelledTransfers: computed(() => []),
+
+  emptyJsonMetadata: false,
+
+  metaJson,
+
+  metaRdf,
 
   init() {
     this._super(...arguments);

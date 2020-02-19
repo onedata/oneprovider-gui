@@ -16,7 +16,6 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import { promise, bool, raw, tag, collect } from 'ember-awesome-macros';
 import { Promise, resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 const shareRootId = 'shareRoot';
 
@@ -129,7 +128,7 @@ export default Component.extend(I18n, {
       rootDir,
     } = this.getProperties('fileManager', 'dirId', 'rootDir');
     if (dirId) {
-      return fileManager.getFileById(dirId)
+      return fileManager.getFileById(dirId, 'public')
         .then(file => this.isChildOfShare(file)
           .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
         );
@@ -170,7 +169,11 @@ export default Component.extend(I18n, {
     };
   }),
 
-  withHeaderClass: computed('showSharePath', 'showSharePublicUrl',
+  withHeaderClass: computed(
+    'showSharePath',
+    'showSharePublicUrl',
+    'showHandleUrl',
+    'share.handle',
     function withHeaderClass() {
       const {
         showSharePath,
@@ -296,10 +299,8 @@ function checkOnPath(file, condition = () => false) {
     if (condition(file)) {
       return resolve(true);
     } else {
-      // workaround for bug in backend that sends parent: 'file.null.instance:private'
       const parentId = file.belongsTo('parent').id();
-      const parentIdValid = parentId && parseGri(parentId).entityId !== 'null';
-      if (parentIdValid) {
+      if (parentId) {
         return get(file, 'parent').then(parent => checkOnPath(parent, condition));
       } else {
         return resolve(false);
