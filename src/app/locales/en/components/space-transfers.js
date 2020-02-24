@@ -3,6 +3,7 @@ import throughputDistribution from './space-transfers/throughput-distribution';
 import transferChart from './space-transfers/transfer-chart';
 import transfersTable from './space-transfers/transfers-table';
 import transferDetails from './space-transfers/transfer-details';
+import fileTransfersTableContainer from './space-transfers/file-transfers-table-container';
 
 export default {
   transferJobsHistory: 'Transfer jobs history',
@@ -13,7 +14,6 @@ export default {
   initializingTransfers: 'Initializing transfers...',
   in: 'Input',
   out: 'Output',
-  fileHistoryLimitReached: 'History limit per file reached',
   fileError: 'Error loading file data: {{reason}}',
   unknownFileName: 'File',
   fileTabHint: 'Shows transfers related to selected {{type}}',
@@ -58,4 +58,5 @@ export default {
   transferChart,
   throughputDistribution,
   transfersOverview,
+  fileTransfersTableContainer,
 };

@@ -64,11 +64,6 @@
                   openDbViewModal=(action "openDbViewModal")
                 }}
               {{/if}}
-              {{#if (and (eq type "file") fileHistoryLimitReached)}}
-                <p class="file-history-limit-message">
-                  {{tt this "fileHistoryLimitReached"}}
-                </p>
-              {{/if}}
             </div>
           </div>
         {{/if}}
