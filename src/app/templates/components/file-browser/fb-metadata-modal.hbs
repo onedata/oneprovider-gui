@@ -70,13 +70,18 @@
     }}
       {{closeBtnText}}
     {{/bs-button}}
-    {{#one-spin-button
-      action=(action "saveAll")
-      inFlight=processing
-      disabled=saveAllDisabled
-      class="btn btn-primary"
-    }}
-      {{tt this "saveAll"}}
-    {{/one-spin-button}}
+    <div class="btn-tooltip-container">
+      {{#one-spin-button
+        action=(action "saveAll")
+        inFlight=processing
+        disabled=saveAllDisabled
+        class="btn btn-primary btn-save-all"
+      }}
+        {{tt this "saveAll"}}
+      {{/one-spin-button}}
+      {{#if saveAllDisabledMessage}}
+        {{one-tooltip title=saveAllDisabledMessage}}
+      {{/if}}
+    </div>
   {{/modal.footer}}
 {{/bs-modal}}

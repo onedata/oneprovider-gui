@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, raw, or, not, eq } from 'ember-awesome-macros';
+import { conditional, equal, raw, or, not, eq, and } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
@@ -89,14 +89,21 @@ export default Component.extend(
       computedT('dir'),
     ),
 
+    /**
+     * If any value is invalid, we suppose that it must be modified (data from DB cannot
+     * be invalid).
+     * @type {ComputedProperty<boolean>}
+     */
+    isCloseBtnDiscard: or('isAnyModified', 'isAnyInvalid'),
+
     closeBtnText: conditional(
-      'isAnyModified',
+      'isCloseBtnDiscard',
       computedT('discardChanges'),
       computedT('close'),
     ),
 
     closeBtnType: conditional(
-      'isAnyModified',
+      'isCloseBtnDiscard',
       raw('warning'),
       raw('default'),
     ),
@@ -106,6 +113,11 @@ export default Component.extend(
     isAnyModified: or(...metadataTypes.map(type => `${type}IsModified`)),
 
     isAnyInvalid: or(...metadataTypes.map(type => eq(`${type}IsValid`, raw(false)))),
+
+    saveAllDisabledMessage: or(
+      and(('isAnyInvalid'), computedT('disabledReason.someInvalid')),
+      and(not('isAnyModified'), computedT('disabledReason.noChanges')),
+    ),
 
     init() {
       this._super(...arguments);
@@ -174,16 +186,14 @@ export default Component.extend(
             const currentValue = this.get(currentName);
             const isModified = this.get(isModifiedName);
             const isValid = this.get(isValidName);
-            if (currentValue === emptyValue && !isModified) {
+            if (isValid === false) {
+              return 'invalid';
+            } else if (currentValue === emptyValue && !isModified) {
               return 'blank';
+            } else if (isModified) {
+              return 'modified';
             } else {
-              if (isValid === false) {
-                return 'invalid';
-              } else if (isModified) {
-                return 'modified';
-              } else {
-                return 'saved';
-              }
+              return 'saved';
             }
           });
       });
