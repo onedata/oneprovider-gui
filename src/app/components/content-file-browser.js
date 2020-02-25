@@ -44,6 +44,8 @@ export default OneEmbeddedComponent.extend(
 
     fileToShowMetadata: undefined,
 
+    selectedFiles: Object.freeze([]),
+
     injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
       const {
         spaceEntityId,
@@ -107,12 +109,22 @@ export default OneEmbeddedComponent.extend(
       },
       openRemoveModal(files, parentDir) {
         this.setProperties({
-          filesToRemove: files,
+          filesToRemove: [...files],
           removeParentDir: parentDir,
         });
       },
-      closeRemoveModal() {
+      closeRemoveModal(removeInvoked, results) {
+        const newIds = [];
+        if (removeInvoked) {
+          for (const fileId in results) {
+            if (get(results[fileId], 'state') === 'rejected') {
+              newIds.push(fileId);
+            }
+          }
+        }
         this.setProperties({
+          selectedFiles: this.get('filesToRemove')
+            .filter(file => newIds.includes(get(file, 'entityId'))),
           filesToRemove: null,
           removeParentDir: null,
         });
@@ -148,16 +160,19 @@ export default OneEmbeddedComponent.extend(
         this.set('fileToShare', null);
       },
       openEditPermissionsModal(files) {
-        this.set('filesToEditPermissions', files);
+        this.set('filesToEditPermissions', [...files]);
       },
       closeEditPermissionsModal() {
         this.set('filesToEditPermissions', null);
       },
       openFileDistributionModal(files) {
-        this.set('filesToShowDistribution', files);
+        this.set('filesToShowDistribution', [...files]);
       },
       closeFileDistributionModal() {
         this.set('filesToShowDistribution', null);
+      },
+      changeSelectedFiles(selectedFiles) {
+        this.set('selectedFiles', Object.freeze(selectedFiles));
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);

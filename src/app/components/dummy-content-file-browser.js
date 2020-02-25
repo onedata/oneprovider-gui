@@ -19,6 +19,8 @@ export default Component.extend({
 
   classNames: ['dummy-content-file-browser'],
 
+  selectedFiles: Object.freeze([]),
+
   dirProxy: promise.object(computed(function dirProxy() {
     return this.get('currentUser').getCurrentUserRecord()
       .then(user => get(user, 'spaceList'))

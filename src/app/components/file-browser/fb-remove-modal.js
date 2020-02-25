@@ -66,7 +66,7 @@ export default Component.extend(I18n, {
    * One of: file, dir, multi, multiMany
    * @type {ComputedProperty<string>}
    */
-  itemsType: computed('files.@each.type', function itemsType() {
+  itemsType: computed('files.{length,0.type}', 'maxDisplayFiles', function itemsType() {
     const files = this.get('files');
     const maxDisplayFiles = this.get('maxDisplayFiles');
     const filesCount = get(files, 'length');

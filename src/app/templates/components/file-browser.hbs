@@ -17,7 +17,7 @@
     <div class="text-right fb-toolbar-container hidden-xs">
       {{#unless (or previewMode media.isMobile)}}
         {{file-browser/fb-selection-toolkit
-          itemsCount=selectedFiles.length
+          itemsCount=(if isOnlyCurrentDirSelected 0 selectedFiles.length)
           selectionContext=selectionContext
           allButtonsArray=allButtonsArray
         }}
@@ -44,6 +44,7 @@
     fileClipboardFiles=fileClipboardFiles
     customFetchDirChildren=customFetchDirChildren
     previewMode=previewMode
+    changeSelectedFiles=(action "changeSelectedFiles")
     changeDir=(action "changeDir")
   }}
 </div>
@@ -70,7 +71,7 @@
 {{#if (and (not previewMode) media.isMobile)}}
   {{file-browser/fb-selection-toolkit
     mobileMode=true
-    itemsCount=selectedFiles.length
+    itemsCount=(if isOnlyCurrentDirSelected 0 selectedFiles.length)
     selectionContext=selectionContext
     allButtonsArray=allButtonsArray
   }}

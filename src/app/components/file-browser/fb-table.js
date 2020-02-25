@@ -24,6 +24,7 @@ import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
+import _ from 'lodash';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -396,7 +397,7 @@ export default Component.extend(I18n, {
   },
 
   clearFilesSelection() {
-    this.get('selectedFiles').clear();
+    this.get('changeSelectedFiles')([]);
   },
 
   /**
@@ -420,26 +421,26 @@ export default Component.extend(I18n, {
     if (otherFilesSelected) {
       if (fileIsSelected) {
         if (ctrlKey) {
-          this.selectRemoveSingleFile(selectedFiles, file);
+          this.selectRemoveSingleFile(file);
         } else {
-          this.selectOnlySingleFile(selectedFiles, file);
+          this.selectOnlySingleFile(file);
         }
       } else {
         if (ctrlKey) {
-          this.selectAddSingleFile(selectedFiles, file);
+          this.selectAddSingleFile(file);
         } else {
           if (shiftKey) {
             this.selectRangeToFile(file);
           } else {
-            this.selectOnlySingleFile(selectedFiles, file);
+            this.selectOnlySingleFile(file);
           }
         }
       }
     } else {
       if (fileIsSelected) {
-        this.selectRemoveSingleFile(selectedFiles, file);
+        this.selectRemoveSingleFile(file);
       } else {
-        this.selectAddSingleFile(selectedFiles, file);
+        this.selectAddSingleFile(file);
       }
     }
   },
@@ -475,34 +476,38 @@ export default Component.extend(I18n, {
     }
   },
 
-  addToSelectedFiles(selectedFiles, newFiles) {
-    const filesWithoutBroken = newFiles.filter(f => get(f, 'type') !== 'broken');
-    selectedFiles.addObjects(filesWithoutBroken);
+  addToSelectedFiles(newFiles) {
+    const {
+      selectedFiles,
+      changeSelectedFiles,
+    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+    const filesWithoutBroken = _.difference(
+      newFiles.filter(f => get(f, 'type') !== 'broken'),
+      selectedFiles
+    );
+    const newSelectedFiles = [...selectedFiles, ...filesWithoutBroken];
 
-    if (get(selectedFiles, 'length') > 1) {
-      const filesSourceArray = this.get('filesArray.sourceArray');
-      const filesIndices = new Map(
-        selectedFiles.map(file => [file, filesSourceArray.indexOf(file)])
-      );
-      selectedFiles.sort((a, b) => filesIndices.get(a) - filesIndices.get(b));
-    }
+    return changeSelectedFiles(newSelectedFiles);
   },
 
-  selectRemoveSingleFile(selectedFiles, file) {
-    selectedFiles.removeObject(file);
+  selectRemoveSingleFile(file) {
+    const {
+      selectedFiles,
+      changeSelectedFiles,
+    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+    changeSelectedFiles(selectedFiles.without(file));
     this.set('lastSelectedFile', null);
   },
 
-  selectAddSingleFile(selectedFiles, file) {
-    this.addToSelectedFiles(selectedFiles, [file]);
+  selectAddSingleFile(file) {
+    this.addToSelectedFiles([file]);
     if (get(file, 'type') !== 'broken') {
       this.set('lastSelectedFile', file);
     }
   },
 
-  selectOnlySingleFile(selectedFiles, file) {
-    this.clearFilesSelection(selectedFiles, file);
-    this.selectAddSingleFile(selectedFiles, file);
+  selectOnlySingleFile(file) {
+    this.get('changeSelectedFiles')([file]);
   },
 
   /**
@@ -514,11 +519,9 @@ export default Component.extend(I18n, {
   selectRangeToFile(file) {
     const {
       filesArray,
-      selectedFiles,
       lastSelectedFile,
     } = this.getProperties(
       'filesArray',
-      'selectedFiles',
       'lastSelectedFile'
     );
 
@@ -535,7 +538,7 @@ export default Component.extend(I18n, {
 
     const indexA = Math.min(startIndex, fileIndex);
     const indexB = Math.max(startIndex, fileIndex);
-    this.addToSelectedFiles(selectedFiles, sourceArray.slice(indexA, indexB + 1));
+    this.addToSelectedFiles(sourceArray.slice(indexA, indexB + 1));
   },
 
   findNearestSelectedIndex(fileIndex) {
@@ -599,7 +602,7 @@ export default Component.extend(I18n, {
       }
       const selectedFiles = this.get('selectedFiles');
       if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
-        this.selectOnlySingleFile(selectedFiles, file);
+        this.selectOnlySingleFile(file);
       }
       let left;
       let top;
