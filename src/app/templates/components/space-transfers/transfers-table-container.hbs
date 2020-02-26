@@ -14,6 +14,10 @@
       cancelTransfer=(action "cancelTransfer")
       openDbViewModal=(action "openDbViewModal")
     }}
-    {{yield}}
+    {{#if historyLimitReached}}
+      <p class="history-limit-message">
+        {{tt this "fileHistoryLimitReached"}}
+      </p>
+    {{/if}}
   {{/loading-container}}
 </div>

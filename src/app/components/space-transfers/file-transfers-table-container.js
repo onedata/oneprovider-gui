@@ -9,7 +9,7 @@
 
 import TransfersTableContainer from 'oneprovider-gui/components/space-transfers/transfers-table-container';
 import { resolve, reject } from 'rsvp';
-import layout from 'oneprovider-gui/templates/components/space-transfers/file-transfers-table-container';
+import layout from 'oneprovider-gui/templates/components/space-transfers/transfers-table-container';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
@@ -17,7 +17,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default TransfersTableContainer.extend(I18n, {
   layout,
-  tagName: '',
 
   onedataConnection: service(),
 
@@ -58,13 +57,13 @@ export default TransfersTableContainer.extend(I18n, {
 
   /**
    * True if the `endedTransfersCount` reached history limit
-   * @type {boolean}
+   * @type {ComputedProperty<boolean>}
    */
   historyLimitReached: computed(
     'historyLimitPerFile',
     'endedTransfersCount',
     'transfersArray.{endIndex,sourceArray.length}',
-    function fileHistoryLimitReached() {
+    function historyLimitReached() {
       const {
         historyLimitPerFile,
         endedTransfersCount,

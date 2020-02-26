@@ -5,7 +5,7 @@ $space-transfers-gray: #B6BAC0;
 @import './space-transfers/transfers-table';
 @import './space-transfers/providers-map';
 @import './space-transfers/transfer-details';
-@import './space-transfers/file-transfers-table-container';
+@import './space-transfers/transfers-table-container';
 
 .space-transfers {
   $-table-border-color: $main-border-color;

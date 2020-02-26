@@ -116,7 +116,10 @@ describe('Integration | Component | file browser', function () {
       dirs[i].hasParent = true;
     }
 
-    this.set('dir', rootDir);
+    this.setProperties({
+      dir: rootDir,
+      selectedFiles: Object.freeze([]),
+    });
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
@@ -131,7 +134,11 @@ describe('Integration | Component | file browser', function () {
     }
     fetchDirChildren.resolves([]);
 
-    this.render(hbs `{{file-browser dir=dir}}`);
+    this.render(hbs `{{file-browser
+      dir=dir
+      selectedFiles=selectedFiles
+      changeSelectedFiles=(action (mut selectedFiles))
+    }}`);
 
     let clickCount = numberOfDirs - 2;
     const enterDir = () => {
@@ -201,7 +208,12 @@ describe('Integration | Component | file browser', function () {
         hasParent: true,
         parent: resolve(dir),
       }];
-      this.set('dir', dir);
+
+      this.setProperties({
+        dir,
+        selectedFiles: Object.freeze([]),
+      });
+
       const fileManager = lookupService(this, 'fileManager');
       const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
       const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
@@ -221,7 +233,12 @@ describe('Integration | Component | file browser', function () {
       ).resolves(files2);
       fetchDirChildren.resolves([]);
 
-      this.render(hbs `{{file-browser dir=dir}}`);
+      this.render(hbs `{{
+        file-browser
+        dir=dir
+        selectedFiles=selectedFiles
+        changeSelectedFiles=(action (mut selectedFiles))
+      }}`);
 
       return wait()
         .then(() => {
@@ -263,16 +280,22 @@ describe('Integration | Component | file browser', function () {
       parent: resolve(null),
     };
     const files = [];
-    this.set('dir', dir);
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves(files);
     const openCreateNewDirectory = sinon.spy();
-    this.set('openCreateNewDirectory', openCreateNewDirectory);
+
+    this.setProperties({
+      openCreateNewDirectory,
+      dir,
+      selectedFiles: Object.freeze([]),
+    });
 
     this.render(hbs `{{file-browser
       dir=dir
       openCreateNewDirectory=openCreateNewDirectory
+      selectedFiles=selectedFiles
+      changeSelectedFiles=(action (mut selectedFiles))
     }}`);
 
     return wait().then(() => {
