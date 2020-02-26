@@ -1,5 +1,7 @@
 {{#bs-modal
+  class="fb-share-modal"
   open=open
+  backdropClose=false
   onShow=(action "onShow")
   onHide=(action "onHide")
   as |modal|
@@ -12,7 +14,7 @@
       {{#if (eq mode "new")}}
         <p>{{tt this "setName"}}:</p>
         <div class="row">
-          {{#bs-form class="form-horizontal" as |form|}}
+          {{#bs-form class="form-horizontal  without-labels" as |form|}}
             {{#form.group
               validation=(if validationError "error")
               class=(if validationError "has-message")
@@ -27,7 +29,18 @@
                 disabled={{isSaving}}
                 autofocus=true
               >
-              <div class="form-message {{unless validationError "hidden"}}">{{validationError}}</div>
+              <div class="form-message form-message-name {{unless validationError "transparent"}}">
+                {{validationErrorMessage}}
+                {{#if (eq validationError "regexp")}}
+                  <div class="inline-icon-container hint-trigger clickable">
+                    {{#one-icon icon="sign-question-rounded" class="share-name-regexp-hint"}}
+                      {{#one-tooltip}}
+                        {{tt this "regexpHint"}}
+                      {{/one-tooltip}}
+                    {{/one-icon}}
+                  </div>
+                {{/if}}
+              </div>
             {{/form.group}}
           {{/bs-form}}
         </div>

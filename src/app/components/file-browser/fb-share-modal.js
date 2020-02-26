@@ -15,6 +15,7 @@ import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import {
   promise,
+  and,
   or,
   conditional,
   raw,
@@ -22,14 +23,17 @@ import {
   lt,
   gt,
   notEmpty,
+  not,
 } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import computedT from 'onedata-gui-common/utils/computed-t';
 import { reject } from 'rsvp';
-
-const shareNameLimit = 50;
+import backendNameRegexp from 'onedata-gui-common/utils/backend-name-regexp';
+import backendifyName, {
+  minLength as shareNameMin,
+  maxLength as shareNameMax,
+} from 'onedata-gui-common/utils/backendify-name';
 
 export default Component.extend(
   I18n,
@@ -86,11 +90,42 @@ export default Component.extend(
       return `${this.elementId}-name-input`;
     }),
 
-    validationError: conditional(
-      gt('newShareName.length', raw(shareNameLimit)),
-      computedT('validations.nameTooLong', { length: shareNameLimit }),
-      raw(''),
+    nameIsValid: string.match('newShareName', raw(backendNameRegexp)),
+
+    validationError: or(
+      and(
+        lt('newShareName.length', raw(shareNameMin)),
+        raw('nameTooShort')
+      ),
+      and(
+        gt('newShareName.length', raw(shareNameMax)),
+        raw('nameTooLong')
+      ),
+      and(
+        not('nameIsValid'),
+        raw('regexp')
+      ),
+      null,
     ),
+
+    validationErrorMessage: computed('validationError', function validationErrorMessage() {
+      const validationError = this.get('validationError');
+      if (validationError) {
+        let interpolations;
+        switch (validationError) {
+          case 'nameTooShort':
+            interpolations = { length: shareNameMin };
+            break;
+          case 'nameTooLong':
+            interpolations = { length: shareNameMax };
+            break;
+          default:
+            interpolations = {};
+            break;
+        }
+        return this.t(`validations.${validationError}`, interpolations);
+      }
+    }),
 
     shareCount: reads('sharesProxy.content.length'),
 
@@ -110,6 +145,11 @@ export default Component.extend(
             return null;
           }
         });
+    },
+
+    setInitialShareName() {
+      const fileName = this.get('file.name');
+      this.set('newShareName', backendifyName(fileName));
     },
 
     actions: {
@@ -139,7 +179,7 @@ export default Component.extend(
           }));
       },
       onShow() {
-        this.set('newShareName', this.get('file.name') || '');
+        this.setInitialShareName();
         return this.updateSharesProxy();
       },
       onHide() {

@@ -9,7 +9,9 @@ export default {
   openShare: 'Open share',
   showIntro: 'The {{fileType}} <strong>{{fileName}}</strong> has already been shared {{shareCount}} {{times}}',
   validations: {
-    nameTooLong: 'Share name cannot be longer than {{length}} characters',
+    nameTooShort: 'Name must have at least {{length}} characters',
+    nameTooLong: 'Name cannot be longer than {{length}} characters',
+    regexp: 'Name contains invalid characters',
   },
   times: {
     singular: 'time',
@@ -19,4 +21,5 @@ export default {
     file: 'file',
     dir: 'directory',
   },
+  regexpHint: 'Name must be composed only of UTF-8 letters, digits, brackets and underscores. Dashes, spaces and dots are allowed (but not at the beginning or the end).',
 };
