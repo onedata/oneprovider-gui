@@ -1,6 +1,6 @@
-{{#promise-proxy-container proxy=spaceRootDirProxy}}
+{{#promise-proxy-container proxy=dirProxy}}
   {{file-browser
-    dir=spaceRootDirProxy.content
+    dir=dirProxy.content
     selectedFiles=selectedFiles
     changeSelectedFiles=(action "changeSelectedFiles")
     updateDirEntityId=(action "updateDirEntityId")

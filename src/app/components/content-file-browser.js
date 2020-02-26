@@ -15,14 +15,22 @@ import { computed, get } from '@ember/object';
 import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default OneEmbeddedComponent.extend(
+  I18n,
   ContentSpaceBaseMixin,
-  createDataProxyMixin('spaceRootDir'), {
+  createDataProxyMixin('dir'), {
     classNames: ['content-file-browser'],
+
+    /**
+     * @override
+     */
+    i18nPrefix: 'components.contentFileBrowser',
 
     store: service(),
     fileManager: service(),
+    globalNotify: service(),
 
     /**
      * @virtual optional
@@ -75,16 +83,21 @@ export default OneEmbeddedComponent.extend(
     /**
      * @override
      */
-    fetchSpaceRootDir() {
+    fetchDir() {
       const {
         injectedDirGri,
         spaceProxy,
         store,
-      } = this.getProperties('injectedDirGri', 'spaceProxy', 'store');
+        globalNotify,
+      } = this.getProperties('injectedDirGri', 'spaceProxy', 'store', 'globalNotify');
 
       return spaceProxy.then(space => {
         if (injectedDirGri) {
-          return store.findRecord('file', injectedDirGri);
+          return store.findRecord('file', injectedDirGri)
+            .catch(error => {
+              globalNotify.backendError(this.t('openingDirectory'), error);
+              return get(space, 'rootDir');
+            });
         } else {
           return get(space, 'rootDir');
         }
