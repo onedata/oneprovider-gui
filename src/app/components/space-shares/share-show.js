@@ -119,6 +119,8 @@ export default Component.extend(I18n, {
 
   actionsOpened: false,
 
+  selectedFiles: Object.freeze([]),
+
   isInShareRoot: bool('dirProxy.content.isShareRoot'),
 
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {

@@ -38,6 +38,11 @@ export default Component.extend(I18n, {
    */
   onHide: notImplementedIgnore,
 
+  /**
+   * @virtual
+   * @type {Function}
+   * @returns {Promise}
+   */
   confirmDownload: notImplementedReject,
 
   itemType: reads('file.type'),
@@ -57,7 +62,11 @@ export default Component.extend(I18n, {
       return this.get('onHide')();
     },
     download() {
-      return this.get('confirmDownload')();
+      const {
+        confirmDownload,
+        onHide,
+      } = this.getProperties('confirmDownload', 'onHide');
+      return confirmDownload().finally(() => onHide());
     },
   },
 });

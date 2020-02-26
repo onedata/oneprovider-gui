@@ -692,8 +692,7 @@ export default Component.extend(I18n, {
     },
 
     confirmDownload() {
-      return this.downloadFile(this.get('downloadModalFile.entityId'))
-        .finally(() => safeExec(this, 'set', 'downloadFile', null));
+      return this.downloadFile(this.get('downloadModalFile.entityId'));
     },
   },
 });
