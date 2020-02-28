@@ -3,7 +3,7 @@
  * 
  * @module components/file-browser/fb-selection-toolkit
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -70,6 +70,11 @@ export default Component.extend(I18n, {
   ),
 
   opened: gt('itemsCount', 0),
+
+  init() {
+    this._super(...arguments);
+    this.rememberLastPositiveCount();
+  },
 
   actions: {
     toggleFileActions(open) {

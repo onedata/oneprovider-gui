@@ -3,7 +3,7 @@
  * 
  * @module components/file-browser/fb-breadcrumbs
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -23,6 +23,7 @@ import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
 import { conditional, raw, isEmpty } from 'ember-awesome-macros';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 /**
  * @type {number}
@@ -233,6 +234,7 @@ export default Component.extend(
         elementsToShow,
       } = this.getProperties('breadcrumbsItemsProxy', 'elementsToShow');
 
+      // FIXME: then of undefined
       return breadcrumbsItemsProxy.then(breadcrumbsItems =>
         filterBreadcrumbsItems(
           breadcrumbsItems,
@@ -283,9 +285,11 @@ export default Component.extend(
         breadcrumbsRecomputing: true,
       });
       later(() => {
-        this.updateFilteredBreadcrumbsItemsProxy()
-          .then(() => next(() => this.checkWidth(true)));
-      }, recomputePathAnimationDuration);
+        safeExec(this, () => {
+          this.updateFilteredBreadcrumbsItemsProxy()
+            .then(() => next(() => this.checkWidth(true)));
+        }, recomputePathAnimationDuration);
+      });
     },
 
     actions: {

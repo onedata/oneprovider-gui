@@ -4,12 +4,12 @@
  * 
  * @module components/file-browser
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { computed, get, getProperties, observer } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -517,16 +517,6 @@ export default Component.extend(I18n, {
 
   // #endregion
 
-  dirChangedObserver: observer('dir', function dirChangedObserver() {
-    this.get('updateDirEntityId')(this.get('dir.entityId'));
-    this.get('containerScrollTop')(0);
-  }),
-
-  init() {
-    this._super(...arguments);
-    this.dirChangedObserver();
-  },
-
   didInsertElement() {
     this._super(...arguments);
 
@@ -670,8 +660,9 @@ export default Component.extend(I18n, {
       this.selectCurrentDir(select);
     },
     changeDir(dir) {
-      this.set('dir', dir);
+      this.get('updateDirEntityId')(get(dir, 'entityId'));
       this.get('uploadManager').changeTargetDirectory(dir);
+      this.get('containerScrollTop')(0);
     },
     toggleCurrentDirActions(open) {
       const _open =

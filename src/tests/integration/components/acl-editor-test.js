@@ -140,7 +140,8 @@ describe('Integration | Component | acl editor', function () {
       subject: this.get('users').findBy('entityId', 'user2'),
     }];
 
-    const addAceDropdown = new EmberPowerSelectHelper('.add-user-group-ace', '.add-user-group-ace-dropdown');
+    const addAceDropdown =
+      new EmberPowerSelectHelper('.add-user-group-ace', '.add-user-group-ace-dropdown');
     return addAceDropdown.selectOption(4).then(() => {
       expect(this.$('.ace')).to.have.length(3);
       expect(this.$('.ace:nth-child(3) .subject-name')).to.contain('User 2');

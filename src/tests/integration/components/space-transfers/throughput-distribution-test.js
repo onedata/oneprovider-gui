@@ -18,44 +18,46 @@ class ProviderSelectHelper extends EmberPowerSelectHelper {
   }
 }
 
-describe('Integration | Component | space transfers/throughput distribution', function () {
-  setupComponentTest('space-transfers/throughput-distribution', {
-    integration: true,
-  });
-
-  beforeEach(function () {
-    registerService(this, 'transferManager', TransferManager);
-  });
-
-  it('selects all oneproviders by default and allows to change it', function () {
-    const providerZ = {
-      entityId: 'p1',
-      name: 'Provider Z',
-    };
-    const providerA = {
-      entityId: 'p2',
-      name: 'Provider A',
-    };
-
-    this.setProperties({
-      space: {},
-      providers: [providerZ, providerA],
-      providersColors: {},
-      transferType: 'waiting',
-      timeUnit: 'minute',
+describe(
+  'Integration | Component | space transfers/throughput distribution',
+  function () {
+    setupComponentTest('space-transfers/throughput-distribution', {
+      integration: true,
     });
-    const transferManager = lookupService(this, 'transferManager');
-    const getSpaceTransfersThroughputCharts =
-      sinon.stub(transferManager, 'getSpaceTransfersThroughputCharts');
-    getSpaceTransfersThroughputCharts.rejects();
-    getSpaceTransfersThroughputCharts.withArgs(
-      this.get('space'),
-      this.get('transferType'),
-      this.get('timeUnit'),
-      undefined,
-    ).resolves({});
 
-    this.render(hbs `{{space-transfers/throughput-distribution
+    beforeEach(function () {
+      registerService(this, 'transferManager', TransferManager);
+    });
+
+    it('selects all oneproviders by default and allows to change it', function () {
+      const providerZ = {
+        entityId: 'p1',
+        name: 'Provider Z',
+      };
+      const providerA = {
+        entityId: 'p2',
+        name: 'Provider A',
+      };
+
+      this.setProperties({
+        space: {},
+        providers: [providerZ, providerA],
+        providersColors: {},
+        transferType: 'waiting',
+        timeUnit: 'minute',
+      });
+      const transferManager = lookupService(this, 'transferManager');
+      const getSpaceTransfersThroughputCharts =
+        sinon.stub(transferManager, 'getSpaceTransfersThroughputCharts');
+      getSpaceTransfersThroughputCharts.rejects();
+      getSpaceTransfersThroughputCharts.withArgs(
+        this.get('space'),
+        this.get('transferType'),
+        this.get('timeUnit'),
+        undefined,
+      ).resolves({});
+
+      this.render(hbs `{{space-transfers/throughput-distribution
       space=space
       providers=providers
       providersColors=providersColors
@@ -64,48 +66,48 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       updaterEnabled=false
     }}`);
 
-    return wait().then(() => {
-      expect(this.$('.ember-power-select-selected-item').text()).to.contain(
-        'All Oneproviders'
-      );
-      const select = new ProviderSelectHelper();
-      // option 3 should be Provider Z
-      return select.selectOption(3, () => {
-        expect(
-          this.$(
-            '.chart-selectors .ember-power-select-selected-item'
-          ).text()
-        ).to.contain(providerZ.name);
+      return wait().then(() => {
+        expect(this.$('.ember-power-select-selected-item').text()).to.contain(
+          'All Oneproviders'
+        );
+        const select = new ProviderSelectHelper();
+        // option 3 should be Provider Z
+        return select.selectOption(3, () => {
+          expect(
+            this.$(
+              '.chart-selectors .ember-power-select-selected-item'
+            ).text()
+          ).to.contain(providerZ.name);
+        });
       });
     });
-  });
 
-  it('preserves selection of all oneproviders when changing timespan', function () {
-    const providerZ = {
-      entityId: 'p1',
-      name: 'Provider Z',
-    };
+    it('preserves selection of all oneproviders when changing timespan', function () {
+      const providerZ = {
+        entityId: 'p1',
+        name: 'Provider Z',
+      };
 
-    this.setProperties({
-      space: {},
-      providers: [providerZ],
-      providersColors: {},
-      transferStatProviderId: undefined,
-      transferType: 'waiting',
-      timeUnit: 'minute',
-    });
-    const transferManager = lookupService(this, 'transferManager');
-    const getSpaceTransfersThroughputCharts =
-      sinon.stub(transferManager, 'getSpaceTransfersThroughputCharts');
-    getSpaceTransfersThroughputCharts.rejects();
-    getSpaceTransfersThroughputCharts.withArgs(
-      this.get('space'),
-      this.get('transferType'),
-      this.get('timeUnit'),
-      undefined,
-    ).resolves({});
+      this.setProperties({
+        space: {},
+        providers: [providerZ],
+        providersColors: {},
+        transferStatProviderId: undefined,
+        transferType: 'waiting',
+        timeUnit: 'minute',
+      });
+      const transferManager = lookupService(this, 'transferManager');
+      const getSpaceTransfersThroughputCharts =
+        sinon.stub(transferManager, 'getSpaceTransfersThroughputCharts');
+      getSpaceTransfersThroughputCharts.rejects();
+      getSpaceTransfersThroughputCharts.withArgs(
+        this.get('space'),
+        this.get('transferType'),
+        this.get('timeUnit'),
+        undefined,
+      ).resolves({});
 
-    this.render(hbs `{{space-transfers/throughput-distribution
+      this.render(hbs `{{space-transfers/throughput-distribution
       space=space
       providers=providers
       providersColors=providersColors
@@ -114,17 +116,18 @@ describe('Integration | Component | space transfers/throughput distribution', fu
       updaterEnabled=false
     }}`);
 
-    return wait().then(() => {
-        expect(this.$('.ember-power-select-selected-item').text()).to.contain(
-          'All Oneproviders'
-        );
-        this.set('timeUnit', 'hour');
-        return wait();
-      })
-      .then(() => {
-        expect(this.$('.ember-power-select-selected-item').text()).to.contain(
-          'All Oneproviders'
-        );
-      });
-  });
-});
+      return wait().then(() => {
+          expect(this.$('.ember-power-select-selected-item').text()).to.contain(
+            'All Oneproviders'
+          );
+          this.set('timeUnit', 'hour');
+          return wait();
+        })
+        .then(() => {
+          expect(this.$('.ember-power-select-selected-item').text()).to.contain(
+            'All Oneproviders'
+          );
+        });
+    });
+  }
+);

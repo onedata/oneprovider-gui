@@ -3,7 +3,7 @@
  * 
  * @module components/file-browser/fb-share-modal
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -108,24 +108,27 @@ export default Component.extend(
       null,
     ),
 
-    validationErrorMessage: computed('validationError', function validationErrorMessage() {
-      const validationError = this.get('validationError');
-      if (validationError) {
-        let interpolations;
-        switch (validationError) {
-          case 'nameTooShort':
-            interpolations = { length: shareNameMin };
-            break;
-          case 'nameTooLong':
-            interpolations = { length: shareNameMax };
-            break;
-          default:
-            interpolations = {};
-            break;
+    validationErrorMessage: computed(
+      'validationError',
+      function validationErrorMessage() {
+        const validationError = this.get('validationError');
+        if (validationError) {
+          let interpolations;
+          switch (validationError) {
+            case 'nameTooShort':
+              interpolations = { length: shareNameMin };
+              break;
+            case 'nameTooLong':
+              interpolations = { length: shareNameMax };
+              break;
+            default:
+              interpolations = {};
+              break;
+          }
+          return this.t(`validations.${validationError}`, interpolations);
         }
-        return this.t(`validations.${validationError}`, interpolations);
       }
-    }),
+    ),
 
     shareCount: reads('sharesProxy.content.length'),
 

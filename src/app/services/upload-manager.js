@@ -4,7 +4,7 @@
  * 
  * @module services/upload-manager
  * @author Michał Borzęcki
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -77,7 +77,8 @@ export default Service.extend(I18n, {
         if (!resumableFile.initializeUploadPromise) {
           resumableFile.initializeUploadPromise =
             this.createCorrespondingFile(resumableFile)
-            .then(() => this.initializeFileUpload(resumableFile));
+            .then(() => this.initializeFileUpload(resumableFile))
+            .then(() => this.notifyUploadInitialized(resumableFile));
         }
 
         Promise.all([
@@ -204,6 +205,16 @@ export default Service.extend(I18n, {
     } else {
       return tokenProxy;
     }
+  },
+
+  notifyUploadInitialized(resumableFile) {
+    const notifyObject = {
+      uploadId: resumableFile.uploadId,
+      path: resumableFile.relativePath,
+      fileId: get(resumableFile, 'fileModel.entityId'),
+      spaceId: get(resumableFile, 'fileModel.spaceEntityId'),
+    };
+    this.notifyParent(notifyObject, 'uploadInitialized');
   },
 
   /**
