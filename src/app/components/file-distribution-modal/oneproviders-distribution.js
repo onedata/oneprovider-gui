@@ -165,6 +165,11 @@ export default Component.extend(I18n, {
   navigateTransfersTarget: '_top',
 
   /**
+   * @type {ComputedProperty<Array<Models.Provider>>}
+   */
+  oneprovidersSorted: array.sort('oneproviders', ['name']),
+
+  /**
    * @type {Ember.ComputedProperty<boolean>}
    */
   isDistributionLoading: array.isAny(

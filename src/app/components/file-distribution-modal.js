@@ -15,7 +15,7 @@ import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { Promise, resolve } from 'rsvp';
+import { Promise, resolve, allSettled } from 'rsvp';
 import { raw, array, sum } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
@@ -180,7 +180,8 @@ export default Component.extend(
      */
     fetchOneproviders() {
       return get(this.get('space'), 'providerList')
-        .then(providerList => get(providerList, 'list'));
+        .then(providerList => get(providerList, 'list'))
+        .then(list => allSettled(list.invoke('reload')).then(() => list));
     },
 
     /**
@@ -202,6 +203,9 @@ export default Component.extend(
       },
       close() {
         this.get('onClose')();
+      },
+      onShow() {
+        this.updateOneprovidersProxy({ replace: true });
       },
       replicate(files, destinationOneprovider) {
         const transferManager = this.get('transferManager');
