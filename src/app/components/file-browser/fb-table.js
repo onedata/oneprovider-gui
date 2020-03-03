@@ -104,6 +104,13 @@ export default Component.extend(I18n, {
   _body: document.body,
 
   /**
+   * Set by `one-webui-popover.registerApi` in HBS.
+   * Undefined if not rendering context menu.
+   * @type {Object} API of `one-webui-popover`
+   */
+  contextMenuApi: undefined,
+
+  /**
    * @type {models/File}
    */
   lastSelectedFile: undefined,
@@ -626,7 +633,7 @@ export default Component.extend(I18n, {
       });
       // cause popover refresh
       if (this.get('fileActionsOpen')) {
-        this.get('_window').dispatchEvent(new Event('resize'));
+        this.get('contextMenuApi').reposition();
       }
       this.actions.toggleFileActions.bind(this)(true, file);
     },

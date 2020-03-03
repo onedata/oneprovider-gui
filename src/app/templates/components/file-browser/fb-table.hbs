@@ -104,8 +104,10 @@
     class="file-actions-popover"
     popoverStyle="with-dropdown"
     padding=false
+    popoverTrigger="manual"
     triggerSelector=(concat "#" elementId " .file-actions-trigger")
     open=fileActionsOpen
+    registerApi=(action (mut contextMenuApi))
   }}
     {{#click-outside action=(action "toggleFileActions" false)}}
       {{actions-popover-content
