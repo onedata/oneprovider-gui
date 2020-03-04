@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { computed, get } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import {
@@ -28,12 +28,13 @@ import {
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { reject } from 'rsvp';
+import { Promise, resolve, reject } from 'rsvp';
 import backendNameRegexp from 'onedata-gui-common/utils/backend-name-regexp';
 import backendifyName, {
   minLength as shareNameMin,
   maxLength as shareNameMax,
 } from 'onedata-gui-common/utils/backendify-name';
+import { next } from '@ember/runloop';
 
 export default Component.extend(
   I18n,
@@ -75,6 +76,8 @@ export default Component.extend(
       'isSaving',
       lt(string.length(string.trim('newShareName')), raw(2))
     ),
+
+    contentProxy: promise.object(promise.all('sharesProxy', 'modeProxy')),
 
     modeProxy: promise.object(computed('sharesProxy.content', function modeProxy() {
       return this.get('sharesProxy').then(share => share ? 'show' : 'new');
@@ -134,6 +137,26 @@ export default Component.extend(
 
     publicShareUrl: reads('share.publicUrl'),
 
+    inputFocusObserver: observer(
+      'mode',
+      'contentProxy.isFulfilled',
+      function inputFocusObserver() {
+        const contentProxy = this.get('contentProxy');
+        const contentWait = get(contentProxy, 'isFulfilled') ?
+          resolve() : contentProxy;
+        contentWait.then(() => {
+          if (this.get('mode') === 'new') {
+            next(() => {
+              const inputElement = this.getInputElement();
+              if (inputElement) {
+                inputElement.focus();
+              }
+            });
+          }
+        });
+      }
+    ),
+
     /**
      * @override
      */
@@ -148,6 +171,10 @@ export default Component.extend(
             return null;
           }
         });
+    },
+
+    getInputElement() {
+      return document.getElementById(this.get('inputId'));
     },
 
     setInitialShareName() {
@@ -183,7 +210,9 @@ export default Component.extend(
       },
       onShow() {
         this.setInitialShareName();
-        return this.updateSharesProxy();
+        this.updateSharesProxy().then(() => {
+          this.inputFocusObserver();
+        });
       },
       onHide() {
         this.set('newShareName', '');

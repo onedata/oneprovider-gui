@@ -80,7 +80,7 @@ export default Component.extend(I18n, {
     return `${this.elementId}-name-input`;
   }),
 
-  inputElement: computed('inputId', function $input() {
+  inputElement: computed('inputId', function $inputElement() {
     return document.getElementById(this.get('inputId'));
   }),
 
@@ -97,12 +97,8 @@ export default Component.extend(I18n, {
         editValue: '',
       });
     },
-    onShown() {
-      next(() => {
-        if (this.get('open')) {
-          this.onShownRender();
-        }
-      });
+    onShow() {
+      this.get('inputElement').focus();
     },
     submit() {
       return notImplementedReject();
