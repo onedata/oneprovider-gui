@@ -120,6 +120,9 @@ describe('Integration | Component | file browser', function () {
       dir: rootDir,
       selectedFiles: Object.freeze([]),
     });
+    this.on('updateDirEntityId', function updateDirEntityId(id) {
+      this.set('dir', dirs.findBy('entityId', id));
+    });
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
@@ -137,6 +140,7 @@ describe('Integration | Component | file browser', function () {
     this.render(hbs `{{file-browser
       dir=dir
       selectedFiles=selectedFiles
+      updateDirEntityId=(action "updateDirEntityId")
       changeSelectedFiles=(action (mut selectedFiles))
     }}`);
 
@@ -209,6 +213,12 @@ describe('Integration | Component | file browser', function () {
         parent: resolve(dir),
       }];
 
+      const dirs = [dir, b1, a1];
+
+      this.on('updateDirEntityId', function updateDirEntityId(id) {
+        this.set('dir', dirs.findBy('entityId', id));
+      });
+
       this.setProperties({
         dir,
         selectedFiles: Object.freeze([]),
@@ -237,6 +247,7 @@ describe('Integration | Component | file browser', function () {
         file-browser
         dir=dir
         selectedFiles=selectedFiles
+        updateDirEntityId=(action "updateDirEntityId")
         changeSelectedFiles=(action (mut selectedFiles))
       }}`);
 

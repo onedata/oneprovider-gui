@@ -28,7 +28,7 @@ import {
 import { inject as service } from '@ember/service';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { Promise, resolve, reject } from 'rsvp';
+import { resolve, reject } from 'rsvp';
 import backendNameRegexp from 'onedata-gui-common/utils/backend-name-regexp';
 import backendifyName, {
   minLength as shareNameMin,
