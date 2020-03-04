@@ -1,8 +1,5 @@
 .share-show {
-  @media (max-width: $screen-xs-max) {
-    margin-left: -$content-col-padding;
-    margin-right: -$content-col-padding;
-  }
+  @include undo-content-padding-xs();
   &.with-header-single {
     .share-header-panel {
       position: fixed;
