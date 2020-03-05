@@ -65,8 +65,10 @@
   {{file-browser
     dir=dirProxy.content
     customRootDir=rootDir
+    selectedFiles=selectedFiles
     customFetchDirChildren=(if isInShareRoot (action "fetchShareRootDirChildren") undefined)
     previewMode=true
+    changeSelectedFiles=(action (mut selectedFiles))
     resolveFileParentFun=(action "resolveFileParentFun")
     updateDirEntityId=(action "updateDirId")
     containerScrollTop=(action "containerScrollTop")

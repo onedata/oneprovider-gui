@@ -12,11 +12,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { isEmpty } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import { next } from '@ember/runloop';
 import { computed } from '@ember/object';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-set-name-modal';
-
-// TODO: validate to disallow / names
 
 export default Component.extend(I18n, {
   layout,
@@ -80,7 +77,7 @@ export default Component.extend(I18n, {
     return `${this.elementId}-name-input`;
   }),
 
-  inputElement: computed('inputId', function $input() {
+  inputElement: computed('inputId', function $inputElement() {
     return document.getElementById(this.get('inputId'));
   }),
 
@@ -97,12 +94,8 @@ export default Component.extend(I18n, {
         editValue: '',
       });
     },
-    onShown() {
-      next(() => {
-        if (this.get('open')) {
-          this.onShownRender();
-        }
-      });
+    onShow() {
+      this.get('inputElement').focus();
     },
     submit() {
       return notImplementedReject();

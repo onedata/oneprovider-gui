@@ -4,17 +4,16 @@
  * 
  * @module components/file-browser
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { computed, get, getProperties, observer } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { dasherize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { A } from '@ember/array';
 import { hash, notEmpty, not } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -153,6 +152,14 @@ export default Component.extend(I18n, {
   containerScrollTop: notImplementedIgnore,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @param {Array} selectedFiles
+   * @returns {Array}
+   */
+  changeSelectedFiles: notImplementedThrow,
+
+  /**
    * @virtual optional
    * Passed to component inside
    * @type {Function}
@@ -198,7 +205,7 @@ export default Component.extend(I18n, {
    * Array of selected file records.
    * @type {EmberArray<Models.File>}
    */
-  selectedFiles: computed(() => A()),
+  selectedFiles: Object.freeze([]),
 
   /**
    * One of values from `actionContext` enum object
@@ -278,6 +285,20 @@ export default Component.extend(I18n, {
       contextmenuEvent.preventDefault();
     };
   }),
+
+  isOnlyCurrentDirSelected: computed(
+    'selectedFiles.[]',
+    'dir',
+    function isCurrentDirSelected() {
+      const {
+        selectedFiles,
+        dir,
+      } = this.getProperties('selectedFiles', 'dir');
+      return selectedFiles &&
+        get(selectedFiles, 'length') === 1 &&
+        selectedFiles.includes(dir);
+    }
+  ),
 
   // #region Action buttons
 
@@ -406,7 +427,7 @@ export default Component.extend(I18n, {
       action: () => {
         const selectedFiles = this.get('selectedFiles');
         this.setProperties({
-          fileClipboardFiles: selectedFiles.toArray(),
+          fileClipboardFiles: selectedFiles,
           fileClipboardMode: 'copy',
         });
       },
@@ -420,7 +441,7 @@ export default Component.extend(I18n, {
       action: () => {
         const selectedFiles = this.get('selectedFiles');
         this.setProperties({
-          fileClipboardFiles: selectedFiles.toArray(),
+          fileClipboardFiles: selectedFiles,
           fileClipboardMode: 'move',
         });
       },
@@ -464,7 +485,7 @@ export default Component.extend(I18n, {
           openFileDistributionModal,
           selectedFiles,
         } = this.getProperties('openFileDistributionModal', 'selectedFiles');
-        return openFileDistributionModal(selectedFiles.toArray());
+        return openFileDistributionModal(selectedFiles);
       },
     });
   }),
@@ -495,16 +516,6 @@ export default Component.extend(I18n, {
   }),
 
   // #endregion
-
-  dirChangedObserver: observer('dir', function dirChangedObserver() {
-    this.get('updateDirEntityId')(this.get('dir.entityId'));
-    this.get('containerScrollTop')(0);
-  }),
-
-  init() {
-    this._super(...arguments);
-    this.dirChangedObserver();
-  },
 
   didInsertElement() {
     this._super(...arguments);
@@ -578,7 +589,7 @@ export default Component.extend(I18n, {
   },
 
   clearFilesSelection() {
-    this.get('selectedFiles').clear();
+    this.get('changeSelectedFiles')([]);
   },
 
   clearFileClipboard() {
@@ -635,9 +646,12 @@ export default Component.extend(I18n, {
   },
 
   selectCurrentDir(select = true) {
-    this.clearFilesSelection();
     if (select) {
-      this.get('selectedFiles').push(this.get('dir'));
+      const {
+        changeSelectedFiles,
+        dir,
+      } = this.getProperties('changeSelectedFiles', 'dir');
+      return changeSelectedFiles([dir]);
     }
   },
 
@@ -646,13 +660,17 @@ export default Component.extend(I18n, {
       this.selectCurrentDir(select);
     },
     changeDir(dir) {
-      this.set('dir', dir);
+      this.get('updateDirEntityId')(get(dir, 'entityId'));
       this.get('uploadManager').changeTargetDirectory(dir);
+      this.get('containerScrollTop')(0);
     },
     toggleCurrentDirActions(open) {
       const _open =
         (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
       this.set('currentDirActionsOpen', _open);
+    },
+    changeSelectedFiles(selectedFiles) {
+      return this.get('changeSelectedFiles')(selectedFiles);
     },
   },
 });

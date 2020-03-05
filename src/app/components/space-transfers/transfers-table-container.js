@@ -3,7 +3,7 @@
  * 
  * @module components/space-transfers/transfers-table-container
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -19,6 +19,7 @@ import $ from 'jquery';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { isEmpty } from '@ember/utils';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 const updateInterval = 5000;
 
@@ -29,13 +30,37 @@ export default Component.extend({
 
   transferManager: service(),
 
+  /**
+   * @virtual
+   * @type {String}
+   */
   type: undefined,
 
+  /**
+   * @virtual
+   * @type {Array<Models.Provider>}
+   */
   providers: undefined,
 
+  /**
+   * @virtual
+   * @type {Object}
+   */
   providersColors: undefined,
 
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
   space: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  openDbViewModal: notImplementedThrow,
+
+  historyLimitReached: false,
 
   tableTopVisible: true,
 

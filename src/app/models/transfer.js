@@ -10,7 +10,7 @@ import attr from 'ember-data/attr';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { promise } from 'ember-awesome-macros';
 import { computed, get } from '@ember/object';
-import reject from 'rsvp';
+import { resolve, reject } from 'rsvp';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
@@ -260,13 +260,18 @@ export default Model.extend(
         scope,
         aspect: 'instance',
       });
-      return store.findRecord('user', userGri, {
-        adapterOptions: {
-          _meta: {
-            authHint: ['throughSpace', spaceId],
+      const localStoredUser = store.peekRecord('user', userGri);
+      if (localStoredUser) {
+        return resolve(localStoredUser);
+      } else {
+        return store.findRecord('user', userGri, {
+          adapterOptions: {
+            _meta: {
+              authHint: ['throughSpace', spaceId],
+            },
           },
-        },
-      });
+        });
+      }
     },
   }
 ).reopenClass(StaticGraphModelMixin);

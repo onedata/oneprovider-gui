@@ -65,9 +65,22 @@ module.exports = {
     'no-var': 1,
     'one-var': [
       1,
-      "never",
+      'never',
     ],
-
+    'max-len': [
+      1,
+      {
+        'code': 90,
+        'tabWidth': 2,
+        'ignoreStrings': false,
+        'ignoreComments': true,
+        'ignoreTrailingComments': false,
+        'ignoreUrls': true,
+        'ignoreTemplateLiterals': false,
+        'ignoreRegExpLiterals': true,
+        'ignorePattern': '^import|.*[\'"`]\\)?,?;?$',
+      }
+    ],
     'promise/always-return': 'off', // default: error
     'promise/no-return-wrap': 'error',
     'promise/param-names': 'error',

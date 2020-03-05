@@ -1,0 +1,10 @@
+.transfers-table-container {
+  .history-limit-message {
+    margin-top: 20px;
+    border-top: 1px solid $space-transfers-table-padding;
+    padding-top: 16px;
+    padding-left: $space-transfers-table-padding;
+    text-align: center;
+    color: darken($table-border-color, 20%);
+  }
+}

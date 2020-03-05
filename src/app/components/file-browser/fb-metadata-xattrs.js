@@ -55,7 +55,7 @@ export default Component.extend(I18n, {
       this.get('metadataChanged')({
         type: 'xattrs',
         isValid,
-        metadata: _.cloneDeep(xattrs),
+        metadata: _.isEmpty(xattrs) ? emptyValue : _.cloneDeep(xattrs),
       });
     },
     disableEnterKey(keyEvent) {

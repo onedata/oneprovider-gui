@@ -5,6 +5,7 @@ $space-transfers-gray: #B6BAC0;
 @import './space-transfers/transfers-table';
 @import './space-transfers/providers-map';
 @import './space-transfers/transfer-details';
+@import './space-transfers/transfers-table-container';
 
 .space-transfers {
   $-table-border-color: $main-border-color;
@@ -34,15 +35,6 @@ $space-transfers-gray: #B6BAC0;
       position: relative;
       top: -9px;
     }
-  }
-
-  .file-history-limit-message {
-    margin-top: 20px;
-    border-top: 1px solid $space-transfers-table-padding;
-    padding-top: 16px;
-    padding-left: $space-transfers-table-padding;
-    text-align: center;
-    color: darken($table-border-color, 20%);
   }
   
   .ct-label.ct-vertical, .ct-label.ct-horizontal {

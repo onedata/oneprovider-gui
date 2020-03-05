@@ -1,6 +1,9 @@
-{{#promise-proxy-container proxy=spaceRootDirProxy}}
+{{#promise-proxy-container proxy=initialRequiredDataProxy}}
+  dir: {{dirEntityId}}
   {{file-browser
-    dir=spaceRootDirProxy.content
+    dir=dir
+    selectedFiles=selectedFiles
+    changeSelectedFiles=(action "changeSelectedFiles")
     updateDirEntityId=(action "updateDirEntityId")
     openCreateNewDirectory=(action "openCreateItemModal" "dir")
     openRemove=(action "openRemoveModal")
@@ -77,7 +80,7 @@
       getTransfersUrl=(action "getTransfersUrl")
     }}
   {{/if}}
-  
+
   {{#if fileToShowMetadata}}
     {{file-browser/fb-metadata-modal
       open=true

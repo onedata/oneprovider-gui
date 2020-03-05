@@ -21,7 +21,7 @@
       <p>{{tt this "summarizedFilesDistribution"}} {{one-label-tip title=(tt this "dirsDontHaveDistributionTip")}}</p>
     {{/if}}
     <ul>
-      {{#each oneproviders key="id" as |oneprovider|}}
+      {{#each oneprovidersSorted key="id" as |oneprovider|}}
         {{file-distribution-modal/oneproviders-distribution-item
           class=(concat "oneprovider-" oneprovider.entityId)
           oneprovider=oneprovider

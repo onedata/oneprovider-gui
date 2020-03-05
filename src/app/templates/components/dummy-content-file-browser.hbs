@@ -2,6 +2,8 @@
   {{file-browser
     dir=dirProxy.content
     previewMode=true
+    selectedFiles=selectedFiles
+    changeSelectedFiles=(action (mut selectedFiles))
     openRemove=(action "immediatelyRemove")
   }}
   

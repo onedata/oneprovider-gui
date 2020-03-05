@@ -3,6 +3,7 @@ import onedataCommonTranslations from './onedata-gui-common';
 
 import aclEditor from './components/acl-editor';
 import editPermissionsModal from './components/edit-permissions-modal';
+import contentFileBrowser from './components/content-file-browser';
 import fileBrowser from './components/file-browser';
 import posixPermissionsEditor from './components/posix-permissions-editor';
 import fileDistributionModal from './components/file-distribution-modal';
@@ -19,6 +20,7 @@ const translations = {
   components: {
     aclEditor,
     editPermissionsModal,
+    contentFileBrowser,
     fileBrowser,
     posixPermissionsEditor,
     fileDistributionModal,

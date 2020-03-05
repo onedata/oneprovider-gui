@@ -3,7 +3,7 @@
  * 
  * @module components/fb-remove-modal
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -66,7 +66,7 @@ export default Component.extend(I18n, {
    * One of: file, dir, multi, multiMany
    * @type {ComputedProperty<string>}
    */
-  itemsType: computed('files.@each.type', function itemsType() {
+  itemsType: computed('files.{length,0.type}', 'maxDisplayFiles', function itemsType() {
     const files = this.get('files');
     const maxDisplayFiles = this.get('maxDisplayFiles');
     const filesCount = get(files, 'length');

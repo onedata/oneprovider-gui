@@ -3,7 +3,7 @@
  * 
  * @module components/space-transfers/tables-container
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -25,7 +25,6 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   store: service(),
-  onedataConnection: service(),
   transferManager: service(),
   fileManager: service(),
 
@@ -95,12 +94,6 @@ export default Component.extend(I18n, {
   file: reads('fileProxy.content'),
 
   /**
-   * Max number of ended transfers that can be fetched for transfer
-   * @type {ComputedProperty<number>}
-   */
-  historyLimitPerFile: reads('onedataConnection.transfersHistoryLimitPerFile'),
-
-  /**
    * Name of icon to use in file tab
    * @type {ComputedProperty<string>}
    */
@@ -128,23 +121,6 @@ export default Component.extend(I18n, {
       return this.t('fileTabHint', {
         type: this.t('fileTabHintType.' + (this.get('file.type') || 'unknown')),
       });
-    }
-  ),
-
-  /**
-   * Number of loaded ended transfers for file tab.
-   * @type {ComputedProperty<number>}
-   */
-  fileEndedTransfersCount: computed(
-    'fileTransfers.sourceArray.@each.finishTime',
-    function fileEndedTransfersCount() {
-      const allFileTransfers = this.get('fileTransfers.sourceArray');
-      if (allFileTransfers) {
-        return get(
-          allFileTransfers.filterBy('finishTime'),
-          'length'
-        );
-      }
     }
   ),
 
@@ -199,22 +175,6 @@ export default Component.extend(I18n, {
       return this.get('errorExtractor').getMessage(reason);
     }
   }),
-
-  /**
-   * True if the `fileEndedTransfersCount` reached history limit
-   * @type {boolean}
-   */
-  fileHistoryLimitReached: computed(
-    'historyLimitPerFile',
-    'fileEndedTransfersCount',
-    function fileHistoryLimitReached() {
-      const {
-        historyLimitPerFile,
-        fileEndedTransfersCount,
-      } = this.getProperties('historyLimitPerFile', 'fileEndedTransfersCount');
-      return fileEndedTransfersCount >= historyLimitPerFile;
-    }
-  ),
 
   tabObserver: observer('tab', function tabObserver() {
     const {

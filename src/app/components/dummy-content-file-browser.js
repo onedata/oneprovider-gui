@@ -3,7 +3,7 @@
  * 
  * @module components/dummy-content-file-browser
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -18,6 +18,8 @@ export default Component.extend({
   fileManager: service(),
 
   classNames: ['dummy-content-file-browser'],
+
+  selectedFiles: Object.freeze([]),
 
   dirProxy: promise.object(computed(function dirProxy() {
     return this.get('currentUser').getCurrentUserRecord()

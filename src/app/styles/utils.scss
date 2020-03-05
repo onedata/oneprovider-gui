@@ -1,0 +1,6 @@
+@mixin undo-content-padding-xs() {
+  @media (max-width: $screen-xs-max) {
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+  }
+}
