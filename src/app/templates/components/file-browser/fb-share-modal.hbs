@@ -34,11 +34,7 @@
                   {{validationErrorMessage}}
                   {{#if (eq validationError "regexp")}}
                     <div class="inline-icon-container hint-trigger clickable">
-                      {{#one-icon icon="sign-question-rounded" class="share-name-regexp-hint"}}
-                        {{#one-tooltip}}
-                          {{tt this "regexpHint"}}
-                        {{/one-tooltip}}
-                      {{/one-icon}}
+                      {{one-label-tip title=(tt this "regexpHint") class="share-name-regexp-hint"}}
                     </div>
                   {{/if}}
                 </div>

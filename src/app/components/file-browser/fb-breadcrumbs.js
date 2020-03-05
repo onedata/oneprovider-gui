@@ -234,7 +234,6 @@ export default Component.extend(
         elementsToShow,
       } = this.getProperties('breadcrumbsItemsProxy', 'elementsToShow');
 
-      // FIXME: then of undefined
       return breadcrumbsItemsProxy.then(breadcrumbsItems =>
         filterBreadcrumbsItems(
           breadcrumbsItems,

@@ -115,7 +115,7 @@ export default Component.extend(
     isAnyInvalid: or(...metadataTypes.map(type => eq(`${type}IsValid`, raw(false)))),
 
     saveAllDisabledMessage: or(
-      and(('isAnyInvalid'), computedT('disabledReason.someInvalid')),
+      and('isAnyInvalid', computedT('disabledReason.someInvalid')),
       and(not('isAnyModified'), computedT('disabledReason.noChanges')),
     ),
 
