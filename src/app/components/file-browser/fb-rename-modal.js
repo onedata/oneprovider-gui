@@ -31,11 +31,14 @@ export default FbSetNameModal.extend(I18n, {
    */
   itemType: reads('file.type'),
 
-  onShownRender() {
+  /**
+   * @override
+   */
+  onShow() {
     this._super(...arguments);
-    const inputElement = this.get('inputElement');
-    inputElement.value = this.get('file.name');
-    inputElement.select();
+    const input = this.getInputElement();
+    input.value = this.get('file.name');
+    input.select();
   },
 
   actions: {
