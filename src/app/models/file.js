@@ -49,9 +49,6 @@ export default Model.extend(GraphSingleModelMixin, {
   type: attr('string'),
   size: attr('number'),
   hasMetadata: attr('boolean'),
-  parent: belongsTo('file'),
-  distribution: belongsTo('file-distribution'),
-  owner: belongsTo('user'),
 
   /**
    * Modification time in UNIX timestamp format.
@@ -69,6 +66,11 @@ export default Model.extend(GraphSingleModelMixin, {
   activePermissionsType: attr('string'),
 
   acl: belongsTo('acl'),
+  shareList: belongsTo('share-list'),
+  parent: belongsTo('file'),
+  distribution: belongsTo('file-distribution'),
+  owner: belongsTo('user'),
+  provider: belongsTo('provider'),
 
   modificationTime: alias('mtime'),
 
@@ -94,8 +96,6 @@ export default Model.extend(GraphSingleModelMixin, {
   isShared: computed('shareList', function isShared() {
     return Boolean(this.belongsTo('shareList').id());
   }),
-
-  shareList: belongsTo('share-list'),
 
   cdmiObjectId: computed('entityId', function cdmiObjectId() {
     try {

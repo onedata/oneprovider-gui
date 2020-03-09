@@ -13,9 +13,11 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { all as allFulfilled, resolve } from 'rsvp';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 
-function replicaGri(fileId) {
+export const replicaEntityType = 'op_replica';
+
+export function replicaGri(fileId) {
   return gri({
-    entityType: 'op_replica',
+    entityType: replicaEntityType,
     entityId: fileId,
     aspect: 'instance',
   });
