@@ -267,7 +267,7 @@ export default Component.extend(I18n, {
       addConflictLabels(
         this.get('filesArray'),
         'name',
-        'entityId'
+        'provider.entityId'
       );
     }
   ),
