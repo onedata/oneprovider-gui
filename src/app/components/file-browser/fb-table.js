@@ -25,6 +25,7 @@ import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
 import _ from 'lodash';
+import addConflictLabels from 'onedata-gui-common/utils/add-conflict-labels';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -259,6 +260,17 @@ export default Component.extend(I18n, {
     );
     return array;
   }),
+
+  nameConflictObserver: observer(
+    'filesArray.@each.name',
+    function nameConflictObserver() {
+      addConflictLabels(
+        this.get('filesArray'),
+        'name',
+        'entityId'
+      );
+    }
+  ),
 
   visibleFiles: reads('filesArray'),
 

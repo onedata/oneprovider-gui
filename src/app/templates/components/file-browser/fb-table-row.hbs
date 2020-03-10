@@ -17,7 +17,7 @@
         <div class="file-name">
           {{#truncated-string}}
             <span class="file-name-inner">
-              {{displayName}}
+              {{name-conflict tagName="span" item=file}}
               {{#if fileLoadError}}
                 {{one-tooltip title=fileLoadError.message}}
               {{/if}}

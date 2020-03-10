@@ -140,15 +140,6 @@ export default Component.extend(I18n, FastDoubleClick, {
     }
   ),
 
-  displayName: computed('file.{name,type}', function displayName() {
-    const file = this.get('file');
-    if (get(file, 'type') === 'broken') {
-      return this.t('brokenName');
-    } else {
-      return this.get('file.name');
-    }
-  }),
-
   fileEntityId: reads('file.entityId'),
 
   typeClass: computed('type', function typeClass() {
