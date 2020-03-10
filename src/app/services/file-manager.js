@@ -8,37 +8,19 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, allSettled, all as allFulfilled } from 'rsvp';
+import { resolve, allSettled } from 'rsvp';
 import { get, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
-import { aspect as shareListAspect } from 'oneprovider-gui/models/share-list';
-import { entityType as userEntityType } from 'oneprovider-gui/models/user';
-import { replicaEntityType } from 'oneprovider-gui/services/transfer-manager';
-import { providerEntityType } from 'oneprovider-gui/services/transfer-manager';
 
 const childrenAttrsAspect = 'children_details';
 const fileModelName = 'file';
-
-class BrokenFile {
-  constructor(id, reason) {
-    this.id = id;
-    this.entityId = parseGri(id).entityId;
-    this.type = 'broken';
-    this.error = reason;
-  }
-}
 
 export default Service.extend({
   store: service(),
   onedataRpc: service(),
   onedataGraph: service(),
-
-  adapter: computed(function adapter() {
-    return this.get('store').adapterFor(fileModelName);
-  }),
 
   /**
    * @type {Array<Ember.Component>}
@@ -157,90 +139,20 @@ export default Service.extend({
     if (!limit || limit <= 0) {
       return resolve([]);
     } else {
-      // FIXME: legacy mode only for testing
-      const legacyMode = false;
-      if (legacyMode) {
-        return this.fetchChildrenIds({
-          dirId,
-          scope,
-          index,
-          limit,
-          offset,
-        }).then(childrenIds => this.getChildrenFromStoreById(childrenIds, scope));
-      } else {
-        return this.fetchChildrenAttrsMock({
-            dirId,
-            scope,
-            index,
-            limit,
-            offset,
-          })
-          .then(childrenAttrs =>
-            childrenAttrs.map(fileAttrs => {
-              const modelData = attrsToModel(fileAttrs);
-              store.push(store.normalize(fileModelName, modelData));
-              return store.peekRecord(fileModelName, get(modelData, 'gri'));
-            })
-          );
-      }
+      return this.fetchChildrenAttrs({
+        dirId,
+        scope,
+        index,
+        limit,
+        offset,
+      }).then(childrenAttrs =>
+        childrenAttrs.map(fileAttrs => {
+          fileAttrs.scope = scope;
+          const modelData = store.normalize(fileModelName, fileAttrs);
+          return store.push(modelData);
+        })
+      );
     }
-  },
-
-  /**
-   * @deprecated
-   * @returns {Promise}
-   */
-  fetchChildrenIds({ dirId, scope, index, limit, offset }) {
-    const requestGri = gri({
-      entityId: dirId,
-      entityType: fileEntityType,
-      aspect: 'children',
-      scope,
-    });
-    return this.get('onedataGraph')
-      .request({
-        operation: 'get',
-        gri: requestGri,
-        data: {
-          index,
-          limit,
-          offset,
-        },
-        subscribe: false,
-      })
-      .then(({ children }) => children);
-  },
-
-  /**
-   * @deprecated
-   * @param {Array<String>} childrenIds
-   * @param {String} scope
-   * @returns {Promise}
-   */
-  getChildrenFromStoreById(childrenIds, scope) {
-    const store = this.get('store');
-    const fileIds = childrenIds.map(entityId => this.getFileGri(entityId, scope));
-    const promises = allSettled(fileIds.map(id => {
-      const cachedRecord = store.peekRecord(fileModelName, id);
-      return cachedRecord ?
-        resolve(cachedRecord) : store.findRecord(fileModelName, id);
-    }));
-    return promises.then(results => ([fileIds, results]))
-      .then(([fileIds, results]) => {
-        const files = new Array(fileIds.length);
-        for (let i = 0; i < fileIds.length; ++i) {
-          const id = fileIds[i];
-          const result = results[i];
-          let file;
-          if (result.state === 'fulfilled') {
-            file = result.value;
-          } else {
-            file = new BrokenFile(id, result.reason);
-          }
-          files[i] = file;
-        }
-        return files;
-      });
   },
 
   fetchChildrenAttrs({ dirId, scope, index, limit, offset }) {
@@ -259,35 +171,7 @@ export default Service.extend({
         offset,
       },
       subscribe: false,
-    });
-  },
-
-  // FIXME: mock method
-  fetchChildrenAttrsMock({ dirId, scope, index, limit, offset }) {
-    const {
-      onedataGraph,
-    } = this.getProperties('onedataGraph');
-    const requestGri = gri({
-      entityId: dirId,
-      entityType: fileEntityType,
-      aspect: 'children',
-      scope,
-    });
-    return onedataGraph
-      .request({
-        operation: 'get',
-        gri: requestGri,
-        data: {
-          index,
-          limit,
-          offset,
-        },
-        subscribe: false,
-      })
-      .then(({ children }) => allFulfilled(children.map(fileId =>
-        this.getFileDataById(fileId, scope)
-      )))
-      .then(files => files.map(file => modelToAttrs(file)));
+    }).then(({ children }) => children);
   },
 
   renameFile(fileEntityId, parentDirEntityId, targetName) {
@@ -350,120 +234,3 @@ export default Service.extend({
     _.pull(this.get('fileTableComponents'), fileBrowserComponent);
   },
 });
-
-// FIXME: temporary for mock
-function modelToAttrs(model) {
-  const {
-    // values
-    gri,
-    name,
-    index,
-    type,
-    size,
-    hasMetadata,
-    mtime,
-    posixPermissions,
-    activePermissionsType,
-    // one-to-many relations
-    // NOTE: not supported in mock
-    // shareList,
-    // one-to-one relations
-    // acl,
-    parent,
-    // NOTE: relation can be created from file id
-    // distribution,
-    owner,
-    provider,
-  } = model;
-  return {
-    guid: parseGri(gri).entityId,
-    name,
-    index,
-    type,
-    size,
-    hasMetadata,
-    mtime,
-    posixPermissions,
-    activePermissionsType,
-    // one-to-many relations
-    // FIXME: not supported in mock, because of async rel.
-    shares: [],
-    // one-to-one relations
-    parentId: parseGri(parent).entityId,
-    ownerId: parseGri(owner).entityId,
-    providerId: provider && parseGri(provider).entityId,
-  };
-}
-
-function attrsToModel(attrs, scope = 'private') {
-  const {
-    guid,
-    name,
-    index,
-    type,
-    size,
-    hasMetadata,
-    mtime,
-    posixPermissions,
-    activePermissionsType,
-    shares,
-    parentId,
-    ownerId,
-    providerId,
-  } = attrs;
-  const isPrivate = scope === 'private';
-  return {
-    gri: gri({
-      entityType: fileEntityType,
-      entityId: guid,
-      aspect: 'instance',
-      scope,
-    }),
-
-    revision: 0,
-    name,
-    index,
-    type,
-    size,
-    hasMetadata,
-    mtime,
-    posixPermissions,
-    activePermissionsType,
-
-    parent: gri({
-      entityType: fileEntityType,
-      entityId: parentId,
-      aspect: 'instance',
-      scope,
-    }),
-    owner: gri({
-      entityType: userEntityType,
-      entityId: ownerId,
-      aspect: 'instance',
-      scope: 'shared',
-    }),
-    provider: isPrivate ? gri({
-      entityType: providerEntityType,
-      entityId: providerId,
-      aspect: 'instance',
-      scope: 'shared',
-    }) : null,
-    distribution: isPrivate ? gri({
-      entityType: replicaEntityType,
-      entityId: guid,
-      aspect: 'distribution',
-      scope: 'private',
-    }) : null,
-    acl: isPrivate ? gri({
-      entityType: fileEntityType,
-      entityId: guid,
-      aspect: 'acl',
-      scope: 'private',
-    }) : null,
-    shareList: _.isEmpty(shares) ? null : gri({
-      entityType: fileEntityType,
-      entityId: guid,
-      aspect: shareListAspect,
-    }),
-  };
-}

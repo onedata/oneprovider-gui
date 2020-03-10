@@ -48,6 +48,7 @@ export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
   type: attr('string'),
   size: attr('number'),
+  mode: attr('number'),
   hasMetadata: attr('boolean'),
 
   /**
@@ -58,7 +59,14 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * Posix permissions in octal three digit format.
    */
-  posixPermissions: attr('string'),
+  posixPermissions: computed('mode', {
+    get() {
+      return (this.get('mode') || 0).toString(8);
+    },
+    set(key, value) {
+      return this.set('mode', parseInt(value, 8));
+    },
+  }),
 
   /**
    * One of: `posix`, `acl`
