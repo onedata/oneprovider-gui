@@ -13,6 +13,7 @@ import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as userEntityType } from 'oneprovider-gui/models/user';
+import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
 
@@ -46,6 +47,15 @@ export const attrNormalizers = {
       scope,
     }),
   ],
+  shares: (attribute, scope) => [
+    'shareRecords',
+    attribute && attribute.map(id => gri({
+      entityType: shareEntityType,
+      entityId: id,
+      aspect: 'instance',
+      scope,
+    })),
+  ],
 };
 
 export const attrSerializers = {
@@ -60,6 +70,10 @@ export const attrSerializers = {
   provider: (attribute) => [
     'providerId',
     attribute && parseGri(attribute).entityId,
+  ],
+  shareRecords: (attribute) => [
+    'shares',
+    attribute && attribute.map(gri => parseGri(gri).entityId),
   ],
 };
 
