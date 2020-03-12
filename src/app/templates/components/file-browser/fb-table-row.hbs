@@ -17,7 +17,8 @@
         <div class="file-name">
           {{#truncated-string}}
             <span class="file-name-inner">
-              {{name-conflict tagName="span" item=file}}
+              {{!-- NOTE: everything in one line because we avoid space --}}
+              <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
               {{#if fileLoadError}}
                 {{one-tooltip title=fileLoadError.message}}
               {{/if}}

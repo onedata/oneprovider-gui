@@ -261,17 +261,6 @@ export default Component.extend(I18n, {
     return array;
   }),
 
-  nameConflictObserver: observer(
-    'filesArray.@each.name',
-    function nameConflictObserver() {
-      addConflictLabels(
-        this.get('filesArray'),
-        'name',
-        'provider.entityId'
-      );
-    }
-  ),
-
   visibleFiles: reads('filesArray'),
 
   contextMenuButtons: computed(
