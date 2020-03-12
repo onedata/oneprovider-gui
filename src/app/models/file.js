@@ -52,25 +52,13 @@ export default Model.extend(
     index: attr('string'),
     type: attr('string'),
     size: attr('number'),
-    mode: attr('number'),
+    posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
 
     /**
      * Modification time in UNIX timestamp format.
      */
     mtime: attr('number'),
-
-    /**
-     * Posix permissions in octal three digit format.
-     */
-    posixPermissions: computed('mode', {
-      get() {
-        return (this.get('mode') || 0).toString(8);
-      },
-      set(key, value) {
-        return this.set('mode', parseInt(value, 8));
-      },
-    }),
 
     /**
      * One of: `posix`, `acl`
@@ -199,7 +187,8 @@ export default Model.extend(
             requestEntityType === entityType &&
             requestEntityId ===
             get(model.belongsTo('parent').value(), 'entityId') &&
-            requestAspect === 'children';
+            requestAspect &&
+            requestAspect.startsWith('children');
         });
         return superRequests.concat(listParentDirRequests);
       }

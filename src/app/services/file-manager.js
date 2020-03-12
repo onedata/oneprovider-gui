@@ -33,7 +33,7 @@ export default Service.extend({
    * @returns {Promise<Models.File>}
    */
   getFileById(fileId, scope = 'private') {
-    const fileGri = this.getFileGr(fileId, scope);
+    const fileGri = this.getFileGri(fileId, scope);
     return this.get('store').findRecord(fileModelName, fileGri);
   },
 
@@ -135,7 +135,6 @@ export default Service.extend({
    * @returns {Promise<Array<Models.File>>}
    */
   fetchDirChildren(dirId, scope, index, limit, offset) {
-    const store = this.get('store');
     if (!limit || limit <= 0) {
       return resolve([]);
     } else {
@@ -145,14 +144,22 @@ export default Service.extend({
         index,
         limit,
         offset,
-      }).then(childrenAttrs =>
-        childrenAttrs.map(fileAttrs => {
-          fileAttrs.scope = scope;
-          const modelData = store.normalize(fileModelName, fileAttrs);
-          return store.push(modelData);
-        })
-      );
+      }).then(childrenAttrs => this.pushChildrenAttrsToStore(childrenAttrs, scope));
     }
+  },
+
+  /**
+   * @param {Array<Object>} childrenAttrs data for creating File model
+   * @param {String} scope one of: private, public
+   * @returns {Array<Record>}
+   */
+  pushChildrenAttrsToStore(childrenAttrs, scope) {
+    const store = this.get('store');
+    return childrenAttrs.map(fileAttrs => {
+      fileAttrs.scope = scope;
+      const modelData = store.normalize(fileModelName, fileAttrs);
+      return store.push(modelData);
+    });
   },
 
   fetchChildrenAttrs({ dirId, scope, index, limit, offset }) {
