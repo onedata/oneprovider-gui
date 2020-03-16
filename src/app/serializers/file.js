@@ -20,6 +20,11 @@ import { getFileGri } from 'oneprovider-gui/models/file';
 
 const fileRelations = ['acl', 'distribution'];
 
+/**
+ * Keys of this objects are keys in hash to be converted.
+ * Every attr normalizer takes an attribute value and returns [targetKey, value] pair.
+ * For example it will convert `parentId` key of hash to `parent`.
+ */
 export const attrNormalizers = {
   parentId: (attribute, scope) => [
     'parent',
@@ -59,19 +64,15 @@ export const attrNormalizers = {
   ],
 };
 
+/**
+ * Keys of this objects are keys in hash to be converted.
+ * Every attr serializer takes an attribute value and returns [targetKey, value] pair.
+ * For example it will convert `parent` key of hash to `parentId`.
+ */
 export const attrSerializers = {
-  parent: (attribute) => [
-    'parentId',
-    attribute && parseGri(attribute).entityId,
-  ],
-  owner: (attribute) => [
-    'ownerId',
-    attribute && parseGri(attribute).entityId,
-  ],
-  provider: (attribute) => [
-    'providerId',
-    attribute && parseGri(attribute).entityId,
-  ],
+  parent: createEntityIdSerializer('parentId'),
+  owner: createEntityIdSerializer('ownerId'),
+  provider: createEntityIdSerializer('providerId'),
   shareRecords: (attribute) => [
     'shares',
     attribute && attribute.map(gri => parseGri(gri).entityId),
@@ -155,4 +156,8 @@ function normalizeVirtualRelations(hash, entityId, scope) {
   fileRelations.forEach(name => {
     hash[name] = getRelation(entityId, name, scope);
   });
+}
+
+function createEntityIdSerializer(name) {
+  return (attribute) => [name, attribute && parseGri(attribute).entityId];
 }

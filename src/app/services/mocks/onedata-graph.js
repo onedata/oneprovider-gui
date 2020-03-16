@@ -8,7 +8,7 @@
  */
 
 import OnedataGraphMock, { messageNotSupported } from 'onedata-gui-websocket-client/services/mocks/onedata-graph';
-import { get, computed } from '@ember/object';
+import { get, getProperties, computed } from '@ember/object';
 import _ from 'lodash';
 import {
   numberOfFiles,
@@ -575,25 +575,11 @@ export default OnedataGraphMock.extend({
     if (!cache) {
       cache = this.getMockChildrenIds(dirEntityId).map(entityId => {
         const record = allFiles.findBy('entityId', entityId);
-        // FIXME: refactor getters
-        if (!record) {
+        if (record) {
+          return recordToChildData(record);
+        } else {
           return null;
         }
-        return {
-          id: get(record, 'id'),
-          guid: get(record, 'entityId'),
-          index: get(record, 'index'),
-          type: get(record, 'type'),
-          size: get(record, 'size'),
-          posixPermissions: get(record, 'posixPermissions'),
-          hasMetadata: get(record, 'hasMetadata'),
-          mtime: get(record, 'mtime'),
-          activePermissionsType: get(record, 'activePermissionsType'),
-          shares: record.hasMany('shareRecords').ids().map(gri => parseGri(gri).entityId),
-          parentId: parseGri(record.belongsTo('parent').id()).entityId,
-          ownerId: parseGri(record.belongsTo('owner').id()).entityId,
-          providerId: parseGri(record.belongsTo('provider').id()).entityId,
-        };
       });
     }
   },
@@ -603,3 +589,51 @@ export default OnedataGraphMock.extend({
     _.remove(childrenDetailsCache[dirEntityId], fileId => fileId.match(childEntityId));
   },
 });
+
+function hasManyEntityIds(record, relationName) {
+  return record.hasMany(relationName).ids().map(gri => parseGri(gri).entityId);
+}
+
+function belongsToEntityId(record, relationName) {
+  return parseGri(record.belongsTo(relationName).id()).entityId;
+}
+
+function recordToChildData(record) {
+  const {
+    id,
+    entityId: guid,
+    index,
+    type,
+    size,
+    posixPermissions,
+    hasMetadata,
+    mtime,
+    activePermissionsType,
+  } = getProperties(
+    record,
+    'id',
+    'entityId',
+    'index',
+    'type',
+    'size',
+    'posixPermissions',
+    'hasMetadata',
+    'mtime',
+    'activePermissionsType',
+  );
+  return {
+    id,
+    guid,
+    index,
+    type,
+    size,
+    posixPermissions,
+    hasMetadata,
+    mtime,
+    activePermissionsType,
+    shares: hasManyEntityIds(record, 'shareRecords'),
+    parentId: belongsToEntityId(record, 'parent'),
+    ownerId: belongsToEntityId(record, 'owner'),
+    providerId: belongsToEntityId(record, 'provider'),
+  };
+}
