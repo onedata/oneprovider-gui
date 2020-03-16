@@ -17,9 +17,10 @@ import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { promise } from 'ember-awesome-macros';
-import { resolve, allSettled } from 'rsvp';
+import { resolve } from 'rsvp';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -90,8 +91,7 @@ export default OneEmbeddedComponent.extend(
           dirProxy,
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
-          return allSettled(selected.map(fileId => fileManager.getFileById(fileId)))
-            .then(results => results.filterBy('state', 'fulfilled').mapBy('value'))
+          return onlyFulfilledValues(selected.map(id => fileManager.getFileById(id)))
             .then(files => {
               return dirProxy.then(dir => files.filter(file => {
                 const parentGri = file.belongsTo('parent').id();

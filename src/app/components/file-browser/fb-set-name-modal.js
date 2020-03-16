@@ -77,12 +77,12 @@ export default Component.extend(I18n, {
     return `${this.elementId}-name-input`;
   }),
 
-  inputElement: computed('inputId', function $inputElement() {
+  getInputElement() {
     return document.getElementById(this.get('inputId'));
-  }),
+  },
 
-  onShownRender() {
-    this.get('inputElement').focus();
+  onShow() {
+    this.getInputElement().focus();
   },
 
   actions: {
@@ -95,7 +95,7 @@ export default Component.extend(I18n, {
       });
     },
     onShow() {
-      this.get('inputElement').focus();
+      this.onShow();
     },
     submit() {
       return notImplementedReject();
