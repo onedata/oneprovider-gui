@@ -195,6 +195,7 @@ export default Service.extend({
           type: 'dir',
           mtime: timestamp + i * 3600,
           parent: null,
+          provider: this.get('entityRecords.provider.firstObject'),
         }).save()
       ))
       .then(rootDirs => allFulfilled(_.range(numberOfSpaces).map((i) =>
@@ -339,17 +340,22 @@ export default Service.extend({
     return allFulfilled(_.range(numberOfDirs).map((i) => {
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
+        const name =
+          `Directory long long long long long long long long long long long long long long long long name ${String(i).padStart(4, '0')}`;
         return store.createRecord('file', {
           id,
-          name: `Directory long long long long long long long long long long long long long long long long name ${String(i).padStart(4, '0')}`,
-          index: atob(entityId),
+          name,
+          index: name,
           type: 'dir',
           mtime: timestamp + i * 3600,
           parent,
           owner,
+          provider: this.get('entityRecords.provider.firstObject'),
         }).save();
       }))
-      .then(([firstDir]) => {
+      .then(dirs => {
+        this.set('entityRecords.dir', dirs);
+        const [firstDir] = dirs;
         if (numberOfDirs > 0) {
           allFulfilled(_.range(numberOfChainDirs).map((i) => {
             const entityId = generateDirEntityId(
@@ -358,13 +364,15 @@ export default Service.extend({
               `-c${String(i).padStart(4, '0')}`
             );
             const id = generateFileGri(entityId);
+            const name = `Chain directory long long long long long name ${String(i).padStart(4, '0')}`;
             return store.createRecord('file', {
               id,
-              name: `Chain directory long long long long long name ${String(i).padStart(4, '0')}`,
-              index: atob(entityId),
+              name,
+              index: name,
               type: 'dir',
               mtime: timestamp + i * 3600,
               owner,
+              provider: this.get('entityRecords.provider.firstObject'),
             }).save();
           })).then(chainDirs => {
             this.set('entityRecords.chainDir', chainDirs);
@@ -382,15 +390,17 @@ export default Service.extend({
       .then(() => allFulfilled(_.range(numberOfFiles).map((i) => {
         const entityId = generateFileEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
+        const name = `file-${String(i).padStart(4, '0')}`;
         return store.createRecord('file', {
           id,
-          name: `file-${String(i).padStart(4, '0')}`,
-          index: atob(entityId),
+          name,
+          index: name,
           type: 'file',
           size: i * 1000000,
           mtime: timestamp + i * 3600,
           parent,
           owner,
+          provider: this.get('entityRecords.provider.firstObject'),
         }).save();
       })))
       .then((records) => {

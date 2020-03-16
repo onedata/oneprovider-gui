@@ -12,6 +12,7 @@ import attr from 'ember-data/attr';
 import { alias } from '@ember/object/computed';
 import { belongsTo, hasMany } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get, getProperties } from '@ember/object';
+import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
@@ -43,6 +44,15 @@ export function getShareIdFromFileId(fileEntityId) {
   const decoded = atob(fileEntityId);
   const m = decoded.match(shareGuidRegexp);
   return m && m[3];
+}
+
+export function getFileGri(fileId, scope) {
+  return gri({
+    entityType: entityType,
+    entityId: fileId,
+    aspect: 'instance',
+    scope,
+  });
 }
 
 export default Model.extend(

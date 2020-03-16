@@ -128,22 +128,20 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   isInvalidated: not('file.type'),
 
-  fileNameParts: computed('file.{name,index}', function fileNameParts() {
+  fileNameBase: reads('file.index'),
+
+  fileNameSuffix: computed('file.{name,index}', function fileNameSuffix() {
     const file = this.get('file');
     const {
       name,
       index,
     } = getProperties(file, 'name', 'index');
     if (name === index) {
-      return [index, null];
+      return null;
     } else {
-      return [index, name.split(index)[1]];
+      return name.split(index)[1];
     }
   }),
-
-  fileNameBase: reads('fileNameParts.0'),
-
-  fileNameSuffix: reads('fileNameParts.1'),
 
   enableContextMenuToggle: computed(
     'fileActionsOpen',

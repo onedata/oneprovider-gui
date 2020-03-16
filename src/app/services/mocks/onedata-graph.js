@@ -18,6 +18,7 @@ import {
   parseDecodedDirEntityId,
 } from 'oneprovider-gui/services/mock-backend';
 import { inject as service } from '@ember/service';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 const messagePosixError = (errno) => ({
   id: 'posix',
@@ -237,7 +238,7 @@ const fileHandlers = {
     }
     return response;
   },
-  children(operation, entityId, { index, limit, offset }) {
+  children_details(operation, entityId, { index, limit, offset }) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
@@ -256,7 +257,13 @@ const fileHandlers = {
       };
     } else {
       return {
-        children: this.getMockChildrenSlice(entityId, index, limit, offset),
+        children: this.getMockChildrenSlice({
+          type: 'data',
+          entityId,
+          index,
+          limit,
+          offset,
+        }),
       };
     }
   },
@@ -455,6 +462,7 @@ export default OnedataGraphMock.extend({
   mockBackend: service(),
 
   childrenIdsCache: computed(() => ({})),
+  childrenDetailsCache: computed(() => ({})),
 
   cancelledTransfers: computed(() => []),
 
@@ -486,32 +494,48 @@ export default OnedataGraphMock.extend({
     return mockSpaceTransfers.slice(arrIndex + offset, arrIndex + offset + limit);
   },
 
-  getMockChildrenSlice(dirEntityId, index, limit = 100000000, offset = 0) {
-    const mockChildren = this.getMockChildren(dirEntityId);
-    let arrIndex = mockChildren.findIndex(childEntityId =>
-      atob(childEntityId) === index
-    );
+  /**
+   * @param {string} type one of: id, data
+   * @param {string} dirId
+   * @param {string} index
+   * @param {Number} limit
+   * @param {Number} offset
+   * @returns {Array<any>}
+   */
+  getMockChildrenSlice({ type, dirId, index, limit = 1000, offset = 0 }) {
+    let mockChildren;
+    let arrIndex;
+    if (type === 'data') {
+      mockChildren = this.getMockChildrenData(dirId);
+      arrIndex = mockChildren.findIndex(fileData =>
+        atob(get(fileData, 'guid')) === index);
+    } else if (type === 'id') {
+      mockChildren = this.getMockChildrenIds(dirId);
+      arrIndex = mockChildren.findIndex(childId =>
+        atob(childId) === index
+      );
+    }
     if (arrIndex === -1) {
       arrIndex = 0;
     }
     return mockChildren.slice(arrIndex + offset, arrIndex + offset + limit);
   },
 
-  getMockChildren(dirEntityId) {
+  getMockChildrenIds(dirId) {
     const childrenIdsCache = this.get('childrenIdsCache');
-    const decodedDirEntityId = atob(dirEntityId);
-    if (childrenIdsCache[dirEntityId]) {
-      return childrenIdsCache[dirEntityId];
+    const decodedDirEntityId = atob(dirId);
+    if (childrenIdsCache[dirId]) {
+      return childrenIdsCache[dirId];
     } else {
       let cache;
       if (/.*#-dir-0000.*/.test(decodedDirEntityId)) {
         // root dir
         cache = [
           ..._.range(numberOfDirs).map(i =>
-            generateDirEntityId(i, dirEntityId)
+            generateDirEntityId(i, dirId)
           ),
           ..._.range(numberOfFiles).map(i =>
-            generateFileEntityId(i, dirEntityId)
+            generateFileEntityId(i, dirId)
           ),
         ];
       } else if (/.*dir-0000.*/.test(decodedDirEntityId)) {
@@ -532,13 +556,50 @@ export default OnedataGraphMock.extend({
       } else {
         cache = [];
       }
-      childrenIdsCache[dirEntityId] = cache;
+      childrenIdsCache[dirId] = cache;
       return cache;
     }
   },
 
+  getMockChildrenData(dirEntityId) {
+    const childrenDetailsCache = this.get('childrenDetailsCache');
+    const mockEntityRecords = this.get('mockBackend.entityRecords');
+    const allFiles = [
+      ...get(mockEntityRecords, 'rootDir'),
+      ...get(mockEntityRecords, 'dir'),
+      ...get(mockEntityRecords, 'chainDir'),
+      ...get(mockEntityRecords, 'file'),
+    ];
+
+    let cache = childrenDetailsCache[dirEntityId];
+    if (!cache) {
+      cache = this.getMockChildrenIds(dirEntityId).map(entityId => {
+        const record = allFiles.findBy('entityId', entityId);
+        // FIXME: refactor getters
+        if (!record) {
+          return null;
+        }
+        return {
+          id: get(record, 'id'),
+          guid: get(record, 'entityId'),
+          index: get(record, 'index'),
+          type: get(record, 'type'),
+          size: get(record, 'size'),
+          posixPermissions: get(record, 'posixPermissions'),
+          hasMetadata: get(record, 'hasMetadata'),
+          mtime: get(record, 'mtime'),
+          activePermissionsType: get(record, 'activePermissionsType'),
+          shares: record.hasMany('shareRecords').ids().map(gri => parseGri(gri).entityId),
+          parentId: parseGri(record.belongsTo('parent').id()).entityId,
+          ownerId: parseGri(record.belongsTo('owner').id()).entityId,
+          providerId: parseGri(record.belongsTo('provider').id()).entityId,
+        };
+      });
+    }
+  },
+
   removeMockChild(dirEntityId, childEntityId) {
-    const childrenIdsCache = this.get('childrenIdsCache');
-    _.remove(childrenIdsCache[dirEntityId], fileId => fileId.match(childEntityId));
+    const childrenDetailsCache = this.get('childrenDetailsCache');
+    _.remove(childrenDetailsCache[dirEntityId], fileId => fileId.match(childEntityId));
   },
 });

@@ -87,7 +87,7 @@
               spinnerBlockClass="loading-owner-full-name"
             }}
               {{#truncated-string}}
-                {{ownerFullNameProxy.content}}
+                {{or ownerFullNameProxy.content "‐"}}
               {{/truncated-string}}
             {{/promise-proxy-container}}
           </td>

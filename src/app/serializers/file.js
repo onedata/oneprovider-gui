@@ -16,6 +16,7 @@ import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
+import { getFileGri } from 'oneprovider-gui/models/file';
 
 const fileRelations = ['acl', 'distribution'];
 
@@ -97,32 +98,41 @@ export function convertForeignKeys(hash, converters, scope) {
   }
 }
 
+export function serializeData(recordGri, hash) {
+  if (recordGri) {
+    // this is record update
+    const { entityId, scope } = parseGri(recordGri);
+    hash.guid = entityId;
+    serializeRelations(hash, scope);
+    serializeVirtualRelations(hash);
+  }
+  return hash;
+}
+
+export function normalizeData(hash) {
+  if (!hash.gri) {
+    hash.gri = getFileGri(hash.guid, hash.scope);
+  }
+  const parsedGri = parseGri(hash.gri);
+  const scope = hash.scope || parsedGri.scope;
+  const entityId = parsedGri.entityId;
+  normalizeRelations(hash, scope);
+  normalizeVirtualRelations(hash, entityId, scope);
+  return hash;
+}
+
 export default Serializer.extend({
   fileManager: service(),
 
   normalize(typeClass, hash) {
-    const fileManager = this.get('fileManager');
-    if (!hash.gri) {
-      hash.gri = fileManager.getFileGri(hash.guid, hash.scope);
-    }
-    const parsedGri = parseGri(hash.gri);
-    const scope = hash.scope || parsedGri.scope;
-    const entityId = parsedGri.entityId;
-    normalizeRelations(hash, scope);
-    normalizeVirtualRelations(hash, entityId, scope);
+    normalizeData(hash);
     return this._super(typeClass, hash);
   },
 
   serialize(snapshot) {
-    const recordGri = get(snapshot, 'id');
     const hash = this._super(...arguments);
-    if (recordGri) {
-      // this is record update
-      const { entityId, scope } = parseGri(recordGri);
-      hash.guid = entityId;
-      serializeRelations(hash, scope);
-      serializeVirtualRelations(hash);
-    }
+    const id = get(snapshot, 'id');
+    serializeData(id, hash);
     return hash;
   },
 });
