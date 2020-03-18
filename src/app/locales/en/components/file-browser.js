@@ -28,6 +28,7 @@ export default {
     share: 'Share',
     metadata: 'Metadata',
     permissions: 'Permissions',
+    qos: 'Quality of Service',
     distribution: 'Data distribution',
     rename: 'Rename',
     copy: 'Copy',

@@ -5,5 +5,6 @@ export default {
   },
   isShared: 'This {{type}} is shared',
   hasMetadata: 'This {{type}} has metadata',
+  hasQos: 'This {{type}} has Quality of Service requirements assigned',
   brokenName: 'Cannot read',
 };

@@ -607,6 +607,7 @@ function recordToChildData(record) {
     size,
     posixPermissions,
     hasMetadata,
+    hasQos,
     mtime,
     activePermissionsType,
   } = getProperties(
@@ -618,6 +619,7 @@ function recordToChildData(record) {
     'size',
     'posixPermissions',
     'hasMetadata',
+    'hasQos',
     'mtime',
     'activePermissionsType',
   );
@@ -629,6 +631,7 @@ function recordToChildData(record) {
     size,
     posixPermissions,
     hasMetadata,
+    hasQos,
     mtime,
     activePermissionsType,
     shares: hasManyEntityIds(record, 'shareRecords'),

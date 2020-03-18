@@ -1,0 +1,31 @@
+{{#bs-modal
+  class="qos-modal"
+  open=open
+  size="lg"
+  backdropClose=false
+  keyboard=false
+  opShow=(action "onShow")
+  onHide=(action "onHide")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>
+      <span>{{tt this "header" type=typeTranslation}}</span>
+      <span class="label status-label label-{{fileQosStatusClass}}">
+        {{fileQosStatusText}}
+      </span>
+    </h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    
+  {{/modal.body}}
+  
+  {{#modal.footer}}
+    {{#bs-button
+      onClick=(action "onHide")
+      type="default"
+    }}
+      {{tt this "close"}}
+    {{/bs-button}}
+  {{/modal.footer}}
+{{/bs-modal}}

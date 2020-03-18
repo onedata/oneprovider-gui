@@ -11,6 +11,7 @@ import websocketConnectionModal from './components/websocket-connection-modal';
 import spaceTransfers from './components/space-transfers';
 import spaceShares from './components/space-shares';
 import dbViewModal from './components/db-view-modal';
+import qosModal from './components/qos-modal';
 
 import uploadManager from './services/upload-manager';
 
@@ -28,6 +29,7 @@ const translations = {
     spaceTransfers,
     spaceShares,
     dbViewModal,
+    qosModal,
   },
   services: {
     uploadManager,

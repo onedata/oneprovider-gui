@@ -16,7 +16,114 @@ import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
-import { replicaEntityType } from 'oneprovider-gui/services/transfer-manager';
+
+const fileRelations = [
+  { name: 'acl', aspect: 'acl' },
+  { name: 'distribution', aspect: 'distribution' },
+  { name: 'fileQos', aspect: 'eff_qos' },
+];
+
+/**
+ * Keys of this objects are keys in hash to be converted.
+ * Every attr normalizer takes an attribute value and returns [targetKey, value] pair.
+ * For example it will convert `parentId` key of hash to `parent`.
+ */
+export const attrNormalizers = {
+  parentId: (attribute, scope) => [
+    'parent',
+    attribute && gri({
+      entityType: fileEntityType,
+      entityId: attribute,
+      aspect: 'instance',
+      scope,
+    }),
+  ],
+  ownerId: (attribute, scope) => [
+    'owner',
+    attribute === '0' ? null : gri({
+      entityType: userEntityType,
+      entityId: attribute,
+      aspect: 'instance',
+      scope,
+    }),
+  ],
+  providerId: (attribute, scope) => [
+    'provider',
+    attribute && gri({
+      entityType: providerEntityType,
+      entityId: attribute,
+      aspect: 'instance',
+      scope,
+    }),
+  ],
+  shares: (attribute, scope) => [
+    'shareRecords',
+    attribute && attribute.map(id => gri({
+      entityType: shareEntityType,
+      entityId: id,
+      aspect: 'instance',
+      scope,
+    })),
+  ],
+};
+
+/**
+ * Keys of this objects are keys in hash to be converted.
+ * Every attr serializer takes an attribute value and returns [targetKey, value] pair.
+ * For example it will convert `parent` key of hash to `parentId`.
+ */
+export const attrSerializers = {
+  parent: createEntityIdSerializer('parentId'),
+  owner: createEntityIdSerializer('ownerId'),
+  provider: createEntityIdSerializer('providerId'),
+  shareRecords: (attribute) => [
+    'shares',
+    attribute && attribute.map(gri => parseGri(gri).entityId),
+  ],
+};
+
+export function getRelation(fileId, aspect, scope = 'private') {
+  return gri({
+    entityType: fileEntityType,
+    entityId: fileId,
+    aspect,
+    scope,
+  });
+}
+
+export function convertForeignKeys(hash, converters, scope) {
+  for (const key in hash) {
+    const converter = converters[key];
+    if (converter) {
+      const [newKey, newAttribute] = converter(hash[key], scope);
+      hash[newKey] = newAttribute;
+      delete hash[key];
+    }
+  }
+}
+
+export function serializeData(recordGri, hash) {
+  if (recordGri) {
+    // this is record update
+    const { entityId, scope } = parseGri(recordGri);
+    hash.guid = entityId;
+    serializeRelations(hash, scope);
+    serializeVirtualRelations(hash);
+  }
+  return hash;
+}
+
+export function normalizeData(hash) {
+  if (!hash.gri) {
+    hash.gri = getFileGri(hash.guid, hash.scope);
+  }
+  const parsedGri = parseGri(hash.gri);
+  const scope = hash.scope || parsedGri.scope;
+  const entityId = parsedGri.entityId;
+  normalizeRelations(hash, scope);
+  normalizeVirtualRelations(hash, entityId, scope);
+  return hash;
+}
 
 export default Serializer.extend({
   fileRelations: computed(() => [
@@ -141,6 +248,8 @@ export default Serializer.extend({
     return (attribute) => [name, attribute && parseGri(attribute).entityId];
   },
 
+  <<
+  << << < HEAD
   serializeData(recordGri, hash) {
     if (recordGri) {
       // this is record update
@@ -163,6 +272,20 @@ export default Serializer.extend({
     this.normalizeVirtualRelations(hash, entityId, scope);
     return hash;
   },
+  ===
+  === =
+  function serializeVirtualRelations(hash) {
+    fileRelations.forEach(({ name }) => {
+      delete hash[name];
+    });
+  }
+
+  function normalizeVirtualRelations(hash, entityId, scope) {
+    fileRelations.forEach(({ name, aspect }) => {
+      hash[name] = getRelation(entityId, aspect, scope);
+    });
+  } >>>
+  >>> > 628918 a...VFS - 6145 QoS API and initial modal
 
   getRelation({
     fileId,

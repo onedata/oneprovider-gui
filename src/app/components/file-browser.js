@@ -53,6 +53,7 @@ const buttonNames = [
   'btnMetadata',
   'btnPermissions',
   'btnDistribution',
+  'btnQos',
   'btnRename',
   'btnCopy',
   'btnCut',
@@ -119,6 +120,13 @@ export default Component.extend(I18n, {
    * @param {Array<Models/File>} files files to show distribution
    */
   openFileDistributionModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models/File} file file configure QoS
+   */
+  openQos: notImplementedThrow,
 
   /**
    * @virtual
@@ -486,6 +494,26 @@ export default Component.extend(I18n, {
           selectedFiles,
         } = this.getProperties('openFileDistributionModal', 'selectedFiles');
         return openFileDistributionModal(selectedFiles);
+      },
+    });
+  }),
+
+  btnQos: computed(function btnQos() {
+    return this.createFileAction({
+      id: 'qos',
+      icon: 'qos',
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleFile,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
+      action: () => {
+        const {
+          openQos,
+          selectedFiles,
+        } = this.getProperties('openQos', 'selectedFiles');
+        return openQos(selectedFiles[0]);
       },
     });
   }),

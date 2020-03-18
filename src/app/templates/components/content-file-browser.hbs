@@ -13,6 +13,7 @@
     openMetadata=(action "openMetadataModal")
     openEditPermissions=(action "openEditPermissionsModal")
     openFileDistributionModal=(action "openFileDistributionModal")
+    openQos=(action "openQosModal")
     containerScrollTop=(action "containerScrollTop")
   }}
   <div class="upload-drop-zone">
@@ -86,6 +87,14 @@
       open=true
       file=fileToShowMetadata
       onHide=(action "closeMetadataModal")
+    }}
+  {{/if}}
+  
+  {{#if fileToShowQos}}
+    {{qos-modal
+      open=true
+      file=fileToShowQos
+      onHide=(action "closeQosModal")
     }}
   {{/if}}
 {{/promise-proxy-container}}

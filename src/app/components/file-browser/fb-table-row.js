@@ -281,6 +281,8 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasMetadata: reads('file.hasMetadata'),
 
+  hasQos: reads('file.hasQos'),
+
   didInsertElement() {
     this._super(...arguments);
     const {
