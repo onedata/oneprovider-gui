@@ -37,16 +37,6 @@ export default Service.extend({
     return this.get('store').findRecord(fileModelName, fileGri);
   },
 
-  getFileDataById(fileId, scope) {
-    const requestGri = getFileGri(fileId, scope);
-    return this.get('onedataGraph').request({
-      operation: 'get',
-      gri: requestGri,
-      aspect: 'instance',
-      subscribe: false,
-    });
-  },
-
   /**
    * Creates new file or directory
    * @param {string} type `file` or `dir`

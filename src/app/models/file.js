@@ -85,10 +85,6 @@ export default Model.extend(
 
     modificationTime: alias('mtime'),
 
-    sharesCount: computed('shareRecords.length', function () {
-      return this.hasMany('shareRecords').ids().length;
-    }),
-
     /**
      * Contains error of loading file distribution. Is null if distribution has not
      * been fetched yet or it has been fetched successfully. It is persisted in this place
@@ -109,6 +105,10 @@ export default Model.extend(
     pollSizeTimerId: null,
 
     isShared: bool('sharesCount'),
+
+    sharesCount: computed('shareRecords.length', function sharesCount() {
+      return this.hasMany('shareRecords').ids().length;
+    }),
 
     cdmiObjectId: computed('entityId', function cdmiObjectId() {
       try {

@@ -35,7 +35,6 @@ import backendifyName, {
   maxLength as shareNameMax,
 } from 'onedata-gui-common/utils/backendify-name';
 import { next } from '@ember/runloop';
-import _ from 'lodash';
 
 export default Component.extend(
   I18n,
@@ -164,8 +163,7 @@ export default Component.extend(
     fetchShares() {
       return this.get('file').reload()
         .then(file => {
-          const sharesRelation = file.hasMany('shareRecords');
-          if (!_.isEmpty(sharesRelation) && !_.isEmpty(sharesRelation.ids())) {
+          if (get(file, 'sharesCount')) {
             return get(file, 'shareRecords')
               .then(shares => shares.reload());
           } else {

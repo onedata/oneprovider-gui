@@ -1,5 +1,5 @@
 /**
- * Exports a real onedata-connection service or its mock.
+ * Exports a real file-manager service or its mock.
  * @module services/file-manager
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
