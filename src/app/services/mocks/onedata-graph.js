@@ -512,7 +512,7 @@ export default OnedataGraphMock.extend({
     } else if (type === 'id') {
       mockChildren = this.getMockChildrenIds(dirId);
       arrIndex = mockChildren.findIndex(childId =>
-        atob(childId) === index
+        atob(childId).endsWith(index)
       );
     }
     if (arrIndex === -1) {
