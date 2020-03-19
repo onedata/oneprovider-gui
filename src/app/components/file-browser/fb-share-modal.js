@@ -163,10 +163,9 @@ export default Component.extend(
     fetchShares() {
       return this.get('file').reload()
         .then(file => {
-          if (file.belongsTo('shareList').id()) {
-            return get(file, 'shareList')
-              .then(shareList => shareList.reload())
-              .then(shareList => get(shareList, 'list'));
+          if (get(file, 'sharesCount')) {
+            return get(file, 'shareRecords')
+              .then(shares => shares.reload());
           } else {
             return null;
           }

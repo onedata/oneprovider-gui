@@ -128,6 +128,21 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   isInvalidated: not('file.type'),
 
+  fileNameBase: reads('file.index'),
+
+  fileNameSuffix: computed('file.{name,index}', function fileNameSuffix() {
+    const file = this.get('file');
+    const {
+      name,
+      index,
+    } = getProperties(file, 'name', 'index');
+    if (name === index) {
+      return null;
+    } else {
+      return name.split(index)[1];
+    }
+  }),
+
   enableContextMenuToggle: computed(
     'fileActionsOpen',
     'type',
@@ -139,15 +154,6 @@ export default Component.extend(I18n, FastDoubleClick, {
       return !fileActionsOpen && type !== 'broken';
     }
   ),
-
-  displayName: computed('file.{name,type}', function displayName() {
-    const file = this.get('file');
-    if (get(file, 'type') === 'broken') {
-      return this.t('brokenName');
-    } else {
-      return this.get('file.name');
-    }
-  }),
 
   fileEntityId: reads('file.entityId'),
 

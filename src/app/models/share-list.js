@@ -11,6 +11,8 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import ListConflictModel from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import GraphListModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-list-model';
 
+export const aspect = 'shares';
+
 export default Model.extend(GraphListModelMixin, ListConflictModel, {
   list: hasMany('share'),
 }).reopenClass(StaticGraphModelMixin);

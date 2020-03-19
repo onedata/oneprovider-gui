@@ -3,7 +3,7 @@
  * 
  * @module services/transfer-manager
  * @author Michał Borzęcki
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,9 +13,11 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { all as allFulfilled, resolve } from 'rsvp';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 
-function replicaGri(fileId) {
+export const replicaEntityType = 'op_replica';
+
+export function replicaGri(fileId) {
   return gri({
-    entityType: 'op_replica',
+    entityType: replicaEntityType,
     entityId: fileId,
     aspect: 'instance',
   });

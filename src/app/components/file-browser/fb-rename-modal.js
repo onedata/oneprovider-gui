@@ -37,7 +37,7 @@ export default FbSetNameModal.extend(I18n, {
   onShow() {
     this._super(...arguments);
     const input = this.getInputElement();
-    input.value = this.get('file.name');
+    input.value = this.get('file.index');
     input.select();
   },
 

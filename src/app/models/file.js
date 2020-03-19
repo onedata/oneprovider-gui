@@ -10,13 +10,16 @@
 import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import { alias } from '@ember/object/computed';
-import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
+import { belongsTo, hasMany } from 'onedata-gui-websocket-client/utils/relationships';
 import { computed, get, getProperties } from '@ember/object';
+import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { bool } from 'ember-awesome-macros';
+import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 
 export const entityType = 'file';
 
@@ -43,113 +46,123 @@ export function getShareIdFromFileId(fileEntityId) {
   return m && m[3];
 }
 
-export default Model.extend(GraphSingleModelMixin, {
-  name: attr('string'),
-  index: attr('string'),
-  type: attr('string'),
-  size: attr('number'),
-  hasMetadata: attr('boolean'),
-  parent: belongsTo('file'),
-  distribution: belongsTo('file-distribution'),
-  owner: belongsTo('user'),
+export function getFileGri(fileId, scope) {
+  return gri({
+    entityType: entityType,
+    entityId: fileId,
+    aspect: 'instance',
+    scope,
+  });
+}
 
-  /**
-   * Modification time in UNIX timestamp format.
-   */
-  mtime: attr('number'),
+export default Model.extend(
+  GraphSingleModelMixin,
+  createConflictModelMixin('shareRecords'), {
+    name: attr('string'),
+    index: attr('string'),
+    type: attr('string'),
+    size: attr('number'),
+    posixPermissions: attr('string'),
+    hasMetadata: attr('boolean'),
 
-  /**
-   * Posix permissions in octal three digit format.
-   */
-  posixPermissions: attr('string'),
+    /**
+     * Modification time in UNIX timestamp format.
+     */
+    mtime: attr('number'),
 
-  /**
-   * One of: `posix`, `acl`
-   */
-  activePermissionsType: attr('string'),
+    /**
+     * One of: `posix`, `acl`
+     */
+    activePermissionsType: attr('string'),
 
-  acl: belongsTo('acl'),
+    shareRecords: hasMany('share'),
 
-  modificationTime: alias('mtime'),
+    acl: belongsTo('acl'),
+    parent: belongsTo('file'),
+    distribution: belongsTo('file-distribution'),
+    owner: belongsTo('user'),
+    provider: belongsTo('provider'),
 
-  /**
-   * Contains error of loading file distribution. Is null if distribution has not
-   * been fetched yet or it has been fetched successfully. It is persisted in this place
-   * due to the bug in Ember that makes belongsTo relationship unusable after
-   * rejected fetch (id and value become null).
-   * @type {Object}
-   */
-  distributionLoadError: null,
+    modificationTime: alias('mtime'),
 
-  /**
-   * @type {boolean}
-   */
-  isPollingSize: false,
+    /**
+     * Contains error of loading file distribution. Is null if distribution has not
+     * been fetched yet or it has been fetched successfully. It is persisted in this place
+     * due to the bug in Ember that makes belongsTo relationship unusable after
+     * rejected fetch (id and value become null).
+     * @type {Object}
+     */
+    distributionLoadError: null,
 
-  /**
-   * @type {any}
-   */
-  pollSizeTimerId: null,
+    /**
+     * @type {boolean}
+     */
+    isPollingSize: false,
 
-  isShared: computed('shareList', function isShared() {
-    return Boolean(this.belongsTo('shareList').id());
-  }),
+    /**
+     * @type {any}
+     */
+    pollSizeTimerId: null,
 
-  shareList: belongsTo('share-list'),
+    isShared: bool('sharesCount'),
 
-  cdmiObjectId: computed('entityId', function cdmiObjectId() {
-    try {
-      return guidToCdmiObjectId(this.get('entityId'));
-    } catch (error) {
-      console.trace();
-      console.error(error);
-      return 'error';
-    }
-  }),
+    sharesCount: computed('shareRecords.length', function sharesCount() {
+      return this.hasMany('shareRecords').ids().length;
+    }),
 
-  hasParent: computed(function hasParent() {
-    return Boolean(this.belongsTo('parent').id());
-  }),
-
-  spaceEntityId: computed('entityId', function spaceEntityId() {
-    return getSpaceIdFromFileId(this.get('entityId'));
-  }),
-
-  internalFileId: computed('entityId', function internalFileId() {
-    return getInternalFileIdFromFileId(this.get('entityId'));
-  }),
-
-  /**
-   * Polls file size. Will stop after `attempts` retries or when fetched size
-   * will be equal `targetSize`.
-   * @param {number} attempts 
-   * @param {number} interval time in milliseconds
-   * @param {number} [targetSize=undefined]
-   * @returns {undefined}
-   */
-  pollSize(attempts, interval, targetSize = undefined) {
-    const pollSizeTimerId = this.get('pollSizeTimerId');
-    cancel(pollSizeTimerId);
-
-    this.set('isPollingSize', true);
-    this.reload().then(() => {
-      const {
-        size,
-        isDeleted,
-      } = this.getProperties('size', 'isDeleted');
-      if (pollSizeTimerId === this.get('pollSizeTimerId')) {
-        if (size !== targetSize && !isDeleted && attempts > 1) {
-          this.set(
-            'pollSizeTimerId',
-            later(this, 'pollSize', attempts - 1, interval, targetSize, interval)
-          );
-        } else {
-          this.set('isPollingSize', false);
-        }
+    cdmiObjectId: computed('entityId', function cdmiObjectId() {
+      try {
+        return guidToCdmiObjectId(this.get('entityId'));
+      } catch (error) {
+        console.trace();
+        console.error(error);
+        return 'error';
       }
-    });
-  },
-}).reopenClass(StaticGraphModelMixin, {
+    }),
+
+    hasParent: computed(function hasParent() {
+      return Boolean(this.belongsTo('parent').id());
+    }),
+
+    spaceEntityId: computed('entityId', function spaceEntityId() {
+      return getSpaceIdFromFileId(this.get('entityId'));
+    }),
+
+    internalFileId: computed('entityId', function internalFileId() {
+      return getInternalFileIdFromFileId(this.get('entityId'));
+    }),
+
+    /**
+     * Polls file size. Will stop after `attempts` retries or when fetched size
+     * will be equal `targetSize`.
+     * @param {number} attempts 
+     * @param {number} interval time in milliseconds
+     * @param {number} [targetSize=undefined]
+     * @returns {undefined}
+     */
+    pollSize(attempts, interval, targetSize = undefined) {
+      const pollSizeTimerId = this.get('pollSizeTimerId');
+      cancel(pollSizeTimerId);
+
+      this.set('isPollingSize', true);
+      this.reload().then(() => {
+        const {
+          size,
+          isDeleted,
+        } = this.getProperties('size', 'isDeleted');
+        if (pollSizeTimerId === this.get('pollSizeTimerId')) {
+          if (size !== targetSize && !isDeleted && attempts > 1) {
+            this.set(
+              'pollSizeTimerId',
+              later(this, 'pollSize', attempts - 1, interval, targetSize, interval)
+            );
+          } else {
+            this.set('isPollingSize', false);
+          }
+        }
+      });
+    },
+  }).reopenClass(StaticGraphModelMixin, {
   /**
    * @override
    */
@@ -184,7 +197,8 @@ export default Model.extend(GraphSingleModelMixin, {
             requestEntityType === entityType &&
             requestEntityId ===
             get(model.belongsTo('parent').value(), 'entityId') &&
-            requestAspect === 'children';
+            requestAspect &&
+            requestAspect.startsWith('children');
         });
         return superRequests.concat(listParentDirRequests);
       }

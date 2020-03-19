@@ -44,7 +44,7 @@ const OnedataGraphProduction = ProductionSymbol.extend({
 
     switch (operation) {
       case 'get': {
-        if (entityType === fileEntityType && aspect === 'children') {
+        if (entityType === fileEntityType && aspect && aspect.startsWith('children')) {
           const createChildRequests = createRequests.filter(request => {
             return get(request, 'modelClassName') === 'file' &&
               get(get(request, 'model').belongsTo('parent').value(), 'entityId') ===
