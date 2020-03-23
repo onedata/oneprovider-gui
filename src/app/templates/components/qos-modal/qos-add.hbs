@@ -1,0 +1,65 @@
+{{#collapsibleList.item
+  isActive=isActive
+  class="qos-entry qos-add"
+  closeEventName=closeEventName
+  as |listItem|
+}}
+  {{#listItem.header disableToggleIcon=true}}
+    <span class="item-icon-container">
+      {{one-icon class="item-icon" icon="add-filled"}}
+    </span>
+    <div class="qos-header">
+      {{#truncated-string class="qos-header-text"}}
+        {{tt this "add"}}
+      {{/truncated-string}}
+    </div>
+  {{/listItem.header}}
+  {{#listItem.content}}
+    <div class="list-content">
+      <table class="table table-info table-info-large table-info-collapsible table-info-breakable">
+        <tbody>
+          <tr class="qos-info-row-replicas-number">
+            <td class="property-name {{unless readonly "with-input"}}">
+              {{tt this "replicasNumber"}}
+            </td>
+            <td class="property-value">
+              <input
+                type="number"
+                class="form-control replicas-number-input"
+                value={{replicasNumber}}
+                oninput={{action (mut replicasNumber) value="target.value"}}
+                onkeydown={{invoke-on-enter (action "disableEnterKey")}}
+                disabled={{disabled}}
+                autofocus=true
+              >
+            </td>
+          </tr>
+          <tr class="qos-info-row-expression">
+            <td class="property-name {{unless readonly "with-input"}}">
+              {{tt this "expression"}}
+            </td>
+            <td class="property-value">
+              <div class="input-group-clipboard-textarea">
+                <textarea
+                  value={{expression}}
+                  oninput={{action "expressionChanged" value="target.value"}}
+                  disabled={{disabled}}
+                  rows="4"
+                  class="form-control no-resize code-textarea json-textarea"></textarea>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row row-submit-qos">
+        {{#one-spin-button
+          action=(action "save")
+          class="btn btn-primary"
+          disabled=saveDisabled
+        }}
+          {{tt this "save"}}
+        {{/one-spin-button}}
+      </div>
+    </div>
+  {{/listItem.content}}
+{{/collapsibleList.item}}

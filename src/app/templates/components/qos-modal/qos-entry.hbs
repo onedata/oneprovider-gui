@@ -1,0 +1,67 @@
+{{#collapsibleList.item class="qos-entry qos-entry-saved" as |listItem|}}
+  {{#listItem.header disableToggleIcon=true}}
+    <span class="item-icon-container">
+      {{one-icon class="item-icon" icon="qos"}}
+    </span>
+    <div class="qos-header">
+      {{#truncated-string class="qos-header-text"}}
+        {{headerText}}
+      {{/truncated-string}}
+    </div>
+    {{#if direct}}
+      <span class="label direct-label label-info">
+        {{tt this "direct"}}
+      </span>
+    {{/if}}
+    <span class="label status-label label-{{statusClass}}">
+      {{statusText}}
+    </span>
+  {{/listItem.header}}
+  {{#listItem.content}}
+    <div class="list-content">
+      <table class="table table-info table-info-large table-info-collapsible table-info-breakable">
+        <tbody>
+          <tr class="qos-info-row-replicas-number">
+            <td class="property-name {{unless readonly "with-input"}}">
+              {{tt this "replicasNumber"}}
+            </td>
+            <td class="property-value">
+              {{#if (eq mode "show")}}
+                <span>{{replicasNumber}}</span>
+              {{else}}
+                <input
+                  type="number"
+                  class="form-control replicas-number-input"
+                  value={{replicasNumber}}
+                  oninput={{action (mut replicasNumber) value="target.value"}}
+                  onkeydown={{invoke-on-enter (action "disableEnterKey")}}
+                  disabled={{disabled}}
+                  autofocus=true
+                >
+              {{/if}}
+            </td>
+          </tr>
+          <tr class="qos-info-row-expression">
+            <td class="property-name {{unless readonly "with-input"}}">
+              {{tt this "expression"}}
+            </td>
+            <td class="property-value">
+              <div class="input-group input-group input-group-clipboard-textarea">
+                {{#if readonly}}
+                  {{clipboard-line
+                    value=expression
+                    type="html"
+                    size=(if smallContent "sm")
+                    class="monospace-font"
+                  }}
+                {{else}}
+                  
+                {{/if}}
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  {{/listItem.content}}
+{{/collapsibleList.item}}

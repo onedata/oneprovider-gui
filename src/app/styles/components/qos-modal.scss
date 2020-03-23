@@ -1,8 +1,45 @@
 .qos-modal {
+  .label {
+    line-height: initial;
+  }
+  
   // FIXME: maybe move to common
   .modal-header {
     .status-label {
       float: right;
+    }
+  }
+  .qos-entry {
+    .list-content {
+      padding-top: 8px;
+      @media (max-width: $screen-sm-max) {
+        .table-info {
+          margin-top: 10px;
+          .property-name, .property-value {
+            padding-left: 15px;
+            padding-right: 15px;
+          }
+        }
+      }
+    }
+    .header-content-container {
+      display: flex;
+      .label {
+        margin-left: 8px;
+      }
+      .qos-header {
+        display: inline-flex;
+        flex-grow: 1;
+        // FIXME: this hack causes element to fit - check how?
+        width: 0;
+      }
+    }
+  }
+  .qos-add {
+    .row-submit-qos {
+      padding-left: $padding-large-horizontal;
+      padding-right: $padding-large-horizontal;
+      padding-bottom: $padding-large-horizontal;
     }
   }
 }

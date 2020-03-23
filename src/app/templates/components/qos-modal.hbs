@@ -4,20 +4,38 @@
   size="lg"
   backdropClose=false
   keyboard=false
-  opShow=(action "onShow")
+  onShow=(action "onShow")
   onHide=(action "onHide")
   as |modal|
 }}
   {{#modal.header}}
     <h1>
       <span>{{tt this "header" type=typeTranslation}}</span>
-      <span class="label status-label label-{{fileQosStatusClass}}">
-        {{fileQosStatusText}}
-      </span>
+      {{#if qosRecords.length}}
+        <span class="label status-label label-{{fileQosStatusClass}}">
+          {{fileQosStatusText}}
+        </span>
+      {{/if}}
     </h1>
   {{/modal.header}}
   {{#modal.body}}
-    
+    {{#promise-proxy-container proxy=qosRecordsProxy}}
+      {{#one-collapsible-list class="qos-list" as |list|}}
+        {{#each qosRecords as |qos|}}
+          {{qos-modal/qos-entry
+            collapsibleList=list
+            qos=qos
+            direct=(eq qos.file.entityId file.entityId)
+            fileFulfilled=(get fileQos.qosEntries qos.file.entityId)
+          }}
+        {{/each}}
+        {{qos-modal/qos-add
+          collapsibleList=list
+          isActive=addNewEntryActive
+          addEntry=(action "addEntry")
+        }}
+      {{/one-collapsible-list}}
+    {{/promise-proxy-container}}
   {{/modal.body}}
   
   {{#modal.footer}}

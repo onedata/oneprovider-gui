@@ -10,72 +10,123 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { conditional, equal, raw } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
-export default Component.extend(I18n, {
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.qosModal',
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { inject as service } from '@ember/service';
 
-  /**
-   * @virtual
-   * @type {boolean}
-   */
-  open: false,
+export default Component.extend(
+  I18n,
+  createDataProxyMixin('fileQos'),
+  createDataProxyMixin('qosRecords'), {
+    qosManager: service(),
+    globalNotify: service(),
 
-  /**
-   * @virtual
-   * @type {Models.File}
-   */
-  file: undefined,
+    /**
+     * @override
+     */
+    i18nPrefix: 'components.qosModal',
 
-  /**
-   * @type {Function}
-   */
-  onHide: notImplementedIgnore,
+    /**
+     * @virtual
+     * @type {boolean}
+     */
+    open: false,
 
-  /**
-   * @type {ComputedProperty<string>} one of: file, dir
-   */
-  fileType: reads('file.type'),
+    /**
+     * @virtual
+     * @type {Models.File}
+     */
+    file: undefined,
 
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  typeTranslation: conditional(
-    equal('fileType', raw('file')),
-    computedT('fileType.file'),
-    computedT('fileType.dir'),
-  ),
+    /**
+     * @virtual
+     * @type {Function}
+     */
+    onHide: notImplementedIgnore,
 
-  isFileQosFulfilled: false,
+    /**
+     * @type {ComputedProperty<string>} one of: file, dir
+     */
+    fileType: reads('file.type'),
 
-  fileQosStatus: conditional(
-    'isFileQosFulfilled',
-    raw('fulfilled'),
-    raw('pending'),
-  ),
+    isFileQosFulfilled: reads('fileQosProxy.fulfilled'),
 
-  fileQosStatusText: conditional(
-    'isFileQosFulfilled',
-    computedT('status.fulfilled'),
-    computedT('status.pending'),
-  ),
+    /**
+     * @type {ComputedProperty<string>}
+     */
+    typeTranslation: conditional(
+      equal('fileType', raw('file')),
+      computedT('fileType.file'),
+      computedT('fileType.dir'),
+    ),
 
-  fileQosStatusClass: conditional(
-    'isFileQosFulfilled',
-    raw('success'),
-    raw('default'),
-  ),
+    fileQosStatus: conditional(
+      'isFileQosFulfilled',
+      raw('fulfilled'),
+      raw('pending'),
+    ),
 
-  actions: {
-    onShow() {
+    fileQosStatusText: conditional(
+      'isFileQosFulfilled',
+      computedT('status.fulfilled'),
+      computedT('status.pending'),
+    ),
 
+    fileQosStatusClass: conditional(
+      'isFileQosFulfilled',
+      raw('success'),
+      raw('default'),
+    ),
+
+    /**
+     * @override
+     */
+    fetchFileQos() {
+      return this.get('file').belongsTo('fileQos').reload();
     },
-    onHide() {
-      this.get('onHide')();
+
+    /**
+     * @override
+     */
+    fetchQosRecords() {
+      return this.updateFileQosProxy().then(fileQos =>
+        fileQos.updateQosRecordsProxy({ replace: true })
+      );
     },
-  },
-});
+
+    addEntry({ replicasNumber, expression }) {
+      const {
+        file,
+        qosManager,
+        globalNotify,
+      } = this.getProperties('file', 'qosManager', 'globalNotify');
+      return qosManager.createQos(file, expression, replicasNumber)
+        .catch((error) => {
+          globalNotify.backendError(this.t('addingQosEntry'), error);
+          throw error;
+        })
+        .then(() => {
+          return this.updateQosRecordsProxy();
+        });
+    },
+
+    actions: {
+      onShow() {
+        this.updateQosRecordsProxy().then(qosRecords => {
+          if (!get(qosRecords, 'length')) {
+            this.set('addNewEntryActive', true);
+          }
+        });
+      },
+      onHide() {
+        this.get('onHide')();
+      },
+      addEntry(data) {
+        return this.addEntry(data);
+      },
+    },
+  }
+);
