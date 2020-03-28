@@ -577,15 +577,17 @@ export default Component.extend(I18n, {
   createFileAction(actionProperties) {
     const {
       id,
+      title,
       icon,
+      showIn,
       class: elementClass,
-    } = getProperties(actionProperties, 'id', 'icon', 'action', 'class');
-    return Object.assign({
+    } = getProperties(actionProperties, 'id', 'title', 'icon', 'showIn', 'class');
+    return Object.assign({}, actionProperties, {
       icon: icon || `browser-${dasherize(id)}`,
-      title: this.t(`fileActions.${id}`),
-      showIn: [],
-      class: [`file-action-${id}`, ...(elementClass || [])],
-    }, actionProperties);
+      title: title || this.t(`fileActions.${id}`),
+      showIn: showIn || [],
+      class: `file-action-${id} ${elementClass || ''}`,
+    });
   },
 
   clearFilesSelection() {
