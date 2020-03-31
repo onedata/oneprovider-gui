@@ -12,11 +12,11 @@ import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, or, notEmpty, gt, tag } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend(I18n, {
   tagName: '',
-
-  closeEventName: tag `qos-add-${'componentId'}:close`,
 
   /**
    * @override
@@ -35,6 +35,12 @@ export default Component.extend(I18n, {
    */
   fileFulfilled: undefined,
 
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  closeAddEntry: notImplementedIgnore,
+
   replicasNumber: 1,
 
   expression: '',
@@ -47,16 +53,16 @@ export default Component.extend(I18n, {
 
   saveDisabled: or(not('replicasNumberValid'), not('expressionValid')),
 
-  componentGuid: computed(function componentGuid() {
+  componentId: computed(function componentId() {
     return guidFor(this);
   }),
 
   closeForm() {
-    this.setProperties({
+    this.get('closeAddEntry')();
+    safeExec(this, 'setProperties', {
       replicasNumber: 1,
       expression: '',
     });
-    this.get('eventsBus').trigger('qos-add:close');
   },
 
   actions: {

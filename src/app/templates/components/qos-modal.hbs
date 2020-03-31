@@ -43,6 +43,7 @@
             collapsibleList=list
             isActive=addNewEntryActive
             addEntry=(action "addEntry")
+            closeAddEntry=(action (mut addNewEntryActive) false)
           }}
         {{/one-collapsible-list}}
       {{/promise-proxy-container}}

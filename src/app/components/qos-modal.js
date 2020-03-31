@@ -75,6 +75,12 @@ export default Component.extend(
     getDataUrl: notImplementedReject,
 
     /**
+     * @type {boolean}
+     * If true, add entry is expanded
+     */
+    addNewEntryActive: false,
+
+    /**
      * @type {ComputedProperty<string>} one of: file, dir
      */
     fileType: reads('file.type'),
@@ -140,6 +146,11 @@ export default Component.extend(
       );
     },
 
+    updateData() {
+      const file = this.get('file');
+      return this.updateQosRecordsProxy().finally(() => file.reload());
+    },
+
     addEntry({ replicasNumber, expression }) {
       const {
         file,
@@ -152,18 +163,12 @@ export default Component.extend(
           throw error;
         })
         .then(() => {
-          return this.updateQosRecordsProxy();
+          return this.updateData();
         });
     },
 
     actions: {
-      onShow() {
-        this.updateQosRecordsProxy().then(qosRecords => {
-          if (!get(qosRecords, 'length')) {
-            this.set('addNewEntryActive', true);
-          }
-        });
-      },
+      onShow() {},
       onHide() {
         this.get('onHide')();
       },
@@ -171,7 +176,10 @@ export default Component.extend(
         return this.addEntry(data);
       },
       removeQos(qos) {
-        return this.get('qosManager').removeQos(qos);
+        return this.get('qosManager').removeQos(qos)
+          .finally(() => {
+            this.updateData();
+          });
       },
       getDataUrl({ fileId }) {
         return this.get('getDataUrl')({ fileId });
