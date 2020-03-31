@@ -1,5 +1,1 @@
-{{#if brackets}}({{/if}}
-{{component (concat "qos-expression-viewer/qos-" data.a.type) data=data.a parentOperator=data.operator}}
-<span class="qos-expression-operator {{operatorStringClass}}">{{operatorString}}</span>
-{{component (concat "qos-expression-viewer/qos-" data.b.type) data=data.b parentOperator=data.operator}}
-{{#if brackets}}){{/if}}
+{{#if brackets}}<span class="qos-bracket qos-bracket-left">(</span>{{/if}}{{component (concat "qos-expression-viewer/qos-" data.a.type) data=data.a parentOperator=data.operator}}<span class="qos-group-operator {{operatorStringClass}}">{{operatorString}}</span>{{component (concat "qos-expression-viewer/qos-" data.b.type) data=data.b parentOperator=data.operator}}{{#if brackets}}<span class="qos-bracket qos-bracket-right">)</span>{{/if}}
