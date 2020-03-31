@@ -1,12 +1,25 @@
 .qos-modal {
+  $qos-icon-size: 32px;
+  $color-qos-status-fulfilled: $color-one-success;
+  $color-qos-status-pending: $color-one-warning;
+  
   .label {
     line-height: initial;
   }
-  
-  // FIXME: maybe move to common
+   
   .modal-header {
-    .status-label {
+    .file-qos-status {
+      font-size: $qos-icon-size * 1.5;
       float: right;
+    }
+    .file-qos-status-fulfilled {
+      color: $color-qos-status-fulfilled;
+    }
+    .file-qos-status-pending {
+      color: $color-qos-status-pending;
+    }
+    h2.filename {
+      text-transform: none;
     }
   }
   .qos-entry {
@@ -24,18 +37,49 @@
     }
     .header-content-container {
       display: flex;
+      height: 2em;
       .label {
         margin-left: 8px;
       }
       .qos-header {
-        display: inline-flex;
+        display: block;
         flex-grow: 1;
-        // FIXME: this hack causes element to fit - check how?
         width: 0;
+        .qos-subheader {
+          font-size: 90%;
+        }
+      }
+    }
+    .qos-status-icon-container {
+      .one-icon {
+        font-size: $qos-icon-size;
+      }
+    }
+    .remove-icon {
+      .one-icon {
+        font-size: $qos-icon-size;
+      }
+    }
+    .qos-status-fulfilled {
+      color: $color-qos-status-fulfilled;
+    }
+    .qos-status-pending {
+      color: $color-qos-status-pending;
+    }
+    .qos-path-subheader {
+      display: flex;
+      .inherited-text {
+        padding-right: 0.4em;
+      }
+      .file-path {
+        display: block;
       }
     }
   }
   .qos-add {
+    .header-content-container {
+      height: auto;
+    }
     .row-submit-qos {
       padding-left: $padding-large-horizontal;
       padding-right: $padding-large-horizontal;

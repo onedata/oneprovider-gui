@@ -272,6 +272,9 @@ export default OneEmbeddedComponent.extend(
       getShareUrl({ shareId }) {
         return this.callParent('getShareUrl', { shareId });
       },
+      getDataUrl({ fileId }) {
+        return this.callParent('getDataUrl', { fileId });
+      },
     },
   }
 );

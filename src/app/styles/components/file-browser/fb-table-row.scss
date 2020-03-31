@@ -31,7 +31,11 @@
       }
       .file-status-icon {
         display: inline-block;
-        color: $main-text-color-disabled;
+        color: $color-one-default
+      }
+      // FIXME: temporary
+      .file-status-qos-direct.file-status-icon {
+        color: $color-one-success;
       }
       .file-info-mobile {
         display: none;

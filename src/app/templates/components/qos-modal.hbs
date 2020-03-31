@@ -10,32 +10,43 @@
 }}
   {{#modal.header}}
     <h1>
-      <span>{{tt this "header" type=typeTranslation}}</span>
+      <span>{{tt this "header"}}</span>
       {{#if qosRecords.length}}
-        <span class="label status-label label-{{fileQosStatusClass}}">
-          {{fileQosStatusText}}
-        </span>
+        {{#one-icon
+          icon=fileQosStatusIcon
+          class=(concat "file-qos-status file-qos-status-" fileQosStatus)
+        }}
+          {{one-tooltip title=(tt this (concat "fileQosStatusHint." fileQosStatus))}}
+        {{/one-icon}}
       {{/if}}
     </h1>
+    <h2 class="filename">
+      {{#truncated-string}}
+        {{file.name}}
+      {{/truncated-string}}
+    </h2>
   {{/modal.header}}
   {{#modal.body}}
-    {{#promise-proxy-container proxy=qosRecordsProxy}}
-      {{#one-collapsible-list class="qos-list" as |list|}}
-        {{#each qosRecords as |qos|}}
-          {{qos-modal/qos-entry
+    <div class="loadable-row">
+      {{#promise-proxy-container proxy=qosItemsProxy}}
+        {{#one-collapsible-list class="qos-list" as |list|}}
+          {{#each sortedQosItems key="entityId" as |qosItem|}}
+            {{qos-modal/qos-entry
+              collapsibleList=list
+              qosItem=qosItem
+              removeQos=(action "removeQos")
+              getDataUrl=(action "getDataUrl")
+              closeModal=(action "onHide")
+            }}
+          {{/each}}
+          {{qos-modal/qos-add
             collapsibleList=list
-            qos=qos
-            direct=(eq qos.file.entityId file.entityId)
-            fileFulfilled=(get fileQos.qosEntries qos.file.entityId)
+            isActive=addNewEntryActive
+            addEntry=(action "addEntry")
           }}
-        {{/each}}
-        {{qos-modal/qos-add
-          collapsibleList=list
-          isActive=addNewEntryActive
-          addEntry=(action "addEntry")
-        }}
-      {{/one-collapsible-list}}
-    {{/promise-proxy-container}}
+        {{/one-collapsible-list}}
+      {{/promise-proxy-container}}
+    </div>
   {{/modal.body}}
   
   {{#modal.footer}}

@@ -64,7 +64,8 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
-    hasQos: attr('boolean'),
+    hasEffQos: attr('boolean'),
+    hasDirectQos: attr('boolean'),
 
     /**
      * Modification time in UNIX timestamp format.

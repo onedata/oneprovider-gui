@@ -10,12 +10,33 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { get } from '@ember/object';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, raw } from 'ember-awesome-macros';
+import { conditional, raw, array, getBy, equal, promise } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
+import { all as allFulfilled } from 'rsvp';
+
+const QosItem = EmberObject.extend({
+  modalFileId: undefined,
+  qos: undefined,
+  file: undefined,
+  fileQos: undefined,
+
+  entityId: reads('qos.entityId'),
+  fulfilled: reads('qos.fulfilled'),
+  replicasNum: reads('qos.replicasNum'),
+  expression: reads('qos.expression'),
+
+  direct: equal('modalFileId', 'file.entityId'),
+  fileFulfilled: conditional(
+    'direct',
+    getBy('fileQos.qosEntries', 'qos.entityId'),
+    null,
+  ),
+});
 
 export default Component.extend(
   I18n,
@@ -48,20 +69,17 @@ export default Component.extend(
     onHide: notImplementedIgnore,
 
     /**
+     * @virtual
+     * @type {Function}
+     */
+    getDataUrl: notImplementedReject,
+
+    /**
      * @type {ComputedProperty<string>} one of: file, dir
      */
     fileType: reads('file.type'),
 
     isFileQosFulfilled: reads('fileQosProxy.fulfilled'),
-
-    /**
-     * @type {ComputedProperty<string>}
-     */
-    typeTranslation: conditional(
-      equal('fileType', raw('file')),
-      computedT('fileType.file'),
-      computedT('fileType.dir'),
-    ),
 
     fileQosStatus: conditional(
       'isFileQosFulfilled',
@@ -75,11 +93,36 @@ export default Component.extend(
       computedT('status.pending'),
     ),
 
-    fileQosStatusClass: conditional(
+    fileQosStatusIcon: conditional(
       'isFileQosFulfilled',
-      raw('success'),
-      raw('default'),
+      raw('checkbox-filled'),
+      raw('checkbox-pending'),
     ),
+
+    qosItemsProxy: promise.array(computed(
+      'qosRecords.[]',
+      'file.entityId',
+      'fileQos',
+      function qosItemsProxy() {
+        const {
+          qosRecordsProxy,
+          file,
+          fileQos,
+        } = this.getProperties('qosRecordsProxy', 'file', 'fileQos');
+        return qosRecordsProxy.then(qosRecords =>
+          allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosFile =>
+            QosItem.create({
+              modalFileId: get(file, 'entityId'),
+              file: qosFile,
+              fileQos,
+              qos,
+            })
+          )))
+        );
+      }
+    )),
+
+    sortedQosItems: array.sort('qosItemsProxy.content', ['direct']),
 
     /**
      * @override
@@ -126,6 +169,12 @@ export default Component.extend(
       },
       addEntry(data) {
         return this.addEntry(data);
+      },
+      removeQos(qos) {
+        return this.get('qosManager').removeQos(qos);
+      },
+      getDataUrl({ fileId }) {
+        return this.get('getDataUrl')({ fileId });
       },
     },
   }

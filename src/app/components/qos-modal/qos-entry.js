@@ -8,17 +8,15 @@
  */
 
 import Component from '@ember/component';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional, raw, promise } from 'ember-awesome-macros';
 import { reads, equal } from '@ember/object/computed';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-
-const statusClasses = {
-  fulfilled: 'success',
-  fileFulfilled: 'info',
-  pending: 'default',
-};
+import { notImplementedReject } from 'onedata-gui-common/utils/not-implemented-reject';
+import { notImplementedThrow } from 'onedata-gui-common/utils/not-implemented-throw';
+import { guidFor } from '@ember/object/internals';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -36,80 +34,89 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {EmberObject} see `QosModal.QosItem`
    */
-  qos: undefined,
+  qosItem: undefined,
 
   /**
    * @virtual
-   * @type {boolean}
+   * @type {Function}
    */
-  direct: undefined,
+  removeQos: notImplementedReject,
 
   /**
    * @virtual
-   * @type {boolean}
+   * @type {Function}
    */
-  fileFulfilled: undefined,
+  getDataUrl: notImplementedThrow,
 
   /**
-   * One of: show, new
+   * @virtual
+   * @type {Function}
    */
-  mode: 'show',
+  closeModal: notImplementedThrow,
 
-  readonly: equal('mode', 'show'),
+  navigateDataTarget: '_top',
 
-  replicasNumber: reads('qos.replicasNum'),
-
-  expression: reads('qos.expression'),
-
-  fulfilled: reads('qos.fulfilled'),
+  componentGuid: computed(function guid() {
+    return guidFor(this);
+  }),
 
   /**
-   * One of: fileFulfilled, fulfilled, pending
+   * @type {ComputedProperty<Number>}
+   */
+  replicasNumber: reads('qosItem.replicasNum'),
+
+  /**
    * @type {ComputedProperty<String>}
    */
-  // statusId: conditional(
-  //   'direct',
-  //   conditional(
-  //     'fulfilled',
-  //     raw('fulfilled'),
-  //     conditional('fileFulfilled', raw('fileFulfilled'), raw('pending'))
-  //   ),
-  //   conditional('fulfilled', raw('fulfilled'), raw('pending')),
-  // ),
+  expression: reads('qosItem.expression'),
 
-  statusId: computed('fileFulfilled', 'fulfilled', function () {
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  qosId: reads('qosItem.qos.entityId'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  direct: reads('qosItem.direct'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  fileFulfilled: reads('qosItem.fileFulfilled'),
+
+  /**
+   * @type {ComputedProperty<Models.File>}
+   */
+  file: reads('qosItem.file'),
+
+  fileId: reads('file.entityId'),
+
+  filePathProxy: promise.object(computed('file.{name,parent}', function filePathProxy() {
+    return resolveFilePath(this.get('file')).then(path => stringifyFilePath(path));
+  })),
+
+  fileHref: computed('fileId', function fileHref() {
     const {
-      fileFulfilled,
-      fulfilled,
-      direct,
-    } = this.getProperties('fileFulfilled', 'fulfilled', 'direct');
-    if (direct) {
-      if (fulfilled) {
-        return 'fulfilled';
-      } else {
-        if (fileFulfilled) {
-          return 'fileFulfilled';
-        } else {
-          return 'pending';
-        }
-      }
-    } else {
-      if (fulfilled) {
-        return 'fulfilled';
-      } else {
-        return 'pending';
-      }
-    }
+      getDataUrl,
+      fileId,
+    } = this.getProperties('getDataUrl', 'fileId');
+    return getDataUrl({ fileId });
   }),
 
-  statusText: computed('statusId', function statusText() {
-    return this.t(this.get('statusId'));
-  }),
+  statusId: conditional(
+    'fileFulfilled',
+    raw('fulfilled'),
+    raw('pending'),
+  ),
 
-  statusClass: computed('statusId', function statusClass() {
-    return statusClasses[this.get('statusId')];
-  }),
+  statusIcon: conditional(
+    'fileFulfilled',
+    raw('checkbox-filled'),
+    raw('checkbox-pending'),
+  ),
 
   headerText: conditional(
     equal('mode', raw('new')),
@@ -122,6 +129,17 @@ export default Component.extend(I18n, {
       if (keyEvent.key === 'Enter') {
         keyEvent.preventDefault();
       }
+    },
+    confirmRemove() {
+      const {
+        qosItem,
+        removeQos,
+      } = this.getProperties('qosItem', 'removeQos');
+      return removeQos(get(qosItem, 'qos'));
+    },
+    fileLinkClicked(event) {
+      this.get('closeModal')();
+      event.stopPropagation();
     },
   },
 });
