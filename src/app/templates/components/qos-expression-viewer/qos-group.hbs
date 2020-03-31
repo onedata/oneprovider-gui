@@ -1,0 +1,5 @@
+{{#if brackets}}({{/if}}
+{{component (concat "qos-expression-viewer/qos-" data.a.type) data=data.a parentOperator=data.operator}}
+<span class="qos-expression-operator {{operatorStringClass}}">{{operatorString}}</span>
+{{component (concat "qos-expression-viewer/qos-" data.b.type) data=data.b parentOperator=data.operator}}
+{{#if brackets}}){{/if}}

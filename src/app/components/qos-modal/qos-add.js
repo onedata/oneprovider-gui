@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { not, or, notEmpty, gt, tag } from 'ember-awesome-macros';
+import { not, or, notEmpty, gt } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
