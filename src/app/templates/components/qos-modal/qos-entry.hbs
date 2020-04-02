@@ -7,7 +7,7 @@
     <div class="qos-header">
       <div class="qos-header-text">
         <span>{{replicasNumber}} {{tt this (if (gt replicasNumber 1) "replicas" "replica")}},</span>
-        {{qos-expression-viewer expression=expression}}
+        {{qos-expression-viewer expressionRpn=expressionRpn}}
       </div>
       {{#unless direct}}
         <div class="qos-subheader qos-path-subheader">
@@ -74,9 +74,9 @@
                 {{#clipboard-line
                   type="html"
                   size=(if smallContent "sm")
-                  rawValue=rawExpression
+                  rawValue=rawExpressionInfix
                   class="monospace-font"
-                }}{{qos-expression-viewer expression=expression}}{{/clipboard-line}}
+                }}{{qos-expression-viewer expressionRpn=expressionRpn}}{{/clipboard-line}}
               </div>
             </td>
           </tr>

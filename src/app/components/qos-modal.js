@@ -31,7 +31,7 @@ const QosItem = EmberObject.extend({
   entityId: reads('qos.entityId'),
   fulfilled: reads('qos.fulfilled'),
   replicasNum: reads('qos.replicasNum'),
-  expression: reads('qos.expression'),
+  expressionRpn: reads('qos.expressionRpn'),
 
   direct: equal('modalFileId', 'file.entityId'),
   fileFulfilled: conditional(
@@ -148,6 +148,17 @@ export default Component.extend(
       this.configureUpdater();
     },
 
+    willDestroyElement() {
+      try {
+        const updater = this.get('updater');
+        if (updater) {
+          updater.destroy();
+        }
+      } finally {
+        this._super(...arguments);
+      }
+    },
+
     /**
      * @override
      */
@@ -199,13 +210,13 @@ export default Component.extend(
         .finally(() => file.reload());
     },
 
-    addEntry({ replicasNumber, expression }) {
+    addEntry({ replicasNumber, expressionInfix }) {
       const {
         file,
         qosManager,
         globalNotify,
       } = this.getProperties('file', 'qosManager', 'globalNotify');
-      return qosManager.createQos(file, expression, replicasNumber)
+      return qosManager.createQos(file, expressionInfix, replicasNumber)
         .catch((error) => {
           globalNotify.backendError(this.t('addingQosEntry'), error);
           throw error;

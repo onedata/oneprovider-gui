@@ -35,11 +35,11 @@ export default Service.extend({
 
   createQos(file, expression, replicasNum) {
     return this.get('store').createRecord('qos', {
-      expression,
       replicasNum,
       _meta: {
         additionalData: {
           fileId: get(file, 'cdmiObjectId'),
+          expression,
         },
       },
     }).save();

@@ -19,7 +19,7 @@ class MockQos {
     this.file = resolve(data.file);
     this.fulfilled = data.fulfilled;
     this.replicasNum = data.replicasNum;
-    this.expression = data.expression;
+    this.expressionRpn = data.expressionRpn;
   }
   belongsTo(relation) {
     if (relation === 'file') {
@@ -102,7 +102,7 @@ file.fileQos = promiseObject(resolve({
       file,
       fulfilled: true,
       replicasNum: 1,
-      expression: [
+      expressionRpn: [
         'storage_type=dummy',
         'speed=178',
         '|',
@@ -125,28 +125,28 @@ file.fileQos = promiseObject(resolve({
       file: file2,
       fulfilled: true,
       replicasNum: 2,
-      expression: ['size=10'],
+      expressionRpn: ['size=10'],
     }),
     new MockQos({
       entityId: 'q3',
       file,
       fulfilled: false,
       replicasNum: 3,
-      expression: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
+      expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
     }),
     new MockQos({
       entityId: 'q4',
       file: file2,
       fulfilled: false,
       replicasNum: 3,
-      expression: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
+      expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
     }),
     new MockQos({
       entityId: 'q5',
       file: file2,
       fulfilled: false,
       replicasNum: 3,
-      expression: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
+      expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
     }),
   ])),
 }));

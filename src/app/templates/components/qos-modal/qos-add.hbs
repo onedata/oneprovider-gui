@@ -49,7 +49,7 @@
               <div class="input-group-clipboard-textarea form-group {{if expressionValidationMessage "has-error"}}">
                 <textarea
                   value={{expression}}
-                  oninput={{action "expressionChanged" value="target.value"}}
+                  oninput={{action "expressionInfixChanged" value="target.value"}}
                   onfocus={{action (mut expressionWasFocused) true}}
                   disabled={{disabled}}
                   rows="4"

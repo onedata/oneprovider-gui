@@ -9,9 +9,8 @@
 
 import Component from '@ember/component';
 import { conditional, raw, promise } from 'ember-awesome-macros';
-import { reads, equal } from '@ember/object/computed';
+import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
-import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { notImplementedReject } from 'onedata-gui-common/utils/not-implemented-reject';
 import { notImplementedThrow } from 'onedata-gui-common/utils/not-implemented-throw';
@@ -72,9 +71,9 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<String>}
    */
-  expression: reads('qosItem.expression'),
+  expressionRpn: reads('qosItem.expressionRpn'),
 
-  rawExpression: computedPipe('qosItem.expression', qosRpnToInfix),
+  rawExpressionInfix: computedPipe('expressionRpn', qosRpnToInfix),
 
   /**
    * @type {ComputedProperty<String>}
@@ -120,12 +119,6 @@ export default Component.extend(I18n, {
     'fileFulfilled',
     raw('checkbox-filled'),
     raw('checkbox-pending'),
-  ),
-
-  headerText: conditional(
-    equal('mode', raw('new')),
-    computedT('new'),
-    'expression',
   ),
 
   actions: {

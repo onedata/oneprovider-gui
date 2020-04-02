@@ -44,7 +44,7 @@ export default Component.extend(I18n, {
 
   replicasNumber: 1,
 
-  expression: '',
+  expressionInfix: '',
 
   expressionWasFocused: false,
 
@@ -61,7 +61,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   expressionValidationMessage: conditional(
-    or(not('expressionWasFocused'), notEmpty('expression')),
+    or(not('expressionWasFocused'), notEmpty('expressionInfix')),
     null,
     computedT('validation.expressionEmpty'),
   ),
@@ -83,7 +83,7 @@ export default Component.extend(I18n, {
     this.get('closeAddEntry')();
     safeExec(this, 'setProperties', {
       replicasNumber: 1,
-      expression: '',
+      expressionInfix: '',
     });
   },
 
@@ -91,12 +91,12 @@ export default Component.extend(I18n, {
     save() {
       const {
         replicasNumber,
-        expression,
+        expressionInfix,
         addEntry,
-      } = this.getProperties('replicasNumber', 'expression', 'addEntry');
+      } = this.getProperties('replicasNumber', 'expressionInfix', 'addEntry');
       return addEntry({
         replicasNumber,
-        expression,
+        expressionInfix,
       }).then(() => {
         this.closeForm();
       });
@@ -106,8 +106,8 @@ export default Component.extend(I18n, {
         keyEvent.preventDefault();
       }
     },
-    expressionChanged(value) {
-      this.set('expression', value);
+    expressionInfixChanged(value) {
+      this.set('expressionInfix', value);
     },
   },
 });

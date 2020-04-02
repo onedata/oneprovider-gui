@@ -16,7 +16,7 @@ export const entityType = 'op_qos';
 export default Model.extend(GraphSingleModelMixin, {
   fulfilled: attr('boolean'),
   replicasNum: attr('number'),
-  expression: attr('string'),
+  expressionRpn: attr('array'),
 
   file: belongsTo('file'),
 }).reopenClass(StaticGraphModelMixin);
