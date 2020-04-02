@@ -1,36 +1,6 @@
 .qos-expression-viewer {
-  .qos-pair {
-    background-color: $color-one-light-blue;
-    padding-left: 3px;
-    padding-right: 3px;
-    border-radius: 2px;
-    .qos-pair-key {
-      @include font-semibold();
-    }
-    .qos-pair-equal {
-      color: $color-one-dark-blue;
-      padding-left: 1px;
-      padding-right: 1px;
-    }
-    .qos-pair-value {
-      @include font-semibold();
-    }
-    &:hover {
-      background-color: $color-one-light-blue;
-    }
-  }
-  .qos-group {
-    .qos-group-operator {
-      font-size: 120%;
-      @include font-semibold();
-      padding-left: 2px;
-      padding-right: 2px;
-    }
-    .qos-bracket {
-      font-size: 120%;
-      @include font-semibold();
-      padding-left: 2px;
-      padding-right: 2px;
-    }
+  .qos-pair-equal {
+    margin-left: 2px;
+    margin-right: 2px;  
   }
 }

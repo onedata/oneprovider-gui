@@ -5,10 +5,10 @@
       {{one-tooltip title=(tt this (concat "statusHint." statusId))}}
     </span>
     <div class="qos-header">
-      {{#truncated-string class="qos-header-text"}}
-        {{replicasNumber}} {{tt this (if (gt replicasNumber 1) "replicas" "replica")}},
-        {{headerText}}
-      {{/truncated-string}}
+      <div class="qos-header-text">
+        <span>{{replicasNumber}} {{tt this (if (gt replicasNumber 1) "replicas" "replica")}},</span>
+        {{qos-expression-viewer expression=expression}}
+      </div>
       {{#unless direct}}
         <div class="qos-subheader qos-path-subheader">
           {{#promise-proxy-container proxy=filePathProxy sizeClass="xs"}}
@@ -71,12 +71,12 @@
             </td>
             <td class="property-value">
               <div class="input-group input-group input-group-clipboard-textarea">
-                {{clipboard-line
-                  value=expression
+                {{#clipboard-line
                   type="html"
                   size=(if smallContent "sm")
+                  rawValue=rawExpression
                   class="monospace-font"
-                }}
+                }}{{qos-expression-viewer expression=expression}}{{/clipboard-line}}
               </div>
             </td>
           </tr>

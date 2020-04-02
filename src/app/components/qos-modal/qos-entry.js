@@ -17,6 +17,8 @@ import { notImplementedReject } from 'onedata-gui-common/utils/not-implemented-r
 import { notImplementedThrow } from 'onedata-gui-common/utils/not-implemented-throw';
 import { guidFor } from '@ember/object/internals';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
+import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-rpn-to-object';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -71,6 +73,8 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   expression: reads('qosItem.expression'),
+
+  rawExpression: computedPipe('qosItem.expression', qosRpnToInfix),
 
   /**
    * @type {ComputedProperty<String>}

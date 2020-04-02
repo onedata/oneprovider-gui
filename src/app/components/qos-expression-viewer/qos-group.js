@@ -3,9 +3,7 @@ import { tag, and, eq, raw } from 'ember-awesome-macros';
 import { getBy } from 'ember-awesome-macros';
 
 export default Component.extend({
-  tagName: 'span',
-  classNames: ['qos-group'],
-  classNameBindings: ['operatorGroup'],
+  tagName: '',
 
   data: undefined,
 
