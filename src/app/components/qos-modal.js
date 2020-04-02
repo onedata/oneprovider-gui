@@ -11,13 +11,16 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import EmberObject, { computed, get } from '@ember/object';
+import EmberObject, { get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, array, getBy, equal, promise } from 'ember-awesome-macros';
+import { conditional, raw, array, getBy, equal } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled } from 'rsvp';
+import Looper from 'onedata-gui-common/utils/looper';
+
+const updateInterval = 5000;
 
 const QosItem = EmberObject.extend({
   modalFileId: undefined,
@@ -41,7 +44,8 @@ const QosItem = EmberObject.extend({
 export default Component.extend(
   I18n,
   createDataProxyMixin('fileQos'),
-  createDataProxyMixin('qosRecords'), {
+  createDataProxyMixin('qosRecords'),
+  createDataProxyMixin('qosItems'), {
     qosManager: service(),
     globalNotify: service(),
 
@@ -75,10 +79,22 @@ export default Component.extend(
     getDataUrl: notImplementedReject,
 
     /**
+     * If modal is opened - interval in ms to auto update data
+     * @type {Number}
+     */
+    updateInterval,
+
+    /**
      * @type {boolean}
      * If true, add entry is expanded
      */
     addNewEntryActive: false,
+
+    /**
+     * Initialized in init
+     * @type {Looper}
+     */
+    updater: null,
 
     /**
      * @type {ComputedProperty<string>} one of: file, dir
@@ -105,30 +121,53 @@ export default Component.extend(
       raw('checkbox-pending'),
     ),
 
-    qosItemsProxy: promise.array(computed(
-      'qosRecords.[]',
-      'file.entityId',
-      'fileQos',
-      function qosItemsProxy() {
-        const {
-          qosRecordsProxy,
-          file,
-          fileQos,
-        } = this.getProperties('qosRecordsProxy', 'file', 'fileQos');
-        return qosRecordsProxy.then(qosRecords =>
-          allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosFile =>
-            QosItem.create({
-              modalFileId: get(file, 'entityId'),
-              file: qosFile,
-              fileQos,
-              qos,
-            })
-          )))
-        );
-      }
-    )),
-
     sortedQosItems: array.sort('qosItemsProxy.content', ['direct']),
+
+    configureUpdater: observer(
+      'open',
+      'updater',
+      'updateInterval',
+      function configureUpdater() {
+        const {
+          open,
+          updateInterval,
+        } = this.getProperties('open', 'updateInterval');
+        this.set('updater.interval', open ? updateInterval : null);
+      }
+    ),
+
+    init() {
+      this._super(...arguments);
+      const updater = Looper.create({
+        immediate: false,
+      });
+      updater.on('tick', () => {
+        this.updateData({ replace: true });
+      });
+      this.set('updater', updater);
+      this.configureUpdater();
+    },
+
+    /**
+     * @override
+     */
+    fetchQosItems() {
+      const {
+        qosRecordsProxy,
+        file,
+        fileQos,
+      } = this.getProperties('qosRecordsProxy', 'file', 'fileQos');
+      return qosRecordsProxy.then(qosRecords =>
+        allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosFile =>
+          QosItem.create({
+            modalFileId: get(file, 'entityId'),
+            file: qosFile,
+            fileQos,
+            qos,
+          })
+        )))
+      );
+    },
 
     /**
      * @override
@@ -141,14 +180,23 @@ export default Component.extend(
      * @override
      */
     fetchQosRecords() {
+      // NOTE: not need to update qos records separately
+      // in this modal, because their fulfilled property
+      // is not used (using per-file map in fileQos)
       return this.updateFileQosProxy().then(fileQos =>
         fileQos.updateQosRecordsProxy({ replace: true })
       );
     },
 
-    updateData() {
+    onShow() {
+      this.updateQosItemsProxy();
+    },
+
+    updateData(updateOptions) {
       const file = this.get('file');
-      return this.updateQosRecordsProxy().finally(() => file.reload());
+      return this.updateQosRecordsProxy(updateOptions)
+        .finally(() => this.updateQosItemsProxy(updateOptions))
+        .finally(() => file.reload());
     },
 
     addEntry({ replicasNumber, expression }) {
@@ -168,7 +216,9 @@ export default Component.extend(
     },
 
     actions: {
-      onShow() {},
+      onShow() {
+        this.onShow();
+      },
       onHide() {
         this.get('onHide')();
       },

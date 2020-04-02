@@ -10,10 +10,11 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { not, or, notEmpty, gt } from 'ember-awesome-macros';
+import { not, or, notEmpty, gt, conditional, isEmpty, and } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -45,11 +46,32 @@ export default Component.extend(I18n, {
 
   expression: '',
 
-  // FIXME: better validation with message
-  replicasNumberValid: gt('replicasNumber', 0),
+  expressionWasFocused: false,
 
-  // FIXME: better validation with message
-  expressionValid: notEmpty('expression'),
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  replicasNumberValidationMessage: conditional(
+    gt('replicasNumber', 0),
+    null,
+    computedT('validation.replicasNumberTooSmall'),
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  expressionValidationMessage: conditional(
+    or(not('expressionWasFocused'), notEmpty('expression')),
+    null,
+    computedT('validation.expressionEmpty'),
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  replicasNumberValid: isEmpty('replicasNumberValidationMessage'),
+
+  expressionValid: and('expressionWasFocused', isEmpty('expressionValidationMessage')),
 
   saveDisabled: or(not('replicasNumberValid'), not('expressionValid')),
 

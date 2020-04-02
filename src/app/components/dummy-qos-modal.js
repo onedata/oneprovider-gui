@@ -62,6 +62,9 @@ const file2 = {
   type: 'dir',
   hasParent: true,
   parent: resolve(dir3),
+  reload() {
+    return this;
+  },
 };
 
 const file = {
@@ -80,6 +83,9 @@ const file = {
     }
   },
   fileQos: undefined,
+  reload() {
+    return this;
+  },
 };
 
 file.fileQos = promiseObject(resolve({
@@ -149,4 +155,10 @@ export default Component.extend({
   file: computed(() => file),
 
   open: true,
+
+  actions: {
+    getDataUrl() {
+      return 'https://example.com';
+    },
+  },
 });

@@ -33,7 +33,7 @@
         display: inline-block;
         color: $color-one-default
       }
-      // FIXME: temporary
+      // TODO: VFS-5980 temporary until new badges for file
       .file-status-qos-direct.file-status-icon {
         color: $color-one-success;
       }

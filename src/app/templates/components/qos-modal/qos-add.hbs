@@ -23,15 +23,22 @@
               {{tt this "replicasNumber"}}
             </td>
             <td class="property-value">
-              <input
-                type="number"
-                class="form-control replicas-number-input"
-                value={{replicasNumber}}
-                oninput={{action (mut replicasNumber) value="target.value"}}
-                onkeydown={{invoke-on-enter (action "disableEnterKey")}}
-                disabled={{disabled}}
-                autofocus=true
-              >
+              <div class="form-group {{if replicasNumberValidationMessage "has-error"}}">
+                <input
+                  type="number"
+                  class="form-control replicas-number-input"
+                  value={{replicasNumber}}
+                  oninput={{action (mut replicasNumber) value="target.value"}}
+                  onkeydown={{invoke-on-enter (action "disableEnterKey")}}
+                  disabled={{disabled}}
+                  autofocus=true
+                >
+                {{#if replicasNumberValidationMessage}}
+                  <div class="form-message">
+                    {{replicasNumberValidationMessage}}
+                  </div>
+                {{/if}}
+              </div>
             </td>
           </tr>
           <tr class="qos-info-row-expression">
@@ -39,13 +46,19 @@
               {{tt this "expression"}}
             </td>
             <td class="property-value">
-              <div class="input-group-clipboard-textarea">
+              <div class="input-group-clipboard-textarea form-group {{if expressionValidationMessage "has-error"}}">
                 <textarea
                   value={{expression}}
                   oninput={{action "expressionChanged" value="target.value"}}
+                  onfocus={{action (mut expressionWasFocused) true}}
                   disabled={{disabled}}
                   rows="4"
                   class="form-control no-resize code-textarea json-textarea"></textarea>
+                {{#if expressionValidationMessage}}
+                  <div class="form-message">
+                    {{expressionValidationMessage}}
+                  </div>
+                {{/if}}
               </div>
             </td>
           </tr>
