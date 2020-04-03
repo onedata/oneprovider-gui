@@ -34,11 +34,8 @@ const QosItem = EmberObject.extend({
   expressionRpn: reads('qos.expressionRpn'),
 
   direct: equal('modalFileId', 'file.entityId'),
-  fileFulfilled: conditional(
-    'direct',
-    getBy('fileQos.qosEntries', 'qos.entityId'),
-    null,
-  ),
+
+  fileFulfilled: getBy('fileQos.qosEntries', 'qos.entityId'),
 });
 
 export default Component.extend(
