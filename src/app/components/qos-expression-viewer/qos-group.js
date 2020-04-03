@@ -9,26 +9,23 @@
  */
 
 import Component from '@ember/component';
-import { tag, and, eq, raw } from 'ember-awesome-macros';
+import { tag } from 'ember-awesome-macros';
+import { reads } from '@ember/object/computed';
 import { getBy } from 'ember-awesome-macros';
+import { operatorChar } from 'oneprovider-gui/utils/qos-rpn-to-object';
 
 export default Component.extend({
   tagName: '',
 
   data: undefined,
 
-  parentOperator: undefined,
-
-  operators: Object.freeze({
-    or: '|',
-    and: '&',
-  }),
+  operatorChar,
 
   operatorClass: tag `qos-group-${'data.operator'}`,
 
   operatorStringClass: tag `qos-group-operator-${'data.operator'}`,
 
-  operatorString: getBy('operators', 'data.operator'),
+  operatorString: getBy('operatorChar', 'data.operator'),
 
-  brackets: and(eq('data.operator', raw('or')), eq('parentOperator', raw('and'))),
+  brackets: reads('data.brackets'),
 });

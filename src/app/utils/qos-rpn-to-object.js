@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 const pairRe = /(.+?)=(.+)/;
-const operatorRe = /(\||&)/;
+const operatorRe = /(\||&|-)/;
 
 function isPair(item) {
   return pairRe.test(item);
@@ -11,20 +11,17 @@ function isOperator(item) {
   return operatorRe.test(item);
 }
 
-function isNegation(item) {
-  return item === operatorChar['not'];
-}
-
+// FIXME: use union, intersect, complement as in RSE (rucio)
 export const operatorName = {
   '|': 'or',
   '&': 'and',
-  '-': 'not',
+  '-': 'diff',
 };
 
 export const operatorChar = {
   or: '|',
   and: '&',
-  not: '-',
+  diff: '-',
 };
 
 export default function qosRpnToObject(rpnData) {
@@ -43,22 +40,18 @@ export default function qosRpnToObject(rpnData) {
       // RPN algorithm: first value from stack is second element of expression
       const b = stack.pop();
       const a = stack.pop();
+      // FIXME: rename brackets to parenthesis
       if (a && b) {
         stack.push({
           type: 'group',
           operator: operatorName[item],
+          brackets: Boolean(stack.length),
           a,
           b,
         });
       } else {
         throw new Error('not enough symbols for operator');
       }
-    } else if (isNegation(item)) {
-      const a = stack.pop();
-      stack.push({
-        type: 'not',
-        a,
-      });
     } else {
       throw new Error(`unrecognized expression element: ${item}`);
     }
@@ -70,10 +63,10 @@ export default function qosRpnToObject(rpnData) {
   }
 }
 
-function expand(obj, parentOperator) {
+function expand(obj) {
   if (obj.type === 'group') {
-    const brackets = (obj.operator === 'or' && parentOperator === 'and');
-    return `${brackets ? '(' : ''}${expand(obj.a, obj.operator)}${operatorChar[obj.operator]}${expand(obj.b, obj.operator)}${brackets ? ')' : ''}`;
+    const brackets = obj.brackets;
+    return `${brackets ? '(' : ''}${expand(obj.a)}${operatorChar[obj.operator]}${expand(obj.b)}${brackets ? ')' : ''}`;
   } else if (obj.type === 'pair') {
     return `${obj.key}=${obj.value}`;
   } else {
@@ -81,6 +74,7 @@ function expand(obj, parentOperator) {
   }
 }
 
+// FIXME: move to other file
 export function qosRpnToInfix(rpnData) {
   return expand(qosRpnToObject(rpnData));
 }

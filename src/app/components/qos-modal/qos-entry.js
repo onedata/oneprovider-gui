@@ -18,6 +18,8 @@ import { guidFor } from '@ember/object/internals';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-rpn-to-object';
+import { later, cancel } from '@ember/runloop';
+import $ from 'jquery';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -56,6 +58,8 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   closeModal: notImplementedThrow,
+
+  copyAnimationEnd: undefined,
 
   navigateDataTarget: '_top',
 
@@ -137,6 +141,21 @@ export default Component.extend(I18n, {
     fileLinkClicked(event) {
       this.get('closeModal')();
       event.stopPropagation();
+    },
+    expressionCopied(success) {
+      // FIXME: fast clicking in copy causes animation problems
+      if (success) {
+        const $element = $('.qos-info-row-expression .qos-expression-viewer');
+        if ($element.hasClass('animated') && $element.hasClass('pulse-bg-mint')) {
+          cancel(this.get('copyAnimationEnd'));
+          $element.removeClass('animated pulse-bg-mint');
+        }
+        $element.addClass('animated pulse-bg-mint');
+        this.set(
+          'copyAnimationEnd',
+          later(this, () => $element.removeClass('animated pulse-bg-mint'), 2000)
+        );
+      }
     },
   },
 });

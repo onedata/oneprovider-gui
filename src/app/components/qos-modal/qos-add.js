@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { not, or, notEmpty, gt, conditional, isEmpty, and } from 'ember-awesome-macros';
+import { not, or, notEmpty, conditional, isEmpty, and, number } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -42,17 +42,22 @@ export default Component.extend(I18n, {
    */
   closeAddEntry: notImplementedIgnore,
 
-  replicasNumber: 1,
+  replicasNumberString: '1',
+
+  replicasNumber: number('replicasNumberString'),
 
   expressionInfix: '',
 
-  expressionWasFocused: false,
+  expressionEditStarted: false,
 
   /**
    * @type {ComputedProperty<String>}
    */
   replicasNumberValidationMessage: conditional(
-    gt('replicasNumber', 0),
+    computed('replicasNumber', function isPositiveInteger() {
+      const replicasNumber = this.get('replicasNumber');
+      return replicasNumber > 0 && Math.floor(replicasNumber) === replicasNumber;
+    }),
     null,
     computedT('validation.replicasNumberTooSmall'),
   ),
@@ -61,7 +66,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   expressionValidationMessage: conditional(
-    or(not('expressionWasFocused'), notEmpty('expressionInfix')),
+    or(not('expressionEditStarted'), notEmpty('expressionInfix')),
     null,
     computedT('validation.expressionEmpty'),
   ),
@@ -71,7 +76,7 @@ export default Component.extend(I18n, {
    */
   replicasNumberValid: isEmpty('replicasNumberValidationMessage'),
 
-  expressionValid: and('expressionWasFocused', isEmpty('expressionValidationMessage')),
+  expressionValid: and('expressionEditStarted', isEmpty('expressionValidationMessage')),
 
   saveDisabled: or(not('replicasNumberValid'), not('expressionValid')),
 
@@ -81,9 +86,14 @@ export default Component.extend(I18n, {
 
   closeForm() {
     this.get('closeAddEntry')();
+    this.resetForm();
+  },
+
+  resetForm() {
     safeExec(this, 'setProperties', {
-      replicasNumber: 1,
+      replicasNumberEdit: '1',
       expressionInfix: '',
+      expressionEditStarted: false,
     });
   },
 
@@ -107,6 +117,9 @@ export default Component.extend(I18n, {
       }
     },
     expressionInfixChanged(value) {
+      if (!this.get('expressionEditStarted')) {
+        this.set('expressionEditStarted', true);
+      }
       this.set('expressionInfix', value);
     },
   },

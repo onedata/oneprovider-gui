@@ -22,13 +22,13 @@
             <td class="property-name {{unless readonly "with-input"}}">
               {{tt this "replicasNumber"}}
             </td>
-            <td class="property-value">
+            <td class="property-value form-horizontal">
               <div class="form-group {{if replicasNumberValidationMessage "has-error"}}">
                 <input
                   type="number"
                   class="form-control replicas-number-input"
-                  value={{replicasNumber}}
-                  oninput={{action (mut replicasNumber) value="target.value"}}
+                  value={{replicasNumberString}}
+                  oninput={{action (mut replicasNumberString) value="target.value"}}
                   onkeydown={{invoke-on-enter (action "disableEnterKey")}}
                   disabled={{disabled}}
                   autofocus=true
@@ -45,15 +45,14 @@
             <td class="property-name {{unless readonly "with-input"}}">
               {{tt this "expression"}}
             </td>
-            <td class="property-value">
+            <td class="property-value form-horizontal">
               <div class="input-group-clipboard-textarea form-group {{if expressionValidationMessage "has-error"}}">
                 <textarea
-                  value={{expression}}
                   oninput={{action "expressionInfixChanged" value="target.value"}}
-                  onfocus={{action (mut expressionWasFocused) true}}
+                  onblur={{action (mut expressionEditStarted) true}}
                   disabled={{disabled}}
                   rows="4"
-                  class="form-control no-resize code-textarea json-textarea"></textarea>
+                  class="form-control no-resize code-textarea json-textarea">{{expressionInfix}}</textarea>
                 {{#if expressionValidationMessage}}
                   <div class="form-message">
                     {{expressionValidationMessage}}

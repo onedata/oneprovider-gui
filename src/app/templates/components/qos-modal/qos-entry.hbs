@@ -70,12 +70,13 @@
               {{tt this "expression"}}
             </td>
             <td class="property-value">
-              <div class="input-group input-group input-group-clipboard-textarea">
+              <div class="input-group input-group-clipboard-textarea">
                 {{#clipboard-line
                   type="html"
                   size=(if smallContent "sm")
                   rawValue=rawExpressionInfix
-                  class="monospace-font"
+                  class="monospace-font clipboard-line-expression"
+                  notify=(action "expressionCopied")
                 }}{{qos-expression-viewer expressionRpn=expressionRpn}}{{/clipboard-line}}
               </div>
             </td>
