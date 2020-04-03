@@ -1,7 +1,7 @@
 {{#promise-proxy-container proxy=dirProxy}}
   {{file-browser
     dir=dirProxy.content
-    previewMode=true
+    previewMode=previewMode
     selectedFiles=selectedFiles
     changeSelectedFiles=(action (mut selectedFiles))
     openRemove=(action "immediatelyRemove")

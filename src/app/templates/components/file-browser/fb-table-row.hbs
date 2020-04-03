@@ -45,38 +45,21 @@
         {{/if}}
       </div>
       {{#unless previewMode}}
+        {{!-- FIXME i18n --}}
         <div class="file-status-bar">
           {{#if isShared}}
-            <div class="file-status-icon file-status-shared">
-              <div class="inline-icon-container file-icon-container">
-                {{#one-icon icon="browser-share"}}
-                  {{one-tooltip
-                    title=(tt this "isShared" type=(tt this (concat "fileType." file.type)))
-                  }}
-                {{/one-icon}}
-              </div>
+            <div class="file-status-icon file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
+              Shared
             </div>
           {{/if}}
           {{#if hasMetadata}}
-            <div class="file-status-icon file-status-metadata">
-              <div class="inline-icon-container file-icon-container">
-                {{#one-icon icon="browser-metadata"}}
-                  {{one-tooltip
-                    title=(tt this "hasMetadata" type=(tt this (concat "fileType." file.type)))
-                  }}
-                {{/one-icon}}
-              </div>
+            <div class="file-status-icon file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
+              Meta
             </div>
           {{/if}}
           {{#if (or hasEffQos hasDirectQos)}}
-            <div class="file-status-icon file-status-qos {{if hasDirectQos "file-status-qos-direct"}}">
-              <div class="inline-icon-container file-icon-container">
-                {{#one-icon icon="qos"}}
-                  {{one-tooltip
-                    title=(tt this "hasQos" type=(tt this (concat "fileType." file.type)))
-                  }}
-                {{/one-icon}}
-              </div>
+            <div class="file-status-icon file-status-qos {{if hasDirectQos "file-status-qos-direct"}}" {{action (action "invokeFileAction" file "btnQos") bubbles=false}}>
+              QoS {{#unless hasDirectQos}}⬆{{/unless}}
             </div>
           {{/if}}
         </div>

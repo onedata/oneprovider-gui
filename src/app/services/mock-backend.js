@@ -195,7 +195,8 @@ export default Service.extend({
           type: 'dir',
           mtime: timestamp + i * 3600,
           hasMetadata: false,
-          hasQos: i < 2,
+          hasDirectQos: i < 2,
+          hasEffQos: i < 4,
           parent: null,
           provider: this.get('entityRecords.provider.firstObject'),
         }).save()

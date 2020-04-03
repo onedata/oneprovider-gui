@@ -19,6 +19,7 @@ import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
+import { next } from '@ember/runloop';
 
 export const actionContext = {
   none: 'none',
@@ -699,6 +700,10 @@ export default Component.extend(I18n, {
     },
     changeSelectedFiles(selectedFiles) {
       return this.get('changeSelectedFiles')(selectedFiles);
+    },
+    invokeFileAction(file, btnName) {
+      this.get('changeSelectedFiles')([file]);
+      next(this, () => this.get(btnName).action());
     },
   },
 });
