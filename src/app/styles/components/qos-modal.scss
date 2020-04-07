@@ -1,0 +1,149 @@
+.qos-modal {
+  $qos-icon-size: 32px;
+  $color-qos-status-fulfilled: $color-one-success;
+  $color-qos-status-pending: $color-one-warning;
+
+  @mixin header-fog-style($color) {
+    @include bar-fog-style(
+      $gradient-direction: to right,
+      $fog-width: 10px,
+      $fog-height: 34px,
+      $color: $color,
+    );
+    right: 0;
+  }
+  
+  .label {
+    line-height: initial;
+  }
+   
+  .modal-header {
+    .file-qos-status {
+      font-size: $qos-icon-size * 1.5;
+      float: right;
+      &.one-icon {
+        margin-right: -10px;
+      }
+    }
+    .file-qos-status-fulfilled {
+      color: $color-qos-status-fulfilled;
+    }
+    .file-qos-status-pending {
+      color: $color-qos-status-pending;
+    }
+    h2.filename {
+      text-transform: none;
+      line-height: normal;
+    }
+  }
+  .qos-entry {
+    .qos-header-text {
+      overflow-x: hidden;
+      &::after {
+        @include header-fog-style(white);
+      }
+    }
+    .spinner-block-path {
+      margin-top: 2px;
+      margin-left: 6px;
+    }
+    .one-collapsible-list-item-header {
+      &:hover {
+        .qos-header-text::after {
+          @include header-fog-style($main-content-hover-background);
+        }
+      }
+      &.opened {
+        .qos-header-text::after {
+          @include header-fog-style($collapsible-list-item-header-opened);
+        }
+        &:hover {
+          .qos-header-text::after {
+            @include header-fog-style($collapsible-list-item-header-opened-hover);
+          }
+        }
+      }
+    }
+    .qos-header {
+      flex-grow: 1;
+      width: 0;
+      .qos-expression-viewer {
+        display: inline-block;
+        .tags-input {
+          flex-wrap: nowrap;
+          .input-element {
+            margin-bottom: 0;
+          }
+        }
+      }
+      .qos-subheader {
+        margin-top: 2px;
+        font-size: 90%; 
+      }
+    }
+  }
+  .qos-entry, .qos-add {
+    .list-content {
+      padding-top: 8px;
+      @media (max-width: $screen-sm-max) {
+        .table-info {
+          margin-top: 10px;
+          .property-name, .property-value {
+            padding-left: 15px;
+            padding-right: 15px;
+          }
+        }
+      }
+    }
+    .header-content-container {
+      display: flex;
+      align-items: center;
+      height: 2em;
+      .label {
+        margin-left: 8px;
+      }
+      .qos-header {
+        display: block;
+        position: relative;
+      }
+    }
+    .qos-status-icon-container {
+      .one-icon {
+        font-size: $qos-icon-size;
+      }
+    }
+    .remove-icon {
+      .one-icon {
+        font-size: $qos-icon-size;
+      }
+    }
+    .qos-status-fulfilled {
+      color: $color-qos-status-fulfilled;
+    }
+    .qos-status-pending {
+      color: $color-qos-status-pending;
+    }
+    .qos-path-subheader {
+      display: flex;
+      .inherited-text {
+        padding-right: 0.4em;
+      }
+      .file-path {
+        display: block;
+        direction: rtl;
+        .file-path-text {
+          // thanks to this, "/" do not go to end when using direction: rtl
+          unicode-bidi: plaintext;
+        }
+      }
+    }
+    .qos-info-row-expression {
+      .property-name {
+        padding-top: 14px;
+      }
+      .qos-pair.tag-item {
+        flex-wrap: wrap;
+      }
+    }
+  }
+}

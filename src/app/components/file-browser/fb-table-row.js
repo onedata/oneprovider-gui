@@ -281,6 +281,10 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasMetadata: reads('file.hasMetadata'),
 
+  hasEffQos: reads('file.hasEffQos'),
+
+  hasDirectQos: reads('file.hasDirectQos'),
+
   didInsertElement() {
     this._super(...arguments);
     const {
@@ -331,6 +335,9 @@ export default Component.extend(I18n, FastDoubleClick, {
   actions: {
     openContextMenu() {
       this.openContextMenu(...arguments);
+    },
+    invokeFileAction(file, btnName) {
+      this.get('invokeFileAction')(file, btnName);
     },
   },
 });

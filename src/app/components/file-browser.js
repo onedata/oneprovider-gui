@@ -19,6 +19,7 @@ import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
+import { next } from '@ember/runloop';
 
 export const actionContext = {
   none: 'none',
@@ -53,6 +54,7 @@ const buttonNames = [
   'btnMetadata',
   'btnPermissions',
   'btnDistribution',
+  'btnQos',
   'btnRename',
   'btnCopy',
   'btnCut',
@@ -119,6 +121,13 @@ export default Component.extend(I18n, {
    * @param {Array<Models/File>} files files to show distribution
    */
   openFileDistributionModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models/File} file file configure QoS
+   */
+  openQos: notImplementedThrow,
 
   /**
    * @virtual
@@ -490,6 +499,26 @@ export default Component.extend(I18n, {
     });
   }),
 
+  btnQos: computed(function btnQos() {
+    return this.createFileAction({
+      id: 'qos',
+      icon: 'qos',
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleFile,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
+      action: () => {
+        const {
+          openQos,
+          selectedFiles,
+        } = this.getProperties('openQos', 'selectedFiles');
+        return openQos(selectedFiles[0]);
+      },
+    });
+  }),
+
   separator: computed(function separator() {
     return {
       type: 'separator',
@@ -671,6 +700,10 @@ export default Component.extend(I18n, {
     },
     changeSelectedFiles(selectedFiles) {
       return this.get('changeSelectedFiles')(selectedFiles);
+    },
+    invokeFileAction(file, btnName) {
+      this.get('changeSelectedFiles')([file]);
+      next(this, () => this.get(btnName).action());
     },
   },
 });

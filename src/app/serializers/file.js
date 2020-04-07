@@ -22,7 +22,7 @@ export default Serializer.extend({
   fileRelations: computed(() => [
     { name: 'acl', aspect: 'acl' },
     { name: 'distribution', entityType: replicaEntityType, aspect: 'distribution' },
-    { name: 'fileQos', aspect: 'eff_qos' },
+    { name: 'fileQos', aspect: 'file_qos_summary' },
   ]),
 
   /**

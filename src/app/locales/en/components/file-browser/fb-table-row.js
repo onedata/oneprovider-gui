@@ -3,7 +3,10 @@ export default {
     file: 'file',
     dir: 'directory',
   },
-  isShared: 'This {{type}} is shared',
-  hasMetadata: 'This {{type}} has metadata',
   brokenName: 'Cannot read',
+  status: {
+    shared: 'Shared',
+    metadata: 'Meta',
+    qos: 'QoS',
+  },
 };

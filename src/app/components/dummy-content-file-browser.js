@@ -19,6 +19,8 @@ export default Component.extend({
 
   classNames: ['dummy-content-file-browser'],
 
+  previewMode: false,
+
   selectedFiles: Object.freeze([]),
 
   dirProxy: promise.object(computed(function dirProxy() {
