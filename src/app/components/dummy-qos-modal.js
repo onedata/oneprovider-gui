@@ -89,7 +89,7 @@ const file = {
 };
 
 file.fileQos = promiseObject(resolve({
-  qosEntries: {
+  entries: {
     f1: true,
     f2: false,
   },
@@ -111,7 +111,7 @@ file.fileQos = promiseObject(resolve({
         'storage_type=dummy',
         '&',
         'storage_type=dummy',
-        '&',
+        '-',
         'storage_type=dummy',
         '|',
         'storage_type=dummy',

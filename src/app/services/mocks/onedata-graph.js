@@ -599,21 +599,9 @@ function belongsToEntityId(record, relationName) {
 }
 
 function recordToChildData(record) {
-  const {
-    id,
-    entityId: guid,
-    index,
-    type,
-    size,
-    posixPermissions,
-    hasMetadata,
-    hasQos,
-    mtime,
-    activePermissionsType,
-  } = getProperties(
+  return Object.assign(getProperties(
     record,
     'id',
-    'entityId',
     'index',
     'type',
     'size',
@@ -621,22 +609,12 @@ function recordToChildData(record) {
     'hasMetadata',
     'hasQos',
     'mtime',
-    'activePermissionsType',
-  );
-  return {
-    id,
-    guid,
-    index,
-    type,
-    size,
-    posixPermissions,
-    hasMetadata,
-    hasQos,
-    mtime,
-    activePermissionsType,
+    'activePermissionsType'
+  ), {
+    guid: get(record, 'entityId'),
     shares: hasManyEntityIds(record, 'shareRecords'),
     parentId: belongsToEntityId(record, 'parent'),
     ownerId: belongsToEntityId(record, 'owner'),
     providerId: belongsToEntityId(record, 'provider'),
-  };
+  });
 }

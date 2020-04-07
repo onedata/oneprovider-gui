@@ -1,77 +1,52 @@
-{{#collapsibleList.item
-  isActive=isActive
-  class="qos-add"
-  closeEventName=closeEventName
-  as |listItem|
-}}
-  {{#listItem.header disableToggleIcon=true}}
-    <span class="item-icon-container">
-      {{one-icon class="item-icon" icon="plus"}}
-    </span>
-    <div class="qos-header">
-      {{#truncated-string class="qos-header-text"}}
-        {{tt this "add"}}
-      {{/truncated-string}}
-    </div>
-  {{/listItem.header}}
-  {{#listItem.content}}
-    <div class="list-content">
-      <table class="table table-info table-info-large table-info-collapsible table-info-breakable">
-        <tbody>
-          <tr class="qos-info-row-replicas-number">
-            <td class="property-name {{unless readonly "with-input"}}">
-              {{tt this "replicasNumber"}}
-            </td>
-            <td class="property-value form-horizontal">
-              <div class="form-group {{if replicasNumberValidationMessage "has-error"}}">
-                <input
-                  type="number"
-                  class="form-control replicas-number-input"
-                  value={{replicasNumberString}}
-                  oninput={{action (mut replicasNumberString) value="target.value"}}
-                  onkeydown={{invoke-on-enter (action "disableEnterKey")}}
-                  disabled={{disabled}}
-                  autofocus=true
-                >
-                {{#if replicasNumberValidationMessage}}
-                  <div class="form-message">
-                    {{replicasNumberValidationMessage}}
-                  </div>
-                {{/if}}
-              </div>
-            </td>
-          </tr>
-          <tr class="qos-info-row-expression">
-            <td class="property-name {{unless readonly "with-input"}}">
-              {{tt this "expression"}}
-            </td>
-            <td class="property-value form-horizontal">
-              <div class="input-group-clipboard-textarea form-group {{if expressionValidationMessage "has-error"}}">
-                <textarea
-                  oninput={{action "expressionInfixChanged" value="target.value"}}
-                  onblur={{action (mut expressionEditStarted) true}}
-                  disabled={{disabled}}
-                  rows="4"
-                  class="form-control no-resize code-textarea json-textarea">{{expressionInfix}}</textarea>
-                {{#if expressionValidationMessage}}
-                  <div class="form-message">
-                    {{expressionValidationMessage}}
-                  </div>
-                {{/if}}
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="row row-submit-qos">
-        {{#one-spin-button
-          action=(action "save")
-          class="btn btn-primary"
-          disabled=saveDisabled
-        }}
-          {{tt this "save"}}
-        {{/one-spin-button}}
-      </div>
-    </div>
-  {{/listItem.content}}
-{{/collapsibleList.item}}
+<div class="qos-add">
+  <div class="list-content">
+    <table class="table table-info table-info-large table-info-collapsible table-info-breakable">
+      <tbody>
+        <tr class="qos-info-row-replicas-number">
+          <td class="property-name {{unless readonly "with-input"}}">
+            {{tt this "replicasNumber"}}
+          </td>
+          <td class="property-value form-horizontal">
+            <div class="form-group {{if replicasNumberValidationMessage "has-error"}}">
+              <input
+                type="number"
+                class="form-control replicas-number-input"
+                value={{replicasNumberString}}
+                oninput={{action "replicasNumberChanged" value="target.value"}}
+                onkeydown={{invoke-on-enter (action "disableEnterKey")}}
+                disabled={{disabled}}
+                autofocus=true
+              >
+              {{#if replicasNumberValidationMessage}}
+                <div class="form-message">
+                  {{replicasNumberValidationMessage}}
+                </div>
+              {{/if}}
+            </div>
+          </td>
+        </tr>
+        <tr class="qos-info-row-expression">
+          <td class="property-name {{unless readonly "with-input"}}">
+            {{tt this "expression"}}
+          </td>
+          <td class="property-value form-horizontal">
+            <div class="input-group-clipboard-textarea form-group {{if expressionValidationMessage "has-error"}}">
+              <textarea
+                oninput={{action "expressionInfixChanged" value="target.value"}}
+                onblur={{action (mut expressionEditStarted) true}}
+                disabled={{disabled}}
+                rows="4"
+                class="form-control no-resize code-textarea json-textarea"
+              >{{expressionInfix}}</textarea>
+              {{#if expressionValidationMessage}}
+                <div class="form-message">
+                  {{expressionValidationMessage}}
+                </div>
+              {{/if}}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

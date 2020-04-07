@@ -21,5 +21,5 @@ export default {
     file: 'file',
     dir: 'directory',
   },
-  regexpHint: 'Name must be composed only of UTF-8 letters, digits, brackets and underscores. Dashes, spaces and dots are allowed (but not at the beginning or the end).',
+  regexpHint: 'Name must be composed only of UTF-8 letters, digits, parentheses and underscores. Dashes, spaces and dots are allowed (but not at the beginning or the end).',
 };

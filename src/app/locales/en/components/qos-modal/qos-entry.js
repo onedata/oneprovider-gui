@@ -1,8 +1,7 @@
-import { replicasNumber, expression } from './-common';
+import _ from 'lodash';
+import common from './-common';
 
-export default {
-  replicasNumber,
-  expression,
+const translations = {
   qosId: 'Requirement ID',
   direct: 'Direct',
   remove: 'Remove QoS requirement',
@@ -20,3 +19,5 @@ export default {
     remove: 'Yes, remove',
   },
 };
+
+export default _.merge({}, translations, common);

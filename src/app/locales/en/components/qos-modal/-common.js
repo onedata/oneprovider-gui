@@ -1,2 +1,4 @@
-export const replicasNumber = 'Replicas number';
-export const expression = 'Expression';
+export default {
+  replicasNumber: 'Replicas number',
+  expression: 'Expression',
+};

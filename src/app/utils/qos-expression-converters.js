@@ -11,20 +11,26 @@ function isOperator(item) {
   return operatorRe.test(item);
 }
 
-// FIXME: use union, intersect, complement as in RSE (rucio)
-export const operatorName = {
-  '|': 'or',
-  '&': 'and',
-  '-': 'diff',
-};
+function expandInfix(obj) {
+  if (obj.type === 'group') {
+    const parentheses = obj.parentheses;
+    return `${parentheses ? '(' : ''}${expandInfix(obj.a)}${operatorChar[obj.operator]}${expandInfix(obj.b)}${parentheses ? ')' : ''}`;
+  } else if (obj.type === 'pair') {
+    return `${obj.key}=${obj.value}`;
+  } else {
+    throw new Error(`unrecognized qos object type: ${obj.type}`);
+  }
+}
 
 export const operatorChar = {
-  or: '|',
-  and: '&',
-  diff: '-',
+  union: '|',
+  intersect: '&',
+  complement: '-',
 };
 
-export default function qosRpnToObject(rpnData) {
+export const operatorName = _.invert(operatorChar);
+
+export function qosRpnToObject(rpnData) {
   const source = _.cloneDeep(rpnData);
   const stack = [];
   while (source.length) {
@@ -40,12 +46,11 @@ export default function qosRpnToObject(rpnData) {
       // RPN algorithm: first value from stack is second element of expression
       const b = stack.pop();
       const a = stack.pop();
-      // FIXME: rename brackets to parenthesis
       if (a && b) {
         stack.push({
           type: 'group',
           operator: operatorName[item],
-          brackets: Boolean(stack.length),
+          parentheses: Boolean(stack.length),
           a,
           b,
         });
@@ -63,18 +68,6 @@ export default function qosRpnToObject(rpnData) {
   }
 }
 
-function expand(obj) {
-  if (obj.type === 'group') {
-    const brackets = obj.brackets;
-    return `${brackets ? '(' : ''}${expand(obj.a)}${operatorChar[obj.operator]}${expand(obj.b)}${brackets ? ')' : ''}`;
-  } else if (obj.type === 'pair') {
-    return `${obj.key}=${obj.value}`;
-  } else {
-    throw new Error(`unrecognized qos object type: ${obj.type}`);
-  }
-}
-
-// FIXME: move to other file
 export function qosRpnToInfix(rpnData) {
-  return expand(qosRpnToObject(rpnData));
+  return expandInfix(qosRpnToObject(rpnData));
 }

@@ -11,15 +11,23 @@
       </div>
       {{#unless direct}}
         <div class="qos-subheader qos-path-subheader">
-          {{#promise-proxy-container proxy=filePathProxy sizeClass="xs"}}
+          {{#promise-proxy-container
+            proxy=qosSourceFilePathProxy
+            centered=false
+            spinnerBlockClass="spinner-block-path"
+            sizeClass="xxs"
+            inlineError=true
+          }}
             <span class="inherited-text">{{tt this "inheritedFrom"}}</span>
             <a
               onclick={{action "fileLinkClicked"}}
-              href={{fileHref}}
+              href={{qosSourceFileHref}}
               target={{navigateDataTarget}}
-              class="file-path"
+              class="file-path truncate"
             >
-              {{filePathProxy.content}}
+              <span class="file-path-text truncate">
+                {{qosSourceFilePathProxy.content}}
+              </span>
             </a>
           {{/promise-proxy-container}}
         </div>
@@ -77,7 +85,9 @@
                   rawValue=rawExpressionInfix
                   class="monospace-font clipboard-line-expression"
                   notify=(action "expressionCopied")
-                }}{{qos-expression-viewer expressionRpn=expressionRpn}}{{/clipboard-line}}
+                }}
+                  {{qos-expression-viewer expressionRpn=expressionRpn}}
+                {{/clipboard-line}}
               </div>
             </td>
           </tr>

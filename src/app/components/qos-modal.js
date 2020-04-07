@@ -11,32 +11,17 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import EmberObject, { get, observer } from '@ember/object';
+import { get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, array, getBy, equal } from 'ember-awesome-macros';
+import { conditional, raw, array, equal } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
+import QosItem from 'oneprovider-gui/utils/qos-item';
 
 const updateInterval = 5000;
-
-const QosItem = EmberObject.extend({
-  modalFileId: undefined,
-  qos: undefined,
-  file: undefined,
-  fileQos: undefined,
-
-  entityId: reads('qos.entityId'),
-  fulfilled: reads('qos.fulfilled'),
-  replicasNum: reads('qos.replicasNum'),
-  expressionRpn: reads('qos.expressionRpn'),
-
-  direct: equal('modalFileId', 'file.entityId'),
-
-  fileFulfilled: getBy('fileQos.qosEntries', 'qos.entityId'),
-});
 
 export default Component.extend(
   I18n,
@@ -59,6 +44,7 @@ export default Component.extend(
 
     /**
      * @virtual
+     * File for which the modal have been opened
      * @type {Models.File}
      */
     file: undefined,
@@ -82,16 +68,26 @@ export default Component.extend(
     updateInterval,
 
     /**
-     * @type {boolean}
-     * If true, add entry is expanded
-     */
-    addNewEntryActive: false,
-
-    /**
      * Initialized in init
      * @type {Looper}
      */
     updater: null,
+
+    /**
+     * One of: show (show list of QoS requirements for file), add (form)
+     * @type {String}
+     */
+    mode: 'show',
+
+    /**
+     * @type {Object}
+     */
+    newEntryData: undefined,
+
+    /**
+     * @type {ComputedProperty<booelan>}
+     */
+    isAddMode: equal('mode', raw('add')),
 
     /**
      * @type {ComputedProperty<string>} one of: file, dir
@@ -118,7 +114,7 @@ export default Component.extend(
       raw('checkbox-pending'),
     ),
 
-    sortedQosItems: array.sort('qosItemsProxy.content', ['direct']),
+    sortedQosItems: array.sort('qosItemsProxy.content', ['direct:desc']),
 
     configureUpdater: observer(
       'open',
@@ -133,13 +129,22 @@ export default Component.extend(
       }
     ),
 
+    isAnyEntryObserver: observer(
+      'qosItems.length',
+      'qosItemsProxy.isFulfilled',
+      function isAnyEntryObserver() {
+        if (this.get('qosItemsProxy.isFulfilled') && !this.get('qosItems.length')) {
+          this.set('mode', 'add');
+        }
+      }),
+
     init() {
       this._super(...arguments);
       const updater = Looper.create({
         immediate: false,
       });
       updater.on('tick', () => {
-        this.updateData({ replace: true });
+        this.updateData(true);
       });
       this.set('updater', updater);
       this.configureUpdater();
@@ -166,10 +171,10 @@ export default Component.extend(
         fileQos,
       } = this.getProperties('qosRecordsProxy', 'file', 'fileQos');
       return qosRecordsProxy.then(qosRecords =>
-        allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosFile =>
+        allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile =>
           QosItem.create({
             modalFileId: get(file, 'entityId'),
-            file: qosFile,
+            qosSourceFile,
             fileQos,
             qos,
           })
@@ -187,23 +192,29 @@ export default Component.extend(
     /**
      * @override
      */
-    fetchQosRecords() {
+    fetchQosRecords(replace) {
       // NOTE: not need to update qos records separately
       // in this modal, because their fulfilled property
       // is not used (using per-file map in fileQos)
-      return this.updateFileQosProxy().then(fileQos =>
+      return this.updateFileQosProxy({ replace }).then(fileQos =>
         fileQos.updateQosRecordsProxy({ replace: true })
       );
     },
 
     onShow() {
       this.updateQosItemsProxy();
+      // FIXME:
+      // this.updateQosItemsProxy().then(items => {
+      //   if (!items.length) {
+      //     this.set('mode', 'add');
+      //   }
+      // });
     },
 
-    updateData(updateOptions) {
+    updateData(replace) {
       const file = this.get('file');
-      return this.updateQosRecordsProxy(updateOptions)
-        .finally(() => this.updateQosItemsProxy(updateOptions))
+      return this.updateQosRecordsProxy({ replace, fetchArgs: [replace] })
+        .finally(() => this.updateQosItemsProxy({ replace }))
         .finally(() => file.reload());
     },
 
@@ -219,7 +230,9 @@ export default Component.extend(
           throw error;
         })
         .then(() => {
-          return this.updateData();
+          const updating = this.updateData();
+          this.set('mode', 'show');
+          return updating;
         });
     },
 
@@ -230,8 +243,14 @@ export default Component.extend(
       onHide() {
         this.get('onHide')();
       },
-      addEntry(data) {
-        return this.addEntry(data);
+      changeNewEntry(data, isValid) {
+        this.setProperties({
+          newEntryData: data,
+          newEntryIsValid: isValid,
+        });
+      },
+      save() {
+        return this.addEntry(this.get('newEntryData'));
       },
       removeQos(qos) {
         return this.get('qosManager').removeQos(qos)

@@ -22,12 +22,17 @@
       .file-icon-container, .file-item-text {
         min-width: 2em;
       }
-      .file-status-bar {
-        display: inline-flex;
-      }
       .file-item-text {
+        display: flex;
         flex-grow: 1;
         padding-left: 10px;
+        .file-name {
+          overflow: hidden;
+          flex-grow: 1;
+        }
+      }
+      .file-status-bar {
+        display: inline-flex;
       }
       .file-status-icon {
         display: inline-block;
@@ -41,7 +46,11 @@
         padding-right: 6px;
         
         &+.file-status-icon {
-          margin-left: 4px;
+          margin-left: 6px;
+        }
+        
+        &:first-of-type {
+          margin-left: 6px;
         }
       }
       .file-info-mobile {

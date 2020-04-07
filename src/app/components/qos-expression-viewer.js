@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import qosRpnToObject from 'oneprovider-gui/utils/qos-rpn-to-object';
+import { qosRpnToObject } from 'oneprovider-gui/utils/qos-expression-converters';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 
 export default Component.extend({

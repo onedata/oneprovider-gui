@@ -19,10 +19,10 @@ export default Model.extend(
   createDataProxyMixin('qosRecords', { type: 'array' }), {
     qosManager: service(),
 
-    qosEntries: attr('object'),
+    entries: attr('object'),
 
-    fulfilled: computed('qosEntries.[]', function fulfilled() {
-      return Object.values(this.get('qosEntries')).every(entry => entry === true);
+    fulfilled: computed('entries.[]', function fulfilled() {
+      return Object.values(this.get('entries')).every(entry => entry === true);
     }),
 
     /**
@@ -30,11 +30,11 @@ export default Model.extend(
      */
     fetchQosRecords() {
       const {
-        qosEntries,
+        entries,
         scope,
         qosManager,
-      } = this.getProperties('qosEntries', 'scope', 'qosManager');
-      return allFulfilled(Object.keys(qosEntries).map(qosId =>
+      } = this.getProperties('entries', 'scope', 'qosManager');
+      return allFulfilled(Object.keys(entries).map(qosId =>
         qosManager.getRecordById(qosId, scope)
       ));
     },

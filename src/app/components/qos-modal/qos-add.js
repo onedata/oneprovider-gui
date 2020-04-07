@@ -12,7 +12,7 @@ import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, or, notEmpty, conditional, isEmpty, and, number } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
@@ -25,22 +25,10 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.qosModal.qosAdd',
 
   /**
-   * @virutal
-   * @type {Component}
-   */
-  collapsibleList: undefined,
-
-  /**
-   * @virtual
-   * @type {boolean}
-   */
-  fileFulfilled: undefined,
-
-  /**
    * @virtual
    * @type {Function}
    */
-  closeAddEntry: notImplementedIgnore,
+  update: notImplementedThrow,
 
   replicasNumberString: '1',
 
@@ -78,7 +66,7 @@ export default Component.extend(I18n, {
 
   expressionValid: and('expressionEditStarted', isEmpty('expressionValidationMessage')),
 
-  saveDisabled: or(not('replicasNumberValid'), not('expressionValid')),
+  isValid: and('replicasNumberValid', 'expressionValid'),
 
   componentId: computed(function componentId() {
     return guidFor(this);
@@ -97,30 +85,37 @@ export default Component.extend(I18n, {
     });
   },
 
+  notifyUpdate() {
+    const {
+      replicasNumber,
+      expressionInfix,
+      isValid,
+      update,
+    } = this.getProperties('replicasNumber', 'expressionInfix', 'isValid', 'update');
+    return update({
+        replicasNumber,
+        expressionInfix,
+      },
+      isValid
+    );
+  },
+
   actions: {
-    save() {
-      const {
-        replicasNumber,
-        expressionInfix,
-        addEntry,
-      } = this.getProperties('replicasNumber', 'expressionInfix', 'addEntry');
-      return addEntry({
-        replicasNumber,
-        expressionInfix,
-      }).then(() => {
-        this.closeForm();
-      });
-    },
     disableEnterKey(keyEvent) {
       if (keyEvent.key === 'Enter') {
         keyEvent.preventDefault();
       }
+    },
+    replicasNumberChanged(value) {
+      this.set('replicasNumberString', value);
+      this.notifyUpdate();
     },
     expressionInfixChanged(value) {
       if (!this.get('expressionEditStarted')) {
         this.set('expressionEditStarted', true);
       }
       this.set('expressionInfix', value);
+      this.notifyUpdate();
     },
   },
 });

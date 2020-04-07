@@ -12,7 +12,7 @@ import Component from '@ember/component';
 import { tag } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { getBy } from 'ember-awesome-macros';
-import { operatorChar } from 'oneprovider-gui/utils/qos-rpn-to-object';
+import { operatorChar } from 'oneprovider-gui/utils/qos-expression-converters';
 
 export default Component.extend({
   tagName: '',
@@ -27,5 +27,5 @@ export default Component.extend({
 
   operatorString: getBy('operatorChar', 'data.operator'),
 
-  brackets: reads('data.brackets'),
+  parentheses: reads('data.parentheses'),
 });

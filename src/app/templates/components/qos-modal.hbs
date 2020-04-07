@@ -10,8 +10,8 @@
 }}
   {{#modal.header}}
     <h1>
-      <span>{{tt this "header"}}</span>
-      {{#if qosRecords.length}}
+      <span>{{tt this (if isAddMode "headerAdd" "headerShow")}}</span>
+      {{#if (and (not isAddMode) qosRecords.length)}}
         {{#one-icon
           icon=fileQosStatusIcon
           class=(concat "file-qos-status file-qos-status-" fileQosStatus)
@@ -27,35 +27,56 @@
     </h2>
   {{/modal.header}}
   {{#modal.body}}
-    <div class="loadable-row">
-      {{#promise-proxy-container proxy=qosItemsProxy}}
-        {{#one-collapsible-list class="qos-list" as |list|}}
-          {{#each sortedQosItems key="entityId" as |qosItem|}}
-            {{qos-modal/qos-entry
-              collapsibleList=list
-              qosItem=qosItem
-              removeQos=(action "removeQos")
-              getDataUrl=(action "getDataUrl")
-              closeModal=(action "onHide")
-            }}
-          {{/each}}
-          {{qos-modal/qos-add
-            collapsibleList=list
-            isActive=addNewEntryActive
-            addEntry=(action "addEntry")
-            closeAddEntry=(action (mut addNewEntryActive) false)
-          }}
-        {{/one-collapsible-list}}
-      {{/promise-proxy-container}}
-    </div>
+    {{#if isAddMode}}
+      {{qos-modal/qos-add
+        update=(action "changeNewEntry")
+      }}
+    {{else}}
+      <div class="loadable-row">
+        {{#promise-proxy-container proxy=qosItemsProxy}}
+          {{#one-collapsible-list class="qos-list" as |list|}}
+            {{#each sortedQosItems key="entityId" as |qosItem|}}
+              {{qos-modal/qos-entry
+                collapsibleList=list
+                qosItem=qosItem
+                removeQos=(action "removeQos")
+                getDataUrl=(action "getDataUrl")
+                closeModal=(action "onHide")
+              }}
+            {{/each}}
+          {{/one-collapsible-list}}
+        {{/promise-proxy-container}}
+      </div>
+    {{/if}}
   {{/modal.body}}
   
   {{#modal.footer}}
     {{#bs-button
-      onClick=(action "onHide")
+      onClick=(if
+        (and isAddMode qosItems.length)
+        (action (mut mode "show"))
+        (action "onHide")
+      )
       type="default"
     }}
-      {{tt this "close"}}
+      {{tt this (if isAddMode "cancel" "close")}}
     {{/bs-button}}
+    
+    {{#if isAddMode}}
+      {{#one-spin-button
+        class="btn btn-primary"
+        disabled=(not newEntryIsValid)
+        action=(action "save")
+      }}
+        {{tt this "save"}}
+      {{/one-spin-button}}
+    {{else}}
+      {{#bs-button
+        onClick=(action (mut mode) "add")
+        type="primary"
+      }}
+        {{tt this "add"}}
+      {{/bs-button}}
+    {{/if}}
   {{/modal.footer}}
 {{/bs-modal}}

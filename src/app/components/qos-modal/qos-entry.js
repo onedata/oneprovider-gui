@@ -17,8 +17,8 @@ import { notImplementedThrow } from 'onedata-gui-common/utils/not-implemented-th
 import { guidFor } from '@ember/object/internals';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
-import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-rpn-to-object';
-import { later, cancel } from '@ember/runloop';
+import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
+import { next, later, cancel } from '@ember/runloop';
 import $ from 'jquery';
 
 export default Component.extend(I18n, {
@@ -30,7 +30,7 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.qosModal.qosEntry',
 
   /**
-   * @virutal
+   * @virtual
    * @type {Component}
    */
   collapsibleList: undefined,
@@ -59,7 +59,7 @@ export default Component.extend(I18n, {
    */
   closeModal: notImplementedThrow,
 
-  copyAnimationEnd: undefined,
+  copyAnimationEndTimer: undefined,
 
   navigateDataTarget: '_top',
 
@@ -92,35 +92,42 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  fileFulfilled: reads('qosItem.fileFulfilled'),
+  fulfilledForFile: reads('qosItem.fulfilledForFile'),
 
   /**
    * @type {ComputedProperty<Models.File>}
    */
-  file: reads('qosItem.file'),
+  qosSourceFile: reads('qosItem.qosSourceFile'),
 
-  fileId: reads('file.entityId'),
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  qosSourceFileId: reads('qosSourceFile.entityId'),
 
-  filePathProxy: promise.object(computed('file.{name,parent}', function filePathProxy() {
-    return resolveFilePath(this.get('file')).then(path => stringifyFilePath(path));
-  })),
+  qosSourceFilePathProxy: promise.object(computed(
+    'qosSourceFile.{name,parent}',
+    function qosSourceFilePathProxy() {
+      return resolveFilePath(this.get('qosSourceFile'))
+        .then(path => stringifyFilePath(path));
+    }
+  )),
 
-  fileHref: computed('fileId', function fileHref() {
+  qosSourceFileHref: computed('qosSourceFileId', function qosSourceFileHref() {
     const {
       getDataUrl,
-      fileId,
-    } = this.getProperties('getDataUrl', 'fileId');
-    return getDataUrl({ fileId });
+      qosSourceFileId,
+    } = this.getProperties('getDataUrl', 'qosSourceFileId');
+    return getDataUrl({ qosSourceFileId });
   }),
 
   statusId: conditional(
-    'fileFulfilled',
+    'fulfilledForFile',
     raw('fulfilled'),
     raw('pending'),
   ),
 
   statusIcon: conditional(
-    'fileFulfilled',
+    'fulfilledForFile',
     raw('checkbox-filled'),
     raw('checkbox-pending'),
   ),
@@ -143,17 +150,20 @@ export default Component.extend(I18n, {
       event.stopPropagation();
     },
     expressionCopied(success) {
-      // FIXME: fast clicking in copy causes animation problems
       if (success) {
+        const classes = ['animated', 'pulse-mint'];
+        const className = classes.join(' ');
         const $element = $('.qos-info-row-expression .qos-expression-viewer');
-        if ($element.hasClass('animated') && $element.hasClass('pulse-bg-mint')) {
-          cancel(this.get('copyAnimationEnd'));
-          $element.removeClass('animated pulse-bg-mint');
+        if (classes.every(cls => $element.hasClass(cls))) {
+          cancel(this.get('copyAnimationEndTimer'));
+          $element.removeClass(className);
+          next(() => $element.addClass(className));
+        } else {
+          $element.addClass(className);
         }
-        $element.addClass('animated pulse-bg-mint');
         this.set(
-          'copyAnimationEnd',
-          later(this, () => $element.removeClass('animated pulse-bg-mint'), 2000)
+          'copyAnimationEndTimer',
+          later(this, () => $element.removeClass(className), 1000)
         );
       }
     },
