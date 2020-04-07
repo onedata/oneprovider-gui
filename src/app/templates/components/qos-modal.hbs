@@ -1,0 +1,82 @@
+{{#bs-modal
+  class="qos-modal"
+  open=open
+  size="lg"
+  backdropClose=false
+  keyboard=false
+  onShow=(action "onShow")
+  onHide=(action "onHide")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>
+      <span>{{tt this (if isAddMode "headerAdd" "headerShow")}}</span>
+      {{#if (and (not isAddMode) qosRecords.length)}}
+        {{#one-icon
+          icon=fileQosStatusIcon
+          class=(concat "file-qos-status file-qos-status-" fileQosStatus)
+        }}
+          {{one-tooltip title=(tt this (concat "fileQosStatusHint." fileQosStatus))}}
+        {{/one-icon}}
+      {{/if}}
+    </h1>
+    <h2 class="filename">
+      {{#truncated-string}}
+        {{file.name}}
+      {{/truncated-string}}
+    </h2>
+  {{/modal.header}}
+  {{#modal.body}}
+    {{#if isAddMode}}
+      {{qos-modal/qos-add
+        update=(action "changeNewEntry")
+      }}
+    {{else}}
+      <div class="loadable-row">
+        {{#promise-proxy-container proxy=qosItemsProxy}}
+          {{#one-collapsible-list class="qos-list" as |list|}}
+            {{#each sortedQosItems key="entityId" as |qosItem|}}
+              {{qos-modal/qos-entry
+                collapsibleList=list
+                qosItem=qosItem
+                removeQos=(action "removeQos")
+                getDataUrl=(action "getDataUrl")
+                closeModal=(action "onHide")
+              }}
+            {{/each}}
+          {{/one-collapsible-list}}
+        {{/promise-proxy-container}}
+      </div>
+    {{/if}}
+  {{/modal.body}}
+  
+  {{#modal.footer}}
+    {{#bs-button
+      onClick=(if
+        (and isAddMode qosItems.length)
+        (action (mut mode "show"))
+        (action "onHide")
+      )
+      type="default"
+    }}
+      {{tt this (if isAddMode "cancel" "close")}}
+    {{/bs-button}}
+    
+    {{#if isAddMode}}
+      {{#one-spin-button
+        class="btn btn-primary"
+        disabled=(not newEntryIsValid)
+        action=(action "save")
+      }}
+        {{tt this "save"}}
+      {{/one-spin-button}}
+    {{else}}
+      {{#bs-button
+        onClick=(action (mut mode) "add")
+        type="primary"
+      }}
+        {{tt this "add"}}
+      {{/bs-button}}
+    {{/if}}
+  {{/modal.footer}}
+{{/bs-modal}}

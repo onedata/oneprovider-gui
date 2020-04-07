@@ -64,6 +64,8 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
+    hasEffQos: attr('boolean'),
+    hasDirectQos: attr('boolean'),
 
     /**
      * Modification time in UNIX timestamp format.
@@ -82,6 +84,7 @@ export default Model.extend(
     distribution: belongsTo('file-distribution'),
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
+    fileQos: belongsTo('file-qos'),
 
     modificationTime: alias('mtime'),
 

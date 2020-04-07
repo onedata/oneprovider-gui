@@ -1,0 +1,109 @@
+{{#collapsibleList.item class="qos-entry qos-entry-saved" as |listItem|}}
+  {{#listItem.header disableToggleIcon=true}}
+    <span class="item-icon-container qos-status-icon-container">
+      {{one-icon class=(concat "item-icon qos-status-" statusId) icon=statusIcon}}
+      {{one-tooltip title=(tt this (concat "statusHint." statusId))}}
+    </span>
+    <div class="qos-header">
+      <div class="qos-header-text">
+        <span>{{replicasNumber}} {{tt this (if (gt replicasNumber 1) "replicas" "replica")}},</span>
+        {{qos-expression-viewer expressionRpn=expressionRpn}}
+      </div>
+      {{#unless direct}}
+        <div class="qos-subheader qos-path-subheader">
+          {{#promise-proxy-container
+            proxy=qosSourceFilePathProxy
+            centered=false
+            spinnerBlockClass="spinner-block-path"
+            sizeClass="xxs"
+            inlineError=true
+          }}
+            <span class="inherited-text">{{tt this "inheritedFrom"}}</span>
+            <a
+              onclick={{action "fileLinkClicked"}}
+              href={{qosSourceFileHref}}
+              target={{navigateDataTarget}}
+              class="file-path truncate"
+            >
+              <span class="file-path-text truncate">
+                {{qosSourceFilePathProxy.content}}
+              </span>
+            </a>
+          {{/promise-proxy-container}}
+        </div>
+      {{/unless}}
+    </div>
+    <span class="label status-label label-{{statusClass}}">
+      {{statusText}}
+    </span>
+    {{#if direct}}
+      {{remove-icon class="remove-qos-trigger"}}
+      {{#one-switchable-popover-modal
+        class="qos-remove-question"
+        triggersConfiguration=(concat "#" listItem.elementId " .remove-qos-trigger")
+        popoverStyle="qos-remove-question over-modals"
+        submit=(action "confirmRemove")
+        as |ospm|
+      }}
+        <h1>{{tt this "removeQuestion.header"}}</h1>
+        <p>{{tt this "removeQuestion.information"}}</p>
+        <div class="btn-toolbar">
+          {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+            {{tt this "removeQuestion.cancel"}}
+          {{/bs-button}}
+          {{#one-spin-button
+            class="btn btn-sm btn-danger"
+            action=ospm.submit
+          }}
+            {{one-icon icon="remove"}} <span>{{tt this "removeQuestion.remove"}}</span>
+          {{/one-spin-button}}
+        </div>
+      {{/one-switchable-popover-modal}}
+    {{/if}}
+  {{/listItem.header}}
+  {{#listItem.content}}
+    {{#render-later tagName="div" class="list-content" triggerRender=listItem.isActive}}
+      <table class="table table-info table-info-large table-info-collapsible table-info-breakable">
+        <tbody>
+          <tr class="qos-info-row-replicas-number">
+            <td class="property-name">
+              {{tt this "replicasNumber"}}
+            </td> 
+            <td class="property-value">
+              <span>{{replicasNumber}}</span>
+            </td>
+          </tr>
+          <tr class="qos-info-row-expression">
+            <td class="property-name">
+              {{tt this "expression"}}
+            </td>
+            <td class="property-value">
+              <div class="input-group input-group-clipboard-textarea">
+                {{#clipboard-line
+                  type="html"
+                  size=(if smallContent "sm")
+                  rawValue=rawExpressionInfix
+                  class="monospace-font clipboard-line-expression"
+                  notify=(action "expressionCopied")
+                }}
+                  {{qos-expression-viewer expressionRpn=expressionRpn}}
+                {{/clipboard-line}}
+              </div>
+            </td>
+          </tr>
+          <tr class="qos-info-row-id">
+            <td class="property-name with-input">
+              {{tt this "qosId"}}
+            </td>
+            <td class="property-value">
+              {{clipboard-line
+                value=qosId
+                size=(if smallContent "sm")
+              }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    {{/render-later}}
+  {{/listItem.content}}
+{{/collapsibleList.item}}
