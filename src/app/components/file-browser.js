@@ -343,12 +343,8 @@ export default Component.extend(I18n, {
   btnShare: computed(function btnShare() {
     return this.createFileAction({
       id: 'share',
-      action: () => {
-        const {
-          openShare,
-          selectedFiles,
-        } = this.getProperties('openShare', 'selectedFiles');
-        return openShare(selectedFiles[0]);
+      action: (files) => {
+        return this.get('openShare')(files[0]);
       },
       showIn: [
         actionContext.singleFile,
@@ -362,12 +358,8 @@ export default Component.extend(I18n, {
   btnMetadata: computed(function btnMetadata() {
     return this.createFileAction({
       id: 'metadata',
-      action: () => {
-        const {
-          openMetadata,
-          selectedFiles,
-        } = this.getProperties('openMetadata', 'selectedFiles');
-        return openMetadata(selectedFiles[0]);
+      action: (files) => {
+        return this.get('openMetadata')(files[0]);
       },
       showIn: [
         actionContext.singleDir,
@@ -381,12 +373,8 @@ export default Component.extend(I18n, {
   btnInfo: computed(function btnInfo() {
     return this.createFileAction({
       id: 'info',
-      action: () => {
-        const {
-          openInfo,
-          selectedFiles,
-        } = this.getProperties('openInfo', 'selectedFiles');
-        return openInfo(selectedFiles[0]);
+      action: (files) => {
+        return this.get('openInfo')(files[0]);
       },
       showIn: [
         actionContext.spaceRootDir,
@@ -400,13 +388,12 @@ export default Component.extend(I18n, {
   btnRename: computed(function btnRename() {
     return this.createFileAction({
       id: 'rename',
-      action: () => {
+      action: (files) => {
         const {
           openRename,
-          selectedFiles,
           dir,
-        } = this.getProperties('openRename', 'selectedFiles', 'dir');
-        return openRename(selectedFiles[0], dir);
+        } = this.getProperties('openRename', 'dir');
+        return openRename(files[0], dir);
       },
       showIn: [
         actionContext.singleDir,
@@ -419,12 +406,8 @@ export default Component.extend(I18n, {
   btnPermissions: computed(function btnPermissions() {
     return this.createFileAction({
       id: 'permissions',
-      action: () => {
-        const {
-          openEditPermissions,
-          selectedFiles,
-        } = this.getProperties('openEditPermissions', 'selectedFiles');
-        return openEditPermissions(selectedFiles);
+      action: (files) => {
+        return this.get('openEditPermissions')(files);
       },
       showIn: [...anySelected, actionContext.currentDir],
     });
@@ -433,10 +416,9 @@ export default Component.extend(I18n, {
   btnCopy: computed(function btnCopy() {
     return this.createFileAction({
       id: 'copy',
-      action: () => {
-        const selectedFiles = this.get('selectedFiles');
+      action: (files) => {
         this.setProperties({
-          fileClipboardFiles: selectedFiles,
+          fileClipboardFiles: files,
           fileClipboardMode: 'copy',
         });
       },
@@ -447,10 +429,9 @@ export default Component.extend(I18n, {
   btnCut: computed(function btnCut() {
     return this.createFileAction({
       id: 'cut',
-      action: () => {
-        const selectedFiles = this.get('selectedFiles');
+      action: (files) => {
         this.setProperties({
-          fileClipboardFiles: selectedFiles,
+          fileClipboardFiles: files,
           fileClipboardMode: 'move',
         });
       },
@@ -473,10 +454,13 @@ export default Component.extend(I18n, {
   btnDelete: computed(function btnDelete() {
     return this.createFileAction({
       id: 'delete',
-      action: () => this.get('openRemove')(
-        this.get('selectedFiles'),
-        this.get('dir')
-      ),
+      action: (files) => {
+        const {
+          openRemove,
+          dir,
+        } = this.getProperties('openRemove', 'dir');
+        return openRemove(files, dir);
+      },
       showIn: anySelected,
     });
   }),
@@ -489,12 +473,8 @@ export default Component.extend(I18n, {
         actionContext.currentDir,
         actionContext.spaceRootDir,
       ],
-      action: () => {
-        const {
-          openFileDistributionModal,
-          selectedFiles,
-        } = this.getProperties('openFileDistributionModal', 'selectedFiles');
-        return openFileDistributionModal(selectedFiles);
+      action: (files) => {
+        return this.get('openFileDistributionModal')(files);
       },
     });
   }),
@@ -509,12 +489,8 @@ export default Component.extend(I18n, {
         actionContext.currentDir,
         actionContext.spaceRootDir,
       ],
-      action: () => {
-        const {
-          openQos,
-          selectedFiles,
-        } = this.getProperties('openQos', 'selectedFiles');
-        return openQos(selectedFiles[0]);
+      action: (files) => {
+        return this.get('openQos')(files[0]);
       },
     });
   }),
@@ -609,12 +585,24 @@ export default Component.extend(I18n, {
       title,
       icon,
       showIn,
+      action,
       class: elementClass,
-    } = getProperties(actionProperties, 'id', 'title', 'icon', 'showIn', 'class');
+    } = getProperties(
+      actionProperties,
+      'id',
+      'title',
+      'icon',
+      'showIn',
+      'action',
+      'class'
+    );
     return Object.assign({}, actionProperties, {
       icon: icon || `browser-${dasherize(id)}`,
       title: title || this.t(`fileActions.${id}`),
       showIn: showIn || [],
+      action: (files) => {
+        return action(files || this.get('selectedFiles'));
+      },
       class: `file-action-${id} ${elementClass || ''}`,
     });
   },
