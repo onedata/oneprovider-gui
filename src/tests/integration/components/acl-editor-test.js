@@ -9,7 +9,6 @@ import $ from 'jquery';
 import sinon from 'sinon';
 
 describe('Integration | Component | acl editor', function () {
-  this.timeout(5000);
   setupComponentTest('acl-editor', {
     integration: true,
   });
