@@ -1,6 +1,16 @@
-<textarea
-  value={{metadataForEditor}}
-  oninput={{action "rdfChanged" value="target.value"}}
-  disabled={{disabled}}
-  rows="10"
-  class="form-control no-resize code-textarea rdf-textarea"></textarea>
+{{#if previewMode}}
+  {{clipboard-line
+    type="textarea"
+    value=metadataForEditor
+    textareaRows=textareaRows
+    inputClass="code-textarea"
+  }}
+{{else}}
+  <textarea
+    value={{metadataForEditor}}
+    oninput={{action "rdfChanged" value="target.value"}}
+    disabled={{disabled}}
+    readonly={{readonly}}
+    rows="10"
+    class="form-control no-resize code-textarea rdf-textarea"></textarea>
+{{/if}}

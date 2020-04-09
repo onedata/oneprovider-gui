@@ -16,6 +16,7 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import { computed, get } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
+import { resolve } from 'rsvp';
 
 export default Component.extend(I18n, {
   i18n: service(),
@@ -70,7 +71,12 @@ export default Component.extend(I18n, {
 
   ownerFullNameProxy: promise.object(
     computed('file.owner', function ownerFullNamePromise() {
-      return this.get('file.owner').then(owner => owner && get(owner, 'fullName'));
+      const ownerProxy = this.get('file.owner');
+      if (ownerProxy) {
+        return ownerProxy.then(owner => owner && get(owner, 'fullName'));
+      } else {
+        return resolve('—');
+      }
     })
   ),
 

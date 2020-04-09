@@ -158,7 +158,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  showDirContextMenu: and(not('dirLoadError'), not('previewMode')),
+  showDirContextMenu: not('dirLoadError'),
 
   specialViewClass: or('hasEmptyDirClass', 'dirLoadError'),
 
@@ -604,9 +604,6 @@ export default Component.extend(I18n, {
 
   actions: {
     openContextMenu(file, mouseEvent) {
-      if (this.get('previewMode') || get(file, 'type') === 'broken') {
-        return;
-      }
       const selectedFiles = this.get('selectedFiles');
       if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
         this.selectOnlySingleFile(file);
@@ -643,7 +640,7 @@ export default Component.extend(I18n, {
     },
 
     /**
-     * @param {object} file 
+     * @param {object} file
      * @param {MouseEvent} clickEvent
      * @returns {any} result of this.fileClicked
      */

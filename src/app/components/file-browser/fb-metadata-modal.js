@@ -33,6 +33,7 @@ const tabStateClassTypes = {
   invalid: 'danger',
   modified: 'warning',
   saved: 'success',
+  present: 'success',
 };
 
 export default Component.extend(
@@ -68,6 +69,13 @@ export default Component.extend(
      * @type {Function}
      */
     onShow: notImplementedIgnore,
+
+    /**
+     * @virtual optional
+     * If true, the modal is in metadata readonly mode (cannot modify, only show)
+     * @type {Boolean}
+     */
+    previewMode: false,
 
     metadataTypes: Object.freeze(metadataTypes),
 
@@ -151,13 +159,15 @@ export default Component.extend(
           return originalValue !== emptyValue && currentValue === emptyValue ||
             !_.isEqual(currentValue, originalValue);
         });
+        // eg. fetchXattrsOriginal
         this[metadataFetcherName(type)] = function () {
           const {
             metadataManager,
             file,
-          } = this.getProperties('metadataManager', 'file');
+            previewMode,
+          } = this.getProperties('metadataManager', 'file', 'previewMode');
           return metadataManager
-            .getMetadata(file, type)
+            .getMetadata(file, type, previewMode ? 'public' : 'private')
             .then(({ metadata }) => {
               if (type === 'xattrs' && _.isEmpty(metadata)) {
                 return emptyValue;
@@ -182,7 +192,8 @@ export default Component.extend(
         ];
         // eg. `xattrsTabState`
         this[tabStateName] =
-          computed(...tabStateDeps, function () {
+          computed(...tabStateDeps, 'previewMode', function () {
+            const previewMode = this.get('previewMode');
             const currentValue = this.get(currentName);
             const isModified = this.get(isModifiedName);
             const isValid = this.get(isValidName);
@@ -193,7 +204,7 @@ export default Component.extend(
             } else if (isModified) {
               return 'modified';
             } else {
-              return 'saved';
+              return previewMode ? 'present' : 'saved';
             }
           });
       });

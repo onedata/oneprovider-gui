@@ -10,6 +10,11 @@
 }}
   {{#modal.header}}
     <h1>{{tt this "header" type=typeTranslation}}</h1>
+    <h2 class="filename normal-case">
+      {{#truncated-string}}
+        {{file.name}}
+      {{/truncated-string}}
+    </h2>
   {{/modal.header}}
   {{#modal.body}}
     {{#bs-tab
@@ -50,11 +55,18 @@
           {{#bsTab.pane elementId=type}}
             {{#render-later triggerRender=(eq bsTab.activeId type)}}
               {{#promise-proxy-container proxy=(get this (concat type "OriginalProxy"))}}
-                {{component
-                  (concat "file-browser/fb-metadata-" type)
-                  metadata=(get this (concat type "Current"))
-                  metadataChanged=(action "metadataChanged" type)
-                }}
+                {{#if (and previewMode (eq (get this (concat type "TabState")) "blank"))}}
+                  <em>
+                    {{tt this "tabStateHint.blank" type=(tt this (concat "types." type))}}
+                  </em>
+                {{else}}
+                  {{component
+                    (concat "file-browser/fb-metadata-" type)
+                    metadata=(get this (concat type "Current"))
+                    metadataChanged=(action "metadataChanged" type)
+                    previewMode=previewMode
+                  }}
+                {{/if}}
               {{/promise-proxy-container}}
             {{/render-later}}
           {{/bsTab.pane}}
@@ -70,18 +82,20 @@
     }}
       {{closeBtnText}}
     {{/bs-button}}
-    <div class="btn-tooltip-container">
-      {{#one-spin-button
-        action=(action "saveAll")
-        inFlight=processing
-        disabled=saveAllDisabled
-        class="btn btn-primary btn-save-all"
-      }}
-        {{tt this "saveAll"}}
-      {{/one-spin-button}}
-      {{#if saveAllDisabledMessage}}
-        {{one-tooltip title=saveAllDisabledMessage}}
-      {{/if}}
-    </div>
+    {{#unless previewMode}}
+      <div class="btn-tooltip-container">
+        {{#one-spin-button
+          action=(action "saveAll")
+          inFlight=processing
+          disabled=saveAllDisabled
+          class="btn btn-primary btn-save-all"
+        }}
+          {{tt this "saveAll"}}
+        {{/one-spin-button}}
+        {{#if saveAllDisabledMessage}}
+          {{one-tooltip title=saveAllDisabledMessage}}
+        {{/if}}
+      </div>
+    {{/unless}}
   {{/modal.footer}}
 {{/bs-modal}}

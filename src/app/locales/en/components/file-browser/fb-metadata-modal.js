@@ -11,6 +11,7 @@ export default {
     blank: 'There is no {{type}} metadata set.',
     invalid: 'Entered {{type}} metadata is invalid ‐ please correct.',
     modified: 'There are unsaved changes in {{type}} metadata.',
+    present: '{{typeCapitalized}} metadata is present.',
     saved: '{{typeCapitalized}} metadata is present and saved.',
   },
   disabledReason: {

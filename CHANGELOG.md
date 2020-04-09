@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6232 Added readonly views (eg. metadata) for file browser in preview mode
 * VFS-6205 Fixed not invoking current dir actions
 * VFS-5899 Updated common libs
 * VFS-6145 Added file QoS management

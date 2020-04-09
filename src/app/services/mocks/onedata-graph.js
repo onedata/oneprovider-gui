@@ -21,9 +21,13 @@ import { inject as service } from '@ember/service';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 const messagePosixError = (errno) => ({
-  id: 'posix',
-  details: { errno },
-  description: `Operation failed with POSIX error: ${errno}.`,
+  success: false,
+  error: {
+    id: 'posix',
+    details: { errno },
+    description: `Operation failed with POSIX error: ${errno}.`,
+  },
+  data: {},
 });
 
 const transferStatusToProgressState = {
@@ -269,10 +273,11 @@ const fileHandlers = {
   },
   xattrs(operation, entityId, data) {
     switch (operation) {
-      case 'get':
+      case 'get': {
         return {
-          metadata: _.cloneDeep(metaXattrs),
+          metadata: this.get('emptyXattrsMetadata') ? null : _.cloneDeep(metaXattrs),
         };
+      }
       case 'create': {
         const xattrs = data.metadata;
         for (const key in xattrs) {
@@ -314,9 +319,13 @@ const fileHandlers = {
   },
   rdf_metadata(operation, entityId, data) {
     if (operation === 'get') {
-      return {
-        metadata: this.get('metaRdf'),
-      };
+      if (this.get('emptyRdfMetadata')) {
+        return messagePosixError('enodata');
+      } else {
+        return {
+          metadata: this.get('metaRdf'),
+        };
+      }
     } else if (operation === 'create') {
       this.set('metaRdf', data && data.metadata);
       return {};
@@ -453,9 +462,9 @@ const metaRdf = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 
 const metaXattrs = {
-  one: 'hello',
-  two: 'world',
-  three: 'foo',
+  'one': 'hello',
+  'very long name of the key test test test test test test test test test test test test test test test test test test': 'very long value of the xattr world world world world world world world world world world world world world world world world world world world world world world',
+  'three': 'foo',
 };
 
 export default OnedataGraphMock.extend({
@@ -466,10 +475,10 @@ export default OnedataGraphMock.extend({
 
   cancelledTransfers: computed(() => []),
 
-  emptyJsonMetadata: false,
-
+  emptyJsonMetadata: true,
+  emptyRdfMetadata: true,
+  emptyXattrsMetadata: true,
   metaJson,
-
   metaRdf,
 
   init() {

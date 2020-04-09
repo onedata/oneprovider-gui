@@ -119,6 +119,10 @@ export default Component.extend(I18n, {
 
   actionsOpened: false,
 
+  fileToShowInfo: null,
+
+  fileToShowMetadata: null,
+
   selectedFiles: Object.freeze([]),
 
   isInShareRoot: bool('dirProxy.content.isShareRoot'),
@@ -249,9 +253,7 @@ export default Component.extend(I18n, {
       return this.get('containerScrollTop')(...arguments);
     },
     updateDirId(dirId) {
-      if (dirId !== shareRootId) {
-        return this.get('updateDirId')(dirId);
-      }
+      return this.get('updateDirId')(dirId === shareRootId ? null : dirId);
     },
     getTransfersUrl({ fileId, tabId }) {
       return this.get('getTransfersUrl')({ fileId, tabId });
@@ -292,6 +294,24 @@ export default Component.extend(I18n, {
     showShareList() {
       return this.get('reloadShareList')()
         .then(() => this.get('showShareList')());
+    },
+    openInfoModal(file) {
+      this.set('fileToShowInfo', file);
+    },
+    closeInfoModal() {
+      this.set('fileToShowInfo', null);
+    },
+    openMetadataModal(file) {
+      this.set('fileToShowMetadata', file);
+    },
+    closeMetadataModal() {
+      this.set('fileToShowMetadata', null);
+    },
+    openEditPermissionsModal(files) {
+      this.set('filesToEditPermissions', files);
+    },
+    closeEditPermissionsModal(files) {
+      this.set('filesToEditPermissions', files);
     },
   },
 });

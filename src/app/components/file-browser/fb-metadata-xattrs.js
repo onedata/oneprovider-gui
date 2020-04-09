@@ -13,6 +13,7 @@ import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { emptyValue } from 'oneprovider-gui/components/file-browser/fb-metadata-modal';
 import { conditional, eq, raw } from 'ember-awesome-macros';
+import { computed } from '@ember/object';
 
 const {
   layoutConfig,
@@ -21,6 +22,7 @@ const {
 const invalidKeyRegex = /(onedata|cdmi)_.*/;
 
 export default Component.extend(I18n, {
+  layoutConfig,
   classNames: ['fb-metadata-xattrs'],
 
   /**
@@ -40,7 +42,11 @@ export default Component.extend(I18n, {
    */
   metadataChanged: undefined,
 
-  layoutConfig,
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  previewMode: false,
 
   areXattrsValid: true,
 
@@ -49,6 +55,18 @@ export default Component.extend(I18n, {
     raw({}),
     'metadata'
   ),
+
+  /**
+   * Metadata converted to array of `{ key, value }` objects
+   * @type {ComputedProperty<Array>}
+   */
+  metadataForPreview: computed('metadataForEditor', function metadataForPreview() {
+    const metadataForEditor = this.get('metadataForEditor');
+    return Object.keys(metadataForEditor).map(key => ({
+      key,
+      value: metadataForEditor[key],
+    }));
+  }),
 
   actions: {
     xattrsChanged({ isValid, qosParams: xattrs }) {

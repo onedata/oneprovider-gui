@@ -24,6 +24,14 @@ export default Component.extend({
    */
   metadataChanged: undefined,
 
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  previewMode: false,
+
+  textareaRows: 10,
+
   metadataForEditor: conditional(
     eq('metadata', raw(emptyValue)),
     raw(''),

@@ -25,6 +25,14 @@ export default Component.extend({
    */
   metadataChanged: undefined,
 
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  previewMode: false,
+
+  textareaRows: 10,
+
   validationError: null,
 
   jsonString: computed('metadata', function jsonString() {

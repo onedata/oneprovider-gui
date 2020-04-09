@@ -24,13 +24,21 @@ import { next } from '@ember/runloop';
 export const actionContext = {
   none: 'none',
   inDir: 'inDir',
+  inDirPreview: 'inDirPreview',
   singleDir: 'singleDir',
+  singleDirPreview: 'singleDirPreview',
   singleFile: 'singleFile',
+  singleFilePreview: 'singleFilePreview',
   multiDir: 'multiDir',
+  mutliDirPreview: 'mutliDirPreview',
   multiFile: 'multiFile',
+  multiFilePreview: 'multiFilePreview',
   multiMixed: 'multiMixed',
+  multiMixedPreview: 'multiMixedPreview',
   currentDir: 'currentDir',
+  currentDirPreview: 'currentDirPreview',
   spaceRootDir: 'spaceRootDir',
+  spaceRootDirPreview: 'spaceRootDirPreview',
 };
 
 export function getButtonActions(buttonsArray, context) {
@@ -44,6 +52,14 @@ const anySelected = [
   actionContext.multiDir,
   actionContext.multiFile,
   actionContext.multiMixed,
+];
+
+const anySelectedPreview = [
+  actionContext.singleDirPreview,
+  actionContext.singleFilePreview,
+  actionContext.multiDirPreview,
+  actionContext.multiFilePreview,
+  actionContext.multiMixedPreview,
 ];
 
 const buttonNames = [
@@ -188,14 +204,6 @@ export default Component.extend(I18n, {
   previewMode: false,
 
   /**
-   * If true, the paste from clipboard button should be available
-   * @type {Computed<boolean>}
-   */
-  clipboardReady: notEmpty('fileClipboardFiles'),
-
-  isRootDir: not('dir.hasParent'),
-
-  /**
    * One of: move, copy
    * @type {string}
    */
@@ -217,6 +225,16 @@ export default Component.extend(I18n, {
   selectedFiles: Object.freeze([]),
 
   /**
+   * If true, the paste from clipboard button should be available
+   * @type {Computed<boolean>}
+   */
+  clipboardReady: notEmpty('fileClipboardFiles'),
+
+  isRootDir: not('dir.hasParent'),
+
+  showCurrentDirActions: notEmpty('currentDirMenuButtons'),
+
+  /**
    * One of values from `actionContext` enum object
    * @type {ComputedProperty<string>}
    */
@@ -228,19 +246,19 @@ export default Component.extend(I18n, {
         return 'none';
       } else if (count === 1) {
         if (get(selectedFiles[0], 'type') === 'dir') {
-          return actionContext.singleDir;
+          return this.getPreviewContext(actionContext.singleDir);
         } else {
-          return actionContext.singleFile;
+          return this.getPreviewContext(actionContext.singleFile);
         }
       } else {
         if (selectedFiles.isAny('type', 'dir')) {
           if (selectedFiles.isAny('type', 'file')) {
-            return actionContext.multiMixed;
+            return this.getPreviewContext(actionContext.multiMixed);
           } else {
-            return actionContext.multiDir;
+            return this.getPreviewContext(actionContext.multiDir);
           }
         } else {
-          return actionContext.multiFile;
+          return this.getPreviewContext(actionContext.multiFile);
         }
       }
     }
@@ -265,23 +283,40 @@ export default Component.extend(I18n, {
     'allButtonsArray',
     'isRootDir',
     'clipboardReady',
+    'previewMode',
     function menuButtons() {
-      const {
-        allButtonsArray,
-        isRootDir,
-        clipboardReady,
-      } = this.getProperties('allButtonsArray', 'isRootDir', 'clipboardReady');
-      let importedActions = getButtonActions(
-        allButtonsArray,
-        isRootDir ? 'spaceRootDir' : 'currentDir'
-      );
-      if (!clipboardReady) {
-        importedActions = importedActions.rejectBy('id', 'paste');
+      if (this.get('dir.isShareRoot')) {
+        return [];
+      } else {
+        const {
+          allButtonsArray,
+          isRootDir,
+          clipboardReady,
+          previewMode,
+        } = this.getProperties(
+          'allButtonsArray',
+          'isRootDir',
+          'clipboardReady',
+          'previewMode',
+        );
+        const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
+          (previewMode ? 'Preview' : '');
+        let importedActions = getButtonActions(
+          allButtonsArray,
+          context
+        );
+        if (!clipboardReady) {
+          importedActions = importedActions.rejectBy('id', 'paste');
+        }
+        if (get(importedActions, 'length')) {
+          return [
+            { separator: true, title: this.t('menuCurrentDir') },
+            ...importedActions,
+          ];
+        } else {
+          return [];
+        }
       }
-      return [
-        { separator: true, title: this.t('menuCurrentDir') },
-        ...importedActions,
-      ];
     }
   ),
 
@@ -366,6 +401,10 @@ export default Component.extend(I18n, {
         actionContext.singleFile,
         actionContext.currentDir,
         actionContext.spaceRootDir,
+        actionContext.singleDirPreview,
+        actionContext.singleFilePreview,
+        actionContext.currentDirPreview,
+        actionContext.spaceRootDirPreview,
       ],
     });
   }),
@@ -381,6 +420,10 @@ export default Component.extend(I18n, {
         actionContext.singleDir,
         actionContext.singleFile,
         actionContext.currentDir,
+        actionContext.spaceRootDirPreview,
+        actionContext.singleDirPreview,
+        actionContext.singleFilePreview,
+        actionContext.currentDirPreview,
       ],
     });
   }),
@@ -409,7 +452,12 @@ export default Component.extend(I18n, {
       action: (files) => {
         return this.get('openEditPermissions')(files);
       },
-      showIn: [...anySelected, actionContext.currentDir],
+      showIn: [
+        ...anySelected,
+        ...anySelectedPreview,
+        actionContext.currentDir,
+        actionContext.currentDirPreview,
+      ],
     });
   }),
 
@@ -503,6 +551,10 @@ export default Component.extend(I18n, {
 
   openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
     return (mouseEvent) => {
+      if (!this.get('showCurrentDirActions')) {
+        return;
+      }
+
       const element = this.get('element');
       const $this = this.$();
       const tableOffset = $this.offset();
@@ -566,6 +618,10 @@ export default Component.extend(I18n, {
       'contextmenu',
       this.get('currentDirContextMenuHandler')
     );
+  },
+
+  getPreviewContext(context) {
+    return this.get('previewMode') ? `${context}Preview` : context;
   },
 
   /**

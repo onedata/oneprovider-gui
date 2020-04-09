@@ -9,6 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
+import { equal, raw } from 'ember-awesome-macros';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel } from '@ember/runloop';
@@ -259,14 +260,12 @@ export default Component.extend(I18n, FastDoubleClick, {
   hideMenuTrigger: computed(
     'selectionContext',
     'isSelected',
-    'previewMode',
     function hideMenuTrigger() {
       const {
         isSelected,
         selectionContext,
-        previewMode,
-      } = this.getProperties('isSelected', 'selectionContext', 'previewMode');
-      return previewMode || isSelected && selectionContext.startsWith('multi');
+      } = this.getProperties('isSelected', 'selectionContext');
+      return isSelected && selectionContext.startsWith('multi');
     }
   ),
 
@@ -284,6 +283,8 @@ export default Component.extend(I18n, FastDoubleClick, {
   hasEffQos: reads('file.hasEffQos'),
 
   hasDirectQos: reads('file.hasDirectQos'),
+
+  hasAcl: equal('file.activePermissionsType', raw('acl')),
 
   didInsertElement() {
     this._super(...arguments);

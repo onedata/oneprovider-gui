@@ -25,25 +25,28 @@
             </span>
           {{/truncated-string}}
         </div>
-        {{#unless previewMode}}
-          <div class="file-status-bar">
-            {{#if isShared}}
-              <div class="file-status-icon file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
-                {{tt this "status.shared"}}
-              </div>
-            {{/if}}
-            {{#if hasMetadata}}
-              <div class="file-status-icon file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
-                {{tt this "status.metadata"}}
-              </div>
-            {{/if}}
-            {{#if (or hasEffQos hasDirectQos)}}
-              <div class="file-status-icon file-status-qos {{if hasDirectQos "file-status-qos-direct"}}" {{action (action "invokeFileAction" file "btnQos") bubbles=false}}>
-                {{tt this "status.qos"}}{{#unless hasDirectQos}}&nbsp;⬆{{/unless}}
-              </div>
-            {{/if}}
-          </div>
-        {{/unless}}
+        <div class="file-status-bar">
+          {{#if (and (not previewMode) isShared)}}
+            <div class="file-status-icon file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
+              {{tt this "status.shared"}}
+            </div>
+          {{/if}}
+          {{#if hasMetadata}}
+            <div class="file-status-icon file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
+              {{tt this "status.metadata"}}
+            </div>
+          {{/if}}
+          {{#if hasAcl}}
+            <div class="file-status-icon file-status-acl" {{action (action "invokeFileAction" file "btnPermissions") bubbles=false}}>
+              {{tt this "status.acl"}}
+            </div>
+          {{/if}}
+          {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
+            <div class="file-status-icon file-status-qos {{if hasDirectQos "file-status-qos-direct"}}" {{action (action "invokeFileAction" file "btnQos") bubbles=false}}>
+              {{tt this "status.qos"}}{{#unless hasDirectQos}}&nbsp;⬆{{/unless}}
+            </div>
+          {{/if}}
+        </div>
         {{#if media.isMobile}}
           <div class="file-info-mobile">
             <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
@@ -83,14 +86,12 @@
       {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
     </span>
   </td>
-  {{#unless previewMode}}
-    <td class="fb-table-col-actions-menu">
-      {{#unless hideMenuTrigger}}
-        {{one-menu-toggle
-          class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
-          click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
-        }}
-      {{/unless}}
-    </td>
-  {{/unless}}
+  <td class="fb-table-col-actions-menu">
+    {{#unless hideMenuTrigger}}
+      {{one-menu-toggle
+        class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
+        click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
+      }}
+    {{/unless}}
+  </td>
 {{/if}}
