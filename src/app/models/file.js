@@ -66,6 +66,7 @@ export default Model.extend(
     hasMetadata: attr('boolean'),
     hasEffQos: attr('boolean'),
     hasDirectQos: attr('boolean'),
+    sharesCount: attr('number'),
 
     /**
      * Modification time in UNIX timestamp format.
@@ -108,10 +109,6 @@ export default Model.extend(
     pollSizeTimerId: null,
 
     isShared: bool('sharesCount'),
-
-    sharesCount: computed('shareRecords.length', function sharesCount() {
-      return this.hasMany('shareRecords').ids().length;
-    }),
 
     cdmiObjectId: computed('entityId', function cdmiObjectId() {
       try {
