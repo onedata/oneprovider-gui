@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6205 Fixed not invoking current dir actions
 * VFS-5899 Updated common libs
 * VFS-6145 Added file QoS management
 * VFS-5929 Changed file listing API to Readdir+

@@ -203,12 +203,6 @@ export default Component.extend(
 
     onShow() {
       this.updateQosItemsProxy();
-      // FIXME:
-      // this.updateQosItemsProxy().then(items => {
-      //   if (!items.length) {
-      //     this.set('mode', 'add');
-      //   }
-      // });
     },
 
     updateData(replace) {

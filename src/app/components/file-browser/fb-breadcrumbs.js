@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { next, later } from '@ember/runloop';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-items';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
@@ -82,9 +82,8 @@ export default Component.extend(
     /**
      * @virtual
      * @type {Function}
-     * @param {boolean} opened true if the dropdown changed to opened state
      */
-    dirActionsToggled: notImplementedThrow,
+    clearSelection: notImplementedIgnore,
 
     /**
      * @virtual
@@ -295,13 +294,14 @@ export default Component.extend(
       changeDir(dir) {
         this.get('changeDir')(dir);
       },
+      actionClicked() {
+        this.get('clearSelection')();
+        this.send('toggleDirActions', false);
+      },
       toggleDirActions(open) {
         const _open =
           (typeof open === 'boolean') ? open : !this.get('dirActionsOpen');
         this.set('dirActionsOpen', _open);
-      },
-      dirActionsToggled(opened) {
-        this.get('dirActionsToggled')(opened);
       },
     },
   }
