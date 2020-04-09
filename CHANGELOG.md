@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6270 Fixed not showing shares after adding to new directory
 * VFS-6205 Fixed not invoking current dir actions
 * VFS-5899 Updated common libs
 * VFS-6145 Added file QoS management
