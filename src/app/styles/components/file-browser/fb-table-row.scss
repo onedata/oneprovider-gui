@@ -35,15 +35,25 @@
         display: inline-flex;
       }
       .file-status-icon {
+        $border-width: 1px;
+        $height: 24px;
+        $margin-vertical-fix: ($height - 20px) / 2;
+        $border-color: #BDC2D3;
+        $background-color: #DEE1ED;
+        $font-color: $color-one-blue-gray;
+        
         display: inline-block;
         @include font-semibold;
-        background-color: $color-one-blue-gray;
-        color: $color-one-white;
-        border-radius: 100px;
+        background-color: $background-color;
+        color: $font-color;
+        border: $border-width solid $border-color;
+        border-radius: 8px;
         font-size: 11px;
-        line-height: 20px;
+        line-height: 24px;
         padding-left: 6px;
         padding-right: 6px;
+        margin-top: -$margin-vertical-fix - $border-width;
+        margin-bottom: -$margin-vertical-fix - $border-width;
         
         &+.file-status-icon {
           margin-left: 6px;
