@@ -34,7 +34,7 @@
       .file-status-bar {
         display: inline-flex;
       }
-      .file-status-icon {
+      .file-status-tag {
         $border-width: 1px;
         $height: 24px;
         $margin-vertical-fix: ($height - 20px) / 2;
@@ -55,7 +55,7 @@
         margin-top: -$margin-vertical-fix - $border-width;
         margin-bottom: -$margin-vertical-fix - $border-width;
         
-        &+.file-status-icon {
+        &+.file-status-tag {
           margin-left: 6px;
         }
         

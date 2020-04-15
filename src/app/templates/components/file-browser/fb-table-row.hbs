@@ -27,22 +27,22 @@
         </div>
         <div class="file-status-bar">
           {{#if (and (not previewMode) isShared)}}
-            <div class="file-status-icon file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
+            <div class="file-status-tag file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
               {{tt this "status.shared"}}
             </div>
           {{/if}}
           {{#if hasMetadata}}
-            <div class="file-status-icon file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
+            <div class="file-status-tag file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
               {{tt this "status.metadata"}}
             </div>
           {{/if}}
           {{#if hasAcl}}
-            <div class="file-status-icon file-status-acl" {{action (action "invokeFileAction" file "btnPermissions") bubbles=false}}>
+            <div class="file-status-tag file-status-acl" {{action (action "invokeFileAction" file "btnPermissions") bubbles=false}}>
               {{tt this "status.acl"}}
             </div>
           {{/if}}
           {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
-            <div class="file-status-icon file-status-qos {{if hasDirectQos "file-status-qos-direct"}}" {{action (action "invokeFileAction" file "btnQos") bubbles=false}}>
+            <div class="file-status-tag file-status-qos {{if hasDirectQos "file-status-qos-direct"}}" {{action (action "invokeFileAction" file "btnQos") bubbles=false}}>
               {{tt this "status.qos"}}{{#unless hasDirectQos}}&nbsp;⬆{{/unless}}
             </div>
           {{/if}}
