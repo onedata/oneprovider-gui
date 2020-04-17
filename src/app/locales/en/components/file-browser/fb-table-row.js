@@ -8,5 +8,6 @@ export default {
     shared: 'Shared',
     metadata: 'Meta',
     qos: 'QoS',
+    acl: 'ACL',
   },
 };

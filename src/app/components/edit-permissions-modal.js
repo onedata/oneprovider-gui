@@ -66,6 +66,12 @@ export default Component.extend(
     onClose: notImplementedIgnore,
 
     /**
+     * @type {Boolean}
+     * @virtual
+     */
+    previewMode: false,
+
+    /**
      * One of 'acl', 'posix'
      * @type {string}
      */
@@ -296,9 +302,11 @@ export default Component.extend(
       const {
         initialActivePermissionsType,
         initialPosixPermissions,
+        previewMode,
       } = this.getProperties(
         'initialActivePermissionsType',
         'initialPosixPermissions',
+        'previewMode',
       );
 
       this.setProperties({
@@ -306,7 +314,7 @@ export default Component.extend(
         posixPermissions: initialPosixPermissions,
       });
 
-      if (initialActivePermissionsType === 'acl') {
+      if (initialActivePermissionsType === 'acl' && !previewMode) {
         this.initAclValuesOnProxyLoad();
       }
     },
@@ -371,7 +379,7 @@ export default Component.extend(
       const {
         aclsProxy,
         acl,
-      } = this.getProperties('aclsProxy', 'acl');
+      } = this.getProperties('previewMode', 'aclsProxy', 'acl');
       if (!acl) {
         aclsProxy.then(() => {
           safeExec(this, () => this.set('acl', this.get('initialAcl')));

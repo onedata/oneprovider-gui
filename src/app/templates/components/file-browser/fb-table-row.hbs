@@ -14,36 +14,41 @@
         </div>
       </div>
       <div class="file-item-text">
-        <div class="file-name">
-          {{#truncated-string}}
-            <span class="file-name-inner">
-              {{!-- NOTE: everything in one line because we avoid space --}}
-              <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
-              {{#if fileLoadError}}
-                {{one-tooltip title=fileLoadError.message}}
-              {{/if}}
-            </span>
-          {{/truncated-string}}
-        </div>
-        {{#unless previewMode}}
+        <div class="file-item-text-upper">
+          <div class="file-name">
+            {{#truncated-string}}
+              <span class="file-name-inner">
+                {{!-- NOTE: everything in one line because we avoid space --}}
+                <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
+                {{#if fileLoadError}}
+                  {{one-tooltip title=fileLoadError.message}}
+                {{/if}}
+              </span>
+            {{/truncated-string}}
+          </div>
           <div class="file-status-bar">
-            {{#if isShared}}
-              <div class="file-status-icon file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
+            {{#if (and (not previewMode) isShared)}}
+              <div class="file-status-tag file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
                 {{tt this "status.shared"}}
               </div>
             {{/if}}
             {{#if hasMetadata}}
-              <div class="file-status-icon file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
+              <div class="file-status-tag file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
                 {{tt this "status.metadata"}}
               </div>
             {{/if}}
-            {{#if (or hasEffQos hasDirectQos)}}
-              <div class="file-status-icon file-status-qos {{if hasDirectQos "file-status-qos-direct"}}" {{action (action "invokeFileAction" file "btnQos") bubbles=false}}>
+            {{#if hasAcl}}
+              <div class="file-status-tag file-status-acl" {{action (action "invokeFileAction" file "btnPermissions") bubbles=false}}>
+                {{tt this "status.acl"}}
+              </div>
+            {{/if}}
+            {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
+              <div class="file-status-tag file-status-qos {{if hasDirectQos "file-status-qos-direct"}}" {{action (action "invokeFileAction" file "btnQos") bubbles=false}}>
                 {{tt this "status.qos"}}{{#unless hasDirectQos}}&nbsp;⬆{{/unless}}
               </div>
             {{/if}}
           </div>
-        {{/unless}}
+        </div>
         {{#if media.isMobile}}
           <div class="file-info-mobile">
             <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
@@ -83,14 +88,12 @@
       {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
     </span>
   </td>
-  {{#unless previewMode}}
-    <td class="fb-table-col-actions-menu">
-      {{#unless hideMenuTrigger}}
-        {{one-menu-toggle
-          class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
-          click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
-        }}
-      {{/unless}}
-    </td>
-  {{/unless}}
+  <td class="fb-table-col-actions-menu">
+    {{#unless hideMenuTrigger}}
+      {{one-menu-toggle
+        class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
+        click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
+      }}
+    {{/unless}}
+  </td>
 {{/if}}

@@ -47,6 +47,12 @@ export default Component.extend(I18n, {
   onSave: notImplementedIgnore,
 
   /**
+   * @type {boolean}
+   * @virtual
+   */
+  previewMode: false,
+
+  /**
    * Posix permissions visible to user (with modifications)
    * @type {Utils.PosixPermissions}
    */

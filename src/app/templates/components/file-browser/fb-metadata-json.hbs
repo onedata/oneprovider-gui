@@ -2,12 +2,21 @@
   {{#form.group
     validation=(if validationError "error")
   }}
-    <textarea
-      value={{jsonString}}
-      oninput={{action "jsonStringChanged" value="target.value"}}
-      disabled={{disabled}}
-      rows="10"
-      class="form-control no-resize code-textarea json-textarea"></textarea>
-    <div class="form-message {{unless validationError "hidden"}}">{{validationError}}</div>
+    {{#if previewMode}}
+      {{clipboard-line
+        type="textarea"
+        value=jsonString
+        textareaRows=textareaRows
+        inputClass="code-textarea"
+      }}
+    {{else}}
+      <textarea
+        value={{jsonString}}
+        oninput={{action "jsonStringChanged" value="target.value"}}
+        disabled={{disabled}}
+        rows={{textareaRows}}
+        class="form-control no-resize code-textarea json-textarea"></textarea>
+      <div class="form-message {{unless validationError "hidden"}}">{{validationError}}</div>
+    {{/if}}
   {{/form.group}}
 {{/bs-form}}

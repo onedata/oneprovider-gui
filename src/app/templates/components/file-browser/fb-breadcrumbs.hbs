@@ -21,24 +21,7 @@
     <div class="fb-breadcrumbs-separator fb-breadcrumbs-element"></div>
   {{/each}}
   {{!-- last element - current dir --}}
-  {{#if previewMode}}
-    <div class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}">
-      <a class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name truncate {{if (eq currentItem.file.type "file") "fake-text"}}"
-        data-dir-guid={{currentItem.file.entityId}}
-        {{action "changeDir" currentItem.file}}
-      >
-        {{#if areItemsEmpty}}
-          <div class="inline-icon-container">
-            {{one-icon icon=rootIcon}}
-          </div>
-        {{/if}}
-        {{currentItem.name}}
-        {{#if currentItem.isRoot}}
-          {{one-tooltip title=currentItem.name}}
-        {{/if}}
-      </a>
-    </div>
-  {{else}}
+  {{#if menuButtons.length}}
     <a class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button black truncate {{if dirActionsOpen "active"}} {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}"
       onclick={{disable-bubbling (action "toggleDirActions")}}
       data-dir-guid={{currentItem.file.entityId}}
@@ -72,5 +55,22 @@
         {{/one-webui-popover}}
       </span>
     </a>
+  {{else}}
+    <div class="fb-breadcrumbs-dir fb-breadcrumbs-element fb-breadcrumbs-current-dir-button {{if areItemsEmpty "fb-breadcrumbs-dir-root"}}">
+      <a class="fb-breadcrumbs-dir-link fb-breadcrumbs-dir-name truncate {{if (eq currentItem.file.type "file") "fake-text"}}"
+        data-dir-guid={{currentItem.file.entityId}}
+        {{action "changeDir" currentItem.file}}
+      >
+        {{#if areItemsEmpty}}
+          <div class="inline-icon-container">
+            {{one-icon icon=rootIcon}}
+          </div>
+        {{/if}}
+        {{currentItem.name}}
+        {{#if currentItem.isRoot}}
+          {{one-tooltip title=currentItem.name}}
+        {{/if}}
+      </a>
+    </div>
   {{/if}}
 </div>

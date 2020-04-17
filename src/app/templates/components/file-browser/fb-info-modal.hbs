@@ -1,6 +1,7 @@
 {{#bs-modal
   open=open
   onHide=(action "close")
+  size="lg"
   as |modal|
 }}
   {{#modal.header}}
@@ -87,7 +88,7 @@
               spinnerBlockClass="loading-owner-full-name"
             }}
               {{#truncated-string}}
-                {{or ownerFullNameProxy.content "‐"}}
+                {{or ownerFullNameProxy.content "—"}}
               {{/truncated-string}}
             {{/promise-proxy-container}}
           </td>

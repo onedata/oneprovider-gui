@@ -48,13 +48,6 @@ export default Component.extend(
 
     /**
      * @virtual
-     * Array of buttons objects defined in file-browser component
-     * @type {ComputedProperty<Array<EmberObject>>}
-     */
-    allButtonsArray: undefined,
-
-    /**
-     * @virtual
      * @type {models/File} file model of dir type
      */
     dir: undefined,

@@ -19,8 +19,13 @@
   }
 }
 
+.one-embedded-component {
+  .file-browser {
+    @include undo-content-padding-xs();
+  }
+}
+
 .file-browser {
-  @include undo-content-padding-xs();
   height: calc(100% - #{$fb-table-margin-top});
   @media (max-width: $screen-xs-max) {
     height: calc(100% - #{$fb-table-margin-top-mobile});

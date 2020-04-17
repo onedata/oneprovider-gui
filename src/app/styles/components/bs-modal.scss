@@ -6,6 +6,15 @@
     background-clip: unset;
     border: 3px white solid;
   }
+  .modal-header {
+    h2 {
+      line-height: normal;
+      margin-top: -0.5em;
+      &.normal-case {
+        text-transform: none;
+      }
+    }
+  }
 }
 
 .modal-backdrop {

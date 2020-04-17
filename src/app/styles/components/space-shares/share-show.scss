@@ -1,5 +1,4 @@
 .share-show {
-  @include undo-content-padding-xs();
   &.with-header-single {
     .share-header-panel {
       position: fixed;

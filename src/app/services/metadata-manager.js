@@ -18,12 +18,13 @@ const BackendMetadataType = Object.freeze({
   rdf: 'rdf_metadata',
 });
 
-function metadataGri(fileId, metadataType) {
+function metadataGri(fileId, metadataType, scope = 'private') {
   const aspect = BackendMetadataType[metadataType];
   return gri({
     entityType: fileEntityType,
     entityId: fileId,
     aspect,
+    scope,
   });
 }
 
@@ -31,14 +32,15 @@ export default Service.extend({
   onedataGraph: service(),
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {String} metadataType one of: xattrs, json, rdf
+   * @param {String} scope one of: private, public
    * @returns {Promise<Object>} with `metadata` key
    */
-  getMetadata(file, metadataType) {
+  getMetadata(file, metadataType, scope) {
     return this.get('onedataGraph').request({
       operation: 'get',
-      gri: metadataGri(get(file, 'entityId'), metadataType),
+      gri: metadataGri(get(file, 'entityId'), metadataType, scope),
       subscribe: false,
     });
   },

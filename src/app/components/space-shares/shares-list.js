@@ -12,6 +12,8 @@ import { computed } from '@ember/object';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 export default Component.extend({
+  classNames: ['shares-list'],
+
   /**
    * @virtual
    * @type {Function}

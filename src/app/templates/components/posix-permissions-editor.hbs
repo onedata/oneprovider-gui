@@ -5,8 +5,10 @@
       value={{permissions.octalRepresentation}}
       maxlength="3"
       size="3"
-      oninput={{action "octalChanged" value="target.value"}}
-      onkeydown={{invoke-on-enter (action "save")}}>
+      readonly={{previewMode}}
+      oninput={{unless previewMode (action "octalChanged" value="target.value")}}
+      onkeydown={{unless previewMode (invoke-on-enter (action "save"))}}
+    >
   </div>
   <div class="permissions-string-container">{{permissions.stringRepresentation}}</div>
 </div>
@@ -20,8 +22,10 @@
             {{one-checkbox
               inputId=(concat elementId entity permission)
               checked=(get (get permissions entity) permission)
+              isReadOnly=previewMode
               update=(action "checkboxChanged" entity permission)
-              class=(concat entity "-" permission "-checkbox permission-checkbox")}}
+              class=(concat entity "-" permission "-checkbox permission-checkbox")
+            }}
             <label for={{concat elementId entity permission}}>
               <span class="one-label checkbox-label">{{tt this (concat "permissions." permission)}}</span>
             </label>
