@@ -159,7 +159,7 @@ export default Serializer.extend({
     const parsedGri = parseGri(hash.gri);
     const scope = hash.scope || parsedGri.scope;
     const entityId = parsedGri.entityId;
-    hash.sharesCount = hash.shares.length;
+    hash.sharesCount = hash.shares ? hash.shares.length : 0;
     this.normalizeRelations(hash, scope);
     this.normalizeVirtualRelations(hash, entityId, scope);
     return hash;
