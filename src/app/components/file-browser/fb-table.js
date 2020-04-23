@@ -25,6 +25,7 @@ import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
 import _ from 'lodash';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -80,6 +81,12 @@ export default Component.extend(I18n, {
    * @type {Array<Models.File>}
    */
   fileClipboardFiles: undefined,
+
+  /**
+   * @virtual optional
+   * @type {(api: { refresh: Function }) => undefined}
+   */
+  registerApi: notImplementedIgnore,
 
   /**
    * @virtual optional
@@ -262,6 +269,16 @@ export default Component.extend(I18n, {
 
   visibleFiles: reads('filesArray'),
 
+  /**
+   * Functions exposed by fb-table
+   * @type {ComputedProperty<Object>}
+   */
+  api: computed(function api() {
+    return {
+      refresh: this.refreshFileList.bind(this),
+    };
+  }),
+
   contextMenuButtons: computed(
     'selectionContext',
     'selectionCount',
@@ -300,7 +317,13 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    this.get('fileManager').registerRefreshHandler(this);
+    const {
+      fileManager,
+      registerApi,
+      api,
+    } = this.getProperties('fileManager', 'registerApi', 'api');
+    fileManager.registerRefreshHandler(this);
+    registerApi(api);
   },
 
   didInsertElement() {

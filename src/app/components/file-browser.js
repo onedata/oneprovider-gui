@@ -65,6 +65,7 @@ const anySelectedPreview = [
 const buttonNames = [
   'btnUpload',
   'btnNewDirectory',
+  'btnRefresh',
   'btnInfo',
   'btnShare',
   'btnMetadata',
@@ -202,6 +203,16 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   previewMode: false,
+
+  /**
+   * Should be set by some instance of `components:fb-table`
+   * API for file browser table, methods:
+   * - refresh
+   * @type {Object}
+   */
+  fbTableApi: Object.freeze({
+    refresh: notImplementedThrow,
+  }),
 
   /**
    * One of: move, copy
@@ -367,6 +378,21 @@ export default Component.extend(I18n, {
     return this.createFileAction({
       id: 'newDirectory',
       action: () => this.get('openCreateNewDirectory')(this.get('dir')),
+      showIn: [
+        actionContext.inDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
+    });
+  }),
+
+  btnRefresh: computed(function btnRefresh() {
+    return this.createFileAction({
+      id: 'refresh',
+      icon: 'checkbox-pending',
+      action: () => {
+        return this.get('fbTableApi').refresh();
+      },
       showIn: [
         actionContext.inDir,
         actionContext.currentDir,

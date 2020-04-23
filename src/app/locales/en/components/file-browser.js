@@ -24,6 +24,7 @@ export default {
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',
+    refresh: 'Refresh',
     info: 'Information',
     share: 'Share',
     metadata: 'Metadata',
