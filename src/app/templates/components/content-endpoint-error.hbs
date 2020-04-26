@@ -1,0 +1,31 @@
+{{#error-check-view
+  tryErrorCheckProxy=tryErrorCheckProxy
+  errorCheckProxy=errorCheckProxy
+}}
+  {{#content-info
+    class="scroll-breakpoint-500"
+    header=(tt this "header")
+    imagePath=(root-url "assets/images/no-connection-oneprovider-compact.svg")
+  }}
+    <p class="lead text-left">
+      <ul class="info">
+        <li>
+          <a {{action "showDetails"}}>{{tt this "liShowDetails"}}</a>
+        </li>
+        <li>
+          <a {{action "tryAgain"}}>{{tt this "liTryAgainLink"}}</a>
+          {{tt this "liTryAgainMinutes"}}
+        </li>
+        {{#promise-proxy-container proxy=manageClusterUrlProxy sizeClass="sm"}}
+          {{#if manageClusterUrlProxy.content}}
+            <li>
+              <a href={{manageClusterUrl}} target="_top">
+                {{tt this "liManageCluster"}}
+              </a>
+            </li>
+          {{/if}}
+        {{/promise-proxy-container}}
+      </ul>
+    </p>
+  {{/content-info}}
+{{/error-check-view}}

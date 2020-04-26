@@ -12,6 +12,7 @@ import spaceTransfers from './components/space-transfers';
 import spaceShares from './components/space-shares';
 import dbViewModal from './components/db-view-modal';
 import qosModal from './components/qos-modal';
+import contentEndpointError from './components/content-endpoint-error';
 
 import uploadManager from './services/upload-manager';
 
@@ -30,6 +31,7 @@ const translations = {
     spaceShares,
     dbViewModal,
     qosModal,
+    contentEndpointError,
   },
   services: {
     uploadManager,
