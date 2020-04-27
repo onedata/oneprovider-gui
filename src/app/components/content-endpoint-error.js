@@ -14,11 +14,7 @@ import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import ErrorCheckViewMixin from 'onedata-gui-common/mixins/error-check-view';
 import { Promise } from 'rsvp';
-import checkImg from 'onedata-gui-common/utils/check-img';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import {
-  oneproviderTestImagePath,
-} from 'onedata-gui-common/utils/onedata-urls';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -31,6 +27,7 @@ export default OneEmbeddedComponent.extend(
     router: service(),
     guiContext: service(),
     session: service(),
+    onedataWebsocket: service(),
 
     _location: location,
 
@@ -58,20 +55,26 @@ export default OneEmbeddedComponent.extend(
      * @override
      */
     checkError() {
-      const apiOrigin = this.get('guiContext.apiOrigin');
-      return checkImg(`https://${apiOrigin}${oneproviderTestImagePath}`)
-        .then(success => !success);
+      const onedataWebsocket = this.get('onedataWebsocket');
+      return onedataWebsocket.initConnection()
+        .then(() => false)
+        .catch(() => true)
+        .finally(() => {
+          onedataWebsocket.closeConnection();
+        });
     },
 
     /**
      * @override
      */
     redirectToIndex() {
-      alert(this.get('router.currentRouteName'));
-      const _location = this.get('_location');
       return new Promise(() => {
-        _location.reload();
+        this.locationReload();
       });
+    },
+
+    locationReload() {
+      this.get('_location').reload();
     },
 
     /**
@@ -103,7 +106,7 @@ export default OneEmbeddedComponent.extend(
         this.showDetailsModal();
       },
       tryAgain() {
-        this.get('_location').reload();
+        this.locationReload();
       },
     },
   });
