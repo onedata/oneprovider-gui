@@ -67,6 +67,8 @@ module.exports = {
       1,
       'never',
     ],
+    'no-debugger': 0,
+    'no-param-reassign': 1,
     'max-len': [
       1,
       {

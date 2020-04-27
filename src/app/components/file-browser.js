@@ -389,7 +389,7 @@ export default Component.extend(I18n, {
   btnRefresh: computed(function btnRefresh() {
     return this.createFileAction({
       id: 'refresh',
-      icon: 'checkbox-pending',
+      icon: 'refresh',
       action: () => {
         return this.get('fbTableApi').refresh();
       },
