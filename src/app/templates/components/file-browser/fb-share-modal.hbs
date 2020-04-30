@@ -7,7 +7,7 @@
   as |modal|
 }}
   {{#modal.header}}
-    <h1>{{tt this "header" fileType=(tt this (concat 'fileType.' file.type))}}</h1>
+    <h1>{{tt this "header" fileType=(tt this (concat "fileType." file.type))}}</h1>
   {{/modal.header}}
   {{#modal.body}}
     <div class="loadable-row">
@@ -45,11 +45,15 @@
           <p class="row-share-intro">
             {{tt
               this
-              "showIntro"
-              fileType=(tt this (concat 'fileType.' file.type))
-              fileName=file.name
+              "showIntroTheFile"
+              fileType=(tt this (concat "fileType." file.type))
+            }}
+            <span class="share-intro-filename">{{file.name}}</span>
+            {{tt
+              this
+              "showIntroCount"
               shareCount=shareCount
-              times=(tt this (concat 'times.' (if (gt shareCount 1) "plural" "singular")))
+              times=(tt this (concat "times." (if (gt shareCount 1) "plural" "singular")))
             }}:
           </p>
           {{#each shares as |share|}}

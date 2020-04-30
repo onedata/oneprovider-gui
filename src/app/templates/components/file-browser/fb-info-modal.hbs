@@ -37,16 +37,18 @@
             {{/promise-proxy-container}}
           </td>
         </tr>
-        <tr class="file-info-row-space-id">
-          <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
-          <td class="property-value">
-            {{clipboard-line
-              value=spaceEntityId
-              class="monospace-font"
-              size=(if smallContent "sm")
-            }}
-          </td>
-        </tr>
+        {{#if spaceEntityId}}
+          <tr class="file-info-row-space-id">
+            <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
+            <td class="property-value">
+              {{clipboard-line
+                value=spaceEntityId
+                class="monospace-font"
+                size=(if smallContent "sm")
+              }}
+            </td>
+          </tr>
+        {{/if}}
         <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
           <td class="property-name with-input">
             {{tt this "cdmiObjectId"}}
