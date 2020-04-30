@@ -34,7 +34,7 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
       .catch(() => {
         throw {
           isOnedataCustomError: true,
-          type: 'cannot-init-websocket',
+          type: 'cannot-init-oneprovider-websocket',
         };
       })
       .then(() => superResult);
