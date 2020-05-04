@@ -1,1 +1,1 @@
-export { default } from 'onedata-gui-common/templates/errors/no-permissions';
+export { default } from 'onedata-gui-common/templates/components/errors/no-permissions';
