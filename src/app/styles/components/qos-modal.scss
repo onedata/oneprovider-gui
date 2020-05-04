@@ -18,7 +18,14 @@
   }
    
   .modal-header {
-    .file-qos-status {
+    .qos-hint {
+      position: absolute;
+    }
+    .qos-header-hint-trigger {
+      font-size: $qos-icon-size * 0.75;
+      margin-left: 5px;
+    }
+    .header-icon {
       font-size: $qos-icon-size * 1.5;
       float: right;
       &.one-icon {

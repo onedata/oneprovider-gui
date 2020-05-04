@@ -10,14 +10,58 @@
 }}
   {{#modal.header}}
     <h1>
-      <span>{{tt this (if isAddMode "headerAdd" "headerShow")}}</span>
-      {{#if (and (not isAddMode) qosRecords.length)}}
-        {{#one-icon
-          icon=fileQosStatusIcon
-          class=(concat "file-qos-status file-qos-status-" fileQosStatus)
+      <span>{{tt this
+        (concat (if isAddMode "headerAdd" "headerShow") (if media.isMobile "Mobile" ""))
+      }}
+      </span>
+      {{#if isAddMode}}
+        {{one-icon
+          icon="sign-question-rounded"
+          class="qos-header-hint-trigger qos-add-hint-trigger clickable"
         }}
-          {{one-tooltip title=(tt this (concat "fileQosStatusHint." fileQosStatus))}}
-        {{/one-icon}}
+        {{#one-switchable-popover-modal
+          class="qos-add-hint qos-hint"
+          triggersConfiguration=".qos-add-hint-trigger"
+          popoverStyle="qos-add-hint-info over-modals"
+          as |ospm|
+        }}
+          <h1>{{tt this "addHintTitle"}}</h1>
+          <p>{{tt this "addHint" fileType=(tt this (concat "fileType." file.type))}}</p>
+          <div class="btn-toolbar text-right visible-xs-block">
+            {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+              {{tt this "hintClose"}}
+            {{/bs-button}}
+          </div>
+        {{/one-switchable-popover-modal}}
+      {{else}}
+        {{one-icon
+          icon="sign-question-rounded"
+          class="qos-header-hint-trigger qos-show-hint-trigger clickable"
+        }}
+        {{#one-switchable-popover-modal
+          class="qos-show-hint qos-hint"
+          triggersConfiguration=".qos-show-hint-trigger"
+          popoverStyle="qos-show-hint-info over-modals"
+          as |ospm|
+        }}
+          <h1>{{tt this "showHintTitle"}}</h1>
+          <p>{{tt this "showHintIntro"}}</p>
+          <p>{{tt this "showHintTransfers"}}</p>
+          <p>{{tt this "showHintRemoving"}}</p>
+          <div class="btn-toolbar text-right visible-xs-block">
+            {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+              {{tt this "hintClose"}}
+            {{/bs-button}}
+          </div>
+        {{/one-switchable-popover-modal}}
+        {{#if qosRecords.length}}
+          {{#one-icon
+            icon=fileQosStatusIcon
+            class=(concat "header-icon file-qos-status file-qos-status-" fileQosStatus)
+          }}
+            {{one-tooltip title=(tt this (concat "fileQosStatusHint." fileQosStatus))}}
+          {{/one-icon}}
+        {{/if}}
       {{/if}}
     </h1>
     <h2 class="filename normal-case">

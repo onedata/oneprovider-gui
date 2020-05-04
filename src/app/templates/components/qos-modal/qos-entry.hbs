@@ -6,7 +6,7 @@
     </span>
     <div class="qos-header">
       <div class="qos-header-text">
-        <span>{{replicasNumber}} {{tt this (if (gt replicasNumber 1) "replicas" "replica")}},</span>
+        <span class="header-replicas-number"><span class="replicas-number">{{replicasNumber}}</span> {{tt this (if (gt replicasNumber 1) "replicas" "replica")}},</span>
         {{qos-expression-viewer expressionRpn=expressionRpn}}
       </div>
       {{#unless direct}}
