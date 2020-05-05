@@ -401,6 +401,7 @@ export default Component.extend(I18n, {
         return fbTableApi.refresh()
           .catch(error => {
             globalNotify.backendError(this.t('refreshingDirectory'), error);
+            throw error;
           });
       },
       showIn: [
