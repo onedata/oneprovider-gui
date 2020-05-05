@@ -13,4 +13,8 @@
       }
     }
   }
+  .share-intro-filename {
+    @include font-semibold;
+    word-break: break-all;
+  }
 }

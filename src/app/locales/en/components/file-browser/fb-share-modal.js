@@ -7,7 +7,8 @@ export default {
   createNew: 'Create',
   createAnotherOne: 'Create another share',
   openShare: 'Open share',
-  showIntro: 'The {{fileType}} <strong>{{fileName}}</strong> has already been shared {{shareCount}} {{times}}',
+  showIntroTheFile: 'The {{fileType}}',
+  showIntroCount: 'has already been shared {{shareCount}} {{times}}',
   validations: {
     nameTooShort: 'Name must have at least {{length}} characters',
     nameTooLong: 'Name cannot be longer than {{length}} characters',

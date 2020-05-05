@@ -20,6 +20,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import { next } from '@ember/runloop';
+import animateCss from 'onedata-gui-common/utils/animate-css';
 
 export const actionContext = {
   none: 'none',
@@ -65,6 +66,7 @@ const anySelectedPreview = [
 const buttonNames = [
   'btnUpload',
   'btnNewDirectory',
+  'btnRefresh',
   'btnInfo',
   'btnShare',
   'btnMetadata',
@@ -202,6 +204,16 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   previewMode: false,
+
+  /**
+   * Should be set by some instance of `components:fb-table`
+   * API for file browser table, methods:
+   * - refresh
+   * @type {Object}
+   */
+  fbTableApi: Object.freeze({
+    refresh: notImplementedThrow,
+  }),
 
   /**
    * One of: move, copy
@@ -367,6 +379,30 @@ export default Component.extend(I18n, {
     return this.createFileAction({
       id: 'newDirectory',
       action: () => this.get('openCreateNewDirectory')(this.get('dir')),
+      showIn: [
+        actionContext.inDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
+    });
+  }),
+
+  btnRefresh: computed(function btnRefresh() {
+    return this.createFileAction({
+      id: 'refresh',
+      icon: 'refresh',
+      action: () => {
+        const {
+          globalNotify,
+          fbTableApi,
+        } = this.getProperties('globalNotify', 'fbTableApi');
+        animateCss(this.$('.fb-toolbar-button.file-action-refresh')[0], 'pulse-mint');
+        return fbTableApi.refresh()
+          .catch(error => {
+            globalNotify.backendError(this.t('refreshingDirectory'), error);
+            throw error;
+          });
+      },
       showIn: [
         actionContext.inDir,
         actionContext.currentDir,

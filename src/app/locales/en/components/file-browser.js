@@ -13,6 +13,7 @@ import fbMetadataXattrs from './file-browser/fb-metadata-xattrs';
 
 export default {
   menuCurrentDir: 'Current directory',
+  refreshingDirectory: 'refreshing directory',
   pasteFailed: {
     move: 'moving some of files',
     copy: 'copying some of files',
@@ -24,6 +25,7 @@ export default {
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',
+    refresh: 'Refresh',
     info: 'Information',
     share: 'Share',
     metadata: 'Metadata',

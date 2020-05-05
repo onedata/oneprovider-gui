@@ -368,4 +368,53 @@ describe('Integration | Component | file browser', function () {
       });
     });
   });
+
+  it('shows refresh button which invokes refresh file list API action',
+    function () {
+      const dir = {
+        entityId: 'root',
+        name: 'Test directory',
+        index: 'Test directory',
+        type: 'dir',
+        hasParent: false,
+        parent: resolve(null),
+      };
+
+      const dirs = [dir];
+
+      this.on('updateDirEntityId', function updateDirEntityId(id) {
+        this.set('dir', dirs.findBy('entityId', id));
+      });
+
+      this.setProperties({
+        dir,
+        selectedFiles: Object.freeze([]),
+      });
+
+      const fileManager = lookupService(this, 'fileManager');
+      const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+      fetchDirChildren.resolves([{
+        entityId: 'file1',
+        name: 'File one',
+      }]);
+
+      this.render(hbs `<div id="content-scroll">{{file-browser
+        dir=dir
+        selectedFiles=selectedFiles
+        updateDirEntityId=(action "updateDirEntityId")
+        changeSelectedFiles=(action (mut selectedFiles))
+      }}</div>`);
+
+      return wait()
+        .then(() => {
+          expect(fetchDirChildren).to.be.called;
+          fetchDirChildren.resetHistory();
+          expect(this.$('.file-action-refresh')).to.exist;
+          return click('.file-action-refresh');
+        })
+        .then(() => {
+          expect(fetchDirChildren).to.be.called;
+        });
+    }
+  );
 });
