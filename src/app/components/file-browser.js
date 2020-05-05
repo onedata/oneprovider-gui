@@ -21,7 +21,6 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import { next } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
-import ViewTester from 'onedata-gui-common/utils/view-tester';
 
 export const actionContext = {
   none: 'none',
