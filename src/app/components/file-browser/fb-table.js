@@ -381,12 +381,21 @@ export default Component.extend(I18n, {
 
     return filesArray.reload()
       .finally(() => {
+        const {
+          selectedFiles,
+          changeSelectedFiles,
+        } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+        const sourceArray = get(filesArray, 'sourceArray');
+        changeSelectedFiles(selectedFiles.filter(selectedFile =>
+          sourceArray.includes(selectedFile)
+        ));
+
         scheduleOnce('afterRender', () => {
           const anyRowVisible = this.$('.data-row').toArray()
             .some(row => viewTester.isInView(row));
 
           if (!anyRowVisible) {
-            const fullLengthAfterReload = get(filesArray, 'sourceArray.length');
+            const fullLengthAfterReload = get(sourceArray, 'length');
             setProperties(filesArray, {
               startIndex: Math.max(
                 0,
