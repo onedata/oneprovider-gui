@@ -20,6 +20,8 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import { next } from '@ember/runloop';
+import animateCss from 'onedata-gui-common/utils/animate-css';
+import ViewTester from 'onedata-gui-common/utils/view-tester';
 
 export const actionContext = {
   none: 'none',
@@ -391,7 +393,15 @@ export default Component.extend(I18n, {
       id: 'refresh',
       icon: 'refresh',
       action: () => {
-        return this.get('fbTableApi').refresh();
+        const {
+          globalNotify,
+          fbTableApi,
+        } = this.getProperties('globalNotify', 'fbTableApi');
+        animateCss(this.$('.fb-toolbar-button.file-action-refresh')[0], 'pulse-mint');
+        return fbTableApi.refresh()
+          .catch(error => {
+            globalNotify.backendError(this.t('refreshingDirectory'), error);
+          });
       },
       showIn: [
         actionContext.inDir,

@@ -303,6 +303,14 @@ export default Component.extend(I18n, {
     return this.get('customFetchDirChildren') || this._fetchDirChildren.bind(this);
   }),
 
+  apiObserver: observer('registerApi', 'api', function apiObserver() {
+    const {
+      registerApi,
+      api,
+    } = this.getProperties('registerApi', 'api');
+    registerApi(api);
+  }),
+
   watchFilesArrayInitialLoad: observer(
     'initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
@@ -364,7 +372,16 @@ export default Component.extend(I18n, {
   },
 
   refreshFileList() {
-    return this.get('filesArray').reload();
+    const {
+      filesArray,
+      listWatcher,
+    } = this.getProperties('filesArray', 'listWatcher');
+    return filesArray.reload()
+      .finally(() => {
+        scheduleOnce('afterRender', () => {
+          listWatcher.scrollHandler();
+        });
+      });
   },
 
   onTableScroll(items, headerVisible) {
