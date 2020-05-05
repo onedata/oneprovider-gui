@@ -407,12 +407,13 @@ describe('Integration | Component | file browser', function () {
 
       return wait()
         .then(() => {
-          expect(fetchDirChildren).to.be.calledTwice;
+          expect(fetchDirChildren).to.be.called;
+          fetchDirChildren.resetHistory();
           expect(this.$('.file-action-refresh')).to.exist;
           return click('.file-action-refresh');
         })
         .then(() => {
-          expect(fetchDirChildren).to.be.calledThrice;
+          expect(fetchDirChildren).to.be.called;
         });
     }
   );
