@@ -10,7 +10,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { get, computed, observer } from '@ember/object';
+import { get, computed, observer, setProperties } from '@ember/object';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -26,6 +26,7 @@ import { next, later } from '@ember/runloop';
 import { resolve } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import ViewTester from 'onedata-gui-common/utils/view-tester';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -303,6 +304,14 @@ export default Component.extend(I18n, {
     return this.get('customFetchDirChildren') || this._fetchDirChildren.bind(this);
   }),
 
+  apiObserver: observer('registerApi', 'api', function apiObserver() {
+    const {
+      registerApi,
+      api,
+    } = this.getProperties('registerApi', 'api');
+    registerApi(api);
+  }),
+
   watchFilesArrayInitialLoad: observer(
     'initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
@@ -364,7 +373,47 @@ export default Component.extend(I18n, {
   },
 
   refreshFileList() {
-    return this.get('filesArray').reload();
+    const filesArray = this.get('filesArray');
+    const $contentScroll = $('#content-scroll');
+    const viewTester = new ViewTester($contentScroll);
+    const visibleLengthBeforeReload = this.$('.data-row').toArray()
+      .filter(row => viewTester.isInView(row)).length;
+
+    return filesArray.reload()
+      .finally(() => {
+        const {
+          selectedFiles,
+          changeSelectedFiles,
+        } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+        const sourceArray = get(filesArray, 'sourceArray');
+        changeSelectedFiles(selectedFiles.filter(selectedFile =>
+          sourceArray.includes(selectedFile)
+        ));
+
+        scheduleOnce('afterRender', () => {
+          const anyRowVisible = this.$('.data-row').toArray()
+            .some(row => viewTester.isInView(row));
+
+          if (!anyRowVisible) {
+            const fullLengthAfterReload = get(sourceArray, 'length');
+            setProperties(filesArray, {
+              startIndex: Math.max(
+                0,
+                fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
+              ),
+              endIndex: fullLengthAfterReload || 50,
+            });
+            next(() => {
+              const firstRenderedRow = document.querySelector('.data-row[data-row-id]');
+              if (firstRenderedRow) {
+                firstRenderedRow.scrollIntoView();
+              } else {
+                $contentScroll.scrollTop(0);
+              }
+            });
+          }
+        });
+      });
   },
 
   onTableScroll(items, headerVisible) {

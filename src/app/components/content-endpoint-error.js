@@ -24,9 +24,7 @@ export default OneEmbeddedComponent.extend(
     i18nPrefix: 'components.contentEndpointError',
 
     i18n: service(),
-    router: service(),
     guiContext: service(),
-    session: service(),
     onedataWebsocket: service(),
 
     _location: location,
@@ -50,6 +48,15 @@ export default OneEmbeddedComponent.extend(
         return this.get('cluster.standaloneOriginProxy.content') + ':9443';
       }
     ),
+
+    didInsertElement() {
+      this._super(...arguments);
+      this.getTryErrorCheckProxy().then(isError => {
+        if (isError === undefined || isError === true) {
+          this.showDetailsModal();
+        }
+      });
+    },
 
     /**
      * @override
@@ -89,15 +96,6 @@ export default OneEmbeddedComponent.extend(
     showDetailsModal() {
       return this.callParent('showOneproviderConnectionError', {
         oneproviderUrl: `https://${this.get('guiContext.apiOrigin')}`,
-      });
-    },
-
-    didInsertElement() {
-      this._super(...arguments);
-      this.getTryErrorCheckProxy().then(isError => {
-        if (isError === undefined || isError === true) {
-          this.showDetailsModal();
-        }
       });
     },
 

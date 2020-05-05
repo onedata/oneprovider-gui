@@ -393,23 +393,26 @@ describe('Integration | Component | file browser', function () {
 
       const fileManager = lookupService(this, 'fileManager');
       const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
-      fetchDirChildren.resolves([]);
+      fetchDirChildren.resolves([{
+        entityId: 'file1',
+        name: 'File one',
+      }]);
 
-      this.render(hbs `{{file-browser
+      this.render(hbs `<div id="content-scroll">{{file-browser
         dir=dir
         selectedFiles=selectedFiles
         updateDirEntityId=(action "updateDirEntityId")
         changeSelectedFiles=(action (mut selectedFiles))
-      }}`);
+      }}</div>`);
 
       return wait()
         .then(() => {
+          expect(fetchDirChildren).to.be.calledTwice;
           expect(this.$('.file-action-refresh')).to.exist;
-          expect(fetchDirChildren).to.be.calledOnce;
           return click('.file-action-refresh');
         })
         .then(() => {
-          expect(fetchDirChildren).to.be.calledTwice;
+          expect(fetchDirChildren).to.be.calledThrice;
         });
     }
   );
