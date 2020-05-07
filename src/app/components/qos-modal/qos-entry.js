@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { conditional, raw, promise } from 'ember-awesome-macros';
+import { conditional, raw, promise, tag, not } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -22,7 +22,7 @@ import { next, later, cancel } from '@ember/runloop';
 import $ from 'jquery';
 
 export default Component.extend(I18n, {
-  tagName: '',
+  classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],
 
   /**
    * @override
@@ -63,6 +63,18 @@ export default Component.extend(I18n, {
 
   navigateDataTarget: '_top',
 
+  /**
+   * Info trigger element id
+   * @type {ComputedProperty<String>}
+   */
+  idInfoTriggerId: tag `${'elementId'}-id-presenter-trigger`,
+
+  /**
+   * Remove trigger element id
+   * @type {ComputedProperty<String>}
+   */
+  removeTriggerId: tag `${'elementId'}-remove-trigger`,
+
   componentGuid: computed(function guid() {
     return guidFor(this);
   }),
@@ -88,6 +100,11 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<boolean>}
    */
   direct: reads('qosItem.direct'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  inherited: reads('qosItem.inherited'),
 
   /**
    * @type {ComputedProperty<boolean>}

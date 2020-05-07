@@ -8,6 +8,7 @@ const translations = {
   inheritedFrom: 'inherited from',
   replica: 'replica',
   replicas: 'replicas',
+  disabledRemoveHint: '<strong>Inherited requirement</strong> ‐ cannot be removed directly. <br> You can remove it from the directory indicated as the inheritance source.',
   statusHint: {
     fulfilled: 'Fulfilled',
     pending: 'Pending',

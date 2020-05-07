@@ -10,15 +10,18 @@
 }}
   {{#modal.header}}
     <h1>
-      <span>{{tt this
-        (concat (if isAddMode "headerAdd" "headerShow") (if media.isMobile "Mobile" ""))
-      }}
+      <span>
+        {{tt this
+          (concat (if isAddMode "headerAdd" "headerShow") (if media.isMobile "Mobile" ""))
+        }}
       </span>
       {{#if isAddMode}}
-        {{one-icon
-          icon="sign-question-rounded"
-          class="qos-header-hint-trigger qos-add-hint-trigger clickable"
-        }}
+        <div class="inline-icon-container">
+          {{one-icon
+            icon="sign-question-rounded"
+            class="qos-header-hint-trigger qos-add-hint-trigger clickable"
+          }}
+        </div>
         {{#one-switchable-popover-modal
           class="qos-add-hint qos-hint"
           triggersConfiguration=".qos-add-hint-trigger"
@@ -34,10 +37,12 @@
           </div>
         {{/one-switchable-popover-modal}}
       {{else}}
-        {{one-icon
-          icon="sign-question-rounded"
-          class="qos-header-hint-trigger qos-show-hint-trigger clickable"
-        }}
+        <div class="inline-icon-container">
+          {{one-icon
+            icon="sign-question-rounded"
+            class="qos-header-hint-trigger qos-show-hint-trigger clickable"
+          }}
+        </div>
         {{#one-switchable-popover-modal
           class="qos-show-hint qos-hint"
           triggersConfiguration=".qos-show-hint-trigger"
@@ -59,7 +64,11 @@
             icon=fileQosStatusIcon
             class=(concat "header-icon file-qos-status file-qos-status-" fileQosStatus)
           }}
-            {{one-tooltip title=(tt this (concat "fileQosStatusHint." fileQosStatus))}}
+            {{one-tooltip title=(tt
+              this
+              (concat "fileQosStatusHint." fileQosStatus)
+              fileType=(tt this (concat "fileType." file.type))
+            )}}
           {{/one-icon}}
         {{/if}}
       {{/if}}
@@ -78,7 +87,7 @@
     {{else}}
       <div class="loadable-row">
         {{#promise-proxy-container proxy=qosItemsProxy}}
-          {{#one-collapsible-list class="qos-list" as |list|}}
+          <div class="one-collapsible-list qos-list hide-final-border">
             {{#each sortedQosItems key="entityId" as |qosItem|}}
               {{qos-modal/qos-entry
                 collapsibleList=list
@@ -88,7 +97,7 @@
                 closeModal=(action "onHide")
               }}
             {{/each}}
-          {{/one-collapsible-list}}
+          </div>
         {{/promise-proxy-container}}
       </div>
     {{/if}}

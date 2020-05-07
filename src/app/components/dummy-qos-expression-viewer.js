@@ -8,7 +8,21 @@
  */
 
 import Component from '@ember/component';
+import _ from 'lodash';
+import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
+import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 
 export default Component.extend({
-  expressionRpn: Object.freeze(['a=b', 'c=d', '|', '-', 'x=y', '&', 'z=v', '|']),
+  classNames: ['dummy-component'],
+  expressionRpnSimple: Object.freeze(['a=b', 'c=d', '|', 'x=y', '&', 'z=v', '|']),
+  expressionRpn: Object.freeze(
+    ['a=b', ..._.flatten(_.times(30, _.constant(['e=f', '|'])))]
+  ),
+
+  rawExpressionInfix: computedPipe('expressionRpn', qosRpnToInfix),
+
+  init() {
+    this._super(...arguments);
+    console.dir(this.get('expressionRpn'));
+  },
 });

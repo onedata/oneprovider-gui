@@ -10,7 +10,7 @@
 
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { getBy, equal } from 'ember-awesome-macros';
+import { getBy, equal, not } from 'ember-awesome-macros';
 
 export default EmberObject.extend({
   /**
@@ -45,6 +45,11 @@ export default EmberObject.extend({
    * @type {ComputedProperty<Boolean>}
    */
   direct: equal('modalFileId', 'qosSourceFile.entityId'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  inherited: not('direct'),
 
   /**
    * True if this QoS fulfills for file for which modal is opened

@@ -49,22 +49,11 @@ const dir2 = {
 };
 
 const dir3 = {
-  entityId: 'dir2',
+  entityId: 'dir3',
   name: 'three',
   type: 'dir',
   hasParent: true,
   parent: resolve(dir2),
-};
-
-const file2 = {
-  entityId: 'f2',
-  name: 'second.txt',
-  type: 'dir',
-  hasParent: true,
-  parent: resolve(dir3),
-  reload() {
-    return this;
-  },
 };
 
 const file = {
@@ -91,7 +80,7 @@ const file = {
 file.fileQos = promiseObject(resolve({
   entries: {
     f1: true,
-    f2: false,
+    dir3: false,
   },
   fulfilled: true,
   updateQosRecordsProxy() {
@@ -101,7 +90,7 @@ file.fileQos = promiseObject(resolve({
       entityId: 'q1',
       file,
       fulfilled: true,
-      replicasNum: 1,
+      replicasNum: 999,
       expressionRpn: [
         'storage_type=dummy',
         'speed=178',
@@ -122,28 +111,28 @@ file.fileQos = promiseObject(resolve({
     }),
     new MockQos({
       entityId: 'q2',
-      file: file2,
+      file: dir3,
       fulfilled: true,
       replicasNum: 2,
       expressionRpn: ['size=10'],
     }),
     new MockQos({
       entityId: 'q3',
-      file,
+      file: dir3,
       fulfilled: false,
       replicasNum: 3,
       expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
     }),
     new MockQos({
       entityId: 'q4',
-      file: file2,
+      file: dir3,
       fulfilled: false,
       replicasNum: 3,
       expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
     }),
     new MockQos({
       entityId: 'q5',
-      file: file2,
+      file: dir3,
       fulfilled: false,
       replicasNum: 3,
       expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
