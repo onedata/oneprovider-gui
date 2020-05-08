@@ -17,9 +17,10 @@ import { conditional, raw, array, equal } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
-import { all as allFulfilled } from 'rsvp';
+import { resolve, all as allFulfilled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
 import QosItem from 'oneprovider-gui/utils/qos-item';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const updateInterval = 5000;
 
@@ -30,6 +31,7 @@ export default Component.extend(
   createDataProxyMixin('qosItems'), {
     qosManager: service(),
     globalNotify: service(),
+    store: service(),
 
     /**
      * @override
@@ -186,7 +188,16 @@ export default Component.extend(
      * @override
      */
     fetchFileQos() {
-      return this.get('file').belongsTo('fileQos').reload();
+      const {
+        store,
+        file,
+      } = this.getProperties('store', 'file');
+      const fileQosGri = file.belongsTo('fileQos').id();
+      // in case, there were error when fetching the relation last time (eg. forbidden)
+      const prePromise = fileQosGri ?
+        resolve(fileQosGri) :
+        file.reload().then(file => file.belongsTo('fileQos').id());
+      return prePromise.then(gri => store.findRecord('file-qos', gri, { reload: true }));
     },
 
     /**
@@ -202,14 +213,20 @@ export default Component.extend(
     },
 
     onShow() {
-      this.updateQosItemsProxy();
+      this.updateQosItemsProxy()
+        .catch(() => {
+          safeExec(this, 'set', 'updater.interval', null);
+        });
     },
 
     updateData(replace) {
       const file = this.get('file');
       return this.updateQosRecordsProxy({ replace, fetchArgs: [replace] })
-        .finally(() => this.updateQosItemsProxy({ replace }))
-        .finally(() => file.reload());
+        .then(() => this.updateQosItemsProxy({ replace }))
+        .then(() => file.reload())
+        .catch(() => {
+          safeExec(this, 'set', 'updater.interval', null);
+        });
     },
 
     addEntry({ replicasNumber, expressionInfix }) {
