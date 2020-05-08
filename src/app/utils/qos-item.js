@@ -31,9 +31,9 @@ export default EmberObject.extend({
   qosSourceFile: undefined,
 
   /**
-   * @type {Models.FileQos}
+   * @type {Models.FileQosSummary}
    */
-  fileQos: undefined,
+  fileQosSummary: undefined,
 
   entityId: reads('qos.entityId'),
   fulfilled: reads('qos.fulfilled'),
@@ -55,5 +55,5 @@ export default EmberObject.extend({
    * True if this QoS fulfills for file for which modal is opened
    * @type {ComputedProperty}
    */
-  fulfilledForFile: getBy('fileQos.entries', 'qos.entityId'),
+  fulfilledForFile: getBy('fileQosSummary.entries', 'qos.entityId'),
 });

@@ -23,6 +23,7 @@ import { entityType as providerEntityType } from 'oneprovider-gui/models/provide
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
+import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -128,6 +129,9 @@ export default Service.extend({
       .then(listRecords => {
         return this.createAndAddShare(store).then(() => listRecords);
       })
+      .then(listRecords => {
+        return this.createAndAddQos(store).then(() => listRecords);
+      })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
         return user.get('spaceList')
@@ -143,6 +147,45 @@ export default Service.extend({
     return get(listRecord, 'list').then(list => {
       list.pushObjects(records);
       return list.save().then(() => listRecord.save());
+    });
+  },
+
+  createAndAddQos(store) {
+    const entityRecords = this.get('entityRecords');
+    const chainDir = get(entityRecords, 'chainDir')[2];
+    const rootDir = get(entityRecords, 'rootDir')[0];
+    const qos1Promise = store.createRecord('qosRequirement', {
+      id: gri({
+        entityType: qosEntityType,
+        entityId: 'q1',
+        aspect: 'instance',
+      }),
+      fulfilled: true,
+      replicasNum: 7,
+      expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
+      file: chainDir,
+    }).save();
+    const qos2Promise = store.createRecord('qosRequirement', {
+      id: gri({
+        entityType: qosEntityType,
+        entityId: 'q2',
+        aspect: 'instance',
+      }),
+      fulfilled: false,
+      replicasNum: 1,
+      expressionRpn: ['size=10'],
+      file: rootDir,
+    }).save();
+    return allFulfilled([qos1Promise, qos2Promise]).then(([qos1, qos2]) => {
+      return store.createRecord('fileQosSummary', {
+        entries: {
+          [get(qos1, 'entityId')]: true,
+          [get(qos2, 'entityId')]: true,
+        },
+      }).save();
+    }).then(fileQosSummary => {
+      set(chainDir, 'fileQos', fileQosSummary);
+      return chainDir.save();
     });
   },
 

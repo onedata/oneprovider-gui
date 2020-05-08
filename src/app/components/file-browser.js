@@ -143,7 +143,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {Function}
-   * @param {Models/File} file file configure QoS
+   * @param {Array<Models/File>} files files to configure QoS
    */
   openQos: notImplementedThrow,
 
@@ -568,13 +568,12 @@ export default Component.extend(I18n, {
       id: 'qos',
       icon: 'qos',
       showIn: [
-        actionContext.singleDir,
-        actionContext.singleFile,
+        ...anySelected,
         actionContext.currentDir,
         actionContext.spaceRootDir,
       ],
       action: (files) => {
-        return this.get('openQos')(files[0]);
+        return this.get('openQos')(files);
       },
     });
   }),

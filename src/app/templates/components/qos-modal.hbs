@@ -74,9 +74,13 @@
       {{/if}}
     </h1>
     <h2 class="filename normal-case">
-      {{#truncated-string}}
-        {{file.name}}
-      {{/truncated-string}}
+      {{#if multipleFiles}}
+        {{files.length}} {{tt this "selectedItems"}}
+      {{else}}
+        {{#truncated-string}}
+          {{file.name}}
+        {{/truncated-string}}
+      {{/if}}
     </h2>
   {{/modal.header}}
   {{#modal.body}}

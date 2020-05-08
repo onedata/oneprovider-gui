@@ -12,7 +12,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { get, observer } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, gt } from '@ember/object/computed';
 import { conditional, raw, array, equal } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -26,7 +26,7 @@ const updateInterval = 5000;
 
 export default Component.extend(
   I18n,
-  createDataProxyMixin('fileQos'),
+  createDataProxyMixin('fileQosSummary'),
   createDataProxyMixin('qosRecords'),
   createDataProxyMixin('qosItems'), {
     qosManager: service(),
@@ -46,10 +46,10 @@ export default Component.extend(
 
     /**
      * @virtual
-     * File for which the modal have been opened
-     * @type {Models.File}
+     * Files for which the modal have been opened
+     * @type {Array<Models.File>}
      */
-    file: undefined,
+    files: undefined,
 
     /**
      * @virtual
@@ -87,6 +87,17 @@ export default Component.extend(
     newEntryData: undefined,
 
     /**
+     * Shorthand when exactly one file is opened
+     * @type {Models.File|null}
+     */
+    file: conditional('multipleFiles', null, 'files.firstObject'),
+
+    /**
+     * @type {ComputedProperty<Boolean>}
+     */
+    multipleFiles: gt('files.length', 1),
+
+    /**
      * @type {ComputedProperty<booelan>}
      */
     isAddMode: equal('mode', raw('add')),
@@ -96,22 +107,22 @@ export default Component.extend(
      */
     fileType: reads('file.type'),
 
-    isFileQosFulfilled: reads('fileQosProxy.fulfilled'),
+    isFileQosSummaryFulfilled: reads('fileQosSummaryProxy.fulfilled'),
 
     fileQosStatus: conditional(
-      'isFileQosFulfilled',
+      'isFileQosSummaryFulfilled',
       raw('fulfilled'),
       raw('pending'),
     ),
 
     fileQosStatusText: conditional(
-      'isFileQosFulfilled',
+      'isFileQosSummaryFulfilled',
       computedT('status.fulfilled'),
       computedT('status.pending'),
     ),
 
     fileQosStatusIcon: conditional(
-      'isFileQosFulfilled',
+      'isFileQosSummaryFulfilled',
       raw('checkbox-filled'),
       raw('checkbox-pending'),
     ),
@@ -170,14 +181,14 @@ export default Component.extend(
       const {
         qosRecordsProxy,
         file,
-        fileQos,
-      } = this.getProperties('qosRecordsProxy', 'file', 'fileQos');
+        fileQosSummary,
+      } = this.getProperties('qosRecordsProxy', 'file', 'fileQosSummary');
       return qosRecordsProxy.then(qosRecords =>
         allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile =>
           QosItem.create({
             modalFileId: get(file, 'entityId'),
             qosSourceFile,
-            fileQos,
+            fileQosSummary,
             qos,
           })
         )))
@@ -187,17 +198,18 @@ export default Component.extend(
     /**
      * @override
      */
-    fetchFileQos() {
+    fetchFileQosSummary() {
       const {
         store,
         file,
       } = this.getProperties('store', 'file');
-      const fileQosGri = file.belongsTo('fileQos').id();
+      const fileQosSummaryGri = file.belongsTo('fileQos').id();
       // in case, there were error when fetching the relation last time (eg. forbidden)
-      const prePromise = fileQosGri ?
-        resolve(fileQosGri) :
+      const prePromise = fileQosSummaryGri ?
+        resolve(fileQosSummaryGri) :
         file.reload().then(file => file.belongsTo('fileQos').id());
-      return prePromise.then(gri => store.findRecord('file-qos', gri, { reload: true }));
+      return prePromise
+        .then(gri => store.findRecord('fileQosSummary', gri, { reload: true }));
     },
 
     /**
@@ -206,9 +218,9 @@ export default Component.extend(
     fetchQosRecords(replace) {
       // NOTE: not need to update qos records separately
       // in this modal, because their fulfilled property
-      // is not used (using per-file map in fileQos)
-      return this.updateFileQosProxy({ replace }).then(fileQos =>
-        fileQos.updateQosRecordsProxy({ replace: true })
+      // is not used (using per-file map in fileQosSummary)
+      return this.updateFileQosSummaryProxy({ replace }).then(fileQosSummary =>
+        fileQosSummary.updateQosRecordsProxy({ replace: true })
       );
     },
 

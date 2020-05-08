@@ -6,6 +6,8 @@ import { resolve } from 'rsvp';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import wait from 'ember-test-helpers/wait';
+import { lookupService } from '../../helpers/stub-service';
+import sinon from 'sinon';
 
 class MockQos {
   constructor(data) {
@@ -44,18 +46,19 @@ describe('Integration | Component | qos modal', function () {
       parent: resolve(null),
       hasQos: true,
       belongsTo(relation) {
-        if (relation === 'fileQos') {
+        if (relation === 'fileQosSummary') {
           return {
-            reload: () => file.fileQos,
+            reload: () => file.fileQosSummary,
+            id: () => 'file.f1.qos_summary:private',
           };
         }
       },
-      fileQos: undefined,
+      fileQosSummary: undefined,
       reload() {
         return this;
       },
     };
-    file.fileQos = promiseObject(resolve({
+    file.fileQosSummary = promiseObject(resolve({
       entries: {
         f1: true,
         f2: false,
@@ -74,17 +77,20 @@ describe('Integration | Component | qos modal', function () {
         }),
       ])),
     }));
+    sinon.stub(lookupService(this, 'store'), 'findRecord')
+      .withArgs('fileQosSummary', 'file.f1.qos_summary:private')
+      .resolves(file.fileQosSummary);
 
-    this.set('file', file);
+    this.set('files', [file]);
     this.on('getDataUrl', () => 'https://example.com');
     this.render(hbs `{{qos-modal
       open=true
-      file=file
+      files=files
+      updateInterval=null
       getDataUrl=(action "getDataUrl")
     }}`);
 
     return wait().then(() => {
-      console.log(this.$().html());
       expect(this.$('.filename'), 'file name').to.contain(filename);
       expect(this.$('.qos-entry .replicas-number'), 'replicas number')
         .to.contain(replicasNum.toString());

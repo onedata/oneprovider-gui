@@ -11,6 +11,7 @@ export default {
     file: 'file',
     dir: 'directory',
   },
+  selectedItems: 'selected items',
   addHintTitle: 'Adding QoS requirement',
   addHint: 'QoS requirement is used to specify a desired number of replicas for the subject {{fileType}} and an expression used to select matching storages where the replicas will be placed. The replicas will be automatically managed ‐ protected from eviction and reconciled upon changes to the file content.',
   showHintTitle: 'QoS requirements',
