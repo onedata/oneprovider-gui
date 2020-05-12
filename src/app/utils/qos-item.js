@@ -20,7 +20,7 @@ export default EmberObject.extend({
   modalFileId: undefined,
 
   /**
-   * @type {Models.Qos}
+   * @type {Models.QosRequirement}
    */
   qos: undefined,
 

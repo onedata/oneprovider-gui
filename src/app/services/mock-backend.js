@@ -73,18 +73,20 @@ export default Service.extend({
 
   generateDevelopmentModel() {
     const store = this.get('store');
-    return hashFulfilled(
-        modelTypes.reduce((promiseHash, type) => {
-          promiseHash[type] =
-            this.createEntityRecords(
-              store,
-              type,
-              recordNames[type] ||
-              defaultRecordNames
-            )
-            .then(records => this.createListRecord(store, type, records));
-          return promiseHash;
-        }, {})
+    return this.createEmptyQos(store).then(() =>
+        hashFulfilled(
+          modelTypes.reduce((promiseHash, type) => {
+            promiseHash[type] =
+              this.createEntityRecords(
+                store,
+                type,
+                recordNames[type] ||
+                defaultRecordNames
+              )
+              .then(records => this.createListRecord(store, type, records));
+            return promiseHash;
+          }, {})
+        )
       )
       .then((listRecords) => {
         const { space: spaceList } = listRecords;
@@ -147,6 +149,14 @@ export default Service.extend({
     return get(listRecord, 'list').then(list => {
       list.pushObjects(records);
       return list.save().then(() => listRecord.save());
+    });
+  },
+
+  createEmptyQos(store) {
+    return store.createRecord('fileQosSummary', {
+      entries: {},
+    }).save().then(qosSummary => {
+      this.set('entityRecords.fileQosSummary', [qosSummary]);
     });
   },
 
@@ -241,6 +251,7 @@ export default Service.extend({
           hasDirectQos: i < 2,
           hasEffQos: i < 4,
           parent: null,
+          fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
           provider: this.get('entityRecords.provider.firstObject'),
         }).save()
       ))
@@ -396,6 +407,7 @@ export default Service.extend({
           mtime: timestamp + i * 3600,
           parent,
           owner,
+          fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
           provider: this.get('entityRecords.provider.firstObject'),
         }).save();
       }))
@@ -418,6 +430,7 @@ export default Service.extend({
               type: 'dir',
               mtime: timestamp + i * 3600,
               owner,
+              fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
               provider: this.get('entityRecords.provider.firstObject'),
             }).save();
           })).then(chainDirs => {
@@ -449,6 +462,7 @@ export default Service.extend({
           mtime: timestamp + i * 3600,
           parent,
           owner,
+          fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
           provider: this.get('entityRecords.provider.firstObject'),
         }).save();
       })))

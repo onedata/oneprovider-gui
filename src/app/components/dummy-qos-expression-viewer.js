@@ -14,7 +14,7 @@ import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 
 export default Component.extend({
   classNames: ['dummy-component'],
-  expressionRpnSimple: Object.freeze(['a=b', 'c=d', '|', 'x=y', '&', 'z=v', '|']),
+  expressionRpnSimple: Object.freeze(['anyStorage', 'c=d', '|', 'x=y', '&', 'z=v', '|']),
   expressionRpn: Object.freeze(
     ['a=b', ..._.flatten(_.times(30, _.constant(['e=f', '|'])))]
   ),

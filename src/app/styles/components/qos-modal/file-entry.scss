@@ -1,0 +1,22 @@
+.qos-modal-file-entry {
+  .item-icon.file-qos-status {
+    font-size: $qos-icon-size;
+  }
+  > .one-collapsible-list-item-header > .header-content-container {
+    display: flex;
+    .file-name {
+      flex-grow: 1;
+      // in case it is truncated - to make some space before req. number info
+      padding-right: 10px;
+    }
+  }
+  .no-requirements {
+    font-style: italic;
+  }
+  @media (max-width: $screen-xs-max) {
+    .list-content {
+      padding-left: $padding-large-horizontal;
+      padding-right: $padding-large-horizontal;
+    }
+  }
+}

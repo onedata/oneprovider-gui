@@ -1,4 +1,4 @@
-<form role="form" class="form form-horizontal" onkeypress={{action "disableEnterKey"}}>
+<form role="form" class="form form-horizontal" onkeypress={{ignore-enter}}>
   {{#if previewMode}}
       {{#each metadataForPreview key="key" as |item|}}
         <div class="col-xs-12 form-group">

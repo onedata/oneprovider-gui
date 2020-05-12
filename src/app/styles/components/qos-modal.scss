@@ -1,8 +1,8 @@
 .qos-modal {
-  $qos-icon-size: 32px;
+  $qos-icon-size: 34px;
   $color-qos-status-fulfilled: $color-one-success;
   $color-qos-status-pending: $color-one-warning;
-
+  
   @mixin header-fog-style($color) {
     @include bar-fog-style(
       $gradient-direction: to right,
@@ -11,6 +11,26 @@
       $color: $color,
     );
     right: 0;
+  }
+
+  @import './qos-modal/file-entry';
+  @import './qos-modal/file-qos-summary';
+  @import './qos-modal/qos-entry';
+  
+  .qos-status-fulfilled {
+    color: $color-qos-status-fulfilled;
+  }
+  .qos-status-pending {
+    color: $color-qos-status-pending;
+  }
+  .qos-status-empty {
+    color: inherit;
+  }
+  .qos-status-error {
+    color: $color-one-danger;
+  }
+  .qos-status-empty, .no-requirements {
+    opacity: 0.4;
   }
   
   .label {
@@ -26,214 +46,10 @@
       margin-left: 5px;
     }
     .header-icon {
-      font-size: $qos-icon-size * 1.5;
+      font-size: $qos-icon-size * 1.25;
       float: right;
       &.one-icon {
         margin-right: -10px;
-      }
-    }
-    .file-qos-status-fulfilled {
-      color: $color-qos-status-fulfilled;
-    }
-    .file-qos-status-pending {
-      color: $color-qos-status-pending;
-    }
-  }
-  .qos-entry {
-    .qos-path-subheader {
-      margin-top: 8px;
-      margin-left: 40px;
-      font-size: 90%;
-      .inherited-text {
-        flex: 0 0 94px;
-      }
-      @media (max-width: $screen-xs-max) {
-        margin-left: 0;
-      }
-    }
-    @media (max-width: $screen-xs-max) {
-      .one-collapsible-list-item-header {
-        padding-left: 0;
-        padding-right: 0;
-      }
-    }
-    .qos-main-line {
-      display: flex;
-      @media (max-width: $screen-xs-max) {
-        flex-direction: column;
-      }
-      .header-element-top-fix {
-        margin-top: 3px;
-      }
-      .qos-general-info {
-        display: flex;
-        @media (max-width: $screen-xs-max) {
-          order: 1;
-        }
-      }
-      .tags-input-replica {
-        align-items: flex-start;
-        width: 110px;
-      }
-      > .clipboard-line {
-        margin-top: 0px;
-      }
-      .qos-status-icon-container {
-        margin-top: 14px;
-      }
-    }
-    .tags-input-replica {
-      white-space: nowrap;
-      .replicas-tag-item {
-        width: 120px;
-      }
-      .header-replicas-number {
-        display: inline-block;
-        width: 100%;
-        text-align: center;
-      }
-    }
-    .qos-entry-expression {
-      $tag-bottom-margin: 4px;
-      $form-control-margin: 10px;
-      @media (max-width: $screen-xs-max) {
-        order: 3;
-      }
-      .tag-item {
-        margin-bottom: $tag-bottom-margin;
-      }
-      .form-control-block {
-        padding: $form-control-margin;
-        padding-bottom: $form-control-margin - $tag-bottom-margin;
-      }
-    }
-    .qos-header-text {
-      overflow-x: hidden;
-      &::after {
-        @include header-fog-style(white);
-      }
-    }
-    .spinner-block-path {
-      margin-top: 2px;
-      margin-left: 6px;
-    }
-    .one-collapsible-list-item-header {
-      &:hover {
-        .qos-header-text::after {
-          @include header-fog-style($main-content-hover-background);
-        }
-      }
-      &.opened {
-        .qos-header-text::after {
-          @include header-fog-style($collapsible-list-item-header-opened);
-        }
-        &:hover {
-          .qos-header-text::after {
-            @include header-fog-style($collapsible-list-item-header-opened-hover);
-          }
-        }
-      }
-    }
-    .qos-buttons {
-      place-self: flex-start;
-      display: flex;
-      align-items: center;
-      @media (max-width: $screen-xs-max) {
-        align-self: flex-end;
-        order: 2;
-        position: absolute;
-      }
-    }
-    .icon-trigger {
-      line-height: 40px;
-      margin-left: 10px;
-      font-size: 34px;
-      &.id-trigger {
-        margin-left: 16px;
-      }
-      &.remove-qos-trigger {
-        margin-left: 4px;
-        margin-right: -6px;
-        &.enabled {
-          &:hover {
-            color: $color-one-danger;
-          }
-        }
-        &.disabled {
-          opacity: 0.3;
-          // `!important` to override inline styles of clickable components
-          cursor: not-allowed !important;
-        }
-      }
-    }
-  }
-  .qos-entry, .qos-add {
-    .list-content {
-      padding-top: 8px;
-      @media (max-width: $screen-sm-max) {
-        .table-info {
-          margin-top: 10px;
-          .property-name, .property-value {
-            padding-left: 15px;
-            padding-right: 15px;
-          }
-        }
-      }
-    }
-    .header-content-container {
-      display: flex;
-      align-items: center;
-      height: 2em;
-      .label {
-        margin-left: 8px;
-      }
-      .qos-header {
-        display: block;
-        position: relative;
-      }
-    }
-    .qos-status-icon-container {
-      .one-icon {
-        font-size: $qos-icon-size;
-      }
-    }
-    .remove-icon {
-      &:not(:hover) {
-        color: inherit; 
-      }
-      .one-icon {
-        font-size: $qos-icon-size;
-      }
-    }
-    .qos-status-fulfilled {
-      color: $color-qos-status-fulfilled;
-    }
-    .qos-status-pending {
-      color: $color-qos-status-pending;
-    }
-    .qos-path-subheader {
-      display: flex;
-      .inherited-text {
-        padding-right: 0.4em;
-      }
-      .file-path {
-        display: block;
-        direction: rtl;
-        .file-path-text {
-          // thanks to this, "/" do not go to end when using direction: rtl
-          unicode-bidi: plaintext;
-        }
-      }
-    }
-    .qos-entry-expression {
-      .property-name {
-        padding-top: 14px;
-      }
-      .qos-pair.tag-item {
-        flex-wrap: wrap;
-      }
-      .qos-pair-value {
-        word-break: break-all;
       }
     }
   }

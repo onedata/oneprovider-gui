@@ -8,16 +8,17 @@
  */
 
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
 import { collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 
 export default Component.extend({
   mockBackend: service(),
 
-  file: reads('mockBackend.entityRecords.chainDir.2'),
-
-  files: collect('file'),
+  files: collect(
+    'mockBackend.entityRecords.chainDir.2',
+    'mockBackend.entityRecords.chainDir.3',
+    'mockBackend.entityRecords.chainDir.4',
+  ),
 
   open: true,
 

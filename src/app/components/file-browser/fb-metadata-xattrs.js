@@ -76,11 +76,6 @@ export default Component.extend(I18n, {
         metadata: _.isEmpty(xattrs) ? emptyValue : _.cloneDeep(xattrs),
       });
     },
-    disableEnterKey(keyEvent) {
-      if (keyEvent.key === 'Enter') {
-        keyEvent.preventDefault();
-      }
-    },
     validateKey(key) {
       return invalidKeyRegex.test(key || '') ? this.t('validation.reservedKey') : null;
     },

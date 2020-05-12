@@ -1,5 +1,5 @@
 /**
- * Show information about single QoS record
+ * Show information about single QoS requirement
  * 
  * @module components/qos-modal/qos-entry
  * @author Jakub Liput
@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { conditional, raw, promise, tag, not } from 'ember-awesome-macros';
+import { conditional, raw, promise, tag } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -31,12 +31,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Component}
-   */
-  collapsibleList: undefined,
-
-  /**
-   * @virtual
    * @type {EmberObject} see `QosModal.QosItem`
    */
   qosItem: undefined,
@@ -45,7 +39,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  removeQos: notImplementedReject,
+  removeQosRequirement: notImplementedReject,
 
   /**
    * @virtual
@@ -150,17 +144,12 @@ export default Component.extend(I18n, {
   ),
 
   actions: {
-    disableEnterKey(keyEvent) {
-      if (keyEvent.key === 'Enter') {
-        keyEvent.preventDefault();
-      }
-    },
     confirmRemove() {
       const {
         qosItem,
-        removeQos,
-      } = this.getProperties('qosItem', 'removeQos');
-      return removeQos(get(qosItem, 'qos'));
+        removeQosRequirement,
+      } = this.getProperties('qosItem', 'removeQosRequirement');
+      return removeQosRequirement(get(qosItem, 'qos'));
     },
     fileLinkClicked(event) {
       this.get('closeModal')();

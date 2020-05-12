@@ -4,7 +4,6 @@
   size="lg"
   backdropClose=false
   keyboard=false
-  onShow=(action "onShow")
   onHide=(action "onHide")
   as |modal|
 }}
@@ -29,7 +28,7 @@
           as |ospm|
         }}
           <h1>{{tt this "addHintTitle"}}</h1>
-          <p>{{tt this "addHint" fileType=(tt this (concat "fileType." file.type))}}</p>
+          <p>{{tt this "addHint" fileType=fileTypeText}}</p>
           <div class="btn-toolbar text-right visible-xs-block">
             {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
               {{tt this "hintClose"}}
@@ -59,15 +58,15 @@
             {{/bs-button}}
           </div>
         {{/one-switchable-popover-modal}}
-        {{#if qosRecords.length}}
+        {{#if allQosStatusIcon}}
           {{#one-icon
-            icon=fileQosStatusIcon
-            class=(concat "header-icon file-qos-status file-qos-status-" fileQosStatus)
+            icon=allQosStatusIcon
+            class=(concat "header-icon all-qos-status qos-status-" allQosStatus)
           }}
             {{one-tooltip title=(tt
               this
-              (concat "fileQosStatusHint." fileQosStatus)
-              fileType=(tt this (concat "fileType." file.type))
+              (concat "fileQosStatusHint." allQosStatus)
+              fileType=fileTypeText
             )}}
           {{/one-icon}}
         {{/if}}
@@ -83,34 +82,42 @@
       {{/if}}
     </h2>
   {{/modal.header}}
+  
   {{#modal.body}}
     {{#if isAddMode}}
       {{qos-modal/qos-add
         update=(action "changeNewEntry")
       }}
     {{else}}
-      <div class="loadable-row">
-        {{#promise-proxy-container proxy=qosItemsProxy}}
-          <div class="one-collapsible-list qos-list hide-final-border">
-            {{#each sortedQosItems key="entityId" as |qosItem|}}
-              {{qos-modal/qos-entry
-                collapsibleList=list
-                qosItem=qosItem
-                removeQos=(action "removeQos")
-                getDataUrl=(action "getDataUrl")
+      {{#if multipleFiles}}
+        {{#one-collapsible-list class="hide-final-border" as |list|}}
+          {{#each fileItems as |fileItem|}}
+            {{#list.item as |listItem|}}
+              {{qos-modal/file-entry
+                listItem=listItem
+                fileItem=fileItem
+                removeQosRequirement=(action "removeQosRequirement")
+                getDataUrl=(action "getDataUrl" (hash fileId=file.entityId))
                 closeModal=(action "onHide")
               }}
-            {{/each}}
-          </div>
-        {{/promise-proxy-container}}
-      </div>
+            {{/list.item}}
+          {{/each}}
+        {{/one-collapsible-list}}
+      {{else}}
+        {{qos-modal/file-qos-summary
+          file=fileItems.firstObject.file
+          qosItemsProxy=fileItems.firstObject.qosItemsProxy
+          removeQosRequirement=(action "removeQosRequirement")
+          getDataUrl=(action "getDataUrl" (hash fileId=file.entityId))
+          closeModal=(action "onHide")
+        }}
+      {{/if}}
     {{/if}}
   {{/modal.body}}
   
   {{#modal.footer}}
     {{#bs-button
-      onClick=(if
-        (and isAddMode qosItems.length)
+      onClick=(if isAddMode
         (action (mut mode "show"))
         (action "onHide")
       )

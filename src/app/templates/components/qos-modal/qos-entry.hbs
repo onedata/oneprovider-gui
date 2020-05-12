@@ -1,4 +1,4 @@
-<div class="one-collapsible-list-item-header row list-header-row">
+<div class="one-collapsible-list-item-header row list-header-row without-menu">
   <div class="list-header-content">
     <div class="qos-main-line">
       <div class="qos-general-info">
@@ -96,7 +96,10 @@
           sizeClass="xxs"
           inlineError=true
         }}
-          <span class="inherited-text">{{tt this "inheritedFrom"}}</span>
+          <span class="inherited-text">
+            <span class="inherited-icon">⬆</span>
+            {{tt this "inheritedFrom"}}
+          </span>
           <a
             onclick={{action "fileLinkClicked"}}
             href={{qosSourceFileHref}}

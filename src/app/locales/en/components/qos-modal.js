@@ -1,3 +1,5 @@
+import fileQosSummary from './qos-modal/file-qos-summary';
+import fileEntry from './qos-modal/file-entry';
 import qosEntry from './qos-modal/qos-entry';
 import qosAdd from './qos-modal/qos-add';
 
@@ -10,6 +12,7 @@ export default {
   fileType: {
     file: 'file',
     dir: 'directory',
+    multi: 'selected items',
   },
   selectedItems: 'selected items',
   addHintTitle: 'Adding QoS requirement',
@@ -23,10 +26,13 @@ export default {
   fileQosStatusHint: {
     fulfilled: 'All requirements for {{fileType}} are fulfilled',
     pending: 'Pending',
+    error: 'Error evaluating QoS status summary',
   },
   add: 'Add QoS requirement',
   cancel: 'Cancel',
   save: 'Save',
+  fileQosSummary,
+  fileEntry,
   qosEntry,
   qosAdd,
 };

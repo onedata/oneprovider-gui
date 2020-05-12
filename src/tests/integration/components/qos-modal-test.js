@@ -46,11 +46,13 @@ describe('Integration | Component | qos modal', function () {
       parent: resolve(null),
       hasQos: true,
       belongsTo(relation) {
-        if (relation === 'fileQosSummary') {
+        if (relation === 'fileQos') {
           return {
             reload: () => file.fileQosSummary,
             id: () => 'file.f1.qos_summary:private',
           };
+        } else {
+          throw new Error('invalid file test relation: ' + relation);
         }
       },
       fileQosSummary: undefined,

@@ -33,7 +33,7 @@ export default Service.extend({
     return this.getRecord(getGri(entityId, scope));
   },
 
-  createQos(file, expression, replicasNum) {
+  createQosRequirement(file, expression, replicasNum) {
     return this.get('store').createRecord('qosRequirement', {
       replicasNum,
       _meta: {
@@ -45,7 +45,7 @@ export default Service.extend({
     }).save();
   },
 
-  removeQos(qos) {
-    return qos.destroyRecord();
+  removeQosRequirement(qosRequirement) {
+    return qosRequirement.destroyRecord();
   },
 });
