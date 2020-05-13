@@ -32,6 +32,12 @@
                 {{tt this "status.shared"}}
               </div>
             {{/if}}
+            {{#if isForbidden}}
+              <div class="file-status-tag file-status-tag-danger file-status-forbidden">
+                {{tt this "status.forbidden"}}
+                {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
+              </div>
+            {{/if}}
             {{#if fileNameSuffix}}
               <div class="file-status-tag file-status-tag-danger file-status-conflict">
                 {{tt this "status.conflict"}}

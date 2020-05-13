@@ -18,6 +18,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -37,6 +38,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   errorExtractor: service(),
   media: service(),
   visualLogger: service(),
+  currentUser: service(),
 
   /**
    * @override
@@ -101,6 +103,12 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {Function}
    */
   fastDoubleClick: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  previewMode: undefined,
 
   /**
    * Time in ms when the touch should be treated as a hold
@@ -275,6 +283,34 @@ export default Component.extend(I18n, FastDoubleClick, {
       return this.get('errorExtractor').getMessage(fileError);
     }
   }),
+
+  isForbidden: computed(
+    'previewMode',
+    'file.{type,owner.entityId,posixPermissions}',
+    function isForbidden() {
+      const {
+        file,
+        previewMode,
+      } = this.getProperties('file', 'previewMode');
+      let octalNumber;
+      if (previewMode) {
+        octalNumber = 2;
+      } else {
+        if (get(file, 'owner.entityId') === this.get('currentUser.userId')) {
+          octalNumber = 0;
+        } else {
+          octalNumber = 1;
+        }
+      }
+      const entityPermissions = EntityPermissions.create()
+        .fromOctalRepresentation(get(file, 'posixPermissions')[octalNumber]);
+      if (get(file, 'type') === 'file') {
+        return !get(entityPermissions, 'read');
+      } else {
+        return !get(entityPermissions, 'read') || !get(entityPermissions, 'execute');
+      }
+    }
+  ),
 
   isShared: reads('file.isShared'),
 
