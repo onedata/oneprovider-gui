@@ -13,7 +13,16 @@ import EmberObject, { computed, get } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import { promise, bool, raw, tag, collect } from 'ember-awesome-macros';
+import {
+  promise,
+  bool,
+  raw,
+  tag,
+  collect,
+  conditional,
+  and,
+  not,
+} from 'ember-awesome-macros';
 import { Promise, resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
@@ -151,7 +160,22 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<object>}
    */
-  menuActions: collect('btnRename', 'btnRemove'),
+  menuActions: conditional(
+    and('showPublishButton', not('share.hasHandle')),
+    collect('btnRename', 'btnPublishOpenData', 'btnRemove'),
+    collect('btnRename', 'btnRemove'),
+  ),
+
+  btnPublishOpenData: computed(function btnPublishOpenData() {
+    return {
+      title: this.t('publishOpenData'),
+      icon: 'globe',
+      action: () => {
+        this.set('publishModalOpened', true);
+      },
+      class: 'btn-publish-open-data',
+    };
+  }),
 
   btnRemove: computed(function btnRemove() {
     return {
