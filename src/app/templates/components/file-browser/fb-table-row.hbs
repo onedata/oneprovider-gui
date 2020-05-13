@@ -32,6 +32,12 @@
                 {{tt this "status.shared"}}
               </div>
             {{/if}}
+            {{#if fileNameSuffix}}
+              <div class="file-status-tag file-status-tag-danger file-status-conflict">
+                {{tt this "status.conflict"}}
+                {{one-tooltip title=(tt this "otherFileSameName")}}
+              </div>
+            {{/if}}
             {{#if hasMetadata}}
               <div class="file-status-tag file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
                 {{tt this "status.metadata"}}

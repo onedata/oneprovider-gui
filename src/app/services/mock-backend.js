@@ -160,6 +160,21 @@ export default Service.extend({
     });
   },
 
+  makeFilesConflict() {
+    const files = this.get('entityRecords.file');
+    const file0 = files[0];
+    const file1 = files[1];
+    setProperties(file0, {
+      name: 'hello@abc100',
+      index: 'hello',
+    });
+    setProperties(file1, {
+      name: 'hello@xyz200',
+      index: 'hello',
+    });
+    return allFulfilled([file0.save(), file1.save()]);
+  },
+
   createAndAddQos(store) {
     const entityRecords = this.get('entityRecords');
     const chainDir = get(entityRecords, 'chainDir')[2];
@@ -468,7 +483,7 @@ export default Service.extend({
       })))
       .then((records) => {
         this.set('entityRecords.file', records);
-        return records;
+        return this.makeFilesConflict().then(() => records);
       });
   },
 

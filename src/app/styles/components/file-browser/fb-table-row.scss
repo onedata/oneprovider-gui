@@ -33,6 +33,9 @@
           display: flex;
           flex-grow: 1;
         }
+        .file-suffix.conflict-label {
+          color: $color-one-danger;
+        }
       }
       .file-status-bar {
         display: inline-flex;
@@ -41,15 +44,11 @@
         $border-width: 1px;
         $height: 24px;
         $margin-vertical-fix: ($height - 20px) / 2;
-        $border-color: #BDC2D3;
-        $background-color: #DEE1ED;
-        $font-color: $color-one-blue-gray;
         
         display: inline-block;
         @include font-semibold;
-        background-color: $background-color;
-        color: $font-color;
-        border: $border-width solid $border-color;
+        border-width: $border-width;
+        border-style: solid;
         border-radius: 8px;
         font-size: 11px;
         line-height: 24px;
@@ -57,6 +56,26 @@
         padding-right: 6px;
         margin-top: -$margin-vertical-fix - $border-width;
         margin-bottom: -$margin-vertical-fix - $border-width;
+        
+        @mixin tag-colors($color, $saturate: 0%, $darken: 0%) {
+          color: change-color($color, $saturation: 55%, $lightness: 40%);
+          border-color: change-color($color, $saturation: 50% + $saturate / 2, $lightness: 75% - $darken);
+          background-color: change-color($color, $saturation: 50% + $saturate, $lightness: 90%);
+        }
+        
+        @include tag-colors($color-one-blue-gray);
+        
+        &.file-status-tag-success {
+          @include tag-colors($color-one-success, 0%, 10%);
+        }
+        
+        &.file-status-tag-warning {
+          @include tag-colors($color-one-warning, 50%, 5%);
+        }
+        
+        &.file-status-tag-danger {
+          @include tag-colors($color-one-danger, 30%);
+        }
         
         &+.file-status-tag {
           margin-left: 6px;
