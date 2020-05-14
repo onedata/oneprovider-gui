@@ -596,13 +596,12 @@ export default Component.extend(I18n, {
 
   selectAddSingleFile(file) {
     this.addToSelectedFiles([file]);
-    if (get(file, 'type') !== 'broken') {
-      this.set('lastSelectedFile', file);
-    }
+    this.set('lastSelectedFile', file);
   },
 
   selectOnlySingleFile(file) {
     this.get('changeSelectedFiles')([file]);
+    this.set('lastSelectedFile', file);
   },
 
   /**
