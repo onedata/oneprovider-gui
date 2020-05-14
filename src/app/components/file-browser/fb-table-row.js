@@ -170,9 +170,16 @@ export default Component.extend(I18n, FastDoubleClick, {
     return `fb-table-row-${this.get('type')}`;
   }),
 
+  typeText: computed('type', function typeText() {
+    const type = this.get('type');
+    if (type) {
+      return this.t('fileType.' + type);
+    }
+  }),
+
   type: computed('file.type', function type() {
     const fileType = this.get('file.type');
-    if (fileType === 'dir' || fileType === 'file' || fileType === 'broken') {
+    if (fileType === 'dir' || fileType === 'file') {
       return fileType;
     }
   }),

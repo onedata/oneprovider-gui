@@ -281,22 +281,28 @@ export default Component.extend(I18n, {
   }),
 
   contextMenuButtons: computed(
+    'allButtonsArray',
     'selectionContext',
     'selectionCount',
+    'previewMode',
     function contextMenuButtons() {
       const {
         allButtonsArray,
         selectionContext,
         selectionCount,
+        previewMode,
       } = this.getProperties(
         'allButtonsArray',
         'selectionContext',
-        'selectionCount'
+        'selectionCount',
+        'previewMode'
       );
-      return [
-        { separator: true, title: this.t('menuSelection', { selectionCount }) },
-        ...getButtonActions(allButtonsArray, selectionContext),
-      ];
+      const menuItems = previewMode ? [] : [{
+        separator: true,
+        title: this.t(
+          'menuSelection', { selectionCount }),
+      }];
+      return menuItems.concat(getButtonActions(allButtonsArray, selectionContext));
     }
   ),
 
@@ -492,34 +498,44 @@ export default Component.extend(I18n, {
       return;
     }
 
-    /** @type {Array<object>} */
-    const selectedFiles = this.get('selectedFiles');
+    const {
+      selectedFiles,
+      previewMode,
+    } = this.getProperties('selectedFiles', 'previewMode');
     const selectedCount = get(selectedFiles, 'length');
     const fileIsSelected = selectedFiles.includes(file);
     const otherFilesSelected = selectedCount > (fileIsSelected ? 1 : 0);
-    if (otherFilesSelected) {
-      if (fileIsSelected) {
-        if (ctrlKey) {
-          this.selectRemoveSingleFile(file);
-        } else {
-          this.selectOnlySingleFile(file);
-        }
-      } else {
-        if (ctrlKey) {
-          this.selectAddSingleFile(file);
-        } else {
-          if (shiftKey) {
-            this.selectRangeToFile(file);
-          } else {
-            this.selectOnlySingleFile(file);
-          }
-        }
-      }
-    } else {
+    if (previewMode) {
       if (fileIsSelected) {
         this.selectRemoveSingleFile(file);
       } else {
-        this.selectAddSingleFile(file);
+        this.selectOnlySingleFile(file);
+      }
+    } else {
+      if (otherFilesSelected) {
+        if (fileIsSelected) {
+          if (ctrlKey) {
+            this.selectRemoveSingleFile(file);
+          } else {
+            this.selectOnlySingleFile(file);
+          }
+        } else {
+          if (ctrlKey) {
+            this.selectAddSingleFile(file);
+          } else {
+            if (shiftKey) {
+              this.selectRangeToFile(file);
+            } else {
+              this.selectOnlySingleFile(file);
+            }
+          }
+        }
+      } else {
+        if (fileIsSelected) {
+          this.selectRemoveSingleFile(file);
+        } else {
+          this.selectAddSingleFile(file);
+        }
       }
     }
   },

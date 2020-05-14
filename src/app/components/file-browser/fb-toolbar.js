@@ -47,11 +47,11 @@ export default Component.extend(I18n, {
    */
   clipboardReady: undefined,
 
-  moreToolsOpen: false,
-
-  // TODO: title should be a translation key, when rendered, it will get
-  // name of element: directory, directories, file, files, elements or current directory
-  // To avoid using "element"
+  /**
+   * @virtual optional
+   * @type {boolean}
+   */
+  previewMode: false,
 
   toolbarButtons: computed(
     'allButtonsArray',
@@ -60,8 +60,12 @@ export default Component.extend(I18n, {
       const {
         allButtonsArray,
         clipboardReady,
-      } = this.getProperties('allButtonsArray', 'clipboardReady');
-      let actions = getButtonActions(allButtonsArray, 'inDir');
+        previewMode,
+      } = this.getProperties('allButtonsArray', 'clipboardReady', 'previewMode');
+      let actions = getButtonActions(
+        allButtonsArray,
+        previewMode ? 'inDirPreview' : 'inDir'
+      );
       if (!clipboardReady) {
         actions = actions.rejectBy('id', 'paste');
       }

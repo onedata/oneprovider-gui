@@ -142,12 +142,3 @@
     onHide=(action "closeMetadataModal")
   }}
 {{/if}}
-
-{{#if filesToEditPermissions}}
-  {{edit-permissions-modal
-    files=filesToEditPermissions
-    space=spaceProxy.content
-    previewMode=true
-    onClose=(action "closeEditPermissionsModal")
-  }}
-{{/if}}

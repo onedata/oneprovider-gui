@@ -50,8 +50,20 @@
               </div>
             {{/if}}
             {{#if hasAcl}}
-              <div class="file-status-tag file-status-acl" {{action (action "invokeFileAction" file "btnPermissions") bubbles=false}}>
+              <div
+                class="file-status-tag file-status-acl"
+                {{action
+                  (if previewMode
+                    (no-action)
+                    (action "invokeFileAction" file "btnPermissions")
+                  )
+                  bubbles=false
+                }}
+              >
                 {{tt this "status.acl"}}
+                {{#if previewMode}}
+                  {{one-tooltip title=(tt this "hintAclPreview" fileType=typeText)}}
+                {{/if}}
               </div>
             {{/if}}
             {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
