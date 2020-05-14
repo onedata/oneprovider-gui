@@ -51,12 +51,13 @@
             {{/if}}
             {{#if hasAcl}}
               <div
-                class="file-status-tag file-status-acl"
+                class={{concat-classes
+                  "file-status-tag file-status-acl"
+                  (if previewMode "file-status-tag-warning")
+                }}
                 {{action
-                  (if previewMode
-                    (no-action)
-                    (action "invokeFileAction" file "btnPermissions")
-                  )
+                  
+                  (action "invokeFileAction" file "btnPermissions")
                   bubbles=false
                 }}
               >

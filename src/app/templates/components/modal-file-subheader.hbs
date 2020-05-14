@@ -1,0 +1,15 @@
+{{#if multi}}
+  {{#if multiTextPrefix}}
+    {{multiTextPrefix}}
+  {{/if}}
+  {{tt this "selectedItems" count=filesCount}}
+{{else}}
+  {{#truncated-string}}
+    {{#if icon}}
+      <div class={{concat "inline-icon-container file-item-icon-container file-item-icon-container-" type}}>
+        {{one-icon icon=icon class=(concat "file-item-icon file-item-icon-" type)}}
+      </div>
+    {{/if}}
+    <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
+  {{/truncated-string}}
+{{/if}}

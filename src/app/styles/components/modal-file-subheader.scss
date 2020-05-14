@@ -1,0 +1,13 @@
+.modal-file-subheader {
+  .file-item-icon-container {
+    &.file-item-icon-container-file {
+      width: 1.7em;
+      margin-left: -5px;
+    }
+    &.file-item-icon-container-dir {
+      width: 1.8em;
+      margin-left: -3px;
+    }
+  }
+}
+ 

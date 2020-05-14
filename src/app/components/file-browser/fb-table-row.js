@@ -19,6 +19,7 @@ import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-cl
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
+import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -61,6 +62,12 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {Function}
    */
   openContextMenu: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  invokeFileAction: notImplementedThrow,
 
   /**
    * @virtual
@@ -137,20 +144,13 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   isInvalidated: not('file.type'),
 
-  fileNameBase: reads('file.index'),
-
-  fileNameSuffix: computed('file.{name,index}', function fileNameSuffix() {
-    const file = this.get('file');
-    const {
-      name,
-      index,
-    } = getProperties(file, 'name', 'index');
-    if (name === index) {
-      return null;
-    } else {
-      return name.split(index)[1];
-    }
+  fileNameParser: computed('file', function fileNameParser() {
+    return FileNameParser.create({ file: this.get('file') });
   }),
+
+  fileNameBase: reads('fileNameParser.base'),
+
+  fileNameSuffix: reads('fileNameParser.suffix'),
 
   enableContextMenuToggle: computed(
     'fileActionsOpen',

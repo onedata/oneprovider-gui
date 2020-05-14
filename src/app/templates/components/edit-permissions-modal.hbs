@@ -6,13 +6,7 @@
   as |modal|}}
   {{#modal.header}}
     <h1>{{tt this (concat "header." (if previewMode "show" "edit"))}}</h1>
-    {{#if (eq files.length 1)}}
-      <h2 class="filename normal-case">
-        {{#truncated-string}}
-          {{files.firstObject.name}}
-        {{/truncated-string}}
-      </h2>
-    {{/if}}
+    {{modal-file-subheader files=files}}
   {{/modal.header}}
   {{#modal.body}}
     {{#if (not filesHaveCompatibleActivePermissionsType)}}

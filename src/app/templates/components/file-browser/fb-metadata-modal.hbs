@@ -10,11 +10,7 @@
 }}
   {{#modal.header}}
     <h1>{{tt this "header" type=typeTranslation}}</h1>
-    <h2 class="filename normal-case">
-      {{#truncated-string}}
-        {{file.name}}
-      {{/truncated-string}}
-    </h2>
+    {{modal-file-subheader files=(array file)}}
   {{/modal.header}}
   {{#modal.body}}
     {{#bs-tab
