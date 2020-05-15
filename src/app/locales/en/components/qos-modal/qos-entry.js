@@ -10,8 +10,8 @@ const translations = {
   replicas: 'replicas',
   disabledRemoveHint: '<strong>Inherited requirement</strong> ‐ cannot be removed directly. <br> You can remove it from the directory indicated as the inheritance source.',
   statusHint: {
-    fulfilled: 'Fulfilled',
-    pending: 'Pending',
+    pending: 'Pending ‐ data replication is still ongoing or there are not enough storages matching the expression to meet the required number of replicas',
+    fulfilled: 'Fulfilled ‐ desired number of replicas have been created on matching storages and their contents are up-to-date',
   },
   removeQuestion: {
     header: 'Remove QoS requirement?',

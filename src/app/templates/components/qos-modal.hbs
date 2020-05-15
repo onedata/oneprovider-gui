@@ -28,7 +28,7 @@
           as |ospm|
         }}
           <h1>{{tt this "addHintTitle"}}</h1>
-          <p>{{tt this "addHint" fileType=fileTypeText}}</p>
+          <p>{{tt this "addHint"}}</p>
           <div class="btn-toolbar text-right visible-xs-block">
             {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
               {{tt this "hintClose"}}
@@ -127,13 +127,18 @@
     {{/bs-button}}
     
     {{#if isAddMode}}
-      {{#one-spin-button
-        class="btn btn-primary"
-        disabled=(not newEntryIsValid)
-        action=(action "save")
-      }}
-        {{tt this "save"}}
-      {{/one-spin-button}}
+      <div class="btn-tooltip-container">
+        {{#one-spin-button
+          class="btn btn-primary"
+          disabled=(not newEntryIsValid)
+          action=(action "save")
+        }}
+          {{tt this "save"}}
+        {{/one-spin-button}}
+        {{#if multipleFiles}}
+          {{one-tooltip title=(tt this "addMultiHint" count=files.length)}}
+        {{/if}}
+      </div>
     {{else}}
       {{#bs-button
         onClick=(action (mut mode) "add")
