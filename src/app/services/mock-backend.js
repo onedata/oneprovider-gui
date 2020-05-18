@@ -233,7 +233,8 @@ export default Service.extend({
       name: 'My Share',
       rootFile,
       privateRootFile: rootFile,
-      handle,
+      handle: null,
+      // handle,
     });
     set(
       share,
@@ -266,6 +267,7 @@ export default Service.extend({
           hasDirectQos: i < 2,
           hasEffQos: i < 4,
           parent: null,
+          posixPermissions: '777',
           fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
           provider: this.get('entityRecords.provider.firstObject'),
         }).save()
@@ -420,6 +422,7 @@ export default Service.extend({
           index: name,
           type: 'dir',
           mtime: timestamp + i * 3600,
+          posixPermissions: '777',
           parent,
           owner,
           fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
@@ -444,6 +447,7 @@ export default Service.extend({
               index: name,
               type: 'dir',
               mtime: timestamp + i * 3600,
+              posixPermissions: '777',
               owner,
               fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
               provider: this.get('entityRecords.provider.firstObject'),
@@ -470,6 +474,7 @@ export default Service.extend({
           name,
           index: name,
           type: 'file',
+          posixPermissions: '777',
           hasMetadata: i < 5,
           hasEffQos: i > 3 && i < 8,
           hasDirectQos: i > 6 && i < 10,

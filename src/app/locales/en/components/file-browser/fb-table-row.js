@@ -15,6 +15,6 @@ export default {
     qos: 'QoS',
     acl: 'ACL',
     conflict: 'Conflict',
-    forbidden: 'Forbidden',
+    forbidden: 'No access',
   },
 };

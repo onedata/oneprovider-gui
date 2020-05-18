@@ -120,8 +120,6 @@ export default Component.extend(I18n, {
    */
   showSharePublicUrl: true,
 
-  showHandleUrl: true,
-
   showPublishButton: true,
 
   publishModalOpened: false,
@@ -208,27 +206,21 @@ export default Component.extend(I18n, {
       const {
         showSharePath,
         showSharePublicUrl,
-        showHandleUrl,
-        share,
+
       } = this.getProperties(
         'showSharePath',
         'showSharePublicUrl',
-        'showHandleUrl',
-        'share',
+
       );
-      const isPublished = Boolean(share.belongsTo('handle').id());
-      const rowsCount = (showSharePath ? 1 : 0) + (showSharePublicUrl ? 1 : 0) +
-        ((showHandleUrl && isPublished) ? 1 : 0);
+      const rowsCount = (showSharePath ? 1 : 0) + (showSharePublicUrl ? 1 : 0);
       const classPrefix = 'with-header-';
       switch (rowsCount) {
         case 0:
           return classPrefix + 'hidden';
         case 1:
-          return classPrefix + 'single';
+          return classPrefix + 'slim';
         case 2:
-          return classPrefix + 'double';
-        case 3:
-          return classPrefix + 'triple';
+          return classPrefix + 'extended';
         default:
           break;
       }

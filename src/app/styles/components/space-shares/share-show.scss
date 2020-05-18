@@ -1,5 +1,5 @@
 .share-show {
-  &.with-header-single {
+  &.with-header-slim {
     .share-header-panel {
       position: fixed;
       height: $content-header-height-single;
@@ -11,18 +11,7 @@
       margin-top: $content-header-height-single + $fb-table-margin-top;
     }
   }
-  &.with-header-double {
-    .share-header-panel {
-      height: $content-header-height-double;
-    }
-    .file-browser-head-container {
-      top: $content-header-height-double;
-    }
-    .fb-table-container {
-      margin-top: $content-header-height-double + $fb-table-margin-top;
-    }
-  }
-  &.with-header-triple {
+  &.with-header-extended {
     .share-header-panel {
       height: $content-header-height-triple;
     }

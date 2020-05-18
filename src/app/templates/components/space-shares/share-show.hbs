@@ -38,21 +38,32 @@
         }}
       </div>
     </div>
-  {{/if}}
-  {{#if (and showHandleUrl share.handle)}}
     <div class="row share-header-row share-header-handle-url with-btn">
       <div class="col-key">
         {{tt this "handle"}}
       </div>
       <div class="col-value">
-        {{clipboard-line
-          class="clipboard-line-public-url"
-          value=share.handle.url
-        }}
+        {{#if share.handle}}
+          {{clipboard-line
+            class="clipboard-line-public-url"
+            value=share.handle.url
+          }}
+        {{else}}
+          {{#bs-button
+            type="primary"
+            onClick=(action "startPublish")
+            class="publish-open-data-btn"
+          }}
+            {{one-icon icon="globe"}}
+            <span class="text">{{tt this "publishOpenData"}}</span>
+          {{/bs-button}}          
+        {{/if}}
       </div>
-      {{#bs-button type="primary" onClick=(action "showMetadata") class="col-btn"}}
-        {{tt this "showMetadata"}}
-      {{/bs-button}}
+      {{#if share.handle}}
+        {{#bs-button type="primary" onClick=(action "showMetadata") class="col-btn"}}
+          {{tt this "showMetadata"}}
+        {{/bs-button}}
+      {{/if}}
     </div>
   {{/if}}
 </div>
