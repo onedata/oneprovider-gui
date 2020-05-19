@@ -118,6 +118,13 @@ export default Component.extend(I18n, FastDoubleClick, {
   previewMode: undefined,
 
   /**
+   * @virtual
+   * Should be set to true, if other file on list have the same name
+   * @type {Boolean}
+   */
+  nameConflict: false,
+
+  /**
    * Time in ms when the touch should be treated as a hold
    * @type {number}
    */

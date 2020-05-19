@@ -38,7 +38,7 @@
                 {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
               </div>
             {{/if}}
-            {{#if fileNameSuffix}}
+            {{#if nameConflict}}
               <div class="file-status-tag file-status-tag-danger file-status-conflict">
                 {{tt this "status.conflict"}}
                 {{one-tooltip title=(tt this "otherFileSameName")}}

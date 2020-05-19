@@ -9,6 +9,7 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
+import { reads } from '@ember/object/computed';
 import EmberObject, { computed, get } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -134,6 +135,11 @@ export default Component.extend(I18n, {
 
   isInShareRoot: bool('dirProxy.content.isShareRoot'),
 
+  /**
+   * @type {ComputedProperty<Models.Share>}
+   */
+  handle: reads('share.handle'),
+
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
     const {
       fileManager,
@@ -199,31 +205,9 @@ export default Component.extend(I18n, {
 
   withHeaderClass: computed(
     'showSharePath',
-    'showSharePublicUrl',
-    'showHandleUrl',
-    'share.handle',
     function withHeaderClass() {
-      const {
-        showSharePath,
-        showSharePublicUrl,
-
-      } = this.getProperties(
-        'showSharePath',
-        'showSharePublicUrl',
-
-      );
-      const rowsCount = (showSharePath ? 1 : 0) + (showSharePublicUrl ? 1 : 0);
-      const classPrefix = 'with-header-';
-      switch (rowsCount) {
-        case 0:
-          return classPrefix + 'hidden';
-        case 1:
-          return classPrefix + 'slim';
-        case 2:
-          return classPrefix + 'extended';
-        default:
-          break;
-      }
+      const showSharePath = this.get('showSharePath');
+      return `with-header-${showSharePath ? 'private' : 'public'}`;
     }
   ),
 

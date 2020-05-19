@@ -141,6 +141,20 @@ export default Component.extend(I18n, {
 
   selectionCount: reads('selectedFiles.length'),
 
+  /**
+   * @type {ComputedProperty<Array<String>>}
+   */
+  conflictNames: computed('filesArray.sourceArray.@each.index', function conflictNames() {
+    const namesCount = _.countBy(
+      this.get('filesArray.sourceArray').mapBy('index'),
+      name => name,
+    );
+    const test = Object.entries(namesCount)
+      .filter(([, count]) => count > 1)
+      .map(([name]) => name);
+    return test;
+  }),
+
   // NOTE: not using reads as a workaround to bug in Ember 2.18
   initialLoad: computed('filesArray.initialLoad', function initialLoad() {
     return this.get('filesArray.initialLoad');

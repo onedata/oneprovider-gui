@@ -169,7 +169,7 @@ export default Service.extend({
       index: 'hello',
     });
     setProperties(file1, {
-      name: 'hello@xyz200',
+      name: 'hello',
       index: 'hello',
     });
     return allFulfilled([file0.save(), file1.save()]);
@@ -222,30 +222,29 @@ export default Service.extend({
       url: 'https://example.com/1234',
       metadataString: '<test></test>',
     });
-    const share = store.createRecord('share', {
-      id: gri({
-        entityType: shareEntityType,
-        entityId: generateShareEntityId(get(space, 'entityId')),
-        aspect: 'instance',
-        scope: 'private',
-      }),
-      fileType: 'dir',
-      name: 'My Share',
-      rootFile,
-      privateRootFile: rootFile,
-      handle: null,
-      // handle,
+    const shares = ['private', 'public'].map(scope => {
+      const entityId = generateShareEntityId(get(space, 'entityId'));
+      const publicUrl = location.origin + '/shares/' + entityId;
+      return store.createRecord('share', {
+        id: gri({
+          entityType: shareEntityType,
+          entityId,
+          aspect: 'instance',
+          scope,
+        }),
+        fileType: 'dir',
+        name: 'My Share',
+        rootFile,
+        privateRootFile: rootFile,
+        publicUrl,
+        handle,
+      });
     });
-    set(
-      share,
-      'publicUrl',
-      location.origin + '/shares/' + get(share, 'entityId')
-    );
     return handle.save()
-      .then(() => share.save())
-      .then(share => allFulfilled([
-        addShareList(rootFile, [share], store),
-        addShareList(space, [share], store),
+      .then(() => allFulfilled(shares.map(share => share.save())))
+      .then(([privateShare]) => allFulfilled([
+        addShareList(rootFile, [privateShare], store),
+        addShareList(space, [privateShare], store),
       ]));
   },
 

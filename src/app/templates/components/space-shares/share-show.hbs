@@ -34,6 +34,7 @@
       <div class="col-value">
         {{clipboard-line
           class="clipboard-line-public-url"
+          size="sm"
           value=share.publicUrl
         }}
       </div>
@@ -43,27 +44,32 @@
         {{tt this "handle"}}
       </div>
       <div class="col-value">
-        {{#if share.handle}}
+        {{#if handle}}
           {{clipboard-line
             class="clipboard-line-public-url"
-            value=share.handle.url
+            size="sm"
+            value=handle.url
+          }}    
+          {{#bs-button
+            size="sm"
+            type="default"
+            onClick=(action "showMetadata") class="col-btn"
           }}
+            {{one-icon icon="browser-metadata"}}
+            <span class="text">{{tt this "showMetadata"}}</span>
+          {{/bs-button}}
         {{else}}
           {{#bs-button
-            type="primary"
+            type="default"
+            size="sm"
             onClick=(action "startPublish")
             class="publish-open-data-btn"
           }}
             {{one-icon icon="globe"}}
             <span class="text">{{tt this "publishOpenData"}}</span>
-          {{/bs-button}}          
+          {{/bs-button}}
         {{/if}}
       </div>
-      {{#if share.handle}}
-        {{#bs-button type="primary" onClick=(action "showMetadata") class="col-btn"}}
-          {{tt this "showMetadata"}}
-        {{/bs-button}}
-      {{/if}}
     </div>
   {{/if}}
 </div>
