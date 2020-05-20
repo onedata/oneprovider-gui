@@ -1,36 +1,28 @@
 .share-show {
-  &.with-header-single {
+  .file-browser-head-container {
+    padding-top: 0;
+  }
+  &.with-header-public {
     .share-header-panel {
       position: fixed;
-      height: $content-header-height-single;
+      height: $content-header-height-public;
     }
     .file-browser-head-container {
-      top: $content-header-height-single;
+      top: $content-header-height-public;      
     }
     .fb-table-container {
-      margin-top: $content-header-height-single + $fb-table-margin-top;
+      margin-top: $content-header-height-public + $fb-table-margin-top;
     }
   }
-  &.with-header-double {
+  &.with-header-private {
     .share-header-panel {
-      height: $content-header-height-double;
+      height: $content-header-height-private;
     }
     .file-browser-head-container {
-      top: $content-header-height-double;
+      top: $content-header-height-private;
     }
     .fb-table-container {
-      margin-top: $content-header-height-double + $fb-table-margin-top;
-    }
-  }
-  &.with-header-triple {
-    .share-header-panel {
-      height: $content-header-height-triple;
-    }
-    .file-browser-head-container {
-      top: $content-header-height-triple;
-    }
-    .fb-table-container {
-      margin-top: $content-header-height-triple + $fb-table-margin-top;
+      margin-top: $content-header-height-private + $fb-table-margin-top;
     }
   }
   .share-header-panel {
@@ -46,7 +38,6 @@
     background-color: $main-tabbed-content-background;
   }
   .share-header-row {
-    $col-btn-width: 160px;
     $col-menu-width: 30px;
     $key-width: 140px;
     position: relative;
@@ -63,7 +54,9 @@
       }
     }
     .col-value {
+      display: flex;
       padding-left: $key-width;
+      max-width: $screen-xs-max;
       @media (max-width: $screen-xs-max) {
         padding-left: 0;
       }
@@ -71,21 +64,21 @@
     + .share-header-row {
       margin-top: $padding-large-vertical;
     }
-    &.with-btn {
-      padding-right: $col-btn-width;
-    }
     &.with-menu {
       padding-right: $col-menu-width;
     }
-    .col-btn, .col-menu {
+    .col-menu {
       @include vertical-align-middle();
       right: 0;
+    }
+    .col-btn {
+      margin-left: $padding-base-horizontal;
     }
   }
   .share-header-public-url {
     position: relative;
   }
   .clipboard-line-public-url {
-    max-width: $screen-sm-min;
+    flex-grow: 1;
   }
 }

@@ -13,6 +13,7 @@ import spaceShares from './components/space-shares';
 import dbViewModal from './components/db-view-modal';
 import qosModal from './components/qos-modal';
 import contentEndpointError from './components/content-endpoint-error';
+import modalFileSubheader from './components/modal-file-subheader';
 
 import uploadManager from './services/upload-manager';
 
@@ -32,6 +33,7 @@ const translations = {
     dbViewModal,
     qosModal,
     contentEndpointError,
+    modalFileSubheader,
   },
   services: {
     uploadManager,

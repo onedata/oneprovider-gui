@@ -221,7 +221,10 @@ export default Component.extend(
       const originalValue = this.get(originalName);
       let savePromise;
       if (type === 'xattrs') {
-        savePromise = this.saveXattrs(originalValue, currentValue);
+        savePromise = this.saveXattrs(
+          originalValue,
+          currentValue === emptyValue ? {} : currentValue
+        );
       } else {
         if (currentValue === emptyValue) {
           savePromise = metadataManager.removeMetadata(file, type);

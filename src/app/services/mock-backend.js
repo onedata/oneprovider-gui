@@ -160,6 +160,21 @@ export default Service.extend({
     });
   },
 
+  makeFilesConflict() {
+    const files = this.get('entityRecords.file');
+    const file0 = files[0];
+    const file1 = files[1];
+    setProperties(file0, {
+      name: 'hello@abc100',
+      index: 'hello',
+    });
+    setProperties(file1, {
+      name: 'hello',
+      index: 'hello',
+    });
+    return allFulfilled([file0.save(), file1.save()]);
+  },
+
   createAndAddQos(store) {
     const entityRecords = this.get('entityRecords');
     const chainDir = get(entityRecords, 'chainDir')[2];
@@ -207,29 +222,29 @@ export default Service.extend({
       url: 'https://example.com/1234',
       metadataString: '<test></test>',
     });
-    const share = store.createRecord('share', {
-      id: gri({
-        entityType: shareEntityType,
-        entityId: generateShareEntityId(get(space, 'entityId')),
-        aspect: 'instance',
-        scope: 'private',
-      }),
-      fileType: 'dir',
-      name: 'My Share',
-      rootFile,
-      privateRootFile: rootFile,
-      handle,
+    const shares = ['private', 'public'].map(scope => {
+      const entityId = generateShareEntityId(get(space, 'entityId'));
+      const publicUrl = location.origin + '/shares/' + entityId;
+      return store.createRecord('share', {
+        id: gri({
+          entityType: shareEntityType,
+          entityId,
+          aspect: 'instance',
+          scope,
+        }),
+        fileType: 'dir',
+        name: 'My Share',
+        rootFile,
+        privateRootFile: rootFile,
+        publicUrl,
+        handle,
+      });
     });
-    set(
-      share,
-      'publicUrl',
-      location.origin + '/shares/' + get(share, 'entityId')
-    );
     return handle.save()
-      .then(() => share.save())
-      .then(share => allFulfilled([
-        addShareList(rootFile, [share], store),
-        addShareList(space, [share], store),
+      .then(() => allFulfilled(shares.map(share => share.save())))
+      .then(([privateShare]) => allFulfilled([
+        addShareList(rootFile, [privateShare], store),
+        addShareList(space, [privateShare], store),
       ]));
   },
 
@@ -251,6 +266,7 @@ export default Service.extend({
           hasDirectQos: i < 2,
           hasEffQos: i < 4,
           parent: null,
+          posixPermissions: '777',
           fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
           provider: this.get('entityRecords.provider.firstObject'),
         }).save()
@@ -405,6 +421,7 @@ export default Service.extend({
           index: name,
           type: 'dir',
           mtime: timestamp + i * 3600,
+          posixPermissions: '777',
           parent,
           owner,
           fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
@@ -429,6 +446,7 @@ export default Service.extend({
               index: name,
               type: 'dir',
               mtime: timestamp + i * 3600,
+              posixPermissions: '777',
               owner,
               fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
               provider: this.get('entityRecords.provider.firstObject'),
@@ -455,6 +473,7 @@ export default Service.extend({
           name,
           index: name,
           type: 'file',
+          posixPermissions: '777',
           hasMetadata: i < 5,
           hasEffQos: i > 3 && i < 8,
           hasDirectQos: i > 6 && i < 10,
@@ -468,7 +487,7 @@ export default Service.extend({
       })))
       .then((records) => {
         this.set('entityRecords.file', records);
-        return records;
+        return this.makeFilesConflict().then(() => records);
       });
   },
 

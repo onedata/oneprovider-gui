@@ -27,37 +27,49 @@
     </div>
   {{/if}}
   {{#if showSharePublicUrl}}
-    <div class="row share-header-row share-header-public-url {{if (and showPublishButton (not share.handle)) "with-btn"}}">
+    <div class="row share-header-row share-header-public-url">
       <div class="col-key">
         {{tt this "publicUrl"}}
       </div>
       <div class="col-value">
         {{clipboard-line
           class="clipboard-line-public-url"
+          size="sm"
           value=share.publicUrl
         }}
       </div>
-      {{#if (and showPublishButton (not share.handle))}}
-        {{#bs-button type="primary" onClick=(action "startPublish") class="col-btn"}}
-          {{tt this "publish"}}
-        {{/bs-button}}
-      {{/if}}
     </div>
-  {{/if}}
-  {{#if (and showHandleUrl share.handle)}}
     <div class="row share-header-row share-header-handle-url with-btn">
       <div class="col-key">
         {{tt this "handle"}}
       </div>
       <div class="col-value">
-        {{clipboard-line
-          class="clipboard-line-public-url"
-          value=share.handle.url
-        }}
+        {{#if handle}}
+          {{clipboard-line
+            class="clipboard-line-public-url"
+            size="sm"
+            value=handle.url
+          }}    
+          {{#bs-button
+            size="sm"
+            type="default"
+            onClick=(action "showMetadata") class="col-btn"
+          }}
+            {{one-icon icon="browser-metadata"}}
+            <span class="text">{{tt this "showMetadata"}}</span>
+          {{/bs-button}}
+        {{else}}
+          {{#bs-button
+            type="default"
+            size="sm"
+            onClick=(action "startPublish")
+            class="publish-open-data-btn"
+          }}
+            {{one-icon icon="globe"}}
+            <span class="text">{{tt this "publishOpenData"}}</span>
+          {{/bs-button}}
+        {{/if}}
       </div>
-      {{#bs-button type="primary" onClick=(action "showMetadata") class="col-btn"}}
-        {{tt this "showMetadata"}}
-      {{/bs-button}}
     </div>
   {{/if}}
 </div>
@@ -145,14 +157,5 @@
     file=fileToShowMetadata
     previewMode=true
     onHide=(action "closeMetadataModal")
-  }}
-{{/if}}
-
-{{#if filesToEditPermissions}}
-  {{edit-permissions-modal
-    files=filesToEditPermissions
-    space=spaceProxy.content
-    previewMode=true
-    onClose=(action "closeEditPermissionsModal")
   }}
 {{/if}}

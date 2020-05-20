@@ -55,14 +55,6 @@ const anySelected = [
   actionContext.multiMixed,
 ];
 
-const anySelectedPreview = [
-  actionContext.singleDirPreview,
-  actionContext.singleFilePreview,
-  actionContext.multiDirPreview,
-  actionContext.multiFilePreview,
-  actionContext.multiMixedPreview,
-];
-
 const buttonNames = [
   'btnUpload',
   'btnNewDirectory',
@@ -405,8 +397,11 @@ export default Component.extend(I18n, {
       },
       showIn: [
         actionContext.inDir,
+        actionContext.inDirPreview,
         actionContext.currentDir,
+        actionContext.currentDirPreview,
         actionContext.spaceRootDir,
+        actionContext.spaceRootDirPreview,
       ],
     });
   }),
@@ -437,10 +432,6 @@ export default Component.extend(I18n, {
         actionContext.singleFile,
         actionContext.currentDir,
         actionContext.spaceRootDir,
-        actionContext.singleDirPreview,
-        actionContext.singleFilePreview,
-        actionContext.currentDirPreview,
-        actionContext.spaceRootDirPreview,
       ],
     });
   }),
@@ -490,9 +481,7 @@ export default Component.extend(I18n, {
       },
       showIn: [
         ...anySelected,
-        ...anySelectedPreview,
         actionContext.currentDir,
-        actionContext.currentDirPreview,
       ],
     });
   }),

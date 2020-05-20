@@ -9,9 +9,8 @@ $file-browser-padding-right: 16px;
 $fb-table-margin-top: 50px;
 $fb-table-margin-top-mobile: 36px;
 $zindex-file-browser-head: $zindex-modal-background - 10;
-$content-header-height-single: 82px;
-$content-header-height-double: 132px;
-$content-header-height-triple: 202px;
+$content-header-height-public: 118px;
+$content-header-height-private: 160px;
 
 @import 'utils';
 @import 'layout';
@@ -30,3 +29,4 @@ $content-header-height-triple: 202px;
 @import 'components/query-options';
 @import 'components/qos-modal';
 @import 'components/qos-expression-viewer';
+@import 'components/modal-file-subheader';

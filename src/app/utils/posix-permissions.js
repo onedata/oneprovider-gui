@@ -67,6 +67,7 @@ export default EmberObject.extend({
     user.fromOctalRepresentation(octal[0]);
     group.fromOctalRepresentation(octal[1]);
     other.fromOctalRepresentation(octal[2]);
+    return this;
   },
 });
 
@@ -74,7 +75,7 @@ export default EmberObject.extend({
  * Represents permissions for one entity (user, group or other). Is used
  * internally by PosixPermissions class.
  */
-const EntityPermissions = EmberObject.extend({
+export const EntityPermissions = EmberObject.extend({
   /**
    * @virtual
    * @type {boolean}
@@ -140,5 +141,6 @@ const EntityPermissions = EmberObject.extend({
       write: Boolean(octalNumber & 2),
       execute: Boolean(octalNumber & 1),
     });
+    return this;
   },
 });

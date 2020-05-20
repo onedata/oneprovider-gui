@@ -141,6 +141,20 @@ export default Component.extend(I18n, {
 
   selectionCount: reads('selectedFiles.length'),
 
+  /**
+   * @type {ComputedProperty<Array<String>>}
+   */
+  conflictNames: computed('filesArray.sourceArray.@each.index', function conflictNames() {
+    const namesCount = _.countBy(
+      this.get('filesArray.sourceArray').mapBy('index'),
+      name => name,
+    );
+    const test = Object.entries(namesCount)
+      .filter(([, count]) => count > 1)
+      .map(([name]) => name);
+    return test;
+  }),
+
   // NOTE: not using reads as a workaround to bug in Ember 2.18
   initialLoad: computed('filesArray.initialLoad', function initialLoad() {
     return this.get('filesArray.initialLoad');
@@ -281,22 +295,28 @@ export default Component.extend(I18n, {
   }),
 
   contextMenuButtons: computed(
+    'allButtonsArray',
     'selectionContext',
     'selectionCount',
+    'previewMode',
     function contextMenuButtons() {
       const {
         allButtonsArray,
         selectionContext,
         selectionCount,
+        previewMode,
       } = this.getProperties(
         'allButtonsArray',
         'selectionContext',
-        'selectionCount'
+        'selectionCount',
+        'previewMode'
       );
-      return [
-        { separator: true, title: this.t('menuSelection', { selectionCount }) },
-        ...getButtonActions(allButtonsArray, selectionContext),
-      ];
+      const menuItems = previewMode ? [] : [{
+        separator: true,
+        title: this.t(
+          'menuSelection', { selectionCount }),
+      }];
+      return menuItems.concat(getButtonActions(allButtonsArray, selectionContext));
     }
   ),
 
@@ -492,34 +512,44 @@ export default Component.extend(I18n, {
       return;
     }
 
-    /** @type {Array<object>} */
-    const selectedFiles = this.get('selectedFiles');
+    const {
+      selectedFiles,
+      previewMode,
+    } = this.getProperties('selectedFiles', 'previewMode');
     const selectedCount = get(selectedFiles, 'length');
     const fileIsSelected = selectedFiles.includes(file);
     const otherFilesSelected = selectedCount > (fileIsSelected ? 1 : 0);
-    if (otherFilesSelected) {
-      if (fileIsSelected) {
-        if (ctrlKey) {
-          this.selectRemoveSingleFile(file);
-        } else {
-          this.selectOnlySingleFile(file);
-        }
-      } else {
-        if (ctrlKey) {
-          this.selectAddSingleFile(file);
-        } else {
-          if (shiftKey) {
-            this.selectRangeToFile(file);
-          } else {
-            this.selectOnlySingleFile(file);
-          }
-        }
-      }
-    } else {
+    if (previewMode) {
       if (fileIsSelected) {
         this.selectRemoveSingleFile(file);
       } else {
-        this.selectAddSingleFile(file);
+        this.selectOnlySingleFile(file);
+      }
+    } else {
+      if (otherFilesSelected) {
+        if (fileIsSelected) {
+          if (ctrlKey) {
+            this.selectRemoveSingleFile(file);
+          } else {
+            this.selectOnlySingleFile(file);
+          }
+        } else {
+          if (ctrlKey) {
+            this.selectAddSingleFile(file);
+          } else {
+            if (shiftKey) {
+              this.selectRangeToFile(file);
+            } else {
+              this.selectOnlySingleFile(file);
+            }
+          }
+        }
+      } else {
+        if (fileIsSelected) {
+          this.selectRemoveSingleFile(file);
+        } else {
+          this.selectAddSingleFile(file);
+        }
       }
     }
   },
@@ -580,13 +610,12 @@ export default Component.extend(I18n, {
 
   selectAddSingleFile(file) {
     this.addToSelectedFiles([file]);
-    if (get(file, 'type') !== 'broken') {
-      this.set('lastSelectedFile', file);
-    }
+    this.set('lastSelectedFile', file);
   },
 
   selectOnlySingleFile(file) {
     this.get('changeSelectedFiles')([file]);
+    this.set('lastSelectedFile', file);
   },
 
   /**

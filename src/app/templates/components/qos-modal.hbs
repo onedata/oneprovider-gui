@@ -72,15 +72,7 @@
         {{/if}}
       {{/if}}
     </h1>
-    <h2 class="filename normal-case">
-      {{#if multipleFiles}}
-        {{files.length}} {{tt this "selectedItems"}}
-      {{else}}
-        {{#truncated-string}}
-          {{file.name}}
-        {{/truncated-string}}
-      {{/if}}
-    </h2>
+    {{modal-file-subheader files=files multiTextPrefix=(if isAddMode (tt this "for"))}}
   {{/modal.header}}
   
   {{#modal.body}}

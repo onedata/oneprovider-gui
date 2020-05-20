@@ -18,6 +18,8 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
+import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -37,6 +39,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   errorExtractor: service(),
   media: service(),
   visualLogger: service(),
+  currentUser: service(),
 
   /**
    * @override
@@ -59,6 +62,12 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {Function}
    */
   openContextMenu: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  invokeFileAction: notImplementedThrow,
 
   /**
    * @virtual
@@ -103,6 +112,19 @@ export default Component.extend(I18n, FastDoubleClick, {
   fastDoubleClick: notImplementedWarn,
 
   /**
+   * @virtual
+   * @type {Boolean}
+   */
+  previewMode: undefined,
+
+  /**
+   * @virtual
+   * Should be set to true, if other file on list have the same name
+   * @type {Boolean}
+   */
+  nameConflict: false,
+
+  /**
    * Time in ms when the touch should be treated as a hold
    * @type {number}
    */
@@ -129,20 +151,13 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   isInvalidated: not('file.type'),
 
-  fileNameBase: reads('file.index'),
-
-  fileNameSuffix: computed('file.{name,index}', function fileNameSuffix() {
-    const file = this.get('file');
-    const {
-      name,
-      index,
-    } = getProperties(file, 'name', 'index');
-    if (name === index) {
-      return null;
-    } else {
-      return name.split(index)[1];
-    }
+  fileNameParser: computed('file', function fileNameParser() {
+    return FileNameParser.create({ file: this.get('file') });
   }),
+
+  fileNameBase: reads('fileNameParser.base'),
+
+  fileNameSuffix: reads('fileNameParser.suffix'),
 
   enableContextMenuToggle: computed(
     'fileActionsOpen',
@@ -162,9 +177,16 @@ export default Component.extend(I18n, FastDoubleClick, {
     return `fb-table-row-${this.get('type')}`;
   }),
 
+  typeText: computed('type', function typeText() {
+    const type = this.get('type');
+    if (type) {
+      return this.t('fileType.' + type);
+    }
+  }),
+
   type: computed('file.type', function type() {
     const fileType = this.get('file.type');
-    if (fileType === 'dir' || fileType === 'file' || fileType === 'broken') {
+    if (fileType === 'dir' || fileType === 'file') {
       return fileType;
     }
   }),
@@ -275,6 +297,38 @@ export default Component.extend(I18n, FastDoubleClick, {
       return this.get('errorExtractor').getMessage(fileError);
     }
   }),
+
+  isForbidden: computed(
+    'previewMode',
+    'file.{type,owner.entityId,posixPermissions}',
+    function isForbidden() {
+      const {
+        file,
+        previewMode,
+      } = this.getProperties('file', 'previewMode');
+      const posixPermissions = get(file, 'posixPermissions');
+      if (!posixPermissions) {
+        return undefined;
+      }
+      let octalNumber;
+      if (previewMode) {
+        octalNumber = 2;
+      } else {
+        if (get(file, 'owner.entityId') === this.get('currentUser.userId')) {
+          octalNumber = 0;
+        } else {
+          octalNumber = 1;
+        }
+      }
+      const entityPermissions = EntityPermissions.create()
+        .fromOctalRepresentation(get(file, 'posixPermissions')[octalNumber]);
+      if (get(file, 'type') === 'file') {
+        return !get(entityPermissions, 'read');
+      } else {
+        return !get(entityPermissions, 'read') || !get(entityPermissions, 'execute');
+      }
+    }
+  ),
 
   isShared: reads('file.isShared'),
 

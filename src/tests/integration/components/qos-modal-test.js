@@ -41,6 +41,7 @@ describe('Integration | Component | qos modal', function () {
       entityType: 'file',
       entityId: 'f1',
       name: filename,
+      index: filename,
       type: 'file',
       hasParent: true,
       parent: resolve(null),

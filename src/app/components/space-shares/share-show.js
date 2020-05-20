@@ -9,11 +9,21 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
+import { reads } from '@ember/object/computed';
 import EmberObject, { computed, get } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import { promise, bool, raw, tag, collect } from 'ember-awesome-macros';
+import {
+  promise,
+  bool,
+  raw,
+  tag,
+  collect,
+  conditional,
+  and,
+  not,
+} from 'ember-awesome-macros';
 import { Promise, resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
@@ -111,8 +121,6 @@ export default Component.extend(I18n, {
    */
   showSharePublicUrl: true,
 
-  showHandleUrl: true,
-
   showPublishButton: true,
 
   publishModalOpened: false,
@@ -126,6 +134,11 @@ export default Component.extend(I18n, {
   selectedFiles: Object.freeze([]),
 
   isInShareRoot: bool('dirProxy.content.isShareRoot'),
+
+  /**
+   * @type {ComputedProperty<Models.Share>}
+   */
+  handle: reads('share.handle'),
 
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
     const {
@@ -151,7 +164,22 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<object>}
    */
-  menuActions: collect('btnRename', 'btnRemove'),
+  menuActions: conditional(
+    and('showPublishButton', not('share.hasHandle')),
+    collect('btnRename', 'btnPublishOpenData', 'btnRemove'),
+    collect('btnRename', 'btnRemove'),
+  ),
+
+  btnPublishOpenData: computed(function btnPublishOpenData() {
+    return {
+      title: this.t('publishOpenData'),
+      icon: 'globe',
+      action: () => {
+        this.set('publishModalOpened', true);
+      },
+      class: 'btn-publish-open-data',
+    };
+  }),
 
   btnRemove: computed(function btnRemove() {
     return {
@@ -177,37 +205,9 @@ export default Component.extend(I18n, {
 
   withHeaderClass: computed(
     'showSharePath',
-    'showSharePublicUrl',
-    'showHandleUrl',
-    'share.handle',
     function withHeaderClass() {
-      const {
-        showSharePath,
-        showSharePublicUrl,
-        showHandleUrl,
-        share,
-      } = this.getProperties(
-        'showSharePath',
-        'showSharePublicUrl',
-        'showHandleUrl',
-        'share',
-      );
-      const isPublished = Boolean(share.belongsTo('handle').id());
-      const rowsCount = (showSharePath ? 1 : 0) + (showSharePublicUrl ? 1 : 0) +
-        ((showHandleUrl && isPublished) ? 1 : 0);
-      const classPrefix = 'with-header-';
-      switch (rowsCount) {
-        case 0:
-          return classPrefix + 'hidden';
-        case 1:
-          return classPrefix + 'single';
-        case 2:
-          return classPrefix + 'double';
-        case 3:
-          return classPrefix + 'triple';
-        default:
-          break;
-      }
+      const showSharePath = this.get('showSharePath');
+      return `with-header-${showSharePath ? 'private' : 'public'}`;
     }
   ),
 

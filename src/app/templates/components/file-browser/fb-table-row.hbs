@@ -32,14 +32,39 @@
                 {{tt this "status.shared"}}
               </div>
             {{/if}}
+            {{#if isForbidden}}
+              <div class="file-status-tag file-status-tag-danger file-status-forbidden">
+                {{tt this "status.forbidden"}}
+                {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
+              </div>
+            {{/if}}
+            {{#if nameConflict}}
+              <div class="file-status-tag file-status-tag-danger file-status-conflict">
+                {{tt this "status.conflict"}}
+                {{one-tooltip title=(tt this "otherFileSameName")}}
+              </div>
+            {{/if}}
             {{#if hasMetadata}}
               <div class="file-status-tag file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
                 {{tt this "status.metadata"}}
               </div>
             {{/if}}
             {{#if hasAcl}}
-              <div class="file-status-tag file-status-acl" {{action (action "invokeFileAction" file "btnPermissions") bubbles=false}}>
+              <div
+                class={{concat-classes
+                  "file-status-tag file-status-acl"
+                  (if previewMode "file-status-tag-warning")
+                }}
+                {{action
+                  
+                  (action "invokeFileAction" file "btnPermissions")
+                  bubbles=false
+                }}
+              >
                 {{tt this "status.acl"}}
+                {{#if previewMode}}
+                  {{one-tooltip title=(tt this "hintAclPreview" fileType=typeText)}}
+                {{/if}}
               </div>
             {{/if}}
             {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
