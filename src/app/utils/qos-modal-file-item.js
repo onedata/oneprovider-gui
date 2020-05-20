@@ -13,13 +13,13 @@ import { resolve, all as allFulfilled } from 'rsvp';
 import QosItem from 'oneprovider-gui/utils/qos-item';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
-const FileItemBase = EmberObject.extend(
+const objectMixins = [
   createDataProxyMixin('fileQosSummary'),
   createDataProxyMixin('qosRecords'),
   createDataProxyMixin('qosItems'),
-);
+];
 
-export default FileItemBase.extend({
+export default EmberObject.extend(...objectMixins, {
   /**
    * @virtual
    * @type {Service}
@@ -81,35 +81,26 @@ export default FileItemBase.extend({
   },
 
   fileQosStatus: computed(
-    'qosItemsProxy.{content}',
-    'fileQosSummaryProxy.{content}',
+    'qosItemsProxy.{content,isSettled}',
+    'fileQosSummaryProxy.{content,isSettled}',
     function fileQosStatus() {
-      const qosItemsProxy = this.get('qosItemsProxy');
-      if (get(qosItemsProxy, 'isSettled')) {
-        if (get(qosItemsProxy, 'isFulfilled')) {
-          if (get(qosItemsProxy, 'length') === 0) {
-            return 'empty';
-          } else {
-            const fileQosSummaryProxy = this.get('fileQosSummaryProxy');
-            if (get(fileQosSummaryProxy, 'isSettled')) {
-              if (get(fileQosSummaryProxy, 'isFulfilled')) {
-                if (get(fileQosSummaryProxy, 'content.fulfilled')) {
-                  return 'fulfilled';
-                } else {
-                  return 'pending';
-                }
-              } else {
-                return 'error';
-              }
-            } else {
-              return 'loading';
-            }
-          }
-        } else {
-          return 'error';
-        }
-      } else {
+      const {
+        qosItemsProxy,
+        fileQosSummaryProxy,
+      } = this.getProperties('qosItemsProxy', 'fileQosSummaryProxy');
+
+      if (get(qosItemsProxy, 'isPending')) {
         return 'loading';
+      } else if (get(qosItemsProxy, 'isRejected')) {
+        return 'error';
+      } else if (get(qosItemsProxy, 'length') === 0) {
+        return 'empty';
+      } else if (get(fileQosSummaryProxy, 'isPending')) {
+        return 'loading';
+      } else if (get(fileQosSummaryProxy, 'isRejected')) {
+        return 'error';
+      } else {
+        return get(fileQosSummaryProxy, 'content.fulfilled') ? 'fulfilled' : 'pending';
       }
     }
   ),

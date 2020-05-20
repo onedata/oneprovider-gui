@@ -20,17 +20,18 @@ import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
 
+export const qosStatusIcons = {
+  error: 'checkbox-filled-warning',
+  empty: 'circle-not-available',
+  fulfilled: 'checkbox-filled',
+  pending: 'checkbox-pending',
+};
+
 export default Component.extend(I18n, {
   qosManager: service(),
   globalNotify: service(),
   store: service(),
   i18n: service(),
-
-  /**
-   * If modal is opened - interval in ms to auto update data
-   * @type {Number}
-   */
-  updateInterval: conditional('open', raw(5000), null),
 
   /**
    * @override
@@ -50,21 +51,11 @@ export default Component.extend(I18n, {
    */
   files: undefined,
 
-  fileItems: computed('files.[]', function fileItems() {
-    const store = this.get('store');
-    const filesSorted = [...this.get('files')].sortBy('name');
-    return filesSorted.map(file => {
-      return QosModalFileItem.create({
-        store,
-        file,
-      });
-    });
-  }),
-
-  fileTypeText: computed('multipleFiles', 'file.type', function fileTypeText() {
-    const key = this.get('multipleFiles') ? 'multi' : this.get('file.type');
-    return this.t('fileType.' + key);
-  }),
+  /**
+   * If modal is opened - interval in ms to auto update data
+   * @type {Number}
+   */
+  updateInterval: conditional('open', raw(5000), null),
 
   /**
    * @virtual
@@ -77,34 +68,6 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   getDataUrl: notImplementedReject,
-
-  init() {
-    this._super(...arguments);
-    this.initUpdater();
-  },
-
-  initUpdater() {
-    const updater = Looper.create({
-      immediate: true,
-    });
-    updater.on('tick', () => {
-      this.updateData(true);
-    });
-    this.set('updater', updater);
-    this.configureUpdater();
-  },
-
-  updateData(replace) {
-    return allFulfilled(this.get('fileItems').map(fileItem => {
-      return fileItem.updateQosRecordsProxy({ replace, fetchArgs: [replace] })
-        .then(() => fileItem.updateQosItemsProxy({ replace }))
-        // file reload needed for hasQos change
-        .then(() => get(fileItem, 'file').reload())
-        .catch(() => {
-          safeExec(this, 'set', 'updater.interval', null);
-        });
-    }));
-  },
 
   /**
    * Initialized in init
@@ -119,7 +82,8 @@ export default Component.extend(I18n, {
   mode: 'show',
 
   /**
-   * @type {Object}
+   * Object containing data required to create neq Models.QosRequirement
+   * @type { { replicasNumber: Number, expressionInfix: Array<String> } }
    */
   newEntryData: undefined,
 
@@ -149,6 +113,22 @@ export default Component.extend(I18n, {
    */
   filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
 
+  fileItems: computed('files.[]', function fileItems() {
+    const store = this.get('store');
+    const filesSorted = [...this.get('files')].sortBy('name');
+    return filesSorted.map(file => {
+      return QosModalFileItem.create({
+        store,
+        file,
+      });
+    });
+  }),
+
+  fileTypeText: computed('multipleFiles', 'file.type', function fileTypeText() {
+    const key = this.get('multipleFiles') ? 'multi' : this.get('file.type');
+    return this.t('fileType.' + key);
+  }),
+
   allQosStatus: computed('filesStatus.[]', function allQosStatus() {
     const filesStatus = this.get('filesStatus');
     for (const status of ['error', 'loading', 'pending', 'fulfilled']) {
@@ -156,34 +136,18 @@ export default Component.extend(I18n, {
         return status;
       }
     }
-    return 'uknown';
+    return 'unknown';
   }),
 
   allQosStatusIcon: computed('allQosStatus', function allQosStatusIcon() {
-    switch (this.get('allQosStatus')) {
-      case 'error':
-        return 'checkbox-filled-warning';
-      case 'empty':
-        return 'circle-not-available';
-      case 'fulfilled':
-        return 'checkbox-filled';
-      case 'pending':
-        return 'checkbox-pending';
-      default:
-        break;
-    }
+    return qosStatusIcons[this.get('allQosStatus')];
   }),
 
   configureUpdater: observer(
-    'open',
     'updater',
     'updateInterval',
     function configureUpdater() {
-      const {
-        open,
-        updateInterval,
-      } = this.getProperties('open', 'updateInterval');
-      this.set('updater.interval', open ? updateInterval : null);
+      this.set('updater.interval', this.get('updateInterval'));
     }
   ),
 
@@ -196,6 +160,11 @@ export default Component.extend(I18n, {
       }
     }),
 
+  init() {
+    this._super(...arguments);
+    this.initUpdater();
+  },
+
   willDestroyElement() {
     try {
       const updater = this.get('updater');
@@ -205,6 +174,29 @@ export default Component.extend(I18n, {
     } finally {
       this._super(...arguments);
     }
+  },
+
+  initUpdater() {
+    const updater = Looper.create({
+      immediate: true,
+    });
+    updater.on('tick', () => {
+      this.updateData(true);
+    });
+    this.set('updater', updater);
+    this.configureUpdater();
+  },
+
+  updateData(replace) {
+    return allFulfilled(this.get('fileItems').map(fileItem => {
+      return fileItem.updateQosRecordsProxy({ replace, fetchArgs: [replace] })
+        .then(() => fileItem.updateQosItemsProxy({ replace }))
+        // file reload needed for hasQos change
+        .then(() => get(fileItem, 'file').reload())
+        .catch(() => {
+          safeExec(this, 'set', 'updater.interval', null);
+        });
+    }));
   },
 
   addEntry({ replicasNumber, expressionInfix }) {
@@ -228,7 +220,7 @@ export default Component.extend(I18n, {
       })
       .then(() => {
         const updating = this.updateData();
-        this.set('mode', 'show');
+        safeExec(this, 'set', 'mode', 'show');
         return updating;
       });
   },
