@@ -1,1 +1,12 @@
-{{qos-expression-viewer expressionRpn=expressionRpn}}
+<div class="container dummy-container">
+  <div class="row content-row">
+    {{#clipboard-line
+      type="html"
+      size=(if smallContent "sm")
+      rawValue=rawExpressionInfix
+      class="monospace-font clipboard-line-expression"
+    }}
+      {{qos-expression-viewer expressionRpn=expressionRpnSimple}}
+    {{/clipboard-line}}
+  </div>
+</div>

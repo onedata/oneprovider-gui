@@ -10,7 +10,7 @@
 
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { getBy, equal } from 'ember-awesome-macros';
+import { getBy, equal, not } from 'ember-awesome-macros';
 
 export default EmberObject.extend({
   /**
@@ -20,7 +20,7 @@ export default EmberObject.extend({
   modalFileId: undefined,
 
   /**
-   * @type {Models.Qos}
+   * @type {Models.QosRequirement}
    */
   qos: undefined,
 
@@ -31,9 +31,9 @@ export default EmberObject.extend({
   qosSourceFile: undefined,
 
   /**
-   * @type {Models.FileQos}
+   * @type {Models.FileQosSummary}
    */
-  fileQos: undefined,
+  fileQosSummary: undefined,
 
   entityId: reads('qos.entityId'),
   fulfilled: reads('qos.fulfilled'),
@@ -47,8 +47,13 @@ export default EmberObject.extend({
   direct: equal('modalFileId', 'qosSourceFile.entityId'),
 
   /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  inherited: not('direct'),
+
+  /**
    * True if this QoS fulfills for file for which modal is opened
    * @type {ComputedProperty}
    */
-  fulfilledForFile: getBy('fileQos.entries', 'qos.entityId'),
+  fulfilledForFile: getBy('fileQosSummary.entries', 'qos.entityId'),
 });

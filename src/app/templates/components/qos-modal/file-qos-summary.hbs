@@ -1,0 +1,20 @@
+{{#promise-proxy-container proxy=qosItemsProxy}}
+  {{#if (gt qosItemsProxy.length 0)}}
+    <div class="one-collapsible-list qos-list hide-final-border">
+      {{#each sortedQosItems key="entityId" as |qosItem|}}
+        {{qos-modal/qos-entry
+          qosItem=qosItem
+          removeQosRequirement=(action "removeQosRequirement" qosItem.qos)
+          getDataUrl=(action "getDataUrl")
+          closeModal=(action "closeModal")
+        }}
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="no-qos-requirements">
+      <div class="no-qos-requirements-message">
+        {{tt this "noRequirements" fileType=(tt this (concat "fileType." file.type))}}
+      </div>
+    </div>
+  {{/if}}
+{{/promise-proxy-container}}

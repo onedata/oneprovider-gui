@@ -254,11 +254,11 @@ export default OneEmbeddedComponent.extend(
       closeFileDistributionModal() {
         this.set('filesToShowDistribution', null);
       },
-      openQosModal(file) {
-        this.set('fileToShowQos', file);
+      openQosModal(files) {
+        this.set('filesToShowQos', files);
       },
       closeQosModal() {
-        this.set('fileToShowQos', null);
+        this.set('filesToShowQos', null);
       },
       changeSelectedFiles(selectedFiles) {
         this.set('selectedFiles', Object.freeze(selectedFiles));

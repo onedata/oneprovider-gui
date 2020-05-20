@@ -1,0 +1,20 @@
+.file-qos-summary {
+  &.loadable-row {
+    min-height: 90px;
+  }
+  .no-qos-requirements {
+    background-image: url($root-url + "/images/no-qos.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    height: 150px;
+    margin-bottom: 70px;
+    margin-top: 36px;
+    .no-qos-requirements-message {
+      text-align: center;
+      top: 170px;
+      position: absolute;
+      width: 100%;
+    }
+  }
+}

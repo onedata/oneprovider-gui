@@ -1,5 +1,5 @@
 /**
- * Virtual QoS entry for creating new QoS record
+ * Form for creating new QoS record
  * 
  * @module components/qos-modal/qos-add
  * @author Jakub Liput
@@ -101,11 +101,6 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    disableEnterKey(keyEvent) {
-      if (keyEvent.key === 'Enter') {
-        keyEvent.preventDefault();
-      }
-    },
     replicasNumberChanged(value) {
       this.set('replicasNumberString', value);
       this.notifyUpdate();

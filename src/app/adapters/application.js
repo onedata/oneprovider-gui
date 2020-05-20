@@ -5,7 +5,7 @@ import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 import { entityType as handleEntityType } from 'oneprovider-gui/models/handle';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
-import { entityType as qosEntityType } from 'oneprovider-gui/models/qos';
+import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 
 export const entityTypeToModelNameMap = Object.freeze(new Map([
   [groupEntityType, 'group'],
@@ -14,7 +14,7 @@ export const entityTypeToModelNameMap = Object.freeze(new Map([
   [userEntityType, 'user'],
   [handleEntityType, 'handle'],
   [shareEntityType, 'share'],
-  [qosEntityType, 'qos'],
+  [qosEntityType, 'qos-requirement'],
 ]));
 
 export default OnedataAdapter.extend({

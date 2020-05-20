@@ -9,7 +9,7 @@
 
 import Service, { inject as service } from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-import { entityType as qosEntityType } from 'oneprovider-gui/models/qos';
+import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { get } from '@ember/object';
 
 export function getGri(entityId, scope) {
@@ -26,15 +26,15 @@ export default Service.extend({
   onedataGraph: service(),
 
   getRecord(qosGri) {
-    return this.get('store').findRecord('qos', qosGri);
+    return this.get('store').findRecord('qosRequirement', qosGri);
   },
 
   getRecordById(entityId, scope = 'private') {
     return this.getRecord(getGri(entityId, scope));
   },
 
-  createQos(file, expression, replicasNum) {
-    return this.get('store').createRecord('qos', {
+  createQosRequirement(file, expression, replicasNum) {
+    return this.get('store').createRecord('qosRequirement', {
       replicasNum,
       _meta: {
         additionalData: {
@@ -45,7 +45,7 @@ export default Service.extend({
     }).save();
   },
 
-  removeQos(qos) {
-    return qos.destroyRecord();
+  removeQosRequirement(qosRequirement) {
+    return qosRequirement.destroyRecord();
   },
 });

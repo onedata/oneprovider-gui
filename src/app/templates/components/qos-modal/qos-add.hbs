@@ -13,7 +13,7 @@
                 class="form-control replicas-number-input"
                 value={{replicasNumberString}}
                 oninput={{action "replicasNumberChanged" value="target.value"}}
-                onkeydown={{invoke-on-enter (action "disableEnterKey")}}
+                onkeydown={{ignore-enter}}
                 disabled={{disabled}}
                 autofocus=true
               >

@@ -89,10 +89,10 @@
     }}
   {{/if}}
   
-  {{#if fileToShowQos}}
+  {{#if filesToShowQos}}
     {{qos-modal
       open=true
-      file=fileToShowQos
+      files=filesToShowQos
       onHide=(action "closeQosModal")
       getDataUrl=(action "getDataUrl")
     }}

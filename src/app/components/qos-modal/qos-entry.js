@@ -1,5 +1,5 @@
 /**
- * Show information about single QoS record
+ * Show information about single QoS requirement
  * 
  * @module components/qos-modal/qos-entry
  * @author Jakub Liput
@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { conditional, raw, promise } from 'ember-awesome-macros';
+import { conditional, raw, promise, tag } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -22,18 +22,12 @@ import { next, later, cancel } from '@ember/runloop';
 import $ from 'jquery';
 
 export default Component.extend(I18n, {
-  tagName: '',
+  classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],
 
   /**
    * @override
    */
   i18nPrefix: 'components.qosModal.qosEntry',
-
-  /**
-   * @virtual
-   * @type {Component}
-   */
-  collapsibleList: undefined,
 
   /**
    * @virtual
@@ -45,7 +39,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  removeQos: notImplementedReject,
+  removeQosRequirement: notImplementedReject,
 
   /**
    * @virtual
@@ -62,6 +56,18 @@ export default Component.extend(I18n, {
   copyAnimationEndTimer: undefined,
 
   navigateDataTarget: '_top',
+
+  /**
+   * Info trigger element id
+   * @type {ComputedProperty<String>}
+   */
+  idInfoTriggerId: tag `${'elementId'}-id-presenter-trigger`,
+
+  /**
+   * Remove trigger element id
+   * @type {ComputedProperty<String>}
+   */
+  removeTriggerId: tag `${'elementId'}-remove-trigger`,
 
   componentGuid: computed(function guid() {
     return guidFor(this);
@@ -88,6 +94,11 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<boolean>}
    */
   direct: reads('qosItem.direct'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  inherited: reads('qosItem.inherited'),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -133,17 +144,12 @@ export default Component.extend(I18n, {
   ),
 
   actions: {
-    disableEnterKey(keyEvent) {
-      if (keyEvent.key === 'Enter') {
-        keyEvent.preventDefault();
-      }
-    },
     confirmRemove() {
       const {
         qosItem,
-        removeQos,
-      } = this.getProperties('qosItem', 'removeQos');
-      return removeQos(get(qosItem, 'qos'));
+        removeQosRequirement,
+      } = this.getProperties('qosItem', 'removeQosRequirement');
+      return removeQosRequirement(get(qosItem, 'qos'));
     },
     fileLinkClicked(event) {
       this.get('closeModal')();
