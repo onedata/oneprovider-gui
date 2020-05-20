@@ -14,6 +14,7 @@ describe('Integration | Component | file browser/fb table row', function () {
     const dateReadable = /18 May 2022 \d+:50/;
     const file = {
       modificationTime: date,
+      posixPermissions: '777',
       type: 'file',
     };
     this.set('file', file);

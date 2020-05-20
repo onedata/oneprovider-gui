@@ -306,6 +306,10 @@ export default Component.extend(I18n, FastDoubleClick, {
         file,
         previewMode,
       } = this.getProperties('file', 'previewMode');
+      const posixPermissions = get(file, 'posixPermissions');
+      if (!posixPermissions) {
+        return undefined;
+      }
       let octalNumber;
       if (previewMode) {
         octalNumber = 2;

@@ -16,8 +16,8 @@ export default Component.extend({
 
   files: collect(
     'mockBackend.entityRecords.chainDir.2',
-    // 'mockBackend.entityRecords.chainDir.3',
-    // 'mockBackend.entityRecords.chainDir.4',
+    'mockBackend.entityRecords.chainDir.3',
+    'mockBackend.entityRecords.chainDir.4',
   ),
 
   open: true,
