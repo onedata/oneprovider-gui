@@ -13,6 +13,7 @@ import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
 
 export default Component.extend(I18n, {
   classNames: ['qos-modal-file-entry'],
@@ -27,6 +28,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Utils.QosModalFileItem}
    */
   fileItem: undefined,
 
@@ -58,18 +60,7 @@ export default Component.extend(I18n, {
   fileQosStatus: reads('fileItem.fileQosStatus'),
 
   fileQosStatusIcon: computed('fileQosStatus', function fileQosStatusIcon() {
-    switch (this.get('fileQosStatus')) {
-      case 'error':
-        return 'checkbox-filled-warning';
-      case 'empty':
-        return 'circle-not-available';
-      case 'fulfilled':
-        return 'checkbox-filled';
-      case 'pending':
-        return 'checkbox-pending';
-      default:
-        break;
-    }
+    return qosStatusIcons[this.get('fileQosStatus')];
   }),
 
   actions: {

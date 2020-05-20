@@ -13,11 +13,11 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { array } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-const FileQosSummaryBase = Component.extend(
+const objectMixins = [
   I18n,
-);
+];
 
-export default FileQosSummaryBase.extend({
+export default Component.extend(...objectMixins, {
   classNames: ['file-qos-summary', 'loadable-row'],
 
   i18nPrefix: 'components.qosModal.fileQosSummary',
@@ -34,7 +34,7 @@ export default FileQosSummaryBase.extend({
 
   qosItemsProxy: undefined,
 
-  sortedQosItems: array.sort('qosItemsProxy.content', ['direct:desc']),
+  sortedQosItems: array.sort('qosItemsProxy.content', ['direct:desc', 'entityId:desc']),
 
   actions: {
     removeQosRequirement(qosRequirement) {
