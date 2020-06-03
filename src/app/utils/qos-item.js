@@ -36,7 +36,7 @@ export default EmberObject.extend({
   fileQosSummary: undefined,
 
   entityId: reads('qos.entityId'),
-  fulfilled: reads('qos.fulfilled'),
+  status: reads('qos.status'),
   replicasNum: reads('qos.replicasNum'),
   expressionRpn: reads('qos.expressionRpn'),
 
@@ -52,8 +52,8 @@ export default EmberObject.extend({
   inherited: not('direct'),
 
   /**
-   * True if this QoS fulfills for file for which modal is opened
-   * @type {ComputedProperty}
+   * Status of QoS for file for which modal is opened
+   * @type {ComputedProperty<String>}
    */
-  fulfilledForFile: getBy('fileQosSummary.entries', 'qos.entityId'),
+  statusForFile: getBy('fileQosSummary.entries', 'qos.entityId'),
 });

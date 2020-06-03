@@ -11,6 +11,8 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { inject as service } from '@ember/service';
+import { computed } from '@ember/object';
+import { camelize } from '@ember/string';
 
 export const entityType = 'op_space';
 
@@ -24,6 +26,7 @@ export default Model.extend(
     effUserList: belongsTo('user-list'),
     effGroupList: belongsTo('group-list'),
     shareList: belongsTo('share-list'),
+    effPrivileges: attr('array', { defaultValue: [] }),
 
     /**
      * @override
@@ -31,5 +34,24 @@ export default Model.extend(
     fetchTransfersActiveChannels() {
       return this.get('transferManager').getSpaceTransfersActiveChannels(this);
     },
+
+    /**
+     * Create convenient object with effective privileges flags.
+     * Values are either true or there is no privilege key at all.
+     * Flags are in camelCase without `space_` prefix as defined in
+     * `onedata-gui-websocket-client/addon/utils/space-privileges-flags.js`.
+     * Example property of this object is `viewQos` for `space_view_qos` privilege.
+     * @type {Object}
+     */
+    privilegesObject: computed('effPrivileges.[]', function privilegesObject() {
+      const effPrivileges = this.get('effPrivileges');
+      return effPrivileges.reduce((obj, privilege) => {
+        const shortName = privilege.split('space_')[1];
+        if (shortName) {
+          obj[camelize(shortName)] = true;
+        }
+        return obj;
+      }, {});
+    }),
   }
 ).reopenClass(StaticGraphModelMixin);

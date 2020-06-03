@@ -19,10 +19,19 @@ export default Model.extend(
   createDataProxyMixin('qosRecords', { type: 'array' }), {
     qosManager: service(),
 
+    /**
+     * - Keys: qos requirement entity ids
+     * - Values: one of: fulfilled, pending, impossible
+     * @type {ComputedProperty<Object>}
+     */
     entries: attr('object'),
 
-    fulfilled: computed('entries.[]', function fulfilled() {
-      return Object.values(this.get('entries')).every(entry => entry === true);
+    status: computed('entries.[]', function fulfilled() {
+      const states = Object.values(this.get('entries'));
+      return states.some(entry => entry === 'impossible') && 'impossible' ||
+        states.some(entry => entry === 'pending') && 'pending' ||
+        states.every(entry => entry === 'fulfilled') && 'fulfilled' ||
+        'error';
     }),
 
     /**

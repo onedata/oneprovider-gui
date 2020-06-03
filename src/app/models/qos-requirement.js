@@ -14,7 +14,12 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 export const entityType = 'op_qos';
 
 export default Model.extend(GraphSingleModelMixin, {
-  fulfilled: attr('boolean'),
+  /**
+   * One of: impossible, pending, fulfilled
+   * @type {ComputedProperty<String>}
+   */
+  status: attr('string'),
+
   replicasNum: attr('number'),
   expressionRpn: attr('array'),
 

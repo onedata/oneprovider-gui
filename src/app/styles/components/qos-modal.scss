@@ -20,17 +20,28 @@
   .qos-status-fulfilled {
     color: $color-qos-status-fulfilled;
   }
-  .qos-status-pending {
+  .qos-status-pending,
+  .qos-status-error {
     color: $color-qos-status-pending;
+  }
+  .one-icon-tagged.qos-status-impossible {
+    color: $color-qos-status-pending;
+    .one-icon-tag {
+      color: $color-one-danger;
+    }
   }
   .qos-status-empty {
     color: inherit;
   }
-  .qos-status-error {
+  .qos-status-impossible {
     color: $color-one-danger;
   }
   .qos-status-empty, .no-requirements {
     opacity: 0.4;
+  }
+  
+  .file-qos-status.qos-status-impossible .one-icon-tag {
+    color: $color-one-danger;
   }
   
   .label {

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6344 Added support for impossible QoS requirement and lack of QoS privileges
 * VFS-6343 Updated common libs
 * VFS-6323 Unified Oneprovider GUI Service Pack 3
 * VFS-6324 Added support for multiple files in QoS modal
