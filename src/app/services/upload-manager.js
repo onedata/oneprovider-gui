@@ -130,14 +130,19 @@ export default Service.extend(I18n, {
 
       if (injectedUploadState) {
         // cancel all uploads, that are not present in injected list
+        const injectedPathsPerUploadId = new Map();
         get(resumable, 'files')
           .reject(resumableFile => {
             const {
               uploadId,
               relativePath,
             } = getProperties(resumableFile, 'uploadId', 'relativePath');
-            const upload = injectedUploadState[uploadId];
-            return upload && get(upload, 'files').findBy('path', relativePath);
+            if (!injectedPathsPerUploadId.has(uploadId)) {
+              const upload = injectedUploadState[uploadId] || {};
+              const uploadFilesPaths = (upload.files || []).mapBy('path');
+              injectedPathsPerUploadId.set(uploadId, new Set(uploadFilesPaths));
+            }
+            return injectedPathsPerUploadId.get(uploadId).has(relativePath);
           })
           .forEach(resumableFile => {
             resumableFile.isCancelled = true;

@@ -142,8 +142,15 @@ export default Model.extend(
      * @returns {undefined}
      */
     pollSize(attempts, interval, targetSize = undefined) {
-      const pollSizeTimerId = this.get('pollSizeTimerId');
+      const {
+        pollSizeTimerId,
+        isDeleted,
+      } = this.getProperties('pollSizeTimerId', 'isDeleted');
+
       cancel(pollSizeTimerId);
+      if (isDeleted) {
+        return;
+      }
 
       this.set('isPollingSize', true);
       this.reload().then(() => {
@@ -171,7 +178,8 @@ export default Model.extend(
     const superRequests = this._super(...arguments);
 
     switch (operation) {
-      case 'create': {
+      case 'create':
+      case 'delete': {
         const graphRequests = get(activeRequests, 'graphRequests');
         // Block on listing parent dir files 
         const listParentDirRequests = graphRequests.filter(request => {
