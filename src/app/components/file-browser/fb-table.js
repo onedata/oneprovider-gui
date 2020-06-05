@@ -112,6 +112,12 @@ export default Component.extend(I18n, {
   _body: document.body,
 
   /**
+   * JS time when context menu was last repositioned
+   * @type {Number}
+   */
+  contextMenuRepositionTime: 1,
+
+  /**
    * Set by `one-webui-popover.registerApi` in HBS.
    * Undefined if not rendering context menu.
    * @type {Object} API of `one-webui-popover`
@@ -729,11 +735,16 @@ export default Component.extend(I18n, {
         top,
         left,
       });
-      // cause popover refresh
-      if (this.get('fileActionsOpen')) {
-        this.get('contextMenuApi').reposition();
-      }
-      this.actions.toggleFileActions.bind(this)(true, file);
+      // opening popover in after rendering trigger position change prevents from bad 
+      // placement
+      scheduleOnce('afterRender', () => {
+        // cause popover refresh
+        if (this.get('fileActionsOpen')) {
+          this.set('contextMenuRepositionTime', new Date().getTime());
+          this.get('contextMenuApi').reposition();
+        }
+        this.actions.toggleFileActions.bind(this)(true, file);
+      });
     },
 
     toggleFileActions(open, file) {

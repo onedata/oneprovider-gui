@@ -107,13 +107,17 @@
     triggerSelector=(concat "#" elementId " .file-actions-trigger")
     open=fileActionsOpen
     registerApi=(action (mut contextMenuApi))
+    placement="horizontal"
+    as |popover|
   }}
     {{#click-outside action=(action "toggleFileActions" false)}}
-      {{actions-popover-content
-        actionsArray=contextMenuButtons
-        actionClicked=(action "toggleFileActions" false)
-        class="file-actions"
-      }}
+      {{#popover-content-limit opened=(and popover.opened contextMenuRepositionTime)}}
+        {{actions-popover-content
+          actionsArray=contextMenuButtons
+          actionClicked=(action "toggleFileActions" false)
+          class="file-actions ps--focus"
+        }}
+      {{/popover-content-limit}}
     {{/click-outside}}
   {{/one-webui-popover}}
   <div class="file-actions-trigger floating-actions-trigger"></div>
