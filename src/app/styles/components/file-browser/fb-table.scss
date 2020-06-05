@@ -1,8 +1,29 @@
 .fb-table {
+  $refresh-transition-duration: 300ms;
+  
   position: relative;
   height: 100%;
-  .table {
+  .refresh-spinner {
+    position: fixed;
+    transition: opacity $refresh-transition-duration ease-out;
+    opacity: 0;
+  }
+  .fb-files-table {
+    opacity: 1;
+    transition: opacity $refresh-transition-duration ease-in;
     margin-bottom: 0;
+  }
+  &.refresh-started {
+    .fb-files-table {
+      transition: opacity $refresh-transition-duration ease-out;
+      opacity: 0.05;
+      pointer-events: none;
+    }
+    .refresh-spinner {
+      transition: opacity $refresh-transition-duration ease-in;
+      transition-delay: $refresh-transition-duration + 200ms;
+      opacity: 1;
+    }
   }
   &.special-dir-view {
     @extend .world-map;

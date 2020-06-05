@@ -23,7 +23,7 @@ import { scheduleOnce } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
-import { resolve } from 'rsvp';
+import { resolve, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import ViewTester from 'onedata-gui-common/utils/view-tester';
@@ -34,6 +34,7 @@ export default Component.extend(I18n, {
     'hasEmptyDirClass:empty-dir',
     'dirLoadError:error-dir',
     'specialViewClass:special-dir-view',
+    'refreshStarted',
   ],
 
   fileManager: service(),
@@ -296,7 +297,28 @@ export default Component.extend(I18n, {
    */
   api: computed(function api() {
     return {
-      refresh: this.refreshFileList.bind(this),
+      refresh: () => {
+        if (this.get('refreshStarted')) {
+          return resolve();
+        }
+        this.set('refreshStarted', true);
+        const animationPromise = new Promise((resolve) => {
+          this.get('element').addEventListener(
+            'transitionend',
+            (event) => {
+              if (event.propertyName === 'opacity') {
+                resolve();
+              }
+            }, { once: true }
+          );
+        });
+        return this.refreshFileList()
+          .finally(() => {
+            animationPromise.finally(() => {
+              safeExec(this, 'set', 'refreshStarted', false);
+            });
+          });
+      },
     };
   }),
 

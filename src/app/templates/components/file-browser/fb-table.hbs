@@ -1,4 +1,4 @@
-<table class="table one-table one-infinite-list">
+<table class="table one-table one-infinite-list fb-files-table">
   <thead class="fb-table-thead">
     <tr>
       <th class="fb-table-col-files">{{tt this "header.files"}}</th>
@@ -127,4 +127,9 @@
   file=downloadModalFile
   confirmDownload=(action "confirmDownload")
   onHide=(action "closeDownloadModal")
+}}
+
+{{spin-spinner-block
+  sizeClass="lg"
+  class="absolute-middle-centered refresh-spinner"
 }}
