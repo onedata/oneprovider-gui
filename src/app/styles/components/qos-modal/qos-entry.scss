@@ -5,8 +5,8 @@
     font-size: 90%;
     .inherited-text {
       flex: 0 0 112px;
-      .inherited-icon {
-        margin-right: 3px;
+      .inline-icon-container.inherited-icon {
+        width: 1.7em;
       }
     }
     @media (max-width: $screen-xs-max) {

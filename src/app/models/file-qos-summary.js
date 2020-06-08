@@ -24,10 +24,10 @@ export default Model.extend(
      * - Values: one of: fulfilled, pending, impossible
      * @type {ComputedProperty<Object>}
      */
-    entries: attr('object'),
+    requirements: attr('object'),
 
-    status: computed('entries.[]', function fulfilled() {
-      const states = Object.values(this.get('entries'));
+    status: computed('requirements.[]', function fulfilled() {
+      const states = Object.values(this.get('requirements'));
       return states.some(entry => entry === 'impossible') && 'impossible' ||
         states.some(entry => entry === 'pending') && 'pending' ||
         states.every(entry => entry === 'fulfilled') && 'fulfilled' ||
@@ -39,11 +39,11 @@ export default Model.extend(
      */
     fetchQosRecords() {
       const {
-        entries,
+        requirements,
         scope,
         qosManager,
-      } = this.getProperties('entries', 'scope', 'qosManager');
-      return allFulfilled(Object.keys(entries).map(qosId =>
+      } = this.getProperties('requirements', 'scope', 'qosManager');
+      return allFulfilled(Object.keys(requirements).map(qosId =>
         qosManager.getRecordById(qosId, scope)
       ));
     },

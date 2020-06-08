@@ -55,5 +55,5 @@ export default EmberObject.extend({
    * Status of QoS for file for which modal is opened
    * @type {ComputedProperty<String>}
    */
-  statusForFile: getBy('fileQosSummary.entries', 'qos.entityId'),
+  statusForFile: getBy('fileQosSummary.requirements', 'qos.entityId'),
 });

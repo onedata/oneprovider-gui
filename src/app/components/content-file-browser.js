@@ -64,7 +64,7 @@ export default OneEmbeddedComponent.extend(
     /**
      * @type {ComputedProperty<Object>}
      */
-    spacePrivileges: reads('spaceProxy.content.privilegesObject'),
+    spacePrivileges: reads('spaceProxy.content.privileges'),
 
     spaceProxy: promise.object(computed('spaceEntityId', function spaceProxy() {
       const {

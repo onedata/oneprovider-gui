@@ -562,8 +562,9 @@ export default Component.extend(I18n, {
       spacePrivileges,
       openQos,
     } = this.getProperties('spacePrivileges', 'openQos');
-    const disabled = !get(spacePrivileges, 'viewQos') &&
-      !get(spacePrivileges, 'manageQos');
+    const canView = get(spacePrivileges, 'viewQos');
+    const canManage = get(spacePrivileges, 'manageQos');
+    const disabled = !canView && !canManage;
     return this.createFileAction({
       id: 'qos',
       icon: 'qos',
@@ -573,6 +574,7 @@ export default Component.extend(I18n, {
         actionContext.spaceRootDir,
       ],
       disabled,
+      hint: disabled ? this.t('hintQosForbidden') : undefined,
       action: (files) => {
         return openQos(files);
       },

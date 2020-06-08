@@ -26,7 +26,7 @@ export default Model.extend(
     effUserList: belongsTo('user-list'),
     effGroupList: belongsTo('group-list'),
     shareList: belongsTo('share-list'),
-    effPrivileges: attr('array', { defaultValue: [] }),
+    currentUserEffPrivileges: attr('array', { defaultValue: [] }),
 
     /**
      * @override
@@ -43,9 +43,9 @@ export default Model.extend(
      * Example property of this object is `viewQos` for `space_view_qos` privilege.
      * @type {Object}
      */
-    privilegesObject: computed('effPrivileges.[]', function privilegesObject() {
-      const effPrivileges = this.get('effPrivileges');
-      return effPrivileges.reduce((obj, privilege) => {
+    privileges: computed('currentUserEffPrivileges.[]', function privileges() {
+      const currentUserEffPrivileges = this.get('currentUserEffPrivileges');
+      return currentUserEffPrivileges.reduce((obj, privilege) => {
         const shortName = privilege.split('space_')[1];
         if (shortName) {
           obj[camelize(shortName)] = true;

@@ -154,7 +154,7 @@ export default Service.extend({
 
   createEmptyQos(store) {
     return store.createRecord('fileQosSummary', {
-      entries: {},
+      requirements: {},
     }).save().then(qosSummary => {
       this.set('entityRecords.fileQosSummary', [qosSummary]);
     });
@@ -203,7 +203,7 @@ export default Service.extend({
     }).save();
     return allFulfilled([qos1Promise, qos2Promise]).then(([qos1, qos2]) => {
       return store.createRecord('fileQosSummary', {
-        entries: {
+        requirements: {
           [get(qos1, 'entityId')]: 'fulfilled',
           [get(qos2, 'entityId')]: 'impossible',
         },
@@ -283,7 +283,7 @@ export default Service.extend({
           rootDir: rootDirs[i],
           // NOTE: add 'space_manager_qos' to see add qos view
           // put empty array to disable qos modal
-          effPrivileges: ['space_view_qos'],
+          currentUserEffPrivileges: ['space_view_qos'],
         }).save()
       )))
       .then((records) => {
