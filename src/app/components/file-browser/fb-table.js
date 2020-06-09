@@ -103,6 +103,11 @@ export default Component.extend(I18n, {
    */
   previewMode: false,
 
+  /**
+   * @type {Boolean}
+   */
+  renderRefreshSpinner: false,
+
   changeDir: undefined,
 
   _window: window,
@@ -298,26 +303,42 @@ export default Component.extend(I18n, {
   api: computed(function api() {
     return {
       refresh: () => {
-        if (this.get('refreshStarted')) {
+        const {
+          refreshStarted,
+          element,
+        } = this.getProperties('refreshStarted', 'element');
+        if (refreshStarted) {
           return resolve();
         }
-        this.set('refreshStarted', true);
-        const animationPromise = new Promise((resolve) => {
-          this.get('element').addEventListener(
-            'transitionend',
-            (event) => {
-              if (event.propertyName === 'opacity') {
-                resolve();
-              }
-            }, { once: true }
-          );
-        });
-        return this.refreshFileList()
-          .finally(() => {
-            animationPromise.finally(() => {
-              safeExec(this, 'set', 'refreshStarted', false);
+        this.set('renderRefreshSpinner', true);
+        // wait for refresh spinner to render because it needs to transition
+        return new Promise((resolve, reject) => {
+          scheduleOnce('afterRender', () => {
+            safeExec(this, 'set', 'refreshStarted', true);
+            const animationPromise = new Promise((resolve) => {
+              element.addEventListener(
+                'transitionend',
+                (event) => {
+                  if (event.propertyName === 'opacity') {
+                    resolve();
+                  }
+                }, { once: true }
+              );
             });
+            this.refreshFileList()
+              .finally(() => {
+                animationPromise.finally(() => {
+                  safeExec(this, 'set', 'refreshStarted', false);
+                  later(() => {
+                    if (!this.get('refreshStarted')) {
+                      safeExec(this, 'set', 'renderRefreshSpinner', false);
+                    }
+                  }, 300);
+                });
+              })
+              .then(resolve, reject);
           });
+        });
       },
     };
   }),

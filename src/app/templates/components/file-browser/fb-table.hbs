@@ -129,7 +129,9 @@
   onHide=(action "closeDownloadModal")
 }}
 
-{{spin-spinner-block
-  sizeClass="lg"
-  class="absolute-middle-centered refresh-spinner"
-}}
+{{#if renderRefreshSpinner}}
+  {{spin-spinner-block
+    sizeClass="lg"
+    class="absolute-middle-centered refresh-spinner"
+  }}
+{{/if}}
