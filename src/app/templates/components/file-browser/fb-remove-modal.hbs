@@ -1,33 +1,70 @@
-{{#proceed-process-modal
-  opened=open
+{{#one-modal
+  open=open
   backdropClose=(not processing)
   keyboard=(not processing)
-  close=(action "close")
-  proceed=(action "remove")
-  autoDetectProcessing=false
-  processing=processing
-  proceedButtonClass="btn btn-danger proceed remove-proceed"
-  headerText=(tt this "delete")
-  proceedButtonText=(tt this "yes")
-  cancelButtonText=(tt this "no")
-  modalClass="proceed-modal fb-remove-modal"
+  class="proceeed-modal fb-remove-modal"
+  as |modal|
 }}
-  <div class="row row-delete-question">
-    {{tt this (concat "questionPrefix")}}
-    {{tt this (concat "questionSuffix." itemsType) count=files.length}}
-  </div>
-  {{#if (lte files.length maxDisplayFiles)}}
-    <ul class="row row-delete-files-list info info-gray info-condensed">
-      {{#each files as |file|}}
-        <li class="row-delete-file-item">
-          {{#truncated-string class="delete-file-name"}}
-            <strong>{{file.name}}</strong>
-          {{/truncated-string}}
-          {{#if (eq file.type "file")}}
-            <div class="delete-file-size">({{bytes-to-string file.size}})</div>
-          {{/if}}
-        </li>
-      {{/each}}
-    </ul>
-  {{/if}}
-{{/proceed-process-modal}}
+  {{#modal.header}}
+    <h1>{{tt this "delete"}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    <div class="row row-delete-question">
+      {{tt this (concat "questionPrefix")}}
+      {{tt this (concat "questionSuffix." itemsType) count=files.length}}
+    </div>
+    {{#if (eq files.length 1)}}
+      {{single-file-info file=firstFile}}
+    {{else if (lte files.length maxDisplayFiles)}}
+      <div class="row row-delete-files-list">
+        {{#each files as |file|}}
+          <div class="row-delete-file-item">
+            <div class="file-item-icon">
+              {{one-icon
+                icon=(if (eq file.type "dir") "browser-directory" "browser-file")
+              }}
+            </div>
+            {{#truncated-string class="delete-file-name"}}
+              {{file-name-conflict file=file}}
+            {{/truncated-string}}
+            {{#one-label-tip
+              tooltipClass="fb-remove-modal-file-toolip"
+              class="file-info-tip-trigger"
+              icon="sign-info-rounded"
+            }}
+              {{#if (eq file.type "file")}}
+                <div class="text-left">
+                  <span class="file-info-label">{{tt this "info.size"}}:</span>
+                  <span class="file-info-value delete-file-size">
+                    {{bytes-to-string file.size}}
+                  </span>
+                </div>
+              {{/if}}
+              <div class="text-left">
+                <span class="file-info-label">
+                  {{tt this "info.modification"}}:
+                </span>
+                <span class="file-info-value delete-file-modification">
+                  {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+                </span>
+              </div>
+            {{/one-label-tip}}
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
+  {{/modal.body}}
+  
+  {{#modal.footer class="btn-toolbar"}}
+    {{#bs-button disabled=processing onClick=(action "close") class="cancel"}}
+      {{tt this "no"}}
+    {{/bs-button}}
+    {{#one-spin-button
+      action=(action "remove")
+      class="btn btn-danger proceed remove-proceed"
+      disabled=processing
+    }}
+      {{tt this "yes"}}
+    {{/one-spin-button}}
+  {{/modal.footer}}
+{{/one-modal}}

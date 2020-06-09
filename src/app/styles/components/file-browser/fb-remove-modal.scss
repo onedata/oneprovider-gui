@@ -1,13 +1,35 @@
 .fb-remove-modal {
+  .file-info-label {
+    @include font-semibold;
+  }
+  .single-file {
+    .file-item-icon {
+      position: relative;
+      margin-right: 8px;
+      font-size: 52px;
+    }
+  }
   .row-delete-files-list {
-    .delete-file-name {
-      display: inline-block;
-      max-width: calc(100% - 50px);
-      vertical-align: middle;
+    margin-top: 8px;
+    padding-bottom: 4px;
+    .file-item-icon {
+      position: relative;
+      font-size: 26px;
+      top: 3px;
+      margin-right: 4px;
     }
-    .delete-file-size {
-      display: inline-block;
-      vertical-align: middle;
+    .row-delete-file-item {
+      display: flex;
+      align-items: center;
     }
+    .file-info-tip-trigger {
+      margin-left: 8px;
+    }
+  }
+}
+
+.fb-remove-modal-file-toolip {
+  .file-info-label {
+    @include font-semibold;
   }
 }

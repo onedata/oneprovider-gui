@@ -8,6 +8,7 @@
  */
 
 import Component from '@ember/component';
+import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -53,11 +54,16 @@ export default Component.extend(I18n, {
   onHide: notImplementedIgnore,
 
   /**
+   * @type {ComputedProperty<Models.File>}
+   */
+  firstFile: reads('files.firstObject'),
+
+  /**
    * If there are more files to delete than this number, do not display files
    * list, just number of files.
    * @type {number}
    */
-  maxDisplayFiles: 5,
+  maxDisplayFiles: 10,
 
   processing: false,
 

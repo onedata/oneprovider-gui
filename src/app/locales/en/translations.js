@@ -14,6 +14,7 @@ import dbViewModal from './components/db-view-modal';
 import qosModal from './components/qos-modal';
 import contentEndpointError from './components/content-endpoint-error';
 import modalFileSubheader from './components/modal-file-subheader';
+import singleFileInfo from './components/single-file-info';
 
 import uploadManager from './services/upload-manager';
 
@@ -34,6 +35,7 @@ const translations = {
     qosModal,
     contentEndpointError,
     modalFileSubheader,
+    singleFileInfo,
   },
   services: {
     uploadManager,

@@ -1,0 +1,21 @@
+.single-file-info {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 20px;
+  
+  .single-file-info-icon {
+    font-size: 48px;
+    // pull up, because of top margin inside icon
+    margin-top: -3px;
+  }
+  .single-file-info-text {
+    padding-left: 10px;
+    overflow-x: auto;
+    .single-file-info-file-name, .single-file-info-label {
+      @include font-semibold;
+    }
+    .row-single-file-info-file-name {
+      padding-bottom: 6px;
+    }
+  }
+}

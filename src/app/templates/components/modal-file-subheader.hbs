@@ -10,6 +10,6 @@
         {{one-icon icon=icon class=(concat "file-item-icon file-item-icon-" type)}}
       </div>
     {{/if}}
-    <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
+    {{file-name-conflict file=firstFile}}
   {{/truncated-string}}
 {{/if}}

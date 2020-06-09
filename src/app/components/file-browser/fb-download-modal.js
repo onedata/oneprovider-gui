@@ -47,16 +47,6 @@ export default Component.extend(I18n, {
 
   itemType: reads('file.type'),
 
-  fileName: reads('file.name'),
-
-  fileSize: reads('file.size'),
-
-  fileIcon: conditional(
-    equal('file.type', 'dir'),
-    raw('browser-directory'),
-    raw('browser-file')
-  ),
-
   actions: {
     close() {
       return this.get('onHide')();
