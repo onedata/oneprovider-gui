@@ -167,12 +167,10 @@
   }
   .qos-path-subheader {
     display: flex;
-    .inherited-text {
-      padding-right: 0.4em;
-    }
     .file-path {
       display: block;
       direction: rtl;
+      padding-left: 0.4em;
       .file-path-text {
         // thanks to this, "/" do not go to end when using direction: rtl
         unicode-bidi: plaintext;
