@@ -17,6 +17,7 @@
         class="data-row"
         file=file
         previewMode=previewMode
+        qosViewForbidden=(not spacePrivileges.viewQos)
         nameConflict=(contains file.index conflictNames)
         fileCut=(and (eq fileClipboardMode "move") (contains file fileClipboardFiles))
         isSelected=(contains file selectedFiles)

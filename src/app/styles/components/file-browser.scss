@@ -106,5 +106,5 @@
 }
 
 .webui-popover-in-fb-head {
-  z-index: $zindex-tooltip;
+  z-index: $zindex-tooltip - 1;
 }

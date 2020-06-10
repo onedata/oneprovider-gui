@@ -85,10 +85,9 @@ export default Model.extend(
     distribution: belongsTo('file-distribution'),
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
-    fileQos: belongsTo('file-qos-summary'),
+    fileQosSummary: belongsTo('file-qos-summary'),
 
     modificationTime: alias('mtime'),
-    fileQosSummary: alias('fileQos'),
 
     /**
      * Contains error of loading file distribution. Is null if distribution has not

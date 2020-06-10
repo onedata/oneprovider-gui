@@ -40,11 +40,11 @@ export default EmberObject.extend(...objectMixins, {
       store,
       file,
     } = this.getProperties('store', 'file');
-    const fileQosSummaryGri = file.belongsTo('fileQos').id();
+    const fileQosSummaryGri = file.belongsTo('fileQosSummary').id();
     // in case, there were error when fetching the relation last time (eg. forbidden)
     const prePromise = fileQosSummaryGri ?
       resolve(fileQosSummaryGri) :
-      file.reload().then(file => file.belongsTo('fileQos').id());
+      file.reload().then(file => file.belongsTo('fileQosSummary').id());
     return prePromise
       .then(gri => store.findRecord('fileQosSummary', gri, { reload: true }));
   },
@@ -100,7 +100,7 @@ export default EmberObject.extend(...objectMixins, {
       } else if (get(fileQosSummaryProxy, 'isRejected')) {
         return 'error';
       } else {
-        return get(fileQosSummaryProxy, 'content.fulfilled') ? 'fulfilled' : 'pending';
+        return get(fileQosSummaryProxy, 'content.status');
       }
     }
   ),

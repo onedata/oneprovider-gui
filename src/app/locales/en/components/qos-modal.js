@@ -22,10 +22,12 @@ export default {
   showHintTransfers: 'If required, data transfers are automatically triggered to satisfy the QoS requirements, and remote changes made to file content are automatically reconciled. File replicas corresponding to QoS requirements are protected from eviction.',
   showHintRemoving: 'Removing a QoS requirement does not automatically remove the replicas that were created during its lifetime, but they are no longer protected.',
   hintClose: 'Close',
+  noEditHint: 'You have insufficient privileges to manage QoS in this space',
   addingQosEntry: 'adding QoS requirement',
   fileQosStatusHint: {
     fulfilled: 'All requirements for {{fileType}} are fulfilled',
-    pending: 'Pending - there are some unfulfilled requirements for {{fileType}}',
+    pending: 'Pending ‐ there are some unfulfilled requirements for {{fileType}}',
+    impossible: 'At least one requirement is impossible to be fulfilled',
     error: 'Error evaluating QoS status summary',
   },
   addMultiHint: 'A new QoS requirement will be added for all selected items ({{count}})',

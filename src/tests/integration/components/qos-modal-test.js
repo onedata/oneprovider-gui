@@ -47,7 +47,7 @@ describe('Integration | Component | qos modal', function () {
       parent: resolve(null),
       hasQos: true,
       belongsTo(relation) {
-        if (relation === 'fileQos') {
+        if (relation === 'fileQosSummary') {
           return {
             reload: () => file.fileQosSummary,
             id: () => 'file.f1.qos_summary:private',

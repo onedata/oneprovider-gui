@@ -46,7 +46,11 @@ export default OneEmbeddedComponent.extend(
     /**
      * @override
      */
-    iframeInjectedProperties: Object.freeze(['spaceEntityId', 'dirEntityId', 'selected']),
+    iframeInjectedProperties: Object.freeze([
+      'spaceEntityId',
+      'dirEntityId',
+      'selected',
+    ]),
 
     /**
      * @virtual optional
@@ -56,6 +60,11 @@ export default OneEmbeddedComponent.extend(
     fileToShowInfo: undefined,
 
     fileToShowMetadata: undefined,
+
+    /**
+     * @type {ComputedProperty<Object>}
+     */
+    spacePrivileges: reads('spaceProxy.content.privileges'),
 
     spaceProxy: promise.object(computed('spaceEntityId', function spaceProxy() {
       const {

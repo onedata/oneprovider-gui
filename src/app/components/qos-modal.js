@@ -13,7 +13,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { get, observer, computed } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
-import { conditional, raw, equal, array } from 'ember-awesome-macros';
+import { conditional, raw, equal, array, and } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled, allSettled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -21,10 +21,11 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
 
 export const qosStatusIcons = {
-  error: 'checkbox-filled-warning',
+  error: 'warning',
   empty: 'circle-not-available',
   fulfilled: 'checkbox-filled',
   pending: 'checkbox-pending',
+  impossible: 'checkbox-filled-warning',
 };
 
 export default Component.extend(I18n, {
@@ -52,22 +53,34 @@ export default Component.extend(I18n, {
   files: undefined,
 
   /**
-   * If modal is opened - interval in ms to auto update data
-   * @type {Number}
-   */
-  updateInterval: conditional('open', raw(5000), null),
-
-  /**
    * @virtual
    * @type {Function}
    */
   onHide: notImplementedIgnore,
 
   /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  showPrivilege: true,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  editPrivilege: true,
+
+  /**
    * @virtual
    * @type {Function}
    */
   getDataUrl: notImplementedReject,
+
+  /**
+   * If modal is opened - interval in ms to auto update data
+   * @type {Number}
+   */
+  updateInterval: conditional('open', raw(5000), null),
 
   /**
    * Initialized in init
@@ -101,7 +114,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<booelan>}
    */
-  isAddMode: equal('mode', raw('add')),
+  isAddMode: and('editPrivilege', equal('mode', raw('add'))),
 
   /**
    * @type {ComputedProperty<string>} one of: file, dir
@@ -129,9 +142,13 @@ export default Component.extend(I18n, {
     return this.t('fileType.' + key);
   }),
 
+  /**
+   * One of: error, loading, pending, impossible, fulfilled, unknown
+   * @type {ComputedProperty<String>}
+   */
   allQosStatus: computed('filesStatus.[]', function allQosStatus() {
     const filesStatus = this.get('filesStatus');
-    for (const status of ['error', 'loading', 'pending', 'fulfilled']) {
+    for (const status of ['error', 'loading', 'pending', 'impossible', 'fulfilled']) {
       if (filesStatus.includes(status)) {
         return status;
       }

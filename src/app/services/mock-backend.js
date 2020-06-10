@@ -154,7 +154,7 @@ export default Service.extend({
 
   createEmptyQos(store) {
     return store.createRecord('fileQosSummary', {
-      entries: {},
+      requirements: {},
     }).save().then(qosSummary => {
       this.set('entityRecords.fileQosSummary', [qosSummary]);
     });
@@ -185,7 +185,7 @@ export default Service.extend({
         entityId: 'q1',
         aspect: 'instance',
       }),
-      fulfilled: true,
+      status: 'fulfilled',
       replicasNum: 7,
       expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
       file: chainDir,
@@ -196,20 +196,20 @@ export default Service.extend({
         entityId: 'q2',
         aspect: 'instance',
       }),
-      fulfilled: false,
+      status: 'fulfilled',
       replicasNum: 1,
       expressionRpn: ['size=10'],
       file: rootDir,
     }).save();
     return allFulfilled([qos1Promise, qos2Promise]).then(([qos1, qos2]) => {
       return store.createRecord('fileQosSummary', {
-        entries: {
-          [get(qos1, 'entityId')]: true,
-          [get(qos2, 'entityId')]: true,
+        requirements: {
+          [get(qos1, 'entityId')]: 'fulfilled',
+          [get(qos2, 'entityId')]: 'impossible',
         },
       }).save();
     }).then(fileQosSummary => {
-      set(chainDir, 'fileQos', fileQosSummary);
+      set(chainDir, 'fileQosSummary', fileQosSummary);
       return chainDir.save();
     });
   },
@@ -267,7 +267,7 @@ export default Service.extend({
           hasEffQos: i < 4,
           parent: null,
           posixPermissions: '777',
-          fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
+          fileQosSummary: this.get('entityRecords.fileQosSummary.firstObject'),
           provider: this.get('entityRecords.provider.firstObject'),
         }).save()
       ))
@@ -281,6 +281,9 @@ export default Service.extend({
           }),
           name: names[i],
           rootDir: rootDirs[i],
+          // NOTE: add 'space_manager_qos' to see add qos view
+          // put empty array to disable qos modal
+          currentUserEffPrivileges: ['space_view_qos'],
         }).save()
       )))
       .then((records) => {
@@ -424,7 +427,7 @@ export default Service.extend({
           posixPermissions: '777',
           parent,
           owner,
-          fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
+          fileQosSummary: this.get('entityRecords.fileQosSummary.firstObject'),
           provider: this.get('entityRecords.provider.firstObject'),
         }).save();
       }))
@@ -448,7 +451,7 @@ export default Service.extend({
               mtime: timestamp + i * 3600,
               posixPermissions: '777',
               owner,
-              fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
+              fileQosSummary: this.get('entityRecords.fileQosSummary.firstObject'),
               provider: this.get('entityRecords.provider.firstObject'),
             }).save();
           })).then(chainDirs => {
@@ -481,7 +484,7 @@ export default Service.extend({
           mtime: timestamp + i * 3600,
           parent,
           owner,
-          fileQos: this.get('entityRecords.fileQosSummary.firstObject'),
+          fileQosSummary: this.get('entityRecords.fileQosSummary.firstObject'),
           provider: this.get('entityRecords.provider.firstObject'),
         }).save();
       })))
