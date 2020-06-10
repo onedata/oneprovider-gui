@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { promise, tag } from 'ember-awesome-macros';
+import { promise, tag, getBy, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -21,6 +21,7 @@ import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 import { next, later, cancel } from '@ember/runloop';
 import $ from 'jquery';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
+import { observer } from '@ember/object';
 
 export default Component.extend(I18n, {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],
@@ -119,6 +120,7 @@ export default Component.extend(I18n, {
   qosSourceFilePathProxy: promise.object(computed(
     'qosSourceFile.{name,parent}',
     function qosSourceFilePathProxy() {
+      console.log('source file path recomputed');
       return resolveFilePath(this.get('qosSourceFile'))
         .then(path => stringifyFilePath(path));
     }
@@ -134,9 +136,7 @@ export default Component.extend(I18n, {
 
   statusId: reads('statusForFile'),
 
-  statusIcon: computed('statusId', function allQosStatusIcon() {
-    return qosStatusIcons[this.get('statusId')];
-  }),
+  statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
 
   actions: {
     confirmRemove() {

@@ -99,7 +99,7 @@
     {{else}}
       {{#if multipleFiles}}
         {{#one-collapsible-list class="hide-final-border" as |list|}}
-          {{#each fileItems as |fileItem|}}
+          {{#each fileItems key="entityId" as |fileItem|}}
             {{#list.item as |listItem|}}
               {{qos-modal/file-entry
                 listItem=listItem

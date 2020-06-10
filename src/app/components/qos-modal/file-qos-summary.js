@@ -22,17 +22,35 @@ export default Component.extend(...objectMixins, {
 
   i18nPrefix: 'components.qosModal.fileQosSummary',
 
+  /**
+   * @virtual
+   */
   file: undefined,
 
+  /**
+   * @virtual
+   */
+  qosItemsProxy: undefined,
+
+  /**
+   * @virtual
+   */
   removeQosRequirement: notImplementedReject,
 
+  /**
+   * @virtual
+   */
   getDataUrl: notImplementedThrow,
 
+  /**
+   * @virtual
+   */
   closeModal: notImplementedThrow,
 
+  /**
+   * @virtual
+   */
   fileQosStatusChanged: notImplementedThrow,
-
-  qosItemsProxy: undefined,
 
   sortedQosItems: array.sort('qosItemsProxy.content', ['direct:desc', 'entityId:desc']),
 

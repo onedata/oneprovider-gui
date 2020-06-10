@@ -26,11 +26,11 @@ export default Model.extend(
      */
     requirements: attr('object'),
 
-    status: computed('requirements.[]', function fulfilled() {
-      const states = Object.values(this.get('requirements'));
-      return states.some(entry => entry === 'impossible') && 'impossible' ||
-        states.some(entry => entry === 'pending') && 'pending' ||
-        states.every(entry => entry === 'fulfilled') && 'fulfilled' ||
+    status: computed('requirements.[]', function status() {
+      const statusesSet = new Set(Object.values(this.get('requirements')));
+      return statusesSet.has('impossible') && 'impossible' ||
+        statusesSet.has('pending') && 'pending' ||
+        statusesSet.has('fulfilled') && statusesSet.size === 1 ||
         'error';
     }),
 
