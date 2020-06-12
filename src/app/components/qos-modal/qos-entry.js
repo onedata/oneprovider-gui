@@ -21,7 +21,6 @@ import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 import { next, later, cancel } from '@ember/runloop';
 import $ from 'jquery';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
-import { observer } from '@ember/object';
 
 export default Component.extend(I18n, {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],

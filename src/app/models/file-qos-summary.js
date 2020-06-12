@@ -30,7 +30,7 @@ export default Model.extend(
       const statusesSet = new Set(Object.values(this.get('requirements')));
       return statusesSet.has('impossible') && 'impossible' ||
         statusesSet.has('pending') && 'pending' ||
-        statusesSet.has('fulfilled') && statusesSet.size === 1 ||
+        statusesSet.has('fulfilled') && statusesSet.size === 1 && 'fulfilled' ||
         'error';
     }),
 

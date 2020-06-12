@@ -13,7 +13,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { get, observer, computed } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
-import { conditional, raw, equal, array, and } from 'ember-awesome-macros';
+import { conditional, raw, equal, array, and, getBy } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled, allSettled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -156,9 +156,7 @@ export default Component.extend(I18n, {
     return 'unknown';
   }),
 
-  allQosStatusIcon: computed('allQosStatus', function allQosStatusIcon() {
-    return qosStatusIcons[this.get('allQosStatus')];
-  }),
+  allQosStatusIcon: getBy(raw(qosStatusIcons), 'allQosStatus'),
 
   configureUpdater: observer(
     'updater',
