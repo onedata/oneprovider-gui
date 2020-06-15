@@ -8,6 +8,7 @@ CHANGELOG
 
 * VFS-6346 Unified Oneprovider GUI Service Pack 4
 * VFS-6344 Added support for impossible QoS requirement and lack of QoS privileges
+* VFS-6358 Uploader optimization
 * VFS-6381 Fixed build process
 * VFS-6343 Updated common libs
 * VFS-6323 Unified Oneprovider GUI Service Pack 3

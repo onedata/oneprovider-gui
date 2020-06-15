@@ -41,7 +41,7 @@ export default Model.extend(
      * Flags are in camelCase without `space_` prefix as defined in
      * `onedata-gui-websocket-client/addon/utils/space-privileges-flags.js`.
      * Example property of this object is `viewQos` for `space_view_qos` privilege.
-     * @type {Object}
+     * @type {ComputedProperty<Object>}
      */
     privileges: computed('currentUserEffPrivileges.[]', function privileges() {
       const currentUserEffPrivileges = this.get('currentUserEffPrivileges');

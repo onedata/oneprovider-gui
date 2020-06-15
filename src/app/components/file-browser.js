@@ -574,7 +574,7 @@ export default Component.extend(I18n, {
         actionContext.spaceRootDir,
       ],
       disabled,
-      hint: disabled ? this.t('hintQosForbidden') : undefined,
+      tip: disabled ? this.t('hintQosForbidden') : undefined,
       action: (files) => {
         return openQos(files);
       },
