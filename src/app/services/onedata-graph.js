@@ -21,7 +21,10 @@ const OnedataGraphProduction = ProductionSymbol.extend({
    */
   getRequestPrerequisitePromise(requestData) {
     const superPromise = this._super(...arguments);
-    const createRequests = this.get('activeRequests.createRequests');
+    const {
+      createRequests,
+      deleteRequests,
+    } = getProperties(this.get('activeRequests'), 'createRequests', 'deleteRequests');
 
     const {
       operation,
@@ -45,13 +48,16 @@ const OnedataGraphProduction = ProductionSymbol.extend({
     switch (operation) {
       case 'get': {
         if (entityType === fileEntityType && aspect && aspect.startsWith('children')) {
-          const createChildRequests = createRequests.filter(request => {
+          const createAndDeleteChildRequests = [
+            ...createRequests,
+            ...deleteRequests,
+          ].filter(request => {
             return get(request, 'modelClassName') === 'file' &&
               get(get(request, 'model').belongsTo('parent').value(), 'entityId') ===
               entityId;
           });
           return superPromise.then(() =>
-            allSettled(createChildRequests.mapBy('promise'))
+            allSettled(createAndDeleteChildRequests.mapBy('promise'))
           );
         } else {
           return superPromise;
