@@ -198,6 +198,11 @@ export default Component.extend(I18n, {
   previewMode: false,
 
   /**
+   * @virtual
+   */
+  spacePrivileges: Object.freeze({}),
+
+  /**
    * Should be set by some instance of `components:fb-table`
    * API for file browser table, methods:
    * - refresh
@@ -552,7 +557,14 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnQos: computed(function btnQos() {
+  btnQos: computed('spacePrivileges.{viewQos,manageQos}', 'openQos', function btnQos() {
+    const {
+      spacePrivileges,
+      openQos,
+    } = this.getProperties('spacePrivileges', 'openQos');
+    const canView = get(spacePrivileges, 'viewQos');
+    const canManage = get(spacePrivileges, 'manageQos');
+    const disabled = !canView && !canManage;
     return this.createFileAction({
       id: 'qos',
       icon: 'qos',
@@ -561,8 +573,10 @@ export default Component.extend(I18n, {
         actionContext.currentDir,
         actionContext.spaceRootDir,
       ],
+      disabled,
+      tip: disabled ? this.t('hintQosForbidden') : undefined,
       action: (files) => {
-        return this.get('openQos')(files);
+        return openQos(files);
       },
     });
   }),
@@ -666,6 +680,7 @@ export default Component.extend(I18n, {
       icon,
       showIn,
       action,
+      disabled,
       class: elementClass,
     } = getProperties(
       actionProperties,
@@ -674,12 +689,14 @@ export default Component.extend(I18n, {
       'icon',
       'showIn',
       'action',
+      'disabled',
       'class'
     );
     return Object.assign({}, actionProperties, {
       icon: icon || `browser-${dasherize(id)}`,
       title: title || this.t(`fileActions.${id}`),
       showIn: showIn || [],
+      disabled: disabled === undefined ? false : disabled,
       action: (files) => {
         return action(files || this.get('selectedFiles'));
       },

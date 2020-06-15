@@ -56,9 +56,16 @@
         padding-right: 6px;
         margin-top: -$margin-vertical-fix - $border-width;
         margin-bottom: -$margin-vertical-fix - $border-width;
-          
-        @include tag-colors-default;
+                
+        .inline-icon-container {
+          width: 14px;
+          .one-icon {
+            font-size: 150%;
+          }
+        }
         
+        @include tag-colors-default;
+       
         &.file-status-tag-success {
           @include tag-colors-success;
         }
@@ -69,6 +76,10 @@
         
         &.file-status-tag-danger {
           @include tag-colors-danger;
+        }
+        
+        &.file-status-tag-disabled {
+          @include tag-colors-disabled;
         }
         
         &+.file-status-tag {

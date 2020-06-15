@@ -21,13 +21,26 @@
       {{/if}}
     </span>
     <span class="item-icon-container item-icon-container-right">
-      {{one-icon
-        icon=fileQosStatusIcon
-        class=(concat
-          "item-icon file-qos-status qos-status-"
-          fileQosStatus
-        )
-      }}
+      {{#if (eq fileQosStatus "impossible")}}
+        {{one-icon-tagged
+          icon="checkbox-pending"
+          class=(concat
+            "item-icon file-qos-status tag-right qos-status-"
+            fileQosStatus
+          )
+          tagIcon="warning"
+          shadowType="none"
+        }}
+      {{else}}
+        {{one-icon
+          icon=fileQosStatusIcon
+          class=(concat
+            "item-icon file-qos-status qos-status-"
+            fileQosStatus
+          )
+        }}
+      {{/if}}
+      
       {{one-tooltip title=(tt
         this
         (concat "statusHint." fileQosStatus)

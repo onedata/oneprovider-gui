@@ -23,12 +23,12 @@ describe('Unit | Utility | qos modal file item', function () {
     });
   });
 
-  it('has status fulfilled when qosSummary loads and has fulfilled flag ', function () {
+  it('has status fulfilled when qosSummary loads and has fulfilled status ', function () {
     function fetchFileQosSummary() {
       return new Promise((resolve) => {
         later(() => {
           resolve({
-            fulfilled: true,
+            status: 'fulfilled',
           });
         }, 1);
       });
@@ -47,13 +47,13 @@ describe('Unit | Utility | qos modal file item', function () {
     });
   });
 
-  it('has status pending when qosSummary loads and has fulfilled flag to false',
+  it('has status pending when qosSummary loads and has pending status',
     function () {
       function fetchFileQosSummary() {
         return new Promise((resolve) => {
           later(() => {
             resolve({
-              fulfilled: false,
+              status: 'pending',
             });
           }, 1);
         });

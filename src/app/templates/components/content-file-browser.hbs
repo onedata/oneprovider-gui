@@ -1,6 +1,7 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   {{file-browser
     dir=dir
+    spacePrivileges=spacePrivileges
     selectedFiles=selectedFiles
     changeSelectedFiles=(action "changeSelectedFiles")
     updateDirEntityId=(action "updateDirEntityId")
@@ -93,6 +94,8 @@
     {{qos-modal
       open=true
       files=filesToShowQos
+      showPrivilege=spacePrivileges.viewQos
+      editPrivilege=spacePrivileges.manageQos
       onHide=(action "closeQosModal")
       getDataUrl=(action "getDataUrl")
     }}

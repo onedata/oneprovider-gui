@@ -8,7 +8,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { get, computed } from '@ember/object';
+import EmberObject, { get, set, computed } from '@ember/object';
 import { resolve, all as allFulfilled } from 'rsvp';
 import QosItem from 'oneprovider-gui/utils/qos-item';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -33,6 +33,13 @@ export default EmberObject.extend(...objectMixins, {
   file: undefined,
 
   /**
+   * Initialized on init.
+   * Stores mapping of QoS entityId -> QosItem.
+   * @type {Map}
+   */
+  qosItemsCache: undefined,
+
+  /**
    * @override
    */
   fetchFileQosSummary() {
@@ -40,11 +47,11 @@ export default EmberObject.extend(...objectMixins, {
       store,
       file,
     } = this.getProperties('store', 'file');
-    const fileQosSummaryGri = file.belongsTo('fileQos').id();
+    const fileQosSummaryGri = file.belongsTo('fileQosSummary').id();
     // in case, there were error when fetching the relation last time (eg. forbidden)
     const prePromise = fileQosSummaryGri ?
       resolve(fileQosSummaryGri) :
-      file.reload().then(file => file.belongsTo('fileQos').id());
+      file.reload().then(file => file.belongsTo('fileQosSummary').id());
     return prePromise
       .then(gri => store.findRecord('fileQosSummary', gri, { reload: true }));
   },
@@ -65,17 +72,29 @@ export default EmberObject.extend(...objectMixins, {
    * @override
    */
   fetchQosItems() {
-    const file = this.get('file');
+    const {
+      file,
+      qosItemsCache,
+    } = this.getProperties('file', 'qosItemsCache');
     return this.updateFileQosSummaryProxy({ replace: true }).then(fileQosSummary =>
       this.updateQosRecordsProxy({ replace: true, fetchArgs: [true] }).then(qosRecords =>
-        allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile =>
-          QosItem.create({
-            modalFileId: get(file, 'entityId'),
-            qosSourceFile,
-            fileQosSummary,
-            qos,
-          })
-        )))
+        allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile => {
+          const qosId = get(qos, 'entityId');
+          if (qosItemsCache.has(qosId)) {
+            const qosItem = qosItemsCache.get(qosId);
+            set(qosItem, 'fileQosSummary', fileQosSummary);
+            return qosItem;
+          } else {
+            const qosItem = QosItem.create({
+              modalFileId: get(file, 'entityId'),
+              qosSourceFile,
+              fileQosSummary,
+              qos,
+            });
+            qosItemsCache.set(qosId, qosItem);
+            return qosItem;
+          }
+        })))
       )
     );
   },
@@ -100,8 +119,13 @@ export default EmberObject.extend(...objectMixins, {
       } else if (get(fileQosSummaryProxy, 'isRejected')) {
         return 'error';
       } else {
-        return get(fileQosSummaryProxy, 'content.fulfilled') ? 'fulfilled' : 'pending';
+        return get(fileQosSummaryProxy, 'content.status');
       }
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.set('qosItemsCache', new Map());
+  },
 });

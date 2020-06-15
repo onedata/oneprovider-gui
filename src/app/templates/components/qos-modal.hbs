@@ -59,16 +59,32 @@
           </div>
         {{/one-switchable-popover-modal}}
         {{#if allQosStatusIcon}}
-          {{#one-icon
-            icon=allQosStatusIcon
-            class=(concat "header-icon all-qos-status qos-status-" allQosStatus)
-          }}
-            {{one-tooltip title=(tt
-              this
-              (concat "fileQosStatusHint." allQosStatus)
-              fileType=fileTypeText
-            )}}
-          {{/one-icon}}
+          {{#if (eq allQosStatus "impossible")}}
+            {{#one-icon-tagged
+              icon="checkbox-pending"
+              class=(concat "all-qos-status tag-right qos-status-" allQosStatus)
+              iconClass="header-icon"
+              tagIcon="warning"
+              shadowType="none"
+            }}
+              {{one-tooltip title=(tt
+                this
+                (concat "fileQosStatusHint.impossible")
+                fileType=fileTypeText
+              )}}
+            {{/one-icon-tagged}}
+          {{else}}
+            {{#one-icon
+              icon=allQosStatusIcon
+              class=(concat "header-icon all-qos-status qos-status-" allQosStatus)
+            }}
+              {{one-tooltip title=(tt
+                this
+                (concat "fileQosStatusHint." allQosStatus)
+                fileType=fileTypeText
+              )}}
+            {{/one-icon}}
+          {{/if}}
         {{/if}}
       {{/if}}
     </h1>
@@ -83,7 +99,7 @@
     {{else}}
       {{#if multipleFiles}}
         {{#one-collapsible-list class="hide-final-border" as |list|}}
-          {{#each fileItems as |fileItem|}}
+          {{#each fileItems key="entityId" as |fileItem|}}
             {{#list.item as |listItem|}}
               {{qos-modal/file-entry
                 listItem=listItem
@@ -122,7 +138,7 @@
       <div class="btn-tooltip-container">
         {{#one-spin-button
           class="btn btn-primary"
-          disabled=(not newEntryIsValid)
+          disabled=(or (not newEntryIsValid) (not editPrivilege))
           action=(action "save")
         }}
           {{tt this "save"}}
@@ -132,12 +148,18 @@
         {{/if}}
       </div>
     {{else}}
-      {{#bs-button
-        onClick=(action (mut mode) "add")
-        type="primary"
-      }}
-        {{tt this "add"}}
-      {{/bs-button}}
+      <div class="btn-tooltip-container">
+        {{#bs-button
+          onClick=(action (mut mode) "add")
+          type="primary"
+          disabled=(not editPrivilege)
+        }}
+          {{tt this "add"}}
+        {{/bs-button}}
+        {{#unless editPrivilege}}
+          {{one-tooltip title=(tt this "noEditHint")}}
+        {{/unless}}
+      </div>
     {{/if}}
   {{/modal.footer}}
 {{/bs-modal}}

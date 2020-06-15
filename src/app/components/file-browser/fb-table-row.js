@@ -125,6 +125,12 @@ export default Component.extend(I18n, FastDoubleClick, {
   nameConflict: false,
 
   /**
+   * @virtual
+   * @type {Boolean}
+   */
+  qosViewForbidden: false,
+
+  /**
    * Time in ms when the touch should be treated as a hold
    * @type {number}
    */

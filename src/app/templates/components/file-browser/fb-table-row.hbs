@@ -56,7 +56,6 @@
                   (if previewMode "file-status-tag-warning")
                 }}
                 {{action
-                  
                   (action "invokeFileAction" file "btnPermissions")
                   bubbles=false
                 }}
@@ -68,8 +67,30 @@
               </div>
             {{/if}}
             {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
-              <div class="file-status-tag file-status-qos {{if hasDirectQos "file-status-qos-direct"}}" {{action (action "invokeFileAction" file "btnQos") bubbles=false}}>
-                {{tt this "status.qos"}}{{#unless hasDirectQos}}&nbsp;⬆{{/unless}}
+              <div
+                class={{concat-classes
+                  "file-status-tag"
+                  "file-status-qos"
+                  (if hasDirectQos "file-status-qos-direct")
+                  (if qosViewForbidden "file-status-tag-disabled")
+                }}
+                {{action 
+                  (if qosViewForbidden
+                    (no-action)
+                    (action "invokeFileAction" file "btnQos")
+                  )
+                  bubbles=false
+                }}
+              >
+                {{tt this "status.qos"}}
+                {{#unless hasDirectQos}}
+                  <div class="inline-icon-container">
+                    {{one-icon icon="arrow-long-up"}}
+                  </div>
+                {{/unless}}
+                {{#if qosViewForbidden}}
+                  {{one-tooltip title=(tt this "hintQosViewForbidden")}}
+                {{/if}}
               </div>
             {{/if}}
           </div>

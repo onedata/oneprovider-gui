@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { conditional, raw, promise, tag } from 'ember-awesome-macros';
+import { promise, tag, getBy, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -20,6 +20,7 @@ import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 import { next, later, cancel } from '@ember/runloop';
 import $ from 'jquery';
+import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
 
 export default Component.extend(I18n, {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],
@@ -103,7 +104,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  fulfilledForFile: reads('qosItem.fulfilledForFile'),
+  statusForFile: reads('qosItem.statusForFile'),
 
   /**
    * @type {ComputedProperty<Models.File>}
@@ -118,6 +119,7 @@ export default Component.extend(I18n, {
   qosSourceFilePathProxy: promise.object(computed(
     'qosSourceFile.{name,parent}',
     function qosSourceFilePathProxy() {
+      console.log('source file path recomputed');
       return resolveFilePath(this.get('qosSourceFile'))
         .then(path => stringifyFilePath(path));
     }
@@ -131,17 +133,9 @@ export default Component.extend(I18n, {
     return getDataUrl({ qosSourceFileId });
   }),
 
-  statusId: conditional(
-    'fulfilledForFile',
-    raw('fulfilled'),
-    raw('pending'),
-  ),
+  statusId: reads('statusForFile'),
 
-  statusIcon: conditional(
-    'fulfilledForFile',
-    raw('checkbox-filled'),
-    raw('checkbox-pending'),
-  ),
+  statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
 
   actions: {
     confirmRemove() {

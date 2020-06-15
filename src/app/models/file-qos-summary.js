@@ -19,10 +19,19 @@ export default Model.extend(
   createDataProxyMixin('qosRecords', { type: 'array' }), {
     qosManager: service(),
 
-    entries: attr('object'),
+    /**
+     * - Keys: qos requirement entity ids
+     * - Values: one of: fulfilled, pending, impossible
+     * @type {ComputedProperty<Object>}
+     */
+    requirements: attr('object'),
 
-    fulfilled: computed('entries.[]', function fulfilled() {
-      return Object.values(this.get('entries')).every(entry => entry === true);
+    status: computed('requirements.[]', function status() {
+      const statusesSet = new Set(Object.values(this.get('requirements')));
+      return statusesSet.has('impossible') && 'impossible' ||
+        statusesSet.has('pending') && 'pending' ||
+        statusesSet.has('fulfilled') && statusesSet.size === 1 && 'fulfilled' ||
+        'error';
     }),
 
     /**
@@ -30,11 +39,11 @@ export default Model.extend(
      */
     fetchQosRecords() {
       const {
-        entries,
+        requirements,
         scope,
         qosManager,
-      } = this.getProperties('entries', 'scope', 'qosManager');
-      return allFulfilled(Object.keys(entries).map(qosId =>
+      } = this.getProperties('requirements', 'scope', 'qosManager');
+      return allFulfilled(Object.keys(requirements).map(qosId =>
         qosManager.getRecordById(qosId, scope)
       ));
     },

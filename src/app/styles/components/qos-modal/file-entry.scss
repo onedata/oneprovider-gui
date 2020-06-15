@@ -1,9 +1,18 @@
 .qos-modal-file-entry {
+  .item-icon-container {
+    position: relative;
+    height: 22px;
+    .item-icon.file-qos-status {
+      @include vertical-align-middle;
+      position: relative;
+    }
+  }
   .item-icon.file-qos-status {
     font-size: $qos-icon-size;
   }
   > .one-collapsible-list-item-header > .header-content-container {
     display: flex;
+    align-items: stretch;
     .file-name {
       flex-grow: 1;
       // in case it is truncated - to make some space before req. number info
