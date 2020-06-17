@@ -59,7 +59,7 @@ export default Component.extend(...objectMixins, {
       return this.get('removeQosRequirement')(qosRequirement);
     },
     getDataUrl() {
-      return this.get('getDataUrl')();
+      return this.get('getDataUrl')(...arguments);
     },
     closeModal() {
       this.get('closeModal')();

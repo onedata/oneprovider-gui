@@ -105,7 +105,7 @@
                 listItem=listItem
                 fileItem=fileItem
                 removeQosRequirement=(action "removeQosRequirement")
-                getDataUrl=(action "getDataUrl" (hash fileId=file.entityId))
+                getDataUrl=(action "getDataUrl")
                 closeModal=(action "onHide")
               }}
             {{/list.item}}
@@ -116,7 +116,7 @@
           file=fileItems.firstObject.file
           qosItemsProxy=fileItems.firstObject.qosItemsProxy
           removeQosRequirement=(action "removeQosRequirement")
-          getDataUrl=(action "getDataUrl" (hash fileId=file.entityId))
+          getDataUrl=(action "getDataUrl")
           closeModal=(action "onHide")
         }}
       {{/if}}

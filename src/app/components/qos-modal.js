@@ -259,8 +259,8 @@ export default Component.extend(I18n, {
           this.updateData();
         });
     },
-    getDataUrl({ fileId }) {
-      return this.get('getDataUrl')({ fileId });
+    getDataUrl() {
+      return this.get('getDataUrl')(...arguments);
     },
     fileQosStatusChanged(fileId, status) {
       const filesStatus = this.get('filesStatus');
