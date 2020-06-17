@@ -57,13 +57,16 @@
     padding=false
     triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
     open=currentDirActionsOpen
+    as |popover|
   }}
     {{#click-outside action=(action "toggleCurrentDirActions" false)}}
-      {{actions-popover-content
-        actionsArray=currentDirMenuButtons
-        actionClicked=(action "toggleCurrentDirActions" false)
-        class="current-dir-actions"
-      }}
+      {{#popover-content-limit opened=popover.opened}}
+        {{actions-popover-content
+          actionsArray=currentDirMenuButtons
+          actionClicked=(action "toggleCurrentDirActions" false)
+          class="current-dir-actions ps--focus"
+        }}
+      {{/popover-content-limit}}
     {{/click-outside}}
   {{/one-webui-popover}}
   <div class="current-dir-actions-trigger floating-actions-trigger"></div>
