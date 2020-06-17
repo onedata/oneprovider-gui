@@ -52,6 +52,12 @@
           <p>{{tt this "showHintIntro"}}</p>
           <p>{{tt this "showHintTransfers"}}</p>
           <p>{{tt this "showHintRemoving"}}</p>
+          <p>
+            {{one-doc-see-more
+              linkName=(tt this "showHintDocLinkName")
+              docPath="using_onedata/qos.html"
+            }}
+          </p>
           <div class="btn-toolbar text-right visible-xs-block">
             {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
               {{tt this "hintClose"}}
