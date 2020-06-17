@@ -30,6 +30,7 @@ export const qosStatusIcons = {
 
 export default Component.extend(I18n, {
   qosManager: service(),
+  fileManager: service(),
   globalNotify: service(),
   store: service(),
   i18n: service(),
@@ -218,10 +219,16 @@ export default Component.extend(I18n, {
     const {
       files,
       qosManager,
+      fileManager,
       globalNotify,
-    } = this.getProperties('files', 'qosManager', 'globalNotify');
+    } = this.getProperties('files', 'qosManager', 'fileManager', 'globalNotify');
     return allSettled(files.map(file => {
-        return qosManager.createQosRequirement(file, expressionInfix, replicasNumber);
+        return qosManager.createQosRequirement(file, expressionInfix, replicasNumber)
+          .finally(() => {
+            if (get(file, 'type') === 'dir') {
+              return fileManager.dirChildrenRefresh(get(file, 'entityId'));
+            }
+          });
       }))
       .then(results => {
         const rejectedResult = results.findBy('state', 'rejected');
@@ -254,10 +261,19 @@ export default Component.extend(I18n, {
       return this.addEntry(this.get('newEntryData'));
     },
     removeQosRequirement(qosRequirement) {
-      return this.get('qosManager').removeQosRequirement(qosRequirement)
-        .finally(() => {
-          this.updateData();
-        });
+      const {
+        qosManager,
+        fileManager,
+      } = this.getProperties('qosManager', 'fileManager');
+      return get(qosRequirement, 'file').then(file => {
+        return qosManager.removeQosRequirement(qosRequirement)
+          .finally(() => {
+            this.updateData();
+            if (get(file, 'type') === 'dir') {
+              return fileManager.dirChildrenRefresh(get(file, 'entityId'));
+            }
+          });
+      });
     },
     getDataUrl() {
       return this.get('getDataUrl')(...arguments);
