@@ -9,7 +9,7 @@
  */
 
 import EmberObject, { get, set, computed } from '@ember/object';
-import { resolve, all as allFulfilled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import QosItem from 'oneprovider-gui/utils/qos-item';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
@@ -20,12 +20,6 @@ const objectMixins = [
 ];
 
 export default EmberObject.extend(...objectMixins, {
-  /**
-   * @virtual
-   * @type {Service}
-   */
-  store: undefined,
-
   /**
    * @virtual
    * @type {Models.File}
@@ -43,17 +37,7 @@ export default EmberObject.extend(...objectMixins, {
    * @override
    */
   fetchFileQosSummary() {
-    const {
-      store,
-      file,
-    } = this.getProperties('store', 'file');
-    const fileQosSummaryGri = file.belongsTo('fileQosSummary').id();
-    // in case, there were error when fetching the relation last time (eg. forbidden)
-    const prePromise = fileQosSummaryGri ?
-      resolve(fileQosSummaryGri) :
-      file.reload().then(file => file.belongsTo('fileQosSummary').id());
-    return prePromise
-      .then(gri => store.findRecord('fileQosSummary', gri, { reload: true }));
+    return this.get('file').getRelation('fileQosSummary');
   },
 
   /**

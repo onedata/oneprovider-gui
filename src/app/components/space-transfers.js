@@ -12,7 +12,7 @@ import Component from '@ember/component';
 import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { and, equal, promise, raw } from 'ember-awesome-macros';
+import { promise } from 'ember-awesome-macros';
 import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import generateColors from 'onedata-gui-common/utils/generate-colors';
@@ -21,10 +21,6 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 export default Component.extend(I18n, {
   classNames: ['space-transfers', 'row'],
   i18n: service(),
-  store: service(),
-  onedataConnection: service(),
-  transferManager: service(),
-  errorExtractor: service(),
   guiContext: service(),
 
   /**
@@ -68,21 +64,14 @@ export default Component.extend(I18n, {
   providers: reads('providersProxy.content'),
 
   /**
-   * List of providers that support this space
+   * List of providers that support this space.
    * @type {ComputedProperty<Ember.Array<Provider>>}
    */
   providersProxy: promise.array(
-    computed('space.providerList.list.[]', function providersProxy() {
-      return this.get('space.providerList')
-        .then(providerList => get(providerList, 'list'))
-        .then(list => list.toArray());
+    computed(function providersProxy() {
+      return this.get('space').getRelation('providerList')
+        .then(providerList => get(providerList, 'list'));
     })
-  ),
-
-  // TODO: falsy isSupportedByOngoingProvider will cause infinite loading
-  generalDataLoaded: and(
-    equal('isSupportedByOngoingProvider', raw(true)),
-    'providersProxy.isSettled',
   ),
 
   /**

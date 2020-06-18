@@ -43,16 +43,24 @@ describe('Integration | Component | content space transfers', function () {
       entityId: 'p2',
       name: 'Provider Two',
     };
+    const providerListPromise = resolve({
+      list: resolve([
+        provider1,
+        provider2,
+      ]),
+    });
     const space = {
       updateTransfersActiveChannelsProxy: resolve(
         transfersActiveChannels
       ),
-      providerList: resolve({
-        list: resolve([
-          provider1,
-          provider2,
-        ]),
-      }),
+      providerList: providerListPromise,
+      getRelation(name) {
+        if (name === 'providerList') {
+          return providerListPromise;
+        } else {
+          throw new Error('not mocked');
+        }
+      },
     };
     const store = lookupService(this, 'store');
     const transferManager = lookupService(this, 'transferManager');

@@ -51,12 +51,18 @@ describe('Integration | Component | space transfers', function () {
     this.on('resetQueryParams', resetQueryParams);
     this.on('changeListTab', changeListTab);
     this.on('closeFileTab', closeFileTab);
+    const providerListProxy = promiseObject(resolve({
+      list: promiseArray(resolve(providers)),
+    }));
     const space = {
       entityId: spaceId,
       entityType: 'op_space',
-      providerList: promiseObject(resolve({
-        list: promiseArray(resolve(providers)),
-      })),
+      providerList: providerListProxy,
+      getRelation(name) {
+        if (name === 'providerList') {
+          return providerListProxy;
+        }
+      },
     };
     const fileId = 'dummyFileId';
     const defaultTab = 'waiting';

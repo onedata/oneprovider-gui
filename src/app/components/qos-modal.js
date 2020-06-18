@@ -32,7 +32,6 @@ export default Component.extend(I18n, {
   qosManager: service(),
   fileManager: service(),
   globalNotify: service(),
-  store: service(),
   i18n: service(),
 
   /**
@@ -128,11 +127,9 @@ export default Component.extend(I18n, {
   filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
 
   fileItems: computed('files.[]', function fileItems() {
-    const store = this.get('store');
     const filesSorted = [...this.get('files')].sortBy('name');
     return filesSorted.map(file => {
       return QosModalFileItem.create({
-        store,
         file,
       });
     });
