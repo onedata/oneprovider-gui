@@ -20,14 +20,16 @@
           </div>
         </div>
       </div>
-      {{#clipboard-line
-        type="html"
-        size=(if smallContent "sm")
-        rawValue=rawExpressionInfix
-        class="monospace-font clipboard-line-expression qos-entry-expression"
-      }}
-        {{qos-expression-viewer expressionRpn=expressionRpn}}
-      {{/clipboard-line}}
+      <div class="qos-expression-text-field">
+        {{#clipboard-line
+          type="html"
+          size=(if smallContent "sm")
+          rawValue=rawExpressionInfix
+          class="monospace-font clipboard-line-expression qos-entry-expression"
+        }}
+          {{qos-expression-viewer expressionRpn=expressionRpn}}
+        {{/clipboard-line}}
+      </div>
       <div class="qos-buttons">
         {{one-icon
           id=idInfoTriggerId

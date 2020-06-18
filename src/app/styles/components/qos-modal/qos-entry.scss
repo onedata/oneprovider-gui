@@ -24,6 +24,12 @@
     @media (max-width: $screen-xs-max) {
       flex-direction: column;
     }
+    .qos-expression-text-field {
+      flex-grow: 1;
+      @media (max-width: $screen-xs-max) {
+        order: 3;
+      }
+    }
     .header-element-top-fix {
       margin-top: 3px;
     }
@@ -58,9 +64,6 @@
   .qos-entry-expression {
     $tag-bottom-margin: 4px;
     $form-control-margin: 10px;
-    @media (max-width: $screen-xs-max) {
-      order: 3;
-    }
     .tag-item {
       margin-bottom: $tag-bottom-margin;
     }
