@@ -80,7 +80,8 @@ export default Component.extend(I18n, {
    * If modal is opened - interval in ms to auto update data
    * @type {Number}
    */
-  updateInterval: conditional('open', raw(5000), null),
+  // FIXME: test
+  updateInterval: conditional('open', raw(50000000), null),
 
   /**
    * Initialized in init
@@ -214,12 +215,13 @@ export default Component.extend(I18n, {
 
   addEntry({ replicasNumber, expressionInfix }) {
     const {
-      files,
+      fileItems,
       qosManager,
       fileManager,
       globalNotify,
-    } = this.getProperties('files', 'qosManager', 'fileManager', 'globalNotify');
-    return allSettled(files.map(file => {
+    } = this.getProperties('fileItems', 'qosManager', 'fileManager', 'globalNotify');
+    return allSettled(fileItems.map(fileItem => {
+        const file = get(fileItem, 'file');
         return qosManager.createQosRequirement(file, expressionInfix, replicasNumber)
           .finally(() => {
             if (get(file, 'type') === 'dir') {

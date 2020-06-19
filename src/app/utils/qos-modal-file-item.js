@@ -37,7 +37,7 @@ export default EmberObject.extend(...objectMixins, {
    * @override
    */
   fetchFileQosSummary() {
-    return this.get('file').getRelation('fileQosSummary');
+    return this.get('file').getRelation('fileQosSummary', { reload: true });
   },
 
   /**
