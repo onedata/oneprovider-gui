@@ -13,7 +13,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { reads } from '@ember/object/computed';
 import { conditional, equal, raw, or, not, eq, and } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import _ from 'lodash';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
@@ -31,6 +31,7 @@ const metadataTypes = ['xattrs', 'json', 'rdf'];
 const tabStateClassTypes = {
   blank: 'inactive',
   invalid: 'danger',
+  error: 'disabled',
   modified: 'warning',
   saved: 'success',
   present: 'success',
@@ -146,6 +147,7 @@ export default Component.extend(
     initMetadataProperties() {
       metadataTypes.forEach(type => {
         const originalName = metadataOriginalName(type);
+        const proxyName = metadataOriginalProxyName(type);
         const currentName = metadataCurrentName(type);
         const isModifiedName = metadataIsModifiedName(type);
         const isValidName = metadataIsValidName(type);
@@ -189,15 +191,19 @@ export default Component.extend(
           currentName,
           isModifiedName,
           isValidName,
+          `${proxyName}.isRejected`,
         ];
         // eg. `xattrsTabState`
         this[tabStateName] =
           computed(...tabStateDeps, 'previewMode', function () {
             const previewMode = this.get('previewMode');
+            const originalProxy = this.get(proxyName);
             const currentValue = this.get(currentName);
             const isModified = this.get(isModifiedName);
             const isValid = this.get(isValidName);
-            if (isValid === false) {
+            if (get(originalProxy, 'isRejected')) {
+              return 'error';
+            } else if (isValid === false) {
               return 'invalid';
             } else if (currentValue === emptyValue && !isModified) {
               return 'blank';
@@ -328,6 +334,10 @@ function metadataFetcherName(type) {
 
 function metadataUpdaterName(type) {
   return camelize(`update-${type}-original-proxy`);
+}
+
+function metadataOriginalProxyName(type) {
+  return `${type}OriginalProxy`;
 }
 
 function metadataIsModifiedName(type) {
