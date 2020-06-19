@@ -80,8 +80,7 @@ export default Component.extend(I18n, {
    * If modal is opened - interval in ms to auto update data
    * @type {Number}
    */
-  // FIXME: test
-  updateInterval: conditional('open', raw(50000000), null),
+  updateInterval: conditional('open', raw(5000), null),
 
   /**
    * Initialized in init
@@ -164,15 +163,6 @@ export default Component.extend(I18n, {
       this.set('updater.interval', this.get('updateInterval'));
     }
   ),
-
-  isAnyEntryObserver: observer(
-    'qosItems.length',
-    'qosItemsProxy.isFulfilled',
-    function isAnyEntryObserver() {
-      if (this.get('qosItemsProxy.isFulfilled') && !this.get('qosItems.length')) {
-        this.set('mode', 'add');
-      }
-    }),
 
   init() {
     this._super(...arguments);
@@ -276,12 +266,6 @@ export default Component.extend(I18n, {
     },
     getDataUrl() {
       return this.get('getDataUrl')(...arguments);
-    },
-    fileQosStatusChanged(fileId, status) {
-      const filesStatus = this.get('filesStatus');
-      const newFilesStatus = Object.assign({}, filesStatus);
-      newFilesStatus[fileId] = status;
-      this.set('filesStatus', newFilesStatus);
     },
   },
 });

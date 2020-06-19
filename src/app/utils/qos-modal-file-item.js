@@ -60,9 +60,11 @@ export default EmberObject.extend(...objectMixins, {
       file,
       qosItemsCache,
     } = this.getProperties('file', 'qosItemsCache');
-    return this.updateFileQosSummaryProxy({ replace: true }).then(fileQosSummary =>
-      this.updateQosRecordsProxy({ replace: true, fetchArgs: [true] }).then(qosRecords =>
-        allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile => {
+    return this.updateQosRecordsProxy({ replace: true, fetchArgs: [true] })
+      .then(qosRecords => {
+        // summary should be fresh after qos records update
+        const fileQosSummary = this.get('fileQosSummary');
+        return allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile => {
           const qosId = get(qos, 'entityId');
           if (qosItemsCache.has(qosId)) {
             const qosItem = qosItemsCache.get(qosId);
@@ -78,14 +80,14 @@ export default EmberObject.extend(...objectMixins, {
             qosItemsCache.set(qosId, qosItem);
             return qosItem;
           }
-        })))
-      )
-    );
+        })));
+      });
   },
 
+  // NOTE: cannot use other dependecies aside isPending, because of bug
   fileQosStatus: computed(
-    'qosItemsProxy.{content,isSettled}',
-    'fileQosSummaryProxy.{content,isSettled}',
+    'qosItemsProxy.isPending',
+    'fileQosSummaryProxy.isPending',
     function fileQosStatus() {
       const {
         qosItemsProxy,

@@ -47,11 +47,6 @@ export default Component.extend(...objectMixins, {
    */
   closeModal: notImplementedThrow,
 
-  /**
-   * @virtual
-   */
-  fileQosStatusChanged: notImplementedThrow,
-
   sortedQosItems: array.sort('qosItemsProxy.content', ['direct:desc', 'entityId:desc']),
 
   actions: {
