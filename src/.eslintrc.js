@@ -27,7 +27,7 @@ module.exports = {
       1,
       'property',
     ],
-    'eol-last': 1,
+    'eol-last': 0,
     'comma-dangle': [
       1,
       'always-multiline',

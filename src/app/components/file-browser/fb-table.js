@@ -579,6 +579,8 @@ export default Component.extend(I18n, {
         if (fileIsSelected) {
           if (ctrlKey) {
             this.selectRemoveSingleFile(file);
+          } else if (shiftKey) {
+            this.deselectBelowList(file);
           } else {
             this.selectOnlySingleFile(file);
           }
@@ -657,6 +659,14 @@ export default Component.extend(I18n, {
     this.set('lastSelectedFile', null);
   },
 
+  selectRemoveFiles(files) {
+    const {
+      selectedFiles,
+      changeSelectedFiles,
+    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+    changeSelectedFiles(_.difference(selectedFiles, files));
+  },
+
   selectAddSingleFile(file) {
     this.addToSelectedFiles([file]);
     this.set('lastSelectedFile', file);
@@ -696,6 +706,26 @@ export default Component.extend(I18n, {
     const indexA = Math.min(startIndex, fileIndex);
     const indexB = Math.max(startIndex, fileIndex);
     this.addToSelectedFiles(sourceArray.slice(indexA, indexB + 1));
+  },
+
+  deselectBelowList(file) {
+    const filesArray = this.get('filesArray');
+    const selectedFiles = this.get('selectedFiles');
+    const sourceArray = get(filesArray, 'sourceArray');
+    const fileIndex = sourceArray.indexOf(file);
+    const selectedFilesSet = new Set(selectedFiles);
+
+    const belowSelectedFiles = [];
+    let nextFileIndex = fileIndex + 1;
+    let nextFile = sourceArray.objectAt(nextFileIndex);
+    while (nextFile && selectedFilesSet.has(nextFile)) {
+      belowSelectedFiles.push(nextFile);
+      nextFileIndex += 1;
+      nextFile = sourceArray.objectAt(nextFileIndex);
+    }
+
+    this.set('lastSelectedFile', file);
+    this.selectRemoveFiles(belowSelectedFiles);
   },
 
   findNearestSelectedIndex(fileIndex) {
