@@ -13,7 +13,7 @@
   }
 }
 
-.transfers-table {  
+.transfers-table {
   th {
     white-space: nowrap;
     background-color: $color-one-white;
@@ -28,11 +28,17 @@
     }
   }
   
-  @include hide-on-breakpoint(col-hide-1, 960px);
-  @include hide-on-breakpoint(col-hide-2, 800px);
-  @include hide-on-breakpoint(col-hide-3, 710px);
-  @include hide-on-breakpoint(col-hide-4, 600px);
-  @include hide-on-breakpoint(col-hide-5, 500px);
+  .transfers-table-col-scheduledAt,
+  .transfers-table-col-startedAt,
+  .transfers-table-col-finishedAt {
+    min-width: 120px;
+  }
+  
+  @include hide-on-breakpoint(col-hide-1, 1060px);
+  @include hide-on-breakpoint(col-hide-2, 900px);
+  @include hide-on-breakpoint(col-hide-3, 810px);
+  @include hide-on-breakpoint(col-hide-4, 700px);
+  @include hide-on-breakpoint(col-hide-5, 600px);
   
   tr {
     .first-row-space {
@@ -80,7 +86,7 @@
   }
   
   table {
-    table-layout: unset;
+    table-layout: auto;
     thead {
       th {
         border-bottom-width: 1px;
@@ -106,6 +112,11 @@
     .transfers-table-cell-actions {
       width: 40px;
       position: relative;
+    }
+    .transfers-table-cell-path {
+      // thanks to this, cell has a max-width, but in real width is controlled by header
+      max-width: 0;
+      min-width: 180px;
     }
   }
 }
