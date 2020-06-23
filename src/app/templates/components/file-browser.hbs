@@ -60,7 +60,7 @@
     as |popover|
   }}
     {{#click-outside action=(action "toggleCurrentDirActions" false)}}
-      {{#popover-content-limit opened=popover.opened}}
+      {{#popover-content-limit opened=popover.visible}}
         {{actions-popover-content
           actionsArray=currentDirMenuButtons
           actionClicked=(action "toggleCurrentDirActions" false)

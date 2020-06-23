@@ -1,7 +1,6 @@
 <div class="row loadable-row row-transfers-data-container">
   {{#promise-proxy-container proxy=providersProxy}}
-    {{!-- TODO: falsy isSupportedByOngoingProvider will cause infinite loading --}}
-    {{#loading-container isLoading=(not (eq isSupportedByOngoingProvider true))}}
+    {{#if isSupportedByOngoingProvider}}
       {{space-transfers/transfers-overview
         space=space
         providers=providers
@@ -20,7 +19,9 @@
           closeFileTab=(action "closeFileTab")
         }}
       </div>
-    {{/loading-container}}
+    {{else}}
+      {{resource-load-error message=(tt this "notSupportedByProvider")}}
+    {{/if}}
   {{/promise-proxy-container}}
 </div>
 {{yield}}

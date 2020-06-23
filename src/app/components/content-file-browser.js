@@ -197,7 +197,7 @@ export default OneEmbeddedComponent.extend(
      * Observer: watch if injected selection and dir changed to redirect to correct URL
      * @type <Function>
      */
-    indectedDirObserver: observer(
+    injectedDirObserver: observer(
       'injectedDirGri',
       'selected',
       function injectedDirObserver() {
@@ -229,9 +229,7 @@ export default OneEmbeddedComponent.extend(
         const selected = this.get('selected');
         const firstSelectedId = selected && selected[0];
         if (firstSelectedId) {
-          const {
-            fileManager,
-          } = this.getProperties('fileManager');
+          const fileManager = this.get('fileManager');
           return fileManager.getFileById(firstSelectedId)
             .then(file => {
               const parentGri = file.belongsTo('parent').id();
@@ -352,9 +350,14 @@ export default OneEmbeddedComponent.extend(
       },
       changeSelectedFiles(selectedFiles) {
         this.set('selectedFiles', Object.freeze(selectedFiles));
+        // changing selection in file browser should clear Onezone's selection from URL
+        this.updateUnifiedGuiSelected(null);
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);
+      },
+      updateUnifiedGuiSelected(selected) {
+        this.callParent('updateSelected', selected);
       },
       getTransfersUrl({ fileId, tabId }) {
         return this.callParent('getTransfersUrl', { fileId, tabId });

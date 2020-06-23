@@ -17,6 +17,7 @@ export default {
   fileError: 'Error loading file data: {{reason}}',
   unknownFileName: 'File',
   fileTabHint: 'Shows transfers related to selected {{type}}',
+  notSupportedByProvider: 'This space is not supported by current Oneprovider',
   fileTabHintType: {
     file: 'file',
     dir: 'directory',

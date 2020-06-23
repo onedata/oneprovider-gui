@@ -1,3 +1,13 @@
+/**
+ * Detects if file record have suffix (see FileNameParser) and if so, renders
+ * the name with it. Otherwise, renders only the name.
+ *
+ * @module components/file-name-conflict
+ * @author Jakub Liput
+ * @copyright (C) 2020 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import { computed } from '@ember/object';

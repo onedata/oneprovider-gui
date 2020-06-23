@@ -112,7 +112,9 @@
     as |popover|
   }}
     {{#click-outside action=(action "toggleFileActions" false)}}
-      {{#popover-content-limit opened=(and popover.opened contextMenuRepositionTime)}}
+      {{#popover-content-limit
+        opened=(and popover.visible contextMenuRepositionTime)
+      }}
         {{actions-popover-content
           actionsArray=contextMenuButtons
           actionClicked=(action "toggleFileActions" false)
