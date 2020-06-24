@@ -102,6 +102,9 @@ export default OneEmbeddedComponent.extend(
           dirProxy,
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
+          // changing selection in file browser should clear Onezone's selection from URL
+          // because it's one-way relation
+          this.callParent('updateSelected', []);
           return onlyFulfilledValues(selected.map(id => fileManager.getFileById(id)))
             .then(files => {
               return dirProxy.then(dir => !dir ? [] : files.filter(file => {
@@ -120,8 +123,6 @@ export default OneEmbeddedComponent.extend(
               );
               return resolve([]);
             });
-        } else {
-          return resolve([]);
         }
       })
     ),
@@ -350,14 +351,9 @@ export default OneEmbeddedComponent.extend(
       },
       changeSelectedFiles(selectedFiles) {
         this.set('selectedFiles', Object.freeze(selectedFiles));
-        // changing selection in file browser should clear Onezone's selection from URL
-        this.updateUnifiedGuiSelected(null);
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);
-      },
-      updateUnifiedGuiSelected(selected) {
-        this.callParent('updateSelected', selected);
       },
       getTransfersUrl({ fileId, tabId }) {
         return this.callParent('getTransfersUrl', { fileId, tabId });
