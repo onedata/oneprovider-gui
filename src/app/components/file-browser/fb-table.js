@@ -23,7 +23,7 @@ import { scheduleOnce } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
-import { resolve } from 'rsvp';
+import { resolve, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import ViewTester from 'onedata-gui-common/utils/view-tester';
@@ -34,6 +34,7 @@ export default Component.extend(I18n, {
     'hasEmptyDirClass:empty-dir',
     'dirLoadError:error-dir',
     'specialViewClass:special-dir-view',
+    'refreshStarted',
   ],
 
   fileManager: service(),
@@ -102,6 +103,11 @@ export default Component.extend(I18n, {
    */
   previewMode: false,
 
+  /**
+   * @type {Boolean}
+   */
+  renderRefreshSpinner: false,
+
   changeDir: undefined,
 
   _window: window,
@@ -110,6 +116,12 @@ export default Component.extend(I18n, {
    * @type {HTMLElement}
    */
   _body: document.body,
+
+  /**
+   * JS time when context menu was last repositioned
+   * @type {Number}
+   */
+  contextMenuRepositionTime: 1,
 
   /**
    * Set by `one-webui-popover.registerApi` in HBS.
@@ -290,7 +302,44 @@ export default Component.extend(I18n, {
    */
   api: computed(function api() {
     return {
-      refresh: this.refreshFileList.bind(this),
+      refresh: () => {
+        const {
+          refreshStarted,
+          element,
+        } = this.getProperties('refreshStarted', 'element');
+        if (refreshStarted) {
+          return resolve();
+        }
+        this.set('renderRefreshSpinner', true);
+        // wait for refresh spinner to render because it needs to transition
+        return new Promise((resolve, reject) => {
+          scheduleOnce('afterRender', () => {
+            safeExec(this, 'set', 'refreshStarted', true);
+            const animationPromise = new Promise((resolve) => {
+              element.addEventListener(
+                'transitionend',
+                (event) => {
+                  if (event.propertyName === 'opacity') {
+                    resolve();
+                  }
+                }, { once: true }
+              );
+            });
+            this.refreshFileList()
+              .finally(() => {
+                animationPromise.finally(() => {
+                  safeExec(this, 'set', 'refreshStarted', false);
+                  later(() => {
+                    if (!this.get('refreshStarted')) {
+                      safeExec(this, 'set', 'renderRefreshSpinner', false);
+                    }
+                  }, 300);
+                });
+              })
+              .then(resolve, reject);
+          });
+        });
+      },
     };
   }),
 
@@ -530,6 +579,8 @@ export default Component.extend(I18n, {
         if (fileIsSelected) {
           if (ctrlKey) {
             this.selectRemoveSingleFile(file);
+          } else if (shiftKey) {
+            this.deselectBelowList(file);
           } else {
             this.selectOnlySingleFile(file);
           }
@@ -608,6 +659,14 @@ export default Component.extend(I18n, {
     this.set('lastSelectedFile', null);
   },
 
+  selectRemoveFiles(files) {
+    const {
+      selectedFiles,
+      changeSelectedFiles,
+    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+    changeSelectedFiles(_.difference(selectedFiles, files));
+  },
+
   selectAddSingleFile(file) {
     this.addToSelectedFiles([file]);
     this.set('lastSelectedFile', file);
@@ -647,6 +706,26 @@ export default Component.extend(I18n, {
     const indexA = Math.min(startIndex, fileIndex);
     const indexB = Math.max(startIndex, fileIndex);
     this.addToSelectedFiles(sourceArray.slice(indexA, indexB + 1));
+  },
+
+  deselectBelowList(file) {
+    const filesArray = this.get('filesArray');
+    const selectedFiles = this.get('selectedFiles');
+    const sourceArray = get(filesArray, 'sourceArray');
+    const fileIndex = sourceArray.indexOf(file);
+    const selectedFilesSet = new Set(selectedFiles);
+
+    const belowSelectedFiles = [];
+    let nextFileIndex = fileIndex + 1;
+    let nextFile = sourceArray.objectAt(nextFileIndex);
+    while (nextFile && selectedFilesSet.has(nextFile)) {
+      belowSelectedFiles.push(nextFile);
+      nextFileIndex += 1;
+      nextFile = sourceArray.objectAt(nextFileIndex);
+    }
+
+    this.set('lastSelectedFile', file);
+    this.selectRemoveFiles(belowSelectedFiles);
   },
 
   findNearestSelectedIndex(fileIndex) {
@@ -729,11 +808,16 @@ export default Component.extend(I18n, {
         top,
         left,
       });
-      // cause popover refresh
-      if (this.get('fileActionsOpen')) {
-        this.get('contextMenuApi').reposition();
-      }
-      this.actions.toggleFileActions.bind(this)(true, file);
+      // opening popover in after rendering trigger position change prevents from bad 
+      // placement
+      scheduleOnce('afterRender', () => {
+        // cause popover refresh
+        if (this.get('fileActionsOpen')) {
+          this.set('contextMenuRepositionTime', new Date().getTime());
+          this.get('contextMenuApi').reposition();
+        }
+        this.actions.toggleFileActions.bind(this)(true, file);
+      });
     },
 
     toggleFileActions(open, file) {

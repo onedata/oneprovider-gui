@@ -10,7 +10,7 @@
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-import { computed, get } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
@@ -57,6 +57,8 @@ export default OneEmbeddedComponent.extend(
      */
     dirEntityId: undefined,
 
+    _window: window,
+
     fileToShowInfo: undefined,
 
     fileToShowMetadata: undefined,
@@ -100,9 +102,12 @@ export default OneEmbeddedComponent.extend(
           dirProxy,
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
+          // changing selection in file browser should clear Onezone's selection from URL
+          // because it's one-way relation
+          this.callParent('updateSelected', []);
           return onlyFulfilledValues(selected.map(id => fileManager.getFileById(id)))
             .then(files => {
-              return dirProxy.then(dir => files.filter(file => {
+              return dirProxy.then(dir => !dir ? [] : files.filter(file => {
                 const parentGri = file.belongsTo('parent').id();
                 if (parentGri) {
                   // filter out files that have other parents than opened dir
@@ -118,8 +123,6 @@ export default OneEmbeddedComponent.extend(
               );
               return resolve([]);
             });
-        } else {
-          return resolve([]);
         }
       })
     ),
@@ -164,24 +167,101 @@ export default OneEmbeddedComponent.extend(
           spaceProxy,
           store,
           globalNotify,
-        } = this.getProperties('injectedDirGri', 'spaceProxy', 'store', 'globalNotify');
+          _window,
+        } = this.getProperties('injectedDirGri', 'spaceProxy', 'store', 'globalNotify', '_window');
 
-        return spaceProxy.then(space => {
-          if (injectedDirGri) {
-            return store.findRecord('file', injectedDirGri)
-              .then(file => get(file, 'type') === 'file' ? get(file, 'parent') : file)
-              .catch(error => {
-                globalNotify.backendError(this.t('openingDirectory'), error);
-                return get(space, 'rootDir');
-              });
+        return this.openSelectedParentDir().then(redirectUrl => {
+          if (redirectUrl) {
+            _window.open(redirectUrl, '_top');
+            return null;
           } else {
-            return get(space, 'rootDir');
+            return spaceProxy.then(space => {
+              if (injectedDirGri) {
+                return store.findRecord('file', injectedDirGri)
+                  .then(file => get(file, 'type') === 'file' ? get(file, 'parent') : file)
+                  .catch(error => {
+                    globalNotify.backendError(this.t('openingDirectory'), error);
+                    return get(space, 'rootDir');
+                  });
+              } else {
+                return get(space, 'rootDir');
+              }
+            });
           }
         });
       }
     )),
 
     dir: computedLastProxyContent('dirProxy'),
+
+    /**
+     * Observer: watch if injected selection and dir changed to redirect to correct URL
+     * @type <Function>
+     */
+    injectedDirObserver: observer(
+      'injectedDirGri',
+      'selected',
+      function injectedDirObserver() {
+        this.openSelectedParentDir();
+      }
+    ),
+
+    /**
+     * Observer: override selected files when value injected from outside changes
+     * @type <Function>
+     */
+    injectedSelectedChanged: observer(
+      'selectedFilesProxy.content',
+      function injectedSelectedChanged() {
+        const selectedFiles = this.get('selectedFilesProxy.content');
+        if (selectedFiles) {
+          this.set('selectedFiles', selectedFiles);
+        }
+      }),
+
+    /**
+     * Optionally redirects Onezone to URL containing parent directory of first
+     * selected file (if there is no injected dir id and at least one selected file).
+     * If there is no need to redirect, resolves false.
+     * @returns {Promise}
+     */
+    openSelectedParentDir() {
+      if (!this.get('injectedDirGri')) {
+        const selected = this.get('selected');
+        const firstSelectedId = selected && selected[0];
+        if (firstSelectedId) {
+          const fileManager = this.get('fileManager');
+          return fileManager.getFileById(firstSelectedId)
+            .then(file => {
+              const parentGri = file.belongsTo('parent').id();
+              if (parentGri) {
+                const parentId = parseGri(parentGri).entityId;
+                const dataUrl = this.callParent(
+                  'getDataUrl', {
+                    fileId: parentId,
+                    selected,
+                  }
+                );
+                return resolve(dataUrl);
+              } else if (get(selected, 'length') === 0) {
+                const dataUrl = this.callParent(
+                  'getDataUrl', {
+                    fileId: selected[0],
+                    selected: null,
+                  }
+                );
+                return resolve(dataUrl);
+              } else {
+                return resolve(null);
+              }
+            });
+        } else {
+          return resolve(null);
+        }
+      } else {
+        return resolve(null);
+      }
+    },
 
     actions: {
       containerScrollTop() {
@@ -281,8 +361,16 @@ export default OneEmbeddedComponent.extend(
       getShareUrl({ shareId }) {
         return this.callParent('getShareUrl', { shareId });
       },
-      getDataUrl({ fileId }) {
-        return this.callParent('getDataUrl', { fileId });
+
+      /**
+       * @param {Object} data
+       * @param {String} data.fileId entity id of directory to open
+       * @param {String|Array<String>} data.selected list of entity ids of files
+       *  to be selected on view
+       * @returns {String}
+       */
+      getDataUrl(data) {
+        return this.callParent('getDataUrl', data);
       },
     },
   }

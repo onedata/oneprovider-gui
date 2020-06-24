@@ -1,0 +1,24 @@
+{{one-icon icon=fileIcon class="single-file-info-icon"}}
+<div class="single-file-info-text">
+  <div class="row row-single-file-info-file-name">
+    {{#truncated-string class="single-file-info-file-name"}}
+      {{file-name-conflict file=file}}
+    {{/truncated-string}}
+  </div>
+  {{#if (eq file.type "file")}}
+    <div class="row row-additional-file-info small">
+      <span class="single-file-info-label">
+        {{tt this "size"}}:
+      </span>
+      <span class="download-file-size">{{bytes-to-string fileSize}}</span>
+    </div>
+  {{/if}}
+  <div class="row row-additional-file-info small">
+    <span class="single-file-info-label">
+      {{tt this "modificationTime"}}:
+    </span>
+    <span class="download-file-modification">
+      {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+    </span>
+  </div>
+</div>

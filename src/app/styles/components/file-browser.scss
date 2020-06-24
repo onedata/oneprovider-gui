@@ -1,5 +1,4 @@
 @import './file-browser/fb-breadcrumbs';
-@import './file-browser/fb-download-modal';
 @import './file-browser/fb-remove-modal';
 @import './file-browser/fb-selection-toolkit';
 @import './file-browser/fb-table-row';
@@ -109,5 +108,3 @@
 .webui-popover-in-fb-head {
   z-index: $zindex-tooltip - 1;
 }
-
-

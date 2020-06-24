@@ -47,11 +47,6 @@ export default Component.extend(...objectMixins, {
    */
   closeModal: notImplementedThrow,
 
-  /**
-   * @virtual
-   */
-  fileQosStatusChanged: notImplementedThrow,
-
   sortedQosItems: array.sort('qosItemsProxy.content', ['direct:desc', 'entityId:desc']),
 
   actions: {
@@ -59,7 +54,7 @@ export default Component.extend(...objectMixins, {
       return this.get('removeQosRequirement')(qosRequirement);
     },
     getDataUrl() {
-      return this.get('getDataUrl')();
+      return this.get('getDataUrl')(...arguments);
     },
     closeModal() {
       this.get('closeModal')();

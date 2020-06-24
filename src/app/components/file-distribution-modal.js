@@ -179,7 +179,7 @@ export default Component.extend(
      * @override
      */
     fetchOneproviders() {
-      return get(this.get('space'), 'providerList')
+      return this.get('space').getRelation('providerList')
         .then(providerList => get(providerList, 'list'))
         .then(list => allSettled(list.invoke('reload')).then(() => list));
     },

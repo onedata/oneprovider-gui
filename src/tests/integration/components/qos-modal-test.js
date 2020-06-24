@@ -61,7 +61,7 @@ describe('Integration | Component | qos modal', function () {
         return this;
       },
     };
-    file.fileQosSummary = promiseObject(resolve({
+    const summaryPromise = promiseObject(resolve({
       entries: {
         f1: true,
         f2: false,
@@ -80,6 +80,12 @@ describe('Integration | Component | qos modal', function () {
         }),
       ])),
     }));
+    file.fileQosSummary = summaryPromise;
+    file.getRelation = function getRelation(name) {
+      if (name === 'fileQosSummary') {
+        return summaryPromise;
+      }
+    };
     sinon.stub(lookupService(this, 'store'), 'findRecord')
       .withArgs('fileQosSummary', 'file.f1.qos_summary:private')
       .resolves(file.fileQosSummary);

@@ -130,7 +130,7 @@ export default Component.extend(I18n, {
       getDataUrl,
       qosSourceFileId,
     } = this.getProperties('getDataUrl', 'qosSourceFileId');
-    return getDataUrl({ qosSourceFileId });
+    return getDataUrl({ fileId: null, selected: [qosSourceFileId] });
   }),
 
   statusId: reads('statusForFile'),

@@ -1,24 +1,26 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
-  {{file-browser
-    dir=dir
-    spacePrivileges=spacePrivileges
-    selectedFiles=selectedFiles
-    changeSelectedFiles=(action "changeSelectedFiles")
-    updateDirEntityId=(action "updateDirEntityId")
-    openCreateNewDirectory=(action "openCreateItemModal" "dir")
-    openRemove=(action "openRemoveModal")
-    openRename=(action "openRenameModal")
-    openInfo=(action "openInfoModal")
-    openShare=(action "openShareModal")
-    openMetadata=(action "openMetadataModal")
-    openEditPermissions=(action "openEditPermissionsModal")
-    openFileDistributionModal=(action "openFileDistributionModal")
-    openQos=(action "openQosModal")
-    containerScrollTop=(action "containerScrollTop")
-  }}
-  <div class="upload-drop-zone">
-    {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
-  </div>
+  {{#if dir}}
+    {{file-browser
+      dir=dir
+      spacePrivileges=spacePrivileges
+      selectedFiles=selectedFiles
+      changeSelectedFiles=(action "changeSelectedFiles")
+      updateDirEntityId=(action "updateDirEntityId")
+      openCreateNewDirectory=(action "openCreateItemModal" "dir")
+      openRemove=(action "openRemoveModal")
+      openRename=(action "openRenameModal")
+      openInfo=(action "openInfoModal")
+      openShare=(action "openShareModal")
+      openMetadata=(action "openMetadataModal")
+      openEditPermissions=(action "openEditPermissionsModal")
+      openFileDistributionModal=(action "openFileDistributionModal")
+      openQos=(action "openQosModal")
+      containerScrollTop=(action "containerScrollTop")
+    }}
+    <div class="upload-drop-zone">
+      {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
+    </div>
+  {{/if}}
 
   {{#if createItemParentDir}}
     {{file-browser/fb-create-item-modal

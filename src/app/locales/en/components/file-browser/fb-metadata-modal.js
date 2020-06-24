@@ -9,6 +9,7 @@ export default {
   },
   tabStateHint: {
     blank: 'There is no {{type}} metadata set.',
+    error: '{{typeCapitalized}} metadata could not be fetched.',
     invalid: 'Entered {{type}} metadata is invalid ‐ please correct.',
     modified: 'There are unsaved changes in {{type}} metadata.',
     present: '{{typeCapitalized}} metadata is present.',

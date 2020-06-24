@@ -43,14 +43,18 @@
           popoverTrigger="manual"
           triggerSelector=(concat "#" elementId " .breadcrumbs-current-dir-actions-trigger")
           open=dirActionsOpen
+          placement="bottom"
+          as |popover|
         }}
           {{#click-outside action=(action "toggleDirActions" false)}}
-            {{actions-popover-content
-              actionsArray=menuButtons
-              actionsArg=(array currentItem.file)
-              actionClicked=(action "actionClicked")
-              class="dir-actions"
-            }}
+            {{#popover-content-limit opened=popover.visible}}
+              {{actions-popover-content
+                actionsArray=menuButtons
+                actionsArg=(array currentItem.file)
+                actionClicked=(action "actionClicked")
+                class="dir-actions ps--focus"
+              }}
+            {{/popover-content-limit}}
           {{/click-outside}}
         {{/one-webui-popover}}
       </span>

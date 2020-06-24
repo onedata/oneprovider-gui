@@ -1,17 +1,19 @@
-{{#promise-proxy-container proxy=dirProxy}}
-  {{file-browser
-    dir=dirProxy.content
-    previewMode=previewMode
-    selectedFiles=selectedFiles
-    changeSelectedFiles=(action (mut selectedFiles))
-    openRemove=(action "immediatelyRemove")
-  }}
-  
-  {{#if filesToRemove}}
-    {{file-browser/fb-remove-modal
-      open=true
-      files=filesToRemove
-      onHide=(action "closeRemoveModal")
+<div class="content-file-browser">
+  {{#promise-proxy-container proxy=dirProxy}}
+    {{file-browser
+      dir=dirProxy.content
+      previewMode=previewMode
+      selectedFiles=selectedFiles
+      changeSelectedFiles=(action (mut selectedFiles))
+      openRemove=(action "immediatelyRemove")
     }}
-  {{/if}}
-{{/promise-proxy-container}}
+    
+    {{#if filesToRemove}}
+      {{file-browser/fb-remove-modal
+        open=true
+        files=filesToRemove
+        onHide=(action "closeRemoveModal")
+      }}
+    {{/if}}
+  {{/promise-proxy-container}}
+</div>

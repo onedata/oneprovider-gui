@@ -24,6 +24,8 @@ export default ErrorExtractor.extend({
   getType(error) {
     const errorId = (error || {}).id;
     switch (errorId) {
+      case 'posix':
+        return error.details && error.details.errno === 'eacces' ? 'forbidden' : 'error';
       case 'forbidden':
         return 'forbidden';
       default:

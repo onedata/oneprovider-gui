@@ -30,8 +30,8 @@ export const qosStatusIcons = {
 
 export default Component.extend(I18n, {
   qosManager: service(),
+  fileManager: service(),
   globalNotify: service(),
-  store: service(),
   i18n: service(),
 
   /**
@@ -127,11 +127,9 @@ export default Component.extend(I18n, {
   filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
 
   fileItems: computed('files.[]', function fileItems() {
-    const store = this.get('store');
     const filesSorted = [...this.get('files')].sortBy('name');
     return filesSorted.map(file => {
       return QosModalFileItem.create({
-        store,
         file,
       });
     });
@@ -165,15 +163,6 @@ export default Component.extend(I18n, {
       this.set('updater.interval', this.get('updateInterval'));
     }
   ),
-
-  isAnyEntryObserver: observer(
-    'qosItems.length',
-    'qosItemsProxy.isFulfilled',
-    function isAnyEntryObserver() {
-      if (this.get('qosItemsProxy.isFulfilled') && !this.get('qosItems.length')) {
-        this.set('mode', 'add');
-      }
-    }),
 
   init() {
     this._super(...arguments);
@@ -216,12 +205,19 @@ export default Component.extend(I18n, {
 
   addEntry({ replicasNumber, expressionInfix }) {
     const {
-      files,
+      fileItems,
       qosManager,
+      fileManager,
       globalNotify,
-    } = this.getProperties('files', 'qosManager', 'globalNotify');
-    return allSettled(files.map(file => {
-        return qosManager.createQosRequirement(file, expressionInfix, replicasNumber);
+    } = this.getProperties('fileItems', 'qosManager', 'fileManager', 'globalNotify');
+    return allSettled(fileItems.map(fileItem => {
+        const file = get(fileItem, 'file');
+        return qosManager.createQosRequirement(file, expressionInfix, replicasNumber)
+          .finally(() => {
+            if (get(file, 'type') === 'dir') {
+              return fileManager.dirChildrenRefresh(get(file, 'entityId'));
+            }
+          });
       }))
       .then(results => {
         const rejectedResult = results.findBy('state', 'rejected');
@@ -254,19 +250,22 @@ export default Component.extend(I18n, {
       return this.addEntry(this.get('newEntryData'));
     },
     removeQosRequirement(qosRequirement) {
-      return this.get('qosManager').removeQosRequirement(qosRequirement)
-        .finally(() => {
-          this.updateData();
-        });
+      const {
+        qosManager,
+        fileManager,
+      } = this.getProperties('qosManager', 'fileManager');
+      return get(qosRequirement, 'file').then(file => {
+        return qosManager.removeQosRequirement(qosRequirement)
+          .finally(() => {
+            this.updateData();
+            if (get(file, 'type') === 'dir') {
+              return fileManager.dirChildrenRefresh(get(file, 'entityId'));
+            }
+          });
+      });
     },
-    getDataUrl({ fileId }) {
-      return this.get('getDataUrl')({ fileId });
-    },
-    fileQosStatusChanged(fileId, status) {
-      const filesStatus = this.get('filesStatus');
-      const newFilesStatus = Object.assign({}, filesStatus);
-      newFilesStatus[fileId] = status;
-      this.set('filesStatus', newFilesStatus);
+    getDataUrl() {
+      return this.get('getDataUrl')(...arguments);
     },
   },
 });

@@ -13,7 +13,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { notEmpty, conditional, equal, raw } from 'ember-awesome-macros';
+import { notEmpty } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   i18n: service(),
@@ -46,16 +46,6 @@ export default Component.extend(I18n, {
   confirmDownload: notImplementedReject,
 
   itemType: reads('file.type'),
-
-  fileName: reads('file.name'),
-
-  fileSize: reads('file.size'),
-
-  fileIcon: conditional(
-    equal('file.type', 'dir'),
-    raw('browser-directory'),
-    raw('browser-file')
-  ),
 
   actions: {
     close() {

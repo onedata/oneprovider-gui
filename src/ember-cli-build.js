@@ -85,12 +85,12 @@ module.exports = function (defaults) {
   const BOWER_ASSETS = [
     'basictable/jquery.basictable.min.js',
     'basictable/basictable.css',
-    'webui-popover/dist/jquery.webui-popover.css',
-    'webui-popover/dist/jquery.webui-popover.js',
   ];
 
   const NODE_ASSETS = [
     'perfect-scrollbar/css/perfect-scrollbar.css',
+    'webui-popover/dist/jquery.webui-popover.css',
+    'webui-popover/dist/jquery.webui-popover.js',
   ];
 
   const VENDOR_ASSETS = [

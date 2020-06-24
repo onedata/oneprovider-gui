@@ -563,8 +563,7 @@ export default Component.extend(I18n, {
       openQos,
     } = this.getProperties('spacePrivileges', 'openQos');
     const canView = get(spacePrivileges, 'viewQos');
-    const canManage = get(spacePrivileges, 'manageQos');
-    const disabled = !canView && !canManage;
+    const disabled = !canView;
     return this.createFileAction({
       id: 'qos',
       icon: 'qos',

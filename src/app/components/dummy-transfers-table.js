@@ -109,7 +109,7 @@ function someReduce() {
   transfer1: computed('index1', 'progress1', function transfer1() {
     return FakeTransfer.create({
       dummyTransfersTable: this,
-      dataSourceName: 'Some db index',
+      dataSourceName: 'Some db index foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar',
       dataSourceType: 'view',
       dataSourceId: 'vi1',
       entityId: 't1',

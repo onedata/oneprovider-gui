@@ -1,23 +1,27 @@
 <div class="row loadable-row row-transfers-data-container">
-  {{#loading-container isLoading=(not generalDataLoaded)}}
-    {{space-transfers/transfers-overview
-      space=space
-      providers=providers
-      destinationProviderIds=destinationProviderIds
-      sourceProviderIds=sourceProviderIds
-      providersColors=providersColors
-    }}
-    <div class="row row-transfers-tables">
-      {{space-transfers/tables-container
-        providers=providers
-        providersColors=providersColors
+  {{#promise-proxy-container proxy=providersProxy}}
+    {{#if isSupportedByOngoingProvider}}
+      {{space-transfers/transfers-overview
         space=space
-        fileId=fileId
-        tab=tab
-        changeListTab=(action "changeListTab")
-        closeFileTab=(action "closeFileTab")
+        providers=providers
+        destinationProviderIds=destinationProviderIds
+        sourceProviderIds=sourceProviderIds
+        providersColors=providersColors
       }}
-    </div>
-  {{/loading-container}}
+      <div class="row row-transfers-tables">
+        {{space-transfers/tables-container
+          providers=providers
+          providersColors=providersColors
+          space=space
+          fileId=fileId
+          tab=tab
+          changeListTab=(action "changeListTab")
+          closeFileTab=(action "closeFileTab")
+        }}
+      </div>
+    {{else}}
+      {{resource-load-error message=(tt this "notSupportedByProvider")}}
+    {{/if}}
+  {{/promise-proxy-container}}
 </div>
 {{yield}}
