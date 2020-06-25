@@ -1,5 +1,5 @@
 /**
- * Proxy service to Onezone's global notify - displays notifications in Onezone frame
+ * Proxies some notification methods to Onezone's global notify
  * 
  * @module services/global-notify
  * @author Jakub Liput
@@ -7,7 +7,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import Service, { inject as service } from '@ember/service';
+import { inject as service } from '@ember/service';
+import GlobalNotify from 'onedata-gui-common/services/global-notify';
 
 function delegate(methodName) {
   return function (...args) {
@@ -15,19 +16,16 @@ function delegate(methodName) {
   };
 }
 
+// Delegating only ember-notify methods to unified notifier
 const delegates = [
   'info',
   'success',
   'warning',
-  'error',
-  'warningAlert',
-  'errorAlert',
-  'backendError',
 ].reduce((mixin, methodName) => {
   mixin[methodName] = delegate(methodName);
   return mixin;
 }, {});
 
-export default Service.extend(delegates, {
+export default GlobalNotify.extend(delegates, {
   appProxy: service(),
 });
