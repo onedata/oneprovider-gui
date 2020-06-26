@@ -119,7 +119,6 @@ export default Component.extend(I18n, {
   qosSourceFilePathProxy: promise.object(computed(
     'qosSourceFile.{name,parent}',
     function qosSourceFilePathProxy() {
-      console.log('source file path recomputed');
       return resolveFilePath(this.get('qosSourceFile'))
         .then(path => stringifyFilePath(path));
     }
