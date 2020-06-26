@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6445 Fixed not updating file and global QoS modal status
 * VFS-6443 Reverted Oneprovider GUI backend error notifications
 * VFS-6346 Unified Oneprovider GUI Service Pack 4
 * VFS-6344 Added support for impossible QoS requirement and lack of QoS privileges

@@ -84,10 +84,9 @@ export default EmberObject.extend(...objectMixins, {
       });
   },
 
-  // NOTE: cannot use other dependecies aside isPending, because of bug
   fileQosStatus: computed(
-    'qosItemsProxy.isPending',
-    'fileQosSummaryProxy.isPending',
+    'qosItemsProxy.content',
+    'fileQosSummaryProxy.content',
     function fileQosStatus() {
       const {
         qosItemsProxy,
