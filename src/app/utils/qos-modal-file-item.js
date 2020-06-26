@@ -85,8 +85,8 @@ export default EmberObject.extend(...objectMixins, {
   },
 
   fileQosStatus: computed(
-    'qosItemsProxy.content',
-    'fileQosSummaryProxy.content',
+    'qosItemsProxy.{content,reason}',
+    'fileQosSummaryProxy.{content,reason}',
     function fileQosStatus() {
       const {
         qosItemsProxy,
