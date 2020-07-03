@@ -20,6 +20,7 @@ import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { isEmpty } from '@ember/utils';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import transferIndex from 'oneprovider-gui/utils/transfer-index';
 
 const updateInterval = 5000;
 
@@ -70,9 +71,13 @@ export default Component.extend({
 
   spaceId: reads('space.entityId'),
 
-  transfersArray: computed(function transfersArray() {
+  transfersArray: computed('type', function transfersArray() {
+    const type = this.get('type');
     return ReplacingChunksArray.create({
       fetch: this.fetchTransfers.bind(this),
+      getIndex(record) {
+        return transferIndex(record, type);
+      },
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,

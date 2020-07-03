@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6495 Fixed wrong computation of transfer indexes resulting wrong listing
 * VFS-6445 Fixed not updating file and global QoS modal status
 * VFS-6443 Reverted Oneprovider GUI backend error notifications
 * VFS-6346 Unified Oneprovider GUI Service Pack 4
