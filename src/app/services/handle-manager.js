@@ -9,6 +9,7 @@
 
 import Service, { inject as service } from '@ember/service';
 import { get } from '@ember/object';
+import { reject } from 'rsvp';
 
 export default Service.extend({
   store: service(),
@@ -16,7 +17,7 @@ export default Service.extend({
 
   getHandleServices() {
     return this.get('currentUser').getCurrentUserRecord()
-      .then(user => get(user, 'handleServiceList'))
+      .then(user => user.getRelation('handleServiceList', { reload: true }))
       .then(handleServiceList => get(handleServiceList, 'list'));
   },
 

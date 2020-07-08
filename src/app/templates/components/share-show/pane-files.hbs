@@ -1,0 +1,34 @@
+{{#promise-proxy-container proxy=requiredDataProxy}}
+  {{file-browser
+    dir=dirProxy.content
+    customRootDir=rootDir
+    selectedFiles=selectedFiles
+    customFetchDirChildren=(if isInShareRoot (action "fetchShareRootDirChildren") undefined)
+    previewMode=true
+    changeSelectedFiles=(action (mut selectedFiles))
+    resolveFileParentFun=(action "resolveFileParentFun")
+    updateDirEntityId=(action "updateDirId")
+    containerScrollTop=(action "containerScrollTop")
+    openInfo=(action "openInfoModal")
+    openMetadata=(action "openMetadataModal")
+    openEditPermissions=(action "openEditPermissionsModal")
+  }}
+{{/promise-proxy-container}}
+
+{{#if fileToShowInfo}}
+  {{file-browser/fb-info-modal
+    open=true
+    file=fileToShowInfo
+    spaceEntityId=spaceId
+    onHide=(action "closeInfoModal")
+  }}
+{{/if}}
+
+{{#if fileToShowMetadata}}
+  {{file-browser/fb-metadata-modal
+    open=true
+    file=fileToShowMetadata
+    previewMode=true
+    onHide=(action "closeMetadataModal")
+  }}
+{{/if}}

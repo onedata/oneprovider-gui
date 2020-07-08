@@ -102,9 +102,10 @@ export default OneEmbeddedComponent.extend(
           dirProxy,
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
+          // TODO: something is broken and changing to empty array propagates back to OP
           // changing selection in file browser should clear Onezone's selection from URL
           // because it's one-way relation
-          this.callParent('updateSelected', []);
+          // this.callParent('updateSelected', []);
           return onlyFulfilledValues(selected.map(id => fileManager.getFileById(id)))
             .then(files => {
               return dirProxy.then(dir => !dir ? [] : files.filter(file => {

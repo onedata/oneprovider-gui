@@ -9,41 +9,19 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
+import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import EmberObject, { computed, get } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import {
-  promise,
-  bool,
-  raw,
-  tag,
-  collect,
-  conditional,
-  and,
-  not,
-} from 'ember-awesome-macros';
-import { Promise, resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-
-const shareRootId = 'shareRoot';
-
-const ShareRootDir = EmberObject.extend({
-  id: shareRootId,
-  entityId: shareRootId,
-  type: 'dir',
-  isShareRoot: true,
-  hasParent: false,
-  parent: promise.object(raw(resolve(null))),
-});
+import { conditional, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['share-show', 'content-file-browser'],
-  classNameBindings: ['withHeaderClass'],
+  classNameBindings: ['scopeClass'],
 
   shareManager: service(),
-  fileManager: service(),
 
   /**
    * @override
@@ -67,12 +45,6 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   updateDirId: notImplementedThrow,
-
-  /**
-   * @virtual
-   * @type {Function}
-   */
-  getTransfersUrl: notImplementedThrow,
 
   /**
    * @virtual
@@ -106,6 +78,49 @@ export default Component.extend(I18n, {
 
   _window: window,
 
+  hasHandle: reads('share.hasHandle'),
+
+  description: reads('share.description'),
+
+  tabIds: computed('publicMode', 'hasHandle', 'description', function tabIds() {
+    const {
+      publicMode,
+      hasHandle,
+      description,
+    } = this.getProperties('publicMode', 'hasHandle', 'description');
+    const ids = [];
+    if (hasHandle) {
+      ids.push('opendata');
+    }
+    if (!publicMode || description) {
+      ids.push('description');
+    }
+    ids.push('files');
+    if (!publicMode && !hasHandle) {
+      ids.push('opendata');
+    }
+    return ids;
+  }),
+
+  // tabIds: conditional('publicMode',
+  //   conditional('hasHandle', ''),
+  //   conditional(
+  //     'hasHandle',
+  //     raw(['opendata', 'description', 'files']),
+  //     raw(['description', 'files', 'opendata']),
+  //   )
+  // ),
+
+  tabIcons: Object.freeze({
+    opendata: 'globe-cursor',
+    files: 'browser-directory',
+    description: 'browser-rename',
+  }),
+
+  tabClasses: conditional('hasHandle', raw({}), raw({ opendata: 'tab-label-notice' })),
+
+  activeTab: undefined,
+
   /**
    * @type {String}
    */
@@ -114,221 +129,37 @@ export default Component.extend(I18n, {
   /**
    * @type {boolean}
    */
-  showSharePath: true,
+  publicMode: false,
 
-  /**
-   * @type {boolean}
-   */
-  showSharePublicUrl: true,
+  scopeClass: computed('publicMode', function scopeClass() {
+    const publicMode = this.get('publicMode');
+    return `share-show-${publicMode ? 'public' : 'private'}`;
+  }),
 
-  showPublishButton: true,
-
-  publishModalOpened: false,
-
-  actionsOpened: false,
-
-  fileToShowInfo: null,
-
-  fileToShowMetadata: null,
-
-  selectedFiles: Object.freeze([]),
-
-  isInShareRoot: bool('dirProxy.content.isShareRoot'),
-
-  /**
-   * @type {ComputedProperty<Models.Share>}
-   */
-  handle: reads('share.handle'),
-
-  dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
-    const {
-      fileManager,
-      dirId,
-      rootDir,
-    } = this.getProperties('fileManager', 'dirId', 'rootDir');
-    if (dirId) {
-      return fileManager.getFileById(dirId, 'public')
-        .then(file => this.isChildOfShare(file)
-          .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
-        );
-
+  init() {
+    this._super(...arguments);
+    if (this.get('hasHandle')) {
+      this.set('activeTab', 'opendata');
+    } else if (this.get('share.description')) {
+      this.set('activeTab', 'description');
     } else {
-      return resolve(rootDir);
+      this.set('activeTab', 'files');
     }
-  })),
-
-  requiredDataProxy: promise.object(promise.all('dirProxy', 'share.rootFile')),
-
-  infinite: promise.object(new Promise(() => {})),
-
-  /**
-   * @type {Array<object>}
-   */
-  menuActions: conditional(
-    and('showPublishButton', not('share.hasHandle')),
-    collect('btnRename', 'btnPublishOpenData', 'btnRemove'),
-    collect('btnRename', 'btnRemove'),
-  ),
-
-  btnPublishOpenData: computed(function btnPublishOpenData() {
-    return {
-      title: this.t('publishOpenData'),
-      icon: 'globe',
-      action: () => {
-        this.set('publishModalOpened', true);
-      },
-      class: 'btn-publish-open-data',
-    };
-  }),
-
-  btnRemove: computed(function btnRemove() {
-    return {
-      title: this.t('remove'),
-      icon: 'x',
-      action: () => {
-        this.set('removeShareOpened', true);
-      },
-      class: 'btn-remove-share',
-    };
-  }),
-
-  btnRename: computed(function btnRename() {
-    return {
-      title: this.t('rename'),
-      icon: 'browser-rename',
-      action: () => {
-        this.set('renameShareOpened', true);
-      },
-      class: 'btn-rename-share',
-    };
-  }),
-
-  withHeaderClass: computed(
-    'showSharePath',
-    function withHeaderClass() {
-      const showSharePath = this.get('showSharePath');
-      return `with-header-${showSharePath ? 'private' : 'public'}`;
-    }
-  ),
-
-  rootDir: computed('share.{name,entityId}', function rootDir() {
-    return ShareRootDir.create({
-      name: this.get('share.name'),
-      shareRootId: this.get('share.entityId'),
-    });
-  }),
-
-  menuTriggerClass: tag `actions-share-${'elementId'}`,
-
-  menuTriggerSelector: tag `.${'menuTriggerClass'}`,
-
-  isChildOfShare(file) {
-    return this.get('share.rootFile').then(shareRootFile => {
-      const rootInternalId = get(shareRootFile, 'internalFileId');
-      return checkOnPath(
-        file,
-        (currentFile) => get(currentFile, 'internalFileId') === rootInternalId);
-    });
   },
 
   actions: {
-    fetchShareRootDirChildren(dirId, startIndex, size, offset, array) {
-      if (dirId !== shareRootId) {
-        return reject('cannot use fetchShareRootDirChildren for non-share-root');
-      }
-      if (startIndex == null) {
-        if (size <= 0 || offset < 0) {
-          return resolve([]);
-        } else {
-          return this.get('share.rootFile')
-            .then(rootFile => [rootFile]);
-        }
-      } else if (startIndex === array.get('sourceArray.lastObject.index')) {
-        return resolve([]);
-      } else {
-        return reject('cannot use fetch file transfer not from start');
-      }
-    },
-    containerScrollTop() {
-      return this.get('containerScrollTop')(...arguments);
-    },
-    updateDirId(dirId) {
-      return this.get('updateDirId')(dirId === shareRootId ? null : dirId);
-    },
-    getTransfersUrl({ fileId, tabId }) {
-      return this.get('getTransfersUrl')({ fileId, tabId });
-    },
-    resolveFileParentFun(file) {
-      if (get(file, 'entityId') === shareRootId) {
-        return resolve(null);
-      } else if (
-        get(file, 'internalFileId') === this.get('share.rootFile.internalFileId')
-      ) {
-        return resolve(this.get('rootDir'));
-      } else {
-        return get(file, 'parent');
-      }
-    },
-    openSpaceDir(dir) {
-      const {
-        getDataUrl,
-        spaceId,
-        _window,
-        navigateDirTarget,
-      } = this.getProperties('getDataUrl', 'spaceId', '_window', 'navigateDirTarget');
-      const dataUrl = getDataUrl({ spaceId, dirId: get(dir, 'entityId') });
-      return new Promise(() => {
-        _window.open(dataUrl, navigateDirTarget);
-      });
-    },
-    startPublish() {
-      this.set('publishModalOpened', true);
-    },
-    showMetadata() {
-      this.set('shareMetadataOpened', true);
-    },
-    toggleActions(open) {
-      const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
-      this.set('actionsOpened', _open);
+    getDataUrl() {
+      return this.get('getDataUrl')(...arguments);
     },
     showShareList() {
       return this.get('reloadShareList')()
         .then(() => this.get('showShareList')());
     },
-    openInfoModal(file) {
-      this.set('fileToShowInfo', file);
+    updateDirId() {
+      return this.get('updateDirId')(...arguments);
     },
-    closeInfoModal() {
-      this.set('fileToShowInfo', null);
-    },
-    openMetadataModal(file) {
-      this.set('fileToShowMetadata', file);
-    },
-    closeMetadataModal() {
-      this.set('fileToShowMetadata', null);
-    },
-    openEditPermissionsModal(files) {
-      this.set('filesToEditPermissions', files);
-    },
-    closeEditPermissionsModal(files) {
-      this.set('filesToEditPermissions', files);
+    containerScrollTop() {
+      return this.get('containerScrollTop')(...arguments);
     },
   },
 });
-
-function checkOnPath(file, condition = () => false) {
-  if (file) {
-    if (condition(file)) {
-      return resolve(true);
-    } else {
-      const parentId = file.belongsTo('parent').id();
-      if (parentId) {
-        return get(file, 'parent').then(parent => checkOnPath(parent, condition));
-      } else {
-        return resolve(false);
-      }
-    }
-  } else {
-    return resolve(false);
-  }
-}
