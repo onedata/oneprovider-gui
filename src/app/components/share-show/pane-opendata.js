@@ -88,9 +88,7 @@ export default Component.extend(I18n, {
 
   handleServices: reads('handleServicesProxy.content'),
 
-  init() {
-    this._super(...arguments);
-    this.autoApplyAutosize();
+  loadXml() {
     this.get('handleProxy').then(handle => {
       if (handle) {
         const metadataString = get(handle, 'metadataString');
@@ -103,13 +101,22 @@ export default Component.extend(I18n, {
     });
   },
 
+  init() {
+    this._super(...arguments);
+    this.autoApplyAutosize();
+    this.loadXml();
+  },
+
   actions: {
     submit(xml, handleServiceId) {
       const {
         share,
         handleManager,
       } = this.getProperties('share', 'handleManager');
-      return handleManager.createHandle(share, handleServiceId, xml);
+      return handleManager.createHandle(share, handleServiceId, xml)
+        .then(() => {
+          this.loadXml();
+        });
     },
     xmlChanged(xml) {
       this.set('xml', xml);
