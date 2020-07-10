@@ -9,7 +9,6 @@
 
 import Service, { inject as service } from '@ember/service';
 import { get } from '@ember/object';
-import { reject } from 'rsvp';
 
 export default Service.extend({
   store: service(),
