@@ -3,6 +3,7 @@
     <div class="col-xs-12 col-md-7">
       {{open-data-preview
         xmlSource=xml
+        handleUrl=handle.url
         handleServiceName=handle.handleService.name
       }}
     </div>
@@ -55,7 +56,7 @@
       {{/if}}
     {{/promise-proxy-container}}
   {{/if}}
-  {{#if (or publicMode publishOpenDataStarted (and handleServices.length (eq mode "visual")))}}
+  {{#if (or handle (and publishOpenDataStarted handleServices.length (eq editorMode "visual")))}}
     <div class="hidden-xs hidden-sm col-md-5 col-open-data-logo">
       <div class="open-data-logo"></div>
       {{#if handle.url}}

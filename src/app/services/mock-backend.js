@@ -240,7 +240,7 @@ export default Service.extend({
         rootFile,
         privateRootFile: rootFile,
         publicUrl,
-        // handle,
+        handle,
         description: exampleMarkdownLong,
       });
     });

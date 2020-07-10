@@ -40,29 +40,29 @@ $content-padding-horizontal: 12px;
     }
   }
   .open-data-doi {
-    $border-radius: 8px;
     top: $content-col-padding;
     position: relative;
     padding-left: $content-col-padding;
     padding-right: $content-col-padding;
-    .clipboard-line-public-share.clipboard-line.clipboard-line-input {
-      max-width: 540px;
-      left: 50%;
-      transform: translateX(-50%);
-      height: 50px;
-      input.clipboard-input.form-control {
-        border-radius: $border-radius;
-        border: none;
-        background-color: $color-public-blue-light;
-        height: 100%;
-      }
-      .clipboard-btn.copy-btn {
-        color: white;
-        border-radius: $border-radius;
-        border: none;
-        background-color: $color-public-blue;
-        height: 100%;
-      }
+  }
+  .clipboard-line-public-share.clipboard-line.clipboard-line-input {
+    $border-radius: 8px;
+    max-width: 540px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 50px;
+    input.clipboard-input.form-control {
+      border-radius: $border-radius;
+      border: none;
+      background-color: $color-public-blue-light;
+      height: 100%;
+    }
+    .clipboard-btn.copy-btn {
+      color: white;
+      border-radius: $border-radius;
+      border: none;
+      background-color: $color-public-blue;
+      height: 100%;
     }
   }
   .col-open-data-logo {

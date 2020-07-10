@@ -2,6 +2,16 @@ $color-public-blue-light: #F2F3F8;
 $color-public-green-light: #f2f8f3;
 
 .open-data-preview {
+  .open-data-url.metadata-value.open-data-value {
+    padding: 0;
+    background-color: none;
+    .clipboard-line-public-share {
+      width: 100%;
+      max-width: 100%;
+      left: initial;
+      transform: none;
+    }
+  }
   .section-name {
     @include font-semibold;
     font-size: 22px;
