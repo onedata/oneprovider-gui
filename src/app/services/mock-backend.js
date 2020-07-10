@@ -223,7 +223,7 @@ export default Service.extend({
     const handle = store.createRecord('handle', {
       url: 'https://doi.org/public-handle',
       handleService: this.get('entityRecords.handleService')[0],
-      // metadataString: exampleDublinCore,
+      metadataString: exampleDublinCore,
     });
     const shares = ['private', 'public'].map(scope => {
       const entityId = generateShareEntityId(get(space, 'entityId'));
@@ -240,7 +240,7 @@ export default Service.extend({
         rootFile,
         privateRootFile: rootFile,
         publicUrl,
-        handle,
+        // handle,
         description: exampleMarkdownLong,
       });
     });

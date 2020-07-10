@@ -53,6 +53,7 @@
             class="form-control"
             rows="4"
             value={{get group.values index}}
+            oninput={{action "setValue" group.type index}}
           ></textarea>
         {{else}}
           <input
