@@ -24,6 +24,7 @@ import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
+import { exampleMarkdownLong, exampleDublinCore } from 'oneprovider-gui/utils/mock-data';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -32,6 +33,7 @@ const username = 'admin';
 const modelTypes = [
   'space',
   'provider',
+  'handleService',
 ];
 
 export const defaultRecordNames = ['One', 'Two', 'Three'];
@@ -219,8 +221,9 @@ export default Service.extend({
     const rootFile = get(entityRecords, 'chainDir')[2];
     const space = get(entityRecords, 'space')[0];
     const handle = store.createRecord('handle', {
-      url: 'https://example.com/1234',
-      metadataString: '<test></test>',
+      url: 'https://doi.org/public-handle',
+      handleService: this.get('entityRecords.handleService')[0],
+      metadataString: exampleDublinCore,
     });
     const shares = ['private', 'public'].map(scope => {
       const entityId = generateShareEntityId(get(space, 'entityId'));
@@ -238,6 +241,7 @@ export default Service.extend({
         privateRootFile: rootFile,
         publicUrl,
         handle,
+        description: exampleMarkdownLong,
       });
     });
     return handle.save()
@@ -410,6 +414,17 @@ export default Service.extend({
       });
   },
 
+  createHandleServiceRecords(store) {
+    return allFulfilled(['Onedata Inc.', 'Oxford University'].map(name => {
+      return store.createRecord('handle-service', {
+        name,
+      }).save();
+    })).then(records => {
+      this.set('entityRecords.handleService', records);
+      return records;
+    });
+  },
+
   createFileRecords(store, parent, owner) {
     const timestamp = Math.floor(Date.now() / 1000);
     const parentEntityId = get(parent, 'entityId');
@@ -502,6 +517,9 @@ export default Service.extend({
         break;
       case 'provider':
         createPromise = this.createProviderRecords(store, names, additionalInfo);
+        break;
+      case 'handleService':
+        createPromise = this.createHandleServiceRecords(store);
         break;
       default:
         createPromise = allFulfilled(names.map(name =>

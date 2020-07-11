@@ -1,0 +1,41 @@
+{{#if publicMode}}
+  <div class="col-xs-12 col-md-7">
+    {{markdown-to-html
+      class="markdown-view"
+      markdown=currentMarkdown
+      tables=true
+      strikethrough=true
+      literalMidWordUnderscores=true
+      simplifiedAutoLink=true
+      openLinksInNewWindow=true
+    }}
+  </div>
+  <div class="hidden-xs hidden-sm col-md-5 col-open-data-logo">
+    {{#if share.hasHandle}}
+      <div class="open-data-logo"></div>
+    {{/if}}
+    <div class="open-data-doi">
+      {{clipboard-line class="clipboard-line-public-share" value=(or share.handle.url share.publicUrl)}}
+    </div>
+  </div>
+{{else}}
+  {{#if noDescriptionWelcome}}
+    {{content-info
+      class="scroll-breakpoint-300"
+      header=(tt this "noDescriptionWelcome.title")
+      text=(tt this "noDescriptionWelcome.content")
+      buttonAction=(action "startEdit")
+      buttonLabel=(tt this "noDescriptionWelcome.startButton")
+    }}
+  {{else}}
+    {{markdown-editor
+      mode=editorMode
+      mdContent=currentMarkdown
+      placeholder=(tt this "typeDescriptionPlaceholder")
+      mdContentChanged=(action (mut currentMarkdown))
+      changeMode=(action (mut editorMode))
+      discard=(action "discard")
+      save=(action "save")
+    }}
+  {{/if}}
+{{/if}}

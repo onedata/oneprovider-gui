@@ -1,6 +1,6 @@
 @import 'onedata-gui-common';
 
-$file-browser-header-height: 45px;
+$file-browser-header-height: 62px;
 $file-browser-item-height: 32px;
 // the same padding as distance of provider tab icon in Onezone GUI
 $file-browser-padding-left: 12px;
@@ -9,8 +9,6 @@ $file-browser-padding-right: 16px;
 $fb-table-margin-top: 50px;
 $fb-table-margin-top-mobile: 36px;
 $zindex-file-browser-head: $zindex-modal-background - 10;
-$content-header-height-public: 118px;
-$content-header-height-private: 160px;
 
 @import 'utils';
 @import 'layout';
@@ -18,7 +16,6 @@ $content-header-height-private: 160px;
 @import 'components/acl-editor';
 @import 'components/content-file-browser';
 @import 'components/content-space-shares';
-@import 'components/content-public-share';
 @import 'components/edit-permissions-modal';
 @import 'components/file-browser';
 @import 'components/bs-modal';
@@ -31,3 +28,28 @@ $content-header-height-private: 160px;
 @import 'components/qos-expression-viewer';
 @import 'components/modal-file-subheader';
 @import 'components/single-file-info';
+@import 'components/open-data-preview';
+@import 'components/open-data-editor';
+
+// FIXME: to move
+.content-public-share {
+  margin-top: -12px;
+  margin-bottom: -30px;
+}
+
+// FIXME: copied from space-transfers - make it global
+.tab-icon {
+  @include vertical-align-middle();
+  left: 8px;
+  font-size: 26px;
+  // custom pull-up icons
+  &.one-icon {
+    margin-top: -1px;
+  }
+}
+.tab-name {
+  padding-left: 24px;
+  &.truncate {
+    max-width: 200px;  
+  }
+}

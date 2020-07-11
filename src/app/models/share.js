@@ -18,8 +18,9 @@ export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
   publicUrl: attr('string'),
   fileType: attr('string'),
-  handle: belongsTo('handle'),
+  description: attr('string'),
 
+  handle: belongsTo('handle'),
   rootFile: belongsTo('file'),
   privateRootFile: belongsTo('file'),
 

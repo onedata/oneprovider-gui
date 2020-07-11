@@ -1,0 +1,107 @@
+<div class="share-edit-bar">
+  <div class="share-edit-bar-placeholder hidden-xs">
+    <div class="inline-icon-container">
+      {{one-icon icon=modeCurrentIcon}}
+    </div>
+    <span class="text">{{modeCurrentText}}</span>
+  </div>
+</div>
+<h1 class="section-name">{{tt this "handleService"}}</h1>
+<p>{{tt this "handleServiceText"}}</p>
+<div class="row row-handle-service-select">
+  {{#power-select
+    triggerClass="select-handle-service"
+    dropdownClass="elect-handle-service-dropdown"
+    selected=selectedHandleService
+    options=handleServices
+    onchange=(action "selectHandleService")
+    placeholder=(tt this "selectHandleServicePlaceholder")
+    matcher=(action "nameMatcher")
+    as |handleService|
+  }}
+    <div class="option-container" data-handle-id={{handleService.entityId}}>
+      {{#truncated-string}}
+        <span class="text">
+          {{handleService.name}}
+        </span>
+      {{/truncated-string}}
+    </div>
+  {{/power-select}}
+</div>
+<h1 class="section-name">{{tt this "metadata"}}</h1>
+<p>{{tt this "metadataText"}}</p>
+<div class="row row-metadata-form {{if (eq groupedEntries.length 0) "no-entries"}}">
+  {{#each groupedEntries as |group|}}
+    <div class="metadata-group">
+      <h2 class="metadata-group-name">
+        {{tt this (concat "dcElementNames." group.type)}}
+      </h2>
+      <div class="group-add-entry">
+        {{#bs-button
+          type="default"
+          class="btn-sm btn-add-entry"
+          onClick=(action "addEntry" group.type)
+        }}
+          {{one-icon class="add-icon" icon="plus"}}
+          {{tt this "add"}}
+        {{/bs-button}}
+      </div>
+      {{#each (range 0 group.values.length) as |index|}}
+      <div class="entry-value-group">
+        {{#if (eq group.type "description")}}
+          <textarea
+            class="form-control"
+            rows="4"
+            value={{get group.values index}}
+            oninput={{action "setValue" group.type index}}
+          ></textarea>
+        {{else}}
+          <input
+            class="form-control"
+            type="text"
+            value={{get group.values index}}
+            oninput={{action "setValue" group.type index}}
+          >
+        {{/if}}
+        <div class="entry-remove-button clickable" {{action "removeEntry" group.type index}}>
+          {{one-icon icon="x"}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  {{/each}}
+</div>
+<div class="row row-metadata-group-add">
+  {{#power-select
+    triggerClass="add-metadata-group"
+    dropdownClass="add-metadata-group-dropdown"
+    options=metadataGroupAddList
+    onchange=(action "addMetadataGroup")
+    placeholder=(tt this "addMetadataGroup")
+    matcher=(action "simpleMatcher")
+    as |groupType|}}
+    <div class="option-container" data-group-type={{groupType}}>
+      {{#truncated-string}}
+        <span class="text">
+          {{tt this (concat "dcElementNames." groupType)}}
+        </span>
+      {{/truncated-string}}
+    </div>
+  {{/power-select}}
+</div>
+<div class="row row-submit text-center">
+  {{#bs-button
+    class="btn-discard"
+    type="warning"
+    onClick=(action "discard")
+  }}
+    {{tt this "discard"}}
+  {{/bs-button}}
+  {{#one-spin-button
+    action=(action "submit")
+    disabled=submitDisabled
+    class="btn btn-primary btn-submit"
+  }}
+    {{tt this "publish"}}
+  {{/one-spin-button}}
+</div>

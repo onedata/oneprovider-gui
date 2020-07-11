@@ -1,0 +1,34 @@
+{{#if handleServiceName}}
+  <h2 class="metadata-group-name">{{tt this "handleService"}}</h2>
+  <div class="row metadata-group handle-service-group">
+    <div class="handle-service-info open-data-value metadata-value">
+      {{handleServiceName}}
+    </div>
+    {{#if handleUrl}}
+      <div class="open-data-url open-data-value metadata-value col-xs-12 col-sm-12 hidden-md hidden-lg">
+        {{clipboard-line
+          class="clipboard-line-public-share"
+          value=handleUrl
+        }}
+      </div>
+    {{/if}}
+  </div>
+{{/if}}
+{{#if groupedEntries.length}}
+  {{#each groupedEntries as |group|}}
+    <div class="metadata-group">
+      <h2 class="metadata-group-name">
+        {{tt this (concat "dcElementNames." group.type)}}
+      </h2>
+      {{#each group.values as |value|}}
+        <div class="metadata-value open-data-value">
+          {{value}}
+        </div>
+      {{/each}}
+    </div>
+  {{/each}}
+{{else}}
+  <p class="no-dublin-core">
+    {{tt this "noMetadata"}}
+  </p>
+{{/if}}
