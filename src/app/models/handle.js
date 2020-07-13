@@ -9,10 +9,12 @@ import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 
 export const entityType = 'op_handle';
 
 export default Model.extend(GraphSingleModelMixin, {
   url: attr('string'),
   metadataString: attr('string'),
+  handleService: belongsTo('handle-service'),
 }).reopenClass(StaticGraphModelMixin);

@@ -75,14 +75,6 @@ export default Component.extend({
     }
   },
 
-  willDestroyElement() {
-    try {
-      this.callParent('willDestroyEmbeddedComponent');
-    } finally {
-      this._super(...arguments);
-    }
-  },
-
   actions: {
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);

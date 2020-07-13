@@ -77,7 +77,16 @@ export default Component.extend(I18n, {
   }),
 
   handleProxy: promise.object(computed('share.handle', function handleProxy() {
-    return this.get('share').getRelation('handle', { allowNull: true, reload: true });
+    return this.get('share').getRelation('handle', { allowNull: true, reload: true })
+      .then(share => {
+        if (share) {
+          return share.getRelation('handleService')
+            .catch(error => console.error(error))
+            .then(() => share);
+        } else {
+          return share;
+        }
+      });
   })),
 
   handleServicesProxy: promise.object(computed('share.handle', function handleProxy() {
