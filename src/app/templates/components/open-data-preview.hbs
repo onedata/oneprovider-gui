@@ -1,9 +1,13 @@
-{{#if handleServiceName}}
-  <h2 class="metadata-group-name">{{tt this "handleService"}}</h2>
-  <div class="row metadata-group handle-service-group">
-    <div class="handle-service-info open-data-value metadata-value">
-      {{handleServiceName}}
-    </div>
+{{#if (or handleServiceName handleUrl)}}
+  {{#if handleServiceName}}
+    <h2 class="metadata-group-name">{{tt this "handleService"}}</h2>
+  {{/if}}
+  <div class="row metadata-group handle-service-group {{unless handleServiceName "hidden-md hidden-lg"}}">
+    {{#if handleServiceName}}
+      <div class="handle-service-info open-data-value metadata-value">
+        {{handleServiceName}}
+      </div>
+    {{/if}}
     {{#if handleUrl}}
       <div class="open-data-url open-data-value metadata-value col-xs-12 col-sm-12 hidden-md hidden-lg">
         {{clipboard-line
