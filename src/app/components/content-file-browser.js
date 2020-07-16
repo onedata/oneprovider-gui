@@ -34,6 +34,7 @@ export default OneEmbeddedComponent.extend(
 
     store: service(),
     fileManager: service(),
+    uploadManager: service(),
     spaceManager: service(),
     globalNotify: service(),
 
@@ -194,6 +195,10 @@ export default OneEmbeddedComponent.extend(
     )),
 
     dir: computedLastProxyContent('dirProxy'),
+
+    spaceObserver: observer('spaceProxy.content', function spaceObserver() {
+      this.get('uploadManager').changeTargetSpace(this.get('spaceProxy.content'));
+    }),
 
     /**
      * Observer: watch if injected selection and dir changed to redirect to correct URL

@@ -46,10 +46,31 @@ export default Service.extend(I18n, {
   tokenRegenerateTimestamp: 0,
 
   /**
+   * Space where files should be uploaded
+   * @type {Models.Space}
+   */
+  targetSpace: undefined,
+
+  /**
    * Id of directory where files should be uploaded
    * @type {Models.File}
    */
   targetDirectory: undefined,
+
+  /**
+   * @type {HTMLElement}
+   */
+  browseElement: undefined,
+
+  /**
+   * @type {HTMLElement}
+   */
+  dropElement: undefined,
+
+  /**
+   * Mapping space -> Resumable
+   */
+  resumablePerSpaceMap: computed(() => new Map()),
 
   /**
    * @type {Ember.ComputedProperty<Object>}
@@ -59,65 +80,8 @@ export default Service.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Resumable>}
    */
-  resumable: computed(function resumable() {
-    const oneproviderApiOrigin = this.get('guiContext.apiOrigin');
-    return new Resumable({
-      target: `https://${oneproviderApiOrigin}/file_upload`,
-      chunkSize: 1 * 1024 * 1024,
-      simultaneousUploads: 4,
-      testChunks: false,
-      minFileSize: 0,
-      throttleProgressCallbacks: 1,
-      permanentErrors: [400, 404, 405, 415, 500, 501],
-      identifierParameterName: null,
-      maxChunkRetries: 5,
-      preprocess: (fileChunk) => {
-        const resumableFile = fileChunk.fileObj;
-
-        if (!resumableFile.initializeUploadPromise) {
-          resumableFile.initializeUploadPromise =
-            this.createCorrespondingFile(resumableFile)
-            .then(() => this.initializeFileUpload(resumableFile))
-            .then(() => this.notifyUploadInitialized(resumableFile));
-        }
-
-        Promise.all([
-            resumableFile.initializeUploadPromise,
-            this.getAuthToken(),
-          ])
-          .then(() => fileChunk.preprocessFinished())
-          .catch(error => {
-            // Error occurred in chunk preprocessing so either cannot create
-            // directory/file or cannot get auth token. In both cases the whole
-            // file upload must be cancelled.
-            resumableFile.cancel();
-            // BUGFIX: Resumable does not replace cancelled not-started chunk
-            // with a new one in upload queue. We need to invoke `uploadNextChunk`
-            // manually.
-            fileChunk.resumableObj.uploadNextChunk();
-
-            const errorMessage = get(
-              this.get('errorExtractor').getMessage(error),
-              'message.string'
-            ) || this.t('unknownError');
-            this.notifyParent({
-              uploadId: resumableFile.uploadId,
-              path: resumableFile.relativePath,
-              error: errorMessage,
-            });
-
-            this.deleteFailedFile(resumableFile)
-              .finally(() => this.finalizeFileUpload(resumableFile));
-          });
-      },
-      headers: () => {
-        return { 'X-Auth-Token': this.get('tokenProxy.content') };
-      },
-      query(file) {
-        return { guid: get(file.fileModel, 'entityId') };
-      },
-      generateUniqueIdentifier: () => uuid(),
-    });
+  resumable: computed('targetSpace', function resumable() {
+    return this.getResumable();
   }),
 
   injectedUploadStateObserver: observer(
@@ -125,13 +89,15 @@ export default Service.extend(I18n, {
     function injectedUploadStateObserver() {
       const {
         injectedUploadState,
-        resumable,
-      } = this.getProperties('injectedUploadState', 'resumable');
+        resumablePerSpaceMap,
+      } = this.getProperties('injectedUploadState', 'resumablePerSpaceMap');
 
       if (injectedUploadState) {
         // cancel all uploads, that are not present in injected list
         const injectedPathsPerUploadId = new Map();
-        get(resumable, 'files')
+        const resumableFiles =
+          _.flatten([...resumablePerSpaceMap.values()].mapBy('files'));
+        resumableFiles
           .reject(resumableFile => {
             const {
               uploadId,
@@ -165,13 +131,84 @@ export default Service.extend(I18n, {
   init() {
     this._super(...arguments);
 
-    const resumable = this.get('resumable');
-    resumable.on('filesAdded', (...args) => this.filesAdded(...args));
-    resumable.on('fileProgress', (...args) => this.fileUploadProgress(...args));
-    resumable.on('fileSuccess', (...args) => this.fileUploadSuccess(...args));
-    resumable.on('fileError', (...args) => this.fileUploadFailure(...args));
-
     this.injectedUploadStateObserver();
+  },
+
+  getResumable() {
+    const {
+      targetSpace,
+      resumablePerSpaceMap,
+    } = this.getProperties('targetSpace', 'resumablePerSpaceMap');
+
+    if (!resumablePerSpaceMap.has(targetSpace)) {
+      const oneproviderApiOrigin = this.get('guiContext.apiOrigin');
+      const chunkSize =
+        get(targetSpace || {}, 'preferableWriteBlockSize') || 1 * 1024 * 1024;
+      const resumable = new Resumable({
+        target: `https://${oneproviderApiOrigin}/file_upload`,
+        chunkSize,
+        simultaneousUploads: 4,
+        testChunks: false,
+        minFileSize: 0,
+        throttleProgressCallbacks: 1,
+        permanentErrors: [400, 404, 405, 415, 500, 501],
+        identifierParameterName: null,
+        maxChunkRetries: 5,
+        preprocess: (fileChunk) => {
+          const resumableFile = fileChunk.fileObj;
+
+          if (!resumableFile.initializeUploadPromise) {
+            resumableFile.initializeUploadPromise =
+              this.createCorrespondingFile(resumableFile)
+              .then(() => this.initializeFileUpload(resumableFile))
+              .then(() => this.notifyUploadInitialized(resumableFile));
+          }
+
+          Promise.all([
+              resumableFile.initializeUploadPromise,
+              this.getAuthToken(),
+            ])
+            .then(() => fileChunk.preprocessFinished())
+            .catch(error => {
+              // Error occurred in chunk preprocessing so either cannot create
+              // directory/file or cannot get auth token. In both cases the whole
+              // file upload must be cancelled.
+              resumableFile.cancel();
+              // BUGFIX: Resumable does not replace cancelled not-started chunk
+              // with a new one in upload queue. We need to invoke `uploadNextChunk`
+              // manually.
+              fileChunk.resumableObj.uploadNextChunk();
+
+              const errorMessage = get(
+                this.get('errorExtractor').getMessage(error),
+                'message.string'
+              ) || this.t('unknownError');
+              this.notifyParent({
+                uploadId: resumableFile.uploadId,
+                path: resumableFile.relativePath,
+                error: errorMessage,
+              });
+
+              this.deleteFailedFile(resumableFile)
+                .finally(() => this.finalizeFileUpload(resumableFile));
+            });
+        },
+        headers: () => {
+          return { 'X-Auth-Token': this.get('tokenProxy.content') };
+        },
+        query(file) {
+          return { guid: get(file.fileModel, 'entityId') };
+        },
+        generateUniqueIdentifier: () => uuid(),
+      });
+      resumable.on('filesAdded', (...args) => this.filesAdded(...args));
+      resumable.on('fileProgress', (...args) => this.fileUploadProgress(...args));
+      resumable.on('fileSuccess', (...args) => this.fileUploadSuccess(...args));
+      resumable.on('fileError', (...args) => this.fileUploadFailure(...args));
+      resumablePerSpaceMap.set(targetSpace, resumable);
+    }
+
+    return resumablePerSpaceMap.get(targetSpace);
   },
 
   /**
@@ -262,7 +299,7 @@ export default Service.extend(I18n, {
     };
     this.notifyParent(notifyObject, 'addNewUpload');
 
-    this.get('resumable').upload();
+    resumable.upload();
   },
 
   /**
@@ -402,6 +439,11 @@ export default Service.extend(I18n, {
    * @return {undefined}
    */
   assignUploadDrop(dropElement) {
+    if (dropElement === this.get('dropElement')) {
+      return;
+    }
+
+    this.set('dropElement', dropElement);
     this.get('resumable').assignDrop(dropElement);
 
     let lastEnter;
@@ -428,6 +470,28 @@ export default Service.extend(I18n, {
    * @return {undefined}
    */
   assignUploadBrowse(browseElement) {
+    if (this.get('browseElement') === browseElement) {
+      return;
+    }
+
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('multiple', 'multiple');
+    input.style.display = 'none';
+    browseElement.addEventListener('click', () => {
+      input.style.opacity = 0;
+      input.style.display = 'block';
+      input.focus();
+      input.click();
+      input.style.display = 'none';
+    }, false);
+    browseElement.appendChild(input);
+
+    input.addEventListener('change', event => {
+      this.getResumable().addFiles(event.target.files, event);
+      event.target.value = '';
+    }, false);
+
     this.set('browseElement', browseElement);
     this.get('resumable').assignBrowse(browseElement);
   },
@@ -439,6 +503,29 @@ export default Service.extend(I18n, {
     const browseElement = this.get('browseElement');
     if (browseElement) {
       browseElement.click();
+    }
+  },
+
+  /**
+   * Changes target space where files should be uploaded
+   * @param {Models.Space} targetSpace
+   * @returns {undefined}
+   */
+  changeTargetSpace(targetSpace) {
+    if (this.get('targetSpace') !== targetSpace) {
+      const oldResumable = this.getResumable();
+      const dropElement = this.get('dropElement');
+
+      if (dropElement) {
+        oldResumable.unAssignDrop(dropElement);
+      }
+
+      this.set('targetSpace', targetSpace);
+
+      const newResumable = this.getResumable();
+      if (dropElement) {
+        newResumable.assignDrop(dropElement);
+      }
     }
   },
 
