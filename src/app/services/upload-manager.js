@@ -493,7 +493,6 @@ export default Service.extend(I18n, {
     }, false);
 
     this.set('browseElement', browseElement);
-    this.get('resumable').assignBrowse(browseElement);
   },
 
   /**
