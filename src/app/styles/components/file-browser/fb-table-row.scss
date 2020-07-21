@@ -92,9 +92,9 @@
       }
       .file-icon-container {
         .inline-icon-container-file {
-          position: relative;
+          position: absolute;
           top: 50%;
-          transform: translateY(-50%) translateY(-3px);
+          transform: translateY(-50%) translateY(-2px);
         }
       }
     }
