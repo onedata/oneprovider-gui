@@ -78,13 +78,13 @@ export default Component.extend(I18n, {
 
   handleProxy: promise.object(computed('share.handle', function handleProxy() {
     return this.get('share').getRelation('handle', { allowNull: true, reload: true })
-      .then(share => {
-        if (share) {
-          return share.getRelation('handleService')
+      .then(handle => {
+        if (handle) {
+          return handle.getRelation('handleService')
             .catch(error => console.error(error))
-            .then(() => share);
+            .then(() => handle);
         } else {
-          return share;
+          return handle;
         }
       });
   })),
