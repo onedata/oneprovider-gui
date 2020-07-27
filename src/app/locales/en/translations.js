@@ -15,6 +15,8 @@ import qosModal from './components/qos-modal';
 import contentEndpointError from './components/content-endpoint-error';
 import modalFileSubheader from './components/modal-file-subheader';
 import singleFileInfo from './components/single-file-info';
+import shareShow from './components/share-show';
+import openDataPreview from './components/open-data-preview';
 
 import uploadManager from './services/upload-manager';
 
@@ -36,6 +38,8 @@ const translations = {
     contentEndpointError,
     modalFileSubheader,
     singleFileInfo,
+    shareShow,
+    openDataPreview,
   },
   services: {
     uploadManager,

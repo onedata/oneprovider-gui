@@ -9,10 +9,9 @@
 
 import { inject as service } from '@ember/service';
 import ContentPublicShare from 'oneprovider-gui/components/content-public-share';
-import layout from 'oneprovider-gui/templates/components/content-public-share';
 
 export default ContentPublicShare.extend({
-  layout,
+  classNames: ['content-private-share'],
   guiContext: service(),
 
   /**

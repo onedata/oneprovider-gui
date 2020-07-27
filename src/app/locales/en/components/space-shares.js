@@ -3,7 +3,6 @@ import listItem from './space-shares/list-item';
 import removeModal from './space-shares/remove-modal';
 import renameModal from './space-shares/rename-modal';
 import publishModal from './space-shares/publish-modal';
-import shareMetadataModal from './space-shares/share-metadata-modal';
 
 export default {
   shareShow,
@@ -11,5 +10,4 @@ export default {
   removeModal,
   renameModal,
   publishModal,
-  shareMetadataModal,
 };

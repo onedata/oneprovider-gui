@@ -34,6 +34,7 @@ export default OneEmbeddedComponent.extend(
 
     store: service(),
     fileManager: service(),
+    uploadManager: service(),
     spaceManager: service(),
     globalNotify: service(),
 
@@ -77,10 +78,10 @@ export default OneEmbeddedComponent.extend(
     })),
 
     /**
-     * NOTE: not observing anything, because it should be one-time proxy
+     * NOTE: observing only space, because it should reload initial dir after whole space change
      * @type {PromiseObject<Models.File>}
      */
-    initialDirProxy: promise.object(computed(function initialDirProxy() {
+    initialDirProxy: promise.object(computed('spaceProxy', function initialDirProxy() {
       return this.get('dirProxy');
     })),
 
@@ -102,9 +103,10 @@ export default OneEmbeddedComponent.extend(
           dirProxy,
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
+          // TODO: something is broken and changing to empty array propagates back to OP
           // changing selection in file browser should clear Onezone's selection from URL
           // because it's one-way relation
-          this.callParent('updateSelected', []);
+          // this.callParent('updateSelected', []);
           return onlyFulfilledValues(selected.map(id => fileManager.getFileById(id)))
             .then(files => {
               return dirProxy.then(dir => !dir ? [] : files.filter(file => {
@@ -194,6 +196,10 @@ export default OneEmbeddedComponent.extend(
 
     dir: computedLastProxyContent('dirProxy'),
 
+    spaceObserver: observer('spaceProxy.content', function spaceObserver() {
+      this.get('uploadManager').changeTargetSpace(this.get('spaceProxy.content'));
+    }),
+
     /**
      * Observer: watch if injected selection and dir changed to redirect to correct URL
      * @type <Function>
@@ -218,6 +224,12 @@ export default OneEmbeddedComponent.extend(
           this.set('selectedFiles', selectedFiles);
         }
       }),
+
+    spaceEntityIdObserver: observer('spaceEntityId', function spaceEntityIdObserver() {
+      this.closeAllModals();
+      this.clearFilesSelection();
+      this.get('containerScrollTop')(0);
+    }),
 
     /**
      * Optionally redirects Onezone to URL containing parent directory of first
@@ -263,6 +275,67 @@ export default OneEmbeddedComponent.extend(
       }
     },
 
+    closeCreateItemModal() {
+      this.setProperties({
+        createItemParentDir: null,
+        createItemType: null,
+      });
+    },
+
+    closeRemoveModal() {
+      this.setProperties({
+        filesToRemove: null,
+        removeParentDir: null,
+      });
+    },
+
+    closeRenameModal() {
+      this.setProperties({
+        fileToRename: null,
+        renameParentDir: null,
+      });
+    },
+
+    closeInfoModal() {
+      this.set('fileToShowInfo', null);
+    },
+
+    closeMetadataModal() {
+      this.set('fileToShowMetadata', null);
+    },
+
+    closeShareModal() {
+      this.set('fileToShare', null);
+    },
+
+    closeEditPermissionsModal() {
+      this.set('filesToEditPermissions', null);
+    },
+
+    closeFileDistributionModal() {
+      this.set('filesToShowDistribution', null);
+    },
+
+    closeQosModal() {
+      this.set('filesToShowQos', null);
+    },
+
+    closeAllModals() {
+      this.closeCreateItemModal();
+      this.closeRemoveModal();
+      this.closeRenameModal();
+      this.closeInfoModal();
+      this.closeMetadataModal();
+      this.closeShareModal();
+      this.closeEditPermissionsModal();
+      this.closeFileDistributionModal();
+      this.closeQosModal();
+    },
+
+    clearFilesSelection() {
+      this.set('selectedFiles', Object.freeze([]));
+    },
+
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
@@ -274,10 +347,7 @@ export default OneEmbeddedComponent.extend(
         });
       },
       closeCreateItemModal( /* isCreated, submitResult */ ) {
-        this.setProperties({
-          createItemParentDir: null,
-          createItemType: null,
-        });
+        this.closeCreateItemModal();
       },
       openRemoveModal(files, parentDir) {
         this.setProperties({
@@ -294,12 +364,11 @@ export default OneEmbeddedComponent.extend(
             }
           }
         }
-        this.setProperties({
-          selectedFiles: this.get('filesToRemove')
-            .filter(file => newIds.includes(get(file, 'entityId'))),
-          filesToRemove: null,
-          removeParentDir: null,
-        });
+        this.set(
+          'selectedFiles',
+          this.get('filesToRemove').filter(file => newIds.includes(get(file, 'entityId')))
+        );
+        this.closeRemoveModal();
       },
       openRenameModal(file, parentDir) {
         this.setProperties({
@@ -308,46 +377,43 @@ export default OneEmbeddedComponent.extend(
         });
       },
       closeRenameModal() {
-        this.setProperties({
-          fileToRename: null,
-          renameParentDir: null,
-        });
+        this.closeRenameModal();
       },
       openInfoModal(file) {
         this.set('fileToShowInfo', file);
       },
       closeInfoModal() {
-        this.set('fileToShowInfo', null);
+        this.closeInfoModal();
       },
       openMetadataModal(file) {
         this.set('fileToShowMetadata', file);
       },
       closeMetadataModal() {
-        this.set('fileToShowMetadata', null);
+        this.closeMetadataModal();
       },
       openShareModal(file) {
         this.set('fileToShare', file);
       },
       closeShareModal() {
-        this.set('fileToShare', null);
+        this.closeShareModal();
       },
       openEditPermissionsModal(files) {
         this.set('filesToEditPermissions', [...files]);
       },
       closeEditPermissionsModal() {
-        this.set('filesToEditPermissions', null);
+        this.closeEditPermissionsModal();
       },
       openFileDistributionModal(files) {
         this.set('filesToShowDistribution', [...files]);
       },
       closeFileDistributionModal() {
-        this.set('filesToShowDistribution', null);
+        this.closeFileDistributionModal();
       },
       openQosModal(files) {
         this.set('filesToShowQos', files);
       },
       closeQosModal() {
-        this.set('filesToShowQos', null);
+        this.closeQosModal();
       },
       changeSelectedFiles(selectedFiles) {
         this.set('selectedFiles', Object.freeze(selectedFiles));

@@ -1,9 +1,8 @@
 export default {
-  publicUrl: 'Public URL',
-  path: 'Path',
-  publishOpenData: 'Publish as Open Data',
-  showMetadata: 'Metadata',
-  handle: 'Public handle',
-  rename: 'Rename',
-  remove: 'Remove',
+  tabs: {
+    opendata: 'Open Data',
+    description: 'Description',
+    files: 'Files',
+    publishOpenData: 'Publish as Open Data',
+  },
 };

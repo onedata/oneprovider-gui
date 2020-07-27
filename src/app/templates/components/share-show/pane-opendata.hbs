@@ -1,0 +1,72 @@
+{{#promise-proxy-container proxy=handleProxy}}
+  {{#if handle}}
+    <div class="col-xs-12 col-md-7">
+      {{open-data-preview
+        xmlSource=xml
+        handleUrl=handle.url
+        handleServiceName=handle.handleService.name
+      }}
+    </div>
+  {{else}}
+    {{#promise-proxy-container proxy=handleServicesProxy}}
+      {{#if handleServices.length}}
+        {{#if publishOpenDataStarted}}
+          <div class="col-xs-12 col-md-7 {{unless (eq editorMode "visual") "hidden"}}">
+            {{open-data-editor
+              triggerUpdateXml=triggerUpdateXml
+              xml=xml
+              initialData=initialData
+              submit=(action "submit")
+              handleServices=handleServices
+              updateXml=(action "updateXml")
+              discard=(action "discard")
+            }}
+          </div>
+          <textarea
+            value={{xml}}
+            oninput={{action "xmlChanged" value="target.value"}}
+            placeholder={{tt this "xmlTextareaPlaceholder"}}
+            class="no-resize code-textarea textarea-source-editor {{unless (eq editorMode "xml") "hidden"}}"
+          ></textarea>
+          <div class="share-edit-actions-toolbar btn-toolbar">
+            {{#bs-button
+              class="btn-sm btn-switch-editor-mode"
+              type="default"
+              onClick=(action "toggleEditorMode")
+            }}
+              {{one-icon icon=modeSwitchIcon}}
+              <span class="text">{{modeSwitchText}}</span>
+            {{/bs-button}}
+          </div>
+        {{else}}
+          {{content-info
+            class="scroll-breakpoint-300"
+            header=(tt this "publishWelcome.title")
+            text=(tt this "publishWelcome.content")
+            buttonAction=(action (mut publishOpenDataStarted) true)
+            buttonLabel=(tt this "publishWelcome.publishButton")
+          }}
+        {{/if}}
+      {{else}}
+        {{content-info
+          class="scroll-breakpoint-300"
+          header=(tt this "noHandleServices.title")
+          text=(tt this "noHandleServices.content")
+        }}
+      {{/if}}
+    {{/promise-proxy-container}}
+  {{/if}}
+  {{#if (or handle (and publishOpenDataStarted handleServices.length (eq editorMode "visual")))}}
+    <div class="hidden-xs hidden-sm col-md-5 col-open-data-logo">
+      <div class="open-data-logo"></div>
+      {{#if handle.url}}
+        <div class="open-data-doi">
+          {{clipboard-line
+            class="clipboard-line-public-share"
+            value=handle.url
+          }}
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+{{/promise-proxy-container}}

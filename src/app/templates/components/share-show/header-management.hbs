@@ -1,0 +1,71 @@
+<div class="row share-header-row share-header-path with-menu">
+  <div class="col-key">
+    {{tt this "path"}}
+  </div>
+  <div class="col-value">
+    {{#promise-proxy-container proxy=share.privateRootFile sizeClass="xs"}}
+      <div class="fb-breadcrumbs-container">
+        {{file-browser/fb-breadcrumbs
+          dir=share.privateRootFile.content
+          previewMode=true
+          rootIcon="space"
+          changeDir=(action "openSpaceDir")
+        }}
+      </div>
+    {{/promise-proxy-container}}
+  </div>
+  <div class="col-menu">
+    {{one-menu-toggle
+      class=(concat-classes menuTriggerClass "share-menu-trigger")
+      click=(disable-bubbling (action "toggleActions"))
+    }}
+  </div>
+</div>
+<div class="row share-header-row share-header-public-url">
+  <div class="col-key">
+    {{tt this "publicUrl"}}
+  </div>
+  <div class="col-value">
+    {{clipboard-line
+      class="clipboard-line-public-url"
+      size="sm"
+      value=share.publicUrl
+    }}
+  </div>
+</div>
+
+{{#render-later triggerRender=actionsOpened}}
+  {{#one-webui-popover
+    class="share-actions transfer-actions"
+    popoverStyle="with-dropdown"
+    padding=false
+    triggerSelector=menuTriggerSelector
+    open=actionsOpened
+    onToggle=(action "toggleActions")
+  }}
+    {{#click-outside action=(action "toggleActions" false) except-selector=menuTriggerSelector}}
+      {{actions-popover-content
+        actionsArray=menuActions
+        actionClicked=(action "toggleActions" false)
+        class="share-actions"
+      }}
+    {{/click-outside}}
+  {{/one-webui-popover}}
+{{/render-later}}
+
+{{#render-later triggerRender=removeShareOpened}}
+  {{space-shares/remove-modal
+    share=share
+    opened=removeShareOpened
+    showShareList=showShareList
+    close=(action (mut removeShareOpened) false)
+  }}
+{{/render-later}}
+
+{{#render-later triggerRender=renameShareOpened}}
+  {{space-shares/rename-modal
+    share=share
+    opened=renameShareOpened
+    close=(action (mut renameShareOpened) false)
+  }}
+{{/render-later}}

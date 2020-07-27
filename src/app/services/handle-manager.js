@@ -16,7 +16,7 @@ export default Service.extend({
 
   getHandleServices() {
     return this.get('currentUser').getCurrentUserRecord()
-      .then(user => get(user, 'handleServiceList'))
+      .then(user => user.getRelation('handleServiceList', { reload: true }))
       .then(handleServiceList => get(handleServiceList, 'list'));
   },
 

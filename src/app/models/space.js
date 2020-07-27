@@ -21,6 +21,7 @@ export default Model.extend(
     transferManager: service(),
 
     name: attr('string'),
+    preferableWriteBlockSize: attr('number'),
     rootDir: belongsTo('file'),
     providerList: belongsTo('provider-list'),
     effUserList: belongsTo('user-list'),

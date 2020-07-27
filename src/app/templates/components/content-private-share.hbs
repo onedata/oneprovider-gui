@@ -3,12 +3,11 @@
   spinnerBlockClass="absolute-middle-centered"
 }}
   {{space-shares/share-show
-    publicMode=true
     share=shareProxy.content
     dirId=dirId
     updateDirId=(action "updateDirId")
-    getDataUrl=(action notImplementedIgnore)
-    showShareList=(action notImplementedIgnore)
-    reloadShareList=(action notImplementedIgnore)
+    getDataUrl=(action "getDataUrl")
+    showShareList=(action "showShareList")
+    reloadShareList=(action "reloadShareList")
   }}
 {{/promise-proxy-container}}
