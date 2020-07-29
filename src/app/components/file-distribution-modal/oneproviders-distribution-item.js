@@ -42,6 +42,12 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {boolean}
    */
+  hasReadonlySupport: undefined,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
   spaceHasSingleOneprovider: undefined,
 
   /**
@@ -325,11 +331,13 @@ export default Component.extend(I18n, {
     'oneprovider',
     function replicateHereActionState() {
       const {
+        hasReadonlySupport,
         spaceHasSingleOneprovider,
         fileDistributionData,
         percentage,
         oneprovider,
       } = this.getProperties(
+        'hasReadonlySupport',
         'spaceHasSingleOneprovider',
         'fileDistributionData',
         'percentage',
@@ -351,6 +359,8 @@ export default Component.extend(I18n, {
         tooltipI18nKey = 'disabledReplicationSingleOneprovider';
       } else if (!(someNeverSynchronized || percentage < 100)) {
         tooltipI18nKey = 'disabledReplicationIsComplete';
+      } else if (hasReadonlySupport) {
+        tooltipI18nKey = 'disabledReplicationReadonly';
       } else {
         state.enabled = true;
         tooltipI18nKey = 'replicationStart';

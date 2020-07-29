@@ -7,6 +7,7 @@
       oneproviders=oneproviders
       busyOneproviders=disabledMigrationTargets
       sourceOneprovider=newMigrationSourceOneprovider
+      providersWithReadonlySupport=space.providersWithReadonlySupport
       onMigrate=(action "tryStartMigration")
       onCancel=(action "cancelNewMigration")}}
   {{else if isStartSubsequentTransferConfirmationVisible}}
@@ -25,6 +26,10 @@
         {{file-distribution-modal/oneproviders-distribution-item
           class=(concat "oneprovider-" oneprovider.entityId)
           oneprovider=oneprovider
+          hasReadonlySupport=(contains
+            oneprovider.entityId
+            space.providersWithReadonlySupport
+          )
           spaceHasSingleOneprovider=(eq oneproviders.length 1)
           fileDistributionData=fileDistributionData
           onReplicate=(action "tryStartReplication" oneprovider)

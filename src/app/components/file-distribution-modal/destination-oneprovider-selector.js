@@ -53,6 +53,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * Ids of Oneproviders that supports this space only with readonly storages
+   * @type {Array<String>} 
+   */
+  providersWithReadonlySupport: Object.freeze([]),
+
+  /**
+   * @virtual
    * @type {Function}
    * @param {Models.Provider} destinationOneprovider
    * @returns {Promise}
@@ -100,12 +107,15 @@ export default Component.extend(I18n, {
     'oneproviders',
     'busyOneproviders',
     'sourceOneprovider',
+    'providersWithReadonlySupport.[]',
     function possibleDestinationOneproviders() {
       const {
         oneproviders,
         busyOneproviders,
         sourceOneprovider,
+        providersWithReadonlySupport,
       } = this.getProperties(
+        'providersWithReadonlySupport',
         'oneproviders',
         'busyOneproviders',
         'sourceOneprovider'
@@ -114,11 +124,14 @@ export default Component.extend(I18n, {
       return oneproviders
         .without(sourceOneprovider)
         .map(oneprovider => {
-          const disabled = busyOneproviders.includes(oneprovider);
+          const isBusy = busyOneproviders.includes(oneprovider);
+          const isReadonly =
+            providersWithReadonlySupport.includes(get(oneprovider, 'entityId'));
+          const disabled = isBusy || isReadonly;
           return {
             oneprovider,
             text: get(oneprovider, 'name') +
-              (disabled ? ` (${this.t('busy')})` : ''),
+              (disabled ? ` (${this.t(isReadonly ? 'readonly' : 'busy')})` : ''),
             disabled,
           };
         });

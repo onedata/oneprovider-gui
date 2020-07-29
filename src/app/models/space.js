@@ -28,6 +28,7 @@ export default Model.extend(
     effGroupList: belongsTo('group-list'),
     shareList: belongsTo('share-list'),
     currentUserEffPrivileges: attr('array', { defaultValue: () => [] }),
+    providersWithReadonlySupport: attr('array', { defaultValue: () => [] }),
 
     /**
      * @override
