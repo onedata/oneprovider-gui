@@ -20,6 +20,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -320,7 +321,9 @@ export default Component.extend(I18n, FastDoubleClick, {
       if (previewMode) {
         octalNumber = 2;
       } else {
-        if (get(file, 'owner.entityId') === this.get('currentUser.userId')) {
+        const fileOwnerGri = file.belongsTo('owner').id();
+        const fileOwnerId = fileOwnerGri ? parseGri(fileOwnerGri).entityId : null;
+        if (fileOwnerId && fileOwnerId === this.get('currentUser.userId')) {
           octalNumber = 0;
         } else {
           octalNumber = 1;
