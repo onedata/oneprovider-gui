@@ -13,25 +13,33 @@ import { resolve } from 'rsvp';
 
 export default Component.extend({
   space: computed(function space() {
+    const providerList = resolve({
+      list: resolve([{
+          id: 'provider.123.instance:private',
+          entityId: '123',
+          name: 'dev-oneprovider-krakow',
+        },
+        {
+          id: 'provider.456.instance:private',
+          entityId: '456',
+          name: 'dev-oneprovider-paris',
+        },
+        {
+          id: 'provider.789.instance:private',
+          entityId: '789',
+          name: 'dev-oneprovider-lisbon',
+        },
+      ]),
+    });
     return {
-      providerList: resolve({
-        list: resolve([{
-            id: 'provider.123.instance:private',
-            entityId: '123',
-            name: 'dev-oneprovider-krakow',
-          },
-          {
-            id: 'provider.456.instance:private',
-            entityId: '456',
-            name: 'dev-oneprovider-paris',
-          },
-          {
-            id: 'provider.789.instance:private',
-            entityId: '789',
-            name: 'dev-oneprovider-lisbon',
-          },
-        ]),
-      }),
+      providerList,
+      providersWithReadonlySupport: ['789'],
+      getRelation(relation) {
+        switch (relation) {
+          case 'providerList':
+            return providerList;
+        }
+      },
     };
   }),
 
@@ -109,7 +117,7 @@ export default Component.extend({
                     neverSynchronized: false,
                   },
                 },
-              
+
               }),
             };
           }

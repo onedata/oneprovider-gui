@@ -5,7 +5,7 @@
     {{file-distribution-modal/destination-oneprovider-selector
       files=(map-by "file" fileDistributionData)
       oneproviders=oneproviders
-      busyOneproviders=disabledMigrationTargets
+      evictingOneproviders=evictingOneproviders
       sourceOneprovider=newMigrationSourceOneprovider
       providersWithReadonlySupport=space.providersWithReadonlySupport
       onMigrate=(action "tryStartMigration")

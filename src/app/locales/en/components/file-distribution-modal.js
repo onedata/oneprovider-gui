@@ -62,7 +62,7 @@ export default {
     selectTargetDropdownPlaceholder: 'Select target...',
     migrationArrowText: 'migrate to',
     readonly: 'readonly support',
-    busy: 'busy',
+    evicting: 'evicting',
     cancelButton: 'Cancel',
     migrateButton: 'Migrate',
   },

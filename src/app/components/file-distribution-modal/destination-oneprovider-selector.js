@@ -1,6 +1,6 @@
 /**
  * Provides migration destination selector. Filters out Oneproviders,
- * which are busy by existing transfers.
+ * which are in the middle of evicting or have readonly support only.
  * 
  * @module components/file-distribution-modal/confirm-subsequent-transfer
  * @author Michał Borzęcki
@@ -43,7 +43,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Array<Models.Provider>}
    */
-  busyOneproviders: Object.freeze([]),
+  evictingOneproviders: Object.freeze([]),
 
   /**
    * @virtual
@@ -105,33 +105,33 @@ export default Component.extend(I18n, {
    */
   oneprovidersDropdownOptions: computed(
     'oneproviders',
-    'busyOneproviders',
+    'evictingOneproviders',
     'sourceOneprovider',
     'providersWithReadonlySupport.[]',
     function possibleDestinationOneproviders() {
       const {
         oneproviders,
-        busyOneproviders,
+        evictingOneproviders,
         sourceOneprovider,
         providersWithReadonlySupport,
       } = this.getProperties(
         'providersWithReadonlySupport',
         'oneproviders',
-        'busyOneproviders',
+        'evictingOneproviders',
         'sourceOneprovider'
       );
 
       return oneproviders
         .without(sourceOneprovider)
         .map(oneprovider => {
-          const isBusy = busyOneproviders.includes(oneprovider);
+          const isEvicting = evictingOneproviders.includes(oneprovider);
           const isReadonly =
             providersWithReadonlySupport.includes(get(oneprovider, 'entityId'));
-          const disabled = isBusy || isReadonly;
+          const disabled = isEvicting || isReadonly;
           return {
             oneprovider,
             text: get(oneprovider, 'name') +
-              (disabled ? ` (${this.t(isReadonly ? 'readonly' : 'busy')})` : ''),
+              (disabled ? ` (${this.t(isReadonly ? 'readonly' : 'evicting')})` : ''),
             disabled,
           };
         });
