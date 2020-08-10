@@ -53,7 +53,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * Ids of Oneproviders that supports this space only with readonly storages
+   * Ids of Oneproviders that support this space only with readonly storages
    * @type {Array<String>} 
    */
   providersWithReadonlySupport: Object.freeze([]),

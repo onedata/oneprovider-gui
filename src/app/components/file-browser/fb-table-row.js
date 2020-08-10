@@ -323,7 +323,7 @@ export default Component.extend(I18n, FastDoubleClick, {
       } else {
         const fileOwnerGri = file.belongsTo('owner').id();
         const fileOwnerId = fileOwnerGri ? parseGri(fileOwnerGri).entityId : null;
-        if (fileOwnerId && fileOwnerId === this.get('currentUser.userId')) {
+        if (fileOwnerId === this.get('currentUser.userId')) {
           octalNumber = 0;
         } else {
           octalNumber = 1;
