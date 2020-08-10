@@ -27,6 +27,7 @@ import { resolve, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import ViewTester from 'onedata-gui-common/utils/view-tester';
+import { A } from '@ember/array';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -92,6 +93,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
+   * @type {Function}
+   */
+  containerScrollTop: notImplementedIgnore,
+
+  /**
+   * @virtual optional
    * If defined replace `fetchDirChildren` with this function
    * @type {Function}
    */
@@ -137,6 +144,12 @@ export default Component.extend(I18n, {
 
   rowHeight: 61,
 
+  /**
+   * When scoll position is changed by code, use this flag to ignore next scroll event
+   * @type {Boolean}
+   */
+  ignoreNextScroll: false,
+
   fetchingPrev: false,
 
   fetchingNext: false,
@@ -152,6 +165,11 @@ export default Component.extend(I18n, {
   downloadModalFile: null,
 
   selectionCount: reads('selectedFiles.length'),
+
+  viewTester: computed(() => {
+    const $contentScroll = $('#content-scroll');
+    return new ViewTester($contentScroll);
+  }),
 
   /**
    * @type {ComputedProperty<Array<String>>}
@@ -245,10 +263,43 @@ export default Component.extend(I18n, {
 
   pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
 
+  /**
+   * When file rows are removed, we need additional space on top to fill the void.
+   * If top space causes visible rows to move (eg. when new elements are added to cache
+   * in front of source array), we also need to correct the actual position.
+   */
   firstRowHeight: computed(
     'rowHeight',
     'filesArray._start',
     function firstRowHeight() {
+      const { element: firstRow, renderedRowIndex } = this.getFirstVisibleRow();
+      const $firstRow = $(firstRow);
+      if ($firstRow && $firstRow.length) {
+        const topBefore = $firstRow.offset().top;
+        scheduleOnce('afterRender', () => {
+          const isFirstRowInDom = Boolean($firstRow[0].parentElement);
+          let $offsetRow;
+          if (isFirstRowInDom) {
+            $offsetRow = $firstRow;
+          } else {
+            $offsetRow = $(this.getNthRenderedRow(renderedRowIndex));
+          }
+          if (!$offsetRow.length) {
+            return;
+          }
+          const topAfter = $offsetRow.offset().top;
+          const topDiff = topAfter - topBefore;
+          if (!topDiff) {
+            return;
+          }
+          this.set('ignoreNextScroll', true);
+          const contentScroll = document.getElementById('content-scroll');
+          contentScroll.scrollTo(
+            null,
+            contentScroll.scrollTop + topDiff
+          );
+        });
+      }
       const _start = this.get('filesArray._start');
       return _start ? _start * this.get('rowHeight') : 0;
     }
@@ -260,12 +311,19 @@ export default Component.extend(I18n, {
 
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
+    const selectedFiles = this.get('selectedFiles');
+    let initialJumpIndex;
+    if (selectedFiles && get(selectedFiles, 'length')) {
+      const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
+      initialJumpIndex = get(firstSelected, 'index');
+    }
     const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) =>
         this.get('fetchDirChildren')(dirId, ...fetchArgs),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
+      initialJumpIndex,
     });
     array.on(
       'fetchPrevStarted',
@@ -393,6 +451,32 @@ export default Component.extend(I18n, {
     }
   ),
 
+  selectedFilesChanged: observer(
+    'selectedFiles',
+    function selectedFilesChanged() {
+      const {
+        selectedFiles,
+        filesArray,
+      } = this.getProperties('selectedFiles', 'filesArray');
+      if (!selectedFiles || !get(selectedFiles, 'length')) {
+        return resolve();
+      }
+      const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
+      if (!filesArray.includes(firstSelected)) {
+        return filesArray.jump(get(firstSelected, 'index'), 50, 0)
+          .then(result => {
+            if (result !== false) {
+              scheduleOnce('afterRender', () => {
+                this.get('listWatcher').scrollHandler();
+              });
+            }
+          });
+      } else {
+        return resolve();
+      }
+    },
+  ),
+
   init() {
     this._super(...arguments);
     const {
@@ -420,6 +504,39 @@ export default Component.extend(I18n, {
   },
 
   /**
+   * Get element and its index in rendered rows collection for first file row that
+   * is visible on list
+   * @returns {{ element: HTMLElement, renderedRowIndex: Number }}
+   */
+  getFirstVisibleRow() {
+    const viewTester = this.get('viewTester');
+    let firstRow;
+    let renderedRowIndex;
+    this.$('[data-row-id]').each((index, element) => {
+      if (viewTester.isInView(element)) {
+        renderedRowIndex = index;
+        firstRow = element;
+        return false;
+      } else {
+        return true;
+      }
+    });
+    return {
+      element: firstRow,
+      renderedRowIndex,
+    };
+  },
+
+  /**
+   * Get nth file row element that was rendered
+   * @param {Number} index 
+   * @returns {HTMLElement|null}
+   */
+  getNthRenderedRow(index) {
+    return this.$('[data-row-id]')[index] || null;
+  },
+
+  /**
    * @param {string} type one of: prev, next
    * @param {string} state one of: started, resolved, rejected
    * @returns {undefined}
@@ -443,8 +560,8 @@ export default Component.extend(I18n, {
 
   refreshFileList() {
     const filesArray = this.get('filesArray');
+    const viewTester = this.get('viewTester');
     const $contentScroll = $('#content-scroll');
-    const viewTester = new ViewTester($contentScroll);
     const visibleLengthBeforeReload = this.$('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
 
@@ -486,6 +603,11 @@ export default Component.extend(I18n, {
   },
 
   onTableScroll(items, headerVisible) {
+    if (this.get('ignoreNextScroll')) {
+      this.set('ignoreNextScroll', false);
+      return;
+    }
+
     const filesArray = this.get('filesArray');
     const sourceArray = get(filesArray, 'sourceArray');
     const filesArrayIds = sourceArray.mapBy('entityId');

@@ -791,5 +791,8 @@ export default Component.extend(I18n, {
       this.get('changeSelectedFiles')([file]);
       next(this, () => this.get(btnName).action());
     },
+    containerScrollTop() {
+      this.get('containerScrollTop')(...arguments);
+    },
   },
 });

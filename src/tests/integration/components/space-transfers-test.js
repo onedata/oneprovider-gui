@@ -153,7 +153,6 @@ describe('Integration | Component | space transfers', function () {
           .exist;
         expect(findRecord).to.have.been.calledOnce;
         expect(findRecord).to.have.been.calledWith('file', expectedFileGri);
-        expect(getTransfersForFile).to.have.been.calledOnce;
         expect(getTransfersForFile).to.have.been.calledWith(file, true);
       });
   });
