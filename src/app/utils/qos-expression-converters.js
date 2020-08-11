@@ -9,8 +9,8 @@
 
 import _ from 'lodash';
 
-const operatorRe = /(\||&|\\)/;
-const pairOperatorRe = /(=|>|<|<=|>=)/;
+const operatorRe = /^(\||&|\\)$/;
+const pairOperatorRe = /^(=|>|<|<=|>=)$/;
 
 function isVariable(item) {
   return item === 'anyStorage';

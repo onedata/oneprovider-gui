@@ -99,4 +99,21 @@ describe('Unit | Utility | qos expression converters', function () {
       expect(result).to.equal('a-1=hello world&a 2=foo-bar');
     });
   });
+
+  context('fails if', function () {
+    it('pair operator is invalid', function () {
+      expect(() => qosRpnToInfix([
+        'a',
+        '3',
+        '<==',
+      ])).to.throw();
+    });
+    it('operator is invalid', function () {
+      expect(() => qosRpnToInfix([
+        'anyStorage',
+        'anyStorage',
+        '&?',
+      ])).to.throw();
+    });
+  });
 });

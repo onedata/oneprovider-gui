@@ -25,9 +25,7 @@ export default Component.extend({
 
   pairOperatorChar,
 
-  operatorClass: tag `qos-group-${'data.operator'}`,
-
-  operatorStringClass: tag `qos-group-operator-${'data.operator'}`,
+  operatorStringClass: tag `qos-pair-operator-${'data.operator'}`,
 
   operatorString: getBy('pairOperatorChar', 'data.operator'),
 });

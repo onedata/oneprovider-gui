@@ -76,7 +76,7 @@ describe('Integration | Component | qos modal', function () {
           file,
           fulfilled: true,
           replicasNum,
-          expressionRpn: ['storage_type=dummy'],
+          expressionRpn: ['storage_type', 'dummy', '='],
         }),
       ])),
     }));
