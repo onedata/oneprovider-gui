@@ -16,6 +16,13 @@ describe('Integration | Component | file browser/fb table row', function () {
       modificationTime: date,
       posixPermissions: '777',
       type: 'file',
+      belongsTo(name) {
+        if (name === 'owner') {
+          return {
+            id: () => 'op_space.dummy.instance:private',
+          };
+        }
+      },
     };
     this.set('file', file);
     this.render(hbs `{{file-browser/fb-table-row

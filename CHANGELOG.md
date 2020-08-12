@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-6640 Extended QoS expression API: support for spaces and dashes in key/values, changed complement operator, added math comparison operators
+* VFS-6612 Disable transfers if they are impossible because of readonly support
 * VFS-6495 Fixed wrong computation of transfer indexes resulting wrong listing
 * VFS-6540 Added custom chunk size for uploader based on optimal chunk size for a space
 * VFS-6445 Fixed not updating file and global QoS modal status

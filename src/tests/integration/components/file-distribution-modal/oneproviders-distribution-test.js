@@ -63,29 +63,36 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
     });
 
     beforeEach(function () {
-        const oneproviders = [
-          oneproviderKrakow,
-          oneproviderParis,
-        ];
+      const oneproviders = [
+        oneproviderKrakow,
+        oneproviderParis,
+      ];
 
-        this.setProperties({
-          oneproviders,
-        });
-      }),
+      const space = {
+        providersWithReadonlySupport: [],
+      };
 
-      it('renders all oneproviders', function () {
-        const fileDistributionData = [createFileDistributionContainerStub()];
-
-        this.set('fileDistributionData', fileDistributionData);
-        this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData}}
-    `);
-
-        expect(this.$('.oneprovider-name:contains("krakow")')).to.exist;
-        expect(this.$('.oneprovider-name:contains("paris")')).to.exist;
+      this.setProperties({
+        oneproviders,
+        space,
       });
+    });
+
+    it('renders all oneproviders', function () {
+      const fileDistributionData = [createFileDistributionContainerStub()];
+
+      this.set('fileDistributionData', fileDistributionData);
+      this.render(hbs `
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
+
+      expect(this.$('.oneprovider-name:contains("krakow")')).to.exist;
+      expect(this.$('.oneprovider-name:contains("paris")')).to.exist;
+    });
 
     it('renders percentage and chunks representation', function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
@@ -94,7 +101,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       this.render(hbs `
       {{file-distribution-modal/oneproviders-distribution
         oneproviders=oneproviders
-        fileDistributionData=fileDistributionData}}
+        fileDistributionData=fileDistributionData
+        space=space
+      }}
     `);
 
       expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
@@ -112,10 +121,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
 
       expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
@@ -130,10 +141,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
 
       expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
@@ -151,10 +164,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
 
       expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
@@ -172,10 +187,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
 
       expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
@@ -196,11 +213,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       this.on('replicate', startReplicationStub);
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData
-        onReplicate=(action "replicate")}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+          onReplicate=(action "replicate")
+        }}
+      `);
 
       return click('.oneprovider-providerpar .btn-menu-toggle')
         .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
@@ -228,11 +247,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       this.on('migrate', startMigrationStub);
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData
-        onMigrate=(action "migrate")}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+          onMigrate=(action "migrate")
+        }}
+      `);
 
       return click('.oneprovider-providerkrk .btn-menu-toggle')
         .then(() => click($('body .webui-popover .migrate-action-trigger')[0]))
@@ -263,11 +284,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       this.on('evict', startEvictionStub);
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData
-        onEvict=(action "evict")}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+          onEvict=(action "evict")
+        }}
+      `);
 
       return click('.oneprovider-providerkrk .btn-menu-toggle')
         .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
@@ -300,7 +323,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       this.render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
-          fileDistributionData=fileDistributionData}}
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
       `);
 
       expect(this.$('.oneprovider-providerpar .replication-status-icon'))
@@ -325,10 +350,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
 
       expect(this.$('.oneprovider-providerpar .replication-status-icon'))
         .to.have.class('inProgress');
@@ -354,10 +381,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       this.render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData}}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
 
       expect(this.$('.oneprovider-providerkrk .replication-status-icon'))
         .to.not.have.class('inProgress');
@@ -414,12 +443,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
           this.set('fileDistributionData', fileDistributionData);
           this.render(hbs `
-          {{file-distribution-modal/oneproviders-distribution
-            oneproviders=oneproviders
-            fileDistributionData=fileDistributionData
-            getTransfersUrl=(action "getTransfersUrl")
-          }}
-        `);
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              getTransfersUrl=(action "getTransfersUrl")
+            }}
+          `);
 
           return wait().then(() => {
             expect(this.$('.link-to-transfers'), 'link').to.exist;
