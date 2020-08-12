@@ -31,6 +31,7 @@ export default Component.extend(
 
     i18n: service(),
     transferManager: service(),
+    globalNotify: service(),
 
     /**
      * @override
@@ -208,28 +209,43 @@ export default Component.extend(
         this.updateOneprovidersProxy({ replace: true });
       },
       replicate(files, destinationOneprovider) {
-        const transferManager = this.get('transferManager');
+        const {
+          globalNotify,
+          transferManager,
+        } = this.getProperties('globalNotify', 'transferManager');
         return Promise.all(files.map(file =>
           transferManager.startReplication(file, destinationOneprovider)
           .then(result => this.updateDataAfterTransferStart(file).then(() => result))
-        ));
+        )).catch(error => {
+          globalNotify.backendError(this.t('startingReplication'), error);
+        });
       },
       migrate(files, sourceProvider, destinationOneprovider) {
-        const transferManager = this.get('transferManager');
+        const {
+          globalNotify,
+          transferManager,
+        } = this.getProperties('globalNotify', 'transferManager');
         return Promise.all(files.map(file =>
           transferManager.startMigration(
             file,
             sourceProvider,
             destinationOneprovider
           ).then(result => this.updateDataAfterTransferStart(file).then(() => result))
-        ));
+        )).catch(error => {
+          globalNotify.backendError(this.t('startingMigration'), error);
+        });
       },
       evict(files, sourceOneprovider) {
-        const transferManager = this.get('transferManager');
+        const {
+          globalNotify,
+          transferManager,
+        } = this.getProperties('globalNotify', 'transferManager');
         return Promise.all(files.map(file =>
           transferManager.startEviction(file, sourceOneprovider)
           .then(result => this.updateDataAfterTransferStart(file).then(() => result))
-        ));
+        )).catch(error => {
+          globalNotify.backendError(this.t('startingEviction'), error);
+        });
       },
       getTransfersUrl(...args) {
         return this.get('getTransfersUrl')(...args);
