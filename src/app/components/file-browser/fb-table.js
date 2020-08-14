@@ -10,7 +10,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { get, computed, observer, setProperties } from '@ember/object';
+import { get, computed, observer, setProperties, getProperties } from '@ember/object';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -463,11 +463,23 @@ export default Component.extend(I18n, {
       }
       const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
       if (!filesArray.includes(firstSelected)) {
-        return filesArray.jump(get(firstSelected, 'index'), 50, 0)
+        const {
+          entityId,
+          index,
+        } = getProperties(firstSelected, 'entityId', 'index');
+        return filesArray.jump(index, 50, 0)
           .then(result => {
             if (result !== false) {
               scheduleOnce('afterRender', () => {
-                this.get('listWatcher').scrollHandler();
+                this.element.querySelector(`[data-row-id="${entityId}"]`)
+                  .scrollIntoView({ block: 'center' });
+                next(() => {
+                  this.get('listWatcher').scrollHandler();
+                });
+                // FIXME: other experimental way - to remove if above works
+                // const contentScroll = document.getElementById('content-scroll');
+                // contentScroll.scrollTop =
+                //   $(`[data-row-id="${entityId}"]`).offset().top + contentScroll.scrollTop;
               });
             }
           });
@@ -476,6 +488,12 @@ export default Component.extend(I18n, {
       }
     },
   ),
+
+  // FIXME: experimental util, to remove before merge
+  // focusRow(entityId) {
+  //   const row = this.element.querySelector(`[data-row-id="${entityId}"]`);
+  //   $('#content-scroll').scrollTop(row.offset().top);
+  // },
 
   init() {
     this._super(...arguments);
