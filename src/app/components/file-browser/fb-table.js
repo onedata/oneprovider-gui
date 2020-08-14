@@ -457,7 +457,9 @@ export default Component.extend(I18n, {
       const {
         selectedFiles,
         filesArray,
-      } = this.getProperties('selectedFiles', 'filesArray');
+        listWatcher,
+        element,
+      } = this.getProperties('selectedFiles', 'filesArray', 'listWatcher', 'element');
       if (!selectedFiles || !get(selectedFiles, 'length')) {
         return resolve();
       }
@@ -471,15 +473,15 @@ export default Component.extend(I18n, {
           .then(result => {
             if (result !== false) {
               scheduleOnce('afterRender', () => {
-                this.element.querySelector(`[data-row-id="${entityId}"]`)
-                  .scrollIntoView({ block: 'center' });
+                const row = element.querySelector(`[data-row-id="${entityId}"]`);
+                row.scrollIntoView({ block: 'center' });
                 next(() => {
-                  this.get('listWatcher').scrollHandler();
+                  // there are edge cases when file is not centered using first scroll
+                  row.scrollIntoView({ block: 'center' });
+                  next(() => {
+                    listWatcher.scrollHandler();
+                  });
                 });
-                // FIXME: other experimental way - to remove if above works
-                // const contentScroll = document.getElementById('content-scroll');
-                // contentScroll.scrollTop =
-                //   $(`[data-row-id="${entityId}"]`).offset().top + contentScroll.scrollTop;
               });
             }
           });
@@ -488,12 +490,6 @@ export default Component.extend(I18n, {
       }
     },
   ),
-
-  // FIXME: experimental util, to remove before merge
-  // focusRow(entityId) {
-  //   const row = this.element.querySelector(`[data-row-id="${entityId}"]`);
-  //   $('#content-scroll').scrollTop(row.offset().top);
-  // },
 
   init() {
     this._super(...arguments);
