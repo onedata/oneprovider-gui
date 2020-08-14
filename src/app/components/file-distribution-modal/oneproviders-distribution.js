@@ -236,9 +236,9 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<Array<Models.Provider>>}
    */
-  disabledMigrationTargets: computed(
+  evictingOneproviders: computed(
     'fileDistributionData.@each.activeTransfers',
-    function disabledMigrationTargets() {
+    function evictingOneproviders() {
       return this.get('fileDistributionData')
         .mapBy('activeTransfers')
         .compact()

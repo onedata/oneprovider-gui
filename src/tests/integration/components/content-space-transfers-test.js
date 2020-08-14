@@ -72,7 +72,7 @@ describe('Integration | Component | content space transfers', function () {
       .resolves(space);
     sinon.stub(transferManager, 'getTransfersForSpace')
       .resolves([{
-        index: '1',
+        entityId: '3281239312ip232813',
         isOngoing: false,
         dataSourceName: '/onefile',
         dataSourceType: 'file',

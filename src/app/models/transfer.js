@@ -18,9 +18,6 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { inject as service } from '@ember/service';
 import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 
-const backendEpochInfinity = 9999999999;
-const linkNameIdPartLength = 6;
-
 const endedStates = [
   'completed',
   'skipped',
@@ -29,17 +26,6 @@ const endedStates = [
 ];
 
 export const entityType = 'op_transfer';
-
-// TODO: use collection type
-
-export function computeTransferIndex(entityId, scheduleTime, finishTime) {
-  const timestamp = finishTime || scheduleTime;
-  // "ip2" is a separator used with ids in database (the name was probably
-  // a mistake and should be "id2", but it's not our business)
-  const firstIdPartMatch = entityId.match(/(.*)(ip2.*)/);
-  const idForIndex = firstIdPartMatch && firstIdPartMatch[1] || entityId;
-  return `${backendEpochInfinity - timestamp}${(idForIndex).slice(0, linkNameIdPartLength)}`;
-}
 
 /**
  * @typedef {Object} TransferProgress
@@ -62,19 +48,6 @@ export default Model.extend(
      * @type {boolean}
      */
     _isCancelling: false,
-
-    /**
-     * An index for querying backend for record in selected range
-     * @type {ComputedProperty<string>}
-     */
-    index: computed('entityId', 'scheduleTime', 'finishTime', function index() {
-      const {
-        entityId,
-        scheduleTime,
-        finishTime,
-      } = this.getProperties('entityId', 'scheduleTime', 'finishTime');
-      return computeTransferIndex(entityId, scheduleTime, finishTime);
-    }),
 
     /**
      * If true, the transfer is in progress (should be in ongoing transfers collection)

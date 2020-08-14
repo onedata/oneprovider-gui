@@ -10,7 +10,7 @@
 import Service, { inject as service } from '@ember/service';
 import { camelize } from '@ember/string';
 import { get, set, setProperties, computed } from '@ember/object';
-import { all as allFulfilled, hash as hashFulfilled } from 'rsvp';
+import { all as allFulfilled, hash as hashFulfilled, resolve } from 'rsvp';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import _ from 'lodash';
 import {
@@ -31,8 +31,8 @@ const fullName = 'Stub user';
 const username = 'admin';
 
 const modelTypes = [
-  'space',
   'provider',
+  'space',
   'handleService',
 ];
 
@@ -75,20 +75,25 @@ export default Service.extend({
 
   generateDevelopmentModel() {
     const store = this.get('store');
+    const promiseHash = {};
+    let promiseChain = resolve();
+    // promiseChain guarantees that entity records will be created after fulfifillment
+    // of previous records creation - needed eg.by providers -> spaces
+    modelTypes.forEach(type => {
+      promiseChain = promiseChain.then(() => {
+        const createRecordsPromise = this.createEntityRecords(
+            store,
+            type,
+            recordNames[type] ||
+            defaultRecordNames
+          )
+          .then(records => this.createListRecord(store, type, records));
+        promiseHash[type] = createRecordsPromise;
+        return createRecordsPromise;
+      });
+    });
     return this.createEmptyQos(store).then(() =>
-        hashFulfilled(
-          modelTypes.reduce((promiseHash, type) => {
-            promiseHash[type] =
-              this.createEntityRecords(
-                store,
-                type,
-                recordNames[type] ||
-                defaultRecordNames
-              )
-              .then(records => this.createListRecord(store, type, records));
-            return promiseHash;
-          }, {})
-        )
+        promiseChain.then(() => hashFulfilled(promiseHash))
       )
       .then((listRecords) => {
         const { space: spaceList } = listRecords;
@@ -151,6 +156,29 @@ export default Service.extend({
     return get(listRecord, 'list').then(list => {
       list.pushObjects(records);
       return list.save().then(() => listRecord.save());
+    });
+  },
+
+  createFileDistribution(store) {
+    const providerIds = this.get('entityRecords.provider').mapBy('entityId');
+    const providersCount = providerIds.length;
+    const distributionPerProvider = {};
+    for (let i = 0; i < providersCount; ++i) {
+      const start = Math.floor((i / providersCount) * 320);
+      const end = Math.floor(((i + 1) / providersCount) * 320);
+      distributionPerProvider[providerIds[i]] = {
+        blocksPercentage: 100 / providersCount,
+        chunksBarData: {
+          0: 0,
+          [start]: 100,
+          [end]: 0,
+        },
+      };
+    }
+    return store.createRecord('fileDistribution', {
+      distributionPerProvider,
+    }).save().then(fileDistribution => {
+      this.set('entityRecords.fileDistribution', [fileDistribution]);
     });
   },
 
@@ -259,6 +287,9 @@ export default Service.extend({
    */
   createSpaceRecords(store, names) {
     const timestamp = Math.floor(Date.now() / 1000);
+    const provider = this.get('entityRecords.provider.firstObject');
+    const providerId = get(provider, 'entityId');
+    const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
     return allFulfilled(_.range(numberOfSpaces).map((i) =>
         // root dirs
         store.createRecord('file', {
@@ -271,8 +302,8 @@ export default Service.extend({
           hasEffQos: i < 4,
           parent: null,
           posixPermissions: '777',
-          fileQosSummary: this.get('entityRecords.fileQosSummary.firstObject'),
-          provider: this.get('entityRecords.provider.firstObject'),
+          fileQosSummary,
+          provider,
         }).save()
       ))
       .then(rootDirs => allFulfilled(_.range(numberOfSpaces).map((i) =>
@@ -285,6 +316,7 @@ export default Service.extend({
           }),
           name: names[i],
           rootDir: rootDirs[i],
+          providersWithReadonlySupport: [providerId],
           // NOTE: add 'space_manager_qos' to see add qos view
           // put empty array to disable qos modal
           currentUserEffPrivileges: ['space_view_qos'],
@@ -410,7 +442,7 @@ export default Service.extend({
       }))
       .then((records) => {
         this.set('entityRecords.provider', records);
-        return records;
+        return this.createFileDistribution(store).then(() => records);
       });
   },
 
@@ -428,6 +460,9 @@ export default Service.extend({
   createFileRecords(store, parent, owner) {
     const timestamp = Math.floor(Date.now() / 1000);
     const parentEntityId = get(parent, 'entityId');
+    const provider = this.get('entityRecords.provider.firstObject');
+    const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
+    const distribution = this.get('entityRecords.fileDistribution.firstObject');
     return allFulfilled(_.range(numberOfDirs).map((i) => {
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
@@ -442,8 +477,8 @@ export default Service.extend({
           posixPermissions: '777',
           parent,
           owner,
-          fileQosSummary: this.get('entityRecords.fileQosSummary.firstObject'),
-          provider: this.get('entityRecords.provider.firstObject'),
+          fileQosSummary,
+          provider,
         }).save();
       }))
       .then(dirs => {
@@ -466,8 +501,8 @@ export default Service.extend({
               mtime: timestamp + i * 3600,
               posixPermissions: '777',
               owner,
-              fileQosSummary: this.get('entityRecords.fileQosSummary.firstObject'),
-              provider: this.get('entityRecords.provider.firstObject'),
+              fileQosSummary,
+              provider,
             }).save();
           })).then(chainDirs => {
             this.set('entityRecords.chainDir', chainDirs);
@@ -499,8 +534,9 @@ export default Service.extend({
           mtime: timestamp + i * 3600,
           parent,
           owner,
-          fileQosSummary: this.get('entityRecords.fileQosSummary.firstObject'),
-          provider: this.get('entityRecords.provider.firstObject'),
+          distribution,
+          fileQosSummary,
+          provider,
         }).save();
       })))
       .then((records) => {
