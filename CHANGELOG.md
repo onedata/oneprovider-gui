@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6455 Added support for jumping to any place in infinite-scrolled files list using URL
 * VFS-6612 Disable transfers if they are impossible because of readonly support
 * VFS-6495 Fixed wrong computation of transfer indexes resulting wrong listing
 * VFS-6540 Added custom chunk size for uploader based on optimal chunk size for a space
