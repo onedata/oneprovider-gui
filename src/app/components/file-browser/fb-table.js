@@ -491,6 +491,16 @@ export default Component.extend(I18n, {
     },
   ),
 
+  /**
+   * Change of a start or end index could be needed after source array length change
+   */
+  sourceArrayLengthObserver: observer(
+    'filesArray.sourceArray.length',
+    function sourceArrayLength() {
+      this.get('listWatcher').scrollHandler();
+    }
+  ),
+
   init() {
     this._super(...arguments);
     const {
@@ -500,12 +510,15 @@ export default Component.extend(I18n, {
     } = this.getProperties('fileManager', 'registerApi', 'api');
     fileManager.registerRefreshHandler(this);
     registerApi(api);
+    // FIXME: debug
+    window.filesArray = this.get('filesArray');
   },
 
   didInsertElement() {
     this._super(...arguments);
     const listWatcher = this.set('listWatcher', this.createListWatcher());
     listWatcher.scrollHandler();
+    window.scrollHandler = this.get('listWatcher').scrollHandler.bind(this.get('listWatcher'));
   },
 
   willDestroyElement() {
