@@ -469,7 +469,7 @@ export default Component.extend(I18n, {
           entityId,
           index,
         } = getProperties(firstSelected, 'entityId', 'index');
-        return filesArray.jump(index, 50, 0)
+        return filesArray.jump(index, 50)
           .then(result => {
             if (result !== false) {
               scheduleOnce('afterRender', () => {

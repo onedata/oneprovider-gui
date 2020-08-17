@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, context } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
@@ -417,125 +417,133 @@ describe('Integration | Component | file browser', function () {
         });
     });
 
-  it('selects visible file on list', function () {
-    const entityId = 'deid';
-    const name = 'Test directory';
-    const dir = {
-      entityId,
-      name,
-      type: 'dir',
-      parent: resolve(null),
-    };
-    const files = _.range(4).map(i => {
-      const id = `f${i}`;
-      const name = `File ${i}`;
-      return {
-        id,
-        entityId: id,
+  context('selects using injected file ids', function () {
+    it('visible file on list', function () {
+      const entityId = 'deid';
+      const name = 'Test directory';
+      const dir = {
+        entityId,
         name,
-        index: name,
+        type: 'dir',
+        parent: resolve(null),
       };
-    });
-    const selectedFile = files[1];
-    const selectedFiles = [selectedFile];
-    this.setProperties({
-      dir,
-      selectedFiles,
-    });
-    const fileManager = lookupService(this, 'fileManager');
-    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+      const files = _.range(4).map(i => {
+        const id = `f${i}`;
+        const name = `File ${i}`;
+        return {
+          id,
+          entityId: id,
+          name,
+          index: name,
+        };
+      });
+      const selectedFile = files[1];
+      const selectedFiles = [selectedFile];
+      this.setProperties({
+        dir,
+        selectedFiles,
+      });
+      const fileManager = lookupService(this, 'fileManager');
+      const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
-    fetchDirChildren.withArgs(
-      entityId,
-      sinon.match.any,
-      null,
-      sinon.match.any,
-      sinon.match.any
-    ).resolves([...files]);
-
-    // default
-    fetchDirChildren.resolves([]);
-
-    this.render(hbs `{{file-browser dir=dir selectedFiles=selectedFiles}}`);
-
-    return wait().then(() => {
-      expect(fetchDirChildren).to.have.been.called;
-      return wait();
-    }).then(() => {
-      const $fileSelected = this.$('.file-selected');
-      expect($fileSelected, 'selected file row').to.have.lengthOf(1);
-      expect($fileSelected).to.have.attr('data-row-id', selectedFile.id);
-    });
-  });
-
-  it('selects file that is out of initial list range', function () {
-    const entityId = 'deid';
-    const name = 'Test directory';
-    const dir = {
-      entityId,
-      name,
-      type: 'dir',
-      parent: resolve(null),
-    };
-    const files = _.range(61).map(i => {
-      const id = `f${i}`;
-      const name = `File ${i}`;
-      return {
-        id,
-        entityId: id,
-        name,
-        index: name,
-      };
-    });
-    const selectedFile = files[60];
-    const selectedFiles = [selectedFile];
-    this.setProperties({
-      dir,
-      selectedFiles,
-    });
-    const fileManager = lookupService(this, 'fileManager');
-    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
-    fetchDirChildren.withArgs(
-      entityId, // dirId
-      sinon.match.any, // scope
-      null, // index
-      sinon.match.any, // limit
-      sinon.match.any // offset
-    ).resolves([...files]);
-    fetchDirChildren.withArgs(
-      entityId,
-      sinon.match.any,
-      files[60].index,
-      70,
-      -10
-    ).resolves(files.slice(50, 120));
-    // default
-    fetchDirChildren.resolves([]);
-
-    this.render(hbs `<div id="content-scroll">
-      {{file-browser dir=dir selectedFiles=selectedFiles}}
-    </div>`);
-
-    return wait().then(() => {
-      expect(fetchDirChildren).to.have.been.calledWith(
+      fetchDirChildren.withArgs(
         entityId,
         sinon.match.any,
-        null,
+        selectedFile.index,
         sinon.match.any,
         sinon.match.any
-      );
-      return wait();
-    }).then(() => {
-      expect(fetchDirChildren).to.have.been.calledWith(
+      ).resolves([...files]);
+
+      // default
+      fetchDirChildren.resolves([]);
+
+      this.render(hbs `{{file-browser dir=dir selectedFiles=selectedFiles}}`);
+
+      return wait().then(() => {
+        expect(fetchDirChildren).to.have.been.calledWith(
+          entityId,
+          sinon.match.any,
+          selectedFile.index,
+          sinon.match.any,
+          sinon.match.any
+        );
+        return wait();
+      }).then(() => {
+        const $fileSelected = this.$('.file-selected');
+        expect($fileSelected, 'selected file row').to.have.lengthOf(1);
+        expect($fileSelected).to.have.attr('data-row-id', selectedFile.id);
+      });
+    });
+
+    it('file that is out of initial list range', function () {
+      const entityId = 'deid';
+      const name = 'Test directory';
+      const dir = {
+        entityId,
+        name,
+        type: 'dir',
+        parent: resolve(null),
+      };
+      const files = _.range(61).map(i => {
+        const id = `f${i}`;
+        const name = `File ${i}`;
+        return {
+          id,
+          entityId: id,
+          name,
+          index: name,
+        };
+      });
+      const selectedFile = files[60];
+      const selectedFiles = [selectedFile];
+      this.setProperties({
+        dir,
+        selectedFiles,
+      });
+      const fileManager = lookupService(this, 'fileManager');
+      const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+      fetchDirChildren.withArgs(
+        entityId, // dirId
+        sinon.match.any, // scope
+        selectedFile.index, // index
+        sinon.match.any, // limit
+        sinon.match.any // offset
+      ).resolves([...files]);
+      fetchDirChildren.withArgs(
         entityId,
         sinon.match.any,
         files[60].index,
-        sinon.match.any,
-        sinon.match.any
-      );
-      const $fileSelected = this.$('.file-selected');
-      expect($fileSelected, 'selected file row').to.exist;
-      expect($fileSelected).to.have.attr('data-row-id', selectedFile.id);
+        70,
+        -10
+      ).resolves(files.slice(50, 120));
+      // default
+      fetchDirChildren.resolves([]);
+
+      this.render(hbs `<div id="content-scroll">
+      {{file-browser dir=dir selectedFiles=selectedFiles}}
+    </div>`);
+
+      return wait().then(() => {
+        expect(fetchDirChildren).to.have.been.calledWith(
+          entityId,
+          sinon.match.any,
+          selectedFile.index,
+          sinon.match.any,
+          sinon.match.any
+        );
+        return wait();
+      }).then(() => {
+        expect(fetchDirChildren).to.have.been.calledWith(
+          entityId,
+          sinon.match.any,
+          files[60].index,
+          sinon.match.any,
+          sinon.match.any
+        );
+        const $fileSelected = this.$('.file-selected');
+        expect($fileSelected, 'selected file row').to.exist;
+        expect($fileSelected).to.have.attr('data-row-id', selectedFile.id);
+      });
     });
   });
 });
