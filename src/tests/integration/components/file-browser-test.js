@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, context } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
@@ -82,7 +82,7 @@ describe('Integration | Component | file browser', function () {
     ).resolves(files);
     fetchDirChildren.resolves([]);
 
-    this.render(hbs `{{file-browser dir=dir}}`);
+    this.render(hbs `<div id="content-scroll">{{file-browser dir=dir}}</div>`);
 
     return wait().then(() => {
       expect(fetchDirChildren).to.have.been.called;
@@ -130,9 +130,9 @@ describe('Integration | Component | file browser', function () {
       fetchDirChildren.withArgs(
         i === -1 ? 'root' : `file-${i}`,
         sinon.match.any,
-        null,
         sinon.match.any,
-        0
+        sinon.match.any,
+        sinon.match.any
       ).resolves(i === numberOfDirs - 1 ? [] : [dirs[i + 1]]);
     }
     fetchDirChildren.resolves([]);
@@ -167,6 +167,7 @@ describe('Integration | Component | file browser', function () {
         sinon.match.any,
         sinon.match.any
       );
+      fetchDirChildren.resetHistory();
       expect(this.$('.fb-table-row')).to.have.length(1);
       return enterDir().then(() => {
         expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
@@ -302,12 +303,12 @@ describe('Integration | Component | file browser', function () {
       selectedFiles: Object.freeze([]),
     });
 
-    this.render(hbs `{{file-browser
+    this.render(hbs `<div id="content-scroll">{{file-browser
       dir=dir
       openCreateNewDirectory=openCreateNewDirectory
       selectedFiles=selectedFiles
       changeSelectedFiles=(action (mut selectedFiles))
-    }}`);
+    }}</div>`);
 
     return wait().then(() => {
       expect(fetchDirChildren).to.have.been.called;
@@ -355,11 +356,11 @@ describe('Integration | Component | file browser', function () {
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves(files);
 
-    this.render(hbs `{{file-browser
+    this.render(hbs `<div id="content-scroll">{{file-browser
       dir=dir
       fileClipboardMode=fileClipboardMode
       fileClipboardFiles=fileClipboardFiles
-    }}`);
+    }}</div>`);
 
     return wait().then(() => {
       expect(fetchDirChildren).to.have.been.called;
@@ -417,7 +418,7 @@ describe('Integration | Component | file browser', function () {
         });
     });
 
-  context('selects using injected file ids', function () {
+  describe('selects using injected file ids', function () {
     it('visible file on list', function () {
       const entityId = 'deid';
       const name = 'Test directory';
@@ -457,7 +458,9 @@ describe('Integration | Component | file browser', function () {
       // default
       fetchDirChildren.resolves([]);
 
-      this.render(hbs `{{file-browser dir=dir selectedFiles=selectedFiles}}`);
+      this.render(hbs `<div id="content-scroll">
+        {{file-browser dir=dir selectedFiles=selectedFiles}}
+      </div>`);
 
       return wait().then(() => {
         expect(fetchDirChildren).to.have.been.calledWith(
@@ -520,8 +523,8 @@ describe('Integration | Component | file browser', function () {
       fetchDirChildren.resolves([]);
 
       this.render(hbs `<div id="content-scroll">
-      {{file-browser dir=dir selectedFiles=selectedFiles}}
-    </div>`);
+        {{file-browser dir=dir selectedFiles=selectedFiles}}
+      </div>`);
 
       return wait().then(() => {
         expect(fetchDirChildren).to.have.been.calledWith(
@@ -531,8 +534,6 @@ describe('Integration | Component | file browser', function () {
           sinon.match.any,
           sinon.match.any
         );
-        return wait();
-      }).then(() => {
         expect(fetchDirChildren).to.have.been.calledWith(
           entityId,
           sinon.match.any,
