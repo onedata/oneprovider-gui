@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6456 Handling lack of privileges for creating transfers
 * VFS-6657 Fixed files not showing up when uploading to empty directory or creating many directories
 * VFS-6455 Added support for jumping to any place in infinite-scrolled files list using URL
 * VFS-6612 Disable transfers if they are impossible because of readonly support
