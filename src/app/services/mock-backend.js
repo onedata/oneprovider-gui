@@ -45,7 +45,7 @@ export const recordNames = {
 
 export const numberOfProviders = 3;
 export const numberOfSpaces = 1;
-export const numberOfFiles = 100;
+export const numberOfFiles = 200;
 export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 150;

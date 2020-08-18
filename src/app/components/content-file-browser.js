@@ -346,7 +346,11 @@ export default OneEmbeddedComponent.extend(
           createItemType: itemType,
         });
       },
-      closeCreateItemModal( /* isCreated, submitResult */ ) {
+      closeCreateItemModal(isCreated, file) {
+        if (isCreated && file) {
+          const fileId = get(file, 'entityId');
+          this.callParent('updateSelected', [fileId]);
+        }
         this.closeCreateItemModal();
       },
       openRemoveModal(files, parentDir) {
