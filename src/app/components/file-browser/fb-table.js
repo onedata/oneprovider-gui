@@ -512,6 +512,16 @@ export default Component.extend(I18n, {
     },
   ),
 
+  /**
+   * Change of a start or end index could be needed after source array length change
+   */
+  sourceArrayLengthObserver: observer(
+    'filesArray.sourceArray.length',
+    function sourceArrayLength() {
+      this.get('listWatcher').scrollHandler();
+    }
+  ),
+
   init() {
     this._super(...arguments);
     const {
