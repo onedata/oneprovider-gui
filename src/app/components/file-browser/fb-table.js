@@ -531,15 +531,12 @@ export default Component.extend(I18n, {
     } = this.getProperties('fileManager', 'registerApi', 'api');
     fileManager.registerRefreshHandler(this);
     registerApi(api);
-    // FIXME: debug
-    window.filesArray = this.get('filesArray');
   },
 
   didInsertElement() {
     this._super(...arguments);
     const listWatcher = this.set('listWatcher', this.createListWatcher());
     listWatcher.scrollHandler();
-    window.scrollHandler = this.get('listWatcher').scrollHandler.bind(this.get('listWatcher'));
   },
 
   willDestroyElement() {
