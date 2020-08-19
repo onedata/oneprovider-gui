@@ -28,6 +28,7 @@ import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import ViewTester from 'onedata-gui-common/utils/view-tester';
 import { A } from '@ember/array';
+import { isEmpty } from '@ember/utils';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -145,7 +146,7 @@ export default Component.extend(I18n, {
   rowHeight: 61,
 
   /**
-   * When scoll position is changed by code, use this flag to ignore next scroll event
+   * When scroll position is changed by code, use this flag to ignore next scroll event
    * @type {Boolean}
    */
   ignoreNextScroll: false,
@@ -272,6 +273,14 @@ export default Component.extend(I18n, {
     'rowHeight',
     'filesArray._start',
     function firstRowHeight() {
+      const _start = this.get('filesArray._start');
+      return _start ? _start * this.get('rowHeight') : 0;
+    }
+  ),
+
+  adjustScrollOnFirstRowChange: observer(
+    'firstRowHeight',
+    function adjustScrollOnFirstRowChange() {
       const { element: firstRow, renderedRowIndex } = this.getFirstVisibleRow();
       const $firstRow = $(firstRow);
       if ($firstRow && $firstRow.length) {
@@ -293,16 +302,11 @@ export default Component.extend(I18n, {
             return;
           }
           this.set('ignoreNextScroll', true);
-          const contentScroll = document.getElementById('content-scroll');
-          contentScroll.scrollTo(
-            null,
-            contentScroll.scrollTop + topDiff
-          );
+
+          this.get('containerScrollTop')(topDiff, true);
         });
       }
-      const _start = this.get('filesArray._start');
-      return _start ? _start * this.get('rowHeight') : 0;
-    }
+    },
   ),
 
   firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
@@ -443,9 +447,26 @@ export default Component.extend(I18n, {
     'initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
       if (this.get('initialLoad.isFulfilled')) {
-        const listWatcher = this.get('listWatcher');
+        const {
+          listWatcher,
+          element,
+          selectedFiles,
+        } = this.getProperties('listWatcher', 'element', 'selectedFiles');
+
         scheduleOnce('afterRender', () => {
-          listWatcher.scrollHandler();
+          const firstSelected = !isEmpty(selectedFiles) &&
+            A(selectedFiles).sortBy('index').objectAt(0);
+          if (firstSelected) {
+            const entityId = get(firstSelected, 'entityId');
+            const row = element.querySelector(`[data-row-id="${entityId}"]`);
+            if (row) {
+              row.scrollIntoView({ block: 'center' });
+            }
+          }
+
+          next(() => {
+            listWatcher.scrollHandler();
+          });
         });
       }
     }
@@ -460,7 +481,7 @@ export default Component.extend(I18n, {
         listWatcher,
         element,
       } = this.getProperties('selectedFiles', 'filesArray', 'listWatcher', 'element');
-      if (!selectedFiles || !get(selectedFiles, 'length')) {
+      if (isEmpty(selectedFiles)) {
         return resolve();
       }
       const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
@@ -586,9 +607,15 @@ export default Component.extend(I18n, {
   },
 
   refreshFileList() {
-    const filesArray = this.get('filesArray');
-    const viewTester = this.get('viewTester');
-    const $contentScroll = $('#content-scroll');
+    const {
+      filesArray,
+      viewTester,
+      containerScrollTop,
+    } = this.getProperties(
+      'filesArray',
+      'viewTester',
+      'containerScrollTop',
+    );
     const visibleLengthBeforeReload = this.$('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
 
@@ -621,7 +648,7 @@ export default Component.extend(I18n, {
               if (firstRenderedRow) {
                 firstRenderedRow.scrollIntoView();
               } else {
-                $contentScroll.scrollTop(0);
+                containerScrollTop(0);
               }
             });
           }

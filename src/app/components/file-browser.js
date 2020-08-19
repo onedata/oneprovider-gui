@@ -166,11 +166,6 @@ export default Component.extend(I18n, {
   updateDirEntityId: notImplementedIgnore,
 
   /**
-   * @virtual optional
-   */
-  containerScrollTop: notImplementedIgnore,
-
-  /**
    * @virtual
    * @type {Function}
    * @param {Array} selectedFiles
@@ -657,6 +652,20 @@ export default Component.extend(I18n, {
     );
   },
 
+  contentScroll: computed(function contentScroll() {
+    return document.getElementById('content-scroll');
+  }),
+
+  containerScrollTop: computed('contentScroll', function containerScrollTop() {
+    const contentScroll = this.get('contentScroll');
+    return (position, isDelta = false) => {
+      contentScroll.scrollTo(
+        null,
+        (isDelta ? contentScroll.scrollTop : 0) + position
+      );
+    };
+  }),
+
   getPreviewContext(context) {
     return this.get('previewMode') ? `${context}Preview` : context;
   },
@@ -775,9 +784,18 @@ export default Component.extend(I18n, {
       this.selectCurrentDir(select);
     },
     changeDir(dir) {
-      this.get('updateDirEntityId')(get(dir, 'entityId'));
-      this.get('uploadManager').changeTargetDirectory(dir);
-      this.get('containerScrollTop')(0);
+      const {
+        updateDirEntityId,
+        uploadManager,
+        containerScrollTop,
+      } = this.getProperties(
+        'updateDirEntityId',
+        'uploadManager',
+        'containerScrollTop',
+      );
+      updateDirEntityId(get(dir, 'entityId'));
+      uploadManager.changeTargetDirectory(dir);
+      containerScrollTop(0);
     },
     toggleCurrentDirActions(open) {
       const _open =
