@@ -266,7 +266,8 @@ export default OneEmbeddedComponent.extend(
               } else {
                 return resolve(null);
               }
-            });
+            })
+            .catch(() => null);
         } else {
           return resolve(null);
         }
@@ -346,7 +347,11 @@ export default OneEmbeddedComponent.extend(
           createItemType: itemType,
         });
       },
-      closeCreateItemModal( /* isCreated, submitResult */ ) {
+      closeCreateItemModal(isCreated, file) {
+        if (isCreated && file) {
+          const fileId = get(file, 'entityId');
+          this.callParent('updateSelected', [fileId]);
+        }
         this.closeCreateItemModal();
       },
       openRemoveModal(files, parentDir) {

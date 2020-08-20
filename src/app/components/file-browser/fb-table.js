@@ -10,7 +10,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { get, computed, observer, setProperties } from '@ember/object';
+import { get, computed, observer, setProperties, getProperties } from '@ember/object';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import { reads } from '@ember/object/computed';
 import $ from 'jquery';
@@ -27,6 +27,8 @@ import { resolve, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import ViewTester from 'onedata-gui-common/utils/view-tester';
+import { A } from '@ember/array';
+import { isEmpty } from '@ember/utils';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -92,6 +94,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
+   * @type {Function}
+   */
+  containerScrollTop: notImplementedIgnore,
+
+  /**
+   * @virtual optional
    * If defined replace `fetchDirChildren` with this function
    * @type {Function}
    */
@@ -137,6 +145,12 @@ export default Component.extend(I18n, {
 
   rowHeight: 61,
 
+  /**
+   * When scroll position is changed by code, use this flag to ignore next scroll event
+   * @type {Boolean}
+   */
+  ignoreNextScroll: false,
+
   fetchingPrev: false,
 
   fetchingNext: false,
@@ -152,6 +166,11 @@ export default Component.extend(I18n, {
   downloadModalFile: null,
 
   selectionCount: reads('selectedFiles.length'),
+
+  viewTester: computed(() => {
+    const $contentScroll = $('#content-scroll');
+    return new ViewTester($contentScroll);
+  }),
 
   /**
    * @type {ComputedProperty<Array<String>>}
@@ -245,6 +264,11 @@ export default Component.extend(I18n, {
 
   pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
 
+  /**
+   * When file rows are removed, we need additional space on top to fill the void.
+   * If top space causes visible rows to move (eg. when new elements are added to cache
+   * in front of source array), we also need to correct the actual position.
+   */
   firstRowHeight: computed(
     'rowHeight',
     'filesArray._start',
@@ -254,18 +278,56 @@ export default Component.extend(I18n, {
     }
   ),
 
+  adjustScrollOnFirstRowChange: observer(
+    'firstRowHeight',
+    function adjustScrollOnFirstRowChange() {
+      const { element: firstRow, renderedRowIndex } = this.getFirstVisibleRow();
+      const $firstRow = $(firstRow);
+      if ($firstRow && $firstRow.length) {
+        const topBefore = $firstRow.offset().top;
+        scheduleOnce('afterRender', () => {
+          const isFirstRowInDom = Boolean($firstRow[0].parentElement);
+          let $offsetRow;
+          if (isFirstRowInDom) {
+            $offsetRow = $firstRow;
+          } else {
+            $offsetRow = $(this.getNthRenderedRow(renderedRowIndex));
+          }
+          if (!$offsetRow.length) {
+            return;
+          }
+          const topAfter = $offsetRow.offset().top;
+          const topDiff = topAfter - topBefore;
+          if (!topDiff) {
+            return;
+          }
+          this.set('ignoreNextScroll', true);
+
+          this.get('containerScrollTop')(topDiff, true);
+        });
+      }
+    },
+  ),
+
   firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
   }),
 
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
+    const selectedFiles = this.get('selectedFiles');
+    let initialJumpIndex;
+    if (selectedFiles && get(selectedFiles, 'length')) {
+      const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
+      initialJumpIndex = get(firstSelected, 'index');
+    }
     const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) =>
         this.get('fetchDirChildren')(dirId, ...fetchArgs),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
+      initialJumpIndex,
     });
     array.on(
       'fetchPrevStarted',
@@ -385,11 +447,78 @@ export default Component.extend(I18n, {
     'initialLoad.isFulfilled',
     function watchFilesArrayInitialLoad() {
       if (this.get('initialLoad.isFulfilled')) {
-        const listWatcher = this.get('listWatcher');
+        const {
+          listWatcher,
+          element,
+          selectedFiles,
+        } = this.getProperties('listWatcher', 'element', 'selectedFiles');
+
         scheduleOnce('afterRender', () => {
-          listWatcher.scrollHandler();
+          const firstSelected = !isEmpty(selectedFiles) &&
+            A(selectedFiles).sortBy('index').objectAt(0);
+          if (firstSelected) {
+            const entityId = get(firstSelected, 'entityId');
+            const row = element.querySelector(`[data-row-id="${entityId}"]`);
+            if (row) {
+              row.scrollIntoView({ block: 'center' });
+            }
+          }
+
+          next(() => {
+            listWatcher.scrollHandler();
+          });
         });
       }
+    }
+  ),
+
+  selectedFilesChanged: observer(
+    'selectedFiles',
+    function selectedFilesChanged() {
+      const {
+        selectedFiles,
+        filesArray,
+        listWatcher,
+        element,
+      } = this.getProperties('selectedFiles', 'filesArray', 'listWatcher', 'element');
+      if (isEmpty(selectedFiles)) {
+        return resolve();
+      }
+      const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
+      if (!filesArray.includes(firstSelected)) {
+        const {
+          entityId,
+          index,
+        } = getProperties(firstSelected, 'entityId', 'index');
+        return filesArray.jump(index, 50)
+          .then(result => {
+            if (result !== false) {
+              scheduleOnce('afterRender', () => {
+                const row = element.querySelector(`[data-row-id="${entityId}"]`);
+                row.scrollIntoView({ block: 'center' });
+                next(() => {
+                  // there are edge cases when file is not centered using first scroll
+                  row.scrollIntoView({ block: 'center' });
+                  next(() => {
+                    listWatcher.scrollHandler();
+                  });
+                });
+              });
+            }
+          });
+      } else {
+        return resolve();
+      }
+    },
+  ),
+
+  /**
+   * Change of a start or end index could be needed after source array length change
+   */
+  sourceArrayLengthObserver: observer(
+    'filesArray.sourceArray.length',
+    function sourceArrayLength() {
+      this.get('listWatcher').scrollHandler();
     }
   ),
 
@@ -420,6 +549,39 @@ export default Component.extend(I18n, {
   },
 
   /**
+   * Get element and its index in rendered rows collection for first file row that
+   * is visible on list
+   * @returns {{ element: HTMLElement, renderedRowIndex: Number }}
+   */
+  getFirstVisibleRow() {
+    const viewTester = this.get('viewTester');
+    let firstRow;
+    let renderedRowIndex;
+    this.$('[data-row-id]').each((index, element) => {
+      if (viewTester.isInView(element)) {
+        renderedRowIndex = index;
+        firstRow = element;
+        return false;
+      } else {
+        return true;
+      }
+    });
+    return {
+      element: firstRow,
+      renderedRowIndex,
+    };
+  },
+
+  /**
+   * Get nth file row element that was rendered
+   * @param {Number} index 
+   * @returns {HTMLElement|null}
+   */
+  getNthRenderedRow(index) {
+    return this.$('[data-row-id]')[index] || null;
+  },
+
+  /**
    * @param {string} type one of: prev, next
    * @param {string} state one of: started, resolved, rejected
    * @returns {undefined}
@@ -442,9 +604,15 @@ export default Component.extend(I18n, {
   },
 
   refreshFileList() {
-    const filesArray = this.get('filesArray');
-    const $contentScroll = $('#content-scroll');
-    const viewTester = new ViewTester($contentScroll);
+    const {
+      filesArray,
+      viewTester,
+      containerScrollTop,
+    } = this.getProperties(
+      'filesArray',
+      'viewTester',
+      'containerScrollTop',
+    );
     const visibleLengthBeforeReload = this.$('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
 
@@ -477,7 +645,7 @@ export default Component.extend(I18n, {
               if (firstRenderedRow) {
                 firstRenderedRow.scrollIntoView();
               } else {
-                $contentScroll.scrollTop(0);
+                containerScrollTop(0);
               }
             });
           }
@@ -486,6 +654,11 @@ export default Component.extend(I18n, {
   },
 
   onTableScroll(items, headerVisible) {
+    if (this.get('ignoreNextScroll')) {
+      this.set('ignoreNextScroll', false);
+      return;
+    }
+
     const filesArray = this.get('filesArray');
     const sourceArray = get(filesArray, 'sourceArray');
     const filesArrayIds = sourceArray.mapBy('entityId');

@@ -16,8 +16,11 @@ export default Component.extend({
   currentUser: service(),
   onedataGraph: service(),
   fileManager: service(),
+  mockBackend: service(),
 
   classNames: ['dummy-content-file-browser'],
+
+  containerScrollTop: undefined,
 
   previewMode: false,
 
@@ -30,6 +33,33 @@ export default Component.extend({
       .then(list => list.objectAt(0))
       .then(space => get(space, 'rootDir'));
   })),
+
+  init() {
+    this._super(...arguments);
+    // list of tests
+    // this.testJumpDownFromStart();
+    this.testJumpUpFromFarMiddle();
+  },
+
+  testJumpUpFromFarMiddle() {
+    const file = this.get('mockBackend.entityRecords.file.100');
+    console.log('--- jump to file 100 at start ---');
+    this.set('selectedFiles', [file]);
+    setTimeout(() => {
+      const file = this.get('mockBackend.entityRecords.file.20');
+      console.log('--- will jump to file 20 (change selection) ---');
+      this.set('selectedFiles', [file]);
+    }, 2000);
+  },
+
+  testJumpDownFromStart() {
+    this.set('selectedFiles', []);
+    setTimeout(() => {
+      const file = this.get('mockBackend.entityRecords.file.80');
+      console.log('--- will jump to file 80 (set selection) ---');
+      this.set('selectedFiles', [file]);
+    }, 2000);
+  },
 
   actions: {
     immediatelyRemove(files, parentDir) {
@@ -45,6 +75,9 @@ export default Component.extend({
         );
       });
       fileManager.dirChildrenRefresh(parentEntityId);
+    },
+    containerScrollTop() {
+      return this.get('containerScrollTop')(...arguments);
     },
   },
 });
