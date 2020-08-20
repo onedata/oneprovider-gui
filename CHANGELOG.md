@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6675 Fixed file browser crashing when first selected file cannot be loaded
 * VFS-6657 Fixed files not showing up when uploading to empty directory or creating many directories
 * VFS-6455 Added support for jumping to any place in infinite-scrolled files list using URL
 * VFS-6664 Fixed cloned entries on file transfers list

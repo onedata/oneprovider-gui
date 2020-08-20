@@ -266,7 +266,8 @@ export default OneEmbeddedComponent.extend(
               } else {
                 return resolve(null);
               }
-            });
+            })
+            .catch(() => null);
         } else {
           return resolve(null);
         }
