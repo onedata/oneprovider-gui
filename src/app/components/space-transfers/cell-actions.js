@@ -13,6 +13,7 @@ import EmberObject, { computed, get } from '@ember/object';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { tag } from 'ember-awesome-macros';
+import { camelize } from '@ember/string';
 
 const actionIcons = {
   cancelTransfer: 'cancelled',
@@ -41,6 +42,18 @@ export default Component.extend(I18n, {
    * @type {Array<Object>}
    */
   transferActions: undefined,
+
+  /**
+   * @virtual
+   * @type {Object}
+   */
+  forbiddenOperations: Object.freeze({}),
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  ownedByCurrentUser: false,
 
   /**
    * @type {boolean}
@@ -81,19 +94,24 @@ export default Component.extend(I18n, {
     'record.{isRerunning,transfer.isEnded}',
     'isCancelling',
     'transferFilesDeleted',
+    'forbiddenOperations',
     function menuActions() {
       const transferActions = this.get('transferActions');
       if (transferActions) {
         const record = this.get('record');
         return A(transferActions
           .filter(({ id }) => !this.isActionInvisible(id))
-          .map(({ id, action }) => EmberObject.create({
-            title: this.t(id),
-            // TODO: optimize - a function is created for each cell
-            action: () => action(record),
-            icon: actionIcons[id],
-            disabled: this.isActionDisabled(id),
-          }))
+          .map(({ id, action }) => {
+            const isForbidden = this.isActionForbidden(id);
+            const isDisabled = this.isActionDisabled(id);
+            return EmberObject.create({
+              title: this.t(id),
+              action: () => action(record),
+              icon: actionIcons[id],
+              disabled: isDisabled || isForbidden,
+              tip: (isForbidden && !isDisabled) ? this.t('forbiddenAction') : undefined,
+            });
+          })
         );
       }
     }
@@ -124,12 +142,36 @@ export default Component.extend(I18n, {
       record,
       isCancelling,
       transferFilesDeleted,
-    } = this.getProperties('record', 'isCancelling', 'transferFilesDeleted');
+    } = this.getProperties(
+      'record',
+      'isCancelling',
+      'transferFilesDeleted',
+    );
     switch (actionId) {
       case 'cancelTransfer':
         return isCancelling;
       case 'rerunTransfer':
         return transferFilesDeleted || get(record, 'isRerunning');
+    }
+  },
+
+  isActionForbidden(actionId) {
+    const {
+      ownedByCurrentUser,
+      forbiddenOperations,
+      record,
+    } = this.getProperties('ownedByCurrentUser', 'forbiddenOperations', 'record');
+    const operationAction = actionId.split('Transfer')[0] === 'rerun' ?
+      'schedule' : 'cancel';
+    if (operationAction === 'cancel' && ownedByCurrentUser) {
+      return false;
+    } else {
+      const transferType = get(record, 'transfer.type');
+      const forbiddensToCheck = transferType === 'migration' ? [
+        `${operationAction}Replication`,
+        `${operationAction}Eviction`,
+      ] : [camelize(`${operationAction}-${transferType}`)];
+      return forbiddensToCheck.map(flag => forbiddenOperations[flag]).every(i => i);
     }
   },
 

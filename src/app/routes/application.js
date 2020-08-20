@@ -29,6 +29,7 @@ export default OnedataApplicationRoute.extend(DevelopmentModelRouteMixin, {
   },
 
   beforeModel() {
+    console.log('provider 2020-08-20 16:23:21');
     const superResult = this._super(...arguments);
     return this.get('onedataWebsocket.webSocketInitializedProxy')
       .catch(() => {

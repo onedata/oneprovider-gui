@@ -34,6 +34,12 @@
     min-width: 120px;
   }
   
+  .transfers-table-cell-userName {
+    .truncate {
+      max-width: 110px;
+    }
+  }
+  
   @include hide-on-breakpoint(col-hide-1, 1060px);
   @include hide-on-breakpoint(col-hide-2, 900px);
   @include hide-on-breakpoint(col-hide-3, 810px);

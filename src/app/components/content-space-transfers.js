@@ -39,7 +39,12 @@ export default OneEmbeddedComponent.extend(
      * True if space is loaded and current user has permissions to view transfers
      * @type {Boolean}
      */
-    hasPermissions: reads('spaceProxy.content.permissions.viewTransfers'),
+    hasPermissions: reads('spaceProxy.content.privileges.viewTransfers'),
+
+    init() {
+      this._super(...arguments);
+      window.tspace = this.get('spaceProxy');
+    },
 
     actions: {
       containerScrollTop() {
