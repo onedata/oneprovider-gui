@@ -396,6 +396,7 @@ export default Component.extend(I18n, {
     'fileDistributionData.@each.fileType',
     'neverSynchronized',
     'evictionForbidden',
+    'replicationForbidden',
     'percentage',
     function migrateActionState() {
       const {
@@ -404,12 +405,14 @@ export default Component.extend(I18n, {
         neverSynchronized,
         percentage,
         evictionForbidden,
+        replicationForbidden,
       } = this.getProperties(
         'spaceHasSingleOneprovider',
         'fileDistributionData',
         'neverSynchronized',
         'percentage',
         'evictionForbidden',
+        'replicationForbidden',
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
@@ -417,7 +420,7 @@ export default Component.extend(I18n, {
       const state = { enabled: false };
       let tooltipI18nKey;
 
-      if (evictionForbidden) {
+      if (evictionForbidden || replicationForbidden) {
         tooltipI18nKey = 'disabledMigrationForbidden';
       } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledMigrationSingleOneprovider';

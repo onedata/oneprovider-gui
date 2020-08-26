@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, context } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import EmberObject, { set } from '@ember/object';
@@ -206,180 +206,6 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         .to.exist;
     });
 
-    it('allows to start replication', function () {
-      const fileDistributionData = [createFileDistributionContainerStub()];
-      const startReplicationStub = sinon.stub();
-      let resolveReplication;
-      startReplicationStub.returns(new Promise(resolve => {
-        resolveReplication = resolve;
-      }));
-
-      this.on('replicate', startReplicationStub);
-      this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-          onReplicate=(action "replicate")
-        }}
-      `);
-
-      return click('.oneprovider-providerpar .btn-menu-toggle')
-        .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
-        .then(() => {
-          expect(startReplicationStub).to.have.been.calledOnce;
-          expect(this.$('.oneprovider-providerpar .replication-status-icon'))
-            .to.have.class('inProgress');
-          return resolveReplication();
-        })
-        .then(() => wait())
-        .then(() =>
-          expect(this.$('.oneprovider-providerpar .replication-status-icon'))
-          .to.not.have.class('inProgress')
-        );
-    });
-
-    it('allows to start migration', function () {
-      const fileDistributionData = [createFileDistributionContainerStub()];
-      const startMigrationStub = sinon.stub();
-      let resolveMigration;
-      startMigrationStub.returns(new Promise(resolve => {
-        resolveMigration = resolve;
-      }));
-
-      this.on('migrate', startMigrationStub);
-      this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-          onMigrate=(action "migrate")
-        }}
-      `);
-
-      return click('.oneprovider-providerkrk .btn-menu-toggle')
-        .then(() => click($('body .webui-popover .migrate-action-trigger')[0]))
-        .then(() => click('.start-migration'))
-        .then(() => {
-          expect(startMigrationStub).to.have.been.calledOnce;
-          expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
-            .to.have.class('inProgress');
-          return resolveMigration();
-        })
-        .then(() => wait())
-        .then(() =>
-          expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
-          .to.not.have.class('inProgress')
-        );
-    });
-
-    it('allows to start eviction', function () {
-      const fileDistributionData = [
-        createFileDistributionContainerStub({ onParis: 100 }),
-      ];
-      const startEvictionStub = sinon.stub();
-      let resolveEviction;
-      startEvictionStub.returns(new Promise(resolve => {
-        resolveEviction = resolve;
-      }));
-
-      this.on('evict', startEvictionStub);
-      this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-          onEvict=(action "evict")
-        }}
-      `);
-
-      return click('.oneprovider-providerkrk .btn-menu-toggle')
-        .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
-        .then(() => {
-          expect(startEvictionStub).to.have.been.calledOnce;
-          expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
-            .to.have.class('inProgress');
-          return resolveEviction();
-        })
-        .then(() => wait())
-        .then(() =>
-          expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
-          .to.not.have.class('inProgress')
-        );
-    });
-
-    it('does not allow to start replication with insufficient privileges', function () {
-      const fileDistributionData = [createFileDistributionContainerStub()];
-      this.set('space.privileges.scheduleReplication', false);
-      const startStub = sinon.stub().resolves();
-
-      this.on('start', startStub);
-      this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-          onReplicate=(action "start")
-        }}
-      `);
-
-      return click('.oneprovider-providerpar .btn-menu-toggle')
-        .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
-        .then(() => {
-          expect(startStub).to.have.been.not.called;
-        });
-    });
-
-    it('does not allow to start eviction with insufficient privileges', function () {
-      const fileDistributionData = [createFileDistributionContainerStub()];
-      this.set('space.privileges.scheduleEviction', false);
-      const startStub = sinon.stub().resolves();
-
-      this.on('start', startStub);
-      this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-          onEvict=(action "start")
-        }}
-      `);
-
-      return click('.oneprovider-providerpar .btn-menu-toggle')
-        .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
-        .then(() => {
-          expect(startStub).to.have.been.not.called;
-        });
-    });
-
-    it('does not allow to start migration with insufficient privileges', function () {
-      const fileDistributionData = [createFileDistributionContainerStub()];
-      this.set('space.privileges.scheduleEviction', false);
-      const startStub = sinon.stub().resolves();
-
-      this.on('start', startStub);
-      this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-          onMigrate=(action "start")
-        }}
-      `);
-
-      return click('.oneprovider-providerpar .btn-menu-toggle')
-        .then(() => click($('body .webui-popover .migrate-action-trigger')[0]))
-        .then(() => {
-          expect(startStub).to.have.been.not.called;
-        });
-    });
-
     it('shows that replication is in progress', function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
       set(fileDistributionData[0], 'activeTransfers', [{
@@ -533,4 +359,194 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }
       );
     });
-  });
+
+    context('start transfer action', function () {
+      beforeEach(function () {
+        const fileDistributionData = [createFileDistributionContainerStub()];
+        const startActionStub = sinon.stub().resolves();
+
+        let resolveStartAction;
+        startActionStub.returns(new Promise(resolve => {
+          resolveStartAction = resolve;
+        }));
+
+        this.on('startAction', startActionStub);
+        this.set('startActionStub', startActionStub);
+        this.set('resolveStartAction', resolveStartAction);
+        this.set('fileDistributionData', fileDistributionData);
+      });
+
+      it('allows to start replication', function () {
+        const {
+          startActionStub,
+          resolveStartAction,
+        } = this.getProperties('startActionStub', 'resolveStartAction');
+
+        this.render(hbs `
+          {{file-distribution-modal/oneproviders-distribution
+            oneproviders=oneproviders
+            fileDistributionData=fileDistributionData
+            space=space
+            onReplicate=(action "startAction")
+          }}
+        `);
+
+        return click('.oneprovider-providerpar .btn-menu-toggle')
+          .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
+          .then(() => {
+            expect(startActionStub).to.have.been.calledOnce;
+            expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+              .to.have.class('inProgress');
+            return resolveStartAction();
+          })
+          .then(() => wait())
+          .then(() =>
+            expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+            .to.not.have.class('inProgress')
+          );
+      });
+
+      it('allows to start migration', function () {
+        const {
+          startActionStub,
+          resolveStartAction,
+        } = this.getProperties('startActionStub', 'resolveStartAction');
+
+        this.render(hbs `
+          {{file-distribution-modal/oneproviders-distribution
+            oneproviders=oneproviders
+            fileDistributionData=fileDistributionData
+            space=space
+            onMigrate=(action "startAction")
+          }}
+        `);
+
+        return click('.oneprovider-providerkrk .btn-menu-toggle')
+          .then(() => click($('body .webui-popover .migrate-action-trigger')[0]))
+          .then(() => click('.start-migration'))
+          .then(() => {
+            expect(startActionStub).to.have.been.calledOnce;
+            expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+              .to.have.class('inProgress');
+            return resolveStartAction();
+          })
+          .then(() => wait())
+          .then(() =>
+            expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+            .to.not.have.class('inProgress')
+          );
+      });
+
+      it('allows to start eviction', function () {
+        const {
+          startActionStub,
+          resolveStartAction,
+        } = this.getProperties('startActionStub', 'resolveStartAction');
+        this.set('fileDistributionData', [
+          createFileDistributionContainerStub({ onParis: 100 }),
+        ]);
+
+        this.render(hbs `
+          {{file-distribution-modal/oneproviders-distribution
+            oneproviders=oneproviders
+            fileDistributionData=fileDistributionData
+            space=space
+            onEvict=(action "startAction")
+          }}
+        `);
+
+        return click('.oneprovider-providerkrk .btn-menu-toggle')
+          .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
+          .then(() => {
+            expect(startActionStub).to.have.been.calledOnce;
+            expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
+              .to.have.class('inProgress');
+            return resolveStartAction();
+          })
+          .then(() => wait())
+          .then(() =>
+            expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
+            .to.not.have.class('inProgress')
+          );
+      });
+
+      it('does not allow to start replication without scheduleReplication privilege',
+        function () {
+          const startActionStub = this.get('startActionStub');
+          this.set('space.privileges.scheduleReplication', false);
+
+          this.render(hbs `
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              onReplicate=(action "startAction")
+            }}
+          `);
+
+          return click('.oneprovider-providerpar .btn-menu-toggle')
+            .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
+            .then(() => {
+              expect(startActionStub).to.have.not.been.called;
+            });
+        }
+      );
+
+      it('does not allow to start eviction without scheduleEviction privilege',
+        function () {
+          const startActionStub = this.get('startActionStub');
+          this.set('space.privileges.scheduleEviction', false);
+
+          this.set('fileDistributionData', [
+            createFileDistributionContainerStub({ onParis: 100 }),
+          ]);
+
+          this.render(hbs `
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              onEvict=(action "startAction")
+            }}
+          `);
+
+          return click('.oneprovider-providerpar .btn-menu-toggle')
+            .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
+            .then(() => {
+              expect(startActionStub).to.have.not.been.called;
+            });
+        }
+      );
+
+      ['scheduleEviction', 'scheduleReplication'].forEach(flag => {
+        it(`does not allow to start migration without ${flag} privilege`,
+          function () {
+            this.set(`space.privileges.${flag}`, false);
+
+            this.set('fileDistributionData', [
+              createFileDistributionContainerStub({ onParis: 100 }),
+            ]);
+
+            this.render(hbs `
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              onMigrate=(action "startAction")
+            }}
+          `);
+
+            return click('.oneprovider-providerpar .btn-menu-toggle')
+              .then(() => {
+                const $trigger = $('body .webui-popover .migrate-action-trigger');
+                const $menuItem = $trigger.closest('.one-collapsible-toolbar-item');
+                expect($menuItem).to.have.class('disabled');
+                return click($trigger[0]);
+              })
+              .then(() => expect($('.destination-oneprovider-selector')).to.not.exist);
+          }
+        );
+      });
+    });
+  }
+);

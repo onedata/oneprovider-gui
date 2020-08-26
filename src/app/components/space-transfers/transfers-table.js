@@ -114,7 +114,7 @@ export default Component.extend(I18n, {
    * @virtual
    * Keys: scheduleReplication, scheduleEviction, cancelReplication, cancelEviction.
    * If value is true, then the operation is forbidden. Otherwise, operation can be
-   * invoker.
+   * invoked.
    * @type {Object}
    */
   forbiddenOperations: Object.freeze({}),

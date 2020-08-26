@@ -41,11 +41,6 @@ export default OneEmbeddedComponent.extend(
      */
     hasPermissions: reads('spaceProxy.content.privileges.viewTransfers'),
 
-    init() {
-      this._super(...arguments);
-      window.tspace = this.get('spaceProxy');
-    },
-
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);

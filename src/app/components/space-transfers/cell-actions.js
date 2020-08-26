@@ -171,7 +171,7 @@ export default Component.extend(I18n, {
         `${operationAction}Replication`,
         `${operationAction}Eviction`,
       ] : [camelize(`${operationAction}-${transferType}`)];
-      return forbiddensToCheck.map(flag => forbiddenOperations[flag]).every(i => i);
+      return forbiddensToCheck.map(flag => forbiddenOperations[flag]).some(i => i);
     }
   },
 
