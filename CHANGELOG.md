@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-6456 Handling lack of privileges for transfers actions
+* VFS-6640 Extended QoS expression API: support for spaces and dashes in key/values, changed complement operator, added math comparison operators
 * VFS-6675 Fixed file browser crashing when first selected file cannot be loaded
 * VFS-6657 Fixed files not showing up when uploading to empty directory or creating many directories
 * VFS-6455 Added support for jumping to any place in infinite-scrolled files list using URL

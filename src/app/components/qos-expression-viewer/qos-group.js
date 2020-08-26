@@ -21,8 +21,6 @@ export default Component.extend({
 
   operatorChar,
 
-  operatorClass: tag `qos-group-${'data.operator'}`,
-
   operatorStringClass: tag `qos-group-operator-${'data.operator'}`,
 
   operatorString: getBy('operatorChar', 'data.operator'),
