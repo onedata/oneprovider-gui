@@ -217,7 +217,19 @@ export default Service.extend({
       }),
       status: 'fulfilled',
       replicasNum: 7,
-      expressionRpn: ['storage_type=dummy', 'speed=178', '|', 'latency=87', '&'],
+      expressionRpn: [
+        'storage_type',
+        'hello world',
+        '=',
+        'speed',
+        178,
+        '>',
+        '|',
+        'read-latency',
+        87,
+        '<=',
+        '&',
+      ],
       file: chainDir,
     }).save();
     const qos2Promise = store.createRecord('qosRequirement', {
@@ -228,7 +240,7 @@ export default Service.extend({
       }),
       status: 'fulfilled',
       replicasNum: 1,
-      expressionRpn: ['size=10'],
+      expressionRpn: ['anyStorage', 'size', 10, '=', '\\'],
       file: rootDir,
     }).save();
     return allFulfilled([qos1Promise, qos2Promise]).then(([qos1, qos2]) => {
