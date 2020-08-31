@@ -22,6 +22,34 @@ import { v4 as uuid } from 'ember-uuid';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 
+/**
+ * Creates a function that ivokes provided `func` only if time from last invocation
+ * (`limit`) elapsed.
+ * In contrast to Ember throttle, this makes last invocation of function after limit
+ * time if there is no invocations.
+ * @param {Function} func 
+ * @param {Number} limit in milliseconds
+ * @returns {Function}
+ */
+const createThrottledFunction = (func, limit) => {
+  let lastFunc;
+  let lastRan;
+  return function throttledFunction() {
+    if (!lastRan) {
+      func();
+      lastRan = Date.now();
+    } else {
+      clearTimeout(lastFunc);
+      lastFunc = later(function () {
+        if ((Date.now() - lastRan) >= limit) {
+          func();
+          lastRan = Date.now();
+        }
+      }, limit - (Date.now() - lastRan));
+    }
+  };
+};
+
 export default Service.extend(I18n, {
   appProxy: service(),
   fileManager: service(),
@@ -78,10 +106,23 @@ export default Service.extend(I18n, {
   injectedUploadState: reads('appProxy.injectedData.uploadFiles'),
 
   /**
+   * @type {Computed<Object>} keys: dir ids (string), values: throttled functions
+   */
+  throttledRefresh: computed(() => ({})),
+
+  /**
    * @type {Ember.ComputedProperty<Resumable>}
    */
   resumable: computed('targetSpace', function resumable() {
     return this.getResumable();
+  }),
+
+  _refreshDirectoryChildrenFun: computed(function _refreshDirectoryChildrenFun() {
+    const fileManager = this.get('fileManager');
+    return function _refreshDirectoryChildren(dirId) {
+      console.log('refresh invoked');
+      return fileManager.dirChildrenRefresh(dirId);
+    };
   }),
 
   injectedUploadStateObserver: observer(
@@ -547,12 +588,16 @@ export default Service.extend(I18n, {
     this.get('appProxy').callParent(method, notifyObject);
   },
 
-  /**
-   * @param {Models.File} directory 
-   * @returns {undefined}
-   */
   refreshDirectoryChildren(directory) {
-    this.get('fileManager').dirChildrenRefresh(get(directory, 'entityId'));
+    const dirId = get(directory, 'entityId');
+    const throttledRefresh = this.get('throttledRefresh');
+    if (!throttledRefresh[dirId]) {
+      throttledRefresh[dirId] = createThrottledFunction(
+        () => this.get('_refreshDirectoryChildrenFun')(dirId),
+        1000
+      );
+    }
+    throttledRefresh[dirId]();
   },
 
   /**
