@@ -510,7 +510,10 @@ export default Component.extend(I18n, {
         scheduleOnce('afterRender', () => {
           changeSelectedFiles(selectedFilesForJump);
           next(() => {
-            this.jumpToSelection();
+            safeExec(this, () => {
+              // TODO: although it should be, we cannot be sure if selection is changed
+              this.jumpToSelection();
+            });
           });
         });
       }
@@ -566,6 +569,7 @@ export default Component.extend(I18n, {
               const row = element.querySelector(`[data-row-id="${entityId}"]`);
               row.scrollIntoView({ block: 'center' });
               next(() => {
+                // TODO: could be unsafe
                 // there are edge cases when file is not centered using first scroll
                 row.scrollIntoView({ block: 'center' });
                 next(() => {
@@ -655,9 +659,11 @@ export default Component.extend(I18n, {
           changeSelectedFiles,
         } = this.getProperties('selectedFiles', 'changeSelectedFiles');
         const sourceArray = get(filesArray, 'sourceArray');
-        changeSelectedFiles(selectedFiles.filter(selectedFile =>
-          sourceArray.includes(selectedFile)
-        ));
+        if (!isEmpty(selectedFiles)) {
+          changeSelectedFiles(selectedFiles.filter(selectedFile =>
+            sourceArray.includes(selectedFile)
+          ));
+        }
 
         scheduleOnce('afterRender', () => {
           const anyRowVisible = this.$('.data-row').toArray()
