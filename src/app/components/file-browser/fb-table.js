@@ -704,7 +704,12 @@ export default Component.extend(I18n, {
     if (items[0] && !items[0].getAttribute('data-row-id')) {
       const listWatcher = this.get('listWatcher');
       next(() => {
-        filesArray.fetchPrev().then(() => listWatcher.scrollHandler());
+        filesArray.fetchPrev().then(result => {
+          if (result !== false) {
+            // wait for fetched prev render if something more loaded
+            next(() => listWatcher.scrollHandler());
+          }
+        });
       });
     }
 
