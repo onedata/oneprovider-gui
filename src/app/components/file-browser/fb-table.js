@@ -497,7 +497,9 @@ export default Component.extend(I18n, {
   sourceArrayLengthObserver: observer(
     'filesArray.sourceArray.length',
     function sourceArrayLength() {
-      this.get('listWatcher').scrollHandler();
+      scheduleOnce('afterRender', () => {
+        this.get('listWatcher').scrollHandler();
+      });
     }
   ),
 
