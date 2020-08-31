@@ -63,6 +63,12 @@ export default Component.extend(I18n, {
   selectionContext: undefined,
 
   /**
+   * @virtual optional
+   * @type {Array<models/File>}
+   */
+  selectedFilesForJump: undefined,
+
+  /**
    * @virtual
    * @type {Array<models/File>}
    */
@@ -315,11 +321,24 @@ export default Component.extend(I18n, {
 
   filesArray: computed('dir.entityId', function filesArray() {
     const dirId = this.get('dir.entityId');
-    const selectedFiles = this.get('selectedFiles');
+    const {
+      selectedFilesForJump,
+      changeSelectedFiles,
+      selectedFiles,
+    } = this.getProperties(
+      'selectedFilesForJump',
+      'changeSelectedFiles',
+      'selectedFiles'
+    );
     let initialJumpIndex;
-    if (selectedFiles && get(selectedFiles, 'length')) {
-      const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
+    if (!isEmpty(selectedFilesForJump)) {
+      const firstSelected = A(selectedFilesForJump).sortBy('index').objectAt(0);
       initialJumpIndex = get(firstSelected, 'index');
+      if (!_.isEqual(selectedFiles, selectedFilesForJump)) {
+        scheduleOnce('afterRender', () => {
+          changeSelectedFiles(selectedFilesForJump);
+        });
+      }
     }
     const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) =>
@@ -472,46 +491,6 @@ export default Component.extend(I18n, {
     }
   ),
 
-  selectedFilesChanged: observer(
-    'selectedFiles',
-    function selectedFilesChanged() {
-      const {
-        selectedFiles,
-        filesArray,
-        listWatcher,
-        element,
-      } = this.getProperties('selectedFiles', 'filesArray', 'listWatcher', 'element');
-      if (isEmpty(selectedFiles)) {
-        return resolve();
-      }
-      const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
-      if (!filesArray.includes(firstSelected)) {
-        const {
-          entityId,
-          index,
-        } = getProperties(firstSelected, 'entityId', 'index');
-        return filesArray.jump(index, 50)
-          .then(result => {
-            if (result !== false) {
-              scheduleOnce('afterRender', () => {
-                const row = element.querySelector(`[data-row-id="${entityId}"]`);
-                row.scrollIntoView({ block: 'center' });
-                next(() => {
-                  // there are edge cases when file is not centered using first scroll
-                  row.scrollIntoView({ block: 'center' });
-                  next(() => {
-                    listWatcher.scrollHandler();
-                  });
-                });
-              });
-            }
-          });
-      } else {
-        return resolve();
-      }
-    },
-  ),
-
   /**
    * Change of a start or end index could be needed after source array length change
    */
@@ -519,6 +498,22 @@ export default Component.extend(I18n, {
     'filesArray.sourceArray.length',
     function sourceArrayLength() {
       this.get('listWatcher').scrollHandler();
+    }
+  ),
+
+  selectedFilesForJumpObserver: observer(
+    'selectedFilesForJump',
+    function selectedFilesForJumpObserver() {
+      const selectedFilesForJump = this.get('selectedFilesForJump');
+      if (!isEmpty(selectedFilesForJump)) {
+        const changeSelectedFiles = this.get('changeSelectedFiles');
+        scheduleOnce('afterRender', () => {
+          changeSelectedFiles(selectedFilesForJump);
+          next(() => {
+            this.jumpToSelection();
+          });
+        });
+      }
     }
   ),
 
@@ -545,6 +540,43 @@ export default Component.extend(I18n, {
       this.get('fileManager').deregisterRefreshHandler(this);
     } finally {
       this._super(...arguments);
+    }
+  },
+
+  jumpToSelection() {
+    const {
+      selectedFiles,
+      filesArray,
+      listWatcher,
+      element,
+    } = this.getProperties('selectedFiles', 'filesArray', 'listWatcher', 'element');
+    if (isEmpty(selectedFiles)) {
+      return resolve();
+    }
+    const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
+    if (!filesArray.includes(firstSelected)) {
+      const {
+        entityId,
+        index,
+      } = getProperties(firstSelected, 'entityId', 'index');
+      return filesArray.jump(index, 50)
+        .then(result => {
+          if (result !== false) {
+            scheduleOnce('afterRender', () => {
+              const row = element.querySelector(`[data-row-id="${entityId}"]`);
+              row.scrollIntoView({ block: 'center' });
+              next(() => {
+                // there are edge cases when file is not centered using first scroll
+                row.scrollIntoView({ block: 'center' });
+                next(() => {
+                  listWatcher.scrollHandler();
+                });
+              });
+            });
+          }
+        });
+    } else {
+      return resolve();
     }
   },
 

@@ -440,10 +440,10 @@ describe('Integration | Component | file browser', function () {
         };
       });
       const selectedFile = files[1];
-      const selectedFiles = [selectedFile];
+      const selectedFilesForJump = [selectedFile];
       this.setProperties({
         dir,
-        selectedFiles,
+        selectedFilesForJump,
       });
       const fileManager = lookupService(this, 'fileManager');
       const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
@@ -460,7 +460,11 @@ describe('Integration | Component | file browser', function () {
       fetchDirChildren.resolves([]);
 
       this.render(hbs `<div id="content-scroll">
-        {{file-browser dir=dir selectedFiles=selectedFiles}}
+        {{file-browser
+          dir=dir
+          selectedFiles=selectedFilesForJump
+          selectedFilesForJump=selectedFilesForJump
+        }}
       </div>`);
 
       return wait().then(() => {
@@ -499,10 +503,10 @@ describe('Integration | Component | file browser', function () {
         };
       });
       const selectedFile = files[60];
-      const selectedFiles = [selectedFile];
+      const selectedFilesForJump = [selectedFile];
       this.setProperties({
         dir,
-        selectedFiles,
+        selectedFilesForJump,
       });
       const fileManager = lookupService(this, 'fileManager');
       const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
@@ -524,7 +528,11 @@ describe('Integration | Component | file browser', function () {
       fetchDirChildren.resolves([]);
 
       this.render(hbs `<div id="content-scroll">
-        {{file-browser dir=dir selectedFiles=selectedFiles}}
+        {{file-browser
+          dir=dir
+          selectedFiles=selectedFilesForJump
+          selectedFilesForJump=selectedFilesForJump
+        }}
       </div>`);
 
       return wait().then(() => {
