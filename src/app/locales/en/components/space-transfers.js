@@ -26,7 +26,6 @@ export default {
   cellActions: {
     cancelTransfer: 'Cancel transfer',
     rerunTransfer: 'Rerun transfer',
-    forbiddenAction: 'Insufficient permissions to perform this action',
   },
   cellDataName: {
     file: 'File',

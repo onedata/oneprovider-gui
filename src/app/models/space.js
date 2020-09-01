@@ -10,7 +10,7 @@ import attr from 'ember-data/attr';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { flags as allSpacePrivilegeFlags } from 'onedata-gui-websocket-client/utils/space-privileges-flags';
+import allSpacePrivilegeFlags from 'onedata-gui-websocket-client/utils/space-privileges-flags';
 import { inject as service } from '@ember/service';
 import computedCurrentUserSpacePrivileges from 'onedata-gui-common/utils/computed-current-user-space-privileges';
 

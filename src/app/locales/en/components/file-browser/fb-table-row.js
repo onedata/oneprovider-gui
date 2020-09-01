@@ -9,7 +9,6 @@ export default {
     dir: 'You don\'t have permissions to view the contents of this directory',
     file: 'You don\t have permissions to read this file ',
   },
-  hintQosViewForbidden: 'You have insufficient privileges to view QoS requirements in this space',
   status: {
     shared: 'Shared',
     metadata: 'Meta',

@@ -21,6 +21,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import { next } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 export const actionContext = {
   none: 'none',
@@ -556,7 +557,8 @@ export default Component.extend(I18n, {
     const {
       spacePrivileges,
       openQos,
-    } = this.getProperties('spacePrivileges', 'openQos');
+      i18n,
+    } = this.getProperties('spacePrivileges', 'openQos', 'i18n');
     const canView = get(spacePrivileges, 'viewQos');
     const disabled = !canView;
     return this.createFileAction({
@@ -568,7 +570,11 @@ export default Component.extend(I18n, {
         actionContext.spaceRootDir,
       ],
       disabled,
-      tip: disabled ? this.t('hintQosForbidden') : undefined,
+      tip: disabled ? insufficientPrivilegesMessage({
+        i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_view_qos',
+      }) : undefined,
       action: (files) => {
         return openQos(files);
       },

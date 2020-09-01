@@ -51,13 +51,10 @@ export default {
     disabledReplicationSingleOneprovider: 'Replication' + disabledActionSingleOneprovider,
     disabledReplicationIsComplete: 'Cannot schedule replication as all file block are already on this Oneprovider.',
     disabledReplicationReadonly: 'Cannot schedule replication as all supporting storages of this Oneprovider are readonly.',
-    disabledReplicationForbidden: 'Cannot schedule replication as you have insufficient privileges.',
     disabledMigrationSingleOneprovider: 'Migration' + disabledActionSingleOneprovider,
     disabledMigrationIsEmpty: 'Cannot schedule migration as there are no file blocks on this Oneprovider.',
-    disabledMigrationForbidden: 'Cannot schedule migration as you have insufficient privileges.',
     disabledEvictionSingleOneprovider: 'Eviction' + disabledActionSingleOneprovider,
     disabledEvictionNoBlocks: 'Eviction is not possible unless some data blocks on this Oneprovider are redundant.',
-    disabledEvictionForbidden: 'Cannot schedule eviction as you have insufficient privileges.',
   },
   destinationOneproviderSelector: {
     descriptionForManyFiles: 'Select destination for migrating selected files:',

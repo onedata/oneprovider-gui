@@ -23,7 +23,6 @@ export default {
   showHintRemoving: 'Removing a QoS requirement does not automatically remove the replicas that were created during its lifetime, but they are no longer protected.',
   showHintDocLinkName: 'QoS',
   hintClose: 'Close',
-  noEditHint: 'You have insufficient privileges to manage QoS in this space',
   addingQosEntry: 'adding QoS requirement',
   fileQosStatusHint: {
     fulfilled: 'All requirements for {{fileType}} are fulfilled',

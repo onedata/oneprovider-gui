@@ -18,6 +18,7 @@ import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const emptyChunksBarData = { 0: 0 };
 
@@ -344,6 +345,7 @@ export default Component.extend(I18n, {
     'replicationForbidden',
     function replicateHereActionState() {
       const {
+        i18n,
         hasReadonlySupport,
         spaceHasSingleOneprovider,
         fileDistributionData,
@@ -351,6 +353,7 @@ export default Component.extend(I18n, {
         percentage,
         oneprovider,
       } = this.getProperties(
+        'i18n',
         'hasReadonlySupport',
         'spaceHasSingleOneprovider',
         'fileDistributionData',
@@ -371,7 +374,11 @@ export default Component.extend(I18n, {
       let tooltipI18nKey;
 
       if (replicationForbidden) {
-        tooltipI18nKey = 'disabledReplicationForbidden';
+        state.tooltip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_schedule_replication',
+        });
       } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledReplicationSingleOneprovider';
       } else if (!(someNeverSynchronized || percentage < 100)) {
@@ -383,7 +390,9 @@ export default Component.extend(I18n, {
         tooltipI18nKey = 'replicationStart';
       }
 
-      state.tooltip = this.t(tooltipI18nKey).string;
+      if (tooltipI18nKey) {
+        state.tooltip = this.t(tooltipI18nKey).string;
+      }
       return state;
     }
   ),
@@ -400,6 +409,7 @@ export default Component.extend(I18n, {
     'percentage',
     function migrateActionState() {
       const {
+        i18n,
         spaceHasSingleOneprovider,
         fileDistributionData,
         neverSynchronized,
@@ -407,6 +417,7 @@ export default Component.extend(I18n, {
         evictionForbidden,
         replicationForbidden,
       } = this.getProperties(
+        'i18n',
         'spaceHasSingleOneprovider',
         'fileDistributionData',
         'neverSynchronized',
@@ -421,7 +432,14 @@ export default Component.extend(I18n, {
       let tooltipI18nKey;
 
       if (evictionForbidden || replicationForbidden) {
-        tooltipI18nKey = 'disabledMigrationForbidden';
+        state.tooltip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: [
+            'space_schedule_replication',
+            'space_schedule_eviction',
+          ],
+        });
       } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledMigrationSingleOneprovider';
       } else if (!hasDirs && (neverSynchronized || !percentage)) {
@@ -431,7 +449,9 @@ export default Component.extend(I18n, {
         tooltipI18nKey = 'migrationStart';
       }
 
-      state.tooltip = this.t(tooltipI18nKey).string;
+      if (tooltipI18nKey) {
+        state.tooltip = this.t(tooltipI18nKey).string;
+      }
       return state;
     }
   ),
@@ -447,12 +467,14 @@ export default Component.extend(I18n, {
     'evictionForbidden',
     function evictActionState() {
       const {
+        i18n,
         fileDistributionData,
         spaceHasSingleOneprovider,
         blocksExistOnOtherOneproviders,
         percentage,
         evictionForbidden,
       } = this.getProperties(
+        'i18n',
         'fileDistributionData',
         'spaceHasSingleOneprovider',
         'blocksExistOnOtherOneproviders',
@@ -466,7 +488,11 @@ export default Component.extend(I18n, {
       let tooltipI18nKey;
 
       if (evictionForbidden) {
-        tooltipI18nKey = 'disabledEvictionForbidden';
+        state.tooltip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_schedule_eviction',
+        });
       } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledEvictionSingleOneprovider';
       } else if (!blocksExistOnOtherOneproviders || (!percentage && !hasDirs)) {
@@ -476,7 +502,9 @@ export default Component.extend(I18n, {
         tooltipI18nKey = 'evictionStart';
       }
 
-      state.tooltip = this.t(tooltipI18nKey).string;
+      if (tooltipI18nKey) {
+        state.tooltip = this.t(tooltipI18nKey).string;
+      }
       return state;
     }
   ),
