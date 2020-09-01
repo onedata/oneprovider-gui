@@ -64,6 +64,8 @@ export default OneEmbeddedComponent.extend(
 
     fileToShowMetadata: undefined,
 
+    selectedFiles: Object.freeze([]),
+
     /**
      * @type {ComputedProperty<Object>}
      */
@@ -89,14 +91,14 @@ export default OneEmbeddedComponent.extend(
      * NOTE: not observing anything, because it should be one-time proxy
      * @type {PromiseObject<Models.File>}
      */
-    initialSelectedFilesProxy: promise.object(computed(
-      function initialSelectedFilesProxy() {
-        return this.get('selectedFilesProxy');
+    initialSelectedFilesForJumpProxy: promise.object(computed(
+      function initialSelectedFilesForJumpProxy() {
+        return this.get('selectedFilesForJumpProxy');
       }
     )),
 
-    selectedFilesProxy: promise.object(
-      computed('selected', function selectedFilesProxy() {
+    selectedFilesForJumpProxy: promise.object(
+      computed('selected', function selectedFilesForJumpProxy() {
         const {
           selected,
           fileManager,
@@ -121,7 +123,7 @@ export default OneEmbeddedComponent.extend(
             })
             .catch(error => {
               console.error(
-                `component:content-file-browser#selectedFilesProxy: error loading selected files: ${error}`
+                `component:content-file-browser#selectedFilesForJumpProxy: error loading selected files: ${error}`
               );
               return resolve([]);
             });
@@ -130,11 +132,11 @@ export default OneEmbeddedComponent.extend(
     ),
 
     initialRequiredDataProxy: promise.object(promise.all(
-      'initialSelectedFilesProxy',
+      'initialSelectedFilesForJumpProxy',
       'initialDirProxy'
     )),
 
-    selectedFiles: reads('selectedFilesProxy.content'),
+    selectedFilesForJump: reads('selectedFilesForJumpProxy.content'),
 
     injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
       const {
@@ -217,11 +219,11 @@ export default OneEmbeddedComponent.extend(
      * @type <Function>
      */
     injectedSelectedChanged: observer(
-      'selectedFilesProxy.content',
+      'selectedFilesForJumpProxy.content',
       function injectedSelectedChanged() {
-        const selectedFiles = this.get('selectedFilesProxy.content');
-        if (selectedFiles) {
-          this.set('selectedFiles', selectedFiles);
+        const selectedFilesForJump = this.get('selectedFilesForJumpProxy.content');
+        if (selectedFilesForJump) {
+          this.set('selectedFilesForJump', selectedFilesForJump);
         }
       }),
 
@@ -335,6 +337,7 @@ export default OneEmbeddedComponent.extend(
 
     clearFilesSelection() {
       this.set('selectedFiles', Object.freeze([]));
+      this.set('selectedFilesForJump', Object.freeze([]));
     },
 
     actions: {
