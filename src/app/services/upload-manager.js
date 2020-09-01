@@ -120,7 +120,6 @@ export default Service.extend(I18n, {
   _refreshDirectoryChildrenFun: computed(function _refreshDirectoryChildrenFun() {
     const fileManager = this.get('fileManager');
     return function _refreshDirectoryChildren(dirId) {
-      console.log('refresh invoked');
       return fileManager.dirChildrenRefresh(dirId);
     };
   }),
