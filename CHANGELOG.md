@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6720 Fixed random file list duplicates
 * VFS-6704 Fixed file list refresh bugs after removing multiple files, reload and upload
 * VFS-6640 Extended QoS expression API: support for spaces and dashes in key/values, changed complement operator, added math comparison operators
 * VFS-6675 Fixed file browser crashing when first selected file cannot be loaded
