@@ -12,7 +12,7 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import allSpacePrivilegeFlags from 'onedata-gui-websocket-client/utils/space-privileges-flags';
 import { inject as service } from '@ember/service';
-import computedCurrentUserSpacePrivileges from 'onedata-gui-common/utils/computed-current-user-space-privileges';
+import computedCurrentUserPrivileges from 'onedata-gui-common/utils/computed-current-user-privileges';
 
 export const entityType = 'op_space';
 
@@ -38,6 +38,6 @@ export default Model.extend(
       return this.get('transferManager').getSpaceTransfersActiveChannels(this);
     },
 
-    privileges: computedCurrentUserSpacePrivileges(allSpacePrivilegeFlags),
+    privileges: computedCurrentUserPrivileges({ allFlags: allSpacePrivilegeFlags }),
   }
 ).reopenClass(StaticGraphModelMixin);
