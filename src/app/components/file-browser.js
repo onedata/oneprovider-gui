@@ -230,6 +230,12 @@ export default Component.extend(I18n, {
   selectedFiles: Object.freeze([]),
 
   /**
+   * Injected property to notify about external selection change, that should enable jump.
+   * @type {EmberArray<Models.File>}
+   */
+  selectedFilesForJump: Object.freeze([]),
+
+  /**
    * If true, the paste from clipboard button should be available
    * @type {Computed<boolean>}
    */
@@ -348,6 +354,20 @@ export default Component.extend(I18n, {
         selectedFiles.includes(dir);
     }
   ),
+
+  contentScroll: computed(function contentScroll() {
+    return document.getElementById('content-scroll');
+  }),
+
+  containerScrollTop: computed('contentScroll', function containerScrollTop() {
+    const contentScroll = this.get('contentScroll');
+    return (position, isDelta = false) => {
+      contentScroll.scrollTo(
+        null,
+        (isDelta ? contentScroll.scrollTop : 0) + position
+      );
+    };
+  }),
 
   // #region Action buttons
 
@@ -657,20 +677,6 @@ export default Component.extend(I18n, {
       this.get('currentDirContextMenuHandler')
     );
   },
-
-  contentScroll: computed(function contentScroll() {
-    return document.getElementById('content-scroll');
-  }),
-
-  containerScrollTop: computed('contentScroll', function containerScrollTop() {
-    const contentScroll = this.get('contentScroll');
-    return (position, isDelta = false) => {
-      contentScroll.scrollTo(
-        null,
-        (isDelta ? contentScroll.scrollTop : 0) + position
-      );
-    };
-  }),
 
   getPreviewContext(context) {
     return this.get('previewMode') ? `${context}Preview` : context;

@@ -13,7 +13,7 @@
   }
   &.scroll-on-top {
     .file-browser-head-container {
-      @include hide-shadow;
+      @include hide-before-shadow;
     }
   }
 }
