@@ -12,7 +12,7 @@ import { reads, not } from '@ember/object/computed';
 import { equal, raw } from 'ember-awesome-macros';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
-import { later, cancel } from '@ember/runloop';
+import { later, cancel, scheduleOnce } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
@@ -34,6 +34,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     'isSelected:file-selected',
     'fileCut:file-cut',
     'isInvalidated:is-invalidated',
+    'isLoadingDownload:is-loading-download',
   ],
   attributeBindings: ['fileEntityId:data-row-id'],
 
@@ -108,9 +109,9 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   /**
    * @virtual
-   * @type {Function}
+   * @type {(Models.File) => Promise)}
    */
-  fastDoubleClick: notImplementedWarn,
+  fileDoubleClicked: notImplementedWarn,
 
   /**
    * @virtual
@@ -349,6 +350,16 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 
+  // init() {
+  //   this._super(...arguments);
+  //   const fastDoubleClick = this.get('fastDoubleClick');
+  //   if (fastDoubleClick) {
+  //     this.fastDoubleClick = function rowFastDoubleClick() {
+
+  //     };
+  //   }
+  // },
+
   didInsertElement() {
     this._super(...arguments);
     const {
@@ -396,6 +407,13 @@ export default Component.extend(I18n, FastDoubleClick, {
     this.get('fastClick')(clickEvent);
   },
 
+  /**
+   * @override
+   */
+  fastDoubleClick: computed(function fastDoubleClick() {
+    return _fastDoubleClick.bind(this);
+  }),
+
   actions: {
     openContextMenu() {
       this.openContextMenu(...arguments);
@@ -405,3 +423,21 @@ export default Component.extend(I18n, FastDoubleClick, {
     },
   },
 });
+
+function _fastDoubleClick() {
+  const fileDoubleClicked = this.get('fileDoubleClicked');
+  if (fileDoubleClicked) {
+    const promise = fileDoubleClicked();
+    if (promise && promise.finally) {
+      this.set('isLoadingDownload', true);
+      scheduleOnce('afterRender', () => {
+        const spinner =
+          this.element.querySelector('.file-info-container .download-loading-spinner');
+        spinner.classList.add('start-transition');
+      });
+      promise.finally(() => {
+        safeExec(this, 'set', 'isLoadingDownload', false);
+      });
+    }
+  }
+}
