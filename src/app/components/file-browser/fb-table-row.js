@@ -17,6 +17,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
@@ -109,9 +110,9 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   /**
    * @virtual
-   * @type {(Models.File) => Promise)}
+   * @type {(Models.File) => Promise}
    */
-  fileDoubleClicked: notImplementedWarn,
+  fileDoubleClicked: notImplementedReject,
 
   /**
    * @virtual
@@ -340,6 +341,15 @@ export default Component.extend(I18n, FastDoubleClick, {
     }
   ),
 
+  /**
+   * @override
+   * `_fastDoubleClick` method is get as a function in `FastDoubleClick` mixin, so it
+   * should be bound to this.
+   */
+  fastDoubleClick: computed(function fastDoubleClick() {
+    return this._fastDoubleClick.bind(this);
+  }),
+
   isShared: reads('file.isShared'),
 
   hasMetadata: reads('file.hasMetadata'),
@@ -349,16 +359,6 @@ export default Component.extend(I18n, FastDoubleClick, {
   hasDirectQos: reads('file.hasDirectQos'),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
-
-  // init() {
-  //   this._super(...arguments);
-  //   const fastDoubleClick = this.get('fastDoubleClick');
-  //   if (fastDoubleClick) {
-  //     this.fastDoubleClick = function rowFastDoubleClick() {
-
-  //     };
-  //   }
-  // },
 
   didInsertElement() {
     this._super(...arguments);
@@ -407,12 +407,23 @@ export default Component.extend(I18n, FastDoubleClick, {
     this.get('fastClick')(clickEvent);
   },
 
-  /**
-   * @override
-   */
-  fastDoubleClick: computed(function fastDoubleClick() {
-    return _fastDoubleClick.bind(this);
-  }),
+  _fastDoubleClick() {
+    const fileDoubleClicked = this.get('fileDoubleClicked');
+    if (fileDoubleClicked && typeof fileDoubleClicked === 'function') {
+      const promise = fileDoubleClicked();
+      if (promise && promise.finally) {
+        this.set('isLoadingDownload', true);
+        scheduleOnce('afterRender', () => {
+          const spinner =
+            this.element.querySelector('.file-info-container .download-loading-spinner');
+          spinner.classList.add('start-transition');
+        });
+        promise.finally(() => {
+          safeExec(this, 'set', 'isLoadingDownload', false);
+        });
+      }
+    }
+  },
 
   actions: {
     openContextMenu() {
@@ -423,21 +434,3 @@ export default Component.extend(I18n, FastDoubleClick, {
     },
   },
 });
-
-function _fastDoubleClick() {
-  const fileDoubleClicked = this.get('fileDoubleClicked');
-  if (fileDoubleClicked) {
-    const promise = fileDoubleClicked();
-    if (promise && promise.finally) {
-      this.set('isLoadingDownload', true);
-      scheduleOnce('afterRender', () => {
-        const spinner =
-          this.element.querySelector('.file-info-container .download-loading-spinner');
-        spinner.classList.add('start-transition');
-      });
-      promise.finally(() => {
-        safeExec(this, 'set', 'isLoadingDownload', false);
-      });
-    }
-  }
-}
