@@ -12,11 +12,12 @@ import { reads, not } from '@ember/object/computed';
 import { equal, raw } from 'ember-awesome-macros';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
-import { later, cancel } from '@ember/runloop';
+import { later, cancel, scheduleOnce } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-click';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
@@ -34,6 +35,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     'isSelected:file-selected',
     'fileCut:file-cut',
     'isInvalidated:is-invalidated',
+    'isLoadingDownload:is-loading-download',
   ],
   attributeBindings: ['fileEntityId:data-row-id'],
 
@@ -108,9 +110,9 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   /**
    * @virtual
-   * @type {Function}
+   * @type {(Models.File) => Promise}
    */
-  fastDoubleClick: notImplementedWarn,
+  fileDoubleClicked: notImplementedReject,
 
   /**
    * @virtual
@@ -339,6 +341,15 @@ export default Component.extend(I18n, FastDoubleClick, {
     }
   ),
 
+  /**
+   * @override
+   * `_fastDoubleClick` method is get as a function in `FastDoubleClick` mixin, so it
+   * should be bound to this.
+   */
+  fastDoubleClick: computed(function fastDoubleClick() {
+    return this._fastDoubleClick.bind(this);
+  }),
+
   isShared: reads('file.isShared'),
 
   hasMetadata: reads('file.hasMetadata'),
@@ -394,6 +405,24 @@ export default Component.extend(I18n, FastDoubleClick, {
   click(clickEvent) {
     this._super(...arguments);
     this.get('fastClick')(clickEvent);
+  },
+
+  _fastDoubleClick() {
+    const fileDoubleClicked = this.get('fileDoubleClicked');
+    if (fileDoubleClicked && typeof fileDoubleClicked === 'function') {
+      const promise = fileDoubleClicked();
+      if (promise && promise.finally) {
+        this.set('isLoadingDownload', true);
+        scheduleOnce('afterRender', () => {
+          const spinner =
+            this.element.querySelector('.file-info-container .download-loading-spinner');
+          spinner.classList.add('start-transition');
+        });
+        promise.finally(() => {
+          safeExec(this, 'set', 'isLoadingDownload', false);
+        });
+      }
+    }
   },
 
   actions: {

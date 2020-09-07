@@ -12,7 +12,17 @@
   &.is-invalidated {
     position: relative;
   }
-  td.fb-table-col-files {
+  &.is-loading-download {
+    td.fb-table-col-files .file-info-container {
+      .inline-icon-container-file {
+        opacity: 0;
+      }
+      .spinner-container.start-transition {
+        opacity: 1;
+      }
+    }
+  }
+  td.fb-table-col-files {    
     @media (max-width: $screen-xs-max) {
       padding-top: 8px;
       padding-bottom: 8px;
@@ -20,7 +30,19 @@
     .file-info-container {
       display: flex;
       .file-icon-container, .file-item-text {
+        position: relative;
         min-width: 2em;
+      }
+      .inline-icon-container {
+        opacity: 1;
+      }
+      .spinner-container {
+        opacity: 0;
+      }
+      .inline-icon-container-file, .spinner-container {
+        transition-property: opacity;
+        transition-duration: .25s;
+        transition-timing-function: ease;
       }
       .file-item-text {
         width: 100%;
