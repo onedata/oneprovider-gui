@@ -15,7 +15,21 @@ const breakpointValues =
 module.exports = function (defaults) {
   const app = new EmberApp(defaults, {
     'fingerprint': {
-      extensions: ['js', 'css', 'map'],
+      extensions: [
+        'js',
+        'css',
+        'map',
+        'svg',
+        'png',
+        'jpg',
+        'gif',
+        'webmanifest',
+        'ttf',
+        'woff',
+        'svg',
+        'eot',
+      ],
+      replaceExtensions: ['html', 'css', 'js', 'webmanifest'],
     },
     'ember-cli-babel': {
       includePolyfill: true,
