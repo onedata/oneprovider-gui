@@ -11,7 +11,7 @@
 import ProductionFileManager from '../production/file-manager';
 import { resolve } from 'rsvp';
 import { inject as service } from '@ember/service';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, Promise } from 'rsvp';
 
 export default ProductionFileManager.extend({
   onedataGraph: service(),
@@ -31,5 +31,11 @@ export default ProductionFileManager.extend({
         offset,
       }).map(fileId => this.getFileById(fileId)));
     }
+  },
+
+  getFileDownloadUrl() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ fileUrl: '/download/test-file.zip' }), 2000);
+    });
   },
 });

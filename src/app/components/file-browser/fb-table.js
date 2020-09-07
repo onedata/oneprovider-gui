@@ -849,7 +849,7 @@ export default Component.extend(I18n, {
       if (confirmModal) {
         this.set('downloadModalFile', file);
       } else {
-        this.downloadFile(get(file, 'entityId'));
+        return this.downloadFile(get(file, 'entityId'));
       }
     }
   },
