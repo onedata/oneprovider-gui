@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6652 Enabled assets fingerprinting for more resources
 * VFS-6570 Added spinner to file row when loading download file URL
 * VFS-6720 Fixed random file list duplicates
 * VFS-6704 Fixed file list refresh bugs after removing multiple files, reload and upload
