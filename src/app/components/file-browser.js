@@ -427,12 +427,25 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnShare: computed(function btnShare() {
+  btnShare: computed('spacePrivileges.view', 'openShare', function btnShare() {
+    const {
+      spacePrivileges,
+      openShare,
+      i18n,
+    } = this.getProperties('spacePrivileges', 'openShare', 'i18n');
+    const canView = get(spacePrivileges, 'view');
+    const disabled = !canView;
     return this.createFileAction({
       id: 'share',
       action: (files) => {
-        return this.get('openShare')(files[0]);
+        return openShare(files[0]);
       },
+      disabled,
+      tip: disabled ? insufficientPrivilegesMessage({
+        i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_view',
+      }) : undefined,
       showIn: [
         actionContext.singleFile,
         actionContext.singleDir,
