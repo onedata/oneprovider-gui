@@ -62,6 +62,12 @@ export default EmberObject.extend({
    */
   spaceId: undefined,
 
+  /**
+   * @virtual
+   * @type {Object}
+   */
+  forbiddenOperations: undefined,
+
   isLoading: false,
 
   transferId: reads('transfer.entityId'),
@@ -72,7 +78,7 @@ export default EmberObject.extend({
   transferProgressError: reads('transfer.transferProgressProxy.reason'),
   type: reads('transfer.type'),
 
-  userProxy: promise.object(computed('spaceId', function userProxy() {
+  userProxy: promise.object(computed('transfer', 'spaceId', function userProxy() {
     const {
       transfer,
       spaceId,

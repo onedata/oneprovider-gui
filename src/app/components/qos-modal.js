@@ -19,6 +19,7 @@ import { all as allFulfilled, allSettled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 export const qosStatusIcons = {
   error: 'warning',
@@ -125,6 +126,14 @@ export default Component.extend(I18n, {
    * @type {Object}
    */
   filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
+
+  noEditHint: computed(function noEditHint() {
+    return insufficientPrivilegesMessage({
+      i18n: this.get('i18n'),
+      modelName: 'space',
+      privilegeFlag: 'space_manage_qos',
+    });
+  }),
 
   fileItems: computed('files.[]', function fileItems() {
     const filesSorted = [...this.get('files')].sortBy('name');

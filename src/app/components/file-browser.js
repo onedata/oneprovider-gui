@@ -21,6 +21,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import { next } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 export const actionContext = {
   none: 'none',
@@ -426,12 +427,25 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnShare: computed(function btnShare() {
+  btnShare: computed('spacePrivileges.view', 'openShare', function btnShare() {
+    const {
+      spacePrivileges,
+      openShare,
+      i18n,
+    } = this.getProperties('spacePrivileges', 'openShare', 'i18n');
+    const canView = get(spacePrivileges, 'view');
+    const disabled = !canView;
     return this.createFileAction({
       id: 'share',
       action: (files) => {
-        return this.get('openShare')(files[0]);
+        return openShare(files[0]);
       },
+      disabled,
+      tip: disabled ? insufficientPrivilegesMessage({
+        i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_view',
+      }) : undefined,
       showIn: [
         actionContext.singleFile,
         actionContext.singleDir,
@@ -576,7 +590,8 @@ export default Component.extend(I18n, {
     const {
       spacePrivileges,
       openQos,
-    } = this.getProperties('spacePrivileges', 'openQos');
+      i18n,
+    } = this.getProperties('spacePrivileges', 'openQos', 'i18n');
     const canView = get(spacePrivileges, 'viewQos');
     const disabled = !canView;
     return this.createFileAction({
@@ -588,7 +603,11 @@ export default Component.extend(I18n, {
         actionContext.spaceRootDir,
       ],
       disabled,
-      tip: disabled ? this.t('hintQosForbidden') : undefined,
+      tip: disabled ? insufficientPrivilegesMessage({
+        i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_view_qos',
+      }) : undefined,
       action: (files) => {
         return openQos(files);
       },

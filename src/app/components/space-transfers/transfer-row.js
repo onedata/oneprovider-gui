@@ -9,7 +9,9 @@
 
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
+import { equal } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import { inject as service } from '@ember/service';
 
 export default Component.extend({
   tagName: 'tr',
@@ -19,6 +21,8 @@ export default Component.extend({
     'data-row',
   ],
   attributeBindings: ['dataRowId:data-row-id'],
+
+  currentUser: service(),
 
   /**
    * @virtual
@@ -43,6 +47,12 @@ export default Component.extend({
    * @type {Function}
    */
   openDbViewModal: notImplementedThrow,
+
+  /**
+   * True if this transfer was created by current (session) user
+   * @type {ComputedProperty<Boolean>}
+   */
+  ownedByCurrentUser: equal('currentUser.userId', 'record.transfer.userId'),
 
   dataRowId: reads('transfer.entityId'),
 

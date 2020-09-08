@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6456 Handling lack of privileges for transfers actions
 * VFS-6652 Enabled assets fingerprinting for more resources
 * VFS-6570 Added spinner to file row when loading download file URL
 * VFS-6720 Fixed random file list duplicates

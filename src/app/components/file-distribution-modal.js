@@ -207,6 +207,10 @@ export default Component.extend(
       },
       onShow() {
         this.updateOneprovidersProxy({ replace: true });
+        const space = this.get('space');
+        if (space.reload) {
+          space.reload();
+        }
       },
       replicate(files, destinationOneprovider) {
         const {

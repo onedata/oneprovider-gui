@@ -78,9 +78,18 @@
         {{tt this "createNew"}}
       {{/one-spin-button}}
     {{else if (eq mode "show")}}
-      {{#bs-button type="primary" onClick=(action (mut addAnotherOneMode) true)}}
-        {{tt this "createAnotherOne"}}
-      {{/bs-button}}
+      <div class="btn-tooltip-container">
+        {{#bs-button
+          type="primary"
+          disabled=(not managePrivilege)
+          onClick=(action (mut addAnotherOneMode) true)
+        }}
+          {{tt this "createAnotherOne"}}
+        {{/bs-button}}
+        {{#unless managePrivilege}}
+          {{one-tooltip title=noManageHint}}
+        {{/unless}}
+      </div>
     {{/if}}
   {{/modal.footer}}
 {{/bs-modal}}

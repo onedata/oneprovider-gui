@@ -35,12 +35,14 @@ import backendifyName, {
   maxLength as shareNameMax,
 } from 'onedata-gui-common/utils/backendify-name';
 import { next } from '@ember/runloop';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 export default Component.extend(
   I18n,
   createDataProxyMixin('shares'), {
     shareManager: service(),
     globalNotify: service(),
+    i18n: service(),
 
     /**
      * @override
@@ -71,6 +73,13 @@ export default Component.extend(
 
     addAnotherOneMode: false,
 
+    /**
+     * If true, the create new share button can be enabled.
+     * Should be injected with space prvilege (space_manage_shares).
+     * @type {Boolean}
+     */
+    managePrivilege: true,
+
     submitNewDisabled: or(
       notEmpty('validationError'),
       'isSaving',
@@ -91,6 +100,14 @@ export default Component.extend(
 
     inputId: computed('elementId', function inputId() {
       return `${this.elementId}-name-input`;
+    }),
+
+    noManageHint: computed(function noManageHint() {
+      return insufficientPrivilegesMessage({
+        i18n: this.get('i18n'),
+        modelName: 'space',
+        privilegeFlag: 'space_manage_shares',
+      });
     }),
 
     nameIsValid: string.match('newShareName', raw(backendNameRegexp)),

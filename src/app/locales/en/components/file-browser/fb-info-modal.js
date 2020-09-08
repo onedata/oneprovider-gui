@@ -5,7 +5,7 @@ export default {
   name: '{{type}} name',
   path: '{{type}} path',
   spaceId: 'Space ID',
-  cdmiObjectId: 'CDMI Object ID',
+  cdmiObjectId: 'File ID',
   modificationTime: 'Modified at',
   owner: 'Owner',
   close: 'Close',

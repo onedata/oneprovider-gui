@@ -55,6 +55,23 @@ export default Component.extend(I18n, {
    */
   closeFileTab: notImplementedWarn,
 
+  forbiddenOperations: computed(
+    'space.privileges.{scheduleReplication,scheduleEviction,cancelReplication,cancelEviction}',
+    function forbiddenOperations() {
+      const privileges = this.get('space.privileges');
+      if (privileges) {
+        return {
+          scheduleReplication: privileges.scheduleReplication === false,
+          scheduleEviction: privileges.scheduleEviction === false,
+          cancelReplication: privileges.cancelReplication === false,
+          cancelEviction: privileges.cancelEviction === false,
+        };
+      } else {
+        return {};
+      }
+    },
+  ),
+
   /**
    * Returns tab name if it is allowed and null otherwise.
    * @type {String}

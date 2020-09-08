@@ -22,6 +22,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -43,6 +44,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   media: service(),
   visualLogger: service(),
   currentUser: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -167,6 +169,14 @@ export default Component.extend(I18n, FastDoubleClick, {
   fileNameBase: reads('fileNameParser.base'),
 
   fileNameSuffix: reads('fileNameParser.suffix'),
+
+  hintQosViewForbidden: computed(function hintQosForbidden() {
+    return insufficientPrivilegesMessage({
+      i18n: this.get('i18n'),
+      modelName: 'space',
+      privilegeFlag: 'space_view_qos',
+    });
+  }),
 
   enableContextMenuToggle: computed(
     'fileActionsOpen',
