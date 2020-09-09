@@ -11,6 +11,7 @@ import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-compon
 import { inject as service } from '@ember/service';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { reads } from '@ember/object/computed';
 
 export default OneEmbeddedComponent.extend(
   ContentSpaceBaseMixin, {
@@ -33,6 +34,12 @@ export default OneEmbeddedComponent.extend(
       'fileEntityId',
       'tab',
     ]),
+
+    /**
+     * True if space is loaded and current user has permissions to view transfers
+     * @type {Boolean}
+     */
+    hasPermissions: reads('spaceProxy.content.privileges.viewTransfers'),
 
     actions: {
       containerScrollTop() {

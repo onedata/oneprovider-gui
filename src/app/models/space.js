@@ -10,9 +10,9 @@ import attr from 'ember-data/attr';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import allSpacePrivilegeFlags from 'onedata-gui-websocket-client/utils/space-privileges-flags';
 import { inject as service } from '@ember/service';
-import { computed } from '@ember/object';
-import { camelize } from '@ember/string';
+import computedCurrentUserPrivileges from 'onedata-gui-common/utils/computed-current-user-privileges';
 
 export const entityType = 'op_space';
 
@@ -28,6 +28,7 @@ export default Model.extend(
     effGroupList: belongsTo('group-list'),
     shareList: belongsTo('share-list'),
     currentUserEffPrivileges: attr('array', { defaultValue: () => [] }),
+    currentUserIsOwner: attr('boolean'),
     providersWithReadonlySupport: attr('array', { defaultValue: () => [] }),
 
     /**
@@ -37,23 +38,6 @@ export default Model.extend(
       return this.get('transferManager').getSpaceTransfersActiveChannels(this);
     },
 
-    /**
-     * Create convenient object with effective privileges flags.
-     * Values are either true or there is no privilege key at all.
-     * Flags are in camelCase without `space_` prefix as defined in
-     * `onedata-gui-websocket-client/addon/utils/space-privileges-flags.js`.
-     * Example property of this object is `viewQos` for `space_view_qos` privilege.
-     * @type {ComputedProperty<Object>}
-     */
-    privileges: computed('currentUserEffPrivileges.[]', function privileges() {
-      const currentUserEffPrivileges = this.get('currentUserEffPrivileges');
-      return currentUserEffPrivileges.reduce((obj, privilege) => {
-        const shortName = privilege.split('space_')[1];
-        if (shortName) {
-          obj[camelize(shortName)] = true;
-        }
-        return obj;
-      }, {});
-    }),
+    privileges: computedCurrentUserPrivileges({ allFlags: allSpacePrivilegeFlags }),
   }
 ).reopenClass(StaticGraphModelMixin);

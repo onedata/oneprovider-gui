@@ -61,6 +61,12 @@ export default Component.extend({
    */
   openDbViewModal: notImplementedThrow,
 
+  /**
+   * @virtual
+   * @type {Object}
+   */
+  forbiddenOperations: Object.freeze({}),
+
   historyLimitReached: false,
 
   tableTopVisible: true,

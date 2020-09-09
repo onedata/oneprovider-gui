@@ -37,12 +37,14 @@
             transfer=transfer
             transfers=transfers
             providers=providers
+            spaceId=spaceId
             transferCollection=transferType
             providersColors=providersColors
             transferActions=transferActions
           )
           columns=visibleColumns
           transfersTable=this
+          forbiddenOperations=forbiddenOperations
           transferActions=transferActions
           openDbViewModal=(action "openDbViewModal")
           click=(action "toggleTransferDetails" transfer.entityId undefined)
@@ -53,6 +55,7 @@
               transfer=transfer
               transfers=transfers
               providers=providers
+              spaceId=spaceId
               transferCollection=transferType
               providersColors=providersColors
               transferActions=transferActions

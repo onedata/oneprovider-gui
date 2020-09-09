@@ -215,7 +215,6 @@ export default Model.extend(
     },
 
     /**
-     * 
      * @param {string} spaceId 
      * @return {Promise<Models.User>}
      */

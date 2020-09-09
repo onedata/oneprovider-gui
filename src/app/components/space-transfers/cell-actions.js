@@ -13,6 +13,9 @@ import EmberObject, { computed, get } from '@ember/object';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { tag } from 'ember-awesome-macros';
+import { camelize } from '@ember/string';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { underscore } from '@ember/string';
 
 const actionIcons = {
   cancelTransfer: 'cancelled',
@@ -41,6 +44,18 @@ export default Component.extend(I18n, {
    * @type {Array<Object>}
    */
   transferActions: undefined,
+
+  /**
+   * @virtual
+   * @type {Object}
+   */
+  forbiddenOperations: Object.freeze({}),
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  ownedByCurrentUser: false,
 
   /**
    * @type {boolean}
@@ -81,19 +96,24 @@ export default Component.extend(I18n, {
     'record.{isRerunning,transfer.isEnded}',
     'isCancelling',
     'transferFilesDeleted',
+    'forbiddenOperations',
     function menuActions() {
       const transferActions = this.get('transferActions');
       if (transferActions) {
         const record = this.get('record');
         return A(transferActions
           .filter(({ id }) => !this.isActionInvisible(id))
-          .map(({ id, action }) => EmberObject.create({
-            title: this.t(id),
-            // TODO: optimize - a function is created for each cell
-            action: () => action(record),
-            icon: actionIcons[id],
-            disabled: this.isActionDisabled(id),
-          }))
+          .map(({ id, action }) => {
+            const forbiddenTip = this.actionForbiddenTip(id);
+            const isDisabled = this.isActionDisabled(id);
+            return EmberObject.create({
+              title: this.t(id),
+              action: () => action(record),
+              icon: actionIcons[id],
+              disabled: isDisabled || Boolean(forbiddenTip),
+              tip: (forbiddenTip && !isDisabled) ? forbiddenTip : undefined,
+            });
+          })
         );
       }
     }
@@ -124,12 +144,48 @@ export default Component.extend(I18n, {
       record,
       isCancelling,
       transferFilesDeleted,
-    } = this.getProperties('record', 'isCancelling', 'transferFilesDeleted');
+    } = this.getProperties(
+      'record',
+      'isCancelling',
+      'transferFilesDeleted',
+    );
     switch (actionId) {
       case 'cancelTransfer':
         return isCancelling;
       case 'rerunTransfer':
         return transferFilesDeleted || get(record, 'isRerunning');
+    }
+  },
+
+  actionForbiddenTip(actionId) {
+    const {
+      i18n,
+      ownedByCurrentUser,
+      forbiddenOperations,
+      record,
+    } = this.getProperties('i18n', 'ownedByCurrentUser', 'forbiddenOperations', 'record');
+    const operationAction = actionId.split('Transfer')[0] === 'rerun' ?
+      'schedule' : 'cancel';
+    if (operationAction === 'cancel' && ownedByCurrentUser) {
+      return false;
+    } else {
+      const transferType = get(record, 'transfer.type');
+      const forbiddensToCheck = transferType === 'migration' ? [
+        `${operationAction}Replication`,
+        `${operationAction}Eviction`,
+      ] : [camelize(`${operationAction}-${transferType}`)];
+      const isForbidden = forbiddensToCheck
+        .map(flag => forbiddenOperations[flag])
+        .some(i => i);
+      if (isForbidden) {
+        return insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: forbiddensToCheck.map(flag => `space_${underscore(flag)}`),
+        });
+      } else {
+        return null;
+      }
     }
   },
 

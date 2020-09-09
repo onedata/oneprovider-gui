@@ -16,7 +16,6 @@ import fbMetadataRdf from './file-browser/fb-metadata-rdf';
 export default {
   menuCurrentDir: 'Current directory',
   refreshingDirectory: 'refreshing directory',
-  hintQosForbidden: 'You have insufficient privileges to view QoS requirements in this space',
   pasteFailed: {
     move: 'moving some of files',
     copy: 'copying some of files',

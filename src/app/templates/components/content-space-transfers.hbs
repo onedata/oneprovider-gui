@@ -1,10 +1,14 @@
 {{#promise-proxy-container proxy=spaceProxy spinnerBlockClass="absolute-middle-centered"}}
-  {{space-transfers
-    space=spaceProxy.content
-    fileId=fileEntityId
-    tab=tab
-    resetQueryParams=(action "resetQueryParams")
-    changeListTab=(action "changeListTab")
-    closeFileTab=(action "closeFileTab")
-  }}
+  {{#if hasPermissions}}
+    {{space-transfers
+      space=spaceProxy.content
+      fileId=fileEntityId
+      tab=tab
+      resetQueryParams=(action "resetQueryParams")
+      changeListTab=(action "changeListTab")
+      closeFileTab=(action "closeFileTab")
+    }}
+  {{else}}
+    {{errors/no-permissions class="no-permissions-space-transfers"}}
+  {{/if}}
 {{/promise-proxy-container}}

@@ -88,14 +88,13 @@
                   bubbles=false
                 }}
               >
-                {{tt this "status.qos"}}
-                {{#unless hasDirectQos}}
-                  <div class="inline-icon-container">
-                    {{one-icon icon="arrow-long-up"}}
-                  </div>
-                {{/unless}}
+                {{#if hasDirectQos}}
+                  {{tt this "status.qos"}}
+                {{else}}
+                  {{tt this "status.qos"}}&nbsp;{{one-icon class="qos-status-arrow" icon="arrow-long-up"}}
+                {{/if}}
                 {{#if qosViewForbidden}}
-                  {{one-tooltip title=(tt this "hintQosViewForbidden")}}
+                  {{one-tooltip title=hintQosViewForbidden}}
                 {{/if}}
               </div>
             {{/if}}

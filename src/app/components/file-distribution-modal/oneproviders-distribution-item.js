@@ -18,6 +18,7 @@ import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const emptyChunksBarData = { 0: 0 };
 
@@ -49,6 +50,18 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   spaceHasSingleOneprovider: undefined,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  replicationForbidden: false,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  evictionForbidden: false,
 
   /**
    * @virtual
@@ -329,17 +342,22 @@ export default Component.extend(I18n, {
     'fileDistributionData.@each.{fileType,fileDistribution}',
     'percentage',
     'oneprovider',
+    'replicationForbidden',
     function replicateHereActionState() {
       const {
+        i18n,
         hasReadonlySupport,
         spaceHasSingleOneprovider,
         fileDistributionData,
+        replicationForbidden,
         percentage,
         oneprovider,
       } = this.getProperties(
+        'i18n',
         'hasReadonlySupport',
         'spaceHasSingleOneprovider',
         'fileDistributionData',
+        'replicationForbidden',
         'percentage',
         'oneprovider',
       );
@@ -355,7 +373,13 @@ export default Component.extend(I18n, {
       const state = { enabled: false };
       let tooltipI18nKey;
 
-      if (spaceHasSingleOneprovider) {
+      if (replicationForbidden) {
+        state.tooltip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_schedule_replication',
+        });
+      } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledReplicationSingleOneprovider';
       } else if (!(someNeverSynchronized || percentage < 100)) {
         tooltipI18nKey = 'disabledReplicationIsComplete';
@@ -366,7 +390,9 @@ export default Component.extend(I18n, {
         tooltipI18nKey = 'replicationStart';
       }
 
-      state.tooltip = this.t(tooltipI18nKey).string;
+      if (tooltipI18nKey) {
+        state.tooltip = this.t(tooltipI18nKey).string;
+      }
       return state;
     }
   ),
@@ -378,18 +404,26 @@ export default Component.extend(I18n, {
     'spaceHasSingleOneprovider',
     'fileDistributionData.@each.fileType',
     'neverSynchronized',
+    'evictionForbidden',
+    'replicationForbidden',
     'percentage',
     function migrateActionState() {
       const {
+        i18n,
         spaceHasSingleOneprovider,
         fileDistributionData,
         neverSynchronized,
         percentage,
+        evictionForbidden,
+        replicationForbidden,
       } = this.getProperties(
+        'i18n',
         'spaceHasSingleOneprovider',
         'fileDistributionData',
         'neverSynchronized',
         'percentage',
+        'evictionForbidden',
+        'replicationForbidden',
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
@@ -397,7 +431,16 @@ export default Component.extend(I18n, {
       const state = { enabled: false };
       let tooltipI18nKey;
 
-      if (spaceHasSingleOneprovider) {
+      if (evictionForbidden || replicationForbidden) {
+        state.tooltip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: [
+            'space_schedule_replication',
+            'space_schedule_eviction',
+          ],
+        });
+      } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledMigrationSingleOneprovider';
       } else if (!hasDirs && (neverSynchronized || !percentage)) {
         tooltipI18nKey = 'disabledMigrationIsEmpty';
@@ -406,7 +449,9 @@ export default Component.extend(I18n, {
         tooltipI18nKey = 'migrationStart';
       }
 
-      state.tooltip = this.t(tooltipI18nKey).string;
+      if (tooltipI18nKey) {
+        state.tooltip = this.t(tooltipI18nKey).string;
+      }
       return state;
     }
   ),
@@ -419,17 +464,22 @@ export default Component.extend(I18n, {
     'spaceHasSingleOneprovider',
     'blocksExistOnOtherOneproviders',
     'percentage',
+    'evictionForbidden',
     function evictActionState() {
       const {
+        i18n,
         fileDistributionData,
         spaceHasSingleOneprovider,
         blocksExistOnOtherOneproviders,
         percentage,
+        evictionForbidden,
       } = this.getProperties(
+        'i18n',
         'fileDistributionData',
         'spaceHasSingleOneprovider',
         'blocksExistOnOtherOneproviders',
-        'percentage'
+        'percentage',
+        'evictionForbidden',
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
@@ -437,7 +487,13 @@ export default Component.extend(I18n, {
       const state = { enabled: false };
       let tooltipI18nKey;
 
-      if (spaceHasSingleOneprovider) {
+      if (evictionForbidden) {
+        state.tooltip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_schedule_eviction',
+        });
+      } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledEvictionSingleOneprovider';
       } else if (!blocksExistOnOtherOneproviders || (!percentage && !hasDirs)) {
         tooltipI18nKey = 'disabledEvictionNoBlocks';
@@ -446,7 +502,9 @@ export default Component.extend(I18n, {
         tooltipI18nKey = 'evictionStart';
       }
 
-      state.tooltip = this.t(tooltipI18nKey).string;
+      if (tooltipI18nKey) {
+        state.tooltip = this.t(tooltipI18nKey).string;
+      }
       return state;
     }
   ),

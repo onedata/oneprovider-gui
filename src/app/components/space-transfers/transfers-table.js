@@ -110,6 +110,15 @@ export default Component.extend(I18n, {
    */
   rowHeight: 73,
 
+  /**
+   * @virtual
+   * Keys: scheduleReplication, scheduleEviction, cancelReplication, cancelEviction.
+   * If value is true, then the operation is forbidden. Otherwise, operation can be
+   * invoked.
+   * @type {Object}
+   */
+  forbiddenOperations: Object.freeze({}),
+
   //#endregion
 
   //#region Private properties

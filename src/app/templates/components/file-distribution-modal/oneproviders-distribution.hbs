@@ -32,6 +32,8 @@
           )
           spaceHasSingleOneprovider=(eq oneproviders.length 1)
           fileDistributionData=fileDistributionData
+          replicationForbidden=(not space.privileges.scheduleReplication)
+          evictionForbidden=(not space.privileges.scheduleEviction)
           onReplicate=(action "tryStartReplication" oneprovider)
           onMigrate=(action "selectMigrationDestination" oneprovider)
           onEvict=(action "tryStartEviction" oneprovider)
