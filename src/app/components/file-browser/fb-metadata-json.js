@@ -8,66 +8,16 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
-import _ from 'lodash';
-import { emptyValue } from 'oneprovider-gui/components/file-browser/fb-metadata-modal';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import FbMetadataEditorBase from 'oneprovider-gui/components/file-browser/-fb-metadata-editor-base';
 
-export default Component.extend({
-  /**
-   * @virtual
-   * @type {Object}
-   */
-  metadata: undefined,
+const mixins = [I18n, FbMetadataEditorBase];
+
+export default Component.extend(...mixins, {
+  classNames: ['fb-metadata-json'],
 
   /**
-   * @virtual
-   * @type {Function}
+   * @override
    */
-  metadataChanged: undefined,
-
-  /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  previewMode: false,
-
-  textareaRows: 10,
-
-  validationError: null,
-
-  jsonString: computed('metadata', function jsonString() {
-    const metadata = this.get('metadata');
-    if (metadata === emptyValue) {
-      return '';
-    } else {
-      return JSON.stringify(metadata, null, 2);
-    }
-  }),
-
-  actions: {
-    jsonStringChanged(value) {
-      const metadataChanged = this.get('metadataChanged');
-      try {
-        const jsonObject = JSON.parse(value);
-        this.set('validationError', null);
-        metadataChanged({
-          metadata: _.cloneDeep(jsonObject),
-          isValid: true,
-        });
-      } catch (error) {
-        if (value === '') {
-          this.set('validationError', null);
-          metadataChanged({
-            metadata: emptyValue,
-            isValid: true,
-          });
-        } else {
-          this.set('validationError', error.toString());
-          metadataChanged({
-            isValid: false,
-          });
-        }
-      }
-    },
-  },
+  i18nPrefix: 'components.fileBrowser.fbMetadataJson',
 });

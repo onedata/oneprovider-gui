@@ -1,0 +1,12 @@
+.ace_editor {
+  @include font-monospace();
+  font-size: 12.6px;
+}
+
+.form-group {
+  &.has-error {
+    .ace_editor {
+      border-color: $color-one-danger;
+    }
+  }
+}

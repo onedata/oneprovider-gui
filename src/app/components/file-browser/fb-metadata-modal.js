@@ -40,6 +40,8 @@ const tabStateClassTypes = {
 export default Component.extend(
   I18n,
   ...metadataTypes.map(type => createDataProxyMixin(`${type}Original`)), {
+    classNames: ['fb-metadata-modal'],
+
     i18n: service(),
     metadataManager: service(),
     globalNotify: service(),
@@ -170,7 +172,7 @@ export default Component.extend(
           } = this.getProperties('metadataManager', 'file', 'previewMode');
           return metadataManager
             .getMetadata(file, type, previewMode ? 'public' : 'private')
-            .then(({ metadata }) => {
+            .then(metadata => {
               if (type === 'xattrs' && _.isEmpty(metadata)) {
                 return emptyValue;
               } else {

@@ -8,42 +8,16 @@
  */
 
 import Component from '@ember/component';
-import { conditional, eq, raw } from 'ember-awesome-macros';
-import { emptyValue } from 'oneprovider-gui/components/file-browser/fb-metadata-modal';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import FbMetadataEditorBase from 'oneprovider-gui/components/file-browser/-fb-metadata-editor-base';
 
-export default Component.extend({
-  /**
-   * @virtual
-   * @type {String}
-   */
-  metadata: undefined,
+const mixins = [I18n, FbMetadataEditorBase];
+
+export default Component.extend(...mixins, {
+  classNames: ['fb-metadata-rdf'],
 
   /**
-   * @virtual
-   * @type {Function}
+   * @override
    */
-  metadataChanged: undefined,
-
-  /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  previewMode: false,
-
-  textareaRows: 10,
-
-  metadataForEditor: conditional(
-    eq('metadata', raw(emptyValue)),
-    raw(''),
-    'metadata'
-  ),
-
-  actions: {
-    rdfChanged(value) {
-      this.get('metadataChanged')({
-        metadata: value || emptyValue,
-        isValid: true,
-      });
-    },
-  },
+  i18nPrefix: 'components.fileBrowser.fbMetadataRdf',
 });

@@ -78,6 +78,13 @@ module.exports = function (defaults) {
         public: {},
       },
     },
+    'ace': {
+      themes: ['textmate'],
+      modes: ['json', 'xml'],
+      workers: ['json', 'xml'],
+      exts: ['searchbox'],
+      workerPath: './assets/ace',
+    },
   });
 
   defineSassColors(app, colors);

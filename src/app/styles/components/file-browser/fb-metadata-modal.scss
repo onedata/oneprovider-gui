@@ -1,0 +1,9 @@
+.fb-metadata-modal {
+  .tab-content-metadata {
+    height: calc(100% - 45px);
+  }
+  .ember-ace-metadata-in-modal {
+    // make some space for one-line error message
+    height: calc(100% - 1em);
+  }
+}
