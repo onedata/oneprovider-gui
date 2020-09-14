@@ -208,7 +208,6 @@ export default Service.extend({
   createAndAddQos(store) {
     const entityRecords = this.get('entityRecords');
     const chainDir = get(entityRecords, 'chainDir')[2];
-    const rootDir = get(entityRecords, 'rootDir')[0];
     const qos1Promise = store.createRecord('qosRequirement', {
       id: gri({
         entityType: qosEntityType,
@@ -241,7 +240,9 @@ export default Service.extend({
       status: 'fulfilled',
       replicasNum: 1,
       expressionRpn: ['anyStorage', 'size', 10, '=', '\\'],
-      file: rootDir,
+      file: get(entityRecords, 'chainDir')[1],
+      // uncomment here for short inherited path
+      // file: get(entityRecords, 'rootDir')[0],
     }).save();
     return allFulfilled([qos1Promise, qos2Promise]).then(([qos1, qos2]) => {
       return store.createRecord('fileQosSummary', {
