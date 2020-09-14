@@ -10,3 +10,15 @@
     }
   }
 }
+
+// Workaround for blurry-rendering fonts bug
+.modal {
+  .ace_hidpi {
+    .ace_text-layer,
+    .ace_gutter-layer,
+    .ace_content,
+    .ace_gutter {
+      will-change: unset !important;
+    }
+  }
+}

@@ -32,303 +32,322 @@ const tabStateClassTypes = {
   blank: 'inactive',
   invalid: 'danger',
   error: 'disabled',
+  validating: 'warning',
   modified: 'warning',
   saved: 'success',
   present: 'success',
 };
 
-export default Component.extend(
+const mixins = [
   I18n,
-  ...metadataTypes.map(type => createDataProxyMixin(`${type}Original`)), {
-    classNames: ['fb-metadata-modal'],
+  ...metadataTypes.map(type => createDataProxyMixin(`${type}Original`)),
+];
 
-    i18n: service(),
-    metadataManager: service(),
-    globalNotify: service(),
+export default Component.extend(...mixins, {
+  classNames: ['fb-metadata-modal'],
 
-    open: false,
+  i18n: service(),
+  metadataManager: service(),
+  globalNotify: service(),
 
-    /**
-     * @override
-     */
-    i18nPrefix: 'components.fileBrowser.fbMetadataModal',
+  open: false,
 
-    /**
-     * @virtual
-     * @type {Models.File}
-     */
-    file: undefined,
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileBrowser.fbMetadataModal',
 
-    /**
-     * @virtual
-     * Callback when the modal is starting to hide
-     * @type {Function}
-     */
-    onHide: notImplementedIgnore,
+  /**
+   * @virtual
+   * @type {Models.File}
+   */
+  file: undefined,
 
-    /**
-     * @virtual
-     * Callback when the modal is shown
-     * @type {Function}
-     */
-    onShow: notImplementedIgnore,
+  /**
+   * @virtual
+   * Callback when the modal is starting to hide
+   * @type {Function}
+   */
+  onHide: notImplementedIgnore,
 
-    /**
-     * @virtual optional
-     * If true, the modal is in metadata readonly mode (cannot modify, only show)
-     * @type {Boolean}
-     */
-    previewMode: false,
+  /**
+   * @virtual
+   * Callback when the modal is shown
+   * @type {Function}
+   */
+  onShow: notImplementedIgnore,
 
-    metadataTypes: Object.freeze(metadataTypes),
+  /**
+   * @virtual optional
+   * If true, the modal is in metadata readonly mode (cannot modify, only show)
+   * @type {Boolean}
+   */
+  previewMode: false,
 
-    tabStateClassTypes: Object.freeze(tabStateClassTypes),
+  metadataTypes: Object.freeze(metadataTypes),
 
-    activeTab: reads('metadataTypes.firstObject'),
+  tabStateClassTypes: Object.freeze(tabStateClassTypes),
 
-    /**
-     * @type {ComputedProperty<string>} one of: file, dir
-     */
-    fileType: reads('file.type'),
+  activeTab: reads('metadataTypes.firstObject'),
 
-    /**
-     * @type {ComputedProperty<string>}
-     */
-    typeTranslation: conditional(
-      equal('fileType', raw('file')),
-      computedT('file'),
-      computedT('dir'),
-    ),
+  /**
+   * @type {ComputedProperty<string>} one of: file, dir
+   */
+  fileType: reads('file.type'),
 
-    /**
-     * If any value is invalid, we suppose that it must be modified (data from DB cannot
-     * be invalid).
-     * @type {ComputedProperty<boolean>}
-     */
-    isCloseBtnDiscard: or('isAnyModified', 'isAnyInvalid'),
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  typeTranslation: conditional(
+    equal('fileType', raw('file')),
+    computedT('file'),
+    computedT('dir'),
+  ),
 
-    closeBtnText: conditional(
-      'isCloseBtnDiscard',
-      computedT('discardChanges'),
-      computedT('close'),
-    ),
+  /**
+   * If any value is invalid, we suppose that it must be modified (data from DB cannot
+   * be invalid).
+   * @type {ComputedProperty<boolean>}
+   */
+  isCloseBtnDiscard: or('isAnyModified', 'isAnyInvalid'),
 
-    closeBtnType: conditional(
-      'isCloseBtnDiscard',
-      raw('warning'),
-      raw('default'),
-    ),
+  closeBtnText: conditional(
+    'isCloseBtnDiscard',
+    computedT('discardChanges'),
+    computedT('close'),
+  ),
 
-    saveAllDisabled: or(not('isAnyModified'), 'isAnyInvalid'),
+  closeBtnType: conditional(
+    'isCloseBtnDiscard',
+    raw('warning'),
+    raw('default'),
+  ),
 
-    isAnyModified: or(...metadataTypes.map(type => `${type}IsModified`)),
+  saveAllDisabled: or(not('isAnyModified'), 'isAnyInvalid', 'isAnyValidating'),
 
-    isAnyInvalid: or(...metadataTypes.map(type => eq(`${type}IsValid`, raw(false)))),
+  isAnyModified: or(...metadataTypes.map(type => `${type}IsModified`)),
 
-    saveAllDisabledMessage: or(
-      and('isAnyInvalid', computedT('disabledReason.someInvalid')),
-      and(not('isAnyModified'), computedT('disabledReason.noChanges')),
-    ),
+  isAnyInvalid: or(...metadataTypes.map(type => eq(`${type}IsValid`, raw(false)))),
 
-    init() {
-      this._super(...arguments);
-      this.initMetadataProperties();
-    },
+  isAnyValidating: or(...metadataTypes.map(type => `${type}IsValidating`)),
 
-    /**
-     * For each type of metadata (xattrs, rdf, json) adds properties and methods
-     * for this component, eg.
-     * - `fetchXattrsOriginal` method for fetching proxy data, returns direct metadata or null
-     * - `xattrsOriginalProxy` proxy property for metadata (added with mixin)
-     * - `xattrsOriginal` value of proxy property (added by mixin)
-     * - `xattrsCurrent` currently viewed edited value of metadata; on init, it's aliased
-     *      to resolved original value, until it's modified
-     * - `xattrsIsModified` boolean, true if metadata value if modified in modal and not saved
-     * - `xattrsTabState` string, one of `tabStateClassTypes`, defines state of tab
-     */
-    initMetadataProperties() {
-      metadataTypes.forEach(type => {
-        const originalName = metadataOriginalName(type);
-        const proxyName = metadataOriginalProxyName(type);
-        const currentName = metadataCurrentName(type);
-        const isModifiedName = metadataIsModifiedName(type);
-        const isValidName = metadataIsValidName(type);
-        const tabStateName = metadataTabStateName(type);
-        // eg. `xattrsCurrent`
-        this[currentName] = reads(originalName);
-        // eg. `xattrsIsModified`
-        this[isModifiedName] = computed(currentName, originalName, function () {
-          const currentValue = this.get(currentName);
-          const originalValue = this.get(originalName);
-          return originalValue !== emptyValue && currentValue === emptyValue ||
-            !_.isEqual(currentValue, originalValue);
-        });
-        // eg. fetchXattrsOriginal
-        this[metadataFetcherName(type)] = function () {
-          const {
-            metadataManager,
-            file,
-            previewMode,
-          } = this.getProperties('metadataManager', 'file', 'previewMode');
-          return metadataManager
-            .getMetadata(file, type, previewMode ? 'public' : 'private')
-            .then(metadata => {
-              if (type === 'xattrs' && _.isEmpty(metadata)) {
-                return emptyValue;
-              } else {
-                return metadata;
-              }
-            })
-            .catch(error => {
-              const isNoDataError = error && error.id === 'posix' &&
-                error.details && error.details.errno === 'enodata';
-              if (isNoDataError) {
-                return emptyValue;
-              } else {
-                throw error;
-              }
-            });
-        };
-        const tabStateDeps = [
-          currentName,
-          isModifiedName,
-          isValidName,
-          `${proxyName}.isRejected`,
-        ];
-        // eg. `xattrsTabState`
-        this[tabStateName] =
-          computed(...tabStateDeps, 'previewMode', function () {
-            const previewMode = this.get('previewMode');
-            const originalProxy = this.get(proxyName);
-            const currentValue = this.get(currentName);
-            const isModified = this.get(isModifiedName);
-            const isValid = this.get(isValidName);
-            if (get(originalProxy, 'isRejected')) {
-              return 'error';
-            } else if (isValid === false) {
-              return 'invalid';
-            } else if (currentValue === emptyValue && !isModified) {
-              return 'blank';
-            } else if (isModified) {
-              return 'modified';
+  saveAllDisabledMessage: or(
+    and('isAnyInvalid', computedT('disabledReason.someInvalid')),
+    and('isAnyValidating', computedT('disabledReason.validating')),
+    and(not('isAnyModified'), computedT('disabledReason.noChanges')),
+  ),
+
+  fullVertical: not(eq('activeTab', raw('xattrs'))),
+
+  init() {
+    this._super(...arguments);
+    this.initMetadataProperties();
+  },
+
+  /**
+   * For each type of metadata (xattrs, rdf, json) adds properties and methods
+   * for this component, eg.
+   * - `fetchXattrsOriginal` method for fetching proxy data, returns direct metadata or null
+   * - `xattrsOriginalProxy` proxy property for metadata (added with mixin)
+   * - `xattrsOriginal` value of proxy property (added by mixin)
+   * - `xattrsCurrent` currently viewed edited value of metadata; on init, it's aliased
+   *      to resolved original value, until it's modified
+   * - `xattrsIsModified` boolean, true if metadata value if modified in modal and not saved
+   * - `xattrsIsValid` boolean, true if edited data is valid (can be submitted)
+   * - `xattrsIsValidating` boolean, true if data changed, but it was not validated yet
+   *      (used with async validators for JSON and RDF, for xattrs it is always falsy)
+   * - `xattrsTabState` string, one of `tabStateClassTypes`, defines state of tab
+   */
+  initMetadataProperties() {
+    metadataTypes.forEach(type => {
+      const originalName = metadataOriginalName(type);
+      const proxyName = metadataOriginalProxyName(type);
+      const currentName = metadataCurrentName(type);
+      const isModifiedName = metadataIsModifiedName(type);
+      const isValidName = metadataIsValidName(type);
+      const isValidatingName = metadataIsValidatingName(type);
+      const tabStateName = metadataTabStateName(type);
+      // eg. `xattrsCurrent`
+      this[currentName] = reads(originalName);
+      // eg. `xattrsIsModified`
+      this[isModifiedName] = computed(currentName, originalName, function () {
+        const currentValue = this.get(currentName);
+        const originalValue = this.get(originalName);
+        return originalValue !== emptyValue && currentValue === emptyValue ||
+          !_.isEqual(currentValue, originalValue);
+      });
+      // eg. fetchXattrsOriginal
+      this[metadataFetcherName(type)] = function () {
+        const {
+          metadataManager,
+          file,
+          previewMode,
+        } = this.getProperties('metadataManager', 'file', 'previewMode');
+        return metadataManager
+          .getMetadata(file, type, previewMode ? 'public' : 'private')
+          .then(metadata => {
+            if (type === 'xattrs' && _.isEmpty(metadata)) {
+              return emptyValue;
             } else {
-              return previewMode ? 'present' : 'saved';
+              return metadata;
+            }
+          })
+          .catch(error => {
+            const isNoDataError = error && error.id === 'posix' &&
+              error.details && error.details.errno === 'enodata';
+            if (isNoDataError) {
+              return emptyValue;
+            } else {
+              throw error;
             }
           });
-      });
-    },
-
-    save(type) {
-      const {
-        metadataManager,
-        file,
-      } = this.getProperties('metadataManager', 'file');
-      const currentName = metadataCurrentName(type);
-      const originalName = metadataOriginalName(type);
-      const currentValue = this.get(currentName);
-      const originalValue = this.get(originalName);
-      let savePromise;
-      if (type === 'xattrs') {
-        savePromise = this.saveXattrs(
-          originalValue,
-          currentValue === emptyValue ? {} : currentValue
-        );
-      } else {
-        if (currentValue === emptyValue) {
-          savePromise = metadataManager.removeMetadata(file, type);
-        } else {
-          savePromise = metadataManager.setMetadata(file, type, currentValue);
-        }
-      }
-      return savePromise
-        .catch(error => {
-          this.get('globalNotify').backendError(
-            this.t('updatingMetadata', {
-              type: this.t(`types.${type}`),
-            }),
-            error
-          );
-          throw error;
-        });
-    },
-
-    saveXattrs(originalXattrs, newXattrs) {
-      const {
-        metadataManager,
-        file,
-      } = this.getProperties('metadataManager', 'file');
-      const removedKeys = _.difference(
-        Object.keys(originalXattrs || {}),
-        Object.keys(newXattrs || {})
-      );
-      const modifiedData = {};
-      const errors = [];
-      for (const key in newXattrs) {
-        if (originalXattrs === emptyValue ||
-          !_.isEqual(newXattrs[key], originalXattrs[key])) {
-          modifiedData[key] = newXattrs[key];
-        }
-      }
-      return metadataManager
-        .removeXattrs(file, removedKeys)
-        .catch(error => errors.push(error))
-        .then(() => this.get('metadataManager').setMetadata(file, 'xattrs', modifiedData))
-        .catch(error => errors.push(error))
-        .finally(() => {
-          if (errors.length) {
-            for (let i = 0; i < errors.length; ++i) {
-              console.error(`fb-metadata-modal#saveXattrs: ${errors[i]}`);
-            }
-            throw errors[0];
+      };
+      const tabStateDeps = [
+        currentName,
+        isModifiedName,
+        isValidName,
+        isValidatingName,
+        `${proxyName}.isRejected`,
+      ];
+      // eg. `xattrsTabState`
+      this[tabStateName] =
+        computed(...tabStateDeps, 'previewMode', function () {
+          const previewMode = this.get('previewMode');
+          const originalProxy = this.get(proxyName);
+          const currentValue = this.get(currentName);
+          const isModified = this.get(isModifiedName);
+          const isValid = this.get(isValidName);
+          const isValidating = this.get(isValidatingName);
+          if (get(originalProxy, 'isRejected')) {
+            return 'error';
+          } else if (isValid === false && isValidating === false) {
+            return 'invalid';
+          } else if (currentValue === emptyValue && !isModified) {
+            return 'blank';
+          } else if (isValidating) {
+            return 'validating';
+          } else if (isModified) {
+            return 'modified';
+          } else {
+            return previewMode ? 'present' : 'saved';
           }
         });
-    },
+    });
+  },
 
-    actions: {
-      onHide() {
-        return this.get('onHide')();
-      },
-      onShow() {
-        return this.get('onShow')();
-      },
-      changeTab(tabId) {
-        this.set('activeTab', tabId);
-      },
-      saveAll() {
-        const modifiedTypes = metadataTypes
-          .filter(type => this.get(metadataIsModifiedName(type)));
-        return allFulfilled(
-            modifiedTypes
-            .map(type => this.save(type))
-          )
-          .then(() => {
-            this.get('file').reload().then(() => {
-              modifiedTypes.forEach(type => {
-                const currentName = metadataCurrentName(type);
-                const originalName = metadataOriginalName(type);
-                this[metadataUpdaterName(type)]({ replace: true }).then(() => {
-                  safeExec(this, function setAliasedValueProperty() {
-                    this.set(currentName, this.get(originalName));
-                  });
+  save(type) {
+    const {
+      metadataManager,
+      file,
+    } = this.getProperties('metadataManager', 'file');
+    const currentName = metadataCurrentName(type);
+    const originalName = metadataOriginalName(type);
+    const currentValue = this.get(currentName);
+    const originalValue = this.get(originalName);
+    let savePromise;
+    if (type === 'xattrs') {
+      savePromise = this.saveXattrs(
+        originalValue,
+        currentValue === emptyValue ? {} : currentValue
+      );
+    } else {
+      if (currentValue === emptyValue) {
+        savePromise = metadataManager.removeMetadata(file, type);
+      } else {
+        savePromise = metadataManager.setMetadata(file, type, currentValue);
+      }
+    }
+    return savePromise
+      .catch(error => {
+        this.get('globalNotify').backendError(
+          this.t('updatingMetadata', {
+            type: this.t(`types.${type}`),
+          }),
+          error
+        );
+        throw error;
+      });
+  },
+
+  saveXattrs(originalXattrs, newXattrs) {
+    const {
+      metadataManager,
+      file,
+    } = this.getProperties('metadataManager', 'file');
+    const removedKeys = _.difference(
+      Object.keys(originalXattrs || {}),
+      Object.keys(newXattrs || {})
+    );
+    const modifiedData = {};
+    const errors = [];
+    for (const key in newXattrs) {
+      if (originalXattrs === emptyValue ||
+        !_.isEqual(newXattrs[key], originalXattrs[key])) {
+        modifiedData[key] = newXattrs[key];
+      }
+    }
+    return metadataManager
+      .removeXattrs(file, removedKeys)
+      .catch(error => errors.push(error))
+      .then(() => this.get('metadataManager').setMetadata(file, 'xattrs', modifiedData))
+      .catch(error => errors.push(error))
+      .finally(() => {
+        if (errors.length) {
+          for (let i = 0; i < errors.length; ++i) {
+            console.error(`fb-metadata-modal#saveXattrs: ${errors[i]}`);
+          }
+          throw errors[0];
+        }
+      });
+  },
+
+  actions: {
+    onHide() {
+      return this.get('onHide')();
+    },
+    onShow() {
+      return this.get('onShow')();
+    },
+    changeTab(tabId) {
+      this.set('activeTab', tabId);
+    },
+    saveAll() {
+      const modifiedTypes = metadataTypes
+        .filter(type => this.get(metadataIsModifiedName(type)));
+      return allFulfilled(
+          modifiedTypes
+          .map(type => this.save(type))
+        )
+        .then(() => {
+          this.get('file').reload().then(() => {
+            modifiedTypes.forEach(type => {
+              const currentName = metadataCurrentName(type);
+              const originalName = metadataOriginalName(type);
+              this[metadataUpdaterName(type)]({ replace: true }).then(() => {
+                safeExec(this, function setAliasedValueProperty() {
+                  this.set(currentName, this.get(originalName));
                 });
               });
             });
-          })
-          .then(() => {
-            this.get('onHide')();
           });
-      },
-      metadataChanged(type, data) {
-        if (data.metadata !== undefined) {
-          this.set(metadataCurrentName(type), data.metadata);
-        }
-        if (data.isValid !== undefined) {
-          this.set(metadataIsValidName(type), data.isValid);
-        }
-      },
+        })
+        .then(() => {
+          this.get('onHide')();
+        });
     },
-  }
-);
+    metadataChanged(type, data) {
+      if (data.metadata !== undefined) {
+        this.set(metadataCurrentName(type), data.metadata);
+      }
+      if (data.isValidating !== undefined) {
+        this.set(metadataIsValidatingName(type), data.isValidating);
+      }
+      if (data.isValid !== undefined) {
+        this.set(metadataIsValidName(type), data.isValid);
+      }
+    },
+  },
+});
 
 function metadataFetcherName(type) {
   return camelize(`fetch-${type}-original`);
@@ -348,6 +367,10 @@ function metadataIsModifiedName(type) {
 
 function metadataIsValidName(type) {
   return `${type}IsValid`;
+}
+
+function metadataIsValidatingName(type) {
+  return `${type}IsValidating`;
 }
 
 function metadataOriginalName(type) {

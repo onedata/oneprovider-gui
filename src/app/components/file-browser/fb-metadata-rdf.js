@@ -7,13 +7,10 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import FbMetadataEditorBase from 'oneprovider-gui/components/file-browser/-fb-metadata-editor-base';
+import FbMetadataEditorBase from 'oneprovider-gui/components/file-browser/-fb-metadata-ace-editor-base';
 
-const mixins = [I18n, FbMetadataEditorBase];
-
-export default Component.extend(...mixins, {
+export default FbMetadataEditorBase.extend(I18n, {
   classNames: ['fb-metadata-rdf'],
 
   /**

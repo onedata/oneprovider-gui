@@ -1,7 +1,7 @@
 {{#bs-modal
-  class="fb-metadata-modal"
+  class=(concat-classes "fb-metadata-modal" (if fullVertical "full-vertical"))
   open=open
-  size="full"
+  size="xl"
   backdropClose=false
   keyboard=false
   opShow=(action "onShow")
