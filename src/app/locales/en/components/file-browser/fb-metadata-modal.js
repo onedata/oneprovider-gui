@@ -14,8 +14,10 @@ export default {
     modified: 'There are unsaved changes in {{type}} metadata.',
     present: '{{typeCapitalized}} metadata is present.',
     saved: '{{typeCapitalized}} metadata is present and saved.',
+    validating: '{{typeCapitalized}} metadata validation in progress...',
   },
   disabledReason: {
+    validating: 'Metadata validation in progress...',
     noChanges: 'No unsaved changes',
     someInvalid: 'Entered metadata is invalid ‐ please correct',
   },

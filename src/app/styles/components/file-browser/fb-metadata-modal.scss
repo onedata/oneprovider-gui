@@ -1,0 +1,21 @@
+.fb-metadata-modal {
+  .bs-tab {
+    &.full-height {
+      display: flex;
+      flex-direction: column;
+      
+      // because of a strange bug with perfect scroll
+      height: calc(100% - 2px);
+      
+      .tab-content-metadata {
+        flex-grow: 1;
+      }
+    }
+  }
+  .form-group.form-group-ace-editor {
+    .ember-ace.full-height {
+      // make some space for one-line error message
+      height: calc(100% - 1em);
+    }
+  }
+}

@@ -475,9 +475,9 @@ export default OnedataGraphMock.extend({
 
   cancelledTransfers: computed(() => []),
 
-  emptyJsonMetadata: true,
-  emptyRdfMetadata: true,
-  emptyXattrsMetadata: true,
+  emptyJsonMetadata: false,
+  emptyRdfMetadata: false,
+  emptyXattrsMetadata: false,
   metaJson,
   metaRdf,
 

@@ -1,16 +1,24 @@
-{{#if previewMode}}
-  {{clipboard-line
-    type="textarea"
+<style class="internal-style">{{styleOverride}}</style>
+<div
+  class="form-group form-group-ace-editor full-height {{if isValid "has-success" "has-error"}}"
+>
+  {{ember-ace
+    class="ember-ace ember-ace-rdf-metadata full-height"
+    editorClass="full-height"
     value=metadataForEditor
-    textareaRows=textareaRows
-    inputClass="code-textarea"
+    ready=(action "aceEditorReady")
+    update=(action "metadataChanged")
+    worker="ace/mode/xml_worker"
+    mode="ace/mode/xml"
+    theme="ace/theme/textmate"
+    tabSize=2
+    useWrapMode=true
+    highlightActiveLine=true
+    showLineNumbers=true
+    showPrintMargin=false
+    readOnly=previewMode
   }}
-{{else}}
-  <textarea
-    value={{metadataForEditor}}
-    oninput={{action "rdfChanged" value="target.value"}}
-    disabled={{disabled}}
-    readonly={{readonly}}
-    rows="10"
-    class="form-control no-resize code-textarea rdf-textarea"></textarea>
-{{/if}}
+  {{#unless isValid}}
+    <div class="form-message text-right">{{tt this "invalidXml"}}</div>
+  {{/unless}}
+</div>
