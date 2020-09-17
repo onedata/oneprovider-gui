@@ -8,7 +8,7 @@
  */
 
 import Service from '@ember/service';
-import { getProperties } from '@ember/object';
+import { get, getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
@@ -57,6 +57,22 @@ export default Service.extend({
     return this.get('onedataGraph').request({
       operation: 'get',
       gri: requestGri,
+      subscribe: false,
+    });
+  },
+
+  /**
+   * @param {String} spaceId
+   * @returns {Promise<Object<String, { stringValues: Array, numberValues: Array }>>} 
+   */
+  getAvailableQosParameters(spaceId) {
+    return this.get('onedataGraph').request({
+      operation: 'get',
+      gri: gri({
+        entityType: spaceEntityType,
+        entityId: spaceId,
+        aspect: 'available_qos_parameters',
+      }),
       subscribe: false,
     });
   },
