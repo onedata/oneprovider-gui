@@ -8,7 +8,7 @@
  */
 
 import Service from '@ember/service';
-import { get, getProperties } from '@ember/object';
+import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
@@ -62,6 +62,8 @@ export default Service.extend({
   },
 
   /**
+   * Resolves mapping: QoS parameter key -> Object with string and number values
+   * defined for storages supporting the space with `spaceId`.
    * @param {String} spaceId
    * @returns {Promise<Object<String, { stringValues: Array, numberValues: Array }>>} 
    */
@@ -74,6 +76,6 @@ export default Service.extend({
         aspect: 'available_qos_parameters',
       }),
       subscribe: false,
-    });
+    }).then(({ qosParameters }) => qosParameters);
   },
 });

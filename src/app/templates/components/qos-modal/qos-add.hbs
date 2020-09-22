@@ -37,7 +37,16 @@
                 disabled={{disabled}}
                 rows="4"
                 class="form-control no-resize code-textarea json-textarea"
-              >{{expressionInfix}}</textarea>
+                value={{expressionInfix}}
+              ></textarea>
+              <div class="btn-tooltip-container btn-suggestions-trigger-container">
+                {{#one-spin-button
+                  class="btn-sm btn-default btn-suggestions-trigger"
+                  action=(action "toggleQosSuggestions" true)
+                }}
+                  {{tt this "insertCondition"}}
+                {{/one-spin-button}}
+              </div>
               {{#if expressionValidationMessage}}
                 <div class="form-message">
                   {{expressionValidationMessage}}
@@ -50,3 +59,25 @@
     </table>
   </div>
 </div>
+
+{{#render-later triggerRender=qosSuggestionsOpen}}
+  {{#one-webui-popover
+    popoverStyle="unlimited-width over-modals webui-popover-qos-suggestions"
+    class="qos-suggestions-popover"
+    mode="manual"
+    padding=true
+    triggerSelector=".btn-suggestions-trigger"
+    placement=(if (or media.isMobile media.isTablet) "bottom" "top")
+    open=(and qosSuggestionsOpen (not (is-empty qosParametersSuggestionsProxy.content)))
+  }}
+    {{#click-outside
+      action=(action "toggleQosSuggestions" false)
+      except-selector=".webui-popover-qos-suggestions, .ember-power-select-dropdown *"
+    }}
+      {{qos-parameters-suggestion-box
+        qosParametersSuggestions=qosParametersSuggestions
+        insertString=(action "insertString")
+      }}
+    {{/click-outside}}
+  {{/one-webui-popover}}
+{{/render-later}}

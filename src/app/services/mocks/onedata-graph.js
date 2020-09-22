@@ -152,21 +152,23 @@ const spaceHandlers = {
       return messageNotSupported;
     }
     return {
-      storageId: {
-        stringValues: ['storage_id_1', 'storage_id_2'],
-        numberValues: [],
-      },
-      storageType: {
-        stringValues: ['posix', 'cephrados', 'webdav'],
-        numberValues: [],
-      },
-      myCustomParameter: {
-        stringValues: ['one', 'two'],
-        numberValues: [10, 23, 36],
-      },
-      priority: {
-        stringValues: [],
-        numberValues: [1, 2],
+      qosParameters: {
+        storageId: {
+          stringValues: ['storage_id_beta', 'storage_id_alpha'],
+          numberValues: [],
+        },
+        storageType: {
+          stringValues: ['posix', 'cephrados', 'webdav'],
+          numberValues: [],
+        },
+        myCustomParameter: {
+          stringValues: ['one', 'two'],
+          numberValues: [10, 23, 36],
+        },
+        priority: {
+          stringValues: [],
+          numberValues: [1, 2],
+        },
       },
     };
   },

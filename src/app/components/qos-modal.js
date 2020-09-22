@@ -237,6 +237,8 @@ export default Component.extend(I18n, {
       // just in case if code fails
       .catch(error => {
         globalNotify.backendError(this.t('addingQosEntry'), error);
+        this.updateData();
+        throw error;
       })
       .then(() => {
         const updating = this.updateData();

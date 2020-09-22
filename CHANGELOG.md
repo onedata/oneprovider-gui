@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6746 Added available QoS parameters suggestion box
 * VFS-6732 New editor for metadata JSON and RDF
 * VFS-6456 Handling lack of privileges for transfers actions
 * VFS-6652 Enabled assets fingerprinting for more resources

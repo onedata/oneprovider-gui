@@ -64,4 +64,18 @@
       }
     }
   }
+  
+  .qos-add {
+    .btn-suggestions-trigger-container {
+      position: absolute;
+      margin-top: $padding-base-vertical;
+      
+      @media (max-width: $screen-xs-max) {
+        margin-top: 0;
+        // empirical height of small button and small margin
+        top: -36px;
+        right: 0;
+      }
+    }
+  }
 }

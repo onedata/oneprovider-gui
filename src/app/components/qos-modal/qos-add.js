@@ -15,9 +15,17 @@ import { guidFor } from '@ember/object/internals';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { inject as service } from '@ember/service';
+import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
-export default Component.extend(I18n, {
+const mixins = [I18n, createDataProxyMixin('qosParametersSuggestions')];
+
+export default Component.extend(...mixins, {
   tagName: '',
+
+  spaceManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -30,6 +38,12 @@ export default Component.extend(I18n, {
    */
   update: notImplementedThrow,
 
+  /**
+   * @virtual
+   * @type {String}
+   */
+  spaceId: undefined,
+
   replicasNumberString: '1',
 
   replicasNumber: number('replicasNumberString'),
@@ -37,6 +51,11 @@ export default Component.extend(I18n, {
   expressionInfix: '',
 
   expressionEditStarted: false,
+
+  /**
+   * @type {Boolean}
+   */
+  qosSuggestionsOpen: false,
 
   /**
    * @type {ComputedProperty<String>}
@@ -72,6 +91,22 @@ export default Component.extend(I18n, {
     return guidFor(this);
   }),
 
+  /**
+   * @override
+   * For resolved object format see: `service:space-manager#getAvailableQosParameters`
+   * @returns {Promise<Object>}
+   */
+  fetchQosParametersSuggestions() {
+    const {
+      spaceManager,
+      spaceId,
+    } = this.getProperties('spaceManager', 'spaceId');
+    return spaceManager.getAvailableQosParameters(spaceId)
+      .then(availableQosParameters => {
+        return createQosParametersSuggestions(availableQosParameters);
+      });
+  },
+
   closeForm() {
     this.get('closeAddEntry')();
     this.resetForm();
@@ -100,6 +135,22 @@ export default Component.extend(I18n, {
     );
   },
 
+  toggleQosSuggestions(open) {
+    const globalNotify = this.get('globalNotify');
+    if (open) {
+      return this.updateQosParametersSuggestionsProxy()
+        .catch(error => {
+          globalNotify.backendError(this.t('fetchingSuggestions'), error);
+          throw error;
+        })
+        .then(() => {
+          safeExec(this, 'set', 'qosSuggestionsOpen', true);
+        });
+    } else {
+      this.set('qosSuggestionsOpen', false);
+    }
+  },
+
   actions: {
     replicasNumberChanged(value) {
       this.set('replicasNumberString', value);
@@ -111,6 +162,14 @@ export default Component.extend(I18n, {
       }
       this.set('expressionInfix', value);
       this.notifyUpdate();
+    },
+    insertString(value) {
+      const expressionInfix = this.get('expressionInfix');
+      this.toggleQosSuggestions(false);
+      this.actions.expressionInfixChanged.bind(this)(expressionInfix + value);
+    },
+    toggleQosSuggestions(open = true) {
+      return this.toggleQosSuggestions(open);
     },
   },
 });
