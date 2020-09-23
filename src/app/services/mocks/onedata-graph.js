@@ -152,24 +152,7 @@ const spaceHandlers = {
       return messageNotSupported;
     }
     return {
-      qosParameters: {
-        storageId: {
-          stringValues: ['storage_id_beta', 'storage_id_alpha'],
-          numberValues: [],
-        },
-        storageType: {
-          stringValues: ['posix', 'cephrados', 'webdav'],
-          numberValues: [],
-        },
-        myCustomParameter: {
-          stringValues: ['one', 'two'],
-          numberValues: [10, 23, 36],
-        },
-        priority: {
-          stringValues: [],
-          numberValues: [1, 2],
-        },
-      },
+      qosParameters: this.get('qosParameters'),
     };
   },
 };
@@ -505,6 +488,25 @@ export default OnedataGraphMock.extend({
   emptyXattrsMetadata: false,
   metaJson,
   metaRdf,
+
+  qosParameters: Object.freeze({
+    storageId: {
+      stringValues: ['storage_id_beta', 'storage_id_alpha'],
+      numberValues: [],
+    },
+    storageType: {
+      stringValues: ['posix', 'cephrados', 'webdav'],
+      numberValues: [],
+    },
+    myCustomParameter: {
+      stringValues: ['one', 'two'],
+      numberValues: [10, 23, 36],
+    },
+    priority: {
+      stringValues: [],
+      numberValues: [1, 2],
+    },
+  }),
 
   init() {
     this._super(...arguments);

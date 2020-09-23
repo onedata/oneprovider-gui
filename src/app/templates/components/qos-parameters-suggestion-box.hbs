@@ -1,6 +1,6 @@
 {{#one-dropdown
   triggerClass="qos-key-select-trigger suggestion-box-select-trigger"
-  dropdownClass="qos-key-select-dropdown over-popover-over-modals"
+  dropdownClass="qos-key-select-dropdown qos-suggestions-dropdown over-popover-over-modals"
   selected=selectedSuggestion
   options=qosParametersSuggestions
   onchange=(action "changeSelectedSuggestion")
@@ -19,9 +19,9 @@
 {{#if selectedSuggestion}}
   {{#one-dropdown
     triggerClass="qos-operator-select-trigger suggestion-box-select-trigger"
-    dropdownClass="qos-operator-select-dropdown over-popover-over-modals"
+    dropdownClass="qos-operator-select-dropdown qos-suggestions-dropdown over-popover-over-modals"
     selected=selectedOperator
-    options=selectedSuggestion.availableOperators
+    options=availableOperators
     searchEnabled=false
     onchange=(action (mut selectedOperator))
     as |operator|
@@ -32,7 +32,7 @@
   {{/one-dropdown}}
   {{#one-dropdown
     triggerClass="qos-value-select-trigger suggestion-box-select-trigger"
-    dropdownClass="qos-value-select-dropdown over-popover-over-modals"
+    dropdownClass="qos-value-select-dropdown qos-suggestions-dropdown over-popover-over-modals"
     selected=selectedValue
     options=availableValues
     onchange=(action (mut selectedValue))

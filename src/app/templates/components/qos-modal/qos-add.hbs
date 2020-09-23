@@ -36,12 +36,12 @@
                 onblur={{action (mut expressionEditStarted) true}}
                 disabled={{disabled}}
                 rows="4"
-                class="form-control no-resize code-textarea json-textarea"
+                class="form-control no-resize code-textarea textarea-qos-expression"
                 value={{expressionInfix}}
               ></textarea>
               <div class="btn-tooltip-container btn-suggestions-trigger-container">
                 {{#one-spin-button
-                  class="btn-sm btn-default btn-suggestions-trigger"
+                  class="btn btn-sm btn-default btn-suggestions-trigger"
                   action=(action "toggleQosSuggestions" true)
                 }}
                   {{tt this "insertCondition"}}
@@ -69,14 +69,16 @@
     triggerSelector=".btn-suggestions-trigger"
     placement=(if (or media.isMobile media.isTablet) "bottom" "top")
     open=(and qosSuggestionsOpen (not (is-empty qosParametersSuggestionsProxy.content)))
+    as |popover|
   }}
     {{#click-outside
       action=(action "toggleQosSuggestions" false)
-      except-selector=".webui-popover-qos-suggestions, .ember-power-select-dropdown *"
+      except-selector=".webui-popover-qos-suggestions, .qos-suggestions-dropdown, .qos-suggestions-dropdown *"
     }}
       {{qos-parameters-suggestion-box
         qosParametersSuggestions=qosParametersSuggestions
         insertString=(action "insertString")
+        refreshContainer=popover.reposition
       }}
     {{/click-outside}}
   {{/one-webui-popover}}

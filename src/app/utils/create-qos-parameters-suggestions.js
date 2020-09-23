@@ -10,6 +10,10 @@
 
 import QosParameterSuggestion from 'oneprovider-gui/utils/qos-parameter-suggestion';
 
+function sortNumbers(a, b) {
+  return a - b;
+}
+
 export default function createQosParametersSuggestions(availableQosParameters) {
   const suggestions = [];
   for (const key in availableQosParameters) {
@@ -17,7 +21,7 @@ export default function createQosParametersSuggestions(availableQosParameters) {
     suggestions.push(QosParameterSuggestion.create({
       key,
       stringValues: [...stringValues].sort(),
-      numberValues: [...numberValues].sort(),
+      numberValues: [...numberValues].sort(sortNumbers),
     }));
   }
   return suggestions.sortBy('key');

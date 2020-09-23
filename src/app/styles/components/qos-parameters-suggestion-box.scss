@@ -8,38 +8,32 @@
     display: flex;
   }
   
-  width: $select-key-width;
-  
   @media (max-width: $screen-sm-max) {
+    // limit popover width because it will overflow view if wider
+    width: 180px;
     flex-direction: column;
-    .qos-operator-select-trigger {
-      margin-top: $padding-small-horizontal;
-    }
-    .qos-value-select-trigger {
-      margin-top: $padding-small-horizontal;
-    }
-    .btn-insert-qos-parameter {
+    .qos-operator-select-trigger, .qos-value-select-trigger, .btn-insert-qos-parameter {
       margin-top: $padding-small-horizontal;
     }
   }
   
   @media (min-width: $screen-md-min) {
-    &.box-width-all {
-      width: $select-key-width + $padding-small-horizontal + $select-operator-width + $padding-small-horizontal + $select-value-width + $padding-small-horizontal + $button-insert-width;
-    }
     .qos-key-select-trigger {
       flex-basis: $select-key-width;
+      width: $select-key-width;
     }
     .qos-operator-select-trigger {
       flex-basis: $select-operator-width;
-      margin-left: $padding-small-horizontal;
+      width: $select-operator-width;
     }
     .qos-value-select-trigger {
       flex-basis: $select-value-width;
-      margin-left: $padding-small-horizontal;
+      width: $select-value-width;
     }
     .btn-insert-qos-parameter {
       min-width: $button-insert-width;
+    }
+    .qos-operator-select-trigger, .qos-value-select-trigger, .btn-insert-qos-parameter {
       margin-left: $padding-small-horizontal;
     }
   }

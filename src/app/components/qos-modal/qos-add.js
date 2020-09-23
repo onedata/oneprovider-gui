@@ -18,12 +18,11 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
 import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { scheduleOnce } from '@ember/runloop';
 
 const mixins = [I18n, createDataProxyMixin('qosParametersSuggestions')];
 
 export default Component.extend(...mixins, {
-  tagName: '',
-
   spaceManager: service(),
   globalNotify: service(),
 
@@ -138,7 +137,7 @@ export default Component.extend(...mixins, {
   toggleQosSuggestions(open) {
     const globalNotify = this.get('globalNotify');
     if (open) {
-      return this.updateQosParametersSuggestionsProxy()
+      return this.updateQosParametersSuggestionsProxy({ replace: true })
         .catch(error => {
           globalNotify.backendError(this.t('fetchingSuggestions'), error);
           throw error;
@@ -151,22 +150,46 @@ export default Component.extend(...mixins, {
     }
   },
 
+  expressionInfixChanged(value) {
+    if (!this.get('expressionEditStarted')) {
+      this.set('expressionEditStarted', true);
+    }
+    this.set('expressionInfix', value);
+    this.notifyUpdate();
+  },
+
   actions: {
     replicasNumberChanged(value) {
       this.set('replicasNumberString', value);
       this.notifyUpdate();
     },
     expressionInfixChanged(value) {
-      if (!this.get('expressionEditStarted')) {
-        this.set('expressionEditStarted', true);
-      }
-      this.set('expressionInfix', value);
-      this.notifyUpdate();
+      this.expressionInfixChanged(value);
     },
-    insertString(value) {
+    /**
+     * @param {String} value 
+     * @param {Number} [selectionStart] index of char in inserted text (not whole
+     *  textarea value)
+     * @param {Number} [selectionEnd] index of char in inserted text
+     */
+    insertString(value, selectionStart, selectionEnd = selectionStart && value.length) {
       const expressionInfix = this.get('expressionInfix');
+      const prevValueLength = expressionInfix.length;
       this.toggleQosSuggestions(false);
-      this.actions.expressionInfixChanged.bind(this)(expressionInfix + value);
+      this.expressionInfixChanged(expressionInfix + value);
+      scheduleOnce('afterRender', () => {
+        const element = this.get('element');
+        if (element) {
+          const textarea = element.querySelector('.textarea-qos-expression');
+          textarea.focus();
+          if (selectionStart) {
+            textarea.setSelectionRange(
+              prevValueLength + selectionStart,
+              prevValueLength + selectionEnd
+            );
+          }
+        }
+      });
     },
     toggleQosSuggestions(open = true) {
       return this.toggleQosSuggestions(open);
