@@ -232,6 +232,8 @@ export default Component.extend(I18n, {
         const rejectedResult = results.findBy('state', 'rejected');
         if (rejectedResult) {
           globalNotify.backendError(this.t('addingQosEntry'), rejectedResult.reason);
+          this.updateData();
+          throw rejectedResult.reason;
         }
       })
       // just in case if code fails
