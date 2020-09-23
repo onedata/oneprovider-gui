@@ -1,0 +1,62 @@
+{{#one-dropdown
+  triggerClass="qos-key-select-trigger suggestion-box-select-trigger"
+  dropdownClass="qos-key-select-dropdown qos-suggestions-dropdown over-popover-over-modals"
+  selected=selectedSuggestion
+  options=qosParametersSuggestions
+  onchange=(action "changeSelectedSuggestion")
+  matcher=(action "keyMatcher")
+  placeholder=(tt this "key")
+  as |suggestion|
+}}
+  <div class="option-container" data-key={{suggestion.key}}>
+    {{#truncated-string}}
+      <span class="text">
+        {{suggestion.key}}
+      </span>
+    {{/truncated-string}}
+  </div>
+{{/one-dropdown}}
+{{#if selectedSuggestion}}
+  {{#one-dropdown
+    triggerClass="qos-operator-select-trigger suggestion-box-select-trigger"
+    dropdownClass="qos-operator-select-dropdown qos-suggestions-dropdown over-popover-over-modals"
+    selected=selectedOperator
+    options=availableOperators
+    searchEnabled=false
+    onchange=(action (mut selectedOperator))
+    as |operator|
+  }}
+    <div class="option-container" data-operator={{operator}}>
+      {{operator}}
+    </div>
+  {{/one-dropdown}}
+  {{#one-dropdown
+    triggerClass="qos-value-select-trigger suggestion-box-select-trigger"
+    dropdownClass="qos-value-select-dropdown qos-suggestions-dropdown over-popover-over-modals"
+    selected=selectedValue
+    options=availableValues
+    onchange=(action (mut selectedValue))
+    placeholder=(tt this "value")
+    as |value|
+  }}
+    <div class="option-container" data-value={{value}}>
+      {{#truncated-string}}
+        {{#if value.isCustom}}
+          <em>{{tt this "custom"}}</em>
+        {{else}}
+          {{value}}
+        {{/if}}
+      {{/truncated-string }}
+    </div>
+  {{/one-dropdown}}
+{{/if}}
+
+{{#if selectedSuggestion}}
+  {{#bs-button
+    type="primary"
+    class="btn-insert-qos-parameter"
+    onClick=(action "insert")
+  }}
+    {{tt this "insert"}}
+  {{/bs-button}}
+{{/if}}

@@ -144,8 +144,6 @@ export default Component.extend({
   },
 
   setupAceEditor(aceEditor) {
-    // FIXME:
-    window.aceEditor = aceEditor;
     this.set('aceEditor', aceEditor);
     aceEditor.getSession().on('changeAnnotation', () => {
       this.annotationChanged();

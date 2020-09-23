@@ -1,0 +1,40 @@
+<div class="row content-row">
+  {{#bs-button
+    type="primary"
+    class="btn-suggestion-trigger"
+    onClick=(action (mut qosSuggestionsOpen) true)
+  }}
+    Insert a condition...
+  {{/bs-button}}
+
+  {{#one-webui-popover
+    popoverStyle="unlimited-width"
+    class="suggestions-popover"
+    popoverTrigger="manual"
+    padding=true
+    triggerSelector=".btn-suggestion-trigger"
+    renderInPlace=true
+    open=qosSuggestionsOpen
+  }}
+    {{#click-outside
+      action=(action (mut qosSuggestionsOpen) false)
+      except-selector=".ember-power-select-dropdown *"
+    }}
+      {{qos-parameters-suggestion-box
+        qosParametersSuggestions=qosParametersSuggestions
+        insertString=(action "insertString")
+      }}
+    {{/click-outside}}
+  {{/one-webui-popover}}
+</div>
+
+
+<div class="row content-row">
+  <textarea
+  class="textarea-qos-expression form-control code-textarea"
+  rows="10"
+  value={{textareaValue}}
+  oninput={{action (mut textareaValue) value="target.value"}}
+  ></textarea>
+
+</div>

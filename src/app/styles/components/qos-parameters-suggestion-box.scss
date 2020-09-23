@@ -1,0 +1,40 @@
+.qos-parameters-suggestion-box {
+  $select-key-width: 200px;
+  $select-operator-width: 90px;
+  $select-value-width: $select-key-width;
+  $button-insert-width: 120px;
+  display: flex;
+  .selectors {
+    display: flex;
+  }
+  
+  @media (max-width: $screen-sm-max) {
+    // limit popover width because it will overflow view if wider
+    width: 180px;
+    flex-direction: column;
+    .qos-operator-select-trigger, .qos-value-select-trigger, .btn-insert-qos-parameter {
+      margin-top: $padding-small-horizontal;
+    }
+  }
+  
+  @media (min-width: $screen-md-min) {
+    .qos-key-select-trigger {
+      flex-basis: $select-key-width;
+      width: $select-key-width;
+    }
+    .qos-operator-select-trigger {
+      flex-basis: $select-operator-width;
+      width: $select-operator-width;
+    }
+    .qos-value-select-trigger {
+      flex-basis: $select-value-width;
+      width: $select-value-width;
+    }
+    .btn-insert-qos-parameter {
+      min-width: $button-insert-width;
+    }
+    .qos-operator-select-trigger, .qos-value-select-trigger, .btn-insert-qos-parameter {
+      margin-left: $padding-small-horizontal;
+    }
+  }
+}

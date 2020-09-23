@@ -100,6 +100,7 @@
   {{#modal.body}}
     {{#if isAddMode}}
       {{qos-modal/qos-add
+        spaceId=spaceId
         update=(action "changeNewEntry")
       }}
     {{else}}

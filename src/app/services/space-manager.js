@@ -60,4 +60,22 @@ export default Service.extend({
       subscribe: false,
     });
   },
+
+  /**
+   * Resolves mapping: QoS parameter key -> Object with string and number values
+   * defined for storages supporting the space with `spaceId`.
+   * @param {String} spaceId
+   * @returns {Promise<Object<String, { stringValues: Array, numberValues: Array }>>} 
+   */
+  getAvailableQosParameters(spaceId) {
+    return this.get('onedataGraph').request({
+      operation: 'get',
+      gri: gri({
+        entityType: spaceEntityType,
+        entityId: spaceId,
+        aspect: 'available_qos_parameters',
+      }),
+      subscribe: false,
+    }).then(({ qosParameters }) => qosParameters);
+  },
 });

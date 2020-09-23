@@ -147,6 +147,14 @@ const spaceHandlers = {
       gri: 'op_space.efd6e203d35061d5bef37a7e1636e8bbip2d5571458.view,test6:private',
     };
   },
+  available_qos_parameters(operation) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    return {
+      qosParameters: this.get('qosParameters'),
+    };
+  },
 };
 
 const transferHandlers = {
@@ -480,6 +488,25 @@ export default OnedataGraphMock.extend({
   emptyXattrsMetadata: false,
   metaJson,
   metaRdf,
+
+  qosParameters: Object.freeze({
+    storageId: {
+      stringValues: ['storage_id_beta', 'storage_id_alpha'],
+      numberValues: [],
+    },
+    storageType: {
+      stringValues: ['posix', 'cephrados', 'webdav'],
+      numberValues: [],
+    },
+    myCustomParameter: {
+      stringValues: ['one', 'two'],
+      numberValues: [10, 23, 36],
+    },
+    priority: {
+      stringValues: [],
+      numberValues: [1, 2],
+    },
+  }),
 
   init() {
     this._super(...arguments);

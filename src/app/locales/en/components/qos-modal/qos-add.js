@@ -6,6 +6,8 @@ const translations = {
     replicasNumberTooSmall: 'Replicas number should be integer greater than 0',
     expressionEmpty: 'Expression cannot be empty',
   },
+  insertCondition: 'Insert condition...',
+  fetchingSuggestions: 'fetching QoS parameters suggestions',
 };
 
 export default _.merge({}, translations, common);
