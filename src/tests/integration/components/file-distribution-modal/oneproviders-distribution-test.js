@@ -16,25 +16,24 @@ import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distributi
  * @returns {EmberObject}
  */
 function createFileDistributionContainerStub({ type, onKrakow, onParis } = {}) {
-  type = type || 'file';
-  onKrakow = onKrakow || 50;
-  onParis = onParis || 0;
+  const normalizedOnKrakow = onKrakow || 50;
+  const normalizedOnParis = onParis || 0;
 
   return EmberObject.create({
-    fileType: type,
+    fileType: type || 'file',
     fileSize: 1024,
     isFileDistributionLoaded: true,
     fileDistribution: {
-      providerkrk: onKrakow ? {
-        blocksPercentage: onKrakow,
+      providerkrk: normalizedOnKrakow ? {
+        blocksPercentage: normalizedOnKrakow,
         chunksBarData: {
-          0: onKrakow,
+          0: normalizedOnKrakow,
         },
       } : undefined,
-      providerpar: onParis ? {
-        blocksPercentage: onParis,
+      providerpar: normalizedOnParis ? {
+        blocksPercentage: normalizedOnParis,
         chunksBarData: {
-          0: onParis,
+          0: normalizedOnParis,
         },
       } : undefined,
     },
@@ -228,11 +227,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       `);
 
       expect(this.$('.oneprovider-providerpar .replication-status-icon'))
-        .to.have.class('inProgress');
+        .to.have.class('in-progress');
       expect(this.$('.oneprovider-providerpar .migration-status-icon'))
-        .to.not.have.class('inProgress');
+        .to.not.have.class('in-progress');
       expect(this.$('.oneprovider-providerpar .eviction-status-icon'))
-        .to.not.have.class('inProgress');
+        .to.not.have.class('in-progress');
     });
 
     it('shows that migration is in progress', function () {
@@ -257,13 +256,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       `);
 
       expect(this.$('.oneprovider-providerpar .replication-status-icon'))
-        .to.have.class('inProgress');
+        .to.have.class('in-progress');
       expect(this.$('.oneprovider-providerpar .migration-status-icon'))
-        .to.not.have.class('inProgress');
+        .to.not.have.class('in-progress');
       expect(this.$('.oneprovider-providerpar .eviction-status-icon'))
-        .to.not.have.class('inProgress');
+        .to.not.have.class('in-progress');
       expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
-        .to.have.class('inProgress');
+        .to.have.class('in-progress');
     });
 
     it('shows that eviction is in progress', function () {
@@ -288,11 +287,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       `);
 
       expect(this.$('.oneprovider-providerkrk .replication-status-icon'))
-        .to.not.have.class('inProgress');
+        .to.not.have.class('in-progress');
       expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
-        .to.not.have.class('inProgress');
+        .to.not.have.class('in-progress');
       expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
-        .to.have.class('inProgress');
+        .to.have.class('in-progress');
     });
 
     ['ongoing', 'ended'].forEach((transferStatus) => {
@@ -383,26 +382,26 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
         this.render(hbs `
-          {{file-distribution-modal/oneproviders-distribution
-            oneproviders=oneproviders
-            fileDistributionData=fileDistributionData
-            space=space
-            onReplicate=(action "startAction")
-          }}
-        `);
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              onReplicate=(action "startAction")
+            }}
+          `);
 
-        return click('.oneprovider-providerpar .btn-menu-toggle')
+        return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
           .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
             expect(this.$('.oneprovider-providerpar .replication-status-icon'))
-              .to.have.class('inProgress');
+              .to.have.class('in-progress');
             return resolveStartAction();
           })
           .then(() => wait())
           .then(() =>
             expect(this.$('.oneprovider-providerpar .replication-status-icon'))
-            .to.not.have.class('inProgress')
+            .to.not.have.class('in-progress')
           );
       });
 
@@ -413,27 +412,27 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
         this.render(hbs `
-          {{file-distribution-modal/oneproviders-distribution
-            oneproviders=oneproviders
-            fileDistributionData=fileDistributionData
-            space=space
-            onMigrate=(action "startAction")
-          }}
-        `);
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              onMigrate=(action "startAction")
+            }}
+          `);
 
-        return click('.oneprovider-providerkrk .btn-menu-toggle')
+        return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
           .then(() => click($('body .webui-popover .migrate-action-trigger')[0]))
           .then(() => click('.start-migration'))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
             expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
-              .to.have.class('inProgress');
+              .to.have.class('in-progress');
             return resolveStartAction();
           })
           .then(() => wait())
           .then(() =>
             expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
-            .to.not.have.class('inProgress')
+            .to.not.have.class('in-progress')
           );
       });
 
@@ -447,26 +446,26 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         ]);
 
         this.render(hbs `
-          {{file-distribution-modal/oneproviders-distribution
-            oneproviders=oneproviders
-            fileDistributionData=fileDistributionData
-            space=space
-            onEvict=(action "startAction")
-          }}
-        `);
+            {{file-distribution-modal/oneproviders-distribution
+              oneproviders=oneproviders
+              fileDistributionData=fileDistributionData
+              space=space
+              onEvict=(action "startAction")
+            }}
+          `);
 
-        return click('.oneprovider-providerkrk .btn-menu-toggle')
+        return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
           .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
             expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
-              .to.have.class('inProgress');
+              .to.have.class('in-progress');
             return resolveStartAction();
           })
           .then(() => wait())
           .then(() =>
             expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
-            .to.not.have.class('inProgress')
+            .to.not.have.class('in-progress')
           );
       });
 
@@ -476,15 +475,15 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           this.set('space.privileges.scheduleReplication', false);
 
           this.render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              onReplicate=(action "startAction")
-            }}
-          `);
+              {{file-distribution-modal/oneproviders-distribution
+                oneproviders=oneproviders
+                fileDistributionData=fileDistributionData
+                space=space
+                onReplicate=(action "startAction")
+              }}
+            `);
 
-          return click('.oneprovider-providerpar .btn-menu-toggle')
+          return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
             .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
             .then(() => {
               expect(startActionStub).to.have.not.been.called;
@@ -502,15 +501,15 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           ]);
 
           this.render(hbs `
-            {{file-distribution-modal/oneproviders-distribution
-              oneproviders=oneproviders
-              fileDistributionData=fileDistributionData
-              space=space
-              onEvict=(action "startAction")
-            }}
-          `);
+              {{file-distribution-modal/oneproviders-distribution
+                oneproviders=oneproviders
+                fileDistributionData=fileDistributionData
+                space=space
+                onEvict=(action "startAction")
+              }}
+            `);
 
-          return click('.oneprovider-providerpar .btn-menu-toggle')
+          return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
             .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
             .then(() => {
               expect(startActionStub).to.have.not.been.called;
@@ -536,11 +535,10 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             }}
           `);
 
-            return click('.oneprovider-providerpar .btn-menu-toggle')
+            return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
               .then(() => {
                 const $trigger = $('body .webui-popover .migrate-action-trigger');
-                const $menuItem = $trigger.closest('.one-collapsible-toolbar-item');
-                expect($menuItem).to.have.class('disabled');
+                expect($trigger.parent()).to.have.class('disabled');
                 return click($trigger[0]);
               })
               .then(() => expect($('.destination-oneprovider-selector')).to.not.exist);

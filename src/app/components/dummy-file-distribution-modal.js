@@ -34,6 +34,10 @@ export default Component.extend({
     return {
       providerList,
       providersWithReadonlySupport: ['789'],
+      privileges: {
+        scheduleReplication: true,
+        scheduleEviction: true,
+      },
       getRelation(relation) {
         switch (relation) {
           case 'providerList':

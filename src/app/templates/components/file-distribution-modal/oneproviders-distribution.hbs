@@ -19,7 +19,10 @@
   {{/if}}
   <div class="{{if (or isMigrationDestinationSelectorVisible isStartSubsequentTransferConfirmationVisible) "hidden"}}">
     {{#if batchMode}}
-      <p>{{tt this "summarizedFilesDistribution"}} {{one-label-tip title=(tt this "dirsDontHaveDistributionTip")}}</p>
+      <p class="batch-mode-intro">
+        {{tt this "summarizedFilesDistribution"}}
+        {{one-label-tip title=(tt this "dirsDontHaveDistributionTip")}}
+      </p>
     {{/if}}
     <ul>
       {{#each oneprovidersSorted key="id" as |oneprovider|}}
