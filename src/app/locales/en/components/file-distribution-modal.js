@@ -1,22 +1,22 @@
 const disabledActionSingleOneprovider =
   ' is available only with two or more supporting providers.';
 const dirsDontHaveDistributionTip =
-  'Data distribution for directories is not available.';
+  'Data distribution summary for directories is not available, though data transfers can be triggered.';
 
 export default {
   header: 'Data distribution',
   summary: 'Summary',
   details: 'Details',
-  selectedItems: 'Selected items:',
   files: 'files',
   file: 'file',
-  directories: 'directories',
-  directory: 'directory',
   close: 'Close',
   onlySingleOneproviderSupport: 'Current space is supported by only one Oneprovider, thus advanced data replication or migration features are not available.',
   startingMigration: 'starting migration',
   startingReplication: 'starting replication',
   startingEviction: 'starting eviction',
+  filesBatchDescription: 'Summarized data distribution of {{filesNumber}} {{fileNoun}} ({{filesSize}})',
+  filesAndDirectioriesBatchDescriptionSuffix: ' - directories are omitted.',
+  onlyDirectoriesDescription: dirsDontHaveDistributionTip,
   chunksVisualizer: {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',
@@ -24,8 +24,6 @@ export default {
     dirsDontHaveDistributionTip,
   },
   oneprovidersDistribution: {
-    summarizedFilesDistribution: 'Summarized data distribution of selected files (directories are omitted)',
-    dirsDontHaveDistributionTip,
     file: 'file',
     dir: 'directory',
     currentlyTransferredText: 'This {{elementType}} is currently transferred between Oneproviders',

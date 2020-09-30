@@ -18,12 +18,6 @@
       onCancel=(action "cancelSubsequentTransfer")}}
   {{/if}}
   <div class="{{if (or isMigrationDestinationSelectorVisible isStartSubsequentTransferConfirmationVisible) "hidden"}}">
-    {{#if batchMode}}
-      <p class="batch-mode-intro">
-        {{tt this "summarizedFilesDistribution"}}
-        {{one-label-tip title=(tt this "dirsDontHaveDistributionTip")}}
-      </p>
-    {{/if}}
     <ul>
       {{#each oneprovidersSorted key="id" as |oneprovider|}}
         {{file-distribution-modal/oneproviders-distribution-item
