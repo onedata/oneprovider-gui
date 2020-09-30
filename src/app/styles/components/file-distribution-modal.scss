@@ -23,7 +23,11 @@
 
     &:first-child {
       .chunks-scale-container {
-        display: flex;
+        top: -14px;
+      }
+
+      .chunks-scale {
+        display: block;
       }
     }
 
@@ -45,6 +49,7 @@
 
     .status-toolbar-icon {
       font-size: 1.15em;
+      font-size: $one-pill-button-line-height;
 
       .one-icon {
         vertical-align: middle;
@@ -59,7 +64,7 @@
       display: flex;
       flex-shrink: 0;
       width: 40%;
-      margin-left: $padding-small-horizontal;
+      margin-left: $padding-base-horizontal;
     }
   }
 
@@ -258,12 +263,13 @@
     }
 
     .chunks-scale-container {
-      display: none;
+      display: flex;
       position: absolute;
-      top: 0;
-      transform: translateY(-125%);
+      top: -$padding-small-vertical - 2px;
+      bottom: -$padding-small-vertical - 2px;
+      left: -1px;
+      right: -1px;
       justify-content: space-between;
-      width: 100%;
       border: 1px solid $color-one-light-gray;
       border-width: 0 1px;
       padding: 0 ($padding-xs-horizontal / 2) 6px ($padding-xs-horizontal / 2);
@@ -271,6 +277,7 @@
 
     .chunks-scale {
       @include font-semibold();
+      display: none;
       font-size: 60%;
       line-height: 1;
     }
@@ -278,10 +285,8 @@
     .chunks-canvas {
       flex-grow: 1;
       min-width: 0;
-      height: 28px;
+      height: $one-pill-button-height;
       background-color: $color-one-light-blue;
-      border-radius: $border-radius-large;
-      border: 1px solid $main-border-color;
     }
 
     .percentage-text {
@@ -332,12 +337,5 @@
     .list-content {
       padding: $padding-large-vertical;
     }
-  }
-}
-
-.replicate-here-action-trigger .oneicon-arrow-long-up,
-.migrate-action-trigger .oneicon-arrow-long-up {
-  &::before {
-    display: inline-block;
   }
 }

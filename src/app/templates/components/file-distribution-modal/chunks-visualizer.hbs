@@ -1,7 +1,7 @@
 <div class="chunks-container">
   {{#if (eq fileType "file")}}
     <div class="chunks-scale-container">
-      <div class="chunks-scale lower-size">0 B</div>
+      <div class="chunks-scale lower-size">{{bytes-to-string 0}}</div>
       <div class="chunks-scale upper-size">{{bytes-to-string fileSize}}</div>
     </div>
     {{#if neverSynchronized}}
