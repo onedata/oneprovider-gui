@@ -19,7 +19,6 @@ import { Promise, resolve, allSettled } from 'rsvp';
 import { raw, array, sum } from 'ember-awesome-macros';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { getOwner } from '@ember/application';
-import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import $ from 'jquery';
@@ -95,42 +94,6 @@ export default Component.extend(
      * @type {Ember.ComputedProperty<number>}
      */
     filesSize: sum(array.mapBy('filesOfTypeFile', raw('size'))),
-
-    /**
-     * @type {Ember.ComputedProperty<string>}
-     */
-    selectedItemsText: computed(
-      'filesNumber',
-      'directoriesNumber',
-      'filesSize',
-      function selectedItemsText() {
-        const {
-          filesNumber,
-          directoriesNumber,
-          filesSize,
-        } = this.getProperties(
-          'filesNumber',
-          'directoriesNumber',
-          'filesSize'
-        );
-        const readableFilesSize = bytesToString(filesSize);
-
-        const filesNoun = this.t(filesNumber > 1 ? 'files' : 'file');
-        const dirNoun = this.t(directoriesNumber > 1 ? 'directories' : 'directory');
-
-        let text = `${filesNumber + directoriesNumber} `;
-        if (directoriesNumber && filesNumber) {
-          text += `- ${filesNumber} ${filesNoun} (${readableFilesSize}), `;
-          text += `${directoriesNumber} ${dirNoun}`;
-        } else if (filesNumber > 0) {
-          text += `${filesNoun} (${readableFilesSize})`;
-        } else {
-          text += `${dirNoun}`;
-        }
-
-        return text;
-      }
-    ),
 
     /**
      * @type {Ember.ComputedProperty<Array<Utils.FileDistributionDataContainer>>}

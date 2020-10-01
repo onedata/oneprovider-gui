@@ -10,7 +10,22 @@
     padding: $padding-small-vertical 0;
     border-bottom: 1px solid $main-border-color;
 
+    .one-pill-button {
+      flex-shrink: 0;
+    }
+
+    .status-toolbar {
+      padding: 0;
+      border: 0;
+      vertical-align: middle;
+      background-color: initial;
+    }
+
     &:first-child {
+      .chunks-scale-container {
+        top: -14px;
+      }
+
       .chunks-scale {
         display: block;
       }
@@ -28,28 +43,20 @@
       flex-grow: 1;
     }
 
-    .transfer-status-icons {
-      font-size: 1.6em;
-      line-height: 0;
-      white-space: nowrap;
-      margin: 0 $padding-small-horizontal;
-    }
-
     .status-toolbar {
-      margin-left: $padding-small-horizontal;
+      color: $main-text-color-disabled;
     }
 
     .status-toolbar-icon {
-      &.inactive {
-        opacity: 0.3;
-      }
-
-      & + .status-toolbar-icon:not(.hidden) {
-        margin-left: 2px;
-      }
+      font-size: 1.15em;
+      font-size: $one-pill-button-line-height;
 
       .one-icon {
-        display: block;
+        vertical-align: middle;
+      }
+
+      & + .status-toolbar-icon {
+        margin-left: -2px;
       }
     }
 
@@ -57,13 +64,7 @@
       display: flex;
       flex-shrink: 0;
       width: 40%;
-      margin-left: $padding-small-horizontal;
-    }
-
-    .collapsible-toolbar-toggle {
-      padding: $padding-xs-horizontal;
-      margin-left: $padding-xs-horizontal;
-      transform: scale(0.8);
+      margin-left: $padding-base-horizontal;
     }
   }
 
@@ -222,6 +223,10 @@
     }
   }
 
+  .batch-mode-intro {
+    margin-bottom: $padding-large-vertical;
+  }
+
   .chunks-visualizer {
     position: relative;
     display: flex;
@@ -236,7 +241,7 @@
     .chunks-background {
       flex-grow: 1;
       min-width: 0;
-      height: 18px;
+      height: $one-pill-button-height;
       background-image: linear-gradient(
         -45deg,
         $color-one-light-blue 25%,
@@ -255,31 +260,32 @@
       display: flex;
       flex-grow: 1;
       min-width: 0;
-      border: 1px solid $main-text-color;
+    }
+
+    .chunks-scale-container {
+      display: flex;
+      position: absolute;
+      top: -$padding-small-vertical - 2px;
+      bottom: -$padding-small-vertical - 2px;
+      left: -1px;
+      right: -1px;
+      justify-content: space-between;
+      border: 1px solid $color-one-light-gray;
       border-width: 0 1px;
+      padding: 0 ($padding-xs-horizontal / 2) 6px ($padding-xs-horizontal / 2);
     }
 
     .chunks-scale {
-      display: none;
-      position: absolute;
-      top: 0;
       @include font-semibold();
+      display: none;
       font-size: 60%;
-    }
-
-    .lower-size {
-      transform: translateY(-125%) translateX(-50%);
-    }
-
-    .upper-size {
-      right: 0;
-      transform: translateY(-125%) translateX(50%);
+      line-height: 1;
     }
 
     .chunks-canvas {
       flex-grow: 1;
       min-width: 0;
-      height: 18px;
+      height: $one-pill-button-height;
       background-color: $color-one-light-blue;
     }
 
@@ -291,26 +297,23 @@
   }
   @media (max-width: $screen-xs-max) {
     .oneproviders-distribution-item {
-
       flex-flow: row wrap;
       .name-section {
         order: 1;
       }
-      .one-collapsible-toolbar {
+      .one-pill-button {
         order: 2;
       }
       .first-line-breaker {
         flex-basis: 100%;
         order: 3;
-      }
-      .status-toolbar {
-        order: 4;
-        margin-left: 0;
+        margin-bottom: $padding-small-vertical;
       }
       .chunks-visualizer {
         flex-grow: 1;
-        order: 5;
-        .chunks-scale {
+        order: 4;
+        margin: 0;
+        .chunks-scale-container {
           display: none;
         }
       }

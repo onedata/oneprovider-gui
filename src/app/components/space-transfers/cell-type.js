@@ -45,11 +45,11 @@ export default Component.extend(I18n, {
   icon: computed('type', function icon() {
     switch (this.get('type')) {
       case 'migration':
-        return 'migrate';
+        return 'data-send';
       case 'replication':
-        return 'replicate';
+        return 'data-receive';
       case 'eviction':
-        return 'evict';
+        return 'x';
       default:
         return 'unknown';
     }

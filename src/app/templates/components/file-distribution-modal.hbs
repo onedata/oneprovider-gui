@@ -7,6 +7,7 @@
   as |modal|}}
   {{#modal.header}}
     <h1>{{tt this "header"}}</h1>
+    {{modal-file-subheader files=files multiTextPrefix=(if isAddMode (tt this "for"))}}
   {{/modal.header}}
   {{#modal.body}}
     {{#promise-proxy-container proxy=oneprovidersProxy}}
@@ -20,6 +21,21 @@
         {{/bs-tab}}
       {{/if}}
       {{#if (eq activeTab "distribution-summary")}}
+        <p class="batch-mode-intro">
+          {{#if filesNumber}}
+            {{tt this "filesBatchDescription"
+              filesNumber=filesNumber
+              fileNoun=(tt this (if (gt filesNumber 1) "files" "file"))
+              filesSize=(bytes-to-string filesSize)
+            }}{{if (not directoriesNumber) "."}}
+            {{#if directoriesNumber}}
+              {{tt this "filesAndDirectioriesBatchDescriptionSuffix"}}
+              {{one-label-tip title=(tt this "onlyDirectoriesDescription")}}
+            {{/if}}
+          {{else}}
+            {{tt this "onlyDirectoriesDescription"}}
+          {{/if}}
+        </p>
         {{file-distribution-modal/oneproviders-distribution
           visible=(eq activeTab "distribution-summary")
           batchMode=true
@@ -31,7 +47,6 @@
           onEvict=(action "evict" files)
           getTransfersUrl=(action "getTransfersUrl")
         }}
-        <p>{{tt this "selectedItems"}} {{selectedItemsText}}</p>
       {{else}}
         {{#one-collapsible-list class="per-file-distribution-list" as |list|}}
           {{#each fileDistributionData as |fileDistDataContainer|}}
