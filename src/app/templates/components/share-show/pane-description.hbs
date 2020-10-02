@@ -1,13 +1,8 @@
 {{#if publicMode}}
   <div class="col-xs-12 col-md-7">
-    {{markdown-to-html
+    {{one-markdown-to-html
       class="markdown-view"
       markdown=currentMarkdown
-      tables=true
-      strikethrough=true
-      literalMidWordUnderscores=true
-      simplifiedAutoLink=true
-      openLinksInNewWindow=true
     }}
   </div>
   <div class="hidden-xs hidden-sm col-md-5 col-open-data-logo">
