@@ -18,9 +18,9 @@ describe('Integration | Component | one markdown to html', function () {
 
 Some text
 
-[Some link](https://onedata.org)
+[Link1](https://onedata.org)
 
-<a>Link</a>
+<a>Link2</a>
       `);
 
       this.render(hbs `{{one-markdown-to-html markdown=markdown}}`);
@@ -28,13 +28,22 @@ Some text
       const html = this.$().html();
       expect(html).to.match(/<h1.*?>\s*Header\s*<\/h1>/);
       expect(html).to.match(/<h2.*?>\s*Second level\s*<\/h2>/);
-      expect(html).to.match(/<a.+?href="https:\/\/onedata\.org".*?>\s*Some link\s*<\/a>/);
-      expect(html).to.match(/<a>Link<\/a>/);
+      expect(html).to.match(/<a.+?href="https:\/\/onedata\.org".*?>\s*Link1\s*<\/a>/);
+      expect(html).to.match(/<a.*?>Link2<\/a>/);
       expect(html).to.contain('Some text');
     });
 
     it('with open new window links', function () {
       this.set('markdown', '[onedata](https://onedata.org)');
+
+      this.render(hbs `{{one-markdown-to-html markdown=markdown}}`);
+
+      const html = this.$().html();
+      expect(html).to.contain('target="_blank"');
+    });
+
+    it('with open new window links for HTML a-tag', function () {
+      this.set('markdown', '<a href="https://onedata.org">hello</a>');
 
       this.render(hbs `{{one-markdown-to-html markdown=markdown}}`);
 
@@ -69,6 +78,7 @@ Some text
     }
 
     beforeEach(function () {
+      this.set('attackingJs', `window.${propertyName}=1;`);
       clearWindowEnv();
     });
 
@@ -77,7 +87,7 @@ Some text
     });
 
     it('JS in anchor href', async function () {
-      const js = `window.${propertyName}=1;`;
+      const js = this.get('attackingJs');
       this.set('markdown', `<a href="javascript:${js}">link</a>`);
 
       this.render(hbs `{{one-markdown-to-html markdown=markdown}}`);
@@ -90,7 +100,7 @@ Some text
     });
 
     it('JS in anchor onclick', async function () {
-      const js = `window.${propertyName}=1;`;
+      const js = this.get('attackingJs');
       this.set('markdown', `<a onclick="${js}">link</a>`);
 
       this.render(hbs `{{one-markdown-to-html markdown=markdown}}`);
@@ -103,8 +113,11 @@ Some text
     });
 
     it('script tag execution', async function () {
-      const js = `window.${propertyName}=1;`;
-      this.set('markdown', `<script type="text/javascript">${js}</script>`);
+      const js = this.get('attackingJs');
+      this.set(
+        'markdown',
+        `<script type="text/javascript">${js}</script>`
+      );
 
       this.render(hbs `{{one-markdown-to-html markdown=markdown}}`);
 

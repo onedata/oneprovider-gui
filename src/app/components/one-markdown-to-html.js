@@ -53,11 +53,11 @@ export default Component.extend({
   }),
 
   sanitize(htmlContent) {
-    DOMPurify.addHook(sanitizeLinksTarget);
+    DOMPurify.addHook('afterSanitizeAttributes', sanitizeLinksTarget);
     const output = htmlSafe(
       DOMPurify.sanitize(htmlContent, { ADD_ATTR: ['target'] }).toString()
     );
-    DOMPurify.removeHook(sanitizeLinksTarget);
+    DOMPurify.removeHook('afterSanitizeAttributes');
     return output;
   },
 });
@@ -70,7 +70,7 @@ export default Component.extend({
  */
 function sanitizeLinksTarget(node) {
   // set all elements owning target to target=_blank
-  if (node.tagName === 'a') {
+  if (node.tagName === 'A') {
     node.setAttribute('target', '_blank');
     node.setAttribute('rel', 'noopener noreferrer');
   }
