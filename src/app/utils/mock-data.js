@@ -22,6 +22,16 @@ export const exampleMarkdownLong = `
 
 Cite as: CMS collaboration (2014). BTau primary dataset in AOD format from RunB of 2010 (/BTau/Run2010B-Apr21ReReco-v1/AOD). CERN Open Data Portal. [DOI:10.7483/OPENDATA.CMS.A342.9982](http://doi.org/10.7483/OPENDATA.CMS.A342.9982)
 
+## Security test
+
+<a href="javascript:alert('You have been hacked');">Href hack</a>
+
+<a onclick="alert('You have been hacked');">On click hack</a>
+
+<script type="text/javascript">
+  window.alert('You have been hacked');
+</script>
+
 ## Description
 
 BTau primary dataset in AOD format from RunB of 2010
