@@ -54,7 +54,6 @@
     "ember-cli-node-assets": "0.2.2",
     "ember-cli-sass": "10.0.0",
     "ember-cli-shims": "1.2.0",
-    "ember-cli-showdown": "4.5.0",
     "ember-cli-sri": "2.1.1",
     "ember-cli-string-helpers": "4.0.6",
     "ember-cli-uglify": "2.0.0",
@@ -109,6 +108,7 @@
     "sass": "1.17.0",
     "sinon": "4.2.0",
     "sinon-chai": "2.14.0",
+    "showdown": "1.9.1",
     "webui-popover": "git+https://github.com/michalborzecki/webui-popover.git#83d0eca5b89b1dec86bdcbba463fe7b94f2e3ae0"
   },
   "engines": {
