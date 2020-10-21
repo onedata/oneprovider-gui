@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6745 Updated common libs
 * VFS-6851 Fixed a security issue in share GUI
 * VFS-6747 Improved layout of statuses and actions in the data distribution modal
 * VFS-6746 Added available QoS parameters suggestion box
