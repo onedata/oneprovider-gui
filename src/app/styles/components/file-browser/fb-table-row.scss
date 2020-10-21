@@ -1,6 +1,6 @@
 .fb-table-row {
   @include vendor-prefix(user-select, none);
-  overflow-y: hidden;
+  overflow: hidden;
   &.file-selected {
     background-color: $color-file-selected;
   }
@@ -78,6 +78,7 @@
         padding-right: 6px;
         margin-top: -$margin-vertical-fix - $border-width;
         margin-bottom: -$margin-vertical-fix - $border-width;
+        white-space: nowrap;
                 
         .inline-icon-container {
           width: 14px;
