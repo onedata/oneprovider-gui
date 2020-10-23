@@ -20,6 +20,9 @@ import {
 import { inject as service } from '@ember/service';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
+const storageIdAlpha = '90ca74738947307403740234723bca7890678acb5c7bac567b8ac';
+const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731901';
+
 const messagePosixError = (errno) => ({
   success: false,
   error: {
@@ -147,13 +150,82 @@ const spaceHandlers = {
       gri: 'op_space.efd6e203d35061d5bef37a7e1636e8bbip2d5571458.view,test6:private',
     };
   },
-  available_qos_parameters(operation) {
+  available_qos_parameters(operation, ) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
     return {
       qosParameters: this.get('qosParameters'),
     };
+  },
+  evaluate_qos_expression(operation, entityId, data) {
+    if (operation != 'create') {
+      return messageNotSupported;
+    }
+    const expression = data && data.expression;
+    if (expression === 'test1') {
+      return {
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'syntax error before: ' },
+        },
+        data: {},
+      };
+    } else if (expression === 'test=1=') {
+      return {
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'syntax error before: "="' },
+        },
+        data: {},
+      };
+    } else if (expression === 'test=*') {
+      return {
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'illegal characters "*"' },
+        },
+        data: {},
+      };
+    } else if (expression === 'hack') {
+      return {
+        success: false,
+        error: {
+          id: 'internalServerError',
+          description: 'You tried to hack the system.',
+        },
+        data: {},
+      };
+    } else if (expression === 'anyStorage\\anyStorage') {
+      return {
+        expressionRpn: ['anyStorage', 'anyStorage', '\\'],
+        matchingStorages: [],
+      };
+    } else if (!expression) {
+      return {
+        expressionRpn: [],
+        matchingStorages: [],
+      };
+    } else {
+      const allProviders = this.get('mockBackend.entityRecords.provider');
+      return {
+        expressionRpn: ['hello', 'world', '=', 'foo', '1', '>=', '|'],
+        matchingStorages: allProviders ? [{
+            id: storageIdAlpha,
+            name: 'Alpha storage',
+            providerId: get(allProviders[0], 'entityId'),
+          },
+          {
+            id: storageIdBeta,
+            name: 'Beta storage',
+            providerId: get(allProviders[1], 'entityId'),
+          },
+        ] : [],
+      };
+    }
   },
 };
 
@@ -489,23 +561,33 @@ export default OnedataGraphMock.extend({
   metaJson,
   metaRdf,
 
-  qosParameters: Object.freeze({
-    storageId: {
-      stringValues: ['storage_id_beta', 'storage_id_alpha'],
-      numberValues: [],
-    },
-    storageType: {
-      stringValues: ['posix', 'cephrados', 'webdav'],
-      numberValues: [],
-    },
-    myCustomParameter: {
-      stringValues: ['one', 'two'],
-      numberValues: [10, 23, 36],
-    },
-    priority: {
-      stringValues: [],
-      numberValues: [1, 2],
-    },
+  qosParameters: computed(function qosParameters() {
+    const allProviders = this.get('mockBackend.entityRecords.provider') || [];
+    return {
+      storageId: {
+        stringValues: [
+          storageIdAlpha,
+          storageIdBeta,
+        ],
+        numberValues: [],
+      },
+      providerId: {
+        stringValues: allProviders.mapBy('entityId'),
+        numberValues: [],
+      },
+      storageType: {
+        stringValues: ['posix', 'cephrados', 'webdav'],
+        numberValues: [],
+      },
+      myCustomParameter: {
+        stringValues: ['one', 'two'],
+        numberValues: [10, 23, 36],
+      },
+      priority: {
+        stringValues: [],
+        numberValues: [1, 2, 3, 4],
+      },
+    };
   }),
 
   init() {

@@ -4,6 +4,7 @@
       {{#each sortedQosItems key="entityId" as |qosItem|}}
         {{qos-modal/qos-entry
           qosItem=qosItem
+          evaluateQosExpression=(action "evaluateQosExpression")
           removeQosRequirement=(action "removeQosRequirement" qosItem.qos)
           getDataUrl=(action "getDataUrl")
           closeModal=(action "closeModal")

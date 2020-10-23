@@ -10,10 +10,10 @@
 import Component from '@ember/component';
 import { promise, tag, getBy, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
-import { get, computed } from '@ember/object';
+import { get, computed, observer } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { notImplementedReject } from 'onedata-gui-common/utils/not-implemented-reject';
-import { notImplementedThrow } from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { guidFor } from '@ember/object/internals';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
@@ -21,8 +21,9 @@ import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 import { next, later, cancel } from '@ember/runloop';
 import $ from 'jquery';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],
 
   /**
@@ -54,6 +55,12 @@ export default Component.extend(I18n, {
    */
   closeModal: notImplementedThrow,
 
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  evaluateQosExpression: notImplementedReject,
+
   copyAnimationEndTimer: undefined,
 
   navigateDataTarget: '_top',
@@ -70,6 +77,13 @@ export default Component.extend(I18n, {
    */
   removeTriggerId: tag `${'elementId'}-remove-trigger`,
 
+  /**
+   * @override
+   */
+  fetchQosEvaluation() {
+    return this.get('evaluateQosExpression')(this.get('rawExpressionInfix'));
+  },
+
   componentGuid: computed(function guid() {
     return guidFor(this);
   }),
@@ -83,8 +97,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   expressionRpn: reads('qosItem.expressionRpn'),
-
-  rawExpressionInfix: computedPipe('expressionRpn', qosRpnToInfix),
 
   /**
    * @type {ComputedProperty<String>}
@@ -116,10 +128,16 @@ export default Component.extend(I18n, {
    */
   qosSourceFileId: reads('qosSourceFile.entityId'),
 
+  statusId: reads('statusForFile'),
+
+  rawExpressionInfix: computedPipe('expressionRpn', qosRpnToInfix),
+
+  statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
+
   qosSourceFilePathProxy: promise.object(computed(
     'qosSourceFile.{name,parent}',
-    function qosSourceFilePathProxy() {
-      return resolveFilePath(this.get('qosSourceFile'))
+    async function qosSourceFilePathProxy() {
+      return await resolveFilePath(this.get('qosSourceFile'))
         .then(path => stringifyFilePath(path));
     }
   )),
@@ -132,9 +150,21 @@ export default Component.extend(I18n, {
     return getDataUrl({ fileId: null, selected: [qosSourceFileId] });
   }),
 
-  statusId: reads('statusForFile'),
+  rawExpressionInfixObserver: observer(
+    'rawExpressionInfix',
+    function rawExpressionInfixObserver() {
+      console.log('FIXME: raw expression infix observer');
+      this.updateQosEvaluationProxy({ replace: true });
+    }
+  ),
 
-  statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
+  init() {
+    this._super(...arguments);
+    console.log('FIXME: qos-entry init');
+    this.addObserver('qosItem', () => {
+      console.log('FIXME: qos item changed');
+    });
+  },
 
   actions: {
     confirmRemove() {
@@ -148,6 +178,7 @@ export default Component.extend(I18n, {
       this.get('closeModal')();
       event.stopPropagation();
     },
+    // FIXME: apply to viewer or remove
     expressionCopied(success) {
       if (success) {
         const classes = ['animated', 'pulse-mint'];

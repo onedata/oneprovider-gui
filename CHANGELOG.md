@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6802 Added graphical QoS expression editor
 * VFS-6745 Updated common libs
 * VFS-7011 Fixed error when saving file permissions due to API changes
 * VFS-6967 Fixed not visible JSON and RDF metadata editors in Safari

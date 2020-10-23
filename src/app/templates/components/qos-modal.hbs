@@ -11,7 +11,10 @@
     <h1>
       <span>
         {{tt this
-          (concat (if isAddMode "headerAdd" "headerShow") (if media.isMobile "Mobile" ""))
+          (concat (if isAddMode
+            (if media.isMobile "headerAddMobile" "headerAdd")
+            "headerShow"
+          ))
         }}
       </span>
       {{#if isAddMode}}
@@ -101,6 +104,7 @@
     {{#if isAddMode}}
       {{qos-modal/qos-add
         spaceId=spaceId
+        evaluateQosExpression=(action "evaluateQosExpression")
         update=(action "changeNewEntry")
       }}
     {{else}}
@@ -111,6 +115,7 @@
               {{qos-modal/file-entry
                 listItem=listItem
                 fileItem=fileItem
+                evaluateQosExpression=(action "evaluateQosExpression")
                 removeQosRequirement=(action "removeQosRequirement")
                 getDataUrl=(action "getDataUrl")
                 closeModal=(action "onHide")
@@ -122,6 +127,7 @@
         {{qos-modal/file-qos-summary
           file=fileItems.firstObject.file
           qosItemsProxy=fileItems.firstObject.qosItemsProxy
+          evaluateQosExpression=(action "evaluateQosExpression")
           removeQosRequirement=(action "removeQosRequirement")
           getDataUrl=(action "getDataUrl")
           closeModal=(action "onHide")

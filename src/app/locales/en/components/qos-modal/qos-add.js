@@ -8,6 +8,10 @@ const translations = {
   },
   insertCondition: 'Insert condition...',
   fetchingSuggestions: 'fetching QoS parameters suggestions',
+  validatingQosExpression: 'validating QoS expression',
+  copyExpression: 'Copy expression',
+  enterText: 'enter as text',
+  enterQosExpression: 'Enter QoS expression...',
 };
 
 export default _.merge({}, translations, common);

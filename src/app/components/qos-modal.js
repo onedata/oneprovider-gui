@@ -13,7 +13,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { get, observer, computed } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
-import { conditional, raw, equal, array, and, getBy } from 'ember-awesome-macros';
+import { conditional, raw, equal, and, getBy, array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled, allSettled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -34,11 +34,18 @@ export default Component.extend(I18n, {
   fileManager: service(),
   globalNotify: service(),
   i18n: service(),
+  spaceManager: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.qosModal',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  spaceId: undefined,
 
   /**
    * @virtual
@@ -93,6 +100,7 @@ export default Component.extend(I18n, {
    * One of: show (show list of QoS requirements for file), add (form)
    * @type {String}
    */
+  // FIXME: development value
   mode: 'show',
 
   /**
@@ -123,7 +131,7 @@ export default Component.extend(I18n, {
   fileType: reads('file.type'),
 
   /**
-   * @type {Object}
+   * @type {Array<String>}
    */
   filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
 
@@ -176,6 +184,9 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.initUpdater();
+    this.addObserver('qosItemsProxy', () => {
+      console.log('FIXME: qosItems updated');
+    });
   },
 
   willDestroyElement() {
@@ -189,6 +200,14 @@ export default Component.extend(I18n, {
     }
   },
 
+  evaluateQosExpression(expression) {
+    const {
+      spaceManager,
+      spaceId,
+    } = this.getProperties('spaceManager', 'spaceId');
+    return spaceManager.evaluateQosExpression(spaceId, expression);
+  },
+
   initUpdater() {
     const updater = Looper.create({
       immediate: true,
@@ -200,16 +219,14 @@ export default Component.extend(I18n, {
     this.configureUpdater();
   },
 
-  updateData(replace) {
-    return allFulfilled(this.get('fileItems').map(fileItem => {
-      return fileItem.updateQosRecordsProxy({ replace, fetchArgs: [replace] })
-        .then(() => fileItem.updateQosItemsProxy({ replace }))
-        // file reload needed for hasQos change
-        .then(() => get(fileItem, 'file').reload())
-        .catch(() => {
-          safeExec(this, 'set', 'updater.interval', null);
-        });
-    }));
+  async updateData(replace = false) {
+    const fileItems = this.get('fileItems');
+    try {
+      await allFulfilled(fileItems.invoke('updateQosItemsProxy', { replace }));
+      await allFulfilled(fileItems.mapBy('file').invoke('reload'));
+    } catch (error) {
+      safeExec(this, 'set', 'updater.interval', null);
+    }
   },
 
   addEntry({ replicasNumber, expressionInfix }) {
@@ -279,6 +296,9 @@ export default Component.extend(I18n, {
     },
     getDataUrl() {
       return this.get('getDataUrl')(...arguments);
+    },
+    evaluateQosExpression(expression) {
+      return this.evaluateQosExpression(expression);
     },
   },
 });

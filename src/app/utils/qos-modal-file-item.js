@@ -12,10 +12,10 @@ import EmberObject, { get, set, computed } from '@ember/object';
 import { all as allFulfilled } from 'rsvp';
 import QosItem from 'oneprovider-gui/utils/qos-item';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import _ from 'lodash';
 
 const objectMixins = [
   createDataProxyMixin('fileQosSummary'),
-  createDataProxyMixin('qosRecords'),
   createDataProxyMixin('qosItems'),
 ];
 
@@ -43,45 +43,61 @@ export default EmberObject.extend(...objectMixins, {
   /**
    * @override
    */
-  fetchQosRecords(replace) {
-    // NOTE: not need to update qos records separately
-    // in this modal, because their fulfilled property
-    // is not used (using per-file map in fileQosSummary)
-    return this.updateFileQosSummaryProxy({ replace }).then(fileQosSummary =>
-      fileQosSummary.updateQosRecordsProxy({ replace: true })
-    );
-  },
-
-  /**
-   * @override
-   */
-  fetchQosItems() {
+  async fetchQosItems() {
     const {
       file,
       qosItemsCache,
     } = this.getProperties('file', 'qosItemsCache');
-    return this.updateQosRecordsProxy({ replace: true, fetchArgs: [true] })
-      .then(qosRecords => {
-        // summary should be fresh after qos records update
-        const fileQosSummary = this.get('fileQosSummary');
-        return allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile => {
-          const qosId = get(qos, 'entityId');
-          if (qosItemsCache.has(qosId)) {
-            const qosItem = qosItemsCache.get(qosId);
-            set(qosItem, 'fileQosSummary', fileQosSummary);
-            return qosItem;
-          } else {
-            const qosItem = QosItem.create({
-              modalFileId: get(file, 'entityId'),
-              qosSourceFile,
-              fileQosSummary,
-              qos,
-            });
-            qosItemsCache.set(qosId, qosItem);
-            return qosItem;
-          }
-        })));
-      });
+    const modalFileId = get(file, 'entityId');
+
+    const fileQosSummary = await this.updateFileQosSummaryProxy({ replace: true });
+    const qosRequirements = await fileQosSummary.updateQosRecordsProxy({ replace: true });
+    // const qosRequirements = await fileQosSummary.getQosRecordsProxy();
+    const sourceFiles = await allFulfilled(qosRequirements.mapBy('file'));
+
+    return _.zip(qosRequirements, sourceFiles).map(([qos, qosSourceFile]) => {
+      const qosId = get(qos, 'entityId');
+      if (qosItemsCache.has(qosId)) {
+        const qosItem = qosItemsCache.get(qosId);
+        // FIXME: every qosItem has the same summary, so compare only one
+        if (!qosSummariesEqual(get(qosItem, 'fileQosSummary'), fileQosSummary)) {
+          set(qosItem, 'fileQosSummary', fileQosSummary);
+        }
+        return qosItem;
+      } else {
+        const qosItem = QosItem.create({
+          modalFileId,
+          qosSourceFile,
+          fileQosSummary,
+          qos,
+        });
+        qosItemsCache.set(qosId, qosItem);
+        return qosItem;
+      }
+    });
+
+    // return this.updateQosRecordsProxy({ replace: true, fetchArgs: [true] })
+    //   .then(qosRecords => {
+    //     // summary should be fresh after qos records update
+    //     const fileQosSummary = this.get('fileQosSummary');
+    //     return allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile => {
+    //       const qosId = get(qos, 'entityId');
+    //       if (qosItemsCache.has(qosId)) {
+    //         const qosItem = qosItemsCache.get(qosId);
+    //         set(qosItem, 'fileQosSummary', fileQosSummary);
+    //         return qosItem;
+    //       } else {
+    //         const qosItem = QosItem.create({
+    //           modalFileId: get(file, 'entityId'),
+    //           qosSourceFile,
+    //           fileQosSummary,
+    //           qos,
+    //         });
+    //         qosItemsCache.set(qosId, qosItem);
+    //         return qosItem;
+    //       }
+    //     })));
+    //   });
   },
 
   fileQosStatus: computed(
@@ -114,3 +130,8 @@ export default EmberObject.extend(...objectMixins, {
     this.set('qosItemsCache', new Map());
   },
 });
+
+function qosSummariesEqual(a, b) {
+  return get(a, 'status') === get(b, 'status') &&
+    _.isEqual(get(a, 'requirements'), get(b, 'requirements'));
+}

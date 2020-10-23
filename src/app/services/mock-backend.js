@@ -239,16 +239,36 @@ export default Service.extend({
       }),
       status: 'fulfilled',
       replicasNum: 1,
-      expressionRpn: ['anyStorage', 'size', 10, '=', '\\'],
+      expressionRpn: ['anyStorage', 'anyStorage', '\\'],
       file: get(entityRecords, 'chainDir')[1],
       // uncomment here for short inherited path
       // file: get(entityRecords, 'rootDir')[0],
     }).save();
-    return allFulfilled([qos1Promise, qos2Promise]).then(([qos1, qos2]) => {
+    const qos3Promise = store.createRecord('qosRequirement', {
+      id: gri({
+        entityType: qosEntityType,
+        entityId: 'q3',
+        aspect: 'instance',
+      }),
+      status: 'fulfilled',
+      replicasNum: 2,
+      expressionRpn: ['anyStorage'],
+      file: get(entityRecords, 'chainDir')[1],
+    }).save();
+    return allFulfilled([
+      qos1Promise,
+      qos2Promise,
+      qos3Promise,
+    ]).then(([
+      qos1,
+      qos2,
+      qos3,
+    ]) => {
       return store.createRecord('fileQosSummary', {
         requirements: {
           [get(qos1, 'entityId')]: 'fulfilled',
           [get(qos2, 'entityId')]: 'impossible',
+          [get(qos3, 'entityId')]: 'pending',
         },
       }).save();
     }).then(fileQosSummary => {
@@ -436,27 +456,38 @@ export default Service.extend({
       );
   },
 
+  providerRecordData({ entityId, name, longitude, latitude, scope = 'private' }) {
+    return {
+      id: gri({
+        entityType: providerEntityType,
+        entityId,
+        aspect: 'instance',
+        scope,
+      }),
+      name,
+      latitude,
+      longitude,
+      online: true,
+    };
+  },
+
   createProviderRecords(store, names) {
     return allFulfilled(_.range(numberOfProviders).map((i) => {
-        const [latitude, longitude] = getCoordinates(i, numberOfProviders);
-        const entityId = (i === 0 ? mockGuiContext.clusterId : `${i}abc1`);
-        return store.createRecord('provider', {
-          id: gri({
-            entityType: providerEntityType,
-            entityId,
-            aspect: 'instance',
-            scope: 'private',
-          }),
+      const [latitude, longitude] = getCoordinates(i, numberOfProviders);
+      const entityId = (i === 0 ? mockGuiContext.clusterId : `${i}abc1`);
+      return allFulfilled(['private', 'protected'].map(scope =>
+        store.createRecord('provider', this.providerRecordData({
+          entityId,
           name: names[i],
-          latitude,
           longitude,
-          online: true,
-        }).save();
-      }))
-      .then((records) => {
-        this.set('entityRecords.provider', records);
-        return this.createFileDistribution(store).then(() => records);
-      });
+          latitude,
+          scope,
+        })).save()
+      )).then(([privateRecord /*, protectedRecord */ ]) => privateRecord);
+    })).then((records) => {
+      this.set('entityRecords.provider', records);
+      return this.createFileDistribution(store).then(() => records);
+    });
   },
 
   createHandleServiceRecords(store) {
@@ -505,7 +536,8 @@ export default Service.extend({
               `-c${String(i).padStart(4, '0')}`
             );
             const id = generateFileGri(entityId);
-            const name = `Chain directory long long long long long name ${String(i).padStart(4, '0')}`;
+            const name =
+              `Chain directory long long long long long name ${String(i).padStart(4, '0')}`;
             return store.createRecord('file', {
               id,
               name,

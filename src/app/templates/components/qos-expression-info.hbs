@@ -1,0 +1,43 @@
+<div class="storages-matching-block">
+  <div class="inline-icon-container info-icon">
+    {{one-icon
+      icon="support"
+      class="storages-matching-icon"
+    }}
+  </div>
+  {{#if (gt count 0)}}
+    <span class="storages-matching-number">{{count}}</span>
+  {{/if}}
+  {{#if matchingStoragesTranslationKey}}
+    <span class="storages-matching-text">{{tt this matchingStoragesTranslationKey}}</span>
+  {{/if}}
+  {{#if (gt count 0)}}
+    <div class="inline-icon-container storages-matching-info-icon-container">
+      {{one-icon
+        icon="sign-question-rounded"
+        class="storages-matching-info-icon clickable"
+      }}
+    </div>
+    {{#one-webui-popover
+      triggerSelector=(concat "#" elementId " .storages-matching-block .storages-matching-info-icon")
+      popoverStyle="qos-expression-info-list over-modals"
+    }}
+      <div class="storages-matching-list">
+        {{#each matchingStorages as |storage|}}
+          <div class="storages-matching-item">
+            {{one-icon icon="support" class="support-bullet"}}
+            {{#truncated-string class="storages-matching-item-text"}}
+              <span class="storages-matching-storage-name">
+                {{storage.name}}
+              </span>
+              {{tt this "providedBy"}}
+              <span class="storages-matching-provider-name">
+                {{storage.provider.name}}
+              </span>
+            {{/truncated-string}}
+          </div>
+        {{/each}}
+      </div>
+    {{/one-webui-popover}}
+  {{/if}}
+</div>

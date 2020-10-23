@@ -63,6 +63,11 @@ export default Component.extend(I18n, {
     return qosStatusIcons[this.get('fileQosStatus')];
   }),
 
+  didInsertElement() {
+    this._super(...arguments);
+    console.log('FIXME: file-entry component inserted');
+  },
+
   actions: {
     removeQosRequirement(qosRequirement) {
       return this.get('removeQosRequirement')(qosRequirement);
@@ -72,6 +77,9 @@ export default Component.extend(I18n, {
     },
     closeModal() {
       return this.get('closeModal')();
+    },
+    evaluateQosExpression(expression) {
+      return this.get('evaluateQosExpression')(expression);
     },
   },
 });

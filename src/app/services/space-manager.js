@@ -12,6 +12,7 @@ import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
+import { all as allFulfilled } from 'rsvp';
 
 /**
  * @typedef DbView
@@ -26,6 +27,7 @@ import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 export default Service.extend({
   onedataGraph: service(),
   store: service(),
+  providerManager: service(),
 
   getSpace(spaceId) {
     const requestGri = gri({
@@ -77,5 +79,47 @@ export default Service.extend({
       }),
       subscribe: false,
     }).then(({ qosParameters }) => qosParameters);
+  },
+
+  /**
+   * Validate, convert infix QoS expression to RPN and return list of matching storages
+   * @param {String} spaceId
+   * @param {String} expression
+   * @returns {Promise<Object<String, { expressionRpn: Array, matchingStorages: Array }>>} 
+   */
+  evaluateQosExpression(spaceId, expression) {
+    const providerManager = this.get('providerManager');
+    return this.get('onedataGraph').request({
+      operation: 'create',
+      gri: gri({
+        entityType: spaceEntityType,
+        entityId: spaceId,
+        aspect: 'evaluate_qos_expression',
+      }),
+      data: { expression },
+      subscribe: false,
+    }).then(({ matchingStorages, expressionRpn }) => {
+      return allFulfilled(matchingStorages.map(storage => {
+          return providerManager.getProviderById(storage.providerId)
+            .then(provider => ({
+              id: storage.id,
+              entityId: storage.id,
+              name: storage.name,
+              providerId: storage.providerId,
+              provider,
+            }));
+        }))
+        .then(storageModels => {
+          return {
+            matchingStorages: storageModels,
+            expressionRpn,
+          };
+        });
+    });
+  },
+
+  getSupportingStorages(spaceId) {
+    return this.evaluateQosExpression(spaceId, 'anyStorage')
+      .then(({ matchingStorages }) => matchingStorages);
   },
 });

@@ -1,5 +1,5 @@
 /**
- * Model to use in `qos-modal/qos-entry` that epresents a QoS requirement in context
+ * Model to use in `qos-modal/qos-entry` that represents a QoS requirement in context
  * of some file.
  * 
  * @module utils/qos-item
@@ -36,7 +36,6 @@ export default EmberObject.extend({
   fileQosSummary: undefined,
 
   entityId: reads('qos.entityId'),
-  status: reads('qos.status'),
   replicasNum: reads('qos.replicasNum'),
   expressionRpn: reads('qos.expressionRpn'),
 

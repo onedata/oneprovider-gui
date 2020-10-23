@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { qosRpnToObject } from 'oneprovider-gui/utils/qos-expression-converters';
+import qosRpnToQueryBlock from 'oneprovider-gui/utils/qos-rpn-to-query-block';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 
 export default Component.extend({
@@ -18,13 +18,13 @@ export default Component.extend({
    * @virtual
    * @type {Array<String>}
    * RPN representation of QoS expression, eg.
-   * `["storage=sda", "speed=40", "|", "-"]`
+   * `["storage", "sda", "=", "speed", "40", "=", "|"]`
    */
   expressionRpn: undefined,
 
   /**
-   * @type {ComputedProperty<Object>}
-   * Root object of expression tree, one of expression part objects, see `qosRpnToObject`
+   * @type {ComputedProperty<Utils.RootOperatorQueryBlock>}
+   * Root object of expression tree, one of expression part objects
    */
-  data: computedPipe('expressionRpn', qosRpnToObject),
+  rootQueryBlock: computedPipe('expressionRpn', qosRpnToQueryBlock),
 });

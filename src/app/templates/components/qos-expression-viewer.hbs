@@ -1,3 +1,6 @@
-<ul class="tags-input readonly middle-centered">
-  {{component (concat "qos-expression-viewer/qos-" data.type) data=data}}
-</ul>
+{{query-builder
+  readonly=true
+  queryProperties=queryProperties
+  operators=(array "and" "or" "except")
+  rootQueryBlock=rootQueryBlock
+}}

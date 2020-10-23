@@ -32,6 +32,7 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/open-data-preview';
 @import 'components/open-data-editor';
 @import 'components/qos-parameters-suggestion-box';
+@import 'components/qos-expression-info';
 
 // FIXME: to move
 .content-public-share {

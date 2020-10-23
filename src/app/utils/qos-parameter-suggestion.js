@@ -8,6 +8,7 @@
  */
 
 import EmberObject from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { getBy, raw, or, and, array } from 'ember-awesome-macros';
 
 const allOperators = ['=', '<', '<=', '>=', '>'];
@@ -38,13 +39,20 @@ export default EmberObject.extend({
   numberValues: undefined,
 
   /**
-   * One of: string, number, mixed
+   * Key that should be displayed in GUI - by default is the same as key,
+   * but in some cases a special key should be used
+   * @type {ComputedProperty<String>|String}
+   */
+  displayedKey: reads('key'),
+
+  /**
+   * One of: stringOptions, numberOptions, mixedOptions
    * @type {ComputedProperty<string>}
    */
   type: or(
-    and('stringValues.length', 'numberValues.length', raw('mixed')),
-    and('numberValues.length', raw('number')),
-    raw('string'),
+    and('stringValues.length', 'numberValues.length', raw('mixedOptions')),
+    and('numberValues.length', raw('numberOptions')),
+    raw('stringOptions'),
   ),
 
   /**

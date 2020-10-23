@@ -1,0 +1,31 @@
+.qos-expression-info {
+  .storages-matching-info-icon-container {
+    margin-left: 0.2em;
+  }
+  .storages-matching-info-icon {
+    font-size: 1.2em;
+  }
+}
+
+.webui-popover-qos-expression-info-list {
+  .storages-matching-storage-name, .storages-matching-provider-name {
+    @include font-semibold;
+  }
+  .storages-matching-item-text {
+    display: inline-block;
+  }
+  .one-icon.support-bullet {
+    font-size: 1.8em;
+    margin-right: 0.2em;
+  }
+  .storages-matching-list {
+    padding-right: 0.6em;
+  }
+  .storages-matching-item {
+    display: flex;
+    align-items: center;
+    padding-bottom: 0.2em;
+    max-width: 400px;
+    white-space: nowrap;
+  }
+}
