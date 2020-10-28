@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6829 Handling Base64-encoded RDF metadata (if it was set using Python xattrs)
 * VFS-6925 Fixed scrolling down file list on Firefox on HiDPI screens
 * VFS-6851 Fixed a security issue in share GUI
 * VFS-6747 Improved layout of statuses and actions in the data distribution modal
