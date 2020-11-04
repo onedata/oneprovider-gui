@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6967 Fixed not visible JSON and RDF metadata editors in Safari
 * VFS-6925 Fixed scrolling down file list on Firefox on HiDPI screens
 * VFS-6851 Fixed a security issue in share GUI
 * VFS-6746 Added available QoS parameters suggestion box
