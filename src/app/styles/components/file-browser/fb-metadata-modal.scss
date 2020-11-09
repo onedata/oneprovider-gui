@@ -1,15 +1,15 @@
 .fb-metadata-modal {
   .bs-tab {
+    $nav-tabs-height: 44px;
+    .nav-tabs {
+      height: $nav-tabs-height;
+    }
     &.full-height {
-      display: flex;
-      flex-direction: column;
-      
       // because of a strange bug with perfect scroll
       height: calc(100% - 2px);
-      
-      .tab-content-metadata {
-        flex-grow: 1;
-      }
+    }
+    .tab-content-metadata {
+      height: calc(100% - #{$nav-tabs-height});
     }
   }
   .form-group.form-group-ace-editor {
