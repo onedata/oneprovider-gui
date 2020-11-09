@@ -1,22 +1,22 @@
 const disabledActionSingleOneprovider =
   ' is available only with two or more supporting providers.';
 const dirsDontHaveDistributionTip =
-  'Data distribution for directories is not available.';
+  'Data distribution summary for directories is not available, though data transfers can be triggered.';
 
 export default {
   header: 'Data distribution',
   summary: 'Summary',
   details: 'Details',
-  selectedItems: 'Selected items:',
   files: 'files',
   file: 'file',
-  directories: 'directories',
-  directory: 'directory',
   close: 'Close',
   onlySingleOneproviderSupport: 'Current space is supported by only one Oneprovider, thus advanced data replication or migration features are not available.',
   startingMigration: 'starting migration',
   startingReplication: 'starting replication',
   startingEviction: 'starting eviction',
+  filesBatchDescription: 'Summarized data distribution of {{filesNumber}} {{fileNoun}} ({{filesSize}})',
+  filesAndDirectioriesBatchDescriptionSuffix: ' - directories are omitted.',
+  onlyDirectoriesDescription: dirsDontHaveDistributionTip,
   chunksVisualizer: {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',
@@ -24,8 +24,6 @@ export default {
     dirsDontHaveDistributionTip,
   },
   oneprovidersDistribution: {
-    summarizedFilesDistribution: 'Summarized data distribution of selected files (directories are omitted):',
-    dirsDontHaveDistributionTip,
     file: 'file',
     dir: 'directory',
     currentlyTransferredText: 'This {{elementType}} is currently transferred between Oneproviders',
@@ -39,9 +37,12 @@ export default {
     cannotLoadTransfers: 'Cannot load transfers',
   },
   oneprovidersDistributionItem: {
-    replicationInProgress: 'The data is currently replicated to selected Oneprovider.',
-    migrationInProgress: 'The data is currently migrated from selected Oneprovider.',
-    evictionInProgress: 'The data is currently evicted in selected Oneprovider.',
+    replicationInProgress: 'The data is being replicated to this Oneprovider.',
+    noReplicationInProgress: 'There is no data replication to this Oneprovider at the moment.',
+    migrationInProgress: 'The data is being migrated from this Oneprovider.',
+    noMigrationInProgress: 'There is no data migration from this Oneprovider at the moment.',
+    evictionInProgress: 'The data is being evicted in this Oneprovider.',
+    noEvictionInProgress: 'There is no data eviction from this Oneprovider at the moment.',
     replicateHere: 'Replicate here',
     migrate: 'Migrate...',
     evict: 'Evict',

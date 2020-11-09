@@ -111,6 +111,11 @@ export default Component.extend(I18n, {
   chunksRange: 320,
 
   /**
+   * @type {String}
+   */
+  statusIconActiveClasses: 'in-progress animated infinite semi-hinge',
+
+  /**
    * `fileDistributionData` narrowed to files only
    * @type {Array<Utils.FileDistributionDataContainer>}
    */
@@ -521,7 +526,7 @@ export default Component.extend(I18n, {
       } = getProperties(this.get('replicateHereActionState'), 'enabled', 'tooltip');
 
       return {
-        icon: 'replicate',
+        icon: 'data-receive',
         title: this.t('replicateHere'),
         tip: tooltip,
         tipPlacement: 'left',
@@ -543,7 +548,7 @@ export default Component.extend(I18n, {
         tooltip,
       } = getProperties(this.get('migrateActionState'), 'enabled', 'tooltip');
       return {
-        icon: 'migrate',
+        icon: 'data-send',
         title: this.t('migrate'),
         tip: tooltip,
         tipPlacement: 'left',
@@ -566,7 +571,7 @@ export default Component.extend(I18n, {
       } = getProperties(this.get('evictActionState'), 'enabled', 'tooltip');
 
       return {
-        icon: 'invalidate',
+        icon: 'x',
         title: this.t('evict'),
         tip: tooltip,
         tipPlacement: 'left',
