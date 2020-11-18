@@ -77,7 +77,8 @@ export default Component.extend(
     isSaving: false,
 
     /**
-     * @type {boolean}
+     * Array of changed permission types. May contain: 'posix', 'acl' or both of them
+     * @type {ComputedProperty<Array<String>>}
      */
     editedPermissionsTypes: computed(() => []),
 
@@ -419,7 +420,8 @@ export default Component.extend(
     },
 
     markPermissionsTypeAsEdited(permissionsType) {
-      this.set('editedPermissionsTypes',
+      this.set(
+        'editedPermissionsTypes',
         [...this.get('editedPermissionsTypes'), permissionsType].uniq()
       );
     },
