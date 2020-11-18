@@ -1,6 +1,6 @@
 /**
  * Single file or directory model.
- * 
+ *
  * @module models/file
  * @author Jakub Liput, Michał Borzęcki
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -74,7 +74,7 @@ export default Model.extend(
     mtime: attr('number'),
 
     /**
-     * One of: `posix`, `acl`
+     * One of: `posix`, `acl`. Cannot be modified
      */
     activePermissionsType: attr('string'),
 
@@ -135,7 +135,7 @@ export default Model.extend(
     /**
      * Polls file size. Will stop after `attempts` retries or when fetched size
      * will be equal `targetSize`.
-     * @param {number} attempts 
+     * @param {number} attempts
      * @param {number} interval time in milliseconds
      * @param {number} [targetSize=undefined]
      * @returns {undefined}
@@ -180,7 +180,7 @@ export default Model.extend(
       case 'create':
       case 'delete': {
         const graphRequests = get(activeRequests, 'graphRequests');
-        // Block on listing parent dir files 
+        // Block on listing parent dir files
         const listParentDirRequests = graphRequests.filter(request => {
           const {
             operation: requestOperation,
