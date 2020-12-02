@@ -7,6 +7,10 @@ CHANGELOG
 ### Latest changes
 
 * VFS-6745 Updated common libs
+* VFS-7011 Fixed error when saving file permissions due to API changes
+* VFS-6967 Fixed not visible JSON and RDF metadata editors in Safari
+* VFS-6829 Handling Base64-encoded RDF metadata (if it was set using Python xattrs)
+* VFS-6925 Fixed scrolling down file list on Firefox on HiDPI screens
 * VFS-6851 Fixed a security issue in share GUI
 * VFS-6747 Improved layout of statuses and actions in the data distribution modal
 * VFS-6746 Added available QoS parameters suggestion box

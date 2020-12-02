@@ -1,7 +1,7 @@
 /**
  * Posix permissions editor, that includes permissions rwx-rwx-rwx
  * representation, octal format and detailed checkboxes overview.
- * 
+ *
  * @module components/posix-permissions-editor
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -45,12 +45,6 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   onSave: notImplementedIgnore,
-
-  /**
-   * @type {boolean}
-   * @virtual
-   */
-  previewMode: false,
 
   /**
    * Posix permissions visible to user (with modifications)
@@ -119,9 +113,9 @@ export default Component.extend(I18n, {
 
   actions: {
     octalChanged(newOctal) {
-      newOctal = newOctal.trim();
-      if (octalRegex.test(newOctal)) {
-        this.get('permissions').fromOctalRepresentation(newOctal);
+      const trimmedNewOctal = newOctal.trim();
+      if (octalRegex.test(trimmedNewOctal)) {
+        this.get('permissions').fromOctalRepresentation(trimmedNewOctal);
         this.set('isOctalInputValid', true);
       } else {
         this.set('isOctalInputValid', false);

@@ -9,6 +9,9 @@
 
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import FbMetadataEditorBase from 'oneprovider-gui/components/file-browser/-fb-metadata-ace-editor-base';
+import { conditional, eq, raw } from 'ember-awesome-macros';
+import { computed } from '@ember/object';
+import { emptyValue } from 'oneprovider-gui/components/file-browser/fb-metadata-modal';
 
 export default FbMetadataEditorBase.extend(I18n, {
   classNames: ['fb-metadata-rdf'],
@@ -17,4 +20,24 @@ export default FbMetadataEditorBase.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileBrowser.fbMetadataRdf',
+
+  /**
+   * @override
+   */
+  metadataForEditor: conditional(
+    eq('metadata', raw(emptyValue)),
+    raw(''),
+    computed('metadata', function metadataForEditor() {
+      const metadata = this.get('metadata');
+      if (metadata && typeof metadata === 'object') {
+        if (metadata.onedata_base64) {
+          return atob(metadata.onedata_base64);
+        } else {
+          return '';
+        }
+      } else {
+        return metadata;
+      }
+    }),
+  ),
 });
