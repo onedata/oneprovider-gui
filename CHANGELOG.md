@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6745 Updated common libs
 * VFS-7011 Fixed error when saving file permissions due to API changes
 * VFS-6967 Fixed not visible JSON and RDF metadata editors in Safari
 * VFS-6829 Handling Base64-encoded RDF metadata (if it was set using Python xattrs)
