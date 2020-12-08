@@ -12,6 +12,11 @@ export default {
       startButton: 'Create description',
     },
   },
+  paneFiles: {
+    fileDeleted: {
+      title: 'Shared files have been deleted',
+    },
+  },
   paneOpendata: {
     publishWelcome: {
       title: 'Publish as Open Data',

@@ -34,6 +34,12 @@ export default Component.extend(I18n, {
    */
   showShareList: notImplementedThrow,
 
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  shareRootDeleted: false,
+
   _window: window,
 
   publishModalOpened: false,

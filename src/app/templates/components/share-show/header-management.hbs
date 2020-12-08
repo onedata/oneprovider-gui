@@ -3,16 +3,20 @@
     {{tt this "path"}}
   </div>
   <div class="col-value">
-    {{#promise-proxy-container proxy=share.privateRootFile sizeClass="xs"}}
-      <div class="fb-breadcrumbs-container">
-        {{file-browser/fb-breadcrumbs
-          dir=share.privateRootFile.content
-          previewMode=true
-          rootIcon="space"
-          changeDir=(action "openSpaceDir")
-        }}
-      </div>
-    {{/promise-proxy-container}}
+    {{#if shareRootDeleted}}
+      <em class="root-file-deleted">{{tt this "pathForDeletedRootFile"}}</em>
+    {{else}}
+      {{#promise-proxy-container proxy=share.privateRootFile sizeClass="xs"}}
+        <div class="fb-breadcrumbs-container">
+          {{file-browser/fb-breadcrumbs
+            dir=share.privateRootFile.content
+            previewMode=true
+            rootIcon="space"
+            changeDir=(action "openSpaceDir")
+          }}
+        </div>
+      {{/promise-proxy-container}}
+    {{/if}}
   </div>
   <div class="col-menu">
     {{one-menu-toggle

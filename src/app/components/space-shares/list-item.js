@@ -1,6 +1,6 @@
 /**
  * Single share of space on list
- * 
+ *
  * @module components/space-shares/list-item
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -15,6 +15,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   globalNotify: service(),
@@ -35,6 +36,12 @@ export default Component.extend(I18n, {
    * @type {Models.Share}
    */
   share: undefined,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  pointsToDeletedFile: false,
 
   /**
    * @virtual
@@ -118,10 +125,26 @@ export default Component.extend(I18n, {
 
   triggerSelector: tag `.${'triggerClass'}`,
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   icon: conditional(
-    eq('share.fileType', raw('file')),
-    raw('browser-file'),
-    raw('browser-directory')
+    'pointsToDeletedFile',
+    raw('x'),
+    conditional(
+      eq('share.fileType', raw('file')),
+      raw('browser-file'),
+      raw('browser-directory')
+    )
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  iconTip: conditional(
+    'pointsToDeletedFile',
+    computedT('deletedIconTip'),
+    raw(undefined)
   ),
 
   actions: {

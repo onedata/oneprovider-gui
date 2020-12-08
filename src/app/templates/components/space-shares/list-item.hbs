@@ -4,15 +4,18 @@
       {{#truncated-string}}
         <span class="item-icon-container">
           {{one-icon class="item-icon" icon=icon}}
+          {{#if iconTip}}
+            {{one-tooltip title=iconTip}}
+          {{/if}}
         </span>
         {{name-conflict tagName="span" item=share tagName="span" class="one-label share-name-header"}}
       {{/truncated-string}}
-      
+
       {{one-menu-toggle
         class=(concat-classes triggerClass "share-menu-trigger")
         click=(disable-bubbling (action "toggleActions"))
       }}
-      
+
       {{#render-later triggerRender=actionsOpened}}
         {{#one-webui-popover
           class="transfer-actions"
