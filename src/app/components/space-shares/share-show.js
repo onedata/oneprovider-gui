@@ -15,7 +15,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { conditional, raw, or } from 'ember-awesome-macros';
+import { conditional, raw, or, and, not } from 'ember-awesome-macros';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
 export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), {
@@ -106,7 +106,11 @@ export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), 
   /**
    * @type {ComputedProperty<Array<String>>}
    */
-  disabledTabs: conditional('shareRootDeleted', raw(['opendata']), raw([])),
+  disabledTabs: conditional(
+    and('shareRootDeleted', not('hasHandle')),
+    raw(['opendata']),
+    raw([])
+  ),
 
   // tabIds: conditional('publicMode',
   //   conditional('hasHandle', ''),
@@ -165,9 +169,9 @@ export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), 
    * @override
    */
   fetchShareRootDeleted() {
-    return this.get('share').getRelation('rootFile').then(() => false).catch(error =>
-      get(error || {}, 'details.errno') === 'enoent'
-    );
+    return this.get('share').getRelation('rootFile')
+      .then(() => false)
+      .catch(error => get(error || {}, 'details.errno') === 'enoent');
   },
 
   actions: {

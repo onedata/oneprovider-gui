@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7058 Added a detached shares cleanup during a files deletion using GUI
 * VFS-6745 Updated common libs
 * VFS-7011 Fixed error when saving file permissions due to API changes
 * VFS-6967 Fixed not visible JSON and RDF metadata editors in Safari

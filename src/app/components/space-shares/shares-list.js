@@ -72,7 +72,7 @@ export default Component.extend(createDataProxyMixin('sharesWithDeletedFiles'), 
   fetchSharesWithDeletedFiles() {
     return this.get('sharesProxy')
       .then(shares => allFulfilled(
-        shares.map(share => get(share, 'rootFile')
+        shares.map(share => share.getRelation('rootFile')
           .then(() => null)
           .catch(error => get(error || {}, 'details.errno') === 'enoent' ? share : null)
         )))
