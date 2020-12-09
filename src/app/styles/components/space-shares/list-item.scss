@@ -1,4 +1,8 @@
 .space-share-list-item {
+  .one-icon-tag-icon {
+    color: $color-one-danger;
+  }
+
   .share-menu-trigger {
     @include vertical-align-middle;
     padding-right: 0;

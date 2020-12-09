@@ -3,7 +3,12 @@
     <div class="list-header-content">
       {{#truncated-string}}
         <span class="item-icon-container">
-          {{one-icon class="item-icon" icon=icon}}
+          {{one-icon-tagged
+            icon=icon
+            class="item-icon tag-right"
+            tagIcon=(if pointsToDeletedFile "x")
+            shadowType=(if pointsToDeletedFile "circle" "none")
+          }}
           {{#if iconTip}}
             {{one-tooltip title=iconTip}}
           {{/if}}
