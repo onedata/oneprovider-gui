@@ -26,6 +26,11 @@
       margin-left: 8px;
     }
   }
+
+  .shares-info {
+    margin-top: 20px;
+    @include font-semibold;
+  }
 }
 
 .fb-remove-modal-file-toolip {
