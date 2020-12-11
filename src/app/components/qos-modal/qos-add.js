@@ -120,8 +120,16 @@ export default Component.extend(...mixins, {
   qosEvaluationProxy: promise.object(computed(
     'evaluateQosExpression',
     'expressionInfix',
-    function qosEvaluationProxy() {
-      return this.get('evaluateQosExpression')(this.get('expressionInfix'));
+    async function qosEvaluationProxy() {
+      const {
+        evaluateQosExpression,
+        expressionInfix,
+      } = this.getProperties('evaluateQosExpression', 'expressionInfix');
+      if (expressionInfix) {
+        return await evaluateQosExpression(expressionInfix);
+      } else {
+        return null;
+      }
     }
   )),
 

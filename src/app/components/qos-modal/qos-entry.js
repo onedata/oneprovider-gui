@@ -178,24 +178,5 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
       this.get('closeModal')();
       event.stopPropagation();
     },
-    // FIXME: apply to viewer or remove
-    expressionCopied(success) {
-      if (success) {
-        const classes = ['animated', 'pulse-mint'];
-        const className = classes.join(' ');
-        const $element = $('.qos-info-row-expression .qos-expression-viewer');
-        if (classes.every(cls => $element.hasClass(cls))) {
-          cancel(this.get('copyAnimationEndTimer'));
-          $element.removeClass(className);
-          next(() => $element.addClass(className));
-        } else {
-          $element.addClass(className);
-        }
-        this.set(
-          'copyAnimationEndTimer',
-          later(this, () => $element.removeClass(className), 1000)
-        );
-      }
-    },
   },
 });

@@ -8,7 +8,7 @@
     </div>
     {{errorMessage}}
   </div>
-{{else}}
+{{else if qosEvaluationProxy}}
   {{#loading-container
     isLoading=qosEvaluationProxy.isPending
     centered=false
@@ -18,4 +18,6 @@
       matchingStorages=qosEvaluationProxy.matchingStorages
     }}
   {{/loading-container}}
+{{else}}
+  {{qos-expression-info count=0}}
 {{/if}}

@@ -100,7 +100,7 @@ export default Component.extend(I18n, {
    * One of: show (show list of QoS requirements for file), add (form)
    * @type {String}
    */
-  // FIXME: development value
+  // FIXME: development value - change to 'show' before merge
   mode: 'show',
 
   /**

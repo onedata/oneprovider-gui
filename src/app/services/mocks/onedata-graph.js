@@ -206,8 +206,12 @@ const spaceHandlers = {
       };
     } else if (!expression) {
       return {
-        expressionRpn: [],
-        matchingStorages: [],
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'expression cannot be empty' },
+        },
+        data: {},
       };
     } else {
       const allProviders = this.get('mockBackend.entityRecords.provider');

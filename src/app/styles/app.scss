@@ -34,13 +34,13 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/qos-parameters-suggestion-box';
 @import 'components/qos-expression-info';
 
-// FIXME: to move
+// TODO: VFS-6566 to move
 .content-public-share {
   margin-top: -12px;
   margin-bottom: -30px;
 }
 
-// FIXME: copied from space-transfers - make it global
+// TODO: VFS-6566 copied from space-transfers - make it global
 .tab-icon {
   @include vertical-align-middle();
   left: 8px;
