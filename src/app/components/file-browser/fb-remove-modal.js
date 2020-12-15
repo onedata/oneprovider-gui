@@ -240,11 +240,13 @@ export default Component.extend(I18n, {
           i18n,
           operationErrorKey: `${i18nPrefix}.deleting`,
         }, (file) => {
-          let promise = resolve();
+          let promise;
           if (shouldRemoveShares) {
-            promise = promise.then(() => get(file, 'shareRecords').then(shares =>
+            promise = get(file, 'shareRecords').then(shares =>
               allFulfilled(shares.map(share => share.destroyRecord()))
-            ));
+            );
+          } else {
+            promise = resolve();
           }
           return promise.then(() => file.destroyRecord())
             .finally(() =>

@@ -15,13 +15,13 @@ export default {
   paneFiles: {
     fileDeleted: {
       title: 'Shared files have been deleted',
-      content: 'This share points to a file/directory that is no longer there - most likely it has been deleted or moved out of the space.',
+      content: 'This share points to a file/directory that is no longer there – most likely it has been deleted or moved out of the space.',
     },
   },
   paneOpendata: {
     publishWelcome: {
       title: 'Publish as Open Data',
-      content: 'You can register this shared dataset in a handle service - it will be assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Open Data indexes via OAI PMH protocol. This process will make your dataset globally available (without an account in Onedata) and anyone will be able to search for it in the Open Data indexes. To that end, in the next step you should provide as much information as possible in the Dublin Core metadata that will be attached to this dataset.',
+      content: 'You can register this shared dataset in a handle service – it will be assigned a persistent identifier (e.g. PID or DOI) and exposed for discovery by Open Data indexes via OAI PMH protocol. This process will make your dataset globally available (without an account in Onedata) and anyone will be able to search for it in the Open Data indexes. To that end, in the next step you should provide as much information as possible in the Dublin Core metadata that will be attached to this dataset.',
       publishButton: 'Proceed',
     },
     noHandleServices: {
