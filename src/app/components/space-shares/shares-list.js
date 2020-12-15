@@ -1,6 +1,6 @@
 /**
  * List of shares for single space
- * 
+ *
  * @module components/space-shares/shares-list
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -8,10 +8,13 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import { all as allFulfilled } from 'rsvp';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { promise } from 'ember-awesome-macros';
 
-export default Component.extend({
+export default Component.extend(createDataProxyMixin('sharesWithDeletedFiles'), {
   classNames: ['shares-list'],
 
   /**
@@ -57,6 +60,24 @@ export default Component.extend({
     } = this.getProperties('getDataUrl', 'spaceId');
     return getDataUrl({ spaceId });
   }),
+
+  /**
+   * @type {ComputedProperty<PromiseObject>}
+   */
+  dataProxy: promise.object(promise.all('sharesProxy', 'sharesWithDeletedFilesProxy')),
+
+  /**
+   * @override
+   */
+  fetchSharesWithDeletedFiles() {
+    return this.get('sharesProxy')
+      .then(shares => allFulfilled(
+        shares.map(share => share.getRelation('rootFile')
+          .then(() => null)
+          .catch(error => get(error || {}, 'details.errno') === 'enoent' ? share : null)
+        )))
+      .then(shares => shares.compact());
+  },
 
   actions: {
     getShareUrl(...args) {

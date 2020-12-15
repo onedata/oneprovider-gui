@@ -1,4 +1,15 @@
 .space-share-list-item {
+  .item-icon-container {
+    .one-icon-tagged,
+    .one-icon-tagged-main {
+      line-height: 0;
+    }
+  }
+
+  .one-icon-tag-icon {
+    color: $color-one-danger;
+  }
+
   .share-menu-trigger {
     @include vertical-align-middle;
     padding-right: 0;

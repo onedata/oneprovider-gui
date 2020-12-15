@@ -10,8 +10,12 @@
   {{/modal.header}}
   {{#modal.body}}
     <div class="row row-delete-question">
-      {{tt this (concat "questionPrefix")}}
-      {{tt this (concat "questionSuffix." itemsType) count=files.length}}
+      {{tt this "questionPrefix"}}
+      {{tt this (concat "questionSuffix." itemsType) count=files.length
+      }}{{#if filesContainDirectory}}&nbsp;{{one-label-tip
+        title=(tt this "questionNestedSharesInfo")
+        icon="sign-info-rounded"
+      }}{{/if}}
     </div>
     {{#if (eq files.length 1)}}
       {{single-file-info file=firstFile}}
@@ -53,8 +57,14 @@
         {{/each}}
       </div>
     {{/if}}
+    {{#if (and canViewShares sharesToRemoveCount)}}
+      <p class="shares-info text-danger">
+        {{sharesCountInfo}}<br/>
+        {{removingSharesInfo}}
+      </p>
+    {{/if}}
   {{/modal.body}}
-  
+
   {{#modal.footer class="btn-toolbar"}}
     {{#bs-button disabled=processing onClick=(action "close") class="cancel"}}
       {{tt this "no"}}
@@ -65,6 +75,9 @@
       disabled=processing
     }}
       {{tt this "yes"}}
+      {{#if processing}}
+        ({{filesRemovedPercent}}%)
+      {{/if}}
     {{/one-spin-button}}
   {{/modal.footer}}
 {{/one-modal}}

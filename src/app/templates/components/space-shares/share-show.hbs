@@ -1,69 +1,78 @@
-<div class="row share-header-panel">
-  {{#if publicMode}}
-    {{share-show/header-public
-      shareName=share.name
-    }}
-  {{else}}
-    {{share-show/header-management
-      showShareList=(action "showShareList")
-      share=share
-      spaceId=spaceId
-      getDataUrl=(action "getDataUrl")
-    }}
-  {{/if}}
-  {{#bs-tab
-    fade=false
-    class="bs-tab bs-tab-onedata bs-tab-modern tab-share-show-mode"
-    customTabs=true
-    activeId=activeTab
-    as |tab|
-  }}
-    {{#bs-nav
-      type="tabs"
-      class="nav-tabs-share-mode"
-      as |nav|
-    }}
-      {{#each tabIds as |tabId|}}
-        {{#nav.item active=(eq tab.activeId tabId)}}
-          <a href={{concat "#" tabId}}
-            class={{concat "nav-link nav-link-metadata-type nav-link-" tabId}}
-            role="tab"
-            {{action (mut activeTab) tabId}}
-          >
-            <span class="tab-label {{get tabClasses tabId}}">
-              {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
-              <div class="one-label tab-name">
-                {{#if (and (eq tabId "opendata") (not hasHandle))}}
-                  {{tt this "tabs.publishOpenData"}}
-                {{else}}
-                  {{tt this (concat "tabs." tabId)}}
-                {{/if}}
-              </div>
-            </span>
-          </a>
-        {{/nav.item}}
-      {{/each}}
-    {{/bs-nav}}
-  {{/bs-tab}}
-</div>
-
-{{#each tabIds as |tabId|}}
-  <div
-    class="share-show-pane-container share-show-pane-container-{{tabId}} {{if (not (eq activeTab tabId)) "hidden"}}"
-  >
-    {{#render-later triggerRender=(eq activeTab tabId)}}
-      {{component (concat "share-show/pane-" tabId)
-        publicMode=publicMode
-        share=share
-        dirId=dirId
-        updateDirId=(action "updateDirId")
-        containerScrollTop=(action "containerScrollTop")
-        getDataUrl=(action "getDataUrl")
+{{#promise-proxy-container proxy=shareRootDeletedProxy}}
+  <div class="row share-header-panel">
+    {{#if publicMode}}
+      {{share-show/header-public
+        shareName=share.name
       }}
-    {{/render-later}}
+    {{else}}
+      {{share-show/header-management
+        showShareList=(action "showShareList")
+        share=share
+        spaceId=spaceId
+        getDataUrl=(action "getDataUrl")
+        shareRootDeleted=shareRootDeleted
+      }}
+    {{/if}}
+    {{#bs-tab
+      fade=false
+      class="bs-tab bs-tab-onedata bs-tab-modern tab-share-show-mode"
+      customTabs=true
+      activeId=activeTab
+      as |tab|
+    }}
+      {{#bs-nav
+        type="tabs"
+        class="nav-tabs-share-mode"
+        as |nav|
+      }}
+        {{#each tabIds as |tabId|}}
+          {{#nav.item
+            active=(eq tab.activeId tabId)
+            disabled=(contains tabId disabledTabs)
+          }}
+            <a href={{concat "#" tabId}}
+              class={{concat "nav-link nav-link-metadata-type nav-link-" tabId}}
+              role="tab"
+              {{action (mut activeTab) tabId}}
+            >
+              <span class="tab-label {{get tabClasses tabId}}">
+                {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
+                <div class="one-label tab-name">
+                  {{#if (and (eq tabId "opendata") (not hasHandle))}}
+                    {{tt this "tabs.publishOpenData"}}
+                  {{else if (and (eq tabId "files") shareRootDeleted)}}
+                    {{tt this "tabs.filesDeleted"}}
+                  {{else}}
+                    {{tt this (concat "tabs." tabId)}}
+                  {{/if}}
+                </div>
+              </span>
+            </a>
+          {{/nav.item}}
+        {{/each}}
+      {{/bs-nav}}
+    {{/bs-tab}}
   </div>
-{{/each}}
 
-{{#if publicMode}}
-  {{share-show/footer-public}}
-{{/if}}
+  {{#each tabIds as |tabId|}}
+    <div
+      class="share-show-pane-container share-show-pane-container-{{tabId}} {{if (not (eq activeTab tabId)) "hidden"}}"
+    >
+      {{#render-later triggerRender=(eq activeTab tabId)}}
+        {{component (concat "share-show/pane-" tabId)
+          publicMode=publicMode
+          share=share
+          dirId=dirId
+          updateDirId=(action "updateDirId")
+          containerScrollTop=(action "containerScrollTop")
+          getDataUrl=(action "getDataUrl")
+          shareRootDeleted=shareRootDeleted
+        }}
+      {{/render-later}}
+    </div>
+  {{/each}}
+
+  {{#if publicMode}}
+    {{share-show/footer-public}}
+  {{/if}}
+{{/promise-proxy-container}}

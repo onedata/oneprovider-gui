@@ -30,7 +30,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.shareShow',
+  i18nPrefix: 'components.shareShow.paneFiles',
 
   /**
    * @virtual
@@ -59,6 +59,12 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   getDataUrl: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  shareRootDeleted: false,
 
   fileToShowInfo: null,
 

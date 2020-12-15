@@ -64,6 +64,7 @@
       open=true
       files=filesToRemove
       parentDir=removeParentDir
+      spacePrivileges=spacePrivileges
       onHide=(action "closeRemoveModal")
     }}
   {{/if}}
@@ -92,7 +93,7 @@
       onHide=(action "closeMetadataModal")
     }}
   {{/if}}
-  
+
   {{#if filesToShowQos}}
     {{qos-modal
       open=true
