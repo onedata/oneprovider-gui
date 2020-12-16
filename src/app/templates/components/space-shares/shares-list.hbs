@@ -1,16 +1,10 @@
-{{#promise-proxy-container proxy=sharesProxy}}
-  {{#if anyShareRejected}}
-    {{resource-load-error
-      class="alert-some-shares-rejected"
-      message=(tt this "someSharesRejected")
-    }}
-  {{/if}}
-
+{{#promise-proxy-container proxy=dataProxy}}
   {{#if sharesProxy.length}}
     <div class="one-collapsible-list">
       {{#each sharesProxy.content as |share|}}
         {{space-shares/list-item
           share=share
+          pointsToDeletedFile=(contains share sharesWithDeletedFiles)
           getShareUrl=(action "getShareUrl")
           startRemoveShare=(action "startRemoveShare")
           startRenameShare=(action "startRenameShare")

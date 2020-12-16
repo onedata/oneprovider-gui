@@ -1,6 +1,6 @@
 /**
  * Container for share file browser to use in an iframe with injected properties.
- * 
+ *
  * @module component/content-share-show
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -9,15 +9,16 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { computed } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional, raw, or, and, not } from 'ember-awesome-macros';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), {
   classNames: ['share-show', 'content-file-browser'],
   classNameBindings: ['scopeClass'],
 
@@ -102,6 +103,15 @@ export default Component.extend(I18n, {
     return ids;
   }),
 
+  /**
+   * @type {ComputedProperty<Array<String>>}
+   */
+  disabledTabs: conditional(
+    and('shareRootDeleted', not('hasHandle')),
+    raw(['opendata']),
+    raw([])
+  ),
+
   // tabIds: conditional('publicMode',
   //   conditional('hasHandle', ''),
   //   conditional(
@@ -117,7 +127,11 @@ export default Component.extend(I18n, {
     description: 'browser-rename',
   }),
 
-  tabClasses: conditional('hasHandle', raw({}), raw({ opendata: 'tab-label-notice' })),
+  tabClasses: conditional(
+    or('hasHandle', 'shareRootDeleted'),
+    raw({}),
+    raw({ opendata: 'tab-label-notice' })
+  ),
 
   activeTab: undefined,
 
@@ -136,6 +150,10 @@ export default Component.extend(I18n, {
     return `share-show-${publicMode ? 'public' : 'private'}`;
   }),
 
+  shareObserver: observer('share', function shareObserver() {
+    this.updateShareRootDeletedProxy();
+  }),
+
   init() {
     this._super(...arguments);
     if (this.get('hasHandle')) {
@@ -145,6 +163,15 @@ export default Component.extend(I18n, {
     } else {
       this.set('activeTab', 'files');
     }
+  },
+
+  /**
+   * @override
+   */
+  fetchShareRootDeleted() {
+    return this.get('share').getRelation('rootFile')
+      .then(() => false)
+      .catch(error => get(error || {}, 'details.errno') === 'enoent');
   },
 
   actions: {
