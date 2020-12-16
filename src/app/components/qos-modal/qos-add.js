@@ -56,13 +56,17 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
+   * @type {OnedataGuiCommon.Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   evaluateQosExpression: notImplementedReject,
 
   replicasNumberString: '1',
-
-  replicasNumber: number('replicasNumberString'),
 
   expressionInfix: '',
 
@@ -86,6 +90,8 @@ export default Component.extend(...mixins, {
    * @type {String}
    */
   inputMode: 'visual',
+
+  replicasNumber: number('replicasNumberString'),
 
   /**
    * @type {ComputedProperty<String>}
@@ -167,63 +173,76 @@ export default Component.extend(...mixins, {
   fetchQueryProperties() {
     const {
       spaceManager,
-      providerManager,
       spaceId,
-    } = this.getProperties('spaceManager', 'providerManager', 'spaceId');
+    } = this.getProperties('spaceManager', 'spaceId');
     return spaceManager.getAvailableQosParameters(spaceId)
       .then(availableQosParameters => {
         const suggestions = createQosParametersSuggestions(availableQosParameters);
-        const promises = [];
-        suggestions.forEach(suggestion => {
-          switch (get(suggestion, 'key')) {
-            case 'storageId':
-              // FIXME: i18n
-              set(suggestion, 'displayedKey', 'storage');
-              set(suggestion, 'isSpecialKey', true);
-              promises.push(this.get('storagesProxy').then(storages => {
-                const storageIds = get(suggestion, 'allValues');
-                for (let i = 0; i < storageIds.length; ++i) {
-                  const storageId = storageIds[i];
-                  const storage = storages.findBy('id', storageId);
-                  storageIds[i] = storage;
-                }
-              }));
-              break;
-            case 'providerId': {
-              set(suggestion, 'displayedKey', 'provider');
-              set(suggestion, 'isSpecialKey', true);
-              const providerIds = get(suggestion, 'allValues');
-              for (let i = 0; i < providerIds.length; ++i) {
-                const providerId = providerIds[i];
-                const currentIndex = i;
-                promises.push(
-                  providerManager.getProviderById(providerId).then(provider => {
-                    providerIds[currentIndex] = provider;
-                  })
-                );
-              }
-            }
-            break;
-          default:
-            break;
-          }
-        });
-        return allFulfilled(promises).then(() => {
-          if (suggestions) {
-            return [...suggestions, anyStorageQueryParameter];
-          } else {
-            return [anyStorageQueryParameter];
-          }
-        });
+        return this.resolveSpecialSuggestions(suggestions);
       });
   },
 
+  /**
+   * @override
+   */
   fetchStorages() {
     const {
       spaceManager,
       spaceId,
     } = this.getProperties('spaceManager', 'spaceId');
     return spaceManager.getSupportingStorages(spaceId);
+  },
+
+  /**
+   * @param {Array<QosParameterSuggestion>} suggestions 
+   * @returns {Promise}
+   */
+  resolveSpecialSuggestions(suggestions) {
+    const providerManager = this.get('providerManager');
+    const promises = [];
+    suggestions.forEach(suggestion => {
+      switch (get(suggestion, 'key')) {
+        case 'storageId':
+          // FIXME: i18n
+          set(suggestion, 'displayedKey', 'storage');
+          set(suggestion, 'isSpecialKey', true);
+          set(suggestion, 'type', 'storage');
+          promises.push(this.get('storagesProxy').then(storages => {
+            const storageIds = get(suggestion, 'allValues');
+            for (let i = 0; i < storageIds.length; ++i) {
+              const storageId = storageIds[i];
+              const storage = storages.findBy('id', storageId);
+              storageIds[i] = storage;
+            }
+          }));
+          break;
+        case 'providerId': {
+          set(suggestion, 'displayedKey', 'provider');
+          set(suggestion, 'isSpecialKey', true);
+          set(suggestion, 'type', 'provider');
+          const providerIds = get(suggestion, 'allValues');
+          for (let i = 0; i < providerIds.length; ++i) {
+            const providerId = providerIds[i];
+            const currentIndex = i;
+            promises.push(
+              providerManager.getProviderById(providerId).then(provider => {
+                providerIds[currentIndex] = provider;
+              })
+            );
+          }
+        }
+        break;
+      default:
+        break;
+      }
+    });
+    return allFulfilled(promises).then(() => {
+      if (suggestions) {
+        return [...suggestions, anyStorageQueryParameter];
+      } else {
+        return [anyStorageQueryParameter];
+      }
+    });
   },
 
   closeForm() {
@@ -347,10 +366,9 @@ export default Component.extend(...mixins, {
 });
 
 // FIXME: i18n
-// FIXME: isSpecialKey - do not use both in type and isSpecialKey - rather "symbol" or something
 const anyStorageQueryParameter = EmberObject.create({
   key: 'anyStorage',
   displayedKey: 'any storage',
   isSpecialKey: true,
-  type: 'specialKey',
+  type: 'symbol',
 });

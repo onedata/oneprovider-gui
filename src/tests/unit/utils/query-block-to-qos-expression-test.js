@@ -103,7 +103,7 @@ describe('Unit | Utility | query block to qos expression', function () {
           ConditionQueryBlock.create({
             property: {
               key: 'anyStorage',
-              type: 'specialKey',
+              type: 'symbol',
             },
             comparator: null,
           }),

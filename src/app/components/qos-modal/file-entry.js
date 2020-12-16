@@ -14,6 +14,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
+import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
 
 export default Component.extend(I18n, {
   classNames: ['qos-modal-file-entry'],
@@ -51,6 +52,12 @@ export default Component.extend(I18n, {
   closeModal: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {OnedataGuiCommon.Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
+
+  /**
    * @type {models/file}
    */
   file: reads('fileItem.file'),
@@ -63,6 +70,16 @@ export default Component.extend(I18n, {
     return qosStatusIcons[this.get('fileQosStatus')];
   }),
 
+  init() {
+    this._super(...arguments);
+    if (!this.get('valuesBuilder')) {
+      this.set('valuesBuilder', QueryValueComponentsBuilderQos.create());
+    }
+  },
+
+  /**
+   * @override
+   */
   didInsertElement() {
     this._super(...arguments);
     console.log('FIXME: file-entry component inserted');

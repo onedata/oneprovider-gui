@@ -39,6 +39,7 @@
               {{#if (eq inputMode "visual")}}
                 {{#query-builder
                   queryProperties=queryPropertiesProxy.content
+                  valuesBuilder=valuesBuilder
                   operators=(array "and" "or" "except")
                   rootQueryBlock=rootQueryBlock
                   readonly=false

@@ -60,6 +60,7 @@ export default EmberObject.extend({
    */
   allValues: array.concat('numberValues', 'stringValues'),
 
+  // FIXME: depracated?
   /**
    * Array of operators available for value comparison for the key
    * @type {ComputedProperty<Array<String>>}

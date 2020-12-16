@@ -39,7 +39,7 @@ function expandQueryBlock(obj) {
     return ConditionQueryBlock.create({
       property: {
         key: obj.name,
-        type: 'specialKey',
+        type: 'symbol',
       },
       comparator: null,
     });

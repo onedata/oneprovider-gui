@@ -54,6 +54,12 @@ export default Component.extend(...objectMixins, {
   evaluateQosExpression: notImplementedReject,
 
   /**
+   * @virtual
+   * @type {OnedataGuiCommon.Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
+
+  /**
    * Initialized on init.
    * Stores `qosItem` objects to prevent replacing them with new versions.
    * 

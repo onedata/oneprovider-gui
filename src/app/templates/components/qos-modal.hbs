@@ -104,6 +104,7 @@
     {{#if isAddMode}}
       {{qos-modal/qos-add
         spaceId=spaceId
+        valuesBuilder=valuesBuilder
         evaluateQosExpression=(action "evaluateQosExpression")
         update=(action "changeNewEntry")
       }}
@@ -115,6 +116,7 @@
               {{qos-modal/file-entry
                 listItem=listItem
                 fileItem=fileItem
+                valuesBuilder=valuesBuilder
                 evaluateQosExpression=(action "evaluateQosExpression")
                 removeQosRequirement=(action "removeQosRequirement")
                 getDataUrl=(action "getDataUrl")
@@ -127,6 +129,7 @@
         {{qos-modal/file-qos-summary
           file=fileItems.firstObject.file
           qosItemsProxy=fileItems.firstObject.qosItemsProxy
+          valuesBuilder=valuesBuilder
           evaluateQosExpression=(action "evaluateQosExpression")
           removeQosRequirement=(action "removeQosRequirement")
           getDataUrl=(action "getDataUrl")

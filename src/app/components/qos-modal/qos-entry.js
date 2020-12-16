@@ -18,8 +18,6 @@ import { guidFor } from '@ember/object/internals';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
-import { next, later, cancel } from '@ember/runloop';
-import $ from 'jquery';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 

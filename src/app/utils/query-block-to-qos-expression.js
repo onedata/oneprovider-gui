@@ -17,6 +17,8 @@ const qosOperators = {
 };
 
 const qosComparators = {
+  'provider.is': '=',
+  'storage.is': '=',
   'string.eq': '=',
   'number.eq': '=',
   'number.lt': '<',
@@ -29,6 +31,11 @@ const qosComparators = {
   'numberOptions.lte': '<=',
   'numberOptions.gt': '>',
   'numberOptions.gte': '>=',
+  'mixedOptions.eq': '=',
+  'mixedOptions.lt': '<',
+  'mixedOptions.lte': '<=',
+  'mixedOptions.gt': '>',
+  'mixedOptions.gte': '>=',
 };
 
 export default function queryBlockToQosExpression(queryBlock, level = -1) {
@@ -63,7 +70,7 @@ export default function queryBlockToQosExpression(queryBlock, level = -1) {
       comparatorValue,
     } = getProperties(queryBlock, 'property', 'comparator', 'comparatorValue');
     const key = get(property, 'key');
-    if (get(property, 'type') === 'specialKey') {
+    if (get(property, 'type') === 'symbol') {
       return key;
     } else {
       const rawComparator = qosComparators[comparator];

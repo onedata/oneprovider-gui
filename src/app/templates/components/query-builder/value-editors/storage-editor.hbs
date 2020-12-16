@@ -1,0 +1,24 @@
+{{#power-select
+  id=guid
+  triggerClass="small comparator-value dropdown-editor-trigger storage-editor-trigger"
+  dropdownClass="small ember-basic-dropdown-content-comparator-value over-popover-over-modals dropdown-editor-options storage-editor-options"
+  options=params.values
+  selected=value
+  renderInPlace=false
+  placeholder=(tt this "dropdownPlaceholder")
+  onchange=(action onValueChange)
+  onclose=(action onFinishEdit)
+  onblur=(action "onSelectorBlur")
+  as |itemValue|
+}}
+  <div class="option-container">
+    {{query-builder/model-presenters/provider
+      tagName=""
+      itemValue=itemValue
+    }}
+    {{#truncated-string class="storage-option-provider-line small"}}
+      {{tt this "providedBy"}}
+      <span class="storage-provider">{{itemValue.provider.name}}</span>
+    {{/truncated-string}}
+  </div>
+{{/power-select}}

@@ -20,6 +20,7 @@ import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
 
 export const qosStatusIcons = {
   error: 'warning',
@@ -101,7 +102,7 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   // FIXME: development value - change to 'show' before merge
-  mode: 'show',
+  mode: 'add',
 
   /**
    * Object containing data required to create neq Models.QosRequirement
@@ -134,6 +135,10 @@ export default Component.extend(I18n, {
    * @type {Array<String>}
    */
   filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
+
+  valuesBuilder: computed(function valuesBuilder() {
+    return QueryValueComponentsBuilderQos.create();
+  }),
 
   noEditHint: computed(function noEditHint() {
     return insufficientPrivilegesMessage({

@@ -31,8 +31,8 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/single-file-info';
 @import 'components/open-data-preview';
 @import 'components/open-data-editor';
-@import 'components/qos-parameters-suggestion-box';
 @import 'components/qos-expression-info';
+@import 'components/query-builder';
 
 // TODO: VFS-6566 to move
 .content-public-share {
