@@ -1,10 +1,10 @@
 {{#listItem.header disableToggleIcon=true class=(concat-classes (concat "type-" aceType) (if hasActivePermissions 'has-active-permissions'))}}
   <span class="item-icon-container">
     {{one-icon-tagged class="item-icon" icon=icon tagIcon=(if (eq aceType "allow") "checked" "x")}}
-    {{one-tooltip title=subject.name}}
+    {{one-tooltip title=(if subject.name subject.name identifier)}}
   </span>
-  <span class="subject-name {{if subject.isSystemSubject "system-subject-name"}}">
-    {{subject.name}}
+  <span class="subject-name {{if subject.isSystemSubject "system-subject-name"}} {{if (not subject.name) "unknown-subject-name"}}">
+    {{subjectName}}
   </span>
   {{#status-toolbar class="hidden-xs" as |toolbar|}}
     {{#each statusIcons key="icon" as |status|}}

@@ -123,6 +123,17 @@ export default Component.extend(I18n, {
   subject: reads('ace.subject'),
 
   /**
+   * One of: `user`, `group`
+   * @type {string}
+   */
+  type: reads('ace.type'),
+
+  /**
+   * @type {string}
+   */
+  identifier: reads('ace.identifier'),
+
+  /**
    * One of `allow`, `deny`. Value is initialized in `init()` can be changed by
    * editor
    * @type {string}
@@ -143,7 +154,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  icon: or('subject.constructor.modelName', 'subject.equivalentType'),
+  icon: or('subject.constructor.modelName', 'subject.equivalentType', 'type'),
 
   /**
    * Mapping: permsGroupName -> { permName -> boolean }. Represents persisted
@@ -272,6 +283,13 @@ export default Component.extend(I18n, {
       class: 'remove-action',
       icon: 'remove',
     };
+  }),
+
+  subjectName: computed('subject.name', function subjectName() {
+    if (this.get('subject.name')) {
+      return this.get('subject.name');
+    }
+    return this.t('unknown');
   }),
 
   /**

@@ -323,14 +323,17 @@ export default Component.extend(
                 aceFlags,
               } = getProperties(ace, 'identifier', 'aceFlags');
               let subject;
+              let type;
               if (identifier.indexOf('@') !== -1) {
                 subject = systemSubjects.findBy('entityId', identifier);
               } else if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
                 subject = groups.findBy('entityId', identifier);
+                type = 'group';
               } else {
                 subject = users.findBy('entityId', identifier);
+                type = 'user';
               }
-              return _.assign({ subject }, ace);
+              return _.assign({ subject, type, identifier }, ace);
             })
           )
         )));
