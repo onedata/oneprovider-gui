@@ -126,7 +126,7 @@ export default Component.extend(I18n, {
    * One of: `user`, `group`
    * @type {string}
    */
-  type: reads('ace.type'),
+  subjectType: reads('ace.subjectType'),
 
   /**
    * @type {string}
@@ -154,7 +154,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  icon: or('subject.constructor.modelName', 'subject.equivalentType', 'type'),
+  icon: or('subject.constructor.modelName', 'subject.equivalentType', 'subjectType'),
 
   /**
    * Mapping: permsGroupName -> { permName -> boolean }. Represents persisted
