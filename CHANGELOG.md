@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7042 Updated common libs
 * VFS-7058 Added a detached shares cleanup during files deletion using GUI
 * VFS-6745 Updated common libs
 * VFS-7011 Fixed error when saving file permissions due to API changes
