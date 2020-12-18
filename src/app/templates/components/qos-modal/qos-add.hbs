@@ -71,7 +71,7 @@
                     {{#one-copy-button
                       copyButtonTagName="a"
                       class="clipboard-btn expression-clipboard-btn clickable"
-                      clipboardTarget=(concat "#" elementId " .clipboard-raw-value.raw-expression-infix")
+                      clipboardTarget=(concat "#" elementId " .hidden-clipboard-source.raw-expression-infix")
                     }}
                       <span class="copy-expression-text">{{tt this "copyExpression"}}</span>
                       <div
@@ -92,6 +92,6 @@
   <input
     type="text"
     value={{expressionInfix}}
-    class="clipboard-raw-value raw-expression-infix"
+    class="hidden-clipboard-source raw-expression-infix"
   >
 </div>
