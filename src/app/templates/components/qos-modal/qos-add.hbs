@@ -54,6 +54,7 @@
                 {{/query-builder}}
               {{else if (eq inputMode "text")}}
                 {{one-inline-editor
+                  class="query-text-input"
                   value=inputText
                   isEditing=true
                   onInputValueChanged=(action (mut inputText))
