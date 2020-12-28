@@ -1,5 +1,11 @@
 /**
- * Generate QoS expression string from query block object
+ * Generate QoS expression string from query block object.
+ * 
+ * Maps standard query builder operators to RUCIO operators
+ * (https://rucio.readthedocs.io/en/latest/rse_expressions.html#operators)
+ * - or -> union
+ * - and -> intersect
+ * - except -> complement
  * 
  * @module utils/query-block-to-qos-expression
  * @author Jakub Liput

@@ -164,5 +164,11 @@
       left: 0;
       transform: translateY(-50%) translateY(6px) translateX(12px);        
     }
+    .query-builder {
+      .enter-text-link {
+        flex-grow: 0;
+        padding-right: 0.2em;
+      }
+    }
   }
 }

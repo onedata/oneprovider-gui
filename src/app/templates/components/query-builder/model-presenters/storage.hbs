@@ -1,4 +1,3 @@
 {{#truncated-string class="storage-option-storage-line"}}
-  <strong class="storage-name">{{itemValue.name}}</strong>
-  <span class="storage-id comparator-item-id">{{itemValue.entityId}}</span>
+  {{name-conflict item=(hash name=itemValue.name conflictLabel=itemValue.entityId)}}
 {{/truncated-string}}

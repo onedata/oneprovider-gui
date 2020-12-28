@@ -1,7 +1,8 @@
 // can be outside .query-builder because of popovers
-.comparator-item-id {
-  $comparator-item-color: lighten($main-text-color, 5%);
-  @extend code;
-  color: $comparator-item-color;
-  background-color: rgba($comparator-item-color, 0.1);
+.storage-editor-trigger.ember-power-select-trigger {
+  .ember-power-select-selected-item {
+    .storage-option-provider-line {
+      display: none;
+    }
+  }
 }

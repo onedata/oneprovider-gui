@@ -9,16 +9,11 @@
 
 import EmberObject from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { getBy, raw, or, and, array } from 'ember-awesome-macros';
+import { raw, or, and, array } from 'ember-awesome-macros';
 
-const allOperators = ['=', '<', '<=', '>=', '>'];
-
-const operators = {
-  string: ['='],
-  number: allOperators,
-  mixed: allOperators,
-};
-
+/**
+ * @implements {QueryProperty}
+ */
 export default EmberObject.extend({
   /**
    * @virtual
@@ -59,11 +54,4 @@ export default EmberObject.extend({
    * @type {ComputedProperty<Array<String>>}
    */
   allValues: array.concat('numberValues', 'stringValues'),
-
-  // FIXME: depracated?
-  /**
-   * Array of operators available for value comparison for the key
-   * @type {ComputedProperty<Array<String>>}
-   */
-  availableOperators: getBy(raw(operators), 'type'),
 });
