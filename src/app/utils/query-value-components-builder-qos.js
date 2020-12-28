@@ -37,7 +37,7 @@ export default QueryValueComponentsBuilder.extend({
       case 'provider.is': {
         return this.createEditorObject(
           'provider-editor', {
-            values: get(queryProperty, 'allValues'),
+            values: get(queryProperty, 'allValues').sortBy('name'),
           },
           initiallyFocused
         );
@@ -45,7 +45,7 @@ export default QueryValueComponentsBuilder.extend({
       case 'storage.is': {
         return this.createEditorObject(
           'storage-editor', {
-            values: get(queryProperty, 'allValues'),
+            values: get(queryProperty, 'allValues').sortBy('name'),
           },
           initiallyFocused
         );

@@ -20,8 +20,6 @@ import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-par
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import queryBlockToQosExpression from 'oneprovider-gui/utils/query-block-to-qos-expression';
 import RootOperatorQueryBlock from 'onedata-gui-common/utils/query-builder/root-operator-query-block';
-// FIXME: debug code
-// import ConditionQueryBlock from 'onedata-gui-common/utils/query-builder/condition-query-block';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import qosRpnToQueryBlock from 'oneprovider-gui/utils/qos-rpn-to-query-block';
 import { all as allFulfilled } from 'rsvp';
@@ -147,20 +145,7 @@ export default Component.extend(...mixins, {
    * @type {Utils.QueryBuilder.RootOperatorQueryBlock}
    */
   rootQueryBlock: computed(function rootQueryBlock() {
-    // FIXME: development test
-    // const condition = ConditionQueryBlock.create({
-    //   property: {
-    //     key: 'priority',
-    //     numberValues: [1, 2, 3, 4, 5],
-    //     stringValues: [],
-    //     allValues: [1, 2, 3, 4, 5],
-    //     type: 'numberOptions',
-    //   },
-    //   comparator: 'numberOptions.eq',
-    //   comparatorValue: 2,
-    // });
     return RootOperatorQueryBlock.create({
-      // operands: [condition],
       notifyUpdate: this.onQueryUpdated.bind(this),
     });
   }),

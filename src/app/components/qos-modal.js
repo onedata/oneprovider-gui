@@ -102,7 +102,7 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   // FIXME: development value - change to 'show' before merge
-  mode: 'add',
+  mode: 'show',
 
   /**
    * Object containing data required to create neq Models.QosRequirement

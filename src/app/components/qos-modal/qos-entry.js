@@ -43,6 +43,12 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
 
   /**
    * @virtual
+   * @type {Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   getDataUrl: notImplementedThrow,
