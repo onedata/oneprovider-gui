@@ -63,37 +63,11 @@ export default Component.extend(...objectMixins, {
   valuesBuilder: undefined,
 
   /**
-   * Initialized on init.
-   * Stores `qosItem` objects to prevent replacing them with new versions.
-   * 
-   * @type {Object}
+   * @type {ComputedProperty<Array<Utils.QosItem>>}
    */
-  qosItemsCache: undefined,
-
-  sortedQosItemIds: array.mapBy(
-    array.sort('qosItemsProxy.content', ['direct:desc', 'entityId:desc']),
-    raw('entityId'),
-  ),
-
-  sortedQosItems: computed(
-    'sortedQosItemIds',
-    'qosItemsCache',
+  sortedQosItems: array.sort(
     'qosItemsProxy.content',
-    function sortedQosItems() {
-      const {
-        sortedQosItemIds,
-        qosItemsCache,
-        qosItemsProxy,
-      } = this.getProperties('sortedQosItemIds', 'qosItemsCache', 'qosItemsProxy');
-      const qosItems = get(qosItemsProxy, 'content');
-      return sortedQosItemIds.map(entityId => {
-        let item = qosItemsCache[entityId];
-        if (!item) {
-          item = (qosItemsCache[entityId] = qosItems.findBy('entityId', entityId));
-        }
-        return item;
-      });
-    }
+    ['direct:desc', 'entityId:desc']
   ),
 
   init() {

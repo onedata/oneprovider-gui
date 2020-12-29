@@ -101,7 +101,6 @@ export default Component.extend(I18n, {
    * One of: show (show list of QoS requirements for file), add (form)
    * @type {String}
    */
-  // FIXME: development value - change to 'show' before merge
   mode: 'show',
 
   /**
@@ -190,9 +189,6 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.initUpdater();
-    this.addObserver('qosItemsProxy', () => {
-      console.log('FIXME: qosItems updated');
-    });
   },
 
   willDestroyElement() {
