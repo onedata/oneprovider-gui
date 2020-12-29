@@ -73,30 +73,6 @@ describe('Unit | Utility | qos modal file item', function () {
     }
   );
 
-  it('has status error when qosSummary rejects',
-    function () {
-      function fetchFileQosSummary() {
-        return new Promise((resolve, reject) => {
-          later(() => {
-            reject();
-          }, 1);
-        });
-      }
-      const fetchQosItems = sinon.stub().resolves([{}]);
-      const item = QosModalFileItem.create({
-        fetchFileQosSummary,
-        fetchQosItems,
-      });
-      expect(get(item, 'fileQosStatus'), 'before items resolve').to.equal('loading');
-      return get(item, 'qosItemsProxy').then(() => {
-        expect(get(item, 'fileQosStatus'), 'before summary resolve').to.equal('loading');
-        return get(item, 'fileQosSummaryProxy').finally(() => {
-          expect(get(item, 'fileQosStatus'), 'after summary rejection').to.equal('error');
-        });
-      });
-    }
-  );
-
   it('has status error when qos items reject', function () {
     const fetchFileQosSummary = sinon.stub().resolves({
       fulfilled: true,
