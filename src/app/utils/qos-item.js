@@ -12,6 +12,11 @@ import EmberObject from '@ember/object';
 import { not } from '@ember/object/computed';
 
 export default EmberObject.extend({
+  /**
+   * @virtual
+   * @type {Models.QosRequirement}
+   */
+  qos: undefined,
 
   /**
    * File on which this QoS is set directly(to contrast modalFileId)

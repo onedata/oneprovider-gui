@@ -10,9 +10,8 @@
 import Component from '@ember/component';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { array, raw } from 'ember-awesome-macros';
+import { array } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { get, computed } from '@ember/object';
 
 const objectMixins = [
   I18n,

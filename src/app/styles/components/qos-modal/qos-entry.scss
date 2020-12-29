@@ -1,7 +1,8 @@
 .qos-entry {
   .one-collapsible-list-item-header {
-    padding-left: 0;
-    padding-right: 0;
+    // adding some padding because to align with icons in header
+    padding-left: $collapsible-list-item-padding + 3px;
+    padding-right: $collapsible-list-item-padding + 5px;
   }
   .qos-main-line {
     display: flex;

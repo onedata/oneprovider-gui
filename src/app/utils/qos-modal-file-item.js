@@ -66,6 +66,7 @@ export default EmberObject.extend(...objectMixins, {
         return qosItem;
       } else {
         const qosItem = QosItem.create({
+          qos,
           direct: modalFileId === get(qosSourceFile, 'entityId'),
           qosSourceFile,
           statusForFile: newStatusForFile,
