@@ -14,6 +14,9 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 export default Component.extend(I18n, {
   classNames: ['qos-evaluation-info'],
 
+  /**
+   * @override
+   */
   i18nPrefix: 'components.qosEvaluationInfo',
 
   /**
@@ -22,6 +25,10 @@ export default Component.extend(I18n, {
    */
   qosEvaluationProxy: undefined,
 
+  /**
+   * QoS expression parser error message
+   * @type {ComputedProperty<String>}
+   */
   errorMessage: computed('qosEvaluationProxy.isRejected', function errorMessage() {
     const errorReason = this.get('qosEvaluationProxy.reason');
     if (errorReason) {

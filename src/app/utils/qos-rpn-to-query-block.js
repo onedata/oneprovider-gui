@@ -1,3 +1,12 @@
+/**
+ *  Create root query block model from QoS expression RPN (array of strings).
+ * 
+ * @module utils/qos-rpn-to-query-block
+ * @author Jakub Liput
+ * @copyright (C) 2020 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import RootOperatorQueryBlock from 'onedata-gui-common/utils/query-builder/root-operator-query-block';
 import AndOperatorQueryBlock from 'onedata-gui-common/utils/query-builder/and-operator-query-block';
 import OrOperatorQueryBlock from 'onedata-gui-common/utils/query-builder/or-operator-query-block';

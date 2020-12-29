@@ -136,9 +136,10 @@ export default Component.extend(I18n, {
    */
   filesStatus: array.mapBy('fileItems', raw('fileQosStatus')),
 
-  valuesBuilder: computed(function valuesBuilder() {
-    return QueryValueComponentsBuilderQos.create();
-  }),
+  /**
+   * @type {ComputedProperty<QueryValueComponentsBuilder>}
+   */
+  valuesBuilder: computed(() => QueryValueComponentsBuilderQos.create()),
 
   noEditHint: computed(function noEditHint() {
     return insufficientPrivilegesMessage({

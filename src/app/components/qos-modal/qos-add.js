@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import EmberObject, { get, computed, set } from '@ember/object';
+import EmberObject, { get, computed, set, setProperties } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, or, notEmpty, conditional, isEmpty, and, number, promise } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
@@ -145,8 +145,17 @@ export default Component.extend(...mixins, {
    * @type {Utils.QueryBuilder.RootOperatorQueryBlock}
    */
   rootQueryBlock: computed(function rootQueryBlock() {
-    return RootOperatorQueryBlock.create({
-      notifyUpdate: this.onQueryUpdated.bind(this),
+    const rootBlock = RootOperatorQueryBlock.create();
+    this.attachRootBlockNotifiers(rootBlock);
+    return rootBlock;
+  }),
+
+  anyStorageQueryParameter: computed(function anyStorageQueryParameter() {
+    return EmberObject.create({
+      key: 'anyStorage',
+      displayedKey: this.t('anyStorage'),
+      isSpecialKey: true,
+      type: 'symbol',
     });
   }),
 
@@ -183,37 +192,48 @@ export default Component.extend(...mixins, {
    * @returns {Promise}
    */
   resolveSpecialSuggestions(suggestions) {
-    const providerManager = this.get('providerManager');
+    const {
+      providerManager,
+      anyStorageQueryParameter,
+    } = this.getProperties('providerManager', 'anyStorageQueryParameter');
     const promises = [];
     suggestions.forEach(suggestion => {
       switch (get(suggestion, 'key')) {
         case 'storageId':
-          // FIXME: i18n
-          set(suggestion, 'displayedKey', 'storage');
-          set(suggestion, 'isSpecialKey', true);
-          set(suggestion, 'type', 'storage');
+          setProperties(suggestion, {
+            displayedKey: this.t('storage'),
+            isSpecialKey: true,
+            type: 'storage',
+          });
+          // not getting proxy in the method beginning, because it fires fetch
           promises.push(this.get('storagesProxy').then(storages => {
-            const storageIds = get(suggestion, 'allValues');
-            for (let i = 0; i < storageIds.length; ++i) {
-              const storageId = storageIds[i];
-              const storage = storages.findBy('id', storageId);
-              storageIds[i] = storage;
+            const storageSuggestions = get(suggestion, 'allValues');
+            if (storageSuggestions) {
+              for (let i = 0; i < storageSuggestions.length; ++i) {
+                const storageId = storageSuggestions[i];
+                const storage = storages.findBy('entityId', storageId);
+                storageSuggestions[i] = storage || { entityId: storageId };
+              }
             }
           }));
           break;
         case 'providerId': {
-          set(suggestion, 'displayedKey', 'provider');
-          set(suggestion, 'isSpecialKey', true);
-          set(suggestion, 'type', 'provider');
-          const providerIds = get(suggestion, 'allValues');
-          for (let i = 0; i < providerIds.length; ++i) {
-            const providerId = providerIds[i];
-            const currentIndex = i;
-            promises.push(
-              providerManager.getProviderById(providerId).then(provider => {
-                providerIds[currentIndex] = provider;
-              })
-            );
+          setProperties(suggestion, {
+            displayedKey: this.t('provider'),
+            isSpecialKey: true,
+            type: 'provider',
+          });
+          const providerSuggestions = get(suggestion, 'allValues');
+          if (providerSuggestions) {
+            for (let i = 0; i < providerSuggestions.length; ++i) {
+              const providerId = providerSuggestions[i];
+              const currentIndex = i;
+              promises.push(
+                providerManager.getProviderById(providerId).then(provider => {
+                  providerSuggestions[currentIndex] = provider;
+                })
+              );
+            }
           }
         }
         break;
@@ -295,25 +315,45 @@ export default Component.extend(...mixins, {
   },
 
   textModeCancel() {
-    this.set('inputText', '');
-    this.set('inputMode', 'visual');
+    this.setProperties({
+      inputText: '',
+      inputMode: 'visual',
+    });
   },
 
   applyTextQuery(value) {
-    const globalNotify = this.get('globalNotify');
-    return this.get('evaluateQosExpression')(value)
+    const {
+      globalNotify,
+      evaluateQosExpression,
+    } = this.getProperties('globalNotify', 'evaluateQosExpression');
+    return evaluateQosExpression(value)
       .catch(error => {
         globalNotify.backendError(this.t('validatingQosExpression'), error);
         throw error;
       })
       .then(({ expressionRpn }) => {
         safeExec(this, () => {
-          const rootBlock = qosRpnToQueryBlock(expressionRpn);
-          set(rootBlock, 'notifyUpdate', this.onQueryUpdated.bind(this));
-          this.set('rootQueryBlock', rootBlock);
-          rootBlock.notifyUpdate();
+          try {
+            const rootBlock = qosRpnToQueryBlock(expressionRpn);
+            this.attachRootBlockNotifiers(rootBlock);
+            this.set('rootQueryBlock', rootBlock);
+            rootBlock.notifyUpdate();
+          } catch (error) {
+            globalNotify.backendError(this.t('convertingRpnToBlock'), {
+              id: 'cannotConvertQosRpnToQueryBlock',
+              details: { convertError: error && error.toString(), expressionRpn },
+            });
+          }
         });
       });
+  },
+
+  /**
+   * @param {RootOperatorQueryBlock} rootBlock
+   * @returns {Function}
+   */
+  attachRootBlockNotifiers(rootBlock) {
+    return set(rootBlock, 'notifyUpdate', this.onQueryUpdated.bind(this));
   },
 
   actions: {
@@ -344,16 +384,10 @@ export default Component.extend(...mixins, {
     textModeApply() {
       return this.applyTextQuery(this.get('inputText'))
         .then(() => {
-          this.textModeCancel();
+          safeExec(this, () => {
+            this.textModeCancel();
+          });
         });
     },
   },
-});
-
-// FIXME: i18n
-const anyStorageQueryParameter = EmberObject.create({
-  key: 'anyStorage',
-  displayedKey: 'any storage',
-  isSpecialKey: true,
-  type: 'symbol',
 });

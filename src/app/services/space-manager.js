@@ -85,11 +85,14 @@ export default Service.extend({
    * Validate, convert infix QoS expression to RPN and return list of matching storages
    * @param {String} spaceId
    * @param {String} expression
-   * @returns {Promise<Object<String, { expressionRpn: Array, matchingStorages: Array }>>} 
+   * @returns {Promise<{ expressionRpn: Array, matchingStorages: Array<StorageModel> }>} 
    */
   evaluateQosExpression(spaceId, expression) {
-    const providerManager = this.get('providerManager');
-    return this.get('onedataGraph').request({
+    const {
+      providerManager,
+      onedataGraph,
+    } = this.getProperties('providerManager', 'onedataGraph');
+    return onedataGraph.request({
       operation: 'create',
       gri: gri({
         entityType: spaceEntityType,
@@ -101,11 +104,15 @@ export default Service.extend({
     }).then(({ matchingStorages, expressionRpn }) => {
       return allFulfilled(matchingStorages.map(storage => {
           return providerManager.getProviderById(storage.providerId)
+            /**
+             * @typedef {StorageModel}
+             * @param {String} entityId
+             * @param {String} name
+             * @param {Models/Provider} provider
+             */
             .then(provider => ({
-              id: storage.id,
               entityId: storage.id,
               name: storage.name,
-              providerId: storage.providerId,
               provider,
             }));
         }))
@@ -118,6 +125,10 @@ export default Service.extend({
     });
   },
 
+  /**
+   * @param {String} spaceId 
+   * @returns {Promise<Array<StorageModel>>}
+   */
   getSupportingStorages(spaceId) {
     return this.evaluateQosExpression(spaceId, 'anyStorage')
       .then(({ matchingStorages }) => matchingStorages);

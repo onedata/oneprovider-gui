@@ -8,51 +8,43 @@ import ConditionQueryBlock from 'onedata-gui-common/utils/query-builder/conditio
 import queryBlockToQosExpression from 'oneprovider-gui/utils/query-block-to-qos-expression';
 
 describe('Unit | Utility | query block to qos expression', function () {
-  it(
-    'generates QoS expression string from linear AND-only query block',
-    function () {
-      const andBlock = AndOperatorQueryBlock.create({
-        operands: [
-          ConditionQueryBlock.create({
-            property: {
-              key: 'hello',
-              type: 'string',
-            },
-            comparator: 'string.eq',
-            comparatorValue: 'world',
-          }),
-          ConditionQueryBlock.create({
-            property: {
-              key: 'foo',
-              type: 'string',
-            },
-            comparator: 'string.eq',
-            comparatorValue: 'bar',
-          }),
-          ConditionQueryBlock.create({
-            property: {
-              key: 'lorem',
-              type: 'string',
-            },
-            comparator: 'string.eq',
-            comparatorValue: 'ipsum',
-          }),
-        ],
-      });
-      const rootBlock = RootOperatorQueryBlock.create({
-        operands: [
-          andBlock,
-        ],
-      });
+  itGeneratesString('from linear AND-only query block',
 
-      const result = queryBlockToQosExpression(rootBlock);
+    AndOperatorQueryBlock.create({
+      operands: [
+        ConditionQueryBlock.create({
+          property: {
+            key: 'hello',
+            type: 'string',
+          },
+          comparator: 'string.eq',
+          comparatorValue: 'world',
+        }),
+        ConditionQueryBlock.create({
+          property: {
+            key: 'foo',
+            type: 'string',
+          },
+          comparator: 'string.eq',
+          comparatorValue: 'bar',
+        }),
+        ConditionQueryBlock.create({
+          property: {
+            key: 'lorem',
+            type: 'string',
+          },
+          comparator: 'string.eq',
+          comparatorValue: 'ipsum',
+        }),
+      ],
+    }),
 
-      expect(result).to.equal('hello=world&foo=bar&lorem=ipsum');
-    }
+    'hello=world&foo=bar&lorem=ipsum'
   );
 
-  it('generates QoS expression string from nested AND, OR query block', function () {
-    const orBlock = OrOperatorQueryBlock.create({
+  itGeneratesString('from nested AND, OR query block',
+
+    OrOperatorQueryBlock.create({
       operands: [
         ConditionQueryBlock.create({
           property: {
@@ -83,54 +75,39 @@ describe('Unit | Utility | query block to qos expression', function () {
           ],
         }),
       ],
-    });
-    const rootBlock = RootOperatorQueryBlock.create({
-      operands: [
-        orBlock,
-      ],
-    });
+    }),
 
-    const result = queryBlockToQosExpression(rootBlock);
-
-    expect(result).to.equal('hello=world|(foo=bar&lorem=ipsum)');
-  });
-
-  it(
-    'generates QoS expression with anyStorage except some property',
-    function () {
-      const exceptBlock = ExceptOperatorQueryBlock.create({
-        operands: [
-          ConditionQueryBlock.create({
-            property: {
-              key: 'anyStorage',
-              type: 'symbol',
-            },
-            comparator: null,
-          }),
-          ConditionQueryBlock.create({
-            property: {
-              key: 'foo',
-              type: 'string',
-            },
-            comparator: 'string.eq',
-            comparatorValue: 'bar',
-          }),
-        ],
-      });
-      const rootBlock = RootOperatorQueryBlock.create({
-        operands: [
-          exceptBlock,
-        ],
-      });
-
-      const result = queryBlockToQosExpression(rootBlock);
-
-      expect(result).to.equal('anyStorage\\foo=bar');
-    }
+    'hello=world|(foo=bar&lorem=ipsum)'
   );
 
-  it('does not generate empty parenthesis from empty operator blocks beside non-empty', function () {
-    const orBlock = OrOperatorQueryBlock.create({
+  itGeneratesString('from anyStorage except some property query block',
+
+    ExceptOperatorQueryBlock.create({
+      operands: [
+        ConditionQueryBlock.create({
+          property: {
+            key: 'anyStorage',
+            type: 'symbol',
+          },
+          comparator: null,
+        }),
+        ConditionQueryBlock.create({
+          property: {
+            key: 'foo',
+            type: 'string',
+          },
+          comparator: 'string.eq',
+          comparatorValue: 'bar',
+        }),
+      ],
+    }),
+
+    'anyStorage\\foo=bar'
+  );
+
+  itGeneratesString('without empty parenthesis from empty operator blocks beside non-empty',
+
+    OrOperatorQueryBlock.create({
       operands: [
         ConditionQueryBlock.create({
           property: {
@@ -144,20 +121,14 @@ describe('Unit | Utility | query block to qos expression', function () {
           operands: [],
         }),
       ],
-    });
-    const rootBlock = RootOperatorQueryBlock.create({
-      operands: [
-        orBlock,
-      ],
-    });
+    }),
 
-    const result = queryBlockToQosExpression(rootBlock);
+    'hello=world'
+  );
 
-    expect(result).to.equal('hello=world');
-  });
+  itGeneratesString('without empty parenthesis from at least 3 nested block-visualiser',
 
-  it('does not generate empty parenthesis from at least 3 nested block-visualiser', function () {
-    const orBlock = OrOperatorQueryBlock.create({
+    OrOperatorQueryBlock.create({
       operands: [
         OrOperatorQueryBlock.create({
           operands: [
@@ -167,15 +138,22 @@ describe('Unit | Utility | query block to qos expression', function () {
           ],
         }),
       ],
-    });
+    }),
+
+    ''
+  );
+});
+
+function itGeneratesString(description, rootChildBlock, expectedString) {
+  it(description, function () {
     const rootBlock = RootOperatorQueryBlock.create({
       operands: [
-        orBlock,
+        rootChildBlock,
       ],
     });
 
     const result = queryBlockToQosExpression(rootBlock);
 
-    expect(result).to.equal('');
+    expect(result).to.equal(expectedString);
   });
-});
+}

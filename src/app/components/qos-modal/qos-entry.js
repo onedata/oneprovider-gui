@@ -81,13 +81,6 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    */
   removeTriggerId: tag `${'elementId'}-remove-trigger`,
 
-  /**
-   * @override
-   */
-  fetchQosEvaluation() {
-    return this.get('evaluateQosExpression')(this.get('rawExpressionInfix'));
-  },
-
   componentGuid: computed(function guid() {
     return guidFor(this);
   }),
@@ -168,6 +161,13 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
     this.addObserver('qosItem', () => {
       console.log('FIXME: qos item changed');
     });
+  },
+
+  /**
+   * @override
+   */
+  fetchQosEvaluation() {
+    return this.get('evaluateQosExpression')(this.get('rawExpressionInfix'));
   },
 
   actions: {

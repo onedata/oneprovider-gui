@@ -52,7 +52,6 @@ export default EmberObject.extend(...objectMixins, {
 
     const fileQosSummary = await this.updateFileQosSummaryProxy({ replace: true });
     const qosRequirements = await fileQosSummary.updateQosRecordsProxy({ replace: true });
-    // const qosRequirements = await fileQosSummary.getQosRecordsProxy();
     const sourceFiles = await allFulfilled(qosRequirements.mapBy('file'));
 
     return _.zip(qosRequirements, sourceFiles).map(([qos, qosSourceFile]) => {

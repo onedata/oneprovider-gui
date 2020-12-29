@@ -23,17 +23,6 @@
     display: inline-block;
     flex-grow: 1;
   }
-  .qos-entry-expression {
-    $tag-bottom-margin: 4px;
-    $form-control-margin: 10px;
-    .tag-item {
-      margin-bottom: $tag-bottom-margin;
-    }
-    .form-control-block {
-      padding: $form-control-margin;
-      padding-bottom: $form-control-margin - $tag-bottom-margin;
-    }
-  }
   .qos-header-text {
     overflow-x: hidden;
     &::after {
@@ -140,17 +129,6 @@
         // thanks to this, "/" do not go to end when using direction: rtl
         unicode-bidi: plaintext;
       }
-    }
-  }
-  .qos-entry-expression {
-    .property-name {
-      padding-top: 14px;
-    }
-    .qos-pair.tag-item {
-      flex-wrap: wrap;
-    }
-    .qos-pair-value {
-      word-break: break-all;
     }
   }
 }

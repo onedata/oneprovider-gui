@@ -1,3 +1,14 @@
+/**
+ * Extenstion of values builder (`OnedataGuiCommon/Utils/QueryValueComponentsBuilder`)
+ * that adds support for storage (storageId) and provider (providerId) QoS parameters.
+ * Should be used in QoS expression editor.
+ * 
+ * @module utils/query-value-components-builder-qos
+ * @author Jakub Liput
+ * @copyright (C) 2020 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import QueryValueComponentsBuilder from 'onedata-gui-common/utils/query-value-components-builder';
 import { get } from '@ember/object';
 

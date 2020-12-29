@@ -48,9 +48,11 @@ export default function queryBlockToQosExpression(queryBlock, level = -1) {
   if (!queryBlock) {
     return '';
   }
-  const operands = get(queryBlock, 'operands');
   if (get(queryBlock, 'isOperator')) {
-    if (get(queryBlock, 'operator') === 'root') {
+    const operands = get(queryBlock, 'operands');
+    if (isEmpty(operands)) {
+      return '';
+    } else if (get(queryBlock, 'operator') === 'root') {
       return queryBlockToQosExpression(operands[0], 0);
     } else {
       const operator = get(queryBlock, 'operator');
@@ -60,14 +62,10 @@ export default function queryBlockToQosExpression(queryBlock, level = -1) {
           `util:query-block-to-qos-expression: invalid operator: ${operator}`
         );
       }
-      if (isEmpty(operands)) {
-        return '';
-      } else {
-        const subexpression = operands.map(operand =>
-          queryBlockToQosExpression(operand, level + 1)
-        ).filter(expression => Boolean(expression)).join(rawOperator);
-        return level === 0 ? subexpression : (subexpression ? `(${subexpression})` : '');
-      }
+      const subexpression = operands.map(operand =>
+        queryBlockToQosExpression(operand, level + 1)
+      ).filter(expression => Boolean(expression)).join(rawOperator);
+      return level === 0 ? subexpression : (subexpression ? `(${subexpression})` : '');
     }
   } else if (get(queryBlock, 'isCondition')) {
     const {

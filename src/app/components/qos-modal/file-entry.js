@@ -77,14 +77,6 @@ export default Component.extend(I18n, {
     }
   },
 
-  /**
-   * @override
-   */
-  didInsertElement() {
-    this._super(...arguments);
-    console.log('FIXME: file-entry component inserted');
-  },
-
   actions: {
     removeQosRequirement(qosRequirement) {
       return this.get('removeQosRequirement')(qosRequirement);

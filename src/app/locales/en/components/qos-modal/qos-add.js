@@ -12,6 +12,10 @@ const translations = {
   copyExpression: 'Copy expression',
   enterText: 'enter as text',
   enterQosExpression: 'Enter QoS expression...',
+  storage: 'storage',
+  provider: 'provider',
+  anyStorage: 'any storage',
+  convertingRpnToBlock: 'creating visual QoS expression representation',
 };
 
 export default _.merge({}, translations, common);

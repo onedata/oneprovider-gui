@@ -50,6 +50,9 @@ export default Component.extend(...objectMixins, {
 
   /**
    * @virtual
+   * @type {Function}
+   * @param {String} expression
+   * @returns {Promise<Object>} see `spaceManager#evaluateQosExpression`
    */
   evaluateQosExpression: notImplementedReject,
 

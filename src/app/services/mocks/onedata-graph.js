@@ -162,8 +162,18 @@ const spaceHandlers = {
     if (operation != 'create') {
       return messageNotSupported;
     }
+    /** @type {string} */
     const expression = data && data.expression;
-    if (expression === 'test1') {
+    if (!expression) {
+      return {
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'expression cannot be empty' },
+        },
+        data: {},
+      };
+    } else if (!expression.includes('=') && !expression.trim().includes('anyStorage')) {
       return {
         success: false,
         error: {
@@ -172,7 +182,7 @@ const spaceHandlers = {
         },
         data: {},
       };
-    } else if (expression === 'test=1=') {
+    } else if (expression.trim().endsWith('=')) {
       return {
         success: false,
         error: {
@@ -181,7 +191,7 @@ const spaceHandlers = {
         },
         data: {},
       };
-    } else if (expression === 'test=*') {
+    } else if (expression.includes('*')) {
       return {
         success: false,
         error: {
@@ -203,15 +213,6 @@ const spaceHandlers = {
       return {
         expressionRpn: ['anyStorage', 'anyStorage', '\\'],
         matchingStorages: [],
-      };
-    } else if (!expression) {
-      return {
-        success: false,
-        error: {
-          id: 'invalidQosExpression',
-          details: { reason: 'expression cannot be empty' },
-        },
-        data: {},
       };
     } else {
       const allProviders = this.get('mockBackend.entityRecords.provider');
