@@ -98,7 +98,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   /**
    * @type {ComputedProperty<String>}
    */
-  qosId: reads('qosItem.qos.entityId'),
+  qosId: reads('qosItem.entityId'),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -125,10 +125,21 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    */
   qosSourceFileId: reads('qosSourceFile.entityId'),
 
+  /**
+   * See `model:qosReqiurement#status` for available states
+   * @type {ComputedProperty<String>}
+   */
   statusId: reads('statusForFile'),
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   rawExpressionInfix: computedPipe('expressionRpn', qosRpnToInfix),
 
+  /**
+   * QoS fulfillment icon name
+   * @type {ComputedProperty<String>}
+   */
   statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
 
   qosSourceFilePathProxy: promise.object(computed(
@@ -147,21 +158,13 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
     return getDataUrl({ fileId: null, selected: [qosSourceFileId] });
   }),
 
-  rawExpressionInfixObserver: observer(
+  evaluationUpdater: observer(
     'rawExpressionInfix',
-    function rawExpressionInfixObserver() {
-      console.log('FIXME: raw expression infix observer');
+    'statusId',
+    function evaluationUpdater() {
       this.updateQosEvaluationProxy({ replace: true });
     }
   ),
-
-  init() {
-    this._super(...arguments);
-    console.log('FIXME: qos-entry init');
-    this.addObserver('qosItem', () => {
-      console.log('FIXME: qos item changed');
-    });
-  },
 
   /**
    * @override

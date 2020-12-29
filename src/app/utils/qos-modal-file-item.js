@@ -56,52 +56,32 @@ export default EmberObject.extend(...objectMixins, {
 
     return _.zip(qosRequirements, sourceFiles).map(([qos, qosSourceFile]) => {
       const qosId = get(qos, 'entityId');
+
+      const newStatusForFile = get(fileQosSummary, `requirements.${qosId}`);
       if (qosItemsCache.has(qosId)) {
         const qosItem = qosItemsCache.get(qosId);
-        // FIXME: every qosItem has the same summary, so compare only one
-        if (!qosSummariesEqual(get(qosItem, 'fileQosSummary'), fileQosSummary)) {
-          set(qosItem, 'fileQosSummary', fileQosSummary);
+        if (newStatusForFile !== get(qosItem, 'statusForFile')) {
+          set(qosItem, 'statusForFile', newStatusForFile);
         }
         return qosItem;
       } else {
         const qosItem = QosItem.create({
-          modalFileId,
+          direct: modalFileId === get(qosSourceFile, 'entityId'),
           qosSourceFile,
-          fileQosSummary,
-          qos,
+          statusForFile: newStatusForFile,
+          entityId: qosId,
+          replicasNum: get(qos, 'replicasNum'),
+          expressionRpn: get(qos, 'expressionRpn'),
         });
         qosItemsCache.set(qosId, qosItem);
         return qosItem;
       }
     });
-
-    // return this.updateQosRecordsProxy({ replace: true, fetchArgs: [true] })
-    //   .then(qosRecords => {
-    //     // summary should be fresh after qos records update
-    //     const fileQosSummary = this.get('fileQosSummary');
-    //     return allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile => {
-    //       const qosId = get(qos, 'entityId');
-    //       if (qosItemsCache.has(qosId)) {
-    //         const qosItem = qosItemsCache.get(qosId);
-    //         set(qosItem, 'fileQosSummary', fileQosSummary);
-    //         return qosItem;
-    //       } else {
-    //         const qosItem = QosItem.create({
-    //           modalFileId: get(file, 'entityId'),
-    //           qosSourceFile,
-    //           fileQosSummary,
-    //           qos,
-    //         });
-    //         qosItemsCache.set(qosId, qosItem);
-    //         return qosItem;
-    //       }
-    //     })));
-    //   });
   },
 
   fileQosStatus: computed(
-    'qosItemsProxy.{content,reason}',
-    'fileQosSummaryProxy.{content,reason}',
+    'qosItemsProxy.content',
+    'fileQosSummaryProxy.content',
     function fileQosStatus() {
       const {
         qosItemsProxy,
@@ -129,8 +109,3 @@ export default EmberObject.extend(...objectMixins, {
     this.set('qosItemsCache', new Map());
   },
 });
-
-function qosSummariesEqual(a, b) {
-  return get(a, 'status') === get(b, 'status') &&
-    _.isEqual(get(a, 'requirements'), get(b, 'requirements'));
-}
