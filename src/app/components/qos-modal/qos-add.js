@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import EmberObject, { get, computed, set, setProperties } from '@ember/object';
+import { computed, set } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, or, notEmpty, conditional, isEmpty, and, number, promise } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
@@ -16,23 +16,16 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
-import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import queryBlockToQosExpression from 'oneprovider-gui/utils/query-block-to-qos-expression';
 import RootOperatorQueryBlock from 'onedata-gui-common/utils/query-builder/root-operator-query-block';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import qosRpnToQueryBlock from 'oneprovider-gui/utils/qos-rpn-to-query-block';
-import { all as allFulfilled } from 'rsvp';
 
 const mixins = [
   I18n,
-  createDataProxyMixin('queryProperties'),
-  createDataProxyMixin('storages'),
 ];
 
 export default Component.extend(...mixins, {
-  spaceManager: service(),
-  providerManager: service(),
   globalNotify: service(),
 
   /**
@@ -59,10 +52,22 @@ export default Component.extend(...mixins, {
   valuesBuilder: undefined,
 
   /**
+   * @type {ComputedProperty<PromiseObject<Object>>}
+   * @virtual
+   */
+  queryPropertiesProxy: undefined,
+
+  /**
    * @virtual
    * @type {Function}
    */
   evaluateQosExpression: notImplementedReject,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  refreshQueryProperties: notImplementedReject,
 
   replicasNumberString: '1',
 
@@ -150,106 +155,6 @@ export default Component.extend(...mixins, {
     return rootBlock;
   }),
 
-  anyStorageQueryParameter: computed(function anyStorageQueryParameter() {
-    return EmberObject.create({
-      key: 'anyStorage',
-      displayedKey: this.t('anyStorage'),
-      isSpecialKey: true,
-      type: 'symbol',
-    });
-  }),
-
-  /**
-   * @override
-   * For resolved object format see: `service:space-manager#getAvailableQosParameters`
-   * @returns {Promise<Object>}
-   */
-  fetchQueryProperties() {
-    const {
-      spaceManager,
-      spaceId,
-    } = this.getProperties('spaceManager', 'spaceId');
-    return spaceManager.getAvailableQosParameters(spaceId)
-      .then(availableQosParameters => {
-        const suggestions = createQosParametersSuggestions(availableQosParameters);
-        return this.resolveSpecialSuggestions(suggestions);
-      });
-  },
-
-  /**
-   * @override
-   */
-  fetchStorages() {
-    const {
-      spaceManager,
-      spaceId,
-    } = this.getProperties('spaceManager', 'spaceId');
-    return spaceManager.getSupportingStorages(spaceId);
-  },
-
-  /**
-   * @param {Array<QosParameterSuggestion>} suggestions 
-   * @returns {Promise}
-   */
-  resolveSpecialSuggestions(suggestions) {
-    const {
-      providerManager,
-      anyStorageQueryParameter,
-    } = this.getProperties('providerManager', 'anyStorageQueryParameter');
-    const promises = [];
-    suggestions.forEach(suggestion => {
-      switch (get(suggestion, 'key')) {
-        case 'storageId':
-          setProperties(suggestion, {
-            displayedKey: this.t('storage'),
-            isSpecialKey: true,
-            type: 'storage',
-          });
-          // not getting proxy in the method beginning, because it fires fetch
-          promises.push(this.get('storagesProxy').then(storages => {
-            const storageSuggestions = get(suggestion, 'allValues');
-            if (storageSuggestions) {
-              for (let i = 0; i < storageSuggestions.length; ++i) {
-                const storageId = storageSuggestions[i];
-                const storage = storages.findBy('entityId', storageId);
-                storageSuggestions[i] = storage || { entityId: storageId };
-              }
-            }
-          }));
-          break;
-        case 'providerId': {
-          setProperties(suggestion, {
-            displayedKey: this.t('provider'),
-            isSpecialKey: true,
-            type: 'provider',
-          });
-          const providerSuggestions = get(suggestion, 'allValues');
-          if (providerSuggestions) {
-            for (let i = 0; i < providerSuggestions.length; ++i) {
-              const providerId = providerSuggestions[i];
-              const currentIndex = i;
-              promises.push(
-                providerManager.getProviderById(providerId).then(provider => {
-                  providerSuggestions[currentIndex] = provider;
-                })
-              );
-            }
-          }
-        }
-        break;
-      default:
-        break;
-      }
-    });
-    return allFulfilled(promises).then(() => {
-      if (suggestions) {
-        return [...suggestions, anyStorageQueryParameter];
-      } else {
-        return [anyStorageQueryParameter];
-      }
-    });
-  },
-
   closeForm() {
     this.get('closeAddEntry')();
     this.resetForm();
@@ -334,7 +239,8 @@ export default Component.extend(...mixins, {
       .then(({ expressionRpn }) => {
         safeExec(this, () => {
           try {
-            const rootBlock = qosRpnToQueryBlock(expressionRpn);
+            // FIXME: additional params
+            const rootBlock = qosRpnToQueryBlock({ rpnData: expressionRpn });
             this.attachRootBlockNotifiers(rootBlock);
             this.set('rootQueryBlock', rootBlock);
             rootBlock.notifyUpdate();
@@ -365,7 +271,7 @@ export default Component.extend(...mixins, {
       return this.toggleQosSuggestions(open);
     },
     refreshQueryProperties() {
-      return this.updateQueryPropertiesProxy({ replace: true });
+      return this.get('refreshQueryProperties')();
     },
     copyExpression() {
       this.$('.expression-clipboard-btn').trigger('click');

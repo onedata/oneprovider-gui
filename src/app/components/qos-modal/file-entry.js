@@ -35,6 +35,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Array<QueryProperty>}
+   */
+  queryProperties: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   removeQosRequirement: notImplementedReject,

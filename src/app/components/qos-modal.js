@@ -11,16 +11,18 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import { get, observer, computed } from '@ember/object';
+import EmberObject, { get, observer, computed, setProperties } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
-import { conditional, raw, equal, and, getBy, array } from 'ember-awesome-macros';
+import { conditional, raw, equal, and, getBy, array, promise } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import { all as allFulfilled, allSettled } from 'rsvp';
+import { all as allFulfilled, allSettled, resolve } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
 
 export const qosStatusIcons = {
   error: 'warning',
@@ -30,12 +32,20 @@ export const qosStatusIcons = {
   impossible: 'checkbox-filled-warning',
 };
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  createDataProxyMixin('queryProperties'),
+  createDataProxyMixin('storages'),
+  createDataProxyMixin('providers'),
+];
+
+export default Component.extend(...mixins, {
   qosManager: service(),
   fileManager: service(),
   globalNotify: service(),
   i18n: service(),
   spaceManager: service(),
+  providerManager: service(),
 
   /**
    * @override
@@ -44,9 +54,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {String}
+   * @type {Models.Space}
    */
-  spaceId: undefined,
+  space: undefined,
 
   /**
    * @virtual
@@ -108,6 +118,11 @@ export default Component.extend(I18n, {
    * @type { { replicasNumber: Number, expressionInfix: Array<String> } }
    */
   newEntryData: undefined,
+
+  /**
+   * @type {String}
+   */
+  spaceId: reads('space.entityId'),
 
   /**
    * Shorthand when exactly one file is opened
@@ -178,6 +193,26 @@ export default Component.extend(I18n, {
 
   allQosStatusIcon: getBy(raw(qosStatusIcons), 'allQosStatus'),
 
+  /**
+   * @type {ComputedProperty<QueryParameter>}
+   */
+  anyStorageQueryParameter: computed(function anyStorageQueryParameter() {
+    return EmberObject.create({
+      key: 'anyStorage',
+      displayedKey: this.t('anyStorage'),
+      isSpecialKey: true,
+      type: 'symbol',
+    });
+  }),
+
+  /**
+   * Data needed to show requirements list
+   * @type {ComputedProperty<PromiseArray>}
+   */
+  dataProxy: promise.object(
+    promise.all('queryPropertiesProxy', 'storagesProxy', 'providersProxy')
+  ),
+
   configureUpdater: observer(
     'updater',
     'updateInterval',
@@ -189,6 +224,8 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.initUpdater();
+    // FIXME: remove
+    window.dataProxy = this.get('dataProxy');
   },
 
   willDestroyElement() {
@@ -200,6 +237,110 @@ export default Component.extend(I18n, {
     } finally {
       this._super(...arguments);
     }
+  },
+
+  /**
+   * @override
+   */
+  fetchStorages() {
+    const {
+      spaceManager,
+      spaceId,
+    } = this.getProperties('spaceManager', 'spaceId');
+    return spaceManager.getSupportingStorages(spaceId);
+  },
+
+  /**
+   * @override
+   */
+  fetchProviders() {
+    const space = this.get('space');
+    if (space) {
+      return get(space, 'providerList.list').then(list => list ? list.toArray() : []);
+    } else {
+      return resolve([]);
+    }
+  },
+
+  /**
+   * @override
+   * For resolved object format see: `service:space-manager#getAvailableQosParameters`
+   * @returns {Promise<Object>}
+   */
+  fetchQueryProperties() {
+    const {
+      spaceManager,
+      spaceId,
+    } = this.getProperties('spaceManager', 'spaceId');
+    return spaceManager.getAvailableQosParameters(spaceId)
+      .then(availableQosParameters => {
+        const suggestions = createQosParametersSuggestions(availableQosParameters);
+        return this.resolveSpecialSuggestions(suggestions);
+      });
+  },
+
+  /**
+   * @param {Array<QosParameterSuggestion>} suggestions 
+   * @returns {Promise}
+   */
+  resolveSpecialSuggestions(suggestions) {
+    // FIXME: remove
+    // const {
+    //   providerManager,
+    //   anyStorageQueryParameter,
+    // } = this.getProperties('providerManager', 'anyStorageQueryParameter');
+    const anyStorageQueryParameter = this.get('anyStorageQueryParameter');
+    const promises = [];
+    suggestions.forEach(suggestion => {
+      switch (get(suggestion, 'key')) {
+        case 'storageId':
+          setProperties(suggestion, {
+            displayedKey: this.t('storage'),
+            isSpecialKey: true,
+            type: 'storage',
+          });
+          // not getting proxy in the method beginning, because it fires fetch
+          promises.push(this.get('storagesProxy').then(storages => {
+            const storageSuggestions = get(suggestion, 'allValues');
+            if (storageSuggestions) {
+              for (let i = 0; i < storageSuggestions.length; ++i) {
+                const storageId = storageSuggestions[i];
+                const storage = storages.findBy('entityId', storageId);
+                storageSuggestions[i] = storage || { entityId: storageId };
+              }
+            }
+          }));
+          break;
+        case 'providerId': {
+          setProperties(suggestion, {
+            displayedKey: this.t('provider'),
+            isSpecialKey: true,
+            type: 'provider',
+          });
+          const providerSuggestions = get(suggestion, 'allValues');
+          if (providerSuggestions) {
+            promises.push(this.get('providersProxy').then(providers => {
+              for (let i = 0; i < providerSuggestions.length; ++i) {
+                const providerId = providerSuggestions[i];
+                const currentIndex = i;
+                providerSuggestions[currentIndex] =
+                  providers.findBy('entityId', providerId);
+              }
+            }));
+          }
+        }
+        break;
+      default:
+        break;
+      }
+    });
+    return allFulfilled(promises).then(() => {
+      if (suggestions) {
+        return [...suggestions, anyStorageQueryParameter];
+      } else {
+        return [anyStorageQueryParameter];
+      }
+    });
   },
 
   evaluateQosExpression(expression) {
@@ -301,6 +442,9 @@ export default Component.extend(I18n, {
     },
     evaluateQosExpression(expression) {
       return this.evaluateQosExpression(expression);
+    },
+    refreshQueryProperties() {
+      return this.updateQueryPropertiesProxy({ replace: true });
     },
   },
 });

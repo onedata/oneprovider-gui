@@ -23,20 +23,61 @@ export default Component.extend({
   expressionRpn: undefined,
 
   /**
+   * @virtual
+   * @type {Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
+
+  /**
+   * See: `service:space-manager#getAvailableQosParameters`
+   * @virtual
+   * @type {Array<QueryProperty>}
+   */
+  queryProperties: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<Models.Provider>}
+   */
+  providers: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<StorageModel>}
+   */
+  storages: undefined,
+
+  /**
    * Root object of expression tree, one of expression part objects
    * @type {ComputedProperty<Utils.RootOperatorQueryBlock>}
    */
-  rootQueryBlock: computed('expressionRpn', function rootQueryBlock() {
-    const expressionRpn = this.get('expressionRpn');
-    try {
-      return qosRpnToQueryBlock(expressionRpn);
-    } catch (error) {
-      // this error report is silent, because it can be multiple recomputations of this
-      // property and there shouldn't be too much side effect
-      console.error(
-        `component:qos-expression-viewer#rootQueryBlock: ${error}; RPN: ${JSON.stringify(expressionRpn)}`
-      );
-      return null;
+  rootQueryBlock: computed(
+    'expressionRpn',
+    'queryProperties',
+    'providers',
+    'storages',
+    function rootQueryBlock() {
+      const {
+        expressionRpn,
+        queryProperties,
+        providers,
+        storages,
+      } = this.getProperties('expressionRpn', 'queryProperties', 'providers', 'storages');
+      try {
+        return qosRpnToQueryBlock({
+          rpnData: expressionRpn,
+          queryProperties,
+          providers,
+          storages,
+        });
+      } catch (error) {
+        // this error report is silent, because it can be multiple recomputations of this
+        // property and there shouldn't be too much side effect
+        console.error(
+          `component:qos-expression-viewer#rootQueryBlock: ${error}; RPN: ${JSON.stringify(expressionRpn)}`
+        );
+        return null;
+      }
     }
-  }),
+  ),
 });

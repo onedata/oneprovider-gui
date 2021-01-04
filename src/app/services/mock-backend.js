@@ -39,7 +39,10 @@ const modelTypes = [
 export const defaultRecordNames = ['One', 'Two', 'Three'];
 
 export const recordNames = {
-  provider: ['Cracow', 'Paris', 'Lisbon'],
+  // Uncomment for pretty names
+  // provider: ['Cracow', 'Paris', 'Lisbon'],
+  // Uncomment for one-env-like names
+  provider: ['dev-oneprovider-krakow', 'dev-oneprovider-paris', 'dev-oneprovider-lisbon'],
   space: defaultRecordNames,
 };
 
@@ -49,6 +52,9 @@ export const numberOfFiles = 200;
 export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 150;
+
+export const storageIdAlpha = '90ca74738947307403740234723bca7890678acb5c7bac567b8ac';
+export const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731901';
 
 const transferStates = ['waiting', 'ongoing', 'ended'];
 
@@ -207,6 +213,7 @@ export default Service.extend({
 
   createAndAddQos(store) {
     const entityRecords = this.get('entityRecords');
+    const providerId = get(entityRecords, 'provider.0.entityId');
     const chainDir = get(entityRecords, 'chainDir')[2];
     const qos1Promise = store.createRecord('qosRequirement', {
       id: gri({
@@ -217,16 +224,20 @@ export default Service.extend({
       status: 'fulfilled',
       replicasNum: 7,
       expressionRpn: [
-        'storage_type',
-        'hello world',
+        'storageId',
+        storageIdBeta,
         '=',
-        'speed',
-        178,
-        '>',
+        'providerId',
+        providerId,
+        '=',
         '|',
-        'read-latency',
+        'speed',
         87,
         '<=',
+        'very_long_long_long_long_long_long_key',
+        'Culpa consectetur consectetur enim esse amet incididunt velit aliqua cupidatat labore nostrud laboris irure.',
+        '=',
+        '\\',
         '&',
       ],
       file: chainDir,

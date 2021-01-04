@@ -85,7 +85,13 @@
         </div>
       </div>
       <div class="qos-expression-text-field">
-        {{qos-expression-viewer valuesBuilder=valuesBuilder expressionRpn=expressionRpn}}
+        {{qos-expression-viewer
+          valuesBuilder=valuesBuilder
+          expressionRpn=expressionRpn
+          storages=storages
+          providers=providers
+          queryProperties=queryProperties
+        }}
       </div>
     </div>
     <div class="qos-subheader qos-expression-info-subheader with-icon-left">

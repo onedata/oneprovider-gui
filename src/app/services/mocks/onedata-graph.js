@@ -16,12 +16,11 @@ import {
   generateFileEntityId,
   generateDirEntityId,
   parseDecodedDirEntityId,
+  storageIdAlpha,
+  storageIdBeta,
 } from 'oneprovider-gui/services/mock-backend';
 import { inject as service } from '@ember/service';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
-
-const storageIdAlpha = '90ca74738947307403740234723bca7890678acb5c7bac567b8ac';
-const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731901';
 
 const messagePosixError = (errno) => ({
   success: false,

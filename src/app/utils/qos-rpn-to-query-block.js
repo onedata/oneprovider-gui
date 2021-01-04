@@ -1,5 +1,5 @@
 /**
- *  Create root query block model from QoS expression RPN (array of strings).
+ * Create root query block model from QoS expression RPN (array of strings).
  * 
  * @module utils/qos-rpn-to-query-block
  * @author Jakub Liput
@@ -14,6 +14,8 @@ import ExceptOperatorQueryBlock from 'onedata-gui-common/utils/query-builder/exc
 import ConditionQueryBlock from 'onedata-gui-common/utils/query-builder/condition-query-block';
 import { qosRpnToObject } from 'oneprovider-gui/utils/qos-expression-converters';
 import { A } from '@ember/array';
+import { get } from '@ember/object';
+import _ from 'lodash';
 
 const queryBlockOperatorClass = {
   union: OrOperatorQueryBlock,
@@ -21,35 +23,68 @@ const queryBlockOperatorClass = {
   complement: ExceptOperatorQueryBlock,
 };
 
+const isDecimalFloatRe = /^(\d+|(\d+\.\d+))$/;
+
 function getPropertyType(value) {
-  if (isNaN(parseFloat(value))) {
-    return 'string';
-  } else {
+  if (value == null) {
+    return 'symbol';
+  } else if (typeof value === 'number' && isDecimalFloatRe.test(value)) {
     return 'number';
+  } else {
+    return 'string';
   }
 }
 
-function expandQueryBlock(obj) {
+/**
+ * @param {Object} options
+ * @param {Object} options.obj expression element - see `qosRpnToObject` util
+ * @param {Object} options.props mapping of query property key -> query property
+ * @param {Array<Models.Provider>} options.providers
+ * @param {Array<StorageModel>} options.storage
+ * @returns {OnedataGuiCommon.Utils.QueryBlock}
+ */
+function expandQueryBlock({ obj, props = {}, storages = [], providers = [] }) {
   if (obj.type === 'group') {
     return queryBlockOperatorClass[obj.operator].create({
-      operands: A([expandQueryBlock(obj.a), expandQueryBlock(obj.b)]),
+      operands: A([
+        expandQueryBlock({ obj: obj.a, props, storages, providers }),
+        expandQueryBlock({ obj: obj.b, props, storages, providers }),
+      ]),
     });
   } else if (obj.type === 'pair') {
-    const propertyType = getPropertyType(obj.value);
+    const property = props[obj.key] || {
+      key: obj.key,
+      displayedKey: obj.key,
+      type: getPropertyType(obj.value),
+    };
+    const propertyType = get(property, 'type');
+    const operator = propertyType === 'storage' || propertyType === 'provider' ?
+      'is' : obj.operator;
+    let comparatorValue;
+    switch (propertyType) {
+      case 'storage':
+        comparatorValue = storages.findBy('entityId', obj.value);
+        break;
+      case 'provider':
+        comparatorValue = providers.findBy('entityId', obj.value);
+        break;
+      default:
+        comparatorValue = obj.value;
+        break;
+    }
     return ConditionQueryBlock.create({
-      property: {
-        key: obj.key,
-        type: propertyType,
-      },
-      comparator: `${propertyType}.${obj.operator}`,
-      comparatorValue: obj.value,
+      property,
+      comparator: `${propertyType}.${operator}`,
+      comparatorValue,
     });
   } else if (obj.type === 'variable') {
+    const property = props[obj.name] || {
+      key: obj.name,
+      displayedKey: obj.name,
+      type: 'symbol',
+    };
     return ConditionQueryBlock.create({
-      property: {
-        key: obj.name,
-        type: 'symbol',
-      },
+      property,
       comparator: null,
     });
   } else {
@@ -57,11 +92,26 @@ function expandQueryBlock(obj) {
   }
 }
 
-export default function qosRpnToQueryBlock(rpnData) {
+/**
+ * @param {Object} options
+ * @param {Array<String>} options.rpnData RPN of expression as recieved from backend
+ * @param {Array<QueryProperty>} options.queryProperties
+ *   see `component:qos-add#fetchQueryProperties`
+ * @param {Array<Models.Provider>} options.providers
+ * @param {Array<StorageModel>} options.storages
+ * @returns {RootOperatorQueryBlock}
+ */
+export default function qosRpnToQueryBlock({
+  rpnData,
+  queryProperties,
+  providers,
+  storages,
+}) {
   const rpnObject = qosRpnToObject(rpnData);
 
+  const props = _.keyBy(queryProperties, queryProperty => get(queryProperty, 'key'));
   const root = RootOperatorQueryBlock.create({
-    operands: A([expandQueryBlock(rpnObject)]),
+    operands: A([expandQueryBlock({ obj: rpnObject, props, providers, storages })]),
   });
   return root;
 }

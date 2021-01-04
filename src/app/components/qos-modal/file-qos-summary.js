@@ -62,6 +62,24 @@ export default Component.extend(...objectMixins, {
   valuesBuilder: undefined,
 
   /**
+   * @virtual
+   * @type {Array<QueryProperty>}
+   */
+  queryProperties: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<StorageModel>}
+   */
+  storages: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<Models.Provider>}
+   */
+  providers: undefined,
+
+  /**
    * @type {ComputedProperty<Array<Utils.QosItem>>}
    */
   sortedQosItems: array.sort(

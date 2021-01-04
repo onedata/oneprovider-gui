@@ -37,9 +37,9 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
 
   /**
    * @virtual
-   * @type {Function}
+   * @type {Array<QueryProperty>}
    */
-  removeQosRequirement: notImplementedReject,
+  queryProperties: undefined,
 
   /**
    * @virtual
@@ -52,6 +52,12 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    * @type {Function}
    */
   getDataUrl: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  removeQosRequirement: notImplementedReject,
 
   /**
    * @virtual
@@ -124,6 +130,18 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    * @type {ComputedProperty<String>}
    */
   qosSourceFileId: reads('qosSourceFile.entityId'),
+
+  /**
+   * @virtual
+   * @type {Array<StorageModel>}
+   */
+  storages: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<Models.Provider>}
+   */
+  providers: undefined,
 
   /**
    * See `model:qosReqiurement#status` for available states

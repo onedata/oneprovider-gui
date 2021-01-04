@@ -14,7 +14,7 @@ describe('Unit | Utility | qos rpn to query block', function () {
       '>',
       '&',
     ];
-    const rootBlock = qosRpnToQueryBlock(rpn);
+    const rootBlock = qosRpnToQueryBlock({ rpnData: rpn });
 
     expect(get(rootBlock, 'operator')).to.equal('root');
     expect(get(rootBlock, 'operands.length')).to.equal(1);

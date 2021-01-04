@@ -65,9 +65,10 @@ export default Service.extend({
 
   /**
    * Resolves mapping: QoS parameter key -> Object with string and number values
-   * defined for storages supporting the space with `spaceId`.
+   * defined for storages supporting the space with `spaceId`
+   * (object properties: `{ stringValues: Array, numberValues: Array }`).
    * @param {String} spaceId
-   * @returns {Promise<Object<String, { stringValues: Array, numberValues: Array }>>} 
+   * @returns {Promise<Object>} 
    */
   getAvailableQosParameters(spaceId) {
     return this.get('onedataGraph').request({

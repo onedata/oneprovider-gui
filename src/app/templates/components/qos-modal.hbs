@@ -1,7 +1,7 @@
 {{#one-modal
   class="qos-modal"
   open=open
-  size="lg"
+  size="xl"
   backdropClose=false
   keyboard=false
   onHide=(action "onHide")
@@ -105,37 +105,47 @@
       {{qos-modal/qos-add
         spaceId=spaceId
         valuesBuilder=valuesBuilder
+        queryPropertiesProxy=queryPropertiesProxy
         evaluateQosExpression=(action "evaluateQosExpression")
+        refreshQueryProperties=(action "refreshQueryProperties")
         update=(action "changeNewEntry")
       }}
     {{else}}
-      {{#if multipleFiles}}
-        {{#one-collapsible-list class="hide-final-border" as |list|}}
-          {{#each fileItems key="entityId" as |fileItem|}}
-            {{#list.item as |listItem|}}
-              {{qos-modal/file-entry
-                listItem=listItem
-                fileItem=fileItem
-                valuesBuilder=valuesBuilder
-                evaluateQosExpression=(action "evaluateQosExpression")
-                removeQosRequirement=(action "removeQosRequirement")
-                getDataUrl=(action "getDataUrl")
-                closeModal=(action "onHide")
-              }}
-            {{/list.item}}
-          {{/each}}
-        {{/one-collapsible-list}}
-      {{else}}
-        {{qos-modal/file-qos-summary
-          file=fileItems.firstObject.file
-          qosItemsProxy=fileItems.firstObject.qosItemsProxy
-          valuesBuilder=valuesBuilder
-          evaluateQosExpression=(action "evaluateQosExpression")
-          removeQosRequirement=(action "removeQosRequirement")
-          getDataUrl=(action "getDataUrl")
-          closeModal=(action "onHide")
-        }}
-      {{/if}}
+      {{#promise-proxy-container proxy=dataProxy}}
+        {{#if multipleFiles}}
+          {{#one-collapsible-list class="hide-final-border" as |list|}}
+            {{#each fileItems key="entityId" as |fileItem|}}
+              {{#list.item as |listItem|}}
+                {{qos-modal/file-entry
+                  listItem=listItem
+                  fileItem=fileItem
+                  valuesBuilder=valuesBuilder
+                  queryProperties=queryPropertiesProxy.content
+                  storages=storagesProxy.content
+                  providers=providersProxy.content
+                  evaluateQosExpression=(action "evaluateQosExpression")
+                  removeQosRequirement=(action "removeQosRequirement")
+                  getDataUrl=(action "getDataUrl")
+                  closeModal=(action "onHide")
+                }}
+              {{/list.item}}
+            {{/each}}
+          {{/one-collapsible-list}}
+        {{else}}
+          {{qos-modal/file-qos-summary
+            file=fileItems.firstObject.file
+            qosItemsProxy=fileItems.firstObject.qosItemsProxy
+            valuesBuilder=valuesBuilder
+            queryProperties=queryPropertiesProxy.content
+            storages=storages
+            providers=providers
+            evaluateQosExpression=(action "evaluateQosExpression")
+            removeQosRequirement=(action "removeQosRequirement")
+            getDataUrl=(action "getDataUrl")
+            closeModal=(action "onHide")
+          }}
+        {{/if}}
+      {{/promise-proxy-container}}
     {{/if}}
   {{/modal.body}}
   
