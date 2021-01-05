@@ -10,13 +10,15 @@
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
-import { reads, collect, or } from '@ember/object/computed';
+import { reads, collect } from '@ember/object/computed';
+import { or } from 'ember-awesome-macros';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 const permissionsSpecifications = ['file', 'dir'].reduce((spec, context) => {
   const filteredPermissions = [];
@@ -124,7 +126,7 @@ export default Component.extend(I18n, {
 
   /**
    * One of: `user`, `group`
-   * @type {string}
+   * @type {ComputedProperty<String>}
    */
   subjectType: reads('ace.subjectType'),
 
@@ -154,7 +156,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  icon: or('subject.constructor.modelName', 'subject.equivalentType', 'subjectType'),
+  icon: reads('subjectType'),
 
   /**
    * Mapping: permsGroupName -> { permName -> boolean }. Represents persisted
@@ -285,12 +287,7 @@ export default Component.extend(I18n, {
     };
   }),
 
-  subjectName: computed('subject.name', function subjectName() {
-    if (this.get('subject.name')) {
-      return this.get('subject.name');
-    }
-    return this.t('unknown');
-  }),
+  subjectName: or('subject.name', computedT('unknown')),
 
   /**
    * @type {Ember.ComputedProperty<Array<Action>>}

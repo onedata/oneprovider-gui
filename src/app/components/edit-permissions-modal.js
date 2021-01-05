@@ -326,6 +326,7 @@ export default Component.extend(
               let subjectType;
               if (identifier.indexOf('@') !== -1) {
                 subject = systemSubjects.findBy('entityId', identifier);
+                subjectType = get(subject, 'equivalentType') || 'group';
               } else if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
                 subject = groups.findBy('entityId', identifier);
                 subjectType = 'group';

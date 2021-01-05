@@ -1,9 +1,19 @@
-{{#listItem.header disableToggleIcon=true class=(concat-classes (concat "type-" aceType) (if hasActivePermissions 'has-active-permissions'))}}
+{{#listItem.header disableToggleIcon=true class=(concat-classes 
+  (concat "type-" aceType) 
+  (if hasActivePermissions 'has-active-permissions')
+)}}
   <span class="item-icon-container">
-    {{one-icon-tagged class="item-icon" icon=icon tagIcon=(if (eq aceType "allow") "checked" "x")}}
+    {{one-icon-tagged 
+      class="item-icon" 
+      icon=icon 
+      tagIcon=(if (eq aceType "allow") "checked" "x")}}
     {{one-tooltip title=(if subject.name subject.name identifier)}}
   </span>
-  <span class="subject-name {{if subject.isSystemSubject "system-subject-name"}} {{if (not subject.name) "unknown-subject-name"}}">
+  <span class={{concat-classes
+    "subject-name"
+    (if subject.isSystemSubject "system-subject-name")
+    (if (not subject.name) "unknown-subject-name")
+  }}>
     {{subjectName}}
   </span>
   {{#status-toolbar class="hidden-xs" as |toolbar|}}
@@ -28,10 +38,16 @@
         value=aceType
         type="radio"
         onChange=(action "aceTypeChanged") as |bg|}}
-        {{#bg.button type=(if (eq aceType "allow") "primary" "default") class="btn-sm ace-type ace-type-allow" value="allow"}}
+        {{#bg.button 
+          type=(if (eq aceType "allow") "primary" "default") 
+          class="btn-sm ace-type ace-type-allow" 
+          value="allow"}}
           {{one-icon icon="checkbox-filled"}} {{tt this "aceTypes.allow"}}
         {{/bg.button}}
-        {{#bg.button type=(if (eq aceType "deny") "danger" "default") class="btn-sm ace-type ace-type-deny" value="deny"}}
+        {{#bg.button 
+          type=(if (eq aceType "deny") "danger" "default") 
+          class="btn-sm ace-type ace-type-deny" 
+          value="deny"}}
           {{one-icon icon="checkbox-filled-x"}}{{tt this "aceTypes.deny"}}
         {{/bg.button}}
       {{/bs-button-group}}  

@@ -127,13 +127,25 @@ export default Component.extend(I18n, {
       this.notifyAboutChange();
     },
     addEntitySelected(entity) {
+      let subjectType;
+      const aceFlags = get(entity, 'constructor.modelName') === 'group' ?
+        AceFlagsMasks.IDENTIFIER_GROUP : AceFlagsMasks.NO_FLAGS;
+
+      if (get(entity, 'entityId').indexOf('@') !== -1) {
+        subjectType = get(entity, 'equivalentType') || 'group';
+      } else if (aceFlags & AceFlagsMasks.IDENTIFIER_GROUP) {
+        subjectType = 'group';
+      } else {
+        subjectType = 'user';
+      }
+
       const newAce = {
         aceMask: 0,
         aceType: 'ALLOW',
         identifier: get(entity, 'entityId'),
-        aceFlags: get(entity, 'constructor.modelName') === 'group' ?
-          AceFlagsMasks.IDENTIFIER_GROUP : AceFlagsMasks.NO_FLAGS,
+        aceFlags: aceFlags,
         subject: entity,
+        subjectType: subjectType,
       };
       this.get('acl').pushObject(newAce);
       this.notifyAboutChange();
