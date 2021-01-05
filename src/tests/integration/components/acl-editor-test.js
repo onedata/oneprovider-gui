@@ -138,6 +138,7 @@ describe('Integration | Component | acl editor', function () {
       identifier: 'user2',
       aceMask: 0,
       subject: this.get('users').findBy('entityId', 'user2'),
+      subjectType: 'user',
     }];
 
     const addAceDropdown =
