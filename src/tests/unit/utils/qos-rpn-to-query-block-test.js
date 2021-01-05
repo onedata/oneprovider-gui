@@ -5,7 +5,7 @@ import qosRpnToQueryBlock from 'oneprovider-gui/utils/qos-rpn-to-query-block';
 
 describe('Unit | Utility | qos rpn to query block', function () {
   it('generates root query block with "and" operator and condition blocks', function () {
-    const rpn = [
+    const rpnData = [
       'a',
       'b',
       '=',
@@ -14,7 +14,7 @@ describe('Unit | Utility | qos rpn to query block', function () {
       '>',
       '&',
     ];
-    const rootBlock = qosRpnToQueryBlock({ rpnData: rpn });
+    const rootBlock = qosRpnToQueryBlock({ rpnData });
 
     expect(get(rootBlock, 'operator')).to.equal('root');
     expect(get(rootBlock, 'operands.length')).to.equal(1);
@@ -31,5 +31,63 @@ describe('Unit | Utility | qos rpn to query block', function () {
     expect(get(operand1, 'property.key')).to.equal('c');
     expect(get(operand1, 'comparator')).to.equal('number.gt');
     expect(get(operand1, 'comparatorValue')).to.equal('1');
+  });
+
+  it('interprets string with letters starting with number as a string', function () {
+    const rpnData = [
+      'a',
+      '1a',
+      '=',
+    ];
+    const rootBlock = qosRpnToQueryBlock({ rpnData });
+    const condition = get(rootBlock, 'operands.firstObject');
+
+    expect(get(condition, 'comparator')).to.equal('string.eq');
+  });
+
+  it('uses storages array to get matching storage by id', function () {
+    const storage = {
+      entityId: 'abc1',
+      name: 'hello',
+    };
+    const storages = [storage];
+    const queryProperties = [{
+      key: 'storageId',
+      displayedKey: 'test storage',
+      type: 'storage',
+    }];
+    const rpnData = [
+      'storageId',
+      'abc1',
+      '=',
+    ];
+    const rootBlock = qosRpnToQueryBlock({ rpnData, queryProperties, storages });
+    const condition = get(rootBlock, 'operands.firstObject');
+
+    expect(get(condition, 'comparator')).to.equal('storage.is');
+    expect(get(condition, 'comparatorValue')).to.equal(storage);
+  });
+
+  it('uses providers array to get matching provider by id', function () {
+    const provider = {
+      entityId: 'pro1',
+      name: 'hello',
+    };
+    const providers = [provider];
+    const queryProperties = [{
+      key: 'providerId',
+      displayedKey: 'test provider',
+      type: 'provider',
+    }];
+    const rpnData = [
+      'providerId',
+      'pro1',
+      '=',
+    ];
+    const rootBlock = qosRpnToQueryBlock({ rpnData, queryProperties, providers });
+    const condition = get(rootBlock, 'operands.firstObject');
+
+    expect(get(condition, 'comparator')).to.equal('provider.is');
+    expect(get(condition, 'comparatorValue')).to.equal(provider);
   });
 });

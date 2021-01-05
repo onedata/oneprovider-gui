@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, set } from '@ember/object';
+import { computed, set, observer } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, or, notEmpty, conditional, isEmpty, and, number, promise } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
@@ -76,11 +76,6 @@ export default Component.extend(...mixins, {
   expressionEditStarted: false,
 
   /**
-   * @type {Boolean}
-   */
-  qosSuggestionsOpen: false,
-
-  /**
    * Input expression in text mode
    * @type {String}
    */
@@ -93,6 +88,11 @@ export default Component.extend(...mixins, {
    * @type {String}
    */
   inputMode: 'visual',
+
+  /**
+   * @type {Boolean}
+   */
+  queryBuilderValid: true,
 
   replicasNumber: number('replicasNumberString'),
 
@@ -122,9 +122,17 @@ export default Component.extend(...mixins, {
    */
   replicasNumberValid: isEmpty('replicasNumberValidationMessage'),
 
-  expressionValid: and('expressionEditStarted', isEmpty('expressionValidationMessage')),
+  /**
+   * Validation status of text form of edited expression.
+   * Always true if not editing using text.
+   * @type {ComputedProperty<Boolean>}
+   */
+  expressionValid: or(not('expressionEditStarted'), isEmpty('expressionValidationMessage')),
 
-  isValid: and('replicasNumberValid', 'expressionValid'),
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isValid: and('replicasNumberValid', 'expressionValid', 'queryBuilderValid'),
 
   qosEvaluationProxy: promise.object(computed(
     'evaluateQosExpression',
@@ -155,6 +163,14 @@ export default Component.extend(...mixins, {
     return rootBlock;
   }),
 
+  isValidObserver: observer('update', 'isValid', function isValidObserver() {
+    const {
+      update,
+      isValid,
+    } = this.getProperties('update', 'isValid');
+    update(undefined, isValid);
+  }),
+
   closeForm() {
     this.get('closeAddEntry')();
     this.resetForm();
@@ -183,22 +199,6 @@ export default Component.extend(...mixins, {
     );
   },
 
-  toggleQosSuggestions(open) {
-    const globalNotify = this.get('globalNotify');
-    if (open) {
-      return this.updateQueryPropertiesProxy({ replace: true })
-        .catch(error => {
-          globalNotify.backendError(this.t('fetchingSuggestions'), error);
-          throw error;
-        })
-        .then(() => {
-          safeExec(this, 'set', 'qosSuggestionsOpen', true);
-        });
-    } else {
-      this.set('qosSuggestionsOpen', false);
-    }
-  },
-
   expressionInfixChanged(value) {
     if (!this.get('expressionEditStarted')) {
       this.set('expressionEditStarted', true);
@@ -212,9 +212,9 @@ export default Component.extend(...mixins, {
       const rootQueryBlock = this.get('rootQueryBlock');
       const expressionInfix =
         this.set('expressionInfix', queryBlockToQosExpression(rootQueryBlock));
-      this.set('isValid', Boolean(expressionInfix));
+      this.set('queryBuilderValid', Boolean(expressionInfix));
     } catch (error) {
-      this.set('isValid', false);
+      this.set('queryBuilderValid', false);
     }
     this.notifyUpdate();
   },
@@ -230,7 +230,16 @@ export default Component.extend(...mixins, {
     const {
       globalNotify,
       evaluateQosExpression,
-    } = this.getProperties('globalNotify', 'evaluateQosExpression');
+      providers,
+      storages,
+      queryProperties,
+    } = this.getProperties(
+      'globalNotify',
+      'evaluateQosExpression',
+      'providers',
+      'storages',
+      'queryProperties',
+    );
     return evaluateQosExpression(value)
       .catch(error => {
         globalNotify.backendError(this.t('validatingQosExpression'), error);
@@ -239,8 +248,12 @@ export default Component.extend(...mixins, {
       .then(({ expressionRpn }) => {
         safeExec(this, () => {
           try {
-            // FIXME: additional params
-            const rootBlock = qosRpnToQueryBlock({ rpnData: expressionRpn });
+            const rootBlock = qosRpnToQueryBlock({
+              rpnData: expressionRpn,
+              queryProperties,
+              providers,
+              storages,
+            });
             this.attachRootBlockNotifiers(rootBlock);
             this.set('rootQueryBlock', rootBlock);
             rootBlock.notifyUpdate();
@@ -266,9 +279,6 @@ export default Component.extend(...mixins, {
     replicasNumberChanged(value) {
       this.set('replicasNumberString', value);
       this.notifyUpdate();
-    },
-    toggleQosSuggestions(open = true) {
-      return this.toggleQosSuggestions(open);
     },
     refreshQueryProperties() {
       return this.get('refreshQueryProperties')();

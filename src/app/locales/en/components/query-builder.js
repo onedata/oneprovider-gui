@@ -10,7 +10,7 @@ const comparators = {
 export default {
   valueEditors: {
     dropdownEditor: {
-      providedBy: 'provided by',
+      providedBy: '@',
     },
   },
   blockSelector: {

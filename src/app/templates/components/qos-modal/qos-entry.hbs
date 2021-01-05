@@ -7,13 +7,15 @@
           {{one-tooltip title=(tt this (concat "statusHint." statusId))}}
         </span>
         <span class="header-replicas-number">
-          <span class="replicas-number">
-            {{if (gt replicasNumber 99) "99+" replicasNumber}}
+          <span class="replicast-number-text">
+            <span class="replicas-number">
+              {{if (gt replicasNumber 99) "99+" replicasNumber}}
+            </span>
+            {{tt this (if (gt replicasNumber 1) "replicas" "replica")}}
+            {{#if (gt replicasNumber 99)}}
+              {{one-tooltip title=replicasNumber}}
+            {{/if}}
           </span>
-          {{tt this (if (gt replicasNumber 1) "replicas" "replica")}}
-          {{#if (gt replicasNumber 99)}}
-            {{one-tooltip title=replicasNumber}}
-          {{/if}}
         </span>
         <div class="qos-buttons">
           {{#one-copy-button

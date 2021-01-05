@@ -216,10 +216,22 @@ const spaceHandlers = {
     } else {
       const allProviders = this.get('mockBackend.entityRecords.provider');
       return {
-        expressionRpn: ['hello', 'world', '=', 'foo', '1', '>=', '|'],
+        expressionRpn: [
+          'hello',
+          'world',
+          '=',
+          'foo',
+          '1',
+          '>=',
+          '|',
+          'priority',
+          '2',
+          '=',
+          '&',
+        ],
         matchingStorages: allProviders ? [{
             id: storageIdAlpha,
-            name: 'Alpha storage',
+            name: 'Alpha storage with very long name',
             providerId: get(allProviders[0], 'entityId'),
           },
           {
@@ -584,7 +596,11 @@ export default OnedataGraphMock.extend({
         numberValues: [],
       },
       myCustomParameter: {
-        stringValues: ['one', 'two'],
+        stringValues: [
+          'one',
+          'two',
+          'Mollit amet nostrud occaecat est mollit magna irure Lorem laboris exercitation elit.',
+        ],
         numberValues: [10, 23, 36],
       },
       priority: {

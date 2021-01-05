@@ -13,7 +13,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import EmberObject, { get, observer, computed, setProperties } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
-import { conditional, raw, equal, and, getBy, array, promise } from 'ember-awesome-macros';
+import { conditional, raw, equal, and, getBy, array, promise, or, not } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled, allSettled, resolve } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -111,7 +111,8 @@ export default Component.extend(...mixins, {
    * One of: show (show list of QoS requirements for file), add (form)
    * @type {String}
    */
-  mode: 'show',
+  // FIXME: restore
+  mode: 'add',
 
   /**
    * Object containing data required to create neq Models.QosRequirement
@@ -206,6 +207,11 @@ export default Component.extend(...mixins, {
   }),
 
   /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  saveDisabled: or(not('newEntryIsValid'), not('editPrivilege')),
+
+  /**
    * Data needed to show requirements list
    * @type {ComputedProperty<PromiseArray>}
    */
@@ -224,8 +230,6 @@ export default Component.extend(...mixins, {
   init() {
     this._super(...arguments);
     this.initUpdater();
-    // FIXME: remove
-    window.dataProxy = this.get('dataProxy');
   },
 
   willDestroyElement() {
@@ -365,8 +369,7 @@ export default Component.extend(...mixins, {
   async updateData(replace = false) {
     const fileItems = this.get('fileItems');
     try {
-      await allFulfilled(fileItems.invoke('updateQosItemsProxy', { replace }));
-      await allFulfilled(fileItems.mapBy('file').invoke('reload'));
+      await allFulfilled(fileItems.invoke('updateData', replace));
     } catch (error) {
       safeExec(this, 'set', 'updater.interval', null);
     }
@@ -414,10 +417,12 @@ export default Component.extend(...mixins, {
       this.get('onHide')();
     },
     changeNewEntry(data, isValid) {
-      this.setProperties({
-        newEntryData: data,
-        newEntryIsValid: isValid,
-      });
+      if (data !== undefined) {
+        this.set('newEntryData', data);
+      }
+      if (isValid !== undefined) {
+        this.set('newEntryIsValid', isValid);
+      }
     },
     save() {
       return this.addEntry(this.get('newEntryData'));

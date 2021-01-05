@@ -45,6 +45,7 @@
                   rootQueryBlock=rootQueryBlock
                   readonly=false
                   refreshQueryProperties=(action "refreshQueryProperties")
+                  onValidityChange=(action (mut queryBuilderValid))
                 }}
                   {{#unless rootQueryBlock.operands.length}}
                     <a class="enter-text-link clickable" {{action "enterTextClicked"}}>
@@ -80,6 +81,13 @@
                       >
                         {{one-icon icon="browser-copy"}}
                       </div>
+                      {{#if expressionInfix}}
+                        {{#one-tooltip}}
+                          <code class="raw-expression-infix-preview">
+                            {{expressionInfix}}
+                          </code>
+                        {{/one-tooltip}}
+                      {{/if}}
                     {{/one-copy-button}}
                   </div>
                 {{/if}}

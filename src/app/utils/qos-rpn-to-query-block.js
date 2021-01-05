@@ -28,7 +28,7 @@ const isDecimalFloatRe = /^(\d+|(\d+\.\d+))$/;
 function getPropertyType(value) {
   if (value == null) {
     return 'symbol';
-  } else if (typeof value === 'number' && isDecimalFloatRe.test(value)) {
+  } else if (typeof value === 'number' || isDecimalFloatRe.test(value)) {
     return 'number';
   } else {
     return 'string';

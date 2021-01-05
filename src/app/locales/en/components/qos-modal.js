@@ -6,7 +6,7 @@ import qosAdd from './qos-modal/qos-add';
 export default {
   headerShow: 'Quality of Service',
   headerAdd: 'Add Quality of Service requirement',
-  headerAddMobile: 'Add QoS req.',
+  headerAddMobile: 'Add QoS requirement',
   for: 'for',
   close: 'Close',
   fileType: {

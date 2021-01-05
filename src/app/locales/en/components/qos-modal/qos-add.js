@@ -7,7 +7,6 @@ const translations = {
     expressionEmpty: 'Expression cannot be empty',
   },
   insertCondition: 'Insert condition...',
-  fetchingSuggestions: 'fetching QoS parameters suggestions',
   validatingQosExpression: 'validating QoS expression',
   copyExpression: 'Copy expression',
   enterText: 'enter as text',

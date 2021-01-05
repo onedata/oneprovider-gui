@@ -27,6 +27,17 @@
     }
   }
   
+  .qos-modal-header {
+    .qos-modal-header-text {
+      display: inline-block;
+      max-width: calc(100% - 2.4em);
+    }
+    .qos-modal-header-hint {
+      display: inline-block;
+      height: 1.4em;
+    }
+  }
+  
   .qos-status-fulfilled {
     color: $color-qos-status-fulfilled;
   }

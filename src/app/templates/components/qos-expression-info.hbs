@@ -22,7 +22,7 @@
       triggerSelector=(concat "#" elementId " .storages-matching-block .storages-matching-info-icon")
       popoverStyle="qos-expression-info-list over-modals"
     }}
-      <div class="storages-matching-list">
+      {{#perfect-scrollbar-element class="storages-matching-list"}}
         {{#each matchingStorages as |storage|}}
           <div class="storages-matching-item">
             {{one-icon icon="support" class="support-bullet"}}
@@ -37,7 +37,7 @@
             {{/truncated-string}}
           </div>
         {{/each}}
-      </div>
+      {{/perfect-scrollbar-element}}
     {{/one-webui-popover}}
   {{/if}}
 </div>

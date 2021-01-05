@@ -33,6 +33,31 @@ export default EmberObject.extend(...objectMixins, {
    */
   qosItemsCache: undefined,
 
+  fileQosStatus: computed(
+    'qosItemsProxy.content',
+    'fileQosSummaryProxy.content',
+    function fileQosStatus() {
+      const {
+        qosItemsProxy,
+        fileQosSummaryProxy,
+      } = this.getProperties('qosItemsProxy', 'fileQosSummaryProxy');
+
+      if (get(qosItemsProxy, 'isPending')) {
+        return 'loading';
+      } else if (get(qosItemsProxy, 'isRejected')) {
+        return 'error';
+      } else if (get(qosItemsProxy, 'length') === 0) {
+        return 'empty';
+      } else if (get(fileQosSummaryProxy, 'isPending')) {
+        return 'loading';
+      } else if (get(fileQosSummaryProxy, 'isRejected')) {
+        return 'error';
+      } else {
+        return get(fileQosSummaryProxy, 'content.status');
+      }
+    }
+  ),
+
   /**
    * @override
    */
@@ -80,30 +105,14 @@ export default EmberObject.extend(...objectMixins, {
     });
   },
 
-  fileQosStatus: computed(
-    'qosItemsProxy.content',
-    'fileQosSummaryProxy.content',
-    function fileQosStatus() {
-      const {
-        qosItemsProxy,
-        fileQosSummaryProxy,
-      } = this.getProperties('qosItemsProxy', 'fileQosSummaryProxy');
-
-      if (get(qosItemsProxy, 'isPending')) {
-        return 'loading';
-      } else if (get(qosItemsProxy, 'isRejected')) {
-        return 'error';
-      } else if (get(qosItemsProxy, 'length') === 0) {
-        return 'empty';
-      } else if (get(fileQosSummaryProxy, 'isPending')) {
-        return 'loading';
-      } else if (get(fileQosSummaryProxy, 'isRejected')) {
-        return 'error';
-      } else {
-        return get(fileQosSummaryProxy, 'content.status');
-      }
-    }
-  ),
+  /**
+   * Updates data that should be displayed - see usages in code.
+   * @param {Boolean} [replace] if true, do not change pending state of `qosItemsProxy`
+   */
+  async updateData(replace = false) {
+    await this.updateQosItemsProxy({ replace });
+    await this.get('file').reload();
+  },
 
   init() {
     this._super(...arguments);

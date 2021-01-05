@@ -1,3 +1,6 @@
-{{#truncated-string class="provider-option-provider-line"}}
-  {{name-conflict item=(hash name=itemValue.name conflictLabel=itemValue.entityId)}}
-{{/truncated-string}}
+<span class="provider-option-provider-line">
+  {{name-conflict
+    item=(hash name=itemValue.name conflictLabel=(truncate itemValue.entityId 6 false))
+    separator=" #"
+  }}
+</span>

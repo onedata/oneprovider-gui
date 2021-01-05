@@ -8,17 +8,17 @@
   as |modal|
 }}
   {{#modal.header}}
-    <h1>
-      <span>
+    <h1 class="qos-modal-header">
+      {{#truncated-string class="qos-modal-header-text"}}
         {{tt this
           (concat (if isAddMode
             (if media.isMobile "headerAddMobile" "headerAdd")
             "headerShow"
           ))
         }}
-      </span>
+      {{/truncated-string}}
       {{#if isAddMode}}
-        <div class="inline-icon-container">
+        <div class="inline-icon-container qos-modal-header-hint">
           {{one-icon
             icon="sign-question-rounded"
             class="qos-header-hint-trigger qos-add-hint-trigger clickable"
@@ -106,6 +106,8 @@
         spaceId=spaceId
         valuesBuilder=valuesBuilder
         queryPropertiesProxy=queryPropertiesProxy
+        storages=storages
+        providers=providers
         evaluateQosExpression=(action "evaluateQosExpression")
         refreshQueryProperties=(action "refreshQueryProperties")
         update=(action "changeNewEntry")
@@ -164,12 +166,12 @@
       <div class="btn-tooltip-container">
         {{#one-spin-button
           class="btn btn-primary"
-          disabled=(or (not newEntryIsValid) (not editPrivilege))
+          disabled=saveDisabled
           action=(action "save")
         }}
           {{tt this "save"}}
         {{/one-spin-button}}
-        {{#if multipleFiles}}
+        {{#if (and (not saveDisabled) multipleFiles)}}
           {{one-tooltip title=(tt this "addMultiHint" count=files.length)}}
         {{/if}}
       </div>

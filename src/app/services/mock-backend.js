@@ -42,7 +42,9 @@ export const recordNames = {
   // Uncomment for pretty names
   // provider: ['Cracow', 'Paris', 'Lisbon'],
   // Uncomment for one-env-like names
-  provider: ['dev-oneprovider-krakow', 'dev-oneprovider-paris', 'dev-oneprovider-lisbon'],
+  provider: ['dev-oneprovider-krakow', 'mietek-paris',
+    'dev-oneprovider-lisbon-and-its-a-very-long-name',
+  ],
   space: defaultRecordNames,
 };
 
@@ -222,7 +224,7 @@ export default Service.extend({
         aspect: 'instance',
       }),
       status: 'fulfilled',
-      replicasNum: 7,
+      replicasNum: 200,
       expressionRpn: [
         'storageId',
         storageIdBeta,
@@ -485,7 +487,10 @@ export default Service.extend({
   createProviderRecords(store, names) {
     return allFulfilled(_.range(numberOfProviders).map((i) => {
       const [latitude, longitude] = getCoordinates(i, numberOfProviders);
-      const entityId = (i === 0 ? mockGuiContext.clusterId : `${i}abc1`);
+      const entityId = (i === 0 ?
+        mockGuiContext.clusterId :
+        `${i}ab98a7ba6b7a6ba8b6a7b5a8b6a78b5a78ba578ba587`
+      );
       return allFulfilled(['private', 'protected'].map(scope =>
         store.createRecord('provider', this.providerRecordData({
           entityId,
