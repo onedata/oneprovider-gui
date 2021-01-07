@@ -41,8 +41,10 @@ export const defaultRecordNames = ['One', 'Two', 'Three'];
 export const recordNames = {
   // Uncomment for pretty names
   // provider: ['Cracow', 'Paris', 'Lisbon'],
-  // Uncomment for one-env-like names
-  provider: ['dev-oneprovider-krakow-test', 'the-paris',
+  // Uncomment for various one-env-like names
+  provider: [
+    'dev-oneprovider-krakow-test',
+    'dev-paris',
     'dev-oneprovider-lisbon-and-its-a-very-long-name',
   ],
   space: defaultRecordNames,
@@ -240,6 +242,10 @@ export default Service.extend({
         'Culpa consectetur consectetur enim esse amet incididunt velit aliqua cupidatat labore nostrud laboris irure.',
         '=',
         '\\',
+        'storageId',
+        'not_exist',
+        '=',
+        '|',
         '&',
       ],
       file: chainDir,
