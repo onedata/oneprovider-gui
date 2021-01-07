@@ -334,7 +334,7 @@ export default Component.extend(
                 subject = users.findBy('entityId', identifier);
                 subjectType = 'user';
               }
-              return _.assign({ subject, subjectType, identifier }, ace);
+              return _.assign({ subject, subjectType }, ace);
             })
           )
         )));

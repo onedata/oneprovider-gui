@@ -6,8 +6,9 @@
     {{one-icon-tagged 
       class="item-icon" 
       icon=icon 
-      tagIcon=(if (eq aceType "allow") "checked" "x")}}
-    {{one-tooltip title=(if subject.name subject.name identifier)}}
+      tagIcon=(if (eq aceType "allow") "checked" "x")
+    }}
+    {{one-tooltip title=(or subject.name tooltipText)}}
   </span>
   <span class={{concat-classes
     "subject-name"
@@ -41,13 +42,15 @@
         {{#bg.button 
           type=(if (eq aceType "allow") "primary" "default") 
           class="btn-sm ace-type ace-type-allow" 
-          value="allow"}}
+          value="allow"
+        }}
           {{one-icon icon="checkbox-filled"}} {{tt this "aceTypes.allow"}}
         {{/bg.button}}
         {{#bg.button 
           type=(if (eq aceType "deny") "danger" "default") 
           class="btn-sm ace-type ace-type-deny" 
-          value="deny"}}
+          value="deny"
+        }}
           {{one-icon icon="checkbox-filled-x"}}{{tt this "aceTypes.deny"}}
         {{/bg.button}}
       {{/bs-button-group}}  
