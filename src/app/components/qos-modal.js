@@ -111,8 +111,7 @@ export default Component.extend(...mixins, {
    * One of: show (show list of QoS requirements for file), add (form)
    * @type {String}
    */
-  // FIXME: restore
-  mode: 'add',
+  mode: 'show',
 
   /**
    * Object containing data required to create neq Models.QosRequirement
@@ -288,11 +287,6 @@ export default Component.extend(...mixins, {
    * @returns {Promise}
    */
   resolveSpecialSuggestions(suggestions) {
-    // FIXME: remove
-    // const {
-    //   providerManager,
-    //   anyStorageQueryParameter,
-    // } = this.getProperties('providerManager', 'anyStorageQueryParameter');
     const anyStorageQueryParameter = this.get('anyStorageQueryParameter');
     const promises = [];
     suggestions.forEach(suggestion => {
