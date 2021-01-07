@@ -99,7 +99,11 @@ export default Component.extend(...mixins, {
    * If modal is opened - interval in ms to auto update data
    * @type {Number}
    */
-  updateInterval: conditional('open', raw(5000), null),
+  updateInterval: conditional(
+    and('open', equal('mode', raw('show'))),
+    conditional(equal('allQosStatus', raw('fulfilled')), raw(15000), raw(5000)),
+    null
+  ),
 
   /**
    * Initialized in init
