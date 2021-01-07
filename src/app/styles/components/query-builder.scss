@@ -6,3 +6,15 @@
     }
   }
 }
+
+.query-builder {
+  .query-builder-condition-block {
+    .property-key,
+    .comparator,
+    .comparator-value {
+      .conflict-part {
+        word-break: break-word;
+      }
+    }
+  }
+}
