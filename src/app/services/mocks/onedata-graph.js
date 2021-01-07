@@ -600,6 +600,7 @@ export default OnedataGraphMock.extend({
           'one',
           'two',
           'Mollit amet nostrud occaecat est mollit magna irure Lorem laboris exercitation elit.',
+          'averylongtextwithoutspacesaverylongtextwithoutspacesaverylongtextwithoutspaces',
         ],
         numberValues: [10, 23, 36],
       },

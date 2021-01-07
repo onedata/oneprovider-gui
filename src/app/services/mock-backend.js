@@ -42,7 +42,7 @@ export const recordNames = {
   // Uncomment for pretty names
   // provider: ['Cracow', 'Paris', 'Lisbon'],
   // Uncomment for one-env-like names
-  provider: ['dev-oneprovider-krakow', 'mietek-paris',
+  provider: ['dev-oneprovider-krakow-test', 'the-paris',
     'dev-oneprovider-lisbon-and-its-a-very-long-name',
   ],
   space: defaultRecordNames,

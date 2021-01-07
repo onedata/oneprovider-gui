@@ -125,7 +125,7 @@
       @media (max-width: $screen-xs-max) {
         margin-left: -0.3em;
         .expression-clipboard-btn {
-          display: flex;
+          display: inline-flex;
         }
         .copy-expression-icon-container {
           order: -1;

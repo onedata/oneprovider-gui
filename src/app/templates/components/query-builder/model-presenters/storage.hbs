@@ -1,6 +1,6 @@
 <span class="storage-option-storage-line">
   {{name-conflict
-    item=(hash name=itemValue.name conflictLabel=(truncate itemValue.entityId 6 false))
-    separator=" #"
+    item=(hash name=itemValue.name conflictLabel=itemValue.provider.name)
+    separator=" @"
   }}
 </span>

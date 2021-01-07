@@ -1,6 +1,6 @@
 <div class="qos-add">
   <div class="list-content">
-    <table class="table table-info table-info-large table-info-collapsible table-info-breakable">
+    <table class="table table-info table-info-large table-info-collapsible">
       <tbody>
         <tr class="qos-info-row-replicas-number">
           <td class="property-name {{unless readonly "with-input"}}">
@@ -82,11 +82,8 @@
                         {{one-icon icon="browser-copy"}}
                       </div>
                       {{#if expressionInfix}}
-                        {{#one-tooltip}}
-                          <code class="raw-expression-infix-preview">
-                            {{expressionInfix}}
-                          </code>
-                        {{/one-tooltip}}
+                        {{!-- do not break line, because Firefox interprets it as extra line in raw code vieew --}}
+                        {{#one-tooltip}}<code class="raw-expression-infix-preview">{{expressionInfix}}</code>{{/one-tooltip}}
                       {{/if}}
                     {{/one-copy-button}}
                   </div>
