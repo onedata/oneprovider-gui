@@ -260,12 +260,14 @@ export default Component.extend(...mixins, {
   /**
    * @override
    */
-  fetchProviders() {
+  async fetchProviders() {
     const space = this.get('space');
     if (space) {
-      return get(space, 'providerList.list').then(list => list ? list.toArray() : []);
+      const providerList = await get(space, 'providerList');
+      const list = get(providerList, 'list');
+      return list ? list.toArray() : [];
     } else {
-      return resolve([]);
+      return [];
     }
   },
 
