@@ -241,7 +241,7 @@ const spaceHandlers = {
           '=',
           '&',
           'providerId',
-          get(allProviders[0], 'entityId'),
+          allProviders ? get(allProviders[0], 'entityId') : 'test_provider_id',
           '=',
           '&',
         ],
