@@ -9,6 +9,7 @@
 
 import Component from '@ember/component';
 import { computed, set, observer } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { not, or, notEmpty, conditional, isEmpty, and, number, promise } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
@@ -93,6 +94,11 @@ export default Component.extend(...mixins, {
    * @type {Boolean}
    */
   queryBuilderValid: true,
+
+  /**
+   * @type {ComputedProperty<Array<QueryProperty>>}
+   */
+  queryProperties: reads('queryPropertiesProxy.content'),
 
   replicasNumber: number('replicasNumberString'),
 

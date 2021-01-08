@@ -64,10 +64,10 @@ function expandQueryBlock({ obj, props = {}, storages = [], providers = [] }) {
     // for storage and provider fallback to string id of model if model not exists
     switch (propertyType) {
       case 'storage':
-        comparatorValue = storages.findBy('entityId', obj.value) || obj.value;
+        comparatorValue = storages.findBy('entityId', obj.value) || String(obj.value);
         break;
       case 'provider':
-        comparatorValue = providers.findBy('entityId', obj.value) || obj.value;
+        comparatorValue = providers.findBy('entityId', obj.value) || String(obj.value);
         break;
       default:
         comparatorValue = obj.value;
