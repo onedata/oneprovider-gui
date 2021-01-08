@@ -25,8 +25,14 @@ export default Service.extend({
   store: service(),
   onedataGraph: service(),
 
-  getRecord(qosGri) {
-    return this.get('store').findRecord('qosRequirement', qosGri);
+  async getRecord(qosGri, reload = false) {
+    const cachedRecord = reload ?
+      null : this.get('store').peekRecord('qosRequirement', qosGri);
+    if (!cachedRecord) {
+      return await this.get('store').findRecord('qosRequirement', qosGri);
+    } else {
+      return cachedRecord;
+    }
   },
 
   getRecordById(entityId, scope = 'private') {

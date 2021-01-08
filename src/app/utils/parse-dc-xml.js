@@ -35,7 +35,7 @@ export default EmberObject.extend({
   }),
 
   entries: computed('xmlDoc', function entries() {
-    // FIXME: parse malformed XML without namespace specified
+    // TODO: VFS-6566 parse malformed XML without namespace specified
     // const xmlDoc = this.get('xmlDoc');
     // dcElements.reduce((allEntries, type) => {
     //   allEntries.push(...Array.from(xmlDoc.getElementsByTagName(`dc:${type}`)));

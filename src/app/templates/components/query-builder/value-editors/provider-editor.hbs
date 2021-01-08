@@ -1,0 +1,20 @@
+{{#power-select
+  triggerClass=(concat-classes "small comparator-value provider-editor-trigger truncate dropdown-editor-trigger" guid)
+  dropdownClass="small ember-basic-dropdown-content-comparator-value over-popover-over-modals dropdown-editor-options storage-editor-options"
+  options=options
+  selected=value
+  renderInPlace=false
+  placeholder=(tt this "dropdownPlaceholder")
+  matcher=(action "search")
+  onchange=(action onValueChange)
+  onclose=(action onFinishEdit)
+  onblur=(action "onSelectorBlur")
+  as |itemValue|
+}}
+  <div class="option-container">
+    {{query-builder/model-presenters/provider
+      tagName=""
+      itemValue=itemValue
+    }}
+  </div>
+{{/power-select}}

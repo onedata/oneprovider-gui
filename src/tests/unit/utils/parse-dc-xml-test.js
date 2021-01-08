@@ -71,6 +71,8 @@ describe('Unit | Utility | parse dc xml', function () {
     ]);
   });
 
+  // TODO: VFS-6566 should pass below tests to support on-line generated
+
   // it('parses XML generated with online generator with multiple nodes of the same type',
   //   function () {
   //     const result = DcXmlParser.create({ xmlSource: p });
@@ -91,7 +93,7 @@ describe('Unit | Utility | parse dc xml', function () {
   //   }
   // );
 
-  // FIXME: shoudl pass below tests to support malformed XMLs
+  // TODO: VFS-6566 should pass below tests to support malformed XMLs
 
   // it('parses example XML metadata without namespace', function () {
   //   const result = DcXmlParser.create({ xmlSource: xmlWithoutNamespace });

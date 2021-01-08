@@ -1,6 +1,6 @@
 $color-public-blue-light: #F2F3F8;
 
-// FIXME: common styles with editor
+// TODO: VFS-6566 common styles with editor
 .open-data-editor {
   .section-name {
     @include font-semibold;

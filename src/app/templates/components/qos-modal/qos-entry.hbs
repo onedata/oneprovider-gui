@@ -6,100 +6,114 @@
           {{one-icon class=(concat "item-icon qos-status-" statusId) icon=statusIcon}}
           {{one-tooltip title=(tt this (concat "statusHint." statusId))}}
         </span>
-        <div class="tags-input tags-input-replica header-element-top-fix">
-          <div class="input-element tag-item tag-item-info replicas-tag-item">
-            <span class="header-replicas-number">
-              <span class="replicas-number">
-                {{if (gt replicasNumber 99) "99+" replicasNumber}}
-              </span>
-              {{tt this (if (gt replicasNumber 1) "replicas" "replica")}}
-              {{#if (gt replicasNumber 99)}}
-                {{one-tooltip title=replicasNumber}}
-              {{/if}}
+        <span class="header-replicas-number">
+          <span class="replicast-number-text">
+            <span class="replicas-number">
+              {{if (gt replicasNumber 99) "99+" replicasNumber}}
             </span>
-          </div>
+            {{tt this (if (gt replicasNumber 1) "replicas" "replica")}}
+            {{#if (gt replicasNumber 99)}}
+              {{one-tooltip title=replicasNumber}}
+            {{/if}}
+          </span>
+        </span>
+        <div class="qos-buttons">
+          {{#one-copy-button
+            class="clipboard-btn qos-expression-clipboard-btn copy-btn-icon copy-trigger clickable"
+            parentElementId=elementId
+            localTarget="input.raw-expression-infix"
+          }}
+            {{one-icon
+              icon="circle-copy"
+              class="copy-btn-icon icon-trigger"
+            }}
+            {{#if rawExpressionInfix}}
+              {{!-- do not break line, because Firefox interprets it as extra line in raw code vieew --}}
+              {{#one-tooltip class="tooltip-lg"}}<code class="raw-expression-infix-preview">{{rawExpressionInfix}}</code>{{/one-tooltip}}
+            {{/if}}
+          {{/one-copy-button}}
+          {{one-icon
+            id=idInfoTriggerId
+            icon="circle-id"
+            class="icon-trigger id-trigger clickable"
+          }}
+          {{#one-webui-popover
+            class="id-info"
+            popoverStyle="id-info over-modals"
+            triggerSelector=(concat "#" idInfoTriggerId)
+            as |popover|
+          }}
+            <div class="form-group without-margin">
+              <label class="control-label">{{tt this "qosId"}}:</label>
+              {{one-clipboard-line
+                size="sm"
+                value=qosId
+                showText=false
+                btnType="default"
+              }}
+            </div>
+          {{/one-webui-popover}}
+          {{#one-icon
+            id=removeTriggerId
+            icon="checkbox-filled-x"
+            class=(concat-classes
+              "icon-trigger remove-qos-trigger"
+              (if direct "clickable enabled" "disabled")
+            )
+          }}
+            {{#if inherited}}
+              {{one-tooltip title=(tt this "disabledRemoveHint")}}
+            {{/if}}
+          {{/one-icon}}
+          {{#if direct}}
+            {{#one-switchable-popover-modal
+              class="qos-remove-question"
+              triggersConfiguration=(concat "#" removeTriggerId)
+              popoverStyle="qos-remove-question over-modals"
+              submit=(action "confirmRemove")
+              as |ospm|
+            }}
+              <h1>{{tt this "removeQuestion.header"}}</h1>
+              <p>{{tt this "removeQuestion.information"}}</p>
+              <div class="btn-toolbar">
+                {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+                  {{tt this "removeQuestion.cancel"}}
+                {{/bs-button}}
+                {{#one-spin-button
+                  class="btn btn-sm btn-danger"
+                  action=ospm.submit
+                }}
+                  {{one-icon icon="remove"}} <span>{{tt this "removeQuestion.remove"}}</span>
+                {{/one-spin-button}}
+              </div>
+            {{/one-switchable-popover-modal}}
+          {{/if}}
         </div>
       </div>
       <div class="qos-expression-text-field">
-        {{#clipboard-line
-          type="html"
-          size=(if smallContent "sm")
-          rawValue=rawExpressionInfix
-          class="monospace-font clipboard-line-expression qos-entry-expression"
+        {{qos-expression-viewer
+          valuesBuilder=valuesBuilder
+          expressionRpn=expressionRpn
+          storages=storages
+          providers=providers
+          queryProperties=queryProperties
         }}
-          {{qos-expression-viewer expressionRpn=expressionRpn}}
-        {{/clipboard-line}}
-      </div>
-      <div class="qos-buttons">
-        {{one-icon
-          id=idInfoTriggerId
-          icon="circle-id"
-          class="icon-trigger id-trigger clickable header-element-top-fix"
-        }}
-        {{#one-webui-popover
-          class="id-info"
-          popoverStyle="id-info over-modals"
-          triggerSelector=(concat "#" idInfoTriggerId)
-          as |popover|
-        }}
-          <div class="form-group without-margin">
-            <label class="control-label">{{tt this "qosId"}}:</label>
-            {{one-clipboard-line
-              size="sm"
-              value=qosId
-              showText=false
-              btnType="default"
-            }}
-          </div>
-        {{/one-webui-popover}}
-        {{#one-icon
-          id=removeTriggerId
-          icon="checkbox-filled-x"
-          class=(concat-classes
-            "icon-trigger remove-qos-trigger header-element-top-fix"
-            (if direct "clickable enabled" "disabled")
-          )
-        }}
-          {{#if inherited}}
-            {{one-tooltip title=(tt this "disabledRemoveHint")}}
-          {{/if}}
-        {{/one-icon}}
-        {{#if direct}}
-          {{#one-switchable-popover-modal
-            class="qos-remove-question"
-            triggersConfiguration=(concat "#" removeTriggerId)
-            popoverStyle="qos-remove-question over-modals"
-            submit=(action "confirmRemove")
-            as |ospm|
-          }}
-            <h1>{{tt this "removeQuestion.header"}}</h1>
-            <p>{{tt this "removeQuestion.information"}}</p>
-            <div class="btn-toolbar">
-              {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
-                {{tt this "removeQuestion.cancel"}}
-              {{/bs-button}}
-              {{#one-spin-button
-                class="btn btn-sm btn-danger"
-                action=ospm.submit
-              }}
-                {{one-icon icon="remove"}} <span>{{tt this "removeQuestion.remove"}}</span>
-              {{/one-spin-button}}
-            </div>
-          {{/one-switchable-popover-modal}}
-        {{/if}}
       </div>
     </div>
+    <div class="qos-subheader qos-expression-info-subheader with-icon-left">
+      {{qos-evaluation-info qosEvaluationProxy=qosEvaluationProxy}}
+    </div>
     {{#unless direct}}
-      <div class="qos-subheader qos-path-subheader">
+      <div class="qos-subheader qos-path-subheader with-icon-left">
         {{#promise-proxy-container
           proxy=qosSourceFilePathProxy
           centered=false
           spinnerBlockClass="spinner-block-path"
-          sizeClass="xxs"
+          sizeClass="xs"
           inlineError=true
         }}
           <span class="inherited-text">
-            <div class="inline-icon-container inherited-icon">
+            <div class="inline-icon-container info-icon">
               {{one-icon icon="arrow-long-up"}}
             </div>
             {{tt this "inheritedFrom"}}
@@ -118,4 +132,9 @@
       </div>
     {{/unless}}
   </div>
+  <input
+    type="text"
+    value={{rawExpressionInfix}}
+    class="hidden-clipboard-source raw-expression-infix"
+  >
 </div>

@@ -16,6 +16,8 @@ import {
   generateFileEntityId,
   generateDirEntityId,
   parseDecodedDirEntityId,
+  storageIdAlpha,
+  storageIdBeta,
 } from 'oneprovider-gui/services/mock-backend';
 import { inject as service } from '@ember/service';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -147,13 +149,115 @@ const spaceHandlers = {
       gri: 'op_space.efd6e203d35061d5bef37a7e1636e8bbip2d5571458.view,test6:private',
     };
   },
-  available_qos_parameters(operation) {
+  available_qos_parameters(operation, ) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
     return {
       qosParameters: this.get('qosParameters'),
     };
+  },
+  evaluate_qos_expression(operation, entityId, data) {
+    if (operation != 'create') {
+      return messageNotSupported;
+    }
+    /** @type {string} */
+    const expression = data && data.expression;
+    if (!expression) {
+      return {
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'expression cannot be empty' },
+        },
+        data: {},
+      };
+    } else if (!expression.includes('=') && !expression.trim().includes('anyStorage')) {
+      return {
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'syntax error before: ' },
+        },
+        data: {},
+      };
+    } else if (expression.trim().endsWith('=')) {
+      return {
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'syntax error before: "="' },
+        },
+        data: {},
+      };
+    } else if (expression.includes('*')) {
+      return {
+        success: false,
+        error: {
+          id: 'invalidQosExpression',
+          details: { reason: 'illegal characters "*"' },
+        },
+        data: {},
+      };
+    } else if (expression === 'hack') {
+      return {
+        success: false,
+        error: {
+          id: 'internalServerError',
+          description: 'You tried to hack the system.',
+        },
+        data: {},
+      };
+    } else if (expression === 'anyStorage\\anyStorage') {
+      return {
+        expressionRpn: ['anyStorage', 'anyStorage', '\\'],
+        matchingStorages: [],
+      };
+    } else {
+      const allProviders = this.get('mockBackend.entityRecords.provider');
+      return {
+        expressionRpn: [
+          'hello',
+          'world',
+          '=',
+          'foo',
+          '1',
+          '>=',
+          '|',
+          'priority',
+          '2',
+          '=',
+          '&',
+          'storageId',
+          '123',
+          '=',
+          '\\',
+          'storageId',
+          storageIdAlpha,
+          '=',
+          '&',
+          'providerId',
+          '456',
+          '=',
+          '&',
+          'providerId',
+          allProviders ? get(allProviders[0], 'entityId') : 'test_provider_id',
+          '=',
+          '&',
+        ],
+        matchingStorages: allProviders ? [{
+            id: storageIdAlpha,
+            name: 'Alpha storage with very long name',
+            providerId: get(allProviders[0], 'entityId'),
+          },
+          {
+            id: storageIdBeta,
+            name: 'Beta storage',
+            providerId: get(allProviders[1], 'entityId'),
+          },
+        ] : [],
+      };
+    }
   },
 };
 
@@ -489,23 +593,38 @@ export default OnedataGraphMock.extend({
   metaJson,
   metaRdf,
 
-  qosParameters: Object.freeze({
-    storageId: {
-      stringValues: ['storage_id_beta', 'storage_id_alpha'],
-      numberValues: [],
-    },
-    storageType: {
-      stringValues: ['posix', 'cephrados', 'webdav'],
-      numberValues: [],
-    },
-    myCustomParameter: {
-      stringValues: ['one', 'two'],
-      numberValues: [10, 23, 36],
-    },
-    priority: {
-      stringValues: [],
-      numberValues: [1, 2],
-    },
+  qosParameters: computed(function qosParameters() {
+    const allProviders = this.get('mockBackend.entityRecords.provider') || [];
+    return {
+      storageId: {
+        stringValues: [
+          storageIdAlpha,
+          storageIdBeta,
+        ],
+        numberValues: [],
+      },
+      providerId: {
+        stringValues: allProviders.mapBy('entityId'),
+        numberValues: [],
+      },
+      storageType: {
+        stringValues: ['posix', 'cephrados', 'webdav'],
+        numberValues: [],
+      },
+      myCustomParameter: {
+        stringValues: [
+          'one',
+          'two',
+          'Mollit amet nostrud occaecat est mollit magna irure Lorem laboris exercitation elit.',
+          'averylongtextwithoutspacesaverylongtextwithoutspacesaverylongtextwithoutspaces',
+        ],
+        numberValues: [10, 23, 36],
+      },
+      priority: {
+        stringValues: [],
+        numberValues: [1, 2, 3, 4],
+      },
+    };
   }),
 
   init() {

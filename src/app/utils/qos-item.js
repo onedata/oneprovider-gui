@@ -1,5 +1,5 @@
 /**
- * Model to use in `qos-modal/qos-entry` that epresents a QoS requirement in context
+ * Model to use in `qos-modal/qos-entry` that represents a QoS requirement in context
  * of some file.
  * 
  * @module utils/qos-item
@@ -9,51 +9,56 @@
  */
 
 import EmberObject from '@ember/object';
-import { reads } from '@ember/object/computed';
-import { getBy, equal, not } from 'ember-awesome-macros';
+import { not } from '@ember/object/computed';
 
 export default EmberObject.extend({
   /**
-   * EntityId of file for which the modal is opened
-   * @type {String}
-   */
-  modalFileId: undefined,
-
-  /**
+   * @virtual
    * @type {Models.QosRequirement}
    */
   qos: undefined,
 
   /**
+   * File on which this QoS is set directly(to contrast modalFileId)
+   * @virtual
    * @type {Models.File}
-   * File on which this QoS is set directly (to contrast modalFileId)
    */
   qosSourceFile: undefined,
 
   /**
-   * @type {Models.FileQosSummary}
+   * @virtual
+   * @type {String}
    */
-  fileQosSummary: undefined,
+  entityId: undefined,
 
-  entityId: reads('qos.entityId'),
-  status: reads('qos.status'),
-  replicasNum: reads('qos.replicasNum'),
-  expressionRpn: reads('qos.expressionRpn'),
+  /**
+   * @virtual
+   * @type {String}
+   */
+  replicasNum: undefined,
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  expressionRpn: undefined,
 
   /**
    * True if this QoS is direct for file for which modal is opened
-   * @type {ComputedProperty<Boolean>}
+   * @virtual
+   * @type {Boolean}
    */
-  direct: equal('modalFileId', 'qosSourceFile.entityId'),
+  direct: undefined,
+
+  /**
+   * Status of QoS for file for which modal is opened
+   * @virtual
+   * @type {String}
+   */
+  statusForFile: undefined,
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
   inherited: not('direct'),
-
-  /**
-   * Status of QoS for file for which modal is opened
-   * @type {ComputedProperty<String>}
-   */
-  statusForFile: getBy('fileQosSummary.requirements', 'qos.entityId'),
 });

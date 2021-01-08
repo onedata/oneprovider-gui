@@ -8,16 +8,12 @@
  */
 
 import EmberObject from '@ember/object';
-import { getBy, raw, or, and, array } from 'ember-awesome-macros';
+import { reads } from '@ember/object/computed';
+import { raw, or, and, array } from 'ember-awesome-macros';
 
-const allOperators = ['=', '<', '<=', '>=', '>'];
-
-const operators = {
-  string: ['='],
-  number: allOperators,
-  mixed: allOperators,
-};
-
+/**
+ * @implements {QueryProperty}
+ */
 export default EmberObject.extend({
   /**
    * @virtual
@@ -38,23 +34,24 @@ export default EmberObject.extend({
   numberValues: undefined,
 
   /**
-   * One of: string, number, mixed
+   * Key that should be displayed in GUI - by default is the same as key,
+   * but in some cases a special key should be used
+   * @type {ComputedProperty<String>|String}
+   */
+  displayedKey: reads('key'),
+
+  /**
+   * One of: stringOptions, numberOptions, mixedOptions
    * @type {ComputedProperty<string>}
    */
   type: or(
-    and('stringValues.length', 'numberValues.length', raw('mixed')),
-    and('numberValues.length', raw('number')),
-    raw('string'),
+    and('stringValues.length', 'numberValues.length', raw('mixedOptions')),
+    and('numberValues.length', raw('numberOptions')),
+    raw('stringOptions'),
   ),
 
   /**
    * @type {ComputedProperty<Array<String>>}
    */
   allValues: array.concat('numberValues', 'stringValues'),
-
-  /**
-   * Array of operators available for value comparison for the key
-   * @type {ComputedProperty<Array<String>>}
-   */
-  availableOperators: getBy(raw(operators), 'type'),
 });

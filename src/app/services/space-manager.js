@@ -12,6 +12,7 @@ import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
+import { all as allFulfilled } from 'rsvp';
 
 /**
  * @typedef DbView
@@ -26,6 +27,7 @@ import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 export default Service.extend({
   onedataGraph: service(),
   store: service(),
+  providerManager: service(),
 
   getSpace(spaceId) {
     const requestGri = gri({
@@ -63,9 +65,10 @@ export default Service.extend({
 
   /**
    * Resolves mapping: QoS parameter key -> Object with string and number values
-   * defined for storages supporting the space with `spaceId`.
+   * defined for storages supporting the space with `spaceId`
+   * (object properties: `{ stringValues: Array, numberValues: Array }`).
    * @param {String} spaceId
-   * @returns {Promise<Object<String, { stringValues: Array, numberValues: Array }>>} 
+   * @returns {Promise<Object>} 
    */
   getAvailableQosParameters(spaceId) {
     return this.get('onedataGraph').request({
@@ -77,5 +80,58 @@ export default Service.extend({
       }),
       subscribe: false,
     }).then(({ qosParameters }) => qosParameters);
+  },
+
+  /**
+   * Validate, convert infix QoS expression to RPN and return list of matching storages
+   * @param {String} spaceId
+   * @param {String} expression
+   * @returns {Promise<{ expressionRpn: Array, matchingStorages: Array<StorageModel> }>} 
+   */
+  evaluateQosExpression(spaceId, expression) {
+    const {
+      providerManager,
+      onedataGraph,
+    } = this.getProperties('providerManager', 'onedataGraph');
+    return onedataGraph.request({
+      operation: 'create',
+      gri: gri({
+        entityType: spaceEntityType,
+        entityId: spaceId,
+        aspect: 'evaluate_qos_expression',
+      }),
+      data: { expression },
+      subscribe: false,
+    }).then(({ matchingStorages, expressionRpn }) => {
+      return allFulfilled(matchingStorages.map(storage => {
+          return providerManager.getProviderById(storage.providerId)
+            /**
+             * @typedef {StorageModel}
+             * @param {String} entityId
+             * @param {String} name
+             * @param {Models/Provider} provider
+             */
+            .then(provider => ({
+              entityId: storage.id,
+              name: storage.name,
+              provider,
+            }));
+        }))
+        .then(storageModels => {
+          return {
+            matchingStorages: storageModels,
+            expressionRpn,
+          };
+        });
+    });
+  },
+
+  /**
+   * @param {String} spaceId 
+   * @returns {Promise<Array<StorageModel>>}
+   */
+  getSupportingStorages(spaceId) {
+    return this.evaluateQosExpression(spaceId, 'anyStorage')
+      .then(({ matchingStorages }) => matchingStorages);
   },
 });

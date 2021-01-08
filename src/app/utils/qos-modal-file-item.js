@@ -12,10 +12,10 @@ import EmberObject, { get, set, computed } from '@ember/object';
 import { all as allFulfilled } from 'rsvp';
 import QosItem from 'oneprovider-gui/utils/qos-item';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import _ from 'lodash';
 
 const objectMixins = [
   createDataProxyMixin('fileQosSummary'),
-  createDataProxyMixin('qosRecords'),
   createDataProxyMixin('qosItems'),
 ];
 
@@ -33,60 +33,9 @@ export default EmberObject.extend(...objectMixins, {
    */
   qosItemsCache: undefined,
 
-  /**
-   * @override
-   */
-  fetchFileQosSummary() {
-    return this.get('file').getRelation('fileQosSummary', { reload: true });
-  },
-
-  /**
-   * @override
-   */
-  fetchQosRecords(replace) {
-    // NOTE: not need to update qos records separately
-    // in this modal, because their fulfilled property
-    // is not used (using per-file map in fileQosSummary)
-    return this.updateFileQosSummaryProxy({ replace }).then(fileQosSummary =>
-      fileQosSummary.updateQosRecordsProxy({ replace: true })
-    );
-  },
-
-  /**
-   * @override
-   */
-  fetchQosItems() {
-    const {
-      file,
-      qosItemsCache,
-    } = this.getProperties('file', 'qosItemsCache');
-    return this.updateQosRecordsProxy({ replace: true, fetchArgs: [true] })
-      .then(qosRecords => {
-        // summary should be fresh after qos records update
-        const fileQosSummary = this.get('fileQosSummary');
-        return allFulfilled(qosRecords.map(qos => get(qos, 'file').then(qosSourceFile => {
-          const qosId = get(qos, 'entityId');
-          if (qosItemsCache.has(qosId)) {
-            const qosItem = qosItemsCache.get(qosId);
-            set(qosItem, 'fileQosSummary', fileQosSummary);
-            return qosItem;
-          } else {
-            const qosItem = QosItem.create({
-              modalFileId: get(file, 'entityId'),
-              qosSourceFile,
-              fileQosSummary,
-              qos,
-            });
-            qosItemsCache.set(qosId, qosItem);
-            return qosItem;
-          }
-        })));
-      });
-  },
-
   fileQosStatus: computed(
-    'qosItemsProxy.{content,reason}',
-    'fileQosSummaryProxy.{content,reason}',
+    'qosItemsProxy.content',
+    'fileQosSummaryProxy.content',
     function fileQosStatus() {
       const {
         qosItemsProxy,
@@ -108,6 +57,62 @@ export default EmberObject.extend(...objectMixins, {
       }
     }
   ),
+
+  /**
+   * @override
+   */
+  fetchFileQosSummary() {
+    return this.get('file').getRelation('fileQosSummary', { reload: true });
+  },
+
+  /**
+   * @override
+   */
+  async fetchQosItems() {
+    const {
+      file,
+      qosItemsCache,
+    } = this.getProperties('file', 'qosItemsCache');
+    const modalFileId = get(file, 'entityId');
+
+    const fileQosSummary = await this.updateFileQosSummaryProxy({ replace: true });
+    const qosRequirements = await fileQosSummary.updateQosRecordsProxy({ replace: true });
+    const sourceFiles = await allFulfilled(qosRequirements.mapBy('file'));
+
+    return _.zip(qosRequirements, sourceFiles).map(([qos, qosSourceFile]) => {
+      const qosId = get(qos, 'entityId');
+
+      const newStatusForFile = get(fileQosSummary, `requirements.${qosId}`);
+      if (qosItemsCache.has(qosId)) {
+        const qosItem = qosItemsCache.get(qosId);
+        if (newStatusForFile !== get(qosItem, 'statusForFile')) {
+          set(qosItem, 'statusForFile', newStatusForFile);
+        }
+        return qosItem;
+      } else {
+        const qosItem = QosItem.create({
+          qos,
+          direct: modalFileId === get(qosSourceFile, 'entityId'),
+          qosSourceFile,
+          statusForFile: newStatusForFile,
+          entityId: qosId,
+          replicasNum: get(qos, 'replicasNum'),
+          expressionRpn: get(qos, 'expressionRpn'),
+        });
+        qosItemsCache.set(qosId, qosItem);
+        return qosItem;
+      }
+    });
+  },
+
+  /**
+   * Updates data that should be displayed - see usages in code.
+   * @param {Boolean} [replace] if true, do not change pending state of `qosItemsProxy`
+   */
+  async updateData(replace = false) {
+    await this.updateQosItemsProxy({ replace });
+    await this.get('file').reload();
+  },
 
   init() {
     this._super(...arguments);

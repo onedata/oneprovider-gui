@@ -10,19 +10,18 @@
 import Component from '@ember/component';
 import { promise, tag, getBy, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
-import { get, computed } from '@ember/object';
+import { get, computed, observer } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { notImplementedReject } from 'onedata-gui-common/utils/not-implemented-reject';
-import { notImplementedThrow } from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { guidFor } from '@ember/object/internals';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
-import { next, later, cancel } from '@ember/runloop';
-import $ from 'jquery';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],
 
   /**
@@ -38,9 +37,15 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Function}
+   * @type {Array<QueryProperty>}
    */
-  removeQosRequirement: notImplementedReject,
+  queryProperties: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
 
   /**
    * @virtual
@@ -52,7 +57,19 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
+  removeQosRequirement: notImplementedReject,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
   closeModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  evaluateQosExpression: notImplementedReject,
 
   copyAnimationEndTimer: undefined,
 
@@ -84,12 +101,10 @@ export default Component.extend(I18n, {
    */
   expressionRpn: reads('qosItem.expressionRpn'),
 
-  rawExpressionInfix: computedPipe('expressionRpn', qosRpnToInfix),
-
   /**
    * @type {ComputedProperty<String>}
    */
-  qosId: reads('qosItem.qos.entityId'),
+  qosId: reads('qosItem.entityId'),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -116,10 +131,39 @@ export default Component.extend(I18n, {
    */
   qosSourceFileId: reads('qosSourceFile.entityId'),
 
+  /**
+   * @virtual
+   * @type {Array<StorageModel>}
+   */
+  storages: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<Models.Provider>}
+   */
+  providers: undefined,
+
+  /**
+   * See `model:qosReqiurement#status` for available states
+   * @type {ComputedProperty<String>}
+   */
+  statusId: reads('statusForFile'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  rawExpressionInfix: computedPipe('expressionRpn', qosRpnToInfix),
+
+  /**
+   * QoS fulfillment icon name
+   * @type {ComputedProperty<String>}
+   */
+  statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
+
   qosSourceFilePathProxy: promise.object(computed(
     'qosSourceFile.{name,parent}',
-    function qosSourceFilePathProxy() {
-      return resolveFilePath(this.get('qosSourceFile'))
+    async function qosSourceFilePathProxy() {
+      return await resolveFilePath(this.get('qosSourceFile'))
         .then(path => stringifyFilePath(path));
     }
   )),
@@ -132,9 +176,20 @@ export default Component.extend(I18n, {
     return getDataUrl({ fileId: null, selected: [qosSourceFileId] });
   }),
 
-  statusId: reads('statusForFile'),
+  evaluationUpdater: observer(
+    'rawExpressionInfix',
+    'statusId',
+    function evaluationUpdater() {
+      this.updateQosEvaluationProxy({ replace: true });
+    }
+  ),
 
-  statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
+  /**
+   * @override
+   */
+  fetchQosEvaluation() {
+    return this.get('evaluateQosExpression')(this.get('rawExpressionInfix'));
+  },
 
   actions: {
     confirmRemove() {
@@ -147,24 +202,6 @@ export default Component.extend(I18n, {
     fileLinkClicked(event) {
       this.get('closeModal')();
       event.stopPropagation();
-    },
-    expressionCopied(success) {
-      if (success) {
-        const classes = ['animated', 'pulse-mint'];
-        const className = classes.join(' ');
-        const $element = $('.qos-info-row-expression .qos-expression-viewer');
-        if (classes.every(cls => $element.hasClass(cls))) {
-          cancel(this.get('copyAnimationEndTimer'));
-          $element.removeClass(className);
-          next(() => $element.addClass(className));
-        } else {
-          $element.addClass(className);
-        }
-        this.set(
-          'copyAnimationEndTimer',
-          later(this, () => $element.removeClass(className), 1000)
-        );
-      }
     },
   },
 });

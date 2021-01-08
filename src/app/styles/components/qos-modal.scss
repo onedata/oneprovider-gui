@@ -1,5 +1,5 @@
 .qos-modal {
-  $qos-icon-size: 34px;
+  $qos-icon-size: 2.5em;
   $color-qos-status-fulfilled: $color-one-success;
   $color-qos-status-pending: $color-one-warning;
   
@@ -16,6 +16,27 @@
   @import './qos-modal/file-entry';
   @import './qos-modal/file-qos-summary';
   @import './qos-modal/qos-entry';
+  
+  // TODO: experimental style proposed by Ewa on UX meeting - maybe should be used
+  // in every modal
+  .table-info {
+    // Bootstrap table margin-bottom is defined this way
+    margin-top: ($line-height-computed * 0.75);
+    .property-name.with-input {
+      padding-left: 0;
+    }
+  }
+  
+  .qos-modal-header {
+    .qos-modal-header-text {
+      display: inline-block;
+      max-width: calc(100% - 2.4em);
+    }
+    .qos-modal-header-hint {
+      display: inline-block;
+      height: 1.4em;
+    }
+  }
   
   .qos-status-fulfilled {
     color: $color-qos-status-fulfilled;
@@ -53,7 +74,7 @@
       position: absolute;
     }
     .qos-header-hint-trigger {
-      font-size: $qos-icon-size * 0.6;
+      font-size: 1em;
       margin-left: 5px;
     }
     .header-icon {
@@ -64,7 +85,70 @@
       }
     }
   }
+
+  .qos-subheader-container {
+    display: flex;
+    justify-content: space-between;
+    
+    @media (max-width: $screen-xs-max) {
+      flex-direction: column;
+      .qos-expression-copy-subheader {
+        order: -2;
+      }
+    }
+  }
   
+  .qos-expression-info-subheader {
+    display: flex;
+    align-items: center;
+    .qos-evaluation-info {
+      flex-grow: 1;
+    }
+    .qos-expression-copy-icon-container {
+      font-size: 2em; 
+    }
+  }
+  
+  .qos-subheader {
+    margin-top: 0.8em;
+    font-size: $font-size-small;
+    // need to align icons, but it must be custom because of icons internal padding
+    &.with-icon-left {
+      margin-left: -0.4em;
+    }
+    // this class is so custom, because of need of aligning icon to right on desktop
+    // and to left on mobile
+    &.qos-expression-copy-subheader {
+      @media (min-width: $screen-xs-min) {
+        margin-right: -0.3em;
+      }
+      @media (max-width: $screen-xs-max) {
+        margin-left: -0.3em;
+        .expression-clipboard-btn {
+          display: inline-flex;
+        }
+        .copy-expression-icon-container {
+          order: -1;
+        }
+        .copy-expression-text {
+          padding-left: 0.15em;
+        }
+      }
+    }
+    .inline-icon-container.info-icon {
+      .oneicon {
+        left: 50%;
+        transform: translateY(-50%) translateY(1px) translateX(-50%);
+      }
+    }
+    .inherited-text {
+      white-space: nowrap;
+    }
+    @media (max-width: $screen-xs-max) {
+      margin-left: 0;
+    }
+  }
+    
   .qos-add {
     .btn-suggestions-trigger-container {
       position: absolute;
@@ -75,6 +159,26 @@
         // empirical height of small button and small margin
         top: -36px;
         right: 0;
+      }
+    }
+    .qos-info-row-expression .property-name {
+      display: flex;
+      .qos-label-expression {
+        flex-grow: 1;
+      }
+      .qos-paste-expression-trigger {
+        font-size: 2em;
+        margin-top: -0.2em;
+      }
+    }
+    .spinner-qos-expression-editor {
+      left: 0;
+      transform: translateY(-50%) translateY(6px) translateX(12px);        
+    }
+    .query-builder {
+      .enter-text-link {
+        flex-grow: 0;
+        padding-right: 0.2em;
       }
     }
   }

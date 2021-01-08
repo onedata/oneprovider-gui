@@ -47,6 +47,11 @@ module.exports = {
       },
     ],
     'semi': 2,
+    'no-restricted-globals': [
+      2,
+      'name',
+      'blur'
+    ],
     'valid-jsdoc': [
       1,
       {
@@ -67,7 +72,7 @@ module.exports = {
       1,
       'never',
     ],
-    'no-debugger': 0,
+    'no-debugger': 2,
     'no-param-reassign': 1,
     'max-len': [
       1,
@@ -80,7 +85,7 @@ module.exports = {
         'ignoreUrls': true,
         'ignoreTemplateLiterals': false,
         'ignoreRegExpLiterals': true,
-        'ignorePattern': '^import|.*[\'"`]\\)?,?;?$',
+        'ignorePattern': '^import|.*[\'"`]\\)?,?;?|\s*it$',
       }
     ],
     'promise/always-return': 'off', // default: error

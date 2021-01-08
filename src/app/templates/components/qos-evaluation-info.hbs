@@ -1,0 +1,23 @@
+{{#if qosEvaluationProxy.isRejected}}
+  <div class="qos-expression-error text-danger">
+    <div class="inline-icon-container">
+      {{one-icon
+        icon="checkbox-filled-warning"
+        class="evaluation-error-icon"
+      }}
+    </div>
+    {{errorMessage}}
+  </div>
+{{else if qosEvaluationProxy}}
+  {{#loading-container
+    isLoading=qosEvaluationProxy.isPending
+    centered=false
+    sizeClass="xs"
+  }}
+    {{qos-expression-info
+      matchingStorages=qosEvaluationProxy.matchingStorages
+    }}
+  {{/loading-container}}
+{{else}}
+  {{qos-expression-info count=0}}
+{{/if}}

@@ -17,7 +17,9 @@ import modalFileSubheader from './components/modal-file-subheader';
 import singleFileInfo from './components/single-file-info';
 import shareShow from './components/share-show';
 import openDataPreview from './components/open-data-preview';
-import qosParametersSuggestionBox from './components/qos-parameters-suggestion-box';
+import qosExpressionInfo from './components/qos-expression-info';
+import qosEvaluationInfo from './components/qos-evaluation-info';
+import queryBuilder from './components/query-builder';
 
 import uploadManager from './services/upload-manager';
 
@@ -41,7 +43,9 @@ const translations = {
     singleFileInfo,
     shareShow,
     openDataPreview,
-    qosParametersSuggestionBox,
+    qosExpressionInfo,
+    qosEvaluationInfo,
+    queryBuilder,
   },
   services: {
     uploadManager,

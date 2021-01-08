@@ -1,0 +1,8 @@
+// can be outside .query-builder because of popovers
+.storage-editor-trigger.ember-power-select-trigger {
+  .ember-power-select-selected-item {
+    .storage-option-provider-line {
+      display: none;
+    }
+  }
+}

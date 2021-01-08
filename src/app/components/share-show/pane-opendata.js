@@ -45,7 +45,7 @@ export default Component.extend(I18n, {
     computedT('openVisualEditor'),
   ),
 
-  // FIXME: hack - better merge xml editor with visual editor into one component
+  // TODO: VFS-6566 hack - better merge xml editor with visual editor into one component
   editorModeChanged: observer('editorMode', function editorModeChanged() {
     this.set('triggerUpdateXml', new Date().toString());
   }),
@@ -58,7 +58,7 @@ export default Component.extend(I18n, {
           const textarea = this.get('element').querySelector('.textarea-source-editor');
           if (textarea) {
             autosize(textarea);
-            // FIXME: hack
+            // TODO: VFS-6566 hack
             later(() => autosize(textarea), 500);
           }
         });
@@ -140,7 +140,7 @@ export default Component.extend(I18n, {
       this.set('xml', '');
     },
     updateXml(xml) {
-      // FIXME: quick double render fix
+      // TODO: VFS-6566 quick double render fix
       scheduleOnce('afterRender', () => {
         this.set('xml', xml);
       });

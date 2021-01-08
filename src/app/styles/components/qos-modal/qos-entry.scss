@@ -1,76 +1,28 @@
 .qos-entry {
-  .qos-path-subheader {
-    margin-top: 8px;
-    margin-left: 40px;
-    font-size: 90%;
-    .inherited-text {
-      white-space: nowrap;
-      .inline-icon-container.inherited-icon {
-        width: 1.7em;
-      }
-    }
-    @media (max-width: $screen-xs-max) {
-      margin-left: 0;
-    }
-  }
-  @media (max-width: $screen-xs-max) {
-    .one-collapsible-list-item-header {
-      padding-left: 0;
-      padding-right: 0;
-    }
+  .one-collapsible-list-item-header {
+    // adding some padding because to align with icons in header
+    padding-left: $collapsible-list-item-padding + 3px;
+    padding-right: $collapsible-list-item-padding + 5px;
   }
   .qos-main-line {
     display: flex;
-    @media (max-width: $screen-xs-max) {
-      flex-direction: column;
-    }
+    flex-direction: column;
     .qos-expression-text-field {
+      display: flex;
+      flex-direction: column;
       flex-grow: 1;
-      @media (max-width: $screen-xs-max) {
-        order: 3;
-      }
-    }
-    .header-element-top-fix {
-      margin-top: 3px;
     }
     .qos-general-info {
       display: flex;
-      @media (max-width: $screen-xs-max) {
-        order: 1;
-      }
-    }
-    .tags-input-replica {
-      align-items: flex-start;
-      width: 110px;
+      align-items: center;
     }
     > .clipboard-line {
       margin-top: 0px;
     }
-    .qos-status-icon-container {
-      margin-top: 14px;
-    }
   }
-  .tags-input-replica {
-    white-space: nowrap;
-    .replicas-tag-item {
-      width: 120px;
-    }
-    .header-replicas-number {
-      display: inline-block;
-      width: 100%;
-      text-align: center;
-    }
-  }
-  .qos-entry-expression {
-    $tag-bottom-margin: 4px;
-    $form-control-margin: 10px;
-    .tag-item {
-      margin-bottom: $tag-bottom-margin;
-    }
-    .form-control-block {
-      padding: $form-control-margin;
-      padding-bottom: $form-control-margin - $tag-bottom-margin;
-    }
+  .header-replicas-number {
+    display: inline-block;
+    flex-grow: 1;
   }
   .qos-header-text {
     overflow-x: hidden;
@@ -103,21 +55,31 @@
     place-self: flex-start;
     display: flex;
     align-items: center;
-    @media (max-width: $screen-xs-max) {
-      align-self: flex-end;
-      order: 2;
-      position: absolute;
+    // align icon right
+    transform: translateX(5%);
+    
+    .clipboard-btn {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      right: 0;
+      outline: none;
+      margin-left: 0;
+      margin-right: 0;
+      margin-bottom: 0;
+      padding: 0;
+      .copy-btn-icon {
+        color: $text-color;
+        position: relative;
+      }
     }
   }
   .icon-trigger {
     line-height: 40px;
-    margin-left: 10px;
+    margin-left: 4px;
     font-size: $qos-icon-size;
-    &.id-trigger {
-      margin-left: 16px;
-    }
     &.remove-qos-trigger {
-      margin-left: 4px;
       &.enabled {
         &:hover {
           color: $color-one-danger;
@@ -133,30 +95,20 @@
 
   .list-content {
     padding-top: 8px;
-    @media (max-width: $screen-sm-max) {
-      .table-info {
-        margin-top: 10px;
-        .property-name, .property-value {
-          padding-left: 15px;
-          padding-right: 15px;
-        }
+    .table-info {
+      margin-top: 10px;
+      .property-name, .property-value {
+        padding-left: 15px;
+        padding-right: 15px;
       }
     }
   }
-  .header-content-container {
-    display: flex;
-    align-items: center;
-    height: 2em;
-    .label {
-      margin-left: 8px;
-    }
-    .qos-header {
-      display: block;
-      position: relative;
-    }
-  }
   .qos-status-icon-container {
+    // not needed, as the icon is moved left to align left
+    margin-right: 0;
     .one-icon {
+      // align left
+      transform: translateX(-16%);
       font-size: $qos-icon-size;
     }
   }
@@ -178,17 +130,6 @@
         // thanks to this, "/" do not go to end when using direction: rtl
         unicode-bidi: plaintext;
       }
-    }
-  }
-  .qos-entry-expression {
-    .property-name {
-      padding-top: 14px;
-    }
-    .qos-pair.tag-item {
-      flex-wrap: wrap;
-    }
-    .qos-pair-value {
-      word-break: break-all;
     }
   }
 }
