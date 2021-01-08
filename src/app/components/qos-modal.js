@@ -15,7 +15,7 @@ import EmberObject, { get, observer, computed, setProperties } from '@ember/obje
 import { reads, gt } from '@ember/object/computed';
 import { conditional, raw, equal, and, getBy, array, promise, or, not } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import { all as allFulfilled, allSettled, resolve } from 'rsvp';
+import { all as allFulfilled, allSettled } from 'rsvp';
 import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
