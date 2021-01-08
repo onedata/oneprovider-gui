@@ -295,13 +295,17 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  tooltipText: computed('subject.name', function tooltipText() {
-    if (this.get('subject.name')) {
-      return this.get('subject.name');
-    } else {
-      return this.t('id') + ': ' + this.get('identifier');
-    }
-  }),
+  tooltipText: computed(
+    'subject.name',
+    'identifier',
+    function tooltipText() {
+      const subjectName = this.get('subject.name');
+      if (subjectName) {
+        return subjectName;
+      } else {
+        return `${this.t('id')}: ${this.get('identifier')}`;
+      }
+    }),
 
   /**
    * @type {Ember.ComputedProperty<Array<Action>>}
