@@ -10,13 +10,15 @@
 
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
-import { reads, collect, or } from '@ember/object/computed';
+import { reads, collect } from '@ember/object/computed';
+import { or } from 'ember-awesome-macros';
 import { numberToTree, treeToNumber } from 'oneprovider-gui/utils/acl-permissions-converter';
 import aclPermissionsSpecification from 'oneprovider-gui/utils/acl-permissions-specification';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 const permissionsSpecifications = ['file', 'dir'].reduce((spec, context) => {
   const filteredPermissions = [];
@@ -123,6 +125,17 @@ export default Component.extend(I18n, {
   subject: reads('ace.subject'),
 
   /**
+   * One of: `user`, `group`
+   * @type {ComputedProperty<String>}
+   */
+  subjectType: reads('ace.subjectType'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  identifier: reads('ace.identifier'),
+
+  /**
    * One of `allow`, `deny`. Value is initialized in `init()` can be changed by
    * editor
    * @type {string}
@@ -143,7 +156,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  icon: or('subject.constructor.modelName', 'subject.equivalentType'),
+  icon: reads('subjectType'),
 
   /**
    * Mapping: permsGroupName -> { permName -> boolean }. Represents persisted
@@ -273,6 +286,26 @@ export default Component.extend(I18n, {
       icon: 'remove',
     };
   }),
+
+  /**
+   * @type {Ember.ComputedProperty<string>}
+   */
+  subjectName: or('subject.name', computedT('unknown')),
+
+  /**
+   * @type {Ember.ComputedProperty<string>}
+   */
+  tooltipText: computed(
+    'subject.name',
+    'identifier',
+    function tooltipText() {
+      const subjectName = this.get('subject.name');
+      if (subjectName) {
+        return subjectName;
+      } else {
+        return `${this.t('id')}: ${this.get('identifier')}`;
+      }
+    }),
 
   /**
    * @type {Ember.ComputedProperty<Array<Action>>}

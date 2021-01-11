@@ -155,6 +155,10 @@
     font-style: italic;
     text-transform: uppercase;
   }
+  .unknown-subject-name {
+    font-style: italic;
+    color: $main-text-color-disabled;
+  }
 }
 
 .add-user-group-ace-dropdown {

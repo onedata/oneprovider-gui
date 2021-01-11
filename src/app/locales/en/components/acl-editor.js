@@ -35,6 +35,8 @@ export default {
     moveDown: 'Move down',
     moveUp: 'Move up',
     remove: 'Remove',
+    unknown: 'Unknown',
+    id: 'ID',
   },
   addUserOrGroup: 'Add user or group...',
   noAce: 'No Access Control Entries defined.',
