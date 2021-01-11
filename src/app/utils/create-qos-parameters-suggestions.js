@@ -1,6 +1,6 @@
 /**
  * Convert object with availiable QoS parameters for space to array of available QoS
- * parameters objects ready to use in `qos-parameters-suggestions-box`.
+ * parameters objects..
  * 
  * @module utils/create-qos-parameters-suggestions
  * @author Jakub Liput
@@ -18,11 +18,12 @@ export default function createQosParametersSuggestions(availableQosParameters) {
   const suggestions = [];
   for (const key in availableQosParameters) {
     const { stringValues, numberValues } = availableQosParameters[key];
-    suggestions.push(QosParameterSuggestion.create({
+    const suggestion = QosParameterSuggestion.create({
       key,
       stringValues: [...stringValues].sort(),
       numberValues: [...numberValues].sort(sortNumbers),
-    }));
+    });
+    suggestions.push(suggestion);
   }
   return suggestions.sortBy('key');
 }

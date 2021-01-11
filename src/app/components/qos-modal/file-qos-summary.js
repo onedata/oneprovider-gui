@@ -47,7 +47,50 @@ export default Component.extend(...objectMixins, {
    */
   closeModal: notImplementedThrow,
 
-  sortedQosItems: array.sort('qosItemsProxy.content', ['direct:desc', 'entityId:desc']),
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {String} expression
+   * @returns {Promise<Object>} see `spaceManager#evaluateQosExpression`
+   */
+  evaluateQosExpression: notImplementedReject,
+
+  /**
+   * @virtual
+   * @type {Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<QueryProperty>}
+   */
+  queryProperties: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<StorageModel>}
+   */
+  storages: undefined,
+
+  /**
+   * @virtual
+   * @type {Array<Models.Provider>}
+   */
+  providers: undefined,
+
+  /**
+   * @type {ComputedProperty<Array<Utils.QosItem>>}
+   */
+  sortedQosItems: array.sort(
+    'qosItemsProxy.content',
+    ['direct:desc', 'entityId:desc']
+  ),
+
+  init() {
+    this._super(...arguments);
+    this.set('qosItemsCache', {});
+  },
 
   actions: {
     removeQosRequirement(qosRequirement) {
@@ -58,6 +101,9 @@ export default Component.extend(...objectMixins, {
     },
     closeModal() {
       this.get('closeModal')();
+    },
+    evaluateQosExpression(expression) {
+      return this.get('evaluateQosExpression')(expression);
     },
   },
 });

@@ -17,7 +17,7 @@ export default {
     rights: 'Rights',
   },
   handleService: 'Handle service',
-  // FIXME: move to translations of open-data-editor
+  // TODO: VFS-6566 move to translations of open-data-editor
   publish: 'Publish as Open Data',
   add: 'Add',
   addMetadataGroup: 'Add metadata entry...',

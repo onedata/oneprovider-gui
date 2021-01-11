@@ -14,6 +14,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
+import QueryValueComponentsBuilderQos from 'oneprovider-gui/utils/query-value-components-builder-qos';
 
 export default Component.extend(I18n, {
   classNames: ['qos-modal-file-entry'],
@@ -34,6 +35,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Array<QueryProperty>}
+   */
+  queryProperties: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   removeQosRequirement: notImplementedReject,
@@ -51,6 +58,12 @@ export default Component.extend(I18n, {
   closeModal: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
+
+  /**
    * @type {models/file}
    */
   file: reads('fileItem.file'),
@@ -63,6 +76,13 @@ export default Component.extend(I18n, {
     return qosStatusIcons[this.get('fileQosStatus')];
   }),
 
+  init() {
+    this._super(...arguments);
+    if (!this.get('valuesBuilder')) {
+      this.set('valuesBuilder', QueryValueComponentsBuilderQos.create());
+    }
+  },
+
   actions: {
     removeQosRequirement(qosRequirement) {
       return this.get('removeQosRequirement')(qosRequirement);
@@ -72,6 +92,9 @@ export default Component.extend(I18n, {
     },
     closeModal() {
       return this.get('closeModal')();
+    },
+    evaluateQosExpression(expression) {
+      return this.get('evaluateQosExpression')(expression);
     },
   },
 });

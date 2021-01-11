@@ -50,6 +50,7 @@ export const operatorChar = {
 export const operatorName = _.invert(operatorChar);
 
 export const pairOperatorChar = {
+  is: '=',
   eq: '=',
   lt: '<',
   gt: '>',

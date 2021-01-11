@@ -8,22 +8,25 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { computed, set, observer } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { not, or, notEmpty, conditional, isEmpty, and, number } from 'ember-awesome-macros';
+import { not, or, notEmpty, conditional, isEmpty, and, number, promise } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
-import createQosParametersSuggestions from 'oneprovider-gui/utils/create-qos-parameters-suggestions';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { scheduleOnce } from '@ember/runloop';
+import queryBlockToQosExpression from 'oneprovider-gui/utils/query-block-to-qos-expression';
+import RootOperatorQueryBlock from 'onedata-gui-common/utils/query-builder/root-operator-query-block';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import qosRpnToQueryBlock from 'oneprovider-gui/utils/qos-rpn-to-query-block';
 
-const mixins = [I18n, createDataProxyMixin('qosParametersSuggestions')];
+const mixins = [
+  I18n,
+];
 
 export default Component.extend(...mixins, {
-  spaceManager: service(),
   globalNotify: service(),
 
   /**
@@ -43,18 +46,61 @@ export default Component.extend(...mixins, {
    */
   spaceId: undefined,
 
-  replicasNumberString: '1',
+  /**
+   * @virtual
+   * @type {Utils.QueryComponentValueBuilder}
+   */
+  valuesBuilder: undefined,
 
-  replicasNumber: number('replicasNumberString'),
+  /**
+   * @type {ComputedProperty<PromiseObject<Object>>}
+   * @virtual
+   */
+  queryPropertiesProxy: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  evaluateQosExpression: notImplementedReject,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  refreshQueryProperties: notImplementedReject,
+
+  replicasNumberString: '1',
 
   expressionInfix: '',
 
   expressionEditStarted: false,
 
   /**
+   * Input expression in text mode
+   * @type {String}
+   */
+  inputText: '',
+
+  /**
+   * One of:
+   * - visual (add or edit query blocks in visual way)
+   * - text (input query in text form and allow to transform it to visual)
+   * @type {String}
+   */
+  inputMode: 'visual',
+
+  /**
    * @type {Boolean}
    */
-  qosSuggestionsOpen: false,
+  queryBuilderValid: true,
+
+  /**
+   * @type {ComputedProperty<Array<QueryProperty>>}
+   */
+  queryProperties: reads('queryPropertiesProxy.content'),
+
+  replicasNumber: number('replicasNumberString'),
 
   /**
    * @type {ComputedProperty<String>}
@@ -82,29 +128,54 @@ export default Component.extend(...mixins, {
    */
   replicasNumberValid: isEmpty('replicasNumberValidationMessage'),
 
-  expressionValid: and('expressionEditStarted', isEmpty('expressionValidationMessage')),
+  /**
+   * Validation status of text form of edited expression.
+   * Always true if not editing using text.
+   * @type {ComputedProperty<Boolean>}
+   */
+  expressionValid: or(not('expressionEditStarted'), isEmpty('expressionValidationMessage')),
 
-  isValid: and('replicasNumberValid', 'expressionValid'),
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isValid: and('replicasNumberValid', 'expressionValid', 'queryBuilderValid'),
+
+  qosEvaluationProxy: promise.object(computed(
+    'evaluateQosExpression',
+    'expressionInfix',
+    async function qosEvaluationProxy() {
+      const {
+        evaluateQosExpression,
+        expressionInfix,
+      } = this.getProperties('evaluateQosExpression', 'expressionInfix');
+      if (expressionInfix) {
+        return await evaluateQosExpression(expressionInfix);
+      } else {
+        return null;
+      }
+    }
+  )),
 
   componentId: computed(function componentId() {
     return guidFor(this);
   }),
 
   /**
-   * @override
-   * For resolved object format see: `service:space-manager#getAvailableQosParameters`
-   * @returns {Promise<Object>}
+   * @type {Utils.QueryBuilder.RootOperatorQueryBlock}
    */
-  fetchQosParametersSuggestions() {
+  rootQueryBlock: computed(function rootQueryBlock() {
+    const rootBlock = RootOperatorQueryBlock.create();
+    this.attachRootBlockNotifiers(rootBlock);
+    return rootBlock;
+  }),
+
+  isValidObserver: observer('update', 'isValid', function isValidObserver() {
     const {
-      spaceManager,
-      spaceId,
-    } = this.getProperties('spaceManager', 'spaceId');
-    return spaceManager.getAvailableQosParameters(spaceId)
-      .then(availableQosParameters => {
-        return createQosParametersSuggestions(availableQosParameters);
-      });
-  },
+      update,
+      isValid,
+    } = this.getProperties('update', 'isValid');
+    update(undefined, isValid);
+  }),
 
   closeForm() {
     this.get('closeAddEntry')();
@@ -134,22 +205,6 @@ export default Component.extend(...mixins, {
     );
   },
 
-  toggleQosSuggestions(open) {
-    const globalNotify = this.get('globalNotify');
-    if (open) {
-      return this.updateQosParametersSuggestionsProxy({ replace: true })
-        .catch(error => {
-          globalNotify.backendError(this.t('fetchingSuggestions'), error);
-          throw error;
-        })
-        .then(() => {
-          safeExec(this, 'set', 'qosSuggestionsOpen', true);
-        });
-    } else {
-      this.set('qosSuggestionsOpen', false);
-    }
-  },
-
   expressionInfixChanged(value) {
     if (!this.get('expressionEditStarted')) {
       this.set('expressionEditStarted', true);
@@ -158,41 +213,103 @@ export default Component.extend(...mixins, {
     this.notifyUpdate();
   },
 
+  onQueryUpdated() {
+    try {
+      const rootQueryBlock = this.get('rootQueryBlock');
+      const expressionInfix =
+        this.set('expressionInfix', queryBlockToQosExpression(rootQueryBlock));
+      this.set('queryBuilderValid', Boolean(expressionInfix));
+    } catch (error) {
+      this.set('queryBuilderValid', false);
+    }
+    this.notifyUpdate();
+  },
+
+  textModeCancel() {
+    this.setProperties({
+      inputText: '',
+      inputMode: 'visual',
+    });
+  },
+
+  applyTextQuery(value) {
+    const {
+      globalNotify,
+      evaluateQosExpression,
+      providers,
+      storages,
+      queryProperties,
+    } = this.getProperties(
+      'globalNotify',
+      'evaluateQosExpression',
+      'providers',
+      'storages',
+      'queryProperties',
+    );
+    return evaluateQosExpression(value)
+      .catch(error => {
+        globalNotify.backendError(this.t('validatingQosExpression'), error);
+        throw error;
+      })
+      .then(({ expressionRpn }) => {
+        safeExec(this, () => {
+          try {
+            const rootBlock = qosRpnToQueryBlock({
+              rpnData: expressionRpn,
+              queryProperties,
+              providers,
+              storages,
+            });
+            this.attachRootBlockNotifiers(rootBlock);
+            this.set('rootQueryBlock', rootBlock);
+            rootBlock.notifyUpdate();
+          } catch (error) {
+            globalNotify.backendError(this.t('convertingRpnToBlock'), {
+              id: 'cannotConvertQosRpnToQueryBlock',
+              details: { convertError: error && error.toString(), expressionRpn },
+            });
+          }
+        });
+      });
+  },
+
+  /**
+   * @param {RootOperatorQueryBlock} rootBlock
+   * @returns {Function}
+   */
+  attachRootBlockNotifiers(rootBlock) {
+    return set(rootBlock, 'notifyUpdate', this.onQueryUpdated.bind(this));
+  },
+
   actions: {
     replicasNumberChanged(value) {
       this.set('replicasNumberString', value);
       this.notifyUpdate();
     },
-    expressionInfixChanged(value) {
-      this.expressionInfixChanged(value);
+    refreshQueryProperties() {
+      return this.get('refreshQueryProperties')();
     },
-    /**
-     * @param {String} value 
-     * @param {Number} [selectionStart] index of char in inserted text (not whole
-     *  textarea value)
-     * @param {Number} [selectionEnd] index of char in inserted text
-     */
-    insertString(value, selectionStart, selectionEnd = selectionStart && value.length) {
-      const expressionInfix = this.get('expressionInfix');
-      const prevValueLength = expressionInfix.length;
-      this.toggleQosSuggestions(false);
-      this.expressionInfixChanged(expressionInfix + value);
-      scheduleOnce('afterRender', () => {
-        const element = this.get('element');
-        if (element) {
-          const textarea = element.querySelector('.textarea-qos-expression');
-          textarea.focus();
-          if (selectionStart) {
-            textarea.setSelectionRange(
-              prevValueLength + selectionStart,
-              prevValueLength + selectionEnd
-            );
-          }
-        }
+    copyExpression() {
+      this.$('.expression-clipboard-btn').trigger('click');
+    },
+    enterTextClicked() {
+      this.setProperties({
+        inputText: '',
+        inputMode: 'text',
       });
     },
-    toggleQosSuggestions(open = true) {
-      return this.toggleQosSuggestions(open);
+    textModeOnEdit(open) {
+      if (!open) {
+        this.textModeCancel();
+      }
+    },
+    textModeApply() {
+      return this.applyTextQuery(this.get('inputText'))
+        .then(() => {
+          safeExec(this, () => {
+            this.textModeCancel();
+          });
+        });
     },
   },
 });
