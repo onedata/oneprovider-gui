@@ -49,3 +49,7 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
     margin-top: -1px;
   }
 }
+
+.copy-btn {
+  visibility: hidden;
+}
