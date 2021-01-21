@@ -300,35 +300,44 @@ export default Service.extend({
     const entityRecords = this.get('entityRecords');
     const rootFile = get(entityRecords, 'chainDir')[2];
     const space = get(entityRecords, 'space')[0];
-    const handle = store.createRecord('handle', {
-      url: 'https://doi.org/public-handle',
+    const handlePrivate = store.createRecord('handle', {
+      url: 'http://hdl.handle.net/21.T15999/zppPvhg',
       handleService: this.get('entityRecords.handleService')[0],
       metadataString: exampleDublinCore,
     });
-    const shares = ['private', 'public'].map(scope => {
-      const entityId = generateShareEntityId(get(space, 'entityId'));
-      const publicUrl = location.origin + '/shares/' + entityId;
-      return store.createRecord('share', {
-        id: gri({
-          entityType: shareEntityType,
-          entityId,
-          aspect: 'instance',
-          scope,
-        }),
-        fileType: 'dir',
-        name: 'My Share',
-        rootFile,
-        privateRootFile: rootFile,
-        publicUrl,
-        handle,
-        description: exampleMarkdownLong,
-      });
+    const handlePublic = store.createRecord('handle', {
+      url: 'http://hdl.handle.net/21.T15999/zppPvhg',
+      handleService: null,
+      metadataString: exampleDublinCore,
     });
-    return handle.save()
+    const shares = ['private', 'public'].map(scope => {
+      return [0, 1].map(num => {
+        const entityId = generateShareEntityId(get(space, 'entityId'), num);
+        const publicUrl = location.origin + '/shares/' + entityId;
+        return store.createRecord('share', {
+          id: gri({
+            entityType: shareEntityType,
+            entityId,
+            aspect: 'instance',
+            scope,
+          }),
+          fileType: 'dir',
+          name: `My share ${num}`,
+          rootFile,
+          privateRootFile: rootFile,
+          publicUrl,
+          handle: num % 2 === 0 ?
+            (scope === 'private' ? handlePrivate : handlePublic) : null,
+          description: exampleMarkdownLong,
+        });
+      });
+    }).flat();
+    return handlePrivate.save()
+      .then(() => handlePublic.save())
       .then(() => allFulfilled(shares.map(share => share.save())))
-      .then(([privateShare]) => allFulfilled([
-        addShareList(rootFile, [privateShare], store),
-        addShareList(space, [privateShare], store),
+      .then(([privateShare0, privateShare1]) => allFulfilled([
+        addShareList(rootFile, [privateShare0, privateShare1], store),
+        addShareList(space, [privateShare0, privateShare1], store),
       ]));
   },
 
@@ -513,7 +522,7 @@ export default Service.extend({
   },
 
   createHandleServiceRecords(store) {
-    return allFulfilled(['Onedata Inc.', 'Oxford University'].map(name => {
+    return allFulfilled(['EOSC-hub B2HANDLE Service', 'Oxford University'].map(name => {
       return store.createRecord('handle-service', {
         name,
       }).save();

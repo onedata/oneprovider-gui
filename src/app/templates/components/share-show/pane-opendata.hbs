@@ -1,52 +1,71 @@
 {{#promise-proxy-container proxy=handleProxy}}
   {{#if handle}}
-    <div class="col-xs-12 col-md-7">
-      {{open-data-preview
-        xmlSource=xml
-        handleUrl=handle.url
-        handleServiceName=handle.handleService.name
-      }}
-    </div>
+    {{open-data-preview
+      xml=xml
+      handleUrl=handle.url
+      handleServiceName=handle.handleService.name
+    }}
   {{else}}
     {{#promise-proxy-container proxy=handleServicesProxy}}
       {{#if handleServices.length}}
-        {{#if publishOpenDataStarted}}
-          <div class="col-xs-12 col-md-7 {{unless (eq editorMode "visual") "hidden"}}">
+        {{#one-carousel
+          activeSlideId=activeSlideOfCreator
+          class="opendata-one-carousel"
+          as |carousel|
+        }}
+          {{#carousel.slide slideId="welcome"}}
+            {{#content-info
+              class="scroll-breakpoint-700 horizontal-flex-stretch content-info-publish-open-data-welcome"
+              header=(tt this "publishWelcome.title")
+              text=(tt this "publishWelcome.content")
+              buttonAction=(action (mut publishOpenDataStarted) true)
+              buttonLabel=(tt this "publishWelcome.publishButton")
+              buttonDisabled=(not selectedHandleService)
+            }}
+              <p>
+                {{tt this "publishWelcome.handleServiceText"}}
+                {{one-label-tip title=(tt this "publishWelcome.handleServiceTextMore")}}
+              </p>
+              <div class="row row-handle-service-select">
+                {{#power-select
+                  triggerClass="select-handle-service"
+                  dropdownClass="select-handle-service-dropdown"
+                  selected=selectedHandleService
+                  options=handleServices
+                  onchange=(action (mut selectedHandleService))
+                  placeholder=(tt this "publishWelcome.selectHandleServicePlaceholder")
+                  searchField="name"
+                  as |handleService|
+                }}
+                  <div class="option-container" data-handle-id={{handleService.entityId}}>
+                    {{#truncated-string}}
+                      {{name-conflict
+                        item=(hash
+                          name=handleService.name
+                          conflictLabel=(truncate handleService.entityId 6 false)
+                        )
+                        separator=" #"
+                      }}
+                    {{/truncated-string}}
+                  </div>
+                {{/power-select}}
+              </div>
+            {{/content-info}}
+          {{/carousel.slide}}
+          {{#carousel.slide slideId="createMetadata"}}
             {{open-data-editor
               triggerUpdateXml=triggerUpdateXml
               xml=xml
+              mode=editorMode
               initialData=initialData
-              submit=(action "submit")
-              handleServices=handleServices
+              handleService=selectedHandleService
+              changeMode=(action (mut editorMode))
               updateXml=(action "updateXml")
-              discard=(action "discard")
+              submit=(action "submit")
+              back=(action "back")
             }}
-          </div>
-          <textarea
-            value={{xml}}
-            oninput={{action "xmlChanged" value="target.value"}}
-            placeholder={{tt this "xmlTextareaPlaceholder"}}
-            class="no-resize code-textarea textarea-source-editor {{unless (eq editorMode "xml") "hidden"}}"
-          ></textarea>
-          <div class="share-edit-actions-toolbar btn-toolbar">
-            {{#bs-button
-              class="btn-sm btn-switch-editor-mode"
-              type="default"
-              onClick=(action "toggleEditorMode")
-            }}
-              {{one-icon icon=modeSwitchIcon}}
-              <span class="text">{{modeSwitchText}}</span>
-            {{/bs-button}}
-          </div>
-        {{else}}
-          {{content-info
-            class="scroll-breakpoint-300"
-            header=(tt this "publishWelcome.title")
-            text=(tt this "publishWelcome.content")
-            buttonAction=(action (mut publishOpenDataStarted) true)
-            buttonLabel=(tt this "publishWelcome.publishButton")
-          }}
-        {{/if}}
+          {{/carousel.slide}}
+        {{/one-carousel}}
       {{else}}
         {{content-info
           class="scroll-breakpoint-300"
@@ -55,18 +74,5 @@
         }}
       {{/if}}
     {{/promise-proxy-container}}
-  {{/if}}
-  {{#if (or handle (and publishOpenDataStarted handleServices.length (eq editorMode "visual")))}}
-    <div class="hidden-xs hidden-sm col-md-5 col-open-data-logo">
-      <div class="open-data-logo"></div>
-      {{#if handle.url}}
-        <div class="open-data-doi">
-          {{clipboard-line
-            class="clipboard-line-public-share"
-            value=handle.url
-          }}
-        </div>
-      {{/if}}
-    </div>
   {{/if}}
 {{/promise-proxy-container}}

@@ -153,11 +153,9 @@ export default Component.extend(I18n, {
       this.set('actionsOpened', _open);
     },
     clipboardSuccess() {
-      // TODO: ready to use with notify delegation
       this.get('globalNotify').success(this.t('clipboardSuccess'));
     },
     clipboardError() {
-      // TODO: ready to use with notify delegation
       this.get('globalNotify').error(this.t('clipboardError'));
     },
   },

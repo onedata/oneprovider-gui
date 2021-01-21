@@ -7,7 +7,7 @@
   }
 }
 
-
+// FIXME: experimental, use as class, not include
 .space-shares {
-  height: 100%;
+  @include horizontal-flex-stretch;
 }

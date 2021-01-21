@@ -7,10 +7,8 @@ import {
 } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import moment from 'moment';
-import autosize from 'onedata-gui-common/utils/autosize';
 import { scheduleOnce, later } from '@ember/runloop';
-import { conditional, equal, raw } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
+import { conditional, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
@@ -29,44 +27,37 @@ export default Component.extend(I18n, {
    */
   share: undefined,
 
+  /**
+   * Current XML content od Dublin Core Metadata.
+   * @type {String}
+   */
   xml: undefined,
 
+  /**
+   * One of: visual, xml
+   * @type {String}
+   */
   editorMode: 'visual',
 
-  modeSwitchIcon: conditional(
-    equal('editorMode', raw('visual')),
-    raw('xml-file'),
-    raw('visual-editor'),
+  /**
+   * @type {Models.HandleService}
+   */
+  selectedHandleService: undefined,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  activeSlideOfCreator: conditional(
+    'publishOpenDataStarted',
+    raw('createMetadata'),
+    raw('welcome')
   ),
 
-  modeSwitchText: conditional(
-    equal('editorMode', raw('visual')),
-    computedT('editXml'),
-    computedT('openVisualEditor'),
-  ),
-
-  // TODO: VFS-6566 hack - better merge xml editor with visual editor into one component
-  editorModeChanged: observer('editorMode', function editorModeChanged() {
-    this.set('triggerUpdateXml', new Date().toString());
-  }),
-
-  autoApplyAutosize: observer(
-    'editorMode',
-    function autoApplyAutosize() {
-      if (this.get('editorMode') === 'xml') {
-        scheduleOnce('afterRender', () => {
-          const textarea = this.get('element').querySelector('.textarea-source-editor');
-          if (textarea) {
-            autosize(textarea);
-            // TODO: VFS-6566 hack
-            later(() => autosize(textarea), 500);
-          }
-        });
-      }
-    }
-  ),
-
-  // No dependent keys, because it is computed once
+  /**
+   * Default data for Dublin Core form.
+   * No dependent keys, because it is computed once.
+   * @type {ComputedProperty<Object>}
+   */
   initialData: computed(function initialData() {
     return {
       title: this.get('share.name'),
@@ -76,6 +67,9 @@ export default Component.extend(I18n, {
     };
   }),
 
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.Handle>>}
+   */
   handleProxy: promise.object(computed('share.handle', function handleProxy() {
     return this.get('share').getRelation('handle', { allowNull: true, reload: true })
       .then(handle => {
@@ -89,13 +83,42 @@ export default Component.extend(I18n, {
       });
   })),
 
+  /**
+   * @type {ComputedProperty<Models.Handle>}
+   */
+  handle: reads('handleProxy.content'),
+
+  /**
+   * @type {ComputedProperty<PromiseObject<Array<Models.HandleService>>>}
+   */
   handleServicesProxy: promise.object(computed('share.handle', function handleProxy() {
     return this.get('handleManager').getHandleServices();
   })),
 
-  handle: reads('handleProxy.content'),
-
+  /**
+   * @type {ComputedProperty<Models.HandleService>}
+   */
   handleServices: reads('handleServicesProxy.content'),
+
+  // TODO: VFS-6566 hack - better merge xml editor with visual editor into one component
+  editorModeChanged: observer('editorMode', function editorModeChanged() {
+    this.set('triggerUpdateXml', new Date().toString());
+  }),
+
+  activeSlideObserver: observer('activeSlideOfCreator', function activeSlideObserver() {
+    const scrollableParent = this.$().parents('.ps')[0];
+    if (scrollableParent) {
+      scrollableParent.scroll({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.loadXml();
+  },
 
   loadXml() {
     this.get('handleProxy').then(handle => {
@@ -108,12 +131,6 @@ export default Component.extend(I18n, {
         }
       }
     });
-  },
-
-  init() {
-    this._super(...arguments);
-    this.autoApplyAutosize();
-    this.loadXml();
   },
 
   actions: {
@@ -135,9 +152,8 @@ export default Component.extend(I18n, {
       const newMode = (editorMode === 'visual') ? 'xml' : 'visual';
       this.set('editorMode', newMode);
     },
-    discard() {
+    back() {
       this.set('publishOpenDataStarted', false);
-      this.set('xml', '');
     },
     updateXml(xml) {
       // TODO: VFS-6566 quick double render fix

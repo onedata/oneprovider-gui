@@ -9,9 +9,6 @@
     {{#if share.hasHandle}}
       <div class="open-data-logo"></div>
     {{/if}}
-    <div class="open-data-doi">
-      {{clipboard-line class="clipboard-line-public-share" value=(or share.handle.url share.publicUrl)}}
-    </div>
   </div>
 {{else}}
   {{#if noDescriptionWelcome}}

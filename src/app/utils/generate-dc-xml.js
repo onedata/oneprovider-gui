@@ -34,10 +34,15 @@ ${content}
 `;
   },
 
-  cleanEmpty() {
+  /**
+   * Remove entries that are not necessary (give no additional data).
+   * @param {Boolean} removeEmptyValues if true, entries with empty string will be removed
+   */
+  cleanEmpty(removeEmptyValues = true) {
     const groupedEntries = this.get('groupedEntries');
     const stripped = groupedEntries.reduce((arr, entry) => {
-      const strippedValues = entry.values.filter(value => Boolean(value));
+      const strippedValues = removeEmptyValues ?
+        entry.values.filter(value => Boolean(value)) : [...entry.values];
       if (strippedValues.length > 0) {
         arr.push({ type: entry.type, values: strippedValues });
       }

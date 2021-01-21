@@ -1,7 +1,8 @@
-import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { promise } from 'ember-awesome-macros';
+import HeaderBaseComponent from './-header-base';
 
-export default Component.extend(I18n, {
+export default HeaderBaseComponent.extend(I18n, {
   classNames: [
     'row',
     'share-show-header-public',
@@ -9,8 +10,6 @@ export default Component.extend(I18n, {
 
   i18nPrefix: 'components.shareShow.headerPublic',
 
-  /**
-   * @virtual
-   */
-  shareName: undefined,
+  handleDataProxy: promise.object(promise.all('handleProxy', 'handleServiceProxy')),
+
 });

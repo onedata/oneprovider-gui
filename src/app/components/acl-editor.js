@@ -143,10 +143,5 @@ export default Component.extend(I18n, {
       this.get('acl').pushObject(newAce);
       this.notifyAboutChange();
     },
-    nameMatcher(model, term) {
-      term = term.toLocaleLowerCase();
-      const name = get(model, 'name').toLocaleLowerCase();
-      return _.includes(name, term) ? 1 : -1;
-    },
   },
 });

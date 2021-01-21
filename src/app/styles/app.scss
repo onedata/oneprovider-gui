@@ -17,6 +17,7 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/acl-editor';
 @import 'components/content-file-browser';
 @import 'components/content-space-shares';
+@import 'components/content-public-share';
 @import 'components/edit-permissions-modal';
 @import 'components/file-browser';
 @import 'components/bs-modal';
@@ -32,12 +33,6 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/open-data-editor';
 @import 'components/qos-expression-info';
 @import 'components/query-builder';
-
-// TODO: VFS-6566 to move
-.content-public-share {
-  margin-top: -12px;
-  margin-bottom: -30px;
-}
 
 // TODO: VFS-6566 copied from space-transfers - make it global
 .tab-icon {

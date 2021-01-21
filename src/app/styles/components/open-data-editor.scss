@@ -1,77 +1,96 @@
 $color-public-blue-light: #F2F3F8;
 
+// FIXME: common style for preview and editor
+.metadata-header-section {
+  display: flex;
+  align-items: center;
+  .section-name {
+    flex-grow: 1;
+  }
+  .metadata-mode-switch {
+    flex-shrink: 1;
+    padding-left: $padding-large-horizontal;
+    padding-right: $padding-large-horizontal;
+  }
+}
+
+.open-data-preview {
+  .clipboard-line textarea.clipboard-input.open-data-xml-textarea {
+    min-height: 250px;
+    height: calc(100vh - 500px);
+  }
+}
+
 // TODO: VFS-6566 common styles with editor
 .open-data-editor {
+  $remove-col-width: 30px;
+  
+  h1 {
+    @include font-semibold;
+    font-size: 1.6em;
+    margin-bottom: 1em;
+  }
+  
+  h2 {
+    @include font-semibold;
+    font-size: 1.3em;
+    margin-bottom: 1em;
+  }
+  
   .section-name {
     @include font-semibold;
     font-size: 22px;
     margin-bottom: 15px;
   }
-  .metadata-group {
-    margin-top: 22px;
-  }
-  .metadata-group-name {
-    @include font-semibold;
-    font-size: 18px;
-    margin-bottom: 15px;
-  }
-  .metadata-value {
-    background-color: $color-public-blue-light;
-    padding: 18px;
-  }
-  .metadata-value + .metadata-value {
-    margin-top: 15px
-  }
-  .row-submit {
-    margin-top: 60px;
-  }
-  .row-metadata-group-add {
-    margin-top: 60px;
-  }
+  
+  // FIXME: ???
   .row-metadata-form.no-entries + .row-metadata-group-add {
     margin-top: 20px;
   }
-  .row-handle-service-select {
-    margin-bottom: 30px;
-  }
+  
   .metadata-group {
-    position: relative;
-  }
-  .entry-value-group + .entry-value-group {
-    margin-top: 15px
-  }
-  .group-add-entry {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding-right: 40px;
-    .btn .add-icon.oneicon {
-      font-size: 20px;
-      margin-right: 6px;
+    margin-top: 1em;
+    .metadata-group-header {
+      display: flex;
+      align-items: baseline;
+      padding-right: $remove-col-width;
+      .metadata-group-name {
+        flex-grow: 1;
+      }
     }
-  }
-  .entry-value-group {
-    position: relative;
-    padding-right: 40px;
-    textarea.form-control {
-      resize: vertical;
-      + .entry-remove-button {
-        top: 4px;
-        transform: none;
+    .metadata-value {
+      background-color: $color-public-blue-light;
+      padding: 18px;
+    }
+    .metadata-value + .metadata-value {
+      margin-top: 15px
+    }
+    .entry-value-group + .entry-value-group {
+      margin-top: 0.9em
+    }
+    .entry-value-group {
+      display: flex;
+      align-items: center;
+      .remove-icon {
+        flex: 0 0 $remove-col-width;
+        text-align: right;
+      }
+      textarea.form-control {
+        resize: vertical;
+        + .remove-icon {
+          align-self: flex-start;
+          padding-top: 0.4em;
+        }
       }
     }
   }
-  .entry-remove-button {
-    position: absolute;
-    top: 50%;
-    right: 0;
-    transform: translateY(-50%) translateY(4px);
-    font-size: 28px;
-    &:hover {
-      color: $color-one-red;
-    }
+  .row-metadata-group-add {
+    padding-right: $remove-col-width;
   }
-  .btn-discard + .btn-submit {
-    margin-left: 5px;
+  .row-metadata-group-add, .row-publish-info {
+    margin-top: 3em;
+  }
+  .row-submit {
+    margin-top: 0.8em;
   }
 }

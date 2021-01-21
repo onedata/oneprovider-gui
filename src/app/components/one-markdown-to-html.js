@@ -14,7 +14,7 @@ import { computed } from '@ember/object';
 import DOMPurify from 'npm:dompurify';
 
 export default Component.extend({
-  classNames: ['markdown-to-html'],
+  classNames: ['one-markdown-to-html'],
 
   /**
    * A Markdown-formatted text to show converted to HTML

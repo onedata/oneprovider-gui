@@ -1,16 +1,14 @@
-import Component from '@ember/component';
 import { Promise } from 'rsvp';
 import { computed, get } from '@ember/object';
 import { conditional, and, not, collect, tag } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import HeaderBaseComponent from './-header-base';
 
-export default Component.extend(I18n, {
+export default HeaderBaseComponent.extend(I18n, {
   classNames: [
     'row',
     'share-show-header-management',
-    'share-header-row',
-    'share-header-path',
     'with-menu',
   ],
 
@@ -49,7 +47,6 @@ export default Component.extend(I18n, {
   menuTriggerClass: tag `actions-share-${'elementId'}`,
 
   menuTriggerSelector: tag `.${'menuTriggerClass'}`,
-
   /**
    * @type {Array<object>}
    */

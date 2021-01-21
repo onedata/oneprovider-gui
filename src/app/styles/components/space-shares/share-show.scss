@@ -10,6 +10,64 @@ $content-padding-horizontal: 12px;
   $color-public-blue-light: #F2F3F8;
   $color-public-blue: #526592;
   
+  
+  // additional styles for internally used components
+  // common style for open-data-* components
+  .open-data-view {
+    .metadata-header-section {
+      display: flex;
+      position: sticky;
+      // should be overriden to match fixed headers in share-shows
+      top: 0;
+      // force to be above static elements inside absolute element
+      z-index: 1;
+      margin-top: 0;
+      margin-bottom: 0;
+      background-color: $color-one-white;
+    }
+  }
+    
+  // component
+  .share-show-header-management {
+    .share-header-row {
+      $col-menu-width: 30px;
+      $key-width: 14em;
+      display: flex;
+      align-items: center;
+      .col-key {
+        flex: 0 0 $key-width;
+        padding-left: $file-browser-padding-left;
+        padding-right: $padding-large-horizontal;
+        @media (max-width: $screen-xs-max) {
+          display: none;
+        }
+      }
+      .col-value {
+        flex: 0 1 $screen-xs-max;
+        max-width: calc(100% - #{$key-width});
+        @media (max-width: $screen-xs-max) {
+          flex-basis: auto;
+          flex-grow: 1;
+          max-width: none;
+        }
+      }
+      + .share-header-row {
+        margin-top: $padding-large-vertical;
+      }
+      &.with-menu {
+        padding-right: $col-menu-width;
+        .col-value {
+          // this kind of max-width limit is suitable for dynamic path renderer
+          max-width: calc(100% - #{$key-width} - #{$col-menu-width});
+        }
+      }
+      .col-menu {
+        @include vertical-align-middle();
+        right: 0;
+      }
+    }
+  }
+  
   .content-info-container {
     padding-top: $content-header-height-private + $fb-table-margin-top;
   }
@@ -22,7 +80,7 @@ $content-padding-horizontal: 12px;
     left: 0;
     right: 0;
     z-index: $zindex-file-browser-head;
-    padding-top: $padding-large-vertical;
+    padding-top: $content-row-vertical-padding;
     padding-left: $content-col-padding;
     padding-right: $content-col-padding;
     background-color: $main-tabbed-content-background;
@@ -38,12 +96,6 @@ $content-padding-horizontal: 12px;
     .tab-label-notice {
       color: $color-one-blue-gray;
     }
-  }
-  .open-data-doi {
-    top: $content-col-padding;
-    position: relative;
-    padding-left: $content-col-padding;
-    padding-right: $content-col-padding;
   }
   .clipboard-line-public-share.clipboard-line.clipboard-line-input {
     $border-radius: 8px;
@@ -66,38 +118,55 @@ $content-padding-horizontal: 12px;
     }
   }
   .col-open-data-logo {
-    position: fixed;
-    top: $content-header-height-public;
-    bottom: $public-footer-height;
-    right: 0;
+    position: sticky;
+    top: 250px;
   }
   .open-data-logo {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    height: 250px;
+    width: 100%;
     background-image: url($root-url + 'images/open-data.svg');
     background-repeat: no-repeat;
-    background-position: center 70%;
+    background-position: center center;
     background-size: 300px auto;
-    @media (max-height: 700px) {
-      background-size: 160px;
+    @media (max-height: $content-header-height-public + $public-footer-height + 120px) {
+      display: none;
     }
-    @media (max-height: 900px) {
-      background-position: center calc(100% - 20px);
+    @media (max-height: 700px) {
+      background-size: 200px auto;
+    }
+    &.open-data-logo-small {
+      height: 140px;
+      background-size: 180px auto;
     }
   }
   &.share-show-public {
+    @include horizontal-flex-stretch;
     padding-top: $content-header-height-public;
+    padding-bottom: 0;
+    // because of footer, we must remove padding added by generic one-embedded-component
+    // there is also a 2px embedded iframe bug described somewhere else
+    margin-bottom: -$content-col-padding - 2px;
+    &.content-file-browser {
+      height: auto;
+    }
+    .open-data-preview {
+      // restore bottom padding, which was removed in share-show-public for footer
+      padding-bottom: $content-col-padding;
+      .metadata-header-section {
+        top: $content-header-height-public;
+      }
+    }
     .share-show-pane-container {
-      min-height: calc(100% - #{$public-footer-height + $public-section-border-width});
+      @include horizontal-flex-stretch;
       &.share-show-pane-container-files {
         margin-bottom: -50px;
         .table-bottom-spacing {
           height: 40px;
         }
       }
+    }
+    .share-header-public-url {
+      display: flex;
     }
     .share-header-panel {
       height: $content-header-height-public;
@@ -127,56 +196,87 @@ $content-padding-horizontal: 12px;
     }
     .pane-description {
       padding-left: $content-padding-horizontal;
-      padding-bottom: 50px;
     }
     .pane-opendata {
       .open-data-preview {
         padding-right: $content-col-padding;
       }
-      padding-bottom: 50px;
     }
     .share-show-header-public {
-      height: 200px;
+      display: flex;
+      align-items: center;
+      padding-top: 1.5em;
       padding-left: $content-padding-horizontal;
+      .share-header-public-url {
+        display: flex;
+        justify-content: center;
+        &.share-header-public-url-mobile {
+          justify-content: left;
+        }
+        .col-key {
+          flex: 0 0 12em;
+          padding-right: $padding-small-horizontal;
+        }
+        .col-value {
+          flex: 0 1 100em;
+        }
+      }
       .share-head {
-        line-height: 130px;
+        display: flex;
+        flex-grow: 1;
+        align-items: center;
       }
       .share-logo {
-        position: absolute;
         font-size: 78px;
-        top: 50%;
-        transform: translateY(-50%) translateY(-8px);
+        line-height: 0;
+      }
+      .share-name-section {
+        flex-grow: 0;
+        flex-shrink: 1;
+        flex-basis: 48em;
+        padding-left: 0.8em;
+        padding-right: 1em;
+        overflow: hidden;
       }
       .share-name {
         @include font-semibold;
-        font-size: 42px;
-        padding-left: 106px;
+        font-size: 32px;
+        padding-bottom: 4px;
       }
     }
   }
   &.share-show-private {
+    @include horizontal-flex-stretch;
     $padding-vertical: 32px;
     padding-top: $content-header-height-private;
+    padding-bottom: $content-col-padding;
+    .open-data-view {
+      .metadata-header-section {
+        top: $content-header-height-private;
+      }
+    }
+    .share-show-pane-container, .share-show-pane {
+      // FIXME: maybe this could be common style for panes public and private
+      @include horizontal-flex-stretch;
+    }
+    .opendata-one-carousel {
+      // overflow cannot be hidden, because of sticky elements inside
+      overflow: visible;
+    }
     &.content-file-browser {
-      height: calc(100% - #{$content-header-height-private + $fb-table-margin-top});
+      height: auto;
     }
-    .open-data-editor {
-      padding-top: $description-bar-height;
-    }
-    .share-edit-bar {
+    .editor-current-mode-bar {
       position: fixed;
       top: $content-header-height-private;
       left: 0;
+      z-index: 1;
       height: $description-bar-height;
       width: 100%;
-      border-bottom: 1px solid $main-border-color;
-      background: white;
-      border-bottom: 1px solid $main-border-color;
-      z-index: 1;
-    }
-    .share-edit-bar-placeholder {
       line-height: $description-bar-height;
       padding-left: $content-col-padding + $content-padding-horizontal;
+      border-bottom: 1px solid $main-border-color;
+      background: $color-one-white;
       @include font-semibold;
     }
     .pell-content {
@@ -197,7 +297,7 @@ $content-padding-horizontal: 12px;
     }
     .markdown-preview {
       padding-left: $content-padding-horizontal;
-      margin-top: $description-bar-height;
+      padding-top: $description-bar-height;
     }
     .textarea-source-editor {
       width: 100%;
@@ -206,7 +306,8 @@ $content-padding-horizontal: 12px;
       padding-right: 0;
       overflow-y: auto;
       outline: none;
-      margin-top: $description-bar-height;
+      margin-top: $content-col-padding;
+      padding-top: $description-bar-height;
       font-size: 15px;
     }
     .share-header-panel {
@@ -215,50 +316,19 @@ $content-padding-horizontal: 12px;
     .file-browser-head-container {
       top: $content-header-height-private;
     }
-    .share-header-row {
-      $col-menu-width: 30px;
-      $key-width: 140px;
-      position: relative;
-      .col-key {
-        @include vertical-align-middle;
-        top: 50%;
-        left: 0;
-        transform: translateY(-50%);
-        width: $key-width;
-        padding-left: $file-browser-padding-left;
-        padding-right: $padding-large-horizontal;
-        @media (max-width: $screen-xs-max) {
-          display: none;
-        }
-      }
-      .col-value {
-        display: flex;
-        padding-left: $key-width;
-        max-width: $screen-xs-max;
-        @media (max-width: $screen-xs-max) {
-          padding-left: 0;
-        }
-      }
-      + .share-header-row {
-        margin-top: $padding-large-vertical;
-      }
-      &.with-menu {
-        padding-right: $col-menu-width;
-      }
-      .col-menu {
-        @include vertical-align-middle();
-        right: 0;
-      }
-    }
+
     .pane-opendata {
-      padding-bottom: 50px;
+      // FIXME: experimental off
+      // padding-bottom: 50px;
+      .content-info.content-info-publish-open-data-welcome {
+        // must be forced, because one-carousel stretched as its content and absolute map
+        // will not stretch horizontally, until it has no space provided by content-info
+        min-height: calc(100vh - #{$content-header-height-private});
+      }
     }
   }
   .share-header-public-url {
     position: relative;
-  }
-  .clipboard-line-public-url {
-    flex-grow: 1;
   }
   .share-show-footer-public {
     height: $public-footer-height;
@@ -285,10 +355,29 @@ $content-padding-horizontal: 12px;
       padding-left: 168px;
     }
   }
+  
+  // component
+  .public-url-viewer {
+    .input-group-addon-handle-service.truncate {
+      max-width: 18em;
+    }
+    .compact-url-type-selector-arrow.inline-icon-container {
+      margin-left: -0.2em;
+      width: 1.4em;
+      .oneicon {
+        font-size: 120%;
+      }
+    }
+    .clipboard-line-public-url {
+      flex-grow: 1;
+    }
+  }
 }
 
 // TODO: VFS-6566 move to other file and reuse in editor
-.markdown-view {  
+.markdown-view {
+  margin-top: $content-col-padding;
+  margin-bottom: $content-col-padding;
   table {
     @extend .table;
     @extend .table-striped;

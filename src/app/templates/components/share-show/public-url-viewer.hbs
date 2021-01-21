@@ -1,0 +1,165 @@
+{{#unless compact}}
+  <div class="col-key">
+    {{#if share.hasHandle}}
+      {{#power-select
+        triggerClass="small text-like share-link-type-selector-trigger"
+        dropdownClass="small text-like share-link-type-selector-dropdown"
+        renderInPlace=false
+        options=(array "handle" "share")
+        selected=selectedUrlType
+        searchEnabled=false
+        onchange=(action (mut selectedUrlType))
+        as |urlType|
+      }}
+        {{tt this (concat urlType "PublicLink")}}
+      {{/power-select}}
+    {{else}}
+      {{tt this "sharePublicLink"}}
+    {{/if}}
+  </div>
+{{/unless}}
+<div class="col-value">
+  {{#if (or (eq selectedUrlType "handle") compact)}}
+    {{#loading-container
+      isLoading=handleDataProxy.isPending
+      centered=false
+      sizeClass="xs"
+    }}
+      <div class="clipboard-line sm">
+        <div class="input-group input-group-sm">
+          {{#if compact}}
+            {{#if share.hasHandle}}
+              <div
+                class="input-group-addon input-group-addon-icon url-type-selector-trigger clickable"
+                {{action
+                  (mut compactUrlTypeSelectorOpened)
+                  (not compactUrlTypeSelectorOpened)
+                }}
+              >
+                <div class="inline-icon-container compact-url-type-selector-icon">
+                  {{one-icon icon=(if (eq selectedUrlType "share") "onezone" "globe-cursor")}}
+                </div>
+                <div class="inline-icon-container input-group-addon-icon compact-url-type-selector-arrow">
+                  {{one-icon icon=(if compactUrlTypeSelectorOpened "arrow-up" "arrow-down")}}
+                </div>
+              </div>
+              {{#one-webui-popover
+                class="compact-url-type-selector-popover"
+                popoverStyle="with-dropdown"
+                padding=false
+                open=compactUrlTypeSelectorOpened
+                triggerSelector=(concat "#" elementId " .compact-url-type-selector-arrow")
+                as |popover|
+              }}
+                {{#click-outside
+                  action=(action (mut compactUrlTypeSelectorOpened) false)
+                  except-selector=".url-type-selector-trigger, .compact-url-type-selector-actions"
+                }}
+                  {{actions-popover-content
+                    actionsArray=compactUrlTypeSelectorActions
+                    actionClicked=(action (mut compactUrlTypeSelectorOpened) false)
+                    class="compact-url-type-selector-actions"
+                  }}
+                {{/click-outside}}
+              {{/one-webui-popover}}
+            {{else}}
+              <div
+                class="input-group-addon input-group-addon-icon share-only-input-group-addon clickable"
+              >
+                <div class="inline-icon-container compact-url-type-selector-icon">
+                  {{one-icon icon="onezone"}}
+                </div>
+              </div>
+            {{/if}}
+          {{/if}}
+          {{#if (and (eq selectedUrlType "handle") handleServiceProxy.name)}}
+            {{#if compact}}
+              <div
+                class="input-group-addon input-group-addon-icon input-group-addon-handle-service handle-service-info-trigger clickable"
+                {{action (mut handleServiceInfoOpened) (not handleServiceInfoOpened)}}
+              >
+                <div class="inline-icon-container">
+                  {{one-icon icon="browser-info"}}
+                </div>
+              </div>
+            {{else}}
+              <div class="input-group-addon input-group-addon-handle-service truncate">
+                <a
+                  class="input-handle-service-name handle-service-info-trigger black"
+                  {{action (mut handleServiceInfoOpened) (not handleServiceInfoOpened)}}
+                >
+                  {{handleServiceProxy.name}}
+                </a>
+              </div>
+            {{/if}}
+            {{!--
+              NOTE: need to wrap one-webui-popover with element, because of bug in Ember
+              that causes not rendering anything after component that failed to render
+            --}}
+            <div class="popover-container">
+              {{#one-webui-popover
+                class="handle-service-info"
+                popoverStyle="handle-service-info"
+                open=handleServiceInfoOpened
+                triggerSelector=(concat "#" elementId " .handle-service-info-trigger")
+                as |popover|
+              }}
+                {{#click-outside
+                  action=(action (mut handleServiceInfoOpened) false)
+                  except-selector=".handle-service-info-trigger, .webui-popover-handle-service-info"
+                }}
+                  <div class="form-group without-margin">
+                    <p>
+                      {{tt this "handleServiceInfoText"
+                        handleServiceName=handleServiceProxy.name
+                      }}
+                    </p>
+                    <p>
+                      <label class="control-label">
+                        <strong>{{tt this "handleId"}}:</strong>
+                      </label>
+                      {{one-clipboard-line
+                        class="handle-id-clipboard-line"
+                        size="sm"
+                        value=handleProxy.entityId
+                      }}
+                    </p>
+                    <p>
+                      <label class="control-label">
+                        <strong>{{tt this "handleServiceId"}}:</strong>
+                      </label>
+                      {{one-clipboard-line
+                        class="handle-service-id-clipboard-line"
+                        size="sm"
+                        value=handleServiceProxy.entityId
+                      }}
+                    </p>
+                  </div>
+                {{/click-outside}}
+              {{/one-webui-popover}}
+            </div>
+          {{/if}}
+          <input
+            type="text"
+            class="handle-url-input clipboard-input form-control input-sm"
+            value={{if (eq selectedUrlType "handle") handleProxy.url share.publicUrl}}
+            readonly
+          >
+        </div>
+        {{#one-copy-button
+          class="clipboard-btn clipboard-btn-input"
+          clipboardTarget=(concat "#" elementId " .handle-url-input")
+        }}
+          <div class="copy-btn-background"></div>
+          {{one-icon class="copy-btn-icon" icon="browser-copy"}}
+        {{/one-copy-button}}
+      </div>
+    {{/loading-container}}
+  {{else}}
+    {{clipboard-line
+      class="clipboard-line-public-url"
+      size="sm"
+      value=share.publicUrl
+    }}
+  {{/if}}
+</div>

@@ -10,14 +10,18 @@ import { dcElements } from 'oneprovider-gui/utils/parse-dc-xml';
 import _ from 'lodash';
 import { isEmpty } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
-import { conditional, equal, raw } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
+import config from 'ember-get-config';
+
+const {
+  layoutConfig,
+} = config;
 
 const defaultMode = 'visual';
 
 export default Component.extend(I18n, {
-  classNames: ['open-data-preview', 'open-data-editor'],
+  classNames: ['open-data-preview', 'open-data-editor', 'open-data-view'],
 
   globalNotify: service(),
 
@@ -26,17 +30,32 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.openDataPreview',
 
+  layoutConfig,
+
   initialData: Object.freeze({}),
 
   groupedEntries: undefined,
 
   submit: undefined,
 
-  updateXml: undefined,
+  /**
+   * @virtual
+   * @type {Models.HandleService}
+   */
+  handleService: undefined,
 
-  selectedHandleService: undefined,
+  /**
+   * @virtual
+   * @type {String}
+   */
+  xml: undefined,
 
-  handleServices: Object.freeze([]),
+  /**
+   * One of: visual, xml
+   * @virtual optional
+   * @type {String}
+   */
+  mode: defaultMode,
 
   /**
    * @virtual
@@ -44,9 +63,11 @@ export default Component.extend(I18n, {
    */
   changeMode: notImplementedThrow,
 
-  mode: defaultMode,
-
-  xml: undefined,
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  updateXml: notImplementedIgnore,
 
   init() {
     this._super(...arguments);
@@ -72,18 +93,21 @@ export default Component.extend(I18n, {
     }));
   },
 
-  getXml() {
+  getXml(deeplyCleaned = false) {
     const generator = dcXmlGenerator.create({
       groupedEntries: plainCopy(this.get('groupedEntries')),
     });
-    generator.cleanEmpty();
+    generator.cleanEmpty(deeplyCleaned);
     return get(generator, 'xml');
   },
 
   xmlObserver: observer('xml', function xmlObserver() {
     const xml = this.get('xml');
     if (xml != null) {
-      const parser = dcXmlParser.create({ xmlSource: xml });
+      const parser = dcXmlParser.create({
+        xmlSource: xml,
+        preserveEmptyValues: true,
+      });
       this.set('groupedEntries', parser.getEmberGroupedEntries());
     }
   }),
@@ -91,28 +115,26 @@ export default Component.extend(I18n, {
   triggerUpdateXmlObserver: observer(
     'triggerUpdateXml',
     function triggerUpdateXmlObserver() {
-      this.updateXml(this.getXml());
+      this.get('updateXml')(this.getXml());
     }
   ),
+
+  modeObserver: observer('mode', function modeObserver() {
+    const scrollableParent = this.$().parents('.ps')[0];
+    if (scrollableParent) {
+      scrollableParent.scroll({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  }),
 
   metadataGroupAddList: computed('groupedEntries.[]', function metadataGroupAddList() {
     const currentElements = this.get('groupedEntries').mapBy('type');
     return _.difference(dcElements, currentElements);
   }),
 
-  submitDisabled: isEmpty('selectedHandleService'),
-
-  modeCurrentText: conditional(
-    equal('mode', raw('visual')),
-    computedT('visualEditor'),
-    computedT('xmlEditor'),
-  ),
-
-  modeCurrentIcon: conditional(
-    equal('mode', raw('visual')),
-    raw('visual-editor'),
-    raw('xml-file'),
-  ),
+  submitDisabled: isEmpty('handleService'),
 
   actions: {
     setValue(type, index, inputEvent) {
@@ -124,9 +146,9 @@ export default Component.extend(I18n, {
     submit() {
       const {
         submit,
-        selectedHandleService,
-      } = this.getProperties('submit', 'selectedHandleService');
-      return submit(this.getXml(), get(selectedHandleService, 'entityId'))
+        handleService,
+      } = this.getProperties('submit', 'handleService');
+      return submit(this.getXml(), get(handleService, 'entityId'))
         .catch(error => {
           this.get('globalNotify').backendError(this.t('publishingData'), error);
           throw error;
@@ -152,22 +174,14 @@ export default Component.extend(I18n, {
     simpleMatcher(name, term) {
       return name.toLocaleLowerCase().includes(term.toLocaleLowerCase()) ? 1 : -1;
     },
-    nameMatcher(model, term) {
-      const nameLower = get(model, 'name').toLocaleLowerCase();
-      const termLower = term.toLocaleLowerCase();
-      return nameLower.includes(termLower) ? 1 : -1;
-    },
     addMetadataGroup(type) {
       this.get('groupedEntries').pushObject(EmberObject.create({
         type,
         values: [''],
       }));
     },
-    selectHandleService(handleService) {
-      this.set('selectedHandleService', handleService);
-    },
-    discard() {
-      this.get('discard')();
+    back() {
+      this.get('back')();
     },
   },
 });

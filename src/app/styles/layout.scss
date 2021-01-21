@@ -4,9 +4,9 @@
   position: absolute;
   @include fill-container();
   display: flex;
-  padding-top: $content-row-vertical-padding;
+  padding-top: 0;
   padding-right: 0;
-  padding-bottom: $content-col-padding;
+  padding-bottom: 0;
   padding-left: 0;
   overflow: auto;
   > * {

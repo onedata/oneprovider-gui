@@ -21,16 +21,14 @@ const xmlOnedataLegacy = `<?xml version="1.0" encoding="UTF-8"?>
   <dc:language>EN</dc:language>
 </metadata>`;
 
-// const xmlWithoutNamespace = `
-// <?xml version="1.0" encoding="UTF-8"?>
-// <metadata
-//   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//   xmlns:dc="http://purl.org/dc/elements/1.1/"
-// >
-// <dc:title>White Noise Image Collection</dc:title>
-// <dc:creator>Bartosz Kryza</dc:creator>
-// </metadata>
-// `;
+const xmlWithEmptyElements = `<?xml version="1.0" encoding="UTF-8"?>
+<metadata
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
+  <dc:title>Test</dc:title>
+  <dc:title></dc:title>
+</metadata>`;
 
 /* eslint-enable max-len */
 
@@ -48,6 +46,28 @@ describe('Unit | Utility | parse dc xml', function () {
     expect(languageEntries).to.have.lengthOf(2);
     expect(languageEntries[0]).to.have.property('value', 'PL');
     expect(languageEntries[1]).to.have.property('value', 'EN');
+  });
+
+  it('parses XML with empty values and ignores them by default', function () {
+    const parser = DcXmlParser.create({ xmlSource: xmlWithEmptyElements });
+    const entries = get(parser, 'entries');
+
+    expect(entries).to.have.lengthOf(1);
+    expect(entries.findBy('type', 'title'))
+      .to.have.property('value', 'Test');
+  });
+
+  it('parses XML with empty values and exposes them using special flag', function () {
+    const parser = DcXmlParser.create({
+      xmlSource: xmlWithEmptyElements,
+      preserveEmptyValues: true,
+    });
+    const entries = get(parser, 'entries');
+
+    expect(entries).to.have.lengthOf(2);
+    const titles = entries.filterBy('type', 'title');
+    expect(titles[0]).to.have.property('value', 'Test');
+    expect(titles[1]).to.have.property('value', '');
   });
 
   it('exposes grouped metadata entries in correct order', function () {

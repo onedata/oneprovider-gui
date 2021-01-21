@@ -28,7 +28,7 @@
         options=subjectsList
         onchange=(action "addEntitySelected")
         placeholder=(tt this "addUserOrGroup")
-        matcher=(action "nameMatcher")
+        searchField="name"
         as |entity|}}
         <div class="option-container" data-entity-id={{entity.entityId}}>
           {{#truncated-string}}

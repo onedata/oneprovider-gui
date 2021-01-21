@@ -2,15 +2,15 @@
   <div class="row share-header-panel">
     {{#if publicMode}}
       {{share-show/header-public
-        shareName=share.name
+        share=share
       }}
     {{else}}
       {{share-show/header-management
-        showShareList=(action "showShareList")
         share=share
         spaceId=spaceId
-        getDataUrl=(action "getDataUrl")
         shareRootDeleted=shareRootDeleted
+        getDataUrl=(action "getDataUrl")
+        showShareList=(action "showShareList")
       }}
     {{/if}}
     {{#bs-tab
@@ -60,6 +60,7 @@
     >
       {{#render-later triggerRender=(eq activeTab tabId)}}
         {{component (concat "share-show/pane-" tabId)
+          class="share-show-pane"
           publicMode=publicMode
           share=share
           dirId=dirId

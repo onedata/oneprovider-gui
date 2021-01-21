@@ -15,10 +15,10 @@ Test description with **bold**.
 * Dolor
 `;
 
-export const exampleMarkdownLong = `
-# BTau primary dataset in AOD format from RunB of 2010(/BTau/Run2010B - Apr21ReReco - v1 / AOD)
+// export const exampleMarkdownLong = `
+// # BTau primary dataset in AOD format from RunB of 2010(/BTau/Run2010B - Apr21ReReco - v1 / AOD)
 
-/BTau/Run2010B - Apr21ReReco - v1 / AOD, CMS collaboration
+export const exampleMarkdownLong = `/BTau/Run2010B - Apr21ReReco - v1 / AOD, CMS collaboration
 
 Cite as: CMS collaboration (2014). BTau primary dataset in AOD format from RunB of 2010 (/BTau/Run2010B-Apr21ReReco-v1/AOD). CERN Open Data Portal. [DOI:10.7483/OPENDATA.CMS.A342.9982](http://doi.org/10.7483/OPENDATA.CMS.A342.9982)
 
@@ -100,6 +100,7 @@ export const exampleDublinCore = `<?xml version="1.0" encoding="UTF-8"?>
 >
   <dc:title>White Noise Image Collection</dc:title>
   <dc:creator>Bartosz Kryza</dc:creator>
+  <dc:creator></dc:creator>
   <dc:subject>Demonstration</dc:subject>
   <dc:description>This data set contains 10 images containing white noise, including script used to generate them.</dc:description>
   <dc:date>2018-11-12</dc:date>

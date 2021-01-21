@@ -112,15 +112,6 @@ export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), 
     raw([])
   ),
 
-  // tabIds: conditional('publicMode',
-  //   conditional('hasHandle', ''),
-  //   conditional(
-  //     'hasHandle',
-  //     raw(['opendata', 'description', 'files']),
-  //     raw(['description', 'files', 'opendata']),
-  //   )
-  // ),
-
   tabIcons: Object.freeze({
     opendata: 'globe-cursor',
     files: 'browser-directory',

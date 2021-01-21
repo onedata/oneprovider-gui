@@ -63,6 +63,30 @@ describe('Unit | Utility | generate dc xml', function () {
     ]);
   });
 
+  it('can preserve balnk strings when cleaning the object', function () {
+    const generator = generateDcXml.create({
+      groupedEntries: [
+        { type: 'title', values: ['', 'White Noise'] },
+        { type: 'creator', values: [] },
+        { type: 'subject', values: ['', ''] },
+      ],
+    });
+
+    generator.cleanEmpty(false);
+
+    const entries = get(generator, 'entries');
+    const groupedEntries = get(generator, 'groupedEntries');
+
+    expect(entries).to.have.lengthOf(4);
+    expect(entries[0]).to.deep.equal({ type: 'title', value: '' });
+    expect(entries[1]).to.deep.equal({ type: 'title', value: 'White Noise' });
+    expect(entries[2]).to.deep.equal({ type: 'subject', value: '' });
+    expect(groupedEntries).to.deep.equal([
+      { type: 'title', values: ['', 'White Noise'] },
+      { type: 'subject', values: ['', ''] },
+    ]);
+  });
+
   it('escapes unsafe values', function () {
     const generator = generateDcXml.create({
       groupedEntries: [

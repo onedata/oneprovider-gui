@@ -1,7 +1,35 @@
-<div class="container">
-  {{open-data-preview
-    xmlSource=xmlSource
-    handleServiceName="Onedata Inc."
-    handleUrl="http://example.com/share/1"
-  }}
+<div class="share-show">
+  <div class="row" style="margin: 30px;">
+    {{share-show/public-url-viewer
+      class="row share-header-row share-header-public-url share-header-public-url-mobile"
+      share=share
+      selectedUrlType="share"
+    }}
+  </div>
+
+  <div class="row" style="margin: 30px;">
+    {{share-show/public-url-viewer
+      class="row share-header-row share-header-public-url share-header-public-url-mobile"
+      share=share
+      selectedUrlType="handle"
+    }}
+  </div>
+
+  <div class="row" style="margin: 30px;">
+    {{share-show/public-url-viewer
+      class="row share-header-row share-header-public-url share-header-public-url-mobile"
+      share=share
+      compact=true
+      selectedUrlType="handle"
+    }}
+  </div>
+
+  <div class="row hidden" style="margin: 30px;">
+    {{open-data-preview
+      xml=xmlSource
+      handleServiceName="Onedata Inc."
+      handleUrl="http://example.com/share/1"
+    }}
+  </div>
 </div>
+

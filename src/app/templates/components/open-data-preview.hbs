@@ -1,38 +1,68 @@
-{{#if (or handleServiceName handleUrl)}}
-  {{#if handleServiceName}}
-    <h2 class="metadata-group-name">{{tt this "handleService"}}</h2>
-  {{/if}}
-  <div class="row metadata-group handle-service-group {{unless handleServiceName "hidden-md hidden-lg"}}">
-    {{#if handleServiceName}}
-      <div class="handle-service-info open-data-value metadata-value">
-        {{handleServiceName}}
-      </div>
-    {{/if}}
-    {{#if handleUrl}}
-      <div class="open-data-url open-data-value metadata-value col-xs-12 col-sm-12 hidden-md hidden-lg">
-        {{clipboard-line
-          class="clipboard-line-public-share"
-          value=handleUrl
-        }}
-      </div>
-    {{/if}}
+{{!-- FIXME: maybe common component --}}
+<div class="metadata-header-section">
+  <h1 class="section-name">
+    {{tt this "metadata"}}
+    {{one-label-tip title=(tt this 'metadataPublicHeaderTip')}}
+  </h1>
+  <div class="metadata-mode-switch">
+    {{#bs-button-group
+      value=mode
+      class="dublin-core-metadata-mode-btn-group"
+      type="radio"
+      justified=media.isMobile
+      onChange=(action (mut mode)) as |bg|
+    }}
+      {{#bg.button type="default" class="btn-sm btn-visual-editor" value="visual"}}
+        {{one-icon icon="visual-editor"}}
+        <span class="text">{{tt this "visual"}}</span>
+      {{/bg.button}}
+      {{#bg.button type="default" class="btn-sm btn-xml-editor" value="xml"}}
+        {{one-icon icon="xml-file"}}
+        <span class="text">{{tt this "xml"}}</span>
+      {{/bg.button}}
+    {{/bs-button-group}}
   </div>
-{{/if}}
-{{#if groupedEntries.length}}
-  {{#each groupedEntries as |group|}}
-    <div class="metadata-group">
-      <h2 class="metadata-group-name">
-        {{tt this (concat "dcElementNames." group.type)}}
-      </h2>
-      {{#each group.values as |value|}}
-        <div class="metadata-value open-data-value">
-          {{value}}
+</div>
+<div class="row-metadata-presenter">
+  {{#if groupedEntries.length}}
+    <div class="row" style="display: flex;align-items: center;">
+      <div class="col-xs-12 col-md-8 col-lg-7">
+        {{#one-carousel activeSlideId=mode as |carousel|}}
+          {{#carousel.slide slideId="visual"}}
+            {{#each groupedEntries as |group|}}
+              <div class="metadata-group">
+                <h2 class="metadata-group-name">
+                  {{tt this (concat "dcElementNames." group.type)}}
+                </h2>
+                {{#each group.values as |value|}}
+                  <div class="metadata-value open-data-value">
+                    {{value}}
+                  </div>
+                {{/each}}
+              </div>
+            {{/each}}
+          {{/carousel.slide}}
+          {{#carousel.slide slideId="xml"}}
+            {{one-clipboard-line
+              inputClass="open-data-xml-textarea"
+              type="textarea"
+              value=xml
+            }}
+          {{/carousel.slide}}
+        {{/one-carousel}}
+      </div>
+      <div class="hidden-xs hidden-sm col-md-4 col-lg-5 col-open-data-logo">
+        {{!--FIXME: experimental style --}}
+        <div
+          class="open-data-logo {{if (lt groupedEntries.length 2) "open-data-logo-small"}}"
+          style="transition: all 0.2s ease"
+        >
         </div>
-      {{/each}}
+      </div>
     </div>
-  {{/each}}
-{{else}}
-  <p class="no-dublin-core">
-    {{tt this "noMetadata"}}
-  </p>
-{{/if}}
+  {{else}}
+    <p class="no-dublin-core">
+      {{tt this "noMetadata"}}
+    </p>
+  {{/if}}
+</div>
