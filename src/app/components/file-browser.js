@@ -195,6 +195,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Boolean}
+   */
+  isSpaceOwned: undefined,
+
+  /**
+   * @virtual
    */
   spacePrivileges: Object.freeze({}),
 

@@ -59,6 +59,12 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   /**
    * @virtual
+   * @type {Boolean}
+   */
+  isSpaceOwned: undefined,
+
+  /**
+   * @virtual
    */
   file: undefined,
 
@@ -319,15 +325,20 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   isForbidden: computed(
     'previewMode',
+    'isSpaceOwned',
     'file.{type,owner.entityId,posixPermissions}',
     function isForbidden() {
       const {
         file,
         previewMode,
-      } = this.getProperties('file', 'previewMode');
+        isSpaceOwned,
+      } = this.getProperties('file', 'previewMode', 'isSpaceOwned');
       const posixPermissions = get(file, 'posixPermissions');
       if (!posixPermissions) {
         return undefined;
+      }
+      if (isSpaceOwned) {
+        return false;
       }
       let octalNumber;
       if (previewMode) {
