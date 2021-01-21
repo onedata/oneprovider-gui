@@ -333,12 +333,12 @@ export default Component.extend(I18n, FastDoubleClick, {
         previewMode,
         isSpaceOwned,
       } = this.getProperties('file', 'previewMode', 'isSpaceOwned');
+      if (isSpaceOwned) {
+        return false;
+      }
       const posixPermissions = get(file, 'posixPermissions');
       if (!posixPermissions) {
         return undefined;
-      }
-      if (isSpaceOwned) {
-        return false;
       }
       let octalNumber;
       if (previewMode) {

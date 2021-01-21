@@ -45,69 +45,66 @@ describe('Integration | Component | file browser/fb table row', function () {
   });
 
   describe('renders "no access" file tag when', function () {
-    itRendersNoAccess(
-      'user owns file and has no user read posix permissions', {
-        file: createFile({ posixPermissions: '377' }),
-      }
-    );
+    itRendersNoAccess('user owns file and has no user read posix permissions', {
+      file: createFile({ posixPermissions: '377' }),
+    });
 
-    itRendersNoAccess(
-      'user belongs to file group and has no group read posix permissions', {
-        file: createFile({ posixPermissions: '737' }, 'user.test.instance:private'),
-      },
-    );
+    itRendersNoAccess('user belongs to file group and has no group read posix permissions', {
+      file: createFile({ posixPermissions: '737' }, 'user.test.instance:private'),
+    }, );
 
-    itRendersNoAccess(
-      'browser is in preview and user belongs no "other" read posix permissions', {
-        file: createFile({ posixPermissions: '773' }),
-        previewMode: true,
-      },
-    );
+    itRendersNoAccess('browser is in preview and user has no "other" read posix permissions', {
+      file: createFile({ posixPermissions: '773' }),
+      previewMode: true,
+    }, );
 
     function itRendersNoAccess(description, properties) {
-      it(description, function () {
-        this.setProperties(properties);
-
-        this.render(hbs `{{file-browser/fb-table-row
-          file=file
-          previewMode=previewMode
-          isSpaceOwned=isSpaceOwned
-        }}`);
-
-        expect(this.$('.file-status-forbidden'), 'forbidden tag').to.exist;
+      checkNoAccessTag({
+        renders: true,
+        description,
+        properties,
       });
     }
   });
 
   describe('does not render "no access" file tag when', function () {
-    itDoesNotRenderNoAccess(
-      'user has full posix permissions', {
-        file: createFile({ posixPermissions: '777' }),
-      }
-    );
+    itDoesNotRenderNoAccess('user has full posix permissions', {
+      file: createFile({ posixPermissions: '777' }),
+    });
 
-    itDoesNotRenderNoAccess(
-      'user is space owner and does not have any read permissions', {
-        file: createFile({ posixPermissions: '333' }),
-        isSpaceOwned: true,
-      }
-    );
+    itDoesNotRenderNoAccess('user is space owner and does not have any read permissions', {
+      file: createFile({ posixPermissions: '333' }),
+      isSpaceOwned: true,
+    });
 
     function itDoesNotRenderNoAccess(description, properties) {
-      it(description, function () {
-        this.setProperties(properties);
-
-        this.render(hbs `{{file-browser/fb-table-row
-          file=file
-          previewMode=previewMode
-          isSpaceOwned=isSpaceOwned
-        }}`);
-
-        expect(this.$('.file-status-forbidden'), 'forbidden tag').to.not.exist;
+      checkNoAccessTag({
+        renders: false,
+        description,
+        properties,
       });
     }
   });
 });
+
+function checkNoAccessTag({ renders, description, properties }) {
+  it(description, function () {
+    this.setProperties(properties);
+
+    this.render(hbs `{{file-browser/fb-table-row
+      file=file
+      previewMode=previewMode
+      isSpaceOwned=isSpaceOwned
+    }}`);
+
+    const expector = expect(this.$('.file-status-forbidden'), 'forbidden tag');
+    if (renders) {
+      expector.to.exist;
+    } else {
+      expector.to.not.exist;
+    }
+  });
+}
 
 function createFile(override = {}, ownerGri = userGri) {
   return Object.assign({
