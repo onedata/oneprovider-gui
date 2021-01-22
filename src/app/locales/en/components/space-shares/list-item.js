@@ -4,5 +4,5 @@ export default {
   copyPublicUrl: 'Copy public URL',
   deletedFileIconTip: 'This share points to a deleted file.',
   deletedDirectoryIconTip: 'This share points to a deleted directory.',
-  publicUrl: 'Share public URL',
+  publicUrl: 'share public URL',
 };
