@@ -26,12 +26,15 @@ export default Component.extend({
 
   selectedFiles: Object.freeze([]),
 
-  dirProxy: promise.object(computed(function dirProxy() {
+  spaceProxy: promise.object(computed(function spaceProxy() {
     return this.get('currentUser').getCurrentUserRecord()
       .then(user => get(user, 'spaceList'))
       .then(spaceList => get(spaceList, 'list'))
-      .then(list => list.objectAt(0))
-      .then(space => get(space, 'rootDir'));
+      .then(list => list.objectAt(0));
+  })),
+
+  dirProxy: promise.object(computed(function dirProxy() {
+    return this.get('spaceProxy').then(space => get(space, 'rootDir'));
   })),
 
   init() {

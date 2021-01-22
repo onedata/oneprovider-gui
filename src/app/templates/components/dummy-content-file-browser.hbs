@@ -3,6 +3,7 @@
     {{file-browser
       dir=dirProxy.content
       previewMode=previewMode
+      isSpaceOwned=spaceProxy.currentUserIsOwner
       selectedFiles=selectedFiles
       changeSelectedFiles=(action (mut selectedFiles))
       openRemove=(action "immediatelyRemove")

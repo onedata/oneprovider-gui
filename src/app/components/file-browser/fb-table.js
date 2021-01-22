@@ -58,6 +58,18 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Object}
+   */
+  spacePrivileges: Object.freeze({}),
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  isSpaceOwned: undefined,
+
+  /**
+   * @virtual
    * @type {string}
    */
   selectionContext: undefined,
