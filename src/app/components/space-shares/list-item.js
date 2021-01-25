@@ -19,6 +19,7 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   globalNotify: service(),
+  globalClipboard: service(),
 
   /**
    * @override
@@ -106,9 +107,10 @@ export default Component.extend(I18n, {
     return {
       title: this.t('copyPublicUrl'),
       icon: 'browser-copy',
-      action: () => {
-        this.$('.btn-public-url').click();
-      },
+      action: () => this.get('globalClipboard').copy(
+        this.get('share.publicUrl'),
+        this.t('publicUrl')
+      ),
       class: 'btn-rename-share',
     };
   }),
@@ -151,14 +153,6 @@ export default Component.extend(I18n, {
     toggleActions(open) {
       const _open = (typeof open === 'boolean') ? open : !this.get('actionsOpened');
       this.set('actionsOpened', _open);
-    },
-    clipboardSuccess() {
-      // TODO: ready to use with notify delegation
-      this.get('globalNotify').success(this.t('clipboardSuccess'));
-    },
-    clipboardError() {
-      // TODO: ready to use with notify delegation
-      this.get('globalNotify').error(this.t('clipboardError'));
     },
   },
 });
