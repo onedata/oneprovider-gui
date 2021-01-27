@@ -380,6 +380,7 @@ export default Service.extend({
           name: names[i],
           rootDir: rootDirs[i],
           providersWithReadonlySupport: [providerId],
+          currentUserIsOwner: false,
           // NOTE: add 'space_manager_qos' to see add qos view
           // put empty array to disable qos modal
           currentUserEffPrivileges: ['space_view_qos'],
@@ -604,7 +605,7 @@ export default Service.extend({
           name,
           index: name,
           type: 'file',
-          posixPermissions: '777',
+          posixPermissions: i > 10 && i < 12 ? '333' : '777',
           hasMetadata: i < 5,
           hasEffQos: i > 3 && i < 8,
           hasDirectQos: i > 6 && i < 10,

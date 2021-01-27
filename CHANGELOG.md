@@ -6,6 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7009 Do not display "no access" file tag if user is space owner
+* VFS-7202 Updated "bad data" backend error translation
 * VFS-6802 Added graphical QoS expression editor
 * VFS-7042 Updated common libs
 * VFS-7058 Added a detached shares cleanup during files deletion using GUI
