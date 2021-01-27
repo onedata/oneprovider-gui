@@ -1,0 +1,228 @@
+$share-show-description-bar-heightn-bar-height: 60px;
+// this padding aligns content to first icon in tab bar
+$share-show-content-padding-horizontal: 12px;
+$share-show-content-header-height-public: 200px;
+$share-show-content-header-height-private: 150px;
+$share-show-public-section-border-width: 2px;
+$share-show-public-section-border: $share-show-public-section-border-width solid $color-one-semiwhite;
+$share-show-public-footer-height: 88px;
+
+.share-show {
+  // more compact files header, because of shares header
+  .file-browser-head-container {
+    padding-top: 0;
+  }
+  .share-header-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: $zindex-file-browser-head;
+    padding-top: $content-row-vertical-padding;
+    padding-left: $content-col-padding;
+    padding-right: $content-col-padding;
+    background-color: $main-tabbed-content-background;
+  }
+  .tab-share-show-mode {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    .nav-tabs > li {
+      // reset bottom line overflow, because we need to render fixed file browser header
+      margin-bottom: 0;
+    }
+    .tab-label-notice {
+      color: $color-one-blue-gray;
+    }
+  }
+  .content-info {
+    position: relative;
+  }
+  .opendata-one-carousel {
+    // overflow cannot be hidden, because of sticky elements inside
+    overflow: visible;
+  }
+  
+  
+  &.share-show-public {
+    padding-top: $share-show-content-header-height-public;
+    padding-bottom: 0;
+    // because of footer, we must remove padding added by generic one-embedded-component
+    // there is also a 2px embedded iframe bug described somewhere else
+    margin-bottom: -$content-col-padding;
+    
+    .open-data-preview {
+      // restore bottom padding, which was removed in share-show-public for footer
+      padding-bottom: $content-col-padding;
+      .metadata-header-section {
+        top: $share-show-content-header-height-public;
+      }
+      textarea.open-data-xml-textarea {
+        height: calc(100vh - 400px);
+      }
+    }
+    .content-info {
+      // must be forced, because one-carousel stretched as its content and absolute map
+      // will not stretch horizontally, until it has no space provided by content-info
+      min-height: calc(100vh - #{$share-show-content-header-height-public + 2 * $content-col-padding});
+    }
+    .share-header-container {
+      height: $share-show-content-header-height-public;
+      background-color: $color-one-white;
+      .bs-tab-modern .nav-tabs li.active > a {
+        border-bottom-color: $color-one-red;
+      }
+      .bs-tab-modern .nav-tabs li > a:hover {
+        border-bottom-color: lighten($color-one-red, 25);
+      }
+      &::after {
+        position: absolute;
+        content: ' ';
+        bottom: 0;
+        left: 0;
+        border-bottom: $share-show-public-section-border;
+        width: 100%;
+        z-index: -1;
+      }
+    }
+    .file-browser-head-container {
+      top: $share-show-content-header-height-public;      
+    }
+    .share-show-pane-container {
+      &.share-show-pane-container-files {
+        .table-bottom-spacing {
+          // do not need original large bottom spacing, because there is a footer
+          height: $share-show-public-footer-height / 2;
+        }
+      }
+      .share-show-pane-description {
+        padding-left: $share-show-content-padding-horizontal;
+      }
+    }
+  }
+  
+  // FIXME: refactor
+  &.share-show-private {
+    padding-top: $share-show-content-header-height-private;
+    padding-bottom: $content-col-padding;
+    
+    .open-data {
+      .metadata-header-section {
+        top: $share-show-content-header-height-private;
+      }
+    }
+    .content-info {
+      // must be forced, because one-carousel stretched as its content and absolute map
+      // will not stretch horizontally, until it has no space provided by content-info
+      min-height: calc(100vh - #{$share-show-content-header-height-private + 2 * $content-col-padding});
+    }
+    .markdown-editor {
+      .editor-current-mode-bar {
+        position: fixed;
+        top: $share-show-content-header-height-private;
+        left: 0;
+        z-index: 1;
+        height: $share-show-description-bar-heightn-bar-height;
+        width: 100%;
+        line-height: $share-show-description-bar-heightn-bar-height;
+        padding-left: $content-col-padding + $share-show-content-padding-horizontal;
+        border-bottom: 1px solid $main-border-color;
+        background: $color-one-white;
+        @include font-semibold;
+        
+      }
+      .share-edit-actions-toolbar {
+        position: fixed;
+        top: $share-show-content-header-height-private;
+        right: 0;
+        height: $share-show-description-bar-heightn-bar-height;
+        line-height: $share-show-description-bar-heightn-bar-height;
+        display: flex;
+        align-items: center;
+        margin-right: $content-col-padding;
+        z-index: 2;
+      }
+      .markdown-preview {
+        padding-left: $share-show-content-padding-horizontal;
+        padding-top: $share-show-description-bar-heightn-bar-height;
+      }
+      .textarea-source-editor {
+        width: 100%;
+        border: 0;
+        padding-left: $share-show-content-padding-horizontal;
+        padding-right: 0;
+        overflow-y: auto;
+        outline: none;
+        margin-top: $content-col-padding;
+        padding-top: $share-show-description-bar-heightn-bar-height;
+        font-size: 15px;
+      }
+    }
+    .share-header-container {
+      height: $share-show-content-header-height-private;
+    }
+    .file-browser-head-container {
+      top: $share-show-content-header-height-private;
+    }
+  }
+}
+
+@import './share-show/header-management';
+@import './share-show/header-public';
+@import './share-show/footer-public';
+@import './share-show/public-url-viewer';
+@import './share-show/open-data';
+@import './share-show/open-data-editor';
+@import './share-show/open-data-preview';
+
+// TODO: VFS-6566 move to other file and reuse in editor
+.markdown-view {
+  margin-top: $content-col-padding;
+  margin-bottom: $content-col-padding;
+  table {
+    @extend .table;
+    @extend .table-striped;
+  }
+  h1 {
+    font-size: 30px;
+    @include font-semibold;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-size: 24px;
+    @include font-semibold;
+    margin-top: 24px;
+    margin-bottom: 18px;
+  }
+  h3 {
+    font-size: 20px;
+    @include font-semibold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  h4 {
+    font-size: 18px;
+    @include font-semibold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  h5 {
+    font-size: 16px;
+    @include font-semibold;
+    margin-top: 18px;
+    margin-bottom: 10px;
+  }
+  h6 {
+    font-size: 14px;
+    @include font-semibold;
+    margin-top: 16px;
+    margin-bottom: 10px;
+  }
+  a {
+    @extend .azure;
+  }
+  p {
+    font-size: 14px;
+  }
+}

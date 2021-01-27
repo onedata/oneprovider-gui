@@ -1,0 +1,49 @@
+.open-data-preview {
+  .section-name {
+    @include font-semibold;
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+  .open-data-value {
+    background-color: $color-one-light-blue;
+    padding: 18px;
+  }
+  .handle-service-group {
+    margin-bottom: 48px;
+  }
+  .metadata-group {
+    margin-top: 24px;
+  }
+  .metadata-group-name {
+    @include font-semibold;
+    margin-bottom: 15px;
+  }
+  .metadata-value + .metadata-value {
+    margin-top: 15px
+  }
+  textarea.open-data-xml-textarea {
+    height: calc(100vh - 280px);
+  }
+  .row-metadata-presenter {
+    display: flex;
+  }
+  .col-open-data-logo {
+    .open-data-logo {
+      position: sticky;
+      top: calc(50% - #{$content-col-padding});
+      height: 250px;
+      width: 100%;
+      background-image: url($root-url + 'images/open-data.svg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: 300px auto;
+      transition: all 0.2s ease;
+      @media (max-height: $share-show-content-header-height-public + $share-show-public-footer-height + 120px) {
+        display: none;
+      }
+      @media (max-height: 700px) {
+        background-size: 200px auto;
+      }
+    }
+  }
+}

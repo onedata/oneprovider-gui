@@ -16,7 +16,6 @@ import contentEndpointError from './components/content-endpoint-error';
 import modalFileSubheader from './components/modal-file-subheader';
 import singleFileInfo from './components/single-file-info';
 import shareShow from './components/share-show';
-import openDataPreview from './components/open-data-preview';
 import qosExpressionInfo from './components/qos-expression-info';
 import qosEvaluationInfo from './components/qos-evaluation-info';
 import queryBuilder from './components/query-builder';
@@ -42,7 +41,6 @@ const translations = {
     modalFileSubheader,
     singleFileInfo,
     shareShow,
-    openDataPreview,
     qosExpressionInfo,
     qosEvaluationInfo,
     queryBuilder,

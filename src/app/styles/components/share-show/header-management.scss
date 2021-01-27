@@ -1,0 +1,39 @@
+.share-show-header-management {
+  .share-header-row {
+    $col-menu-width: 30px;
+    $key-width: 14em;
+    display: flex;
+    align-items: center;
+    .col-key {
+      flex: 0 0 $key-width;
+      padding-left: $file-browser-padding-left;
+      padding-right: $padding-large-horizontal;
+      @media (max-width: $screen-xs-max) {
+        display: none;
+      }
+    }
+    .col-value {
+      flex: 0 1 $screen-xs-max;
+      max-width: calc(100% - #{$key-width});
+      @media (max-width: $screen-xs-max) {
+        flex-basis: auto;
+        flex-grow: 1;
+        max-width: none;
+      }
+    }
+    + .share-header-row {
+      margin-top: $padding-large-vertical;
+    }
+    &.with-menu {
+      padding-right: $col-menu-width;
+      .col-value {
+        // this kind of max-width limit is suitable for dynamic path renderer
+        max-width: calc(100% - #{$key-width} - #{$col-menu-width});
+      }
+    }
+    .col-menu {
+      @include vertical-align-middle();
+      right: 0;
+    }
+  }
+}

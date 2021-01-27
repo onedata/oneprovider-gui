@@ -1,58 +1,3 @@
-$color-public-blue-light: #F2F3F8;
-$open-data-remove-col-width: 30px;
-
-.embedded-content {
-  .open-data-view .metadata-header-section {
-    @include before-bottom-shadow;
-  }
-  &.scroll-on-top {
-    .open-data-view .metadata-header-section {
-      @include hide-before-shadow;
-    }
-  }
-}
-
-.open-data-view {
-  h1 {
-    @include font-semibold;
-    font-size: 1.6em;
-    margin-bottom: 1em;
-  }
-  
-  h2 {
-    @include font-semibold;
-    font-size: 1.3em;
-    margin-bottom: 1em;
-  }
-  
-  textarea.open-data-xml-textarea {
-    min-height: 250px;
-    height: calc(100vh - 500px);
-  }
-  
-  .metadata-header-section {
-    // FIXME: styles for removing col padding
-    margin-left: -$content-col-padding;
-    padding-left: $content-col-padding;
-    margin-right: -$content-col-padding;
-    padding-right: $content-col-padding;
-  }
-}
-
-// FIXME: common style for preview and editor
-.metadata-header-section-content {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  .section-name {
-    flex-grow: 1;
-  }
-  .metadata-mode-switch {
-    flex-shrink: 1;
-  }
-}
-
-// TODO: VFS-6566 common styles with editor
 .open-data-editor {
   .one-carousel-slide[data-one-carousel-slide-id=xml] {
     padding-right: $open-data-remove-col-width;
@@ -78,7 +23,7 @@ $open-data-remove-col-width: 30px;
       }
     }
     .metadata-value {
-      background-color: $color-public-blue-light;
+      background-color: $color-one-light-blue;
       padding: 18px;
     }
     .metadata-value + .metadata-value {

@@ -1,6 +1,6 @@
 {{#promise-proxy-container proxy=handleProxy}}
   {{#if handle}}
-    {{open-data-preview
+    {{share-show/open-data-preview
       class="vertical-flex-stretch"
       xml=xml
       handleUrl=handle.url
@@ -54,7 +54,7 @@
             {{/content-info}}
           {{/carousel.slide}}
           {{#carousel.slide slideId="createMetadata"}}
-            {{open-data-editor
+            {{share-show/open-data-editor
               xml=xml
               initialData=initialData
               handleService=selectedHandleService

@@ -1,0 +1,57 @@
+$color-one-light-blue: #F2F4FA;
+$open-data-remove-col-width: $content-col-padding;
+
+.embedded-content {
+  .open-data .metadata-header-section {
+    @include before-bottom-shadow;
+  }
+  &.scroll-on-top {
+    .open-data .metadata-header-section {
+      @include hide-before-shadow;
+    }
+  }
+}
+
+.open-data {
+  h1 {
+    @include font-semibold;
+    font-size: 1.6em;
+    margin-bottom: 1em;
+  }
+  
+  h2 {
+    @include font-semibold;
+    font-size: 1.3em;
+    margin-bottom: 1em;
+  }
+  
+  textarea.open-data-xml-textarea {
+    min-height: 250px;
+    height: calc(100vh - 500px);
+  }
+  
+  .metadata-header-section {
+    position: sticky;
+    // should be overriden to match fixed headers in share-shows
+    top: 0;
+    // force to be above static elements inside absolute element
+    z-index: 1;
+    @include undo-content-padding;
+    margin-top: 0;
+    padding-top: 0;
+    margin-bottom: 0;
+    background-color: $color-one-white;
+  }
+  
+  .metadata-header-section-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    .section-name {
+      flex-grow: 1;
+    }
+    .metadata-mode-switch {
+      flex-shrink: 1;
+    }
+  }
+}

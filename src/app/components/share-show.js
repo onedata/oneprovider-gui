@@ -1,5 +1,9 @@
 /**
  * Container for share file browser to use in an iframe with injected properties.
+ * Can be in two modes: private and public (when `publicMode` is set to true).
+ * In private mode, styles are designed for standard unified GUI.
+ * In public mode, styles are designed to fit unified GUI's public view without any
+ * menus and sidebars.
  *
  * @module component/content-share-show
  * @author Jakub Liput
@@ -26,7 +30,7 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
-  classNames: ['share-show', 'content-file-browser'],
+  classNames: ['share-show', 'content-file-browser', 'vertical-flex-stretch'],
   classNameBindings: ['scopeClass'],
 
   shareManager: service(),
@@ -34,7 +38,7 @@ export default Component.extend(...mixins, {
   /**
    * @override
    */
-  i18nPrefix: 'components.spaceShares.shareShow',
+  i18nPrefix: 'components.shareShow',
 
   /**
    * @virtual
@@ -107,6 +111,12 @@ export default Component.extend(...mixins, {
    */
   activeTab: undefined,
 
+  tabIcons: Object.freeze({
+    opendata: 'globe-cursor',
+    files: 'browser-directory',
+    description: 'browser-rename',
+  }),
+
   /**
    * @type {ComputedProperty<String>}
    */
@@ -158,12 +168,6 @@ export default Component.extend(...mixins, {
     raw(['opendata']),
     raw([])
   ),
-
-  tabIcons: Object.freeze({
-    opendata: 'globe-cursor',
-    files: 'browser-directory',
-    description: 'browser-rename',
-  }),
 
   tabClasses: conditional(
     and(equal('handleStateProxy.content', 'noHandle'), not('shareRootDeleted')),

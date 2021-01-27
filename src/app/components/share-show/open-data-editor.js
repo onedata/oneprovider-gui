@@ -1,6 +1,12 @@
-// FIXME: jsdoc
+/**
+ * Open Data editor with visual (form) and XML (text) modes.
+ *
+ * @module components/share-show/open-data-editor
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
-import Component from '@ember/component';
 import EmberObject, { get, set, computed, observer } from '@ember/object';
 import dcXmlGenerator from 'oneprovider-gui/utils/generate-dc-xml';
 import dcXmlParser from 'oneprovider-gui/utils/parse-dc-xml';
@@ -12,19 +18,12 @@ import _ from 'lodash';
 import { isEmpty } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
-import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
+import OpenData from './-open-data';
 
-const defaultMode = 'visual';
-
-export default Component.extend(I18n, {
-  classNames: ['open-data-preview', 'open-data-editor', 'open-data-view'],
+export default OpenData.extend(I18n, {
+  classNames: ['open-data-editor'],
 
   globalNotify: service(),
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.openDataPreview',
 
   /**
    * Initial values of: 'title', 'creator', 'description' and 'date' form fields.
@@ -42,12 +41,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {String}
-   */
-  xml: undefined,
-
-  /**
-   * @virtual
    * @type {(xml: String, handleServiceId: String) => Promise}
    */
   submit: undefined,
@@ -59,55 +52,24 @@ export default Component.extend(I18n, {
   updateXml: notImplementedIgnore,
 
   /**
-   * One of: visual, xml
-   * @type {String}
-   */
-  mode: defaultMode,
-
-  /**
-   * For format reference see `util:generate-dc-xml#groupedEntries`.
-   * @type {Array<{ type: String, value: String }>}
-   */
-  groupedEntries: undefined,
-
-  /**
    * Classname added to columns to center the form content, as it is too wide
    * @type {String}
    */
   colClassname: 'col-xs-12 col-md-8 col-centered',
 
-  init() {
-    this._super(...arguments);
-    if (this.get('xml')) {
-      this.xmlObserver();
-    } else {
-      this.set('groupedEntries', this.getInitialGroupedEntries());
-    }
-  },
+  /**
+   * Metadata group names that should be available in "add element" selector
+   * @type {ComputedProperty<Array<String>>}
+   */
+  metadataGroupAddList: computed('groupedEntries.[]', function metadataGroupAddList() {
+    const currentElements = this.get('groupedEntries').mapBy('type');
+    return _.difference(dcElements, currentElements);
+  }),
 
-  changeEditorMode(mode) {
-    this.set('mode', mode);
-  },
-
-  getInitialGroupedEntries() {
-    const initialData = this.get('initialData');
-    return A(['title', 'creator', 'description', 'date'].map(type => {
-      const value = get(initialData, type);
-      const values = [value];
-      return EmberObject.create({
-        type,
-        values,
-      });
-    }));
-  },
-
-  getXml(deeplyCleaned = false) {
-    const generator = dcXmlGenerator.create({
-      groupedEntries: plainCopy(this.get('groupedEntries')),
-    });
-    generator.cleanEmpty(deeplyCleaned);
-    return get(generator, 'xml');
-  },
+  /**
+   * @type {ComputedProperty<Bolean>}
+   */
+  submitDisabled: isEmpty('handleService'),
 
   xmlObserver: observer('xml', function xmlObserver() {
     const xml = this.get('xml');
@@ -120,22 +82,47 @@ export default Component.extend(I18n, {
     }
   }),
 
-  // FIXME: in common open-data component
   modeObserver: observer('mode', function modeObserver() {
-    const {
-      updateXml,
-      element,
-    } = this.getProperties('updateXml', 'element');
-    updateXml(this.getXml());
-    scrollTopClosest(element);
+    this.get('updateXml')(this.getXml());
   }),
 
-  metadataGroupAddList: computed('groupedEntries.[]', function metadataGroupAddList() {
-    const currentElements = this.get('groupedEntries').mapBy('type');
-    return _.difference(dcElements, currentElements);
-  }),
+  init() {
+    this._super(...arguments);
+    if (this.get('xml')) {
+      this.xmlObserver();
+    } else {
+      this.set('groupedEntries', this.getInitialGroupedEntries());
+    }
+  },
 
-  submitDisabled: isEmpty('handleService'),
+  /**
+   * Convert `initialData` to grouped entries format
+   * @returns {EmberObject}
+   */
+  getInitialGroupedEntries() {
+    const initialData = this.get('initialData');
+    return A(['title', 'creator', 'description', 'date'].map(type => {
+      const value = get(initialData, type);
+      const values = [value];
+      return EmberObject.create({
+        type,
+        values,
+      });
+    }));
+  },
+
+  /**
+   * Convert form data to XML (Dublin Core)
+   * @param {Boolean} deeplyCleaned if true, remove entries with blank string
+   * @returns {String}
+   */
+  getXml(deeplyCleaned = false) {
+    const generator = dcXmlGenerator.create({
+      groupedEntries: plainCopy(this.get('groupedEntries')),
+    });
+    generator.cleanEmpty(deeplyCleaned);
+    return get(generator, 'xml');
+  },
 
   actions: {
     setValue(type, index, inputEvent) {
@@ -176,6 +163,7 @@ export default Component.extend(I18n, {
         set(group, 'values', A(newValues));
       }
     },
+    // TODO: VFS-6566 check if this is necessary
     simpleMatcher(name, term) {
       return name.toLocaleLowerCase().includes(term.toLocaleLowerCase()) ? 1 : -1;
     },

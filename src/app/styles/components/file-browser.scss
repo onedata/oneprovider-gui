@@ -21,7 +21,7 @@
 
 .one-embedded-component {
   .file-browser {
-    @include undo-content-padding-xs();
+    @include undo-horizontal-content-padding-xs();
   }
 }
 

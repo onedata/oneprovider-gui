@@ -1,13 +1,7 @@
-@import 'space-shares/share-show';
 @import 'space-shares/list-item';
 
 .one-embedded-component {
   .shares-list {
-    @include undo-content-padding-xs();
+    @include undo-horizontal-content-padding-xs();
   }
-}
-
-// FIXME: experimental, use as class, not include
-.space-shares {
-  @include vertical-flex-stretch;
 }

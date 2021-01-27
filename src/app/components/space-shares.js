@@ -15,7 +15,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
 export default Component.extend(createDataProxyMixin('shares'), {
-  classNames: ['space-shares'],
+  classNames: ['space-shares', 'vertical-flex-stretch'],
 
   shareManager: service(),
   spaceManager: service(),
