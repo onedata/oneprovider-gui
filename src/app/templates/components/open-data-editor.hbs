@@ -16,7 +16,8 @@
         value=mode
         class="dublin-core-metadata-mode-btn-group"
         type="radio"
-        onChange=(action (mut mode)) as |bg|
+        onChange=(action changeEditorMode)
+        as |bg|
       }}
         {{#bg.button type="default" class="btn-sm btn-visual-editor" value="visual"}}
           {{one-icon icon="visual-editor"}}

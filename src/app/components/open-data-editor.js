@@ -10,7 +10,6 @@ import { A } from '@ember/array';
 import { dcElements } from 'oneprovider-gui/utils/parse-dc-xml';
 import _ from 'lodash';
 import { isEmpty } from 'ember-awesome-macros';
-import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
@@ -48,13 +47,6 @@ export default Component.extend(I18n, {
   xml: undefined,
 
   /**
-   * One of: visual, xml
-   * @virtual optional
-   * @type {String}
-   */
-  mode: defaultMode,
-
-  /**
    * @virtual
    * @type {(xml: String, handleServiceId: String) => Promise}
    */
@@ -64,13 +56,13 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  changeMode: notImplementedThrow,
+  updateXml: notImplementedIgnore,
 
   /**
-   * @virtual
-   * @type {Function}
+   * One of: visual, xml
+   * @type {String}
    */
-  updateXml: notImplementedIgnore,
+  mode: defaultMode,
 
   /**
    * For format reference see `util:generate-dc-xml#groupedEntries`.
@@ -86,14 +78,15 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    // enable observer
-    this.get('triggerUpdateXml');
     if (this.get('xml')) {
       this.xmlObserver();
     } else {
       this.set('groupedEntries', this.getInitialGroupedEntries());
-      this.triggerUpdateXmlObserver();
     }
+  },
+
+  changeEditorMode(mode) {
+    this.set('mode', mode);
   },
 
   getInitialGroupedEntries() {
@@ -127,16 +120,14 @@ export default Component.extend(I18n, {
     }
   }),
 
-  triggerUpdateXmlObserver: observer(
-    'triggerUpdateXml',
-    function triggerUpdateXmlObserver() {
-      this.get('updateXml')(this.getXml());
-    }
-  ),
-
   // FIXME: in common open-data component
   modeObserver: observer('mode', function modeObserver() {
-    scrollTopClosest(this.get('element'));
+    const {
+      updateXml,
+      element,
+    } = this.getProperties('updateXml', 'element');
+    updateXml(this.getXml());
+    scrollTopClosest(element);
   }),
 
   metadataGroupAddList: computed('groupedEntries.[]', function metadataGroupAddList() {
@@ -156,11 +147,15 @@ export default Component.extend(I18n, {
     submit() {
       const {
         submit,
+        updateXml,
         handleService,
-      } = this.getProperties('submit', 'handleService');
-      return submit(this.getXml(), get(handleService, 'entityId'))
+        globalNotify,
+      } = this.getProperties('submit', 'updateXml', 'handleService', 'globalNotify');
+      const currentXml = this.getXml();
+      updateXml(currentXml);
+      return submit(currentXml, get(handleService, 'entityId'))
         .catch(error => {
-          this.get('globalNotify').backendError(this.t('publishingData'), error);
+          globalNotify.backendError(this.t('publishingData'), error);
           throw error;
         });
     },

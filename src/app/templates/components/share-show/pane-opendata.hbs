@@ -55,12 +55,9 @@
           {{/carousel.slide}}
           {{#carousel.slide slideId="createMetadata"}}
             {{open-data-editor
-              triggerUpdateXml=triggerUpdateXml
               xml=xml
-              mode=editorMode
               initialData=initialData
               handleService=selectedHandleService
-              changeMode=(action (mut editorMode))
               updateXml=(action "updateXml")
               submit=(action "submit")
               back=(action "back")

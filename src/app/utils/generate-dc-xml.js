@@ -22,7 +22,7 @@ export default EmberObject.extend({
     const content = entries.reduce((arr, entry) => {
       arr.push(`<dc:${entry.type}>${escape(entry.value)}</dc:${entry.type}>`);
       return arr;
-    }, []).map(xmlEntry => `    ${xmlEntry}\n`).join('');
+    }, []).map(xmlEntry => `    ${xmlEntry}`).join('\n');
     return this.wrapXmlContent(content);
   }),
 

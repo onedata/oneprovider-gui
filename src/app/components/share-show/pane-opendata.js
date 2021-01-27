@@ -41,12 +41,6 @@ export default Component.extend(I18n, {
   xml: undefined,
 
   /**
-   * One of: visual, xml
-   * @type {String}
-   */
-  editorMode: 'visual',
-
-  /**
    * @type {Models.HandleService}
    */
   selectedHandleService: undefined,
@@ -107,11 +101,6 @@ export default Component.extend(I18n, {
    */
   handleServices: reads('handleServicesProxy.content'),
 
-  // TODO: VFS-6566 hack - better merge xml editor with visual editor into one component
-  editorModeChanged: observer('editorMode', function editorModeChanged() {
-    this.set('triggerUpdateXml', new Date().toString());
-  }),
-
   activeSlideObserver: observer('activeSlideOfCreator', function activeSlideObserver() {
     scrollTopClosest(this.get('element'));
   }),
@@ -122,7 +111,7 @@ export default Component.extend(I18n, {
   },
 
   loadXml() {
-    this.get('handleProxy').then(handle => {
+    return this.get('handleProxy').then(handle => {
       if (handle) {
         const metadataString = get(handle, 'metadataString');
         if (metadataString) {
@@ -157,10 +146,7 @@ export default Component.extend(I18n, {
       this.set('publishOpenDataStarted', false);
     },
     updateXml(xml) {
-      // TODO: VFS-6566 quick double render fix
-      scheduleOnce('afterRender', () => {
-        this.set('xml', xml);
-      });
+      this.set('xml', xml);
     },
   },
 });
