@@ -13,6 +13,7 @@ import { isEmpty } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 
 const defaultMode = 'visual';
 
@@ -135,13 +136,7 @@ export default Component.extend(I18n, {
 
   // FIXME: in common open-data component
   modeObserver: observer('mode', function modeObserver() {
-    const scrollableParent = this.$().parents('.ps')[0];
-    if (scrollableParent) {
-      scrollableParent.scroll({
-        top: 0,
-        behavior: 'smooth',
-      });
-    }
+    scrollTopClosest(this.get('element'));
   }),
 
   metadataGroupAddList: computed('groupedEntries.[]', function metadataGroupAddList() {

@@ -10,13 +10,12 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import {
-  promise,
-} from 'ember-awesome-macros';
+import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import moment from 'moment';
 import { scheduleOnce } from '@ember/runloop';
 import { conditional, raw } from 'ember-awesome-macros';
+import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
@@ -114,13 +113,7 @@ export default Component.extend(I18n, {
   }),
 
   activeSlideObserver: observer('activeSlideOfCreator', function activeSlideObserver() {
-    const scrollableParent = this.$().parents('.ps')[0];
-    if (scrollableParent) {
-      scrollableParent.scroll({
-        top: 0,
-        behavior: 'smooth',
-      });
-    }
+    scrollTopClosest(this.get('element'));
   }),
 
   init() {
