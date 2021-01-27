@@ -1,6 +1,14 @@
+/**
+ * Header for single share view for signed-in user that allows to modify the share.
+ * 
+ * @module components/share-show/header-management
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 import { Promise } from 'rsvp';
 import { computed, get } from '@ember/object';
-import { conditional, and, not, collect, tag } from 'ember-awesome-macros';
+import { collect, tag } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import HeaderBaseComponent from './-header-base';
@@ -38,35 +46,31 @@ export default HeaderBaseComponent.extend(I18n, {
    */
   shareRootDeleted: false,
 
+  /**
+   * @type {Window}
+   */
   _window: window,
-
-  publishModalOpened: false,
 
   actionsOpened: false,
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   menuTriggerClass: tag `actions-share-${'elementId'}`,
 
-  menuTriggerSelector: tag `.${'menuTriggerClass'}`,
   /**
-   * @type {Array<object>}
+   * @type {ComputedProperty<String>}
    */
-  menuActions: conditional(
-    and('showPublishButton', not('share.hasHandle')),
-    collect('btnRename', 'btnPublishOpenData', 'btnRemove'),
-    collect('btnRename', 'btnRemove'),
-  ),
+  menuTriggerSelector: tag `.${'menuTriggerClass'}`,
 
-  btnPublishOpenData: computed(function btnPublishOpenData() {
-    return {
-      title: this.t('publishOpenData'),
-      icon: 'globe',
-      action: () => {
-        this.set('publishModalOpened', true);
-      },
-      class: 'btn-publish-open-data',
-    };
-  }),
+  /**
+   * @type {ComputedProperty<Array<Object>>}
+   */
+  menuActions: collect('btnRename', 'btnRemove'),
 
+  /**
+   * @type {ComputedProperty<Object>}
+   */
   btnRemove: computed(function btnRemove() {
     return {
       title: this.t('remove'),
@@ -78,6 +82,9 @@ export default HeaderBaseComponent.extend(I18n, {
     };
   }),
 
+  /**
+   * @type {ComputedProperty<Object>}
+   */
   btnRename: computed(function btnRename() {
     return {
       title: this.t('rename'),

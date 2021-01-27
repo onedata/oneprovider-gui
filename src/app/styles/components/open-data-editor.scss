@@ -1,30 +1,18 @@
 $color-public-blue-light: #F2F3F8;
+$open-data-remove-col-width: 30px;
 
-// FIXME: common style for preview and editor
-.metadata-header-section {
-  display: flex;
-  align-items: center;
-  .section-name {
-    flex-grow: 1;
+.embedded-content {
+  .open-data-view .metadata-header-section {
+    @include before-bottom-shadow;
   }
-  .metadata-mode-switch {
-    flex-shrink: 1;
-    padding-left: $padding-large-horizontal;
-    padding-right: $padding-large-horizontal;
+  &.scroll-on-top {
+    .open-data-view .metadata-header-section {
+      @include hide-before-shadow;
+    }
   }
 }
 
-.open-data-preview {
-  .clipboard-line textarea.clipboard-input.open-data-xml-textarea {
-    min-height: 250px;
-    height: calc(100vh - 500px);
-  }
-}
-
-// TODO: VFS-6566 common styles with editor
-.open-data-editor {
-  $remove-col-width: 30px;
-  
+.open-data-view {
   h1 {
     @include font-semibold;
     font-size: 1.6em;
@@ -37,10 +25,41 @@ $color-public-blue-light: #F2F3F8;
     margin-bottom: 1em;
   }
   
+  textarea.open-data-xml-textarea {
+    min-height: 250px;
+    height: calc(100vh - 500px);
+  }
+  
+  .metadata-header-section {
+    // FIXME: styles for removing col padding
+    margin-left: -$content-col-padding;
+    padding-left: $content-col-padding;
+    margin-right: -$content-col-padding;
+    padding-right: $content-col-padding;
+  }
+}
+
+// FIXME: common style for preview and editor
+.metadata-header-section-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   .section-name {
-    @include font-semibold;
-    font-size: 22px;
-    margin-bottom: 15px;
+    flex-grow: 1;
+  }
+  .metadata-mode-switch {
+    flex-shrink: 1;
+  }
+}
+
+// TODO: VFS-6566 common styles with editor
+.open-data-editor {
+  .one-carousel-slide[data-one-carousel-slide-id=xml] {
+    padding-right: $open-data-remove-col-width;
+  }
+  
+  .col-open-data-editor-additional {
+    padding-right: $open-data-remove-col-width;
   }
   
   // FIXME: ???
@@ -53,7 +72,7 @@ $color-public-blue-light: #F2F3F8;
     .metadata-group-header {
       display: flex;
       align-items: baseline;
-      padding-right: $remove-col-width;
+      padding-right: $open-data-remove-col-width;
       .metadata-group-name {
         flex-grow: 1;
       }
@@ -72,7 +91,7 @@ $color-public-blue-light: #F2F3F8;
       display: flex;
       align-items: center;
       .remove-icon {
-        flex: 0 0 $remove-col-width;
+        flex: 0 0 $open-data-remove-col-width;
         text-align: right;
       }
       textarea.form-control {
@@ -85,12 +104,17 @@ $color-public-blue-light: #F2F3F8;
     }
   }
   .row-metadata-group-add {
-    padding-right: $remove-col-width;
+    padding-right: $open-data-remove-col-width;
   }
   .row-metadata-group-add, .row-publish-info {
     margin-top: 3em;
   }
   .row-submit {
-    margin-top: 0.8em;
+    margin-top: 2em;
+  }
+  .col-submit-center {
+    display: flex;
+    justify-content: center;
+    // FIXME: styles as in other submit rows
   }
 }

@@ -1,3 +1,11 @@
+/**
+ * Single share open-data view
+ * 
+ * @module components/share-show/pane-opendata
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
@@ -7,7 +15,7 @@ import {
 } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import moment from 'moment';
-import { scheduleOnce, later } from '@ember/runloop';
+import { scheduleOnce } from '@ember/runloop';
 import { conditional, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
@@ -74,7 +82,7 @@ export default Component.extend(I18n, {
     return this.get('share').getRelation('handle', { allowNull: true, reload: true })
       .then(handle => {
         if (handle) {
-          return handle.getRelation('handleService')
+          return handle.getRelation('handleService', { allowNull: true })
             .catch(error => console.error(error))
             .then(() => handle);
         } else {

@@ -1,6 +1,6 @@
 {{#unless compact}}
   <div class="col-key">
-    {{#if share.hasHandle}}
+    {{#if showHandle}}
       {{#power-select
         triggerClass="small text-like share-link-type-selector-trigger"
         dropdownClass="small text-like share-link-type-selector-dropdown"
@@ -28,7 +28,7 @@
       <div class="clipboard-line sm">
         <div class="input-group input-group-sm">
           {{#if compact}}
-            {{#if share.hasHandle}}
+            {{#if showHandle}}
               <div
                 class="input-group-addon input-group-addon-icon url-type-selector-trigger clickable"
                 {{action
@@ -64,7 +64,7 @@
               {{/one-webui-popover}}
             {{else}}
               <div
-                class="input-group-addon input-group-addon-icon share-only-input-group-addon clickable"
+                class="input-group-addon input-group-addon-icon share-only-input-group-addon"
               >
                 <div class="inline-icon-container compact-url-type-selector-icon">
                   {{one-icon icon="onezone"}}
@@ -75,7 +75,7 @@
           {{#if (and (eq selectedUrlType "handle") handleServiceProxy.name)}}
             {{#if compact}}
               <div
-                class="input-group-addon input-group-addon-icon input-group-addon-handle-service handle-service-info-trigger clickable"
+                class="input-group-addon input-group-addon-icon input-group-addon-handle-service handle-service-info-trigger"
                 {{action (mut handleServiceInfoOpened) (not handleServiceInfoOpened)}}
               >
                 <div class="inline-icon-container">
@@ -141,14 +141,14 @@
           {{/if}}
           <input
             type="text"
-            class="handle-url-input clipboard-input form-control input-sm"
+            class="clipboard-line-public-url clipboard-input form-control input-sm"
             value={{if (eq selectedUrlType "handle") handleProxy.url share.publicUrl}}
             readonly
           >
         </div>
         {{#one-copy-button
           class="clipboard-btn clipboard-btn-input"
-          clipboardTarget=(concat "#" elementId " .handle-url-input")
+          clipboardTarget=(concat "#" elementId " .clipboard-line-public-url")
         }}
           <div class="copy-btn-background"></div>
           {{one-icon class="copy-btn-icon" icon="browser-copy"}}

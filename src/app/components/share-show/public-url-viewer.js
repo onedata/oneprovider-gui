@@ -1,9 +1,18 @@
+/**
+ * Selector and copier of public share link type
+ * 
+ * @module components/share-show/public-url-viewer
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed } from '@ember/object';
 import { reads, equal } from '@ember/object/computed';
 import { conditional, raw, collect } from 'ember-awesome-macros';
 import { promise } from 'ember-awesome-macros';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-public-url-viewer', 'public-url-viewer'],
@@ -21,6 +30,12 @@ export default Component.extend(I18n, {
   share: undefined,
 
   /**
+   * @virtual
+   * @type {Boolean}
+   */
+  showHandle: undefined,
+
+  /**
    * If true, embeds mode selector in copy input and does not display name of handle
    * service.
    * @virtual optional
@@ -32,9 +47,18 @@ export default Component.extend(I18n, {
    * One of: share, handle.
    * If share - it is a link to Onezone's share.
    * If handle - it is a link to published Open Data (in handle service).
+   * @virtual
    * @type {String}
    */
   selectedUrlType: undefined,
+
+  /**
+   * If true, embeds mode selector in copy input and does not display name of handle
+   * service.
+   * @virtual optional
+   * @type {(selectedUrlType: String) => undefined)}
+   */
+  changeSelectedUrlType: notImplementedIgnore,
 
   /**
    * @type {Boolean}
@@ -79,7 +103,7 @@ export default Component.extend(I18n, {
     return {
       title: this.t('sharePublicLink'),
       icon: 'onezone',
-      action: () => this.set('selectedUrlType', 'share'),
+      action: () => this.get('changeSelectedUrlType')('share'),
     };
   }),
 
@@ -87,7 +111,7 @@ export default Component.extend(I18n, {
     return {
       title: this.t('handlePublicLink'),
       icon: 'globe-cursor',
-      action: () => this.set('selectedUrlType', 'handle'),
+      action: () => this.get('changeSelectedUrlType')('handle'),
     };
   }),
 

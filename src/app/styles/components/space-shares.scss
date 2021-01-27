@@ -9,5 +9,5 @@
 
 // FIXME: experimental, use as class, not include
 .space-shares {
-  @include horizontal-flex-stretch;
+  @include vertical-flex-stretch;
 }

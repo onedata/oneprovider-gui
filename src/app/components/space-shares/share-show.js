@@ -3,22 +3,29 @@
  *
  * @module component/content-share-show
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { conditional, raw, or, and, not } from 'ember-awesome-macros';
+import { conditional, raw, and, not, promise } from 'ember-awesome-macros';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { resolve } from 'rsvp';
 
-export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), {
+const mixins = [
+  I18n,
+  createDataProxyMixin('shareRootDeleted'),
+  createDataProxyMixin('handleState'),
+];
+
+export default Component.extend(...mixins, {
   classNames: ['share-show', 'content-file-browser'],
   classNameBindings: ['scopeClass'],
 
@@ -40,6 +47,18 @@ export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), 
    * @type {String}
    */
   dirId: undefined,
+
+  /**
+   * @virtual optional
+   * @type {String}
+   */
+  spaceId: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  publicMode: false,
 
   /**
    * @virtual
@@ -77,37 +96,65 @@ export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), 
    */
   navigateDirTarget: '_top',
 
+  /**
+   * @type {Window}
+   */
   _window: window,
 
-  hasHandle: reads('share.hasHandle'),
+  /**
+   * One of: opendata, description, files
+   * @type {String}
+   */
+  activeTab: undefined,
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   description: reads('share.description'),
 
-  tabIds: computed('publicMode', 'hasHandle', 'description', function tabIds() {
-    const {
-      publicMode,
-      hasHandle,
-      description,
-    } = this.getProperties('publicMode', 'hasHandle', 'description');
-    const ids = [];
-    if (hasHandle) {
-      ids.push('opendata');
+  /**
+   * @type {ComputedProperty<PromiseObject>}
+   */
+  requiredDataProxy: promise.object(promise.all('tabIdsProxy', 'handleStateProxy')),
+
+  /**
+   * @type {ComputedProperty<PromiseObject>}
+   */
+  tabIdsProxy: promise.object(computed(
+    'publicMode',
+    'description',
+    function tabIdsProxy() {
+      return this.get('handleStateProxy').then(handleState => {
+        const {
+          publicMode,
+          description,
+        } = this.getProperties('publicMode', 'description');
+        const ids = [];
+        if (handleState === 'available') {
+          ids.push('opendata');
+        }
+        if (!publicMode || description) {
+          ids.push('description');
+        }
+        ids.push('files');
+        if (!publicMode && handleState === 'noHandle') {
+          ids.push('opendata');
+        }
+        return ids;
+      });
     }
-    if (!publicMode || description) {
-      ids.push('description');
-    }
-    ids.push('files');
-    if (!publicMode && !hasHandle) {
-      ids.push('opendata');
-    }
-    return ids;
-  }),
+  )),
+
+  /**
+   * @type {ComputedProperty<Array<String>|null>}
+   */
+  tabIds: reads('tabIdsProxy.content'),
 
   /**
    * @type {ComputedProperty<Array<String>>}
    */
   disabledTabs: conditional(
-    and('shareRootDeleted', not('hasHandle')),
+    and('shareRootDeleted', not(equal('handleStateProxy.content', 'available'))),
     raw(['opendata']),
     raw([])
   ),
@@ -119,22 +166,10 @@ export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), 
   }),
 
   tabClasses: conditional(
-    or('hasHandle', 'shareRootDeleted'),
-    raw({}),
-    raw({ opendata: 'tab-label-notice' })
+    and(equal('handleStateProxy.content', 'noHandle'), not('shareRootDeleted')),
+    raw({ opendata: 'tab-label-notice' }),
+    raw({})
   ),
-
-  activeTab: undefined,
-
-  /**
-   * @type {String}
-   */
-  spaceId: undefined,
-
-  /**
-   * @type {boolean}
-   */
-  publicMode: false,
 
   scopeClass: computed('publicMode', function scopeClass() {
     const publicMode = this.get('publicMode');
@@ -147,12 +182,30 @@ export default Component.extend(I18n, createDataProxyMixin('shareRootDeleted'), 
 
   init() {
     this._super(...arguments);
-    if (this.get('hasHandle')) {
-      this.set('activeTab', 'opendata');
-    } else if (this.get('share.description')) {
-      this.set('activeTab', 'description');
+    this.get('handleStateProxy').then(handleState => {
+      if (handleState === 'available') {
+        this.set('activeTab', 'opendata');
+      } else if (this.get('share.description')) {
+        this.set('activeTab', 'description');
+      } else {
+        this.set('activeTab', 'files');
+      }
+    });
+  },
+
+  /**
+   * @override
+   * @returns {Promise<String>} resolved values: noHandle, available, forbidden, error
+   */
+  fetchHandleState() {
+    const share = this.get('share');
+    if (get(share, 'hasHandle')) {
+      return share.getRelation('handle')
+        // null handle relation means that it is not available for current user
+        .then(handle => handle ? 'available' : 'forbidden')
+        .catch(error => get(error || {}, 'id') === 'forbidden' ? 'forbidden' : 'error');
     } else {
-      this.set('activeTab', 'files');
+      return resolve('noHandle');
     }
   },
 

@@ -1,10 +1,11 @@
+// FIXME: jsdoc
+
 import Component from '@ember/component';
-import EmberObject, { get, set, computed } from '@ember/object';
+import EmberObject, { get, set, computed, observer } from '@ember/object';
 import dcXmlGenerator from 'oneprovider-gui/utils/generate-dc-xml';
 import dcXmlParser from 'oneprovider-gui/utils/parse-dc-xml';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import plainCopy from 'onedata-gui-common/utils/plain-copy';
-import { observer } from '@ember/object';
 import { A } from '@ember/array';
 import { dcElements } from 'oneprovider-gui/utils/parse-dc-xml';
 import _ from 'lodash';
@@ -12,11 +13,6 @@ import { isEmpty } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
-import config from 'ember-get-config';
-
-const {
-  layoutConfig,
-} = config;
 
 const defaultMode = 'visual';
 
@@ -30,13 +26,13 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.openDataPreview',
 
-  layoutConfig,
-
+  /**
+   * Initial values of: 'title', 'creator', 'description' and 'date' form fields.
+   * See `#getInitialGroupedEntries()`.
+   * @virtual optional
+   * @type {Object}
+   */
   initialData: Object.freeze({}),
-
-  groupedEntries: undefined,
-
-  submit: undefined,
 
   /**
    * @virtual
@@ -59,6 +55,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {(xml: String, handleServiceId: String) => Promise}
+   */
+  submit: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   changeMode: notImplementedThrow,
@@ -68,6 +70,18 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   updateXml: notImplementedIgnore,
+
+  /**
+   * For format reference see `util:generate-dc-xml#groupedEntries`.
+   * @type {Array<{ type: String, value: String }>}
+   */
+  groupedEntries: undefined,
+
+  /**
+   * Classname added to columns to center the form content, as it is too wide
+   * @type {String}
+   */
+  colClassname: 'col-xs-12 col-md-8 col-centered',
 
   init() {
     this._super(...arguments);
@@ -119,6 +133,7 @@ export default Component.extend(I18n, {
     }
   ),
 
+  // FIXME: in common open-data component
   modeObserver: observer('mode', function modeObserver() {
     const scrollableParent = this.$().parents('.ps')[0];
     if (scrollableParent) {

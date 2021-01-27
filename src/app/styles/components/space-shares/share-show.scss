@@ -15,7 +15,6 @@ $content-padding-horizontal: 12px;
   // common style for open-data-* components
   .open-data-view {
     .metadata-header-section {
-      display: flex;
       position: sticky;
       // should be overriden to match fixed headers in share-shows
       top: 0;
@@ -117,30 +116,8 @@ $content-padding-horizontal: 12px;
       height: 100%;
     }
   }
-  .col-open-data-logo {
-    position: sticky;
-    top: 250px;
-  }
-  .open-data-logo {
-    height: 250px;
-    width: 100%;
-    background-image: url($root-url + 'images/open-data.svg');
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: 300px auto;
-    @media (max-height: $content-header-height-public + $public-footer-height + 120px) {
-      display: none;
-    }
-    @media (max-height: 700px) {
-      background-size: 200px auto;
-    }
-    &.open-data-logo-small {
-      height: 140px;
-      background-size: 180px auto;
-    }
-  }
   &.share-show-public {
-    @include horizontal-flex-stretch;
+    @include vertical-flex-stretch;
     padding-top: $content-header-height-public;
     padding-bottom: 0;
     // because of footer, we must remove padding added by generic one-embedded-component
@@ -157,7 +134,7 @@ $content-padding-horizontal: 12px;
       }
     }
     .share-show-pane-container {
-      @include horizontal-flex-stretch;
+      @include vertical-flex-stretch;
       &.share-show-pane-container-files {
         margin-bottom: -50px;
         .table-bottom-spacing {
@@ -196,11 +173,6 @@ $content-padding-horizontal: 12px;
     }
     .pane-description {
       padding-left: $content-padding-horizontal;
-    }
-    .pane-opendata {
-      .open-data-preview {
-        padding-right: $content-col-padding;
-      }
     }
     .share-show-header-public {
       display: flex;
@@ -246,7 +218,7 @@ $content-padding-horizontal: 12px;
     }
   }
   &.share-show-private {
-    @include horizontal-flex-stretch;
+    @include vertical-flex-stretch;
     $padding-vertical: 32px;
     padding-top: $content-header-height-private;
     padding-bottom: $content-col-padding;
@@ -257,7 +229,7 @@ $content-padding-horizontal: 12px;
     }
     .share-show-pane-container, .share-show-pane {
       // FIXME: maybe this could be common style for panes public and private
-      @include horizontal-flex-stretch;
+      @include vertical-flex-stretch;
     }
     .opendata-one-carousel {
       // overflow cannot be hidden, because of sticky elements inside
@@ -372,6 +344,71 @@ $content-padding-horizontal: 12px;
       flex-grow: 1;
     }
   }
+  
+    /// FIXME: open-data preview styles
+
+
+  $color-public-blue-light: #F2F3F8;
+  $color-public-green-light: #f2f8f3;
+
+  .share-show-public {
+    textarea.open-data-xml-textarea {
+      height: calc(100vh - 400px);
+    }
+  }
+  
+  .open-data-preview.open-data-view {
+    .section-name {
+      @include font-semibold;
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+    .open-data-value {
+      background-color: $color-public-blue-light;
+      padding: 18px;
+      &.handle-service-info {
+        background-color: $color-public-green-light;
+      }
+    }
+    .handle-service-group {
+      margin-bottom: 48px;
+    }
+    .metadata-group {
+      margin-top: 24px;
+    }
+    .metadata-group-name {
+      @include font-semibold;
+      margin-bottom: 15px;
+    }
+    .metadata-value + .metadata-value {
+      margin-top: 15px
+    }
+    textarea.open-data-xml-textarea {
+      height: calc(100vh - 280px);
+    }
+    .row-metadata-presenter {
+      display: flex;
+    }
+    .col-open-data-logo {
+      .open-data-logo {
+        position: sticky;
+        top: calc(50% - #{$content-col-padding});
+        height: 250px;
+        width: 100%;
+        background-image: url($root-url + 'images/open-data.svg');
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: 300px auto;
+        transition: all 0.2s ease;
+        @media (max-height: $content-header-height-public + $public-footer-height + 120px) {
+          display: none;
+        }
+        @media (max-height: 700px) {
+          background-size: 200px auto;
+        }
+      }
+    }
+  }
 }
 
 // TODO: VFS-6566 move to other file and reuse in editor
@@ -425,3 +462,4 @@ $content-padding-horizontal: 12px;
     font-size: 14px;
   }
 }
+

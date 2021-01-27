@@ -332,8 +332,10 @@ export default Service.extend({
         });
       });
     }).flat();
-    return handlePrivate.save()
-      .then(() => handlePublic.save())
+    return allFulfilled([handlePrivate.save(), handlePublic.save()])
+      .then(handles => {
+        this.set('entityRecords.handle', handles);
+      })
       .then(() => allFulfilled(shares.map(share => share.save())))
       .then(([privateShare0, privateShare1]) => allFulfilled([
         addShareList(rootFile, [privateShare0, privateShare1], store),

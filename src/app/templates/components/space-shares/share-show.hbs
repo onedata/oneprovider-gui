@@ -1,14 +1,16 @@
-{{#promise-proxy-container proxy=shareRootDeletedProxy}}
+{{#promise-proxy-container proxy=requiredDataProxy}}
   <div class="row share-header-panel">
     {{#if publicMode}}
       {{share-show/header-public
         share=share
+        showHandle=(eq handleState "available")
       }}
     {{else}}
       {{share-show/header-management
         share=share
         spaceId=spaceId
         shareRootDeleted=shareRootDeleted
+        showHandle=(eq handleState "available")
         getDataUrl=(action "getDataUrl")
         showShareList=(action "showShareList")
       }}
@@ -38,7 +40,10 @@
               <span class="tab-label {{get tabClasses tabId}}">
                 {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
                 <div class="one-label tab-name">
-                  {{#if (and (eq tabId "opendata") (not hasHandle))}}
+                  {{#if (and
+                    (eq tabId "opendata")
+                    (eq handleState "noHandle")
+                  )}}
                     {{tt this "tabs.publishOpenData"}}
                   {{else if (and (eq tabId "files") shareRootDeleted)}}
                     {{tt this "tabs.filesDeleted"}}
@@ -56,11 +61,11 @@
 
   {{#each tabIds as |tabId|}}
     <div
-      class="share-show-pane-container share-show-pane-container-{{tabId}} {{if (not (eq activeTab tabId)) "hidden"}}"
+      class="share-show-pane-container share-show-pane-container-{{tabId}} vertical-flex-stretch {{if (not (eq activeTab tabId)) "hidden"}}"
     >
       {{#render-later triggerRender=(eq activeTab tabId)}}
         {{component (concat "share-show/pane-" tabId)
-          class="share-show-pane"
+          class="share-show-pane vertical-flex-stretch"
           publicMode=publicMode
           share=share
           dirId=dirId
