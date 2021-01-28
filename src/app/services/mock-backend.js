@@ -383,7 +383,7 @@ export default Service.extend({
           currentUserIsOwner: false,
           // NOTE: add 'space_manager_qos' to see add qos view
           // put empty array to disable qos modal
-          currentUserEffPrivileges: ['space_view_qos'],
+          currentUserEffPrivileges: ['space_view_qos', 'space_view_transfers'],
         }).save()
       )))
       .then((records) => {
