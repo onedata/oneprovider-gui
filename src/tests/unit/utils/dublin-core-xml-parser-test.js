@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import DcXmlParser from 'oneprovider-gui/utils/parse-dc-xml';
+import DcXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import { get } from '@ember/object';
 
 /* eslint-disable max-len */
@@ -32,7 +32,7 @@ const xmlWithEmptyElements = `<?xml version="1.0" encoding="UTF-8"?>
 
 /* eslint-enable max-len */
 
-describe('Unit | Utility | parse dc xml', function () {
+describe('Unit | Utility | dublin core xml parser', function () {
   it('parses example XML metadata used in old Onedata releases', function () {
     const parser = DcXmlParser.create({ xmlSource: xmlOnedataLegacy });
     const entries = get(parser, 'entries');

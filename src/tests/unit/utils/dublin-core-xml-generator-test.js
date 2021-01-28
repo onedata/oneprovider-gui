@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import generateDcXml from 'oneprovider-gui/utils/generate-dc-xml';
+import dublinCoreXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
 import { get } from '@ember/object';
 
-describe('Unit | Utility | generate dc xml', function () {
+describe('Unit | Utility | dublin core xml generator', function () {
   it('generates XML using specified grouped entries', function () {
-    const generator = generateDcXml.create({
+    const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [
         { type: 'title', values: ['White Noise Image Collection'] },
         { type: 'creator', values: ['Bartosz Kryza'] },
@@ -43,7 +43,7 @@ describe('Unit | Utility | generate dc xml', function () {
   });
 
   it('can clean up empty entries from object', function () {
-    const generator = generateDcXml.create({
+    const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [
         { type: 'title', values: ['', 'White Noise', '', ''] },
         { type: 'creator', values: [] },
@@ -64,7 +64,7 @@ describe('Unit | Utility | generate dc xml', function () {
   });
 
   it('can preserve balnk strings when cleaning the object', function () {
-    const generator = generateDcXml.create({
+    const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [
         { type: 'title', values: ['', 'White Noise'] },
         { type: 'creator', values: [] },
@@ -88,7 +88,7 @@ describe('Unit | Utility | generate dc xml', function () {
   });
 
   it('escapes unsafe values', function () {
-    const generator = generateDcXml.create({
+    const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [
         { type: 'title', values: ['</dc:title>hello<dc:title>'] },
       ],

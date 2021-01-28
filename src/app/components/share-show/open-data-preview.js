@@ -8,20 +8,20 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 import { get, computed } from '@ember/object';
-import dcXmlParser from 'oneprovider-gui/utils/parse-dc-xml';
+import dublinCoreXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import OpenData from './-open-data';
 
 export default OpenData.extend({
   classNames: ['open-data-preview'],
 
   /**
-   * For format reference see `util:generate-dc-xml#groupedEntries`.
+   * For format reference see `util:dublin-core-xml-generator#groupedEntries`.
    * @override
    * @type {Array<{ type: String, value: String }>}
    */
   groupedEntries: computed('xml', function groupedEntries() {
     return get(
-      dcXmlParser.create({ xmlSource: this.get('xml') }),
+      dublinCoreXmlParser.create({ xmlSource: this.get('xml') }),
       'groupedEntries'
     );
   }),

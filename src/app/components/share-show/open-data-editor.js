@@ -8,12 +8,12 @@
  */
 
 import EmberObject, { get, set, computed, observer } from '@ember/object';
-import dcXmlGenerator from 'oneprovider-gui/utils/generate-dc-xml';
-import dcXmlParser from 'oneprovider-gui/utils/parse-dc-xml';
+import dcXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
+import dublinCoreXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import plainCopy from 'onedata-gui-common/utils/plain-copy';
 import { A } from '@ember/array';
-import { dcElements } from 'oneprovider-gui/utils/parse-dc-xml';
+import { dcElements } from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import _ from 'lodash';
 import { isEmpty } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -74,7 +74,7 @@ export default OpenData.extend(I18n, {
   xmlObserver: observer('xml', function xmlObserver() {
     const xml = this.get('xml');
     if (xml != null) {
-      const parser = dcXmlParser.create({
+      const parser = dublinCoreXmlParser.create({
         xmlSource: xml,
         preserveEmptyValues: true,
       });

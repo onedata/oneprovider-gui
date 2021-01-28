@@ -2,7 +2,7 @@
  * Parses Dublin Core Metadata in XML/RDF format and exposes metadata in convenient
  * formats.
  * 
- * @module utils/parse-dc-xml
+ * @module utils/dublin-core-xml-parser
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
