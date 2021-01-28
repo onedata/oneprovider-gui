@@ -7,7 +7,6 @@
     padding-right: $open-data-remove-col-width;
   }
   
-  // FIXME: ???
   .row-metadata-form.no-entries + .row-metadata-group-add {
     margin-top: 20px;
   }
@@ -60,6 +59,13 @@
   .col-submit-center {
     display: flex;
     justify-content: center;
-    // FIXME: styles as in other submit rows
+  }
+  .open-data-xml-form-group {
+    margin-bottom: 0;
+    &:not(.has-error) {
+      .form-message {
+        color: transparent;
+      }
+    }
   }
 }

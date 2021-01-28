@@ -121,12 +121,22 @@
       </div>
     {{/carousel.slide}}
     {{#carousel.slide slideId="xml"}}
-      <textarea
-        value={{xml}}
-        oninput={{action updateXml value="target.value"}}
-        placeholder={{tt this "xmlTextareaPlaceholder"}}
-        class="no-resize code-textarea open-data-xml-textarea form-control"
-      ></textarea>
+      <div class="form-group open-data-xml-form-group {{if parserError "has-error"}}">
+        <textarea
+          value={{xml}}
+          oninput={{action updateXml value="target.value"}}
+          placeholder={{tt this "xmlTextareaPlaceholder"}}
+          class="no-resize code-textarea open-data-xml-textarea form-control"
+        ></textarea>
+        <div class="form-message text-right">
+          {{#if parserError}}
+            {{tt this "xmlParserError"}}
+          {{else}}
+            {{!-- just hold space for error text --}}
+            &nbsp;
+          {{/if}}
+        </div>
+      </div>
     {{/carousel.slide}}
   {{/one-carousel}}
 </div>

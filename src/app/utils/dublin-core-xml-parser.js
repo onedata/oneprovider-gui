@@ -52,6 +52,15 @@ export default EmberObject.extend({
   xmlParser: computed(() => new DOMParser()),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  error: computed('xmlDoc', function error() {
+    const xmlDoc = this.get('xmlDoc');
+    const parserError = xmlDoc && xmlDoc.querySelector('parsererror');
+    return parserError ? parserError.textContent : null;
+  }),
+
+  /**
    * @type {ComputedProperty<Document>}
    */
   xmlDoc: computed('xmlSource', 'xmlParser', function xmlDoc() {
@@ -66,16 +75,14 @@ export default EmberObject.extend({
    * @type {ComputedProperty<Array<{type: String, value: String}>>}
    */
   entries: computed('xmlDoc', function entries() {
-    // TODO: VFS-6566 parse malformed XML without namespace specified
-    // const xmlDoc = this.get('xmlDoc');
-    // dcElements.reduce((allEntries, type) => {
-    //   allEntries.push(...Array.from(xmlDoc.getElementsByTagName(`dc:${type}`)));
-    //   return allEntries;
-    // }, []);
     const {
       xmlDoc,
       preserveEmptyValues,
-    } = this.getProperties('xmlDoc', 'preserveEmptyValues');
+      error,
+    } = this.getProperties('xmlDoc', 'preserveEmptyValues', 'error');
+    if (error) {
+      return [];
+    }
     const allEntries = Array.from(xmlDoc.querySelectorAll(allElementsSelector))
       .map(node => ({
         type: node.nodeName.split('dc:')[1],
@@ -98,6 +105,8 @@ export default EmberObject.extend({
     });
     return order.map(type => ({ type, values: cache[type] }));
   }),
+
+  createXmlDoc() {},
 
   getEmberGroupedEntries() {
     const groupedEntries = this.get('groupedEntries');

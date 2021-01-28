@@ -79,6 +79,7 @@ export default OpenData.extend(I18n, {
         preserveEmptyValues: true,
       });
       this.set('groupedEntries', parser.getEmberGroupedEntries());
+      this.set('parserError', get(parser, 'error'));
     }
   }),
 

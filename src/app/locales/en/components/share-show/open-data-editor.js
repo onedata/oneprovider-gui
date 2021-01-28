@@ -10,4 +10,5 @@ export default {
   metadataText: 'Handle metadata is used to index the dataset in Open Data search engines and provide additional information for its consumers.',
   moreElements: 'Add more elements...',
   back: 'Back',
+  xmlParserError: 'XML is not valid',
 };

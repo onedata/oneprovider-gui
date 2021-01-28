@@ -30,6 +30,18 @@ const xmlWithEmptyElements = `<?xml version="1.0" encoding="UTF-8"?>
   <dc:title></dc:title>
 </metadata>`;
 
+const xmlMultiple = `<?xml version="1.0" encoding="UTF-8"?>
+<metadata
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
+  <dc:language>PL</dc:language>
+  <dc:language>EN</dc:language>
+  <dc:language>SK</dc:language>
+</metadata>`;
+
+const xmlWithoutNamespace = '<dc:title>hello</dc:title>';
+
 /* eslint-enable max-len */
 
 describe('Unit | Utility | dublin core xml parser', function () {
@@ -91,37 +103,21 @@ describe('Unit | Utility | dublin core xml parser', function () {
     ]);
   });
 
-  // TODO: VFS-6566 should pass below tests to support on-line generated
+  it('parses XML generated with online generator with multiple nodes of the same type', function () {
+    const result = DcXmlParser.create({ xmlSource: xmlMultiple });
+    const entries = get(result, 'entries');
 
-  // it('parses XML generated with online generator with multiple nodes of the same type',
-  //   function () {
-  //     const result = DcXmlParser.create({ xmlSource: p });
-  //     const entries = get(result, 'entries');
+    expect(entries).to.have.lengthOf(3);
+    const languages = entries.filterBy('type', 'language');
+    const languageValues = languages.mapBy('value');
+    expect(languageValues).to.contain('PL');
+    expect(languageValues).to.contain('EN');
+    expect(languageValues).to.contain('SK');
+  });
 
-  //     const xmlDoc = get(result, 'xmlDoc');
-  //     console.log(Array.from(xmlDoc.querySelectorAll('title')));
-
-  //     expect(entries).to.have.lengthOf(9);
-  //     const publishers = entries.filterBy('type', 'publisher');
-  //     const languages = entries.filterBy('type', 'language');
-  //     expect(publishers).to.have.lengthOf(2);
-  //     expect(languages).to.have.lengthOf(3);
-  //     const languageValues = languages.mapBy('value');
-  //     expect(languageValues).to.contain('PL');
-  //     expect(languageValues).to.contain('EN');
-  //     expect(languageValues).to.contain('SK');
-  //   }
-  // );
-
-  // TODO: VFS-6566 should pass below tests to support malformed XMLs
-
-  // it('parses example XML metadata without namespace', function () {
-  //   const result = DcXmlParser.create({ xmlSource: xmlWithoutNamespace });
-  //   const entries = get(result, 'entries');
-  //   expect(entries).to.have.lengthOf(2);
-  //   expect(entries.findBy('type', 'title'))
-  //     .to.have.property('value', 'White Noise Image Collection');
-  //   expect(entries.findBy('type', 'creator'))
-  //     .to.have.property('value', 'Bartosz Kryza');
-  // });
+  it('holds error message and empty entries when XML parsing fails', function () {
+    const result = DcXmlParser.create({ xmlSource: xmlWithoutNamespace });
+    expect(get(result, 'entries')).to.have.lengthOf(0);
+    expect(get(result, 'error')).to.be.not.empty.string;
+  });
 });
