@@ -13,6 +13,14 @@ import { htmlSafe } from '@ember/string';
 import { computed } from '@ember/object';
 import DOMPurify from 'npm:dompurify';
 
+export const defaultOptions = Object.freeze({
+  tables: true,
+  strikethrough: true,
+  literalMidWordUnderscores: true,
+  simplifiedAutoLink: true,
+  openLinksInNewWindow: true,
+});
+
 export default Component.extend({
   classNames: ['one-markdown-to-html'],
 
@@ -29,14 +37,11 @@ export default Component.extend({
    * Set always a new object!
    * @type {Object}
    */
-  options: Object.freeze({
-    tables: true,
-    strikethrough: true,
-    literalMidWordUnderscores: true,
-    simplifiedAutoLink: true,
-    openLinksInNewWindow: true,
-  }),
+  options: defaultOptions,
 
+  /**
+   * @type {ComputedProperty<Showdown.Converter>}
+   */
   converter: computed('options', function converter() {
     return new showdown.Converter(this.get('options'));
   }),

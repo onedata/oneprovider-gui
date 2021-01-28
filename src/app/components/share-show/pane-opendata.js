@@ -13,7 +13,6 @@ import { reads } from '@ember/object/computed';
 import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import moment from 'moment';
-import { scheduleOnce } from '@ember/runloop';
 import { conditional, raw } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 

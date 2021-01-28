@@ -20,12 +20,12 @@
       buttonLabel=(tt this "noDescriptionWelcome.startButton")
     }}
   {{else}}
-    {{markdown-editor
+    {{share-show/markdown-editor
       mode=editorMode
-      mdContent=currentMarkdown
+      markdown=currentMarkdown
       placeholder=(tt this "typeDescriptionPlaceholder")
-      mdContentChanged=(action (mut currentMarkdown))
-      changeMode=(action (mut editorMode))
+      onMarkdownChange=(action (mut currentMarkdown))
+      onModeChange=(action (mut editorMode))
       discard=(action "discard")
       save=(action "save")
     }}

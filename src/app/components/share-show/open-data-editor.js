@@ -163,10 +163,6 @@ export default OpenData.extend(I18n, {
         set(group, 'values', A(newValues));
       }
     },
-    // TODO: VFS-6566 check if this is necessary
-    simpleMatcher(name, term) {
-      return name.toLocaleLowerCase().includes(term.toLocaleLowerCase()) ? 1 : -1;
-    },
     addMetadataGroup(type) {
       this.get('groupedEntries').pushObject(EmberObject.create({
         type,

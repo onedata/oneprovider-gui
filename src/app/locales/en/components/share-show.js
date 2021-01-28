@@ -4,7 +4,9 @@ import publicUrlViewer from './share-show/public-url-viewer';
 import paneDescription from './share-show/pane-description';
 import paneFiles from './share-show/pane-files';
 import paneOpendata from './share-show/pane-opendata';
-import openData from './share-show/open-data';
+import openDataCommon from './share-show/open-data-common';
+import openDataEditor from './share-show/open-data-editor';
+import markdownEditor from './share-show/markdown-editor';
 
 export default {
   tabs: {
@@ -22,5 +24,6 @@ export default {
   paneDescription,
   paneFiles,
   paneOpendata,
-  openData,
+  openData: Object.assign({}, openDataCommon, openDataEditor),
+  markdownEditor,
 };

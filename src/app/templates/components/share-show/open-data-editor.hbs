@@ -8,7 +8,7 @@
     <h1 class="section-name">
       {{tt this (if media.isMobile "metadataMobile" "metadata")}}
       {{#if media.isMobile}}
-        {{one-label-tip title=(tt this 'metadataPublicHeaderTip')}}
+        {{one-label-tip title=(tt this "metadataPublicHeaderTip")}}
       {{/if}}
     </h1>
     <div class="metadata-mode-switch">
@@ -108,8 +108,8 @@
           options=metadataGroupAddList
           onchange=(action "addMetadataGroup")
           placeholder=(tt this "addMetadataGroup")
-          matcher=(action "simpleMatcher")
-          as |groupType|}}
+          as |groupType|
+        }}
           <div class="option-container" data-group-type={{groupType}}>
             {{#truncated-string}}
               <span class="text">

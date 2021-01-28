@@ -101,11 +101,16 @@ $share-show-public-footer-height: 88px;
     }
   }
   
-  // FIXME: refactor
   &.share-show-private {
     padding-top: $share-show-content-header-height-private;
     padding-bottom: $content-col-padding;
     
+    .share-header-container {
+      height: $share-show-content-header-height-private;
+    }
+    .file-browser-head-container {
+      top: $share-show-content-header-height-private;
+    }
     .open-data {
       .metadata-header-section {
         top: $share-show-content-header-height-private;
@@ -115,54 +120,6 @@ $share-show-public-footer-height: 88px;
       // must be forced, because one-carousel stretched as its content and absolute map
       // will not stretch horizontally, until it has no space provided by content-info
       min-height: calc(100vh - #{$share-show-content-header-height-private + 2 * $content-col-padding});
-    }
-    .markdown-editor {
-      .editor-current-mode-bar {
-        position: fixed;
-        top: $share-show-content-header-height-private;
-        left: 0;
-        z-index: 1;
-        height: $share-show-description-bar-heightn-bar-height;
-        width: 100%;
-        line-height: $share-show-description-bar-heightn-bar-height;
-        padding-left: $content-col-padding + $share-show-content-padding-horizontal;
-        border-bottom: 1px solid $main-border-color;
-        background: $color-one-white;
-        @include font-semibold;
-        
-      }
-      .share-edit-actions-toolbar {
-        position: fixed;
-        top: $share-show-content-header-height-private;
-        right: 0;
-        height: $share-show-description-bar-heightn-bar-height;
-        line-height: $share-show-description-bar-heightn-bar-height;
-        display: flex;
-        align-items: center;
-        margin-right: $content-col-padding;
-        z-index: 2;
-      }
-      .markdown-preview {
-        padding-left: $share-show-content-padding-horizontal;
-        padding-top: $share-show-description-bar-heightn-bar-height;
-      }
-      .textarea-source-editor {
-        width: 100%;
-        border: 0;
-        padding-left: $share-show-content-padding-horizontal;
-        padding-right: 0;
-        overflow-y: auto;
-        outline: none;
-        margin-top: $content-col-padding;
-        padding-top: $share-show-description-bar-heightn-bar-height;
-        font-size: 15px;
-      }
-    }
-    .share-header-container {
-      height: $share-show-content-header-height-private;
-    }
-    .file-browser-head-container {
-      top: $share-show-content-header-height-private;
     }
   }
 }
@@ -174,55 +131,6 @@ $share-show-public-footer-height: 88px;
 @import './share-show/open-data';
 @import './share-show/open-data-editor';
 @import './share-show/open-data-preview';
+@import './share-show/markdown-editor';
 
-// TODO: VFS-6566 move to other file and reuse in editor
-.markdown-view {
-  margin-top: $content-col-padding;
-  margin-bottom: $content-col-padding;
-  table {
-    @extend .table;
-    @extend .table-striped;
-  }
-  h1 {
-    font-size: 30px;
-    @include font-semibold;
-    margin-top: 30px;
-    margin-bottom: 20px;
-  }
-  h2 {
-    font-size: 24px;
-    @include font-semibold;
-    margin-top: 24px;
-    margin-bottom: 18px;
-  }
-  h3 {
-    font-size: 20px;
-    @include font-semibold;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  h4 {
-    font-size: 18px;
-    @include font-semibold;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  h5 {
-    font-size: 16px;
-    @include font-semibold;
-    margin-top: 18px;
-    margin-bottom: 10px;
-  }
-  h6 {
-    font-size: 14px;
-    @include font-semibold;
-    margin-top: 16px;
-    margin-bottom: 10px;
-  }
-  a {
-    @extend .azure;
-  }
-  p {
-    font-size: 14px;
-  }
-}
+  
