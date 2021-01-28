@@ -32,14 +32,3 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/qos-expression-info';
 @import 'components/query-builder';
 @import 'components/one-markdown-to-html';
-
-// TODO: VFS-6566 copied from space-transfers - make it global
-.tab-icon {
-  @include vertical-align-middle();
-  left: 8px;
-  font-size: 26px;
-  // custom pull-up icons
-  &.one-icon {
-    margin-top: -1px;
-  }
-}
