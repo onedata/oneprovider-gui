@@ -24,7 +24,10 @@ import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
-import { exampleMarkdownLong, exampleDublinCore } from 'oneprovider-gui/utils/mock-data';
+import {
+  exampleMarkdownLong as exampleMarkdown,
+  exampleDublinCore,
+} from 'oneprovider-gui/utils/mock-data';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -328,7 +331,7 @@ export default Service.extend({
           publicUrl,
           handle: num % 2 === 0 ?
             (scope === 'private' ? handlePrivate : handlePublic) : null,
-          description: exampleMarkdownLong,
+          description: exampleMarkdown,
         });
       });
     }).flat();

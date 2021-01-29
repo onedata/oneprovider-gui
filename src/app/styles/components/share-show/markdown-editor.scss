@@ -4,9 +4,9 @@
     top: $share-show-content-header-height-private;
     left: 0;
     z-index: 1;
-    height: $share-show-description-bar-heightn-bar-height;
+    height: $share-show-description-bar-height-bar-height;
     width: 100%;
-    line-height: $share-show-description-bar-heightn-bar-height;
+    line-height: $share-show-description-bar-height-bar-height;
     padding-left: $content-col-padding + $share-show-content-padding-horizontal;
     border-bottom: 1px solid $main-border-color;
     background: $color-one-white;
@@ -16,8 +16,8 @@
     position: fixed;
     top: $share-show-content-header-height-private;
     right: 0;
-    height: $share-show-description-bar-heightn-bar-height;
-    line-height: $share-show-description-bar-heightn-bar-height;
+    height: $share-show-description-bar-height-bar-height;
+    line-height: $share-show-description-bar-height-bar-height;
     display: flex;
     align-items: center;
     margin-right: $content-col-padding;
@@ -25,7 +25,7 @@
   }
   .markdown-preview {
     padding-left: $share-show-content-padding-horizontal;
-    padding-top: $share-show-description-bar-heightn-bar-height;
+    margin-top: $content-col-padding + $share-show-description-bar-height-bar-height;
   }
   .textarea-source-editor {
     width: 100%;
@@ -34,8 +34,7 @@
     padding-right: 0;
     overflow-y: auto;
     outline: none;
-    margin-top: $content-col-padding;
-    padding-top: $share-show-description-bar-heightn-bar-height;
+    margin-top: $content-col-padding + $share-show-description-bar-height-bar-height;
     font-size: 15px;
   }
 }
