@@ -19,6 +19,7 @@ import { isEmpty } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import OpenData from './-open-data';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default OpenData.extend(I18n, {
   classNames: ['open-data-editor'],
@@ -141,10 +142,14 @@ export default OpenData.extend(I18n, {
       } = this.getProperties('submit', 'updateXml', 'handleService', 'globalNotify');
       const currentXml = this.getXml();
       updateXml(currentXml);
+      this.set('formDisabled', true);
       return submit(currentXml, get(handleService, 'entityId'))
         .catch(error => {
           globalNotify.backendError(this.t('publishingData'), error);
           throw error;
+        })
+        .finally(() => {
+          safeExec(this, 'set', 'formDisabled');
         });
     },
     addEntry(type) {

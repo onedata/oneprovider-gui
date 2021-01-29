@@ -38,6 +38,7 @@
                 {{#bs-button
                   type="default"
                   class="btn-sm btn-add-entry"
+                  disabled=formDisabled
                   onClick=(action "addEntry" group.type)
                 }}
                   {{one-icon class="add-icon" icon="add-filled"}}
@@ -61,6 +62,7 @@
                       "inputPlaceholder"
                       type=(lowercase (tt this (concat "dcElementNames." group.type)))
                     }}
+                    disabled={{formDisabled}}
                     oninput={{action "setValue" group.type index}}
                   ></textarea>
                 {{else}}
@@ -69,6 +71,7 @@
                     type="text"
                     data-dc-element-type={{group.type}}
                     value={{get group.values index}}
+                    disabled={{formDisabled}}
                     placeholder={{tt
                       this
                       "inputPlaceholder"
@@ -77,7 +80,10 @@
                     oninput={{action "setValue" group.type index}}
                   >
                 {{/if}}
-                {{remove-icon onClick=(action "removeEntry" group.type index)}}
+                {{remove-icon
+                  isDisabled=formDisabled
+                  onClick=(action "removeEntry" group.type index)
+                }}
               </div>
             {{/each}}
           </div>
@@ -89,6 +95,7 @@
           triggerClass="add-metadata-group"
           dropdownClass="add-metadata-group-dropdown"
           options=metadataGroupAddList
+          disabled=formDisabled
           onchange=(action "addMetadataGroup")
           placeholder=(tt this "addMetadataGroup")
           as |groupType|
@@ -109,6 +116,7 @@
           value={{xml}}
           oninput={{action updateXml value="target.value"}}
           placeholder={{tt this "xmlTextareaPlaceholder"}}
+          disabled={{formDisabled}}
           class="no-resize code-textarea open-data-xml-textarea form-control"
         ></textarea>
         <div class="form-message text-right">
@@ -138,6 +146,7 @@
       {{#bs-button
         class="btn-back"
         type="default"
+        disabled=formDisabled
         onClick=(action "back")
       }}
         {{one-icon icon="arrow-left"}}
