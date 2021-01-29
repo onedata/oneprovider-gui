@@ -16,6 +16,9 @@ export default HeaderBaseComponent.extend(I18n, {
     'share-show-header-public',
   ],
 
+  /**
+   * @override
+   */
   i18nPrefix: 'components.shareShow.headerPublic',
 
   /**

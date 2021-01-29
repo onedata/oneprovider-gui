@@ -1,3 +1,12 @@
+/**
+ * Content for "description" tab for single share
+ *
+ * @module components/share-show/pane-description
+ * @author Jakub Liput
+ * @copyright (C) 2020-2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { set } from '@ember/object';

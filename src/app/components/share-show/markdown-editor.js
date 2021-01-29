@@ -1,7 +1,7 @@
 /**
- * Editor of Markdown source with preview.
+ * Editor of Markdown source with preview designed for share description
  * 
- * @module components/markdown-editor
+ * @module components/share-show/markdown-editor
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

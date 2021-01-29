@@ -99,6 +99,9 @@ export default Component.extend(I18n, {
    */
   handleDataProxy: promise.object(promise.all('handleProxy', 'handleServiceProxy')),
 
+  /**
+   * @type {ComputedProperty<Object>}
+   */
   urlTypeSelectShareAction: computed(function urlTypeSelectShareAction() {
     return {
       title: this.t('sharePublicLink'),
@@ -107,6 +110,9 @@ export default Component.extend(I18n, {
     };
   }),
 
+  /**
+   * @type {ComputedProperty<Object>}
+   */
   urlTypeSelectHandleAction: computed(function urlTypeSelectHandleAction() {
     return {
       title: this.t('handlePublicLink'),
@@ -115,6 +121,9 @@ export default Component.extend(I18n, {
     };
   }),
 
+  /**
+   * @type {ComputedProperty<Array<Object>>}
+   */
   compactUrlTypeSelectorActions: collect(
     'urlTypeSelectShareAction',
     'urlTypeSelectHandleAction'

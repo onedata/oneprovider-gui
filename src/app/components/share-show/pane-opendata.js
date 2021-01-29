@@ -1,11 +1,12 @@
 /**
- * Single share open-data view
+ * Content for "opendata" tab for single share
  * 
  * @module components/share-show/pane-opendata
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
+
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
