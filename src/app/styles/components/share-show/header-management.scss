@@ -1,6 +1,5 @@
 .share-show-header-management {
   .share-header-row {
-    $col-menu-width: 30px;
     $key-width: 14em;
     display: flex;
     align-items: center;
@@ -14,26 +13,24 @@
     }
     .col-value {
       flex: 0 1 $screen-xs-max;
-      max-width: calc(100% - #{$key-width});
       @media (max-width: $screen-xs-max) {
         flex-basis: auto;
         flex-grow: 1;
-        max-width: none;
       }
     }
     + .share-header-row {
-      margin-top: $padding-large-vertical;
+      margin-top: 8px;
     }
-    &.with-menu {
-      padding-right: $col-menu-width;
+    &.share-header-path {
+      // container suitable for auto-shortening file path
       .col-value {
-        // this kind of max-width limit is suitable for dynamic path renderer
-        max-width: calc(100% - #{$key-width} - #{$col-menu-width});
+        flex-grow: 1;
+        flex-basis: auto; 
+        overflow-x: hidden;
       }
     }
-    .col-menu {
-      @include vertical-align-middle();
-      right: 0;
-    }
+  }
+  .share-menu-trigger {
+    padding-right: 0;
   }
 }

@@ -17,7 +17,6 @@ export default HeaderBaseComponent.extend(I18n, {
   classNames: [
     'row',
     'share-show-header-management',
-    'with-menu',
   ],
 
   i18nPrefix: 'components.shareShow.headerManagemenet',

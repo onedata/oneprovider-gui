@@ -545,7 +545,7 @@ export default Service.extend({
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name =
-          `Directory long long long long long long long long long long long long long long long long name ${String(i).padStart(4, '0')}`;
+          `Directory long long long long long long long long long name ${String(i).padStart(4, '0')}`;
         return store.createRecord('file', {
           id,
           name,
