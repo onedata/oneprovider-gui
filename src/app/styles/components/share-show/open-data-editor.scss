@@ -46,6 +46,16 @@
         }
       }
     }
+    .group-add-entry {
+      flex-shrink: 1;
+      overflow: hidden;
+      margin-left: $padding-small-horizontal;
+      .btn {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
   }
   .row-metadata-group-add {
     padding-right: $open-data-remove-col-width;

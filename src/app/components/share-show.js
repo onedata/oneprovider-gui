@@ -22,6 +22,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { conditional, raw, and, not, promise } from 'ember-awesome-macros';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve } from 'rsvp';
+import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 
 const mixins = [
   I18n,
@@ -182,6 +183,10 @@ export default Component.extend(...mixins, {
 
   shareObserver: observer('share', function shareObserver() {
     this.updateShareRootDeletedProxy();
+  }),
+
+  tabScrollObserver: observer('activeTab', function tabScrollObserver() {
+    scrollTopClosest(this.get('element'));
   }),
 
   init() {

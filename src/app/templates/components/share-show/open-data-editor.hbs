@@ -25,7 +25,7 @@
 {{/unless}}
 
 <div class={{concat-classes colClassname "col-open-data-editor-main"}}>
-  {{#one-carousel activeSlideId=mode as |carousel|}}
+  {{#one-carousel animated=false activeSlideId=mode as |carousel|}}
     {{#carousel.slide slideId="visual"}}
       <div class="row row-metadata-form {{if (eq groupedEntries.length 0) "no-entries"}}">
         {{#each groupedEntries as |group|}}

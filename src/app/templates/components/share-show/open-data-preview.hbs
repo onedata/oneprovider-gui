@@ -10,7 +10,7 @@
 <div class="row-metadata-presenter">
   {{#if groupedEntries.length}}
     <div class="col-xs-12 col-md-8 col-lg-7">
-      {{#one-carousel activeSlideId=mode as |carousel|}}
+      {{#one-carousel animated=false activeSlideId=mode as |carousel|}}
         {{#carousel.slide slideId="visual"}}
           {{#each groupedEntries as |group|}}
             <div class="metadata-group">
