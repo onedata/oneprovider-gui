@@ -43,6 +43,20 @@ $share-show-public-footer-height: 88px;
     overflow: visible;
   }
   
+  @media (max-width: 420px) {
+    .bs-tab-onedata.tab-share-show-mode .nav-tabs.nav > li > a {
+      padding: 20px 28px;
+      .one-label.tab-name {
+        display: none;
+      }
+      .tab-icon {
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        margin-top: 0;
+        font-size: 36px;
+      }
+    }
+  }
   
   &.share-show-public {
     padding-top: $share-show-content-header-height-public;

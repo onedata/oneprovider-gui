@@ -1,4 +1,6 @@
 .share-show-markdown-editor {
+  $content-margin-top: $content-col-padding + $share-show-description-bar-height-bar-height - 12px;
+  
   .editor-current-mode-bar {
     position: fixed;
     top: $share-show-content-header-height-private;
@@ -26,6 +28,9 @@
   .markdown-preview {
     padding-left: $share-show-content-padding-horizontal;
     margin-top: $content-col-padding + $share-show-description-bar-height-bar-height;
+    @media (max-width: $screen-xs-max) {
+      margin-top: $content-margin-top;
+    }
   }
   .textarea-source-editor {
     width: 100%;
@@ -34,7 +39,7 @@
     padding-right: 0;
     overflow-y: auto;
     outline: none;
-    margin-top: $content-col-padding + $share-show-description-bar-height-bar-height;
+    margin-top: $content-margin-top;
     font-size: 15px;
   }
 }
