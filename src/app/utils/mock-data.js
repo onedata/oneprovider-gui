@@ -15,9 +15,6 @@ Test description with **bold**.
 * Dolor
 `;
 
-// export const exampleMarkdownLong = `
-// # BTau primary dataset in AOD format from RunB of 2010(/BTau/Run2010B - Apr21ReReco - v1 / AOD)
-
 export const exampleMarkdownLong = `/BTau/Run2010B - Apr21ReReco - v1 / AOD, CMS collaboration
 
 Cite as: CMS collaboration (2014). BTau primary dataset in AOD format from RunB of 2010 (/BTau/Run2010B-Apr21ReReco-v1/AOD). CERN Open Data Portal. [DOI:10.7483/OPENDATA.CMS.A342.9982](http://doi.org/10.7483/OPENDATA.CMS.A342.9982)

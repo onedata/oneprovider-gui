@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import DcXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
-import { get } from '@ember/object';
+import { get, set } from '@ember/object';
 
 /* eslint-disable max-len */
 
-const xmlOnedataLegacy = `<?xml version="1.0" encoding="UTF-8"?>
+const xmlFromOnedataExample = `<?xml version="1.0" encoding="UTF-8"?>
 <metadata
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -30,6 +30,31 @@ const xmlWithEmptyElements = `<?xml version="1.0" encoding="UTF-8"?>
   <dc:title></dc:title>
 </metadata>`;
 
+const xmlWithComment = `<?xml version="1.0" encoding="UTF-8"?>
+<metadata
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
+  <dc:title><!-- foo -->Test</dc:title>
+</metadata>`;
+
+const xmlWithWhitespaces = `<?xml version="1.0" encoding="UTF-8"?>
+<metadata
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
+  <dc:title>  Test   </dc:title>
+</metadata>`;
+
+const xmlWithNonTextElements = `<?xml version="1.0" encoding="UTF-8"?>
+<metadata
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
+  <dc:title>Test</dc:title>
+  <dc:title><hello>One</hello></dc:title>
+</metadata>`;
+
 const xmlMultiple = `<?xml version="1.0" encoding="UTF-8"?>
 <metadata
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -45,8 +70,8 @@ const xmlWithoutNamespace = '<dc:title>hello</dc:title>';
 /* eslint-enable max-len */
 
 describe('Unit | Utility | dublin core xml parser', function () {
-  it('parses example XML metadata used in old Onedata releases', function () {
-    const parser = DcXmlParser.create({ xmlSource: xmlOnedataLegacy });
+  it('parses example XML metadata used in Onedata real-life scenario', function () {
+    const parser = DcXmlParser.create({ xmlSource: xmlFromOnedataExample });
     const entries = get(parser, 'entries');
 
     expect(entries).to.have.lengthOf(9);
@@ -69,7 +94,7 @@ describe('Unit | Utility | dublin core xml parser', function () {
       .to.have.property('value', 'Test');
   });
 
-  it('parses XML with empty values and exposes them using special flag', function () {
+  it('parses XML with empty values and exposes them when using "preserveEmptyValues" flag', function () {
     const parser = DcXmlParser.create({
       xmlSource: xmlWithEmptyElements,
       preserveEmptyValues: true,
@@ -82,8 +107,51 @@ describe('Unit | Utility | dublin core xml parser', function () {
     expect(titles[1]).to.have.property('value', '');
   });
 
+  it('parses XML with non-text-node values and exposes them as empty when using "preserveEmptyValues" flag',
+    function () {
+      const parser = DcXmlParser.create({
+        xmlSource: xmlWithNonTextElements,
+        preserveEmptyValues: true,
+      });
+      const entries = get(parser, 'entries');
+
+      expect(entries).to.have.lengthOf(2);
+      const titles = entries.filterBy('type', 'title');
+      expect(titles[0]).to.have.property('value', 'Test');
+      expect(titles[1]).to.have.property('value', '');
+    }
+  );
+
+  it('parses XML with XML comment inside values',
+    function () {
+      const parser = DcXmlParser.create({
+        xmlSource: xmlWithComment,
+        preserveEmptyValues: true,
+      });
+      const entries = get(parser, 'entries');
+
+      expect(entries).to.have.lengthOf(1);
+      const titles = entries.filterBy('type', 'title');
+      expect(titles[0]).to.have.property('value', 'Test');
+    }
+  );
+
+  it('trims whitespaces inside parsed XML values',
+    function () {
+      const parser = DcXmlParser.create({
+        xmlSource: xmlWithWhitespaces,
+        preserveEmptyValues: true,
+      });
+      const entries = get(parser, 'entries');
+
+      expect(entries).to.have.lengthOf(1);
+      const titles = entries.filterBy('type', 'title');
+      expect(titles[0]).to.have.property('value', 'Test');
+    }
+  );
+
   it('exposes grouped metadata entries in correct order', function () {
-    const parser = DcXmlParser.create({ xmlSource: xmlOnedataLegacy });
+    const parser = DcXmlParser.create({ xmlSource: xmlFromOnedataExample });
     const groupedEntries = get(parser, 'groupedEntries');
 
     expect(groupedEntries).to.deep.equal([
@@ -115,9 +183,30 @@ describe('Unit | Utility | dublin core xml parser', function () {
     expect(languageValues).to.contain('SK');
   });
 
+  it('holds null error message when XML is not provided', function () {
+    const parser = DcXmlParser.create({ xmlSource: xmlWithoutNamespace });
+    set(parser, 'xmlSource', xmlFromOnedataExample);
+
+    expect(get(parser, 'error')).to.be.null;
+  });
+
   it('holds error message and empty entries when XML parsing fails', function () {
-    const result = DcXmlParser.create({ xmlSource: xmlWithoutNamespace });
-    expect(get(result, 'entries')).to.have.lengthOf(0);
-    expect(get(result, 'error')).to.be.not.empty.string;
+    const parser = DcXmlParser.create({ xmlSource: xmlWithoutNamespace });
+
+    expect(get(parser, 'entries')).to.have.lengthOf(0);
+    expect(get(parser, 'error')).to.be.not.empty.string;
+  });
+
+  it('holds null error message when XML is valid', function () {
+    const parser = DcXmlParser.create({ xmlSource: xmlFromOnedataExample });
+
+    expect(get(parser, 'error')).to.be.null;
+  });
+
+  it('holds null error message after XML is replaced by valid one', function () {
+    const parser = DcXmlParser.create({ xmlSource: xmlWithoutNamespace });
+    set(parser, 'xmlSource', xmlFromOnedataExample);
+
+    expect(get(parser, 'error')).to.be.null;
   });
 });

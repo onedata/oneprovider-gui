@@ -68,7 +68,11 @@ export default EmberObject.extend({
       xmlParser,
       xmlSource,
     } = this.getProperties('xmlParser', 'xmlSource');
-    return xmlParser.parseFromString(xmlSource, 'text/xml');
+    if (xmlSource) {
+      return xmlParser.parseFromString(xmlSource, 'text/xml');
+    } else {
+      return null;
+    }
   }),
 
   /**
@@ -86,9 +90,9 @@ export default EmberObject.extend({
     const allEntries = Array.from(xmlDoc.querySelectorAll(allElementsSelector))
       .map(node => ({
         type: node.nodeName.split('dc:')[1],
-        value: node.childNodes[0] && node.childNodes[0].nodeValue || '',
+        value: this.getTextFromNode(node).trim(),
       }));
-    return preserveEmptyValues ? allEntries : allEntries.filter(entry => entry.value);
+    return preserveEmptyValues ? allEntries : allEntries.filterBy('value');
   }),
 
   groupedEntries: computed('entries.[]', function groupedEntries() {
@@ -106,8 +110,6 @@ export default EmberObject.extend({
     return order.map(type => ({ type, values: cache[type] }));
   }),
 
-  createXmlDoc() {},
-
   getEmberGroupedEntries() {
     const groupedEntries = this.get('groupedEntries');
     return A(groupedEntries.map(group => {
@@ -116,5 +118,28 @@ export default EmberObject.extend({
         values: A(group.values),
       });
     }));
+  },
+
+  /**
+   * @param {Node} node 
+   * @returns {String}
+   */
+  getTextFromNode(node) {
+    if (node.childNodes.length === 1) {
+      const firstChild = node.childNodes[0];
+      if (firstChild.nodeType === Node.TEXT_NODE) {
+        return firstChild.nodeValue || '';
+      } else {
+        return '';
+      }
+    } else {
+      const textNode =
+        Array.from(node.childNodes).find(child => child.nodeType === Node.TEXT_NODE);
+      if (textNode) {
+        return textNode.nodeValue || '';
+      } else {
+        return '';
+      }
+    }
   },
 });

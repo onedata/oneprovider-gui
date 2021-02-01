@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6566 Improved UX and refactored share views
 * VFS-7009 Do not display "no access" file tag if user is space owner
 * VFS-7202 Updated "bad data" backend error translation
 * VFS-6802 Added graphical QoS expression editor

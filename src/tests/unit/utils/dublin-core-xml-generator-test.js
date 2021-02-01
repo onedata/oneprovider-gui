@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import dublinCoreXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
-import { get } from '@ember/object';
+import { get, getProperties } from '@ember/object';
 
 describe('Unit | Utility | dublin core xml generator', function () {
   it('generates XML using specified grouped entries', function () {
@@ -63,7 +63,7 @@ describe('Unit | Utility | dublin core xml generator', function () {
     ]);
   });
 
-  it('can preserve balnk strings when cleaning the object', function () {
+  it('can preserve blank strings when cleaning the object', function () {
     const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [
         { type: 'title', values: ['', 'White Noise'] },
@@ -74,8 +74,10 @@ describe('Unit | Utility | dublin core xml generator', function () {
 
     generator.cleanEmpty(false);
 
-    const entries = get(generator, 'entries');
-    const groupedEntries = get(generator, 'groupedEntries');
+    const {
+      entries,
+      groupedEntries,
+    } = getProperties(generator, 'entries', 'groupedEntries');
 
     expect(entries).to.have.lengthOf(4);
     expect(entries[0]).to.deep.equal({ type: 'title', value: '' });
