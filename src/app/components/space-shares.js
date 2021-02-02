@@ -43,7 +43,7 @@ export default Component.extend(createDataProxyMixin('shares'), {
    * @virtual
    * @type {Function}
    */
-  showShareList: notImplementedThrow,
+  onShowShareList: notImplementedThrow,
 
   /**
    * @virtual
@@ -112,8 +112,8 @@ export default Component.extend(createDataProxyMixin('shares'), {
     closeRenameShare() {
       this.set('shareToRename', null);
     },
-    showShareList() {
-      return this.get('showShareList')();
+    onShowShareList() {
+      return this.get('onShowShareList')();
     },
     reloadShareList() {
       return this.updateSharesProxy();

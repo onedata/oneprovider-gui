@@ -81,7 +81,7 @@ export default Component.extend(...mixins, {
    * @virtual
    * @type {Function}
    */
-  showShareList: notImplementedThrow,
+  onShowShareList: notImplementedThrow,
 
   /**
    * @virtual
@@ -231,9 +231,9 @@ export default Component.extend(...mixins, {
     getDataUrl() {
       return this.get('getDataUrl')(...arguments);
     },
-    showShareList() {
+    onShowShareList() {
       return this.get('reloadShareList')()
-        .then(() => this.get('showShareList')());
+        .then(() => this.get('onShowShareList')());
     },
     updateDirId() {
       return this.get('updateDirId')(...arguments);

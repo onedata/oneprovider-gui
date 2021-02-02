@@ -37,7 +37,7 @@ export default HeaderBaseComponent.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  showShareList: notImplementedThrow,
+  onShowShareList: notImplementedThrow,
 
   /**
    * @virtual

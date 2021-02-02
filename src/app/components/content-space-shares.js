@@ -60,7 +60,7 @@ export default OneEmbeddedComponent.extend(
         return this.callParent('updateDirId', dirId);
       },
 
-      showShareList() {
+      onShowShareList() {
         return this.callParent('showShareList');
       },
     },
