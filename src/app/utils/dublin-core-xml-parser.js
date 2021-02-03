@@ -4,7 +4,7 @@
  * 
  * @module utils/dublin-core-xml-parser
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -84,7 +84,7 @@ export default EmberObject.extend({
       preserveEmptyValues,
       error,
     } = this.getProperties('xmlDoc', 'preserveEmptyValues', 'error');
-    if (error) {
+    if (error || !xmlDoc) {
       return [];
     }
     const allEntries = Array.from(xmlDoc.querySelectorAll(allElementsSelector))

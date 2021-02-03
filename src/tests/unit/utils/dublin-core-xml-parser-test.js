@@ -3,8 +3,6 @@ import { describe, it } from 'mocha';
 import DcXmlParser from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import { get, set } from '@ember/object';
 
-/* eslint-disable max-len */
-
 const xmlFromOnedataExample = `<?xml version="1.0" encoding="UTF-8"?>
 <metadata
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -65,9 +63,15 @@ const xmlMultiple = `<?xml version="1.0" encoding="UTF-8"?>
   <dc:language>SK</dc:language>
 </metadata>`;
 
-const xmlWithoutNamespace = '<dc:title>hello</dc:title>';
+const xmlWithUnknownTypes = `<?xml version="1.0" encoding="UTF-8"?>
+<metadata
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
+  <dc:foo>Hello</dc:foo>
+</metadata>`;
 
-/* eslint-enable max-len */
+const xmlWithoutNamespace = '<dc:title>hello</dc:title>';
 
 describe('Unit | Utility | dublin core xml parser', function () {
   it('parses example XML metadata used in Onedata real-life scenario', function () {
@@ -133,6 +137,17 @@ describe('Unit | Utility | dublin core xml parser', function () {
       expect(entries).to.have.lengthOf(1);
       const titles = entries.filterBy('type', 'title');
       expect(titles[0]).to.have.property('value', 'Test');
+    }
+  );
+
+  it('ignores element types not from Dublin Core version 1.1',
+    function () {
+      const parser = DcXmlParser.create({
+        xmlSource: xmlWithUnknownTypes,
+      });
+      const entries = get(parser, 'entries');
+
+      expect(entries).to.have.lengthOf(0);
     }
   );
 

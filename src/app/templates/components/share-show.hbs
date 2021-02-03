@@ -61,11 +61,11 @@
 
   {{#each tabIds as |tabId|}}
     <div
-      class="share-show-pane-container share-show-pane-container-{{tabId}} vertical-flex-stretch {{if (not (eq activeTab tabId)) "hidden"}}"
+      class="share-show-pane-container share-show-pane-container-{{tabId}} fill-flex-using-column {{if (not (eq activeTab tabId)) "hidden"}}"
     >
       {{#render-later triggerRender=(eq activeTab tabId)}}
         {{component (concat "share-show/pane-" tabId)
-          class="share-show-pane vertical-flex-stretch"
+          class="share-show-pane fill-flex-using-column"
           publicMode=publicMode
           share=share
           dirId=dirId

@@ -11,13 +11,13 @@
     {{/if}}
   </div>
 {{else}}
-  {{#if noDescriptionWelcome}}
+  {{#if isEmptyDescriptionInfoVisible}}
     {{content-info
-      class="scroll-breakpoint-500 vertical-flex-stretch"
-      header=(tt this "noDescriptionWelcome.title")
-      text=(tt this "noDescriptionWelcome.content")
+      class="scroll-breakpoint-500 fill-flex-using-column"
+      header=(tt this "emptyDescriptionInfo.title")
+      text=(tt this "emptyDescriptionInfo.content")
       buttonAction=(action "startEdit")
-      buttonLabel=(tt this "noDescriptionWelcome.startButton")
+      buttonLabel=(tt this "emptyDescriptionInfo.startButton")
     }}
   {{else}}
     {{share-show/markdown-editor
@@ -26,8 +26,8 @@
       placeholder=(tt this "typeDescriptionPlaceholder")
       onMarkdownChange=(action (mut currentMarkdown))
       onModeChange=(action (mut editorMode))
-      discard=(action "discard")
-      save=(action "save")
+      onDiscard=(action "onDiscard")
+      onSave=(action "onSave")
     }}
   {{/if}}
 {{/if}}

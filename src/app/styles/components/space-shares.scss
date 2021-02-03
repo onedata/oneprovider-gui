@@ -2,6 +2,8 @@
 
 .one-embedded-component {
   .shares-list {
-    @include undo-horizontal-content-padding-xs();
+    @media (max-width: $screen-xs-max) {
+      @include remove-embedded-component-horizontal-padding;
+    }
   }
 }

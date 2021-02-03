@@ -16,12 +16,8 @@ export default {
     coverage: 'Coverage',
     rights: 'Rights',
   },
-  handleService: 'Handle service',
-  xml: 'XML',
-  visual: 'Visual',
   metadata: 'Dublin Core Metadata',
   metadataMobile: 'Metadata',
   metadataPublicHeaderTip: 'Handle metadata provides detailed information about the dataset for its consumers and is used to index the dataset in Open Data search engines. It is expressed in a unified format called Dublin Core, based on XML.',
   metadataTextMore: 'Handle metadata is expressed in a unified format called Dublin Core. It is based on XML, but you can use the visual editor below to generate it. Provide as much detailed information as possible about your dataset, which will make it easier to be found and utilized. The metadata will be registered alongside the persistent identifier and visible in Open Data indexing services.',
-  noMetadata: 'This dataset has no Dublin Core metadata attached.',
 };

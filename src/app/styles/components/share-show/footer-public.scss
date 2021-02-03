@@ -3,7 +3,8 @@
   border-top: $share-show-public-section-border;
   line-height: $share-show-public-footer-height;
   position: relative;
-  padding-left: $content-col-padding + $share-show-content-padding-horizontal;
+  padding-left: $content-col-padding;
+  padding-right: $content-col-padding;
   margin-left: -$content-col-padding;
   margin-right: -$content-col-padding;
   background: white;
@@ -20,6 +21,9 @@
   }
   .onedata-copyright-public {
     font-size: 16px;
-    padding-left: 168px;
+    padding-left: 164px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }

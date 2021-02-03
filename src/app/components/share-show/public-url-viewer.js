@@ -53,8 +53,6 @@ export default Component.extend(I18n, {
   selectedUrlType: undefined,
 
   /**
-   * If true, embeds mode selector in copy input and does not display name of handle
-   * service.
    * @virtual optional
    * @type {(selectedUrlType: String) => undefined)}
    */
@@ -89,7 +87,12 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<PromiseObject<Models.HandleService>>}
    */
   handleServiceProxy: promise.object(computed(async function handleServiceProxy() {
-    return get(await this.get('handleProxy'), 'handleService');
+    const handle = await this.get('handleProxy');
+    if (handle) {
+      return get(handle, 'handleService');
+    } else {
+      return null;
+    }
   })),
 
   /**

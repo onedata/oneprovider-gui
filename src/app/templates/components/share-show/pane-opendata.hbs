@@ -1,7 +1,7 @@
 {{#promise-proxy-container proxy=handleProxy}}
   {{#if handle}}
     {{share-show/open-data-preview
-      class="vertical-flex-stretch"
+      class="fill-flex-using-column"
       xml=xml
       handleUrl=handle.url
       handleServiceName=handle.handleService.name
@@ -17,7 +17,7 @@
         }}
           {{#carousel.slide slideId="welcome"}}
             {{#content-info
-              class="scroll-breakpoint-700 vertical-flex-stretch content-info-publish-open-data-welcome"
+              class="scroll-breakpoint-700 fill-flex-using-column content-info-publish-open-data-welcome"
               header=(tt this "publishWelcome.title")
               text=(tt this "publishWelcome.content")
               buttonAction=(action (mut publishOpenDataStarted) true)
@@ -29,14 +29,14 @@
                 {{one-label-tip title=(tt this "publishWelcome.handleServiceTextMore")}}
               </p>
               <div class="row row-handle-service-select">
-                {{#power-select
+                {{#one-dropdown
                   triggerClass="select-handle-service"
                   dropdownClass="select-handle-service-dropdown"
+                  placeholder=(tt this "publishWelcome.selectHandleServicePlaceholder")
+                  searchField="name"
                   selected=selectedHandleService
                   options=handleServices
                   onchange=(action (mut selectedHandleService))
-                  placeholder=(tt this "publishWelcome.selectHandleServicePlaceholder")
-                  searchField="name"
                   as |handleService|
                 }}
                   <div class="option-container" data-handle-id={{handleService.entityId}}>
@@ -50,7 +50,7 @@
                       }}
                     {{/truncated-string}}
                   </div>
-                {{/power-select}}
+                {{/one-dropdown}}
               </div>
             {{/content-info}}
           {{/carousel.slide}}
@@ -67,7 +67,7 @@
         {{/one-carousel}}
       {{else}}
         {{content-info
-          class="scroll-breakpoint-300"
+          class=(if media.isMobile "scroll-breakpoint-600" "scroll-breakpoint-500")
           header=(tt this "noHandleServices.title")
           text=(tt this "noHandleServices.content")
         }}

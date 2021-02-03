@@ -1,8 +1,8 @@
 <div class="metadata-header-section">
   <div class="metadata-header-section-content">
     <h1 class="section-name">
-      {{tt this (if media.isMobile "metadataMobile" "metadata")}}
-      {{one-label-tip title=(tt this "metadataPublicHeaderTip")}}
+      {{tt this (if media.isMobile "common.metadataMobile" "common.metadata")}}
+      {{one-label-tip title=(tt this "common.metadataPublicHeaderTip")}}
     </h1>
     {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}
   </div>
@@ -15,7 +15,7 @@
           {{#each groupedEntries as |group|}}
             <div class="metadata-group">
               <h2 class="metadata-group-name">
-                {{tt this (concat "dcElementNames." group.type)}}
+                {{tt this (concat "common.dcElementNames." group.type)}}
               </h2>
               {{#each group.values as |value|}}
                 <div class="metadata-value open-data-value">
@@ -40,7 +40,7 @@
     </div>
   {{else}}
     <p class="no-dublin-core">
-      {{tt this "noMetadata"}}
+      {{tt this "preview.noMetadata"}}
     </p>
   {{/if}}
 </div>

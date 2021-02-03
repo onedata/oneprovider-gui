@@ -9,6 +9,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 
 export default Component.extend(I18n, {
   classNames: ['open-data-mode-switch'],
@@ -16,7 +17,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.shareShow.openData',
+  i18nPrefix: 'components.shareShow.openDataModeSwitch',
 
   /**
    * One of: visual, xml
@@ -24,4 +25,11 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   mode: undefined,
+
+  /**
+   * @type {Function}
+   * @param {String} mode
+   * @virtual
+   */
+  onModeChange: notImplementedWarn,
 });

@@ -15,7 +15,7 @@ import plainCopy from 'onedata-gui-common/utils/plain-copy';
 import { A } from '@ember/array';
 import { dcElements } from 'oneprovider-gui/utils/dublin-core-xml-parser';
 import _ from 'lodash';
-import { isEmpty } from 'ember-awesome-macros';
+import { isEmpty, array } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import OpenData from './-open-data';
@@ -68,6 +68,11 @@ export default OpenData.extend(I18n, {
   }),
 
   /**
+   * @type {ComputedProperty<Array<String>>}
+   */
+  metadataGroupAddListSorted: array.sort('metadataGroupAddList'),
+
+  /**
    * @type {ComputedProperty<Bolean>}
    */
   submitDisabled: isEmpty('handleService'),
@@ -79,8 +84,10 @@ export default OpenData.extend(I18n, {
         xmlSource: xml,
         preserveEmptyValues: true,
       });
-      this.set('groupedEntries', parser.getEmberGroupedEntries());
-      this.set('parserError', get(parser, 'error'));
+      this.setProperties({
+        groupedEntries: parser.getEmberGroupedEntries(),
+        parserError: get(parser, 'error'),
+      });
     }
   }),
 
@@ -145,7 +152,7 @@ export default OpenData.extend(I18n, {
       this.set('formDisabled', true);
       return submit(currentXml, get(handleService, 'entityId'))
         .catch(error => {
-          globalNotify.backendError(this.t('publishingData'), error);
+          globalNotify.backendError(this.t('editor.publishingData'), error);
           throw error;
         })
         .finally(() => {
@@ -174,9 +181,6 @@ export default OpenData.extend(I18n, {
         type,
         values: [''],
       }));
-    },
-    back() {
-      this.get('back')();
     },
   },
 });

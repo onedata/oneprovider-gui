@@ -21,7 +21,9 @@
 
 .one-embedded-component {
   .file-browser {
-    @include undo-horizontal-content-padding-xs();
+    @media (max-width: $screen-xs-max) {
+      @include remove-embedded-component-horizontal-padding;
+    }
   }
 }
 
@@ -64,9 +66,6 @@
 .fb-table-container {
   margin-top: $fb-table-margin-top;
   height: 100%;
-  @media (max-width: $screen-xs-max) {
-    height: $fb-table-margin-top-mobile;
-  }
 }
 
 .fb-toolbar-container {

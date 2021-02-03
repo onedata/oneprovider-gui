@@ -1,14 +1,25 @@
+.embedded-content {
+  .share-show-markdown-editor .editor-current-mode-bar {
+    @include before-bottom-shadow;
+  }
+  &.scroll-on-top {
+    .share-show-markdown-editor .editor-current-mode-bar {
+      @include hide-before-shadow;
+    }
+  }
+}
+
 .share-show-markdown-editor {
-  $content-margin-top: $content-col-padding + $share-show-description-bar-height-bar-height - 12px;
+  $content-margin-top: $content-col-padding + $share-show-description-bar-height - $content-row-vertical-padding;
   
   .editor-current-mode-bar {
     position: fixed;
     top: $share-show-content-header-height-private;
     left: 0;
     z-index: 1;
-    height: $share-show-description-bar-height-bar-height;
+    height: $share-show-description-bar-height;
     width: 100%;
-    line-height: $share-show-description-bar-height-bar-height;
+    line-height: $share-show-description-bar-height;
     padding-left: $content-col-padding + $share-show-content-padding-horizontal;
     border-bottom: 1px solid $main-border-color;
     background: $color-one-white;
@@ -18,8 +29,8 @@
     position: fixed;
     top: $share-show-content-header-height-private;
     right: 0;
-    height: $share-show-description-bar-height-bar-height;
-    line-height: $share-show-description-bar-height-bar-height;
+    height: $share-show-description-bar-height;
+    line-height: $share-show-description-bar-height;
     display: flex;
     align-items: center;
     margin-right: $content-col-padding;
@@ -27,7 +38,7 @@
   }
   .markdown-preview {
     padding-left: $share-show-content-padding-horizontal;
-    margin-top: $content-col-padding + $share-show-description-bar-height-bar-height;
+    margin-top: $content-col-padding + $share-show-description-bar-height;
     @media (max-width: $screen-xs-max) {
       margin-top: $content-margin-top;
     }

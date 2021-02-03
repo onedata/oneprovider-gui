@@ -11,15 +11,18 @@
     {{modal-file-subheader files=(array file)}}
   {{/modal.header}}
   {{#modal.body}}
-    <div class="loadable-row">
+    <div class="share-modal-loadable-row loadable-row">
       {{#promise-proxy-container proxy=contentProxy}}
         {{#if (eq mode "new")}}
           <p>{{tt this "setName"}}:</p>
           <div class="row">
-            {{#bs-form class="form-horizontal  without-labels" as |form|}}
+            {{#bs-form class="form-horizontal without-labels" as |form|}}
               {{#form.group
                 validation=(if validationError "error")
-                class=(if validationError "has-message")
+                class=(concat-classes
+                  "new-share-name-form-group"
+                  (if validationError "has-message")
+                )
               }}
                 <input
                   id={{inputId}}

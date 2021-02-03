@@ -26,7 +26,9 @@ describe('Integration | Component | share show/markdown editor', function () {
 
     const $markdownToHtml = this.$('.one-markdown-to-html');
     expect($markdownToHtml).to.have.length(1);
-    expect($markdownToHtml.html()).to.match(/.*?<h1.*?>\s*hello world\s*<\/h1>.*?/);
+    const $h1 = $markdownToHtml.find('h1');
+    expect($h1).to.have.length(1);
+    expect($h1.text().trim()).to.equal('hello world');
   });
 
   it('renders textarea that render Markdown source in "markdown" mode', function () {
@@ -42,7 +44,7 @@ describe('Integration | Component | share show/markdown editor', function () {
     expect($textarea.val()).to.equal(this.get('markdown'));
   });
 
-  it('renders textarea that emits edited code in "markdown" mode', async function () {
+  it('renders textarea that emits edited code in "markdown" mode on change', async function () {
     const onMarkdownChangeSpy = sinon.spy();
     this.on('onMarkdownChange', onMarkdownChangeSpy);
     this.render(hbs `{{share-show/markdown-editor

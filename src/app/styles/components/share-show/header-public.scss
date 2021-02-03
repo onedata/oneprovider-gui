@@ -2,7 +2,11 @@
   display: flex;
   align-items: center;
   padding-top: 1.5em;
-  padding-left: $share-show-content-padding-horizontal;
+  @media (max-width: 400px) {
+    .hidden-custom-xs {
+      display: none;
+    }
+  }
   .share-header-public-url {
     display: flex;
     justify-content: center;
@@ -14,22 +18,23 @@
       padding-right: $padding-small-horizontal;
     }
     .col-value {
-      flex: 0 1 100em;
+      flex: 0 1 48em;
     }
   }
   .share-head {
     display: flex;
     flex-grow: 1;
     align-items: center;
+    overflow: hidden;
   }
   .share-logo {
     font-size: 78px;
+    padding-right: $share-show-content-padding-horizontal;
     line-height: 0;
   }
   .share-name-section {
-    flex-grow: 0;
+    flex-grow: 1;
     flex-shrink: 1;
-    flex-basis: 48em;
     padding-left: 0.8em;
     padding-right: 1em;
     overflow: hidden;

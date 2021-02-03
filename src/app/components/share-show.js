@@ -31,7 +31,7 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
-  classNames: ['share-show', 'content-file-browser', 'vertical-flex-stretch'],
+  classNames: ['share-show', 'content-file-browser', 'fill-flex-using-column'],
   classNameBindings: ['scopeClass'],
 
   shareManager: service(),

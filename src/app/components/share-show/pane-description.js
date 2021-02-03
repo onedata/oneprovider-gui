@@ -39,13 +39,19 @@ export default Component.extend(I18n, {
    */
   editorMode: 'visual',
 
+  /**
+   * If true, show information about lack of description and call to action to create it
+   * @type {Boolean}
+   */
+  isEmptyDescriptionInfoVisible: false,
+
   currentMarkdown: undefined,
 
   init() {
     this._super(...arguments);
     this.loadMarkdown();
     if (!this.get('share.description')) {
-      this.set('noDescriptionWelcome', true);
+      this.set('isEmptyDescriptionInfoVisible', true);
     }
   },
 
@@ -54,10 +60,10 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    discard() {
+    onDiscard() {
       this.loadMarkdown();
     },
-    save() {
+    onSave() {
       const {
         share,
         currentMarkdown,
@@ -72,7 +78,7 @@ export default Component.extend(I18n, {
     },
     startEdit() {
       this.setProperties({
-        noDescriptionWelcome: false,
+        isEmptyDescriptionInfoVisible: false,
         editorMode: 'markdown',
       });
     },

@@ -53,13 +53,13 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  discard: notImplementedThrow,
+  onDiscard: notImplementedThrow,
 
   /**
    * @virtual
    * @type {Function}
    */
-  save: notImplementedThrow,
+  onSave: notImplementedThrow,
 
   /**
    * One of: visual, markdown
@@ -131,12 +131,12 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    discard() {
-      this.get('discard')();
+    onDiscard() {
+      this.get('onDiscard')();
       this.set('isContentChanged', false);
     },
-    save() {
-      return this.get('save')().then(() => {
+    onSave() {
+      return this.get('onSave')().then(() => {
         safeExec(this, 'set', 'isContentChanged', false);
       });
     },

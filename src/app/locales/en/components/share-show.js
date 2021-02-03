@@ -6,6 +6,8 @@ import paneFiles from './share-show/pane-files';
 import paneOpendata from './share-show/pane-opendata';
 import openDataCommon from './share-show/open-data-common';
 import openDataEditor from './share-show/open-data-editor';
+import openDataPreview from './share-show/open-data-preview';
+import openDataModeSwitch from './share-show/open-data-mode-switch';
 import markdownEditor from './share-show/markdown-editor';
 
 export default {
@@ -24,6 +26,11 @@ export default {
   paneDescription,
   paneFiles,
   paneOpendata,
-  openData: Object.assign({}, openDataCommon, openDataEditor),
+  openData: {
+    common: openDataCommon,
+    editor: openDataEditor,
+    preview: openDataPreview,
+  },
+  openDataModeSwitch,
   markdownEditor,
 };

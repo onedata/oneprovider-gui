@@ -36,9 +36,9 @@ export default Component.extend(I18n, {
 
   /**
    * Entries for visual form data. Each entry has type for which values are grouped
-   * visually. For earch visual group, there can be multiple values.
+   * visually. For each visual group, there can be multiple values.
    * For more see: `util:dublin-core-xml-generator#groupedEntries`.
-   * @type {Array<{ type: String, value: String }>}
+   * @type {Array<{ type: String, values: Array<String> }>}
    */
   groupedEntries: undefined,
 

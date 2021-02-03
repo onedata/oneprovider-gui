@@ -1,4 +1,3 @@
-$color-one-light-blue: #F2F4FA;
 $open-data-remove-col-width: $content-col-padding;
 
 .embedded-content {
@@ -28,6 +27,7 @@ $open-data-remove-col-width: $content-col-padding;
   textarea.open-data-xml-textarea {
     min-height: 250px;
     height: calc(100vh - 500px);
+    @include font-monospace;
   }
   
   .metadata-header-section {
@@ -36,9 +36,11 @@ $open-data-remove-col-width: $content-col-padding;
     top: 0;
     // force to be above static elements inside absolute element
     z-index: 1;
-    @include undo-content-padding;
-    margin-top: 0;
-    padding-top: 0;
+    // take back horizontal content-padding space
+    margin-right: -$content-col-padding;
+    padding-right: $content-col-padding;
+    margin-left: -$content-col-padding;
+    padding-left: $content-col-padding;
     margin-bottom: 0;
     background-color: $color-one-white;
   }
@@ -46,9 +48,16 @@ $open-data-remove-col-width: $content-col-padding;
   .metadata-header-section-content {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    padding-top: 20px;
     .section-name {
       flex-grow: 1;
+    }
+    > * {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-bottom: 10px;
     }
   }
 }

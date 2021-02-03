@@ -46,6 +46,11 @@ export default HeaderBaseComponent.extend(I18n, {
   shareRootDeleted: false,
 
   /**
+   * @type {Boolean}
+   */
+  removeShareOpened: false,
+
+  /**
    * @type {Window}
    */
   _window: window,

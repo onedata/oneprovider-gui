@@ -6,9 +6,9 @@
     }}
   >
     <h1 class="section-name">
-      {{tt this (if media.isMobile "metadataMobile" "metadata")}}
+      {{tt this (if media.isMobile "common.metadataMobile" "common.metadata")}}
       {{#if media.isMobile}}
-        {{one-label-tip title=(tt this "metadataPublicHeaderTip")}}
+        {{one-label-tip title=(tt this "common.metadataPublicHeaderTip")}}
       {{/if}}
     </h1>
     {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}
@@ -18,8 +18,8 @@
 {{#unless media.isMobile}}
   <div class={{concat-classes colClassname "col-open-data-editor-additional"}}>
     <p class="metadata-text">
-      {{tt this "metadataText"}}
-      {{one-label-tip title=(tt this "metadataTextMore")}}
+      {{tt this "editor.metadataText"}}
+      {{one-label-tip title=(tt this "common.metadataTextMore")}}
     </p>
   </div>
 {{/unless}}
@@ -32,7 +32,7 @@
           <div class="metadata-group">
             <div class="metadata-group-header">
               <h2 class="metadata-group-name">
-                {{tt this (concat "dcElementNames." group.type)}}
+                {{tt this (concat "common.dcElementNames." group.type)}}
               </h2>
               <div class="group-add-entry">
                 {{#bs-button
@@ -43,24 +43,26 @@
                 }}
                   {{one-icon class="add-icon" icon="add-filled"}}
                   <span class="text">
-                    {{tt this "add"}}
-                    {{lowercase (tt this (concat "dcElementNames." group.type))}}
+                    {{tt this "editor.add"}}
+                    {{lowercase (tt this (concat "common.dcElementNames." group.type))}}
                   </span>
                 {{/bs-button}}
               </div>
             </div>
-            {{#each (range 0 group.values.length) as |index|}}
+            {{#each group.values as |value index|}}
               <div class="entry-value-group">
                 {{#if (eq group.type "description")}}
                   <textarea
                     class="form-control"
                     data-dc-element-type={{group.type}}
                     rows="4"
-                    value={{get group.values index}}
+                    value={{value}}
                     placeholder={{tt
                       this
-                      "inputPlaceholder"
-                      type=(lowercase (tt this (concat "dcElementNames." group.type)))
+                      "editor.inputPlaceholder"
+                      type=(lowercase
+                        (tt this (concat "common.dcElementNames." group.type))
+                      )
                     }}
                     disabled={{formDisabled}}
                     oninput={{action "setValue" group.type index}}
@@ -70,12 +72,14 @@
                     class="form-control"
                     type="text"
                     data-dc-element-type={{group.type}}
-                    value={{get group.values index}}
+                    value={{value}}
                     disabled={{formDisabled}}
                     placeholder={{tt
                       this
-                      "inputPlaceholder"
-                      type=(lowercase (tt this (concat "dcElementNames." group.type)))
+                      "editor.inputPlaceholder"
+                      type=(lowercase
+                        (tt this (concat "common.dcElementNames." group.type))
+                      )
                     }}
                     oninput={{action "setValue" group.type index}}
                   >
@@ -90,20 +94,20 @@
         {{/each}}
       </div>
       <div class="row-metadata-group-add">
-        <h2>{{tt this "moreElements"}}</h2>
+        <h2>{{tt this "editor.moreElements"}}</h2>
         {{#power-select
           triggerClass="add-metadata-group"
           dropdownClass="add-metadata-group-dropdown"
-          options=metadataGroupAddList
+          options=metadataGroupAddListSorted
           disabled=formDisabled
           onchange=(action "addMetadataGroup")
-          placeholder=(tt this "addMetadataGroup")
+          placeholder=(tt this "editor.addMetadataGroup")
           as |groupType|
         }}
           <div class="option-container" data-group-type={{groupType}}>
             {{#truncated-string}}
               <span class="text">
-                {{tt this (concat "dcElementNames." groupType)}}
+                {{tt this (concat "common.dcElementNames." groupType)}}
               </span>
             {{/truncated-string}}
           </div>
@@ -115,13 +119,13 @@
         <textarea
           value={{xml}}
           oninput={{action updateXml value="target.value"}}
-          placeholder={{tt this "xmlTextareaPlaceholder"}}
+          placeholder={{tt this "editor.xmlTextareaPlaceholder"}}
           disabled={{formDisabled}}
           class="no-resize code-textarea open-data-xml-textarea form-control"
         ></textarea>
         <div class="form-message text-right">
           {{#if parserError}}
-            {{tt this "xmlParserError"}}
+            {{tt this "editor.xmlParserError"}}
           {{else}}
             {{!-- just hold space for error text --}}
             &nbsp;
@@ -135,7 +139,7 @@
 <div class={{concat-classes colClassname "col-open-data-editor-additional"}}>
   {{#if handleService}}
     <p class="row-publish-info">
-      {{tt this "publishInfo"
+      {{tt this "editor.publishInfo"
         handleServiceName=handleService.name
         handleServiceId=handleService.entityId
       }}
@@ -147,11 +151,11 @@
         class="btn-back"
         type="default"
         disabled=formDisabled
-        onClick=(action "back")
+        onClick=(action back)
       }}
-        {{one-icon icon="arrow-left"}}
+        {{one-icon icon="arrow-left" class="hidden-custom-xs"}}
         <span class="text">
-          {{tt this "back"}}
+          {{tt this "editor.back"}}
         </span>
       {{/bs-button}}
       {{#one-spin-button
@@ -159,7 +163,8 @@
         disabled=submitDisabled
         class="btn btn-primary btn-submit"
       }}
-        {{tt this "publish"}}
+        {{tt this "editor.publish"}}
+        <span class="hidden-custom-xs">{{tt this "editor.asOpenData"}}</span>
       {{/one-spin-button}}
     </div>
   </div>
