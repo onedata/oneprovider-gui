@@ -1,0 +1,29 @@
+.share-show-footer-public {
+  height: $share-show-public-footer-height;
+  border-top: $share-show-public-section-border;
+  line-height: $share-show-public-footer-height;
+  position: relative;
+  padding-left: $content-col-padding;
+  padding-right: $content-col-padding;
+  margin-left: -$content-col-padding;
+  margin-right: -$content-col-padding;
+  background: white;
+  .onedata-logo-public {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 136px;
+    height: 26px;
+    background-image: url($root-url + 'images/logo-dark.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+  }
+  .onedata-copyright-public {
+    font-size: 16px;
+    padding-left: 164px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}

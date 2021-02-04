@@ -1,3 +1,12 @@
+/**
+ * Content for "files" tab for single share
+ *
+ * @module components/share-show/pane-files
+ * @author Jakub Liput
+ * @copyright (C) 2020-2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import EmberObject, { computed, get } from '@ember/object';

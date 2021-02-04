@@ -3,7 +3,7 @@
  * 
  * @module components/one-markdown-to-html
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,8 +13,16 @@ import { htmlSafe } from '@ember/string';
 import { computed } from '@ember/object';
 import DOMPurify from 'npm:dompurify';
 
+export const defaultOptions = Object.freeze({
+  tables: true,
+  strikethrough: true,
+  literalMidWordUnderscores: true,
+  simplifiedAutoLink: true,
+  openLinksInNewWindow: true,
+});
+
 export default Component.extend({
-  classNames: ['markdown-to-html'],
+  classNames: ['one-markdown-to-html'],
 
   /**
    * A Markdown-formatted text to show converted to HTML
@@ -29,14 +37,11 @@ export default Component.extend({
    * Set always a new object!
    * @type {Object}
    */
-  options: Object.freeze({
-    tables: true,
-    strikethrough: true,
-    literalMidWordUnderscores: true,
-    simplifiedAutoLink: true,
-    openLinksInNewWindow: true,
-  }),
+  options: defaultOptions,
 
+  /**
+   * @type {ComputedProperty<Showdown.Converter>}
+   */
   converter: computed('options', function converter() {
     return new showdown.Converter(this.get('options'));
   }),

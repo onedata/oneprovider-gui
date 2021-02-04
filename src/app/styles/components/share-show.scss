@@ -1,0 +1,181 @@
+$share-show-description-bar-height: 60px;
+// this padding aligns content to first icon in tab bar
+$share-show-content-padding-horizontal: 12px;
+$share-show-content-header-height-public: 200px;
+$share-show-content-header-height-private: 150px;
+$share-show-public-section-border-width: 2px;
+$share-show-public-section-border: $share-show-public-section-border-width solid $color-one-semiwhite;
+$share-show-public-footer-height: 88px;
+$share-show-tabs-stack-width: 500px;
+$share-show-tabs-metadata-header-width: 410px;
+$share-show-metadata-header-height-empirical: 70px;
+$share-show-metadata-stacked-header-height-empirical: 100px;
+
+.share-show {
+  // more compact files header, because of shares header
+  .file-browser-head-container {
+    padding-top: 0;
+  }
+  .share-header-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: $zindex-file-browser-head;
+    padding-top: $content-row-vertical-padding;
+    padding-left: $content-col-padding;
+    padding-right: $content-col-padding;
+    background-color: $main-tabbed-content-background;
+  }
+  .tab-share-show-mode {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    .nav-tabs > li {
+      // reset bottom line overflow, because we need to render fixed file browser header
+      margin-bottom: 0;
+    }
+    .tab-label-notice {
+      color: $color-one-blue-gray;
+    }
+  }
+  .content-info {
+    position: relative;
+  }
+  .opendata-one-carousel {
+    // overflow cannot be hidden, because of sticky elements inside
+    overflow: visible;
+  }
+  
+  @media (max-width: $share-show-tabs-stack-width) {
+    .bs-tab-onedata.tab-share-show-mode .nav-tabs.nav > li > a {
+      padding: 20px 28px;
+      .one-label.tab-name {
+        display: none;
+      }
+      .tab-icon {
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        margin-top: 0;
+        font-size: 36px;
+      }
+    }
+  }
+  
+  &.share-show-public {
+    padding-top: $share-show-content-header-height-public;
+    padding-bottom: 0;
+    // Because of footer, we must remove padding added by generic one-embedded-component
+    // There is also a 2px embedded iframe bug caused by perfect-scroll usage
+    margin-bottom: -$content-col-padding + 2px;
+    
+    .open-data-preview {
+      // restore bottom padding, which was removed in share-show-public for footer
+      padding-bottom: $content-col-padding;
+      .metadata-header-section {
+        top: $share-show-content-header-height-public;
+      }
+      textarea.open-data-xml-textarea {
+        // the non-variable value is typical height of metadata-header-section,
+        // because its height is dynamic
+        $vertical-elements-height: #{
+          $share-show-content-header-height-public
+          + $share-show-public-footer-height
+          + 2 * $content-col-padding
+        };
+        height: calc(100vh - #{$vertical-elements-height} - #{$share-show-metadata-header-height-empirical});
+        // when the metadata-header-sections can stack horizontally
+        @media (max-width: $share-show-tabs-metadata-header-width) {
+          height: calc(100vh - #{$vertical-elements-height} - #{$share-show-metadata-stacked-header-height-empirical});
+        }
+      }
+    }
+    .content-info {
+      // must be forced, because one-carousel stretched as its content and absolute map
+      // will not stretch horizontally, until it has no space provided by content-info
+      min-height: calc(100vh - #{$share-show-content-header-height-public + 2 * $content-col-padding});
+    }
+    .share-header-container {
+      height: $share-show-content-header-height-public;
+      overflow: hidden;
+      background-color: $color-one-white;
+      .bs-tab-modern .nav-tabs li.active > a {
+        border-bottom-color: $color-one-red;
+      }
+      .bs-tab-modern .nav-tabs li > a:hover {
+        border-bottom-color: lighten($color-one-red, 25);
+      }
+      &::after {
+        position: absolute;
+        content: ' ';
+        bottom: 0;
+        left: 0;
+        border-bottom: $share-show-public-section-border;
+        width: 100%;
+        z-index: -1;
+      }
+    }
+    .file-browser-head-container {
+      top: $share-show-content-header-height-public;      
+    }
+    .share-show-pane-container {
+      &.share-show-pane-container-files {
+        .table-bottom-spacing {
+          // do not need original large bottom spacing, because there is a footer
+          height: $share-show-public-footer-height / 2;
+        }
+      }
+      .share-show-pane-description {
+        padding-left: $share-show-content-padding-horizontal;
+      }
+    }
+  }
+  
+  &.share-show-private {
+    padding-top: $share-show-content-header-height-private;
+    padding-bottom: $content-col-padding;
+    
+    .share-header-container {
+      height: $share-show-content-header-height-private;
+    }
+    .file-browser-head-container {
+      top: $share-show-content-header-height-private;
+    }
+    .open-data {
+      .metadata-header-section {
+        top: $share-show-content-header-height-private;
+      }
+    }
+    .open-data-preview {
+      textarea.open-data-xml-textarea {
+        // the non-variable value is typical height of metadata-header-section,
+        // because its height is dynamic
+        $vertical-elements-height: #{
+          $share-show-content-header-height-public
+          + $content-col-padding
+        };
+        height: calc(100vh - #{$vertical-elements-height} - #{$share-show-metadata-header-height-empirical});
+        // when the metadata-header-sections can stack horizontally
+        @media (max-width: $share-show-tabs-metadata-header-width) {
+          height: calc(100vh - #{$vertical-elements-height} - #{$share-show-metadata-stacked-header-height-empirical});
+        }
+      }
+    }
+    .content-info {
+      // must be forced, because one-carousel stretched as its content and absolute map
+      // will not stretch horizontally, until it has no space provided by content-info
+      min-height: calc(100vh - #{$share-show-content-header-height-private + 2 * $content-col-padding});
+    }
+  }
+}
+
+@import './share-show/header-management';
+@import './share-show/header-public';
+@import './share-show/footer-public';
+@import './share-show/public-url-viewer';
+@import './share-show/open-data';
+@import './share-show/open-data-editor';
+@import './share-show/open-data-preview';
+@import './share-show/markdown-editor';
+
+  

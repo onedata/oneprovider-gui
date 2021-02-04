@@ -985,10 +985,5 @@ export default Component.extend(
       selectProvider(oneproviderItem) {
         this.set('transferStatProviderId', get(oneproviderItem, 'id'));
       },
-      nameMatcher(model, term) {
-        term = term.toLocaleLowerCase();
-        const name = get(model, 'name').toString().toLocaleLowerCase();
-        return _.includes(name, term) ? 1 : -1;
-      },
     },
   });

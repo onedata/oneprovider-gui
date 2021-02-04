@@ -274,16 +274,7 @@ $space-transfers-gray: #B6BAC0;
     .nav-link-file {
       min-width: 120px;
       padding-right: 20px;
-      .tab-icon {
-        @include vertical-align-middle();
-        left: 8px;
-        font-size: 26px;
-        // custom pull-up icons
-        &.one-icon {
-          margin-top: -1px;
-        }
-      }
-      .tab-name {
+      .one-icon + .tab-name {
         padding-left: 4px;
         padding-right: 8px;
         &.truncate {

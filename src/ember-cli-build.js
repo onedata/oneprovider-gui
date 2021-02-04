@@ -70,7 +70,7 @@ module.exports = function (defaults) {
       useCustomCSS: true,
     },
     'ember-cli-string-helpers': {
-      only: ['capitalize', 'truncate'],
+      only: ['capitalize', 'lowercase', 'truncate'],
     },
     'nodeAssets': {
       'chartist-plugin-legend': {

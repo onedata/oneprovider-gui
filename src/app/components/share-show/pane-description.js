@@ -1,9 +1,21 @@
+/**
+ * Content for "description" tab for single share
+ *
+ * @module components/share-show/pane-description
+ * @author Jakub Liput
+ * @copyright (C) 2020-2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { set } from '@ember/object';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-description', 'pane-description', 'row'],
+
+  globalNotify: service(),
 
   /**
    * @override
@@ -27,13 +39,19 @@ export default Component.extend(I18n, {
    */
   editorMode: 'visual',
 
+  /**
+   * If true, show information about lack of description and call to action to create it
+   * @type {Boolean}
+   */
+  isEmptyDescriptionInfoVisible: false,
+
   currentMarkdown: undefined,
 
   init() {
     this._super(...arguments);
     this.loadMarkdown();
     if (!this.get('share.description')) {
-      this.set('noDescriptionWelcome', true);
+      this.set('isEmptyDescriptionInfoVisible', true);
     }
   },
 
@@ -42,20 +60,27 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    discard() {
+    onDiscard() {
       this.loadMarkdown();
     },
-    save() {
+    onSave() {
       const {
         share,
         currentMarkdown,
-      } = this.getProperties('share', 'currentMarkdown');
+        globalNotify,
+      } = this.getProperties('share', 'currentMarkdown', 'globalNotify');
       set(share, 'description', currentMarkdown);
-      return share.save();
+      return share.save()
+        .catch(error => {
+          globalNotify.backendError(this.t('savingDescription'), error);
+          throw error;
+        });
     },
     startEdit() {
-      this.set('noDescriptionWelcome', false);
-      this.set('editorMode', 'markdown');
+      this.setProperties({
+        isEmptyDescriptionInfoVisible: false,
+        editorMode: 'markdown',
+      });
     },
   },
 });

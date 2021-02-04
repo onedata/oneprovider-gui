@@ -1,0 +1,47 @@
+.share-show-header-public {
+  display: flex;
+  align-items: center;
+  padding-top: 1.5em;
+  @media (max-width: 400px) {
+    .hidden-custom-xs {
+      display: none;
+    }
+  }
+  .share-header-public-url {
+    display: flex;
+    justify-content: center;
+    &.share-header-public-url-mobile {
+      justify-content: left;
+    }
+    .col-key {
+      flex: 0 0 12em;
+      padding-right: $padding-small-horizontal;
+    }
+    .col-value {
+      flex: 0 1 48em;
+    }
+  }
+  .share-head {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    overflow: hidden;
+  }
+  .share-logo {
+    font-size: 78px;
+    padding-right: $share-show-content-padding-horizontal;
+    line-height: 0;
+  }
+  .share-name-section {
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding-left: 0.8em;
+    padding-right: 1em;
+    overflow: hidden;
+  }
+  .share-name {
+    @include font-semibold;
+    font-size: 32px;
+    padding-bottom: 4px;
+  }
+}

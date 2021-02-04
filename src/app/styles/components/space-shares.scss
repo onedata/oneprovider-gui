@@ -1,13 +1,9 @@
-@import 'space-shares/share-show';
 @import 'space-shares/list-item';
 
 .one-embedded-component {
   .shares-list {
-    @include undo-content-padding-xs();
+    @media (max-width: $screen-xs-max) {
+      @include remove-embedded-component-horizontal-padding;
+    }
   }
-}
-
-
-.space-shares {
-  height: 100%;
 }

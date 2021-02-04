@@ -13,7 +13,6 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import _ from 'lodash';
 import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specification';
 
 export default Component.extend(I18n, {
@@ -142,11 +141,6 @@ export default Component.extend(I18n, {
       };
       this.get('acl').pushObject(newAce);
       this.notifyAboutChange();
-    },
-    nameMatcher(model, term) {
-      term = term.toLocaleLowerCase();
-      const name = get(model, 'name').toLocaleLowerCase();
-      return _.includes(name, term) ? 1 : -1;
     },
   },
 });

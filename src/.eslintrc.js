@@ -83,7 +83,7 @@ module.exports = {
         'ignoreComments': true,
         'ignoreTrailingComments': false,
         'ignoreUrls': true,
-        'ignoreTemplateLiterals': false,
+        'ignoreTemplateLiterals': true,
         'ignoreRegExpLiterals': true,
         'ignorePattern': '^import|.*[\'"`]\\)?,?;?|\s*it$',
       }

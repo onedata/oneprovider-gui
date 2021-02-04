@@ -15,7 +15,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
 export default Component.extend(createDataProxyMixin('shares'), {
-  classNames: ['space-shares'],
+  classNames: ['space-shares', 'fill-flex-using-column'],
 
   shareManager: service(),
   spaceManager: service(),
@@ -43,7 +43,7 @@ export default Component.extend(createDataProxyMixin('shares'), {
    * @virtual
    * @type {Function}
    */
-  showShareList: notImplementedThrow,
+  onShowShareList: notImplementedThrow,
 
   /**
    * @virtual
@@ -112,8 +112,8 @@ export default Component.extend(createDataProxyMixin('shares'), {
     closeRenameShare() {
       this.set('shareToRename', null);
     },
-    showShareList() {
-      return this.get('showShareList')();
+    onShowShareList() {
+      return this.get('onShowShareList')();
     },
     reloadShareList() {
       return this.updateSharesProxy();

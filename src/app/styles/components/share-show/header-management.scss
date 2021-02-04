@@ -1,0 +1,36 @@
+.share-show-header-management {
+  .share-header-row {
+    $key-width: 13em;
+    display: flex;
+    align-items: center;
+    .col-key {
+      flex: 0 0 $key-width;
+      padding-left: $file-browser-padding-left;
+      padding-right: $padding-large-horizontal;
+      @media (max-width: $screen-xs-max) {
+        display: none;
+      }
+    }
+    .col-value {
+      flex: 0 1 $screen-xs-max;
+      @media (max-width: $screen-xs-max) {
+        flex-basis: auto;
+        flex-grow: 1;
+      }
+    }
+    + .share-header-row {
+      margin-top: 8px;
+    }
+    &.share-header-path {
+      // container suitable for auto-shortening file path
+      .col-value {
+        flex-grow: 1;
+        flex-basis: auto; 
+        overflow-x: hidden;
+      }
+    }
+  }
+  .share-menu-trigger {
+    padding-right: 0;
+  }
+}

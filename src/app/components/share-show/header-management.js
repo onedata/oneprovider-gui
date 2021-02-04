@@ -1,17 +1,22 @@
-import Component from '@ember/component';
+/**
+ * Header for single share view for signed-in user that allows to modify the share.
+ * 
+ * @module components/share-show/header-management
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 import { Promise } from 'rsvp';
 import { computed, get } from '@ember/object';
-import { conditional, and, not, collect, tag } from 'ember-awesome-macros';
+import { collect, tag } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import HeaderBaseComponent from './-header-base';
 
-export default Component.extend(I18n, {
+export default HeaderBaseComponent.extend(I18n, {
   classNames: [
     'row',
     'share-show-header-management',
-    'share-header-row',
-    'share-header-path',
-    'with-menu',
   ],
 
   i18nPrefix: 'components.shareShow.headerManagemenet',
@@ -32,7 +37,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  showShareList: notImplementedThrow,
+  onShowShareList: notImplementedThrow,
 
   /**
    * @virtual
@@ -40,36 +45,36 @@ export default Component.extend(I18n, {
    */
   shareRootDeleted: false,
 
-  _window: window,
+  /**
+   * @type {Boolean}
+   */
+  removeShareOpened: false,
 
-  publishModalOpened: false,
+  /**
+   * @type {Window}
+   */
+  _window: window,
 
   actionsOpened: false,
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   menuTriggerClass: tag `actions-share-${'elementId'}`,
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   menuTriggerSelector: tag `.${'menuTriggerClass'}`,
 
   /**
-   * @type {Array<object>}
+   * @type {ComputedProperty<Array<Object>>}
    */
-  menuActions: conditional(
-    and('showPublishButton', not('share.hasHandle')),
-    collect('btnRename', 'btnPublishOpenData', 'btnRemove'),
-    collect('btnRename', 'btnRemove'),
-  ),
+  menuActions: collect('btnRename', 'btnRemove'),
 
-  btnPublishOpenData: computed(function btnPublishOpenData() {
-    return {
-      title: this.t('publishOpenData'),
-      icon: 'globe',
-      action: () => {
-        this.set('publishModalOpened', true);
-      },
-      class: 'btn-publish-open-data',
-    };
-  }),
-
+  /**
+   * @type {ComputedProperty<Object>}
+   */
   btnRemove: computed(function btnRemove() {
     return {
       title: this.t('remove'),
@@ -81,6 +86,9 @@ export default Component.extend(I18n, {
     };
   }),
 
+  /**
+   * @type {ComputedProperty<Object>}
+   */
   btnRename: computed(function btnRename() {
     return {
       title: this.t('rename'),

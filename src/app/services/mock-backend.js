@@ -3,7 +3,7 @@
  * 
  * @module services/mock-backend
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -24,7 +24,10 @@ import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
-import { exampleMarkdownLong, exampleDublinCore } from 'oneprovider-gui/utils/mock-data';
+import {
+  exampleMarkdownLong as exampleMarkdown,
+  exampleDublinCore,
+} from 'oneprovider-gui/utils/mock-data';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -300,35 +303,46 @@ export default Service.extend({
     const entityRecords = this.get('entityRecords');
     const rootFile = get(entityRecords, 'chainDir')[2];
     const space = get(entityRecords, 'space')[0];
-    const handle = store.createRecord('handle', {
-      url: 'https://doi.org/public-handle',
+    const handlePrivate = store.createRecord('handle', {
+      url: 'http://hdl.handle.net/21.T15999/zppPvhg',
       handleService: this.get('entityRecords.handleService')[0],
       metadataString: exampleDublinCore,
     });
-    const shares = ['private', 'public'].map(scope => {
-      const entityId = generateShareEntityId(get(space, 'entityId'));
-      const publicUrl = location.origin + '/shares/' + entityId;
-      return store.createRecord('share', {
-        id: gri({
-          entityType: shareEntityType,
-          entityId,
-          aspect: 'instance',
-          scope,
-        }),
-        fileType: 'dir',
-        name: 'My Share',
-        rootFile,
-        privateRootFile: rootFile,
-        publicUrl,
-        handle,
-        description: exampleMarkdownLong,
-      });
+    const handlePublic = store.createRecord('handle', {
+      url: 'http://hdl.handle.net/21.T15999/zppPvhg',
+      handleService: null,
+      metadataString: exampleDublinCore,
     });
-    return handle.save()
+    const shares = ['private', 'public'].map(scope => {
+      return [0, 1].map(num => {
+        const entityId = generateShareEntityId(get(space, 'entityId'), num);
+        const publicUrl = location.origin + '/shares/' + entityId;
+        return store.createRecord('share', {
+          id: gri({
+            entityType: shareEntityType,
+            entityId,
+            aspect: 'instance',
+            scope,
+          }),
+          fileType: 'dir',
+          name: `My share ${num}`,
+          rootFile,
+          privateRootFile: rootFile,
+          publicUrl,
+          handle: num % 2 === 0 ?
+            (scope === 'private' ? handlePrivate : handlePublic) : null,
+          description: exampleMarkdown,
+        });
+      });
+    }).flat();
+    return allFulfilled([handlePrivate.save(), handlePublic.save()])
+      .then(handles => {
+        this.set('entityRecords.handle', handles);
+      })
       .then(() => allFulfilled(shares.map(share => share.save())))
-      .then(([privateShare]) => allFulfilled([
-        addShareList(rootFile, [privateShare], store),
-        addShareList(space, [privateShare], store),
+      .then(([privateShare0, privateShare1]) => allFulfilled([
+        addShareList(rootFile, [privateShare0, privateShare1], store),
+        addShareList(space, [privateShare0, privateShare1], store),
       ]));
   },
 
@@ -372,7 +386,11 @@ export default Service.extend({
           currentUserIsOwner: false,
           // NOTE: add 'space_manager_qos' to see add qos view
           // put empty array to disable qos modal
-          currentUserEffPrivileges: ['space_view_qos'],
+          currentUserEffPrivileges: [
+            'space_view',
+            'space_view_qos',
+            'space_view_transfers',
+          ],
         }).save()
       )))
       .then((records) => {
@@ -514,7 +532,7 @@ export default Service.extend({
   },
 
   createHandleServiceRecords(store) {
-    return allFulfilled(['Onedata Inc.', 'Oxford University'].map(name => {
+    return allFulfilled(['EOSC-hub B2HANDLE Service', 'Oxford University'].map(name => {
       return store.createRecord('handle-service', {
         name,
       }).save();
@@ -534,7 +552,7 @@ export default Service.extend({
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name =
-          `Directory long long long long long long long long long long long long long long long long name ${String(i).padStart(4, '0')}`;
+          `Directory long long long long long long long long long name ${String(i).padStart(4, '0')}`;
         return store.createRecord('file', {
           id,
           name,

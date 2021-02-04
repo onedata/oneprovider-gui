@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import generateDcXml from 'oneprovider-gui/utils/generate-dc-xml';
-import { get } from '@ember/object';
+import dublinCoreXmlGenerator from 'oneprovider-gui/utils/dublin-core-xml-generator';
+import { get, getProperties } from '@ember/object';
 
-describe('Unit | Utility | generate dc xml', function () {
+describe('Unit | Utility | dublin core xml generator', function () {
   it('generates XML using specified grouped entries', function () {
-    const generator = generateDcXml.create({
+    const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [
         { type: 'title', values: ['White Noise Image Collection'] },
         { type: 'creator', values: ['Bartosz Kryza'] },
@@ -43,7 +43,7 @@ describe('Unit | Utility | generate dc xml', function () {
   });
 
   it('can clean up empty entries from object', function () {
-    const generator = generateDcXml.create({
+    const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [
         { type: 'title', values: ['', 'White Noise', '', ''] },
         { type: 'creator', values: [] },
@@ -63,8 +63,34 @@ describe('Unit | Utility | generate dc xml', function () {
     ]);
   });
 
+  it('can preserve blank strings when cleaning the object', function () {
+    const generator = dublinCoreXmlGenerator.create({
+      groupedEntries: [
+        { type: 'title', values: ['', 'White Noise'] },
+        { type: 'creator', values: [] },
+        { type: 'subject', values: ['', ''] },
+      ],
+    });
+
+    generator.cleanEmpty(false);
+
+    const {
+      entries,
+      groupedEntries,
+    } = getProperties(generator, 'entries', 'groupedEntries');
+
+    expect(entries).to.have.lengthOf(4);
+    expect(entries[0]).to.deep.equal({ type: 'title', value: '' });
+    expect(entries[1]).to.deep.equal({ type: 'title', value: 'White Noise' });
+    expect(entries[2]).to.deep.equal({ type: 'subject', value: '' });
+    expect(groupedEntries).to.deep.equal([
+      { type: 'title', values: ['', 'White Noise'] },
+      { type: 'subject', values: ['', ''] },
+    ]);
+  });
+
   it('escapes unsafe values', function () {
-    const generator = generateDcXml.create({
+    const generator = dublinCoreXmlGenerator.create({
       groupedEntries: [
         { type: 'title', values: ['</dc:title>hello<dc:title>'] },
       ],

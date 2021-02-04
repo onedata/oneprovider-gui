@@ -1,8 +1,11 @@
 .fb-share-modal {
   &.modal.in {
     .modal-dialog .modal-content .modal-body {
-      min-height: 125px;
+      min-height: 7em;
     }
+  }
+  .share-modal-loadable-row.loadable-row {
+    min-height: 7em;
   }
   .form-message-name {
     margin-top: 4px;
@@ -16,5 +19,8 @@
   .share-intro-filename {
     @include font-semibold;
     word-break: break-all;
+  }
+  .new-share-name-form-group {
+    margin-bottom: 0;
   }
 }

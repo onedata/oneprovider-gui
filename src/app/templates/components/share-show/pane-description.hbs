@@ -9,28 +9,25 @@
     {{#if share.hasHandle}}
       <div class="open-data-logo"></div>
     {{/if}}
-    <div class="open-data-doi">
-      {{clipboard-line class="clipboard-line-public-share" value=(or share.handle.url share.publicUrl)}}
-    </div>
   </div>
 {{else}}
-  {{#if noDescriptionWelcome}}
+  {{#if isEmptyDescriptionInfoVisible}}
     {{content-info
-      class="scroll-breakpoint-300"
-      header=(tt this "noDescriptionWelcome.title")
-      text=(tt this "noDescriptionWelcome.content")
+      class="scroll-breakpoint-500 fill-flex-using-column"
+      header=(tt this "emptyDescriptionInfo.title")
+      text=(tt this "emptyDescriptionInfo.content")
       buttonAction=(action "startEdit")
-      buttonLabel=(tt this "noDescriptionWelcome.startButton")
+      buttonLabel=(tt this "emptyDescriptionInfo.startButton")
     }}
   {{else}}
-    {{markdown-editor
+    {{share-show/markdown-editor
       mode=editorMode
-      mdContent=currentMarkdown
+      markdown=currentMarkdown
       placeholder=(tt this "typeDescriptionPlaceholder")
-      mdContentChanged=(action (mut currentMarkdown))
-      changeMode=(action (mut editorMode))
-      discard=(action "discard")
-      save=(action "save")
+      onMarkdownChange=(action (mut currentMarkdown))
+      onModeChange=(action (mut editorMode))
+      onDiscard=(action "onDiscard")
+      onSave=(action "onSave")
     }}
   {{/if}}
 {{/if}}

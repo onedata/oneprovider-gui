@@ -21,7 +21,7 @@ export default ProceedProcessModal.extend({
    * @virtual
    * @type {Function}
    */
-  showShareList: notImplementedIgnore,
+  onShowShareList: notImplementedIgnore,
 
   /**
    * @override
@@ -72,7 +72,7 @@ export default ProceedProcessModal.extend({
       } = this.getProperties('shareManager', 'share');
       return shareManager.removeShare(share)
         .then(() => {
-          return this.get('showShareList')();
+          return this.get('onShowShareList')();
         });
     };
   }),
