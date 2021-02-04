@@ -16,6 +16,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import moment from 'moment';
 import { conditional, raw } from 'ember-awesome-macros';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend(I18n, {
   classNames: ['share-show-pane-opendata', 'pane-opendata', 'row'],
@@ -112,14 +113,16 @@ export default Component.extend(I18n, {
 
   loadXml() {
     return this.get('handleProxy').then(handle => {
-      if (handle) {
-        const metadataString = get(handle, 'metadataString');
-        if (metadataString) {
-          this.set('xml', metadataString);
-        } else {
-          this.set('noMetadata', true);
+      safeExec(this, () => {
+        if (handle) {
+          const metadataString = get(handle, 'metadataString');
+          if (metadataString) {
+            this.set('xml', metadataString);
+          } else {
+            this.set('noMetadata', true);
+          }
         }
-      }
+      });
     });
   },
 
@@ -131,7 +134,7 @@ export default Component.extend(I18n, {
       } = this.getProperties('share', 'handleManager');
       return handleManager.createHandle(share, handleServiceId, xml)
         .then(() => {
-          this.loadXml();
+          safeExec(this, 'loadXml');
         });
     },
     xmlChanged(xml) {

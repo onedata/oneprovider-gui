@@ -27,7 +27,6 @@ import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
 const mixins = [
   I18n,
   createDataProxyMixin('shareRootDeleted'),
-  createDataProxyMixin('handleState'),
 ];
 
 export default Component.extend(...mixins, {
@@ -134,6 +133,7 @@ export default Component.extend(...mixins, {
   tabIdsProxy: promise.object(computed(
     'publicMode',
     'description',
+    'handleState',
     function tabIdsProxy() {
       return this.get('handleStateProxy').then(handleState => {
         const {
@@ -181,6 +181,24 @@ export default Component.extend(...mixins, {
     return `share-show-${publicMode ? 'public' : 'private'}`;
   }),
 
+  /**
+   * @type {ComputedProperty<PromiseObject<String>>} resolved values:
+   *   noHandle, available, forbidden, error
+   */
+  handleStateProxy: promise.object(computed('share.handle', function handleStateProxy() {
+    const share = this.get('share');
+    if (get(share, 'hasHandle')) {
+      return share.getRelation('handle')
+        // null handle relation means that it is not available for current user
+        .then(handle => handle ? 'available' : 'forbidden')
+        .catch(error => get(error || {}, 'id') === 'forbidden' ? 'forbidden' : 'error');
+    } else {
+      return resolve('noHandle');
+    }
+  })),
+
+  handleState: reads('handleStateProxy.content'),
+
   shareObserver: observer('share', function shareObserver() {
     this.updateShareRootDeletedProxy();
   }),
@@ -200,22 +218,6 @@ export default Component.extend(...mixins, {
         this.set('activeTab', 'files');
       }
     });
-  },
-
-  /**
-   * @override
-   * @returns {Promise<String>} resolved values: noHandle, available, forbidden, error
-   */
-  fetchHandleState() {
-    const share = this.get('share');
-    if (get(share, 'hasHandle')) {
-      return share.getRelation('handle')
-        // null handle relation means that it is not available for current user
-        .then(handle => handle ? 'available' : 'forbidden')
-        .catch(error => get(error || {}, 'id') === 'forbidden' ? 'forbidden' : 'error');
-    } else {
-      return resolve('noHandle');
-    }
   },
 
   /**
