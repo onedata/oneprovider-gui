@@ -5,7 +5,7 @@ import { get, setProperties } from '@ember/object';
 import wait from 'ember-test-helpers/wait';
 
 describe('Unit | Utility | file name parser', function () {
-  it('returns no suffix if name and index equal', function () {
+  it('returns no suffix if name and index are equal', function () {
     const file = {
       name: 'hello',
       index: 'hello',
@@ -50,8 +50,8 @@ describe('Unit | Utility | file name parser', function () {
   });
 
   // this tests case when a file name cannot be included in index,
-  // eg. share root dir name (VFS-7271)
-  it('base name is equal to file name if index is not a part of name', function () {
+  // eg. share root dir name
+  it('has base name equal to file name if index is not a part of name', function () {
     const file = {
       name: 'hello',
       index: '123456789',
@@ -60,6 +60,35 @@ describe('Unit | Utility | file name parser', function () {
     const parser = FileNameParser.create({ file });
 
     expect(get(parser, 'base')).to.equal('hello');
+    expect(get(parser, 'suffix')).to.equal(null);
+  });
+
+  it('tolerates lack of file', function () {
+    const parser = FileNameParser.create();
+
+    expect(get(parser, 'base')).to.equal('');
+    expect(get(parser, 'suffix')).to.equal(null);
+  });
+
+  it('tolerates lack of file name', function () {
+    const parser = FileNameParser.create({
+      file: {
+        index: 'hello.txt',
+      },
+    });
+
+    expect(get(parser, 'base')).to.equal('');
+    expect(get(parser, 'suffix')).to.equal(null);
+  });
+
+  it('tolerates lack of file index', function () {
+    const parser = FileNameParser.create({
+      file: {
+        name: 'hello.txt',
+      },
+    });
+
+    expect(get(parser, 'base')).to.equal('hello.txt');
     expect(get(parser, 'suffix')).to.equal(null);
   });
 });
