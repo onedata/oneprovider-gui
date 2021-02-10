@@ -69,8 +69,5 @@ src/tests/test-results.xml
 jsconfig.json
 typings/
 
-# currently not using package-lock
-package-lock.json
-
 gui_static.tar.gz
 gui_static
