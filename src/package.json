@@ -14,7 +14,7 @@
     "build": "ember build",
     "start": "ember server",
     "test": "ember test",
-    "deps": "npm install --no-package-lock && bower install",
+    "deps": "npm install && bower install",
     "clean": "rm -rf tmp dist rel node_modules bower_components .sass-cache"
   },
   "devDependencies": {
