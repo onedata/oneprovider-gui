@@ -10,4 +10,6 @@ export default {
   owner: 'Owner',
   close: 'Close',
   size: 'Size',
+  rest: 'REST URL',
+  restTip: 'FIXME:',
 };

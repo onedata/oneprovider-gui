@@ -3,7 +3,7 @@
  * 
  * @module components/file-browser/fb-info-modal
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -20,6 +20,7 @@ import { resolve } from 'rsvp';
 
 export default Component.extend(I18n, {
   i18n: service(),
+  restGenerator: service(),
 
   open: false,
 
@@ -33,6 +34,12 @@ export default Component.extend(I18n, {
    * @type {models/file}
    */
   file: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  previewMode: false,
 
   /**
    * @virtual
@@ -86,6 +93,19 @@ export default Component.extend(I18n, {
         .then(path => stringifyFilePath(path));
     })
   ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  restUrl: computed('itemType', 'cdmiObjectId', function restUrl() {
+    const {
+      restGenerator,
+      itemType,
+      cdmiObjectId,
+    } = this.getProperties('restGenerator', 'itemType', 'cdmiObjectId');
+    const methodName = ((itemType === 'dir') ? 'listChildren' : 'downloadFileContent');
+    return restGenerator[methodName](cdmiObjectId);
+  }),
 
   cdmiRowId: computed('elementId', function cdmiRowId() {
     return this.get('elementId') + '-row-cdmi';

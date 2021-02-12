@@ -1,6 +1,9 @@
 export default {
-  sharePublicLink: 'Public share link',
-  handlePublicLink: 'Public handle link',
+  linkLabel: {
+    share: 'Public share link',
+    handle: 'Public handle link',
+    rest: 'REST API URL',
+  },
   registeredIn: 'Registered in',
   handleId: 'Handle ID',
   handleServiceId: 'Handle service ID',

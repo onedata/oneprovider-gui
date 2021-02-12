@@ -65,6 +65,25 @@
             </div>
           </td>
         </tr>
+        {{#if previewMode}}
+          <tr id={{cdmiRowId}} class="file-info-row-rest-url">
+            <td class="property-name with-input">
+              {{tt this "rest"}}
+              {{one-label-tip tooltipClass="rest-url-tooltip" title=(tt this "restTip")}}
+              {{!-- FIXME: VFS-7293 hint or popover --}}
+            </td>
+            <td class="property-value">
+              <div class="input-group input-group input-group-clipboard-textarea">
+                {{clipboard-line
+                  value=restUrl
+                  type="textarea"
+                  size=(if smallContent "sm")
+                  class="monospace-font"
+                }}
+              </div>
+            </td>
+          </tr>
+        {{/if}}
         {{#if (eq itemType "file")}}
           <tr class="file-info-row-size">
             <td class="property-name">{{tt this "size"}}</td>

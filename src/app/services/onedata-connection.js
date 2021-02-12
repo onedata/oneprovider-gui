@@ -17,4 +17,12 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
    * @type {Ember.ComputedProperty<number>}
    */
   transfersHistoryLimitPerFile: reads('attributes.transfersHistoryLimitPerFile'),
+
+  /**
+   * Templates specific for Oneprovider:
+   * - listChildren
+   * - downloadFileContent
+   * @type {Ember.ComputedProperty<Object>}
+   */
+  restTemplates: reads('attributes.restTemplates'),
 });

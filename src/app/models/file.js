@@ -58,6 +58,9 @@ export function getFileGri(fileId, scope) {
 export default Model.extend(
   GraphSingleModelMixin,
   createConflictModelMixin('shareRecords'), {
+    restTemplatePublicFile: 'https://{{host}}/api/v3/oneprovider/data/{{fileId}}/content',
+    restTemplatePublicDir: 'https://{{host}}/api/v3/oneprovider/data/{{dirId}}/children',
+
     name: attr('string'),
     index: attr('string'),
     type: attr('string'),

@@ -1,17 +1,39 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import {
   file1,
+  fileParent1,
   owner1,
   exampleCdmiObjectId,
 } from 'oneprovider-gui/components/dummy-file-info';
+import { registerService, lookupService } from '../../../helpers/stub-service';
 import wait from 'ember-test-helpers/wait';
+import Service from '@ember/service';
+import sinon from 'sinon';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import { focus } from 'ember-native-dom-helpers';
+import $ from 'jquery';
+
+const listChildrenRest = 'https://example.com/list-children-rest';
+const downloadFileContentRest = 'https://example.com/download-file-content-rest';
+
+const RestGenerator = Service.extend({
+  listChildren: notImplementedThrow,
+  downloadFileContent: notImplementedThrow,
+});
 
 describe('Integration | Component | file browser/fb info modal', function () {
   setupComponentTest('file-browser/fb-info-modal', {
     integration: true,
+  });
+
+  beforeEach(function () {
+    registerService(this, 'restGenerator', RestGenerator);
+    const restGenerator = lookupService(this, 'restGenerator');
+    sinon.stub(restGenerator, 'listChildren').returns(listChildrenRest);
+    sinon.stub(restGenerator, 'downloadFileContent').returns(downloadFileContentRest);
   });
 
   it('renders file name', function () {
@@ -108,4 +130,42 @@ describe('Integration | Component | file browser/fb info modal', function () {
       this.$('.file-info-row-size .property-value').text()
     ).to.contain('1 GiB');
   });
+
+  [true, false].forEach(isPreviewMode => {
+    ['file', 'dir'].forEach(fileType => {
+      testRenderRestUrlForTypeInMode(fileType, isPreviewMode);
+    });
+  });
+
 });
+
+function testRenderRestUrlForTypeInMode(fileType, isPreviewMode) {
+  const isRenderingText = isPreviewMode ? 'renders' : 'does not render';
+  const modeText = isPreviewMode ? 'preview' : 'non-preview';
+  const isDir = fileType === 'dir';
+  it(`${isRenderingText} ${fileType} REST URL in ${modeText} mode when item is a ${fileType}`, async function () {
+    const file = isDir ? fileParent1 : file1;
+    this.setProperties({
+      file,
+      previewMode: isPreviewMode,
+    });
+
+    this.render(hbs `{{file-browser/fb-info-modal
+      open=true
+      file=file
+      previewMode=previewMode
+    }}`);
+
+    if (isPreviewMode) {
+      expect(this.$('.file-info-row-rest-url .property-name')).to.contain('REST URL');
+      expect(
+        this.$('.file-info-row-rest-url .property-value .clipboard-input').val()
+      ).to.equal(isDir ? listChildrenRest : downloadFileContentRest);
+      // FIXME: hint with some information
+      // await focus('.file-info-row-rest-url .property-name .one-label-tip');
+      // expect($('.rest-url-tooltip')).to.contain('FIXME');
+    } else {
+      expect(this.$('.file-info-row-rest-url')).to.not.exist;
+    }
+  });
+}

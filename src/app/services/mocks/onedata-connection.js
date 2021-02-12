@@ -12,9 +12,17 @@ import OnedataConnection from 'onedata-gui-websocket-client/services/mocks/oneda
 
 export default OnedataConnection.extend({
   /**
-   * @overrides
+   * @override
    */
   attributes: Object.freeze({
     transfersHistoryLimitPerFile: 100,
+  }),
+
+  /**
+   * @override
+   */
+  restTemplates: Object.freeze({
+    listChildren: '/api/v3/oneprovider/data/{{id}}/children',
+    downloadFileContent: '/api/v3/oneprovider/data/{{id}}/content',
   }),
 });
