@@ -11,5 +11,5 @@ export default {
   close: 'Close',
   size: 'Size',
   rest: 'REST URL',
-  restTip: 'FIXME:',
+  restTip: 'FIXME: VFS-7293',
 };

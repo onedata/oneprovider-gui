@@ -24,7 +24,7 @@
       <div class="input-group input-group-sm">
         {{#if compact}}
           <div
-            class="input-group-addon input-group-addon-icon url-type-selector-trigger clickable"
+            class="input-group-addon input-group-addon-icon input-group-addon-left url-type-selector-trigger clickable"
             {{action
               (mut compactUrlTypeSelectorOpened)
               (not compactUrlTypeSelectorOpened)
@@ -60,73 +60,46 @@
             {{/one-webui-popover}}
           </div>
         {{/if}}
-        {{#if (and (eq effSelectedUrlType "handle") handleServiceProxy.name)}}
-          {{#if compact}}
-            <div
-              class="input-group-addon input-group-addon-icon input-group-addon-handle-service handle-service-info-trigger"
-              {{action (mut handleServiceInfoOpened) (not handleServiceInfoOpened)}}
-            >
-              <div class="inline-icon-container">
-                {{one-icon icon="browser-info"}}
-              </div>
-            </div>
+        <div
+          class="input-group-addon input-group-addon-text url-type-info-trigger truncate input-group-addon-left {{unless typeInfoTriggerText "input-group-addon-icon"}}"
+          {{action (mut urlTypeInfoOpened) (not urlTypeInfoOpened)}}
+        >
+          {{#if typeInfoTriggerText}}
+            <a class="input-handle-service-name black">
+              {{handleServiceProxy.name}}
+            </a>
           {{else}}
-            <div class="input-group-addon input-group-addon-handle-service truncate">
-              <a
-                class="input-handle-service-name handle-service-info-trigger black"
-                {{action (mut handleServiceInfoOpened) (not handleServiceInfoOpened)}}
-              >
-                {{handleServiceProxy.name}}
-              </a>
+            <div class="inline-icon-container">
+              {{one-icon icon="browser-info"}}
             </div>
           {{/if}}
-          {{!--
-            NOTE: need to wrap one-webui-popover with element, because of bug in Ember
-            that causes not rendering anything after component that failed to render
-          --}}
-          <div class="popover-container">
-            {{#one-webui-popover
-              class="handle-service-info"
-              popoverStyle="handle-service-info"
-              open=handleServiceInfoOpened
-              triggerSelector=(concat "#" elementId " .handle-service-info-trigger")
-              as |popover|
+        </div>
+        {{!--
+          NOTE: need to wrap one-webui-popover with element, because of bug in Ember
+          that causes not rendering anything after component that failed to render
+        --}}
+        <div class="popover-container">
+          {{#one-webui-popover
+            class="url-type-info"
+            popoverStyle="url-type-info"
+            open=urlTypeInfoOpened
+            triggerSelector=(concat "#" elementId " .url-type-info-trigger")
+            as |popover|
+          }}
+            {{#click-outside
+              action=(action (mut urlTypeInfoOpened) false)
+              except-selector=".url-type-info-trigger, .webui-popover-url-type-info"
             }}
-              {{#click-outside
-                action=(action (mut handleServiceInfoOpened) false)
-                except-selector=".handle-service-info-trigger, .webui-popover-handle-service-info"
+              {{component (concat "share-show/url-info-" effSelectedUrlType)
+                class=(concat-classes
+                  urlTypeInfoContentClass
+                  "url-type-info-content form-group without-margin"
+                )
+                share=share
               }}
-                <div class="form-group without-margin">
-                  <p>
-                    {{tt this "handleServiceInfoText"
-                      handleServiceName=handleServiceProxy.name
-                    }}
-                  </p>
-                  <p>
-                    <label class="control-label">
-                      <strong>{{tt this "handleId"}}:</strong>
-                    </label>
-                    {{one-clipboard-line
-                      class="handle-id-clipboard-line"
-                      size="sm"
-                      value=handleProxy.entityId
-                    }}
-                  </p>
-                  <p>
-                    <label class="control-label">
-                      <strong>{{tt this "handleServiceId"}}:</strong>
-                    </label>
-                    {{one-clipboard-line
-                      class="handle-service-id-clipboard-line"
-                      size="sm"
-                      value=handleServiceProxy.entityId
-                    }}
-                  </p>
-                </div>
-              {{/click-outside}}
-            {{/one-webui-popover}}
-          </div>
-        {{/if}}
+            {{/click-outside}}
+          {{/one-webui-popover}}
+        </div>
         <input
           type="text"
           class="clipboard-line-public-url-input clipboard-input form-control input-sm"
@@ -136,7 +109,7 @@
       </div>
       {{#one-copy-button
         class="clipboard-btn clipboard-btn-input"
-        clipboardTarget=(concat "#" elementId " .clipboard-line-public-url")
+        clipboardTarget=(concat "#" elementId " .clipboard-line-public-url-input")
       }}
         <div class="copy-btn-background"></div>
         {{one-icon class="copy-btn-icon" icon="browser-copy"}}

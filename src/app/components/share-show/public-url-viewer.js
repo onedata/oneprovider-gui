@@ -9,11 +9,17 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { get, computed } from '@ember/object';
-import { reads, equal } from '@ember/object/computed';
-import { conditional, raw, collect, or, and, tag, bool, array } from 'ember-awesome-macros';
+import { reads } from '@ember/object/computed';
+import { conditional, raw, collect, and, tag, bool, array, not, equal } from 'ember-awesome-macros';
 import { promise } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+
+export const iconForUrlType = {
+  share: 'onezone',
+  handle: 'globe-cursor',
+  rest: 'rest',
+};
 
 export default Component.extend(I18n, {
   i18n: service(),
@@ -70,24 +76,35 @@ export default Component.extend(I18n, {
   /**
    * @type {Boolean}
    */
-  handleServiceInfoOpened: false,
+  urlTypeInfoOpened: false,
 
   /**
    * @type {ComputedProperty<String>}
    */
-  selectedUrlTypeIcon: or(
-    and(equal('effSelectedUrlType', raw('share')), 'share'),
-    and(equal('effSelectedUrlType', raw('handle')), 'globe-cursor'),
-    and(equal('effSelectedUrlType', raw('rest')), 'rest'),
-  ),
-
-  selectedUrlTypeClass: tag `public-url-viewer-${'effSelectedUrlType'}`,
-
   effSelectedUrlType: conditional(
     array.includes('availableUrlTypes', 'selectedUrlType'),
     'selectedUrlType',
     raw('share'),
   ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  selectedUrlTypeIcon: computed('effSelectedUrlType',
+    function urlToCopy() {
+      return iconForUrlType[this.get('effSelectedUrlType')];
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  selectedUrlTypeClass: tag `public-url-viewer-${'effSelectedUrlType'}`,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  urlTypeInfoContentClass: tag `url-type-info-content-${'effSelectedUrlType'}`,
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.Handle>>}
@@ -120,51 +137,52 @@ export default Component.extend(I18n, {
   effShowHandle: bool(and('showHandle', 'handleServiceProxy.name')),
 
   /**
-   * 
    * @type {ComputedProperty<String>}
    */
-  urlToCopy: or(
-    and(equal('effSelectedUrlType', 'share'), 'share.publicUrl'),
-    and(equal('effSelectedUrlType', 'handle'), 'handleProxy.url'),
-    and(equal('effSelectedUrlType', 'rest'), 'share.restUrl'),
-    '',
+  urlToCopy: computed(
+    'effSelectedUrlType',
+    'share.{publicUrl,restUrl}',
+    'handleProxy.url',
+    function urlToCopy() {
+      switch (this.get('effSelectedUrlType')) {
+        case 'share':
+          return this.get('share.publicUrl');
+        case 'handle':
+          return this.get('handleProxy.url');
+        case 'rest':
+          return this.get('share.restUrl');
+        default:
+          return '';
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  typeInfoTriggerText: conditional(
+    and(
+      not('compact'),
+      equal('effSelectedUrlType', raw('handle')),
+    ),
+    'handleServiceProxy.name',
+    raw(''),
   ),
 
   /**
    * @type {ComputedProperty<Object>}
    */
-  urlTypeSelectShareAction: computed(function urlTypeSelectShareAction() {
-    return {
-      title: this.t('linkLabel.share'),
-      icon: 'onezone',
-      className: 'option-share-link',
-      action: () => this.get('changeSelectedUrlType')('share'),
-    };
-  }),
+  urlTypeSelectShareAction: createChangeModeAction('share'),
 
   /**
    * @type {ComputedProperty<Object>}
    */
-  urlTypeSelectHandleAction: computed(function urlTypeSelectHandleAction() {
-    return {
-      title: this.t('linkLabel.handle'),
-      icon: 'globe-cursor',
-      className: 'option-handle-link',
-      action: () => this.get('changeSelectedUrlType')('handle'),
-    };
-  }),
+  urlTypeSelectHandleAction: createChangeModeAction('handle'),
 
   /**
    * @type {ComputedProperty<Object>}
    */
-  urlTypeSelectRestAction: computed(function urlTypeSelectRestAction() {
-    return {
-      title: this.t('linkLabel.rest'),
-      icon: 'rest',
-      className: 'option-rest-link',
-      action: () => this.get('changeSelectedUrlType')('rest'),
-    };
-  }),
+  urlTypeSelectRestAction: createChangeModeAction('rest'),
 
   /**
    * @type {ComputedProperty<Array<String>>}
@@ -173,12 +191,12 @@ export default Component.extend(I18n, {
     'effShowHandle',
     collect(
       raw('share'),
-      raw('rest'),
+      raw('handle'),
+      raw('rest')
     ),
     collect(
       raw('share'),
-      raw('handle'),
-      raw('rest')
+      raw('rest'),
     ),
   ),
 
@@ -198,3 +216,14 @@ export default Component.extend(I18n, {
     ),
   ),
 });
+
+function createChangeModeAction(urlType) {
+  return computed(function changeModeAction() {
+    return {
+      title: this.t(`linkLabel.${urlType}`),
+      icon: iconForUrlType[urlType],
+      className: `option-${urlType}-link`,
+      action: () => this.get('changeSelectedUrlType')(urlType),
+    };
+  });
+}

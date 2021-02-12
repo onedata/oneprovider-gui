@@ -23,6 +23,7 @@ import { conditional, raw, and, not, promise } from 'ember-awesome-macros';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve } from 'rsvp';
 import scrollTopClosest from 'onedata-gui-common/utils/scroll-top-closest';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 const mixins = [
   I18n,

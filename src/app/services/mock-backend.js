@@ -317,6 +317,7 @@ export default Service.extend({
       return [0, 1].map(num => {
         const entityId = generateShareEntityId(get(space, 'entityId'), num);
         const publicUrl = location.origin + '/shares/' + entityId;
+        const restUrl = location.origin + '/api/v3/shares/' + entityId;
         return store.createRecord('share', {
           id: gri({
             entityType: shareEntityType,
@@ -329,6 +330,7 @@ export default Service.extend({
           rootFile,
           privateRootFile: rootFile,
           publicUrl,
+          restUrl,
           handle: num % 2 === 0 ?
             (scope === 'private' ? handlePrivate : handlePublic) : null,
           description: exampleMarkdown,

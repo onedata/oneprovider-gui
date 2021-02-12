@@ -4,10 +4,10 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import { click } from 'ember-native-dom-helpers';
 import wait from 'ember-test-helpers/wait';
-import { selectChoose } from '../../../helpers/ember-power-select';
+import { selectChoose, clickTrigger } from '../../../helpers/ember-power-select';
 import $ from 'jquery';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { resolve } from 'rsvp';
+import { resolve, reject } from 'rsvp';
 
 const urlTypeTranslations = {
   share: 'Public share link',
@@ -19,41 +19,77 @@ const shareUrl = 'http://share-url';
 const handleUrl = 'http://handle-url';
 const restUrl = 'http://rest-url';
 
+const handleId = 'handle_id';
+
+const handleService = {
+  name: 'Handle serice name',
+  entityId: 'handle_service_id',
+};
+
+const share = {
+  publicUrl: shareUrl,
+  restUrl,
+  handle: promiseObject(resolve({
+    url: handleUrl,
+    entityId: handleId,
+    handleService: promiseObject(resolve(handleService)),
+  })),
+};
+
 describe('Integration | Component | share show/public url viewer', function () {
   setupComponentTest('share-show/public-url-viewer', {
     integration: true,
   });
 
   beforeEach(function () {
-    const share = {
-      publicUrl: shareUrl,
-      restUrl,
-      handle: promiseObject(resolve({
-        url: handleUrl,
-      })),
-    };
-
     this.setProperties({
       share,
       selectedUrlType: 'share',
     });
   });
 
+  testShowsUrlTypeInformationInPopover('share');
+  testShowsUrlTypeInformationInPopover('rest');
+
   testClipboardInput('share', testCase => testCase.get('share.publicUrl'));
-  testClipboardInput('handle', testCase => testCase.get('share.handle.url'));
   testClipboardInput('rest', testCase => testCase.get('share.restUrl'));
 
   testChangeSelectedUrlTypePowerSelect('share');
-  testChangeSelectedUrlTypePowerSelect('handle');
   testChangeSelectedUrlTypePowerSelect('rest');
 
-  // FIXME: VFS-7293 if there is no proxy (eg. unavail) then do not display handle in menu
-  // and do not allow to select it (regular user case)
+  it('renders only "share" and "rest" url options without "handle" in selector if handle rejects',
+    async function () {
+      this.setProperties({
+        share: {
+          publicUrl: shareUrl,
+          restUrl,
+          handle: promiseObject(reject()),
+        },
+        selectedUrlType: 'handle',
+      });
 
-  // FIXME: VFS-7293 test click on handle name and content of popover in desktop
+      render(this);
+      await clickTrigger('.col-key');
 
-  // FIXME: VFS-7293 test click on (i) in compact modes for all types
-  // FIXME: VFS-7293 test click on (i) in desktop mode (except for naame in handle)
+      const $options = $('li.ember-power-select-option');
+      expect($options).to.have.length(2);
+      expect($options.eq(0).text()).to.contain(urlTypeTranslations['share']);
+      expect($options.eq(1).text()).to.contain(urlTypeTranslations['rest']);
+      expect($('.public-url-viewer-share')).to.exist;
+    }
+  );
+
+  context('with showHandle', function () {
+    beforeEach(function () {
+      this.setProperties({
+        showHandle: true,
+      });
+    });
+
+    testClipboardInput('handle', testCase => testCase.get('share.handle.url'));
+    testChangeSelectedUrlTypePowerSelect('handle');
+    testShowsUrlTypeInformationInPopover('handle');
+  });
 
   context('in compact mode', function () {
     beforeEach(function () {
@@ -62,8 +98,10 @@ describe('Integration | Component | share show/public url viewer', function () {
       });
     });
 
+    testShowsUrlTypeInformationInPopover('share');
+    testShowsUrlTypeInformationInPopover('rest');
+
     testClipboardInput('share', testCase => testCase.get('share.publicUrl'));
-    testClipboardInput('handle', testCase => testCase.get('share.handle.url'));
     testClipboardInput('rest', testCase => testCase.get('share.restUrl'));
 
     context('with showHandle', function () {
@@ -73,9 +111,24 @@ describe('Integration | Component | share show/public url viewer', function () {
         });
       });
 
+      testClipboardInput('handle', testCase => testCase.get('share.handle.url'));
+
+      testShowsUrlTypeInformationInPopover('handle');
+
       testChangeSelectedUrlTypeCompact('share');
       testChangeSelectedUrlTypeCompact('handle');
       testChangeSelectedUrlTypeCompact('rest');
+
+      it('does not render handle service name, but only icon', async function () {
+        this.setProperties({
+          selectedUrlType: 'handle',
+        });
+
+        render(this);
+        await wait();
+
+        expect($('.input-handle-service-name')).to.not.exist;
+      });
 
       it('renders share and rest url options in selector', async function () {
         render(this);
@@ -88,6 +141,25 @@ describe('Integration | Component | share show/public url viewer', function () {
         expect($options.eq(1).text()).to.contain(urlTypeTranslations['handle']);
         expect($options.eq(2).text()).to.contain(urlTypeTranslations['rest']);
       });
+
+      it('renders only "share" and "rest" url options without "handle" in selector if handle rejects',
+        async function () {
+          this.set('share', {
+            publicUrl: shareUrl,
+            restUrl,
+            handle: promiseObject(reject()),
+          });
+
+          render(this);
+          await click('.url-type-selector-trigger');
+
+          const $options = $('.compact-url-type-selector-actions li');
+          expect($options).to.have.length(2);
+          expect($options.eq(0).text()).to.contain(urlTypeTranslations['share']);
+          expect($options.eq(1).text()).to.contain(urlTypeTranslations['rest']);
+          expect($('public-url-viewer-share')).to.exist;
+        }
+      );
     });
 
     context('without showHandle', function () {
@@ -143,6 +215,35 @@ function testChangeSelectedUrlTypePowerSelect(type) {
     await selectChoose('.col-key', urlTypeTranslations[type]);
 
     expect(this.$(`.public-url-viewer-${type}`)).to.exist;
+  });
+}
+
+const urlTypeInfoChecks = {
+  handle() {
+    expect($('.handle-id-clipboard-line .clipboard-input')).to.exist;
+    expect($('.handle-service-id-clipboard-line .clipboard-input')).to.exist;
+    expect($('.handle-id-clipboard-line .clipboard-input').val())
+      .to.equal(handleId);
+    expect($('.handle-service-id-clipboard-line .clipboard-input').val())
+      .to.equal(handleService.entityId);
+  },
+  share() {},
+  rest() {},
+};
+
+function testShowsUrlTypeInformationInPopover(type) {
+  it(`opens popover with information about "${type}" URL`, async function () {
+    this.setProperties({
+      selectedUrlType: type,
+    });
+
+    render(this);
+    await wait();
+    await click('.url-type-info-trigger');
+
+    expect($(`.url-type-info-content-${type}`)).to.exist;
+    expect($('.webui-popover-url-type-info.in')).to.exist;
+    urlTypeInfoChecks[type]();
   });
 }
 

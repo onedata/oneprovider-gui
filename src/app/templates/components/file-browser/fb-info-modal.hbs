@@ -59,8 +59,9 @@
               {{clipboard-line
                 value=cdmiObjectId
                 type="textarea"
+                textareaRows="2"
                 size=(if smallContent "sm")
-                class="monospace-font"
+                class="monospace-font compact"
               }}
             </div>
           </td>
@@ -76,9 +77,10 @@
               <div class="input-group input-group input-group-clipboard-textarea">
                 {{clipboard-line
                   value=restUrl
+                  textareaRows="4"
                   type="textarea"
                   size=(if smallContent "sm")
-                  class="monospace-font"
+                  class="monospace-font compact"
                 }}
               </div>
             </td>

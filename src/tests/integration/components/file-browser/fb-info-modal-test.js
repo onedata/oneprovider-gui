@@ -161,9 +161,6 @@ function testRenderRestUrlForTypeInMode(fileType, isPreviewMode) {
       expect(
         this.$('.file-info-row-rest-url .property-value .clipboard-input').val()
       ).to.equal(isDir ? listChildrenRest : downloadFileContentRest);
-      // FIXME: hint with some information
-      // await focus('.file-info-row-rest-url .property-name .one-label-tip');
-      // expect($('.rest-url-tooltip')).to.contain('FIXME');
     } else {
       expect(this.$('.file-info-row-rest-url')).to.not.exist;
     }

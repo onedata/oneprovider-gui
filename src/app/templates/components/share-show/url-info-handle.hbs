@@ -1,0 +1,25 @@
+<p>
+  {{tt this "handleServiceInfoText"
+    handleServiceName=share.handle.handleService.name
+  }}
+</p>
+<p>
+  <label class="control-label">
+    <strong>{{tt this "handleId"}}:</strong>
+  </label>
+  {{one-clipboard-line
+    class="handle-id-clipboard-line"
+    size="sm"
+    value=share.handle.entityId
+  }}
+</p>
+<p>
+  <label class="control-label">
+    <strong>{{tt this "handleServiceId"}}:</strong>
+  </label>
+  {{one-clipboard-line
+    class="handle-service-id-clipboard-line"
+    size="sm"
+    value=share.handle.handleService.entityId
+  }}
+</p>
