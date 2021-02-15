@@ -372,14 +372,17 @@ const fileHandlers = {
         data: {},
       };
     } else {
+      const children = this.getMockChildrenSlice({
+        type: 'data',
+        entityId,
+        index,
+        limit,
+        offset,
+      });
+      const isLast = children.length < limit;
       return {
-        children: this.getMockChildrenSlice({
-          type: 'data',
-          entityId,
-          index,
-          limit,
-          offset,
-        }),
+        children,
+        isLast,
       };
     }
   },
@@ -651,21 +654,23 @@ export default OnedataGraphMock.extend({
 
   /**
    * @param {string} type one of: id, data
-   * @param {string} dirId
+   * @param {string} entityId directory entity is for listing
    * @param {string} index
    * @param {Number} limit
    * @param {Number} offset
    * @returns {Array<any>}
    */
-  getMockChildrenSlice({ type, dirId, index, limit = 1000, offset = 0 }) {
+  getMockChildrenSlice({ type, entityId, index, limit = 1000, offset = 0 }) {
     let mockChildren;
     let arrIndex;
     if (type === 'data') {
-      mockChildren = this.getMockChildrenData(dirId);
-      arrIndex = mockChildren.findIndex(fileData =>
-        atob(get(fileData, 'guid')) === index);
+      mockChildren = this.getMockChildrenData(entityId);
+      arrIndex = mockChildren.findIndex(fileData => {
+        const childId = get(fileData, 'guid');
+        return atob(childId).endsWith(index);
+      });
     } else if (type === 'id') {
-      mockChildren = this.getMockChildrenIds(dirId);
+      mockChildren = this.getMockChildrenIds(entityId);
       arrIndex = mockChildren.findIndex(childId =>
         atob(childId).endsWith(index)
       );
@@ -737,6 +742,7 @@ export default OnedataGraphMock.extend({
         }
       });
     }
+    return cache;
   },
 
   removeMockChild(dirEntityId, childEntityId) {
