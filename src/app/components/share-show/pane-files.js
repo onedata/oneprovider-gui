@@ -135,7 +135,9 @@ export default Component.extend(I18n, {
       } else if (startIndex === array.get('sourceArray.lastObject.index')) {
         return resolve([]);
       } else {
-        return reject('cannot use fetch file transfer not from start');
+        return reject(
+          'component:share-show/pane-files#fetchShareRootDirChildren guard: illegal fetch children for virtual share root dir'
+        );
       }
     },
     updateDirId(dirId) {

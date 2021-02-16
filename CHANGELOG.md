@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6842 Fixed JS console errors while scrolling file transfers list
 * VFS-7194 Added support for isLast flag when fetching directory files data
 * VFS-7271 Fixed showing shared space root dir name
 * VFS-6566 Improved UX and refactored share views
