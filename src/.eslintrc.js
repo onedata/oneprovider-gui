@@ -50,7 +50,8 @@ module.exports = {
     'no-restricted-globals': [
       2,
       'name',
-      'blur'
+      'blur',
+      'fetch',
     ],
     'valid-jsdoc': [
       1,
@@ -74,6 +75,7 @@ module.exports = {
     ],
     'no-debugger': 2,
     'no-param-reassign': 1,
+    'array-callback-return': 1,
     'max-len': [
       1,
       {

@@ -113,7 +113,7 @@ export default Service.extend({
    * @param {String} index file.index that the listing should start
    * @param {Number} limit
    * @param {Number} offset
-   * @returns {Promise<Array<Models.File>>}
+   * @returns {Promise<{ childrenRecords: Array<Models.File>, isLast: Boolean }>}
    */
   fetchDirChildren(dirId, scope, index, limit, offset) {
     if (!limit || limit <= 0) {
@@ -125,7 +125,10 @@ export default Service.extend({
         index,
         limit,
         offset,
-      }).then(childrenAttrs => this.pushChildrenAttrsToStore(childrenAttrs, scope));
+      }).then(({ children, isLast }) => {
+        const childrenRecords = this.pushChildrenAttrsToStore(children, scope);
+        return { childrenRecords, isLast };
+      });
     }
   },
 
@@ -143,6 +146,9 @@ export default Service.extend({
     });
   },
 
+  /**
+   * @returns {Promise<{ children: Array, isLast: Boolean }>}
+   */
   fetchChildrenAttrs({ dirId, scope, index, limit, offset }) {
     const requestGri = gri({
       entityId: dirId,
@@ -159,7 +165,7 @@ export default Service.extend({
         offset,
       },
       subscribe: false,
-    }).then(({ children }) => children);
+    });
   },
 
   renameFile(fileEntityId, parentDirEntityId, targetName) {
