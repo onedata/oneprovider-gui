@@ -118,7 +118,7 @@ export default Component.extend(
 
     /**
      * List of system subjects, that represents owner of a file/directory, owning
-     * group and everyone. These are used to define ACE, that are not tied to
+     * group, everyone and anonymous. These are used to define ACE, that are not tied to
      * specific user/group, but rather to some type of user/group. These are provided to
      * preserve compatibility with CDMI.
      * @type {Ember.ComputedProperty<Object>}
@@ -139,6 +139,11 @@ export default Component.extend(
         entityId: 'EVERYONE@',
         equivalentType: 'group',
         name: this.t('everyoneSystemSubject'),
+      }, {
+        isSystemSubject: true,
+        entityId: 'ANONYMOUS@',
+        equivalentType: 'user',
+        name: this.t('anonymousSystemSubject'),
       }];
     }),
 
