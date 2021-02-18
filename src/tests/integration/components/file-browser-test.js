@@ -79,8 +79,8 @@ describe('Integration | Component | file browser', function () {
       null,
       sinon.match.any,
       sinon.match.any
-    ).resolves(files);
-    fetchDirChildren.resolves([]);
+    ).resolves({ childrenRecords: files, isLast: true });
+    fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
     this.render(hbs `<div id="content-scroll">{{file-browser dir=dir}}</div>`);
 
@@ -235,15 +235,15 @@ describe('Integration | Component | file browser', function () {
         null,
         sinon.match.any,
         0
-      ).resolves(files1);
+      ).resolves({ childrenRecords: files1, isLast: true });
       fetchDirChildren.withArgs(
         'f2',
         sinon.match.any,
         null,
         sinon.match.any,
         0
-      ).resolves(files2);
-      fetchDirChildren.resolves([]);
+      ).resolves({ childrenRecords: files2, isLast: true });
+      fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
       this.render(hbs `<div id="content-scroll">{{
         file-browser
@@ -295,7 +295,7 @@ describe('Integration | Component | file browser', function () {
     const files = [];
     const fileManager = lookupService(this, 'fileManager');
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
-      .resolves(files);
+      .resolves({ childrenRecords: files, isLast: true });
     const openCreateNewDirectory = sinon.spy();
 
     this.setProperties({
@@ -355,7 +355,7 @@ describe('Integration | Component | file browser', function () {
     );
 
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
-      .resolves(files);
+      .resolves({ childrenRecords: files, isLast: true });
 
     this.render(hbs `<div id="content-scroll">{{file-browser
       dir=dir
@@ -395,10 +395,13 @@ describe('Integration | Component | file browser', function () {
 
       const fileManager = lookupService(this, 'fileManager');
       const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
-      fetchDirChildren.resolves([{
-        entityId: 'file1',
-        name: 'File one',
-      }]);
+      fetchDirChildren.resolves({
+        childrenRecords: [{
+          entityId: 'file1',
+          name: 'File one',
+        }],
+        isLast: true,
+      });
 
       this.render(hbs `<div id="content-scroll">{{file-browser
         dir=dir
@@ -454,10 +457,10 @@ describe('Integration | Component | file browser', function () {
         selectedFile.index,
         sinon.match.any,
         sinon.match.any
-      ).resolves([...files]);
+      ).resolves({ childrenRecords: [...files], isLast: true });
 
       // default
-      fetchDirChildren.resolves([]);
+      fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
       this.render(hbs `<div id="content-scroll">
         {{file-browser
@@ -516,16 +519,16 @@ describe('Integration | Component | file browser', function () {
         selectedFile.index, // index
         sinon.match.any, // limit
         sinon.match.any // offset
-      ).resolves([...files]);
+      ).resolves({ childrenRecords: [...files], isLast: true });
       fetchDirChildren.withArgs(
         entityId,
         sinon.match.any,
         files[60].index,
         70,
         -10
-      ).resolves(files.slice(50, 120));
+      ).resolves({ childrenRecords: files.slice(50, 120), isLast: true });
       // default
-      fetchDirChildren.resolves([]);
+      fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
       this.render(hbs `<div id="content-scroll">
         {{file-browser
