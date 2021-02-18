@@ -354,7 +354,8 @@ export default Component.extend(I18n, {
     }
     const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) =>
-        this.get('fetchDirChildren')(dirId, ...fetchArgs),
+        this.get('fetchDirChildren')(dirId, ...fetchArgs)
+        .then(({ childrenRecords, isLast }) => ({ array: childrenRecords, isLast })),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,

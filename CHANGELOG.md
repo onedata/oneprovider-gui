@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7194 Added support for isLast flag when fetching directory files data
 * VFS-7316 Added ANONYMOUS special ACE subject
 * VFS-7271 Fixed showing shared space root dir name
 * VFS-6566 Improved UX and refactored share views

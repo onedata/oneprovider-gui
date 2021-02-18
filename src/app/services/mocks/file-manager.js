@@ -12,6 +12,7 @@ import ProductionFileManager from '../production/file-manager';
 import { resolve } from 'rsvp';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled, Promise } from 'rsvp';
+import { get } from '@ember/object';
 
 export default ProductionFileManager.extend({
   onedataGraph: service(),
@@ -23,13 +24,16 @@ export default ProductionFileManager.extend({
     if (!limit || limit <= 0) {
       return resolve([]);
     } else {
-      return allFulfilled(this.get('onedataGraph').getMockChildrenSlice({
-        type: 'id',
+      return this.fetchChildrenAttrs({
         dirId,
+        scope,
         index,
         limit,
         offset,
-      }).map(fileId => this.getFileById(fileId)));
+      }).then(({ children, isLast }) => {
+        return allFulfilled(children.map(attr => this.getFileById(get(attr, 'guid'))))
+          .then(childrenRecords => ({ childrenRecords, isLast }));
+      });
     }
   },
 
