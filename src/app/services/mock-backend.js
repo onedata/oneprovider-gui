@@ -1,6 +1,6 @@
 /**
  * Creates and shares a state of mocked data model
- * 
+ *
  * @module services/mock-backend
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
@@ -128,6 +128,7 @@ export default Service.extend({
                       return allFulfilled(
                         transferList.map((transfer) => {
                           setProperties(transfer, {
+                            type: 'replication',
                             dataSourceId,
                             user: owner,
                             replicatingProvider: firstProvider,
@@ -347,8 +348,8 @@ export default Service.extend({
   },
 
   /**
-   * @param {Service} store 
-   * @param {Array<String>} names 
+   * @param {Service} store
+   * @param {Array<String>} names
    * @returns {Promise<Array<Model>>}
    */
   createSpaceRecords(store, names) {

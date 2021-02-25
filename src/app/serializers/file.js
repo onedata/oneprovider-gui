@@ -16,12 +16,11 @@ import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
-import { replicaEntityType } from 'oneprovider-gui/services/transfer-manager';
 
 export default Serializer.extend({
   fileRelations: computed(() => [
     { name: 'acl', aspect: 'acl' },
-    { name: 'distribution', entityType: replicaEntityType, aspect: 'distribution' },
+    { name: 'distribution', aspect: 'distribution' },
     { name: 'fileQosSummary', aspect: 'file_qos_summary' },
   ]),
 

@@ -50,6 +50,12 @@ export default Model.extend(
     _isCancelling: false,
 
     /**
+     * @type {String}
+     * One of: 'migration', 'eviction', 'replication'
+     */
+    type: attr('string'),
+
+    /**
      * If true, the transfer is in progress (should be in ongoing transfers collection)
      */
     isOngoing: attr('boolean'),
@@ -108,21 +114,6 @@ export default Model.extend(
         startTime && 'ongoing' ||
         scheduleTime && 'waiting' ||
         null;
-    }),
-
-    /**
-     * @type {String}
-     * One of: migration, eviction, replication
-     */
-    type: computed('evictingProvider', 'replicatingProvider', function type() {
-      const evictingProviderGri = this.belongsTo('evictingProvider').id();
-      if (evictingProviderGri) {
-        const replicatingProviderGri =
-          this.belongsTo('replicatingProvider').id();
-        return replicatingProviderGri ? 'migration' : 'eviction';
-      } else {
-        return 'replication';
-      }
     }),
 
     dataSource: promise.object(
@@ -215,7 +206,7 @@ export default Model.extend(
     },
 
     /**
-     * @param {string} spaceId 
+     * @param {string} spaceId
      * @return {Promise<Models.User>}
      */
     fetchUser(spaceId) {
