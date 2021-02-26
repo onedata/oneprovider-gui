@@ -10,7 +10,7 @@ import { resolve } from 'rsvp';
 
 const shareUrl = 'http://share-url';
 const handleUrl = 'http://handle-url';
-const restUrl = 'http://rest-url';
+const publicRestUrl = 'http://rest-url';
 
 const handleId = 'handle_id';
 
@@ -21,7 +21,7 @@ const handleService = {
 
 const share = {
   publicUrl: shareUrl,
-  restUrl,
+  publicRestUrl,
   handle: promiseObject(resolve({
     url: handleUrl,
     entityId: handleId,

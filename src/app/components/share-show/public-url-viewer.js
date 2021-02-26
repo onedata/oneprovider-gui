@@ -16,7 +16,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { inject as service } from '@ember/service';
 
 export const iconForUrlType = {
-  share: 'onezone',
+  share: 'share',
   handle: 'globe-cursor',
   rest: 'rest',
 };
@@ -141,7 +141,7 @@ export default Component.extend(I18n, {
    */
   urlToCopy: computed(
     'effSelectedUrlType',
-    'share.{publicUrl,restUrl}',
+    'share.{publicUrl,publicRestUrl}',
     'handleProxy.url',
     function urlToCopy() {
       switch (this.get('effSelectedUrlType')) {
@@ -150,7 +150,7 @@ export default Component.extend(I18n, {
         case 'handle':
           return this.get('handleProxy.url');
         case 'rest':
-          return this.get('share.restUrl');
+          return this.get('share.publicRestUrl');
         default:
           return '';
       }
@@ -189,22 +189,15 @@ export default Component.extend(I18n, {
    */
   availableUrlTypes: conditional(
     'effShowHandle',
-    collect(
-      raw('share'),
-      raw('handle'),
-      raw('rest')
-    ),
-    collect(
-      raw('share'),
-      raw('rest'),
-    ),
+    raw(['share', 'handle', 'rest']),
+    raw(['share', 'rest'])
   ),
 
   /**
    * @type {ComputedProperty<Array<Object>>}
    */
   compactUrlTypeSelectorActions: conditional(
-    'showHandle',
+    'effShowHandle',
     collect(
       'urlTypeSelectShareAction',
       'urlTypeSelectHandleAction',

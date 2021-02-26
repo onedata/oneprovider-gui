@@ -97,13 +97,13 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<String>}
    */
-  restUrl: computed('itemType', 'cdmiObjectId', function restUrl() {
+  publicRestUrl: computed('itemType', 'cdmiObjectId', function publicRestUrl() {
     const {
       restGenerator,
       itemType,
       cdmiObjectId,
     } = this.getProperties('restGenerator', 'itemType', 'cdmiObjectId');
-    const methodName = ((itemType === 'dir') ? 'listChildren' : 'downloadFileContent');
+    const methodName = (itemType === 'dir') ? 'shareListDirChildren' : 'shareDownloadFileContent';
     return restGenerator[methodName](cdmiObjectId);
   }),
 

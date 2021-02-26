@@ -70,13 +70,17 @@
           <tr id={{cdmiRowId}} class="file-info-row-rest-url">
             <td class="property-name with-input">
               {{tt this "rest"}}
-              {{one-label-tip tooltipClass="rest-url-tooltip" title=(tt this "restTip")}}
-              {{!-- FIXME: VFS-7293 hint or popover --}}
+              {{one-label-tip
+                tooltipClass="rest-url-tooltip"
+                title=(tt this "restTipBase"
+                  operation=(tt this (concat "restTipOperation." itemType))
+                )
+              }}
             </td>
             <td class="property-value">
               <div class="input-group input-group input-group-clipboard-textarea">
                 {{clipboard-line
-                  value=restUrl
+                  value=publicRestUrl
                   textareaRows="4"
                   type="textarea"
                   size=(if smallContent "sm")

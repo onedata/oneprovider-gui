@@ -17,7 +17,7 @@ export const entityType = 'op_share';
 export default Model.extend(GraphSingleModelMixin, {
   name: attr('string'),
   publicUrl: attr('string'),
-  restUrl: attr('string'),
+  publicRestUrl: attr('string'),
   fileType: attr('string'),
   description: attr('string'),
 

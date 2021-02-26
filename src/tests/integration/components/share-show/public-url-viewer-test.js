@@ -17,7 +17,7 @@ const urlTypeTranslations = {
 
 const shareUrl = 'http://share-url';
 const handleUrl = 'http://handle-url';
-const restUrl = 'http://rest-url';
+const publicRestUrl = 'http://rest-url';
 
 const handleId = 'handle_id';
 
@@ -28,7 +28,7 @@ const handleService = {
 
 const share = {
   publicUrl: shareUrl,
-  restUrl,
+  publicRestUrl,
   handle: promiseObject(resolve({
     url: handleUrl,
     entityId: handleId,
@@ -52,17 +52,17 @@ describe('Integration | Component | share show/public url viewer', function () {
   testShowsUrlTypeInformationInPopover('rest');
 
   testClipboardInput('share', testCase => testCase.get('share.publicUrl'));
-  testClipboardInput('rest', testCase => testCase.get('share.restUrl'));
+  testClipboardInput('rest', testCase => testCase.get('share.publicRestUrl'));
 
   testChangeSelectedUrlTypePowerSelect('share');
   testChangeSelectedUrlTypePowerSelect('rest');
 
   it('renders only "share" and "rest" url options without "handle" in selector if handle rejects',
-    async function () {
+    async function (done) {
       this.setProperties({
         share: {
           publicUrl: shareUrl,
-          restUrl,
+          publicRestUrl,
           handle: promiseObject(reject()),
         },
         selectedUrlType: 'handle',
@@ -72,18 +72,15 @@ describe('Integration | Component | share show/public url viewer', function () {
       await clickTrigger('.col-key');
 
       const $options = $('li.ember-power-select-option');
-      expect($options).to.have.length(2);
-      expect($options.eq(0).text()).to.contain(urlTypeTranslations['share']);
-      expect($options.eq(1).text()).to.contain(urlTypeTranslations['rest']);
-      expect($('.public-url-viewer-share')).to.exist;
+      checkUrlTypeOptions($options, ['share', 'rest']);
+      expect($('.public-url-viewer-share'), 'share mode fallback').to.exist;
+      done();
     }
   );
 
   context('with showHandle', function () {
     beforeEach(function () {
-      this.setProperties({
-        showHandle: true,
-      });
+      this.set('showHandle', true);
     });
 
     testClipboardInput('handle', testCase => testCase.get('share.handle.url'));
@@ -93,22 +90,18 @@ describe('Integration | Component | share show/public url viewer', function () {
 
   context('in compact mode', function () {
     beforeEach(function () {
-      this.setProperties({
-        compact: true,
-      });
+      this.set('compact', true);
     });
 
     testShowsUrlTypeInformationInPopover('share');
     testShowsUrlTypeInformationInPopover('rest');
 
     testClipboardInput('share', testCase => testCase.get('share.publicUrl'));
-    testClipboardInput('rest', testCase => testCase.get('share.restUrl'));
+    testClipboardInput('rest', testCase => testCase.get('share.publicRestUrl'));
 
     context('with showHandle', function () {
       beforeEach(function () {
-        this.setProperties({
-          showHandle: true,
-        });
+        this.set('showHandle', true);
       });
 
       testClipboardInput('handle', testCase => testCase.get('share.handle.url'));
@@ -119,34 +112,31 @@ describe('Integration | Component | share show/public url viewer', function () {
       testChangeSelectedUrlTypeCompact('handle');
       testChangeSelectedUrlTypeCompact('rest');
 
-      it('does not render handle service name, but only icon', async function () {
-        this.setProperties({
-          selectedUrlType: 'handle',
-        });
+      it('does not render handle service name, but only icon', async function (done) {
+        this.set('selectedUrlType', 'handle');
 
         render(this);
         await wait();
 
-        expect($('.input-handle-service-name')).to.not.exist;
+        expect($('.input-handle-service-name'), 'handle service name').to.not.exist;
+        done();
       });
 
-      it('renders share and rest url options in selector', async function () {
+      it('renders handle, share and rest url options in selector', async function (done) {
         render(this);
 
         await click('.url-type-selector-trigger');
 
         const $options = $('.compact-url-type-selector-actions li');
-        expect($options).to.have.length(3);
-        expect($options.eq(0).text()).to.contain(urlTypeTranslations['share']);
-        expect($options.eq(1).text()).to.contain(urlTypeTranslations['handle']);
-        expect($options.eq(2).text()).to.contain(urlTypeTranslations['rest']);
+        checkUrlTypeOptions($options, ['share', 'handle', 'rest']);
+        done();
       });
 
       it('renders only "share" and "rest" url options without "handle" in selector if handle rejects',
-        async function () {
+        async function (done) {
           this.set('share', {
             publicUrl: shareUrl,
-            restUrl,
+            publicRestUrl,
             handle: promiseObject(reject()),
           });
 
@@ -154,74 +144,77 @@ describe('Integration | Component | share show/public url viewer', function () {
           await click('.url-type-selector-trigger');
 
           const $options = $('.compact-url-type-selector-actions li');
-          expect($options).to.have.length(2);
-          expect($options.eq(0).text()).to.contain(urlTypeTranslations['share']);
-          expect($options.eq(1).text()).to.contain(urlTypeTranslations['rest']);
-          expect($('public-url-viewer-share')).to.exist;
+          checkUrlTypeOptions($options, ['share', 'rest']);
+          expect($('.public-url-viewer-share')).to.exist;
+          done();
         }
       );
     });
 
     context('without showHandle', function () {
       beforeEach(function () {
-        this.setProperties({
-          showHandle: false,
-        });
+        this.set('showHandle', false);
       });
 
       testChangeSelectedUrlTypeCompact('share');
       testChangeSelectedUrlTypeCompact('rest');
 
-      it('renders handle, share and rest url options in selector', async function () {
+      it('renders share and rest url options in selector', async function (done) {
         render(this);
 
         await click('.url-type-selector-trigger');
 
         const $options = $('.compact-url-type-selector-actions li');
-        expect($options).to.have.length(2);
-        expect($options.eq(0).text()).to.contain(urlTypeTranslations['share']);
-        expect($options.eq(1).text()).to.contain(urlTypeTranslations['rest']);
+        checkUrlTypeOptions($options, ['share', 'rest']);
+        done();
       });
     });
   });
 });
 
 function testClipboardInput(type, evaluateValue) {
-  it(`renders ${type} url in clipboard line if ${type} type is selected`, async function () {
+  it(`renders ${type} url in clipboard line if ${type} type is selected`, async function (done) {
     this.set('selectedUrlType', type);
 
     render(this);
     await wait();
 
     const $input = this.$('.clipboard-line-public-url-input');
-    expect($input).to.exist;
+    expect($input, 'clipboard-line-public-url-input').to.exist;
     expect($input.val()).to.equal(evaluateValue(this));
+    done();
   });
 }
 
 function testChangeSelectedUrlTypeCompact(type) {
-  it(`changes selectedUrlType to ${type} after selecting if from compact selector`, async function () {
+  it(`changes selectedUrlType to ${type} after selecting it from compact selector`, async function (done) {
     render(this);
     await click('.url-type-selector-trigger');
     await click(`.option-${type}-link`);
 
-    expect(this.$(`.public-url-viewer-${type}`)).to.exist;
+    expect(this.$(`.public-url-viewer-${type}`), `.public-url-viewer-${type} (compact)`)
+      .to.exist;
+    done();
   });
 }
 
 function testChangeSelectedUrlTypePowerSelect(type) {
-  it(`changes selectedUrlType to ${type} after selecting if from selector`, async function () {
+  it(`changes selectedUrlType to ${type} after selecting it from selector`, async function (done) {
     render(this);
     await selectChoose('.col-key', urlTypeTranslations[type]);
 
-    expect(this.$(`.public-url-viewer-${type}`)).to.exist;
+    expect(this.$(`.public-url-viewer-${type}`), `.public-url-viewer-${type}`).to.exist;
+    done();
   });
 }
 
 const urlTypeInfoChecks = {
   handle() {
-    expect($('.handle-id-clipboard-line .clipboard-input')).to.exist;
-    expect($('.handle-service-id-clipboard-line .clipboard-input')).to.exist;
+    expect($('.handle-id-clipboard-line .clipboard-input'), 'handle clipboard').to.exist;
+    expect(
+      $('.handle-service-id-clipboard-line .clipboard-input'),
+      'handle service clipboard'
+    ).to.exist;
     expect($('.handle-id-clipboard-line .clipboard-input').val())
       .to.equal(handleId);
     expect($('.handle-service-id-clipboard-line .clipboard-input').val())
@@ -232,18 +225,17 @@ const urlTypeInfoChecks = {
 };
 
 function testShowsUrlTypeInformationInPopover(type) {
-  it(`opens popover with information about "${type}" URL`, async function () {
-    this.setProperties({
-      selectedUrlType: type,
-    });
+  it(`opens popover with information about "${type}" URL`, async function (done) {
+    this.set('selectedUrlType', type);
 
     render(this);
     await wait();
     await click('.url-type-info-trigger');
 
-    expect($(`.url-type-info-content-${type}`)).to.exist;
-    expect($('.webui-popover-url-type-info.in')).to.exist;
+    expect($(`.url-type-info-content-${type}`), 'url-type-info-content').to.exist;
+    expect($('.webui-popover-url-type-info.in'), 'webui-popover-url-type-info').to.exist;
     urlTypeInfoChecks[type]();
+    done();
   });
 }
 
@@ -255,4 +247,11 @@ function render(testCase) {
     selectedUrlType=selectedUrlType
     changeSelectedUrlType=(action (mut selectedUrlType))
   }}`);
+}
+
+function checkUrlTypeOptions($options, urlTypes) {
+  expect($options).to.have.length(urlTypes.length);
+  for (let i = 0; i < urlTypes.length; ++i) {
+    expect($options.eq(i).text()).to.contain(urlTypeTranslations[urlTypes[i]]);
+  }
 }

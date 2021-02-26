@@ -16,7 +16,8 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.shareShow.urlInfoHandle',
 
   /**
-   * @virutal
+   * @virtual
+   * @type {Models.Share}
    */
   share: undefined,
 });

@@ -13,15 +13,14 @@ import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
 import sinon from 'sinon';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { focus } from 'ember-native-dom-helpers';
-import $ from 'jquery';
+import { get } from '@ember/object';
 
-const listChildrenRest = 'https://example.com/list-children-rest';
-const downloadFileContentRest = 'https://example.com/download-file-content-rest';
+const shareListDirChildrenRest = 'https://example.com/list-children-rest';
+const shareDownloadFileContentRest = 'https://example.com/download-file-content-rest';
 
 const RestGenerator = Service.extend({
-  listChildren: notImplementedThrow,
-  downloadFileContent: notImplementedThrow,
+  shareListDirChildren: notImplementedThrow,
+  shareDownloadFileContent: notImplementedThrow,
 });
 
 describe('Integration | Component | file browser/fb info modal', function () {
@@ -32,8 +31,8 @@ describe('Integration | Component | file browser/fb info modal', function () {
   beforeEach(function () {
     registerService(this, 'restGenerator', RestGenerator);
     const restGenerator = lookupService(this, 'restGenerator');
-    sinon.stub(restGenerator, 'listChildren').returns(listChildrenRest);
-    sinon.stub(restGenerator, 'downloadFileContent').returns(downloadFileContentRest);
+    sinon.stub(restGenerator, 'shareListDirChildren').returns(shareListDirChildrenRest);
+    sinon.stub(restGenerator, 'shareDownloadFileContent').returns(shareDownloadFileContentRest);
   });
 
   it('renders file name', function () {
@@ -157,10 +156,14 @@ function testRenderRestUrlForTypeInMode(fileType, isPreviewMode) {
     }}`);
 
     if (isPreviewMode) {
-      expect(this.$('.file-info-row-rest-url .property-name')).to.contain('REST URL');
+      const methodName = isDir ? 'shareListDirChildren' : 'shareDownloadFileContent';
+      expect(get(lookupService(this, 'restGenerator'), methodName))
+        .to.have.been.calledWith(get(file, 'cdmiObjectId'));
+      expect(this.$(
+        '.file-info-row-rest-url .property-name')).to.contain('REST URL');
       expect(
         this.$('.file-info-row-rest-url .property-value .clipboard-input').val()
-      ).to.equal(isDir ? listChildrenRest : downloadFileContentRest);
+      ).to.equal(isDir ? shareListDirChildrenRest : shareDownloadFileContentRest);
     } else {
       expect(this.$('.file-info-row-rest-url')).to.not.exist;
     }

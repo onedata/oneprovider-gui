@@ -17,8 +17,8 @@ export default OnedataConnection.extend({
   attributes: Object.freeze({
     transfersHistoryLimitPerFile: 100,
     restTemplates: Object.freeze({
-      listChildren: '/api/v3/oneprovider/data/{{id}}/children',
-      downloadFileContent: '/api/v3/oneprovider/data/{{id}}/content',
+      shareListDirChildren: 'https://zone.example.com/shared-data/{{id}}/children',
+      shareDownloadFileContent: 'https://zone.example.com/shared-data/{{id}}/content',
     }),
   }),
 });

@@ -5,8 +5,6 @@ import { registerService, lookupService } from '../../helpers/stub-service';
 import { set } from '@ember/object';
 import Service from '@ember/service';
 
-const apiOrigin = 'oneprovider1.local-onedata.org';
-
 const OnedataConnection = Service.extend({
   init() {
     this._super(...arguments);
@@ -14,46 +12,41 @@ const OnedataConnection = Service.extend({
   },
 });
 
-const GuiContext = Service.extend({
-  apiOrigin,
-});
-
 describe('Unit | Service | rest generator', function () {
   setupTest('service:rest-generator', {});
 
   beforeEach(function () {
     registerService(this, 'onedataConnection', OnedataConnection);
-    registerService(this, 'guiContext', GuiContext);
   });
 
-  it('generates listChildren', function () {
+  it('generates shareListDirChildren', function () {
     const id = '1234';
     set(
       lookupService(this, 'onedataConnection'),
-      'restTemplates.listChildren',
-      '/api/v3/something/{{id}}/list'
+      'restTemplates.shareListDirChildren',
+      'https://onezone.org/list_children/{{id}}'
     );
     const service = this.subject();
-    expect(service.listChildren(id))
-      .to.equal(`https://${apiOrigin}/api/v3/something/1234/list`);
+    expect(service.shareListDirChildren(id))
+      .to.equal('https://onezone.org/list_children/1234');
   });
 
-  it('generates downloadFileContent', function () {
+  it('generates shareDownloadFileContent', function () {
     const id = '1234';
     set(
       lookupService(this, 'onedataConnection'),
-      'restTemplates.downloadFileContent',
-      '/api/v3/something/{{id}}/content'
+      'restTemplates.shareDownloadFileContent',
+      'https://onezone.org/file_content/{{id}}'
     );
     const service = this.subject();
-    expect(service.downloadFileContent(id))
-      .to.equal(`https://${apiOrigin}/api/v3/something/1234/content`);
+    expect(service.shareDownloadFileContent(id))
+      .to.equal('https://onezone.org/file_content/1234');
   });
 
   it('generates empty string if a template is not found', function () {
     const id = '1234';
     const service = this.subject();
-    expect(service.listChildren(id))
+    expect(service.shareListDirChildren(id))
       .to.equal('');
   });
 });

@@ -19,9 +19,9 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
   transfersHistoryLimitPerFile: reads('attributes.transfersHistoryLimitPerFile'),
 
   /**
-   * Templates specific for Oneprovider:
-   * - listChildren
-   * - downloadFileContent
+   * Known templates:
+   * - shareListDirChildren
+   * - shareDownloadFileContent
    * @type {Ember.ComputedProperty<Object>}
    */
   restTemplates: reads('attributes.restTemplates'),

@@ -1,13 +1,24 @@
+/**
+ * Provides utils for generating REST URLs for various operations in Onedata.
+ * 
+ * Method names in this service are mainly names of corresponding operation names
+ * from Onedata API. See REST API documentation (eg. on https://onedata.org/#/home/api)
+ * for details or browse one of Swagger definitions (eg.
+ * https://github.com/onedata/oneprovider-swagger).
+ *
+ * @module services/rest-generator
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service, { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
-import { tag } from 'ember-awesome-macros';
+import { get } from '@ember/object';
 import pupa from 'npm:pupa';
 
 export default Service.extend({
   onedataConnection: service(),
-  guiContext: service(),
-
-  apiOrigin: reads('guiContext.apiOrigin'),
 
   /**
    * - Keys: template names equal to name of corresponding REST method.
@@ -16,33 +27,23 @@ export default Service.extend({
    */
   restTemplates: reads('onedataConnection.restTemplates'),
 
-  /**
-   * 
-   * @type {ComputedProperty<String>}
-   */
-  apiPrefix: tag `https://${'guiContext.apiOrigin'}`,
-
-  listChildren(cdmiObjectId) {
-    const apiPrefix = this.get('apiPrefix');
-    const listChildrenTemplate = this.get('restTemplates.listChildren');
-    if (!listChildrenTemplate) {
-      console.warn('util:rest-generator#listChildren: no template available');
-      return '';
-    }
-    return apiPrefix + pupa(listChildrenTemplate, {
-      id: cdmiObjectId,
-    });
+  shareListDirChildren(cdmiObjectId) {
+    return this.fillTemplate('shareListDirChildren', { id: cdmiObjectId });
   },
 
-  downloadFileContent(cdmiObjectId) {
-    const apiPrefix = this.get('apiPrefix');
-    const downloadFileContentTemplate = this.get('restTemplates.downloadFileContent');
-    if (!downloadFileContentTemplate) {
-      console.warn('util:rest-generator#downloadFileContent: no template available');
+  shareDownloadFileContent(cdmiObjectId) {
+    return this.fillTemplate('shareDownloadFileContent', { id: cdmiObjectId });
+  },
+
+  fillTemplate(templateName, templateParams) {
+    const restTemplates = this.get('restTemplates');
+    const template = get(restTemplates, templateName);
+    if (!template) {
+      console.error(
+        'util:rest-generator#fillTemplate: no template named ${templateName}'
+      );
       return '';
     }
-    return apiPrefix + pupa(downloadFileContentTemplate, {
-      id: cdmiObjectId,
-    });
+    return pupa(template, templateParams);
   },
 });
