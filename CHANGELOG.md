@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-7385 Removed op_replica occurrences
+* VFS-6842 Fixed JS console errors while scrolling file transfers list
 * VFS-7349 Fixed share root dir view crash after adding isLast flag support
 * VFS-7316 Added ANONYMOUS special ACE subject
 * VFS-7194 Added support for isLast flag when fetching directory files data
