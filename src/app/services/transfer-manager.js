@@ -1,6 +1,6 @@
 /**
  * Provides model functions related to transfers.
- * 
+ *
  * @module services/transfer-manager
  * @author Michał Borzęcki
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -12,16 +12,6 @@ import { get, getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { all as allFulfilled, resolve } from 'rsvp';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
-
-export const replicaEntityType = 'op_replica';
-
-export function replicaGri(fileId) {
-  return gri({
-    entityType: replicaEntityType,
-    entityId: fileId,
-    aspect: 'instance',
-  });
-}
 
 export default Service.extend({
   store: service(),
@@ -88,11 +78,11 @@ export default Service.extend({
   },
 
   /**
-   * @param {Models.Space} space 
+   * @param {Models.Space} space
    * @param {string} state one of: waiting, ongoing, ended
-   * @param {string} startFromIndex 
-   * @param {number} limit 
-   * @param {number} offset 
+   * @param {string} startFromIndex
+   * @param {number} limit
+   * @param {number} offset
    * @returns {Promise<Array<Models.Transfer>>}
    */
   getTransfersForSpace(space, state, startFromIndex, limit, offset) {
@@ -226,66 +216,69 @@ export default Service.extend({
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {Models.Provider} destinationOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startReplication(file, destinationOneprovider) {
-    const fileId = get(file, 'entityId');
+    const fileObjectId = get(file, 'cdmiObjectId');
     const destinationOneproviderId = get(destinationOneprovider, 'entityId');
 
-    return this.get('onedataGraph').request({
-        operation: 'create',
-        gri: replicaGri(fileId),
-        data: {
-          provider_id: destinationOneproviderId,
+    return this.get('store').createRecord('transfer', {
+      type: 'replication',
+      dataSourceType: 'file',
+      _meta: {
+        additionalData: {
+          replicatingProviderId: destinationOneproviderId,
+          fileId: fileObjectId,
         },
-        subscribe: false,
-      })
-      .then(({ transferId }) => this.getTransferById(transferId));
+      },
+    }).save();
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {Models.Provider} sourceOneprovider
    * @param {Models.Provider} destinationOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startMigration(file, sourceOneprovider, destinationOneprovider) {
-    const fileId = get(file, 'entityId');
+    const fileObjectId = get(file, 'cdmiObjectId');
     const sourceOneproviderId = get(sourceOneprovider, 'entityId');
     const destinationOneproviderId = get(destinationOneprovider, 'entityId');
 
-    return this.get('onedataGraph').request({
-        operation: 'delete',
-        gri: replicaGri(fileId),
-        data: {
-          provider_id: sourceOneproviderId,
-          migration_provider_id: destinationOneproviderId,
+    return this.get('store').createRecord('transfer', {
+      type: 'migration',
+      dataSourceType: 'file',
+      _meta: {
+        additionalData: {
+          replicatingProviderId: destinationOneproviderId,
+          evictingProviderId: sourceOneproviderId,
+          fileId: fileObjectId,
         },
-        subscribe: false,
-      })
-      .then(({ transferId }) => this.getTransferById(transferId));
+      },
+    }).save();
   },
 
   /**
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @param {Models.Provider} sourceOneprovider
    * @returns {Promise<Models.Transfer>}
    */
   startEviction(file, sourceOneprovider) {
-    const fileId = get(file, 'entityId');
+    const fileObjectId = get(file, 'cdmiObjectId');
     const sourceOneproviderId = get(sourceOneprovider, 'entityId');
 
-    return this.get('onedataGraph').request({
-        operation: 'delete',
-        gri: replicaGri(fileId),
-        data: {
-          provider_id: sourceOneproviderId,
+    return this.get('store').createRecord('transfer', {
+      type: 'eviction',
+      dataSourceType: 'file',
+      _meta: {
+        additionalData: {
+          evictingProviderId: sourceOneproviderId,
+          fileId: fileObjectId,
         },
-        subscribe: false,
-      })
-      .then(({ transferId }) => this.getTransferById(transferId));
+      },
+    }).save();
   },
 
   rerunTransfer(transfer) {
