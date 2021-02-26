@@ -134,7 +134,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effShowHandle: bool(and('showHandle', 'handleServiceProxy.name')),
+  effShowHandle: bool(and('showHandle', 'handleProxy.isFulfilled')),
 
   /**
    * @type {ComputedProperty<String>}

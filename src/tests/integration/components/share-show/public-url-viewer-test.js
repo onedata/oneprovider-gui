@@ -57,27 +57,6 @@ describe('Integration | Component | share show/public url viewer', function () {
   testChangeSelectedUrlTypePowerSelect('share');
   testChangeSelectedUrlTypePowerSelect('rest');
 
-  it('renders only "share" and "rest" url options without "handle" in selector if handle rejects',
-    async function (done) {
-      this.setProperties({
-        share: {
-          publicUrl: shareUrl,
-          publicRestUrl,
-          handle: promiseObject(reject()),
-        },
-        selectedUrlType: 'handle',
-      });
-
-      render(this);
-      await clickTrigger('.col-key');
-
-      const $options = $('li.ember-power-select-option');
-      checkUrlTypeOptions($options, ['share', 'rest']);
-      expect($('.public-url-viewer-share'), 'share mode fallback').to.exist;
-      done();
-    }
-  );
-
   context('with showHandle', function () {
     beforeEach(function () {
       this.set('showHandle', true);
@@ -86,6 +65,95 @@ describe('Integration | Component | share show/public url viewer', function () {
     testClipboardInput('handle', testCase => testCase.get('share.handle.url'));
     testChangeSelectedUrlTypePowerSelect('handle');
     testShowsUrlTypeInformationInPopover('handle');
+
+    it('renders only "share" and "rest" url options without "handle" in selector if handle rejects',
+      async function (done) {
+        this.setProperties({
+          share: {
+            publicUrl: shareUrl,
+            publicRestUrl,
+            handle: promiseObject(reject()),
+          },
+          selectedUrlType: 'handle',
+        });
+
+        render(this);
+        await clickTrigger('.col-key');
+
+        const $options = $('li.ember-power-select-option');
+        checkUrlTypeOptions($options, ['share', 'rest']);
+        expect($('.public-url-viewer-share'), 'share mode fallback').to.exist;
+        done();
+      }
+    );
+
+    context('with rejected handle service', function () {
+      beforeEach(function () {
+        this.setProperties({
+          share: {
+            publicUrl: shareUrl,
+            publicRestUrl,
+            handle: promiseObject(resolve({
+              url: handleUrl,
+              entityId: handleId,
+              handleService: promiseObject(reject()),
+            })),
+          },
+          selectedUrlType: 'handle',
+        });
+      });
+
+      it('renders "share", "handle" and "rest" url options in selector if handle resolves but handle service rejects',
+        async function (done) {
+          render(this);
+          await clickTrigger('.col-key');
+
+          const $options = $('li.ember-power-select-option');
+          checkUrlTypeOptions($options, ['share', 'handle', 'rest']);
+          expect($('.public-url-viewer-handle'), 'handle mode').to.exist;
+          done();
+        }
+      );
+
+      testShowsUrlTypeInformationInPopover('handle', { rejectedHandleService: true });
+    });
+
+    it('can render handle service name',
+      async function (done) {
+        this.set('selectedUrlType', 'handle');
+
+        render(this);
+        await wait();
+
+        expect($('.input-handle-service-name'), 'handle service name').to.exist;
+        expect($('.input-handle-service-name').text()).to.contain(handleService.name);
+        done();
+      }
+    );
+
+    it('does not render handle service name if handle service rejects',
+      async function (done) {
+        this.setProperties({
+          share: {
+            publicUrl: shareUrl,
+            publicRestUrl,
+            handle: promiseObject(resolve({
+              url: handleUrl,
+              entityId: handleId,
+              handleService: promiseObject(reject()),
+            })),
+          },
+          selectedUrlType: 'handle',
+        });
+
+        render(this);
+        await clickTrigger('.col-key');
+
+        expect($('.input-handle-service-name'), 'handle service name').to.not.exist;
+        expect($('.url-type-info-trigger.input-group-addon-icon .oneicon')).to.exist;
+        done();
+      }
+    );
   });
 
   context('in compact mode', function () {
@@ -119,6 +187,7 @@ describe('Integration | Component | share show/public url viewer', function () {
         await wait();
 
         expect($('.input-handle-service-name'), 'handle service name').to.not.exist;
+        expect($('.url-type-info-trigger.input-group-addon-icon .oneicon')).to.exist;
         done();
       });
 
@@ -209,23 +278,29 @@ function testChangeSelectedUrlTypePowerSelect(type) {
 }
 
 const urlTypeInfoChecks = {
-  handle() {
-    expect($('.handle-id-clipboard-line .clipboard-input'), 'handle clipboard').to.exist;
+  handle({ rejectedHandleService = false } = {}) {
+    expect($('.handle-id-clipboard-line .clipboard-input'), 'handle clipboard');
+    expect($('.handle-id-clipboard-line .clipboard-input').val()).to.equal(handleId);
     expect(
       $('.handle-service-id-clipboard-line .clipboard-input'),
       'handle service clipboard'
-    ).to.exist;
-    expect($('.handle-id-clipboard-line .clipboard-input').val())
-      .to.equal(handleId);
-    expect($('.handle-service-id-clipboard-line .clipboard-input').val())
-      .to.equal(handleService.entityId);
+    ).to.have.length(rejectedHandleService ? 0 : 1);
+    expect($('.handle-service-name')).to.have.length(rejectedHandleService ? 0 : 1);
+    if (!rejectedHandleService) {
+      expect($('.handle-service-id-clipboard-line .clipboard-input').val())
+        .to.equal(handleService.entityId);
+    }
   },
   share() {},
   rest() {},
 };
 
-function testShowsUrlTypeInformationInPopover(type) {
-  it(`opens popover with information about "${type}" URL`, async function (done) {
+function testShowsUrlTypeInformationInPopover(type, informationOptions = {}) {
+  let suffix = '';
+  if (informationOptions && Object.keys(informationOptions).length > 0) {
+    suffix = `(${Object.keys(informationOptions).join(', ')})`;
+  }
+  it(`opens popover with information about "${type}" URL ${suffix}`, async function (done) {
     this.set('selectedUrlType', type);
 
     render(this);
@@ -234,7 +309,7 @@ function testShowsUrlTypeInformationInPopover(type) {
 
     expect($(`.url-type-info-content-${type}`), 'url-type-info-content').to.exist;
     expect($('.webui-popover-url-type-info.in'), 'webui-popover-url-type-info').to.exist;
-    urlTypeInfoChecks[type]();
+    urlTypeInfoChecks[type](informationOptions);
     done();
   });
 }

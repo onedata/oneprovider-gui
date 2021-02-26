@@ -1,11 +1,13 @@
 <p>
   {{tt this "intro"}}
 </p>
-<p>
-  {{tt this "handleServiceInfoText"
-    handleServiceName=share.handle.handleService.name
-  }}
-</p>
+{{#if share.handle.handleService.name}}
+  <p class="handle-service-name">
+    {{tt this "handleServiceInfoText"
+      handleServiceName=share.handle.handleService.name
+    }}
+  </p>
+{{/if}}
 <p>
   <label class="control-label">
     <strong>{{tt this "handleId"}}:</strong>
@@ -16,16 +18,18 @@
     value=share.handle.entityId
   }}
 </p>
-<p>
-  <label class="control-label">
-    <strong>{{tt this "handleServiceId"}}:</strong>
-  </label>
-  {{one-clipboard-line
-    class="handle-service-id-clipboard-line"
-    size="sm"
-    value=share.handle.handleService.entityId
-  }}
-</p>
+{{#if share.handle.handleService.entityId}}
+  <p>
+    <label class="control-label">
+      <strong>{{tt this "handleServiceId"}}:</strong>
+    </label>
+    {{one-clipboard-line
+      class="handle-service-id-clipboard-line"
+      size="sm"
+      value=share.handle.handleService.entityId
+    }}
+  </p>
+{{/if}}
 <hr>
 <p>
   {{tt this "selectorInfo"}}
