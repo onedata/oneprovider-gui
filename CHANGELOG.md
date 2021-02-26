@@ -6,11 +6,14 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6842 Fixed JS console errors while scrolling file transfers list
+* VFS-7349 Fixed share root dir view crash after adding isLast flag support
+* VFS-7316 Added ANONYMOUS special ACE subject
+* VFS-7194 Added support for isLast flag when fetching directory files data
 * VFS-7271 Fixed showing shared space root dir name
 * VFS-6566 Improved UX and refactored share views
 * VFS-7009 Do not display "no access" file tag if user is space owner
 * VFS-7202 Updated "bad data" backend error translation
-* VFS-6802 Added graphical QoS expression editor
 * VFS-7042 Updated common libs
 * VFS-7058 Added a detached shares cleanup during files deletion using GUI
 * VFS-6745 Updated common libs

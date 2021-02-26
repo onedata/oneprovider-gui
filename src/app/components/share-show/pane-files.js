@@ -127,15 +127,17 @@ export default Component.extend(I18n, {
       }
       if (startIndex == null) {
         if (size <= 0 || offset < 0) {
-          return resolve([]);
+          return resolve({ childrenRecords: [], isLast: true });
         } else {
           return this.get('share.rootFile')
-            .then(rootFile => [rootFile]);
+            .then(rootFile => ({ childrenRecords: [rootFile], isLast: true }));
         }
       } else if (startIndex === array.get('sourceArray.lastObject.index')) {
-        return resolve([]);
+        return resolve({ childrenRecords: [], isLast: true });
       } else {
-        return reject('cannot use fetch file transfer not from start');
+        return reject(
+          'component:share-show/pane-files#fetchShareRootDirChildren guard: illegal fetch children for virtual share root dir'
+        );
       }
     },
     updateDirId(dirId) {

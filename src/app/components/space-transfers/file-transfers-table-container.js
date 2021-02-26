@@ -42,10 +42,17 @@ export default TransfersTableContainer.extend(I18n, {
             return [...ongoingTransfers, ...endedTransfers];
           });
       }
-    } else if (startIndex === array.get('sourceArray.lastObject.index')) {
+    } else if (
+      offset >= 0 && startIndex === array.getIndex(get(array, 'sourceArray.lastObject')) ||
+      offset <= 0 && startIndex === array.getIndex(get(array, 'sourceArray.firstObject'))
+    ) {
+      // tried to load more at end or load below start - this is normal behaviour
+      // of replacing chunks array, so just return empty array
       return resolve([]);
     } else {
-      return reject('cannot use fetch file transfer not from start');
+      return reject(
+        'component:space-transfers/file-transfers-table-container#fetchTransfers: tried to load illegal part of transfers table, this might cause problems in render'
+      );
     }
   },
 
