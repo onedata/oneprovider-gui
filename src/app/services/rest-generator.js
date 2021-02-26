@@ -27,12 +27,12 @@ export default Service.extend({
    */
   restTemplates: reads('onedataConnection.restTemplates'),
 
-  shareListDirChildren(cdmiObjectId) {
-    return this.fillTemplate('shareListDirChildren', { id: cdmiObjectId });
+  listSharedDirectoryChildren(cdmiObjectId) {
+    return this.fillTemplate('listSharedDirectoryChildren', { id: cdmiObjectId });
   },
 
-  shareDownloadFileContent(cdmiObjectId) {
-    return this.fillTemplate('shareDownloadFileContent', { id: cdmiObjectId });
+  downloadSharedFileContent(cdmiObjectId) {
+    return this.fillTemplate('downloadSharedFileContent', { id: cdmiObjectId });
   },
 
   fillTemplate(templateName, templateParams) {

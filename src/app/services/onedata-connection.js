@@ -20,8 +20,8 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
 
   /**
    * Known templates:
-   * - shareListDirChildren
-   * - shareDownloadFileContent
+   * - listSharedDirectoryChildren
+   * - downloadSharedFileContent
    * @type {Ember.ComputedProperty<Object>}
    */
   restTemplates: reads('attributes.restTemplates'),

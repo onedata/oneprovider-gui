@@ -103,7 +103,7 @@ export default Component.extend(I18n, {
       itemType,
       cdmiObjectId,
     } = this.getProperties('restGenerator', 'itemType', 'cdmiObjectId');
-    const methodName = (itemType === 'dir') ? 'shareListDirChildren' : 'shareDownloadFileContent';
+    const methodName = (itemType === 'dir') ? 'listSharedDirectoryChildren' : 'downloadSharedFileContent';
     return restGenerator[methodName](cdmiObjectId);
   }),
 
