@@ -112,10 +112,11 @@ describe('Integration | Component | file browser/fb info modal', function () {
       expect(
         this.$('.file-info-row-name .property-value .clipboard-input').val()
       ).to.contain(this.get('file.name'));
+
       done();
     });
 
-    it('renders space id', function () {
+    it('renders space id', async function (done) {
       const spaceEntityId = 's893y37439';
       this.set('spaceEntityId', spaceEntityId);
 
@@ -124,15 +125,19 @@ describe('Integration | Component | file browser/fb info modal', function () {
       expect(
         this.$('.file-info-row-space-id .property-value .clipboard-input').val()
       ).to.contain(spaceEntityId);
+
+      done();
     });
 
-    it('renders cdmi object id', function () {
+    it('renders cdmi object id', async function (done) {
       render(this);
 
       expect(
         this.$('.file-info-row-cdmi-object-id .property-value .clipboard-input')
         .val()
       ).to.contain(exampleCdmiObjectId);
+
+      done();
     });
 
     testRenderRestUrl(false);
@@ -171,7 +176,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         testRenderRestUrlAndInfoForType(type);
       });
 
-      it('shows download content REST URL and its info in hint by default', async function () {
+      it('shows download content REST URL and its info in hint by default', async function (done) {
         const restGenerator = lookupService(this, 'restGenerator');
         const stubUrl = 'https://stub_url';
         const restMethodStub = sinon.stub(restGenerator, 'downloadSharedFileContent')
@@ -191,6 +196,8 @@ describe('Integration | Component | file browser/fb info modal', function () {
         expect($popover).to.have.class('in');
         expect($popover.text())
           .to.contain(urlTypeDescriptionTranslations['downloadSharedFileContent']);
+
+        done();
       });
     });
 
@@ -215,7 +222,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         testRenderRestUrlAndInfoForType(type);
       });
 
-      it('shows list children REST URL and its info in hint by default', async function () {
+      it('shows list children REST URL and its info in hint by default', async function (done) {
         const restGenerator = lookupService(this, 'restGenerator');
         const stubUrl = 'https://stub_url';
         const restMethodStub = sinon.stub(restGenerator, 'listSharedDirectoryChildren')
@@ -235,6 +242,8 @@ describe('Integration | Component | file browser/fb info modal', function () {
         expect($popover).to.have.class('in');
         expect($popover.text())
           .to.contain(urlTypeDescriptionTranslations['listSharedDirectoryChildren']);
+
+        done();
       });
     });
   });
@@ -267,7 +276,7 @@ function testRenderRestUrlTypeOptions(options) {
 }
 
 function testRenderRestUrlAndInfoForType(type) {
-  it(`shows proper REST URL and info in hint when selected ${type} URL`, async function () {
+  it(`shows proper REST URL and info in hint when selected ${type} URL`, async function (done) {
     const methodName = type;
     const restGenerator = lookupService(this, 'restGenerator');
     const stubUrl = 'https://stub_url';
@@ -289,6 +298,7 @@ function testRenderRestUrlAndInfoForType(type) {
     expect($popover).to.exist;
     expect($popover).to.have.class('in');
     expect($popover.text()).to.contain(urlTypeDescriptionTranslations[type]);
+    done();
   });
 }
 
