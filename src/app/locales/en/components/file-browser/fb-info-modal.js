@@ -11,9 +11,24 @@ export default {
   close: 'Close',
   size: 'Size',
   rest: 'Public REST URL',
-  restTipBase: 'URL to the publicly accessible REST endpoint, which can be used to programmatically {{operation}}. The URL points to Onezone, which  answers with a redirect to an URL with one of the Oneproviders that can  handle the request. The endpoints do not require any authentication.',
-  restTipOperation: {
-    file: 'download the file content',
-    dir: 'list the directory contents',
+  restTag: 'REST',
+  restTipIntro: 'The Onezone\'s public REST API can be used to access information and contents of all shared files and directories, without any authentication. It redirects to the corresponding REST API in one of the supporting Oneproviders. The Oneprovider is chosen dynamically and may change in time, so the redirection URL should not be cached.',
+  restTipLinkName: 'REST API',
+  restTipSpecificIntro: 'This endpoint returns {{typeDescription}}.',
+  restTipSpecificType: {
+    listSharedDirectoryChildren: 'the list of directory files and subdirectories',
+    downloadSharedFileContent: 'the binary file content',
+    getSharedFileAttributes: 'basic attributes of a file or directory',
+    getSharedFileJsonMetadata: 'custom JSON metadata associated with a file or directory',
+    getSharedFileRdfMetadata: 'custom RDF metadata associated with a file or directory',
+    getSharedFileExtendedAttributes: 'custom extended attributes (xattrs) associated with a file or directory',
+  },
+  restUrlType: {
+    listSharedDirectoryChildren: 'List directory files and subdirectories',
+    downloadSharedFileContent: 'Download file content',
+    getSharedFileAttributes: 'Get attributes',
+    getSharedFileJsonMetadata: 'Get JSON metadata',
+    getSharedFileRdfMetadata: 'Get RDF metadata',
+    getSharedFileExtendedAttributes: 'Get extended attributes',
   },
 };

@@ -38,27 +38,25 @@
             </div>
           </div>
         
-          <div class="popover-container">
-            {{#one-webui-popover
-              class="compact-url-type-selector-popover"
-              popoverStyle="with-dropdown"
-              padding=false
-              open=compactUrlTypeSelectorOpened
-              triggerSelector=(concat "#" elementId " .compact-url-type-selector-arrow")
-              as |popover|
+          {{#one-webui-popover
+            class="compact-url-type-selector-popover"
+            popoverStyle="with-dropdown"
+            padding=false
+            open=compactUrlTypeSelectorOpened
+            triggerSelector=(concat "#" elementId " .compact-url-type-selector-arrow")
+            as |popover|
+          }}
+            {{#click-outside
+              action=(action (mut compactUrlTypeSelectorOpened) false)
+              except-selector=".url-type-selector-trigger, .compact-url-type-selector-actions"
             }}
-              {{#click-outside
-                action=(action (mut compactUrlTypeSelectorOpened) false)
-                except-selector=".url-type-selector-trigger, .compact-url-type-selector-actions"
+              {{actions-popover-content
+                actionsArray=compactUrlTypeSelectorActions
+                actionClicked=(action (mut compactUrlTypeSelectorOpened) false)
+                class="compact-url-type-selector-actions"
               }}
-                {{actions-popover-content
-                  actionsArray=compactUrlTypeSelectorActions
-                  actionClicked=(action (mut compactUrlTypeSelectorOpened) false)
-                  class="compact-url-type-selector-actions"
-                }}
-              {{/click-outside}}
-            {{/one-webui-popover}}
-          </div>
+            {{/click-outside}}
+          {{/one-webui-popover}}
         {{/if}}
         <div
           class="input-group-addon input-group-addon-text url-type-info-trigger truncate input-group-addon-left {{unless typeInfoTriggerText "input-group-addon-icon"}}"

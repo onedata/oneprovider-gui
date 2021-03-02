@@ -17,8 +17,16 @@ export default OnedataConnection.extend({
   attributes: Object.freeze({
     transfersHistoryLimitPerFile: 100,
     restTemplates: Object.freeze({
-      listSharedDirectoryChildren: 'https://zone.example.com/shared-data/{{id}}/children',
-      downloadSharedFileContent: 'https://zone.example.com/shared-data/{{id}}/content',
+      listSharedDirectoryChildren: sharedFileTemplate('children'),
+      downloadSharedFileContent: sharedFileTemplate('content'),
+      getSharedFileAttributes: sharedFileTemplate(''),
+      getSharedFileJsonMetadata: sharedFileTemplate('metadata/json'),
+      getSharedFileRdfMetadata: sharedFileTemplate('metadata/rdf'),
+      getSharedFileExtendedAttributes: sharedFileTemplate('metadata/xattrs'),
     }),
   }),
 });
+
+export function sharedFileTemplate(operation) {
+  return `https://test.onedata.org/api/v3/onezone/shares/data/{{id}}/${operation}`;
+}

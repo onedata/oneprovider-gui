@@ -1,0 +1,35 @@
+.fb-info-modal {
+  .rest-url-type-row {
+    display: flex;
+    align-items: center;
+    
+    padding-top: $ember-power-select-option-small-padding-vertical;
+    padding-bottom: $padding-base-vertical;
+    
+    .rest-url-type-info-trigger {
+      margin-left: 0.5em;
+    }
+    
+    .rest-url-type-selector-trigger {
+      flex-basis: 20em;
+    }
+    
+    .labels-container {
+      flex-grow: 1;
+      text-align: right;
+      
+      .label {
+        font-weight: normal;
+        @include font-semibold;
+      }
+    }
+    
+    .bracket-fix {
+      top: -0.1em;
+      position: relative;
+    }
+  }
+  .table.table-info td.property-name {
+    width: 10em;
+  }
+}

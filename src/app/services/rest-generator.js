@@ -35,6 +35,22 @@ export default Service.extend({
     return this.fillTemplate('downloadSharedFileContent', { id: cdmiObjectId });
   },
 
+  getSharedFileAttributes(cdmiObjectId) {
+    return this.fillTemplate('getSharedFileAttributes', { id: cdmiObjectId });
+  },
+
+  getSharedFileJsonMetadata(cdmiObjectId) {
+    return this.fillTemplate('getSharedFileJsonMetadata', { id: cdmiObjectId });
+  },
+
+  getSharedFileRdfMetadata(cdmiObjectId) {
+    return this.fillTemplate('getSharedFileRdfMetadata', { id: cdmiObjectId });
+  },
+
+  getSharedFileExtendedAttributes(cdmiObjectId) {
+    return this.fillTemplate('getSharedFileExtendedAttributes', { id: cdmiObjectId });
+  },
+
   fillTemplate(templateName, templateParams) {
     const restTemplates = this.get('restTemplates');
     const template = get(restTemplates, templateName);

@@ -19,34 +19,33 @@ describe('Unit | Service | rest generator', function () {
     registerService(this, 'onedataConnection', OnedataConnection);
   });
 
-  it('generates listSharedDirectoryChildren', function () {
-    const id = '1234';
-    set(
-      lookupService(this, 'onedataConnection'),
-      'restTemplates.listSharedDirectoryChildren',
-      'https://onezone.org/list_children/{{id}}'
-    );
-    const service = this.subject();
-    expect(service.listSharedDirectoryChildren(id))
-      .to.equal('https://onezone.org/list_children/1234');
-  });
-
-  it('generates downloadSharedFileContent', function () {
-    const id = '1234';
-    set(
-      lookupService(this, 'onedataConnection'),
-      'restTemplates.downloadSharedFileContent',
-      'https://onezone.org/file_content/{{id}}'
-    );
-    const service = this.subject();
-    expect(service.downloadSharedFileContent(id))
-      .to.equal('https://onezone.org/file_content/1234');
-  });
-
   it('generates empty string if a template is not found', function () {
     const id = '1234';
     const service = this.subject();
     expect(service.listSharedDirectoryChildren(id))
       .to.equal('');
   });
+
+  [
+    'listSharedDirectoryChildren',
+    'downloadSharedFileContent',
+    'getSharedFileAttributes',
+    'getSharedFileJsonMetadata',
+    'getSharedFileRdfMetadata',
+    'getSharedFileExtendedAttributes',
+  ].forEach(methodName => testUrlGeneratingMethod(methodName));
 });
+
+function testUrlGeneratingMethod(methodName, templateName = methodName) {
+  it(`generates URL for ${methodName} method using "${templateName}" template`, function () {
+    const id = '1234';
+    set(
+      lookupService(this, 'onedataConnection'),
+      `restTemplates.${templateName}`,
+      `https://onezone.org/{{id}}/${methodName}`
+    );
+    const service = this.subject();
+    expect(service[methodName](id))
+      .to.equal(`https://onezone.org/1234/${methodName}`);
+  });
+}
