@@ -29,6 +29,6 @@ export default {
     getSharedFileAttributes: 'Get attributes',
     getSharedFileJsonMetadata: 'Get JSON metadata',
     getSharedFileRdfMetadata: 'Get RDF metadata',
-    getSharedFileExtendedAttributes: 'Get extended attributes',
+    getSharedFileExtendedAttributes: 'Get extended attributes (xattrs)',
   },
 };

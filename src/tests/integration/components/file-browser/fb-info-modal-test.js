@@ -33,7 +33,7 @@ const urlTypeTranslations = {
   getSharedFileAttributes: 'Get attributes',
   getSharedFileJsonMetadata: 'Get JSON metadata',
   getSharedFileRdfMetadata: 'Get RDF metadata',
-  getSharedFileExtendedAttributes: 'Get extended attributes',
+  getSharedFileExtendedAttributes: 'Get extended attributes (xattrs)',
 };
 
 // checking only significant fragments to not duplicate whole world
@@ -313,8 +313,9 @@ function render(testCase) {
 
 function checkUrlTypeOptions($options, urlTypes) {
   expect($options).to.have.length(urlTypes.length);
+  const optionTexts = Array.from($options).map(opt => opt.textContent.trim());
   for (let i = 0; i < urlTypes.length; ++i) {
-    expect($options.eq(i).text()).to.contain(urlTypeTranslations[urlTypes[i]]);
+    expect(optionTexts).to.contain(urlTypeTranslations[urlTypes[i]]);
   }
 }
 

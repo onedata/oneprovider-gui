@@ -60,7 +60,7 @@
               {{clipboard-line
                 value=cdmiObjectId
                 type="textarea"
-                textareaRows="2"
+                textareaRows="3"
                 size=(if smallContent "sm")
                 class="monospace-font compact"
               }}
@@ -87,11 +87,14 @@
                   {{tt this (concat "restUrlType." urlType)}}
                 {{/one-dropdown}}
                 <div
-                  id={{restUrlInfoTriggerId}}
-                  class="inline-icon-container rest-url-type-info-trigger"
+                  class="inline-icon-container rest-url-type-info-trigger-container"
                   {{action (mut restUrlTypeInfoOpened) (not restUrlTypeInfoOpened)}}
                 >
-                  {{one-icon icon="browser-info"}}
+                  {{one-icon
+                    id=restUrlInfoTriggerId
+                    icon="browser-info"
+                    class="rest-url-type-info-trigger"
+                  }}
                 </div>
                 {{#one-webui-popover
                   popoverStyle="rest-url-type-info over-modals"
@@ -114,8 +117,8 @@
                         )
                       }}
                     </p>
-                    <hr>
-                    <p class="rest-tip-specific rest-tip-{{selectedUrlType}}">
+                    <hr class="sharp">
+                    <p class="last rest-tip-specific rest-tip-{{effSelectedRestUrlType}}">
                       {{tt this "restTipSpecificIntro"
                         typeDescription=(tt this
                           (concat "restTipSpecificType." effSelectedRestUrlType)

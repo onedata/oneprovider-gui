@@ -147,9 +147,9 @@ export default Component.extend(I18n, {
    */
   commonRestUrlTypes: raw([
     'getSharedFileAttributes',
+    'getSharedFileExtendedAttributes',
     'getSharedFileJsonMetadata',
     'getSharedFileRdfMetadata',
-    'getSharedFileExtendedAttributes',
   ]),
 
   /**

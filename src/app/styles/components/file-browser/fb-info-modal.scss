@@ -1,4 +1,9 @@
 .fb-info-modal {
+  @media (min-width: $screen-md-min) {
+    .modal-lg {  
+      width: 1000px;
+    }
+  }
   .rest-url-type-row {
     display: flex;
     align-items: center;
@@ -6,8 +11,13 @@
     padding-top: $ember-power-select-option-small-padding-vertical;
     padding-bottom: $padding-base-vertical;
     
-    .rest-url-type-info-trigger {
+    .rest-url-type-info-trigger-container {
       margin-left: 0.5em;
+      &.inline-icon-container .oneicon {
+        // makes tooltip to be nearer the icon center
+        line-height: 0.5;
+        transform: translateY(-50%);
+      }
     }
     
     .rest-url-type-selector-trigger {
@@ -20,16 +30,18 @@
     
     .labels-container {
       flex-grow: 1;
-      text-align: right;
+      display: flex;
+      justify-content: flex-end;
       
       .label {
+        line-height: initial;
         font-weight: normal;
         @include font-semibold;
       }
     }
     
     .bracket-fix {
-      top: -0.1em;
+      top: -0.05em;
       position: relative;
     }
   }
