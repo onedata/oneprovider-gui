@@ -11,7 +11,11 @@
     }
     
     .rest-url-type-selector-trigger {
-      flex-basis: 20em;
+      flex-basis: 22em;
+      @media (max-width: $screen-xs-max) {
+        flex-basis: auto;
+        flex-grow: 1;
+      }
     }
     
     .labels-container {
