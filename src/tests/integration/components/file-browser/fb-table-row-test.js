@@ -85,7 +85,42 @@ describe('Integration | Component | file browser/fb table row', function () {
       });
     }
   });
+
+  testProtectedFlag(['data']);
+  testProtectedFlag(['metadata']);
+  testProtectedFlag(['data', 'metadata']);
 });
+
+function testProtectedFlag(flagTypes, renders = true) {
+  const rendersText = renders ? 'renders only' : 'does not render';
+  const flagsText = flagTypes.join(', ');
+  const effProtectionFlags = flagTypes.map(type => `${type}_protection`);
+  const fileFlagsText = effProtectionFlags.map(flag => `"${flag}"`).join(', ');
+  const pluralText = flagTypes.length > 1 ? 's' : '';
+  const description =
+    `${rendersText} ${flagsText} protected icon${pluralText} inside dataset tag group if file has ${fileFlagsText} flag${pluralText}`;
+  it(description, async function (done) {
+    this.set(
+      'file',
+      createFile({ effProtectionFlags })
+    );
+
+    this.render(hbs `{{file-browser/fb-table-row
+      file=file
+    }}`);
+
+    if (renders) {
+      expect(this.$('.file-protected-icon')).to.have.length(effProtectionFlags.length);
+    }
+    flagTypes.forEach(type => {
+      expect(this.$(
+        `.dataset-file-status-tag-group .file-status-protected .file-${type}-protected-icon`
+      )).to.have.length(renders ? 1 : 0);
+    });
+
+    done();
+  });
+}
 
 function checkNoAccessTag({ renders, description, properties }) {
   it(description, function () {

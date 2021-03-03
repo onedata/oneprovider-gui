@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { equal, raw } from 'ember-awesome-macros';
+import { equal, raw, or, array } from 'ember-awesome-macros';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -380,6 +380,33 @@ export default Component.extend(I18n, FastDoubleClick, {
   hasDirectQos: reads('file.hasDirectQos'),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
+
+  // TODO: VFS-7403 this flag should be read from file; implement datasets API support
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isDirectDataset: or('isMetadataProtected', 'isDataProtected'),
+
+  // TODO: VFS-7403 this flag should be read from file; implement datasets API support
+  isEffDataset: reads('isDirectDataset'),
+
+  // TODO: VFS-7403 this flag should be false if isDataset if false
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isMetadataProtected: array.includes(
+    'file.effProtectionFlags',
+    raw('metadata_protection')
+  ),
+
+  // TODO: VFS-7403 this flag should be false if isDataset if false
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isDataProtected: array.includes(
+    'file.effProtectionFlags',
+    raw('data_protection')
+  ),
 
   didInsertElement() {
     this._super(...arguments);

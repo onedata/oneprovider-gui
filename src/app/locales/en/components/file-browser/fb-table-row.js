@@ -16,5 +16,6 @@ export default {
     acl: 'ACL',
     conflict: 'Conflict',
     forbidden: 'No access',
+    dataset: 'Dataset',
   },
 };
