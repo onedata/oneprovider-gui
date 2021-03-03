@@ -12,8 +12,8 @@ import { registerService, lookupService } from '../../../helpers/stub-service';
 import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
-import { selectChoose, clickTrigger } from '../../../helpers/ember-power-select';
+import { click, findAll } from 'ember-native-dom-helpers';
+import { clickTrigger } from '../../../helpers/ember-power-select';
 import $ from 'jquery';
 
 const returnDummyUrl = () => 'https://dummy';
@@ -283,7 +283,6 @@ function testRenderRestUrlAndInfoForType(type) {
     const restMethodStub = sinon.stub(restGenerator, methodName).returns(stubUrl);
 
     render(this);
-    await wait();
 
     await selectChoose('.rest-url-type-row', urlTypeTranslations[type]);
     expect(restMethodStub)
@@ -317,4 +316,17 @@ function checkUrlTypeOptions($options, urlTypes) {
   for (let i = 0; i < urlTypes.length; ++i) {
     expect($options.eq(i).text()).to.contain(urlTypeTranslations[urlTypes[i]]);
   }
+}
+
+function findContains(selector, text) {
+  return findAll(selector).filter((e) => e.textContent.trim().indexOf(text) > -1)[0];
+}
+
+// For some strange reason (not debugged yet), selectChoose fails on Bamboo.
+// This is a simpler equivalent.
+async function selectChoose(cssPath, value) {
+  await clickTrigger(cssPath);
+  const option = findContains('li.ember-power-select-option', value);
+  expect(option, `dropdown item containing "${value}"`).to.exist;
+  await click(option);
 }
