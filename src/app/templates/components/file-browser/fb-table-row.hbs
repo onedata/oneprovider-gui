@@ -38,16 +38,47 @@
                 {{tt this "status.shared"}}
               </div>
             {{/if}}
-            {{#if isForbidden}}
-              <div class="file-status-tag file-status-tag-danger file-status-forbidden">
-                {{tt this "status.forbidden"}}
-                {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
-              </div>
-            {{/if}}
             {{#if nameConflict}}
               <div class="file-status-tag file-status-tag-danger file-status-conflict">
                 {{tt this "status.conflict"}}
                 {{one-tooltip title=(tt this "otherFileSameName")}}
+              </div>
+            {{/if}}
+            {{#if isForbidden}}
+              <div class="file-status-tag file-status-tag-warning file-status-forbidden">
+                {{tt this "status.forbidden"}}
+                {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
+              </div>
+            {{/if}}
+            {{#if (or isEffDataset isDirectDataset)}}
+              <div class="file-status-tag-group dataset-file-status-tag-group">
+                <div
+                  class="file-status-tag file-status-dataset"
+                  {{action (action "invokeFileAction" file "btnDataset") bubbles=false}}
+                >
+                  {{tt this "status.dataset"}}
+                </div>
+                {{#if hasAnyProtectionFlag}}
+                  <div
+                    class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
+                  >
+                    {{#if isDataProtected}}
+                      {{one-icon
+                        icon="provider"
+                        class="file-protected-icon file-data-protected-icon"
+                      }}
+                    {{/if}}
+                    {{#if isMetadataProtected}}
+                      {{one-icon
+                        icon="browser-attribute"
+                        class="file-protected-icon file-metadata-protected-icon"
+                      }}
+                    {{/if}}
+                    {{#if protectionFlagsInfo}}
+                      {{one-tooltip title=protectionFlagsInfo}}
+                    {{/if}}
+                  </div>
+                {{/if}}
               </div>
             {{/if}}
             {{#if hasMetadata}}

@@ -69,6 +69,12 @@ export default Model.extend(
     sharesCount: attr('number'),
 
     /**
+     * Available values in array: 'data_protection', 'metadata_protection'
+     * @type {ComputedProperty<Array>}
+     */
+    effProtectionFlags: attr('array'),
+
+    /**
      * Modification time in UNIX timestamp format.
      */
     mtime: attr('number'),

@@ -608,6 +608,16 @@ export default Service.extend({
         const entityId = generateFileEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
+        let effProtectionFlags;
+        if (i === 2) {
+          effProtectionFlags = ['data_protection'];
+        } else if (i === 3) {
+          effProtectionFlags = ['metadata_protection'];
+        } else if (i === 4) {
+          effProtectionFlags = ['data_protection', 'metadata_protection'];
+        } else {
+          effProtectionFlags = [];
+        }
         return store.createRecord('file', {
           id,
           name,
@@ -617,6 +627,7 @@ export default Service.extend({
           hasMetadata: i < 5,
           hasEffQos: i > 3 && i < 8,
           hasDirectQos: i > 6 && i < 10,
+          effProtectionFlags,
           size: i * 1000000,
           mtime: timestamp + i * 3600,
           parent,
