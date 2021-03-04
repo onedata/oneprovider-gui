@@ -29,6 +29,7 @@ export default {
     newDirectory: 'New directory',
     refresh: 'Refresh',
     info: 'Information',
+    download: 'Download',
     share: 'Share',
     metadata: 'Metadata',
     permissions: 'Permissions',

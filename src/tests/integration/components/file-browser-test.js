@@ -420,7 +420,10 @@ describe('Integration | Component | file browser', function () {
         .then(() => {
           expect(fetchDirChildren).to.be.called;
         });
-    });
+    }
+  );
+
+  // FIXME: VFS-7368 add context menu checks
 
   describe('selects using injected file ids', function () {
     it('visible file on list', function () {

@@ -19,9 +19,10 @@ import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
-import { next } from '@ember/runloop';
+import { next, later } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import $ from 'jquery';
 
 export const actionContext = {
   none: 'none',
@@ -61,6 +62,7 @@ const buttonNames = [
   'btnNewDirectory',
   'btnRefresh',
   'btnInfo',
+  'btnDownload',
   'btnShare',
   'btnMetadata',
   'btnPermissions',
@@ -83,6 +85,7 @@ export default Component.extend(I18n, {
   globalNotify: service(),
   errorExtractor: service(),
   media: service(),
+  isMobile: service(),
 
   /**
    * @override
@@ -495,6 +498,24 @@ export default Component.extend(I18n, {
     });
   }),
 
+  btnDownload: computed(function btnInfo() {
+    return this.createFileAction({
+      id: 'download',
+      icon: 'data-receive',
+      action: (files) => {
+        return this.downloadFile(files[0]);
+      },
+      showIn: [
+        actionContext.spaceRootDir,
+        actionContext.singleDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDirPreview,
+        actionContext.singleDirPreview,
+        actionContext.currentDirPreview,
+      ],
+    });
+  }),
+
   btnRename: computed(function btnRename() {
     return this.createFileAction({
       id: 'rename',
@@ -808,6 +829,54 @@ export default Component.extend(I18n, {
       } = this.getProperties('changeSelectedFiles', 'dir');
       return changeSelectedFiles([dir]);
     }
+  },
+
+  downloadFile(fileEntityId) {
+    const {
+      fileManager,
+      globalNotify,
+      isMobile,
+      previewMode,
+    } = this.getProperties('fileManager', 'globalNotify', 'isMobile', 'previewMode');
+    const isMobileBrowser = get(isMobile, 'any');
+    return fileManager.getFileDownloadUrl(
+        fileEntityId,
+        previewMode ? 'public' : 'private'
+      )
+      .then((data) => {
+        const fileUrl = data && get(data, 'fileUrl');
+        if (fileUrl) {
+          if (isMobileBrowser) {
+            this.downloadUsingOpen(fileUrl);
+          } else {
+            this.downloadUsingIframe(fileUrl);
+          }
+        } else {
+          throw { isOnedataCustomError: true, type: 'empty-file-url' };
+        }
+      })
+      .catch((error) => {
+        globalNotify.backendError(this.t('startingDownload'), error);
+        throw error;
+      });
+  },
+
+  downloadUsingIframe(fileUrl) {
+    const _body = this.get('_body');
+    const iframe = $('<iframe/>').attr({
+      src: fileUrl,
+      style: 'display:none;',
+    }).appendTo(_body);
+    // the time should be long to support some download extensions in Firefox desktop
+    later(() => iframe.remove(), 60000);
+  },
+
+  downloadUsingOpen(fileUrl) {
+    // Apple devices such as iPad tries to open file using its embedded viewer
+    // in any browser, but we cannot say if the file extension is currently supported
+    // so we try to open every file in new tab.
+    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
+    this.get('_window').open(fileUrl, target);
   },
 
   actions: {

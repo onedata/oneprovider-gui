@@ -41,9 +41,7 @@ export default Component.extend(I18n, {
 
   fileManager: service(),
   i18n: service(),
-  globalNotify: service(),
   errorExtractor: service(),
-  isMobile: service(),
 
   /**
    * @override
@@ -103,6 +101,12 @@ export default Component.extend(I18n, {
    * @type {Array<Models.File>}
    */
   fileClipboardFiles: undefined,
+
+  /**
+   * @virtual optional
+   * @type {(fileId: String) => Promise}
+   */
+  downloadFile: notImplementedIgnore,
 
   /**
    * @virtual optional
@@ -836,24 +840,6 @@ export default Component.extend(I18n, {
     }
   },
 
-  downloadUsingIframe(fileUrl) {
-    const _body = this.get('_body');
-    const iframe = $('<iframe/>').attr({
-      src: fileUrl,
-      style: 'display:none;',
-    }).appendTo(_body);
-    // the time should be long to support some download extensions in Firefox desktop
-    later(() => iframe.remove(), 60000);
-  },
-
-  downloadUsingOpen(fileUrl) {
-    // Apple devices such as iPad tries to open file using its embedded viewer
-    // in any browser, but we cannot say if the file extension is currently supported
-    // so we try to open every file in new tab.
-    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
-    this.get('_window').open(fileUrl, target);
-  },
-
   openFile(file, confirmModal = false) {
     const isDir = get(file, 'type') === 'dir';
     if (isDir) {
@@ -981,36 +967,6 @@ export default Component.extend(I18n, {
       nearestIndex = fileIndex;
     }
     return nearestIndex;
-  },
-
-  downloadFile(fileEntityId) {
-    const {
-      fileManager,
-      globalNotify,
-      isMobile,
-      previewMode,
-    } = this.getProperties('fileManager', 'globalNotify', 'isMobile', 'previewMode');
-    const isMobileBrowser = get(isMobile, 'any');
-    return fileManager.getFileDownloadUrl(
-        fileEntityId,
-        previewMode ? 'public' : 'private'
-      )
-      .then((data) => {
-        const fileUrl = data && get(data, 'fileUrl');
-        if (fileUrl) {
-          if (isMobileBrowser) {
-            this.downloadUsingOpen(fileUrl);
-          } else {
-            this.downloadUsingIframe(fileUrl);
-          }
-        } else {
-          throw { isOnedataCustomError: true, type: 'empty-file-url' };
-        }
-      })
-      .catch((error) => {
-        globalNotify.backendError(this.t('startingDownload'), error);
-        throw error;
-      });
   },
 
   actions: {
