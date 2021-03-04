@@ -67,6 +67,8 @@ export default Model.extend(
     hasEffQos: attr('boolean'),
     hasDirectQos: attr('boolean'),
     sharesCount: attr('number'),
+    hasEffDataset: attr('boolean'),
+    hasDirectDataset: attr('boolean'),
 
     /**
      * Available values in array: 'data_protection', 'metadata_protection'

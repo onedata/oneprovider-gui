@@ -1,0 +1,40 @@
+<h1 class="toggle-header">
+  {{one-way-toggle inputId="direct-dataset-set"
+    checked=isDirectDataset
+    class=(if media.isMobile "pull-right right" "toggle-right-side")
+    spinnerSide=(if media.isMobile "left" "right")
+    update=(action "toggleDataset")
+  }}
+  {{!-- FIXME: unique id --}}
+  <label class="direct-dataset-set" for="direct-dataset-set">
+    {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
+  </label>
+</h1>
+{{#if isDirectDataset}}
+  <div class="flags-configuration">
+    <div class="row flag-row">
+      {{one-way-toggle inputId="data-flag-set"
+        checked=isDataProtected
+        class=(if media.isMobile "pull-right right" "toggle-right-side")
+        spinnerSide=(if media.isMobile "left" "right")
+        update=(action (mut isDataProtected) (not isDataProtected))
+      }}
+      {{!-- FIXME: unique id --}}
+      <label class="flag-set flag-set-direct data-flag-set" for="data-flag-set">
+        {{tt this "dataProtection"}}
+      </label>
+    </div>
+    <div class="row flag-row">
+      {{one-way-toggle inputId="metadata-flag-set"
+        checked=isMetadataProtected
+        class=(if media.isMobile "pull-right right" "toggle-right-side")
+        spinnerSide=(if media.isMobile "left" "right")
+        update=(action (mut isMetadataProtected) (not isMetadataProtected))
+      }}
+      {{!-- FIXME: unique id --}}
+      <label class="flag-set flag-set-direct metadata-flag-set" for="metadata-flag-set">
+        {{tt this "metadataProtection"}}
+      </label>
+    </div>
+  </div>
+{{/if}}

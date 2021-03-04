@@ -30,7 +30,7 @@ const I18n = Service.extend({
   t: () => '',
 });
 
-describe('Integration | Component | file browser', function () {
+describe('Integration | Component | file browser (main component)', function () {
   setupComponentTest('file-browser', {
     integration: true,
   });
@@ -92,89 +92,91 @@ describe('Integration | Component | file browser', function () {
     });
   });
 
-  // TODO: fails on Bamboo (FF 56.0), but not locally
-  // it('changes directories on double click', function () {
-  //   const numberOfDirs = 5;
+  it('changes directories on double click', function () {
+    const numberOfDirs = 5;
 
-  //   const rootDir = {
-  //     entityId: 'root',
-  //     name: 'Some Space',
-  //     index: 'Some Space',
-  //     type: 'dir',
-  //     parent: resolve(null),
-  //     hasParent: false,
-  //   };
+    const rootDir = {
+      entityId: 'root',
+      name: 'Some Space',
+      index: 'Some Space',
+      type: 'dir',
+      parent: resolve(null),
+      hasParent: false,
+    };
 
-  //   const dirs = _.range(0, numberOfDirs).map(i => ({
-  //     entityId: `file-${i}`,
-  //     name: `Directory ${i}`,
-  //     index: `Directory ${i}`,
-  //     type: 'dir',
-  //   }));
+    const dirs = _.range(0, numberOfDirs).map(i => ({
+      entityId: `file-${i}`,
+      name: `Directory ${i}`,
+      index: `Directory ${i}`,
+      type: 'dir',
+    }));
 
-  //   for (let i = 0; i < numberOfDirs; ++i) {
-  //     dirs[i].parent = resolve(i > 0 ? dirs[i - 1] : rootDir);
-  //     dirs[i].hasParent = true;
-  //   }
+    for (let i = 0; i < numberOfDirs; ++i) {
+      dirs[i].parent = resolve(i > 0 ? dirs[i - 1] : rootDir);
+      dirs[i].hasParent = true;
+    }
 
-  //   this.setProperties({
-  //     dir: rootDir,
-  //     selectedFiles: Object.freeze([]),
-  //   });
-  //   this.on('updateDirEntityId', function updateDirEntityId(id) {
-  //     this.set('dir', dirs.findBy('entityId', id));
-  //   });
-  //   const fileManager = lookupService(this, 'fileManager');
-  //   const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+    this.setProperties({
+      dir: rootDir,
+      selectedFiles: Object.freeze([]),
+    });
+    this.on('updateDirEntityId', function updateDirEntityId(id) {
+      this.set('dir', dirs.findBy('entityId', id));
+    });
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
-  //   for (let i = -1; i < numberOfDirs; ++i) {
-  //     fetchDirChildren.withArgs(
-  //       i === -1 ? 'root' : `file-${i}`,
-  //       sinon.match.any,
-  //       sinon.match.any,
-  //       sinon.match.any,
-  //       sinon.match.any
-  //     ).resolves(i === numberOfDirs - 1 ? [] : [dirs[i + 1]]);
-  //   }
-  //   fetchDirChildren.resolves([]);
+    for (let i = -1; i < numberOfDirs; ++i) {
+      fetchDirChildren.withArgs(
+        i === -1 ? 'root' : `file-${i}`,
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any
+      ).resolves({
+        isLast: true,
+        childrenRecords: i === numberOfDirs - 1 ? [] : [dirs[i + 1]],
+      });
+    }
+    fetchDirChildren.resolves({ isLast: true, childrenRecords: [] });
 
-  //   this.render(hbs `<div id="content-scroll">{{file-browser
-  //     dir=dir
-  //     selectedFiles=selectedFiles
-  //     updateDirEntityId=(action "updateDirEntityId")
-  //     changeSelectedFiles=(action (mut selectedFiles))
-  //   }}</div>`);
+    this.render(hbs `<div id="content-scroll">{{file-browser
+      dir=dir
+      selectedFiles=selectedFiles
+      updateDirEntityId=(action "updateDirEntityId")
+      changeSelectedFiles=(action (mut selectedFiles))
+    }}</div>`);
 
-  //   let clickCount = numberOfDirs - 2;
-  //   const enterDir = () => {
-  //     const $row = this.$('.fb-table-row');
-  //     $row.click();
-  //     $row.click();
-  //     return wait().then(() => {
-  //       if (clickCount > 0) {
-  //         clickCount = clickCount - 1;
-  //         return enterDir();
-  //       } else {
-  //         resolve();
-  //       }
-  //     });
-  //   };
+    let clickCount = numberOfDirs - 2;
+    const enterDir = () => {
+      const $row = this.$('.fb-table-row');
+      $row.click();
+      $row.click();
+      return wait().then(() => {
+        if (clickCount > 0) {
+          clickCount = clickCount - 1;
+          return enterDir();
+        } else {
+          resolve();
+        }
+      });
+    };
 
-  //   return wait().then(() => {
-  //     expect(fetchDirChildren).to.have.been.calledWith(
-  //       'root',
-  //       sinon.match.any,
-  //       sinon.match.any,
-  //       sinon.match.any,
-  //       sinon.match.any
-  //     );
-  //     fetchDirChildren.resetHistory();
-  //     expect(this.$('.fb-table-row')).to.have.length(1);
-  //     return enterDir().then(() => {
-  //       expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
-  //     });
-  //   });
-  // });
+    return wait().then(() => {
+      expect(fetchDirChildren).to.have.been.calledWith(
+        'root',
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any
+      );
+      fetchDirChildren.resetHistory();
+      expect(this.$('.fb-table-row')).to.have.length(1);
+      return enterDir().then(() => {
+        expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
+      });
+    });
+  });
 
   it('shows working paste button when invoked file copy from context menu',
     function () {
@@ -420,7 +422,8 @@ describe('Integration | Component | file browser', function () {
         .then(() => {
           expect(fetchDirChildren).to.be.called;
         });
-    });
+    }
+  );
 
   describe('selects using injected file ids', function () {
     it('visible file on list', function () {
@@ -559,4 +562,63 @@ describe('Integration | Component | file browser', function () {
       });
     });
   });
+
+  // FIXME: does not work because change selection functions is mocked wrong
+  // it('opens datasets modal after click on dataset tag', async function (done) {
+  //   const dir = {
+  //     entityId: 'root',
+  //     name: 'Test directory',
+  //     index: 'Test directory',
+  //     type: 'dir',
+  //     hasParent: false,
+  //     parent: resolve(null),
+  //   };
+  //   const a1 = {
+  //     entityId: 'f1',
+  //     name: 'A1',
+  //     index: 'A1',
+  //     type: 'file',
+  //     hasParent: true,
+  //     parent: resolve(dir),
+  //   };
+  //   const files1 = [
+  //     a1,
+  //   ];
+  //   this.setProperties({
+  //     dir,
+  //     selectedFiles: Object.freeze([]),
+  //   });
+  //   const fileManager = lookupService(this, 'fileManager');
+  //   const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+  //   fetchDirChildren.withArgs(
+  //     'root',
+  //     sinon.match.any,
+  //     null,
+  //     sinon.match.any,
+  //     0
+  //   ).resolves({ childrenRecords: files1, isLast: true });
+  //   fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
+  //   const openDatasets = sinon.spy();
+  //   this.set('openDatasets', openDatasets);
+
+  //   this.render(hbs `<div id="content-scroll">{{file-browser
+  //     dir=dir
+  //     selectedFiles=selectedFiles
+  //     changeSelectedFiles=(action (mut selectedFiles))
+  //     openDatasets=openDatasets
+  //     openMetadata=openMetadata
+  //   }}</div>`);
+  //   await wait();
+  //   expect(this.$('.fb-table-row')).to.have.length(1);
+  //   // this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
+  //   // await sleep(1500);
+  //   await click('.fb-table-col-actions-menu');
+  //   await wait();
+  //   await click('.file-action-datasets');
+
+  //   expect(openDatasets).to.be.calledOnce;
+  //   expect(openDatasets).to.be.calledWith(sinon.match.has('entityId', 'f1'));
+
+  //   done();
+  // });
 });

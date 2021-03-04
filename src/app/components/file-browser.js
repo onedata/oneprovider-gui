@@ -62,6 +62,7 @@ const buttonNames = [
   'btnRefresh',
   'btnInfo',
   'btnShare',
+  'btnDatasets',
   'btnMetadata',
   'btnPermissions',
   'btnDistribution',
@@ -160,6 +161,13 @@ export default Component.extend(I18n, {
    * @param {Models/File} file file to edit its metadata
    */
   openMetadata: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models/File} file file to edit its metadata
+   */
+  openDatasets: notImplementedThrow,
 
   /**
    * @virtual
@@ -455,6 +463,22 @@ export default Component.extend(I18n, {
       showIn: [
         actionContext.singleFile,
         actionContext.singleDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
+    });
+  }),
+
+  btnDatasets: computed(function btnDatasets() {
+    return this.createFileAction({
+      id: 'datasets',
+      icon: 'share-collection',
+      action: (files) => {
+        return this.get('openDatasets')(files);
+      },
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleFile,
         actionContext.currentDir,
         actionContext.spaceRootDir,
       ],

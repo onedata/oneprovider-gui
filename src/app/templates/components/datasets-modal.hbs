@@ -1,0 +1,77 @@
+{{#one-modal
+  class="datasets-modal"
+  open=open
+  size="xl"
+  backdropClose=false
+  keyboard=false
+  onHide=(action "onHide")
+  as |modal|
+}}
+  {{#modal.header}}
+    <div class="modal-header-text">
+      <h1 class="datasets-modal-header">
+        <span class="header-text">
+          {{tt this "datasets"}}
+        </span>
+      </h1>
+      {{modal-file-subheader files=files}}
+    </div>
+    <div class="modal-header-effective-info">
+      {{#if isEffDataProtected}}
+        <div class="labels-container">
+          <span class="label label-warning data-protected-tag">
+            <div class="inline-icon-container">
+              {{one-icon icon="provider"}}
+            </div>
+            <span class="protected-text">
+              {{tt this "dataProtectedTag"}}
+            </span>
+            {{one-tooltip title=(tt this "dataProtectedTooltip")}}
+          </span>
+        </div>
+      {{/if}}
+      {{#if isEffMetadataProtected}}
+        <div class="labels-container">
+          <span class="label label-warning metadata-protected-tag">
+            <div class="inline-icon-container">
+              {{one-icon icon="browser-attribute"}}
+            </div>
+            <span class="protected-text">
+              {{tt this "metadataProtectedTag"}}
+            </span>
+            {{one-tooltip title=(tt this "metadataProtectedTooltip")}}
+          </span>
+        </div>
+      {{/if}}
+    </div>
+  {{/modal.header}}
+  
+  {{#modal.body}}
+    <div class="items-group direct-dataset-items-group">
+      {{datasets-modal/direct-dataset-section
+        class="datasets-item"
+        file=files.firstObject
+      }}
+    </div>
+    {{#if inheritedDatasets.length}}
+      <div class="items-group inherited-datasets-items-group">
+        <h2>Inherited datasets</h2>
+        {{#each inheritedDatasets as |file|}}
+          {{datasets-modal/inherited-dataset
+            class="datasets-item"
+            file=file
+          }}
+        {{/each}}
+      </div>
+    {{/if}}
+  {{/modal.body}}
+  
+  {{#modal.footer}}
+    {{#bs-button
+      onClick=(action "onHide")
+      type="default"
+    }}
+      {{tt this "close"}}
+    {{/bs-button}}
+  {{/modal.footer}}
+{{/one-modal}}

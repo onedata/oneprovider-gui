@@ -14,6 +14,7 @@
       openInfo=(action "openInfoModal")
       openShare=(action "openShareModal")
       openMetadata=(action "openMetadataModal")
+      openDatasets=(action "openDatasetsModal")
       openEditPermissions=(action "openEditPermissionsModal")
       openFileDistributionModal=(action "openFileDistributionModal")
       openQos=(action "openQosModal")
@@ -92,6 +93,14 @@
       open=true
       file=fileToShowMetadata
       onHide=(action "closeMetadataModal")
+    }}
+  {{/if}}
+  
+  {{#if filesToShowDatasets}}
+    {{datasets-modal
+      open=true
+      files=filesToShowDatasets
+      onHide=(action "closeDatasetsModal")
     }}
   {{/if}}
 

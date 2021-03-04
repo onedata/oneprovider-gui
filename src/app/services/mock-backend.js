@@ -609,6 +609,8 @@ export default Service.extend({
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
         let effProtectionFlags;
+        const hasEffDataset = i >= 2 && i <= 6;
+        const hasDirectDataset = i >= 3 && i <= 5;
         if (i === 2) {
           effProtectionFlags = ['data_protection'];
         } else if (i === 3) {
@@ -628,6 +630,8 @@ export default Service.extend({
           hasEffQos: i > 3 && i < 8,
           hasDirectQos: i > 6 && i < 10,
           effProtectionFlags,
+          hasEffDataset,
+          hasDirectDataset,
           size: i * 1000000,
           mtime: timestamp + i * 3600,
           parent,
