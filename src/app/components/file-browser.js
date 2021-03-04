@@ -503,7 +503,7 @@ export default Component.extend(I18n, {
       id: 'download',
       icon: 'data-receive',
       action: (files) => {
-        return this.downloadFile(files[0]);
+        return this.downloadFile(get(files[0], 'entityId'));
       },
       showIn: [
         actionContext.spaceRootDir,
