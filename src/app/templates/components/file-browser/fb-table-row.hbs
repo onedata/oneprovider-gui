@@ -58,21 +58,24 @@
                 >
                   {{tt this "status.dataset"}}
                 </div>
-                {{#if (or isMetadataProtected isDataProtected)}}
+                {{#if hasAnyProtectionFlag}}
                   <div
                     class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
                   >
-                    {{#if isMetadataProtected}}
-                      {{one-icon
-                        icon="browser-metadata"
-                        class="file-protected-icon file-metadata-protected-icon"
-                      }}
-                    {{/if}}
                     {{#if isDataProtected}}
                       {{one-icon
                         icon="provider"
                         class="file-protected-icon file-data-protected-icon"
                       }}
+                    {{/if}}
+                    {{#if isMetadataProtected}}
+                      {{one-icon
+                        icon="browser-attribute"
+                        class="file-protected-icon file-metadata-protected-icon"
+                      }}
+                    {{/if}}
+                    {{#if protectionFlagsInfo}}
+                      {{one-tooltip title=protectionFlagsInfo}}
                     {{/if}}
                   </div>
                 {{/if}}

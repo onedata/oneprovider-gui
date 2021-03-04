@@ -390,7 +390,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   // TODO: VFS-7403 this flag should be read from file; implement datasets API support
   isEffDataset: reads('isDirectDataset'),
 
-  // TODO: VFS-7403 this flag should be false if isDataset if false
+  // TODO: VFS-7403 this flag should be false if isEffDataset/isDirectDataset are false
   /**
    * @type {ComputedProperty<Boolean>}
    */
@@ -406,6 +406,41 @@ export default Component.extend(I18n, FastDoubleClick, {
   isDataProtected: array.includes(
     'file.effProtectionFlags',
     raw('data_protection')
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  hasAnyProtectionFlag: or('isMetadataProtected', 'isDataProtected'),
+
+  /**
+   * Content for protection tag tooltip
+   * @type {ComputedProperty<SafeString>}
+   */
+  protectionFlagsInfo: computed(
+    'typeText',
+    'isMetadataProtected',
+    'isDataProtected',
+    function protectionFlagsInfo() {
+      const {
+        typeText,
+        isMetadataProtected,
+        isDataProtected,
+      } = this.getProperties('typeText', 'isMetadataProtected', 'isDataProtected');
+      let translationKey;
+      if (isDataProtected && isMetadataProtected) {
+        translationKey = 'both';
+      } else if (isDataProtected) {
+        translationKey = 'data';
+      } else if (isMetadataProtected) {
+        translationKey = 'metadata';
+      }
+      if (translationKey) {
+        return this.t(`protectionFlagsInfo.${translationKey}`, { fileType: typeText });
+      } else {
+        return '';
+      }
+    }
   ),
 
   didInsertElement() {

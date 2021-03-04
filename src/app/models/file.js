@@ -67,6 +67,11 @@ export default Model.extend(
     hasEffQos: attr('boolean'),
     hasDirectQos: attr('boolean'),
     sharesCount: attr('number'),
+
+    /**
+     * Available values in array: 'data_protection', 'metadata_protection'
+     * @type {ComputedProperty<Array>}
+     */
     effProtectionFlags: attr('array'),
 
     /**
