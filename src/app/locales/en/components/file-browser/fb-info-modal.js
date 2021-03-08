@@ -10,7 +10,7 @@ export default {
   owner: 'Owner',
   close: 'Close',
   size: 'Size',
-  rest: 'Public REST URL',
+  rest: 'Public REST endpoint',
   restTag: 'REST',
   restTipIntro: 'The Onezone\'s public REST API can be used to access information and contents of all shared files and directories, without any authentication. It redirects to the corresponding REST API in one of the supporting Oneproviders. The Oneprovider is chosen dynamically and may change in time, so the redirection URL should not be cached.',
   restTipLinkName: 'REST API',

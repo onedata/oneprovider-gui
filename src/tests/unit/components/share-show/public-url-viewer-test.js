@@ -35,6 +35,7 @@ describe('Unit | Component | share show/public url viewer', function () {
   setupComponentTest('share-show/public-url-viewer', {
     needs: [
       'service:i18n',
+      'service:rest-generator',
       'locale:en/translations',
       'util:i18n/missing-message',
       'util:i18n/compile-template',

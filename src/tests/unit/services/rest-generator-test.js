@@ -33,10 +33,10 @@ describe('Unit | Service | rest generator', function () {
     'getSharedFileJsonMetadata',
     'getSharedFileRdfMetadata',
     'getSharedFileExtendedAttributes',
-  ].forEach(methodName => testUrlGeneratingMethod(methodName));
+  ].forEach(methodName => testShareDataCurlGeneratingMethod(methodName));
 });
 
-function testUrlGeneratingMethod(methodName, templateName = methodName) {
+function testShareDataCurlGeneratingMethod(methodName, templateName = methodName) {
   it(`generates URL for ${methodName} method using "${templateName}" template`, function () {
     const id = '1234';
     set(
@@ -46,6 +46,6 @@ function testUrlGeneratingMethod(methodName, templateName = methodName) {
     );
     const service = this.subject();
     expect(service[methodName](id))
-      .to.equal(`https://onezone.org/1234/${methodName}`);
+      .to.equal(`curl -L https://onezone.org/1234/${methodName}`);
   });
 }
