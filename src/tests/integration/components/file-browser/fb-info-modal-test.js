@@ -176,29 +176,11 @@ describe('Integration | Component | file browser/fb info modal', function () {
         testRenderRestUrlAndInfoForType(type);
       });
 
-      it('shows download content REST URL and its info in hint by default', async function (done) {
-        const restGenerator = lookupService(this, 'restGenerator');
-        const stubUrl = 'https://stub_url';
-        const restMethodStub = sinon.stub(restGenerator, 'downloadSharedFileContent')
-          .returns(stubUrl);
-
-        render(this);
-        await wait();
-
-        expect(restMethodStub).to.have.been.calledOnce;
-        expect(restMethodStub).to.have.been.calledWith(this.get('file.cdmiObjectId'));
-        expect(
-          this.$('.file-info-row-rest-url .property-value .clipboard-input').val()
-        ).to.equal(stubUrl);
-        await click('.rest-url-type-info-trigger');
-        const $popover = $('.webui-popover-rest-url-type-info');
-        expect($popover).to.exist;
-        expect($popover).to.have.class('in');
-        expect($popover.text())
-          .to.contain(urlTypeDescriptionTranslations['downloadSharedFileContent']);
-
-        done();
-      });
+      testRenderRestUrlAndInfoForType(
+        'downloadSharedFileContent',
+        false,
+        'shows download content REST URL and its info in hint by default'
+      );
     });
 
     context('for directory', function () {
@@ -222,40 +204,23 @@ describe('Integration | Component | file browser/fb info modal', function () {
         testRenderRestUrlAndInfoForType(type);
       });
 
-      it('shows list children REST URL and its info in hint by default', async function (done) {
-        const restGenerator = lookupService(this, 'restGenerator');
-        const stubUrl = 'https://stub_url';
-        const restMethodStub = sinon.stub(restGenerator, 'listSharedDirectoryChildren')
-          .returns(stubUrl);
-
-        render(this);
-        await wait();
-
-        expect(restMethodStub).to.have.been.calledOnce;
-        expect(restMethodStub).to.have.been.calledWith(this.get('file.cdmiObjectId'));
-        expect(
-          this.$('.file-info-row-rest-url .property-value .clipboard-input').val()
-        ).to.equal(stubUrl);
-        await click('.rest-url-type-info-trigger');
-        const $popover = $('.webui-popover-rest-url-type-info');
-        expect($popover).to.exist;
-        expect($popover).to.have.class('in');
-        expect($popover.text())
-          .to.contain(urlTypeDescriptionTranslations['listSharedDirectoryChildren']);
-
-        done();
-      });
+      testRenderRestUrlAndInfoForType(
+        'listSharedDirectoryChildren',
+        false,
+        'shows list children REST URL and its info in hint by default'
+      );
     });
   });
 });
 
 function testRenderRestUrl(renders = true) {
   const renderText = renders ? 'renders' : 'does not render';
-  it(`${renderText} REST URL section`, async function (done) {
+  it(`${renderText} REST section`, async function (done) {
     render(this);
     expect(this.$('.file-info-row-rest-url')).to.have.length(renders ? 1 : 0);
     if (renders) {
-      expect(this.$('.file-info-row-rest-url .property-name')).to.contain('REST URL');
+      expect(this.$('.file-info-row-rest-url .property-name'))
+        .to.contain('Public REST endpoint');
       expect(this.$('.rest-url-type-selector-trigger')).to.exist;
       expect(this.$('.rest-url-type-info-trigger')).to.exist;
       expect(this.$('.rest-tag-label')).to.exist;
@@ -275,23 +240,31 @@ function testRenderRestUrlTypeOptions(options) {
   });
 }
 
-function testRenderRestUrlAndInfoForType(type) {
-  it(`shows proper REST URL and info in hint when selected ${type} URL`, async function (done) {
+function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
+  const text = customText ||
+    `shows proper REST URL and info in hint when selected ${type} URL`;
+  it(text, async function (done) {
     const methodName = type;
     const restGenerator = lookupService(this, 'restGenerator');
-    const stubUrl = 'https://stub_url';
-    const restMethodStub = sinon.stub(restGenerator, methodName).returns(stubUrl);
+    const restGeneratorResult = 'curl -L https://stub_url';
+    const restMethodStub = sinon.stub(restGenerator, methodName)
+      .returns(restGeneratorResult);
 
     render(this);
 
-    await selectChoose('.rest-url-type-row', urlTypeTranslations[type]);
+    if (useSelector) {
+      await selectChoose('.rest-url-type-row', urlTypeTranslations[type]);
+    } else {
+      await wait();
+    }
+
     expect(restMethodStub)
       .to.have.been.calledOnce;
     expect(restMethodStub)
       .to.have.been.calledWith(this.get('file.cdmiObjectId'));
     expect(
       this.$('.file-info-row-rest-url .property-value .clipboard-input').val()
-    ).to.equal(stubUrl);
+    ).to.equal(restGeneratorResult);
     await click('.rest-url-type-info-trigger');
     const $popover = $('.webui-popover-rest-url-type-info');
     expect($popover).to.exist;

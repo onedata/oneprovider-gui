@@ -12,7 +12,7 @@ import { resolve, reject } from 'rsvp';
 const urlTypeTranslations = {
   share: 'Public share link',
   handle: 'Public handle link',
-  rest: 'REST API URL',
+  rest: 'Public REST endpoint',
 };
 
 const shareUrl = 'http://share-url';
@@ -52,7 +52,9 @@ describe('Integration | Component | share show/public url viewer', function () {
   testShowsUrlTypeInformationInPopover('rest');
 
   testClipboardInput('share', testCase => testCase.get('share.publicUrl'));
-  testClipboardInput('rest', testCase => testCase.get('share.publicRestUrl'));
+  testClipboardInput('rest', testCase =>
+    `curl ${testCase.get('share.publicRestUrl')}`
+  );
 
   testChangeSelectedUrlTypePowerSelect('share');
   testChangeSelectedUrlTypePowerSelect('rest');
@@ -164,15 +166,21 @@ describe('Integration | Component | share show/public url viewer', function () {
     testShowsUrlTypeInformationInPopover('share');
     testShowsUrlTypeInformationInPopover('rest');
 
-    testClipboardInput('share', testCase => testCase.get('share.publicUrl'));
-    testClipboardInput('rest', testCase => testCase.get('share.publicRestUrl'));
+    testClipboardInput('share', testCase =>
+      testCase.get('share.publicUrl')
+    );
+    testClipboardInput('rest', testCase =>
+      `curl ${testCase.get('share.publicRestUrl')}`
+    );
 
     context('with showHandle', function () {
       beforeEach(function () {
         this.set('showHandle', true);
       });
 
-      testClipboardInput('handle', testCase => testCase.get('share.handle.url'));
+      testClipboardInput('handle', testCase =>
+        testCase.get('share.handle.url')
+      );
 
       testShowsUrlTypeInformationInPopover('handle');
 

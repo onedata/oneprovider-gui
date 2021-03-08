@@ -23,6 +23,7 @@ export const iconForUrlType = {
 
 export default Component.extend(I18n, {
   i18n: service(),
+  restGenerator: service(),
 
   classNames: ['share-show-public-url-viewer', 'public-url-viewer'],
   classNameBindings: ['compact', 'selectedUrlTypeClass'],
@@ -91,7 +92,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   selectedUrlTypeIcon: computed('effSelectedUrlType',
-    function urlToCopy() {
+    function selectedUrlTypeIcon() {
       return iconForUrlType[this.get('effSelectedUrlType')];
     }
   ),
@@ -150,7 +151,7 @@ export default Component.extend(I18n, {
         case 'handle':
           return this.get('handleProxy.url');
         case 'rest':
-          return this.get('share.publicRestUrl');
+          return this.get('restGenerator').curlize(this.get('share.publicRestUrl'));
         default:
           return '';
       }

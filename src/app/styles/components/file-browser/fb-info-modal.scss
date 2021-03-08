@@ -47,5 +47,8 @@
   }
   .table.table-info td.property-name {
     width: 10em;
+    @media (max-width: $screen-xs-max) {
+      width: auto;  
+    }
   }
 }

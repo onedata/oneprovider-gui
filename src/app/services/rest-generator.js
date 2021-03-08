@@ -28,38 +28,59 @@ export default Service.extend({
   restTemplates: reads('onedataConnection.restTemplates'),
 
   listSharedDirectoryChildren(cdmiObjectId) {
-    return this.fillTemplate('listSharedDirectoryChildren', { id: cdmiObjectId });
+    return this.getSharedDataCurl('listSharedDirectoryChildren', cdmiObjectId);
   },
 
   downloadSharedFileContent(cdmiObjectId) {
-    return this.fillTemplate('downloadSharedFileContent', { id: cdmiObjectId });
+    return this.getSharedDataCurl('downloadSharedFileContent', cdmiObjectId);
   },
 
   getSharedFileAttributes(cdmiObjectId) {
-    return this.fillTemplate('getSharedFileAttributes', { id: cdmiObjectId });
+    return this.getSharedDataCurl('getSharedFileAttributes', cdmiObjectId);
   },
 
   getSharedFileJsonMetadata(cdmiObjectId) {
-    return this.fillTemplate('getSharedFileJsonMetadata', { id: cdmiObjectId });
+    return this.getSharedDataCurl('getSharedFileJsonMetadata', cdmiObjectId);
   },
 
   getSharedFileRdfMetadata(cdmiObjectId) {
-    return this.fillTemplate('getSharedFileRdfMetadata', { id: cdmiObjectId });
+    return this.getSharedDataCurl('getSharedFileRdfMetadata', cdmiObjectId);
   },
 
   getSharedFileExtendedAttributes(cdmiObjectId) {
-    return this.fillTemplate('getSharedFileExtendedAttributes', { id: cdmiObjectId });
+    return this.getSharedDataCurl('getSharedFileExtendedAttributes', cdmiObjectId);
+  },
+
+  curlize(url, curlOptions) {
+    return `curl${curlOptions? ' ' + curlOptions : ''} ${url}`;
   },
 
   fillTemplate(templateName, templateParams) {
     const restTemplates = this.get('restTemplates');
     const template = get(restTemplates, templateName);
-    if (!template) {
+    if (template) {
+      return pupa(template, templateParams);
+    } else {
       console.error(
-        'util:rest-generator#fillTemplate: no template named ${templateName}'
+        `util:rest-generator#fillTemplate: no template named ${templateName}`
       );
       return '';
     }
-    return pupa(template, templateParams);
+  },
+
+  curlFromTemplate(templateName, templateParams, curlOptions) {
+    const url = this.fillTemplate(templateName, templateParams);
+    if (url) {
+      return this.curlize(url, curlOptions);
+    } else {
+      console.error(
+        `util:rest-generator#curlFromTemplate: empty URL generator for ${templateName}`
+      );
+      return '';
+    }
+  },
+
+  getSharedDataCurl(path, cdmiObjectId) {
+    return this.curlFromTemplate(path, { id: cdmiObjectId }, '-L');
   },
 });
