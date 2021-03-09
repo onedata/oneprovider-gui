@@ -12,6 +12,7 @@ import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { dasherize } from '@ember/string';
+import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { hash, notEmpty, not } from 'ember-awesome-macros';
@@ -206,6 +207,12 @@ export default Component.extend(I18n, {
    * @virtual
    */
   spacePrivileges: Object.freeze({}),
+
+  /**
+   * Initialized in init.
+   * @type {EmberArray<String>}
+   */
+  loadingIconFileIds: undefined,
 
   /**
    * Should be set by some instance of `components:fb-table`
@@ -501,16 +508,18 @@ export default Component.extend(I18n, {
   btnDownload: computed(function btnInfo() {
     return this.createFileAction({
       id: 'download',
-      icon: 'data-receive',
+      icon: 'browser-download',
       action: (files) => {
         return this.downloadFile(get(files[0], 'entityId'));
       },
       showIn: [
         actionContext.spaceRootDir,
         actionContext.singleDir,
+        actionContext.singleFile,
         actionContext.currentDir,
         actionContext.spaceRootDirPreview,
         actionContext.singleDirPreview,
+        actionContext.singleFilePreview,
         actionContext.currentDirPreview,
       ],
     });
@@ -671,6 +680,11 @@ export default Component.extend(I18n, {
   }),
 
   // #endregion
+
+  init() {
+    this._super(...arguments);
+    this.set('loadingIconFileIds', A());
+  },
 
   didInsertElement() {
     this._super(...arguments);
@@ -835,30 +849,43 @@ export default Component.extend(I18n, {
     const {
       fileManager,
       globalNotify,
-      isMobile,
       previewMode,
-    } = this.getProperties('fileManager', 'globalNotify', 'isMobile', 'previewMode');
-    const isMobileBrowser = get(isMobile, 'any');
+      loadingIconFileIds,
+    } = this.getProperties(
+      'fileManager',
+      'globalNotify',
+      'previewMode',
+      'loadingIconFileIds'
+    );
+    // intentionally not checking for duplicates, because we treat multiple "loading id"
+    // entries as semaphores
+    loadingIconFileIds.pushObject(fileEntityId);
     return fileManager.getFileDownloadUrl(
         fileEntityId,
         previewMode ? 'public' : 'private'
       )
-      .then((data) => {
-        const fileUrl = data && get(data, 'fileUrl');
-        if (fileUrl) {
-          if (isMobileBrowser) {
-            this.downloadUsingOpen(fileUrl);
-          } else {
-            this.downloadUsingIframe(fileUrl);
-          }
-        } else {
-          throw { isOnedataCustomError: true, type: 'empty-file-url' };
-        }
-      })
+      .then((data) => this.handleFileDownloadUrl(data))
       .catch((error) => {
         globalNotify.backendError(this.t('startingDownload'), error);
         throw error;
+      })
+      .finally(() => {
+        loadingIconFileIds.removeObject(fileEntityId);
       });
+  },
+
+  handleFileDownloadUrl(data) {
+    const isMobileBrowser = this.get('isMobile.any');
+    const fileUrl = data && get(data, 'fileUrl');
+    if (fileUrl) {
+      if (isMobileBrowser) {
+        this.downloadUsingOpen(fileUrl);
+      } else {
+        this.downloadUsingIframe(fileUrl);
+      }
+    } else {
+      throw { isOnedataCustomError: true, type: 'empty-file-url' };
+    }
   },
 
   downloadUsingIframe(fileUrl) {

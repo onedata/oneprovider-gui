@@ -134,6 +134,12 @@ export default Component.extend(I18n, {
   previewMode: false,
 
   /**
+   * @virtual
+   * @type {EmberArray<String>}
+   */
+  loadingIconFileIds: undefined,
+
+  /**
    * @type {Boolean}
    */
   renderRefreshSpinner: false,
@@ -545,7 +551,11 @@ export default Component.extend(I18n, {
       fileManager,
       registerApi,
       api,
-    } = this.getProperties('fileManager', 'registerApi', 'api');
+      loadingIconFileIds,
+    } = this.getProperties('fileManager', 'registerApi', 'api', 'loadingIconFileIds');
+    if (!loadingIconFileIds) {
+      this.set('loadingIconFileIds', A());
+    }
     fileManager.registerRefreshHandler(this);
     registerApi(api);
   },
@@ -848,7 +858,7 @@ export default Component.extend(I18n, {
       if (confirmModal) {
         this.set('downloadModalFile', file);
       } else {
-        return this.downloadFile(get(file, 'entityId'));
+        return this.get('downloadFile')(get(file, 'entityId'));
       }
     }
   },
@@ -1068,7 +1078,7 @@ export default Component.extend(I18n, {
     },
 
     confirmDownload() {
-      return this.downloadFile(this.get('downloadModalFile.entityId'));
+      return this.get('downloadFile')(this.get('downloadModalFile.entityId'));
     },
   },
 });
