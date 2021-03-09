@@ -30,6 +30,7 @@ export default {
     refresh: 'Refresh',
     info: 'Information',
     download: 'Download',
+    downloadTarGz: 'Download (tar.gz)',
     share: 'Share',
     metadata: 'Metadata',
     permissions: 'Permissions',

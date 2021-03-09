@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, context } from 'mocha';
+import { describe, it, beforeEach, afterEach, context } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
@@ -587,6 +587,15 @@ describe('Integration | Component | file browser (main component)', function () 
 
       this.setProperties({ dir, item1, selectedFiles: Object.freeze([]) });
       stubSimpleFetch(this, dir, [item1]);
+      const clock = sinon.useFakeTimers({
+        now: Date.now(),
+        shouldAdvanceTime: true,
+      });
+      this.set('clock', clock);
+    });
+
+    afterEach(function () {
+      this.get('clock').restore();
     });
 
     context('when the only item is a file', function () {
@@ -612,59 +621,45 @@ function testDownloadFromContextMenu() {
   const description =
     'shows spinner and starts download after using download context menu item';
   it(description, async function (done) {
-    const {
-      fileId,
-      getFileDownloadUrl,
-      sleeper,
-    } = prepareDownload(this);
-
-    renderWithDownloadSpy(this);
-    await wait();
-    const $row = getFileRow(fileId);
-
-    expect($row.find('.on-icon-loading-spinner'), 'spinner before invoke').to.not.exist;
-    await chooseFileContextMenuAction(fileId, 'download');
-    expect($row.find('.on-icon-loading-spinner'), 'spinner after invoke').to.exist;
-    expect(getFileDownloadUrl).to.be.calledOnce;
-    expect(getFileDownloadUrl).to.be.calledWith(fileId);
-    await sleeper;
-    await wait();
-    expect($row.find('.on-icon-loading-spinner'), 'spinner after resolve').to.not.exist;
-
-    done();
+    const btnId = this.get('item1.type') === 'dir' ? 'downloadTarGz' : 'download';
+    testDownload(this, done, (fileId) => chooseFileContextMenuAction(fileId, btnId));
   });
 }
 
 function testDownloadUsingDoubleClick() {
   it('shows spinner and starts download after double click', async function (done) {
-    const {
-      fileId,
-      getFileDownloadUrl,
-      sleeper,
-    } = prepareDownload(this);
-
-    renderWithDownloadSpy(this);
-    await wait();
-    const $row = getFileRow(fileId);
-
-    expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
-    await doubleClickFile(fileId);
-    expect($row.find('.on-icon-loading-spinner'), 'spinner').to.exist;
-    expect(getFileDownloadUrl).to.be.calledOnce;
-    expect(getFileDownloadUrl).to.be.calledWith(fileId);
-    await sleeper;
-    await wait();
-    expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
-
-    done();
+    testDownload(this, done, doubleClickFile);
   });
+}
+
+async function testDownload(testCase, done, invokeDownloadFunction) {
+  const {
+    fileId,
+    getFileDownloadUrl,
+    sleeper,
+  } = prepareDownload(testCase);
+
+  renderWithDownloadSpy(testCase);
+  await wait();
+  const $row = getFileRow(fileId);
+
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
+  await invokeDownloadFunction(fileId);
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.exist;
+  expect(getFileDownloadUrl).to.be.calledOnce;
+  expect(getFileDownloadUrl).to.be.calledWith([fileId]);
+  testCase.get('clock').tick(1000);
+  await sleeper;
+  await wait();
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
+
+  done();
 }
 
 function prepareDownload(testCase) {
   const fileId = testCase.get('item1.entityId');
   const fileManager = lookupService(testCase, 'fileManager');
-  // FIXME: use time advance
-  const sleeper = sleep(800);
+  const sleeper = sleep(500);
   const getFileDownloadUrl = sinon.stub(fileManager, 'getFileDownloadUrl')
     .resolves(sleeper);
   const handleFileDownloadUrl = sinon.stub();

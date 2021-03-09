@@ -104,9 +104,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(fileId: String) => Promise}
+   * @type {(fileIds: Array<String>) => Promise}
    */
-  downloadFile: notImplementedIgnore,
+  downloadFiles: notImplementedIgnore,
 
   /**
    * @virtual optional
@@ -858,7 +858,7 @@ export default Component.extend(I18n, {
       if (confirmModal) {
         this.set('downloadModalFile', file);
       } else {
-        return this.get('downloadFile')(get(file, 'entityId'));
+        return this.get('downloadFiles')([file]);
       }
     }
   },
@@ -1078,7 +1078,7 @@ export default Component.extend(I18n, {
     },
 
     confirmDownload() {
-      return this.get('downloadFile')(this.get('downloadModalFile.entityId'));
+      return this.get('downloadFiles')([this.get('downloadModalFile')]);
     },
   },
 });

@@ -64,6 +64,7 @@ const buttonNames = [
   'btnRefresh',
   'btnInfo',
   'btnDownload',
+  'btnDownloadTarGz',
   'btnShare',
   'btnMetadata',
   'btnPermissions',
@@ -510,17 +511,35 @@ export default Component.extend(I18n, {
       id: 'download',
       icon: 'browser-download',
       action: (files) => {
-        return this.downloadFile(get(files[0], 'entityId'));
+        return this.downloadFiles(files);
+      },
+      showIn: [
+        actionContext.singleFile,
+        actionContext.singleFilePreview,
+      ],
+    });
+  }),
+
+  btnDownloadTarGz: computed(function btnInfo() {
+    return this.createFileAction({
+      id: 'downloadTarGz',
+      icon: 'browser-download',
+      action: (files) => {
+        return this.downloadFiles(files);
       },
       showIn: [
         actionContext.spaceRootDir,
-        actionContext.singleDir,
-        actionContext.singleFile,
-        actionContext.currentDir,
         actionContext.spaceRootDirPreview,
-        actionContext.singleDirPreview,
-        actionContext.singleFilePreview,
+        actionContext.currentDir,
         actionContext.currentDirPreview,
+        actionContext.singleDir,
+        actionContext.singleDirPreview,
+        actionContext.multiFile,
+        actionContext.multiFilePreview,
+        actionContext.multiDir,
+        actionContext.mutliDirPreview,
+        actionContext.multiMixed,
+        actionContext.multiMixedPreview,
       ],
     });
   }),
@@ -845,7 +864,7 @@ export default Component.extend(I18n, {
     }
   },
 
-  downloadFile(fileEntityId) {
+  downloadFiles(files) {
     const {
       fileManager,
       globalNotify,
@@ -857,11 +876,12 @@ export default Component.extend(I18n, {
       'previewMode',
       'loadingIconFileIds'
     );
+    const fileIds = files.mapBy('entityId');
     // intentionally not checking for duplicates, because we treat multiple "loading id"
     // entries as semaphores
-    loadingIconFileIds.pushObject(fileEntityId);
+    loadingIconFileIds.pushObjects(fileIds);
     return fileManager.getFileDownloadUrl(
-        fileEntityId,
+        fileIds,
         previewMode ? 'public' : 'private'
       )
       .then((data) => this.handleFileDownloadUrl(data))
@@ -870,7 +890,7 @@ export default Component.extend(I18n, {
         throw error;
       })
       .finally(() => {
-        loadingIconFileIds.removeObject(fileEntityId);
+        loadingIconFileIds.removeObjects(fileIds);
       });
   },
 
