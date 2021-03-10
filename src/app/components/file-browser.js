@@ -469,13 +469,26 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnDatasets: computed(function btnDatasets() {
+  btnDatasets: computed('spacePrivileges.view', function btnDatasets() {
+    const {
+      spacePrivileges,
+      openDatasets,
+      i18n,
+    } = this.getProperties('spacePrivileges', 'openDatasets', 'i18n');
+    const canView = get(spacePrivileges, 'view');
+    const disabled = !canView;
     return this.createFileAction({
       id: 'datasets',
       icon: 'share-collection',
       action: (files) => {
-        return this.get('openDatasets')(files);
+        return openDatasets(files);
       },
+      disabled,
+      tip: disabled ? insufficientPrivilegesMessage({
+        i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_view',
+      }) : undefined,
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,

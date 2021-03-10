@@ -123,6 +123,20 @@ describe('Integration | Component | file browser/fb table row', function () {
     expect(this.$('.dataset-inherited-icon'), 'inherited icon').to.not.exist;
   });
 
+  it('renders dataset tag as disabled if file has dataset, but not having space_view privileges', function () {
+    this.set('datasetsViewForbidden', true);
+    this.set('file', createFile({
+      hasDirectDataset: true,
+      hasEffDataset: true,
+    }));
+
+    render(this);
+
+    const $tag = this.$('.file-status-dataset');
+    expect($tag, 'file-status-dataset').to.exist;
+    expect($tag).to.have.class('file-status-tag-disabled');
+  });
+
   testProtectedFlag(['data']);
   testProtectedFlag(['metadata']);
   testProtectedFlag(['data', 'metadata']);
@@ -250,5 +264,6 @@ function render(testCase) {
     file=file
     previewMode=previewMode
     isSpaceOwned=isSpaceOwned
+    datasetsViewForbidden=datasetsViewForbidden
   }}`);
 }

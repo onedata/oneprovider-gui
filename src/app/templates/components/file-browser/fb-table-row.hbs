@@ -53,13 +53,26 @@
             {{#if (or hasEffDataset hasDirectDataset)}}
               <div class="file-status-tag-group dataset-file-status-tag-group">
                 <div
-                  class="file-status-tag file-status-dataset"
-                  {{action (action "invokeFileAction" file "btnDatasets") bubbles=false}}
+                  class={{concat-classes
+                    "file-status-tag"
+                    "file-status-dataset"
+                    (if datasetsViewForbidden "file-status-tag-disabled")
+                  }}
+                  {{action
+                    (if datasetsViewForbidden
+                      (no-action)
+                      (action "invokeFileAction" file "btnDatasets")
+                    )
+                    bubbles=false
+                  }}
                 >
                   {{#if hasDirectDataset}}
                     {{tt this "status.dataset"}}
                   {{else}}
                     {{tt this "status.dataset"}}&nbsp;{{one-icon class="dataset-status-arrow dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
+                  {{/if}}
+                  {{#if datasetsViewForbidden}}
+                    {{one-tooltip title=hintDatasetsViewForbidden}}
                   {{/if}}
                 </div>
                 {{#if hasAnyProtectionFlag}}

@@ -1,10 +1,11 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, afterEach, context } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import Service from '@ember/service';
 import sinon from 'sinon';
+import { get } from '@ember/object';
 import Evented from '@ember/object/evented';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
@@ -24,6 +25,7 @@ const FileManager = Service.extend(Evented, {
   registerRefreshHandler() {},
   deregisterRefreshHandler() {},
   refreshDirChildren() {},
+  getFileDownloadUrl() {},
 });
 
 const I18n = Service.extend({
@@ -563,62 +565,143 @@ describe('Integration | Component | file browser (main component)', function () 
     });
   });
 
-  // FIXME: does not work because change selection functions is mocked wrong
-  // it('opens datasets modal after click on dataset tag', async function (done) {
-  //   const dir = {
-  //     entityId: 'root',
-  //     name: 'Test directory',
-  //     index: 'Test directory',
-  //     type: 'dir',
-  //     hasParent: false,
-  //     parent: resolve(null),
-  //   };
-  //   const a1 = {
-  //     entityId: 'f1',
-  //     name: 'A1',
-  //     index: 'A1',
-  //     type: 'file',
-  //     hasParent: true,
-  //     parent: resolve(dir),
-  //   };
-  //   const files1 = [
-  //     a1,
-  //   ];
-  //   this.setProperties({
-  //     dir,
-  //     selectedFiles: Object.freeze([]),
-  //   });
-  //   const fileManager = lookupService(this, 'fileManager');
-  //   const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
-  //   fetchDirChildren.withArgs(
-  //     'root',
-  //     sinon.match.any,
-  //     null,
-  //     sinon.match.any,
-  //     0
-  //   ).resolves({ childrenRecords: files1, isLast: true });
-  //   fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
-  //   const openDatasets = sinon.spy();
-  //   this.set('openDatasets', openDatasets);
+  context('with one item in root directory', function () {
+    beforeEach(function () {
+      const dir = {
+        entityId: 'root',
+        name: 'Test directory',
+        index: 'Test directory',
+        type: 'dir',
+        hasParent: false,
+        parent: resolve(null),
+      };
 
-  //   this.render(hbs `<div id="content-scroll">{{file-browser
-  //     dir=dir
-  //     selectedFiles=selectedFiles
-  //     changeSelectedFiles=(action (mut selectedFiles))
-  //     openDatasets=openDatasets
-  //     openMetadata=openMetadata
-  //   }}</div>`);
-  //   await wait();
-  //   expect(this.$('.fb-table-row')).to.have.length(1);
-  //   // this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
-  //   // await sleep(1500);
-  //   await click('.fb-table-col-actions-menu');
-  //   await wait();
-  //   await click('.file-action-datasets');
+      const item1 = {
+        entityId: 'i1',
+        name: 'A1',
+        index: 'A1',
+        hasParent: true,
+        parent: resolve(dir),
+      };
 
-  //   expect(openDatasets).to.be.calledOnce;
-  //   expect(openDatasets).to.be.calledWith(sinon.match.has('entityId', 'f1'));
+      this.setProperties({ dir, item1, selectedFiles: Object.freeze([]) });
+      stubSimpleFetch(this, dir, [item1]);
+      const clock = sinon.useFakeTimers({
+        now: Date.now(),
+        shouldAdvanceTime: true,
+      });
+      this.set('clock', clock);
+    });
 
-  //   done();
-  // });
+    afterEach(function () {
+      this.get('clock').restore();
+    });
+
+    context('when the only item is a file', function () {
+      beforeEach(function () {
+        this.set('item1.type', 'file');
+      });
+
+      context('with space view privileges', function () {
+        beforeEach(function () {
+          this.set('spacePrivileges', { view: true });
+        });
+
+        it('has enabled datasets item in context menu', async function (done) {
+          renderWithOpenDatasets(this);
+          await wait();
+          const $menu = await openFileContextMenu('i1');
+          expect($menu.find('li:not(.disabled) .file-action-datasets')).to.exist;
+
+          done();
+        });
+
+        testOpenDatasetsModal('dataset tag is clicked', async function () {
+          await click(getFileRow('i1').find('.file-status-dataset')[0]);
+        });
+
+        testOpenDatasetsModal('dataset context menu item is clicked', async function () {
+          await chooseFileContextMenuAction('i1', 'datasets');
+        });
+      });
+
+      it('has disabled datasets item in context menu', async function (done) {
+        renderWithOpenDatasets(this);
+        await wait();
+        const $menu = await openFileContextMenu('i1');
+        expect($menu.find('li.disabled .file-action-datasets')).to.exist;
+
+        done();
+      });
+    });
+
+    context('when the only item is a directory', function () {
+      beforeEach(function () {
+        this.set('item1.type', 'dir');
+      });
+    });
+  });
 });
+
+function testOpenDatasetsModal(openDescription, openFunction) {
+  it(`invokes datasets modal opening when ${openDescription}`, async function (done) {
+    const openDatasets = sinon.spy();
+    this.set('openDatasets', openDatasets);
+    this.set('item1.hasEffDataset', true);
+
+    renderWithOpenDatasets(this);
+
+    expect(openDatasets).to.have.not.been.called;
+    await openFunction.call(this);
+    expect(openDatasets).to.have.been.calledOnce;
+
+    done();
+  });
+}
+
+function renderWithOpenDatasets(testCase) {
+  if (!testCase.get('spacePrivileges')) {
+    testCase.set('spacePrivileges', {});
+  }
+  testCase.render(hbs `<div id="content-scroll">{{file-browser
+    dir=dir
+    selectedFiles=selectedFiles
+    changeSelectedFiles=(action (mut selectedFiles))
+    openDatasets=openDatasets
+    spacePrivileges=spacePrivileges
+  }}</div>`);
+}
+
+function stubSimpleFetch(testCase, dir, childrenRecords) {
+  const fileManager = lookupService(testCase, 'fileManager');
+  const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+  fetchDirChildren.withArgs(
+    get(dir, 'entityId'),
+    sinon.match.any,
+    null,
+    sinon.match.any,
+    0
+  ).resolves({ childrenRecords, isLast: true });
+  fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
+  return fetchDirChildren;
+}
+
+function getFileRow(fileId) {
+  const $row = $(`.fb-table-row[data-row-id=${fileId}]`);
+  expect($row).to.have.length(1);
+  return $row;
+}
+
+async function openFileContextMenu(fileId) {
+  const $row = getFileRow(fileId);
+  $row[0].dispatchEvent(new Event('contextmenu'));
+  await wait();
+  const $fileActions = $('.file-actions');
+  expect($fileActions, 'file-actions').to.have.length(1);
+  return $fileActions;
+}
+
+async function chooseFileContextMenuAction(fileId, actionId) {
+  const $fileActions = await openFileContextMenu(fileId);
+  await click($fileActions.find(`.file-action-${actionId}`)[0]);
+}

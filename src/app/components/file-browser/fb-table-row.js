@@ -141,6 +141,12 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   qosViewForbidden: false,
 
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  datasetsViewForbidden: false,
+
   inheritedIcon: 'arrow-long-up',
 
   /**
@@ -183,6 +189,14 @@ export default Component.extend(I18n, FastDoubleClick, {
       i18n: this.get('i18n'),
       modelName: 'space',
       privilegeFlag: 'space_view_qos',
+    });
+  }),
+
+  hintDatasetsViewForbidden: computed(function hintDatasetsViewForbidden() {
+    return insufficientPrivilegesMessage({
+      i18n: this.get('i18n'),
+      modelName: 'space',
+      privilegeFlag: 'space_view',
     });
   }),
 

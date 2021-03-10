@@ -3,10 +3,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.datasetsModal',
+  tagName: '',
 
   /**
    * @virtual
@@ -14,31 +11,6 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   onHide: notImplementedIgnore,
-
-  isEffDataProtected: true,
-  isEffMetadataProtected: true,
-
-  inheritedDatasets: Object.freeze([{
-      name: 'Chain dir 3',
-      path: '/Chain dir 1/Chain dir 2/Chain dir 3',
-      isDataProtected: false,
-      isMetadataProtected: false,
-    },
-
-    {
-      name: 'Chain dir 2',
-      path: '/Chain dir 1/Chain dir 2',
-      isDataProtected: true,
-      isMetadataProtected: false,
-    },
-
-    {
-      name: 'Chain dir 1',
-      path: '/Chain dir 1',
-      isDataProtected: false,
-      isMetadataProtected: true,
-    },
-  ]),
 
   actions: {
     onHide() {

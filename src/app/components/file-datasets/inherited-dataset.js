@@ -5,7 +5,7 @@ import { conditional, raw } from 'ember-awesome-macros';
 export default Component.extend(I18n, {
   classNames: ['inherited-dataset'],
 
-  i18nPrefix: 'components.datasetsModal.inheritedDataset',
+  i18nPrefix: 'components.fileDatasets.inheritedDataset',
 
   enabledIcon: 'checked',
   disabledIcon: 'x',
