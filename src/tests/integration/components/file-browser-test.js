@@ -701,8 +701,6 @@ async function doubleClickFile(fileId) {
   click(row);
   await sleep(1);
   await click(row);
-  // $row.trigger('click');
-  // $row.trigger('click');
 }
 
 async function openFileContextMenu(fileId) {

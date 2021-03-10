@@ -206,7 +206,7 @@ export default Service.extend({
         scope,
       }),
       data: {
-        fileIds,
+        file_ids: fileIds,
       },
       subscribe: false,
     });
