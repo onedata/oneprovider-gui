@@ -24,6 +24,7 @@ import { next, later } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import $ from 'jquery';
+import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
 
 export const actionContext = {
   none: 'none',
@@ -890,7 +891,7 @@ export default Component.extend(I18n, {
         throw error;
       })
       .finally(() => {
-        loadingIconFileIds.removeObjects(fileIds);
+        removeObjectsFirstOccurence(loadingIconFileIds, fileIds);
       });
   },
 
