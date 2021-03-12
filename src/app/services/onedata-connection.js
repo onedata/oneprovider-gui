@@ -17,4 +17,12 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
    * @type {Ember.ComputedProperty<number>}
    */
   transfersHistoryLimitPerFile: reads('attributes.transfersHistoryLimitPerFile'),
+
+  /**
+   * Known templates:
+   * - listSharedDirectoryChildren
+   * - downloadSharedFileContent
+   * @type {Ember.ComputedProperty<Object>}
+   */
+  restTemplates: reads('attributes.restTemplates'),
 });

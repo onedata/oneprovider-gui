@@ -9,6 +9,9 @@ import openDataEditor from './share-show/open-data-editor';
 import openDataPreview from './share-show/open-data-preview';
 import openDataModeSwitch from './share-show/open-data-mode-switch';
 import markdownEditor from './share-show/markdown-editor';
+import urlInfoHandle from './share-show/url-info-handle';
+import urlInfoShare from './share-show/url-info-share';
+import urlInfoRest from './share-show/url-info-rest';
 
 export default {
   tabs: {
@@ -33,4 +36,7 @@ export default {
   },
   openDataModeSwitch,
   markdownEditor,
+  urlInfoHandle,
+  urlInfoShare,
+  urlInfoRest,
 };
