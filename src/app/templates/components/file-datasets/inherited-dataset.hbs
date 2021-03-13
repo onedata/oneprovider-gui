@@ -1,7 +1,15 @@
 <div class="path-section">
   {{one-icon class="path-icon" icon="browser-directory"}}
   <div class="path-label">
-    <a href="#">{{file.path}}</a>
+    <a
+      onclick={{action "fileLinkClicked"}}
+      href={{qosSourceFileHref}}
+      target={{navigateDataTarget}}
+      class="file-path truncate"
+      href={{fileHref}}
+    >
+      {{filePathString}}
+    </a>
   </div>
 </div>
 <div class="flags-configuration">

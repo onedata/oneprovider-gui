@@ -6,11 +6,29 @@ export default Component.extend(I18n, {
   tagName: '',
 
   /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  showPrivilege: true,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  editPrivilege: true,
+
+  /**
    * @virtual
    * Callback when the modal is starting to hide
    * @type {Function}
    */
   onHide: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  getDataUrl: notImplementedIgnore,
 
   actions: {
     onHide() {

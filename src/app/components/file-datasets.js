@@ -1,14 +1,37 @@
 import Component from '@ember/component';
+import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { array, raw } from 'ember-awesome-macros';
+// import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { inject as service } from '@ember/service';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['file-datasets'],
+
+  datasetManager: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.fileDatasets',
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  showPrivilege: true,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  editPrivilege: true,
 
   /**
    * @virtual
@@ -17,28 +40,59 @@ export default Component.extend(I18n, {
    */
   close: notImplementedIgnore,
 
-  isEffDataProtected: true,
-  isEffMetadataProtected: true,
+  /**
+   * @virtual
+   * Callback when the modal is starting to hide
+   * @type {Function}
+   */
+  getDataUrl: notImplementedIgnore,
 
-  inheritedDatasets: Object.freeze([{
-      name: 'Chain dir 3',
-      path: '/Chain dir 1/Chain dir 2/Chain dir 3',
-      isDataProtected: false,
-      isMetadataProtected: false,
-    },
+  /**
+   * @virtual
+   * @type {Array<Models.File>}
+   */
+  files: undefined,
 
-    {
-      name: 'Chain dir 2',
-      path: '/Chain dir 1/Chain dir 2',
-      isDataProtected: true,
-      isMetadataProtected: false,
-    },
+  /**
+   * @type {ComputedProperty<Models.File>}
+   */
+  file: reads('files.firstObject'),
 
-    {
-      name: 'Chain dir 1',
-      path: '/Chain dir 1',
-      isDataProtected: false,
-      isMetadataProtected: true,
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isEffDataProtected: array.includes(
+    'file.effProtectionFlags',
+    raw('data_protection')
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isEffMetadataProtected: array.includes(
+    'file.effProtectionFlags',
+    raw('metadata_protection')
+  ),
+
+  // TODO: VFS-7402 change to getRelation
+  fileDatasetSummaryProxy: reads('file.fileDatasetSummary'),
+
+  fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
+
+  // TODO: VFS-7402 change to getRelation or check belongsTo id
+  hasDirectDatasetEstablished: reads('fileDatasetSummary.directDataset.content'),
+
+  inheritedDatasetsProxy: reads('fileDatasetSummary.effectiveDatasets'),
+
+  inheritedDatasets: reads('inheritedDatasetsProxy.content'),
+
+  actions: {
+    async establishDirectDataset() {
+      const {
+        file,
+        datasetManager,
+      } = this.getProperties('file', 'datasetManager');
+      await datasetManager.establishDataset(file);
     },
-  ]),
+  },
 });

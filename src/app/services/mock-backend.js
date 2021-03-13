@@ -388,7 +388,7 @@ export default Service.extend({
           // NOTE: add 'space_manager_qos' to see add qos view
           // put empty array to disable qos modal
           currentUserEffPrivileges: [
-            // 'space_view',
+            'space_view',
             'space_view_qos',
             'space_view_transfers',
           ],

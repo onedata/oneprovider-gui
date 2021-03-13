@@ -100,7 +100,10 @@
     {{datasets-modal
       open=true
       files=filesToShowDatasets
+      showPrivilege=spacePrivileges.viewQos
+      editPrivilege=spacePrivileges.manageDatasets
       onHide=(action "closeDatasetsModal")
+      getDataUrl=(action "getDataUrl")
     }}
   {{/if}}
 

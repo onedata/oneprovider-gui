@@ -1,35 +1,51 @@
-<h1 class="toggle-header">
-  {{one-way-toggle inputId="direct-dataset-set"
-    checked=isDirectDataset
-    class=(if media.isMobile "pull-right right" "toggle-right-side")
-    spinnerSide=(if media.isMobile "left" "right")
-    update=(action "toggleDataset")
-  }}
-  {{!-- FIXME: unique id --}}
-  <label class="direct-dataset-set" for="direct-dataset-set">
-    {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
-  </label>
-</h1>
-{{#if isDirectDataset}}
+{{#promise-proxy-container proxy=directDatasetProxy}}
+  <h1 class="toggle-header">
+    {{one-way-toggle
+      inputId=(concat elementId "-direct-dataset-attached-toggle")
+      checked=isDatasetAttached
+      class=(concat-classes
+        "direct-dataset-attached-toggle"
+        (if media.isMobile "pull-right right" "toggle-right-side")
+      )
+      spinnerSide=(if media.isMobile "left" "right")
+      update=(action "toggleDatasetAttachment")
+    }}
+    {{!-- FIXME: unique id --}}
+    <label
+      class="direct-dataset-attached-label"
+      for={{concat elementId "-direct-dataset-attached-toggle"}}
+    >
+      {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
+    </label>
+  </h1>
   <div class="flags-configuration">
     <div class="row flag-row">
-      {{one-way-toggle inputId="data-flag-set"
+      {{one-way-toggle
+        inputId=(concat elementId "-data-flag-toggle")
+        class="data-flag-toggle"
         checked=isDataProtected
         class=(if media.isMobile "pull-right right" "toggle-right-side")
         spinnerSide=(if media.isMobile "left" "right")
-        update=(action (mut isDataProtected) (not isDataProtected))
+        isReadOnly=(not isDatasetAttached)
+       update=(action "toggleDatasetProtectionFlag" "data_protection")
       }}
       {{!-- FIXME: unique id --}}
-      <label class="flag-set flag-set-direct data-flag-set" for="data-flag-set">
+      <label
+        class="flag-set flag-set-direct data-flag-set"
+        for={{concat elementId "-data-flag-toggle"}}
+      >
         {{tt this "dataProtection"}}
       </label>
     </div>
     <div class="row flag-row">
-      {{one-way-toggle inputId="metadata-flag-set"
+      {{one-way-toggle
+        inputId=(concat elementId "-metadatadata-flag-toggle")
+        class="metadata-flag-toggle"
         checked=isMetadataProtected
         class=(if media.isMobile "pull-right right" "toggle-right-side")
         spinnerSide=(if media.isMobile "left" "right")
-        update=(action (mut isMetadataProtected) (not isMetadataProtected))
+        isReadOnly=(not isDatasetAttached)
+        update=(action "toggleDatasetProtectionFlag" "metadata_protection")
       }}
       {{!-- FIXME: unique id --}}
       <label class="flag-set flag-set-direct metadata-flag-set" for="metadata-flag-set">
@@ -37,4 +53,4 @@
       </label>
     </div>
   </div>
-{{/if}}
+{{/promise-proxy-container}}

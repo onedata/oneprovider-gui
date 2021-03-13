@@ -26,6 +26,12 @@ export default Component.extend({
 
   selectedFiles: Object.freeze([]),
 
+  spacePrivileges: Object.freeze({
+    view: true,
+    viewQos: true,
+    viewTransfers: true,
+  }),
+
   spaceProxy: promise.object(computed(function spaceProxy() {
     return this.get('currentUser').getCurrentUserRecord()
       .then(user => get(user, 'spaceList'))
