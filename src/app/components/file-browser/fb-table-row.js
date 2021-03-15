@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { equal, raw, or, array, and } from 'ember-awesome-macros';
+import { equal, raw, or, and } from 'ember-awesome-macros';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -23,6 +23,7 @@ import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -147,6 +148,10 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   datasetsViewForbidden: false,
 
+  /**
+   * Name of icon to indicate that some property in tag is inhertied from ancestor
+   * @type {String}
+   */
   inheritedIcon: 'arrow-long-up',
 
   /**
@@ -184,6 +189,10 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   fileNameSuffix: reads('fileNameParser.suffix'),
 
+  /**
+   * Text for QoS tag tooltip, when cannot open QoS modal
+   * @type {ComputedProperty<SafeString>}
+   */
   hintQosViewForbidden: computed(function hintQosForbidden() {
     return insufficientPrivilegesMessage({
       i18n: this.get('i18n'),
@@ -192,6 +201,10 @@ export default Component.extend(I18n, FastDoubleClick, {
     });
   }),
 
+  /**
+   * Text for dataset tag tooltip, when cannot open datasets modal
+   * @type {ComputedProperty<SafeString>}
+   */
   hintDatasetsViewForbidden: computed(function hintDatasetsViewForbidden() {
     return insufficientPrivilegesMessage({
       i18n: this.get('i18n'),
@@ -398,28 +411,32 @@ export default Component.extend(I18n, FastDoubleClick, {
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 
   /**
+   * If true, should display direct dataset tag
    * @type {ComputedProperty<Boolean>}
    */
   hasDirectDataset: reads('file.hasDirectDataset'),
 
+  /**
+   * If true, should display (at least inherited) dataset tag
+   * @type {ComputedProperty<Boolean>}
+   */
   hasEffDataset: reads('file.hasEffDataset'),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isMetadataProtected: and('hasEffDataset', array.includes(
-    'file.effProtectionFlags',
-    raw('metadata_protection')
-  )),
+  isDataProtected: and(
+    'hasEffDataset',
+    hasProtectionFlag('file.effProtectionFlags', 'data')
+  ),
 
-  // TODO: VFS-7403 this flag should be false if isDataset if false
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isDataProtected: and('hasEffDataset', array.includes(
-    'file.effProtectionFlags',
-    raw('data_protection')
-  )),
+  isMetadataProtected: and(
+    'hasEffDataset',
+    hasProtectionFlag('file.effProtectionFlags', 'metadata')
+  ),
 
   /**
    * @type {ComputedProperty<Boolean>}

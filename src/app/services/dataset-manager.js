@@ -7,6 +7,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+// TODO: VFS-7414 everything here is mocked and API is not stable yet
+
 import Service from '@ember/service';
 import { resolve } from 'rsvp';
 import { get, set } from '@ember/object';
@@ -14,15 +16,13 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Service.extend({
-  // TODO: VFS-7402 create dataset record using fileId in body,
-  // then reload file and fileDatasetSummary records - this implementation is mock
   async establishDataset(file) {
     await sleep(100);
     const fileDatasetSummary = await get(file, 'fileDatasetSummary');
     const directDataset = set(fileDatasetSummary, 'directDataset', promiseObject(
       resolve(createDummyDataset())
     ));
-    console.log('TODO: VFS-7402 dataset established for file', get(file, 'entityId'));
+    console.log('dataset established for file', get(file, 'entityId'));
     return directDataset;
   },
 
@@ -32,13 +32,14 @@ export default Service.extend({
     const directDataset = set(fileDatasetSummary, 'directDataset', promiseObject(
       resolve(null)
     ));
-    console.log('TODO: VFS-7402 dataset destroyed for file', get(file, 'entityId'));
+    console.log('dataset destroyed for file', get(file, 'entityId'));
     return directDataset;
   },
 
   async toggleDatasetAttachment(dataset, state) {
     await sleep(100);
     set(dataset, 'attached', state);
+    console.log('dataset attached');
     return dataset;
   },
 
@@ -64,11 +65,12 @@ export default Service.extend({
       }
     }
     set(dataset, 'protectionFlags', protectionFlags);
+    console.log('dataset protection flag toggled', flagsData);
     return dataset;
   },
 });
 
-// TODO: VFS-7402 mock function to remove when model will be implemented
+// TODO: VFS-7402 mock function to remove or move when model will be implemented
 export function createDummyDataset(file, protectionFlags) {
   const entityId = btoa(Math.floor(Math.random() * 10000));
   const id = `op_dataset.${entityId}.instance:private`;

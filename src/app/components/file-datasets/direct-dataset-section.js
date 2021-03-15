@@ -1,20 +1,27 @@
+/**
+ * Control of dataset estabilished directly for some file/directory 
+ *
+ * @module components/file-dataset/direct-dataset-section
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { reads } from '@ember/object/computed';
-import { array, raw, and } from 'ember-awesome-macros';
+import { and } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
-const mixins = [
-  I18n,
-  createDataProxyMixin('directDataset'),
-];
-
-export default Component.extend(...mixins, {
+export default Component.extend(I18n, {
   classNames: ['direct-dataset-section'],
 
   datasetManager: service(),
 
+  /**
+   * @override
+   */
   i18nPrefix: 'components.fileDatasets.directDatasetSection',
 
   /**
@@ -24,7 +31,6 @@ export default Component.extend(...mixins, {
   file: undefined,
 
   /**
-   * // TODO: VFS-7402 implement model type
    * @virtual
    * @type {Models.FileDatasetSummary}
    */
@@ -38,12 +44,19 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual optional
-   * @type {Boolean}
+   * @type {SafeString}
    */
   readonlyMessage: undefined,
 
+  // TODO: VFS-7402 use getRelation
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
+   */
   directDatasetProxy: reads('fileDatasetSummary.directDataset'),
 
+  /**
+   * @type {ComputedProperty<Models.Dataset>}
+   */
   directDataset: reads('directDatasetProxy.content'),
 
   /**
@@ -55,27 +68,18 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isDataProtected: and('isDatasetAttached', array.includes(
-    'directDataset.protectionFlags',
-    raw('data_protection')
-  )),
+  isDataProtected: and(
+    'isDatasetAttached',
+    hasProtectionFlag('directDataset.protectionFlags', 'data')
+  ),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isMetadataProtected: and('isDatasetAttached', array.includes(
-    'directDataset.protectionFlags',
-    raw('metadata_protection')
-  )),
-
-  /**
-   * // TODO: VFS-7402 implement model type
-   * @override
-   * @returns {PromiseObject<Models.Dataset>}
-   */
-  fetchDirectDataset() {
-    return this.get('fileDatasetSummary.directDataset');
-  },
+  isMetadataProtected: and(
+    'isDatasetAttached',
+    hasProtectionFlag('directDataset.protectionFlags', 'metadata')
+  ),
 
   actions: {
     toggleDatasetAttachment(state) {

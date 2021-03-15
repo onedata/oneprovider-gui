@@ -1,3 +1,12 @@
+/**
+ * A dummy component for visually testing `datasets-modal`
+ *
+ * @module components/dummy-datasets-modal
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
@@ -18,7 +27,8 @@ export default Component.extend({
 
   file: reads('files.firstObject'),
 
-  editPrivilege: false,
+  // change for test to true if want to disable dataset edit features
+  editPrivilege: true,
 
   init() {
     this._super(...arguments);
@@ -32,6 +42,7 @@ export default Component.extend({
       // uncomment for test: no direct dataset established
       // directDataset: promiseObject(resolve(null)),
       directDataset: promiseObject(resolve(directDataset)),
+      // NOTE: files are intentionally not-in-order to test entries sorting
       effectiveDatasets: promiseArray(resolve([
         createDataset(chainDirs[1], ['data_protection']),
         createDataset(chainDirs[0], ['metadata_protection']),

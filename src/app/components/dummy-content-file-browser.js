@@ -30,6 +30,7 @@ export default Component.extend({
     view: true,
     viewQos: true,
     viewTransfers: true,
+    manageDatasets: true,
   }),
 
   spaceProxy: promise.object(computed(function spaceProxy() {

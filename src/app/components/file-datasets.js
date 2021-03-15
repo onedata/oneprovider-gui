@@ -1,12 +1,22 @@
+/**
+ * Main component for managing datasets for file or directory.
+ * 
+ * Currently used in file-browser wrapped with one-modal.
+ *
+ * @module components/file-datasets
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { array, raw } from 'ember-awesome-macros';
-// import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 const mixins = [
   I18n,
@@ -48,6 +58,11 @@ export default Component.extend(...mixins, {
    */
   files: undefined,
 
+  /**
+   * Text displayed in various places when settings cannot be edited due to lack of
+   * privileges.
+   * @type {ComputedProperty<SafeString>}
+   */
   insufficientEditPrivilegesMessage: computed('editPrivilege',
     function insufficientEditPrivilegesMessage() {
       if (!this.get('editPrivilege')) {
@@ -68,29 +83,36 @@ export default Component.extend(...mixins, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isEffDataProtected: array.includes(
-    'file.effProtectionFlags',
-    raw('data_protection')
-  ),
+  isEffDataProtected: hasProtectionFlag('file.effProtectionFlags', 'data'),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isEffMetadataProtected: array.includes(
-    'file.effProtectionFlags',
-    raw('metadata_protection')
-  ),
+  isEffMetadataProtected: hasProtectionFlag('file.effProtectionFlags', 'metadata'),
 
-  // TODO: VFS-7402 change to getRelation
+  // TODO: VFS-7402 use getRelation
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
+   */
   fileDatasetSummaryProxy: reads('file.fileDatasetSummary'),
 
+  /**
+   * @type {ComputedProperty<Models.FileDatasetSummary>}
+   */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
 
-  // TODO: VFS-7402 change to getRelation or check belongsTo id
+  // TODO: VFS-7402 use getRelation or check belongsTo id
   hasDirectDatasetEstablished: reads('fileDatasetSummary.directDataset.content'),
 
+  // TODO: VFS-7402 use getRelation
+  /**
+   * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
+   */
   inheritedDatasetsProxy: reads('fileDatasetSummary.effectiveDatasets'),
 
+  /**
+   * @type {ComputedProperty<Models.Dataset>}
+   */
   inheritedDatasets: reads('inheritedDatasetsProxy.content'),
 
   actions: {

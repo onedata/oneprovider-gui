@@ -1,15 +1,28 @@
+/**
+ * Entry with information about an effective dataset for file/directory. 
+ *
+ * @module components/file-datasets/inherited-dataset
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, array } from 'ember-awesome-macros';
+import { conditional, raw } from 'ember-awesome-macros';
 import { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 export default Component.extend(I18n, {
   classNames: ['inherited-dataset'],
 
+  /**
+   * @override
+   */
   i18nPrefix: 'components.fileDatasets.inheritedDataset',
 
   /**
@@ -19,6 +32,7 @@ export default Component.extend(I18n, {
   dataset: undefined,
 
   /**
+   * See result format of `util:resolve-file-path` for details
    * @virtual
    * @type {Array<Models.File>}
    */
@@ -75,49 +89,64 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isDataProtected: array.includes(
-    'dataset.protectionFlags',
-    raw('data_protection')
-  ),
+  isDataProtected: hasProtectionFlag('dataset.protectionFlags', 'data'),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isMetadataProtected: array.includes(
-    'dataset.protectionFlags',
-    raw('metadata_protection')
-  ),
+  isMetadataProtected: hasProtectionFlag('dataset.protectionFlags', 'metadata'),
 
+  // TODO: VFS-7404 below computed properties with classes, text and icons are not
+  // refactored because they can be not necessary when new design will be implemented
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
   dataFlagIcon: conditional(
     'isDataProtected',
     'enabledIcon',
     'disabledIcon',
   ),
 
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
   dataFlagLabelText: conditional(
     'isDataProtected',
     computedT('writeProtection.data.enabled'),
     computedT('writeProtection.data.disabled'),
   ),
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   flagDataRowClass: conditional(
     'isDataProtected',
     raw('enabled'),
     raw('disabled'),
   ),
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   metadataFlagIcon: conditional(
     'isMetadataProtected',
     'enabledIcon',
     'disabledIcon',
   ),
 
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
   metadataFlagLabelText: conditional(
     'isMetadataProtected',
     computedT('writeProtection.metadata.enabled'),
     computedT('writeProtection.metadata.disabled'),
   ),
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   flagMetadataRowClass: conditional(
     'isMetadataProtected',
     raw('enabled'),

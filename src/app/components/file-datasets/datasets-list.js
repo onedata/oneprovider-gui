@@ -51,7 +51,7 @@ export default Component.extend({
   sorting: Object.freeze(['filePath.length:desc']),
 
   /**
-   * Main reasone for this component to exist - exposes a sorted collection of pairs:
+   * Main reason for this component to exist - exposes a sorted collection of pairs:
    * `(dataset, path to root file)` in array of objects format (see type specification).
    * @type {ComputedProperty<Array<{ dataset: Models.Dataset, filePath: Array<Models.File> }>>}
    */
