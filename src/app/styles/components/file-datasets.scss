@@ -1,3 +1,5 @@
+// TODO: VFS-7404 this file is not-production-ready
+
 .file-datasets {
   .modal-header {
     display: flex;
@@ -23,12 +25,6 @@
         font-size: 90%;
         // TODO: var
         margin-bottom: 8px;
-        
-        .inline-icon-container {
-          // .one-icon {
-          //   font-weight: bold;
-          // }
-        }
       }
     }
   }
@@ -55,96 +51,7 @@
       }
     }
   }
-  
-  // component
-  .direct-dataset-section {
-    display: flex;
-    flex-direction: column;
-    .toggle-header {
-      margin-top: 0;
-      margin-bottom: 0;
-      display: flex;
-      align-items: center;
-      label.direct-dataset-attached-label {
-        margin: 0;
-        margin-left: 20px;
-      }
-    }
-    .flags-configuration {
-      margin-top: 20px;
-    }
-    .flag-row {
-      display: flex;
-      align-items: center;
-      padding-left: 40px;
-      margin-top: 12px;
-      :first-child {
-        margin-top: 0;
-      }
-      label {
-        margin: 0;
-        margin-left: 18px;
-      }
-    }
-  }
-  
-  // component
-  .inherited-dataset {
-    display: flex;
-    flex-direction: column;
-    .path-section {
-      margin: 0;
-      display: flex;
-      align-items: center;
-      position: relative;
-      font-size: 120%;
-      .path-icon {
-        font-size: 200%;
-        position: relative;
-        top: -1px;
-      }
-      .path-label {
-        margin-left: 8px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        direction: rtl;
-        a {
-          // thanks to this, "/" do not go to end when using direction: rtl
-          unicode-bidi: plaintext;
-        }
-      }
-    }
-    .flags-configuration {
-      padding-left: 40px;
-      margin-top: 12px;
-      :first-child {
-        margin-top: 0;
-      }
-    }
-    .flag-row {
-      display: flex;
-      align-items: center;
-      
-      &.enabled {
-        .flag-icon {
-          color: $color-one-success;
-        }
-      }
-      &.disabled {
-        
-      }
-    }
-    .flag-icon {
-      font-size: 160%;
-    }
-    .flag-label {
-      margin-left: 8px;
-    }
-    // custom
-    .data-flag-row {
-      .flag-icon {
-        font-weight: bold;
-      }
-    }
-  }
 }
+
+@import './file-datasets/direct-dataset-section';
+@import './file-datasets/inherited-dataset';

@@ -1,26 +1,23 @@
-const fileType = {
-  file: 'file',
-  dir: 'directory',
-};
+import inheritedDataset from './file-datasets/inherited-dataset';
+import directDatasetSection from './file-datasets/direct-dataset-section';
+
+// TODO: VFS-7404 this file is not-production-ready
 
 export default {
-  fileType,
+  fileType: {
+    file: 'file',
+    dir: 'directory',
+  },
   datasets: 'Datasets',
   close: 'Close',
   dataProtectedTag: 'Data is write protected',
   metadataProtectedTag: 'Metadata is write protected',
-  // TODO: VFS-7404 tooltip UX, tooltip texts
   dataProtectedTooltip: 'Data protection prevents a file from...',
   metadataProtectedTooltip: 'Metadata protection prevents a file from...',
   inheritedDatasets: 'Inherited datasets',
   noInheritedDatasets: 'This file does not have inherited datasets',
   establishDataset: 'Establish dataset',
 
-  // component
-  directDatasetSection: {
-    fileType,
-    markAsDataset: 'Mark this {{fileType}} as dataset',
-    dataProtection: 'Data write protection',
-    metadataProtection: 'Metadata write protection',
-  },
+  inheritedDataset,
+  directDatasetSection,
 };

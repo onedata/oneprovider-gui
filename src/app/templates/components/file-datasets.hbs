@@ -49,17 +49,25 @@
           class="datasets-item"
           file=file
           fileDatasetSummary=fileDatasetSummary
+          readonly=(not editPrivilege)
+          readonlyMessage=insufficientEditPrivilegesMessage
         }}
       </div>
     {{else}}
       <div class="items-group no-direct-dataset-items-group">
         <div class="datasets-item">
-          {{#one-spin-button
-            action=(action "establishDirectDataset")
-            class="btn btn-primary"
-          }}
-            {{tt this "establishDataset"}}
-          {{/one-spin-button}}
+          <div class="btn-tooltip-container">
+            {{#one-spin-button
+              action=(action "establishDirectDataset")
+              class="btn btn-primary"
+              disabled=(not editPrivilege)
+            }}
+              {{tt this "establishDataset"}}
+            {{/one-spin-button}}
+            {{#if (not editPrivilege)}}
+              {{one-tooltip title=insufficientEditPrivilegesMessage}}
+            {{/if}}
+          </div>
         </div>
       </div>
     {{/if}}

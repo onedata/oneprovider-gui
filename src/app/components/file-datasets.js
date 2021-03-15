@@ -6,6 +6,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { array, raw } from 'ember-awesome-macros';
 // import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { inject as service } from '@ember/service';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const mixins = [
   I18n,
@@ -20,12 +21,6 @@ export default Component.extend(...mixins, {
    * @override
    */
   i18nPrefix: 'components.fileDatasets',
-
-  /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  showPrivilege: true,
 
   /**
    * @virtual optional
@@ -52,6 +47,18 @@ export default Component.extend(...mixins, {
    * @type {Array<Models.File>}
    */
   files: undefined,
+
+  insufficientEditPrivilegesMessage: computed('editPrivilege',
+    function insufficientEditPrivilegesMessage() {
+      if (!this.get('editPrivilege')) {
+        return insufficientPrivilegesMessage({
+          i18n: this.get('i18n'),
+          modelName: 'space',
+          privilegeFlag: 'space_manage_datasets',
+        });
+      }
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Models.File>}

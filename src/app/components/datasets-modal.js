@@ -9,12 +9,6 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {Boolean}
    */
-  showPrivilege: true,
-
-  /**
-   * @virtual optional
-   * @type {Boolean}
-   */
   editPrivilege: true,
 
   /**

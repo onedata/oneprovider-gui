@@ -26,6 +26,16 @@ export default Service.extend({
     return directDataset;
   },
 
+  async destroyDataset(file) {
+    await sleep(100);
+    const fileDatasetSummary = await get(file, 'fileDatasetSummary');
+    const directDataset = set(fileDatasetSummary, 'directDataset', promiseObject(
+      resolve(null)
+    ));
+    console.log('TODO: VFS-7402 dataset destroyed for file', get(file, 'entityId'));
+    return directDataset;
+  },
+
   async toggleDatasetAttachment(dataset, state) {
     await sleep(100);
     set(dataset, 'attached', state);

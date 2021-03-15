@@ -8,6 +8,8 @@
         (if media.isMobile "pull-right right" "toggle-right-side")
       )
       spinnerSide=(if media.isMobile "left" "right")
+      isReadOnly=readonly
+      lockHint=readonlyMessage
       update=(action "toggleDatasetAttachment")
     }}
     {{!-- FIXME: unique id --}}
@@ -26,8 +28,9 @@
         checked=isDataProtected
         class=(if media.isMobile "pull-right right" "toggle-right-side")
         spinnerSide=(if media.isMobile "left" "right")
-        isReadOnly=(not isDatasetAttached)
-       update=(action "toggleDatasetProtectionFlag" "data_protection")
+        isReadOnly=(or readonly (not isDatasetAttached))
+        lockHint=readonlyMessage
+        update=(action "toggleDatasetProtectionFlag" "data_protection")
       }}
       {{!-- FIXME: unique id --}}
       <label
@@ -44,13 +47,28 @@
         checked=isMetadataProtected
         class=(if media.isMobile "pull-right right" "toggle-right-side")
         spinnerSide=(if media.isMobile "left" "right")
-        isReadOnly=(not isDatasetAttached)
+        isReadOnly=(or readonly (not isDatasetAttached))
+        lockHint=readonlyMessage
         update=(action "toggleDatasetProtectionFlag" "metadata_protection")
       }}
       {{!-- FIXME: unique id --}}
       <label class="flag-set flag-set-direct metadata-flag-set" for="metadata-flag-set">
         {{tt this "metadataProtection"}}
       </label>
+    </div>
+  </div>
+  <div class="row remove-dataset-row">
+    <div class="btn-tooltip-container">
+      {{#one-spin-button
+        action=(action "destroyDataset")
+        class="btn btn-sm btn-danger destroy-dataset-btn"
+        disabled=readonly
+      }}
+        {{tt this "destroyDataset"}}
+      {{/one-spin-button}}
+      {{#if readonly}}
+        {{one-tooltip title=readonlyMessage}}
+      {{/if}}
     </div>
   </div>
 {{/promise-proxy-container}}

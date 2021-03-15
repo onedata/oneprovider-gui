@@ -18,15 +18,13 @@ export default Component.extend({
 
   file: reads('files.firstObject'),
 
-  showPrivilege: true,
-
-  editPrivilege: true,
+  editPrivilege: false,
 
   init() {
     this._super(...arguments);
     // TODO: VFS-7402 implement global mock
     const directDataset = {
-      attached: false,
+      attached: true,
       protectionFlags: ['data_protection', 'metadata_protection'],
     };
     const chainDirs = this.get('mockBackend.entityRecords.chainDir');

@@ -2,9 +2,10 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, promise, array } from 'ember-awesome-macros';
-import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import { conditional, raw, array } from 'ember-awesome-macros';
+import { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   classNames: ['inherited-dataset'],
@@ -95,8 +96,8 @@ export default Component.extend(I18n, {
 
   dataFlagLabelText: conditional(
     'isDataProtected',
-    raw('Data write protection is enabled'),
-    raw('Data write protection is disabled'),
+    computedT('writeProtection.data.enabled'),
+    computedT('writeProtection.data.disabled'),
   ),
 
   flagDataRowClass: conditional(
@@ -113,8 +114,8 @@ export default Component.extend(I18n, {
 
   metadataFlagLabelText: conditional(
     'isMetadataProtected',
-    raw('Metadata write protection is enabled'),
-    raw('Metadata write protection is disabled')
+    computedT('writeProtection.metadata.enabled'),
+    computedT('writeProtection.metadata.disabled'),
   ),
 
   flagMetadataRowClass: conditional(

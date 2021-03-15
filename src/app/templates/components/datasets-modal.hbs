@@ -1,4 +1,4 @@
-{{#one-modal
+{{#one-pseudo-modal
   class="datasets-modal"
   open=open
   size="xl"
@@ -10,9 +10,8 @@
   {{file-datasets
     modal=modal
     files=files
-    showPrivilege=showPrivilege
     editPrivilege=editPrivilege
     getDataUrl=(action getDataUrl)
     close=(action "onHide")
   }}
-{{/one-modal}}
+{{/one-pseudo-modal}}

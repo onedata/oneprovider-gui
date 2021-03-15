@@ -1,9 +1,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { promise } from 'ember-awesome-macros';
 import { array, raw, and } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 
@@ -31,6 +29,18 @@ export default Component.extend(...mixins, {
    * @type {Models.FileDatasetSummary}
    */
   fileDatasetSummary: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  readonly: false,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  readonlyMessage: undefined,
 
   directDatasetProxy: reads('fileDatasetSummary.directDataset'),
 
@@ -83,6 +93,13 @@ export default Component.extend(...mixins, {
       return datasetManager.toggleDatasetProtectionFlags(directDataset, {
         [flag]: state,
       });
+    },
+    destroyDataset() {
+      const {
+        datasetManager,
+        file,
+      } = this.getProperties('datasetManager', 'file');
+      return datasetManager.destroyDataset(file);
     },
   },
 });
