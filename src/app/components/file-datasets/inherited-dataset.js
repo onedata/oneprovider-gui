@@ -19,6 +19,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Array<Models.File>}
+   */
+  filePath: Object.freeze([]),
+
+  /**
+   * @virtual
    * @type {Function}
    */
   close: notImplementedIgnore,
@@ -29,32 +35,34 @@ export default Component.extend(I18n, {
    */
   getDataUrl: notImplementedIgnore,
 
+  /**
+   * Name of icon for enabled flag
+   * @type {String}
+   */
   enabledIcon: 'checked',
 
+  /**
+   * Name of icon for disabled flag
+   * @type {String}
+   */
   disabledIcon: 'x',
 
-  fileProxy: reads('dataset.rootFile'),
+  /**
+   * @type {ComputedProperty<Models.File>}
+   */
+  file: reads('filePath.lastObject'),
 
-  file: reads('fileProxy.content'),
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  filePathString: computed('filePath.@each.name', function filePathString() {
+    return stringifyFilePath(this.get('filePath'));
+  }),
 
-  filePathProxy: promise.object(computed(
-    'fileProxy.{name,parent}',
-    async function filePathProxy() {
-      const file = await this.get('fileProxy');
-      return await resolveFilePath(file);
-    }
-  )),
-
-  filePath: reads('filePathProxy.content'),
-
-  filePathStringProxy: promise.object(computed(async function filePathStringProxy() {
-    const filePath = await this.get('filePathProxy');
-    return stringifyFilePath(filePath);
-  })),
-
-  filePathString: reads('filePathStringProxy.content'),
-
-  fileHref: computed('file.entityId', function qosSourceFileHref() {
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  fileHref: computed('getDataUrl', 'file.entityId', function fileHref() {
     const {
       getDataUrl,
       file,

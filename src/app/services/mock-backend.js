@@ -385,12 +385,13 @@ export default Service.extend({
           rootDir: rootDirs[i],
           providersWithReadonlySupport: [providerId],
           currentUserIsOwner: false,
-          // NOTE: add 'space_manager_qos' to see add qos view
+          // NOTE: add 'space_manage_qos' to see add qos view
           // put empty array to disable qos modal
           currentUserEffPrivileges: [
             'space_view',
             'space_view_qos',
             'space_view_transfers',
+            // TODO: VFS-7402: add 'space_manage_datasets' to allow edit in default mock
           ],
         }).save()
       )))

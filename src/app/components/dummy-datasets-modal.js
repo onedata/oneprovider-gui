@@ -6,7 +6,6 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import sleep from 'onedata-gui-common/utils/sleep';
 import { createDummyDataset as createDataset } from 'oneprovider-gui/services/dataset-manager';
-import { reject } from 'rsvp';
 
 export default Component.extend({
   opened: true,
@@ -30,10 +29,9 @@ export default Component.extend({
       attached: false,
       protectionFlags: ['data_protection', 'metadata_protection'],
     };
-    /** @type {Array} */
     const chainDirs = this.get('mockBackend.entityRecords.chainDir');
     const fileDatasetSummary = {
-      // test: no direct dataset established
+      // uncomment for test: no direct dataset established
       // directDataset: promiseObject(resolve(null)),
       directDataset: promiseObject(resolve(directDataset)),
       effectiveDatasets: promiseArray(resolve([
@@ -45,9 +43,9 @@ export default Component.extend({
     this.set('file.fileDatasetSummary', promiseObject(resolve(fileDatasetSummary)));
     this.set('file.effProtectionFlags', ['data_protection', 'metadata_protection']);
 
-    // test: forbidden message
+    // uncomment for test: forbidden message
     // this.set('file.fileDatasetSummary', promiseObject(reject({ id: 'forbidden' })));
-    // test: generic error mesage
+    // uncomment for test: generic error mesage
     // this.set('file.fileDatasetSummary', promiseObject(reject({ id: 'some_error' })));
   },
 
@@ -62,17 +60,6 @@ export default Component.extend({
 });
 
 function resolve(value) {
+  // change sleep value for test: a loading spinner is shown
   return sleep(0).then(() => value);
-}
-
-function createDummyFile(name, parent) {
-  const entityId = btoa(Math.floor(Math.random() * 10000));
-  const id = `file.${entityId}.instance:private`;
-  return {
-    id,
-    entityId,
-    name,
-    hasParent: Boolean(parent),
-    parent: promiseObject(resolve(parent)),
-  };
 }

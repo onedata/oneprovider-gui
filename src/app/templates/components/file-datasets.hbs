@@ -72,14 +72,18 @@
     {{#if inheritedDatasets.length}}
       <div class="items-group inherited-datasets-items-group">
         <h2>{{tt this "inheritedDatasets"}}</h2>
-        {{#each inheritedDatasets as |dataset|}}
-          {{file-datasets/inherited-dataset
-            class="datasets-item"
-            dataset=dataset
-            getDataUrl=(action getDataUrl)
-            close=(action close)
-          }}
-        {{/each}}
+        {{#file-datasets/datasets-list datasets=inheritedDatasets as |sortedDataList|}}
+          {{log sortedDataList}}
+          {{#each sortedDataList as |data|}}
+            {{file-datasets/inherited-dataset
+              class="datasets-item"
+              dataset=data.dataset
+              filePath=data.filePath
+              getDataUrl=(action getDataUrl)
+              close=(action close)
+            }}
+          {{/each}}
+        {{/file-datasets/datasets-list}}
       </div>
     {{else}}
       <div class="items-group no-inherited-datasets-group">
