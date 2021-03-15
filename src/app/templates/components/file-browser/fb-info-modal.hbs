@@ -1,4 +1,5 @@
 {{#bs-modal
+  class="fb-info-modal"
   open=open
   onHide=(action "close")
   size="lg"
@@ -59,12 +60,94 @@
               {{clipboard-line
                 value=cdmiObjectId
                 type="textarea"
+                textareaRows="3"
                 size=(if smallContent "sm")
-                class="monospace-font"
+                class="monospace-font compact"
               }}
             </div>
           </td>
         </tr>
+        {{#if previewMode}}
+          <tr id={{cdmiRowId}} class="file-info-row-rest-url">
+            <td class="property-name with-input">
+              {{tt this "rest"}}
+            </td>
+            <td class="property-value">
+              <div class="rest-url-type-row">
+                {{#one-dropdown
+                  triggerClass="small rest-url-type-selector-trigger"
+                  dropdownClass="small rest-url-type-selector-dropdown"
+                  renderInPlace=false
+                  options=availableRestUrlTypes
+                  selected=effSelectedRestUrlType
+                  searchEnabled=false
+                  onchange=(action (mut selectedRestUrlType))
+                  as |urlType|
+                }}
+                  {{tt this (concat "restUrlType." urlType)}}
+                {{/one-dropdown}}
+                <div
+                  class="inline-icon-container rest-url-type-info-trigger-container"
+                  {{action (mut restUrlTypeInfoOpened) (not restUrlTypeInfoOpened)}}
+                >
+                  {{one-icon
+                    id=restUrlInfoTriggerId
+                    icon="browser-info"
+                    class="rest-url-type-info-trigger"
+                  }}
+                </div>
+                {{#one-webui-popover
+                  popoverStyle="rest-url-type-info over-modals"
+                  padding=true
+                  open=restUrlTypeInfoOpened
+                  triggerSelector=(concat "#" restUrlInfoTriggerId)
+                  as |popover|
+                }}
+                  {{#click-outside
+                    action=(action (mut restUrlTypeInfoOpened) false)
+                    except-selector=".rest-url-type-info-trigger, .webui-popover-rest-url-type-info"
+                  }}
+                    <p class="rest-tip-intro">
+                      {{tt this "restTipIntro"}}
+                      {{one-doc-see-more
+                        linkName=(tt this "restTipLinkName")
+                        href=(one-api-doc-url
+                          product="onezone"
+                          anchor="operation/get_shared_data"
+                        )
+                      }}
+                    </p>
+                    <hr class="sharp">
+                    <p class="last rest-tip-specific rest-tip-{{effSelectedRestUrlType}}">
+                      {{tt this "restTipSpecificIntro"
+                        typeDescription=(tt this
+                          (concat "restTipSpecificType." effSelectedRestUrlType)
+                        )
+                      }}
+                    </p>
+                  {{/click-outside}}
+                {{/one-webui-popover}}
+                <span class="labels-container hidden-xs">
+                  <span class="label label-info rest-tag-label">
+                    <span class="bracket-fix">{</span>
+                    {{tt this "restTag"}}
+                    <span class="bracket-fix">}</span>
+                  </span>
+                </span>
+                
+              </div>
+              <div class="input-group input-group input-group-clipboard-textarea">
+                {{clipboard-line
+                  value=publicRestUrl
+                  textareaRows="4"
+                  type="textarea"
+                  size=(if smallContent "sm")
+                  class="monospace-font compact"
+                }}
+              </div>
+            </td>
+          </tr>
+        {{/if}}
         {{#if (eq itemType "file")}}
           <tr class="file-info-row-size">
             <td class="property-name">{{tt this "size"}}</td>
