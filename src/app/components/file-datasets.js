@@ -11,12 +11,15 @@
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';
+import { bool } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
+// TODO: VFS-7402 use getRelation
+// import { computedGetRelation } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export default Component.extend(I18n, {
   classNames: ['file-datasets'],
@@ -100,7 +103,7 @@ export default Component.extend(I18n, {
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
 
   // TODO: VFS-7402 use getRelation or check belongsTo id
-  hasDirectDatasetEstablished: reads('fileDatasetSummary.directDataset.content'),
+  hasDirectDatasetEstablished: bool('fileDatasetSummary.directDataset.content'),
 
   // TODO: VFS-7402 use getRelation
   /**

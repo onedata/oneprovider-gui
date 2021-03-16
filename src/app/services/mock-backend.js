@@ -65,6 +65,19 @@ export const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731
 
 const transferStates = ['waiting', 'ongoing', 'ended'];
 
+const protectionFlagSets = [
+  [],
+  ['data_protection'],
+  ['metadata_protection'],
+  ['data_protection', 'metadata_protection'],
+];
+
+const effProtectionFlagSets = [
+  [],
+  ['data_protection'],
+  ['data_protection', 'metadata_protection'],
+];
+
 export default Service.extend({
   store: service(),
 
@@ -154,6 +167,9 @@ export default Service.extend({
       })
       .then(listRecords => {
         return this.createAndAddQos(store).then(() => listRecords);
+      })
+      .then(listRecords => {
+        return this.createDatasetMock(store).then(() => listRecords);
       })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
@@ -385,13 +401,12 @@ export default Service.extend({
           rootDir: rootDirs[i],
           providersWithReadonlySupport: [providerId],
           currentUserIsOwner: false,
-          // NOTE: add 'space_manage_qos' to see add qos view
-          // put empty array to disable qos modal
           currentUserEffPrivileges: [
             'space_view',
             'space_view_qos',
             'space_view_transfers',
-            // TODO: VFS-7402: add 'space_manage_datasets' to allow edit in default mock
+            'space_manager_qos',
+            'space_manage_datasets',
           ],
         }).save()
       )))
@@ -511,6 +526,40 @@ export default Service.extend({
     };
   },
 
+  async createDatasetMock(store) {
+    const count = 4;
+    const ancestorFiles = this.get('entityRecords.chainDir').slice(0, count);
+    const datasets = [];
+    const summaries = [];
+    // create datasets and dataset summaries for few chain dirs
+    for (let i = 0; i < ancestorFiles.length; ++i) {
+      const ancestorFile = ancestorFiles[i];
+      const ancestorDataset = await store.createRecord('dataset', {
+        id: `op_dataset.${get(ancestorFile, 'entityId')}.instance:private`,
+        attached: true,
+        rootFile: ancestorFile,
+        protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
+      }).save();
+      datasets[i] = ancestorDataset;
+      const effectiveProtectionFlags = effProtectionFlagSets[Math.min(i, 2)];
+      const datasetSummary = await store.createRecord('file-dataset-summary', {
+        id: `file.${get(ancestorFile, 'entityId')}.dataset_summary:private`,
+        directDataset: ancestorDataset,
+        effectiveDatasets: datasets.slice(0, i),
+        effectiveProtectionFlags,
+      }).save();
+      summaries[i] = datasetSummary;
+      setProperties(ancestorFile, {
+        hasEffDataset: true,
+        hasDirectDataset: true,
+        fileDatasetSummary: datasetSummary,
+        effProtectionFlags: effectiveProtectionFlags,
+      });
+      await ancestorFile.save();
+    }
+    this.set('entityRecords.fileWithDataset', get('ancestorFiles', 'lastObject'));
+  },
+
   createProviderRecords(store, names) {
     return allFulfilled(_.range(numberOfProviders).map((i) => {
       const [latitude, longitude] = getCoordinates(i, numberOfProviders);
@@ -580,7 +629,7 @@ export default Service.extend({
             );
             const id = generateFileGri(entityId);
             const name =
-              `Chain directory long long long long long name ${String(i).padStart(4, '0')}`;
+              `Chain directory long name ${String(i).padStart(4, '0')}`;
             return store.createRecord('file', {
               id,
               name,

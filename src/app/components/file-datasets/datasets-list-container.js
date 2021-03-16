@@ -32,7 +32,7 @@ export default Component.extend({
     const list = [];
     for (let i = 0; i < get(datasets, 'length'); ++i) {
       list[i] = {
-        dataset: datasets[i],
+        dataset: datasets.objectAt(i),
         filePath: paths[i],
       };
     }

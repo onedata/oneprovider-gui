@@ -94,7 +94,7 @@ export default Model.extend(
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
     fileQosSummary: belongsTo('file-qos-summary'),
-    // TODO: VFS-7402 add fileDatasetSummary relation
+    fileDatasetSummary: belongsTo('file-dataset-summary'),
 
     modificationTime: alias('mtime'),
 

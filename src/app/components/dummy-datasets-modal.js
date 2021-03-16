@@ -22,7 +22,7 @@ export default Component.extend({
   mockBackend: service(),
 
   files: collect(
-    'mockBackend.entityRecords.chainDir.4',
+    'mockBackend.entityRecords.chainDir.3',
   ),
 
   file: reads('files.firstObject'),
@@ -33,24 +33,24 @@ export default Component.extend({
   init() {
     this._super(...arguments);
     // TODO: VFS-7402 implement global mock
-    const directDataset = {
-      attached: true,
-      protectionFlags: ['data_protection', 'metadata_protection'],
-    };
-    const chainDirs = this.get('mockBackend.entityRecords.chainDir');
-    const fileDatasetSummary = {
-      // uncomment for test: no direct dataset established
-      // directDataset: promiseObject(resolve(null)),
-      directDataset: promiseObject(resolve(directDataset)),
-      // NOTE: files are intentionally not-in-order to test entries sorting
-      effectiveDatasets: promiseArray(resolve([
-        createDataset(chainDirs[1], ['data_protection']),
-        createDataset(chainDirs[0], ['metadata_protection']),
-        createDataset(chainDirs[2], ['data_protection', 'metadata_protection']),
-      ])),
-    };
-    this.set('file.fileDatasetSummary', promiseObject(resolve(fileDatasetSummary)));
-    this.set('file.effProtectionFlags', ['data_protection', 'metadata_protection']);
+    // const directDataset = {
+    //   attached: true,
+    //   protectionFlags: ['data_protection', 'metadata_protection'],
+    // };
+    // const chainDirs = this.get('mockBackend.entityRecords.chainDir');
+    // const fileDatasetSummary = {
+    //   // uncomment for test: no direct dataset established
+    //   // directDataset: promiseObject(resolve(null)),
+    //   directDataset: promiseObject(resolve(directDataset)),
+    //   // NOTE: files are intentionally not-in-order to test entries sorting
+    //   effectiveDatasets: promiseArray(resolve([
+    //     createDataset(chainDirs[1], ['data_protection']),
+    //     createDataset(chainDirs[0], ['metadata_protection']),
+    //     createDataset(chainDirs[2], ['data_protection', 'metadata_protection']),
+    //   ])),
+    // };
+    // this.set('file.fileDatasetSummary', promiseObject(resolve(fileDatasetSummary)));
+    // this.set('file.effProtectionFlags', ['data_protection', 'metadata_protection']);
 
     // uncomment for test: forbidden message
     // this.set('file.fileDatasetSummary', promiseObject(reject({ id: 'forbidden' })));
