@@ -1,4 +1,8 @@
-{{#promise-proxy-container proxy=directDatasetProxy}}
+{{#promise-proxy-container
+  tagName="div"
+  class="loadable-row inherited-datasets-loadable-row"
+  proxy=directDatasetProxy
+}}
   <h1 class="toggle-header">
     {{one-way-toggle
       inputId=(concat elementId "-direct-dataset-attached-toggle")

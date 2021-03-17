@@ -67,20 +67,16 @@ export default Service.extend({
 
   /**
    * @param {Models.Dataset} dataset
-   * @param {Object} flagsData contains `{ flag_name: true/false }` to change
+   * @param {Array<String>} setProtectionFlags
+   * @param {Array<String>} unsetProtectionFlags
    * @returns {Promise<Models.Dataset>}
    */
-  async toggleDatasetProtectionFlags(dataset, flagsData) {
+  async toggleDatasetProtectionFlags(
+    dataset,
+    setProtectionFlags = [],
+    unsetProtectionFlags = []
+  ) {
     const onedataGraph = this.get('onedataGraph');
-    const setProtectionFlags = [];
-    const unsetProtectionFlags = [];
-    for (const flag in flagsData) {
-      if (flagsData[flag]) {
-        setProtectionFlags.push[flag];
-      } else {
-        unsetProtectionFlags.push[flag];
-      }
-    }
     const gri = get(dataset, 'gri');
     await onedataGraph.request({
       gri,

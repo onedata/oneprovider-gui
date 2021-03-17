@@ -41,7 +41,7 @@
   {{#promise-proxy-container
     proxy=fileDatasetSummaryProxy
     tagName="div"
-    class="loadable-row"
+    class="loadable-row file-dataset-summary-proxy-loadable-row"
   }}
     {{#if hasDirectDatasetEstablished}}
       <div class="items-group direct-dataset-items-group">
@@ -75,7 +75,7 @@
   {{#promise-proxy-container
     proxy=inheritedDatasetsProxy
     tagName="div"
-    class="loadable-row"
+    class="loadable-row inherited-datasets-loadable-row"
   }}
     {{#if inheritedDatasets.length}}
       <div class="items-group inherited-datasets-items-group">

@@ -13,6 +13,7 @@ import { reads } from '@ember/object/computed';
 import { and } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export default Component.extend(I18n, {
   classNames: ['direct-dataset-section'],
@@ -49,11 +50,17 @@ export default Component.extend(I18n, {
    */
   readonlyMessage: undefined,
 
-  // TODO: VFS-7402 use getRelation
   /**
    * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
    */
-  directDatasetProxy: reads('fileDatasetSummary.directDataset'),
+  directDatasetProxy: computedRelationProxy(
+    'fileDatasetSummary',
+    'directDataset',
+    Object.freeze({
+      allowNull: true,
+      reload: true,
+    })
+  ),
 
   /**
    * @type {ComputedProperty<Models.Dataset>}
