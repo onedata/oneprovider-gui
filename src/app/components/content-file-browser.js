@@ -311,6 +311,10 @@ export default OneEmbeddedComponent.extend(
       this.set('fileToShare', null);
     },
 
+    closeDatasetsModal() {
+      this.set('filesToShowDatasets', null);
+    },
+
     closeEditPermissionsModal() {
       this.set('filesToEditPermissions', null);
     },
@@ -398,6 +402,12 @@ export default OneEmbeddedComponent.extend(
       },
       closeMetadataModal() {
         this.closeMetadataModal();
+      },
+      openDatasetsModal(files) {
+        this.set('filesToShowDatasets', files);
+      },
+      closeDatasetsModal() {
+        this.closeDatasetsModal();
       },
       openShareModal(file) {
         this.set('fileToShare', file);

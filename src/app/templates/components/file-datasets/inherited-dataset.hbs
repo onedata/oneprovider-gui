@@ -1,0 +1,23 @@
+<div class="path-section">
+  {{one-icon class="path-icon" icon="browser-directory"}}
+  <div class="path-label">
+    <a
+      onclick={{action "fileLinkClicked"}}
+      target={{navigateDataTarget}}
+      class="file-path truncate"
+      href={{fileHref}}
+    >
+      {{filePathString}}
+    </a>
+  </div>
+</div>
+<div class="flags-configuration">
+  <div class="row flag-row data-flag-row {{flagDataRowClass}}">
+    {{one-icon class="flag-icon" icon=dataFlagIcon}}
+    <div class="flag-label {{dataFlagLabelClass}}">{{dataFlagLabelText}}</div>
+  </div>
+  <div class="row flag-row metadata-flag-row {{flagMetadataRowClass}}">
+    {{one-icon class="flag-icon" icon=metadataFlagIcon}}
+    <div class="flag-label {{metadataFlagLabelClass}}">{{metadataFlagLabelText}}</div>
+  </div>
+</div>

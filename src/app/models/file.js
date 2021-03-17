@@ -67,6 +67,8 @@ export default Model.extend(
     hasEffQos: attr('boolean'),
     hasDirectQos: attr('boolean'),
     sharesCount: attr('number'),
+    hasEffDataset: attr('boolean'),
+    hasDirectDataset: attr('boolean'),
 
     /**
      * Available values in array: 'data_protection', 'metadata_protection'
@@ -92,6 +94,7 @@ export default Model.extend(
     owner: belongsTo('user'),
     provider: belongsTo('provider'),
     fileQosSummary: belongsTo('file-qos-summary'),
+    // TODO: VFS-7402 add fileDatasetSummary relation
 
     modificationTime: alias('mtime'),
 

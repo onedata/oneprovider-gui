@@ -62,6 +62,7 @@ const buttonNames = [
   'btnRefresh',
   'btnInfo',
   'btnShare',
+  'btnDatasets',
   'btnMetadata',
   'btnPermissions',
   'btnDistribution',
@@ -160,6 +161,13 @@ export default Component.extend(I18n, {
    * @param {Models/File} file file to edit its metadata
    */
   openMetadata: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} files files to browse and edit their dataset settings
+   */
+  openDatasets: notImplementedThrow,
 
   /**
    * @virtual
@@ -455,6 +463,35 @@ export default Component.extend(I18n, {
       showIn: [
         actionContext.singleFile,
         actionContext.singleDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
+    });
+  }),
+
+  btnDatasets: computed('spacePrivileges.view', function btnDatasets() {
+    const {
+      spacePrivileges,
+      openDatasets,
+      i18n,
+    } = this.getProperties('spacePrivileges', 'openDatasets', 'i18n');
+    const canView = get(spacePrivileges, 'view');
+    const disabled = !canView;
+    return this.createFileAction({
+      id: 'datasets',
+      icon: 'share-collection',
+      action: (files) => {
+        return openDatasets(files);
+      },
+      disabled,
+      tip: disabled ? insufficientPrivilegesMessage({
+        i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_view',
+      }) : undefined,
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleFile,
         actionContext.currentDir,
         actionContext.spaceRootDir,
       ],

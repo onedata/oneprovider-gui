@@ -1,0 +1,57 @@
+// TODO: VFS-7404 this file is not-production-ready
+
+.inherited-dataset {
+  display: flex;
+  flex-direction: column;
+  .path-section {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+    font-size: 120%;
+    .path-icon {
+      font-size: 200%;
+      position: relative;
+      top: -1px;
+    }
+    .path-label {
+      margin-left: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      direction: rtl;
+      a {
+        // thanks to this, "/" do not go to end when using direction: rtl
+        unicode-bidi: plaintext;
+      }
+    }
+  }
+  .flags-configuration {
+    padding-left: 40px;
+    margin-top: 12px;
+    :first-child {
+      margin-top: 0;
+    }
+  }
+  .flag-row {
+    display: flex;
+    align-items: center;
+    
+    &.enabled {
+      .flag-icon {
+        color: $color-one-success;
+      }
+    }
+  }
+  .flag-icon {
+    font-size: 160%;
+  }
+  .flag-label {
+    margin-left: 8px;
+  }
+  // custom
+  .data-flag-row {
+    .flag-icon {
+      font-weight: bold;
+    }
+  }
+}

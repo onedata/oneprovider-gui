@@ -22,6 +22,7 @@ export default Serializer.extend({
     { name: 'acl', aspect: 'acl' },
     { name: 'distribution', aspect: 'distribution' },
     { name: 'fileQosSummary', aspect: 'file_qos_summary' },
+    // TODO: VFS-7402 add fileDatasetSummary relation (file_dataset_summary)
   ]),
 
   /**

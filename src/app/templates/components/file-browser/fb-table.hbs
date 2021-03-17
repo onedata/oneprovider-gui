@@ -19,6 +19,7 @@
         previewMode=previewMode
         isSpaceOwned=isSpaceOwned
         qosViewForbidden=(not spacePrivileges.viewQos)
+        datasetsViewForbidden=(not spacePrivileges.view)
         nameConflict=(contains file.index conflictNames)
         fileCut=(and (eq fileClipboardMode "move") (contains file fileClipboardFiles))
         isSelected=(contains file selectedFiles)

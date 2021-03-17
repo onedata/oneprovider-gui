@@ -31,6 +31,7 @@ export default {
     info: 'Information',
     share: 'Share',
     metadata: 'Metadata',
+    datasets: 'Datasets',
     permissions: 'Permissions',
     qos: 'Quality of Service',
     distribution: 'Data distribution',
