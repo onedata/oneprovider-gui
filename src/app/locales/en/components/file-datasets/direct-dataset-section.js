@@ -9,4 +9,5 @@ export default {
   dataProtection: 'Data write protection',
   metadataProtection: 'Metadata write protection',
   destroyDataset: 'Destroy dataset',
+  destroyingDataset: 'destroying dataset',
 };

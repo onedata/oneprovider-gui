@@ -165,7 +165,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * @type {Function}
-   * @param {Models/File} file file to edit its metadata
+   * @param {Array<Models/File>} files files to browse and edit their dataset settings
    */
   openDatasets: notImplementedThrow,
 

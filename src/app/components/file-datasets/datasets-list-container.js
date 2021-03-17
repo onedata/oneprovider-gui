@@ -2,7 +2,7 @@
  * Provides list of datasets with their root file paths sorted by path length.
  * The nearest parent to file displayed in modal should be on top of the list.
  *
- * @module components/file-datasets/datasets-list
+ * @module components/file-datasets/datasets-list-container
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

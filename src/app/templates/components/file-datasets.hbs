@@ -80,8 +80,7 @@
     {{#if inheritedDatasets.length}}
       <div class="items-group inherited-datasets-items-group">
         <h2>{{tt this "inheritedDatasets"}}</h2>
-        {{#file-datasets/datasets-list datasets=inheritedDatasets as |sortedDataList|}}
-          {{log sortedDataList}}
+        {{#file-datasets/datasets-list-container datasets=inheritedDatasets as |sortedDataList|}}
           {{#each sortedDataList as |data|}}
             {{file-datasets/inherited-dataset
               class="datasets-item"
@@ -91,7 +90,7 @@
               close=(action close)
             }}
           {{/each}}
-        {{/file-datasets/datasets-list}}
+        {{/file-datasets/datasets-list-container}}
       </div>
     {{else}}
       <div class="items-group no-inherited-datasets-group">

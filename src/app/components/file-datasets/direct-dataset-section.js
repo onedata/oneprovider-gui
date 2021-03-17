@@ -18,6 +18,7 @@ export default Component.extend(I18n, {
   classNames: ['direct-dataset-section'],
 
   datasetManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -98,12 +99,17 @@ export default Component.extend(I18n, {
         [flag]: state,
       });
     },
-    destroyDataset() {
+    async destroyDataset() {
       const {
         datasetManager,
         file,
-      } = this.getProperties('datasetManager', 'file');
-      return datasetManager.destroyDataset(file);
+        globalNotify,
+      } = this.getProperties('datasetManager', 'file', 'globalNotify');
+      try {
+        return await datasetManager.destroyDataset(file);
+      } catch (error) {
+        globalNotify.backendError(this.t('destroyingDataset'), error);
+      }
     },
   },
 });

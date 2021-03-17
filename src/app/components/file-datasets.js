@@ -18,14 +18,11 @@ import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
-const mixins = [
-  I18n,
-];
-
-export default Component.extend(...mixins, {
+export default Component.extend(I18n, {
   classNames: ['file-datasets'],
 
   datasetManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -47,7 +44,8 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual
-   * Callback when the modal is starting to hide
+   * Callback to generate URL to file (here: selecting the file).
+   * See parent-action `getDataUrl` in `component:content-file-browser`
    * @type {Function}
    */
   getDataUrl: notImplementedIgnore,
@@ -120,8 +118,13 @@ export default Component.extend(...mixins, {
       const {
         file,
         datasetManager,
-      } = this.getProperties('file', 'datasetManager');
-      await datasetManager.establishDataset(file);
+        globalNotify,
+      } = this.getProperties('file', 'datasetManager', 'globalNotify');
+      try {
+        return await datasetManager.establishDataset(file);
+      } catch (error) {
+        globalNotify.backendError(this.t('establishingDataset'), error);
+      }
     },
   },
 });

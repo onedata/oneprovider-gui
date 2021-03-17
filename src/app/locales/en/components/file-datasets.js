@@ -17,6 +17,7 @@ export default {
   inheritedDatasets: 'Inherited datasets',
   noInheritedDatasets: 'This file does not have inherited datasets',
   establishDataset: 'Establish dataset',
+  establishingDataset: 'establishing dataset',
 
   inheritedDataset,
   directDatasetSection,

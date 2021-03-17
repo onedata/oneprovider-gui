@@ -625,19 +625,19 @@ describe('Integration | Component | file browser (main component)', function () 
         });
       });
 
-      it('has disabled datasets item in context menu', async function (done) {
-        renderWithOpenDatasets(this);
-        await wait();
-        const $menu = await openFileContextMenu('i1');
-        expect($menu.find('li.disabled .file-action-datasets')).to.exist;
+      context('without space view privileges', function () {
+        beforeEach(function () {
+          this.set('spacePrivileges', { view: false });
+        });
 
-        done();
-      });
-    });
+        it('has disabled datasets item in context menu', async function (done) {
+          renderWithOpenDatasets(this);
+          await wait();
+          const $menu = await openFileContextMenu('i1');
+          expect($menu.find('li.disabled .file-action-datasets')).to.exist;
 
-    context('when the only item is a directory', function () {
-      beforeEach(function () {
-        this.set('item1.type', 'dir');
+          done();
+        });
       });
     });
   });
