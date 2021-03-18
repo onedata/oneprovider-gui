@@ -50,7 +50,7 @@ export default Component.extend({
    * Sorting of result list specification
    * @type {Array<String>}
    */
-  sorting: Object.freeze(['filePath.length:desc']),
+  sorting: Object.freeze(['filePath.length:asc']),
 
   /**
    * Main reason for this component to exist - exposes a sorted collection of pairs:

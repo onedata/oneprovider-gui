@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads, equal } from '@ember/object/computed';
-import { and } from 'ember-awesome-macros';
+import { and, tag } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
@@ -89,6 +89,21 @@ export default Component.extend(I18n, {
     hasProtectionFlag('directDataset.protectionFlags', 'metadata')
   ),
 
+  toggleId: tag `${'elementId'}-direct-dataset-attached-toggle`,
+
+  async establishDirectDataset() {
+    const {
+      file,
+      datasetManager,
+      globalNotify,
+    } = this.getProperties('file', 'datasetManager', 'globalNotify');
+    try {
+      return await datasetManager.establishDataset(file);
+    } catch (error) {
+      globalNotify.backendError(this.t('establishingDataset'), error);
+    }
+  },
+
   actions: {
     toggleDatasetAttachment(state) {
       const {
@@ -96,17 +111,6 @@ export default Component.extend(I18n, {
         datasetManager,
       } = this.getProperties('directDataset', 'datasetManager');
       return datasetManager.toggleDatasetAttachment(directDataset, state);
-    },
-    toggleDatasetProtectionFlag(flag, state) {
-      const {
-        directDataset,
-        datasetManager,
-      } = this.getProperties('directDataset', 'datasetManager');
-      return datasetManager.toggleDatasetProtectionFlag(
-        directDataset,
-        flag,
-        state
-      );
     },
     async destroyDataset() {
       const {

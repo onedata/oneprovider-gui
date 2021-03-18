@@ -10,4 +10,5 @@ export default {
   metadataProtection: 'Metadata write protection',
   destroyDataset: 'Destroy dataset',
   destroyingDataset: 'destroying dataset',
+  establishingDataset: 'establishing dataset',
 };

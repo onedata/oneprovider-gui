@@ -16,9 +16,14 @@ import { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
+import { inject as service } from '@ember/service';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
+  tagName: 'tr',
   classNames: ['inherited-dataset'],
+
+  datasetManager: service(),
 
   /**
    * @override
@@ -39,10 +44,15 @@ export default Component.extend(I18n, {
   filePath: Object.freeze([]),
 
   /**
-   * @virtual
-   * @type {Function}
+   * @virtual optional
    */
-  close: notImplementedIgnore,
+  readonly: false,
+
+  /**
+   * @virtual optional
+   * @type {String}
+   */
+  readonlyMesasage: '',
 
   /**
    * @virtual
@@ -154,6 +164,17 @@ export default Component.extend(I18n, {
   ),
 
   actions: {
+    toggleDatasetProtectionFlag(flag, state) {
+      const {
+        dataset,
+        datasetManager,
+      } = this.getProperties('dataset', 'datasetManager');
+      return datasetManager.toggleDatasetProtectionFlag(
+        dataset,
+        flag,
+        state
+      );
+    },
     fileLinkClicked(event) {
       this.get('close')();
       event.stopPropagation();

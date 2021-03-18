@@ -18,7 +18,7 @@ import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { promise } from 'ember-awesome-macros';
+import { promise, not } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['file-datasets'],
@@ -57,6 +57,21 @@ export default Component.extend(I18n, {
    * @type {Array<Models.File>}
    */
   files: undefined,
+
+  /**
+   * @type {Boolean}
+   */
+  parentDatasetsCollapsed: true,
+
+  // FIXME: should be changed accodring to animation time
+  renderParentDatasets: not('parentDatasetsCollapsed'),
+
+  virtualParentDataset: computed('inheritedDatasets', function virtualParentDataset() {
+    return {
+      // FIXME: sum of inheritedDatasets flags
+      protectionFlags: [],
+    };
+  }),
 
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
@@ -142,17 +157,9 @@ export default Component.extend(I18n, {
   inheritedDatasets: reads('inheritedDatasetsProxy.content'),
 
   actions: {
-    async establishDirectDataset() {
-      const {
-        file,
-        datasetManager,
-        globalNotify,
-      } = this.getProperties('file', 'datasetManager', 'globalNotify');
-      try {
-        return await datasetManager.establishDataset(file);
-      } catch (error) {
-        globalNotify.backendError(this.t('establishingDataset'), error);
-      }
+    toggleParentDatasetsCollapse() {
+      const collapsed = this.get('parentDatasetsCollapsed');
+      this.set('parentDatasetsCollapsed', !collapsed);
     },
   },
 });

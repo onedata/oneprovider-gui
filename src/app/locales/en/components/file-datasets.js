@@ -16,8 +16,10 @@ export default {
   metadataProtectedTooltip: 'Metadata protection prevents a file from...',
   inheritedDatasets: 'Inherited datasets',
   noInheritedDatasets: 'This file does not have inherited datasets',
-  establishDataset: 'Establish dataset',
-  establishingDataset: 'establishing dataset',
+  tableHeaders: {
+    data: 'Data write&nbsp;protection',
+    metadata: 'Metadata write&nbsp;protection',
+  },
 
   inheritedDataset,
   directDatasetSection,

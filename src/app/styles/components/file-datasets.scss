@@ -51,6 +51,39 @@
       }
     }
   }
+  .file-dataset-summary-loadable-row.loadable-row {
+    min-height: 2em;
+  }
+  .datasets-table {
+    table-layout: fixed;
+    th.col-dataset-protection {
+      width: 12em;
+      padding-top: 2em;
+      padding-bottom: 1em;
+      padding-left: 2em;
+      padding-right: 2em;
+      text-align: center;
+    }
+    .data-flag-toggle {
+      position: relative;
+      width: 100%;
+      .one-way-toggle-control {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .one-way-toggle-readonly-icon {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%) translateX(-8px);
+      }
+      .one-way-toggle-spinner {
+        left: 50%;
+        right: auto;
+        transform: translateX(38px);
+      }
+    }
+  }
 }
 
 @import './file-datasets/direct-dataset-section';

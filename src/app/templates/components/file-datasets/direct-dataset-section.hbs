@@ -1,78 +1,22 @@
 {{#promise-proxy-container
   tagName="div"
-  class="loadable-row inherited-datasets-loadable-row"
+  class="loadable-row direct-dataset-loadable-row"
   proxy=directDatasetProxy
 }}
-  <h1 class="toggle-header">
+  <h2 class="toggle-header">
+    <label
+      class="direct-dataset-attached-label"
+      for={{toggleId}}
+    >
+      {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
+    </label>
     {{one-way-toggle
-      inputId=(concat elementId "-direct-dataset-attached-toggle")
+      inputId=toggleId
       checked=isDatasetAttached
-      class=(concat-classes
-        "direct-dataset-attached-toggle"
-        (if media.isMobile "pull-right right" "toggle-right-side")
-      )
-      spinnerSide=(if media.isMobile "left" "right")
+      class="direct-dataset-attached-toggle"
       isReadOnly=readonly
       lockHint=readonlyMessage
       update=(action "toggleDatasetAttachment")
     }}
-    {{!-- FIXME: unique id --}}
-    <label
-      class="direct-dataset-attached-label"
-      for={{concat elementId "-direct-dataset-attached-toggle"}}
-    >
-      {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
-    </label>
-  </h1>
-  <div class="flags-configuration">
-    <div class="row flag-row">
-      {{one-way-toggle
-        inputId=(concat elementId "-data-flag-toggle")
-        class="data-flag-toggle"
-        checked=isDataProtected
-        class=(if media.isMobile "pull-right right" "toggle-right-side")
-        spinnerSide=(if media.isMobile "left" "right")
-        isReadOnly=(or readonly (not isDatasetAttached))
-        lockHint=readonlyMessage
-        update=(action "toggleDatasetProtectionFlag" "data_protection")
-      }}
-      {{!-- FIXME: unique id --}}
-      <label
-        class="flag-set flag-set-direct data-flag-set"
-        for={{concat elementId "-data-flag-toggle"}}
-      >
-        {{tt this "dataProtection"}}
-      </label>
-    </div>
-    <div class="row flag-row">
-      {{one-way-toggle
-        inputId=(concat elementId "-metadatadata-flag-toggle")
-        class="metadata-flag-toggle"
-        checked=isMetadataProtected
-        class=(if media.isMobile "pull-right right" "toggle-right-side")
-        spinnerSide=(if media.isMobile "left" "right")
-        isReadOnly=(or readonly (not isDatasetAttached))
-        lockHint=readonlyMessage
-        update=(action "toggleDatasetProtectionFlag" "metadata_protection")
-      }}
-      {{!-- FIXME: unique id --}}
-      <label class="flag-set flag-set-direct metadata-flag-set" for="metadata-flag-set">
-        {{tt this "metadataProtection"}}
-      </label>
-    </div>
-  </div>
-  <div class="row remove-dataset-row">
-    <div class="btn-tooltip-container">
-      {{#one-spin-button
-        action=(action "destroyDataset")
-        class="btn btn-sm btn-danger destroy-dataset-btn"
-        disabled=readonly
-      }}
-        {{tt this "destroyDataset"}}
-      {{/one-spin-button}}
-      {{#if readonly}}
-        {{one-tooltip title=readonlyMessage}}
-      {{/if}}
-    </div>
-  </div>
+  </h2>
 {{/promise-proxy-container}}
