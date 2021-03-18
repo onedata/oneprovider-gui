@@ -122,6 +122,9 @@ export default Service.extend({
       });
     });
     return this.createEmptyQos(store).then(() =>
+        this.createEmptyDatasetSummary(store)
+      )
+      .then(() =>
         promiseChain.then(() => hashFulfilled(promiseHash))
       )
       .then((listRecords) => {
@@ -221,6 +224,16 @@ export default Service.extend({
     }).save().then(qosSummary => {
       this.set('entityRecords.fileQosSummary', [qosSummary]);
     });
+  },
+
+  async createEmptyDatasetSummary(store) {
+    const emptySummary = await store.createRecord('fileDatasetSummary', {
+      directDataset: null,
+      effectiveDatasets: [],
+      effectiveProtectionFlags: [],
+    }).save();
+    this.set('entityRecords.fileDatasetSummary', [emptySummary]);
+    return emptySummary;
   },
 
   makeFilesConflict() {
@@ -376,6 +389,7 @@ export default Service.extend({
     const provider = this.get('entityRecords.provider.firstObject');
     const providerId = get(provider, 'entityId');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
+    const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
     return allFulfilled(_.range(numberOfSpaces).map((i) =>
         // root dirs
         store.createRecord('file', {
@@ -390,6 +404,7 @@ export default Service.extend({
           parent: null,
           posixPermissions: '777',
           fileQosSummary,
+          fileDatasetSummary: emptyDatasetSummary,
           provider,
         }).save()
       ))
@@ -409,7 +424,7 @@ export default Service.extend({
             'space_view',
             'space_view_qos',
             'space_view_transfers',
-            'space_manager_qos',
+            'space_manage_qos',
             'space_manage_datasets',
           ],
         }).save()
@@ -532,7 +547,10 @@ export default Service.extend({
 
   async createDatasetMock(store) {
     const count = 4;
-    const ancestorFiles = this.get('entityRecords.chainDir').slice(0, count);
+    const ancestorFiles = [
+      this.get('entityRecords.dir.firstObject'),
+      ...this.get('entityRecords.chainDir').slice(0, count - 1),
+    ];
     const datasets = [];
     const summaries = [];
     const timestamp = Math.floor(Date.now() / 1000);
@@ -563,9 +581,9 @@ export default Service.extend({
         fileDatasetSummary: datasetSummary,
         effProtectionFlags: effectiveProtectionFlags,
       });
+      this.get('entityRecords.fileDatasetSummary').push(...summaries);
       await ancestorFile.save();
     }
-    this.set('entityRecords.fileWithDataset', get('ancestorFiles', 'lastObject'));
   },
 
   createProviderRecords(store, names) {
@@ -606,6 +624,7 @@ export default Service.extend({
     const parentEntityId = get(parent, 'entityId');
     const provider = this.get('entityRecords.provider.firstObject');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
+    const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
     const distribution = this.get('entityRecords.fileDistribution.firstObject');
     return allFulfilled(_.range(numberOfDirs).map((i) => {
         const entityId = generateDirEntityId(i, parentEntityId);
@@ -622,6 +641,7 @@ export default Service.extend({
           parent,
           owner,
           fileQosSummary,
+          fileDatasetSummary: emptyDatasetSummary,
           provider,
         }).save();
       }))
@@ -647,6 +667,7 @@ export default Service.extend({
               posixPermissions: '777',
               owner,
               fileQosSummary,
+              emptyDatasetSummary,
               provider,
             }).save();
           })).then(chainDirs => {
@@ -698,6 +719,7 @@ export default Service.extend({
           owner,
           distribution,
           fileQosSummary,
+          fileDatasetSummary: emptyDatasetSummary,
           provider,
         }).save();
       })))

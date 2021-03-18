@@ -545,7 +545,6 @@ export default Component.extend(I18n, FastDoubleClick, {
       this.openContextMenu(...arguments);
     },
     invokeFileAction(file, btnName) {
-      console.log('invoke file action', btnName);
       this.get('invokeFileAction')(file, btnName);
     },
   },
