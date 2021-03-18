@@ -19,15 +19,18 @@ import {
   getCoordinates,
 } from 'onedata-gui-websocket-client/utils/development-model-common';
 import { mockGuiContext } from 'onedata-gui-common/initializers/fetch-gui-context';
+import { entityType as fileEntityType, datasetSummaryAspect } from 'oneprovider-gui/models/file';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
+import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
 } from 'oneprovider-gui/utils/mock-data';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -381,8 +384,9 @@ export default Service.extend({
           type: 'dir',
           mtime: timestamp + i * 3600,
           hasMetadata: false,
-          hasDirectQos: i < 2,
-          hasEffQos: i < 4,
+          effectiveQosMembership: i < 2 && 'direct' ||
+            i < 4 && 'ancestor' ||
+            'none',
           parent: null,
           posixPermissions: '777',
           fileQosSummary,
@@ -531,27 +535,31 @@ export default Service.extend({
     const ancestorFiles = this.get('entityRecords.chainDir').slice(0, count);
     const datasets = [];
     const summaries = [];
+    const timestamp = Math.floor(Date.now() / 1000);
     // create datasets and dataset summaries for few chain dirs
     for (let i = 0; i < ancestorFiles.length; ++i) {
       const ancestorFile = ancestorFiles[i];
       const ancestorDataset = await store.createRecord('dataset', {
-        id: `op_dataset.${get(ancestorFile, 'entityId')}.instance:private`,
-        attached: true,
+        id: `${datasetEntityType}.${get(ancestorFile, 'entityId')}.instance:private`,
+        parent: datasets[i - 1] || null,
+        state: 'attached',
         rootFile: ancestorFile,
         protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
+        creationTime: timestamp,
+        rootFilePath: stringifyFilePath(await resolveFilePath(ancestorFile)),
+        rootFileType: get(ancestorFile, 'type'),
       }).save();
       datasets[i] = ancestorDataset;
       const effectiveProtectionFlags = effProtectionFlagSets[Math.min(i, 2)];
       const datasetSummary = await store.createRecord('file-dataset-summary', {
-        id: `file.${get(ancestorFile, 'entityId')}.dataset_summary:private`,
+        id: `${fileEntityType}.${get(ancestorFile, 'entityId')}.${datasetSummaryAspect}:private`,
         directDataset: ancestorDataset,
         effectiveDatasets: datasets.slice(0, i),
         effectiveProtectionFlags,
       }).save();
       summaries[i] = datasetSummary;
       setProperties(ancestorFile, {
-        hasEffDataset: true,
-        hasDirectDataset: true,
+        effectiveDatasetMembership: 'direct',
         fileDatasetSummary: datasetSummary,
         effProtectionFlags: effectiveProtectionFlags,
       });
@@ -659,8 +667,12 @@ export default Service.extend({
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
         let effProtectionFlags;
-        const hasEffDataset = i >= 2 && i <= 6;
-        const hasDirectDataset = i >= 3 && i <= 5;
+        const effectiveDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
+          i >= 2 && i <= 6 && 'ancestor' ||
+          'none';
+        const effectiveQosMembership = i > 3 && i < 8 && 'direct' ||
+          i > 6 && i < 10 && 'ancestor' ||
+          'none';
         if (i === 2) {
           effProtectionFlags = ['data_protection'];
         } else if (i === 3) {
@@ -677,11 +689,9 @@ export default Service.extend({
           type: 'file',
           posixPermissions: i > 10 && i < 12 ? '333' : '777',
           hasMetadata: i < 5,
-          hasEffQos: i > 3 && i < 8,
-          hasDirectQos: i > 6 && i < 10,
+          effectiveQosMembership,
+          effectiveDatasetMembership,
           effProtectionFlags,
-          hasEffDataset,
-          hasDirectDataset,
           size: i * 1000000,
           mtime: timestamp + i * 3600,
           parent,

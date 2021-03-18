@@ -14,7 +14,12 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 export const entityType = 'op_dataset';
 
 export default Model.extend(GraphSingleModelMixin, {
-  attached: attr('boolean'),
+  parent: belongsTo('dataset'),
+
+  /**
+   * Possible values: 'attached', 'detached'
+   */
+  state: attr('string'),
 
   /**
    * Id of file or directory being dataset root
@@ -25,4 +30,12 @@ export default Model.extend(GraphSingleModelMixin, {
    * Possible values: 'metadata_protection', 'data_protection'
    */
   protectionFlags: attr('array'),
+
+  /**
+   * Creation time in UNIX timestamp format.
+   */
+  creationTime: attr('number'),
+
+  rootFilePath: attr('string'),
+  rootFileType: attr('string'),
 }).reopenClass(StaticGraphModelMixin);

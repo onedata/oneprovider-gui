@@ -27,7 +27,7 @@ export default Service.extend({
     const dataset = store.createRecord('dataset', {
       _meta: {
         additionalData: {
-          fileId: get(file, 'entityId'),
+          rootFileId: get(file, 'entityId'),
           // also protectionFlags can be specified here, but we don't use this
         },
       },
@@ -61,7 +61,7 @@ export default Service.extend({
    * @returns {Promise<Models.Dataset>}
    */
   async toggleDatasetAttachment(dataset, state) {
-    set(dataset, 'attached', state);
+    set(dataset, 'state', state ? 'attached' : 'detached');
     return await dataset.save();
   },
 

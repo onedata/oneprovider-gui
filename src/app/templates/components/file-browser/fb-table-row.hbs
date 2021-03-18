@@ -50,7 +50,7 @@
                 {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
               </div>
             {{/if}}
-            {{#if (or hasEffDataset hasDirectDataset)}}
+            {{#if showDatasetTag}}
               <div class="file-status-tag-group dataset-file-status-tag-group">
                 <div
                   class={{concat-classes
@@ -66,9 +66,9 @@
                     bubbles=false
                   }}
                 >
-                  {{#if hasDirectDataset}}
+                  {{#if (eq effectiveDatasetMembership "direct")}}
                     {{tt this "status.dataset"}}
-                  {{else}}
+                  {{else if (eq effectiveDatasetMembership "ancestor")}}
                     {{tt this "status.dataset"}}&nbsp;{{one-icon class="dataset-status-arrow dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
                   {{/if}}
                   {{#if datasetsViewForbidden}}
@@ -120,7 +120,7 @@
                 {{/if}}
               </div>
             {{/if}}
-            {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
+            {{#if showQosTag}}
               <div
                 class={{concat-classes
                   "file-status-tag"
@@ -136,9 +136,9 @@
                   bubbles=false
                 }}
               >
-                {{#if hasDirectQos}}
+                {{#if (eq effectiveQosMembership "direct")}}
                   {{tt this "status.qos"}}
-                {{else}}
+                {{else if (eq effectiveQosMembership "ancestor")}}
                   {{tt this "status.qos"}}&nbsp;{{one-icon class="qos-status-arrow qos-inherited-icon inherited-icon" icon=inheritedIcon}}
                 {{/if}}
                 {{#if qosViewForbidden}}

@@ -22,10 +22,25 @@ describe('Integration | Component | datasets modal', function () {
   });
 
   it('renders file-datasets with file name and invokes onHide on close', async function () {
+    const fileDatasetSummary = {
+      async getRelation() {
+        return null;
+      },
+      belongsTo(relation) {
+        if (relation === 'directDataset') {
+          return { id: () => null };
+        }
+      },
+    };
     this.setProperties({
       open: true,
       files: [{
         name: 'test-file.txt',
+        async getRelation(relation) {
+          if (relation === 'fileDatasetSummary') {
+            return fileDatasetSummary;
+          }
+        },
       }],
       onHide: sinon.spy(),
     });

@@ -10,8 +10,8 @@
 import Component from '@ember/component';
 import { collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import { reads } from '@ember/object/computed';
-import { set } from '@ember/object';
+import { reads, equal } from '@ember/object/computed';
+import { get, set } from '@ember/object';
 
 export default Component.extend({
   opened: true,
@@ -27,7 +27,7 @@ export default Component.extend({
   // change for test to true if want to disable dataset edit features
   editPrivilege: true,
 
-  datasetAttached: reads('file.fileDatasetSummary.directDataset.attached'),
+  datasetAttached: equal('file.fileDatasetSummary.directDataset.state', 'attached'),
 
   onHide() {
     this.set('opened', false);
@@ -40,8 +40,9 @@ export default Component.extend({
 
   actions: {
     async toggleDatasetAttached(state) {
-      const dataset = await this.get('file.fileDatasetSummary.directDataset');
-      set(dataset, 'attached', state);
+      const summary = await this.get('file.fileDatasetSummary');
+      const dataset = await get(summary, 'directDataset');
+      set(dataset, 'state', state ? 'attached' : 'detached');
       return await dataset.save();
     },
   },

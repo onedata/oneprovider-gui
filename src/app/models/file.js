@@ -64,11 +64,18 @@ export default Model.extend(
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
-    hasEffQos: attr('boolean'),
-    hasDirectQos: attr('boolean'),
+
     sharesCount: attr('number'),
-    hasEffDataset: attr('boolean'),
-    hasDirectDataset: attr('boolean'),
+
+    /**
+     * Possible values: none, direct, ancestor
+     */
+    effectiveQosMembership: attr('string', { defaultValue: 'none' }),
+
+    /**
+     * Possible values: none, direct, ancestor
+     */
+    effectiveDatasetMembership: attr('string', { defaultValue: 'none' }),
 
     /**
      * Available values in array: 'data_protection', 'metadata_protection'

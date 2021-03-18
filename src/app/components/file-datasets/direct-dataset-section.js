@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import { and } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
@@ -71,7 +71,7 @@ export default Component.extend(I18n, {
    * Valid only if `directDatasetProxy` resolves
    * @type {ComputedProperty<Boolean>}
    */
-  isDatasetAttached: reads('directDataset.attached'),
+  isDatasetAttached: equal('directDataset.state', 'attached'),
 
   /**
    * @type {ComputedProperty<Boolean>}
