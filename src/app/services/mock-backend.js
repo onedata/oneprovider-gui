@@ -229,7 +229,7 @@ export default Service.extend({
   async createEmptyDatasetSummary(store) {
     const emptySummary = await store.createRecord('fileDatasetSummary', {
       directDataset: null,
-      effectiveDatasets: [],
+      effectiveAncestorDatasets: [],
       effectiveProtectionFlags: [],
     }).save();
     this.set('entityRecords.fileDatasetSummary', [emptySummary]);
@@ -572,7 +572,7 @@ export default Service.extend({
       const datasetSummary = await store.createRecord('file-dataset-summary', {
         id: `${fileEntityType}.${get(ancestorFile, 'entityId')}.${datasetSummaryAspect}:private`,
         directDataset: ancestorDataset,
-        effectiveDatasets: datasets.slice(0, i),
+        effectiveAncestorDatasets: datasets.slice(0, i),
         effectiveProtectionFlags,
       }).save();
       summaries[i] = datasetSummary;

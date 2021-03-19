@@ -23,7 +23,7 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * All datasets registered for this file and its ancestor directories
    */
-  effectiveDatasets: hasMany('dataset'),
+  effectiveAncestorDatasets: hasMany('dataset'),
 
   /**
    * Same as `models/file#effProtectionFlags`

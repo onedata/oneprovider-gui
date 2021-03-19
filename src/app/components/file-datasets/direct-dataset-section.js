@@ -102,18 +102,20 @@ export default Component.extend(I18n, {
         directDataset,
         datasetManager,
       } = this.getProperties('directDataset', 'datasetManager');
-      return datasetManager.toggleDatasetProtectionFlags(directDataset, {
-        [flag]: state,
-      });
+      return datasetManager.toggleDatasetProtectionFlag(
+        directDataset,
+        flag,
+        state
+      );
     },
     async destroyDataset() {
       const {
         datasetManager,
-        file,
+        directDataset,
         globalNotify,
-      } = this.getProperties('datasetManager', 'file', 'globalNotify');
+      } = this.getProperties('datasetManager', 'directDataset', 'globalNotify');
       try {
-        return await datasetManager.destroyDataset(file);
+        return await datasetManager.destroyDataset(directDataset);
       } catch (error) {
         globalNotify.backendError(this.t('destroyingDataset'), error);
       }

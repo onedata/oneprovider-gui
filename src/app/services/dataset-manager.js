@@ -45,13 +45,13 @@ export default Service.extend({
    * @param {Models.Dataset} dataset
    */
   async destroyDataset(dataset) {
-    const file = await get(dataset, 'rootFile');
+    const fileRelation = dataset.belongsTo('rootFile');
     await dataset.destroy();
-    if (file) {
-      await allSettled([
-        file.reload(),
-        file.belongsTo('fileDatasetSummary').reload(),
-      ]);
+    if (fileRelation && fileRelation.id()) {
+      const file = await fileRelation.reload();
+      if (file) {
+        await file.belongsTo('fileDatasetSummary').reload();
+      }
     }
   },
 
@@ -66,12 +66,35 @@ export default Service.extend({
   },
 
   /**
+   * Toggle single flag - if you want to change multiple flags at once use
+   * `changeMultipleDatasetProtectionFlags`.
+   * @param {Models.Dataset} dataset
+   * @param {String} flag name, eg. `metadata_protection`
+   * @param {Boolean} state true if flag should be set, false if should be unset
+   * @returns {Promise<Models.Dataset>}
+   */
+  async toggleDatasetProtectionFlag(dataset, flag, state) {
+    const setProtectionFlags = [];
+    const unsetProtectionFlags = [];
+    if (state) {
+      setProtectionFlags.push(flag);
+    } else {
+      unsetProtectionFlags.push(flag);
+    }
+    return await this.changeMultipleDatasetProtectionFlags(
+      dataset,
+      setProtectionFlags,
+      unsetProtectionFlags
+    );
+  },
+
+  /**
    * @param {Models.Dataset} dataset
    * @param {Array<String>} setProtectionFlags
    * @param {Array<String>} unsetProtectionFlags
    * @returns {Promise<Models.Dataset>}
    */
-  async toggleDatasetProtectionFlags(
+  async changeMultipleDatasetProtectionFlags(
     dataset,
     setProtectionFlags = [],
     unsetProtectionFlags = []
