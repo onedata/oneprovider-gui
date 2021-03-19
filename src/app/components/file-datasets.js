@@ -10,13 +10,15 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { promise } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['file-datasets'],
@@ -88,25 +90,51 @@ export default Component.extend(I18n, {
    */
   isEffMetadataProtected: hasProtectionFlag('file.effProtectionFlags', 'metadata'),
 
-  // TODO: VFS-7402 use getRelation
   /**
    * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
    */
-  fileDatasetSummaryProxy: reads('file.fileDatasetSummary'),
+  fileDatasetSummaryProxy: computedRelationProxy(
+    'file',
+    'fileDatasetSummary',
+    Object.freeze({
+      reload: true,
+    })
+  ),
 
   /**
    * @type {ComputedProperty<Models.FileDatasetSummary>}
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
 
-  // TODO: VFS-7402 use getRelation or check belongsTo id
-  hasDirectDatasetEstablished: reads('fileDatasetSummary.directDataset.content'),
+  /**
+   * Valid (non-undefined) only if fileDatasetSummaryProxy is settled
+   * @type {ComputedProperty<Boolean>}
+   */
+  hasDirectDatasetEstablished: computed(
+    'fileDatasetSummary.directDataset.content',
+    function hasDirectDatasetEstablished() {
+      const fileDatasetSummary = this.get('fileDatasetSummary');
+      if (fileDatasetSummary) {
+        return Boolean(fileDatasetSummary.belongsTo('directDataset').id());
+      }
+    }
+  ),
 
-  // TODO: VFS-7402 use getRelation
   /**
    * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
    */
-  inheritedDatasetsProxy: reads('fileDatasetSummary.effectiveDatasets'),
+  inheritedDatasetsProxy: promise.array(computed(
+    'fileDatasetSummaryProxy',
+    async function inheritedDatasets() {
+      const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
+      return await get(fileDatasetSummary, 'effectiveAncestorDatasets');
+      // TODO: VFS-7414 there are problems with reloading hasMany relation while
+      // fileDatasetSummary record is loaded on localstorage adapter (mock)
+      // check it on real backend adapter and find the solution to serve always fresh
+      // effectiveAncestorDatasets array
+      // return await fileDatasetSummary.hasMany('effectiveAncestorDatasets').reload();
+    }
+  )),
 
   /**
    * @type {ComputedProperty<Models.Dataset>}

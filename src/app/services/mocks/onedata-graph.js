@@ -768,7 +768,9 @@ function recordToChildData(record) {
     'size',
     'posixPermissions',
     'hasMetadata',
-    'hasQos',
+    'effectiveQosMembership',
+    'effectiveDatasetMembership',
+    'effProtectionFlags',
     'mtime',
     'activePermissionsType'
   ), {

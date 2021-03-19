@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { equal, raw, or, and } from 'ember-awesome-macros';
+import { equal, raw, or, and, array } from 'ember-awesome-macros';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -404,29 +404,31 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasMetadata: reads('file.hasMetadata'),
 
-  hasEffQos: reads('file.hasEffQos'),
+  effectiveQosMembership: reads('file.effectiveQosMembership'),
 
-  hasDirectQos: reads('file.hasDirectQos'),
+  showQosTag: and(
+    not('previewMode'),
+    array.includes(raw(['ancestor', 'direct']), 'effectiveQosMembership')
+  ),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 
-  /**
-   * If true, should display direct dataset tag
-   * @type {ComputedProperty<Boolean>}
-   */
-  hasDirectDataset: reads('file.hasDirectDataset'),
+  effectiveDatasetMembership: reads('file.effectiveDatasetMembership'),
 
   /**
-   * If true, should display (at least inherited) dataset tag
+   * If true, should display dataset tag
    * @type {ComputedProperty<Boolean>}
    */
-  hasEffDataset: reads('file.hasEffDataset'),
+  showDatasetTag: and(
+    not('previewMode'),
+    array.includes(raw(['ancestor', 'direct']), 'effectiveDatasetMembership')
+  ),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
   isDataProtected: and(
-    'hasEffDataset',
+    'showDatasetTag',
     hasProtectionFlag('file.effProtectionFlags', 'data')
   ),
 
@@ -434,7 +436,7 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {ComputedProperty<Boolean>}
    */
   isMetadataProtected: and(
-    'hasEffDataset',
+    'showDatasetTag',
     hasProtectionFlag('file.effProtectionFlags', 'metadata')
   ),
 

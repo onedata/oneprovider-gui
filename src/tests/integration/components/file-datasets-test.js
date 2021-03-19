@@ -21,9 +21,22 @@ describe('Integration | Component | file datasets', function () {
     beforeEach(function () {
       this.set('file', createFile({ name: 'test-file.txt' }));
       const fileDatasetSummary = {
-        directDataset: promiseObject(resolve(null)),
+        getRelation(relation) {
+          if (relation === 'directDataset') {
+            return promiseObject(resolve(null));
+          }
+        },
+        belongsTo(relation) {
+          if (relation === 'directDataset') {
+            return { id: () => null };
+          }
+        },
       };
-      this.set('file.fileDatasetSummary', promiseObject(resolve(fileDatasetSummary)));
+      this.get('file').getRelation = (relation) => {
+        if (relation === 'fileDatasetSummary') {
+          return promiseObject(resolve(fileDatasetSummary));
+        }
+      };
     });
 
     it('renders file name of injected file', async function (done) {
@@ -67,12 +80,26 @@ function testDirectDatasetShow(isAttached) {
     `direct dataset toggle is visible, in "${directToggleStateText}" state and ${optionsEditableText} toggles when file has established and ${attachedStateText} direct dataset`;
   it(description, async function (done) {
     const directDataset = {
-      attached: isAttached,
+      id: 'dataset_id',
+      state: isAttached ? 'attached' : 'detached',
     };
     const fileDatasetSummary = {
-      directDataset: promiseObject(resolve(directDataset)),
+      getRelation(relation) {
+        if (relation === 'directDataset') {
+          return promiseObject(resolve(directDataset));
+        }
+      },
+      belongsTo(relation) {
+        if (relation === 'directDataset') {
+          return { id: () => 'dataset_id' };
+        }
+      },
     };
-    this.set('file.fileDatasetSummary', promiseObject(resolve(fileDatasetSummary)));
+    this.get('file').getRelation = (relation) => {
+      if (relation === 'fileDatasetSummary') {
+        return promiseObject(resolve(fileDatasetSummary));
+      }
+    };
 
     render(this);
     await wait();
@@ -106,13 +133,27 @@ function testDirectDatasetProtection(flags, attached = true) {
     `displays proper information about direct protection flags for ${flagsText} flag(s) in ${attachedText} dataset`;
   it(description, async function (done) {
     const directDataset = {
-      attached,
+      id: 'dataset_id',
+      state: attached ? 'attached' : 'detached',
       protectionFlags: flags,
     };
     const fileDatasetSummary = {
-      directDataset: promiseObject(resolve(directDataset)),
+      getRelation(relation) {
+        if (relation === 'directDataset') {
+          return promiseObject(resolve(directDataset));
+        }
+      },
+      belongsTo(relation) {
+        if (relation === 'directDataset') {
+          return { id: () => 'dataset_id' };
+        }
+      },
     };
-    this.set('file.fileDatasetSummary', promiseObject(resolve(fileDatasetSummary)));
+    this.get('file').getRelation = (relation) => {
+      if (relation === 'fileDatasetSummary') {
+        return promiseObject(resolve(fileDatasetSummary));
+      }
+    };
 
     render(this);
     await wait();

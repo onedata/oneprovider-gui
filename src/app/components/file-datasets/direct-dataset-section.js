@@ -9,10 +9,11 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import { and } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export default Component.extend(I18n, {
   classNames: ['direct-dataset-section'],
@@ -49,11 +50,17 @@ export default Component.extend(I18n, {
    */
   readonlyMessage: undefined,
 
-  // TODO: VFS-7402 use getRelation
   /**
    * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
    */
-  directDatasetProxy: reads('fileDatasetSummary.directDataset'),
+  directDatasetProxy: computedRelationProxy(
+    'fileDatasetSummary',
+    'directDataset',
+    Object.freeze({
+      allowNull: true,
+      reload: true,
+    })
+  ),
 
   /**
    * @type {ComputedProperty<Models.Dataset>}
@@ -64,7 +71,7 @@ export default Component.extend(I18n, {
    * Valid only if `directDatasetProxy` resolves
    * @type {ComputedProperty<Boolean>}
    */
-  isDatasetAttached: reads('directDataset.attached'),
+  isDatasetAttached: equal('directDataset.state', 'attached'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -95,18 +102,20 @@ export default Component.extend(I18n, {
         directDataset,
         datasetManager,
       } = this.getProperties('directDataset', 'datasetManager');
-      return datasetManager.toggleDatasetProtectionFlags(directDataset, {
-        [flag]: state,
-      });
+      return datasetManager.toggleDatasetProtectionFlag(
+        directDataset,
+        flag,
+        state
+      );
     },
     async destroyDataset() {
       const {
         datasetManager,
-        file,
+        directDataset,
         globalNotify,
-      } = this.getProperties('datasetManager', 'file', 'globalNotify');
+      } = this.getProperties('datasetManager', 'directDataset', 'globalNotify');
       try {
-        return await datasetManager.destroyDataset(file);
+        return await datasetManager.destroyDataset(directDataset);
       } catch (error) {
         globalNotify.backendError(this.t('destroyingDataset'), error);
       }

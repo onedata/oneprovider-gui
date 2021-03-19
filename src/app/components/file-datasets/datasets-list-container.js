@@ -22,6 +22,8 @@ export default Component.extend({
    */
   datasets: undefined,
 
+  // TODO: VFS-7414 this should be changed to use rootFilePath instead of resolving
+  // the path using record, but we don't know how to handle slashes (/) in paths yet
   /**
    * @type {ComputedProperty<PromiseArray<{ dataset: Models.Dataset, filePath: Array<Models.File> }>>}
    */
@@ -32,7 +34,7 @@ export default Component.extend({
     const list = [];
     for (let i = 0; i < get(datasets, 'length'); ++i) {
       list[i] = {
-        dataset: datasets[i],
+        dataset: datasets.objectAt(i),
         filePath: paths[i],
       };
     }

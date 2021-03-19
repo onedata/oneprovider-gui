@@ -7,79 +7,115 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-// TODO: VFS-7414 everything here is mocked and API is not stable yet
+// TODO: VFS-7414 API is not tested and stable yet
 
 import Service from '@ember/service';
-import { resolve } from 'rsvp';
+import { allSettled } from 'rsvp';
 import { get, set } from '@ember/object';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import sleep from 'onedata-gui-common/utils/sleep';
+import { inject as service } from '@ember/service';
 
 export default Service.extend({
+  onedataGraph: service(),
+  store: service(),
+
+  /**
+   * @param {Models.File} file
+   * @returns {Promise<Models.Dataset>}
+   */
   async establishDataset(file) {
-    await sleep(100);
-    const fileDatasetSummary = await get(file, 'fileDatasetSummary');
-    const directDataset = set(fileDatasetSummary, 'directDataset', promiseObject(
-      resolve(createDummyDataset())
-    ));
-    console.log('dataset established for file', get(file, 'entityId'));
-    return directDataset;
-  },
-
-  async destroyDataset(file) {
-    await sleep(100);
-    const fileDatasetSummary = await get(file, 'fileDatasetSummary');
-    const directDataset = set(fileDatasetSummary, 'directDataset', promiseObject(
-      resolve(null)
-    ));
-    console.log('dataset destroyed for file', get(file, 'entityId'));
-    return directDataset;
-  },
-
-  async toggleDatasetAttachment(dataset, state) {
-    await sleep(100);
-    set(dataset, 'attached', state);
-    console.log('dataset attached');
+    const store = this.get('store');
+    const dataset = store.createRecord('dataset', {
+      _meta: {
+        additionalData: {
+          rootFileId: get(file, 'entityId'),
+          // also protectionFlags can be specified here, but we don't use this
+        },
+      },
+    });
+    await dataset.save();
+    // TODO: VFS-7414 check if parallel reloading record and relation will not crash
+    await allSettled([
+      file.reload(),
+      file.belongsTo('fileDatasetSummary').reload(),
+    ]);
     return dataset;
   },
 
   /**
    * @param {Models.Dataset} dataset
-   * @param {Object} flagsData contains `{ flag_name: true/false }` to change
-   * @returns {Promise<Models.Dataset>}
    */
-  async toggleDatasetProtectionFlags(dataset, flagsData) {
-    await sleep(100);
-    if (flagsData['data_protection'] === undefined) {
-      flagsData['data_protection'] =
-        get(dataset, 'protectionFlags').includes('data_protection');
-    }
-    if (flagsData['metadata_protection'] === undefined) {
-      flagsData['metadata_protection'] =
-        get(dataset, 'protectionFlags').includes('metadata_protection');
-    }
-    const protectionFlags = [];
-    for (const flag in flagsData) {
-      if (flagsData[flag]) {
-        protectionFlags.push(flag);
+  async destroyDataset(dataset) {
+    const fileRelation = dataset.belongsTo('rootFile');
+    await dataset.destroy();
+    if (fileRelation && fileRelation.id()) {
+      const file = await fileRelation.reload();
+      if (file) {
+        await file.belongsTo('fileDatasetSummary').reload();
       }
     }
-    set(dataset, 'protectionFlags', protectionFlags);
-    console.log('dataset protection flag toggled', flagsData);
+  },
+
+  /**
+   * @param {Models.Dataset} dataset
+   * @param {Boolean} state whether dataset should be active for its rootFile
+   * @returns {Promise<Models.Dataset>}
+   */
+  async toggleDatasetAttachment(dataset, state) {
+    set(dataset, 'state', state ? 'attached' : 'detached');
+    return await dataset.save();
+  },
+
+  /**
+   * Toggle single flag - if you want to change multiple flags at once use
+   * `changeMultipleDatasetProtectionFlags`.
+   * @param {Models.Dataset} dataset
+   * @param {String} flag name, eg. `metadata_protection`
+   * @param {Boolean} state true if flag should be set, false if should be unset
+   * @returns {Promise<Models.Dataset>}
+   */
+  async toggleDatasetProtectionFlag(dataset, flag, state) {
+    const setProtectionFlags = [];
+    const unsetProtectionFlags = [];
+    if (state) {
+      setProtectionFlags.push(flag);
+    } else {
+      unsetProtectionFlags.push(flag);
+    }
+    return await this.changeMultipleDatasetProtectionFlags(
+      dataset,
+      setProtectionFlags,
+      unsetProtectionFlags
+    );
+  },
+
+  /**
+   * @param {Models.Dataset} dataset
+   * @param {Array<String>} setProtectionFlags
+   * @param {Array<String>} unsetProtectionFlags
+   * @returns {Promise<Models.Dataset>}
+   */
+  async changeMultipleDatasetProtectionFlags(
+    dataset,
+    setProtectionFlags = [],
+    unsetProtectionFlags = []
+  ) {
+    const onedataGraph = this.get('onedataGraph');
+    const gri = get(dataset, 'gri');
+    await onedataGraph.request({
+      gri,
+      operation: 'update',
+      data: {
+        setProtectionFlags,
+        unsetProtectionFlags,
+      },
+    });
+    await dataset.reload();
+    const file = await get(dataset, 'rootFile');
+    // TODO: VFS-7414 check if parallel reloading record and relation will not crash
+    await allSettled([
+      file.reload(),
+      file.belongsTo('fileDatasetSummary').reload(),
+    ]);
     return dataset;
   },
 });
-
-// TODO: VFS-7402 mock function to remove or move when model will be implemented
-export function createDummyDataset(file, protectionFlags) {
-  const entityId = btoa(Math.floor(Math.random() * 10000));
-  const id = `op_dataset.${entityId}.instance:private`;
-  return {
-    id,
-    entityId,
-    rootFile: promiseObject(
-      resolve(file || { entityId, name: 'Dummy Dir', type: 'dir', hasParent: false })
-    ),
-    protectionFlags: protectionFlags || ['data_protection', 'metadata_protection'],
-  };
-}

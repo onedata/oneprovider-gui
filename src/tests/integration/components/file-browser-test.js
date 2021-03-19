@@ -617,7 +617,9 @@ describe('Integration | Component | file browser (main component)', function () 
         });
 
         testOpenDatasetsModal('dataset tag is clicked', async function () {
-          await click(getFileRow('i1').find('.file-status-dataset')[0]);
+          const $datasetTag = getFileRow('i1').find('.file-status-dataset');
+          expect($datasetTag, 'dataset tag').to.have.length(1);
+          await click($datasetTag[0]);
         });
 
         testOpenDatasetsModal('dataset context menu item is clicked', async function () {
@@ -647,7 +649,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
   it(`invokes datasets modal opening when ${openDescription}`, async function (done) {
     const openDatasets = sinon.spy();
     this.set('openDatasets', openDatasets);
-    this.set('item1.hasEffDataset', true);
+    this.set('item1.effectiveDatasetMembership', 'ancestor');
 
     renderWithOpenDatasets(this);
 
