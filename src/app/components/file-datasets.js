@@ -122,6 +122,23 @@ export default Component.extend(I18n, {
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
 
   /**
+   * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
+   */
+  directDatasetProxy: computedRelationProxy(
+    'fileDatasetSummary',
+    'directDataset',
+    Object.freeze({
+      allowNull: true,
+      reload: true,
+    })
+  ),
+
+  /**
+   * @type {ComputedProperty<Models.Dataset>}
+   */
+  directDataset: reads('directDatasetProxy.content'),
+
+  /**
    * Valid (non-undefined) only if fileDatasetSummaryProxy is settled
    * @type {ComputedProperty<Boolean>}
    */

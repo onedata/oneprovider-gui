@@ -38,84 +38,87 @@
 {{/modal.header}}
 
 {{#modal.body}}
-  <table class="table table-striped datasets-table">
-    <thead>
-      <th class="col-dataset-info">
+  {{#promise-proxy-container
+    proxy=fileDatasetSummaryProxy
+    tagName="div"
+    class="loadable-row file-dataset-summary-loadable-row"
+    sizeClass="sm"
+  }}
+    <table class="table table-striped datasets-table">
+      <thead>
+        <th class="col-dataset-info">
+          {{#promise-proxy-container proxy=directDatasetProxy}}
+            {{file-datasets/direct-dataset-section
+              file=file
+              directDataset=directDataset
+              readonlyMessage=insufficientEditPrivilegesMessage
+            }}
+          {{/promise-proxy-container}}
+        </th>
+        {{#each (array "data" "metadata") as |protectionType|}}
+          <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
+            {{tt this (concat "tableHeaders." protectionType)}}
+          </th>
+        {{/each}}
+      </thead>
+      <tbody class="loadable-row inherited-datasets-loadable-row">
         {{#promise-proxy-container
-          proxy=fileDatasetSummaryProxy
-          tagName="div"
-          class="loadable-row file-dataset-summary-loadable-row"
+          proxy=inheritedDatasetsProxy
           sizeClass="sm"
         }}
-          {{file-datasets/direct-dataset-section
-            file=file
-            fileDatasetSummary=fileDatasetSummary
-            readonlyMessage=insufficientEditPrivilegesMessage
-          }}
-        {{/promise-proxy-container}}
-      </th>
-      {{#each (array "data" "metadata") as |protectionType|}}
-        <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
-          {{tt this (concat "tableHeaders." protectionType)}}
-        </th>
-      {{/each}}
-    </thead>
-    <tbody class="loadable-row inherited-datasets-loadable-row">
-      {{#promise-proxy-container
-        tagName=""
-        proxy=inheritedDatasetsProxy
-        sizeClass="sm"
-      }}
-        {{#if inheritedDatasets.length}}
-          {{#file-datasets/inherited-dataset
-            class="datasets-item"
-            dataset=virtualParentDataset
-            readonly=true
-            readonlyMessage="You can only edit protection flags of specific parent datasets"
-          }}
-            <a class="black" {{action "toggleParentDatasetsCollapse"}}>
-              <span>Parent datasets ({{inheritedDatasets.length}})</span>
-              <div class="inline-icon-container">
-                {{!-- FIXME: arrow animation --}}
-                {{one-icon icon=(if parentDatasetsCollapsed "arrow-down" "arrow-up")}}
-              </div>
-            </a>
-            
-          {{/file-datasets/inherited-dataset}}
-          {{#if renderParentDatasets}}
-            {{#file-datasets/datasets-list-container
-              tagName=""
-              datasets=inheritedDatasets
-              as |sortedDataList|
+          {{#if inheritedDatasets.length}}
+            {{#file-datasets/inherited-dataset
+              class="datasets-item"
+              dataset=virtualParentDataset
+              readonly=true
+              readonlyMessage="You can only edit protection flags of specific parent datasets"
             }}
-              {{#each sortedDataList as |data|}}
-                {{file-datasets/inherited-dataset
-                  class="datasets-item"
-                  dataset=data.dataset
-                  filePath=data.filePath
-                  readonly=false
-                  readonlyMessage=insufficientEditPrivilegesMessage
-                  getDataUrl=(action getDataUrl)
-                }}
-              {{/each}}
-            {{/file-datasets/datasets-list-container}}
+              <a class="black" {{action "toggleParentDatasetsCollapse"}}>
+                <span>Parent datasets ({{inheritedDatasets.length}})</span>
+                <div class="inline-icon-container">
+                  {{!-- FIXME: arrow animation --}}
+                  {{one-icon icon=(if parentDatasetsCollapsed "arrow-down" "arrow-up")}}
+                </div>
+              </a>
+              
+            {{/file-datasets/inherited-dataset}}
+            {{#if renderParentDatasets}}
+              {{#file-datasets/datasets-list-container
+                tagName=""
+                datasets=inheritedDatasets
+                as |sortedDataList|
+              }}
+                {{#each sortedDataList as |data|}}
+                  {{file-datasets/inherited-dataset
+                    class="datasets-item"
+                    dataset=data.dataset
+                    filePath=data.filePath
+                    readonly=false
+                    readonlyMessage=insufficientEditPrivilegesMessage
+                    getDataUrl=(action getDataUrl)
+                  }}
+                {{/each}}
+              {{/file-datasets/datasets-list-container}}
+            {{/if}}
+          {{else}}
+            <div>
+              No parent datasets
+            </div>
           {{/if}}
+        {{/promise-proxy-container}}
+        {{#promise-proxy-container proxy=directDatasetProxy}}
           {{#file-datasets/inherited-dataset
-            class="datasets-item"
-            dataset=fileDatasetSummary.directDataset
+            class="datasets-item direct-dataset-item"
+            dataset=directDataset
             readonly=false
             readonlyMessage=insufficientEditPrivilegesMessage
           }}
             <span class="direct-dataset-name">{{file.name}}</span>
           {{/file-datasets/inherited-dataset}}
-        {{else}}
-          <div>
-            No parent datasets
-          </div>
-        {{/if}}
-      {{/promise-proxy-container}}
-    </tbody>
-  </table>
+        {{/promise-proxy-container}}
+      </tbody>
+    </table>
+  {{/promise-proxy-container}}
 {{/modal.body}}
 
 {{#modal.footer}}

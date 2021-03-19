@@ -11,13 +11,12 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional, raw, and, equal } from 'ember-awesome-macros';
 import { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import { inject as service } from '@ember/service';
-import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -99,12 +98,23 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isDataProtected: hasProtectionFlag('dataset.protectionFlags', 'data'),
+  isAttached: equal('dataset.state', raw('attached')),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isMetadataProtected: hasProtectionFlag('dataset.protectionFlags', 'metadata'),
+  dataIsProtected: and(
+    'isAttached',
+    hasProtectionFlag('dataset.protectionFlags', 'data'),
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  metadataIsProtected: and(
+    'isAttached',
+    hasProtectionFlag('dataset.protectionFlags', 'metadata')
+  ),
 
   // TODO: VFS-7404 below computed properties with classes, text and icons are not
   // refactored because they can be not necessary when new design will be implemented

@@ -1,22 +1,16 @@
-{{#promise-proxy-container
-  tagName="div"
-  class="loadable-row direct-dataset-loadable-row"
-  proxy=directDatasetProxy
-}}
-  <h2 class="toggle-header">
-    <label
-      class="direct-dataset-attached-label"
-      for={{toggleId}}
-    >
-      {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
-    </label>
-    {{one-way-toggle
-      inputId=toggleId
-      checked=isDatasetAttached
-      class="direct-dataset-attached-toggle"
-      isReadOnly=readonly
-      lockHint=readonlyMessage
-      update=(action "toggleDatasetAttachment")
-    }}
-  </h2>
-{{/promise-proxy-container}}
+<h2 class="toggle-header">
+  <label
+    class="direct-dataset-attached-label"
+    for={{toggleId}}
+  >
+    {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
+  </label>
+  {{one-way-toggle
+    inputId=toggleId
+    checked=isDatasetAttached
+    class="direct-dataset-attached-toggle"
+    isReadOnly=readonly
+    lockHint=readonlyMessage
+    update=(action "toggleDatasetAttachment")
+  }}
+</h2>

@@ -9,11 +9,10 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { reads, equal } from '@ember/object/computed';
+import { equal } from '@ember/object/computed';
 import { and, tag } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
-import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export default Component.extend(I18n, {
   classNames: ['direct-dataset-section'],
@@ -34,9 +33,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.FileDatasetSummary}
+   * @type {Models.Dataset}
    */
-  fileDatasetSummary: undefined,
+  directDataset: undefined,
 
   /**
    * @virtual optional
@@ -49,23 +48,6 @@ export default Component.extend(I18n, {
    * @type {SafeString}
    */
   readonlyMessage: undefined,
-
-  /**
-   * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
-   */
-  directDatasetProxy: computedRelationProxy(
-    'fileDatasetSummary',
-    'directDataset',
-    Object.freeze({
-      allowNull: true,
-      reload: true,
-    })
-  ),
-
-  /**
-   * @type {ComputedProperty<Models.Dataset>}
-   */
-  directDataset: reads('directDatasetProxy.content'),
 
   /**
    * Valid only if `directDatasetProxy` resolves

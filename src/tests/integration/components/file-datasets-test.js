@@ -77,7 +77,7 @@ function testDirectDatasetShow(isAttached) {
   const optionsEditableText = isAttached ? 'enabled' : 'disabled';
   const attachedStateText = isAttached ? 'attached' : 'detached';
   const description =
-    `direct dataset toggle is visible, in "${directToggleStateText}" state and ${optionsEditableText} toggles when file has established and ${attachedStateText} direct dataset`;
+    `direct dataset toggle is visible, in "${directToggleStateText}" state and ${optionsEditableText} when file has established and ${attachedStateText} direct dataset`;
   it(description, async function (done) {
     const directDataset = {
       id: 'dataset_id',
@@ -105,24 +105,27 @@ function testDirectDatasetShow(isAttached) {
     await wait();
 
     const $directDatasetSection = this.$('.direct-dataset-section');
-    expect($directDatasetSection).exist;
+    expect($directDatasetSection, 'direct dataset section').exist;
     const $toggle = $directDatasetSection.find('.direct-dataset-attached-toggle');
-    expect($toggle).to.exist;
+    expect($toggle, 'direct-dataset-attached-toggle').to.exist;
     const toggleHelper = new ToggleHelper($toggle);
     expect(toggleHelper.isChecked()).to.equal(isAttached);
-    ['data', 'metadata'].forEach(flag => {
-      const $flagToggle = this.$(`.${flag}-flag-toggle`);
-      expect($flagToggle).to.exist;
-      if (isAttached) {
-        expect($flagToggle).to.not.have.class('disabled');
-      } else {
-        expect($flagToggle).to.have.class('disabled');
-      }
-    });
 
     done();
   });
 }
+
+// TODO: VFS-7404 use this piece of code to test protection toggles
+// ['data', 'metadata'].forEach(flag => {
+//   const selector = `.${flag}-flag-toggle`;
+//   const $flagToggle = this.$(`.${flag}-flag-toggle`);
+//   expect($flagToggle, selector).to.exist;
+//   if (isAttached) {
+//     expect($flagToggle).to.not.have.class('disabled');
+//   } else {
+//     expect($flagToggle).to.have.class('disabled');
+//   }
+// });
 
 function testDirectDatasetProtection(flags, attached = true) {
   const flagsText = flags.length ? flags.map(f => `"${f}"`).join(', ') : 'no';
@@ -158,14 +161,16 @@ function testDirectDatasetProtection(flags, attached = true) {
     render(this);
     await wait();
 
-    const $directDatasetSection = this.$('.direct-dataset-section');
+    const $directDatasetItem = this.$('.direct-dataset-item');
+    expect($directDatasetItem, 'direct dataset item').to.exist;
     availableShortFlags.forEach(flag => {
       // if dataset is detached, all flags should be presented as false!
       const shouldToggleBeEnabled = attached && shortFlags.includes(flag);
-      const $toggle = $directDatasetSection.find(`.${flag}-flag-toggle`);
-      expect($toggle).to.exist;
+      const selector = `.${flag}-flag-toggle`;
+      const $toggle = $directDatasetItem.find(selector);
+      expect($toggle, `${selector} for direct dataset`).to.exist;
       const toggleHelper = new ToggleHelper($toggle);
-      expect(toggleHelper.isChecked()).to.equal(shouldToggleBeEnabled);
+      expect(toggleHelper.isChecked(), flag).to.equal(shouldToggleBeEnabled);
     });
 
     done();
