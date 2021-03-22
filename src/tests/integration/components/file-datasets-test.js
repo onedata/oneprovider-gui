@@ -120,18 +120,6 @@ function testDirectDatasetShow(isAttached) {
   });
 }
 
-// TODO: VFS-7404 use this piece of code to test protection toggles
-// ['data', 'metadata'].forEach(flag => {
-//   const selector = `.${flag}-flag-toggle`;
-//   const $flagToggle = this.$(`.${flag}-flag-toggle`);
-//   expect($flagToggle, selector).to.exist;
-//   if (isAttached) {
-//     expect($flagToggle).to.not.have.class('disabled');
-//   } else {
-//     expect($flagToggle).to.have.class('disabled');
-//   }
-// });
-
 function testDirectDatasetProtection(flags, attached = true) {
   const flagsText = flags.length ? flags.map(f => `"${f}"`).join(', ') : 'no';
   const shortFlags = flags.map(f => f.split('_protection')[0]);
@@ -186,7 +174,7 @@ function testEffectiveProtectionInfo(flags) {
   const flagsText = flags.length ? flags.map(f => `"${f}"`).join(', ') : 'no';
   const shortFlags = flags.map(f => f.split('_protection')[0]);
   const availableShortFlags = ['data', 'metadata'];
-  it(`displays proper information about effective protection flags for ${flagsText} file flag(s)`,
+  it(`displays tags with information about effective protection flags for ${flagsText} file flag(s)`,
     async function (done) {
       this.set('file.effProtectionFlags', flags);
 
@@ -195,9 +183,12 @@ function testEffectiveProtectionInfo(flags) {
       const $protectionInfo = this.$('.datasets-effective-protection-info');
       expect($protectionInfo, 'protection info container').to.exist;
       availableShortFlags.forEach(flag => {
-        const selector = `.${flag}-protection-enabled`;
-        expect($protectionInfo.find(selector), selector)
-          .to.have.length(shortFlags.includes(flag) ? 1 : 0);
+        const isEnabled = shortFlags.includes(flag);
+        const tagSelector = `.${flag}-protected-tag`;
+        const $tag = $protectionInfo.find(tagSelector);
+        expect($tag, tagSelector).to.exist;
+        expect($tag, tagSelector)
+          .to.have.class(`protected-tag-${isEnabled ? 'enabled' : 'disabled'}`);
       });
 
       done();

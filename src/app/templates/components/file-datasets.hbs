@@ -1,3 +1,6 @@
+{{log dataIsProtectedForFile}}
+{{log metadataIsProtectedForFile}}
+
 {{#modal.header}}
   <div class="modal-header-text">
     <h1 class="datasets-modal-header">
@@ -8,32 +11,31 @@
     {{modal-file-subheader files=files}}
   </div>
   <div class="modal-header-effective-info datasets-effective-protection-info">
-    {{#if isEffDataProtected}}
-      <div class="labels-container data-protection-enabled">
-        <span class="label label-warning data-protected-tag">
-          <div class="inline-icon-container">
-            {{one-icon icon="provider"}}
+    {{#each (array "data" "metadata") as |protectionType|}}
+      {{#with (if
+        (get this (concat protectionType "IsProtectedForFile")) "enabled" "disabled")
+        as |flagState|
+      }}
+        <div class="labels-container">
+          <div class={{concat-classes
+            "label label-modal-header-large protected-tag"
+            (concat "protected-tag-" flagState)
+            (concat protectionType "-protected-tag")
+          }}>
+            {{one-icon
+              class="protection-tag-status-icon"
+              icon=(get protectionIcons protectionType)
+            }}
+            <span class="protected-text">
+              {{tt this (concat "fileProtectionTag." flagState "." protectionType)
+                fileType=(tt this (concat "fileType." fileType))
+              }}
+            </span>
+            {{one-tooltip title=(tt this (concat "fileProtectionTag." flagState "." protectionType))}}
           </div>
-          <span class="protected-text">
-            {{tt this "dataProtectedTag"}}
-          </span>
-          {{one-tooltip title=(tt this "dataProtectedTooltip")}}
-        </span>
-      </div>
-    {{/if}}
-    {{#if isEffMetadataProtected}}
-      <div class="labels-container metadata-protection-enabled">
-        <span class="label label-warning metadata-protected-tag">
-          <div class="inline-icon-container">
-            {{one-icon icon="browser-attribute"}}
-          </div>
-          <span class="protected-text">
-            {{tt this "metadataProtectedTag"}}
-          </span>
-          {{one-tooltip title=(tt this "metadataProtectedTooltip")}}
-        </span>
-      </div>
-    {{/if}}
+        </div>
+      {{/with}}
+    {{/each}}
   </div>
 {{/modal.header}}
 

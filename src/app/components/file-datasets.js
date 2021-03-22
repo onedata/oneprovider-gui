@@ -60,6 +60,11 @@ export default Component.extend(I18n, {
    */
   files: undefined,
 
+  protectionIcons: Object.freeze({
+    data: 'provider',
+    metadata: 'browser-attribute',
+  }),
+
   /**
    * @type {Boolean}
    */
@@ -106,15 +111,17 @@ export default Component.extend(I18n, {
    */
   file: reads('files.firstObject'),
 
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isEffDataProtected: hasProtectionFlag('file.effProtectionFlags', 'data'),
+  fileType: or('file.type', raw('file')),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isEffMetadataProtected: hasProtectionFlag('file.effProtectionFlags', 'metadata'),
+  dataIsProtectedForFile: hasProtectionFlag('file.effProtectionFlags', 'data'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  metadataIsProtectedForFile: hasProtectionFlag('file.effProtectionFlags', 'metadata'),
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
