@@ -68,52 +68,85 @@
         }}
           {{#if inheritedDatasets.length}}
             {{#file-datasets/inherited-dataset
-              class="datasets-item"
+              class="datasets-item parent-datasets-item"
               dataset=virtualParentDataset
               readonly=true
-              readonlyMessage="You can only edit protection flags of specific parent datasets"
+              readonlyMessage=(tt this "summaryParentsReadonlyFlags")
+              click=(action "toggleParentDatasetsCollapse")
             }}
-              <a class="black" {{action "toggleParentDatasetsCollapse"}}>
-                <span>Parent datasets ({{inheritedDatasets.length}})</span>
-                <div class="inline-icon-container">
-                  {{!-- FIXME: arrow animation --}}
-                  {{one-icon icon=(if parentDatasetsCollapsed "arrow-down" "arrow-up")}}
+              <span class="parents-collapse-text">
+                <span>{{tt this "parentDatasets"}} ({{inheritedDatasets.length}})</span>
+                <div class={{concat-classes
+                  "inline-icon-container collapse-icon-container"
+                   (if parentDatasetsCollapsed "closed" "opened")
+                }}>
+                  {{one-icon
+                    class="collapse-icon"
+                    icon="arrow-down"
+                  }}
                 </div>
-              </a>
+              </span>
               
             {{/file-datasets/inherited-dataset}}
-            {{#if renderParentDatasets}}
-              {{#file-datasets/datasets-list-container
-                tagName=""
-                datasets=inheritedDatasets
-                as |sortedDataList|
-              }}
-                {{#each sortedDataList as |data|}}
-                  {{file-datasets/inherited-dataset
-                    class="datasets-item"
-                    dataset=data.dataset
-                    filePath=data.filePath
-                    readonly=false
-                    readonlyMessage=insufficientEditPrivilegesMessage
-                    getDataUrl=(action getDataUrl)
-                  }}
-                {{/each}}
-              {{/file-datasets/datasets-list-container}}
-            {{/if}}
+            {{#file-datasets/datasets-list-container
+              tagName=""
+              datasets=inheritedDatasets
+              as |sortedDataList|
+            }}
+              {{#each sortedDataList as |data|}}
+                {{file-datasets/inherited-dataset
+                  class=(concat-classes
+                    "datasets-item parent-dataset-item"
+                    (if parentDatasetsCollapsed "closed" "opened")
+                  )
+                  dataset=data.dataset
+                  filePath=data.filePath
+                  readonly=false
+                  readonlyMessage=insufficientEditPrivilegesMessage
+                  getDataUrl=(action getDataUrl)
+                }}
+              {{/each}}
+            {{/file-datasets/datasets-list-container}}
           {{else}}
-            <div>
-              No parent datasets
-            </div>
+            <tr class="datasets-item inherited-dataset no-parent-datasets-row">
+              <td class="no-parent-datasets-cell col-dataset-info" colspan="3">
+                <span class="no-parents-collapse-text">
+                  <div class="path-section">
+                    {{#one-icon
+                      class="path-icon no-dataset-icon"
+                      icon="browser-info"
+                    }}
+                      {{one-tooltip title=(tt this "noParentDatasetsTip")}}
+                    {{/one-icon}}
+                    <div class="dataset-label no-parent-datasets-text">
+                      {{tt this "noParentDatasets"}}
+                    </div>
+                  </div>
+                </span>
+              </td>
+            </tr>
           {{/if}}
         {{/promise-proxy-container}}
         {{#promise-proxy-container proxy=directDatasetProxy}}
           {{#file-datasets/inherited-dataset
-            class="datasets-item direct-dataset-item"
+            class=(concat-classes
+              "datasets-item direct-dataset-item"
+              (if directDataset.isAttached
+                "direct-dataset-item-attached"
+                "direct-dataset-item-detached"
+              )
+            )
             dataset=directDataset
-            readonly=false
-            readonlyMessage=insufficientEditPrivilegesMessage
+            readonly=(not directDataset.isAttached)
+            readonlyMessage=directDatasetFlagsReadonlyMessage
           }}
-            <span class="direct-dataset-name">{{file.name}}</span>
+            <div class="path-section">
+              {{one-icon
+                class="path-icon direct-dataset-icon"
+                icon=directDatasetRowIcon
+              }}
+              <div class="dataset-label direct-dataset-name">{{file.name}}</div>
+            </div>            
           {{/file-datasets/inherited-dataset}}
         {{/promise-proxy-container}}
       </tbody>

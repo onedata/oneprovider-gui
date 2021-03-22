@@ -84,6 +84,60 @@
       }
     }
   }
+  .collapse-icon-container {
+    margin-left: 0.5em;
+  }
+  .no-parents-collapse-text {
+    font-style: italic;
+  }
+  .collapse-icon-container {
+    .collapse-icon {
+      transition: transition-ease(transform);
+    }
+    &.closed .collapse-icon {
+      transform: translateY(-50%) translateY(0.1em) rotate(0deg);
+    }
+    &.opened .collapse-icon {
+      transform: translateY(-50%) translateY(0.1em) rotate(180deg);
+    }
+  }
+  .parent-dataset-item {
+    > td {
+      transition: transition-ease(all);
+      > * {
+        transition: transition-ease(max-height);
+      }
+    }
+    &.opened {
+      > td {
+        > * {
+          max-height: auto;
+          overflow-y: unset;
+        }
+      }
+    }
+    &.closed {
+      > td {
+        line-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        > * {
+          max-height: 0px;
+          overflow-y: hidden;
+        }
+      }
+    }
+  }
+  .direct-dataset-item {
+    .col-dataset-info {
+      transition: transition-ease(opacity);
+    }
+  }
+  .direct-dataset-item-detached, .no-parent-datasets-row {
+    .col-dataset-info {
+      opacity: 0.6;
+    }
+  }
 }
 
 @import './file-datasets/direct-dataset-section';

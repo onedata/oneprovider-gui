@@ -8,9 +8,13 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import ToggleHelper from '../../helpers/toggle';
+import { RuntimeProperties as DatasetRuntimeProperties } from 'oneprovider-gui/models/dataset';
+import EmberObject from '@ember/object';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
+
+const DatasetMock = EmberObject.extend(DatasetRuntimeProperties);
 
 describe('Integration | Component | file datasets', function () {
   setupComponentTest('file-datasets', {
@@ -82,6 +86,7 @@ function testDirectDatasetShow(isAttached) {
     const directDataset = {
       id: 'dataset_id',
       state: isAttached ? 'attached' : 'detached',
+      isAttached,
     };
     const fileDatasetSummary = {
       getRelation(relation) {
@@ -135,11 +140,11 @@ function testDirectDatasetProtection(flags, attached = true) {
   const description =
     `displays proper information about direct protection flags for ${flagsText} flag(s) in ${attachedText} dataset`;
   it(description, async function (done) {
-    const directDataset = {
+    const directDataset = createDataset({
       id: 'dataset_id',
       state: attached ? 'attached' : 'detached',
       protectionFlags: flags,
-    };
+    });
     const fileDatasetSummary = {
       getRelation(relation) {
         if (relation === 'directDataset') {
@@ -223,4 +228,8 @@ function createFile(override = {}, ownerGri = userGri) {
       }
     },
   }, override);
+}
+
+function createDataset(data) {
+  return DatasetMock.create(data);
 }

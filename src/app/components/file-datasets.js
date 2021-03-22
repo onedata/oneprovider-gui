@@ -18,11 +18,13 @@ import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { promise, not } from 'ember-awesome-macros';
+import { promise, or, and, not, raw, eq, conditional } from 'ember-awesome-macros';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   classNames: ['file-datasets'],
 
+  i18n: service(),
   datasetManager: service(),
   globalNotify: service(),
 
@@ -63,14 +65,19 @@ export default Component.extend(I18n, {
    */
   parentDatasetsCollapsed: true,
 
-  // FIXME: should be changed accodring to animation time
-  renderParentDatasets: not('parentDatasetsCollapsed'),
-
+  /**
+   * A dataset-like object that have summary of parent datasets protection flags
+   * @type {ComputedProperty<Object>}
+   */
   virtualParentDataset: computed('inheritedDatasets', function virtualParentDataset() {
-    return {
-      // FIXME: sum of inheritedDatasets flags
-      protectionFlags: [],
-    };
+    const inheritedDatasets = this.get('inheritedDatasets');
+    if (inheritedDatasets) {
+      return {
+        isAttached: true,
+        dataIsProtected: inheritedDatasets.isAny('dataIsProtected'),
+        metadataIsProtected: inheritedDatasets.isAny('metadataIsProtected'),
+      };
+    }
   }),
 
   /**
@@ -78,16 +85,20 @@ export default Component.extend(I18n, {
    * privileges.
    * @type {ComputedProperty<SafeString>}
    */
-  insufficientEditPrivilegesMessage: computed('editPrivilege',
+  insufficientEditPrivilegesMessage: computed(
     function insufficientEditPrivilegesMessage() {
-      if (!this.get('editPrivilege')) {
-        return insufficientPrivilegesMessage({
-          i18n: this.get('i18n'),
-          modelName: 'space',
-          privilegeFlag: 'space_manage_datasets',
-        });
-      }
+      return insufficientPrivilegesMessage({
+        i18n: this.get('i18n'),
+        modelName: 'space',
+        privilegeFlag: 'space_manage_datasets',
+      });
     }
+  ),
+
+  directDatasetFlagsReadonlyMessage: or(
+    and(not('editPrivilege'), 'insufficientEditPrivilegesMessage'),
+    and(not('directDataset.isAttached'), computedT('notAttachedReadonlyFlags')),
+    raw(null)
   ),
 
   /**
@@ -172,6 +183,16 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.Dataset>}
    */
   inheritedDatasets: reads('inheritedDatasetsProxy.content'),
+
+  directDatasetRowIcon: conditional(
+    'directDataset.isAttached',
+    raw('browser-dataset'),
+    conditional(
+      eq('file.type', 'file'),
+      raw('browser-file'),
+      raw('browser-directory'),
+    ),
+  ),
 
   actions: {
     toggleParentDatasetsCollapse() {

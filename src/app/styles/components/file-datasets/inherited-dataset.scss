@@ -11,10 +11,12 @@
       position: relative;
       top: -1px;
     }
-    .path-label {
+    .dataset-label {
       margin-left: 8px;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    .path-label {
       direction: rtl;
       a {
         // thanks to this, "/" do not go to end when using direction: rtl

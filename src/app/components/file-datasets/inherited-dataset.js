@@ -11,11 +11,10 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, and, equal } from 'ember-awesome-macros';
+import { conditional, raw, and } from 'ember-awesome-macros';
 import { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
@@ -98,14 +97,14 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isAttached: equal('dataset.state', raw('attached')),
+  isAttached: reads('dataset.isAttached'),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
   dataIsProtected: and(
     'isAttached',
-    hasProtectionFlag('dataset.protectionFlags', 'data'),
+    'dataset.dataIsProtected',
   ),
 
   /**
@@ -113,7 +112,7 @@ export default Component.extend(I18n, {
    */
   metadataIsProtected: and(
     'isAttached',
-    hasProtectionFlag('dataset.protectionFlags', 'metadata')
+    'dataset.metadataIsProtected',
   ),
 
   // TODO: VFS-7404 below computed properties with classes, text and icons are not
