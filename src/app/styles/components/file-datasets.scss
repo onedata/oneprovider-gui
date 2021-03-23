@@ -42,13 +42,10 @@
         font-weight: normal;
         @include font-semibold;
         font-size: 90%;
-        color: inherit;
-        // TODO: var
-        margin-bottom: 8px;
-        
+        color: inherit;        
         line-height: 2em;
         font-size: 100%;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         border-width: 2px;
         border-style: solid;
@@ -62,7 +59,7 @@
         }
         &.protected-tag-enabled {
           background-color: #FCF0D7;
-          border-color: #FDE3AF;
+          border-color: #ffd47e;
           .one-icon.protection-tag-status-icon {
             color: #FFB10D;
           }
