@@ -30,6 +30,7 @@ export default {
   notAttachedReadonlyFlags: 'Direct write protection can be enabled only if the file is marked as dataset.',
   summaryParentsReadonlyFlags: 'This is a summary write protection status of all parent datasets.<br>You can change flags for specific parent dataset in table below (expand the row to see full list).',
   noParentDatasetsTip: 'If any ancestor directory of this file is marked as a dataset, it will appear on this list and its write protection flags will affect effective write protection flag of dataset attached to this file.',
+  parentDatasetsTip: 'List of datasets attached to ancestors of selected directory. Write protection flags influence effective protection flags of the directory. Click on this row to expand or hide list of parent datasets.',
   fileProtectionTag: {
     enabled: {
       data: 'Data of this {{fileType}} is write protected.',
@@ -54,6 +55,9 @@ export default {
     data: 'Data write&nbsp;protection',
     metadata: 'Metadata write&nbsp;protection',
   },
+  cannotLoadAncestorDatasets: 'Could not load ancestor datasets list.',
+  cannotLoadDirectDataset: 'Could not load direct dataset state.',
+  cannotLoadFileDatasetSummary: 'Could not load dataset summary for selected element.',
 
   inheritedDataset,
   directDatasetSection,

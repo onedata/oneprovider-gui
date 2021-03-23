@@ -1,16 +1,27 @@
-<h2 class="toggle-header">
-  <label
-    class="direct-dataset-attached-label"
-    for={{toggleId}}
-  >
-    {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
-  </label>
-  {{one-way-toggle
-    inputId=toggleId
-    checked=isDatasetAttached
-    class="direct-dataset-attached-toggle"
-    isReadOnly=readonly
-    lockHint=readonlyMessage
-    update=(action "toggleDatasetAttachment")
+{{#if directDatasetProxy.isRejected}}
+  {{resource-load-error
+    message=(tt this "cannotLoadDirectDataset")
+    reason=directDatasetProxy.reason
   }}
-</h2>
+{{else}}
+  <h2 class="toggle-header {{if directDatasetProxy.isPending "loading"}}">
+    <label
+      class="direct-dataset-attached-label"
+      for={{toggleId}}
+    >
+      {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
+    </label>
+    {{#if directDatasetProxy.isFulfilled}}
+      {{one-way-toggle
+        inputId=toggleId
+        checked=isDatasetAttached
+        class="direct-dataset-attached-toggle"
+        isReadOnly=readonly
+        lockHint=readonlyMessage
+        update=(action "toggleDatasetAttachment")
+      }}  
+    {{else if directDatasetProxy.isPending}}
+      {{spin-spinner-block class="direct-dataset-toggle-spinner" sizeClass="xs"}}
+    {{/if}}
+  </h2>
+{{/if}}

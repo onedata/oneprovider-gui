@@ -11,4 +11,5 @@ export default {
   destroyDataset: 'Destroy dataset',
   destroyingDataset: 'destroying dataset',
   establishingDataset: 'establishing dataset',
+  cannotLoadDirectDataset: 'Could not load direct dataset state.',
 };

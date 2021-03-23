@@ -14,7 +14,7 @@
   }
   &.file-cut {
     .file-icon-container, .file-item-text {
-      opacity: 0.6;
+      opacity: $disabled-opacity;
     }
   }
   &.is-invalidated {

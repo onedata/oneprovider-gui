@@ -138,7 +138,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.FileDatasetSummary>}
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
-
   /**
    * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
    */

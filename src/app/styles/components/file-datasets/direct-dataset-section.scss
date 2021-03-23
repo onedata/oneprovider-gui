@@ -7,6 +7,10 @@
     min-height: 2em;
   }
   .toggle-header {
+    transition: transition-ease(opacity);
+    &.loading {
+      opacity: $disabled-opacity;
+    }
     margin-top: 0;
     margin-bottom: 0;
     display: flex;
@@ -36,5 +40,9 @@
   }
   .remove-dataset-row {
     text-align: right;
+  }
+  .alert.alert-promise-error {
+    @include font-regular;
+    font-weight: normal;
   }
 }

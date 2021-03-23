@@ -31,7 +31,9 @@
                 fileType=(tt this (concat "fileType." fileType))
               }}
             </span>
-            {{one-tooltip title=(tt this (concat "fileProtectionTag." flagState "." protectionType))}}
+            {{one-tooltip
+              title=(tt this (concat "fileProtectionTag." flagState "." protectionType))
+            }}
           </div>
         </div>
       {{/with}}
@@ -44,18 +46,16 @@
     proxy=fileDatasetSummaryProxy
     tagName="div"
     class="loadable-row file-dataset-summary-loadable-row"
-    sizeClass="sm"
+    customErrorMessage=(tt this "cannotLoadFileDatasetSummary")
   }}
     <table class="table table-striped datasets-table">
       <thead>
         <th class="col-dataset-info">
-          {{#promise-proxy-container proxy=directDatasetProxy}}
-            {{file-datasets/direct-dataset-section
-              file=file
-              directDataset=directDataset
-              readonlyMessage=insufficientEditPrivilegesMessage
-            }}
-          {{/promise-proxy-container}}
+          {{file-datasets/direct-dataset-section
+            file=file
+            directDatasetProxy=directDatasetProxy
+            readonlyMessage=insufficientEditPrivilegesMessage
+          }}
         </th>
         {{#each (array "data" "metadata") as |protectionType|}}
           <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
@@ -63,11 +63,8 @@
           </th>
         {{/each}}
       </thead>
-      <tbody class="loadable-row inherited-datasets-loadable-row">
-        {{#promise-proxy-container
-          proxy=inheritedDatasetsProxy
-          sizeClass="sm"
-        }}
+      <tbody>
+        {{#if inheritedDatasetsProxy.isFulfilled}}
           {{#if inheritedDatasets.length}}
             {{#file-datasets/inherited-dataset
               class="datasets-item parent-datasets-item"
@@ -76,19 +73,28 @@
               readonlyMessage=(tt this "summaryParentsReadonlyFlags")
               click=(action "toggleParentDatasetsCollapse")
             }}
-              <span class="parents-collapse-text">
-                <span>{{tt this "parentDatasets"}} ({{inheritedDatasets.length}})</span>
-                <div class={{concat-classes
-                  "inline-icon-container collapse-icon-container"
-                   (if parentDatasetsCollapsed "closed" "opened")
-                }}>
-                  {{one-icon
-                    class="collapse-icon"
-                    icon="arrow-down"
+              <div class="parents-collapse-text">
+                <div class="dataset-label-section">
+                  {{#one-icon
+                    class="path-icon no-dataset-icon"
+                    icon="browser-info"
                   }}
+                    {{one-tooltip title=(tt this "parentDatasetsTip")}}
+                  {{/one-icon}}
+                  <div class="dataset-label">
+                    {{tt this "parentDatasets"}} ({{inheritedDatasets.length}})
+                  </div>
+                  <div class={{concat-classes
+                    "inline-icon-container collapse-icon-container"
+                    (if parentDatasetsCollapsed "closed" "opened")
+                  }}>
+                    {{one-icon
+                      class="collapse-icon"
+                      icon="arrow-down"
+                    }}
+                  </div>
                 </div>
-              </span>
-              
+              </div>
             {{/file-datasets/inherited-dataset}}
             {{#file-datasets/datasets-list-container
               tagName=""
@@ -110,10 +116,10 @@
               {{/each}}
             {{/file-datasets/datasets-list-container}}
           {{else}}
-            <tr class="datasets-item inherited-dataset no-parent-datasets-row">
+            <tr class="datasets-item no-parent-datasets-row">
               <td class="no-parent-datasets-cell col-dataset-info" colspan="3">
-                <span class="no-parents-collapse-text">
-                  <div class="path-section">
+                <span class="parents-collapse-text parents-collapse-text-empty">
+                  <div class="dataset-label-section">
                     {{#one-icon
                       class="path-icon no-dataset-icon"
                       icon="browser-info"
@@ -128,8 +134,21 @@
               </td>
             </tr>
           {{/if}}
-        {{/promise-proxy-container}}
-        {{#promise-proxy-container proxy=directDatasetProxy}}
+        {{else}}
+          <tr class="datasets-item loadable-row dataset-loadable-row inherited-datasets-loadable-row">
+            <td colspan="3">
+              {{#if inheritedDatasetsProxy.isRejected}}
+                {{resource-load-error
+                  message=(tt this "cannotLoadAncestorDatasets")
+                  reason=inheritedDatasetsProxy.reason
+                }}
+              {{else}}
+                {{spin-spinner-block class="inherited-datasets-spinner" sizeClass="xs"}}
+              {{/if}}
+            </td>
+          </tr>
+        {{/if}}
+        {{#if directDatasetProxy.isFulfilled}}
           {{#file-datasets/inherited-dataset
             class=(concat-classes
               "datasets-item direct-dataset-item"
@@ -142,7 +161,7 @@
             readonly=(not directDataset.isAttached)
             readonlyMessage=directDatasetFlagsReadonlyMessage
           }}
-            <div class="path-section">
+            <div class="dataset-label-section">
               {{one-icon
                 class="path-icon direct-dataset-icon"
                 icon=directDatasetRowIcon
@@ -150,7 +169,22 @@
               <div class="dataset-label direct-dataset-name">{{file.name}}</div>
             </div>            
           {{/file-datasets/inherited-dataset}}
-        {{/promise-proxy-container}}
+        {{else}}
+          <tr
+            class="datasets-item loadable-row dataset-loadable-row direct-dataset-loadable-row"
+          >
+            <td colspan="3">
+              {{#if directDatasetProxy.isRejected}}
+                {{resource-load-error
+                  message=(tt this "cannotLoadDirectDataset")
+                  reason=directDatasetProxy.reason
+                }}
+              {{else}}
+                {{spin-spinner-block class="direct-dataset-spinner" sizeClass="xs"}}
+              {{/if}}
+            </td>
+          </tr>
+        {{/if}}
       </tbody>
     </table>
   {{/promise-proxy-container}}

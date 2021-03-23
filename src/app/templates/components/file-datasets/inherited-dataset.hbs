@@ -2,13 +2,13 @@
   {{#if hasBlock}}
     {{yield}}
   {{else}}
-    <div class="path-section">
+    <div class="dataset-label-section">
       {{one-icon class="path-icon" icon="browser-directory"}}
       <div class="dataset-label path-label">
         <a
           onclick={{action "fileLinkClicked"}}
           target={{navigateDataTarget}}
-          class="file-path truncate"
+          class="azure file-path truncate"
           href={{fileHref}}
         >
           {{filePathString}}

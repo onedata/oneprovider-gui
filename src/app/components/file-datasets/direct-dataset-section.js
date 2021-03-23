@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { equal } from '@ember/object/computed';
+import { equal, reads } from '@ember/object/computed';
 import { and, tag } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
@@ -33,9 +33,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.Dataset}
+   * @type {PromiseObject<Models.Dataset>}
    */
-  directDataset: undefined,
+  directDatasetProxy: undefined,
 
   /**
    * @virtual optional
@@ -48,6 +48,11 @@ export default Component.extend(I18n, {
    * @type {SafeString}
    */
   readonlyMessage: undefined,
+
+  /**
+   * @type {ComputedProperty<Models.Dataset>}
+   */
+  directDataset: reads('directDatasetProxy.content'),
 
   /**
    * Valid only if `directDatasetProxy` resolves
