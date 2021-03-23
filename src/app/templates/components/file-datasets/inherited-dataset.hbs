@@ -19,15 +19,17 @@
 </td>
 {{#each (array "data" "metadata") as |protectionType|}}
   <td class="col-dataset-protection col-dataset-protection-{{protectionType}}">
-    {{one-way-toggle
-      inputId=(concat elementId "-" protectionType "-flag-toggle")
-      class=(concat-classes (concat protectionType "-flag-toggle") "flag-toggle")
-      checked=(get this (concat protectionType "IsProtected"))
-      class=(if media.isMobile "pull-right right" "toggle-right-side")
-      spinnerSide=(if media.isMobile "left" "right")
-      isReadOnly=readonly
-      lockHint=readonlyMessage
-      update=(action "toggleDatasetProtectionFlag" (concat protectionType "_protection"))
-    }}
+    <div class="toggle-container">
+      {{one-way-toggle
+        inputId=(concat elementId "-" protectionType "-flag-toggle")
+        class=(concat-classes (concat protectionType "-flag-toggle") "flag-toggle")
+        checked=(get this (concat protectionType "IsProtected"))
+        class=(if media.isMobile "pull-right right" "toggle-right-side")
+        spinnerSide=(if media.isMobile "left" "right")
+        isReadOnly=readonly
+        lockHint=readonlyMessage
+        update=(action "toggleDatasetProtectionFlag" (concat protectionType "_protection"))
+      }}
+    </div>
   </td>
 {{/each}}
