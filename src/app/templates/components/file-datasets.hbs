@@ -7,6 +7,33 @@
       <span class="header-text">
         {{tt this "datasets"}}
       </span>
+      <div class="inline-icon-container">
+        {{one-icon
+          icon="sign-question-rounded"
+          class="hint-trigger datasets-header-hint-trigger clickable"
+        }}
+      </div>
+      {{#one-switchable-popover-modal
+        class="datasets-show-hint datasets-hint"
+        triggersConfiguration=".datasets-header-hint-trigger"
+        popoverStyle="datasets-show-hint-info over-modals"
+        as |ospm|
+      }}
+        <h1>{{tt this "hint.title"}}</h1>
+        <p>{{tt this "hint.intro"}}</p>
+        <p>{{tt this "hint.guide"}}</p>
+        <p>
+          {{one-doc-see-more
+            linkName=(tt this "hint.docLinkName")
+            docPath="using_onedata/datasets.html"
+          }}
+        </p>
+        <div class="btn-toolbar text-right visible-xs-block">
+          {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+            {{tt this "hint.close"}}
+          {{/bs-button}}
+        </div>
+      {{/one-switchable-popover-modal}}
     </h1>
     {{modal-file-subheader files=files}}
   </div>
@@ -31,9 +58,15 @@
                 fileType=(tt this (concat "fileType." fileType))
               }}
             </span>
-            {{one-tooltip
-              title=(tt this (concat "fileProtectionTag." flagState "." protectionType))
+            {{#one-icon
+              icon="sign-question-rounded"
+              class=(concat-classes
+                "hint-trigger clickable"
+                (concat protectionType "-protection-hint-trigger")
+              )
             }}
+              {{one-tooltip title=(tt this (concat "fileProtectionTagTip." flagState "." protectionType))}}
+            {{/one-icon}}
           </div>
         </div>
       {{/with}}
@@ -59,7 +92,17 @@
         </th>
         {{#each (array "data" "metadata") as |protectionType|}}
           <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
-            {{tt this (concat "tableHeaders." protectionType)}}
+            <span class="protection-header-label">
+              {{tt this (concat "tableHeaders." protectionType)}}
+            </span>
+            {{#one-icon
+              icon="sign-question-rounded"
+              class="hint-trigger protection-label-hint-trigger clickable"
+            }}
+              {{one-tooltip
+                title=(tt this (concat "protectionHeaderHint." protectionType))
+              }}
+            {{/one-icon}}
           </th>
         {{/each}}
       </thead>

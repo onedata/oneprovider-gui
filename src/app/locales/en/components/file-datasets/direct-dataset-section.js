@@ -12,4 +12,5 @@ export default {
   destroyingDataset: 'destroying dataset',
   establishingDataset: 'establishing dataset',
   cannotLoadDirectDataset: 'Could not load direct dataset state.',
+  attachToggleTip: '[TODO: VFS-7479] (what does mean that file is marked as dataset; what happens when you disable it)',
 };

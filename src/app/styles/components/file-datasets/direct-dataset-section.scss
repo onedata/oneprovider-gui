@@ -19,7 +19,6 @@
     @include font-semibold;
     label.direct-dataset-attached-label {
       margin: 0;
-      margin-right: 1.5em;
     }
   }
   .flags-configuration {
@@ -44,5 +43,8 @@
   .alert.alert-promise-error {
     @include font-regular;
     font-weight: normal;
+  }
+  .direct-dataset-attached-toggle {
+    margin-left: 1.5em;
   }
 }
