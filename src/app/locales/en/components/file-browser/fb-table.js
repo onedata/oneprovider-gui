@@ -13,6 +13,8 @@ export default {
     upload: 'upload',
     createNewDirectory: 'create a new directory',
     youCanAlso: 'You can also',
+    symlink: 'symlink',
+    hardlink: 'hardlink',
     paste: 'paste',
     filesFromClipboard: 'files from clipboard',
     or: 'or',

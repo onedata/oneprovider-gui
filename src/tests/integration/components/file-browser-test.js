@@ -9,7 +9,7 @@ import Evented from '@ember/object/evented';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
-import { click } from 'ember-native-dom-helpers';
+import { click, triggerEvent } from 'ember-native-dom-helpers';
 import $ from 'jquery';
 
 const UploadManager = Service.extend({
@@ -21,6 +21,8 @@ const UploadManager = Service.extend({
 const FileManager = Service.extend(Evented, {
   fetchDirChildren() {},
   copyOrMoveFile() {},
+  createSymlink() {},
+  createHardlink() {},
   registerRefreshHandler() {},
   deregisterRefreshHandler() {},
   refreshDirChildren() {},
@@ -177,111 +179,106 @@ describe('Integration | Component | file browser', function () {
   // });
 
   it('shows working paste button when invoked file copy from context menu',
-    function () {
-      const dir = {
-        entityId: 'root',
-        name: 'Test directory',
-        index: 'Test directory',
-        type: 'dir',
-        hasParent: false,
-        parent: resolve(null),
-      };
-      const b1 = {
-        entityId: 'f2',
-        name: 'B1',
-        index: 'B1',
-        type: 'dir',
-        hasParent: true,
-        parent: resolve(dir),
-      };
-      const a1 = {
-        entityId: 'f1',
-        name: 'A1',
-        index: 'A1',
-        type: 'file',
-        hasParent: true,
-        parent: resolve(dir),
-      };
-      const files1 = [
-        a1,
-        b1,
-      ];
-      const files2 = [{
-        entityId: 'f3',
-        name: 'A2',
-        index: 'A2',
-        type: 'file',
-        hasParent: true,
-        parent: resolve(dir),
-      }];
-
-      const dirs = [dir, b1, a1];
-
-      this.on('updateDirEntityId', function updateDirEntityId(id) {
-        this.set('dir', dirs.findBy('entityId', id));
+    async function () {
+      mockFilesTree(this, {
+        f1: null,
+        f2: {
+          f3: null,
+        },
       });
-
-      this.setProperties({
-        dir,
-        selectedFiles: Object.freeze([]),
-      });
-
       const fileManager = lookupService(this, 'fileManager');
-      const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
       const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
-      fetchDirChildren.withArgs(
-        'root',
-        sinon.match.any,
-        null,
-        sinon.match.any,
-        0
-      ).resolves({ childrenRecords: files1, isLast: true });
-      fetchDirChildren.withArgs(
-        'f2',
-        sinon.match.any,
-        null,
-        sinon.match.any,
-        0
-      ).resolves({ childrenRecords: files2, isLast: true });
-      fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
-      this.render(hbs `<div id="content-scroll">{{
-        file-browser
+      this.render(hbs `<div id="content-scroll">{{file-browser
         dir=dir
         selectedFiles=selectedFiles
-        updateDirEntityId=(action "updateDirEntityId")
+        updateDirEntityId=updateDirEntityId
         changeSelectedFiles=(action (mut selectedFiles))
       }}</div>`);
 
-      return wait()
-        .then(() => {
-          expect(this.$('.fb-table-row')).to.exist;
-          this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
-          return wait();
-        })
-        .then(() => {
-          return click('.file-action-copy');
-        })
-        .then(() => {
-          expect($('.file-action-paste'), 'file-action-paste').to.exist;
-          const dirRow = this.$('.fb-table-row')[1];
-          dirRow.click();
-          return wait().then(() => ({ dirRow }));
-        })
-        .then(({ dirRow }) => {
-          dirRow.click();
-          dirRow.click();
-          return wait();
-        })
-        .then(() => {
-          return click('.file-action-paste');
-        })
-        .then(() => {
-          expect(copyOrMoveFile)
-            .have.been.calledWith(a1, 'f2', 'copy');
-        });
+      await wait();
+      expect(this.$('.fb-table-row')).to.exist;
+
+      await triggerEvent(this.$('.fb-table-row:contains("f1 name")')[0], 'contextmenu');
+      await click('.file-action-copy');
+
+      expect($('.file-action-paste'), 'file-action-paste').to.exist;
+
+      const dirRow = this.$('.fb-table-row:contains("f2 name")')[0];
+      dirRow.click();
+      await dirRow.click();
+      await click('.file-action-paste');
+
+      expect(copyOrMoveFile).to.have.been
+        .calledWith(this.get('elementsMap.f1'), 'f2', 'copy');
     }
   );
+
+  ['symlink', 'hardlink'].forEach(linkType => {
+    const upperLinkType = _.upperFirst(linkType);
+    it(`shows working ${linkType} button when invoked file link from context menu`,
+      async function () {
+        mockFilesTree(this, {
+          f1: null,
+          f2: {
+            f3: null,
+          },
+        });
+        const fileManager = lookupService(this, 'fileManager');
+        const createLink = sinon.stub(
+          fileManager,
+          `create${upperLinkType}`
+        ).resolves();
+
+        this.render(hbs `<div id="content-scroll">{{file-browser
+          dir=dir
+          selectedFiles=selectedFiles
+          updateDirEntityId=updateDirEntityId
+          changeSelectedFiles=(action (mut selectedFiles))
+        }}</div>`);
+
+        await wait();
+        expect(this.$('.fb-table-row')).to.exist;
+
+        await triggerEvent(this.$('.fb-table-row:contains("f1 name")')[0], 'contextmenu');
+        await click('.file-action-createLink');
+
+        expect($(`.file-action-place${upperLinkType}`)).to.exist
+          .and.to.not.have.class('disabled');
+
+        const dirRow = this.$('.fb-table-row:contains("f2 name")')[0];
+        dirRow.click();
+        await dirRow.click();
+        await click(`.file-action-place${upperLinkType}`);
+
+        const linkTarget = linkType === 'symlink' ?
+          '../f1 name' : this.get('elementsMap.f1');
+        expect(createLink).to.have.been
+          .calledWith('f1 name', this.get('elementsMap.f2'), linkTarget);
+      }
+    );
+  });
+
+  it('has blocked hardlink creation for directories', async function () {
+    mockFilesTree(this, {
+      f1: {},
+    });
+
+    this.render(hbs `<div id="content-scroll">{{file-browser
+      dir=dir
+      selectedFiles=selectedFiles
+      updateDirEntityId=updateDirEntityId
+      changeSelectedFiles=(action (mut selectedFiles))
+    }}</div>`);
+
+    await wait();
+    expect(this.$('.fb-table-row')).to.exist;
+
+    await triggerEvent(this.$('.fb-table-row:contains("f1 name")')[0], 'contextmenu');
+    await click('.file-action-createLink');
+
+    expect($('.file-action-placeHardlink')).to.exist.and.to.have.class('disabled');
+  });
 
   it('shows empty dir message with working new directory button', function () {
     const entityId = 'deid';
@@ -560,3 +557,65 @@ describe('Integration | Component | file browser', function () {
     });
   });
 });
+
+function mockFilesTree(testCase, treeSpec) {
+  const fileManager = lookupService(testCase, 'fileManager');
+  const fetchDirChildrenStub = sinon.stub(fileManager, 'fetchDirChildren');
+
+  const root = {
+    entityId: 'root',
+    name: 'root name',
+    index: 'root name',
+    type: 'dir',
+    hasParent: false,
+    parent: resolve(null),
+  };
+  const elementsMap = {
+    root,
+  };
+
+  const treeElementGeneratorQueue = [{ parent: root, subtreeSpec: treeSpec }];
+  while (treeElementGeneratorQueue.length) {
+    const {
+      parent,
+      subtreeSpec,
+    } = treeElementGeneratorQueue.shift();
+    const subtreeElements = Object.keys(subtreeSpec).map(subElementId => {
+      const isDir = subtreeSpec[subElementId] !== null;
+      const element = {
+        entityId: subElementId,
+        name: `${subElementId} name`,
+        index: `${subElementId} name`,
+        type: isDir ? 'dir' : 'file',
+        hasParent: true,
+        parent: resolve(parent),
+      };
+      elementsMap[subElementId] = element;
+      if (isDir) {
+        treeElementGeneratorQueue.push({
+          parent: element,
+          subtreeSpec: subtreeSpec[subElementId],
+        });
+      }
+      return element;
+    });
+    fetchDirChildrenStub.withArgs(
+      parent.entityId,
+      sinon.match.any,
+      null,
+      sinon.match.any,
+      0,
+      sinon.match.any
+    ).resolves({ childrenRecords: subtreeElements, isLast: true });
+  }
+
+  fetchDirChildrenStub.resolves({ childrenRecords: [], isLast: true });
+
+  testCase.setProperties({
+    elementsMap,
+    fetchDirChildrenStub,
+    updateDirEntityId: id => testCase.set('dir', elementsMap[id]),
+    dir: root,
+    selectedFiles: Object.freeze([]),
+  });
+}

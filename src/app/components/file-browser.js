@@ -558,7 +558,7 @@ export default Component.extend(I18n, {
   }),
 
   btnPlaceHardlink: computed(
-    'fileClipboardFiles.@each.type',
+    'fileClipboardFiles.[]',
     function btnPlaceHardlink() {
       const disabled = this.get('fileClipboardFiles').isAny('type', 'dir');
       return this.createFileAction({
@@ -936,7 +936,7 @@ export default Component.extend(I18n, {
       operationErrorKey: `${i18nPrefix}.linkFailed`,
     }, file => {
       const fileName = get(file, 'index');
-      return fileManager.createSymlink(fileName, pathBase + fileName)
+      return fileManager.createSymlink(fileName, dir, pathBase + fileName)
         .then(() => throttledRefresh());
     });
   },

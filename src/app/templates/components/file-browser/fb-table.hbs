@@ -88,13 +88,31 @@
             {{one-icon icon="browser-new-directory"}}
           </div>&nbsp;{{tt this "emptyDirBox.createNewDirectory"}}</a>.
       </h2>
-      {{#if fileManager.fileClipboardFiles.length}}
+      {{#if fileClipboardFiles.length}}
         <h2 class="empty-dir-text dir-box-text">
           {{tt this "emptyDirBox.youCanAlso"}}
-          <a class="empty-dir-new-directory-action" {{action "emptyDirPaste"}}>
-            <div class="inline-icon-container bind-right-text">
-              {{one-icon icon="clipboard-copy"}}
-            </div>&nbsp;{{tt this "emptyDirBox.paste"}}</a> {{tt this "emptyDirBox.filesFromClipboard"}}.
+          {{#if (eq fileClipboardMode "link")}}
+            <a class="empty-dir-place-symlink-action" {{action "emptyDirPlaceSymlink"}}>
+              <div class="inline-icon-container bind-right-text">
+                {{one-icon icon="plus"}}
+              </div>&nbsp;{{tt this "emptyDirBox.symlink"}}
+            </a>
+            {{#if isHardlinkingPossible}}
+              {{tt this "emptyDirBox.or"}}
+              <a class="empty-dir-place-hardlink-action" {{action "emptyDirPlaceHardlink"}}>
+              <div class="inline-icon-container bind-right-text">
+                {{one-icon icon="text-link"}}
+              </div>&nbsp;{{tt this "emptyDirBox.hardlink"}}
+            </a>
+            {{/if}}
+          {{else}}
+            <a class="empty-dir-paste-action" {{action "emptyDirPaste"}}>
+              <div class="inline-icon-container bind-right-text">
+                {{one-icon icon="clipboard-copy"}}
+              </div>&nbsp;{{tt this "emptyDirBox.paste"}}
+            </a>
+          {{/if}}
+          {{tt this "emptyDirBox.filesFromClipboard"}}.
         </h2>
       {{/if}}
     {{/unless}}
