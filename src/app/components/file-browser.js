@@ -1,7 +1,7 @@
 /**
  * A complete file browser with infinite-scrolled file list, directory
  * breadcrumbs and toolkit for selected files.
- * 
+ *
  * @module components/file-browser
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -22,6 +22,9 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import { next } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
+import _ from 'lodash';
+import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 export const actionContext = {
   none: 'none',
@@ -67,6 +70,9 @@ const buttonNames = [
   'btnDistribution',
   'btnQos',
   'btnRename',
+  'btnCreateLink',
+  'btnPlaceSymlink',
+  'btnPlaceHardlink',
   'btnCopy',
   'btnCut',
   'btnPaste',
@@ -215,7 +221,7 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * One of: move, copy
+   * One of: move, copy, link
    * @type {string}
    */
   fileClipboardMode: null,
@@ -240,12 +246,6 @@ export default Component.extend(I18n, {
    * @type {EmberArray<Models.File>}
    */
   selectedFilesForJump: Object.freeze([]),
-
-  /**
-   * If true, the paste from clipboard button should be available
-   * @type {Computed<boolean>}
-   */
-  clipboardReady: notEmpty('fileClipboardFiles'),
 
   isRootDir: not('dir.hasParent'),
 
@@ -299,7 +299,7 @@ export default Component.extend(I18n, {
   currentDirMenuButtons: computed(
     'allButtonsArray',
     'isRootDir',
-    'clipboardReady',
+    'fileClipboardMode',
     'previewMode',
     function menuButtons() {
       if (this.get('dir.isShareRoot')) {
@@ -308,12 +308,12 @@ export default Component.extend(I18n, {
         const {
           allButtonsArray,
           isRootDir,
-          clipboardReady,
+          fileClipboardMode,
           previewMode,
         } = this.getProperties(
           'allButtonsArray',
           'isRootDir',
-          'clipboardReady',
+          'fileClipboardMode',
           'previewMode',
         );
         const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
@@ -322,7 +322,10 @@ export default Component.extend(I18n, {
           allButtonsArray,
           context
         );
-        if (!clipboardReady) {
+        if (fileClipboardMode !== 'link') {
+          importedActions = importedActions.reject(({ id }) => ['placeSymlink', 'placeHardlink'].includes(id));
+        }
+        if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'cut') {
           importedActions = importedActions.rejectBy('id', 'paste');
         }
         if (get(importedActions, 'length')) {
@@ -525,6 +528,53 @@ export default Component.extend(I18n, {
       ],
     });
   }),
+
+  // FIXME VFS-7419 prepare new icons
+  btnCreateLink: computed(function btnCreateLink() {
+    return this.createFileAction({
+      id: 'createLink',
+      icon: 'text-link',
+      action: (files) => {
+        this.setProperties({
+          fileClipboardFiles: files,
+          fileClipboardMode: 'link',
+        });
+      },
+      showIn: anySelected,
+    });
+  }),
+
+  btnPlaceSymlink: computed(function btnPlaceSymlink() {
+    return this.createFileAction({
+      id: 'placeSymlink',
+      icon: 'plus',
+      action: () => this.placeSymlinks(),
+      showIn: [
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+        actionContext.inDir,
+      ],
+    });
+  }),
+
+  btnPlaceHardlink: computed(
+    'fileClipboardFiles.@each.type',
+    function btnPlaceHardlink() {
+      const disabled = this.get('fileClipboardFiles').isAny('type', 'dir');
+      return this.createFileAction({
+        id: 'placeHardlink',
+        icon: 'text-link',
+        disabled,
+        tip: disabled ? this.t('cannotHardlinkDirectory') : undefined,
+        action: () => this.placeHardlinks(),
+        showIn: [
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+          actionContext.inDir,
+        ],
+      });
+    }
+  ),
 
   btnCopy: computed(function btnCopy() {
     return this.createFileAction({
@@ -800,6 +850,97 @@ export default Component.extend(I18n, {
     });
   },
 
+  async placeHardlinks() {
+    const {
+      dir,
+      fileManager,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      i18nPrefix,
+      fileClipboardFiles,
+    } = this.getProperties(
+      'dir',
+      'fileManager',
+      'globalNotify',
+      'errorExtractor',
+      'i18n',
+      'i18nPrefix',
+      'fileClipboardFiles'
+    );
+
+    const throttledRefresh = createThrottledFunction(
+      () => this.refreshCurrentDir(),
+      1000
+    );
+
+    return handleMultiFilesOperation({
+        files: fileClipboardFiles,
+        globalNotify,
+        errorExtractor,
+        i18n,
+        operationErrorKey: `${i18nPrefix}.linkFailed`,
+      },
+      file => fileManager.createHardlink(get(file, 'index'), dir, file)
+      .then(() => throttledRefresh())
+    );
+  },
+
+  async placeSymlinks() {
+    const {
+      dir,
+      fileManager,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      i18nPrefix,
+      fileClipboardFiles,
+    } = this.getProperties(
+      'dir',
+      'fileManager',
+      'globalNotify',
+      'errorExtractor',
+      'i18n',
+      'i18nPrefix',
+      'fileClipboardFiles'
+    );
+
+    // FIXME: VFS-7370 will change to absolute path probably
+    const dirPath = await resolveFilePath(dir);
+    const clpFilesParentPath =
+      (await resolveFilePath(fileClipboardFiles[0])).slice(0, -1);
+    let deepestCommonParent = dirPath[0];
+    for (let i = 0; dirPath[i] && dirPath[i] === clpFilesParentPath[i]; i++) {
+      deepestCommonParent = dirPath[i];
+    }
+    const deepestCommonParentNesting = dirPath.indexOf(deepestCommonParent);
+    const goUpNTimes = dirPath.length - deepestCommonParentNesting - 1;
+    const clpParentPathRelativeToCommonParent =
+      clpFilesParentPath.slice(deepestCommonParentNesting + 1);
+
+    let pathBase = (_.times(goUpNTimes, _.constant('..')).join('/') || '.') + '/';
+    if (clpParentPathRelativeToCommonParent.length) {
+      pathBase += clpParentPathRelativeToCommonParent.mapBy('index').join('/') + '/';
+    }
+
+    const throttledRefresh = createThrottledFunction(
+      () => this.refreshCurrentDir(),
+      1000
+    );
+
+    return handleMultiFilesOperation({
+      files: fileClipboardFiles,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      operationErrorKey: `${i18nPrefix}.linkFailed`,
+    }, file => {
+      const fileName = get(file, 'index');
+      return fileManager.createSymlink(fileName, pathBase + fileName)
+        .then(() => throttledRefresh());
+    });
+  },
+
   selectCurrentDir(select = true) {
     if (select) {
       const {
@@ -808,6 +949,10 @@ export default Component.extend(I18n, {
       } = this.getProperties('changeSelectedFiles', 'dir');
       return changeSelectedFiles([dir]);
     }
+  },
+
+  refreshCurrentDir() {
+    return this.get('fileManager').dirChildrenRefresh(this.get('dir.entityId'));
   },
 
   actions: {

@@ -1,6 +1,6 @@
 /**
  * Provides model functions related to files and directories.
- * 
+ *
  * @module services/production/file-manager
  * @author Michał Borzęcki, Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -28,7 +28,7 @@ export default Service.extend({
   fileTableComponents: computed(() => []),
 
   /**
-   * @param {String} fileId 
+   * @param {String} fileId
    * @param {String} scope one of: private, public
    * @returns {Promise<Models.File>}
    */
@@ -38,35 +38,43 @@ export default Service.extend({
   },
 
   /**
-   * Creates new file or directory
-   * @param {string} type `file` or `dir`
-   * @param {string} name 
-   * @param {Models.File} parent 
-   * @param {number} [createAttempts=undefined]
+   * Creates child element in given directory.
+   * @param {Models.File} directory
+   * @param {String} type
+   * @param {String} name
+   * @param {Object|undefined} creationOptions
    * @returns {Promise<Models.File>}
    */
-  createFileOrDirectory(type, name, parent, createAttempts = undefined) {
-    let _meta;
-    if (createAttempts) {
-      _meta = {
-        additionalData: {
-          createAttempts,
-        },
-      };
-    }
+  createDirectoryChild(directory, type, name, creationOptions = undefined) {
+    const _meta = creationOptions && Object.keys(creationOptions).length ? {
+      additionalData: creationOptions,
+    } : undefined;
 
     return this.get('store').createRecord(fileModelName, {
       type,
       name,
-      parent,
+      parent: directory,
       _meta,
     }).save();
   },
 
   /**
+   * Creates new file or directory
+   * @param {string} type `file` or `dir`
+   * @param {string} name
+   * @param {Models.File} parent
+   * @param {number} [createAttempts=undefined]
+   * @returns {Promise<Models.File>}
+   */
+  createFileOrDirectory(type, name, parent, createAttempts = undefined) {
+    const creationOptions = createAttempts ? { createAttempts } : undefined;
+    return this.createDirectoryChild(parent, type, name, creationOptions);
+  },
+
+  /**
    * Creates new file
-   * @param {string} name 
-   * @param {Models.File} parent 
+   * @param {string} name
+   * @param {Models.File} parent
    * @param {number} [createAttempts=undefined]
    * @returns {Promise<Models.File>}
    */
@@ -76,13 +84,37 @@ export default Service.extend({
 
   /**
    * Creates new directory
-   * @param {string} name 
-   * @param {Models.File} parent 
+   * @param {string} name
+   * @param {Models.File} parent
    * @param {number} [createAttempts=undefined]
    * @returns {Promise<Models.File>}
    */
   createDirectory(name, parent, createAttempts = undefined) {
     return this.createFileOrDirectory('dir', name, parent, createAttempts);
+  },
+
+  /**
+   * Creates new symlink to a given path
+   * @param {String} name
+   * @param {Models.File} parent
+   * @param {String} targetPath
+   * @returns {Promise<Models.File>}
+   */
+  createSymlink(name, parent, targetPath) {
+    return this.createDirectoryChild(parent, 'symlink', name, { targetPath });
+  },
+
+  /**
+   * Creates new hardlink to a given file
+   * @param {String} name
+   * @param {Models.File} parent
+   * @param {Models.File} target
+   * @returns {Promise<Models.File>}
+   */
+  createHardlink(name, parent, target) {
+    return this.createDirectoryChild(parent, 'hardlink', name, {
+      targetGuid: get(target, 'entityId'),
+    });
   },
 
   /**
@@ -98,7 +130,7 @@ export default Service.extend({
 
   /**
    * Sends an RPC call that ends upload of given file.
-   * @param {Models.File} file 
+   * @param {Models.File} file
    * @returns {Promise}
    */
   finalizeFileUpload(file) {
@@ -211,7 +243,7 @@ export default Service.extend({
 
   /**
    * Invokes request for refresh in all known file browser tables
-   * @param {Array<object>} parentDirEntityId 
+   * @param {Array<object>} parentDirEntityId
    * @returns {Array<object>}
    */
   dirChildrenRefresh(parentDirEntityId) {

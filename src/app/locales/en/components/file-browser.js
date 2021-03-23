@@ -20,10 +20,12 @@ export default {
     move: 'moving some of files',
     copy: 'copying some of files',
   },
+  linkFailed: 'linking some of files',
   pasteFailedDetails: {
     single: '{{reason}}',
     multi: '{{reason}} and {{moreCount}} more errors',
   },
+  cannotHardlinkDirectory: 'Creating hardlinks for directories is not available.',
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',
@@ -35,6 +37,9 @@ export default {
     qos: 'Quality of Service',
     distribution: 'Data distribution',
     rename: 'Rename',
+    createLink: 'Create link',
+    placeSymlink: 'Place symlink',
+    placeHardlink: 'Place hardlink',
     copy: 'Copy',
     cut: 'Cut',
     delete: 'Delete',

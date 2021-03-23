@@ -1,7 +1,7 @@
 /**
  * Icon buttons with some operations on the currenlty opened directory.
  * Currently there are only operations of creating/uploading new files.
- * 
+ *
  * @module components/file-browser/fb-toolbar
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -43,9 +43,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {boolean}
+   * @type {String}
    */
-  clipboardReady: undefined,
+  fileClipboardMode: undefined,
 
   /**
    * @virtual optional
@@ -55,18 +55,25 @@ export default Component.extend(I18n, {
 
   toolbarButtons: computed(
     'allButtonsArray',
-    'clipboardReady',
+    'fileClipboardMode',
     function toolbarButtons() {
       const {
         allButtonsArray,
-        clipboardReady,
+        fileClipboardMode,
         previewMode,
-      } = this.getProperties('allButtonsArray', 'clipboardReady', 'previewMode');
+      } = this.getProperties(
+        'allButtonsArray',
+        'fileClipboardMode',
+        'previewMode'
+      );
       let actions = getButtonActions(
         allButtonsArray,
         previewMode ? 'inDirPreview' : 'inDir'
       );
-      if (!clipboardReady) {
+      if (fileClipboardMode !== 'link') {
+        actions = actions.reject(({ id }) => ['placeSymlink', 'placeHardlink'].includes(id));
+      }
+      if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'cut') {
         actions = actions.rejectBy('id', 'paste');
       }
       return actions;
@@ -79,6 +86,9 @@ export default Component.extend(I18n, {
 
   actions: {
     buttonClicked(button) {
+      if (get(button, 'disabled')) {
+        return;
+      }
       this.get('selectCurrentDir')(false);
       return get(button, 'action')();
     },
