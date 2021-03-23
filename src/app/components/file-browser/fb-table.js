@@ -41,9 +41,7 @@ export default Component.extend(I18n, {
 
   fileManager: service(),
   i18n: service(),
-  globalNotify: service(),
   errorExtractor: service(),
-  isMobile: service(),
 
   /**
    * @override
@@ -106,6 +104,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
+   * @type {(fileIds: Array<String>) => Promise}
+   */
+  downloadFiles: notImplementedIgnore,
+
+  /**
+   * @virtual optional
    * @type {(api: { refresh: Function }) => undefined}
    */
   registerApi: notImplementedIgnore,
@@ -128,6 +132,12 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   previewMode: false,
+
+  /**
+   * @virtual
+   * @type {EmberArray<String>}
+   */
+  loadingIconFileIds: undefined,
 
   /**
    * @type {Boolean}
@@ -541,7 +551,11 @@ export default Component.extend(I18n, {
       fileManager,
       registerApi,
       api,
-    } = this.getProperties('fileManager', 'registerApi', 'api');
+      loadingIconFileIds,
+    } = this.getProperties('fileManager', 'registerApi', 'api', 'loadingIconFileIds');
+    if (!loadingIconFileIds) {
+      this.set('loadingIconFileIds', A());
+    }
     fileManager.registerRefreshHandler(this);
     registerApi(api);
   },
@@ -836,24 +850,6 @@ export default Component.extend(I18n, {
     }
   },
 
-  downloadUsingIframe(fileUrl) {
-    const _body = this.get('_body');
-    const iframe = $('<iframe/>').attr({
-      src: fileUrl,
-      style: 'display:none;',
-    }).appendTo(_body);
-    // the time should be long to support some download extensions in Firefox desktop
-    later(() => iframe.remove(), 60000);
-  },
-
-  downloadUsingOpen(fileUrl) {
-    // Apple devices such as iPad tries to open file using its embedded viewer
-    // in any browser, but we cannot say if the file extension is currently supported
-    // so we try to open every file in new tab.
-    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
-    this.get('_window').open(fileUrl, target);
-  },
-
   openFile(file, confirmModal = false) {
     const isDir = get(file, 'type') === 'dir';
     if (isDir) {
@@ -862,7 +858,7 @@ export default Component.extend(I18n, {
       if (confirmModal) {
         this.set('downloadModalFile', file);
       } else {
-        return this.downloadFile(get(file, 'entityId'));
+        return this.get('downloadFiles')([file]);
       }
     }
   },
@@ -983,36 +979,6 @@ export default Component.extend(I18n, {
     return nearestIndex;
   },
 
-  downloadFile(fileEntityId) {
-    const {
-      fileManager,
-      globalNotify,
-      isMobile,
-      previewMode,
-    } = this.getProperties('fileManager', 'globalNotify', 'isMobile', 'previewMode');
-    const isMobileBrowser = get(isMobile, 'any');
-    return fileManager.getFileDownloadUrl(
-        fileEntityId,
-        previewMode ? 'public' : 'private'
-      )
-      .then((data) => {
-        const fileUrl = data && get(data, 'fileUrl');
-        if (fileUrl) {
-          if (isMobileBrowser) {
-            this.downloadUsingOpen(fileUrl);
-          } else {
-            this.downloadUsingIframe(fileUrl);
-          }
-        } else {
-          throw { isOnedataCustomError: true, type: 'empty-file-url' };
-        }
-      })
-      .catch((error) => {
-        globalNotify.backendError(this.t('startingDownload'), error);
-        throw error;
-      });
-  },
-
   actions: {
     openContextMenu(file, mouseEvent) {
       const selectedFiles = this.get('selectedFiles');
@@ -1112,7 +1078,7 @@ export default Component.extend(I18n, {
     },
 
     confirmDownload() {
-      return this.downloadFile(this.get('downloadModalFile.entityId'));
+      return this.get('downloadFiles')([this.get('downloadModalFile')]);
     },
   },
 });

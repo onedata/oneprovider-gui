@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
 import { equal, raw } from 'ember-awesome-macros';
-import { get, computed, getProperties } from '@ember/object';
+import { get, computed, getProperties, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -36,7 +36,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     'isSelected:file-selected',
     'fileCut:file-cut',
     'isInvalidated:is-invalidated',
-    'isLoadingDownload:is-loading-download',
+    'isLoadingOnIcon:is-loading-on-icon',
   ],
   attributeBindings: ['fileEntityId:data-row-id'],
 
@@ -381,6 +381,21 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 
+  loadingOnIconTransitionObserver: observer(
+    'isLoadingOnIcon',
+    function loadingOnIconTransitionObserver() {
+      if (this.get('isLoadingOnIcon')) {
+        scheduleOnce('afterRender', () => {
+          const spinner =
+            this.element.querySelector('.file-info-container .on-icon-loading-spinner');
+          if (spinner) {
+            spinner.classList.add('start-transition');
+          }
+        });
+      }
+    }
+  ),
+
   didInsertElement() {
     this._super(...arguments);
     const {
@@ -428,21 +443,10 @@ export default Component.extend(I18n, FastDoubleClick, {
     this.get('fastClick')(clickEvent);
   },
 
-  _fastDoubleClick() {
+  async _fastDoubleClick() {
     const fileDoubleClicked = this.get('fileDoubleClicked');
     if (fileDoubleClicked && typeof fileDoubleClicked === 'function') {
-      const promise = fileDoubleClicked();
-      if (promise && promise.finally) {
-        this.set('isLoadingDownload', true);
-        scheduleOnce('afterRender', () => {
-          const spinner =
-            this.element.querySelector('.file-info-container .download-loading-spinner');
-          spinner.classList.add('start-transition');
-        });
-        promise.finally(() => {
-          safeExec(this, 'set', 'isLoadingDownload', false);
-        });
-      }
+      await fileDoubleClicked();
     }
   },
 
