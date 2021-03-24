@@ -9,13 +9,18 @@
  */
 
 import Component from '@ember/component';
-import { get, computed } from '@ember/object';
+import { get, computed, observer } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import { cancel, later, schedule } from '@ember/runloop';
+import { inject as service } from '@ember/service';
+import config from 'ember-get-config';
 
 export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
+
+  media: service(),
 
   /**
    * @override
@@ -48,10 +53,43 @@ export default Component.extend(I18n, {
   fileClipboardMode: undefined,
 
   /**
+   * @virtual
+   * @type {Array<Models.File>}
+   */
+  fileClipboardFiles: undefined,
+
+  /**
    * @virtual optional
    * @type {boolean}
    */
   previewMode: false,
+
+  /**
+   * @type {Boolean}
+   */
+  isClipboardHintVisible: false,
+
+  /**
+   * @type {any}
+   */
+  clipboardHintHideTimer: undefined,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  clipboardHintTargetSelector: computed(
+    'elementId',
+    'fileClipboardMode',
+    function clipboardHintTargetSelector() {
+      const {
+        elementId,
+        fileClipboardMode,
+      } = this.getProperties('elementId', 'fileClipboardMode');
+
+      const targetActionName = fileClipboardMode === 'link' ? 'placeSymlink' : 'paste';
+      return `#${elementId} .file-action-${targetActionName} .one-icon`;
+    }
+  ),
 
   toolbarButtons: computed(
     'allButtonsArray',
@@ -73,7 +111,7 @@ export default Component.extend(I18n, {
       if (fileClipboardMode !== 'link') {
         actions = actions.reject(({ id }) => ['placeSymlink', 'placeHardlink'].includes(id));
       }
-      if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'cut') {
+      if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
         actions = actions.rejectBy('id', 'paste');
       }
       return actions;
@@ -84,6 +122,37 @@ export default Component.extend(I18n, {
     return this.get('toolbarButtons').mapBy('id');
   }),
 
+  fileClipboardModeObserver: observer(
+    'fileClipboardMode',
+    'fileClipboardFiles',
+    function fileClipboardModeObserver() {
+      const {
+        isClipboardHintVisible,
+        fileClipboardMode,
+        clipboardHintHideTimer,
+      } = this.getProperties(
+        'isClipboardHintVisible',
+        'fileClipboardMode',
+        'clipboardHintHideTimer'
+      );
+
+      cancel(clipboardHintHideTimer);
+      if (fileClipboardMode) {
+        const timer = later(
+          this,
+          () => this.set('isClipboardHintVisible', false),
+          config.environment === 'test' ? 1 : 7000
+        );
+        this.setProperties({
+          isClipboardHintVisible: true,
+          clipboardHintHideTimer: timer,
+        });
+      } else if (isClipboardHintVisible) {
+        this.set('isClipboardHintVisible', false);
+      }
+    }
+  ),
+
   actions: {
     buttonClicked(button) {
       if (get(button, 'disabled')) {
@@ -91,6 +160,13 @@ export default Component.extend(I18n, {
       }
       this.get('selectCurrentDir')(false);
       return get(button, 'action')();
+    },
+    clipboardHintVisibleChange(state) {
+      if (!state && this.get('isClipboardHintVisible')) {
+        // Must schedule afterRender, because setting it directly is not reflected
+        // in template rerender. Even after notifyPropertyChange.
+        schedule('afterRender', () => this.set('isClipboardHintVisible', false));
+      }
     },
   },
 });

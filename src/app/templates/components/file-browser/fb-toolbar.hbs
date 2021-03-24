@@ -13,3 +13,34 @@
     </div>
   {{/each}}
 </div>
+{{#if (and isClipboardHintVisible (not media.isMobile))}}
+  <div>
+    {{#one-webui-popover
+      popoverTrigger="manual"
+      popoverStyle="clipboard-help"
+      triggerSelector=clipboardHintTargetSelector
+      open=true
+      placement="bottom"
+      onToggle=(action "clipboardHintVisibleChange")
+      as |popover|
+    }}
+      {{#click-outside action=(action (mut isClipboardHintVisible) false)}}
+        {{#if (eq fileClipboardMode "link")}}
+          {{tt this "clipboardHint.link.beforeSymlinkIcon"}}
+          {{one-icon icon="plus"}}
+          {{tt this "clipboardHint.link.beforeHardlinkIcon"}}
+          {{one-icon icon="text-link"}}
+          {{tt this "clipboardHint.link.afterHardlinkIcon"}}
+        {{else if (eq fileClipboardMode "copy")}}
+          {{tt this "clipboardHint.copy.beforePasteIcon"}}
+          {{one-icon icon="browser-paste"}}
+          {{tt this "clipboardHint.copy.afterPasteIcon"}}
+        {{else if (eq fileClipboardMode "move")}}
+          {{tt this "clipboardHint.move.beforePasteIcon"}}
+          {{one-icon icon="browser-paste"}}
+          {{tt this "clipboardHint.move.afterPasteIcon"}}
+        {{/if}}
+      {{/click-outside}}
+    {{/one-webui-popover}}
+  </div>
+{{/if}}

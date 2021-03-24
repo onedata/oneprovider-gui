@@ -19,7 +19,7 @@ import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
-import { next } from '@ember/runloop';
+import { next, schedule } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
@@ -325,7 +325,7 @@ export default Component.extend(I18n, {
         if (fileClipboardMode !== 'link') {
           importedActions = importedActions.reject(({ id }) => ['placeSymlink', 'placeHardlink'].includes(id));
         }
-        if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'cut') {
+        if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
           importedActions = importedActions.rejectBy('id', 'paste');
         }
         if (get(importedActions, 'length')) {
@@ -536,8 +536,12 @@ export default Component.extend(I18n, {
       icon: 'text-link',
       action: (files) => {
         this.setProperties({
-          fileClipboardFiles: files,
+          fileClipboardFiles: files.slice(),
           fileClipboardMode: 'link',
+        });
+        schedule('afterRender', () => {
+          animateCss(this.$('.fb-toolbar-button.file-action-placeSymlink')[0], 'pulse-mint');
+          animateCss(this.$('.fb-toolbar-button.file-action-placeHardlink')[0], 'pulse-mint');
         });
       },
       showIn: anySelected,
@@ -581,9 +585,12 @@ export default Component.extend(I18n, {
       id: 'copy',
       action: (files) => {
         this.setProperties({
-          fileClipboardFiles: files,
+          fileClipboardFiles: files.slice(),
           fileClipboardMode: 'copy',
         });
+        schedule('afterRender', () =>
+          animateCss(this.$('.fb-toolbar-button.file-action-paste')[0], 'pulse-mint')
+        );
       },
       showIn: anySelected,
     });
@@ -594,9 +601,12 @@ export default Component.extend(I18n, {
       id: 'cut',
       action: (files) => {
         this.setProperties({
-          fileClipboardFiles: files,
+          fileClipboardFiles: files.slice(),
           fileClipboardMode: 'move',
         });
+        schedule('afterRender', () =>
+          animateCss(this.$('.fb-toolbar-button.file-action-paste')[0], 'pulse-mint')
+        );
       },
       showIn: anySelected,
     });
