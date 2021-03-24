@@ -44,6 +44,24 @@ describe('Integration | Component | file browser/fb table row', function () {
     expect(this.$('.fb-table-col-modification').text()).to.match(dateReadable);
   });
 
+  it('does not render "refs" file tag, when references count equals 1', function () {
+    this.set('file', createFile({ referencesCount: 1 }));
+
+    this.render(hbs `{{file-browser/fb-table-row file=file }}`);
+
+    expect(this.$('.file-status-references'), 'refs tag').to.not.exist;
+  });
+
+  it('renders "refs" file tag, when references count equals 2', function () {
+    this.set('file', createFile({ referencesCount: 2 }));
+
+    this.render(hbs `{{file-browser/fb-table-row file=file }}`);
+
+    const $tag = this.$('.file-status-references');
+    expect($tag, 'refs tag').to.exist;
+    expect($tag.text().trim()).to.equal('Refs: 2');
+  });
+
   describe('renders "no access" file tag when', function () {
     itRendersNoAccess('user owns file and has no user read posix permissions', {
       file: createFile({ posixPermissions: '377' }),

@@ -1,6 +1,6 @@
 /**
  * Single file/directory row in files list.
- * 
+ *
  * @module components/file-browser/fb-table-row
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { equal, raw } from 'ember-awesome-macros';
+import { equal, raw, or } from 'ember-awesome-macros';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -380,6 +380,8 @@ export default Component.extend(I18n, FastDoubleClick, {
   hasDirectQos: reads('file.hasDirectQos'),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
+
+  referencesCount: or('file.referencesCount', raw(1)),
 
   didInsertElement() {
     this._super(...arguments);

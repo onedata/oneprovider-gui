@@ -10,6 +10,7 @@ export default {
     file: 'You don\'t have permissions to read this file ',
   },
   status: {
+    references: 'Refs: {{referencesCount}}',
     shared: 'Shared',
     metadata: 'Meta',
     qos: 'QoS',

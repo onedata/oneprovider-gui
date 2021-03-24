@@ -33,6 +33,11 @@
             {{/truncated-string}}
           </div>
           <div class="file-status-bar">
+            {{#if (and (not previewMode) (gt referencesCount 1))}}
+              <div class="file-status-tag file-status-references">
+                {{tt this "status.references" referencesCount=referencesCount}}
+              </div>
+            {{/if}}
             {{#if (and (not previewMode) isShared)}}
               <div class="file-status-tag file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
                 {{tt this "status.shared"}}
@@ -80,7 +85,7 @@
                   (if hasDirectQos "file-status-qos-direct")
                   (if qosViewForbidden "file-status-tag-disabled")
                 }}
-                {{action 
+                {{action
                   (if qosViewForbidden
                     (no-action)
                     (action "invokeFileAction" file "btnQos")

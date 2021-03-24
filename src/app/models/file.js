@@ -67,6 +67,7 @@ export default Model.extend(
     hasEffQos: attr('boolean'),
     hasDirectQos: attr('boolean'),
     sharesCount: attr('number'),
+    referencesCount: attr('number', { defaultValue: 1 }),
 
     /**
      * Modification time in UNIX timestamp format.
