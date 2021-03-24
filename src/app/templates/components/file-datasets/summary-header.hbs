@@ -1,0 +1,74 @@
+<div class="modal-header-text">
+  <h1 class="datasets-modal-header">
+    <span class="header-text">
+      {{tt this "datasets"}}
+    </span>
+    <div class="inline-icon-container">
+      {{one-icon
+        icon="sign-question-rounded"
+        class="hint-trigger datasets-header-hint-trigger clickable"
+      }}
+    </div>
+    {{#one-switchable-popover-modal
+      class="datasets-show-hint datasets-hint"
+      triggersConfiguration=".datasets-header-hint-trigger"
+      popoverStyle="datasets-show-hint-info over-modals"
+      as |ospm|
+    }}
+      <h1>{{tt this "hint.title"}}</h1>
+      <p>{{tt this "hint.intro"}}</p>
+      <p>{{tt this "hint.guide"}}</p>
+      <p>
+        {{one-doc-see-more
+          linkName=(tt this "hint.docLinkName")
+          docPath="using_onedata/datasets.html"
+        }}
+      </p>
+      <div class="btn-toolbar text-right visible-xs-block">
+        {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+          {{tt this "hint.close"}}
+        {{/bs-button}}
+      </div>
+    {{/one-switchable-popover-modal}}
+  </h1>
+  {{modal-file-subheader files=(array file)}}
+</div>
+<div class="modal-header-effective-info datasets-effective-protection-info">
+  {{#each (array "data" "metadata") as |protectionType|}}
+    {{#with (if
+      (get this (concat protectionType "IsProtectedForFile")) "enabled" "disabled")
+      as |flagState|
+    }}
+      <div class="labels-container">
+        <div class={{concat-classes
+          "label label-modal-header-large protected-tag"
+          (concat "protected-tag-" flagState)
+          (concat protectionType "-protected-tag")
+        }}>
+          {{one-icon
+            class="protection-tag-status-icon"
+            icon=(get protectionIcons protectionType)
+          }}
+          <span class="protected-text">
+            {{tt this (concat "fileProtectionTag." flagState "." protectionType)
+              fileType=(tt this (concat "fileType." fileType))
+            }}
+          </span>
+          {{#one-icon
+            icon="sign-question-rounded"
+            class=(concat-classes
+              "hint-trigger clickable"
+              (concat protectionType "-protection-hint-trigger")
+            )
+          }}
+            {{one-tooltip
+              title=(tt this
+                (concat "fileProtectionTagTip." flagState "." protectionType)
+              )
+            }}
+          {{/one-icon}}
+        </div>
+      </div>
+    {{/with}}
+  {{/each}}
+</div>

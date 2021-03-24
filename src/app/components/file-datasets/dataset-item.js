@@ -1,7 +1,7 @@
 /**
  * Entry with information about an effective dataset for file/directory. 
  *
- * @module components/file-datasets/inherited-dataset
+ * @module components/file-datasets/dataset-item
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -19,14 +19,14 @@ import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
-  classNames: ['inherited-dataset'],
+  classNames: ['dataset-item'],
 
   datasetManager: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDatasets.inheritedDataset',
+  i18nPrefix: 'components.fileDatasets.datasetItem',
 
   /**
    * @virtual

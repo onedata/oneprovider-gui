@@ -1,0 +1,40 @@
+{{#if directDatasetProxy.isFulfilled}}
+  {{#file-datasets/dataset-item
+    class=(concat-classes
+      "datasets-item direct-dataset-item datasets-item-head-row"
+      (if directDataset.isAttached
+        "direct-dataset-item-attached"
+        "direct-dataset-item-detached"
+      )
+    )
+    dataset=directDataset
+    readonly=(not directDataset.isAttached)
+    protectionIcons=protectionIcons
+    readonlyMessage=directDatasetFlagsReadonlyMessage
+  }}
+    <div class="dataset-label-section">
+      {{one-icon
+        class="path-icon direct-dataset-icon"
+        icon=directDatasetRowIcon
+      }}
+      {{#truncated-string class="dataset-label direct-dataset-name"}}
+        {{label}}
+      {{/truncated-string}}
+    </div>
+  {{/file-datasets/dataset-item}}
+{{else}}
+  <tr
+    class="datasets-item loadable-row dataset-loadable-row direct-dataset-loadable-row"
+  >
+    <td colspan="3">
+      {{#if directDatasetProxy.isRejected}}
+        {{resource-load-error
+          message=(tt this "cannotLoadDirectDataset")
+          reason=directDatasetProxy.reason
+        }}
+      {{else}}
+        {{spin-spinner-block class="direct-dataset-spinner" sizeClass="xs"}}
+      {{/if}}
+    </td>
+  </tr>
+{{/if}}

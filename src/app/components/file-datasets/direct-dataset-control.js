@@ -1,7 +1,7 @@
 /**
  * Control of dataset estabilished directly for some file/directory 
  *
- * @module components/file-dataset/direct-dataset-section
+ * @module components/file-dataset/direct-dataset-control
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -15,7 +15,7 @@ import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 export default Component.extend(I18n, {
-  classNames: ['direct-dataset-section'],
+  classNames: ['direct-dataset-control'],
 
   datasetManager: service(),
   globalNotify: service(),
@@ -23,7 +23,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDatasets.directDatasetSection',
+  i18nPrefix: 'components.fileDatasets.directDatasetControl',
 
   /**
    * @virtual

@@ -16,6 +16,8 @@ import { promise } from 'ember-awesome-macros';
 import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend({
+  tagName: '',
+
   /**
    * @virtual
    * @type {Array<Models.Dataset>}

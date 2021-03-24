@@ -109,9 +109,9 @@ function testDirectDatasetShow(isAttached) {
     render(this);
     await wait();
 
-    const $directDatasetSection = this.$('.direct-dataset-section');
-    expect($directDatasetSection, 'direct dataset section').exist;
-    const $toggle = $directDatasetSection.find('.direct-dataset-attached-toggle');
+    const $directDatasetControl = this.$('.direct-dataset-control');
+    expect($directDatasetControl, 'direct dataset section').exist;
+    const $toggle = $directDatasetControl.find('.direct-dataset-attached-toggle');
     expect($toggle, 'direct-dataset-attached-toggle').to.exist;
     const toggleHelper = new ToggleHelper($toggle);
     expect(toggleHelper.isChecked()).to.equal(isAttached);

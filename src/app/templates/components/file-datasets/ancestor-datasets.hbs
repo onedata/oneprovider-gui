@@ -1,0 +1,98 @@
+{{#if ancestorDatasetsProxy.isFulfilled}}
+  {{#if ancestorDatasets.length}}
+    {{#file-datasets/dataset-item
+      class=(concat-classes
+        "datasets-item parent-group-datasets-item datasets-item-head-row"
+        (if parentDatasetsCollapsed "closed" "opened")
+      )
+      dataset=virtualParentDataset
+      readonly=true
+      protectionIcons=protectionIcons
+      readonlyMessage=(tt this "summaryParentsReadonlyFlags")
+      click=(action "toggleParentDatasetsCollapse")
+    }}
+      <div class="parents-collapse-text">
+        <div class="dataset-label-section">
+          {{#one-icon
+            class="path-icon"
+            icon="browser-info"
+          }}
+            {{one-tooltip title=(tt this "parentDatasetsTip")}}
+          {{/one-icon}}
+          <div class="dataset-label">
+            {{tt this "parentDatasets"}} ({{ancestorDatasets.length}})
+          </div>
+          <div class={{concat-classes
+            "inline-icon-container collapse-icon-container"
+            (if parentDatasetsCollapsed "closed" "opened")
+          }}>
+            {{one-icon
+              class="collapse-icon"
+              icon="arrow-down"
+            }}
+          </div>
+        </div>
+      </div>
+    {{/file-datasets/dataset-item}}
+    {{#file-datasets/datasets-list-container
+      datasets=ancestorDatasets
+      as |sortedDataList|
+    }}
+      {{#each sortedDataList as |data|}}
+        {{file-datasets/dataset-item
+          class=(concat-classes
+            "datasets-item parent-dataset-item"
+            (if parentDatasetsCollapsed "closed" "opened")
+          )
+          dataset=data.dataset
+          filePath=data.filePath
+          readonly=false
+          readonlyMessage=insufficientEditPrivilegesMessage
+          protectionIcons=protectionIcons
+          getDataUrl=(action getDataUrl)
+        }}
+      {{/each}}
+    {{/file-datasets/datasets-list-container}}
+  {{else}}
+    <tr
+      class="dataset-item datasets-item datasets-item-head-row no-parent-datasets-row"
+    >
+      <td class="no-parent-datasets-cell col-dataset-info">
+        <span class="parents-collapse-text parents-collapse-text-empty">
+          <div class="dataset-label-section">
+            {{#one-icon
+              class="path-icon no-dataset-icon"
+              icon="browser-info"
+            }}
+              {{one-tooltip title=(tt this "noParentDatasetsTip")}}
+            {{/one-icon}}
+            <div class="dataset-label no-parent-datasets-text">
+              {{tt this "noParentDatasets"}}
+            </div>
+          </div>
+        </span>
+      </td>
+      <td class="col-dataset-protection"></td>
+      <td class="col-dataset-protection"></td>
+    </tr>
+  {{/if}}
+{{else}}
+  <tr
+    class="datasets-item loadable-row dataset-loadable-row dataset-items-loadable-row"
+  >
+    {{#if ancestorDatasetsProxy.isRejected}}
+      <td class="col-dataset-info" colspan="3">
+        {{resource-load-error
+          message=(tt this "cannotLoadAncestorDatasets")
+          reason=ancestorDatasetsProxy.reason
+        }}
+      </td>
+    {{else}}
+      <td class="col-dataset-info">
+        {{spin-spinner-block class="dataset-items-spinner" sizeClass="xs"}}
+      </td>
+      <td class="col-dataset-protection col-dataset-protection-data"></td>
+      <td class="col-dataset-protection col-dataset-protection-metadata"></td>
+    {{/if}}
+  </tr>
+{{/if}}

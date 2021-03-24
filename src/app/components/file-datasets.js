@@ -16,10 +16,8 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { promise, or, and, not, raw, eq, conditional } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
+import { promise } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['file-datasets'],
@@ -66,26 +64,6 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {Boolean}
-   */
-  parentDatasetsCollapsed: true,
-
-  /**
-   * A dataset-like object that have summary of parent datasets protection flags
-   * @type {ComputedProperty<Object>}
-   */
-  virtualParentDataset: computed('inheritedDatasets', function virtualParentDataset() {
-    const inheritedDatasets = this.get('inheritedDatasets');
-    if (inheritedDatasets) {
-      return {
-        isAttached: true,
-        dataIsProtected: inheritedDatasets.isAny('dataIsProtected'),
-        metadataIsProtected: inheritedDatasets.isAny('metadataIsProtected'),
-      };
-    }
-  }),
-
-  /**
    * Text displayed in various places when settings cannot be edited due to lack of
    * privileges.
    * @type {ComputedProperty<SafeString>}
@@ -100,28 +78,10 @@ export default Component.extend(I18n, {
     }
   ),
 
-  directDatasetFlagsReadonlyMessage: or(
-    and(not('editPrivilege'), 'insufficientEditPrivilegesMessage'),
-    and(not('directDataset.isAttached'), computedT('notAttachedReadonlyFlags')),
-    raw(null)
-  ),
-
   /**
    * @type {ComputedProperty<Models.File>}
    */
   file: reads('files.firstObject'),
-
-  fileType: or('file.type', raw('file')),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  dataIsProtectedForFile: hasProtectionFlag('file.effProtectionFlags', 'data'),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  metadataIsProtectedForFile: hasProtectionFlag('file.effProtectionFlags', 'metadata'),
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
@@ -172,9 +132,9 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
    */
-  inheritedDatasetsProxy: promise.array(computed(
+  ancestorDatasetsProxy: promise.array(computed(
     'fileDatasetSummaryProxy',
-    async function inheritedDatasets() {
+    async function ancestorDatasets() {
       const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
       return await get(fileDatasetSummary, 'effectiveAncestorDatasets');
       // TODO: VFS-7414 there are problems with reloading hasMany relation while
@@ -188,22 +148,5 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Models.Dataset>}
    */
-  inheritedDatasets: reads('inheritedDatasetsProxy.content'),
-
-  directDatasetRowIcon: conditional(
-    'directDataset.isAttached',
-    raw('browser-dataset'),
-    conditional(
-      eq('file.type', 'file'),
-      raw('browser-file'),
-      raw('browser-directory'),
-    ),
-  ),
-
-  actions: {
-    toggleParentDatasetsCollapse() {
-      const collapsed = this.get('parentDatasetsCollapsed');
-      this.set('parentDatasetsCollapsed', !collapsed);
-    },
-  },
+  ancestorDatasets: reads('ancestorDatasetsProxy.content'),
 });

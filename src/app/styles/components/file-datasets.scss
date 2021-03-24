@@ -16,7 +16,7 @@ $dataset-write-unprotected-color: #596E99;
       opacity: 0.6;
     }
   }
-  .modal-header {
+  .file-datasets-summary-header {
     display: flex;
     justify-content: space-between;
     .modal-header-text {
@@ -263,5 +263,5 @@ $dataset-write-unprotected-color: #596E99;
   
 }
 
-@import './file-datasets/direct-dataset-section';
-@import './file-datasets/inherited-dataset';
+@import './file-datasets/direct-dataset-control';
+@import './file-datasets/dataset-item';

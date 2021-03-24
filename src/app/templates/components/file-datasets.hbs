@@ -1,77 +1,8 @@
-{{log dataIsProtectedForFile}}
-{{log metadataIsProtectedForFile}}
-
 {{#modal.header}}
-  <div class="modal-header-text">
-    <h1 class="datasets-modal-header">
-      <span class="header-text">
-        {{tt this "datasets"}}
-      </span>
-      <div class="inline-icon-container">
-        {{one-icon
-          icon="sign-question-rounded"
-          class="hint-trigger datasets-header-hint-trigger clickable"
-        }}
-      </div>
-      {{#one-switchable-popover-modal
-        class="datasets-show-hint datasets-hint"
-        triggersConfiguration=".datasets-header-hint-trigger"
-        popoverStyle="datasets-show-hint-info over-modals"
-        as |ospm|
-      }}
-        <h1>{{tt this "hint.title"}}</h1>
-        <p>{{tt this "hint.intro"}}</p>
-        <p>{{tt this "hint.guide"}}</p>
-        <p>
-          {{one-doc-see-more
-            linkName=(tt this "hint.docLinkName")
-            docPath="using_onedata/datasets.html"
-          }}
-        </p>
-        <div class="btn-toolbar text-right visible-xs-block">
-          {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
-            {{tt this "hint.close"}}
-          {{/bs-button}}
-        </div>
-      {{/one-switchable-popover-modal}}
-    </h1>
-    {{modal-file-subheader files=files}}
-  </div>
-  <div class="modal-header-effective-info datasets-effective-protection-info">
-    {{#each (array "data" "metadata") as |protectionType|}}
-      {{#with (if
-        (get this (concat protectionType "IsProtectedForFile")) "enabled" "disabled")
-        as |flagState|
-      }}
-        <div class="labels-container">
-          <div class={{concat-classes
-            "label label-modal-header-large protected-tag"
-            (concat "protected-tag-" flagState)
-            (concat protectionType "-protected-tag")
-          }}>
-            {{one-icon
-              class="protection-tag-status-icon"
-              icon=(get protectionIcons protectionType)
-            }}
-            <span class="protected-text">
-              {{tt this (concat "fileProtectionTag." flagState "." protectionType)
-                fileType=(tt this (concat "fileType." fileType))
-              }}
-            </span>
-            {{#one-icon
-              icon="sign-question-rounded"
-              class=(concat-classes
-                "hint-trigger clickable"
-                (concat protectionType "-protection-hint-trigger")
-              )
-            }}
-              {{one-tooltip title=(tt this (concat "fileProtectionTagTip." flagState "." protectionType))}}
-            {{/one-icon}}
-          </div>
-        </div>
-      {{/with}}
-    {{/each}}
-  </div>
+  {{file-datasets/summary-header
+    file=file
+    protectionIcons=protectionIcons
+  }}
 {{/modal.header}}
 
 {{#modal.body}}
@@ -84,7 +15,7 @@
     <table class="table table-striped datasets-table">
       <thead>
         <th class="col-dataset-info">
-          {{file-datasets/direct-dataset-section
+          {{file-datasets/direct-dataset-control
             file=file
             directDatasetProxy=directDatasetProxy
             readonlyMessage=insufficientEditPrivilegesMessage
@@ -106,147 +37,18 @@
           </th>
         {{/each}}
       </thead>
-      <tbody class="parent-datasets-tbody">
-        {{#if inheritedDatasetsProxy.isFulfilled}}
-          {{#if inheritedDatasets.length}}
-            {{#file-datasets/inherited-dataset
-              class=(concat-classes
-                "datasets-item parent-group-datasets-item datasets-item-head-row"
-                (if parentDatasetsCollapsed "closed" "opened")
-              )
-              dataset=virtualParentDataset
-              readonly=true
-              protectionIcons=protectionIcons
-              readonlyMessage=(tt this "summaryParentsReadonlyFlags")
-              click=(action "toggleParentDatasetsCollapse")
-            }}
-              <div class="parents-collapse-text">
-                <div class="dataset-label-section">
-                  {{#one-icon
-                    class="path-icon"
-                    icon="browser-info"
-                  }}
-                    {{one-tooltip title=(tt this "parentDatasetsTip")}}
-                  {{/one-icon}}
-                  <div class="dataset-label">
-                    {{tt this "parentDatasets"}} ({{inheritedDatasets.length}})
-                  </div>
-                  <div class={{concat-classes
-                    "inline-icon-container collapse-icon-container"
-                    (if parentDatasetsCollapsed "closed" "opened")
-                  }}>
-                    {{one-icon
-                      class="collapse-icon"
-                      icon="arrow-down"
-                    }}
-                  </div>
-                </div>
-              </div>
-            {{/file-datasets/inherited-dataset}}
-            {{#file-datasets/datasets-list-container
-              tagName=""
-              datasets=inheritedDatasets
-              as |sortedDataList|
-            }}
-              {{#each sortedDataList as |data|}}
-                {{file-datasets/inherited-dataset
-                  class=(concat-classes
-                    "datasets-item parent-dataset-item"
-                    (if parentDatasetsCollapsed "closed" "opened")
-                  )
-                  dataset=data.dataset
-                  filePath=data.filePath
-                  readonly=false
-                  readonlyMessage=insufficientEditPrivilegesMessage
-                  protectionIcons=protectionIcons
-                  getDataUrl=(action getDataUrl)
-                }}
-              {{/each}}
-            {{/file-datasets/datasets-list-container}}
-          {{else}}
-            <tr
-              class="inherited-dataset datasets-item datasets-item-head-row no-parent-datasets-row"
-            >
-              <td class="no-parent-datasets-cell col-dataset-info">
-                <span class="parents-collapse-text parents-collapse-text-empty">
-                  <div class="dataset-label-section">
-                    {{#one-icon
-                      class="path-icon no-dataset-icon"
-                      icon="browser-info"
-                    }}
-                      {{one-tooltip title=(tt this "noParentDatasetsTip")}}
-                    {{/one-icon}}
-                    <div class="dataset-label no-parent-datasets-text">
-                      {{tt this "noParentDatasets"}}
-                    </div>
-                  </div>
-                </span>
-              </td>
-              <td class="col-dataset-protection col-dataset-protection-data"></td>
-              <td class="col-dataset-protection col-dataset-protection-metadata"></td>
-            </tr>
-          {{/if}}
-        {{else}}
-          <tr class="datasets-item loadable-row dataset-loadable-row inherited-datasets-loadable-row">
-            {{#if inheritedDatasetsProxy.isRejected}}
-              <td class="col-dataset-info" colspan="3">
-                {{resource-load-error
-                  message=(tt this "cannotLoadAncestorDatasets")
-                  reason=inheritedDatasetsProxy.reason
-                }}
-              </td>
-            {{else}}
-              <td class="col-dataset-info">
-                {{spin-spinner-block class="inherited-datasets-spinner" sizeClass="xs"}}
-              </td>
-              <td class="col-dataset-protection col-dataset-protection-data"></td>
-              <td class="col-dataset-protection col-dataset-protection-metadata"></td>
-            {{/if}}
-          </tr>
-        {{/if}}
-      </tbody>
-      <tbody class="direct-dataset-tbody">
-        {{#if directDatasetProxy.isFulfilled}}
-          {{#file-datasets/inherited-dataset
-            class=(concat-classes
-              "datasets-item direct-dataset-item datasets-item-head-row"
-              (if directDataset.isAttached
-                "direct-dataset-item-attached"
-                "direct-dataset-item-detached"
-              )
-            )
-            dataset=directDataset
-            readonly=(not directDataset.isAttached)
-            protectionIcons=protectionIcons
-            readonlyMessage=directDatasetFlagsReadonlyMessage
-          }}
-            <div class="dataset-label-section">
-              {{one-icon
-                class="path-icon direct-dataset-icon"
-                icon=directDatasetRowIcon
-              }}
-              {{#truncated-string class="dataset-label direct-dataset-name"}}
-                {{file.name}}
-              {{/truncated-string}}
-            </div>            
-          {{/file-datasets/inherited-dataset}}
-        {{else}}
-          <tr
-            class="datasets-item loadable-row dataset-loadable-row direct-dataset-loadable-row"
-          >
-            <td colspan="3">
-              {{#if directDatasetProxy.isRejected}}
-                {{resource-load-error
-                  message=(tt this "cannotLoadDirectDataset")
-                  reason=directDatasetProxy.reason
-                }}
-              {{else}}
-                {{spin-spinner-block class="direct-dataset-spinner" sizeClass="xs"}}
-              {{/if}}
-            </td>
-          </tr>
-        {{/if}}
-      </tbody>
+      {{file-datasets/ancestor-datasets
+        ancestorDatasetsProxy=ancestorDatasetsProxy
+        protectionIcons=protectionIcons
+        getDataUrl=(action getDataUrl)
+      }}
+      {{file-datasets/direct-dataset
+        file=file
+        directDatasetProxy=directDatasetProxy
+        editPrivilege=editPrivilege
+        protectionIcons=protectionIcons
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+      }}
     </table>
   {{/promise-proxy-container}}
 {{/modal.body}}
