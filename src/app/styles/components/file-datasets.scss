@@ -1,5 +1,13 @@
 // TODO: VFS-7404 this file is not-production-ready
 
+// NOTE: these colors were designed and its hard to generate them programatically
+$dataset-write-protected-color-bg: #FCF0D7;
+$dataset-write-protected-color-border: #FFD47E;
+$dataset-write-protected-color: #FFB10D;
+$dataset-write-unprotected-color-bg: #E6E9F0;
+$dataset-write-unprotected-color-border: #B1BACF;
+$dataset-write-unprotected-color: #596E99;
+
 .file-datasets {
   .hint-trigger {
     margin-left: 0.4em;
@@ -58,17 +66,17 @@
           }
         }
         &.protected-tag-enabled {
-          background-color: #FCF0D7;
-          border-color: #ffd47e;
+          background-color: $dataset-write-protected-color-bg;
+          border-color: $dataset-write-protected-color-border;
           .one-icon.protection-tag-status-icon {
-            color: #FFB10D;
+            color: $dataset-write-protected-color;
           }
         }
         &.protected-tag-disabled {
-          background-color: #E6E9F0;
-          border-color: #B1BACF;
+          background-color: $dataset-write-unprotected-color-bg;
+          border-color: $dataset-write-unprotected-color-border;
           .one-icon.protection-tag-status-icon {
-            color: #596E99;
+            color: $dataset-write-unprotected-color;
           }
         }
         .hint-trigger {
@@ -238,6 +246,21 @@
       transform: translateX(-50%);
     }
   }
+  
+  .one-way-toggle.flag-toggle {
+    $dataset-write-unprotected-toggle-color: mix(
+      $toggle-bg-color-unchecked,
+      $dataset-write-unprotected-color,
+      50%
+    );
+    &.unchecked {
+      @include toggle-color($dataset-write-unprotected-toggle-color);
+    }
+    &.checked {
+      @include toggle-color($dataset-write-protected-color);
+    }
+  }
+  
 }
 
 @import './file-datasets/direct-dataset-section';

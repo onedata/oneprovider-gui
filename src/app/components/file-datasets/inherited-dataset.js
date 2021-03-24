@@ -59,6 +59,13 @@ export default Component.extend(I18n, {
   getDataUrl: notImplementedIgnore,
 
   /**
+   * Mapping of protection type (data or metadata) to name of icon representing it
+   * @virtual
+   * @type {Object}
+   */
+  protectionIcons: undefined,
+
+  /**
    * Name of icon for enabled flag
    * @type {String}
    */

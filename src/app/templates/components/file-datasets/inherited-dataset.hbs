@@ -28,6 +28,7 @@
         spinnerSide=(if media.isMobile "left" "right")
         isReadOnly=readonly
         lockHint=readonlyMessage
+        icon=(get protectionIcons protectionType)
         update=(action "toggleDatasetProtectionFlag" (concat protectionType "_protection"))
       }}
     </div>
