@@ -18,6 +18,7 @@
           {{file-datasets/direct-dataset-control
             file=file
             directDatasetProxy=directDatasetProxy
+            readonly=(not editPrivilege)
             readonlyMessage=insufficientEditPrivilegesMessage
           }}
         </th>
@@ -40,12 +41,14 @@
       {{file-datasets/ancestor-datasets
         ancestorDatasetsProxy=ancestorDatasetsProxy
         protectionIcons=protectionIcons
+        readonly=(not editPrivilege)
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
         getDataUrl=(action getDataUrl)
       }}
       {{file-datasets/direct-dataset
         file=file
         directDatasetProxy=directDatasetProxy
-        editPrivilege=editPrivilege
+        readonly=(not editPrivilege)
         protectionIcons=protectionIcons
         insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
       }}

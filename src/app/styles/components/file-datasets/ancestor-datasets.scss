@@ -1,0 +1,51 @@
+.file-datasets-ancestor-datasets {
+  .parent-dataset-item {
+    > td {
+      border-top: 0;
+      transition: transition-ease(all);
+      > * {
+        transition: transition-ease(max-height);
+      }
+    }
+    &.opened {
+      > td {
+        > * {
+          max-height: auto;
+          overflow-y: unset;
+        }
+      }
+    }
+    &.closed {
+      > td {
+        line-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        > * {
+          max-height: 0px;
+          overflow-y: hidden;
+        }
+      }
+    }
+  }
+  .collapse-icon-container {
+    margin-left: 0.5em;
+  }
+  .parents-collapse-text {
+    font-style: italic;
+    .dataset-label {
+      // italic style can cause text to be trimmed visually on some browsers
+      padding-right: 0.2em;
+    }
+  }
+  .collapse-icon-container {
+    .collapse-icon {
+      transition: transition-ease(transform);
+    }
+    &.closed .collapse-icon {
+      transform: translateY(-50%) rotate(0deg);
+    }
+    &.opened .collapse-icon {
+      transform: translateY(-50%) rotate(180deg);
+    }
+  }
+}

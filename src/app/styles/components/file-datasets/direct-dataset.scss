@@ -1,0 +1,11 @@
+.file-datasets-direct-dataset {
+  .direct-dataset-item {
+    > td {
+      border-top: 0;
+    }
+    .col-dataset-info {
+      transition: transition-ease(opacity);
+      @include font-semibold;
+    }
+  }
+}

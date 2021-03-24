@@ -1,8 +1,4 @@
-// TODO: VFS-7404 this file is not-production-ready
-
 .direct-dataset-control {
-  display: flex;
-  flex-direction: column;
   .direct-dataset-loadable-row.loadable-row {
     min-height: 2em;
   }
@@ -20,25 +16,6 @@
     label.direct-dataset-attached-label {
       margin: 0;
     }
-  }
-  .flags-configuration {
-    margin-top: 20px;
-  }
-  .flag-row {
-    display: flex;
-    align-items: center;
-    padding-left: 40px;
-    margin-top: 12px;
-    :first-child {
-      margin-top: 0;
-    }
-    label {
-      margin: 0;
-      margin-left: 18px;
-    }
-  }
-  .remove-dataset-row {
-    text-align: right;
   }
   .alert.alert-promise-error {
     @include font-regular;

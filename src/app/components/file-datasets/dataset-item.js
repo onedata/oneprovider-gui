@@ -8,25 +8,18 @@
  */
 
 import Component from '@ember/component';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, and } from 'ember-awesome-macros';
+import { and } from 'ember-awesome-macros';
 import { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
 
-export default Component.extend(I18n, {
+export default Component.extend({
   tagName: 'tr',
   classNames: ['dataset-item'],
 
   datasetManager: service(),
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.fileDatasets.datasetItem',
 
   /**
    * @virtual
@@ -120,63 +113,6 @@ export default Component.extend(I18n, {
   metadataIsProtected: and(
     'isAttached',
     'dataset.metadataIsProtected',
-  ),
-
-  // TODO: VFS-7404 below computed properties with classes, text and icons are not
-  // refactored because they can be not necessary when new design will be implemented
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  dataFlagIcon: conditional(
-    'isDataProtected',
-    'enabledIcon',
-    'disabledIcon',
-  ),
-
-  /**
-   * @type {ComputedProperty<SafeString>}
-   */
-  dataFlagLabelText: conditional(
-    'isDataProtected',
-    computedT('writeProtection.data.enabled'),
-    computedT('writeProtection.data.disabled'),
-  ),
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  flagDataRowClass: conditional(
-    'isDataProtected',
-    raw('enabled'),
-    raw('disabled'),
-  ),
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  metadataFlagIcon: conditional(
-    'isMetadataProtected',
-    'enabledIcon',
-    'disabledIcon',
-  ),
-
-  /**
-   * @type {ComputedProperty<SafeString>}
-   */
-  metadataFlagLabelText: conditional(
-    'isMetadataProtected',
-    computedT('writeProtection.metadata.enabled'),
-    computedT('writeProtection.metadata.disabled'),
-  ),
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  flagMetadataRowClass: conditional(
-    'isMetadataProtected',
-    raw('enabled'),
-    raw('disabled'),
   ),
 
   actions: {

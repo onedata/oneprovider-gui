@@ -19,7 +19,7 @@ export default Component.extend({
   mockBackend: service(),
 
   files: collect(
-    'mockBackend.entityRecords.chainDir.0',
+    'mockBackend.entityRecords.chainDir.2',
   ),
 
   file: reads('files.firstObject'),

@@ -17,7 +17,7 @@ import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   tagName: 'tbody',
-  classNames: ['ancestor-datasets'],
+  classNames: ['file-datasets-ancestor-datasets'],
 
   i18n: service(),
 

@@ -1,4 +1,4 @@
-// TODO: VFS-7404 this file is not-production-ready
+// NOTE: needs $toggle-bg-color-* from file-datasets styles
 
 .dataset-item {
   .dataset-label-section {
@@ -22,6 +22,19 @@
         // thanks to this, "/" do not go to end when using direction: rtl
         unicode-bidi: plaintext;
       }
+    }
+  }
+  .one-way-toggle.flag-toggle {
+    $dataset-write-unprotected-toggle-color: mix(
+      $toggle-bg-color-unchecked,
+      $dataset-write-unprotected-color,
+      50%
+    );
+    &.unchecked {
+      @include toggle-color($dataset-write-unprotected-toggle-color);
+    }
+    &.checked {
+      @include toggle-color($dataset-write-protected-color);
     }
   }
 }

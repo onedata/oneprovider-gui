@@ -1,5 +1,4 @@
 import summaryHeader from './file-datasets/summary-header';
-import datasetItem from './file-datasets/dataset-item';
 import directDatasetControl from './file-datasets/direct-dataset-control';
 import directDataset from './file-datasets/direct-dataset';
 import ancestorDatasets from './file-datasets/ancestor-datasets';
@@ -19,6 +18,5 @@ export default {
   summaryHeader,
   ancestorDatasets,
   directDataset,
-  datasetItem,
   directDatasetControl,
 };

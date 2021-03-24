@@ -16,7 +16,7 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   tagName: 'tbody',
-  classNames: ['direct-dataset'],
+  classNames: ['file-datasets-direct-dataset'],
 
   i18n: service(),
 
@@ -42,7 +42,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Boolean}
    */
-  editPrivilege: true,
+  readonly: false,
 
   /**
    * @virtual
