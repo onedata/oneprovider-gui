@@ -47,7 +47,7 @@ describe('Integration | Component | datasets modal', function () {
     this.render(hbs `{{datasets-modal open=open files=files onHide=onHide}}`);
     await wait();
     expect($('.datasets-modal.in')).to.exist;
-    expect($('.datasets-modal.in .file-datasets')).to.exist;
+    expect($('.datasets-modal.in .file-datasets-modal-header')).to.exist;
     expect($('.modal-file-subheader .file-name')).to.contain('test-file.txt');
     expect(this.get('onHide')).to.have.not.been.called;
     await click('.close-btn');

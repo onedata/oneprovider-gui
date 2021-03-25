@@ -13,7 +13,6 @@ import { equal, reads } from '@ember/object/computed';
 import { and, tag } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
-import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
   classNames: ['direct-dataset-control'],
