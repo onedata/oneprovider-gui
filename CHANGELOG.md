@@ -6,6 +6,9 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7368 Added support for compressed directory and multiple files download
+* VFS-7427 Changed copiable REST URLs into curl commands
+* VFS-7293 Added copyable REST URLs for shares and shared files, shares UX improvements 
 * VFS-7385 Removed op_replica occurrences
 * VFS-6842 Fixed JS console errors while scrolling file transfers list
 * VFS-7349 Fixed share root dir view crash after adding isLast flag support

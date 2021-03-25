@@ -29,6 +29,8 @@ export default {
     newDirectory: 'New directory',
     refresh: 'Refresh',
     info: 'Information',
+    download: 'Download',
+    downloadTarGz: 'Download (tar.gz)',
     share: 'Share',
     metadata: 'Metadata',
     datasets: 'Datasets',
