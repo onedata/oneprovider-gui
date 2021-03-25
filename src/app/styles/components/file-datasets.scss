@@ -6,8 +6,6 @@ $dataset-write-unprotected-color-bg: #E6E9F0;
 $dataset-write-unprotected-color-border: #B1BACF;
 $dataset-write-unprotected-color: #596E99;
 
-// file-datasets is mainly used inside modal, but we cannot use element tag as a parent
-// of modal elements (header/body/footer), so it is a tagless component with styled parts
 .file-datasets-part {
   .hint-trigger {
     margin-left: 0.4em;
@@ -17,86 +15,75 @@ $dataset-write-unprotected-color: #596E99;
     }
   }
   .table.datasets-table {
-    table-layout: fixed;
-    &.table-striped {
-      $row-bg-lighter: lighten($table-bg-accent, 1%);
-      $row-bg-darker: darken($table-bg-accent, 1%);
-      $row-bg-darkest: darken($table-bg-accent, 2%);
-      tbody > tr:nth-of-type(2n+1) {
-        background-color: $row-bg-lighter
-      }
-      tbody > tr.datasets-item-head-row {
-        background-color: $row-bg-darker;
-        &.no-parent-datasets-row, &.parent-group-datasets-item.closed {
-          background-color: transparent;
-        }
-        &:hover.parent-group-datasets-item {
-          background-color: $row-bg-darkest;
-        }
-      }
-    }
     > tbody + tbody {
       border-top-width: 0;
     }
     tbody > tr > td {
       border-top: 0;
     }
-    td {
-      border-right: 1px solid $table-border-color;
-    }
-    th.col-dataset-protection {
-      $padding-bottom: 1em;
-      position: relative;
-      width: 12em;
-      padding-top: 2em;
-      padding-bottom: 1em;
-      padding-left: 2em;
-      padding-right: 2em;
-      text-align: center;
-      .protection-label-hint-trigger {
-        position: absolute;
-        right: 0.3em;
-        bottom: calc(#{$padding-bottom} + 0.2em);
+  }
+}
+
+// file-datasets is mainly used inside modal, but we cannot use element tag as a parent
+// of modal elements (header/body/footer), so it is a tagless component with styled parts
+@media (min-width: $screen-sm-min) {
+  .file-datasets-part {    
+    // common styles for sub-components
+    .direct-dataset-item-detached, .no-parent-datasets-row {
+      .col-dataset-info {
+        opacity: $disabled-opacity;
+        @include font-regular;
       }
     }
-    .flag-toggle {
-      position: relative;
-      width: 100%;
-      .one-way-toggle-control {
+    .dataset-loadable-row {
+      .alert.alert-promise-error {
+        margin: 0;
+      }
+      .spin-spinner-block {
         position: relative;
         left: 50%;
         transform: translateX(-50%);
       }
-      .one-way-toggle-readonly-icon {
+    }
+    .table.datasets-table {
+      table-layout: fixed;
+      &.table-striped {
+        $row-bg-lighter: lighten($table-bg-accent, 1%);
+        $row-bg-darker: darken($table-bg-accent, 1%);
+        $row-bg-darkest: darken($table-bg-accent, 2%);
+        tbody > tr:nth-of-type(2n+1) {
+          background-color: $row-bg-lighter
+        }
+        tbody > tr.dataset-item-head-row {
+          background-color: $row-bg-darker;
+          &.no-parent-datasets-row, &.parent-group-dataset-item.closed {
+            background-color: transparent;
+          }
+          &:hover.parent-group-dataset-item {
+            background-color: $row-bg-darkest;
+          }
+        }
+      }
+      th.col-dataset-protection {
+        $padding-bottom: 1em;
         position: relative;
-        left: 50%;
-        transform: translateX(-50%) translateX(-12px);
+        width: 12em;
+        padding-top: 2em;
+        padding-bottom: 1em;
+        padding-left: 2em;
+        padding-right: 2em;
+        text-align: center;
+        .protection-label-hint-trigger {
+          position: absolute;
+          right: 0.3em;
+          bottom: calc(#{$padding-bottom} + 0.2em);
+        }
       }
-      .one-way-toggle-spinner {
-        left: 50%;
-        right: auto;
-        transform: translateX(38px);
+      td {
+        border-right: 1px solid $table-border-color;
       }
     }
   }
-  
-  // common styles for sub-components
-  .direct-dataset-item-detached, .no-parent-datasets-row {
-    .col-dataset-info {
-      opacity: $disabled-opacity;
-      @include font-regular;
-    }
-  }
-  .dataset-loadable-row {
-    .alert.alert-promise-error {
-      margin: 0;
-    }
-    .spin-spinner-block {
-      position: relative;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-  }  
 }
 
 @media (max-width: $screen-xs-max) {
@@ -112,7 +99,6 @@ $dataset-write-unprotected-color: #596E99;
     }
     .datasets-table-head .col-dataset-info {
       padding-top: 1em;
-      padding-bottom: 1em;
     }
     .direct-dataset-attached-label {
       flex-grow: 1;
@@ -121,62 +107,20 @@ $dataset-write-unprotected-color: #596E99;
     .direct-dataset-attached-toggle {
       margin-left: 0;
     }
-    table.table.table-striped.datasets-table { 
+    .table.datasets-table { 
       display: block; 
       thead, tbody, th, td, tr {
         display: block;
       }
-      > .datasets-table-head {
+      .datasets-table-head {
         margin-bottom: 1em;
         th.col-dataset-protection {
           display: none;
         }
       }
-      tbody.datasets-table-tbody {
-        .datasets-item-head-row {
-          background-color: transparent;
-          &:hover {
-            background-color: transparent;
-          }
-          &.closed {
-            td {
-              padding-top: 0;
-              padding-bottom: 0; 
-            }
-          }
-          // &.datasets-item-head-row, &.parent-dataset-item.opened, &.direct-dataset-item {
-          td {
-            padding-top: 0.6em;
-            padding-bottom: 0.6em;
-          }
-          // }
-          &.parent-group-datasets-item {
-            .col-dataset-protection {
-              display: none;
-            }
-          }
-          td {
-            border: none;
-            padding-left: 0;
-            padding-right: 0;
-          }
-          .col-dataset-protection {
-            display: flex;
-            align-items: center;
-            label {
-              flex-grow: 1;
-              margin-bottom: 0;
-            }
-          }
-        }
-      }
-      .attach-dataset-hint-trigger {
-        display: none;
-      }
     }
   }
 }
-
 
 @import './file-datasets/direct-dataset-control';
 @import './file-datasets/dataset-item';

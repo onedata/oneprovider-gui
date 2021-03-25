@@ -2,7 +2,7 @@
   {{#if ancestorDatasets.length}}
     {{#file-datasets/dataset-item
       class=(concat-classes
-        "datasets-item parent-group-datasets-item datasets-item-head-row"
+        "parent-group-dataset-item dataset-item-head-row"
         (if parentDatasetsCollapsed "closed" "opened")
       )
       dataset=virtualParentDataset
@@ -41,7 +41,7 @@
       {{#each sortedDataList as |data|}}
         {{file-datasets/dataset-item
           class=(concat-classes
-            "datasets-item parent-dataset-item"
+            "parent-dataset-item"
             (if parentDatasetsCollapsed "closed" "opened")
           )
           dataset=data.dataset
@@ -55,7 +55,7 @@
     {{/file-datasets/datasets-list-container}}
   {{else}}
     <tr
-      class="dataset-item datasets-item datasets-item-head-row no-parent-datasets-row"
+      class="dataset-item dataset-item-head-row no-parent-datasets-row"
     >
       <td class="no-parent-datasets-cell col-dataset-info">
         <span class="parents-collapse-text parents-collapse-text-empty">
@@ -78,7 +78,7 @@
   {{/if}}
 {{else}}
   <tr
-    class="datasets-item loadable-row dataset-loadable-row dataset-items-loadable-row"
+    class="dataset-item loadable-row dataset-loadable-row dataset-items-loadable-row"
   >
     {{#if ancestorDatasetsProxy.isRejected}}
       <td class="col-dataset-info" colspan="3">

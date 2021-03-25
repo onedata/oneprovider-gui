@@ -37,4 +37,52 @@
       @include toggle-color($dataset-write-protected-color);
     }
   }
+  @media (min-width: $screen-sm-min) {
+    .flag-toggle {
+      position: relative;
+      width: 100%;
+      .one-way-toggle-control {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .one-way-toggle-readonly-icon {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%) translateX(-12px);
+      }
+      .one-way-toggle-spinner {
+        left: 50%;
+        right: auto;
+        transform: translateX(32px);
+      }
+    }
+  }
+}
+
+@media (max-width: $screen-xs-max) {
+  .table.datasets-table tbody.datasets-table-tbody .dataset-item {
+    td {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    &:not(.closed) {
+      padding-top: 0.6em;
+      padding-bottom: 0.6em;
+      td {
+        padding-top: 0.6em;
+        padding-bottom: 0.6em;
+      }
+    }
+    .col-dataset-protection {
+      .dataset-protection-control {
+        display: flex;
+        align-items: center;
+        label {
+          flex-grow: 1;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
 }

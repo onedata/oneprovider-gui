@@ -8,4 +8,10 @@
       @include font-semibold;
     }
   }
+  
+  @media (max-width: $screen-xs-max) {
+    .attach-dataset-hint-trigger {
+      display: none;
+    }
+  }
 }

@@ -20,11 +20,8 @@
     {{#if directDatasetProxy.isFulfilled}}
       {{one-way-toggle
         inputId=toggleId
+        class="direct-dataset-attached-toggle"
         checked=isDatasetAttached
-        class=(concat-classes
-          "direct-dataset-attached-toggle"
-          (if media.isMobile "pull-right")
-        )
         spinnerSide=(if media.isMobile "left" "right")
         isReadOnly=readonly
         lockHint=readonlyMessage

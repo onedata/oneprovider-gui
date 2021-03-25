@@ -12,7 +12,7 @@
     class="loadable-row file-dataset-summary-loadable-row"
     customErrorMessage=(tt this "cannotLoadFileDatasetSummary")
   }}
-    <table class="table table-striped datasets-table">
+    <table class="table datasets-table {{unless media.isMobile "table-striped"}}">
       <thead class="datasets-table-head">
         <th class="col-dataset-info">
           {{file-datasets/direct-dataset-control

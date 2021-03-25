@@ -1,7 +1,7 @@
 {{#if directDatasetProxy.isFulfilled}}
   {{#file-datasets/dataset-item
     class=(concat-classes
-      "datasets-item direct-dataset-item datasets-item-head-row"
+      "direct-dataset-item dataset-item-head-row"
       (if directDataset.isAttached
         "direct-dataset-item-attached"
         "direct-dataset-item-detached"
@@ -24,7 +24,7 @@
   {{/file-datasets/dataset-item}}
 {{else}}
   <tr
-    class="datasets-item loadable-row dataset-loadable-row direct-dataset-loadable-row"
+    class="loadable-row dataset-loadable-row direct-dataset-loadable-row"
   >
     <td colspan="3">
       {{#if directDatasetProxy.isRejected}}

@@ -49,3 +49,19 @@
     }
   }
 }
+
+@media (max-width: $screen-xs-max) {
+  .table.datasets-table tbody.datasets-table-tbody {
+    .parent-group-dataset-item.dataset-item {
+      &.opened, &.closed {
+        .col-dataset-info {
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+      }
+      .col-dataset-protection {
+        display: none;
+      }
+    } 
+  }
+}
