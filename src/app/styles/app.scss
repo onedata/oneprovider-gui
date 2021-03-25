@@ -13,6 +13,7 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'layout';
 @import 'dummy';
 @import 'ace-config';
+@import 'oneprovider-common';
 @import 'components/acl-editor';
 @import 'components/content-file-browser';
 @import 'components/content-space-shares';

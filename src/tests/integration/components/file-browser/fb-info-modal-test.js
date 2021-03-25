@@ -1,111 +1,306 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, context, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import {
   file1,
+  fileParent1,
   owner1,
   exampleCdmiObjectId,
 } from 'oneprovider-gui/components/dummy-file-info';
+import { registerService, lookupService } from '../../../helpers/stub-service';
 import wait from 'ember-test-helpers/wait';
+import Service from '@ember/service';
+import sinon from 'sinon';
+import { click, findAll } from 'ember-native-dom-helpers';
+import { clickTrigger } from '../../../helpers/ember-power-select';
+import $ from 'jquery';
+
+const returnDummyUrl = () => 'https://dummy';
+
+const RestGenerator = Service.extend({
+  listSharedDirectoryChildren: returnDummyUrl,
+  downloadSharedFileContent: returnDummyUrl,
+  getSharedFileAttributes: returnDummyUrl,
+  getSharedFileJsonMetadata: returnDummyUrl,
+  getSharedFileRdfMetadata: returnDummyUrl,
+  getSharedFileExtendedAttributes: returnDummyUrl,
+});
+
+const urlTypeTranslations = {
+  listSharedDirectoryChildren: 'List directory files and subdirectories',
+  downloadSharedFileContent: 'Download file content',
+  getSharedFileAttributes: 'Get attributes',
+  getSharedFileJsonMetadata: 'Get JSON metadata',
+  getSharedFileRdfMetadata: 'Get RDF metadata',
+  getSharedFileExtendedAttributes: 'Get extended attributes (xattrs)',
+};
+
+// checking only significant fragments to not duplicate whole world
+const urlTypeDescriptionTranslations = {
+  listSharedDirectoryChildren: 'returns the list of directory',
+  downloadSharedFileContent: 'returns the binary file',
+  getSharedFileAttributes: 'returns basic attributes',
+  getSharedFileJsonMetadata: 'returns custom JSON',
+  getSharedFileRdfMetadata: 'returns custom RDF',
+  getSharedFileExtendedAttributes: 'returns custom extended',
+};
 
 describe('Integration | Component | file browser/fb info modal', function () {
   setupComponentTest('file-browser/fb-info-modal', {
     integration: true,
   });
 
-  it('renders file name', function () {
-    this.set('file1', file1);
-
-    this.render(hbs `{{file-browser/fb-info-modal
-      open=true
-      file=file1
-    }}`);
-
-    expect(
-      this.$('.file-info-row-name .property-value .clipboard-input').val()
-    ).to.contain(file1.name);
+  beforeEach(function () {
+    registerService(this, 'restGenerator', RestGenerator);
   });
 
-  it('renders file path asynchronously', function () {
-    this.set('file1', file1);
+  // NOTE: context is not used for async render tests, because mocha's context is buggy
 
-    this.render(hbs `{{file-browser/fb-info-modal
-      open=true
-      file=file1
-    }}`);
+  it('renders file path asynchronously', async function (done) {
+    this.set('file', file1);
+
+    render(this);
 
     expect(this.$('.loading-file-path'), 'loading-file-path').to.exist;
-    return wait()
-      .then(() => {
-        expect(this.$('.loading-file-path'), 'loading-file-path').to.not.exist;
-        expect(
-          this.$('.file-info-row-path .property-value .clipboard-input').val()
-        ).to.contain(file1.name);
-      });
+    await wait();
+    expect(this.$('.loading-file-path'), 'loading-file-path').to.not.exist;
+    expect(
+      this.$('.file-info-row-path .property-value .clipboard-input').val()
+    ).to.contain(file1.name);
+
+    done();
   });
 
-  it('renders owner full name asynchronously', function () {
-    this.set('file1', file1);
+  it('renders owner full name asynchronously', async function (done) {
+    this.set('file', file1);
 
-    this.render(hbs `{{file-browser/fb-info-modal
-      open=true
-      file=file1
-    }}`);
+    render(this);
 
     expect(this.$('.loading-owner-full-name'), 'loading-owner-full-name').to.exist;
-    return wait()
-      .then(() => {
-        expect(this.$('.loading-owner-full-name'), 'loading-owner-full-name')
-          .to.not.exist;
-        expect(
-          this.$('.file-info-row-owner .property-value').text()
-        ).to.contain(owner1.fullName);
-      });
+    await wait();
+    expect(this.$('.loading-owner-full-name'), 'loading-owner-full-name')
+      .to.not.exist;
+    expect(
+      this.$('.file-info-row-owner .property-value').text()
+    ).to.contain(owner1.fullName);
+
+    done();
   });
 
-  it('renders space id', function () {
-    const spaceEntityId = 's893y37439';
-    this.setProperties({
-      file1,
-      spaceEntityId,
+  context('for file', function () {
+    beforeEach(function () {
+      this.set('file', file1);
     });
 
-    this.render(hbs `{{file-browser/fb-info-modal
-      open=true
-      file=file1
-      spaceEntityId=spaceEntityId
-    }}`);
+    it('renders size', async function (done) {
+      this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
 
-    expect(
-      this.$('.file-info-row-space-id .property-value .clipboard-input').val()
-    ).to.contain(spaceEntityId);
+      render(this);
+      await wait();
+
+      expect(
+        this.$('.file-info-row-size .property-value').text()
+      ).to.contain('1 GiB');
+      done();
+    });
+
+    it('renders name', async function (done) {
+      render(this);
+      await wait();
+
+      expect(
+        this.$('.file-info-row-name .property-value .clipboard-input').val()
+      ).to.contain(this.get('file.name'));
+
+      done();
+    });
+
+    it('renders space id', async function (done) {
+      const spaceEntityId = 's893y37439';
+      this.set('spaceEntityId', spaceEntityId);
+
+      render(this);
+
+      expect(
+        this.$('.file-info-row-space-id .property-value .clipboard-input').val()
+      ).to.contain(spaceEntityId);
+
+      done();
+    });
+
+    it('renders cdmi object id', async function (done) {
+      render(this);
+
+      expect(
+        this.$('.file-info-row-cdmi-object-id .property-value .clipboard-input')
+        .val()
+      ).to.contain(exampleCdmiObjectId);
+
+      done();
+    });
+
+    testRenderRestUrl(false);
   });
 
-  it('renders cdmi object id', function () {
-    this.set('file1', file1);
+  context('for directory', function () {
+    beforeEach(function () {
+      this.set('file', fileParent1);
+    });
 
-    this.render(hbs `{{file-browser/fb-info-modal
-      open=true
-      file=file1
-    }}`);
-
-    expect(
-      this.$('.file-info-row-cdmi-object-id .property-value .clipboard-input')
-      .val()
-    ).to.contain(exampleCdmiObjectId);
+    testRenderRestUrl(false);
   });
 
-  it('renders file size', function () {
-    this.set('file1', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
+  context('in preview mode', function () {
+    beforeEach(function () {
+      this.set('previewMode', true);
+    });
 
-    this.render(hbs `{{file-browser/fb-info-modal
-      open=true
-      file=file1
-    }}`);
+    context('for file', function () {
+      beforeEach(function () {
+        this.set('file', file1);
+      });
 
-    expect(
-      this.$('.file-info-row-size .property-value').text()
-    ).to.contain('1 GiB');
+      const restUrlTypes = [
+        'downloadSharedFileContent',
+        'getSharedFileAttributes',
+        'getSharedFileJsonMetadata',
+        'getSharedFileRdfMetadata',
+        'getSharedFileExtendedAttributes',
+      ];
+
+      testRenderRestUrl(true);
+      testRenderRestUrlTypeOptions(restUrlTypes);
+
+      restUrlTypes.forEach(type => {
+        testRenderRestUrlAndInfoForType(type);
+      });
+
+      testRenderRestUrlAndInfoForType(
+        'downloadSharedFileContent',
+        false,
+        'shows download content REST URL and its info in hint by default'
+      );
+    });
+
+    context('for directory', function () {
+      beforeEach(function () {
+        this.set('file', fileParent1);
+      });
+
+      const restUrlTypes = [
+        'listSharedDirectoryChildren',
+        'getSharedFileAttributes',
+        'getSharedFileJsonMetadata',
+        'getSharedFileRdfMetadata',
+        'getSharedFileExtendedAttributes',
+      ];
+
+      testRenderRestUrlTypeOptions(restUrlTypes);
+
+      testRenderRestUrl(true);
+
+      restUrlTypes.forEach(type => {
+        testRenderRestUrlAndInfoForType(type);
+      });
+
+      testRenderRestUrlAndInfoForType(
+        'listSharedDirectoryChildren',
+        false,
+        'shows list children REST URL and its info in hint by default'
+      );
+    });
   });
 });
+
+function testRenderRestUrl(renders = true) {
+  const renderText = renders ? 'renders' : 'does not render';
+  it(`${renderText} REST section`, async function (done) {
+    render(this);
+    expect(this.$('.file-info-row-rest-url')).to.have.length(renders ? 1 : 0);
+    if (renders) {
+      expect(this.$('.file-info-row-rest-url .property-name'))
+        .to.contain('Public REST endpoint');
+      expect(this.$('.rest-url-type-selector-trigger')).to.exist;
+      expect(this.$('.rest-url-type-info-trigger')).to.exist;
+      expect(this.$('.rest-tag-label')).to.exist;
+    }
+    done();
+  });
+}
+
+function testRenderRestUrlTypeOptions(options) {
+  const optionsString = options.map(option => `"${option}"`).join(', ');
+  it(`renders only ${optionsString} REST URL type option(s) in selector`, async function (done) {
+    render(this);
+    await clickTrigger('.rest-url-type-row');
+    const $options = $('li.ember-power-select-option');
+    checkUrlTypeOptions($options, options);
+    done();
+  });
+}
+
+function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
+  const text = customText ||
+    `shows proper REST URL and info in hint when selected ${type} URL`;
+  it(text, async function (done) {
+    const methodName = type;
+    const restGenerator = lookupService(this, 'restGenerator');
+    const restGeneratorResult = 'curl -L https://stub_url';
+    const restMethodStub = sinon.stub(restGenerator, methodName)
+      .returns(restGeneratorResult);
+
+    render(this);
+
+    if (useSelector) {
+      await selectChoose('.rest-url-type-row', urlTypeTranslations[type]);
+    } else {
+      await wait();
+    }
+
+    expect(restMethodStub)
+      .to.have.been.calledOnce;
+    expect(restMethodStub)
+      .to.have.been.calledWith(this.get('file.cdmiObjectId'));
+    expect(
+      this.$('.file-info-row-rest-url .property-value .clipboard-input').val()
+    ).to.equal(restGeneratorResult);
+    await click('.rest-url-type-info-trigger');
+    const $popover = $('.webui-popover-rest-url-type-info');
+    expect($popover).to.exist;
+    expect($popover).to.have.class('in');
+    expect($popover.text()).to.contain(urlTypeDescriptionTranslations[type]);
+    done();
+  });
+}
+
+function render(testCase) {
+  testCase.render(hbs `{{file-browser/fb-info-modal
+    open=true
+    file=file
+    previewMode=previewMode
+    spaceEntityId=spaceEntityId
+    selectedRestUrlType=selectedRestUrlType
+  }}`);
+}
+
+function checkUrlTypeOptions($options, urlTypes) {
+  expect($options).to.have.length(urlTypes.length);
+  const optionTexts = Array.from($options).map(opt => opt.textContent.trim());
+  for (let i = 0; i < urlTypes.length; ++i) {
+    expect(optionTexts).to.contain(urlTypeTranslations[urlTypes[i]]);
+  }
+}
+
+function findContains(selector, text) {
+  return findAll(selector).filter((e) => e.textContent.trim().indexOf(text) > -1)[0];
+}
+
+// For some strange reason (not debugged yet), selectChoose fails on Bamboo.
+// This is a simpler equivalent.
+async function selectChoose(cssPath, value) {
+  await clickTrigger(cssPath);
+  const option = findContains('li.ember-power-select-option', value);
+  expect(option, `dropdown item containing "${value}"`).to.exist;
+  await click(option);
+}

@@ -12,9 +12,21 @@ import OnedataConnection from 'onedata-gui-websocket-client/services/mocks/oneda
 
 export default OnedataConnection.extend({
   /**
-   * @overrides
+   * @override
    */
   attributes: Object.freeze({
     transfersHistoryLimitPerFile: 100,
+    restTemplates: Object.freeze({
+      listSharedDirectoryChildren: sharedFileTemplate('children'),
+      downloadSharedFileContent: sharedFileTemplate('content'),
+      getSharedFileAttributes: sharedFileTemplate(''),
+      getSharedFileJsonMetadata: sharedFileTemplate('metadata/json'),
+      getSharedFileRdfMetadata: sharedFileTemplate('metadata/rdf'),
+      getSharedFileExtendedAttributes: sharedFileTemplate('metadata/xattrs'),
+    }),
   }),
 });
+
+export function sharedFileTemplate(operation) {
+  return `https://test.onedata.org/api/v3/onezone/shares/data/{{id}}/${operation}`;
+}

@@ -12,6 +12,7 @@ import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
 import { click } from 'ember-native-dom-helpers';
 import $ from 'jquery';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -625,6 +626,9 @@ describe('Integration | Component | file browser (main component)', function () 
         testOpenDatasetsModal('dataset context menu item is clicked', async function () {
           await chooseFileContextMenuAction('i1', 'datasets');
         });
+
+        testDownloadFromContextMenu();
+        testDownloadUsingDoubleClick();
       });
 
       context('without space view privileges', function () {
@@ -640,6 +644,20 @@ describe('Integration | Component | file browser (main component)', function () 
 
           done();
         });
+      });
+    });
+
+    context('when the only item is a directory', function () {
+      beforeEach(function () {
+        this.set('item1.type', 'dir');
+      });
+
+      context('with space view privileges', function () {
+        beforeEach(function () {
+          this.set('spacePrivileges', { view: true });
+        });
+
+        testDownloadFromContextMenu();
       });
     });
   });
@@ -674,6 +692,66 @@ function renderWithOpenDatasets(testCase) {
   }}</div>`);
 }
 
+function testDownloadFromContextMenu() {
+  const description =
+    'shows spinner and starts download after using download context menu item';
+  it(description, async function (done) {
+    const btnId = this.get('item1.type') === 'dir' ? 'downloadTarGz' : 'download';
+    testDownload(this, done, (fileId) => chooseFileContextMenuAction(fileId, btnId));
+  });
+}
+
+function testDownloadUsingDoubleClick() {
+  it('shows spinner and starts download after double click', async function (done) {
+    testDownload(this, done, doubleClickFile);
+  });
+}
+
+async function testDownload(testCase, done, invokeDownloadFunction) {
+  const {
+    fileId,
+    getFileDownloadUrl,
+    sleeper,
+  } = prepareDownload(testCase);
+
+  renderWithDownloadSpy(testCase);
+  await wait();
+  const $row = getFileRow(fileId);
+
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
+  await invokeDownloadFunction(fileId);
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.exist;
+  expect(getFileDownloadUrl).to.be.calledOnce;
+  expect(getFileDownloadUrl).to.be.calledWith([fileId]);
+  testCase.get('clock').tick(1000);
+  await sleeper;
+  await wait();
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
+
+  done();
+}
+
+function prepareDownload(testCase) {
+  const fileId = testCase.get('item1.entityId');
+  const fileManager = lookupService(testCase, 'fileManager');
+  const sleeper = sleep(500);
+  const getFileDownloadUrl = sinon.stub(fileManager, 'getFileDownloadUrl')
+    .resolves(sleeper);
+  const handleFileDownloadUrl = sinon.stub();
+  testCase.set('handleFileDownloadUrl', handleFileDownloadUrl);
+  return { fileId, getFileDownloadUrl, handleFileDownloadUrl, sleeper };
+}
+
+function renderWithDownloadSpy(testCase) {
+  testCase.render(hbs `<div id="content-scroll">{{file-browser
+    dir=dir
+    selectedFiles=selectedFiles
+    changeSelectedFiles=(action (mut selectedFiles))
+    spacePrivileges=spacePrivileges
+    handleFileDownloadUrl=handleFileDownloadUrl
+  }}</div>`);
+}
+
 function stubSimpleFetch(testCase, dir, childrenRecords) {
   const fileManager = lookupService(testCase, 'fileManager');
   const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
@@ -692,6 +770,13 @@ function getFileRow(fileId) {
   const $row = $(`.fb-table-row[data-row-id=${fileId}]`);
   expect($row).to.have.length(1);
   return $row;
+}
+
+async function doubleClickFile(fileId) {
+  const row = getFileRow(fileId)[0];
+  click(row);
+  await sleep(1);
+  await click(row);
 }
 
 async function openFileContextMenu(fileId) {

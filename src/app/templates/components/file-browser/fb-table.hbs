@@ -31,6 +31,7 @@
         invokeFileAction=invokeFileAction
         fileActionsOpen=fileActionsOpen
         selectionContext=selectionContext
+        isLoadingOnIcon=(contains file.entityId loadingIconFileIds)
       }}
     {{/each}}
     {{#if (and initialLoad.isSettled fetchingNext)}}
