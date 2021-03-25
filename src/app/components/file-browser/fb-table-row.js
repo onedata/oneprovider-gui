@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { equal, raw, or } from 'ember-awesome-macros';
+import { equal, raw, or, conditional } from 'ember-awesome-macros';
 import { get, computed, getProperties } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -198,8 +198,8 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   fileEntityId: reads('file.entityId'),
 
-  typeClass: computed('type', function typeClass() {
-    return `fb-table-row-${this.get('type')}`;
+  typeClass: computed('linkedFileType', function typeClass() {
+    return `fb-table-row-${this.get('linkedFileType')}`;
   }),
 
   typeText: computed('type', function typeText() {
@@ -210,25 +210,29 @@ export default Component.extend(I18n, FastDoubleClick, {
   }),
 
   type: computed('file.type', function type() {
-    const fileType = this.get('file.type');
-    if (fileType === 'dir' || fileType === 'file') {
-      return fileType;
-    }
+    return normalizeFileType(this.get('file.type'));
   }),
 
-  icon: computed('type', function icon() {
-    const type = this.get('type');
-    switch (type) {
+  linkedFileType: computed('file.linkedFile.type', function linkedFileType() {
+    return normalizeFileType(this.get('file.linkedFile.type'));
+  }),
+
+  icon: computed('linkedFileType', function icon() {
+    switch (this.get('linkedFileType')) {
       case 'dir':
         return 'browser-directory';
       case 'file':
         return 'browser-file';
-      case 'broken':
-        return 'x';
       default:
-        break;
+        return 'x';
     }
   }),
+
+  iconTag: conditional(
+    equal('type', raw('symlink')),
+    raw('text-link'),
+    raw(null)
+  ),
 
   contextmenuHandler: computed(function contextmenuHandler() {
     const component = this;
@@ -457,3 +461,9 @@ export default Component.extend(I18n, FastDoubleClick, {
     },
   },
 });
+
+function normalizeFileType(fileType) {
+  if (['dir', 'file', 'symlink'].includes(fileType)) {
+    return fileType;
+  }
+}

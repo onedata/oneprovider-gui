@@ -8,13 +8,14 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { resolve, allSettled } from 'rsvp';
-import { get, computed } from '@ember/object';
+import { resolve, allSettled, all as allFulfilled } from 'rsvp';
+import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
 
 const childrenAttrsAspect = 'children_details';
+const symlinkTargetAttrsAspect = 'symlink_target';
 const fileModelName = 'file';
 
 export default Service.extend({
@@ -34,7 +35,8 @@ export default Service.extend({
    */
   getFileById(fileId, scope = 'private') {
     const fileGri = getFileGri(fileId, scope);
-    return this.get('store').findRecord(fileModelName, fileGri);
+    return this.get('store').findRecord(fileModelName, fileGri)
+      .then(file => this.resolveSymlinks([file], scope).then(() => file));
   },
 
   /**
@@ -157,10 +159,13 @@ export default Service.extend({
         index,
         limit,
         offset,
-      }).then(({ children, isLast }) => {
-        const childrenRecords = this.pushChildrenAttrsToStore(children, scope);
-        return { childrenRecords, isLast };
-      });
+      }).then(({ children, isLast }) =>
+        this.pushChildrenAttrsToStore(children, scope)
+        .then(childrenRecords =>
+          this.resolveSymlinks(childrenRecords, scope).then(() => childrenRecords)
+        )
+        .then(childrenRecords => ({ childrenRecords, isLast }))
+      );
     }
   },
 
@@ -171,11 +176,11 @@ export default Service.extend({
    */
   pushChildrenAttrsToStore(childrenAttrs, scope) {
     const store = this.get('store');
-    return childrenAttrs.map(fileAttrs => {
+    return resolve(childrenAttrs.map(fileAttrs => {
       fileAttrs.scope = scope;
       const modelData = store.normalize(fileModelName, fileAttrs);
       return store.push(modelData);
-    });
+    }));
   },
 
   /**
@@ -196,6 +201,40 @@ export default Service.extend({
         limit,
         offset,
       },
+      subscribe: false,
+    });
+  },
+
+  resolveSymlinks(files, scope) {
+    // Set "linkedFile" of regular files to point itself
+    files
+      .filter(file => get(file, 'type') !== 'symlink' && get(file, 'linkedFile') !== file)
+      .forEach(file => set(file, 'linkedFile', file));
+
+    const symlinks = files.filterBy('type', 'symlink');
+    return allFulfilled(symlinks.map(symlink =>
+      this.fetchSymlinkTargetAttrs(get(symlink, 'entityId'), scope)
+      .then(targetAttrs => this.pushChildrenAttrsToStore([targetAttrs], scope))
+      .then(([targetRecord]) => set(symlink, 'linkedFile', targetRecord))
+      .catch(() => set(symlink, 'linkedFile', null))
+    ));
+  },
+
+  /**
+   * @param {String} symlinkEntityId
+   * @param {String} scope
+   * @returns {Promise<Object>} attributes of symlink target
+   */
+  fetchSymlinkTargetAttrs(symlinkEntityId, scope) {
+    const requestGri = gri({
+      entityId: symlinkEntityId,
+      entityType: fileEntityType,
+      aspect: symlinkTargetAttrsAspect,
+      scope,
+    });
+    return this.get('onedataGraph').request({
+      operation: 'get',
+      gri: requestGri,
       subscribe: false,
     });
   },

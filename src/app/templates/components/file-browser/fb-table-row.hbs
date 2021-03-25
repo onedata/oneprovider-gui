@@ -16,7 +16,13 @@
           }}
         {{/if}}
         <div class="inline-icon-container inline-icon-container-file">
-          {{one-icon icon=icon class="file-icon"}}
+          {{one-icon-tagged
+            class="tag-right"
+            icon=icon
+            iconClass="file-icon"
+            tagIcon=iconTag
+            shadowType=(if iconTag "circle" "none")
+          }}
         </div>
       </div>
       <div class="file-item-text">
@@ -108,18 +114,18 @@
         {{#if media.isMobile}}
           <div class="file-info-mobile">
             <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
-              {{#if (eq file.type "file")}}
-                {{#if file.isPollingSize}}
+              {{#if (eq file.linkedFile.type "file")}}
+                {{#if file.linkedFile.isPollingSize}}
                   {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
                 {{else}}
-                  {{bytes-to-string file.size}}
+                  {{bytes-to-string file.linkedFile.size}}
                 {{/if}}
               {{else}}
                 —
               {{/if}}
             </span>
             <span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-modification">
-              {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+              {{date-format file.linkedFile.modificationTime format="dateWithMinutes" blank="—"}}
             </span>
           </div>
         {{/if}}
@@ -128,11 +134,11 @@
   </td>
   <td class="fb-table-col-size">
     <span class="file-item-text">
-      {{#if (eq file.type "file")}}
-        {{#if file.isPollingSize}}
+      {{#if (eq file.linkedFile.type "file")}}
+        {{#if file.linkedFile.isPollingSize}}
           {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
         {{else}}
-          {{bytes-to-string file.size}}
+          {{bytes-to-string file.linkedFile.size}}
         {{/if}}
       {{else}}
         —
@@ -141,7 +147,7 @@
   </td>
   <td class="fb-table-col-modification">
     <span class="file-item-text">
-      {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+      {{date-format file.linkedFile.modificationTime format="dateWithMinutes" blank="—"}}
     </span>
   </td>
   <td class="fb-table-col-actions-menu">

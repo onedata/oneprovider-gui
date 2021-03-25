@@ -91,6 +91,15 @@ export default Model.extend(
     modificationTime: alias('mtime'),
 
     /**
+     * When file is a symlink, then `linkedFile` is the file pointed
+     * by the symlink. For other types of files it points to the same file
+     * (circular relation).
+     * A value of this field is calculated during the data fetching via file-manager.
+     * @type {Models.File}
+     */
+    linkedFile: undefined,
+
+    /**
      * Contains error of loading file distribution. Is null if distribution has not
      * been fetched yet or it has been fetched successfully. It is persisted in this place
      * due to the bug in Ember that makes belongsTo relationship unusable after
