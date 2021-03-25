@@ -19,6 +19,11 @@
 </td>
 {{#each (array "data" "metadata") as |protectionType|}}
   <td class="col-dataset-protection col-dataset-protection-{{protectionType}}">
+    {{#if media.isMobile}}
+      <label for={{concat elementId "-" protectionType "-flag-toggle"}}>
+        {{tt this (concat "toggleLabels." protectionType)}}
+      </label>
+    {{/if}}
     <div class="toggle-container">
       {{one-way-toggle
         inputId=(concat elementId "-" protectionType "-flag-toggle")

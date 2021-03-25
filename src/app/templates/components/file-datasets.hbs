@@ -1,11 +1,11 @@
-{{#modal.header}}
+{{#modal.header class="file-datasets-part file-datasets-modal-header"}}
   {{file-datasets/summary-header
     file=file
     protectionIcons=protectionIcons
   }}
 {{/modal.header}}
 
-{{#modal.body}}
+{{#modal.body class="file-datasets-part file-datasets-modal-body"}}
   {{#promise-proxy-container
     proxy=fileDatasetSummaryProxy
     tagName="div"
@@ -13,7 +13,7 @@
     customErrorMessage=(tt this "cannotLoadFileDatasetSummary")
   }}
     <table class="table table-striped datasets-table">
-      <thead>
+      <thead class="datasets-table-head">
         <th class="col-dataset-info">
           {{file-datasets/direct-dataset-control
             file=file
@@ -56,7 +56,7 @@
   {{/promise-proxy-container}}
 {{/modal.body}}
 
-{{#modal.footer}}
+{{#modal.footer class="file-datasets-part file-datasets-modal-footer"}}
   {{#bs-button
     onClick=(action close)
     type="default"

@@ -20,7 +20,9 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import { promise } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
-  classNames: ['file-datasets'],
+  // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
+  // of modal elements (header/body/footer)
+  tagName: '',
 
   i18n: service(),
   datasetManager: service(),

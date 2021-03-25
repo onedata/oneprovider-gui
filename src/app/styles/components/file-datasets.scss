@@ -6,7 +6,9 @@ $dataset-write-unprotected-color-bg: #E6E9F0;
 $dataset-write-unprotected-color-border: #B1BACF;
 $dataset-write-unprotected-color: #596E99;
 
-.file-datasets {
+// file-datasets is mainly used inside modal, but we cannot use element tag as a parent
+// of modal elements (header/body/footer), so it is a tagless component with styled parts
+.file-datasets-part {
   .hint-trigger {
     margin-left: 0.4em;
     opacity: 0.4;
@@ -96,6 +98,85 @@ $dataset-write-unprotected-color: #596E99;
     }
   }  
 }
+
+@media (max-width: $screen-xs-max) {
+  .file-datasets-part {
+    .file-datasets-summary-header {
+      flex-direction: column;
+      overflow-x: hidden;
+      .modal-header-effective-info {
+        margin-top: 0;
+        text-align: left;
+        font-size: 80%;
+      }
+    }
+    .datasets-table-head .col-dataset-info {
+      padding-top: 1em;
+      padding-bottom: 1em;
+    }
+    .direct-dataset-attached-label {
+      flex-grow: 1;
+      font-size: 90%;
+    }
+    .direct-dataset-attached-toggle {
+      margin-left: 0;
+    }
+    table.table.table-striped.datasets-table { 
+      display: block; 
+      thead, tbody, th, td, tr {
+        display: block;
+      }
+      > .datasets-table-head {
+        margin-bottom: 1em;
+        th.col-dataset-protection {
+          display: none;
+        }
+      }
+      tbody.datasets-table-tbody {
+        .datasets-item-head-row {
+          background-color: transparent;
+          &:hover {
+            background-color: transparent;
+          }
+          &.closed {
+            td {
+              padding-top: 0;
+              padding-bottom: 0; 
+            }
+          }
+          // &.datasets-item-head-row, &.parent-dataset-item.opened, &.direct-dataset-item {
+          td {
+            padding-top: 0.6em;
+            padding-bottom: 0.6em;
+          }
+          // }
+          &.parent-group-datasets-item {
+            .col-dataset-protection {
+              display: none;
+            }
+          }
+          td {
+            border: none;
+            padding-left: 0;
+            padding-right: 0;
+          }
+          .col-dataset-protection {
+            display: flex;
+            align-items: center;
+            label {
+              flex-grow: 1;
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+      .attach-dataset-hint-trigger {
+        display: none;
+      }
+    }
+  }
+}
+
 
 @import './file-datasets/direct-dataset-control';
 @import './file-datasets/dataset-item';

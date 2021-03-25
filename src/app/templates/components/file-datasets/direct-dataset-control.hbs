@@ -21,7 +21,11 @@
       {{one-way-toggle
         inputId=toggleId
         checked=isDatasetAttached
-        class="direct-dataset-attached-toggle"
+        class=(concat-classes
+          "direct-dataset-attached-toggle"
+          (if media.isMobile "pull-right")
+        )
+        spinnerSide=(if media.isMobile "left" "right")
         isReadOnly=readonly
         lockHint=readonlyMessage
         update=(action "toggleDatasetAttachment")

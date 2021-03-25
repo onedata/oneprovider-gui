@@ -14,12 +14,18 @@ import { and } from 'ember-awesome-macros';
 import { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: 'tr',
   classNames: ['dataset-item'],
 
   datasetManager: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileDatasets.datasetItem',
 
   /**
    * @virtual
