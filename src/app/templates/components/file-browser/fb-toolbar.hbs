@@ -26,7 +26,12 @@
     }}
       {{#click-outside action=(action (mut isClipboardHintVisible) false)}}
         {{#if (eq fileClipboardMode "link")}}
-          {{tt this "clipboardHint.link.beforeSymlinkIcon"}}
+          {{tt this "clipboardHint.link.beforeSymlinkIcon"
+            links=(tt this (concat
+            "clipboardHint.link."
+              (if (gt fileClipboardFiles.length 1) "linkPlural" "linkSingular")
+            ))
+          }}
           {{one-icon icon="plus"}}
           {{tt this "clipboardHint.link.beforeHardlinkIcon"}}
           {{one-icon icon="text-link"}}

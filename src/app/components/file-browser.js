@@ -530,10 +530,12 @@ export default Component.extend(I18n, {
   }),
 
   // FIXME VFS-7419 prepare new icons
-  btnCreateLink: computed(function btnCreateLink() {
+  btnCreateLink: computed('selectedFiles.length', function btnCreateLink() {
+    const areManyFilesSelected = this.get('selectedFiles.length') > 1;
     return this.createFileAction({
       id: 'createLink',
       icon: 'text-link',
+      title: this.t(`fileActions.createLink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
       action: (files) => {
         this.setProperties({
           fileClipboardFiles: files.slice(),
