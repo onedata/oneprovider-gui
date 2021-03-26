@@ -8,10 +8,10 @@
  */
 
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { or, and, not, raw, eq, conditional } from 'ember-awesome-macros';
+import { or, and, not, raw, conditional } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
@@ -69,7 +69,7 @@ export default Component.extend(I18n, {
     'directDataset.isAttached',
     raw('browser-dataset'),
     conditional(
-      eq('file.type', 'file'),
+      equal('file.type', 'file'),
       raw('browser-file'),
       raw('browser-directory'),
     ),

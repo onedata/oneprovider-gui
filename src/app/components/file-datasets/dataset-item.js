@@ -76,6 +76,8 @@ export default Component.extend(I18n, {
    */
   disabledIcon: 'x',
 
+  navigateDataTarget: '_top',
+
   /**
    * @type {ComputedProperty<Models.File>}
    */
