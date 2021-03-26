@@ -23,10 +23,10 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * All datasets registered for this file and its ancestor directories
    */
-  effectiveAncestorDatasets: hasMany('dataset'),
+  effAncestorDatasets: hasMany('dataset'),
 
   /**
    * Same as `models/file#effProtectionFlags`
    */
-  effectiveProtectionFlags: attr('array'),
+  effProtectionFlags: attr('array'),
 }).reopenClass(StaticGraphModelMixin);

@@ -90,7 +90,7 @@ describe('Integration | Component | file browser/fb table row', function () {
 
   it('renders qos tag with inherited icon if file has effective qos, but not direct', function () {
     this.set('file', createFile({
-      effectiveQosMembership: 'ancestor',
+      effQosMembership: 'ancestor',
     }));
 
     render(this);
@@ -100,7 +100,7 @@ describe('Integration | Component | file browser/fb table row', function () {
 
   it('renders dataset tag with inherited icon if file has an effective dataset, but not direct', function () {
     this.set('file', createFile({
-      effectiveDatasetMembership: 'ancestor',
+      effDatasetMembership: 'ancestor',
     }));
 
     render(this);
@@ -111,7 +111,7 @@ describe('Integration | Component | file browser/fb table row', function () {
 
   it('renders dataset tag without inherited icon if file has direct dataset', function () {
     this.set('file', createFile({
-      effectiveDatasetMembership: 'direct',
+      effDatasetMembership: 'direct',
     }));
 
     render(this);
@@ -123,7 +123,7 @@ describe('Integration | Component | file browser/fb table row', function () {
   it('renders dataset tag as disabled if file has dataset, but not having space_view privileges', function () {
     this.set('datasetsViewForbidden', true);
     this.set('file', createFile({
-      effectiveDatasetMembership: 'direct',
+      effDatasetMembership: 'direct',
     }));
 
     render(this);
@@ -147,7 +147,7 @@ describe('Integration | Component | file browser/fb table row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['data_protection'],
-          effectiveDatasetMembership: 'ancestor',
+          effDatasetMembership: 'ancestor',
         }),
       }
     );
@@ -159,7 +159,7 @@ describe('Integration | Component | file browser/fb table row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['metadata_protection'],
-          effectiveDatasetMembership: 'ancestor',
+          effDatasetMembership: 'ancestor',
         }),
       }
     );
@@ -171,7 +171,7 @@ describe('Integration | Component | file browser/fb table row', function () {
         file: createFile({
           type,
           effProtectionFlags: ['data_protection', 'metadata_protection'],
-          effectiveDatasetMembership: 'ancestor',
+          effDatasetMembership: 'ancestor',
         }),
       }
     );
@@ -188,7 +188,7 @@ function testProtectedFlag(flagTypes) {
   it(description, async function (done) {
     this.set(
       'file',
-      createFile({ effProtectionFlags, effectiveDatasetMembership: 'ancestor' })
+      createFile({ effProtectionFlags, effDatasetMembership: 'ancestor' })
     );
 
     this.render(hbs `{{file-browser/fb-table-row

@@ -138,12 +138,12 @@ export default Component.extend(I18n, {
     'fileDatasetSummaryProxy',
     async function ancestorDatasets() {
       const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
-      return await get(fileDatasetSummary, 'effectiveAncestorDatasets');
+      return await get(fileDatasetSummary, 'effAncestorDatasets');
       // TODO: VFS-7414 there are problems with reloading hasMany relation while
       // fileDatasetSummary record is loaded on localstorage adapter (mock)
       // check it on real backend adapter and find the solution to serve always fresh
-      // effectiveAncestorDatasets array
-      // return await fileDatasetSummary.hasMany('effectiveAncestorDatasets').reload();
+      // effAncestorDatasets array
+      // return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
     }
   )),
 

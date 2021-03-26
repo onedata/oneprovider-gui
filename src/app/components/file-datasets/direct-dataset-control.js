@@ -92,12 +92,18 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    toggleDatasetAttachment(state) {
+    async toggleDatasetAttachment(state) {
       const {
         directDataset,
         datasetManager,
       } = this.getProperties('directDataset', 'datasetManager');
-      return datasetManager.toggleDatasetAttachment(directDataset, state);
+      if (directDataset) {
+        return await datasetManager.toggleDatasetAttachment(directDataset, state);
+      } else if (state) {
+        return await this.establishDirectDataset();
+      } else {
+        return null;
+      }
     },
     async destroyDataset() {
       const {

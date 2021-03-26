@@ -66,9 +66,9 @@
                     bubbles=false
                   }}
                 >
-                  {{#if (eq effectiveDatasetMembership "direct")}}
+                  {{#if (eq effDatasetMembership "direct")}}
                     {{tt this "status.dataset"}}
-                  {{else if (eq effectiveDatasetMembership "ancestor")}}
+                  {{else if (eq effDatasetMembership "ancestor")}}
                     {{tt this "status.dataset"}}&nbsp;{{one-icon class="dataset-status-arrow dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
                   {{/if}}
                   {{#if datasetsViewForbidden}}
@@ -136,9 +136,9 @@
                   bubbles=false
                 }}
               >
-                {{#if (eq effectiveQosMembership "direct")}}
+                {{#if (eq effQosMembership "direct")}}
                   {{tt this "status.qos"}}
-                {{else if (eq effectiveQosMembership "ancestor")}}
+                {{else if (eq effQosMembership "ancestor")}}
                   {{tt this "status.qos"}}&nbsp;{{one-icon class="qos-status-arrow qos-inherited-icon inherited-icon" icon=inheritedIcon}}
                 {{/if}}
                 {{#if qosViewForbidden}}

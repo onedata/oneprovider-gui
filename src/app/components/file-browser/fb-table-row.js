@@ -404,16 +404,16 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasMetadata: reads('file.hasMetadata'),
 
-  effectiveQosMembership: reads('file.effectiveQosMembership'),
+  effQosMembership: reads('file.effQosMembership'),
 
   showQosTag: and(
     not('previewMode'),
-    array.includes(raw(['ancestor', 'direct']), 'effectiveQosMembership')
+    array.includes(raw(['ancestor', 'direct']), 'effQosMembership')
   ),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 
-  effectiveDatasetMembership: reads('file.effectiveDatasetMembership'),
+  effDatasetMembership: reads('file.effDatasetMembership'),
 
   /**
    * If true, should display dataset tag
@@ -421,7 +421,7 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   showDatasetTag: and(
     not('previewMode'),
-    array.includes(raw(['ancestor', 'direct']), 'effectiveDatasetMembership')
+    array.includes(raw(['ancestor', 'direct']), 'effDatasetMembership')
   ),
 
   /**

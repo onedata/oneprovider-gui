@@ -667,7 +667,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
   it(`invokes datasets modal opening when ${openDescription}`, async function (done) {
     const openDatasets = sinon.spy();
     this.set('openDatasets', openDatasets);
-    this.set('item1.effectiveDatasetMembership', 'ancestor');
+    this.set('item1.effDatasetMembership', 'ancestor');
 
     renderWithOpenDatasets(this);
 

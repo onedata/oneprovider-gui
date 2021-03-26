@@ -27,7 +27,7 @@ export default Service.extend({
     const dataset = store.createRecord('dataset', {
       _meta: {
         additionalData: {
-          rootFileId: get(file, 'entityId'),
+          rootFileId: get(file, 'cdmiObjectId'),
           // also protectionFlags can be specified here, but we don't use this
         },
       },

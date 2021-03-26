@@ -229,8 +229,8 @@ export default Service.extend({
   async createEmptyDatasetSummary(store) {
     const emptySummary = await store.createRecord('fileDatasetSummary', {
       directDataset: null,
-      effectiveAncestorDatasets: [],
-      effectiveProtectionFlags: [],
+      effAncestorDatasets: [],
+      effProtectionFlags: [],
     }).save();
     this.set('entityRecords.fileDatasetSummary', [emptySummary]);
     return emptySummary;
@@ -400,7 +400,7 @@ export default Service.extend({
           type: 'dir',
           mtime: timestamp + i * 3600,
           hasMetadata: false,
-          effectiveQosMembership: i < 2 && 'direct' ||
+          effQosMembership: i < 2 && 'direct' ||
             i < 4 && 'ancestor' ||
             'none',
           parent: null,
@@ -570,18 +570,18 @@ export default Service.extend({
         rootFileType: get(ancestorFile, 'type'),
       }).save();
       datasets[i] = ancestorDataset;
-      const effectiveProtectionFlags = effProtectionFlagSets[Math.min(i, 2)];
+      const effProtectionFlags = effProtectionFlagSets[Math.min(i, 2)];
       const datasetSummary = await store.createRecord('file-dataset-summary', {
         id: `${fileEntityType}.${get(ancestorFile, 'entityId')}.${datasetSummaryAspect}:private`,
         directDataset: ancestorDataset,
-        effectiveAncestorDatasets: datasets.slice(0, i),
-        effectiveProtectionFlags,
+        effAncestorDatasets: datasets.slice(0, i),
+        effProtectionFlags,
       }).save();
       summaries[i] = datasetSummary;
       setProperties(ancestorFile, {
-        effectiveDatasetMembership: 'direct',
+        effDatasetMembership: 'direct',
         fileDatasetSummary: datasetSummary,
-        effProtectionFlags: effectiveProtectionFlags,
+        effProtectionFlags: effProtectionFlags,
       });
       this.get('entityRecords.fileDatasetSummary').push(...summaries);
       await ancestorFile.save();
@@ -690,10 +690,10 @@ export default Service.extend({
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
         let effProtectionFlags;
-        const effectiveDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
+        const effDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
           i >= 2 && i <= 6 && 'ancestor' ||
           'none';
-        const effectiveQosMembership = i > 3 && i < 8 && 'direct' ||
+        const effQosMembership = i > 3 && i < 8 && 'direct' ||
           i > 6 && i < 10 && 'ancestor' ||
           'none';
         if (i === 2) {
@@ -712,8 +712,8 @@ export default Service.extend({
           type: 'file',
           posixPermissions: i > 10 && i < 12 ? '333' : '777',
           hasMetadata: i < 5,
-          effectiveQosMembership,
-          effectiveDatasetMembership,
+          effQosMembership,
+          effDatasetMembership,
           effProtectionFlags,
           size: i * 1000000,
           mtime: timestamp + i * 3600,

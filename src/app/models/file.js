@@ -70,12 +70,57 @@ export default Model.extend(
     /**
      * Possible values: none, direct, ancestor
      */
-    effectiveQosMembership: attr('string', { defaultValue: 'none' }),
+    // FIXME: wait for backend
+    // effQosMembership: attr('string', { defaultValue: 'none' }),
+
+    hasEffQos: attr('boolean'),
+    hasDirectQos: attr('boolean'),
+
+    effQosMembership: computed({
+      get() {
+        const {
+          hasDirectQos,
+          hasEffQos,
+        } = this.getProperties('hasDirectQos', 'hasEffQos');
+        if (hasEffQos) {
+          if (hasDirectQos) {
+            return 'direct';
+          } else {
+            return 'ancestor';
+          }
+        } else {
+          return 'none';
+        }
+      },
+      set(key, value) {
+        switch (value) {
+          case 'ancestor':
+            this.setProperties({
+              hasEffQos: true,
+              hasDirectQos: false,
+            });
+            break;
+          case 'direct':
+            this.setProperties({
+              hasEffQos: true,
+              hasDirectQos: true,
+            });
+            break;
+          case 'none':
+          default:
+            this.setProperties({
+              hasEffQos: false,
+              hasDirectQos: false,
+            });
+            break;
+        }
+      },
+    }),
 
     /**
      * Possible values: none, direct, ancestor
      */
-    effectiveDatasetMembership: attr('string', { defaultValue: 'none' }),
+    effDatasetMembership: attr('string', { defaultValue: 'none' }),
 
     /**
      * Available values in array: 'data_protection', 'metadata_protection'
