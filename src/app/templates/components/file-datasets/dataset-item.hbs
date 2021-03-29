@@ -1,0 +1,45 @@
+<td class="col-dataset-info">
+  {{#if hasBlock}}
+    {{yield}}
+  {{else}}
+    <div class="dataset-label-section">
+      {{one-icon class="path-icon" icon="browser-directory"}}
+      <div class="dataset-label path-label">
+        <a
+          onclick={{action "fileLinkClicked"}}
+          target={{navigateDataTarget}}
+          class="azure file-path truncate"
+          href={{fileHref}}
+        >
+          {{filePathString}}
+        </a>
+      </div>    
+    </div>
+  {{/if}}
+</td>
+{{#each (array "data" "metadata") as |protectionType|}}
+  <td class="col-dataset-protection col-dataset-protection-{{protectionType}}">
+    <div class="dataset-protection-control">
+      {{#if media.isMobile}}
+        <label for={{concat elementId "-" protectionType "-flag-toggle"}}>
+          {{tt this (concat "toggleLabels." protectionType)}}
+        </label>
+      {{/if}}
+      <div class="toggle-container">
+        {{one-way-toggle
+          inputId=(concat elementId "-" protectionType "-flag-toggle")
+          class=(concat-classes
+            "flag-toggle"
+            (concat protectionType "-flag-toggle")
+          )
+          checked=(get this (concat protectionType "IsProtected"))
+          spinnerSide=(if media.isMobile "left" "right")
+          isReadOnly=readonly
+          lockHint=readonlyMessage
+          icon=(get protectionIcons protectionType)
+          update=(action "toggleDatasetProtectionFlag" (concat protectionType "_protection"))
+        }}
+      </div>
+    </div>
+  </td>
+{{/each}}

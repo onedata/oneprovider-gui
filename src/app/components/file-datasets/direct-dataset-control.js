@@ -1,7 +1,7 @@
 /**
  * Control of dataset estabilished directly for some file/directory 
  *
- * @module components/file-dataset/direct-dataset-section
+ * @module components/file-dataset/direct-dataset-control
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -9,14 +9,13 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { reads, equal } from '@ember/object/computed';
-import { and } from 'ember-awesome-macros';
+import { equal, reads } from '@ember/object/computed';
+import { and, tag } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
-import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export default Component.extend(I18n, {
-  classNames: ['direct-dataset-section'],
+  classNames: ['direct-dataset-control'],
 
   datasetManager: service(),
   globalNotify: service(),
@@ -24,7 +23,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDatasets.directDatasetSection',
+  i18nPrefix: 'components.fileDatasets.directDatasetControl',
 
   /**
    * @virtual
@@ -34,9 +33,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.FileDatasetSummary}
+   * @type {PromiseObject<Models.Dataset>}
    */
-  fileDatasetSummary: undefined,
+  directDatasetProxy: undefined,
 
   /**
    * @virtual optional
@@ -49,18 +48,6 @@ export default Component.extend(I18n, {
    * @type {SafeString}
    */
   readonlyMessage: undefined,
-
-  /**
-   * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
-   */
-  directDatasetProxy: computedRelationProxy(
-    'fileDatasetSummary',
-    'directDataset',
-    Object.freeze({
-      allowNull: true,
-      reload: true,
-    })
-  ),
 
   /**
    * @type {ComputedProperty<Models.Dataset>}
@@ -89,6 +76,21 @@ export default Component.extend(I18n, {
     hasProtectionFlag('directDataset.protectionFlags', 'metadata')
   ),
 
+  toggleId: tag `${'elementId'}-direct-dataset-attached-toggle`,
+
+  async establishDirectDataset() {
+    const {
+      file,
+      datasetManager,
+      globalNotify,
+    } = this.getProperties('file', 'datasetManager', 'globalNotify');
+    try {
+      return await datasetManager.establishDataset(file);
+    } catch (error) {
+      globalNotify.backendError(this.t('establishingDataset'), error);
+    }
+  },
+
   actions: {
     toggleDatasetAttachment(state) {
       const {
@@ -96,17 +98,6 @@ export default Component.extend(I18n, {
         datasetManager,
       } = this.getProperties('directDataset', 'datasetManager');
       return datasetManager.toggleDatasetAttachment(directDataset, state);
-    },
-    toggleDatasetProtectionFlag(flag, state) {
-      const {
-        directDataset,
-        datasetManager,
-      } = this.getProperties('directDataset', 'datasetManager');
-      return datasetManager.toggleDatasetProtectionFlag(
-        directDataset,
-        flag,
-        state
-      );
     },
     async destroyDataset() {
       const {

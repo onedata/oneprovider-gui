@@ -1,5 +1,3 @@
-// TODO: VFS-7404 this file is not-production-ready
-
 export default {
   fileType: {
     file: 'file',
@@ -10,4 +8,7 @@ export default {
   metadataProtection: 'Metadata write protection',
   destroyDataset: 'Destroy dataset',
   destroyingDataset: 'destroying dataset',
+  establishingDataset: 'establishing dataset',
+  cannotLoadDirectDataset: 'Could not load direct dataset state.',
+  attachToggleTip: '[TODO: VFS-7479] (what does mean that file is marked as dataset; what happens when you disable it)',
 };

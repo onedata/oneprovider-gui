@@ -1,110 +1,62 @@
-{{#modal.header}}
-  <div class="modal-header-text">
-    <h1 class="datasets-modal-header">
-      <span class="header-text">
-        {{tt this "datasets"}}
-      </span>
-    </h1>
-    {{modal-file-subheader files=files}}
-  </div>
-  <div class="modal-header-effective-info datasets-effective-protection-info">
-    {{#if isEffDataProtected}}
-      <div class="labels-container data-protection-enabled">
-        <span class="label label-warning data-protected-tag">
-          <div class="inline-icon-container">
-            {{one-icon icon="provider"}}
-          </div>
-          <span class="protected-text">
-            {{tt this "dataProtectedTag"}}
-          </span>
-          {{one-tooltip title=(tt this "dataProtectedTooltip")}}
-        </span>
-      </div>
-    {{/if}}
-    {{#if isEffMetadataProtected}}
-      <div class="labels-container metadata-protection-enabled">
-        <span class="label label-warning metadata-protected-tag">
-          <div class="inline-icon-container">
-            {{one-icon icon="browser-attribute"}}
-          </div>
-          <span class="protected-text">
-            {{tt this "metadataProtectedTag"}}
-          </span>
-          {{one-tooltip title=(tt this "metadataProtectedTooltip")}}
-        </span>
-      </div>
-    {{/if}}
-  </div>
+{{#modal.header class="file-datasets-part file-datasets-modal-header"}}
+  {{file-datasets/summary-header
+    file=file
+    protectionIcons=protectionIcons
+  }}
 {{/modal.header}}
 
-{{#modal.body}}
+{{#modal.body class="file-datasets-part file-datasets-modal-body"}}
   {{#promise-proxy-container
     proxy=fileDatasetSummaryProxy
     tagName="div"
-    class="loadable-row file-dataset-summary-proxy-loadable-row"
+    class="loadable-row file-dataset-summary-loadable-row"
+    customErrorMessage=(tt this "cannotLoadFileDatasetSummary")
   }}
-    {{#if hasDirectDatasetEstablished}}
-      <div class="items-group direct-dataset-items-group">
-        {{file-datasets/direct-dataset-section
-          class="datasets-item"
-          file=file
-          fileDatasetSummary=fileDatasetSummary
-          readonly=(not editPrivilege)
-          readonlyMessage=insufficientEditPrivilegesMessage
-        }}
-      </div>
-    {{else}}
-      <div class="items-group no-direct-dataset-items-group">
-        <div class="datasets-item">
-          <div class="btn-tooltip-container">
-            {{#one-spin-button
-              action=(action "establishDirectDataset")
-              class="btn btn-primary"
-              disabled=(not editPrivilege)
-            }}
-              {{tt this "establishDataset"}}
-            {{/one-spin-button}}
-            {{#if (not editPrivilege)}}
-              {{one-tooltip title=insufficientEditPrivilegesMessage}}
-            {{/if}}
-          </div>
-        </div>
-      </div>
-    {{/if}}
-  {{/promise-proxy-container}}
-  {{#promise-proxy-container
-    proxy=inheritedDatasetsProxy
-    tagName="div"
-    class="loadable-row inherited-datasets-loadable-row"
-  }}
-    {{#if inheritedDatasets.length}}
-      <div class="items-group inherited-datasets-items-group">
-        <h2>{{tt this "inheritedDatasets"}}</h2>
-        {{#file-datasets/datasets-list-container datasets=inheritedDatasets as |sortedDataList|}}
-          {{#each sortedDataList as |data|}}
-            {{file-datasets/inherited-dataset
-              class="datasets-item"
-              dataset=data.dataset
-              filePath=data.filePath
-              getDataUrl=(action getDataUrl)
-              close=(action close)
-            }}
-          {{/each}}
-        {{/file-datasets/datasets-list-container}}
-      </div>
-    {{else}}
-      <div class="items-group no-inherited-datasets-group">
-        <div class="datasets-item">
-          {{tt this "noInheritedDatasets"
-            fileType=(tt this (concat "fileType." file.type))
+    <table class="table datasets-table {{unless media.isMobile "table-striped"}}">
+      <thead class="datasets-table-head">
+        <th class="col-dataset-info">
+          {{file-datasets/direct-dataset-control
+            file=file
+            directDatasetProxy=directDatasetProxy
+            readonly=(not editPrivilege)
+            readonlyMessage=insufficientEditPrivilegesMessage
           }}
-        </div>
-      </div>
-    {{/if}}
+        </th>
+        {{#each (array "data" "metadata") as |protectionType|}}
+          <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
+            <span class="protection-header-label">
+              {{tt this (concat "tableHeaders." protectionType)}}
+            </span>
+            {{#one-icon
+              icon="sign-question-rounded"
+              class="hint-trigger protection-label-hint-trigger clickable"
+            }}
+              {{one-tooltip
+                title=(tt this (concat "protectionHeaderHint." protectionType))
+              }}
+            {{/one-icon}}
+          </th>
+        {{/each}}
+      </thead>
+      {{file-datasets/ancestor-datasets
+        ancestorDatasetsProxy=ancestorDatasetsProxy
+        protectionIcons=protectionIcons
+        readonly=(not editPrivilege)
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+        getDataUrl=(action getDataUrl)
+      }}
+      {{file-datasets/direct-dataset
+        file=file
+        directDatasetProxy=directDatasetProxy
+        readonly=(not editPrivilege)
+        protectionIcons=protectionIcons
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+      }}
+    </table>
   {{/promise-proxy-container}}
 {{/modal.body}}
 
-{{#modal.footer}}
+{{#modal.footer class="file-datasets-part file-datasets-modal-footer"}}
   {{#bs-button
     onClick=(action close)
     type="default"

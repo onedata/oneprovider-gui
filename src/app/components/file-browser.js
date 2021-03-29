@@ -491,7 +491,7 @@ export default Component.extend(I18n, {
     const disabled = !canView;
     return this.createFileAction({
       id: 'datasets',
-      icon: 'share-collection',
+      icon: 'browser-dataset',
       action: (files) => {
         return openDatasets(files);
       },

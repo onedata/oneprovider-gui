@@ -1,24 +1,32 @@
-import inheritedDataset from './file-datasets/inherited-dataset';
-import directDatasetSection from './file-datasets/direct-dataset-section';
+import summaryHeader from './file-datasets/summary-header';
+import directDatasetControl from './file-datasets/direct-dataset-control';
+import directDataset from './file-datasets/direct-dataset';
+import ancestorDatasets from './file-datasets/ancestor-datasets';
 
-// TODO: VFS-7404 this file is not-production-ready
+const headerData = 'Data write&nbsp;protection';
+const headerMetadata = 'Metadata write&nbsp;protection';
 
 export default {
-  fileType: {
-    file: 'file',
-    dir: 'directory',
-  },
-  datasets: 'Datasets',
   close: 'Close',
-  dataProtectedTag: 'Data is write protected',
-  metadataProtectedTag: 'Metadata is write protected',
-  dataProtectedTooltip: 'Data protection prevents a file from...',
-  metadataProtectedTooltip: 'Metadata protection prevents a file from...',
-  inheritedDatasets: 'Inherited datasets',
-  noInheritedDatasets: 'This file does not have inherited datasets',
-  establishDataset: 'Establish dataset',
-  establishingDataset: 'establishing dataset',
+  tableHeaders: {
+    data: headerData,
+    metadata: headerMetadata,
+  },
+  cannotLoadFileDatasetSummary: 'Could not load dataset summary for selected element.',
+  protectionHeaderHint: {
+    data: '[TODO: VFS-7479] (what is forbidden when data is write protected; how single dataset protection affects the final dataset)',
+    metadata: '[TODO: VFS-7479] (what is forbidden when metadata is write protected; how single dataset protection affects the final dataset)',
+  },
 
-  inheritedDataset,
-  directDatasetSection,
+  datasetItem: {
+    toggleLabels: {
+      data: headerData,
+      metadata: headerMetadata,
+    },
+  },
+
+  summaryHeader,
+  ancestorDatasets,
+  directDataset,
+  directDatasetControl,
 };

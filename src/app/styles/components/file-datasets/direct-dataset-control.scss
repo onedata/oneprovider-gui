@@ -1,0 +1,28 @@
+.direct-dataset-control {
+  .direct-dataset-loadable-row.loadable-row {
+    min-height: 2em;
+  }
+  .toggle-header {
+    transition: transition-ease(opacity);
+    &.loading {
+      opacity: $disabled-opacity;
+    }
+    margin-top: 0;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    text-transform: none;
+    @include font-semibold;
+    label.direct-dataset-attached-label {
+      margin: 0;
+    }
+  }
+  .alert.alert-promise-error {
+    @include font-regular;
+    font-weight: normal;
+  }
+  .direct-dataset-attached-toggle {
+    margin-left: 1.5em;
+    font-size: $font-size-base;
+  }
+}

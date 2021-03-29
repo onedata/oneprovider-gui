@@ -16,6 +16,8 @@ import { promise } from 'ember-awesome-macros';
 import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend({
+  tagName: '',
+
   /**
    * @virtual
    * @type {Array<Models.Dataset>}
@@ -50,7 +52,7 @@ export default Component.extend({
    * Sorting of result list specification
    * @type {Array<String>}
    */
-  sorting: Object.freeze(['filePath.length:desc']),
+  sorting: Object.freeze(['filePath.length:asc']),
 
   /**
    * Main reason for this component to exist - exposes a sorted collection of pairs:

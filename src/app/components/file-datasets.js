@@ -16,13 +16,15 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { promise } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
-  classNames: ['file-datasets'],
+  // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
+  // of modal elements (header/body/footer)
+  tagName: '',
 
+  i18n: service(),
   datasetManager: service(),
   globalNotify: service(),
 
@@ -58,20 +60,23 @@ export default Component.extend(I18n, {
    */
   files: undefined,
 
+  protectionIcons: Object.freeze({
+    data: 'provider',
+    metadata: 'browser-attribute',
+  }),
+
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
    * privileges.
    * @type {ComputedProperty<SafeString>}
    */
-  insufficientEditPrivilegesMessage: computed('editPrivilege',
+  insufficientEditPrivilegesMessage: computed(
     function insufficientEditPrivilegesMessage() {
-      if (!this.get('editPrivilege')) {
-        return insufficientPrivilegesMessage({
-          i18n: this.get('i18n'),
-          modelName: 'space',
-          privilegeFlag: 'space_manage_datasets',
-        });
-      }
+      return insufficientPrivilegesMessage({
+        i18n: this.get('i18n'),
+        modelName: 'space',
+        privilegeFlag: 'space_manage_datasets',
+      });
     }
   ),
 
@@ -79,16 +84,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.File>}
    */
   file: reads('files.firstObject'),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isEffDataProtected: hasProtectionFlag('file.effProtectionFlags', 'data'),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isEffMetadataProtected: hasProtectionFlag('file.effProtectionFlags', 'metadata'),
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
@@ -105,6 +100,22 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.FileDatasetSummary>}
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
+  /**
+   * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
+   */
+  directDatasetProxy: computedRelationProxy(
+    'fileDatasetSummary',
+    'directDataset',
+    Object.freeze({
+      allowNull: true,
+      reload: true,
+    })
+  ),
+
+  /**
+   * @type {ComputedProperty<Models.Dataset>}
+   */
+  directDataset: reads('directDatasetProxy.content'),
 
   /**
    * Valid (non-undefined) only if fileDatasetSummaryProxy is settled
@@ -123,9 +134,9 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
    */
-  inheritedDatasetsProxy: promise.array(computed(
+  ancestorDatasetsProxy: promise.array(computed(
     'fileDatasetSummaryProxy',
-    async function inheritedDatasets() {
+    async function ancestorDatasets() {
       const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
       return await get(fileDatasetSummary, 'effectiveAncestorDatasets');
       // TODO: VFS-7414 there are problems with reloading hasMany relation while
@@ -139,20 +150,5 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Models.Dataset>}
    */
-  inheritedDatasets: reads('inheritedDatasetsProxy.content'),
-
-  actions: {
-    async establishDirectDataset() {
-      const {
-        file,
-        datasetManager,
-        globalNotify,
-      } = this.getProperties('file', 'datasetManager', 'globalNotify');
-      try {
-        return await datasetManager.establishDataset(file);
-      } catch (error) {
-        globalNotify.backendError(this.t('establishingDataset'), error);
-      }
-    },
-  },
+  ancestorDatasets: reads('ancestorDatasetsProxy.content'),
 });

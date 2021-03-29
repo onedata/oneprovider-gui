@@ -8,9 +8,13 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import ToggleHelper from '../../helpers/toggle';
+import { RuntimeProperties as DatasetRuntimeProperties } from 'oneprovider-gui/models/dataset';
+import EmberObject from '@ember/object';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
+
+const DatasetMock = EmberObject.extend(DatasetRuntimeProperties);
 
 describe('Integration | Component | file datasets', function () {
   setupComponentTest('file-datasets', {
@@ -77,11 +81,12 @@ function testDirectDatasetShow(isAttached) {
   const optionsEditableText = isAttached ? 'enabled' : 'disabled';
   const attachedStateText = isAttached ? 'attached' : 'detached';
   const description =
-    `direct dataset toggle is visible, in "${directToggleStateText}" state and ${optionsEditableText} toggles when file has established and ${attachedStateText} direct dataset`;
+    `direct dataset toggle is visible, in "${directToggleStateText}" state and ${optionsEditableText} when file has established and ${attachedStateText} direct dataset`;
   it(description, async function (done) {
     const directDataset = {
       id: 'dataset_id',
       state: isAttached ? 'attached' : 'detached',
+      isAttached,
     };
     const fileDatasetSummary = {
       getRelation(relation) {
@@ -104,21 +109,12 @@ function testDirectDatasetShow(isAttached) {
     render(this);
     await wait();
 
-    const $directDatasetSection = this.$('.direct-dataset-section');
-    expect($directDatasetSection).exist;
-    const $toggle = $directDatasetSection.find('.direct-dataset-attached-toggle');
-    expect($toggle).to.exist;
+    const $directDatasetControl = this.$('.direct-dataset-control');
+    expect($directDatasetControl, 'direct dataset section').exist;
+    const $toggle = $directDatasetControl.find('.direct-dataset-attached-toggle');
+    expect($toggle, 'direct-dataset-attached-toggle').to.exist;
     const toggleHelper = new ToggleHelper($toggle);
     expect(toggleHelper.isChecked()).to.equal(isAttached);
-    ['data', 'metadata'].forEach(flag => {
-      const $flagToggle = this.$(`.${flag}-flag-toggle`);
-      expect($flagToggle).to.exist;
-      if (isAttached) {
-        expect($flagToggle).to.not.have.class('disabled');
-      } else {
-        expect($flagToggle).to.have.class('disabled');
-      }
-    });
 
     done();
   });
@@ -132,11 +128,11 @@ function testDirectDatasetProtection(flags, attached = true) {
   const description =
     `displays proper information about direct protection flags for ${flagsText} flag(s) in ${attachedText} dataset`;
   it(description, async function (done) {
-    const directDataset = {
+    const directDataset = createDataset({
       id: 'dataset_id',
       state: attached ? 'attached' : 'detached',
       protectionFlags: flags,
-    };
+    });
     const fileDatasetSummary = {
       getRelation(relation) {
         if (relation === 'directDataset') {
@@ -158,14 +154,16 @@ function testDirectDatasetProtection(flags, attached = true) {
     render(this);
     await wait();
 
-    const $directDatasetSection = this.$('.direct-dataset-section');
+    const $directDatasetItem = this.$('.direct-dataset-item');
+    expect($directDatasetItem, 'direct dataset item').to.exist;
     availableShortFlags.forEach(flag => {
       // if dataset is detached, all flags should be presented as false!
       const shouldToggleBeEnabled = attached && shortFlags.includes(flag);
-      const $toggle = $directDatasetSection.find(`.${flag}-flag-toggle`);
-      expect($toggle).to.exist;
+      const selector = `.${flag}-flag-toggle`;
+      const $toggle = $directDatasetItem.find(selector);
+      expect($toggle, `${selector} for direct dataset`).to.exist;
       const toggleHelper = new ToggleHelper($toggle);
-      expect(toggleHelper.isChecked()).to.equal(shouldToggleBeEnabled);
+      expect(toggleHelper.isChecked(), flag).to.equal(shouldToggleBeEnabled);
     });
 
     done();
@@ -176,7 +174,7 @@ function testEffectiveProtectionInfo(flags) {
   const flagsText = flags.length ? flags.map(f => `"${f}"`).join(', ') : 'no';
   const shortFlags = flags.map(f => f.split('_protection')[0]);
   const availableShortFlags = ['data', 'metadata'];
-  it(`displays proper information about effective protection flags for ${flagsText} file flag(s)`,
+  it(`displays tags with information about effective protection flags for ${flagsText} file flag(s)`,
     async function (done) {
       this.set('file.effProtectionFlags', flags);
 
@@ -185,9 +183,12 @@ function testEffectiveProtectionInfo(flags) {
       const $protectionInfo = this.$('.datasets-effective-protection-info');
       expect($protectionInfo, 'protection info container').to.exist;
       availableShortFlags.forEach(flag => {
-        const selector = `.${flag}-protection-enabled`;
-        expect($protectionInfo.find(selector), selector)
-          .to.have.length(shortFlags.includes(flag) ? 1 : 0);
+        const isEnabled = shortFlags.includes(flag);
+        const tagSelector = `.${flag}-protected-tag`;
+        const $tag = $protectionInfo.find(tagSelector);
+        expect($tag, tagSelector).to.exist;
+        expect($tag, tagSelector)
+          .to.have.class(`protected-tag-${isEnabled ? 'enabled' : 'disabled'}`);
       });
 
       done();
@@ -218,4 +219,8 @@ function createFile(override = {}, ownerGri = userGri) {
       }
     },
   }, override);
+}
+
+function createDataset(data) {
+  return DatasetMock.create(data);
 }

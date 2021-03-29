@@ -1,0 +1,34 @@
+{{#if directDatasetProxy.isRejected}}
+  {{resource-load-error
+    message=(tt this "cannotLoadDirectDataset")
+    reason=directDatasetProxy.reason
+  }}
+{{else}}
+  <h2 class="toggle-header {{if directDatasetProxy.isPending "loading"}}">
+    <label
+      class="direct-dataset-attached-label"
+      for={{toggleId}}
+    >
+      {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
+    </label>
+    {{#one-icon
+      icon="sign-question-rounded"
+      class="hint-trigger attach-dataset-hint-trigger clickable"
+    }}
+      {{one-tooltip title=(tt this "attachToggleTip")}}
+    {{/one-icon}}
+    {{#if directDatasetProxy.isFulfilled}}
+      {{one-way-toggle
+        inputId=toggleId
+        class="direct-dataset-attached-toggle"
+        checked=isDatasetAttached
+        spinnerSide=(if media.isMobile "left" "right")
+        isReadOnly=readonly
+        lockHint=readonlyMessage
+        update=(action "toggleDatasetAttachment")
+      }}
+    {{else if directDatasetProxy.isPending}}
+      {{spin-spinner-block class="direct-dataset-toggle-spinner" sizeClass="xs"}}
+    {{/if}}
+  </h2>
+{{/if}}
