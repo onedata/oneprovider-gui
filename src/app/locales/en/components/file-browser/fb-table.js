@@ -13,10 +13,11 @@ export default {
     upload: 'upload',
     createNewDirectory: 'create a new directory',
     youCanAlso: 'You can also',
-    symlink: 'symlink',
-    hardlink: 'hardlink',
+    placeSymlinks: 'place symbolic links',
+    placeHardlinks: 'place hard links',
     paste: 'paste',
     filesFromClipboard: 'files from clipboard',
+    toFilesInClipboard: 'to files in clipboard',
     or: 'or',
   },
   errorDirBox: {

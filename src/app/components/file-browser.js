@@ -19,7 +19,7 @@ import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
-import { next, schedule } from '@ember/runloop';
+import { next } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
@@ -70,7 +70,8 @@ const buttonNames = [
   'btnDistribution',
   'btnQos',
   'btnRename',
-  'btnCreateLink',
+  'btnCreateSymlink',
+  'btnCreateHardlink',
   'btnPlaceSymlink',
   'btnPlaceHardlink',
   'btnCopy',
@@ -322,8 +323,11 @@ export default Component.extend(I18n, {
           allButtonsArray,
           context
         );
-        if (fileClipboardMode !== 'link') {
-          importedActions = importedActions.reject(({ id }) => ['placeSymlink', 'placeHardlink'].includes(id));
+        if (fileClipboardMode !== 'symlink') {
+          importedActions = importedActions.rejectBy('id', 'placeSymlink');
+        }
+        if (fileClipboardMode !== 'hardlink') {
+          importedActions = importedActions.rejectBy('id', 'placeHardlink');
         }
         if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
           importedActions = importedActions.rejectBy('id', 'paste');
@@ -530,20 +534,35 @@ export default Component.extend(I18n, {
   }),
 
   // FIXME VFS-7419 prepare new icons
-  btnCreateLink: computed('selectedFiles.length', function btnCreateLink() {
+  btnCreateSymlink: computed('selectedFiles.length', function btnCreateSymlink() {
     const areManyFilesSelected = this.get('selectedFiles.length') > 1;
     return this.createFileAction({
-      id: 'createLink',
+      id: 'createSymlink',
       icon: 'text-link',
-      title: this.t(`fileActions.createLink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
+      title: this.t(`fileActions.createSymlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
       action: (files) => {
         this.setProperties({
           fileClipboardFiles: files.slice(),
-          fileClipboardMode: 'link',
+          fileClipboardMode: 'symlink',
         });
-        schedule('afterRender', () => {
-          animateCss(this.$('.fb-toolbar-button.file-action-placeSymlink')[0], 'pulse-mint');
-          animateCss(this.$('.fb-toolbar-button.file-action-placeHardlink')[0], 'pulse-mint');
+      },
+      showIn: anySelected,
+    });
+  }),
+
+  btnCreateHardlink: computed('selectedFiles.[]', function btnCreateHardlink() {
+    const areManyFilesSelected = this.get('selectedFiles.length') > 1;
+    const disabled = this.get('selectedFiles').isAny('type', 'dir');
+    return this.createFileAction({
+      id: 'createHardlink',
+      icon: 'text-link',
+      disabled,
+      tip: disabled ? this.t('cannotHardlinkDirectory') : undefined,
+      title: this.t(`fileActions.createHardlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
+      action: (files) => {
+        this.setProperties({
+          fileClipboardFiles: files.slice(),
+          fileClipboardMode: 'hardlink',
         });
       },
       showIn: anySelected,
@@ -566,12 +585,9 @@ export default Component.extend(I18n, {
   btnPlaceHardlink: computed(
     'fileClipboardFiles.[]',
     function btnPlaceHardlink() {
-      const disabled = this.get('fileClipboardFiles').isAny('type', 'dir');
       return this.createFileAction({
         id: 'placeHardlink',
         icon: 'text-link',
-        disabled,
-        tip: disabled ? this.t('cannotHardlinkDirectory') : undefined,
         action: () => this.placeHardlinks(),
         showIn: [
           actionContext.currentDir,
@@ -590,9 +606,6 @@ export default Component.extend(I18n, {
           fileClipboardFiles: files.slice(),
           fileClipboardMode: 'copy',
         });
-        schedule('afterRender', () =>
-          animateCss(this.$('.fb-toolbar-button.file-action-paste')[0], 'pulse-mint')
-        );
       },
       showIn: anySelected,
     });
@@ -606,9 +619,6 @@ export default Component.extend(I18n, {
           fileClipboardFiles: files.slice(),
           fileClipboardMode: 'move',
         });
-        schedule('afterRender', () =>
-          animateCss(this.$('.fb-toolbar-button.file-action-paste')[0], 'pulse-mint')
-        );
       },
       showIn: anySelected,
     });
