@@ -69,7 +69,7 @@ $dataset-write-unprotected-color: #596E99;
         position: relative;
         width: 12em;
         padding-top: 2em;
-        padding-bottom: 1em;
+        padding-bottom: $padding-bottom;
         padding-left: 2em;
         padding-right: 2em;
         text-align: center;

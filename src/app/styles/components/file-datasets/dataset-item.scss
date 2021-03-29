@@ -30,7 +30,8 @@
       $dataset-write-unprotected-color,
       50%
     );
-    &.unchecked {
+    // TODO: VFS-7482 refactor to unchecked (when acceptance tests will be ready)
+    &.unselected {
       @include toggle-color($dataset-write-unprotected-toggle-color);
     }
     &.checked {

@@ -10,7 +10,10 @@
     dataset=directDataset
     readonly=(or (not directDataset.isAttached) readonly)
     protectionIcons=protectionIcons
-    readonlyMessage=directDatasetFlagsReadonlyMessage
+    readonlyMessage=(unless directDataset.isAttached
+      (tt this "notAttachedReadonlyFlags")
+      directDatasetFlagsReadonlyMessage
+    )
   }}
     <div class="dataset-label-section">
       {{one-icon

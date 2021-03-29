@@ -18,12 +18,6 @@
       <h1>{{tt this "hint.title"}}</h1>
       <p>{{tt this "hint.intro"}}</p>
       <p>{{tt this "hint.guide"}}</p>
-      <p>
-        {{one-doc-see-more
-          linkName=(tt this "hint.docLinkName")
-          docPath="using_onedata/datasets.html"
-        }}
-      </p>
       <div class="btn-toolbar text-right visible-xs-block">
         {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
           {{tt this "hint.close"}}

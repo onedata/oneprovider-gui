@@ -7,8 +7,7 @@ export default {
   hint: {
     title: 'Datasets',
     intro: '[TODO: VFS-7479] (what datasets are; what are datasets in accordance to file or directory)',
-    guide: '[TODO: VFS-7479] (what this modal shows and what can you configure here)',
-    docLinkName: 'datasets',
+    guide: '[TODO: VFS-7479] (what this modal shows and what can you configure here; we can add also documentation link but there is no docs yet)',
     close: 'Close',
   },
   fileProtectionTag: {

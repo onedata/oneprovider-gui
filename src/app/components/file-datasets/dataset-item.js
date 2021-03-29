@@ -122,6 +122,7 @@ export default Component.extend(I18n, {
   ),
 
   actions: {
+    // TODO: VFS-7414 update file and file-summary data after chaning parent dataset flag
     toggleDatasetProtectionFlag(flag, state) {
       const {
         dataset,
