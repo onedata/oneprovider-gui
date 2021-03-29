@@ -232,6 +232,7 @@ describe('Integration | Component | file browser', function () {
 
         this.render(hbs `<div id="content-scroll">{{file-browser
           dir=dir
+          spaceId="myspaceid"
           selectedFiles=selectedFiles
           updateDirEntityId=updateDirEntityId
           changeSelectedFiles=(action (mut selectedFiles))
@@ -251,7 +252,7 @@ describe('Integration | Component | file browser', function () {
         await click(`.file-action-place${upperLinkType}`);
 
         const linkTarget = linkType === 'symlink' ?
-          '../f1 name' : this.get('elementsMap.f1');
+          '<__onedata_space_id:myspaceid>/f1 name' : this.get('elementsMap.f1');
         expect(createLink).to.have.been
           .calledWith('f1 name', this.get('elementsMap.f2'), linkTarget);
       }

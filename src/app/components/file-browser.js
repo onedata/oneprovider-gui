@@ -22,8 +22,7 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import { next } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
-import _ from 'lodash';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 export const actionContext = {
@@ -205,6 +204,12 @@ export default Component.extend(I18n, {
    * @type {Boolean}
    */
   isSpaceOwned: undefined,
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  spaceId: undefined,
 
   /**
    * @virtual
@@ -917,6 +922,7 @@ export default Component.extend(I18n, {
       i18n,
       i18nPrefix,
       fileClipboardFiles,
+      spaceId,
     } = this.getProperties(
       'dir',
       'fileManager',
@@ -924,42 +930,30 @@ export default Component.extend(I18n, {
       'errorExtractor',
       'i18n',
       'i18nPrefix',
-      'fileClipboardFiles'
+      'fileClipboardFiles',
+      'spaceId'
     );
-
-    // FIXME: VFS-7370 will change to absolute path probably
-    const dirPath = await resolveFilePath(dir);
-    const clpFilesParentPath =
-      (await resolveFilePath(fileClipboardFiles[0])).slice(0, -1);
-    let deepestCommonParent = dirPath[0];
-    for (let i = 0; dirPath[i] && dirPath[i] === clpFilesParentPath[i]; i++) {
-      deepestCommonParent = dirPath[i];
-    }
-    const deepestCommonParentNesting = dirPath.indexOf(deepestCommonParent);
-    const goUpNTimes = dirPath.length - deepestCommonParentNesting - 1;
-    const clpParentPathRelativeToCommonParent =
-      clpFilesParentPath.slice(deepestCommonParentNesting + 1);
-
-    let pathBase = (_.times(goUpNTimes, _.constant('..')).join('/') || '.') + '/';
-    if (clpParentPathRelativeToCommonParent.length) {
-      pathBase += clpParentPathRelativeToCommonParent.mapBy('index').join('/') + '/';
-    }
 
     const throttledRefresh = createThrottledFunction(
       () => this.refreshCurrentDir(),
       1000
     );
 
+    const symlinkPathPrefix = `<__onedata_space_id:${spaceId}>`;
     return handleMultiFilesOperation({
       files: fileClipboardFiles,
       globalNotify,
       errorExtractor,
       i18n,
       operationErrorKey: `${i18nPrefix}.linkFailed`,
-    }, file => {
+    }, async (file) => {
       const fileName = get(file, 'index');
-      return fileManager.createSymlink(fileName, dir, pathBase + fileName)
-        .then(() => throttledRefresh());
+      const filePath = stringifyFilePath(
+        (await resolveFilePath(file)).slice(1),
+        'index'
+      );
+      await fileManager.createSymlink(fileName, dir, symlinkPathPrefix + filePath);
+      await throttledRefresh();
     });
   },
 
