@@ -16,6 +16,21 @@ import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import _ from 'lodash';
+import config from 'ember-get-config';
+import { isDevelopment } from 'onedata-gui-websocket-client/utils/development-environment';
+
+const isUsingMock = isDevelopment(config);
+
+const normalizedFileTypes = {
+  REG: 'file',
+  DIR: 'dir',
+  LNK: 'hardlink',
+  SYMLNK: 'symlink',
+};
+const defaultNormalizedFileType = 'file';
+
+const serializedFileTypes = _.invert(normalizedFileTypes);
 
 export default Serializer.extend({
   fileRelations: computed(() => [
@@ -148,6 +163,11 @@ export default Serializer.extend({
       this.serializeRelations(hash, scope);
       this.serializeVirtualRelations(hash);
     }
+    if (isUsingMock) {
+      hash.data.attributes.type = serializedFileTypes[hash.data.attributes.type];
+    } else {
+      hash.type = serializedFileTypes[hash.type];
+    }
     return hash;
   },
 
@@ -158,6 +178,12 @@ export default Serializer.extend({
     const parsedGri = parseGri(hash.gri);
     const scope = hash.scope || parsedGri.scope;
     const entityId = parsedGri.entityId;
+    if (isUsingMock) {
+      hash.attributes.type =
+        normalizedFileTypes[hash.attributes.type] || defaultNormalizedFileType;
+    } else {
+      hash.type = normalizedFileTypes[hash.type] || defaultNormalizedFileType;
+    }
     hash.sharesCount = hash.shares ? hash.shares.length : 0;
     this.normalizeRelations(hash, scope);
     this.normalizeVirtualRelations(hash, entityId, scope);
