@@ -11,8 +11,8 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { or, raw, conditional } from 'ember-awesome-macros';
-import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['file-datasets-summary-header'],

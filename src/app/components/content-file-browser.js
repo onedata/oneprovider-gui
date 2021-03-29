@@ -64,7 +64,11 @@ export default OneEmbeddedComponent.extend(
 
     fileToShowMetadata: undefined,
 
-    selectedFiles: Object.freeze([]),
+    /**
+     * Initialized on init.
+     * @type {Array<Models.File>}
+     */
+    selectedFiles: undefined,
 
     /**
      * @type {ComputedProperty<Object>}
@@ -233,6 +237,13 @@ export default OneEmbeddedComponent.extend(
       this.get('containerScrollTop')(0);
     }),
 
+    init() {
+      this._super(...arguments);
+      if (!this.get('selectedFiles')) {
+        this.set('selectedFiles', []);
+      }
+    },
+
     /**
      * Optionally redirects Onezone to URL containing parent directory of first
      * selected file (if there is no injected dir id and at least one selected file).
@@ -340,8 +351,8 @@ export default OneEmbeddedComponent.extend(
     },
 
     clearFilesSelection() {
-      this.set('selectedFiles', Object.freeze([]));
-      this.set('selectedFilesForJump', Object.freeze([]));
+      this.set('selectedFiles', []);
+      this.set('selectedFilesForJump', []);
     },
 
     actions: {
@@ -434,7 +445,7 @@ export default OneEmbeddedComponent.extend(
         this.closeQosModal();
       },
       changeSelectedFiles(selectedFiles) {
-        this.set('selectedFiles', Object.freeze(selectedFiles));
+        this.set('selectedFiles', selectedFiles);
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);

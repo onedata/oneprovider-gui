@@ -45,25 +45,16 @@ export default {
   },
   disabledActionReason: {
     action: {
-      rename: 'rename',
-      cut: 'cut',
-      delete: 'delete',
-      paste: 'paste into current directory',
+      rename: 'rename elements',
+      cut: 'cut elements',
+      delete: 'delete elements',
+      paste: 'paste into a directory',
     },
     protectionType: {
       data: 'data',
       metadata: 'metadata',
     },
-    protectionSource: {
-      parent: 'current directory',
-      anySelected: 'any selected element',
-      singleSelected: 'selected element',
-    },
-    writeProtected: 'Cannot {{actionName}} if {{protectionSource}} {{protectionType}} is write protected.',
-
-    renameDisabledDataProtected: 'Files cannot be renamed if data is write protected',
-    cutDisabledDataProtection: 'Files cannot be moved if data is write protected',
-    deleteDisabledDataProtection: 'Files cannot be deleted if data is write protected',
+    writeProtected: 'Cannot {{actionName}} whose {{protectionType}} is write-protected.',
   },
   fbTable,
   fbTableRow,

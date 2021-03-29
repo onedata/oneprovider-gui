@@ -253,13 +253,13 @@ export default Component.extend(I18n, {
    * Array of selected file records.
    * @type {EmberArray<Models.File>}
    */
-  selectedFiles: Object.freeze([]),
+  selectedFiles: undefined,
 
   /**
    * Injected property to notify about external selection change, that should enable jump.
    * @type {EmberArray<Models.File>}
    */
-  selectedFilesForJump: Object.freeze([]),
+  selectedFilesForJump: undefined,
 
   /**
    * If true, the paste from clipboard button should be available
@@ -582,9 +582,15 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnRename: computed(function btnRename() {
+  btnRename: computed('selectedFiles.@each.dataIsProtected', function btnRename() {
+    const actionId = 'rename';
+    const tip = this.generateDisabledTip({
+      actionId,
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'rename',
+      id: actionId,
       action: (files) => {
         const {
           openRename,
@@ -592,6 +598,8 @@ export default Component.extend(I18n, {
         } = this.getProperties('openRename', 'dir');
         return openRename(files[0], dir);
       },
+      disabled,
+      tip,
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,
@@ -626,23 +634,39 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnCut: computed(function btnCut() {
+  btnCut: computed('selectedFiles.@each.dataIsProtected', function btnCut() {
+    const actionId = 'cut';
+    const tip = this.generateDisabledTip({
+      actionId,
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'cut',
+      id: actionId,
       action: (files) => {
         this.setProperties({
           fileClipboardFiles: files,
           fileClipboardMode: 'move',
         });
       },
+      disabled,
+      tip,
       showIn: anySelected,
     });
   }),
 
-  btnPaste: computed(function btnPaste() {
+  btnPaste: computed('selectedFiles.@each.dataIsProtected', function btnPaste() {
+    const actionId = 'paste';
+    const tip = this.generateDisabledTip({
+      actionId,
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'paste',
+      id: actionId,
       action: () => this.pasteFiles(),
+      disabled,
+      tip,
       showIn: [
         actionContext.currentDir,
         actionContext.spaceRootDir,
@@ -651,9 +675,15 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnDelete: computed(function btnDelete() {
+  btnDelete: computed('selectedFiles.@each.dataIsProtected', function btnDelete() {
+    const actionId = 'delete';
+    const tip = this.generateDisabledTip({
+      actionId,
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'delete',
+      id: actionId,
       action: (files) => {
         const {
           openRemove,
@@ -661,9 +691,20 @@ export default Component.extend(I18n, {
         } = this.getProperties('openRemove', 'dir');
         return openRemove(files, dir);
       },
+      disabled,
+      tip,
       showIn: anySelected,
     });
   }),
+
+  generateDisabledTip({ actionId, protectionType }) {
+    const selectedFiles = this.get('selectedFiles');
+    const isProtected = selectedFiles.isAny(`${protectionType}IsProtected`);
+    return isProtected ? this.t('disabledActionReason.writeProtected', {
+      actionName: this.t(`disabledActionReason.action.${actionId}`),
+      protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
+    }) : undefined;
+  },
 
   btnDistribution: computed(function btnDistribution() {
     return this.createFileAction({
@@ -740,6 +781,12 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    if (!this.get('selectedFiles')) {
+      this.set('selectedFiles', []);
+    }
+    if (!this.get('selectedFilesForJump')) {
+      this.set('selectedFilesForJump', []);
+    }
     this.set('loadingIconFileIds', A());
   },
 
