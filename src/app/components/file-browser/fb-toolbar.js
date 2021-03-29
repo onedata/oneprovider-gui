@@ -16,6 +16,8 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import { cancel, later, schedule } from '@ember/runloop';
 import { inject as service } from '@ember/service';
 import config from 'ember-get-config';
+import _ from 'lodash';
+import { array } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
@@ -86,7 +88,12 @@ export default Component.extend(I18n, {
         fileClipboardMode,
       } = this.getProperties('elementId', 'fileClipboardMode');
 
-      const targetActionName = fileClipboardMode === 'link' ? 'placeSymlink' : 'paste';
+      let targetActionName;
+      if (fileClipboardMode === 'symlink' || fileClipboardMode === 'hardlink') {
+        targetActionName = `place${_.upperFirst(fileClipboardMode)}`;
+      } else {
+        targetActionName = 'paste';
+      }
       return `#${elementId} .file-action-${targetActionName} .one-icon`;
     }
   ),
@@ -108,14 +115,21 @@ export default Component.extend(I18n, {
         allButtonsArray,
         previewMode ? 'inDirPreview' : 'inDir'
       );
-      if (fileClipboardMode !== 'link') {
-        actions = actions.reject(({ id }) => ['placeSymlink', 'placeHardlink'].includes(id));
+      if (fileClipboardMode !== 'symlink') {
+        actions = actions.rejectBy('id', 'placeSymlink');
+      }
+      if (fileClipboardMode !== 'hardlink') {
+        actions = actions.rejectBy('id', 'placeHardlink');
       }
       if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
         actions = actions.rejectBy('id', 'paste');
       }
       return actions;
     }
+  ),
+
+  highlightedToolbarButtons: array.filter('toolbarButtons', btn => ['paste', 'placeSymlink', 'placeHardlink']
+    .includes(get(btn, 'id'))
   ),
 
   toolbarButtonIds: computed('toolbarButtons.@each.id', function toolbarButtonIds() {

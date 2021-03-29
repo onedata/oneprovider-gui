@@ -216,7 +216,7 @@ describe('Integration | Component | file browser', function () {
 
   ['symlink', 'hardlink'].forEach(linkType => {
     const upperLinkType = _.upperFirst(linkType);
-    it(`shows working ${linkType} button when invoked file link from context menu`,
+    it(`shows working ${linkType} button when invoked file ${linkType} from context menu`,
       async function () {
         mockFilesTree(this, {
           f1: null,
@@ -232,6 +232,7 @@ describe('Integration | Component | file browser', function () {
 
         this.render(hbs `<div id="content-scroll">{{file-browser
           dir=dir
+          spaceId="myspaceid"
           selectedFiles=selectedFiles
           updateDirEntityId=updateDirEntityId
           changeSelectedFiles=(action (mut selectedFiles))
@@ -241,10 +242,9 @@ describe('Integration | Component | file browser', function () {
         expect(this.$('.fb-table-row')).to.exist;
 
         await triggerEvent(this.$('.fb-table-row:contains("f1 name")')[0], 'contextmenu');
-        await click('.file-action-createLink');
+        await click(`.file-action-create${upperLinkType}`);
 
-        expect($(`.file-action-place${upperLinkType}`)).to.exist
-          .and.to.not.have.class('disabled');
+        expect($(`.file-action-place${upperLinkType}`)).to.exist;
 
         const dirRow = this.$('.fb-table-row:contains("f2 name")')[0];
         dirRow.click();
@@ -252,7 +252,7 @@ describe('Integration | Component | file browser', function () {
         await click(`.file-action-place${upperLinkType}`);
 
         const linkTarget = linkType === 'symlink' ?
-          '../f1 name' : this.get('elementsMap.f1');
+          '<__onedata_space_id:myspaceid>/f1 name' : this.get('elementsMap.f1');
         expect(createLink).to.have.been
           .calledWith('f1 name', this.get('elementsMap.f2'), linkTarget);
       }
@@ -275,9 +275,7 @@ describe('Integration | Component | file browser', function () {
     expect(this.$('.fb-table-row')).to.exist;
 
     await triggerEvent(this.$('.fb-table-row:contains("f1 name")')[0], 'contextmenu');
-    await click('.file-action-createLink');
-
-    expect($('.file-action-placeHardlink')).to.exist.and.to.have.class('disabled');
+    expect($('.file-action-createHardlink').parent()).to.have.class('disabled');
   });
 
   it('shows empty dir message with working new directory button', function () {

@@ -2,17 +2,19 @@ export default {
   moreTools: 'More tools',
   clipboardHint: {
     link: {
-      beforeSymlinkIcon: 'To create a link, navigate to the directory where the new link should be placed. Then click on ',
-      beforeHardlinkIcon: 'to create a symlink or',
-      afterHardlinkIcon: 'for a hardlink.',
+      linkSingular: 'link',
+      linkPlural: 'links',
+      beforePlaceIconSymlink: 'To conclude symbolic {{links}} creation, navigate to the target directory and use the ',
+      beforePlaceIconHardlink: 'To conclude hard {{links}} creation, navigate to the target directory and use the ',
+      afterPlaceIcon: 'button.',
     },
     copy: {
-      beforePasteIcon: 'To copy selected files, navigate to the directory where the copy should be made. Then click on ',
-      afterPasteIcon: 'button above.',
+      beforePasteIcon: 'To conclude the copy operation, navigate to the target directory and use the ',
+      afterPasteIcon: 'button.',
     },
     move: {
-      beforePasteIcon: 'To move selected files, navigate to the directory where the files should be moved. Then click on ',
-      afterPasteIcon: 'button above.',
+      beforePasteIcon: 'To conclude the move operation, navigate to the target directory and use the ',
+      afterPasteIcon: 'button.',
     },
   },
 };

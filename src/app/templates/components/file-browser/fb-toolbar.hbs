@@ -2,7 +2,12 @@
   {{#each toolbarButtons as |button|}}
     <div
       onclick={{action "buttonClicked" button}}
-      class="fb-toolbar-button {{if button.disabled "disabled"}} {{button.class}}"
+      class={{concat-classes
+        "fb-toolbar-button"
+        (if button.disabled "disabled")
+        (if (contains button highlightedToolbarButtons) "text-success")
+        button.class
+      }}
       disabled={{button.disabled}}
     >
       {{#one-icon icon=button.icon}}
@@ -25,12 +30,19 @@
       as |popover|
     }}
       {{#click-outside action=(action (mut isClipboardHintVisible) false)}}
-        {{#if (eq fileClipboardMode "link")}}
-          {{tt this "clipboardHint.link.beforeSymlinkIcon"}}
-          {{one-icon icon="plus"}}
-          {{tt this "clipboardHint.link.beforeHardlinkIcon"}}
-          {{one-icon icon="text-link"}}
-          {{tt this "clipboardHint.link.afterHardlinkIcon"}}
+        {{#if (or (eq fileClipboardMode "symlink") (eq fileClipboardMode "hardlink"))}}
+          {{tt this
+            (concat
+              "clipboardHint.link.beforePlaceIcon"
+              (if (eq fileClipboardMode "symlink") "Symlink" "Hardlink")
+            )
+            links=(tt this (concat
+            "clipboardHint.link."
+              (if (gt fileClipboardFiles.length 1) "linkPlural" "linkSingular")
+            ))
+          }}
+          {{one-icon icon=(if (eq fileClipboardMode "symlink") "plus" "text-link")}}
+          {{tt this "clipboardHint.link.afterPlaceIcon"}}
         {{else if (eq fileClipboardMode "copy")}}
           {{tt this "clipboardHint.copy.beforePasteIcon"}}
           {{one-icon icon="browser-paste"}}
