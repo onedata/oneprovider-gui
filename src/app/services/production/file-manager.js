@@ -267,15 +267,18 @@ export default Service.extend({
       .finally(() => this.dirChildrenRefresh(parentDirEntityId));
   },
 
-  getFileDownloadUrl(fileEntityId, scope = 'private') {
+  getFileDownloadUrl(fileIds, scope = 'private') {
     return this.get('onedataGraph').request({
       operation: 'get',
       gri: gri({
         entityType: fileEntityType,
-        entityId: fileEntityId,
+        entityId: null,
         aspect: 'download_url',
         scope,
       }),
+      data: {
+        file_ids: fileIds,
+      },
       subscribe: false,
     });
   },
