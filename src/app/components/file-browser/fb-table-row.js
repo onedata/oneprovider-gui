@@ -198,8 +198,8 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   fileEntityId: reads('file.entityId'),
 
-  typeClass: computed('linkedFileType', function typeClass() {
-    return `fb-table-row-${this.get('linkedFileType') || 'unknown'}`;
+  typeClass: computed('type', function typeClass() {
+    return `fb-table-row-${this.get('type') || 'unknown'}`;
   }),
 
   typeText: computed('type', function typeText() {

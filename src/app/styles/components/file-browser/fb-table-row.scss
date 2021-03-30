@@ -164,6 +164,9 @@
   &.fb-table-row-file .file-icon {
     color: $color-file;
   }
+  &.fb-table-row-symlink .file-icon::before {
+    color: $color-symlink;
+  }
   &.fb-table-row-broken {
     .file-icon {
       color: $color-one-red;
