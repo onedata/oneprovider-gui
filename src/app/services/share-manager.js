@@ -28,8 +28,7 @@ export default Service.extend({
         name: shareName,
         _meta: {
           additionalData: {
-            // FIXME: use rootFileId
-            fileId: get(file, 'cdmiObjectId'),
+            rootFileId: get(file, 'cdmiObjectId'),
           },
         },
       })
