@@ -46,6 +46,12 @@ export default Component.extend(I18n, {
   getDataUrl: notImplementedWarn,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  updateOpenedFileData: notImplementedWarn,
+
+  /**
    * State of parent datasets collapse
    * @type {Boolean}
    */
@@ -60,16 +66,19 @@ export default Component.extend(I18n, {
    * A dataset-like object that have summary of parent datasets protection flags
    * @type {ComputedProperty<Object>}
    */
-  virtualParentDataset: computed('ancestorDatasets', function virtualParentDataset() {
-    const ancestorDatasets = this.get('ancestorDatasets');
-    if (ancestorDatasets) {
-      return {
-        isAttached: true,
-        dataIsProtected: ancestorDatasets.isAny('dataIsProtected'),
-        metadataIsProtected: ancestorDatasets.isAny('metadataIsProtected'),
-      };
+  virtualParentDataset: computed(
+    'ancestorDatasets.@each.{dataIsProtected,metadataIsProtected}',
+    function virtualParentDataset() {
+      const ancestorDatasets = this.get('ancestorDatasets');
+      if (ancestorDatasets) {
+        return {
+          isAttached: true,
+          dataIsProtected: ancestorDatasets.isAny('dataIsProtected'),
+          metadataIsProtected: ancestorDatasets.isAny('metadataIsProtected'),
+        };
+      }
     }
-  }),
+  ),
 
   actions: {
     toggleParentDatasetsCollapse() {

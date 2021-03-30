@@ -17,6 +17,7 @@ import { inject as service } from '@ember/service';
 export default Service.extend({
   onedataGraph: service(),
   store: service(),
+  fileManager: service(),
 
   /**
    * @param {Models.File} file
@@ -33,11 +34,7 @@ export default Service.extend({
       },
     });
     await dataset.save();
-    // TODO: VFS-7414 check if parallel reloading record and relation will not crash
-    await allSettled([
-      file.reload(),
-      file.belongsTo('fileDatasetSummary').reload(),
-    ]);
+    await this.updateFileDatasetsData(file);
     return dataset;
   },
 
@@ -46,11 +43,11 @@ export default Service.extend({
    */
   async destroyDataset(dataset) {
     const fileRelation = dataset.belongsTo('rootFile');
-    await dataset.destroy();
+    await dataset.destroyRecord();
     if (fileRelation && fileRelation.id()) {
-      const file = await fileRelation.reload();
+      const file = await fileRelation.load();
       if (file) {
-        await file.belongsTo('fileDatasetSummary').reload();
+        await this.updateFileDatasetsData(file);
       }
     }
   },
@@ -62,7 +59,15 @@ export default Service.extend({
    */
   async toggleDatasetAttachment(dataset, state) {
     set(dataset, 'state', state ? 'attached' : 'detached');
-    return await dataset.save();
+    await dataset.save();
+    const fileRelation = dataset.belongsTo('rootFile');
+    if (fileRelation && fileRelation.id()) {
+      const file = await fileRelation.load();
+      if (file) {
+        await this.updateFileDatasetsData(file);
+      }
+    }
+    return dataset;
   },
 
   /**
@@ -111,11 +116,24 @@ export default Service.extend({
     });
     await dataset.reload();
     const file = await get(dataset, 'rootFile');
-    // TODO: VFS-7414 check if parallel reloading record and relation will not crash
-    await allSettled([
-      file.reload(),
-      file.belongsTo('fileDatasetSummary').reload(),
-    ]);
+    if (file) {
+      this.updateFileDatasetsData(file);
+    }
     return dataset;
+  },
+
+  async updateFileDatasetsData(file) {
+    const fileManager = this.get('fileManager');
+    const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
+    const promises = [
+      file.reload(),
+      fileDatasetSummaryRelation.reload(),
+    ];
+    if (get(file, 'type') === 'dir') {
+      promises.push(
+        fileManager.dirChildrenRefresh(get(file, 'entityId'))
+      );
+    }
+    await allSettled(promises);
   },
 });

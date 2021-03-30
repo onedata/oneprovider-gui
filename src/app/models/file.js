@@ -20,6 +20,7 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { bool } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
+import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 export const entityType = 'file';
 
@@ -70,52 +71,7 @@ export default Model.extend(
     /**
      * Possible values: none, direct, ancestor
      */
-    // FIXME: wait for backend
-    // effQosMembership: attr('string', { defaultValue: 'none' }),
-
-    hasEffQos: attr('boolean'),
-    hasDirectQos: attr('boolean'),
-
-    effQosMembership: computed({
-      get() {
-        const {
-          hasDirectQos,
-          hasEffQos,
-        } = this.getProperties('hasDirectQos', 'hasEffQos');
-        if (hasEffQos) {
-          if (hasDirectQos) {
-            return 'direct';
-          } else {
-            return 'ancestor';
-          }
-        } else {
-          return 'none';
-        }
-      },
-      set(key, value) {
-        switch (value) {
-          case 'ancestor':
-            this.setProperties({
-              hasEffQos: true,
-              hasDirectQos: false,
-            });
-            break;
-          case 'direct':
-            this.setProperties({
-              hasEffQos: true,
-              hasDirectQos: true,
-            });
-            break;
-          case 'none':
-          default:
-            this.setProperties({
-              hasEffQos: false,
-              hasDirectQos: false,
-            });
-            break;
-        }
-      },
-    }),
+    effQosMembership: attr('string', { defaultValue: 'none' }),
 
     /**
      * Possible values: none, direct, ancestor
@@ -168,6 +124,10 @@ export default Model.extend(
      * @type {any}
      */
     pollSizeTimerId: null,
+
+    // FIXME: use this properties in datasets-modal
+    dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
+    metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
 
     isShared: bool('sharesCount'),
 

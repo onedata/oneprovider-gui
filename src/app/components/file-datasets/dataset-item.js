@@ -58,6 +58,12 @@ export default Component.extend(I18n, {
   getDataUrl: notImplementedIgnore,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  updateOpenedFileData: notImplementedIgnore,
+
+  /**
    * Mapping of protection type (data or metadata) to name of icon representing it
    * @virtual
    * @type {Object}
@@ -124,16 +130,30 @@ export default Component.extend(I18n, {
   ),
 
   actions: {
-    toggleDatasetProtectionFlag(flag, state) {
+    async toggleDatasetProtectionFlag(flag, state) {
       const {
+        file,
         dataset,
         datasetManager,
-      } = this.getProperties('dataset', 'datasetManager');
-      return datasetManager.toggleDatasetProtectionFlag(
+        updateOpenedFileData,
+      } = this.getProperties('file', 'dataset', 'datasetManager', 'updateOpenedFileData');
+      await datasetManager.toggleDatasetProtectionFlag(
         dataset,
         flag,
         state
       );
+      try {
+        // just in case that invocation of this function fails
+        // do not wait for resolve - it's only a side effect
+        if (typeof updateOpenedFileData === 'function') {
+          updateOpenedFileData({ fileInvokingUpdate: file });
+        }
+      } catch (error) {
+        console.error(
+          'components:file-datasets/dataset-item: could not invoke updateOpenedFileData',
+          error
+        );
+      }
     },
     fileLinkClicked(event) {
       this.get('close')();

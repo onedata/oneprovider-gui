@@ -24,6 +24,7 @@ export default Component.extend({
    */
   datasets: undefined,
 
+  // TODO: VFS-7414 this could be not needed, because paths should be sorted anyway
   // TODO: VFS-7414 this should be changed to use rootFilePath instead of resolving
   // the path using record, but we don't know how to handle slashes (/) in paths yet
   /**

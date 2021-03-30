@@ -25,4 +25,13 @@
     margin-left: 1.5em;
     font-size: $font-size-base;
   }
+  // FIXME: VFS-7414 experimental, maybe to remove
+  .destroy-btn-container {
+    flex-grow: 1;
+    text-align: right;
+    padding-right: 2em;
+    .destroy-dataset-btn {
+      font-size: $font-size-base;
+    }
+  }
 }

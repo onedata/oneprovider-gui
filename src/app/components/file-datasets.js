@@ -18,6 +18,7 @@ import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { promise } from 'ember-awesome-macros';
+import { allSettled } from 'rsvp';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -26,6 +27,7 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   datasetManager: service(),
+  fileManager: service(),
   globalNotify: service(),
 
   /**
@@ -151,4 +153,31 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.Dataset>}
    */
   ancestorDatasets: reads('ancestorDatasetsProxy.content'),
+
+  actions: {
+    /**
+     * Update information about file currently opened in `file-datasets` component
+     * @param {Object} options
+     * @param {Models.File} options.fileInvokingUpdate file whose datasets changes caused
+     *   invocation of this update - if this is the file opened in `file-datasets` or
+     *   its direct parent, then we skip the refresh, because updates are automatically
+     *   done by file-manager on this "invoking" file
+     */
+    async updateOpenedFileData({ fileInvokingUpdate } = {}) {
+      const {
+        fileManager,
+        file,
+      } = this.getProperties('fileManager', 'file');
+      if (file && fileInvokingUpdate !== file &&
+        get(fileInvokingUpdate, 'id') !== file.belongsTo('parent').id()
+      ) {
+        const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
+        await allSettled([
+          file.reload(),
+          fileDatasetSummaryRelation.reload(),
+          fileManager.fileParentRefresh(file),
+        ]);
+      }
+    },
+  },
 });
