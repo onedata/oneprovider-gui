@@ -35,24 +35,37 @@
       </div>
     {{/file-datasets/dataset-item}}
     {{#file-datasets/datasets-list-container
+      getDataUrl=getDataUrl
       datasets=ancestorDatasets
-      as |sortedDataList|
+      as |dataList|
     }}
-      {{#each sortedDataList as |data|}}
-        {{file-datasets/dataset-item
+      {{#each dataList as |data|}}
+        {{#file-datasets/dataset-item
           class=(concat-classes
             "parent-dataset-item"
             (if parentDatasetsCollapsed "closed" "opened")
           )
           dataset=data.dataset
-          filePath=data.filePath
+          file=data.file
           readonly=readonly
           readonlyMessage=insufficientEditPrivilegesMessage
           protectionIcons=protectionIcons
-          close=close
           updateOpenedFileData=updateOpenedFileData
-          getDataUrl=(action getDataUrl)
         }}
+          <div class="dataset-label-section">
+            {{one-icon class="path-icon" icon="browser-directory"}}
+            <div class="dataset-label path-label">
+              <a
+                onclick={{action "fileLinkClicked"}}
+                target={{navigateDataTarget}}
+                class="azure file-path truncate"
+                href={{data.fileHref}}
+              >
+                {{data.filePathString}}
+              </a>
+            </div>
+          </div>
+        {{/file-datasets/dataset-item}}
       {{/each}}
     {{/file-datasets/datasets-list-container}}
   {{else}}

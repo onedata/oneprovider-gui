@@ -11,7 +11,6 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { and } from 'ember-awesome-macros';
-import { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -34,13 +33,6 @@ export default Component.extend(I18n, {
   dataset: undefined,
 
   /**
-   * See result format of `util:resolve-file-path` for details
-   * @virtual
-   * @type {Array<Models.File>}
-   */
-  filePath: Object.freeze([]),
-
-  /**
    * @virtual optional
    */
   readonly: false,
@@ -55,12 +47,6 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  getDataUrl: notImplementedIgnore,
-
-  /**
-   * @virtual
-   * @type {Function}
-   */
   updateOpenedFileData: notImplementedIgnore,
 
   /**
@@ -69,44 +55,6 @@ export default Component.extend(I18n, {
    * @type {Object}
    */
   protectionIcons: undefined,
-
-  /**
-   * Name of icon for enabled flag
-   * @type {String}
-   */
-  enabledIcon: 'checked',
-
-  /**
-   * Name of icon for disabled flag
-   * @type {String}
-   */
-  disabledIcon: 'x',
-
-  navigateDataTarget: '_top',
-
-  /**
-   * @type {ComputedProperty<Models.File>}
-   */
-  file: reads('filePath.lastObject'),
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  filePathString: computed('filePath.@each.name', function filePathString() {
-    return stringifyFilePath(this.get('filePath'));
-  }),
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  fileHref: computed('getDataUrl', 'file.entityId', function fileHref() {
-    const {
-      getDataUrl,
-      file,
-    } = this.getProperties('getDataUrl', 'file');
-    const fileId = get(file, 'entityId');
-    return getDataUrl({ fileId: null, selected: [fileId] });
-  }),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -132,11 +80,10 @@ export default Component.extend(I18n, {
   actions: {
     async toggleDatasetProtectionFlag(flag, state) {
       const {
-        file,
         dataset,
         datasetManager,
         updateOpenedFileData,
-      } = this.getProperties('file', 'dataset', 'datasetManager', 'updateOpenedFileData');
+      } = this.getProperties('dataset', 'datasetManager', 'updateOpenedFileData');
       await datasetManager.toggleDatasetProtectionFlag(
         dataset,
         flag,
@@ -146,7 +93,9 @@ export default Component.extend(I18n, {
         // just in case that invocation of this function fails
         // do not wait for resolve - it's only a side effect
         if (typeof updateOpenedFileData === 'function') {
-          updateOpenedFileData({ fileInvokingUpdate: file });
+          get(dataset, 'rootFile').then(file => {
+            updateOpenedFileData({ fileInvokingUpdate: file });
+          });
         }
       } catch (error) {
         console.error(
@@ -154,10 +103,6 @@ export default Component.extend(I18n, {
           error
         );
       }
-    },
-    fileLinkClicked(event) {
-      this.get('close')();
-      event.stopPropagation();
     },
   },
 });

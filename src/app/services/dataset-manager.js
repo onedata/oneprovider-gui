@@ -7,8 +7,6 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-// TODO: VFS-7414 API is not tested and stable yet
-
 import Service from '@ember/service';
 import { allSettled } from 'rsvp';
 import { get, set } from '@ember/object';

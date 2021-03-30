@@ -28,6 +28,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  close: notImplementedWarn,
+
+  /**
+   * @virtual
    * @type {PromiseArray<Models.Dataset>}
    */
   ancestorDatasetsProxy: undefined,
@@ -50,6 +56,12 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   updateOpenedFileData: notImplementedWarn,
+
+  /**
+   * Where file links should open
+   * @type {String}
+   */
+  navigateDataTarget: '_top',
 
   /**
    * State of parent datasets collapse
@@ -84,6 +96,10 @@ export default Component.extend(I18n, {
     toggleParentDatasetsCollapse() {
       const collapsed = this.get('parentDatasetsCollapsed');
       this.set('parentDatasetsCollapsed', !collapsed);
+    },
+    fileLinkClicked(event) {
+      this.get('close')();
+      event.stopPropagation();
     },
   },
 });
