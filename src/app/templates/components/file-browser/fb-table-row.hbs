@@ -17,7 +17,7 @@
         {{/if}}
         <div class="inline-icon-container inline-icon-container-file">
           {{one-icon-tagged
-            class="tag-right"
+            class=(concat-classes "tag-right" (if hasErrorIconTag "danger"))
             icon=icon
             iconClass="file-icon"
             tagIcon=iconTag

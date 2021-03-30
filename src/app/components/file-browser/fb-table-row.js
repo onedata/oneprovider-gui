@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { equal, raw, or, conditional } from 'ember-awesome-macros';
+import { equal, raw, or, conditional, isEmpty } from 'ember-awesome-macros';
 import { get, computed, getProperties, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -199,7 +199,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   fileEntityId: reads('file.entityId'),
 
   typeClass: computed('linkedFileType', function typeClass() {
-    return `fb-table-row-${this.get('linkedFileType')}`;
+    return `fb-table-row-${this.get('linkedFileType') || 'unknown'}`;
   }),
 
   typeText: computed('type', function typeText() {
@@ -222,16 +222,21 @@ export default Component.extend(I18n, FastDoubleClick, {
       case 'dir':
         return 'browser-directory';
       case 'file':
-        return 'browser-file';
       default:
-        return 'x';
+        return 'browser-file';
     }
   }),
 
+  hasErrorIconTag: isEmpty('linkedFileType'),
+
   iconTag: conditional(
-    equal('type', raw('symlink')),
-    raw('text-link'),
-    raw(null)
+    'hasErrorIconTag',
+    raw('x'),
+    conditional(
+      equal('type', raw('symlink')),
+      raw('shortcut'),
+      raw(null)
+    )
   ),
 
   contextmenuHandler: computed(function contextmenuHandler() {

@@ -865,12 +865,12 @@ export default Component.extend(I18n, {
     }
     const isDir = get(linkedFile, 'type') === 'dir';
     if (isDir) {
-      return this.get('changeDir')(file);
+      return this.get('changeDir')(linkedFile);
     } else {
       if (confirmModal) {
         this.set('downloadModalFile', file);
       } else {
-        return this.get('downloadFiles')([linkedFile]);
+        return this.get('downloadFiles')([file]);
       }
     }
   },
