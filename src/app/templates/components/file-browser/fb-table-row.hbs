@@ -79,13 +79,13 @@
                   <div
                     class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
                   >
-                    {{#if isDataProtected}}
+                    {{#if dataIsProtected}}
                       {{one-icon
                         icon="provider"
                         class="file-protected-icon file-data-protected-icon"
                       }}
                     {{/if}}
-                    {{#if isMetadataProtected}}
+                    {{#if metadataIsProtected}}
                       {{one-icon
                         icon="browser-attribute"
                         class="file-protected-icon file-metadata-protected-icon"

@@ -125,7 +125,6 @@ export default Model.extend(
      */
     pollSizeTimerId: null,
 
-    // FIXME: use this properties in datasets-modal
     dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
     metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
 

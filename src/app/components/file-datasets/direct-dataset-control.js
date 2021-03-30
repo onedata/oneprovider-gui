@@ -12,7 +12,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { equal, reads } from '@ember/object/computed';
 import { and, tag } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 export default Component.extend(I18n, {
   classNames: ['direct-dataset-control'],
@@ -59,22 +58,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Boolean>}
    */
   isDatasetAttached: equal('directDataset.state', 'attached'),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isDataProtected: and(
-    'isDatasetAttached',
-    hasProtectionFlag('directDataset.protectionFlags', 'data')
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isMetadataProtected: and(
-    'isDatasetAttached',
-    hasProtectionFlag('directDataset.protectionFlags', 'metadata')
-  ),
 
   toggleId: tag `${'elementId'}-direct-dataset-attached-toggle`,
 

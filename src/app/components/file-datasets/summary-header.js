@@ -9,10 +9,10 @@
  */
 
 import Component from '@ember/component';
-import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { or, raw } from 'ember-awesome-macros';
+import { or, raw, conditional } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import { reads } from '@ember/object/computed';
 
 export default Component.extend(I18n, {
   classNames: ['file-datasets-summary-header'],
@@ -31,17 +31,40 @@ export default Component.extend(I18n, {
   file: undefined,
 
   /**
+   * @virtual
+   * @type {PromiseObject<Models.FileDatasetSummary>}
+   */
+  fileDatasetSummaryProxy: undefined,
+
+  /**
+   * @type {ComputedProperty<Models.FileDatasetSummary>}
+   */
+  fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
+
+  /**
    * @type {ComputedProperty<String>}
    */
   fileType: or('file.type', raw('file')),
 
   /**
+   * Note: fileDatasetSummary can be updated more frequently, so if is already available
+   * then use its protection value.
    * @type {ComputedProperty<Boolean>}
    */
-  dataIsProtectedForFile: hasProtectionFlag('file.effProtectionFlags', 'data'),
+  dataIsProtectedForFile: conditional(
+    'fileDatasetSummaryProxy.isFulfilled',
+    'fileDatasetSummary.dataIsProtected',
+    'file.dataIsProtected',
+  ),
 
   /**
+   * Note: fileDatasetSummary can be updated more frequently, so if is already available
+   * then use its protection value.
    * @type {ComputedProperty<Boolean>}
    */
-  metadataIsProtectedForFile: hasProtectionFlag('file.effProtectionFlags', 'metadata'),
+  metadataIsProtectedForFile: conditional(
+    'fileDatasetSummaryProxy.isFulfilled',
+    'fileDatasetSummary.metadataIsProtected',
+    'file.metadataIsProtected',
+  ),
 });
