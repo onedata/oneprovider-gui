@@ -30,16 +30,5 @@
     {{else if directDatasetProxy.isPending}}
       {{spin-spinner-block class="direct-dataset-toggle-spinner" sizeClass="xs"}}
     {{/if}}
-    {{!-- FIXME: VFS-7414 experimental, maybe to remove --}}
-    {{#if (and directDataset (not isDatasetAttached))}}
-      <div class="destroy-btn-container">
-        {{#one-spin-button
-          class="btn btn-sm btn-danger destroy-dataset-btn"
-          action=(action "destroyDataset")
-        }}
-          {{tt this "destroyDataset"}}
-        {{/one-spin-button}}
-      </div>
-    {{/if}}
   </h2>
 {{/if}}

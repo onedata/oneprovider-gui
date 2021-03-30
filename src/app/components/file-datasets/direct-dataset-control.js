@@ -88,17 +88,5 @@ export default Component.extend(I18n, {
         return null;
       }
     },
-    async destroyDataset() {
-      const {
-        datasetManager,
-        directDataset,
-        globalNotify,
-      } = this.getProperties('datasetManager', 'directDataset', 'globalNotify');
-      try {
-        return await datasetManager.destroyDataset(directDataset);
-      } catch (error) {
-        globalNotify.backendError(this.t('destroyingDataset'), error);
-      }
-    },
   },
 });
