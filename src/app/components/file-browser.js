@@ -12,6 +12,7 @@ import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { collect } from '@ember/object/computed';
 import { dasherize } from '@ember/string';
+import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { hash, notEmpty, not } from 'ember-awesome-macros';
@@ -19,11 +20,13 @@ import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
-import { next } from '@ember/runloop';
+import { next, later } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
+import $ from 'jquery';
+import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
 
 export const actionContext = {
   none: 'none',
@@ -63,6 +66,8 @@ const buttonNames = [
   'btnNewDirectory',
   'btnRefresh',
   'btnInfo',
+  'btnDownload',
+  'btnDownloadTarGz',
   'btnShare',
   'btnMetadata',
   'btnPermissions',
@@ -89,6 +94,7 @@ export default Component.extend(I18n, {
   globalNotify: service(),
   errorExtractor: service(),
   media: service(),
+  isMobile: service(),
 
   /**
    * @override
@@ -215,6 +221,12 @@ export default Component.extend(I18n, {
    * @virtual
    */
   spacePrivileges: Object.freeze({}),
+
+  /**
+   * Initialized in init.
+   * @type {EmberArray<String>}
+   */
+  loadingIconFileIds: undefined,
 
   /**
    * Should be set by some instance of `components:fb-table`
@@ -507,6 +519,44 @@ export default Component.extend(I18n, {
     });
   }),
 
+  btnDownload: computed(function btnInfo() {
+    return this.createFileAction({
+      id: 'download',
+      icon: 'browser-download',
+      action: (files) => {
+        return this.downloadFiles(files);
+      },
+      showIn: [
+        actionContext.singleFile,
+        actionContext.singleFilePreview,
+      ],
+    });
+  }),
+
+  btnDownloadTarGz: computed(function btnInfo() {
+    return this.createFileAction({
+      id: 'downloadTarGz',
+      icon: 'browser-download',
+      action: (files) => {
+        return this.downloadFiles(files);
+      },
+      showIn: [
+        actionContext.spaceRootDir,
+        actionContext.spaceRootDirPreview,
+        actionContext.currentDir,
+        actionContext.currentDirPreview,
+        actionContext.singleDir,
+        actionContext.singleDirPreview,
+        actionContext.multiFile,
+        actionContext.multiFilePreview,
+        actionContext.multiDir,
+        actionContext.mutliDirPreview,
+        actionContext.multiMixed,
+        actionContext.multiMixedPreview,
+      ],
+    });
+  }),
+
   btnRename: computed(function btnRename() {
     return this.createFileAction({
       id: 'rename',
@@ -728,6 +778,11 @@ export default Component.extend(I18n, {
 
   // #endregion
 
+  init() {
+    this._super(...arguments);
+    this.set('loadingIconFileIds', A());
+  },
+
   didInsertElement() {
     this._super(...arguments);
 
@@ -897,7 +952,7 @@ export default Component.extend(I18n, {
     );
 
     const throttledRefresh = createThrottledFunction(
-      () => this.refreshCurrentDir(),
+      () => this.get('fbTableApi.refresh')(),
       1000
     );
 
@@ -935,7 +990,7 @@ export default Component.extend(I18n, {
     );
 
     const throttledRefresh = createThrottledFunction(
-      () => this.refreshCurrentDir(),
+      () => this.get('fbTableApi.refresh')(),
       1000
     );
 
@@ -967,8 +1022,66 @@ export default Component.extend(I18n, {
     }
   },
 
-  refreshCurrentDir() {
-    return this.get('fileManager').dirChildrenRefresh(this.get('dir.entityId'));
+  downloadFiles(files) {
+    const {
+      fileManager,
+      globalNotify,
+      previewMode,
+      loadingIconFileIds,
+    } = this.getProperties(
+      'fileManager',
+      'globalNotify',
+      'previewMode',
+      'loadingIconFileIds'
+    );
+    const fileIds = files.mapBy('entityId');
+    // intentionally not checking for duplicates, because we treat multiple "loading id"
+    // entries as semaphores
+    loadingIconFileIds.pushObjects(fileIds);
+    return fileManager.getFileDownloadUrl(
+        fileIds,
+        previewMode ? 'public' : 'private'
+      )
+      .then((data) => this.handleFileDownloadUrl(data))
+      .catch((error) => {
+        globalNotify.backendError(this.t('startingDownload'), error);
+        throw error;
+      })
+      .finally(() => {
+        removeObjectsFirstOccurence(loadingIconFileIds, fileIds);
+      });
+  },
+
+  handleFileDownloadUrl(data) {
+    const isMobileBrowser = this.get('isMobile.any');
+    const fileUrl = data && get(data, 'fileUrl');
+    if (fileUrl) {
+      if (isMobileBrowser) {
+        this.downloadUsingOpen(fileUrl);
+      } else {
+        this.downloadUsingIframe(fileUrl);
+      }
+    } else {
+      throw { isOnedataCustomError: true, type: 'empty-file-url' };
+    }
+  },
+
+  downloadUsingIframe(fileUrl) {
+    const _body = this.get('_body');
+    const iframe = $('<iframe/>').attr({
+      src: fileUrl,
+      style: 'display:none;',
+    }).appendTo(_body);
+    // the time should be long to support some download extensions in Firefox desktop
+    later(() => iframe.remove(), 60000);
+  },
+
+  downloadUsingOpen(fileUrl) {
+    // Apple devices such as iPad tries to open file using its embedded viewer
+    // in any browser, but we cannot say if the file extension is currently supported
+    // so we try to open every file in new tab.
+    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
+    this.get('_window').open(fileUrl, target);
   },
 
   actions: {

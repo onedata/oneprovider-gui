@@ -1,16 +1,18 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, afterEach, context } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import Service from '@ember/service';
 import sinon from 'sinon';
+import { get } from '@ember/object';
 import Evented from '@ember/object/evented';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
 import { click, triggerEvent } from 'ember-native-dom-helpers';
 import $ from 'jquery';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -26,13 +28,14 @@ const FileManager = Service.extend(Evented, {
   registerRefreshHandler() {},
   deregisterRefreshHandler() {},
   refreshDirChildren() {},
+  getFileDownloadUrl() {},
 });
 
 const I18n = Service.extend({
   t: () => '',
 });
 
-describe('Integration | Component | file browser', function () {
+describe('Integration | Component | file browser (main component)', function () {
   setupComponentTest('file-browser', {
     integration: true,
   });
@@ -94,89 +97,91 @@ describe('Integration | Component | file browser', function () {
     });
   });
 
-  // TODO: fails on Bamboo (FF 56.0), but not locally
-  // it('changes directories on double click', function () {
-  //   const numberOfDirs = 5;
+  it('changes directories on double click', function () {
+    const numberOfDirs = 5;
 
-  //   const rootDir = {
-  //     entityId: 'root',
-  //     name: 'Some Space',
-  //     index: 'Some Space',
-  //     type: 'dir',
-  //     parent: resolve(null),
-  //     hasParent: false,
-  //   };
+    const rootDir = {
+      entityId: 'root',
+      name: 'Some Space',
+      index: 'Some Space',
+      type: 'dir',
+      parent: resolve(null),
+      hasParent: false,
+    };
 
-  //   const dirs = _.range(0, numberOfDirs).map(i => ({
-  //     entityId: `file-${i}`,
-  //     name: `Directory ${i}`,
-  //     index: `Directory ${i}`,
-  //     type: 'dir',
-  //   }));
+    const dirs = _.range(0, numberOfDirs).map(i => ({
+      entityId: `file-${i}`,
+      name: `Directory ${i}`,
+      index: `Directory ${i}`,
+      type: 'dir',
+    }));
 
-  //   for (let i = 0; i < numberOfDirs; ++i) {
-  //     dirs[i].parent = resolve(i > 0 ? dirs[i - 1] : rootDir);
-  //     dirs[i].hasParent = true;
-  //   }
+    for (let i = 0; i < numberOfDirs; ++i) {
+      dirs[i].parent = resolve(i > 0 ? dirs[i - 1] : rootDir);
+      dirs[i].hasParent = true;
+    }
 
-  //   this.setProperties({
-  //     dir: rootDir,
-  //     selectedFiles: Object.freeze([]),
-  //   });
-  //   this.on('updateDirEntityId', function updateDirEntityId(id) {
-  //     this.set('dir', dirs.findBy('entityId', id));
-  //   });
-  //   const fileManager = lookupService(this, 'fileManager');
-  //   const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+    this.setProperties({
+      dir: rootDir,
+      selectedFiles: Object.freeze([]),
+    });
+    this.on('updateDirEntityId', function updateDirEntityId(id) {
+      this.set('dir', dirs.findBy('entityId', id));
+    });
+    const fileManager = lookupService(this, 'fileManager');
+    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
 
-  //   for (let i = -1; i < numberOfDirs; ++i) {
-  //     fetchDirChildren.withArgs(
-  //       i === -1 ? 'root' : `file-${i}`,
-  //       sinon.match.any,
-  //       sinon.match.any,
-  //       sinon.match.any,
-  //       sinon.match.any
-  //     ).resolves(i === numberOfDirs - 1 ? [] : [dirs[i + 1]]);
-  //   }
-  //   fetchDirChildren.resolves([]);
+    for (let i = -1; i < numberOfDirs; ++i) {
+      fetchDirChildren.withArgs(
+        i === -1 ? 'root' : `file-${i}`,
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any
+      ).resolves({
+        isLast: true,
+        childrenRecords: i === numberOfDirs - 1 ? [] : [dirs[i + 1]],
+      });
+    }
+    fetchDirChildren.resolves({ isLast: true, childrenRecords: [] });
 
-  //   this.render(hbs `<div id="content-scroll">{{file-browser
-  //     dir=dir
-  //     selectedFiles=selectedFiles
-  //     updateDirEntityId=(action "updateDirEntityId")
-  //     changeSelectedFiles=(action (mut selectedFiles))
-  //   }}</div>`);
+    this.render(hbs `<div id="content-scroll">{{file-browser
+      dir=dir
+      selectedFiles=selectedFiles
+      updateDirEntityId=(action "updateDirEntityId")
+      changeSelectedFiles=(action (mut selectedFiles))
+    }}</div>`);
 
-  //   let clickCount = numberOfDirs - 2;
-  //   const enterDir = () => {
-  //     const $row = this.$('.fb-table-row');
-  //     $row.click();
-  //     $row.click();
-  //     return wait().then(() => {
-  //       if (clickCount > 0) {
-  //         clickCount = clickCount - 1;
-  //         return enterDir();
-  //       } else {
-  //         resolve();
-  //       }
-  //     });
-  //   };
+    let clickCount = numberOfDirs - 2;
+    const enterDir = () => {
+      const $row = this.$('.fb-table-row');
+      $row.click();
+      $row.click();
+      return wait().then(() => {
+        if (clickCount > 0) {
+          clickCount = clickCount - 1;
+          return enterDir();
+        } else {
+          resolve();
+        }
+      });
+    };
 
-  //   return wait().then(() => {
-  //     expect(fetchDirChildren).to.have.been.calledWith(
-  //       'root',
-  //       sinon.match.any,
-  //       sinon.match.any,
-  //       sinon.match.any,
-  //       sinon.match.any
-  //     );
-  //     fetchDirChildren.resetHistory();
-  //     expect(this.$('.fb-table-row')).to.have.length(1);
-  //     return enterDir().then(() => {
-  //       expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
-  //     });
-  //   });
-  // });
+    return wait().then(() => {
+      expect(fetchDirChildren).to.have.been.calledWith(
+        'root',
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.any
+      );
+      fetchDirChildren.resetHistory();
+      expect(this.$('.fb-table-row')).to.have.length(1);
+      return enterDir().then(() => {
+        expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
+      });
+    });
+  });
 
   it('shows working paste button when invoked file copy from context menu',
     async function () {
@@ -415,7 +420,8 @@ describe('Integration | Component | file browser', function () {
         .then(() => {
           expect(fetchDirChildren).to.be.called;
         });
-    });
+    }
+  );
 
   describe('selects using injected file ids', function () {
     it('visible file on list', function () {
@@ -554,6 +560,56 @@ describe('Integration | Component | file browser', function () {
       });
     });
   });
+
+  context('with one item in root directory', function () {
+    beforeEach(function () {
+      const dir = {
+        entityId: 'root',
+        name: 'Test directory',
+        index: 'Test directory',
+        type: 'dir',
+        hasParent: false,
+        parent: resolve(null),
+      };
+
+      const item1 = {
+        entityId: 'i1',
+        name: 'A1',
+        index: 'A1',
+        hasParent: true,
+        parent: resolve(dir),
+      };
+
+      this.setProperties({ dir, item1, selectedFiles: Object.freeze([]) });
+      stubSimpleFetch(this, dir, [item1]);
+      const clock = sinon.useFakeTimers({
+        now: Date.now(),
+        shouldAdvanceTime: true,
+      });
+      this.set('clock', clock);
+    });
+
+    afterEach(function () {
+      this.get('clock').restore();
+    });
+
+    context('when the only item is a file', function () {
+      beforeEach(function () {
+        this.set('item1.type', 'file');
+      });
+
+      testDownloadFromContextMenu();
+      testDownloadUsingDoubleClick();
+    });
+
+    context('when the only item is a directory', function () {
+      beforeEach(function () {
+        this.set('item1.type', 'dir');
+      });
+
+      testDownloadFromContextMenu();
+    });
+  });
 });
 
 function mockFilesTree(testCase, treeSpec) {
@@ -616,4 +672,104 @@ function mockFilesTree(testCase, treeSpec) {
     dir: root,
     selectedFiles: Object.freeze([]),
   });
+}
+
+function testDownloadFromContextMenu() {
+  const description =
+    'shows spinner and starts download after using download context menu item';
+  it(description, async function (done) {
+    const btnId = this.get('item1.type') === 'dir' ? 'downloadTarGz' : 'download';
+    testDownload(this, done, (fileId) => chooseFileContextMenuAction(fileId, btnId));
+  });
+}
+
+function testDownloadUsingDoubleClick() {
+  it('shows spinner and starts download after double click', async function (done) {
+    testDownload(this, done, doubleClickFile);
+  });
+}
+
+async function testDownload(testCase, done, invokeDownloadFunction) {
+  const {
+    fileId,
+    getFileDownloadUrl,
+    sleeper,
+  } = prepareDownload(testCase);
+
+  renderWithDownloadSpy(testCase);
+  await wait();
+  const $row = getFileRow(fileId);
+
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
+  await invokeDownloadFunction(fileId);
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.exist;
+  expect(getFileDownloadUrl).to.be.calledOnce;
+  expect(getFileDownloadUrl).to.be.calledWith([fileId]);
+  testCase.get('clock').tick(1000);
+  await sleeper;
+  await wait();
+  expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
+
+  done();
+}
+
+function prepareDownload(testCase) {
+  const fileId = testCase.get('item1.entityId');
+  const fileManager = lookupService(testCase, 'fileManager');
+  const sleeper = sleep(500);
+  const getFileDownloadUrl = sinon.stub(fileManager, 'getFileDownloadUrl')
+    .resolves(sleeper);
+  const handleFileDownloadUrl = sinon.stub();
+  testCase.set('handleFileDownloadUrl', handleFileDownloadUrl);
+  return { fileId, getFileDownloadUrl, handleFileDownloadUrl, sleeper };
+}
+
+function renderWithDownloadSpy(testCase) {
+  testCase.render(hbs `<div id="content-scroll">{{file-browser
+    dir=dir
+    selectedFiles=selectedFiles
+    changeSelectedFiles=(action (mut selectedFiles))
+    handleFileDownloadUrl=handleFileDownloadUrl
+  }}</div>`);
+}
+
+function stubSimpleFetch(testCase, dir, childrenRecords) {
+  const fileManager = lookupService(testCase, 'fileManager');
+  const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
+  fetchDirChildren.withArgs(
+    get(dir, 'entityId'),
+    sinon.match.any,
+    null,
+    sinon.match.any,
+    0
+  ).resolves({ childrenRecords, isLast: true });
+  fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
+  return fetchDirChildren;
+}
+
+function getFileRow(fileId) {
+  const $row = $(`.fb-table-row[data-row-id=${fileId}]`);
+  expect($row).to.have.length(1);
+  return $row;
+}
+
+async function doubleClickFile(fileId) {
+  const row = getFileRow(fileId)[0];
+  click(row);
+  await sleep(1);
+  await click(row);
+}
+
+async function openFileContextMenu(fileId) {
+  const $row = getFileRow(fileId);
+  $row[0].dispatchEvent(new Event('contextmenu'));
+  await wait();
+  const $fileActions = $('.file-actions');
+  expect($fileActions).to.have.length(1);
+  return $fileActions;
+}
+
+async function chooseFileContextMenuAction(fileId, actionId) {
+  const $fileActions = await openFileContextMenu(fileId);
+  await click($fileActions.find(`.file-action-${actionId}`)[0]);
 }
