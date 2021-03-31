@@ -11,7 +11,7 @@ export default {
     file: 'You don\'t have permissions to read this file ',
   },
   status: {
-    references: 'Refs: {{referencesCount}}',
+    references: '{{referencesCount}} links',
     shared: 'Shared',
     metadata: 'Meta',
     qos: 'QoS',

@@ -5,9 +5,11 @@ export default {
   header: {
     dir: 'Rename',
     file: 'Rename',
+    symlink: 'Rename',
   },
   intro: {
     dir: 'Enter new directory name:',
     file: 'Enter new file name:',
+    symlink: 'Enter new symbolic link name:',
   },
 };

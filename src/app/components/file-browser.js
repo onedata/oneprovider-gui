@@ -675,24 +675,36 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnCreateHardlink: computed('selectedFiles.[]', function btnCreateHardlink() {
-    const areManyFilesSelected = this.get('selectedFiles.length') > 1;
-    const disabled = this.get('selectedFiles').isAny('type', 'dir');
-    return this.createFileAction({
-      id: 'createHardlink',
-      icon: 'text-link',
-      disabled,
-      tip: disabled ? this.t('cannotHardlinkDirectory') : undefined,
-      title: this.t(`fileActions.createHardlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
-      action: (files) => {
-        this.setProperties({
-          fileClipboardFiles: files.slice(),
-          fileClipboardMode: 'hardlink',
-        });
-      },
-      showIn: anySelected,
-    });
-  }),
+  btnCreateHardlink: computed(
+    'selectedFiles.[]',
+    'selectedFilesContainsOnlySymlinks',
+    function btnCreateHardlink() {
+      const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
+      const areManyFilesSelected = this.get('selectedFiles.length') > 1;
+      const hasDirectorySelected = this.get('selectedFiles').isAny('type', 'dir');
+      const disabled = selectedFilesContainsOnlySymlinks || hasDirectorySelected;
+      let tip;
+      if (selectedFilesContainsOnlySymlinks) {
+        tip = this.t('featureNotForSymlinks');
+      } else if (hasDirectorySelected) {
+        tip = this.t('cannotHardlinkDirectory');
+      }
+      return this.createFileAction({
+        id: 'createHardlink',
+        icon: 'text-link',
+        disabled,
+        tip,
+        title: this.t(`fileActions.createHardlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
+        action: (files) => {
+          this.setProperties({
+            fileClipboardFiles: files.rejectBy('type', 'symlink'),
+            fileClipboardMode: 'hardlink',
+          });
+        },
+        showIn: anySelected,
+      });
+    }
+  ),
 
   btnPlaceSymlink: computed(function btnPlaceSymlink() {
     return this.createFileAction({
@@ -723,12 +735,16 @@ export default Component.extend(I18n, {
     }
   ),
 
-  btnCopy: computed(function btnCopy() {
+  btnCopy: computed('selectedFilesContainsOnlySymlinks', function btnCopy() {
+    const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
     return this.createFileAction({
       id: 'copy',
+      disabled: selectedFilesContainsOnlySymlinks,
+      tip: selectedFilesContainsOnlySymlinks ?
+        this.t('featureNotForSymlinks') : undefined,
       action: (files) => {
         this.setProperties({
-          fileClipboardFiles: files.slice(),
+          fileClipboardFiles: files.rejectBy('type', 'symlink'),
           fileClipboardMode: 'copy',
         });
       },
@@ -736,12 +752,16 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnCut: computed(function btnCut() {
+  btnCut: computed('selectedFilesContainsOnlySymlinks', function btnCut() {
+    const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
     return this.createFileAction({
       id: 'cut',
+      disabled: selectedFilesContainsOnlySymlinks,
+      tip: selectedFilesContainsOnlySymlinks ?
+        this.t('featureNotForSymlinks') : undefined,
       action: (files) => {
         this.setProperties({
-          fileClipboardFiles: files.slice(),
+          fileClipboardFiles: files.rejectBy('type', 'symlink'),
           fileClipboardMode: 'move',
         });
       },

@@ -47,7 +47,7 @@ describe('Integration | Component | file browser/fb table row', function () {
 
     const $tag = this.$('.file-status-references');
     expect($tag, 'refs tag').to.exist;
-    expect($tag.text().trim()).to.equal('Refs: 2');
+    expect($tag.text().trim()).to.equal('2 links');
   });
 
   describe('renders "no access" file tag when', function () {

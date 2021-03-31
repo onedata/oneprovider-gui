@@ -1,6 +1,6 @@
 /**
  * Show basic information about file or directory
- * 
+ *
  * @module components/file-browser/fb-info-modal
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
@@ -12,7 +12,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { reads } from '@ember/object/computed';
 import { conditional, equal, promise, raw, array, tag } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
 import { computed, get } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -74,11 +73,9 @@ export default Component.extend(I18n, {
 
   itemType: reads('file.type'),
 
-  typeTranslation: conditional(
-    equal('itemType', raw('file')),
-    computedT('file'),
-    computedT('dir'),
-  ),
+  typeTranslation: computed('itemType', function typeTranslation() {
+    return this.t(this.get('itemType'), {}, { defaultValue: this.t('file') });
+  }),
 
   fileName: reads('file.name'),
 

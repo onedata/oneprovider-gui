@@ -2,6 +2,7 @@ export default {
   header: '{{type}} details',
   file: 'File',
   dir: 'Directory',
+  symlink: 'Symbolic link',
   name: '{{type}} name',
   path: '{{type}} path',
   spaceId: 'Space ID',
