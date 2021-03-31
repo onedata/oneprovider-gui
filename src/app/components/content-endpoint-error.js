@@ -13,8 +13,9 @@ import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import ErrorCheckViewMixin from 'onedata-gui-common/mixins/error-check-view';
-import { Promise } from 'rsvp';
+import { Promise, resolve } from 'rsvp';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import Looper from 'onedata-gui-common/utils/looper';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -30,6 +31,21 @@ export default OneEmbeddedComponent.extend(
     _location: location,
 
     iframeInjectedProperties: Object.freeze([]),
+
+    /**
+     * @type {number}
+     */
+    requestCounter: 0,
+
+    /**
+     * @type {number}
+     */
+    requestSlowInterval: 5000,
+
+    /**
+     * @type {number}
+     */
+    requestFastInterval: 500,
 
     /**
      * @override
@@ -49,6 +65,23 @@ export default OneEmbeddedComponent.extend(
       }
     ),
 
+    onepanelConfigurationUrl: computed('cluster.standaloneOriginProxy.content',
+      function onepanelConfigurationUrl() {
+        return this.get('cluster.standaloneOriginProxy.content') +
+          '/api/v3/onepanel/configuration';
+      }
+    ),
+
+    init() {
+      this._super(...arguments);
+      const timeUpdater = new Looper({
+        immediate: false,
+        interval: this.get('requestSlowInterval'),
+      });
+      timeUpdater.on('tick', () => this.checkConnectionToProvider());
+      this.set('timeUpdater', timeUpdater);
+    },
+
     didInsertElement() {
       this._super(...arguments);
       this.getTryErrorCheckProxy().then(isError => {
@@ -56,6 +89,14 @@ export default OneEmbeddedComponent.extend(
           this.showDetailsModal();
         }
       });
+    },
+
+    destroy() {
+      try {
+        this.destroyTimeUpdater();
+      } finally {
+        this._super(...arguments);
+      }
     },
 
     /**
@@ -96,7 +137,39 @@ export default OneEmbeddedComponent.extend(
     showDetailsModal() {
       return this.callParent('showOneproviderConnectionError', {
         oneproviderUrl: `https://${this.get('guiContext.apiOrigin')}`,
+        setFastPollingCallback: this.setFastPolling.bind(this),
       });
+    },
+
+    setFastPolling(setFastInterval) {
+      if (setFastInterval) {
+        this.set('timeUpdater.interval', this.get('requestFastInterval'));
+        this.set('requestCounter', 0);
+      }
+    },
+
+    checkConnectionToProvider() {
+      resolve($.get(this.get('onepanelConfigurationUrl')))
+        .then(() => {
+          this.destroyTimeUpdater();
+          this.locationReload();
+        })
+        .catch(() => []);
+      if (this.get('timeUpdater.interval') == this.get('requestFastInterval')) {
+        const requestCounter = this.get('requestCounter');
+        if (requestCounter < 10) {
+          this.set('requestCounter', requestCounter + 1);
+        } else {
+          this.set('timeUpdater.interval', this.get('requestSlowInterval'));
+        }
+      }
+    },
+
+    destroyTimeUpdater() {
+      const timeUpdater = this.get('timeUpdater');
+      if (timeUpdater) {
+        timeUpdater.destroy();
+      }
     },
 
     actions: {
