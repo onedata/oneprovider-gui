@@ -11,6 +11,7 @@ import Service, { inject as service } from '@ember/service';
 import { resolve, allSettled, all as allFulfilled } from 'rsvp';
 import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
 
@@ -281,6 +282,25 @@ export default Service.extend({
       },
       subscribe: false,
     });
+  },
+
+  async getFileReferences(fileId) {
+    const idsResult = await this.get('onedataGraph').request({
+      operation: 'get',
+      gri: gri({
+        entityType: fileEntityType,
+        entityId: fileId,
+        aspect: 'references',
+        scope: 'private',
+      }),
+      subscribe: false,
+    });
+    const referencesIds = idsResult.references || [];
+    return allSettled(referencesIds.map(reference =>
+      this.getFileById(parseGri(reference).entityId))).then(results => ({
+      referencesCount: referencesIds.length,
+      references: results.filterBy('state', 'fulfilled').mapBy('value'),
+    }));
   },
 
   /**

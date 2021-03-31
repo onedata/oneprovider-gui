@@ -32,4 +32,16 @@ export default {
     getSharedFileRdfMetadata: 'Get RDF metadata',
     getSharedFileExtendedAttributes: 'Get extended attributes (xattrs)',
   },
+  tabs: {
+    general: {
+      tabTitle: 'General',
+    },
+    hardlinks: {
+      tabTitle: 'Hard links ({{referencesCount}})',
+    },
+  },
+  hardlinkEntry: {
+    pathLabel: 'Path',
+    unknownPath: 'unknown',
+  },
 };

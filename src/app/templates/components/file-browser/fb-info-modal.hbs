@@ -10,6 +10,21 @@
     {{modal-file-subheader files=(array file)}}
   {{/modal.header}}
   {{#modal.body}}
+  {{#if (gt referencesCount 1)}}
+    {{#bs-tab
+      class="bs-tab-onedata bs-tab-modern"
+      activeId=activeTab
+      onChange=(action "changeTab")
+      as |tab|
+    }}
+      {{tab.pane id="general" title=(tt this "tabs.general.tabTitle")}}
+      {{tab.pane
+        id="hardlinks"
+        title=(tt this "tabs.hardlinks.tabTitle" referencesCount=referencesCount)
+      }}
+    {{/bs-tab}}
+  {{/if}}
+  {{#if (eq activeTab "general")}}
     <table class="table table-info table-info-large table-info-collapsible">
       <tbody>
         <tr class="file-info-row-name">
@@ -134,7 +149,7 @@
                     <span class="bracket-fix">}</span>
                   </span>
                 </span>
-                
+
               </div>
               <div class="input-group input-group input-group-clipboard-textarea">
                 {{clipboard-line
@@ -181,6 +196,31 @@
         </tr>
       </tbody>
     </table>
+  {{else if (eq activeTab "hardlinks")}}
+    {{#promise-proxy-container proxy=fileReferencesProxy}}
+      <ul class="file-references-list">
+        {{#each fileReferences.references as |fileReference|}}
+          {{file-browser/fb-info-modal/hardlink-entry
+            class="file-reference"
+            file=fileReference.file
+            fileUrl=fileReference.fileUrl
+            path=fileReference.path
+            closeModal=modal.close
+          }}
+        {{else}}
+          <li class="file-reference">
+            None of the linked files can be fetched.
+          </li>
+        {{/each}}
+        {{#if (and
+          (gt fileReferences.references.length 0)
+          (lt fileReferences.references fileReferences.referencesCount)
+        )}}
+          <li>And {{sub fileReferences.referencesCount fileReferences.references.length}} more, that cannot be fetched.</li>
+        {{/if}}
+      </ul>
+    {{/promise-proxy-container}}
+  {{/if}}
   {{/modal.body}}
   {{#modal.footer}}
     {{#bs-button onClick=modal.close}}

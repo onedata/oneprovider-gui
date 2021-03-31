@@ -10,16 +10,20 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, promise, raw, array, tag } from 'ember-awesome-macros';
+import { conditional, equal, promise, raw, array, tag, or } from 'ember-awesome-macros';
 import { computed, get } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
-import { resolve } from 'rsvp';
+import { resolve, all as allFulfilled } from 'rsvp';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
   i18n: service(),
   restGenerator: service(),
+  fileManager: service(),
 
   open: false,
 
@@ -42,6 +46,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  getDataUrl: notImplementedThrow,
+
+  /**
+   * @virtual
    * Callback when the modal is starting to hide
    * @type {Function}
    */
@@ -52,6 +62,19 @@ export default Component.extend(I18n, {
    * @type {string}
    */
   spaceEntityId: undefined,
+
+  /**
+   * Possible values the same as for `activeTab` property
+   * @virtual optional
+   * @type {String}
+   */
+  initialTab: undefined,
+
+  /**
+   * One of: general, hardlinks
+   * @type {String}
+   */
+  activeTab: 'general',
 
   /**
    * If true, whole content will take up smaller amount of space
@@ -84,6 +107,8 @@ export default Component.extend(I18n, {
   modificationTime: reads('file.modificationTime'),
 
   fileSize: reads('file.size'),
+
+  referencesCount: or('file.referencesCount', raw(1)),
 
   ownerFullNameProxy: promise.object(
     computed('file.owner', function ownerFullNamePromise() {
@@ -172,7 +197,49 @@ export default Component.extend(I18n, {
     'availableRestUrlTypes.firstObject',
   ),
 
+  init() {
+    this._super(...arguments);
+    const initialTab = this.get('initialTab');
+    if (['general', 'hardlinks'].includes(initialTab)) {
+      this.set('activeTab', initialTab);
+    }
+  },
+
+  fetchFileReferences() {
+    const {
+      previewMode,
+      fileManager,
+      getDataUrl,
+    } = this.getProperties('previewMode', 'fileManager', 'getDataUrl');
+
+    if (previewMode) {
+      return resolve([]);
+    }
+    return fileManager.getFileReferences(this.get('file.entityId'))
+      .then((({ referencesCount, references }) =>
+        allFulfilled(references.map(referenceFile =>
+          resolveFilePath(referenceFile)
+          .then(path => stringifyFilePath(path))
+          .catch(() => null)
+          .then(path => ({
+            file: referenceFile,
+            fileUrl: getDataUrl({
+              fileId: null,
+              selected: [get(referenceFile, 'entityId')],
+            }),
+            path,
+          }))
+        )).then(newReferences => ({
+          referencesCount,
+          references: sortByProperties(newReferences, ['file.name', 'path']),
+        }))
+      ));
+  },
+
   actions: {
+    changeTab(tab) {
+      this.set('activeTab', tab);
+    },
     close() {
       return this.get('onHide')();
     },
