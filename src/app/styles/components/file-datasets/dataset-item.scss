@@ -41,6 +41,10 @@
     .flag-toggle {
       position: relative;
       width: 100%;
+      .one-way-toggle-elements-container {
+        display: flex;
+        width: 100%;
+      }
       .one-way-toggle-control {
         position: relative;
         left: 50%;
