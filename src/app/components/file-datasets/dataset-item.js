@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { and } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';

@@ -7,6 +7,8 @@ import Service from '@ember/service';
 import { registerService } from '../../../helpers/stub-service';
 import { triggerEvent } from 'ember-native-dom-helpers';
 import $ from 'jquery';
+import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/models/file';
+import EmberObject from '@ember/object';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -14,6 +16,8 @@ const userGri = `user.${userId}.instance:private`;
 const currentUser = Service.extend({
   userId,
 });
+
+const FileMock = EmberObject.extend(FileRuntimeProperties);
 
 describe('Integration | Component | file browser/fb table row', function () {
   setupComponentTest('file-browser/fb-table-row', {
@@ -241,7 +245,7 @@ function checkNoAccessTag({ renders, description, properties }) {
 }
 
 function createFile(override = {}, ownerGri = userGri) {
-  return Object.assign({
+  const data = Object.assign({
     modificationTime: moment('2020-01-01T08:50:00+00:00').unix(),
     posixPermissions: '777',
     type: 'file',
@@ -253,6 +257,7 @@ function createFile(override = {}, ownerGri = userGri) {
       }
     },
   }, override);
+  return FileMock.create(data);
 }
 
 function render(testCase) {
