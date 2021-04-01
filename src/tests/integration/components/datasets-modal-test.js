@@ -15,7 +15,7 @@ import sinon from 'sinon';
 import wait from 'ember-test-helpers/wait';
 import $ from 'jquery';
 import { click } from 'ember-native-dom-helpers';
-import { createFileDatasetSummary } from './file-datasets-test';
+import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
 
 describe('Integration | Component | datasets modal', function () {
   setupComponentTest('datasets-modal', {

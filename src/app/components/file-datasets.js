@@ -163,15 +163,17 @@ export default Component.extend(I18n, {
         fileManager,
         file,
       } = this.getProperties('fileManager', 'file');
-      if (file && fileInvokingUpdate !== file &&
-        get(fileInvokingUpdate, 'id') !== file.belongsTo('parent').id()
-      ) {
+      if (file && fileInvokingUpdate !== file) {
         const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
-        await allSettled([
+        const promises = [
           file.reload(),
           fileDatasetSummaryRelation.reload(),
-          fileManager.fileParentRefresh(file),
-        ]);
+        ];
+        // refresh opened file parent children only if invoker is not this parent
+        if (get(fileInvokingUpdate, 'id') !== file.belongsTo('parent').id()) {
+          promises.push(fileManager.fileParentRefresh(file));
+        }
+        await allSettled(promises);
       }
     },
   },

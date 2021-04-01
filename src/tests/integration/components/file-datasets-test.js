@@ -5,12 +5,12 @@ import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import $ from 'jquery';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import ToggleHelper from '../../helpers/toggle';
+import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
 import { RuntimeProperties as DatasetRuntimeProperties } from 'oneprovider-gui/models/dataset';
-import EmberObject, { get, setProperties } from '@ember/object';
+import EmberObject, { setProperties } from '@ember/object';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -188,42 +188,4 @@ function createFile(override = {}, ownerGri = userGri) {
 
 function createDataset(data) {
   return DatasetMock.create(data);
-}
-
-export function createFileDatasetSummary({
-  directDataset = null,
-  effAncestorDatasets = [],
-} = {}) {
-  return {
-    getRelation(relation) {
-      if (relation === 'directDataset') {
-        return promiseObject(resolve(directDataset));
-      }
-    },
-    belongsTo(relation) {
-      if (relation === 'directDataset') {
-        return {
-          id: () => directDataset ? get(directDataset, 'id') : null,
-          async load() {
-            return directDataset;
-          },
-          async reload() {
-            return directDataset;
-          },
-        };
-      }
-    },
-    hasMany(relation) {
-      if (relation === 'effAncestorDatasets') {
-        return {
-          load() {
-            return promiseArray(resolve(effAncestorDatasets));
-          },
-          reload() {
-            return promiseArray(resolve(effAncestorDatasets));
-          },
-        };
-      }
-    },
-  };
 }

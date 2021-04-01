@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7414 Added support for datasets and write protection in file browser
 * VFS-7368 Added support for compressed directory and multiple files download
 * VFS-7427 Changed copiable REST URLs into curl commands
 * VFS-7293 Added copyable REST URLs for shares and shared files, shares UX improvements 

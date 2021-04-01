@@ -89,19 +89,14 @@ export default Component.extend(I18n, {
         flag,
         state
       );
-      try {
-        // just in case that invocation of this function fails
-        // do not wait for resolve - it's only a side effect
-        if (typeof updateOpenedFileData === 'function') {
-          get(dataset, 'rootFile').then(file => {
+      // do not wait for resolve - it's only a side effect
+      if (typeof updateOpenedFileData === 'function') {
+        const rootFileProxy = get(dataset, 'rootFile');
+        if (rootFileProxy) {
+          rootFileProxy.then(file => {
             updateOpenedFileData({ fileInvokingUpdate: file });
           });
         }
-      } catch (error) {
-        console.error(
-          'components:file-datasets/dataset-item: could not invoke updateOpenedFileData',
-          error
-        );
       }
     },
   },
