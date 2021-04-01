@@ -91,13 +91,24 @@ export default Model.extend(
     modificationTime: alias('mtime'),
 
     /**
-     * When file is a symlink, then `linkedFile` is the file pointed
-     * by the symlink. For other types of files it points to the same file
-     * (circular relation).
-     * A value of this field is calculated during the data fetching via file-manager.
+     * Not empty when file is a symlink and points to an accessible file.
+     * @type {Models.File|undefined}
+     */
+    symlinkTargetFile: undefined,
+
+    /**
+     * When file is a symlink, then `effFile` is the file pointed
+     * by the symlink (so can be empty). For other types of files it points to
+     * the same file (as normal file can be treated as a "symlink to itself").
      * @type {Models.File}
      */
-    linkedFile: undefined,
+    effFile: computed('type', 'symlinkTargetFile', function effFile() {
+      const {
+        type,
+        symlinkTargetFile,
+      } = this.getProperties('type', 'symlinkTargetFile');
+      return type === 'symlink' ? symlinkTargetFile : this;
+    }),
 
     /**
      * Contains error of loading file distribution. Is null if distribution has not

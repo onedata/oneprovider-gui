@@ -389,7 +389,7 @@ const fileHandlers = {
   symlink_target(operation, entityId) {
     switch (operation) {
       case 'get':
-        return this.getSymlinkLinkedFile(entityId);
+        return this.getSymlinkTargetFile(entityId);
       default:
         return messageNotSupported;
     }
@@ -729,14 +729,14 @@ export default OnedataGraphMock.extend({
     }
   },
 
-  getSymlinkLinkedFile(symlinkEntityId) {
-    const linkedFileEntityId = this.get('mockBackend.symlinkMap')[symlinkEntityId];
-    if (!linkedFileEntityId) {
+  getSymlinkTargetFile(symlinkEntityId) {
+    const targetFileEntityId = this.get('mockBackend.symlinkMap')[symlinkEntityId];
+    if (!targetFileEntityId) {
       return null;
     }
-    const linkedFile =
-      this.get('mockBackend.entityRecords.file').findBy('entityId', linkedFileEntityId);
-    return linkedFile ? recordToChildData(linkedFile) : null;
+    const targetFile =
+      this.get('mockBackend.entityRecords.file').findBy('entityId', targetFileEntityId);
+    return targetFile ? recordToChildData(targetFile) : null;
   },
 
   getMockChildrenData(dirEntityId) {

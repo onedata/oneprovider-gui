@@ -114,18 +114,18 @@
         {{#if media.isMobile}}
           <div class="file-info-mobile">
             <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
-              {{#if (eq file.linkedFile.type "file")}}
-                {{#if file.linkedFile.isPollingSize}}
+              {{#if (eq file.effFile.type "file")}}
+                {{#if file.effFile.isPollingSize}}
                   {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
                 {{else}}
-                  {{bytes-to-string file.linkedFile.size}}
+                  {{bytes-to-string file.effFile.size}}
                 {{/if}}
               {{else}}
                 —
               {{/if}}
             </span>
             <span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-modification">
-              {{date-format file.linkedFile.modificationTime format="dateWithMinutes" blank="—"}}
+              {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
             </span>
           </div>
         {{/if}}
@@ -134,11 +134,11 @@
   </td>
   <td class="fb-table-col-size">
     <span class="file-item-text">
-      {{#if (eq file.linkedFile.type "file")}}
-        {{#if file.linkedFile.isPollingSize}}
+      {{#if (eq file.effFile.type "file")}}
+        {{#if file.effFile.isPollingSize}}
           {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
         {{else}}
-          {{bytes-to-string file.linkedFile.size}}
+          {{bytes-to-string file.effFile.size}}
         {{/if}}
       {{else}}
         —
@@ -147,7 +147,7 @@
   </td>
   <td class="fb-table-col-modification">
     <span class="file-item-text">
-      {{date-format file.linkedFile.modificationTime format="dateWithMinutes" blank="—"}}
+      {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
     </span>
   </td>
   <td class="fb-table-col-actions-menu">

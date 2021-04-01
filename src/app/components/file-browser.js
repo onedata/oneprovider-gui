@@ -1033,12 +1033,12 @@ export default Component.extend(I18n, {
       'previewMode',
       'loadingIconFileIds'
     );
-    const linkedFiles = files.mapBy('linkedFile').compact();
-    if (!linkedFiles.length) {
+    const effFiles = files.mapBy('effFile').compact();
+    if (!effFiles.length) {
       return resolve();
     }
 
-    const fileIds = linkedFiles.mapBy('entityId');
+    const fileIds = effFiles.mapBy('entityId');
     // intentionally not checking for duplicates, because we treat multiple "loading id"
     // entries as semaphores
     loadingIconFileIds.pushObjects(fileIds);

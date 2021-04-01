@@ -126,7 +126,7 @@ function createFile(override = {}, ownerGri = userGri) {
     },
   }, override);
   if (!file.type !== 'symlink') {
-    file.linkedFile = file;
+    file.effFile = file;
   }
   return file;
 }

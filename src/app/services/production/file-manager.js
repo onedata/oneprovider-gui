@@ -213,17 +213,12 @@ export default Service.extend({
   },
 
   resolveSymlinks(files, scope) {
-    // Set "linkedFile" of regular files to point itself
-    files
-      .filter(file => get(file, 'type') !== 'symlink' && get(file, 'linkedFile') !== file)
-      .forEach(file => set(file, 'linkedFile', file));
-
     const symlinks = files.filterBy('type', 'symlink');
     return allFulfilled(symlinks.map(symlink =>
       this.fetchSymlinkTargetAttrs(get(symlink, 'entityId'), scope)
       .then(targetAttrs => this.pushChildrenAttrsToStore([targetAttrs], scope))
-      .then(([targetRecord]) => set(symlink, 'linkedFile', targetRecord))
-      .catch(() => set(symlink, 'linkedFile', null))
+      .then(([targetRecord]) => set(symlink, 'symlinkTargetFile', targetRecord))
+      .catch(() => set(symlink, 'symlinkTargetFile', null))
     ));
   },
 
