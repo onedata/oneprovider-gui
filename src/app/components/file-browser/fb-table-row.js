@@ -213,12 +213,12 @@ export default Component.extend(I18n, FastDoubleClick, {
     return normalizeFileType(this.get('file.type'));
   }),
 
-  linkedFileType: computed('file.linkedFile.type', function linkedFileType() {
-    return normalizeFileType(this.get('file.linkedFile.type'));
+  effFileType: computed('file.effFile.type', function effFileType() {
+    return normalizeFileType(this.get('file.effFile.type'));
   }),
 
-  icon: computed('linkedFileType', function icon() {
-    switch (this.get('linkedFileType')) {
+  icon: computed('effFileType', function icon() {
+    switch (this.get('effFileType')) {
       case 'dir':
         return 'browser-directory';
       case 'file':
@@ -227,7 +227,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     }
   }),
 
-  hasErrorIconTag: isEmpty('linkedFileType'),
+  hasErrorIconTag: isEmpty('effFileType'),
 
   iconTag: conditional(
     'hasErrorIconTag',

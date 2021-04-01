@@ -4,11 +4,12 @@
       dir=dirProxy.content
       previewMode=previewMode
       isSpaceOwned=spaceProxy.currentUserIsOwner
+      spaceId=spaceProxy.entityId
       selectedFiles=selectedFiles
       changeSelectedFiles=(action (mut selectedFiles))
       openRemove=(action "immediatelyRemove")
     }}
-    
+
     {{#if filesToRemove}}
       {{file-browser/fb-remove-modal
         open=true

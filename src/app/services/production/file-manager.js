@@ -99,11 +99,18 @@ export default Service.extend({
    * Creates new symlink to a given path
    * @param {String} name
    * @param {Models.File} parent
-   * @param {String} targetPath
+   * @param {String} targetPath must be an absolute path
+   * @param {String} spaceId
    * @returns {Promise<Models.File>}
    */
-  createSymlink(name, parent, targetPath) {
-    return this.createDirectoryChild(parent, 'symlink', name, { targetPath });
+  createSymlink(name, parent, targetPath, spaceId) {
+    // Removing `/spacename` prefix from targetPath. Example '/s1/a/b' -> 'a/b'
+    const absolutePathWithoutSpace = targetPath.split('/').slice(2).join('/');
+    const pathPrefix = `<__onedata_space_id:${spaceId}>`;
+
+    return this.createDirectoryChild(parent, 'symlink', name, {
+      targetPath: `${pathPrefix}/${absolutePathWithoutSpace}`,
+    });
   },
 
   /**
@@ -206,17 +213,12 @@ export default Service.extend({
   },
 
   resolveSymlinks(files, scope) {
-    // Set "linkedFile" of regular files to point itself
-    files
-      .filter(file => get(file, 'type') !== 'symlink' && get(file, 'linkedFile') !== file)
-      .forEach(file => set(file, 'linkedFile', file));
-
     const symlinks = files.filterBy('type', 'symlink');
     return allFulfilled(symlinks.map(symlink =>
       this.fetchSymlinkTargetAttrs(get(symlink, 'entityId'), scope)
       .then(targetAttrs => this.pushChildrenAttrsToStore([targetAttrs], scope))
-      .then(([targetRecord]) => set(symlink, 'linkedFile', targetRecord))
-      .catch(() => set(symlink, 'linkedFile', null))
+      .then(([targetRecord]) => set(symlink, 'symlinkTargetFile', targetRecord))
+      .catch(() => set(symlink, 'symlinkTargetFile', null))
     ));
   },
 
