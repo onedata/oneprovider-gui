@@ -94,8 +94,7 @@ export default Component.extend(I18n, {
 
   actions: {
     toggleParentDatasetsCollapse() {
-      const collapsed = this.get('parentDatasetsCollapsed');
-      this.set('parentDatasetsCollapsed', !collapsed);
+      this.toggleProperty('parentDatasetsCollapsed');
     },
     fileLinkClicked(event) {
       this.get('close')();
