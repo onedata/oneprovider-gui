@@ -65,9 +65,9 @@ export default OneEmbeddedComponent.extend(
       }
     ),
 
-    onepanelConfigurationUrl: computed('cluster.standaloneOriginProxy.content',
+    onepanelConfigurationUrl: computed('guiContext.apiOrigin',
       function onepanelConfigurationUrl() {
-        return this.get('cluster.standaloneOriginProxy.content') +
+        return `https://${this.get('guiContext.apiOrigin')}` +
           '/api/v3/onepanel/configuration';
       }
     ),
@@ -122,7 +122,11 @@ export default OneEmbeddedComponent.extend(
     },
 
     locationReload() {
-      this.get('_location').reload();
+      try {
+        this.callParent('hideOneproviderConnectionError');
+      } finally {
+        this.get('_location').reload();
+      }
     },
 
     /**
