@@ -296,9 +296,12 @@ export default Component.extend(I18n, {
 
   pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
 
-  isHardlinkingPossible: computed('fileClipboardFiles.[]', function () {
-    return !(this.get('fileClipboardFiles') || []).isAny('type', 'dir');
-  }),
+  isHardlinkingPossible: computed(
+    'fileClipboardFiles.@each.type',
+    function isHardlinkingPossible() {
+      return !(this.get('fileClipboardFiles') || []).isAny('type', 'dir');
+    }
+  ),
 
   /**
    * When file rows are removed, we need additional space on top to fill the void.

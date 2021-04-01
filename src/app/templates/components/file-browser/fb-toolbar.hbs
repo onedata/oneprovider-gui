@@ -19,7 +19,7 @@
   {{/each}}
 </div>
 {{#if (and isClipboardHintVisible (not media.isMobile))}}
-  <div>
+  <div class="fixes-popover-rendering-due-to-ember-bug">
     {{#one-webui-popover
       popoverTrigger="manual"
       popoverStyle="clipboard-help"
@@ -27,7 +27,6 @@
       open=true
       placement="bottom"
       onToggle=(action "clipboardHintVisibleChange")
-      as |popover|
     }}
       {{#click-outside action=(action (mut isClipboardHintVisible) false)}}
         {{#if (or (eq fileClipboardMode "symlink") (eq fileClipboardMode "hardlink"))}}
