@@ -208,15 +208,19 @@
             closeModal=modal.close
           }}
         {{else}}
-          <li class="file-reference">
-            None of the linked files can be fetched.
+          <li class="file-reference extra-reference-description">
+            <em>{{tt this "tabs.hardlinks.noAccessToAll"}}</em>
           </li>
         {{/each}}
         {{#if (and
           (gt fileReferences.references.length 0)
-          (lt fileReferences.references fileReferences.referencesCount)
+          (lt fileReferences.references.length fileReferences.referencesCount)
         )}}
-          <li>And {{sub fileReferences.referencesCount fileReferences.references.length}} more, that cannot be fetched.</li>
+          <li class="file-reference extra-reference-description">
+            <em>{{tt this "tabs.hardlinks.andNMoreYouHaveNoAccess"
+              count=(sub fileReferences.referencesCount fileReferences.references.length)
+            }}</em>
+          </li>
         {{/if}}
       </ul>
     {{/promise-proxy-container}}

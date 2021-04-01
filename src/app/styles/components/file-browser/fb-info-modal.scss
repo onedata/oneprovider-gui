@@ -91,6 +91,11 @@
       min-width: 0;
     }
 
+    &.extra-reference-description {
+      display: block;
+      text-align: center;
+    }
+
     &:last-child {
       border-bottom: 1px solid $main-border-color;
     }

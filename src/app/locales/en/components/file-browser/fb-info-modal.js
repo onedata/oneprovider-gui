@@ -38,6 +38,8 @@ export default {
     },
     hardlinks: {
       tabTitle: 'Hard links ({{referencesCount}})',
+      andNMoreYouHaveNoAccess: 'And {{count}} more, that you cannot access.',
+      noAccessToAll: 'You have insufficient permissions to see hard links of this file.',
     },
   },
   hardlinkEntry: {

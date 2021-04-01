@@ -40,7 +40,7 @@
           </div>
           <div class="file-status-bar">
             {{#if (and (not previewMode) (gt referencesCount 1))}}
-              <div class="file-status-tag file-status-references" {{action (action "invokeFileAction" file "btnInfo" "links") bubbles=false}}>
+              <div class="file-status-tag file-status-references" {{action (action "invokeFileAction" file "btnInfo" "hardlinks") bubbles=false}}>
                 {{tt this "status.references" referencesCount=referencesCount}}
               </div>
             {{/if}}
