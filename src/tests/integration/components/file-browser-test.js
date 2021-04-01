@@ -31,10 +31,6 @@ const FileManager = Service.extend(Evented, {
   getFileDownloadUrl() {},
 });
 
-const I18n = Service.extend({
-  t: () => '',
-});
-
 describe('Integration | Component | file browser (main component)', function () {
   setupComponentTest('file-browser', {
     integration: true,
@@ -43,7 +39,6 @@ describe('Integration | Component | file browser (main component)', function () 
   beforeEach(function () {
     registerService(this, 'uploadManager', UploadManager);
     registerService(this, 'fileManager', FileManager);
-    registerService(this, 'i18n', I18n);
   });
 
   it('renders files on list', function () {

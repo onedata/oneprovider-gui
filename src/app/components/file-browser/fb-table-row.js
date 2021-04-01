@@ -217,6 +217,8 @@ export default Component.extend(I18n, FastDoubleClick, {
     return normalizeFileType(this.get('file.effFile.type'));
   }),
 
+  isSymlink: equal('type', raw('symlink')),
+
   icon: computed('effFileType', function icon() {
     switch (this.get('effFileType')) {
       case 'dir':

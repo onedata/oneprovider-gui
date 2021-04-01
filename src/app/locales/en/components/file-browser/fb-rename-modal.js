@@ -1,11 +1,13 @@
+const header = 'Rename';
+
 export default {
   renaming: 'renaming the file',
   submit: 'Rename',
   cancel: 'Cancel',
   header: {
-    dir: 'Rename',
-    file: 'Rename',
-    symlink: 'Rename',
+    dir: header,
+    file: header,
+    symlink: header,
   },
   intro: {
     dir: 'Enter new directory name:',

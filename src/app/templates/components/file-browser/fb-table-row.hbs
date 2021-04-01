@@ -44,12 +44,12 @@
                 {{tt this "status.references" referencesCount=referencesCount}}
               </div>
             {{/if}}
-            {{#if (and (not previewMode) isShared)}}
+            {{#if (and (not previewMode) (not isSymlink) isShared)}}
               <div class="file-status-tag file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
                 {{tt this "status.shared"}}
               </div>
             {{/if}}
-            {{#if isForbidden}}
+            {{#if (and (not isSymlink) isForbidden)}}
               <div class="file-status-tag file-status-tag-danger file-status-forbidden">
                 {{tt this "status.forbidden"}}
                 {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
@@ -61,12 +61,12 @@
                 {{one-tooltip title=(tt this "otherFileSameName")}}
               </div>
             {{/if}}
-            {{#if hasMetadata}}
+            {{#if (and (not isSymlink) hasMetadata)}}
               <div class="file-status-tag file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
                 {{tt this "status.metadata"}}
               </div>
             {{/if}}
-            {{#if hasAcl}}
+            {{#if (and (not isSymlink) hasAcl)}}
               <div
                 class={{concat-classes
                   "file-status-tag file-status-acl"
@@ -83,7 +83,7 @@
                 {{/if}}
               </div>
             {{/if}}
-            {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
+            {{#if (and (not previewMode) (not isSymlink) (or hasEffQos hasDirectQos))}}
               <div
                 class={{concat-classes
                   "file-status-tag"
