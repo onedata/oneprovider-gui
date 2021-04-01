@@ -23,7 +23,6 @@ import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -404,16 +403,16 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasMetadata: reads('file.hasMetadata'),
 
-  effectiveQosMembership: reads('file.effectiveQosMembership'),
+  effQosMembership: reads('file.effQosMembership'),
 
   showQosTag: and(
     not('previewMode'),
-    array.includes(raw(['ancestor', 'direct']), 'effectiveQosMembership')
+    array.includes(raw(['ancestor', 'direct']), 'effQosMembership')
   ),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 
-  effectiveDatasetMembership: reads('file.effectiveDatasetMembership'),
+  effDatasetMembership: reads('file.effDatasetMembership'),
 
   /**
    * If true, should display dataset tag
@@ -421,29 +420,29 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   showDatasetTag: and(
     not('previewMode'),
-    array.includes(raw(['ancestor', 'direct']), 'effectiveDatasetMembership')
+    array.includes(raw(['ancestor', 'direct']), 'effDatasetMembership')
   ),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isDataProtected: and(
+  dataIsProtected: and(
     'showDatasetTag',
-    hasProtectionFlag('file.effProtectionFlags', 'data')
+    'file.dataIsProtected'
   ),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isMetadataProtected: and(
+  metadataIsProtected: and(
     'showDatasetTag',
-    hasProtectionFlag('file.effProtectionFlags', 'metadata')
+    'file.metadataIsProtected'
   ),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  hasAnyProtectionFlag: or('isMetadataProtected', 'isDataProtected'),
+  hasAnyProtectionFlag: or('metadataIsProtected', 'dataIsProtected'),
 
   /**
    * Content for protection tag tooltip
@@ -451,20 +450,20 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   protectionFlagsInfo: computed(
     'typeText',
-    'isMetadataProtected',
-    'isDataProtected',
+    'metadataIsProtected',
+    'dataIsProtected',
     function protectionFlagsInfo() {
       const {
         typeText,
-        isMetadataProtected,
-        isDataProtected,
-      } = this.getProperties('typeText', 'isMetadataProtected', 'isDataProtected');
+        metadataIsProtected,
+        dataIsProtected,
+      } = this.getProperties('typeText', 'metadataIsProtected', 'dataIsProtected');
       let translationKey;
-      if (isDataProtected && isMetadataProtected) {
+      if (dataIsProtected && metadataIsProtected) {
         translationKey = 'both';
-      } else if (isDataProtected) {
+      } else if (dataIsProtected) {
         translationKey = 'data';
-      } else if (isMetadataProtected) {
+      } else if (metadataIsProtected) {
         translationKey = 'metadata';
       }
       if (translationKey) {

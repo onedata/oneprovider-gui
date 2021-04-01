@@ -10,9 +10,8 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { equal, reads } from '@ember/object/computed';
-import { and, tag } from 'ember-awesome-macros';
+import { tag } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
-import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 export default Component.extend(I18n, {
   classNames: ['direct-dataset-control'],
@@ -60,22 +59,6 @@ export default Component.extend(I18n, {
    */
   isDatasetAttached: equal('directDataset.state', 'attached'),
 
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isDataProtected: and(
-    'isDatasetAttached',
-    hasProtectionFlag('directDataset.protectionFlags', 'data')
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isMetadataProtected: and(
-    'isDatasetAttached',
-    hasProtectionFlag('directDataset.protectionFlags', 'metadata')
-  ),
-
   toggleId: tag `${'elementId'}-direct-dataset-attached-toggle`,
 
   async establishDirectDataset() {
@@ -92,23 +75,17 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    toggleDatasetAttachment(state) {
+    async toggleDatasetAttachment(state) {
       const {
         directDataset,
         datasetManager,
       } = this.getProperties('directDataset', 'datasetManager');
-      return datasetManager.toggleDatasetAttachment(directDataset, state);
-    },
-    async destroyDataset() {
-      const {
-        datasetManager,
-        directDataset,
-        globalNotify,
-      } = this.getProperties('datasetManager', 'directDataset', 'globalNotify');
-      try {
-        return await datasetManager.destroyDataset(directDataset);
-      } catch (error) {
-        globalNotify.backendError(this.t('destroyingDataset'), error);
+      if (directDataset) {
+        return await datasetManager.toggleDatasetAttachment(directDataset, state);
+      } else if (state) {
+        return await this.establishDirectDataset();
+      } else {
+        return null;
       }
     },
   },

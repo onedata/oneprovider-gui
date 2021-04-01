@@ -1,6 +1,5 @@
 /**
- * Provides list of datasets with their root file paths sorted by path length.
- * The nearest parent to file displayed in modal should be on top of the list.
+ * Provides data for rendering list of dataset-items with ancestor datasets.
  *
  * @module components/file-datasets/datasets-list-container
  * @author Jakub Liput
@@ -9,14 +8,17 @@
  */
 
 import Component from '@ember/component';
-import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { get, computed } from '@ember/object';
-import { sort, reads } from '@ember/object/computed';
-import { promise } from 'ember-awesome-macros';
-import { all as allFulfilled } from 'rsvp';
+import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 
 export default Component.extend({
   tagName: '',
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  getDataUrl: notImplementedWarn,
 
   /**
    * @virtual
@@ -24,40 +26,27 @@ export default Component.extend({
    */
   datasets: undefined,
 
-  // TODO: VFS-7414 this should be changed to use rootFilePath instead of resolving
-  // the path using record, but we don't know how to handle slashes (/) in paths yet
   /**
-   * @type {ComputedProperty<PromiseArray<{ dataset: Models.Dataset, filePath: Array<Models.File> }>>}
+   * Data needed to render info column for ancestor dataset-item
+   * @type {ComputedProperty<Object>}
    */
-  dataListProxy: promise.array(computed('datasets', async function dataListProxy() {
-    const datasets = this.get('datasets');
-    const files = await allFulfilled(datasets.map(dataset => get(dataset, 'rootFile')));
-    const paths = await allFulfilled(files.map(file => resolveFilePath(file)));
-    const list = [];
-    for (let i = 0; i < get(datasets, 'length'); ++i) {
-      list[i] = {
-        dataset: datasets.objectAt(i),
-        filePath: paths[i],
+  dataList: computed('datasets.@each.{rootFile,rootFilePath}', function dataList() {
+    const {
+      datasets,
+      getDataUrl,
+    } = this.getProperties('datasets', 'getDataUrl');
+    // datasets list provided by backend is always sorted from nearest parent to farest
+    // in ancestor datasets list we need reverse order
+    const datasetsArray = datasets.toArray ? datasets.toArray() : Array.from(datasets);
+    return datasetsArray.reverse().map(dataset => {
+      const fileId = dataset.relationEntityId('rootFile');
+      const filePathString = get(dataset, 'rootFilePath');
+      return {
+        dataset,
+        fileId,
+        filePathString,
+        fileHref: getDataUrl({ fileId: null, selected: [fileId] }),
       };
-    }
-    return list;
-  })),
-
-  /**
-   * @type {ComputedProperty<Array<{ dataset: Models.Dataset, filePath: Array<Models.File> }>>}
-   */
-  dataList: reads('dataListProxy.content.[]'),
-
-  /**
-   * Sorting of result list specification
-   * @type {Array<String>}
-   */
-  sorting: Object.freeze(['filePath.length:asc']),
-
-  /**
-   * Main reason for this component to exist - exposes a sorted collection of pairs:
-   * `(dataset, path to root file)` in array of objects format (see type specification).
-   * @type {ComputedProperty<Array<{ dataset: Models.Dataset, filePath: Array<Models.File> }>>}
-   */
-  sortedDataList: sort('dataList', 'sorting'),
+    });
+  }),
 });

@@ -18,6 +18,7 @@ import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { promise } from 'ember-awesome-macros';
+import { allSettled } from 'rsvp';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -26,6 +27,7 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   datasetManager: service(),
+  fileManager: service(),
   globalNotify: service(),
 
   /**
@@ -138,12 +140,7 @@ export default Component.extend(I18n, {
     'fileDatasetSummaryProxy',
     async function ancestorDatasets() {
       const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
-      return await get(fileDatasetSummary, 'effectiveAncestorDatasets');
-      // TODO: VFS-7414 there are problems with reloading hasMany relation while
-      // fileDatasetSummary record is loaded on localstorage adapter (mock)
-      // check it on real backend adapter and find the solution to serve always fresh
-      // effectiveAncestorDatasets array
-      // return await fileDatasetSummary.hasMany('effectiveAncestorDatasets').reload();
+      return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
     }
   )),
 
@@ -151,4 +148,33 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.Dataset>}
    */
   ancestorDatasets: reads('ancestorDatasetsProxy.content'),
+
+  actions: {
+    /**
+     * Update information about file currently opened in `file-datasets` component
+     * @param {Object} options
+     * @param {Models.File} options.fileInvokingUpdate file whose datasets changes caused
+     *   invocation of this update - if this is the file opened in `file-datasets` or
+     *   its direct parent, then we skip the refresh, because updates are automatically
+     *   done by file-manager on this "invoking" file
+     */
+    async updateOpenedFileData({ fileInvokingUpdate } = {}) {
+      const {
+        fileManager,
+        file,
+      } = this.getProperties('fileManager', 'file');
+      if (file && fileInvokingUpdate !== file) {
+        const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
+        const promises = [
+          file.reload(),
+          fileDatasetSummaryRelation.reload(),
+        ];
+        // refresh opened file parent children only if invoker is not this parent
+        if (get(fileInvokingUpdate, 'id') !== file.belongsTo('parent').id()) {
+          promises.push(fileManager.fileParentRefresh(file));
+        }
+        await allSettled(promises);
+      }
+    },
+  },
 });

@@ -8,8 +8,9 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import ToggleHelper from '../../helpers/toggle';
+import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
 import { RuntimeProperties as DatasetRuntimeProperties } from 'oneprovider-gui/models/dataset';
-import EmberObject from '@ember/object';
+import EmberObject, { setProperties } from '@ember/object';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -24,21 +25,10 @@ describe('Integration | Component | file datasets', function () {
   context('for single file', function () {
     beforeEach(function () {
       this.set('file', createFile({ name: 'test-file.txt' }));
-      const fileDatasetSummary = {
-        getRelation(relation) {
-          if (relation === 'directDataset') {
-            return promiseObject(resolve(null));
-          }
-        },
-        belongsTo(relation) {
-          if (relation === 'directDataset') {
-            return { id: () => null };
-          }
-        },
-      };
+      this.set('fileDatasetSummary', createFileDatasetSummary());
       this.get('file').getRelation = (relation) => {
         if (relation === 'fileDatasetSummary') {
-          return promiseObject(resolve(fileDatasetSummary));
+          return promiseObject(resolve(this.get('fileDatasetSummary')));
         }
       };
     });
@@ -88,23 +78,7 @@ function testDirectDatasetShow(isAttached) {
       state: isAttached ? 'attached' : 'detached',
       isAttached,
     };
-    const fileDatasetSummary = {
-      getRelation(relation) {
-        if (relation === 'directDataset') {
-          return promiseObject(resolve(directDataset));
-        }
-      },
-      belongsTo(relation) {
-        if (relation === 'directDataset') {
-          return { id: () => 'dataset_id' };
-        }
-      },
-    };
-    this.get('file').getRelation = (relation) => {
-      if (relation === 'fileDatasetSummary') {
-        return promiseObject(resolve(fileDatasetSummary));
-      }
-    };
+    this.set('fileDatasetSummary', createFileDatasetSummary({ directDataset }));
 
     render(this);
     await wait();
@@ -133,23 +107,7 @@ function testDirectDatasetProtection(flags, attached = true) {
       state: attached ? 'attached' : 'detached',
       protectionFlags: flags,
     });
-    const fileDatasetSummary = {
-      getRelation(relation) {
-        if (relation === 'directDataset') {
-          return promiseObject(resolve(directDataset));
-        }
-      },
-      belongsTo(relation) {
-        if (relation === 'directDataset') {
-          return { id: () => 'dataset_id' };
-        }
-      },
-    };
-    this.get('file').getRelation = (relation) => {
-      if (relation === 'fileDatasetSummary') {
-        return promiseObject(resolve(fileDatasetSummary));
-      }
-    };
+    this.set('fileDatasetSummary', createFileDatasetSummary({ directDataset }));
 
     render(this);
     await wait();
@@ -176,7 +134,14 @@ function testEffectiveProtectionInfo(flags) {
   const availableShortFlags = ['data', 'metadata'];
   it(`displays tags with information about effective protection flags for ${flagsText} file flag(s)`,
     async function (done) {
-      this.set('file.effProtectionFlags', flags);
+      const {
+        file,
+        fileDatasetSummary,
+      } = this.getProperties('file', 'fileDatasetSummary');
+      const dataIsProtected = shortFlags.includes('data');
+      const metadataIsProtected = shortFlags.includes('metadata');
+      setProperties(fileDatasetSummary, { dataIsProtected, metadataIsProtected });
+      setProperties(file, { dataIsProtected, metadataIsProtected });
 
       render(this);
 

@@ -13,6 +13,7 @@ import { get, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 
 const childrenAttrsAspect = 'children_details';
 const fileModelName = 'file';
@@ -221,6 +222,15 @@ export default Service.extend({
     return allSettled(this.get('fileTableComponents').map(fileBrowser =>
       fileBrowser.onDirChildrenRefresh(parentDirEntityId)
     ));
+  },
+
+  async fileParentRefresh(file) {
+    const parentGri = file.belongsTo('parent').id();
+    if (parentGri) {
+      return await this.get('fileManager').dirChildrenRefresh(
+        parseGri(parentGri).entityId
+      );
+    }
   },
 
   registerRefreshHandler(fileBrowserComponent) {

@@ -13,6 +13,7 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { belongsTo, hasMany } from 'onedata-gui-websocket-client/utils/relationships';
 import attr from 'ember-data/attr';
+import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
 export default Model.extend(GraphSingleModelMixin, {
   /**
@@ -23,10 +24,13 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * All datasets registered for this file and its ancestor directories
    */
-  effectiveAncestorDatasets: hasMany('dataset'),
+  effAncestorDatasets: hasMany('dataset'),
 
   /**
    * Same as `models/file#effProtectionFlags`
    */
-  effectiveProtectionFlags: attr('array'),
+  effProtectionFlags: attr('array'),
+
+  dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
+  metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
 }).reopenClass(StaticGraphModelMixin);

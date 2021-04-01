@@ -15,6 +15,7 @@ import sinon from 'sinon';
 import wait from 'ember-test-helpers/wait';
 import $ from 'jquery';
 import { click } from 'ember-native-dom-helpers';
+import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
 
 describe('Integration | Component | datasets modal', function () {
   setupComponentTest('datasets-modal', {
@@ -22,16 +23,7 @@ describe('Integration | Component | datasets modal', function () {
   });
 
   it('renders file-datasets with file name and invokes onHide on close', async function () {
-    const fileDatasetSummary = {
-      async getRelation() {
-        return null;
-      },
-      belongsTo(relation) {
-        if (relation === 'directDataset') {
-          return { id: () => null };
-        }
-      },
-    };
+    const fileDatasetSummary = createFileDatasetSummary();
     this.setProperties({
       open: true,
       files: [{

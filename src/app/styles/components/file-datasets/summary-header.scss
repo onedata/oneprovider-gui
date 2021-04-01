@@ -27,12 +27,12 @@
       }
     }
     .label.label-modal-header-large {
+      font-size: 96%;
+      padding: 0.1em 0.5em 0.2em;
       font-weight: normal;
       @include font-semibold;
-      font-size: 90%;
       color: inherit;        
       line-height: 2em;
-      font-size: 100%;
       display: inline-flex;
       align-items: center;
       border-width: 2px;

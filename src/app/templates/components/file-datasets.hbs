@@ -1,6 +1,7 @@
 {{#modal.header class="file-datasets-part file-datasets-modal-header"}}
   {{file-datasets/summary-header
     file=file
+    fileDatasetSummaryProxy=fileDatasetSummaryProxy
     protectionIcons=protectionIcons
   }}
 {{/modal.header}}
@@ -43,6 +44,8 @@
         protectionIcons=protectionIcons
         readonly=(not editPrivilege)
         insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+        close=close
+        updateOpenedFileData=(action "updateOpenedFileData")
         getDataUrl=(action getDataUrl)
       }}
       {{file-datasets/direct-dataset
