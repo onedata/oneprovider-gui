@@ -1,6 +1,6 @@
 /**
- * Subheader for file-operation modals with file name 
- * 
+ * Subheader for file-operation modals with file name
+ *
  * @module components/modal-file-subheader
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -42,7 +42,11 @@ export default Component.extend(I18n, {
   type: conditional(
     'multi',
     raw('multi'),
-    'firstFile.type'
+    conditional(
+      eq('firstFile.type', raw('symlink')),
+      or('firstFile.linkedFile.type', raw('file')),
+      'firstFile.type'
+    )
   ),
 
   icon: or(
