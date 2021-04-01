@@ -81,17 +81,17 @@
 .fb-toolbar {
   display: block;
   position: relative;
-  letter-spacing: 4px;
-  @include vendor-prefix(user-select, none); 
-  
+  @include vendor-prefix(user-select, none);
+
   .fb-toolbar-button {
     display: inline-block;
     font-size: $file-browser-item-height;
     height: $file-browser-item-height;
     font-weight: bold;
+    margin-right: 4px;
     &[disabled], &.disabled {
-      cursor: default;
       pointer-events: none;
+      cursor: default !important;
       color: $main-text-color-disabled;
     }
     .one-icon {
@@ -108,4 +108,11 @@
 
 .webui-popover-in-fb-head {
   z-index: $zindex-tooltip - 1;
+}
+
+.webui-popover-clipboard-help {
+  .one-icon {
+    font-size: 170%;
+    vertical-align: bottom;
+  }
 }

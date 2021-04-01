@@ -1,7 +1,7 @@
 /**
  * Manages uploading files using resumable.js and external state of upload
  * received from Onezone.
- * 
+ *
  * @module services/upload-manager
  * @author Michał Borzęcki
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -21,34 +21,7 @@ import { later } from '@ember/runloop';
 import { v4 as uuid } from 'ember-uuid';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
-
-/**
- * Creates a function that ivokes provided `func` only if time from last invocation
- * (`limit`) elapsed.
- * In contrast to Ember throttle, this makes last invocation of function after limit
- * time if there is no invocations.
- * @param {Function} func 
- * @param {Number} limit in milliseconds
- * @returns {Function}
- */
-const createThrottledFunction = (func, limit) => {
-  let lastFunc;
-  let lastRan;
-  return function throttledFunction() {
-    if (!lastRan) {
-      func();
-      lastRan = Date.now();
-    } else {
-      clearTimeout(lastFunc);
-      lastFunc = later(function () {
-        if ((Date.now() - lastRan) >= limit) {
-          func();
-          lastRan = Date.now();
-        }
-      }, limit - (Date.now() - lastRan));
-    }
-  };
-};
+import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 export default Service.extend(I18n, {
   appProxy: service(),
@@ -427,7 +400,7 @@ export default Service.extend(I18n, {
 
   /**
    * Initializes upload of given file.
-   * @param {ResumableFile} resumableFile 
+   * @param {ResumableFile} resumableFile
    * @returns {Promise}
    */
   initializeFileUpload(resumableFile) {
@@ -442,7 +415,7 @@ export default Service.extend(I18n, {
 
   /**
    * Ends upload of given file.
-   * @param {ResumableFile} resumableFile 
+   * @param {ResumableFile} resumableFile
    * @returns {Promise}
    */
   finalizeFileUpload(resumableFile) {
@@ -456,7 +429,7 @@ export default Service.extend(I18n, {
 
   /**
    * Deletes file, that was used as a target for failed upload.
-   * @param {ResumableFile} resumableFile 
+   * @param {ResumableFile} resumableFile
    * @returns {Promise}
    */
   deleteFailedFile(resumableFile) {
@@ -693,7 +666,7 @@ function buildFilesTree(resumableFiles) {
  * Converts tree back to array of files, but ordered in a way, that minimizes
  * the number of unnecessary created directories in case of file upload failure.
  * Order: 'Files first, then run itself recurrently on each directory`.
- * @param {Object} tree 
+ * @param {Object} tree
  * @returns {Array<ResumableFile>}
  */
 function sortFilesToUpload(tree) {

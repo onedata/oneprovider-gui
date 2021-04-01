@@ -1,7 +1,7 @@
 /**
  * A complete file browser with infinite-scrolled file list, directory
  * breadcrumbs and toolkit for selected files.
- * 
+ *
  * @module components/file-browser
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -23,6 +23,8 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import { next, later } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import $ from 'jquery';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
 
@@ -72,6 +74,10 @@ const buttonNames = [
   'btnDistribution',
   'btnQos',
   'btnRename',
+  'btnCreateSymlink',
+  'btnCreateHardlink',
+  'btnPlaceSymlink',
+  'btnPlaceHardlink',
   'btnCopy',
   'btnCut',
   'btnPaste',
@@ -206,6 +212,13 @@ export default Component.extend(I18n, {
   isSpaceOwned: undefined,
 
   /**
+   * Needed to create symlinks. In read-only views it is optional
+   * @virtual optional
+   * @type {String}
+   */
+  spaceId: undefined,
+
+  /**
    * @virtual
    */
   spacePrivileges: Object.freeze({}),
@@ -227,7 +240,7 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * One of: move, copy
+   * One of: move, copy, link
    * @type {string}
    */
   fileClipboardMode: null,
@@ -252,12 +265,6 @@ export default Component.extend(I18n, {
    * @type {EmberArray<Models.File>}
    */
   selectedFilesForJump: Object.freeze([]),
-
-  /**
-   * If true, the paste from clipboard button should be available
-   * @type {Computed<boolean>}
-   */
-  clipboardReady: notEmpty('fileClipboardFiles'),
 
   isRootDir: not('dir.hasParent'),
 
@@ -311,7 +318,7 @@ export default Component.extend(I18n, {
   currentDirMenuButtons: computed(
     'allButtonsArray',
     'isRootDir',
-    'clipboardReady',
+    'fileClipboardMode',
     'previewMode',
     function menuButtons() {
       if (this.get('dir.isShareRoot')) {
@@ -320,12 +327,12 @@ export default Component.extend(I18n, {
         const {
           allButtonsArray,
           isRootDir,
-          clipboardReady,
+          fileClipboardMode,
           previewMode,
         } = this.getProperties(
           'allButtonsArray',
           'isRootDir',
-          'clipboardReady',
+          'fileClipboardMode',
           'previewMode',
         );
         const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
@@ -334,7 +341,13 @@ export default Component.extend(I18n, {
           allButtonsArray,
           context
         );
-        if (!clipboardReady) {
+        if (fileClipboardMode !== 'symlink') {
+          importedActions = importedActions.rejectBy('id', 'placeSymlink');
+        }
+        if (fileClipboardMode !== 'hardlink') {
+          importedActions = importedActions.rejectBy('id', 'placeHardlink');
+        }
+        if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
           importedActions = importedActions.rejectBy('id', 'paste');
         }
         if (get(importedActions, 'length')) {
@@ -576,12 +589,76 @@ export default Component.extend(I18n, {
     });
   }),
 
+  btnCreateSymlink: computed('selectedFiles.length', function btnCreateSymlink() {
+    const areManyFilesSelected = this.get('selectedFiles.length') > 1;
+    return this.createFileAction({
+      id: 'createSymlink',
+      icon: 'text-link',
+      title: this.t(`fileActions.createSymlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
+      action: (files) => {
+        this.setProperties({
+          fileClipboardFiles: files.slice(),
+          fileClipboardMode: 'symlink',
+        });
+      },
+      showIn: anySelected,
+    });
+  }),
+
+  btnCreateHardlink: computed('selectedFiles.[]', function btnCreateHardlink() {
+    const areManyFilesSelected = this.get('selectedFiles.length') > 1;
+    const disabled = this.get('selectedFiles').isAny('type', 'dir');
+    return this.createFileAction({
+      id: 'createHardlink',
+      icon: 'text-link',
+      disabled,
+      tip: disabled ? this.t('cannotHardlinkDirectory') : undefined,
+      title: this.t(`fileActions.createHardlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
+      action: (files) => {
+        this.setProperties({
+          fileClipboardFiles: files.slice(),
+          fileClipboardMode: 'hardlink',
+        });
+      },
+      showIn: anySelected,
+    });
+  }),
+
+  btnPlaceSymlink: computed(function btnPlaceSymlink() {
+    return this.createFileAction({
+      id: 'placeSymlink',
+      icon: 'plus',
+      action: () => this.placeSymlinks(),
+      showIn: [
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+        actionContext.inDir,
+      ],
+    });
+  }),
+
+  btnPlaceHardlink: computed(
+    'fileClipboardFiles.[]',
+    function btnPlaceHardlink() {
+      return this.createFileAction({
+        id: 'placeHardlink',
+        icon: 'text-link',
+        action: () => this.placeHardlinks(),
+        showIn: [
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+          actionContext.inDir,
+        ],
+      });
+    }
+  ),
+
   btnCopy: computed(function btnCopy() {
     return this.createFileAction({
       id: 'copy',
       action: (files) => {
         this.setProperties({
-          fileClipboardFiles: files,
+          fileClipboardFiles: files.slice(),
           fileClipboardMode: 'copy',
         });
       },
@@ -594,7 +671,7 @@ export default Component.extend(I18n, {
       id: 'cut',
       action: (files) => {
         this.setProperties({
-          fileClipboardFiles: files,
+          fileClipboardFiles: files.slice(),
           fileClipboardMode: 'move',
         });
       },
@@ -852,6 +929,84 @@ export default Component.extend(I18n, {
       if (fileClipboardMode === 'move') {
         this.clearFileClipboard();
       }
+    });
+  },
+
+  async placeHardlinks() {
+    const {
+      dir,
+      fileManager,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      i18nPrefix,
+      fileClipboardFiles,
+    } = this.getProperties(
+      'dir',
+      'fileManager',
+      'globalNotify',
+      'errorExtractor',
+      'i18n',
+      'i18nPrefix',
+      'fileClipboardFiles'
+    );
+
+    const throttledRefresh = createThrottledFunction(
+      () => this.get('fbTableApi.refresh')(),
+      1000
+    );
+
+    return handleMultiFilesOperation({
+        files: fileClipboardFiles,
+        globalNotify,
+        errorExtractor,
+        i18n,
+        operationErrorKey: `${i18nPrefix}.linkFailed`,
+      },
+      async (file) => {
+        await fileManager.createHardlink(get(file, 'index'), dir, file);
+        await throttledRefresh();
+      }
+    );
+  },
+
+  async placeSymlinks() {
+    const {
+      dir,
+      fileManager,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      i18nPrefix,
+      fileClipboardFiles,
+      spaceId,
+    } = this.getProperties(
+      'dir',
+      'fileManager',
+      'globalNotify',
+      'errorExtractor',
+      'i18n',
+      'i18nPrefix',
+      'fileClipboardFiles',
+      'spaceId'
+    );
+
+    const throttledRefresh = createThrottledFunction(
+      () => this.get('fbTableApi.refresh')(),
+      1000
+    );
+
+    return handleMultiFilesOperation({
+      files: fileClipboardFiles,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      operationErrorKey: `${i18nPrefix}.linkFailed`,
+    }, async (file) => {
+      const fileName = get(file, 'index');
+      const filePath = stringifyFilePath(await resolveFilePath(file), 'index');
+      await fileManager.createSymlink(fileName, dir, filePath, spaceId);
+      await throttledRefresh();
     });
   },
 
