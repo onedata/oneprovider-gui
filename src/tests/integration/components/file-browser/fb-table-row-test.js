@@ -25,23 +25,29 @@ describe('Integration | Component | file browser/fb table row', function () {
   it('renders modification date', function () {
     const date = moment('2022-05-18T08:50:00+00:00').unix();
     const dateReadable = /18 May 2022 \d+:50/;
-    const file = {
-      modificationTime: date,
-      posixPermissions: '777',
-      type: 'file',
-      belongsTo(name) {
-        if (name === 'owner') {
-          return {
-            id: () => userGri,
-          };
-        }
-      },
-    };
-    this.set('file', file);
-    this.render(hbs `{{file-browser/fb-table-row
-      file=file
-    }}`);
+    this.set('file', createFile({ modificationTime: date }));
+
+    this.render(hbs `{{file-browser/fb-table-row file=file}}`);
+
     expect(this.$('.fb-table-col-modification').text()).to.match(dateReadable);
+  });
+
+  it('does not render "refs" file tag, when references count equals 1', function () {
+    this.set('file', createFile({ referencesCount: 1 }));
+
+    this.render(hbs `{{file-browser/fb-table-row file=file }}`);
+
+    expect(this.$('.file-status-references'), 'refs tag').to.not.exist;
+  });
+
+  it('renders "refs" file tag, when references count equals 2', function () {
+    this.set('file', createFile({ referencesCount: 2 }));
+
+    this.render(hbs `{{file-browser/fb-table-row file=file }}`);
+
+    const $tag = this.$('.file-status-references');
+    expect($tag, 'refs tag').to.exist;
+    expect($tag.text().trim()).to.equal('Refs: 2');
   });
 
   describe('renders "no access" file tag when', function () {
@@ -107,7 +113,7 @@ function checkNoAccessTag({ renders, description, properties }) {
 }
 
 function createFile(override = {}, ownerGri = userGri) {
-  return Object.assign({
+  const file = Object.assign({
     modificationTime: moment('2020-01-01T08:50:00+00:00').unix(),
     posixPermissions: '777',
     type: 'file',
@@ -119,4 +125,8 @@ function createFile(override = {}, ownerGri = userGri) {
       }
     },
   }, override);
+  if (!file.type !== 'symlink') {
+    file.effFile = file;
+  }
+  return file;
 }

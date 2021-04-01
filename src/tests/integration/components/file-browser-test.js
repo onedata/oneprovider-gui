@@ -119,6 +119,7 @@ describe('Integration | Component | file browser (main component)', function () 
     for (let i = 0; i < numberOfDirs; ++i) {
       dirs[i].parent = resolve(i > 0 ? dirs[i - 1] : rootDir);
       dirs[i].hasParent = true;
+      dirs[i].effFile = dirs[i];
     }
 
     this.setProperties({
@@ -541,6 +542,7 @@ describe('Integration | Component | file browser (main component)', function () 
         hasParent: false,
         parent: resolve(null),
       };
+      dir.effFile = dir;
 
       const item1 = {
         entityId: 'i1',
@@ -549,6 +551,7 @@ describe('Integration | Component | file browser (main component)', function () 
         hasParent: true,
         parent: resolve(dir),
       };
+      item1.effFile = item1;
 
       this.setProperties({ dir, item1, selectedFiles: Object.freeze([]) });
       stubSimpleFetch(this, dir, [item1]);
@@ -594,6 +597,7 @@ function mockFilesTree(testCase, treeSpec) {
     hasParent: false,
     parent: resolve(null),
   };
+  root.effFile = root;
   const elementsMap = {
     root,
   };
@@ -614,6 +618,7 @@ function mockFilesTree(testCase, treeSpec) {
         hasParent: true,
         parent: resolve(parent),
       };
+      element.effFile = element;
       elementsMap[subElementId] = element;
       if (isDir) {
         treeElementGeneratorQueue.push({

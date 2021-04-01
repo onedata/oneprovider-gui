@@ -386,6 +386,14 @@ const fileHandlers = {
       };
     }
   },
+  symlink_target(operation, entityId) {
+    switch (operation) {
+      case 'get':
+        return this.getSymlinkTargetFile(entityId);
+      default:
+        return messageNotSupported;
+    }
+  },
   xattrs(operation, entityId, data) {
     switch (operation) {
       case 'get': {
@@ -528,7 +536,7 @@ const metaRdf = `<?xml version="1.0" encoding="UTF-8"?>
         <user-time>26</user-time>
         <service-time>25</service-time>
         <build-version>21978</build-version>
-    </diagnostics> 
+    </diagnostics>
     <results>
         <place xmlns="http://where.yahooapis.com/v1/schema.rng"
             xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/24865670">
@@ -719,6 +727,16 @@ export default OnedataGraphMock.extend({
       childrenIdsCache[dirId] = cache;
       return cache;
     }
+  },
+
+  getSymlinkTargetFile(symlinkEntityId) {
+    const targetFileEntityId = this.get('mockBackend.symlinkMap')[symlinkEntityId];
+    if (!targetFileEntityId) {
+      return null;
+    }
+    const targetFile =
+      this.get('mockBackend.entityRecords.file').findBy('entityId', targetFileEntityId);
+    return targetFile ? recordToChildData(targetFile) : null;
   },
 
   getMockChildrenData(dirEntityId) {

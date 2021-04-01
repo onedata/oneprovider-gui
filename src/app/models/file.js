@@ -67,6 +67,7 @@ export default Model.extend(
     hasEffQos: attr('boolean'),
     hasDirectQos: attr('boolean'),
     sharesCount: attr('number'),
+    referencesCount: attr('number', { defaultValue: 1 }),
 
     /**
      * Modification time in UNIX timestamp format.
@@ -88,6 +89,26 @@ export default Model.extend(
     fileQosSummary: belongsTo('file-qos-summary'),
 
     modificationTime: alias('mtime'),
+
+    /**
+     * Not empty when file is a symlink and points to an accessible file.
+     * @type {Models.File|undefined}
+     */
+    symlinkTargetFile: undefined,
+
+    /**
+     * When file is a symlink, then `effFile` is the file pointed
+     * by the symlink (so can be empty). For other types of files it points to
+     * the same file (as normal file can be treated as a "symlink to itself").
+     * @type {Models.File}
+     */
+    effFile: computed('type', 'symlinkTargetFile', function effFile() {
+      const {
+        type,
+        symlinkTargetFile,
+      } = this.getProperties('type', 'symlinkTargetFile');
+      return type === 'symlink' ? symlinkTargetFile : this;
+    }),
 
     /**
      * Contains error of loading file distribution. Is null if distribution has not

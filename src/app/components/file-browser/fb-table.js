@@ -862,9 +862,13 @@ export default Component.extend(I18n, {
   },
 
   openFile(file, confirmModal = false) {
-    const isDir = get(file, 'type') === 'dir';
+    const effFile = get(file, 'effFile');
+    if (!effFile) {
+      return;
+    }
+    const isDir = get(effFile, 'type') === 'dir';
     if (isDir) {
-      return this.get('changeDir')(file);
+      return this.get('changeDir')(effFile);
     } else {
       if (confirmModal) {
         this.set('downloadModalFile', file);

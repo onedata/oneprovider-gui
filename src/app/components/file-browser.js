@@ -27,6 +27,7 @@ import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolv
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import $ from 'jquery';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
+import { resolve } from 'rsvp';
 
 export const actionContext = {
   none: 'none',
@@ -593,7 +594,7 @@ export default Component.extend(I18n, {
     const areManyFilesSelected = this.get('selectedFiles.length') > 1;
     return this.createFileAction({
       id: 'createSymlink',
-      icon: 'text-link',
+      icon: 'shortcut',
       title: this.t(`fileActions.createSymlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
       action: (files) => {
         this.setProperties({
@@ -627,7 +628,7 @@ export default Component.extend(I18n, {
   btnPlaceSymlink: computed(function btnPlaceSymlink() {
     return this.createFileAction({
       id: 'placeSymlink',
-      icon: 'plus',
+      icon: 'shortcut',
       action: () => this.placeSymlinks(),
       showIn: [
         actionContext.currentDir,
@@ -1032,7 +1033,12 @@ export default Component.extend(I18n, {
       'previewMode',
       'loadingIconFileIds'
     );
-    const fileIds = files.mapBy('entityId');
+    const effFiles = files.mapBy('effFile').compact();
+    if (!effFiles.length) {
+      return resolve();
+    }
+
+    const fileIds = effFiles.mapBy('entityId');
     // intentionally not checking for duplicates, because we treat multiple "loading id"
     // entries as semaphores
     loadingIconFileIds.pushObjects(fileIds);
