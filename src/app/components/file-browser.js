@@ -213,7 +213,8 @@ export default Component.extend(I18n, {
   isSpaceOwned: undefined,
 
   /**
-   * @virtual
+   * Needed to create symlinks. In read-only views it is optional
+   * @virtual optional
    * @type {String}
    */
   spaceId: undefined,
@@ -963,8 +964,10 @@ export default Component.extend(I18n, {
         i18n,
         operationErrorKey: `${i18nPrefix}.linkFailed`,
       },
-      file => fileManager.createHardlink(get(file, 'index'), dir, file)
-      .then(() => throttledRefresh())
+      async (file) => {
+        await fileManager.createHardlink(get(file, 'index'), dir, file);
+        await throttledRefresh();
+      }
     );
   },
 
@@ -994,7 +997,6 @@ export default Component.extend(I18n, {
       1000
     );
 
-    const symlinkPathPrefix = `<__onedata_space_id:${spaceId}>`;
     return handleMultiFilesOperation({
       files: fileClipboardFiles,
       globalNotify,
@@ -1003,11 +1005,8 @@ export default Component.extend(I18n, {
       operationErrorKey: `${i18nPrefix}.linkFailed`,
     }, async (file) => {
       const fileName = get(file, 'index');
-      const filePath = stringifyFilePath(
-        (await resolveFilePath(file)).slice(1),
-        'index'
-      );
-      await fileManager.createSymlink(fileName, dir, symlinkPathPrefix + filePath);
+      const filePath = stringifyFilePath(await resolveFilePath(file), 'index');
+      await fileManager.createSymlink(fileName, dir, filePath, spaceId);
       await throttledRefresh();
     });
   },

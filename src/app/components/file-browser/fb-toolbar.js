@@ -128,8 +128,9 @@ export default Component.extend(I18n, {
     }
   ),
 
-  highlightedToolbarButtons: array.filter('toolbarButtons', btn => ['paste', 'placeSymlink', 'placeHardlink']
-    .includes(get(btn, 'id'))
+  highlightedToolbarButtons: array.filter(
+    'toolbarButtons',
+    btn => ['paste', 'placeSymlink', 'placeHardlink'].includes(get(btn, 'id'))
   ),
 
   toolbarButtonIds: computed('toolbarButtons.@each.id', function toolbarButtonIds() {

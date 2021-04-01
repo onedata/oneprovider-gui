@@ -74,7 +74,7 @@
   flex-direction: row-reverse;
   flex-grow: 0;
   flex-shrink: 0;
-  flex-basis: 400px;
+  flex-basis: 360px;
   height: $file-browser-header-height;
 }
 
@@ -90,6 +90,7 @@
     font-weight: bold;
     margin-right: 4px;
     &[disabled], &.disabled {
+      pointer-events: none;
       cursor: default !important;
       color: $main-text-color-disabled;
     }
