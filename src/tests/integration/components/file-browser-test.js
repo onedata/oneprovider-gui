@@ -10,7 +10,7 @@ import Evented from '@ember/object/evented';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
-import { click, triggerEvent } from 'ember-native-dom-helpers';
+import { click } from 'ember-native-dom-helpers';
 import $ from 'jquery';
 import sleep from 'onedata-gui-common/utils/sleep';
 
@@ -31,10 +31,6 @@ const FileManager = Service.extend(Evented, {
   getFileDownloadUrl() {},
 });
 
-const I18n = Service.extend({
-  t: () => '',
-});
-
 describe('Integration | Component | file browser (main component)', function () {
   setupComponentTest('file-browser', {
     integration: true,
@@ -43,7 +39,6 @@ describe('Integration | Component | file browser (main component)', function () 
   beforeEach(function () {
     registerService(this, 'uploadManager', UploadManager);
     registerService(this, 'fileManager', FileManager);
-    registerService(this, 'i18n', I18n);
   });
 
   it('renders files on list', function () {
@@ -119,7 +114,7 @@ describe('Integration | Component | file browser (main component)', function () 
     for (let i = 0; i < numberOfDirs; ++i) {
       dirs[i].parent = resolve(i > 0 ? dirs[i - 1] : rootDir);
       dirs[i].hasParent = true;
-      dirs[i].linkedFile = dirs[i];
+      dirs[i].effFile = dirs[i];
     }
 
     this.setProperties({
@@ -184,85 +179,53 @@ describe('Integration | Component | file browser (main component)', function () 
     });
   });
 
-  it('shows working paste button when invoked file copy from context menu',
-    async function () {
-      mockFilesTree(this, {
-        f1: null,
-        f2: {
-          f3: null,
-        },
-      });
-      const fileManager = lookupService(this, 'fileManager');
-      const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
+  itHasWorkingClipboardFunction({
+    description: 'shows working paste button when invoked file copy from context menu',
+    setupStubs: testCase => {
+      testCase.set(
+        'actionSpy',
+        sinon.spy(lookupService(testCase, 'fileManager'), 'copyOrMoveFile')
+      );
+    },
+    contextMenuActionId: 'copy',
+    expectedToolbarActionId: 'paste',
+    finalExpect: testCase => expect(testCase.get('actionSpy'))
+      .to.have.been.calledWith(testCase.get('elementsMap.f1'), 'f2', 'copy'),
+  });
 
-      this.render(hbs `<div id="content-scroll">{{file-browser
-        dir=dir
-        selectedFiles=selectedFiles
-        updateDirEntityId=updateDirEntityId
-        changeSelectedFiles=(action (mut selectedFiles))
-      }}</div>`);
+  itHasWorkingClipboardFunction({
+    description: 'shows working symlink button when invoked file symlink from context menu',
+    setupStubs: testCase => {
+      testCase.set(
+        'actionSpy',
+        sinon.stub(lookupService(testCase, 'fileManager'), 'createSymlink').resolves()
+      );
+    },
+    contextMenuActionId: 'createSymlink',
+    expectedToolbarActionId: 'placeSymlink',
+    finalExpect: testCase => expect(testCase.get('actionSpy')).to.have.been.calledWith(
+      'f1 name',
+      testCase.get('elementsMap.f2'),
+      '/root name/f1 name',
+      'myspaceid'
+    ),
+  });
 
-      await wait();
-      expect(this.$('.fb-table-row')).to.exist;
-
-      await triggerEvent(this.$('.fb-table-row:contains("f1 name")')[0], 'contextmenu');
-      await click('.file-action-copy');
-
-      expect($('.file-action-paste'), 'file-action-paste').to.exist;
-
-      const dirRow = this.$('.fb-table-row:contains("f2 name")')[0];
-      dirRow.click();
-      await dirRow.click();
-      await click('.file-action-paste');
-
-      expect(copyOrMoveFile).to.have.been
-        .calledWith(this.get('elementsMap.f1'), 'f2', 'copy');
-    }
-  );
-
-  ['symlink', 'hardlink'].forEach(linkType => {
-    const upperLinkType = _.upperFirst(linkType);
-    it(`shows working ${linkType} button when invoked file ${linkType} from context menu`,
-      async function () {
-        mockFilesTree(this, {
-          f1: null,
-          f2: {
-            f3: null,
-          },
-        });
-        const fileManager = lookupService(this, 'fileManager');
-        const createLink = sinon.stub(
-          fileManager,
-          `create${upperLinkType}`
-        ).resolves();
-
-        this.render(hbs `<div id="content-scroll">{{file-browser
-          dir=dir
-          spaceId="myspaceid"
-          selectedFiles=selectedFiles
-          updateDirEntityId=updateDirEntityId
-          changeSelectedFiles=(action (mut selectedFiles))
-        }}</div>`);
-
-        await wait();
-        expect(this.$('.fb-table-row')).to.exist;
-
-        await triggerEvent(this.$('.fb-table-row:contains("f1 name")')[0], 'contextmenu');
-        await click(`.file-action-create${upperLinkType}`);
-
-        expect($(`.file-action-place${upperLinkType}`)).to.exist;
-
-        const dirRow = this.$('.fb-table-row:contains("f2 name")')[0];
-        dirRow.click();
-        await dirRow.click();
-        await click(`.file-action-place${upperLinkType}`);
-
-        const linkTarget = linkType === 'symlink' ?
-          '<__onedata_space_id:myspaceid>/f1 name' : this.get('elementsMap.f1');
-        expect(createLink).to.have.been
-          .calledWith('f1 name', this.get('elementsMap.f2'), linkTarget);
-      }
-    );
+  itHasWorkingClipboardFunction({
+    description: 'shows working hardlink button when invoked file hardlink from context menu',
+    setupStubs: testCase => {
+      testCase.set(
+        'actionSpy',
+        sinon.stub(lookupService(testCase, 'fileManager'), 'createHardlink').resolves()
+      );
+    },
+    contextMenuActionId: 'createHardlink',
+    expectedToolbarActionId: 'placeHardlink',
+    finalExpect: testCase => expect(testCase.get('actionSpy')).to.have.been.calledWith(
+      'f1 name',
+      testCase.get('elementsMap.f2'),
+      testCase.get('elementsMap.f1')
+    ),
   });
 
   it('has blocked hardlink creation for directories', async function () {
@@ -280,8 +243,10 @@ describe('Integration | Component | file browser (main component)', function () 
     await wait();
     expect(this.$('.fb-table-row')).to.exist;
 
-    await triggerEvent(this.$('.fb-table-row:contains("f1 name")')[0], 'contextmenu');
-    expect($('.file-action-createHardlink').parent()).to.have.class('disabled');
+    const $actions = await openFileContextMenu({ name: 'f1 name' });
+
+    expect($actions.find('.file-action-createHardlink').parent())
+      .to.have.class('disabled');
   });
 
   it('shows empty dir message with working new directory button', function () {
@@ -572,7 +537,7 @@ describe('Integration | Component | file browser (main component)', function () 
         hasParent: false,
         parent: resolve(null),
       };
-      dir.linkedFile = dir;
+      dir.effFile = dir;
 
       const item1 = {
         entityId: 'i1',
@@ -581,7 +546,7 @@ describe('Integration | Component | file browser (main component)', function () 
         hasParent: true,
         parent: resolve(dir),
       };
-      item1.linkedFile = item1;
+      item1.effFile = item1;
 
       this.setProperties({ dir, item1, selectedFiles: Object.freeze([]) });
       stubSimpleFetch(this, dir, [item1]);
@@ -627,7 +592,7 @@ function mockFilesTree(testCase, treeSpec) {
     hasParent: false,
     parent: resolve(null),
   };
-  root.linkedFile = root;
+  root.effFile = root;
   const elementsMap = {
     root,
   };
@@ -648,7 +613,7 @@ function mockFilesTree(testCase, treeSpec) {
         hasParent: true,
         parent: resolve(parent),
       };
-      element.linkedFile = element;
+      element.effFile = element;
       elementsMap[subElementId] = element;
       if (isDir) {
         treeElementGeneratorQueue.push({
@@ -684,13 +649,17 @@ function testDownloadFromContextMenu() {
     'shows spinner and starts download after using download context menu item';
   it(description, async function (done) {
     const btnId = this.get('item1.type') === 'dir' ? 'downloadTarGz' : 'download';
-    testDownload(this, done, (fileId) => chooseFileContextMenuAction(fileId, btnId));
+    testDownload(
+      this,
+      done,
+      (fileId) => chooseFileContextMenuAction({ entityId: fileId }, btnId)
+    );
   });
 }
 
 function testDownloadUsingDoubleClick() {
   it('shows spinner and starts download after double click', async function (done) {
-    testDownload(this, done, doubleClickFile);
+    testDownload(this, done, (fileId) => doubleClickFile({ entityId: fileId }));
   });
 }
 
@@ -703,7 +672,7 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
 
   renderWithDownloadSpy(testCase);
   await wait();
-  const $row = getFileRow(fileId);
+  const $row = getFileRow({ entityId: fileId });
 
   expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
   await invokeDownloadFunction(fileId);
@@ -716,6 +685,44 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
   expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
 
   done();
+}
+
+function itHasWorkingClipboardFunction({
+  description,
+  setupStubs,
+  contextMenuActionId,
+  expectedToolbarActionId,
+  finalExpect,
+}) {
+  it(description, async function () {
+    mockFilesTree(this, {
+      f1: null,
+      f2: {
+        f3: null,
+      },
+    });
+    setupStubs(this);
+
+    this.render(hbs `<div id="content-scroll">{{file-browser
+      dir=dir
+      spaceId="myspaceid"
+      selectedFiles=selectedFiles
+      updateDirEntityId=updateDirEntityId
+      changeSelectedFiles=(action (mut selectedFiles))
+    }}</div>`);
+
+    await wait();
+    expect(this.$('.fb-table-row')).to.exist;
+
+    await chooseFileContextMenuAction({ name: 'f1 name' }, contextMenuActionId);
+
+    expect($(`.file-action-${expectedToolbarActionId}`)).to.exist;
+
+    await doubleClickFile({ name: 'f2 name' });
+    await click(`.file-action-${expectedToolbarActionId}`);
+
+    finalExpect(this);
+  });
 }
 
 function prepareDownload(testCase) {
@@ -752,21 +759,26 @@ function stubSimpleFetch(testCase, dir, childrenRecords) {
   return fetchDirChildren;
 }
 
-function getFileRow(fileId) {
-  const $row = $(`.fb-table-row[data-row-id=${fileId}]`);
+function getFileRow({ entityId, name }) {
+  let $row;
+  if (entityId) {
+    $row = $(`.fb-table-row[data-row-id=${entityId}]`);
+  } else {
+    $row = $(`.fb-table-row:contains("${name}")`);
+  }
   expect($row).to.have.length(1);
   return $row;
 }
 
-async function doubleClickFile(fileId) {
-  const row = getFileRow(fileId)[0];
+async function doubleClickFile(file) {
+  const row = getFileRow(file)[0];
   click(row);
   await sleep(1);
   await click(row);
 }
 
-async function openFileContextMenu(fileId) {
-  const $row = getFileRow(fileId);
+async function openFileContextMenu(file) {
+  const $row = getFileRow(file);
   $row[0].dispatchEvent(new Event('contextmenu'));
   await wait();
   const $fileActions = $('.file-actions');
@@ -774,7 +786,7 @@ async function openFileContextMenu(fileId) {
   return $fileActions;
 }
 
-async function chooseFileContextMenuAction(fileId, actionId) {
-  const $fileActions = await openFileContextMenu(fileId);
+async function chooseFileContextMenuAction(file, actionId) {
+  const $fileActions = await openFileContextMenu(file);
   await click($fileActions.find(`.file-action-${actionId}`)[0]);
 }

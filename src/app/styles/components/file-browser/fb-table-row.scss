@@ -3,6 +3,9 @@
   overflow: hidden;
   &.file-selected {
     background-color: $color-file-selected;
+    .one-icon-tag-circle {
+      background-color: $color-file-selected;
+    }
   }
   &.file-cut {
     .file-icon-container, .file-item-text {

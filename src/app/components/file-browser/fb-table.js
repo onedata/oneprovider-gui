@@ -296,9 +296,12 @@ export default Component.extend(I18n, {
 
   pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
 
-  isHardlinkingPossible: computed('fileClipboardFiles.[]', function () {
-    return !(this.get('fileClipboardFiles') || []).isAny('type', 'dir');
-  }),
+  isHardlinkingPossible: computed(
+    'fileClipboardFiles.@each.type',
+    function isHardlinkingPossible() {
+      return !(this.get('fileClipboardFiles') || []).isAny('type', 'dir');
+    }
+  ),
 
   /**
    * When file rows are removed, we need additional space on top to fill the void.
@@ -859,13 +862,13 @@ export default Component.extend(I18n, {
   },
 
   openFile(file, confirmModal = false) {
-    const linkedFile = get(file, 'linkedFile');
-    if (!linkedFile) {
+    const effFile = get(file, 'effFile');
+    if (!effFile) {
       return;
     }
-    const isDir = get(linkedFile, 'type') === 'dir';
+    const isDir = get(effFile, 'type') === 'dir';
     if (isDir) {
-      return this.get('changeDir')(linkedFile);
+      return this.get('changeDir')(effFile);
     } else {
       if (confirmModal) {
         this.set('downloadModalFile', file);

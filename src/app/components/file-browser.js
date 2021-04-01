@@ -213,7 +213,8 @@ export default Component.extend(I18n, {
   isSpaceOwned: undefined,
 
   /**
-   * @virtual
+   * Needed to create symlinks. In read-only views it is optional
+   * @virtual optional
    * @type {String}
    */
   spaceId: undefined,
@@ -273,7 +274,7 @@ export default Component.extend(I18n, {
     'selectedFiles.[]',
     function selectedFilesContainsOnlySymlinks() {
       const selectedFiles = this.get('selectedFiles');
-      return selectedFiles.length && selectedFiles.isEvery('type', 'symlink');
+      return get(selectedFiles, 'length') && selectedFiles.isEvery('type', 'symlink');
     }
   ),
 
@@ -502,12 +503,11 @@ export default Component.extend(I18n, {
         'selectedFilesContainsOnlySymlinks'
       );
       const canView = get(spacePrivileges, 'view');
-      const disabled = selectedFilesContainsOnlySymlinks || !canView;
-      let tip;
+      let disabledTip;
       if (selectedFilesContainsOnlySymlinks) {
-        tip = this.t('featureNotForSymlinks');
+        disabledTip = this.t('featureNotForSymlinks');
       } else if (!canView) {
-        tip = insufficientPrivilegesMessage({
+        disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
           privilegeFlag: 'space_view',
@@ -516,10 +516,10 @@ export default Component.extend(I18n, {
       return this.createFileAction({
         id: 'share',
         action: (files) => {
-          return openShare(files.rejectBy('type', 'symlink')[0]);
+          return openShare(files[0]);
         },
-        disabled,
-        tip,
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
         showIn: [
           actionContext.singleFile,
           actionContext.singleDir,
@@ -533,13 +533,14 @@ export default Component.extend(I18n, {
   btnMetadata: computed('selectedFilesContainsOnlySymlinks', function btnMetadata() {
     const selectedFilesContainsOnlySymlinks =
       this.get('selectedFilesContainsOnlySymlinks');
+    const disabledTip = selectedFilesContainsOnlySymlinks ?
+      this.t('featureNotForSymlinks') : undefined;
     return this.createFileAction({
       id: 'metadata',
-      disabled: selectedFilesContainsOnlySymlinks,
-      tip: selectedFilesContainsOnlySymlinks ?
-        this.t('featureNotForSymlinks') : undefined,
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: (files) => {
-        return this.get('openMetadata')(files.rejectBy('type', 'symlink')[0]);
+        return this.get('openMetadata')(files[0]);
       },
       showIn: [
         actionContext.singleDir,
@@ -643,11 +644,12 @@ export default Component.extend(I18n, {
         'selectedFilesContainsOnlySymlinks',
         'openEditPermissions'
       );
+      const disabledTip = selectedFilesContainsOnlySymlinks ?
+        this.t('featureNotForSymlinks') : undefined;
       return this.createFileAction({
         id: 'permissions',
-        disabled: selectedFilesContainsOnlySymlinks,
-        tip: selectedFilesContainsOnlySymlinks ?
-          this.t('featureNotForSymlinks') : undefined,
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
         action: (files) => {
           return openEditPermissions(files.rejectBy('type', 'symlink'));
         },
@@ -682,18 +684,17 @@ export default Component.extend(I18n, {
       const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
       const areManyFilesSelected = this.get('selectedFiles.length') > 1;
       const hasDirectorySelected = this.get('selectedFiles').isAny('type', 'dir');
-      const disabled = selectedFilesContainsOnlySymlinks || hasDirectorySelected;
-      let tip;
+      let disabledTip;
       if (selectedFilesContainsOnlySymlinks) {
-        tip = this.t('featureNotForSymlinks');
+        disabledTip = this.t('featureNotForSymlinks');
       } else if (hasDirectorySelected) {
-        tip = this.t('cannotHardlinkDirectory');
+        disabledTip = this.t('cannotHardlinkDirectory');
       }
       return this.createFileAction({
         id: 'createHardlink',
         icon: 'text-link',
-        disabled,
-        tip,
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
         title: this.t(`fileActions.createHardlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
         action: (files) => {
           this.setProperties({
@@ -737,11 +738,12 @@ export default Component.extend(I18n, {
 
   btnCopy: computed('selectedFilesContainsOnlySymlinks', function btnCopy() {
     const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
+    const disabledTip = selectedFilesContainsOnlySymlinks ?
+      this.t('featureNotForSymlinks') : undefined;
     return this.createFileAction({
       id: 'copy',
-      disabled: selectedFilesContainsOnlySymlinks,
-      tip: selectedFilesContainsOnlySymlinks ?
-        this.t('featureNotForSymlinks') : undefined,
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: (files) => {
         this.setProperties({
           fileClipboardFiles: files.rejectBy('type', 'symlink'),
@@ -754,11 +756,12 @@ export default Component.extend(I18n, {
 
   btnCut: computed('selectedFilesContainsOnlySymlinks', function btnCut() {
     const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
+    const disabledTip = selectedFilesContainsOnlySymlinks ?
+      this.t('featureNotForSymlinks') : undefined;
     return this.createFileAction({
       id: 'cut',
-      disabled: selectedFilesContainsOnlySymlinks,
-      tip: selectedFilesContainsOnlySymlinks ?
-        this.t('featureNotForSymlinks') : undefined,
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: (files) => {
         this.setProperties({
           fileClipboardFiles: files.rejectBy('type', 'symlink'),
@@ -805,11 +808,12 @@ export default Component.extend(I18n, {
         'selectedFilesContainsOnlySymlinks',
         'openFileDistributionModal'
       );
+      const disabledTip = selectedFilesContainsOnlySymlinks ?
+        this.t('featureNotForSymlinks') : undefined;
       return this.createFileAction({
         id: 'distribution',
-        disabled: selectedFilesContainsOnlySymlinks,
-        tip: selectedFilesContainsOnlySymlinks ?
-          this.t('featureNotForSymlinks') : undefined,
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
         showIn: [
           ...anySelected,
           actionContext.currentDir,
@@ -839,12 +843,11 @@ export default Component.extend(I18n, {
         'selectedFilesContainsOnlySymlinks'
       );
       const canView = get(spacePrivileges, 'viewQos');
-      const disabled = selectedFilesContainsOnlySymlinks || !canView;
-      let tip;
+      let disabledTip;
       if (selectedFilesContainsOnlySymlinks) {
-        tip = this.t('featureNotForSymlinks');
+        disabledTip = this.t('featureNotForSymlinks');
       } else if (!canView) {
-        tip = insufficientPrivilegesMessage({
+        disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
           privilegeFlag: 'space_view_qos',
@@ -858,8 +861,8 @@ export default Component.extend(I18n, {
           actionContext.currentDir,
           actionContext.spaceRootDir,
         ],
-        disabled,
-        tip,
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
         action: (files) => {
           return openQos(files.rejectBy('type', 'symlink'));
         },
@@ -1083,8 +1086,10 @@ export default Component.extend(I18n, {
         i18n,
         operationErrorKey: `${i18nPrefix}.linkFailed`,
       },
-      file => fileManager.createHardlink(get(file, 'index'), dir, file)
-      .then(() => throttledRefresh())
+      async (file) => {
+        await fileManager.createHardlink(get(file, 'index'), dir, file);
+        await throttledRefresh();
+      }
     );
   },
 
@@ -1114,7 +1119,6 @@ export default Component.extend(I18n, {
       1000
     );
 
-    const symlinkPathPrefix = `<__onedata_space_id:${spaceId}>`;
     return handleMultiFilesOperation({
       files: fileClipboardFiles,
       globalNotify,
@@ -1123,11 +1127,8 @@ export default Component.extend(I18n, {
       operationErrorKey: `${i18nPrefix}.linkFailed`,
     }, async (file) => {
       const fileName = get(file, 'index');
-      const filePath = stringifyFilePath(
-        (await resolveFilePath(file)).slice(1),
-        'index'
-      );
-      await fileManager.createSymlink(fileName, dir, symlinkPathPrefix + filePath);
+      const filePath = stringifyFilePath(await resolveFilePath(file), 'index');
+      await fileManager.createSymlink(fileName, dir, filePath, spaceId);
       await throttledRefresh();
     });
   },
@@ -1154,12 +1155,12 @@ export default Component.extend(I18n, {
       'previewMode',
       'loadingIconFileIds'
     );
-    const linkedFiles = files.mapBy('linkedFile').compact();
-    if (!linkedFiles.length) {
+    const effFiles = files.mapBy('effFile').compact();
+    if (!effFiles.length) {
       return resolve();
     }
 
-    const fileIds = linkedFiles.mapBy('entityId');
+    const fileIds = effFiles.mapBy('entityId');
     // intentionally not checking for duplicates, because we treat multiple "loading id"
     // entries as semaphores
     loadingIconFileIds.pushObjects(fileIds);

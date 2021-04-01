@@ -642,8 +642,8 @@ export default Service.extend({
         this.set('entityRecords.file', records);
         const symlinks = records.filterBy('type', 'symlink');
         const symlinkMap = symlinks.reduce((map, symlink) => {
-          const linkedFile = records[records.indexOf(symlink) - 1];
-          map[get(symlink, 'entityId')] = get(linkedFile, 'entityId');
+          const symlinkTarget = records[records.indexOf(symlink) - 1];
+          map[get(symlink, 'entityId')] = get(symlinkTarget, 'entityId');
           return map;
         }, {});
         this.set('symlinkMap', symlinkMap);

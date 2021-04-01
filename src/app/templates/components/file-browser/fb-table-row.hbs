@@ -44,12 +44,12 @@
                 {{tt this "status.references" referencesCount=referencesCount}}
               </div>
             {{/if}}
-            {{#if (and (not previewMode) isShared)}}
+            {{#if (and (not previewMode) (not isSymlink) isShared)}}
               <div class="file-status-tag file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
                 {{tt this "status.shared"}}
               </div>
             {{/if}}
-            {{#if isForbidden}}
+            {{#if (and (not isSymlink) isForbidden)}}
               <div class="file-status-tag file-status-tag-danger file-status-forbidden">
                 {{tt this "status.forbidden"}}
                 {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
@@ -61,12 +61,12 @@
                 {{one-tooltip title=(tt this "otherFileSameName")}}
               </div>
             {{/if}}
-            {{#if hasMetadata}}
+            {{#if (and (not isSymlink) hasMetadata)}}
               <div class="file-status-tag file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
                 {{tt this "status.metadata"}}
               </div>
             {{/if}}
-            {{#if hasAcl}}
+            {{#if (and (not isSymlink) hasAcl)}}
               <div
                 class={{concat-classes
                   "file-status-tag file-status-acl"
@@ -83,7 +83,7 @@
                 {{/if}}
               </div>
             {{/if}}
-            {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
+            {{#if (and (not previewMode) (not isSymlink) (or hasEffQos hasDirectQos))}}
               <div
                 class={{concat-classes
                   "file-status-tag"
@@ -114,18 +114,18 @@
         {{#if media.isMobile}}
           <div class="file-info-mobile">
             <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
-              {{#if (eq file.linkedFile.type "file")}}
-                {{#if file.linkedFile.isPollingSize}}
+              {{#if (eq file.effFile.type "file")}}
+                {{#if file.effFile.isPollingSize}}
                   {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
                 {{else}}
-                  {{bytes-to-string file.linkedFile.size}}
+                  {{bytes-to-string file.effFile.size}}
                 {{/if}}
               {{else}}
                 —
               {{/if}}
             </span>
             <span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-modification">
-              {{date-format file.linkedFile.modificationTime format="dateWithMinutes" blank="—"}}
+              {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
             </span>
           </div>
         {{/if}}
@@ -134,11 +134,11 @@
   </td>
   <td class="fb-table-col-size">
     <span class="file-item-text">
-      {{#if (eq file.linkedFile.type "file")}}
-        {{#if file.linkedFile.isPollingSize}}
+      {{#if (eq file.effFile.type "file")}}
+        {{#if file.effFile.isPollingSize}}
           {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
         {{else}}
-          {{bytes-to-string file.linkedFile.size}}
+          {{bytes-to-string file.effFile.size}}
         {{/if}}
       {{else}}
         —
@@ -147,7 +147,7 @@
   </td>
   <td class="fb-table-col-modification">
     <span class="file-item-text">
-      {{date-format file.linkedFile.modificationTime format="dateWithMinutes" blank="—"}}
+      {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
     </span>
   </td>
   <td class="fb-table-col-actions-menu">
