@@ -70,6 +70,15 @@ export default Model.extend(
     referencesCount: attr('number', { defaultValue: 1 }),
 
     /**
+     * Not empty only for symlinks. Contains target path. May contain any string,
+     * but in general it may look like this (relative path):
+     * `../some/file`
+     * or like this (absolute path):
+     * `<__onedata_space_id:cbe3808d32b011f8578877ca531ad214chfb28>/some/file`
+     */
+    targetPath: attr('string'),
+
+    /**
      * Modification time in UNIX timestamp format.
      */
     mtime: attr('number'),

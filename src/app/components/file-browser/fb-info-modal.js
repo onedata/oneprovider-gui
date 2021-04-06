@@ -13,12 +13,14 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
 import { conditional, equal, promise, raw, array, tag, or } from 'ember-awesome-macros';
-import { computed, get } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled } from 'rsvp';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
+
+const symlinkPrefixedTargetPathRegexp = /^<__onedata_space_id:([^>]+)>(.*)$/;
 
 export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
   i18n: service(),
@@ -60,9 +62,9 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
 
   /**
    * @virtual
-   * @type {string}
+   * @type {Models.Space}
    */
-  spaceEntityId: undefined,
+  space: undefined,
 
   /**
    * Possible values the same as for `activeTab` property
@@ -102,6 +104,42 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
   }),
 
   fileName: reads('file.name'),
+
+  symlinkTargetPath: computed(
+    'file.{type,targetPath}',
+    'space.{entityId,name}',
+    function symlinkTargetPath() {
+      const {
+        file,
+        space,
+      } = this.getProperties('file', 'space');
+      const {
+        name: spaceName,
+        entityId: spaceEntityId,
+      } = getProperties(space || {}, 'name', 'entityId');
+      const {
+        type: fileType,
+        targetPath,
+      } = getProperties(file || {}, 'type', 'targetPath');
+      if (fileType !== 'symlink') {
+        return;
+      }
+
+      const prefixMatchResult =
+        (targetPath || '').match(symlinkPrefixedTargetPathRegexp);
+      if (!prefixMatchResult) {
+        return targetPath;
+      }
+
+      const pathSpaceId = prefixMatchResult[1];
+      const absolutePath = prefixMatchResult[2] || '';
+
+      if (pathSpaceId !== spaceEntityId || !spaceName) {
+        return `/<${this.t('unknownSpaceInSymlink')}>${absolutePath}`;
+      }
+      return `/${spaceName}${absolutePath}`;
+    }
+  ),
 
   cdmiObjectId: reads('file.cdmiObjectId'),
 

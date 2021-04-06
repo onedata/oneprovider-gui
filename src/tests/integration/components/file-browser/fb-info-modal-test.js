@@ -124,7 +124,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     it('renders space id', async function (done) {
       const spaceEntityId = 's893y37439';
-      this.set('spaceEntityId', spaceEntityId);
+      this.set('space', { entityId: spaceEntityId });
 
       render(this);
 
@@ -285,7 +285,7 @@ function render(testCase) {
     open=true
     file=file
     previewMode=previewMode
-    spaceEntityId=spaceEntityId
+    space=space
     selectedRestUrlType=selectedRestUrlType
   }}`);
 }

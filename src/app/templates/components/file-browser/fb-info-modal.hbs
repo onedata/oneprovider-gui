@@ -54,12 +54,23 @@
             {{/promise-proxy-container}}
           </td>
         </tr>
-        {{#if spaceEntityId}}
+        {{#if (eq itemType "symlink")}}
+          <tr class="file-info-row-path">
+            <td class="property-name">{{tt this "symlinkTargetPath"}}</td>
+            <td class="property-value">
+              {{clipboard-line
+                value=symlinkTargetPath
+                size=(if smallContent "sm")
+              }}
+            </td>
+          </tr>
+        {{/if}}
+        {{#if space.entityId}}
           <tr class="file-info-row-space-id">
             <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
             <td class="property-value">
               {{clipboard-line
-                value=spaceEntityId
+                value=space.entityId
                 class="monospace-font"
                 size=(if smallContent "sm")
               }}
