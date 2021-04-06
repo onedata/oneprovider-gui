@@ -403,12 +403,13 @@ export default Component.extend(I18n, {
 
   btnUpload: computed(
     'dir.dataIsProtected',
-    'selectedFiles.firstObject.dataIsProtected',
     function btnUpload() {
       const actionId = 'upload';
       const tip = this.generateDisabledTip({
         actionId,
         protectionType: 'data',
+        checkCurrentDir: true,
+        checkSelected: false,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -428,12 +429,13 @@ export default Component.extend(I18n, {
 
   btnNewDirectory: computed(
     'dir.dataIsProtected',
-    'selectedFiles.firstObject.dataIsProtected',
     function btnNewDirectory() {
       const actionId = 'newDirectory';
       const tip = this.generateDisabledTip({
         actionId,
         protectionType: 'data',
+        checkCurrentDir: true,
+        checkSelected: false,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -681,12 +683,13 @@ export default Component.extend(I18n, {
 
   btnPaste: computed(
     'dir.dataIsProtected',
-    'selectedFiles.@each.dataIsProtected',
     function btnPaste() {
       const actionId = 'paste';
       const tip = this.generateDisabledTip({
         actionId,
         protectionType: 'data',
+        checkCurrentDir: true,
+        checkSelected: false,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -725,14 +728,19 @@ export default Component.extend(I18n, {
     });
   }),
 
-  generateDisabledTip({ actionId, protectionType }) {
+  generateDisabledTip({
+    actionId,
+    protectionType,
+    checkCurrentDir = false,
+    checkSelected = true,
+  }) {
     const {
       selectedFiles,
       dir,
     } = this.getProperties('dir', 'selectedFiles');
     const protectionProperty = `${protectionType}IsProtected`;
-    const isProtected = get(dir, protectionProperty) ||
-      selectedFiles.isAny(protectionProperty);
+    const isProtected = checkCurrentDir && get(dir, protectionProperty) ||
+      checkSelected && selectedFiles.isAny(protectionProperty);
     return isProtected ? this.t('disabledActionReason.writeProtected', {
       actionName: this.t(`disabledActionReason.action.${actionId}`),
       protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
