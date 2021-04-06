@@ -585,6 +585,14 @@ export default Service.extend({
       });
       this.get('entityRecords.fileDatasetSummary').push(...summaries);
       await ancestorFile.save();
+      // for testing empty data write protected directories
+      const emptyDir = this.get('entityRecords.dir.1');
+      console.log('sdsda', emptyDir.get('name'));
+      setProperties(emptyDir, {
+        effProtectionFlags: ['data_protection'],
+        effDatasetMembership: 'direct',
+      });
+      await emptyDir.save();
     }
   },
 

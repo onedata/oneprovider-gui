@@ -16,6 +16,7 @@ export default {
   },
   fileProtectionTagTip: {
     enabled: {
+      // NOTE: any changes should be synchronized with locales/en/components/file-browser/fb-table.js
       data: 'Data write protection causes files and directories to be protected from modifying their content or being deleted. Modification attempts will be rejected with EPERM POSIX error.',
       metadata: 'Metadata write protection causes files and directories to be protected from modifying their metadata, such as permissions, ACLs, or custom JSON/RDF/xattr metadata. Modification attempts will be rejected with EPERM POSIX error.',
     },

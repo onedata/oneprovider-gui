@@ -1,6 +1,6 @@
 .fb-table {
   $refresh-transition-duration: 300ms;
-  
+
   position: relative;
   height: 100%;
   .refresh-spinner {
@@ -61,7 +61,7 @@
   .dir-box {
     @include absolute-align-middle-center();
     width: 100%;
-    
+
     .dir-box-image {
       height: 260px;
       margin: $padding-large-vertical * 2 auto;
@@ -76,7 +76,7 @@
       @include font-semibold();
       text-transform: uppercase;
     }
-    
+
     @media (max-width: $screen-xs-max) {
       .empty-dir-image {
         height: 180px;
@@ -92,7 +92,7 @@
   th {
     user-select: none;
   }
-  thead > tr > th.fb-table-col-files, 
+  thead > tr > th.fb-table-col-files,
   .table:not(.bt) > tbody > tr > td:first-child.fb-table-col-files {
     padding-left: $file-browser-padding-left;
   }
@@ -145,5 +145,12 @@
   }
   .table-bottom-spacing {
     height: 122px;
+  }
+  .hint-trigger {
+    margin-left: 0.4em;
+    opacity: 0.4;
+    &:hover {
+      opacity: 0.6;
+    }
   }
 }
