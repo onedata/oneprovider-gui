@@ -24,6 +24,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
   i18n: service(),
   restGenerator: service(),
   fileManager: service(),
+  errorExtractor: service(),
 
   open: false,
 
@@ -108,7 +109,37 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
 
   fileSize: reads('file.size'),
 
-  referencesCount: or('file.referencesCount', raw(1)),
+  referencesCount: or(
+    'fileReferences.referencesCount',
+    'file.referencesCount',
+    raw(1)
+  ),
+
+  hardlinksFetchError: computed(
+    'fileReferences.errors',
+    function hardlinksFetchError() {
+      const errors = this.get('fileReferences.errors') || [];
+      if (!errors.length) {
+        return;
+      }
+
+      const errorExtractor = this.get('errorExtractor');
+      const uniqueErrors = errors.filterBy('id').uniqBy('id');
+      const mainErrorDescription = uniqueErrors.length > 0 ?
+        errorExtractor.getMessage(uniqueErrors[0]).message :
+        this.t('tabs.hardlinks.unknownFetchError');
+      if (uniqueErrors.length <= 1) {
+        return this.t('tabs.hardlinks.hardlinksFetchSingleErrorTip', {
+          fetchError: mainErrorDescription,
+        });
+      } else {
+        return this.t('tabs.hardlinks.hardlinksFetchMultiErrorTip', {
+          fetchError: mainErrorDescription,
+          moreCount: uniqueErrors.length - 1,
+        });
+      }
+    }
+  ),
 
   ownerFullNameProxy: promise.object(
     computed('file.owner', function ownerFullNamePromise() {
@@ -216,7 +247,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
       return resolve([]);
     }
     return fileManager.getFileReferences(this.get('file.entityId'))
-      .then((({ referencesCount, references }) =>
+      .then((({ referencesCount, references, errors }) =>
         allFulfilled(references.map(referenceFile =>
           resolveFilePath(referenceFile)
           .then(path => stringifyFilePath(path))
@@ -232,6 +263,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
         )).then(newReferences => ({
           referencesCount,
           references: sortByProperties(newReferences, ['file.name', 'path']),
+          errors,
         }))
       ));
   },

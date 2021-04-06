@@ -209,7 +209,12 @@
           }}
         {{else}}
           <li class="file-reference extra-reference-description">
-            <em>{{tt this "tabs.hardlinks.noAccessToAll"}}</em>
+            <em>{{tt this "tabs.hardlinks.noAccessToAll"
+              fileType=(tt this (concat "tabs.hardlinks." itemType))
+            }}</em>
+            {{#if hardlinksFetchError}}
+              {{one-label-tip title=hardlinksFetchError}}
+            {{/if}}
           </li>
         {{/each}}
         {{#if (and
@@ -220,6 +225,9 @@
             <em>{{tt this "tabs.hardlinks.andNMoreYouHaveNoAccess"
               count=(sub fileReferences.referencesCount fileReferences.references.length)
             }}</em>
+            {{#if hardlinksFetchError}}
+              {{one-label-tip title=hardlinksFetchError}}
+            {{/if}}
           </li>
         {{/if}}
       </ul>

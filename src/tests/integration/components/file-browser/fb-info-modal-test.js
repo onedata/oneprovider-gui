@@ -53,6 +53,12 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
   beforeEach(function () {
     registerService(this, 'restGenerator', RestGenerator);
+    sinon.stub(lookupService(this, 'file-manager'), 'getFileReferences')
+      .resolves({
+        referencesCount: 0,
+        references: [],
+        errors: [],
+      });
   });
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy

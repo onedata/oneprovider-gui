@@ -298,10 +298,13 @@ export default Service.extend({
       subscribe: false,
     });
     const referencesIds = idsResult.references || [];
-    return allSettled(referencesIds.map(reference =>
-      this.getFileById(parseGri(reference).entityId))).then(results => ({
+    return allSettled(
+      referencesIds.map(reference =>
+        this.getFileById(parseGri(reference).entityId))
+    ).then(results => ({
       referencesCount: referencesIds.length,
       references: results.filterBy('state', 'fulfilled').mapBy('value'),
+      errors: results.filterBy('state', 'rejected').mapBy('reason'),
     }));
   },
 
