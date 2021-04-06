@@ -1,3 +1,4 @@
+import { fileType, protectionType } from './file-datasets/-common';
 import summaryHeader from './file-datasets/summary-header';
 import directDatasetControl from './file-datasets/direct-dataset-control';
 import directDataset from './file-datasets/direct-dataset';
@@ -7,14 +8,8 @@ const headerData = 'Data write&nbsp;protection';
 const headerMetadata = 'Metadata write&nbsp;protection';
 
 export default {
-  fileType: {
-    file: 'file',
-    dir: 'directory',
-  },
-  protectionType: {
-    data: 'data',
-    metadata: 'metadata',
-  },
+  fileType,
+  protectionType,
   close: 'Close',
   tableHeaders: {
     data: headerData,

@@ -1,12 +1,8 @@
+import { fileType, protectionType } from '../file-datasets/-common';
+
 export default {
-  protectionType: {
-    data: 'data',
-    metadata: 'metadata',
-  },
-  fileType: {
-    file: 'file',
-    dir: 'directory',
-  },
+  fileType,
+  protectionType,
   summaryAncestorsReadonlyFlags: 'Effective {{protectionType}} protection stemming from protection settings of each ancestor dataset in the hierarchy. Expand this row to view and toggle {{protectionType}} protection for respective ancestor datasets.',
   ancestorDatasetsTip: 'Expand to view the list of ancestor datasets and toggle their data and metadata protection settings.',
   ancestorDatasets: 'Ancestor datasets',
