@@ -60,7 +60,7 @@ export default Model.extend(
   createConflictModelMixin('shareRecords'), {
     name: attr('string'),
     index: attr('string'),
-    type: attr('string'),
+    type: attr('file-type'),
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
