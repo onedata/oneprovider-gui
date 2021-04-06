@@ -939,14 +939,12 @@ export default Component.extend(I18n, {
     });
   },
 
-  selectCurrentDir(select = true) {
-    if (select) {
-      const {
-        changeSelectedFiles,
-        dir,
-      } = this.getProperties('changeSelectedFiles', 'dir');
-      return changeSelectedFiles([dir]);
-    }
+  selectCurrentDir() {
+    const {
+      changeSelectedFiles,
+      dir,
+    } = this.getProperties('changeSelectedFiles', 'dir');
+    return changeSelectedFiles([dir]);
   },
 
   downloadFiles(files) {
@@ -1012,8 +1010,8 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    selectCurrentDir(select) {
-      this.selectCurrentDir(select);
+    selectCurrentDir() {
+      this.selectCurrentDir();
     },
     changeDir(dir) {
       const {
@@ -1032,6 +1030,9 @@ export default Component.extend(I18n, {
     toggleCurrentDirActions(open) {
       const _open =
         (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
+      if (_open) {
+        this.selectCurrentDir();
+      }
       this.set('currentDirActionsOpen', _open);
     },
     changeSelectedFiles(selectedFiles) {

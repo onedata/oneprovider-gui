@@ -79,7 +79,9 @@ export default Component.extend(I18n, {
 
   actions: {
     buttonClicked(button) {
-      this.get('selectCurrentDir')(false);
+      if (get(button, 'disabled')) {
+        return;
+      }
       return get(button, 'action')();
     },
   },
