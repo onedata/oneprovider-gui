@@ -1,7 +1,7 @@
 /**
  * A complete file browser with infinite-scrolled file list, directory
  * breadcrumbs and toolkit for selected files.
- * 
+ *
  * @module components/file-browser
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -401,30 +401,54 @@ export default Component.extend(I18n, {
 
   allButtonsHash: hash(...buttonNames),
 
-  btnUpload: computed(function btnUpload() {
-    return this.createFileAction({
-      id: 'upload',
-      class: 'browser-upload',
-      action: () => this.get('uploadManager').triggerUploadDialog(),
-      showIn: [
-        actionContext.inDir,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+  btnUpload: computed(
+    'dir.dataIsProtected',
+    'selectedFiles.firstObject.dataIsProtected',
+    function btnUpload() {
+      const actionId = 'upload';
+      const tip = this.generateDisabledTip({
+        actionId,
+        protectionType: 'data',
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        class: 'browser-upload',
+        action: () => this.get('uploadManager').triggerUploadDialog(),
+        disabled,
+        tip,
+        showIn: [
+          actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
-  btnNewDirectory: computed(function btnNewDirectory() {
-    return this.createFileAction({
-      id: 'newDirectory',
-      action: () => this.get('openCreateNewDirectory')(this.get('dir')),
-      showIn: [
-        actionContext.inDir,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+  btnNewDirectory: computed(
+    'dir.dataIsProtected',
+    'selectedFiles.firstObject.dataIsProtected',
+    function btnNewDirectory() {
+      const actionId = 'newDirectory';
+      const tip = this.generateDisabledTip({
+        actionId,
+        protectionType: 'data',
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: () => this.get('openCreateNewDirectory')(this.get('dir')),
+        tip,
+        disabled,
+        showIn: [
+          actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
   btnRefresh: computed(function btnRefresh() {
     return this.createFileAction({
@@ -655,25 +679,29 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnPaste: computed('selectedFiles.@each.dataIsProtected', function btnPaste() {
-    const actionId = 'paste';
-    const tip = this.generateDisabledTip({
-      actionId,
-      protectionType: 'data',
-    });
-    const disabled = Boolean(tip);
-    return this.createFileAction({
-      id: actionId,
-      action: () => this.pasteFiles(),
-      disabled,
-      tip,
-      showIn: [
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-        actionContext.inDir,
-      ],
-    });
-  }),
+  btnPaste: computed(
+    'dir.dataIsProtected',
+    'selectedFiles.@each.dataIsProtected',
+    function btnPaste() {
+      const actionId = 'paste';
+      const tip = this.generateDisabledTip({
+        actionId,
+        protectionType: 'data',
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: () => this.pasteFiles(),
+        disabled,
+        tip,
+        showIn: [
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+          actionContext.inDir,
+        ],
+      });
+    }
+  ),
 
   btnDelete: computed('selectedFiles.@each.dataIsProtected', function btnDelete() {
     const actionId = 'delete';
@@ -698,8 +726,13 @@ export default Component.extend(I18n, {
   }),
 
   generateDisabledTip({ actionId, protectionType }) {
-    const selectedFiles = this.get('selectedFiles');
-    const isProtected = selectedFiles.isAny(`${protectionType}IsProtected`);
+    const {
+      selectedFiles,
+      dir,
+    } = this.getProperties('dir', 'selectedFiles');
+    const protectionProperty = `${protectionType}IsProtected`;
+    const isProtected = get(dir, protectionProperty) ||
+      selectedFiles.isAny(protectionProperty);
     return isProtected ? this.t('disabledActionReason.writeProtected', {
       actionName: this.t(`disabledActionReason.action.${actionId}`),
       protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
