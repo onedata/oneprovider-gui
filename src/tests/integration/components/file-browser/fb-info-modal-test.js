@@ -94,6 +94,86 @@ describe('Integration | Component | file browser/fb info modal', function () {
     done();
   });
 
+  it('does not render symlink target path when file is not symlink', function () {
+    this.set('file', {
+      type: 'file',
+      targetPath: 'some/path',
+    });
+
+    render(this);
+
+    expect(this.$('.file-info-row-target-path')).to.not.exist;
+  });
+
+  it('does render symlink target relative path when file is a symlink', function () {
+    this.set('file', {
+      type: 'symlink',
+      targetPath: 'some/path',
+    });
+
+    render(this);
+
+    expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+      .to.equal('some/path');
+  });
+
+  it('renders symlink target absolute path with space name when file is a symlink and space id is known',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space1>/some/path',
+        },
+        space: {
+          entityId: 'space1',
+          name: 'space 1',
+        },
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/space 1/some/path');
+    }
+  );
+
+  it('renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space2>/some/path',
+        },
+        space: {
+          entityId: 'space1',
+          name: 'space 1',
+        },
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/<unknown space>/some/path');
+    }
+  );
+
+  it('renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space1>/some/path',
+        },
+        space: undefined,
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/<unknown space>/some/path');
+    }
+  );
+
   context('for file', function () {
     beforeEach(function () {
       this.set('file', file1);
