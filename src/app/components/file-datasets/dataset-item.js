@@ -41,7 +41,22 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {String}
    */
-  readonlyMesasage: '',
+  dataToggleReadonlyMessage: '',
+
+  /**
+   * @virtual optional
+   * @type {String}
+   */
+  metadataToggleReadonlyMessage: '',
+
+  /**
+   * Used as tip displayed on both toggles when item is readonly.
+   * To set separate tip texts for data or metadata set `*ToggleReadonlyMessage`
+   * properties.
+   * @virtual optional
+   * @type {String}
+   */
+  togglesReadonlyMessage: '',
 
   /**
    * @virtual

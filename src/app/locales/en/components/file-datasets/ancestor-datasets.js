@@ -1,8 +1,16 @@
 export default {
-  summaryParentsReadonlyFlags: '[TODO: VFS-7479] (this is summary of all parents protection - what does it mean; how you can change specific flags)',
-  parentDatasetsTip: '[TODO: VFS-7479] (what is on the list and how these datasets and their protection flags affects this file; click to expand)',
-  parentDatasets: 'Parent datasets',
+  protectionType: {
+    data: 'data',
+    metadata: 'metadata',
+  },
+  fileType: {
+    file: 'file',
+    dir: 'directory',
+  },
+  summaryAncestorsReadonlyFlags: 'Effective {{protectionType}} protection stemming from protection settings of each ancestor dataset in the hierarchy. Expand this row to view and toggle {{protectionType}} protection for respective ancestor datasets.',
+  ancestorDatasetsTip: 'Expand to view the list of ancestor datasets and toggle their data and metadata protection settings.',
+  ancestorDatasets: 'Ancestor datasets',
   cannotLoadAncestorDatasets: 'Could not load ancestor datasets list.',
-  noParentDatasets: 'This file does not have any parent datasets.',
-  noParentDatasetsTip: '[TODO: VFS-7479] (why this list is empty and when parent datasets will appear on the list; what they will affect)',
+  noAncestorDatasets: 'This file does not have any ancestor datasets.',
+  noAncestorDatasetsTip: 'The selected {{fileType}} is not contained in any ancestor dataset (none of the ancestor directories is a dataset in attached state).',
 };

@@ -10,9 +10,16 @@
     dataset=directDataset
     readonly=(or (not directDataset.isAttached) readonly)
     protectionIcons=protectionIcons
-    readonlyMessage=(unless directDataset.isAttached
-      (tt this "notAttachedReadonlyFlags")
-      directDatasetFlagsReadonlyMessage
+    togglesReadonlyMessage=(if readonly insufficientEditPrivilegesMessage)
+    dataToggleReadonlyMessage=(if (not directDataset.isAttached)
+      (tt this "notAttachedReadonlyFlags"
+        protectionTypeUpper=(capitalize (tt this "protectionType.data"))
+      )
+    )
+    metadataToggleReadonlyMessage=(if (not directDataset.isAttached)
+      (tt this "notAttachedReadonlyFlags"
+        protectionTypeUpper=(capitalize (tt this "protectionType.metadata"))
+      )
     )
   }}
     <div class="dataset-label-section">

@@ -20,7 +20,7 @@
             file=file
             directDatasetProxy=directDatasetProxy
             readonly=(not editPrivilege)
-            readonlyMessage=insufficientEditPrivilegesMessage
+            togglesReadonlyMessage=insufficientEditPrivilegesMessage
           }}
         </th>
         {{#each (array "data" "metadata") as |protectionType|}}
@@ -33,7 +33,13 @@
               class="hint-trigger protection-label-hint-trigger clickable"
             }}
               {{one-tooltip
-                title=(tt this (concat "protectionHeaderHint." protectionType))
+                title=(tt this "protectionHeaderHint"
+                  fileType=(tt this (concat "fileType." file.type))
+                  protectionTypeUpper=(capitalize
+                    (tt this (concat "protectionType." protectionType))
+                  )
+                  protectionType=(tt this (concat "protectionType." protectionType))
+                )
               }}
             {{/one-icon}}
           </th>
@@ -44,6 +50,7 @@
         protectionIcons=protectionIcons
         readonly=(not editPrivilege)
         insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+        fileType=file.type
         close=close
         updateOpenedFileData=(action "updateOpenedFileData")
         getDataUrl=(action getDataUrl)

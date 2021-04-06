@@ -17,7 +17,7 @@
     }}
       <h1>{{tt this "hint.title"}}</h1>
       <p>{{tt this "hint.intro"}}</p>
-      <p>{{tt this "hint.guide"}}</p>
+      <p>{{tt this "hint.guide" fileType=(tt this (concat "fileType." fileType))}}</p>
       <div class="btn-toolbar text-right visible-xs-block">
         {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
           {{tt this "hint.close"}}
@@ -44,8 +44,9 @@
             icon=(get protectionIcons protectionType)
           }}
           <span class="protected-text">
-            {{tt this (concat "fileProtectionTag." flagState "." protectionType)
-              fileType=(tt this (concat "fileType." fileType))
+            {{tt this (concat "fileProtectionTag." flagState)
+              fileTypeUpper=(capitalize (tt this (concat "fileType." fileType)))
+              protectionType=(tt this (concat "protectionType." protectionType))
             }}
           </span>
           {{#one-icon
@@ -56,8 +57,12 @@
             )
           }}
             {{one-tooltip
-              title=(tt this
-                (concat "fileProtectionTagTip." flagState "." protectionType)
+              title=(if (eq flagState "enabled")
+                (tt this (concat "fileProtectionTagTip.enabled." protectionType))
+                (tt this (concat "fileProtectionTagTip.disabled")
+                  fileType=(tt this (concat "fileType." fileType))
+                  protectionType=(tt this (concat "protectionType." protectionType))
+                )
               )
             }}
           {{/one-icon}}

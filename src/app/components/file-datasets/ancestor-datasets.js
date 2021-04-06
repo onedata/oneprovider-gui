@@ -39,6 +39,12 @@ export default Component.extend(I18n, {
   ancestorDatasetsProxy: undefined,
 
   /**
+   * @virtual
+   * @type {String}
+   */
+  fileType: 'file',
+
+  /**
    * Mapping of protection type to icon name
    * @virtual
    * @type {Object}
@@ -67,7 +73,7 @@ export default Component.extend(I18n, {
    * State of parent datasets collapse
    * @type {Boolean}
    */
-  parentDatasetsCollapsed: true,
+  ancestorDatasetsCollapsed: true,
 
   /**
    * @type {ComputedProperty<Array<Models.Dataset>>}
@@ -94,7 +100,7 @@ export default Component.extend(I18n, {
 
   actions: {
     toggleParentDatasetsCollapse() {
-      this.toggleProperty('parentDatasetsCollapsed');
+      this.toggleProperty('ancestorDatasetsCollapsed');
     },
     fileLinkClicked(event) {
       this.get('close')();

@@ -74,14 +74,4 @@ export default Component.extend(I18n, {
       raw('browser-directory'),
     ),
   ),
-
-  /**
-   * Tip displayed when protection flag toggles are readonly
-   * @type {ComputedProperty<String>}
-   */
-  directDatasetFlagsReadonlyMessage: or(
-    and(not('editPrivilege'), 'insufficientEditPrivilegesMessage'),
-    and(not('directDataset.isAttached'), computedT('notAttachedReadonlyFlags')),
-    raw(null)
-  ),
 });
