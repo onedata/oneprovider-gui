@@ -174,6 +174,29 @@ describe('Integration | Component | file browser/fb info modal', function () {
     }
   );
 
+  it('does not show tabs when references count is 1', function () {
+    this.set('file', {
+      type: 'file',
+      referencesCount: 1,
+    });
+
+    render(this);
+
+    expect(this.$('.nav-tabs')).to.not.exist;
+  });
+
+  it('shows hardlinks tab when references count is 2', async function () {
+    this.set('file', {
+      type: 'file',
+      referencesCount: 2,
+    });
+
+    render(this);
+
+    await wait();
+    expect(this.$('.nav-tabs').text()).to.contain('Hard links (2)');
+  });
+
   context('for file', function () {
     beforeEach(function () {
       this.set('file', file1);

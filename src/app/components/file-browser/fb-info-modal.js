@@ -16,9 +16,10 @@ import { conditional, equal, promise, raw, array, tag, or } from 'ember-awesome-
 import { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
-import { resolve, all as allFulfilled } from 'rsvp';
+import { resolve, all as allFulfilled, Promise } from 'rsvp';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
+import { next } from '@ember/runloop';
 
 const symlinkPrefixedTargetPathRegexp = /^<__onedata_space_id:([^>]+)>(.*)$/;
 
@@ -284,26 +285,32 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
     if (previewMode) {
       return resolve([]);
     }
-    return fileManager.getFileReferences(this.get('file.entityId'))
-      .then((({ referencesCount, references, errors }) =>
-        allFulfilled(references.map(referenceFile =>
-          resolveFilePath(referenceFile)
-          .then(path => stringifyFilePath(path))
-          .catch(() => null)
-          .then(path => ({
-            file: referenceFile,
-            fileUrl: getDataUrl({
-              fileId: null,
-              selected: [get(referenceFile, 'entityId')],
-            }),
-            path,
+    return new Promise(resolvePromise => {
+      // Moving it to next runloop frame as it may trigger double-render error
+      // of tabs.
+      next(() => resolvePromise(
+        fileManager.getFileReferences(this.get('file.entityId'))
+        .then((({ referencesCount, references, errors }) =>
+          allFulfilled(references.map(referenceFile =>
+            resolveFilePath(referenceFile)
+            .then(path => stringifyFilePath(path))
+            .catch(() => null)
+            .then(path => ({
+              file: referenceFile,
+              fileUrl: getDataUrl({
+                fileId: null,
+                selected: [get(referenceFile, 'entityId')],
+              }),
+              path,
+            }))
+          )).then(newReferences => ({
+            referencesCount,
+            references: sortByProperties(newReferences, ['file.name', 'path']),
+            errors,
           }))
-        )).then(newReferences => ({
-          referencesCount,
-          references: sortByProperties(newReferences, ['file.name', 'path']),
-          errors,
-        }))
+        ))
       ));
+    });
   },
 
   actions: {
