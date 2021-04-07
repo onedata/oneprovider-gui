@@ -1,11 +1,15 @@
-import { fileType, protectionType } from './file-datasets/-common';
+import {
+  fileType,
+  protectionType,
+  headerData,
+  headerMetadata,
+}
+from './file-datasets/-common';
 import summaryHeader from './file-datasets/summary-header';
 import directDatasetControl from './file-datasets/direct-dataset-control';
 import directDataset from './file-datasets/direct-dataset';
 import ancestorDatasets from './file-datasets/ancestor-datasets';
-
-const headerData = 'Data write&nbsp;protection';
-const headerMetadata = 'Metadata write&nbsp;protection';
+import datasetItem from './file-datasets/dataset-item';
 
 export default {
   fileType,
@@ -17,13 +21,8 @@ export default {
   },
   cannotLoadFileDatasetSummary: 'Could not load dataset summary for selected element.',
   protectionHeaderHint: '{{protectionTypeUpper}} write protection can be individually set for each dataset in the hierarchy. The effective write protection of this {{fileType}} depends on all these settings – if any ancestor dataset has {{protectionType}} write protection enabled, then all nested content inherits the protection.',
-  datasetItem: {
-    toggleLabels: {
-      data: headerData,
-      metadata: headerMetadata,
-    },
-  },
 
+  datasetItem,
   summaryHeader,
   ancestorDatasets,
   directDataset,

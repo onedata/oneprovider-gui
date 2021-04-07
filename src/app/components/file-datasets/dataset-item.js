@@ -1,5 +1,5 @@
 /**
- * Entry with information about an effective dataset for file/directory. 
+ * Entry with information about an effective dataset for file/directory.
  *
  * @module components/file-datasets/dataset-item
  * @author Jakub Liput
@@ -20,6 +20,7 @@ export default Component.extend(I18n, {
   classNames: ['dataset-item'],
 
   datasetManager: service(),
+  globalNotify: service(),
 
   /**
    * @override
@@ -95,22 +96,34 @@ export default Component.extend(I18n, {
   actions: {
     async toggleDatasetProtectionFlag(flag, state) {
       const {
+        globalNotify,
         dataset,
         datasetManager,
         updateOpenedFileData,
-      } = this.getProperties('dataset', 'datasetManager', 'updateOpenedFileData');
-      await datasetManager.toggleDatasetProtectionFlag(
-        dataset,
-        flag,
-        state
+      } = this.getProperties(
+        'globalNotify',
+        'dataset',
+        'datasetManager',
+        'updateOpenedFileData'
       );
-      // do not wait for resolve - it's only a side effect
-      if (typeof updateOpenedFileData === 'function') {
-        const rootFileProxy = get(dataset, 'rootFile');
-        if (rootFileProxy) {
-          rootFileProxy.then(file => {
-            updateOpenedFileData({ fileInvokingUpdate: file });
-          });
+      try {
+        await datasetManager.toggleDatasetProtectionFlag(
+          dataset,
+          flag,
+          state
+        );
+      } catch (error) {
+        globalNotify.backendError(this.t('changingWriteProtectionSettings'), error);
+        throw error;
+      } finally {
+        // do not wait for resolve - it's only a side effect
+        if (typeof updateOpenedFileData === 'function') {
+          const rootFileProxy = get(dataset, 'rootFile');
+          if (rootFileProxy) {
+            rootFileProxy.then(file => {
+              updateOpenedFileData({ fileInvokingUpdate: file });
+            });
+          }
         }
       }
     },
