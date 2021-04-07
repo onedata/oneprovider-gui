@@ -7,6 +7,6 @@ export default {
   ancestorDatasetsTip: 'Expand to view the list of ancestor datasets and toggle their data and metadata protection settings.',
   ancestorDatasets: 'Ancestor datasets',
   cannotLoadAncestorDatasets: 'Could not load ancestor datasets list.',
-  noAncestorDatasets: 'This file does not have any ancestor datasets.',
+  noAncestorDatasets: 'This {{fileType}} does not have any ancestor datasets.',
   noAncestorDatasetsTip: 'The selected {{fileType}} is not contained in any ancestor dataset (none of the ancestor directories is a dataset in attached state).',
 };

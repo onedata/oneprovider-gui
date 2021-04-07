@@ -87,7 +87,9 @@
               )}}
             {{/one-icon}}
             <div class="dataset-label no-parent-datasets-text">
-              {{tt this "noAncestorDatasets"}}
+              {{tt this "noAncestorDatasets"
+                fileType=(tt this (concat "fileType." fileType))
+              }}
             </div>
           </div>
         </span>
