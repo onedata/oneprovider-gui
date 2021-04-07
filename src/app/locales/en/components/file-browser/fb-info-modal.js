@@ -39,7 +39,7 @@ export default {
       tabTitle: 'General',
     },
     hardlinks: {
-      tabTitle: 'Hard links ({{referencesCount}})',
+      tabTitle: 'Hard links ({{hardlinksCount}})',
       andNMoreYouHaveNoAccess: 'And {{count}} more that you cannot access.',
       noAccessToAll: 'You do not have access to the hard links of this {{fileType}}.',
       hardlinksFetchSingleErrorTip: 'Cannot load files due to error: "{{fetchError}}".',

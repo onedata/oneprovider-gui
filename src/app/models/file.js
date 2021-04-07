@@ -67,7 +67,7 @@ export default Model.extend(
     hasEffQos: attr('boolean'),
     hasDirectQos: attr('boolean'),
     sharesCount: attr('number'),
-    referencesCount: attr('number', { defaultValue: 1 }),
+    hardlinksCount: attr('number', { defaultValue: 1 }),
 
     /**
      * Not empty only for symlinks. Contains target path. May contain any string,

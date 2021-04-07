@@ -296,24 +296,24 @@ export default Service.extend({
     });
   },
 
-  async getFileReferences(fileId) {
+  async getFileHardlinks(fileId) {
     const idsResult = await this.get('onedataGraph').request({
       operation: 'get',
       gri: gri({
         entityType: fileEntityType,
         entityId: fileId,
-        aspect: 'references',
+        aspect: 'hardlinks',
         scope: 'private',
       }),
       subscribe: false,
     });
-    const referencesIds = idsResult.references || [];
+    const hardlinksIds = idsResult.hardlinks || [];
     return allSettled(
-      referencesIds.map(reference =>
-        this.getFileById(parseGri(reference).entityId))
+      hardlinksIds.map(hardlinkId =>
+        this.getFileById(parseGri(hardlinkId).entityId))
     ).then(results => ({
-      referencesCount: referencesIds.length,
-      references: results.filterBy('state', 'fulfilled').mapBy('value'),
+      hardlinksCount: hardlinksIds.length,
+      hardlinks: results.filterBy('state', 'fulfilled').mapBy('value'),
       errors: results.filterBy('state', 'rejected').mapBy('reason'),
     }));
   },

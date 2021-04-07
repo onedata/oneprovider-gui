@@ -23,7 +23,7 @@ import { next } from '@ember/runloop';
 
 const symlinkPrefixedTargetPathRegexp = /^<__onedata_space_id:([^>]+)>(.*)$/;
 
-export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
+export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
   restGenerator: service(),
   fileManager: service(),
@@ -148,12 +148,12 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
 
   fileSize: reads('file.size'),
 
-  referencesCount: or('file.referencesCount', raw(1)),
+  hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   hardlinksFetchError: computed(
-    'fileReferences.errors',
+    'fileHardlinks.errors',
     function hardlinksFetchError() {
-      const errors = this.get('fileReferences.errors') || [];
+      const errors = this.get('fileHardlinks.errors') || [];
       if (!errors.length) {
         return;
       }
@@ -271,7 +271,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
     }
   },
 
-  fetchFileReferences() {
+  fetchFileHardlinks() {
     const {
       previewMode,
       fileManager,
@@ -285,23 +285,23 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
       // Moving it to next runloop frame as it may trigger double-render error
       // of tabs.
       next(() => resolvePromise(
-        fileManager.getFileReferences(this.get('file.entityId'))
-        .then((({ referencesCount, references, errors }) =>
-          allFulfilled(references.map(referenceFile =>
-            resolveFilePath(referenceFile)
+        fileManager.getFileHardlinks(this.get('file.entityId'))
+        .then((({ hardlinksCount, hardlinks, errors }) =>
+          allFulfilled(hardlinks.map(hardlinkFile =>
+            resolveFilePath(hardlinkFile)
             .then(path => stringifyFilePath(path))
             .catch(() => null)
             .then(path => ({
-              file: referenceFile,
+              file: hardlinkFile,
               fileUrl: getDataUrl({
                 fileId: null,
-                selected: [get(referenceFile, 'entityId')],
+                selected: [get(hardlinkFile, 'entityId')],
               }),
               path,
             }))
-          )).then(newReferences => ({
-            referencesCount,
-            references: sortByProperties(newReferences, ['file.name', 'path']),
+          )).then(newHardlinks => ({
+            hardlinksCount,
+            hardlinks: sortByProperties(newHardlinks, ['file.name', 'path']),
             errors,
           }))
         ))

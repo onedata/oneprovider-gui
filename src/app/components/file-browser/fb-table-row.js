@@ -392,7 +392,7 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
 
-  referencesCount: or('file.referencesCount', raw(1)),
+  hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   loadingOnIconTransitionObserver: observer(
     'isLoadingOnIcon',

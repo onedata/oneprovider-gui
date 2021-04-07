@@ -49,9 +49,9 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<String>}
    */
-  icon: computed('file.{type,linkedFile.type}', function icon() {
+  icon: computed('file.{type,effFile.type}', function icon() {
     const type = this.get('file.type');
-    const linkedType = this.get('file.linkedFile.type');
+    const linkedType = this.get('file.effFile.type');
 
     if (linkedType === 'directory' || type === 'directory') {
       return 'browser-directory';

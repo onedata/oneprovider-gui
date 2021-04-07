@@ -54,13 +54,13 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
   beforeEach(function () {
     registerService(this, 'restGenerator', RestGenerator);
-    const fileReferencesResult = this.set('fileReferencesResult', {
-      referencesCount: 0,
-      references: [],
+    const fileHardlinksResult = this.set('fileHardlinksResult', {
+      hardlinksCount: 0,
+      hardlinks: [],
       errors: [],
     });
-    sinon.stub(lookupService(this, 'file-manager'), 'getFileReferences')
-      .resolves(fileReferencesResult);
+    sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
+      .resolves(fileHardlinksResult);
     this.set('getDataUrl', ({ selected: [firstSelected] }) => `link-${firstSelected}`);
   });
 
@@ -177,10 +177,10 @@ describe('Integration | Component | file browser/fb info modal', function () {
     }
   );
 
-  it('does not show tabs when references count is 1', async function () {
+  it('does not show tabs when hardlinks count is 1', async function () {
     this.set('file', {
       type: 'file',
-      referencesCount: 1,
+      hardlinksCount: 1,
     });
 
     render(this);
@@ -189,10 +189,10 @@ describe('Integration | Component | file browser/fb info modal', function () {
     expect(this.$('.nav-tabs')).to.not.exist;
   });
 
-  it('shows hardlinks tab when references count is 2', async function () {
+  it('shows hardlinks tab when hardlinks count is 2', async function () {
     this.set('file', {
       type: 'file',
-      referencesCount: 2,
+      hardlinksCount: 2,
     });
 
     render(this);
@@ -204,11 +204,11 @@ describe('Integration | Component | file browser/fb info modal', function () {
   it('shows hardlinks list', async function () {
     this.set('file', {
       type: 'file',
-      referencesCount: 2,
+      hardlinksCount: 2,
     });
-    Object.assign(this.get('fileReferencesResult'), {
-      referencesCount: 2,
-      references: [{
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 2,
+      hardlinks: [{
         entityId: 'f1',
         name: 'abc',
       }, {
@@ -223,25 +223,25 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
 
-    const $fileReferences = this.$('.file-reference');
-    expect($fileReferences).to.have.length(2);
-    expect($fileReferences.eq(0).find('.file-name').text().trim()).to.equal('abc');
-    expect($fileReferences.eq(0).find('.file-path').text().trim()).to.match(/Path:\s*\/abc/);
-    expect($fileReferences.eq(0).find('.file-path a')).to.have.attr('href', 'link-f1');
-    expect($fileReferences.eq(1).find('.file-name').text().trim()).to.equal('def');
-    expect($fileReferences.eq(1).find('.file-path').text().trim()).to.match(/Path:\s*\/def/);
-    expect($fileReferences.eq(1).find('.file-path a')).to.have.attr('href', 'link-f2');
-    expect($fileReferences.find('.file-type-icon.oneicon-browser-file')).to.have.length(2);
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(2);
+    expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
+    expect($fileHardlinks.eq(0).find('.file-path').text().trim()).to.match(/Path:\s*\/abc/);
+    expect($fileHardlinks.eq(0).find('.file-path a')).to.have.attr('href', 'link-f1');
+    expect($fileHardlinks.eq(1).find('.file-name').text().trim()).to.equal('def');
+    expect($fileHardlinks.eq(1).find('.file-path').text().trim()).to.match(/Path:\s*\/def/);
+    expect($fileHardlinks.eq(1).find('.file-path a')).to.have.attr('href', 'link-f2');
+    expect($fileHardlinks.find('.file-type-icon.oneicon-browser-file')).to.have.length(2);
   });
 
   it('shows hardlinks partial fetch error', async function () {
     this.set('file', {
       type: 'file',
-      referencesCount: 2,
+      hardlinksCount: 2,
     });
-    Object.assign(this.get('fileReferencesResult'), {
-      referencesCount: 4,
-      references: [{
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 4,
+      hardlinks: [{
         entityId: 'f1',
         name: 'abc',
       }],
@@ -259,12 +259,12 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
 
-    const $fileReferences = this.$('.file-reference');
-    expect($fileReferences).to.have.length(2);
-    expect($fileReferences.eq(0).find('.file-name').text().trim()).to.equal('abc');
-    expect($fileReferences.eq(1).text().trim()).to.equal('And 3 more that you cannot access.');
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(2);
+    expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
+    expect($fileHardlinks.eq(1).text().trim()).to.equal('And 3 more that you cannot access.');
     const tooltipText =
-      await new OneTooltipHelper($fileReferences.eq(1).find('.one-icon')[0]).getText();
+      await new OneTooltipHelper($fileHardlinks.eq(1).find('.one-icon')[0]).getText();
     expect(tooltipText).to.equal(
       'Cannot load files due to error: "You are not authorized to perform this operation (insufficient privileges?)." and 1 more errors.'
     );
@@ -273,11 +273,11 @@ describe('Integration | Component | file browser/fb info modal', function () {
   it('shows hardlinks full fetch error', async function () {
     this.set('file', {
       type: 'file',
-      referencesCount: 2,
+      hardlinksCount: 2,
     });
-    Object.assign(this.get('fileReferencesResult'), {
-      referencesCount: 2,
-      references: [],
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 2,
+      hardlinks: [],
       errors: [{
         id: 'unauthorized',
       }, {
@@ -290,12 +290,12 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
 
-    const $fileReferences = this.$('.file-reference');
-    expect($fileReferences).to.have.length(1);
-    expect($fileReferences.eq(0).text().trim())
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(1);
+    expect($fileHardlinks.eq(0).text().trim())
       .to.equal('You do not have access to the hard links of this file.');
     const tooltipText =
-      await new OneTooltipHelper($fileReferences.eq(0).find('.one-icon')[0]).getText();
+      await new OneTooltipHelper($fileHardlinks.eq(0).find('.one-icon')[0]).getText();
     expect(tooltipText).to.equal(
       'Cannot load files due to error: "You must authenticate yourself to perform this operation.".'
     );

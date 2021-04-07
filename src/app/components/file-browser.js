@@ -290,7 +290,7 @@ export default Component.extend(I18n, {
         selectedFilesContainsOnlySymlinks,
       } = this.getProperties('selectedFiles', 'selectedFilesContainsOnlySymlinks');
       return selectedFilesContainsOnlySymlinks &&
-        selectedFiles.filterBy('linkedFile').length === 0;
+        selectedFiles.filterBy('effFile').length === 0;
     }
   ),
 

@@ -10,7 +10,7 @@
     {{modal-file-subheader files=(array file)}}
   {{/modal.header}}
   {{#modal.body}}
-  {{#if (gt referencesCount 1)}}
+  {{#if (gt hardlinksCount 1)}}
     {{#bs-tab
       class="bs-tab-onedata bs-tab-modern"
       activeId=activeTab
@@ -20,7 +20,7 @@
       {{tab.pane id="general" title=(tt this "tabs.general.tabTitle")}}
       {{tab.pane
         id="hardlinks"
-        title=(tt this "tabs.hardlinks.tabTitle" referencesCount=referencesCount)
+        title=(tt this "tabs.hardlinks.tabTitle" hardlinksCount=hardlinksCount)
       }}
     {{/bs-tab}}
   {{/if}}
@@ -208,18 +208,18 @@
       </tbody>
     </table>
   {{else if (eq activeTab "hardlinks")}}
-    {{#promise-proxy-container proxy=fileReferencesProxy}}
-      <ul class="file-references-list">
-        {{#each fileReferences.references as |fileReference|}}
+    {{#promise-proxy-container proxy=fileHardlinksProxy}}
+      <ul class="file-hardlinks-list">
+        {{#each fileHardlinks.hardlinks as |fileHardlink|}}
           {{file-browser/fb-info-modal/hardlink-entry
-            class="file-reference"
-            file=fileReference.file
-            fileUrl=fileReference.fileUrl
-            path=fileReference.path
+            class="file-hardlink"
+            file=fileHardlink.file
+            fileUrl=fileHardlink.fileUrl
+            path=fileHardlink.path
             closeModal=modal.close
           }}
         {{else}}
-          <li class="file-reference extra-reference-description">
+          <li class="file-hardlink extra-hardlink-description">
             <em>{{tt this "tabs.hardlinks.noAccessToAll"
               fileType=(tt this (concat "tabs.hardlinks." itemType))
             }}</em>
@@ -229,12 +229,12 @@
           </li>
         {{/each}}
         {{#if (and
-          (gt fileReferences.references.length 0)
-          (lt fileReferences.references.length fileReferences.referencesCount)
+          (gt fileHardlinks.hardlinks.length 0)
+          (lt fileHardlinks.hardlinks.length fileHardlinks.hardlinksCount)
         )}}
-          <li class="file-reference extra-reference-description">
+          <li class="file-hardlink extra-hardlink-description">
             <em>{{tt this "tabs.hardlinks.andNMoreYouHaveNoAccess"
-              count=(sub fileReferences.referencesCount fileReferences.references.length)
+              count=(sub fileHardlinks.hardlinksCount fileHardlinks.hardlinks.length)
             }}</em>
             {{#if hardlinksFetchError}}
               {{one-label-tip title=hardlinksFetchError}}
