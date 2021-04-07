@@ -148,6 +148,12 @@
       padding-right: $padding-large-vertical;
     }
   }
+
+  &.readonly {
+    .one-collapsible-list-item-header .status-toolbar {
+      right: $collapsible-list-item-padding;
+    }
+  }
 }
 
 .acl-editor, .add-user-group-ace-dropdown {

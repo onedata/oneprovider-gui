@@ -1,6 +1,6 @@
 /**
  * An ACL editor component.
- * 
+ *
  * @module components/acl-editor
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -17,6 +17,7 @@ import { AceFlagsMasks } from 'oneprovider-gui/utils/acl-permissions-specificati
 
 export default Component.extend(I18n, {
   classNames: ['acl-editor'],
+  classNameBindings: ['readonly'],
 
   i18n: service(),
 
@@ -56,6 +57,12 @@ export default Component.extend(I18n, {
    * @type {Array<Object>}
    */
   systemSubjects: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  readonly: false,
 
   /**
    * @virtual

@@ -6,7 +6,8 @@
   open=true
   backdropClose=false
   onHide=(action "close")
-  as |modal|}}
+  as |modal|
+}}
   {{#modal.header}}
     <h1>{{tt this (if effectiveReadonly "headerReadonly" "header")}}</h1>
     {{modal-file-subheader files=files}}
@@ -44,7 +45,8 @@
             <div class="row alert-simple-info-btn">
               {{#bs-button
                 class="btn btn-warning btn-sm open-posix-editor"
-                onClick=(action "acceptPosixIncompatibility")}}
+                onClick=(action "acceptPosixIncompatibility")
+              }}
                 {{tt this "editAnyway"}}
               {{/bs-button}}
             </div>
@@ -86,9 +88,11 @@
             groups=spaceGroups
             systemSubjects=systemSubjects
             acl=initialAcl
+            readonly=effectiveReadonly
             onChange=(action "aclChanged")
             context=filesType
-            class=(unless aclCompatible "hidden")}}
+            class=(unless aclCompatible "hidden")
+          }}
         {{/promise-proxy-container}}
       {{else if readonly}}
         <div class="alert alert-info">
