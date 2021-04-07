@@ -1,5 +1,6 @@
 export default {
   header: '{{type}} metadata',
+  editorDisabled: 'Editor disabled',
   file: 'File',
   dir: 'Directory',
   types: {

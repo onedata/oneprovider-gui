@@ -56,7 +56,7 @@ export default {
       data: 'data',
       metadata: 'metadata',
     },
-    writeProtected: 'Cannot {{actionName}} whose {{protectionType}} is write-protected.',
+    writeProtected: 'Cannot {{actionName}} whose {{protectionType}} is write protected.',
   },
   fbTable,
   fbTableRow,

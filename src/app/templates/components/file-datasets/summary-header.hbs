@@ -1,4 +1,4 @@
-<div class="modal-header-text">
+<div class="header-text-container">
   <h1 class="datasets-modal-header">
     <span class="header-text">
       {{tt this "datasets"}}
@@ -10,11 +10,11 @@
       }}
     </div>
     {{#one-switchable-popover-modal
-      class="datasets-show-hint datasets-hint"
+      class="datasets-hint"
       modalClass="modal-compact-help"
       triggersConfiguration=".datasets-header-hint-trigger"
       layoutType="modal"
-      popoverStyle="datasets-show-hint-info over-modals"
+      popoverStyle="datasets-hint-info over-modals"
       as |ospm|
     }}
       {{#ospm.modal.header}}
@@ -35,7 +35,9 @@
   </h1>
   {{modal-file-subheader files=(array file)}}
 </div>
-<div class="modal-header-effective-info datasets-effective-protection-info">
+<div
+  class="modal-header-effective-info header-tags-container datasets-effective-protection-info"
+>
   {{#each (array "data" "metadata") as |protectionType|}}
     {{#with (if
       (get this (concat protectionType "IsProtectedForFile")) "enabled" "disabled")
@@ -48,10 +50,10 @@
           (concat protectionType "-protected-tag")
         }}>
           {{one-icon
-            class="protection-tag-status-icon"
+            class="tag-icon protection-tag-status-icon"
             icon=(get protectionIcons protectionType)
           }}
-          <span class="protected-text">
+          <span class="label-text protected-text">
             {{tt this (concat "fileProtectionTag." flagState)
               fileTypeUpper=(capitalize (tt this (concat "fileType." fileType)))
               protectionType=(tt this (concat "protectionType." protectionType))

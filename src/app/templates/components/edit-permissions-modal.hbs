@@ -9,8 +9,33 @@
   as |modal|
 }}
   {{#modal.header}}
-    <h1>{{tt this (if effectiveReadonly "headerReadonly" "header")}}</h1>
-    {{modal-file-subheader files=files}}
+    <div class="header-with-tags">
+      <div class="header-text-container">
+        <h1>{{tt this (if effectiveReadonly "headerReadonly" "header")}}</h1>
+        {{modal-file-subheader files=files}}
+      </div>
+      <div class="header-tags-container">
+        {{#if (and effectiveReadonly effectiveReadonlyTip)}}
+          <div class="labels-container">
+            <div class="label label-modal-header-large label-disabled readonly-tag">
+              {{one-icon
+                class="tag-icon readonly-tag-icon"
+                icon="lock"
+              }}
+              <span class="label-text">
+                {{tt this "editorDisabled"}}
+              </span>
+              {{#one-icon
+                icon="sign-question-rounded"
+                class="hint-trigger clickable"
+              }}
+                {{one-tooltip title=effectiveReadonlyTip}}
+              {{/one-icon}}
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    </div>
   {{/modal.header}}
   {{#modal.body}}
     <div class="active-permissions-type-container">

@@ -1,6 +1,7 @@
 export default {
   header: 'Edit permissions',
   headerReadonly: 'Permissions',
+  editorDisabled: 'Editor disabled',
   cancel: 'Cancel',
   save: 'Save',
   close: 'Close',
@@ -17,9 +18,8 @@ export default {
   differentAcl: 'Selected files have different ACL rules. You can edit them, but saving your changes will cause the ACL rules of all files to be <strong>irreversibly overwritten</strong> with the new ones.',
   differentAclReadonly: 'Selected files have different ACL rules. Select an individual file or files with the same rules.',
   noAclDueToMixedFileTypes: 'Cannot view ACL of files and directories at the same time. Select only files or only directories to enable ACL editor.',
-  // FIXME: maybe it can be shown anyway
   noAclDueToMixedFileTypesReadonly: 'Cannot view ACL of files and directories at the same time. Select only files or only directories.',
-  readonlyDueToMetadataIsProtected: 'Cannot change permissions of files whose metadata is write-protected.',
+  readonlyDueToMetadataIsProtected: 'Cannot change permissions of files whose metadata is write protected.',
   ownerSystemSubject: 'owner',
   groupSystemSubject: 'owning group',
   everyoneSystemSubject: 'everyone',
