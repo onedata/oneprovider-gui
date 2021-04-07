@@ -16,6 +16,10 @@
     label.direct-dataset-attached-label {
       margin: 0;
     }
+    .attach-dataset-label-section {
+      display: flex;
+      align-items: center;
+    }
   }
   .alert.alert-promise-error {
     @include font-regular;
@@ -24,5 +28,17 @@
   .direct-dataset-attached-toggle {
     margin-left: 1.5em;
     font-size: $font-size-base;
+  }
+
+  @media (max-width: $screen-xs-max) {
+    .direct-dataset-attached-label {
+      font-size: 90%;
+    }
+    .attach-dataset-label-section {
+      flex-grow: 1;
+    }
+    .direct-dataset-attached-toggle {
+      margin-left: 0;
+    }
   }
 }

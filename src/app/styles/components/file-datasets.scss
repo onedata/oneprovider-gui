@@ -27,7 +27,7 @@ $dataset-write-unprotected-color: #596E99;
 // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
 // of modal elements (header/body/footer), so it is a tagless component with styled parts
 @media (min-width: $screen-sm-min) {
-  .file-datasets-part {    
+  .file-datasets-part {
     // common styles for sub-components
     .direct-dataset-item-detached, .no-parent-datasets-row {
       .col-dataset-info {
@@ -100,15 +100,8 @@ $dataset-write-unprotected-color: #596E99;
     .datasets-table-head .col-dataset-info {
       padding-top: 1em;
     }
-    .direct-dataset-attached-label {
-      flex-grow: 1;
-      font-size: 90%;
-    }
-    .direct-dataset-attached-toggle {
-      margin-left: 0;
-    }
-    .table.datasets-table { 
-      display: block; 
+    .table.datasets-table {
+      display: block;
       thead, tbody, th, td, tr {
         display: block;
       }
