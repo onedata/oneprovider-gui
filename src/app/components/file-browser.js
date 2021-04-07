@@ -1087,7 +1087,7 @@ export default Component.extend(I18n, {
         operationErrorKey: `${i18nPrefix}.linkFailed`,
       },
       async (file) => {
-        await fileManager.createHardlink(get(file, 'index'), dir, file);
+        await fileManager.createHardlink(get(file, 'index'), dir, file, 50);
         await throttledRefresh();
       }
     );
@@ -1128,7 +1128,7 @@ export default Component.extend(I18n, {
     }, async (file) => {
       const fileName = get(file, 'index');
       const filePath = stringifyFilePath(await resolveFilePath(file), 'index');
-      await fileManager.createSymlink(fileName, dir, filePath, spaceId);
+      await fileManager.createSymlink(fileName, dir, filePath, spaceId, 50);
       await throttledRefresh();
     });
   },

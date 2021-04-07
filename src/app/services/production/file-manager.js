@@ -102,16 +102,21 @@ export default Service.extend({
    * @param {Models.File} parent
    * @param {String} targetPath must be an absolute path
    * @param {String} spaceId
+   * @param {Number} [createAttempts=undefined]
    * @returns {Promise<Models.File>}
    */
-  createSymlink(name, parent, targetPath, spaceId) {
+  createSymlink(name, parent, targetPath, spaceId, createAttempts = undefined) {
     // Removing `/spacename` prefix from targetPath. Example '/s1/a/b' -> 'a/b'
     const absolutePathWithoutSpace = targetPath.split('/').slice(2).join('/');
     const pathPrefix = `<__onedata_space_id:${spaceId}>`;
-
-    return this.createDirectoryChild(parent, 'symlink', name, {
+    const options = {
       targetPath: `${pathPrefix}/${absolutePathWithoutSpace}`,
-    });
+    };
+    if (createAttempts) {
+      options.createAttempts = createAttempts;
+    }
+
+    return this.createDirectoryChild(parent, 'symlink', name, options);
   },
 
   /**
@@ -119,12 +124,17 @@ export default Service.extend({
    * @param {String} name
    * @param {Models.File} parent
    * @param {Models.File} target
+   * @param {Number} [createAttempts=undefined]
    * @returns {Promise<Models.File>}
    */
-  createHardlink(name, parent, target) {
-    return this.createDirectoryChild(parent, 'hardlink', name, {
+  createHardlink(name, parent, target, createAttempts = undefined) {
+    const options = {
       targetGuid: get(target, 'entityId'),
-    });
+    };
+    if (createAttempts) {
+      options.createAttempts = createAttempts;
+    }
+    return this.createDirectoryChild(parent, 'hardlink', name, options);
   },
 
   /**
