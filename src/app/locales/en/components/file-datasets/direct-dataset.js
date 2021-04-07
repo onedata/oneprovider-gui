@@ -1,4 +1,7 @@
+import { protectionType } from '../file-datasets/-common';
+
 export default {
+  protectionType,
   cannotLoadDirectDataset: 'Could not load direct dataset state.',
-  notAttachedReadonlyFlags: '[TODO: VFS-7479] (something like: Direct write protection can be enabled only if the file is marked as dataset.)',
+  notAttachedReadonlyFlags: '{{protectionTypeUpper}} protection settings are available only for files or directories being a dataset in attached state.',
 };

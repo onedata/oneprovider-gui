@@ -1,33 +1,24 @@
+import { fileType, protectionType } from '../file-datasets/-common';
+
 export default {
+  fileType,
+  protectionType,
   datasets: 'Datasets',
-  fileType: {
-    file: 'file',
-    dir: 'directory',
-  },
   hint: {
     title: 'Datasets',
-    intro: '[TODO: VFS-7479] (what datasets are; what are datasets in accordance to file or directory)',
-    guide: '[TODO: VFS-7479] (what this modal shows and what can you configure here; we can add also documentation link but there is no docs yet)',
-    close: 'Close',
+    intro: 'Datasets allow the space users to organize their data into collections with desired granularity. A file or directory marked as a dataset offers additional features, such as optional data and metadata protection or the ability to create persistent snapshots of the physical dataset contents. In case of a directory, a dataset covers all its subdirectories and files. Datasets can be nested, allowing users to compose arbitrary hierarchical structures.',
+    guide: 'This view presents a summary of datasets concerning the selected file/directory. It can be individually marked as a dataset with optional write protection settings, nevertheless all ancestor datasets (ones that contain the file/directory) are also considered when determining the effective write protection – presented in the top-right corner. This is depicted in the below table, which allows manipulating the settings for each dataset in the hierarchy.',
+    close: 'OK',
   },
   fileProtectionTag: {
-    enabled: {
-      data: 'Data of this {{fileType}} is write protected',
-      metadata: 'Metadata of this {{fileType}} is write protected',
-    },
-    disabled: {
-      data: 'Data of this {{fileType}} is writable',
-      metadata: 'Metadata of this {{fileType}} is writable',
-    },
+    enabled: '{{fileTypeUpper}} {{protectionType}} is write protected',
+    disabled: '{{fileTypeUpper}} {{protectionType}} is write enabled',
   },
   fileProtectionTagTip: {
     enabled: {
-      data: '[TODO: VFS-7479] (what does it mean that data of {{fileType}} is write protected)',
-      metadata: '[TODO: VFS-7479] (what does it mean that metadata of {{fileType}} is write protected)',
+      data: 'Data write protection causes files and directories to be protected from modifying their content or being deleted. Modification attempts will be rejected with EPERM POSIX error.',
+      metadata: 'Metadata write protection causes files and directories to be protected from modifying their metadata, such as permissions, ACLs, or custom JSON/RDF/xattr metadata. Modification attempts will be rejected with EPERM POSIX error.',
     },
-    disabled: {
-      data: '[TODO: VFS-7479] (why we show that data of {{fileType}} is writable in contrast to write protection)',
-      metadata: '[TODO: VFS-7479] (why we show that metadata of {{fileType}} is writable in contrast to write protection)',
-    },
+    disabled: 'The {{fileType}} {{protectionType}} is currently not write protected and can be modified with no additional restrictions.',
   },
 };

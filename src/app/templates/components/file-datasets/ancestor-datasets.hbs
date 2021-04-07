@@ -3,12 +3,17 @@
     {{#file-datasets/dataset-item
       class=(concat-classes
         "parent-group-dataset-item dataset-item-head-row"
-        (if parentDatasetsCollapsed "closed" "opened")
+        (if ancestorDatasetsCollapsed "closed" "opened")
       )
       dataset=virtualParentDataset
       readonly=true
       protectionIcons=protectionIcons
-      readonlyMessage=(tt this "summaryParentsReadonlyFlags")
+      dataToggleReadonlyMessage=(tt this "summaryAncestorsReadonlyFlags"
+        protectionType=(tt this "protectionType.data")
+      )
+      metadataToggleReadonlyMessage=(tt this "summaryAncestorsReadonlyFlags"
+        protectionType=(tt this "protectionType.metadata")
+      )
       click=(action "toggleParentDatasetsCollapse")
     }}
       <div class="parents-collapse-text">
@@ -17,14 +22,14 @@
             class="path-icon"
             icon="browser-info"
           }}
-            {{one-tooltip title=(tt this "parentDatasetsTip")}}
+            {{one-tooltip title=(tt this "ancestorDatasetsTip")}}
           {{/one-icon}}
           <div class="dataset-label">
-            {{tt this "parentDatasets"}} ({{ancestorDatasets.length}})
+            {{tt this "ancestorDatasets"}} ({{ancestorDatasets.length}})
           </div>
           <div class={{concat-classes
             "inline-icon-container collapse-icon-container"
-            (if parentDatasetsCollapsed "closed" "opened")
+            (if ancestorDatasetsCollapsed "closed" "opened")
           }}>
             {{one-icon
               class="collapse-icon"
@@ -43,12 +48,12 @@
         {{#file-datasets/dataset-item
           class=(concat-classes
             "parent-dataset-item"
-            (if parentDatasetsCollapsed "closed" "opened")
+            (if ancestorDatasetsCollapsed "closed" "opened")
           )
           dataset=data.dataset
           file=data.file
           readonly=readonly
-          readonlyMessage=insufficientEditPrivilegesMessage
+          togglesReadonlyMessage=insufficientEditPrivilegesMessage
           protectionIcons=protectionIcons
           updateOpenedFileData=updateOpenedFileData
         }}
@@ -69,9 +74,7 @@
       {{/each}}
     {{/file-datasets/datasets-list-container}}
   {{else}}
-    <tr
-      class="dataset-item dataset-item-head-row no-parent-datasets-row"
-    >
+    <tr class="dataset-item dataset-item-head-row no-parent-datasets-row">
       <td class="no-parent-datasets-cell col-dataset-info">
         <span class="parents-collapse-text parents-collapse-text-empty">
           <div class="dataset-label-section">
@@ -79,10 +82,14 @@
               class="path-icon no-dataset-icon"
               icon="browser-info"
             }}
-              {{one-tooltip title=(tt this "noParentDatasetsTip")}}
+              {{one-tooltip title=(tt this "noAncestorDatasetsTip"
+                fileType=(tt this (concat "fileType." fileType))
+              )}}
             {{/one-icon}}
             <div class="dataset-label no-parent-datasets-text">
-              {{tt this "noParentDatasets"}}
+              {{tt this "noAncestorDatasets"
+                fileType=(tt this (concat "fileType." fileType))
+              }}
             </div>
           </div>
         </span>

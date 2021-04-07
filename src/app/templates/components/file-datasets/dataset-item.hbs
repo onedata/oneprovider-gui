@@ -19,7 +19,12 @@
           checked=(get this (concat protectionType "IsProtected"))
           spinnerSide=(if media.isMobile "left" "right")
           isReadOnly=readonly
-          lockHint=(if readonly readonlyMessage)
+          lockHint=(if readonly
+            (or
+              (get this (concat protectionType "ToggleReadonlyMessage"))
+              togglesReadonlyMessage
+            )
+          )
           icon=(get protectionIcons protectionType)
           update=(action "toggleDatasetProtectionFlag" (concat protectionType "_protection"))
         }}
