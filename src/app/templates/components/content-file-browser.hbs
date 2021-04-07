@@ -98,10 +98,6 @@
     {{file-browser/fb-metadata-modal
       open=true
       file=fileToShowMetadata
-      previewMode=fileToShowMetadata.metadataIsProtected
-      readonlyTip=(tt this "metadataIsProtected"
-        fileTypeUpper=(capitalize (tt this (concat "fileType." fileToShowMetadata.type)))
-      )
       onHide=(action "closeMetadataModal")
     }}
   {{/if}}
