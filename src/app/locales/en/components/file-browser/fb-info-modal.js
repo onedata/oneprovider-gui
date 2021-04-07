@@ -46,7 +46,7 @@ export default {
       hardlinksFetchMultiErrorTip: 'Cannot load files due to error: "{{fetchError}}" and {{moreCount}} more errors.',
       unknownFetchError: 'unknown error',
       file: 'file',
-      directory: 'directory',
+      dir: 'directory',
       symlink: 'symbolic link',
     },
   },
