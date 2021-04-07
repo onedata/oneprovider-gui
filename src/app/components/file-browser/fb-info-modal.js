@@ -148,11 +148,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileReferences'), {
 
   fileSize: reads('file.size'),
 
-  referencesCount: or(
-    'fileReferences.referencesCount',
-    'file.referencesCount',
-    raw(1)
-  ),
+  referencesCount: or('file.referencesCount', raw(1)),
 
   hardlinksFetchError: computed(
     'fileReferences.errors',

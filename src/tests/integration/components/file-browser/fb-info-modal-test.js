@@ -15,6 +15,7 @@ import sinon from 'sinon';
 import { click, findAll } from 'ember-native-dom-helpers';
 import { clickTrigger } from '../../../helpers/ember-power-select';
 import $ from 'jquery';
+import OneTooltipHelper from '../../../helpers/one-tooltip';
 
 const returnDummyUrl = () => 'https://dummy';
 
@@ -53,12 +54,14 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
   beforeEach(function () {
     registerService(this, 'restGenerator', RestGenerator);
+    const fileReferencesResult = this.set('fileReferencesResult', {
+      referencesCount: 0,
+      references: [],
+      errors: [],
+    });
     sinon.stub(lookupService(this, 'file-manager'), 'getFileReferences')
-      .resolves({
-        referencesCount: 0,
-        references: [],
-        errors: [],
-      });
+      .resolves(fileReferencesResult);
+    this.set('getDataUrl', ({ selected: [firstSelected] }) => `link-${firstSelected}`);
   });
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy
@@ -174,13 +177,14 @@ describe('Integration | Component | file browser/fb info modal', function () {
     }
   );
 
-  it('does not show tabs when references count is 1', function () {
+  it('does not show tabs when references count is 1', async function () {
     this.set('file', {
       type: 'file',
       referencesCount: 1,
     });
 
     render(this);
+    await wait();
 
     expect(this.$('.nav-tabs')).to.not.exist;
   });
@@ -192,9 +196,109 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     render(this);
+    await wait();
+
+    expect(this.$('.nav-tabs').text()).to.contain('Hard links (2)');
+  });
+
+  it('shows hardlinks list', async function () {
+    this.set('file', {
+      type: 'file',
+      referencesCount: 2,
+    });
+    Object.assign(this.get('fileReferencesResult'), {
+      referencesCount: 2,
+      references: [{
+        entityId: 'f1',
+        name: 'abc',
+      }, {
+        entityId: 'f2',
+        name: 'def',
+      }],
+      errors: [],
+    });
+
+    render(this);
 
     await wait();
-    expect(this.$('.nav-tabs').text()).to.contain('Hard links (2)');
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileReferences = this.$('.file-reference');
+    expect($fileReferences).to.have.length(2);
+    expect($fileReferences.eq(0).find('.file-name').text().trim()).to.equal('abc');
+    expect($fileReferences.eq(0).find('.file-path').text().trim()).to.match(/Path:\s*\/abc/);
+    expect($fileReferences.eq(0).find('.file-path a')).to.have.attr('href', 'link-f1');
+    expect($fileReferences.eq(1).find('.file-name').text().trim()).to.equal('def');
+    expect($fileReferences.eq(1).find('.file-path').text().trim()).to.match(/Path:\s*\/def/);
+    expect($fileReferences.eq(1).find('.file-path a')).to.have.attr('href', 'link-f2');
+    expect($fileReferences.find('.file-type-icon.oneicon-browser-file')).to.have.length(2);
+  });
+
+  it('shows hardlinks partial fetch error', async function () {
+    this.set('file', {
+      type: 'file',
+      referencesCount: 2,
+    });
+    Object.assign(this.get('fileReferencesResult'), {
+      referencesCount: 4,
+      references: [{
+        entityId: 'f1',
+        name: 'abc',
+      }],
+      errors: [{
+        id: 'forbidden',
+      }, {
+        id: 'unauthorized',
+      }, {
+        id: 'forbidden',
+      }],
+    });
+
+    render(this);
+
+    await wait();
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileReferences = this.$('.file-reference');
+    expect($fileReferences).to.have.length(2);
+    expect($fileReferences.eq(0).find('.file-name').text().trim()).to.equal('abc');
+    expect($fileReferences.eq(1).text().trim()).to.equal('And 3 more that you cannot access.');
+    const tooltipText =
+      await new OneTooltipHelper($fileReferences.eq(1).find('.one-icon')[0]).getText();
+    expect(tooltipText).to.equal(
+      'Cannot load files due to error: "You are not authorized to perform this operation (insufficient privileges?)." and 1 more errors.'
+    );
+  });
+
+  it('shows hardlinks full fetch error', async function () {
+    this.set('file', {
+      type: 'file',
+      referencesCount: 2,
+    });
+    Object.assign(this.get('fileReferencesResult'), {
+      referencesCount: 2,
+      references: [],
+      errors: [{
+        id: 'unauthorized',
+      }, {
+        id: 'unauthorized',
+      }],
+    });
+
+    render(this);
+
+    await wait();
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileReferences = this.$('.file-reference');
+    expect($fileReferences).to.have.length(1);
+    expect($fileReferences.eq(0).text().trim())
+      .to.equal('You do not have access to the hard links of this file.');
+    const tooltipText =
+      await new OneTooltipHelper($fileReferences.eq(0).find('.one-icon')[0]).getText();
+    expect(tooltipText).to.equal(
+      'Cannot load files due to error: "You must authenticate yourself to perform this operation.".'
+    );
   });
 
   context('for file', function () {
@@ -390,6 +494,7 @@ function render(testCase) {
     previewMode=previewMode
     space=space
     selectedRestUrlType=selectedRestUrlType
+    getDataUrl=getDataUrl
   }}`);
 }
 
