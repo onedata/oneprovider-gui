@@ -1,0 +1,34 @@
+<td class="col-dataset-info">
+  {{yield}}
+</td>
+{{#each (array "data" "metadata") as |protectionType|}}
+  <td class="col-dataset-protection col-dataset-protection-{{protectionType}}">
+    <div class="dataset-protection-control">
+      {{#if media.isMobile}}
+        <label for={{concat elementId "-" protectionType "-flag-toggle"}}>
+          {{tt this (concat "toggleLabels." protectionType)}}
+        </label>
+      {{/if}}
+      <div class="toggle-container">
+        {{one-way-toggle
+          inputId=(concat elementId "-" protectionType "-flag-toggle")
+          class=(concat-classes
+            "flag-toggle"
+            (concat protectionType "-flag-toggle")
+          )
+          checked=(get this (concat protectionType "IsProtected"))
+          spinnerSide=(if media.isMobile "left" "right")
+          isReadOnly=readonly
+          lockHint=(if readonly
+            (or
+              (get this (concat protectionType "ToggleReadonlyMessage"))
+              togglesReadonlyMessage
+            )
+          )
+          icon=(get protectionIcons protectionType)
+          update=(action "toggleDatasetProtectionFlag" (concat protectionType "_protection"))
+        }}
+      </div>
+    </div>
+  </td>
+{{/each}}

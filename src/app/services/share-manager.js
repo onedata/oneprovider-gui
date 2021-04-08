@@ -28,7 +28,7 @@ export default Service.extend({
         name: shareName,
         _meta: {
           additionalData: {
-            fileId: get(file, 'cdmiObjectId'),
+            rootFileId: get(file, 'cdmiObjectId'),
           },
         },
       })

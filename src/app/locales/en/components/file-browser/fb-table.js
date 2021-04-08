@@ -1,3 +1,5 @@
+import { dataWriteProtectionEnabled } from '../file-datasets/summary-header';
+
 export default {
   unknownError: 'Unknown error',
   startingDownload: 'starting file download',
@@ -19,6 +21,8 @@ export default {
     filesFromClipboard: 'files from clipboard',
     toFilesInClipboard: 'to files in clipboard',
     or: 'or',
+    dataIsWriteProtected: 'Directory data is write protected',
+    dataIsWriteProtectedTip: dataWriteProtectionEnabled,
   },
   errorDirBox: {
     errorOccurred: 'Loading directory contents failed',

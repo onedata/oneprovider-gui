@@ -1,7 +1,7 @@
 /**
  * An ACE editor. Includes tree editor and the whole collapsible-list
  * item content.
- * 
+ *
  * @module components/acl-editor/ace-editor
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -63,6 +63,12 @@ export default Component.extend(I18n, {
    * @type {string}
    */
   context: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  readonly: false,
 
   /**
    * @virtual

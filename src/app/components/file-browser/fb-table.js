@@ -26,6 +26,7 @@ import { next, later } from '@ember/runloop';
 import { resolve, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import ViewTester from 'onedata-gui-common/utils/view-tester';
 import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
@@ -135,6 +136,11 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  invokeFileAction: notImplementedThrow,
+
+  /**
    * @type {EmberArray<String>}
    */
   loadingIconFileIds: undefined,

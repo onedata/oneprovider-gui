@@ -32,11 +32,15 @@ const defaultNormalizedFileType = 'file';
 
 const serializedFileTypes = _.invert(normalizedFileTypes);
 
+export const qosSummaryAspect = 'qos_summary';
+export const datasetSummaryAspect = 'dataset_summary';
+
 export default Serializer.extend({
   fileRelations: computed(() => [
     { name: 'acl', aspect: 'acl' },
     { name: 'distribution', aspect: 'distribution' },
-    { name: 'fileQosSummary', aspect: 'file_qos_summary' },
+    { name: 'fileQosSummary', aspect: qosSummaryAspect },
+    { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
   ]),
 
   /**

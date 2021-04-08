@@ -283,6 +283,11 @@ export default Service.extend(I18n, {
       resumable,
     } = this.getProperties('targetDirectory', 'resumable');
 
+    if (get(targetDirectory, 'dataIsProtected')) {
+      resumableFiles.forEach(resumableFile => resumableFile.cancel());
+      return;
+    }
+
     const uploadId = uuid();
     const createdDirectories = {};
 
