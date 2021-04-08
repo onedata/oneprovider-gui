@@ -1,7 +1,7 @@
 /**
  * A container with table of files (children of selected dir).
  * Supports infinite scroll.
- * 
+ *
  * @module components/file-browser/fb-table
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -645,7 +645,7 @@ export default Component.extend(I18n, {
 
   /**
    * Get nth file row element that was rendered
-   * @param {Number} index 
+   * @param {Number} index
    * @returns {HTMLElement|null}
    */
   getNthRenderedRow(index) {
@@ -1011,7 +1011,7 @@ export default Component.extend(I18n, {
         top,
         left,
       });
-      // opening popover in after rendering trigger position change prevents from bad 
+      // opening popover in after rendering trigger position change prevents from bad
       // placement
       scheduleOnce('afterRender', () => {
         // cause popover refresh

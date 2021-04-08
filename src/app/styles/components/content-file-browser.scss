@@ -29,14 +29,25 @@
     border: 3px dashed darken($color-one-light-blue, 10%);
     background-color: rgba($color-one-light-blue, 0.75);
     z-index: $zindex-tooltip;
-    
-    .upload-watermark-icon {
+
+    .upload-info {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translateX(-50%) translateY(-50%);
+    }
+    .upload-watermark-icon {
+      text-align: center;
       font-size: 15em;
       color: darken($color-one-light-blue, 10%);
+    }
+
+    &.upload-disabled {
+      border-color: darken($color-one-blue-gray, 10%);
+      background-color: rgba($color-one-light-gray, 0.75);
+      .upload-watermark-icon {
+        color: darken($color-one-semiblack, 10%);
+      }
     }
   }
 

@@ -121,7 +121,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
     this.setProperties({
       dir: rootDir,
-      selectedFiles: Object.freeze([]),
+      selectedFiles: [],
     });
     this.on('updateDirEntityId', function updateDirEntityId(id) {
       this.set('dir', dirs.findBy('entityId', id));
@@ -228,7 +228,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
       this.setProperties({
         dir,
-        selectedFiles: Object.freeze([]),
+        selectedFiles: [],
       });
 
       const fileManager = lookupService(this, 'fileManager');
@@ -306,7 +306,7 @@ describe('Integration | Component | file browser (main component)', function () 
     this.setProperties({
       openCreateNewDirectory,
       dir,
-      selectedFiles: Object.freeze([]),
+      selectedFiles: [],
     });
 
     this.render(hbs `<div id="content-scroll">{{file-browser
@@ -395,7 +395,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
       this.setProperties({
         dir,
-        selectedFiles: Object.freeze([]),
+        selectedFiles: [],
       });
 
       const fileManager = lookupService(this, 'fileManager');
@@ -585,7 +585,7 @@ describe('Integration | Component | file browser (main component)', function () 
         parent: resolve(dir),
       };
 
-      this.setProperties({ dir, item1, selectedFiles: Object.freeze([]) });
+      this.setProperties({ dir, item1, selectedFiles: [] });
       stubSimpleFetch(this, dir, [item1]);
       const clock = sinon.useFakeTimers({
         now: Date.now(),

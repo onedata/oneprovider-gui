@@ -19,8 +19,14 @@
       openFileDistributionModal=(action "openFileDistributionModal")
       openQos=(action "openQosModal")
     }}
-    <div class="upload-drop-zone">
-      {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
+    <div class="upload-drop-zone {{if dir.dataIsProtected "upload-disabled"}}">
+      <div class="upload-info">
+        {{#if dir.dataIsProtected}}
+          {{one-icon tagName="div" icon="ban-left" class="upload-watermark-icon"}}
+        {{else}}
+          {{one-icon tagName="div"  icon="browser-upload" class="upload-watermark-icon"}}
+        {{/if}}
+      </div>
     </div>
   {{/if}}
 
@@ -95,7 +101,7 @@
       onHide=(action "closeMetadataModal")
     }}
   {{/if}}
-  
+
   {{#if filesToShowDatasets}}
     {{datasets-modal
       open=true

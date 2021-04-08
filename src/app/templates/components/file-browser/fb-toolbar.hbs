@@ -6,8 +6,8 @@
       disabled={{button.disabled}}
     >
       {{#one-icon icon=button.icon}}
-        {{#if button.title}}
-          {{one-tooltip title=button.title}}
+        {{#if (or button.tip button.title)}}
+          {{one-tooltip title=(or button.tip button.title)}}
         {{/if}}
       {{/one-icon}}
     </div>

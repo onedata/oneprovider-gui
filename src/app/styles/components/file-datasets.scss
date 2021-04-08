@@ -7,13 +7,6 @@ $dataset-write-unprotected-color-border: #B1BACF;
 $dataset-write-unprotected-color: #596E99;
 
 .file-datasets-part {
-  .hint-trigger {
-    margin-left: 0.4em;
-    opacity: 0.4;
-    &:hover {
-      opacity: 0.6;
-    }
-  }
   .table.datasets-table {
     > tbody + tbody {
       border-top-width: 0;

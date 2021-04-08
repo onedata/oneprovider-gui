@@ -76,7 +76,7 @@ export default Component.extend(
      * @virtual
      * @type {Function}
      */
-    clearSelection: notImplementedIgnore,
+    selectCurrentDir: notImplementedIgnore,
 
     /**
      * @virtual
@@ -288,12 +288,14 @@ export default Component.extend(
         this.get('changeDir')(dir);
       },
       actionClicked() {
-        this.get('clearSelection')();
         this.send('toggleDirActions', false);
       },
       toggleDirActions(open) {
         const _open =
           (typeof open === 'boolean') ? open : !this.get('dirActionsOpen');
+        if (_open) {
+          this.get('selectCurrentDir')();
+        }
         this.set('dirActionsOpen', _open);
       },
     },

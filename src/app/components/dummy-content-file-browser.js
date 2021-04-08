@@ -24,7 +24,10 @@ export default Component.extend({
 
   previewMode: false,
 
-  selectedFiles: Object.freeze([]),
+  /**
+   * @type {Array<Models.File>}
+   */
+  selectedFiles: undefined,
 
   spacePrivileges: Object.freeze({
     view: true,
@@ -46,6 +49,9 @@ export default Component.extend({
 
   init() {
     this._super(...arguments);
+    if (!this.get('selectedFiles')) {
+      this.set('selectedFiles', []);
+    }
     // list of tests
     // this.testJumpDownFromStart();
     this.testJumpUpFromFarMiddle();
