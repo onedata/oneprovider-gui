@@ -16,6 +16,7 @@ import fbMetadataRdf from './file-browser/fb-metadata-rdf';
 export default {
   menuCurrentDir: 'Current directory',
   refreshingDirectory: 'refreshing directory',
+  startingDownload: 'starting file download',
   pasteFailed: {
     move: 'moving some of files',
     copy: 'copying some of files',
