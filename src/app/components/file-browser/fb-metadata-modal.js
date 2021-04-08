@@ -1,6 +1,6 @@
 /**
  * Shows and allows edit file or directory metadata
- * 
+ *
  * @module components/file-browser/fb-metadata-modal
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, raw, or, not, eq, and } from 'ember-awesome-macros';
+import { conditional, equal, raw, or, not, eq, and, bool } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { computed, get } from '@ember/object';
 import { inject as service } from '@ember/service';
@@ -20,6 +20,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import { camelize } from '@ember/string';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { all as allFulfilled } from 'rsvp';
+import { capitalize } from '@ember/string';
 
 export const emptyValue = { ___empty___: true };
 
@@ -78,15 +79,65 @@ export default Component.extend(...mixins, {
   onShow: notImplementedIgnore,
 
   /**
+   * If true, the modal works with public files and public metadata
    * @virtual optional
-   * If true, the modal is in metadata readonly mode (cannot modify, only show)
    * @type {Boolean}
    */
   previewMode: false,
 
+  /**
+   * Set to true to disable metadata edition
+   * @virtual optional
+   */
+  readonly: false,
+
+  /**
+   * @virtual optional
+   * @type {String}
+   */
+  readonlyTip: '',
+
   metadataTypes: Object.freeze(metadataTypes),
 
   tabStateClassTypes: Object.freeze(tabStateClassTypes),
+
+  /**
+   * True if any file metadata is protected.
+   * @type {ComputedProperty<Boolean>}
+   */
+  metadataIsProtected: bool('file.metadataIsProtected'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  effectiveReadonly: or('readonly', 'previewMode', 'metadataIsProtected'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  effectiveReadonlyTip: computed(
+    'readonlyTip',
+    'metadataIsProtected',
+    'file.type',
+    function effectiveReadonlyTip() {
+      const {
+        readonlyTip,
+        metadataIsProtected,
+        file,
+      } = this.getProperties('readonlyTip', 'metadataIsProtected', 'file');
+      if (readonlyTip) {
+        return readonlyTip;
+      } else if (metadataIsProtected) {
+        return this.t('metadataIsProtected', {
+          fileTypeUpper: capitalize(
+            this.t(file && get(file, 'type') || 'file').toString()
+          ),
+        });
+      } else {
+        return '';
+      }
+    }
+  ),
 
   activeTab: reads('metadataTypes.firstObject'),
 

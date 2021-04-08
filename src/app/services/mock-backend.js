@@ -19,15 +19,18 @@ import {
   getCoordinates,
 } from 'onedata-gui-websocket-client/utils/development-model-common';
 import { mockGuiContext } from 'onedata-gui-common/initializers/fetch-gui-context';
+import { entityType as fileEntityType, datasetSummaryAspect } from 'oneprovider-gui/models/file';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
+import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
 } from 'oneprovider-gui/utils/mock-data';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -64,6 +67,19 @@ export const storageIdAlpha = '90ca74738947307403740234723bca7890678acb5c7bac567
 export const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731901';
 
 const transferStates = ['waiting', 'ongoing', 'ended'];
+
+const protectionFlagSets = [
+  [],
+  ['data_protection'],
+  ['metadata_protection'],
+  ['data_protection', 'metadata_protection'],
+];
+
+const effProtectionFlagSets = [
+  [],
+  ['data_protection'],
+  ['data_protection', 'metadata_protection'],
+];
 
 export default Service.extend({
   store: service(),
@@ -106,6 +122,9 @@ export default Service.extend({
       });
     });
     return this.createEmptyQos(store).then(() =>
+        this.createEmptyDatasetSummary(store)
+      )
+      .then(() =>
         promiseChain.then(() => hashFulfilled(promiseHash))
       )
       .then((listRecords) => {
@@ -155,6 +174,9 @@ export default Service.extend({
       .then(listRecords => {
         return this.createAndAddQos(store).then(() => listRecords);
       })
+      .then(listRecords => {
+        return this.createDatasetMock(store).then(() => listRecords);
+      })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
         return user.get('spaceList')
@@ -202,6 +224,16 @@ export default Service.extend({
     }).save().then(qosSummary => {
       this.set('entityRecords.fileQosSummary', [qosSummary]);
     });
+  },
+
+  async createEmptyDatasetSummary(store) {
+    const emptySummary = await store.createRecord('fileDatasetSummary', {
+      directDataset: null,
+      effAncestorDatasets: [],
+      effProtectionFlags: [],
+    }).save();
+    this.set('entityRecords.fileDatasetSummary', [emptySummary]);
+    return emptySummary;
   },
 
   makeFilesConflict() {
@@ -359,6 +391,7 @@ export default Service.extend({
     const provider = this.get('entityRecords.provider.firstObject');
     const providerId = get(provider, 'entityId');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
+    const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
     return allFulfilled(_.range(numberOfSpaces).map((i) =>
         // root dirs
         store.createRecord('file', {
@@ -367,11 +400,13 @@ export default Service.extend({
           type: 'dir',
           mtime: timestamp + i * 3600,
           hasMetadata: false,
-          hasDirectQos: i < 2,
-          hasEffQos: i < 4,
+          effQosMembership: i < 2 && 'direct' ||
+            i < 4 && 'ancestor' ||
+            'none',
           parent: null,
           posixPermissions: '777',
           fileQosSummary,
+          fileDatasetSummary: emptyDatasetSummary,
           provider,
         }).save()
       ))
@@ -387,12 +422,12 @@ export default Service.extend({
           rootDir: rootDirs[i],
           providersWithReadonlySupport: [providerId],
           currentUserIsOwner: false,
-          // NOTE: add 'space_manager_qos' to see add qos view
-          // put empty array to disable qos modal
           currentUserEffPrivileges: [
             'space_view',
             'space_view_qos',
             'space_view_transfers',
+            'space_manage_qos',
+            'space_manage_datasets',
           ],
         }).save()
       )))
@@ -512,6 +547,54 @@ export default Service.extend({
     };
   },
 
+  async createDatasetMock(store) {
+    const count = 4;
+    const ancestorFiles = [
+      this.get('entityRecords.dir.firstObject'),
+      ...this.get('entityRecords.chainDir').slice(0, count - 1),
+    ];
+    const datasets = [];
+    const summaries = [];
+    const timestamp = Math.floor(Date.now() / 1000);
+    // create datasets and dataset summaries for few chain dirs
+    for (let i = 0; i < ancestorFiles.length; ++i) {
+      const ancestorFile = ancestorFiles[i];
+      const ancestorDataset = await store.createRecord('dataset', {
+        id: `${datasetEntityType}.${get(ancestorFile, 'entityId')}.instance:private`,
+        parent: datasets[i - 1] || null,
+        state: 'attached',
+        rootFile: ancestorFile,
+        protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
+        creationTime: timestamp,
+        rootFilePath: stringifyFilePath(await resolveFilePath(ancestorFile)),
+        rootFileType: get(ancestorFile, 'type'),
+      }).save();
+      datasets[i] = ancestorDataset;
+      const effProtectionFlags = effProtectionFlagSets[Math.min(i, 2)];
+      const datasetSummary = await store.createRecord('file-dataset-summary', {
+        id: `${fileEntityType}.${get(ancestorFile, 'entityId')}.${datasetSummaryAspect}:private`,
+        directDataset: ancestorDataset,
+        effAncestorDatasets: datasets.slice(0, i),
+        effProtectionFlags,
+      }).save();
+      summaries[i] = datasetSummary;
+      setProperties(ancestorFile, {
+        effDatasetMembership: 'direct',
+        fileDatasetSummary: datasetSummary,
+        effProtectionFlags: effProtectionFlags,
+      });
+      this.get('entityRecords.fileDatasetSummary').push(...summaries);
+      await ancestorFile.save();
+      // for testing empty data write protected directories
+      const emptyDir = this.get('entityRecords.dir.1');
+      setProperties(emptyDir, {
+        effProtectionFlags: ['data_protection'],
+        effDatasetMembership: 'direct',
+      });
+      await emptyDir.save();
+    }
+  },
+
   createProviderRecords(store, names) {
     return allFulfilled(_.range(numberOfProviders).map((i) => {
       const [latitude, longitude] = getCoordinates(i, numberOfProviders);
@@ -550,6 +633,7 @@ export default Service.extend({
     const parentEntityId = get(parent, 'entityId');
     const provider = this.get('entityRecords.provider.firstObject');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
+    const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
     const distribution = this.get('entityRecords.fileDistribution.firstObject');
     return allFulfilled(_.range(numberOfDirs).map((i) => {
         const entityId = generateDirEntityId(i, parentEntityId);
@@ -566,6 +650,7 @@ export default Service.extend({
           parent,
           owner,
           fileQosSummary,
+          fileDatasetSummary: emptyDatasetSummary,
           provider,
         }).save();
       }))
@@ -581,7 +666,7 @@ export default Service.extend({
             );
             const id = generateFileGri(entityId);
             const name =
-              `Chain directory long long long long long name ${String(i).padStart(4, '0')}`;
+              `Chain directory long name ${String(i).padStart(4, '0')}`;
             return store.createRecord('file', {
               id,
               name,
@@ -591,6 +676,7 @@ export default Service.extend({
               posixPermissions: '777',
               owner,
               fileQosSummary,
+              emptyDatasetSummary,
               provider,
             }).save();
           })).then(chainDirs => {
@@ -610,6 +696,22 @@ export default Service.extend({
         const entityId = generateFileEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
+        let effProtectionFlags;
+        const effDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
+          i >= 2 && i <= 6 && 'ancestor' ||
+          'none';
+        const effQosMembership = i > 3 && i < 8 && 'direct' ||
+          i > 6 && i < 10 && 'ancestor' ||
+          'none';
+        if (i === 2) {
+          effProtectionFlags = ['data_protection'];
+        } else if (i === 3) {
+          effProtectionFlags = ['metadata_protection'];
+        } else if (i === 4) {
+          effProtectionFlags = ['data_protection', 'metadata_protection'];
+        } else {
+          effProtectionFlags = [];
+        }
         return store.createRecord('file', {
           id,
           name,
@@ -617,14 +719,16 @@ export default Service.extend({
           type: 'file',
           posixPermissions: i > 10 && i < 12 ? '333' : '777',
           hasMetadata: i < 5,
-          hasEffQos: i > 3 && i < 8,
-          hasDirectQos: i > 6 && i < 10,
+          effQosMembership,
+          effDatasetMembership,
+          effProtectionFlags,
           size: i * 1000000,
           mtime: timestamp + i * 3600,
           parent,
           owner,
           distribution,
           fileQosSummary,
+          fileDatasetSummary: emptyDatasetSummary,
           provider,
         }).save();
       })))

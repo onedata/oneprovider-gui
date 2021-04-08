@@ -33,6 +33,7 @@ export default {
     downloadTarGz: 'Download (tar.gz)',
     share: 'Share',
     metadata: 'Metadata',
+    datasets: 'Datasets',
     permissions: 'Permissions',
     qos: 'Quality of Service',
     distribution: 'Data distribution',
@@ -41,6 +42,13 @@ export default {
     cut: 'Cut',
     delete: 'Delete',
     paste: 'Paste',
+  },
+  disabledActionReason: {
+    protectionType: {
+      data: 'data',
+      metadata: 'metadata',
+    },
+    writeProtected: 'Not available for files with {{protectionType}} write protection.',
   },
   fbTable,
   fbTableRow,

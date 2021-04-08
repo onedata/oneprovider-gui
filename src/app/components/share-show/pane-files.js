@@ -79,7 +79,10 @@ export default Component.extend(I18n, {
 
   fileToShowMetadata: null,
 
-  selectedFiles: Object.freeze([]),
+  /**
+   * @type {Array<Models.File>}
+   */
+  selectedFiles: undefined,
 
   isInShareRoot: bool('dirProxy.content.isShareRoot'),
 
@@ -107,6 +110,13 @@ export default Component.extend(I18n, {
       shareRootId: this.get('share.entityId'),
     });
   }),
+
+  init() {
+    this._super(...arguments);
+    if (!this.get('selectedFiles')) {
+      this.set('selectedFiles', []);
+    }
+  },
 
   isChildOfShare(file) {
     return this.get('share.rootFile').then(shareRootFile => {

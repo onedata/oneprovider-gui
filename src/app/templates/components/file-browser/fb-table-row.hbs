@@ -38,16 +38,64 @@
                 {{tt this "status.shared"}}
               </div>
             {{/if}}
-            {{#if isForbidden}}
-              <div class="file-status-tag file-status-tag-danger file-status-forbidden">
-                {{tt this "status.forbidden"}}
-                {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
-              </div>
-            {{/if}}
             {{#if nameConflict}}
               <div class="file-status-tag file-status-tag-danger file-status-conflict">
                 {{tt this "status.conflict"}}
                 {{one-tooltip title=(tt this "otherFileSameName")}}
+              </div>
+            {{/if}}
+            {{#if isForbidden}}
+              <div class="file-status-tag file-status-tag-warning file-status-forbidden">
+                {{tt this "status.forbidden"}}
+                {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
+              </div>
+            {{/if}}
+            {{#if showDatasetTag}}
+              <div class="file-status-tag-group dataset-file-status-tag-group">
+                <div
+                  class={{concat-classes
+                    "file-status-tag"
+                    "file-status-dataset"
+                    (if datasetsViewForbidden "file-status-tag-disabled")
+                  }}
+                  {{action
+                    (if datasetsViewForbidden
+                      (no-action)
+                      (action "invokeFileAction" file "btnDatasets")
+                    )
+                    bubbles=false
+                  }}
+                >
+                  {{#if (eq effDatasetMembership "direct")}}
+                    {{tt this "status.dataset"}}
+                  {{else if (eq effDatasetMembership "ancestor")}}
+                    {{tt this "status.dataset"}}&nbsp;{{one-icon class="dataset-status-arrow dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
+                  {{/if}}
+                  {{#if datasetsViewForbidden}}
+                    {{one-tooltip title=hintDatasetsViewForbidden}}
+                  {{/if}}
+                </div>
+                {{#if hasAnyProtectionFlag}}
+                  <div
+                    class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
+                  >
+                    {{#if dataIsProtected}}
+                      {{one-icon
+                        icon="provider"
+                        class="file-protected-icon file-data-protected-icon"
+                      }}
+                    {{/if}}
+                    {{#if metadataIsProtected}}
+                      {{one-icon
+                        icon="browser-attribute"
+                        class="file-protected-icon file-metadata-protected-icon"
+                      }}
+                    {{/if}}
+                    {{#if protectionFlagsInfo}}
+                      {{one-tooltip title=protectionFlagsInfo}}
+                    {{/if}}
+                  </div>
+                {{/if}}
               </div>
             {{/if}}
             {{#if hasMetadata}}
@@ -72,7 +120,7 @@
                 {{/if}}
               </div>
             {{/if}}
-            {{#if (and (not previewMode) (or hasEffQos hasDirectQos))}}
+            {{#if showQosTag}}
               <div
                 class={{concat-classes
                   "file-status-tag"
@@ -80,7 +128,7 @@
                   (if hasDirectQos "file-status-qos-direct")
                   (if qosViewForbidden "file-status-tag-disabled")
                 }}
-                {{action 
+                {{action
                   (if qosViewForbidden
                     (no-action)
                     (action "invokeFileAction" file "btnQos")
@@ -88,10 +136,10 @@
                   bubbles=false
                 }}
               >
-                {{#if hasDirectQos}}
+                {{#if (eq effQosMembership "direct")}}
                   {{tt this "status.qos"}}
-                {{else}}
-                  {{tt this "status.qos"}}&nbsp;{{one-icon class="qos-status-arrow" icon="arrow-long-up"}}
+                {{else if (eq effQosMembership "ancestor")}}
+                  {{tt this "status.qos"}}&nbsp;{{one-icon class="qos-status-arrow qos-inherited-icon inherited-icon" icon=inheritedIcon}}
                 {{/if}}
                 {{#if qosViewForbidden}}
                   {{one-tooltip title=hintQosViewForbidden}}

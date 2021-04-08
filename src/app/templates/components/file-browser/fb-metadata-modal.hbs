@@ -9,8 +9,33 @@
   as |modal|
 }}
   {{#modal.header}}
-    <h1>{{tt this "header" type=typeTranslation}}</h1>
-    {{modal-file-subheader files=(array file)}}
+    <div class="header-with-tags">
+      <div class="header-text-container">
+        <h1>{{tt this "header" type=typeTranslation}}</h1>
+        {{modal-file-subheader files=(array file)}}
+      </div>
+      <div class="header-tags-container">
+        {{#if (and effectiveReadonly effectiveReadonlyTip)}}
+          <div class="labels-container">
+            <div class="label label-modal-header-large label-disabled readonly-tag">
+              {{one-icon
+                class="tag-icon readonly-tag-icon"
+                icon="lock"
+              }}
+              <span class="label-text">
+                {{tt this "editorDisabled"}}
+              </span>
+              {{#one-icon
+                icon="sign-question-rounded"
+                class="hint-trigger clickable"
+              }}
+                {{one-tooltip title=effectiveReadonlyTip}}
+              {{/one-icon}}
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    </div>
   {{/modal.header}}
   {{#modal.body class="full-height"}}
     {{#bs-tab
@@ -51,7 +76,7 @@
           {{#bsTab.pane elementId=type class="full-height"}}
             {{#render-later triggerRender=(eq bsTab.activeId type)}}
               {{#promise-proxy-container proxy=(get this (concat type "OriginalProxy"))}}
-                {{#if (and previewMode (eq (get this (concat type "TabState")) "blank"))}}
+                {{#if (and effectiveReadonly (eq (get this (concat type "TabState")) "blank"))}}
                   <em>
                     {{tt this "tabStateHint.blank" type=(tt this (concat "types." type))}}
                   </em>
@@ -63,7 +88,7 @@
                     metadata=(get this (concat type "Current"))
                     metadataChanged=(action "metadataChanged" type)
                     isValid=(get this (concat type "IsValid"))
-                    previewMode=previewMode
+                    readonly=effectiveReadonly
                   }}
                 {{/if}}
               {{/promise-proxy-container}}
@@ -73,7 +98,7 @@
       </div>
     {{/bs-tab}}
   {{/modal.body}}
-  
+
   {{#modal.footer}}
     {{#bs-button
       onClick=(action "onHide")
@@ -81,7 +106,7 @@
     }}
       {{closeBtnText}}
     {{/bs-button}}
-    {{#unless previewMode}}
+    {{#unless effectiveReadonly}}
       <div class="btn-tooltip-container">
         {{#one-spin-button
           action=(action "saveAll")
