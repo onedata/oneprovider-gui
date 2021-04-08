@@ -386,6 +386,16 @@ const fileHandlers = {
       };
     }
   },
+  hardlinks(operation, entityId) {
+    switch (operation) {
+      case 'get':
+        return {
+          hardlinks: this.getHardlinks(entityId),
+        };
+      default:
+        return messageNotSupported;
+    }
+  },
   symlink_target(operation, entityId) {
     switch (operation) {
       case 'get':
@@ -737,6 +747,16 @@ export default OnedataGraphMock.extend({
     const targetFile =
       this.get('mockBackend.entityRecords.file').findBy('entityId', targetFileEntityId);
     return targetFile ? recordToChildData(targetFile) : null;
+  },
+
+  getHardlinks(fileEntityId) {
+    const files = this.get('mockBackend.entityRecords.file');
+    const originalFile = files.findBy('entityId', fileEntityId);
+    const hardlinks = [originalFile];
+    if (get(originalFile, 'hardlinksCount') > 1) {
+      hardlinks.push(files.without(originalFile).findBy('hardlinksCount', 2));
+    }
+    return hardlinks.compact().mapBy('id');
   },
 
   getMockChildrenData(dirEntityId) {

@@ -7,7 +7,7 @@
     {{tt this "pathLabel"}}:
     {{#if path}}
       {{#truncated-string class="anchor-container" tagName="span"}}
-        <a href={{fileUrl}} target='_top' onclick={{action "linkClicked"}}>
+        <a href={{fileUrl}} target={{navigateLinkTarget}} onclick={{action "linkClicked"}}>
           {{path}}
         </a>
       {{/truncated-string}}

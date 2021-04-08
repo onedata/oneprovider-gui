@@ -208,7 +208,7 @@
       </tbody>
     </table>
   {{else if (eq activeTab "hardlinks")}}
-    {{#promise-proxy-container proxy=fileHardlinksProxy}}
+    {{#promise-proxy-container tagName="div" class="loadable-row" proxy=fileHardlinksProxy}}
       <ul class="file-hardlinks-list">
         {{#each fileHardlinks.hardlinks as |fileHardlink|}}
           {{file-browser/fb-info-modal/hardlink-entry
@@ -221,7 +221,7 @@
         {{else}}
           <li class="file-hardlink extra-hardlink-description">
             <em>{{tt this "tabs.hardlinks.noAccessToAll"
-              fileType=(tt this (concat "tabs.hardlinks." itemType))
+              fileType=(tt this (concat "fileType." itemType))
             }}</em>
             {{#if hardlinksFetchError}}
               {{one-label-tip title=hardlinksFetchError}}

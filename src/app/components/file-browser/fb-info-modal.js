@@ -20,8 +20,8 @@ import { resolve, all as allFulfilled, Promise } from 'rsvp';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
 import { next } from '@ember/runloop';
-
-const symlinkPrefixedTargetPathRegexp = /^<__onedata_space_id:([^>]+)>(.*)$/;
+import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
+import _ from 'lodash';
 
 export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
@@ -101,7 +101,9 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   itemType: reads('file.type'),
 
   typeTranslation: computed('itemType', function typeTranslation() {
-    return this.t(this.get('itemType'), {}, { defaultValue: this.t('file') });
+    return _.upperFirst(this.t(`fileType.${this.get('itemType')}`, {}, {
+      defaultValue: this.t('fileType.file'),
+    }));
   }),
 
   fileName: reads('file.name'),
@@ -126,19 +128,15 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
         return;
       }
 
-      const prefixMatchResult =
-        (targetPath || '').match(symlinkPrefixedTargetPathRegexp);
-      if (!prefixMatchResult) {
+      const pathParseResult = extractDataFromPrefixedSymlinkPath(targetPath || '');
+      if (!pathParseResult) {
         return targetPath;
       }
 
-      const pathSpaceId = prefixMatchResult[1];
-      const absolutePath = prefixMatchResult[2] || '';
-
-      if (pathSpaceId !== spaceEntityId || !spaceName) {
-        return `/<${this.t('unknownSpaceInSymlink')}>${absolutePath}`;
+      if (pathParseResult.spaceId !== spaceEntityId || !spaceName) {
+        return `/<${this.t('unknownSpaceInSymlink')}>${pathParseResult.path}`;
       }
-      return `/${spaceName}${absolutePath}`;
+      return `/${spaceName}${pathParseResult.path}`;
     }
   ),
 
@@ -271,6 +269,9 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     }
   },
 
+  /**
+   * @override
+   */
   fetchFileHardlinks() {
     const {
       previewMode,

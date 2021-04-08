@@ -3,7 +3,7 @@
  *
  * @module services/production/file-manager
  * @author Michał Borzęcki, Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -14,6 +14,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
+import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
 
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
@@ -108,7 +109,7 @@ export default Service.extend({
   createSymlink(name, parent, targetPath, spaceId, createAttempts = undefined) {
     // Removing `/spacename` prefix from targetPath. Example '/s1/a/b' -> 'a/b'
     const absolutePathWithoutSpace = targetPath.split('/').slice(2).join('/');
-    const pathPrefix = `<__onedata_space_id:${spaceId}>`;
+    const pathPrefix = generateAbsoluteSymlinkPathPrefix(spaceId);
     const options = {
       targetPath: `${pathPrefix}/${absolutePathWithoutSpace}`,
     };

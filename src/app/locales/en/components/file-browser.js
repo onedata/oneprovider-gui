@@ -25,8 +25,8 @@ export default {
     single: '{{reason}}',
     multi: '{{reason}} and {{moreCount}} more errors',
   },
-  featureNotForSymlinks: 'This feature is not available for symbolic links.',
-  cannotHardlinkDirectory: 'Hard links to directories are disallowed.',
+  featureNotForSymlinks: 'Not available for symbolic links.',
+  cannotHardlinkDirectory: 'Not available for directories.',
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',

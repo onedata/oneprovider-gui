@@ -569,7 +569,7 @@ export default Service.extend({
           index: name,
           type: 'dir',
           mtime: timestamp + i * 3600,
-          hardlinksCount: i % 5 === 0 ? 2 : 1,
+          hardlinksCount: 1,
           posixPermissions: '777',
           parent,
           owner,
@@ -636,6 +636,7 @@ export default Service.extend({
           distribution: isSymlink ? undefined : distribution,
           fileQosSummary: isSymlink ? undefined : fileQosSummary,
           provider,
+          targetPath: isSymlink ? '../some/file' : undefined,
         }).save();
       })))
       .then((records) => {

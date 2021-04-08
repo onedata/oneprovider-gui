@@ -55,9 +55,9 @@ describe('Integration | Component | file browser/fb info modal', function () {
   beforeEach(function () {
     registerService(this, 'restGenerator', RestGenerator);
     const fileHardlinksResult = this.set('fileHardlinksResult', {
-      hardlinksCount: 0,
+      hardlinksCount: 1,
       hardlinks: [],
-      errors: [],
+      errors: [{ id: 'forbidden' }],
     });
     sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
       .resolves(fileHardlinksResult);

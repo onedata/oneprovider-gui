@@ -47,13 +47,18 @@ export default Component.extend(I18n, {
   closeModal: notImplementedIgnore,
 
   /**
+   * @type {String}
+   */
+  navigateLinkTarget: '_top',
+
+  /**
    * @type {ComputedProperty<String>}
    */
   icon: computed('file.{type,effFile.type}', function icon() {
     const type = this.get('file.type');
     const linkedType = this.get('file.effFile.type');
 
-    if (linkedType === 'directory' || type === 'directory') {
+    if (linkedType === 'dir' || type === 'dir') {
       return 'browser-directory';
     } else {
       return 'browser-file';

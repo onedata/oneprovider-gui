@@ -1,8 +1,5 @@
 export default {
   header: '{{type}} details',
-  file: 'File',
-  dir: 'Directory',
-  symlink: 'Symbolic link',
   name: '{{type}} name',
   path: '{{type}} location',
   symlinkTargetPath: 'Symbolic link target path',
@@ -34,6 +31,11 @@ export default {
     getSharedFileRdfMetadata: 'Get RDF metadata',
     getSharedFileExtendedAttributes: 'Get extended attributes (xattrs)',
   },
+  fileType: {
+    file: 'file',
+    dir: 'directory',
+    symlink: 'symbolic link',
+  },
   tabs: {
     general: {
       tabTitle: 'General',
@@ -45,9 +47,6 @@ export default {
       hardlinksFetchSingleErrorTip: 'Cannot load files due to error: "{{fetchError}}".',
       hardlinksFetchMultiErrorTip: 'Cannot load files due to error: "{{fetchError}}" and {{moreCount}} more errors.',
       unknownFetchError: 'unknown error',
-      file: 'file',
-      dir: 'directory',
-      symlink: 'symbolic link',
     },
   },
   hardlinkEntry: {
