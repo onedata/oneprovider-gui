@@ -17,7 +17,10 @@ export default {
   restTipSpecificIntro: 'This endpoint returns {{typeDescription}}.',
   restTipSpecificType: {
     listSharedDirectoryChildren: 'the list of directory files and subdirectories',
-    downloadSharedFileContent: 'the binary file content',
+    downloadSharedFileContent: {
+      file: 'the binary file content',
+      dir: 'the binary directory content compressed as tar.gz',
+    },
     getSharedFileAttributes: 'basic attributes of a file or directory',
     getSharedFileJsonMetadata: 'custom JSON metadata associated with a file or directory',
     getSharedFileRdfMetadata: 'custom RDF metadata associated with a file or directory',
@@ -25,7 +28,10 @@ export default {
   },
   restUrlType: {
     listSharedDirectoryChildren: 'List directory files and subdirectories',
-    downloadSharedFileContent: 'Download file content',
+    downloadSharedFileContent: {
+      file: 'Download file content',
+      dir: 'Download directory (tar.gz)',
+    },
     getSharedFileAttributes: 'Get attributes',
     getSharedFileJsonMetadata: 'Get JSON metadata',
     getSharedFileRdfMetadata: 'Get RDF metadata',
