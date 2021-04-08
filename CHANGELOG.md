@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7467 Fixed spinners when preparing file download and error messages
 * VFS-7401 Added support for datasets and write protection in file browser
 * VFS-7368 Added support for compressed directory and multiple files download
 * VFS-7427 Changed copiable REST URLs into curl commands
