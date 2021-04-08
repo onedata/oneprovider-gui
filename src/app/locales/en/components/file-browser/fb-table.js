@@ -1,3 +1,5 @@
+import { dataWriteProtectionEnabled } from '../file-datasets/summary-header';
+
 export default {
   unknownError: 'Unknown error',
   startingDownload: 'starting file download',
@@ -17,8 +19,7 @@ export default {
     filesFromClipboard: 'files from clipboard',
     or: 'or',
     dataIsWriteProtected: 'Directory data is write protected',
-    // NOTE: any changes should be synchronized with locales/en/components/file-datasets/summary-header.js
-    dataIsWriteProtectedTip: 'Data write protection causes files and directories to be protected from modifying their content or being deleted. Modification attempts will be rejected with EPERM POSIX error.',
+    dataIsWriteProtectedTip: dataWriteProtectionEnabled,
   },
   errorDirBox: {
     errorOccurred: 'Loading directory contents failed',
