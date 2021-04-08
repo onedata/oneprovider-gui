@@ -2,7 +2,7 @@
   $qos-icon-size: 2.5em;
   $color-qos-status-fulfilled: $color-one-success;
   $color-qos-status-pending: $color-one-warning;
-  
+
   @mixin header-fog-style($color) {
     @include bar-fog-style(
       $gradient-direction: to right,
@@ -16,7 +16,7 @@
   @import './qos-modal/file-entry';
   @import './qos-modal/file-qos-summary';
   @import './qos-modal/qos-entry';
-  
+
   // TODO: experimental style proposed by Ewa on UX meeting - maybe should be used
   // in every modal
   .table-info {
@@ -26,18 +26,19 @@
       padding-left: 0;
     }
   }
-  
+
   .qos-modal-header {
     .qos-modal-header-text {
-      display: inline-block;
-      max-width: calc(100% - 2.4em);
+      display: inline-flex;
+      align-items: flex-end;
+      max-width: calc(100% - 3em);
     }
     .qos-modal-header-hint {
       display: inline-block;
       height: 1.4em;
     }
   }
-  
+
   .qos-status-fulfilled {
     color: $color-qos-status-fulfilled;
   }
@@ -60,22 +61,21 @@
   .qos-status-empty, .no-requirements {
     opacity: 0.4;
   }
-  
+
   .file-qos-status.qos-status-impossible .one-icon-tag {
     color: $color-one-danger;
   }
-  
+
   .label {
     line-height: initial;
   }
-   
+
   .modal-header {
     .qos-hint {
       position: absolute;
     }
     .qos-header-hint-trigger {
       font-size: 1em;
-      margin-left: 5px;
     }
     .header-icon {
       font-size: $qos-icon-size * 1.25;
@@ -89,7 +89,7 @@
   .qos-subheader-container {
     display: flex;
     justify-content: space-between;
-    
+
     @media (max-width: $screen-xs-max) {
       flex-direction: column;
       .qos-expression-copy-subheader {
@@ -97,7 +97,7 @@
       }
     }
   }
-  
+
   .qos-expression-info-subheader {
     display: flex;
     align-items: center;
@@ -105,10 +105,10 @@
       flex-grow: 1;
     }
     .qos-expression-copy-icon-container {
-      font-size: 2em; 
+      font-size: 2em;
     }
   }
-  
+
   .qos-subheader {
     margin-top: 0.8em;
     font-size: $font-size-small;
@@ -148,12 +148,12 @@
       margin-left: 0;
     }
   }
-    
+
   .qos-add {
     .btn-suggestions-trigger-container {
       position: absolute;
       margin-top: $padding-base-vertical;
-      
+
       @media (max-width: $screen-xs-max) {
         margin-top: 0;
         // empirical height of small button and small margin
@@ -173,7 +173,7 @@
     }
     .spinner-qos-expression-editor {
       left: 0;
-      transform: translateY(-50%) translateY(6px) translateX(12px);        
+      transform: translateY(-50%) translateY(6px) translateX(12px);
     }
     .query-builder {
       .enter-text-link {

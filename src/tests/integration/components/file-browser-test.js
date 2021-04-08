@@ -121,7 +121,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
     this.setProperties({
       dir: rootDir,
-      selectedFiles: Object.freeze([]),
+      selectedFiles: [],
     });
     this.on('updateDirEntityId', function updateDirEntityId(id) {
       this.set('dir', dirs.findBy('entityId', id));
@@ -228,7 +228,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
       this.setProperties({
         dir,
-        selectedFiles: Object.freeze([]),
+        selectedFiles: [],
       });
 
       const fileManager = lookupService(this, 'fileManager');
@@ -306,7 +306,7 @@ describe('Integration | Component | file browser (main component)', function () 
     this.setProperties({
       openCreateNewDirectory,
       dir,
-      selectedFiles: Object.freeze([]),
+      selectedFiles: [],
     });
 
     this.render(hbs `<div id="content-scroll">{{file-browser
@@ -395,7 +395,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
       this.setProperties({
         dir,
-        selectedFiles: Object.freeze([]),
+        selectedFiles: [],
       });
 
       const fileManager = lookupService(this, 'fileManager');
@@ -585,7 +585,7 @@ describe('Integration | Component | file browser (main component)', function () 
         parent: resolve(dir),
       };
 
-      this.setProperties({ dir, item1, selectedFiles: Object.freeze([]) });
+      this.setProperties({ dir, item1, selectedFiles: [] });
       stubSimpleFetch(this, dir, [item1]);
       const clock = sinon.useFakeTimers({
         now: Date.now(),
@@ -603,8 +603,48 @@ describe('Integration | Component | file browser (main component)', function () 
         this.set('item1.type', 'file');
       });
 
-      testDownloadFromContextMenu();
-      testDownloadUsingDoubleClick();
+      context('with space view privileges', function () {
+        beforeEach(function () {
+          this.set('spacePrivileges', { view: true });
+        });
+
+        it('has enabled datasets item in context menu', async function (done) {
+          renderWithOpenDatasets(this);
+          await wait();
+          const $menu = await openFileContextMenu('i1');
+          expect($menu.find('li:not(.disabled) .file-action-datasets')).to.exist;
+
+          done();
+        });
+
+        testOpenDatasetsModal('dataset tag is clicked', async function () {
+          const $datasetTag = getFileRow('i1').find('.file-status-dataset');
+          expect($datasetTag, 'dataset tag').to.have.length(1);
+          await click($datasetTag[0]);
+        });
+
+        testOpenDatasetsModal('dataset context menu item is clicked', async function () {
+          await chooseFileContextMenuAction('i1', 'datasets');
+        });
+
+        testDownloadFromContextMenu();
+        testDownloadUsingDoubleClick();
+      });
+
+      context('without space view privileges', function () {
+        beforeEach(function () {
+          this.set('spacePrivileges', { view: false });
+        });
+
+        it('has disabled datasets item in context menu', async function (done) {
+          renderWithOpenDatasets(this);
+          await wait();
+          const $menu = await openFileContextMenu('i1');
+          expect($menu.find('li.disabled .file-action-datasets')).to.exist;
+
+          done();
+        });
+      });
     });
 
     context('when the only item is a directory', function () {
@@ -612,10 +652,45 @@ describe('Integration | Component | file browser (main component)', function () 
         this.set('item1.type', 'dir');
       });
 
-      testDownloadFromContextMenu();
+      context('with space view privileges', function () {
+        beforeEach(function () {
+          this.set('spacePrivileges', { view: true });
+        });
+
+        testDownloadFromContextMenu();
+      });
     });
   });
 });
+
+function testOpenDatasetsModal(openDescription, openFunction) {
+  it(`invokes datasets modal opening when ${openDescription}`, async function (done) {
+    const openDatasets = sinon.spy();
+    this.set('openDatasets', openDatasets);
+    this.set('item1.effDatasetMembership', 'ancestor');
+
+    renderWithOpenDatasets(this);
+
+    expect(openDatasets).to.have.not.been.called;
+    await openFunction.call(this);
+    expect(openDatasets).to.have.been.calledOnce;
+
+    done();
+  });
+}
+
+function renderWithOpenDatasets(testCase) {
+  if (!testCase.get('spacePrivileges')) {
+    testCase.set('spacePrivileges', {});
+  }
+  testCase.render(hbs `<div id="content-scroll">{{file-browser
+    dir=dir
+    selectedFiles=selectedFiles
+    changeSelectedFiles=(action (mut selectedFiles))
+    openDatasets=openDatasets
+    spacePrivileges=spacePrivileges
+  }}</div>`);
+}
 
 function testDownloadFromContextMenu() {
   const description =
@@ -672,6 +747,7 @@ function renderWithDownloadSpy(testCase) {
     dir=dir
     selectedFiles=selectedFiles
     changeSelectedFiles=(action (mut selectedFiles))
+    spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
   }}</div>`);
 }
@@ -708,7 +784,7 @@ async function openFileContextMenu(fileId) {
   $row[0].dispatchEvent(new Event('contextmenu'));
   await wait();
   const $fileActions = $('.file-actions');
-  expect($fileActions).to.have.length(1);
+  expect($fileActions, 'file-actions').to.have.length(1);
   return $fileActions;
 }
 

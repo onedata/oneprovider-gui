@@ -17,11 +17,15 @@ import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
 
+export const qosSummaryAspect = 'qos_summary';
+export const datasetSummaryAspect = 'dataset_summary';
+
 export default Serializer.extend({
   fileRelations: computed(() => [
     { name: 'acl', aspect: 'acl' },
     { name: 'distribution', aspect: 'distribution' },
-    { name: 'fileQosSummary', aspect: 'file_qos_summary' },
+    { name: 'fileQosSummary', aspect: qosSummaryAspect },
+    { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
   ]),
 
   /**

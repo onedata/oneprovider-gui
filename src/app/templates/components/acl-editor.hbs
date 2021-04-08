@@ -5,40 +5,44 @@
         listItem=listItem
         ace=ace
         context=context
+        readonly=readonly
         onChange=(action "aceChanged" ace)
         onMoveUp=(action "moveUp" ace)
         onMoveDown=(action "moveDown" ace)
         onRemove=(action "remove" ace)
         isFirstAce=(eq ace acl.firstObject)
-        isLastAce=(eq ace acl.lastObject)}}
+        isLastAce=(eq ace acl.lastObject)
+      }}
     {{/list.item}}
   {{else}}
     {{#list.item class="no-ace" as |listItem|}}
       {{#listItem.header isCollapsible=false}}{{tt this "noAce"}}{{/listItem.header}}
-    {{/list.item}}  
+    {{/list.item}}
   {{/each}}
-  {{#list.item class="add-user-group-ace" as |listItem|}}
-    {{#listItem.header isCollapsible=false truncate=false}}
-      <span class="item-icon-container">
-        {{one-icon icon="group-invite" class="item-icon"}}
-      </span>
-      {{#power-select
-        triggerClass="add-user-group-ace-trigger"
-        dropdownClass="add-user-group-ace-dropdown"
-        options=subjectsList
-        onchange=(action "addEntitySelected")
-        placeholder=(tt this "addUserOrGroup")
-        searchField="name"
-        as |entity|}}
-        <div class="option-container" data-entity-id={{entity.entityId}}>
-          {{#truncated-string}}
-            {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
-            <span class="text {{if entity.isSystemSubject "system-subject-name"}}">
-              {{entity.name}}
-            </span>
-          {{/truncated-string}}
-        </div>
-      {{/power-select}}
-    {{/listItem.header}}
-  {{/list.item}}
+  {{#unless readonly}}
+    {{#list.item class="add-user-group-ace" as |listItem|}}
+      {{#listItem.header isCollapsible=false truncate=false}}
+        <span class="item-icon-container">
+          {{one-icon icon="group-invite" class="item-icon"}}
+        </span>
+        {{#power-select
+          triggerClass="add-user-group-ace-trigger"
+          dropdownClass="add-user-group-ace-dropdown"
+          options=subjectsList
+          onchange=(action "addEntitySelected")
+          placeholder=(tt this "addUserOrGroup")
+          searchField="name"
+          as |entity|}}
+          <div class="option-container" data-entity-id={{entity.entityId}}>
+            {{#truncated-string}}
+              {{one-icon icon=(or entity.constructor.modelName entity.equivalentType)}}
+              <span class="text {{if entity.isSystemSubject "system-subject-name"}}">
+                {{entity.name}}
+              </span>
+            {{/truncated-string}}
+          </div>
+        {{/power-select}}
+      {{/listItem.header}}
+    {{/list.item}}
+  {{/unless}}
 {{/one-collapsible-list}}

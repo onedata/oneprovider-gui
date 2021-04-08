@@ -1,7 +1,7 @@
 /**
  * A complete file browser with infinite-scrolled file list, directory
  * breadcrumbs and toolkit for selected files.
- * 
+ *
  * @module components/file-browser
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -67,6 +67,7 @@ const buttonNames = [
   'btnDownload',
   'btnDownloadTarGz',
   'btnShare',
+  'btnDatasets',
   'btnMetadata',
   'btnPermissions',
   'btnDistribution',
@@ -169,6 +170,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} files files to browse and edit their dataset settings
+   */
+  openDatasets: notImplementedThrow,
+
+  /**
+   * @virtual
    */
   updateDirEntityId: notImplementedIgnore,
 
@@ -245,13 +253,13 @@ export default Component.extend(I18n, {
    * Array of selected file records.
    * @type {EmberArray<Models.File>}
    */
-  selectedFiles: Object.freeze([]),
+  selectedFiles: undefined,
 
   /**
    * Injected property to notify about external selection change, that should enable jump.
    * @type {EmberArray<Models.File>}
    */
-  selectedFilesForJump: Object.freeze([]),
+  selectedFilesForJump: undefined,
 
   /**
    * If true, the paste from clipboard button should be available
@@ -393,30 +401,54 @@ export default Component.extend(I18n, {
 
   allButtonsHash: hash(...buttonNames),
 
-  btnUpload: computed(function btnUpload() {
-    return this.createFileAction({
-      id: 'upload',
-      class: 'browser-upload',
-      action: () => this.get('uploadManager').triggerUploadDialog(),
-      showIn: [
-        actionContext.inDir,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+  btnUpload: computed(
+    'dir.dataIsProtected',
+    function btnUpload() {
+      const actionId = 'upload';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        checkCurrentDir: true,
+        checkSelected: false,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        class: 'browser-upload',
+        action: () => this.get('uploadManager').triggerUploadDialog(),
+        disabled,
+        tip,
+        showIn: [
+          actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
-  btnNewDirectory: computed(function btnNewDirectory() {
-    return this.createFileAction({
-      id: 'newDirectory',
-      action: () => this.get('openCreateNewDirectory')(this.get('dir')),
-      showIn: [
-        actionContext.inDir,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+  btnNewDirectory: computed(
+    'dir.dataIsProtected',
+    function btnNewDirectory() {
+      const actionId = 'newDirectory';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        checkCurrentDir: true,
+        checkSelected: false,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: () => this.get('openCreateNewDirectory')(this.get('dir')),
+        tip,
+        disabled,
+        showIn: [
+          actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
   btnRefresh: computed(function btnRefresh() {
     return this.createFileAction({
@@ -467,6 +499,35 @@ export default Component.extend(I18n, {
       showIn: [
         actionContext.singleFile,
         actionContext.singleDir,
+        actionContext.currentDir,
+        actionContext.spaceRootDir,
+      ],
+    });
+  }),
+
+  btnDatasets: computed('spacePrivileges.view', function btnDatasets() {
+    const {
+      spacePrivileges,
+      openDatasets,
+      i18n,
+    } = this.getProperties('spacePrivileges', 'openDatasets', 'i18n');
+    const canView = get(spacePrivileges, 'view');
+    const disabled = !canView;
+    return this.createFileAction({
+      id: 'datasets',
+      icon: 'browser-dataset',
+      action: (files) => {
+        return openDatasets(files);
+      },
+      disabled,
+      tip: disabled ? insufficientPrivilegesMessage({
+        i18n,
+        modelName: 'space',
+        privilegeFlag: 'space_view',
+      }) : undefined,
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleFile,
         actionContext.currentDir,
         actionContext.spaceRootDir,
       ],
@@ -545,9 +606,14 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnRename: computed(function btnRename() {
+  btnRename: computed('selectedFiles.@each.dataIsProtected', function btnRename() {
+    const actionId = 'rename';
+    const tip = this.generateDisabledTip({
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'rename',
+      id: actionId,
       action: (files) => {
         const {
           openRename,
@@ -555,6 +621,8 @@ export default Component.extend(I18n, {
         } = this.getProperties('openRename', 'dir');
         return openRename(files[0], dir);
       },
+      disabled,
+      tip,
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,
@@ -589,34 +657,58 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnCut: computed(function btnCut() {
+  btnCut: computed('selectedFiles.@each.dataIsProtected', function btnCut() {
+    const actionId = 'cut';
+    const tip = this.generateDisabledTip({
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'cut',
+      id: actionId,
       action: (files) => {
         this.setProperties({
           fileClipboardFiles: files,
           fileClipboardMode: 'move',
         });
       },
+      disabled,
+      tip,
       showIn: anySelected,
     });
   }),
 
-  btnPaste: computed(function btnPaste() {
-    return this.createFileAction({
-      id: 'paste',
-      action: () => this.pasteFiles(),
-      showIn: [
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-        actionContext.inDir,
-      ],
-    });
-  }),
+  btnPaste: computed(
+    'dir.dataIsProtected',
+    function btnPaste() {
+      const actionId = 'paste';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        checkCurrentDir: true,
+        checkSelected: false,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: () => this.pasteFiles(),
+        disabled,
+        tip,
+        showIn: [
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+          actionContext.inDir,
+        ],
+      });
+    }
+  ),
 
-  btnDelete: computed(function btnDelete() {
+  btnDelete: computed('selectedFiles.@each.dataIsProtected', function btnDelete() {
+    const actionId = 'delete';
+    const tip = this.generateDisabledTip({
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'delete',
+      id: actionId,
       action: (files) => {
         const {
           openRemove,
@@ -624,9 +716,28 @@ export default Component.extend(I18n, {
         } = this.getProperties('openRemove', 'dir');
         return openRemove(files, dir);
       },
+      disabled,
+      tip,
       showIn: anySelected,
     });
   }),
+
+  generateDisabledTip({
+    protectionType,
+    checkCurrentDir = false,
+    checkSelected = true,
+  }) {
+    const {
+      selectedFiles,
+      dir,
+    } = this.getProperties('dir', 'selectedFiles');
+    const protectionProperty = `${protectionType}IsProtected`;
+    const isProtected = checkCurrentDir && get(dir, protectionProperty) ||
+      checkSelected && selectedFiles.isAny(protectionProperty);
+    return isProtected ? this.t('disabledActionReason.writeProtected', {
+      protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
+    }) : undefined;
+  },
 
   btnDistribution: computed(function btnDistribution() {
     return this.createFileAction({
@@ -703,6 +814,12 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    if (!this.get('selectedFiles')) {
+      this.set('selectedFiles', []);
+    }
+    if (!this.get('selectedFilesForJump')) {
+      this.set('selectedFilesForJump', []);
+    }
     this.set('loadingIconFileIds', A());
   },
 
@@ -855,14 +972,12 @@ export default Component.extend(I18n, {
     });
   },
 
-  selectCurrentDir(select = true) {
-    if (select) {
-      const {
-        changeSelectedFiles,
-        dir,
-      } = this.getProperties('changeSelectedFiles', 'dir');
-      return changeSelectedFiles([dir]);
-    }
+  selectCurrentDir() {
+    const {
+      changeSelectedFiles,
+      dir,
+    } = this.getProperties('changeSelectedFiles', 'dir');
+    return changeSelectedFiles([dir]);
   },
 
   downloadFiles(files) {
@@ -928,8 +1043,8 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    selectCurrentDir(select) {
-      this.selectCurrentDir(select);
+    selectCurrentDir() {
+      this.selectCurrentDir();
     },
     changeDir(dir) {
       const {
@@ -948,6 +1063,9 @@ export default Component.extend(I18n, {
     toggleCurrentDirActions(open) {
       const _open =
         (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
+      if (_open) {
+        this.selectCurrentDir();
+      }
       this.set('currentDirActionsOpen', _open);
     },
     changeSelectedFiles(selectedFiles) {
