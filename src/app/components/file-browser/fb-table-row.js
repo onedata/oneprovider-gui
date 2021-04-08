@@ -1,6 +1,6 @@
 /**
  * Single file/directory row in files list.
- * 
+ *
  * @module components/file-browser/fb-table-row
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -146,6 +146,13 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {Boolean}
    */
   datasetsViewForbidden: false,
+
+  /**
+   * If true, a spinner will be displayed instead of item icon
+   * @virtual
+   * @type {Boolean}
+   */
+  isLoadingOnIcon: false,
 
   /**
    * Name of icon to indicate that some property in tag is inhertied from ancestor
@@ -488,6 +495,11 @@ export default Component.extend(I18n, FastDoubleClick, {
       }
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.loadingOnIconTransitionObserver();
+  },
 
   didInsertElement() {
     this._super(...arguments);
