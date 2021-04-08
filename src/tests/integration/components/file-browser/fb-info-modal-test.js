@@ -44,7 +44,7 @@ const urlTypeDescriptionTranslations = {
   listSharedDirectoryChildren: 'returns the list of directory',
   downloadSharedFileContent: {
     file: 'returns the binary file',
-    dir: 'returns the binary directory content compressed as tar.gz',
+    dir: 'returns a compressed (GZIP) TAR archive with directory contents',
   },
   getSharedFileAttributes: 'returns basic attributes',
   getSharedFileJsonMetadata: 'returns custom JSON',

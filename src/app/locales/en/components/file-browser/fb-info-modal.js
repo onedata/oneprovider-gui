@@ -19,7 +19,7 @@ export default {
     listSharedDirectoryChildren: 'the list of directory files and subdirectories',
     downloadSharedFileContent: {
       file: 'the binary file content',
-      dir: 'the binary directory content compressed as tar.gz',
+      dir: 'a compressed (GZIP) TAR archive with directory contents',
     },
     getSharedFileAttributes: 'basic attributes of a file or directory',
     getSharedFileJsonMetadata: 'custom JSON metadata associated with a file or directory',
