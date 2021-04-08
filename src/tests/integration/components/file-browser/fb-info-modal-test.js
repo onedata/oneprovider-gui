@@ -270,6 +270,9 @@ function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
     expect($popover).to.exist;
     expect($popover).to.have.class('in');
     expect($popover.text()).to.contain(urlTypeDescriptionTranslations[type]);
+    const $apiDocLink = $popover.find('.documentation-link');
+    expect($apiDocLink).to.have.length(1);
+    expect($apiDocLink.attr('href')).to.match(/.*?\/latest\/.*?operation\/get_shared_data/);
     done();
   });
 }
