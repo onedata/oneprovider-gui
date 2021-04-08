@@ -19,7 +19,7 @@ export default {
   differentAclReadonly: 'Selected files have different ACL rules. Select an individual file or files with the same rules.',
   noAclDueToMixedFileTypes: 'Cannot view ACL of files and directories at the same time. Select only files or only directories to enable ACL editor.',
   noAclDueToMixedFileTypesReadonly: 'Cannot view ACL of files and directories at the same time. Select only files or only directories.',
-  readonlyDueToMetadataIsProtected: 'Cannot change permissions of files whose metadata is write protected.',
+  readonlyDueToMetadataIsProtected: 'At least one selected element metadata is write protected.',
   ownerSystemSubject: 'owner',
   groupSystemSubject: 'owning group',
   everyoneSystemSubject: 'everyone',

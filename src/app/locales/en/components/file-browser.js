@@ -44,19 +44,11 @@ export default {
     paste: 'Paste',
   },
   disabledActionReason: {
-    action: {
-      rename: 'rename elements',
-      cut: 'cut elements',
-      delete: 'delete elements',
-      upload: 'upload into a directory',
-      paste: 'paste into a directory',
-      newDirectory: 'create a subdirectory inside a directory',
-    },
     protectionType: {
       data: 'data',
       metadata: 'metadata',
     },
-    writeProtected: 'Cannot {{actionName}} whose {{protectionType}} is write protected.',
+    writeProtected: 'Not available for files with {{protectionType}} write protection.',
   },
   fbTable,
   fbTableRow,

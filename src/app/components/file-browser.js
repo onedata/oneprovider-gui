@@ -406,7 +406,6 @@ export default Component.extend(I18n, {
     function btnUpload() {
       const actionId = 'upload';
       const tip = this.generateDisabledTip({
-        actionId,
         protectionType: 'data',
         checkCurrentDir: true,
         checkSelected: false,
@@ -432,7 +431,6 @@ export default Component.extend(I18n, {
     function btnNewDirectory() {
       const actionId = 'newDirectory';
       const tip = this.generateDisabledTip({
-        actionId,
         protectionType: 'data',
         checkCurrentDir: true,
         checkSelected: false,
@@ -611,7 +609,6 @@ export default Component.extend(I18n, {
   btnRename: computed('selectedFiles.@each.dataIsProtected', function btnRename() {
     const actionId = 'rename';
     const tip = this.generateDisabledTip({
-      actionId,
       protectionType: 'data',
     });
     const disabled = Boolean(tip);
@@ -663,7 +660,6 @@ export default Component.extend(I18n, {
   btnCut: computed('selectedFiles.@each.dataIsProtected', function btnCut() {
     const actionId = 'cut';
     const tip = this.generateDisabledTip({
-      actionId,
       protectionType: 'data',
     });
     const disabled = Boolean(tip);
@@ -686,7 +682,6 @@ export default Component.extend(I18n, {
     function btnPaste() {
       const actionId = 'paste';
       const tip = this.generateDisabledTip({
-        actionId,
         protectionType: 'data',
         checkCurrentDir: true,
         checkSelected: false,
@@ -709,7 +704,6 @@ export default Component.extend(I18n, {
   btnDelete: computed('selectedFiles.@each.dataIsProtected', function btnDelete() {
     const actionId = 'delete';
     const tip = this.generateDisabledTip({
-      actionId,
       protectionType: 'data',
     });
     const disabled = Boolean(tip);
@@ -729,7 +723,6 @@ export default Component.extend(I18n, {
   }),
 
   generateDisabledTip({
-    actionId,
     protectionType,
     checkCurrentDir = false,
     checkSelected = true,
@@ -742,7 +735,6 @@ export default Component.extend(I18n, {
     const isProtected = checkCurrentDir && get(dir, protectionProperty) ||
       checkSelected && selectedFiles.isAny(protectionProperty);
     return isProtected ? this.t('disabledActionReason.writeProtected', {
-      actionName: this.t(`disabledActionReason.action.${actionId}`),
       protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
     }) : undefined;
   },
