@@ -560,34 +560,44 @@ export default Component.extend(I18n, {
     }
   ),
 
-  btnDatasets: computed('spacePrivileges.view', function btnDatasets() {
-    const {
-      spacePrivileges,
-      openDatasets,
-      i18n,
-    } = this.getProperties('spacePrivileges', 'openDatasets', 'i18n');
-    const canView = get(spacePrivileges, 'view');
-    const disabled = !canView;
-    return this.createFileAction({
-      id: 'datasets',
-      icon: 'browser-dataset',
-      action: (files) => {
-        return openDatasets(files);
-      },
-      disabled,
-      tip: disabled ? insufficientPrivilegesMessage({
+  btnDatasets: computed(
+    'spacePrivileges.view',
+    'selectedFilesContainsOnlySymlinks',
+    function btnDatasets() {
+      const {
+        spacePrivileges,
+        openDatasets,
         i18n,
-        modelName: 'space',
-        privilegeFlag: 'space_view',
-      }) : undefined,
-      showIn: [
-        actionContext.singleDir,
-        actionContext.singleFile,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+      } = this.getProperties('spacePrivileges', 'openDatasets', 'i18n');
+      let disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
+      const canView = get(spacePrivileges, 'view');
+      if (!canView && !disabledTip) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_view',
+        });
+      }
+      const disabled = Boolean(disabledTip);
+      return this.createFileAction({
+        id: 'datasets',
+        icon: 'browser-dataset',
+        action: (files) => {
+          return openDatasets(files);
+        },
+        disabled,
+        tip: disabledTip,
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleFile,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
   btnMetadata: computed('selectedFilesContainsOnlySymlinks', function btnMetadata() {
     const disabledTip = this.generateDisabledTip({
@@ -1082,7 +1092,7 @@ export default Component.extend(I18n, {
     checkProtectionForCurrentDir = false,
     checkProtectionForSelected = true,
     blockFileTypes = [],
-    blockWhenSymlinksOnly = true,
+    blockWhenSymlinksOnly = false,
   }) {
     const {
       selectedFiles,

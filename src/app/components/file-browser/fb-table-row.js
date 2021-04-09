@@ -434,6 +434,7 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   showDatasetTag: and(
     not('previewMode'),
+    not('isSymlink'),
     array.includes(raw(['ancestor', 'direct']), 'effDatasetMembership')
   ),
 

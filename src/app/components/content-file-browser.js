@@ -188,7 +188,7 @@ export default OneEmbeddedComponent.extend(
             return spaceProxy.then(space => {
               if (injectedDirGri) {
                 return store.findRecord('file', injectedDirGri)
-                  .then(file => get(file, 'type') === 'file' ? get(file, 'parent') : file)
+                  .then(file => get(file, 'type') !== 'dir' ? get(file, 'parent') : file)
                   .catch(error => {
                     globalNotify.backendError(this.t('openingDirectory'), error);
                     return get(space, 'rootDir');
