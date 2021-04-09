@@ -25,8 +25,6 @@ export default {
     single: '{{reason}}',
     multi: '{{reason}} and {{moreCount}} more errors',
   },
-  featureNotForSymlinks: 'Not available for symbolic links.',
-  cannotHardlinkDirectory: 'Not available for directories.',
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',
@@ -58,6 +56,13 @@ export default {
       metadata: 'metadata',
     },
     writeProtected: 'Not available for files with {{protectionType}} write protection.',
+    blockedFileType: 'Not available for {{fileType}}.',
+    fileTypesPlural: {
+      file: 'files',
+      dir: 'directories',
+      symlink: 'symbolic links',
+    },
+    and: 'and',
   },
   fbTable,
   fbTableRow,
