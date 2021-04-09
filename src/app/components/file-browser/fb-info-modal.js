@@ -10,17 +10,23 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, promise, raw, array, tag } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
-import { computed, get } from '@ember/object';
+import { conditional, equal, promise, raw, array, tag, or, gt } from 'ember-awesome-macros';
+import { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
-import { resolve } from 'rsvp';
+import { resolve, all as allFulfilled, Promise } from 'rsvp';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { next } from '@ember/runloop';
+import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
+import _ from 'lodash';
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
   restGenerator: service(),
+  fileManager: service(),
+  errorExtractor: service(),
 
   open: false,
 
@@ -43,6 +49,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  getDataUrl: notImplementedThrow,
+
+  /**
+   * @virtual
    * Callback when the modal is starting to hide
    * @type {Function}
    */
@@ -50,9 +62,22 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {string}
+   * @type {Models.Space}
    */
-  spaceEntityId: undefined,
+  space: undefined,
+
+  /**
+   * Possible values the same as for `activeTab` property
+   * @virtual optional
+   * @type {String}
+   */
+  initialTab: undefined,
+
+  /**
+   * One of: general, hardlinks
+   * @type {String}
+   */
+  activeTab: 'general',
 
   /**
    * If true, whole content will take up smaller amount of space
@@ -72,21 +97,88 @@ export default Component.extend(I18n, {
    */
   selectedRestUrlType: null,
 
+  /**
+   * @type {Number}
+   */
+  hardlinksLimit: 100,
+
   itemType: reads('file.type'),
 
-  typeTranslation: conditional(
-    equal('itemType', raw('file')),
-    computedT('file'),
-    computedT('dir'),
-  ),
+  typeTranslation: computed('itemType', function typeTranslation() {
+    return _.upperFirst(this.t(`fileType.${this.get('itemType')}`, {}, {
+      defaultValue: this.t('fileType.file'),
+    }));
+  }),
 
   fileName: reads('file.name'),
+
+  symlinkTargetPath: computed(
+    'file.{type,targetPath}',
+    'space.{entityId,name}',
+    function symlinkTargetPath() {
+      const {
+        file,
+        space,
+      } = this.getProperties('file', 'space');
+      const {
+        name: spaceName,
+        entityId: spaceEntityId,
+      } = getProperties(space || {}, 'name', 'entityId');
+      const {
+        type: fileType,
+        targetPath,
+      } = getProperties(file || {}, 'type', 'targetPath');
+      if (fileType !== 'symlink') {
+        return;
+      }
+
+      const pathParseResult = extractDataFromPrefixedSymlinkPath(targetPath || '');
+      if (!pathParseResult) {
+        return targetPath;
+      }
+
+      if (pathParseResult.spaceId !== spaceEntityId || !spaceName) {
+        return `/<${this.t('unknownSpaceInSymlink')}>${pathParseResult.path}`;
+      }
+      return `/${spaceName}${pathParseResult.path}`;
+    }
+  ),
 
   cdmiObjectId: reads('file.cdmiObjectId'),
 
   modificationTime: reads('file.modificationTime'),
 
   fileSize: reads('file.size'),
+
+  hardlinksCount: or('file.hardlinksCount', raw(1)),
+
+  hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
+
+  hardlinksFetchError: computed(
+    'fileHardlinks.errors',
+    function hardlinksFetchError() {
+      const errors = this.get('fileHardlinks.errors') || [];
+      if (!errors.length) {
+        return;
+      }
+
+      const errorExtractor = this.get('errorExtractor');
+      const uniqueErrors = errors.filterBy('id').uniqBy('id');
+      const mainErrorDescription = uniqueErrors.length > 0 ?
+        errorExtractor.getMessage(uniqueErrors[0]).message :
+        this.t('tabs.hardlinks.unknownFetchError');
+      if (uniqueErrors.length <= 1) {
+        return this.t('tabs.hardlinks.hardlinksFetchSingleErrorTip', {
+          fetchError: mainErrorDescription,
+        });
+      } else {
+        return this.t('tabs.hardlinks.hardlinksFetchMultiErrorTip', {
+          fetchError: mainErrorDescription,
+          moreCount: uniqueErrors.length - 1,
+        });
+      }
+    }
+  ),
 
   ownerFullNameProxy: promise.object(
     computed('file.owner', function ownerFullNamePromise() {
@@ -176,7 +268,65 @@ export default Component.extend(I18n, {
     'availableRestUrlTypes.firstObject',
   ),
 
+  init() {
+    this._super(...arguments);
+    const initialTab = this.get('initialTab');
+    if (['general', 'hardlinks'].includes(initialTab)) {
+      this.set('activeTab', initialTab);
+    }
+  },
+
+  /**
+   * @override
+   */
+  fetchFileHardlinks() {
+    const {
+      previewMode,
+      fileManager,
+      getDataUrl,
+      hardlinksLimit,
+    } = this.getProperties(
+      'previewMode',
+      'fileManager',
+      'getDataUrl',
+      'hardlinksLimit'
+    );
+
+    if (previewMode) {
+      return resolve([]);
+    }
+    return new Promise(resolvePromise => {
+      // Moving it to next runloop frame as it may trigger double-render error
+      // of tabs.
+      next(() => resolvePromise(
+        fileManager.getFileHardlinks(this.get('file.entityId'), hardlinksLimit)
+        .then((({ hardlinksCount, hardlinks, errors }) =>
+          allFulfilled(hardlinks.map(hardlinkFile =>
+            resolveFilePath(hardlinkFile)
+            .then(path => stringifyFilePath(path))
+            .catch(() => null)
+            .then(path => ({
+              file: hardlinkFile,
+              fileUrl: getDataUrl({
+                fileId: null,
+                selected: [get(hardlinkFile, 'entityId')],
+              }),
+              path,
+            }))
+          )).then(newHardlinks => ({
+            hardlinksCount,
+            hardlinks: newHardlinks,
+            errors,
+          }))
+        ))
+      ));
+    });
+  },
+
   actions: {
+    changeTab(tab) {
+      this.set('activeTab', tab);
+    },
     close() {
       return this.get('onHide')();
     },

@@ -102,6 +102,13 @@ export default Service.extend({
    */
   entityRecords: computed(() => ({})),
 
+  /**
+   * WARNING: Will be initialized only after generating development model.
+   * Contains mapping:
+   * symlink entityId -> linked file entityId
+   */
+  symlinkMap: computed(() => ({})),
+
   generateDevelopmentModel() {
     const store = this.get('store');
     const promiseHash = {};
@@ -646,6 +653,7 @@ export default Service.extend({
           index: name,
           type: 'dir',
           mtime: timestamp + i * 3600,
+          hardlinksCount: 1,
           posixPermissions: '777',
           parent,
           owner,
@@ -693,6 +701,7 @@ export default Service.extend({
         }
       })
       .then(() => allFulfilled(_.range(numberOfFiles).map((i) => {
+        const isSymlink = i % 10 === 9;
         const entityId = generateFileEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
@@ -716,24 +725,33 @@ export default Service.extend({
           id,
           name,
           index: name,
-          type: 'file',
-          posixPermissions: i > 10 && i < 12 ? '333' : '777',
+          type: isSymlink ? 'symlink' : 'file',
+          posixPermissions: (i > 10 && i < 12 && !isSymlink) ? '333' : '777',
           hasMetadata: i < 5,
           effQosMembership,
           effDatasetMembership,
           effProtectionFlags,
-          size: i * 1000000,
+          size: isSymlink ? 20 : i * 1000000,
           mtime: timestamp + i * 3600,
+          hardlinksCount: i % 5 === 0 ? 2 : 1,
           parent,
           owner,
-          distribution,
-          fileQosSummary,
-          fileDatasetSummary: emptyDatasetSummary,
+          distribution: isSymlink ? undefined : distribution,
+          fileQosSummary: isSymlink ? undefined : fileQosSummary,
+          fileDatasetSummary: isSymlink ? undefined : emptyDatasetSummary,
           provider,
+          targetPath: isSymlink ? '../some/file' : undefined,
         }).save();
       })))
       .then((records) => {
         this.set('entityRecords.file', records);
+        const symlinks = records.filterBy('type', 'symlink');
+        const symlinkMap = symlinks.reduce((map, symlink) => {
+          const symlinkTarget = records[records.indexOf(symlink) - 1];
+          map[get(symlink, 'entityId')] = get(symlinkTarget, 'entityId');
+          return map;
+        }, {});
+        this.set('symlinkMap', symlinkMap);
         return this.makeFilesConflict().then(() => records);
       });
   },

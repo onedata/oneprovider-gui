@@ -131,7 +131,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   icon: conditional(
-    eq('share.fileType', raw('file')),
+    eq('share.rootFileType', raw('file')),
     raw('browser-file'),
     raw('browser-directory')
   ),
@@ -142,7 +142,7 @@ export default Component.extend(I18n, {
   iconTip: conditional(
     'pointsToDeletedFile',
     conditional(
-      eq('share.fileType', raw('file')),
+      eq('share.rootFileType', raw('file')),
       computedT('deletedFileIconTip'),
       computedT('deletedDirectoryIconTip'),
     ),

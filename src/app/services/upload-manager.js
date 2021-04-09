@@ -21,34 +21,7 @@ import { later } from '@ember/runloop';
 import { v4 as uuid } from 'ember-uuid';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
-
-/**
- * Creates a function that ivokes provided `func` only if time from last invocation
- * (`limit`) elapsed.
- * In contrast to Ember throttle, this makes last invocation of function after limit
- * time if there is no invocations.
- * @param {Function} func
- * @param {Number} limit in milliseconds
- * @returns {Function}
- */
-const createThrottledFunction = (func, limit) => {
-  let lastFunc;
-  let lastRan;
-  return function throttledFunction() {
-    if (!lastRan) {
-      func();
-      lastRan = Date.now();
-    } else {
-      clearTimeout(lastFunc);
-      lastFunc = later(function () {
-        if ((Date.now() - lastRan) >= limit) {
-          func();
-          lastRan = Date.now();
-        }
-      }, limit - (Date.now() - lastRan));
-    }
-  };
-};
+import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 export default Service.extend(I18n, {
   appProxy: service(),

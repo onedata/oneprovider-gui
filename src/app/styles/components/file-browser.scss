@@ -108,3 +108,10 @@
 .webui-popover-in-fb-head {
   z-index: $zindex-tooltip - 1;
 }
+
+.webui-popover-clipboard-help {
+  .one-icon {
+    font-size: 170%;
+    vertical-align: bottom;
+  }
+}

@@ -23,8 +23,11 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import { next, later } from '@ember/runloop';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import $ from 'jquery';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
+import { resolve } from 'rsvp';
 
 export const actionContext = {
   none: 'none',
@@ -73,6 +76,10 @@ const buttonNames = [
   'btnDistribution',
   'btnQos',
   'btnRename',
+  'btnCreateSymlink',
+  'btnCreateHardlink',
+  'btnPlaceSymlink',
+  'btnPlaceHardlink',
   'btnCopy',
   'btnCut',
   'btnPaste',
@@ -214,6 +221,13 @@ export default Component.extend(I18n, {
   isSpaceOwned: undefined,
 
   /**
+   * Needed to create symlinks. In read-only views it is optional
+   * @virtual optional
+   * @type {String}
+   */
+  spaceId: undefined,
+
+  /**
    * @virtual
    */
   spacePrivileges: Object.freeze({}),
@@ -235,7 +249,7 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * One of: move, copy
+   * One of: move, copy, link
    * @type {string}
    */
   fileClipboardMode: null,
@@ -262,10 +276,31 @@ export default Component.extend(I18n, {
   selectedFilesForJump: undefined,
 
   /**
-   * If true, the paste from clipboard button should be available
-   * @type {Computed<boolean>}
+   * @type {ComputedProperty<boolean>}
    */
-  clipboardReady: notEmpty('fileClipboardFiles'),
+  selectedFilesContainsOnlySymlinks: computed(
+    'selectedFiles.[]',
+    function selectedFilesContainsOnlySymlinks() {
+      const selectedFiles = this.get('selectedFiles');
+      return get(selectedFiles, 'length') && selectedFiles.isEvery('type', 'symlink');
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  selectedFilesContainsOnlyBrokenSymlinks: computed(
+    'selectedFilesContainsOnlySymlinks',
+    'selectedFiles.[]',
+    function selectedFilesContainsOnlyBrokenSymlinks() {
+      const {
+        selectedFiles,
+        selectedFilesContainsOnlySymlinks,
+      } = this.getProperties('selectedFiles', 'selectedFilesContainsOnlySymlinks');
+      return selectedFilesContainsOnlySymlinks &&
+        selectedFiles.filterBy('effFile').length === 0;
+    }
+  ),
 
   isRootDir: not('dir.hasParent'),
 
@@ -319,7 +354,7 @@ export default Component.extend(I18n, {
   currentDirMenuButtons: computed(
     'allButtonsArray',
     'isRootDir',
-    'clipboardReady',
+    'fileClipboardMode',
     'previewMode',
     function menuButtons() {
       if (this.get('dir.isShareRoot')) {
@@ -328,12 +363,12 @@ export default Component.extend(I18n, {
         const {
           allButtonsArray,
           isRootDir,
-          clipboardReady,
+          fileClipboardMode,
           previewMode,
         } = this.getProperties(
           'allButtonsArray',
           'isRootDir',
-          'clipboardReady',
+          'fileClipboardMode',
           'previewMode',
         );
         const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
@@ -342,7 +377,13 @@ export default Component.extend(I18n, {
           allButtonsArray,
           context
         );
-        if (!clipboardReady) {
+        if (fileClipboardMode !== 'symlink') {
+          importedActions = importedActions.rejectBy('id', 'placeSymlink');
+        }
+        if (fileClipboardMode !== 'hardlink') {
+          importedActions = importedActions.rejectBy('id', 'placeHardlink');
+        }
+        if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
           importedActions = importedActions.rejectBy('id', 'paste');
         }
         if (get(importedActions, 'length')) {
@@ -407,8 +448,8 @@ export default Component.extend(I18n, {
       const actionId = 'upload';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
-        checkCurrentDir: true,
-        checkSelected: false,
+        checkProtectionForCurrentDir: true,
+        checkProtectionForSelected: false,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -432,8 +473,8 @@ export default Component.extend(I18n, {
       const actionId = 'newDirectory';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
-        checkCurrentDir: true,
-        checkSelected: false,
+        checkProtectionForCurrentDir: true,
+        checkProtectionForSelected: false,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -477,66 +518,95 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnShare: computed('spacePrivileges.view', 'openShare', function btnShare() {
-    const {
-      spacePrivileges,
-      openShare,
-      i18n,
-    } = this.getProperties('spacePrivileges', 'openShare', 'i18n');
-    const canView = get(spacePrivileges, 'view');
-    const disabled = !canView;
-    return this.createFileAction({
-      id: 'share',
-      action: (files) => {
-        return openShare(files[0]);
-      },
-      disabled,
-      tip: disabled ? insufficientPrivilegesMessage({
+  btnShare: computed(
+    'spacePrivileges.view',
+    'openShare',
+    'selectedFilesContainsOnlySymlinks',
+    function btnShare() {
+      const {
+        spacePrivileges,
+        openShare,
         i18n,
-        modelName: 'space',
-        privilegeFlag: 'space_view',
-      }) : undefined,
-      showIn: [
-        actionContext.singleFile,
-        actionContext.singleDir,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+      } = this.getProperties(
+        'spacePrivileges',
+        'openShare',
+        'i18n',
+      );
+      let disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
+      const canView = get(spacePrivileges, 'view');
+      if (!canView && !disabledTip) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_view',
+        });
+      }
+      return this.createFileAction({
+        id: 'share',
+        action: (files) => {
+          return openShare(files[0]);
+        },
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
+        showIn: [
+          actionContext.singleFile,
+          actionContext.singleDir,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
-  btnDatasets: computed('spacePrivileges.view', function btnDatasets() {
-    const {
-      spacePrivileges,
-      openDatasets,
-      i18n,
-    } = this.getProperties('spacePrivileges', 'openDatasets', 'i18n');
-    const canView = get(spacePrivileges, 'view');
-    const disabled = !canView;
-    return this.createFileAction({
-      id: 'datasets',
-      icon: 'browser-dataset',
-      action: (files) => {
-        return openDatasets(files);
-      },
-      disabled,
-      tip: disabled ? insufficientPrivilegesMessage({
+  btnDatasets: computed(
+    'spacePrivileges.view',
+    'selectedFilesContainsOnlySymlinks',
+    function btnDatasets() {
+      const {
+        spacePrivileges,
+        openDatasets,
         i18n,
-        modelName: 'space',
-        privilegeFlag: 'space_view',
-      }) : undefined,
-      showIn: [
-        actionContext.singleDir,
-        actionContext.singleFile,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+      } = this.getProperties('spacePrivileges', 'openDatasets', 'i18n');
+      let disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
+      const canView = get(spacePrivileges, 'view');
+      if (!canView && !disabledTip) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_view',
+        });
+      }
+      const disabled = Boolean(disabledTip);
+      return this.createFileAction({
+        id: 'datasets',
+        icon: 'browser-dataset',
+        action: (files) => {
+          return openDatasets(files);
+        },
+        disabled,
+        tip: disabledTip,
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleFile,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
-  btnMetadata: computed(function btnMetadata() {
+  btnMetadata: computed('selectedFilesContainsOnlySymlinks', function btnMetadata() {
+    const disabledTip = this.generateDisabledTip({
+      blockWhenSymlinksOnly: true,
+    });
     return this.createFileAction({
       id: 'metadata',
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: (files) => {
         return this.get('openMetadata')(files[0]);
       },
@@ -552,8 +622,8 @@ export default Component.extend(I18n, {
   btnInfo: computed(function btnInfo() {
     return this.createFileAction({
       id: 'info',
-      action: (files) => {
-        return this.get('openInfo')(files[0]);
+      action: (files, activeTab) => {
+        return this.get('openInfo')(files[0], activeTab);
       },
       showIn: [
         actionContext.spaceRootDir,
@@ -568,43 +638,51 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnDownload: computed(function btnInfo() {
-    return this.createFileAction({
-      id: 'download',
-      icon: 'browser-download',
-      action: (files) => {
-        return this.downloadFiles(files);
-      },
-      showIn: [
-        actionContext.singleFile,
-        actionContext.singleFilePreview,
-      ],
-    });
-  }),
+  btnDownload: computed(
+    'selectedFilesContainsOnlyBrokenSymlinks',
+    function btnDownload() {
+      return this.createFileAction({
+        id: 'download',
+        icon: 'browser-download',
+        disabled: this.get('selectedFilesContainsOnlyBrokenSymlinks'),
+        action: (files) => {
+          return this.downloadFiles(files);
+        },
+        showIn: [
+          actionContext.singleFile,
+          actionContext.singleFilePreview,
+        ],
+      });
+    }
+  ),
 
-  btnDownloadTarGz: computed(function btnInfo() {
-    return this.createFileAction({
-      id: 'downloadTarGz',
-      icon: 'browser-download',
-      action: (files) => {
-        return this.downloadFiles(files);
-      },
-      showIn: [
-        actionContext.spaceRootDir,
-        actionContext.spaceRootDirPreview,
-        actionContext.currentDir,
-        actionContext.currentDirPreview,
-        actionContext.singleDir,
-        actionContext.singleDirPreview,
-        actionContext.multiFile,
-        actionContext.multiFilePreview,
-        actionContext.multiDir,
-        actionContext.mutliDirPreview,
-        actionContext.multiMixed,
-        actionContext.multiMixedPreview,
-      ],
-    });
-  }),
+  btnDownloadTarGz: computed(
+    'selectedFilesContainsOnlyBrokenSymlinks',
+    function btnInfo() {
+      return this.createFileAction({
+        id: 'downloadTarGz',
+        icon: 'browser-download',
+        disabled: this.get('selectedFilesContainsOnlyBrokenSymlinks'),
+        action: (files) => {
+          return this.downloadFiles(files);
+        },
+        showIn: [
+          actionContext.spaceRootDir,
+          actionContext.spaceRootDirPreview,
+          actionContext.currentDir,
+          actionContext.currentDirPreview,
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+          actionContext.multiFile,
+          actionContext.multiFilePreview,
+          actionContext.multiDir,
+          actionContext.mutliDirPreview,
+          actionContext.multiMixed,
+          actionContext.multiMixedPreview,
+        ],
+      });
+    }
+  ),
 
   btnRename: computed('selectedFiles.@each.dataIsProtected', function btnRename() {
     const actionId = 'rename';
@@ -631,25 +709,109 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnPermissions: computed(function btnPermissions() {
+  btnPermissions: computed(
+    'selectedFilesContainsOnlySymlinks',
+    function btnPermissions() {
+      const disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
+      return this.createFileAction({
+        id: 'permissions',
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
+        action: (files) => {
+          return this.get('openEditPermissions')(files.rejectBy('type', 'symlink'));
+        },
+        showIn: [
+          ...anySelected,
+          actionContext.currentDir,
+        ],
+      });
+    }
+  ),
+
+  btnCreateSymlink: computed('selectedFiles.length', function btnCreateSymlink() {
+    const areManyFilesSelected = this.get('selectedFiles.length') > 1;
     return this.createFileAction({
-      id: 'permissions',
+      id: 'createSymlink',
+      icon: 'shortcut',
+      title: this.t(`fileActions.createSymlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
       action: (files) => {
-        return this.get('openEditPermissions')(files);
+        this.setProperties({
+          fileClipboardFiles: files.slice(),
+          fileClipboardMode: 'symlink',
+        });
       },
+      showIn: anySelected,
+    });
+  }),
+
+  btnCreateHardlink: computed(
+    'selectedFiles.[]',
+    'selectedFilesContainsOnlySymlinks',
+    function btnCreateHardlink() {
+      const areManyFilesSelected = this.get('selectedFiles.length') > 1;
+      const disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+        blockFileTypes: ['dir'],
+      });
+      return this.createFileAction({
+        id: 'createHardlink',
+        icon: 'text-link',
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
+        title: this.t(`fileActions.createHardlink${areManyFilesSelected ? 'Plural' : 'Singular'}`),
+        action: (files) => {
+          this.setProperties({
+            fileClipboardFiles: files.rejectBy('type', 'symlink'),
+            fileClipboardMode: 'hardlink',
+          });
+        },
+        showIn: anySelected,
+      });
+    }
+  ),
+
+  btnPlaceSymlink: computed(function btnPlaceSymlink() {
+    return this.createFileAction({
+      id: 'placeSymlink',
+      icon: 'shortcut',
+      action: () => this.placeSymlinks(),
       showIn: [
-        ...anySelected,
         actionContext.currentDir,
+        actionContext.spaceRootDir,
+        actionContext.inDir,
       ],
     });
   }),
 
-  btnCopy: computed(function btnCopy() {
+  btnPlaceHardlink: computed(
+    'fileClipboardFiles.[]',
+    function btnPlaceHardlink() {
+      return this.createFileAction({
+        id: 'placeHardlink',
+        icon: 'text-link',
+        action: () => this.placeHardlinks(),
+        showIn: [
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+          actionContext.inDir,
+        ],
+      });
+    }
+  ),
+
+  btnCopy: computed('selectedFilesContainsOnlySymlinks', function btnCopy() {
+    const disabledTip = this.generateDisabledTip({
+      blockWhenSymlinksOnly: true,
+    });
     return this.createFileAction({
       id: 'copy',
+      disabled: Boolean(disabledTip),
+      tip: disabledTip,
       action: (files) => {
         this.setProperties({
-          fileClipboardFiles: files,
+          fileClipboardFiles: files.rejectBy('type', 'symlink'),
           fileClipboardMode: 'copy',
         });
       },
@@ -657,25 +819,30 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnCut: computed('selectedFiles.@each.dataIsProtected', function btnCut() {
-    const actionId = 'cut';
-    const tip = this.generateDisabledTip({
-      protectionType: 'data',
-    });
-    const disabled = Boolean(tip);
-    return this.createFileAction({
-      id: actionId,
-      action: (files) => {
-        this.setProperties({
-          fileClipboardFiles: files,
-          fileClipboardMode: 'move',
-        });
-      },
-      disabled,
-      tip,
-      showIn: anySelected,
-    });
-  }),
+  btnCut: computed(
+    'selectedFilesContainsOnlySymlinks',
+    'selectedFiles.@each.dataIsProtected',
+    function btnCut() {
+      const actionId = 'cut';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        blockWhenSymlinksOnly: true,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: (files) => {
+          this.setProperties({
+            fileClipboardFiles: files.rejectBy('type', 'symlink'),
+            fileClipboardMode: 'move',
+          });
+        },
+        disabled,
+        tip,
+        showIn: anySelected,
+      });
+    }
+  ),
 
   btnPaste: computed(
     'dir.dataIsProtected',
@@ -683,8 +850,8 @@ export default Component.extend(I18n, {
       const actionId = 'paste';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
-        checkCurrentDir: true,
-        checkSelected: false,
+        checkProtectionForCurrentDir: true,
+        checkProtectionForSelected: false,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -722,64 +889,69 @@ export default Component.extend(I18n, {
     });
   }),
 
-  generateDisabledTip({
-    protectionType,
-    checkCurrentDir = false,
-    checkSelected = true,
-  }) {
-    const {
-      selectedFiles,
-      dir,
-    } = this.getProperties('dir', 'selectedFiles');
-    const protectionProperty = `${protectionType}IsProtected`;
-    const isProtected = checkCurrentDir && get(dir, protectionProperty) ||
-      checkSelected && selectedFiles.isAny(protectionProperty);
-    return isProtected ? this.t('disabledActionReason.writeProtected', {
-      protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
-    }) : undefined;
-  },
+  btnDistribution: computed(
+    'selectedFilesContainsOnlySymlinks',
+    function btnDistribution() {
+      const disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
+      return this.createFileAction({
+        id: 'distribution',
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
+        showIn: [
+          ...anySelected,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+        action: (files) => {
+          return this.get('openFileDistributionModal')(files.rejectBy('type', 'symlink'));
+        },
+      });
+    }
+  ),
 
-  btnDistribution: computed(function btnDistribution() {
-    return this.createFileAction({
-      id: 'distribution',
-      showIn: [
-        ...anySelected,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-      action: (files) => {
-        return this.get('openFileDistributionModal')(files);
-      },
-    });
-  }),
-
-  btnQos: computed('spacePrivileges.{viewQos,manageQos}', 'openQos', function btnQos() {
-    const {
-      spacePrivileges,
-      openQos,
-      i18n,
-    } = this.getProperties('spacePrivileges', 'openQos', 'i18n');
-    const canView = get(spacePrivileges, 'viewQos');
-    const disabled = !canView;
-    return this.createFileAction({
-      id: 'qos',
-      icon: 'qos',
-      showIn: [
-        ...anySelected,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-      disabled,
-      tip: disabled ? insufficientPrivilegesMessage({
+  btnQos: computed(
+    'spacePrivileges.{viewQos,manageQos}',
+    'openQos',
+    'selectedFilesContainsOnlySymlinks',
+    function btnQos() {
+      const {
+        spacePrivileges,
+        openQos,
         i18n,
-        modelName: 'space',
-        privilegeFlag: 'space_view_qos',
-      }) : undefined,
-      action: (files) => {
-        return openQos(files);
-      },
-    });
-  }),
+      } = this.getProperties(
+        'spacePrivileges',
+        'openQos',
+        'i18n',
+      );
+      const canView = get(spacePrivileges, 'viewQos');
+      let disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
+      if (!canView && !disabledTip) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_view_qos',
+        });
+      }
+      return this.createFileAction({
+        id: 'qos',
+        icon: 'qos',
+        showIn: [
+          ...anySelected,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
+        action: (files) => {
+          return openQos(files.rejectBy('type', 'symlink'));
+        },
+      });
+    }
+  ),
 
   separator: computed(function separator() {
     return {
@@ -908,11 +1080,49 @@ export default Component.extend(I18n, {
       title: title || this.t(`fileActions.${id}`),
       showIn: showIn || [],
       disabled: disabled === undefined ? false : disabled,
-      action: (files) => {
-        return action(files || this.get('selectedFiles'));
+      action: (files, ...args) => {
+        return action(files || this.get('selectedFiles'), ...args);
       },
       class: `file-action-${id} ${elementClass || ''}`,
     });
+  },
+
+  generateDisabledTip({
+    protectionType,
+    checkProtectionForCurrentDir = false,
+    checkProtectionForSelected = true,
+    blockFileTypes = [],
+    blockWhenSymlinksOnly = false,
+  }) {
+    const {
+      selectedFiles,
+      dir,
+      selectedFilesContainsOnlySymlinks,
+    } = this.getProperties('dir', 'selectedFiles', 'selectedFilesContainsOnlySymlinks');
+    let tip;
+    if (!tip && protectionType) {
+      const protectionProperty = `${protectionType}IsProtected`;
+      const isProtected = checkProtectionForCurrentDir && get(dir, protectionProperty) ||
+        checkProtectionForSelected && selectedFiles.isAny(protectionProperty);
+      tip = isProtected ? this.t('disabledActionReason.writeProtected', {
+        protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
+      }) : undefined;
+    }
+    if (!tip && blockFileTypes.length) {
+      if (selectedFiles.any(file => blockFileTypes.includes(get(file, 'type')))) {
+        tip = this.t('disabledActionReason.blockedFileType', {
+          fileType: blockFileTypes.map(fileType =>
+            this.t(`disabledActionReason.fileTypesPlural.${fileType}`)
+          ).join(` ${this.t('disabledActionReason.and')} `),
+        });
+      }
+    }
+    if (!tip && blockWhenSymlinksOnly && selectedFilesContainsOnlySymlinks) {
+      tip = this.t('disabledActionReason.blockedFileType', {
+        fileType: this.t('disabledActionReason.fileTypesPlural.symlink'),
+      });
+    }
+    return tip;
   },
 
   clearFilesSelection() {
@@ -972,6 +1182,84 @@ export default Component.extend(I18n, {
     });
   },
 
+  async placeHardlinks() {
+    const {
+      dir,
+      fileManager,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      i18nPrefix,
+      fileClipboardFiles,
+    } = this.getProperties(
+      'dir',
+      'fileManager',
+      'globalNotify',
+      'errorExtractor',
+      'i18n',
+      'i18nPrefix',
+      'fileClipboardFiles'
+    );
+
+    const throttledRefresh = createThrottledFunction(
+      () => this.get('fbTableApi.refresh')(),
+      1000
+    );
+
+    return handleMultiFilesOperation({
+        files: fileClipboardFiles,
+        globalNotify,
+        errorExtractor,
+        i18n,
+        operationErrorKey: `${i18nPrefix}.linkFailed`,
+      },
+      async (file) => {
+        await fileManager.createHardlink(get(file, 'index'), dir, file, 50);
+        await throttledRefresh();
+      }
+    );
+  },
+
+  async placeSymlinks() {
+    const {
+      dir,
+      fileManager,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      i18nPrefix,
+      fileClipboardFiles,
+      spaceId,
+    } = this.getProperties(
+      'dir',
+      'fileManager',
+      'globalNotify',
+      'errorExtractor',
+      'i18n',
+      'i18nPrefix',
+      'fileClipboardFiles',
+      'spaceId'
+    );
+
+    const throttledRefresh = createThrottledFunction(
+      () => this.get('fbTableApi.refresh')(),
+      1000
+    );
+
+    return handleMultiFilesOperation({
+      files: fileClipboardFiles,
+      globalNotify,
+      errorExtractor,
+      i18n,
+      operationErrorKey: `${i18nPrefix}.linkFailed`,
+    }, async (file) => {
+      const fileName = get(file, 'index');
+      const filePath = stringifyFilePath(await resolveFilePath(file), 'index');
+      await fileManager.createSymlink(fileName, dir, filePath, spaceId, 50);
+      await throttledRefresh();
+    });
+  },
+
   selectCurrentDir() {
     const {
       changeSelectedFiles,
@@ -992,7 +1280,12 @@ export default Component.extend(I18n, {
       'previewMode',
       'loadingIconFileIds'
     );
-    const fileIds = files.mapBy('entityId');
+    const effFiles = files.mapBy('effFile').compact();
+    if (!effFiles.length) {
+      return resolve();
+    }
+
+    const fileIds = effFiles.mapBy('entityId');
     // intentionally not checking for duplicates, because we treat multiple "loading id"
     // entries as semaphores
     loadingIconFileIds.pushObjects(fileIds);
@@ -1071,9 +1364,9 @@ export default Component.extend(I18n, {
     changeSelectedFiles(selectedFiles) {
       return this.get('changeSelectedFiles')(selectedFiles);
     },
-    invokeFileAction(file, btnName) {
+    invokeFileAction(file, btnName, ...actionArgs) {
       this.get('changeSelectedFiles')([file]);
-      next(this, () => this.get(btnName).action());
+      next(this, () => this.get(btnName).action(undefined, ...actionArgs));
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);

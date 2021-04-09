@@ -16,7 +16,13 @@
           }}
         {{/if}}
         <div class="inline-icon-container inline-icon-container-file">
-          {{one-icon icon=icon class="file-icon"}}
+          {{one-icon-tagged
+            class=(concat-classes "tag-right" (if hasErrorIconTag "danger"))
+            icon=icon
+            iconClass="file-icon"
+            tagIcon=iconTag
+            shadowType=(if iconTag "circle" "none")
+          }}
         </div>
       </div>
       <div class="file-item-text">
@@ -33,7 +39,12 @@
             {{/truncated-string}}
           </div>
           <div class="file-status-bar">
-            {{#if (and (not previewMode) isShared)}}
+            {{#if (and (not previewMode) (gt hardlinksCount 1))}}
+              <div class="file-status-tag file-status-hardlinks" {{action (action "invokeFileAction" file "btnInfo" "hardlinks") bubbles=false}}>
+                {{tt this "status.hardlinks" hardlinksCount=hardlinksCount}}
+              </div>
+            {{/if}}
+            {{#if (and (not previewMode) (not isSymlink) isShared)}}
               <div class="file-status-tag file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
                 {{tt this "status.shared"}}
               </div>
@@ -44,7 +55,7 @@
                 {{one-tooltip title=(tt this "otherFileSameName")}}
               </div>
             {{/if}}
-            {{#if isForbidden}}
+            {{#if (and (not isSymlink) isForbidden)}}
               <div class="file-status-tag file-status-tag-warning file-status-forbidden">
                 {{tt this "status.forbidden"}}
                 {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
@@ -98,12 +109,12 @@
                 {{/if}}
               </div>
             {{/if}}
-            {{#if hasMetadata}}
+            {{#if (and (not isSymlink) hasMetadata)}}
               <div class="file-status-tag file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
                 {{tt this "status.metadata"}}
               </div>
             {{/if}}
-            {{#if hasAcl}}
+            {{#if (and (not isSymlink) hasAcl)}}
               <div
                 class={{concat-classes
                   "file-status-tag file-status-acl"
@@ -151,18 +162,18 @@
         {{#if media.isMobile}}
           <div class="file-info-mobile">
             <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
-              {{#if (eq file.type "file")}}
-                {{#if file.isPollingSize}}
+              {{#if (eq file.effFile.type "file")}}
+                {{#if file.effFile.isPollingSize}}
                   {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
                 {{else}}
-                  {{bytes-to-string file.size}}
+                  {{bytes-to-string file.effFile.size}}
                 {{/if}}
               {{else}}
                 —
               {{/if}}
             </span>
             <span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-modification">
-              {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+              {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
             </span>
           </div>
         {{/if}}
@@ -171,11 +182,11 @@
   </td>
   <td class="fb-table-col-size">
     <span class="file-item-text">
-      {{#if (eq file.type "file")}}
-        {{#if file.isPollingSize}}
+      {{#if (eq file.effFile.type "file")}}
+        {{#if file.effFile.isPollingSize}}
           {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
         {{else}}
-          {{bytes-to-string file.size}}
+          {{bytes-to-string file.effFile.size}}
         {{/if}}
       {{else}}
         —
@@ -184,7 +195,7 @@
   </td>
   <td class="fb-table-col-modification">
     <span class="file-item-text">
-      {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
+      {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
     </span>
   </td>
   <td class="fb-table-col-actions-menu">

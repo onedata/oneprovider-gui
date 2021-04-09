@@ -50,5 +50,5 @@ export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
   creationTime: attr('number'),
 
   rootFilePath: attr('string'),
-  rootFileType: attr('string'),
+  rootFileType: attr('file-type'),
 }).reopenClass(StaticGraphModelMixin);
