@@ -1,6 +1,6 @@
 /**
  * Show basic information about file or directory
- * 
+ *
  * @module components/file-browser/fb-info-modal
  * @author Jakub Liput
  * @copyright (C) 2019-2021 ACK CYFRONET AGH
@@ -146,6 +146,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Array<String>>}
    */
   commonRestUrlTypes: raw([
+    'downloadSharedFileContent',
     'getSharedFileAttributes',
     'getSharedFileExtendedAttributes',
     'getSharedFileJsonMetadata',
@@ -159,7 +160,7 @@ export default Component.extend(I18n, {
     conditional(
       equal('itemType', raw('dir')),
       raw(['listSharedDirectoryChildren']),
-      raw(['downloadSharedFileContent']),
+      raw([]),
     ),
     'commonRestUrlTypes'
   ),
