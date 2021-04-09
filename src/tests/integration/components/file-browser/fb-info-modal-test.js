@@ -15,6 +15,7 @@ import sinon from 'sinon';
 import { click, findAll } from 'ember-native-dom-helpers';
 import { clickTrigger } from '../../../helpers/ember-power-select';
 import $ from 'jquery';
+import OneTooltipHelper from '../../../helpers/one-tooltip';
 
 const returnDummyUrl = () => 'https://dummy';
 
@@ -53,6 +54,14 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
   beforeEach(function () {
     registerService(this, 'restGenerator', RestGenerator);
+    const fileHardlinksResult = this.set('fileHardlinksResult', {
+      hardlinksCount: 1,
+      hardlinks: [],
+      errors: [{ id: 'forbidden' }],
+    });
+    sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
+      .resolves(fileHardlinksResult);
+    this.set('getDataUrl', ({ selected: [firstSelected] }) => `link-${firstSelected}`);
   });
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy
@@ -88,6 +97,210 @@ describe('Integration | Component | file browser/fb info modal', function () {
     done();
   });
 
+  it('does not render symlink target path when file is not symlink', function () {
+    this.set('file', {
+      type: 'file',
+      targetPath: 'some/path',
+    });
+
+    render(this);
+
+    expect(this.$('.file-info-row-target-path')).to.not.exist;
+  });
+
+  it('does render symlink target relative path when file is a symlink', function () {
+    this.set('file', {
+      type: 'symlink',
+      targetPath: 'some/path',
+    });
+
+    render(this);
+
+    expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+      .to.equal('some/path');
+  });
+
+  it('renders symlink target absolute path with space name when file is a symlink and space id is known',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space1>/some/path',
+        },
+        space: {
+          entityId: 'space1',
+          name: 'space 1',
+        },
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/space 1/some/path');
+    }
+  );
+
+  it('renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space2>/some/path',
+        },
+        space: {
+          entityId: 'space1',
+          name: 'space 1',
+        },
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/<unknown space>/some/path');
+    }
+  );
+
+  it('renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space1>/some/path',
+        },
+        space: undefined,
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/<unknown space>/some/path');
+    }
+  );
+
+  it('does not show tabs when hardlinks count is 1', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 1,
+    });
+
+    render(this);
+    await wait();
+
+    expect(this.$('.nav-tabs')).to.not.exist;
+  });
+
+  it('shows hardlinks tab when hardlinks count is 2', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 2,
+    });
+
+    render(this);
+    await wait();
+
+    expect(this.$('.nav-tabs').text()).to.contain('Hard links (2)');
+  });
+
+  it('shows hardlinks list', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 2,
+    });
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 2,
+      hardlinks: [{
+        entityId: 'f1',
+        name: 'abc',
+      }, {
+        entityId: 'f2',
+        name: 'def',
+      }],
+      errors: [],
+    });
+
+    render(this);
+
+    await wait();
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(2);
+    expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
+    expect($fileHardlinks.eq(0).find('.file-path').text().trim()).to.match(/Path:\s*\/abc/);
+    expect($fileHardlinks.eq(0).find('.file-path a')).to.have.attr('href', 'link-f1');
+    expect($fileHardlinks.eq(1).find('.file-name').text().trim()).to.equal('def');
+    expect($fileHardlinks.eq(1).find('.file-path').text().trim()).to.match(/Path:\s*\/def/);
+    expect($fileHardlinks.eq(1).find('.file-path a')).to.have.attr('href', 'link-f2');
+    expect($fileHardlinks.find('.file-type-icon.oneicon-browser-file')).to.have.length(2);
+  });
+
+  it('shows hardlinks partial fetch error', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 2,
+    });
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 4,
+      hardlinks: [{
+        entityId: 'f1',
+        name: 'abc',
+      }],
+      errors: [{
+        id: 'forbidden',
+      }, {
+        id: 'unauthorized',
+      }, {
+        id: 'forbidden',
+      }],
+    });
+
+    render(this);
+
+    await wait();
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(2);
+    expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
+    expect($fileHardlinks.eq(1).text().trim()).to.equal('And 3 more that you cannot access.');
+    const tooltipText =
+      await new OneTooltipHelper($fileHardlinks.eq(1).find('.one-icon')[0]).getText();
+    expect(tooltipText).to.equal(
+      'Cannot load files due to error: "You are not authorized to perform this operation (insufficient privileges?)." and 1 more errors.'
+    );
+  });
+
+  it('shows hardlinks full fetch error', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 2,
+    });
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 2,
+      hardlinks: [],
+      errors: [{
+        id: 'unauthorized',
+      }, {
+        id: 'unauthorized',
+      }],
+    });
+
+    render(this);
+
+    await wait();
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(1);
+    expect($fileHardlinks.eq(0).text().trim())
+      .to.equal('You do not have access to the hard links of this file.');
+    const tooltipText =
+      await new OneTooltipHelper($fileHardlinks.eq(0).find('.one-icon')[0]).getText();
+    expect(tooltipText).to.equal(
+      'Cannot load files due to error: "You must authenticate yourself to perform this operation.".'
+    );
+  });
+
   context('for file', function () {
     beforeEach(function () {
       this.set('file', file1);
@@ -118,7 +331,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     it('renders space id', async function (done) {
       const spaceEntityId = 's893y37439';
-      this.set('spaceEntityId', spaceEntityId);
+      this.set('space', { entityId: spaceEntityId });
 
       render(this);
 
@@ -279,8 +492,9 @@ function render(testCase) {
     open=true
     file=file
     previewMode=previewMode
-    spaceEntityId=spaceEntityId
+    space=space
     selectedRestUrlType=selectedRestUrlType
+    getDataUrl=getDataUrl
   }}`);
 }
 

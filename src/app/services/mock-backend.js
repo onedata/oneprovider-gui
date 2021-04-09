@@ -569,7 +569,7 @@ export default Service.extend({
           index: name,
           type: 'dir',
           mtime: timestamp + i * 3600,
-          referencesCount: i % 5 === 0 ? 2 : 1,
+          hardlinksCount: 1,
           posixPermissions: '777',
           parent,
           owner,
@@ -630,12 +630,13 @@ export default Service.extend({
           hasDirectQos: (i > 6 && i < 10 && !isSymlink),
           size: isSymlink ? 20 : i * 1000000,
           mtime: timestamp + i * 3600,
-          referencesCount: i % 5 === 0 ? 2 : 1,
+          hardlinksCount: i % 5 === 0 ? 2 : 1,
           parent,
           owner,
           distribution: isSymlink ? undefined : distribution,
           fileQosSummary: isSymlink ? undefined : fileQosSummary,
           provider,
+          targetPath: isSymlink ? '../some/file' : undefined,
         }).save();
       })))
       .then((records) => {

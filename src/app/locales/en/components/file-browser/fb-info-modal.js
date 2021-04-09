@@ -1,10 +1,9 @@
 export default {
   header: '{{type}} details',
-  file: 'File',
-  dir: 'Directory',
-  symlink: 'Symbolic link',
   name: '{{type}} name',
-  path: '{{type}} path',
+  path: '{{type}} location',
+  symlinkTargetPath: 'Symbolic link target path',
+  unknownSpaceInSymlink: 'unknown space',
   spaceId: 'Space ID',
   cdmiObjectId: 'File ID',
   modificationTime: 'Modified at',
@@ -31,5 +30,27 @@ export default {
     getSharedFileJsonMetadata: 'Get JSON metadata',
     getSharedFileRdfMetadata: 'Get RDF metadata',
     getSharedFileExtendedAttributes: 'Get extended attributes (xattrs)',
+  },
+  fileType: {
+    file: 'file',
+    dir: 'directory',
+    symlink: 'symbolic link',
+  },
+  tabs: {
+    general: {
+      tabTitle: 'General',
+    },
+    hardlinks: {
+      tabTitle: 'Hard links ({{hardlinksCount}})',
+      andNMoreYouHaveNoAccess: 'And {{count}} more that you cannot access.',
+      noAccessToAll: 'You do not have access to the hard links of this {{fileType}}.',
+      hardlinksFetchSingleErrorTip: 'Cannot load files due to error: "{{fetchError}}".',
+      hardlinksFetchMultiErrorTip: 'Cannot load files due to error: "{{fetchError}}" and {{moreCount}} more errors.',
+      unknownFetchError: 'unknown error',
+    },
+  },
+  hardlinkEntry: {
+    pathLabel: 'Path',
+    unknownPath: 'unknown',
   },
 };
