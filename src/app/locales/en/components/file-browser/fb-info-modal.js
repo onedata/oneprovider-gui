@@ -42,6 +42,7 @@ export default {
     },
     hardlinks: {
       tabTitle: 'Hard links ({{hardlinksCount}})',
+      showingOnlyNFirst: 'Showing only {{limit}} first hard links.',
       andNMoreYouHaveNoAccess: 'And {{count}} more that you cannot access.',
       noAccessToAll: 'You do not have access to the hard links of this {{fileType}}.',
       hardlinksFetchSingleErrorTip: 'Cannot load files due to error: "{{fetchError}}".',

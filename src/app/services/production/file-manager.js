@@ -297,7 +297,7 @@ export default Service.extend({
     });
   },
 
-  async getFileHardlinks(fileId) {
+  async getFileHardlinks(fileId, limit = 100) {
     const idsResult = await this.get('onedataGraph').request({
       operation: 'get',
       gri: gri({
@@ -307,6 +307,9 @@ export default Service.extend({
         scope: 'private',
       }),
       subscribe: false,
+      data: {
+        limit,
+      },
     });
     const hardlinksIds = idsResult.hardlinks || [];
     return allSettled(

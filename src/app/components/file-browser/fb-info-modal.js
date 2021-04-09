@@ -12,7 +12,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, promise, raw, array, tag, or } from 'ember-awesome-macros';
+import { conditional, equal, promise, raw, array, tag, or, gt } from 'ember-awesome-macros';
 import { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -98,6 +98,11 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    */
   selectedRestUrlType: null,
 
+  /**
+   * @type {Number}
+   */
+  hardlinksLimit: 100,
+
   itemType: reads('file.type'),
 
   typeTranslation: computed('itemType', function typeTranslation() {
@@ -147,6 +152,8 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   fileSize: reads('file.size'),
 
   hardlinksCount: or('file.hardlinksCount', raw(1)),
+
+  hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
 
   hardlinksFetchError: computed(
     'fileHardlinks.errors',
@@ -277,7 +284,13 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
       previewMode,
       fileManager,
       getDataUrl,
-    } = this.getProperties('previewMode', 'fileManager', 'getDataUrl');
+      hardlinksLimit,
+    } = this.getProperties(
+      'previewMode',
+      'fileManager',
+      'getDataUrl',
+      'hardlinksLimit'
+    );
 
     if (previewMode) {
       return resolve([]);
@@ -286,7 +299,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
       // Moving it to next runloop frame as it may trigger double-render error
       // of tabs.
       next(() => resolvePromise(
-        fileManager.getFileHardlinks(this.get('file.entityId'))
+        fileManager.getFileHardlinks(this.get('file.entityId'), hardlinksLimit)
         .then((({ hardlinksCount, hardlinks, errors }) =>
           allFulfilled(hardlinks.map(hardlinkFile =>
             resolveFilePath(hardlinkFile)
