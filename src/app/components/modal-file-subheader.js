@@ -44,7 +44,7 @@ export default Component.extend(I18n, {
     raw('multi'),
     conditional(
       eq('firstFile.type', raw('symlink')),
-      or('firstFile.linkedFile.type', raw('file')),
+      or('firstFile.effFile.type', raw('file')),
       'firstFile.type'
     )
   ),

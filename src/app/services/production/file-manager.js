@@ -3,7 +3,7 @@
  *
  * @module services/production/file-manager
  * @author Michał Borzęcki, Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,9 +11,10 @@ import Service, { inject as service } from '@ember/service';
 import { resolve, allSettled, all as allFulfilled } from 'rsvp';
 import { get, set, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
+import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
 
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
@@ -102,16 +103,21 @@ export default Service.extend({
    * @param {Models.File} parent
    * @param {String} targetPath must be an absolute path
    * @param {String} spaceId
+   * @param {Number} [createAttempts=undefined]
    * @returns {Promise<Models.File>}
    */
-  createSymlink(name, parent, targetPath, spaceId) {
+  createSymlink(name, parent, targetPath, spaceId, createAttempts = undefined) {
     // Removing `/spacename` prefix from targetPath. Example '/s1/a/b' -> 'a/b'
     const absolutePathWithoutSpace = targetPath.split('/').slice(2).join('/');
-    const pathPrefix = `<__onedata_space_id:${spaceId}>`;
-
-    return this.createDirectoryChild(parent, 'symlink', name, {
+    const pathPrefix = generateAbsoluteSymlinkPathPrefix(spaceId);
+    const options = {
       targetPath: `${pathPrefix}/${absolutePathWithoutSpace}`,
-    });
+    };
+    if (createAttempts) {
+      options.createAttempts = createAttempts;
+    }
+
+    return this.createDirectoryChild(parent, 'symlink', name, options);
   },
 
   /**
@@ -119,12 +125,17 @@ export default Service.extend({
    * @param {String} name
    * @param {Models.File} parent
    * @param {Models.File} target
+   * @param {Number} [createAttempts=undefined]
    * @returns {Promise<Models.File>}
    */
-  createHardlink(name, parent, target) {
-    return this.createDirectoryChild(parent, 'hardlink', name, {
+  createHardlink(name, parent, target, createAttempts = undefined) {
+    const options = {
       targetGuid: get(target, 'entityId'),
-    });
+    };
+    if (createAttempts) {
+      options.createAttempts = createAttempts;
+    }
+    return this.createDirectoryChild(parent, 'hardlink', name, options);
   },
 
   /**
@@ -284,6 +295,28 @@ export default Service.extend({
       },
       subscribe: false,
     });
+  },
+
+  async getFileHardlinks(fileId) {
+    const idsResult = await this.get('onedataGraph').request({
+      operation: 'get',
+      gri: gri({
+        entityType: fileEntityType,
+        entityId: fileId,
+        aspect: 'hardlinks',
+        scope: 'private',
+      }),
+      subscribe: false,
+    });
+    const hardlinksIds = idsResult.hardlinks || [];
+    return allSettled(
+      hardlinksIds.map(hardlinkId =>
+        this.getFileById(parseGri(hardlinkId).entityId))
+    ).then(results => ({
+      hardlinksCount: hardlinksIds.length,
+      hardlinks: results.filterBy('state', 'fulfilled').mapBy('value'),
+      errors: results.filterBy('state', 'rejected').mapBy('reason'),
+    }));
   },
 
   /**

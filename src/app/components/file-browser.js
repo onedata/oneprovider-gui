@@ -298,7 +298,7 @@ export default Component.extend(I18n, {
         selectedFilesContainsOnlySymlinks,
       } = this.getProperties('selectedFiles', 'selectedFilesContainsOnlySymlinks');
       return selectedFilesContainsOnlySymlinks &&
-        selectedFiles.filterBy('linkedFile').length === 0;
+        selectedFiles.filterBy('effFile').length === 0;
     }
   ),
 
@@ -615,8 +615,8 @@ export default Component.extend(I18n, {
   btnInfo: computed(function btnInfo() {
     return this.createFileAction({
       id: 'info',
-      action: (files) => {
-        return this.get('openInfo')(files[0]);
+      action: (files, activeTab) => {
+        return this.get('openInfo')(files[0], activeTab);
       },
       showIn: [
         actionContext.spaceRootDir,
@@ -1109,8 +1109,8 @@ export default Component.extend(I18n, {
       title: title || this.t(`fileActions.${id}`),
       showIn: showIn || [],
       disabled: disabled === undefined ? false : disabled,
-      action: (files) => {
-        return action(files || this.get('selectedFiles'));
+      action: (files, ...args) => {
+        return action(files || this.get('selectedFiles'), ...args);
       },
       class: `file-action-${id} ${elementClass || ''}`,
     });
@@ -1205,7 +1205,7 @@ export default Component.extend(I18n, {
         operationErrorKey: `${i18nPrefix}.linkFailed`,
       },
       async (file) => {
-        await fileManager.createHardlink(get(file, 'index'), dir, file);
+        await fileManager.createHardlink(get(file, 'index'), dir, file, 50);
         await throttledRefresh();
       }
     );
@@ -1246,7 +1246,7 @@ export default Component.extend(I18n, {
     }, async (file) => {
       const fileName = get(file, 'index');
       const filePath = stringifyFilePath(await resolveFilePath(file), 'index');
-      await fileManager.createSymlink(fileName, dir, filePath, spaceId);
+      await fileManager.createSymlink(fileName, dir, filePath, spaceId, 50);
       await throttledRefresh();
     });
   },
@@ -1355,9 +1355,9 @@ export default Component.extend(I18n, {
     changeSelectedFiles(selectedFiles) {
       return this.get('changeSelectedFiles')(selectedFiles);
     },
-    invokeFileAction(file, btnName) {
+    invokeFileAction(file, btnName, ...actionArgs) {
       this.get('changeSelectedFiles')([file]);
-      next(this, () => this.get(btnName).action());
+      next(this, () => this.get(btnName).action(undefined, ...actionArgs));
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);

@@ -53,7 +53,9 @@
     {{file-browser/fb-info-modal
       open=true
       file=fileToShowInfo
-      spaceEntityId=spaceEntityId
+      initialTab=showInfoInitialTab
+      space=spaceProxy.content
+      getDataUrl=(action "getDataUrl")
       onHide=(action "closeInfoModal")
     }}
   {{/if}}

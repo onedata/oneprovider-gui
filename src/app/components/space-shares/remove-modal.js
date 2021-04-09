@@ -42,13 +42,13 @@ export default ProceedProcessModal.extend({
    * @override
    */
   messageText: computed(
-    'share.{name,fileType}',
+    'share.{name,rootFileType}',
     'fileSharesCount',
     function messageText() {
       const fileSharesCount = this.get('fileSharesCount');
       let message = this.t('messageText', {
         shareName: this.get('share.name'),
-        fileType: this.t('fileType.' + this.get('share.fileType')),
+        fileType: this.t('fileType.' + this.get('share.rootFileType')),
       });
       if (fileSharesCount && fileSharesCount > 1) {
         message = htmlSafe(

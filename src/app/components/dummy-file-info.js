@@ -56,7 +56,7 @@ export const file1 = {
 export default Component.extend({
   opened: true,
   fileToShowInfo: file1,
-  spaceEntityId: 'r847534678456r7betf67w5r6ew8vfrt6785r',
+  space: space1,
 
   actions: {
     closeInfoModal() {

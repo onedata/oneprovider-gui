@@ -38,22 +38,22 @@ describe('Integration | Component | file browser/fb table row', function () {
     expect(this.$('.fb-table-col-modification').text()).to.match(dateReadable);
   });
 
-  it('does not render "refs" file tag, when references count equals 1', function () {
-    this.set('file', createFile({ referencesCount: 1 }));
+  it('does not render "hard links" file tag, when hardlinks count equals 1', function () {
+    this.set('file', createFile({ hardlinksCount: 1 }));
 
     this.render(hbs `{{file-browser/fb-table-row file=file }}`);
 
-    expect(this.$('.file-status-references'), 'refs tag').to.not.exist;
+    expect(this.$('.file-status-hardlinks'), 'refs tag').to.not.exist;
   });
 
-  it('renders "refs" file tag, when references count equals 2', function () {
-    this.set('file', createFile({ referencesCount: 2 }));
+  it('renders "hard links" file tag, when hardlinks count equals 2', function () {
+    this.set('file', createFile({ hardlinksCount: 2 }));
 
     this.render(hbs `{{file-browser/fb-table-row file=file }}`);
 
-    const $tag = this.$('.file-status-references');
-    expect($tag, 'refs tag').to.exist;
-    expect($tag.text().trim()).to.equal('2 links');
+    const $tag = this.$('.file-status-hardlinks');
+    expect($tag, 'hard links tag').to.exist;
+    expect($tag.text().trim()).to.equal('2 hard links');
   });
 
   describe('renders "no access" file tag when', function () {
