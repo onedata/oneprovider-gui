@@ -18,7 +18,6 @@ import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolv
 import { inject as service } from '@ember/service';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import sortByProperties from 'onedata-gui-common/utils/ember/sort-by-properties';
 import { next } from '@ember/runloop';
 import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
 import _ from 'lodash';
@@ -316,7 +315,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
             }))
           )).then(newHardlinks => ({
             hardlinksCount,
-            hardlinks: sortByProperties(newHardlinks, ['file.name', 'path']),
+            hardlinks: newHardlinks,
             errors,
           }))
         ))
