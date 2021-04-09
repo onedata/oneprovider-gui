@@ -239,6 +239,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    * @type {ComputedProperty<Array<String>>}
    */
   commonRestUrlTypes: raw([
+    'downloadSharedFileContent',
     'getSharedFileAttributes',
     'getSharedFileExtendedAttributes',
     'getSharedFileJsonMetadata',
@@ -252,7 +253,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     conditional(
       equal('itemType', raw('dir')),
       raw(['listSharedDirectoryChildren']),
-      raw(['downloadSharedFileContent']),
+      raw([]),
     ),
     'commonRestUrlTypes'
   ),

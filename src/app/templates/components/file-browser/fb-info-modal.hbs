@@ -114,7 +114,11 @@
                   onchange=(action (mut selectedRestUrlType))
                   as |urlType|
                 }}
-                  {{tt this (concat "restUrlType." urlType)}}
+                  {{#if (eq urlType "downloadSharedFileContent")}}
+                    {{tt this (concat "restUrlType.downloadSharedFileContent." itemType)}}
+                  {{else}}
+                    {{tt this (concat "restUrlType." urlType)}}
+                  {{/if}}
                 {{/one-dropdown}}
                 <div
                   class="inline-icon-container rest-url-type-info-trigger-container"
@@ -143,17 +147,21 @@
                         linkName=(tt this "restTipLinkName")
                         href=(one-api-doc-url
                           product="onezone"
+                          version="latest"
                           anchor="operation/get_shared_data"
                         )
                       }}
                     </p>
                     <hr class="sharp">
                     <p class="last rest-tip-specific rest-tip-{{effSelectedRestUrlType}}">
-                      {{tt this "restTipSpecificIntro"
-                        typeDescription=(tt this
-                          (concat "restTipSpecificType." effSelectedRestUrlType)
-                        )
-                      }}
+                      {{tt this "restTipSpecificIntro" typeDescription=(if
+                        (eq effSelectedRestUrlType "downloadSharedFileContent")
+                        (tt this (concat
+                          "restTipSpecificType.downloadSharedFileContent."
+                          itemType
+                        ))
+                        (tt this (concat "restTipSpecificType." effSelectedRestUrlType))
+                      )}}
                     </p>
                   {{/click-outside}}
                 {{/one-webui-popover}}
