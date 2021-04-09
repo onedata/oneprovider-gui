@@ -5,13 +5,21 @@
       value={{permissions.octalRepresentation}}
       maxlength="3"
       size="3"
-      oninput={{action "octalChanged" value="target.value"}}
-      onkeydown={{invoke-on-enter (action "save")}}
+      disabled={{if readonly true}}
+      oninput={{if readonly (no-action) (action "octalChanged" value="target.value")}}
+      onkeydown={{if readonly (no-action) (invoke-on-enter (action "save"))}}
     >
   </div>
+  {{#if readonly}}
+    {{#one-icon icon="lock" class="permissions-input-readonly-lock-icon"}}
+      {{#if readonlyTip}}
+        {{one-tooltip title=readonlyTip}}
+      {{/if}}
+    {{/one-icon}}
+  {{/if}}
   <div class="permissions-string-container">{{permissions.stringRepresentation}}</div>
 </div>
-  <div class="row entity-permissions-row">
+<div class="row entity-permissions-row">
   {{#each (array "user" "group" "other") as |entity|}}
     <div class="col-xs-12 col-sm-4 entity-permissions">
       <div class="entity-name">{{tt this (concat "entities." entity)}}</div>
@@ -22,6 +30,7 @@
               inputId=(concat elementId entity permission)
               checked=(get (get permissions entity) permission)
               update=(action "checkboxChanged" entity permission)
+              isReadOnly=readonly
               class=(concat entity "-" permission "-checkbox permission-checkbox")
             }}
             <label for={{concat elementId entity permission}}>

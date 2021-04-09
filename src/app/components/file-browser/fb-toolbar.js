@@ -173,7 +173,6 @@ export default Component.extend(I18n, {
       if (get(button, 'disabled')) {
         return;
       }
-      this.get('selectCurrentDir')(false);
       return get(button, 'action')();
     },
     clipboardHintVisibleChange(state) {

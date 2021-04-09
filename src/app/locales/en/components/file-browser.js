@@ -25,8 +25,6 @@ export default {
     single: '{{reason}}',
     multi: '{{reason}} and {{moreCount}} more errors',
   },
-  featureNotForSymlinks: 'Not available for symbolic links.',
-  cannotHardlinkDirectory: 'Not available for directories.',
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',
@@ -36,6 +34,7 @@ export default {
     downloadTarGz: 'Download (tar.gz)',
     share: 'Share',
     metadata: 'Metadata',
+    datasets: 'Datasets',
     permissions: 'Permissions',
     qos: 'Quality of Service',
     distribution: 'Data distribution',
@@ -50,6 +49,20 @@ export default {
     cut: 'Cut',
     delete: 'Delete',
     paste: 'Paste',
+  },
+  disabledActionReason: {
+    protectionType: {
+      data: 'data',
+      metadata: 'metadata',
+    },
+    writeProtected: 'Not available for files with {{protectionType}} write protection.',
+    blockedFileType: 'Not available for {{fileType}}.',
+    fileTypesPlural: {
+      file: 'files',
+      dir: 'directories',
+      symlink: 'symbolic links',
+    },
+    and: 'and',
   },
   fbTable,
   fbTableRow,

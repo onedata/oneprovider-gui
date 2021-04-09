@@ -15,12 +15,19 @@
       openInfo=(action "openInfoModal")
       openShare=(action "openShareModal")
       openMetadata=(action "openMetadataModal")
+      openDatasets=(action "openDatasetsModal")
       openEditPermissions=(action "openEditPermissionsModal")
       openFileDistributionModal=(action "openFileDistributionModal")
       openQos=(action "openQosModal")
     }}
-    <div class="upload-drop-zone">
-      {{one-icon icon="browser-upload" class="upload-watermark-icon"}}
+    <div class="upload-drop-zone {{if dir.dataIsProtected "upload-disabled"}}">
+      <div class="upload-info">
+        {{#if dir.dataIsProtected}}
+          {{one-icon tagName="div" icon="ban-left" class="upload-watermark-icon"}}
+        {{else}}
+          {{one-icon tagName="div"  icon="browser-upload" class="upload-watermark-icon"}}
+        {{/if}}
+      </div>
     </div>
   {{/if}}
 
@@ -95,6 +102,16 @@
       open=true
       file=fileToShowMetadata
       onHide=(action "closeMetadataModal")
+    }}
+  {{/if}}
+
+  {{#if filesToShowDatasets}}
+    {{datasets-modal
+      open=true
+      files=filesToShowDatasets
+      editPrivilege=spacePrivileges.manageDatasets
+      onHide=(action "closeDatasetsModal")
+      getDataUrl=(action "getDataUrl")
     }}
   {{/if}}
 

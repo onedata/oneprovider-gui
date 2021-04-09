@@ -90,7 +90,6 @@
     font-weight: bold;
     margin-right: 4px;
     &[disabled], &.disabled {
-      pointer-events: none;
       cursor: default !important;
       color: $main-text-color-disabled;
     }

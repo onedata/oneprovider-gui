@@ -1,0 +1,77 @@
+{{#modal.header class="file-datasets-part file-datasets-modal-header"}}
+  {{file-datasets/summary-header
+    file=file
+    fileDatasetSummaryProxy=fileDatasetSummaryProxy
+    protectionIcons=protectionIcons
+  }}
+{{/modal.header}}
+
+{{#modal.body class="file-datasets-part file-datasets-modal-body"}}
+  {{#promise-proxy-container
+    proxy=fileDatasetSummaryProxy
+    tagName="div"
+    class="loadable-row file-dataset-summary-loadable-row"
+    customErrorMessage=(tt this "cannotLoadFileDatasetSummary")
+  }}
+    <table class="table datasets-table {{unless media.isMobile "table-striped"}}">
+      <thead class="datasets-table-head">
+        <th class="col-dataset-info">
+          {{file-datasets/direct-dataset-control
+            file=file
+            directDatasetProxy=directDatasetProxy
+            readonly=(not editPrivilege)
+            togglesReadonlyMessage=insufficientEditPrivilegesMessage
+          }}
+        </th>
+        {{#each (array "data" "metadata") as |protectionType|}}
+          <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
+            <span class="protection-header-label">
+              {{tt this (concat "tableHeaders." protectionType)}}
+            </span>
+            {{#one-icon
+              icon="sign-question-rounded"
+              class="hint-trigger protection-label-hint-trigger clickable"
+            }}
+              {{one-tooltip
+                title=(tt this "protectionHeaderHint"
+                  fileType=(tt this (concat "fileType." file.type))
+                  protectionTypeUpper=(capitalize
+                    (tt this (concat "protectionType." protectionType))
+                  )
+                  protectionType=(tt this (concat "protectionType." protectionType))
+                )
+              }}
+            {{/one-icon}}
+          </th>
+        {{/each}}
+      </thead>
+      {{file-datasets/ancestor-datasets
+        ancestorDatasetsProxy=ancestorDatasetsProxy
+        protectionIcons=protectionIcons
+        readonly=(not editPrivilege)
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+        fileType=file.type
+        close=close
+        updateOpenedFileData=(action "updateOpenedFileData")
+        getDataUrl=(action getDataUrl)
+      }}
+      {{file-datasets/direct-dataset
+        file=file
+        directDatasetProxy=directDatasetProxy
+        readonly=(not editPrivilege)
+        protectionIcons=protectionIcons
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+      }}
+    </table>
+  {{/promise-proxy-container}}
+{{/modal.body}}
+
+{{#modal.footer class="file-datasets-part file-datasets-modal-footer"}}
+  {{#bs-button
+    onClick=(action close)
+    type="default"
+    class="close-btn"
+  }}
+    {{tt this "close"}}
+  {{/bs-button}}
+{{/modal.footer}}

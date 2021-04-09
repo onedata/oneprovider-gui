@@ -76,7 +76,7 @@ export default Component.extend(
      * @virtual
      * @type {Function}
      */
-    clearSelection: notImplementedIgnore,
+    selectCurrentDir: notImplementedIgnore,
 
     /**
      * @virtual
@@ -288,7 +288,7 @@ export default Component.extend(
         const _open =
           (typeof open === 'boolean') ? open : !this.get('dirActionsOpen');
         if (_open) {
-          this.get('clearSelection')();
+          this.get('selectCurrentDir')();
         }
         this.set('dirActionsOpen', _open);
       },

@@ -1,6 +1,6 @@
 /**
  * Content for Xattrs (aka Basic) metadata tab in file metadata modal: key-value editor
- * 
+ *
  * @module components/file-browser/fb-metadata-xattrs
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -46,7 +46,7 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {Boolean}
    */
-  previewMode: false,
+  readonly: false,
 
   areXattrsValid: true,
 

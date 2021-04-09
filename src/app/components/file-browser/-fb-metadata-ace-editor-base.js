@@ -1,6 +1,6 @@
 /**
  * Base functionality for integrating ACE editor in metadata tab components
- * 
+ *
  * @module components/file-browser/-fb-metadata-ace-editor-base
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -37,7 +37,7 @@ export default Component.extend({
    * @virtual optional
    * @type {Boolean}
    */
-  previewMode: false,
+  readonly: false,
 
   /**
    * @virtual optional

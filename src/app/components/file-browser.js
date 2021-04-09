@@ -70,6 +70,7 @@ const buttonNames = [
   'btnDownload',
   'btnDownloadTarGz',
   'btnShare',
+  'btnDatasets',
   'btnMetadata',
   'btnPermissions',
   'btnDistribution',
@@ -176,6 +177,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   * @param {Array<Models/File>} files files to browse and edit their dataset settings
+   */
+  openDatasets: notImplementedThrow,
+
+  /**
+   * @virtual
    */
   updateDirEntityId: notImplementedIgnore,
 
@@ -259,13 +267,13 @@ export default Component.extend(I18n, {
    * Array of selected file records.
    * @type {EmberArray<Models.File>}
    */
-  selectedFiles: Object.freeze([]),
+  selectedFiles: undefined,
 
   /**
    * Injected property to notify about external selection change, that should enable jump.
    * @type {EmberArray<Models.File>}
    */
-  selectedFilesForJump: Object.freeze([]),
+  selectedFilesForJump: undefined,
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -434,30 +442,54 @@ export default Component.extend(I18n, {
 
   allButtonsHash: hash(...buttonNames),
 
-  btnUpload: computed(function btnUpload() {
-    return this.createFileAction({
-      id: 'upload',
-      class: 'browser-upload',
-      action: () => this.get('uploadManager').triggerUploadDialog(),
-      showIn: [
-        actionContext.inDir,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+  btnUpload: computed(
+    'dir.dataIsProtected',
+    function btnUpload() {
+      const actionId = 'upload';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        checkProtectionForCurrentDir: true,
+        checkProtectionForSelected: false,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        class: 'browser-upload',
+        action: () => this.get('uploadManager').triggerUploadDialog(),
+        disabled,
+        tip,
+        showIn: [
+          actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
-  btnNewDirectory: computed(function btnNewDirectory() {
-    return this.createFileAction({
-      id: 'newDirectory',
-      action: () => this.get('openCreateNewDirectory')(this.get('dir')),
-      showIn: [
-        actionContext.inDir,
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-      ],
-    });
-  }),
+  btnNewDirectory: computed(
+    'dir.dataIsProtected',
+    function btnNewDirectory() {
+      const actionId = 'newDirectory';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        checkProtectionForCurrentDir: true,
+        checkProtectionForSelected: false,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: () => this.get('openCreateNewDirectory')(this.get('dir')),
+        tip,
+        disabled,
+        showIn: [
+          actionContext.inDir,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
 
   btnRefresh: computed(function btnRefresh() {
     return this.createFileAction({
@@ -495,18 +527,16 @@ export default Component.extend(I18n, {
         spacePrivileges,
         openShare,
         i18n,
-        selectedFilesContainsOnlySymlinks,
       } = this.getProperties(
         'spacePrivileges',
         'openShare',
         'i18n',
-        'selectedFilesContainsOnlySymlinks'
       );
+      let disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
       const canView = get(spacePrivileges, 'view');
-      let disabledTip;
-      if (selectedFilesContainsOnlySymlinks) {
-        disabledTip = this.t('featureNotForSymlinks');
-      } else if (!canView) {
+      if (!canView && !disabledTip) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
@@ -530,11 +560,49 @@ export default Component.extend(I18n, {
     }
   ),
 
+  btnDatasets: computed(
+    'spacePrivileges.view',
+    'selectedFilesContainsOnlySymlinks',
+    function btnDatasets() {
+      const {
+        spacePrivileges,
+        openDatasets,
+        i18n,
+      } = this.getProperties('spacePrivileges', 'openDatasets', 'i18n');
+      let disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
+      const canView = get(spacePrivileges, 'view');
+      if (!canView && !disabledTip) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_view',
+        });
+      }
+      const disabled = Boolean(disabledTip);
+      return this.createFileAction({
+        id: 'datasets',
+        icon: 'browser-dataset',
+        action: (files) => {
+          return openDatasets(files);
+        },
+        disabled,
+        tip: disabledTip,
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleFile,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
+
   btnMetadata: computed('selectedFilesContainsOnlySymlinks', function btnMetadata() {
-    const selectedFilesContainsOnlySymlinks =
-      this.get('selectedFilesContainsOnlySymlinks');
-    const disabledTip = selectedFilesContainsOnlySymlinks ?
-      this.t('featureNotForSymlinks') : undefined;
+    const disabledTip = this.generateDisabledTip({
+      blockWhenSymlinksOnly: true,
+    });
     return this.createFileAction({
       id: 'metadata',
       disabled: Boolean(disabledTip),
@@ -616,9 +684,14 @@ export default Component.extend(I18n, {
     }
   ),
 
-  btnRename: computed(function btnRename() {
+  btnRename: computed('selectedFiles.@each.dataIsProtected', function btnRename() {
+    const actionId = 'rename';
+    const tip = this.generateDisabledTip({
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'rename',
+      id: actionId,
       action: (files) => {
         const {
           openRename,
@@ -626,6 +699,8 @@ export default Component.extend(I18n, {
         } = this.getProperties('openRename', 'dir');
         return openRename(files[0], dir);
       },
+      disabled,
+      tip,
       showIn: [
         actionContext.singleDir,
         actionContext.singleFile,
@@ -637,21 +712,15 @@ export default Component.extend(I18n, {
   btnPermissions: computed(
     'selectedFilesContainsOnlySymlinks',
     function btnPermissions() {
-      const {
-        selectedFilesContainsOnlySymlinks,
-        openEditPermissions,
-      } = this.getProperties(
-        'selectedFilesContainsOnlySymlinks',
-        'openEditPermissions'
-      );
-      const disabledTip = selectedFilesContainsOnlySymlinks ?
-        this.t('featureNotForSymlinks') : undefined;
+      const disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
       return this.createFileAction({
         id: 'permissions',
         disabled: Boolean(disabledTip),
         tip: disabledTip,
         action: (files) => {
-          return openEditPermissions(files.rejectBy('type', 'symlink'));
+          return this.get('openEditPermissions')(files.rejectBy('type', 'symlink'));
         },
         showIn: [
           ...anySelected,
@@ -681,15 +750,11 @@ export default Component.extend(I18n, {
     'selectedFiles.[]',
     'selectedFilesContainsOnlySymlinks',
     function btnCreateHardlink() {
-      const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
       const areManyFilesSelected = this.get('selectedFiles.length') > 1;
-      const hasDirectorySelected = this.get('selectedFiles').isAny('type', 'dir');
-      let disabledTip;
-      if (selectedFilesContainsOnlySymlinks) {
-        disabledTip = this.t('featureNotForSymlinks');
-      } else if (hasDirectorySelected) {
-        disabledTip = this.t('cannotHardlinkDirectory');
-      }
+      const disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+        blockFileTypes: ['dir'],
+      });
       return this.createFileAction({
         id: 'createHardlink',
         icon: 'text-link',
@@ -737,9 +802,9 @@ export default Component.extend(I18n, {
   ),
 
   btnCopy: computed('selectedFilesContainsOnlySymlinks', function btnCopy() {
-    const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
-    const disabledTip = selectedFilesContainsOnlySymlinks ?
-      this.t('featureNotForSymlinks') : undefined;
+    const disabledTip = this.generateDisabledTip({
+      blockWhenSymlinksOnly: true,
+    });
     return this.createFileAction({
       id: 'copy',
       disabled: Boolean(disabledTip),
@@ -754,39 +819,63 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnCut: computed('selectedFilesContainsOnlySymlinks', function btnCut() {
-    const selectedFilesContainsOnlySymlinks = this.get('selectedFilesContainsOnlySymlinks');
-    const disabledTip = selectedFilesContainsOnlySymlinks ?
-      this.t('featureNotForSymlinks') : undefined;
-    return this.createFileAction({
-      id: 'cut',
-      disabled: Boolean(disabledTip),
-      tip: disabledTip,
-      action: (files) => {
-        this.setProperties({
-          fileClipboardFiles: files.rejectBy('type', 'symlink'),
-          fileClipboardMode: 'move',
-        });
-      },
-      showIn: anySelected,
-    });
-  }),
+  btnCut: computed(
+    'selectedFilesContainsOnlySymlinks',
+    'selectedFiles.@each.dataIsProtected',
+    function btnCut() {
+      const actionId = 'cut';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        blockWhenSymlinksOnly: true,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: (files) => {
+          this.setProperties({
+            fileClipboardFiles: files.rejectBy('type', 'symlink'),
+            fileClipboardMode: 'move',
+          });
+        },
+        disabled,
+        tip,
+        showIn: anySelected,
+      });
+    }
+  ),
 
-  btnPaste: computed(function btnPaste() {
-    return this.createFileAction({
-      id: 'paste',
-      action: () => this.pasteFiles(),
-      showIn: [
-        actionContext.currentDir,
-        actionContext.spaceRootDir,
-        actionContext.inDir,
-      ],
-    });
-  }),
+  btnPaste: computed(
+    'dir.dataIsProtected',
+    function btnPaste() {
+      const actionId = 'paste';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        checkProtectionForCurrentDir: true,
+        checkProtectionForSelected: false,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: () => this.pasteFiles(),
+        disabled,
+        tip,
+        showIn: [
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+          actionContext.inDir,
+        ],
+      });
+    }
+  ),
 
-  btnDelete: computed(function btnDelete() {
+  btnDelete: computed('selectedFiles.@each.dataIsProtected', function btnDelete() {
+    const actionId = 'delete';
+    const tip = this.generateDisabledTip({
+      protectionType: 'data',
+    });
+    const disabled = Boolean(tip);
     return this.createFileAction({
-      id: 'delete',
+      id: actionId,
       action: (files) => {
         const {
           openRemove,
@@ -794,6 +883,8 @@ export default Component.extend(I18n, {
         } = this.getProperties('openRemove', 'dir');
         return openRemove(files, dir);
       },
+      disabled,
+      tip,
       showIn: anySelected,
     });
   }),
@@ -801,15 +892,9 @@ export default Component.extend(I18n, {
   btnDistribution: computed(
     'selectedFilesContainsOnlySymlinks',
     function btnDistribution() {
-      const {
-        selectedFilesContainsOnlySymlinks,
-        openFileDistributionModal,
-      } = this.getProperties(
-        'selectedFilesContainsOnlySymlinks',
-        'openFileDistributionModal'
-      );
-      const disabledTip = selectedFilesContainsOnlySymlinks ?
-        this.t('featureNotForSymlinks') : undefined;
+      const disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
       return this.createFileAction({
         id: 'distribution',
         disabled: Boolean(disabledTip),
@@ -820,7 +905,7 @@ export default Component.extend(I18n, {
           actionContext.spaceRootDir,
         ],
         action: (files) => {
-          return openFileDistributionModal(files.rejectBy('type', 'symlink'));
+          return this.get('openFileDistributionModal')(files.rejectBy('type', 'symlink'));
         },
       });
     }
@@ -835,18 +920,16 @@ export default Component.extend(I18n, {
         spacePrivileges,
         openQos,
         i18n,
-        selectedFilesContainsOnlySymlinks,
       } = this.getProperties(
         'spacePrivileges',
         'openQos',
         'i18n',
-        'selectedFilesContainsOnlySymlinks'
       );
       const canView = get(spacePrivileges, 'viewQos');
-      let disabledTip;
-      if (selectedFilesContainsOnlySymlinks) {
-        disabledTip = this.t('featureNotForSymlinks');
-      } else if (!canView) {
+      let disabledTip = this.generateDisabledTip({
+        blockWhenSymlinksOnly: true,
+      });
+      if (!canView && !disabledTip) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
@@ -903,6 +986,12 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    if (!this.get('selectedFiles')) {
+      this.set('selectedFiles', []);
+    }
+    if (!this.get('selectedFilesForJump')) {
+      this.set('selectedFilesForJump', []);
+    }
     this.set('loadingIconFileIds', A());
   },
 
@@ -996,6 +1085,44 @@ export default Component.extend(I18n, {
       },
       class: `file-action-${id} ${elementClass || ''}`,
     });
+  },
+
+  generateDisabledTip({
+    protectionType,
+    checkProtectionForCurrentDir = false,
+    checkProtectionForSelected = true,
+    blockFileTypes = [],
+    blockWhenSymlinksOnly = false,
+  }) {
+    const {
+      selectedFiles,
+      dir,
+      selectedFilesContainsOnlySymlinks,
+    } = this.getProperties('dir', 'selectedFiles', 'selectedFilesContainsOnlySymlinks');
+    let tip;
+    if (!tip && protectionType) {
+      const protectionProperty = `${protectionType}IsProtected`;
+      const isProtected = checkProtectionForCurrentDir && get(dir, protectionProperty) ||
+        checkProtectionForSelected && selectedFiles.isAny(protectionProperty);
+      tip = isProtected ? this.t('disabledActionReason.writeProtected', {
+        protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
+      }) : undefined;
+    }
+    if (!tip && blockFileTypes.length) {
+      if (selectedFiles.any(file => blockFileTypes.includes(get(file, 'type')))) {
+        tip = this.t('disabledActionReason.blockedFileType', {
+          fileType: blockFileTypes.map(fileType =>
+            this.t(`disabledActionReason.fileTypesPlural.${fileType}`)
+          ).join(` ${this.t('disabledActionReason.and')} `),
+        });
+      }
+    }
+    if (!tip && blockWhenSymlinksOnly && selectedFilesContainsOnlySymlinks) {
+      tip = this.t('disabledActionReason.blockedFileType', {
+        fileType: this.t('disabledActionReason.fileTypesPlural.symlink'),
+      });
+    }
+    return tip;
   },
 
   clearFilesSelection() {
@@ -1133,14 +1260,12 @@ export default Component.extend(I18n, {
     });
   },
 
-  selectCurrentDir(select = true) {
-    if (select) {
-      const {
-        changeSelectedFiles,
-        dir,
-      } = this.getProperties('changeSelectedFiles', 'dir');
-      return changeSelectedFiles([dir]);
-    }
+  selectCurrentDir() {
+    const {
+      changeSelectedFiles,
+      dir,
+    } = this.getProperties('changeSelectedFiles', 'dir');
+    return changeSelectedFiles([dir]);
   },
 
   downloadFiles(files) {
@@ -1211,8 +1336,8 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    selectCurrentDir(select) {
-      this.selectCurrentDir(select);
+    selectCurrentDir() {
+      this.selectCurrentDir();
     },
     changeDir(dir) {
       const {
@@ -1231,6 +1356,9 @@ export default Component.extend(I18n, {
     toggleCurrentDirActions(open) {
       const _open =
         (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
+      if (_open) {
+        this.selectCurrentDir();
+      }
       this.set('currentDirActionsOpen', _open);
     },
     changeSelectedFiles(selectedFiles) {

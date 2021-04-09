@@ -1,5 +1,7 @@
 export default {
   header: '{{type}} metadata',
+  editorDisabled: 'Editor disabled',
+  metadataIsProtected: '{{fileTypeUpper}} metadata is write protected.',
   file: 'File',
   dir: 'Directory',
   types: {

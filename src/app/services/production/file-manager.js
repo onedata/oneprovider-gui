@@ -297,7 +297,7 @@ export default Service.extend({
     });
   },
 
-  async getFileHardlinks(fileId) {
+  async getFileHardlinks(fileId, limit = 100) {
     const idsResult = await this.get('onedataGraph').request({
       operation: 'get',
       gri: gri({
@@ -307,6 +307,9 @@ export default Service.extend({
         scope: 'private',
       }),
       subscribe: false,
+      data: {
+        limit,
+      },
     });
     const hardlinksIds = idsResult.hardlinks || [];
     return allSettled(
@@ -328,6 +331,15 @@ export default Service.extend({
     return allSettled(this.get('fileTableComponents').map(fileBrowser =>
       fileBrowser.onDirChildrenRefresh(parentDirEntityId)
     ));
+  },
+
+  async fileParentRefresh(file) {
+    const parentGri = file.belongsTo('parent').id();
+    if (parentGri) {
+      return await this.get('fileManager').dirChildrenRefresh(
+        parseGri(parentGri).entityId
+      );
+    }
   },
 
   registerRefreshHandler(fileBrowserComponent) {

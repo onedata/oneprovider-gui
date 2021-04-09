@@ -1,0 +1,17 @@
+{{#one-modal
+  class="datasets-modal"
+  open=open
+  size="xl"
+  backdropClose=false
+  keyboard=false
+  onHide=(action "onHide")
+  as |modal|
+}}
+  {{file-datasets
+    modal=modal
+    files=files
+    editPrivilege=editPrivilege
+    getDataUrl=(action getDataUrl)
+    close=(action "onHide")
+  }}
+{{/one-modal}}

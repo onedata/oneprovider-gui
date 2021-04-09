@@ -15,7 +15,7 @@ $space-transfers-gray: #B6BAC0;
     
     &.other-collection {
       td {
-        opacity: 0.6;
+        opacity: $disabled-opacity;
       }
     }
   }
