@@ -1,6 +1,6 @@
 /**
  * Main component for managing datasets for file or directory.
- * 
+ *
  * Currently used in file-browser wrapped with one-modal.
  *
  * @module components/file-datasets
@@ -62,6 +62,13 @@ export default Component.extend(I18n, {
    */
   files: undefined,
 
+  /**
+   * Stores load error if fileDatasetSummary could not be loaded.
+   * It can be cleared to try again fetching.
+   * @type {String}
+   */
+  fileDatasetSummaryLoadError: null,
+
   protectionIcons: Object.freeze({
     data: 'provider',
     metadata: 'browser-attribute',
@@ -95,6 +102,7 @@ export default Component.extend(I18n, {
     'fileDatasetSummary',
     Object.freeze({
       reload: true,
+      computedRelationErrorProperty: 'fileDatasetSummaryLoadError',
     })
   ),
 
@@ -169,8 +177,10 @@ export default Component.extend(I18n, {
           file.reload(),
           fileDatasetSummaryRelation.reload(),
         ];
-        // refresh opened file parent children only if invoker is not this parent
-        if (get(fileInvokingUpdate, 'id') !== file.belongsTo('parent').id()) {
+        // refresh opened file parent and its children only if invoker is not this parent
+        const parentRelation = file.belongsTo('parent');
+        if (get(fileInvokingUpdate, 'id') !== parentRelation.id()) {
+          promises.push(parentRelation.reload());
           promises.push(fileManager.fileParentRefresh(file));
         }
         await allSettled(promises);

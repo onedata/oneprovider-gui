@@ -2,7 +2,6 @@ import { dataWriteProtectionEnabled } from '../file-datasets/summary-header';
 
 export default {
   unknownError: 'Unknown error',
-  startingDownload: 'starting file download',
   menuSelection: 'Selection ({{selectionCount}})',
   header: {
     files: 'Files',

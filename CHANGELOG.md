@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7467 Fixed spinners when preparing file download and error messages
 * VFS-7419 Added support for hard links and (still experimental) symbolic links
 * VFS-7504 Added directory download REST API to info of shared directories
 * VFS-7401 Added support for datasets and write protection in file browser

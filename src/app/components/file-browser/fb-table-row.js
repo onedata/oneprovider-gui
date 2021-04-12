@@ -148,6 +148,13 @@ export default Component.extend(I18n, FastDoubleClick, {
   datasetsViewForbidden: false,
 
   /**
+   * If true, a spinner will be displayed instead of item icon
+   * @virtual
+   * @type {Boolean}
+   */
+  isLoadingOnIcon: false,
+
+  /**
    * Name of icon to indicate that some property in tag is inhertied from ancestor
    * @type {String}
    */
@@ -503,6 +510,11 @@ export default Component.extend(I18n, FastDoubleClick, {
       }
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.loadingOnIconTransitionObserver();
+  },
 
   didInsertElement() {
     this._super(...arguments);
