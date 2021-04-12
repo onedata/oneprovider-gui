@@ -62,6 +62,13 @@ export default Component.extend(I18n, {
    */
   files: undefined,
 
+  /**
+   * Stores load error if fileDatasetSummary could not be loaded.
+   * It can be cleared to try again fetching.
+   * @type {String}
+   */
+  fileDatasetSummaryLoadError: null,
+
   protectionIcons: Object.freeze({
     data: 'provider',
     metadata: 'browser-attribute',
@@ -95,6 +102,7 @@ export default Component.extend(I18n, {
     'fileDatasetSummary',
     Object.freeze({
       reload: true,
+      computedRelationErrorProperty: 'fileDatasetSummaryLoadError',
     })
   ),
 
