@@ -23,14 +23,12 @@ const UploadManager = Service.extend({
 const FileManager = Service.extend(Evented, {
   fetchDirChildren() {},
   copyOrMoveFile() {},
+  createSymlink() {},
+  createHardlink() {},
   registerRefreshHandler() {},
   deregisterRefreshHandler() {},
   refreshDirChildren() {},
   getFileDownloadUrl() {},
-});
-
-const I18n = Service.extend({
-  t: () => '',
 });
 
 describe('Integration | Component | file browser (main component)', function () {
@@ -41,7 +39,6 @@ describe('Integration | Component | file browser (main component)', function () 
   beforeEach(function () {
     registerService(this, 'uploadManager', UploadManager);
     registerService(this, 'fileManager', FileManager);
-    registerService(this, 'i18n', I18n);
   });
 
   it('renders files on list', function () {
@@ -117,6 +114,7 @@ describe('Integration | Component | file browser (main component)', function () 
     for (let i = 0; i < numberOfDirs; ++i) {
       dirs[i].parent = resolve(i > 0 ? dirs[i - 1] : rootDir);
       dirs[i].hasParent = true;
+      dirs[i].effFile = dirs[i];
     }
 
     this.setProperties({
@@ -181,112 +179,75 @@ describe('Integration | Component | file browser (main component)', function () 
     });
   });
 
-  it('shows working paste button when invoked file copy from context menu',
-    function () {
-      const dir = {
-        entityId: 'root',
-        name: 'Test directory',
-        index: 'Test directory',
-        type: 'dir',
-        hasParent: false,
-        parent: resolve(null),
-      };
-      const b1 = {
-        entityId: 'f2',
-        name: 'B1',
-        index: 'B1',
-        type: 'dir',
-        hasParent: true,
-        parent: resolve(dir),
-      };
-      const a1 = {
-        entityId: 'f1',
-        name: 'A1',
-        index: 'A1',
-        type: 'file',
-        hasParent: true,
-        parent: resolve(dir),
-      };
-      const files1 = [
-        a1,
-        b1,
-      ];
-      const files2 = [{
-        entityId: 'f3',
-        name: 'A2',
-        index: 'A2',
-        type: 'file',
-        hasParent: true,
-        parent: resolve(dir),
-      }];
+  itHasWorkingClipboardFunction({
+    description: 'shows working paste button when invoked file copy from context menu',
+    setupStubs: testCase => {
+      testCase.set(
+        'actionSpy',
+        sinon.spy(lookupService(testCase, 'fileManager'), 'copyOrMoveFile')
+      );
+    },
+    contextMenuActionId: 'copy',
+    expectedToolbarActionId: 'paste',
+    finalExpect: testCase => expect(testCase.get('actionSpy'))
+      .to.have.been.calledWith(testCase.get('elementsMap.f1'), 'f2', 'copy'),
+  });
 
-      const dirs = [dir, b1, a1];
+  itHasWorkingClipboardFunction({
+    description: 'shows working symlink button when invoked file symlink from context menu',
+    setupStubs: testCase => {
+      testCase.set(
+        'actionSpy',
+        sinon.stub(lookupService(testCase, 'fileManager'), 'createSymlink').resolves()
+      );
+    },
+    contextMenuActionId: 'createSymlink',
+    expectedToolbarActionId: 'placeSymlink',
+    finalExpect: testCase => expect(testCase.get('actionSpy')).to.have.been.calledWith(
+      'f1 name',
+      testCase.get('elementsMap.f2'),
+      '/root name/f1 name',
+      'myspaceid'
+    ),
+  });
 
-      this.on('updateDirEntityId', function updateDirEntityId(id) {
-        this.set('dir', dirs.findBy('entityId', id));
-      });
+  itHasWorkingClipboardFunction({
+    description: 'shows working hardlink button when invoked file hardlink from context menu',
+    setupStubs: testCase => {
+      testCase.set(
+        'actionSpy',
+        sinon.stub(lookupService(testCase, 'fileManager'), 'createHardlink').resolves()
+      );
+    },
+    contextMenuActionId: 'createHardlink',
+    expectedToolbarActionId: 'placeHardlink',
+    finalExpect: testCase => expect(testCase.get('actionSpy')).to.have.been.calledWith(
+      'f1 name',
+      testCase.get('elementsMap.f2'),
+      testCase.get('elementsMap.f1')
+    ),
+  });
 
-      this.setProperties({
-        dir,
-        selectedFiles: [],
-      });
+  it('has blocked hardlink creation for directories', async function () {
+    mockFilesTree(this, {
+      f1: {},
+    });
 
-      const fileManager = lookupService(this, 'fileManager');
-      const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
-      const copyOrMoveFile = sinon.spy(fileManager, 'copyOrMoveFile');
-      fetchDirChildren.withArgs(
-        'root',
-        sinon.match.any,
-        null,
-        sinon.match.any,
-        0
-      ).resolves({ childrenRecords: files1, isLast: true });
-      fetchDirChildren.withArgs(
-        'f2',
-        sinon.match.any,
-        null,
-        sinon.match.any,
-        0
-      ).resolves({ childrenRecords: files2, isLast: true });
-      fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
+    this.render(hbs `<div id="content-scroll">{{file-browser
+      dir=dir
+      selectedFiles=selectedFiles
+      updateDirEntityId=updateDirEntityId
+      changeSelectedFiles=(action (mut selectedFiles))
+    }}</div>`);
 
-      this.render(hbs `<div id="content-scroll">{{
-        file-browser
-        dir=dir
-        selectedFiles=selectedFiles
-        updateDirEntityId=(action "updateDirEntityId")
-        changeSelectedFiles=(action (mut selectedFiles))
-      }}</div>`);
+    await wait();
+    expect(this.$('.fb-table-row')).to.exist;
 
-      return wait()
-        .then(() => {
-          expect(this.$('.fb-table-row')).to.exist;
-          this.$('.fb-table-row')[0].dispatchEvent(new Event('contextmenu'));
-          return wait();
-        })
-        .then(() => {
-          return click('.file-action-copy');
-        })
-        .then(() => {
-          expect($('.file-action-paste'), 'file-action-paste').to.exist;
-          const dirRow = this.$('.fb-table-row')[1];
-          dirRow.click();
-          return wait().then(() => ({ dirRow }));
-        })
-        .then(({ dirRow }) => {
-          dirRow.click();
-          dirRow.click();
-          return wait();
-        })
-        .then(() => {
-          return click('.file-action-paste');
-        })
-        .then(() => {
-          expect(copyOrMoveFile)
-            .have.been.calledWith(a1, 'f2', 'copy');
-        });
-    }
-  );
+    const $actions = await openFileContextMenu({ name: 'f1 name' });
+
+    expect($actions.find('.file-action-createHardlink').parent())
+      .to.have.class('disabled');
+  });
 
   it('shows empty dir message with working new directory button', function () {
     const entityId = 'deid';
@@ -576,6 +537,7 @@ describe('Integration | Component | file browser (main component)', function () 
         hasParent: false,
         parent: resolve(null),
       };
+      dir.effFile = dir;
 
       const item1 = {
         entityId: 'i1',
@@ -584,6 +546,7 @@ describe('Integration | Component | file browser (main component)', function () 
         hasParent: true,
         parent: resolve(dir),
       };
+      item1.effFile = item1;
 
       this.setProperties({ dir, item1, selectedFiles: [] });
       stubSimpleFetch(this, dir, [item1]);
@@ -611,20 +574,20 @@ describe('Integration | Component | file browser (main component)', function () 
         it('has enabled datasets item in context menu', async function (done) {
           renderWithOpenDatasets(this);
           await wait();
-          const $menu = await openFileContextMenu('i1');
+          const $menu = await openFileContextMenu({ entityId: 'i1' });
           expect($menu.find('li:not(.disabled) .file-action-datasets')).to.exist;
 
           done();
         });
 
         testOpenDatasetsModal('dataset tag is clicked', async function () {
-          const $datasetTag = getFileRow('i1').find('.file-status-dataset');
+          const $datasetTag = getFileRow({ entityId: 'i1' }).find('.file-status-dataset');
           expect($datasetTag, 'dataset tag').to.have.length(1);
           await click($datasetTag[0]);
         });
 
         testOpenDatasetsModal('dataset context menu item is clicked', async function () {
-          await chooseFileContextMenuAction('i1', 'datasets');
+          await chooseFileContextMenuAction({ entityId: 'i1' }, 'datasets');
         });
 
         testDownloadFromContextMenu();
@@ -639,7 +602,7 @@ describe('Integration | Component | file browser (main component)', function () 
         it('has disabled datasets item in context menu', async function (done) {
           renderWithOpenDatasets(this);
           await wait();
-          const $menu = await openFileContextMenu('i1');
+          const $menu = await openFileContextMenu({ entityId: 'i1' });
           expect($menu.find('li.disabled .file-action-datasets')).to.exist;
 
           done();
@@ -662,6 +625,70 @@ describe('Integration | Component | file browser (main component)', function () 
     });
   });
 });
+
+function mockFilesTree(testCase, treeSpec) {
+  const fileManager = lookupService(testCase, 'fileManager');
+  const fetchDirChildrenStub = sinon.stub(fileManager, 'fetchDirChildren');
+
+  const root = {
+    entityId: 'root',
+    name: 'root name',
+    index: 'root name',
+    type: 'dir',
+    hasParent: false,
+    parent: resolve(null),
+  };
+  root.effFile = root;
+  const elementsMap = {
+    root,
+  };
+
+  const treeElementGeneratorQueue = [{ parent: root, subtreeSpec: treeSpec }];
+  while (treeElementGeneratorQueue.length) {
+    const {
+      parent,
+      subtreeSpec,
+    } = treeElementGeneratorQueue.shift();
+    const subtreeElements = Object.keys(subtreeSpec).map(subElementId => {
+      const isDir = subtreeSpec[subElementId] !== null;
+      const element = {
+        entityId: subElementId,
+        name: `${subElementId} name`,
+        index: `${subElementId} name`,
+        type: isDir ? 'dir' : 'file',
+        hasParent: true,
+        parent: resolve(parent),
+      };
+      element.effFile = element;
+      elementsMap[subElementId] = element;
+      if (isDir) {
+        treeElementGeneratorQueue.push({
+          parent: element,
+          subtreeSpec: subtreeSpec[subElementId],
+        });
+      }
+      return element;
+    });
+    fetchDirChildrenStub.withArgs(
+      parent.entityId,
+      sinon.match.any,
+      null,
+      sinon.match.any,
+      0,
+      sinon.match.any
+    ).resolves({ childrenRecords: subtreeElements, isLast: true });
+  }
+
+  fetchDirChildrenStub.resolves({ childrenRecords: [], isLast: true });
+
+  testCase.setProperties({
+    elementsMap,
+    fetchDirChildrenStub,
+    updateDirEntityId: id => testCase.set('dir', elementsMap[id]),
+    dir: root,
+    selectedFiles: [],
+  });
+}
 
 function testOpenDatasetsModal(openDescription, openFunction) {
   it(`invokes datasets modal opening when ${openDescription}`, async function (done) {
@@ -697,13 +724,17 @@ function testDownloadFromContextMenu() {
     'shows spinner and starts download after using download context menu item';
   it(description, async function (done) {
     const btnId = this.get('item1.type') === 'dir' ? 'downloadTarGz' : 'download';
-    testDownload(this, done, (fileId) => chooseFileContextMenuAction(fileId, btnId));
+    testDownload(
+      this,
+      done,
+      (fileId) => chooseFileContextMenuAction({ entityId: fileId }, btnId)
+    );
   });
 }
 
 function testDownloadUsingDoubleClick() {
   it('shows spinner and starts download after double click', async function (done) {
-    testDownload(this, done, doubleClickFile);
+    testDownload(this, done, (fileId) => doubleClickFile({ entityId: fileId }));
   });
 }
 
@@ -716,7 +747,7 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
 
   renderWithDownloadSpy(testCase);
   await wait();
-  const $row = getFileRow(fileId);
+  const $row = getFileRow({ entityId: fileId });
 
   expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
   await invokeDownloadFunction(fileId);
@@ -729,6 +760,44 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
   expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
 
   done();
+}
+
+function itHasWorkingClipboardFunction({
+  description,
+  setupStubs,
+  contextMenuActionId,
+  expectedToolbarActionId,
+  finalExpect,
+}) {
+  it(description, async function () {
+    mockFilesTree(this, {
+      f1: null,
+      f2: {
+        f3: null,
+      },
+    });
+    setupStubs(this);
+
+    this.render(hbs `<div id="content-scroll">{{file-browser
+      dir=dir
+      spaceId="myspaceid"
+      selectedFiles=selectedFiles
+      updateDirEntityId=updateDirEntityId
+      changeSelectedFiles=(action (mut selectedFiles))
+    }}</div>`);
+
+    await wait();
+    expect(this.$('.fb-table-row')).to.exist;
+
+    await chooseFileContextMenuAction({ name: 'f1 name' }, contextMenuActionId);
+
+    expect($(`.file-action-${expectedToolbarActionId}`)).to.exist;
+
+    await doubleClickFile({ name: 'f2 name' });
+    await click(`.file-action-${expectedToolbarActionId}`);
+
+    finalExpect(this);
+  });
 }
 
 function prepareDownload(testCase) {
@@ -766,21 +835,26 @@ function stubSimpleFetch(testCase, dir, childrenRecords) {
   return fetchDirChildren;
 }
 
-function getFileRow(fileId) {
-  const $row = $(`.fb-table-row[data-row-id=${fileId}]`);
+function getFileRow({ entityId, name }) {
+  let $row;
+  if (entityId) {
+    $row = $(`.fb-table-row[data-row-id=${entityId}]`);
+  } else {
+    $row = $(`.fb-table-row:contains("${name}")`);
+  }
   expect($row).to.have.length(1);
   return $row;
 }
 
-async function doubleClickFile(fileId) {
-  const row = getFileRow(fileId)[0];
+async function doubleClickFile(file) {
+  const row = getFileRow(file)[0];
   click(row);
   await sleep(1);
   await click(row);
 }
 
-async function openFileContextMenu(fileId) {
-  const $row = getFileRow(fileId);
+async function openFileContextMenu(file) {
+  const $row = getFileRow(file);
   $row[0].dispatchEvent(new Event('contextmenu'));
   await wait();
   const $fileActions = $('.file-actions');
@@ -788,7 +862,7 @@ async function openFileContextMenu(fileId) {
   return $fileActions;
 }
 
-async function chooseFileContextMenuAction(fileId, actionId) {
-  const $fileActions = await openFileContextMenu(fileId);
+async function chooseFileContextMenuAction(file, actionId) {
+  const $fileActions = await openFileContextMenu(file);
   await click($fileActions.find(`.file-action-${actionId}`)[0]);
 }

@@ -8,7 +8,7 @@ import { registerService } from '../../../helpers/stub-service';
 import { triggerEvent } from 'ember-native-dom-helpers';
 import $ from 'jquery';
 import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/models/file';
-import EmberObject from '@ember/object';
+import EmberObject, { set } from '@ember/object';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -31,23 +31,29 @@ describe('Integration | Component | file browser/fb table row', function () {
   it('renders modification date', function () {
     const date = moment('2022-05-18T08:50:00+00:00').unix();
     const dateReadable = /18 May 2022 \d+:50/;
-    const file = {
-      modificationTime: date,
-      posixPermissions: '777',
-      type: 'file',
-      belongsTo(name) {
-        if (name === 'owner') {
-          return {
-            id: () => userGri,
-          };
-        }
-      },
-    };
-    this.set('file', file);
-    this.render(hbs `{{file-browser/fb-table-row
-      file=file
-    }}`);
+    this.set('file', createFile({ modificationTime: date }));
+
+    this.render(hbs `{{file-browser/fb-table-row file=file}}`);
+
     expect(this.$('.fb-table-col-modification').text()).to.match(dateReadable);
+  });
+
+  it('does not render "hard links" file tag, when hardlinks count equals 1', function () {
+    this.set('file', createFile({ hardlinksCount: 1 }));
+
+    this.render(hbs `{{file-browser/fb-table-row file=file }}`);
+
+    expect(this.$('.file-status-hardlinks'), 'refs tag').to.not.exist;
+  });
+
+  it('renders "hard links" file tag, when hardlinks count equals 2', function () {
+    this.set('file', createFile({ hardlinksCount: 2 }));
+
+    this.render(hbs `{{file-browser/fb-table-row file=file }}`);
+
+    const $tag = this.$('.file-status-hardlinks');
+    expect($tag, 'hard links tag').to.exist;
+    expect($tag.text().trim()).to.equal('2 hard links');
   });
 
   describe('renders "no access" file tag when', function () {
@@ -257,7 +263,12 @@ function createFile(override = {}, ownerGri = userGri) {
       }
     },
   }, override);
-  return FileMock.create(data);
+
+  const file = FileMock.create(data);
+  if (!data.type !== 'symlink') {
+    set(file, 'effFile', data);
+  }
+  return file;
 }
 
 function render(testCase) {

@@ -59,6 +59,26 @@ export function getFileGri(fileId, scope) {
 
 export const RuntimeProperties = Mixin.create({
   /**
+   * Not empty when file is a symlink and points to an accessible file.
+   * @type {Models.File|undefined}
+   */
+  symlinkTargetFile: undefined,
+
+  /**
+   * When file is a symlink, then `effFile` is the file pointed
+   * by the symlink (so can be empty). For other types of files it points to
+   * the same file (as normal file can be treated as a "symlink to itself").
+   * @type {Models.File}
+   */
+  effFile: computed('type', 'symlinkTargetFile', function effFile() {
+    const {
+      type,
+      symlinkTargetFile,
+    } = this.getProperties('type', 'symlinkTargetFile');
+    return type === 'symlink' ? symlinkTargetFile : this;
+  }),
+
+  /**
    * Contains error of loading file distribution. Is null if distribution has not
    * been fetched yet or it has been fetched successfully. It is persisted in this place
    * due to the bug in Ember that makes belongsTo relationship unusable after
@@ -149,12 +169,22 @@ export default Model.extend(
   createConflictModelMixin('shareRecords'), {
     name: attr('string'),
     index: attr('string'),
-    type: attr('string'),
+    type: attr('file-type'),
     size: attr('number'),
     posixPermissions: attr('string'),
     hasMetadata: attr('boolean'),
 
     sharesCount: attr('number'),
+    hardlinksCount: attr('number', { defaultValue: 1 }),
+
+    /**
+     * Not empty only for symlinks. Contains target path. May contain any string,
+     * but in general it may look like this (relative path):
+     * `../some/file`
+     * or like this (absolute path):
+     * `<__onedata_space_id:cbe3808d32b011f8578877ca531ad214chfb28>/some/file`
+     */
+    targetPath: attr('string'),
 
     /**
      * Possible values: none, direct, ancestor

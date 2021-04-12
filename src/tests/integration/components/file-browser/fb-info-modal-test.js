@@ -15,6 +15,7 @@ import sinon from 'sinon';
 import { click, findAll } from 'ember-native-dom-helpers';
 import { clickTrigger } from '../../../helpers/ember-power-select';
 import $ from 'jquery';
+import OneTooltipHelper from '../../../helpers/one-tooltip';
 
 const returnDummyUrl = () => 'https://dummy';
 
@@ -29,7 +30,10 @@ const RestGenerator = Service.extend({
 
 const urlTypeTranslations = {
   listSharedDirectoryChildren: 'List directory files and subdirectories',
-  downloadSharedFileContent: 'Download file content',
+  downloadSharedFileContent: {
+    file: 'Download file content',
+    dir: 'Download directory (tar.gz)',
+  },
   getSharedFileAttributes: 'Get attributes',
   getSharedFileJsonMetadata: 'Get JSON metadata',
   getSharedFileRdfMetadata: 'Get RDF metadata',
@@ -39,7 +43,10 @@ const urlTypeTranslations = {
 // checking only significant fragments to not duplicate whole world
 const urlTypeDescriptionTranslations = {
   listSharedDirectoryChildren: 'returns the list of directory',
-  downloadSharedFileContent: 'returns the binary file',
+  downloadSharedFileContent: {
+    file: 'returns the binary file',
+    dir: 'returns a compressed (GZIP) TAR archive with directory contents',
+  },
   getSharedFileAttributes: 'returns basic attributes',
   getSharedFileJsonMetadata: 'returns custom JSON',
   getSharedFileRdfMetadata: 'returns custom RDF',
@@ -53,6 +60,14 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
   beforeEach(function () {
     registerService(this, 'restGenerator', RestGenerator);
+    const fileHardlinksResult = this.set('fileHardlinksResult', {
+      hardlinksCount: 1,
+      hardlinks: [],
+      errors: [{ id: 'forbidden' }],
+    });
+    sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
+      .resolves(fileHardlinksResult);
+    this.set('getDataUrl', ({ selected: [firstSelected] }) => `link-${firstSelected}`);
   });
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy
@@ -88,6 +103,210 @@ describe('Integration | Component | file browser/fb info modal', function () {
     done();
   });
 
+  it('does not render symlink target path when file is not symlink', function () {
+    this.set('file', {
+      type: 'file',
+      targetPath: 'some/path',
+    });
+
+    render(this);
+
+    expect(this.$('.file-info-row-target-path')).to.not.exist;
+  });
+
+  it('does render symlink target relative path when file is a symlink', function () {
+    this.set('file', {
+      type: 'symlink',
+      targetPath: 'some/path',
+    });
+
+    render(this);
+
+    expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+      .to.equal('some/path');
+  });
+
+  it('renders symlink target absolute path with space name when file is a symlink and space id is known',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space1>/some/path',
+        },
+        space: {
+          entityId: 'space1',
+          name: 'space 1',
+        },
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/space 1/some/path');
+    }
+  );
+
+  it('renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space2>/some/path',
+        },
+        space: {
+          entityId: 'space1',
+          name: 'space 1',
+        },
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/<unknown space>/some/path');
+    }
+  );
+
+  it('renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
+    function () {
+      this.setProperties({
+        file: {
+          type: 'symlink',
+          targetPath: '<__onedata_space_id:space1>/some/path',
+        },
+        space: undefined,
+      });
+
+      render(this);
+
+      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+        .to.equal('/<unknown space>/some/path');
+    }
+  );
+
+  it('does not show tabs when hardlinks count is 1', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 1,
+    });
+
+    render(this);
+    await wait();
+
+    expect(this.$('.nav-tabs')).to.not.exist;
+  });
+
+  it('shows hardlinks tab when hardlinks count is 2', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 2,
+    });
+
+    render(this);
+    await wait();
+
+    expect(this.$('.nav-tabs').text()).to.contain('Hard links (2)');
+  });
+
+  it('shows hardlinks list', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 2,
+    });
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 2,
+      hardlinks: [{
+        entityId: 'f1',
+        name: 'abc',
+      }, {
+        entityId: 'f2',
+        name: 'def',
+      }],
+      errors: [],
+    });
+
+    render(this);
+
+    await wait();
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(2);
+    expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
+    expect($fileHardlinks.eq(0).find('.file-path').text().trim()).to.match(/Path:\s*\/abc/);
+    expect($fileHardlinks.eq(0).find('.file-path a')).to.have.attr('href', 'link-f1');
+    expect($fileHardlinks.eq(1).find('.file-name').text().trim()).to.equal('def');
+    expect($fileHardlinks.eq(1).find('.file-path').text().trim()).to.match(/Path:\s*\/def/);
+    expect($fileHardlinks.eq(1).find('.file-path a')).to.have.attr('href', 'link-f2');
+    expect($fileHardlinks.find('.file-type-icon.oneicon-browser-file')).to.have.length(2);
+  });
+
+  it('shows hardlinks partial fetch error', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 2,
+    });
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 4,
+      hardlinks: [{
+        entityId: 'f1',
+        name: 'abc',
+      }],
+      errors: [{
+        id: 'forbidden',
+      }, {
+        id: 'unauthorized',
+      }, {
+        id: 'forbidden',
+      }],
+    });
+
+    render(this);
+
+    await wait();
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(2);
+    expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
+    expect($fileHardlinks.eq(1).text().trim()).to.equal('And 3 more that you cannot access.');
+    const tooltipText =
+      await new OneTooltipHelper($fileHardlinks.eq(1).find('.one-icon')[0]).getText();
+    expect(tooltipText).to.equal(
+      'Cannot load files due to error: "You are not authorized to perform this operation (insufficient privileges?)." and 1 more errors.'
+    );
+  });
+
+  it('shows hardlinks full fetch error', async function () {
+    this.set('file', {
+      type: 'file',
+      hardlinksCount: 2,
+    });
+    Object.assign(this.get('fileHardlinksResult'), {
+      hardlinksCount: 2,
+      hardlinks: [],
+      errors: [{
+        id: 'unauthorized',
+      }, {
+        id: 'unauthorized',
+      }],
+    });
+
+    render(this);
+
+    await wait();
+    await click(this.$('.nav-link:contains("Hard links")')[0]);
+
+    const $fileHardlinks = this.$('.file-hardlink');
+    expect($fileHardlinks).to.have.length(1);
+    expect($fileHardlinks.eq(0).text().trim())
+      .to.equal('You do not have access to the hard links of this file.');
+    const tooltipText =
+      await new OneTooltipHelper($fileHardlinks.eq(0).find('.one-icon')[0]).getText();
+    expect(tooltipText).to.equal(
+      'Cannot load files due to error: "You must authenticate yourself to perform this operation.".'
+    );
+  });
+
   context('for file', function () {
     beforeEach(function () {
       this.set('file', file1);
@@ -118,7 +337,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     it('renders space id', async function (done) {
       const spaceEntityId = 's893y37439';
-      this.set('spaceEntityId', spaceEntityId);
+      this.set('space', { entityId: spaceEntityId });
 
       render(this);
 
@@ -170,14 +389,15 @@ describe('Integration | Component | file browser/fb info modal', function () {
       ];
 
       testRenderRestUrl(true);
-      testRenderRestUrlTypeOptions(restUrlTypes);
+      testRenderRestUrlTypeOptions(restUrlTypes, 'file');
 
       restUrlTypes.forEach(type => {
-        testRenderRestUrlAndInfoForType(type);
+        testRenderRestUrlAndInfoForType(type, 'file');
       });
 
       testRenderRestUrlAndInfoForType(
         'downloadSharedFileContent',
+        'file',
         false,
         'shows download content REST URL and its info in hint by default'
       );
@@ -190,22 +410,24 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
       const restUrlTypes = [
         'listSharedDirectoryChildren',
+        'downloadSharedFileContent',
         'getSharedFileAttributes',
         'getSharedFileJsonMetadata',
         'getSharedFileRdfMetadata',
         'getSharedFileExtendedAttributes',
       ];
 
-      testRenderRestUrlTypeOptions(restUrlTypes);
+      testRenderRestUrlTypeOptions(restUrlTypes, 'dir');
 
       testRenderRestUrl(true);
 
       restUrlTypes.forEach(type => {
-        testRenderRestUrlAndInfoForType(type);
+        testRenderRestUrlAndInfoForType(type, 'dir');
       });
 
       testRenderRestUrlAndInfoForType(
         'listSharedDirectoryChildren',
+        'dir',
         false,
         'shows list children REST URL and its info in hint by default'
       );
@@ -229,18 +451,18 @@ function testRenderRestUrl(renders = true) {
   });
 }
 
-function testRenderRestUrlTypeOptions(options) {
+function testRenderRestUrlTypeOptions(options, fileType) {
   const optionsString = options.map(option => `"${option}"`).join(', ');
   it(`renders only ${optionsString} REST URL type option(s) in selector`, async function (done) {
     render(this);
     await clickTrigger('.rest-url-type-row');
     const $options = $('li.ember-power-select-option');
-    checkUrlTypeOptions($options, options);
+    checkUrlTypeOptions($options, options, fileType);
     done();
   });
 }
 
-function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
+function testRenderRestUrlAndInfoForType(type, fileType, useSelector = true, customText) {
   const text = customText ||
     `shows proper REST URL and info in hint when selected ${type} URL`;
   it(text, async function (done) {
@@ -252,8 +474,12 @@ function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
 
     render(this);
 
+    const typeTranslation = getUrlTypeTranslation(type, fileType);
+
+    const typeDescriptionTranslation = getUrlTypeDescriptionTranslation(type, fileType);
+
     if (useSelector) {
-      await selectChoose('.rest-url-type-row', urlTypeTranslations[type]);
+      await selectChoose('.rest-url-type-row', typeTranslation);
     } else {
       await wait();
     }
@@ -269,7 +495,10 @@ function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
     const $popover = $('.webui-popover-rest-url-type-info');
     expect($popover).to.exist;
     expect($popover).to.have.class('in');
-    expect($popover.text()).to.contain(urlTypeDescriptionTranslations[type]);
+    expect($popover.text()).to.contain(typeDescriptionTranslation);
+    const $apiDocLink = $popover.find('.documentation-link');
+    expect($apiDocLink).to.have.length(1);
+    expect($apiDocLink.attr('href')).to.match(/.*?\/latest\/.*?operation\/get_shared_data/);
     done();
   });
 }
@@ -279,16 +508,30 @@ function render(testCase) {
     open=true
     file=file
     previewMode=previewMode
-    spaceEntityId=spaceEntityId
+    space=space
     selectedRestUrlType=selectedRestUrlType
+    getDataUrl=getDataUrl
   }}`);
 }
 
-function checkUrlTypeOptions($options, urlTypes) {
+function getUrlTypeTranslation(type, fileType) {
+  return type === 'downloadSharedFileContent' ?
+    urlTypeTranslations.downloadSharedFileContent[fileType] :
+    urlTypeTranslations[type];
+}
+
+function getUrlTypeDescriptionTranslation(type, fileType) {
+  return type === 'downloadSharedFileContent' ?
+    urlTypeDescriptionTranslations.downloadSharedFileContent[fileType] :
+    urlTypeDescriptionTranslations[type];
+}
+
+function checkUrlTypeOptions($options, urlTypes, fileType) {
   expect($options).to.have.length(urlTypes.length);
   const optionTexts = Array.from($options).map(opt => opt.textContent.trim());
   for (let i = 0; i < urlTypes.length; ++i) {
-    expect(optionTexts).to.contain(urlTypeTranslations[urlTypes[i]]);
+    expect(optionTexts, optionTexts.join(','))
+      .to.contain(getUrlTypeTranslation(urlTypes[i], fileType));
   }
 }
 

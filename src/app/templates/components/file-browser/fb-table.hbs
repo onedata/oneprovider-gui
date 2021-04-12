@@ -104,10 +104,28 @@
         {{#if fileClipboardFiles.length}}
           <h2 class="empty-dir-text dir-box-text">
             {{tt this "emptyDirBox.youCanAlso"}}
-            <a class="empty-dir-new-directory-action" {{action "emptyDirPaste"}}>
-              <div class="inline-icon-container bind-right-text">
-                {{one-icon icon="clipboard-copy"}}
-              </div>&nbsp;{{tt this "emptyDirBox.paste"}}</a> {{tt this "emptyDirBox.filesFromClipboard"}}.
+            {{#if (eq fileClipboardMode "symlink")}}
+              <a class="empty-dir-place-symlink-action" {{action "emptyDirPlaceSymlink"}}>
+                <div class="inline-icon-container bind-right-text">
+                  {{one-icon icon="shortcut"}}
+                </div>&nbsp;{{tt this "emptyDirBox.placeSymlinks"}}
+              </a>
+              {{tt this "emptyDirBox.toFilesInClipboard"}}.
+            {{else if (eq fileClipboardMode "hardlink")}}
+              <a class="empty-dir-place-hardlink-action" {{action "emptyDirPlaceHardlink"}}>
+                <div class="inline-icon-container bind-right-text">
+                  {{one-icon icon="text-link"}}
+                </div>&nbsp;{{tt this "emptyDirBox.placeHardlinks"}}
+              </a>
+              {{tt this "emptyDirBox.toFilesInClipboard"}}.
+            {{else}}
+              <a class="empty-dir-paste-action" {{action "emptyDirPaste"}}>
+                <div class="inline-icon-container bind-right-text">
+                  {{one-icon icon="clipboard-copy"}}
+                </div>&nbsp;{{tt this "emptyDirBox.paste"}}
+              </a>
+              {{tt this "emptyDirBox.filesFromClipboard"}}.
+            {{/if}}
           </h2>
         {{/if}}
       {{/if}}

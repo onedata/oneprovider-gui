@@ -1,6 +1,6 @@
 /**
  * Container for file browser to use in an iframe with injected properties.
- * 
+ *
  * @module component/content-file-browser
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -61,6 +61,8 @@ export default OneEmbeddedComponent.extend(
     _window: window,
 
     fileToShowInfo: undefined,
+
+    showInfoInitialTab: undefined,
 
     fileToShowMetadata: undefined,
 
@@ -186,7 +188,7 @@ export default OneEmbeddedComponent.extend(
             return spaceProxy.then(space => {
               if (injectedDirGri) {
                 return store.findRecord('file', injectedDirGri)
-                  .then(file => get(file, 'type') === 'file' ? get(file, 'parent') : file)
+                  .then(file => get(file, 'type') !== 'dir' ? get(file, 'parent') : file)
                   .catch(error => {
                     globalNotify.backendError(this.t('openingDirectory'), error);
                     return get(space, 'rootDir');
@@ -402,8 +404,11 @@ export default OneEmbeddedComponent.extend(
       closeRenameModal() {
         this.closeRenameModal();
       },
-      openInfoModal(file) {
-        this.set('fileToShowInfo', file);
+      openInfoModal(file, activeTab) {
+        this.setProperties({
+          fileToShowInfo: file,
+          showInfoInitialTab: activeTab || 'general',
+        });
       },
       closeInfoModal() {
         this.closeInfoModal();

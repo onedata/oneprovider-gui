@@ -296,7 +296,18 @@ export default Component.extend(I18n, {
 
   newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
 
+  placeSymlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeSymlink')),
+
+  placeHardlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeHardlink')),
+
   pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
+
+  isHardlinkingPossible: computed(
+    'fileClipboardFiles.@each.type',
+    function isHardlinkingPossible() {
+      return !(this.get('fileClipboardFiles') || []).isAny('type', 'dir');
+    }
+  ),
 
   /**
    * When file rows are removed, we need additional space on top to fill the void.
@@ -857,9 +868,13 @@ export default Component.extend(I18n, {
   },
 
   openFile(file, confirmModal = false) {
-    const isDir = get(file, 'type') === 'dir';
+    const effFile = get(file, 'effFile');
+    if (!effFile) {
+      return;
+    }
+    const isDir = get(effFile, 'type') === 'dir';
     if (isDir) {
-      return this.get('changeDir')(file);
+      return this.get('changeDir')(effFile);
     } else {
       if (confirmModal) {
         this.set('downloadModalFile', file);
@@ -1073,6 +1088,14 @@ export default Component.extend(I18n, {
 
     emptyDirNewDirectory() {
       return this.get('newDirectoryAction.action')(...arguments);
+    },
+
+    emptyDirPlaceSymlink() {
+      return this.get('placeSymlinkAction.action')(...arguments);
+    },
+
+    emptyDirPlaceHardlink() {
+      return this.get('placeHardlinkAction.action')(...arguments);
     },
 
     emptyDirPaste() {

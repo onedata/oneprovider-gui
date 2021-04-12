@@ -9,7 +9,6 @@
  */
 
 import ProductionFileManager from '../production/file-manager';
-import { resolve } from 'rsvp';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled, Promise } from 'rsvp';
 import { get } from '@ember/object';
@@ -20,21 +19,8 @@ export default ProductionFileManager.extend({
   /**
    * @override
    */
-  fetchDirChildren(dirId, scope, index, limit, offset) {
-    if (!limit || limit <= 0) {
-      return resolve([]);
-    } else {
-      return this.fetchChildrenAttrs({
-        dirId,
-        scope,
-        index,
-        limit,
-        offset,
-      }).then(({ children, isLast }) => {
-        return allFulfilled(children.map(attr => this.getFileById(get(attr, 'guid'))))
-          .then(childrenRecords => ({ childrenRecords, isLast }));
-      });
-    }
+  pushChildrenAttrsToStore(childrenAttrs) {
+    return allFulfilled(childrenAttrs.map(attr => this.getFileById(get(attr, 'guid'))));
   },
 
   getFileDownloadUrl() {

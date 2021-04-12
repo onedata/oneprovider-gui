@@ -1,6 +1,6 @@
 /**
  * An auto-collapsible path to selected dir.
- * 
+ *
  * @module components/file-browser/fb-breadcrumbs
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -77,12 +77,6 @@ export default Component.extend(
      * @type {Function}
      */
     selectCurrentDir: notImplementedIgnore,
-
-    /**
-     * @virtual
-     * @type {boolean}
-     */
-    clipboardReady: undefined,
 
     /**
      * @virtual
@@ -216,7 +210,7 @@ export default Component.extend(
     /**
      * @override
      * BreadcrumbsItems filtered with `filterBreadcrumbsItems` function.
-     * It should contain max. `elementsToShow` + ellipsis elements. 
+     * It should contain max. `elementsToShow` + ellipsis elements.
      * @type {ObjectPromiseProxy<Ember.Array<FileBreadcrumbsItem>>}
      * @returns {Promise}
      */
