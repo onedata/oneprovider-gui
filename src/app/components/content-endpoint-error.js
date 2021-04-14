@@ -33,6 +33,16 @@ export default OneEmbeddedComponent.extend(
     iframeInjectedProperties: Object.freeze([]),
 
     /**
+     * @override
+     */
+    checkErrorType: 'oneproviderEndpoint',
+
+    /**
+     * @override
+     */
+    resourceId: reads('clusterId'),
+
+    /**
      * @type {number}
      */
     requestCounter: 0,
@@ -46,16 +56,6 @@ export default OneEmbeddedComponent.extend(
      * @type {number}
      */
     requestFastInterval: 500,
-
-    /**
-     * @override
-     */
-    checkErrorType: 'oneproviderEndpoint',
-
-    /**
-     * @override
-     */
-    resourceId: reads('clusterId'),
 
     clusterId: reads('guiContext.clusterId'),
 
