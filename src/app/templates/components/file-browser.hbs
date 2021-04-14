@@ -5,12 +5,11 @@
       {{file-browser/fb-breadcrumbs
         dir=dir
         rootDir=customRootDir
-        clipboardReady=clipboardReady
         menuButtons=currentDirMenuButtons
         resolveFileParentFun=resolveFileParentFun
         previewMode=previewMode
         changeDir=(action "changeDir")
-        clearSelection=(action "changeSelectedFiles" (array))
+        selectCurrentDir=(action "selectCurrentDir")
       }}
     </div>
     <div class="text-right fb-toolbar-container hidden-xs">
@@ -24,7 +23,8 @@
       {{file-browser/fb-toolbar
         dir=dir
         previewMode=previewMode
-        clipboardReady=clipboardReady
+        fileClipboardMode=fileClipboardMode
+        fileClipboardFiles=fileClipboardFiles
         selectionContext=selectionContext
         allButtonsArray=allButtonsArray
         selectCurrentDir=(action "selectCurrentDir")

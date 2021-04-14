@@ -1,6 +1,6 @@
 /**
  * An auto-collapsible path to selected dir.
- * 
+ *
  * @module components/file-browser/fb-breadcrumbs
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -76,13 +76,7 @@ export default Component.extend(
      * @virtual
      * @type {Function}
      */
-    clearSelection: notImplementedIgnore,
-
-    /**
-     * @virtual
-     * @type {boolean}
-     */
-    clipboardReady: undefined,
+    selectCurrentDir: notImplementedIgnore,
 
     /**
      * @virtual
@@ -216,7 +210,7 @@ export default Component.extend(
     /**
      * @override
      * BreadcrumbsItems filtered with `filterBreadcrumbsItems` function.
-     * It should contain max. `elementsToShow` + ellipsis elements. 
+     * It should contain max. `elementsToShow` + ellipsis elements.
      * @type {ObjectPromiseProxy<Ember.Array<FileBreadcrumbsItem>>}
      * @returns {Promise}
      */
@@ -288,12 +282,14 @@ export default Component.extend(
         this.get('changeDir')(dir);
       },
       actionClicked() {
-        this.get('clearSelection')();
         this.send('toggleDirActions', false);
       },
       toggleDirActions(open) {
         const _open =
           (typeof open === 'boolean') ? open : !this.get('dirActionsOpen');
+        if (_open) {
+          this.get('selectCurrentDir')();
+        }
         this.set('dirActionsOpen', _open);
       },
     },

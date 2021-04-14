@@ -2,14 +2,56 @@
   {{#each toolbarButtons as |button|}}
     <div
       onclick={{action "buttonClicked" button}}
-      class="fb-toolbar-button {{if button.disabled "disabled"}} {{button.class}}"
+      class={{concat-classes
+        "fb-toolbar-button"
+        (if button.disabled "disabled")
+        (if (contains button highlightedToolbarButtons) "text-success")
+        button.class
+      }}
       disabled={{button.disabled}}
     >
       {{#one-icon icon=button.icon}}
-        {{#if button.title}}
-          {{one-tooltip title=button.title}}
+        {{#if (or button.tip button.title)}}
+          {{one-tooltip title=(or button.tip button.title)}}
         {{/if}}
       {{/one-icon}}
     </div>
   {{/each}}
 </div>
+{{#if (and isClipboardHintVisible (not media.isMobile))}}
+  <div class="fixes-popover-rendering-due-to-ember-bug">
+    {{#one-webui-popover
+      popoverTrigger="manual"
+      popoverStyle="clipboard-help"
+      triggerSelector=clipboardHintTargetSelector
+      open=true
+      placement="bottom"
+      onToggle=(action "clipboardHintVisibleChange")
+    }}
+      {{#click-outside action=(action (mut isClipboardHintVisible) false)}}
+        {{#if (or (eq fileClipboardMode "symlink") (eq fileClipboardMode "hardlink"))}}
+          {{tt this
+            (concat
+              "clipboardHint.link.beforePlaceIcon"
+              (if (eq fileClipboardMode "symlink") "Symlink" "Hardlink")
+            )
+            links=(tt this (concat
+            "clipboardHint.link."
+              (if (gt fileClipboardFiles.length 1) "linkPlural" "linkSingular")
+            ))
+          }}
+          {{one-icon icon=(if (eq fileClipboardMode "symlink") "shortcut" "text-link")}}
+          {{tt this "clipboardHint.link.afterPlaceIcon"}}
+        {{else if (eq fileClipboardMode "copy")}}
+          {{tt this "clipboardHint.copy.beforePasteIcon"}}
+          {{one-icon icon="browser-paste"}}
+          {{tt this "clipboardHint.copy.afterPasteIcon"}}
+        {{else if (eq fileClipboardMode "move")}}
+          {{tt this "clipboardHint.move.beforePasteIcon"}}
+          {{one-icon icon="browser-paste"}}
+          {{tt this "clipboardHint.move.afterPasteIcon"}}
+        {{/if}}
+      {{/click-outside}}
+    {{/one-webui-popover}}
+  </div>
+{{/if}}

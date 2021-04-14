@@ -1,0 +1,17 @@
+.file-datasets-direct-dataset {
+  .direct-dataset-item {
+    > td {
+      border-top: 0;
+    }
+    .col-dataset-info {
+      transition: transition-ease(opacity);
+      @include font-semibold;
+    }
+  }
+  
+  @media (max-width: $screen-xs-max) {
+    .attach-dataset-hint-trigger {
+      display: none;
+    }
+  }
+}

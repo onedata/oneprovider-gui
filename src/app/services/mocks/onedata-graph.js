@@ -386,6 +386,24 @@ const fileHandlers = {
       };
     }
   },
+  hardlinks(operation, entityId) {
+    switch (operation) {
+      case 'get':
+        return {
+          hardlinks: this.getHardlinks(entityId),
+        };
+      default:
+        return messageNotSupported;
+    }
+  },
+  symlink_target(operation, entityId) {
+    switch (operation) {
+      case 'get':
+        return this.getSymlinkTargetFile(entityId);
+      default:
+        return messageNotSupported;
+    }
+  },
   xattrs(operation, entityId, data) {
     switch (operation) {
       case 'get': {
@@ -528,7 +546,7 @@ const metaRdf = `<?xml version="1.0" encoding="UTF-8"?>
         <user-time>26</user-time>
         <service-time>25</service-time>
         <build-version>21978</build-version>
-    </diagnostics> 
+    </diagnostics>
     <results>
         <place xmlns="http://where.yahooapis.com/v1/schema.rng"
             xml:lang="en-US" yahoo:uri="http://where.yahooapis.com/v1/place/24865670">
@@ -721,6 +739,26 @@ export default OnedataGraphMock.extend({
     }
   },
 
+  getSymlinkTargetFile(symlinkEntityId) {
+    const targetFileEntityId = this.get('mockBackend.symlinkMap')[symlinkEntityId];
+    if (!targetFileEntityId) {
+      return null;
+    }
+    const targetFile =
+      this.get('mockBackend.entityRecords.file').findBy('entityId', targetFileEntityId);
+    return targetFile ? recordToChildData(targetFile) : null;
+  },
+
+  getHardlinks(fileEntityId) {
+    const files = this.get('mockBackend.entityRecords.file');
+    const originalFile = files.findBy('entityId', fileEntityId);
+    const hardlinks = [originalFile];
+    if (get(originalFile, 'hardlinksCount') > 1) {
+      hardlinks.push(files.without(originalFile).findBy('hardlinksCount', 2));
+    }
+    return hardlinks.compact().mapBy('id');
+  },
+
   getMockChildrenData(dirEntityId) {
     const childrenDetailsCache = this.get('childrenDetailsCache');
     const mockEntityRecords = this.get('mockBackend.entityRecords');
@@ -768,7 +806,9 @@ function recordToChildData(record) {
     'size',
     'posixPermissions',
     'hasMetadata',
-    'hasQos',
+    'effQosMembership',
+    'effDatasetMembership',
+    'effProtectionFlags',
     'mtime',
     'activePermissionsType'
   ), {

@@ -1,9 +1,9 @@
 export default {
   header: '{{type}} details',
-  file: 'File',
-  dir: 'Directory',
   name: '{{type}} name',
-  path: '{{type}} path',
+  path: '{{type}} location',
+  symlinkTargetPath: 'Symbolic link target path',
+  unknownSpaceInSymlink: 'unknown space',
   spaceId: 'Space ID',
   cdmiObjectId: 'File ID',
   modificationTime: 'Modified at',
@@ -17,7 +17,10 @@ export default {
   restTipSpecificIntro: 'This endpoint returns {{typeDescription}}.',
   restTipSpecificType: {
     listSharedDirectoryChildren: 'the list of directory files and subdirectories',
-    downloadSharedFileContent: 'the binary file content',
+    downloadSharedFileContent: {
+      file: 'the binary file content',
+      dir: 'a compressed (GZIP) TAR archive with directory contents',
+    },
     getSharedFileAttributes: 'basic attributes of a file or directory',
     getSharedFileJsonMetadata: 'custom JSON metadata associated with a file or directory',
     getSharedFileRdfMetadata: 'custom RDF metadata associated with a file or directory',
@@ -25,10 +28,36 @@ export default {
   },
   restUrlType: {
     listSharedDirectoryChildren: 'List directory files and subdirectories',
-    downloadSharedFileContent: 'Download file content',
+    downloadSharedFileContent: {
+      file: 'Download file content',
+      dir: 'Download directory (tar.gz)',
+    },
     getSharedFileAttributes: 'Get attributes',
     getSharedFileJsonMetadata: 'Get JSON metadata',
     getSharedFileRdfMetadata: 'Get RDF metadata',
     getSharedFileExtendedAttributes: 'Get extended attributes (xattrs)',
+  },
+  fileType: {
+    file: 'file',
+    dir: 'directory',
+    symlink: 'symbolic link',
+  },
+  tabs: {
+    general: {
+      tabTitle: 'General',
+    },
+    hardlinks: {
+      tabTitle: 'Hard links ({{hardlinksCount}})',
+      showingOnlyNFirst: 'Showing only {{limit}} first hard links.',
+      andNMoreYouHaveNoAccess: 'And {{count}} more that you cannot access.',
+      noAccessToAll: 'You do not have access to the hard links of this {{fileType}}.',
+      hardlinksFetchSingleErrorTip: 'Cannot load files due to error: "{{fetchError}}".',
+      hardlinksFetchMultiErrorTip: 'Cannot load files due to error: "{{fetchError}}" and {{moreCount}} more errors.',
+      unknownFetchError: 'unknown error',
+    },
+  },
+  hardlinkEntry: {
+    pathLabel: 'Path',
+    unknownPath: 'unknown',
   },
 };

@@ -52,6 +52,7 @@ module.exports = {
       'name',
       'blur',
       'fetch',
+      'parent',
     ],
     'valid-jsdoc': [
       1,

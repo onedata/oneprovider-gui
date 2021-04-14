@@ -1,12 +1,23 @@
 .fb-table-row {
+  $file-status-tag-padding: 6px;
+  $file-status-tag-height: 24px;
+  $file-status-tag-border-radius: 8px;
+  $file-status-tag-font-size: 11px;
+  $file-status-tag-icon-width: 14px;
+  $file-status-tag-border-width: 1px;
+  $file-status-tag-spacing: 6px;
+
   @include vendor-prefix(user-select, none);
   overflow: hidden;
   &.file-selected {
     background-color: $color-file-selected;
+    .one-icon-tag-circle {
+      background-color: $color-file-selected;
+    }
   }
   &.file-cut {
     .file-icon-container, .file-item-text {
-      opacity: 0.6;
+      opacity: $disabled-opacity;
     }
   }
   &.is-invalidated {
@@ -22,7 +33,7 @@
       }
     }
   }
-  td.fb-table-col-files {    
+  td.fb-table-col-files {
     @media (max-width: $screen-xs-max) {
       padding-top: 8px;
       padding-bottom: 8px;
@@ -62,58 +73,101 @@
       .file-status-bar {
         display: inline-flex;
       }
+      .file-status-tag-group {
+        display: flex;
+        .file-status-tag {
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+          &:last-of-type {
+            margin-left: 0;
+            border-left-width: 0;
+            border-top-right-radius: $file-status-tag-border-radius;
+            border-bottom-right-radius: $file-status-tag-border-radius;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            &:first-of-type {
+              border-left-width: $file-status-tag-border-width;
+              border-top-left-radius: $file-status-tag-border-radius;
+              border-bottom-left-radius: $file-status-tag-border-radius;
+            }
+          }
+        }
+
+        &+.file-status-tag, &+.file-status-tag-group {
+          margin-left: $file-status-tag-spacing;
+        }
+      }
       .file-status-tag {
-        $border-width: 1px;
-        $height: 24px;
-        $margin-vertical-fix: ($height - 20px) / 2;
-        
+        $margin-vertical-fix: ($file-status-tag-height - 20px) / 2;
+
         display: inline-block;
         @include font-semibold;
-        border-width: $border-width;
+        border-width: $file-status-tag-border-width;
         border-style: solid;
-        border-radius: 8px;
-        font-size: 11px;
-        line-height: 24px;
-        padding-left: 6px;
-        padding-right: 6px;
-        margin-top: -$margin-vertical-fix - $border-width;
-        margin-bottom: -$margin-vertical-fix - $border-width;
+        border-radius: $file-status-tag-border-radius;
+        font-size: $file-status-tag-font-size;
+        line-height: $file-status-tag-height;
+        padding-left: $file-status-tag-padding;
+        padding-right: $file-status-tag-padding;
+        margin-top: -$margin-vertical-fix - $file-status-tag-border-width;
+        margin-bottom: -$margin-vertical-fix - $file-status-tag-border-width;
         white-space: nowrap;
-                
+
         .inline-icon-container {
-          width: 14px;
+          width: $file-status-tag-icon-width;
           .one-icon {
             font-size: 150%;
           }
         }
-        
+
+        &.file-status-tag-icon {
+          position: relative;
+          padding-left: 0.3em;
+          padding-right: 0.3em;
+          .one-icon {
+            position: relative;
+            top: 0.35em;
+            font-size: 2.2em;
+            line-height: 0;
+            font-weight: normal;
+            margin-left: -0.1em;
+            margin-right: -0.1em;
+          }
+        }
+
         @include tag-colors-default;
-       
+
         &.file-status-tag-success {
           @include tag-colors-success;
         }
-        
+
         &.file-status-tag-warning {
           @include tag-colors-warning;
         }
-        
+
         &.file-status-tag-danger {
           @include tag-colors-danger;
         }
-        
+
         &.file-status-tag-disabled {
           @include tag-colors-disabled;
         }
-        
-        &+.file-status-tag {
-          margin-left: 6px;
+
+        &.file-status-tag-icon.file-status-protected {
+          .one-icon {
+            opacity: 0.8;
+          }
         }
-        
+
+        &+.file-status-tag, &+.file-status-tag-group {
+          margin-left: $file-status-tag-spacing;
+        }
+
         &:first-of-type {
-          margin-left: 6px;
+          margin-left: $file-status-tag-spacing;
         }
       }
-      .qos-status-arrow {
+      .inherited-icon {
         position: relative;
         top: 3px;
         font-size: 16px;
@@ -123,6 +177,19 @@
           position: absolute;
           top: 50%;
           transform: translateY(-50%) translateY(-2px);
+          .one-icon-tagged {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%) translateY(1px);
+            .one-icon-tagged-main {
+              top: initial;
+              left: initial;
+            }
+            .one-icon-tag-icon {
+              transform: none;
+            }
+          }
         }
       }
     }
@@ -150,6 +217,9 @@
   }
   &.fb-table-row-file .file-icon {
     color: $color-file;
+  }
+  &.fb-table-row-symlink .file-icon::before {
+    color: $color-symlink;
   }
   &.fb-table-row-broken {
     .file-icon {

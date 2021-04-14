@@ -1,0 +1,93 @@
+// NOTE: needs $toggle-bg-color-* from file-datasets styles
+
+.dataset-item {
+  .dataset-label-section {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+    .path-icon {
+      font-size: 200%;
+      position: relative;
+      top: -1px;
+    }
+    .dataset-label {
+      margin-left: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .path-label {
+      direction: rtl;
+      a {
+        // thanks to this, "/" do not go to end when using direction: rtl
+        unicode-bidi: plaintext;
+      }
+    }
+  }
+  .one-way-toggle.flag-toggle {
+    $dataset-write-unprotected-toggle-color: mix(
+      $toggle-bg-color-unchecked,
+      $dataset-write-unprotected-color,
+      50%
+    );
+    // TODO: VFS-7482 refactor to unchecked (when acceptance tests will be ready)
+    &.unselected {
+      @include toggle-color($dataset-write-unprotected-toggle-color);
+    }
+    &.checked {
+      @include toggle-color($dataset-write-protected-color);
+    }
+  }
+  @media (min-width: $screen-sm-min) {
+    .flag-toggle {
+      position: relative;
+      width: 100%;
+      .one-way-toggle-elements-container {
+        display: flex;
+        width: 100%;
+      }
+      .one-way-toggle-control {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .one-way-toggle-readonly-icon {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%) translateX(-12px);
+      }
+      .one-way-toggle-spinner {
+        left: 50%;
+        right: auto;
+        transform: translateX(32px);
+      }
+    }
+  }
+}
+
+@media (max-width: $screen-xs-max) {
+  .table.datasets-table tbody.datasets-table-tbody .dataset-item {
+    td {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    &:not(.closed) {
+      padding-top: 0.6em;
+      padding-bottom: 0.6em;
+      td {
+        padding-top: 0.6em;
+        padding-bottom: 0.6em;
+      }
+    }
+    .col-dataset-protection {
+      .dataset-protection-control {
+        display: flex;
+        align-items: center;
+        label {
+          flex-grow: 1;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}

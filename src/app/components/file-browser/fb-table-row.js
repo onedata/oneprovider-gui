@@ -1,6 +1,6 @@
 /**
  * Single file/directory row in files list.
- * 
+ *
  * @module components/file-browser/fb-table-row
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { equal, raw } from 'ember-awesome-macros';
+import { equal, raw, or, and, array, conditional, isEmpty } from 'ember-awesome-macros';
 import { get, computed, getProperties, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -142,6 +142,25 @@ export default Component.extend(I18n, FastDoubleClick, {
   qosViewForbidden: false,
 
   /**
+   * @virtual
+   * @type {Boolean}
+   */
+  datasetsViewForbidden: false,
+
+  /**
+   * If true, a spinner will be displayed instead of item icon
+   * @virtual
+   * @type {Boolean}
+   */
+  isLoadingOnIcon: false,
+
+  /**
+   * Name of icon to indicate that some property in tag is inhertied from ancestor
+   * @type {String}
+   */
+  inheritedIcon: 'arrow-long-up',
+
+  /**
    * Time in ms when the touch should be treated as a hold
    * @type {number}
    */
@@ -176,11 +195,27 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   fileNameSuffix: reads('fileNameParser.suffix'),
 
+  /**
+   * Text for QoS tag tooltip, when cannot open QoS modal
+   * @type {ComputedProperty<SafeString>}
+   */
   hintQosViewForbidden: computed(function hintQosForbidden() {
     return insufficientPrivilegesMessage({
       i18n: this.get('i18n'),
       modelName: 'space',
       privilegeFlag: 'space_view_qos',
+    });
+  }),
+
+  /**
+   * Text for dataset tag tooltip, when cannot open datasets modal
+   * @type {ComputedProperty<SafeString>}
+   */
+  hintDatasetsViewForbidden: computed(function hintDatasetsViewForbidden() {
+    return insufficientPrivilegesMessage({
+      i18n: this.get('i18n'),
+      modelName: 'space',
+      privilegeFlag: 'space_view',
     });
   }),
 
@@ -199,7 +234,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   fileEntityId: reads('file.entityId'),
 
   typeClass: computed('type', function typeClass() {
-    return `fb-table-row-${this.get('type')}`;
+    return `fb-table-row-${this.get('type') || 'unknown'}`;
   }),
 
   typeText: computed('type', function typeText() {
@@ -210,25 +245,36 @@ export default Component.extend(I18n, FastDoubleClick, {
   }),
 
   type: computed('file.type', function type() {
-    const fileType = this.get('file.type');
-    if (fileType === 'dir' || fileType === 'file') {
-      return fileType;
-    }
+    return normalizeFileType(this.get('file.type'));
   }),
 
-  icon: computed('type', function icon() {
-    const type = this.get('type');
-    switch (type) {
+  effFileType: computed('file.effFile.type', function effFileType() {
+    return normalizeFileType(this.get('file.effFile.type'));
+  }),
+
+  isSymlink: equal('type', raw('symlink')),
+
+  icon: computed('effFileType', function icon() {
+    switch (this.get('effFileType')) {
       case 'dir':
         return 'browser-directory';
       case 'file':
-        return 'browser-file';
-      case 'broken':
-        return 'x';
       default:
-        break;
+        return 'browser-file';
     }
   }),
+
+  hasErrorIconTag: isEmpty('effFileType'),
+
+  iconTag: conditional(
+    'hasErrorIconTag',
+    raw('x'),
+    conditional(
+      equal('type', raw('symlink')),
+      raw('shortcut'),
+      raw(null)
+    )
+  ),
 
   contextmenuHandler: computed(function contextmenuHandler() {
     const component = this;
@@ -375,11 +421,80 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   hasMetadata: reads('file.hasMetadata'),
 
-  hasEffQos: reads('file.hasEffQos'),
+  effQosMembership: reads('file.effQosMembership'),
 
-  hasDirectQos: reads('file.hasDirectQos'),
+  showQosTag: and(
+    not('previewMode'),
+    not('isSymlink'),
+    array.includes(raw(['ancestor', 'direct']), 'effQosMembership')
+  ),
 
   hasAcl: equal('file.activePermissionsType', raw('acl')),
+
+  effDatasetMembership: reads('file.effDatasetMembership'),
+
+  hardlinksCount: or('file.hardlinksCount', raw(1)),
+
+  /**
+   * If true, should display dataset tag
+   * @type {ComputedProperty<Boolean>}
+   */
+  showDatasetTag: and(
+    not('previewMode'),
+    not('isSymlink'),
+    array.includes(raw(['ancestor', 'direct']), 'effDatasetMembership')
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  dataIsProtected: and(
+    'showDatasetTag',
+    'file.dataIsProtected'
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  metadataIsProtected: and(
+    'showDatasetTag',
+    'file.metadataIsProtected'
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  hasAnyProtectionFlag: or('metadataIsProtected', 'dataIsProtected'),
+
+  /**
+   * Content for protection tag tooltip
+   * @type {ComputedProperty<SafeString>}
+   */
+  protectionFlagsInfo: computed(
+    'typeText',
+    'metadataIsProtected',
+    'dataIsProtected',
+    function protectionFlagsInfo() {
+      const {
+        typeText,
+        metadataIsProtected,
+        dataIsProtected,
+      } = this.getProperties('typeText', 'metadataIsProtected', 'dataIsProtected');
+      let translationKey;
+      if (dataIsProtected && metadataIsProtected) {
+        translationKey = 'both';
+      } else if (dataIsProtected) {
+        translationKey = 'data';
+      } else if (metadataIsProtected) {
+        translationKey = 'metadata';
+      }
+      if (translationKey) {
+        return this.t(`protectionFlagsInfo.${translationKey}`, { fileType: typeText });
+      } else {
+        return '';
+      }
+    }
+  ),
 
   loadingOnIconTransitionObserver: observer(
     'isLoadingOnIcon',
@@ -395,6 +510,11 @@ export default Component.extend(I18n, FastDoubleClick, {
       }
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.loadingOnIconTransitionObserver();
+  },
 
   didInsertElement() {
     this._super(...arguments);
@@ -454,8 +574,14 @@ export default Component.extend(I18n, FastDoubleClick, {
     openContextMenu() {
       this.openContextMenu(...arguments);
     },
-    invokeFileAction(file, btnName) {
-      this.get('invokeFileAction')(file, btnName);
+    invokeFileAction(file, btnName, ...args) {
+      this.get('invokeFileAction')(file, btnName, ...args);
     },
   },
 });
+
+function normalizeFileType(fileType) {
+  if (['dir', 'file', 'symlink'].includes(fileType)) {
+    return fileType;
+  }
+}

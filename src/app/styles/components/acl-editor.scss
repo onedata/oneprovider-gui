@@ -10,7 +10,7 @@
       transition: transition-ease(background-color);
     }
     &.has-active-permissions {
-      &.type-allow { 
+      &.type-allow {
         .one-icon-tag-circle {
           background-color: $color-one-success;
         }
@@ -18,7 +18,7 @@
           color: $color-one-success;
         }
       }
-      &.type-deny { 
+      &.type-deny {
         .one-icon-tag-circle {
           background-color: $color-one-danger;
         }
@@ -48,7 +48,7 @@
   .ace-editor-form {
     margin: $padding-base-horizontal;
     &.type-deny {
-      .one-way-toggle.checked .one-way-toggle-control {
+      .one-way-toggle.checked .one-way-toggle-control .one-way-toggle-track {
         background-color: $color-one-danger;
       }
     }
@@ -146,6 +146,12 @@
 
     .list-header-row {
       padding-right: $padding-large-vertical;
+    }
+  }
+
+  &.readonly {
+    .one-collapsible-list-item-header .status-toolbar {
+      right: $collapsible-list-item-padding;
     }
   }
 }

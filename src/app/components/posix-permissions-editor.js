@@ -18,6 +18,7 @@ const octalRegex = new RegExp('^[0-7]{3}$');
 
 export default Component.extend(I18n, {
   classNames: ['posix-permissions-editor'],
+  classNameBindings: ['readonly:posix-permissions-editor-readonly'],
 
   /**
    * @override
@@ -45,6 +46,18 @@ export default Component.extend(I18n, {
    * @returns {undefined}
    */
   onSave: notImplementedIgnore,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  readonly: false,
+
+  /**
+   * @virtual optional
+   * @type {String}
+   */
+  readonlyTip: '',
 
   /**
    * Posix permissions visible to user (with modifications)

@@ -1,6 +1,6 @@
 /**
  * Create an array with directories in path from root dir for file (or directory).
- * 
+ *
  * @module utils/resolve-file-path
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -32,8 +32,8 @@ export function resolveParent(
   });
 }
 
-export function stringifyFilePath(path) {
-  return '/' + path.mapBy('name').join('/');
+export function stringifyFilePath(path, nameProperty = 'name') {
+  return '/' + path.mapBy(nameProperty).join('/');
 }
 
 export default function resolveFilePath(file, resolveFileParentFun) {

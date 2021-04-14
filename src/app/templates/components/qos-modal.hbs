@@ -9,97 +9,111 @@
 }}
   {{#modal.header}}
     <h1 class="qos-modal-header">
-      {{#truncated-string class="qos-modal-header-text"}}
-        {{tt this
-          (concat (if isAddMode
-            (if media.isMobile "headerAddMobile" "headerAdd")
-            "headerShow"
-          ))
-        }}
-      {{/truncated-string}}
-      {{#if isAddMode}}
-        <div class="inline-icon-container qos-modal-header-hint">
+      <div class="qos-modal-header-text">
+        {{#truncated-string tagName="span" class="header-text"}}
+          {{tt this
+            (concat (if isAddMode
+              (if media.isMobile "headerAddMobile" "headerAdd")
+              "headerShow"
+            ))
+          }}
+        {{/truncated-string}}
+        {{#if isAddMode}}
           {{one-icon
             icon="sign-question-rounded"
-            class="qos-header-hint-trigger qos-add-hint-trigger clickable"
+            class="qos-header-hint-trigger qos-add-hint-trigger hint-trigger clickable"
           }}
-        </div>
-        {{#one-switchable-popover-modal
-          class="qos-add-hint qos-hint"
-          triggersConfiguration=".qos-add-hint-trigger"
-          popoverStyle="qos-add-hint-info over-modals"
-          as |ospm|
-        }}
-          <h1>{{tt this "addHintTitle"}}</h1>
-          <p>{{tt this "addHint"}}</p>
-          <div class="btn-toolbar text-right visible-xs-block">
-            {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
-              {{tt this "hintClose"}}
-            {{/bs-button}}
-          </div>
-        {{/one-switchable-popover-modal}}
-      {{else}}
-        <div class="inline-icon-container">
+          {{#one-switchable-popover-modal
+            class="qos-add-hint qos-hint"
+            triggersConfiguration=".qos-add-hint-trigger"
+            popoverStyle="qos-add-hint-info over-modals"
+            modalClass="modal-compact-help"
+            layoutType="modal"
+            as |ospm|
+          }}
+            {{#ospm.modal.header}}
+              <h1>{{tt this "addHintTitle"}}</h1>
+            {{/ospm.modal.header}}
+            {{#ospm.modal.body}}
+              <p>{{tt this "addHint"}}</p>
+            {{/ospm.modal.body}}
+            {{#ospm.modal.footer}}
+              <div class="btn-toolbar text-right visible-xs-block">
+                {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+                  {{tt this "hintClose"}}
+                {{/bs-button}}
+              </div>
+            {{/ospm.modal.footer}}
+          {{/one-switchable-popover-modal}}
+        {{else}}
           {{one-icon
             icon="sign-question-rounded"
-            class="qos-header-hint-trigger qos-show-hint-trigger clickable"
+            class="qos-header-hint-trigger qos-show-hint-trigger hint-trigger clickable"
           }}
-        </div>
-        {{#one-switchable-popover-modal
-          class="qos-show-hint qos-hint"
-          triggersConfiguration=".qos-show-hint-trigger"
-          popoverStyle="qos-show-hint-info over-modals"
-          as |ospm|
-        }}
-          <h1>{{tt this "showHintTitle"}}</h1>
-          <p>{{tt this "showHintIntro"}}</p>
-          <p>{{tt this "showHintTransfers"}}</p>
-          <p>{{tt this "showHintRemoving"}}</p>
-          <p>
-            {{one-doc-see-more
-              linkName=(tt this "showHintDocLinkName")
-              docPath="using_onedata/qos.html"
-            }}
-          </p>
-          <div class="btn-toolbar text-right visible-xs-block">
-            {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
-              {{tt this "hintClose"}}
-            {{/bs-button}}
-          </div>
-        {{/one-switchable-popover-modal}}
-        {{#if allQosStatusIcon}}
-          {{#if (eq allQosStatus "impossible")}}
-            {{#one-icon-tagged
-              icon="checkbox-pending"
-              class=(concat "all-qos-status tag-right qos-status-" allQosStatus)
-              iconClass="header-icon"
-              tagIcon="warning"
-              shadowType="none"
-            }}
-              {{one-tooltip title=(tt
-                this
-                (concat "fileQosStatusHint.impossible")
-                fileType=fileTypeText
-              )}}
-            {{/one-icon-tagged}}
-          {{else}}
-            {{#one-icon
-              icon=allQosStatusIcon
-              class=(concat "header-icon all-qos-status qos-status-" allQosStatus)
-            }}
-              {{one-tooltip title=(tt
-                this
-                (concat "fileQosStatusHint." allQosStatus)
-                fileType=fileTypeText
-              )}}
-            {{/one-icon}}
-          {{/if}}
+          {{#one-switchable-popover-modal
+            class="qos-show-hint qos-hint"
+            triggersConfiguration=".qos-show-hint-trigger"
+            popoverStyle="qos-show-hint-info over-modals"
+            modalClass="modal-compact-help"
+            layoutType="modal"
+            as |ospm|
+          }}
+            {{#ospm.modal.header}}
+              <h1>{{tt this "showHintTitle"}}</h1>
+            {{/ospm.modal.header}}
+            {{#ospm.modal.body}}
+              <p>{{tt this "showHintIntro"}}</p>
+              <p>{{tt this "showHintTransfers"}}</p>
+              <p>{{tt this "showHintRemoving"}}</p>
+              <p>
+                {{one-doc-see-more
+                  linkName=(tt this "showHintDocLinkName")
+                  docPath="using_onedata/qos.html"
+                }}
+              </p>
+            {{/ospm.modal.body}}
+            {{#ospm.modal.footer}}
+              <div class="btn-toolbar text-right visible-xs-block">
+                {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+                  {{tt this "hintClose"}}
+                {{/bs-button}}
+              </div>
+            {{/ospm.modal.footer}}
+          {{/one-switchable-popover-modal}}
+        {{/if}}
+      </div>
+      {{#if (and (not isAddModed) allQosStatusIcon)}}
+        {{#if (eq allQosStatus "impossible")}}
+          {{#one-icon-tagged
+            icon="checkbox-pending"
+            class=(concat "all-qos-status tag-right qos-status-" allQosStatus)
+            iconClass="header-icon"
+            tagIcon="warning"
+            shadowType="none"
+          }}
+            {{one-tooltip title=(tt
+              this
+              (concat "fileQosStatusHint.impossible")
+              fileType=fileTypeText
+            )}}
+          {{/one-icon-tagged}}
+        {{else}}
+          {{#one-icon
+            icon=allQosStatusIcon
+            class=(concat "header-icon all-qos-status qos-status-" allQosStatus)
+          }}
+            {{one-tooltip title=(tt
+              this
+              (concat "fileQosStatusHint." allQosStatus)
+              fileType=fileTypeText
+            )}}
+          {{/one-icon}}
         {{/if}}
       {{/if}}
     </h1>
     {{modal-file-subheader files=files multiTextPrefix=(if isAddMode (tt this "for"))}}
   {{/modal.header}}
-  
+
   {{#modal.body}}
     {{#if isAddMode}}
       {{qos-modal/qos-add
@@ -150,7 +164,7 @@
       {{/promise-proxy-container}}
     {{/if}}
   {{/modal.body}}
-  
+
   {{#modal.footer}}
     {{#bs-button
       onClick=(if isAddMode
@@ -161,7 +175,7 @@
     }}
       {{tt this (if isAddMode "cancel" "close")}}
     {{/bs-button}}
-    
+
     {{#if isAddMode}}
       <div class="btn-tooltip-container">
         {{#one-spin-button

@@ -1,6 +1,6 @@
 /**
  * Container for file browser to use in an iframe with injected properties.
- * 
+ *
  * @module component/content-file-browser
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -62,9 +62,15 @@ export default OneEmbeddedComponent.extend(
 
     fileToShowInfo: undefined,
 
+    showInfoInitialTab: undefined,
+
     fileToShowMetadata: undefined,
 
-    selectedFiles: Object.freeze([]),
+    /**
+     * Initialized on init.
+     * @type {Array<Models.File>}
+     */
+    selectedFiles: undefined,
 
     /**
      * @type {ComputedProperty<Object>}
@@ -182,7 +188,7 @@ export default OneEmbeddedComponent.extend(
             return spaceProxy.then(space => {
               if (injectedDirGri) {
                 return store.findRecord('file', injectedDirGri)
-                  .then(file => get(file, 'type') === 'file' ? get(file, 'parent') : file)
+                  .then(file => get(file, 'type') !== 'dir' ? get(file, 'parent') : file)
                   .catch(error => {
                     globalNotify.backendError(this.t('openingDirectory'), error);
                     return get(space, 'rootDir');
@@ -232,6 +238,13 @@ export default OneEmbeddedComponent.extend(
       this.clearFilesSelection();
       this.get('containerScrollTop')(0);
     }),
+
+    init() {
+      this._super(...arguments);
+      if (!this.get('selectedFiles')) {
+        this.set('selectedFiles', []);
+      }
+    },
 
     /**
      * Optionally redirects Onezone to URL containing parent directory of first
@@ -311,6 +324,10 @@ export default OneEmbeddedComponent.extend(
       this.set('fileToShare', null);
     },
 
+    closeDatasetsModal() {
+      this.set('filesToShowDatasets', null);
+    },
+
     closeEditPermissionsModal() {
       this.set('filesToEditPermissions', null);
     },
@@ -336,8 +353,8 @@ export default OneEmbeddedComponent.extend(
     },
 
     clearFilesSelection() {
-      this.set('selectedFiles', Object.freeze([]));
-      this.set('selectedFilesForJump', Object.freeze([]));
+      this.set('selectedFiles', []);
+      this.set('selectedFilesForJump', []);
     },
 
     actions: {
@@ -387,8 +404,11 @@ export default OneEmbeddedComponent.extend(
       closeRenameModal() {
         this.closeRenameModal();
       },
-      openInfoModal(file) {
-        this.set('fileToShowInfo', file);
+      openInfoModal(file, activeTab) {
+        this.setProperties({
+          fileToShowInfo: file,
+          showInfoInitialTab: activeTab || 'general',
+        });
       },
       closeInfoModal() {
         this.closeInfoModal();
@@ -398,6 +418,12 @@ export default OneEmbeddedComponent.extend(
       },
       closeMetadataModal() {
         this.closeMetadataModal();
+      },
+      openDatasetsModal(files) {
+        this.set('filesToShowDatasets', files);
+      },
+      closeDatasetsModal() {
+        this.closeDatasetsModal();
       },
       openShareModal(file) {
         this.set('fileToShare', file);
@@ -424,7 +450,7 @@ export default OneEmbeddedComponent.extend(
         this.closeQosModal();
       },
       changeSelectedFiles(selectedFiles) {
-        this.set('selectedFiles', Object.freeze(selectedFiles));
+        this.set('selectedFiles', selectedFiles);
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);

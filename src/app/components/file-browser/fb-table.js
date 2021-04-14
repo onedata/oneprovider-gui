@@ -1,7 +1,7 @@
 /**
  * A container with table of files (children of selected dir).
  * Supports infinite scroll.
- * 
+ *
  * @module components/file-browser/fb-table
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -26,6 +26,7 @@ import { next, later } from '@ember/runloop';
 import { resolve, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import ViewTester from 'onedata-gui-common/utils/view-tester';
 import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
@@ -135,6 +136,11 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  invokeFileAction: notImplementedThrow,
+
+  /**
    * @type {EmberArray<String>}
    */
   loadingIconFileIds: undefined,
@@ -290,7 +296,18 @@ export default Component.extend(I18n, {
 
   newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
 
+  placeSymlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeSymlink')),
+
+  placeHardlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeHardlink')),
+
   pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
+
+  isHardlinkingPossible: computed(
+    'fileClipboardFiles.@each.type',
+    function isHardlinkingPossible() {
+      return !(this.get('fileClipboardFiles') || []).isAny('type', 'dir');
+    }
+  ),
 
   /**
    * When file rows are removed, we need additional space on top to fill the void.
@@ -639,7 +656,7 @@ export default Component.extend(I18n, {
 
   /**
    * Get nth file row element that was rendered
-   * @param {Number} index 
+   * @param {Number} index
    * @returns {HTMLElement|null}
    */
   getNthRenderedRow(index) {
@@ -851,9 +868,13 @@ export default Component.extend(I18n, {
   },
 
   openFile(file, confirmModal = false) {
-    const isDir = get(file, 'type') === 'dir';
+    const effFile = get(file, 'effFile');
+    if (!effFile) {
+      return;
+    }
+    const isDir = get(effFile, 'type') === 'dir';
     if (isDir) {
-      return this.get('changeDir')(file);
+      return this.get('changeDir')(effFile);
     } else {
       if (confirmModal) {
         this.set('downloadModalFile', file);
@@ -1005,7 +1026,7 @@ export default Component.extend(I18n, {
         top,
         left,
       });
-      // opening popover in after rendering trigger position change prevents from bad 
+      // opening popover in after rendering trigger position change prevents from bad
       // placement
       scheduleOnce('afterRender', () => {
         // cause popover refresh
@@ -1067,6 +1088,14 @@ export default Component.extend(I18n, {
 
     emptyDirNewDirectory() {
       return this.get('newDirectoryAction.action')(...arguments);
+    },
+
+    emptyDirPlaceSymlink() {
+      return this.get('placeSymlinkAction.action')(...arguments);
+    },
+
+    emptyDirPlaceHardlink() {
+      return this.get('placeHardlinkAction.action')(...arguments);
     },
 
     emptyDirPaste() {
