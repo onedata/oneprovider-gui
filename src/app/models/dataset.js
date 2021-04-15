@@ -27,6 +27,8 @@ export const RuntimeProperties = Mixin.create({
 });
 
 export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
+  index: attr('string'),
+
   parent: belongsTo('dataset'),
 
   /**

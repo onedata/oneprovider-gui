@@ -11,6 +11,12 @@ import Service from '@ember/service';
 import { allSettled } from 'rsvp';
 import { get, set } from '@ember/object';
 import { inject as service } from '@ember/service';
+import gri from 'onedata-gui-websocket-client/utils/gri';
+import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
+import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
+
+const spaceDatasetsAspect = 'datasets_details';
+const datasetChildrenAspect = 'children_details';
 
 export default Service.extend({
   onedataGraph: service(),
@@ -133,5 +139,110 @@ export default Service.extend({
       );
     }
     await allSettled(promises);
+  },
+
+  /**
+   * @param {String} parentType one of: space, dataset
+   * @param {String} parentId entityId of space or dataset to list its dataset children
+   * @param {String} state one of: attached, detached
+   * @param {String} index
+   * @param {Number} limit
+   * @param {Number} offset
+   * @returns {Promise<{ childrenRecords: Array<Models.File>, isLast: Boolean }>}
+   */
+  async fetchChildrenDatasets({
+    parentType,
+    parentId,
+    state,
+    scope = 'private',
+    index,
+    limit,
+    offset,
+  }) {
+    if (!limit || limit <= 0) {
+      return { childrenRecords: [], isLast: false };
+    } else {
+      return this.fetchChildrenAttrs({
+        parentType,
+        parentId,
+        scope,
+        state,
+        index,
+        limit,
+        offset,
+      }).then(async ({ datasets, isLast }) => {
+        const childrenRecords = await this.pushChildrenAttrsToStore(
+          datasets,
+          scope,
+        );
+        return { childrenRecords, isLast };
+      });
+    }
+  },
+
+  /**
+   * @param {Array<Object>} childrenAttrs data for creating Dataset model
+   * @param {String} [scope='private'] currently only private is supported
+   * @returns {Promise<Array<Model>>}
+   */
+  async pushChildrenAttrsToStore(childrenAttrs, scope = 'private') {
+    const store = this.get('store');
+    return childrenAttrs.map(attrsData => {
+      attrsData.scope = scope;
+      const modelData = store.normalize('dataset', attrsData);
+      return store.push(modelData);
+    });
+  },
+
+  /**
+   * @param {String} parentType one of: space, dataset
+   * @param {String} parentId entityId of space or dataset to list its children datasets
+   * @param {String} state one of: attached, detached
+   * @param {String} [scope='private'] currently only private is supported
+   * @param {String} index
+   * @param {Number} limit
+   * @param {Number} offset
+   * @returns {Promise<{ datasets: Array, isLast: Boolean }>}
+   */
+  async fetchChildrenAttrs({
+    parentType,
+    parentId,
+    state,
+    scope = 'private',
+    index,
+    limit,
+    offset,
+  }) {
+    const entityType = {
+      space: spaceEntityType,
+      dataset: datasetEntityType,
+    } [parentType];
+    const aspect = {
+      space: spaceDatasetsAspect,
+      dataset: datasetChildrenAspect,
+    } [parentType];
+    if (!entityType || !parentType) {
+      throw new Error(
+        'service:dataset-manager#fetchChildrenAttrs: invalid parentType specified:',
+        parentType
+      );
+    }
+    const requestGri = gri({
+      entityId: parentId,
+      entityType,
+      aspect,
+      scope,
+    });
+    return this.get('onedataGraph').request({
+      operation: 'get',
+      gri: requestGri,
+      data: {
+        state,
+        index,
+        limit,
+        offset,
+      },
+      subscribe: false,
+    });
   },
 });

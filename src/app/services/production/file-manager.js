@@ -170,7 +170,7 @@ export default Service.extend({
    */
   fetchDirChildren(dirId, scope, index, limit, offset) {
     if (!limit || limit <= 0) {
-      return resolve([]);
+      return resolve({ childrenRecords: [], isLast: false });
     } else {
       return this.fetchChildrenAttrs({
         dirId,
