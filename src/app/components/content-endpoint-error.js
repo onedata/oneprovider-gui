@@ -123,7 +123,10 @@ export default OneEmbeddedComponent.extend(
 
     locationReload() {
       try {
-        this.callParent('hideOneproviderConnectionError');
+        this.callParent(
+          'hideOneproviderConnectionError', {
+            oneproviderUrl: `https://${this.get('guiContext.apiOrigin')}`,
+          });
       } finally {
         this.get('_location').reload();
       }
