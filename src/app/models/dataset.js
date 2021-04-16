@@ -47,6 +47,12 @@ export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
   protectionFlags: attr('array'),
 
   /**
+   * Effective protection flags - concerning ancestor dataset flags.
+   * Possible values: 'metadata_protection', 'data_protection'
+   */
+  effProtectionFlags: attr('array'),
+
+  /**
    * Creation time in UNIX timestamp format.
    */
   creationTime: attr('number'),
