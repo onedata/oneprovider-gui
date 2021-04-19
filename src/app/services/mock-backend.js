@@ -554,7 +554,33 @@ export default Service.extend({
     };
   },
 
-  async createDatasetMock(store) {
+  async createDataset(file, data = {}) {
+    const fileId = get(file, 'entityId');
+    return this.get('store').createRecord('dataset', Object.assign({
+      id: `${datasetEntityType}.${fileId}.instance:private`,
+      index: `${get(file, 'name')}${fileId}`,
+      rootFile: file,
+      parent: null,
+      state: 'attached',
+      protectionFlags: [],
+      effProtectionFlags: [],
+      creationTime: Math.floor(Date.now() / 1000),
+      rootFilePath: stringifyFilePath(await resolveFilePath(file)),
+      rootFileType: get(file, 'type'),
+    }, data)).save();
+  },
+
+  async createDatasetSummary(file, dataset, data = {}) {
+    return this.get('store').createRecord('file-dataset-summary', Object.assign({
+      id: `${fileEntityType}.${get(file, 'entityId')}.${datasetSummaryAspect}:private`,
+      directDataset: dataset,
+      effAncestorDatasets: [],
+      effProtectionFlags: get(dataset, 'state') === 'attached' ?
+        get(file, 'effProtectionFlags') : [],
+    }, data)).save();
+  },
+
+  async createDatasetMock( /* store */ ) {
     const count = 4;
     const ancestorFiles = [
       this.get('entityRecords.dir.firstObject'),
@@ -563,30 +589,22 @@ export default Service.extend({
     this.set('entityRecords.dataset', []);
     const datasets = [];
     const summaries = [];
-    const timestamp = Math.floor(Date.now() / 1000);
     // create datasets and dataset summaries for few chain dirs
     for (let i = 0; i < ancestorFiles.length; ++i) {
       const ancestorFile = ancestorFiles[i];
-      const ancestorDataset = await store.createRecord('dataset', {
-        id: `${datasetEntityType}.${get(ancestorFile, 'entityId')}.instance:private`,
-        index: `${get(ancestorFile, 'name')}${get(ancestorFile, 'entityId')}`,
+      const ancestorDataset = await this.createDataset(ancestorFile, {
         parent: datasets[i - 1] || null,
-        state: 'attached',
-        rootFile: ancestorFile,
         protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
         effProtectionFlags,
-        creationTime: timestamp,
-        rootFilePath: stringifyFilePath(await resolveFilePath(ancestorFile)),
-        rootFileType: get(ancestorFile, 'type'),
-      }).save();
+      });
       datasets[i] = ancestorDataset;
       const effProtectionFlags = effProtectionFlagSets[Math.min(i, 2)];
-      const datasetSummary = await store.createRecord('file-dataset-summary', {
-        id: `${fileEntityType}.${get(ancestorFile, 'entityId')}.${datasetSummaryAspect}:private`,
-        directDataset: ancestorDataset,
-        effAncestorDatasets: datasets.slice(0, i),
-        effProtectionFlags,
-      }).save();
+      const datasetSummary = await this.createDatasetSummary(
+        ancestorFile,
+        ancestorDataset, {
+          effAncestorDatasets: datasets.slice(0, i),
+        }
+      );
       summaries[i] = datasetSummary;
       setProperties(ancestorFile, {
         effDatasetMembership: 'direct',
@@ -606,19 +624,15 @@ export default Service.extend({
       effDatasetMembership: 'direct',
     });
     await emptyDir.save();
-    const emptyDirDataset = await store.createRecord('dataset', {
-      id: `${datasetEntityType}.${get(emptyDir, 'entityId')}.instance:private`,
-      index: `${get(emptyDir, 'name')}${get(emptyDir, 'entityId')}`,
+    const emptyDirDataset = await this.createDataset(emptyDir, {
       parent: null,
-      state: 'attached',
-      rootFile: emptyDir,
       protectionFlags: ['data_protection'],
       effProtectionFlags: ['data_protection'],
-      creationTime: timestamp,
-      rootFilePath: stringifyFilePath(await resolveFilePath(emptyDir)),
-      rootFileType: get(emptyDir, 'type'),
-    }).save();
+    });
+    const emptyDirDatasetSummary =
+      await this.createDatasetSummary(emptyDir, emptyDirDataset);
     this.get('entityRecords.dataset').push(emptyDirDataset);
+    this.get('entityRecords.fileDatasetSummary').push(emptyDirDatasetSummary);
 
     // add datasets for some files
     // NOTE: this mock is only for some tests - ancestor-type datasets on files
@@ -644,24 +658,12 @@ export default Service.extend({
         effProtectionFlags,
       });
       if (effDatasetMembership === 'direct') {
-        const dataset = await store.createRecord('dataset', {
-          id: `${datasetEntityType}.${get(file, 'entityId')}.instance:private`,
-          index: `${get(file, 'name')}${get(file, 'entityId')}`,
-          parent: datasets[i - 1] || null,
-          state: 'attached',
-          rootFile: file,
+        const dataset = await this.createDataset(file, {
+          parent: null,
           protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
           effProtectionFlags,
-          creationTime: timestamp,
-          rootFilePath: stringifyFilePath(await resolveFilePath(file)),
-          rootFileType: get(file, 'type'),
-        }).save();
-        const fileDatasetSummary = await store.createRecord('file-dataset-summary', {
-          id: `${fileEntityType}.${get(file, 'entityId')}.${datasetSummaryAspect}:private`,
-          directDataset: dataset,
-          effAncestorDatasets: [],
-          effProtectionFlags,
-        }).save();
+        });
+        const fileDatasetSummary = await this.createDatasetSummary(file, dataset);
         setProperties(file, {
           fileDatasetSummary,
         });
@@ -674,26 +676,14 @@ export default Service.extend({
     // detached dataset mock
     {
       const fileDetached = files[6];
-      const detachedDataset = await store.createRecord('dataset', {
-        id: `${datasetEntityType}.${get(fileDetached, 'entityId')}.instance:private`,
-        index: `${get(fileDetached, 'name')}${get(fileDetached, 'entityId')}`,
+      const detachedDataset = await this.createDataset(fileDetached, {
         parent: null,
         state: 'detached',
-        rootFile: fileDetached,
         protectionFlags: ['metadata_protection'],
         effProtectionFlags: [],
-        creationTime: timestamp,
-        rootFilePath: stringifyFilePath(await resolveFilePath(fileDetached)),
-        rootFileType: get(fileDetached, 'type'),
-      }).save();
-      const fileDetachedDatasetSummary = await store.createRecord(
-        'file-dataset-summary', {
-          id: `${fileEntityType}.${get(fileDetached, 'entityId')}.${datasetSummaryAspect}:private`,
-          directDataset: detachedDataset,
-          effAncestorDatasets: [],
-          effProtectionFlags: [],
-        }
-      ).save();
+      });
+      const fileDetachedDatasetSummary =
+        await this.createDatasetSummary(fileDetached, detachedDataset);
       setProperties(fileDetached, {
         fileDatasetSummary: fileDetachedDatasetSummary,
       });
