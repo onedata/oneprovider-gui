@@ -1,5 +1,5 @@
 /**
- * Provides utils for generating REST URLs for various operations in Onedata.
+ * Provides utils for generating REST commands for various operations in Onedata.
  * 
  * Method names in this service are mainly names of corresponding operation names
  * from Onedata API. See REST API documentation (eg. on https://onedata.org/#/home/api)
@@ -12,75 +12,44 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import Service, { inject as service } from '@ember/service';
-import { reads } from '@ember/object/computed';
-import { get } from '@ember/object';
-import pupa from 'npm:pupa';
+import ApiStringGenerator from 'oneprovider-gui/services/api-string-generator';
 
-export default Service.extend({
-  onedataConnection: service(),
-
+export default ApiStringGenerator.extend({
   /**
-   * - Keys: template names equal to name of corresponding REST method.
-   * - Values: templates parseable with `pupa` library.
-   * @type {ComputedProperty<Object>}
+   * @override
    */
-  restTemplates: reads('onedataConnection.restTemplates'),
+  apiType: 'rest',
 
-  listSharedDirectoryChildren(cdmiObjectId) {
-    return this.getSharedDataCurl('listSharedDirectoryChildren', cdmiObjectId);
+  listSharedDirectoryChildren({ cdmiObjectId }) {
+    return this.fillTemplate('listSharedDirectoryChildren', { id: cdmiObjectId });
   },
 
-  downloadSharedFileContent(cdmiObjectId) {
-    return this.getSharedDataCurl('downloadSharedFileContent', cdmiObjectId);
+  downloadSharedFileContent({ cdmiObjectId }) {
+    return this.fillTemplate('downloadSharedFileContent', { id: cdmiObjectId });
   },
 
-  getSharedFileAttributes(cdmiObjectId) {
-    return this.getSharedDataCurl('getSharedFileAttributes', cdmiObjectId);
+  downloadSharedDirectoryContent({ cdmiObjectId }) {
+    // Using the same template as in `downloadSharedFileContent`
+    return this.fillTemplate('downloadSharedFileContent', { id: cdmiObjectId });
   },
 
-  getSharedFileJsonMetadata(cdmiObjectId) {
-    return this.getSharedDataCurl('getSharedFileJsonMetadata', cdmiObjectId);
+  getSharedFileAttributes({ cdmiObjectId }) {
+    return this.fillTemplate('getSharedFileAttributes', { id: cdmiObjectId });
   },
 
-  getSharedFileRdfMetadata(cdmiObjectId) {
-    return this.getSharedDataCurl('getSharedFileRdfMetadata', cdmiObjectId);
+  getSharedFileJsonMetadata({ cdmiObjectId }) {
+    return this.fillTemplate('getSharedFileJsonMetadata', { id: cdmiObjectId });
   },
 
-  getSharedFileExtendedAttributes(cdmiObjectId) {
-    return this.getSharedDataCurl('getSharedFileExtendedAttributes', cdmiObjectId);
+  getSharedFileRdfMetadata({ cdmiObjectId }) {
+    return this.fillTemplate('getSharedFileRdfMetadata', { id: cdmiObjectId });
+  },
+
+  getSharedFileExtendedAttributes({ cdmiObjectId }) {
+    return this.fillTemplate('getSharedFileExtendedAttributes', { id: cdmiObjectId });
   },
 
   curlize(url, curlOptions) {
     return `curl${curlOptions? ' ' + curlOptions : ''} ${url}`;
-  },
-
-  fillTemplate(templateName, templateParams) {
-    const restTemplates = this.get('restTemplates');
-    const template = get(restTemplates, templateName);
-    if (template) {
-      return pupa(template, templateParams);
-    } else {
-      console.error(
-        `util:rest-generator#fillTemplate: no template named ${templateName}`
-      );
-      return '';
-    }
-  },
-
-  curlFromTemplate(templateName, templateParams, curlOptions) {
-    const url = this.fillTemplate(templateName, templateParams);
-    if (url) {
-      return this.curlize(url, curlOptions);
-    } else {
-      console.error(
-        `util:rest-generator#curlFromTemplate: empty URL generator for ${templateName}`
-      );
-      return '';
-    }
-  },
-
-  getSharedDataCurl(path, cdmiObjectId) {
-    return this.curlFromTemplate(path, { id: cdmiObjectId }, '-L');
   },
 });

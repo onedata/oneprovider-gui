@@ -10,23 +10,50 @@
 
 import OnedataConnection from 'onedata-gui-websocket-client/services/mocks/onedata-connection';
 
+export const xRootDTemplates = {
+  downloadSharedFileContent: [
+    'xrdcp',
+    'root://test.onedata.org//data/{spaceId}/{spaceId}/{shareId}{path}',
+    '.',
+  ],
+  downloadSharedDirectoryContent: [
+    'xrdcp',
+    '-r',
+    'root://test.onedata.org//data/{spaceId}/{spaceId}/{shareId}{path}',
+    '.',
+  ],
+  listSharedDirectoryChildren: [
+    'xrdfs',
+    'root://xrootd.hub.archiver-otc.eu',
+    'ls',
+    '/data/{spaceId}/{spaceId}/{shareId}{path}',
+  ],
+};
+
 export default OnedataConnection.extend({
   /**
    * @override
    */
   attributes: Object.freeze({
     transfersHistoryLimitPerFile: 100,
-    restTemplates: Object.freeze({
-      listSharedDirectoryChildren: sharedFileTemplate('children'),
-      downloadSharedFileContent: sharedFileTemplate('content'),
-      getSharedFileAttributes: sharedFileTemplate(''),
-      getSharedFileJsonMetadata: sharedFileTemplate('metadata/json'),
-      getSharedFileRdfMetadata: sharedFileTemplate('metadata/rdf'),
-      getSharedFileExtendedAttributes: sharedFileTemplate('metadata/xattrs'),
+    apiTemplates: Object.freeze({
+      rest: {
+        listSharedDirectoryChildren: sharedRestFileTemplate('children'),
+        downloadSharedFileContent: sharedRestFileTemplate('content'),
+        getSharedFileAttributes: sharedRestFileTemplate(''),
+        getSharedFileJsonMetadata: sharedRestFileTemplate('metadata/json'),
+        getSharedFileRdfMetadata: sharedRestFileTemplate('metadata/rdf'),
+        getSharedFileExtendedAttributes: sharedRestFileTemplate('metadata/xattrs'),
+      },
+      xrootd: xRootDTemplates,
     }),
   }),
 });
 
-export function sharedFileTemplate(operation) {
-  return `https://test.onedata.org/api/v3/onezone/shares/data/{{id}}/${operation}`;
+export function sharedRestFileTemplate(operation) {
+  return [
+    'curl',
+    '-L',
+    `https://test.onedata.org/api/v3/onezone/shares/data/{id}/${operation}`,
+  ];
 }
