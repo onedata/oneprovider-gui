@@ -75,8 +75,8 @@
       disabled=processing
     }}
       {{tt this "yes"}}
-      {{#if processing}}
-        ({{filesRemovedPercent}}%)
+      {{#if (and processing (gt filesToRemoveCount 1))}}
+        ({{filesProcessedCount}}/{{filesToRemoveCount}})
       {{/if}}
     {{/one-spin-button}}
   {{/modal.footer}}
