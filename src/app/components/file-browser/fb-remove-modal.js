@@ -118,22 +118,6 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<Number>}
-   */
-  filesRemovedPercent: computed(
-    'filesToRemoveCount',
-    'filesProcessedCount',
-    function filesRemovedPercent() {
-      const {
-        filesToRemoveCount,
-        filesProcessedCount,
-      } = this.getProperties('filesToRemoveCount', 'filesProcessedCount');
-
-      return Math.floor(100 * filesProcessedCount / (filesToRemoveCount || 1));
-    }
-  ),
-
-  /**
    * Controls message displayed to user what is going to be removed.
    * One of: file, dir, multi, multiMany
    * @type {ComputedProperty<string>}
