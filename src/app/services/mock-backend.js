@@ -560,6 +560,7 @@ export default Service.extend({
       this.get('entityRecords.dir.firstObject'),
       ...this.get('entityRecords.chainDir').slice(0, count - 1),
     ];
+    this.set('entityRecords.dataset', []);
     const datasets = [];
     const summaries = [];
     const timestamp = Math.floor(Date.now() / 1000);
@@ -568,10 +569,12 @@ export default Service.extend({
       const ancestorFile = ancestorFiles[i];
       const ancestorDataset = await store.createRecord('dataset', {
         id: `${datasetEntityType}.${get(ancestorFile, 'entityId')}.instance:private`,
+        index: `${get(ancestorFile, 'name')}${get(ancestorFile, 'entityId')}`,
         parent: datasets[i - 1] || null,
         state: 'attached',
         rootFile: ancestorFile,
         protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
+        effProtectionFlags,
         creationTime: timestamp,
         rootFilePath: stringifyFilePath(await resolveFilePath(ancestorFile)),
         rootFileType: get(ancestorFile, 'type'),
@@ -592,13 +595,110 @@ export default Service.extend({
       });
       this.get('entityRecords.fileDatasetSummary').push(...summaries);
       await ancestorFile.save();
-      // for testing empty data write protected directories
-      const emptyDir = this.get('entityRecords.dir.1');
-      setProperties(emptyDir, {
-        effProtectionFlags: ['data_protection'],
-        effDatasetMembership: 'direct',
+    }
+    this.get('entityRecords.dataset').push(...datasets);
+
+    // for testing empty data write protected directories
+    const emptyDir = this.get('entityRecords.dir.1');
+    console.dir(emptyDir.get('entityId'));
+    setProperties(emptyDir, {
+      effProtectionFlags: ['data_protection'],
+      effDatasetMembership: 'direct',
+    });
+    await emptyDir.save();
+    const emptyDirDataset = await store.createRecord('dataset', {
+      id: `${datasetEntityType}.${get(emptyDir, 'entityId')}.instance:private`,
+      index: `${get(emptyDir, 'name')}${get(emptyDir, 'entityId')}`,
+      parent: null,
+      state: 'attached',
+      rootFile: emptyDir,
+      protectionFlags: ['data_protection'],
+      effProtectionFlags: ['data_protection'],
+      creationTime: timestamp,
+      rootFilePath: stringifyFilePath(await resolveFilePath(emptyDir)),
+      rootFileType: get(emptyDir, 'type'),
+    }).save();
+    this.get('entityRecords.dataset').push(emptyDirDataset);
+
+    // add datasets for some files
+    // NOTE: this mock is only for some tests - ancestor-type datasets on files
+    // are fake
+    const files = this.get('entityRecords.file');
+    for (let i = 2; i <= 5; ++i) {
+      const file = files[i];
+      let effProtectionFlags;
+      const effDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
+        i >= 2 && i <= 6 && 'ancestor' ||
+        'none';
+      if (i === 2) {
+        effProtectionFlags = ['data_protection'];
+      } else if (i === 3) {
+        effProtectionFlags = ['metadata_protection'];
+      } else if (i === 4) {
+        effProtectionFlags = ['data_protection', 'metadata_protection'];
+      } else {
+        effProtectionFlags = [];
+      }
+      setProperties(file, {
+        effDatasetMembership,
+        effProtectionFlags,
       });
-      await emptyDir.save();
+      if (effDatasetMembership === 'direct') {
+        const dataset = await store.createRecord('dataset', {
+          id: `${datasetEntityType}.${get(file, 'entityId')}.instance:private`,
+          index: `${get(file, 'name')}${get(file, 'entityId')}`,
+          parent: datasets[i - 1] || null,
+          state: 'attached',
+          rootFile: file,
+          protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
+          effProtectionFlags,
+          creationTime: timestamp,
+          rootFilePath: stringifyFilePath(await resolveFilePath(file)),
+          rootFileType: get(file, 'type'),
+        }).save();
+        const fileDatasetSummary = await store.createRecord('file-dataset-summary', {
+          id: `${fileEntityType}.${get(file, 'entityId')}.${datasetSummaryAspect}:private`,
+          directDataset: dataset,
+          effAncestorDatasets: [],
+          effProtectionFlags,
+        }).save();
+        setProperties(file, {
+          fileDatasetSummary,
+        });
+        this.get('entityRecords.dataset').push(dataset);
+        this.get('entityRecords.fileDatasetSummary').push(fileDatasetSummary);
+      }
+      await file.save();
+    }
+
+    // detached dataset mock
+    {
+      const fileDetached = files[6];
+      const detachedDataset = await store.createRecord('dataset', {
+        id: `${datasetEntityType}.${get(fileDetached, 'entityId')}.instance:private`,
+        index: `${get(fileDetached, 'name')}${get(fileDetached, 'entityId')}`,
+        parent: null,
+        state: 'detached',
+        rootFile: fileDetached,
+        protectionFlags: ['metadata_protection'],
+        effProtectionFlags: [],
+        creationTime: timestamp,
+        rootFilePath: stringifyFilePath(await resolveFilePath(fileDetached)),
+        rootFileType: get(fileDetached, 'type'),
+      }).save();
+      const fileDetachedDatasetSummary = await store.createRecord(
+        'file-dataset-summary', {
+          id: `${fileEntityType}.${get(fileDetached, 'entityId')}.${datasetSummaryAspect}:private`,
+          directDataset: detachedDataset,
+          effAncestorDatasets: [],
+          effProtectionFlags: [],
+        }
+      ).save();
+      setProperties(fileDetached, {
+        fileDatasetSummary: fileDetachedDatasetSummary,
+      });
+      this.get('entityRecords.dataset').push(detachedDataset);
+      this.get('entityRecords.fileDatasetSummary').push(fileDetachedDatasetSummary);
     }
   },
 
@@ -705,22 +805,9 @@ export default Service.extend({
         const entityId = generateFileEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name = `file-${String(i).padStart(4, '0')}`;
-        let effProtectionFlags;
-        const effDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
-          i >= 2 && i <= 6 && 'ancestor' ||
-          'none';
         const effQosMembership = i > 3 && i < 8 && 'direct' ||
           i > 6 && i < 10 && 'ancestor' ||
           'none';
-        if (i === 2) {
-          effProtectionFlags = ['data_protection'];
-        } else if (i === 3) {
-          effProtectionFlags = ['metadata_protection'];
-        } else if (i === 4) {
-          effProtectionFlags = ['data_protection', 'metadata_protection'];
-        } else {
-          effProtectionFlags = [];
-        }
         return store.createRecord('file', {
           id,
           name,
@@ -729,8 +816,8 @@ export default Service.extend({
           posixPermissions: (i > 10 && i < 12 && !isSymlink) ? '333' : '777',
           hasMetadata: i < 5,
           effQosMembership,
-          effDatasetMembership,
-          effProtectionFlags,
+          effDatasetMembership: 'none',
+          effProtectionFlags: [],
           size: isSymlink ? 20 : i * 1000000,
           mtime: timestamp + i * 3600,
           hardlinksCount: i % 5 === 0 ? 2 : 1,
