@@ -50,7 +50,7 @@ export default OneEmbeddedComponent.extend(
     /**
      * @type {number}
      */
-    requestSlowInterval: 5000,
+    requestSlowInterval: 10000,
 
     /**
      * @type {number}

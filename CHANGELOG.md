@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-5690 Added opening cluster invalid cert link in new tab and countdown for retry
 * VFS-7326 Changed counter in files remove modal
 * VFS-7467 Fixed spinners when preparing file download and error messages
 * VFS-7419 Added support for hard links and (still experimental) symbolic links
