@@ -20,6 +20,7 @@ export default Model.extend(GraphSingleModelMixin, {
   publicRestUrl: attr('string'),
   rootFileType: attr('file-type'),
   description: attr('string'),
+  spaceId: attr('string'),
 
   handle: belongsTo('handle'),
   rootFile: belongsTo('file'),

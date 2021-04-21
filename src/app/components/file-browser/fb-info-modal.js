@@ -70,10 +70,18 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   onHide: notImplementedIgnore,
 
   /**
-   * @virtual
+   * @virtual optional
    * @type {Models.Space}
    */
   space: undefined,
+
+  /**
+   * Space entity ID can be provided instead of space model if it's not available
+   * in current context (eg. in public share view).
+   * @virtual optional
+   * @type {Models.Space}
+   */
+  spaceId: reads('space.entityId'),
 
   /**
    * Possible values the same as for `activeTab` property
@@ -177,8 +185,6 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
-
-  spaceId: reads('space.entityId'),
 
   hardlinksFetchError: computed(
     'fileHardlinks.errors',
