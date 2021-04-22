@@ -126,4 +126,8 @@
       top: -0.2em;
     }
   }
+  // override to show all options
+  .ember-power-select-options[role=listbox] {
+    max-height: 280px;
+  }
 }
