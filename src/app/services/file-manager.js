@@ -1,8 +1,8 @@
 /**
- * Exports a real file-manager service or its mock.
- * @module services/file-manager
+ * Exports a real dataset-manager service or its mock.
+ * @module services/dataset-manager
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 

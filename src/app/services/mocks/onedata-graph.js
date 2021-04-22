@@ -3,7 +3,7 @@
  *
  * @module services/mocks/onedata-graph
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -21,6 +21,10 @@ import {
 } from 'oneprovider-gui/services/mock-backend';
 import { inject as service } from '@ember/service';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
+import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
+import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
+import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -149,7 +153,7 @@ const spaceHandlers = {
       gri: 'op_space.efd6e203d35061d5bef37a7e1636e8bbip2d5571458.view,test6:private',
     };
   },
-  available_qos_parameters(operation, ) {
+  available_qos_parameters(operation) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
@@ -158,7 +162,7 @@ const spaceHandlers = {
     };
   },
   evaluate_qos_expression(operation, entityId, data) {
-    if (operation != 'create') {
+    if (operation !== 'create') {
       return messageNotSupported;
     }
     /** @type {string} */
@@ -258,6 +262,58 @@ const spaceHandlers = {
         ] : [],
       };
     }
+  },
+  datasets_details(operation, entityId, { state, index, limit, offset }) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    const rootDatasetsData = this.get('mockBackend.entityRecords.dataset')
+      .map(ds => datasetRecordToChildData(ds))
+      .filterBy('parent', null)
+      .filterBy('state', state);
+    let startFromIndex = index ?
+      rootDatasetsData.findIndex(r => get(r, 'index') === index) : 0;
+    if (startFromIndex === -1) {
+      startFromIndex = 0;
+    }
+    const effOffset = offset || 0;
+    const end = startFromIndex + limit + effOffset;
+    return {
+      datasets: rootDatasetsData.slice(
+        startFromIndex + effOffset,
+        end,
+      ),
+      isLast: end >= rootDatasetsData.length,
+    };
+  },
+};
+
+const datasetHandlers = {
+  children_details(operation, entityId, { state, index, limit, offset }) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    const childrenDatasetsData = this.get('mockBackend.entityRecords.dataset')
+      .map(ds => datasetRecordToChildData(ds))
+      .filterBy('state', state)
+      .filter(ds => {
+        const parent = get(ds, 'parent');
+        return parent && parseGri(get(ds, 'parent')).entityId === entityId;
+      });
+    let startFromIndex = index ?
+      childrenDatasetsData.findIndex(r => get(r, 'index') === index) : 0;
+    if (startFromIndex === -1) {
+      startFromIndex = 0;
+    }
+    const effOffset = offset || 0;
+    const end = startFromIndex + limit + effOffset;
+    return {
+      datasets: childrenDatasetsData.slice(
+        startFromIndex + effOffset,
+        end,
+      ),
+      isLast: end >= childrenDatasetsData.length,
+    };
   },
 };
 
@@ -651,9 +707,10 @@ export default OnedataGraphMock.extend({
   init() {
     this._super(...arguments);
     const _handlers = Object.freeze({
-      op_space: spaceHandlers,
-      op_transfer: transferHandlers,
-      file: fileHandlers,
+      [spaceEntityType]: spaceHandlers,
+      [transferEntityType]: transferHandlers,
+      [fileEntityType]: fileHandlers,
+      [datasetEntityType]: datasetHandlers,
     });
     this.set(
       'handlers',
@@ -817,5 +874,22 @@ function recordToChildData(record) {
     parentId: belongsToEntityId(record, 'parent'),
     ownerId: belongsToEntityId(record, 'owner'),
     providerId: belongsToEntityId(record, 'provider'),
+  });
+}
+
+function datasetRecordToChildData(record) {
+  return Object.assign(getProperties(
+    record,
+    'id',
+    'index',
+    'state',
+    'protectionFlags',
+    'effProtectionFlags',
+    'creationTime',
+    'rootFilePath',
+    'rootFileType',
+  ), {
+    parent: record.belongsTo('parent').id(),
+    rootFile: record.belongsTo('rootFile').id(),
   });
 }

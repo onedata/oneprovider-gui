@@ -27,6 +27,8 @@ export const RuntimeProperties = Mixin.create({
 });
 
 export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
+  index: attr('string'),
+
   parent: belongsTo('dataset'),
 
   /**
@@ -43,6 +45,20 @@ export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
    * Possible values: 'metadata_protection', 'data_protection'
    */
   protectionFlags: attr('array'),
+
+  /**
+   * **NOTE:** value of this property may differ from `effProtectionFlags` of file
+   * and fileDatasetSummary!
+   * 
+   * Effective protection flags - concerning attached ancestor dataset flags.
+   * Applicable only for datasets in attached state - detached datasets will have
+   * this property always as empty array (`[]`).
+   * This property differs for effective flags for file and file dataset summary
+   * because files' version concerns protection flags on hardlinks datasets.
+   * 
+   * Possible values: 'metadata_protection', 'data_protection'
+   */
+  effProtectionFlags: attr('array'),
 
   /**
    * Creation time in UNIX timestamp format.
