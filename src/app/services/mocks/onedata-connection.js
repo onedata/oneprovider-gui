@@ -9,26 +9,8 @@
  */
 
 import OnedataConnection from 'onedata-gui-websocket-client/services/mocks/onedata-connection';
-
-export const xRootDTemplates = {
-  downloadSharedFileContent: [
-    'xrdcp',
-    'root://test.onedata.org//data/{spaceId}/{spaceId}/{shareId}{path}',
-    '.',
-  ],
-  downloadSharedDirectoryContent: [
-    'xrdcp',
-    '-r',
-    'root://test.onedata.org//data/{spaceId}/{spaceId}/{shareId}{path}',
-    '.',
-  ],
-  listSharedDirectoryChildren: [
-    'xrdfs',
-    'root://xrootd.hub.archiver-otc.eu',
-    'ls',
-    '/data/{spaceId}/{spaceId}/{shareId}{path}',
-  ],
-};
+import generateXrootdApiTemplates from 'oneprovider-gui/utils/mocks/generate-xrootd-api-templates';
+import generateRestApiTemplates from 'oneprovider-gui/utils/mocks/generate-rest-api-templates';
 
 export default OnedataConnection.extend({
   /**
@@ -37,23 +19,8 @@ export default OnedataConnection.extend({
   attributes: Object.freeze({
     transfersHistoryLimitPerFile: 100,
     apiTemplates: Object.freeze({
-      rest: {
-        listSharedDirectoryChildren: sharedRestFileTemplate('children'),
-        downloadSharedFileContent: sharedRestFileTemplate('content'),
-        getSharedFileAttributes: sharedRestFileTemplate(''),
-        getSharedFileJsonMetadata: sharedRestFileTemplate('metadata/json'),
-        getSharedFileRdfMetadata: sharedRestFileTemplate('metadata/rdf'),
-        getSharedFileExtendedAttributes: sharedRestFileTemplate('metadata/xattrs'),
-      },
-      xrootd: xRootDTemplates,
+      rest: generateRestApiTemplates(),
+      xrootd: generateXrootdApiTemplates(),
     }),
   }),
 });
-
-export function sharedRestFileTemplate(operation) {
-  return [
-    'curl',
-    '-L',
-    `https://test.onedata.org/api/v3/onezone/shares/data/{id}/${operation}`,
-  ];
-}

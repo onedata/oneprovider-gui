@@ -4,7 +4,7 @@ import { setupTest } from 'ember-mocha';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import { set } from '@ember/object';
 import Service from '@ember/service';
-import { sharedRestFileTemplate } from 'oneprovider-gui/services/mocks/onedata-connection';
+import { sharedRestFileTemplate } from 'oneprovider-gui/utils/mocks/generate-rest-api-templates';
 
 const OnedataConnection = Service.extend({
   init() {
@@ -13,8 +13,8 @@ const OnedataConnection = Service.extend({
   },
 });
 
-describe('Unit | Service | rest generator', function () {
-  setupTest('service:rest-generator', {});
+describe('Unit | Service | rest api generator', function () {
+  setupTest('service:rest-api-generator', {});
 
   beforeEach(function () {
     registerService(this, 'onedataConnection', OnedataConnection);

@@ -6,7 +6,7 @@
  * for details or browse one of Swagger definitions (eg.
  * https://github.com/onedata/oneprovider-swagger).
  *
- * @module services/rest-generator
+ * @module services/rest-api-generator
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

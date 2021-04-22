@@ -19,7 +19,7 @@ import OneTooltipHelper from '../../../helpers/one-tooltip';
 
 const returnDummyUrl = () => 'https://dummy';
 
-const RestGenerator = Service.extend({
+const RestApiGenerator = Service.extend({
   listSharedDirectoryChildren: returnDummyUrl,
   downloadSharedDirectoryContent: returnDummyUrl,
   downloadSharedFileContent: returnDummyUrl,
@@ -57,7 +57,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
   });
 
   beforeEach(function () {
-    registerService(this, 'restGenerator', RestGenerator);
+    registerService(this, 'restApiGenerator', RestApiGenerator);
     const fileHardlinksResult = this.set('fileHardlinksResult', {
       hardlinksCount: 1,
       hardlinks: [],
@@ -471,10 +471,10 @@ function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
     `shows proper REST URL and info in hint when selected ${type} URL`;
   it(text, async function (done) {
     const methodName = type;
-    const restGenerator = lookupService(this, 'restGenerator');
-    const restGeneratorResult = 'curl -L https://stub_url';
-    const restMethodStub = sinon.stub(restGenerator, methodName)
-      .returns(restGeneratorResult);
+    const restApiGenerator = lookupService(this, 'restApiGenerator');
+    const restApiGeneratorResult = 'curl -L https://stub_url';
+    const restMethodStub = sinon.stub(restApiGenerator, methodName)
+      .returns(restApiGeneratorResult);
 
     render(this);
 
@@ -494,7 +494,7 @@ function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
     );
     expect(
       this.$('.file-info-row-api-command .property-value .clipboard-input').val()
-    ).to.equal(restGeneratorResult);
+    ).to.equal(restApiGeneratorResult);
     await click('.api-command-type-info-trigger');
     const $popover = $('.webui-popover-api-command-type-info');
     expect($popover, 'popover').to.exist;

@@ -17,10 +17,10 @@ export default ApiStringGenerator.extend({
    */
   apiType: 'xrootd',
 
-  hasXRootDTemplates: bool('onedataConnection.apiTemplates.xrootd'),
+  hasXrootdTemplates: bool('onedataConnection.apiTemplates.xrootd'),
 
   isAvailableFor({ share }) {
-    return this.get('hasXRootDTemplates') && get(share, 'hasHandle');
+    return this.get('hasXrootdTemplates') && get(share, 'hasHandle');
   },
 
   downloadSharedFileContent({ spaceId, shareId, path }) {

@@ -3,13 +3,13 @@ import { describe, it, beforeEach } from 'mocha';
 import { setupTest } from 'ember-mocha';
 import { registerService } from '../../helpers/stub-service';
 import Service from '@ember/service';
-import { xRootDTemplates } from 'oneprovider-gui/services/mocks/onedata-connection';
+import generateXrootdApiTemplates from 'oneprovider-gui/utils/mocks/generate-xrootd-api-templates';
 
 // See: oneprovider-gui/services/onedata-connection for mocked templates
 const OnedataConnection = Service.extend({
   init() {
     this._super(...arguments);
-    this.set('apiTemplates', { xrootd: xRootDTemplates });
+    this.set('apiTemplates', { xrootd: generateXrootdApiTemplates() });
   },
 });
 

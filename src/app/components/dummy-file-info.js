@@ -55,7 +55,8 @@ export const file1 = {
 };
 
 export const parentShare = {
-  id: 'share_id',
+  id: 'op_share.share_id.instance:private',
+  entityId: 'share_id',
   name: 'My share',
   hasHandle: true,
 };

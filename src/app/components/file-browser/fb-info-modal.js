@@ -24,7 +24,7 @@ import _ from 'lodash';
 
 export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
-  restGenerator: service(),
+  restApiGenerator: service(),
   xrootdApiGenerator: service(),
   fileManager: service(),
   errorExtractor: service(),
@@ -249,7 +249,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     'filePath',
     function selectedApiCommandString() {
       const {
-        restGenerator,
+        restApiGenerator,
         xrootdApiGenerator,
         effSelectedApiCommand,
         cdmiObjectId,
@@ -257,7 +257,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
         share,
         filePath,
       } = this.getProperties(
-        'restGenerator',
+        'restApiGenerator',
         'xrootdApiGenerator',
         'effSelectedApiCommand',
         'cdmiObjectId',
@@ -266,7 +266,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
         'filePath',
       );
       const generator = {
-        rest: restGenerator,
+        rest: restApiGenerator,
         xrootd: xrootdApiGenerator,
       } [effSelectedApiCommand.type];
       if (!generator) {
