@@ -19,10 +19,8 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
   transfersHistoryLimitPerFile: reads('attributes.transfersHistoryLimitPerFile'),
 
   /**
-   * Known templates:
-   * - listSharedDirectoryChildren
-   * - downloadSharedFileContent
+   * See `service:api-string-generator` and its subclasses for used templates
    * @type {Ember.ComputedProperty<Object>}
    */
-  restTemplates: reads('attributes.restTemplates'),
+  apiTemplates: reads('attributes.apiTemplates'),
 });
