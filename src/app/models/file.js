@@ -198,6 +198,7 @@ export default Model.extend(
 
     /**
      * Available values in array: 'data_protection', 'metadata_protection'
+     * Effective protection flags - concerning attached ancestor dataset flags.
      * @type {ComputedProperty<Array>}
      */
     effProtectionFlags: attr('array'),

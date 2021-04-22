@@ -672,24 +672,24 @@ export default Service.extend({
       }
       await file.save();
     }
+    await this.addDetachedDatasetMock();
+  },
 
-    // detached dataset mock
-    {
-      const fileDetached = files[6];
-      const detachedDataset = await this.createDataset(fileDetached, {
-        parent: null,
-        state: 'detached',
-        protectionFlags: ['metadata_protection'],
-        effProtectionFlags: [],
-      });
-      const fileDetachedDatasetSummary =
-        await this.createDatasetSummary(fileDetached, detachedDataset);
-      setProperties(fileDetached, {
-        fileDatasetSummary: fileDetachedDatasetSummary,
-      });
-      this.get('entityRecords.dataset').push(detachedDataset);
-      this.get('entityRecords.fileDatasetSummary').push(fileDetachedDatasetSummary);
-    }
+  async addDetachedDatasetMock() {
+    const fileDetached = this.get('entityRecords.file')[6];
+    const detachedDataset = await this.createDataset(fileDetached, {
+      parent: null,
+      state: 'detached',
+      protectionFlags: ['metadata_protection'],
+      effProtectionFlags: [],
+    });
+    const fileDetachedDatasetSummary =
+      await this.createDatasetSummary(fileDetached, detachedDataset);
+    setProperties(fileDetached, {
+      fileDatasetSummary: fileDetachedDatasetSummary,
+    });
+    this.get('entityRecords.dataset').push(detachedDataset);
+    this.get('entityRecords.fileDatasetSummary').push(fileDetachedDatasetSummary);
   },
 
   createProviderRecords(store, names) {

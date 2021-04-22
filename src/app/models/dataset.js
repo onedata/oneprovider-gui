@@ -47,7 +47,15 @@ export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
   protectionFlags: attr('array'),
 
   /**
-   * Effective protection flags - concerning ancestor dataset flags.
+   * **NOTE:** value of this property may differ from `effProtectionFlags` of file
+   * and fileDatasetSummary!
+   * 
+   * Effective protection flags - concerning attached ancestor dataset flags.
+   * Applicable only for datasets in attached state - detached datasets will have
+   * this property always as empty array (`[]`).
+   * This property differs for effective flags for file and file dataset summary
+   * because files' version concerns protection flags on hardlinks datasets.
+   * 
    * Possible values: 'metadata_protection', 'data_protection'
    */
   effProtectionFlags: attr('array'),
