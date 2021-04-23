@@ -39,6 +39,32 @@ export default OneEmbeddedComponent.extend(
     globalNotify: service(),
 
     /**
+     * Entity ID of space for which the file browser is rendered.
+     * 
+     * **Injected from parent frame.**
+     * @virtual
+     * @type {String}
+     */
+    spaceEntityId: undefined,
+
+    /**
+     * Entity ID of currently opened directory in file browser.
+     * 
+     * **Injected from parent frame.**
+     * @virtual optional
+     */
+    dirEntityId: undefined,
+
+    /**
+     * Array of file IDs that should be selected on file browser init.
+     * 
+     * **Injected from parent frame.**
+     * @virtual optional
+     * @type {Array<String>}
+     */
+    selected: undefined,
+
+    /**
      * @virtual optional
      * @type {Function}
      */
@@ -52,11 +78,6 @@ export default OneEmbeddedComponent.extend(
       'dirEntityId',
       'selected',
     ]),
-
-    /**
-     * @virtual optional
-     */
-    dirEntityId: undefined,
 
     _window: window,
 
@@ -210,7 +231,6 @@ export default OneEmbeddedComponent.extend(
 
     /**
      * Observer: watch if injected selection and dir changed to redirect to correct URL
-     * @type <Function>
      */
     injectedDirObserver: observer(
       'injectedDirGri',
@@ -222,7 +242,6 @@ export default OneEmbeddedComponent.extend(
 
     /**
      * Observer: override selected files when value injected from outside changes
-     * @type <Function>
      */
     injectedSelectedChanged: observer(
       'selectedFilesForJumpProxy.content',

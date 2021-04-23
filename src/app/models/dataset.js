@@ -13,6 +13,7 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 import { equal, raw } from 'ember-awesome-macros';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import Mixin from '@ember/object/mixin';
+import { computed } from '@ember/object';
 
 export const entityType = 'op_dataset';
 
@@ -24,6 +25,21 @@ export const RuntimeProperties = Mixin.create({
 
   dataIsProtected: hasProtectionFlag('protectionFlags', 'data'),
   metadataIsProtected: hasProtectionFlag('protectionFlags', 'metadata'),
+
+  name: computed('rootFilePath', function name() {
+    const rootFilePath = this.get('rootFilePath');
+    if (rootFilePath) {
+      try {
+        const pathArray = rootFilePath.split('/');
+        return pathArray[pathArray.length - 1] || '';
+      } catch (error) {
+        console.error(`model:dataset#name: cannot get name from path: ${error}`);
+        return '';
+      }
+    } else {
+      return '';
+    }
+  }),
 });
 
 export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {

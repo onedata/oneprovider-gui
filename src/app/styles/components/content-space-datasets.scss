@@ -1,0 +1,61 @@
+// FIXME: look at shares file browser
+
+// .content-file-browser .file-browser-head-container {
+//   z-index: $zindex-file-browser-head;
+// }
+
+// .content-file-browser + .ps__rail-x + .ps__rail-y {
+//   z-index: $zindex-file-browser-head + 1;
+// }
+
+// @media (max-width: $screen-xs-max) {
+//   .one-embedded-component.content-file-browser {
+//     margin-left: 0;
+//     margin-right: 0;
+//   }
+// }
+
+// .content-file-browser {
+//   $drop-zone-rect-margin: $padding-small-horizontal;
+
+//   height: 100%;
+//   flex-grow: 1;
+
+//   .upload-drop-zone {
+//     position: fixed;
+//     top: $drop-zone-rect-margin;
+//     bottom: $drop-zone-rect-margin;
+//     left: $drop-zone-rect-margin;
+//     right: $drop-zone-rect-margin;
+//     display: none;
+//     border: 3px dashed darken($color-one-light-blue, 10%);
+//     background-color: rgba($color-one-light-blue, 0.75);
+//     z-index: $zindex-tooltip;
+
+//     .upload-info {
+//       position: absolute;
+//       top: 50%;
+//       left: 50%;
+//       transform: translateX(-50%) translateY(-50%);
+//     }
+//     .upload-watermark-icon {
+//       text-align: center;
+//       font-size: 15em;
+//       color: darken($color-one-light-blue, 10%);
+//     }
+
+//     &.upload-disabled {
+//       border-color: darken($color-one-blue-gray, 10%);
+//       background-color: rgba($color-one-light-gray, 0.75);
+//       .upload-watermark-icon {
+//         color: darken($color-one-semiblack, 10%);
+//       }
+//     }
+//   }
+
+//   &.file-drag {
+//     .upload-drop-zone {
+//       display: block;
+//     }
+//   }
+// }

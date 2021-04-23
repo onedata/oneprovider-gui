@@ -1,0 +1,60 @@
+{{#promise-proxy-container proxy=initialRequiredDataProxy}}
+  <h3>mode</h3>
+  {{#bs-button-group
+    value=selectedDatasetsState
+    class="datasets-state-selector"
+    type="radio"
+    onChange=(action (mut selectedDatasetsState)) as |bg|
+  }}
+    <div class="btn-group" role="group">
+      {{#bg.button
+        type="default"
+        class="btn-sm select-attached-datasets-btn"
+        value="attached"
+      }}
+        {{tt this "attached"}}
+      {{/bg.button}}
+    </div>
+    <div class="btn-group" role="group">
+    {{#bg.button
+      type="default"
+      class="btn-sm btn-effecitve"
+      value="detached"
+    }}
+        {{tt this "detached"}}
+      {{/bg.button}}
+    </div>
+  {{/bs-button-group}}
+  <h3>injected</h3>
+  <div class="row">dataset id: {{datasetId}} / {{dataset.entityId}}</div>
+  <div class="row">space id: {{spaceId}}</div>
+  <div class="row">space name: {{spaceProxy.content.name}}</div>
+  <h3>opened dataset</h3>
+  {{#if dataset.rootFile.name}}
+    <h4 class="row">dataset filename: {{dataset.rootFile.name}}</h4>
+  {{/if}}
+  <div class="row">proxy fulfilled: {{datasetProxy.isFulfilled}}</div>
+  <div class="row">dataset file path: {{dataset.rootFilePath}}</div>
+  <div class="row">dataset is root: {{dataset.isDatasetsRoot}}</div>
+  <h3>path</h3>
+  <div>{{pathStringProxy.content}}</div>
+  <h3>list</h3>
+  <div class="row">list fulfilled: {{childrenProxy.isFulfilled}}</div>
+  <div class="row">list length: {{childrenProxy.content.length}}</div>
+  <div class="row">
+    <ul>
+      {{#each childrenProxy.content as |dataset|}}
+        <li>
+          <span>state: {{dataset.state}},</span>
+          <span>name: {{dataset.rootFile.name}},</span>
+          <span>flags: {{dataset.protectionFlags}},</span>
+          <span>creation: {{dataset.creationTime}},</span>
+          <span>type: {{dataset.rootFileType}},</span>
+          <a role="button" {{action "updateDatasetId" dataset.entityId}}>
+            path: {{dataset.rootFilePath}},
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+{{/promise-proxy-container}}
