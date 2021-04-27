@@ -105,12 +105,6 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(fileIds: Array<String>) => Promise}
-   */
-  downloadFiles: notImplementedIgnore,
-
-  /**
-   * @virtual optional
    * @type {(api: { refresh: Function }) => undefined}
    */
   registerApi: notImplementedIgnore,
@@ -139,6 +133,12 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   invokeFileAction: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function<(file: Models.File, confirmModal=false) => any>}
+   */
+  openFile: notImplementedIgnore,
 
   /**
    * @type {EmberArray<String>}
@@ -193,11 +193,6 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   headerVisible: undefined,
-
-  /**
-   * @type {models/File}
-   */
-  downloadModalFile: null,
 
   selectionCount: reads('selectedFiles.length'),
 
@@ -867,23 +862,6 @@ export default Component.extend(I18n, {
     }
   },
 
-  openFile(file, confirmModal = false) {
-    const effFile = get(file, 'effFile');
-    if (!effFile) {
-      return;
-    }
-    const isDir = get(effFile, 'type') === 'dir';
-    if (isDir) {
-      return this.get('changeDir')(effFile);
-    } else {
-      if (confirmModal) {
-        this.set('downloadModalFile', file);
-      } else {
-        return this.get('downloadFiles')([file]);
-      }
-    }
-  },
-
   addToSelectedFiles(newFiles) {
     const {
       selectedFiles,
@@ -1074,13 +1052,15 @@ export default Component.extend(I18n, {
       if (areSomeFilesSelected) {
         return this.fileClicked(file, true, false);
       } else {
-        return this.openFile(file, true);
+        return this.get('openFile')(file, true);
       }
     },
 
     fileDoubleClicked(file /*, clickEvent */ ) {
-      return this.openFile(file);
+      return this.get('openFile')(file);
     },
+
+    // FIXME: these should be implemented by browserModel
 
     emptyDirUpload() {
       return this.get('uploadAction.action')(...arguments);
@@ -1100,14 +1080,6 @@ export default Component.extend(I18n, {
 
     emptyDirPaste() {
       return this.get('pasteAction.action')(...arguments);
-    },
-
-    closeDownloadModal() {
-      this.set('downloadModalFile', null);
-    },
-
-    confirmDownload() {
-      return this.get('downloadFiles')([this.get('downloadModalFile')]);
     },
   },
 });

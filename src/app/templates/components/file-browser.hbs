@@ -8,6 +8,7 @@
         menuButtons=currentDirMenuButtons
         resolveFileParentFun=resolveFileParentFun
         previewMode=previewMode
+        rootIcon=rootIcon
         changeDir=(action "changeDir")
         selectCurrentDir=(action "selectCurrentDir")
       }}
@@ -46,9 +47,9 @@
     isSpaceOwned=isSpaceOwned
     spacePrivileges=spacePrivileges
     loadingIconFileIds=loadingIconFileIds
-    downloadFiles=(action downloadFiles)
     invokeFileAction=(action "invokeFileAction")
     changeSelectedFiles=(action "changeSelectedFiles")
+    openFile=(action "openFile")
     changeDir=(action "changeDir")
     containerScrollTop=(action "containerScrollTop")
     registerApi=(action (mut fbTableApi))
@@ -85,3 +86,11 @@
     allButtonsArray=allButtonsArray
   }}
 {{/if}}
+
+{{!-- FIXME: refactor to handle various action on "open file" also with modal --}}
+
+{{file-browser/fb-download-modal
+  file=downloadModalFile
+  confirmDownload=(action "confirmFileOpen")
+  onHide=(action "closeConfirmFileOpenModal")
+}}

@@ -159,12 +159,6 @@
   <div class="file-actions-trigger floating-actions-trigger"></div>
 {{/if}}
 
-{{file-browser/fb-download-modal
-  file=downloadModalFile
-  confirmDownload=(action "confirmDownload")
-  onHide=(action "closeDownloadModal")
-}}
-
 {{#if renderRefreshSpinner}}
   {{spin-spinner-block
     sizeClass="lg"

@@ -25,8 +25,17 @@
     vertical-align: middle;
     user-select: none;
   }
-  .fb-breadcrumbs-dir-root .inline-icon-container .one-icon {
-    font-size: 210%;
+  .fb-breadcrumbs-dir-root {
+    .fb-breadcrumbs-dir-name {
+      .inline-icon-container {
+        margin-right: 0.45em;
+      }
+    }
+    .inline-icon-container {
+      .one-icon {
+        font-size: 210%;
+      }
+    }
   }
   .fb-breadcrumbs-separator {
     width: 0.8em;
