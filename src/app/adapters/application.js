@@ -8,7 +8,7 @@ import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 
-export const entityTypeToModelNameMap = Object.freeze(new Map([
+export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [groupEntityType, 'group'],
   [spaceEntityType, 'space'],
   [transferEntityType, 'transfer'],
@@ -33,5 +33,5 @@ export default OnedataAdapter.extend({
   /**
    * @override
    */
-  entityTypeToModelNameMap,
+  entityTypeToEmberModelNameMap,
 });
