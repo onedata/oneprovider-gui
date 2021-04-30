@@ -1,0 +1,14 @@
+<span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
+  {{#if (eq file.effFile.type "file")}}
+    {{#if file.effFile.isPollingSize}}
+      {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+    {{else}}
+      {{bytes-to-string file.effFile.size}}
+    {{/if}}
+  {{else}}
+    —
+  {{/if}}
+</span>
+<span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-modification">
+  {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
+</span>

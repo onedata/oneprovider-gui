@@ -1,13 +1,10 @@
 import { dataWriteProtectionEnabled } from '../file-datasets/summary-header';
 
 export default {
+  items: 'Items',
   unknownError: 'Unknown error',
   menuSelection: 'Selection ({{selectionCount}})',
-  header: {
-    files: 'Files',
-    size: 'Size',
-    modification: 'Modification',
-  },
+  // FIXME: error and empty messages should be injected as sub-components
   emptyDirBox: {
     emptyDirectory: 'Empty directory',
     dragFilesHere: 'Drag files here to',

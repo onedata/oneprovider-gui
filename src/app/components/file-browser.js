@@ -56,6 +56,7 @@ export function getButtonActions(buttonsArray, context) {
 
 export default Component.extend(I18n, {
   classNames: ['file-browser'],
+  classNameBindings: ['browserClass'],
 
   i18n: service(),
   globalNotify: service(),
@@ -183,6 +184,11 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Array<String>>}
    */
   buttonNames: reads('browserModel.buttonNames'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  browserClass: reads('browserModel.browserClass'),
 
   /**
    * @type {ComputedProperty<String>}

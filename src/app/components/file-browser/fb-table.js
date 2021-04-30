@@ -57,6 +57,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Utils.BaseBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
+   * @virtual
    * @type {Object}
    */
   spacePrivileges: Object.freeze({}),
@@ -193,6 +199,16 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   headerVisible: undefined,
+
+  headColumnsComponentName: or(
+    'browserModel.headColumnsComponentName',
+    raw('file-browser/fb-table-head-columns')
+  ),
+
+  rowComponentName: or(
+    'browserModel.rowComponentName',
+    raw('file-browser/fb-table-row')
+  ),
 
   selectionCount: reads('selectedFiles.length'),
 
@@ -533,7 +549,10 @@ export default Component.extend(I18n, {
     'filesArray.sourceArray.length',
     function sourceArrayLength() {
       scheduleOnce('afterRender', () => {
-        this.get('listWatcher').scrollHandler();
+        const listWatcher = this.get('listWatcher');
+        if (listWatcher) {
+          listWatcher.scrollHandler();
+        }
       });
     }
   ),

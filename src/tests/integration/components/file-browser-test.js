@@ -549,7 +549,8 @@ describe('Integration | Component | file browser (main component)', function () 
         });
 
         testOpenDatasetsModal('dataset tag is clicked', async function () {
-          const $datasetTag = getFileRow({ entityId: 'i1' }).find('.file-status-dataset');
+          const $row = getFileRow({ entityId: 'i1' });
+          const $datasetTag = $row.find('.file-status-dataset');
           expect($datasetTag, 'dataset tag').to.have.length(1);
           await click($datasetTag[0]);
         });

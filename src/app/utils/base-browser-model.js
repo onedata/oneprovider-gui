@@ -57,6 +57,42 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   onOpenFile: notImplementedIgnore,
 
   /**
+   * @virtual
+   * @type {String}
+   */
+  rowComponentName: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  statusBarComponentName: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  mobileInfoComponentName: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  columnsComponentName: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  headColumnsComponentName: '',
+
+  /**
+   * @virtual optional
+   * @type {String}
+   */
+  browserClass: '',
+
+  /**
    * @type {String}
    */
   rootIcon: 'space',

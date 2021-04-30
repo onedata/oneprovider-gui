@@ -1,11 +1,16 @@
 <table class="table one-table one-infinite-list fb-files-table">
   <thead class="fb-table-thead">
-    <tr>
-      <th class="fb-table-col-files">{{tt this "header.files"}}</th>
-      <th class="fb-table-col-size">{{tt this "header.size"}}</th>
-      <th class="fb-table-col-modification">{{tt this "header.modification"}}</th>
-      <th class="fb-table-col-actions-menu"></th>
-    </tr>
+    {{#if headColumnsComponentName}}
+      {{component headColumnsComponentName
+        previewMode=previewMode
+      }}
+    {{else}}
+      {{!-- head columns component should contain at least one th for items, if it's not
+            provided then insert generic one
+      --}}
+      <th class="fb-table-col-items">{{tt this "items"}}</th>
+    {{/if}}
+    <th class="fb-table-col-actions-menu"></th>
   </thead>
   <tbody class="fb-table-tbody">
     <tr class="first-row">
@@ -13,16 +18,17 @@
     </tr>
     <div class="table-start-row"></div>
     {{#each filesArray as |file|}}
-      {{file-browser/fb-table-row
+      {{component rowComponentName
         class="data-row"
         file=file
+        browserModel=browserModel
         previewMode=previewMode
         isSpaceOwned=isSpaceOwned
-        qosViewForbidden=(not spacePrivileges.viewQos)
-        datasetsViewForbidden=(not spacePrivileges.view)
+        spacePrivileges=spacePrivileges
         nameConflict=(contains file.index conflictNames)
-        fileCut=(and (eq fileClipboardMode "move") (contains file fileClipboardFiles))
+        fileClipboardMode=(if (contains file fileClipboardFiles) fileClipboardMode null)
         isSelected=(contains file selectedFiles)
+        isLoadingOnIcon=(contains file.entityId loadingIconFileIds)
         touchTap=(action "fileTapped" file)
         touchHold=(action "fileTouchHeld" file)
         fastClick=(action "fileClicked" file)
@@ -31,7 +37,6 @@
         invokeFileAction=invokeFileAction
         fileActionsOpen=fileActionsOpen
         selectionContext=selectionContext
-        isLoadingOnIcon=(contains file.entityId loadingIconFileIds)
       }}
     {{/each}}
     {{#if (and initialLoad.isSettled fetchingNext)}}

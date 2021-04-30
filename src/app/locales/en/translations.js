@@ -21,6 +21,8 @@ import shareShow from './components/share-show';
 import qosExpressionInfo from './components/qos-expression-info';
 import qosEvaluationInfo from './components/qos-evaluation-info';
 import queryBuilder from './components/query-builder';
+import filesystemBrowser from './components/filesystem-browser';
+import datasetBrowser from './components/dataset-browser';
 
 import uploadManager from './services/upload-manager';
 
@@ -50,6 +52,8 @@ const translations = {
     qosExpressionInfo,
     qosEvaluationInfo,
     queryBuilder,
+    filesystemBrowser,
+    datasetBrowser,
   },
   services: {
     uploadManager,

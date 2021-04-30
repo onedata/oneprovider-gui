@@ -1,0 +1,71 @@
+import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
+import { equal, raw, conditional, isEmpty, hash } from 'ember-awesome-macros';
+import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
+import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
+
+// FIXME: maybe this could be a model with every other logic (if we got more time)
+export default FbTableRow.extend({
+  classNames: ['filesystem-table-row'],
+
+  /**
+   * @override
+   * @type {ComputedProperty<Boolean>}
+   */
+  fileCut: equal('fileClipboardMode', raw('move')),
+
+  /**
+   * @override
+   */
+  icon: computed('effFileType', function icon() {
+    switch (this.get('effFileType')) {
+      case 'dir':
+        return 'browser-directory';
+      case 'file':
+      default:
+        return 'browser-file';
+    }
+  }),
+
+  /**
+   * @override
+   */
+  hasErrorIconTag: isEmpty('effFileType'),
+
+  /**
+   * @override
+   */
+  iconTag: conditional(
+    'hasErrorIconTag',
+    raw('x'),
+    conditional(
+      'isSymlink',
+      raw('shortcut'),
+      raw(null)
+    )
+  ),
+
+  /**
+   * @override
+   */
+  normalizeFileType(fileType) {
+    if (['dir', 'file', 'symlink'].includes(fileType)) {
+      return fileType;
+    }
+  },
+
+  // FIXME: this will be probably injected from above
+  fileRowModel: hash(
+    'isSymlink',
+  ),
+
+  isSymlink: equal('type', raw('symlink')),
+
+  fileNameParser: computed('file', function fileNameParser() {
+    return FileNameParser.create({ file: this.get('file') });
+  }),
+
+  fileNameBase: reads('fileNameParser.base'),
+
+  fileNameSuffix: reads('fileNameParser.suffix'),
+});

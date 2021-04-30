@@ -130,6 +130,36 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
+  rowComponentName: 'filesystem-browser/table-row',
+
+  /**
+   * @override
+   */
+  statusBarComponentName: 'filesystem-browser/table-row-status-bar',
+
+  /**
+   * @override
+   */
+  mobileInfoComponentName: 'filesystem-browser/table-row-mobile-info',
+
+  /**
+   * @override
+   */
+  columnsComponentName: 'filesystem-browser/table-row-columns',
+
+  /**
+   * @override
+   */
+  headColumnsComponentName: 'filesystem-browser/table-head-columns',
+
+  /**
+   * @override
+   */
+  browserClass: 'filesystem-browser',
+
+  /**
+   * @override
+   */
   buttonNames: buttonNames,
 
   /**

@@ -92,8 +92,8 @@
   th {
     user-select: none;
   }
-  thead > tr > th.fb-table-col-files,
-  .table:not(.bt) > tbody > tr > td:first-child.fb-table-col-files {
+  thead > tr > th:first-of-type,
+  .table:not(.bt) > tbody > tr > th:first-of-type {
     padding-left: $file-browser-padding-left;
   }
   @media (max-width: $screen-xs-max) {
@@ -101,23 +101,12 @@
       display: none;
     }
   }
-  .fb-table-thead {
-    .fb-table-col-files {
-      text-align: left;
-    }
+  thead.fb-table-thead > tr > th:first-of-type {
+    text-align: left;
   }
   .fb-table-col-files {
     // enables text truncate inside
     max-width: 0;
-  }
-  .fb-table-col-size {
-    position: relative;
-    width: 120px;
-    text-align: center;
-  }
-  .fb-table-col-modification {
-    width: 200px;
-    text-align: center;
   }
   td.fb-table-col-actions-menu {
     position: relative;
