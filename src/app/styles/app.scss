@@ -16,6 +16,7 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'oneprovider-common';
 @import 'components/acl-editor';
 @import 'components/content-file-browser';
+@import 'components/content-space-datasets';
 @import 'components/content-space-shares';
 @import 'components/content-public-share';
 @import 'components/edit-permissions-modal';

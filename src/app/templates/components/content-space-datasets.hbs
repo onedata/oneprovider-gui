@@ -1,6 +1,24 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
-  {{!-- FIXME: add attached/detached switch --}}
-  {{!-- {{#bs-button-group
+  {{#if browsableDataset}}
+    {{file-browser
+      browserModel=browserModel
+      dir=browsableDataset
+      previewMode=true
+      customRootDir=spaceDatasetsRoot
+      customFetchDirChildren=(if isInRoot
+        (action fetchSpaceDatasets)
+        (action fetchDatasetChildren)
+      )
+      resolveFileParentFun=(action resolveFileParentFun)
+      spaceId=spaceId
+      spacePrivileges=spacePrivileges
+      selectedFiles=selectedDatasets
+      isSpaceOwned=space.currentUserIsOwner
+      changeSelectedFiles=(action "changeSelectedDatasets")
+      updateDirEntityId=(action "updateDatasetId")
+    }}
+  {{/if}}
+  {{#bs-button-group
     value=selectedDatasetsState
     class="datasets-state-selector"
     type="radio"
@@ -24,26 +42,6 @@
         {{tt this "detached"}}
       {{/bg.button}}
     </div>
-  {{/bs-button-group}} --}}
+  {{/bs-button-group}}
   
-  {{#if browsableDataset}}
-    {{file-browser
-      browserModel=browserModel
-      dir=browsableDataset
-      previewMode=true
-      customRootDir=spaceDatasetsRoot
-      customFetchDirChildren=(if isInRoot
-        (action fetchSpaceDatasets)
-        (action fetchDatasetChildren)
-      )
-      resolveFileParentFun=(action resolveFileParentFun)
-      spaceId=spaceId
-      spacePrivileges=spacePrivileges
-      selectedFiles=selectedDatasets
-      isSpaceOwned=space.currentUserIsOwner
-      changeSelectedFiles=(action "changeSelectedDatasets")
-      updateDirEntityId=(action "updateDatasetId")
-    }}
-  {{/if}}
-
 {{/promise-proxy-container}}

@@ -1,11 +1,5 @@
 // FIXME: look at shares file browser
 
-.content-space-datasets {
-  + .ps__rail-x + .ps__rail-y {
-    z-index: $zindex-file-browser-head + 1;
-  }
-}
-
 @media (max-width: $screen-xs-max) {
   .one-embedded-component.content-space-datasets {
     margin-left: 0;
@@ -14,10 +8,23 @@
 }
 
 .content-space-datasets {
+  position: relative;
+  height: 100%;
+  flex-grow: 1;
+
+  .datasets-state-selector {
+    position: absolute;
+    transform-origin: bottom right;
+    transform: translateX(-100%) translateY(100%) rotate(-90deg);
+    left: $content-col-padding;
+    top: $padding-base-horizontal;
+  }
+
   .file-browser-head-container {
     z-index: $zindex-file-browser-head;
   }
 
-  height: 100%;
-  flex-grow: 1;
+  + .ps__rail-x + .ps__rail-y {
+    z-index: $zindex-file-browser-head + 1;
+  }
 }
