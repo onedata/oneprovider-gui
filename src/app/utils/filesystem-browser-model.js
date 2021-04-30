@@ -1,3 +1,5 @@
+// FIXME: jsdoc
+
 import { inject as service } from '@ember/service';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
@@ -53,12 +55,6 @@ export default BaseBrowserModel.extend({
    * @override
    */
   i18nPrefix: 'utils.filesystemBrowserModel',
-
-  /**
-   * @virtual
-   * @type {Components.FileBrowser} browserInstance
-   */
-  browserInstance: undefined,
 
   /**
    * @virtual
@@ -745,6 +741,10 @@ export default BaseBrowserModel.extend({
    * @override
    */
   getCurrentDirMenuButtons(availableActions) {
+    if (this.get('dir.isShareRoot')) {
+      return [];
+    }
+
     const fileClipboardMode = this.get('fileClipboardMode');
     let actions = [...availableActions];
     if (fileClipboardMode !== 'symlink') {

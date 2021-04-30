@@ -66,6 +66,8 @@ export default Component.extend({
 
       // fetch declared injected properties
       this.get('iframeInjectedProperties').forEach(propertyName => {
+        // FIXME:
+        console.log('read', propertyName, this.get(`appProxy.injectedData.${propertyName}`));
         this[propertyName] = reads(`appProxy.injectedData.${propertyName}`);
       });
     } else {

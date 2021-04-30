@@ -1,3 +1,5 @@
+// FIXME: jsdoc
+
 import EmberObject, { getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { dasherize } from '@ember/string';
@@ -7,6 +9,12 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   //#region API for file-browser component
+
+  /**
+   * @virtual
+   * @type {Components.FileBrowser} browserInstance
+   */
+  browserInstance: undefined,
 
   /**
    * @virtual optional

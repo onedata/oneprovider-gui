@@ -1,9 +1,11 @@
+// FIXME: refactor - maybe names should be dataset instead of browsableDataset mixed with dataset
+
 /**
  * Container for browsing and managing datasets.
  *
  * @module component/content-space-datasets
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -15,25 +17,23 @@ import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw } from 'ember-awesome-macros';
-import { resolve, reject } from 'rsvp';
+import { promise, raw, bool } from 'ember-awesome-macros';
+import { resolve } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
+import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 
 const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
-const SpaceDatasetsRoot = EmberObject.extend({
-  // mock of dataset
+const SpaceDatasetsRootBaseClass = EmberObject.extend({
+  // dataset-like properties
   id: spaceDatasetsRootId,
   entityId: spaceDatasetsRootId,
-  type: 'dir',
-  isShareRoot: true,
-  hasParent: false,
   parent: promise.object(raw(resolve(null))),
+  hasParent: false,
   protectionFlags: Object.freeze([]),
-  rootFile: promise.object(raw(reject(new Error(
-    'component:content-space-datasets: tried to get rootFile of virtual space datasets root'
-  )))),
+  rootFile: promise.object(raw(resolve(null))),
   rootFilePath: '/',
   rootFileType: 'dir',
 
@@ -41,7 +41,12 @@ const SpaceDatasetsRoot = EmberObject.extend({
   isDatasetsRoot: true,
 
   // virtual properties
+  name: undefined,
   state: undefined,
+});
+
+const SpaceDatasetsRootClass = BrowsableDataset.extend({
+  content: SpaceDatasetsRootBaseClass.create(),
 });
 
 const mixins = [
@@ -105,6 +110,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   selectedDatasetsState: 'attached',
 
+  /**
+   * Default value set on init.
+   * @type {Array<Utils.BrowsableDataset>}
+   */
+  selectedDatasets: undefined,
+
   spaceProxy: promise.object(computed('spaceId', function spaceProxy() {
     const {
       spaceManager,
@@ -113,36 +124,47 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return spaceManager.getSpace(spaceId);
   })),
 
+  space: reads('spaceProxy.content'),
+
   /**
    * @type {ComputedProperty<Object>}
    */
-  spacePrivileges: reads('spaceProxy.content.privileges'),
+  spacePrivileges: reads('space.privileges'),
 
   /**
    * NOTE: observing only space, because it should reload initial dir after whole space
    * change.
    * @type {PromiseObject<Models.File>}
    */
-  initialDatasetProxy: promise.object(computed(
+  initialBrowsableDatasetProxy: promise.object(computed(
     'spaceProxy',
-    function initialDatasetProxy() {
-      return this.get('datasetProxy');
+    'selectedDatasetsState',
+    function initialBrowsableDatasetProxy() {
+      return this.get('browsableDatasetProxy');
     }
   )),
 
   spaceDatasetsRoot: computed(
+    'space',
     'selectedDatasetsState',
     function spaceDatasetsRoot() {
-      return SpaceDatasetsRoot.create({
-        state: this.get('selectedDatasetsState'),
+      const {
+        space,
+        selectedDatasetsState,
+      } = this.getProperties('space', 'selectedDatasetsState');
+      return SpaceDatasetsRootClass.create({
+        name: space ? get(space, 'name') : this.t('space'),
+        state: selectedDatasetsState,
       });
     }
   ),
 
+  isInRoot: bool('browsableDataset.isDatasetsRoot'),
+
   /**
    * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
    */
-  datasetProxy: promise.object(computed(
+  browsableDatasetProxy: promise.object(computed(
     'datasetId',
     'spaceId',
     'spaceDatasetsRoot',
@@ -173,10 +195,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
           const dataset = await datasetManager.getDataset(datasetId);
           // return only dir-type datasets, for files try to return parent or null
           if (get(dataset, 'rootFileType') === 'dir') {
-            return dataset;
+            return BrowsableDataset.create({ content: dataset });
           } else {
             const parent = await get(dataset, 'parent');
-            return parent || spaceDatasetsRoot;
+            return parent && BrowsableDataset.create({ content: parent }) ||
+              spaceDatasetsRoot;
           }
         } catch (error) {
           globalNotify.backendError(this.t('openingDataset'), error);
@@ -191,11 +214,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
   /**
    * @type {Models.Dataset}
    */
-  dataset: computedLastProxyContent('datasetProxy'),
+  browsableDataset: computedLastProxyContent('browsableDatasetProxy'),
 
   initialRequiredDataProxy: promise.object(promise.all(
     'spaceProxy',
-    'initialDatasetProxy'
+    'initialBrowsableDatasetProxy'
   )),
 
   spaceIdObserver: observer('spaceId', function spaceIdObserver() {
@@ -252,8 +275,103 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   //#endregion
 
+  init() {
+    this._super(...arguments);
+    this.set('browserModel', this.createBrowserModel());
+    if (!this.get('selectedDatasets')) {
+      this.set('selectedDatasets', []);
+    }
+  },
+
+  createBrowserModel() {
+    return DatasetBrowserModel.create({
+      ownerSource: this,
+    });
+  },
+
+  async fetchSpaceDatasets(rootId, startIndex, size, offset, array) {
+    if (rootId !== spaceDatasetsRootId) {
+      throw new Error(
+        'component:content-space-datasets#fetchRootChildren: cannot use fetchRootChildren for non-root'
+      );
+    }
+    const {
+      datasetManager,
+      spaceId,
+      selectedDatasetsState,
+    } = this.getProperties(
+      'datasetManager',
+      'spaceId',
+      'selectedDatasetsState'
+    );
+    if (startIndex == null) {
+      if (size <= 0 || offset < 0) {
+        return resolve({ childrenRecords: [], isLast: true });
+      } else {
+        return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
+          parentType: 'space',
+          parentId: spaceId,
+          state: selectedDatasetsState,
+          limit: size,
+          offset,
+        }));
+      }
+    } else if (startIndex === array.get('sourceArray.lastObject.index')) {
+      return resolve({ childrenRecords: [], isLast: true });
+    } else {
+      throw new Error(
+        'component:content-space-datasets#fetchRootChildren: illegal fetch arguments for virtual root dir'
+      );
+    }
+  },
+
+  async fetchDatasetChildren(datasetId, startIndex, size, offset) {
+    const {
+      datasetManager,
+      selectedDatasetsState,
+    } = this.getProperties(
+      'datasetManager',
+      'selectedDatasetsState',
+    );
+    return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
+      parentType: 'dataset',
+      parentId: datasetId,
+      state: selectedDatasetsState,
+      index: startIndex,
+      limit: size,
+      offset,
+    }));
+  },
+
+  // FIXME: change name and refactor usages
+  browserizeDatasets({ childrenRecords, isLast }) {
+    return {
+      childrenRecords: childrenRecords.map(r => BrowsableDataset.create({ content: r })),
+      isLast,
+    };
+  },
+
+  resolveFileParentFun(dataset) {
+    if (get(dataset, 'entityId') === spaceDatasetsRootId) {
+      return resolve(null);
+    } else if (!get(dataset, 'hasParent')) {
+      return resolve(this.get('spaceDatasetsRoot'));
+    } else {
+      return get(dataset, 'parent');
+    }
+  },
+
   actions: {
-    // FIXME: should be used with file-browser, otherwise - remove
+    /**
+     * **Parent iframe action**
+     * @param {String} datasetId
+     */
+    updateDatasetId(datasetId) {
+      this.callParent('updateDatasetId', datasetId);
+    },
+    changeSelectedDatasets(selectedDatasets) {
+      this.set('selectedDatasets', selectedDatasets);
+    },
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
     },
@@ -262,27 +380,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     },
     closeDatasetsModal() {
       this.closeDatasetsModal();
-    },
-
-    /**
-     * **Parent iframe action**
-     * @param {String} datasetId
-     */
-    updateDatasetId(datasetId) {
-      this.callParent('updateDatasetId', datasetId);
-    },
-
-    // FIXME: should be used with file-browser, otherwise - remove
-    /**
-     * **Parent iframe action**
-     * @param {Object} data
-     * @param {String} data.fileId entity id of directory to open
-     * @param {String|Array<String>} data.selected list of entity ids of files
-     *  to be selected on view
-     * @returns {String}
-     */
-    getDataUrl(data) {
-      return this.callParent('getDataUrl', data);
     },
   },
 });

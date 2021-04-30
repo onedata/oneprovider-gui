@@ -40,6 +40,10 @@ export const RuntimeProperties = Mixin.create({
       return '';
     }
   }),
+
+  hasParent: computed(function hasParent() {
+    return Boolean(this.belongsTo('parent').id());
+  }),
 });
 
 export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {

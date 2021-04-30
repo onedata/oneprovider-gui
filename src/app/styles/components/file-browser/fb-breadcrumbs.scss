@@ -26,14 +26,12 @@
     user-select: none;
   }
   .fb-breadcrumbs-dir-root {
-    .fb-breadcrumbs-dir-name {
-      .inline-icon-container {
-        margin-right: 0.45em;
-      }
-    }
     .inline-icon-container {
       .one-icon {
         font-size: 210%;
+      }
+      &.root-icon-container {
+        margin-right: 0.45em;
       }
     }
   }

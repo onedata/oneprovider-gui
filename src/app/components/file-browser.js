@@ -244,36 +244,32 @@ export default Component.extend(I18n, {
     'fileClipboardMode',
     'previewMode',
     function menuButtons() {
-      if (this.get('dir.isShareRoot')) {
-        return [];
+      const {
+        allButtonsArray,
+        isRootDir,
+        previewMode,
+        browserModel,
+      } = this.getProperties(
+        'allButtonsArray',
+        'isRootDir',
+        'previewMode',
+        'browserModel',
+      );
+      const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
+        (previewMode ? 'Preview' : '');
+      let importedActions = getButtonActions(
+        allButtonsArray,
+        context
+      );
+      importedActions = browserModel.getCurrentDirMenuButtons(importedActions);
+      if (get(importedActions, 'length')) {
+        return [
+          // FIXME: this should depend on browser-model
+          { separator: true, title: this.t('menuCurrentDir') },
+          ...importedActions,
+        ];
       } else {
-        const {
-          allButtonsArray,
-          isRootDir,
-          previewMode,
-          browserModel,
-        } = this.getProperties(
-          'allButtonsArray',
-          'isRootDir',
-          'previewMode',
-          'browserModel',
-        );
-        const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
-          (previewMode ? 'Preview' : '');
-        let importedActions = getButtonActions(
-          allButtonsArray,
-          context
-        );
-        importedActions = browserModel.getCurrentDirMenuButtons(importedActions);
-        if (get(importedActions, 'length')) {
-          return [
-            // FIXME: this should depend on browser-model
-            { separator: true, title: this.t('menuCurrentDir') },
-            ...importedActions,
-          ];
-        } else {
-          return [];
-        }
+        return [];
       }
     }
   ),
@@ -382,11 +378,13 @@ export default Component.extend(I18n, {
       element,
       clickOutsideDeselectHandler,
       currentDirContextMenuHandler,
+      browserModel,
     } = this.getProperties(
       '_body',
       'element',
       'clickOutsideDeselectHandler',
       'currentDirContextMenuHandler',
+      'browserModel',
     );
 
     _body.addEventListener(
@@ -398,6 +396,8 @@ export default Component.extend(I18n, {
       'contextmenu',
       currentDirContextMenuHandler
     );
+
+    browserModel.onInsertElement();
   },
 
   willDestroyElement() {
