@@ -43,4 +43,15 @@
     </div>
   {{/bs-button-group}}
   
+  {{#if filesToShowDatasets}}
+    {{datasets-modal
+      open=true
+      mode="dataset"
+      files=filesToShowDatasets
+      editPrivilege=true
+      onHide=(action closeDatasetsModal)
+      getDataUrl=(action getDataUrl)
+    }}
+  {{/if}}
+
 {{/promise-proxy-container}}

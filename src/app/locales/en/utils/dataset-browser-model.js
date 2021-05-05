@@ -11,6 +11,7 @@ export default _.merge({}, BaseBrowserModel, {
       file: 'Reveal root file',
       dir: 'Reveal root directory',
     },
+    protection: 'Write protection',
     changeState: {
       attach: 'Re-attach',
       detach: 'Detach',
@@ -40,5 +41,8 @@ export default _.merge({}, BaseBrowserModel, {
     proceedQuestion: 'Do you want to proceed?',
     yes: 'Remove',
     removing: 'removing dataset(s)',
+  },
+  protection: {
+    loadingRootFile: 'loading dataset root file',
   },
 });

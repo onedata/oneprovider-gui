@@ -309,6 +309,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       ownerSource: this,
       getDataUrl: this.getDataUrl.bind(this),
       selectedDatasetsState,
+      openDatasetsModal: this.openDatasetsModal.bind(this),
     });
   },
 
@@ -384,6 +385,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
+  openDatasetsModal(file) {
+    this.set('filesToShowDatasets', [file]);
+  },
+
+  closeDatasetsModal() {
+    this.set('filesToShowDatasets', null);
+  },
+
   actions: {
     /**
      * **Parent iframe action**
@@ -397,12 +406,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     },
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
-    },
-    openDatasetsModal(files) {
-      this.set('filesToShowDatasets', files);
-    },
-    closeDatasetsModal() {
-      this.closeDatasetsModal();
     },
   },
 });

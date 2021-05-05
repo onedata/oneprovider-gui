@@ -17,7 +17,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { promise } from 'ember-awesome-macros';
+import { promise, equal, raw } from 'ember-awesome-macros';
 import { allSettled } from 'rsvp';
 
 export default Component.extend(I18n, {
@@ -40,6 +40,15 @@ export default Component.extend(I18n, {
    * @type {Boolean}
    */
   editPrivilege: true,
+
+  /**
+   * One of: file, dataset.
+   * - file: suitable for filesystem-browser, allow to toggle attachment state
+   * - dataset: suitable for dataset-browser, no attachment toggle
+   * @virtual optional
+   * @type {String}
+   */
+  mode: 'file',
 
   /**
    * @virtual
@@ -73,6 +82,8 @@ export default Component.extend(I18n, {
     data: 'provider',
     metadata: 'browser-attribute',
   }),
+
+  showAttachmentToggle: equal('mode', raw('file')),
 
   /**
    * Text displayed in various places when settings cannot be edited due to lack of

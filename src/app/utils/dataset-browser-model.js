@@ -14,6 +14,7 @@ import { all as allFulfilled } from 'rsvp';
 const buttonNames = Object.freeze([
   'btnRefresh',
   'btnShowFile',
+  'btnProtection',
   'btnChangeState',
   'btnRemove',
 ]);
@@ -115,7 +116,6 @@ export default BaseBrowserModel.extend({
       title: this.t(
         'fileActions.changeState.' + (isAttachAction ? 'attach' : 'detach')
       ),
-      disabled: false,
       action: (datasets) => {
         return this.askForToggleAttachment(
           datasets,
@@ -132,12 +132,34 @@ export default BaseBrowserModel.extend({
     return this.createFileAction({
       id: 'remove',
       icon: 'browser-delete',
-      disabled: false,
       action: (datasets) => {
         return this.askForRemoveDatasets(datasets);
       },
       showIn: [
         ...anySelectedContexts,
+      ],
+    });
+  }),
+
+  btnProtection: computed(function btnProtection() {
+    return this.createFileAction({
+      id: 'protection',
+      icon: 'browser-permissions',
+      action: async (datasets) => {
+        try {
+          const rootFile = await get(datasets[0], 'rootFile');
+          return this.openDatasetsModal(rootFile);
+        } catch (error) {
+          this.get('globalNotify').backendError(
+            this.t('protection.loadingRootFile'),
+            error
+          );
+        }
+      },
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleFile,
+        actionContext.currentDir,
       ],
     });
   }),

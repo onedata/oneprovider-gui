@@ -7,6 +7,7 @@ export default {
   fileType,
   protectionType,
   datasets: 'Datasets',
+  protectionHeader: 'Write protection',
   hint: {
     title: 'Datasets',
     intro: 'Datasets allow the space users to organize their data into collections with desired granularity. A file or directory marked as a dataset offers additional features, such as optional data and metadata protection or the ability to create persistent snapshots of the physical dataset contents. In case of a directory, a dataset covers all its subdirectories and files. Datasets can be nested, allowing users to compose arbitrary hierarchical structures.',

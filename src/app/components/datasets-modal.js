@@ -21,6 +21,15 @@ export default Component.extend(I18n, {
   editPrivilege: true,
 
   /**
+   * One of: file, dataset.
+   * - file: suitable for filesystem-browser, allow to toggle attachment state
+   * - dataset: suitable for dataset-browser, no attachment toggle
+   * @virtual optional
+   * @type {String}
+   */
+  mode: 'file',
+
+  /**
    * @virtual
    * Callback when the modal is starting to hide
    * @type {Function}
