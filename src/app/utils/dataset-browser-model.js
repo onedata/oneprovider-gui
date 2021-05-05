@@ -1,6 +1,11 @@
 // FIXME: jsdoc
 
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
+import { hash } from 'ember-awesome-macros';
+
+const buttonNames = Object.freeze([
+  'btnRefresh',
+]);
 
 export default BaseBrowserModel.extend({
   /**
@@ -38,4 +43,8 @@ export default BaseBrowserModel.extend({
    */
   browserClass: 'dataset-browser',
 
+  /**
+   * @override
+   */
+  allButtonsHash: hash(...buttonNames),
 });

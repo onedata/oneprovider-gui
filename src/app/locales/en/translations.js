@@ -27,6 +27,7 @@ import datasetBrowser from './components/dataset-browser';
 import uploadManager from './services/upload-manager';
 
 import handleMultiFilesOperation from './utils/handle-multi-files-operation';
+import baseBrowserModel from './utils/base-browser-model';
 import filesystemBrowserModel from './utils/filesystem-browser-model';
 import datasetBrowserModel from './utils/dataset-browser-model';
 
@@ -60,6 +61,7 @@ const translations = {
   },
   utils: {
     handleMultiFilesOperation,
+    baseBrowserModel,
     filesystemBrowserModel,
     datasetBrowserModel,
   },

@@ -2,12 +2,24 @@
 
 import EmberObject, { getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
+import { inject as service } from '@ember/service';
 import { dasherize } from '@ember/string';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import animateCss from 'onedata-gui-common/utils/animate-css';
+import {
+  actionContext,
+} from 'oneprovider-gui/components/file-browser';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.baseBrowserModel',
+
   //#region API for file-browser component
 
   /**
@@ -135,6 +147,38 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   loadingIconFileIds: reads('browserInstance.loadingIconFileIds'),
 
   //#endregion
+
+  btnRefresh: computed(function btnRefresh() {
+    return this.createFileAction({
+      id: 'refresh',
+      icon: 'refresh',
+      action: () => {
+        const {
+          globalNotify,
+          fbTableApi,
+          element,
+        } = this.getProperties('globalNotify', 'fbTableApi', 'element');
+        animateCss(
+          element.querySelector('.fb-toolbar-button.file-action-refresh'),
+          'pulse-mint'
+        );
+        return fbTableApi.refresh()
+          .catch(error => {
+            globalNotify.backendError(this.t('refreshing'), error);
+            throw error;
+          });
+      },
+      showIn: [
+        actionContext.inDir,
+        actionContext.inDirPreview,
+        actionContext.currentDir,
+        actionContext.currentDirPreview,
+        actionContext.spaceRootDir,
+        actionContext.spaceRootDirPreview,
+      ],
+    });
+  }),
+
   /**
    * Create button or popover menu item for controlling files.
    * @param {object} actionProperties properties of action button:

@@ -10,7 +10,6 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { later } from '@ember/runloop';
 import $ from 'jquery';
 import { computed, get } from '@ember/object';
-import animateCss from 'onedata-gui-common/utils/animate-css';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
@@ -236,38 +235,6 @@ export default BaseBrowserModel.extend({
       });
     }
   ),
-
-  // FIXME: move btnRefresh to base browser model
-  btnRefresh: computed(function btnRefresh() {
-    return this.createFileAction({
-      id: 'refresh',
-      icon: 'refresh',
-      action: () => {
-        const {
-          globalNotify,
-          fbTableApi,
-          element,
-        } = this.getProperties('globalNotify', 'fbTableApi', 'element');
-        animateCss(
-          element.querySelector('.fb-toolbar-button.file-action-refresh'),
-          'pulse-mint'
-        );
-        return fbTableApi.refresh()
-          .catch(error => {
-            globalNotify.backendError(this.t('refreshingDirectory'), error);
-            throw error;
-          });
-      },
-      showIn: [
-        actionContext.inDir,
-        actionContext.inDirPreview,
-        actionContext.currentDir,
-        actionContext.currentDirPreview,
-        actionContext.spaceRootDir,
-        actionContext.spaceRootDirPreview,
-      ],
-    });
-  }),
 
   btnShare: computed(
     'spacePrivileges.view',

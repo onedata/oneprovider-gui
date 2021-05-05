@@ -1,6 +1,8 @@
-export default {
+import BaseBrowserModel from './base-browser-model';
+import _ from 'lodash';
+
+export default _.merge({}, BaseBrowserModel, {
   startingDownload: 'starting file download',
-  refreshingDirectory: 'refreshing directory',
   fileActions: {
     upload: 'Upload files',
     newDirectory: 'New directory',
@@ -45,4 +47,4 @@ export default {
     copy: 'copying some of files',
   },
   linkFailed: 'linking some of files',
-};
+});
