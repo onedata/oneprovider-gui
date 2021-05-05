@@ -283,9 +283,18 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
+  /**
+   * @param {Object} options
+   * @returns {String} Onezone URL for directory in file browser
+   */
+  getDataUrl(options) {
+    return this.callParent('getDataUrl', options);
+  },
+
   createBrowserModel() {
     return DatasetBrowserModel.create({
       ownerSource: this,
+      getDataUrl: this.getDataUrl.bind(this),
     });
   },
 

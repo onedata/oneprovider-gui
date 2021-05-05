@@ -45,7 +45,7 @@ export default Component.extend({
         dataset,
         fileId,
         filePathString,
-        fileHref: getDataUrl({ fileId: null, selected: [fileId] }),
+        fileHref: getDataUrl({ selected: [fileId] }),
       };
     });
   }),

@@ -10,4 +10,16 @@ export default ObjectProxy.extend({
   effFile: computed(function effFile() {
     return this;
   }),
+
+  relationEntityId() {
+    return this.get('content').relationEntityId(...arguments);
+  },
+
+  belongsTo() {
+    return this.get('content').belongsTo(...arguments);
+  },
+
+  hasMany() {
+    return this.get('content').hadMany(...arguments);
+  },
 });

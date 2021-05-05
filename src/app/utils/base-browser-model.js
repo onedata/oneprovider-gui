@@ -127,6 +127,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   dir: reads('browserInstance.dir'),
   selectedFiles: reads('browserInstance.selectedFiles'),
+  selectionContext: reads('browserInstance.selectionContext'),
   element: reads('browserInstance.element'),
   spacePrivileges: reads('browserInstance.spacePrivileges'),
   spaceId: reads('browserInstance.spaceId'),
