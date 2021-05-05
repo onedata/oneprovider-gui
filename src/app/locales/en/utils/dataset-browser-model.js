@@ -15,6 +15,7 @@ export default _.merge({}, BaseBrowserModel, {
       attach: 'Re-attach',
       detach: 'Detach',
     },
+    remove: 'Remove',
   },
   toggleDatasetAttachment: {
     header: {
@@ -28,5 +29,16 @@ export default _.merge({}, BaseBrowserModel, {
     proceedQuestion: 'Do you want to proceed?',
     yes: 'Proceed',
     changingState: 'changing dataset(s) state',
+  },
+  remove: {
+    header: 'Remove selected datasets',
+    selectedText: {
+      single: '<strong>{{name}}</strong> dataset',
+      multi: '<strong>{{count}}</strong> selected datasets',
+    },
+    description: 'You are about to remove {{selectedText}}. This procedure does not modify any files or directories that were a part of the dataset.',
+    proceedQuestion: 'Do you want to proceed?',
+    yes: 'Remove',
+    removing: 'removing dataset(s)',
   },
 });

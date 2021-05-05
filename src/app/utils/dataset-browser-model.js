@@ -15,6 +15,7 @@ const buttonNames = Object.freeze([
   'btnRefresh',
   'btnShowFile',
   'btnChangeState',
+  'btnRemove',
 ]);
 
 export default BaseBrowserModel.extend({
@@ -127,6 +128,20 @@ export default BaseBrowserModel.extend({
     });
   }),
 
+  btnRemove: computed(function btnRemove() {
+    return this.createFileAction({
+      id: 'remove',
+      icon: 'browser-delete',
+      disabled: false,
+      action: (datasets) => {
+        return this.askForRemoveDatasets(datasets);
+      },
+      showIn: [
+        ...anySelectedContexts,
+      ],
+    });
+  }),
+
   //#endregion
 
   showRootFile(dataset) {
@@ -183,10 +198,65 @@ export default BaseBrowserModel.extend({
       });
   },
 
+  askForRemoveDatasets(datasets) {
+    const {
+      modalManager,
+      globalNotify,
+    } = this.getProperties('modalManager', 'globalNotify');
+    const descriptionInterpolation = {};
+    const count = get(datasets, 'length');
+    if (count > 1) {
+      descriptionInterpolation.selectedText = this.t('remove.selectedText.multi', {
+        count,
+      });
+    } else {
+      descriptionInterpolation.selectedText = this.t('remove.selectedText.single', {
+        name: get(datasets, 'firstObject.name'),
+      });
+    }
+    return modalManager.show('question-modal', {
+      headerIcon: 'sign-warning-rounded',
+      headerText: this.t('remove.header'),
+      descriptionParagraphs: [{
+        text: this.t('remove.description', descriptionInterpolation),
+      }, {
+        text: this.t('remove.proceedQuestion'),
+      }],
+      yesButtonText: this.t('remove.yes'),
+      yesButtonClassName: 'btn-danger',
+      onSubmit: async () => {
+        try {
+          return await this.removeDatasets(datasets);
+        } catch (error) {
+          globalNotify.backendError(
+            this.t('remove.removing'),
+            error
+          );
+          throw error;
+        }
+      },
+    }).hiddenPromise;
+  },
+
   async toggleDatasetsAttachment(datasets, state) {
     const datasetManager = this.get('datasetManager');
-    return allFulfilled(datasets.map(dataset =>
-      datasetManager.toggleDatasetAttachment(dataset, state)
-    ));
+    try {
+      await allFulfilled(datasets.map(dataset =>
+        datasetManager.toggleDatasetAttachment(dataset, state)
+      ));
+    } finally {
+      await this.refresh();
+    }
+  },
+
+  async removeDatasets(datasets) {
+    const datasetManager = this.get('datasetManager');
+    try {
+      return allFulfilled(datasets.map(dataset =>
+        datasetManager.destroyDataset(dataset)
+      ));
+    } finally {
+      await this.refresh();
+    }
   },
 });

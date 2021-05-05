@@ -11,15 +11,15 @@ export default ObjectProxy.extend({
     return this;
   }),
 
-  relationEntityId() {
-    return this.get('content').relationEntityId(...arguments);
-  },
-
-  belongsTo() {
-    return this.get('content').belongsTo(...arguments);
-  },
-
-  hasMany() {
-    return this.get('content').hadMany(...arguments);
-  },
+  relationEntityId: proxyMethod('relationEntityId'),
+  belongsTo: proxyMethod('belongsTo'),
+  hasMany: proxyMethod('hasMany'),
+  save: proxyMethod('save'),
+  destroyRecord: proxyMethod('destroyRecord'),
 });
+
+function proxyMethod(methodName) {
+  return function () {
+    this.get('content')[methodName](...arguments);
+  };
+}

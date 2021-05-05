@@ -154,20 +154,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       id: 'refresh',
       icon: 'refresh',
       action: () => {
-        const {
-          globalNotify,
-          fbTableApi,
-          element,
-        } = this.getProperties('globalNotify', 'fbTableApi', 'element');
-        animateCss(
-          element.querySelector('.fb-toolbar-button.file-action-refresh'),
-          'pulse-mint'
-        );
-        return fbTableApi.refresh()
-          .catch(error => {
-            globalNotify.backendError(this.t('refreshing'), error);
-            throw error;
-          });
+        return this.refresh();
       },
       showIn: [
         actionContext.inDir,
@@ -179,6 +166,23 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       ],
     });
   }),
+
+  refresh() {
+    const {
+      globalNotify,
+      fbTableApi,
+      element,
+    } = this.getProperties('globalNotify', 'fbTableApi', 'element');
+    animateCss(
+      element.querySelector('.fb-toolbar-button.file-action-refresh'),
+      'pulse-mint'
+    );
+    return fbTableApi.refresh()
+      .catch(error => {
+        globalNotify.backendError(this.t('refreshing'), error);
+        throw error;
+      });
+  },
 
   /**
    * Create button or popover menu item for controlling files.
