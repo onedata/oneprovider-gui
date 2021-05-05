@@ -154,7 +154,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       } = this.getProperties('space', 'selectedDatasetsState');
       return SpaceDatasetsRootClass.create({
         name: space ? get(space, 'name') : this.t('space'),
-        state: selectedDatasetsState,
+        selectedDatasetsState,
       });
     }
   ),
@@ -275,12 +275,24 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   //#endregion
 
+  selectedDatasetsStateObserver: observer(
+    'selectedDatasetsState',
+    function selectedDatasetsStateObserver() {
+      this.set(
+        'browserModel.selectedDatasetsState',
+        this.get('selectedDatasetsState'),
+      );
+    }
+  ),
+
+  // FIXME: selectedDatasetsState is too similar to selectedDatasets
   init() {
     this._super(...arguments);
     this.set('browserModel', this.createBrowserModel());
     if (!this.get('selectedDatasets')) {
       this.set('selectedDatasets', []);
     }
+    this.selectedDatasetsStateObserver();
   },
 
   /**
@@ -292,9 +304,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   createBrowserModel() {
+    const selectedDatasetsState = this.get('selectedDatasetsState');
     return DatasetBrowserModel.create({
       ownerSource: this,
       getDataUrl: this.getDataUrl.bind(this),
+      selectedDatasetsState,
     });
   },
 
