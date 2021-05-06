@@ -35,24 +35,24 @@ export default FbTableRowStatusBar.extend(I18n, {
    * @type {ComputedProperty<Boolean>}
    */
   showProtectionTag: or(
-    'dataIsProtected',
-    'metadataIsProtected',
+    'dataIsEffProtected',
+    'metadataIsEffProtected',
   ),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  dataIsProtected: and(
+  dataIsEffProtected: and(
     'dataset.isAttached',
-    'dataset.dataIsProtected'
+    'dataset.dataIsEffProtected'
   ),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  metadataIsProtected: and(
+  metadataIsEffProtected: and(
     'dataset.isAttached',
-    'dataset.metadataIsProtected'
+    'dataset.metadataIsEffProtected'
   ),
 
   /**
@@ -60,19 +60,19 @@ export default FbTableRowStatusBar.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   protectionFlagsInfo: computed(
-    'metadataIsProtected',
-    'dataIsProtected',
+    'metadataIsEffProtected',
+    'dataIsEffProtected',
     function protectionFlagsInfo() {
       const {
-        metadataIsProtected,
-        dataIsProtected,
-      } = this.getProperties('metadataIsProtected', 'dataIsProtected');
+        metadataIsEffProtected,
+        dataIsEffProtected,
+      } = this.getProperties('metadataIsEffProtected', 'dataIsEffProtected');
       let translationKey;
-      if (dataIsProtected && metadataIsProtected) {
+      if (dataIsEffProtected && metadataIsEffProtected) {
         translationKey = 'both';
-      } else if (dataIsProtected) {
+      } else if (dataIsEffProtected) {
         translationKey = 'data';
-      } else if (metadataIsProtected) {
+      } else if (metadataIsEffProtected) {
         translationKey = 'metadata';
       }
       if (translationKey) {

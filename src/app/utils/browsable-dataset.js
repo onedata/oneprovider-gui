@@ -20,6 +20,6 @@ export default ObjectProxy.extend({
 
 function proxyMethod(methodName) {
   return function () {
-    this.get('content')[methodName](...arguments);
+    return this.get('content')[methodName](...arguments);
   };
 }

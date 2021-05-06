@@ -73,11 +73,11 @@ export default Service.extend({
 
   /**
    * @param {Models.Dataset} dataset
-   * @param {Boolean} state whether dataset should be active for its rootFile
+   * @param {Boolean} attach whether dataset should be active for its rootFile
    * @returns {Promise<Models.Dataset>}
    */
-  async toggleDatasetAttachment(dataset, state) {
-    set(dataset, 'state', state ? 'attached' : 'detached');
+  async toggleDatasetAttachment(dataset, attach) {
+    set(dataset, 'state', attach ? 'attached' : 'detached');
     await dataset.save();
     const fileRelation = dataset.belongsTo('rootFile');
     if (fileRelation && fileRelation.id()) {

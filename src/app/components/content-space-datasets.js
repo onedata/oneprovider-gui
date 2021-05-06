@@ -13,7 +13,6 @@ import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-compon
 import { inject as service } from '@ember/service';
 import EmberObject, { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -88,6 +87,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
   selectedDatasetsIds: undefined,
 
   /**
+   * One of: 'attached', 'detached'
+   * 
+   * **Injected from parent frame.**
+   * @virtual
+   * @type {String}
+   */
+  attachmentState: undefined,
+
+  /**
    * @virtual optional
    * @type {Function}
    */
@@ -100,15 +108,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'spaceId',
     'datasetId',
     'selectedDatasetsIds',
+    'attachmentState',
   ]),
 
   _window: window,
-
-  /**
-   * One of: 'attached', 'detached'
-   * @type {String}
-   */
-  selectedDatasetsState: 'attached',
 
   /**
    * Default value set on init.
@@ -138,7 +141,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   initialBrowsableDatasetProxy: promise.object(computed(
     'spaceProxy',
-    'selectedDatasetsState',
+    'attachmentState',
     function initialBrowsableDatasetProxy() {
       return this.get('browsableDatasetProxy');
     }
@@ -146,15 +149,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   spaceDatasetsRoot: computed(
     'space',
-    'selectedDatasetsState',
+    'attachmentState',
     function spaceDatasetsRoot() {
       const {
         space,
-        selectedDatasetsState,
-      } = this.getProperties('space', 'selectedDatasetsState');
+        attachmentState,
+      } = this.getProperties('space', 'attachmentState');
       return SpaceDatasetsRootClass.create({
         name: space ? get(space, 'name') : this.t('space'),
-        selectedDatasetsState,
+        attachmentState,
       });
     }
   ),
@@ -166,30 +169,30 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   browsableDatasetProxy: promise.object(computed(
     'datasetId',
-    'spaceId',
     'spaceDatasetsRoot',
     async function datasetProxy() {
       const {
         datasetManager,
         globalNotify,
         datasetId,
-        spaceId,
         spaceDatasetsRoot,
       } = this.getProperties(
         'datasetManager',
         'globalNotify',
         'datasetId',
-        'spaceId',
         'spaceDatasetsRoot',
       );
 
-      let isValidDatasetEntityId;
-      try {
-        isValidDatasetEntityId = datasetId &&
-          getSpaceIdFromFileId(datasetId) === spaceId;
-      } catch (error) {
-        isValidDatasetEntityId = false;
-      }
+      // FIXME: validation if dataset belogns to space is currently not available
+      // let isValidDatasetEntityId;
+      // try {
+      //   isValidDatasetEntityId = datasetId &&
+      //     getSpaceIdFromFileId(datasetId) === spaceId;
+      // } catch (error) {
+      //   isValidDatasetEntityId = false;
+      // }
+      const isValidDatasetEntityId = Boolean(datasetId) &&
+        datasetId !== spaceDatasetsRootId;
       if (isValidDatasetEntityId) {
         try {
           const dataset = await datasetManager.getDataset(datasetId);
@@ -225,74 +228,23 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.get('containerScrollTop')(0);
   }),
 
-  //#region FIXME: wireframe for testing
-
-  datasetPathProxy: promise.object(computed('datasetProxy.content', async function datasetPath() {
-    const ds = await this.get('datasetProxy');
-    if (ds) {
-      return resolveFilePath(ds);
-    }
-  })),
-
-  pathStringProxy: promise.object(computed('datasetPathProxy.content', async function pathString() {
-    const dp = this.get('datasetPathProxy.content');
-    if (dp) {
-      return stringifyFilePath(dp);
-    }
-  })),
-
-  childrenProxy: promise.object(computed(
-    'dataset',
-    async function childrenProxy() {
-      const {
-        dataset,
-        datasetManager,
-        spaceId,
-        datasetId,
-        selectedDatasetsState,
-      } = this.getProperties(
-        'dataset',
-        'datasetManager',
-        'spaceId',
-        'datasetId',
-        'selectedDatasetsState'
-      );
-      const isDatasetsRoot = get(dataset, 'isDatasetsRoot');
-
-      const parentType = isDatasetsRoot ? 'space' : 'dataset';
-      const parentId = isDatasetsRoot ? spaceId : datasetId;
-      const { childrenRecords } = await datasetManager.fetchChildrenDatasets({
-        parentType,
-        parentId,
-        state: selectedDatasetsState,
-        index: null,
-        limit: 50,
-        offset: 0,
-      });
-      return childrenRecords;
-    }
-  )),
-
-  //#endregion
-
-  selectedDatasetsStateObserver: observer(
-    'selectedDatasetsState',
-    function selectedDatasetsStateObserver() {
+  attachmentStateObserver: observer(
+    'attachmentState',
+    function attachmentStateObserver() {
       this.set(
-        'browserModel.selectedDatasetsState',
-        this.get('selectedDatasetsState'),
+        'browserModel.attachmentState',
+        this.get('attachmentState'),
       );
     }
   ),
 
-  // FIXME: selectedDatasetsState is too similar to selectedDatasets
   init() {
     this._super(...arguments);
     this.set('browserModel', this.createBrowserModel());
     if (!this.get('selectedDatasets')) {
       this.set('selectedDatasets', []);
     }
-    this.selectedDatasetsStateObserver();
+    this.attachmentStateObserver();
   },
 
   /**
@@ -304,11 +256,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   createBrowserModel() {
-    const selectedDatasetsState = this.get('selectedDatasetsState');
+    const attachmentState = this.get('attachmentState');
     return DatasetBrowserModel.create({
       ownerSource: this,
       getDataUrl: this.getDataUrl.bind(this),
-      selectedDatasetsState,
+      attachmentState,
       openDatasetsModal: this.openDatasetsModal.bind(this),
     });
   },
@@ -322,11 +274,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const {
       datasetManager,
       spaceId,
-      selectedDatasetsState,
+      attachmentState,
     } = this.getProperties(
       'datasetManager',
       'spaceId',
-      'selectedDatasetsState'
+      'attachmentState'
     );
     if (startIndex == null) {
       if (size <= 0 || offset < 0) {
@@ -335,7 +287,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
           parentType: 'space',
           parentId: spaceId,
-          state: selectedDatasetsState,
+          state: attachmentState,
           limit: size,
           offset,
         }));
@@ -352,15 +304,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
   async fetchDatasetChildren(datasetId, startIndex, size, offset) {
     const {
       datasetManager,
-      selectedDatasetsState,
+      attachmentState,
     } = this.getProperties(
       'datasetManager',
-      'selectedDatasetsState',
+      'attachmentState',
     );
     return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
       parentType: 'dataset',
       parentId: datasetId,
-      state: selectedDatasetsState,
+      state: attachmentState,
       index: startIndex,
       limit: size,
       offset,

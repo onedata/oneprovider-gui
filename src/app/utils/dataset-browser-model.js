@@ -77,7 +77,7 @@ export default BaseBrowserModel.extend({
    * @virtual
    * @type {String}
    */
-  selectedDatasetsState: undefined,
+  attachmentState: undefined,
 
   _window: window,
 
@@ -107,9 +107,9 @@ export default BaseBrowserModel.extend({
     });
   }),
 
-  btnChangeState: computed('selectedDatasetsState', function btnChangeState() {
-    const selectedDatasetsState = this.get('selectedDatasetsState');
-    const isAttachAction = selectedDatasetsState === 'detached';
+  btnChangeState: computed('attachmentState', function btnChangeState() {
+    const attachmentState = this.get('attachmentState');
+    const isAttachAction = attachmentState === 'detached';
     return this.createFileAction({
       id: 'showFile',
       icon: isAttachAction ? 'checked' : 'x',
@@ -205,7 +205,7 @@ export default BaseBrowserModel.extend({
         onSubmit: async () => {
           // FIXME: handle partial failure -> ticket
           try {
-            return await this.toggleDatasetsAttachment(datasets, targetState);
+            return await this.toggleDatasetsAttachment(datasets, attach);
           } catch (error) {
             globalNotify.backendError(
               this.t('toggleDatasetAttachment.changingState'),
@@ -260,11 +260,11 @@ export default BaseBrowserModel.extend({
     }).hiddenPromise;
   },
 
-  async toggleDatasetsAttachment(datasets, state) {
+  async toggleDatasetsAttachment(datasets, attach) {
     const datasetManager = this.get('datasetManager');
     try {
       await allFulfilled(datasets.map(dataset =>
-        datasetManager.toggleDatasetAttachment(dataset, state)
+        datasetManager.toggleDatasetAttachment(dataset, attach)
       ));
     } finally {
       await this.refresh();

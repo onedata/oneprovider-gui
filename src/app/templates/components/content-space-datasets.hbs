@@ -17,31 +17,6 @@
       updateDirEntityId=(action "updateDatasetId")
     }}
   {{/if}}
-  {{#bs-button-group
-    value=selectedDatasetsState
-    class="datasets-state-selector"
-    type="radio"
-    onChange=(action (mut selectedDatasetsState)) as |bg|
-  }}
-    <div class="btn-group" role="group">
-      {{#bg.button
-        type="default"
-        class="btn-sm select-attached-datasets-btn"
-        value="attached"
-      }}
-        {{tt this "attached"}}
-      {{/bg.button}}
-    </div>
-    <div class="btn-group" role="group">
-    {{#bg.button
-      type="default"
-      class="btn-sm btn-effecitve"
-      value="detached"
-    }}
-        {{tt this "detached"}}
-      {{/bg.button}}
-    </div>
-  {{/bs-button-group}}
   
   {{#if filesToShowDatasets}}
     {{datasets-modal

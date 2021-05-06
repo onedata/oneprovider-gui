@@ -26,6 +26,9 @@ export const RuntimeProperties = Mixin.create({
   dataIsProtected: hasProtectionFlag('protectionFlags', 'data'),
   metadataIsProtected: hasProtectionFlag('protectionFlags', 'metadata'),
 
+  dataIsEffProtected: hasProtectionFlag('effProtectionFlags', 'data'),
+  metadataIsEffProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
+
   name: computed('rootFilePath', function name() {
     const rootFilePath = this.get('rootFilePath');
     if (rootFilePath) {
