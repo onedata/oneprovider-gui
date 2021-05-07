@@ -178,28 +178,37 @@ export default BaseBrowserModel.extend({
       modalManager,
       globalNotify,
     } = this.getProperties('modalManager', 'globalNotify');
+    const count = get(datasets, 'length');
     const attach = targetState === 'attached';
+    const actionName = (attach ? 'attach' : 'detach');
+    const pluralType = count > 1 ? 'multi' : 'single';
+    let introText;
+    if (count > 1) {
+      introText = this.t('toggleDatasetAttachment.introMulti.' + actionName, {
+        count,
+      });
+    } else {
+      introText = this.t(
+        'toggleDatasetAttachment.introSingle.' + actionName, {
+          name: get(datasets[0], 'name'),
+          path: get(datasets[0], 'rootFilePath'),
+          fileType: this.t('fileType.' + get(datasets[0], 'rootFileType')),
+        }
+      );
+    }
     return modalManager.show('question-modal', {
         headerIcon: attach ? 'sign-info-rounded' : 'sign-warning-rounded',
         headerText: this.t(
-          'toggleDatasetAttachment.header.' + (attach ? 'attach' : 'detach')
+          `toggleDatasetAttachment.header.${pluralType}.${actionName}`
         ),
-        // FIXME: text for multiple datasets
         descriptionParagraphs: [{
-          text: this.t(
-            'toggleDatasetAttachment.description.' + (attach ? 'attach' : 'detach'), {
-              name: get(datasets[0], 'name'),
-              path: get(datasets[0], 'rootFilePath'),
-              filePath: get(datasets[0], 'rootFileType'),
-            }
-          ),
+          text: introText,
         }, {
           text: this.t('toggleDatasetAttachment.proceedQuestion'),
         }],
         yesButtonText: this.t('toggleDatasetAttachment.yes'),
         yesButtonClassName: attach ? 'btn-primary' : 'btn-danger',
         onSubmit: async () => {
-          // FIXME: handle partial failure -> ticket
           try {
             return await this.toggleDatasetsAttachment(datasets, attach);
           } catch (error) {
@@ -212,7 +221,7 @@ export default BaseBrowserModel.extend({
         },
       }).hiddenPromise
       .then(() => {
-        // FIXME: show other modal with list of links to go to moved datasets -> ticket
+        // TODO: VFS-7632 show modal with to links to moved datasets after attach/detach
       });
   },
 
@@ -234,7 +243,7 @@ export default BaseBrowserModel.extend({
     }
     return modalManager.show('question-modal', {
       headerIcon: 'sign-warning-rounded',
-      headerText: this.t('remove.header'),
+      headerText: this.t('remove.header.' + (count > 1 ? 'multi' : 'single')),
       descriptionParagraphs: [{
         text: this.t('remove.description', descriptionInterpolation),
       }, {

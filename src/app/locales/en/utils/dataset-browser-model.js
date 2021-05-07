@@ -17,19 +17,32 @@ export default _.merge({}, BaseBrowserModel, {
   },
   toggleDatasetAttachment: {
     header: {
-      attach: 'Attach dataset',
-      detach: 'Detach dataset',
+      single: {
+        attach: 'Reattach dataset',
+        detach: 'Detach dataset',
+      },
+      multi: {
+        attach: 'Reattach datasets',
+        detach: 'Detach datasets',
+      },
     },
-    description: {
-      attach: 'You are about to reattach <strong>{{name}}</strong> dataset, that was orinally attached to file under path: <em>{{path}}</em>.',
-      detach: 'You are about to detach <strong>{{name}}</strong> dataset from its root {{fileType}}, currently attached to file under path: <em>{{path}}</em>.',
+    introSingle: {
+      attach: 'You are about to reattach <strong>{{name}}</strong> dataset, that was previously attached to the {{fileType}} at <code>{{path}}</code>.',
+      detach: 'You are about to detach <strong>{{name}}</strong> dataset from its root {{fileType}} (<code>{{path}}</code>).',
+    },
+    introMulti: {
+      attach: 'You are about to reattach <strong>{{count}}</strong> selected datasets.',
+      detach: 'You are about to detach <strong>{{count}}</strong> selected datasets from their root directories or files.',
     },
     proceedQuestion: 'Do you want to proceed?',
     yes: 'Proceed',
     changingState: 'changing dataset(s) state',
   },
   remove: {
-    header: 'Remove selected datasets',
+    header: {
+      single: 'Remove selected dataset',
+      multi: 'Remove selected datases',
+    },
     selectedText: {
       single: '<strong>{{name}}</strong> dataset',
       multi: '<strong>{{count}}</strong> selected datasets',
