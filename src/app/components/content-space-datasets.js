@@ -23,6 +23,7 @@ import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 
 const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -177,26 +178,32 @@ export default OneEmbeddedComponent.extend(...mixins, {
         globalNotify,
         datasetId,
         spaceDatasetsRoot,
+        spaceId,
       } = this.getProperties(
         'datasetManager',
         'globalNotify',
         'datasetId',
         'spaceDatasetsRoot',
+        'spaceId',
       );
 
-      // FIXME: validation if dataset belogns to space is currently not available
-      // let isValidDatasetEntityId;
-      // try {
-      //   isValidDatasetEntityId = datasetId &&
-      //     getSpaceIdFromFileId(datasetId) === spaceId;
-      // } catch (error) {
-      //   isValidDatasetEntityId = false;
-      // }
-      const isValidDatasetEntityId = Boolean(datasetId) &&
-        datasetId !== spaceDatasetsRootId;
-      if (isValidDatasetEntityId) {
+      if (datasetId) {
         try {
           const dataset = await datasetManager.getDataset(datasetId);
+          let isValidDatasetEntityId;
+          try {
+            isValidDatasetEntityId = datasetId &&
+              getSpaceIdFromFileId(dataset.relationEntityId('rootFile')) === spaceId;
+          } catch (error) {
+            console.error(
+              'component:content-space-datasets#browsableDatasetProxy: error getting spaceId from dataset:',
+              error
+            );
+            isValidDatasetEntityId = false;
+          }
+          if (!isValidDatasetEntityId) {
+            return spaceDatasetsRoot;
+          }
           // return only dir-type datasets, for files try to return parent or null
           if (get(dataset, 'rootFileType') === 'dir') {
             return BrowsableDataset.create({ content: dataset });
