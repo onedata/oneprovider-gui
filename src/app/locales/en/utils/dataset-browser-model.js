@@ -7,16 +7,13 @@ export default _.merge({}, BaseBrowserModel, {
     dir: 'directory',
   },
   fileActions: {
-    showFile: {
-      file: 'Reveal root file',
-      dir: 'Reveal root directory',
-    },
+    showFile: 'Show in file browser',
     protection: 'Write protection',
     changeState: {
-      attach: 'Re-attach',
+      attach: 'Reattach',
       detach: 'Detach',
     },
-    remove: 'Remove',
+    remove: 'Remove dataset',
   },
   toggleDatasetAttachment: {
     header: {
@@ -24,7 +21,7 @@ export default _.merge({}, BaseBrowserModel, {
       detach: 'Detach dataset',
     },
     description: {
-      attach: 'You are about to re-attach <strong>{{name}}</strong> dataset, that was orinally attached to file under path: <em>{{path}}</em>.',
+      attach: 'You are about to reattach <strong>{{name}}</strong> dataset, that was orinally attached to file under path: <em>{{path}}</em>.',
       detach: 'You are about to detach <strong>{{name}}</strong> dataset from its root {{fileType}}, currently attached to file under path: <em>{{path}}</em>.',
     },
     proceedQuestion: 'Do you want to proceed?',

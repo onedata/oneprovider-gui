@@ -91,10 +91,6 @@ export default BaseBrowserModel.extend({
       id: 'showFile',
       icon: 'browser-' +
         (selectionContext === actionContext.singleFile ? 'file' : 'directory'),
-      title: this.t(
-        'fileActions.showFile.' +
-        (selectionContext === actionContext.singleFile ? 'file' : 'dir')
-      ),
       disabled: false,
       action: (datasets) => {
         return this.showRootFile(datasets[0]);
@@ -112,7 +108,7 @@ export default BaseBrowserModel.extend({
     const isAttachAction = attachmentState === 'detached';
     return this.createFileAction({
       id: 'showFile',
-      icon: isAttachAction ? 'checked' : 'x',
+      icon: isAttachAction ? 'plug-in' : 'plug-out',
       title: this.t(
         'fileActions.changeState.' + (isAttachAction ? 'attach' : 'detach')
       ),
