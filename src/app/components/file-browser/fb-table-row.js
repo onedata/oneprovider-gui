@@ -167,12 +167,6 @@ export default Component.extend(I18n, FastDoubleClick, {
   spacePrivileges: undefined,
 
   /**
-   * Name of icon to indicate that some property in tag is inhertied from ancestor
-   * @type {String}
-   */
-  inheritedIcon: 'arrow-long-up',
-
-  /**
    * Time in ms when the touch should be treated as a hold
    * @type {number}
    */

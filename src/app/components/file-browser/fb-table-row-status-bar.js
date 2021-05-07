@@ -21,4 +21,10 @@ export default Component.extend(I18n, {
   file: undefined,
 
   nameConflict: undefined,
+
+  /**
+   * Name of icon to indicate that some property in tag is inhertied from ancestor
+   * @type {String}
+   */
+  inheritedIcon: 'arrow-long-up',
 });
