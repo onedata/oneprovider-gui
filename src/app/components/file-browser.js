@@ -20,6 +20,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { next } from '@ember/runloop';
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export const actionContext = {
   none: 'none',
@@ -356,6 +357,17 @@ export default Component.extend(I18n, {
     if (browserModel) {
       set(browserModel, 'browserInstance', this);
     }
+  }),
+
+  ensureSelectedReset: observer('dir', function ensureSelectedReset() {
+    const changeSelectedFiles = this.get('changeSelectedFiles');
+    next(() => {
+      safeExec(this, () => {
+        if (this.get('selectedFiles.length') > 0) {
+          changeSelectedFiles([]);
+        }
+      });
+    });
   }),
 
   init() {

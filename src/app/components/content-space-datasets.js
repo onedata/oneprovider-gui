@@ -21,6 +21,8 @@ import { resolve } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
+import { next } from '@ember/runloop';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -234,6 +236,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
         'browserModel.attachmentState',
         this.get('attachmentState'),
       );
+      next(() => {
+        safeExec(this, () => {
+          if (this.get('selectedDatasets.length') > 0) {
+            this.set('selectedDatasets', []);
+          }
+        });
+      });
     }
   ),
 
