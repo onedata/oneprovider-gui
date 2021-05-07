@@ -8,4 +8,11 @@
     width: 200px;
     text-align: center;
   }
+  .fb-breadcrumbs {
+    .fb-breadcrumbs-separator {
+      &::before {
+        content: '›';
+      }
+    }
+  }
 }

@@ -32,8 +32,14 @@ export function resolveParent(
   });
 }
 
-export function stringifyFilePath(path, nameProperty = 'name') {
-  return '/' + path.mapBy(nameProperty).join('/');
+export function stringifyFilePath(
+  path,
+  nameProperty = 'name',
+  separator = '/',
+  showLeadingSeparator = true
+) {
+  return (showLeadingSeparator ? separator : '') +
+    path.mapBy(nameProperty).join(separator);
 }
 
 export default function resolveFilePath(file, resolveFileParentFun) {

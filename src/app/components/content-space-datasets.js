@@ -19,7 +19,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { promise, raw, bool } from 'ember-awesome-macros';
 import { resolve } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 
@@ -253,6 +252,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   getDataUrl(options) {
     return this.callParent('getDataUrl', options);
+  },
+
+  /**
+   * @param {Object} options
+   * @returns {String} Onezone URL for directory in dataset browser
+   */
+  getDatasetsUrl(options) {
+    return this.callParent('getDatasetsUrl', options);
   },
 
   createBrowserModel() {

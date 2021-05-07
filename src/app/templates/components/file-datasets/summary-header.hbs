@@ -35,7 +35,11 @@
       {{/one-switchable-popover-modal}}
     {{/if}}
   </h1>
-  {{modal-file-subheader files=(array file)}}
+  {{modal-file-subheader
+    files=(array file)
+    fileIcon="browser-dataset-file"
+    dirIcon="browser-dataset"
+  }}
 </div>
 <div
   class="modal-header-effective-info header-tags-container datasets-effective-protection-info"
@@ -57,7 +61,11 @@
           }}
           <span class="label-text protected-text">
             {{tt this (concat "fileProtectionTag." flagState)
-              fileTypeUpper=(capitalize (tt this (concat "fileType." fileType)))
+              fileTypeUpper=(capitalize (tt this (if
+                (eq mode "dataset")
+                "dataset"
+                (concat "fileType." fileType)
+              )))
               protectionType=(tt this (concat "protectionType." protectionType))
             }}
           </span>
@@ -72,7 +80,11 @@
               title=(if (eq flagState "enabled")
                 (tt this (concat "fileProtectionTagTip.enabled." protectionType))
                 (tt this (concat "fileProtectionTagTip.disabled")
-                  fileType=(tt this (concat "fileType." fileType))
+                  fileType=(tt this (if
+                    (eq mode "dataset")
+                    "dataset"
+                    (concat "fileType." fileType)
+                  ))
                   protectionType=(tt this (concat "protectionType." protectionType))
                 )
               )

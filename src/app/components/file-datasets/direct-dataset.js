@@ -66,7 +66,11 @@ export default Component.extend(I18n, {
    */
   directDatasetRowIcon: conditional(
     'directDataset.isAttached',
-    raw('browser-dataset'),
+    conditional(
+      equal('file.type', 'file'),
+      raw('browser-dataset-file'),
+      raw('browser-datataset'),
+    ),
     conditional(
       equal('file.type', 'file'),
       raw('browser-file'),

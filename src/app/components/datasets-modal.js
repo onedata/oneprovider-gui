@@ -42,6 +42,12 @@ export default Component.extend(I18n, {
    */
   getDataUrl: notImplementedIgnore,
 
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  getDatasetsUrl: notImplementedIgnore,
+
   actions: {
     onHide() {
       this.get('onHide')();
