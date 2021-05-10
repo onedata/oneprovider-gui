@@ -38,6 +38,12 @@ export default BaseBrowserModel.extend({
 
   /**
    * @override
+   * @type {Function} arguments: `dataset: Models.Dataset`
+   */
+  openDatasetOpenModal: notImplementedThrow,
+
+  /**
+   * @override
    */
   rowComponentName: 'dataset-browser/table-row',
 
@@ -166,6 +172,13 @@ export default BaseBrowserModel.extend({
   }),
 
   //#endregion
+
+  /**
+   * @override
+   */
+  onOpenFile(dataset) {
+    this.get('openDatasetOpenModal')(dataset);
+  },
 
   showRootFile(dataset) {
     const {

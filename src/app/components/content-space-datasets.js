@@ -289,6 +289,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       attachmentState,
       openDatasetsModal: this.openDatasetsModal.bind(this),
+      openDatasetOpenModal: this.openDatasetOpenModal.bind(this),
     });
   },
 
@@ -370,6 +371,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   closeDatasetsModal() {
     this.set('filesToShowDatasets', null);
+  },
+
+  openDatasetOpenModal(file) {
+    this.set('fileToShowDatasetOpen', file);
+  },
+
+  closeDatasetOpenModal() {
+    this.set('fileToShowDatasetOpen', null);
   },
 
   actions: {

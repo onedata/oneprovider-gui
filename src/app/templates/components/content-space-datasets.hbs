@@ -30,4 +30,13 @@
     }}
   {{/if}}
 
+  {{#if fileToShowDatasetOpen}}
+    {{dataset-browser/dataset-open-modal
+      open=true
+      dataset=fileToShowDatasetOpen
+      onHide=(action closeDatasetOpenModal)
+      getDataUrl=(action getDataUrl)
+    }}
+  {{/if}}
+
 {{/promise-proxy-container}}
