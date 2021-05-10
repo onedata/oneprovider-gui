@@ -117,6 +117,13 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   browserClass: '',
 
   /**
+   * Custom text for "current directory" for current dir menu.
+   * @virtual optional
+   * @type {SafeString}
+   */
+  currentDirTranslation: '',
+
+  /**
    * @type {String}
    */
   rootIcon: 'space',

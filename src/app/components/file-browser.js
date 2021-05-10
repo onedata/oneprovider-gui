@@ -272,7 +272,10 @@ export default Component.extend(I18n, {
       if (get(importedActions, 'length')) {
         return [
           // FIXME: this should depend on browser-model
-          { separator: true, title: this.t('menuCurrentDir') },
+          {
+            separator: true,
+            title: get(browserModel, 'currentDirTranslation') || this.t('menuCurrentDir'),
+          },
           ...importedActions,
         ];
       } else {

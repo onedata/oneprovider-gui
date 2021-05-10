@@ -10,6 +10,8 @@ import { get, computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { all as allFulfilled } from 'rsvp';
+import computedT from 'onedata-gui-common/utils/computed-t';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 const buttonNames = Object.freeze([
   'btnRefresh',
@@ -19,7 +21,7 @@ const buttonNames = Object.freeze([
   'btnRemove',
 ]);
 
-export default BaseBrowserModel.extend({
+export default BaseBrowserModel.extend(I18n, {
   modalManager: service(),
   datasetManager: service(),
   globalNotify: service(),
@@ -76,6 +78,11 @@ export default BaseBrowserModel.extend({
    * @override
    */
   browserClass: 'dataset-browser',
+
+  /**
+   * @override
+   */
+  currentDirTranslation: computedT('currentDataset'),
 
   /**
    * @override
