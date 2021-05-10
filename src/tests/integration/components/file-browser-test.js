@@ -723,7 +723,7 @@ function testDownloadFromContextMenu() {
   const description =
     'shows spinner and starts download after using download context menu item';
   it(description, async function (done) {
-    const btnId = this.get('item1.type') === 'dir' ? 'downloadTarGz' : 'download';
+    const btnId = this.get('item1.type') === 'dir' ? 'downloadTar' : 'download';
     testDownload(
       this,
       done,

@@ -33,7 +33,7 @@ const RestApiGenerator = Service.extend({
 const urlTypeTranslations = {
   listSharedDirectoryChildren: 'List directory files and subdirectories',
   downloadSharedFileContent: 'Download file content',
-  downloadSharedDirectoryContent: 'Download directory (tar.gz)',
+  downloadSharedDirectoryContent: 'Download directory (tar)',
   getSharedFileAttributes: 'Get attributes',
   getSharedFileJsonMetadata: 'Get JSON metadata',
   getSharedFileRdfMetadata: 'Get RDF metadata',
@@ -44,7 +44,7 @@ const urlTypeTranslations = {
 const urlTypeDescriptionTranslations = {
   listSharedDirectoryChildren: 'returns the list of directory',
   downloadSharedFileContent: 'returns the binary file',
-  downloadSharedDirectoryContent: 'returns a compressed (GZIP) TAR archive with directory contents',
+  downloadSharedDirectoryContent: 'returns a TAR archive with directory contents',
   getSharedFileAttributes: 'returns basic attributes',
   getSharedFileJsonMetadata: 'returns custom JSON',
   getSharedFileRdfMetadata: 'returns custom RDF',

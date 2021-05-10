@@ -27,7 +27,7 @@ export default {
     rest: {
       listSharedDirectoryChildren: 'the list of directory files and subdirectories',
       downloadSharedFileContent: 'the binary file content',
-      downloadSharedDirectoryContent: 'a compressed (GZIP) TAR archive with directory contents',
+      downloadSharedDirectoryContent: 'a TAR archive with directory contents',
       getSharedFileAttributes: 'basic attributes of a file or directory',
       getSharedFileJsonMetadata: 'custom JSON metadata associated with a file or directory',
       getSharedFileRdfMetadata: 'custom RDF metadata associated with a file or directory',
@@ -43,7 +43,7 @@ export default {
     rest: {
       listSharedDirectoryChildren: 'List directory files and subdirectories',
       downloadSharedFileContent: 'Download file content',
-      downloadSharedDirectoryContent: 'Download directory (tar.gz)',
+      downloadSharedDirectoryContent: 'Download directory (tar)',
       getSharedFileAttributes: 'Get attributes',
       getSharedFileJsonMetadata: 'Get JSON metadata',
       getSharedFileRdfMetadata: 'Get RDF metadata',
