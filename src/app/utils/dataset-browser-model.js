@@ -64,6 +64,11 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
+  emptyDirComponentName: 'dataset-browser/empty-dir',
+
+  /**
+   * @override
+   */
   browserClass: 'dataset-browser',
 
   /**

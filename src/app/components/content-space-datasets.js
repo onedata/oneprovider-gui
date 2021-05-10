@@ -283,6 +283,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return DatasetBrowserModel.create({
       ownerSource: this,
       getDataUrl: this.getDataUrl.bind(this),
+      getDatasetsUrl: this.getDatasetsUrl.bind(this),
       attachmentState,
       openDatasetsModal: this.openDatasetsModal.bind(this),
     });

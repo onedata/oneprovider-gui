@@ -99,6 +99,18 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   headColumnsComponentName: '',
 
   /**
+   * @virtual
+   * @type {String}
+   */
+  dirLoadErrorComponentName: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  emptyDirComponentName: '',
+
+  /**
    * @virtual optional
    * @type {String}
    */

@@ -1,0 +1,14 @@
+<h1 class="error-dir-text dir-box-text">
+  {{dirLoadErrorMessage.message}}
+</h1>
+{{!-- one-line to prevent whitespaces inside div --}}
+<div class={{concat "error-dir-image dir-box-image error-dir-image-" dirLoadErrorPosix}}></div>
+{{#unless dirLoadErrorPosix}}
+  <div class="error-dir-details application-error">
+    <div class="error-details active">
+      {{#if dirLoadError.errorJsonString}}
+        <div class="error-json">{{dirLoadErrorMessage.errorJsonString}}</div>
+      {{/if}}
+    </div>
+  </div>
+{{/unless}}

@@ -618,16 +618,17 @@ export default Service.extend({
 
     // for testing empty data write protected directories
     const emptyDir = this.get('entityRecords.dir.1');
+    const emptyDirProtection = Object.freeze(['data_protection']);
     console.dir(emptyDir.get('entityId'));
     setProperties(emptyDir, {
-      effProtectionFlags: ['data_protection'],
+      effProtectionFlags: emptyDirProtection,
       effDatasetMembership: 'direct',
     });
     await emptyDir.save();
     const emptyDirDataset = await this.createDataset(emptyDir, {
       parent: null,
-      protectionFlags: ['data_protection'],
-      effProtectionFlags: ['data_protection'],
+      protectionFlags: emptyDirProtection,
+      effProtectionFlags: emptyDirProtection,
     });
     const emptyDirDatasetSummary =
       await this.createDatasetSummary(emptyDir, emptyDirDataset);

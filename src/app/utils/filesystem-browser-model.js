@@ -154,6 +154,11 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
+  emptyDirComponentName: 'filesystem-browser/empty-dir',
+
+  /**
+   * @override
+   */
   browserClass: 'filesystem-browser',
 
   /**

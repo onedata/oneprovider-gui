@@ -4,7 +4,7 @@
  *
  * @module components/file-browser/fb-table
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -42,7 +42,6 @@ export default Component.extend(I18n, {
 
   fileManager: service(),
   i18n: service(),
-  errorExtractor: service(),
 
   /**
    * @override
@@ -210,6 +209,16 @@ export default Component.extend(I18n, {
     raw('file-browser/fb-table-row')
   ),
 
+  dirLoadErrorComponentName: or(
+    'browserModel.dirLoadErrorComponentName',
+    raw('file-browser/fb-dir-load-error')
+  ),
+
+  emptyDirComponentName: or(
+    'browserModel.emptyDirComponentName',
+    raw('file-browser/fb-empty-dir')
+  ),
+
   selectionCount: reads('selectedFiles.length'),
 
   viewTester: computed(() => {
@@ -269,36 +278,6 @@ export default Component.extend(I18n, {
       const initialLoad = this.get('initialLoad');
       if (get(initialLoad, 'isRejected')) {
         return get(initialLoad, 'reason');
-      }
-    }
-  ),
-
-  /**
-   * If the error is POSIX, returns string posix error code
-   * @type {ComputedProperty<string|undefined>}
-   */
-  dirLoadErrorPosix: computed(
-    'dirLoadError.{id,details.errno}',
-    function dirLoadErrorPosix() {
-      const dirLoadError = this.get('dirLoadError');
-      if (get(dirLoadError, 'id') === 'posix') {
-        return get(dirLoadError, 'details.errno');
-      }
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<object>} message object from error extractor
-   */
-  dirLoadErrorMessage: computed(
-    'dirLoadError',
-    function dirLoadErrorMessage() {
-      const reason = this.get('dirLoadError');
-      if (reason) {
-        return this.get('errorExtractor').getMessage(reason) ||
-          this.t('unknownError');
-      } else {
-        return this.t('uknownError');
       }
     }
   ),

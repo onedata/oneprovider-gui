@@ -45,6 +45,7 @@
       height: 76px;
     }
   }
+  // FIXME: move this to specific styles
   .empty-dir-image {
     background-image: url($root-url + 'images/empty-directory.svg');
   }

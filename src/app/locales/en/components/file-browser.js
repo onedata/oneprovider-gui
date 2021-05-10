@@ -11,6 +11,7 @@ import fbMetadataModal from './file-browser/fb-metadata-modal';
 import fbMetadataXattrs from './file-browser/fb-metadata-xattrs';
 import fbMetadataJson from './file-browser/fb-metadata-json';
 import fbMetadataRdf from './file-browser/fb-metadata-rdf';
+import fbDirLoadError from './file-browser/fb-dir-load-error';
 
 export default {
   menuCurrentDir: 'Current directory',
@@ -27,4 +28,5 @@ export default {
   fbMetadataXattrs,
   fbMetadataJson,
   fbMetadataRdf,
+  fbDirLoadError,
 };
