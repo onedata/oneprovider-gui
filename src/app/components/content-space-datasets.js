@@ -189,6 +189,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
       if (datasetId) {
         try {
+          if (datasetId === spaceDatasetsRootId) {
+            return spaceDatasetsRoot;
+          }
           const dataset = await datasetManager.getDataset(datasetId);
           let isValidDatasetEntityId;
           try {
