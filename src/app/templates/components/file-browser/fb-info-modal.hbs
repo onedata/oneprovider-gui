@@ -98,91 +98,120 @@
           </td>
         </tr>
         {{#if (and previewMode (not-eq itemType "symlink"))}}
-          <tr id={{cdmiRowId}} class="file-info-row-rest-url">
+          <tr class="file-info-row-api-command">
             <td class="property-name with-input">
-              {{tt this "rest"}}
+              {{tt this "api"}}
             </td>
             <td class="property-value">
-              <div class="rest-url-type-row">
-                {{#one-dropdown
-                  triggerClass="small rest-url-type-selector-trigger"
-                  dropdownClass="small rest-url-type-selector-dropdown"
-                  renderInPlace=false
-                  options=availableRestUrlTypes
-                  selected=effSelectedRestUrlType
-                  searchEnabled=false
-                  onchange=(action (mut selectedRestUrlType))
-                  as |urlType|
-                }}
-                  {{#if (eq urlType "downloadSharedFileContent")}}
-                    {{tt this (concat "restUrlType.downloadSharedFileContent." itemType)}}
-                  {{else}}
-                    {{tt this (concat "restUrlType." urlType)}}
-                  {{/if}}
-                {{/one-dropdown}}
-                <div
-                  class="inline-icon-container rest-url-type-info-trigger-container"
-                  {{action (mut restUrlTypeInfoOpened) (not restUrlTypeInfoOpened)}}
-                >
-                  {{one-icon
-                    id=restUrlInfoTriggerId
-                    icon="browser-info"
-                    class="rest-url-type-info-trigger"
+              {{#promise-proxy-container
+                proxy=filePathProxy
+                sizeClass="xs"
+                centered=false
+                spinnerBlockClass="loading-api-command"
+              }}
+                <div class="api-command-type-row">
+                  {{#one-dropdown
+                    triggerClass="small api-command-type-selector-trigger"
+                    dropdownClass="small api-command-type-selector-dropdown"
+                    renderInPlace=false
+                    options=availableApiCommands
+                    selected=effSelectedApiCommand
+                    searchEnabled=false
+                    onchange=(action "selectApiCommand")
+                    as |apiCommand|
+                  }}
+                    <span class="api-command-title">
+                      {{tt this (concat
+                        "apiCommandTitle."
+                        apiCommand.type
+                        "."
+                        apiCommand.id
+                      )}}
+                    </span>
+                    <span class="api-command-type">
+                      <span
+                        class="label label-info api-tag-label {{apiCommand.type}}-api-tag-label"
+                      >
+                        {{tt this (concat "apiType." apiCommand.type)}}
+                      </span>
+                    </span>
+                  {{/one-dropdown}}
+                  <div
+                    class="inline-icon-container api-command-type-info-trigger-container"
+                    {{action (mut apiCommandTypeInfoOpened) (not apiCommandTypeInfoOpened)}}
+                  >
+                    {{one-icon
+                      id=apiCommandInfoTriggerId
+                      icon="browser-info"
+                      class="api-command-type-info-trigger hint-trigger"
+                    }}
+                  </div>
+                  {{#one-webui-popover
+                    popoverStyle="api-command-type-info over-modals"
+                    padding=true
+                    open=apiCommandTypeInfoOpened
+                    triggerSelector=(concat "#" apiCommandInfoTriggerId)
+                    as |popover|
+                  }}
+                    {{#click-outside
+                      action=(action (mut apiCommandTypeInfoOpened) false)
+                      except-selector=".api-command-type-info-trigger, .webui-popover-api-command-type-info"
+                    }}
+                      <p class="api-command-tip-intro">
+                        {{tt this
+                          (concat "apiCommandTipIntro." effSelectedApiCommand.type)
+                        }}
+                        {{one-doc-see-more
+                          linkName=(tt this
+                            (concat "apiCommandTipLinkName." effSelectedApiCommand.type)
+                          )
+                          href=(if (eq effSelectedApiCommand.type "xrootd")
+                            "https://xrootd.slac.stanford.edu/"
+                            (one-api-doc-url
+                              product="onezone"
+                              version="latest"
+                              anchor="operation/get_shared_data"
+                            )
+                          )
+                        }}
+                      </p>
+                      <hr class="sharp">
+                      <p
+                        class="last api-command-tip-specific api-command-tip-{{effSelectedApiCommand.type}}"
+                      >
+                        {{tt this
+                          (concat
+                            "apiCommandTipSpecificIntro."
+                            effSelectedApiCommand.type
+                          )
+                          typeDescription=(tt this (concat 
+                            "apiCommandTipSpecificType."
+                            effSelectedApiCommand.type
+                            "."
+                            effSelectedApiCommand.id
+                          ))
+                        }}
+                      </p>
+                    {{/click-outside}}
+                  {{/one-webui-popover}}
+                  <span class="labels-container hidden-xs">
+                    <span
+                      class="label label-info api-tag-label {{effSelectedApiCommand.type}}-api-tag-label"
+                    >
+                      {{tt this (concat "apiType." effSelectedApiCommand.type)}}
+                    </span>
+                  </span>
+                </div>
+                <div class="input-group input-group input-group-clipboard-textarea">
+                  {{clipboard-line
+                    value=selectedApiCommandString
+                    textareaRows="4"
+                    type="textarea"
+                    size=(if smallContent "sm")
+                    class="monospace-font compact"
                   }}
                 </div>
-                {{#one-webui-popover
-                  popoverStyle="rest-url-type-info over-modals"
-                  padding=true
-                  open=restUrlTypeInfoOpened
-                  triggerSelector=(concat "#" restUrlInfoTriggerId)
-                  as |popover|
-                }}
-                  {{#click-outside
-                    action=(action (mut restUrlTypeInfoOpened) false)
-                    except-selector=".rest-url-type-info-trigger, .webui-popover-rest-url-type-info"
-                  }}
-                    <p class="rest-tip-intro">
-                      {{tt this "restTipIntro"}}
-                      {{one-doc-see-more
-                        linkName=(tt this "restTipLinkName")
-                        href=(one-api-doc-url
-                          product="onezone"
-                          version="latest"
-                          anchor="operation/get_shared_data"
-                        )
-                      }}
-                    </p>
-                    <hr class="sharp">
-                    <p class="last rest-tip-specific rest-tip-{{effSelectedRestUrlType}}">
-                      {{tt this "restTipSpecificIntro" typeDescription=(if
-                        (eq effSelectedRestUrlType "downloadSharedFileContent")
-                        (tt this (concat
-                          "restTipSpecificType.downloadSharedFileContent."
-                          itemType
-                        ))
-                        (tt this (concat "restTipSpecificType." effSelectedRestUrlType))
-                      )}}
-                    </p>
-                  {{/click-outside}}
-                {{/one-webui-popover}}
-                <span class="labels-container hidden-xs">
-                  <span class="label label-info rest-tag-label">
-                    <span class="bracket-fix">{</span>
-                    {{tt this "restTag"}}
-                    <span class="bracket-fix">}</span>
-                  </span>
-                </span>
-
-              </div>
-              <div class="input-group input-group input-group-clipboard-textarea">
-                {{clipboard-line
-                  value=publicRestUrl
-                  textareaRows="4"
-                  type="textarea"
-                  size=(if smallContent "sm")
-                  class="monospace-font compact"
-                }}
-              </div>
+              {{/promise-proxy-container}}
             </td>
           </tr>
         {{/if}}

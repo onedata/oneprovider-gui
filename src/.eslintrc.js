@@ -35,6 +35,9 @@ module.exports = {
     'quotes': [
       1,
       'single',
+      {
+        avoidEscape: true,
+      }
     ],
     'quote-props': [
       1,

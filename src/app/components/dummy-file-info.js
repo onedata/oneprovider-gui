@@ -40,6 +40,7 @@ export const fileParent1 = {
   hasParent: true,
   cdmiObjectId: exampleCdmiObjectId,
   modificationTime: Math.floor(Date.now() / 1000),
+  owner: resolve(owner1),
 };
 
 export const file1 = {
@@ -53,10 +54,18 @@ export const file1 = {
   owner: resolve(owner1),
 };
 
+export const parentShare = {
+  id: 'op_share.share_id.instance:private',
+  entityId: 'share_id',
+  name: 'My share',
+  hasHandle: true,
+};
+
 export default Component.extend({
   opened: true,
-  fileToShowInfo: file1,
+  fileToShowInfo: fileParent1,
   space: space1,
+  share: parentShare,
 
   actions: {
     closeInfoModal() {

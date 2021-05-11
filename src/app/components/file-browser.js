@@ -68,7 +68,7 @@ const buttonNames = [
   'btnRefresh',
   'btnInfo',
   'btnDownload',
-  'btnDownloadTarGz',
+  'btnDownloadTar',
   'btnShare',
   'btnDatasets',
   'btnMetadata',
@@ -656,11 +656,11 @@ export default Component.extend(I18n, {
     }
   ),
 
-  btnDownloadTarGz: computed(
+  btnDownloadTar: computed(
     'selectedFilesContainsOnlyBrokenSymlinks',
     function btnInfo() {
       return this.createFileAction({
-        id: 'downloadTarGz',
+        id: 'downloadTar',
         icon: 'browser-download',
         disabled: this.get('selectedFilesContainsOnlyBrokenSymlinks'),
         action: (files) => {

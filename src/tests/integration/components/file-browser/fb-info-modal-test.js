@@ -19,21 +19,21 @@ import OneTooltipHelper from '../../../helpers/one-tooltip';
 
 const returnDummyUrl = () => 'https://dummy';
 
-const RestGenerator = Service.extend({
+const RestApiGenerator = Service.extend({
   listSharedDirectoryChildren: returnDummyUrl,
+  downloadSharedDirectoryContent: returnDummyUrl,
   downloadSharedFileContent: returnDummyUrl,
   getSharedFileAttributes: returnDummyUrl,
   getSharedFileJsonMetadata: returnDummyUrl,
   getSharedFileRdfMetadata: returnDummyUrl,
   getSharedFileExtendedAttributes: returnDummyUrl,
+  getXRootDUrl: returnDummyUrl,
 });
 
 const urlTypeTranslations = {
   listSharedDirectoryChildren: 'List directory files and subdirectories',
-  downloadSharedFileContent: {
-    file: 'Download file content',
-    dir: 'Download directory (tar.gz)',
-  },
+  downloadSharedFileContent: 'Download file content',
+  downloadSharedDirectoryContent: 'Download directory (tar)',
   getSharedFileAttributes: 'Get attributes',
   getSharedFileJsonMetadata: 'Get JSON metadata',
   getSharedFileRdfMetadata: 'Get RDF metadata',
@@ -43,10 +43,8 @@ const urlTypeTranslations = {
 // checking only significant fragments to not duplicate whole world
 const urlTypeDescriptionTranslations = {
   listSharedDirectoryChildren: 'returns the list of directory',
-  downloadSharedFileContent: {
-    file: 'returns the binary file',
-    dir: 'returns a compressed (GZIP) TAR archive with directory contents',
-  },
+  downloadSharedFileContent: 'returns the binary file',
+  downloadSharedDirectoryContent: 'returns a TAR archive with directory contents',
   getSharedFileAttributes: 'returns basic attributes',
   getSharedFileJsonMetadata: 'returns custom JSON',
   getSharedFileRdfMetadata: 'returns custom RDF',
@@ -59,7 +57,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
   });
 
   beforeEach(function () {
-    registerService(this, 'restGenerator', RestGenerator);
+    registerService(this, 'restApiGenerator', RestApiGenerator);
     const fileHardlinksResult = this.set('fileHardlinksResult', {
       hardlinksCount: 1,
       hardlinks: [],
@@ -359,7 +357,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       done();
     });
 
-    testRenderRestUrl(false);
+    testRenderApiSection(false);
   });
 
   context('for directory', function () {
@@ -367,12 +365,20 @@ describe('Integration | Component | file browser/fb info modal', function () {
       this.set('file', fileParent1);
     });
 
-    testRenderRestUrl(false);
+    testRenderApiSection(false);
   });
 
   context('in preview mode', function () {
     beforeEach(function () {
       this.set('previewMode', true);
+      this.setProperties({
+        previewMode: true,
+        share: {
+          id: 'op_share.1234.instance:private',
+          entityId: '1234',
+          hasHandle: false,
+        },
+      });
     });
 
     context('for file', function () {
@@ -388,16 +394,15 @@ describe('Integration | Component | file browser/fb info modal', function () {
         'getSharedFileExtendedAttributes',
       ];
 
-      testRenderRestUrl(true);
-      testRenderRestUrlTypeOptions(restUrlTypes, 'file');
+      testRenderApiSection(true);
+      testRenderRestUrlTypeOptions(restUrlTypes);
 
       restUrlTypes.forEach(type => {
-        testRenderRestUrlAndInfoForType(type, 'file');
+        testRenderRestUrlAndInfoForType(type);
       });
 
       testRenderRestUrlAndInfoForType(
         'downloadSharedFileContent',
-        'file',
         false,
         'shows download content REST URL and its info in hint by default'
       );
@@ -409,8 +414,8 @@ describe('Integration | Component | file browser/fb info modal', function () {
       });
 
       const restUrlTypes = [
+        'downloadSharedDirectoryContent',
         'listSharedDirectoryChildren',
-        'downloadSharedFileContent',
         'getSharedFileAttributes',
         'getSharedFileJsonMetadata',
         'getSharedFileRdfMetadata',
@@ -419,7 +424,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
       testRenderRestUrlTypeOptions(restUrlTypes, 'dir');
 
-      testRenderRestUrl(true);
+      testRenderApiSection(true);
 
       restUrlTypes.forEach(type => {
         testRenderRestUrlAndInfoForType(type, 'dir');
@@ -427,7 +432,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
       testRenderRestUrlAndInfoForType(
         'listSharedDirectoryChildren',
-        'dir',
         false,
         'shows list children REST URL and its info in hint by default'
       );
@@ -435,65 +439,65 @@ describe('Integration | Component | file browser/fb info modal', function () {
   });
 });
 
-function testRenderRestUrl(renders = true) {
+function testRenderApiSection(renders = true) {
   const renderText = renders ? 'renders' : 'does not render';
-  it(`${renderText} REST section`, async function (done) {
+  it(`${renderText} API section`, async function (done) {
     render(this);
-    expect(this.$('.file-info-row-rest-url')).to.have.length(renders ? 1 : 0);
+    expect(this.$('.file-info-row-api-command'), 'row').to.have.length(renders ? 1 : 0);
     if (renders) {
-      expect(this.$('.file-info-row-rest-url .property-name'))
-        .to.contain('Public REST endpoint');
-      expect(this.$('.rest-url-type-selector-trigger')).to.exist;
-      expect(this.$('.rest-url-type-info-trigger')).to.exist;
-      expect(this.$('.rest-tag-label')).to.exist;
+      expect(this.$('.file-info-row-api-command .property-name'))
+        .to.contain('Public API');
+      expect(this.$('.api-command-type-selector-trigger'), 'selector trigger').to.exist;
+      expect(this.$('.api-command-type-info-trigger'), 'info trigger').to.exist;
+      expect(this.$('.api-tag-label'), 'api tag').to.exist;
     }
     done();
   });
 }
 
-function testRenderRestUrlTypeOptions(options, fileType) {
+function testRenderRestUrlTypeOptions(options) {
   const optionsString = options.map(option => `"${option}"`).join(', ');
   it(`renders only ${optionsString} REST URL type option(s) in selector`, async function (done) {
     render(this);
-    await clickTrigger('.rest-url-type-row');
+    await clickTrigger('.api-command-type-row');
     const $options = $('li.ember-power-select-option');
-    checkUrlTypeOptions($options, options, fileType);
+    checkUrlTypeOptions($options, options);
     done();
   });
 }
 
-function testRenderRestUrlAndInfoForType(type, fileType, useSelector = true, customText) {
+function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
   const text = customText ||
     `shows proper REST URL and info in hint when selected ${type} URL`;
   it(text, async function (done) {
     const methodName = type;
-    const restGenerator = lookupService(this, 'restGenerator');
-    const restGeneratorResult = 'curl -L https://stub_url';
-    const restMethodStub = sinon.stub(restGenerator, methodName)
-      .returns(restGeneratorResult);
+    const restApiGenerator = lookupService(this, 'restApiGenerator');
+    const restApiGeneratorResult = 'curl -L https://stub_url';
+    const restMethodStub = sinon.stub(restApiGenerator, methodName)
+      .returns(restApiGeneratorResult);
 
     render(this);
 
-    const typeTranslation = getUrlTypeTranslation(type, fileType);
-
-    const typeDescriptionTranslation = getUrlTypeDescriptionTranslation(type, fileType);
+    const typeTranslation = getUrlTypeTranslation(type);
+    const typeDescriptionTranslation = getUrlTypeDescriptionTranslation(type);
 
     if (useSelector) {
-      await selectChoose('.rest-url-type-row', typeTranslation);
+      await selectChoose('.api-command-type-row', typeTranslation);
     } else {
       await wait();
     }
 
-    expect(restMethodStub)
+    expect(restMethodStub, methodName)
       .to.have.been.calledOnce;
-    expect(restMethodStub)
-      .to.have.been.calledWith(this.get('file.cdmiObjectId'));
+    expect(restMethodStub).to.have.been.calledWith(
+      sinon.match({ cdmiObjectId: this.get('file.cdmiObjectId') })
+    );
     expect(
-      this.$('.file-info-row-rest-url .property-value .clipboard-input').val()
-    ).to.equal(restGeneratorResult);
-    await click('.rest-url-type-info-trigger');
-    const $popover = $('.webui-popover-rest-url-type-info');
-    expect($popover).to.exist;
+      this.$('.file-info-row-api-command .property-value .clipboard-input').val()
+    ).to.equal(restApiGeneratorResult);
+    await click('.api-command-type-info-trigger');
+    const $popover = $('.webui-popover-api-command-type-info');
+    expect($popover, 'popover').to.exist;
     expect($popover).to.have.class('in');
     expect($popover.text()).to.contain(typeDescriptionTranslation);
     const $apiDocLink = $popover.find('.documentation-link');
@@ -508,35 +512,34 @@ function render(testCase) {
     open=true
     file=file
     previewMode=previewMode
+    share=share
     space=space
     selectedRestUrlType=selectedRestUrlType
     getDataUrl=getDataUrl
   }}`);
 }
 
-function getUrlTypeTranslation(type, fileType) {
-  return type === 'downloadSharedFileContent' ?
-    urlTypeTranslations.downloadSharedFileContent[fileType] :
-    urlTypeTranslations[type];
+function getUrlTypeTranslation(type) {
+  return urlTypeTranslations[type];
 }
 
-function getUrlTypeDescriptionTranslation(type, fileType) {
-  return type === 'downloadSharedFileContent' ?
-    urlTypeDescriptionTranslations.downloadSharedFileContent[fileType] :
-    urlTypeDescriptionTranslations[type];
+function getUrlTypeDescriptionTranslation(type) {
+  return urlTypeDescriptionTranslations[type];
 }
 
-function checkUrlTypeOptions($options, urlTypes, fileType) {
+function checkUrlTypeOptions($options, urlTypes) {
   expect($options).to.have.length(urlTypes.length);
-  const optionTexts = Array.from($options).map(opt => opt.textContent.trim());
+  const optionTitles = Array.from($options.find('.api-command-title'))
+    .map(opt => opt.textContent.trim());
+  const fullOptionsString = optionTitles.join(',');
   for (let i = 0; i < urlTypes.length; ++i) {
-    expect(optionTexts, optionTexts.join(','))
-      .to.contain(getUrlTypeTranslation(urlTypes[i], fileType));
+    expect(optionTitles, fullOptionsString)
+      .to.contain(getUrlTypeTranslation(urlTypes[i]));
   }
 }
 
 function findContains(selector, text) {
-  return findAll(selector).filter((e) => e.textContent.trim().indexOf(text) > -1)[0];
+  return findAll(selector).filter((e) => e.textContent.includes(text))[0];
 }
 
 // For some strange reason (not debugged yet), selectChoose fails on Bamboo.
