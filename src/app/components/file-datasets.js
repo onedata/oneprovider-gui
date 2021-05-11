@@ -181,21 +181,33 @@ export default Component.extend(I18n, {
       const {
         fileManager,
         file,
-      } = this.getProperties('fileManager', 'file');
-      if (file && fileInvokingUpdate !== file) {
-        const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
-        const promises = [
-          file.reload(),
-          fileDatasetSummaryRelation.reload(),
-        ];
-        // refresh opened file parent and its children only if invoker is not this parent
-        const parentRelation = file.belongsTo('parent');
-        if (get(fileInvokingUpdate, 'id') !== parentRelation.id()) {
-          promises.push(parentRelation.reload());
-          promises.push(fileManager.fileParentRefresh(file));
-        }
-        await allSettled(promises);
+      } = this.getProperties('fileManager', 'file', 'mode');
+      if (!file || fileInvokingUpdate === file) {
+        return;
       }
+      const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
+      const promises = [
+        file.reload(),
+        fileDatasetSummaryRelation.reload(),
+      ];
+      // refresh opened file parent and its children only if invoker is not this parent
+      const parentRelation = file.belongsTo('parent');
+      if (get(fileInvokingUpdate, 'id') !== parentRelation.id()) {
+        promises.push(parentRelation.reload());
+        promises.push(fileManager.fileParentRefresh(file));
+      }
+
+      const invokingDatasetSummary =
+        await get(fileInvokingUpdate, 'fileDatasetSummary');
+      const invokingDataset = invokingDatasetSummary &&
+        await get(invokingDatasetSummary, 'directDataset');
+      const directDataset = await this.get('directDatasetProxy');
+      if (invokingDataset) {
+        const datasetParentRelation = directDataset.belongsTo('parent');
+        promises.push(datasetParentRelation.reload());
+        promises.push(fileManager.fileParentRefresh(directDataset));
+      }
+      await allSettled(promises);
     },
   },
 });

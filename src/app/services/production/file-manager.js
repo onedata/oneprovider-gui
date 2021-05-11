@@ -322,6 +322,10 @@ export default Service.extend({
     }));
   },
 
+  // TODO: VFS-7643 move browser non-file-model-specific methods to other service
+
+  //#region browser component utils
+
   /**
    * Invokes request for refresh in all known file browser tables
    * @param {Array<object>} parentDirEntityId
@@ -336,7 +340,7 @@ export default Service.extend({
   async fileParentRefresh(file) {
     const parentGri = file.belongsTo('parent').id();
     if (parentGri) {
-      return await this.get('fileManager').dirChildrenRefresh(
+      return this.dirChildrenRefresh(
         parseGri(parentGri).entityId
       );
     }
@@ -349,4 +353,6 @@ export default Service.extend({
   deregisterRefreshHandler(fileBrowserComponent) {
     _.pull(this.get('fileTableComponents'), fileBrowserComponent);
   },
+
+  //#endregion browser component utils
 });

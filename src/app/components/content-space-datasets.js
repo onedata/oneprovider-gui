@@ -365,6 +365,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
+  /**
+   * @param {Models.File} file root file of selected dataset
+   */
   openDatasetsModal(file) {
     this.set('filesToShowDatasets', [file]);
   },
@@ -373,8 +376,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.set('filesToShowDatasets', null);
   },
 
-  openDatasetOpenModal(file) {
-    this.set('fileToShowDatasetOpen', file);
+  openDatasetOpenModal(dataset) {
+    this.set('fileToShowDatasetOpen', dataset);
   },
 
   closeDatasetOpenModal() {

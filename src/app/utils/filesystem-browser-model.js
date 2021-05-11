@@ -16,7 +16,7 @@ import {
   actionContext,
   anySelectedContexts,
 } from 'oneprovider-gui/components/file-browser';
-import { hash } from 'ember-awesome-macros';
+import { hash, array, raw } from 'ember-awesome-macros';
 
 const buttonNames = Object.freeze([
   'btnUpload',
@@ -707,6 +707,16 @@ export default BaseBrowserModel.extend({
     }
   ),
 
+  uploadAction: array.findBy('allButtonsArray', raw('id'), raw('upload')),
+
+  newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
+
+  placeSymlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeSymlink')),
+
+  placeHardlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeHardlink')),
+
+  pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
+
   /**
    * @override
    */
@@ -994,5 +1004,25 @@ export default BaseBrowserModel.extend({
       await fileManager.createSymlink(fileName, dir, filePath, spaceId, 50);
       await throttledRefresh();
     });
+  },
+
+  emptyDirUpload() {
+    return this.get('uploadAction.action')(...arguments);
+  },
+
+  emptyDirNewDirectory() {
+    return this.get('newDirectoryAction.action')(...arguments);
+  },
+
+  emptyDirPlaceSymlink() {
+    return this.get('placeSymlinkAction.action')(...arguments);
+  },
+
+  emptyDirPlaceHardlink() {
+    return this.get('placeHardlinkAction.action')(...arguments);
+  },
+
+  emptyDirPaste() {
+    return this.get('pasteAction.action')(...arguments);
   },
 });

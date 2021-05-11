@@ -282,16 +282,6 @@ export default Component.extend(I18n, {
     }
   ),
 
-  uploadAction: array.findBy('allButtonsArray', raw('id'), raw('upload')),
-
-  newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
-
-  placeSymlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeSymlink')),
-
-  placeHardlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeHardlink')),
-
-  pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
-
   isHardlinkingPossible: computed(
     'fileClipboardFiles.@each.type',
     function isHardlinkingPossible() {
@@ -1056,28 +1046,6 @@ export default Component.extend(I18n, {
 
     fileDoubleClicked(file /*, clickEvent */ ) {
       return this.get('openFile')(file);
-    },
-
-    // FIXME: these should be implemented by browserModel
-
-    emptyDirUpload() {
-      return this.get('uploadAction.action')(...arguments);
-    },
-
-    emptyDirNewDirectory() {
-      return this.get('newDirectoryAction.action')(...arguments);
-    },
-
-    emptyDirPlaceSymlink() {
-      return this.get('placeSymlinkAction.action')(...arguments);
-    },
-
-    emptyDirPlaceHardlink() {
-      return this.get('placeHardlinkAction.action')(...arguments);
-    },
-
-    emptyDirPaste() {
-      return this.get('pasteAction.action')(...arguments);
     },
   },
 });

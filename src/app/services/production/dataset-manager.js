@@ -133,12 +133,25 @@ export default Service.extend({
         unsetProtectionFlags,
       },
     });
-    await dataset.reload();
+    await this.updateDatasetData(dataset);
     const file = await get(dataset, 'rootFile');
     if (file) {
       this.updateFileDatasetsData(file);
     }
     return dataset;
+  },
+
+  async updateDatasetData(dataset) {
+    const fileManager = this.get('fileManager');
+    const promises = [
+      dataset.reload(),
+    ];
+    if (get(dataset, 'rootFileType') === 'dir') {
+      promises.push(
+        fileManager.dirChildrenRefresh(get(dataset, 'entityId'))
+      );
+    }
+    await allSettled(promises);
   },
 
   async updateFileDatasetsData(file) {

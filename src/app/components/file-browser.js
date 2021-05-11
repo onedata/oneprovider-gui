@@ -140,7 +140,7 @@ export default Component.extend(I18n, {
   fileForConfirmOpenModal: undefined,
 
   /**
-   * Initialized in init.7
+   * Initialized in init.
    * @type {EmberArray<String>}
    */
   loadingIconFileIds: undefined,
@@ -156,7 +156,7 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {Array<Models.File}
+   * @type {Array<Models.File>}
    */
   fileClipboardFiles: Object.freeze([]),
 
@@ -270,9 +270,7 @@ export default Component.extend(I18n, {
       );
       importedActions = browserModel.getCurrentDirMenuButtons(importedActions);
       if (get(importedActions, 'length')) {
-        return [
-          // FIXME: this should depend on browser-model
-          {
+        return [{
             separator: true,
             title: get(browserModel, 'currentDirTranslation') || this.t('menuCurrentDir'),
           },

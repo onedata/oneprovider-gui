@@ -14,13 +14,13 @@
   {{else}}
     <h2 class="empty-dir-text dir-box-text">
       {{tt this "dragFilesHere"}}
-      <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>
+      <a class="empty-dir-upload-action" {{action emptyDirUpload}}>
         <div class="inline-icon-container bind-right-text">
           {{one-icon icon="browser-upload"}}
         </div>&nbsp;{{tt this "upload"}}
       </a>
       {{tt this "or"}}
-      <a class="empty-dir-new-directory-action" {{action "emptyDirNewDirectory"}}>
+      <a class="empty-dir-new-directory-action" {{action emptyDirNewDirectory}}>
         <div class="inline-icon-container bind-right-text">
           {{one-icon icon="browser-new-directory"}}
         </div>&nbsp;{{tt this "createNewDirectory"}}</a>.
@@ -29,21 +29,21 @@
       <h2 class="empty-dir-text dir-box-text">
         {{tt this "youCanAlso"}}
         {{#if (eq fileClipboardMode "symlink")}}
-          <a class="empty-dir-place-symlink-action" {{action "emptyDirPlaceSymlink"}}>
+          <a class="empty-dir-place-symlink-action" {{action emptyDirPlaceSymlink}}>
             <div class="inline-icon-container bind-right-text">
               {{one-icon icon="shortcut"}}
             </div>&nbsp;{{tt this "placeSymlinks"}}
           </a>
           {{tt this "toFilesInClipboard"}}.
         {{else if (eq fileClipboardMode "hardlink")}}
-          <a class="empty-dir-place-hardlink-action" {{action "emptyDirPlaceHardlink"}}>
+          <a class="empty-dir-place-hardlink-action" {{action emptyDirPlaceHardlink}}>
             <div class="inline-icon-container bind-right-text">
               {{one-icon icon="text-link"}}
             </div>&nbsp;{{tt this "placeHardlinks"}}
           </a>
           {{tt this "toFilesInClipboard"}}.
         {{else}}
-          <a class="empty-dir-paste-action" {{action "emptyDirPaste"}}>
+          <a class="empty-dir-paste-action" {{action emptyDirPaste}}>
             <div class="inline-icon-container bind-right-text">
               {{one-icon icon="clipboard-copy"}}
             </div>&nbsp;{{tt this "paste"}}
