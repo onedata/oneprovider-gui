@@ -24,7 +24,7 @@ const buttonNames = Object.freeze([
   'btnRefresh',
   'btnInfo',
   'btnDownload',
-  'btnDownloadTarGz',
+  'btnDownloadTar',
   'btnShare',
   'btnDatasets',
   'btnMetadata',
@@ -379,11 +379,11 @@ export default BaseBrowserModel.extend({
     }
   ),
 
-  btnDownloadTarGz: computed(
+  btnDownloadTar: computed(
     'selectedFilesContainsOnlyBrokenSymlinks',
-    function btnDownloadTarGz() {
+    function btnDownloadTar() {
       return this.createFileAction({
-        id: 'downloadTarGz',
+        id: 'downloadTar',
         icon: 'browser-download',
         disabled: this.get('selectedFilesContainsOnlyBrokenSymlinks'),
         action: (files) => {

@@ -4,16 +4,17 @@ import { setupTest } from 'ember-mocha';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import { set } from '@ember/object';
 import Service from '@ember/service';
+import { sharedRestFileTemplate } from 'oneprovider-gui/utils/mocks/generate-rest-api-templates';
 
 const OnedataConnection = Service.extend({
   init() {
     this._super(...arguments);
-    this.set('restTemplates', {});
+    this.set('apiTemplates', { rest: {} });
   },
 });
 
-describe('Unit | Service | rest generator', function () {
-  setupTest('service:rest-generator', {});
+describe('Unit | Service | rest api generator', function () {
+  setupTest('service:rest-api-generator', {});
 
   beforeEach(function () {
     registerService(this, 'onedataConnection', OnedataConnection);
@@ -34,18 +35,25 @@ describe('Unit | Service | rest generator', function () {
     'getSharedFileRdfMetadata',
     'getSharedFileExtendedAttributes',
   ].forEach(methodName => testShareDataCurlGeneratingMethod(methodName));
+
+  // download directory content uses the same template as download file
+  testShareDataCurlGeneratingMethod(
+    'downloadSharedDirectoryContent',
+    'downloadSharedFileContent'
+  );
 });
 
 function testShareDataCurlGeneratingMethod(methodName, templateName = methodName) {
-  it(`generates URL for ${methodName} method using "${templateName}" template`, function () {
+  it(`generates curl command for ${methodName} method using "${templateName}" template`, function () {
     const id = '1234';
     set(
       lookupService(this, 'onedataConnection'),
-      `restTemplates.${templateName}`,
-      `https://onezone.org/{{id}}/${methodName}`
+      `apiTemplates.rest.${templateName}`,
+      sharedRestFileTemplate(methodName)
     );
     const service = this.subject();
-    expect(service[methodName](id))
-      .to.equal(`curl -L https://onezone.org/1234/${methodName}`);
+    expect(service[methodName]({ cdmiObjectId: id })).to.equal(
+      `curl -L 'https://test.onedata.org/api/v3/onezone/shares/data/1234/${methodName}'`
+    );
   });
 }

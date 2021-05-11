@@ -353,6 +353,7 @@ export default Service.extend({
       handleService: null,
       metadataString: exampleDublinCore,
     });
+    const spaceId = this.get('entityRecords.space.0.entityId');
     const shares = ['private', 'public'].map(scope => {
       return [0, 1].map(num => {
         const entityId = generateShareEntityId(get(space, 'entityId'), num);
@@ -367,6 +368,7 @@ export default Service.extend({
           }),
           fileType: 'dir',
           name: `My share ${num}`,
+          spaceId,
           rootFile,
           privateRootFile: rootFile,
           publicUrl,

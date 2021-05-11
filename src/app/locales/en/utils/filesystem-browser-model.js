@@ -9,7 +9,7 @@ export default _.merge({}, BaseBrowserModel, {
     refresh: 'Refresh',
     info: 'Information',
     download: 'Download',
-    downloadTarGz: 'Download (tar.gz)',
+    downloadTar: 'Download (tar)',
     share: 'Share',
     metadata: 'Metadata',
     datasets: 'Datasets',

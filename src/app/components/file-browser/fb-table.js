@@ -21,7 +21,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
+import { equal, and, not, or, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve, Promise } from 'rsvp';
 import _ from 'lodash';
