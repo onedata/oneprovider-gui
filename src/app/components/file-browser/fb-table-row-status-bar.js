@@ -14,7 +14,7 @@ export default Component.extend(I18n, {
   tagName: 'div',
   classNames: ['fb-table-row-status-bar', 'file-status-bar'],
 
-  // FIXME: maybe something like table-row model will be better than separater props
+  // TODO: VFS-7643 maybe something like table-row model will be better than separated props
 
   previewMode: undefined,
 

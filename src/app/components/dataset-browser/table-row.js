@@ -1,8 +1,9 @@
+// FIXME: jsdoc
+
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
 import { hash } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 
-// FIXME: maybe this could be a model with every other logic (if we got more time)
 export default FbTableRow.extend({
   classNames: ['filesystem-table-row'],
 
@@ -19,6 +20,6 @@ export default FbTableRow.extend({
     }
   }),
 
-  // FIXME: this will be probably injected from above
+  // TODO: VFS-7643 this will be probably injected from above
   fileRowModel: hash(),
 });

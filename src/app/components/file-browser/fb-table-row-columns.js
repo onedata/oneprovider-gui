@@ -13,7 +13,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 export default Component.extend(I18n, {
   tagName: '',
 
-  // FIXME: maybe something like table-row model will be better than separater props
+  // TODO: VFS-7643 maybe something like table-row model will be better than separated props
 
   previewMode: undefined,
 

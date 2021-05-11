@@ -549,7 +549,6 @@ export default Component.extend(I18n, {
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);
     },
-    // FIXME: refactor to handle various action on "open file" also with modal
     closeConfirmFileOpenModal() {
       this.set('fileForConfirmOpenModal', null);
     },

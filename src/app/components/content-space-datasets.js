@@ -1,5 +1,3 @@
-// FIXME: refactor - maybe names should be dataset instead of browsableDataset mixed with dataset
-
 /**
  * Container for browsing and managing datasets.
  *
@@ -347,7 +345,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }));
   },
 
-  // FIXME: change name and refactor usages
   browserizeDatasets({ childrenRecords, isLast }) {
     return {
       childrenRecords: childrenRecords.map(r => BrowsableDataset.create({ content: r })),

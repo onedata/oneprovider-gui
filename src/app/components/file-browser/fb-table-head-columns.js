@@ -14,5 +14,5 @@ export default Component.extend(I18n, {
   tagName: 'tr',
   classNames: ['fb-table-head-columns'],
 
-  // FIXME: should expect something like browser-table-model
+  // TODO: VFS-7643 a table or browser model could be used instead of separate params
 });

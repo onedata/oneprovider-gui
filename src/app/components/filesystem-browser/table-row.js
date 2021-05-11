@@ -1,12 +1,15 @@
+// FIXME: jsdoc
+
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
 import { equal, raw, conditional, isEmpty, hash } from 'ember-awesome-macros';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 
-// FIXME: maybe this could be a model with every other logic (if we got more time)
 export default FbTableRow.extend({
   classNames: ['filesystem-table-row'],
+
+  // TODO: VFS-7643 add a table-row model
 
   /**
    * @override
@@ -54,7 +57,7 @@ export default FbTableRow.extend({
     }
   },
 
-  // FIXME: this will be probably injected from above
+  // TODO: VFS-7643 if there will be a table-row model, this will be probably injected from above
   fileRowModel: hash(
     'isSymlink',
   ),

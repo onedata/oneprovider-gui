@@ -432,7 +432,6 @@ export default OneEmbeddedComponent.extend(
       this.set('filesToShowQos', null);
     },
 
-    // FIXME: use this
     closeAllModals() {
       this.closeCreateItemModal();
       this.closeRemoveModal();
