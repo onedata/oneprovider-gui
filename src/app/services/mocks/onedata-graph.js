@@ -10,6 +10,7 @@
 import OnedataGraphMock, { messageNotSupported } from 'onedata-gui-websocket-client/services/mocks/onedata-graph';
 import { get, getProperties, computed } from '@ember/object';
 import _ from 'lodash';
+import { next } from '@ember/runloop';
 import {
   numberOfFiles,
   numberOfDirs,
@@ -25,6 +26,7 @@ import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
+import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -314,6 +316,49 @@ const datasetHandlers = {
       ),
       isLast: end >= childrenDatasetsData.length,
     };
+  },
+  archives_details(operation, entityId, { index, limit, offset }) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    const childrenArchivesData = this.get('mockBackend.entityRecords.archive')
+      .map(arch => archiveRecordToChildData(arch))
+      .filter(arch => {
+        const dataset = get(arch, 'dataset');
+        return dataset && parseGri(dataset).entityId === entityId;
+      });
+    let startFromIndex = index ?
+      childrenArchivesData.findIndex(r => get(r, 'index') === index) : 0;
+    if (startFromIndex === -1) {
+      startFromIndex = 0;
+    }
+    const effOffset = offset || 0;
+    const end = startFromIndex + limit + effOffset;
+    return {
+      archives: childrenArchivesData.slice(
+        startFromIndex + effOffset,
+        end,
+      ),
+      isLast: end >= childrenArchivesData.length,
+    };
+  },
+};
+
+const archiveHandlers = {
+  purge(operation, entityId) {
+    if (operation !== 'create') {
+      return messageNotSupported;
+    }
+    const archives = this.get('mockBackend.entityRecords.archive');
+    const archive = archives.findBy('entityId', entityId);
+    if (!archive) {
+      return messageNotFound;
+    }
+    archive.set('state', 'purging');
+    // it's because we don't support async mock handlers, and saving in the same runloop
+    // causes collision with record reload()
+    next(() => archive.save());
+    return {};
   },
 };
 
@@ -711,6 +756,7 @@ export default OnedataGraphMock.extend({
       [transferEntityType]: transferHandlers,
       [fileEntityType]: fileHandlers,
       [datasetEntityType]: datasetHandlers,
+      [archiveEntityType]: archiveHandlers,
     });
     this.set(
       'handlers',
@@ -891,5 +937,22 @@ function datasetRecordToChildData(record) {
   ), {
     parent: record.belongsTo('parent').id(),
     rootFile: record.belongsTo('rootFile').id(),
+  });
+}
+
+function archiveRecordToChildData(record) {
+  return Object.assign(getProperties(
+    record,
+    'id',
+    'index',
+    'state',
+    'creationTime',
+    'config',
+    'description',
+    'preservedCallback',
+    'purgedCallback',
+  ), {
+    dataset: record.belongsTo('dataset').id(),
+    rootDir: record.belongsTo('rootDir').id(),
   });
 }

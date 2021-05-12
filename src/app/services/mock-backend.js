@@ -26,6 +26,7 @@ import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as transferEntityType } from 'oneprovider-gui/models/transfer';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
+import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
@@ -83,6 +84,7 @@ const effProtectionFlagSets = [
 
 export default Service.extend({
   store: service(),
+  archiveManager: service(),
 
   /**
    * WARNING: Will be initialized only after generating development model.
@@ -183,6 +185,9 @@ export default Service.extend({
       })
       .then(listRecords => {
         return this.createDatasetMock(store).then(() => listRecords);
+      })
+      .then(listRecords => {
+        return this.createArchivesMock(store).then(() => listRecords);
       })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
@@ -694,6 +699,46 @@ export default Service.extend({
       this.get('entityRecords.dataset').push(detachedDataset);
       this.get('entityRecords.fileDatasetSummary').push(fileDetachedDatasetSummary);
     }
+  },
+
+  async createArchivesMock( /* store */ ) {
+    const archiveCount = 3;
+    const archiveManager = this.get('archiveManager');
+    const entityRecords = this.get('entityRecords');
+    const archives = [];
+    const dataset = get(entityRecords, 'dataset')[0];
+    const datasetRootFile = await get(dataset, 'rootFile');
+    const name = get(datasetRootFile, 'name');
+    for (let i = 0; i < archiveCount; ++i) {
+      const entityId = 'archive-' + i;
+      const archive = await archiveManager.createArchive(dataset, {
+        config: {
+          incremental: true,
+          layout: 'bagit',
+          includeDip: true,
+        },
+        description: `My archive number ${i}`,
+        preservedCallback: 'http://example.com/preserved',
+        purgedCallback: 'http://example.com/purged',
+        dataset,
+        // properties not normally used when create
+        id: gri({
+          entityType: archiveEntityType,
+          entityId,
+          aspect: 'instance',
+          scope: 'private',
+        }),
+        index: name + entityId,
+        creationTime: Math.floor(Date.now() / 1000),
+        state: 'pending',
+        // fake directory to browse - it is the same as regular dir
+        rootDir: datasetRootFile,
+      });
+      archives.push(archive);
+    }
+    set(entityRecords, 'archive', archives);
+    dataset.set('archiveCount', archiveCount);
+    await dataset.save();
   },
 
   createProviderRecords(store, names) {
