@@ -52,6 +52,8 @@ export const RuntimeProperties = Mixin.create({
 export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
   index: attr('string'),
 
+  spaceId: attr('string'),
+
   parent: belongsTo('dataset'),
 
   /**
@@ -87,6 +89,8 @@ export default Model.extend(GraphSingleModelMixin, RuntimeProperties, {
    * Creation time in UNIX timestamp format.
    */
   creationTime: attr('number'),
+
+  archiveCount: attr('number'),
 
   rootFilePath: attr('string'),
   rootFileType: attr('file-type'),
