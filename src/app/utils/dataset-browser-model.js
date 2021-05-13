@@ -9,19 +9,20 @@
  */
 
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
-import { hash } from 'ember-awesome-macros';
 import {
   anySelectedContexts,
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
 import { get, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { all as allFulfilled } from 'rsvp';
+import { allSettled } from 'rsvp';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import _ from 'lodash';
 
-const buttonNames = Object.freeze([
+const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnShowFile',
   'btnProtection',
@@ -40,6 +41,15 @@ export default BaseBrowserModel.extend(I18n, {
   i18nPrefix: 'utils.datasetBrowserModel',
 
   /**
+   * State of space-datasets container for datasets-browser.
+   * Properties:
+   * - `attachmentState: String`
+   * @virtual
+   * @type {Object}
+   */
+  spaceDatasetsViewState: Object.freeze({}),
+
+  /**
    * Function argument: data for getDataUrl Onezone function
    * @override
    * @type {Function}
@@ -48,7 +58,7 @@ export default BaseBrowserModel.extend(I18n, {
 
   /**
    * @override
-   * @type {Function} arguments: `dataset: Models.Dataset`
+   * @type {(dataset: Models.Dataset) => any}
    */
   openDatasetOpenModal: notImplementedThrow,
 
@@ -95,19 +105,24 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  allButtonsHash: hash(...buttonNames),
-
-  /**
-   * One of: attached, detached.
-   * Which state tree of datasets is displayed.
-   * @virtual
-   * @type {String}
-   */
-  attachmentState: undefined,
+  buttonNames: computed('attachmentState', function buttonNames() {
+    if (this.get('attachmentState') === 'detached') {
+      return _.without(allButtonNames, 'btnProtection');
+    } else {
+      return [...allButtonNames];
+    }
+  }),
 
   _window: window,
 
   navigateDataTarget: '_top',
+
+  /**
+   * One of: attached, detached.
+   * Which state tree of datasets is displayed.
+   * @type {ComputedProperty<String>}
+   */
+  attachmentState: reads('spaceDatasetsViewState.attachmentState'),
 
   //#region Action buttons
 
@@ -168,11 +183,16 @@ export default BaseBrowserModel.extend(I18n, {
       id: 'protection',
       icon: 'browser-permissions',
       action: async (datasets) => {
+        const globalNotify = this.get('globalNotify');
         try {
           const rootFile = await get(datasets[0], 'rootFile');
-          return this.openDatasetsModal(rootFile);
+          if (rootFile) {
+            return this.openDatasetsModal(rootFile);
+          } else {
+            globalNotify.backendError(this.t('protection.loadingRootFile'));
+          }
         } catch (error) {
-          this.get('globalNotify').backendError(
+          globalNotify.backendError(
             this.t('protection.loadingRootFile'),
             error
           );
@@ -242,15 +262,17 @@ export default BaseBrowserModel.extend(I18n, {
         yesButtonText: this.t('toggleDatasetAttachment.yes'),
         yesButtonClassName: attach ? 'btn-primary' : 'btn-danger',
         onSubmit: async () => {
-          try {
-            return await this.toggleDatasetsAttachment(datasets, attach);
-          } catch (error) {
+          const submitResult = await this.toggleDatasetsAttachment(datasets, attach);
+          const firstRejected = submitResult.findBy('state', 'rejected');
+          if (firstRejected) {
+            const error = get(firstRejected, 'reason');
             globalNotify.backendError(
               this.t('toggleDatasetAttachment.changingState'),
               error
             );
             throw error;
           }
+          return submitResult;
         },
       }).hiddenPromise
       .then(() => {
@@ -285,38 +307,50 @@ export default BaseBrowserModel.extend(I18n, {
       yesButtonText: this.t('remove.yes'),
       yesButtonClassName: 'btn-danger',
       onSubmit: async () => {
-        try {
-          return await this.removeDatasets(datasets);
-        } catch (error) {
+        const submitResult = await this.removeDatasets(datasets);
+        const firstRejected = submitResult.findBy('state', 'rejected');
+        if (firstRejected) {
+          const error = get(firstRejected, 'reason');
           globalNotify.backendError(
             this.t('remove.removing'),
             error
           );
           throw error;
         }
+        return submitResult;
       },
     }).hiddenPromise;
   },
 
   async toggleDatasetsAttachment(datasets, attach) {
     const datasetManager = this.get('datasetManager');
+    const result = await allSettled(datasets.map(dataset =>
+      datasetManager.toggleDatasetAttachment(dataset, attach)
+    ));
     try {
-      await allFulfilled(datasets.map(dataset =>
-        datasetManager.toggleDatasetAttachment(dataset, attach)
-      ));
-    } finally {
       await this.refresh();
+    } catch (error) {
+      console.error(
+        'util:dataset-browser-model#toggleDatasetsAttachment: refreshing browser after toggling attachment failed:',
+        error
+      );
     }
+    return result;
   },
 
   async removeDatasets(datasets) {
     const datasetManager = this.get('datasetManager');
+    const result = await allSettled(datasets.map(dataset =>
+      datasetManager.destroyDataset(dataset)
+    ));
     try {
-      return allFulfilled(datasets.map(dataset =>
-        datasetManager.destroyDataset(dataset)
-      ));
-    } finally {
       await this.refresh();
+    } catch (error) {
+      console.error(
+        'util:dataset-browser-model#toggleDatasetsAttachment: refreshing browser after removing datasets failed:',
+        error
+      );
     }
+    return result;
   },
 });

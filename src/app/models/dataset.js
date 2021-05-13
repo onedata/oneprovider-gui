@@ -37,11 +37,9 @@ export const RuntimeProperties = Mixin.create({
         return pathArray[pathArray.length - 1] || '';
       } catch (error) {
         console.error(`model:dataset#name: cannot get name from path: ${error}`);
-        return '';
       }
-    } else {
-      return '';
     }
+    return '';
   }),
 
   hasParent: computed(function hasParent() {

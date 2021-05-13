@@ -141,7 +141,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Function<(file: Models.File, confirmModal=false) => any>}
+   * @type {(file: Models.File, confirmModal?: Boolean) => any}
    */
   openFile: notImplementedIgnore,
 

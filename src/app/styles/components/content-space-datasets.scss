@@ -10,14 +10,6 @@
   height: 100%;
   flex-grow: 1;
 
-  .datasets-state-selector {
-    position: absolute;
-    transform-origin: bottom right;
-    transform: translateX(-100%) translateY(100%) rotate(-90deg);
-    left: $content-col-padding;
-    top: $padding-base-horizontal;
-  }
-
   .file-browser-head-container {
     z-index: $zindex-file-browser-head;
   }

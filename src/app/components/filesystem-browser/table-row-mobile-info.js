@@ -11,10 +11,4 @@ import FbTableRowMobileInfo from 'oneprovider-gui/components/file-browser/fb-tab
 
 export default FbTableRowMobileInfo.extend({
   classNames: ['filesystem-table-row-mobile-info'],
-
-  /**
-   * @virtual
-   * @type {Object}
-   */
-  fileRowModel: undefined,
 });

@@ -24,7 +24,6 @@ import {
   actionContext,
   anySelectedContexts,
 } from 'oneprovider-gui/components/file-browser';
-import { hash, array, raw } from 'ember-awesome-macros';
 
 const buttonNames = Object.freeze([
   'btnUpload',
@@ -54,7 +53,6 @@ export default BaseBrowserModel.extend({
   errorExtractor: service(),
   fileManager: service(),
   globalNotify: service(),
-  i18n: service(),
   isMobile: service(),
   uploadManager: service(),
 
@@ -172,7 +170,7 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
-  buttonNames: buttonNames,
+  buttonNames,
 
   /**
    * Reference to Document object - can be stubbed for testing purposes.
@@ -185,11 +183,6 @@ export default BaseBrowserModel.extend({
    * @type {HTMLBodyElement}
    */
   _body: document.body,
-
-  /**
-   * @override
-   */
-  allButtonsHash: hash(...buttonNames),
 
   // #region Action buttons
 
@@ -715,16 +708,6 @@ export default BaseBrowserModel.extend({
     }
   ),
 
-  uploadAction: array.findBy('allButtonsArray', raw('id'), raw('upload')),
-
-  newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
-
-  placeSymlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeSymlink')),
-
-  placeHardlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeHardlink')),
-
-  pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
-
   /**
    * @override
    */
@@ -1015,22 +998,22 @@ export default BaseBrowserModel.extend({
   },
 
   emptyDirUpload() {
-    return this.get('uploadAction.action')(...arguments);
+    return this.get('btnUpload.action')(...arguments);
   },
 
   emptyDirNewDirectory() {
-    return this.get('newDirectoryAction.action')(...arguments);
+    return this.get('btnNewDirectory.action')(...arguments);
   },
 
   emptyDirPlaceSymlink() {
-    return this.get('placeSymlinkAction.action')(...arguments);
+    return this.get('btnPlaceSymlink.action')(...arguments);
   },
 
   emptyDirPlaceHardlink() {
-    return this.get('placeHardlinkAction.action')(...arguments);
+    return this.get('btnPlaceHardlink.action')(...arguments);
   },
 
   emptyDirPaste() {
-    return this.get('pasteAction.action')(...arguments);
+    return this.get('btnPaste.action')(...arguments);
   },
 });

@@ -69,7 +69,7 @@ export default Component.extend(I18n, {
     conditional(
       equal('file.type', 'file'),
       raw('browser-dataset-file'),
-      raw('browser-datataset'),
+      raw('browser-dataset'),
     ),
     conditional(
       equal('file.type', 'file'),

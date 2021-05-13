@@ -40,19 +40,10 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   browserInstance: undefined,
 
   /**
-   * @virtual optional
+   * @virtual
    * @type {Array<String>}
    */
   buttonNames: Object.freeze([]),
-
-  /**
-   * Maps button name => button object.
-   * MUST be recomputed if some button object reference is changed (not necessary if only
-   * mutated).
-   * @virtual optional
-   * @type {Object}
-   */
-  allButtonsHash: Object.freeze({}),
 
   /**
    * @virtual
@@ -66,12 +57,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @type {Function}
    */
   onInsertElement: notImplementedIgnore,
-
-  /**
-   * @virtual
-   * @type {Function}
-   */
-  onClearFileClipboard: notImplementedIgnore,
 
   /**
    * @virtual
@@ -139,17 +124,28 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    */
   rootIcon: 'space',
 
+  getCurrentDirMenuButtons(availableActions) {
+    return availableActions;
+  },
+
   /**
    * All button objects. Order is significant.
    * @type {ComputedProperty<Array<Object>>}
    */
-  allButtonsArray: computed('allButtonsHash', function allButtonsArray() {
-    return Object.values(this.get('allButtonsHash'));
+  allButtonsArray: computed('buttonNames.[]', function allButtonsArray() {
+    return this.get('buttonNames').map(name => this.get(name));
   }),
 
-  getCurrentDirMenuButtons(availableActions) {
-    return availableActions;
-  },
+  /**
+   * Maps button property name => button object.
+   * @type {Object}
+   */
+  allButtonsHash: computed('buttonNames.[]', function allButtonsHash() {
+    return this.get('buttonNames').reduce((hash, name) => {
+      hash[name] = this.get(name);
+      return hash;
+    }, {});
+  }),
 
   //#endregion
 
@@ -162,6 +158,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   spacePrivileges: reads('browserInstance.spacePrivileges'),
   spaceId: reads('browserInstance.spaceId'),
   previewMode: reads('browserInstance.previewMode'),
+  // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
   fileClipboardFiles: reads('browserInstance.fileClipboardFiles'),
 
@@ -171,6 +168,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   fbTableApi: reads('browserInstance.fbTableApi'),
 
+  // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   /**
    * You can push and remove file IDs to alter row icons loading state
    * @type {Ember.Array<String>}

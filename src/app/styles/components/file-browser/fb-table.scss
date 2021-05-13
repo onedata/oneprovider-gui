@@ -89,8 +89,7 @@
   th {
     user-select: none;
   }
-  thead > tr > th:first-of-type,
-  .table:not(.bt) > tbody > tr > th:first-of-type {
+  thead > tr > th:first-of-type {
     padding-left: $file-browser-padding-left;
   }
   @media (max-width: $screen-xs-max) {
@@ -98,7 +97,7 @@
       display: none;
     }
   }
-  thead.fb-table-thead > tr > th:first-of-type {
+  .fb-table-thead th:first-of-type {
     text-align: left;
   }
   .fb-table-col-files {

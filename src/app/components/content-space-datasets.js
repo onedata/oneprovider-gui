@@ -240,10 +240,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   attachmentStateObserver: observer(
     'attachmentState',
     function attachmentStateObserver() {
-      this.set(
-        'browserModel.attachmentState',
-        this.get('attachmentState'),
-      );
       next(() => {
         safeExec(this, () => {
           if (this.get('selectedDatasets.length') > 0) {
@@ -260,7 +256,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     if (!this.get('selectedDatasets')) {
       this.set('selectedDatasets', []);
     }
-    this.attachmentStateObserver();
   },
 
   /**
@@ -283,6 +278,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const attachmentState = this.get('attachmentState');
     return DatasetBrowserModel.create({
       ownerSource: this,
+      spaceDatasetsViewState: this,
       getDataUrl: this.getDataUrl.bind(this),
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       attachmentState,
