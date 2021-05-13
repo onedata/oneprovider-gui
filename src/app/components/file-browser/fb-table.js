@@ -199,9 +199,9 @@ export default Component.extend(I18n, {
    */
   headerVisible: undefined,
 
-  headColumnsComponentName: or(
-    'browserModel.headColumnsComponentName',
-    raw('file-browser/fb-table-head-columns')
+  headRowComponentName: or(
+    'browserModel.headRowComponentName',
+    raw('file-browser/fb-table-head-row')
   ),
 
   rowComponentName: or(

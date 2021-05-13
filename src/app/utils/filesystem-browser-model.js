@@ -157,7 +157,7 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
-  headColumnsComponentName: 'filesystem-browser/table-head-columns',
+  headRowComponentName: 'filesystem-browser/table-head-row',
 
   /**
    * @override

@@ -107,7 +107,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @virtual
    * @type {String}
    */
-  headColumnsComponentName: '',
+  headRowComponentName: '',
 
   /**
    * @virtual

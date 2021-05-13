@@ -1,11 +1,11 @@
 <table class="table one-table one-infinite-list fb-files-table">
   <thead class="fb-table-thead">
-    {{#if headColumnsComponentName}}
-      {{component headColumnsComponentName
+    {{#if headRowComponentName}}
+      {{component headRowComponentName
         previewMode=previewMode
       }}
     {{else}}
-      {{!-- head columns component should contain at least one th for items, if it's not
+      {{!-- head row component should contain at least one th for items, if it's not
             provided then insert generic one
       --}}
       <th class="fb-table-col-items">{{tt this "items"}}</th>

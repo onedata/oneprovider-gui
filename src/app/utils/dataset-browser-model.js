@@ -75,7 +75,7 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  headColumnsComponentName: 'dataset-browser/table-head-columns',
+  headRowComponentName: 'dataset-browser/table-head-row',
 
   /**
    * @override
