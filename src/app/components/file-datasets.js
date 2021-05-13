@@ -60,10 +60,18 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * Callback to generate URL to file (here: selecting the file).
-   * See parent-action `getDataUrl` in `component:content-file-browser`
+   * See eg. parent-action `getDataUrl` in `component:content-file-browser`
    * @type {Function}
    */
   getDataUrl: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * Callback to generate URL to dataset (here: selecting the dataset).
+   * See eg. parent-action `getDatsetUrl` in `component:content-space-datasets`
+   * @type {Function}
+   */
+  getDatasetsUrl: notImplementedIgnore,
 
   /**
    * @virtual
