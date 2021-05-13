@@ -3,7 +3,7 @@
  *
  * @module components/file-browser/fb-breadcrumbs
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -91,11 +91,10 @@ export default Component.extend(
     previewMode: false,
 
     /**
-     * Default value set in init.
      * @virtual optional
      * @type {String}
      */
-    rootIcon: undefined,
+    rootIcon: 'space',
 
     /**
      * If true, add breadcrumbs-recomputing CSS class to breadcrumbs-inner
@@ -166,9 +165,6 @@ export default Component.extend(
     init() {
       this._super(...arguments);
       this.updateDirPathProxy();
-      if (!this.get('rootIcon')) {
-        this.set('rootIcon', 'space');
-      }
     },
 
     didInsertElement() {

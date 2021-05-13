@@ -38,12 +38,9 @@ export default Component.extend(I18n, {
         const messageObject = this.get('errorExtractor').getMessage(reason);
         if (messageObject && messageObject.message) {
           return messageObject;
-        } else {
-          return { message: this.t('unknownError') };
         }
-      } else {
-        return { message: this.t('uknownError') };
       }
+      return { message: this.t('unknownError') };
     }
   ),
 

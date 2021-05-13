@@ -13,7 +13,7 @@ import { hash } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 
 export default FbTableRow.extend({
-  classNames: ['filesystem-table-row'],
+  classNames: ['dataset-table-row'],
 
   /**
    * @override
