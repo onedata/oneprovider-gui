@@ -8,4 +8,7 @@
     width: 200px;
     text-align: center;
   }
+  .empty-dir-image {
+    background-image: url($root-url + 'images/empty-directory.svg');
+  }
 }

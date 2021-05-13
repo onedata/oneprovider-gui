@@ -45,10 +45,6 @@
       height: 76px;
     }
   }
-  // FIXME: move this to specific styles
-  .empty-dir-image {
-    background-image: url($root-url + 'images/empty-directory.svg');
-  }
   .error-dir-image {
     background-image: url($root-url + 'images/data-error-generic.svg');
     // override for known errnos

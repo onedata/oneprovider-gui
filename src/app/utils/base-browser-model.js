@@ -1,4 +1,15 @@
-// FIXME: jsdoc
+/**
+ * A base class for logic and co-related data for file-browser.
+ * It acts as a strategy for `file-browser` component, while the component serves
+ * state (see region file-browser state) and API (region file-browser API).
+ * 
+ * Extend this class to implement specific browsers like filesystem-browser.
+ *
+ * @module utils/base-browser-model
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import EmberObject, { getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';

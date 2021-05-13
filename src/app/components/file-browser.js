@@ -553,7 +553,7 @@ export default Component.extend(I18n, {
       this.set('fileForConfirmOpenModal', null);
     },
     confirmFileOpen() {
-      return this.openFiles([this.get('fileForConfirmOpenModal')]);
+      return this.openFile([this.get('fileForConfirmOpenModal')]);
     },
   },
 });

@@ -1,4 +1,11 @@
-// FIXME: jsdoc
+/**
+ * Implementation of empty-dir message for filesystem browser.
+ *
+ * @module components/filesystem-browser/empty-dir
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import FbEmptyDir from 'oneprovider-gui/components/file-browser/fb-empty-dir';
 import I18n from 'onedata-gui-common/mixins/components/i18n';

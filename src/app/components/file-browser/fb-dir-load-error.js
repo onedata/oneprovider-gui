@@ -1,4 +1,11 @@
-// FIXME: jsdoc
+/**
+ * Base implementation of dir load error view for browser
+ *
+ * @module components/file-browser/fb-dir-load-error
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
