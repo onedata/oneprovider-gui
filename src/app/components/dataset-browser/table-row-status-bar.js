@@ -1,33 +1,29 @@
+/**
+ * Implementation of status part of table row part for dataset-browser.
+ *
+ * @module components/dataset-browser/table-row-status-bar
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import FbTableRowStatusBar from 'oneprovider-gui/components/file-browser/fb-table-row-status-bar';
 import { or, and } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { inject as service } from '@ember/service';
 
-export default FbTableRowStatusBar.extend(I18n, {
+export default FbTableRowStatusBar.extend({
   classNames: ['dataset-table-row-status-bar'],
-
-  i18n: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.datasetBrowser.tableRowStatusBar',
 
+  // TODO: VFS-7643 "file" naming should be changed for generic browser
   /**
-   * @virtual
-   * @type {Object}
+   * @type {ComputedProperty<Models.Dataset>}
    */
-  fileRowModel: undefined,
-
-  /**
-   * @virtual
-   * @type {Function}
-   */
-  invokeFileAction: notImplementedThrow,
-
   dataset: reads('file'),
 
   /**
@@ -77,9 +73,9 @@ export default FbTableRowStatusBar.extend(I18n, {
       }
       if (translationKey) {
         return this.t(`protectionFlagsInfo.${translationKey}`);
-      } else {
-        return '';
       }
+
+      return '';
     }
   ),
 });

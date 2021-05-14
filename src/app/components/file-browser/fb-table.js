@@ -141,7 +141,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Function<(file: Models.File, confirmModal=false) => any>}
+   * @type {(file: Models.File, confirmModal?: Boolean) => any}
    */
   openFile: notImplementedIgnore,
 
@@ -199,9 +199,9 @@ export default Component.extend(I18n, {
    */
   headerVisible: undefined,
 
-  headColumnsComponentName: or(
-    'browserModel.headColumnsComponentName',
-    raw('file-browser/fb-table-head-columns')
+  headRowComponentName: or(
+    'browserModel.headRowComponentName',
+    raw('file-browser/fb-table-head-row')
   ),
 
   rowComponentName: or(
@@ -1040,7 +1040,7 @@ export default Component.extend(I18n, {
       if (areSomeFilesSelected) {
         return this.fileClicked(file, true, false);
       } else {
-        return this.get('openFile')(file, true);
+        return this.get('openFile')(file, { tapped: true });
       }
     },
 

@@ -18,7 +18,7 @@ import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { promise, equal, raw } from 'ember-awesome-macros';
-import { allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -215,7 +215,7 @@ export default Component.extend(I18n, {
         promises.push(datasetParentRelation.reload());
         promises.push(fileManager.fileParentRefresh(directDataset));
       }
-      await allSettled(promises);
+      await allFulfilled(promises);
     },
   },
 });

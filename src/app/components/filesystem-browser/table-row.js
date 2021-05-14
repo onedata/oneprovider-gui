@@ -1,5 +1,12 @@
-// FIXME: jsdoc
-
+/**
+ * Implementation of table row for filesystem-browser. Represents single file, directory
+ * or symlink.
+ *
+ * @module components/filesystem-browser/table-row-mobile-info
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
 import { equal, raw, conditional, isEmpty, hash } from 'ember-awesome-macros';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';

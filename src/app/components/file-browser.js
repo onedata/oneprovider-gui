@@ -19,7 +19,6 @@ import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { next } from '@ember/runloop';
-import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export const actionContext = {
@@ -135,11 +134,6 @@ export default Component.extend(I18n, {
   spacePrivileges: Object.freeze({}),
 
   /**
-   * @type {Models.File}
-   */
-  fileForConfirmOpenModal: undefined,
-
-  /**
    * Initialized in init.
    * @type {EmberArray<String>}
    */
@@ -204,31 +198,41 @@ export default Component.extend(I18n, {
    * One of values from `actionContext` enum object
    * @type {ComputedProperty<string>}
    */
-  selectionContext: computed('selectedFiles.[]', function selectionContext() {
-    const selectedFiles = this.get('selectedFiles');
-    if (selectedFiles) {
-      const count = get(selectedFiles, 'length');
-      if (count === 0) {
-        return 'none';
-      } else if (count === 1) {
-        if (get(selectedFiles[0], 'type') === 'dir') {
-          return this.getPreviewContext(actionContext.singleDir);
-        } else {
-          return this.getPreviewContext(actionContext.singleFile);
+  selectionContext: computed(
+    'selectedFiles.[]',
+    'previewMode',
+    function selectionContext() {
+      const {
+        selectedFiles,
+        previewMode,
+      } = this.getProperties('selectedFiles', 'previewMode');
+      if (selectedFiles) {
+        const count = get(selectedFiles, 'length');
+        if (count === 0) {
+          return 'none';
         }
-      } else {
-        if (selectedFiles.isAny('type', 'dir')) {
-          if (selectedFiles.isAny('type', 'file')) {
-            return this.getPreviewContext(actionContext.multiMixed);
+        let context;
+        if (count === 1) {
+          if (get(selectedFiles[0], 'type') === 'dir') {
+            context = actionContext.singleDir;
           } else {
-            return this.getPreviewContext(actionContext.multiDir);
+            context = actionContext.singleFile;
           }
         } else {
-          return this.getPreviewContext(actionContext.multiFile);
+          if (selectedFiles.isAny('type', 'dir')) {
+            if (selectedFiles.isAny('type', 'file')) {
+              context = actionContext.multiMixed;
+            } else {
+              context = actionContext.multiDir;
+            }
+          } else {
+            context = actionContext.multiFile;
+          }
         }
+        return previewMode ? this.previewizeContext(context) : context;
       }
     }
-  }),
+  ),
 
   clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
     const component = this;
@@ -264,17 +268,17 @@ export default Component.extend(I18n, {
       );
       const context = (isRootDir ? 'spaceRootDir' : 'currentDir') +
         (previewMode ? 'Preview' : '');
-      let importedActions = getButtonActions(
+      let buttonActions = getButtonActions(
         allButtonsArray,
         context
       );
-      importedActions = browserModel.getCurrentDirMenuButtons(importedActions);
-      if (get(importedActions, 'length')) {
+      buttonActions = browserModel.getCurrentDirMenuButtons(buttonActions);
+      if (get(buttonActions, 'length')) {
         return [{
             separator: true,
             title: get(browserModel, 'currentDirTranslation') || this.t('menuCurrentDir'),
           },
-          ...importedActions,
+          ...buttonActions,
         ];
       } else {
         return [];
@@ -381,10 +385,9 @@ export default Component.extend(I18n, {
     }
     this.set('loadingIconFileIds', A());
     if (!this.get('browserModel')) {
-      console.debug(
-        'component:file-browser#init: no browserModel provided, using default base browser model'
+      throw new Error(
+        'component:file-browser#init: no browserModel provided'
       );
-      this.set('browserModel', BaseBrowserModel.create({ ownerSource: this }));
     }
     this.bindBrowserModel();
   },
@@ -447,11 +450,11 @@ export default Component.extend(I18n, {
     if (browserModel && browserModel.onOpenFile) {
       return browserModel.onOpenFile(...args);
     } else {
-      return notImplementedThrow();
+      return notImplementedIgnore();
     }
   },
 
-  openFile(file, confirmModal = false) {
+  openFile(file, options = {}) {
     const effFile = get(file, 'effFile');
     if (!effFile) {
       return;
@@ -460,16 +463,12 @@ export default Component.extend(I18n, {
     if (isDir) {
       return this.changeDir(effFile);
     } else {
-      if (confirmModal) {
-        this.set('fileForConfirmOpenModal', file);
-      } else {
-        return this.onOpenFile(file);
-      }
+      return this.onOpenFile(file, options);
     }
   },
 
-  getPreviewContext(context) {
-    return this.get('previewMode') ? `${context}Preview` : context;
+  previewizeContext(context) {
+    return `${context}Preview`;
   },
 
   clearFilesSelection() {
@@ -477,7 +476,6 @@ export default Component.extend(I18n, {
   },
 
   clearFileClipboard() {
-    this.onClearFileClipboard();
     this.setProperties({
       fileClipboardFiles: [],
       fileClipboardMode: null,
@@ -519,8 +517,8 @@ export default Component.extend(I18n, {
     selectCurrentDir() {
       this.selectCurrentDir();
     },
-    openFile(file) {
-      return this.openFile(file);
+    openFile(file, options) {
+      return this.openFile(file, options);
     },
     changeDir(dir) {
       return this.changeDir(dir);
@@ -536,24 +534,18 @@ export default Component.extend(I18n, {
     changeSelectedFiles(selectedFiles) {
       return this.get('changeSelectedFiles')(selectedFiles);
     },
-    invokeFileAction(file, btnName, ...actionArgs) {
+    invokeFileAction(file, btnId, ...actionArgs) {
       this.get('changeSelectedFiles')([file]);
-      const btn = this.get('allButtonsHash')[btnName];
+      const btn = this.get('allButtonsHash')[btnId];
       if (!btn) {
         throw new Error(
-          `component:file-browser#actions.invokeFileAction: no such action button: ${btnName}`
+          `component:file-browser#actions.invokeFileAction: no action button with id: ${btnId}`
         );
       }
       next(this, () => btn.action(undefined, ...actionArgs));
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);
-    },
-    closeConfirmFileOpenModal() {
-      this.set('fileForConfirmOpenModal', null);
-    },
-    confirmFileOpen() {
-      return this.openFiles([this.get('fileForConfirmOpenModal')]);
     },
   },
 });

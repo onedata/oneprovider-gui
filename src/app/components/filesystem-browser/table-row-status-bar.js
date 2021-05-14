@@ -1,3 +1,12 @@
+/**
+ * Implementation of status part of table row part for filesystem-browser.
+ *
+ * @module components/filesystem-browser/table-row-status-bar
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import FbTableRowStatusBar from 'oneprovider-gui/components/file-browser/fb-table-row-status-bar';
 import { equal, not, raw, or, and, array } from 'ember-awesome-macros';
 import { get, computed } from '@ember/object';
@@ -5,32 +14,17 @@ import { reads } from '@ember/object/computed';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
-import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 
-export default FbTableRowStatusBar.extend(I18n, {
+export default FbTableRowStatusBar.extend({
   classNames: ['filesystem-table-row-status-bar'],
 
-  i18n: service(),
   currentUser: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.filesystemBrowser.tableRowStatusBar',
-
-  /**
-   * @virtual
-   * @type {Object}
-   */
-  fileRowModel: undefined,
-
-  /**
-   * @virtual
-   * @type {Function}
-   */
-  invokeFileAction: notImplementedThrow,
 
   type: reads('file.type'),
 

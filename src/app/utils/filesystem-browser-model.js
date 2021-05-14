@@ -1,4 +1,12 @@
-// FIXME: jsdoc
+/**
+ * Implementation of browser-model (logic and co-related data) for filesystem-browser
+ * (a browser for mananging files and directories).
+ *
+ * @module utils/filesystem-browser-model
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import { inject as service } from '@ember/service';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
@@ -16,7 +24,6 @@ import {
   actionContext,
   anySelectedContexts,
 } from 'oneprovider-gui/components/file-browser';
-import { hash, array, raw } from 'ember-awesome-macros';
 
 const buttonNames = Object.freeze([
   'btnUpload',
@@ -46,7 +53,6 @@ export default BaseBrowserModel.extend({
   errorExtractor: service(),
   fileManager: service(),
   globalNotify: service(),
-  i18n: service(),
   isMobile: service(),
   uploadManager: service(),
 
@@ -68,6 +74,13 @@ export default BaseBrowserModel.extend({
    * @param {Models.File} file file to edit its metadata
    */
   openMetadata: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models.File>} file file to show in confirm download modal
+   */
+  openConfirmDownload: notImplementedThrow,
 
   /**
    * @virtual optional: only in non-preview mode
@@ -149,7 +162,7 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
-  headColumnsComponentName: 'filesystem-browser/table-head-columns',
+  headRowComponentName: 'filesystem-browser/table-head-row',
 
   /**
    * @override
@@ -164,7 +177,13 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
-  buttonNames: buttonNames,
+  buttonNames,
+
+  /**
+   * Reference to Window object - can be stubbed for testing purposes.
+   * @type {Window}
+   */
+  _window: window,
 
   /**
    * Reference to Document object - can be stubbed for testing purposes.
@@ -177,11 +196,6 @@ export default BaseBrowserModel.extend({
    * @type {HTMLBodyElement}
    */
   _body: document.body,
-
-  /**
-   * @override
-   */
-  allButtonsHash: hash(...buttonNames),
 
   // #region Action buttons
 
@@ -707,16 +721,6 @@ export default BaseBrowserModel.extend({
     }
   ),
 
-  uploadAction: array.findBy('allButtonsArray', raw('id'), raw('upload')),
-
-  newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
-
-  placeSymlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeSymlink')),
-
-  placeHardlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeHardlink')),
-
-  pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
-
   /**
    * @override
    */
@@ -745,8 +749,12 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
-  onOpenFile(file) {
-    this.downloadFiles([file]);
+  onOpenFile(file, options) {
+    if (options && options.tapped) {
+      this.get('openConfirmDownload')(file);
+    } else {
+      this.downloadFiles([file]);
+    }
   },
 
   /**
@@ -1007,22 +1015,22 @@ export default BaseBrowserModel.extend({
   },
 
   emptyDirUpload() {
-    return this.get('uploadAction.action')(...arguments);
+    return this.get('btnUpload.action')(...arguments);
   },
 
   emptyDirNewDirectory() {
-    return this.get('newDirectoryAction.action')(...arguments);
+    return this.get('btnNewDirectory.action')(...arguments);
   },
 
   emptyDirPlaceSymlink() {
-    return this.get('placeSymlinkAction.action')(...arguments);
+    return this.get('btnPlaceSymlink.action')(...arguments);
   },
 
   emptyDirPlaceHardlink() {
-    return this.get('placeHardlinkAction.action')(...arguments);
+    return this.get('btnPlaceHardlink.action')(...arguments);
   },
 
   emptyDirPaste() {
-    return this.get('pasteAction.action')(...arguments);
+    return this.get('btnPaste.action')(...arguments);
   },
 });

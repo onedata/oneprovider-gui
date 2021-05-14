@@ -1,5 +1,5 @@
 /**
- * Single row in files list. Can be
+ * Single row in file browser table items list.
  *
  * @module components/file-browser/fb-table-row
  * @author Jakub Liput
@@ -140,9 +140,10 @@ export default Component.extend(I18n, FastDoubleClick, {
   fileCut: false,
 
   /**
-   * @virtual
    * Should be set to true, if other file on list have the same name
+   * @virtual
    * @type {Boolean}
+   * 
    */
   nameConflict: false,
 
@@ -436,7 +437,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   },
 
   /**
-   * Given type from file object, should return valid file typesupported by
+   * Given type from file object, should return valid file type supported by
    * this component.
    * @param {String} fileType
    * @returns {String}
@@ -451,8 +452,8 @@ export default Component.extend(I18n, FastDoubleClick, {
     openContextMenu() {
       this.openContextMenu(...arguments);
     },
-    invokeFileAction(file, btnName, ...args) {
-      this.get('invokeFileAction')(file, btnName, ...args);
+    invokeFileAction(file, btnId, ...args) {
+      this.get('invokeFileAction')(file, btnId, ...args);
     },
   },
 });

@@ -1,6 +1,22 @@
 import BaseBrowserModel from './base-browser-model';
 import _ from 'lodash';
 
+const proceedQuestion = 'Do you want to proceed?';
+
+const partials = {
+  selectedSingle: '<strong>{{name}}</strong> dataset',
+  selectedMulti: '<strong>{{count}}</strong> selected datasets',
+};
+
+function removeDescription(isMulti) {
+  const selected = partials[isMulti ? 'selectedMulti' : 'selectedSingle'];
+  return `You are about to remove ${selected}. This procedure does not modify any files or directories that were a part of the dataset${isMulti ? 's' : ''}.`;
+}
+
+function removeHeader(isMulti) {
+  return `Remove selected dataset${isMulti ? 's' : ''}`;
+}
+
 export default _.merge({}, BaseBrowserModel, {
   currentDataset: 'Current dataset',
   fileType: {
@@ -14,7 +30,10 @@ export default _.merge({}, BaseBrowserModel, {
       attach: 'Reattach',
       detach: 'Detach',
     },
-    remove: 'Remove dataset',
+    remove: {
+      single: 'Remove dataset',
+      multi: 'Remove datasets',
+    },
   },
   toggleDatasetAttachment: {
     header: {
@@ -27,31 +46,32 @@ export default _.merge({}, BaseBrowserModel, {
         detach: 'Detach datasets',
       },
     },
-    introSingle: {
-      attach: 'You are about to reattach <strong>{{name}}</strong> dataset, that was previously attached to the {{fileType}} at <code>{{path}}</code>.',
-      detach: 'You are about to detach <strong>{{name}}</strong> dataset from its root {{fileType}} (<code>{{path}}</code>).',
+    intro: {
+      attach: {
+        single: 'You are about to reattach <strong>{{name}}</strong> dataset to its original root {{fileType}} at <code class="inline-file-path">{{path}}</code>.',
+        multi: 'You are about to reattach <strong>{{count}}</strong> selected datasets to their original root directories/files',
+      },
+      detach: {
+        single: 'You are about to detach <strong>{{name}}</strong> dataset from its root {{fileType}} (<code class="inline-file-path">{{path}}</code>).',
+        multi: 'You are about to detach <strong>{{count}}</strong> selected datasets from their root directories/files.',
+      },
     },
-    introMulti: {
-      attach: 'You are about to reattach <strong>{{count}}</strong> selected datasets.',
-      detach: 'You are about to detach <strong>{{count}}</strong> selected datasets from their root directories or files.',
-    },
-    proceedQuestion: 'Do you want to proceed?',
+    proceedQuestion,
     yes: 'Proceed',
-    changingState: 'changing dataset(s) state',
+    changingState: 'changing some dataset(s) state',
   },
   remove: {
     header: {
-      single: 'Remove selected dataset',
-      multi: 'Remove selected datases',
+      single: removeHeader(false),
+      multi: removeHeader(true),
     },
-    selectedText: {
-      single: '<strong>{{name}}</strong> dataset',
-      multi: '<strong>{{count}}</strong> selected datasets',
+    description: {
+      single: removeDescription(false),
+      multi: removeDescription(true),
     },
-    description: 'You are about to remove {{selectedText}}. This procedure does not modify any files or directories that were a part of the dataset.',
-    proceedQuestion: 'Do you want to proceed?',
+    proceedQuestion,
     yes: 'Remove',
-    removing: 'removing dataset(s)',
+    removing: 'removing some dataset(s)',
   },
   protection: {
     loadingRootFile: 'loading dataset root file',
