@@ -76,6 +76,13 @@ export default BaseBrowserModel.extend({
   openMetadata: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @param {Array<Models.File>} file file to show in confirm download modal
+   */
+  openConfirmDownload: notImplementedThrow,
+
+  /**
    * @virtual optional: only in non-preview mode
    * @type {Function}
    * @param {Models.File} file parent of new directory
@@ -171,6 +178,12 @@ export default BaseBrowserModel.extend({
    * @override
    */
   buttonNames,
+
+  /**
+   * Reference to Window object - can be stubbed for testing purposes.
+   * @type {Window}
+   */
+  _window: window,
 
   /**
    * Reference to Document object - can be stubbed for testing purposes.
@@ -736,8 +749,12 @@ export default BaseBrowserModel.extend({
   /**
    * @override
    */
-  onOpenFile(file) {
-    this.downloadFiles([file]);
+  onOpenFile(file, options) {
+    if (options && options.tapped) {
+      this.get('openConfirmDownload')(file);
+    } else {
+      this.downloadFiles([file]);
+    }
   },
 
   /**

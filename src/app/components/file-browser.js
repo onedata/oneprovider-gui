@@ -134,11 +134,6 @@ export default Component.extend(I18n, {
   spacePrivileges: Object.freeze({}),
 
   /**
-   * @type {Models.File}
-   */
-  fileForConfirmOpenModal: undefined,
-
-  /**
    * Initialized in init.
    * @type {EmberArray<String>}
    */
@@ -459,7 +454,7 @@ export default Component.extend(I18n, {
     }
   },
 
-  openFile(file, confirmModal = false) {
+  openFile(file, options = {}) {
     const effFile = get(file, 'effFile');
     if (!effFile) {
       return;
@@ -468,11 +463,7 @@ export default Component.extend(I18n, {
     if (isDir) {
       return this.changeDir(effFile);
     } else {
-      if (confirmModal) {
-        this.set('fileForConfirmOpenModal', file);
-      } else {
-        return this.onOpenFile(file);
-      }
+      return this.onOpenFile(file, options);
     }
   },
 
@@ -526,8 +517,8 @@ export default Component.extend(I18n, {
     selectCurrentDir() {
       this.selectCurrentDir();
     },
-    openFile(file) {
-      return this.openFile(file);
+    openFile(file, options) {
+      return this.openFile(file, options);
     },
     changeDir(dir) {
       return this.changeDir(dir);
@@ -555,12 +546,6 @@ export default Component.extend(I18n, {
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);
-    },
-    closeConfirmFileOpenModal() {
-      this.set('fileForConfirmOpenModal', null);
-    },
-    confirmFileOpen() {
-      return this.openFile([this.get('fileForConfirmOpenModal')]);
     },
   },
 });

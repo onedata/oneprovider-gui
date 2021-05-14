@@ -1040,7 +1040,7 @@ export default Component.extend(I18n, {
       if (areSomeFilesSelected) {
         return this.fileClicked(file, true, false);
       } else {
-        return this.get('openFile')(file, true);
+        return this.get('openFile')(file, { tapped: true });
       }
     },
 

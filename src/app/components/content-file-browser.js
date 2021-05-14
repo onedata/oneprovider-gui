@@ -22,6 +22,7 @@ import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -87,6 +88,11 @@ export default OneEmbeddedComponent.extend(
      * @type {Utils.FilesystemBrowserModel}
      */
     browserModel: undefined,
+
+    /**
+     * @type {Models.File}
+     */
+    fileForConfirmDownload: undefined,
 
     fileToShowInfo: undefined,
 
@@ -286,6 +292,7 @@ export default OneEmbeddedComponent.extend(
         openEditPermissions: this.openEditPermissionsModal.bind(this),
         openFileDistribution: this.openFileDistributionModal.bind(this),
         openQos: this.openQosModal.bind(this),
+        openConfirmDownload: this.openConfirmDownload.bind(this),
       });
     },
 
@@ -404,6 +411,9 @@ export default OneEmbeddedComponent.extend(
     openQosModal(files) {
       this.set('filesToShowQos', files);
     },
+    openConfirmDownload(file) {
+      this.set('fileForConfirmDownload', file);
+    },
     closeRenameModal() {
       this.setProperties({
         fileToRename: null,
@@ -475,6 +485,19 @@ export default OneEmbeddedComponent.extend(
        */
       getDataUrl(data) {
         return this.callParent('getDataUrl', data);
+      },
+
+      closeConfirmFileDownload() {
+        this.set('fileForConfirmDownload', null);
+      },
+      confirmFileDownload() {
+        return this.get('browserModel')
+          .downloadFiles([
+            this.get('fileForConfirmDownload'),
+          ])
+          .finally(() => {
+            safeExec(this, 'set', 'fileForConfirmDownload', null);
+          });
       },
     },
   }
