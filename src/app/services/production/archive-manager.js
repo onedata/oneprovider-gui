@@ -126,7 +126,7 @@ export default Service.extend({
    * @param {Number} offset
    * @returns {Promise<{ childrenRecords: Array<Models.Archive>, isLast: Boolean }>}
    */
-  async fetchChildrenArchives({
+  async fetchDatasetArchives({
     datasetId,
     scope = 'private',
     index,
@@ -136,14 +136,14 @@ export default Service.extend({
     if (!limit || limit <= 0) {
       return { childrenRecords: [], isLast: false };
     } else {
-      return this.fetchChildrenAttrs({
+      return this.fetchDatasetArchivesAttrs({
         datasetId,
         scope,
         index,
         limit,
         offset,
       }).then(async ({ archives, isLast }) => {
-        const childrenRecords = await this.pushChildrenAttrsToStore(
+        const childrenRecords = await this.pushAttrsToStore(
           archives,
           scope,
         );
@@ -153,13 +153,13 @@ export default Service.extend({
   },
 
   /**
-   * @param {Array<Object>} childrenAttrs data for creating Archive model
+   * @param {Array<Object>} attrs data for creating Archive model
    * @param {String} [scope='private'] currently only private is supported
    * @returns {Promise<Array<Model>>}
    */
-  async pushChildrenAttrsToStore(childrenAttrs, scope = 'private') {
+  async pushAttrsToStore(attrs, scope = 'private') {
     const store = this.get('store');
-    return childrenAttrs.map(attrsData => {
+    return attrs.map(attrsData => {
       attrsData.scope = scope;
       const modelData = store.normalize('archive', attrsData);
       return store.push(modelData);
@@ -174,7 +174,7 @@ export default Service.extend({
    * @param {Number} offset
    * @returns {Promise<{ datasets: Array, isLast: Boolean }>}
    */
-  async fetchChildrenAttrs({
+  async fetchDatasetArchivesAttrs({
     datasetId,
     scope = 'private',
     index,

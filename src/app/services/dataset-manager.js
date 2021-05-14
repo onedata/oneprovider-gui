@@ -1,5 +1,5 @@
 /**
- * Exports a real archive-manager service or its mock.
+ * Exports a real dataset-manager service or its mock.
  * @module services/dataset-manager
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH

@@ -16,9 +16,9 @@ export default ProductionManager.extend({
   /**
    * @override
    */
-  pushChildrenAttrsToStore(childrenAttrs) {
+  pushAttrsToStore(attrs) {
     const store = this.get('store');
-    return allFulfilled(childrenAttrs.map(attrs =>
+    return allFulfilled(attrs.map(attrs =>
       store.findRecord('archive', get(attrs, 'id'))
     ));
   },
