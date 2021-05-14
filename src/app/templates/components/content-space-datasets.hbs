@@ -39,4 +39,18 @@
     }}
   {{/if}}
 
+  {{!-- FIXME: dummy create modal to implement --}}
+  {{#if datasetToCreateArchive}}
+    {{#one-modal open=true as |modal|}}
+      <div class="row">
+        dataset: {{datasetToCreateArchive.name}}
+      </div>
+      <div class="row">
+        <button {{action closeCreateArchiveModal}}>
+          close
+        </button>
+      </div>
+    {{/one-modal}}
+  {{/if}}
+
 {{/promise-proxy-container}}

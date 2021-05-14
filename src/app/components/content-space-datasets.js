@@ -119,6 +119,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   selectedDatasets: undefined,
 
+  datasetToCreateArchive: undefined,
+
   spaceProxy: promise.object(computed('spaceId', function spaceProxy() {
     const {
       spaceManager,
@@ -281,6 +283,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       getDataUrl: this.getDataUrl.bind(this),
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openDatasetsModal: this.openDatasetsModal.bind(this),
+      openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openDatasetOpenModal: this.openDatasetOpenModal.bind(this),
     });
   },
@@ -373,6 +376,17 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   closeDatasetOpenModal() {
     this.set('fileToShowDatasetOpen', null);
+  },
+
+  /**
+   * @param {Models.Dataset} dataset dataset for which create archive form will be shown
+   */
+  openCreateArchiveModal(dataset) {
+    this.set('datasetToCreateArchive', dataset);
+  },
+
+  closeCreateArchiveModal() {
+    this.set('datasetToCreateArchive', null);
   },
 
   actions: {

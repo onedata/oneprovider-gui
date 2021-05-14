@@ -25,6 +25,7 @@ import _ from 'lodash';
 const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnShowFile',
+  'btnCreateArchive',
   'btnProtection',
   'btnChangeState',
   'btnRemove',
@@ -61,6 +62,18 @@ export default BaseBrowserModel.extend(I18n, {
    * @type {(dataset: Models.Dataset) => any}
    */
   openDatasetOpenModal: notImplementedThrow,
+
+  /**
+   * @override
+   * @type {(dataset: Models.Dataset) => any}
+   */
+  openDatasetsModal: notImplementedThrow,
+
+  /**
+   * @override
+   * @type {(dataset: Models.Dataset) => any}
+   */
+  openCreateArchiveModal: notImplementedThrow,
 
   /**
    * @override
@@ -107,7 +120,7 @@ export default BaseBrowserModel.extend(I18n, {
    */
   buttonNames: computed('attachmentState', function buttonNames() {
     if (this.get('attachmentState') === 'detached') {
-      return _.without(allButtonNames, 'btnProtection');
+      return _.without(allButtonNames, 'btnCreateArchive', 'btnProtection');
     } else {
       return [...allButtonNames];
     }
@@ -150,6 +163,21 @@ export default BaseBrowserModel.extend(I18n, {
       disabled: false,
       action: (datasets) => {
         return this.showRootFile(datasets[0]);
+      },
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleFile,
+        actionContext.currentDir,
+      ],
+    });
+  }),
+
+  btnCreateArchive: computed(function btnCreateArchive() {
+    return this.createFileAction({
+      id: 'createArchive',
+      icon: 'browser-archive',
+      action: (datasets) => {
+        return this.openCreateArchiveModal(datasets[0]);
       },
       showIn: [
         actionContext.singleDir,
