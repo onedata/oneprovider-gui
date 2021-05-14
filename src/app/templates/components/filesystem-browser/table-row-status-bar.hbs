@@ -1,7 +1,7 @@
 {{#if (and (not previewMode) (gt hardlinksCount 1))}}
   <div
     class="file-status-tag file-status-hardlinks"
-    {{action (action invokeFileAction file "btnInfo" "hardlinks") bubbles=false}}
+    {{action (action invokeFileAction file "info" "hardlinks") bubbles=false}}
   >
     {{tt this "status.hardlinks" hardlinksCount=hardlinksCount}}
   </div>
@@ -9,7 +9,7 @@
 {{#if (and (not previewMode) (not isSymlink) isShared)}}
   <div
     class="file-status-tag file-status-shared"
-    {{action (action invokeFileAction file "btnShare") bubbles=false}}
+    {{action (action invokeFileAction file "share") bubbles=false}}
   >
     {{tt this "status.shared"}}
   </div>
@@ -37,7 +37,7 @@
       {{action
         (if datasetsViewForbidden
           (no-action)
-          (action invokeFileAction file "btnDatasets")
+          (action invokeFileAction file "datasets")
         )
         bubbles=false
       }}
@@ -77,7 +77,7 @@
 {{#if (and (not isSymlink) hasMetadata)}}
   <div
     class="file-status-tag file-status-metadata"
-    {{action (action invokeFileAction file "btnMetadata") bubbles=false}}
+    {{action (action invokeFileAction file "metadata") bubbles=false}}
   >
     {{tt this "status.metadata"}}
   </div>
@@ -89,7 +89,7 @@
       (if previewMode "file-status-tag-warning")
     }}
     {{action
-      (action invokeFileAction file "btnPermissions")
+      (action invokeFileAction file "permissions")
       bubbles=false
     }}
   >
@@ -110,7 +110,7 @@
     {{action
       (if qosViewForbidden
         (no-action)
-        (action invokeFileAction file "btnQos")
+        (action invokeFileAction file "qos")
       )
       bubbles=false
     }}

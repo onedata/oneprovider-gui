@@ -543,12 +543,12 @@ export default Component.extend(I18n, {
     changeSelectedFiles(selectedFiles) {
       return this.get('changeSelectedFiles')(selectedFiles);
     },
-    invokeFileAction(file, btnName, ...actionArgs) {
+    invokeFileAction(file, btnId, ...actionArgs) {
       this.get('changeSelectedFiles')([file]);
-      const btn = this.get('allButtonsHash')[btnName];
+      const btn = this.get('allButtonsHash')[btnId];
       if (!btn) {
         throw new Error(
-          `component:file-browser#actions.invokeFileAction: no such action button: ${btnName}`
+          `component:file-browser#actions.invokeFileAction: no action button with id: ${btnId}`
         );
       }
       next(this, () => btn.action(undefined, ...actionArgs));

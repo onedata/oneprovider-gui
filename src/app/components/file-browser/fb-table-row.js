@@ -452,8 +452,8 @@ export default Component.extend(I18n, FastDoubleClick, {
     openContextMenu() {
       this.openContextMenu(...arguments);
     },
-    invokeFileAction(file, btnName, ...args) {
-      this.get('invokeFileAction')(file, btnName, ...args);
+    invokeFileAction(file, btnId, ...args) {
+      this.get('invokeFileAction')(file, btnId, ...args);
     },
   },
 });

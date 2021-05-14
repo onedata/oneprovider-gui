@@ -122,7 +122,22 @@ export default BaseBrowserModel.extend(I18n, {
    * Which state tree of datasets is displayed.
    * @type {ComputedProperty<String>}
    */
-  attachmentState: reads('spaceDatasetsViewState.attachmentState'),
+  attachmentState: reads('spaceDatasetsViewState.attachmentState').readOnly(),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  areMultipleSelected: computed('selectionContext', function areMultipleSelected() {
+    const selectionContext = this.get('selectionContext');
+    return [
+      actionContext.multiFile,
+      actionContext.multiDir,
+      actionContext.multiMixed,
+      actionContext.multiFilePreview,
+      actionContext.mutliDirPreview,
+      actionContext.multiMixedPreview,
+    ].includes(selectionContext);
+  }),
 
   //#region Action buttons
 
@@ -151,7 +166,7 @@ export default BaseBrowserModel.extend(I18n, {
       id: 'showFile',
       icon: isAttachAction ? 'plug-in' : 'plug-out',
       title: this.t(
-        'fileActions.changeState.' + (isAttachAction ? 'attach' : 'detach')
+        `fileActions.changeState.${isAttachAction ? 'attach' : 'detach'}`
       ),
       action: (datasets) => {
         return this.askForToggleAttachment(
@@ -165,10 +180,12 @@ export default BaseBrowserModel.extend(I18n, {
     });
   }),
 
-  btnRemove: computed(function btnRemove() {
+  btnRemove: computed('areMultipleSelected', function btnRemove() {
+    const areMultipleSelected = this.get('areMultipleSelected');
     return this.createFileAction({
       id: 'remove',
       icon: 'browser-delete',
+      title: this.t(`fileActions.remove.${areMultipleSelected ? 'multi' : 'single'}`),
       action: (datasets) => {
         return this.askForRemoveDatasets(datasets);
       },
@@ -234,21 +251,22 @@ export default BaseBrowserModel.extend(I18n, {
     const count = get(datasets, 'length');
     const attach = targetState === 'attached';
     const actionName = (attach ? 'attach' : 'detach');
-    const pluralType = count > 1 ? 'multi' : 'single';
-    let introText;
-    if (count > 1) {
-      introText = this.t('toggleDatasetAttachment.introMulti.' + actionName, {
+    const isMulti = count > 1;
+    const pluralType = isMulti ? 'multi' : 'single';
+    const descriptionKey = `toggleDatasetAttachment.intro.${actionName}.${pluralType}`;
+    let descriptionInterpolation;
+    if (isMulti) {
+      descriptionInterpolation = {
         count,
-      });
+      };
     } else {
-      introText = this.t(
-        'toggleDatasetAttachment.introSingle.' + actionName, {
-          name: get(datasets[0], 'name'),
-          path: get(datasets[0], 'rootFilePath'),
-          fileType: this.t('fileType.' + get(datasets[0], 'rootFileType')),
-        }
-      );
+      descriptionInterpolation = {
+        name: get(datasets[0], 'name'),
+        path: get(datasets[0], 'rootFilePath'),
+        fileType: this.t('fileType.' + get(datasets[0], 'rootFileType')),
+      };
     }
+    const introText = this.t(descriptionKey, descriptionInterpolation);
     return modalManager.show('question-modal', {
         headerIcon: attach ? 'sign-info-rounded' : 'sign-warning-rounded',
         headerText: this.t(
@@ -285,22 +303,24 @@ export default BaseBrowserModel.extend(I18n, {
       modalManager,
       globalNotify,
     } = this.getProperties('modalManager', 'globalNotify');
-    const descriptionInterpolation = {};
     const count = get(datasets, 'length');
-    if (count > 1) {
-      descriptionInterpolation.selectedText = this.t('remove.selectedText.multi', {
+    const isMulti = count > 1;
+    const descriptionKey = `remove.description.${isMulti ? 'multi' : 'single'}`;
+    let descriptionInterpolation;
+    if (isMulti) {
+      descriptionInterpolation = {
         count,
-      });
+      };
     } else {
-      descriptionInterpolation.selectedText = this.t('remove.selectedText.single', {
+      descriptionInterpolation = {
         name: get(datasets, 'firstObject.name'),
-      });
+      };
     }
     return modalManager.show('question-modal', {
       headerIcon: 'sign-warning-rounded',
-      headerText: this.t('remove.header.' + (count > 1 ? 'multi' : 'single')),
+      headerText: this.t('remove.header.' + (isMulti ? 'multi' : 'single')),
       descriptionParagraphs: [{
-        text: this.t('remove.description', descriptionInterpolation),
+        text: this.t(descriptionKey, descriptionInterpolation),
       }, {
         text: this.t('remove.proceedQuestion'),
       }],

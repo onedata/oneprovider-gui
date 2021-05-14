@@ -92,11 +92,6 @@
   thead > tr > th:first-of-type {
     padding-left: $file-browser-padding-left;
   }
-  @media (max-width: $screen-xs-max) {
-    .fb-table-col-size, .fb-table-col-modification {
-      display: none;
-    }
-  }
   .fb-table-thead th:first-of-type {
     text-align: left;
   }

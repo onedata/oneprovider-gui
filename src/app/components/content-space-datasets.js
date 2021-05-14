@@ -275,13 +275,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   createBrowserModel() {
-    const attachmentState = this.get('attachmentState');
     return DatasetBrowserModel.create({
       ownerSource: this,
       spaceDatasetsViewState: this,
       getDataUrl: this.getDataUrl.bind(this),
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
-      attachmentState,
       openDatasetsModal: this.openDatasetsModal.bind(this),
       openDatasetOpenModal: this.openDatasetOpenModal.bind(this),
     });
