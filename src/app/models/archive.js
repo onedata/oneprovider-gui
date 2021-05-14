@@ -32,7 +32,8 @@ export default Model.extend(GraphSingleModelMixin, {
    * Object params:
    * - `incremental: Boolean`
    * - `layout: String`, one of: `bagit`, `plain`
-   * - `includeDip: Boolean`
+   * - `includeDip: Boolean` - if true dissemination information package (DIP) is created
+   *      alongside with archival information package (AIP), on the storage
    * @type {Object}
    */
   config: attr('object'),
