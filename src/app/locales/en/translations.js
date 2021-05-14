@@ -4,6 +4,7 @@ import onedataCommonTranslations from './onedata-gui-common';
 import aclEditor from './components/acl-editor';
 import editPermissionsModal from './components/edit-permissions-modal';
 import contentFileBrowser from './components/content-file-browser';
+import contentSpaceDatasets from './components/content-space-datasets';
 import fileBrowser from './components/file-browser';
 import posixPermissionsEditor from './components/posix-permissions-editor';
 import fileDistributionModal from './components/file-distribution-modal';
@@ -20,16 +21,22 @@ import shareShow from './components/share-show';
 import qosExpressionInfo from './components/qos-expression-info';
 import qosEvaluationInfo from './components/qos-evaluation-info';
 import queryBuilder from './components/query-builder';
+import filesystemBrowser from './components/filesystem-browser';
+import datasetBrowser from './components/dataset-browser';
 
 import uploadManager from './services/upload-manager';
 
 import handleMultiFilesOperation from './utils/handle-multi-files-operation';
+import baseBrowserModel from './utils/base-browser-model';
+import filesystemBrowserModel from './utils/filesystem-browser-model';
+import datasetBrowserModel from './utils/dataset-browser-model';
 
 const translations = {
   components: {
     aclEditor,
     editPermissionsModal,
     contentFileBrowser,
+    contentSpaceDatasets,
     fileBrowser,
     posixPermissionsEditor,
     fileDistributionModal,
@@ -46,12 +53,17 @@ const translations = {
     qosExpressionInfo,
     qosEvaluationInfo,
     queryBuilder,
+    filesystemBrowser,
+    datasetBrowser,
   },
   services: {
     uploadManager,
   },
   utils: {
     handleMultiFilesOperation,
+    baseBrowserModel,
+    filesystemBrowserModel,
+    datasetBrowserModel,
   },
 };
 

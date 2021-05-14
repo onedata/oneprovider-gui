@@ -12,6 +12,7 @@ export default {
   questionSuffix: {
     file: 'this file?',
     dir: 'this directory and its contents?',
+    symlink: 'this symlink?',
     multi: 'these {{count}} items?',
     multiMany: '{{count}} selected items?',
   },

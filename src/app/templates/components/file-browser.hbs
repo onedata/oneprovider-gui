@@ -8,6 +8,7 @@
         menuButtons=currentDirMenuButtons
         resolveFileParentFun=resolveFileParentFun
         previewMode=previewMode
+        rootIcon=rootIcon
         changeDir=(action "changeDir")
         selectCurrentDir=(action "selectCurrentDir")
       }}
@@ -35,6 +36,7 @@
 <div class="fb-table-container">
   {{file-browser/fb-table
     dir=dir
+    browserModel=browserModel
     selectedFiles=selectedFiles
     selectedFilesForJump=selectedFilesForJump
     selectionContext=selectionContext
@@ -46,9 +48,9 @@
     isSpaceOwned=isSpaceOwned
     spacePrivileges=spacePrivileges
     loadingIconFileIds=loadingIconFileIds
-    downloadFiles=(action downloadFiles)
     invokeFileAction=(action "invokeFileAction")
     changeSelectedFiles=(action "changeSelectedFiles")
+    openFile=(action "openFile")
     changeDir=(action "changeDir")
     containerScrollTop=(action "containerScrollTop")
     registerApi=(action (mut fbTableApi))

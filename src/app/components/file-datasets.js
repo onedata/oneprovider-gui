@@ -17,8 +17,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { promise } from 'ember-awesome-macros';
-import { allSettled } from 'rsvp';
+import { promise, equal, raw } from 'ember-awesome-macros';
+import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -42,6 +42,15 @@ export default Component.extend(I18n, {
   editPrivilege: true,
 
   /**
+   * One of: file, dataset.
+   * - file: suitable for filesystem-browser, allow to toggle attachment state
+   * - dataset: suitable for dataset-browser, no attachment toggle
+   * @virtual optional
+   * @type {String}
+   */
+  mode: 'file',
+
+  /**
    * @virtual
    * Callback when the modal is starting to hide
    * @type {Function}
@@ -51,10 +60,18 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * Callback to generate URL to file (here: selecting the file).
-   * See parent-action `getDataUrl` in `component:content-file-browser`
+   * See eg. parent-action `getDataUrl` in `component:content-file-browser`
    * @type {Function}
    */
   getDataUrl: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * Callback to generate URL to dataset (here: selecting the dataset).
+   * See eg. parent-action `getDatsetUrl` in `component:content-space-datasets`
+   * @type {Function}
+   */
+  getDatasetsUrl: notImplementedIgnore,
 
   /**
    * @virtual
@@ -73,6 +90,8 @@ export default Component.extend(I18n, {
     data: 'provider',
     metadata: 'browser-attribute',
   }),
+
+  showAttachmentToggle: equal('mode', raw('file')),
 
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
@@ -170,21 +189,33 @@ export default Component.extend(I18n, {
       const {
         fileManager,
         file,
-      } = this.getProperties('fileManager', 'file');
-      if (file && fileInvokingUpdate !== file) {
-        const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
-        const promises = [
-          file.reload(),
-          fileDatasetSummaryRelation.reload(),
-        ];
-        // refresh opened file parent and its children only if invoker is not this parent
-        const parentRelation = file.belongsTo('parent');
-        if (get(fileInvokingUpdate, 'id') !== parentRelation.id()) {
-          promises.push(parentRelation.reload());
-          promises.push(fileManager.fileParentRefresh(file));
-        }
-        await allSettled(promises);
+      } = this.getProperties('fileManager', 'file', 'mode');
+      if (!file || fileInvokingUpdate === file) {
+        return;
       }
+      const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
+      const promises = [
+        file.reload(),
+        fileDatasetSummaryRelation.reload(),
+      ];
+      // refresh opened file parent and its children only if invoker is not this parent
+      const parentRelation = file.belongsTo('parent');
+      if (get(fileInvokingUpdate, 'id') !== parentRelation.id()) {
+        promises.push(parentRelation.reload());
+        promises.push(fileManager.fileParentRefresh(file));
+      }
+
+      const invokingDatasetSummary =
+        await get(fileInvokingUpdate, 'fileDatasetSummary');
+      const invokingDataset = invokingDatasetSummary &&
+        await get(invokingDatasetSummary, 'directDataset');
+      const directDataset = await this.get('directDatasetProxy');
+      if (invokingDataset) {
+        const datasetParentRelation = directDataset.belongsTo('parent');
+        promises.push(datasetParentRelation.reload());
+        promises.push(fileManager.fileParentRefresh(directDataset));
+      }
+      await allFulfilled(promises);
     },
   },
 });

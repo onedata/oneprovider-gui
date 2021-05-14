@@ -5,8 +5,10 @@ export const dataWriteProtectionEnabled =
 
 export default {
   fileType,
+  dataset: 'dataset',
   protectionType,
   datasets: 'Datasets',
+  protectionHeader: 'Write protection',
   hint: {
     title: 'Datasets',
     intro: 'Datasets allow the space users to organize their data into collections with desired granularity. A file or directory marked as a dataset offers additional features, such as optional data and metadata protection or the ability to create persistent snapshots of the physical dataset contents. In case of a directory, a dataset covers all its subdirectories and files. Datasets can be nested, allowing users to compose arbitrary hierarchical structures.',
@@ -14,14 +16,14 @@ export default {
     close: 'OK',
   },
   fileProtectionTag: {
-    enabled: '{{fileTypeUpper}} {{protectionType}} is write protected',
-    disabled: '{{fileTypeUpper}} {{protectionType}} is write enabled',
+    enabled: '{{fileTypeUpper}}\'s {{protectionType}} is write protected',
+    disabled: '{{fileTypeUpper}}\'s {{protectionType}} is write enabled',
   },
   fileProtectionTagTip: {
     enabled: {
       data: dataWriteProtectionEnabled,
       metadata: 'Metadata write protection causes files and directories to be protected from modifying their metadata, such as permissions, ACLs, or custom JSON/RDF/xattr metadata. Modification attempts will be rejected with EPERM POSIX error.',
     },
-    disabled: 'The {{fileType}} {{protectionType}} is currently not write protected and can be modified with no additional restrictions.',
+    disabled: 'The {{fileType}}\'s {{protectionType}} is currently not write protected and can be modified with no additional restrictions.',
   },
 };

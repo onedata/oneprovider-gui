@@ -21,6 +21,8 @@ import { resolve } from 'rsvp';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
+import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -39,6 +41,32 @@ export default OneEmbeddedComponent.extend(
     globalNotify: service(),
 
     /**
+     * Entity ID of space for which the file browser is rendered.
+     * 
+     * **Injected from parent frame.**
+     * @virtual
+     * @type {String}
+     */
+    spaceEntityId: undefined,
+
+    /**
+     * Entity ID of currently opened directory in file browser.
+     * 
+     * **Injected from parent frame.**
+     * @virtual optional
+     */
+    dirEntityId: undefined,
+
+    /**
+     * Array of file IDs that should be selected on file browser init.
+     * 
+     * **Injected from parent frame.**
+     * @virtual optional
+     * @type {Array<String>}
+     */
+    selected: undefined,
+
+    /**
      * @virtual optional
      * @type {Function}
      */
@@ -53,12 +81,18 @@ export default OneEmbeddedComponent.extend(
       'selected',
     ]),
 
-    /**
-     * @virtual optional
-     */
-    dirEntityId: undefined,
-
     _window: window,
+
+    /**
+     * Set on init.
+     * @type {Utils.FilesystemBrowserModel}
+     */
+    browserModel: undefined,
+
+    /**
+     * @type {Models.File}
+     */
+    fileForConfirmDownload: undefined,
 
     fileToShowInfo: undefined,
 
@@ -210,7 +244,6 @@ export default OneEmbeddedComponent.extend(
 
     /**
      * Observer: watch if injected selection and dir changed to redirect to correct URL
-     * @type <Function>
      */
     injectedDirObserver: observer(
       'injectedDirGri',
@@ -222,7 +255,6 @@ export default OneEmbeddedComponent.extend(
 
     /**
      * Observer: override selected files when value injected from outside changes
-     * @type <Function>
      */
     injectedSelectedChanged: observer(
       'selectedFilesForJumpProxy.content',
@@ -244,6 +276,24 @@ export default OneEmbeddedComponent.extend(
       if (!this.get('selectedFiles')) {
         this.set('selectedFiles', []);
       }
+      this.set('browserModel', this.createBrowserModel());
+    },
+
+    createBrowserModel() {
+      return FilesystemBrowserModel.create({
+        ownerSource: this,
+        openCreateNewDirectory: (parent) => this.openCreateItemModal('dir', parent),
+        openRemove: this.openRemoveModal.bind(this),
+        openRename: this.openRenameModal.bind(this),
+        openInfo: this.openInfoModal.bind(this),
+        openMetadata: this.openMetadataModal.bind(this),
+        openShare: this.openShareModal.bind(this),
+        openDatasets: this.openDatasetsModal.bind(this),
+        openEditPermissions: this.openEditPermissionsModal.bind(this),
+        openFileDistribution: this.openFileDistributionModal.bind(this),
+        openQos: this.openQosModal.bind(this),
+        openConfirmDownload: this.openConfirmDownload.bind(this),
+      });
     },
 
     /**
@@ -291,51 +341,103 @@ export default OneEmbeddedComponent.extend(
       }
     },
 
-    closeCreateItemModal() {
+    openCreateItemModal(itemType, parentDir) {
+      this.setProperties({
+        createItemParentDir: parentDir,
+        createItemType: itemType,
+      });
+    },
+    closeCreateItemModal(isCreated, file) {
+      if (isCreated && file) {
+        const fileId = get(file, 'entityId');
+        this.callParent('updateSelected', [fileId]);
+      }
       this.setProperties({
         createItemParentDir: null,
         createItemType: null,
       });
     },
-
-    closeRemoveModal() {
+    openRemoveModal(files, parentDir) {
+      this.setProperties({
+        filesToRemove: [...files],
+        removeParentDir: parentDir,
+      });
+    },
+    closeRemoveModal(removeInvoked, results) {
+      const newIds = [];
+      if (removeInvoked) {
+        for (const fileId in results) {
+          if (get(results[fileId], 'state') === 'rejected') {
+            newIds.push(fileId);
+          }
+        }
+      }
+      this.set(
+        'selectedFiles',
+        this.get('filesToRemove').filter(file => newIds.includes(get(file, 'entityId')))
+      );
       this.setProperties({
         filesToRemove: null,
         removeParentDir: null,
       });
     },
-
+    openRenameModal(file, parentDir) {
+      this.setProperties({
+        fileToRename: file,
+        renameParentDir: parentDir,
+      });
+    },
+    openInfoModal(file, activeTab) {
+      this.setProperties({
+        fileToShowInfo: file,
+        showInfoInitialTab: activeTab || 'general',
+      });
+    },
+    openMetadataModal(file) {
+      this.set('fileToShowMetadata', file);
+    },
+    openDatasetsModal(files) {
+      this.set('filesToShowDatasets', files);
+    },
+    openShareModal(file) {
+      this.set('fileToShare', file);
+    },
+    openEditPermissionsModal(files) {
+      this.set('filesToEditPermissions', [...files]);
+    },
+    openFileDistributionModal(files) {
+      this.set('filesToShowDistribution', [...files]);
+    },
+    openQosModal(files) {
+      this.set('filesToShowQos', files);
+    },
+    openConfirmDownload(file) {
+      this.set('fileForConfirmDownload', file);
+    },
     closeRenameModal() {
       this.setProperties({
         fileToRename: null,
         renameParentDir: null,
       });
     },
-
     closeInfoModal() {
       this.set('fileToShowInfo', null);
     },
-
     closeMetadataModal() {
       this.set('fileToShowMetadata', null);
     },
-
     closeShareModal() {
       this.set('fileToShare', null);
     },
-
     closeDatasetsModal() {
       this.set('filesToShowDatasets', null);
     },
-
     closeEditPermissionsModal() {
       this.set('filesToEditPermissions', null);
     },
-
     closeFileDistributionModal() {
       this.set('filesToShowDistribution', null);
     },
-
     closeQosModal() {
       this.set('filesToShowQos', null);
     },
@@ -361,94 +463,6 @@ export default OneEmbeddedComponent.extend(
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
       },
-      openCreateItemModal(itemType, parentDir) {
-        this.setProperties({
-          createItemParentDir: parentDir,
-          createItemType: itemType,
-        });
-      },
-      closeCreateItemModal(isCreated, file) {
-        if (isCreated && file) {
-          const fileId = get(file, 'entityId');
-          this.callParent('updateSelected', [fileId]);
-        }
-        this.closeCreateItemModal();
-      },
-      openRemoveModal(files, parentDir) {
-        this.setProperties({
-          filesToRemove: [...files],
-          removeParentDir: parentDir,
-        });
-      },
-      closeRemoveModal(removeInvoked, results) {
-        const newIds = [];
-        if (removeInvoked) {
-          for (const fileId in results) {
-            if (get(results[fileId], 'state') === 'rejected') {
-              newIds.push(fileId);
-            }
-          }
-        }
-        this.set(
-          'selectedFiles',
-          this.get('filesToRemove').filter(file => newIds.includes(get(file, 'entityId')))
-        );
-        this.closeRemoveModal();
-      },
-      openRenameModal(file, parentDir) {
-        this.setProperties({
-          fileToRename: file,
-          renameParentDir: parentDir,
-        });
-      },
-      closeRenameModal() {
-        this.closeRenameModal();
-      },
-      openInfoModal(file, activeTab) {
-        this.setProperties({
-          fileToShowInfo: file,
-          showInfoInitialTab: activeTab || 'general',
-        });
-      },
-      closeInfoModal() {
-        this.closeInfoModal();
-      },
-      openMetadataModal(file) {
-        this.set('fileToShowMetadata', file);
-      },
-      closeMetadataModal() {
-        this.closeMetadataModal();
-      },
-      openDatasetsModal(files) {
-        this.set('filesToShowDatasets', files);
-      },
-      closeDatasetsModal() {
-        this.closeDatasetsModal();
-      },
-      openShareModal(file) {
-        this.set('fileToShare', file);
-      },
-      closeShareModal() {
-        this.closeShareModal();
-      },
-      openEditPermissionsModal(files) {
-        this.set('filesToEditPermissions', [...files]);
-      },
-      closeEditPermissionsModal() {
-        this.closeEditPermissionsModal();
-      },
-      openFileDistributionModal(files) {
-        this.set('filesToShowDistribution', [...files]);
-      },
-      closeFileDistributionModal() {
-        this.closeFileDistributionModal();
-      },
-      openQosModal(files) {
-        this.set('filesToShowQos', files);
-      },
-      closeQosModal() {
-        this.closeQosModal();
-      },
       changeSelectedFiles(selectedFiles) {
         this.set('selectedFiles', selectedFiles);
       },
@@ -471,6 +485,19 @@ export default OneEmbeddedComponent.extend(
        */
       getDataUrl(data) {
         return this.callParent('getDataUrl', data);
+      },
+
+      closeConfirmFileDownload() {
+        this.set('fileForConfirmDownload', null);
+      },
+      confirmFileDownload() {
+        return this.get('browserModel')
+          .downloadFiles([
+            this.get('fileForConfirmDownload'),
+          ])
+          .finally(() => {
+            safeExec(this, 'set', 'fileForConfirmDownload', null);
+          });
       },
     },
   }

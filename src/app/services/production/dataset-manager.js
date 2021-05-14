@@ -24,6 +24,21 @@ export default Service.extend({
   fileManager: service(),
 
   /**
+   * @param {String} datasetId entityId of dataset
+   * @param {String} scope currently only 'private' is supported
+   * @returns {Promise<Models.Dataset>}
+   */
+  async getDataset(datasetId, scope = 'private') {
+    const requestGri = gri({
+      entityType: datasetEntityType,
+      entityId: datasetId,
+      aspect: 'instance',
+      scope,
+    });
+    return this.get('store').findRecord('dataset', requestGri);
+  },
+
+  /**
    * @param {Models.File} file
    * @returns {Promise<Models.Dataset>}
    */
@@ -58,11 +73,11 @@ export default Service.extend({
 
   /**
    * @param {Models.Dataset} dataset
-   * @param {Boolean} state whether dataset should be active for its rootFile
+   * @param {Boolean} attach whether dataset should be active for its rootFile
    * @returns {Promise<Models.Dataset>}
    */
-  async toggleDatasetAttachment(dataset, state) {
-    set(dataset, 'state', state ? 'attached' : 'detached');
+  async toggleDatasetAttachment(dataset, attach) {
+    set(dataset, 'state', attach ? 'attached' : 'detached');
     await dataset.save();
     const fileRelation = dataset.belongsTo('rootFile');
     if (fileRelation && fileRelation.id()) {
@@ -118,12 +133,25 @@ export default Service.extend({
         unsetProtectionFlags,
       },
     });
-    await dataset.reload();
+    await this.updateDatasetData(dataset);
     const file = await get(dataset, 'rootFile');
     if (file) {
       this.updateFileDatasetsData(file);
     }
     return dataset;
+  },
+
+  async updateDatasetData(dataset) {
+    const fileManager = this.get('fileManager');
+    const promises = [
+      dataset.reload(),
+    ];
+    if (get(dataset, 'rootFileType') === 'dir') {
+      promises.push(
+        fileManager.dirChildrenRefresh(get(dataset, 'entityId'))
+      );
+    }
+    await allSettled(promises);
   },
 
   async updateFileDatasetsData(file) {

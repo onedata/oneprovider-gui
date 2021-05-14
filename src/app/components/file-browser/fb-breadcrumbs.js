@@ -3,7 +3,7 @@
  *
  * @module components/file-browser/fb-breadcrumbs
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -22,7 +22,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-res
 import { inject as service } from '@ember/service';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
-import { conditional, raw, isEmpty } from 'ember-awesome-macros';
+import { isEmpty } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 /**
@@ -91,6 +91,12 @@ export default Component.extend(
     previewMode: false,
 
     /**
+     * @virtual optional
+     * @type {String}
+     */
+    rootIcon: 'space',
+
+    /**
      * If true, add breadcrumbs-recomputing CSS class to breadcrumbs-inner
      * to hide breadcrumbs smoothly for the time of testing its width.
      * @type {boolean}
@@ -113,8 +119,6 @@ export default Component.extend(
     _window: window,
 
     areItemsEmpty: isEmpty('filteredBreadcrumbsItemsProxy'),
-
-    rootIcon: conditional('previewMode', raw('share'), raw('home')),
 
     /**
      * Style assigned to current directory button - needed for truncating.

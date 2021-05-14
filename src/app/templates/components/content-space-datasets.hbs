@@ -1,0 +1,42 @@
+{{#promise-proxy-container proxy=initialRequiredDataProxy}}
+  {{#if browsableDataset}}
+    {{file-browser
+      browserModel=browserModel
+      dir=browsableDataset
+      customRootDir=spaceDatasetsRoot
+      customFetchDirChildren=(if isInRoot
+        (action fetchSpaceDatasets)
+        (action fetchDatasetChildren)
+      )
+      resolveFileParentFun=(action resolveFileParentFun)
+      spaceId=spaceId
+      spacePrivileges=spacePrivileges
+      selectedFiles=selectedDatasets
+      isSpaceOwned=space.currentUserIsOwner
+      changeSelectedFiles=(action "changeSelectedDatasets")
+      updateDirEntityId=(action "updateDatasetId")
+    }}
+  {{/if}}
+  
+  {{#if filesToShowDatasets}}
+    {{datasets-modal
+      open=true
+      mode="dataset"
+      files=filesToShowDatasets
+      editPrivilege=true
+      onHide=(action closeDatasetsModal)
+      getDataUrl=(action getDataUrl)
+      getDatasetsUrl=(action getDatasetsUrl)
+    }}
+  {{/if}}
+
+  {{#if fileToShowDatasetOpen}}
+    {{dataset-browser/dataset-open-modal
+      open=true
+      dataset=fileToShowDatasetOpen
+      onHide=(action closeDatasetOpenModal)
+      getDataUrl=(action getDataUrl)
+    }}
+  {{/if}}
+
+{{/promise-proxy-container}}

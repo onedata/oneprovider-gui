@@ -31,6 +31,15 @@ export default Component.extend(I18n, {
   file: undefined,
 
   /**
+   * One of: file, dataset.
+   * - file: suitable for filesystem-browser
+   * - dataset: suitable for dataset-browser
+   * @virtual optional
+   * @type {String}
+   */
+  mode: 'file',
+
+  /**
    * @virtual
    * @type {PromiseObject<Models.FileDatasetSummary>}
    */

@@ -14,6 +14,7 @@ import { computed } from '@ember/object';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import { conditional, equal, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   tagName: 'tbody',
@@ -98,11 +99,20 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  ancestorIcon: conditional(
+    equal('mode', raw('file')),
+    raw('browser-directory'),
+    raw('browser-dataset')
+  ),
+
   actions: {
     toggleParentDatasetsCollapse() {
       this.toggleProperty('ancestorDatasetsCollapsed');
     },
-    fileLinkClicked(event) {
+    ancestorLinkClicked(event) {
       this.get('close')();
       event.stopPropagation();
     },

@@ -1,0 +1,28 @@
+{{#one-modal
+  open=open
+  backdropClose=true
+  keyboard=true
+  class="dataset-open-modal"
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header"}}</h1>
+  {{/modal.header}}
+  {{#modal.body}}
+    <p>
+      {{tt this "description"}}
+    </p>
+    <p class="root-file-path">
+      <code>{{dataset.rootFilePath}}</code>
+    </p>
+  {{/modal.body}}
+
+  {{#modal.footer class="btn-toolbar"}}
+    {{#bs-button onClick=(action onHide) type="default" class="close-btn"}}
+      {{tt this "close"}}
+    {{/bs-button}}
+    <a class="btn btn-primary" href={{fileHref}} target={{navigateOnezoneTarget}}>
+      {{tt this "open"}}
+    </a>
+  {{/modal.footer}}
+{{/one-modal}}

@@ -1,5 +1,4 @@
 import fbTable from './file-browser/fb-table';
-import fbTableRow from './file-browser/fb-table-row';
 import fbToolbar from './file-browser/fb-toolbar';
 import fbSelectionToolkit from './file-browser/fb-selection-toolkit';
 import fbCreateItemModal from './file-browser/fb-create-item-modal';
@@ -12,61 +11,11 @@ import fbMetadataModal from './file-browser/fb-metadata-modal';
 import fbMetadataXattrs from './file-browser/fb-metadata-xattrs';
 import fbMetadataJson from './file-browser/fb-metadata-json';
 import fbMetadataRdf from './file-browser/fb-metadata-rdf';
+import fbDirLoadError from './file-browser/fb-dir-load-error';
 
 export default {
   menuCurrentDir: 'Current directory',
-  refreshingDirectory: 'refreshing directory',
-  startingDownload: 'starting file download',
-  pasteFailed: {
-    move: 'moving some of files',
-    copy: 'copying some of files',
-  },
-  linkFailed: 'linking some of files',
-  pasteFailedDetails: {
-    single: '{{reason}}',
-    multi: '{{reason}} and {{moreCount}} more errors',
-  },
-  fileActions: {
-    upload: 'Upload files',
-    newDirectory: 'New directory',
-    refresh: 'Refresh',
-    info: 'Information',
-    download: 'Download',
-    downloadTar: 'Download (tar)',
-    share: 'Share',
-    metadata: 'Metadata',
-    datasets: 'Datasets',
-    permissions: 'Permissions',
-    qos: 'Quality of Service',
-    distribution: 'Data distribution',
-    rename: 'Rename',
-    createSymlinkSingular: 'Create symbolic link',
-    createSymlinkPlural: 'Create symbolic links',
-    createHardlinkSingular: 'Create hard link',
-    createHardlinkPlural: 'Create hard links',
-    placeSymlink: 'Place symbolic link',
-    placeHardlink: 'Place hard link',
-    copy: 'Copy',
-    cut: 'Cut',
-    delete: 'Delete',
-    paste: 'Paste',
-  },
-  disabledActionReason: {
-    protectionType: {
-      data: 'data',
-      metadata: 'metadata',
-    },
-    writeProtected: 'Not available for files with {{protectionType}} write protection.',
-    blockedFileType: 'Not available for {{fileType}}.',
-    fileTypesPlural: {
-      file: 'files',
-      dir: 'directories',
-      symlink: 'symbolic links',
-    },
-    and: 'and',
-  },
   fbTable,
-  fbTableRow,
   fbToolbar,
   fbSelectionToolkit,
   fbCreateItemModal,
@@ -79,4 +28,5 @@ export default {
   fbMetadataXattrs,
   fbMetadataJson,
   fbMetadataRdf,
+  fbDirLoadError,
 };

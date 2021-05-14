@@ -38,170 +38,43 @@
               </span>
             {{/truncated-string}}
           </div>
-          <div class="file-status-bar">
-            {{#if (and (not previewMode) (gt hardlinksCount 1))}}
-              <div class="file-status-tag file-status-hardlinks" {{action (action "invokeFileAction" file "btnInfo" "hardlinks") bubbles=false}}>
-                {{tt this "status.hardlinks" hardlinksCount=hardlinksCount}}
-              </div>
-            {{/if}}
-            {{#if (and (not previewMode) (not isSymlink) isShared)}}
-              <div class="file-status-tag file-status-shared" {{action (action "invokeFileAction" file "btnShare") bubbles=false}}>
-                {{tt this "status.shared"}}
-              </div>
-            {{/if}}
-            {{#if nameConflict}}
-              <div class="file-status-tag file-status-tag-danger file-status-conflict">
-                {{tt this "status.conflict"}}
-                {{one-tooltip title=(tt this "otherFileSameName")}}
-              </div>
-            {{/if}}
-            {{#if (and (not isSymlink) isForbidden)}}
-              <div class="file-status-tag file-status-tag-warning file-status-forbidden">
-                {{tt this "status.forbidden"}}
-                {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
-              </div>
-            {{/if}}
-            {{#if showDatasetTag}}
-              <div class="file-status-tag-group dataset-file-status-tag-group">
-                <div
-                  class={{concat-classes
-                    "file-status-tag"
-                    "file-status-dataset"
-                    (if datasetsViewForbidden "file-status-tag-disabled")
-                  }}
-                  {{action
-                    (if datasetsViewForbidden
-                      (no-action)
-                      (action "invokeFileAction" file "btnDatasets")
-                    )
-                    bubbles=false
-                  }}
-                >
-                  {{#if (eq effDatasetMembership "direct")}}
-                    {{tt this "status.dataset"}}
-                  {{else if (eq effDatasetMembership "ancestor")}}
-                    {{tt this "status.dataset"}}&nbsp;{{one-icon class="dataset-status-arrow dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
-                  {{/if}}
-                  {{#if datasetsViewForbidden}}
-                    {{one-tooltip title=hintDatasetsViewForbidden}}
-                  {{/if}}
-                </div>
-                {{#if hasAnyProtectionFlag}}
-                  <div
-                    class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
-                  >
-                    {{#if dataIsProtected}}
-                      {{one-icon
-                        icon="provider"
-                        class="file-protected-icon file-data-protected-icon"
-                      }}
-                    {{/if}}
-                    {{#if metadataIsProtected}}
-                      {{one-icon
-                        icon="browser-attribute"
-                        class="file-protected-icon file-metadata-protected-icon"
-                      }}
-                    {{/if}}
-                    {{#if protectionFlagsInfo}}
-                      {{one-tooltip title=protectionFlagsInfo}}
-                    {{/if}}
-                  </div>
-                {{/if}}
-              </div>
-            {{/if}}
-            {{#if (and (not isSymlink) hasMetadata)}}
-              <div class="file-status-tag file-status-metadata" {{action (action "invokeFileAction" file "btnMetadata") bubbles=false}}>
-                {{tt this "status.metadata"}}
-              </div>
-            {{/if}}
-            {{#if (and (not isSymlink) hasAcl)}}
-              <div
-                class={{concat-classes
-                  "file-status-tag file-status-acl"
-                  (if previewMode "file-status-tag-warning")
-                }}
-                {{action
-                  (action "invokeFileAction" file "btnPermissions")
-                  bubbles=false
-                }}
-              >
-                {{tt this "status.acl"}}
-                {{#if previewMode}}
-                  {{one-tooltip title=(tt this "hintAclPreview" fileType=typeText)}}
-                {{/if}}
-              </div>
-            {{/if}}
-            {{#if showQosTag}}
-              <div
-                class={{concat-classes
-                  "file-status-tag"
-                  "file-status-qos"
-                  (if hasDirectQos "file-status-qos-direct")
-                  (if qosViewForbidden "file-status-tag-disabled")
-                }}
-                {{action
-                  (if qosViewForbidden
-                    (no-action)
-                    (action "invokeFileAction" file "btnQos")
-                  )
-                  bubbles=false
-                }}
-              >
-                {{#if (eq effQosMembership "direct")}}
-                  {{tt this "status.qos"}}
-                {{else if (eq effQosMembership "ancestor")}}
-                  {{tt this "status.qos"}}&nbsp;{{one-icon class="qos-status-arrow qos-inherited-icon inherited-icon" icon=inheritedIcon}}
-                {{/if}}
-                {{#if qosViewForbidden}}
-                  {{one-tooltip title=hintQosViewForbidden}}
-                {{/if}}
-              </div>
-            {{/if}}
-          </div>
+          {{#if statusBarComponentName}}
+            {{component statusBarComponentName
+              file=file
+              previewMode=previewMode
+              nameConflict=nameConflict
+              spacePrivileges=spacePrivileges
+              fileRowModel=fileRowModel
+              isSpaceOwned=isSpaceOwned
+              invokeFileAction=invokeFileAction
+            }}
+          {{/if}}
         </div>
-        {{#if media.isMobile}}
-          <div class="file-info-mobile">
-            <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
-              {{#if (eq file.effFile.type "file")}}
-                {{#if file.effFile.isPollingSize}}
-                  {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
-                {{else}}
-                  {{bytes-to-string file.effFile.size}}
-                {{/if}}
-              {{else}}
-                —
-              {{/if}}
-            </span>
-            <span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-modification">
-              {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
-            </span>
-          </div>
+        {{#if (and media.isMobile mobileInfoComponentName)}}
+          {{component mobileInfoComponentName
+            file=file
+            previewMode=previewMode
+            nameConflict=nameConflict
+            fileRowModel=fileRowModel
+            invokeFileAction=invokeFileAction
+          }}
         {{/if}}
       </div>
     </div>
   </td>
-  <td class="fb-table-col-size">
-    <span class="file-item-text">
-      {{#if (eq file.effFile.type "file")}}
-        {{#if file.effFile.isPollingSize}}
-          {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
-        {{else}}
-          {{bytes-to-string file.effFile.size}}
-        {{/if}}
-      {{else}}
-        —
-      {{/if}}
-    </span>
-  </td>
-  <td class="fb-table-col-modification">
-    <span class="file-item-text">
-      {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
-    </span>
-  </td>
+  {{#if columnsComponentName}}
+    {{component columnsComponentName
+      file=file
+      previewMode=previewMode
+      nameConflict=nameConflict
+      fileRowModel=fileRowModel
+      invokeFileAction=invokeFileAction
+    }}
+  {{/if}}
   <td class="fb-table-col-actions-menu">
     {{#unless hideMenuTrigger}}
       {{one-menu-toggle
-        class=(concat-classes "file-row-actions-trigger" (if (eq type "broken") "disabled"))
+        class="file-row-actions-trigger"
         click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
       }}
     {{/unless}}

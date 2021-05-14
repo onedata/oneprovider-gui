@@ -620,16 +620,17 @@ export default Service.extend({
 
     // for testing empty data write protected directories
     const emptyDir = this.get('entityRecords.dir.1');
+    const emptyDirProtection = Object.freeze(['data_protection']);
     console.dir(emptyDir.get('entityId'));
     setProperties(emptyDir, {
-      effProtectionFlags: ['data_protection'],
+      effProtectionFlags: emptyDirProtection,
       effDatasetMembership: 'direct',
     });
     await emptyDir.save();
     const emptyDirDataset = await this.createDataset(emptyDir, {
       parent: null,
-      protectionFlags: ['data_protection'],
-      effProtectionFlags: ['data_protection'],
+      protectionFlags: emptyDirProtection,
+      effProtectionFlags: emptyDirProtection,
     });
     const emptyDirDatasetSummary =
       await this.createDatasetSummary(emptyDir, emptyDirDataset);
@@ -678,20 +679,21 @@ export default Service.extend({
   },
 
   async addDetachedDatasetMock() {
-    const fileDetached = this.get('entityRecords.file')[6];
-    const detachedDataset = await this.createDataset(fileDetached, {
-      parent: null,
-      state: 'detached',
-      protectionFlags: ['metadata_protection'],
-      effProtectionFlags: [],
-    });
-    const fileDetachedDatasetSummary =
-      await this.createDatasetSummary(fileDetached, detachedDataset);
-    setProperties(fileDetached, {
-      fileDatasetSummary: fileDetachedDatasetSummary,
-    });
-    this.get('entityRecords.dataset').push(detachedDataset);
-    this.get('entityRecords.fileDatasetSummary').push(fileDetachedDatasetSummary);
+    for (const fileDetached of this.get('entityRecords.file').slice(6, 8)) {
+      const detachedDataset = await this.createDataset(fileDetached, {
+        parent: null,
+        state: 'detached',
+        protectionFlags: ['metadata_protection'],
+        effProtectionFlags: [],
+      });
+      const fileDetachedDatasetSummary =
+        await this.createDatasetSummary(fileDetached, detachedDataset);
+      setProperties(fileDetached, {
+        fileDatasetSummary: fileDetachedDatasetSummary,
+      });
+      this.get('entityRecords.dataset').push(detachedDataset);
+      this.get('entityRecords.fileDatasetSummary').push(fileDetachedDatasetSummary);
+    }
   },
 
   createProviderRecords(store, names) {
