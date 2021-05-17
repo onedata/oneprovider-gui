@@ -1,3 +1,12 @@
+/**
+ * A part of archive properties editor that allows to take submit actions
+ *
+ * @module components/archive-settings/submit-footer
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
@@ -14,10 +23,24 @@ export default Component.extend(I18n, {
 
   i18n: service(),
 
-  // FIXME: virtuals
-  disabled: undefined,
+  /**
+   * @virtual
+   * @type {Function}
+   */
   onSubmit: notImplementedReject,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
   onClose: notImplementedIgnore,
+
+  /**
+   * Set to true, to disable buttons
+   * @virtual optional
+   * @type {Boolean}
+   */
+  disabled: undefined,
 
   actions: {
     submit() {

@@ -1,22 +1,24 @@
+/**
+ * Component for managing properties of archive or create archives.
+ * Needs modal-like for layout rendering.
+ *
+ * @module components/archive-settings
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
-import { computed, getProperties } from '@ember/object';
-import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
-import TextField from 'onedata-gui-common/utils/form-component/text-field';
-import RadioField from 'onedata-gui-common/utils/form-component/radio-field';
-import ToggleField from 'onedata-gui-common/utils/form-component/toggle-field';
-import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
-import { tag, not, or, and } from 'ember-awesome-macros';
-import { scheduleOnce } from '@ember/runloop';
-import { reads } from '@ember/object/computed';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import { getProperties } from '@ember/object';
+import { not, and } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import fileManager from 'oneprovider-gui/services/production/file-manager';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 
 export default Component.extend(I18n, {
+  classNames: ['archive-settings'],
+
   i18n: service(),
   globalNotify: service(),
 
@@ -27,33 +29,58 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
    */
   onClose: notImplementedIgnore,
 
   /**
+   * Should be invoked with object suitable for `datasetManager#createArchive` data
    * @virtual
+   * @type {(archiveCreateData: Object) => any}
    */
   onSubmit: notImplementedWarn,
 
   /**
    * @virtual
+   * @type {Models.Dataset}
    */
   dataset: undefined,
 
   /**
+   * Instance of modal-like component to render layout (header, body, footer)
    * @virtual
+   * @type {Component}
    */
   modal: undefined,
 
-  // FIXME:
+  /**
+   * True if submit Promise is pending.
+   * @type {Boolean}
+   */
   isSubmitting: false,
 
+  /**
+   * Data dumped from form root
+   * @type {EmberObject}
+   */
   formData: Object.freeze({}),
 
+  /**
+   * Stores invalid fields list after form value changes
+   * @type {Array}
+   */
   invalidFields: Object.freeze([]),
 
+  /**
+   * Stores validation state of form
+   * @type {Boolean}
+   */
   isValid: undefined,
 
+  /**
+   * True, if submit is available for component state and current form data
+   * @type {ComputedProperty<Boolean>}
+   */
   canSubmit: and(not('disabled'), 'isValid'),
 
   async submit() {

@@ -1,3 +1,12 @@
+/**
+ * Just for testing archive-create-modal
+ * 
+ * @module components/dummy-archive-create-modal
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';

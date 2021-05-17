@@ -1,5 +1,6 @@
 /**
- * Subheader for dataset-operation modals with dataset(s) name
+ * Subheader for dataset-operation modals with dataset(s) name.
+ * It's a special version of `modal-file-subheader` aimed for datasets.
  *
  * @module components/modal-dataset-subheader
  * @author Jakub Liput
@@ -7,7 +8,7 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import { reads, alias } from '@ember/object/computed';
+import { alias } from '@ember/object/computed';
 import { raw, or, conditional } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import ModalFileSubheader from 'oneprovider-gui/components/modal-file-subheader';
@@ -19,6 +20,7 @@ export default ModalFileSubheader.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Array<Model.Dataset>}
    */
   datasets: alias('files'),
 

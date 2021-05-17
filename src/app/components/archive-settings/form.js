@@ -1,3 +1,12 @@
+/**
+ * Form with settings for archive model 
+ *
+ * @module components/archive-settings/form
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, getProperties } from '@ember/object';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
@@ -9,7 +18,6 @@ import { tag, not } from 'ember-awesome-macros';
 import { scheduleOnce } from '@ember/runloop';
 import { reads } from '@ember/object/computed';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -26,38 +34,21 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {({ formData: EmberObject, isValid: Boolean, invalidFields: Array }) => any}
    */
   onChange: notImplementedIgnore,
 
-  // FIXME:
+  /**
+   * Set to true, to indicate that form submit is in progress
+   * @virtual optional
+   * @type {Boolean}
+   */
   isSubmitting: false,
 
-  init() {
-    this._super(...arguments);
-    this.get('onChange')();
-  },
-
-  notifyAboutChange() {
-    safeExec(this, () => {
-      const {
-        rootFieldGroup,
-        onChange,
-      } = this.getProperties('rootFieldGroup', 'onChange');
-
-      const {
-        isValid,
-        invalidFields,
-      } = getProperties(rootFieldGroup, 'isValid', 'invalidFields');
-
-      onChange({
-        formData: rootFieldGroup.dumpValue(),
-        isValid,
-        invalidFields: invalidFields.mapBy('valuePath'),
-      });
-    });
-  },
-
-  rootFieldGroup: computed(function mainFieldGroup() {
+  /**
+   * @type {ComputedProperty<FormFieldsRootGroup>}
+   */
+  rootFieldGroup: computed(function rootFieldGroup() {
     const component = this;
     return FormFieldsRootGroup
       .extend({
@@ -112,29 +103,31 @@ export default Component.extend(I18n, {
       });
   }),
 
-  canSubmit: reads('rootFieldGroup.isValid'),
+  notifyAboutChange() {
+    safeExec(this, () => {
+      const {
+        rootFieldGroup,
+        onChange,
+      } = this.getProperties('rootFieldGroup', 'onChange');
 
+      const {
+        isValid,
+        invalidFields,
+      } = getProperties(rootFieldGroup, 'isValid', 'invalidFields');
+
+      onChange({
+        formData: rootFieldGroup.dumpValue(),
+        isValid,
+        invalidFields: invalidFields.mapBy('valuePath'),
+      });
+    });
+  },
+
+  /**
+   * @override
+   */
   willDestroyElement() {
     this._super(...arguments);
     this.get('rootFieldGroup').destroy();
-  },
-
-  async submit() {
-    const {
-      canSubmit,
-      rootFieldGroup,
-      onSubmit,
-    } = this.getProperties('canSubmit', 'rootFieldGroup', 'onSubmit');
-    if (canSubmit) {
-      const formValues = rootFieldGroup.dumpValue();
-      console.dir('FIXME: submit', formValues);
-      return onSubmit(formValues);
-    }
-  },
-
-  actions: {
-    submit() {
-      return this.submit();
-    },
   },
 });
