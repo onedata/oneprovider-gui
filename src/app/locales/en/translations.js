@@ -23,6 +23,7 @@ import qosEvaluationInfo from './components/qos-evaluation-info';
 import queryBuilder from './components/query-builder';
 import filesystemBrowser from './components/filesystem-browser';
 import datasetBrowser from './components/dataset-browser';
+import archiveSettings from './components/archive-settings';
 
 import uploadManager from './services/upload-manager';
 
@@ -55,6 +56,7 @@ const translations = {
     queryBuilder,
     filesystemBrowser,
     datasetBrowser,
+    archiveSettings,
   },
   services: {
     uploadManager,

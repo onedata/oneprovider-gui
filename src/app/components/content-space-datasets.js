@@ -64,6 +64,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   datasetManager: service(),
   spaceManager: service(),
   globalNotify: service(),
+  archiveManager: service(),
 
   /**
    * **Injected from parent frame.**
@@ -387,6 +388,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   closeCreateArchiveModal() {
     this.set('datasetToCreateArchive', null);
+  },
+
+  submitArchiveCreate(dataset, archiveData) {
+    const {
+      archiveManager,
+    } = this.getProperties('archiveManager');
+    return archiveManager.createArchive(dataset, archiveData);
   },
 
   actions: {

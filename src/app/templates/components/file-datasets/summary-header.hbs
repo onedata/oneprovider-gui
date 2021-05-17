@@ -35,6 +35,9 @@
       {{/one-switchable-popover-modal}}
     {{/if}}
   </h1>
+  {{!-- it's not modal-dataset-subheader, because it's modal for file, but in context of
+        its dataset
+  --}}
   {{modal-file-subheader
     files=(array file)
     fileIcon="browser-dataset-file"
