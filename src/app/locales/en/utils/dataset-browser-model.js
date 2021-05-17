@@ -19,6 +19,7 @@ function removeHeader(isMulti) {
 
 export default _.merge({}, BaseBrowserModel, {
   currentDataset: 'Current dataset',
+  notAvailableHaveArchives: 'Not availabe for datasets with created archives.',
   fileType: {
     file: 'file',
     dir: 'directory',
