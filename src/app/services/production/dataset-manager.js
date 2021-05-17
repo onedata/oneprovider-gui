@@ -176,7 +176,7 @@ export default Service.extend({
    * @param {String} index
    * @param {Number} limit
    * @param {Number} offset
-   * @returns {Promise<{ childrenRecords: Array<Models.File>, isLast: Boolean }>}
+   * @returns {Promise<{ childrenRecords: Array<Models.Dataset>, isLast: Boolean }>}
    */
   async fetchChildrenDatasets({
     parentType,
