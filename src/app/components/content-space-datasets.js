@@ -391,10 +391,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   submitArchiveCreate(dataset, archiveData) {
-    const {
-      archiveManager,
-    } = this.getProperties('archiveManager');
-    return archiveManager.createArchive(dataset, archiveData);
+    return this.get('archiveManager').createArchive(dataset, archiveData);
   },
 
   actions: {

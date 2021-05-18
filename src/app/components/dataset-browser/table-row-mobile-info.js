@@ -19,7 +19,7 @@ export default FbTableRowMobileInfo.extend({
   i18nPrefix: 'components.datasetBrowser.tableRowMobileInfo',
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<SafeString>}
    */
   archiveCountText: computed('fileRowModel.archiveCount', function archiveCountText() {
     const count = this.get('fileRowModel.archiveCount');

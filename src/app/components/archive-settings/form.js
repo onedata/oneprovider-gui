@@ -8,9 +8,9 @@
  */
 
 import Component from '@ember/component';
-import { computed, getProperties } from '@ember/object';
+import { computed, get } from '@ember/object';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
-import TextField from 'onedata-gui-common/utils/form-component/text-field';
+import TextareaField from 'onedata-gui-common/utils/form-component/textarea-field';
 import RadioField from 'onedata-gui-common/utils/form-component/radio-field';
 import ToggleField from 'onedata-gui-common/utils/form-component/toggle-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
@@ -34,7 +34,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {({ formData: EmberObject, isValid: Boolean, invalidFields: Array }) => any}
+   * @type {({ formData: EmberObject, isValid: Boolean }) => any}
    */
   onChange: notImplementedIgnore,
 
@@ -63,13 +63,14 @@ export default Component.extend(I18n, {
       .create({
         component,
         fields: [
-          TextField.create({
+          TextareaField.create({
             name: 'description',
             defaultValue: '',
             isOptional: true,
           }),
           FormFieldsGroup.create({
             name: 'config',
+            isEnabled: false,
             fields: [
               ToggleField.create({
                 name: 'incremental',
@@ -89,16 +90,18 @@ export default Component.extend(I18n, {
               }),
             ],
           }),
-          TextField.create({
-            name: 'preservedCallback',
-            defaultValue: '',
-            isOptional: true,
-          }),
-          TextField.create({
-            name: 'purgedCallback',
-            defaultValue: '',
-            isOptional: true,
-          }),
+          // TODO: VFS-7547 should be available in view/edit mode
+          // TextField.create({
+          //   name: 'preservedCallback',
+          //   defaultValue: '',
+          //   isOptional: true,
+          // }),
+          // TODO: VFS-7547 should be available in view/edit mode
+          // TextField.create({
+          //   name: 'purgedCallback',
+          //   defaultValue: '',
+          //   isOptional: true,
+          // }),
         ],
       });
   }),
@@ -110,15 +113,11 @@ export default Component.extend(I18n, {
         onChange,
       } = this.getProperties('rootFieldGroup', 'onChange');
 
-      const {
-        isValid,
-        invalidFields,
-      } = getProperties(rootFieldGroup, 'isValid', 'invalidFields');
+      const isValid = get(rootFieldGroup, 'isValid');
 
       onChange({
         formData: rootFieldGroup.dumpValue(),
         isValid,
-        invalidFields: invalidFields.mapBy('valuePath'),
       });
     });
   },

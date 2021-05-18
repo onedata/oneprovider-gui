@@ -10,14 +10,16 @@
 
 import Component from '@ember/component';
 import { getProperties } from '@ember/object';
-import { not, and } from 'ember-awesome-macros';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 
 export default Component.extend(I18n, {
-  classNames: ['archive-settings'],
+  // do not use tag, because the layout is built by `modal` property
+  // for styling, use: `archive-settings-part` class
+  tagName: '',
 
   i18n: service(),
   globalNotify: service(),
@@ -66,12 +68,6 @@ export default Component.extend(I18n, {
   formData: Object.freeze({}),
 
   /**
-   * Stores invalid fields list after form value changes
-   * @type {Array}
-   */
-  invalidFields: Object.freeze([]),
-
-  /**
    * Stores validation state of form
    * @type {Boolean}
    */
@@ -81,9 +77,9 @@ export default Component.extend(I18n, {
    * True, if submit is available for component state and current form data
    * @type {ComputedProperty<Boolean>}
    */
-  canSubmit: and(not('disabled'), 'isValid'),
+  canSubmit: reads('isValid'),
 
-  async submit() {
+  async submitArchive() {
     const {
       formData,
       canSubmit,
@@ -141,17 +137,16 @@ export default Component.extend(I18n, {
   actions: {
     async submit() {
       try {
-        await this.submit();
+        await this.submitArchive();
         this.close();
       } catch (error) {
         this.get('globalNotify').backendError(this.t('creatingArchive'), error);
       }
     },
-    formDataUpdate({ formData = {}, isValid = false, invalidFields = [] } = {}) {
+    formDataUpdate({ formData = {}, isValid = false } = {}) {
       this.setProperties({
         formData,
         isValid,
-        invalidFields,
       });
     },
     close() {

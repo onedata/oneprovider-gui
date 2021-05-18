@@ -36,6 +36,13 @@ export default Component.extend(I18n, {
   onClose: notImplementedIgnore,
 
   /**
+   * Set to true, if currently submitting the form
+   * @virtual
+   * @type {Boolean}
+   */
+  isSubmitting: undefined,
+
+  /**
    * Set to true, to disable buttons
    * @virtual optional
    * @type {Boolean}
