@@ -4,10 +4,10 @@ export default {
       label: 'Description',
     },
     preservedCallback: {
-      label: '"Preserved" callback endpoint',
+      label: '"Preserved" callback URL',
     },
     purgedCallback: {
-      label: '"Purged" callback endpoint',
+      label: '"Purged" callback URL',
     },
     config: {
       incremental: {

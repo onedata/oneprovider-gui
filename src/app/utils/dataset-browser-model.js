@@ -217,7 +217,6 @@ export default BaseBrowserModel.extend(I18n, {
     }
   ),
 
-  // FIXME: waiting for feedback, if we can detach datasets with archives
   btnChangeState: computed('attachmentState', function btnChangeState() {
     const attachmentState = this.get('attachmentState');
     const isAttachAction = attachmentState === 'detached';
