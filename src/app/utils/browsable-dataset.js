@@ -2,7 +2,7 @@
  * Wrapper for dataset model that adds API for browser components.
  * A dataset can be treated then as a file-like object.
  *
- * @module utils/browsable-datasets
+ * @module utils/browsable-dataset
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -23,6 +23,7 @@ export default ObjectProxy.extend({
   belongsTo: proxyMethod('belongsTo'),
   hasMany: proxyMethod('hasMany'),
   save: proxyMethod('save'),
+  reload: proxyMethod('reload'),
   destroyRecord: proxyMethod('destroyRecord'),
 });
 

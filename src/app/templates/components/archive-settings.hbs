@@ -1,0 +1,20 @@
+{{#modal.header class="archive-settings-part archive-settings-modal-header"}}
+  {{archive-settings/header dataset=dataset}}
+{{/modal.header}}
+
+{{#modal.body class="archive-settings-part archive-settings-modal-body"}}
+  {{archive-settings/form
+    dataset=dataset
+    isSubmitting=isSubmitting
+    onChange=(action "formDataUpdate")
+  }}
+{{/modal.body}}
+
+{{#modal.footer class="archive-settings-part archive-settings-modal-footer"}}
+  {{archive-settings/submit-footer
+    disabled=(not canSubmit)
+    isSubmitting=isSubmitting
+    onSubmit=(action "submit")
+    onClose=(action "close")
+  }}
+{{/modal.footer}}

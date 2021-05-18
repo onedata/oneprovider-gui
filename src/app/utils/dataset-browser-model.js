@@ -21,10 +21,12 @@ import { allSettled } from 'rsvp';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnShowFile',
+  'btnCreateArchive',
   'btnProtection',
   'btnChangeState',
   'btnRemove',
@@ -61,6 +63,18 @@ export default BaseBrowserModel.extend(I18n, {
    * @type {(dataset: Models.Dataset) => any}
    */
   openDatasetOpenModal: notImplementedThrow,
+
+  /**
+   * @override
+   * @type {(dataset: Models.Dataset) => any}
+   */
+  openDatasetsModal: notImplementedThrow,
+
+  /**
+   * @override
+   * @type {(dataset: Models.Dataset) => any}
+   */
+  openCreateArchiveModal: notImplementedThrow,
 
   /**
    * @override
@@ -107,7 +121,7 @@ export default BaseBrowserModel.extend(I18n, {
    */
   buttonNames: computed('attachmentState', function buttonNames() {
     if (this.get('attachmentState') === 'detached') {
-      return _.without(allButtonNames, 'btnProtection');
+      return _.without(allButtonNames, 'btnCreateArchive', 'btnProtection');
     } else {
       return [...allButtonNames];
     }
@@ -139,6 +153,13 @@ export default BaseBrowserModel.extend(I18n, {
     ].includes(selectionContext);
   }),
 
+  selectedDatasetsHaveArchives: computed(
+    'selectedFiles.@each.archiveCount',
+    function selectedDatasetsHaveArchives() {
+      return _.sum(this.get('selectedFiles').mapBy('archiveCount')) > 0;
+    }
+  ),
+
   //#region Action buttons
 
   btnShowFile: computed('selectionContext', function btnShowFile() {
@@ -158,6 +179,43 @@ export default BaseBrowserModel.extend(I18n, {
       ],
     });
   }),
+
+  btnCreateArchive: computed(
+    'spacePrivileges.{manageDatasets,createArchives}',
+    function btnCreateArchive() {
+      const {
+        spacePrivileges,
+        i18n,
+      } = this.getProperties(
+        'spacePrivileges',
+        'i18n',
+      );
+      const hasPrivileges = spacePrivileges.manageDatasets &&
+        spacePrivileges.createArchives;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+        });
+      }
+      return this.createFileAction({
+        id: 'createArchive',
+        icon: 'browser-archive',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: (datasets) => {
+          return this.openCreateArchiveModal(datasets[0]);
+        },
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleFile,
+          actionContext.currentDir,
+        ],
+      });
+    }
+  ),
 
   btnChangeState: computed('attachmentState', function btnChangeState() {
     const attachmentState = this.get('attachmentState');
@@ -180,20 +238,37 @@ export default BaseBrowserModel.extend(I18n, {
     });
   }),
 
-  btnRemove: computed('areMultipleSelected', function btnRemove() {
-    const areMultipleSelected = this.get('areMultipleSelected');
-    return this.createFileAction({
-      id: 'remove',
-      icon: 'browser-delete',
-      title: this.t(`fileActions.remove.${areMultipleSelected ? 'multi' : 'single'}`),
-      action: (datasets) => {
-        return this.askForRemoveDatasets(datasets);
-      },
-      showIn: [
-        ...anySelectedContexts,
-      ],
-    });
-  }),
+  btnRemove: computed(
+    'areMultipleSelected',
+    'selectedDatasetsHaveArchives',
+    function btnRemove() {
+      const {
+        areMultipleSelected,
+        selectedDatasetsHaveArchives,
+      } =
+      this.getProperties(
+        'areMultipleSelected',
+        'selectedDatasetsHaveArchives',
+      );
+      let disabledTip;
+      if (selectedDatasetsHaveArchives) {
+        disabledTip = this.t('notAvailableHaveArchives');
+      }
+      return this.createFileAction({
+        id: 'remove',
+        icon: 'browser-delete',
+        title: this.t(`fileActions.remove.${areMultipleSelected ? 'multi' : 'single'}`),
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: (datasets) => {
+          return this.askForRemoveDatasets(datasets);
+        },
+        showIn: [
+          ...anySelectedContexts,
+        ],
+      });
+    }
+  ),
 
   btnProtection: computed(function btnProtection() {
     return this.createFileAction({

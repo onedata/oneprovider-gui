@@ -38,5 +38,14 @@
       getDataUrl=(action getDataUrl)
     }}
   {{/if}}
+  
+  {{#if datasetToCreateArchive}}
+    {{archive-create-modal
+      open=true
+      dataset=datasetToCreateArchive
+      onHide=(action closeCreateArchiveModal)
+      onArchiveCreate=(action submitArchiveCreate)
+    }}
+  {{/if}}
 
 {{/promise-proxy-container}}
