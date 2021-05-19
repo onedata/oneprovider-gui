@@ -338,7 +338,7 @@ export default Component.extend(I18n, {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
   }),
 
-  filesArray: computed('dir.entityId', function filesArray() {
+  filesArray: computed('dir.entityId', 'browserModel', function filesArray() {
     const dirId = this.get('dir.entityId');
     const {
       selectedFilesForJump,
