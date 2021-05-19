@@ -1,13 +1,26 @@
 .archive-browser {
   // FIXME:
-  .fb-table-col-state {
-    position: relative;
-    width: 120px;
+  .fb-table-col-secondary {
     text-align: center;
+    width: 120px;
+  }
+  .fb-table-col-state {
+    width: 110px;
+  }
+  .fb-table-col-incremental {
+    width: 128px;
+  }
+  .fb-table-col-dip {
+    width: 80px;
+  }
+  .fb-table-col-layout {
+    width: 100px;
   }
   .fb-table-col-created {
-    width: 200px;
-    text-align: center;
+    width: 190px;
+  }
+  .col-status-no {
+    color: $main-text-color-disabled;
   }
   .fb-breadcrumbs {
     .fb-breadcrumbs-separator {

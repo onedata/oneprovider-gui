@@ -9,4 +9,9 @@
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
 
-export default FbTableRowColumns.extend();
+export default FbTableRowColumns.extend({
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.archiveBrowser.tableRowColumns',
+});

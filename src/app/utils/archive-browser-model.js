@@ -74,7 +74,7 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  currentDirTranslation: computedT('currentDataset'),
+  currentDirTranslation: computedT('archiveList'),
 
   /**
    * @override
