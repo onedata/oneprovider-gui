@@ -8,17 +8,21 @@
  */
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
+import { reads } from '@ember/object/computed';
 
 export default FbTableRowColumns.extend({
   /**
-   * @virtual
-   * @type {Object}
+   * @type {Models.Dataset}
    */
-  fileRowModel: undefined,
+  dataset: reads('file'),
 
-  /**
-   * @virtual
-   * @type {Models.File}
-   */
-  file: undefined,
+  actions: {
+    manageArchives() {
+      const {
+        invokeFileAction,
+        dataset,
+      } = this.getProperties('invokeFileAction', 'dataset');
+      invokeFileAction(dataset, 'manageArchives');
+    },
+  },
 });

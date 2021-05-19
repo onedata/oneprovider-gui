@@ -260,9 +260,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.get('containerScrollTop')(0);
   }),
 
-  attachmentStateObserver: observer(
+  clearSelectedObserver: observer(
     'attachmentState',
-    function attachmentStateObserver() {
+    'viewMode',
+    function clearSelectedObserver() {
       next(() => {
         safeExec(this, () => {
           if (this.get('selectedItems.length') > 0) {
