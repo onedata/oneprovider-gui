@@ -13,16 +13,21 @@ import { actionContext } from 'oneprovider-gui/components/file-browser';
 import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
+import { all as allFulfilled } from 'rsvp';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnDownloadTar',
 ]);
 
-export default BaseBrowserModel.extend(I18n, {
+export default BaseBrowserModel.extend(DownloadInBrowser, {
   modalManager: service(),
   datasetManager: service(),
+
+  // required by DownloadInBrowser mixin
+  fileManager: service(),
+  isMobile: service(),
   globalNotify: service(),
 
   /**
@@ -92,9 +97,8 @@ export default BaseBrowserModel.extend(I18n, {
       return this.createFileAction({
         id: 'downloadTar',
         icon: 'browser-download',
-        // FIXME: use mixin to implement download action, or import as btn/action
-        action: (files) => {
-          return this.downloadFiles(files);
+        action: (archives) => {
+          return this.downloadArchives(archives);
         },
         showIn: [
           actionContext.singleFile,
@@ -107,4 +111,10 @@ export default BaseBrowserModel.extend(I18n, {
   ),
 
   //#endregion
+
+  async downloadArchives(archives) {
+    const rootDirs = await allFulfilled(archives.mapBy('rootDir').compact());
+    const fileIds = rootDirs.mapBy('entityId').compact();
+    return this.downloadFilesById(fileIds);
+  },
 });
