@@ -23,6 +23,7 @@ import qosEvaluationInfo from './components/qos-evaluation-info';
 import queryBuilder from './components/query-builder';
 import filesystemBrowser from './components/filesystem-browser';
 import datasetBrowser from './components/dataset-browser';
+import archiveBrowser from './components/archive-browser';
 import archiveSettings from './components/archive-settings';
 
 import uploadManager from './services/upload-manager';
@@ -31,6 +32,7 @@ import handleMultiFilesOperation from './utils/handle-multi-files-operation';
 import baseBrowserModel from './utils/base-browser-model';
 import filesystemBrowserModel from './utils/filesystem-browser-model';
 import datasetBrowserModel from './utils/dataset-browser-model';
+import archiveBrowserModel from './utils/archive-browser-model';
 
 const translations = {
   components: {
@@ -56,6 +58,7 @@ const translations = {
     queryBuilder,
     filesystemBrowser,
     datasetBrowser,
+    archiveBrowser,
     archiveSettings,
   },
   services: {
@@ -66,6 +69,7 @@ const translations = {
     baseBrowserModel,
     filesystemBrowserModel,
     datasetBrowserModel,
+    archiveBrowserModel,
   },
 };
 

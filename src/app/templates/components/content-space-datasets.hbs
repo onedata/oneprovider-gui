@@ -1,20 +1,19 @@
+viewMode: {{viewMode}}
+
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   {{#if browsableDataset}}
     {{file-browser
       browserModel=browserModel
       dir=browsableDataset
       customRootDir=spaceDatasetsRoot
-      customFetchDirChildren=(if isInRoot
-        (action fetchSpaceDatasets)
-        (action fetchDatasetChildren)
-      )
-      resolveFileParentFun=(action resolveFileParentFun)
+      customFetchDirChildren=(action "fetchChildren")
+      resolveFileParentFun=(action "resolveFileParent")
       spaceId=spaceId
       spacePrivileges=spacePrivileges
-      selectedFiles=selectedDatasets
+      selectedFiles=selectedItems
       isSpaceOwned=space.currentUserIsOwner
-      changeSelectedFiles=(action "changeSelectedDatasets")
-      updateDirEntityId=(action "updateDatasetId")
+      changeSelectedFiles=(action "changeSelectedItems")
+      updateDirEntityId=(action "updateDirEntityId")
     }}
   {{/if}}
   
