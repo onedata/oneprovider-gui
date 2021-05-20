@@ -209,7 +209,7 @@ export default BaseBrowserModel.extend(I18n, {
       }
       return this.createFileAction({
         id: 'createArchive',
-        icon: 'browser-archive',
+        icon: 'browser-archive-add',
         tip: disabledTip,
         disabled: Boolean(disabledTip),
         action: (datasets) => {
