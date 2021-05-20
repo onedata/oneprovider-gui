@@ -21,8 +21,11 @@
     {{#bs-button onClick=(action onHide) type="default" class="close-btn"}}
       {{tt this "close"}}
     {{/bs-button}}
-    <a class="btn btn-primary" href={{fileHref}} target={{navigateOnezoneTarget}}>
+    {{#bs-button
+      onClick=(action "openArchivesView")
+      type="primary"
+    }}
       {{tt this "open"}}
-    </a>
+    {{/bs-button}}
   {{/modal.footer}}
 {{/one-modal}}

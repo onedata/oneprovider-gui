@@ -47,7 +47,7 @@ export default Mixin.create({
     loadingIconFileIds.pushObjects(fileIds);
     return fileManager.getFileDownloadUrl(
         fileIds,
-        downloadScope ? 'public' : 'private'
+        downloadScope
       )
       .then((data) => this.handleFileDownloadUrl(data))
       .catch((error) => {

@@ -23,7 +23,6 @@ import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 
 const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -185,6 +184,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   browsableDatasetProxy: promise.object(computed(
     'datasetId',
     'spaceDatasetsRoot',
+    'viewMode',
     async function datasetProxy() {
       const {
         datasetManager,
@@ -192,12 +192,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
         datasetId,
         spaceDatasetsRoot,
         spaceId,
+        viewMode,
       } = this.getProperties(
         'datasetManager',
         'globalNotify',
         'datasetId',
         'spaceDatasetsRoot',
         'spaceId',
+        'viewMode',
       );
 
       if (datasetId) {
@@ -209,7 +211,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
           let isValidDatasetEntityId;
           try {
             isValidDatasetEntityId = datasetId &&
-              getSpaceIdFromFileId(dataset.relationEntityId('rootFile')) === spaceId;
+              get(dataset, 'spaceId') === spaceId;
           } catch (error) {
             console.error(
               'component:content-space-datasets#browsableDatasetProxy: error getting spaceId from dataset:',
@@ -221,13 +223,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
             return spaceDatasetsRoot;
           }
           // return only dir-type datasets, for files try to return parent or null
-          if (get(dataset, 'rootFileType') === 'dir') {
-            return BrowsableDataset.create({ content: dataset });
-          } else {
+          if (viewMode === 'datasets' && get(dataset, 'rootFileType') !== 'dir') {
             const parent = await get(dataset, 'parent');
             return parent && BrowsableDataset.create({ content: parent }) ||
               spaceDatasetsRoot;
           }
+          return BrowsableDataset.create({ content: dataset });
         } catch (error) {
           globalNotify.backendError(this.t('openingDataset'), error);
           return spaceDatasetsRoot;
@@ -382,10 +383,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   async fetchDatsetArchives(datasetId, startIndex, size, offset) {
-    // FIXME: refactor
-    const {
-      archiveManager,
-    } = this.getProperties('archiveManager');
+    const archiveManager = this.get('archiveManager');
     return this.browserizeArchives(await archiveManager.fetchDatasetArchives({
       datasetId,
       index: startIndex,

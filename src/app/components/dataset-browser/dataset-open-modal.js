@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { computed } from '@ember/object';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -28,22 +28,24 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  onOpenArchivesView: notImplementedThrow,
+
+  /**
+   * @virtual
    */
   dataset: undefined,
 
-  navigateOnezoneTarget: '_top',
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  fileHref: computed('getDataUrl', 'dataset.rootFile', function fileHref() {
-    const {
-      getDataUrl,
-      dataset,
-    } = this.getProperties('getDataUrl', 'dataset');
-    const fileId = dataset.relationEntityId('rootFile');
-    if (fileId) {
-      return getDataUrl({ fileId: null, selected: [fileId] });
-    }
-  }),
+  actions: {
+    openArchivesView() {
+      const {
+        onOpenArchivesView,
+        onHide,
+        dataset,
+      } = this.getProperties('onOpenArchivesView', 'onHide', 'dataset');
+      onOpenArchivesView(dataset);
+      onHide();
+    },
+  },
 });

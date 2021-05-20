@@ -32,6 +32,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   globalNotify: service(),
 
   /**
+   * @override
+   */
+  downloadScope: 'private',
+
+  /**
    * State of space-datasets container for datasets-browser.
    * Properties:
    * - `browsableDataset: String`
