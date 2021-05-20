@@ -31,6 +31,12 @@ export default FbDirLoadError.extend(I18n, {
   browserModel: undefined,
 
   /**
+   * @virtual
+   * @type {(dataset: Models.Dataset) => any}
+   */
+  onOpenArchivesView: reads('browserModel.openArchivesView'),
+
+  /**
    * @type {ComputedProperty<Models.Dataset>
    */
   dataset: reads('dir'),
@@ -56,4 +62,14 @@ export default FbDirLoadError.extend(I18n, {
       return browserModel.getDataUrl({ fileId: rootDirId });
     }
   }),
+
+  actions: {
+    openArchivesView() {
+      const {
+        onOpenArchivesView,
+        dataset,
+      } = this.getProperties('onOpenArchivesView', 'dataset');
+      onOpenArchivesView(dataset);
+    },
+  },
 });
