@@ -33,6 +33,9 @@
       }
     }
   }
+  .fb-table-secondary-col {
+    text-align: center;
+  }
   td.fb-table-col-files {
     @media (max-width: $screen-xs-max) {
       padding-top: 8px;

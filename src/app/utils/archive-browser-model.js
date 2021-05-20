@@ -58,11 +58,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  statusBarComponentName: 'archive-browser/table-row-status-bar',
-
-  /**
-   * @override
-   */
   mobileInfoComponentName: 'archive-browser/table-row-mobile-info',
 
   /**

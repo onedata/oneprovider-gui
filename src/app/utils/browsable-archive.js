@@ -29,7 +29,7 @@ export default ObjectProxy.extend({
   destroyRecord: proxyMethod('destroyRecord'),
 });
 
-// FIXME: redundancy: util, and maybe mixin/class for browsable model
+// TODO: VFS-7643 redundancy: maybe create util, and mixin/class for browsable model
 function proxyMethod(methodName) {
   return function () {
     return this.get('content')[methodName](...arguments);
