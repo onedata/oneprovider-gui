@@ -15,6 +15,7 @@ import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled } from 'rsvp';
+import { conditional, equal, raw } from 'ember-awesome-macros';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -29,6 +30,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   fileManager: service(),
   isMobile: service(),
   globalNotify: service(),
+
+  /**
+   * State of space-datasets container for datasets-browser.
+   * Properties:
+   * - `browsableDataset: String`
+   * @virtual
+   * @type {Object}
+   */
+  spaceDatasetsViewState: Object.freeze({}),
 
   /**
    * @override
@@ -70,11 +80,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   browserClass: 'archive-browser',
 
-  // FIXME: file or dir dataset icon based on parent dataset type
   /**
    * @override
    */
-  rootIcon: 'browser-dataset',
+  rootIcon: conditional(
+    equal('spaceDatasetsViewState.browsableDataset.rootFileType', raw('file')),
+    raw('browser-dataset-file'),
+    raw('browser-dataset')
+  ),
 
   /**
    * @override

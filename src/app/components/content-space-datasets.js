@@ -323,6 +323,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   createArchivesBrowserModel() {
     return ArchiveBrowserModel.create({
       ownerSource: this,
+      spaceDatasetsViewState: this,
     });
   },
 
