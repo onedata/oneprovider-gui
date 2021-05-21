@@ -144,8 +144,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   async downloadArchives(archives) {
-    const rootDirs = await allFulfilled(archives.mapBy('rootDir').compact());
-    const fileIds = rootDirs.mapBy('entityId').compact();
+    const rootDirs = await allFulfilled(archives.mapBy('rootDir'));
+    const fileIds = rootDirs.compact().mapBy('entityId').compact();
     return this.downloadFilesById(fileIds);
   },
 });

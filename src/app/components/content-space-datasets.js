@@ -156,7 +156,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * Default value set on init.
-   * @type {Array<Utils.BrowsableDataset>}
+   * @type {Array<EmberObject>} a browsable item that appears on list:
+   *  dataset, archive or file
    */
   selectedItems: undefined,
 
@@ -546,7 +547,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }));
   },
 
-  async fetchDatsetArchives(datasetId, startIndex, size, offset) {
+  async fetchDatasetArchives(datasetId, startIndex, size, offset) {
     const archiveManager = this.get('archiveManager');
     return this.browserizeArchives(await archiveManager.fetchDatasetArchives({
       datasetId,
@@ -745,7 +746,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
           return this.fetchDirChildren(...fetchArgs);
         }
       } else if (viewMode === 'archives' && datasetId) {
-        return this.fetchDatsetArchives(...fetchArgs);
+        return this.fetchDatasetArchives(...fetchArgs);
       } else if (isInRoot) {
         return this.fetchSpaceDatasets(...fetchArgs);
       } else {
