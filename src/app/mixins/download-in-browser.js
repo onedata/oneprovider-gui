@@ -1,3 +1,12 @@
+/**
+ * Adds methods for downloading files in browsers components.
+ *
+ * @module mixins/download-in-browser
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Mixin from '@ember/object/mixin';
 import { get } from '@ember/object';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
