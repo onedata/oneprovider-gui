@@ -9,12 +9,12 @@
 
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
-import EmberObject, { computed, get, observer } from '@ember/object';
+import EmberObject, { computed, get, observer, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw, bool, equal, conditional, not } from 'ember-awesome-macros';
+import { promise, raw, bool, equal, conditional } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
@@ -475,7 +475,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
     async function updateOnezoneDatasetData() {
       const browsableDataset = await this.get('browsableDatasetProxy');
       if (browsableDataset) {
-        this.callParent('updateDatasetData', browsableDataset);
+        const data = this.createOnezoneDatasetData(browsableDataset);
+        this.callParent('updateDatasetData', data);
       }
     }
   ),
@@ -485,6 +486,26 @@ export default OneEmbeddedComponent.extend(...mixins, {
     if (!this.get('selectedItems')) {
       this.set('selectedItems', []);
     }
+    this.updateOnezoneDatasetData();
+  },
+
+  createOnezoneDatasetData(dataset) {
+    const data = getProperties(
+      dataset,
+      'entityId',
+      'name',
+      'state',
+      'spaceId',
+      'protectionFlags',
+      'effProtectionFlags',
+      'creationTime',
+      'archiveCount',
+      'rootFilePath',
+      'rootFileType',
+    );
+    data.parentId = dataset.relationEntityId('parent') || null;
+    data.rootFileId = dataset.relationEntityId('rootFile') || null;
+    return data;
   },
 
   /**
@@ -660,7 +681,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   openArchivesView(dataset) {
     this.callParent('updateViewMode', 'archives');
     this.callParent('updateDatasetId', get(dataset, 'entityId'));
-    this.callParent('updateDatasetData', dataset);
+    this.callParent('updateDatasetData', this.createOnezoneDatasetData(dataset));
   },
 
   openInfoModal(file) {
@@ -703,7 +724,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   actions: {
     /**
-     * @param {String} itemId currently: datasetId
+     * @param {String} itemId datasetId, archiveId or fileId (dir)
      */
     updateDirEntityId(itemId) {
       const viewMode = this.get('viewMode');
@@ -714,7 +735,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
         this.callParent('updateArchiveId', itemId);
         this.callParent('updateDirId', null);
       } else if (viewMode === 'files') {
-        this.callParent('updateDirId', itemId);
+        if (itemId === this.get('archiveId')) {
+          this.callParent('updateDirId', null);
+        } else if (itemId === this.get('datasetId')) {
+          this.callParent('updateArchiveId', null);
+          this.callParent('updateDirId', null);
+          this.callParent('updateViewMode', 'archives');
+        } else {
+          this.callParent('updateDirId', itemId);
+        }
       }
     },
     changeSelectedItems(selectedItems) {
