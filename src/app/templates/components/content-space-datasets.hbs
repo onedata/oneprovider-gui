@@ -4,17 +4,14 @@
       browserModel=browserModel
       dir=browsableDataset
       customRootDir=spaceDatasetsRoot
-      customFetchDirChildren=(if isInRoot
-        (action fetchSpaceDatasets)
-        (action fetchDatasetChildren)
-      )
-      resolveFileParentFun=(action resolveFileParentFun)
+      customFetchDirChildren=(action "fetchChildren")
+      resolveFileParentFun=(action "resolveFileParent")
       spaceId=spaceId
       spacePrivileges=spacePrivileges
-      selectedFiles=selectedDatasets
+      selectedFiles=selectedItems
       isSpaceOwned=space.currentUserIsOwner
-      changeSelectedFiles=(action "changeSelectedDatasets")
-      updateDirEntityId=(action "updateDatasetId")
+      changeSelectedFiles=(action "changeSelectedItems")
+      updateDirEntityId=(action "updateDirEntityId")
     }}
   {{/if}}
   
@@ -35,7 +32,7 @@
       open=true
       dataset=fileToShowDatasetOpen
       onHide=(action closeDatasetOpenModal)
-      getDataUrl=(action getDataUrl)
+      onOpenArchivesView=(action openArchivesView)
     }}
   {{/if}}
   

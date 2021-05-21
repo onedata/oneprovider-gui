@@ -18,4 +18,8 @@
   .empty-dir-image {
     background-image: url($root-url + 'images/space-data.svg');
   }
+  .archives-count-link {
+    display: inline-block;
+    min-width: 2em;
+  }
 }

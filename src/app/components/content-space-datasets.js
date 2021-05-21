@@ -18,10 +18,11 @@ import { promise, raw, bool } from 'ember-awesome-macros';
 import { resolve } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
+import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
+import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 
 const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -85,7 +86,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @virtual optional
    * @type {Array<String>}
    */
-  selectedDatasetsIds: undefined,
+  selectedIds: undefined,
 
   /**
    * One of: 'attached', 'detached'
@@ -95,6 +96,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @type {String}
    */
   attachmentState: undefined,
+
+  /**
+   * One of: 'datasets', 'archives'
+   * 
+   * **Injected from parent frame.**
+   * @virtual
+   * @type {String}
+   */
+  viewMode: 'datasets',
 
   /**
    * @virtual optional
@@ -108,17 +118,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
   iframeInjectedProperties: Object.freeze([
     'spaceId',
     'datasetId',
-    'selectedDatasetsIds',
+    'selectedIds',
     'attachmentState',
+    'viewMode',
   ]),
 
   _window: window,
 
   /**
    * Default value set on init.
-   * @type {Array<Utils.BrowsableDataset>}
+   * @type {Array<EmberObject>} a browsable item that appears on list:
+   *  dataset, archive or file
    */
-  selectedDatasets: undefined,
+  selectedItems: undefined,
 
   datasetToCreateArchive: undefined,
 
@@ -173,6 +185,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   browsableDatasetProxy: promise.object(computed(
     'datasetId',
     'spaceDatasetsRoot',
+    'viewMode',
     async function datasetProxy() {
       const {
         datasetManager,
@@ -180,12 +193,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
         datasetId,
         spaceDatasetsRoot,
         spaceId,
+        viewMode,
       } = this.getProperties(
         'datasetManager',
         'globalNotify',
         'datasetId',
         'spaceDatasetsRoot',
         'spaceId',
+        'viewMode',
       );
 
       if (datasetId) {
@@ -197,7 +212,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
           let isValidDatasetEntityId;
           try {
             isValidDatasetEntityId = datasetId &&
-              getSpaceIdFromFileId(dataset.relationEntityId('rootFile')) === spaceId;
+              get(dataset, 'spaceId') === spaceId;
           } catch (error) {
             console.error(
               'component:content-space-datasets#browsableDatasetProxy: error getting spaceId from dataset:',
@@ -209,13 +224,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
             return spaceDatasetsRoot;
           }
           // return only dir-type datasets, for files try to return parent or null
-          if (get(dataset, 'rootFileType') === 'dir') {
-            return BrowsableDataset.create({ content: dataset });
-          } else {
+          if (viewMode === 'datasets' && get(dataset, 'rootFileType') !== 'dir') {
             const parent = await get(dataset, 'parent');
             return parent && BrowsableDataset.create({ content: parent }) ||
               spaceDatasetsRoot;
           }
+          return BrowsableDataset.create({ content: dataset });
         } catch (error) {
           globalNotify.backendError(this.t('openingDataset'), error);
           return spaceDatasetsRoot;
@@ -236,28 +250,46 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'initialBrowsableDatasetProxy'
   )),
 
+  browserModel: computed('viewMode', function browserModel() {
+    if (this.get('viewMode') === 'archives') {
+      return this.createArchivesBrowserModel();
+    } else {
+      return this.createDatasetsBrowerModel();
+    }
+  }),
+
   spaceIdObserver: observer('spaceId', function spaceIdObserver() {
     this.get('containerScrollTop')(0);
   }),
 
-  attachmentStateObserver: observer(
+  clearSelectedObserver: observer(
     'attachmentState',
-    function attachmentStateObserver() {
+    'viewMode',
+    function clearSelectedObserver() {
       next(() => {
         safeExec(this, () => {
-          if (this.get('selectedDatasets.length') > 0) {
-            this.set('selectedDatasets', []);
+          if (this.get('selectedItems.length') > 0) {
+            this.set('selectedItems', []);
           }
         });
       });
     }
   ),
 
+  updateOnezoneDatasetData: observer(
+    'browsableDatasetProxy',
+    async function updateOnezoneDatasetData() {
+      const browsableDataset = await this.get('browsableDatasetProxy');
+      if (browsableDataset) {
+        this.callParent('updateDatasetData', browsableDataset);
+      }
+    }
+  ),
+
   init() {
     this._super(...arguments);
-    this.set('browserModel', this.createBrowserModel());
-    if (!this.get('selectedDatasets')) {
-      this.set('selectedDatasets', []);
+    if (!this.get('selectedItems')) {
+      this.set('selectedItems', []);
     }
   },
 
@@ -277,7 +309,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return this.callParent('getDatasetsUrl', options);
   },
 
-  createBrowserModel() {
+  createDatasetsBrowerModel() {
     return DatasetBrowserModel.create({
       ownerSource: this,
       spaceDatasetsViewState: this,
@@ -286,6 +318,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
       openDatasetsModal: this.openDatasetsModal.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openDatasetOpenModal: this.openDatasetOpenModal.bind(this),
+      openArchivesView: this.openArchivesView.bind(this),
+    });
+  },
+
+  createArchivesBrowserModel() {
+    return ArchiveBrowserModel.create({
+      ownerSource: this,
+      spaceDatasetsViewState: this,
     });
   },
 
@@ -343,6 +383,16 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }));
   },
 
+  async fetchDatasetArchives(datasetId, startIndex, size, offset) {
+    const archiveManager = this.get('archiveManager');
+    return this.browserizeArchives(await archiveManager.fetchDatasetArchives({
+      datasetId,
+      index: startIndex,
+      limit: size,
+      offset,
+    }));
+  },
+
   browserizeDatasets({ childrenRecords, isLast }) {
     return {
       childrenRecords: childrenRecords.map(r => BrowsableDataset.create({ content: r })),
@@ -350,14 +400,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
     };
   },
 
-  resolveFileParentFun(dataset) {
-    if (get(dataset, 'entityId') === spaceDatasetsRootId) {
-      return resolve(null);
-    } else if (!get(dataset, 'hasParent')) {
-      return resolve(this.get('spaceDatasetsRoot'));
-    } else {
-      return get(dataset, 'parent');
-    }
+  browserizeArchives({ childrenRecords, isLast }) {
+    return {
+      childrenRecords: childrenRecords.map(r => BrowsableArchive.create({ content: r })),
+      isLast,
+    };
   },
 
   /**
@@ -394,19 +441,58 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return this.get('archiveManager').createArchive(dataset, archiveData);
   },
 
+  openArchivesView(dataset) {
+    this.callParent('updateViewMode', 'archives');
+    this.callParent('updateDatasetId', get(dataset, 'entityId'));
+    this.callParent('updateDatasetData', dataset);
+  },
+
   actions: {
     /**
-     * **Parent iframe action**
-     * @param {String} datasetId
+     * @param {String} itemId currently: datasetId
      */
-    updateDatasetId(datasetId) {
-      this.callParent('updateDatasetId', datasetId);
+    updateDirEntityId(itemId) {
+      // TODO: VFS-7648 change mode and dirId when entering archive
+      if (this.get('viewMode') !== 'archives') {
+        this.callParent('updateDatasetId', itemId);
+      }
     },
-    changeSelectedDatasets(selectedDatasets) {
-      this.set('selectedDatasets', selectedDatasets);
+    changeSelectedItems(selectedItems) {
+      this.set('selectedItems', selectedItems);
     },
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
+    },
+    async resolveFileParent(dataset) {
+      const viewMode = this.get('viewMode');
+      if (viewMode === 'archives') {
+        // archive browser: root (there is no archives tree - only flat list starting
+        // from root)
+        return null;
+      } else if (get(dataset, 'entityId') === spaceDatasetsRootId) {
+        // dataset browser: space root
+        return null;
+      } else if (!get(dataset, 'hasParent')) {
+        // dataset browser: tree top
+        return this.get('spaceDatasetsRoot');
+      } else {
+        // dataset browser: regular dataset
+        return get(dataset, 'parent');
+      }
+    },
+    fetchChildren(...fetchArgs) {
+      const {
+        isInRoot,
+        viewMode,
+        datasetId,
+      } = this.getProperties('isInRoot', 'viewMode', 'datasetId');
+      if (viewMode === 'archives' && datasetId) {
+        return this.fetchDatasetArchives(...fetchArgs);
+      } else if (isInRoot) {
+        return this.fetchSpaceDatasets(...fetchArgs);
+      } else {
+        return this.fetchDatasetChildren(...fetchArgs);
+      }
     },
   },
 });

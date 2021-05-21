@@ -26,6 +26,7 @@ export default _.merge({}, BaseBrowserModel, {
   },
   fileActions: {
     showFile: 'Show in file browser',
+    manageArchives: 'Manage archives',
     createArchive: 'Create archive',
     protection: 'Write protection',
     changeState: {

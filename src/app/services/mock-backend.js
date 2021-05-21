@@ -443,6 +443,7 @@ export default Service.extend({
             'space_manage_qos',
             'space_manage_datasets',
             'space_create_archives',
+            'space_view_archives',
           ],
         }).save()
       )))
@@ -563,6 +564,7 @@ export default Service.extend({
   },
 
   async createDataset(file, data = {}) {
+    const spaceId = this.get('entityRecords.space.firstObject.entityId');
     const fileId = get(file, 'entityId');
     return this.get('store').createRecord('dataset', Object.assign({
       id: `${datasetEntityType}.${fileId}.instance:private`,
@@ -575,6 +577,7 @@ export default Service.extend({
       creationTime: Math.floor(Date.now() / 1000),
       rootFilePath: stringifyFilePath(await resolveFilePath(file)),
       rootFileType: get(file, 'type'),
+      spaceId,
     }, data)).save();
   },
 
@@ -703,15 +706,21 @@ export default Service.extend({
   },
 
   async createArchivesMock( /* store */ ) {
-    const archiveCount = 3;
+    this.set('entityRecords.archive', []);
+    const datasets = this.get('entityRecords.dataset');
+    const dirDataset = datasets.find(ds => get(ds, 'rootFileType') === 'dir');
+    await this.createArchivesForDataset(dirDataset, 3);
+    const fileDataset = datasets.find(ds => get(ds, 'rootFileType') === 'file');
+    await this.createArchivesForDataset(fileDataset, 1);
+  },
+
+  async createArchivesForDataset(dataset, archiveCount) {
+    const entityRecordsArchives = this.get('entityRecords.archive');
     const archiveManager = this.get('archiveManager');
-    const entityRecords = this.get('entityRecords');
-    const archives = [];
-    const dataset = get(entityRecords, 'dataset')[0];
     const datasetRootFile = await get(dataset, 'rootFile');
     const name = get(datasetRootFile, 'name');
     for (let i = 0; i < archiveCount; ++i) {
-      const entityId = 'archive-' + i;
+      const entityId = `${get(dataset, 'entityId')}-archive-${i}}`;
       const archive = await archiveManager.createArchive(dataset, {
         config: {
           incremental: true,
@@ -735,9 +744,8 @@ export default Service.extend({
         // fake directory to browse - it is the same as regular dir
         rootDir: datasetRootFile,
       });
-      archives.push(archive);
+      entityRecordsArchives.push(archive);
     }
-    set(entityRecords, 'archive', archives);
     dataset.set('archiveCount', archiveCount);
     await dataset.save();
   },

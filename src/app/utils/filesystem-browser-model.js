@@ -12,11 +12,7 @@ import { inject as service } from '@ember/service';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
-import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
-import { resolve } from 'rsvp';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { later } from '@ember/runloop';
-import $ from 'jquery';
 import { computed, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
@@ -24,6 +20,8 @@ import {
   actionContext,
   anySelectedContexts,
 } from 'oneprovider-gui/components/file-browser';
+import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
+import { resolve } from 'rsvp';
 
 const buttonNames = Object.freeze([
   'btnUpload',
@@ -49,7 +47,7 @@ const buttonNames = Object.freeze([
   'btnDelete',
 ]);
 
-export default BaseBrowserModel.extend({
+export default BaseBrowserModel.extend(DownloadInBrowser, {
   errorExtractor: service(),
   fileManager: service(),
   globalNotify: service(),
@@ -180,22 +178,10 @@ export default BaseBrowserModel.extend({
   buttonNames,
 
   /**
-   * Reference to Window object - can be stubbed for testing purposes.
-   * @type {Window}
-   */
-  _window: window,
-
-  /**
    * Reference to Document object - can be stubbed for testing purposes.
    * @type {Document}
    */
   _document: document,
-
-  /**
-   * Reference to Body object - can be stubbed for testing purposes.
-   * @type {HTMLBodyElement}
-   */
-  _body: document.body,
 
   // #region Action buttons
 
@@ -779,6 +765,15 @@ export default BaseBrowserModel.extend({
     return actions;
   },
 
+  downloadFiles(files) {
+    const effFiles = files.mapBy('effFile').compact();
+    if (!effFiles.length) {
+      return resolve();
+    }
+    const fileIds = effFiles.mapBy('entityId');
+    return this.downloadFilesById(fileIds);
+  },
+
   generateDisabledTip({
     protectionType,
     checkProtectionForCurrentDir = false,
@@ -815,73 +810,6 @@ export default BaseBrowserModel.extend({
       });
     }
     return tip;
-  },
-
-  downloadFiles(files) {
-    const {
-      fileManager,
-      globalNotify,
-      previewMode,
-      loadingIconFileIds,
-    } = this.getProperties(
-      'fileManager',
-      'globalNotify',
-      'previewMode',
-      'loadingIconFileIds'
-    );
-    const effFiles = files.mapBy('effFile').compact();
-    if (!effFiles.length) {
-      return resolve();
-    }
-
-    const fileIds = effFiles.mapBy('entityId');
-    // intentionally not checking for duplicates, because we treat multiple "loading id"
-    // entries as semaphores
-    loadingIconFileIds.pushObjects(fileIds);
-    return fileManager.getFileDownloadUrl(
-        fileIds,
-        previewMode ? 'public' : 'private'
-      )
-      .then((data) => this.handleFileDownloadUrl(data))
-      .catch((error) => {
-        globalNotify.backendError(this.t('startingDownload'), error);
-        throw error;
-      })
-      .finally(() => {
-        removeObjectsFirstOccurence(loadingIconFileIds, fileIds);
-      });
-  },
-
-  handleFileDownloadUrl(data) {
-    const isMobileBrowser = this.get('isMobile.any');
-    const fileUrl = data && get(data, 'fileUrl');
-    if (fileUrl) {
-      if (isMobileBrowser) {
-        this.downloadUsingOpen(fileUrl);
-      } else {
-        this.downloadUsingIframe(fileUrl);
-      }
-    } else {
-      throw { isOnedataCustomError: true, type: 'empty-file-url' };
-    }
-  },
-
-  downloadUsingIframe(fileUrl) {
-    const _body = this.get('_body');
-    const iframe = $('<iframe/>').attr({
-      src: fileUrl,
-      style: 'display:none;',
-    }).appendTo(_body);
-    // the time should be long to support some download extensions in Firefox desktop
-    later(() => iframe.remove(), 60000);
-  },
-
-  downloadUsingOpen(fileUrl) {
-    // Apple devices such as iPad tries to open file using its embedded viewer
-    // in any browser, but we cannot say if the file extension is currently supported
-    // so we try to open every file in new tab.
-    const target = this.get('isMobile.apple.device') ? '_blank' : '_self';
-    this.get('_window').open(fileUrl, target);
   },
 
   pasteFiles() {
