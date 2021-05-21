@@ -47,11 +47,11 @@
   {{/if}}
 
   {{#if fileToShowInfo}}
-    {{!-- FIXME: remove info modal parts that are not applicable to archive data --}}
     {{file-browser/fb-info-modal
       open=true
       previewMode=true
       file=fileToShowInfo
+      showApiSection=false
       onHide=(action closeInfoModal)
     }}
   {{/if}}
@@ -61,6 +61,7 @@
       open=true
       file=fileToShowMetadata
       previewMode=true
+      fileModelScope="private"
       onHide=(action closeMetadataModal)
     }}
   {{/if}}
