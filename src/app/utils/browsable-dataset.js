@@ -19,6 +19,8 @@ export default ObjectProxy.extend({
     return this;
   }),
 
+  browsableType: 'dataset',
+
   relationEntityId: proxyMethod('relationEntityId'),
   belongsTo: proxyMethod('belongsTo'),
   hasMany: proxyMethod('hasMany'),

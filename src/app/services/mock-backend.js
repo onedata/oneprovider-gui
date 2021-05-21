@@ -720,7 +720,7 @@ export default Service.extend({
     const datasetRootFile = await get(dataset, 'rootFile');
     const name = get(datasetRootFile, 'name');
     for (let i = 0; i < archiveCount; ++i) {
-      const entityId = `${get(dataset, 'entityId')}-archive-${i}}`;
+      const entityId = `${get(dataset, 'entityId')}-archive-${i}`;
       const archive = await archiveManager.createArchive(dataset, {
         config: {
           incremental: true,

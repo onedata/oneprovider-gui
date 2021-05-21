@@ -1,8 +1,9 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
-  {{#if browsableDataset}}
+  {{#if currentBrowsableItem}}
     {{file-browser
       browserModel=browserModel
-      dir=browsableDataset
+      previewMode=previewMode
+      dir=currentBrowsableItem
       customRootDir=spaceDatasetsRoot
       customFetchDirChildren=(action "fetchChildren")
       resolveFileParentFun=(action "resolveFileParent")
@@ -42,6 +43,25 @@
       dataset=datasetToCreateArchive
       onHide=(action closeCreateArchiveModal)
       onArchiveCreate=(action submitArchiveCreate)
+    }}
+  {{/if}}
+
+  {{#if fileToShowInfo}}
+    {{!-- FIXME: remove info modal parts that are not applicable to archive data --}}
+    {{file-browser/fb-info-modal
+      open=true
+      previewMode=true
+      file=fileToShowInfo
+      onHide=(action closeInfoModal)
+    }}
+  {{/if}}
+
+  {{#if fileToShowMetadata}}
+    {{file-browser/fb-metadata-modal
+      open=true
+      file=fileToShowMetadata
+      previewMode=true
+      onHide=(action closeMetadataModal)
     }}
   {{/if}}
 

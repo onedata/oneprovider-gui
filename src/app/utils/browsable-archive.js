@@ -13,13 +13,15 @@ import { computed } from '@ember/object';
 import { or } from 'ember-awesome-macros';
 
 export default ObjectProxy.extend({
-  type: 'file',
+  type: 'dir',
 
   name: or('content.description', 'content.creationTime'),
 
   effFile: computed(function effFile() {
     return this;
   }),
+
+  browsableType: 'archive',
 
   relationEntityId: proxyMethod('relationEntityId'),
   belongsTo: proxyMethod('belongsTo'),

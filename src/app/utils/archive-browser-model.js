@@ -10,12 +10,13 @@
 
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import { actionContext } from 'oneprovider-gui/components/file-browser';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled } from 'rsvp';
 import { conditional, equal, raw } from 'ember-awesome-macros';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -44,6 +45,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Object}
    */
   spaceDatasetsViewState: Object.freeze({}),
+
+  /**
+   * @virtual
+   * @type {(archive: Models.Archive) => any}
+   */
+  openArchiveDirView: notImplementedThrow,
 
   /**
    * @override
@@ -114,16 +121,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           return this.downloadArchives(archives);
         },
         showIn: [
-          actionContext.singleFile,
-          actionContext.singleFilePreview,
-          actionContext.multiFile,
-          actionContext.multiFilePreview,
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+          actionContext.multiDir,
+          actionContext.multiDirPreview,
         ],
       });
     }
   ),
 
   //#endregion
+
+  /**
+   * @override
+   * @param {Models.Archive} archive 
+   */
+  async onOpenFile(archive) {
+    if (archive.belongsTo('rootDir').id()) {
+      const rootDir = await get(archive, 'rootDir');
+      return this.get('openArchiveDirView')(await rootDir);
+    }
+  },
 
   async downloadArchives(archives) {
     const rootDirs = await allFulfilled(archives.mapBy('rootDir').compact());
