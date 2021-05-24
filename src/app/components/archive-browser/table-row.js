@@ -9,9 +9,12 @@
  */
 
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
+import { htmlSafe } from '@ember/string';
+import { conditional, equal, raw, and } from 'ember-awesome-macros';
 
 const RowModel = EmberObject.extend(I18n, {
   /**
@@ -28,10 +31,29 @@ const RowModel = EmberObject.extend(I18n, {
   i18nPrefix: 'components.archiveBrowser.tableRow',
 
   archive: reads('tableRow.archive'),
-  stateText: computed('archive.state', function () {
-    const state = this.get('archive.state');
-    return this.t(`state.${state}`, {}, { defaultValue: this.t('state.unknown') });
-  }),
+  stateText: computed(
+    'archive.{state,isDirect,filesArchived,byteSize}',
+    function stateText() {
+      const archive = this.get('archive');
+      const {
+        state,
+        isDirect,
+        filesArchived,
+        byteSize,
+      } = getProperties(archive, 'state', 'isDirect', 'filesArchived', 'byteSize');
+      let text = this.t(`state.${state}`, {}, { defaultValue: this.t('state.unknown') });
+      if (state === 'pending' && isDirect) {
+        const sizeText = bytesToString(byteSize);
+        text += `<br>${this.t('progress.processed', { filesCount: filesArchived, size: sizeText })}`;
+      }
+      return htmlSafe(text);
+    }
+  ),
+  stateColClass: conditional(
+    and(equal('archive.state', raw('pending')), 'archive.isDirect'),
+    raw('multiline'),
+    raw(''),
+  ),
 });
 
 export default FbTableRow.extend({
