@@ -113,7 +113,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @virtual optional
    * @type {Array<String>}
    */
-  selectedIds: undefined,
+  selected: undefined,
 
   /**
    * One of: 'attached', 'detached'
@@ -125,7 +125,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   attachmentState: undefined,
 
   /**
-   * One of: 'datasets', 'archives'
+   * One of: 'datasets', 'archives', 'files'
    * 
    * **Injected from parent frame.**
    * @virtual
@@ -147,7 +147,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'datasetId',
     'archiveId',
     'dirId',
-    'selectedIds',
+    'selected',
     'attachmentState',
     'viewMode',
   ]),
@@ -270,7 +270,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   )),
 
-  archive: reads('archiveProxy.content'),
+  archive: computedLastProxyContent('archiveProxy'),
 
   archiveRootDirId: computed('archive', function archiveRootDirId() {
     const archive = this.get('archive');
@@ -341,6 +341,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
   )),
 
   /**
+   * @type {Models.Dataset}
+   */
+  browsableDataset: computedLastProxyContent('browsableDatasetProxy'),
+
+  /**
    * Currently viewed directory in archive-file-browser
    * @type {ComputedProperty<Models.File>}
    */
@@ -365,26 +370,23 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   )),
 
-  dir: reads('dirProxy.content'),
+  dir: computedLastProxyContent('dirProxy'),
 
   /**
-   * @type {Models.Dataset}
+   * @type {PromiseOBject<EmberObject>} resolve with file-like object for
+   *  `file-browser#dir` property
    */
-  browsableDataset: computedLastProxyContent('browsableDatasetProxy'),
-
-  /**
-   * A "dir" that is injected into `file-browser` component.
-   * @type {EmberObject} file-like object for `file-browser#dir` property
-   */
-  currentBrowsableItem: conditional(
+  currentBrowsableItemProxy: conditional(
     equal('viewMode', raw('files')),
     conditional(
       'dirId',
-      'dir',
-      'archive'
+      'dirProxy',
+      'archiveProxy'
     ),
-    'browsableDataset'
+    'browsableDatasetProxy'
   ),
+
+  currentBrowsableItem: computedLastProxyContent('currentBrowsableItemProxy'),
 
   /**
    * Proxy for whole file-browser: loading causes loading screen, recomputing causes
