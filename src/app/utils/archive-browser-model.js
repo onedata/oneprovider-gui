@@ -11,12 +11,14 @@
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import { actionContext } from 'oneprovider-gui/components/file-browser';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled } from 'rsvp';
 import { conditional, equal, raw } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import Looper from 'onedata-gui-common/utils/looper';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -110,6 +112,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   navigateDataTarget: '_top',
 
+  /**
+   * @type {Looper}
+   */
+  refreshLooper: undefined,
+
+  /**
+   * @type {Number}
+   */
+  refreshInterval: 5 * 1000,
+
   //#region Action buttons
 
   btnDownloadTar: computed(
@@ -131,6 +143,38 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   //#endregion
+
+  init() {
+    this._super(...arguments);
+
+    const refreshLooper = Looper
+      .extend({
+        interval: reads('browserModel.refreshInterval'),
+      })
+      .create({
+        browserModel: this,
+        interval: 5 * 1000,
+        immediate: false,
+      });
+    refreshLooper.on('tick', this.refreshList.bind(this));
+    this.set('refreshLooper', refreshLooper);
+  },
+
+  destroy() {
+    try {
+      const refreshLooper = this.get('refreshLooper');
+      if (refreshLooper) {
+        refreshLooper.destroy();
+      }
+    } finally {
+      this._super(...arguments);
+    }
+
+  },
+
+  refreshList() {
+    this.get('fbTableApi').refresh(false);
+  },
 
   /**
    * @override

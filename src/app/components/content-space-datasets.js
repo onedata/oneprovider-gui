@@ -155,6 +155,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
   _window: window,
 
   /**
+   * Managed by `switchBrowserModel` observer.
+   * @type {Utils.BaseBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
    * Default value set on init.
    * @type {Array<EmberObject>} a browsable item that appears on list:
    *  dataset, archive or file
@@ -427,18 +433,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   previewMode: equal('viewMode', raw('files')),
 
-  browserModel: computed('viewMode', function browserModel() {
-    switch (this.get('viewMode')) {
-      case 'files':
-        return this.createFilesystemBrowserModel();
-      case 'archives':
-        return this.createArchivesBrowserModel();
-      case 'datasets':
-      default:
-        return this.createDatasetsBrowerModel();
-    }
-  }),
-
   customRootDir: computed(
     'viewMode',
     'spaceDatasetsRoot',
@@ -453,6 +447,29 @@ export default OneEmbeddedComponent.extend(...mixins, {
       }
     }
   ),
+
+  switchBrowserModel: observer('viewMode', function switchBrowserModel() {
+    const {
+      viewMode,
+      browserModel: currentBrowserModel,
+    } = this.getProperties('viewMode', 'browserModel');
+    let browserModel;
+    switch (viewMode) {
+      case 'files':
+        browserModel = this.createFilesystemBrowserModel();
+        break;
+      case 'archives':
+        browserModel = this.createArchivesBrowserModel();
+        break;
+      case 'datasets':
+      default:
+        browserModel = this.createDatasetsBrowerModel();
+    }
+    this.set('browserModel', browserModel);
+    if (currentBrowserModel) {
+      currentBrowserModel.destroy();
+    }
+  }),
 
   spaceIdObserver: observer('spaceId', function spaceIdObserver() {
     this.get('containerScrollTop')(0);
@@ -485,10 +502,20 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   init() {
     this._super(...arguments);
+    this.switchBrowserModel();
     if (!this.get('selectedItems')) {
       this.set('selectedItems', []);
     }
     this.updateOnezoneDatasetData();
+  },
+
+  willDestroyElement() {
+    try {
+      const browserModel = this.get('browserModel');
+      browserModel.destroy();
+    } finally {
+      this._super(...arguments);
+    }
   },
 
   createOnezoneDatasetData(dataset) {

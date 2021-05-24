@@ -403,13 +403,16 @@ export default Component.extend(I18n, {
    */
   api: computed(function api() {
     return {
-      refresh: () => {
+      refresh: (animated = true) => {
         const {
           refreshStarted,
           element,
         } = this.getProperties('refreshStarted', 'element');
         if (refreshStarted) {
           return resolve();
+        }
+        if (!animated) {
+          return this.refreshFileList();
         }
         this.set('renderRefreshSpinner', true);
         // wait for refresh spinner to render because it needs to transition
