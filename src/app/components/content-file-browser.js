@@ -487,6 +487,10 @@ export default OneEmbeddedComponent.extend(
         return this.callParent('getDataUrl', data);
       },
 
+      getDatasetsUrl(data) {
+        return this.callParent('getDatasetsUrl', data);
+      },
+
       closeConfirmFileDownload() {
         this.set('fileForConfirmDownload', null);
       },

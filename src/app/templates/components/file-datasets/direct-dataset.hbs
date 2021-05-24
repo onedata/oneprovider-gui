@@ -28,7 +28,9 @@
         icon=directDatasetRowIcon
       }}
       {{#truncated-string class="dataset-label direct-dataset-name"}}
-        {{label}}
+        <a class="dataset-link azure" href={{datasetLink}} target={{navigateTarget}}>
+          {{label}}
+        </a>
       {{/truncated-string}}
     </div>
   {{/file-datasets/dataset-item}}
