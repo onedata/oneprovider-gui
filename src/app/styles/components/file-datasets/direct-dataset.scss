@@ -8,6 +8,16 @@
       @include font-semibold;
     }
   }
+
+  .direct-dataset-label-section {
+    display: flex;
+    .dataset-label {
+      flex-grow: 1;
+    }
+    .dataset-link {
+      padding-left: 2em;
+    }
+  }
   
   @media (max-width: $screen-xs-max) {
     .attach-dataset-hint-trigger {

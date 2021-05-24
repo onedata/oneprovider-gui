@@ -822,7 +822,7 @@ export default Service.extend({
             );
             const id = generateFileGri(entityId);
             const name =
-              `Chain directory long name ${String(i).padStart(4, '0')}`;
+              `Chain directory long longlonglonglonglonglonglonglonglonglonglong name ${String(i).padStart(4, '0')}`;
             return store.createRecord('file', {
               id,
               name,

@@ -22,16 +22,19 @@
       )
     )
   }}
-    <div class="dataset-label-section">
+    <div class="dataset-label-section direct-dataset-label-section">
       {{one-icon
         class="path-icon direct-dataset-icon"
         icon=directDatasetRowIcon
       }}
       {{#truncated-string class="dataset-label direct-dataset-name"}}
-        <a class="dataset-link azure" href={{datasetLink}} target={{navigateTarget}}>
-          {{label}}
-        </a>
+        {{label}}
       {{/truncated-string}}
+      {{#if datasetLink}}
+        <a class="dataset-link azure" href={{datasetLink}} target={{navigateTarget}}>
+          {{archiveCountText}}
+        </a>
+      {{/if}}
     </div>
   {{/file-datasets/dataset-item}}
 {{else}}

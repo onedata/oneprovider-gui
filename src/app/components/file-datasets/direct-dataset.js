@@ -89,6 +89,20 @@ export default Component.extend(I18n, {
   ),
 
   /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  archiveCountText: computed('directDataset.archiveCount', function archiveCountText() {
+    const count = this.get('directDataset.archiveCount');
+    if (!count) {
+      return this.t('archiveCount.none');
+    } else if (count === 1) {
+      return this.t('archiveCount.single');
+    } else {
+      return this.t('archiveCount.multi', { count });
+    }
+  }),
+
+  /**
    * Link on item text, if it has a dataset established.
    * @type {ComputedProperty<String>}
    */
