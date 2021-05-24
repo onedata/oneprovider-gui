@@ -570,13 +570,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return ArchiveBrowserModel.create({
       ownerSource: this,
       spaceDatasetsViewState: this,
+      openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
     });
   },
 
   createFilesystemBrowserModel() {
     return FilesystemBrowserModel.create({
       ownerSource: this,
-      // FIXME: switch dir and file-dataset icons
+      // TODO: VFS-7406 use dir or file-dataset icons
       rootIcon: 'browser-dataset',
       downloadScope: 'private',
       openInfo: this.openInfoModal.bind(this),
@@ -584,7 +585,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     });
   },
 
-  // FIXME: to implement check if file is from current space and archive
+  // TODO: VFS-7406 to implement check if file is from current space and archive
   async isValidFileForContext( /* file */ ) {
     return true;
   },

@@ -19,9 +19,12 @@ import { all as allFulfilled } from 'rsvp';
 import { conditional, equal, raw } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import Looper from 'onedata-gui-common/utils/looper';
+import _ from 'lodash';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
+  'btnCreateArchive',
   'btnDownloadTar',
 ]);
 
@@ -40,6 +43,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   downloadScope: 'private',
 
   /**
+   * One of: attached, detached.
+   * Which state tree of datasets is displayed.
+   * @type {ComputedProperty<String>}
+   */
+  attachmentState: reads('spaceDatasetsViewState.attachmentState').readOnly(),
+
+  dataset: reads('spaceDatasetsViewState.browsableDataset').readOnly(),
+
+  /**
    * State of space-datasets container for datasets-browser.
    * Properties:
    * - `browsableDataset: String`
@@ -53,6 +65,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {(archive: Models.Archive) => any}
    */
   openArchiveDirView: notImplementedThrow,
+
+  /**
+   * @override
+   * @type {(dataset: Models.Dataset) => any}
+   */
+  openCreateArchiveModal: notImplementedThrow,
 
   /**
    * @override
@@ -106,7 +124,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  buttonNames: allButtonNames,
+  /**
+   * @override
+   */
+  buttonNames: computed('attachmentState', function buttonNames() {
+    if (this.get('attachmentState') === 'detached') {
+      return _.without(allButtonNames, 'btnCreateArchive');
+    } else {
+      return [...allButtonNames];
+    }
+  }),
 
   _window: window,
 
@@ -137,6 +164,43 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleDirPreview,
           actionContext.multiDir,
           actionContext.multiDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnCreateArchive: computed(
+    'dataset',
+    'spacePrivileges.{manageDatasets,createArchives}',
+    function btnCreateArchive() {
+      const {
+        spacePrivileges,
+        i18n,
+      } = this.getProperties(
+        'spacePrivileges',
+        'i18n',
+      );
+      const hasPrivileges = spacePrivileges.manageDatasets &&
+        spacePrivileges.createArchives;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+        });
+      }
+      return this.createFileAction({
+        id: 'createArchive',
+        icon: 'browser-archive-add',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: () => {
+          return this.openCreateArchiveModal(this.get('dataset'));
+        },
+        showIn: [
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
         ],
       });
     }
