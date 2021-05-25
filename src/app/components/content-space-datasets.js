@@ -450,7 +450,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   ),
 
   switchBrowserModel: observer('viewMode', function switchBrowserModel() {
-    console.log('FIXME: switchBrowserModel');
     const {
       viewMode,
       browserModel: currentBrowserModel,
@@ -469,7 +468,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
     this.set('browserModel', newBrowserModel);
     if (currentBrowserModel) {
-      console.log('FIXME: switchBrowserModel, destroy currentBrowserModel');
       currentBrowserModel.destroy();
     }
   }),
