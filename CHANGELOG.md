@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7473 Added datasets and archives browser
 * VFS-7639 Changed .tar.gz to .tar in download actions
 * VFS-7576 Added XRootD shell commands to file info
 * VFS-5690 Added opening cluster invalid cert link in new tab and countdown for retry
