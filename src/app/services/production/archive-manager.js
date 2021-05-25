@@ -13,12 +13,14 @@ import { inject as service } from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { all as allFulfilled } from 'rsvp';
 
 const datasetArchivesAspect = 'archives_details';
 
 export default Service.extend({
   onedataGraph: service(),
   store: service(),
+  fileManager: service(),
 
   /**
    * @param {String} archiveId entityId of archive
@@ -46,7 +48,10 @@ export default Service.extend({
    * @returns {Promise<Models.Archive>}
    */
   async createArchive(dataset, data) {
-    const store = this.get('store');
+    const {
+      store,
+      fileManager,
+    } = this.getProperties('store', 'fileManager');
     const archive = store.createRecord('archive', Object.assign({
       _meta: {
         additionalData: {
@@ -56,7 +61,11 @@ export default Service.extend({
     }, data));
     await archive.save();
     try {
-      await dataset.reload();
+      const datasetId = dataset && get(dataset, 'entityId');
+      await allFulfilled([
+        dataset.reload(),
+        fileManager.dirChildrenRefresh(datasetId),
+      ]);
     } catch (error) {
       console.error(
         'services:archive-manager#createArchive: error updating dataset',
