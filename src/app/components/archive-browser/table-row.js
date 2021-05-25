@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw, and } from 'ember-awesome-macros';
+import { conditional, equal, raw } from 'ember-awesome-macros';
 
 const RowModel = EmberObject.extend(I18n, {
   /**
