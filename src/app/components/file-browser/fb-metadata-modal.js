@@ -79,11 +79,17 @@ export default Component.extend(...mixins, {
   onShow: notImplementedIgnore,
 
   /**
-   * If true, the modal works with public files and public metadata
+   * Set to true, to make modal suitable for shares
    * @virtual optional
    * @type {Boolean}
    */
   previewMode: false,
+
+  fileModelScope: conditional(
+    'previewMode',
+    raw('public'),
+    raw('private')
+  ),
 
   /**
    * Set to true to disable metadata edition
@@ -232,10 +238,10 @@ export default Component.extend(...mixins, {
         const {
           metadataManager,
           file,
-          previewMode,
-        } = this.getProperties('metadataManager', 'file', 'previewMode');
+          fileModelScope,
+        } = this.getProperties('metadataManager', 'file', 'fileModelScope');
         return metadataManager
-          .getMetadata(file, type, previewMode ? 'public' : 'private')
+          .getMetadata(file, type, fileModelScope)
           .then(metadata => {
             if (type === 'xattrs' && _.isEmpty(metadata)) {
               return emptyValue;

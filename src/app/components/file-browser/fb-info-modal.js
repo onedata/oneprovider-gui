@@ -121,6 +121,8 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    */
   hardlinksLimit: 100,
 
+  showApiSection: reads('previewMode'),
+
   itemType: reads('file.type'),
 
   typeTranslation: computed('itemType', function typeTranslation() {

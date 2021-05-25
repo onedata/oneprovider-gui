@@ -7,6 +7,7 @@
 {{else}}
   {{#promise-proxy-container proxy=requiredDataProxy}}
     {{file-browser
+      browserModel=browserModel
       dir=dirProxy.content
       customRootDir=rootDir
       selectedFiles=selectedFiles
@@ -16,9 +17,6 @@
       resolveFileParentFun=(action "resolveFileParentFun")
       updateDirEntityId=(action "updateDirId")
       containerScrollTop=(action "containerScrollTop")
-      openInfo=(action "openInfoModal")
-      openMetadata=(action "openMetadataModal")
-      openEditPermissions=(action "openEditPermissionsModal")
     }}
   {{/promise-proxy-container}}
 
@@ -29,7 +27,7 @@
       share=share
       spaceId=share.spaceId
       file=fileToShowInfo
-      onHide=(action "closeInfoModal")
+      onHide=(action closeInfoModal)
     }}
   {{/if}}
 
@@ -38,7 +36,7 @@
       open=true
       file=fileToShowMetadata
       previewMode=true
-      onHide=(action "closeMetadataModal")
+      onHide=(action closeMetadataModal)
     }}
   {{/if}}
 {{/if}}

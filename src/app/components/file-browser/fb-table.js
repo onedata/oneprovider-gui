@@ -4,7 +4,7 @@
  *
  * @module components/file-browser/fb-table
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -21,7 +21,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { equal, and, not, or, array, raw } from 'ember-awesome-macros';
+import { equal, and, not, or, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve, Promise } from 'rsvp';
 import _ from 'lodash';
@@ -42,7 +42,6 @@ export default Component.extend(I18n, {
 
   fileManager: service(),
   i18n: service(),
-  errorExtractor: service(),
 
   /**
    * @override
@@ -54,6 +53,12 @@ export default Component.extend(I18n, {
    * @type {models/File}
    */
   dir: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.BaseBrowserModel}
+   */
+  browserModel: undefined,
 
   /**
    * @virtual
@@ -105,13 +110,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(fileIds: Array<String>) => Promise}
-   */
-  downloadFiles: notImplementedIgnore,
-
-  /**
-   * @virtual optional
-   * @type {(api: { refresh: Function }) => undefined}
+   * @type {(api: { refresh: Function, getFilesArray: Function }) => undefined}
    */
   registerApi: notImplementedIgnore,
 
@@ -139,6 +138,12 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   invokeFileAction: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {(file: Models.File, confirmModal?: Boolean) => any}
+   */
+  openFile: notImplementedIgnore,
 
   /**
    * @type {EmberArray<String>}
@@ -194,10 +199,25 @@ export default Component.extend(I18n, {
    */
   headerVisible: undefined,
 
-  /**
-   * @type {models/File}
-   */
-  downloadModalFile: null,
+  headRowComponentName: or(
+    'browserModel.headRowComponentName',
+    raw('file-browser/fb-table-head-row')
+  ),
+
+  rowComponentName: or(
+    'browserModel.rowComponentName',
+    raw('file-browser/fb-table-row')
+  ),
+
+  dirLoadErrorComponentName: or(
+    'browserModel.dirLoadErrorComponentName',
+    raw('file-browser/fb-dir-load-error')
+  ),
+
+  emptyDirComponentName: or(
+    'browserModel.emptyDirComponentName',
+    raw('file-browser/fb-empty-dir')
+  ),
 
   selectionCount: reads('selectedFiles.length'),
 
@@ -262,46 +282,6 @@ export default Component.extend(I18n, {
     }
   ),
 
-  /**
-   * If the error is POSIX, returns string posix error code
-   * @type {ComputedProperty<string|undefined>}
-   */
-  dirLoadErrorPosix: computed(
-    'dirLoadError.{id,details.errno}',
-    function dirLoadErrorPosix() {
-      const dirLoadError = this.get('dirLoadError');
-      if (get(dirLoadError, 'id') === 'posix') {
-        return get(dirLoadError, 'details.errno');
-      }
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<object>} message object from error extractor
-   */
-  dirLoadErrorMessage: computed(
-    'dirLoadError',
-    function dirLoadErrorMessage() {
-      const reason = this.get('dirLoadError');
-      if (reason) {
-        return this.get('errorExtractor').getMessage(reason) ||
-          this.t('unknownError');
-      } else {
-        return this.t('uknownError');
-      }
-    }
-  ),
-
-  uploadAction: array.findBy('allButtonsArray', raw('id'), raw('upload')),
-
-  newDirectoryAction: array.findBy('allButtonsArray', raw('id'), raw('newDirectory')),
-
-  placeSymlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeSymlink')),
-
-  placeHardlinkAction: array.findBy('allButtonsArray', raw('id'), raw('placeHardlink')),
-
-  pasteAction: array.findBy('allButtonsArray', raw('id'), raw('paste')),
-
   isHardlinkingPossible: computed(
     'fileClipboardFiles.@each.type',
     function isHardlinkingPossible() {
@@ -358,7 +338,7 @@ export default Component.extend(I18n, {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
   }),
 
-  filesArray: computed('dir.entityId', function filesArray() {
+  filesArray: computed('dir.entityId', 'browserModel', function filesArray() {
     const dirId = this.get('dir.entityId');
     const {
       selectedFilesForJump,
@@ -423,13 +403,16 @@ export default Component.extend(I18n, {
    */
   api: computed(function api() {
     return {
-      refresh: () => {
+      refresh: (animated = true) => {
         const {
           refreshStarted,
           element,
         } = this.getProperties('refreshStarted', 'element');
         if (refreshStarted) {
           return resolve();
+        }
+        if (!animated) {
+          return this.refreshFileList();
         }
         this.set('renderRefreshSpinner', true);
         // wait for refresh spinner to render because it needs to transition
@@ -460,6 +443,9 @@ export default Component.extend(I18n, {
               .then(resolve, reject);
           });
         });
+      },
+      getFilesArray: () => {
+        return this.get('filesArray');
       },
     };
   }),
@@ -538,7 +524,10 @@ export default Component.extend(I18n, {
     'filesArray.sourceArray.length',
     function sourceArrayLength() {
       scheduleOnce('afterRender', () => {
-        this.get('listWatcher').scrollHandler();
+        const listWatcher = this.get('listWatcher');
+        if (listWatcher) {
+          listWatcher.scrollHandler();
+        }
       });
     }
   ),
@@ -867,23 +856,6 @@ export default Component.extend(I18n, {
     }
   },
 
-  openFile(file, confirmModal = false) {
-    const effFile = get(file, 'effFile');
-    if (!effFile) {
-      return;
-    }
-    const isDir = get(effFile, 'type') === 'dir';
-    if (isDir) {
-      return this.get('changeDir')(effFile);
-    } else {
-      if (confirmModal) {
-        this.set('downloadModalFile', file);
-      } else {
-        return this.get('downloadFiles')([file]);
-      }
-    }
-  },
-
   addToSelectedFiles(newFiles) {
     const {
       selectedFiles,
@@ -1074,40 +1046,12 @@ export default Component.extend(I18n, {
       if (areSomeFilesSelected) {
         return this.fileClicked(file, true, false);
       } else {
-        return this.openFile(file, true);
+        return this.get('openFile')(file, { tapped: true });
       }
     },
 
     fileDoubleClicked(file /*, clickEvent */ ) {
-      return this.openFile(file);
-    },
-
-    emptyDirUpload() {
-      return this.get('uploadAction.action')(...arguments);
-    },
-
-    emptyDirNewDirectory() {
-      return this.get('newDirectoryAction.action')(...arguments);
-    },
-
-    emptyDirPlaceSymlink() {
-      return this.get('placeSymlinkAction.action')(...arguments);
-    },
-
-    emptyDirPlaceHardlink() {
-      return this.get('placeHardlinkAction.action')(...arguments);
-    },
-
-    emptyDirPaste() {
-      return this.get('pasteAction.action')(...arguments);
-    },
-
-    closeDownloadModal() {
-      this.set('downloadModalFile', null);
-    },
-
-    confirmDownload() {
-      return this.get('downloadFiles')([this.get('downloadModalFile')]);
+      return this.get('openFile')(file);
     },
   },
 });

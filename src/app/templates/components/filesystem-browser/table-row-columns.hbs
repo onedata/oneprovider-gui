@@ -1,0 +1,18 @@
+<td class="fb-table-col-size hidden-xs">
+  <span class="file-item-text">
+    {{#if (eq file.effFile.type "file")}}
+      {{#if file.effFile.isPollingSize}}
+        {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+      {{else}}
+        {{bytes-to-string file.effFile.size}}
+      {{/if}}
+    {{else}}
+      —
+    {{/if}}
+  </span>
+</td>
+<td class="fb-table-col-modification hidden-xs">
+  <span class="file-item-text">
+    {{date-format file.effFile.modificationTime format="dateWithMinutes" blank="—"}}
+  </span>
+</td>

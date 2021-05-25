@@ -9,6 +9,7 @@ import { triggerEvent } from 'ember-native-dom-helpers';
 import $ from 'jquery';
 import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/models/file';
 import EmberObject, { set } from '@ember/object';
+import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -26,6 +27,10 @@ describe('Integration | Component | file browser/fb table row', function () {
 
   beforeEach(function () {
     registerService(this, 'currentUser', currentUser);
+    this.set('browserModel', FilesystemBrowserModel.create({
+      ownerSource: this,
+    }));
+    this.set('spacePrivileges', { view: true });
   });
 
   it('renders modification date', function () {
@@ -33,7 +38,7 @@ describe('Integration | Component | file browser/fb table row', function () {
     const dateReadable = /18 May 2022 \d+:50/;
     this.set('file', createFile({ modificationTime: date }));
 
-    this.render(hbs `{{file-browser/fb-table-row file=file}}`);
+    render(this);
 
     expect(this.$('.fb-table-col-modification').text()).to.match(dateReadable);
   });
@@ -41,7 +46,7 @@ describe('Integration | Component | file browser/fb table row', function () {
   it('does not render "hard links" file tag, when hardlinks count equals 1', function () {
     this.set('file', createFile({ hardlinksCount: 1 }));
 
-    this.render(hbs `{{file-browser/fb-table-row file=file }}`);
+    render(this);
 
     expect(this.$('.file-status-hardlinks'), 'refs tag').to.not.exist;
   });
@@ -49,7 +54,7 @@ describe('Integration | Component | file browser/fb table row', function () {
   it('renders "hard links" file tag, when hardlinks count equals 2', function () {
     this.set('file', createFile({ hardlinksCount: 2 }));
 
-    this.render(hbs `{{file-browser/fb-table-row file=file }}`);
+    render(this);
 
     const $tag = this.$('.file-status-hardlinks');
     expect($tag, 'hard links tag').to.exist;
@@ -131,7 +136,7 @@ describe('Integration | Component | file browser/fb table row', function () {
   });
 
   it('renders dataset tag as disabled if file has dataset, but not having space_view privileges', function () {
-    this.set('datasetsViewForbidden', true);
+    this.set('spacePrivileges.view', false);
     this.set('file', createFile({
       effDatasetMembership: 'direct',
     }));
@@ -201,9 +206,7 @@ function testProtectedFlag(flagTypes) {
       createFile({ effProtectionFlags, effDatasetMembership: 'ancestor' })
     );
 
-    this.render(hbs `{{file-browser/fb-table-row
-      file=file
-    }}`);
+    render(this);
 
     expect(this.$('.file-protected-icon')).to.have.length(effProtectionFlags.length);
     flagTypes.forEach(type => {
@@ -235,11 +238,7 @@ function checkNoAccessTag({ renders, description, properties }) {
   it(description, function () {
     this.setProperties(properties);
 
-    this.render(hbs `{{file-browser/fb-table-row
-      file=file
-      previewMode=previewMode
-      isSpaceOwned=isSpaceOwned
-    }}`);
+    render(this);
 
     const expector = expect(this.$('.file-status-forbidden'), 'forbidden tag');
     if (renders) {
@@ -274,8 +273,9 @@ function createFile(override = {}, ownerGri = userGri) {
 function render(testCase) {
   testCase.render(hbs `{{file-browser/fb-table-row
     file=file
+    browserModel=browserModel
     previewMode=previewMode
     isSpaceOwned=isSpaceOwned
-    datasetsViewForbidden=datasetsViewForbidden
+    spacePrivileges=spacePrivileges
   }}`);
 }

@@ -41,6 +41,8 @@
     {{/file-datasets/dataset-item}}
     {{#file-datasets/datasets-list-container
       getDataUrl=getDataUrl
+      getDatasetsUrl=getDatasetsUrl
+      mode=mode
       datasets=ancestorDatasets
       as |dataList|
     }}
@@ -51,23 +53,29 @@
             (if ancestorDatasetsCollapsed "closed" "opened")
           )
           dataset=data.dataset
-          file=data.file
           readonly=readonly
           togglesReadonlyMessage=insufficientEditPrivilegesMessage
           protectionIcons=protectionIcons
           updateOpenedFileData=updateOpenedFileData
         }}
           <div class="dataset-label-section">
-            {{one-icon class="path-icon" icon="browser-directory"}}
+            {{one-icon class="path-icon" icon=ancestorIcon}}
             <div class="dataset-label path-label">
-              <a
-                onclick={{action "fileLinkClicked"}}
-                target={{navigateDataTarget}}
-                class="azure file-path truncate"
-                href={{data.fileHref}}
-              >
-                {{data.filePathString}}
-              </a>
+              {{!-- TODO: VFS-7633 create anchor when dataset links will be supported --}}
+              {{#if (eq mode "dataset")}}
+                <span class="dataset-path truncate">
+                  {{data.filePathString}}
+                </span>
+              {{else}}
+                <a
+                  onclick={{action "ancestorLinkClicked"}}
+                  target={{navigateDataTarget}}
+                  class="azure file-path truncate"
+                  href={{data.itemHref}}
+                >
+                  {{data.filePathString}}
+                </a>
+              {{/if}}
             </div>
           </div>
         {{/file-datasets/dataset-item}}

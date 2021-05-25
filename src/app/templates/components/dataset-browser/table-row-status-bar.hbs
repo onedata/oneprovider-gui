@@ -1,0 +1,32 @@
+{{#if showProtectionTag}}
+  <div class="file-status-tag-group dataset-protection-status-tag-group">
+    <div
+      class="file-status-tag file-status-protection"
+      {{action
+        (action invokeFileAction dataset "protection")
+        bubbles=false
+      }}
+    >
+      {{tt this "status.protection"}}
+    </div>
+    <div
+      class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
+    >
+      {{#if dataIsEffProtected}}
+        {{one-icon
+          icon="provider"
+          class="file-protected-icon file-data-protected-icon"
+        }}
+      {{/if}}
+      {{#if metadataIsEffProtected}}
+        {{one-icon
+          icon="browser-attribute"
+          class="file-protected-icon file-metadata-protected-icon"
+        }}
+      {{/if}}
+      {{#if protectionFlagsInfo}}
+        {{one-tooltip title=protectionFlagsInfo}}
+      {{/if}}
+    </div>
+  </div>
+{{/if}}

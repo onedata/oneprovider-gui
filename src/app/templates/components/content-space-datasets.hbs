@@ -1,0 +1,68 @@
+{{#promise-proxy-container proxy=initialRequiredDataProxy}}
+  {{#if currentBrowsableItem}}
+    {{file-browser
+      browserModel=browserModel
+      previewMode=previewMode
+      dir=currentBrowsableItem
+      customFetchDirChildren=(action "fetchChildren")
+      resolveFileParentFun=(action "resolveFileParent")
+      spaceId=spaceId
+      spacePrivileges=spacePrivileges
+      selectedFiles=selectedItems
+      isSpaceOwned=space.currentUserIsOwner
+      changeSelectedFiles=(action "changeSelectedItems")
+      updateDirEntityId=(action "updateDirEntityId")
+    }}
+  {{/if}}
+  
+  {{#if filesToShowDatasets}}
+    {{datasets-modal
+      open=true
+      mode="dataset"
+      files=filesToShowDatasets
+      editPrivilege=true
+      onHide=(action closeDatasetsModal)
+      getDataUrl=(action getDataUrl)
+      getDatasetsUrl=(action getDatasetsUrl)
+    }}
+  {{/if}}
+
+  {{#if fileToShowDatasetOpen}}
+    {{dataset-browser/dataset-open-modal
+      open=true
+      dataset=fileToShowDatasetOpen
+      onHide=(action closeDatasetOpenModal)
+      onOpenArchivesView=(action openArchivesView)
+    }}
+  {{/if}}
+  
+  {{#if datasetToCreateArchive}}
+    {{archive-create-modal
+      open=true
+      dataset=datasetToCreateArchive
+      onHide=(action closeCreateArchiveModal)
+      onArchiveCreate=(action submitArchiveCreate)
+    }}
+  {{/if}}
+
+  {{#if fileToShowInfo}}
+    {{file-browser/fb-info-modal
+      open=true
+      previewMode=true
+      file=fileToShowInfo
+      showApiSection=false
+      onHide=(action closeInfoModal)
+    }}
+  {{/if}}
+
+  {{#if fileToShowMetadata}}
+    {{file-browser/fb-metadata-modal
+      open=true
+      file=fileToShowMetadata
+      previewMode=true
+      fileModelScope="private"
+      onHide=(action closeMetadataModal)
+    }}
+  {{/if}}
+
+{{/promise-proxy-container}}

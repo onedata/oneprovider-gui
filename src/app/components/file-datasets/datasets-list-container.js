@@ -9,7 +9,11 @@
 
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import { promise } from 'ember-awesome-macros';
+import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend({
   tagName: '',
@@ -27,26 +31,56 @@ export default Component.extend({
   datasets: undefined,
 
   /**
+   * File-datasets view mode. See `file-datasets` for details.
+   * @virtual optional
+   * @type {String}
+   */
+  mode: 'file',
+
+  /**
    * Data needed to render info column for ancestor dataset-item
    * @type {ComputedProperty<Object>}
    */
-  dataList: computed('datasets.@each.{rootFile,rootFilePath}', function dataList() {
-    const {
-      datasets,
-      getDataUrl,
-    } = this.getProperties('datasets', 'getDataUrl');
-    // datasets list provided by backend is always sorted from nearest parent to farest
-    // in ancestor datasets list we need reverse order
-    const datasetsArray = datasets.toArray ? datasets.toArray() : Array.from(datasets);
-    return datasetsArray.reverse().map(dataset => {
-      const fileId = dataset.relationEntityId('rootFile');
-      const filePathString = get(dataset, 'rootFilePath');
-      return {
-        dataset,
-        fileId,
-        filePathString,
-        fileHref: getDataUrl({ fileId: null, selected: [fileId] }),
-      };
-    });
-  }),
+  dataListProxy: promise.object(computed(
+    'getDataUrl',
+    'getDatasetsUrl',
+    'mode',
+    'datasets.@each.{rootFile,rootFilePath}',
+    async function dataListProxy() {
+      const {
+        datasets,
+        mode,
+        getDataUrl,
+        getDatasetsUrl,
+      } = this.getProperties('datasets', 'mode', 'getDataUrl', 'getDatasetsUrl');
+      const getUrl = mode === 'dataset' ? getDatasetsUrl : getDataUrl;
+      // datasets list provided by backend is always sorted from nearest parent to farest
+      // in ancestor datasets list we need reverse order
+      const datasetsArray = datasets.toArray ? datasets.toArray() : Array.from(datasets);
+      return await allFulfilled(datasetsArray.reverse().map(async (dataset) => {
+        const itemId = mode === 'dataset' ?
+          get(dataset, 'entityId') : dataset.relationEntityId('rootFile');
+        const filePathString = await this.getPathString(dataset);
+        return {
+          dataset,
+          filePathString,
+          itemHref: getUrl({ selected: [itemId] }),
+        };
+      }));
+    }
+  )),
+
+  dataList: reads('dataListProxy.content'),
+
+  async getPathString(dataset) {
+    if (this.get('mode') === 'file') {
+      return get(dataset, 'rootFilePath');
+    } else {
+      return stringifyFilePath(
+        await resolveFilePath(dataset), 'name',
+        ' › ',
+        false
+      );
+    }
+  },
 });

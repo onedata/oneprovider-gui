@@ -19,6 +19,7 @@ import {
 } from 'ember-awesome-macros';
 import { resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 
 const shareRootId = 'shareRoot';
 
@@ -116,6 +117,32 @@ export default Component.extend(I18n, {
     if (!this.get('selectedFiles')) {
       this.set('selectedFiles', []);
     }
+    this.set('browserModel', this.createBrowserModel());
+  },
+
+  createBrowserModel() {
+    return FilesystemBrowserModel.create({
+      ownerSource: this,
+      rootIcon: 'share',
+      openInfo: this.openInfoModal.bind(this),
+      openMetadata: this.openMetadataModal.bind(this),
+    });
+  },
+
+  openInfoModal(file) {
+    this.set('fileToShowInfo', file);
+  },
+
+  closeInfoModal() {
+    this.set('fileToShowInfo', null);
+  },
+
+  openMetadataModal(file) {
+    this.set('fileToShowMetadata', file);
+  },
+
+  closeMetadataModal() {
+    this.set('fileToShowMetadata', null);
   },
 
   isChildOfShare(file) {
@@ -163,24 +190,6 @@ export default Component.extend(I18n, {
       } else {
         return get(file, 'parent');
       }
-    },
-    openInfoModal(file) {
-      this.set('fileToShowInfo', file);
-    },
-    closeInfoModal() {
-      this.set('fileToShowInfo', null);
-    },
-    openMetadataModal(file) {
-      this.set('fileToShowMetadata', file);
-    },
-    closeMetadataModal() {
-      this.set('fileToShowMetadata', null);
-    },
-    openEditPermissionsModal(files) {
-      this.set('filesToEditPermissions', files);
-    },
-    closeEditPermissionsModal(files) {
-      this.set('filesToEditPermissions', files);
     },
   },
 });

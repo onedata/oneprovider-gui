@@ -1,6 +1,7 @@
 {{#modal.header class="file-datasets-part file-datasets-modal-header"}}
   {{file-datasets/summary-header
     file=file
+    mode=mode
     fileDatasetSummaryProxy=fileDatasetSummaryProxy
     protectionIcons=protectionIcons
   }}
@@ -15,14 +16,18 @@
   }}
     <table class="table datasets-table {{unless media.isMobile "table-striped"}}">
       <thead class="datasets-table-head">
-        <th class="col-dataset-info">
-          {{file-datasets/direct-dataset-control
-            file=file
-            directDatasetProxy=directDatasetProxy
-            readonly=(not editPrivilege)
-            togglesReadonlyMessage=insufficientEditPrivilegesMessage
-          }}
-        </th>
+        {{#if showAttachmentToggle}}
+          <th class="col-dataset-info">
+            {{file-datasets/direct-dataset-control
+              file=file
+              directDatasetProxy=directDatasetProxy
+              readonly=(not editPrivilege)
+              togglesReadonlyMessage=insufficientEditPrivilegesMessage
+            }}
+          </th>
+        {{else}}
+          <th></th>
+        {{/if}}
         {{#each (array "data" "metadata") as |protectionType|}}
           <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
             <span class="protection-header-label">
@@ -49,11 +54,13 @@
         ancestorDatasetsProxy=ancestorDatasetsProxy
         protectionIcons=protectionIcons
         readonly=(not editPrivilege)
+        mode=mode
         insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
         fileType=file.type
         close=close
         updateOpenedFileData=(action "updateOpenedFileData")
         getDataUrl=(action getDataUrl)
+        getDatasetsUrl=(action getDatasetsUrl)
       }}
       {{file-datasets/direct-dataset
         file=file
@@ -61,6 +68,7 @@
         readonly=(not editPrivilege)
         protectionIcons=protectionIcons
         insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+        getDatasetsUrl=getDatasetsUrl
       }}
     </table>
   {{/promise-proxy-container}}
