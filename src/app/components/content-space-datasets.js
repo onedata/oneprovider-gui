@@ -44,6 +44,11 @@ const SpaceDatasetsRootBaseClass = EmberObject.extend({
   // virtual properties
   name: undefined,
   state: undefined,
+
+  // dataset-like methods
+  relationEntityId( /*relation*/ ) {
+    return null;
+  },
 });
 
 const archiveVirtualRootDirId = 'archiveRoot';
@@ -270,9 +275,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
         archiveManager,
         archiveId,
       } = this.getProperties('archiveManager', 'archiveId');
-      return BrowsableArchive.create({
-        content: await archiveManager.getArchive(archiveId),
-      });
+      if (archiveId) {
+        return BrowsableArchive.create({
+          content: await archiveManager.getArchive(archiveId),
+        });
+      } else {
+        return null;
+      }
     }
   )),
 
@@ -406,26 +415,20 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'initialArchiveProxy',
     function initialRequiredDataProxy() {
       // viewMode is not observed to prevent unnecessary proxy recompute
-      const viewMode = this.get('viewMode');
+      const {
+        spaceProxy,
+        viewMode,
+      } = this.get('spaceProxy', 'viewMode');
       if (viewMode === 'files') {
         if (this.get('dirId')) {
-          const {
-            spaceProxy,
-            initialDirProxy,
-          } = this.getProperties('spaceProxy', 'initialDirProxy');
+          const initialDirProxy = this.get('initialDirProxy');
           return allFulfilled([spaceProxy, initialDirProxy]);
         } else {
-          const {
-            spaceProxy,
-            initialArchiveProxy,
-          } = this.getProperties('spaceProxy', 'initialArchiveProxy');
+          const initialArchiveProxy = this.get('initialArchiveProxy');
           return allFulfilled([spaceProxy, initialArchiveProxy]);
         }
       } else {
-        const {
-          spaceProxy,
-          initialBrowsableDatasetProxy,
-        } = this.getProperties('spaceProxy', 'initialBrowsableDatasetProxy');
+        const initialBrowsableDatasetProxy = this.get('initialBrowsableDatasetProxy');
         return allFulfilled([spaceProxy, initialBrowsableDatasetProxy]);
       }
     }
@@ -439,34 +442,34 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'archive',
     function customRootDir() {
       if (this.get('viewMode') === 'files') {
-        console.log('using root archive');
         return this.get('archive');
       } else {
-        console.log('using root dataset');
         return this.get('spaceDatasetsRoot');
       }
     }
   ),
 
   switchBrowserModel: observer('viewMode', function switchBrowserModel() {
+    console.log('FIXME: switchBrowserModel');
     const {
       viewMode,
       browserModel: currentBrowserModel,
     } = this.getProperties('viewMode', 'browserModel');
-    let browserModel;
+    let newBrowserModel;
     switch (viewMode) {
       case 'files':
-        browserModel = this.createFilesystemBrowserModel();
+        newBrowserModel = this.createFilesystemBrowserModel();
         break;
       case 'archives':
-        browserModel = this.createArchivesBrowserModel();
+        newBrowserModel = this.createArchivesBrowserModel();
         break;
       case 'datasets':
       default:
-        browserModel = this.createDatasetsBrowerModel();
+        newBrowserModel = this.createDatasetsBrowerModel();
     }
-    this.set('browserModel', browserModel);
+    this.set('browserModel', newBrowserModel);
     if (currentBrowserModel) {
+      console.log('FIXME: switchBrowserModel, destroy currentBrowserModel');
       currentBrowserModel.destroy();
     }
   }),
@@ -512,7 +515,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
   willDestroyElement() {
     try {
       const browserModel = this.get('browserModel');
-      browserModel.destroy();
+      if (browserModel) {
+        browserModel.destroy();
+      }
     } finally {
       this._super(...arguments);
     }
@@ -783,18 +788,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
       return this.get('containerScrollTop')(...arguments);
     },
     async resolveFileParent(item) {
-      console.log('resolve parent', get(item, 'name'));
       const viewMode = this.get('viewMode');
       if (viewMode === 'files') {
         const browsableType = get(item, 'browsableType');
         // if browsable item has no type, it defaults to file (first and original
         // browsable object)
         if (!browsableType) {
-          // const archive = await this.get('archiveProxy');
-          // const archiveRootDirId = archive.relationEntityId('rootDir');
           const archiveRootDirId = this.get('archiveRootDirId');
           const dirParentId = item.relationEntityId('parent');
-          console.log('dir', get(item, 'name'), dirParentId === archiveRootDirId, archiveRootDirId, dirParentId);
           if (dirParentId === archiveRootDirId || !get(item, 'hasParent')) {
             // file browser: it's an archive root first child
             return this.get('archiveProxy');
@@ -834,15 +835,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
         viewMode,
         datasetId,
         dirId,
-        archive,
       } = this.getProperties(
         'isInRoot',
         'viewMode',
         'datasetId',
         'dirId',
-        'archive',
       );
       if (viewMode === 'files') {
+        const archive = this.get('archive') || await this.get('archiveProxy');
         const parentId = dirId || archive.relationEntityId('rootDir');
         return this.fetchDirChildren(parentId, ...fetchArgs.slice(1));
       } else if (viewMode === 'archives' && datasetId) {

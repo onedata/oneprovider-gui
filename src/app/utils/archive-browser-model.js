@@ -144,11 +144,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   refreshLooper: undefined,
 
-  /**
-   * @type {Number}
-   */
-  refreshInterval: 5 * 1000,
-
   //#region Action buttons
 
   btnDownloadTar: computed(
@@ -211,15 +206,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   init() {
     this._super(...arguments);
 
-    const refreshLooper = Looper
-      .extend({
-        interval: reads('browserModel.refreshInterval'),
-      })
-      .create({
-        browserModel: this,
-        interval: 5 * 1000,
-        immediate: false,
-      });
+    console.log('FIXME: create refresh looper');
+    const refreshLooper = Looper.create({
+      interval: 5 * 1000,
+      browserModel: this,
+      immediate: false,
+    });
     refreshLooper.on('tick', this.refreshList.bind(this));
     this.set('refreshLooper', refreshLooper);
   },
