@@ -110,7 +110,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {(api: { refresh: Function }) => undefined}
+   * @type {(api: { refresh: Function, getFilesArray: Function }) => undefined}
    */
   registerApi: notImplementedIgnore,
 
@@ -443,6 +443,9 @@ export default Component.extend(I18n, {
               .then(resolve, reject);
           });
         });
+      },
+      getFilesArray: () => {
+        return this.get('filesArray');
       },
     };
   }),

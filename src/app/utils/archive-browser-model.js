@@ -227,7 +227,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   refreshList() {
-    this.get('fbTableApi').refresh(false);
+    const itemsArray = this.get('fbTableApi').getFilesArray();
+    if (itemsArray) {
+      itemsArray.forEach(item => {
+        item.reload()
+          .catch(error => {
+            console.warn(
+              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed: ${error}`
+            );
+          });
+      });
+    }
   },
 
   /**
