@@ -740,7 +740,7 @@ export default Service.extend({
         }),
         index: name + entityId,
         creationTime: Math.floor(Date.now() / 1000),
-        state: 'pending',
+        state: 'building',
         // fake directory to browse - it is the same as regular dir
         rootDir: datasetRootFile,
       });

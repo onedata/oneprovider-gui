@@ -59,9 +59,10 @@ export default Model.extend(GraphSingleModelMixin, {
 
   filesFailed: attr('number'),
 
+  // TODO: byteSize will be removed for bytesArchived or stats object
   byteSize: attr('number'),
 
-  isDirect: attr('boolean'),
+  bytesArchived: attr('number'),
 
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),

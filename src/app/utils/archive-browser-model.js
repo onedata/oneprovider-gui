@@ -205,8 +205,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   init() {
     this._super(...arguments);
-
-    console.log('FIXME: create refresh looper');
     const refreshLooper = Looper.create({
       interval: 5 * 1000,
       browserModel: this,

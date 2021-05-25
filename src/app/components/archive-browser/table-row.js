@@ -32,25 +32,27 @@ const RowModel = EmberObject.extend(I18n, {
 
   archive: reads('tableRow.archive'),
   stateText: computed(
-    'archive.{state,isDirect,filesArchived,byteSize}',
+    'archive.{state,isDirect,filesArchived,byteSize,bytesArchived}',
     function stateText() {
       const archive = this.get('archive');
       const {
         state,
-        isDirect,
         filesArchived,
         byteSize,
-      } = getProperties(archive, 'state', 'isDirect', 'filesArchived', 'byteSize');
+        bytesArchived,
+      } = getProperties(archive, 'state', 'filesArchived', 'byteSize', 'bytesArchived');
+      const bytes = byteSize || bytesArchived || 0;
+      const filesText = filesArchived || '0';
       let text = this.t(`state.${state}`, {}, { defaultValue: this.t('state.unknown') });
-      if (state === 'pending' && isDirect) {
-        const sizeText = bytesToString(byteSize);
-        text += `<br>${this.t('progress.processed', { filesCount: filesArchived, size: sizeText })}`;
+      if (state === 'building') {
+        const sizeText = bytesToString(bytes);
+        text += `<br>${this.t('progress.processed', { filesCount: filesText, size: sizeText })}`;
       }
       return htmlSafe(text);
     }
   ),
   stateColClass: conditional(
-    and(equal('archive.state', raw('pending')), 'archive.isDirect'),
+    equal('archive.state', raw('building')),
     raw('multiline'),
     raw(''),
   ),
