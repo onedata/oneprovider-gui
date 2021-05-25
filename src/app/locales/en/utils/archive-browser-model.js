@@ -5,6 +5,7 @@ export default _.merge({}, BaseBrowserModel, {
   startingDownload: 'starting archive download',
   archiveList: 'Archives list',
   fileActions: {
+    createArchive: 'Create archive',
     downloadTar: 'Download (tar)',
   },
 });

@@ -16,6 +16,7 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
 import filterBreadcrumbsItems from 'oneprovider-gui/utils/filter-breadcrumbs-items';
+import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
@@ -60,10 +61,9 @@ export default Component.extend(
 
     /**
      * @virtual
-     * It must stay undefined by default for `resolveFilePath` function
      * @type {Function}
      */
-    resolveFileParentFun: undefined,
+    resolveFileParentFun: defaultResolveParent,
 
     /**
      * @virtual
@@ -222,12 +222,14 @@ export default Component.extend(
       const {
         breadcrumbsItemsProxy,
         elementsToShow,
-      } = this.getProperties('breadcrumbsItemsProxy', 'elementsToShow');
+        resolveFileParentFun,
+      } = this.getProperties('breadcrumbsItemsProxy', 'elementsToShow', 'resolveFileParentFun');
 
       return breadcrumbsItemsProxy.then(breadcrumbsItems =>
         filterBreadcrumbsItems(
           breadcrumbsItems,
-          elementsToShow
+          elementsToShow,
+          resolveFileParentFun
         )
       );
     },

@@ -31,7 +31,6 @@ export default FbDirLoadError.extend(I18n, {
   browserModel: undefined,
 
   /**
-   * @virtual
    * @type {(dataset: Models.Dataset) => any}
    */
   onOpenArchivesView: reads('browserModel.openArchivesView'),

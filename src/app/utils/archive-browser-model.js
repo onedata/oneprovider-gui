@@ -10,15 +10,21 @@
 
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import { actionContext } from 'oneprovider-gui/components/file-browser';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled } from 'rsvp';
 import { conditional, equal, raw } from 'ember-awesome-macros';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import Looper from 'onedata-gui-common/utils/looper';
+import _ from 'lodash';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
+  'btnCreateArchive',
   'btnDownloadTar',
 ]);
 
@@ -37,6 +43,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   downloadScope: 'private',
 
   /**
+   * One of: attached, detached.
+   * Which state tree of datasets is displayed.
+   * @type {ComputedProperty<String>}
+   */
+  attachmentState: reads('spaceDatasetsViewState.attachmentState').readOnly(),
+
+  dataset: reads('spaceDatasetsViewState.browsableDataset').readOnly(),
+
+  /**
    * State of space-datasets container for datasets-browser.
    * Properties:
    * - `browsableDataset: String`
@@ -44,6 +59,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Object}
    */
   spaceDatasetsViewState: Object.freeze({}),
+
+  /**
+   * @virtual
+   * @type {(archive: Models.Archive) => any}
+   */
+  openArchiveDirView: notImplementedThrow,
+
+  /**
+   * @override
+   * @type {(dataset: Models.Dataset) => any}
+   */
+  openCreateArchiveModal: notImplementedThrow,
 
   /**
    * @override
@@ -97,11 +124,25 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  buttonNames: allButtonNames,
+  /**
+   * @override
+   */
+  buttonNames: computed('attachmentState', function buttonNames() {
+    if (this.get('attachmentState') === 'detached') {
+      return _.without(allButtonNames, 'btnCreateArchive');
+    } else {
+      return [...allButtonNames];
+    }
+  }),
 
   _window: window,
 
   navigateDataTarget: '_top',
+
+  /**
+   * @type {Looper}
+   */
+  refreshLooper: undefined,
 
   //#region Action buttons
 
@@ -114,16 +155,101 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           return this.downloadArchives(archives);
         },
         showIn: [
-          actionContext.singleFile,
-          actionContext.singleFilePreview,
-          actionContext.multiFile,
-          actionContext.multiFilePreview,
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+          actionContext.multiDir,
+          actionContext.multiDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnCreateArchive: computed(
+    'dataset',
+    'spacePrivileges.{manageDatasets,createArchives}',
+    function btnCreateArchive() {
+      const {
+        spacePrivileges,
+        i18n,
+      } = this.getProperties(
+        'spacePrivileges',
+        'i18n',
+      );
+      const hasPrivileges = spacePrivileges.manageDatasets &&
+        spacePrivileges.createArchives;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+        });
+      }
+      return this.createFileAction({
+        id: 'createArchive',
+        icon: 'browser-archive-add',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: () => {
+          return this.openCreateArchiveModal(this.get('dataset'));
+        },
+        showIn: [
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
         ],
       });
     }
   ),
 
   //#endregion
+
+  init() {
+    this._super(...arguments);
+    const refreshLooper = Looper.create({
+      interval: 5 * 1000,
+      browserModel: this,
+      immediate: false,
+    });
+    refreshLooper.on('tick', this.refreshList.bind(this));
+    this.set('refreshLooper', refreshLooper);
+  },
+
+  destroy() {
+    try {
+      const refreshLooper = this.get('refreshLooper');
+      if (refreshLooper) {
+        refreshLooper.destroy();
+      }
+    } finally {
+      this._super(...arguments);
+    }
+
+  },
+
+  refreshList() {
+    const itemsArray = this.get('fbTableApi').getFilesArray();
+    if (itemsArray) {
+      itemsArray.forEach(item => {
+        item.reload()
+          .catch(error => {
+            console.warn(
+              `util:archive-browser-model#refreshList: reload list item (${item && get(item, 'id')}) failed: ${error}`
+            );
+          });
+      });
+    }
+  },
+
+  /**
+   * @override
+   * @param {Models.Archive} archive 
+   */
+  async onOpenFile(archive) {
+    if (archive.belongsTo('rootDir').id()) {
+      const rootDir = await get(archive, 'rootDir');
+      return this.get('openArchiveDirView')(await rootDir);
+    }
+  },
 
   async downloadArchives(archives) {
     const rootDirs = await allFulfilled(archives.mapBy('rootDir'));

@@ -53,6 +53,17 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   purgedCallback: attr('string'),
 
+  filesToArchive: attr('number'),
+
+  filesArchived: attr('number'),
+
+  filesFailed: attr('number'),
+
+  // TODO: byteSize will be removed for bytesArchived or stats object
+  byteSize: attr('number'),
+
+  bytesArchived: attr('number'),
+
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),
 }).reopenClass(StaticGraphModelMixin);

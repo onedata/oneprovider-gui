@@ -720,7 +720,7 @@ export default Service.extend({
     const datasetRootFile = await get(dataset, 'rootFile');
     const name = get(datasetRootFile, 'name');
     for (let i = 0; i < archiveCount; ++i) {
-      const entityId = `${get(dataset, 'entityId')}-archive-${i}}`;
+      const entityId = `${get(dataset, 'entityId')}-archive-${i}`;
       const archive = await archiveManager.createArchive(dataset, {
         config: {
           incremental: true,
@@ -740,7 +740,7 @@ export default Service.extend({
         }),
         index: name + entityId,
         creationTime: Math.floor(Date.now() / 1000),
-        state: 'pending',
+        state: 'building',
         // fake directory to browse - it is the same as regular dir
         rootDir: datasetRootFile,
       });
@@ -822,7 +822,7 @@ export default Service.extend({
             );
             const id = generateFileGri(entityId);
             const name =
-              `Chain directory long name ${String(i).padStart(4, '0')}`;
+              `Chain directory long longlonglonglonglonglonglonglonglonglonglong name ${String(i).padStart(4, '0')}`;
             return store.createRecord('file', {
               id,
               name,

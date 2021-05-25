@@ -14,9 +14,6 @@
   .fb-table-col-layout {
     width: 100px;
   }
-  .fb-table-col-created {
-    width: 190px;
-  }
   .col-status-no {
     color: $main-text-color-disabled;
   }
@@ -29,5 +26,10 @@
   }
   .empty-dir-image {
     background-image: url($root-url + 'images/space-data.svg');
+  }
+  td.fb-table-col-state.multiline {
+    padding-top: 10px;
+    padding-bottom: 0;
+    white-space: nowrap;
   }
 }

@@ -3,25 +3,17 @@
  *
  * @module utils/resolve-file-path
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import { get } from '@ember/object';
 import { resolve } from 'rsvp';
-
-function defaultResolveParentFun(dir) {
-  if (get(dir, 'hasParent')) {
-    return get(dir, 'parent');
-  } else {
-    return resolve(null);
-  }
-}
+import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 
 export function resolveParent(
   dir,
   dirsOnPathToRoot,
-  resolveFileParentFun = defaultResolveParentFun) {
+  resolveFileParentFun = defaultResolveParent) {
   return resolveFileParentFun(dir).then(parent => {
     if (parent) {
       dirsOnPathToRoot.unshift(parent);

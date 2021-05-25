@@ -10,16 +10,39 @@
 
 import ObjectProxy from '@ember/object/proxy';
 import { computed } from '@ember/object';
-import { or } from 'ember-awesome-macros';
+import { dateFormat } from 'onedata-gui-common/helpers/date-format';
 
 export default ObjectProxy.extend({
-  type: 'file',
+  descriptionMaxLength: 32,
 
-  name: or('content.description', 'content.creationTime'),
+  type: 'dir',
+
+  name: computed('content.{description,creationTime}', function name() {
+    const creationTime = this.get('content.creationTime');
+    const description = this.get('content.description');
+    const descriptionMaxLength = this.get('descriptionMaxLength');
+    const dateString = dateFormat([creationTime], {
+      format: 'dateWithMinutes',
+      blank: '—',
+    });
+    if (description) {
+      let shortDescription;
+      if (description.length > descriptionMaxLength) {
+        shortDescription = description.slice(0, descriptionMaxLength) + '…';
+      } else {
+        shortDescription = description;
+      }
+      return `${dateString} — ${shortDescription}`;
+    } else {
+      return dateString;
+    }
+  }),
 
   effFile: computed(function effFile() {
     return this;
   }),
+
+  browsableType: 'archive',
 
   relationEntityId: proxyMethod('relationEntityId'),
   belongsTo: proxyMethod('belongsTo'),
