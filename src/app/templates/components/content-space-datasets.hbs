@@ -2,7 +2,6 @@
   {{#if currentBrowsableItem}}
     {{file-browser
       browserModel=browserModel
-      previewMode=previewMode
       dir=currentBrowsableItem
       customFetchDirChildren=(action "fetchChildren")
       resolveFileParentFun=(action "resolveFileParent")
@@ -48,7 +47,6 @@
   {{#if fileToShowInfo}}
     {{file-browser/fb-info-modal
       open=true
-      previewMode=true
       file=fileToShowInfo
       showApiSection=false
       onHide=(action closeInfoModal)
@@ -62,6 +60,46 @@
       previewMode=true
       fileModelScope="private"
       onHide=(action closeMetadataModal)
+    }}
+  {{/if}}
+
+  {{#if filesToEditPermissions}}
+    {{edit-permissions-modal
+      readonly=true
+      files=filesToEditPermissions
+      space=space
+      onClose=(action closeEditPermissionsModal)
+    }}
+  {{/if}}
+
+  {{#if filesToShowDistribution}}
+    {{file-distribution-modal
+      files=filesToShowDistribution
+      space=space
+      onClose=(action closeFileDistributionModal)
+      getTransfersUrl=(action getTransfersUrl)
+    }}
+  {{/if}}
+
+  {{#if fileToShare}}
+    {{file-browser/fb-share-modal
+      open=true
+      file=fileToShare
+      managePrivilege=spacePrivileges.manageShares
+      onHide=(action closeShareModal)
+      getShareUrl=(action getShareUrl)
+    }}
+  {{/if}}
+
+  {{#if filesToShowQos}}
+    {{qos-modal
+      open=true
+      files=filesToShowQos
+      space=space
+      showPrivilege=spacePrivileges.viewQos
+      editPrivilege=spacePrivileges.manageQos
+      onHide=(action closeQosModal)
+      getDataUrl=(action getDataUrl)
     }}
   {{/if}}
 

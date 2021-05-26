@@ -21,7 +21,7 @@ import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
-import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
@@ -172,11 +172,25 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   selectedItems: undefined,
 
+  //#region browser items for various modals
+
   datasetToCreateArchive: undefined,
 
   fileToShowInfo: null,
 
   fileToShowMetadata: null,
+
+  fileToShare: null,
+
+  filesToEditPermissions: null,
+
+  filesToShowDistribution: null,
+
+  filesToShowQos: null,
+
+  fileForConfirmDownload: null,
+
+  //#endregion
 
   spaceProxy: promise.object(computed('spaceId', function spaceProxy() {
     const {
@@ -434,8 +448,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   )),
 
-  previewMode: equal('viewMode', raw('files')),
-
   customRootDir: computed(
     'viewMode',
     'spaceDatasetsRoot',
@@ -556,6 +568,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return this.callParent('getDatasetsUrl', options);
   },
 
+  getShareUrl(options) {
+    return this.callParent('getShareUrl', options);
+  },
+
+  getTransfersUrl(options) {
+    return this.callParent('getTransfersUrl', options);
+  },
+
   createDatasetsBrowerModel() {
     return DatasetBrowserModel.create({
       ownerSource: this,
@@ -578,13 +598,18 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   createFilesystemBrowserModel() {
-    return FilesystemBrowserModel.create({
+    return ArchiveFilesystemBrowserModel.create({
       ownerSource: this,
       // TODO: VFS-7406 use dir or file-dataset icons
       rootIcon: 'browser-dataset',
       downloadScope: 'private',
       openInfo: this.openInfoModal.bind(this),
       openMetadata: this.openMetadataModal.bind(this),
+      openShare: this.openShareModal.bind(this),
+      openEditPermissions: this.openEditPermissionsModal.bind(this),
+      openFileDistribution: this.openFileDistributionModal.bind(this),
+      openQos: this.openQosModal.bind(this),
+      openConfirmDownload: this.openConfirmDownload.bind(this),
     });
   },
 
@@ -731,6 +756,56 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   closeMetadataModal() {
     this.set('fileToShowMetadata', null);
+  },
+
+  openShareModal(file) {
+    this.set('fileToShare', file);
+  },
+
+  closeShareModal() {
+    this.set('fileToShare', null);
+  },
+
+  openEditPermissionsModal(files) {
+    this.set('filesToEditPermissions', [...files]);
+  },
+
+  closeEditPermissionsModal() {
+    this.set('filesToEditPermissions', null);
+  },
+
+  openFileDistributionModal(files) {
+    this.set('filesToShowDistribution', [...files]);
+  },
+
+  closeFileDistributionModal() {
+    this.set('filesToShowDistribution', null);
+  },
+
+  openQosModal(files) {
+    this.set('filesToShowQos', files);
+  },
+
+  closeQosModal() {
+    this.set('filesToShowQos', null);
+  },
+
+  openConfirmDownload(file) {
+    this.set('fileForConfirmDownload', file);
+  },
+
+  closeConfirmFileDownload() {
+    this.set('fileForConfirmDownload', null);
+  },
+
+  confirmFileDownload() {
+    return this.get('browserModel')
+      .downloadFiles([
+        this.get('fileForConfirmDownload'),
+      ])
+      .finally(() => {
+        safeExec(this, 'set', 'fileForConfirmDownload', null);
+      });
   },
 
   async fetchArchiveVirtualRootDirChildren(dirId, startIndex, size, offset, array) {
