@@ -7,7 +7,7 @@ export default {
     purging: 'Purging',
     unknown: 'Unknown',
   },
-  progress: {
-    processed: 'Processed: {{filesCount}} files, {{size}}',
+  stateInfo: {
+    archived: 'Archived: {{filesCount}} files, {{size}}',
   },
 };

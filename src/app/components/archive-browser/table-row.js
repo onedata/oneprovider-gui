@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw } from 'ember-awesome-macros';
+import { conditional, equal, raw, or } from 'ember-awesome-macros';
 
 const RowModel = EmberObject.extend(I18n, {
   /**
@@ -31,10 +31,19 @@ const RowModel = EmberObject.extend(I18n, {
   i18nPrefix: 'components.archiveBrowser.tableRow',
 
   archive: reads('tableRow.archive'),
+
+  showArchivedCounters: or(
+    equal('archive.state', raw('building')),
+    equal('archive.state', raw('preserved')),
+  ),
+
   stateText: computed(
     'archive.{state,isDirect,filesArchived,byteSize,bytesArchived}',
     function stateText() {
-      const archive = this.get('archive');
+      const {
+        archive,
+        showArchivedCounters,
+      } = this.getProperties('archive', 'showArchivedCounters');
       const {
         state,
         filesArchived,
@@ -44,15 +53,15 @@ const RowModel = EmberObject.extend(I18n, {
       const bytes = byteSize || bytesArchived || 0;
       const filesText = filesArchived || '0';
       let text = this.t(`state.${state}`, {}, { defaultValue: this.t('state.unknown') });
-      if (state === 'building') {
+      if (showArchivedCounters) {
         const sizeText = bytesToString(bytes);
-        text += `<br>${this.t('progress.processed', { filesCount: filesText, size: sizeText })}`;
+        text += `<br>${this.t('stateInfo.archived', { filesCount: filesText, size: sizeText })}`;
       }
       return htmlSafe(text);
     }
   ),
   stateColClass: conditional(
-    equal('archive.state', raw('building')),
+    'showArchivedCounters',
     raw('multiline'),
     raw(''),
   ),
