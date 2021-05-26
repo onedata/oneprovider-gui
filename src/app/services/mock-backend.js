@@ -794,7 +794,7 @@ export default Service.extend({
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name =
-          `Directory long long long long long long long long long name ${String(i).padStart(4, '0')}`;
+          `Directory ${String(i).padStart(4, '0')}`;
         return store.createRecord('file', {
           id,
           name,
@@ -822,7 +822,7 @@ export default Service.extend({
             );
             const id = generateFileGri(entityId);
             const name =
-              `Chain directory long longlonglonglonglonglonglonglonglonglonglong name ${String(i).padStart(4, '0')}`;
+              `Chain directory ${String(i).padStart(4, '0')}`;
             return store.createRecord('file', {
               id,
               name,
