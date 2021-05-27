@@ -26,4 +26,14 @@ export default FilesystemBrowserModel.extend({
     'btnDistribution',
     'btnQos',
   ]),
+
+  /**
+   * @override
+   */
+  getCurrentDirMenuButtons( /*availableActions*/ ) {
+    if (this.get('dir.isArchiveVirtualRootDir')) {
+      return [];
+    }
+    return this._super(...arguments);
+  },
 });
