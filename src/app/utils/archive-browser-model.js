@@ -157,8 +157,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.singleDir,
           actionContext.singleDirPreview,
-          actionContext.multiDir,
-          actionContext.multiDirPreview,
         ],
       });
     }
