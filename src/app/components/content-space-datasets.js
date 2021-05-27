@@ -304,7 +304,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   archiveRootDirId: computed('archive', function archiveRootDirId() {
     const archive = this.get('archive');
     if (archive) {
-      return archive.relationEntityId('rootDir');
+      return archive.relationEntityId('parentDir');
     }
   }),
 
@@ -916,7 +916,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       );
       if (viewMode === 'files') {
         const archive = this.get('archive') || await this.get('archiveProxy');
-        const parentId = dirId || archive.relationEntityId('rootDir');
+        const parentId = dirId || archive.relationEntityId('parentDir');
         return this.fetchDirChildren(parentId, ...fetchArgs.slice(1));
       } else if (viewMode === 'archives' && datasetId) {
         return this.fetchDatasetArchives(...fetchArgs);
