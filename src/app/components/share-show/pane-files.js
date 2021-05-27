@@ -20,6 +20,7 @@ import {
 import { resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const shareRootId = 'shareRoot';
 
@@ -76,9 +77,15 @@ export default Component.extend(I18n, {
    */
   shareRootDeleted: false,
 
+  //#region browser items for various modals
+
   fileToShowInfo: null,
 
   fileToShowMetadata: null,
+
+  fileForConfirmDownload: null,
+
+  //#endregion
 
   /**
    * @type {Array<Models.File>}
@@ -143,6 +150,20 @@ export default Component.extend(I18n, {
 
   closeMetadataModal() {
     this.set('fileToShowMetadata', null);
+  },
+
+  closeConfirmFileDownload() {
+    this.set('fileForConfirmDownload', null);
+  },
+
+  confirmFileDownload() {
+    return this.get('browserModel')
+      .downloadFiles([
+        this.get('fileForConfirmDownload'),
+      ])
+      .finally(() => {
+        safeExec(this, 'set', 'fileForConfirmDownload', null);
+      });
   },
 
   isChildOfShare(file) {

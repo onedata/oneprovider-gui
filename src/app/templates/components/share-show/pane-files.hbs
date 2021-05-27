@@ -39,4 +39,10 @@
       onHide=(action closeMetadataModal)
     }}
   {{/if}}
+
+  {{file-browser/fb-download-modal
+    file=fileForConfirmDownload
+    confirmDownload=(action confirmFileDownload)
+    onHide=(action closeConfirmFileDownload)
+  }}
 {{/if}}

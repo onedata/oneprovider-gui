@@ -103,4 +103,10 @@
     }}
   {{/if}}
 
+  {{file-browser/fb-download-modal
+    file=fileForConfirmDownload
+    confirmDownload=(action confirmFileDownload)
+    onHide=(action closeConfirmFileDownload)
+  }}
+
 {{/promise-proxy-container}}
