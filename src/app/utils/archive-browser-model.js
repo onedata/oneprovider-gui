@@ -245,15 +245,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @param {Models.Archive} archive 
    */
   async onOpenFile(archive) {
-    if (archive.belongsTo('parentDir').id()) {
-      const rootDir = await get(archive, 'parentDir');
-      return this.get('openArchiveDirView')(await rootDir);
+    if (archive.belongsTo('rootFile').id()) {
+      const rootFile = await get(archive, 'rootFile');
+      return this.get('openArchiveDirView')(rootFile);
     }
   },
 
   async downloadArchives(archives) {
-    const rootDirs = await allFulfilled(archives.mapBy('parentDir'));
-    const fileIds = rootDirs.compact().mapBy('entityId').compact();
+    const rootFiles = await allFulfilled(archives.mapBy('rootFile'));
+    const fileIds = rootFiles.compact().mapBy('entityId').compact();
     return this.downloadFilesById(fileIds);
   },
 });

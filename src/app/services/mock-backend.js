@@ -567,7 +567,7 @@ export default Service.extend({
     const spaceId = this.get('entityRecords.space.firstObject.entityId');
     const fileId = get(file, 'entityId');
     return this.get('store').createRecord('dataset', Object.assign({
-      id: `${datasetEntityType}.${fileId}.instance:private`,
+      id: `${datasetEntityType}.${fileId}-dataset.instance:private`,
       index: `${get(file, 'name')}${fileId}`,
       rootFile: file,
       parent: null,
@@ -742,7 +742,7 @@ export default Service.extend({
         creationTime: Math.floor(Date.now() / 1000),
         state: 'building',
         // fake directory to browse - it is the same as regular dir
-        rootDir: datasetRootFile,
+        rootFile: datasetRootFile,
       });
       entityRecordsArchives.push(archive);
     }

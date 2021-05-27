@@ -953,6 +953,6 @@ function archiveRecordToChildData(record) {
     'purgedCallback',
   ), {
     dataset: record.belongsTo('dataset').id(),
-    rootDir: record.belongsTo('parentDir').id(),
+    rootFile: record.belongsTo('rootFile').id(),
   });
 }
