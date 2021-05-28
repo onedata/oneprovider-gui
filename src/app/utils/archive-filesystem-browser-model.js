@@ -11,7 +11,6 @@
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 
 export default FilesystemBrowserModel.extend({
-
   /**
    * @override
    */
@@ -36,4 +35,9 @@ export default FilesystemBrowserModel.extend({
     }
     return this._super(...arguments);
   },
+
+  /**
+   * @override
+   */
+  readonlyFilesystem: true,
 });

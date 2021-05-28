@@ -183,6 +183,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   _document: document,
 
+  /**
+   * Used to inform various parts of component that files and directories data
+   * and metadata cannot be modified (eg. upload, delete).
+   * @type {Boolean}
+   */
+  readonlyFilesystem: false,
+
   // #region Action buttons
 
   btnUpload: computed(
