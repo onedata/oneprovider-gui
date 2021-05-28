@@ -85,16 +85,15 @@ export default Component.extend(
     menuButtons: undefined,
 
     /**
-     * @virtual
-     * @type {boolean}
-     */
-    previewMode: false,
-
-    /**
      * @virtual optional
      * @type {String}
      */
     rootIcon: 'space',
+    /**
+     * @virtual optional
+     * @type {Boolean}
+     */
+    alwaysShowRootName: false,
 
     /**
      * If true, add breadcrumbs-recomputing CSS class to breadcrumbs-inner

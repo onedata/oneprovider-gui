@@ -10,6 +10,9 @@
           <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
           </div>
+          {{#if alwaysShowRootName}}
+            {{item.name}}
+          {{/if}}
         {{else}}
           {{item.name}}
         {{/if}}
