@@ -6,12 +6,14 @@
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
-import { Promise } from 'rsvp';
-import { computed, get } from '@ember/object';
-import { collect, tag } from 'ember-awesome-macros';
+import { Promise, hash as hashFulfilled } from 'rsvp';
+import { computed, get, getProperties } from '@ember/object';
+import { reads } from '@ember/object/computed';
+import { collect, tag, conditional, raw, promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import HeaderBaseComponent from './-header-base';
+import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 
 export default HeaderBaseComponent.extend(I18n, {
   classNames: [
@@ -99,6 +101,42 @@ export default HeaderBaseComponent.extend(I18n, {
       class: 'btn-rename-share',
     };
   }),
+
+  archiveInfoProxy: promise.object(computed(
+    'share.privateRootFile',
+    async function archiveInfoProxy() {
+      const privateRootFile = await this.get('share.privateRootFile');
+      const fileArchiveInfo = FileArchiveInfo.create({
+        ownerSource: this,
+        file: privateRootFile,
+      });
+      const info = await hashFulfilled(
+        getProperties(
+          fileArchiveInfo,
+          'isInArchiveProxy',
+          'archiveRelativeFilePathProxy'
+        )
+      );
+      return {
+        isInArchive: info.isInArchiveProxy,
+        archiveRelativeFilePath: info.archiveRelativeFilePathProxy,
+      };
+    }
+  )),
+
+  archiveInfo: reads('archiveInfoProxy.content'),
+
+  breadcrumbsRootIcon: conditional(
+    'archiveInfo.isInArchive',
+    raw('browser-archive'),
+    raw('space'),
+  ),
+
+  breadcrumbsRootDir: conditional(
+    'archiveInfo.isInArchive',
+    'archiveInfo.archiveRelativeFilePath.firstObject',
+    raw(undefined)
+  ),
 
   actions: {
     openSpaceDir(dir) {

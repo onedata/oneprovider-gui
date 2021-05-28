@@ -1,6 +1,6 @@
 <h1 class="empty-dir-text dir-box-text">{{tt this "emptyDirectory"}}</h1>
 <div class="empty-dir-image dir-box-image"></div>
-{{#unless previewMode}}
+{{#unless readonly}}
   {{#if dir.dataIsProtected}}
     <h2 class="empty-dir-text dir-box-text">
       {{tt this "dataIsWriteProtected"}}

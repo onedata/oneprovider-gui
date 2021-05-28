@@ -10,6 +10,7 @@
 import FbEmptyDir from 'oneprovider-gui/components/file-browser/fb-empty-dir';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
+import { or } from 'ember-awesome-macros';
 
 export default FbEmptyDir.extend(I18n, {
   classNames: ['filesystem-empty-dir'],
@@ -28,6 +29,11 @@ export default FbEmptyDir.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   fileClipboardMode: reads('browserModel.fileClipboardMode'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  readonly: or('browserModel.readonlyFilesystem', 'previewMode'),
 
   emptyDirUpload: modelProxyMethod('emptyDirUpload'),
   emptyDirNewDirectory: modelProxyMethod('emptyDirNewDirectory'),

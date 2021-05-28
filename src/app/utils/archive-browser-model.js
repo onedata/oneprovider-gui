@@ -157,8 +157,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.singleDir,
           actionContext.singleDirPreview,
-          actionContext.multiDir,
-          actionContext.multiDirPreview,
         ],
       });
     }
@@ -245,15 +243,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @param {Models.Archive} archive 
    */
   async onOpenFile(archive) {
-    if (archive.belongsTo('rootDir').id()) {
-      const rootDir = await get(archive, 'rootDir');
-      return this.get('openArchiveDirView')(await rootDir);
+    if (archive.belongsTo('rootFile').id()) {
+      const rootFile = await get(archive, 'rootFile');
+      return this.get('openArchiveDirView')(rootFile);
     }
   },
 
   async downloadArchives(archives) {
-    const rootDirs = await allFulfilled(archives.mapBy('rootDir'));
-    const fileIds = rootDirs.compact().mapBy('entityId').compact();
+    const rootFiles = await allFulfilled(archives.mapBy('rootFile'));
+    const fileIds = rootFiles.compact().mapBy('entityId').compact();
     return this.downloadFilesById(fileIds);
   },
 });

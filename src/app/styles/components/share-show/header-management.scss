@@ -29,6 +29,12 @@
         overflow-x: hidden;
       }
     }
+    .breadcrumbs-links-disabled {
+      a {
+        color: $text-color;
+        pointer-events: none;
+      }
+    }
   }
   .share-menu-trigger {
     padding-right: 0;

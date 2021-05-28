@@ -38,7 +38,7 @@ const RowModel = EmberObject.extend(I18n, {
   ),
 
   stateText: computed(
-    'archive.{state,isDirect,filesArchived,byteSize,bytesArchived}',
+    'archive.{state,stats}',
     function stateText() {
       const {
         archive,
@@ -46,11 +46,13 @@ const RowModel = EmberObject.extend(I18n, {
       } = this.getProperties('archive', 'showArchivedCounters');
       const {
         state,
-        filesArchived,
-        byteSize,
+        stats,
+      } = getProperties(archive, 'state', 'stats');
+      const {
         bytesArchived,
-      } = getProperties(archive, 'state', 'filesArchived', 'byteSize', 'bytesArchived');
-      const bytes = byteSize || bytesArchived || 0;
+        filesArchived,
+      } = getProperties(stats, 'bytesArchived', 'filesArchived');
+      const bytes = bytesArchived || 0;
       const filesText = filesArchived || '0';
       let text = this.t(`state.${state}`, {}, { defaultValue: this.t('state.unknown') });
       if (showArchivedCounters) {

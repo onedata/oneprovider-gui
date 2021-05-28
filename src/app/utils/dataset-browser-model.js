@@ -22,6 +22,7 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { conditional } from 'ember-awesome-macros';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -121,7 +122,11 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  currentDirTranslation: computedT('currentDataset'),
+  currentDirTranslation: conditional(
+    'dir.isDatasetsRoot',
+    computedT('spaceDatasets'),
+    computedT('currentDataset'),
+  ),
 
   /**
    * @override

@@ -6,13 +6,15 @@
     {{#if shareRootDeleted}}
       <em class="root-file-deleted">{{tt this "pathForDeletedRootFile"}}</em>
     {{else}}
-      {{#promise-proxy-container proxy=share.privateRootFile sizeClass="xs"}}
+      {{#promise-proxy-container proxy=archiveInfoProxy sizeClass="xs"}}
         <div class="fb-breadcrumbs-container">
           {{file-browser/fb-breadcrumbs
+            class=(if archiveInfo.isInArchive "breadcrumbs-links-disabled")
             dir=share.privateRootFile.content
-            previewMode=true
-            rootIcon="space"
-            changeDir=(action "openSpaceDir")
+            rootDir=breadcrumbsRootDir
+            rootIcon=breadcrumbsRootIcon
+            alwaysShowRootName=archiveInfo.isInArchive
+            changeDir=(unless archiveInfo.isInArchive (action "openSpaceDir"))
           }}
         </div>
       {{/promise-proxy-container}}
