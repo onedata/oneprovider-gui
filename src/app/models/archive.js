@@ -56,7 +56,7 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * Object params:
    * - `filesArchived: Number`
-   * - `sizeArchived: Boolean`
+   * - `bytesArchived: Boolean`
    * - `filesFailed: Number`
    * @type {Object}
    */

@@ -161,6 +161,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'viewMode',
   ]),
 
+  getEmptyFetchChildrenResponse() {
+    return {
+      childrenRecords: [],
+      isLast: true,
+    };
+  },
+
   _window: window,
 
   /**
@@ -274,7 +281,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     async function archiveVirtualRootDirProxy() {
       const archive = await this.get('archiveProxy');
       return ArchiveVirtualRootDirClass.create({
-        name: get(archive, 'name'),
+        name: archive && get(archive, 'name') || '',
       });
     }
   )),
@@ -304,15 +311,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   )),
 
   archive: computedLastProxyContent('archiveProxy'),
-
-  archiveVirtualRoot: computed('archive.name', function archiveVirtualRoot() {
-    const archive = this.get('archive');
-    if (archive) {
-      return ArchiveVirtualRootDirClass.create({
-        name: get(archive, 'name'),
-      });
-    }
-  }),
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
@@ -642,7 +640,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     );
     if (startIndex == null) {
       if (size <= 0 || offset < 0) {
-        return resolve({ childrenRecords: [], isLast: true });
+        return this.getEmptyFetchChildrenResponse();
       } else {
         return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
           parentType: 'space',
@@ -653,7 +651,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         }));
       }
     } else if (startIndex === array.get('sourceArray.lastObject.index')) {
-      return resolve({ childrenRecords: [], isLast: true });
+      return this.getEmptyFetchChildrenResponse();
     } else {
       throw new Error(
         'component:content-space-datasets#fetchRootChildren: illegal fetch arguments for virtual root dir'
@@ -927,13 +925,17 @@ export default OneEmbeddedComponent.extend(...mixins, {
         'datasetId',
         'currentBrowsableItemProxy',
       );
+      // a workaround for fb-table trying to get children when it have not-upted "dir"
       if (!get(currentBrowsableItemProxy, 'isSettled')) {
-        await currentBrowsableItemProxy;
+        return this.getEmptyFetchChildrenResponse();
       }
 
       if (viewMode === 'files') {
         const entityId = fetchArgs[0];
-        if (!entityId || entityId == archiveVirtualRootDirId) {
+        if (entityId === datasetId) {
+          // a workaround for fb-table trying to get children when it have not-upted "dir"
+          return this.getEmptyFetchChildrenResponse();
+        } else if (!entityId || entityId === archiveVirtualRootDirId) {
           return this.fetchArchiveVirtualChildren(...fetchArgs);
         } else {
           return this.fetchDirChildren(...fetchArgs);
