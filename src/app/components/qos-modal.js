@@ -10,7 +10,6 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import EmberObject, { get, observer, computed, setProperties } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
 import { conditional, raw, equal, and, getBy, array, promise, or, not } from 'ember-awesome-macros';
