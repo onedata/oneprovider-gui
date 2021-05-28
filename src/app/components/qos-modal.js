@@ -93,7 +93,7 @@ export default Component.extend(...mixins, {
    * @virtual
    * @type {Function}
    */
-  getDataUrl: notImplementedReject,
+  getDataUrl: notImplementedIgnore,
 
   /**
    * If modal is opened - interval in ms to auto update data
@@ -441,9 +441,6 @@ export default Component.extend(...mixins, {
             }
           });
       });
-    },
-    getDataUrl() {
-      return this.get('getDataUrl')(...arguments);
     },
     evaluateQosExpression(expression) {
       return this.evaluateQosExpression(expression);
