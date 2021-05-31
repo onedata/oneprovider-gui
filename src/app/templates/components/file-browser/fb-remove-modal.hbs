@@ -17,52 +17,60 @@
         icon="sign-info-rounded"
       }}{{/if}}
     </div>
-    {{#if (eq files.length 1)}}
-      {{single-file-info file=firstFile}}
-    {{else if (lte files.length maxDisplayFiles)}}
-      <div class="row row-delete-files-list">
-        {{#each files as |file|}}
-          <div class="row-delete-file-item">
-            <div class="file-item-icon">
-              {{one-icon
-                icon=(if (eq file.type "dir") "browser-directory" "browser-file")
+    <div class="browsable-items-info">
+      {{#if (eq files.length 1)}}
+        {{single-file-info class="single-item" file=firstFile}}
+      {{else if (lte files.length maxDisplayFiles)}}
+        <div class="row row-delete-files-list row-items-list">
+          {{#each files as |file|}}
+            <div class="row-delete-file-item row-item">
+              <div class="file-item-icon browsable-item-icon">
+                {{one-icon
+                  icon=(if (eq file.type "dir") "browser-directory" "browser-file")
+                }}
+              </div>
+              {{#truncated-string class="delete-file-name"}}
+                {{file-name-conflict file=file}}
+              {{/truncated-string}}
+              {{#one-label-tip
+                tooltipClass="fb-remove-modal-file-tooltip browsable-items-info-tooltip"
+                class="file-info-tip-trigger item-info-tip-trigger"
+                icon="sign-info-rounded"
               }}
-            </div>
-            {{#truncated-string class="delete-file-name"}}
-              {{file-name-conflict file=file}}
-            {{/truncated-string}}
-            {{#one-label-tip
-              tooltipClass="fb-remove-modal-file-toolip"
-              class="file-info-tip-trigger"
-              icon="sign-info-rounded"
-            }}
-              {{#if (eq file.type "file")}}
+                {{#if (eq file.type "file")}}
+                  <div class="text-left">
+                    <span class="file-info-label item-info-label">
+                      {{tt this "info.size"}}:
+                    </span>
+                    <span class="file-info-value item-info-value delete-file-size">
+                      {{bytes-to-string file.size}}
+                    </span>
+                  </div>
+                {{/if}}
                 <div class="text-left">
-                  <span class="file-info-label">{{tt this "info.size"}}:</span>
-                  <span class="file-info-value delete-file-size">
-                    {{bytes-to-string file.size}}
+                  <span class="file-info-label item-info-label">
+                    {{tt this "info.modification"}}:
+                  </span>
+                  <span class="file-info-value item-info-value delete-file-modification">
+                    {{date-format
+                      file.modificationTime
+                      format="dateWithMinutes"
+                      blank="—"
+                    }}
                   </span>
                 </div>
-              {{/if}}
-              <div class="text-left">
-                <span class="file-info-label">
-                  {{tt this "info.modification"}}:
-                </span>
-                <span class="file-info-value delete-file-modification">
-                  {{date-format file.modificationTime format="dateWithMinutes" blank="—"}}
-                </span>
-              </div>
-            {{/one-label-tip}}
-          </div>
-        {{/each}}
-      </div>
-    {{/if}}
-    {{#if (and canViewShares sharesToRemoveCount)}}
-      <p class="shares-info text-danger">
-        {{sharesCountInfo}}<br/>
-        {{removingSharesInfo}}
-      </p>
-    {{/if}}
+              {{/one-label-tip}}
+            </div>
+          {{/each}}
+        </div>
+      {{/if}}
+      {{#if (and canViewShares sharesToRemoveCount)}}
+        <p class="shares-info text-danger">
+          {{sharesCountInfo}}<br/>
+          {{removingSharesInfo}}
+        </p>
+      {{/if}}
+    </div>
   {{/modal.body}}
 
   {{#modal.footer class="btn-toolbar"}}

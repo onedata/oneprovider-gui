@@ -10,3 +10,47 @@ p.last {
 .inline-file-path {
   overflow-wrap: break-word;
 }
+
+.browsable-items-info {
+  .item-info-label {
+    @include font-semibold;
+  }
+  .single-item {
+    .single-browsable-item-icon {
+      position: relative;
+      margin-right: 0.1em;
+      margin-left: 0.1em;
+      font-size: 4em;
+    }
+  }
+  .row-items-list {
+    margin-top: 8px;
+    padding-bottom: 4px;
+    .browsable-item-icon {
+      position: relative;
+      font-size: 26px;
+      top: 0.1em;
+      // some corrections for icons (that are centered in glyph)
+      left: -0.1em;
+      margin-right: 0.15em;
+    }
+    .row-item {
+      display: flex;
+      align-items: center;
+    }
+    .item-info-tip-trigger {
+      margin-left: 8px;
+    }
+  }
+
+  .shares-info {
+    margin-top: 20px;
+    @include font-semibold;
+  }
+}
+
+.browsable-items-info-tooltip {
+  .file-info-label {
+    @include font-semibold;
+  }
+}
