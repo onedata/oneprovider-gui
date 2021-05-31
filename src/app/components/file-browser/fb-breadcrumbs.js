@@ -89,6 +89,7 @@ export default Component.extend(
      * @type {String}
      */
     rootIcon: 'space',
+
     /**
      * @virtual optional
      * @type {Boolean}

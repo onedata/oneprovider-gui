@@ -56,14 +56,6 @@ export default OneEmbeddedComponent.extend(
         return this.callParent('getDataUrl', { spaceId, dirId, providerId });
       },
 
-      /**
-       * @param {Object} options
-       * @returns {String} Onezone URL for directory in dataset browser
-       */
-      getDatasetsUrl(options) {
-        return this.callParent('getDatasetsUrl', options);
-      },
-
       updateDirId(dirId) {
         return this.callParent('updateDirId', dirId);
       },

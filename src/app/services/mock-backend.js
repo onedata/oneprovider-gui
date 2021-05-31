@@ -390,7 +390,9 @@ export default Service.extend({
       })
       .then(() => allFulfilled(shares.map(share => share.save())))
       .then(([privateShare0, privateShare1]) => allFulfilled([
-        addShareList(rootFile, [privateShare0, privateShare1], store),
+        addShareList(rootFile, [privateShare0, privateShare1], store, {
+          sharesCount: 2,
+        }),
         addShareList(space, [privateShare0, privateShare1], store),
       ]));
   },
@@ -603,13 +605,13 @@ export default Service.extend({
     // create datasets and dataset summaries for few chain dirs
     for (let i = 0; i < ancestorFiles.length; ++i) {
       const ancestorFile = ancestorFiles[i];
+      const effProtectionFlags = effProtectionFlagSets[Math.min(i, 2)];
       const ancestorDataset = await this.createDataset(ancestorFile, {
         parent: datasets[i - 1] || null,
         protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
         effProtectionFlags,
       });
       datasets[i] = ancestorDataset;
-      const effProtectionFlags = effProtectionFlagSets[Math.min(i, 2)];
       const datasetSummary = await this.createDatasetSummary(
         ancestorFile,
         ancestorDataset, {
@@ -952,7 +954,7 @@ export function generateFileGri(entityId) {
   });
 }
 
-function addShareList(parentRecord, shares, store) {
+function addShareList(parentRecord, shares, store, additionalData) {
   const shareList = store.createRecord('shareList');
   return get(shareList, 'list')
     .then(list => {
@@ -962,6 +964,9 @@ function addShareList(parentRecord, shares, store) {
     .then(() => shareList.save())
     .then(() => {
       set(parentRecord, 'shareList', shareList);
+      if (additionalData) {
+        setProperties(parentRecord, additionalData);
+      }
       return parentRecord.save();
     });
 }

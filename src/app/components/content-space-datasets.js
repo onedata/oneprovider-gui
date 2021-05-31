@@ -925,7 +925,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         'datasetId',
         'currentBrowsableItemProxy',
       );
-      // a workaround for fb-table trying to get children when it have not-upted "dir"
+      // a workaround for fb-table trying to get children when it have not-updated "dir"
       if (!get(currentBrowsableItemProxy, 'isSettled')) {
         return this.getEmptyFetchChildrenResponse();
       }
@@ -933,7 +933,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       if (viewMode === 'files') {
         const entityId = fetchArgs[0];
         if (entityId === datasetId) {
-          // a workaround for fb-table trying to get children when it have not-upted "dir"
+          // a workaround for fb-table trying to get children when it have not-updated "dir"
           return this.getEmptyFetchChildrenResponse();
         } else if (!entityId || entityId === archiveVirtualRootDirId) {
           return this.fetchArchiveVirtualChildren(...fetchArgs);
