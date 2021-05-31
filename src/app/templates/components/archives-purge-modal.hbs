@@ -1,0 +1,17 @@
+{{#one-modal
+  open=open
+  backdropClose=(not processing)
+  keyboard=(not processing)
+  onHide=onHide
+  class="proceed-modal archives-purge-modal"
+  as |modal|
+}}
+  Archives:
+  <ul>
+    {{#each archives as |archive|}}
+      <li>
+        {{archive.name}}
+      </li>
+    {{/each}}
+  </ul>
+{{/one-modal}}

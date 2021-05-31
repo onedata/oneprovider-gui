@@ -9,7 +9,10 @@
  */
 
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
-import { actionContext } from 'oneprovider-gui/components/file-browser';
+import {
+  anySelectedContexts,
+  actionContext,
+} from 'oneprovider-gui/components/file-browser';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
@@ -26,6 +29,7 @@ const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnCreateArchive',
   'btnDownloadTar',
+  'btnPurge',
 ]);
 
 export default BaseBrowserModel.extend(DownloadInBrowser, {
@@ -67,10 +71,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   openArchiveDirView: notImplementedThrow,
 
   /**
-   * @override
+   * @virtual
    * @type {(dataset: Models.Dataset) => any}
    */
   openCreateArchiveModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {(datasets: Array<Models.Dataset>) => any}
+   */
+  openPurgeModal: notImplementedThrow,
 
   /**
    * @override
@@ -194,6 +204,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.currentDir,
           actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
+
+  btnPurge: computed(
+    'areMultipleSelected',
+    function btnPurge() {
+      const {
+        areMultipleSelected,
+      } =
+      this.getProperties(
+        'areMultipleSelected',
+      );
+      return this.createFileAction({
+        id: 'purge',
+        icon: 'browser-delete',
+        title: this.t(`fileActions.purge.${areMultipleSelected ? 'multi' : 'single'}`),
+        action: (archives) => {
+          return this.openPurgeModal(archives);
+        },
+        showIn: [
+          ...anySelectedContexts,
         ],
       });
     }

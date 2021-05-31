@@ -150,21 +150,6 @@ export default BaseBrowserModel.extend(I18n, {
    */
   attachmentState: reads('spaceDatasetsViewState.attachmentState').readOnly(),
 
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  areMultipleSelected: computed('selectionContext', function areMultipleSelected() {
-    const selectionContext = this.get('selectionContext');
-    return [
-      actionContext.multiFile,
-      actionContext.multiDir,
-      actionContext.multiMixed,
-      actionContext.multiFilePreview,
-      actionContext.mutliDirPreview,
-      actionContext.multiMixedPreview,
-    ].includes(selectionContext);
-  }),
-
   selectedDatasetsHaveArchives: computed(
     'selectedFiles.@each.archiveCount',
     function selectedDatasetsHaveArchives() {

@@ -108,4 +108,12 @@
     onHide=(action closeConfirmFileDownload)
   }}
 
+  {{#if archivesToPurge}}
+    {{archives-purge-modal
+      open=true
+      archives=archivesToPurge
+      onHide=(action closeArchivesPurgeModal)
+    }}
+  {{/if}}
+
 {{/promise-proxy-container}}

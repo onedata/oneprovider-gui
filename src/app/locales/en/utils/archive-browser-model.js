@@ -7,5 +7,9 @@ export default _.merge({}, BaseBrowserModel, {
   fileActions: {
     createArchive: 'Create archive',
     downloadTar: 'Download (tar)',
+    purge: {
+      multi: 'Purge archives',
+      single: 'Purge archive',
+    },
   },
 });

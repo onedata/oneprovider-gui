@@ -201,6 +201,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   fileForConfirmDownload: null,
 
+  archivesToPurge: null,
+
   //#endregion
 
   spaceProxy: promise.object(computed('spaceId', function spaceProxy() {
@@ -599,6 +601,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       ownerSource: this,
       spaceDatasetsViewState: this,
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
+      openPurgeModal: this.openArchivesPurgeModal.bind(this),
     });
   },
 
@@ -739,6 +742,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   submitArchiveCreate(dataset, archiveData) {
     return this.get('archiveManager').createArchive(dataset, archiveData);
+  },
+
+  /**
+   * @param {Array<Models.Archive>} archives
+   */
+  openArchivesPurgeModal(archives) {
+    console.log('open purge');
+    this.set('archivesToPurge', archives);
+  },
+
+  closeArchivesPurgeModal() {
+    console.log('close purge');
+    this.set('archivesToPurge', null);
   },
 
   openArchivesView(dataset) {
