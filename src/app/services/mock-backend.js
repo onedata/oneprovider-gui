@@ -426,8 +426,9 @@ export default Service.extend({
           provider,
         }).save()
       ))
-      .then(rootDirs => allFulfilled(_.range(numberOfSpaces).map((i) =>
-        store.createRecord('space', {
+      .then(rootDirs => allFulfilled(_.range(numberOfSpaces).map((i) => {
+        this.set('entityRecords.spaceRootDir', rootDirs);
+        return store.createRecord('space', {
           id: gri({
             entityType: spaceEntityType,
             entityId: generateSpaceEntityId(i),
@@ -447,8 +448,8 @@ export default Service.extend({
             'space_create_archives',
             'space_view_archives',
           ],
-        }).save()
-      )))
+        }).save();
+      })))
       .then((records) => {
         this.set('entityRecords.space', records);
         return records;
@@ -742,7 +743,12 @@ export default Service.extend({
         }),
         index: name + entityId,
         creationTime: Math.floor(Date.now() / 1000),
-        state: 'building',
+        state: 'preserved',
+        stats: {
+          bytesArchived: (i + 1) * 5678990000,
+          filesArchived: (i + 1) * 43,
+          filesFailed: 0,
+        },
         // fake directory to browse - it is the same as regular dir
         rootFile: datasetRootFile,
       });

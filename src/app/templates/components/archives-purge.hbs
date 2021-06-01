@@ -1,0 +1,28 @@
+{{#modal.header}}
+  <div class="archives-purge-part archives-purge-header">
+    <h1>{{headerText}}</h1>
+  </div>
+{{/modal.header}}
+
+{{#modal.body}}
+  <div class="archives-purge-part archives-purge-body">
+    {{archives-purge/items-info items=archives}}
+  </div>
+{{/modal.body}}
+
+{{#modal.footer class="btn-toolbar"}}
+  <div class="archives-purge-part archives-purge-footer">
+    {{#bs-button disabled=processing onClick=(action "close") class="cancel"}}
+      {{tt this "footer.cancel"}}
+    {{/bs-button}}
+    {{#one-spin-button
+      action=(action "purge")
+      class="btn btn-danger proceed remove-proceed"
+      disabled=processing
+    }}
+      {{tt this (concat "footer.purgeSubmit." (if isSingleItem "single" "multi"))
+        count=archives.length
+      }}
+    {{/one-spin-button}}
+  </div>
+{{/modal.footer}}
