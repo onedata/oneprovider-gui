@@ -40,6 +40,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   fileManager: service(),
   isMobile: service(),
   globalNotify: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -211,17 +212,33 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnPurge: computed(
     'areMultipleSelected',
+    'spacePrivileges.removeArchives',
     function btnPurge() {
       const {
         areMultipleSelected,
+        spacePrivileges,
+        i18n,
       } =
       this.getProperties(
         'areMultipleSelected',
+        'spacePrivileges',
+        'i18n',
       );
+      const hasPrivileges = spacePrivileges.removeArchives;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_remove_archives'],
+        });
+      }
       return this.createFileAction({
         id: 'purge',
         icon: 'browser-delete',
         title: this.t(`fileActions.purge.${areMultipleSelected ? 'multi' : 'single'}`),
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
         action: (archives) => {
           return this.openPurgeModal(archives);
         },

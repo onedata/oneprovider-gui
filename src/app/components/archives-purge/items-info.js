@@ -35,8 +35,4 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Boolean>}
    */
   isSingleItem: equal('items.length', raw(1)),
-
-  // FIXME: implement
-  canViewShares: false,
-  sharesToRemoveCount: 0,
 });

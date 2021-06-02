@@ -1,13 +1,50 @@
 {{#modal.header}}
   <div class="archives-purge-part archives-purge-header">
-    <h1>{{headerText}}</h1>
+    <h1>{{tt this (concat "header.headerText." (if isSingleItem "single" "multi"))}}</h1>
   </div>
 {{/modal.header}}
 
 {{#modal.body}}
-  <div class="archives-purge-part archives-purge-body">
-    {{archives-purge/items-info items=archives}}
-  </div>
+  {{#promise-proxy-container proxy=datasetNameProxy}}
+    <div class="archives-purge-part archives-purge-body">
+      <p class="purge-text-intro">
+        {{tt this "body.aboutToPurge"
+          archivesText=(tt this
+            (concat "body.archive." (if isSingleItem "single" "multi"))
+          )
+          datasetName=datasetNameProxy.content
+        }}
+      </p>
+      <p>
+        {{archives-purge/items-info items=archives}}
+      </p>
+      <p class="purge-text-irreversible-warning text-danger">
+        {{tt this "body.irreversibleWarning"}}&nbsp;{{one-label-tip
+          title=(tt this "body.nestedSharesInfo")
+          icon="sign-info-rounded"
+        }}
+      </p>
+      <p class="purge-text-retype-description">
+        {{tt this "body.toContinueRetype"}}
+      </p>
+      <p class="purge-retype-text">
+        <strong>{{confirmationSourceText}}</strong>
+      </p>
+      <form class="form form-horizontal">
+        <input
+          class="form-control confirmation-input"
+          type="text"
+          placeholder={{tt this "body.confirmationPlaceholder"}}
+          value={{confirmationValue}}
+          disabled={{if processing true}}
+          oninput={{if processing
+            (no-action)
+            (action (mut confirmationValue) value="target.value")
+          }}
+        >
+      </form>
+    </div>
+  {{/promise-proxy-container}}
 {{/modal.body}}
 
 {{#modal.footer class="btn-toolbar"}}
@@ -15,14 +52,19 @@
     {{#bs-button disabled=processing onClick=(action "close") class="cancel"}}
       {{tt this "footer.cancel"}}
     {{/bs-button}}
-    {{#one-spin-button
-      action=(action "purge")
-      class="btn btn-danger proceed remove-proceed"
-      disabled=processing
-    }}
-      {{tt this (concat "footer.purgeSubmit." (if isSingleItem "single" "multi"))
-        count=archives.length
+    <div class="btn-tooltip-container">
+      {{#one-spin-button
+        action=(action "purge")
+        class="btn btn-danger proceed remove-proceed"
+        disabled=purgeDisabled
       }}
-    {{/one-spin-button}}
+        {{tt this (concat "footer.purgeSubmit." (if isSingleItem "single" "multi"))
+          count=archives.length
+        }}
+      {{/one-spin-button}}
+      {{#if purgeTip}}
+        {{one-tooltip title=purgeTip}}
+      {{/if}}
+    </div>
   </div>
 {{/modal.footer}}

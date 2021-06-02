@@ -1,5 +1,24 @@
 {{#if isSingleItem}}
-  {{single-file-info class="single-item" file=firstItem}}
+  <div class="row single-file-info">
+    {{one-icon icon="browser-archive" class="single-file-info-icon single-browsable-item-icon"}}
+    <div class="single-file-info-text">
+      {{#truncated-string
+        tagName="div"
+        class="row row-single-file-info-file-name single-file-info-file-name"
+      }}
+        {{firstItem.name}}
+      {{/truncated-string}}
+      {{#truncated-string tagName="div" class="row row-additional-file-info small"}}
+        <span class="single-file-info-label">
+          {{tt this "archived"}}:
+        </span>
+        {{tt this "archivedValue"
+          filesCount=(or firstItem.stats.filesArchived 0)
+          size=(or (bytes-to-string firstItem.stats.bytesArchived) 0)
+        }}
+      {{/truncated-string}}
+    </div>
+  </div>
 {{else}}
   <div class="row row-items-list">
     {{#each items as |item|}}
@@ -30,11 +49,4 @@
       </div>
     {{/each}}
   </div>
-{{/if}}
-{{!-- FIXME: should this going to be generic? --}}
-{{#if (and canViewShares sharesToRemoveCount)}}
-  <p class="shares-info text-danger">
-    {{sharesCountInfo}}<br/>
-    {{removingSharesInfo}}
-  </p>
 {{/if}}
