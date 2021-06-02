@@ -104,6 +104,7 @@ export default Service.extend({
    */
   async purgeArchive(archive) {
     const onedataGraph = this.get('onedataGraph');
+    const parentDatasetRelation = archive.belongsTo('dataset');
     const purgeResponse = await onedataGraph.request({
       operation: 'create',
       gri: gri({
@@ -114,6 +115,13 @@ export default Service.extend({
       }),
       subscribe: false,
     });
+    // only a side effect
+    parentDatasetRelation.reload().catch(error => {
+      console.error(
+        `service:archive-manager#purgeArchive: failed to update dataset ${parentDatasetRelation && parentDatasetRelation.id()}: ${error}`
+      );
+    });
+
     try {
       await archive.reload();
     } catch (error) {

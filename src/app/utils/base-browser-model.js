@@ -177,6 +177,21 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   //#endregion
 
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  areMultipleSelected: computed('selectionContext', function areMultipleSelected() {
+    const selectionContext = this.get('selectionContext');
+    return [
+      actionContext.multiFile,
+      actionContext.multiDir,
+      actionContext.multiMixed,
+      actionContext.multiFilePreview,
+      actionContext.mutliDirPreview,
+      actionContext.multiMixedPreview,
+    ].includes(selectionContext);
+  }),
+
   btnRefresh: computed(function btnRefresh() {
     return this.createFileAction({
       id: 'refresh',

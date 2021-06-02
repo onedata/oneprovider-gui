@@ -201,6 +201,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   fileForConfirmDownload: null,
 
+  archivesToPurge: null,
+
   //#endregion
 
   spaceProxy: promise.object(computed('spaceId', function spaceProxy() {
@@ -599,6 +601,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       ownerSource: this,
       spaceDatasetsViewState: this,
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
+      openPurgeModal: this.openArchivesPurgeModal.bind(this),
     });
   },
 
@@ -739,6 +742,17 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   submitArchiveCreate(dataset, archiveData) {
     return this.get('archiveManager').createArchive(dataset, archiveData);
+  },
+
+  /**
+   * @param {Array<Models.Archive>} archives
+   */
+  openArchivesPurgeModal(archives) {
+    this.set('archivesToPurge', archives);
+  },
+
+  closeArchivesPurgeModal() {
+    this.set('archivesToPurge', null);
   },
 
   openArchivesView(dataset) {
@@ -925,7 +939,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         'datasetId',
         'currentBrowsableItemProxy',
       );
-      // a workaround for fb-table trying to get children when it have not-upted "dir"
+      // a workaround for fb-table trying to get children when it have not-updated "dir"
       if (!get(currentBrowsableItemProxy, 'isSettled')) {
         return this.getEmptyFetchChildrenResponse();
       }
@@ -933,7 +947,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       if (viewMode === 'files') {
         const entityId = fetchArgs[0];
         if (entityId === datasetId) {
-          // a workaround for fb-table trying to get children when it have not-upted "dir"
+          // a workaround for fb-table trying to get children when it have not-updated "dir"
           return this.getEmptyFetchChildrenResponse();
         } else if (!entityId || entityId === archiveVirtualRootDirId) {
           return this.fetchArchiveVirtualChildren(...fetchArgs);
