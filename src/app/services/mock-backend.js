@@ -447,6 +447,7 @@ export default Service.extend({
             'space_manage_datasets',
             'space_create_archives',
             'space_view_archives',
+            'space_remove_archives',
           ],
         }).save();
       })))

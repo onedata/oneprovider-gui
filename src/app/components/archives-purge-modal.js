@@ -24,6 +24,11 @@ export default Component.extend({
    */
   onHide: notImplementedIgnore,
 
+  /**
+   * @type {Boolean}
+   */
+  processing: false,
+
   actions: {
     hide() {
       this.get('onHide')();

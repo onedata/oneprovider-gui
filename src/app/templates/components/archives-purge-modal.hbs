@@ -9,6 +9,8 @@
   {{archives-purge
     archives=archives
     modal=modal
+    processing=processing
     onClose=(action "hide")
+    onProcessingUpdate=(action (mut processing))
   }}
 {{/one-modal}}

@@ -8,18 +8,27 @@
   {{#promise-proxy-container proxy=datasetNameProxy}}
     <div class="archives-purge-part archives-purge-body">
       <p class="purge-text-intro">
-        {{tt this "body.aboutToPurge"
+        {{tt this
+          (concat "body.aboutToPurge." (if showArchivesDetails "detailed" "simpleMulti"))
           archivesText=(tt this
             (concat "body.archive." (if isSingleItem "single" "multi"))
           )
           datasetName=datasetNameProxy.content
+          count=archives.length
         }}
       </p>
-      <p>
-        {{archives-purge/items-info items=archives}}
-      </p>
+      {{#if showArchivesDetails}}
+        <p>
+          {{archives-purge/items-info items=archives}}
+        </p>
+      {{/if}}
       <p class="purge-text-irreversible-warning text-danger">
-        {{tt this "body.irreversibleWarning"}}&nbsp;{{one-label-tip
+        {{tt this
+          "body.irreversibleWarning"
+          archivesText=(tt this
+            (concat "body.archive." (if isSingleItem "theArchive" "selected"))
+          )
+        }}&nbsp;{{one-label-tip
           title=(tt this "body.nestedSharesInfo")
           icon="sign-info-rounded"
         }}
@@ -37,17 +46,14 @@
           placeholder={{tt this "body.confirmationPlaceholder"}}
           value={{confirmationValue}}
           disabled={{if processing true}}
-          oninput={{if processing
-            (no-action)
-            (action (mut confirmationValue) value="target.value")
-          }}
+          oninput={{action (mut confirmationValue) value="target.value"}}
         >
       </form>
     </div>
   {{/promise-proxy-container}}
 {{/modal.body}}
 
-{{#modal.footer class="btn-toolbar"}}
+{{#modal.footer}}
   <div class="archives-purge-part archives-purge-footer">
     {{#bs-button disabled=processing onClick=(action "close") class="cancel"}}
       {{tt this "footer.cancel"}}

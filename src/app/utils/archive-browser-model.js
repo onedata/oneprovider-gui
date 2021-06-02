@@ -19,7 +19,7 @@ import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled } from 'rsvp';
-import { conditional, equal, raw } from 'ember-awesome-macros';
+import { conditional, equal, raw, array } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
@@ -155,6 +155,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   refreshLooper: undefined,
 
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isAnySelectedPurging: array.isAny('selectedFiles', raw('state'), raw('purging')),
+
   //#region Action buttons
 
   btnDownloadTar: computed(
@@ -212,15 +217,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnPurge: computed(
     'areMultipleSelected',
+    'isAnySelectedPurging',
     'spacePrivileges.removeArchives',
     function btnPurge() {
       const {
         areMultipleSelected,
+        isAnySelectedPurging,
         spacePrivileges,
         i18n,
       } =
       this.getProperties(
         'areMultipleSelected',
+        'isAnySelectedPurging',
         'spacePrivileges',
         'i18n',
       );
@@ -232,6 +240,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           modelName: 'space',
           privilegeFlag: ['space_remove_archives'],
         });
+      } else if (isAnySelectedPurging) {
+        disabledTip = this.t('alreadyPurging');
       }
       return this.createFileAction({
         id: 'purge',

@@ -13,10 +13,4 @@ export default Component.extend({
   ),
 
   parentDir: reads('mockBackend.entityRecords.spaceRootDir.0'),
-
-  init() {
-    this._super(...arguments);
-    console.log(this.get('mockBackend.entityRecords.file.10'));
-    console.log(this.get('mockBackend.entityRecords.spaceRootDir'));
-  },
 });

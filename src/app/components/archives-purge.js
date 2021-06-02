@@ -12,7 +12,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { inject as service } from '@ember/service';
 import { computed, get } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { equal, raw, promise, or, not } from 'ember-awesome-macros';
+import { equal, raw, promise, or, not, array, lte } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-operation';
 import _ from 'lodash';
@@ -54,6 +54,16 @@ export default Component.extend(I18n, {
   onClose: notImplementedIgnore,
 
   /**
+   * Default implementation set on init if not provided.
+   * @virtual optional
+   * @param {Boolean} isProcessing
+   * @type {Function}
+   */
+  onProcessingUpdate: notImplementedIgnore,
+
+  /**
+   * If `onProcessingUpdate` is provided, this probably should be injected.
+   * @virtual optional
    * @type {Boolean}
    */
   processing: false,
@@ -63,13 +73,20 @@ export default Component.extend(I18n, {
    */
   confirmationValue: '',
 
+  /**
+   * @type {Number}
+   */
+  maxDisplayItems: 5,
+
+  showArchivesDetails: lte('archives.length', 'maxDisplayItems'),
+
   isSingleItem: equal('archives.length', raw(1)),
 
   confirmationSourceText: computed('archives.length', function confirmationSourceText() {
     const count = this.get('archives.length');
     const multi = count > 1;
     return this.t('body.confirmation.base', {
-      archiveText: this.t(`body.confirmation.archive.${multi ? 'multi' : 'single'}`, {
+      archivesText: this.t(`body.archive.${multi ? 'selectedCount' : 'theArchive'}`, {
         count,
       }),
     });
@@ -85,14 +102,17 @@ export default Component.extend(I18n, {
     }
   }),
 
+  datasetsIds: array.map('archives', archive => archive.relationEntityId('dataset')),
+
   /**
    * 
    * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
    */
-  datasetsProxy: promise.array(computed('archives', function datasetsProxy() {
-    const archives = this.get('archives');
-    const datasetManager = this.get('datasetManager');
-    const datasetsIds = archives.map(archive => archive.relationEntityId('dataset'));
+  datasetsProxy: promise.array(computed('datasetsIds', function datasetsProxy() {
+    const {
+      datasetsIds,
+      datasetManager,
+    } = this.getProperties('datasetsIds', 'datasetManager');
     const uniqDatasetIds = _.uniq(datasetsIds.compact());
     return allFulfilled(
       uniqDatasetIds.map(datasetId => datasetManager.getDataset(datasetId))
@@ -120,6 +140,15 @@ export default Component.extend(I18n, {
     }
   )),
 
+  init() {
+    this._super(...arguments);
+    if (!this.get('onProcessingUpdate')) {
+      this.set('onProcessingUpdate', (isProcessing) => {
+        safeExec(this, 'set', 'processing', isProcessing);
+      });
+    }
+  },
+
   actions: {
     close() {
       this.get('onClose')();
@@ -134,26 +163,27 @@ export default Component.extend(I18n, {
         globalNotify,
         archives,
         onClose,
+        onProcessingUpdate,
         fileManager,
         errorExtractor,
         i18n,
         i18nPrefix,
+        datasetsIds,
       } = this.getProperties(
         'archiveManager',
         'globalNotify',
         'archives',
         'onClose',
+        'onProcessingUpdate',
         'fileManager',
         'errorExtractor',
         'i18n',
         'i18nPrefix',
+        'datasetsIds',
       );
-      let datasetIds =
-        archives.map(archive => archive && archive.relationEntityId('dataset')).compact();
-      datasetIds = Array.from(new Set(datasetIds));
       try {
-        this.set('processing', true);
-        handleMultiFilesOperation({
+        onProcessingUpdate(true);
+        await handleMultiFilesOperation({
           files: archives,
           globalNotify,
           errorExtractor,
@@ -165,14 +195,14 @@ export default Component.extend(I18n, {
         onClose();
       } finally {
         // only a side effect
-        for (const datasetId of datasetIds) {
+        for (const datasetId of datasetsIds) {
           fileManager.dirChildrenRefresh(datasetId).catch(error => {
             console.error(
               `service:archive-manager#purgeMultipleArchives: failed to refresh archives list of dataset ${datasetId}: ${error}`
             );
           });
         }
-        safeExec(this, 'set', 'processing', false);
+        onProcessingUpdate(false);
       }
     },
   },

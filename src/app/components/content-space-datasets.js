@@ -748,12 +748,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @param {Array<Models.Archive>} archives
    */
   openArchivesPurgeModal(archives) {
-    console.log('open purge');
     this.set('archivesToPurge', archives);
   },
 
   closeArchivesPurgeModal() {
-    console.log('close purge');
     this.set('archivesToPurge', null);
   },
 
