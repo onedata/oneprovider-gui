@@ -714,6 +714,12 @@ export default Service.extend({
     const datasets = this.get('entityRecords.dataset');
     const dirDataset = datasets.find(ds => get(ds, 'rootFileType') === 'dir');
     await this.createArchivesForDataset(dirDataset, 3);
+    const chainDirDataset = datasets.find(ds =>
+      get(ds, 'rootFileType') === 'dir' && ds.belongsTo('parent').id()
+    );
+    if (chainDirDataset) {
+      await this.createArchivesForDataset(chainDirDataset, 5);
+    }
     const fileDataset = datasets.find(ds => get(ds, 'rootFileType') === 'file');
     await this.createArchivesForDataset(fileDataset, 1);
   },
