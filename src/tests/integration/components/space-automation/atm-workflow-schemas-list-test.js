@@ -9,8 +9,8 @@ import { resolve } from 'rsvp';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
 
-describe('Integration | Component | content space automation/atm workflow schemas list', function () {
-  setupComponentTest('content-space-automation/atm-workflow-schemas-list', {
+describe('Integration | Component | space automation/atm workflow schemas list', function () {
+  setupComponentTest('space-automation/atm-workflow-schemas-list', {
     integration: true,
   });
 
@@ -83,7 +83,7 @@ describe('Integration | Component | content space automation/atm workflow schema
 
 async function render(testCase) {
   testCase.render(hbs `
-    {{content-space-automation/atm-workflow-schemas-list
+    {{space-automation/atm-workflow-schemas-list
       user=user
       onAtmWorkflowSchemaSelect=atmWorkflowSchemaSelectSpy
     }}

@@ -1,7 +1,7 @@
 /**
  * Shows single workflow schema. It is an internal component of atm-workflow-schemas-list.
  *
- * @module components/content-space-automation/atm-workflow-schemas-list/list-entry
+ * @module components/space-automation/atm-workflow-schemas-list/list-entry
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

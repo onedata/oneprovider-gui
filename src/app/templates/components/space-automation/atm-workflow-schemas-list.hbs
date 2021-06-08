@@ -1,6 +1,6 @@
 {{#promise-proxy-container proxy=dataLoadingProxy}}
   {{#each sortedAtmWorkflowSchemas as |atmWorkflowSchema|}}
-    {{content-space-automation/atm-workflow-schemas-list/list-entry
+    {{space-automation/atm-workflow-schemas-list/list-entry
       atmWorkflowSchema=atmWorkflowSchema
       onSelect=(action "atmWorkflowSchemaSelected" atmWorkflowSchema)
     }}

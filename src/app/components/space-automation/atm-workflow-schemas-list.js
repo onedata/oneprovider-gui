@@ -1,7 +1,7 @@
 /**
  * Shows a list of all available workflow schemas (from all user inventories).
  *
- * @module components/content-space-automation/atm-workflow-schemas-list
+ * @module components/space-automation/atm-workflow-schemas-list
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
