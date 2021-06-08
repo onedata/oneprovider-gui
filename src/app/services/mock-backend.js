@@ -40,6 +40,7 @@ const modelTypes = [
   'provider',
   'space',
   'handleService',
+  'atmInventory',
 ];
 
 export const defaultRecordNames = ['One', 'Two', 'Three'];
@@ -54,6 +55,7 @@ export const recordNames = {
     'dev-oneprovider-lisbon-and-its-a-very-long-name',
   ],
   space: defaultRecordNames,
+  atmInventory: defaultRecordNames,
 };
 
 export const numberOfProviders = 3;
@@ -758,6 +760,34 @@ export default Service.extend({
       });
   },
 
+  async createAtmInventoryRecords(store, names) {
+    const atmInventories = [];
+    for (const name of names) {
+      const atmInventory = await store.createRecord('atmInventory', {
+        name,
+      }).save();
+
+      const atmWorkflowSchemas = [];
+      for (const idx of [0, 1, 2]) {
+        const atmWorkflowSchema = await store.createRecord('atmWorkflowSchema', {
+          name: `workflow ${idx} [${name}]`,
+          description: `workflow ${idx} description`,
+          atmInventory,
+        }).save();
+        atmWorkflowSchemas.push(atmWorkflowSchema);
+      }
+      const atmWorkflowSchemaList =
+        await this.createListRecord(store, 'atmWorkflowSchema', atmWorkflowSchemas);
+
+      set(atmInventory, 'atmWorkflowSchemaList', atmWorkflowSchemaList);
+      await atmInventory.save();
+      atmInventories.push(atmInventory);
+    }
+
+    this.set('entityRecords.atmInventory', atmInventories);
+    return atmInventories;
+  },
+
   createEntityRecords(store, type, names, additionalInfo) {
     let createPromise;
     switch (type) {
@@ -769,6 +799,9 @@ export default Service.extend({
         break;
       case 'handleService':
         createPromise = this.createHandleServiceRecords(store);
+        break;
+      case 'atmInventory':
+        createPromise = this.createAtmInventoryRecords(store, names);
         break;
       default:
         createPromise = allFulfilled(names.map(name =>

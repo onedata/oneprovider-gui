@@ -1,0 +1,9 @@
+.atm-workflow-schemas-list {
+  .workflow-schema-name {
+    @include font-semibold();
+  }
+
+  .workflow-schema-description {
+    padding-top: 0.4em;
+  }
+}

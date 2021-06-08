@@ -12,23 +12,21 @@ import { inject as service } from '@ember/service';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
-export default OneEmbeddedComponent.extend(
-  ContentSpaceBaseMixin, {
-    classNames: ['content-space-automation'],
+export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
+  classNames: ['content-space-automation'],
 
-    store: service(),
+  store: service(),
 
-    /**
-     * @virtual optional
-     * @type {Function}
-     */
-    containerScrollTop: notImplementedIgnore,
+  /**
+   * @virtual optional
+   * @type {Function}
+   */
+  containerScrollTop: notImplementedIgnore,
 
-    /**
-     * @override
-     */
-    iframeInjectedProperties: Object.freeze([
-      'spaceEntityId',
-    ]),
-  }
-);
+  /**
+   * @override
+   */
+  iframeInjectedProperties: Object.freeze([
+    'spaceEntityId',
+  ]),
+});
