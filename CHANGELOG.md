@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7738 Fixed issues with archives browser navigation
 * VFS-7649 Added purge archive action to archives browser
 * VFS-7705 Added additional file actions to archive file browser
 * VFS-7712 Showing archived files counters for more states

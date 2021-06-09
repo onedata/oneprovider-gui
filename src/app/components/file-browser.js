@@ -524,6 +524,10 @@ export default Component.extend(I18n, {
       return this.changeDir(dir);
     },
     toggleCurrentDirActions(open) {
+      if (!this.get('showCurrentDirActions')) {
+        return;
+      }
+
       const _open =
         (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
       if (_open) {
