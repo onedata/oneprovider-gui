@@ -4,6 +4,7 @@ import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fi
 import FormFieldsCollectionGroup from 'onedata-gui-common/utils/form-component/form-fields-collection-group';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import JsonField from 'onedata-gui-common/utils/form-component/json-field';
+import TagsField from 'onedata-gui-common/utils/form-component/tags-field';
 import { tag, not, getBy, eq, raw, promise } from 'ember-awesome-macros';
 import EmberObject, { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -68,7 +69,7 @@ export default Component.extend(I18n, {
   i18n: service(),
   fileManager: service(),
   datasetManager: service(),
-  // archiveManager: service(),
+  archiveManager: service(),
 
   /**
    * @override
@@ -237,10 +238,26 @@ export default Component.extend(I18n, {
                 }),
               ],
             }),
-            JsonField.extend({
+            TagsField.extend({
               isVisible: eq('parent.activeEditor', raw('filesValue')),
+              tagEditorSettings: computed(
+                'parent.value.{storeType,storeDataSpec}',
+                function tagEditorSettings() {
+                  return {};
+                }
+              ),
             }).create({
               name: 'filesValue',
+              tagEditorComponentName: 'tags-input/external-editor',
+              valueToTags(value) {
+                return (value || []).map(val => FileTag.create({
+                  ownerSource: this,
+                  value: val,
+                }));
+              },
+              tagsToValue(tags) {
+                return tags.mapBy('value').uniqBy('entityId');
+              },
             }),
           ],
         });
@@ -251,6 +268,7 @@ export default Component.extend(I18n, {
     }).create({
       component: this,
       name: 'inputStores',
+      isCollectionManipulationAllowed: false,
     });
   }),
 

@@ -6,6 +6,8 @@ import wait from 'ember-test-helpers/wait';
 import { fillIn } from 'ember-native-dom-helpers';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
 import sinon from 'sinon';
+import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
+import { lookupService } from '../../../helpers/stub-service';
 
 const dataSpecConfigs = {
   integer: {
@@ -303,18 +305,32 @@ describe('Integration | Component | space automation/input stores form', functio
           });
         }
 
-        // if (editor === 'filesValue') {
-        //   it('fills initial value with an element with known name', async function () {
-        //     this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
-        //       name: 'someName',
-        //     }]);
+        if (editor === 'filesValue') {
+          it('fills initial value with an element with known name', async function () {
+            this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
+              id: getStoreFileId(dataSpec, 0),
+            }]);
+            mockFileRecord(this, dataSpec, 0, { name: 'someName' });
 
-        //     await render(this);
+            await render(this);
 
-        //     expect(this.$(`.${editor}-field .form-control`).text().trim())
-        //       .to.include('someName');
-        //   });
-        // }
+            expect(this.$(`.${editor}-field .form-control`).text())
+              .to.include('someName');
+          });
+
+          it('fills initial value with an element, that cannot be loaded',
+            async function () {
+              this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
+                id: getStoreFileId(dataSpec, 0),
+              }]);
+              mockFileRecord(this, dataSpec, 0, null);
+
+              await render(this);
+
+              expect(this.$(`.${editor}-field .form-control`).text())
+                .to.include('Unknown');
+            });
+        }
       });
     });
   });
@@ -389,4 +405,41 @@ async function render(testCase) {
     }}
   `);
   await wait();
+}
+
+function getFileId(idx) {
+  return `id${idx}`;
+}
+
+function getStoreFileId(dataSpec, idx) {
+  const id = getFileId(idx);
+  if (dataSpec.type === 'file') {
+    return guidToCdmiObjectId(id);
+  }
+  return id;
+}
+
+function mockFileRecord(testCase, dataSpec, idx, data) {
+  const entityId = getFileId(idx);
+  const fileData = data ? Object.assign({ entityId }, data) : null;
+  let stub;
+  switch (dataSpec.type) {
+    case 'file':
+      stub = sinon.stub(lookupService(testCase, 'file-manager'), 'getFileById')
+        .withArgs(entityId).resolves(fileData);
+      break;
+    case 'dataset':
+      stub = sinon.stub(lookupService(testCase, 'dataset-manager'), 'getDataset')
+        .withArgs(entityId).resolves(fileData);
+      break;
+    case 'archive':
+      stub = sinon.stub(lookupService(testCase, 'archive-manager'), 'getArchive')
+        .withArgs(entityId).resolves(fileData);
+      break;
+  }
+  if (fileData) {
+    stub.resolves(fileData);
+  } else {
+    stub.rejects();
+  }
 }
