@@ -1,0 +1,8 @@
+<button {{action (action (mut open) true)}}>
+  Open
+</button>
+{{items-select-browser-modal
+  open=open
+  space=space
+  onHide=(action (mut open) false)
+}}

@@ -135,6 +135,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {HTMLElement}
+   */
+  contentScroll: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   invokeFileAction: notImplementedThrow,
@@ -221,8 +227,8 @@ export default Component.extend(I18n, {
 
   selectionCount: reads('selectedFiles.length'),
 
-  viewTester: computed(() => {
-    const $contentScroll = $('#content-scroll');
+  viewTester: computed('contentScroll', function viewTester() {
+    const $contentScroll = $(this.get('contentScroll'));
     return new ViewTester($contentScroll);
   }),
 
@@ -778,8 +784,9 @@ export default Component.extend(I18n, {
   },
 
   createListWatcher() {
+    const contentScroll = this.get('contentScroll');
     return new ListWatcher(
-      $('#content-scroll'),
+      $(contentScroll),
       '.data-row',
       (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
       '.table-start-row',

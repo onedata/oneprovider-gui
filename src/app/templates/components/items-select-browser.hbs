@@ -1,0 +1,33 @@
+{{#modal.header}}
+  <div class="items-select-browser-header items-select-browser-part">
+    <h1>{{space.name}}</h1>
+  </div>
+{{/modal.header}}
+
+{{#modal.body id=modalBodyId}}
+  <div class="items-select-browser-body items-select-browser-part">
+    {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+      {{file-browser
+        dir=dir
+        previewMode=previewMode
+        isSpaceOwned=space.currentUserIsOwner
+        spaceId=space.entityId
+        contentScroll=contentScroll
+        selectedFiles=selectedItems
+        spacePrivileges=spacePrivileges
+        changeSelectedFiles=(action (mut selectedItems))
+        browserModel=browserModel
+      }}
+
+      {{!-- FIXME: action modals for filesystem-browser --}}
+
+      {{!-- FIXME: action modals for datasets-browser --}}
+    {{/promise-proxy-container}}
+  </div>
+{{/modal.body}}
+
+{{#modal.footer}}
+  <div class="items-select-browser-footer items-select-browser-part">
+    
+  </div>
+{{/modal.footer}}

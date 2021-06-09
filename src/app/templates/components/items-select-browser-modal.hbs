@@ -1,0 +1,15 @@
+{{#one-modal
+  class="modal-content-overlay modal-content-overlay-right"
+  open=open
+  backdropClose=false
+  keyboard=false
+  size="xl"
+  onHide=onHide
+  as |modal|
+}}
+  {{items-select-browser
+    modal=modal
+    space=space
+    onClose=onHide
+  }}
+{{/one-modal}}
