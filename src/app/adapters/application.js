@@ -7,6 +7,7 @@ import { entityType as handleEntityType } from 'oneprovider-gui/models/handle';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
+import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { entityType as atmInventoryEntityType } from 'oneprovider-gui/models/atm-inventory';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 
@@ -19,6 +20,7 @@ export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [shareEntityType, 'share'],
   [qosEntityType, 'qos-requirement'],
   [datasetEntityType, 'dataset'],
+  [archiveEntityType, 'archive'],
   [atmInventoryEntityType, 'atm-inventory'],
   [atmWorkflowSchemaEntityType, 'atm-workflow-schema'],
 ]));

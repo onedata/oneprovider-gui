@@ -19,6 +19,8 @@ import {
 } from 'ember-awesome-macros';
 import { resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const shareRootId = 'shareRoot';
 
@@ -75,9 +77,15 @@ export default Component.extend(I18n, {
    */
   shareRootDeleted: false,
 
+  //#region browser items for various modals
+
   fileToShowInfo: null,
 
   fileToShowMetadata: null,
+
+  fileForConfirmDownload: null,
+
+  //#endregion
 
   /**
    * @type {Array<Models.File>}
@@ -116,6 +124,46 @@ export default Component.extend(I18n, {
     if (!this.get('selectedFiles')) {
       this.set('selectedFiles', []);
     }
+    this.set('browserModel', this.createBrowserModel());
+  },
+
+  createBrowserModel() {
+    return FilesystemBrowserModel.create({
+      ownerSource: this,
+      rootIcon: 'share',
+      openInfo: this.openInfoModal.bind(this),
+      openMetadata: this.openMetadataModal.bind(this),
+    });
+  },
+
+  openInfoModal(file) {
+    this.set('fileToShowInfo', file);
+  },
+
+  closeInfoModal() {
+    this.set('fileToShowInfo', null);
+  },
+
+  openMetadataModal(file) {
+    this.set('fileToShowMetadata', file);
+  },
+
+  closeMetadataModal() {
+    this.set('fileToShowMetadata', null);
+  },
+
+  closeConfirmFileDownload() {
+    this.set('fileForConfirmDownload', null);
+  },
+
+  confirmFileDownload() {
+    return this.get('browserModel')
+      .downloadFiles([
+        this.get('fileForConfirmDownload'),
+      ])
+      .finally(() => {
+        safeExec(this, 'set', 'fileForConfirmDownload', null);
+      });
   },
 
   isChildOfShare(file) {
@@ -163,24 +211,6 @@ export default Component.extend(I18n, {
       } else {
         return get(file, 'parent');
       }
-    },
-    openInfoModal(file) {
-      this.set('fileToShowInfo', file);
-    },
-    closeInfoModal() {
-      this.set('fileToShowInfo', null);
-    },
-    openMetadataModal(file) {
-      this.set('fileToShowMetadata', file);
-    },
-    closeMetadataModal() {
-      this.set('fileToShowMetadata', null);
-    },
-    openEditPermissionsModal(files) {
-      this.set('filesToEditPermissions', files);
-    },
-    closeEditPermissionsModal(files) {
-      this.set('filesToEditPermissions', files);
     },
   },
 });

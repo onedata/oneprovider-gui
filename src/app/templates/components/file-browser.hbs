@@ -8,6 +8,7 @@
         menuButtons=currentDirMenuButtons
         resolveFileParentFun=resolveFileParentFun
         previewMode=previewMode
+        rootIcon=rootIcon
         changeDir=(action "changeDir")
         selectCurrentDir=(action "selectCurrentDir")
       }}
@@ -35,6 +36,7 @@
 <div class="fb-table-container">
   {{file-browser/fb-table
     dir=dir
+    browserModel=browserModel
     selectedFiles=selectedFiles
     selectedFilesForJump=selectedFilesForJump
     selectionContext=selectionContext
@@ -46,36 +48,34 @@
     isSpaceOwned=isSpaceOwned
     spacePrivileges=spacePrivileges
     loadingIconFileIds=loadingIconFileIds
-    downloadFiles=(action downloadFiles)
     invokeFileAction=(action "invokeFileAction")
     changeSelectedFiles=(action "changeSelectedFiles")
+    openFile=(action "openFile")
     changeDir=(action "changeDir")
     containerScrollTop=(action "containerScrollTop")
     registerApi=(action (mut fbTableApi))
   }}
 </div>
 
-{{#if showCurrentDirActions}}
-  {{#one-webui-popover
-    class="current-dir-actions-popover"
-    popoverStyle="with-dropdown"
-    padding=false
-    triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
-    open=currentDirActionsOpen
-    as |popover|
-  }}
-    {{#click-outside action=(action "toggleCurrentDirActions" false)}}
-      {{#popover-content-limit opened=popover.visible}}
-        {{actions-popover-content
-          actionsArray=currentDirMenuButtons
-          actionClicked=(action "toggleCurrentDirActions" false)
-          class="current-dir-actions ps--focus"
-        }}
-      {{/popover-content-limit}}
-    {{/click-outside}}
-  {{/one-webui-popover}}
-  <div class="current-dir-actions-trigger floating-actions-trigger"></div>
-{{/if}}
+{{#one-webui-popover
+  class="current-dir-actions-popover"
+  popoverStyle="with-dropdown"
+  padding=false
+  triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
+  open=(and currentDirActionsOpen showCurrentDirActions)
+  as |popover|
+}}
+  {{#click-outside action=(action "toggleCurrentDirActions" false)}}
+    {{#popover-content-limit opened=popover.visible}}
+      {{actions-popover-content
+        actionsArray=currentDirMenuButtons
+        actionClicked=(action "toggleCurrentDirActions" false)
+        class="current-dir-actions ps--focus"
+      }}
+    {{/popover-content-limit}}
+  {{/click-outside}}
+{{/one-webui-popover}}
+<div class="current-dir-actions-trigger floating-actions-trigger"></div>
 
 {{#if (and media.isMobile (not previewMode))}}
   {{file-browser/fb-selection-toolkit

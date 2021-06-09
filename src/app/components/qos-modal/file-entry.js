@@ -87,9 +87,6 @@ export default Component.extend(I18n, {
     removeQosRequirement(qosRequirement) {
       return this.get('removeQosRequirement')(qosRequirement);
     },
-    getDataUrl() {
-      return this.get('getDataUrl')(...arguments);
-    },
     closeModal() {
       return this.get('closeModal')();
     },

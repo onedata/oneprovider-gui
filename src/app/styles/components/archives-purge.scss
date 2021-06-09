@@ -1,0 +1,11 @@
+.archives-purge-part {
+  .purge-text-irreversible-warning {
+    @include font-semibold;
+  }
+  .purge-retype-text {
+    user-select: none;
+  }
+  .single-file-info {
+    margin-bottom: 1em;
+  }
+}

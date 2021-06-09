@@ -10,7 +10,6 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import EmberObject, { get, observer, computed, setProperties } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
 import { conditional, raw, equal, and, getBy, array, promise, or, not } from 'ember-awesome-macros';
@@ -93,7 +92,7 @@ export default Component.extend(...mixins, {
    * @virtual
    * @type {Function}
    */
-  getDataUrl: notImplementedReject,
+  getDataUrl: notImplementedIgnore,
 
   /**
    * If modal is opened - interval in ms to auto update data
@@ -441,9 +440,6 @@ export default Component.extend(...mixins, {
             }
           });
       });
-    },
-    getDataUrl() {
-      return this.get('getDataUrl')(...arguments);
     },
     evaluateQosExpression(expression) {
       return this.evaluateQosExpression(expression);

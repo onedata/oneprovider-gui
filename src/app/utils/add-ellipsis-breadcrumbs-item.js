@@ -19,24 +19,32 @@ import { assert } from '@ember/debug';
 import { get } from '@ember/object';
 import { resolve } from 'rsvp';
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
+import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 
 export const ellipsisString = '...';
 
 /**
  * @param {Ember.A<FileBreadcrumbsItem>} items
  * @param {FileBreadcrumbsItem} child
+ * @param {Function} resolveParent
  * @returns {Promise<Ember.A<FileBreadcrumbsItem>>} resolves with reference to altered `items`
  */
-function addEllipsisBreadcrumbsItem(items, child) {
+function addEllipsisBreadcrumbsItem(items, child, resolveParent = defaultResolveParent) {
   assert(
     'utils/add-ellipsis-breadcrumbs-item: child item cannot be null or undefined',
     child
   );
   const hasEllipsisFile = child.get('file.hasParent');
   if (hasEllipsisFile) {
-    return get(child, 'file.parent').then(ellipsisFile => {
+    return resolveParent(get(child, 'file')).then(ellipsisFile => {
       const childIndex = items.indexOf(child);
       const originalParent = items.objectAt(childIndex - 1);
+      if (childIndex <= 0) {
+        console.debug(
+          'utils/add-ellipsis-breadcrumbs-item: no ellipsis item found or no parent'
+        );
+        return items;
+      }
       if (originalParent &&
         get(originalParent, 'file.id') === get(ellipsisFile, 'id')
       ) {
@@ -45,10 +53,6 @@ function addEllipsisBreadcrumbsItem(items, child) {
         );
         return items;
       } else {
-        assert(
-          childIndex > -1,
-          'utils/add-ellipsis-breadcrumbs-item: when adding ellipsis item, the child of ellipsis item should be present in items array'
-        );
         const ellipsisItem = FileBreadcrumbsItem.create({
           file: ellipsisFile,
           name: ellipsisString,

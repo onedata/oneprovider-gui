@@ -1,0 +1,15 @@
+{{#bs-button
+  type="default"
+  disabled=isSubmitting
+  onClick=(action "close")
+}}
+  {{tt this "cancel"}}
+{{/bs-button}}
+{{#one-spin-button
+  class="btn btn-primary"
+  disabled=disabled
+  inFlight=isSubmitting
+  action=(action "submit")
+}}
+  {{tt this "create"}}
+{{/one-spin-button}}

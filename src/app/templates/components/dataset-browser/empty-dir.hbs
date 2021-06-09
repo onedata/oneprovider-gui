@@ -1,0 +1,35 @@
+<h1 class="empty-dir-text dir-box-text">
+  {{tt this (if rootDirId "noChildren" "noDatasets")}}
+</h1>
+<div class="empty-dir-image dir-box-image"></div>
+<h2 class="empty-dir-text dir-box-text">  
+  {{#if rootDirId}}
+    <a class="empty-dataset-manage-archives-action" {{action "openArchivesView"}}>
+      <div class="inline-icon-container bind-right-text">
+        {{one-icon icon="browser-archive"}}
+      </div>&nbsp;{{tt this "manageArchives"}}
+    </a>
+    {{tt this "or"}}
+    <a
+      class="empty-dataset-browse-link"
+      href={{browseDirectoryHref}}
+      target={{navigateOnezoneTarget}}
+    >
+      <div class="inline-icon-container bind-right-text">
+        {{one-icon icon="browser-directory"}}
+      </div>&nbsp;{{tt this "browse"}}
+    </a>
+    {{tt this (if rootDirId "rootDirectoryInBrowser" "spaceRootInBrowser")}}
+  {{else}}
+    <a
+      class="empty-dataset-browse-link"
+      href={{browseDirectoryHref}}
+      target={{navigateOnezoneTarget}}
+    >
+      <div class="inline-icon-container bind-right-text">
+        {{one-icon icon="browser-directory"}}
+      </div>&nbsp;{{tt this "browseUpper"}}
+    </a>
+    {{tt this (if rootDirId "rootDirectoryInBrowser" "spaceRootInBrowser")}}
+  {{/if}}
+</h2>

@@ -7,9 +7,12 @@
         data-dir-guid={{item.file.entityId}}
       >
         {{#if (eq i 0)}}
-          <div class="inline-icon-container">
+          <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
           </div>
+          {{#if alwaysShowRootName}}
+            {{item.name}}
+          {{/if}}
         {{else}}
           {{item.name}}
         {{/if}}
@@ -29,7 +32,7 @@
     >
       <span class="fb-breadcrumbs-dir-name">
         {{#if areItemsEmpty}}
-          <div class="inline-icon-container">
+          <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}  
           </div>
         {{/if}}
@@ -66,7 +69,7 @@
         {{action "changeDir" currentItem.file}}
       >
         {{#if areItemsEmpty}}
-          <div class="inline-icon-container">
+          <div class="inline-icon-container root-icon-container">
             {{one-icon icon=rootIcon}}
           </div>
         {{/if}}

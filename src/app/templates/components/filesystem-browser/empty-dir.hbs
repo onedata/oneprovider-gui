@@ -1,0 +1,56 @@
+<h1 class="empty-dir-text dir-box-text">{{tt this "emptyDirectory"}}</h1>
+<div class="empty-dir-image dir-box-image"></div>
+{{#unless readonly}}
+  {{#if dir.dataIsProtected}}
+    <h2 class="empty-dir-text dir-box-text">
+      {{tt this "dataIsWriteProtected"}}
+      {{#one-icon
+        icon="sign-question-rounded"
+        class="hint-trigger clickable directory-write-protected-hint-trigger"
+      }}
+        {{one-tooltip title=(tt this "dataIsWriteProtectedTip")}}
+      {{/one-icon}}
+    </h2>
+  {{else}}
+    <h2 class="empty-dir-text dir-box-text">
+      {{tt this "dragFilesHere"}}
+      <a class="empty-dir-upload-action" {{action emptyDirUpload}}>
+        <div class="inline-icon-container bind-right-text">
+          {{one-icon icon="browser-upload"}}
+        </div>&nbsp;{{tt this "upload"}}
+      </a>
+      {{tt this "or"}}
+      <a class="empty-dir-new-directory-action" {{action emptyDirNewDirectory}}>
+        <div class="inline-icon-container bind-right-text">
+          {{one-icon icon="browser-new-directory"}}
+        </div>&nbsp;{{tt this "createNewDirectory"}}</a>.
+    </h2>
+    {{#if fileClipboardFiles.length}}
+      <h2 class="empty-dir-text dir-box-text">
+        {{tt this "youCanAlso"}}
+        {{#if (eq fileClipboardMode "symlink")}}
+          <a class="empty-dir-place-symlink-action" {{action emptyDirPlaceSymlink}}>
+            <div class="inline-icon-container bind-right-text">
+              {{one-icon icon="shortcut"}}
+            </div>&nbsp;{{tt this "placeSymlinks"}}
+          </a>
+          {{tt this "toFilesInClipboard"}}.
+        {{else if (eq fileClipboardMode "hardlink")}}
+          <a class="empty-dir-place-hardlink-action" {{action emptyDirPlaceHardlink}}>
+            <div class="inline-icon-container bind-right-text">
+              {{one-icon icon="text-link"}}
+            </div>&nbsp;{{tt this "placeHardlinks"}}
+          </a>
+          {{tt this "toFilesInClipboard"}}.
+        {{else}}
+          <a class="empty-dir-paste-action" {{action emptyDirPaste}}>
+            <div class="inline-icon-container bind-right-text">
+              {{one-icon icon="clipboard-copy"}}
+            </div>&nbsp;{{tt this "paste"}}
+          </a>
+          {{tt this "filesFromClipboard"}}.
+        {{/if}}
+      </h2>
+    {{/if}}
+  {{/if}}
+{{/unless}}

@@ -14,6 +14,7 @@ import { get, computed, observer } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { guidFor } from '@ember/object/internals';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
@@ -51,7 +52,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    * @virtual
    * @type {Function}
    */
-  getDataUrl: notImplementedThrow,
+  getDataUrl: notImplementedIgnore,
 
   /**
    * @virtual
@@ -173,7 +174,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
       getDataUrl,
       qosSourceFileId,
     } = this.getProperties('getDataUrl', 'qosSourceFileId');
-    return getDataUrl({ fileId: null, selected: [qosSourceFileId] });
+    return getDataUrl && getDataUrl({ fileId: null, selected: [qosSourceFileId] });
   }),
 
   evaluationUpdater: observer(

@@ -1,6 +1,7 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   {{#if dir}}
     {{file-browser
+      browserModel=browserModel
       dir=dir
       spaceId=spaceEntityId
       spacePrivileges=spacePrivileges
@@ -9,16 +10,6 @@
       isSpaceOwned=spaceProxy.currentUserIsOwner
       changeSelectedFiles=(action "changeSelectedFiles")
       updateDirEntityId=(action "updateDirEntityId")
-      openCreateNewDirectory=(action "openCreateItemModal" "dir")
-      openRemove=(action "openRemoveModal")
-      openRename=(action "openRenameModal")
-      openInfo=(action "openInfoModal")
-      openShare=(action "openShareModal")
-      openMetadata=(action "openMetadataModal")
-      openDatasets=(action "openDatasetsModal")
-      openEditPermissions=(action "openEditPermissionsModal")
-      openFileDistributionModal=(action "openFileDistributionModal")
-      openQos=(action "openQosModal")
     }}
     <div class="upload-drop-zone {{if dir.dataIsProtected "upload-disabled"}}">
       <div class="upload-info">
@@ -36,7 +27,7 @@
       open=true
       parentDir=createItemParentDir
       itemType=createItemType
-      onHide=(action "closeCreateItemModal")
+      onHide=(action closeCreateItemModal)
     }}
   {{/if}}
 
@@ -45,7 +36,7 @@
       open=true
       file=fileToRename
       parentDir=renameParentDir
-      onHide=(action "closeRenameModal")
+      onHide=(action closeRenameModal)
     }}
   {{/if}}
 
@@ -56,7 +47,7 @@
       initialTab=showInfoInitialTab
       space=spaceProxy.content
       getDataUrl=(action "getDataUrl")
-      onHide=(action "closeInfoModal")
+      onHide=(action closeInfoModal)
     }}
   {{/if}}
 
@@ -65,7 +56,7 @@
       open=true
       file=fileToShare
       managePrivilege=spacePrivileges.manageShares
-      onHide=(action "closeShareModal")
+      onHide=(action closeShareModal)
       getShareUrl=(action "getShareUrl")
     }}
   {{/if}}
@@ -76,7 +67,7 @@
       files=filesToRemove
       parentDir=removeParentDir
       spacePrivileges=spacePrivileges
-      onHide=(action "closeRemoveModal")
+      onHide=(action closeRemoveModal)
     }}
   {{/if}}
 
@@ -84,7 +75,7 @@
     {{edit-permissions-modal
       files=filesToEditPermissions
       space=spaceProxy.content
-      onClose=(action "closeEditPermissionsModal")
+      onClose=(action closeEditPermissionsModal)
     }}
   {{/if}}
 
@@ -92,7 +83,7 @@
     {{file-distribution-modal
       files=filesToShowDistribution
       space=spaceProxy.content
-      onClose=(action "closeFileDistributionModal")
+      onClose=(action closeFileDistributionModal)
       getTransfersUrl=(action "getTransfersUrl")
     }}
   {{/if}}
@@ -101,7 +92,7 @@
     {{file-browser/fb-metadata-modal
       open=true
       file=fileToShowMetadata
-      onHide=(action "closeMetadataModal")
+      onHide=(action closeMetadataModal)
     }}
   {{/if}}
 
@@ -110,7 +101,8 @@
       open=true
       files=filesToShowDatasets
       editPrivilege=spacePrivileges.manageDatasets
-      onHide=(action "closeDatasetsModal")
+      onHide=(action closeDatasetsModal)
+      getDatasetsUrl=(action "getDatasetsUrl")
       getDataUrl=(action "getDataUrl")
     }}
   {{/if}}
@@ -122,8 +114,14 @@
       space=spaceProxy.content
       showPrivilege=spacePrivileges.viewQos
       editPrivilege=spacePrivileges.manageQos
-      onHide=(action "closeQosModal")
+      onHide=(action closeQosModal)
       getDataUrl=(action "getDataUrl")
     }}
   {{/if}}
+
+  {{file-browser/fb-download-modal
+    file=fileForConfirmDownload
+    confirmDownload=(action "confirmFileDownload")
+    onHide=(action "closeConfirmFileDownload")
+  }}
 {{/promise-proxy-container}}

@@ -1,11 +1,16 @@
 <table class="table one-table one-infinite-list fb-files-table">
   <thead class="fb-table-thead">
-    <tr>
-      <th class="fb-table-col-files">{{tt this "header.files"}}</th>
-      <th class="fb-table-col-size">{{tt this "header.size"}}</th>
-      <th class="fb-table-col-modification">{{tt this "header.modification"}}</th>
-      <th class="fb-table-col-actions-menu"></th>
-    </tr>
+    {{#if headRowComponentName}}
+      {{component headRowComponentName
+        previewMode=previewMode
+      }}
+    {{else}}
+      {{!-- head row component should contain at least one th for items, if it's not
+            provided then insert generic one
+      --}}
+      <th class="fb-table-col-items">{{tt this "items"}}</th>
+    {{/if}}
+    <th class="fb-table-col-actions-menu"></th>
   </thead>
   <tbody class="fb-table-tbody">
     <tr class="first-row">
@@ -13,16 +18,17 @@
     </tr>
     <div class="table-start-row"></div>
     {{#each filesArray as |file|}}
-      {{file-browser/fb-table-row
+      {{component rowComponentName
         class="data-row"
         file=file
+        browserModel=browserModel
         previewMode=previewMode
         isSpaceOwned=isSpaceOwned
-        qosViewForbidden=(not spacePrivileges.viewQos)
-        datasetsViewForbidden=(not spacePrivileges.view)
+        spacePrivileges=spacePrivileges
         nameConflict=(contains file.index conflictNames)
-        fileCut=(and (eq fileClipboardMode "move") (contains file fileClipboardFiles))
+        fileClipboardMode=(if (contains file fileClipboardFiles) fileClipboardMode null)
         isSelected=(contains file selectedFiles)
+        isLoadingOnIcon=(contains file.entityId loadingIconFileIds)
         touchTap=(action "fileTapped" file)
         touchHold=(action "fileTouchHeld" file)
         fastClick=(action "fileClicked" file)
@@ -31,7 +37,6 @@
         invokeFileAction=invokeFileAction
         fileActionsOpen=fileActionsOpen
         selectionContext=selectionContext
-        isLoadingOnIcon=(contains file.entityId loadingIconFileIds)
       }}
     {{/each}}
     {{#if (and initialLoad.isSettled fetchingNext)}}
@@ -55,82 +60,20 @@
     }}
   </div>
 {{/if}}
-{{#if dirLoadError}}
-  <div class="error-dir-box dir-box">
-    <h1 class="error-dir-text dir-box-text">
-      {{dirLoadErrorMessage.message}}
-    </h1>
-    <div class={{concat "error-dir-image dir-box-image error-dir-image-" dirLoadErrorPosix}}></div>
-    {{#unless dirLoadErrorPosix}}
-      <div class="error-dir-details application-error">
-        <div class="error-details active">
-          {{#if dirLoadError.errorJsonString}}
-            <div class="error-json">{{dirLoadErrorMessage.errorJsonString}}</div>
-          {{/if}}
-        </div>
-      </div>
-    {{/unless}}
-  </div>
+{{#if (and dirLoadError dirLoadErrorComponentName)}}
+  {{component dirLoadErrorComponentName
+    dir=dir
+    previewMode=previewMode
+    dirLoadError=dirLoadError
+    browserModel=browserModel
+  }}
 {{/if}}
-{{#if hasEmptyDirClass}}
-  <div class="empty-dir-box dir-box">
-    <h1 class="empty-dir-text dir-box-text">{{tt this "emptyDirBox.emptyDirectory"}}</h1>
-    <div class="empty-dir-image dir-box-image"></div>
-    {{#unless previewMode}}
-      {{#if dir.dataIsProtected}}
-        <h2 class="empty-dir-text dir-box-text">
-          {{tt this "emptyDirBox.dataIsWriteProtected"}}
-          {{#one-icon
-            icon="sign-question-rounded"
-            class="hint-trigger clickable directory-write-protected-hint-trigger"
-          }}
-            {{one-tooltip title=(tt this "emptyDirBox.dataIsWriteProtectedTip")}}
-          {{/one-icon}}
-        </h2>
-      {{else}}
-        <h2 class="empty-dir-text dir-box-text">
-          {{tt this "emptyDirBox.dragFilesHere"}}
-          <a class="empty-dir-upload-action" {{action "emptyDirUpload"}}>
-            <div class="inline-icon-container bind-right-text">
-              {{one-icon icon="browser-upload"}}
-            </div>&nbsp;{{tt this "emptyDirBox.upload"}}
-          </a>
-          {{tt this "emptyDirBox.or"}}
-          <a class="empty-dir-new-directory-action" {{action "emptyDirNewDirectory"}}>
-            <div class="inline-icon-container bind-right-text">
-              {{one-icon icon="browser-new-directory"}}
-            </div>&nbsp;{{tt this "emptyDirBox.createNewDirectory"}}</a>.
-        </h2>
-        {{#if fileClipboardFiles.length}}
-          <h2 class="empty-dir-text dir-box-text">
-            {{tt this "emptyDirBox.youCanAlso"}}
-            {{#if (eq fileClipboardMode "symlink")}}
-              <a class="empty-dir-place-symlink-action" {{action "emptyDirPlaceSymlink"}}>
-                <div class="inline-icon-container bind-right-text">
-                  {{one-icon icon="shortcut"}}
-                </div>&nbsp;{{tt this "emptyDirBox.placeSymlinks"}}
-              </a>
-              {{tt this "emptyDirBox.toFilesInClipboard"}}.
-            {{else if (eq fileClipboardMode "hardlink")}}
-              <a class="empty-dir-place-hardlink-action" {{action "emptyDirPlaceHardlink"}}>
-                <div class="inline-icon-container bind-right-text">
-                  {{one-icon icon="text-link"}}
-                </div>&nbsp;{{tt this "emptyDirBox.placeHardlinks"}}
-              </a>
-              {{tt this "emptyDirBox.toFilesInClipboard"}}.
-            {{else}}
-              <a class="empty-dir-paste-action" {{action "emptyDirPaste"}}>
-                <div class="inline-icon-container bind-right-text">
-                  {{one-icon icon="clipboard-copy"}}
-                </div>&nbsp;{{tt this "emptyDirBox.paste"}}
-              </a>
-              {{tt this "emptyDirBox.filesFromClipboard"}}.
-            {{/if}}
-          </h2>
-        {{/if}}
-      {{/if}}
-    {{/unless}}
-  </div>
+{{#if (and hasEmptyDirClass emptyDirComponentName)}}
+  {{component emptyDirComponentName
+    dir=dir
+    previewMode=previewMode
+    browserModel=browserModel
+  }}
 {{/if}}
 {{#if showDirContextMenu}}
   {{#one-webui-popover
@@ -158,12 +101,6 @@
   {{/one-webui-popover}}
   <div class="file-actions-trigger floating-actions-trigger"></div>
 {{/if}}
-
-{{file-browser/fb-download-modal
-  file=downloadModalFile
-  confirmDownload=(action "confirmDownload")
-  onHide=(action "closeDownloadModal")
-}}
 
 {{#if renderRefreshSpinner}}
   {{spin-spinner-block
