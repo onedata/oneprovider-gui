@@ -26,8 +26,8 @@ import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const allButtonNames = Object.freeze([
-  'btnRefresh',
   'btnCreateArchive',
+  'btnRefresh',
   'btnDownloadTar',
   'btnPurge',
 ]);
@@ -208,6 +208,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           return this.openCreateArchiveModal(this.get('dataset'));
         },
         showIn: [
+          actionContext.inDir,
           actionContext.currentDir,
           actionContext.spaceRootDir,
         ],
