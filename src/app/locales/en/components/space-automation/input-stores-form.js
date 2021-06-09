@@ -10,4 +10,8 @@ export default {
       },
     },
   },
+  fileTag: {
+    unknownName: 'Unknown',
+    idTooltip: 'ID: {{id}}',
+  },
 };

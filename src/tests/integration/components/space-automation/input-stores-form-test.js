@@ -302,6 +302,19 @@ describe('Integration | Component | space automation/input stores form', functio
             });
           });
         }
+
+        // if (editor === 'filesValue') {
+        //   it('fills initial value with an element with known name', async function () {
+        //     this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
+        //       name: 'someName',
+        //     }]);
+
+        //     await render(this);
+
+        //     expect(this.$(`.${editor}-field .form-control`).text().trim())
+        //       .to.include('someName');
+        //   });
+        // }
       });
     });
   });

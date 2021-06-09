@@ -4,16 +4,71 @@ import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fi
 import FormFieldsCollectionGroup from 'onedata-gui-common/utils/form-component/form-fields-collection-group';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import JsonField from 'onedata-gui-common/utils/form-component/json-field';
-import { tag, not, getBy, eq, raw } from 'ember-awesome-macros';
-import { computed, observer, get, getProperties } from '@ember/object';
+import { tag, not, getBy, eq, raw, promise } from 'ember-awesome-macros';
+import EmberObject, { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { validator } from 'ember-cp-validations';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { scheduleOnce } from '@ember/runloop';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import { inject as service } from '@ember/service';
+import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
+import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
+import { resolve, all as allFulfilled } from 'rsvp';
+
+const FileTag = EmberObject.extend(I18n, OwnerInjector, {
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceAutomation.inputStoresForm.fileTag',
+
+  /**
+   * @type {Models.File|Models.Dataset|Models.Archive}
+   */
+  value: undefined,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  label: computed('value.name', function label() {
+    const name = this.get('value.name');
+    if (!name) {
+      return String(this.t('unknownName'));
+    }
+    return name;
+  }),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  tip: computed('value.{modelName,entityId}', function tip() {
+    const {
+      modelName,
+      entityId,
+    } = getProperties(this.get('value') || {}, 'modelName', 'entityId');
+
+    if (!modelName || !entityId) {
+      return;
+    }
+
+    return this.t('idTooltip', {
+      id: modelName === 'file' ? guidToCdmiObjectId(entityId) : entityId,
+    });
+  }),
+});
 
 export default Component.extend(I18n, {
   classNames: ['input-stores-form'],
   classNameBindings: ['isDisabled:form-disabled:form-enabled'],
+
+  i18n: service(),
+  fileManager: service(),
+  datasetManager: service(),
+  // archiveManager: service(),
 
   /**
    * @override
@@ -46,12 +101,62 @@ export default Component.extend(I18n, {
   onChange: notImplementedIgnore,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @param {Object} fileBrowserConstraints
+   *   ```
+   *   {
+   *     type: String, // one of `'file'`, `'dataset'`, `'archive'`
+   *     allowedFileTypes: Array<String>|undefined, // meaningfull when
+   *       // `type` is `'file'`. Should be an array of values:
+   *       // `'regular'`, `'directory'`. If undefined, then all types
+   *       // of files are allowed.
+   *     limit: Number|undefined, // maximum number of items, that can be selected.
+   *       // If undefined, then there is no upper limit.
+   *   }
+   *   ```
+   * @returns {Promise} resolves with an array of selected files, rejects when
+   *   user cancel selection process.
+   */
+  onSelectFiles: notImplementedReject,
+
+  /**
+   * ```
+   * {
+   *   promise: Promise, // promise returned from `onSelectFiles`
+   *   onTagsAddedCallback: Function, // callback received from tags-field
+   *   onEndTagCreationCallback: Function, // callback received from tags-field
+   * }
+   * ```
+   * Is undefined if there is not active files selection process.
+   * @type {Object|undefined}
+   */
+  activeFilesSelectionProcess: undefined,
+
+  /**
    * Set by `updateDefaultFormValues`
    * @type {Object}
    */
-  defaultFormValues: computed('atmWorkflowSchema', function defaultFormValues() {
-    return atmWorkflowSchemaToFormData(this.get('atmWorkflowSchema'));
-  }),
+  defaultFormValuesProxy: promise.object(
+    computed('atmWorkflowSchema', async function defaultFormValues() {
+      const {
+        atmWorkflowSchema,
+        fileManager,
+        datasetManager,
+        archiveManager,
+      } = this.getProperties(
+        'atmWorkflowSchema',
+        'fileManager',
+        'datasetManager',
+        'archiveManager'
+      );
+      return await atmWorkflowSchemaToFormData(atmWorkflowSchema, {
+        fileManager,
+        datasetManager,
+        archiveManager,
+      });
+    })
+  ),
 
   /**
    * @type {ComputedProperty<Utils.FormComponent.FormFieldsRootGroup>}
@@ -84,7 +189,7 @@ export default Component.extend(I18n, {
    */
   inputStoresFieldsCollectionGroup: computed(function inputStoresFieldsCollectionGroup() {
     return FormFieldsCollectionGroup.extend({
-      defaultValue: getBy('component', tag `defaultFormValues.${'path'}`),
+      defaultValue: getBy('component', tag `defaultFormValuesProxy.content.${'path'}`),
       fieldFactoryMethod(uniqueFieldValueName) {
         return FormFieldsGroup.extend({
           label: reads('value.storeName'),
@@ -149,16 +254,18 @@ export default Component.extend(I18n, {
     });
   }),
 
-  atmWorkflowSchemaObserver: observer(
-    'atmWorkflowSchema',
+  defaultFormValuesProxyObserver: observer(
+    'defaultFormValuesProxy.isFulfilled',
     function atmWorkflowSchemaObserver() {
-      this.get('fields').reset();
+      if (this.get('defaultFormValuesProxy.isFulfilled')) {
+        this.get('fields').reset();
+      }
     }
   ),
 
   init() {
     this._super(...arguments);
-    this.atmWorkflowSchemaObserver();
+    this.defaultFormValuesProxyObserver();
   },
 
   notifyAboutChange() {
@@ -176,9 +283,79 @@ export default Component.extend(I18n, {
       isValid: get(fields, 'isValid'),
     });
   },
+
+  startFilesSelection(dataSpec, {
+    onTagsAddedCallback,
+    onEndTagCreationCallback,
+    limit,
+  }) {
+    const {
+      activeFilesSelectionProcess,
+      onSelectFiles,
+    } = this.getProperties('activeFilesSelectionProcess', 'onSelectFiles');
+
+    if (activeFilesSelectionProcess) {
+      this.endFilesSelection();
+    }
+
+    const type = dataSpec && dataSpec.type;
+    if (!onSelectFiles || !['file', 'dataset', 'archive'].includes(type)) {
+      return;
+    }
+
+    const filesSelectionSpec = {
+      type,
+      limit,
+    };
+
+    if (type === 'file') {
+      const fileType = get(dataSpec, 'valueConstraints.fileType');
+      let allowedFileType;
+      switch (fileType) {
+        case 'REG':
+          allowedFileType = 'regular';
+          break;
+        case 'DIR':
+          allowedFileType = 'directory';
+          break;
+      }
+      if (allowedFileType) {
+        filesSelectionSpec.allowedFileTypes = [allowedFileType];
+      }
+    }
+
+    const selectionPromise = onSelectFiles(filesSelectionSpec);
+    selectionPromise.then(selectedFiles => safeExec(this, () => {
+      const activeSelectionPromise = this.get('activeFilesSelectionProcess.promise');
+      if (activeSelectionPromise === selectionPromise) {
+        const newTags = (selectedFiles || []).map(file =>
+          FileTag.create({ value: file, ownerSource: this })
+        );
+        onTagsAddedCallback(newTags);
+      }
+    })).finally(() => safeExec(this, () => {
+      const activeSelectionPromise = this.get('activeFilesSelectionProcess.promise');
+      if (activeSelectionPromise === selectionPromise) {
+        this.endFilesSelection();
+      }
+    }));
+
+    this.set('activeFilesSelectionProcess', {
+      promise: selectionPromise,
+      onTagsAddedCallback,
+      onEndTagCreationCallback,
+    });
+  },
+
+  endFilesSelection() {
+    const onEndTagCreationCallback =
+      this.get('activeFilesSelectionProcess.onEndTagCreationCallback');
+    onEndTagCreationCallback && onEndTagCreationCallback();
+    this.set('activeFilesSelectionProcess', undefined);
+  },
 });
 
-function atmWorkflowSchemaToFormData(atmWorkflowSchema) {
+async function atmWorkflowSchemaToFormData(atmWorkflowSchema, managerServices) {
   const inputStoresFormValues = {
     __fieldsValueNames: [],
   };
@@ -196,7 +373,7 @@ function atmWorkflowSchemaToFormData(atmWorkflowSchema) {
   if (!inputStores.length) {
     return formValues;
   }
-  inputStores.forEach((inputStore, idx) => {
+  const storePromises = inputStores.map(async (inputStore, idx) => {
     if (!inputStore) {
       return;
     }
@@ -223,6 +400,17 @@ function atmWorkflowSchemaToFormData(atmWorkflowSchema) {
     let editorValue = defaultInitialValue;
     if (editor === 'rawValue' && editorValue !== undefined) {
       editorValue = JSON.stringify(editorValue, null, 2);
+    } else if (editor === 'filesValue') {
+      const modelName = dataSpec && dataSpec.type;
+      if (editorValue && ['file', 'dataset', 'archive'].includes(modelName)) {
+        editorValue = (await allFulfilled(
+          defaultInitialValue.mapBy('id').compact().map(id =>
+            getFileRecord(modelName, id, managerServices)
+          )
+        )).compact();
+      } else {
+        editorValue = [];
+      }
     }
 
     const inputStoreFormValues = {
@@ -234,6 +422,8 @@ function atmWorkflowSchemaToFormData(atmWorkflowSchema) {
     };
     inputStoresFormValues[valueName] = inputStoreFormValues;
   });
+
+  await allFulfilled(storePromises);
   return formValues;
 }
 
@@ -291,7 +481,7 @@ function validateStoreElement(element, dataSpec) {
     case 'file':
     case 'dataset':
     case 'archive': {
-      const idValue = element && element[`${dataSpec.type}Id`];
+      const idValue = element && element.id;
       return idValue && typeof idValue === 'string';
     }
     default:
@@ -334,4 +524,24 @@ function formDataToInputStoresValues(formData, stores) {
   });
 
   return storeValues;
+}
+
+async function getFileRecord(modelName, id, {
+  fileManager,
+  datasetManager,
+  archiveManager,
+}) {
+  switch (modelName) {
+    case 'file': {
+      const entityId = cdmiObjectIdToGuid(id);
+      return fileManager.getFileById(cdmiObjectIdToGuid(id))
+        .catch(() => ({ entityId }));
+    }
+    case 'dataset':
+      return datasetManager.getDataset(id).catch(() => ({ entityId: id }));
+    case 'archive':
+      return archiveManager.getArchive(id).catch(() => ({ entityId: id }));
+    default:
+      return resolve(null);
+  }
 }
