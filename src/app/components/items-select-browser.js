@@ -25,8 +25,10 @@ export default Component.extend(I18n, {
   modal: undefined,
 
   /**
-   * @virtual
+   * @virtual optional
    */
+  parentModalDialogSelector: undefined,
+
   mode: computed(
     'constraintSpec.itemType',
     function mode() {
