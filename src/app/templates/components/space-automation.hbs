@@ -1,3 +1,52 @@
-{{#promise-proxy-container proxy=dataLoadingProxy spinnerBlockClass="absolute-middle-centered"}}
-  {{space-automation/atm-workflow-schemas-list user=user}}
-{{/promise-proxy-container}}
+<div class="row loadable-row">
+  {{#promise-proxy-container
+    proxy=dataLoadingProxy
+    spinnerBlockClass="absolute-middle-centered"
+  }}
+    {{#bs-tab
+      class="bs-tab bs-tab-onedata bs-tab-modern"
+      fade=false
+      customTabs=true
+      activeId=activeTabId
+      as |bsTab|
+    }}
+      {{#bs-nav type="tabs" as |nav|}}
+        {{#each (array "waiting" "ongoing" "ended" "create") as |tabId|}}
+          {{#nav.item active=(eq bsTab.activeId tabId)}}
+            <a
+              class="nav-link nav-link-{{tabId}}"
+              role="tab"
+              {{action "changeTab" tabId}}
+            >
+              <span class="tab-label">
+                {{tt this (concat "tabs." tabId ".tabLabel")}}
+              </span>
+            </a>
+          {{/nav.item}}
+        {{/each}}
+      {{/bs-nav}}
+      <div class="tab-content no-vertical-padding">
+        {{#each (array "waiting" "ongoing" "ended") as |tabId|}}
+          {{#bsTab.pane elementId=tabId}}
+            {{#if (eq bsTab.activeId tabId)}}
+              <div class="row">
+                <div class="col-xs-12">
+                  Running workflows
+                </div>
+              </div>
+            {{/if}}
+          {{/bsTab.pane}}
+        {{/each}}
+        {{#bsTab.pane elementId="create"}}
+          {{#if (eq bsTab.activeId "create")}}
+            <div class="row">
+              <div class="col-xs-12">
+                {{space-automation/atm-workflow-schemas-list user=user}}
+              </div>
+            </div>
+          {{/if}}
+        {{/bsTab.pane}}
+      </div>
+    {{/bs-tab}}
+  {{/promise-proxy-container}}
+</div>

@@ -30,6 +30,12 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`
+   * @type {String}
+   */
+  activeTabId: 'waiting',
+
+  /**
    * @type {ComputedProperty<Models.User>}
    */
   user: reads('currentUser.userProxy.content'),
@@ -38,4 +44,10 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<PromiseObject>}
    */
   dataLoadingProxy: reads('currentUser.userProxy'),
+
+  actions: {
+    changeTab(tabId) {
+      this.set('activeTabId', tabId);
+    },
+  },
 });
