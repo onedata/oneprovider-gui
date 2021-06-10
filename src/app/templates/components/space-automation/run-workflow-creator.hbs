@@ -1,6 +1,7 @@
 {{#one-carousel activeSlideId=activeSlide as |carousel|}}
   {{#carousel.slide slideId="list"}}
     {{#promise-proxy-container proxy=userProxy}}
+      <h1 class="slide-header">{{tt this "slides.list.header"}}</h1>
       {{space-automation/atm-workflow-schemas-list
         user=user
         onAtmWorkflowSchemaSelect=(action "atmWorkflowSchemaSelected")
@@ -8,6 +9,11 @@
     {{/promise-proxy-container}}
   {{/carousel.slide}}
   {{#carousel.slide slideId="inputStores"}}
+    <h1 class="slide-header">
+      {{tt this "slides.inputStores.header"
+        atmWorkflowSchemaName=selectedAtmWorkflowSchema.name
+      }}
+    </h1>
     <div class="form-container">
       {{space-automation/input-stores-form
         atmWorkflowSchema=selectedAtmWorkflowSchema

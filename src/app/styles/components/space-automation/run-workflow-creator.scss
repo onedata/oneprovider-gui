@@ -1,4 +1,12 @@
 .run-workflow-creator {
+  .slide-header {
+    margin-top: 0;
+    margin-bottom: 1em;
+    text-align: center;
+    font-size: 120%;
+    @include font-bold();
+  }
+
   .form-container {
     display: flex;
     flex-direction: column;

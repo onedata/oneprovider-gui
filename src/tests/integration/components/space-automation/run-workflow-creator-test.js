@@ -83,6 +83,8 @@ describe('Integration | Component | space automation/run workflow creator', func
 
       expect(isSlideActive('list')).to.be.true;
       const listSlide = getSlide('list');
+      expect(listSlide.querySelector('.slide-header').textContent.trim())
+        .to.equal('Choose workflow you would like to run');
       const workflowsListComponent =
         listSlide.querySelector('.atm-workflow-schemas-list');
       expect(workflowsListComponent).to.exist;
@@ -95,11 +97,14 @@ describe('Integration | Component | space automation/run workflow creator', func
     await click(getSlide('list').querySelector('.list-entry'));
 
     expect(isSlideActive('inputStores')).to.be.true;
-    const inputStoresForm = getSlide('inputStores').querySelector('.input-stores-form');
+    const inputStoresSlide = getSlide('inputStores');
+    expect(inputStoresSlide.querySelector('.slide-header').textContent.trim())
+      .to.equal('Provide initial values for "workflow 1" workflow');
+    const inputStoresForm = inputStoresSlide.querySelector('.input-stores-form');
     expect(inputStoresForm).to.exist;
     expect(inputStoresForm.textContent).to.contain('store 1');
-    const $backBtn = $(getSlide('inputStores').querySelector('.btn-back'));
-    const $submitBtn = $(getSlide('inputStores').querySelector('.btn-submit'));
+    const $backBtn = $(inputStoresSlide.querySelector('.btn-back'));
+    const $submitBtn = $(inputStoresSlide.querySelector('.btn-submit'));
     expect($backBtn).to.have.class('btn-default');
     expect($backBtn.text().trim()).to.equal('Back');
     expect($backBtn).to.be.not.disabled;
