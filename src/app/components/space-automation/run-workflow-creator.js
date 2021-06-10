@@ -12,6 +12,7 @@ import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend(I18n, {
   classNames: ['run-workflow-creator'],
@@ -64,6 +65,11 @@ export default Component.extend(I18n, {
   areInputStoresValid: true,
 
   /**
+   * @type {Boolean}
+   */
+  isStartingWorkflow: false,
+
+  /**
    * @type {ComputedProperty<PromiseObject>}
    */
   userProxy: reads('currentUser.userProxy'),
@@ -91,6 +97,7 @@ export default Component.extend(I18n, {
       });
     },
     async runWorkflow() {
+      this.set('isStartingWorkflow', true);
       const {
         workflowManager,
         space,
@@ -117,9 +124,11 @@ export default Component.extend(I18n, {
         );
         globalNotify.success(this.t('workflowStartSuccessNotify'));
         onWorkflowStarted && onWorkflowStarted(atmWorkflowExecution);
-        this.changeSlide('list');
+        safeExec(this, () => this.changeSlide('list'));
       } catch (e) {
         globalNotify.backendError(this.t('workflowStartFailureOperationName'));
+      } finally {
+        safeExec(this, () => this.set('isStartingWorkflow', false));
       }
     },
     backSlide() {
