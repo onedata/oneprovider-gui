@@ -165,62 +165,7 @@ export default Component.extend(I18n, {
   createFilesystemBrowserModel() {
     return SelectorFilesystemBrowserModel.create({
       ownerSource: this,
-      openCreateNewDirectory: (parent) => this.openCreateItemModal('dir', parent),
-      openRemove: this.openRemoveModal.bind(this),
-      openRename: this.openRenameModal.bind(this),
-      openInfo: this.openInfoModal.bind(this),
     });
-  },
-
-  openRemoveModal(files, parentDir) {
-    this.setProperties({
-      filesToRemove: [...files],
-      removeParentDir: parentDir,
-    });
-  },
-
-  closeRemoveModal(removeInvoked, results) {
-    const newIds = [];
-    if (removeInvoked) {
-      for (const fileId in results) {
-        if (get(results[fileId], 'state') === 'rejected') {
-          newIds.push(fileId);
-        }
-      }
-    }
-    this.set(
-      'selectedFiles',
-      this.get('filesToRemove').filter(file => newIds.includes(get(file, 'entityId')))
-    );
-    this.setProperties({
-      filesToRemove: null,
-      removeParentDir: null,
-    });
-  },
-
-  openRenameModal(file, parentDir) {
-    this.setProperties({
-      fileToRename: file,
-      renameParentDir: parentDir,
-    });
-  },
-
-  closeRenameModal() {
-    this.setProperties({
-      fileToRename: null,
-      renameParentDir: null,
-    });
-  },
-
-  openInfoModal(file, activeTab) {
-    this.setProperties({
-      fileToShowInfo: file,
-      showInfoInitialTab: activeTab || 'general',
-    });
-  },
-
-  closeInfoModal() {
-    this.set('fileToShowInfo', null);
   },
 
   actions: {
