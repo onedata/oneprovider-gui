@@ -18,6 +18,7 @@ import { inject as service } from '@ember/service';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
 import { resolve, all as allFulfilled } from 'rsvp';
+import { dateFormat } from 'onedata-gui-common/helpers/date-format';
 
 const FileTag = EmberObject.extend(I18n, OwnerInjector, {
   i18n: service(),
@@ -35,7 +36,10 @@ const FileTag = EmberObject.extend(I18n, OwnerInjector, {
   /**
    * @type {ComputedProperty<String>}
    */
-  label: computed('value.name', function label() {
+  label: computed('value.{name,creationTime}', function label() {
+    if (this.get('value.constructor.modelName') === 'archive') {
+      return dateFormat([this.get('value.creationTime')], { format: 'dateWithMinutes' });
+    }
     const name = this.get('value.name');
     if (!name) {
       return String(this.t('unknownName'));
@@ -108,7 +112,7 @@ export default Component.extend(I18n, {
    *   ```
    *   {
    *     type: String, // one of `'file'`, `'dataset'`, `'archive'`
-   *     allowedFileTypes: Array<String>|undefined, // meaningfull when
+   *     allowedFileTypes: Array<String>|undefined, // meaningful when
    *       // `type` is `'file'`. Should be an array of values:
    *       // `'regular'`, `'directory'`. If undefined, then all types
    *       // of files are allowed.
@@ -543,7 +547,11 @@ function formDataToInputStoresValues(formData, stores) {
         return;
       }
     } else {
-      initialValue = get(inputStore, editor);
+      initialValue = (get(inputStore, editor) || [])
+        .map(item => ({ id: get(item, 'entityId') }));
+      if (type === 'singleValue') {
+        initialValue = initialValue[0];
+      }
     }
 
     storeValues.push({

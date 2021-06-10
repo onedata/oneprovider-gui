@@ -17,7 +17,7 @@ const dataSpecConfigs = {
       valueConstraints: {},
     },
     correctValues: ['5', '0', '-100'],
-    incorrectValues: ['0.5', 'null', '{}', '[]', 'NaN', '"1"'],
+    incorrectValues: ['0.5', 'null', '{}', '[]', '"1"'],
   },
   string: {
     dataSpec: {
@@ -25,7 +25,7 @@ const dataSpecConfigs = {
       valueConstraints: {},
     },
     correctValues: ['""', '"123"'],
-    incorrectValues: ['10', 'null', '{}', '[]', 'NaN'],
+    incorrectValues: ['10', 'null', '{}', '[]'],
   },
   object: {
     dataSpec: {
@@ -33,7 +33,7 @@ const dataSpecConfigs = {
       valueConstraints: {},
     },
     correctValues: ['{}', '{"a": 123, "b": {}}'],
-    incorrectValues: ['10', 'null', '[]', 'NaN', '"1"'],
+    incorrectValues: ['10', 'null', '[]', '"1"'],
   },
   histogram: {
     dataSpec: {
@@ -41,7 +41,7 @@ const dataSpecConfigs = {
       valueConstraints: {},
     },
     correctValues: ['{"a": 123}'],
-    incorrectValues: ['10', 'null', 'NaN', '"1"'],
+    incorrectValues: ['10', 'null', '"1"'],
   },
   anyFile: {
     dataSpec: {
@@ -50,8 +50,8 @@ const dataSpecConfigs = {
         fileType: 'ANY',
       },
     },
-    correctValues: ['{"fileId": "123"}'],
-    incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    correctValues: ['{"id": "123"}'],
+    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'file',
     },
@@ -63,8 +63,8 @@ const dataSpecConfigs = {
         fileType: 'REG',
       },
     },
-    correctValues: ['{"fileId": "123"}'],
-    incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    correctValues: ['{"id": "123"}'],
+    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'file',
       allowedFileTypes: ['regular'],
@@ -77,8 +77,8 @@ const dataSpecConfigs = {
         fileType: 'DIR',
       },
     },
-    correctValues: ['{"fileId": "123"}'],
-    incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    correctValues: ['{"id": "123"}'],
+    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'file',
       allowedFileTypes: ['directory'],
@@ -89,8 +89,8 @@ const dataSpecConfigs = {
       type: 'dataset',
       valueConstraints: {},
     },
-    correctValues: ['{"datasetId": "123"}'],
-    incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    correctValues: ['{"id": "123"}'],
+    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'dataset',
     },
@@ -100,8 +100,8 @@ const dataSpecConfigs = {
       type: 'archive',
       valueConstraints: {},
     },
-    correctValues: ['{"archiveId": "123"}'],
-    incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    correctValues: ['{"id": "123"}'],
+    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'archive',
     },
@@ -308,22 +308,54 @@ describe('Integration | Component | space automation/input stores form', functio
 
           correctInitialValues.forEach(initialValue => {
             it(`recognizes ${initialValue} value as valid`, async function () {
+              const changeSpy = this.get('changeSpy');
               await render(this);
 
               await fillIn(`.${editor}-field .form-control`, initialValue);
 
               expect(this.$(`.${editor}-field`)).to.not.have.class('.has-error');
+              expect(changeSpy).to.be.calledWith({
+                data: {
+                  stores: [{
+                    name: 'store1',
+                    initialValue: JSON.parse(initialValue),
+                  }],
+                },
+                isValid: true,
+              });
             });
           });
 
           incorrectInitialValues.forEach(initialValue => {
             it(`recognizes ${initialValue} value as invalid`, async function () {
+              const changeSpy = this.get('changeSpy');
               await render(this);
 
               await fillIn(`.${editor}-field .form-control`, initialValue);
 
               expect(this.$(`.${editor}-field`)).to.have.class('has-error');
+              expect(changeSpy).to.be.calledWith({
+                data: {
+                  stores: [{
+                    name: 'store1',
+                    initialValue: JSON.parse(initialValue),
+                  }],
+                },
+                isValid: false,
+              });
             });
+          });
+
+          it('fills initial value with JSON', async function () {
+            this.set(
+              'atmWorkflowSchema.stores.0.defaultInitialValue',
+              correctInitialValues[0]
+            );
+
+            await render(this);
+
+            expect(this.$(`.${editor}-field .form-control`))
+              .to.have.value(JSON.stringify(correctInitialValues[0], null, 2));
           });
         }
 
@@ -332,12 +364,14 @@ describe('Integration | Component | space automation/input stores form', functio
             this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
               id: getStoreFileId(dataSpec, 0),
             }]);
-            mockFileRecord(this, dataSpec, 0, { name: 'someName' });
+            const isArchive = dataSpec.type === 'archive';
+            const fileData = isArchive ? { creationTime: 1623318692 } : { name: 'someName' };
+            mockFileRecord(this, dataSpec, 0, fileData);
 
             await render(this);
 
             expect(this.$(`.${editor}-field .form-control`).text())
-              .to.include('someName');
+              .to.include(isArchive ? '2021' : 'someName');
           });
 
           it('fills initial value with an element, that cannot be loaded',
@@ -354,7 +388,10 @@ describe('Integration | Component | space automation/input stores form', functio
             });
 
           it('uses files selector to add new elements', async function () {
-            const selectFilesStub = this.get('selectFilesStub');
+            const {
+              selectFilesStub,
+              changeSpy,
+            } = this.getProperties('selectFilesStub', 'changeSpy');
             selectFilesStub.resolves([{ entityId: 'someId', name: 'f1' }]);
             await render(this);
 
@@ -366,6 +403,17 @@ describe('Integration | Component | space automation/input stores form', functio
             );
             expect(this.$(`.${editor}-field .form-control`).text())
               .to.include('f1');
+            const fileEntryInChange = { id: 'someId' };
+            expect(changeSpy).to.be.calledWith({
+              data: {
+                stores: [{
+                  name: 'store1',
+                  initialValue: filesLimit === 1 ?
+                    fileEntryInChange : [fileEntryInChange],
+                }],
+              },
+              isValid: true,
+            });
           });
 
           it('allows to cancel files selection', async function () {
@@ -385,48 +433,6 @@ describe('Integration | Component | space automation/input stores form', functio
           });
         }
       });
-    });
-  });
-
-  it('fills initial values with values provided by stores', async function () {
-    await render(this);
-
-    expect(this.$('.rawValue-field .form-control')).to.have.value('10');
-  });
-
-  it('notifies about changes of values and validation state', async function () {
-    const changeSpy = this.get('changeSpy');
-
-    await render(this);
-
-    expect(this.$('.has-error')).to.not.exist;
-    expect(changeSpy).to.be.calledWith({
-      data: {
-        stores: [{
-          name: 'singleValueIntegerStore',
-          initialValue: 10,
-        }],
-      },
-      isValid: false,
-    });
-    changeSpy.reset();
-
-    await fillIn(
-      this.$('.inputStore-field').eq(1).find('.rawValue-field .form-control')[0],
-      '["abc", "def"]'
-    );
-    expect(this.$('.has-error')).to.not.exist;
-    expect(changeSpy).to.be.calledWith({
-      data: {
-        stores: [{
-          name: 'singleValueIntegerStore',
-          initialValue: 10,
-        }, {
-          name: 'listStringStore',
-          initialValue: ['abc', 'def'],
-        }],
-      },
-      isValid: true,
     });
   });
 
@@ -475,7 +481,10 @@ function getStoreFileId(dataSpec, idx) {
 
 function mockFileRecord(testCase, dataSpec, idx, data) {
   const entityId = getFileId(idx);
-  const fileData = data ? Object.assign({ entityId }, data) : null;
+  const fileData = data ? Object.assign({
+    entityId,
+    constructor: { modelName: dataSpec.type },
+  }, data) : null;
   let stub;
   switch (dataSpec.type) {
     case 'file':
