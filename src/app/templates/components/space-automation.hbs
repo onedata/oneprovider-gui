@@ -14,7 +14,12 @@
           {{action "changeTab" tabId}}
         >
           <span class="tab-label">
-            {{tt this (concat "tabs." tabId ".tabLabel")}}
+            {{#if (get tabIcons tabId)}}
+              {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
+            {{/if}}
+            <span class="one-label tab-name">
+              {{tt this (concat "tabs." tabId ".tabLabel")}}
+            </span>
           </span>
         </a>
       {{/nav.item}}

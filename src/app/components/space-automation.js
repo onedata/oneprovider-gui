@@ -34,6 +34,13 @@ export default Component.extend(I18n, {
    */
   activeTabId: 'waiting',
 
+  /**
+   * @type {Object}
+   */
+  tabIcons: Object.freeze({
+    create: 'play',
+  }),
+
   actions: {
     changeTab(tabId) {
       this.set('activeTabId', tabId);
