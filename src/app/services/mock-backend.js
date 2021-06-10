@@ -920,6 +920,26 @@ export default Service.extend({
         const atmWorkflowSchema = await store.createRecord('atmWorkflowSchema', {
           name: `workflow ${idx} [${name}]`,
           description: `workflow ${idx} description`,
+          stores: [{
+            id: 'store1',
+            name: 'list of integers',
+            type: 'list',
+            dataSpec: {
+              type: 'integer',
+              valueConstraints: {},
+            },
+            requiresInitialValue: true,
+            defaultInitialValue: [1, 2, 3],
+          }, {
+            id: 'store2',
+            name: 'single value string',
+            type: 'singleValue',
+            dataSpec: {
+              type: 'string',
+              valueConstraints: {},
+            },
+            requiresInitialValue: true,
+          }],
           atmInventory,
         }).save();
         atmWorkflowSchemas.push(atmWorkflowSchema);

@@ -1,0 +1,20 @@
+.run-workflow-creator {
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 60em;
+    margin: 0 auto;
+  }
+
+  .input-stores-form {
+    width: 100%;
+  }
+
+  .inputStore-field > .control-label {
+    flex-basis: 100%;
+    text-align: left;
+    margin-bottom: $padding-small-vertical;
+    padding-top: 0;
+  }
+}

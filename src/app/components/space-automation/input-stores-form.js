@@ -310,9 +310,7 @@ export default Component.extend(I18n, {
     const stores = this.get('atmWorkflowSchema.stores') || [];
 
     onChange({
-      data: {
-        stores: formDataToInputStoresValues(fields.dumpValue(), stores),
-      },
+      data: formDataToInputStoresValues(fields.dumpValue(), stores),
       isValid: get(fields, 'isValid'),
     });
   },
@@ -524,7 +522,7 @@ function validateStoreElement(element, dataSpec) {
 
 function formDataToInputStoresValues(formData, stores) {
   const inputStores = get(formData, 'inputStores') || {};
-  const storeValues = [];
+  const storeValues = {};
   (get(inputStores, '__fieldsValueNames') || []).forEach((valueName, idx) => {
     const inputStore = get(inputStores, valueName);
     const storeSpec = stores[idx];
@@ -533,10 +531,10 @@ function formDataToInputStoresValues(formData, stores) {
     }
 
     const {
-      name,
+      id,
       type,
       dataSpec,
-    } = getProperties(storeSpec, 'name', 'type', 'dataSpec');
+    } = getProperties(storeSpec, 'id', 'type', 'dataSpec');
 
     const editor = getValueEditorForStoreType(type, dataSpec);
     let initialValue;
@@ -554,10 +552,7 @@ function formDataToInputStoresValues(formData, stores) {
       }
     }
 
-    storeValues.push({
-      name,
-      initialValue,
-    });
+    storeValues[id] = initialValue;
   });
 
   return storeValues;

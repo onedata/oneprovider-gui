@@ -10,7 +10,6 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { reads } from '@ember/object/computed';
 
 export default Component.extend(I18n, {
   classNames: ['space-automation'],
@@ -35,19 +34,12 @@ export default Component.extend(I18n, {
    */
   activeTabId: 'waiting',
 
-  /**
-   * @type {ComputedProperty<Models.User>}
-   */
-  user: reads('currentUser.userProxy.content'),
-
-  /**
-   * @type {ComputedProperty<PromiseObject>}
-   */
-  dataLoadingProxy: reads('currentUser.userProxy'),
-
   actions: {
     changeTab(tabId) {
       this.set('activeTabId', tabId);
+    },
+    workflowStarted() {
+      this.set('activeTabId', 'waiting');
     },
   },
 });

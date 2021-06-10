@@ -284,6 +284,7 @@ describe('Integration | Component | space automation/input stores form', functio
       context(`when store is of type ${storeTypeName} with ${dataSpecName} elements`, function () {
         beforeEach(function () {
           this.set('atmWorkflowSchema.stores', [{
+            id: 's1',
             name: 'store1',
             type: storeTypeName,
             dataSpec,
@@ -316,10 +317,7 @@ describe('Integration | Component | space automation/input stores form', functio
               expect(this.$(`.${editor}-field`)).to.not.have.class('.has-error');
               expect(changeSpy).to.be.calledWith({
                 data: {
-                  stores: [{
-                    name: 'store1',
-                    initialValue: JSON.parse(initialValue),
-                  }],
+                  s1: JSON.parse(initialValue),
                 },
                 isValid: true,
               });
@@ -336,10 +334,7 @@ describe('Integration | Component | space automation/input stores form', functio
               expect(this.$(`.${editor}-field`)).to.have.class('has-error');
               expect(changeSpy).to.be.calledWith({
                 data: {
-                  stores: [{
-                    name: 'store1',
-                    initialValue: JSON.parse(initialValue),
-                  }],
+                  s1: JSON.parse(initialValue),
                 },
                 isValid: false,
               });
@@ -406,11 +401,8 @@ describe('Integration | Component | space automation/input stores form', functio
             const fileEntryInChange = { id: 'someId' };
             expect(changeSpy).to.be.calledWith({
               data: {
-                stores: [{
-                  name: 'store1',
-                  initialValue: filesLimit === 1 ?
-                    fileEntryInChange : [fileEntryInChange],
-                }],
+                s1: filesLimit === 1 ?
+                  fileEntryInChange : [fileEntryInChange],
               },
               isValid: true,
             });
