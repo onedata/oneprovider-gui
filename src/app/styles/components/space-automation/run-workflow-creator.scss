@@ -15,6 +15,20 @@
     margin: 0 auto;
   }
 
+  .nothing-to-provide-message {
+    min-height: 10em;
+    height: 15em;
+    max-height: 60vh;
+    display: flex;
+    align-items: center;
+    @include font-semibold();
+
+    .one-icon {
+      font-size: 300%;
+      color: $color-one-success;
+    }
+  }
+
   .input-stores-form {
     width: 100%;
   }

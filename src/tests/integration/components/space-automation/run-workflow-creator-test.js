@@ -57,6 +57,7 @@ describe('Integration | Component | space automation/run workflow creator', func
       })),
     })));
     this.setProperties({
+      atmWorkflowSchemas,
       space: { entityId: 'space1' },
       workflowStartedSpy: sinon.spy(),
       runWorkflowStub: sinon.stub(lookupService(this, 'workflow-manager'), 'runWorkflow'),
@@ -130,6 +131,21 @@ describe('Integration | Component | space automation/run workflow creator', func
 
     expect($(getSlide('inputStores').querySelector('.btn-submit'))).to.be.enabled;
   });
+
+  it('enabled submit button and shows proper message when workflow does not need any initial values',
+    async function () {
+      this.get('atmWorkflowSchemas.0.stores').setEach('requiresInitialValue', false);
+      await render(this);
+
+      await click(getSlide('list').querySelector('.list-entry'));
+
+      const inputStoresSlide = getSlide('inputStores');
+      expect($(inputStoresSlide.querySelector('.btn-submit'))).to.be.enabled;
+      expect(inputStoresSlide.querySelector('.input-stores-form')).to.not.exist;
+      expect(
+        inputStoresSlide.querySelector('.nothing-to-provide-message').textContent.trim()
+      ).to.equal('This workflow does not need any initial values.');
+    });
 
   it('calls "onWorkflowStarted" and changes slide to "list" on successfull workflow start',
     async function () {

@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -79,6 +79,17 @@ export default Component.extend(I18n, {
    */
   user: reads('userProxy.content'),
 
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  areInitialValuesNeeded: computed(
+    'selectedAtmWorkflowSchema',
+    function areInitialValuesNeeded() {
+      const stores = this.get('selectedAtmWorkflowSchema.stores') || [];
+      return stores.isAny('requiresInitialValue');
+    }
+  ),
+
   changeSlide(newSlideId) {
     this.set('activeSlide', newSlideId);
   },
@@ -120,7 +131,7 @@ export default Component.extend(I18n, {
         const atmWorkflowExecution = await workflowManager.runWorkflow(
           atmWorkflowSchemaId,
           spaceId,
-          inputStoresData
+          inputStoresData || {}
         );
         globalNotify.success(this.t('workflowStartSuccessNotify'));
         onWorkflowStarted && onWorkflowStarted(atmWorkflowExecution);
