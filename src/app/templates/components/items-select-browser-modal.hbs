@@ -7,13 +7,15 @@
   onHide=onHide
   as |modal|
 }}
-  {{#items-select-browser
-    modal=modal
-    space=space
-    constraintSpec=constraintSpec
-    onHide=onHide
-    onSubmit=(action "submit")
-  }}
-    {{yield}}
-  {{/items-select-browser}}
+  {{#if open}}
+    {{#items-select-browser
+      modal=modal
+      space=space
+      constraintSpec=constraintSpec
+      onCancel=(action "cancel")
+      onSubmit=(action "submit")
+    }}
+      {{yield}}
+    {{/items-select-browser}}
+  {{/if}}
 {{/one-modal}}

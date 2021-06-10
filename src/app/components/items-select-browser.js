@@ -64,7 +64,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    */
-  onHide: notImplementedIgnore,
+  onCancel: notImplementedIgnore,
 
   /**
    * @virtual
@@ -223,13 +223,13 @@ export default Component.extend(I18n, {
 
   actions: {
     cancel() {
-      this.get('onHide')();
+      this.get('onCancel')();
     },
     submit() {
       const {
         onSubmit,
         selectedItems,
-      } = this.get('onSubmit', 'selectedItems');
+      } = this.getProperties('onSubmit', 'selectedItems');
       return onSubmit(selectedItems);
     },
     updateDirEntityId(id) {

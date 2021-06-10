@@ -17,6 +17,16 @@ export default Component.extend(I18n, {
    */
   validationError: undefined,
 
+  /**
+   * @virtual
+   */
+  onCancel: notImplementedIgnore,
+
+  /**
+   * @virtual
+   */
+  onSubmit: notImplementedIgnore,
+
   selectedCount: reads('selectedItems.length'),
 
   itemsSelectedText: computed('selectedCount', function itemsSelectedText() {
@@ -35,14 +45,4 @@ export default Component.extend(I18n, {
       count: selectedCount,
     });
   }),
-
-  /**
-   * @virtual
-   */
-  onCancel: notImplementedIgnore,
-
-  /**
-   * @virtual
-   */
-  onSubmit: notImplementedIgnore,
 });

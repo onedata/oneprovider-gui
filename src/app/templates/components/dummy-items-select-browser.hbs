@@ -1,12 +1,24 @@
 <button {{action (action (mut open) true)}}>
   Open
 </button>
+<div class="row">
+  {{#if dummySelected}}
+    <ul>
+      {{#each dummySelected as |item|}}
+        <li>
+          {{item.name}}, {{item.type}}
+        </li>  
+      {{/each}}
+    </ul>
+  {{/if}}
+</div>
 {{#items-select-browser-modal
   open=open
   space=space
   constraintSpec=constraintSpec
   onHide=(action (mut open) false)
-  onSubmit=(action "submit")
+  onSubmit=(action (mut dummySelected))
+  onCancel=(action (mut dummySelected) null)
 }}
   <h2 class="normal-case">for <strong>Borzo</strong> store</h2>
 {{/items-select-browser-modal}}
