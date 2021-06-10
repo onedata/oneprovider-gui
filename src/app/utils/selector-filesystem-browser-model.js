@@ -8,9 +8,16 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 
 export default FilesystemBrowserModel.extend({
+  /**
+   * @virtual
+   * @type {(Object) => any}
+   */
+  onSubmitSingleItem: notImplementedIgnore,
+
   /**
    * @override
    */
@@ -22,4 +29,11 @@ export default FilesystemBrowserModel.extend({
    * @override
    */
   disableStatusBar: true,
+
+  /**
+   * @override
+   */
+  onOpenFile(item /*, options */ ) {
+    this.get('onSubmitSingleItem')(item);
+  },
 });

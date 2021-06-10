@@ -165,7 +165,12 @@ export default Component.extend(I18n, {
   createFilesystemBrowserModel() {
     return SelectorFilesystemBrowserModel.create({
       ownerSource: this,
+      onSubmitSingleItem: this.submitSingleItem.bind(this),
     });
+  },
+
+  submitSingleItem(item) {
+    return this.get('onSubmit')([item]);
   },
 
   actions: {
