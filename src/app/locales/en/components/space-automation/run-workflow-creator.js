@@ -6,4 +6,5 @@ export default {
     },
   },
   workflowStartSuccessNotify: 'Workflow has been scheduled successfully',
+  workflowStartFailureOperationName: 'starting workflow',
 };

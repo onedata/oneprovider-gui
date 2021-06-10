@@ -16,6 +16,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 export default Component.extend(I18n, {
   classNames: ['run-workflow-creator'],
 
+  i18n: service(),
   currentUser: service(),
   globalNotify: service(),
   workflowManager: service(),
@@ -34,6 +35,8 @@ export default Component.extend(I18n, {
   /**
    * @virtual optional
    * @type {Function}
+   * @param {Models.AtmWorkflowExecution} atmWorkflowExecution
+   * @returns {any}
    */
   onWorkflowStarted: undefined,
 
@@ -70,6 +73,10 @@ export default Component.extend(I18n, {
    */
   user: reads('userProxy.content'),
 
+  changeSlide(newSlideId) {
+    this.set('activeSlide', newSlideId);
+  },
+
   actions: {
     atmWorkflowSchemaSelected(atmWorkflowSchema) {
       this.setProperties({
@@ -102,16 +109,21 @@ export default Component.extend(I18n, {
 
       const atmWorkflowSchemaId = get(selectedAtmWorkflowSchema, 'entityId');
       const spaceId = get(space, 'entityId');
-      await workflowManager.runWorkflow(
-        atmWorkflowSchemaId,
-        spaceId,
-        inputStoresData
-      );
-      globalNotify.success(this.t('workflowStartSuccessNotify'));
-      onWorkflowStarted && onWorkflowStarted();
+      try {
+        const atmWorkflowExecution = await workflowManager.runWorkflow(
+          atmWorkflowSchemaId,
+          spaceId,
+          inputStoresData
+        );
+        globalNotify.success(this.t('workflowStartSuccessNotify'));
+        onWorkflowStarted && onWorkflowStarted(atmWorkflowExecution);
+        this.changeSlide('list');
+      } catch (e) {
+        globalNotify.backendError(this.t('workflowStartFailureOperationName'));
+      }
     },
     backSlide() {
-      this.set('activeSlide', 'list');
+      this.changeSlide('list');
     },
   },
 });
