@@ -1,8 +1,12 @@
 <button {{action (action (mut open) true)}}>
   Open
 </button>
-{{items-select-browser-modal
+{{#items-select-browser-modal
   open=open
   space=space
+  constraintSpec=constraintSpec
   onHide=(action (mut open) false)
+  onSubmit=(action "submit")
 }}
+  <h2 class="normal-case">for <strong>Borzo</strong> store</h2>
+{{/items-select-browser-modal}}

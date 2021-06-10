@@ -1,22 +1,25 @@
-{{#modal.header}}
-  <div class="items-select-browser-header items-select-browser-part">
-    <h1>{{space.name}}</h1>
-  </div>
+{{#modal.header class="items-select-browser-part"}}
+  {{#items-select-browser/header
+    constraintSpec=constraintSpec
+  }}
+    {{yield}}
+  {{/items-select-browser/header}}
 {{/modal.header}}
 
-{{#modal.body id=modalBodyId}}
+{{#modal.body id=modalBodyId class="items-select-browser-part"}}
   <div class="items-select-browser-body items-select-browser-part">
     {{#promise-proxy-container proxy=initialRequiredDataProxy}}
       {{file-browser
         dir=dir
         previewMode=previewMode
+        browserModel=browserModel
         isSpaceOwned=space.currentUserIsOwner
         spaceId=space.entityId
         contentScroll=contentScroll
         selectedFiles=selectedItems
         spacePrivileges=spacePrivileges
         changeSelectedFiles=(action (mut selectedItems))
-        browserModel=browserModel
+        updateDirEntityId=(action "updateDirEntityId")
       }}
 
       {{!-- FIXME: action modals for filesystem-browser --}}
@@ -26,8 +29,12 @@
   </div>
 {{/modal.body}}
 
-{{#modal.footer}}
-  <div class="items-select-browser-footer items-select-browser-part">
-    
-  </div>
+{{#modal.footer class="items-select-browser-part"}}
+  {{items-select-browser/footer
+    validationError=validationError
+    selectedItems=selectedItems
+    submitDisabled=submitDisabled
+    onCancel=(action "cancel")
+    onSubmit=(action "submit")
+  }}
 {{/modal.footer}}

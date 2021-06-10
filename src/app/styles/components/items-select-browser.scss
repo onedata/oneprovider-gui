@@ -1,9 +1,36 @@
 .items-select-browser-part {
-  .file-browser-head-container {
-    position: absolute;
-    padding-left: 12px;
-    padding-right: 32px;
-    padding-top: 0;
-    margin-top: -10px;
+  .items-select-browser-header {
+    .header-select {
+      display: flex;
+      align-items: baseline;
+    }
+    .header-select-max-items-constraint {
+      text-transform: none;
+      color: $main-text-color-disabled;
+      font-size: 80%;
+      margin-left: 1em;
+    }
+  }
+
+  .items-select-browser-body {
+    .file-browser-head-container {
+      position: absolute;
+      padding-left: 12px;
+      padding-right: 32px;
+      padding-top: 0;
+      margin-top: -10px;
+    }
+  }
+
+  .items-select-browser-footer {
+    display: flex;
+    align-items: center;
+    .selection-summary {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: center;
+      text-align: left;
+    }
   }
 }
