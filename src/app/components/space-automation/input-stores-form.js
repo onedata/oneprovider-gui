@@ -5,7 +5,7 @@ import FormFieldsCollectionGroup from 'onedata-gui-common/utils/form-component/f
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import JsonField from 'onedata-gui-common/utils/form-component/json-field';
 import TagsField from 'onedata-gui-common/utils/form-component/tags-field';
-import { tag, not, getBy, eq, raw, promise } from 'ember-awesome-macros';
+import { tag, not, getBy, eq, raw, promise, conditional } from 'ember-awesome-macros';
 import EmberObject, { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { validator } from 'ember-cp-validations';
@@ -189,6 +189,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Utils.FormComponent.FormFieldsCollectionGroup>}
    */
   inputStoresFieldsCollectionGroup: computed(function inputStoresFieldsCollectionGroup() {
+    const component = this;
     return FormFieldsCollectionGroup.extend({
       defaultValue: getBy('component', tag `defaultFormValuesProxy.content.${'path'}`),
       fieldFactoryMethod(uniqueFieldValueName) {
@@ -241,10 +242,20 @@ export default Component.extend(I18n, {
             TagsField.extend({
               isVisible: eq('parent.activeEditor', raw('filesValue')),
               tagEditorSettings: computed(
-                'parent.value.{storeType,storeDataSpec}',
+                'parent.value.storeDataSpec',
                 function tagEditorSettings() {
-                  return {};
+                  const storeDataSpec = this.get('parent.value.storeDataSpec');
+                  return {
+                    startTagCreationCallback: (...args) =>
+                      component.startFilesSelection(storeDataSpec, ...args),
+                    endTagCreationCallback: () => component.endFilesSelection(),
+                  };
                 }
+              ),
+              tagsLimit: conditional(
+                eq('parent.value.storeType', raw('singleValue')),
+                raw(1),
+                raw(undefined)
               ),
             }).create({
               name: 'filesValue',
@@ -305,7 +316,7 @@ export default Component.extend(I18n, {
   startFilesSelection(dataSpec, {
     onTagsAddedCallback,
     onEndTagCreationCallback,
-    limit,
+    tagsLimit,
   }) {
     const {
       activeFilesSelectionProcess,
@@ -323,7 +334,7 @@ export default Component.extend(I18n, {
 
     const filesSelectionSpec = {
       type,
-      limit,
+      limit: tagsLimit,
     };
 
     if (type === 'file') {

@@ -3,17 +3,18 @@ import { describe, it, beforeEach, context } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
-import { fillIn } from 'ember-native-dom-helpers';
+import { fillIn, click } from 'ember-native-dom-helpers';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
 import sinon from 'sinon';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import { lookupService } from '../../../helpers/stub-service';
+import { Promise } from 'rsvp';
 
 const dataSpecConfigs = {
   integer: {
     dataSpec: {
       type: 'integer',
-      valueConstaints: {},
+      valueConstraints: {},
     },
     correctValues: ['5', '0', '-100'],
     incorrectValues: ['0.5', 'null', '{}', '[]', 'NaN', '"1"'],
@@ -21,7 +22,7 @@ const dataSpecConfigs = {
   string: {
     dataSpec: {
       type: 'string',
-      valueConstaints: {},
+      valueConstraints: {},
     },
     correctValues: ['""', '"123"'],
     incorrectValues: ['10', 'null', '{}', '[]', 'NaN'],
@@ -29,7 +30,7 @@ const dataSpecConfigs = {
   object: {
     dataSpec: {
       type: 'object',
-      valueConstaints: {},
+      valueConstraints: {},
     },
     correctValues: ['{}', '{"a": 123, "b": {}}'],
     incorrectValues: ['10', 'null', '[]', 'NaN', '"1"'],
@@ -37,7 +38,7 @@ const dataSpecConfigs = {
   histogram: {
     dataSpec: {
       type: 'histogram',
-      valueConstaints: {},
+      valueConstraints: {},
     },
     correctValues: ['{"a": 123}'],
     incorrectValues: ['10', 'null', 'NaN', '"1"'],
@@ -45,48 +46,65 @@ const dataSpecConfigs = {
   anyFile: {
     dataSpec: {
       type: 'file',
-      valueConstaints: {
+      valueConstraints: {
         fileType: 'ANY',
       },
     },
     correctValues: ['{"fileId": "123"}'],
     incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    fileSelectorOptions: {
+      type: 'file',
+    },
   },
   regularFile: {
     dataSpec: {
       type: 'file',
-      valueConstaints: {
+      valueConstraints: {
         fileType: 'REG',
       },
     },
     correctValues: ['{"fileId": "123"}'],
     incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    fileSelectorOptions: {
+      type: 'file',
+      allowedFileTypes: ['regular'],
+    },
   },
   directory: {
     dataSpec: {
       type: 'file',
-      valueConstaints: {
+      valueConstraints: {
         fileType: 'DIR',
       },
     },
     correctValues: ['{"fileId": "123"}'],
     incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    fileSelectorOptions: {
+      type: 'file',
+      allowedFileTypes: ['directory'],
+    },
   },
   dataset: {
     dataSpec: {
       type: 'dataset',
-      valueConstaints: {},
+      valueConstraints: {},
     },
     correctValues: ['{"datasetId": "123"}'],
     incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    fileSelectorOptions: {
+      type: 'dataset',
+    },
   },
   archive: {
     dataSpec: {
       type: 'archive',
-      valueConstaints: {},
+      valueConstraints: {},
     },
     correctValues: ['{"archiveId": "123"}'],
     incorrectValues: ['10', 'null', 'NaN', '[]', '{}', '"1"'],
+    fileSelectorOptions: {
+      type: 'archive',
+    },
   },
 };
 
@@ -143,6 +161,7 @@ const storeTypes = {
     allowedDataSpecConfigs: dataSpecConfigsArray,
     editors: dataSpecSpecificEditors,
     complexValuesGenerator: simpleValues => simpleValues,
+    filesLimit: 1,
   },
   histogram: {
     allowedDataSpecConfigs: [
@@ -207,6 +226,7 @@ describe('Integration | Component | space automation/input stores form', functio
       },
       isDisabled: false,
       changeSpy: sinon.spy(),
+      selectFilesStub: sinon.stub().resolves([]),
     });
   });
 
@@ -252,12 +272,14 @@ describe('Integration | Component | space automation/input stores form', functio
     allowedDataSpecConfigs,
     editors,
     complexValuesGenerator,
+    filesLimit,
   }) => {
     allowedDataSpecConfigs.forEach(({
       name: dataSpecName,
       dataSpec,
       correctValues,
       incorrectValues,
+      fileSelectorOptions,
     }) => {
       context(`when store is of type ${storeTypeName} with ${dataSpecName} elements`, function () {
         beforeEach(function () {
@@ -330,6 +352,37 @@ describe('Integration | Component | space automation/input stores form', functio
               expect(this.$(`.${editor}-field .form-control`).text())
                 .to.include('Unknown');
             });
+
+          it('uses files selector to add new elements', async function () {
+            const selectFilesStub = this.get('selectFilesStub');
+            selectFilesStub.resolves([{ entityId: 'someId', name: 'f1' }]);
+            await render(this);
+
+            expect(selectFilesStub).to.not.be.called;
+            await click('.tag-creator-trigger');
+
+            expect(selectFilesStub).to.be.calledOnce.and.to.be.calledWith(
+              Object.assign({ limit: filesLimit }, fileSelectorOptions)
+            );
+            expect(this.$(`.${editor}-field .form-control`).text())
+              .to.include('f1');
+          });
+
+          it('allows to cancel files selection', async function () {
+            const selectFilesStub = this.get('selectFilesStub');
+            let rejectPromise;
+            selectFilesStub.returns(
+              new Promise((resolve, reject) => rejectPromise = reject)
+            );
+            await render(this);
+
+            await click('.tag-creator-trigger');
+            rejectPromise();
+            await wait();
+
+            expect(this.$(`.${editor}-field .tags.input`))
+              .to.not.have.class('creating-tag');
+          });
         }
       });
     });
@@ -402,6 +455,7 @@ async function render(testCase) {
       atmWorkflowSchema=atmWorkflowSchema
       isDisabled=isDisabled
       onChange=changeSpy
+      onSelectFiles=selectFilesStub
     }}
   `);
   await wait();
