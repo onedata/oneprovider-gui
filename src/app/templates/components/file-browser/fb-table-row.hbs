@@ -72,12 +72,14 @@
       browserModel=browserModel
     }}
   {{/if}}
-  <td class="fb-table-col-actions-menu">
-    {{#unless hideMenuTrigger}}
-      {{one-menu-toggle
-        class="file-row-actions-trigger"
-        click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
-      }}
-    {{/unless}}
-  </td>
+  {{#unless noItemsActions}}
+    <td class="fb-table-col-actions-menu">
+      {{#unless hideMenuTrigger}}
+        {{one-menu-toggle
+          class="file-row-actions-trigger"
+          click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
+        }}
+      {{/unless}}
+    </td>
+  {{/unless}}
 {{/if}}

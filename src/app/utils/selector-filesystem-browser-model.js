@@ -16,11 +16,5 @@ export default FilesystemBrowserModel.extend({
    */
   buttonNames: Object.freeze([
     'btnRefresh',
-    'btnInfo',
-    'btnRename',
-    'btnCopy',
-    'btnCut',
-    'btnPaste',
-    'btnDelete',
   ]),
 });
