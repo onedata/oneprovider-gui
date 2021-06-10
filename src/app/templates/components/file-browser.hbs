@@ -8,6 +8,7 @@
         menuButtons=currentDirMenuButtons
         resolveFileParentFun=resolveFileParentFun
         previewMode=previewMode
+        isInModal=isInModal
         rootIcon=rootIcon
         changeDir=(action "changeDir")
         selectCurrentDir=(action "selectCurrentDir")
@@ -24,6 +25,7 @@
       {{file-browser/fb-toolbar
         dir=dir
         previewMode=previewMode
+        isInModal=isInModal
         fileClipboardMode=fileClipboardMode
         fileClipboardFiles=fileClipboardFiles
         selectionContext=selectionContext
@@ -37,6 +39,7 @@
   {{file-browser/fb-table
     dir=dir
     browserModel=browserModel
+    isInModal=isInModal
     contentScroll=contentScroll
     selectedFiles=selectedFiles
     selectedFilesForJump=selectedFilesForJump
@@ -60,7 +63,10 @@
 
 {{#one-webui-popover
   class="current-dir-actions-popover"
-  popoverStyle="with-dropdown"
+  popoverStyle=(concat-classes
+    "with-dropdown"
+    (if isInModal "over-modals")
+  )
   padding=false
   triggerSelector=(concat "#" elementId " .current-dir-actions-trigger")
   open=(and currentDirActionsOpen showCurrentDirActions)

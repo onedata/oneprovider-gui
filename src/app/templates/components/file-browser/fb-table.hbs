@@ -78,7 +78,10 @@
 {{#if showDirContextMenu}}
   {{#one-webui-popover
     class="file-actions-popover"
-    popoverStyle="with-dropdown"
+    popoverStyle=(concat-classes
+      "with-dropdown"
+      (if isInModal "over-modals")
+    )
     padding=false
     popoverTrigger="manual"
     triggerSelector=(concat "#" elementId " .file-actions-trigger")
