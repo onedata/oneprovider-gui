@@ -17,4 +17,9 @@ export default FilesystemBrowserModel.extend({
   buttonNames: Object.freeze([
     'btnRefresh',
   ]),
+
+  /**
+   * @override
+   */
+  disableStatusBar: true,
 });

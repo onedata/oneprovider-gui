@@ -26,6 +26,8 @@ export default FbTableRowStatusBar.extend({
    */
   i18nPrefix: 'components.filesystemBrowser.tableRowStatusBar',
 
+  disabled: reads('browserModel.disableStatusBar'),
+
   type: reads('file.type'),
 
   isSymlink: reads('fileRowModel.isSymlink'),
