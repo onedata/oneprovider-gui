@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { notEmpty, not, raw, collect } from 'ember-awesome-macros';
+import { notEmpty, not, raw, collect, and } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -134,6 +134,12 @@ export default Component.extend(I18n, {
   spacePrivileges: Object.freeze({}),
 
   /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  showSelectionToolkit: true,
+
+  /**
    * Selector of modal that is parent of the browser.
    * @virtual optional
    * @type {String}
@@ -181,6 +187,8 @@ export default Component.extend(I18n, {
    * @type {EmberArray<Models.File>}
    */
   selectedFilesForJump: undefined,
+
+  effShowSelectionToolkit: and('showSelectionToolkit', not('previewMode')),
 
   /**
    * @type {ComputedProperty<Array<String>>}

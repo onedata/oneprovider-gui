@@ -1,5 +1,5 @@
 <div class="selection-summary">
-  <div class="selection-count-summary">
+  <div class="selection-count-summary {{unless selectedCount "selection-count-none"}}">
     {{itemsSelectedText}}
   </div>
   {{#if validationError}}
