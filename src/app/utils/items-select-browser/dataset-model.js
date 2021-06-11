@@ -2,16 +2,24 @@ import BaseModel from './base-model';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import SelectorDatasetBrowserModel from 'oneprovider-gui/utils/selector-dataset-browser-model';
-import { promise, or, not, equal, raw } from 'ember-awesome-macros';
+import { promise, or, not, equal, raw, conditional } from 'ember-awesome-macros';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 import {
   spaceDatasetsRootId,
   SpaceDatasetsRootClass,
 } from 'oneprovider-gui/components/content-space-datasets';
 import { inject as service } from '@ember/service';
+import computedT from 'onedata-gui-common/utils/computed-t';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default BaseModel.extend({
+export default BaseModel.extend(I18n, {
   datasetManager: service(),
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.itemsSelectBrowser.datasetModel',
 
   /**
    * @virtual optional
@@ -72,6 +80,15 @@ export default BaseModel.extend({
       }
     }
   )),
+
+  /**
+   * @override
+   */
+  itemTypeText: conditional(
+    equal('maxItems', raw(1)),
+    computedT('dataset.single'),
+    computedT('dataset.multi')
+  ),
 
   spaceDatasetsRoot: computed(
     'space',

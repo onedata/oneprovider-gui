@@ -35,6 +35,7 @@ import baseBrowserModel from './utils/base-browser-model';
 import filesystemBrowserModel from './utils/filesystem-browser-model';
 import datasetBrowserModel from './utils/dataset-browser-model';
 import archiveBrowserModel from './utils/archive-browser-model';
+import itemsSelectBrowserUtils from './utils/items-select-browser';
 
 const translations = {
   components: {
@@ -74,6 +75,7 @@ const translations = {
     filesystemBrowserModel,
     datasetBrowserModel,
     archiveBrowserModel,
+    itemsSelectBrowser: itemsSelectBrowserUtils,
   },
 };
 

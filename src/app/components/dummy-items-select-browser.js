@@ -24,7 +24,7 @@ export default Component.extend({
     let selectorModel;
     switch (type) {
       case 'filesystem':
-        constraintSpec.allowedFileTypes = ['file'];
+        constraintSpec.allowedFileTypes = [];
         selectorModel = FilesystemModel.create({
           ownerSource: this,
           constraintSpec,

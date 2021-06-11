@@ -1,12 +1,20 @@
 import BaseModel from './base-model';
 import { computed, get } from '@ember/object';
-import { reads } from '@ember/object/computed';
 import SelectorFilesystemBrowserModel from 'oneprovider-gui/utils/selector-filesystem-browser-model';
-import { promise, isEmpty, or } from 'ember-awesome-macros';
+import { promise, isEmpty, conditional, raw } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import _ from 'lodash';
 
-export default BaseModel.extend({
+export default BaseModel.extend(I18n, {
   fileManager: service(),
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.itemsSelectBrowser.filesystemModel',
 
   /**
    * @override
@@ -42,15 +50,24 @@ export default BaseModel.extend({
       .fetchDirChildren(dirId, 'private', startIndex, size, offset);
   },
 
-  allowedFileTypes: reads('constraintSpec.allowedFileTypes'),
+  allAllowedTypes: raw(['file', 'dir', 'symlink']),
 
-  allTypesAreAllowed: or(
-    isEmpty('allowedFileTypes'),
-    computed('allowedFileTypes', function allTypesAllowes() {
-      return ['file', 'dir', 'symlink'].every(type =>
-        this.get('allowedFileTypes').includes(type)
-      );
-    }),
+  allowedFileTypes: conditional(
+    isEmpty('constraintSpec.allowedFileTypes'),
+    'allAllowedTypes',
+    'constraintSpec.allowedFileTypes'
+  ),
+
+  allTypesAreAllowed: computed(
+    'allAllowedTypes',
+    'allowedFileTypes',
+    function allTypesAreAllowed() {
+      const {
+        allAllowedTypes,
+        allowedFileTypes,
+      } = this.getProperties('allAllowedTypes', 'allowedFileTypes');
+      return _.isEqual(allAllowedTypes, allowedFileTypes);
+    }
   ),
 
   /**
@@ -77,4 +94,30 @@ export default BaseModel.extend({
       }
     }
   },
+
+  itemTypeText: computed(
+    'allowedFileTypes',
+    'maxItems',
+    function itemTypeText() {
+      const {
+        i18n,
+        allowedFileTypes,
+        maxItems,
+      } = this.getProperties(
+        'i18n',
+        'allowedFileTypes',
+        'maxItems',
+      );
+      const countKey = (maxItems === 1) ? 'single' : 'multi';
+      if (get(allowedFileTypes, 'length') === 1) {
+        return this.t(`fileType.${countKey}.${allowedFileTypes[0]}`);
+      } else {
+        return joinStrings(
+          i18n,
+          allowedFileTypes.map(type => this.t(`fileType.${countKey}.${type}`)),
+          'or'
+        );
+      }
+    }
+  ),
 });

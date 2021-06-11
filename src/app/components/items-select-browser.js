@@ -1,7 +1,7 @@
 import Component from '@ember/component';
 import { computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { promise, or, not, lt } from 'ember-awesome-macros';
+import { or, not, lt } from 'ember-awesome-macros';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';

@@ -49,6 +49,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   fetchChildren: notImplementedReject,
 
   /**
+   * Shown in selector modal header.
+   * Typically to implement by subclasses.
+   * @virtual
+   * @type {SafeString|String}
+   */
+  itemTypeText: undefined,
+
+  /**
    * Should be set by component when this model is injected to component.
    * @virtual
    */
