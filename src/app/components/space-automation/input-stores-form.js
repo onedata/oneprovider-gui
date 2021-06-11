@@ -429,8 +429,9 @@ async function atmWorkflowSchemaToFormData(atmWorkflowSchema, managerServices) {
 
     const editor = getValueEditorForStoreType(type, dataSpec);
     let editorValue = defaultInitialValue;
-    if (editor === 'rawValue' && editorValue !== undefined) {
-      editorValue = JSON.stringify(editorValue, null, 2);
+    if (editor === 'rawValue') {
+      editorValue = [null, undefined].includes(defaultInitialValue) ?
+        '' : JSON.stringify(editorValue, null, 2);
     } else if (editor === 'filesValue') {
       const modelName = dataSpec && dataSpec.type;
       if (editorValue && ['file', 'dataset', 'archive'].includes(modelName)) {
