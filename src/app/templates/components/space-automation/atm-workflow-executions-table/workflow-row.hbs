@@ -1,0 +1,22 @@
+{{#each columns as |column|}}
+  <td class="workflow-row-cell cell-{{column}}">
+    {{#if (eq column "name")}}
+      {{atmWorkflowExecution.schemaSnapshot.name}}
+    {{else if (eq column "scheduledAt")}}
+      {{moment-format atmWorkflowExecution.scheduleTime timeFormat "X"}}
+    {{else if (eq column "startedAt")}}
+      {{moment-format atmWorkflowExecution.startTime timeFormat "X"}}
+    {{else if (eq column "finishedAt")}}
+      {{moment-format atmWorkflowExecution.finishTime timeFormat "X"}}
+    {{else if (eq column "status")}}
+      {{#if statusIcon}}
+        {{#one-icon icon=statusIcon}}
+          {{#if statusTooltip}}
+            {{one-tooltip title=statusTooltip}}
+          {{/if}}
+        {{/one-icon}}
+      {{/if}}
+    {{/if}}
+  </td>
+{{/each}}
+{{yield}}
