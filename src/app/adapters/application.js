@@ -10,6 +10,7 @@ import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset'
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { entityType as atmInventoryEntityType } from 'oneprovider-gui/models/atm-inventory';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
+import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 
 export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [groupEntityType, 'group'],
@@ -23,6 +24,7 @@ export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [archiveEntityType, 'archive'],
   [atmInventoryEntityType, 'atm-inventory'],
   [atmWorkflowSchemaEntityType, 'atm-workflow-schema'],
+  [atmWorkflowExecutionEntityType, 'atm-workflow-execution'],
 ]));
 
 export default OnedataAdapter.extend({

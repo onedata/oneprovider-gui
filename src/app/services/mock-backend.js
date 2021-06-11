@@ -939,7 +939,6 @@ export default Service.extend({
             },
             requiresInitialValue: true,
           }],
-          atmInventory,
         }).save();
         atmWorkflowSchemas.push(atmWorkflowSchema);
       }
