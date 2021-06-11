@@ -111,9 +111,9 @@ export default Component.extend(I18n, {
     async function datasetLinkProxy() {
       const directDataset = await this.get('directDatasetProxy');
       if (directDataset) {
-        const datasetId = get(directDataset, 'entityId');
+        const dirId = get(directDataset, 'entityId');
         const options = {
-          datasetId,
+          dirId,
           viewMode: 'archives',
         };
         return this.get('getDatasetsUrl')(options);

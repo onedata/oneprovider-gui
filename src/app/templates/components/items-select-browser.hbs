@@ -20,7 +20,8 @@
         contentScroll=contentScroll
         selectedFiles=selectedItems
         spacePrivileges=spacePrivileges
-        changeSelectedFiles=(action (mut selectedItems))
+        customFetchDirChildren=(action "fetchChildren")
+        changeSelectedFiles=(action "changeSelectedItems")
         updateDirEntityId=(action "updateDirEntityId")
       }}
     {{/promise-proxy-container}}

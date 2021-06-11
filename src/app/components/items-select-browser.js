@@ -1,9 +1,8 @@
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { promise, or, not, lt } from 'ember-awesome-macros';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import SelectorFilesystemBrowserModel from 'oneprovider-gui/utils/selector-filesystem-browser-model';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -25,43 +24,9 @@ export default Component.extend(I18n, {
   modal: undefined,
 
   /**
-   * @virtual optional
-   */
-  parentModalDialogSelector: undefined,
-
-  mode: computed(
-    'constraintSpec.itemType',
-    function mode() {
-      const itemType = this.get('constraintSpec.itemType');
-      switch (itemType) {
-        case 'fileOrDirectory':
-        case 'file':
-        case 'direcory':
-          return 'filesystem';
-        case 'dataset':
-          return 'dataset';
-        case 'archive':
-          return 'archive';
-        default:
-          return 'item';
-      }
-    },
-  ),
-
-  /**
    * @virtual
    */
-  rootItem: undefined,
-
-  /**
-   * @virtual
-   */
-  space: undefined,
-
-  /**
-   * @virtual
-   */
-  constraintSpec: undefined,
+  selectorModel: undefined,
 
   /**
    * @virtual
@@ -73,57 +38,36 @@ export default Component.extend(I18n, {
    */
   onSubmit: notImplementedIgnore,
 
+  /**
+   * @virtual optional
+   */
+  parentModalDialogSelector: undefined,
+
   _document: document,
 
-  selectedItems: undefined,
+  validationError: reads('selectorModel.validationError'),
+
+  dirId: reads('selectorModel.dirId'),
+
+  dirProxy: reads('selectorModel.dirProxy'),
+
+  space: reads('selectorModel.space'),
+
+  initialRequiredDataProxy: reads('selectorModel.initialRequiredDataProxy'),
+
+  selectedItems: reads('selectorModel.selectedItems'),
+
+  browserModel: reads('selectorModel.browserModel'),
 
   /**
    * @type {ComputedProperty<Object>}
    */
   spacePrivileges: reads('space.privileges'),
 
-  // dirProxy: reads('space.rootDir'),
-
-  dirProxy: promise.object(computed('space.rootDir', 'dirId', function dirProxy() {
-    const {
-      space,
-      dirId,
-    } = this.getProperties('space', 'dirId');
-    if (dirId) {
-      return this.get('fileManager').getFileById(dirId);
-    } else {
-      return get(space, 'rootDir');
-    }
-  })),
-
   dir: computedLastProxyContent('dirProxy'),
-
-  /**
-   * NOTE: observing only space, because it should reload initial dir after whole space change
-   * @type {PromiseObject<Models.File>}
-   */
-  initialDirProxy: computed('space', function initialDirProxy() {
-    return this.get('dirProxy');
-  }),
-
-  initialRequiredDataProxy: promise.object(promise.all(
-    'initialDirProxy'
-  )),
 
   modalBodyId: computed(function modalBodyId() {
     return `${guidFor(this)}-body`;
-  }),
-
-  browserModel: computed('mode', function browserModel() {
-    const mode = this.get('mode');
-    switch (mode) {
-      case 'filesystem':
-        return this.createFilesystemBrowserModel();
-      default:
-        throw new Error(
-          `component:items-select-browser#browserModel: invalid mode "${mode}"`
-        );
-    }
   }),
 
   contentScroll: computed('modalBodyId', function contentScroll() {
@@ -141,36 +85,19 @@ export default Component.extend(I18n, {
     'validationError',
   ),
 
-  // FIXME: this can be a constraint model, that can be injected and tested separately
-  validationError: computed('constraintSpec', 'mode', 'selectedItems.length', function validationError() {
-    const constraintSpec = this.get('constraintSpec');
-    const mode = this.get('mode');
-    if (mode === 'filesystem') {
-      const maxItems = constraintSpec.maxItems;
-      if (maxItems && this.get('selectedItems.length') > constraintSpec.maxItems) {
-        // FIXME: i18n
-        return `Up to ${maxItems} items can be selected.`;
-      }
-      // FIXME: handle file/dir constraint
-    }
-  }),
+  submitSingleItem(item) {
+    return this.get('onSubmit')([item]);
+  },
 
   init() {
     this._super(...arguments);
-    if (!this.get('selectedItems')) {
-      this.set('selectedItems', []);
+    const selectorModel = this.get('selectorModel');
+    if (!selectorModel) {
+      throw new Error(
+        'compontnt:items-select-browser#init: selectorModel is not provided'
+      );
     }
-  },
-
-  createFilesystemBrowserModel() {
-    return SelectorFilesystemBrowserModel.create({
-      ownerSource: this,
-      onSubmitSingleItem: this.submitSingleItem.bind(this),
-    });
-  },
-
-  submitSingleItem(item) {
-    return this.get('onSubmit')([item]);
+    set(selectorModel, 'itemsSelectBrowser', this);
   },
 
   actions: {
@@ -185,7 +112,14 @@ export default Component.extend(I18n, {
       return onSubmit(selectedItems);
     },
     updateDirEntityId(id) {
-      this.set('dirId', id);
+      this.set('selectorModel.dirId', id);
+    },
+    changeSelectedItems(items) {
+      this.set('selectorModel.selectedItems', items);
+    },
+    fetchChildren(...args) {
+      const selectorModel = this.get('selectorModel');
+      return get(selectorModel, 'fetchChildren').call(selectorModel, ...args);
     },
   },
 });

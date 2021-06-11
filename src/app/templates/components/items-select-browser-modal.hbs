@@ -11,9 +11,8 @@
   {{#if open}}
     {{#items-select-browser
       modal=modal
-      space=space
-      constraintSpec=constraintSpec
       parentModalDialogSelector=parentModalDialogSelector
+      selectorModel=selectorModel
       onCancel=(action "cancel")
       onSubmit=(action "submit")
     }}

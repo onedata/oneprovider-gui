@@ -55,16 +55,16 @@ export default Service.extend({
     const archive = store.createRecord('archive', Object.assign({
       _meta: {
         additionalData: {
-          datasetId: get(dataset, 'entityId'),
+          dirId: get(dataset, 'entityId'),
         },
       },
     }, data));
     await archive.save();
     try {
-      const datasetId = dataset && get(dataset, 'entityId');
+      const dirId = dataset && get(dataset, 'entityId');
       await allFulfilled([
         dataset.reload(),
-        fileManager.dirChildrenRefresh(datasetId),
+        fileManager.dirChildrenRefresh(dirId),
       ]);
     } catch (error) {
       console.error(
@@ -137,14 +137,14 @@ export default Service.extend({
   },
 
   /**
-   * @param {String} datasetId entityId of dataset to list its archive children
+   * @param {String} dirId entityId of dataset to list its archive children
    * @param {String} index
    * @param {Number} limit
    * @param {Number} offset
    * @returns {Promise<{ childrenRecords: Array<Models.Archive>, isLast: Boolean }>}
    */
   async fetchDatasetArchives({
-    datasetId,
+    dirId,
     scope = 'private',
     index,
     limit,
@@ -154,7 +154,7 @@ export default Service.extend({
       return { childrenRecords: [], isLast: false };
     } else {
       return this.fetchDatasetArchivesAttrs({
-        datasetId,
+        dirId,
         scope,
         index,
         limit,
@@ -184,7 +184,7 @@ export default Service.extend({
   },
 
   /**
-   * @param {String} datasetId entityId of dataset to list its children archives
+   * @param {String} dirId entityId of dataset to list its children archives
    * @param {String} [scope='private'] currently only private is supported
    * @param {String} index
    * @param {Number} limit
@@ -192,14 +192,14 @@ export default Service.extend({
    * @returns {Promise<{ datasets: Array, isLast: Boolean }>}
    */
   async fetchDatasetArchivesAttrs({
-    datasetId,
+    dirId,
     scope = 'private',
     index,
     limit,
     offset,
   }) {
     const requestGri = gri({
-      entityId: datasetId,
+      entityId: dirId,
       entityType: datasetEntityType,
       aspect: datasetArchivesAspect,
       scope,

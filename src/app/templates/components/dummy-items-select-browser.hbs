@@ -1,5 +1,8 @@
-<button {{action (action (mut open) true)}}>
-  Open
+<button {{action (action "openModal" "filesystem")}}>
+  Open filesystem browser
+</button>
+<button {{action (action "openModal" "dataset")}}>
+  Open datasets browser
 </button>
 <div class="row">
   {{#if dummySelected}}
@@ -15,7 +18,7 @@
 {{#items-select-browser-modal
   open=open
   space=space
-  constraintSpec=constraintSpec
+  selectorModel=selectorModel
   onHide=(action (mut open) false)
   onSubmit=(action (mut dummySelected))
   onCancel=(action (mut dummySelected) null)

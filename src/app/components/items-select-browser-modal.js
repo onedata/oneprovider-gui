@@ -11,7 +11,7 @@ export default Component.extend({
   /**
    * @virtual
    */
-  constraintSpec: undefined,
+  selectorModel: undefined,
 
   /**
    * @virtual
@@ -42,17 +42,21 @@ export default Component.extend({
       const {
         onSubmit,
         onHide,
-      } = this.getProperties('onSubmit', 'onHide');
+        selectorModel,
+      } = this.getProperties('onSubmit', 'onHide', 'selectorModel');
       onSubmit(selectedItems);
       onHide();
+      selectorModel.resetState();
     },
     cancel() {
       const {
         onCancel,
         onHide,
-      } = this.getProperties('onCancel', 'onHide');
+        selectorModel,
+      } = this.getProperties('onCancel', 'onHide', 'selectorModel');
       onCancel();
       onHide();
+      selectorModel.resetState();
     },
   },
 });

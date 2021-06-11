@@ -24,14 +24,14 @@ export default Service.extend({
   fileManager: service(),
 
   /**
-   * @param {String} datasetId entityId of dataset
+   * @param {String} dirId entityId of dataset
    * @param {String} scope currently only 'private' is supported
    * @returns {Promise<Models.Dataset>}
    */
-  async getDataset(datasetId, scope = 'private') {
+  async getDataset(dirId, scope = 'private') {
     const requestGri = gri({
       entityType: datasetEntityType,
-      entityId: datasetId,
+      entityId: dirId,
       aspect: 'instance',
       scope,
     });

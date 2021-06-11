@@ -46,7 +46,7 @@ export default EmberObject.extend(OwnerInjector, {
     }
   )),
 
-  datasetIdProxy: promise.object(computed(
+  dirIdProxy: promise.object(computed(
     'filePathProxy',
     async function archiveIdProxy() {
       const filePath = await this.get('filePathProxy');
