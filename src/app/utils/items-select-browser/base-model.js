@@ -1,4 +1,4 @@
-import EmberObject, { get, computed } from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -17,6 +17,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   /**
    * To inject.
+   * Base fields:
+   * - maxItems: Number - if present, maximum N items can be confirmed in select
    * @virtual
    */
   constraintSpec: undefined,
@@ -91,14 +93,9 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   validationError: computed(
     'constraintSpec',
-    'maxItems',
-    'selectedItems.length',
+    'selectedItems.[]',
     function validationError() {
-      const maxItems = this.get('maxItems');
-      if (maxItems && this.get('selectedItems.length') > maxItems) {
-        // FIXME: i18n
-        return `Up to ${maxItems} items can be selected.`;
-      }
+      return this.getValidationError();
     }
   ),
 
@@ -106,6 +103,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     this._super(...arguments);
     if (!this.get('selectedItems')) {
       this.set('selectedItems', []);
+    }
+  },
+
+  getValidationError() {
+    const maxItems = this.get('maxItems');
+    if (maxItems && this.get('selectedItems.length') > maxItems) {
+      // FIXME: i18n
+      return `Only up to ${maxItems} items can be selected.`;
     }
   },
 
