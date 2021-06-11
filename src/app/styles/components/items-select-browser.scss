@@ -13,6 +13,13 @@
   }
 
   .items-select-browser-body {
+    height: calc(100% - #{$fb-table-margin-top});
+    .fb-table {
+      // there is no need for large bottom spacing in modal, because it should be compact
+      .table-bottom-spacing {
+        height: 2em;
+      }
+    }
     .file-browser-head-container {
       position: absolute;
       padding-left: 12px;
