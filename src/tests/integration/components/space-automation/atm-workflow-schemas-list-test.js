@@ -40,7 +40,7 @@ describe('Integration | Component | space automation/atm workflow schemas list',
     }];
     this.setProperties({
       user: {
-        atmInventoryList: promiseObject(resolve({
+        effAtmInventoryList: promiseObject(resolve({
           list: promiseArray(resolve(atmInventories)),
         })),
       },

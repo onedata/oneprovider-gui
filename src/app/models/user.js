@@ -18,9 +18,9 @@ export default Model.extend(GraphSingleModelMixin, {
   fullName: attr('string'),
   username: attr('string'),
 
-  spaceList: belongsTo('spaceList'),
-  handleServiceList: belongsTo('handleServiceList'),
-  atmInventoryList: belongsTo('atmInventoryList'),
+  effSpaceList: belongsTo('spaceList'),
+  effHandleServiceList: belongsTo('handleServiceList'),
+  effAtmInventoryList: belongsTo('atmInventoryList'),
 
   name: alias('fullName'),
 }).reopenClass(StaticGraphModelMixin);

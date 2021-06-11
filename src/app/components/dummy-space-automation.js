@@ -17,8 +17,8 @@ export default Component.extend({
 
   spaceProxy: promise.object(computed(function spaceProxy() {
     return this.get('currentUser').getCurrentUserRecord()
-      .then(user => get(user, 'spaceList'))
-      .then(spaceList => get(spaceList, 'list'))
+      .then(user => get(user, 'effSpaceList'))
+      .then(effSpaceList => get(effSpaceList, 'list'))
       .then(list => list.objectAt(0));
   })),
 });

@@ -52,7 +52,7 @@ describe('Integration | Component | space automation/run workflow creator', func
       })),
     };
     set(lookupService(this, 'current-user'), 'userProxy', promiseObject(resolve({
-      atmInventoryList: promiseObject(resolve({
+      effAtmInventoryList: promiseObject(resolve({
         list: promiseArray(resolve([atmInventory])),
       })),
     })));

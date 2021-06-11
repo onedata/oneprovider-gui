@@ -193,8 +193,8 @@ export default Service.extend({
       })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
-        return user.get('spaceList')
-          .then(spaceList => get(spaceList, 'list'))
+        return user.get('effSpaceList')
+          .then(effSpaceList => get(effSpaceList, 'list'))
           .then(list => allFulfilled(list.toArray()))
           .then(() => user);
       });
@@ -986,7 +986,7 @@ export default Service.extend({
       username,
     });
     Object.values(listRecords).forEach(lr =>
-      userRecord.set(camelize(lr.constructor.modelName), lr)
+      userRecord.set(camelize('eff-' + lr.constructor.modelName), lr)
     );
     return userRecord.save();
   },

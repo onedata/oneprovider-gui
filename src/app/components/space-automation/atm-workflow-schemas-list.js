@@ -45,7 +45,7 @@ export default Component.extend({
    */
   atmInventoriesProxy: promise.array(
     computed('user', async function atmInventoriesProxy() {
-      return await get(await get(this.get('user'), 'atmInventoryList'), 'list');
+      return await get(await get(this.get('user'), 'effAtmInventoryList'), 'list');
     })
   ),
 
