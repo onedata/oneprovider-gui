@@ -16,6 +16,8 @@ export default FbTableRowColumns.extend({
    */
   dataset: reads('file'),
 
+  archivesLinkDisabled: reads('browserModel.archivesLinkDisabled'),
+
   actions: {
     manageArchives() {
       const {

@@ -54,6 +54,11 @@ export default BaseBrowserModel.extend(I18n, {
   spaceDatasetsViewState: Object.freeze({}),
 
   /**
+   * @virtual
+   */
+  archivesLinkDisabled: false,
+
+  /**
    * Function argument: data for getDataUrl Onezone function
    * @override
    * @type {Function}

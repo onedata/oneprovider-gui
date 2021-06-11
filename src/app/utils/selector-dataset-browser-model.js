@@ -33,6 +33,11 @@ export default DatasetBrowserModel.extend({
   /**
    * @override
    */
+  archivesLinkDisabled: true,
+
+  /**
+   * @override
+   */
   onOpenFile(item /*, options */ ) {
     this.get('onSubmitSingleItem')(item);
   },
