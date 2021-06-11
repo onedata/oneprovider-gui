@@ -28,6 +28,11 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
+  readonlyFilesystem: true,
+
+  /**
+   * @override
+   */
   disableStatusBar: true,
 
   /**

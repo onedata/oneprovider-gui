@@ -30,6 +30,8 @@ export default FbDirLoadError.extend(I18n, {
    */
   browserModel: undefined,
 
+  archivesLinkDisabled: reads('browserModel.archivesLinkDisabled'),
+
   /**
    * @type {(dataset: Models.Dataset) => any}
    */
