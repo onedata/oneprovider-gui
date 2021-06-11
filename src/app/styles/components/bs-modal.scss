@@ -36,28 +36,26 @@
   }
 }
 
-
-// FIXME: new modal type - overlay, move to other file or styles
-
+// almost full-content overlay
 .modal.modal-content-overlay {
+  &.in {
+    .modal-dialog {
+      transform: none;
+    }
+  }
 
   .modal-dialog {
+    transform: translateX(100%);
+    transition: transition-ease(transform); 
+
     top: 0;
     bottom: 0;
-    transform: none;
+    right: 0;
+    left: initial;
     max-height: none;
     height: 100%;
     background-color: #fff;
     border-radius: 0;
-  }
-
-  &.modal-content-overlay-right {
-    .modal-dialog {
-      right: 0;
-      left: initial;
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-    }
   }
 }
 
