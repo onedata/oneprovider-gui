@@ -1,0 +1,54 @@
+{{#loading-container isLoading=atmWorkflowExecutions.isLoading}}
+  <table class="table one-table one-infinite-list">
+    <thead class="atm-workflow-executions-table-thead">
+      <tr>
+        {{#each columns as |column|}}
+          <th class="table-col-{{column}}">
+            {{tt this (concat "columns." column)}}
+          </th>
+        {{/each}}
+      </tr>
+    </thead>
+    <tbody class="atm-workflow-executions-table-tbody">
+      <tr class="first-row">
+        <td colspan="9999" style={{firstRowStyle}}></td>
+      </tr>
+      <div class="table-start-row"></div>
+      {{#unless atmWorkflowExecutions.length}}
+        <tr class="table-is-empty-row">
+          <td class="table-is-empty-cell" colspan="9999">
+            {{tt this (concat "noAtmWorkflowExecutions." phase)}}
+          </td>
+        </tr>
+      {{else}}
+        {{#if (and atmWorkflowExecutions.initialLoad.isSettled fetchingPrev)}}
+          <tr class="loading-row loading-prev-row">
+            <td colspan="9999" class="special-row-cell loading-row-cell loading-prev-cell">
+              {{spin-spinner-block
+                sizeClass="sm"
+                class="absolute-middle-centered"
+              }}
+            </td>
+          </tr>
+        {{/if}}
+        {{#each atmWorkflowExecutions as |atmWorkflowExecution|}}
+          {{space-automation/atm-workflow-executions-table/workflow-row
+            atmWorkflowExecution=atmWorkflowExecution
+            columns=columns
+          }}
+        {{/each}}
+        {{#if (and atmWorkflowExecutions.initialLoad.isSettled fetchingNext)}}
+          <tr class="loading-row loading-next-row">
+            <td colspan="9999" class="special-row-cell loading-row-cell loading-next-cell">
+              {{spin-spinner-block
+                sizeClass="sm"
+                class="absolute-middle-centered"
+              }}
+            </td>
+          </tr>
+        {{/if}}
+      {{/unless}}
+    </tbody>
+  </table>
+{{/loading-container}}
+{{yield}}

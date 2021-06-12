@@ -32,10 +32,11 @@
     {{#each (array "waiting" "ongoing" "ended") as |tabId|}}
       {{#bsTab.pane elementId=tabId}}
         {{#if (eq bsTab.activeId tabId)}}
-          <div class="row">
-            <div class="col-xs-12">
-              Running workflows
-            </div>
+          <div class="row loadable-row">
+              {{space-automation/atm-workflow-executions-table
+                space=space
+                phase=tabId
+              }}
           </div>
         {{/if}}
       {{/bsTab.pane}}

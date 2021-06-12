@@ -27,6 +27,7 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
@@ -65,11 +66,18 @@ export const numberOfFiles = 200;
 export const numberOfDirs = 2;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 150;
+export const numberOfAtmWorkflowExecutions = 150;
 
 export const storageIdAlpha = '90ca74738947307403740234723bca7890678acb5c7bac567b8ac';
 export const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731901';
 
 const transferStates = ['waiting', 'ongoing', 'ended'];
+const atmWorkflowExecutionPhases = ['waiting', 'ongoing', 'ended'];
+const atmWorkflowExecutionStatusForPhase = {
+  waiting: 'scheduled',
+  ongoing: 'active',
+  ended: 'finished',
+};
 
 const protectionFlagSets = [
   [],
@@ -96,6 +104,17 @@ export default Service.extend({
     obj[state] = [];
     return obj;
   }, {})),
+
+  /**
+   * WARNING: Will be initialized only after generating development model.
+   * Will generate: `{ <state>: [], ... }`
+   */
+  allAtmWorkflowExecutions: computed(() =>
+    atmWorkflowExecutionPhases.reduce((obj, phase) => {
+      obj[phase] = [];
+      return obj;
+    }, {})
+  ),
 
   /**
    * WARNING: Will be initialized only after generating development model.
@@ -190,6 +209,9 @@ export default Service.extend({
       })
       .then(listRecords => {
         return this.createArchivesMock(store).then(() => listRecords);
+      })
+      .then(listRecords => {
+        return this.createAtmWorkflowExecutionRecords(store).then(() => listRecords);
       })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
@@ -450,6 +472,8 @@ export default Service.extend({
             'space_create_archives',
             'space_view_archives',
             'space_remove_archives',
+            'space_view_atm_workflow_executions',
+            'space_schedule_atm_workflow_executions',
           ],
         }).save();
       })))
@@ -954,6 +978,54 @@ export default Service.extend({
     return atmInventories;
   },
 
+  /**
+   * @param {Service} store
+   * @returns {Promise<Array<Model>>}
+   */
+  async createAtmWorkflowExecutionRecords(store) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const waitingPhaseIndex = atmWorkflowExecutionPhases.indexOf('waiting');
+    const ongoingPhaseIndex = atmWorkflowExecutionPhases.indexOf('ongoing');
+    const endedPhaseIndex = atmWorkflowExecutionPhases.indexOf('ended');
+
+    const atmWorkflowExecutions = [];
+    for (const phase of atmWorkflowExecutionPhases) {
+      const phaseIndex = atmWorkflowExecutionPhases.indexOf(phase);
+      const executionsGroup = await allFulfilled(
+        _.range(numberOfAtmWorkflowExecutions).map(i => {
+          const scheduleTime = phaseIndex >= waitingPhaseIndex ?
+            timestamp + i * 3600 : null;
+          const startTime = phaseIndex >= ongoingPhaseIndex ?
+            timestamp + (i + 1) * 3600 : null;
+          const finishTime = phaseIndex >= endedPhaseIndex ?
+            timestamp + (i + 2) * 3600 : null;
+          const entityId = generateAtmWorkflowExecutionEntityId(
+            i,
+            phaseIndex,
+            scheduleTime,
+            finishTime
+          );
+          return store.createRecord('atmWorkflowExecution', {
+            id: gri({
+              entityType: atmWorkflowExecutionEntityType,
+              entityId,
+              aspect: 'instance',
+              scope: 'private',
+            }),
+            status: atmWorkflowExecutionStatusForPhase[phase],
+            scheduleTime,
+            startTime,
+            finishTime,
+          }).save();
+        })
+      );
+      this.get('allAtmWorkflowExecutions')[phase] = executionsGroup;
+      atmWorkflowExecutions.push(...executionsGroup);
+    }
+    this.set('entityRecords.atmWorkflowExecution', atmWorkflowExecutions);
+    return atmWorkflowExecutions;
+  },
+
   createEntityRecords(store, type, names, additionalInfo) {
     let createPromise;
     switch (type) {
@@ -1007,6 +1079,10 @@ export function parseDecodedDirEntityId(entityId) {
 
 export function generateTransferEntityId(i, state, scheduleTime, startTime) {
   return btoa(`transfer-${state}-${i}-${scheduleTime}-${startTime}`);
+}
+
+export function generateAtmWorkflowExecutionEntityId(i, state, scheduleTime, startTime) {
+  return btoa(`atmWorkflowExecution-${state}-${i}-${scheduleTime}-${startTime}`);
 }
 
 export function generateFileGri(entityId) {

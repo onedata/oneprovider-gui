@@ -42,6 +42,10 @@ describe('Integration | Component | space automation', function () {
         list: promiseArray(resolve([atmInventory])),
       })),
     })));
+    sinon.stub(
+      lookupService(this, 'workflow-manager'),
+      'getAtmWorkflowExecutionsForSpace'
+    ).resolves([]);
     this.setProperties({
       space: {
         entityId: 'space1',

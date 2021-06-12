@@ -37,5 +37,5 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {ComputedProperty<Models.AtmWorkflowSchemaSnapshot>}
    */
-  schemaSnapshot: belongsTo('atm-workflow-schema-snapshot'),
+  atmWorkflowSchemaSnapshot: belongsTo('atm-workflow-schema-snapshot'),
 }).reopenClass(StaticGraphModelMixin);

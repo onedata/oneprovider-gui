@@ -61,7 +61,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
       scheduleTime: scheduleTime.unix(),
       startTime: startTime.unix(),
       finishTime: finishTime.unix(),
-      schemaSnapshot: promiseObject(resolve({
+      atmWorkflowSchemaSnapshot: promiseObject(resolve({
         name: 'workflow1',
       })),
     });

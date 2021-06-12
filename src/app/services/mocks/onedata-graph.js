@@ -288,6 +288,27 @@ const spaceHandlers = {
       isLast: end >= rootDatasetsData.length,
     };
   },
+  atm_workflow_executions(operation, entityId, data) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    const allAtmWorkflowExecutions = this.get('mockBackend.allAtmWorkflowExecutions');
+    const {
+      phase,
+      offset,
+      limit,
+    } = data;
+    const startPosition = Math.max(offset, 0);
+    const atmWorkflowExecutions = allAtmWorkflowExecutions[phase]
+      .slice(startPosition, startPosition + limit);
+
+    return {
+      atmWorkflowExecutions: atmWorkflowExecutions.map(atmWorkflowExecution =>
+        atmWorkflowExecutionToAttrs(atmWorkflowExecution)
+      ),
+      isLast: atmWorkflowExecutions.length < limit,
+    };
+  },
 };
 
 const datasetHandlers = {
@@ -955,4 +976,15 @@ function archiveRecordToChildData(record) {
     dataset: record.belongsTo('dataset').id(),
     rootFile: record.belongsTo('rootFile').id(),
   });
+}
+
+function atmWorkflowExecutionToAttrs(record) {
+  return getProperties(
+    record,
+    'id',
+    'status',
+    'scheduleTime',
+    'startTime',
+    'finishTime'
+  );
 }

@@ -1,32 +1,14 @@
 /**
- * Provides backend functions related to workflows and inventories.
- *
+ * Exports a real workflow-manager service or its mock.
  * @module services/workflow-manager
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import Service, { inject as service } from '@ember/service';
+import config from 'ember-get-config';
+import { environmentExport } from 'onedata-gui-websocket-client/utils/development-environment';
+import ProductionSymbol from 'oneprovider-gui/services/production/workflow-manager';
+import DevelopmentSymbol from 'oneprovider-gui/services/mocks/workflow-manager';
 
-export default Service.extend({
-  store: service(),
-
-  /**
-   * @param {String} atmWorkflowSchemaId
-   * @param {String} spaceId
-   * @param {Object} storeInitialValues map (storeSchemaId => initial value)
-   * @returns {Promise<Models.AtmWorkflowExecution>}
-   */
-  async runWorkflow(atmWorkflowSchemaId, spaceId, storeInitialValues) {
-    return await this.get('store').createRecord('atmWorkflowExecution', {
-      _meta: {
-        additionalData: {
-          atmWorkflowSchemaId,
-          spaceId,
-          storeInitialValues,
-        },
-      },
-    }).save();
-  },
-});
+export default environmentExport(config, ProductionSymbol, DevelopmentSymbol);

@@ -1,0 +1,40 @@
+.atm-workflow-executions-table {
+  .workflow-row-cell {
+    text-align: center;
+  }
+
+  .atm-workflow-executions-table-thead th:first-child,
+  .atm-workflow-executions-table-tbody td:first-child {
+    text-align: left;
+  }
+
+  .cell-status .one-icon {
+    line-height: 0;
+    font-size: 2em;
+    vertical-align: middle;
+  }
+
+  .table-col-name,
+  .cell-name {
+    max-width: 0;
+  }
+
+  .table-col-scheduledAt,
+  .cell-scheduledAt,
+  .table-col-startedAt,
+  .cell-startedAt,
+  .table-col-finishedAt,
+  .cell-finishedAt {
+    width: 17em;
+    min-width: 17em;
+
+    @media (max-width: 750px) {
+      display: none;
+    }
+  }
+
+  .table-col-status {
+    width: 10em;
+    min-width: 10em;
+  }
+}
