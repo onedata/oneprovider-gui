@@ -3,12 +3,11 @@ import { describe, it, beforeEach, context } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
-import { fillIn, click } from 'ember-native-dom-helpers';
+import { fillIn } from 'ember-native-dom-helpers';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
 import sinon from 'sinon';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import { lookupService } from '../../../helpers/stub-service';
-import { Promise } from 'rsvp';
 
 const dataSpecConfigs = {
   integer: {
@@ -226,7 +225,6 @@ describe('Integration | Component | space automation/input stores form', functio
       },
       isDisabled: false,
       changeSpy: sinon.spy(),
-      selectFilesStub: sinon.stub().resolves([]),
     });
   });
 
@@ -272,14 +270,12 @@ describe('Integration | Component | space automation/input stores form', functio
     allowedDataSpecConfigs,
     editors,
     complexValuesGenerator,
-    filesLimit,
   }) => {
     allowedDataSpecConfigs.forEach(({
       name: dataSpecName,
       dataSpec,
       correctValues,
       incorrectValues,
-      fileSelectorOptions,
     }) => {
       context(`when store is of type ${storeTypeName} with ${dataSpecName} elements`, function () {
         beforeEach(function () {
@@ -381,48 +377,6 @@ describe('Integration | Component | space automation/input stores form', functio
               expect(this.$(`.${editor}-field .form-control`).text())
                 .to.include('Unknown');
             });
-
-          it('uses files selector to add new elements', async function () {
-            const {
-              selectFilesStub,
-              changeSpy,
-            } = this.getProperties('selectFilesStub', 'changeSpy');
-            selectFilesStub.resolves([{ entityId: 'someId', name: 'f1' }]);
-            await render(this);
-
-            expect(selectFilesStub).to.not.be.called;
-            await click('.tag-creator-trigger');
-
-            expect(selectFilesStub).to.be.calledOnce.and.to.be.calledWith(
-              Object.assign({ limit: filesLimit }, fileSelectorOptions)
-            );
-            expect(this.$(`.${editor}-field .form-control`).text())
-              .to.include('f1');
-            const fileEntryInChange = { id: 'someId' };
-            expect(changeSpy).to.be.calledWith({
-              data: {
-                s1: filesLimit === 1 ?
-                  fileEntryInChange : [fileEntryInChange],
-              },
-              isValid: true,
-            });
-          });
-
-          it('allows to cancel files selection', async function () {
-            const selectFilesStub = this.get('selectFilesStub');
-            let rejectPromise;
-            selectFilesStub.returns(
-              new Promise((resolve, reject) => rejectPromise = reject)
-            );
-            await render(this);
-
-            await click('.tag-creator-trigger');
-            rejectPromise();
-            await wait();
-
-            expect(this.$(`.${editor}-field .tags.input`))
-              .to.not.have.class('creating-tag');
-          });
         }
       });
     });
@@ -453,7 +407,6 @@ async function render(testCase) {
       atmWorkflowSchema=atmWorkflowSchema
       isDisabled=isDisabled
       onChange=changeSpy
-      onSelectFiles=selectFilesStub
     }}
   `);
   await wait();

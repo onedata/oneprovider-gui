@@ -14,4 +14,5 @@ export default {
     unknownName: 'Unknown',
     idTooltip: 'ID: {{id}}',
   },
+  filesSelectorSubheader: 'for <strong>{{storeName}}</strong> store',
 };

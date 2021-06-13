@@ -2,5 +2,16 @@
   <form class="form form-horizontal form-component">
     {{form-component/field-renderer field=fields}}
   </form>
+  {{!-- {{#items-select-browser-modal
+    open=filesSelectionProcess.isActive
+    selectorModel=filesSelectionProcess.filesSelectorModel
+    onHide=(action "filesSelectorClose")
+    onSubmit=(action "filesSelected")
+    onCancel=(action "filesSelectorClose")
+  }}
+    <h2 class="normal-case">
+      {{tt this "filesSelectorSubheader" storeName=filesSelectionProcess.storeName}}
+    </h2>
+  {{/items-select-browser-modal}} --}}
 {{/promise-proxy-container}}
 {{yield}}

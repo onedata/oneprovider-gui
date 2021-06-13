@@ -20,6 +20,7 @@
       {{#if areInitialValuesNeeded}}
         {{space-automation/input-stores-form
           atmWorkflowSchema=selectedAtmWorkflowSchema
+          space=space
           onChange=(action "inputStoresChanged")
           isDisabled=isStartingWorkflow
           class="row loadable-row"

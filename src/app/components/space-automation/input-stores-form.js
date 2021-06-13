@@ -6,19 +6,19 @@ import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields
 import JsonField from 'onedata-gui-common/utils/form-component/json-field';
 import TagsField from 'onedata-gui-common/utils/form-component/tags-field';
 import { tag, not, getBy, eq, raw, promise, conditional } from 'ember-awesome-macros';
-import EmberObject, { computed, observer, get, getProperties } from '@ember/object';
+import EmberObject, { computed, observer, get, getProperties, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { validator } from 'ember-cp-validations';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { scheduleOnce } from '@ember/runloop';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
 import { resolve, all as allFulfilled } from 'rsvp';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
+// import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
+// import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
 
 const FileTag = EmberObject.extend(I18n, OwnerInjector, {
   i18n: service(),
@@ -87,6 +87,12 @@ export default Component.extend(I18n, {
   atmWorkflowSchema: undefined,
 
   /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
    * @virtual optional
    * @type {Boolean}
    */
@@ -106,29 +112,11 @@ export default Component.extend(I18n, {
   onChange: notImplementedIgnore,
 
   /**
-   * @virtual
-   * @type {Function}
-   * @param {Object} fileBrowserConstraints
-   *   ```
-   *   {
-   *     type: String, // one of `'file'`, `'dataset'`, `'archive'`
-   *     allowedFileTypes: Array<String>|undefined, // meaningful when
-   *       // `type` is `'file'`. Should be an array of values:
-   *       // `'regular'`, `'directory'`. If undefined, then all types
-   *       // of files are allowed.
-   *     limit: Number|undefined, // maximum number of items, that can be selected.
-   *       // If undefined, then there is no upper limit.
-   *   }
-   *   ```
-   * @returns {Promise} resolves with an array of selected files, rejects when
-   *   user cancel selection process.
-   */
-  onSelectFiles: notImplementedReject,
-
-  /**
    * ```
    * {
-   *   promise: Promise, // promise returned from `onSelectFiles`
+   *   isActive: Boolean,
+   *   filesSelectorModel: Utils.ItemsSelectBrowser.FilesystemModel|Utils.ItemsSelectBrowser.DatasetModel,
+   *   storeName: String,
    *   onTagsAddedCallback: Function, // callback received from tags-field
    *   onEndTagCreationCallback: Function, // callback received from tags-field
    * }
@@ -136,7 +124,7 @@ export default Component.extend(I18n, {
    * Is undefined if there is not active files selection process.
    * @type {Object|undefined}
    */
-  activeFilesSelectionProcess: undefined,
+  filesSelectionProcess: undefined,
 
   /**
    * Set by `updateDefaultFormValues`
@@ -246,12 +234,13 @@ export default Component.extend(I18n, {
             TagsField.extend({
               isVisible: eq('parent.activeEditor', raw('filesValue')),
               tagEditorSettings: computed(
-                'parent.value.storeDataSpec',
+                'parent.value.{storeDataSpec,storeName}',
                 function tagEditorSettings() {
                   const storeDataSpec = this.get('parent.value.storeDataSpec');
+                  const storeName = this.get('parent.value.storeName');
                   return {
                     startTagCreationCallback: (...args) =>
-                      component.startFilesSelection(storeDataSpec, ...args),
+                      component.startFilesSelection(storeName, storeDataSpec, ...args),
                     endTagCreationCallback: () => component.endFilesSelection(),
                   };
                 }
@@ -315,74 +304,99 @@ export default Component.extend(I18n, {
     });
   },
 
-  startFilesSelection(dataSpec, {
+  startFilesSelection(storeName, storeDataSpec, {
     onTagsAddedCallback,
     onEndTagCreationCallback,
     tagsLimit,
   }) {
-    const {
-      activeFilesSelectionProcess,
-      onSelectFiles,
-    } = this.getProperties('activeFilesSelectionProcess', 'onSelectFiles');
-
-    if (activeFilesSelectionProcess) {
+    // const space = this.get('space');
+    if (this.get('filesSelectionProcess.isActive')) {
       this.endFilesSelection();
-    }
-
-    const type = dataSpec && dataSpec.type;
-    if (!onSelectFiles || !['file', 'dataset', 'archive'].includes(type)) {
+      onEndTagCreationCallback && onEndTagCreationCallback();
       return;
     }
 
-    const filesSelectionSpec = {
-      type,
-      limit: tagsLimit,
-    };
-
-    if (type === 'file') {
-      const fileType = get(dataSpec, 'valueConstraints.fileType');
-      let allowedFileType;
-      switch (fileType) {
-        case 'REG':
-          allowedFileType = 'regular';
-          break;
-        case 'DIR':
-          allowedFileType = 'directory';
-          break;
-      }
-      if (allowedFileType) {
-        filesSelectionSpec.allowedFileTypes = [allowedFileType];
-      }
+    const type = storeDataSpec && storeDataSpec.type;
+    if (!['file', 'dataset', 'archive'].includes(type)) {
+      return;
     }
 
-    const selectionPromise = onSelectFiles(filesSelectionSpec);
-    selectionPromise.then(selectedFiles => safeExec(this, () => {
-      const activeSelectionPromise = this.get('activeFilesSelectionProcess.promise');
-      if (activeSelectionPromise === selectionPromise) {
-        const newTags = (selectedFiles || []).map(file =>
-          FileTag.create({ value: file, ownerSource: this })
-        );
-        onTagsAddedCallback(newTags);
-      }
-    })).finally(() => safeExec(this, () => {
-      const activeSelectionPromise = this.get('activeFilesSelectionProcess.promise');
-      if (activeSelectionPromise === selectionPromise) {
-        this.endFilesSelection();
-      }
-    }));
+    const constraintSpec = {
+      maxItems: tagsLimit,
+    };
 
-    this.set('activeFilesSelectionProcess', {
-      promise: selectionPromise,
+    let filesSelectorModel;
+    switch (type) {
+      case 'file': {
+        const fileType = get(storeDataSpec, 'valueConstraints.fileType');
+        let allowedFileType;
+        switch (fileType) {
+          case 'REG':
+            allowedFileType = 'file';
+            break;
+          case 'DIR':
+            allowedFileType = 'dir';
+            break;
+        }
+        if (allowedFileType) {
+          constraintSpec.allowedFileTypes = [allowedFileType];
+        }
+        // filesSelectorModel = FilesystemModel.create({
+        //   ownerSource: this,
+        //   constraintSpec,
+        //   space,
+        // });
+        break;
+      }
+      case 'dataset':
+        // filesSelectorModel = DatasetModel.create({
+        //   ownerSource: this,
+        //   constraintSpec,
+        //   space,
+        // });
+        break;
+      default:
+        return;
+    }
+
+    this.set('filesSelectionProcess', {
+      isActive: true,
+      filesSelectorModel,
+      storeName,
       onTagsAddedCallback,
       onEndTagCreationCallback,
     });
   },
 
   endFilesSelection() {
+    const filesSelectionProcess = this.get('filesSelectionProcess');
+    if (!filesSelectionProcess) {
+      return;
+    }
+
+    set(filesSelectionProcess, 'isActive', false);
     const onEndTagCreationCallback =
-      this.get('activeFilesSelectionProcess.onEndTagCreationCallback');
+      get(filesSelectionProcess, 'onEndTagCreationCallback');
     onEndTagCreationCallback && onEndTagCreationCallback();
-    this.set('activeFilesSelectionProcess', undefined);
+  },
+
+  actions: {
+    filesSelected(files) {
+      const onTagsAddedCallback =
+        this.get('filesSelectionProcess.onTagsAddedCallback');
+
+      if (!onTagsAddedCallback || !files || !files.length) {
+        return;
+      }
+
+      onTagsAddedCallback(files.map(file => FileTag.create({
+        ownerSource: this,
+        value: file,
+      })));
+    },
+    filesSelectorClose() {
+      this.endFilesSelection();
+    },
   },
 });
 
