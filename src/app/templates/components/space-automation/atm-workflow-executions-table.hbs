@@ -1,6 +1,6 @@
 {{#loading-container isLoading=atmWorkflowExecutionSummaries.isLoading}}
-  <table class="table one-table one-infinite-list">
-    <thead class="atm-workflow-executions-table-thead">
+  <table class="table one-infinite-list">
+    <thead>
       <tr>
         {{#each columns as |column|}}
           <th class="table-col-{{column}}">
@@ -9,7 +9,7 @@
         {{/each}}
       </tr>
     </thead>
-    <tbody class="atm-workflow-executions-table-tbody">
+    <tbody>
       <tr class="first-row">
         <td colspan="9999" style={{firstRowStyle}}></td>
       </tr>
@@ -22,8 +22,8 @@
         </tr>
       {{else}}
         {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingPrev)}}
-          <tr class="loading-row loading-prev-row">
-            <td colspan="9999" class="special-row-cell loading-row-cell loading-prev-cell">
+          <tr class="loading-row">
+            <td colspan="9999" class="loading-row-cell">
               {{spin-spinner-block
                 sizeClass="sm"
                 class="absolute-middle-centered"
@@ -38,8 +38,8 @@
           }}
         {{/each}}
         {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingNext)}}
-          <tr class="loading-row loading-next-row">
-            <td colspan="9999" class="special-row-cell loading-row-cell loading-next-cell">
+          <tr class="loading-row">
+            <td colspan="9999" class="loading-row-cell">
               {{spin-spinner-block
                 sizeClass="sm"
                 class="absolute-middle-centered"

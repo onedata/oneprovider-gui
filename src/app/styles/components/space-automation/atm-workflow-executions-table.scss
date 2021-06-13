@@ -3,8 +3,8 @@
     text-align: center;
   }
 
-  .atm-workflow-executions-table-thead th:first-child,
-  .atm-workflow-executions-table-tbody td:first-child {
+  thead th:first-child,
+  tbody td:first-child {
     text-align: left;
   }
 
@@ -17,6 +17,7 @@
   .table-col-name,
   .cell-name {
     max-width: 0;
+    padding-left: $padding-small-horizontal;
   }
 
   .table-col-scheduledAt,
@@ -62,5 +63,10 @@
     &.status-failed {
       color: $color-one-danger;
     }
+  }
+
+  .loading-row-cell {
+    position: relative;
+    height: 61px;
   }
 }
