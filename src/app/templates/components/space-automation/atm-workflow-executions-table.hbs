@@ -1,4 +1,4 @@
-{{#loading-container isLoading=atmWorkflowExecutions.isLoading}}
+{{#loading-container isLoading=atmWorkflowExecutionSummaries.isLoading}}
   <table class="table one-table one-infinite-list">
     <thead class="atm-workflow-executions-table-thead">
       <tr>
@@ -14,14 +14,14 @@
         <td colspan="9999" style={{firstRowStyle}}></td>
       </tr>
       <div class="table-start-row"></div>
-      {{#unless atmWorkflowExecutions.length}}
+      {{#unless atmWorkflowExecutionSummaries.length}}
         <tr class="table-is-empty-row">
           <td class="table-is-empty-cell" colspan="9999">
             {{tt this (concat "noAtmWorkflowExecutions." phase)}}
           </td>
         </tr>
       {{else}}
-        {{#if (and atmWorkflowExecutions.initialLoad.isSettled fetchingPrev)}}
+        {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingPrev)}}
           <tr class="loading-row loading-prev-row">
             <td colspan="9999" class="special-row-cell loading-row-cell loading-prev-cell">
               {{spin-spinner-block
@@ -31,13 +31,13 @@
             </td>
           </tr>
         {{/if}}
-        {{#each atmWorkflowExecutions as |atmWorkflowExecution|}}
+        {{#each atmWorkflowExecutionSummaries as |atmWorkflowExecutionSummary|}}
           {{space-automation/atm-workflow-executions-table/workflow-row
-            atmWorkflowExecution=atmWorkflowExecution
+            atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
             columns=columns
           }}
         {{/each}}
-        {{#if (and atmWorkflowExecutions.initialLoad.isSettled fetchingNext)}}
+        {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingNext)}}
           <tr class="loading-row loading-next-row">
             <td colspan="9999" class="special-row-cell loading-row-cell loading-next-cell">
               {{spin-spinner-block

@@ -3,7 +3,7 @@ import { computed, get } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
-import atmWorkflowExecutionIndex from 'oneprovider-gui/utils/atm-workflow-execution-index';
+import atmWorkflowExecutionSummaryIndex from 'oneprovider-gui/utils/atm-workflow-execution-summary-index';
 import Looper from 'onedata-gui-common/utils/looper';
 import { next } from '@ember/runloop';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
@@ -80,28 +80,34 @@ export default Component.extend(I18n, {
     }
   }),
 
+  /**
+   * @type {ComputedProperty<Number>}
+   */
   firstRowHeight: computed(
     'rowHeight',
-    'atmWorkflowExecutions._start',
+    'atmWorkflowExecutionSummaries._start',
     function firstRowHeight() {
-      const _start = this.get('atmWorkflowExecutions._start');
+      const _start = this.get('atmWorkflowExecutionSummaries._start');
       return _start ? _start * this.get('rowHeight') : 0;
     }
   ),
 
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
   firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
   }),
 
   /**
-   * @type {ComputedProperty<ReplacingChunksArray<Models.AtmWorkfloeExecution>>}
+   * @type {ComputedProperty<ReplacingChunksArray<Models.AtmWorkflowExecutionSummary>>}
    */
-  atmWorkflowExecutions: computed('phase', function atmWorkflowExecutions() {
+  atmWorkflowExecutionSummaries: computed('phase', function atmWorkflowExecutionSummaries() {
     const phase = this.get('phase');
     return ReplacingChunksArray.create({
-      fetch: this.fetchAtmWorkflowExecutions.bind(this),
+      fetch: this.fetchAtmWorkflowExecutionSummaries.bind(this),
       getIndex(record) {
-        return atmWorkflowExecutionIndex(record, phase);
+        return atmWorkflowExecutionSummaryIndex(record, phase);
       },
       startIndex: 0,
       endIndex: 20,
@@ -117,7 +123,7 @@ export default Component.extend(I18n, {
         immediate: false,
         interval: updateInterval,
       });
-      updater.on('tick', () => this.updateAtmWorkflowExecutions());
+      updater.on('tick', () => this.updateAtmWorkflowExecutionSummaries());
       this.set('updater', updater);
     }
   },
@@ -126,7 +132,7 @@ export default Component.extend(I18n, {
     this._super(...arguments);
 
     this.set('listWatcher', this.createListWatcher());
-    this.get('atmWorkflowExecutions.initialLoad').then(() => {
+    this.get('atmWorkflowExecutionSummaries.initialLoad').then(() => {
       next(() => {
         this.get('listWatcher').scrollHandler();
       });
@@ -146,13 +152,13 @@ export default Component.extend(I18n, {
     }
   },
 
-  async fetchAtmWorkflowExecutions() {
+  async fetchAtmWorkflowExecutionSummaries() {
     const {
       workflowManager,
       space,
       phase,
     } = this.getProperties('workflowManager', 'space', 'phase');
-    return await workflowManager.getAtmWorkflowExecutionsForSpace(
+    return await workflowManager.getAtmWorkflowExecutionSummariesForSpace(
       space,
       phase,
       ...arguments,
@@ -167,8 +173,8 @@ export default Component.extend(I18n, {
     );
   },
 
-  async updateAtmWorkflowExecutions() {
-    await this.get('atmWorkflowExecutions').reload();
+  async updateAtmWorkflowExecutionSummaries() {
+    await this.get('atmWorkflowExecutionSummaries').reload();
   },
 
   /**
@@ -176,20 +182,20 @@ export default Component.extend(I18n, {
    */
   onTableScroll(items) {
     const {
-      atmWorkflowExecutions,
+      atmWorkflowExecutionSummaries,
       listWatcher,
     } = this.getProperties(
-      'atmWorkflowExecutions',
+      'atmWorkflowExecutionSummaries',
       'listWatcher',
     );
-    const sourceArray = get(atmWorkflowExecutions, 'sourceArray');
+    const sourceArray = get(atmWorkflowExecutionSummaries, 'sourceArray');
 
     if (isEmpty(items) && !isEmpty(sourceArray)) {
-      atmWorkflowExecutions.setProperties({ startIndex: 0, endIndex: 50 });
+      atmWorkflowExecutionSummaries.setProperties({ startIndex: 0, endIndex: 50 });
       return;
     }
 
-    const atmWorkflowExecutionsIds = sourceArray.mapBy('entityId');
+    const atmWorkflowExecutionSummariesIds = sourceArray.mapBy('entityId');
     const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
     const firstId =
       firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
@@ -210,15 +216,15 @@ export default Component.extend(I18n, {
       startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.max(Math.floor(blankEnd / rowHeight), 0);
     } else {
-      startIndex = atmWorkflowExecutionsIds.indexOf(firstId);
-      endIndex = atmWorkflowExecutionsIds.indexOf(lastId, startIndex);
+      startIndex = atmWorkflowExecutionSummariesIds.indexOf(firstId);
+      endIndex = atmWorkflowExecutionSummariesIds.indexOf(lastId, startIndex);
     }
 
-    atmWorkflowExecutions.setProperties({ startIndex, endIndex });
+    atmWorkflowExecutionSummaries.setProperties({ startIndex, endIndex });
 
     next(() => {
       const isBackwardLoading = startIndex > 0 &&
-        get(atmWorkflowExecutions, 'firstObject.id') === firstId;
+        get(atmWorkflowExecutionSummaries, 'firstObject.id') === firstId;
       if (isBackwardLoading) {
         listWatcher.scrollHandler();
       }

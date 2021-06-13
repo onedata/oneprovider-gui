@@ -37,4 +37,30 @@
     width: 10em;
     min-width: 10em;
   }
+
+  .status-icon {
+    &.status-scheduled {
+      color: $color-one-default;
+    }
+
+    &.status-preparing {
+      @extend .animated;
+      @extend .infinite;
+      @extend .hinge;
+      @extend .pulse-orange;
+    }
+
+    &.status-enqueued,
+    &.status-active {
+      color: $color-one-warning;
+    }
+
+    &.status-finished {
+      color: $color-one-success;
+    }
+
+    &.status-failed {
+      color: $color-one-danger;
+    }
+  }
 }

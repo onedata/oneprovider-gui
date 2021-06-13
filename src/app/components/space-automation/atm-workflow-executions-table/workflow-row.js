@@ -15,7 +15,7 @@ import { inject as service } from '@ember/service';
 export default Component.extend(I18n, {
   tagName: 'tr',
   classNames: ['workflow-row', 'data-row'],
-  attributeBindings: ['atmWorkflowExecution.entityId:data-row-id'],
+  attributeBindings: ['atmWorkflowExecutionSummary.entityId:data-row-id'],
 
   i18n: service(),
 
@@ -28,7 +28,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Models.AtmWorkflowExecution}
    */
-  atmWorkflowExecution: undefined,
+  atmWorkflowExecutionSummary: undefined,
 
   /**
    * @virtual
@@ -44,8 +44,8 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<String>}
    */
-  statusIcon: computed('atmWorkflowExecution.status', function statusIcon() {
-    switch (this.get('atmWorkflowExecution.status')) {
+  statusIcon: computed('atmWorkflowExecutionSummary.status', function statusIcon() {
+    switch (this.get('atmWorkflowExecutionSummary.status')) {
       case 'scheduled':
       case 'preparing':
       case 'enqueued':
@@ -62,10 +62,13 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<String>}
    */
-  statusTooltip: computed('atmWorkflowExecution.status', function statusTooltip() {
-    const status = this.get('atmWorkflowExecution.status');
-    if (status) {
-      return this.t(`statuses.${status}`, {}, { defaultValue: '' });
+  statusTooltip: computed(
+    'atmWorkflowExecutionSummary.status',
+    function statusTooltip() {
+      const status = this.get('atmWorkflowExecutionSummary.status');
+      if (status) {
+        return this.t(`statuses.${status}`, {}, { defaultValue: '' });
+      }
     }
-  }),
+  ),
 });

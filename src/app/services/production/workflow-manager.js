@@ -8,9 +8,8 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { getProperties, get } from '@ember/object';
+import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-import { allSettled } from 'rsvp';
 
 export default Service.extend({
   store: service(),
@@ -40,9 +39,9 @@ export default Service.extend({
    * @param {string} startFromIndex
    * @param {number} limit
    * @param {number} offset
-   * @returns {Promise<{array: Array<Models.AtmWorkflowExecution>, isLast: Boolean}>}
+   * @returns {Promise<{array: Array<Models.AtmWorkflowExecutionSummary>, isLast: Boolean}>}
    */
-  async getAtmWorkflowExecutionsForSpace(
+  async getAtmWorkflowExecutionSummariesForSpace(
     space, phase, startFromIndex, limit, offset
   ) {
     const onedataGraph = this.get('onedataGraph');
@@ -50,16 +49,16 @@ export default Service.extend({
       entityType,
       entityId,
     } = getProperties(space, 'entityType', 'entityId');
-    const armWorkflowExecutionsGri = gri({
+    const atmWorkflowExecutionSummariesGri = gri({
       entityType,
       entityId,
-      aspect: 'atm_workflow_execution_details',
+      aspect: 'atm_workflow_execution_summaries',
     });
     if (!limit || limit <= 0) {
       return { array: [], isLast: false };
     }
-    const { atmWorlfowExecutions, isLast } = await onedataGraph.request({
-      gri: armWorkflowExecutionsGri,
+    const { list, isLast } = await onedataGraph.request({
+      gri: atmWorkflowExecutionSummariesGri,
       operation: 'get',
       data: {
         phase,
@@ -69,19 +68,16 @@ export default Service.extend({
       },
       subscribe: false,
     });
-    const atmWorkflowExecutionsRecords =
-      await this.pushAtmWorkflowExecutionsToStore(atmWorlfowExecutions);
-    await allSettled(
-      atmWorkflowExecutionsRecords.map(record => get(record, 'atmWorkflowSchemaSnapshot'))
-    );
-    return { array: atmWorkflowExecutionsRecords, isLast };
+    const atmWorkflowExecutionSummaries =
+      await this.pushAtmWorkflowExecutionSummariesToStore(list);
+    return { array: atmWorkflowExecutionSummaries, isLast };
   },
 
-  async pushAtmWorkflowExecutionsToStore(atmWorkflowExecutionsAttrs) {
+  async pushAtmWorkflowExecutionSummariesToStore(atmWorkflowExecutionSummariesAttrs) {
     const store = this.get('store');
-    return atmWorkflowExecutionsAttrs.map(atmWorkflowExecutionAttrs => {
+    return atmWorkflowExecutionSummariesAttrs.map(atmWorkflowExecutionSummaryAttrs => {
       const modelData =
-        store.normalize('atmWorkflowExecution', atmWorkflowExecutionAttrs);
+        store.normalize('atmWorkflowExecutionSummary', atmWorkflowExecutionSummaryAttrs);
       return store.push(modelData);
     });
   },

@@ -44,7 +44,7 @@ describe('Integration | Component | space automation', function () {
     })));
     sinon.stub(
       lookupService(this, 'workflow-manager'),
-      'getAtmWorkflowExecutionsForSpace'
+      'getAtmWorkflowExecutionSummariesForSpace'
     ).resolves([]);
     this.setProperties({
       space: {

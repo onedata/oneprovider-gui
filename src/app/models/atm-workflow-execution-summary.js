@@ -1,5 +1,5 @@
 /**
- * @module models/atm-workflow-execution
+ * @module models/atm-workflow-execution-summary
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -11,9 +11,14 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
-export const entityType = 'op_atm_workflow_execution';
+export const entityType = 'op_atm_workflow_execution_summary';
 
 export default Model.extend(GraphSingleModelMixin, {
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  name: attr('string'),
+
   /**
    * One of:
    * - `'scheduled'`,
@@ -42,9 +47,9 @@ export default Model.extend(GraphSingleModelMixin, {
   finishTime: attr('number'),
 
   /**
-   * @type {ComputedProperty<Models.AtmWorkflowSchemaSnapshot>}
+   * @type {ComputedProperty<Models.AtmWorkflowExecution>}
    */
-  atmWorkflowSchemaSnapshot: belongsTo('atm-workflow-schema-snapshot'),
+  atmWorkflowExecution: belongsTo('atm-workflow-execution'),
 
   /**
    * @type {ComputedProperty<Models.AtmInventory>}

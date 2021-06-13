@@ -3,8 +3,6 @@ import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
-import { resolve } from 'rsvp';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import moment from 'moment';
 import OneTooltipHelper from '../../../../helpers/one-tooltip';
 
@@ -57,13 +55,11 @@ describe('Integration | Component | space automation/atm workflow executions tab
   });
 
   beforeEach(function () {
-    this.set('atmWorkflowExecution', {
+    this.set('atmWorkflowExecutionSummary', {
+      name: 'workflow1',
       scheduleTime: scheduleTime.unix(),
       startTime: startTime.unix(),
       finishTime: finishTime.unix(),
-      atmWorkflowSchemaSnapshot: promiseObject(resolve({
-        name: 'workflow1',
-      })),
     });
   });
 
@@ -114,7 +110,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
   statuses.forEach(({ name, icon, tooltip }) => {
     it(`shows workflow "${name}" status in "status" column`, async function () {
-      this.set('atmWorkflowExecution.status', name);
+      this.set('atmWorkflowExecutionSummary.status', name);
       this.set('columnNames', ['status']);
 
       await render(this);
@@ -129,7 +125,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
 async function render(testCase) {
   testCase.render(hbs `
   {{space-automation/atm-workflow-executions-table/workflow-row
-    atmWorkflowExecution=atmWorkflowExecution
+    atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
     columns=columnNames
   }}`);
   await wait();

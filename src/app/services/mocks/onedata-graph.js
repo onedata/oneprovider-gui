@@ -27,6 +27,7 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { all as allFulfilled } from 'rsvp';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -288,25 +289,28 @@ const spaceHandlers = {
       isLast: end >= rootDatasetsData.length,
     };
   },
-  atm_workflow_executions(operation, entityId, data) {
+  async atm_workflow_execution_summaries(operation, entityId, data) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
-    const allAtmWorkflowExecutions = this.get('mockBackend.allAtmWorkflowExecutions');
+    const allAtmWorkflowExecutionSummaries =
+      this.get('mockBackend.allAtmWorkflowExecutionSummaries');
     const {
       phase,
       offset,
       limit,
     } = data;
     const startPosition = Math.max(offset, 0);
-    const atmWorkflowExecutions = allAtmWorkflowExecutions[phase]
+    const atmWorkflowExecutionSummaries = allAtmWorkflowExecutionSummaries[phase]
       .slice(startPosition, startPosition + limit);
 
     return {
-      atmWorkflowExecutions: atmWorkflowExecutions.map(atmWorkflowExecution =>
-        atmWorkflowExecutionToAttrs(atmWorkflowExecution)
+      list: await allFulfilled(
+        atmWorkflowExecutionSummaries.map(atmWorkflowExecutionSummary =>
+          atmWorkflowExecutionSummaryToAttrsData(atmWorkflowExecutionSummary)
+        )
       ),
-      isLast: atmWorkflowExecutions.length < limit,
+      isLast: atmWorkflowExecutionSummaries.length < limit,
     };
   },
 };
@@ -978,13 +982,16 @@ function archiveRecordToChildData(record) {
   });
 }
 
-function atmWorkflowExecutionToAttrs(record) {
-  return getProperties(
+async function atmWorkflowExecutionSummaryToAttrsData(record) {
+  return Object.assign(getProperties(
     record,
     'id',
+    'name',
     'status',
     'scheduleTime',
     'startTime',
     'finishTime'
-  );
+  ), {
+    atmWorkflowExecution: record.belongsTo('atmWorkflowExecution').id(),
+  });
 }

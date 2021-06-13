@@ -16,10 +16,10 @@ export default ProductionFileManager.extend({
   /**
    * @override
    */
-  async pushAtmWorkflowExecutionsToStore(atmWorkflowExecutionsAttrs) {
+  async pushAtmWorkflowExecutionSummariesToStore(atmWorkflowExecutionSummariesAttrs) {
     const store = this.get('store');
-    return await allFulfilled(atmWorkflowExecutionsAttrs.map(attrs =>
-      store.findRecord('atmWorkflowExecution', get(attrs, 'id'))
+    return await allFulfilled(atmWorkflowExecutionSummariesAttrs.map(attrs =>
+      store.findRecord('atmWorkflowExecutionSummary', get(attrs, 'id'))
     ));
   },
 });
