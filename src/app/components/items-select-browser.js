@@ -115,7 +115,17 @@ export default Component.extend(I18n, {
       this.set('selectorModel.dirId', id);
     },
     changeSelectedItems(items) {
-      this.set('selectorModel.selectedItems', items);
+      const {
+        dir,
+        selectorModel,
+      } = this.getProperties('dir', 'selectorModel');
+      let effItems = items;
+      if (items && dir &&
+        get(items, 'length') === 1 && get(items[0], 'entityId') === get(dir, 'entityId')
+      ) {
+        effItems = [];
+      }
+      selectorModel.setSelectedItems(effItems);
     },
     fetchChildren(...args) {
       const selectorModel = this.get('selectorModel');

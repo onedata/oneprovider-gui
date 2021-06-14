@@ -122,6 +122,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     }
   },
 
+  setDirId(dirId) {
+    this.set('dirId', dirId);
+  },
+
+  setSelectedItems(selectedItems) {
+    this.set('selectedItems', selectedItems);
+  },
+
   resetState() {
     this.set('selectedItems', []);
   },
