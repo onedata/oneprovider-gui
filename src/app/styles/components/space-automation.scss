@@ -1,4 +1,29 @@
 .space-automation {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+
+  &.max-height-full-window {
+    &,
+    .space-automation-tabs {
+      max-height: 100vh;
+    }
+  }
+
+  .tab-content,
+  .tab-pane,
+  .workflow-visualiser {
+    min-height: 0;
+  }
+
+  .tab-content > .fill-flex-using-column.active {
+    display: flex;
+  }
+
+  .workflow-visualiser {
+    flex-grow: 1;
+  }
+
   .nav-item-create {
     float: right;
   }

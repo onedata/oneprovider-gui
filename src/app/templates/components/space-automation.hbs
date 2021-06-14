@@ -1,5 +1,5 @@
 {{#bs-tab
-  class="bs-tab bs-tab-onedata bs-tab-modern"
+  class="bs-tab bs-tab-onedata bs-tab-modern space-automation-tabs fill-flex-using-column"
   fade=false
   customTabs=true
   activeId=activeTabId
@@ -39,7 +39,7 @@
       {{/if}}
     {{/each}}
   {{/bs-nav}}
-  <div class="tab-content no-vertical-padding">
+  <div class="tab-content no-vertical-padding fill-flex-using-column">
     {{#each (array "waiting" "ongoing" "ended") as |tabId|}}
       {{#bsTab.pane elementId=tabId}}
         {{#if (eq bsTab.activeId tabId)}}
@@ -53,6 +53,14 @@
         {{/if}}
       {{/bsTab.pane}}
     {{/each}}
+    {{#bsTab.pane elementId="preview" class="fill-flex-using-column"}}
+      {{#if (and (eq bsTab.activeId "preview") atmWorkflowExecutionSummaryForPreview)}}
+        {{space-automation/atm-workflow-execution-preview
+          class="fill-flex-using-column"
+          atmWorkflowExecutionSummary=atmWorkflowExecutionSummaryForPreview
+        }}
+      {{/if}}
+    {{/bsTab.pane}}
     {{#bsTab.pane elementId="create"}}
       {{#if (eq bsTab.activeId "create")}}
         <div class="row">
