@@ -112,10 +112,12 @@ export default BaseModel.extend(I18n, {
       return baseValidation;
     }
     const {
+      i18n,
       allowedFileTypes,
       allTypesAreAllowed,
       selectorSelectedItems,
     } = this.getProperties(
+      'i18n',
       'allowedFileTypes',
       'allTypesAreAllowed',
       'selectorSelectedItems'
@@ -126,8 +128,13 @@ export default BaseModel.extend(I18n, {
     const selectedItemsTypes = selectorSelectedItems.mapBy('type');
     for (const type of selectedItemsTypes) {
       if (!allowedFileTypes.includes(type)) {
-        // FIXME: i18n
-        return `Only ${allowedFileTypes.join(' and ')} are allowed to be selected.`;
+        return this.t('typeConstraint', {
+          typesText: joinStrings(
+            i18n,
+            allowedFileTypes.map(type => this.t(`fileType.multi.${type}`)),
+            'or'
+          ),
+        });
       }
     }
   },

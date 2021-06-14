@@ -633,8 +633,7 @@ export default Service.extend({
 
     // for testing empty data write protected directories
     const emptyDir = this.get('entityRecords.dir.1');
-    // FIXME: testing
-    const emptyDirProtection = Object.freeze([]);
+    const emptyDirProtection = Object.freeze(['data_protection']);
     console.dir(emptyDir.get('entityId'));
     setProperties(emptyDir, {
       effProtectionFlags: emptyDirProtection,

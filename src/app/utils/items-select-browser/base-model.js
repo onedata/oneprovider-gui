@@ -142,8 +142,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   getValidationError() {
     const maxItems = this.get('maxItems');
     if (maxItems && this.get('selectorSelectedItems.length') > maxItems) {
-      // FIXME: i18n
-      return `Only up to ${maxItems} items can be selected.`;
+      return this.t('maxItemsConstraint', { count: maxItems });
     }
   },
 

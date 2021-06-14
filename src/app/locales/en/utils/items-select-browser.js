@@ -1,4 +1,6 @@
-const baseModel = {};
+const baseModel = {
+  maxItemsConstraint: 'Only up to {{count}} items can be selected.',
+};
 
 export default {
   baseModel,
@@ -21,5 +23,6 @@ export default {
         symlink: 'symlinks',
       },
     },
+    typeConstraint: 'Only {{typesText}} are allowed to be selected.',
   }),
 };
