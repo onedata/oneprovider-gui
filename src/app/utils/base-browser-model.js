@@ -21,7 +21,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import animateCss from 'onedata-gui-common/utils/animate-css';
 import {
   actionContext,
-  anySelectedContexts,
 } from 'oneprovider-gui/components/file-browser';
 
 export default EmberObject.extend(OwnerInjector, I18n, {

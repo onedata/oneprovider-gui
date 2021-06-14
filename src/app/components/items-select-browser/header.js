@@ -1,5 +1,4 @@
 import Component from '@ember/component';
-import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { raw, and, gt, equal, or, conditional } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
