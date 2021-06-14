@@ -47,11 +47,11 @@ export default StatsFetcher.extend(OwnerInjector, {
         status: get(atmWorkflowExecution, 'status'),
       },
       lane: lanes.reduce((laneStatuses, { schemaId, status }) => {
-        laneStatuses[schemaId] = status;
+        laneStatuses[schemaId] = { status };
         return laneStatuses;
       }, {}),
       parallelBox: parallelBoxes.reduce((parallelBoxStatuses, { schemaId, status }) => {
-        parallelBoxStatuses[schemaId] = status;
+        parallelBoxStatuses[schemaId] = { status };
         return parallelBoxStatuses;
       }, {}),
       task: taskExecutionRecords.reduce((taskStatuses, taskExecutionRecord) => {
