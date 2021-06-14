@@ -118,16 +118,24 @@
             </div>
             {{tt this "inheritedFrom"}}
           </span>
-          <a
-            onclick={{action "fileLinkClicked"}}
-            href={{qosSourceFileHref}}
-            target={{navigateDataTarget}}
-            class="file-path truncate"
-          >
-            <span class="file-path-text truncate">
-              {{qosSourceFilePathProxy.content}}
+          {{#if qosSourceFileHref}}
+            <a
+              onclick={{action "fileLinkClicked"}}
+              href={{qosSourceFileHref}}
+              target={{navigateDataTarget}}
+              class="file-path truncate"
+            >
+              <span class="file-path-text truncate">
+                {{qosSourceFilePathProxy.content}}
+              </span>
+            </a>
+          {{else}}
+            <span class="file-path truncate">
+              <span class="file-path-text truncate">
+                {{qosSourceFilePathProxy.content}}
+              </span>
             </span>
-          </a>
+          {{/if}}
         {{/promise-proxy-container}}
       </div>
     {{/unless}}

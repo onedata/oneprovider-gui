@@ -1,0 +1,16 @@
+{{#one-modal
+  class="archive-create-modal"
+  open=open
+  size="xl"
+  backdropClose=false
+  keyboard=false
+  onHide=(action "hide")
+  as |modal|
+}}
+  {{archive-settings
+    dataset=dataset
+    modal=modal
+    onClose=(action "hide")
+    onSubmit=(action "submit")
+  }}
+{{/one-modal}}

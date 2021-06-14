@@ -2,7 +2,7 @@
  * A function for reducing number of breadcrumbs items (for long paths).
  * @module utils/filter-breadcrumbs-items
  * @author Jakub Liput
- * @copyright (C) 2016-2020 ACK CYFRONET AGH
+ * @copyright (C) 2016-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,9 +11,14 @@ import { A } from '@ember/array';
 import { get } from '@ember/object';
 import addEllipsisBreadcrumbsItem, { ellipsisString } from 'oneprovider-gui/utils/add-ellipsis-breadcrumbs-item';
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
+import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 
-function addEllipsisForLastItem(items, resultArray) {
-  return get(items, 'lastObject.file.parent').then(parentOfLast => {
+function addEllipsisForLastItem(
+  items,
+  resultArray,
+  resolveParent = defaultResolveParent
+) {
+  return resolveParent(get(items, 'lastObject.file')).then(parentOfLast => {
     const ellipsisItem = FileBreadcrumbsItem.create({
       file: parentOfLast,
       name: ellipsisString,
@@ -40,10 +45,11 @@ function addEllipsisForLastItem(items, resultArray) {
  * @param {Ember.A<FileBreadcrumbsItem>} items
  * @param {Number} count max. desired number of entries in result array
  *  NOTE: 0, 1, 2 will give result for 2
+ * @param {Function} resolveParent
  * @returns {RSVP.Promise<Ember.A<FileBreadcrumbsItem>>} resolves with reduced breadcrumbs
  *  items array; max. length of the array is `count+1` or `items` length
  */
-export default function filterBreadcrumbsItems(items, count) {
+export default function filterBreadcrumbsItems(items, count, resolveParent) {
   let resultArray = A();
   const itemsCount = get(items, 'length');
   if (itemsCount > 1) {
@@ -56,13 +62,17 @@ export default function filterBreadcrumbsItems(items, count) {
       // add ellipsis for last item at the end
       // return [root > ellipsis_of_last]
       if (count <= 2) {
-        return addEllipsisForLastItem(items, resultArray);
+        return addEllipsisForLastItem(items, resultArray, resolveParent);
       } else {
         // [root > parent_of_last] and iterate
         resultArray.push(items.objectAt(get(items, 'length') - 2));
       }
     } else {
-      return addEllipsisBreadcrumbsItem(resultArray, resultArray.objectAt(0));
+      return addEllipsisBreadcrumbsItem(
+        resultArray,
+        resultArray.objectAt(0),
+        resolveParent
+      );
     }
   } else {
     // return empty array
@@ -79,7 +89,11 @@ export default function filterBreadcrumbsItems(items, count) {
     resultArray.splice(1, 0, items.objectAt(1));
   } else {
     // [root > ... > parent_of_last]
-    return addEllipsisBreadcrumbsItem(resultArray, resultArray.objectAt(1));
+    return addEllipsisBreadcrumbsItem(
+      resultArray,
+      resultArray.objectAt(1),
+      resolveParent
+    );
   }
   // 5 or more
   if (count > 4 && itemsCount >= 4) {
@@ -97,5 +111,5 @@ export default function filterBreadcrumbsItems(items, count) {
     );
   }
 
-  return addEllipsisBreadcrumbsItem(resultArray, resultArray.objectAt(2));
+  return addEllipsisBreadcrumbsItem(resultArray, resultArray.objectAt(2), resolveParent);
 }

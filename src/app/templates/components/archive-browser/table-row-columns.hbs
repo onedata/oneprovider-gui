@@ -1,0 +1,26 @@
+<td
+  class="fb-table-col-state fb-table-secondary-col hidden-xs {{fileRowModel.stateColClass}}"
+>
+  <span class="file-item-text">
+    {{fileRowModel.stateText}}
+  </span>
+</td>
+<td class="fb-table-col-incremental fb-table-secondary-col hidden-xs">
+  <span
+    class="file-item-text {{if fileRowModel.incremental "col-status-yes" "col-status-no"}}"
+  >
+    {{tt this (if fileRowModel.incremental "yes" "no")}}
+  </span>
+</td>
+<td class="fb-table-col-dip fb-table-secondary-col hidden-xs">
+  <span
+    class="file-item-text {{if fileRowModel.includeDip "col-status-yes" "col-status-no"}}"
+  >
+    {{tt this (if fileRowModel.includeDip "yes" "no")}}
+  </span>
+</td>
+<td class="fb-table-col-layout fb-table-secondary-col hidden-xs">
+  <span class="file-item-text">
+    {{fileRowModel.archive.config.layout}}
+  </span>
+</td>

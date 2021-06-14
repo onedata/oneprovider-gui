@@ -1,0 +1,14 @@
+.filesystem-browser {
+  .fb-table-col-size {
+    position: relative;
+    width: 120px;
+    text-align: center;
+  }
+  .fb-table-col-modification {
+    width: 200px;
+    text-align: center;
+  }
+  .empty-dir-image {
+    background-image: url($root-url + 'images/empty-directory.svg');
+  }
+}

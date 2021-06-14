@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { click } from 'ember-native-dom-helpers';
 import $ from 'jquery';
 import sleep from 'onedata-gui-common/utils/sleep';
+import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -82,7 +83,7 @@ describe('Integration | Component | file browser (main component)', function () 
     ).resolves({ childrenRecords: files, isLast: true });
     fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
-    this.render(hbs `<div id="content-scroll">{{file-browser dir=dir}}</div>`);
+    render(this);
 
     return wait().then(() => {
       expect(fetchDirChildren).to.have.been.called;
@@ -121,7 +122,7 @@ describe('Integration | Component | file browser (main component)', function () 
       dir: rootDir,
       selectedFiles: [],
     });
-    this.on('updateDirEntityId', function updateDirEntityId(id) {
+    this.set('updateDirEntityId', (id) => {
       this.set('dir', dirs.findBy('entityId', id));
     });
     const fileManager = lookupService(this, 'fileManager');
@@ -141,12 +142,7 @@ describe('Integration | Component | file browser (main component)', function () 
     }
     fetchDirChildren.resolves({ isLast: true, childrenRecords: [] });
 
-    this.render(hbs `<div id="content-scroll">{{file-browser
-      dir=dir
-      selectedFiles=selectedFiles
-      updateDirEntityId=(action "updateDirEntityId")
-      changeSelectedFiles=(action (mut selectedFiles))
-    }}</div>`);
+    render(this);
 
     let clickCount = numberOfDirs - 2;
     const enterDir = () => {
@@ -233,12 +229,7 @@ describe('Integration | Component | file browser (main component)', function () 
       f1: {},
     });
 
-    this.render(hbs `<div id="content-scroll">{{file-browser
-      dir=dir
-      selectedFiles=selectedFiles
-      updateDirEntityId=updateDirEntityId
-      changeSelectedFiles=(action (mut selectedFiles))
-    }}</div>`);
+    render(this);
 
     await wait();
     expect(this.$('.fb-table-row')).to.exist;
@@ -270,12 +261,7 @@ describe('Integration | Component | file browser (main component)', function () 
       selectedFiles: [],
     });
 
-    this.render(hbs `<div id="content-scroll">{{file-browser
-      dir=dir
-      openCreateNewDirectory=openCreateNewDirectory
-      selectedFiles=selectedFiles
-      changeSelectedFiles=(action (mut selectedFiles))
-    }}</div>`);
+    render(this);
 
     return wait().then(() => {
       expect(fetchDirChildren).to.have.been.called;
@@ -323,11 +309,7 @@ describe('Integration | Component | file browser (main component)', function () 
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves({ childrenRecords: files, isLast: true });
 
-    this.render(hbs `<div id="content-scroll">{{file-browser
-      dir=dir
-      fileClipboardMode=fileClipboardMode
-      fileClipboardFiles=fileClipboardFiles
-    }}</div>`);
+    render(this);
 
     return wait().then(() => {
       expect(fetchDirChildren).to.have.been.called;
@@ -369,12 +351,7 @@ describe('Integration | Component | file browser (main component)', function () 
         isLast: true,
       });
 
-      this.render(hbs `<div id="content-scroll">{{file-browser
-        dir=dir
-        selectedFiles=selectedFiles
-        updateDirEntityId=(action "updateDirEntityId")
-        changeSelectedFiles=(action (mut selectedFiles))
-      }}</div>`);
+      render(this);
 
       return wait()
         .then(() => {
@@ -429,13 +406,7 @@ describe('Integration | Component | file browser (main component)', function () 
       // default
       fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
-      this.render(hbs `<div id="content-scroll">
-        {{file-browser
-          dir=dir
-          selectedFiles=selectedFilesForJump
-          selectedFilesForJump=selectedFilesForJump
-        }}
-      </div>`);
+      render(this);
 
       return wait().then(() => {
         expect(fetchDirChildren).to.have.been.calledWith(
@@ -497,13 +468,7 @@ describe('Integration | Component | file browser (main component)', function () 
       // default
       fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
-      this.render(hbs `<div id="content-scroll">
-        {{file-browser
-          dir=dir
-          selectedFiles=selectedFilesForJump
-          selectedFilesForJump=selectedFilesForJump
-        }}
-      </div>`);
+      render(this);
 
       return wait().then(() => {
         expect(fetchDirChildren).to.have.been.calledWith(
@@ -572,16 +537,20 @@ describe('Integration | Component | file browser (main component)', function () 
         });
 
         it('has enabled datasets item in context menu', async function (done) {
-          renderWithOpenDatasets(this);
+          render(this);
           await wait();
           const $menu = await openFileContextMenu({ entityId: 'i1' });
-          expect($menu.find('li:not(.disabled) .file-action-datasets')).to.exist;
+          expect(
+            $menu.find('li:not(.disabled) .file-action-datasets'),
+            'non-disabled datasets action'
+          ).to.exist;
 
           done();
         });
 
         testOpenDatasetsModal('dataset tag is clicked', async function () {
-          const $datasetTag = getFileRow({ entityId: 'i1' }).find('.file-status-dataset');
+          const $row = getFileRow({ entityId: 'i1' });
+          const $datasetTag = $row.find('.file-status-dataset');
           expect($datasetTag, 'dataset tag').to.have.length(1);
           await click($datasetTag[0]);
         });
@@ -600,7 +569,7 @@ describe('Integration | Component | file browser (main component)', function () 
         });
 
         it('has disabled datasets item in context menu', async function (done) {
-          renderWithOpenDatasets(this);
+          render(this);
           await wait();
           const $menu = await openFileContextMenu({ entityId: 'i1' });
           expect($menu.find('li.disabled .file-action-datasets')).to.exist;
@@ -696,7 +665,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
     this.set('openDatasets', openDatasets);
     this.set('item1.effDatasetMembership', 'ancestor');
 
-    renderWithOpenDatasets(this);
+    render(this);
 
     expect(openDatasets).to.have.not.been.called;
     await openFunction.call(this);
@@ -706,24 +675,11 @@ function testOpenDatasetsModal(openDescription, openFunction) {
   });
 }
 
-function renderWithOpenDatasets(testCase) {
-  if (!testCase.get('spacePrivileges')) {
-    testCase.set('spacePrivileges', {});
-  }
-  testCase.render(hbs `<div id="content-scroll">{{file-browser
-    dir=dir
-    selectedFiles=selectedFiles
-    changeSelectedFiles=(action (mut selectedFiles))
-    openDatasets=openDatasets
-    spacePrivileges=spacePrivileges
-  }}</div>`);
-}
-
 function testDownloadFromContextMenu() {
   const description =
     'shows spinner and starts download after using download context menu item';
   it(description, async function (done) {
-    const btnId = this.get('item1.type') === 'dir' ? 'downloadTarGz' : 'download';
+    const btnId = this.get('item1.type') === 'dir' ? 'downloadTar' : 'download';
     testDownload(
       this,
       done,
@@ -745,7 +701,7 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
     sleeper,
   } = prepareDownload(testCase);
 
-  renderWithDownloadSpy(testCase);
+  render(testCase);
   await wait();
   const $row = getFileRow({ entityId: fileId });
 
@@ -778,13 +734,9 @@ function itHasWorkingClipboardFunction({
     });
     setupStubs(this);
 
-    this.render(hbs `<div id="content-scroll">{{file-browser
-      dir=dir
-      spaceId="myspaceid"
-      selectedFiles=selectedFiles
-      updateDirEntityId=updateDirEntityId
-      changeSelectedFiles=(action (mut selectedFiles))
-    }}</div>`);
+    this.set('spaceId', 'myspaceid');
+
+    render(this);
 
     await wait();
     expect(this.$('.fb-table-row')).to.exist;
@@ -809,16 +761,6 @@ function prepareDownload(testCase) {
   const handleFileDownloadUrl = sinon.stub();
   testCase.set('handleFileDownloadUrl', handleFileDownloadUrl);
   return { fileId, getFileDownloadUrl, handleFileDownloadUrl, sleeper };
-}
-
-function renderWithDownloadSpy(testCase) {
-  testCase.render(hbs `<div id="content-scroll">{{file-browser
-    dir=dir
-    selectedFiles=selectedFiles
-    changeSelectedFiles=(action (mut selectedFiles))
-    spacePrivileges=spacePrivileges
-    handleFileDownloadUrl=handleFileDownloadUrl
-  }}</div>`);
 }
 
 function stubSimpleFetch(testCase, dir, childrenRecords) {
@@ -865,4 +807,46 @@ async function openFileContextMenu(file) {
 async function chooseFileContextMenuAction(file, actionId) {
   const $fileActions = await openFileContextMenu(file);
   await click($fileActions.find(`.file-action-${actionId}`)[0]);
+}
+
+function render(testCase) {
+  const {
+    openCreateNewDirectory,
+    openDatasets,
+  } = testCase.getProperties('openCreateNewDirectory', 'openDatasets');
+  setDefaultTestProperty(testCase, 'spacePrivileges', {});
+  setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
+  setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel.create({
+    ownerSource: testCase,
+    openCreateNewDirectory: openCreateNewDirectory ||
+      notStubbed('openCreateNewDirectory'),
+    openDatasets: openDatasets || notStubbed('openDatasets'),
+  }));
+  setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
+  testCase.render(hbs `<div id="content-scroll">{{file-browser
+    browserModel=browserModel
+    dir=dir
+    spaceId=spaceId
+    selectedFiles=selectedFiles
+    selectedFilesForJump=selectedFilesForJump
+    fileClipboardMode=fileClipboardMode
+    fileClipboardFiles=fileClipboardFiles
+    openDatasets=openDatasets
+    spacePrivileges=spacePrivileges
+    handleFileDownloadUrl=handleFileDownloadUrl
+    updateDirEntityId=(action updateDirEntityId)
+    changeSelectedFiles=(action (mut selectedFiles))
+  }}</div>`);
+}
+
+function setDefaultTestProperty(testCase, propertyName, defaultValue) {
+  if (testCase.get(propertyName) === undefined) {
+    testCase.set(propertyName, defaultValue);
+  }
+}
+
+function notStubbed(stubName) {
+  return () => {
+    throw new Error(`${stubName} is not stubbed`);
+  };
 }

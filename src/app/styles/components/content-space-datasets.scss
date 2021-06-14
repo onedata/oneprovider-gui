@@ -1,0 +1,20 @@
+@media (max-width: $screen-xs-max) {
+  .one-embedded-component.content-space-datasets {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.content-space-datasets {
+  position: relative;
+  height: 100%;
+  flex-grow: 1;
+
+  .file-browser-head-container {
+    z-index: $zindex-file-browser-head;
+  }
+
+  + .ps__rail-x + .ps__rail-y {
+    z-index: $zindex-file-browser-head + 1;
+  }
+}

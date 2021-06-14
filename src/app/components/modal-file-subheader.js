@@ -49,9 +49,13 @@ export default Component.extend(I18n, {
     )
   ),
 
+  fileIcon: 'browser-file',
+
+  dirIcon: 'browser-directory',
+
   icon: or(
-    and(eq('type', raw('file')), raw('browser-file')),
-    and(eq('type', raw('dir')), raw('browser-directory')),
+    and(eq('type', raw('file')), 'fileIcon'),
+    and(eq('type', raw('dir')), 'dirIcon'),
     null
   ),
 });

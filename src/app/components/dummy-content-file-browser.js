@@ -11,6 +11,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get, computed } from '@ember/object';
 import { promise } from 'ember-awesome-macros';
+import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 
 export default Component.extend({
   currentUser: service(),
@@ -21,6 +22,8 @@ export default Component.extend({
   classNames: ['dummy-content-file-browser'],
 
   containerScrollTop: undefined,
+
+  browserModel: undefined,
 
   previewMode: false,
 
@@ -52,6 +55,10 @@ export default Component.extend({
     if (!this.get('selectedFiles')) {
       this.set('selectedFiles', []);
     }
+    this.set('browserModel', FilesystemBrowserModel.create({
+      ownerSource: this,
+      openRemove: this.immediatelyRemove.bind(this),
+    }));
     // list of tests
     // this.testJumpDownFromStart();
     this.testJumpUpFromFarMiddle();
@@ -77,21 +84,22 @@ export default Component.extend({
     }, 2000);
   },
 
+  immediatelyRemove(files, parentDir) {
+    const {
+      onedataGraph,
+      fileManager,
+    } = this.getProperties('onedataGraph', 'fileManager');
+    const parentEntityId = get(parentDir, 'entityId');
+    files.forEach(f => {
+      onedataGraph.removeMockChild(
+        parentEntityId,
+        get(f, 'entityId')
+      );
+    });
+    fileManager.dirChildrenRefresh(parentEntityId);
+  },
+
   actions: {
-    immediatelyRemove(files, parentDir) {
-      const {
-        onedataGraph,
-        fileManager,
-      } = this.getProperties('onedataGraph', 'fileManager');
-      const parentEntityId = get(parentDir, 'entityId');
-      files.forEach(f => {
-        onedataGraph.removeMockChild(
-          parentEntityId,
-          get(f, 'entityId')
-        );
-      });
-      fileManager.dirChildrenRefresh(parentEntityId);
-    },
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
     },

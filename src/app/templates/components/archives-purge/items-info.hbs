@@ -1,0 +1,52 @@
+{{#if isSingleItem}}
+  <div class="row single-file-info">
+    {{one-icon icon="browser-archive" class="single-file-info-icon single-browsable-item-icon"}}
+    <div class="single-file-info-text">
+      {{#truncated-string
+        tagName="div"
+        class="row row-single-file-info-file-name single-file-info-file-name"
+      }}
+        {{firstItem.name}}
+      {{/truncated-string}}
+      {{#truncated-string tagName="div" class="row row-additional-file-info small"}}
+        <span class="single-file-info-label">
+          {{tt this "archived"}}:
+        </span>
+        {{tt this "archivedValue"
+          filesCount=(or firstItem.stats.filesArchived 0)
+          size=(or (bytes-to-string firstItem.stats.bytesArchived) 0)
+        }}
+      {{/truncated-string}}
+    </div>
+  </div>
+{{else}}
+  <div class="row row-items-list">
+    {{#each items as |item|}}
+      <div class="row-item">
+        <div class="browsable-item-icon">
+          {{one-icon icon="browser-archive"}}
+        </div>
+        {{#truncated-string class="sinble-browsable-item-name"}}
+          {{item.name}}
+        {{/truncated-string}}
+        {{#one-label-tip
+          tooltipClass="browsable-items-info-tooltip"
+          class="item-info-tip-trigger"
+          icon="sign-info-rounded"
+        }}
+          <div class="text-left">
+            <span class="item-info-label">
+              {{tt this "archived"}}:
+            </span>
+            <span class="item-info-value archive-size">
+              {{tt this "archivedValue"
+                filesCount=(or item.stats.filesArchived 0)
+                size=(or (bytes-to-string item.stats.bytesArchived) 0)
+              }}
+            </span>
+          </div>
+        {{/one-label-tip}}
+      </div>
+    {{/each}}
+  </div>
+{{/if}}

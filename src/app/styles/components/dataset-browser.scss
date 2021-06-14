@@ -1,0 +1,25 @@
+.dataset-browser {
+  .fb-table-col-archives {
+    position: relative;
+    width: 120px;
+    text-align: center;
+  }
+  .fb-table-col-created {
+    width: 200px;
+    text-align: center;
+  }
+  .fb-breadcrumbs {
+    .fb-breadcrumbs-separator {
+      &::before {
+        content: '›';
+      }
+    }
+  }
+  .empty-dir-image {
+    background-image: url($root-url + 'images/space-data.svg');
+  }
+  .archives-count-link {
+    display: inline-block;
+    min-width: 2em;
+  }
+}
