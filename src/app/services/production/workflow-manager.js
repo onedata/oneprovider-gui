@@ -10,10 +10,26 @@
 import Service, { inject as service } from '@ember/service';
 import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
+import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 
 export default Service.extend({
   store: service(),
   onedataGraph: service(),
+
+  /**
+   * @param {String} taskId
+   * @param {Boolean} [fetchOptions.reload=false]
+   * @returns {Promise<Models.AtmTaskExecution>}
+   */
+  async getAtmTaskExecutionById(taskId, { reload = false } = {}) {
+    const taskGri = gri({
+      entityType: atmTaskExecutionEntityType,
+      entityId: taskId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store').findRecord('atmTaskExecution', taskGri, { reload });
+  },
 
   /**
    * @param {String} atmWorkflowSchemaId
