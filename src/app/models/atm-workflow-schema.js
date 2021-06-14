@@ -27,4 +27,9 @@ export default Model.extend(GraphSingleModelMixin, {
    * @type {ComputedProperty<Array<Object>>}
    */
   stores: attr('array'),
+
+  /**
+   * @type {ComputedProperty<Array<Object>>}
+   */
+  lanes: attr('array'),
 }).reopenClass(StaticGraphModelMixin);

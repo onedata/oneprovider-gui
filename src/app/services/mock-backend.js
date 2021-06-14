@@ -28,6 +28,7 @@ import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirem
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
+import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
@@ -964,6 +965,27 @@ export default Service.extend({
             },
             requiresInitialValue: true,
           }],
+          lanes: [{
+            id: 'lane1',
+            name: 'lane 1',
+            storeIteratorSpec: {
+              strategy: {
+                type: 'serial',
+              },
+              storeSchemaId: 'store1',
+            },
+            parallelBoxes: [{
+              id: 'pbox1-1',
+              name: 'Parallel box',
+              tasks: [{
+                id: 'task1-1-1',
+                name: 'task1',
+                lambdaId: 'lambda1',
+                argumentMappings: [],
+                resultMappings: [],
+              }],
+            }],
+          }],
         }).save();
         inventoryAtmWorkflowSchemas.push(atmWorkflowSchema);
       }
@@ -1015,6 +1037,7 @@ export default Service.extend({
             finishTime
           );
           const atmWorkflowSchema = atmWorkflowSchemas[i % atmWorkflowSchemasCount];
+          const lanes = get(atmWorkflowSchema, 'lanes');
           const atmWorkflowSchemaSnapshot = await store.createRecord(
             'atmWorkflowSchemaSnapshot',
             getProperties(
@@ -1025,6 +1048,41 @@ export default Service.extend({
               'lanes'
             )
           ).save();
+          const executionLanes = [];
+          for (const lane of lanes) {
+            const executionLane = {
+              schemaId: lane.id,
+              status: 'pending',
+              parallelBoxes: [],
+            };
+            for (const parallelBox of lane.parallelBoxes) {
+              const executionParallelBox = {
+                schemaId: parallelBox.id,
+                status: 'pending',
+                taskRegistry: {},
+              };
+              for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
+                const task = parallelBox.tasks[taskIdx];
+                const executionTaskRecord = await store.createRecord('atmTaskExecution', {
+                  id: gri({
+                    entityType: atmTaskExecutionEntityType,
+                    entityId: generateAtmTaskExecutionEntityId(taskIdx, entityId),
+                    aspect: 'instance',
+                    scope: 'private',
+                  }),
+                  schemaId: task.id,
+                  status: 'pending',
+                  itemsInProcessing: 0,
+                  itemsProcessed: 0,
+                  itemsFailed: 0,
+                }).save();
+                executionParallelBox.taskRegistry[task.id] =
+                  get(executionTaskRecord, 'entityId');
+              }
+              executionLane.parallelBoxes.push(executionParallelBox);
+            }
+            executionLanes.push(executionLane);
+          }
           const atmWorkflowExecution = await store.createRecord('atmWorkflowExecution', {
             id: gri({
               entityType: atmWorkflowExecutionEntityType,
@@ -1033,6 +1091,7 @@ export default Service.extend({
               scope: 'private',
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
+            lanes: executionLanes,
             scheduleTime,
             startTime,
             finishTime,
@@ -1120,6 +1179,10 @@ export function generateTransferEntityId(i, state, scheduleTime, startTime) {
 
 export function generateAtmWorkflowExecutionEntityId(i, state, scheduleTime, startTime) {
   return btoa(`atmWorkflowExecution-${state}-${i}-${scheduleTime}-${startTime}`);
+}
+
+export function generateAtmTaskExecutionEntityId(i, atmWorkflowExecutionEntityId) {
+  return btoa(`atmTaskExecution-${atmWorkflowExecutionEntityId}-${i}`);
 }
 
 export function generateFileGri(entityId) {
