@@ -27,6 +27,16 @@
       padding-top: 0;
       margin-top: -10px;
     }
+    .fb-table {
+      .refresh-spinner {
+        position: absolute;
+      }
+    }
+    .empty-dir-image {
+      @media (max-height: 700px) {
+        display: none;
+      }
+    }
   }
 
   .items-select-browser-footer {

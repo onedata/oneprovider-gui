@@ -116,7 +116,10 @@ export default BaseModel.extend(I18n, {
 
   spaceId: reads('space.entityId'),
 
-  isInRoot: or(not('dirId'), equal('dirId', raw(spaceDatasetsRootId))),
+  isInRoot: computed('dirId', function isInRoot() {
+    const dirId = this.get('dirId');
+    return !dirId || dirId === spaceDatasetsRootId;
+  }),
 
   /**
    * @override

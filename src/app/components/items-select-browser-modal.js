@@ -20,6 +20,12 @@ export default Component.extend({
 
   /**
    * @virtual
+   * @type {Boolean}
+   */
+  open: false,
+
+  /**
+   * @virtual
    */
   selectorModel: undefined,
 
