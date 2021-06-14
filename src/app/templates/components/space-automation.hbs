@@ -6,26 +6,37 @@
   as |bsTab|
 }}
   {{#bs-nav type="tabs" as |nav|}}
-    {{#each (array "waiting" "ongoing" "ended" "create") as |tabId|}}
-      {{#nav.item
-        class=(concat "nav-item-" tabId)
-        active=(eq bsTab.activeId tabId)
-      }}
-        <a
-          class="nav-link nav-link-{{tabId}}"
-          role="tab"
-          {{action "changeTab" tabId}}
-        >
-          <span class="tab-label">
-            {{#if (get tabIcons tabId)}}
-              {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
-            {{/if}}
-            <span class="one-label tab-name">
-              {{tt this (concat "tabs." tabId ".tabLabel")}}
+    {{#each (array "waiting" "ongoing" "ended" "preview" "create") as |tabId|}}
+      {{#if (or (not-eq tabId "preview") atmWorkflowExecutionSummaryForPreview)}}
+        {{#nav.item
+          class=(concat "nav-item-" tabId)
+          active=(eq bsTab.activeId tabId)
+        }}
+          <a
+            class="nav-link nav-link-{{tabId}}"
+            role="tab"
+            {{action "changeTab" tabId}}
+          >
+            <span class="tab-label">
+              {{#if (get tabIcons tabId)}}
+                {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
+              {{/if}}
+              {{#truncated-string class="one-label tab-name"}}
+                {{#if (eq tabId "preview")}}
+                  {{atmWorkflowExecutionSummaryForPreview.name}}
+                {{else}}
+                  {{tt this (concat "tabs." tabId ".tabLabel")}}
+                {{/if}}
+              {{/truncated-string}}
+              {{#if (eq tabId "preview")}}
+                <span class="tab-close clickable" {{action "closeWorkflowPreview"}}>
+                  {{one-icon icon="close"}}
+                </span>
+              {{/if}}
             </span>
-          </span>
-        </a>
-      {{/nav.item}}
+          </a>
+        {{/nav.item}}
+      {{/if}}
     {{/each}}
   {{/bs-nav}}
   <div class="tab-content no-vertical-padding">
@@ -33,10 +44,11 @@
       {{#bsTab.pane elementId=tabId}}
         {{#if (eq bsTab.activeId tabId)}}
           <div class="row loadable-row">
-              {{space-automation/atm-workflow-executions-table
-                space=space
-                phase=tabId
-              }}
+            {{space-automation/atm-workflow-executions-table
+              space=space
+              phase=tabId
+              onWorkflowSelect=(action "workflowSelected")
+            }}
           </div>
         {{/if}}
       {{/bsTab.pane}}

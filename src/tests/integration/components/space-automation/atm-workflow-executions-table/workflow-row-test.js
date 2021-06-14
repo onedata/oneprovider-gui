@@ -5,6 +5,8 @@ import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
 import moment from 'moment';
 import OneTooltipHelper from '../../../../helpers/one-tooltip';
+import sinon from 'sinon';
+import { click } from 'ember-native-dom-helpers';
 
 const columns = [{
   name: 'name',
@@ -55,11 +57,14 @@ describe('Integration | Component | space automation/atm workflow executions tab
   });
 
   beforeEach(function () {
-    this.set('atmWorkflowExecutionSummary', {
-      name: 'workflow1',
-      scheduleTime: scheduleTime.unix(),
-      startTime: startTime.unix(),
-      finishTime: finishTime.unix(),
+    this.setProperties({
+      atmWorkflowExecutionSummary: {
+        name: 'workflow1',
+        scheduleTime: scheduleTime.unix(),
+        startTime: startTime.unix(),
+        finishTime: finishTime.unix(),
+      },
+      selectSpy: sinon.spy(),
     });
   });
 
@@ -120,6 +125,20 @@ describe('Integration | Component | space automation/atm workflow executions tab
         .to.equal(tooltip);
     });
   });
+
+  it('calls "onSelect" when clicked', async function () {
+    const {
+      selectSpy,
+      atmWorkflowExecutionSummary,
+    } = this.getProperties('selectSpy', 'atmWorkflowExecutionSummary');
+    await render(this);
+
+    expect(selectSpy).to.be.not.called;
+    await click('.workflow-row');
+
+    expect(selectSpy).to.be.calledOnce
+      .and.to.be.calledWith(atmWorkflowExecutionSummary);
+  });
 });
 
 async function render(testCase) {
@@ -127,6 +146,7 @@ async function render(testCase) {
   {{space-automation/atm-workflow-executions-table/workflow-row
     atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
     columns=columnNames
+    onSelect=selectSpy
   }}`);
   await wait();
 }

@@ -35,6 +35,7 @@
           {{space-automation/atm-workflow-executions-table/workflow-row
             atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
             columns=columns
+            onSelect=onWorkflowSelect
           }}
         {{/each}}
         {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingNext)}}

@@ -3,6 +3,24 @@
     float: right;
   }
 
+  .tab-name {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .tab-close {
+    display: inline-block;
+    font-size: 24px;
+    line-height: 0;
+    height: 0;
+    vertical-align: top;
+    margin-left: 0.3em;
+
+    &:hover {
+      color: $color-one-danger;
+    }
+  }
+
   @import './space-automation/atm-workflow-executions-table';
   @import './space-automation/atm-workflow-schemas-list';
   @import './space-automation/input-stores-form';

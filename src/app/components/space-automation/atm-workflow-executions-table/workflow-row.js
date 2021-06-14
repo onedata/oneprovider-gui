@@ -26,7 +26,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.AtmWorkflowExecution}
+   * @type {Models.AtmWorkflowExecutionSummary}
    */
   atmWorkflowExecutionSummary: undefined,
 
@@ -35,6 +35,14 @@ export default Component.extend(I18n, {
    * @type {Array<String>}
    */
   columns: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models.AtmWorkflowExecutionSummary}
+   * @returns {any}
+   */
+  onSelect: undefined,
 
   /**
    * @type {String}
@@ -71,4 +79,17 @@ export default Component.extend(I18n, {
       }
     }
   ),
+
+  click() {
+    this._super(...arguments);
+    this.notifyAboutSelection();
+  },
+
+  notifyAboutSelection() {
+    const {
+      atmWorkflowExecutionSummary,
+      onSelect,
+    } = this.getProperties('atmWorkflowExecutionSummary', 'onSelect');
+    onSelect && onSelect(atmWorkflowExecutionSummary);
+  },
 });
