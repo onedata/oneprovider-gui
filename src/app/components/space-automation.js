@@ -29,7 +29,7 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
-   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`, `'preview`
+   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`, `'preview'`
    * @type {String}
    */
   activeTabId: 'waiting',
