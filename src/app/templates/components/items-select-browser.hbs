@@ -18,7 +18,7 @@
         isSpaceOwned=space.currentUserIsOwner
         spaceId=space.entityId
         contentScroll=contentScroll
-        selectedFiles=selectedItems
+        selectedFiles=browserSelectedItems
         spacePrivileges=spacePrivileges
         customFetchDirChildren=(action "fetchChildren")
         changeSelectedFiles=(action "changeSelectedItems")
@@ -31,7 +31,7 @@
 {{#modal.footer class="items-select-browser-part"}}
   {{items-select-browser/footer
     validationError=validationError
-    selectedItems=selectedItems
+    selectedItems=selectorSelectedItems
     submitDisabled=submitDisabled
     onCancel=(action "cancel")
     onSubmit=(action "submit")

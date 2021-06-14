@@ -1,4 +1,4 @@
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -6,6 +6,8 @@ import { inject as service } from '@ember/service';
 import { promise, or, raw } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import _ from 'lodash';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   i18n: service(),
@@ -66,15 +68,28 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   dirId: undefined,
 
-  selectedItems: undefined,
+  browserSelectedItems: undefined,
 
-  //#endregion
+  selectorSelectedItems: computed(
+    'browserSelectedItems.[]',
+    'dir',
+    function selectorSelectedItems() {
+      const {
+        browserSelectedItems,
+        dir,
+      } = this.getProperties('browserSelectedItems', 'dir');
+      return _.without(browserSelectedItems, dir);
+    }
+  ),
+
+  //#region
 
   //#region component API
 
   onSubmitSingleItem: or(
     computed('itemsSelectBrowser.submitSingleItem', function onSubmitSingleItem() {
-      return this.get('itemsSelectBrowser.submitSingleItem').bind(this);
+      const itemsSelectBrowser = this.get('itemsSelectBrowser');
+      return get(itemsSelectBrowser, 'submitSingleItem').bind(itemsSelectBrowser);
     }),
     raw(notImplementedThrow)
   ),
@@ -101,22 +116,24 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   validationError: computed(
     'constraintSpec',
-    'selectedItems.[]',
+    'selectorSelectedItems.[]',
     function validationError() {
       return this.getValidationError();
     }
   ),
 
+  dir: computedLastProxyContent('dirProxy'),
+
   init() {
     this._super(...arguments);
-    if (!this.get('selectedItems')) {
-      this.set('selectedItems', []);
+    if (!this.get('browserSelectedItems')) {
+      this.set('browserSelectedItems', []);
     }
   },
 
   getValidationError() {
     const maxItems = this.get('maxItems');
-    if (maxItems && this.get('selectedItems.length') > maxItems) {
+    if (maxItems && this.get('selectorSelectedItems.length') > maxItems) {
       // FIXME: i18n
       return `Only up to ${maxItems} items can be selected.`;
     }
@@ -127,10 +144,10 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   },
 
   setSelectedItems(selectedItems) {
-    this.set('selectedItems', selectedItems);
+    this.set('browserSelectedItems', selectedItems);
   },
 
   resetState() {
-    this.set('selectedItems', []);
+    this.set('browserSelectedItems', []);
   },
 });

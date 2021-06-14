@@ -13,7 +13,7 @@ export default Component.extend({
 
   init() {
     this._super(...arguments);
-    this.openModal('dataset');
+    this.openModal('filesystem');
   },
 
   openModal(type) {
@@ -24,7 +24,7 @@ export default Component.extend({
     let selectorModel;
     switch (type) {
       case 'filesystem':
-        constraintSpec.allowedFileTypes = [];
+        constraintSpec.allowedFileTypes = ['dir'];
         selectorModel = FilesystemModel.create({
           ownerSource: this,
           constraintSpec,

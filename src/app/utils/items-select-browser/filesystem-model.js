@@ -1,7 +1,7 @@
 import BaseModel from './base-model';
 import { computed, get } from '@ember/object';
 import SelectorFilesystemBrowserModel from 'oneprovider-gui/utils/selector-filesystem-browser-model';
-import { promise, isEmpty, conditional, raw } from 'ember-awesome-macros';
+import { promise, isEmpty, conditional, raw, array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -19,10 +19,15 @@ export default BaseModel.extend(I18n, {
   /**
    * @override
    */
-  browserModel: computed(function browserModel() {
+  browserModel: computed('allowedFileTypes', function browserModel() {
+    const {
+      onSubmitSingleItem,
+      dirIsAllowed,
+    } = this.getProperties('onSubmitSingleItem', 'dirIsAllowed');
     return SelectorFilesystemBrowserModel.create({
       ownerSource: this,
-      onSubmitSingleItem: this.get('onSubmitSingleItem'),
+      onSubmitSingleItem,
+      chooseCurrentDirEnabled: dirIsAllowed,
     });
   }),
 
@@ -49,6 +54,34 @@ export default BaseModel.extend(I18n, {
     return fileManager
       .fetchDirChildren(dirId, 'private', startIndex, size, offset);
   },
+
+  dirIsAllowed: array.includes('allowedFileTypes', raw('dir')),
+
+  itemTypeText: computed(
+    'allowedFileTypes',
+    'maxItems',
+    function itemTypeText() {
+      const {
+        i18n,
+        allowedFileTypes,
+        maxItems,
+      } = this.getProperties(
+        'i18n',
+        'allowedFileTypes',
+        'maxItems',
+      );
+      const countKey = (maxItems === 1) ? 'single' : 'multi';
+      if (get(allowedFileTypes, 'length') === 1) {
+        return this.t(`fileType.${countKey}.${allowedFileTypes[0]}`);
+      } else {
+        return joinStrings(
+          i18n,
+          allowedFileTypes.map(type => this.t(`fileType.${countKey}.${type}`)),
+          'or'
+        );
+      }
+    }
+  ),
 
   allAllowedTypes: raw(['file', 'dir', 'symlink']),
 
@@ -81,12 +114,16 @@ export default BaseModel.extend(I18n, {
     const {
       allowedFileTypes,
       allTypesAreAllowed,
-      selectedItems,
-    } = this.getProperties('allowedFileTypes', 'allTypesAreAllowed', 'selectedItems');
+      selectorSelectedItems,
+    } = this.getProperties(
+      'allowedFileTypes',
+      'allTypesAreAllowed',
+      'selectorSelectedItems'
+    );
     if (allTypesAreAllowed) {
       return;
     }
-    const selectedItemsTypes = selectedItems.mapBy('type');
+    const selectedItemsTypes = selectorSelectedItems.mapBy('type');
     for (const type of selectedItemsTypes) {
       if (!allowedFileTypes.includes(type)) {
         // FIXME: i18n
@@ -94,30 +131,4 @@ export default BaseModel.extend(I18n, {
       }
     }
   },
-
-  itemTypeText: computed(
-    'allowedFileTypes',
-    'maxItems',
-    function itemTypeText() {
-      const {
-        i18n,
-        allowedFileTypes,
-        maxItems,
-      } = this.getProperties(
-        'i18n',
-        'allowedFileTypes',
-        'maxItems',
-      );
-      const countKey = (maxItems === 1) ? 'single' : 'multi';
-      if (get(allowedFileTypes, 'length') === 1) {
-        return this.t(`fileType.${countKey}.${allowedFileTypes[0]}`);
-      } else {
-        return joinStrings(
-          i18n,
-          allowedFileTypes.map(type => this.t(`fileType.${countKey}.${type}`)),
-          'or'
-        );
-      }
-    }
-  ),
 });

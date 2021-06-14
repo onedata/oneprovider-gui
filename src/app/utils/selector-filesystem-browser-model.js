@@ -10,8 +10,18 @@
 
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import { computed } from '@ember/object';
+import {
+  actionContext,
+} from 'oneprovider-gui/components/file-browser';
+import { raw, conditional } from 'ember-awesome-macros';
 
 export default FilesystemBrowserModel.extend({
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.selectorFilesystemBrowserModel',
+
   /**
    * @virtual
    * @type {(Object) => any}
@@ -19,11 +29,23 @@ export default FilesystemBrowserModel.extend({
   onSubmitSingleItem: notImplementedIgnore,
 
   /**
+   * @virtual
+   */
+  chooseCurrentDirEnabled: true,
+
+  /**
    * @override
    */
-  buttonNames: Object.freeze([
-    'btnRefresh',
-  ]),
+  buttonNames: conditional(
+    'chooseCurrentDirEnabled',
+    raw([
+      'btnRefresh',
+      'btnChooseCurrentDir',
+    ]),
+    raw([
+      'btnRefresh',
+    ]),
+  ),
 
   /**
    * @override
@@ -41,4 +63,20 @@ export default FilesystemBrowserModel.extend({
   onOpenFile(item /*, options */ ) {
     this.get('onSubmitSingleItem')(item);
   },
+
+  btnChooseCurrentDir: computed(function btnChooseCurrentDir() {
+    return this.createFileAction({
+      id: 'chooseCurrentDir',
+      icon: 'checked',
+      action: ([currentDir]) => {
+        return this.get('onSubmitSingleItem')(currentDir);
+      },
+      showIn: [
+        actionContext.currentDir,
+        actionContext.currentDirPreview,
+        actionContext.spaceRootDir,
+        actionContext.spaceRootDirPreview,
+      ],
+    });
+  }),
 });

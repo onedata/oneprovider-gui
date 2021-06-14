@@ -2,7 +2,6 @@ import Component from '@ember/component';
 import { computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { or, not, lt } from 'ember-awesome-macros';
-import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -51,11 +50,15 @@ export default Component.extend(I18n, {
 
   dirProxy: reads('selectorModel.dirProxy'),
 
+  dir: reads('selectorModel.dir'),
+
   space: reads('selectorModel.space'),
 
   initialRequiredDataProxy: reads('selectorModel.initialRequiredDataProxy'),
 
-  selectedItems: reads('selectorModel.selectedItems'),
+  browserSelectedItems: reads('selectorModel.browserSelectedItems'),
+
+  selectorSelectedItems: reads('selectorModel.selectorSelectedItems'),
 
   browserModel: reads('selectorModel.browserModel'),
 
@@ -63,8 +66,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Object>}
    */
   spacePrivileges: reads('space.privileges'),
-
-  dir: computedLastProxyContent('dirProxy'),
 
   modalBodyId: computed(function modalBodyId() {
     return `${guidFor(this)}-body`;
@@ -78,7 +79,10 @@ export default Component.extend(I18n, {
     return _document.querySelector(`#${modalBodyId} .bs-modal-body-scroll`);
   }),
 
-  noItemSelected: or(not('selectedItems.length'), lt('selectedItems.length', 1)),
+  noItemSelected: or(
+    not('selectorSelectedItems.length'),
+    lt('selectorSelectedItems.length', 1)
+  ),
 
   submitDisabled: or(
     'noItemSelected',
@@ -107,25 +111,15 @@ export default Component.extend(I18n, {
     submit() {
       const {
         onSubmit,
-        selectedItems,
-      } = this.getProperties('onSubmit', 'selectedItems');
-      return onSubmit(selectedItems);
+        selectorSelectedItems,
+      } = this.getProperties('onSubmit', 'selectorSelectedItems');
+      return onSubmit(selectorSelectedItems);
     },
-    updateDirEntityId(id) {
-      this.set('selectorModel.dirId', id);
+    updateDirEntityId(dirId) {
+      this.get('selectorModel').setDirId(dirId);
     },
     changeSelectedItems(items) {
-      const {
-        dir,
-        selectorModel,
-      } = this.getProperties('dir', 'selectorModel');
-      let effItems = items;
-      if (items && dir &&
-        get(items, 'length') === 1 && get(items[0], 'entityId') === get(dir, 'entityId')
-      ) {
-        effItems = [];
-      }
-      selectorModel.setSelectedItems(effItems);
+      this.get('selectorModel').setSelectedItems(items);
     },
     fetchChildren(...args) {
       const selectorModel = this.get('selectorModel');
