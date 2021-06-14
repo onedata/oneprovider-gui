@@ -1,3 +1,12 @@
+/**
+ * Implementation of settings, logic and state for selectors browsing filesystem tree.
+ *
+ * @module utils/items-select-browser/filesystem-model
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import BaseModel from './base-model';
 import { computed, get } from '@ember/object';
 import SelectorFilesystemBrowserModel from 'oneprovider-gui/utils/selector-filesystem-browser-model';
@@ -46,15 +55,6 @@ export default BaseModel.extend(I18n, {
     }
   })),
 
-  /**
-   * @override
-   */
-  async fetchChildren(dirId, startIndex, size, offset) {
-    const fileManager = this.get('fileManager');
-    return fileManager
-      .fetchDirChildren(dirId, 'private', startIndex, size, offset);
-  },
-
   dirIsAllowed: array.includes('allowedFileTypes', raw('dir')),
 
   itemTypeText: computed(
@@ -102,6 +102,15 @@ export default BaseModel.extend(I18n, {
       return _.isEqual(allAllowedTypes, allowedFileTypes);
     }
   ),
+
+  /**
+   * @override
+   */
+  async fetchChildren(dirId, startIndex, size, offset) {
+    const fileManager = this.get('fileManager');
+    return fileManager
+      .fetchDirChildren(dirId, 'private', startIndex, size, offset);
+  },
 
   /**
    * @override

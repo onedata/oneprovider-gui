@@ -30,6 +30,10 @@ export default FbDirLoadError.extend(I18n, {
    */
   browserModel: undefined,
 
+  /**
+   * If set to true, do not show prompt for browsing archives of childrenless dataset.
+   * @type {ComputedProperty<Boolean>}
+   */
   archivesLinkDisabled: reads('browserModel.archivesLinkDisabled'),
 
   /**

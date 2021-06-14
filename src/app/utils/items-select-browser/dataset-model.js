@@ -1,3 +1,12 @@
+/**
+ * Implementation of settings, logic and state for selectors browsing datasets tree.
+ *
+ * @module utils/items-select-browser/dataset-model
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import BaseModel from './base-model';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -66,7 +75,7 @@ export default BaseModel.extend(I18n, {
             get(dataset, 'spaceId') === spaceId;
         } catch (error) {
           console.error(
-            'component:content-space-datasets#browsableDatasetProxy: error getting spaceId from dataset:',
+            'util:items-select-browser/dataset-model#dirProxy: error getting spaceId from dataset:',
             error
           );
           isValidDatasetEntityId = false;
@@ -108,6 +117,19 @@ export default BaseModel.extend(I18n, {
   spaceId: reads('space.entityId'),
 
   isInRoot: or(not('dirId'), equal('dirId', raw(spaceDatasetsRootId))),
+
+  /**
+   * @override
+   */
+  async resolveItemParent(item) {
+    if (get(item, 'entityId') === spaceDatasetsRootId) {
+      return null;
+    } else if (!get(item, 'hasParent')) {
+      return this.get('spaceDatasetsRoot');
+    } else {
+      return get(item, 'parent');
+    }
+  },
 
   /**
    * @override
@@ -172,19 +194,6 @@ export default BaseModel.extend(I18n, {
       throw new Error(
         'util:items-select-browser/dataset-model#fetchSpaceDatasets: illegal fetch arguments for virtual root dir'
       );
-    }
-  },
-
-  /**
-   * @override
-   */
-  async resolveItemParent(item) {
-    if (get(item, 'entityId') === spaceDatasetsRootId) {
-      return null;
-    } else if (!get(item, 'hasParent')) {
-      return this.get('spaceDatasetsRoot');
-    } else {
-      return get(item, 'parent');
     }
   },
 

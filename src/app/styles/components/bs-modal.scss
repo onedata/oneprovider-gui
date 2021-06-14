@@ -36,7 +36,7 @@
   }
 }
 
-// almost full-content overlay
+// a full-height modal that looks like content overlay (currently starting from right) 
 .modal.modal-content-overlay {
   &.in {
     .modal-dialog {

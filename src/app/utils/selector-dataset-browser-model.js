@@ -26,11 +26,14 @@ export default DatasetBrowserModel.extend({
   ]),
 
   /**
+   * Set to true to make status bar tags disabled (non-clickable).
    * @override
    */
   disableStatusBar: true,
 
   /**
+   * Set to true, to turn off archives view links (in dataset rows and
+   * no-children-dataset screens).
    * @override
    */
   archivesLinkDisabled: true,

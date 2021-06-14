@@ -29,6 +29,7 @@ export default FilesystemBrowserModel.extend({
   onSubmitSingleItem: notImplementedIgnore,
 
   /**
+   * Set to true to show `chooseCurrentDir` action button in current dir context menu.
    * @virtual
    */
   chooseCurrentDirEnabled: true,

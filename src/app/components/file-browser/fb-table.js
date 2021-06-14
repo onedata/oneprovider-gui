@@ -134,10 +134,18 @@ export default Component.extend(I18n, {
   previewMode: false,
 
   /**
+   * An element that serves as scrollable parent of items table.
+   * Scrolling this element can cause invocation of additional items loading.
    * @virtual
    * @type {HTMLElement}
    */
   contentScroll: undefined,
+
+  /**
+   * Set to true, if there are no actions suitable to use on single or multiple items row.
+   * @virtual optional
+   */
+  noItemsActions: false,
 
   /**
    * @virtual

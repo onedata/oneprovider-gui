@@ -1,3 +1,17 @@
+/**
+ * A container for browsers that serves for items selection.
+ *
+ * An instance of `selectorModel` should be provided for logic, settings and state of
+ * this component.
+ * 
+ * See `utils/items-select-browser/base-model` for model implementation.
+ *
+ * @module components/items-select-browser
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
