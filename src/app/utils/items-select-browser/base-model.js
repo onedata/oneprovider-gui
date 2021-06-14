@@ -51,6 +51,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   fetchChildren: notImplementedReject,
 
   /**
+   * @virtual
+   * @type {Function}
+   * Typically to implement by subclasses.
+   * Leave undefined to use default resolver.
+   */
+  resolveItemParent: undefined,
+
+  /**
    * Shown in selector modal header.
    * Typically to implement by subclasses.
    * @virtual

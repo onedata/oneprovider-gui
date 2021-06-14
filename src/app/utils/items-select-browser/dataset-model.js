@@ -175,6 +175,19 @@ export default BaseModel.extend(I18n, {
     }
   },
 
+  /**
+   * @override
+   */
+  async resolveItemParent(item) {
+    if (get(item, 'entityId') === spaceDatasetsRootId) {
+      return null;
+    } else if (!get(item, 'hasParent')) {
+      return this.get('spaceDatasetsRoot');
+    } else {
+      return get(item, 'parent');
+    }
+  },
+
   getEmptyFetchChildrenResponse() {
     return {
       childrenRecords: [],

@@ -6,6 +6,7 @@ import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -61,6 +62,11 @@ export default Component.extend(I18n, {
   selectorSelectedItems: reads('selectorModel.selectorSelectedItems'),
 
   browserModel: reads('selectorModel.browserModel'),
+
+  /**
+   * @type {ComputedPropoerty<undefined|Function>}
+   */
+  resolveItemParent: reads('selectorModel.resolveItemParent'),
 
   /**
    * @type {ComputedProperty<Object>}
@@ -124,6 +130,13 @@ export default Component.extend(I18n, {
     fetchChildren(...args) {
       const selectorModel = this.get('selectorModel');
       return get(selectorModel, 'fetchChildren').call(selectorModel, ...args);
+    },
+    resolveItemParent(item) {
+      const selectorModel = this.get('selectorModel');
+      const resolveItemParentFun = get(selectorModel, 'resolveItemParent');
+      return resolveItemParentFun ?
+        resolveItemParentFun.call(selectorModel, item) :
+        defaultResolveParent(item);
     },
   },
 });
