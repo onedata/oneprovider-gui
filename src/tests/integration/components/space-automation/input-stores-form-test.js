@@ -49,7 +49,7 @@ const dataSpecConfigs = {
         fileType: 'ANY',
       },
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'file',
@@ -62,7 +62,7 @@ const dataSpecConfigs = {
         fileType: 'REG',
       },
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'file',
@@ -76,7 +76,7 @@ const dataSpecConfigs = {
         fileType: 'DIR',
       },
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'file',
@@ -88,7 +88,7 @@ const dataSpecConfigs = {
       type: 'dataset',
       valueConstraints: {},
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"datasetId": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'dataset',
@@ -99,7 +99,7 @@ const dataSpecConfigs = {
       type: 'archive',
       valueConstraints: {},
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"archiveId": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
     fileSelectorOptions: {
       type: 'archive',
@@ -353,7 +353,7 @@ describe('Integration | Component | space automation/input stores form', functio
         if (editor === 'filesValue') {
           it('fills initial value with an element with known name', async function () {
             this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
-              id: getStoreFileId(dataSpec, 0),
+              [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
             }]);
             const isArchive = dataSpec.type === 'archive';
             const fileData = isArchive ? { creationTime: 1623318692 } : { name: 'someName' };
@@ -368,7 +368,7 @@ describe('Integration | Component | space automation/input stores form', functio
           it('fills initial value with an element, that cannot be loaded',
             async function () {
               this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
-                id: getStoreFileId(dataSpec, 0),
+                [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
               }]);
               mockFileRecord(this, dataSpec, 0, null);
 
@@ -410,6 +410,10 @@ async function render(testCase) {
     }}
   `);
   await wait();
+}
+
+function getFileIdFieldName(dataSpec) {
+  return dataSpec.type === 'file' ? 'file_id' : `${dataSpec.type}Id`;
 }
 
 function getFileId(idx) {

@@ -957,11 +957,13 @@ export default Service.extend({
             defaultInitialValue: [1, 2, 3],
           }, {
             id: 'store2',
-            name: 'single value string',
+            name: 'single value file',
             type: 'singleValue',
             dataSpec: {
-              type: 'string',
-              valueConstraints: {},
+              type: 'file',
+              valueConstraints: {
+                fileType: 'ANY',
+              },
             },
             requiresInitialValue: true,
           }],

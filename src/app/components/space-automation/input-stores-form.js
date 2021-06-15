@@ -17,8 +17,8 @@ import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
 import { resolve, all as allFulfilled } from 'rsvp';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
-// import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
-// import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
+import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
+import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
 
 const FileTag = EmberObject.extend(I18n, OwnerInjector, {
   i18n: service(),
@@ -309,7 +309,7 @@ export default Component.extend(I18n, {
     onEndTagCreationCallback,
     tagsLimit,
   }) {
-    // const space = this.get('space');
+    const space = this.get('space');
     if (this.get('filesSelectionProcess.isActive')) {
       this.endFilesSelection();
       onEndTagCreationCallback && onEndTagCreationCallback();
@@ -341,19 +341,19 @@ export default Component.extend(I18n, {
         if (allowedFileType) {
           constraintSpec.allowedFileTypes = [allowedFileType];
         }
-        // filesSelectorModel = FilesystemModel.create({
-        //   ownerSource: this,
-        //   constraintSpec,
-        //   space,
-        // });
+        filesSelectorModel = FilesystemModel.create({
+          ownerSource: this,
+          constraintSpec,
+          space,
+        });
         break;
       }
       case 'dataset':
-        // filesSelectorModel = DatasetModel.create({
-        //   ownerSource: this,
-        //   constraintSpec,
-        //   space,
-        // });
+        filesSelectorModel = DatasetModel.create({
+          ownerSource: this,
+          constraintSpec,
+          space,
+        });
         break;
       default:
         return;
@@ -449,8 +449,9 @@ async function atmWorkflowSchemaToFormData(atmWorkflowSchema, managerServices) {
     } else if (editor === 'filesValue') {
       const modelName = dataSpec && dataSpec.type;
       if (editorValue && ['file', 'dataset', 'archive'].includes(modelName)) {
+        const idFieldName = getIdFieldNameForDataSpec(dataSpec);
         editorValue = (await allFulfilled(
-          defaultInitialValue.mapBy('id').compact().map(id =>
+          defaultInitialValue.mapBy(idFieldName).compact().map(id =>
             getFileRecord(modelName, id, managerServices)
           )
         )).compact();
@@ -527,7 +528,7 @@ function validateStoreElement(element, dataSpec) {
     case 'file':
     case 'dataset':
     case 'archive': {
-      const idValue = element && element.id;
+      const idValue = element && element[getIdFieldNameForDataSpec(dataSpec)];
       return idValue && typeof idValue === 'string';
     }
     default:
@@ -560,8 +561,12 @@ function formDataToInputStoresValues(formData, stores) {
         return;
       }
     } else {
-      initialValue = (get(inputStore, editor) || [])
-        .map(item => ({ id: get(item, 'entityId') }));
+      const idFieldName = getIdFieldNameForDataSpec(dataSpec);
+      const transformId = dataSpec && dataSpec.type === 'file' ?
+        (id => guidToCdmiObjectId(id)) : (id => id);
+      initialValue = (get(inputStore, editor) || []).map(item => ({
+        [idFieldName]: transformId(get(item, 'entityId')),
+      }));
       if (type === 'singleValue') {
         initialValue = initialValue[0];
       }
@@ -590,5 +595,16 @@ async function getFileRecord(modelName, id, {
       return archiveManager.getArchive(id).catch(() => ({ entityId: id }));
     default:
       return resolve(null);
+  }
+}
+
+function getIdFieldNameForDataSpec(dataSpec) {
+  switch (dataSpec && dataSpec.type) {
+    case 'file':
+      return 'file_id';
+    case 'dataset':
+      return 'datasetId';
+    case 'archive':
+      return 'archiveId';
   }
 }
