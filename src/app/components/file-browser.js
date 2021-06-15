@@ -215,13 +215,19 @@ export default Component.extend(I18n, {
    * True if there is no action applicable for items (only current dir actions)
    * @tyep {ComputedProperty<Boolean>}
    */
-  noItemsActions: computed('allButtonsArray.[]', function noItemsActions() {
-    return !this.get('allButtonsArray')
-      .mapBy('showIn')
-      .some(showIn =>
-        showIn.some(actionContext => anySelectedContexts.includes(actionContext))
-      );
-  }),
+  noItemsActions: computed(
+    'browserModel', 'allButtonsArray.[]',
+    function noItemsActions() {
+      if (!this.get('browserModel')) {
+        return;
+      }
+      return !this.get('allButtonsArray')
+        .mapBy('showIn')
+        .some(showIn =>
+          showIn.some(actionContext => anySelectedContexts.includes(actionContext))
+        );
+    }
+  ),
 
   /**
    * One of values from `actionContext` enum object
