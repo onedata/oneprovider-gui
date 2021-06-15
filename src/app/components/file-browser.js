@@ -290,11 +290,18 @@ export default Component.extend(I18n, {
       const {
         insideBrowserSelectors,
         floatingItemsSelectors,
-      } = this.getProperties('insideBrowserSelectors', 'floatingItemsSelectors');
+        elementId,
+      } = this.getProperties(
+        'insideBrowserSelectors',
+        'floatingItemsSelectors',
+        'elementId'
+      );
       return [
-        ...insideBrowserSelectors,
-        ...floatingItemsSelectors,
-      ].map(selector => `${selector}, ${selector} *`).join(', ');
+          ...insideBrowserSelectors,
+          ...floatingItemsSelectors,
+        ]
+        .map(selector => `#${elementId} ${selector}, #${elementId} ${selector} *`)
+        .join(', ');
     }
   ),
 

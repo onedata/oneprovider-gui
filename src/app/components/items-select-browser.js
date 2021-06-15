@@ -15,7 +15,7 @@
 import Component from '@ember/component';
 import { computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { or, not, lt } from 'ember-awesome-macros';
+import { or, not, gt } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -57,7 +57,19 @@ export default Component.extend(I18n, {
    */
   parentModalDialogSelector: undefined,
 
+  /**
+   * Custom selector for items list scroll container.
+   * Should be overriden **only** if items-select-browser is not in one-modal.
+   * @virtual optional
+   */
+  contentScrollSelector: undefined,
+
   _document: document,
+
+  /**
+   * True if element has been redered (used because component is tagless)
+   */
+  isRendered: false,
 
   validationError: reads('selectorModel.validationError'),
 
@@ -91,18 +103,42 @@ export default Component.extend(I18n, {
     return `${guidFor(this)}-body`;
   }),
 
-  contentScroll: computed('modalBodyId', function contentScroll() {
-    const {
-      _document,
-      modalBodyId,
-    } = this.getProperties('_document', 'modalBodyId');
-    return _document.querySelector(`#${modalBodyId} .bs-modal-body-scroll`);
-  }),
-
-  noItemSelected: or(
-    not('selectorSelectedItems.length'),
-    lt('selectorSelectedItems.length', 1)
+  contentScroll: computed(
+    'isRendered',
+    'modalBodyId',
+    'contentScrollSelector',
+    function contentScroll() {
+      const {
+        _document,
+        isRendered,
+        modalBodyId,
+        contentScrollSelector,
+      } = this.getProperties(
+        '_document',
+        'isRendered',
+        'modalBodyId',
+        'contentScrollSelector'
+      );
+      if (!isRendered) {
+        console.error(
+          'component:items-select-browser#contentScroll: tried to compute contentScroll before render'
+        );
+      }
+      if (contentScrollSelector) {
+        return _document.querySelector(contentScrollSelector);
+      }
+      let scrollElement = _document.querySelector(`#${modalBodyId} .bs-modal-body-scroll`);
+      if (!scrollElement) {
+        console.error(
+          'component:items-select-browser#contentScroll: no .bs-modal-body-scroll body element found, infinite scroll may be broken'
+        );
+        scrollElement = _document.body;
+      }
+      return scrollElement;
+    }
   ),
+
+  noItemSelected: not(gt('selectorSelectedItems.length', 0)),
 
   submitDisabled: or(
     'noItemSelected',
@@ -122,6 +158,11 @@ export default Component.extend(I18n, {
       );
     }
     set(selectorModel, 'itemsSelectBrowser', this);
+  },
+
+  didInsertElement() {
+    this._super(...arguments);
+    this.set('isRendered', true);
   },
 
   actions: {

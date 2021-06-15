@@ -11,7 +11,7 @@ import BaseModel from './base-model';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import SelectorDatasetBrowserModel from 'oneprovider-gui/utils/selector-dataset-browser-model';
-import { promise, or, not, equal, raw, conditional } from 'ember-awesome-macros';
+import { promise, equal, raw, conditional } from 'ember-awesome-macros';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 import {
   spaceDatasetsRootId,
@@ -71,8 +71,7 @@ export default BaseModel.extend(I18n, {
         const dataset = await datasetManager.getDataset(dirId);
         let isValidDatasetEntityId;
         try {
-          isValidDatasetEntityId = dirId &&
-            get(dataset, 'spaceId') === spaceId;
+          isValidDatasetEntityId = get(dataset, 'spaceId') === spaceId;
         } catch (error) {
           console.error(
             'util:items-select-browser/dataset-model#dirProxy: error getting spaceId from dataset:',
@@ -99,6 +98,8 @@ export default BaseModel.extend(I18n, {
     computedT('dataset.multi')
   ),
 
+  // TODO: VFS-7643 properties like this could be placed in dataset-browser-model after
+  // refactor (moving custom browser methods to browser models)
   spaceDatasetsRoot: computed(
     'space',
     'attachmentState',
@@ -121,6 +122,8 @@ export default BaseModel.extend(I18n, {
     return !dirId || dirId === spaceDatasetsRootId;
   }),
 
+  // TODO: VFS-7643 methods like this could be placed in dataset-browser-model after
+  // refactor(moving custom browser methods to browser models)
   /**
    * @override
    */
@@ -134,6 +137,8 @@ export default BaseModel.extend(I18n, {
     }
   },
 
+  // TODO: VFS-7643 methods like this could be placed in dataset-browser-model after
+  // refactor(moving custom browser methods to browser models)
   /**
    * @override
    */
@@ -146,6 +151,8 @@ export default BaseModel.extend(I18n, {
     }
   },
 
+  // TODO: VFS-7643 methods like this could be placed in dataset-browser-model after
+  // refactor(moving custom browser methods to browser models)
   async fetchDatasetChildren(datasetId, startIndex, size, offset) {
     const {
       datasetManager,
@@ -164,6 +171,8 @@ export default BaseModel.extend(I18n, {
     }));
   },
 
+  // TODO: VFS-7643 methods like this could be placed in dataset-browser-model after
+  // refactor(moving custom browser methods to browser models)
   async fetchSpaceDatasets(rootId, startIndex, size, offset, array) {
     if (rootId !== spaceDatasetsRootId) {
       throw new Error(

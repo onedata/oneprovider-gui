@@ -24,6 +24,12 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.itemsSelectBrowser.footer',
 
   /**
+   * @virtual
+   * @type {Array<Object>} array of items (file-like)
+   */
+  selectedItems: undefined,
+
+  /**
    * @virtual optional
    */
   validationError: undefined,

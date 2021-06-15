@@ -6,7 +6,7 @@
  * 
  * Note, that this is model for selector component, that is parent of file-browser.
  * Browser component should be returned by the selector model. Typically browser models
- * for selectors are specially preparet (eg. see `selector-filesystem-browser-model`)
+ * for selectors are specially prepared (eg. see `selector-filesystem-browser-model`)
  * to have behaviour and actions different from regular browsers.
  *
  * @module utils/items-select-browser/base-model
@@ -20,7 +20,6 @@ import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { promise, or, raw } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
@@ -111,12 +110,19 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   //#region component API
 
-  onSubmitSingleItem: or(
-    computed('itemsSelectBrowser.submitSingleItem', function onSubmitSingleItem() {
+  onSubmitSingleItem: computed(
+    'itemsSelectBrowser.submitSingleItem',
+    function onSubmitSingleItem() {
       const itemsSelectBrowser = this.get('itemsSelectBrowser');
-      return get(itemsSelectBrowser, 'submitSingleItem').bind(itemsSelectBrowser);
-    }),
-    raw(notImplementedThrow)
+      if (!itemsSelectBrowser) {
+        return notImplementedThrow;
+      }
+      const submitSingleItem = get(itemsSelectBrowser, 'submitSingleItem');
+      if (!submitSingleItem || typeof submitSingleItem !== 'function') {
+        return notImplementedThrow;
+      }
+      return submitSingleItem.bind(itemsSelectBrowser);
+    }
   ),
 
   //#region
@@ -135,9 +141,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * The browser component will be rendered only if this promise object is fulfilled.
    * @type {ComputedProperty<PromiseObject>}
    */
-  initialRequiredDataProxy: promise.object(promise.all(
-    'initialDirProxy'
-  )),
+  initialRequiredDataProxy: reads('initialDirProxy'),
 
   validationError: computed(
     'constraintSpec',
