@@ -99,6 +99,8 @@ export default Component.extend(I18n, {
       this.setProperties({
         selectedAtmWorkflowSchema: atmWorkflowSchema,
         activeSlide: 'inputStores',
+        inputStoresData: undefined,
+        areInputStoresValid: true,
       });
     },
     inputStoresChanged({ data, isValid }) {
