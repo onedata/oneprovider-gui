@@ -1,0 +1,11 @@
+<h1 class="header-select">
+  <span class="header-select-text">
+    {{tt this "select" itemType=itemTypeText}}
+  </span>
+  {{#if showMaxItemsConstraint}}
+    <span class="header-select-max-items-constraint">
+      {{tt this "constraintMax" count=maxItems}}
+    </span>
+  {{/if}}
+</h1>
+{{yield}}

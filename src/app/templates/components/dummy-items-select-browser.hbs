@@ -1,0 +1,27 @@
+<button {{action (action "openModal" "filesystem")}}>
+  Open filesystem browser
+</button>
+<button {{action (action "openModal" "dataset")}}>
+  Open datasets browser
+</button>
+<div class="row">
+  {{#if dummySelected}}
+    <ul>
+      {{#each dummySelected as |item|}}
+        <li>
+          {{item.name}}, {{item.type}}
+        </li>  
+      {{/each}}
+    </ul>
+  {{/if}}
+</div>
+{{#items-select-browser-modal
+  open=open
+  space=space
+  selectorModel=selectorModel
+  onHide=(action (mut open) false)
+  onSubmit=(action (mut dummySelected))
+  onCancel=(action (mut dummySelected) null)
+}}
+  <h2 class="normal-case">for <strong>Borzo</strong> store</h2>
+{{/items-select-browser-modal}}

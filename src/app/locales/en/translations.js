@@ -27,6 +27,7 @@ import datasetBrowser from './components/dataset-browser';
 import archiveBrowser from './components/archive-browser';
 import archiveSettings from './components/archive-settings';
 import archivesPurge from './components/archives-purge';
+import itemsSelectBrowser from './components/items-select-browser';
 
 import uploadManager from './services/upload-manager';
 
@@ -35,6 +36,8 @@ import baseBrowserModel from './utils/base-browser-model';
 import filesystemBrowserModel from './utils/filesystem-browser-model';
 import datasetBrowserModel from './utils/dataset-browser-model';
 import archiveBrowserModel from './utils/archive-browser-model';
+import selectorFilesystemBrowserModel from './utils/selector-filesystem-browser-model';
+import itemsSelectBrowserUtils from './utils/items-select-browser';
 
 const translations = {
   components: {
@@ -64,6 +67,7 @@ const translations = {
     archiveBrowser,
     archiveSettings,
     archivesPurge,
+    itemsSelectBrowser,
   },
   services: {
     uploadManager,
@@ -74,6 +78,8 @@ const translations = {
     filesystemBrowserModel,
     datasetBrowserModel,
     archiveBrowserModel,
+    selectorFilesystemBrowserModel,
+    itemsSelectBrowser: itemsSelectBrowserUtils,
   },
 };
 

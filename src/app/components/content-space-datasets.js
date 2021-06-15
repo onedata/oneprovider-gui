@@ -25,9 +25,9 @@ import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesys
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
-const spaceDatasetsRootId = 'spaceDatasetsRoot';
+export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
-const SpaceDatasetsRootBaseClass = EmberObject.extend({
+export const SpaceDatasetsRootBaseClass = EmberObject.extend({
   // dataset-like properties
   id: spaceDatasetsRootId,
   entityId: spaceDatasetsRootId,
@@ -51,7 +51,7 @@ const SpaceDatasetsRootBaseClass = EmberObject.extend({
   },
 });
 
-const SpaceDatasetsRootClass = BrowsableDataset.extend({
+export const SpaceDatasetsRootClass = BrowsableDataset.extend({
   content: SpaceDatasetsRootBaseClass.create(),
 });
 

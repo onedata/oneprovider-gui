@@ -45,6 +45,7 @@
               nameConflict=nameConflict
               spacePrivileges=spacePrivileges
               fileRowModel=fileRowModel
+              browserModel=browserModel
               isSpaceOwned=isSpaceOwned
               invokeFileAction=invokeFileAction
             }}
@@ -56,6 +57,7 @@
             previewMode=previewMode
             nameConflict=nameConflict
             fileRowModel=fileRowModel
+            browserModel=browserModel
             invokeFileAction=invokeFileAction
           }}
         {{/if}}
@@ -72,12 +74,14 @@
       browserModel=browserModel
     }}
   {{/if}}
-  <td class="fb-table-col-actions-menu">
-    {{#unless hideMenuTrigger}}
-      {{one-menu-toggle
-        class="file-row-actions-trigger"
-        click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
-      }}
-    {{/unless}}
-  </td>
+  {{#unless noItemsActions}}
+    <td class="fb-table-col-actions-menu">
+      {{#unless hideMenuTrigger}}
+        {{one-menu-toggle
+          class="file-row-actions-trigger"
+          click=(if enableContextMenuToggle (disable-bubbling (action "openContextMenu")))
+        }}
+      {{/unless}}
+    </td>
+  {{/unless}}
 {{/if}}

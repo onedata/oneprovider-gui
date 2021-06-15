@@ -48,6 +48,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Utils.BaseBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
+   * @virtual
    * @type {Function}
    */
   invokeFileAction: notImplementedThrow,

@@ -1,0 +1,22 @@
+{{#one-modal
+  id=modalId
+  class="items-select-browser-modal modal-content-overlay"
+  open=open
+  backdropClose=false
+  keyboard=false
+  size="xl"
+  onHide=onHide
+  as |modal|
+}}
+  {{#if open}}
+    {{#items-select-browser
+      modal=modal
+      parentModalDialogSelector=parentModalDialogSelector
+      selectorModel=selectorModel
+      onCancel=(action "cancel")
+      onSubmit=(action "submit")
+    }}
+      {{yield}}
+    {{/items-select-browser}}
+  {{/if}}
+{{/one-modal}}

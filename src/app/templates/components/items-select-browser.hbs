@@ -1,0 +1,40 @@
+{{#modal.header class="items-select-browser-part"}}
+  {{#items-select-browser/header
+    selectorModel=selectorModel
+  }}
+    {{yield}}
+  {{/items-select-browser/header}}
+{{/modal.header}}
+
+{{#modal.body id=modalBodyId class="items-select-browser-part"}}
+  <div class="items-select-browser-body">
+    {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+      {{file-browser
+        dir=dir
+        previewMode=previewMode
+        browserModel=browserModel
+        parentModalDialogSelector=parentModalDialogSelector
+        showSelectionToolkit=false
+        isSpaceOwned=space.currentUserIsOwner
+        spaceId=space.entityId
+        contentScroll=contentScroll
+        selectedFiles=browserSelectedItems
+        spacePrivileges=spacePrivileges
+        resolveFileParentFun=(action "resolveItemParent")
+        customFetchDirChildren=(action "fetchChildren")
+        changeSelectedFiles=(action "changeSelectedItems")
+        updateDirEntityId=(action "updateDirEntityId")
+      }}
+    {{/promise-proxy-container}}
+  </div>
+{{/modal.body}}
+
+{{#modal.footer class="items-select-browser-part"}}
+  {{items-select-browser/footer
+    validationError=validationError
+    selectedItems=selectorSelectedItems
+    submitDisabled=submitDisabled
+    onCancel=(action "cancel")
+    onSubmit=(action "submit")
+  }}
+{{/modal.footer}}

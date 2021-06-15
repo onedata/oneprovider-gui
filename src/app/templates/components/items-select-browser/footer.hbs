@@ -1,0 +1,27 @@
+<div class="selection-summary">
+  <div class="selection-count-summary {{unless selectedCount "selection-count-none"}}">
+    {{itemsSelectedText}}
+  </div>
+  {{#if validationError}}
+    <div class="selection-validation-error text-danger">{{validationError}}</div>
+  {{/if}}
+</div>
+{{#bs-button
+  onClick=onCancel
+  type="default"
+  class="close-btn"
+}}
+  {{tt this "cancel"}}
+{{/bs-button}}
+<div class="btn-tooltip-container">
+  {{#bs-button
+    onClick=onSubmit
+    class="btn btn-primary submit-selection-btn"
+    disabled=submitDisabled
+  }}
+    {{tt this "confirmSelection"}}
+  {{/bs-button}}
+  {{#if validationError}}
+    {{one-tooltip title=validationError}}
+  {{/if}}
+</div>
