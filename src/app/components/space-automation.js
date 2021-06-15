@@ -10,11 +10,9 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { eq, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
-  classNames: ['space-automation'],
-  classNameBindings: ['narrowHeightToFullWindow:max-height-full-window'],
+  classNames: ['space-automation', 'fill-flex-using-column'],
 
   i18n: service(),
   currentUser: service(),
@@ -42,11 +40,6 @@ export default Component.extend(I18n, {
   tabIcons: Object.freeze({
     create: 'play',
   }),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  narrowHeightToFullWindow: eq('activeTabId', raw('preview')),
 
   /**
    * @type {Models.atmWorkflowExecutionSummary}

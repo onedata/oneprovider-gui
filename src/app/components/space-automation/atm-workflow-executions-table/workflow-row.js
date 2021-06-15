@@ -11,6 +11,10 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
+import moment from 'moment';
+
+const timeFormat = 'D MMM YYYY H:mm:ss';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -45,11 +49,6 @@ export default Component.extend(I18n, {
   onSelect: undefined,
 
   /**
-   * @type {String}
-   */
-  timeFormat: 'D MMM YYYY H:mm:ss',
-
-  /**
    * @type {ComputedProperty<String>}
    */
   statusIcon: computed('atmWorkflowExecutionSummary.status', function statusIcon() {
@@ -80,6 +79,30 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  scheduledAtReadable: computedPipe(
+    'atmWorkflowExecutionSummary.scheduleTime',
+    timeReadable
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  startedAtReadable: computedPipe(
+    'atmWorkflowExecutionSummary.startTime',
+    timeReadable
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  finishedAtReadable: computedPipe(
+    'atmWorkflowExecutionSummary.finishTime',
+    timeReadable
+  ),
+
   click() {
     this._super(...arguments);
     this.notifyAboutSelection();
@@ -93,3 +116,7 @@ export default Component.extend(I18n, {
     onSelect && onSelect(atmWorkflowExecutionSummary);
   },
 });
+
+function timeReadable(timestamp) {
+  return (timestamp && moment.unix(timestamp).format(timeFormat)) || '‐';
+}

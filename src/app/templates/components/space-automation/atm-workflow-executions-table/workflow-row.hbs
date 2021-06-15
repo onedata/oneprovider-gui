@@ -5,11 +5,11 @@
         {{atmWorkflowExecutionSummary.name}}
       {{/truncated-string}}
     {{else if (eq column "scheduledAt")}}
-      {{moment-format atmWorkflowExecutionSummary.scheduleTime timeFormat "X"}}
+      {{scheduledAtReadable}}
     {{else if (eq column "startedAt")}}
-      {{moment-format atmWorkflowExecutionSummary.startTime timeFormat "X"}}
+      {{startedAtReadable}}
     {{else if (eq column "finishedAt")}}
-      {{moment-format atmWorkflowExecutionSummary.finishTime timeFormat "X"}}
+      {{finishedAtReadable}}
     {{else if (eq column "status")}}
       {{#if statusIcon}}
         {{#one-icon

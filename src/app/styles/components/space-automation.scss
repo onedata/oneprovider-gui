@@ -1,13 +1,7 @@
 .space-automation {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-
-  &.max-height-full-window {
-    &,
-    .space-automation-tabs {
-      max-height: 100vh;
-    }
+  &,
+  .space-automation-tabs {
+    min-height: 0;
   }
 
   .tab-content,
