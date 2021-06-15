@@ -115,7 +115,7 @@ export default Component.extend(I18n, {
     } = this.getProperties('datasetsIds', 'datasetManager');
     const uniqDatasetIds = _.uniq(datasetsIds.compact());
     return allFulfilled(
-      uniqDatasetIds.map(datasetId => datasetManager.getDataset(datasetId))
+      uniqDatasetIds.map(dirId => datasetManager.getDataset(dirId))
     );
   })),
 
@@ -195,10 +195,10 @@ export default Component.extend(I18n, {
         onClose();
       } finally {
         // only a side effect
-        for (const datasetId of datasetsIds) {
-          fileManager.dirChildrenRefresh(datasetId).catch(error => {
+        for (const dirId of datasetsIds) {
+          fileManager.dirChildrenRefresh(dirId).catch(error => {
             console.error(
-              `service:archive-manager#purgeMultipleArchives: failed to refresh archives list of dataset ${datasetId}: ${error}`
+              `service:archive-manager#purgeMultipleArchives: failed to refresh archives list of dataset ${dirId}: ${error}`
             );
           });
         }

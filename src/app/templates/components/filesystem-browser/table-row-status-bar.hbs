@@ -1,15 +1,27 @@
 {{#if (and (not previewMode) (gt hardlinksCount 1))}}
   <div
-    class="file-status-tag file-status-hardlinks"
-    {{action (action invokeFileAction file "info" "hardlinks") bubbles=false}}
+    class="file-status-tag file-status-hardlinks {{if disabled "file-status-tag-disabled"}}"
+    {{action
+      (if disabled
+        (no-action)
+        (action invokeFileAction file "info" "hardlinks")
+      )
+      bubbles=disabled
+    }}
   >
     {{tt this "status.hardlinks" hardlinksCount=hardlinksCount}}
   </div>
 {{/if}}
 {{#if (and (not previewMode) (not isSymlink) isShared)}}
   <div
-    class="file-status-tag file-status-shared"
-    {{action (action invokeFileAction file "share") bubbles=false}}
+    class="file-status-tag file-status-shared {{if disabled "file-status-tag-disabled"}}"
+    {{action
+      (if disabled
+        (no-action)
+        (action invokeFileAction file "share")
+      )
+      bubbles=disabled
+    }}
   >
     {{tt this "status.shared"}}
   </div>
@@ -32,14 +44,14 @@
       class={{concat-classes
         "file-status-tag"
         "file-status-dataset"
-        (if datasetsViewForbidden "file-status-tag-disabled")
+        (if (or disabled datasetsViewForbidden) "file-status-tag-disabled")
       }}
       {{action
-        (if datasetsViewForbidden
+        (if (or disabled datasetsViewForbidden)
           (no-action)
           (action invokeFileAction file "datasets")
         )
-        bubbles=false
+        bubbles=disabled
       }}
     >
       {{#if (eq effDatasetMembership "direct")}}
@@ -76,8 +88,14 @@
 {{/if}}
 {{#if (and (not isSymlink) hasMetadata)}}
   <div
-    class="file-status-tag file-status-metadata"
-    {{action (action invokeFileAction file "metadata") bubbles=false}}
+    class="file-status-tag file-status-metadata {{if disabled "file-status-tag-disabled"}}"
+    {{action
+      (if disabled
+        (no-action)
+        (action invokeFileAction file "info" "metadata")
+      )
+      bubbles=disabled
+    }}
   >
     {{tt this "status.metadata"}}
   </div>
@@ -87,10 +105,14 @@
     class={{concat-classes
       "file-status-tag file-status-acl"
       (if previewMode "file-status-tag-warning")
+      (if disabled "file-status-tag-disabled")
     }}
     {{action
-      (action invokeFileAction file "permissions")
-      bubbles=false
+      (if disabled
+        (no-action)
+        (action invokeFileAction file "info" "permissions")
+      )
+      bubbles=disabled
     }}
   >
     {{tt this "status.acl"}}
@@ -105,14 +127,14 @@
       "file-status-tag"
       "file-status-qos"
       (if hasDirectQos "file-status-qos-direct")
-      (if qosViewForbidden "file-status-tag-disabled")
+      (if (or qosViewForbidden disabled) "file-status-tag-disabled")
     }}
     {{action
-      (if qosViewForbidden
+      (if disabled
         (no-action)
-        (action invokeFileAction file "qos")
+        (action invokeFileAction file "info" "qos")
       )
-      bubbles=false
+      bubbles=disabled
     }}
   >
     {{#if (eq effQosMembership "direct")}}

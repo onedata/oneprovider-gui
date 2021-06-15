@@ -1,10 +1,13 @@
 {{#if showProtectionTag}}
   <div class="file-status-tag-group dataset-protection-status-tag-group">
     <div
-      class="file-status-tag file-status-protection"
+      class="file-status-tag file-status-protection {{if disabled "file-status-tag-disabled"}}"
       {{action
-        (action invokeFileAction dataset "protection")
-        bubbles=false
+        (if disabled
+          (no-action)
+          (action invokeFileAction dataset "info" "protection")
+        )
+        bubbles=disabled
       }}
     >
       {{tt this "status.protection"}}

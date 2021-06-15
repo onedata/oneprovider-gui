@@ -10,7 +10,9 @@
       --}}
       <th class="fb-table-col-items">{{tt this "items"}}</th>
     {{/if}}
-    <th class="fb-table-col-actions-menu"></th>
+    {{#unless noItemsActions}}
+      <th class="fb-table-col-actions-menu"></th>
+    {{/unless}}
   </thead>
   <tbody class="fb-table-tbody">
     <tr class="first-row">
@@ -23,6 +25,7 @@
         file=file
         browserModel=browserModel
         previewMode=previewMode
+        noItemsActions=noItemsActions
         isSpaceOwned=isSpaceOwned
         spacePrivileges=spacePrivileges
         nameConflict=(contains file.index conflictNames)
@@ -78,7 +81,10 @@
 {{#if showDirContextMenu}}
   {{#one-webui-popover
     class="file-actions-popover"
-    popoverStyle="with-dropdown"
+    popoverStyle=(concat-classes
+      "with-dropdown"
+      (if isInModal "over-modals")
+    )
     padding=false
     popoverTrigger="manual"
     triggerSelector=(concat "#" elementId " .file-actions-trigger")

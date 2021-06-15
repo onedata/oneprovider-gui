@@ -26,6 +26,12 @@ export default FbTableRowStatusBar.extend({
    */
   i18nPrefix: 'components.filesystemBrowser.tableRowStatusBar',
 
+  /**
+   * If set to true, tags will not provide actions on click.
+   * @type {ComputedProperty<Boolean>}
+   */
+  disabled: reads('browserModel.disableStatusBar'),
+
   type: reads('file.type'),
 
   isSymlink: reads('fileRowModel.isSymlink'),

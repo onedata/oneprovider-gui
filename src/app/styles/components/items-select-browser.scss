@@ -1,0 +1,56 @@
+.items-select-browser-part {
+  .items-select-browser-header {
+    .header-select {
+      display: flex;
+      align-items: baseline;
+    }
+    .header-select-max-items-constraint {
+      text-transform: none;
+      color: $main-text-color-disabled;
+      font-size: 80%;
+      margin-left: 1em;
+    }
+  }
+
+  .items-select-browser-body {
+    height: calc(100% - #{$fb-table-margin-top});
+    .fb-table {
+      // there is no need for large bottom spacing in modal, because it should be compact
+      .table-bottom-spacing {
+        height: 2em;
+      }
+    }
+    .file-browser-head-container {
+      position: absolute;
+      padding-left: 12px;
+      padding-right: 32px;
+      padding-top: 0;
+      margin-top: -10px;
+    }
+    .fb-table {
+      .refresh-spinner {
+        position: absolute;
+      }
+    }
+    .empty-dir-image {
+      @media (max-height: 700px) {
+        display: none;
+      }
+    }
+  }
+
+  .items-select-browser-footer {
+    display: flex;
+    align-items: center;
+    .selection-summary {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: center;
+      text-align: left;
+      .selection-count-none {
+        color: $main-text-color-disabled;
+      }
+    }
+  }
+}
