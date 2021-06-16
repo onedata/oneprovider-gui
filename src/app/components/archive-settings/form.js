@@ -70,11 +70,11 @@ export default Component.extend(I18n, {
           }),
           FormFieldsGroup.create({
             name: 'config',
-            isEnabled: false,
             fields: [
               ToggleField.create({
                 name: 'incremental',
                 defaultValue: false,
+                isEnabled: false,
               }),
               RadioField.create({
                 name: 'layout',
@@ -87,6 +87,7 @@ export default Component.extend(I18n, {
               ToggleField.create({
                 name: 'includeDip',
                 defaultValue: false,
+                isEnabled: false,
               }),
             ],
           }),
