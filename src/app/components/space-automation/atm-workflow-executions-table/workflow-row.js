@@ -37,11 +37,6 @@ export default Component.extend(I18n, {
   columns: undefined,
 
   /**
-   * @type {String}
-   */
-  timeFormat: 'D MMM YYYY H:mm:ss',
-
-  /**
    * @type {ComputedProperty<String>}
    */
   statusIcon: computed('atmWorkflowExecutionSummary.status', function statusIcon() {

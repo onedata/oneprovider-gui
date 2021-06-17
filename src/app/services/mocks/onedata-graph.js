@@ -27,7 +27,6 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
-import { all as allFulfilled } from 'rsvp';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -289,7 +288,7 @@ const spaceHandlers = {
       isLast: end >= rootDatasetsData.length,
     };
   },
-  async atm_workflow_execution_summaries(operation, entityId, data) {
+  atm_workflow_execution_summaries(operation, entityId, data) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
@@ -305,10 +304,8 @@ const spaceHandlers = {
       .slice(startPosition, startPosition + limit);
 
     return {
-      list: await allFulfilled(
-        atmWorkflowExecutionSummaries.map(atmWorkflowExecutionSummary =>
-          atmWorkflowExecutionSummaryToAttrsData(atmWorkflowExecutionSummary)
-        )
+      list: atmWorkflowExecutionSummaries.map(atmWorkflowExecutionSummary =>
+        atmWorkflowExecutionSummaryToAttrsData(atmWorkflowExecutionSummary)
       ),
       isLast: atmWorkflowExecutionSummaries.length < limit,
     };
@@ -982,7 +979,7 @@ function archiveRecordToChildData(record) {
   });
 }
 
-async function atmWorkflowExecutionSummaryToAttrsData(record) {
+function atmWorkflowExecutionSummaryToAttrsData(record) {
   return Object.assign(getProperties(
     record,
     'id',

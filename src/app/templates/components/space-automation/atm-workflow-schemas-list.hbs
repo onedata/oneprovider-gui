@@ -4,6 +4,11 @@
       atmWorkflowSchema=atmWorkflowSchema
       onSelect=(action "atmWorkflowSchemaSelected" atmWorkflowSchema)
     }}
+  {{else}}
+    <div class="no-workflows-info">
+      {{one-icon icon="checkbox-filled-x"}}
+      {{tt this "noWorkflows"}}
+    </div>
   {{/each}}
 {{/promise-proxy-container}}
 {{yield}}

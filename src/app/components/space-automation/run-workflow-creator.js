@@ -136,8 +136,8 @@ export default Component.extend(I18n, {
         globalNotify.success(this.t('workflowStartSuccessNotify'));
         onWorkflowStarted && onWorkflowStarted(atmWorkflowExecution);
         safeExec(this, () => this.changeSlide('list'));
-      } catch (e) {
-        globalNotify.backendError(this.t('workflowStartFailureOperationName'));
+      } catch (error) {
+        globalNotify.backendError(this.t('workflowStartFailureOperationName'), error);
       } finally {
         safeExec(this, () => this.set('isStartingWorkflow', false));
       }

@@ -36,7 +36,7 @@ export default Service.extend({
   /**
    * @param {Models.Space} space
    * @param {String} phase one of: `'waiting'`, `'ongoing'`, `'ended'`
-   * @param {string} startFromIndex
+   * @param {String} startFromIndex
    * @param {number} limit
    * @param {number} offset
    * @returns {Promise<{array: Array<Models.AtmWorkflowExecutionSummary>, isLast: Boolean}>}
@@ -44,6 +44,10 @@ export default Service.extend({
   async getAtmWorkflowExecutionSummariesForSpace(
     space, phase, startFromIndex, limit, offset
   ) {
+    if (!limit || limit <= 0) {
+      return { array: [], isLast: false };
+    }
+
     const onedataGraph = this.get('onedataGraph');
     const {
       entityType,
@@ -54,9 +58,6 @@ export default Service.extend({
       entityId,
       aspect: 'atm_workflow_execution_summaries',
     });
-    if (!limit || limit <= 0) {
-      return { array: [], isLast: false };
-    }
     const { list, isLast } = await onedataGraph.request({
       gri: atmWorkflowExecutionSummariesGri,
       operation: 'get',

@@ -1,5 +1,5 @@
 /**
- * A view component space automation aspect
+ * A view component for space automation aspect
  *
  * @module components/space-automation
  * @author Michał Borzęcki

@@ -12,7 +12,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { isEmpty } from '@ember/utils';
 import { htmlSafe } from '@ember/string';
 
-const updateInterval = 5000;
+// TODO: VFS-7803 DRY in infinite scrollable lists
 
 export default Component.extend(I18n, {
   classNames: ['atm-workflow-executions-table'],
@@ -42,6 +42,11 @@ export default Component.extend(I18n, {
    * @type {Number}
    */
   rowHeight: 61,
+
+  /**
+   * @type {Number}
+   */
+  updateInterval: 5000,
 
   /**
    * @type {Utils.Looper}
@@ -118,14 +123,12 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
 
-    if (this.get('phase') !== 'ended') {
-      const updater = Looper.create({
-        immediate: false,
-        interval: updateInterval,
-      });
-      updater.on('tick', () => this.updateAtmWorkflowExecutionSummaries());
-      this.set('updater', updater);
-    }
+    const updater = Looper.create({
+      immediate: false,
+      interval: this.get('updateInterval'),
+    });
+    updater.on('tick', () => this.updateAtmWorkflowExecutionSummaries());
+    this.set('updater', updater);
   },
 
   didInsertElement() {
