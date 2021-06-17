@@ -20,6 +20,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import $ from 'jquery';
 
 export const actionContext = {
   none: 'none',
@@ -303,10 +304,11 @@ export default Component.extend(I18n, {
         'elementId'
       );
       return [
-          ...insideBrowserSelectors,
-          ...floatingItemsSelectors,
+          ...insideBrowserSelectors
+          .map(selector => `#${elementId} ${selector} *`),
+          ...floatingItemsSelectors
+          .map(selector => `${selector} *`),
         ]
-        .map(selector => `#${elementId} ${selector}, #${elementId} ${selector} *`)
         .join(', ');
     }
   ),
@@ -318,7 +320,8 @@ export default Component.extend(I18n, {
       // (issue of some elements, that are removed from DOM just after click, like
       // dynamic popover menu items or contextual buttons).
       if (!isPopoverOpened() && mouseEvent.target.matches('body *') &&
-        !mouseEvent.target.matches(get(component, 'clickInsideSelector'))) {
+        // jQuery is must be used for backward compatibility: https://caniuse.com/css-not-sel-list
+        !$(mouseEvent.target).is(get(component, 'clickInsideSelector'))) {
         component.clearFilesSelection();
       }
     };
