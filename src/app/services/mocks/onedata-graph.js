@@ -980,7 +980,7 @@ function archiveRecordToChildData(record) {
     'purgedCallback',
   ), {
     dataset: record.belongsTo('dataset').id(),
-    rootFile: record.belongsTo('rootFile').id(),
+    rootDir: record.belongsTo('rootDir').id(),
   });
 }
 

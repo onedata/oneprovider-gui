@@ -791,7 +791,7 @@ export default Service.extend({
           filesArchived: (i + 1) * 43,
           filesFailed: 0,
         },
-        rootFile: rootDir,
+        rootDir,
       });
       entityRecordsArchives.push(archive);
     }
