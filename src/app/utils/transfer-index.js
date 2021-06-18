@@ -1,6 +1,6 @@
 /**
  * Compute record index for transfer model, concerning externally injected state
- * 
+ *
  * @module utils/transfer-index
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -8,8 +8,8 @@
  */
 
 import { getProperties } from '@ember/object';
+import reversedTimestamp from 'oneprovider-gui/utils/reversed-timestamp';
 
-const backendEpochInfinity = 9999999999;
 const linkNameIdPartLength = 6;
 
 export default function transferIndex(record, state) {
@@ -23,5 +23,5 @@ export default function transferIndex(record, state) {
   // a mistake and should be "id2", but it's not our business)
   const firstIdPartMatch = entityId.match(/(.*)(ip2.*)/);
   const idForIndex = firstIdPartMatch && firstIdPartMatch[1] || entityId;
-  return `${backendEpochInfinity - timestamp}${(idForIndex).slice(0, linkNameIdPartLength)}`;
+  return `${reversedTimestamp(timestamp)}${(idForIndex).slice(0, linkNameIdPartLength)}`;
 }

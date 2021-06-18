@@ -9,13 +9,23 @@
 
 import Component from '@ember/component';
 import { promise } from 'ember-awesome-macros';
-import { computed, get, getProperties, observer } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { inject as service } from '@ember/service';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['atm-workflow-schemas-list'],
+
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceAutomation.atmWorkflowSchemasList',
 
   /**
    * @virtual
@@ -38,14 +48,20 @@ export default Component.extend({
   /**
    * @type {Array<Models.AtmWorkflowSchema>}
    */
-  atmWorkflowSchemas: undefined,
+  atmWorkflowSchemas: computedLastProxyContent('atmWorkflowSchemasProxy'),
 
   /**
    * @type {ComputedProperty<PromiseArray<Models.AtmInventory>>}
    */
   atmInventoriesProxy: promise.array(
     computed('user', async function atmInventoriesProxy() {
-      return await get(await get(this.get('user'), 'effAtmInventoryList'), 'list');
+      const effAtmInventoryList = await this.get('user.effAtmInventoryList');
+      try {
+        return await get(effAtmInventoryList, 'list');
+      } catch (error) {
+        // Passing inventories, which were fetched without error
+        return get(effAtmInventoryList, 'list.content');
+      }
     })
   ),
 
@@ -89,24 +105,6 @@ export default Component.extend({
   dataLoadingProxy: computed(function dataLoadingProxy() {
     return this.get('atmWorkflowSchemasProxy');
   }),
-
-  atmWorkflowSchemasProxyObserver: observer(
-    'atmWorkflowSchemasProxy.[]',
-    function atmWorkflowSchemasProxyObserver() {
-      const {
-        isFulfilled,
-        content,
-      } = getProperties(
-        this.get('atmWorkflowSchemasProxy'),
-        'isFulfilled',
-        'content'
-      );
-
-      if (isFulfilled) {
-        this.set('atmWorkflowSchemas', content);
-      }
-    }
-  ),
 
   actions: {
     atmWorkflowSchemaSelected(atmWorkflowSchema) {

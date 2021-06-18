@@ -6,4 +6,19 @@
   .workflow-schema-description {
     padding-top: 0.4em;
   }
+
+  .no-workflows-info {
+    justify-content: center;
+    min-height: 10em;
+    height: 15em;
+    max-height: 60vh;
+    display: flex;
+    align-items: center;
+    @include font-semibold();
+
+    .one-icon {
+      font-size: 300%;
+      color: $color-one-danger;
+    }
+  }
 }

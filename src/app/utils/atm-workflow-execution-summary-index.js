@@ -9,8 +9,7 @@
  */
 
 import { getProperties } from '@ember/object';
-
-const backendEpochInfinity = 9999999999;
+import reversedTimestamp from 'oneprovider-gui/utils/reversed-timestamp';
 
 export default function atmWorkflowExecutionIndex(record, phase) {
   const {
@@ -20,5 +19,5 @@ export default function atmWorkflowExecutionIndex(record, phase) {
   } = getProperties(record, 'entityId', 'scheduleTime', 'finishTime');
 
   const timestamp = phase === 'ended' ? finishTime : scheduleTime;
-  return `${backendEpochInfinity - timestamp}${entityId}`;
+  return `${reversedTimestamp(timestamp)}${entityId}`;
 }

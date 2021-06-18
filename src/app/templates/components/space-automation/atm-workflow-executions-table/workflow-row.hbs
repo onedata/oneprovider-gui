@@ -5,11 +5,20 @@
         {{atmWorkflowExecutionSummary.name}}
       {{/truncated-string}}
     {{else if (eq column "scheduledAt")}}
-      {{scheduledAtReadable}}
+      {{date-format atmWorkflowExecutionSummary.scheduleTime
+        format="report"
+        blank="—"
+      }}
     {{else if (eq column "startedAt")}}
-      {{startedAtReadable}}
+      {{date-format atmWorkflowExecutionSummary.startTime
+        format="report"
+        blank="—"
+      }}
     {{else if (eq column "finishedAt")}}
-      {{finishedAtReadable}}
+      {{date-format atmWorkflowExecutionSummary.finishTime
+        format="report"
+        blank="—"
+      }}
     {{else if (eq column "status")}}
       {{#if statusIcon}}
         {{#one-icon
