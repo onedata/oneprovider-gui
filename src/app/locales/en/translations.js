@@ -11,6 +11,7 @@ import fileDistributionModal from './components/file-distribution-modal';
 import websocketConnectionModal from './components/websocket-connection-modal';
 import spaceTransfers from './components/space-transfers';
 import spaceShares from './components/space-shares';
+import spaceAutomation from './components/space-automation';
 import dbViewModal from './components/db-view-modal';
 import qosModal from './components/qos-modal';
 import fileDatasets from './components/file-datasets';
@@ -47,6 +48,7 @@ const translations = {
     websocketConnectionModal,
     spaceTransfers,
     spaceShares,
+    spaceAutomation,
     dbViewModal,
     qosModal,
     fileDatasets,

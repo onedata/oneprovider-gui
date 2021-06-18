@@ -1,6 +1,6 @@
 /**
  * Backend operation for handles and handle services
- * 
+ *
  * @module services/handle-manager
  * @author Jakub Liput
  * @copyright (C) 2020-2021 ACK CYFRONET AGH
@@ -16,8 +16,8 @@ export default Service.extend({
 
   getHandleServices() {
     return this.get('currentUser').getCurrentUserRecord()
-      .then(user => user.getRelation('handleServiceList', { reload: true }))
-      .then(handleServiceList => get(handleServiceList, 'list'));
+      .then(user => user.getRelation('effHandleServiceList', { reload: true }))
+      .then(effHandleServiceList => get(effHandleServiceList, 'list'));
   },
 
   createHandle(share, handleServiceId, metadataString) {

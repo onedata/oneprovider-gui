@@ -1,0 +1,10 @@
+.space-automation {
+  .nav-item-create {
+    float: right;
+  }
+
+  @import './space-automation/atm-workflow-executions-table';
+  @import './space-automation/atm-workflow-schemas-list';
+  @import './space-automation/input-stores-form';
+  @import './space-automation/run-workflow-creator';
+}

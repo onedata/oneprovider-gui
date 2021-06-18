@@ -8,6 +8,11 @@ import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { entityType as atmInventoryEntityType } from 'oneprovider-gui/models/atm-inventory';
+import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
+import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
+import { entityType as atmWorkflowExecutionSummaryEntityType } from 'oneprovider-gui/models/atm-workflow-execution-summary';
+import { entityType as atmWorkflowSchemaSnapshotEntityType } from 'oneprovider-gui/models/atm-workflow-schema-snapshot';
 
 export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [groupEntityType, 'group'],
@@ -19,6 +24,11 @@ export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [qosEntityType, 'qos-requirement'],
   [datasetEntityType, 'dataset'],
   [archiveEntityType, 'archive'],
+  [atmInventoryEntityType, 'atm-inventory'],
+  [atmWorkflowSchemaEntityType, 'atm-workflow-schema'],
+  [atmWorkflowExecutionEntityType, 'atm-workflow-execution'],
+  [atmWorkflowExecutionSummaryEntityType, 'atm-workflow-execution-summary'],
+  [atmWorkflowSchemaSnapshotEntityType, 'atm-workflow-schema-snapshot'],
 ]));
 
 export default OnedataAdapter.extend({
