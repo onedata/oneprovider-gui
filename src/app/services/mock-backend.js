@@ -164,6 +164,11 @@ export default Service.extend({
           fullName: 'John Smith',
           username: 'smith',
         }).save().then(owner => {
+          const entityRecords = this.get('entityRecords');
+          if (!get(entityRecords, 'owner')) {
+            set(entityRecords, 'owner', []);
+          }
+          get(entityRecords, 'owner').push(owner);
           return get(spaceList, 'list').then(list => {
               return list.forEach(space => {
                 return get(space, 'rootDir').then(rootDir => {
@@ -756,7 +761,11 @@ export default Service.extend({
     const datasetRootFile = await get(dataset, 'rootFile');
     const name = get(datasetRootFile, 'name');
     for (let i = 0; i < archiveCount; ++i) {
-      const entityId = `${get(dataset, 'entityId')}-archive-${i}`;
+      const archiveEntityId = `${get(dataset, 'entityId')}-archive-${i}`;
+      const rootDir = await this.createArchiveRootDir(
+        archiveEntityId,
+        get(datasetRootFile, 'entityId'),
+      );
       const archive = await archiveManager.createArchive(dataset, {
         config: {
           incremental: true,
@@ -770,11 +779,11 @@ export default Service.extend({
         // properties not normally used when create
         id: gri({
           entityType: archiveEntityType,
-          entityId,
+          entityId: archiveEntityId,
           aspect: 'instance',
           scope: 'private',
         }),
-        index: name + entityId,
+        index: name + archiveEntityId,
         creationTime: Math.floor(Date.now() / 1000),
         state: 'preserved',
         stats: {
@@ -782,13 +791,51 @@ export default Service.extend({
           filesArchived: (i + 1) * 43,
           filesFailed: 0,
         },
-        // fake directory to browse - it is the same as regular dir
-        rootFile: datasetRootFile,
+        rootFile: rootDir,
       });
       entityRecordsArchives.push(archive);
     }
     dataset.set('archiveCount', archiveCount);
     await dataset.save();
+  },
+
+  async createArchiveRootDir(archiveId, fileId) {
+    const store = this.get('store');
+    const owner = this.get('entityRecords.owner.0');
+    const timestamp = Math.floor(Date.now() / 1000);
+    const provider = this.get('entityRecords.provider.firstObject');
+    const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
+    const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
+    const entityId = generateDirEntityId(
+      0,
+      'archive',
+      `-archive-${archiveId}-file-${fileId}`
+    );
+    const id = generateFileGri(entityId);
+    const name =
+      `archive_${archiveId}`;
+    // NOTE: this is not the same structure as in backend, because in backend there is
+    // also: space_archives_root and dataset_dir
+    // For simplicity we don't implement full structure, so be sure that archives code
+    // works on backend.
+    const archiveDir = await store.createRecord('file', {
+      id,
+      name,
+      index: name,
+      type: 'dir',
+      mtime: timestamp,
+      posixPermissions: '777',
+      owner,
+      fileQosSummary,
+      emptyDatasetSummary,
+      provider,
+    }).save();
+    const entityRecords = this.get('entityRecords');
+    if (!get(entityRecords, 'archiveDir')) {
+      set(entityRecords, 'archiveDir', []);
+    }
+    get(entityRecords, 'archiveDir').push(archiveDir);
+    return archiveDir;
   },
 
   createProviderRecords(store, names) {

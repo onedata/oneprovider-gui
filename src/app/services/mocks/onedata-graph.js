@@ -831,7 +831,11 @@ export default OnedataGraphMock.extend({
       return childrenIdsCache[dirId];
     } else {
       let cache;
-      if (/.*#-dir-0000.*/.test(decodedDirEntityId)) {
+      if (/.*#archive-dir-.*/.test(decodedDirEntityId)) {
+        cache = [
+          decodedDirEntityId.match(/.*file-(.*)#.*/)[1],
+        ];
+      } else if (/.*#-dir-0000.*/.test(decodedDirEntityId)) {
         // root dir
         cache = [
           ..._.range(numberOfDirs).map(i =>
@@ -892,6 +896,7 @@ export default OnedataGraphMock.extend({
       ...get(mockEntityRecords, 'dir'),
       ...get(mockEntityRecords, 'chainDir'),
       ...get(mockEntityRecords, 'file'),
+      ...get(mockEntityRecords, 'archiveDir'),
     ];
 
     let cache = childrenDetailsCache[dirEntityId];
