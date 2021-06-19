@@ -34,14 +34,15 @@ const dataSpecConfigs = {
     correctValues: ['{}', '{"a": 123, "b": {}}'],
     incorrectValues: ['10', 'null', '[]', '"1"'],
   },
-  histogram: {
-    dataSpec: {
-      type: 'histogram',
-      valueConstraints: {},
-    },
-    correctValues: ['{"a": 123}'],
-    incorrectValues: ['10', 'null', '"1"'],
-  },
+  // TODO: VFS-7816 uncomment or remove future code
+  // histogram: {
+  //   dataSpec: {
+  //     type: 'histogram',
+  //     valueConstraints: {},
+  //   },
+  //   correctValues: ['{"a": 123}'],
+  //   incorrectValues: ['10', 'null', '"1"'],
+  // },
   anyFile: {
     dataSpec: {
       type: 'file',
@@ -51,9 +52,6 @@ const dataSpecConfigs = {
     },
     correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
-      type: 'file',
-    },
   },
   regularFile: {
     dataSpec: {
@@ -64,10 +62,6 @@ const dataSpecConfigs = {
     },
     correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
-      type: 'file',
-      allowedFileTypes: ['regular'],
-    },
   },
   directory: {
     dataSpec: {
@@ -78,10 +72,16 @@ const dataSpecConfigs = {
     },
     correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
+  },
+  symlink: {
+    dataSpec: {
       type: 'file',
-      allowedFileTypes: ['directory'],
+      valueConstraints: {
+        fileType: 'SYMLNK',
+      },
     },
+    correctValues: ['{"file_id": "123"}'],
+    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
   },
   dataset: {
     dataSpec: {
@@ -90,21 +90,16 @@ const dataSpecConfigs = {
     },
     correctValues: ['{"datasetId": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
-      type: 'dataset',
-    },
   },
-  archive: {
-    dataSpec: {
-      type: 'archive',
-      valueConstraints: {},
-    },
-    correctValues: ['{"archiveId": "123"}'],
-    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
-      type: 'archive',
-    },
-  },
+  // TODO: VFS-7816 uncomment or remove future code
+  // archive: {
+  //   dataSpec: {
+  //     type: 'archive',
+  //     valueConstraints: {},
+  //   },
+  //   correctValues: ['{"archiveId": "123"}'],
+  //   incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
+  // },
 };
 
 const dataSpecConfigsArray = [];
@@ -119,8 +114,10 @@ const dataSpecSpecificEditors = {
   anyFile: 'filesValue',
   regularFile: 'filesValue',
   directory: 'filesValue',
+  symlink: 'filesValue',
   dataset: 'filesValue',
-  archive: 'filesValue',
+  // TODO: VFS-7816 uncomment or remove future code
+  // archive: 'filesValue',
   default: 'rawValue',
 };
 
@@ -133,22 +130,24 @@ const storeTypes = {
     editors: dataSpecSpecificEditors,
     complexValuesGenerator: arrayLikeValuesGenerator,
   },
-  map: {
-    allowedDataSpecConfigs: dataSpecConfigsArray,
-    editors: {
-      default: 'rawValue',
-    },
-    complexValuesGenerator: simpleValues =>
-      simpleValues.map(simpleValue => `{"k0":${simpleValue}}`)
-      .concat(simpleValues.length > 1 ? [
-        `{${simpleValues.map((simpleValue, i) => `"k${i}":${simpleValue}`).join(',')}}`,
-      ] : []),
-  },
+  // TODO: VFS-7816 uncomment or remove future code
+  // map: {
+  //   allowedDataSpecConfigs: dataSpecConfigsArray,
+  //   editors: {
+  //     default: 'rawValue',
+  //   },
+  //   complexValuesGenerator: simpleValues =>
+  //     simpleValues.map(simpleValue => `{"k0":${simpleValue}}`)
+  //     .concat(simpleValues.length > 1 ? [
+  //       `{${simpleValues.map((simpleValue, i) => `"k${i}":${simpleValue}`).join(',')}}`,
+  //     ] : []),
+  // },
   treeForest: {
     allowedDataSpecConfigs: [
       dataSpecConfigs.anyFile,
       dataSpecConfigs.regularFile,
       dataSpecConfigs.directory,
+      dataSpecConfigs.symlink,
       dataSpecConfigs.dataset,
     ],
     editors: {
@@ -162,20 +161,21 @@ const storeTypes = {
     complexValuesGenerator: simpleValues => simpleValues,
     filesLimit: 1,
   },
-  histogram: {
-    allowedDataSpecConfigs: [
-      dataSpecConfigs.histogram,
-    ],
-    editors: {
-      default: 'rawValue',
-    },
-    complexValuesGenerator: arrayLikeValuesGenerator,
-  },
-  auditLog: {
-    allowedDataSpecConfigs: dataSpecConfigsArray,
-    editors: dataSpecSpecificEditors,
-    complexValuesGenerator: arrayLikeValuesGenerator,
-  },
+  // TODO: VFS-7816 uncomment or remove future code
+  // histogram: {
+  //   allowedDataSpecConfigs: [
+  //     dataSpecConfigs.histogram,
+  //   ],
+  //   editors: {
+  //     default: 'rawValue',
+  //   },
+  //   complexValuesGenerator: arrayLikeValuesGenerator,
+  // },
+  // auditLog: {
+  //   allowedDataSpecConfigs: dataSpecConfigsArray,
+  //   editors: dataSpecSpecificEditors,
+  //   complexValuesGenerator: arrayLikeValuesGenerator,
+  // },
 };
 
 const storeTypesArray = [];
@@ -213,9 +213,9 @@ describe('Integration | Component | space automation/input stores form', functio
           },
           requiresInitialValue: true,
         }, {
-          name: 'mapStringStore',
-          description: 'map string store',
-          type: 'map',
+          name: 'singleValueStringStore',
+          description: 'single value string store',
+          type: 'singleValue',
           dataSpec: {
             type: 'string',
             valueConstraints: {},

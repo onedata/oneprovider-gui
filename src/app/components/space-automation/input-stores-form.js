@@ -337,6 +337,9 @@ export default Component.extend(I18n, {
           case 'DIR':
             allowedFileType = 'dir';
             break;
+          case 'SYMLNK':
+            allowedFileType = 'symlink';
+            break;
         }
         if (allowedFileType) {
           constraintSpec.allowedFileTypes = [allowedFileType];
@@ -479,7 +482,8 @@ function getValueEditorForStoreType(type, dataSpec) {
   switch (type) {
     case 'singleValue':
     case 'list':
-    case 'auditLog':
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'auditLog':
       return ['file', 'dataset', 'archive'].includes(dataSpecType) ?
         'filesValue' : 'rawValue';
     case 'treeForest':
@@ -499,16 +503,18 @@ function validateStoreInitialValue(initialValue, type, dataSpec) {
     case 'singleValue':
       return validateStoreElement(initialValue, dataSpec);
     case 'list':
-    case 'histogram':
-    case 'auditLog':
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'histogram':
+      // case 'auditLog':
       return Array.isArray(initialValue) &&
         initialValue.every(element => validateStoreElement(element, dataSpec));
-    case 'map':
-      return typeof initialValue === 'object' &&
-        initialValue !== null &&
-        !Array.isArray(initialValue) &&
-        Object.values(initialValue)
-        .every(element => validateStoreElement(element, dataSpec));
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'map':
+      //   return typeof initialValue === 'object' &&
+      //     initialValue !== null &&
+      //     !Array.isArray(initialValue) &&
+      //     Object.values(initialValue)
+      //     .every(element => validateStoreElement(element, dataSpec));
     default:
       return true;
   }
