@@ -305,9 +305,9 @@ export default Component.extend(I18n, {
       );
       return [
           ...insideBrowserSelectors
-          .map(selector => `#${elementId} ${selector}, #${elementId} ${selector} *`),
+          .map(selector => `#${elementId} ${selector} *`),
           ...floatingItemsSelectors
-          .map(selector => `${selector}, ${selector} *`),
+          .map(selector => `${selector} *`),
         ]
         .join(', ');
     }
