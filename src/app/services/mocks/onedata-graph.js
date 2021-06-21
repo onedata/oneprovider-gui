@@ -520,9 +520,15 @@ const fileHandlers = {
     }
   },
   symlink_target(operation, entityId) {
+    let target;
     switch (operation) {
       case 'get':
-        return this.getSymlinkTargetFile(entityId);
+        target = this.getSymlinkTargetFile(entityId);
+        return target || {
+          success: false,
+          error: { id: 'posix', details: { errno: 'enoent' } },
+          data: {},
+        };
       default:
         return messageNotSupported;
     }
@@ -873,8 +879,12 @@ export default OnedataGraphMock.extend({
     if (!targetFileEntityId) {
       return null;
     }
-    const targetFile =
-      this.get('mockBackend.entityRecords.file').findBy('entityId', targetFileEntityId);
+    const entityRecords = this.get('mockBackend.entityRecords');
+    const potentialTargets = [
+      ...entityRecords.file,
+      ...entityRecords.dir,
+    ];
+    const targetFile = potentialTargets.findBy('entityId', targetFileEntityId);
     return targetFile ? recordToChildData(targetFile) : null;
   },
 

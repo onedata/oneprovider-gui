@@ -64,7 +64,7 @@ export const recordNames = {
 export const numberOfProviders = 3;
 export const numberOfSpaces = 1;
 export const numberOfFiles = 200;
-export const numberOfDirs = 2;
+export const numberOfDirs = 5;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 150;
 export const numberOfAtmWorkflowExecutions = 150;
@@ -291,6 +291,27 @@ export default Service.extend({
       index: 'hello',
     });
     return allFulfilled([file0.save(), file1.save()]);
+  },
+
+  /**
+   * Makes symbolic link on `symlinkDir` to point to `targetDir`.
+   * @param {Models.File} symlinkDir 
+   * @param {Models.File} targetDir must be in the same directory as `symlinkDir`
+   * @returns {Models.File}
+   */
+  async symlinkizeDirectory(symlinkDir, targetDir) {
+    setProperties(symlinkDir, {
+      type: 'symlink',
+      posixPermissions: '777',
+      size: 20,
+      distribution: null,
+      fileQosSummary: null,
+      fileDatasetSummary: null,
+      targetPath: `./${get(targetDir, 'name')}`,
+    });
+    const symlinkMap = this.get('symlinkMap');
+    symlinkMap[get(symlinkDir, 'entityId')] = get(targetDir, 'entityId');
+    return symlinkDir.save();
   },
 
   createAndAddQos(store) {
@@ -966,7 +987,7 @@ export default Service.extend({
           targetPath: isSymlink ? '../some/file' : undefined,
         }).save();
       })))
-      .then((records) => {
+      .then(async (records) => {
         this.set('entityRecords.file', records);
         const symlinks = records.filterBy('type', 'symlink');
         const symlinkMap = symlinks.reduce((map, symlink) => {
@@ -975,6 +996,12 @@ export default Service.extend({
           return map;
         }, {});
         this.set('symlinkMap', symlinkMap);
+        const dirs = this.get('entityRecords.dir');
+        if (dirs.length > 4) {
+          const symlinkDir = dirs[3];
+          const targetDir = dirs[4];
+          await this.symlinkizeDirectory(symlinkDir, targetDir);
+        }
         return this.makeFilesConflict().then(() => records);
       });
   },
