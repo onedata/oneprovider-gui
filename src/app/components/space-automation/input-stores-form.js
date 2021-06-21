@@ -18,7 +18,7 @@ import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid'
 import { resolve, all as allFulfilled } from 'rsvp';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
 import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
-import { normalizedFileTypes } from '.onedata-gui-websocket-client/transforms/file-type';
+import { normalizedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
 
 const FileTag = EmberObject.extend(I18n, OwnerInjector, {
   i18n: service(),
