@@ -25,7 +25,7 @@ export default Component.extend({
    * @type {ComputedProperty<PromiseObject<Models.AtmWorkflowExecution>>}
    */
   atmWorkflowExecutionProxy: promise.object(
-    computed('atmWorkflowExecutionSummary', async function atmWorkflowExecution() {
+    computed('atmWorkflowExecutionSummary', async function atmWorkflowExecutionProxy() {
       return await get(
         this.get('atmWorkflowExecutionSummary'),
         'atmWorkflowExecution'
@@ -36,14 +36,15 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<PromiseObject<Models.AtmWorkflowSchemaSnapshot>>}
    */
-  atmWorkflowSchemaSnapshotProxy: promise.object(
-    computed('atmWorkflowExecutionProxy', async function atmWorkflowSchemaSnapshot() {
+  atmWorkflowSchemaSnapshotProxy: promise.object(computed(
+    'atmWorkflowExecutionProxy',
+    async function atmWorkflowSchemaSnapshotProxy() {
       return await get(
         await this.get('atmWorkflowExecutionProxy'),
         'atmWorkflowSchemaSnapshot'
       );
-    })
-  ),
+    }
+  )),
 
   /**
    * @type {ComputedProperty<PromiseObject>}
@@ -81,17 +82,20 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<Utils.WorkflowVisualiser.StatsFetcher>}
    */
-  statsFetcher: computed('atmWorkflowExecutionProxy.isFulfilled', function statsFetcher() {
-    const {
-      isFulfilled,
-      content: atmWorkflowExecution,
-    } = getProperties(this.get('atmWorkflowExecutionProxy'), 'isFulfilled', 'content');
+  statsFetcher: computed(
+    'atmWorkflowExecutionProxy.isFulfilled',
+    function statsFetcher() {
+      const {
+        isFulfilled,
+        content: atmWorkflowExecution,
+      } = getProperties(this.get('atmWorkflowExecutionProxy'), 'isFulfilled', 'content');
 
-    if (isFulfilled) {
-      return StatsFetcher.create({
-        ownerSource: this,
-        atmWorkflowExecution,
-      });
+      if (isFulfilled) {
+        return StatsFetcher.create({
+          ownerSource: this,
+          atmWorkflowExecution,
+        });
+      }
     }
-  }),
+  ),
 });
