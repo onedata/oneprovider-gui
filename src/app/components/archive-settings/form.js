@@ -81,7 +81,7 @@ export default Component.extend(I18n, {
               }),
               ToggleField.create({
                 name: 'createNestedArchives',
-                defaultValue: true,
+                defaultValue: false,
               }),
               ToggleField.create({
                 name: 'incremental',
