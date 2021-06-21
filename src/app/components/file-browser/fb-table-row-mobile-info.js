@@ -46,6 +46,12 @@ export default Component.extend(I18n, {
   //#region browser state/API
 
   /**
+   * @virtual
+   * @type {Utils.BaseBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
    * @virtual optional
    * @type {Boolean}
    */

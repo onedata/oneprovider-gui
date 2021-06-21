@@ -35,3 +35,27 @@
     }
   }
 }
+
+// a full-height modal that looks like content overlay (currently starting from right) 
+.modal.modal-content-overlay {
+  &.in {
+    .modal-dialog {
+      transform: none;
+    }
+  }
+
+  .modal-dialog {
+    transform: translateX(100%);
+    transition: transition-ease(transform); 
+
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: initial;
+    max-height: none;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 0;
+  }
+}
+

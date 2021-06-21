@@ -54,6 +54,13 @@ export default BaseBrowserModel.extend(I18n, {
   spaceDatasetsViewState: Object.freeze({}),
 
   /**
+   * Set to true, to turn off archives view links( in dataset rows and *
+   * no-children -dataset screens).
+   * @virtual
+   */
+  archivesLinkDisabled: false,
+
+  /**
    * Function argument: data for getDataUrl Onezone function
    * @override
    * @type {Function}

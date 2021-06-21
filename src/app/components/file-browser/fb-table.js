@@ -134,6 +134,20 @@ export default Component.extend(I18n, {
   previewMode: false,
 
   /**
+   * An element that serves as scrollable parent of items table.
+   * Scrolling this element can cause invocation of additional items loading.
+   * @virtual
+   * @type {HTMLElement}
+   */
+  contentScroll: undefined,
+
+  /**
+   * Set to true, if there are no actions suitable to use on single or multiple items row.
+   * @virtual optional
+   */
+  noItemsActions: false,
+
+  /**
    * @virtual
    * @type {Function}
    */
@@ -221,8 +235,8 @@ export default Component.extend(I18n, {
 
   selectionCount: reads('selectedFiles.length'),
 
-  viewTester: computed(() => {
-    const $contentScroll = $('#content-scroll');
+  viewTester: computed('contentScroll', function viewTester() {
+    const $contentScroll = $(this.get('contentScroll'));
     return new ViewTester($contentScroll);
   }),
 
@@ -778,8 +792,9 @@ export default Component.extend(I18n, {
   },
 
   createListWatcher() {
+    const contentScroll = this.get('contentScroll');
     return new ListWatcher(
-      $('#content-scroll'),
+      $(contentScroll),
       '.data-row',
       (items, onTop) => safeExec(this, 'onTableScroll', items, onTop),
       '.table-start-row',

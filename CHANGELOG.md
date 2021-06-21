@@ -6,6 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7802 Changed inside-browser selectors to be compatible with legacy browsers
+* VFS-7743 Added embeddable files/datasets selector component
 * VFS-7738 Fixed issues with archives browser navigation
 * VFS-7649 Added purge archive action to archives browser
 * VFS-7705 Added additional file actions to archive file browser

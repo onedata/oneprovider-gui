@@ -14,12 +14,13 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { notEmpty, not } from 'ember-awesome-macros';
+import { notEmpty, not, raw, collect, and, bool } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import $ from 'jquery';
 
 export const actionContext = {
   none: 'none',
@@ -134,6 +135,19 @@ export default Component.extend(I18n, {
   spacePrivileges: Object.freeze({}),
 
   /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  showSelectionToolkit: true,
+
+  /**
+   * Selector of modal that is parent of the browser.
+   * @virtual optional
+   * @type {String}
+   */
+  parentModalDialogSelector: '',
+
+  /**
    * Initialized in init.
    * @type {EmberArray<String>}
    */
@@ -175,6 +189,10 @@ export default Component.extend(I18n, {
    */
   selectedFilesForJump: undefined,
 
+  isInModal: bool('parentModalDialogSelector'),
+
+  effShowSelectionToolkit: and('showSelectionToolkit', not('previewMode')),
+
   /**
    * @type {ComputedProperty<Array<String>>}
    */
@@ -193,6 +211,24 @@ export default Component.extend(I18n, {
   isRootDir: not('dir.hasParent'),
 
   showCurrentDirActions: notEmpty('currentDirMenuButtons'),
+
+  /**
+   * True if there is no action applicable for items (only current dir actions)
+   * @tyep {ComputedProperty<Boolean>}
+   */
+  noItemsActions: computed(
+    'browserModel', 'allButtonsArray.[]',
+    function noItemsActions() {
+      if (!this.get('browserModel')) {
+        return;
+      }
+      return !this.get('allButtonsArray')
+        .mapBy('showIn')
+        .some(showIn =>
+          showIn.some(actionContext => anySelectedContexts.includes(actionContext))
+        );
+    }
+  ),
 
   /**
    * One of values from `actionContext` enum object
@@ -234,6 +270,49 @@ export default Component.extend(I18n, {
     }
   ),
 
+  insideBrowserSelectors: Object.freeze([
+    '.fb-table-row',
+    '.fb-breadcrumbs',
+    '.fb-toolbar',
+    '.fb-selection-toolkit',
+  ]),
+
+  floatingItemsSelectors: collect(
+    raw('.webui-popover-content'),
+    raw('.ember-basic-dropdown-content'),
+    computed('parentModalDialogSelector', function floatingItemsSelectorsModal() {
+      const parentModalDialogSelector = this.get('parentModalDialogSelector');
+      let selector = '.modal-dialog';
+      if (parentModalDialogSelector) {
+        selector += `:not(${parentModalDialogSelector})`;
+      }
+      return selector;
+    }),
+  ),
+
+  clickInsideSelector: computed(
+    'insideBrowserSelectors',
+    'floatingItemsSelectors',
+    function clickInsideSelector() {
+      const {
+        insideBrowserSelectors,
+        floatingItemsSelectors,
+        elementId,
+      } = this.getProperties(
+        'insideBrowserSelectors',
+        'floatingItemsSelectors',
+        'elementId'
+      );
+      return [
+          ...insideBrowserSelectors
+          .map(selector => `#${elementId} ${selector} *`),
+          ...floatingItemsSelectors
+          .map(selector => `${selector} *`),
+        ]
+        .join(', ');
+    }
+  ),
+
   clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
     const component = this;
     return function clickOutsideDeselect(mouseEvent) {
@@ -241,9 +320,8 @@ export default Component.extend(I18n, {
       // (issue of some elements, that are removed from DOM just after click, like
       // dynamic popover menu items or contextual buttons).
       if (!isPopoverOpened() && mouseEvent.target.matches('body *') &&
-        !mouseEvent.target.matches(
-          '.fb-table-row *, .fb-breadcrumbs *, .fb-toolbar *, .fb-selection-toolkit *, .webui-popover-content *, .modal-dialog *, .ember-basic-dropdown-content *'
-        )) {
+        // jQuery is must be used for backward compatibility: https://caniuse.com/css-not-sel-list
+        !$(mouseEvent.target).is(get(component, 'clickInsideSelector'))) {
         component.clearFilesSelection();
       }
     };
