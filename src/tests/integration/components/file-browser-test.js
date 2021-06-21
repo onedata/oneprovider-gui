@@ -670,6 +670,12 @@ function testOpenDatasetsModal(openDescription, openFunction) {
     expect(openDatasets).to.have.not.been.called;
     await openFunction.call(this);
     expect(openDatasets).to.have.been.calledOnce;
+    expect(openDatasets).to.have.been.calledWith(
+      sinon.match((selected) => {
+        return selected && selected.length === 1 &&
+          selected[0] === this.get('item1');
+      })
+    );
 
     done();
   });

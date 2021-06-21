@@ -6,7 +6,7 @@
         (no-action)
         (action invokeFileAction file "info" "hardlinks")
       )
-      bubbles=disabled
+      bubbles=(bool disabled)
     }}
   >
     {{tt this "status.hardlinks" hardlinksCount=hardlinksCount}}
@@ -20,7 +20,7 @@
         (no-action)
         (action invokeFileAction file "share")
       )
-      bubbles=disabled
+      bubbles=(bool disabled)
     }}
   >
     {{tt this "status.shared"}}
@@ -51,7 +51,7 @@
           (no-action)
           (action invokeFileAction file "datasets")
         )
-        bubbles=disabled
+        bubbles=(bool disabled)
       }}
     >
       {{#if (eq effDatasetMembership "direct")}}
@@ -94,7 +94,7 @@
         (no-action)
         (action invokeFileAction file "info" "metadata")
       )
-      bubbles=disabled
+      bubbles=(bool disabled)
     }}
   >
     {{tt this "status.metadata"}}
@@ -112,7 +112,7 @@
         (no-action)
         (action invokeFileAction file "info" "permissions")
       )
-      bubbles=disabled
+      bubbles=(bool disabled)
     }}
   >
     {{tt this "status.acl"}}
@@ -134,7 +134,7 @@
         (no-action)
         (action invokeFileAction file "info" "qos")
       )
-      bubbles=disabled
+      bubbles=(bool disabled)
     }}
   >
     {{#if (eq effQosMembership "direct")}}
