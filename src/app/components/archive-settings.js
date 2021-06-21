@@ -112,6 +112,7 @@ export default Component.extend(I18n, {
       );
       const rawConfig = getProperties(
         config,
+        'createNestedArchives',
         'incremental',
         'layout',
         'includeDip',

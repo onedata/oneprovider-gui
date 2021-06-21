@@ -30,6 +30,7 @@ export default Model.extend(GraphSingleModelMixin, {
 
   /**
    * Object params:
+   * - `createNestedArchives: Boolean`
    * - `incremental: Boolean`
    * - `layout: String`, one of: `bagit`, `plain`
    * - `includeDip: Boolean` - if true dissemination information package (DIP) is created

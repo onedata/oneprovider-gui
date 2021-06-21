@@ -10,6 +10,9 @@ export default {
       label: '"Purged" callback URL',
     },
     config: {
+      createNestedArchives: {
+        label: 'Create nested archives',
+      },
       incremental: {
         label: 'Incremental',
       },

@@ -71,11 +71,6 @@ export default Component.extend(I18n, {
           FormFieldsGroup.create({
             name: 'config',
             fields: [
-              ToggleField.create({
-                name: 'incremental',
-                defaultValue: false,
-                isEnabled: false,
-              }),
               RadioField.create({
                 name: 'layout',
                 defaultValue: 'plain',
@@ -83,6 +78,15 @@ export default Component.extend(I18n, {
                   { value: 'plain' },
                   { value: 'bagit' },
                 ],
+              }),
+              ToggleField.create({
+                name: 'createNestedArchives',
+                defaultValue: true,
+              }),
+              ToggleField.create({
+                name: 'incremental',
+                defaultValue: false,
+                isEnabled: false,
               }),
               ToggleField.create({
                 name: 'includeDip',
