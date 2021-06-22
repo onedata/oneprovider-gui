@@ -16,9 +16,9 @@ import { inject as service } from '@ember/service';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
 import { resolve, all as allFulfilled } from 'rsvp';
-import { dateFormat } from 'onedata-gui-common/helpers/date-format';
-// import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
-// import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
+import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
+import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
+import { normalizedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
 
 const FileTag = EmberObject.extend(I18n, OwnerInjector, {
   i18n: service(),
@@ -29,7 +29,7 @@ const FileTag = EmberObject.extend(I18n, OwnerInjector, {
   i18nPrefix: 'components.spaceAutomation.inputStoresForm.fileTag',
 
   /**
-   * @type {Models.File|Models.Dataset|Models.Archive}
+   * @type {Models.File|Models.Dataset}
    */
   value: undefined,
 
@@ -37,9 +37,10 @@ const FileTag = EmberObject.extend(I18n, OwnerInjector, {
    * @type {ComputedProperty<String>}
    */
   label: computed('value.{name,creationTime}', function label() {
-    if (this.get('value.constructor.modelName') === 'archive') {
-      return dateFormat([this.get('value.creationTime')], { format: 'dateWithMinutes' });
-    }
+    // TODO: VFS-7816 uncomment or remove future code
+    // if (this.get('value.constructor.modelName') === 'archive') {
+    //   return dateFormat([this.get('value.creationTime')], { format: 'dateWithMinutes' });
+    // }
     const name = this.get('value.name');
     if (!name) {
       return String(this.t('unknownName'));
@@ -73,7 +74,8 @@ export default Component.extend(I18n, {
   i18n: service(),
   fileManager: service(),
   datasetManager: service(),
-  archiveManager: service(),
+  // TODO: VFS-7816 uncomment or remove future code
+  // archiveManager: service(),
 
   /**
    * @override
@@ -136,17 +138,20 @@ export default Component.extend(I18n, {
         atmWorkflowSchema,
         fileManager,
         datasetManager,
-        archiveManager,
+        // TODO: VFS-7816 uncomment or remove future code
+        // archiveManager,
       } = this.getProperties(
         'atmWorkflowSchema',
         'fileManager',
-        'datasetManager',
-        'archiveManager'
+        'datasetManager'
+        // TODO: VFS-7816 uncomment or remove future code
+        // 'archiveManager'
       );
       return await atmWorkflowSchemaToFormData(atmWorkflowSchema, {
         fileManager,
         datasetManager,
-        archiveManager,
+        // TODO: VFS-7816 uncomment or remove future code
+        // archiveManager,
       });
     })
   ),
@@ -309,7 +314,7 @@ export default Component.extend(I18n, {
     onEndTagCreationCallback,
     tagsLimit,
   }) {
-    // const space = this.get('space');
+    const space = this.get('space');
     if (this.get('filesSelectionProcess.isActive')) {
       this.endFilesSelection();
       onEndTagCreationCallback && onEndTagCreationCallback();
@@ -317,7 +322,9 @@ export default Component.extend(I18n, {
     }
 
     const type = storeDataSpec && storeDataSpec.type;
-    if (!['file', 'dataset', 'archive'].includes(type)) {
+    // TODO: VFS-7816 uncomment or remove future code
+    // if (!['file', 'dataset', 'archive'].includes(type)) {
+    if (!['file', 'dataset'].includes(type)) {
       return;
     }
 
@@ -329,31 +336,22 @@ export default Component.extend(I18n, {
     switch (type) {
       case 'file': {
         const fileType = get(storeDataSpec, 'valueConstraints.fileType');
-        let allowedFileType;
-        switch (fileType) {
-          case 'REG':
-            allowedFileType = 'file';
-            break;
-          case 'DIR':
-            allowedFileType = 'dir';
-            break;
+        if (fileType in normalizedFileTypes) {
+          constraintSpec.allowedFileTypes = [normalizedFileTypes[fileType]];
         }
-        if (allowedFileType) {
-          constraintSpec.allowedFileTypes = [allowedFileType];
-        }
-        // filesSelectorModel = FilesystemModel.create({
-        //   ownerSource: this,
-        //   constraintSpec,
-        //   space,
-        // });
+        filesSelectorModel = FilesystemModel.create({
+          ownerSource: this,
+          constraintSpec,
+          space,
+        });
         break;
       }
       case 'dataset':
-        // filesSelectorModel = DatasetModel.create({
-        //   ownerSource: this,
-        //   constraintSpec,
-        //   space,
-        // });
+        filesSelectorModel = DatasetModel.create({
+          ownerSource: this,
+          constraintSpec,
+          space,
+        });
         break;
       default:
         return;
@@ -448,9 +446,12 @@ async function atmWorkflowSchemaToFormData(atmWorkflowSchema, managerServices) {
         '' : JSON.stringify(editorValue, null, 2);
     } else if (editor === 'filesValue') {
       const modelName = dataSpec && dataSpec.type;
-      if (editorValue && ['file', 'dataset', 'archive'].includes(modelName)) {
+      // TODO: VFS-7816 uncomment or remove future code
+      // if (editorValue && ['file', 'dataset', 'archive'].includes(modelName)) {
+      if (editorValue && ['file', 'dataset'].includes(modelName)) {
+        const idFieldName = getIdFieldNameForDataSpec(dataSpec);
         editorValue = (await allFulfilled(
-          defaultInitialValue.mapBy('id').compact().map(id =>
+          defaultInitialValue.mapBy(idFieldName).compact().map(id =>
             getFileRecord(modelName, id, managerServices)
           )
         )).compact();
@@ -478,8 +479,11 @@ function getValueEditorForStoreType(type, dataSpec) {
   switch (type) {
     case 'singleValue':
     case 'list':
-    case 'auditLog':
-      return ['file', 'dataset', 'archive'].includes(dataSpecType) ?
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'auditLog':
+      // return ['file', 'dataset', 'archive'].includes(dataSpecType) ?
+      //   'filesValue' : 'rawValue';
+      return ['file', 'dataset'].includes(dataSpecType) ?
         'filesValue' : 'rawValue';
     case 'treeForest':
       return 'filesValue';
@@ -498,16 +502,18 @@ function validateStoreInitialValue(initialValue, type, dataSpec) {
     case 'singleValue':
       return validateStoreElement(initialValue, dataSpec);
     case 'list':
-    case 'histogram':
-    case 'auditLog':
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'histogram':
+      // case 'auditLog':
       return Array.isArray(initialValue) &&
         initialValue.every(element => validateStoreElement(element, dataSpec));
-    case 'map':
-      return typeof initialValue === 'object' &&
-        initialValue !== null &&
-        !Array.isArray(initialValue) &&
-        Object.values(initialValue)
-        .every(element => validateStoreElement(element, dataSpec));
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'map':
+      //   return typeof initialValue === 'object' &&
+      //     initialValue !== null &&
+      //     !Array.isArray(initialValue) &&
+      //     Object.values(initialValue)
+      //     .every(element => validateStoreElement(element, dataSpec));
     default:
       return true;
   }
@@ -524,10 +530,11 @@ function validateStoreElement(element, dataSpec) {
     case 'histogram':
       // Format of histograms is not known yet. For now both arrays and objects are valid.
       return typeof element === 'object' && element !== null;
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'archive':
     case 'file':
-    case 'dataset':
-    case 'archive': {
-      const idValue = element && element.id;
+    case 'dataset': {
+      const idValue = element && element[getIdFieldNameForDataSpec(dataSpec)];
       return idValue && typeof idValue === 'string';
     }
     default:
@@ -560,8 +567,12 @@ function formDataToInputStoresValues(formData, stores) {
         return;
       }
     } else {
-      initialValue = (get(inputStore, editor) || [])
-        .map(item => ({ id: get(item, 'entityId') }));
+      const idFieldName = getIdFieldNameForDataSpec(dataSpec);
+      const transformId = dataSpec && dataSpec.type === 'file' ?
+        (id => guidToCdmiObjectId(id)) : (id => id);
+      initialValue = (get(inputStore, editor) || []).map(item => ({
+        [idFieldName]: transformId(get(item, 'entityId')),
+      }));
       if (type === 'singleValue') {
         initialValue = initialValue[0];
       }
@@ -576,7 +587,8 @@ function formDataToInputStoresValues(formData, stores) {
 async function getFileRecord(modelName, id, {
   fileManager,
   datasetManager,
-  archiveManager,
+  // TODO: VFS-7816 uncomment or remove future code
+  // archiveManager,
 }) {
   switch (modelName) {
     case 'file': {
@@ -586,9 +598,22 @@ async function getFileRecord(modelName, id, {
     }
     case 'dataset':
       return datasetManager.getDataset(id).catch(() => ({ entityId: id }));
-    case 'archive':
-      return archiveManager.getArchive(id).catch(() => ({ entityId: id }));
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'archive':
+      //   return archiveManager.getArchive(id).catch(() => ({ entityId: id }));
     default:
       return resolve(null);
+  }
+}
+
+function getIdFieldNameForDataSpec(dataSpec) {
+  switch (dataSpec && dataSpec.type) {
+    case 'file':
+      return 'file_id';
+    case 'dataset':
+      return 'datasetId';
+      // TODO: VFS-7816 uncomment or remove future code
+      // case 'archive':
+      //   return 'archiveId';
   }
 }

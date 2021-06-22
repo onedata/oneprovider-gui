@@ -39,6 +39,13 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @type {Function}
+   * @param {Models.AtmWorkflowExecutionSummary}
+   * @returns {any}
+   */
+  onWorkflowSelect: undefined,
+
+  /**
    * @type {Number}
    */
   rowHeight: 61,

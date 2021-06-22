@@ -34,14 +34,15 @@ const dataSpecConfigs = {
     correctValues: ['{}', '{"a": 123, "b": {}}'],
     incorrectValues: ['10', 'null', '[]', '"1"'],
   },
-  histogram: {
-    dataSpec: {
-      type: 'histogram',
-      valueConstraints: {},
-    },
-    correctValues: ['{"a": 123}'],
-    incorrectValues: ['10', 'null', '"1"'],
-  },
+  // TODO: VFS-7816 uncomment or remove future code
+  // histogram: {
+  //   dataSpec: {
+  //     type: 'histogram',
+  //     valueConstraints: {},
+  //   },
+  //   correctValues: ['{"a": 123}'],
+  //   incorrectValues: ['10', 'null', '"1"'],
+  // },
   anyFile: {
     dataSpec: {
       type: 'file',
@@ -49,11 +50,8 @@ const dataSpecConfigs = {
         fileType: 'ANY',
       },
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
-      type: 'file',
-    },
   },
   regularFile: {
     dataSpec: {
@@ -62,12 +60,8 @@ const dataSpecConfigs = {
         fileType: 'REG',
       },
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
-      type: 'file',
-      allowedFileTypes: ['regular'],
-    },
   },
   directory: {
     dataSpec: {
@@ -76,35 +70,36 @@ const dataSpecConfigs = {
         fileType: 'DIR',
       },
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"file_id": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
+  },
+  symlink: {
+    dataSpec: {
       type: 'file',
-      allowedFileTypes: ['directory'],
+      valueConstraints: {
+        fileType: 'SYMLNK',
+      },
     },
+    correctValues: ['{"file_id": "123"}'],
+    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
   },
   dataset: {
     dataSpec: {
       type: 'dataset',
       valueConstraints: {},
     },
-    correctValues: ['{"id": "123"}'],
+    correctValues: ['{"datasetId": "123"}'],
     incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
-      type: 'dataset',
-    },
   },
-  archive: {
-    dataSpec: {
-      type: 'archive',
-      valueConstraints: {},
-    },
-    correctValues: ['{"id": "123"}'],
-    incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
-    fileSelectorOptions: {
-      type: 'archive',
-    },
-  },
+  // TODO: VFS-7816 uncomment or remove future code
+  // archive: {
+  //   dataSpec: {
+  //     type: 'archive',
+  //     valueConstraints: {},
+  //   },
+  //   correctValues: ['{"archiveId": "123"}'],
+  //   incorrectValues: ['10', 'null', '[]', '{}', '"1"'],
+  // },
 };
 
 const dataSpecConfigsArray = [];
@@ -119,8 +114,10 @@ const dataSpecSpecificEditors = {
   anyFile: 'filesValue',
   regularFile: 'filesValue',
   directory: 'filesValue',
+  symlink: 'filesValue',
   dataset: 'filesValue',
-  archive: 'filesValue',
+  // TODO: VFS-7816 uncomment or remove future code
+  // archive: 'filesValue',
   default: 'rawValue',
 };
 
@@ -133,22 +130,24 @@ const storeTypes = {
     editors: dataSpecSpecificEditors,
     complexValuesGenerator: arrayLikeValuesGenerator,
   },
-  map: {
-    allowedDataSpecConfigs: dataSpecConfigsArray,
-    editors: {
-      default: 'rawValue',
-    },
-    complexValuesGenerator: simpleValues =>
-      simpleValues.map(simpleValue => `{"k0":${simpleValue}}`)
-      .concat(simpleValues.length > 1 ? [
-        `{${simpleValues.map((simpleValue, i) => `"k${i}":${simpleValue}`).join(',')}}`,
-      ] : []),
-  },
+  // TODO: VFS-7816 uncomment or remove future code
+  // map: {
+  //   allowedDataSpecConfigs: dataSpecConfigsArray,
+  //   editors: {
+  //     default: 'rawValue',
+  //   },
+  //   complexValuesGenerator: simpleValues =>
+  //     simpleValues.map(simpleValue => `{"k0":${simpleValue}}`)
+  //     .concat(simpleValues.length > 1 ? [
+  //       `{${simpleValues.map((simpleValue, i) => `"k${i}":${simpleValue}`).join(',')}}`,
+  //     ] : []),
+  // },
   treeForest: {
     allowedDataSpecConfigs: [
       dataSpecConfigs.anyFile,
       dataSpecConfigs.regularFile,
       dataSpecConfigs.directory,
+      dataSpecConfigs.symlink,
       dataSpecConfigs.dataset,
     ],
     editors: {
@@ -162,20 +161,21 @@ const storeTypes = {
     complexValuesGenerator: simpleValues => simpleValues,
     filesLimit: 1,
   },
-  histogram: {
-    allowedDataSpecConfigs: [
-      dataSpecConfigs.histogram,
-    ],
-    editors: {
-      default: 'rawValue',
-    },
-    complexValuesGenerator: arrayLikeValuesGenerator,
-  },
-  auditLog: {
-    allowedDataSpecConfigs: dataSpecConfigsArray,
-    editors: dataSpecSpecificEditors,
-    complexValuesGenerator: arrayLikeValuesGenerator,
-  },
+  // TODO: VFS-7816 uncomment or remove future code
+  // histogram: {
+  //   allowedDataSpecConfigs: [
+  //     dataSpecConfigs.histogram,
+  //   ],
+  //   editors: {
+  //     default: 'rawValue',
+  //   },
+  //   complexValuesGenerator: arrayLikeValuesGenerator,
+  // },
+  // auditLog: {
+  //   allowedDataSpecConfigs: dataSpecConfigsArray,
+  //   editors: dataSpecSpecificEditors,
+  //   complexValuesGenerator: arrayLikeValuesGenerator,
+  // },
 };
 
 const storeTypesArray = [];
@@ -213,9 +213,9 @@ describe('Integration | Component | space automation/input stores form', functio
           },
           requiresInitialValue: true,
         }, {
-          name: 'mapStringStore',
-          description: 'map string store',
-          type: 'map',
+          name: 'singleValueStringStore',
+          description: 'single value string store',
+          type: 'singleValue',
           dataSpec: {
             type: 'string',
             valueConstraints: {},
@@ -353,7 +353,7 @@ describe('Integration | Component | space automation/input stores form', functio
         if (editor === 'filesValue') {
           it('fills initial value with an element with known name', async function () {
             this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
-              id: getStoreFileId(dataSpec, 0),
+              [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
             }]);
             const isArchive = dataSpec.type === 'archive';
             const fileData = isArchive ? { creationTime: 1623318692 } : { name: 'someName' };
@@ -368,7 +368,7 @@ describe('Integration | Component | space automation/input stores form', functio
           it('fills initial value with an element, that cannot be loaded',
             async function () {
               this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
-                id: getStoreFileId(dataSpec, 0),
+                [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
               }]);
               mockFileRecord(this, dataSpec, 0, null);
 
@@ -410,6 +410,10 @@ async function render(testCase) {
     }}
   `);
   await wait();
+}
+
+function getFileIdFieldName(dataSpec) {
+  return dataSpec.type === 'file' ? 'file_id' : `${dataSpec.type}Id`;
 }
 
 function getFileId(idx) {

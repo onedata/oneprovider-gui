@@ -1,6 +1,40 @@
 .space-automation {
+  &,
+  .space-automation-tabs,
+  .tab-content,
+  .tab-pane,
+  .workflow-visualiser {
+    min-height: 0;
+  }
+
+  .tab-content > .fill-flex-using-column.active {
+    display: flex;
+  }
+
+  .workflow-visualiser {
+    flex-grow: 1;
+  }
+
   .nav-item-create {
     float: right;
+  }
+
+  .tab-name {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .tab-close {
+    display: inline-block;
+    font-size: 24px;
+    line-height: 0;
+    height: 0;
+    vertical-align: top;
+    margin-left: 0.3em;
+
+    &:hover {
+      color: $color-one-danger;
+    }
   }
 
   @import './space-automation/atm-workflow-executions-table';

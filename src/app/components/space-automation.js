@@ -12,7 +12,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  classNames: ['space-automation'],
+  classNames: ['space-automation', 'fill-flex-using-column'],
 
   i18n: service(),
   currentUser: service(),
@@ -29,7 +29,7 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
-   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`
+   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`, `'preview'`
    * @type {String}
    */
   activeTabId: 'waiting',
@@ -41,12 +41,31 @@ export default Component.extend(I18n, {
     create: 'play',
   }),
 
+  /**
+   * @type {Models.atmWorkflowExecutionSummary}
+   */
+  atmWorkflowExecutionSummaryForPreview: undefined,
+
+  changeTab(tabId) {
+    this.set('activeTabId', tabId);
+  },
+
   actions: {
     changeTab(tabId) {
-      this.set('activeTabId', tabId);
+      this.changeTab(tabId);
     },
     workflowStarted() {
-      this.set('activeTabId', 'waiting');
+      this.changeTab('waiting');
+    },
+    workflowSelected(atmWorkflowExecutionSummary) {
+      this.set('atmWorkflowExecutionSummaryForPreview', atmWorkflowExecutionSummary);
+      this.changeTab('preview');
+    },
+    closeWorkflowPreview() {
+      if (this.get('activeTabId') === 'preview') {
+        this.changeTab('waiting');
+      }
+      this.set('atmWorkflowExecutionSummaryForPreview', null);
     },
   },
 });

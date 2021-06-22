@@ -42,6 +42,40 @@ export default Model.extend(GraphSingleModelMixin, {
   finishTime: attr('number'),
 
   /**
+   * Mapping: `{ lambdaId -> lambdaSnapshotId }`
+   * @type {ComputedProperty<Object>}
+   */
+  lambdaSnapshotRegistry: attr('object'),
+
+  /**
+   * Mapping: `{ storeSchemaId -> storeId }`
+   * @type {ComputedProperty<Object>}
+   */
+  storeRegistry: attr('object'),
+
+  /**
+   * Array of objects:
+   * ```
+   * {
+   *   schemaId: String, // lane schema id,
+   *   status: String, // for possible values see `status` field in `atmTaskExecution` model
+   *   parallelBoxes: [
+   *     {
+   *       schemaId: String, // lane schema id,
+   *       status: String, // for possible values see `status` field in
+   *         // `atmTaskExecution` model
+   *       taskRegistry: Object // Mapping: `{ taskSchemaId -> taskId }`
+   *     },
+   *     { ... },
+   *     ...
+   *  ]
+   * }
+   * ```
+   * @type {ComputedProperty<Array<Object>>}
+   */
+  lanes: attr('array'),
+
+  /**
    * @type {ComputedProperty<Models.AtmWorkflowSchemaSnapshot>}
    */
   atmWorkflowSchemaSnapshot: belongsTo('atm-workflow-schema-snapshot'),
@@ -50,4 +84,9 @@ export default Model.extend(GraphSingleModelMixin, {
    * @type {ComputedProperty<Models.AtmInventory>}
    */
   atmInventory: belongsTo('atm-inventory'),
+
+  /**
+   * @type {ComputedProperty<Models.Space>}
+   */
+  space: belongsTo('space'),
 }).reopenClass(StaticGraphModelMixin);

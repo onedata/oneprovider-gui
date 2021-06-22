@@ -1,5 +1,5 @@
 /**
- * @module models/atm-workflow-execution-summary
+ * @module models/atm-task-execution
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -11,17 +11,17 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
+export const entityType = 'op_atm_task_execution';
+
 export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {ComputedProperty<String>}
    */
-  name: attr('string'),
+  schemaId: attr('string'),
 
   /**
    * One of:
-   * - `'scheduled'`,
-   * - `'preparing'`,
-   * - `'enqueued'`,
+   * - `'pending'`,
    * - `'active'`,
    * - `'finished'`,
    * - `'failed'`.
@@ -32,25 +32,20 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {ComputedProperty<Number>}
    */
-  scheduleTime: attr('number'),
+  itemsInProcessing: attr('number'),
 
   /**
    * @type {ComputedProperty<Number>}
    */
-  startTime: attr('number'),
+  itemsProcessed: attr('number'),
 
   /**
    * @type {ComputedProperty<Number>}
    */
-  finishTime: attr('number'),
+  itemsFailed: attr('number'),
 
   /**
    * @type {ComputedProperty<Models.AtmWorkflowExecution>}
    */
   atmWorkflowExecution: belongsTo('atm-workflow-execution'),
-
-  /**
-   * @type {ComputedProperty<Models.AtmInventory>}
-   */
-  atmInventory: belongsTo('atm-inventory'),
 }).reopenClass(StaticGraphModelMixin);
