@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7329 Added automation (workflows) view
 * VFS-7802 Changed inside-browser selectors to be compatible with legacy browsers
 * VFS-7743 Added embeddable files/datasets selector component
 * VFS-7738 Fixed issues with archives browser navigation
