@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7821 Fixed no action on file/datasets tags clicking
 * VFS-7802 Changed inside-browser selectors to be compatible with legacy browsers
 * VFS-7743 Added embeddable files/datasets selector component
 * VFS-7738 Fixed issues with archives browser navigation
