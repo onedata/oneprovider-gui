@@ -8,8 +8,13 @@ import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { entityType as atmInventoryEntityType } from 'oneprovider-gui/models/atm-inventory';
+import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
+import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
+import { entityType as atmWorkflowSchemaSnapshotEntityType } from 'oneprovider-gui/models/atm-workflow-schema-snapshot';
+import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 
-export const entityTypeToModelNameMap = Object.freeze(new Map([
+export const entityTypeToEmberModelNameMap = Object.freeze(new Map([
   [groupEntityType, 'group'],
   [spaceEntityType, 'space'],
   [transferEntityType, 'transfer'],
@@ -19,6 +24,11 @@ export const entityTypeToModelNameMap = Object.freeze(new Map([
   [qosEntityType, 'qos-requirement'],
   [datasetEntityType, 'dataset'],
   [archiveEntityType, 'archive'],
+  [atmInventoryEntityType, 'atm-inventory'],
+  [atmWorkflowSchemaEntityType, 'atm-workflow-schema'],
+  [atmWorkflowExecutionEntityType, 'atm-workflow-execution'],
+  [atmWorkflowSchemaSnapshotEntityType, 'atm-workflow-schema-snapshot'],
+  [atmTaskExecutionEntityType, 'atm-task-execution'],
 ]));
 
 export default OnedataAdapter.extend({
@@ -35,5 +45,5 @@ export default OnedataAdapter.extend({
   /**
    * @override
    */
-  entityTypeToModelNameMap,
+  entityTypeToEmberModelNameMap,
 });

@@ -1,0 +1,77 @@
+{{#bs-tab
+  class="bs-tab bs-tab-onedata bs-tab-modern space-automation-tabs fill-flex-using-column"
+  fade=false
+  customTabs=true
+  activeId=activeTabId
+  as |bsTab|
+}}
+  {{#bs-nav type="tabs" as |nav|}}
+    {{#each (array "waiting" "ongoing" "ended" "preview" "create") as |tabId|}}
+      {{#if (or (not-eq tabId "preview") atmWorkflowExecutionSummaryForPreview)}}
+        {{#nav.item
+          class=(concat "nav-item-" tabId)
+          active=(eq bsTab.activeId tabId)
+        }}
+          <a
+            class="nav-link nav-link-{{tabId}}"
+            role="tab"
+            {{action "changeTab" tabId}}
+          >
+            <span class="tab-label">
+              {{#if (get tabIcons tabId)}}
+                {{one-icon class="tab-icon" icon=(get tabIcons tabId)}}
+              {{/if}}
+              {{#truncated-string class="one-label tab-name"}}
+                {{#if (eq tabId "preview")}}
+                  {{atmWorkflowExecutionSummaryForPreview.name}}
+                {{else}}
+                  {{tt this (concat "tabs." tabId ".tabLabel")}}
+                {{/if}}
+              {{/truncated-string}}
+              {{#if (eq tabId "preview")}}
+                <span class="tab-close clickable" {{action "closeWorkflowPreview"}}>
+                  {{one-icon icon="close"}}
+                </span>
+              {{/if}}
+            </span>
+          </a>
+        {{/nav.item}}
+      {{/if}}
+    {{/each}}
+  {{/bs-nav}}
+  <div class="tab-content no-vertical-padding fill-flex-using-column">
+    {{#each (array "waiting" "ongoing" "ended") as |tabId|}}
+      {{#bsTab.pane elementId=tabId}}
+        {{#if (eq bsTab.activeId tabId)}}
+          <div class="row loadable-row">
+            {{space-automation/atm-workflow-executions-table
+              space=space
+              phase=tabId
+              onWorkflowSelect=(action "workflowSelected")
+            }}
+          </div>
+        {{/if}}
+      {{/bsTab.pane}}
+    {{/each}}
+    {{#bsTab.pane elementId="preview" class="fill-flex-using-column"}}
+      {{#if (and (eq bsTab.activeId "preview") atmWorkflowExecutionSummaryForPreview)}}
+        {{space-automation/atm-workflow-execution-preview
+          class="fill-flex-using-column"
+          atmWorkflowExecutionSummary=atmWorkflowExecutionSummaryForPreview
+        }}
+      {{/if}}
+    {{/bsTab.pane}}
+    {{#bsTab.pane elementId="create"}}
+      {{#if (eq bsTab.activeId "create")}}
+        <div class="row">
+          <div class="col-xs-12">
+            {{space-automation/run-workflow-creator
+              space=space
+              onWorkflowStarted=(action "workflowStarted")
+            }}
+          </div>
+        </div>
+      {{/if}}
+    {{/bsTab.pane}}
+  </div>
+{{/bs-tab}}
