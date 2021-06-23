@@ -1013,6 +1013,7 @@ export default Service.extend({
    * @returns {Promise<Array<Model>>}
    */
   async createAtmWorkflowExecutionRecords(store) {
+    const space = this.get('entityRecords.space.0');
     const atmInventories = this.get('entityRecords.atmInventory');
     const atmWorkflowSchemas = this.get('entityRecords.atmWorkflowSchema');
     const atmWorkflowSchemasCount = get(atmWorkflowSchemas, 'length');
@@ -1100,6 +1101,7 @@ export default Service.extend({
             startTime,
             finishTime,
             atmWorkflowSchemaSnapshot,
+            space,
           }).save();
           atmWorkflowExecutions.push(atmWorkflowExecution);
           return await store.createRecord('atmWorkflowExecutionSummary', {

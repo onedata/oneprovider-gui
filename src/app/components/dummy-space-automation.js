@@ -15,10 +15,33 @@ import { inject as service } from '@ember/service';
 export default Component.extend({
   currentUser: service(),
 
+  tab: undefined,
+
+  workflowExecutionId: undefined,
+
   spaceProxy: promise.object(computed(function spaceProxy() {
     return this.get('currentUser').getCurrentUserRecord()
       .then(user => get(user, 'effSpaceList'))
       .then(effSpaceList => get(effSpaceList, 'list'))
       .then(list => list.objectAt(0));
   })),
+
+  actions: {
+    changeTab(tab) {
+      this.set('tab', tab);
+    },
+    openPreviewTab(workflowExecutionId) {
+      this.setProperties({
+        tab: 'preview',
+        workflowExecutionId,
+      });
+    },
+    closePreviewTab() {
+      const tab = this.get('tab');
+      this.setProperties({
+        tab: tab === 'preview' ? 'waiting' : (tab || null),
+        workflowExecutionId: null,
+      });
+    },
+  },
 });

@@ -35,7 +35,10 @@
                 {{/if}}
               {{/truncated-string}}
               {{#if (eq tabId "preview")}}
-                <span class="tab-close clickable" {{action "closeWorkflowPreview"}}>
+                <span
+                  class="tab-close clickable"
+                  onClick={{disable-bubbling (action "closeWorkflowPreview")}}
+                >
                   {{one-icon icon="close"}}
                 </span>
               {{/if}}
