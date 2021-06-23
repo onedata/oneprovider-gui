@@ -9,12 +9,26 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
+import { get, observer } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import { conditional, raw, array } from 'ember-awesome-macros';
+import { reject, hash as hashFulfilled } from 'rsvp';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+
+const possibleTabs = [
+  'waiting',
+  'ongoing',
+  'ended',
+  'create',
+  'preview',
+];
 
 export default Component.extend(I18n, {
   classNames: ['space-automation', 'fill-flex-using-column'],
 
   i18n: service(),
+  workflowManager: service(),
   currentUser: service(),
 
   /**
@@ -29,43 +43,132 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
-   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`, `'preview'`
+   * @virtual
+   * @type {Function}
+   */
+  changeTab: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  openPreviewTab: notImplementedWarn,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  closePreviewTab: notImplementedWarn,
+
+  /**
+   * @virtual
    * @type {String}
    */
-  activeTabId: 'waiting',
+  tab: undefined,
+
+  /**
+   * Id of a workflow execution, that should be rendered in a dedicated "preview" tab.
+   * @virtual
+   * @type {String}
+   */
+  workflowExecutionId: undefined,
+
+  /**
+   * @type {String}
+   */
+  workflowExecutionIdInPreview: undefined,
+
+  /**
+   * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`, `'preview'`
+   * @type {ComputedProperty<String>}
+   */
+  normalizedTab: conditional(
+    array.includes(raw(possibleTabs), 'tab'),
+    'tab',
+    raw('waiting')
+  ),
 
   /**
    * @type {Object}
    */
   tabIcons: Object.freeze({
     create: 'play',
+    preview: 'atm-workflow',
   }),
 
   /**
-   * @type {Models.atmWorkflowExecutionSummary}
+   * @type {PromiseObject<Models.AtmWorkflowExecution>}
    */
-  atmWorkflowExecutionSummaryForPreview: undefined,
+  atmWorkflowExecutionForPreviewProxy: undefined,
 
-  changeTab(tabId) {
-    this.set('activeTabId', tabId);
+  atmWorkflowExecutionForPreviewLoader: observer(
+    'workflowExecutionId',
+    'space',
+    function atmWorkflowExecutionForPreviewLoader() {
+      const {
+        workflowExecutionId,
+        workflowExecutionIdInPreview,
+        workflowManager,
+        normalizedTab,
+        space,
+      } = this.getProperties(
+        'workflowExecutionId',
+        'workflowExecutionIdInPreview',
+        'workflowManager',
+        'normalizedTab',
+        'space'
+      );
+
+      if (!workflowExecutionId && normalizedTab === 'preview') {
+        this.get('closePreviewTab')();
+        this.setProperties({
+          workflowExecutionIdInPreview: workflowExecutionId,
+          atmWorkflowExecutionForPreviewProxy: undefined,
+        });
+        return;
+      }
+      if (workflowExecutionId === workflowExecutionIdInPreview) {
+        return;
+      }
+
+      const loadExecutionPromise =
+        workflowManager.getAtmWorkflowExecutionById(workflowExecutionId)
+        .then(atmWorkflowExecution => hashFulfilled({
+          atmWorkflowSchemaSnapshot: get(atmWorkflowExecution, 'atmWorkflowSchemaSnapshot'),
+          space: get(atmWorkflowExecution, 'space'),
+        }).then(({ space: executionSpace }) => {
+          if (executionSpace !== space) {
+            // Workflow execution is not in current space.
+            return reject({ id: 'notFound' });
+          }
+          return atmWorkflowExecution;
+        }));
+
+      this.setProperties({
+        workflowExecutionIdInPreview: workflowExecutionId,
+        atmWorkflowExecutionForPreviewProxy: promiseObject(loadExecutionPromise),
+      });
+    }
+  ),
+
+  init() {
+    this._super(...arguments);
+
+    this.atmWorkflowExecutionForPreviewLoader();
   },
 
   actions: {
-    changeTab(tabId) {
-      this.changeTab(tabId);
+    changeTab(tab) {
+      this.get('changeTab')(tab);
     },
     workflowStarted() {
-      this.changeTab('waiting');
+      this.get('changeTab')('waiting');
     },
     workflowSelected(atmWorkflowExecutionSummary) {
-      this.set('atmWorkflowExecutionSummaryForPreview', atmWorkflowExecutionSummary);
-      this.changeTab('preview');
+      this.get('openPreviewTab')(get(atmWorkflowExecutionSummary, 'entityId'));
     },
     closeWorkflowPreview() {
-      if (this.get('activeTabId') === 'preview') {
-        this.changeTab('waiting');
-      }
-      this.set('atmWorkflowExecutionSummaryForPreview', null);
+      this.get('closePreviewTab')();
     },
   },
 });

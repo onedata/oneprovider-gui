@@ -2,12 +2,12 @@
   class="bs-tab bs-tab-onedata bs-tab-modern space-automation-tabs fill-flex-using-column"
   fade=false
   customTabs=true
-  activeId=activeTabId
+  activeId=normalizedTab
   as |bsTab|
 }}
   {{#bs-nav type="tabs" as |nav|}}
     {{#each (array "waiting" "ongoing" "ended" "preview" "create") as |tabId|}}
-      {{#if (or (not-eq tabId "preview") atmWorkflowExecutionSummaryForPreview)}}
+      {{#if (or (not-eq tabId "preview") workflowExecutionIdInPreview)}}
         {{#nav.item
           class=(concat "nav-item-" tabId)
           active=(eq bsTab.activeId tabId)
@@ -23,7 +23,13 @@
               {{/if}}
               {{#truncated-string class="one-label tab-name"}}
                 {{#if (eq tabId "preview")}}
-                  {{atmWorkflowExecutionSummaryForPreview.name}}
+                  {{#if atmWorkflowExecutionForPreviewProxy.isFulfilled}}
+                    {{atmWorkflowExecutionForPreviewProxy.atmWorkflowSchemaSnapshot.name}}
+                  {{else if atmWorkflowExecutionForPreviewProxy.isRejected}}
+                    {{tt this "tabs.preview.tabErrorLabel"}}
+                  {{else}}
+                    {{tt this "tabs.preview.tabLoadingLabel"}}
+                  {{/if}}
                 {{else}}
                   {{tt this (concat "tabs." tabId ".tabLabel")}}
                 {{/if}}
@@ -54,10 +60,10 @@
       {{/bsTab.pane}}
     {{/each}}
     {{#bsTab.pane elementId="preview" class="fill-flex-using-column"}}
-      {{#if (and (eq bsTab.activeId "preview") atmWorkflowExecutionSummaryForPreview)}}
+      {{#if (and (eq bsTab.activeId "preview") workflowExecutionIdInPreview)}}
         {{space-automation/atm-workflow-execution-preview
           class="fill-flex-using-column"
-          atmWorkflowExecutionSummary=atmWorkflowExecutionSummaryForPreview
+          atmWorkflowExecutionProxy=atmWorkflowExecutionForPreviewProxy
         }}
       {{/if}}
     {{/bsTab.pane}}

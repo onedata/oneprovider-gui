@@ -18,6 +18,10 @@ export default {
     ended: {
       tabLabel: 'Ended',
     },
+    preview: {
+      tabLoadingLabel: 'Loading...',
+      tabErrorLabel: 'Cannot load',
+    },
     create: {
       tabLabel: 'Run workflow',
     },
