@@ -11,6 +11,7 @@ import Service, { inject as service } from '@ember/service';
 import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import { allSettled } from 'rsvp';
 
 export default Service.extend({
   store: service(),
@@ -87,6 +88,7 @@ export default Service.extend({
     });
     const atmWorkflowExecutionSummaries =
       await this.pushAtmWorkflowExecutionSummariesToStore(list);
+    await allSettled(atmWorkflowExecutionSummaries.mapBy('atmInventory'));
     return { array: atmWorkflowExecutionSummaries, isLast };
   },
 

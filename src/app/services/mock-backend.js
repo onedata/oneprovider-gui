@@ -1013,6 +1013,7 @@ export default Service.extend({
    * @returns {Promise<Array<Model>>}
    */
   async createAtmWorkflowExecutionRecords(store) {
+    const atmInventories = this.get('entityRecords.atmInventory');
     const atmWorkflowSchemas = this.get('entityRecords.atmWorkflowSchema');
     const atmWorkflowSchemasCount = get(atmWorkflowSchemas, 'length');
     const timestamp = Math.floor(Date.now() / 1000);
@@ -1026,6 +1027,7 @@ export default Service.extend({
       const phaseIndex = atmWorkflowExecutionPhases.indexOf(phase);
       const executionsGroup = await allFulfilled(
         _.range(numberOfAtmWorkflowExecutions).map(async (i) => {
+          const atmInventory = atmInventories[i % atmInventories.length];
           const scheduleTime = phaseIndex >= waitingPhaseIndex ?
             timestamp + i * 3600 : null;
           const startTime = phaseIndex >= ongoingPhaseIndex ?
@@ -1113,6 +1115,7 @@ export default Service.extend({
             startTime,
             finishTime,
             atmWorkflowExecution,
+            atmInventory,
           }).save();
         })
       );

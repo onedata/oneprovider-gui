@@ -1,4 +1,5 @@
 export default {
+  unknownInventory: 'Unknown',
   statuses: {
     scheduled: 'Scheduled',
     preparing: 'Preparing',

@@ -20,6 +20,17 @@
     padding-left: $padding-small-horizontal;
   }
 
+  .table-col-inventory,
+  .cell-inventory {
+    width: 15em;
+    min-width: 15em;
+    max-width: 15em;
+
+    @media (max-width: 1000px) {
+      display: none;
+    }
+  }
+
   .table-col-scheduledAt,
   .cell-scheduledAt,
   .table-col-startedAt,

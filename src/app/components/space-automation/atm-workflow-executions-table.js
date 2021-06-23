@@ -73,18 +73,21 @@ export default Component.extend(I18n, {
       case 'waiting':
         return [
           'name',
+          'inventory',
           'scheduledAt',
           'status',
         ];
       case 'ongoing':
         return [
           'name',
+          'inventory',
           'startedAt',
           'status',
         ];
       case 'ended':
         return [
           'name',
+          'inventory',
           'startedAt',
           'finishedAt',
           'status',

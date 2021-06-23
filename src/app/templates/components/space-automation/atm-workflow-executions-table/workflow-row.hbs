@@ -4,6 +4,14 @@
       {{#truncated-string}}
         {{atmWorkflowExecutionSummary.name}}
       {{/truncated-string}}
+    {{else if (eq column "inventory")}}
+      {{#if atmWorkflowExecutionSummary.atmInventory.name}}
+        {{#truncated-string}}
+          {{atmWorkflowExecutionSummary.atmInventory.name}}
+        {{/truncated-string}}
+      {{else}}
+        <em>{{tt this "unknownInventory"}}</em>
+      {{/if}}
     {{else if (eq column "scheduledAt")}}
       {{date-format atmWorkflowExecutionSummary.scheduleTime
         format="report"
