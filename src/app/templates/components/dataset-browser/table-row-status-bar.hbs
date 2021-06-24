@@ -5,9 +5,9 @@
       {{action
         (if disabled
           (no-action)
-          (action invokeFileAction dataset "info" "protection")
+          (action invokeFileAction dataset "protection")
         )
-        bubbles=disabled
+        bubbles=(bool disabled)
       }}
     >
       {{tt this "status.protection"}}
