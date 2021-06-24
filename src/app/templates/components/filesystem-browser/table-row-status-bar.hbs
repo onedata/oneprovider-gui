@@ -92,7 +92,7 @@
     {{action
       (if disabled
         (no-action)
-        (action invokeFileAction file "info" "metadata")
+        (action invokeFileAction file "metadata")
       )
       bubbles=(bool disabled)
     }}
@@ -110,7 +110,7 @@
     {{action
       (if disabled
         (no-action)
-        (action invokeFileAction file "info" "permissions")
+        (action invokeFileAction file "permissions")
       )
       bubbles=(bool disabled)
     }}
@@ -132,7 +132,7 @@
     {{action
       (if disabled
         (no-action)
-        (action invokeFileAction file "info" "qos")
+        (action invokeFileAction file "qos")
       )
       bubbles=(bool disabled)
     }}
