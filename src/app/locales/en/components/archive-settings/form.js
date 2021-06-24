@@ -16,6 +16,9 @@ export default {
       incremental: {
         label: 'Incremental',
       },
+      baseArchiveId: {
+        label: 'Base archive ID',
+      },
       layout: {
         label: 'Layout',
         options: {

@@ -32,6 +32,9 @@ export default Model.extend(GraphSingleModelMixin, {
    * Object params:
    * - `createNestedArchives: Boolean`
    * - `incremental: Boolean`
+   * - `baseArchiveId: String` if `incremental` is true, you can provide archive ID
+   *      from which incrementation will be computed; by default it is latest archive
+   *      in this dataset
    * - `layout: String`, one of: `bagit`, `plain`
    * - `includeDip: Boolean` - if true dissemination information package (DIP) is created
    *      alongside with archival information package (AIP), on the storage

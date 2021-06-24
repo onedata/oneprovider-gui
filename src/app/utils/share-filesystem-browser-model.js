@@ -9,7 +9,7 @@
  */
 
 import FilesystemBrowserModel from './filesystem-browser-model';
-import { computed, get } from '@ember/object';
+import { get } from '@ember/object';
 import { resolve } from 'rsvp';
 import { promise } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';

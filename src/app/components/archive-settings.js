@@ -117,6 +117,9 @@ export default Component.extend(I18n, {
         'layout',
         'includeDip',
       );
+      if (rawConfig.incremental) {
+        rawConfig.baseArchiveId = config.baseArchiveId;
+      }
       return {
         config: rawConfig,
         description,
