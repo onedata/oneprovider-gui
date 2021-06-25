@@ -89,7 +89,7 @@ export default Component.extend(I18n, {
     try {
       if (canSubmit) {
         const archiveCreateData = this.generateArchiveData(formData);
-        return onSubmit(archiveCreateData);
+        return await onSubmit(archiveCreateData);
       }
     } finally {
       this.set('isSubmitting', false);
