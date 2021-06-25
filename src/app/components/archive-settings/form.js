@@ -87,6 +87,7 @@ export default Component.extend(I18n, {
               ToggleField.create({
                 name: 'incremental',
                 defaultValue: false,
+                isEnabled: false,
               }),
               TextField.extend({
                 isVisible: reads('parent.value.incremental'),
