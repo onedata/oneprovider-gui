@@ -8,12 +8,13 @@
   {{#promise-proxy-container proxy=requiredDataProxy}}
     {{file-browser
       browserModel=browserModel
-      dir=dirProxy.content
+      dir=dir
       customRootDir=rootDir
       selectedFiles=selectedFiles
       customFetchDirChildren=(if isInShareRoot (action "fetchShareRootDirChildren") undefined)
       previewMode=true
       changeSelectedFiles=(action (mut selectedFiles))
+      getItemByIdFun=(action getItemById)
       resolveFileParentFun=(action "resolveFileParentFun")
       updateDirEntityId=(action "updateDirId")
       containerScrollTop=(action "containerScrollTop")

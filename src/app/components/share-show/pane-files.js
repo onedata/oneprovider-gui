@@ -21,6 +21,7 @@ import { resolve, reject } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
 const shareRootId = 'shareRoot';
 
@@ -94,7 +95,14 @@ export default Component.extend(I18n, {
 
   isInShareRoot: bool('dirProxy.content.isShareRoot'),
 
-  requiredDataProxy: promise.object(promise.all('dirProxy', 'share.rootFile')),
+  initialDirProxy: promise.object(computed('share', function initialDirProxy() {
+    return this.get('dirProxy');
+  })),
+
+  requiredDataProxy: promise.object(promise.all(
+    'initialDirProxy',
+    'share.rootFile'
+  )),
 
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
     const {
@@ -112,6 +120,8 @@ export default Component.extend(I18n, {
     }
   })),
 
+  dir: computedLastProxyContent('dirProxy'),
+
   rootDir: computed('share.{name,entityId}', function rootDir() {
     return ShareRootDir.create({
       name: this.get('share.name'),
@@ -125,6 +135,14 @@ export default Component.extend(I18n, {
       this.set('selectedFiles', []);
     }
     this.set('browserModel', this.createBrowserModel());
+  },
+
+  async getItemById(itemId) {
+    if (itemId === shareRootId) {
+      return this.get('shareRootDir');
+    } else {
+      return this.get('fileManager').getFileById(itemId, 'public');
+    }
   },
 
   createBrowserModel() {
@@ -175,6 +193,13 @@ export default Component.extend(I18n, {
     });
   },
 
+  getEmptyFetchChildrenResponse() {
+    return {
+      childrenRecords: [],
+      isLast: true,
+    };
+  },
+
   actions: {
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
@@ -185,13 +210,13 @@ export default Component.extend(I18n, {
       }
       if (startIndex == null) {
         if (size <= 0 || offset < 0) {
-          return resolve({ childrenRecords: [], isLast: true });
+          return resolve(this.getEmptyFetchChildrenResponse());
         } else {
           return this.get('share.rootFile')
             .then(rootFile => ({ childrenRecords: [rootFile], isLast: true }));
         }
       } else if (startIndex === array.get('sourceArray.lastObject.index')) {
-        return resolve({ childrenRecords: [], isLast: true });
+        return resolve(this.getEmptyFetchChildrenResponse());
       } else {
         return reject(
           'component:share-show/pane-files#fetchShareRootDirChildren guard: illegal fetch children for virtual share root dir'

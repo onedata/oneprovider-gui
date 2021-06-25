@@ -6,7 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-7796 Added support for BagIt archives and entering symlinked dirs
+* VFS-7796 Added support for BagIt archives and navigating through symlinked directories
 * VFS-7830 Fixed wrong (info) modal opening on file tags: protection, metadata, qos, permissions
 * VFS-7329 Added automation (workflows) view
 * VFS-7821 Fixed no action on file/datasets tags clicking

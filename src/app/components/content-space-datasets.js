@@ -410,7 +410,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       const {
         spaceProxy,
         viewMode,
-      } = this.get('spaceProxy', 'viewMode');
+      } = this.getProperties('spaceProxy', 'viewMode');
       if (viewMode === 'files') {
         const initialDirProxy = this.get('initialDirProxy');
         return allFulfilled([spaceProxy, initialDirProxy]);
@@ -493,15 +493,24 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
-  async fetchDir(dirId) {
+  /**
+   * Should be used as file-browser `getItemById` only in files mode.
+   * @param {String} fileId
+   * @return {Promise<Models.File|Object>}
+   */
+  async getFileById(fileId) {
     const fileManager = this.get('fileManager');
     const archive = this.get('archive') || await this.get('archiveProxy');
     const archiveRootDirId = archive.relationEntityId('rootDir');
-    if (!dirId || dirId === archiveRootDirId) {
+    if (!fileId || fileId === archiveRootDirId) {
       return this.get('archiveRootDirProxy');
     } else {
-      return fileManager.getFileById(dirId, 'private');
+      return fileManager.getFileById(fileId, 'private');
     }
+  },
+
+  async fetchDir(fileId) {
+    return this.getFileById(fileId);
   },
 
   createOnezoneDatasetData(dataset) {
@@ -819,7 +828,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
     },
-    async resolveFileParent(item) {
+    async resolveItemParent(item) {
       const viewMode = this.get('viewMode');
       if (!item) {
         return null;

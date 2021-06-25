@@ -21,6 +21,8 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import $ from 'jquery';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 
 export const actionContext = {
   none: 'none',
@@ -106,6 +108,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  getItemByIdFun: notImplementedReject,
+
+  /**
+   * @virtual
    * @type {Models.File}
    */
   customRootDir: undefined,
@@ -133,6 +141,12 @@ export default Component.extend(I18n, {
    * @virtual
    */
   spacePrivileges: Object.freeze({}),
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  resolveFileParentFun: defaultResolveParent,
 
   /**
    * @virtual optional
@@ -435,6 +449,19 @@ export default Component.extend(I18n, {
     };
   }),
 
+  /**
+   * Stores mapping of `itemId` -> `itemParentId` to be used when resolving
+   * parent is ambiguous (eg. when entering symlinked directory we want to render
+   * breadcrums and want to resolve symlinked dir as a parent, while it's not current
+   * dir parent).
+   * 
+   * Computed property initializes empty cache for every `browserModel` change.
+   * @type {ComputedProperty<Object>}
+   */
+  parentsCache: computed('browserModel', function parentsCache() {
+    return {};
+  }),
+
   bindBrowserModel: observer('browserModel', function bindBrowserModel() {
     const browserModel = this.get('browserModel');
     if (browserModel) {
@@ -537,9 +564,15 @@ export default Component.extend(I18n, {
     if (!effFile) {
       return;
     }
-    const isDir = get(effFile, 'type') === 'dir';
+    const isDir = get(file, 'type') === 'dir' ||
+      get(effFile, 'type') === 'dir';
     if (isDir) {
-      return this.changeDir(effFile);
+      const parentDir = this.get('dir');
+      const parentsCache = this.get('parentsCache');
+      const parentDirId = get(parentDir, 'entityId');
+      const openedDirId = get(file, 'entityId');
+      parentsCache[openedDirId] = parentDirId;
+      return this.changeDir(file);
     } else {
       return this.onOpenFile(file, options);
     }
