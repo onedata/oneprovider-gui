@@ -567,8 +567,10 @@ export default Component.extend(I18n, {
     const isDir = get(file, 'type') === 'dir' ||
       get(effFile, 'type') === 'dir';
     if (isDir) {
-      const parentDir = this.get('dir');
-      const parentsCache = this.get('parentsCache');
+      const {
+        dir: parentDir,
+        parentsCache,
+      } = this.getProperties('dir', 'parentsCache');
       const parentDirId = get(parentDir, 'entityId');
       const openedDirId = get(file, 'entityId');
       parentsCache[openedDirId] = parentDirId;

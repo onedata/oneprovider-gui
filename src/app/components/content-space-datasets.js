@@ -852,11 +852,30 @@ export default OneEmbeddedComponent.extend(...mixins, {
               return this.get('archiveRootDirProxy');
             } else {
               // file browser: inside archive filesystem
-              return get(item, 'parent');
+              const parent = await get(item, 'parent');
+              if (get(parent, 'isArchiveRootDir')) {
+                const dirParentArchiveId = parent.relationEntityId('archive');
+                const dirParentArchive = await get(parent, 'archive');
+                const datasetIdOfArchive = dirParentArchive.relationEntityId('dataset');
+                const url = this.getDatasetsUrl({
+                  datasetId: datasetIdOfArchive,
+                  archive: dirParentArchiveId,
+                });
+                // TODO: VFS-7850 a workaround for not-updating breadcrumbs,
+                // see details in JIRA ticket
+                window.top.location = url;
+                window.location.reload();
+                return null;
+              }
+
+              return parent;
             }
           } else {
             // file browser: it's rather some problem with getting dir parent,
             // so resolve archive root dir
+            console.warn(
+              'component:content-space-datasets: cannot resolve dir parent, fallback to rootDir'
+            );
             return get(archive, 'rootDir');
           }
         } else if (browsableType === 'dataset') {
