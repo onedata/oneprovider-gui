@@ -573,7 +573,10 @@ export default Component.extend(I18n, {
       } = this.getProperties('dir', 'parentsCache');
       const parentDirId = get(parentDir, 'entityId');
       const openedDirId = get(file, 'entityId');
-      parentsCache[openedDirId] = parentDirId;
+      // avoid circular parent dependencies
+      if (parentsCache[parentDirId] !== openedDirId) {
+        parentsCache[openedDirId] = parentDirId;
+      }
       return this.changeDir(file);
     } else {
       return this.onOpenFile(file, options);
