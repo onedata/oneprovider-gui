@@ -61,6 +61,18 @@ export default Component.extend(I18n, {
   updater: undefined,
 
   /**
+   * If true, should render top loading indicator
+   * @type {Boolean}
+   */
+  fetchingPrev: false,
+
+  /**
+   * If true, should render bottom loading indicator
+   * @type {Boolean}
+   */
+  fetchingNext: false,
+
+  /**
    * @type {Window}
    */
   _window: window,
@@ -222,7 +234,7 @@ export default Component.extend(I18n, {
         _window,
         rowHeight,
       } = this.getProperties('_window', 'rowHeight');
-      const $firstRow = $('.first-row');
+      const $firstRow = this.$('.first-row');
       const firstRowTop = $firstRow.offset().top;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;
