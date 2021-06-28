@@ -17,7 +17,7 @@ import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { promise } from 'ember-awesome-macros';
-import { resolve } from 'rsvp';
+import { resolve, Promise } from 'rsvp';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
@@ -172,6 +172,7 @@ export default OneEmbeddedComponent.extend(
     ),
 
     initialRequiredDataProxy: promise.object(promise.all(
+      'spaceProxy',
       'initialSelectedFilesForJumpProxy',
       'initialDirProxy'
     )),
@@ -202,37 +203,54 @@ export default OneEmbeddedComponent.extend(
       }
     }),
 
+    fallbackDirProxy: promise.object(computed(
+      'spaceProxy.rootDir',
+      async function fallbackDirProxy() {
+        const space = await this.get('spaceProxy');
+        if (space) {
+          return get(space, 'rootDir');
+        }
+      }
+    )),
+
     dirProxy: promise.object(computed(
       'injectedDirGri',
       'spaceProxy',
-      function dirProxy() {
+      async function dirProxy() {
         const {
           injectedDirGri,
-          spaceProxy,
           store,
           globalNotify,
           _window,
-        } = this.getProperties('injectedDirGri', 'spaceProxy', 'store', 'globalNotify', '_window');
+        } = this.getProperties('injectedDirGri', 'store', 'globalNotify', '_window');
 
-        return this.openSelectedParentDir().then(redirectUrl => {
-          if (redirectUrl) {
+        if (!injectedDirGri) {
+          return this.get('fallbackDirProxy');
+        }
+
+        const redirectUrl = await this.openSelectedParentDir();
+        if (redirectUrl) {
+          return new Promise(() => {
             _window.open(redirectUrl, '_top');
-            return null;
+          });
+        }
+
+        try {
+          // TODO: VFS-7643 refactor to use file-manager
+          const dirItem = await store.findRecord('file', injectedDirGri);
+          const type = get(dirItem, 'type');
+          if (
+            type === 'dir' ||
+            type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
+          ) {
+            return dirItem;
           } else {
-            return spaceProxy.then(space => {
-              if (injectedDirGri) {
-                return store.findRecord('file', injectedDirGri)
-                  .then(file => get(file, 'type') !== 'dir' ? get(file, 'parent') : file)
-                  .catch(error => {
-                    globalNotify.backendError(this.t('openingDirectory'), error);
-                    return get(space, 'rootDir');
-                  });
-              } else {
-                return get(space, 'rootDir');
-              }
-            });
+            return get(dirItem, 'parent');
           }
-        });
+        } catch (error) {
+          globalNotify.backendError(this.t('openingDirectory'), error);
+          return this.get('fallbackDirProxy');
+        }
       }
     )),
 
@@ -277,6 +295,10 @@ export default OneEmbeddedComponent.extend(
         this.set('selectedFiles', []);
       }
       this.set('browserModel', this.createBrowserModel());
+    },
+
+    getItemById(itemId) {
+      return this.get('fileManager').getFileById(itemId, 'private');
     },
 
     createBrowserModel() {

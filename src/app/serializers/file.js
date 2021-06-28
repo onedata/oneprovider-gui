@@ -14,6 +14,7 @@ import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { entityType as userEntityType } from 'oneprovider-gui/models/user';
 import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
+import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
 
@@ -57,6 +58,15 @@ export default Serializer.extend({
         'provider',
         attribute && gri({
           entityType: providerEntityType,
+          entityId: attribute,
+          aspect: 'instance',
+          scope,
+        }),
+      ],
+      archiveId: (attribute, scope) => [
+        'archive',
+        attribute && gri({
+          entityType: archiveEntityType,
           entityId: attribute,
           aspect: 'instance',
           scope,

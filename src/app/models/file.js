@@ -116,6 +116,10 @@ export const RuntimeProperties = Mixin.create({
     return Boolean(this.belongsTo('parent').id());
   }),
 
+  isArchiveRootDir: computed(function isArchiveRootDir() {
+    return Boolean(this.belongsTo('archive').id());
+  }),
+
   spaceEntityId: computed('entityId', function spaceEntityId() {
     return getSpaceIdFromFileId(this.get('entityId'));
   }),
@@ -222,6 +226,12 @@ export default Model.extend(
     provider: belongsTo('provider'),
     fileQosSummary: belongsTo('file-qos-summary'),
     fileDatasetSummary: belongsTo('file-dataset-summary'),
+
+    /**
+     * Relation to archive model if this file is a root dir of archive.
+     * @type {Models.Archive}
+     */
+    archive: belongsTo('archive'),
 
     modificationTime: alias('mtime'),
   }).reopenClass(StaticGraphModelMixin, {

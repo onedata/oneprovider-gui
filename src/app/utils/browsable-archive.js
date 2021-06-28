@@ -8,11 +8,11 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import ObjectProxy from '@ember/object/proxy';
 import { computed } from '@ember/object';
+import BrowsableWrapper from 'oneprovider-gui/utils/browsable-wrapper';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
 
-export default ObjectProxy.extend({
+export default BrowsableWrapper.extend({
   descriptionMaxLength: 32,
 
   type: 'dir',
@@ -43,18 +43,4 @@ export default ObjectProxy.extend({
   }),
 
   browsableType: 'archive',
-
-  relationEntityId: proxyMethod('relationEntityId'),
-  belongsTo: proxyMethod('belongsTo'),
-  hasMany: proxyMethod('hasMany'),
-  save: proxyMethod('save'),
-  reload: proxyMethod('reload'),
-  destroyRecord: proxyMethod('destroyRecord'),
 });
-
-// TODO: VFS-7643 redundancy: maybe create util, and mixin/class for browsable model
-function proxyMethod(methodName) {
-  return function () {
-    return this.get('content')[methodName](...arguments);
-  };
-}
