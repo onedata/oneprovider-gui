@@ -137,7 +137,7 @@ export default Component.extend(I18n, {
         return atmWorkflowExecutionSummaryIndex(record, phase);
       },
       startIndex: 0,
-      endIndex: 20,
+      endIndex: 50,
       indexMargin: 10,
     });
   }),

@@ -520,9 +520,15 @@ const fileHandlers = {
     }
   },
   symlink_target(operation, entityId) {
+    let target;
     switch (operation) {
       case 'get':
-        return this.getSymlinkTargetFile(entityId);
+        target = this.getSymlinkTargetFile(entityId);
+        return target || {
+          success: false,
+          error: { id: 'posix', details: { errno: 'enoent' } },
+          data: {},
+        };
       default:
         return messageNotSupported;
     }
@@ -862,7 +868,11 @@ export default OnedataGraphMock.extend({
       return childrenIdsCache[dirId];
     } else {
       let cache;
-      if (/.*#-dir-0000.*/.test(decodedDirEntityId)) {
+      if (/.*#archive-dir-.*/.test(decodedDirEntityId)) {
+        cache = [
+          decodedDirEntityId.match(/.*file-(.*)#.*/)[1],
+        ];
+      } else if (/.*#-dir-0000.*/.test(decodedDirEntityId)) {
         // root dir
         cache = [
           ..._.range(numberOfDirs).map(i =>
@@ -900,8 +910,12 @@ export default OnedataGraphMock.extend({
     if (!targetFileEntityId) {
       return null;
     }
-    const targetFile =
-      this.get('mockBackend.entityRecords.file').findBy('entityId', targetFileEntityId);
+    const entityRecords = this.get('mockBackend.entityRecords');
+    const potentialTargets = [
+      ...entityRecords.file,
+      ...entityRecords.dir,
+    ];
+    const targetFile = potentialTargets.findBy('entityId', targetFileEntityId);
     return targetFile ? recordToChildData(targetFile) : null;
   },
 
@@ -923,6 +937,7 @@ export default OnedataGraphMock.extend({
       ...get(mockEntityRecords, 'dir'),
       ...get(mockEntityRecords, 'chainDir'),
       ...get(mockEntityRecords, 'file'),
+      ...get(mockEntityRecords, 'archiveDir'),
     ];
 
     let cache = childrenDetailsCache[dirEntityId];
@@ -1006,7 +1021,7 @@ function archiveRecordToChildData(record) {
     'purgedCallback',
   ), {
     dataset: record.belongsTo('dataset').id(),
-    rootFile: record.belongsTo('rootFile').id(),
+    rootDir: record.belongsTo('rootDir').id(),
   });
 }
 

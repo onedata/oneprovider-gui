@@ -40,6 +40,7 @@ export default Component.extend(
   createDataProxyMixin('filteredBreadcrumbsItems', { type: 'array' }), {
     classNames: ['fb-breadcrumbs'],
 
+    fileManager: service(),
     i18n: service(),
 
     /**
@@ -64,6 +65,12 @@ export default Component.extend(
      * @type {Function}
      */
     resolveFileParentFun: defaultResolveParent,
+
+    /**
+     * @virtual
+     * @type {Function}
+     */
+    getItemByIdFun: notImplementedReject,
 
     /**
      * @virtual
@@ -188,9 +195,8 @@ export default Component.extend(
       const {
         dir,
         rootDir,
-        resolveFileParentFun,
-      } = this.getProperties('dir', 'rootDir', 'resolveFileParentFun');
-      return resolveFilePath(dir, resolveFileParentFun)
+      } = this.getProperties('dir', 'rootDir');
+      return resolveFilePath(dir, this.resolveFileParent.bind(this))
         .then(dirPath => {
           return rootDir ? cutDirsPath(dirPath, rootDir) : dirPath;
         });
@@ -222,16 +228,34 @@ export default Component.extend(
       const {
         breadcrumbsItemsProxy,
         elementsToShow,
-        resolveFileParentFun,
-      } = this.getProperties('breadcrumbsItemsProxy', 'elementsToShow', 'resolveFileParentFun');
+      } = this.getProperties('breadcrumbsItemsProxy', 'elementsToShow');
 
       return breadcrumbsItemsProxy.then(breadcrumbsItems =>
         filterBreadcrumbsItems(
           breadcrumbsItems,
           elementsToShow,
-          resolveFileParentFun
+          this.resolveFileParent.bind(this)
         )
       );
+    },
+
+    async resolveFileParent(item) {
+      const {
+        parentsCache,
+        resolveFileParentFun,
+        getItemByIdFun,
+      } = this.getProperties('parentsCache', 'resolveFileParentFun', 'getItemByIdFun');
+      if (
+        typeof getItemByIdFun === 'function' &&
+        getItemByIdFun !== notImplementedReject
+      ) {
+        const parentId = parentsCache && parentsCache[get(item, 'entityId')];
+        if (parentId) {
+          return getItemByIdFun(parentId);
+        }
+      }
+
+      return resolveFileParentFun(item);
     },
 
     checkWidth(noAnimation) {

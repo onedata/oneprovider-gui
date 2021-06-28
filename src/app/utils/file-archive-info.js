@@ -87,9 +87,9 @@ export default EmberObject.extend(OwnerInjector, {
       }
       try {
         const archive = await this.get('archiveManager').getArchive(archiveId);
-        const archiveRootFileId = archive.relationEntityId('rootFile');
-        const archiveRootFile = filePath.findBy('entityId', archiveRootFileId);
-        return cutDirsPath(filePath, archiveRootFile);
+        const archiveRootDirId = archive.relationEntityId('rootDir');
+        const archiveRootDir = filePath.findBy('entityId', archiveRootDirId);
+        return cutDirsPath(filePath, archiveRootDir);
       } catch (error) {
         return null;
       }

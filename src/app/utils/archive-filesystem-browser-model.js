@@ -29,15 +29,5 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  getCurrentDirMenuButtons( /*availableActions*/ ) {
-    if (this.get('dir.isArchiveVirtualRootDir')) {
-      return [];
-    }
-    return this._super(...arguments);
-  },
-
-  /**
-   * @override
-   */
   readonlyFilesystem: true,
 });

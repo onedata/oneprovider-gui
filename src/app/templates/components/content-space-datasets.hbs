@@ -1,18 +1,17 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
-  {{#if currentBrowsableItem}}
-    {{file-browser
-      browserModel=browserModel
-      dir=currentBrowsableItem
-      customFetchDirChildren=(action "fetchChildren")
-      resolveFileParentFun=(action "resolveFileParent")
-      spaceId=spaceId
-      spacePrivileges=spacePrivileges
-      selectedFiles=selectedItems
-      isSpaceOwned=space.currentUserIsOwner
-      changeSelectedFiles=(action "changeSelectedItems")
-      updateDirEntityId=(action "updateDirEntityId")
-    }}
-  {{/if}}
+  {{file-browser
+    browserModel=browserModel
+    dir=currentBrowsableItem
+    customFetchDirChildren=(action "fetchChildren")
+    resolveFileParentFun=(action "resolveItemParent")
+    spaceId=spaceId
+    spacePrivileges=spacePrivileges
+    selectedFiles=selectedItems
+    isSpaceOwned=space.currentUserIsOwner
+    getItemByIdFun=(if (eq viewMode "files") (action getFileById))
+    changeSelectedFiles=(action "changeSelectedItems")
+    updateDirEntityId=(action "updateDirEntityId")
+  }}
   
   {{#if filesToShowDatasets}}
     {{datasets-modal

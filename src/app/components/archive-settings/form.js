@@ -21,6 +21,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import TextField from 'onedata-gui-common/utils/form-component/text-field';
 
 export default Component.extend(I18n, {
   classNames: ['form', 'form-horizontal', 'form-component'],
@@ -70,12 +71,7 @@ export default Component.extend(I18n, {
           }),
           FormFieldsGroup.create({
             name: 'config',
-            isEnabled: false,
             fields: [
-              ToggleField.create({
-                name: 'incremental',
-                defaultValue: false,
-              }),
               RadioField.create({
                 name: 'layout',
                 defaultValue: 'plain',
@@ -85,8 +81,24 @@ export default Component.extend(I18n, {
                 ],
               }),
               ToggleField.create({
+                name: 'createNestedArchives',
+                defaultValue: false,
+              }),
+              ToggleField.create({
+                name: 'incremental',
+                defaultValue: false,
+                isEnabled: false,
+              }),
+              TextField.extend({
+                isVisible: reads('parent.value.incremental'),
+              }).create({
+                isOptional: true,
+                name: 'baseArchiveId',
+              }),
+              ToggleField.create({
                 name: 'includeDip',
                 defaultValue: false,
+                isEnabled: false,
               }),
             ],
           }),
