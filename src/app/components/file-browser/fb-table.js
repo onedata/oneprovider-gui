@@ -491,7 +491,18 @@ export default Component.extend(I18n, {
   ),
 
   fetchDirChildren: computed('customFetchDirChildren', function fetchDirChildren() {
-    return this.get('customFetchDirChildren') || this._fetchDirChildren.bind(this);
+    const fetchFun = this.get('customFetchDirChildren') ||
+      this._fetchDirChildren.bind(this);
+    return async (entityId, ...args) => {
+      const dir = this.get('dir');
+      if (get(dir, 'entityId') !== entityId) {
+        // due to incomplete async implementation in fb-table, sometimes it can ask for
+        // children of dir that is not currently opened
+        throw new Error('dir.entityId does not match current dir');
+      }
+      const effEntityId = get(dir, 'effFile.entityId') || get(dir, 'entityId');
+      return fetchFun(effEntityId, ...args);
+    };
   }),
 
   apiObserver: observer('registerApi', 'api', function apiObserver() {
@@ -801,6 +812,7 @@ export default Component.extend(I18n, {
     );
   },
 
+  // TODO: VFS-7643 this is specific to filesystem-browser - move to model after refactor
   _fetchDirChildren(dirId, ...fetchArgs) {
     const {
       fileManager,

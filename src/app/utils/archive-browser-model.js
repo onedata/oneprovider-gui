@@ -67,12 +67,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   /**
    * @virtual
-   * @type {(archive: Models.Archive) => any}
-   */
-  openArchiveDirView: notImplementedThrow,
-
-  /**
-   * @virtual
    * @type {(dataset: Models.Dataset) => any}
    */
   openCreateArchiveModal: notImplementedThrow,
@@ -173,6 +167,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         showIn: [
           actionContext.singleDir,
           actionContext.singleDirPreview,
+          actionContext.multiDir,
+          actionContext.mutliDirPreview,
         ],
       });
     }
@@ -299,20 +295,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   },
 
-  /**
-   * @override
-   * @param {Models.Archive} archive 
-   */
-  async onOpenFile(archive) {
-    if (archive.belongsTo('rootFile').id()) {
-      const rootFile = await get(archive, 'rootFile');
-      return this.get('openArchiveDirView')(rootFile);
-    }
-  },
-
   async downloadArchives(archives) {
-    const rootFiles = await allFulfilled(archives.mapBy('rootFile'));
-    const fileIds = rootFiles.compact().mapBy('entityId').compact();
-    return this.downloadFilesById(fileIds);
+    const rootDirs = await allFulfilled(archives.mapBy('rootDir'));
+    const dirIds = rootDirs.compact().mapBy('entityId').compact();
+    return this.downloadFilesById(dirIds);
   },
 });

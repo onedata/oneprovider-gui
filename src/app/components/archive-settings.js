@@ -89,7 +89,7 @@ export default Component.extend(I18n, {
     try {
       if (canSubmit) {
         const archiveCreateData = this.generateArchiveData(formData);
-        return onSubmit(archiveCreateData);
+        return await onSubmit(archiveCreateData);
       }
     } finally {
       this.set('isSubmitting', false);
@@ -112,10 +112,14 @@ export default Component.extend(I18n, {
       );
       const rawConfig = getProperties(
         config,
+        'createNestedArchives',
         'incremental',
         'layout',
         'includeDip',
       );
+      if (rawConfig.incremental) {
+        rawConfig.baseArchiveId = config.baseArchiveId;
+      }
       return {
         config: rawConfig,
         description,
