@@ -37,6 +37,7 @@
     text-align: center;
   }
   td.fb-table-col-files {
+    vertical-align: middle;
     @media (max-width: $screen-xs-max) {
       padding-top: 8px;
       padding-bottom: 8px;
