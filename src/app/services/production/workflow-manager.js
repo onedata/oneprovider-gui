@@ -108,6 +108,38 @@ export default Service.extend({
     return { array: atmWorkflowExecutionSummaries, isLast };
   },
 
+  /**
+   * @param {String} storeInstanceId
+   * @param {String} startFromIndex
+   * @param {number} limit
+   * @param {number} offset
+   * @returns {Promise<{array: Array<{ index: String, value: any }>, isLast: Boolean}>}
+   */
+  async getStoreContent(storeInstanceId, startFromIndex, limit, offset) {
+    if (!limit || limit <= 0) {
+      return { array: [], isLast: false };
+    }
+
+    const onedataGraph = this.get('onedataGraph');
+    const storeContentGri = gri({
+      entityType: 'op_atm_store',
+      entityId: storeInstanceId,
+      aspect: 'content',
+    });
+    const { list, isLast } = await onedataGraph.request({
+      gri: storeContentGri,
+      operation: 'get',
+      data: {
+        index: startFromIndex,
+        offset,
+        limit,
+      },
+      subscribe: false,
+    });
+
+    return { array: list, isLast };
+  },
+
   async pushAtmWorkflowExecutionSummariesToStore(atmWorkflowExecutionSummariesAttrs) {
     const store = this.get('store');
     return atmWorkflowExecutionSummariesAttrs.map(atmWorkflowExecutionSummaryAttrs => {

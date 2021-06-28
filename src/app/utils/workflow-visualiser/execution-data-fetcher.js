@@ -1,20 +1,20 @@
 /**
  * Real implementation of workflow execution statistics fetcher.
  *
- * @module utils/workflow-visualiser/stats-fetcher
+ * @module utils/workflow-visualiser/execution-data-fetcher
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import StatsFetcher from 'onedata-gui-common/utils/workflow-visualiser/stats-fetcher';
+import ExecutionDataFetcher from 'onedata-gui-common/utils/workflow-visualiser/execution-data-fetcher';
 import { get, getProperties } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
 import _ from 'lodash';
 import { all as allFulfilled } from 'rsvp';
 
-export default StatsFetcher.extend(OwnerInjector, {
+export default ExecutionDataFetcher.extend(OwnerInjector, {
   workflowManager: service(),
 
   /**
@@ -65,5 +65,25 @@ export default StatsFetcher.extend(OwnerInjector, {
         return taskStatuses;
       }, {}),
     };
+  },
+
+  /**
+   * @override
+   */
+  async fetchStoreContent(storeSchemaId, startFromIndex, limit, offset) {
+    const {
+      atmWorkflowExecution,
+      workflowManager,
+    } = this.getProperties('atmWorkflowExecution', 'workflowManager');
+
+    const storeRegistry = get(atmWorkflowExecution, 'storeRegistry');
+    const storeInstanceId = storeRegistry && storeRegistry[storeSchemaId];
+
+    if (!storeSchemaId) {
+      throw { id: 'notFound' };
+    }
+
+    return workflowManager
+      .getStoreContent(storeInstanceId, startFromIndex, limit, offset);
   },
 });
