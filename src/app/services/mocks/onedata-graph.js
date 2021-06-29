@@ -815,7 +815,7 @@ export default OnedataGraphMock.extend({
       [archiveEntityType]: archiveHandlers,
       // Using entity type string directly, because op_atm_store does not have
       // dedicated model in ember data.
-      'op_atm_store': atmStoreHandlers,
+      op_atm_store: atmStoreHandlers,
     });
     this.set(
       'handlers',
