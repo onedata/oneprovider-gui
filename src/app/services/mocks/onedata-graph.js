@@ -611,7 +611,7 @@ const atmStoreHandlers = {
       offset,
       limit,
     } = data;
-    const startPosition = Math.min((Number(index) || 0) + Math.max(offset, 0), 200);
+    const startPosition = Math.min(Math.max((Number(index) || 0) + offset, 0), 200);
     const endPositon = Math.min(startPosition + limit, 200);
     const storeEntries = [];
     for (let i = startPosition; i < endPositon; i++) {
