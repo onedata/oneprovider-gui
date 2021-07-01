@@ -6,7 +6,7 @@
   as |bsTab|
 }}
   {{#bs-nav type="tabs" as |nav|}}
-    {{#each (array "waiting" "ongoing" "ended" "preview" "create") as |tabId|}}
+    {{#each possibleTabs as |tabId|}}
       {{#if (or (not-eq tabId "preview") workflowExecutionIdInPreview)}}
         {{#nav.item
           class=(concat "nav-item-" tabId)

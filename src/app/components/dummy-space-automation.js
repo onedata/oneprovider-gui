@@ -38,10 +38,10 @@ export default Component.extend({
     },
     closePreviewTab() {
       const tab = this.get('tab');
-      this.setProperties({
-        tab: tab === 'preview' ? 'waiting' : (tab || null),
-        workflowExecutionId: null,
-      });
+      this.set('workflowExecutionId', null);
+      if (tab === 'preview') {
+        this.set('tab', 'waiting');
+      }
     },
   },
 });
