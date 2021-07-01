@@ -66,6 +66,7 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   stats: attr('object', { defaultValue: () => {} }),
 
+  baseArchive: belongsTo('archive'),
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),
 }).reopenClass(StaticGraphModelMixin);

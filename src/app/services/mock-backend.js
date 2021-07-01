@@ -789,9 +789,9 @@ export default Service.extend({
       );
       const archive = await archiveManager.createArchive(dataset, {
         config: {
-          incremental: true,
-          layout: 'bagit',
-          includeDip: true,
+          incremental: false,
+          layout: i < 2 ? 'plain' : 'bagit',
+          includeDip: i < 1,
         },
         description: `My archive number ${i}`,
         preservedCallback: 'http://example.com/preserved',
@@ -813,7 +813,17 @@ export default Service.extend({
           filesFailed: 0,
         },
         rootDir,
+        baseArchive: null,
       });
+      if (i === 1) {
+        const configIncremental = Object.assign({}, get(archive, 'config'));
+        configIncremental.incremental = true;
+        setProperties(archive, {
+          config: configIncremental,
+          baseArchive: entityRecordsArchives[entityRecordsArchives.length - 1],
+        });
+        await archive.save();
+      }
       entityRecordsArchives.push(archive);
     }
     dataset.set('archiveCount', archiveCount);

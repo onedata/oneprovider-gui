@@ -7,9 +7,23 @@
 </td>
 <td class="fb-table-col-incremental fb-table-secondary-col hidden-xs">
   <span
-    class="file-item-text {{if fileRowModel.incremental "col-status-yes" "col-status-no"}}"
+    class="file-item-text {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
   >
-    {{tt this (if fileRowModel.incremental "yes" "no")}}
+    {{#if fileRowModel.isIncremental}}
+      {{#if fileRowModel.baseArchiveNameProxy.isPending}}
+        {{tt this "loading"}}
+      {{else if fileRowModel.baseArchiveNameProxy.content}}
+        <a href={{fileRowModel.baseArchiveHref}}>
+          {{#truncated-string class="base-archive-name"}}
+            {{fileRowModel.baseArchiveNameProxy.content}}
+          {{/truncated-string}}
+        </a>
+      {{else}}
+        –
+      {{/if}}
+    {{else}}
+      {{tt this "no"}}
+    {{/if}}
   </span>
 </td>
 <td class="fb-table-col-dip fb-table-secondary-col hidden-xs">

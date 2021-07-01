@@ -9,13 +9,15 @@
  */
 
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
-import EmberObject, { computed, getProperties } from '@ember/object';
+import EmberObject, { computed, getProperties, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw, or } from 'ember-awesome-macros';
+import { conditional, equal, raw, or, promise } from 'ember-awesome-macros';
+import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 
+// TODO: VFS-7643 move to other file
 const RowModel = EmberObject.extend(I18n, {
   /**
    * @virtual
@@ -31,6 +33,50 @@ const RowModel = EmberObject.extend(I18n, {
   i18nPrefix: 'components.archiveBrowser.tableRow',
 
   archive: reads('tableRow.archive'),
+
+  isIncremental: reads('archive.config.incremental'),
+
+  includeDip: reads('archive.config.includeDip'),
+
+  baseArchiveProxy: promise.object(computed(
+    'archive.baseArchive',
+    async function baseArchiveProxy() {
+      if (!this.get('baseArchiveId')) {
+        return;
+      }
+      const baseArchive = await this.get('archive.baseArchive');
+      if (!baseArchive) {
+        return;
+      }
+      return BrowsableArchive.create({ content: baseArchive });
+    }
+  )),
+
+  baseArchiveId: computed('archive.baseArchive', function baseArchiveId() {
+    const archive = this.get('archive');
+    if (archive) {
+      return archive.relationEntityId('baseArchive');
+    }
+  }),
+
+  baseArchiveHref: computed('baseArchiveId', function baseArchiveHref() {
+    // FIXME: real href
+    return '/';
+  }),
+
+  baseArchiveNameProxy: promise.object(computed(
+    'baseArchiveProxy',
+    async function baseArchiveNameProxy() {
+      if (!this.get('baseArchiveId')) {
+        return;
+      }
+      const baseArchive = await this.get('baseArchiveProxy');
+      if (!baseArchive) {
+        return;
+      }
+      return get(baseArchive, 'name');
+    }
+  )),
 
   showArchivedCounters: or(
     equal('archive.state', raw('building')),
