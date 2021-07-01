@@ -20,8 +20,8 @@ const possibleTabs = [
   'waiting',
   'ongoing',
   'ended',
-  'create',
   'preview',
+  'create',
 ];
 
 export default Component.extend(I18n, {
@@ -79,13 +79,18 @@ export default Component.extend(I18n, {
   workflowExecutionIdInPreview: undefined,
 
   /**
+   * @type {Array<String>}
+   */
+  possibleTabs: undefined,
+
+  /**
    * One of: `'waiting'`, `'ongoing'`, `'ended'`, `'create'`, `'preview'`
    * @type {ComputedProperty<String>}
    */
   normalizedTab: conditional(
     array.includes(raw(possibleTabs), 'tab'),
     'tab',
-    raw('waiting')
+    'possibleTabs.firstObject'
   ),
 
   /**
@@ -154,6 +159,7 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
 
+    this.set('possibleTabs', [...possibleTabs]);
     this.atmWorkflowExecutionForPreviewLoader();
   },
 
