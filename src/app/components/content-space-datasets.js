@@ -18,13 +18,13 @@ import { promise, raw, bool, equal, conditional } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
-import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -191,6 +191,51 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   //#endregion
 
+  // TODO: VFS-7633 currently only selecting archives from URL is supported
+  selectedItemsForJumpProxy: promise.object(computed(
+    'selected',
+    async function selectedItemsForJumpProxy() {
+      const {
+        selected,
+        archiveManager,
+        datasetId,
+        viewMode,
+      } = this.getProperties('selected', 'archiveManager', 'datasetId', 'viewMode');
+      if (viewMode !== 'archives') {
+        return [];
+      }
+      if (selected) {
+        const items =
+          await onlyFulfilledValues(selected.map(id =>
+            archiveManager.getBrowsableArchive(id)
+          ));
+        try {
+          // allow only archives which belong to current dataset
+          return items.filter(item => item.relationEntityId('dataset') === datasetId);
+        } catch (error) {
+          return [];
+        }
+      }
+    }
+  )),
+
+  /**
+   * Initial value is taken from proxy, see how it 's overwritten in
+   * `injectedSelectedChanged` after proxy value change.
+   * @type {ComputedProperty<Array<Object>>} array of browsable item
+   */
+  selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
+
+  /**
+   * NOTE: not observing anything, because it should be one-time proxy
+   * @type {PromiseObject<Models.File>}
+   */
+  initialSelectedItemsForJumpProxy: promise.object(computed(
+    function initialSelectedItemsForJumpProxy() {
+      return this.get('selectedItemsForJumpProxy');
+    }
+  )),
+
   spaceProxy: promise.object(computed('spaceId', function spaceProxy() {
     const {
       spaceManager,
@@ -263,9 +308,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         archiveId,
       } = this.getProperties('archiveManager', 'archiveId');
       if (archiveId) {
-        return BrowsableArchive.create({
-          content: await archiveManager.getArchive(archiveId),
-        });
+        return archiveManager.getBrowsableArchive(archiveId);
       } else {
         return null;
       }
@@ -404,6 +447,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   initialRequiredDataProxy: promise.object(computed(
     'spaceProxy',
     'initialBrowsableDatasetProxy',
+    'initialSelectedItemsForJumpProxy',
     'initialDirProxy',
     function initialRequiredDataProxy() {
       // viewMode is not observed to prevent unnecessary proxy recompute
@@ -416,7 +460,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
         return allFulfilled([spaceProxy, initialDirProxy]);
       } else {
         const initialBrowsableDatasetProxy = this.get('initialBrowsableDatasetProxy');
-        return allFulfilled([spaceProxy, initialBrowsableDatasetProxy]);
+        const proxies = [spaceProxy, initialBrowsableDatasetProxy];
+        // TODO: VFS-7633 currently only selecting archives from URL is supported
+        if (viewMode === 'archives') {
+          proxies.push(this.get('initialSelectedItemsForJumpProxy'));
+        }
+        return allFulfilled(proxies);
       }
     }
   )),
@@ -472,6 +521,22 @@ export default OneEmbeddedComponent.extend(...mixins, {
       }
     }
   ),
+
+  /**
+   * Observer: override selected items when value injected from outside changes
+   */
+  injectedSelectedChanged: observer(
+    'selectedItemsForJumpProxy.content',
+    function injectedSelectedChanged() {
+      // TODO: VFS-7633 currently only selecting archives from URL is supported
+      if (this.get('viewMode') !== 'archives') {
+        return;
+      }
+      const selectedItemsForJump = this.get('selectedItemsForJumpProxy.content');
+      if (selectedItemsForJump) {
+        this.set('selectedItemsForJump', selectedItemsForJump);
+      }
+    }),
 
   init() {
     this._super(...arguments);
@@ -676,9 +741,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
     };
   },
 
-  browserizeArchives({ childrenRecords, isLast }) {
+  async browserizeArchives({ childrenRecords, isLast }) {
+    const archiveManager = this.get('archiveManager');
     return {
-      childrenRecords: childrenRecords.map(r => BrowsableArchive.create({ content: r })),
+      childrenRecords: await allFulfilled(childrenRecords.map(record =>
+        archiveManager.getBrowsableArchive(get(record, 'entityId'))
+      )),
       isLast,
     };
   },

@@ -48,6 +48,7 @@ const RowModel = EmberObject.extend(I18n, {
       if (!baseArchive) {
         return;
       }
+      // FIXME: get browsable archive (inject archiveManager)
       return BrowsableArchive.create({ content: baseArchive });
     }
   )),

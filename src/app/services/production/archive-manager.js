@@ -14,6 +14,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { all as allFulfilled } from 'rsvp';
+import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 
 const datasetArchivesAspect = 'archives_details';
 
@@ -23,18 +24,48 @@ export default Service.extend({
   fileManager: service(),
 
   /**
+   * Mapping of `archiveId` -> cached browsable-wrapped archive
+   * @type {Object}
+   */
+  browsableArchivesStore: undefined,
+
+  init() {
+    this.set('browsableArchivesStore', {});
+  },
+
+  /**
    * @param {String} archiveId entityId of archive
-   * @param {String} scope currently only 'private' is supported
    * @returns {Promise<Models.Archive>}
    */
-  async getArchive(archiveId, scope = 'private') {
+  async getArchive(archiveId) {
     const requestGri = gri({
       entityType: archiveEntityType,
       entityId: archiveId,
       aspect: 'instance',
-      scope,
+      scope: 'private',
     });
     return this.get('store').findRecord('archive', requestGri);
+  },
+
+  /**
+   * Creates or returns previously created BrowsableArchive object.
+   * Only one `BrowsableArchive` for specific `archiveId` is created.
+   * @param {String} archiveId
+   * @returns {Utils.BrowsableArchive}
+   */
+  async getBrowsableArchive(archiveId) {
+    const browsableArchivesStore = this.get('browsableArchivesStore');
+    const cachedBrowsableArchive = browsableArchivesStore[archiveId];
+    if (cachedBrowsableArchive) {
+      return cachedBrowsableArchive;
+    } else {
+      const archive = await this.getArchive(archiveId);
+      const browsableArchive = BrowsableArchive.create({
+        content: archive,
+      });
+      browsableArchivesStore[archiveId] = browsableArchive;
+      return browsableArchive;
+    }
   },
 
   /**
