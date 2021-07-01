@@ -139,7 +139,7 @@ export default Component.extend(I18n, {
 
   async getItemById(itemId) {
     if (itemId === shareRootId) {
-      return this.get('shareRootDir');
+      return this.get('rootDir');
     } else {
       return this.get('fileManager').getFileById(itemId, 'public');
     }
