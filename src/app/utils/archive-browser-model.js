@@ -24,10 +24,12 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { next } from '@ember/runloop';
 
 const allButtonNames = Object.freeze([
   'btnCreateArchive',
   'btnRefresh',
+  'btnCopyId',
   'btnDownloadTar',
   'btnPurge',
 ]);
@@ -41,6 +43,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   isMobile: service(),
   globalNotify: service(),
   i18n: service(),
+  globalClipboard: service(),
 
   /**
    * @override
@@ -155,6 +158,28 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   isAnySelectedPurging: array.isAny('selectedFiles', raw('state'), raw('purging')),
 
   //#region Action buttons
+
+  btnCopyId: computed(function btnCopyId() {
+    return this.createFileAction({
+      id: 'copyArchiveId',
+      icon: 'circle-id',
+      action: (archives) => {
+        const archive = archives[0];
+        // next must be used because global clipboard causes focus lost
+        // FIXME: this may be fixed if we add more exceptions on clicking
+        next(() => {
+          this.get('globalClipboard').copy(
+            get(archive, 'entityId'),
+            this.t('archiveId')
+          );
+        });
+      },
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleDirPreview,
+      ],
+    });
+  }),
 
   btnDownloadTar: computed(
     function btnDownloadTar() {
