@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7817 Workflows GUI Service Pack 1
 * VFS-7870 Fixed invalid shares breadcrumbs
 * VFS-7796 Added support for BagIt archives and navigating through symlinked directories
 * VFS-7830 Fixed wrong (info) modal opening on file tags: protection, metadata, qos, permissions

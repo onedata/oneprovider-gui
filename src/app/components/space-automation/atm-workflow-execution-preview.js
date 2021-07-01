@@ -17,21 +17,9 @@ export default Component.extend({
 
   /**
    * @virtual
-   * @type {Models.AtmWorkflowExecutionSummary}
+   * @type {PromiseObject<Models.AtmWorkflowExecution>}
    */
-  atmWorkflowExecutionSummary: undefined,
-
-  /**
-   * @type {ComputedProperty<PromiseObject<Models.AtmWorkflowExecution>>}
-   */
-  atmWorkflowExecutionProxy: promise.object(
-    computed('atmWorkflowExecutionSummary', async function atmWorkflowExecutionProxy() {
-      return await get(
-        this.get('atmWorkflowExecutionSummary'),
-        'atmWorkflowExecution'
-      );
-    })
-  ),
+  atmWorkflowExecutionProxy: undefined,
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.AtmWorkflowSchemaSnapshot>>}

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, context } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
@@ -7,10 +7,12 @@ import { click, fillIn } from 'ember-native-dom-helpers';
 import { lookupService } from '../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
-import { resolve } from 'rsvp';
+import { resolve, Promise } from 'rsvp';
 import { set } from '@ember/object';
 import { getSlide } from '../../helpers/one-carousel';
 import sinon from 'sinon';
+import suppressRejections from '../../helpers/suppress-rejections';
+import { schedule } from '@ember/runloop';
 
 describe('Integration | Component | space automation', function () {
   setupComponentTest('space-automation', {
@@ -18,6 +20,9 @@ describe('Integration | Component | space automation', function () {
   });
 
   beforeEach(function () {
+    const space = {
+      entityId: 'space1',
+    };
     const atmWorkflowSchemas = [{
       entityId: 'workflow1',
       name: 'workflow 1',
@@ -37,6 +42,14 @@ describe('Integration | Component | space automation', function () {
         list: promiseArray(resolve(atmWorkflowSchemas)),
       })),
     };
+    const atmWorkflowExecution = {
+      entityId: 'execution1',
+      space: promiseObject(resolve(space)),
+      // let assume, for simplicity, that workflow schema is also its own snapshot
+      atmWorkflowSchemaSnapshot: promiseObject(resolve(atmWorkflowSchemas[0])),
+      reload: () => resolve(),
+      lanes: [],
+    };
     set(lookupService(this, 'current-user'), 'userProxy', promiseObject(resolve({
       effAtmInventoryList: promiseObject(resolve({
         list: promiseArray(resolve([atmInventory])),
@@ -46,12 +59,26 @@ describe('Integration | Component | space automation', function () {
       lookupService(this, 'workflow-manager'),
       'getAtmWorkflowExecutionSummariesForSpace'
     ).resolves([]);
+    const getAtmWorkflowExecutionByIdStub = sinon.stub(
+      lookupService(this, 'workflow-manager'),
+      'getAtmWorkflowExecutionById'
+    ).withArgs('execution1').resolves(atmWorkflowExecution);
     this.setProperties({
-      space: {
-        entityId: 'space1',
-      },
+      space,
+      tab: undefined,
+      workflowExecutionId: undefined,
+      atmWorkflowExecution,
+      changeTab: tab => this.set('tab', tab),
+      getAtmWorkflowExecutionByIdStub,
+      closePreviewTabStub: sinon.stub().callsFake(() => {
+        schedule('afterRender', this, () => this.setProperties({
+          tab: 'waiting',
+          workflowExecutionId: undefined,
+        }));
+      }),
     });
   });
+  suppressRejections();
 
   it('has class "run-workflow-creator"', async function () {
     await render(this);
@@ -96,9 +123,84 @@ describe('Integration | Component | space automation', function () {
       .and.to.be.calledWith('workflow1', 'space1', sinon.match.any);
     expect(this.$('.nav-item-waiting')).to.have.class('active');
   });
+
+  context('when tab is "preview"', function () {
+    beforeEach(function () {
+      this.set('tab', 'preview');
+    });
+
+    it('has active "preview" tab with workflow name when "workflowExecutionId" param points to an existing execution',
+      async function () {
+        this.set('workflowExecutionId', 'execution1');
+
+        await render(this);
+
+        const $previewNavItem = this.$('.nav-item-preview');
+        expect($previewNavItem).to.have.class('active');
+        expect($previewNavItem.text().trim()).to.equal('workflow 1');
+      });
+
+    it('has active "preview" tab with "Cannot load" label when "workflowExecutionId" param points to a non-existing execution',
+      async function () {
+        let rejectPromise;
+        this.get('getAtmWorkflowExecutionByIdStub')
+          .returns(new Promise((resolve, reject) => rejectPromise = reject));
+        this.set('workflowExecutionId', 'execution1');
+
+        await render(this);
+        rejectPromise();
+        await wait();
+
+        const $previewNavItem = this.$('.nav-item-preview');
+        expect($previewNavItem).to.have.class('active');
+        expect($previewNavItem.text().trim()).to.equal('Cannot load');
+      });
+
+    it('has active "preview" tab with "Cannot load" label when "workflowExecutionId" param points to an execution from another space',
+      async function (done) {
+        this.set(
+          'atmWorkflowExecution.space',
+          promiseObject(resolve({ entityId: 'space2' }))
+        );
+        this.set('workflowExecutionId', 'execution1');
+
+        await render(this);
+
+        const $previewNavItem = this.$('.nav-item-preview');
+        expect($previewNavItem).to.have.class('active');
+        expect($previewNavItem.text().trim()).to.equal('Cannot load');
+        done();
+      });
+
+    it('has active "preview" tab with "Loading..." label when "workflowExecutionId" param points to a long loading execution',
+      async function () {
+        this.get('getAtmWorkflowExecutionByIdStub').returns(new Promise(() => {}));
+        this.set('workflowExecutionId', 'execution1');
+
+        await render(this);
+
+        const $previewNavItem = this.$('.nav-item-preview');
+        expect($previewNavItem).to.have.class('active');
+        expect($previewNavItem.text().trim()).to.equal('Loading...');
+      });
+
+    it('calls "closePreviewTab" on init, when "workflowExecutionId" param is empty',
+      async function () {
+        await render(this);
+
+        expect(this.get('closePreviewTabStub')).to.be.calledOnce;
+        expect(this.$('.nav-item-waiting')).to.have.class('active');
+      });
+  });
 });
 
 async function render(testCase) {
-  testCase.render(hbs `{{space-automation space=space}}`);
+  testCase.render(hbs `{{space-automation
+    space=space
+    tab=tab
+    workflowExecutionId=workflowExecutionId
+    changeTab=changeTab
+    closePreviewTab=closePreviewTabStub
+  }}`);
   await wait();
 }

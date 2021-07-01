@@ -38,9 +38,9 @@ export default StatsFetcher.extend(OwnerInjector, {
     const taskIds = _.flatten(parallelBoxes.mapBy('taskRegistry')
       .map(taskRegistry => Object.values(taskRegistry))
     );
-    const taskExecutionRecords = await allFulfilled(
-      taskIds.map(taskId => workflowManager.getAtmTaskExecutionById(taskId))
-    );
+    const taskExecutionRecords = await allFulfilled(taskIds.map(taskId =>
+      workflowManager.getAtmTaskExecutionById(taskId, { reload: true })
+    ));
 
     return {
       global: {
