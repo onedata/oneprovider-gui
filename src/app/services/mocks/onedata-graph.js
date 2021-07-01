@@ -606,13 +606,17 @@ const atmStoreHandlers = {
       return messageNotSupported;
     }
 
+    const maxEntriesCount = 200;
     const {
       index,
       offset,
       limit,
     } = data;
-    const startPosition = Math.min(Math.max((Number(index) || 0) + offset, 0), 200);
-    const endPositon = Math.min(startPosition + limit, 200);
+    const startPosition = Math.min(
+      Math.max((Number(index) || 0) + offset, 0),
+      maxEntriesCount
+    );
+    const endPositon = Math.min(startPosition + limit, maxEntriesCount);
     const storeEntries = [];
     for (let i = startPosition; i < endPositon; i++) {
       storeEntries.push({
@@ -623,7 +627,7 @@ const atmStoreHandlers = {
 
     return {
       list: storeEntries,
-      isLast: startPosition >= 200,
+      isLast: startPosition >= maxEntriesCount,
     };
   },
 };
