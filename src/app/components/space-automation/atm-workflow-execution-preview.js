@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { promise } from 'ember-awesome-macros';
-import StatsFetcher from 'oneprovider-gui/utils/workflow-visualiser/stats-fetcher';
+import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/execution-data-fetcher';
 
 export default Component.extend({
   classNames: ['atm-workflow-execution-preview', 'loadable-row'],
@@ -68,18 +68,18 @@ export default Component.extend({
   ),
 
   /**
-   * @type {ComputedProperty<Utils.WorkflowVisualiser.StatsFetcher>}
+   * @type {ComputedProperty<Utils.WorkflowVisualiser.ExecutionDataFetcher>}
    */
-  statsFetcher: computed(
+  executionDataFetcher: computed(
     'atmWorkflowExecutionProxy.isFulfilled',
-    function statsFetcher() {
+    function executionDataFetcher() {
       const {
         isFulfilled,
         content: atmWorkflowExecution,
       } = getProperties(this.get('atmWorkflowExecutionProxy'), 'isFulfilled', 'content');
 
       if (isFulfilled) {
-        return StatsFetcher.create({
+        return ExecutionDataFetcher.create({
           ownerSource: this,
           atmWorkflowExecution,
         });

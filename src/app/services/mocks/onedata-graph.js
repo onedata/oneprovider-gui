@@ -600,6 +600,38 @@ const fileHandlers = {
   },
 };
 
+const atmStoreHandlers = {
+  content(operation, entityId, data) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+
+    const maxEntriesCount = 200;
+    const {
+      index,
+      offset,
+      limit,
+    } = data;
+    const startPosition = Math.min(
+      Math.max((Number(index) || 0) + offset, 0),
+      maxEntriesCount
+    );
+    const endPositon = Math.min(startPosition + limit, maxEntriesCount);
+    const storeEntries = [];
+    for (let i = startPosition; i < endPositon; i++) {
+      storeEntries.push({
+        index: String(i),
+        value: `entry ${i} ${Math.random()}`,
+      });
+    }
+
+    return {
+      list: storeEntries,
+      isLast: startPosition >= maxEntriesCount,
+    };
+  },
+};
+
 const metaJson = {
   query: {
     count: 10,
@@ -785,6 +817,9 @@ export default OnedataGraphMock.extend({
       [fileEntityType]: fileHandlers,
       [datasetEntityType]: datasetHandlers,
       [archiveEntityType]: archiveHandlers,
+      // Using entity type string directly, because op_atm_store does not have
+      // dedicated model in ember data.
+      op_atm_store: atmStoreHandlers,
     });
     this.set(
       'handlers',
