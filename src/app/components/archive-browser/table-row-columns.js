@@ -14,4 +14,10 @@ export default FbTableRowColumns.extend({
    * @override
    */
   i18nPrefix: 'components.archiveBrowser.tableRowColumns',
+
+  /**
+   * Frame name, where Onezone link should be opened
+   * @type {String}
+   */
+  navigateTarget: '_top',
 });

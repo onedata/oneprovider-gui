@@ -13,7 +13,7 @@
       {{#if fileRowModel.baseArchiveNameProxy.isPending}}
         {{tt this "loading"}}
       {{else if fileRowModel.baseArchiveNameProxy.content}}
-        <a href={{fileRowModel.baseArchiveHref}}>
+        <a target={{navigateTarget}} href={{fileRowModel.baseArchiveHref}}>
           {{#truncated-string class="base-archive-name"}}
             {{fileRowModel.baseArchiveNameProxy.content}}
           {{/truncated-string}}

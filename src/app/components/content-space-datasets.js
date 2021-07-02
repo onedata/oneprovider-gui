@@ -638,6 +638,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return ArchiveBrowserModel.create({
       ownerSource: this,
       spaceDatasetsViewState: this,
+      getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openPurgeModal: this.openArchivesPurgeModal.bind(this),
     });

@@ -21,6 +21,7 @@ import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled } from 'rsvp';
 import { conditional, equal, raw, array } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
@@ -79,6 +80,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {(datasets: Array<Models.Dataset>) => any}
    */
   openPurgeModal: notImplementedThrow,
+
+  /**
+   * Function argument: data for getDataUrl Onezone function
+   * @override
+   * @type {Function}
+   */
+  getDatasetsUrl: notImplementedWarn,
 
   /**
    * @override

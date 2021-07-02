@@ -15,14 +15,18 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import { htmlSafe } from '@ember/string';
 import { conditional, equal, raw, or, promise } from 'ember-awesome-macros';
-import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
+import { inject as service } from '@ember/service';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
 // TODO: VFS-7643 move to other file
-const RowModel = EmberObject.extend(I18n, {
+const RowModel = EmberObject.extend(OwnerInjector, I18n, {
+  i18n: service(),
+  archiveManager: service(),
+
   /**
-   * @virtual
+   * @override
    */
-  i18n: undefined,
+  i18nPrefix: 'components.archiveBrowser.tableRow',
 
   /**
    * @virtual
@@ -30,7 +34,16 @@ const RowModel = EmberObject.extend(I18n, {
    */
   tableRow: undefined,
 
-  i18nPrefix: 'components.archiveBrowser.tableRow',
+  /**
+   * @virtual
+   * @type {Utils.ArchiveBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
+   * @override
+   */
+  ownerSource: reads('tableRow'),
 
   archive: reads('tableRow.archive'),
 
@@ -41,6 +54,10 @@ const RowModel = EmberObject.extend(I18n, {
   baseArchiveProxy: promise.object(computed(
     'archive.baseArchive',
     async function baseArchiveProxy() {
+      const {
+        baseArchiveId,
+        archiveManager,
+      } = this.getProperties('baseArchiveId', 'archiveManager');
       if (!this.get('baseArchiveId')) {
         return;
       }
@@ -48,8 +65,7 @@ const RowModel = EmberObject.extend(I18n, {
       if (!baseArchive) {
         return;
       }
-      // FIXME: get browsable archive (inject archiveManager)
-      return BrowsableArchive.create({ content: baseArchive });
+      return archiveManager.getBrowsableArchive(baseArchiveId);
     }
   )),
 
@@ -60,10 +76,34 @@ const RowModel = EmberObject.extend(I18n, {
     }
   }),
 
-  baseArchiveHref: computed('baseArchiveId', function baseArchiveHref() {
-    // FIXME: real href
-    return '/';
+  datasetId: computed('archive.dataset', function datasetId() {
+    const archive = this.get('archive');
+    if (archive) {
+      return archive.relationEntityId('dataset');
+    }
   }),
+
+  baseArchiveHref: computed(
+    'datasetId',
+    'baseArchiveId',
+    'browserModel.getDatasetsUrl',
+    function baseArchiveHref() {
+      const {
+        datasetId,
+        baseArchiveId,
+        browserModel,
+      } = this.getProperties('datasetId', 'baseArchiveId', 'browserModel');
+      const getDatasetsUrl = get(browserModel, 'getDatasetsUrl');
+      if (!getDatasetsUrl || !baseArchiveId || !datasetId) {
+        return;
+      }
+      return getDatasetsUrl({
+        datasetId,
+        viewMode: 'archives',
+        selected: [baseArchiveId],
+      });
+    }
+  ),
 
   baseArchiveNameProxy: promise.object(computed(
     'baseArchiveProxy',
@@ -131,10 +171,9 @@ export default FbTableRow.extend({
 
   // TODO: VFS-7643 this will be probably injected from above
   fileRowModel: computed(function fileRowModel() {
-    const i18n = this.get('i18n');
     return RowModel.create({
-      i18n,
       tableRow: this,
+      browserModel: this.get('browserModel'),
     });
   }),
 });
