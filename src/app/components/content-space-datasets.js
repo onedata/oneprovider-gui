@@ -191,6 +191,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   //#endregion
 
+  // TODO: VFS-7633 jumping to archive that is not on current list corrupts the list
   // TODO: VFS-7633 currently only selecting archives from URL is supported
   selectedItemsForJumpProxy: promise.object(computed(
     'selected',
