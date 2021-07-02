@@ -7,9 +7,13 @@ import moment from 'moment';
 import OneTooltipHelper from '../../../../helpers/one-tooltip';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
 
 const columns = [{
   name: 'name',
+}, {
+  name: 'inventory',
 }, {
   name: 'scheduledAt',
 }, {
@@ -63,6 +67,9 @@ describe('Integration | Component | space automation/atm workflow executions tab
         scheduleTime: scheduleTime.unix(),
         startTime: startTime.unix(),
         finishTime: finishTime.unix(),
+        atmInventory: promiseObject(resolve({
+          name: 'inv1',
+        })),
       },
       selectSpy: sinon.spy(),
     });
@@ -98,6 +105,24 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
     expect(this.$('.cell-name').text().trim()).to.equal('workflow1');
   });
+
+  it('shows inventory name in "inventory" column', async function () {
+    this.set('columnNames', ['inventory']);
+
+    await render(this);
+
+    expect(this.$('.cell-inventory').text().trim()).to.equal('inv1');
+  });
+
+  it('shows "unknown" as inventory name in "inventory" column when inventory is not available',
+    async function () {
+      this.set('atmWorkflowExecutionSummary.atmInventory', promiseObject(resolve(null)));
+      this.set('columnNames', ['inventory']);
+
+      await render(this);
+
+      expect(this.$('.cell-inventory').text().trim()).to.equal('Unknown');
+    });
 
   [
     ['scheduledAt', 'schedule time', scheduleTime],

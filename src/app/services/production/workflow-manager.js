@@ -10,11 +10,28 @@
 import Service, { inject as service } from '@ember/service';
 import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
+import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import { allSettled } from 'rsvp';
 
 export default Service.extend({
   store: service(),
   onedataGraph: service(),
+
+  /**
+   * @param {String} atmWorkflowExecutionId
+   * @returns {Promise<Models.AtmWorkflowExecution>}
+   */
+  async getAtmWorkflowExecutionById(atmWorkflowExecutionId) {
+    const atmWorkflowExecutionGri = gri({
+      entityType: atmWorkflowExecutionEntityType,
+      entityId: atmWorkflowExecutionId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .findRecord('atmWorkflowExecution', atmWorkflowExecutionGri);
+  },
 
   /**
    * @param {String} taskId
@@ -87,6 +104,7 @@ export default Service.extend({
     });
     const atmWorkflowExecutionSummaries =
       await this.pushAtmWorkflowExecutionSummariesToStore(list);
+    await allSettled(atmWorkflowExecutionSummaries.mapBy('atmInventory'));
     return { array: atmWorkflowExecutionSummaries, isLast };
   },
 

@@ -3,6 +3,7 @@ import workflowRow from './atm-workflow-executions-table/workflow-row';
 export default {
   columns: {
     name: 'Name',
+    inventory: 'Inventory',
     scheduledAt: 'Scheduled at',
     startedAt: 'Started at',
     finishedAt: 'Finished at',

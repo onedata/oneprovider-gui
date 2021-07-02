@@ -21,5 +21,19 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
    */
   iframeInjectedProperties: Object.freeze([
     'spaceEntityId',
+    'tab',
+    'workflowExecutionId',
   ]),
+
+  actions: {
+    changeTab(tab) {
+      return this.callParent('changeTab', tab);
+    },
+    openPreviewTab(workflowExecutionId) {
+      return this.callParent('openPreviewTab', workflowExecutionId);
+    },
+    closePreviewTab() {
+      return this.callParent('closePreviewTab');
+    },
+  },
 });

@@ -1,3 +1,10 @@
 {{#promise-proxy-container proxy=spaceProxy}}
-  {{space-automation space=spaceProxy.content}}
+  {{space-automation
+    space=spaceProxy.content
+    tab=tab
+    workflowExecutionId=workflowExecutionId
+    changeTab=(action "changeTab")
+    openPreviewTab=(action "openPreviewTab")
+    closePreviewTab=(action "closePreviewTab")
+  }}
 {{/promise-proxy-container}}

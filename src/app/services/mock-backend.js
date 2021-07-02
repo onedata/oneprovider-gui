@@ -64,7 +64,7 @@ export const recordNames = {
 export const numberOfProviders = 3;
 export const numberOfSpaces = 1;
 export const numberOfFiles = 200;
-export const numberOfDirs = 2;
+export const numberOfDirs = 5;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 150;
 export const numberOfAtmWorkflowExecutions = 150;
@@ -164,6 +164,11 @@ export default Service.extend({
           fullName: 'John Smith',
           username: 'smith',
         }).save().then(owner => {
+          const entityRecords = this.get('entityRecords');
+          if (!get(entityRecords, 'owner')) {
+            set(entityRecords, 'owner', []);
+          }
+          get(entityRecords, 'owner').push(owner);
           return get(spaceList, 'list').then(list => {
               return list.forEach(space => {
                 return get(space, 'rootDir').then(rootDir => {
@@ -286,6 +291,27 @@ export default Service.extend({
       index: 'hello',
     });
     return allFulfilled([file0.save(), file1.save()]);
+  },
+
+  /**
+   * Makes symbolic link on `symlinkDir` to point to `targetDir`.
+   * @param {Models.File} symlinkDir 
+   * @param {Models.File} targetDir must be in the same directory as `symlinkDir`
+   * @returns {Models.File}
+   */
+  async symlinkizeDirectory(symlinkDir, targetDir) {
+    setProperties(symlinkDir, {
+      type: 'symlink',
+      posixPermissions: '777',
+      size: 20,
+      distribution: null,
+      fileQosSummary: null,
+      fileDatasetSummary: null,
+      targetPath: `./${get(targetDir, 'name')}`,
+    });
+    const symlinkMap = this.get('symlinkMap');
+    symlinkMap[get(symlinkDir, 'entityId')] = get(targetDir, 'entityId');
+    return symlinkDir.save();
   },
 
   createAndAddQos(store) {
@@ -756,7 +782,11 @@ export default Service.extend({
     const datasetRootFile = await get(dataset, 'rootFile');
     const name = get(datasetRootFile, 'name');
     for (let i = 0; i < archiveCount; ++i) {
-      const entityId = `${get(dataset, 'entityId')}-archive-${i}`;
+      const archiveEntityId = `${get(dataset, 'entityId')}-archive-${i}`;
+      const rootDir = await this.createArchiveRootDir(
+        archiveEntityId,
+        get(datasetRootFile, 'entityId'),
+      );
       const archive = await archiveManager.createArchive(dataset, {
         config: {
           incremental: true,
@@ -770,11 +800,11 @@ export default Service.extend({
         // properties not normally used when create
         id: gri({
           entityType: archiveEntityType,
-          entityId,
+          entityId: archiveEntityId,
           aspect: 'instance',
           scope: 'private',
         }),
-        index: name + entityId,
+        index: name + archiveEntityId,
         creationTime: Math.floor(Date.now() / 1000),
         state: 'preserved',
         stats: {
@@ -782,13 +812,51 @@ export default Service.extend({
           filesArchived: (i + 1) * 43,
           filesFailed: 0,
         },
-        // fake directory to browse - it is the same as regular dir
-        rootFile: datasetRootFile,
+        rootDir,
       });
       entityRecordsArchives.push(archive);
     }
     dataset.set('archiveCount', archiveCount);
     await dataset.save();
+  },
+
+  async createArchiveRootDir(archiveId, fileId) {
+    const store = this.get('store');
+    const owner = this.get('entityRecords.owner.0');
+    const timestamp = Math.floor(Date.now() / 1000);
+    const provider = this.get('entityRecords.provider.firstObject');
+    const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
+    const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
+    const entityId = generateDirEntityId(
+      0,
+      'archive',
+      `-archive-${archiveId}-file-${fileId}`
+    );
+    const id = generateFileGri(entityId);
+    const name =
+      `archive_${archiveId}`;
+    // NOTE: this is not the same structure as in backend, because in backend there is
+    // also: space_archives_root and dataset_dir
+    // For simplicity we don't implement full structure, so be sure that archives code
+    // works on backend.
+    const archiveDir = await store.createRecord('file', {
+      id,
+      name,
+      index: name,
+      type: 'dir',
+      mtime: timestamp,
+      posixPermissions: '777',
+      owner,
+      fileQosSummary,
+      emptyDatasetSummary,
+      provider,
+    }).save();
+    const entityRecords = this.get('entityRecords');
+    if (!get(entityRecords, 'archiveDir')) {
+      set(entityRecords, 'archiveDir', []);
+    }
+    get(entityRecords, 'archiveDir').push(archiveDir);
+    return archiveDir;
   },
 
   createProviderRecords(store, names) {
@@ -919,7 +987,7 @@ export default Service.extend({
           targetPath: isSymlink ? '../some/file' : undefined,
         }).save();
       })))
-      .then((records) => {
+      .then(async (records) => {
         this.set('entityRecords.file', records);
         const symlinks = records.filterBy('type', 'symlink');
         const symlinkMap = symlinks.reduce((map, symlink) => {
@@ -928,6 +996,12 @@ export default Service.extend({
           return map;
         }, {});
         this.set('symlinkMap', symlinkMap);
+        const dirs = this.get('entityRecords.dir');
+        if (dirs.length > 4) {
+          const symlinkDir = dirs[3];
+          const targetDir = dirs[4];
+          await this.symlinkizeDirectory(symlinkDir, targetDir);
+        }
         return this.makeFilesConflict().then(() => records);
       });
   },
@@ -1013,6 +1087,8 @@ export default Service.extend({
    * @returns {Promise<Array<Model>>}
    */
   async createAtmWorkflowExecutionRecords(store) {
+    const space = this.get('entityRecords.space.0');
+    const atmInventories = this.get('entityRecords.atmInventory');
     const atmWorkflowSchemas = this.get('entityRecords.atmWorkflowSchema');
     const atmWorkflowSchemasCount = get(atmWorkflowSchemas, 'length');
     const timestamp = Math.floor(Date.now() / 1000);
@@ -1026,6 +1102,7 @@ export default Service.extend({
       const phaseIndex = atmWorkflowExecutionPhases.indexOf(phase);
       const executionsGroup = await allFulfilled(
         _.range(numberOfAtmWorkflowExecutions).map(async (i) => {
+          const atmInventory = atmInventories[i % atmInventories.length];
           const scheduleTime = phaseIndex >= waitingPhaseIndex ?
             timestamp + i * 3600 : null;
           const startTime = phaseIndex >= ongoingPhaseIndex ?
@@ -1098,6 +1175,7 @@ export default Service.extend({
             startTime,
             finishTime,
             atmWorkflowSchemaSnapshot,
+            space,
           }).save();
           atmWorkflowExecutions.push(atmWorkflowExecution);
           return await store.createRecord('atmWorkflowExecutionSummary', {
@@ -1113,6 +1191,7 @@ export default Service.extend({
             startTime,
             finishTime,
             atmWorkflowExecution,
+            atmInventory,
           }).save();
         })
       );
