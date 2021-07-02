@@ -20,4 +20,10 @@ export default FbTableRowColumns.extend({
    * @type {String}
    */
   navigateTarget: '_top',
+
+  actions: {
+    baseArchiveLinkClick(event) {
+      event.stopPropagation();
+    },
+  },
 });

@@ -17,6 +17,7 @@
           class="azure base-archive-link"
           target={{navigateTarget}}
           href={{fileRowModel.baseArchiveHref}}
+          onclick={{action "baseArchiveLinkClick"}}
         >
           {{#truncated-string class="base-archive-name"}}
             {{fileRowModel.baseArchiveNameProxy.content}}
