@@ -43,12 +43,14 @@
       onArchiveCreate=(action submitArchiveCreate)
     }}
   {{/if}}
-
+  
+  {{!-- FIXME: add getDataUrl --}}
   {{#if fileToShowInfo}}
     {{file-browser/fb-info-modal
       open=true
       file=fileToShowInfo
       showApiSection=false
+      getDataUrl=(action getDataUrl)
       onHide=(action closeInfoModal)
     }}
   {{/if}}

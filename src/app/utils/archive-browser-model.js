@@ -25,7 +25,6 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { next } from '@ember/runloop';
 
 const allButtonNames = Object.freeze([
   'btnCreateArchive',
