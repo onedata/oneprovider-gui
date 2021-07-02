@@ -13,7 +13,11 @@
       {{#if fileRowModel.baseArchiveNameProxy.isPending}}
         {{tt this "loading"}}
       {{else if fileRowModel.baseArchiveNameProxy.content}}
-        <a target={{navigateTarget}} href={{fileRowModel.baseArchiveHref}}>
+        <a
+          class="azure base-archive-link"
+          target={{navigateTarget}}
+          href={{fileRowModel.baseArchiveHref}}
+        >
           {{#truncated-string class="base-archive-name"}}
             {{fileRowModel.baseArchiveNameProxy.content}}
           {{/truncated-string}}
@@ -24,17 +28,5 @@
     {{else}}
       {{tt this "no"}}
     {{/if}}
-  </span>
-</td>
-<td class="fb-table-col-dip fb-table-secondary-col hidden-xs">
-  <span
-    class="file-item-text {{if fileRowModel.includeDip "col-status-yes" "col-status-no"}}"
-  >
-    {{tt this (if fileRowModel.includeDip "yes" "no")}}
-  </span>
-</td>
-<td class="fb-table-col-layout fb-table-secondary-col hidden-xs">
-  <span class="file-item-text">
-    {{fileRowModel.archive.config.layout}}
   </span>
 </td>

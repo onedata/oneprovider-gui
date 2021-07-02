@@ -111,6 +111,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  statusBarComponentName: 'archive-browser/table-row-status-bar',
+
+  /**
+   * @override
+   */
   headRowComponentName: 'archive-browser/table-head-row',
 
   /**

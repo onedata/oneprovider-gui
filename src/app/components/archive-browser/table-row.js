@@ -51,6 +51,8 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
 
   includeDip: reads('archive.config.includeDip'),
 
+  archiveLayout: reads('archive.config.layout'),
+
   baseArchiveProxy: promise.object(computed(
     'archive.baseArchive',
     async function baseArchiveProxy() {

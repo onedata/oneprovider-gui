@@ -790,8 +790,8 @@ export default Service.extend({
       const archive = await archiveManager.createArchive(dataset, {
         config: {
           incremental: false,
-          layout: i < 2 ? 'plain' : 'bagit',
-          includeDip: i < 1,
+          layout: (i >= 2 && i <= 3) ? 'bagit' : 'plain',
+          includeDip: i === 2,
         },
         description: `My archive number ${i}`,
         preservedCallback: 'http://example.com/preserved',
@@ -815,19 +815,25 @@ export default Service.extend({
         rootDir,
         baseArchive: null,
       });
-      if (i === 1) {
-        const configIncremental = Object.assign({}, get(archive, 'config'));
-        configIncremental.incremental = true;
-        setProperties(archive, {
-          config: configIncremental,
-          baseArchive: entityRecordsArchives[entityRecordsArchives.length - 1],
-        });
-        await archive.save();
-      }
       entityRecordsArchives.push(archive);
     }
+    await this.setBaseArchive(
+      entityRecordsArchives[2],
+      entityRecordsArchives[archiveCount - 1]
+    );
     dataset.set('archiveCount', archiveCount);
     await dataset.save();
+  },
+
+  // FIXME: a strange bug - when lauching, the first archive always becomes the base archive
+  async setBaseArchive(archive, baseArchive) {
+    const configIncremental = Object.assign({}, get(archive, 'config'));
+    configIncremental.incremental = true;
+    setProperties(archive, {
+      config: configIncremental,
+      baseArchive,
+    });
+    await archive.save();
   },
 
   async createArchiveRootDir(archiveId, fileId) {
