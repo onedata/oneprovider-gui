@@ -1,4 +1,8 @@
 .atm-workflow-executions-table {
+  $inventory-col-width: 15em;
+  $time-col-width: 17em;
+  $status-col-width: 10em;
+
   .workflow-row-cell {
     text-align: center;
   }
@@ -22,9 +26,9 @@
 
   .table-col-inventory,
   .cell-inventory {
-    width: 15em;
-    min-width: 15em;
-    max-width: 15em;
+    width: $inventory-col-width;
+    min-width: $inventory-col-width;
+    max-width: $inventory-col-width;
 
     @media (max-width: 1000px) {
       display: none;
@@ -37,8 +41,8 @@
   .cell-startedAt,
   .table-col-finishedAt,
   .cell-finishedAt {
-    width: 17em;
-    min-width: 17em;
+    width: $time-col-width;
+    min-width: $time-col-width;
 
     @media (max-width: 750px) {
       display: none;
@@ -46,8 +50,8 @@
   }
 
   .table-col-status {
-    width: 10em;
-    min-width: 10em;
+    width: $status-col-width;
+    min-width: $status-col-width;
   }
 
   .status-icon {
