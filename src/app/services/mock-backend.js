@@ -762,10 +762,14 @@ export default Service.extend({
   },
 
   async createArchivesMock( /* store */ ) {
-    this.set('entityRecords.archive', []);
+    const entityRecordsArchives = this.set('entityRecords.archive', []);
     const datasets = this.get('entityRecords.dataset');
     const dirDataset = datasets.find(ds => get(ds, 'rootFileType') === 'dir');
     await this.createArchivesForDataset(dirDataset, 5);
+    await this.setBaseArchive(
+      entityRecordsArchives[2],
+      entityRecordsArchives[4]
+    );
     const chainDirDataset = datasets.find(ds =>
       get(ds, 'rootFileType') === 'dir' && ds.belongsTo('parent').id()
     );
@@ -817,23 +821,20 @@ export default Service.extend({
       });
       entityRecordsArchives.push(archive);
     }
-    await this.setBaseArchive(
-      entityRecordsArchives[2],
-      entityRecordsArchives[archiveCount - 1]
-    );
     dataset.set('archiveCount', archiveCount);
     await dataset.save();
   },
 
-  // FIXME: a strange bug - when lauching, the first archive always becomes the base archive
   async setBaseArchive(archive, baseArchive) {
     const configIncremental = Object.assign({}, get(archive, 'config'));
     configIncremental.incremental = true;
+    console.log(`set base archive "${baseArchive.get('description')}" for "${archive.get('description')}"`);
     setProperties(archive, {
       config: configIncremental,
       baseArchive,
     });
     await archive.save();
+    console.log(`get base archive "${(await archive.get('baseArchive')).get('description')}"`);
   },
 
   async createArchiveRootDir(archiveId, fileId) {

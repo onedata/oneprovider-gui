@@ -178,14 +178,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       icon: 'circle-id',
       action: (archives) => {
         const archive = archives[0];
-        // next must be used because global clipboard causes focus lost
-        // FIXME: this may be fixed if we add more exceptions on clicking
-        next(() => {
-          this.get('globalClipboard').copy(
-            get(archive, 'entityId'),
-            this.t('archiveId')
-          );
-        });
+        this.get('globalClipboard').copy(
+          get(archive, 'entityId'),
+          this.t('archiveId')
+        );
       },
       showIn: [
         actionContext.singleDir,

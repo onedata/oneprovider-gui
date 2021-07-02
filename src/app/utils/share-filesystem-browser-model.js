@@ -35,7 +35,6 @@ export default FilesystemBrowserModel.extend({
 
   rootDir: reads('browserContainerInstance.rootDir'),
 
-  // FIXME: experimental, don't know if it handles non-promises
   /**
    * @override
    */
