@@ -30,6 +30,7 @@ export default Service.extend({
   browsableArchivesStore: undefined,
 
   init() {
+    this._super(...arguments);
     this.set('browsableArchivesStore', {});
   },
 

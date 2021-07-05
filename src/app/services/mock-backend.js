@@ -828,13 +828,11 @@ export default Service.extend({
   async setBaseArchive(archive, baseArchive) {
     const configIncremental = Object.assign({}, get(archive, 'config'));
     configIncremental.incremental = true;
-    console.log(`set base archive "${baseArchive.get('description')}" for "${archive.get('description')}"`);
     setProperties(archive, {
       config: configIncremental,
       baseArchive,
     });
     await archive.save();
-    console.log(`get base archive "${(await archive.get('baseArchive')).get('description')}"`);
   },
 
   async createArchiveRootDir(archiveId, fileId) {

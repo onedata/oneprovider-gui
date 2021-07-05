@@ -44,9 +44,9 @@
     }}
   {{/if}}
   
-  {{!-- FIXME: add getDataUrl --}}
   {{#if fileToShowInfo}}
     {{file-browser/fb-info-modal
+      modalClass="disable-hardlink-path-anchors"
       open=true
       file=fileToShowInfo
       showApiSection=false

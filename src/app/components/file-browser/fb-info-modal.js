@@ -76,6 +76,12 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   space: undefined,
 
   /**
+   * @virtual optional
+   * @type {String}
+   */
+  modalClass: '',
+
+  /**
    * Space entity ID can be provided instead of space model if it's not available
    * in current context (eg. in public share view).
    * @virtual optional
