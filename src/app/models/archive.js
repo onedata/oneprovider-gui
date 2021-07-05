@@ -10,6 +10,7 @@ import attr from 'ember-data/attr';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { computed } from '@ember/object';
 
 export const entityType = 'op_archive';
 
@@ -66,7 +67,33 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   stats: attr('object', { defaultValue: () => {} }),
 
+  /**
+   * Relation to archive from which the incremental archive is created.
+   * This relation is typically non-empty if `config.incremental` is true.
+   * Exception is when the very first archive is incremental (there is no other archive
+   * to be base).
+   * @type { ComputedProperty < Models.Archive > }
+   */
   baseArchive: belongsTo('archive'),
+
+  /**
+   * Used in AIP archives only if the archive includes DIP.
+   * This relation should be non-empty if `config.includeDip` is true.
+   * @type {ComputedProperty<Models.Archive>}
+   */
+  relatedDip: belongsTo('archive'),
+
+  /**
+   * Used only in DIP archives - reference to related AIP archive.
+   * Non-empty relation means that this is DIP archive.
+   * @type {ComputedProperty<Models.Archive>}
+   */
+  relatedAip: belongsTo('archive'),
+
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),
+
+  isDip: computed('relatedAip', function isDip() {
+    return Boolean(this.relationEntityId('relatedAip'));
+  }),
 }).reopenClass(StaticGraphModelMixin);

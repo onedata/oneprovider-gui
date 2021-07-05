@@ -97,7 +97,6 @@ export default Component.extend(I18n, {
               ToggleField.create({
                 name: 'includeDip',
                 defaultValue: false,
-                isEnabled: false,
               }),
             ],
           }),
