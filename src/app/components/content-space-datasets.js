@@ -625,12 +625,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
       'entityId',
       'name',
       'creationTime',
-      'config',
       'description',
       'preservedCallback',
       'purgedCallback',
       'isDip',
     );
+    data.config = Object.assign({}, get(archive, 'config'));
     [
       'baseArchive',
       'relatedDip',

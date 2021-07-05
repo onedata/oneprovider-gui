@@ -345,6 +345,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const url = getDatasetsUrl({
       datasetId: get(dataset, 'entityId'),
       archive: dipArchiveId,
+      dir: null,
       viewMode: 'files',
     });
     return _window.open(url, navigateDataTarget);
