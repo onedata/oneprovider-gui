@@ -4,7 +4,16 @@
   </div>
 {{/if}}
 {{#if showDipTag}}
-  <div class="file-status-tag archive-dip-tag">
+  <div
+    class="file-status-tag archive-dip-tag {{if disabled "file-status-tag-disabled"}}"
+    {{action
+      (if disabled
+        (no-action)
+        (action "browseDip")
+      )
+      bubbles=(bool disabled)
+    }}
+  >
     {{tt this "status.dip"}}
   </div>
 {{/if}}

@@ -23,4 +23,10 @@ export default FbTableRowStatusBar.extend(I18n, {
   showDipTag: reads('fileRowModel.includeDip'),
 
   showBagitTag: equal('fileRowModel.archiveLayout', raw('bagit')),
+
+  actions: {
+    browseDip() {
+      this.get('fileRowModel').browseDip();
+    },
+  },
 });

@@ -333,4 +333,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const dirIds = rootDirs.compact().mapBy('entityId').compact();
     return this.downloadFilesById(dirIds);
   },
+
+  browseArchiveDip(archive) {
+    const {
+      _window,
+      getDatasetsUrl,
+      navigateDataTarget,
+      dataset,
+    } = this.getProperties('_window', 'getDatasetsUrl', 'navigateDataTarget', 'dataset');
+    const dipArchiveId = archive.relationEntityId('relatedDip');
+    const url = getDatasetsUrl({
+      datasetId: get(dataset, 'entityId'),
+      archive: dipArchiveId,
+      viewMode: 'files',
+    });
+    return _window.open(url, navigateDataTarget);
+  },
 });
