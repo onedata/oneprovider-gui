@@ -498,6 +498,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.get('containerScrollTop')(0);
   }),
 
+  archiveProxyObserver: observer('archiveProxy', async function archiveProxyObserver() {
+    const {
+      archiveId,
+      archiveProxy,
+    } = this.getProperties('archiveId', 'archiveProxy');
+    if (archiveId) {
+      const archive = await archiveProxy;
+      const onezoneArchiveData =
+        this.createOnezoneArchiveData(archive);
+      this.callParent('updateArchiveData', onezoneArchiveData);
+    }
+  }),
+
   clearSelectedObserver: observer(
     'attachmentState',
     'viewMode',
@@ -546,6 +559,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       this.set('selectedItems', []);
     }
     this.updateOnezoneDatasetData();
+    this.archiveProxyObserver();
   },
 
   willDestroyElement() {
@@ -595,6 +609,37 @@ export default OneEmbeddedComponent.extend(...mixins, {
     );
     data.parentId = dataset.relationEntityId('parent') || null;
     data.rootFileId = dataset.relationEntityId('rootFile') || null;
+    return data;
+  },
+
+  /**
+   * Create object with archive information to use in Onezone.
+   * @param {Utils.BrowsableArchive} archive
+   * @returns {Object}
+   */
+  createOnezoneArchiveData(archive) {
+    // NOTE: stats and state are not passed to Onezone, because archive data is not
+    // observed for change to be passed to Onezone
+    const data = getProperties(
+      archive,
+      'entityId',
+      'name',
+      'creationTime',
+      'config',
+      'description',
+      'preservedCallback',
+      'purgedCallback',
+      'isDip',
+    );
+    [
+      'baseArchive',
+      'relatedDip',
+      'relatedAip',
+      'dataset',
+      'rootDir',
+    ].forEach(relationName => {
+      data[`${relationName}Id`] = archive.relationEntityId(relationName) || null;
+    });
     return data;
   },
 
@@ -874,7 +919,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     /**
      * @param {String} itemId datasetId, archiveVirtualRootDirId or fileId (dir)
      */
-    updateDirEntityId(itemId) {
+    async updateDirEntityId(itemId) {
       const viewMode = this.get('viewMode');
       if (viewMode === 'datasets') {
         this.callParent('updateDatasetId', itemId);
