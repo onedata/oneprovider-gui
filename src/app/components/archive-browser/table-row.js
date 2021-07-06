@@ -85,27 +85,37 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
     }
   }),
 
-  baseArchiveHref: computed(
+  baseArchiveHrefProxy: promise.object(computed(
+    'archive',
     'datasetId',
     'baseArchiveId',
     'browserModel.getDatasetsUrl',
-    function baseArchiveHref() {
+    async function baseArchiveHref() {
       const {
+        archive,
         datasetId,
         baseArchiveId,
         browserModel,
-      } = this.getProperties('datasetId', 'baseArchiveId', 'browserModel');
+      } = this.getProperties('archive', 'datasetId', 'baseArchiveId', 'browserModel');
       const getDatasetsUrl = get(browserModel, 'getDatasetsUrl');
-      if (!getDatasetsUrl || !baseArchiveId || !datasetId) {
+      if (!getDatasetsUrl || !baseArchiveId || !datasetId || !archive) {
         return;
       }
+      const archiveId = get(archive, 'entityId');
+      let baseDatasetId;
+      if (archiveId === baseArchiveId) {
+        baseDatasetId = archive.relationEntityId('dataset');
+      } else {
+        const baseArchive = await this.get('baseArchiveProxy');
+        baseDatasetId = baseArchive.relationEntityId('dataset');
+      }
       return getDatasetsUrl({
-        datasetId,
+        datasetId: baseDatasetId,
         archive: baseArchiveId,
         viewMode: 'files',
       });
     }
-  ),
+  )),
 
   baseArchiveNameProxy: promise.object(computed(
     'baseArchiveProxy',

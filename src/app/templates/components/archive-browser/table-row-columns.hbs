@@ -10,13 +10,13 @@
     class="file-item-text {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
   >
     {{#if fileRowModel.isIncremental}}
-      {{#if fileRowModel.baseArchiveNameProxy.isPending}}
+      {{#if loadingBaseArchiveProxy.isPending}}
         {{tt this "loading"}}
-      {{else if fileRowModel.baseArchiveNameProxy.content}}
+      {{else if (and baseArchiveName baseArchiveUrl)}}
         <a
           class="azure base-archive-link"
           target={{navigateTarget}}
-          href={{fileRowModel.baseArchiveHref}}
+          href={{fileRowModel.baseArchiveHrefProxy.content}}
           onclick={{action "baseArchiveLinkClick"}}
         >
           {{#truncated-string class="base-archive-name"}}
