@@ -20,13 +20,12 @@ export default FbTableRowStatusBar.extend(I18n, {
    */
   i18nPrefix: 'components.archiveBrowser.tableRowStatusBar',
 
+  /**
+   * @type {ComputedProperty<Models.Archive>}
+   */
+  archive: reads('file'),
+
   showDipTag: reads('fileRowModel.includeDip'),
 
   showBagitTag: equal('fileRowModel.archiveLayout', raw('bagit')),
-
-  actions: {
-    browseDip() {
-      this.get('fileRowModel').browseDip();
-    },
-  },
 });

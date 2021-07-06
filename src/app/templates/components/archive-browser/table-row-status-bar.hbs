@@ -9,7 +9,7 @@
     {{action
       (if disabled
         (no-action)
-        (action "browseDip")
+        (action invokeFileAction archive "browseDip")
       )
       bubbles=(bool disabled)
     }}

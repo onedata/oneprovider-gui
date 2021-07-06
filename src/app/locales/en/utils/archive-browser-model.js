@@ -13,6 +13,8 @@ export default _.merge({}, BaseBrowserModel, {
       multi: 'Purge archives',
       single: 'Purge archive',
     },
+    browseDip: 'Browse DIP',
   },
   archiveId: 'archive ID',
+  selectedArchiveNoDip: 'Selected archive does not include DIP.',
 });

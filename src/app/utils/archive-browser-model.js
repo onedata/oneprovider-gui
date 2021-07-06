@@ -19,7 +19,7 @@ import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled } from 'rsvp';
-import { conditional, equal, raw, array } from 'ember-awesome-macros';
+import { conditional, equal, raw, array, and } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -31,6 +31,7 @@ const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnCopyId',
   'btnDownloadTar',
+  'btnBrowseDip',
   'btnPurge',
 ]);
 
@@ -169,6 +170,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   isAnySelectedPurging: array.isAny('selectedFiles', raw('state'), raw('purging')),
 
+  selectedArchiveHasDip: and(
+    equal('selectedFiles.length', raw(1)),
+    'selectedFiles.0.config.includeDip'
+  ),
+
   //#region Action buttons
 
   btnCopyId: computed(function btnCopyId() {
@@ -202,6 +208,30 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           actionContext.singleDirPreview,
           actionContext.multiDir,
           actionContext.mutliDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnBrowseDip: computed(
+    'selectedArchiveHasDip',
+    function btnBrowseDip() {
+      const selectedArchiveHasDip = this.get('selectedArchiveHasDip');
+      let disabledTip;
+      if (!selectedArchiveHasDip) {
+        disabledTip = this.t('selectedArchiveNoDip');
+      }
+      return this.createFileAction({
+        id: 'browseDip',
+        icon: 'browser-directory',
+        action: (archives) => {
+          return this.browseArchiveDip(archives[0]);
+        },
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
         ],
       });
     }
