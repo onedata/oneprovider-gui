@@ -544,10 +544,11 @@ function validateStoreElement(element, dataSpec) {
 
 function formDataToInputStoresValues(formData, stores) {
   const inputStores = get(formData, 'inputStores') || {};
+  const inputStoresSpecs = (stores || []).filterBy('requiresInitialValue');
   const storeValues = {};
   (get(inputStores, '__fieldsValueNames') || []).forEach((valueName, idx) => {
     const inputStore = get(inputStores, valueName);
-    const storeSpec = stores[idx];
+    const storeSpec = inputStoresSpecs[idx];
     if (!inputStore || !storeSpec) {
       return;
     }
