@@ -794,7 +794,9 @@ export default Service.extend({
       );
       const archive = await archiveManager.createArchive(dataset, {
         config: {
-          incremental: false,
+          incremental: {
+            enable: false,
+          },
           layout: (i >= 2 && i <= 3) ? 'bagit' : 'plain',
           includeDip: false,
         },
@@ -829,10 +831,13 @@ export default Service.extend({
   },
 
   async setBaseArchive(archive, baseArchive) {
-    const configIncremental = Object.assign({}, get(archive, 'config'));
-    configIncremental.incremental = true;
+    const configWithIncremental = Object.assign({}, get(archive, 'config'));
+    configWithIncremental.incremental = {
+      enable: true,
+      basedOn: get(baseArchive, 'entityId'),
+    };
     setProperties(archive, {
-      config: configIncremental,
+      config: configWithIncremental,
       baseArchive,
     });
     await archive.save();

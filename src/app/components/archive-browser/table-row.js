@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw, or, promise } from 'ember-awesome-macros';
+import { conditional, equal, raw, or, promise, bool } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
@@ -47,7 +47,7 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
 
   archive: reads('tableRow.archive'),
 
-  isIncremental: reads('archive.config.incremental'),
+  isIncremental: bool('archive.config.incremental.enable'),
 
   includeDip: reads('archive.config.includeDip'),
 
