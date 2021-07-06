@@ -9,7 +9,7 @@
  */
 
 import Component from '@ember/component';
-import { getProperties } from '@ember/object';
+import { get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -110,16 +110,22 @@ export default Component.extend(I18n, {
         'preservedCallback',
         'purgedCallback'
       );
+      // these properties are used in config directly as in form
       const rawConfig = getProperties(
         config,
         'createNestedArchives',
-        'incremental',
         'layout',
         'includeDip',
       );
-      if (rawConfig.incremental) {
-        rawConfig.baseArchiveId = config.baseArchiveId;
+      const isIncremental = Boolean(get(config, 'incremental'));
+      const baseArchiveId = get(config, 'baseArchiveId');
+      const incrementalConfig = {
+        enable: isIncremental,
+      };
+      if (isIncremental && baseArchiveId) {
+        incrementalConfig.basedOn = baseArchiveId;
       }
+      rawConfig.incremental = incrementalConfig;
       return {
         config: rawConfig,
         description,
