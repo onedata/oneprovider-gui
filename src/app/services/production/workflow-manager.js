@@ -113,7 +113,7 @@ export default Service.extend({
    * @param {String} startFromIndex
    * @param {number} limit
    * @param {number} offset
-   * @returns {Promise<{array: Array<{ index: String, value: any }>, isLast: Boolean}>}
+   * @returns {Promise<{array: Array<StoreContentEntry>, isLast: Boolean}>}
    */
   async getStoreContent(storeInstanceId, startFromIndex, limit, offset) {
     if (!limit || limit <= 0) {
