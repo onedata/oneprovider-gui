@@ -628,7 +628,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       'description',
       'preservedCallback',
       'purgedCallback',
-      'isDip',
     );
     data.config = Object.assign({}, get(archive, 'config'));
     [

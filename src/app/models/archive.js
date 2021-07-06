@@ -92,8 +92,4 @@ export default Model.extend(GraphSingleModelMixin, {
 
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),
-
-  isDip: computed('relatedAip', function isDip() {
-    return Boolean(this.relationEntityId('relatedAip'));
-  }),
 }).reopenClass(StaticGraphModelMixin);
