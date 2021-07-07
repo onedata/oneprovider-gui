@@ -32,7 +32,7 @@ export default Model.extend(GraphSingleModelMixin, {
    * Object params:
    * - `createNestedArchives: Boolean`
    * - `incremental: Object`
-   *    - `enable: Boolean` set this flag to true to create incremental archive
+   *    - `enabled: Boolean` set this flag to true to create incremental archive
    *    - `[basedOn: String]` you can provide archive ID from which incrementation will be
    *       computed; by default it is latest archive in this dataset
    * - `layout: String`, one of: `bagit`, `plain`

@@ -120,7 +120,7 @@ export default Component.extend(I18n, {
       const isIncremental = Boolean(get(config, 'incremental'));
       const baseArchiveId = get(config, 'baseArchiveId');
       const incrementalConfig = {
-        enable: isIncremental,
+        enabled: isIncremental,
       };
       if (isIncremental && baseArchiveId) {
         incrementalConfig.basedOn = baseArchiveId;
