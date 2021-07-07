@@ -47,7 +47,7 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
 
   archive: reads('tableRow.archive'),
 
-  isIncremental: bool('archive.config.incremental.enable'),
+  isIncremental: bool('archive.config.incremental.enabled'),
 
   includeDip: reads('archive.config.includeDip'),
 
