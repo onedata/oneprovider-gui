@@ -7,6 +7,7 @@
     spaceId=spaceId
     spacePrivileges=spacePrivileges
     selectedFiles=selectedItems
+    selectedFilesForJump=selectedItemsForJump
     isSpaceOwned=space.currentUserIsOwner
     getItemByIdFun=(if (eq viewMode "files") (action getFileById))
     changeSelectedFiles=(action "changeSelectedItems")
@@ -42,12 +43,14 @@
       onArchiveCreate=(action submitArchiveCreate)
     }}
   {{/if}}
-
+  
   {{#if fileToShowInfo}}
     {{file-browser/fb-info-modal
+      modalClass="disable-hardlink-path-anchors"
       open=true
       file=fileToShowInfo
       showApiSection=false
+      getDataUrl=(action getDataUrl)
       onHide=(action closeInfoModal)
     }}
   {{/if}}

@@ -8,10 +8,33 @@
  */
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
+import { promise } from 'ember-awesome-macros';
+import { reads } from '@ember/object/computed';
 
 export default FbTableRowColumns.extend({
   /**
    * @override
    */
   i18nPrefix: 'components.archiveBrowser.tableRowColumns',
+
+  /**
+   * Frame name, where Onezone link should be opened
+   * @type {String}
+   */
+  navigateTarget: '_top',
+
+  loadingBaseArchiveProxy: promise.object(promise.all(
+    'fileRowModel.baseArchiveHrefProxy',
+    'fileRowModel.baseArchiveNameProxy'
+  )),
+
+  baseArchiveName: reads('fileRowModel.baseArchiveNameProxy.content'),
+
+  baseArchiveUrl: reads('fileRowModel.baseArchiveHrefProxy.content'),
+
+  actions: {
+    baseArchiveLinkClick(event) {
+      event.stopPropagation();
+    },
+  },
 });

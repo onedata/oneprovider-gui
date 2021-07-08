@@ -8,9 +8,11 @@ export default _.merge({}, BaseBrowserModel, {
   fileActions: {
     createArchive: 'Create archive',
     downloadTar: 'Download (tar)',
+    copyArchiveId: 'Copy archive ID',
     purge: {
       multi: 'Purge archives',
       single: 'Purge archive',
     },
   },
+  archiveId: 'archive ID',
 });

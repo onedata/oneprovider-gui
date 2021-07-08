@@ -21,6 +21,7 @@ import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import { all as allFulfilled } from 'rsvp';
 import { conditional, equal, raw, array } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import Looper from 'onedata-gui-common/utils/looper';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
@@ -28,6 +29,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 const allButtonNames = Object.freeze([
   'btnCreateArchive',
   'btnRefresh',
+  'btnCopyId',
   'btnDownloadTar',
   'btnPurge',
 ]);
@@ -41,6 +43,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   isMobile: service(),
   globalNotify: service(),
   i18n: service(),
+  globalClipboard: service(),
 
   /**
    * @override
@@ -78,6 +81,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   openPurgeModal: notImplementedThrow,
 
   /**
+   * Function argument: data for getDataUrl Onezone function
+   * @override
+   * @type {Function}
+   */
+  getDatasetsUrl: notImplementedWarn,
+
+  /**
    * @override
    */
   i18nPrefix: 'utils.archiveBrowserModel',
@@ -96,6 +106,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   columnsComponentName: 'archive-browser/table-row-columns',
+
+  /**
+   * @override
+   */
+  statusBarComponentName: 'archive-browser/table-row-status-bar',
 
   /**
    * @override
@@ -155,6 +170,24 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   isAnySelectedPurging: array.isAny('selectedFiles', raw('state'), raw('purging')),
 
   //#region Action buttons
+
+  btnCopyId: computed(function btnCopyId() {
+    return this.createFileAction({
+      id: 'copyArchiveId',
+      icon: 'circle-id',
+      action: (archives) => {
+        const archive = archives[0];
+        this.get('globalClipboard').copy(
+          get(archive, 'entityId'),
+          this.t('archiveId')
+        );
+      },
+      showIn: [
+        actionContext.singleDir,
+        actionContext.singleDirPreview,
+      ],
+    });
+  }),
 
   btnDownloadTar: computed(
     function btnDownloadTar() {

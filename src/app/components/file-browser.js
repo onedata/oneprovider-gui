@@ -285,22 +285,23 @@ export default Component.extend(I18n, {
   ),
 
   insideBrowserSelectors: Object.freeze([
-    '.fb-table-row',
-    '.fb-breadcrumbs',
-    '.fb-toolbar',
-    '.fb-selection-toolkit',
+    '.fb-table-row *',
+    '.fb-breadcrumbs *',
+    '.fb-toolbar *',
+    '.fb-selection-toolkit *',
   ]),
 
   floatingItemsSelectors: collect(
-    raw('.webui-popover-content'),
-    raw('.ember-basic-dropdown-content'),
+    raw('.btn-global-copy-button'),
+    raw('.webui-popover-content *'),
+    raw('.ember-basic-dropdown-content *'),
     computed('parentModalDialogSelector', function floatingItemsSelectorsModal() {
       const parentModalDialogSelector = this.get('parentModalDialogSelector');
       let selector = '.modal-dialog';
       if (parentModalDialogSelector) {
         selector += `:not(${parentModalDialogSelector})`;
       }
-      return selector;
+      return `${selector} *`;
     }),
   ),
 
@@ -319,9 +320,8 @@ export default Component.extend(I18n, {
       );
       return [
           ...insideBrowserSelectors
-          .map(selector => `#${elementId} ${selector} *`),
-          ...floatingItemsSelectors
-          .map(selector => `${selector} *`),
+          .map(selector => `#${elementId} ${selector}`),
+          ...floatingItemsSelectors,
         ]
         .join(', ');
     }

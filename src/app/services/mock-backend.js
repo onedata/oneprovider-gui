@@ -762,10 +762,14 @@ export default Service.extend({
   },
 
   async createArchivesMock( /* store */ ) {
-    this.set('entityRecords.archive', []);
+    const entityRecordsArchives = this.set('entityRecords.archive', []);
     const datasets = this.get('entityRecords.dataset');
     const dirDataset = datasets.find(ds => get(ds, 'rootFileType') === 'dir');
-    await this.createArchivesForDataset(dirDataset, 3);
+    await this.createArchivesForDataset(dirDataset, 5);
+    await this.setBaseArchive(
+      entityRecordsArchives[2],
+      entityRecordsArchives[4]
+    );
     const chainDirDataset = datasets.find(ds =>
       get(ds, 'rootFileType') === 'dir' && ds.belongsTo('parent').id()
     );
@@ -789,9 +793,11 @@ export default Service.extend({
       );
       const archive = await archiveManager.createArchive(dataset, {
         config: {
-          incremental: true,
-          layout: 'bagit',
-          includeDip: true,
+          incremental: {
+            enabled: false,
+          },
+          layout: (i >= 2 && i <= 3) ? 'bagit' : 'plain',
+          includeDip: i === 2,
         },
         description: `My archive number ${i}`,
         preservedCallback: 'http://example.com/preserved',
@@ -813,11 +819,25 @@ export default Service.extend({
           filesFailed: 0,
         },
         rootDir,
+        baseArchive: null,
       });
       entityRecordsArchives.push(archive);
     }
     dataset.set('archiveCount', archiveCount);
     await dataset.save();
+  },
+
+  async setBaseArchive(archive, baseArchive) {
+    const configWithIncremental = Object.assign({}, get(archive, 'config'));
+    configWithIncremental.incremental = {
+      enabled: true,
+      basedOn: get(baseArchive, 'entityId'),
+    };
+    setProperties(archive, {
+      config: configWithIncremental,
+      baseArchive,
+    });
+    await archive.save();
   },
 
   async createArchiveRootDir(archiveId, fileId) {
