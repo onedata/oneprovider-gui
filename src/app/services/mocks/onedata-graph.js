@@ -869,7 +869,10 @@ export default OnedataGraphMock.extend({
     if (arrIndex === -1) {
       arrIndex = 0;
     }
-    return mockChildren.slice(arrIndex + offset, arrIndex + offset + limit);
+    return mockChildren.slice(
+      Math.max(arrIndex + offset, 0),
+      Math.max(arrIndex + offset + limit, 0)
+    );
   },
 
   getMockChildrenIds(dirId) {
