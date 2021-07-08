@@ -712,7 +712,7 @@ export default Component.extend(I18n, {
     const visibleLengthBeforeReload = this.$('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
 
-    return filesArray.reload()
+    return filesArray.scheduleReload()
       .finally(() => {
         const {
           selectedFiles,
@@ -768,7 +768,7 @@ export default Component.extend(I18n, {
     if (items[0] && !items[0].getAttribute('data-row-id')) {
       const listWatcher = this.get('listWatcher');
       next(() => {
-        filesArray.fetchPrev().then(result => {
+        filesArray.scheduleTask('fetchPrev').then(result => {
           if (result !== false) {
             // wait for fetched prev render if something more loaded
             next(() => listWatcher.scrollHandler());
