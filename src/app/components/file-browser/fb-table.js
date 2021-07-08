@@ -589,6 +589,8 @@ export default Component.extend(I18n, {
     }
     fileManager.registerRefreshHandler(this);
     registerApi(api);
+    // FIXME: debug code
+    window.filesArray = this.get('filesArray');
   },
 
   didInsertElement() {
