@@ -42,6 +42,7 @@ export default FilesystemBrowserModel.extend({
       'btnUpload',
       'btnNewDirectory',
       'btnRefresh',
+      'btnRename',
     ]),
     conditional(
       'chooseCurrentDirEnabled',

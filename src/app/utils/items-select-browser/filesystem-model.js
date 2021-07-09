@@ -45,6 +45,7 @@ export default BaseModel.extend(I18n, {
       onSubmitSingleItem,
       chooseCurrentDirEnabled: dirIsAllowed,
       openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
+      openRename: this.openRenameModal.bind(this),
     });
   }),
 
@@ -192,6 +193,18 @@ export default BaseModel.extend(I18n, {
     this.setProperties({
       createItemParentDir: null,
       createItemType: null,
+    });
+  },
+  openRenameModal(file, parentDir) {
+    this.setProperties({
+      fileToRename: file,
+      renameParentDir: parentDir,
+    });
+  },
+  closeRenameModal() {
+    this.setProperties({
+      fileToRename: null,
+      renameParentDir: null,
     });
   },
 });
