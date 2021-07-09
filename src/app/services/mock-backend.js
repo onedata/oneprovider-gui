@@ -770,6 +770,7 @@ export default Service.extend({
       entityRecordsArchives[2],
       entityRecordsArchives[4]
     );
+    await this.addArchiveDip(entityRecordsArchives[3]);
     const chainDirDataset = datasets.find(ds =>
       get(ds, 'rootFileType') === 'dir' && ds.belongsTo('parent').id()
     );
@@ -797,7 +798,7 @@ export default Service.extend({
             enabled: false,
           },
           layout: (i >= 2 && i <= 3) ? 'bagit' : 'plain',
-          includeDip: i === 2,
+          includeDip: false,
         },
         description: `My archive number ${i}`,
         preservedCallback: 'http://example.com/preserved',
@@ -818,6 +819,8 @@ export default Service.extend({
           filesArchived: (i + 1) * 43,
           filesFailed: 0,
         },
+        relatedAip: null,
+        relatedDip: null,
         rootDir,
         baseArchive: null,
       });
@@ -838,6 +841,41 @@ export default Service.extend({
       baseArchive,
     });
     await archive.save();
+  },
+
+  async addArchiveDip(archive) {
+    const configDip = Object.assign({}, get(archive, 'includeDip'));
+    configDip.includeDip = true;
+    const dipArchiveEntityId = get(archive, 'entityId') + '-dip';
+    const dipArchive = this.get('store').createRecord('archive', {
+      config: configDip,
+      description: get(archive, 'description') + ' (DIP)',
+      preservedCallback: get(archive, 'preservedCallback'),
+      purgedCallback: get(archive, 'purgedCallback'),
+      dataset: get(archive, 'dataset'),
+      relatedAip: archive,
+      relatedDip: null,
+      // properties not normally used when create
+      id: gri({
+        entityType: archiveEntityType,
+        entityId: dipArchiveEntityId,
+        aspect: 'instance',
+        scope: 'private',
+      }),
+      index: get(archive, 'index') + '-dip',
+      creationTime: get(archive, 'creationTime'),
+      state: get(archive, 'state'),
+      stats: get(archive, 'stats'),
+      rootDir: get(archive, 'rootDir'),
+      baseArchive: get(archive, 'baseArchive'),
+    });
+    await dipArchive.save();
+    setProperties(archive, {
+      config: configDip,
+      relatedDip: dipArchive,
+    });
+    await archive.save();
+    return dipArchive;
   },
 
   async createArchiveRootDir(archiveId, fileId) {

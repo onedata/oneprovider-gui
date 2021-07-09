@@ -166,6 +166,14 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
     raw('multiline'),
     raw(''),
   ),
+
+  browseDip() {
+    const {
+      browserModel,
+      archive,
+    } = this.getProperties('browserModel', 'archive');
+    return browserModel.browseArchiveDip(archive);
+  },
 });
 
 export default FbTableRow.extend({
