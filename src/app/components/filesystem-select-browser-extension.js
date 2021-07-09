@@ -1,8 +1,23 @@
+/**
+ * Provides additional components used by filesystem browser used as selector
+ * (eg. action modals).
+ * 
+ * See `utils/items-select-browser/filesystem-model` for logic implementation.
+ *
+ * @module components/filesystem-select-browser-extension
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { reads } from '@ember/object/computed';
 
 export default Component.extend({
-  browserModel: undefined,
+  /**
+   * @virtual
+   * @type {Utils.ItemsSelectBrowser.FilesystemModel}
+   */
   selectorModel: undefined,
 
   createItemParentDir: reads('selectorModel.createItemParentDir'),

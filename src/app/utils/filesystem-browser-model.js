@@ -713,8 +713,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  // FIXME: check if it still works!
-
   uploadDropElement: computed('element', function uploadDropElement() {
     const element = this.get('element');
     if (element) {
@@ -733,6 +731,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   onChangeDir(dir) {
+    // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
+    // if using selector inside filesystem browser
     this.get('uploadManager').changeTargetDirectory(dir);
   },
 
@@ -752,7 +752,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       'dir'
     );
 
-    // FIXME: ticket for support selector in file browser (uploading)
+    // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
+    // if using selector inside filesystem browser
     uploadManager.assignUploadDrop(uploadDropElement);
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);

@@ -17,7 +17,6 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 
 export default BaseModel.extend(I18n, {
-  // FIXME: upload manager target space should be reverted after closing selector
   fileManager: service(),
   i18n: service(),
   uploadManager: service(),
@@ -30,7 +29,7 @@ export default BaseModel.extend(I18n, {
   /**
    * @override
    */
-  browserExtensionComponentName: 'filesystem-select-browser',
+  browserExtensionComponentName: 'filesystem-select-browser-extension',
 
   /**
    * @override
@@ -117,6 +116,8 @@ export default BaseModel.extend(I18n, {
       uploadManager,
       space,
     } = this.getProperties('uploadManager', 'space');
+    // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
+    // if using selector inside filesystem browser
     uploadManager.changeTargetSpace(space);
   }),
 
