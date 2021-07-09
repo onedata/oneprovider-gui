@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7951 Added support for following symlinks on download
 * VFS-7893 Added support for DIP archives
 * VFS-7875 Added support for incremental archives
 * VFS-7880 Added showing errors in stores content listing
