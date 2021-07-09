@@ -44,6 +44,7 @@ export default BaseModel.extend(I18n, {
       ownerSource: this,
       onSubmitSingleItem,
       chooseCurrentDirEnabled: dirIsAllowed,
+      openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
     });
   }),
 
@@ -166,5 +167,31 @@ export default BaseModel.extend(I18n, {
         });
       }
     }
+  },
+
+  openCreateNewDirectory(parentDir) {
+    this.setProperties({
+      createItemParentDir: parentDir,
+      createItemType: 'dir',
+    });
+  },
+  closeCreateItemModal(isCreated, file) {
+    if (isCreated && file) {
+      const {
+        browserSelectedItems,
+        allowedFileTypes,
+      } = this.getProperties('browserSelectedItems', 'allowedFileTypes');
+      if (
+        (!browserSelectedItems || !browserSelectedItems.length) &&
+        allowedFileTypes.includes(get(file, 'type'))
+      ) {
+        this.setSelectedItems([file]);
+      }
+    }
+
+    this.setProperties({
+      createItemParentDir: null,
+      createItemType: null,
+    });
   },
 });
