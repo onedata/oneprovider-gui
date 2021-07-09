@@ -88,6 +88,11 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    */
   itemsSelectBrowser: undefined,
 
+  /**
+   * @virtual optional
+   */
+  browserExtensionComponentName: '',
+
   //#region state
 
   dirId: undefined,

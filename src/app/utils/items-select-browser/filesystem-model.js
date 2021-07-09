@@ -8,7 +8,7 @@
  */
 
 import BaseModel from './base-model';
-import { computed, get } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import SelectorFilesystemBrowserModel from 'oneprovider-gui/utils/selector-filesystem-browser-model';
 import { promise, isEmpty, conditional, raw, array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
@@ -17,13 +17,20 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 
 export default BaseModel.extend(I18n, {
+  // FIXME: upload manager target space should be reverted after closing selector
   fileManager: service(),
   i18n: service(),
+  uploadManager: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'utils.itemsSelectBrowser.filesystemModel',
+
+  /**
+   * @override
+   */
+  browserExtensionComponentName: 'filesystem-select-browser',
 
   /**
    * @override
@@ -102,6 +109,19 @@ export default BaseModel.extend(I18n, {
       return _.isEqual(allAllowedTypes, allowedFileTypes);
     }
   ),
+
+  spaceObserver: observer('space', function spaceObserver() {
+    const {
+      uploadManager,
+      space,
+    } = this.getProperties('uploadManager', 'space');
+    uploadManager.changeTargetSpace(space);
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.spaceObserver();
+  },
 
   /**
    * @override

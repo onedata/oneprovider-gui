@@ -524,7 +524,7 @@ export default Component.extend(I18n, {
       currentDirContextMenuHandler
     );
 
-    browserModel.onInsertElement();
+    browserModel.onInsertElement(element);
   },
 
   willDestroyElement() {

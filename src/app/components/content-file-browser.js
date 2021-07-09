@@ -27,7 +27,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 export default OneEmbeddedComponent.extend(
   I18n,
   ContentSpaceBaseMixin, {
-    classNames: ['content-file-browser'],
+    classNames: ['content-file-browser', 'upload-drop-zone-container'],
 
     /**
      * @override

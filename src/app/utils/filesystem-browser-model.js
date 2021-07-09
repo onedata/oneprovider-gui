@@ -713,6 +713,22 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  // FIXME: check if it still works!
+
+  uploadDropElement: computed('element', function uploadDropElement() {
+    const element = this.get('element');
+    if (element) {
+      return element.closest('.upload-drop-zone-container');
+    }
+  }),
+
+  uploadBrowseElement: computed('element', function uploadBrowseElement() {
+    const element = this.get('element');
+    if (element) {
+      return element.querySelector('.fb-upload-trigger');
+    }
+  }),
+
   /**
    * @override
    */
@@ -725,15 +741,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   onInsertElement() {
     const {
-      _document,
-      element,
       uploadManager,
+      uploadDropElement,
+      uploadBrowseElement,
       dir,
-    } = this.getProperties('_document', 'element', 'uploadManager', 'dir');
+    } = this.getProperties(
+      'uploadManager',
+      'uploadDropElement',
+      'uploadBrowseElement',
+      'dir'
+    );
 
-    const uploadDropElement = element.parentElement;
+    // FIXME: ticket for support selector in file browser (uploading)
     uploadManager.assignUploadDrop(uploadDropElement);
-    const uploadBrowseElement = _document.querySelector('.fb-upload-trigger');
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);
   },
