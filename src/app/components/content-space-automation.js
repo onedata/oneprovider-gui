@@ -23,6 +23,7 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
     'spaceEntityId',
     'tab',
     'workflowExecutionId',
+    'workflowSchemaId',
   ]),
 
   actions: {
@@ -34,6 +35,9 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
     },
     closePreviewTab() {
       return this.callParent('closePreviewTab');
+    },
+    chooseWorkflowSchemaToRun(workflowSchemaId) {
+      return this.callParent('chooseWorkflowSchemaToRun', workflowSchemaId);
     },
   },
 });

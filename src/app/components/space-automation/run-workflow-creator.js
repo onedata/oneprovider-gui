@@ -8,11 +8,12 @@
  */
 
 import Component from '@ember/component';
-import { get, computed } from '@ember/object';
+import { get, computed, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend(I18n, {
   classNames: ['run-workflow-creator'],
@@ -34,6 +35,20 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * @virtual
+   * @type {String}
+   */
+  workflowSchemaId: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Function}
+   * @param {String} workflowSchemaId
+   * @returns {any}
+   */
+  chooseWorkflowSchemaToRun: undefined,
+
+  /**
    * @virtual optional
    * @type {Function}
    * @param {Models.AtmWorkflowExecution} atmWorkflowExecution
@@ -42,15 +57,20 @@ export default Component.extend(I18n, {
   onWorkflowStarted: undefined,
 
   /**
+   * @type {String}
+   */
+  workflowSchemaIdToRun: undefined,
+
+  /**
    * One of: `'list'`, `'inputStores'`
    * @type {String}
    */
   activeSlide: 'list',
 
   /**
-   * @type {Models.AtmWorkflowSchema}
+   * @type {PromiseObject<Models.AtmWorkflowSchema>}
    */
-  selectedAtmWorkflowSchema: undefined,
+  atmWorkflowSchemaToRunProxy: undefined,
 
   /**
    * Data from input-stores-form
@@ -83,12 +103,56 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Boolean>}
    */
   areInitialValuesNeeded: computed(
-    'selectedAtmWorkflowSchema',
+    'atmWorkflowSchemaToRunProxy.content',
     function areInitialValuesNeeded() {
-      const stores = this.get('selectedAtmWorkflowSchema.stores') || [];
+      const stores = this.get('atmWorkflowSchemaToRunProxy.content.stores') || [];
       return stores.isAny('requiresInitialValue');
     }
   ),
+
+  atmWorkflowSchemaToRunLoader: observer(
+    'workflowSchemaId',
+    function atmWorkflowSchemaToRunLoader() {
+      const {
+        workflowSchemaId,
+        workflowSchemaIdToRun,
+        workflowManager,
+        activeSlide,
+      } = this.getProperties(
+        'workflowSchemaId',
+        'workflowSchemaIdToRun',
+        'workflowManager',
+        'activeSlide',
+      );
+
+      if (!workflowSchemaId) {
+        if (activeSlide === 'inputStores') {
+          this.changeSlide('list');
+        }
+        return;
+      }
+
+      this.changeSlide('inputStores');
+      if (workflowSchemaId === workflowSchemaIdToRun) {
+        return;
+      }
+
+      const loadSchemaPromise =
+        workflowManager.getAtmWorkflowSchemaById(workflowSchemaId);
+
+      this.setProperties({
+        workflowSchemaIdToRun: workflowSchemaId,
+        atmWorkflowSchemaToRunProxy: promiseObject(loadSchemaPromise),
+        inputStoresData: undefined,
+        areInputStoresValid: true,
+      });
+    }
+  ),
+
+  init() {
+    this._super(...arguments);
+    this.atmWorkflowSchemaToRunLoader();
+  },
 
   changeSlide(newSlideId) {
     this.set('activeSlide', newSlideId);
@@ -96,12 +160,9 @@ export default Component.extend(I18n, {
 
   actions: {
     atmWorkflowSchemaSelected(atmWorkflowSchema) {
-      this.setProperties({
-        selectedAtmWorkflowSchema: atmWorkflowSchema,
-        activeSlide: 'inputStores',
-        inputStoresData: undefined,
-        areInputStoresValid: true,
-      });
+      const chooseWorkflowSchemaToRun = this.get('chooseWorkflowSchemaToRun');
+      chooseWorkflowSchemaToRun &&
+        chooseWorkflowSchemaToRun(get(atmWorkflowSchema, 'entityId'));
     },
     inputStoresChanged({ data, isValid }) {
       this.setProperties({
@@ -114,20 +175,22 @@ export default Component.extend(I18n, {
       const {
         workflowManager,
         space,
-        selectedAtmWorkflowSchema,
+        atmWorkflowSchemaToRunProxy,
         inputStoresData,
         onWorkflowStarted,
         globalNotify,
+        chooseWorkflowSchemaToRun,
       } = this.getProperties(
         'workflowManager',
         'space',
-        'selectedAtmWorkflowSchema',
+        'atmWorkflowSchemaToRunProxy',
         'inputStoresData',
         'onWorkflowStarted',
-        'globalNotify'
+        'globalNotify',
+        'chooseWorkflowSchemaToRun'
       );
 
-      const atmWorkflowSchemaId = get(selectedAtmWorkflowSchema, 'entityId');
+      const atmWorkflowSchemaId = get(atmWorkflowSchemaToRunProxy, 'entityId');
       const spaceId = get(space, 'entityId');
       try {
         const atmWorkflowExecution = await workflowManager.runWorkflow(
@@ -137,7 +200,7 @@ export default Component.extend(I18n, {
         );
         globalNotify.success(this.t('workflowStartSuccessNotify'));
         onWorkflowStarted && onWorkflowStarted(atmWorkflowExecution);
-        safeExec(this, () => this.changeSlide('list'));
+        chooseWorkflowSchemaToRun && chooseWorkflowSchemaToRun(null);
       } catch (error) {
         globalNotify.backendError(this.t('workflowStartFailureOperationName'), error);
       } finally {
@@ -145,7 +208,8 @@ export default Component.extend(I18n, {
       }
     },
     backSlide() {
-      this.changeSlide('list');
+      const chooseWorkflowSchemaToRun = this.get('chooseWorkflowSchemaToRun');
+      chooseWorkflowSchemaToRun && chooseWorkflowSchemaToRun(null);
     },
   },
 });

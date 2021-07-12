@@ -23,6 +23,7 @@ import {
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 
 const buttonNames = Object.freeze([
+  'btnBagitUpload',
   'btnUpload',
   'btnNewDirectory',
   'btnRefresh',
@@ -57,6 +58,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   i18nPrefix: 'utils.filesystemBrowserModel',
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  openBagitUploader: notImplementedThrow,
 
   /**
    * @virtual
@@ -190,6 +197,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   readonlyFilesystem: false,
 
   // #region Action buttons
+
+  btnBagitUpload: computed(function btnBagitUpload() {
+    return this.createFileAction({
+      id: 'bagitUpload',
+      class: 'browser-bagit-upload',
+      icon: 'browser-archive-upload',
+      action: () => this.get('openBagitUploader')(),
+      showIn: [
+        actionContext.inDir,
+      ],
+    });
+  }),
 
   btnUpload: computed(
     'dir.dataIsProtected',

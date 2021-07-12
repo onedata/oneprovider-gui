@@ -23,4 +23,14 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
    * @type {Ember.ComputedProperty<Object>}
    */
   apiTemplates: reads('attributes.apiTemplates'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  openfaasAvailable: reads('attributes.openfaasAvailable'),
+
+  /**
+   * @type {ComputedProperty<String|undefined>}
+   */
+  bagitUploaderWorkflowSchemaId: reads('attributes.bagitUploaderWorkflowSchemaId'),
 });

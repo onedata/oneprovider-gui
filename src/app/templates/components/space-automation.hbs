@@ -76,6 +76,8 @@
           <div class="col-xs-12">
             {{space-automation/run-workflow-creator
               space=space
+              workflowSchemaId=workflowSchemaId
+              chooseWorkflowSchemaToRun=(action "chooseWorkflowSchemaToRun")
               onWorkflowStarted=(action "workflowStarted")
             }}
           </div>

@@ -62,6 +62,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  chooseWorkflowSchemaToRun: notImplementedWarn,
+
+  /**
+   * @virtual
    * @type {String}
    */
   tab: undefined,
@@ -77,6 +83,11 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   workflowExecutionIdInPreview: undefined,
+
+  /**
+   * @type {String}
+   */
+  workflowSchemaId: undefined,
 
   /**
    * @type {Array<String>}
@@ -175,6 +186,9 @@ export default Component.extend(I18n, {
     },
     closeWorkflowPreview() {
       this.get('closePreviewTab')();
+    },
+    chooseWorkflowSchemaToRun(atmWorkflowSchemaId) {
+      this.get('chooseWorkflowSchemaToRun')(atmWorkflowSchemaId);
     },
   },
 });

@@ -10,13 +10,47 @@
 import Service, { inject as service } from '@ember/service';
 import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
+import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 import { allSettled } from 'rsvp';
+import { reads } from '@ember/object/computed';
+import { bool, and } from 'ember-awesome-macros';
 
 export default Service.extend({
   store: service(),
   onedataGraph: service(),
+  onedataConnection: service(),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isOpenfaasAvailable: bool('onedataConnection.openfaasAvailable'),
+
+  /**
+   * @type {ComputedProperty<String|undefined>}
+   */
+  bagitUploaderWorkflowSchemaId: reads('onedataConnection.bagitUploaderWorkflowSchemaId'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isBagitUploaderAvailable: and('isOpenfaasAvailable', 'bagitUploaderWorkflowSchemaId'),
+
+  /**
+   * @param {String} atmWorkflowSchemaId
+   * @returns {Promise<Models.AtmWorkflowSchema>}
+   */
+  async getAtmWorkflowSchemaById(atmWorkflowSchemaId) {
+    const atmWorkflowExecutionGri = gri({
+      entityType: atmWorkflowSchemaEntityType,
+      entityId: atmWorkflowSchemaId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .findRecord('atmWorkflowSchema', atmWorkflowExecutionGri);
+  },
 
   /**
    * @param {String} atmWorkflowExecutionId
