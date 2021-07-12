@@ -66,6 +66,20 @@ export default Service.extend({
     }).save();
   },
 
+  async cancelAtmWorkflowExecution(atmWorkflowExecutionId) {
+    const cancelGri = gri({
+      entityType: atmWorkflowExecutionEntityType,
+      entityId: atmWorkflowExecutionId,
+      aspect: 'process',
+      scope: 'private',
+    });
+    await this.get('onedataGraph').request({
+      gri: cancelGri,
+      operation: 'delete',
+      subscribe: false,
+    });
+  },
+
   /**
    * @param {Models.Space} space
    * @param {String} phase one of: `'waiting'`, `'ongoing'`, `'ended'`

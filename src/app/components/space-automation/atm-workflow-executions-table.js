@@ -88,6 +88,7 @@ export default Component.extend(I18n, {
           'inventory',
           'scheduledAt',
           'status',
+          'actions',
         ];
       case 'ongoing':
         return [
@@ -95,6 +96,7 @@ export default Component.extend(I18n, {
           'inventory',
           'startedAt',
           'status',
+          'actions',
         ];
       case 'ended':
         return [
@@ -254,5 +256,11 @@ export default Component.extend(I18n, {
         listWatcher.scrollHandler();
       }
     });
+  },
+
+  actions: {
+    atmWorkflowExecutionCancelled() {
+      this.updateAtmWorkflowExecutionSummaries();
+    },
   },
 });

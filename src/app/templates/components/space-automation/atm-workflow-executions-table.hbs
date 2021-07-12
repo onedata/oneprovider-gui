@@ -36,6 +36,7 @@
             atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
             columns=columns
             onSelect=onWorkflowSelect
+            onCancel=(action "atmWorkflowExecutionCancelled")
           }}
         {{/each}}
         {{#if (and atmWorkflowExecutionSummaries.initialLoad.isSettled fetchingNext)}}

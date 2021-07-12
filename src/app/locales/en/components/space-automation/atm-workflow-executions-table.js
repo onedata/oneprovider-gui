@@ -8,6 +8,7 @@ export default {
     startedAt: 'Started at',
     finishedAt: 'Finished at',
     status: 'Status',
+    actions: '',
   },
   noAtmWorkflowExecutions: {
     waiting: 'There are no waiting workflow executions',
