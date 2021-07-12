@@ -1,4 +1,4 @@
 export default {
-  yes: 'yes',
-  no: 'no',
+  no: 'none',
+  loading: 'Loading...',
 };

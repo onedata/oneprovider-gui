@@ -1,4 +1,14 @@
 .fb-info-modal {
+  &.disable-hardlink-path-anchors {
+    .hardlink-entry {
+      .file-path {
+        a {
+          color: $text-color;
+          pointer-events: none;
+        }
+      }
+    }
+  }
   @media (min-width: $screen-md-min) {
     .modal-lg {
       width: 1000px;

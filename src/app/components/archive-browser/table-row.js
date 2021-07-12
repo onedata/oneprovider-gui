@@ -9,18 +9,24 @@
  */
 
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
-import EmberObject, { computed, getProperties } from '@ember/object';
+import EmberObject, { computed, getProperties, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw, or } from 'ember-awesome-macros';
+import { conditional, equal, raw, or, promise, bool } from 'ember-awesome-macros';
+import { inject as service } from '@ember/service';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
-const RowModel = EmberObject.extend(I18n, {
+// TODO: VFS-7643 move to other file
+const RowModel = EmberObject.extend(OwnerInjector, I18n, {
+  i18n: service(),
+  archiveManager: service(),
+
   /**
-   * @virtual
+   * @override
    */
-  i18n: undefined,
+  i18nPrefix: 'components.archiveBrowser.tableRow',
 
   /**
    * @virtual
@@ -28,9 +34,102 @@ const RowModel = EmberObject.extend(I18n, {
    */
   tableRow: undefined,
 
-  i18nPrefix: 'components.archiveBrowser.tableRow',
+  /**
+   * @virtual
+   * @type {Utils.ArchiveBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
+   * @override
+   */
+  ownerSource: reads('tableRow'),
 
   archive: reads('tableRow.archive'),
+
+  isIncremental: bool('archive.config.incremental.enabled'),
+
+  includeDip: reads('archive.config.includeDip'),
+
+  archiveLayout: reads('archive.config.layout'),
+
+  baseArchiveProxy: promise.object(computed(
+    'archive.baseArchive',
+    async function baseArchiveProxy() {
+      const {
+        baseArchiveId,
+        archiveManager,
+      } = this.getProperties('baseArchiveId', 'archiveManager');
+      if (!this.get('baseArchiveId')) {
+        return;
+      }
+      const baseArchive = await this.get('archive.baseArchive');
+      if (!baseArchive) {
+        return;
+      }
+      return archiveManager.getBrowsableArchive(baseArchiveId);
+    }
+  )),
+
+  baseArchiveId: computed('archive.baseArchive', function baseArchiveId() {
+    const archive = this.get('archive');
+    if (archive) {
+      return archive.relationEntityId('baseArchive');
+    }
+  }),
+
+  datasetId: computed('archive.dataset', function datasetId() {
+    const archive = this.get('archive');
+    if (archive) {
+      return archive.relationEntityId('dataset');
+    }
+  }),
+
+  baseArchiveHrefProxy: promise.object(computed(
+    'archive',
+    'datasetId',
+    'baseArchiveId',
+    'browserModel.getDatasetsUrl',
+    async function baseArchiveHref() {
+      const {
+        archive,
+        datasetId,
+        baseArchiveId,
+        browserModel,
+      } = this.getProperties('archive', 'datasetId', 'baseArchiveId', 'browserModel');
+      const getDatasetsUrl = get(browserModel, 'getDatasetsUrl');
+      if (!getDatasetsUrl || !baseArchiveId || !datasetId || !archive) {
+        return;
+      }
+      const archiveId = get(archive, 'entityId');
+      let baseDatasetId;
+      if (archiveId === baseArchiveId) {
+        baseDatasetId = archive.relationEntityId('dataset');
+      } else {
+        const baseArchive = await this.get('baseArchiveProxy');
+        baseDatasetId = baseArchive.relationEntityId('dataset');
+      }
+      return getDatasetsUrl({
+        datasetId: baseDatasetId,
+        archive: baseArchiveId,
+        viewMode: 'files',
+      });
+    }
+  )),
+
+  baseArchiveNameProxy: promise.object(computed(
+    'baseArchiveProxy',
+    async function baseArchiveNameProxy() {
+      if (!this.get('baseArchiveId')) {
+        return;
+      }
+      const baseArchive = await this.get('baseArchiveProxy');
+      if (!baseArchive) {
+        return;
+      }
+      return get(baseArchive, 'name');
+    }
+  )),
 
   showArchivedCounters: or(
     equal('archive.state', raw('building')),
@@ -67,6 +166,14 @@ const RowModel = EmberObject.extend(I18n, {
     raw('multiline'),
     raw(''),
   ),
+
+  browseDip() {
+    const {
+      browserModel,
+      archive,
+    } = this.getProperties('browserModel', 'archive');
+    return browserModel.browseArchiveDip(archive);
+  },
 });
 
 export default FbTableRow.extend({
@@ -84,10 +191,9 @@ export default FbTableRow.extend({
 
   // TODO: VFS-7643 this will be probably injected from above
   fileRowModel: computed(function fileRowModel() {
-    const i18n = this.get('i18n');
     return RowModel.create({
-      i18n,
       tableRow: this,
+      browserModel: this.get('browserModel'),
     });
   }),
 });

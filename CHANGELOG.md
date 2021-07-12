@@ -6,6 +6,12 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7950 Showing store used by workflow lane
+* VFS-7951 Added support for following symlinks on download
+* VFS-7893 Added support for DIP archives
+* VFS-7875 Added support for incremental archives
+* VFS-7880 Added showing errors in stores content listing
+* VFS-7836 Added workflow stores content listing
 * VFS-7817 Workflows GUI Service Pack 1
 * VFS-7870 Fixed invalid shares breadcrumbs
 * VFS-7796 Added support for BagIt archives and navigating through symlinked directories

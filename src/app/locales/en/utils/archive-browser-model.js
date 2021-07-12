@@ -8,9 +8,13 @@ export default _.merge({}, BaseBrowserModel, {
   fileActions: {
     createArchive: 'Create archive',
     downloadTar: 'Download (tar)',
+    copyArchiveId: 'Copy archive ID',
     purge: {
       multi: 'Purge archives',
       single: 'Purge archive',
     },
+    browseDip: 'Browse DIP',
   },
+  archiveId: 'archive ID',
+  selectedArchiveNoDip: 'Selected archive does not include DIP.',
 });

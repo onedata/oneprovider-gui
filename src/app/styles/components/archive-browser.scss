@@ -6,13 +6,8 @@
     width: 110px;
   }
   .fb-table-col-incremental {
-    width: 128px;
-  }
-  .fb-table-col-dip {
-    width: 80px;
-  }
-  .fb-table-col-layout {
-    width: 100px;
+    width: 14em;
+    max-width: 14em;
   }
   .col-status-no {
     color: $main-text-color-disabled;
