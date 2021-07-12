@@ -7,20 +7,27 @@
 </td>
 <td class="fb-table-col-incremental fb-table-secondary-col hidden-xs">
   <span
-    class="file-item-text {{if fileRowModel.incremental "col-status-yes" "col-status-no"}}"
+    class="file-item-text {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
   >
-    {{tt this (if fileRowModel.incremental "yes" "no")}}
-  </span>
-</td>
-<td class="fb-table-col-dip fb-table-secondary-col hidden-xs">
-  <span
-    class="file-item-text {{if fileRowModel.includeDip "col-status-yes" "col-status-no"}}"
-  >
-    {{tt this (if fileRowModel.includeDip "yes" "no")}}
-  </span>
-</td>
-<td class="fb-table-col-layout fb-table-secondary-col hidden-xs">
-  <span class="file-item-text">
-    {{fileRowModel.archive.config.layout}}
+    {{#if fileRowModel.isIncremental}}
+      {{#if loadingBaseArchiveProxy.isPending}}
+        {{tt this "loading"}}
+      {{else if (and baseArchiveName baseArchiveUrl)}}
+        <a
+          class="azure base-archive-link"
+          target={{navigateTarget}}
+          href={{fileRowModel.baseArchiveHrefProxy.content}}
+          onclick={{action "baseArchiveLinkClick"}}
+        >
+          {{#truncated-string class="base-archive-name"}}
+            {{fileRowModel.baseArchiveNameProxy.content}}
+          {{/truncated-string}}
+        </a>
+      {{else}}
+        –
+      {{/if}}
+    {{else}}
+      {{tt this "no"}}
+    {{/if}}
   </span>
 </td>

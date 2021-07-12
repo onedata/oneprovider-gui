@@ -21,7 +21,6 @@ import {
   anySelectedContexts,
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
-import { resolve } from 'rsvp';
 
 const buttonNames = Object.freeze([
   'btnUpload',
@@ -773,11 +772,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   downloadFiles(files) {
-    const effFiles = files.mapBy('effFile').compact();
-    if (!effFiles.length) {
-      return resolve();
-    }
-    const fileIds = effFiles.mapBy('entityId');
+    const fileIds = files.mapBy('entityId');
     return this.downloadFilesById(fileIds);
   },
 

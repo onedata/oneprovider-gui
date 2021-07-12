@@ -1,0 +1,19 @@
+{{#if showBagitTag}}
+  <div class="file-status-tag archive-bagit-tag">
+    {{tt this "status.bagit"}}
+  </div>
+{{/if}}
+{{#if showDipTag}}
+  <div
+    class="file-status-tag archive-dip-tag {{if disabled "file-status-tag-disabled"}}"
+    {{action
+      (if disabled
+        (no-action)
+        (action invokeFileAction archive "browseDip")
+      )
+      bubbles=(bool disabled)
+    }}
+  >
+    {{tt this "status.dip"}}
+  </div>
+{{/if}}
