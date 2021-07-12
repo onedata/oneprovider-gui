@@ -37,6 +37,7 @@
     text-align: center;
   }
   td.fb-table-col-files {
+    vertical-align: middle;
     @media (max-width: $screen-xs-max) {
       padding-top: 8px;
       padding-bottom: 8px;
@@ -62,6 +63,7 @@
         width: 100%;
         padding-left: 10px;
         .file-name {
+          min-height: 1em * $line-height-base;
           overflow: hidden;
           flex-grow: 1;
         }
@@ -71,7 +73,7 @@
         }
         .file-suffix.conflict-label {
           color: $color-one-danger;
-        }
+        }        
       }
       .file-status-bar {
         display: inline-flex;
