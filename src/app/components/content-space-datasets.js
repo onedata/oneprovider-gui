@@ -209,6 +209,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
           return this.getArchivesForView(selected);
         case 'datasets':
           return this.getDatasetsForView(selected);
+        case 'files':
+          return this.getFilesForView(selected);
         default:
           return [];
       }
@@ -613,6 +615,29 @@ export default OneEmbeddedComponent.extend(...mixins, {
       try {
         // allow only dataset which belong to current space
         return datasets.filter(dataset => get(dataset, 'spaceId') === spaceId);
+      } catch (error) {
+        return [];
+      }
+    }
+  },
+
+  async getFilesForView(ids) {
+    if (!ids) {
+      return [];
+    }
+
+    const {
+      fileManager,
+      spaceId,
+    } = this.getProperties('fileManager', 'spaceId');
+    if (ids) {
+      const files =
+        await onlyFulfilledValues(ids.map(id =>
+          fileManager.getFileById(id)
+        ));
+      try {
+        // allow only files which belong to current space
+        return files.filter(file => get(file, 'spaceEntityId') === spaceId);
       } catch (error) {
         return [];
       }
