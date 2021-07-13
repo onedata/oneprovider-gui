@@ -79,7 +79,7 @@
     }
 
     &.status-preparing,
-    &.status-cancelling {
+    &.status-aborting {
       @extend .animated;
       @extend .infinite;
       @extend .hinge;

@@ -40,9 +40,9 @@
       {{/if}}
     {{else if (eq column "actions")}}
       {{one-menu-toggle
+        id=actionsTriggerId
         class=(concat-classes
           "atm-workflow-execution-actions-trigger clickable"
-          (concat "actions-trigger-" elementId)
           (if areActionsOpened "active")
         )
         click=(action "toggleActionsOpen" (not areActionsOpened))
@@ -52,14 +52,14 @@
           class="atm-workflow-execution-actions"
           padding=false
           popoverStyle="with-dropdown"
-          triggerSelector=(concat ".actions-trigger-" elementId)
+          triggerSelector=(concat "#" actionsTriggerId)
           open=areActionsOpened
           onToggle=(action "toggleActionsOpen")
           as |popover|
         }}
           {{#click-outside
             action=(action (mut areActionsOpened) false)
-            except-selector=(concat ".actions-trigger-" elementId)
+            except-selector=(concat "#" actionsTriggerId)
           }}
             {{actions-popover-content
               actionsArray=atmWorkflowExecutionActions

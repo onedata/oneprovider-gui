@@ -10,10 +10,16 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { collect } from '@ember/object/computed';
+import { tag } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { scheduleOnce } from '@ember/runloop';
 import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
+import {
+  normalizeWorkflowStatus,
+  translateWorkflowStatus,
+  workflowEndedStatuses,
+} from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -68,15 +74,27 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<String>}
    */
-  statusIcon: computed('atmWorkflowExecutionSummary.status', function statusIcon() {
-    switch (this.get('atmWorkflowExecutionSummary.status')) {
+  actionsTriggerId: tag `actions-trigger-${'elementId'}`,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  status: computed('atmWorkflowExecutionSummary.status', function status() {
+    return normalizeWorkflowStatus(this.get('atmWorkflowExecutionSummary.status'));
+  }),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  statusIcon: computed('status', function statusIcon() {
+    switch (this.get('status')) {
       case 'scheduled':
       case 'preparing':
       case 'enqueued':
         return 'time';
       case 'active':
         return 'update';
-      case 'cancelling':
+      case 'aborting':
       case 'cancelled':
         return 'cancelled';
       case 'skipped':
@@ -85,47 +103,41 @@ export default Component.extend(I18n, {
         return 'checkbox-filled';
       case 'failed':
         return 'checkbox-filled-x';
+      case 'unknown':
+      default:
+        return 'unknown';
     }
   }),
 
   /**
    * @type {ComputedProperty<String>}
    */
-  statusTooltip: computed(
-    'atmWorkflowExecutionSummary.status',
-    function statusTooltip() {
-      const status = this.get('atmWorkflowExecutionSummary.status');
-      if (status) {
-        return this.t(`statuses.${status}`, {}, { defaultValue: '' });
-      }
-    }
-  ),
+  statusTooltip: computed('status', function statusTooltip() {
+    const {
+      i18n,
+      status,
+    } = this.getProperties('i18n', 'status');
+    return translateWorkflowStatus(i18n, status);
+  }),
 
   /**
    * @type {ComputedProperty<Utils.Action>}
    */
-  cancelAction: computed(
-    'atmWorkflowExecutionSummary.status',
-    'wasCancelledByUser',
-    function cancelAction() {
-      const status = this.get('atmWorkflowExecutionSummary.status');
-      const wasCancelledByUser = this.get('wasCancelledByUser');
-      const disabled = wasCancelledByUser || [
-        'cancelling',
-        'cancelled',
-        'skipped',
-        'failed',
-        'finished',
-      ].includes(status);
-      return {
-        title: this.t('cancel'),
-        class: 'cancel-atm-workflow-execution-action-trigger',
-        icon: 'cancelled',
-        disabled,
-        action: () => this.cancelAtmWorkflowExecution(),
-      };
-    }
-  ),
+  cancelAction: computed('status', 'wasCancelledByUser', function cancelAction() {
+    const status = this.get('atmWorkflowExecutionSummary.status');
+    const wasCancelledByUser = this.get('wasCancelledByUser');
+    const disabled = wasCancelledByUser || [
+      'aborting',
+      ...workflowEndedStatuses,
+    ].includes(status);
+    return {
+      title: this.t('cancel'),
+      class: 'cancel-atm-workflow-execution-action-trigger',
+      icon: 'cancelled',
+      disabled,
+      action: () => this.cancelAtmWorkflowExecution(),
+    };
+  }),
 
   /**
    * @type {ComputedProperty<Array<Utils.Action>>}

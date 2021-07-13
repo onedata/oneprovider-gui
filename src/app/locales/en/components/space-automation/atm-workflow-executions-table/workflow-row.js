@@ -5,7 +5,7 @@ export default {
     preparing: 'Preparing',
     enqueued: 'Enqueued',
     active: 'Active',
-    cancelling: 'Cancelling',
+    aborting: 'Aborting',
     cancelled: 'Cancelled',
     skipped: 'Skipped',
     finished: 'Finished',
