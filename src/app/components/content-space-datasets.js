@@ -156,6 +156,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   _window: window,
 
+  navigateTarget: '_top',
+
   /**
    * Managed by `switchBrowserModel` observer.
    * @type {Utils.BaseBrowserModel}
@@ -827,8 +829,30 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.set('datasetToCreateArchive', null);
   },
 
-  submitArchiveCreate(dataset, archiveData) {
-    return this.get('archiveManager').createArchive(dataset, archiveData);
+  async submitArchiveCreate(dataset, archiveData) {
+    const {
+      _window,
+      archiveManager,
+      navigateTarget,
+    } = this.getProperties('_window', 'archiveManager', 'navigateTarget');
+    const archive = await archiveManager.createArchive(dataset, archiveData);
+    try {
+      const archiveSelectUrl = this.getDatasetsUrl({
+        viewMode: 'archives',
+        datasetId: get(dataset, 'entityId'),
+        archive: null,
+        selected: get(archive, 'entityId'),
+        dir: null,
+      });
+      if (archiveSelectUrl) {
+        _window.open(archiveSelectUrl, navigateTarget);
+      }
+    } catch (error) {
+      console.error(
+        `component:content-space-dataset#submitArchiveCreate: selecting newly created archive failed: ${error}`
+      );
+    }
+    return archive;
   },
 
   /**
