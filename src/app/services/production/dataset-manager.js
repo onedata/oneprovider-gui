@@ -14,6 +14,7 @@ import { inject as service } from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
+import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 
 const spaceDatasetsAspect = 'datasets_details';
 const datasetChildrenAspect = 'children_details';
@@ -22,6 +23,17 @@ export default Service.extend({
   onedataGraph: service(),
   store: service(),
   fileManager: service(),
+
+  /**
+   * Mapping of `datasetId` -> cached browsable-wrapped dataset
+   * @type {Object}
+   */
+  browsableDatasetsStore: undefined,
+
+  init() {
+    this._super(...arguments);
+    this.set('browsableDatasetsStore', {});
+  },
 
   /**
    * @param {String} datasetId entityId of dataset
@@ -36,6 +48,27 @@ export default Service.extend({
       scope,
     });
     return this.get('store').findRecord('dataset', requestGri);
+  },
+
+  /**
+   * Creates or returns previously created BrowsableDataset object.
+   * Only one `BrowsableDataset` for specific `datasetId` is created.
+   * @param {String} datasetId
+   * @returns {Utils.BrowsableArchive}
+   */
+  async getBrowsableDataset(datasetId) {
+    const browsableDatasetsStore = this.get('browsableDatasetsStore');
+    const cachedBrowsableDataset = browsableDatasetsStore[datasetId];
+    if (cachedBrowsableDataset) {
+      return cachedBrowsableDataset;
+    } else {
+      const dataset = await this.getDataset(datasetId);
+      const browsableDataset = BrowsableDataset.create({
+        content: dataset,
+      });
+      browsableDatasetsStore[datasetId] = browsableDataset;
+      return browsableDataset;
+    }
   },
 
   /**

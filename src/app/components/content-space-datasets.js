@@ -193,32 +193,26 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   //#endregion
 
-  // TODO: VFS-7633 jumping to archive that is not on current list corrupts the list
-  // TODO: VFS-7633 currently only selecting archives from URL is supported
+  // TODO: VFS-7633 jumping to archive that is not on current list corrupts the list on mock
+  // FIXME: support files
   selectedItemsForJumpProxy: promise.object(computed(
+    // NOTE: not observing viewMode, because jump should not be performed if viewMode
+    // changes
     'selected',
     async function selectedItemsForJumpProxy() {
       const {
         selected,
-        archiveManager,
-        datasetId,
         viewMode,
-      } = this.getProperties('selected', 'archiveManager', 'datasetId', 'viewMode');
-      if (viewMode !== 'archives') {
-        return [];
-      }
-      if (selected) {
-        const items =
-          await onlyFulfilledValues(selected.map(id =>
-            archiveManager.getBrowsableArchive(id)
-          ));
-        try {
-          // allow only archives which belong to current dataset
-          return items.filter(item => item.relationEntityId('dataset') === datasetId);
-        } catch (error) {
+      } = this.getProperties('selected', 'viewMode');
+      switch (viewMode) {
+        case 'archives':
+          return this.getArchivesForView(selected);
+        case 'datasets':
+          return this.getDatasetsForView(selected);
+        default:
           return [];
-        }
       }
+
     }
   )),
 
@@ -349,11 +343,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
           if (datasetId === spaceDatasetsRootId) {
             return spaceDatasetsRoot;
           }
-          const dataset = await datasetManager.getDataset(datasetId);
+          const browsableDataset = await datasetManager.getBrowsableDataset(datasetId);
           let isValidDatasetEntityId;
           try {
             isValidDatasetEntityId = datasetId &&
-              get(dataset, 'spaceId') === spaceId;
+              get(browsableDataset, 'spaceId') === spaceId;
           } catch (error) {
             console.error(
               'component:content-space-datasets#browsableDatasetProxy: error getting spaceId from dataset:',
@@ -365,12 +359,16 @@ export default OneEmbeddedComponent.extend(...mixins, {
             return spaceDatasetsRoot;
           }
           // return only dir-type datasets, for files try to return parent or null
-          if (viewMode === 'datasets' && get(dataset, 'rootFileType') !== 'dir') {
-            const parent = await get(dataset, 'parent');
-            return parent && BrowsableDataset.create({ content: parent }) ||
+          if (
+            viewMode === 'datasets' &&
+            get(browsableDataset, 'rootFileType') !== 'dir'
+          ) {
+            const parent = await get(browsableDataset, 'parent');
+            return parent &&
+              await datasetManager.getBrowsableDataset(get(parent, 'entityId')) ||
               spaceDatasetsRoot;
           }
-          return BrowsableDataset.create({ content: dataset });
+          return browsableDataset;
         } catch (error) {
           globalNotify.backendError(this.t('openingDataset'), error);
           return spaceDatasetsRoot;
@@ -457,19 +455,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
       const {
         spaceProxy,
         viewMode,
-      } = this.getProperties('spaceProxy', 'viewMode');
+        initialSelectedItemsForJumpProxy,
+      } = this.getProperties(
+        'spaceProxy',
+        'viewMode',
+        'initialSelectedItemsForJumpProxy'
+      );
+      const proxies = [spaceProxy, initialSelectedItemsForJumpProxy];
       if (viewMode === 'files') {
         const initialDirProxy = this.get('initialDirProxy');
-        return allFulfilled([spaceProxy, initialDirProxy]);
+        proxies.push(initialDirProxy);
       } else {
         const initialBrowsableDatasetProxy = this.get('initialBrowsableDatasetProxy');
-        const proxies = [spaceProxy, initialBrowsableDatasetProxy];
-        // TODO: VFS-7633 currently only selecting archives from URL is supported
-        if (viewMode === 'archives') {
-          proxies.push(this.get('initialSelectedItemsForJumpProxy'));
-        }
-        return allFulfilled(proxies);
+        proxies.push(initialBrowsableDatasetProxy);
       }
+      return allFulfilled(proxies);
     }
   )),
 
@@ -572,6 +572,50 @@ export default OneEmbeddedComponent.extend(...mixins, {
       }
     } finally {
       this._super(...arguments);
+    }
+  },
+
+  async getArchivesForView(ids) {
+    if (!ids) {
+      return [];
+    }
+
+    const {
+      archiveManager,
+      datasetId,
+    } = this.getProperties('archiveManager', 'datasetId');
+    const items =
+      await onlyFulfilledValues(ids.map(id =>
+        archiveManager.getBrowsableArchive(id)
+      ));
+    try {
+      // allow only archives which belong to current dataset
+      return items.filter(item => item.relationEntityId('dataset') === datasetId);
+    } catch (error) {
+      return [];
+    }
+  },
+
+  async getDatasetsForView(ids) {
+    if (!ids) {
+      return [];
+    }
+
+    const {
+      datasetManager,
+      spaceId,
+    } = this.getProperties('datasetManager', 'spaceId');
+    if (ids) {
+      const datasets =
+        await onlyFulfilledValues(ids.map(id =>
+          datasetManager.getBrowsableDataset(id)
+        ));
+      try {
+        // allow only dataset which belong to current space
+        return datasets.filter(dataset => get(dataset, 'spaceId') === spaceId);
+      } catch (error) {
+        return [];
+      }
     }
   },
 
@@ -712,7 +756,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return true;
   },
 
-  async fetchSpaceDatasets(rootId, startIndex, size, offset, array) {
+  async fetchSpaceDatasets(rootId, startIndex, size, offset /**, array */ ) {
     if (rootId !== spaceDatasetsRootId) {
       throw new Error(
         'component:content-space-datasets#fetchRootChildren: cannot use fetchRootChildren for non-root'
@@ -727,24 +771,17 @@ export default OneEmbeddedComponent.extend(...mixins, {
       'spaceId',
       'attachmentState'
     );
-    if (startIndex == null) {
-      if (size <= 0 || offset < 0) {
-        return this.getEmptyFetchChildrenResponse();
-      } else {
-        return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
-          parentType: 'space',
-          parentId: spaceId,
-          state: attachmentState,
-          limit: size,
-          offset,
-        }));
-      }
-    } else if (startIndex === array.get('sourceArray.lastObject.index')) {
+    if (size <= 0) {
       return this.getEmptyFetchChildrenResponse();
     } else {
-      throw new Error(
-        'component:content-space-datasets#fetchRootChildren: illegal fetch arguments for virtual root dir'
-      );
+      return this.browserizeDatasets(await datasetManager.fetchChildrenDatasets({
+        parentType: 'space',
+        parentId: spaceId,
+        state: attachmentState,
+        index: startIndex,
+        limit: size,
+        offset,
+      }));
     }
   },
 
@@ -782,9 +819,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
       .fetchDirChildren(dirId, 'private', startIndex, size, offset);
   },
 
-  browserizeDatasets({ childrenRecords, isLast }) {
+  async browserizeDatasets({ childrenRecords, isLast }) {
+    const datasetManager = this.get('datasetManager');
     return {
-      childrenRecords: childrenRecords.map(r => BrowsableDataset.create({ content: r })),
+      childrenRecords: await allFulfilled(childrenRecords.map(r =>
+        datasetManager.getBrowsableDataset(get(r, 'entityId'))
+      )),
       isLast,
     };
   },
@@ -837,6 +877,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     } = this.getProperties('_window', 'archiveManager', 'navigateTarget');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
+      // FIXME: try to use changeSelectedItems
       const archiveSelectUrl = this.getDatasetsUrl({
         viewMode: 'archives',
         datasetId: get(dataset, 'entityId'),
