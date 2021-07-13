@@ -26,6 +26,7 @@ import { conditional } from 'ember-awesome-macros';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
+  'btnCopyId',
   'btnShowFile',
   'btnManageArchives',
   'btnCreateArchive',
@@ -38,6 +39,7 @@ export default BaseBrowserModel.extend(I18n, {
   modalManager: service(),
   datasetManager: service(),
   globalNotify: service(),
+  globalClipboard: service(),
 
   /**
    * @override
@@ -165,6 +167,26 @@ export default BaseBrowserModel.extend(I18n, {
   ),
 
   //#region Action buttons
+
+  btnCopyId: computed(function btnCopyId() {
+    return this.createFileAction({
+      id: 'copyDatasetId',
+      icon: 'circle-id',
+      action: (datasets) => {
+        const dataset = datasets[0];
+        this.get('globalClipboard').copy(
+          get(dataset, 'entityId'),
+          this.t('datasetId')
+        );
+      },
+      showIn: [
+        actionContext.singleFile,
+        actionContext.singleFilePreview,
+        actionContext.singleDir,
+        actionContext.singleDirPreview,
+      ],
+    });
+  }),
 
   btnShowFile: computed('selectionContext', function btnShowFile() {
     const selectionContext = this.get('selectionContext');
