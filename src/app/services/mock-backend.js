@@ -295,7 +295,7 @@ export default Service.extend({
 
   /**
    * Makes symbolic link on `symlinkDir` to point to `targetDir`.
-   * @param {Models.File} symlinkDir 
+   * @param {Models.File} symlinkDir
    * @param {Models.File} targetDir must be in the same directory as `symlinkDir`
    * @returns {Models.File}
    */

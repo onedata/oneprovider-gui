@@ -11,9 +11,12 @@ import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { promise } from 'ember-awesome-macros';
 import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/execution-data-fetcher';
+import { inject as service } from '@ember/service';
 
 export default Component.extend({
   classNames: ['atm-workflow-execution-preview', 'loadable-row'],
+
+  workflowActions: service(),
 
   /**
    * @virtual
@@ -81,6 +84,29 @@ export default Component.extend({
       if (isFulfilled) {
         return ExecutionDataFetcher.create({
           ownerSource: this,
+          atmWorkflowExecution,
+        });
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
+  cancelAction: computed(
+    'atmWorkflowExecutionProxy.isFulfilled',
+    function cancelAction() {
+      const {
+        workflowActions,
+        atmWorkflowExecutionProxy,
+      } = this.getProperties('workflowActions', 'atmWorkflowExecutionProxy');
+      const {
+        isFulfilled,
+        content: atmWorkflowExecution,
+      } = getProperties(atmWorkflowExecutionProxy, 'isFulfilled', 'content');
+
+      if (isFulfilled) {
+        return workflowActions.createCancelAtmWorkflowExecutionAction({
           atmWorkflowExecution,
         });
       }

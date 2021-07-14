@@ -13,6 +13,7 @@ import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
 import _ from 'lodash';
 import { all as allFulfilled } from 'rsvp';
+import { normalizeWorkflowStatus } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 export default ExecutionDataFetcher.extend(OwnerInjector, {
   workflowManager: service(),
@@ -44,7 +45,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
 
     return {
       global: {
-        status: get(atmWorkflowExecution, 'status'),
+        status: normalizeWorkflowStatus(get(atmWorkflowExecution, 'status')),
       },
       lane: lanes.reduce((laneStatuses, { schemaId, status }) => {
         laneStatuses[schemaId] = { status };

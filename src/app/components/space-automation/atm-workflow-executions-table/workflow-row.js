@@ -8,9 +8,17 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
+import { collect } from '@ember/object/computed';
+import { tag } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import { scheduleOnce } from '@ember/runloop';
+import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
+import {
+  normalizeWorkflowStatus,
+  translateWorkflowStatus,
+} from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -18,6 +26,7 @@ export default Component.extend(I18n, {
   attributeBindings: ['atmWorkflowExecutionSummary.entityId:data-row-id'],
 
   i18n: service(),
+  workflowActions: service(),
 
   /**
    * @override
@@ -45,39 +54,97 @@ export default Component.extend(I18n, {
   onSelect: undefined,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @returns {any}
+   */
+  onCancel: undefined,
+
+  /**
+   * @type {Boolean}
+   */
+  areActionsOpened: false,
+
+  /**
    * @type {ComputedProperty<String>}
    */
-  statusIcon: computed('atmWorkflowExecutionSummary.status', function statusIcon() {
-    switch (this.get('atmWorkflowExecutionSummary.status')) {
+  actionsTriggerId: tag `actions-trigger-${'elementId'}`,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  status: computed('atmWorkflowExecutionSummary.status', function status() {
+    return normalizeWorkflowStatus(this.get('atmWorkflowExecutionSummary.status'));
+  }),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  statusIcon: computed('status', function statusIcon() {
+    switch (this.get('status')) {
       case 'scheduled':
       case 'preparing':
       case 'enqueued':
         return 'time';
       case 'active':
         return 'update';
+      case 'aborting':
+      case 'cancelled':
+        return 'cancelled';
+      case 'skipped':
+        return 'skipped';
       case 'finished':
         return 'checkbox-filled';
       case 'failed':
         return 'checkbox-filled-x';
+      case 'unknown':
+      default:
+        return 'unknown';
     }
   }),
 
   /**
    * @type {ComputedProperty<String>}
    */
-  statusTooltip: computed(
-    'atmWorkflowExecutionSummary.status',
-    function statusTooltip() {
-      const status = this.get('atmWorkflowExecutionSummary.status');
-      if (status) {
-        return this.t(`statuses.${status}`, {}, { defaultValue: '' });
-      }
-    }
-  ),
+  statusTooltip: computed('status', function statusTooltip() {
+    const {
+      i18n,
+      status,
+    } = this.getProperties('i18n', 'status');
+    return translateWorkflowStatus(i18n, status);
+  }),
 
-  click() {
+  /**
+   * @type {ComputedProperty<Utils.Action>}
+   */
+  cancelAction: computed('atmWorkflowExecutionSummary', function cancelAction() {
+    const {
+      workflowActions,
+      atmWorkflowExecutionSummary,
+    } = this.getProperties('workflowActions', 'atmWorkflowExecutionSummary');
+    const action = workflowActions.createCancelAtmWorkflowExecutionAction({
+      atmWorkflowExecution: atmWorkflowExecutionSummary,
+    });
+    action.addExecuteHook(result => {
+      if (result && get(result, 'status') !== 'done') {
+        return;
+      }
+      const onCancel = this.get('onCancel');
+      onCancel && onCancel();
+    });
+    return action;
+  }),
+
+  /**
+   * @type {ComputedProperty<Array<Utils.Action>>}
+   */
+  atmWorkflowExecutionActions: collect('cancelAction'),
+
+  click(event) {
     this._super(...arguments);
-    this.notifyAboutSelection();
+    if (isDirectlyClicked(event, this.get('element'))) {
+      this.notifyAboutSelection();
+    }
   },
 
   notifyAboutSelection() {
@@ -86,5 +153,11 @@ export default Component.extend(I18n, {
       onSelect,
     } = this.getProperties('atmWorkflowExecutionSummary', 'onSelect');
     onSelect && onSelect(atmWorkflowExecutionSummary);
+  },
+
+  actions: {
+    toggleActionsOpen(state) {
+      scheduleOnce('afterRender', this, 'set', 'areActionsOpened', state);
+    },
   },
 });
