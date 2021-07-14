@@ -55,12 +55,15 @@ describe('Integration | Component | space automation', function () {
         list: promiseArray(resolve([atmInventory])),
       })),
     })));
-    sinon.stub(
-      lookupService(this, 'workflow-manager'),
-      'getAtmWorkflowExecutionSummariesForSpace'
-    ).resolves([]);
+    const workflowManager = lookupService(this, 'workflow-manager');
+    sinon.stub(workflowManager, 'getAtmWorkflowSchemaById')
+      .callsFake(workflowSchemaId =>
+        resolve(atmWorkflowSchemas.findBy('entityId', workflowSchemaId))
+      );
+    sinon.stub(workflowManager, 'getAtmWorkflowExecutionSummariesForSpace')
+      .resolves([]);
     const getAtmWorkflowExecutionByIdStub = sinon.stub(
-      lookupService(this, 'workflow-manager'),
+      workflowManager,
       'getAtmWorkflowExecutionById'
     ).withArgs('execution1').resolves(atmWorkflowExecution);
     this.setProperties({
@@ -76,6 +79,8 @@ describe('Integration | Component | space automation', function () {
           workflowExecutionId: undefined,
         }));
       }),
+      workflowSchemaId: undefined,
+      chooseWorkflowSchemaToRun: id => this.set('workflowSchemaId', id),
     });
   });
   suppressRejections();
@@ -199,8 +204,10 @@ async function render(testCase) {
     space=space
     tab=tab
     workflowExecutionId=workflowExecutionId
+    workflowSchemaId=workflowSchemaId
     changeTab=changeTab
     closePreviewTab=closePreviewTabStub
+    chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
   }}`);
   await wait();
 }
