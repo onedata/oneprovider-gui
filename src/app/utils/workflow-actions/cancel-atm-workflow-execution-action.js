@@ -93,6 +93,6 @@ export default Action.extend({
     if (!atmWorkflowExecutionId) {
       return reject();
     }
-    await workflowManager.cancelAtmWorkflowExecution();
+    await workflowManager.cancelAtmWorkflowExecution(atmWorkflowExecutionId);
   },
 });
