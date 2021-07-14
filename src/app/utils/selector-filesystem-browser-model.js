@@ -14,7 +14,7 @@ import { computed } from '@ember/object';
 import {
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
-import { raw, conditional } from 'ember-awesome-macros';
+import { raw, conditional, array } from 'ember-awesome-macros';
 
 export default FilesystemBrowserModel.extend({
   /**
@@ -37,15 +37,18 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  buttonNames: conditional(
-    'chooseCurrentDirEnabled',
+  buttonNames: array.concat(
     raw([
+      'btnUpload',
+      'btnNewDirectory',
       'btnRefresh',
-      'btnChooseCurrentDir',
+      'btnRename',
     ]),
-    raw([
-      'btnRefresh',
-    ]),
+    conditional(
+      'chooseCurrentDirEnabled',
+      raw(['btnChooseCurrentDir']),
+      raw([])
+    )
   ),
 
   /**

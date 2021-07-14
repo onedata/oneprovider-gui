@@ -8,7 +8,8 @@
  */
 
 import BaseModel from './base-model';
-import { computed, get } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import SelectorFilesystemBrowserModel from 'oneprovider-gui/utils/selector-filesystem-browser-model';
 import { promise, isEmpty, conditional, raw, array } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
@@ -19,6 +20,7 @@ import _ from 'lodash';
 export default BaseModel.extend(I18n, {
   fileManager: service(),
   i18n: service(),
+  uploadManager: service(),
 
   /**
    * @override
@@ -28,16 +30,23 @@ export default BaseModel.extend(I18n, {
   /**
    * @override
    */
-  browserModel: computed('allowedFileTypes', function browserModel() {
-    const {
-      onSubmitSingleItem,
-      dirIsAllowed,
-    } = this.getProperties('onSubmitSingleItem', 'dirIsAllowed');
-    return SelectorFilesystemBrowserModel.create({
-      ownerSource: this,
-      onSubmitSingleItem,
-      chooseCurrentDirEnabled: dirIsAllowed,
-    });
+  browserExtensionComponentName: 'filesystem-select-browser-extension',
+
+  /**
+   * @override
+   */
+  browserModel: computed(function browserModel() {
+    return SelectorFilesystemBrowserModel
+      .extend({
+        chooseCurrentDirEnabled: reads('itemsSelectBrowser.dirIsAllowed'),
+      })
+      .create({
+        ownerSource: this,
+        itemsSelectBrowser: this,
+        onSubmitSingleItem: this.submitSingleFilesystemItem.bind(this),
+        openCreateNewDirectory: this.openCreateNewDirectory.bind(this),
+        openRename: this.openRenameModal.bind(this),
+      });
   }),
 
   /**
@@ -103,6 +112,21 @@ export default BaseModel.extend(I18n, {
     }
   ),
 
+  spaceObserver: observer('space', function spaceObserver() {
+    const {
+      uploadManager,
+      space,
+    } = this.getProperties('uploadManager', 'space');
+    // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
+    // if using selector inside filesystem browser
+    uploadManager.changeTargetSpace(space);
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.spaceObserver();
+  },
+
   /**
    * @override
    */
@@ -146,5 +170,56 @@ export default BaseModel.extend(I18n, {
         });
       }
     }
+  },
+
+  submitSingleFilesystemItem(filesystemItem) {
+    const {
+      allowedFileTypes,
+      onSubmitSingleItem,
+    } = this.getProperties('allowedFileTypes', 'onSubmitSingleItem');
+    const type = get(filesystemItem, 'type');
+    if (allowedFileTypes.includes(type)) {
+      return onSubmitSingleItem(filesystemItem);
+    }
+  },
+
+  openCreateNewDirectory(parentDir) {
+    this.setProperties({
+      createItemParentDir: parentDir,
+      createItemType: 'dir',
+    });
+  },
+  closeCreateItemModal(isCreated, file) {
+    if (isCreated && file) {
+      const {
+        browserSelectedItems,
+        allowedFileTypes,
+      } = this.getProperties('browserSelectedItems', 'allowedFileTypes');
+      if (
+        (!browserSelectedItems || !browserSelectedItems.length) &&
+        allowedFileTypes.includes(get(file, 'type'))
+      ) {
+        this.setSelectedItems([file]);
+        // TODO: 7633 jump to newly created directory (invoking jumpToSelection of
+        // fb-table now causes problems)
+      }
+    }
+
+    this.setProperties({
+      createItemParentDir: null,
+      createItemType: null,
+    });
+  },
+  openRenameModal(file, parentDir) {
+    this.setProperties({
+      fileToRename: file,
+      renameParentDir: parentDir,
+    });
+  },
+  closeRenameModal() {
+    this.setProperties({
+      fileToRename: null,
+      renameParentDir: null,
+    });
   },
 });

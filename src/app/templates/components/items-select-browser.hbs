@@ -6,7 +6,10 @@
   {{/items-select-browser/header}}
 {{/modal.header}}
 
-{{#modal.body id=modalBodyId class="items-select-browser-part"}}
+{{#modal.body
+  id=modalBodyId
+  class="items-select-browser-part upload-drop-zone-container"
+}}
   <div class="items-select-browser-body">
     {{#promise-proxy-container proxy=initialRequiredDataProxy}}
       {{file-browser
@@ -26,6 +29,13 @@
         updateDirEntityId=(action "updateDirEntityId")
       }}
     {{/promise-proxy-container}}
+
+    {{#if selectorModel.browserExtensionComponentName}}
+      {{component selectorModel.browserExtensionComponentName
+        selectorModel=selectorModel
+        browserModel=browserModel
+      }}
+    {{/if}}
   </div>
 {{/modal.body}}
 
