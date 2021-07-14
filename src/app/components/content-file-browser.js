@@ -108,6 +108,11 @@ export default OneEmbeddedComponent.extend(
     selectedFiles: undefined,
 
     /**
+     * @type {String}
+     */
+    navigateTarget: '_top',
+
+    /**
      * @type {ComputedProperty<Object>}
      */
     spacePrivileges: reads('spaceProxy.content.privileges'),
@@ -223,7 +228,14 @@ export default OneEmbeddedComponent.extend(
           store,
           globalNotify,
           _window,
-        } = this.getProperties('injectedDirGri', 'store', 'globalNotify', '_window');
+          navigateTarget,
+        } = this.getProperties(
+          'injectedDirGri',
+          'store',
+          'globalNotify',
+          '_window',
+          'navigateTarget'
+        );
 
         if (!injectedDirGri) {
           return this.get('fallbackDirProxy');
@@ -232,7 +244,7 @@ export default OneEmbeddedComponent.extend(
         const redirectUrl = await this.openSelectedParentDir();
         if (redirectUrl) {
           return new Promise(() => {
-            _window.open(redirectUrl, '_top');
+            _window.open(redirectUrl, navigateTarget);
           });
         }
 
@@ -369,7 +381,8 @@ export default OneEmbeddedComponent.extend(
       const {
         workflowManager,
         _window,
-      } = this.getProperties('workflowManager', '_window');
+        navigateTarget,
+      } = this.getProperties('workflowManager', '_window', 'navigateTarget');
       const {
         isBagitUploaderAvailable,
         bagitUploaderWorkflowSchemaId,
@@ -384,7 +397,7 @@ export default OneEmbeddedComponent.extend(
       const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
         workflowSchemaId: bagitUploaderWorkflowSchemaId,
       });
-      _window.open(redirectUrl, '_top');
+      _window.open(redirectUrl, navigateTarget);
     },
 
     openCreateItemModal(itemType, parentDir) {

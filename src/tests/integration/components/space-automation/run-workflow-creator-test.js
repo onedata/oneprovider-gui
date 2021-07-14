@@ -57,16 +57,16 @@ describe('Integration | Component | space automation/run workflow creator', func
       })),
     })));
     sinon.stub(lookupService(this, 'workflow-manager'), 'getAtmWorkflowSchemaById')
-      .callsFake(workflowSchemaId =>
-        resolve(atmWorkflowSchemas.findBy('entityId', workflowSchemaId))
+      .callsFake(atmWorkflowSchemaId =>
+        resolve(atmWorkflowSchemas.findBy('entityId', atmWorkflowSchemaId))
       );
     this.setProperties({
       atmWorkflowSchemas,
       space: { entityId: 'space1' },
       workflowStartedSpy: sinon.spy(),
       runWorkflowStub: sinon.stub(lookupService(this, 'workflow-manager'), 'runWorkflow'),
-      workflowSchemaId: undefined,
-      chooseWorkflowSchemaToRun: id => this.set('workflowSchemaId', id),
+      atmWorkflowSchemaId: undefined,
+      chooseWorkflowSchemaToRun: id => this.set('atmWorkflowSchemaId', id),
     });
   });
 
@@ -237,7 +237,7 @@ async function render(testCase) {
     space=space
     onWorkflowStarted=workflowStartedSpy
     chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
-    workflowSchemaId=workflowSchemaId
+    atmWorkflowSchemaId=atmWorkflowSchemaId
   }}`);
   await wait();
 }

@@ -30,14 +30,14 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
     changeTab(tab) {
       return this.callParent('changeTab', tab);
     },
-    openPreviewTab(workflowExecutionId) {
-      return this.callParent('openPreviewTab', workflowExecutionId);
+    openPreviewTab(atmWorkflowExecutionId) {
+      return this.callParent('openPreviewTab', atmWorkflowExecutionId);
     },
     closePreviewTab() {
       return this.callParent('closePreviewTab');
     },
-    chooseWorkflowSchemaToRun(workflowSchemaId) {
-      return this.callParent('chooseWorkflowSchemaToRun', workflowSchemaId);
+    chooseWorkflowSchemaToRun(atmWorkflowSchemaId) {
+      return this.callParent('chooseWorkflowSchemaToRun', atmWorkflowSchemaId);
     },
   },
 });

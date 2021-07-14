@@ -7,7 +7,7 @@
 }}
   {{#bs-nav type="tabs" as |nav|}}
     {{#each possibleTabs as |tabId|}}
-      {{#if (or (not-eq tabId "preview") workflowExecutionIdInPreview)}}
+      {{#if (or (not-eq tabId "preview") atmWorkflowExecutionIdInPreview)}}
         {{#nav.item
           class=(concat "nav-item-" tabId)
           active=(eq bsTab.activeId tabId)
@@ -63,7 +63,7 @@
       {{/bsTab.pane}}
     {{/each}}
     {{#bsTab.pane elementId="preview" class="fill-flex-using-column"}}
-      {{#if (and (eq bsTab.activeId "preview") workflowExecutionIdInPreview)}}
+      {{#if (and (eq bsTab.activeId "preview") atmWorkflowExecutionIdInPreview)}}
         {{space-automation/atm-workflow-execution-preview
           class="fill-flex-using-column"
           atmWorkflowExecutionProxy=atmWorkflowExecutionForPreviewProxy
@@ -76,7 +76,7 @@
           <div class="col-xs-12">
             {{space-automation/run-workflow-creator
               space=space
-              workflowSchemaId=workflowSchemaId
+              atmWorkflowSchemaId=atmWorkflowSchemaId
               chooseWorkflowSchemaToRun=(action "chooseWorkflowSchemaToRun")
               onWorkflowStarted=(action "workflowStarted")
             }}

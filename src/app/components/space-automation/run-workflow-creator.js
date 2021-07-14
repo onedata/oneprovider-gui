@@ -35,15 +35,18 @@ export default Component.extend(I18n, {
   space: undefined,
 
   /**
+   * Id of workflow schema, which should be used to create new execution.
+   * If empty - list of workflow schemas is rendered, if present -
+   * form for specific schema is visible.
    * @virtual
    * @type {String}
    */
-  workflowSchemaId: undefined,
+  atmWorkflowSchemaId: undefined,
 
   /**
    * @virtual optional
    * @type {Function}
-   * @param {String} workflowSchemaId
+   * @param {String} atmWorkflowSchemaId
    * @returns {any}
    */
   chooseWorkflowSchemaToRun: undefined,
@@ -57,9 +60,12 @@ export default Component.extend(I18n, {
   onWorkflowStarted: undefined,
 
   /**
+   * Latest non-empty value of `atmWorkflowSchemaId`. This field is needed to remember
+   * workflow schema id after its change to empty value, so the view of stores form
+   * for workflow schema can be still rendered during the transition of carousel.
    * @type {String}
    */
-  workflowSchemaIdToRun: undefined,
+  atmWorkflowSchemaIdToRun: undefined,
 
   /**
    * One of: `'list'`, `'inputStores'`
@@ -111,21 +117,21 @@ export default Component.extend(I18n, {
   ),
 
   atmWorkflowSchemaToRunLoader: observer(
-    'workflowSchemaId',
+    'atmWorkflowSchemaId',
     function atmWorkflowSchemaToRunLoader() {
       const {
-        workflowSchemaId,
-        workflowSchemaIdToRun,
+        atmWorkflowSchemaId,
+        atmWorkflowSchemaIdToRun,
         workflowManager,
         activeSlide,
       } = this.getProperties(
-        'workflowSchemaId',
-        'workflowSchemaIdToRun',
+        'atmWorkflowSchemaId',
+        'atmWorkflowSchemaIdToRun',
         'workflowManager',
         'activeSlide',
       );
 
-      if (!workflowSchemaId) {
+      if (!atmWorkflowSchemaId) {
         if (activeSlide === 'inputStores') {
           this.changeSlide('list');
         }
@@ -133,15 +139,15 @@ export default Component.extend(I18n, {
       }
 
       this.changeSlide('inputStores');
-      if (workflowSchemaId === workflowSchemaIdToRun) {
+      if (atmWorkflowSchemaId === atmWorkflowSchemaIdToRun) {
         return;
       }
 
       const loadSchemaPromise =
-        workflowManager.getAtmWorkflowSchemaById(workflowSchemaId);
+        workflowManager.getAtmWorkflowSchemaById(atmWorkflowSchemaId);
 
       this.setProperties({
-        workflowSchemaIdToRun: workflowSchemaId,
+        atmWorkflowSchemaIdToRun: atmWorkflowSchemaId,
         atmWorkflowSchemaToRunProxy: promiseObject(loadSchemaPromise),
         inputStoresData: undefined,
         areInputStoresValid: true,
@@ -161,8 +167,9 @@ export default Component.extend(I18n, {
   actions: {
     atmWorkflowSchemaSelected(atmWorkflowSchema) {
       const chooseWorkflowSchemaToRun = this.get('chooseWorkflowSchemaToRun');
-      chooseWorkflowSchemaToRun &&
+      if (chooseWorkflowSchemaToRun) {
         chooseWorkflowSchemaToRun(get(atmWorkflowSchema, 'entityId'));
+      }
     },
     inputStoresChanged({ data, isValid }) {
       this.setProperties({
@@ -175,7 +182,7 @@ export default Component.extend(I18n, {
       const {
         workflowManager,
         space,
-        atmWorkflowSchemaToRunProxy,
+        atmWorkflowSchemaIdToRun,
         inputStoresData,
         onWorkflowStarted,
         globalNotify,
@@ -183,18 +190,17 @@ export default Component.extend(I18n, {
       } = this.getProperties(
         'workflowManager',
         'space',
-        'atmWorkflowSchemaToRunProxy',
+        'atmWorkflowSchemaIdToRun',
         'inputStoresData',
         'onWorkflowStarted',
         'globalNotify',
         'chooseWorkflowSchemaToRun'
       );
 
-      const atmWorkflowSchemaId = get(atmWorkflowSchemaToRunProxy, 'entityId');
       const spaceId = get(space, 'entityId');
       try {
         const atmWorkflowExecution = await workflowManager.runWorkflow(
-          atmWorkflowSchemaId,
+          atmWorkflowSchemaIdToRun,
           spaceId,
           inputStoresData || {}
         );

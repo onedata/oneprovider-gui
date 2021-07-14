@@ -77,17 +77,18 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {String}
    */
-  workflowExecutionId: undefined,
+  atmWorkflowExecutionId: undefined,
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  atmWorkflowSchemaId: undefined,
 
   /**
    * @type {String}
    */
-  workflowExecutionIdInPreview: undefined,
-
-  /**
-   * @type {String}
-   */
-  workflowSchemaId: undefined,
+  atmWorkflowExecutionIdInPreview: undefined,
 
   /**
    * @type {Array<String>}
@@ -118,37 +119,37 @@ export default Component.extend(I18n, {
   atmWorkflowExecutionForPreviewProxy: undefined,
 
   atmWorkflowExecutionForPreviewLoader: observer(
-    'workflowExecutionId',
+    'atmWorkflowExecutionId',
     'space',
     function atmWorkflowExecutionForPreviewLoader() {
       const {
-        workflowExecutionId,
-        workflowExecutionIdInPreview,
+        atmWorkflowExecutionId,
+        atmWorkflowExecutionIdInPreview,
         workflowManager,
         normalizedTab,
         space,
       } = this.getProperties(
-        'workflowExecutionId',
-        'workflowExecutionIdInPreview',
+        'atmWorkflowExecutionId',
+        'atmWorkflowExecutionIdInPreview',
         'workflowManager',
         'normalizedTab',
         'space'
       );
 
-      if (!workflowExecutionId && normalizedTab === 'preview') {
+      if (!atmWorkflowExecutionId && normalizedTab === 'preview') {
         this.get('closePreviewTab')();
         this.setProperties({
-          workflowExecutionIdInPreview: workflowExecutionId,
+          atmWorkflowExecutionIdInPreview: atmWorkflowExecutionId,
           atmWorkflowExecutionForPreviewProxy: undefined,
         });
         return;
       }
-      if (workflowExecutionId === workflowExecutionIdInPreview) {
+      if (atmWorkflowExecutionId === atmWorkflowExecutionIdInPreview) {
         return;
       }
 
       const loadExecutionPromise =
-        workflowManager.getAtmWorkflowExecutionById(workflowExecutionId)
+        workflowManager.getAtmWorkflowExecutionById(atmWorkflowExecutionId)
         .then(atmWorkflowExecution => hashFulfilled({
           atmWorkflowSchemaSnapshot: get(atmWorkflowExecution, 'atmWorkflowSchemaSnapshot'),
           space: get(atmWorkflowExecution, 'space'),
@@ -161,7 +162,7 @@ export default Component.extend(I18n, {
         }));
 
       this.setProperties({
-        workflowExecutionIdInPreview: workflowExecutionId,
+        atmWorkflowExecutionIdInPreview: atmWorkflowExecutionId,
         atmWorkflowExecutionForPreviewProxy: promiseObject(loadExecutionPromise),
       });
     }
