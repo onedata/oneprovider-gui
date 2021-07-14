@@ -59,7 +59,7 @@
   .items-select-browser-body {
     .upload-drop-zone {
       width: calc(100% - #{3 * $padding-small-horizontal});
-      max-width: calc(#{$bs-modal-xl-max-width} - #{2 * $padding-small-horizontal});
+      max-width: calc(#{$modal-xl} - #{2 * $padding-small-horizontal});
       left: auto;
     }
   }
