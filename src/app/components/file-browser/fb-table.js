@@ -726,6 +726,10 @@ export default Component.extend(I18n, {
         }
 
         scheduleOnce('afterRender', () => {
+          if (this.get('isDestroyed')) {
+            return;
+          }
+
           const anyRowVisible = this.$('.data-row').toArray()
             .some(row => viewTester.isInView(row));
 

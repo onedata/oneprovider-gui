@@ -38,6 +38,36 @@
           {{/if}}
         {{/one-icon}}
       {{/if}}
+    {{else if (eq column "actions")}}
+      {{one-menu-toggle
+        id=actionsTriggerId
+        class=(concat-classes
+          "atm-workflow-execution-actions-trigger clickable"
+          (if areActionsOpened "active")
+        )
+        click=(action "toggleActionsOpen" (not areActionsOpened))
+      }}
+      {{#render-later triggerRender=areActionsOpened}}
+        {{#one-webui-popover
+          class="atm-workflow-execution-actions"
+          padding=false
+          popoverStyle="with-dropdown"
+          triggerSelector=(concat "#" actionsTriggerId)
+          open=areActionsOpened
+          onToggle=(action "toggleActionsOpen")
+          as |popover|
+        }}
+          {{#click-outside
+            action=(action (mut areActionsOpened) false)
+            except-selector=(concat "#" actionsTriggerId)
+          }}
+            {{actions-popover-content
+              actionsArray=atmWorkflowExecutionActions
+              actionClicked=(action "toggleActionsOpen" false)
+            }}
+          {{/click-outside}}
+        {{/one-webui-popover}}
+      {{/render-later}}
     {{/if}}
   </td>
 {{/each}}

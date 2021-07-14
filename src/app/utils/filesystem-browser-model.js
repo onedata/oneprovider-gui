@@ -732,10 +732,26 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  uploadDropElement: computed('element', function uploadDropElement() {
+    const element = this.get('element');
+    if (element) {
+      return element.closest('.upload-drop-zone-container');
+    }
+  }),
+
+  uploadBrowseElement: computed('element', function uploadBrowseElement() {
+    const element = this.get('element');
+    if (element) {
+      return element.querySelector('.fb-upload-trigger');
+    }
+  }),
+
   /**
    * @override
    */
   onChangeDir(dir) {
+    // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
+    // if using selector inside filesystem browser
     this.get('uploadManager').changeTargetDirectory(dir);
   },
 
@@ -744,15 +760,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   onInsertElement() {
     const {
-      _document,
-      element,
       uploadManager,
+      uploadDropElement,
+      uploadBrowseElement,
       dir,
-    } = this.getProperties('_document', 'element', 'uploadManager', 'dir');
+    } = this.getProperties(
+      'uploadManager',
+      'uploadDropElement',
+      'uploadBrowseElement',
+      'dir'
+    );
 
-    const uploadDropElement = element.parentElement;
+    // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
+    // if using selector inside filesystem browser
     uploadManager.assignUploadDrop(uploadDropElement);
-    const uploadBrowseElement = _document.querySelector('.fb-upload-trigger');
     uploadManager.assignUploadBrowse(uploadBrowseElement);
     uploadManager.changeTargetDirectory(dir);
   },
