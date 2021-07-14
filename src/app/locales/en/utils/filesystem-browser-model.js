@@ -4,6 +4,7 @@ import _ from 'lodash';
 export default _.merge({}, BaseBrowserModel, {
   startingDownload: 'starting file download',
   fileActions: {
+    bagitUpload: 'Upload BagIt',
     upload: 'Upload files',
     newDirectory: 'New directory',
     refresh: 'Refresh',

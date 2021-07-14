@@ -55,27 +55,32 @@ describe('Integration | Component | space automation', function () {
         list: promiseArray(resolve([atmInventory])),
       })),
     })));
-    sinon.stub(
-      lookupService(this, 'workflow-manager'),
-      'getAtmWorkflowExecutionSummariesForSpace'
-    ).resolves([]);
+    const workflowManager = lookupService(this, 'workflow-manager');
+    sinon.stub(workflowManager, 'getAtmWorkflowSchemaById')
+      .callsFake(atmWorkflowSchemaId =>
+        resolve(atmWorkflowSchemas.findBy('entityId', atmWorkflowSchemaId))
+      );
+    sinon.stub(workflowManager, 'getAtmWorkflowExecutionSummariesForSpace')
+      .resolves([]);
     const getAtmWorkflowExecutionByIdStub = sinon.stub(
-      lookupService(this, 'workflow-manager'),
+      workflowManager,
       'getAtmWorkflowExecutionById'
     ).withArgs('execution1').resolves(atmWorkflowExecution);
     this.setProperties({
       space,
       tab: undefined,
-      workflowExecutionId: undefined,
+      atmWorkflowExecutionId: undefined,
       atmWorkflowExecution,
       changeTab: tab => this.set('tab', tab),
       getAtmWorkflowExecutionByIdStub,
       closePreviewTabStub: sinon.stub().callsFake(() => {
         schedule('afterRender', this, () => this.setProperties({
           tab: 'waiting',
-          workflowExecutionId: undefined,
+          atmWorkflowExecutionId: undefined,
         }));
       }),
+      atmWorkflowSchemaId: undefined,
+      chooseWorkflowSchemaToRun: id => this.set('atmWorkflowSchemaId', id),
     });
   });
   suppressRejections();
@@ -129,9 +134,9 @@ describe('Integration | Component | space automation', function () {
       this.set('tab', 'preview');
     });
 
-    it('has active "preview" tab with workflow name when "workflowExecutionId" param points to an existing execution',
+    it('has active "preview" tab with workflow name when "atmWorkflowExecutionId" param points to an existing execution',
       async function () {
-        this.set('workflowExecutionId', 'execution1');
+        this.set('atmWorkflowExecutionId', 'execution1');
 
         await render(this);
 
@@ -140,12 +145,12 @@ describe('Integration | Component | space automation', function () {
         expect($previewNavItem.text().trim()).to.equal('workflow 1');
       });
 
-    it('has active "preview" tab with "Cannot load" label when "workflowExecutionId" param points to a non-existing execution',
+    it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to a non-existing execution',
       async function () {
         let rejectPromise;
         this.get('getAtmWorkflowExecutionByIdStub')
           .returns(new Promise((resolve, reject) => rejectPromise = reject));
-        this.set('workflowExecutionId', 'execution1');
+        this.set('atmWorkflowExecutionId', 'execution1');
 
         await render(this);
         rejectPromise();
@@ -156,13 +161,13 @@ describe('Integration | Component | space automation', function () {
         expect($previewNavItem.text().trim()).to.equal('Cannot load');
       });
 
-    it('has active "preview" tab with "Cannot load" label when "workflowExecutionId" param points to an execution from another space',
+    it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to an execution from another space',
       async function (done) {
         this.set(
           'atmWorkflowExecution.space',
           promiseObject(resolve({ entityId: 'space2' }))
         );
-        this.set('workflowExecutionId', 'execution1');
+        this.set('atmWorkflowExecutionId', 'execution1');
 
         await render(this);
 
@@ -172,10 +177,10 @@ describe('Integration | Component | space automation', function () {
         done();
       });
 
-    it('has active "preview" tab with "Loading..." label when "workflowExecutionId" param points to a long loading execution',
+    it('has active "preview" tab with "Loading..." label when "atmWorkflowExecutionId" param points to a long loading execution',
       async function () {
         this.get('getAtmWorkflowExecutionByIdStub').returns(new Promise(() => {}));
-        this.set('workflowExecutionId', 'execution1');
+        this.set('atmWorkflowExecutionId', 'execution1');
 
         await render(this);
 
@@ -184,7 +189,7 @@ describe('Integration | Component | space automation', function () {
         expect($previewNavItem.text().trim()).to.equal('Loading...');
       });
 
-    it('calls "closePreviewTab" on init, when "workflowExecutionId" param is empty',
+    it('calls "closePreviewTab" on init, when "atmWorkflowExecutionId" param is empty',
       async function () {
         await render(this);
 
@@ -198,9 +203,11 @@ async function render(testCase) {
   testCase.render(hbs `{{space-automation
     space=space
     tab=tab
-    workflowExecutionId=workflowExecutionId
+    atmWorkflowExecutionId=atmWorkflowExecutionId
+    atmWorkflowSchemaId=atmWorkflowSchemaId
     changeTab=changeTab
     closePreviewTab=closePreviewTabStub
+    chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
   }}`);
   await wait();
 }

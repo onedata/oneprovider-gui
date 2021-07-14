@@ -23,17 +23,21 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
     'spaceEntityId',
     'tab',
     'workflowExecutionId',
+    'workflowSchemaId',
   ]),
 
   actions: {
     changeTab(tab) {
       return this.callParent('changeTab', tab);
     },
-    openPreviewTab(workflowExecutionId) {
-      return this.callParent('openPreviewTab', workflowExecutionId);
+    openPreviewTab(atmWorkflowExecutionId) {
+      return this.callParent('openPreviewTab', atmWorkflowExecutionId);
     },
     closePreviewTab() {
       return this.callParent('closePreviewTab');
+    },
+    chooseWorkflowSchemaToRun(atmWorkflowSchemaId) {
+      return this.callParent('chooseWorkflowSchemaToRun', atmWorkflowSchemaId);
     },
   },
 });

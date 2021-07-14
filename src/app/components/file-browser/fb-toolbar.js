@@ -23,6 +23,7 @@ export default Component.extend(I18n, {
   classNames: ['fb-toolbar'],
 
   media: service(),
+  workflowManager: service(),
 
   /**
    * @override
@@ -101,6 +102,7 @@ export default Component.extend(I18n, {
   toolbarButtons: computed(
     'allButtonsArray',
     'fileClipboardMode',
+    'workflowManager.isBagitUploaderAvailable',
     function toolbarButtons() {
       const {
         allButtonsArray,
@@ -111,6 +113,8 @@ export default Component.extend(I18n, {
         'fileClipboardMode',
         'previewMode'
       );
+      const isBagitUploaderAvailable =
+        this.get('workflowManager.isBagitUploaderAvailable');
       let actions = getButtonActions(
         allButtonsArray,
         previewMode ? 'inDirPreview' : 'inDir'
@@ -123,6 +127,9 @@ export default Component.extend(I18n, {
       }
       if (fileClipboardMode !== 'copy' && fileClipboardMode !== 'move') {
         actions = actions.rejectBy('id', 'paste');
+      }
+      if (!isBagitUploaderAvailable) {
+        actions = actions.rejectBy('id', 'bagitUpload');
       }
       return actions;
     }

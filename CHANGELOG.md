@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7846 Added BagIt uploader button to file browser
 * VFS-7975 Added cancellation of workflow executions
 * VFS-7856 Added ability to upload files and create directories in files selector
 * VFS-7855 Improved UX of workflow stores content listing

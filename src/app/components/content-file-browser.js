@@ -10,7 +10,7 @@
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
-import { computed, get, observer } from '@ember/object';
+import { computed, get, getProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
@@ -38,11 +38,12 @@ export default OneEmbeddedComponent.extend(
     fileManager: service(),
     uploadManager: service(),
     spaceManager: service(),
+    workflowManager: service(),
     globalNotify: service(),
 
     /**
      * Entity ID of space for which the file browser is rendered.
-     * 
+     *
      * **Injected from parent frame.**
      * @virtual
      * @type {String}
@@ -51,7 +52,7 @@ export default OneEmbeddedComponent.extend(
 
     /**
      * Entity ID of currently opened directory in file browser.
-     * 
+     *
      * **Injected from parent frame.**
      * @virtual optional
      */
@@ -59,7 +60,7 @@ export default OneEmbeddedComponent.extend(
 
     /**
      * Array of file IDs that should be selected on file browser init.
-     * 
+     *
      * **Injected from parent frame.**
      * @virtual optional
      * @type {Array<String>}
@@ -105,6 +106,11 @@ export default OneEmbeddedComponent.extend(
      * @type {Array<Models.File>}
      */
     selectedFiles: undefined,
+
+    /**
+     * @type {String}
+     */
+    navigateTarget: '_top',
 
     /**
      * @type {ComputedProperty<Object>}
@@ -222,7 +228,14 @@ export default OneEmbeddedComponent.extend(
           store,
           globalNotify,
           _window,
-        } = this.getProperties('injectedDirGri', 'store', 'globalNotify', '_window');
+          navigateTarget,
+        } = this.getProperties(
+          'injectedDirGri',
+          'store',
+          'globalNotify',
+          '_window',
+          'navigateTarget'
+        );
 
         if (!injectedDirGri) {
           return this.get('fallbackDirProxy');
@@ -231,7 +244,7 @@ export default OneEmbeddedComponent.extend(
         const redirectUrl = await this.openSelectedParentDir();
         if (redirectUrl) {
           return new Promise(() => {
-            _window.open(redirectUrl, '_top');
+            _window.open(redirectUrl, navigateTarget);
           });
         }
 
@@ -304,6 +317,7 @@ export default OneEmbeddedComponent.extend(
     createBrowserModel() {
       return FilesystemBrowserModel.create({
         ownerSource: this,
+        openBagitUploader: this.openBagitUploader.bind(this),
         openCreateNewDirectory: (parent) => this.openCreateItemModal('dir', parent),
         openRemove: this.openRemoveModal.bind(this),
         openRename: this.openRenameModal.bind(this),
@@ -361,6 +375,29 @@ export default OneEmbeddedComponent.extend(
       } else {
         return resolve(null);
       }
+    },
+
+    openBagitUploader() {
+      const {
+        workflowManager,
+        _window,
+        navigateTarget,
+      } = this.getProperties('workflowManager', '_window', 'navigateTarget');
+      const {
+        isBagitUploaderAvailable,
+        bagitUploaderWorkflowSchemaId,
+      } = getProperties(
+        workflowManager,
+        'isBagitUploaderAvailable',
+        'bagitUploaderWorkflowSchemaId'
+      );
+      if (!isBagitUploaderAvailable) {
+        return;
+      }
+      const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
+        workflowSchemaId: bagitUploaderWorkflowSchemaId,
+      });
+      _window.open(redirectUrl, navigateTarget);
     },
 
     openCreateItemModal(itemType, parentDir) {

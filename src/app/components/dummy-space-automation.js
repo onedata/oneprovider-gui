@@ -17,7 +17,7 @@ export default Component.extend({
 
   tab: undefined,
 
-  workflowExecutionId: undefined,
+  atmWorkflowExecutionId: undefined,
 
   spaceProxy: promise.object(computed(function spaceProxy() {
     return this.get('currentUser').getCurrentUserRecord()
@@ -30,15 +30,15 @@ export default Component.extend({
     changeTab(tab) {
       this.set('tab', tab);
     },
-    openPreviewTab(workflowExecutionId) {
+    openPreviewTab(atmWorkflowExecutionId) {
       this.setProperties({
         tab: 'preview',
-        workflowExecutionId,
+        atmWorkflowExecutionId,
       });
     },
     closePreviewTab() {
       const tab = this.get('tab');
-      this.set('workflowExecutionId', null);
+      this.set('atmWorkflowExecutionId', null);
       if (tab === 'preview') {
         this.set('tab', 'waiting');
       }
