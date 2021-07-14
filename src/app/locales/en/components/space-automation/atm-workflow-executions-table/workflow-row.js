@@ -11,5 +11,4 @@ export default {
     finished: 'Finished',
     failed: 'Failed',
   },
-  cancel: 'Cancel',
 };

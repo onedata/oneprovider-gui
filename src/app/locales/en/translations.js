@@ -38,6 +38,7 @@ import datasetBrowserModel from './utils/dataset-browser-model';
 import archiveBrowserModel from './utils/archive-browser-model';
 import selectorFilesystemBrowserModel from './utils/selector-filesystem-browser-model';
 import itemsSelectBrowserUtils from './utils/items-select-browser';
+import workflowActions from './utils/workflow-actions';
 
 const translations = {
   components: {
@@ -80,6 +81,7 @@ const translations = {
     archiveBrowserModel,
     selectorFilesystemBrowserModel,
     itemsSelectBrowser: itemsSelectBrowserUtils,
+    workflowActions,
   },
 };
 

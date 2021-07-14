@@ -70,12 +70,12 @@ export default Service.extend({
     const cancelGri = gri({
       entityType: atmWorkflowExecutionEntityType,
       entityId: atmWorkflowExecutionId,
-      aspect: 'process',
+      aspect: 'cancel',
       scope: 'private',
     });
     await this.get('onedataGraph').request({
       gri: cancelGri,
-      operation: 'delete',
+      operation: 'create',
       subscribe: false,
     });
   },
