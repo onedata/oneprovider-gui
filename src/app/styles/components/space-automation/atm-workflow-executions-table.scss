@@ -83,12 +83,14 @@
       @extend .animated;
       @extend .infinite;
       @extend .hinge;
+    }
+
+    &.status-preparing {
       @extend .pulse-orange;
     }
 
     &.status-enqueued,
-    &.status-active,
-    &.status-cancelled {
+    &.status-active {
       color: $color-one-warning;
     }
 
@@ -100,7 +102,12 @@
       color: $color-one-success;
     }
 
-    &.status-failed {
+    &.status-aborting {
+      @extend .pulse-red-transparent;
+    }
+
+    &.status-failed,
+    &.status-cancelled {
       color: $color-one-danger;
     }
   }
