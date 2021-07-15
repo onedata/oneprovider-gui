@@ -9,11 +9,9 @@
 
 import Component from '@ember/component';
 import { promise } from 'ember-awesome-macros';
-import { computed, get } from '@ember/object';
+import { computed } from '@ember/object';
 import { sort } from '@ember/object/computed';
-import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 
@@ -21,6 +19,7 @@ export default Component.extend(I18n, {
   classNames: ['atm-workflow-schemas-list'],
 
   i18n: service(),
+  workflowManager: service(),
 
   /**
    * @override
@@ -46,56 +45,19 @@ export default Component.extend(I18n, {
   atmWorkflowSchemasSorting: Object.freeze(['name']),
 
   /**
-   * @type {Array<Models.AtmWorkflowSchema>}
-   */
-  atmWorkflowSchemas: computedLastProxyContent('atmWorkflowSchemasProxy'),
-
-  /**
-   * @type {ComputedProperty<PromiseArray<Models.AtmInventory>>}
-   */
-  atmInventoriesProxy: promise.array(
-    computed('user', async function atmInventoriesProxy() {
-      const effAtmInventoryList = await this.get('user.effAtmInventoryList');
-      try {
-        return await get(effAtmInventoryList, 'list');
-      } catch (error) {
-        // Passing inventories, which were fetched without error
-        return get(effAtmInventoryList, 'list.content');
-      }
-    })
-  ),
-
-  /**
-   * @type {ComputedProperty<PromiseArray<DS.RecordArray<Models.AtmWorkflowSchema>>>}
-   */
-  atmWorkflowSchemaListsProxy: promise.array(computed(
-    'atmInventoriesProxy.@each.isReloading',
-    async function atmWorkflowSchemaListsProxy() {
-      const atmInventories = await this.get('atmInventoriesProxy');
-      const atmWorkflowSchemaLists = await onlyFulfilledValues(
-        atmInventories.mapBy('atmWorkflowSchemaList')
-      );
-      return await onlyFulfilledValues(atmWorkflowSchemaLists.compact().mapBy('list'));
-    }
-  )),
-
-  /**
    * @type {ComputedProperty<PromiseArray<Models.AtmWorkflowSchema>>}
    */
-  atmWorkflowSchemasProxy: promise.array(computed(
-    'atmWorkflowSchemaListsProxy.@each.isReloading',
-    async function atmWorkflowSchemasProxy() {
-      const atmWorkflowSchemaLists = await this.get('atmWorkflowSchemaListsProxy');
-      const workflowsArray = [];
-      atmWorkflowSchemaLists.forEach(list => workflowsArray.push(...list.toArray()));
-      return workflowsArray;
-    }
-  )),
+  atmWorkflowSchemasProxy: promise.array(computed(function atmWorkflowSchemasProxy() {
+    return this.get('workflowManager').getAllKnownAtmWorkflowSchemas();
+  })),
 
   /**
    * @type {ComputedProperty<Array<Model.AtmWorkflowSchema>>}
    */
-  sortedAtmWorkflowSchemas: sort('atmWorkflowSchemas', 'atmWorkflowSchemasSorting'),
+  sortedAtmWorkflowSchemas: sort(
+    'atmWorkflowSchemasProxy.content',
+    'atmWorkflowSchemasSorting'
+  ),
 
   /**
    * This computed has no dependecies, because we need to wait only for the first fetch.
