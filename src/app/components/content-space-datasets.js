@@ -194,7 +194,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   //#endregion
 
   // TODO: VFS-7633 jumping to archive that is not on current list corrupts the list on mock
-  // FIXME: support files
   selectedItemsForJumpProxy: promise.object(computed(
     // NOTE: not observing viewMode, because jump should not be performed if viewMode
     // changes
@@ -545,12 +544,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   injectedSelectedChanged: observer(
     'selectedItemsForJumpProxy.content',
-    function injectedSelectedChanged() {
-      // TODO: VFS-7633 currently only selecting archives from URL is supported
-      if (this.get('viewMode') !== 'archives') {
-        return;
-      }
-      const selectedItemsForJump = this.get('selectedItemsForJumpProxy.content');
+    async function injectedSelectedChanged() {
+      const selectedItemsForJump = await this.get('selectedItemsForJumpProxy');
+      // FIXME: tutaj by można sprawdzać, czy tablica nie jest pusta (nie ma sensu dla jump)
       if (selectedItemsForJump) {
         this.set('selectedItemsForJump', selectedItemsForJump);
       }
@@ -564,6 +560,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
     this.updateOnezoneDatasetData();
     this.archiveProxyObserver();
+    // FIXME:
+    window.contentSpaceDatasets = this;
   },
 
   willDestroyElement() {

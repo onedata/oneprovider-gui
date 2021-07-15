@@ -109,6 +109,12 @@ export default Component.extend(I18n, {
   fileClipboardFiles: undefined,
 
   /**
+   * @virtual
+   * @type {Function}
+   */
+  changeSelectedFiles: notImplementedThrow,
+
+  /**
    * @virtual optional
    * @type {(api: { refresh: Function, getFilesArray: Function }) => undefined}
    */

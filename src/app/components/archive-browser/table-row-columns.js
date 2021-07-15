@@ -10,6 +10,7 @@
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
 import { promise } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
+import { get } from '@ember/object';
 
 export default FbTableRowColumns.extend({
   /**
@@ -33,8 +34,17 @@ export default FbTableRowColumns.extend({
   baseArchiveUrl: reads('fileRowModel.baseArchiveHrefProxy.content'),
 
   actions: {
-    baseArchiveLinkClick(event) {
+    async baseArchiveLinkClick(event) {
       event.stopPropagation();
+      const currentlySelectedForJump = this.get('browserModel.selectedFilesForJump');
+      const baseArchiveId = this.get('fileRowModel.baseArchiveId');
+      if (
+        get(currentlySelectedForJump, 'length') === 1 &&
+        get(currentlySelectedForJump[0], 'entityId') === baseArchiveId
+      ) {
+        const baseArchive = await this.get('fileRowModel.baseArchiveProxy');
+        this.get('browserModel').forceSelectAndJump([baseArchive]);
+      }
     },
   },
 });

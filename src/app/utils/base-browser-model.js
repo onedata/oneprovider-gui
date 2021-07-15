@@ -153,6 +153,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   dir: reads('browserInstance.dir'),
   selectedFiles: reads('browserInstance.selectedFiles'),
+  selectedFilesForJump: reads('browserInstance.selectedFilesForJump'),
   selectionContext: reads('browserInstance.selectionContext'),
   element: reads('browserInstance.element'),
   spacePrivileges: reads('browserInstance.spacePrivileges'),
@@ -241,6 +242,19 @@ export default EmberObject.extend(OwnerInjector, I18n, {
         throw error;
       });
   },
+
+  forceSelectAndJump(selectedItems) {
+    this.get('browserInstance').setProperties({
+      selectedFilesForJump: selectedItems,
+      selectedFiles: selectedItems,
+    });
+  },
+
+  // FIXME: remove
+  // changeSelectedFiles: computed('browserInstance', function changeSelectedFiles() {
+  //   const browserInstance = this.get('browserInstance');
+  //   return get(browserInstance, 'changeSelectedFiles').bind(browserInstance);
+  // }),
 
   /**
    * Create button or popover menu item for controlling files.
