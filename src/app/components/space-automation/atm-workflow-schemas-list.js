@@ -9,11 +9,15 @@
 
 import Component from '@ember/component';
 import { promise } from 'ember-awesome-macros';
-import { computed } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { sort } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import config from 'ember-get-config';
+import { debounce } from '@ember/runloop';
+
+const typingActionDebouce = config.timing.typingActionDebouce;
 
 export default Component.extend(I18n, {
   classNames: ['atm-workflow-schemas-list'],
@@ -33,11 +37,17 @@ export default Component.extend(I18n, {
   user: undefined,
 
   /**
+   * @virtual
    * @type {Function}
    * @param {Models.AtmWorkflowSchema} selectedAtmWorkflowSchema
    * @returns {any}
    */
   onAtmWorkflowSchemaSelect: notImplementedIgnore,
+
+  /**
+   * @type {String}
+   */
+  searchValue: '',
 
   /**
    * @type {Array<String>}
@@ -52,10 +62,37 @@ export default Component.extend(I18n, {
   })),
 
   /**
+   * @type {ComputedProperty<Array<Models.AtmWorkflowSchema>>}
+   */
+  filteredAtmWorkflowSchemas: computed(
+    'searchValue',
+    'atmWorkflowSchemasProxy.content.@each.{name,isLoaded}',
+    function filteredAtmWorkflowSchemas() {
+      const {
+        atmWorkflowSchemasProxy,
+        searchValue,
+      } = this.getProperties('atmWorkflowSchemasProxy', 'searchValue');
+      const normalizedSearchValue = searchValue.trim().toLowerCase();
+
+      return (get(atmWorkflowSchemasProxy, 'content') || []).filter(atmWorkflowSchema => {
+        const {
+          isLoaded,
+          name,
+        } = getProperties(atmWorkflowSchema, 'isLoaded', 'name');
+        if (!isLoaded) {
+          return false;
+        }
+        const normalizedName = (name || '').trim().toLowerCase();
+        return normalizedName.includes(normalizedSearchValue);
+      });
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<Array<Model.AtmWorkflowSchema>>}
    */
   sortedAtmWorkflowSchemas: sort(
-    'atmWorkflowSchemasProxy.content',
+    'filteredAtmWorkflowSchemas',
     'atmWorkflowSchemasSorting'
   ),
 
@@ -69,6 +106,9 @@ export default Component.extend(I18n, {
   }),
 
   actions: {
+    changeSearchValue(newValue) {
+      debounce(this, 'set', 'searchValue', newValue, typingActionDebouce);
+    },
     atmWorkflowSchemaSelected(atmWorkflowSchema) {
       const onAtmWorkflowSchemaSelect = this.get('onAtmWorkflowSchemaSelect');
       onAtmWorkflowSchemaSelect && onAtmWorkflowSchemaSelect(atmWorkflowSchema);

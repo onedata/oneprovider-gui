@@ -18,16 +18,20 @@ describe('Integration | Component | space automation/atm workflow schemas list',
     const atmWorkflowSchemas1 = [{
       name: 'workflow3',
       description: 'w3 description',
+      isLoaded: true,
     }, {
       name: 'workflow1',
       description: 'w1 description',
+      isLoaded: true,
     }];
     const atmWorkflowSchemas2 = [{
       name: 'workflow2',
       description: 'w2 description',
+      isLoaded: true,
     }, {
       name: 'workflow4',
       description: 'w4 description',
+      isLoaded: true,
     }];
     sinon.stub(lookupService(this, 'workflow-manager'), 'getAllKnownAtmWorkflowSchemas')
       .returns(promiseArray(resolve([...atmWorkflowSchemas1, ...atmWorkflowSchemas2])));

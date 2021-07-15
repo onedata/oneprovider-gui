@@ -32,6 +32,7 @@ describe('Integration | Component | space automation/run workflow creator', func
         },
         requiresInitialValue: true,
       }],
+      isLoaded: true,
     }, {
       entityId: 'workflow2',
       name: 'workflow 2',
@@ -45,6 +46,7 @@ describe('Integration | Component | space automation/run workflow creator', func
         },
         requiresInitialValue: true,
       }],
+      isLoaded: true,
     }];
     const atmInventory = {
       atmWorkflowSchemaList: promiseObject(resolve({
