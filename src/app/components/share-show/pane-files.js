@@ -149,6 +149,7 @@ export default Component.extend(I18n, {
     return FilesystemBrowserModel.create({
       ownerSource: this,
       rootIcon: 'share',
+      readonlyFilesystem: true,
       openInfo: this.openInfoModal.bind(this),
       openMetadata: this.openMetadataModal.bind(this),
     });

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8005 Fixed non-rendering shares browser after adding files selector upload; blocking upload to data-protected directory in selector
 * VFS-7846 Added BagIt uploader button to file browser
 * VFS-7975 Added cancellation of workflow executions
 * VFS-7856 Added ability to upload files and create directories in files selector
