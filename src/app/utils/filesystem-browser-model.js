@@ -755,7 +755,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         tip: disabledTip,
         action: (files) => {
           modalManager.show('run-workflow-modal', {
-            atmWorkflowInputDataType: 'file',
+            atmWorkflowInputDataSource: 'filesSelection',
             atmWorkflowInputData: [...files],
           });
         },

@@ -1,6 +1,6 @@
 /**
  * A modal that allows to select workflow to run using passed data. modalOptions:
- * - atmWorkflowInputDataType - (optional) type of data passed to use in workflow.
+ * - atmWorkflowInputDataSource - (optional) source of data passed to use in workflow.
  *   If not specified, then passed data will be ignored.
  * - atmWorkflowInputData - (optional) data to pass to the new workflow run.
  *
@@ -39,10 +39,10 @@ export default Component.extend(I18n, {
   modalOptions: undefined,
 
   /**
-   * May be empty or one of: `'file'`
+   * May be empty or one of: `'filesSelection'`
    * @type {ComputedProperty<String|undefined>}
    */
-  atmWorkflowInputDataType: reads('modalOptions.atmWorkflowInputDataType'),
+  atmWorkflowInputDataSource: reads('modalOptions.atmWorkflowInputDataSource'),
 
   /**
    * @type {ComputedProperty<any>}
