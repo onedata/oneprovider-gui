@@ -56,6 +56,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   isMobile: service(),
   uploadManager: service(),
   workflowManager: service(),
+  modalManager: service(),
 
   /**
    * @override
@@ -724,7 +725,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'spacePrivileges.scheduleAtmWorkflowExecutions',
     'workflowManager.isOpenfaasAvailable',
     function btnRunWorkflow() {
-      const i18n = this.get('i18n');
+      const {
+        i18n,
+        modalManager,
+      } = this.getProperties('i18n', 'modalManager');
       const canScheduleAtmWorkflowExecutions =
         this.get('spacePrivileges.scheduleAtmWorkflowExecutions');
       const isOpenfaasAvailable = this.get('workflowManager.isOpenfaasAvailable');
@@ -750,7 +754,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         disabled: Boolean(disabledTip),
         tip: disabledTip,
         action: (files) => {
-          console.log('Run workflow on files:', files);
+          modalManager.show('run-workflow-modal', {
+            atmWorkflowInputDataType: 'file',
+            atmWorkflowInputData: [...files],
+          });
         },
       });
     }
