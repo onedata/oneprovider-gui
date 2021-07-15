@@ -21,6 +21,7 @@ import {
   anySelectedContexts,
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
+import recordIcon from 'onedata-gui-common/utils/record-icon';
 
 const buttonNames = Object.freeze([
   'btnBagitUpload',
@@ -36,6 +37,7 @@ const buttonNames = Object.freeze([
   'btnPermissions',
   'btnDistribution',
   'btnQos',
+  'btnRunWorkflow',
   'btnRename',
   'btnCreateSymlink',
   'btnCreateHardlink',
@@ -53,6 +55,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   globalNotify: service(),
   isMobile: service(),
   uploadManager: service(),
+  workflowManager: service(),
 
   /**
    * @override
@@ -198,17 +201,33 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   // #region Action buttons
 
-  btnBagitUpload: computed(function btnBagitUpload() {
-    return this.createFileAction({
-      id: 'bagitUpload',
-      class: 'browser-bagit-upload',
-      icon: 'browser-archive-upload',
-      action: () => this.get('openBagitUploader')(),
-      showIn: [
-        actionContext.inDir,
-      ],
-    });
-  }),
+  btnBagitUpload: computed(
+    'spacePrivileges.scheduleAtmWorkflowExecutions',
+    function btnBagitUpload() {
+      const i18n = this.get('i18n');
+      const canScheduleAtmWorkflowExecutions =
+        this.get('spacePrivileges.scheduleAtmWorkflowExecutions');
+      let disabledTip;
+      if (!canScheduleAtmWorkflowExecutions) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_schedule_atm_workflow_executions',
+        });
+      }
+      return this.createFileAction({
+        id: 'bagitUpload',
+        class: 'browser-bagit-upload',
+        icon: 'browser-archive-upload',
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
+        action: () => this.get('openBagitUploader')(),
+        showIn: [
+          actionContext.inDir,
+        ],
+      });
+    }
+  ),
 
   btnUpload: computed(
     'dir.dataIsProtected',
@@ -696,6 +715,42 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         tip: disabledTip,
         action: (files) => {
           return openQos(files.rejectBy('type', 'symlink'));
+        },
+      });
+    }
+  ),
+
+  btnRunWorkflow: computed(
+    'spacePrivileges.scheduleAtmWorkflowExecutions',
+    'workflowManager.isOpenfaasAvailable',
+    function btnRunWorkflow() {
+      const i18n = this.get('i18n');
+      const canScheduleAtmWorkflowExecutions =
+        this.get('spacePrivileges.scheduleAtmWorkflowExecutions');
+      const isOpenfaasAvailable = this.get('workflowManager.isOpenfaasAvailable');
+      let disabledTip;
+      if (!isOpenfaasAvailable) {
+        disabledTip =
+          this.t('disabledActionReason.cannotRunWorkflowOpenfaasNotAvailable');
+      } else if (!canScheduleAtmWorkflowExecutions) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: 'space_schedule_atm_workflow_executions',
+        });
+      }
+      return this.createFileAction({
+        id: 'runWorkflow',
+        icon: recordIcon('atmWorkflowSchema'),
+        showIn: [
+          ...anySelectedContexts,
+          actionContext.currentDir,
+          actionContext.spaceRootDir,
+        ],
+        disabled: Boolean(disabledTip),
+        tip: disabledTip,
+        action: (files) => {
+          console.log('Run workflow on files:', files);
         },
       });
     }
