@@ -8,19 +8,31 @@
  */
 
 import Component from '@ember/component';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: [
     'list-entry',
     'iconified-block',
-    'hoverable',
   ],
+  classNameBindings: ['matchesInputData:hoverable:no-input-match'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.spaceAutomation.atmWorkflowSchemasList.listEntry',
 
   /**
    * @virtual
    * @type {Models.AtmWorkflowSchema}
    */
   atmWorkflowSchema: undefined,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  matchesInputData: true,
 
   /**
    * @virtual
@@ -35,7 +47,13 @@ export default Component.extend({
   click() {
     this._super(...arguments);
 
-    const onSelect = this.get('onSelect');
-    onSelect && onSelect();
+    const {
+      matchesInputData,
+      onSelect,
+    } = this.getProperties('matchesInputData', 'onSelect');
+
+    if (matchesInputData) {
+      onSelect && onSelect();
+    }
   },
 });

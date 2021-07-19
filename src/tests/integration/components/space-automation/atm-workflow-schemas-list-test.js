@@ -74,7 +74,6 @@ describe('Integration | Component | space automation/atm workflow schemas list',
 async function render(testCase) {
   testCase.render(hbs `
     {{space-automation/atm-workflow-schemas-list
-      user=user
       onAtmWorkflowSchemaSelect=atmWorkflowSchemaSelectSpy
     }}
   `);

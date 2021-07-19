@@ -37,9 +37,17 @@
     }
   }
 
+  .atm-workflow-schemas-list {
+    .search-form-group {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
   @import './space-automation/atm-workflow-executions-table';
-  @import './space-automation/atm-workflow-schemas-list';
   @import './space-automation/input-stores-form';
   @import './space-automation/run-workflow-creator';
   @import './space-automation/atm-workflow-execution-preview';
 }
+
+@import './space-automation/atm-workflow-schemas-list';

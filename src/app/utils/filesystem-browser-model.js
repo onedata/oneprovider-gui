@@ -148,6 +148,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   openDatasets: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {Function}
+   * @param {String} atmWorkflowSchemaId
+   */
+  runWorkflow: notImplementedThrow,
+
+  /**
    * @override
    */
   rowComponentName: 'filesystem-browser/table-row',
@@ -728,7 +735,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       const {
         i18n,
         modalManager,
-      } = this.getProperties('i18n', 'modalManager');
+        runWorkflow,
+      } = this.getProperties('i18n', 'modalManager', 'runWorkflow');
       const canScheduleAtmWorkflowExecutions =
         this.get('spacePrivileges.scheduleAtmWorkflowExecutions');
       const isOpenfaasAvailable = this.get('workflowManager.isOpenfaasAvailable');
@@ -757,6 +765,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           modalManager.show('run-workflow-modal', {
             atmWorkflowInputDataSource: 'filesSelection',
             atmWorkflowInputData: [...files],
+            runWorkflowCallback: (...args) => runWorkflow(...args),
           });
         },
       });

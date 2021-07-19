@@ -90,6 +90,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Boolean}
+   */
+  loadValuesFromLocalStorage: false,
+
+  /**
+   * @virtual
    * @type {Models.Space}
    */
   space: undefined,

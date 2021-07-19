@@ -1,14 +1,11 @@
 {{#one-carousel activeSlideId=activeSlide as |carousel|}}
   {{#carousel.slide slideId="list"}}
-    {{#promise-proxy-container proxy=userProxy}}
-      <h1 class="slide-header">{{tt this "slides.list.header"}}</h1>
-      <div class="row loadable-row">
-        {{space-automation/atm-workflow-schemas-list
-          user=user
-          onAtmWorkflowSchemaSelect=(action "atmWorkflowSchemaSelected")
-        }}
-      </div>
-    {{/promise-proxy-container}}
+    <h1 class="slide-header">{{tt this "slides.list.header"}}</h1>
+    <div class="row loadable-row">
+      {{space-automation/atm-workflow-schemas-list
+        onAtmWorkflowSchemaSelect=(action "atmWorkflowSchemaSelected")
+      }}
+    </div>
   {{/carousel.slide}}
   {{#carousel.slide slideId="inputStores"}}
     {{#promise-proxy-container proxy=atmWorkflowSchemaToRunProxy}}
@@ -21,6 +18,7 @@
         {{#if areInitialValuesNeeded}}
           {{space-automation/input-stores-form
             atmWorkflowSchema=atmWorkflowSchemaToRunProxy.content
+            loadValuesFromLocalStorage=fillInputStores
             space=space
             onChange=(action "inputStoresChanged")
             isDisabled=isStartingWorkflow

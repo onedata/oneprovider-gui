@@ -5,5 +5,8 @@
   <div class="workflow-schema-name">{{atmWorkflowSchema.name}}</div>
   <div class="workflow-schema-description">{{atmWorkflowSchema.description}}</div>
 </div>
+{{#if (not matchesInputData)}}
+  {{one-tooltip title=(tt this "noInputMatch")}}
+{{/if}}
 {{yield}}
 

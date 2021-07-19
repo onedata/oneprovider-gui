@@ -1,5 +1,6 @@
 /**
  * A modal that allows to select workflow to run using passed data. modalOptions:
+ * - runWorkflowCallback - callled after workflow schema selection.
  * - atmWorkflowInputDataSource - (optional) source of data passed to use in workflow.
  *   If not specified, then passed data will be ignored.
  * - atmWorkflowInputData - (optional) data to pass to the new workflow run.
@@ -14,6 +15,8 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
+import { get, computed } from '@ember/object';
+import { serializedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -39,6 +42,13 @@ export default Component.extend(I18n, {
   modalOptions: undefined,
 
   /**
+   * @type {ComputedProperty<Function>}
+   * @param {String} options.atmWorkflowSchemaId
+   * @param {Boolean} options.fillInputStores
+   */
+  runWorkflowCallback: reads('modalOptions.runWorkflowCallback'),
+
+  /**
    * May be empty or one of: `'filesSelection'`
    * @type {ComputedProperty<String|undefined>}
    */
@@ -48,4 +58,66 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<any>}
    */
   atmWorkflowInputData: reads('modalOptions.atmWorkflowInputData'),
+
+  /**
+   * @type {ComputedProperty<{ dataSpec: Object, valuesCount: Number }|null>}
+   */
+  requiredInputStoreSpec: computed(
+    'atmWorkflowInputDataSource',
+    'atmWorkflowInputData',
+    function requiredInputStoreSpec() {
+      const {
+        atmWorkflowInputDataSource,
+        atmWorkflowInputData,
+      } = this.getProperties('atmWorkflowInputDataSource', 'atmWorkflowInputData');
+      let valuesCount = 1;
+      if ([undefined, null].includes(atmWorkflowInputData)) {
+        return null;
+      } else if (Array.isArray(atmWorkflowInputData)) {
+        valuesCount = atmWorkflowInputData.length;
+      }
+
+      let dataSpec = null;
+      switch (atmWorkflowInputDataSource) {
+        case 'filesSelection':
+          dataSpec = filesToMinimumDataSpec(atmWorkflowInputData);
+          break;
+        default:
+          return null;
+      }
+
+      return {
+        dataSpec,
+        valuesCount,
+      };
+    }
+  ),
+
+  actions: {
+    atmWorkflowSchemaSelected(atmWorkflowSchema) {
+      const runWorkflowCallback = this.get('runWorkflowCallback');
+      runWorkflowCallback && runWorkflowCallback({
+        atmWorkflowSchemaId: get(atmWorkflowSchema, 'entityId'),
+        fillInputStores: true,
+      });
+    },
+  },
 });
+
+function filesToMinimumDataSpec(files) {
+  let fileType = 'ANY';
+  if (Array.isArray(files)) {
+    const fileTypes = files.map(file => file && get(file, 'type')).compact().uniq();
+    if (fileTypes.length === 1) {
+      if (fileTypes[0] in serializedFileTypes) {
+        fileType = serializedFileTypes[fileTypes[0]];
+      }
+    }
+  }
+  return {
+    type: 'file',
+    valueConstraints: {
+      fileType,
+    },
+  };
+}

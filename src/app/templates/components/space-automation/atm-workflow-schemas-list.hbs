@@ -7,10 +7,11 @@
       </div>
     </div>
   </div>
-  {{#each sortedAtmWorkflowSchemas as |atmWorkflowSchema|}}
+  {{#each sortedListEntries as |listEntry|}}
     {{space-automation/atm-workflow-schemas-list/list-entry
-      atmWorkflowSchema=atmWorkflowSchema
-      onSelect=(action "atmWorkflowSchemaSelected" atmWorkflowSchema)
+      atmWorkflowSchema=listEntry.atmWorkflowSchema
+      matchesInputData=listEntry.hasMatchingInputStore
+      onSelect=(action "atmWorkflowSchemaSelected" listEntry.atmWorkflowSchema)
     }}
   {{else}}
     <div class="no-workflows-info">

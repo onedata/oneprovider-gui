@@ -16,8 +16,21 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import config from 'ember-get-config';
 import { debounce } from '@ember/runloop';
+import {
+  getTargetStoreTypesForType,
+  getTargetDataTypesForType,
+  dataSpecToType,
+} from 'onedata-gui-common/utils/workflow-visualiser/data-spec-converters';
 
 const typingActionDebouce = config.timing.typingActionDebouce;
+
+/**
+ * @typedef {Object} AtmWorkflowSchemasListEntry
+ * @property {Model.AtmWorkflowSchema} atmWorkflowSchema
+ * @property {Boolean} hasMatchingInputStore
+ * @property {String} name
+ * @property {Boolean} isLoaded
+ */
 
 export default Component.extend(I18n, {
   classNames: ['atm-workflow-schemas-list'],
@@ -31,10 +44,10 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.spaceAutomation.atmWorkflowSchemasList',
 
   /**
-   * @virtual
-   * @type {Models.User}
+   * @virtual optional
+   * @type { dataSpec: Object, valuesCount: Number }
    */
-  user: undefined,
+  requiredInputStoreSpec: undefined,
 
   /**
    * @virtual
@@ -52,7 +65,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<String>}
    */
-  atmWorkflowSchemasSorting: Object.freeze(['name']),
+  listEntriesSorting: Object.freeze(['hasMatchingInputStore:desc', 'name']),
 
   /**
    * @type {ComputedProperty<PromiseArray<Models.AtmWorkflowSchema>>}
@@ -62,23 +75,43 @@ export default Component.extend(I18n, {
   })),
 
   /**
-   * @type {ComputedProperty<Array<Models.AtmWorkflowSchema>>}
+   * @type {ComputedProperty<Array<AtmWorkflowSchemasListEntry>>}
    */
-  filteredAtmWorkflowSchemas: computed(
-    'searchValue',
-    'atmWorkflowSchemasProxy.content.@each.{name,isLoaded}',
-    function filteredAtmWorkflowSchemas() {
+  listEntries: computed(
+    'atmWorkflowSchemasProxy.content.@each.{stores,isLoaded,name}',
+    'requiredInputStoreSpec',
+    function listEntries() {
       const {
         atmWorkflowSchemasProxy,
+        requiredInputStoreSpec,
+      } = this.getProperties('atmWorkflowSchemasProxy', 'requiredInputStoreSpec');
+
+      return (get(atmWorkflowSchemasProxy, 'content') || []).map(atmWorkflowSchema => {
+        return Object.assign({
+          atmWorkflowSchema,
+          hasMatchingInputStore: this.hasMatchingInputStore(
+            atmWorkflowSchema,
+            requiredInputStoreSpec
+          ),
+        }, getProperties(atmWorkflowSchema, 'name', 'isLoaded'));
+      });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Array<AtmWorkflowSchemasListEntry>>}
+   */
+  filteredListEntries: computed(
+    'searchValue',
+    'listEntries.@each.{name,isLoaded}',
+    function filteredListEntries() {
+      const {
+        listEntries,
         searchValue,
-      } = this.getProperties('atmWorkflowSchemasProxy', 'searchValue');
+      } = this.getProperties('listEntries', 'searchValue');
       const normalizedSearchValue = searchValue.trim().toLowerCase();
 
-      return (get(atmWorkflowSchemasProxy, 'content') || []).filter(atmWorkflowSchema => {
-        const {
-          isLoaded,
-          name,
-        } = getProperties(atmWorkflowSchema, 'isLoaded', 'name');
+      return listEntries.filter(({ name, isLoaded }) => {
         if (!isLoaded) {
           return false;
         }
@@ -89,11 +122,11 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<Array<Model.AtmWorkflowSchema>>}
+   * @type {ComputedProperty<Array<AtmWorkflowSchemasListEntry>>}
    */
-  sortedAtmWorkflowSchemas: sort(
-    'filteredAtmWorkflowSchemas',
-    'atmWorkflowSchemasSorting'
+  sortedListEntries: sort(
+    'filteredListEntries',
+    'listEntriesSorting'
   ),
 
   /**
@@ -104,6 +137,25 @@ export default Component.extend(I18n, {
   dataLoadingProxy: computed(function dataLoadingProxy() {
     return this.get('atmWorkflowSchemasProxy');
   }),
+
+  hasMatchingInputStore(atmWorkflowSchema, requiredInputStoreSpec) {
+    if (!requiredInputStoreSpec) {
+      return true;
+    }
+    const requiredDataType = dataSpecToType(requiredInputStoreSpec.dataSpec);
+    const targetStoreTypes = getTargetStoreTypesForType(
+      requiredDataType,
+      requiredInputStoreSpec.valuesCount > 1
+    );
+    const targetDataTypes = getTargetDataTypesForType(requiredDataType);
+    const stores = get(atmWorkflowSchema || {}, 'stores') || [];
+    return stores.some(store => {
+      const storeType = get(store, 'type');
+      const storeDataType = dataSpecToType(get(store, 'dataSpec'));
+      return targetStoreTypes.includes(storeType) &&
+        targetDataTypes.includes(storeDataType);
+    });
+  },
 
   actions: {
     changeSearchValue(newValue) {

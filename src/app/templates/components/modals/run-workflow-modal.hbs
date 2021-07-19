@@ -12,8 +12,10 @@
   {{/modal.header}}
 
   {{#modal.body}}
-    content
-    {{log atmWorkflowInputData}}
+    {{space-automation/atm-workflow-schemas-list
+      requiredInputStoreSpec=requiredInputStoreSpec
+      onAtmWorkflowSchemaSelect=(action "atmWorkflowSchemaSelected")
+    }}
   {{/modal.body}}
 
   {{#modal.footer class="btn-toolbar"}}

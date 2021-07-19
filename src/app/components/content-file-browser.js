@@ -329,6 +329,7 @@ export default OneEmbeddedComponent.extend(
         openFileDistribution: this.openFileDistributionModal.bind(this),
         openQos: this.openQosModal.bind(this),
         openConfirmDownload: this.openConfirmDownload.bind(this),
+        runWorkflow: this.runWorkflow.bind(this),
       });
     },
 
@@ -377,27 +378,34 @@ export default OneEmbeddedComponent.extend(
       }
     },
 
-    openBagitUploader() {
+    runWorkflow({ atmWorkflowSchemaId, fillInputStores }) {
       const {
-        workflowManager,
         _window,
         navigateTarget,
-      } = this.getProperties('workflowManager', '_window', 'navigateTarget');
+      } = this.getProperties('_window', 'navigateTarget');
+      if (!atmWorkflowSchemaId) {
+        return;
+      }
+      const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
+        workflowSchemaId: atmWorkflowSchemaId,
+        fillInputStores,
+      });
+      _window.open(redirectUrl, navigateTarget);
+    },
+
+    openBagitUploader() {
       const {
         isBagitUploaderAvailable,
         bagitUploaderWorkflowSchemaId,
       } = getProperties(
-        workflowManager,
+        this.get('workflowManager'),
         'isBagitUploaderAvailable',
         'bagitUploaderWorkflowSchemaId'
       );
       if (!isBagitUploaderAvailable) {
         return;
       }
-      const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
-        workflowSchemaId: bagitUploaderWorkflowSchemaId,
-      });
-      _window.open(redirectUrl, navigateTarget);
+      this.runWorkflow({ atmWorkflowSchemaId: bagitUploaderWorkflowSchemaId });
     },
 
     openCreateItemModal(itemType, parentDir) {

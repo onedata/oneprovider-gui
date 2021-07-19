@@ -9,7 +9,6 @@
 
 import Component from '@ember/component';
 import { get, computed, observer } from '@ember/object';
-import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -19,7 +18,6 @@ export default Component.extend(I18n, {
   classNames: ['run-workflow-creator'],
 
   i18n: service(),
-  currentUser: service(),
   globalNotify: service(),
   workflowManager: service(),
 
@@ -42,6 +40,14 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   atmWorkflowSchemaId: undefined,
+
+  /**
+   * If true, then values saved in localStorage will be used to prefill input
+   * stores data.
+   * @virtual
+   * @type {Boolean}
+   */
+  fillInputStores: false,
 
   /**
    * @virtual optional
@@ -94,16 +100,6 @@ export default Component.extend(I18n, {
    * @type {Boolean}
    */
   isStartingWorkflow: false,
-
-  /**
-   * @type {ComputedProperty<PromiseObject>}
-   */
-  userProxy: reads('currentUser.userProxy'),
-
-  /**
-   * @type {ComputedProperty<Models.User>}
-   */
-  user: reads('userProxy.content'),
 
   /**
    * @type {ComputedProperty<Boolean>}
