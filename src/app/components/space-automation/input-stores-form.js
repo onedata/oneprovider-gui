@@ -20,6 +20,8 @@ import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesyst
 import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
 import { normalizedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
 
+export const executeWorkflowDataLocalStorageKey = 'executeWorkflowInputData';
+
 const FileTag = EmberObject.extend(I18n, OwnerInjector, {
   i18n: service(),
 
@@ -133,6 +135,16 @@ export default Component.extend(I18n, {
    * @type {Object|undefined}
    */
   filesSelectionProcess: undefined,
+
+  /**
+   * @type {Storage}
+   */
+  _localStorage: localStorage,
+
+  /**
+   * @type {any}
+   */
+  localStorageData: undefined,
 
   /**
    * Set by `updateDefaultFormValues`
@@ -299,6 +311,42 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     this.defaultFormValuesProxyObserver();
+    this.loadDataFromLocalStorage();
+  },
+
+  loadDataFromLocalStorage() {
+    const {
+      _localStorage,
+      atmWorkflowSchema,
+      loadValuesFromLocalStorage,
+    } = this.getProperties(
+      '_localStorage',
+      'atmWorkflowSchema',
+      'loadValuesFromLocalStorage'
+    );
+    const atmWorkflowSchemaId = get(atmWorkflowSchema, 'entityId');
+
+    let data = null;
+    if (atmWorkflowSchemaId && loadValuesFromLocalStorage) {
+      const localStorageData = _localStorage.getItem(executeWorkflowDataLocalStorageKey);
+      if (localStorageData) {
+        try {
+          data = JSON.parse(localStorageData);
+        } catch (error) {
+          console.error(
+            `Cannot read ${executeWorkflowDataLocalStorageKey} data from localStorage`,
+            error
+          );
+        }
+
+        if (data && data.atmWorkflowSchemaId !== atmWorkflowSchemaId) {
+          data = null;
+        }
+      }
+    }
+
+    _localStorage.removeItem(executeWorkflowDataLocalStorageKey);
+    this.set('localStorageData', data);
   },
 
   notifyAboutChange() {

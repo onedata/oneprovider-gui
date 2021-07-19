@@ -93,12 +93,56 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<Array<any>|null>}
+   */
+  normalizedAtmWorkflowInputData: computed(
+    'atmWorkflowInputDataSource',
+    'atmWorkflowInputData',
+    function normalizedAtmWorkflowInputData() {
+      const {
+        atmWorkflowInputDataSource,
+        atmWorkflowInputData,
+      } = this.getProperties('atmWorkflowInputDataSource', 'atmWorkflowInputData');
+      if ([undefined, null].includes(atmWorkflowInputData)) {
+        return null;
+      }
+
+      const atmWorkflowInputDataArray = Array.isArray(atmWorkflowInputData) ?
+        atmWorkflowInputData : [atmWorkflowInputData];
+      switch (atmWorkflowInputDataSource) {
+        case 'filesSelection':
+          return atmWorkflowInputDataArray.map(file => ({
+            file_id: get(file, 'cdmiObjectId'),
+          }));
+        default:
+          return null;
+      }
+    }
+  ),
+
   actions: {
     atmWorkflowSchemaSelected(atmWorkflowSchema) {
-      const runWorkflowCallback = this.get('runWorkflowCallback');
+      const {
+        runWorkflowCallback,
+        requiredInputStoreSpec,
+        normalizedAtmWorkflowInputData,
+      } = this.getProperties(
+        'runWorkflowCallback',
+        'requiredInputStoreSpec',
+        'normalizedAtmWorkflowInputData'
+      );
+      const dataSpec = requiredInputStoreSpec && get(requiredInputStoreSpec, 'dataSpec');
+      let inputStoresData;
+      if (dataSpec && normalizedAtmWorkflowInputData) {
+        inputStoresData = {
+          dataSpec,
+          data: normalizedAtmWorkflowInputData,
+        };
+      }
       runWorkflowCallback && runWorkflowCallback({
         atmWorkflowSchemaId: get(atmWorkflowSchema, 'entityId'),
-        fillInputStores: true,
+        inputStoresData,
       });
     },
   },

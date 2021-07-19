@@ -23,6 +23,7 @@ import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-pro
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { executeWorkflowDataLocalStorageKey } from 'oneprovider-gui/components/space-automation/input-stores-form';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -81,6 +82,11 @@ export default OneEmbeddedComponent.extend(
       'dirEntityId',
       'selected',
     ]),
+
+    /**
+     * @type {Storage}
+     */
+    _localStorage: localStorage,
 
     _window: window,
 
@@ -378,17 +384,32 @@ export default OneEmbeddedComponent.extend(
       }
     },
 
-    runWorkflow({ atmWorkflowSchemaId, fillInputStores }) {
+    runWorkflow({ atmWorkflowSchemaId, inputStoresData }) {
       const {
         _window,
+        _localStorage,
         navigateTarget,
-      } = this.getProperties('_window', 'navigateTarget');
+      } = this.getProperties('_window', '_localStorage', 'navigateTarget');
       if (!atmWorkflowSchemaId) {
         return;
       }
+      if (inputStoresData) {
+        const executeWorkflowData = {
+          atmWorkflowSchemaId,
+          inputStoresData,
+        };
+        try {
+          _localStorage.setItem(
+            executeWorkflowDataLocalStorageKey,
+            JSON.stringify(executeWorkflowData)
+          );
+        } catch (error) {
+          console.error('Persisting initial values for workflow run failed', error);
+        }
+      }
       const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
         workflowSchemaId: atmWorkflowSchemaId,
-        fillInputStores,
+        fillInputStores: Boolean(inputStoresData),
       });
       _window.open(redirectUrl, navigateTarget);
     },
