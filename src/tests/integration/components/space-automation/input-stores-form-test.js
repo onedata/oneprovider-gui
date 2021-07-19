@@ -194,6 +194,7 @@ describe('Integration | Component | space automation/input stores form', functio
     this.setProperties({
       atmWorkflowSchema: {
         stores: [{
+          id: 'store1',
           name: 'singleValueIntegerStore',
           description: 'single value integer store',
           type: 'singleValue',
@@ -204,6 +205,7 @@ describe('Integration | Component | space automation/input stores form', functio
           defaultInitialValue: 10,
           requiresInitialValue: true,
         }, {
+          id: 'store2',
           name: 'listStringStore',
           description: 'list string store',
           type: 'list',
@@ -213,6 +215,7 @@ describe('Integration | Component | space automation/input stores form', functio
           },
           requiresInitialValue: true,
         }, {
+          id: 'store3',
           name: 'singleValueStringStore',
           description: 'single value string store',
           type: 'singleValue',

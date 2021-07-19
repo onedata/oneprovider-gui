@@ -10,6 +10,9 @@ export default {
       },
     },
   },
+  useSelectionButton: {
+    buttonText: 'Use selection',
+  },
   fileTag: {
     unknownName: 'Unknown',
     idTooltip: 'ID: {{id}}',

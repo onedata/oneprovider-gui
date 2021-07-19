@@ -1,3 +1,12 @@
+/**
+ * Gathers user input to fill in workflow input stores.
+ *
+ * @module components/space-automation/input-stores-form
+ * @author Michał Borzęcki
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
@@ -5,7 +14,7 @@ import FormFieldsCollectionGroup from 'onedata-gui-common/utils/form-component/f
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import JsonField from 'onedata-gui-common/utils/form-component/json-field';
 import TagsField from 'onedata-gui-common/utils/form-component/tags-field';
-import { tag, not, getBy, eq, raw, promise, conditional } from 'ember-awesome-macros';
+import { tag, not, getBy, eq, raw, promise, conditional, array } from 'ember-awesome-macros';
 import EmberObject, { computed, observer, get, getProperties, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { validator } from 'ember-cp-validations';
@@ -19,6 +28,11 @@ import { resolve, all as allFulfilled } from 'rsvp';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
 import DatasetModel from 'oneprovider-gui/utils/items-select-browser/dataset-model';
 import { normalizedFileTypes } from 'onedata-gui-websocket-client/transforms/file-type';
+import {
+  getTargetStoreTypesForType,
+  getTargetDataTypesForType,
+  dataSpecToType,
+} from 'onedata-gui-common/utils/workflow-visualiser/data-spec-converters';
 
 export const executeWorkflowDataLocalStorageKey = 'executeWorkflowInputData';
 
@@ -147,30 +161,60 @@ export default Component.extend(I18n, {
   localStorageData: undefined,
 
   /**
+   * @type {ComputedProperty<Array<Object>>}
+   */
+  inputStores: computed('atmWorkflowSchema.stores', function inputStores() {
+    return (this.get('atmWorkflowSchema.stores') || []).filterBy('requiresInitialValue');
+  }),
+
+  /**
+   * @type {ComputedProperty<Array<String>>}
+   */
+  storeIdsForUseSelectionInputMethod: computed(
+    'inputStores.[]',
+    'localStorageData',
+    function storeIdsForUseSelectionInputMethod() {
+      const {
+        dataSpec,
+        data,
+      } = getProperties(
+        this.get('localStorageData.inputStoresData') || {},
+        'dataSpec',
+        'data'
+      );
+      const inputStores = this.get('inputStores');
+      if (!dataSpec || !data || !data.length || !inputStores.length) {
+        return [];
+      }
+
+      const requiredDataType = dataSpecToType(dataSpec);
+      const targetStoreTypes = getTargetStoreTypesForType(
+        requiredDataType,
+        data.length > 1
+      );
+      const targetDataTypes = getTargetDataTypesForType(requiredDataType);
+      return inputStores.filter(store => {
+        const {
+          dataSpec: storeDataSpec,
+          type: storeType,
+        } = getProperties(store, 'dataSpec', 'type');
+        const storeDataType = dataSpecToType(storeDataSpec);
+        return targetStoreTypes.includes(storeType) &&
+          targetDataTypes.includes(storeDataType);
+      }).mapBy('id');
+    }
+  ),
+
+  /**
    * Set by `updateDefaultFormValues`
    * @type {Object}
    */
   defaultFormValuesProxy: promise.object(
-    computed('atmWorkflowSchema', async function defaultFormValues() {
-      const {
-        atmWorkflowSchema,
-        fileManager,
-        datasetManager,
-        // TODO: VFS-7816 uncomment or remove future code
-        // archiveManager,
-      } = this.getProperties(
-        'atmWorkflowSchema',
-        'fileManager',
-        'datasetManager'
-        // TODO: VFS-7816 uncomment or remove future code
-        // 'archiveManager'
+    computed('inputStores.[]', async function defaultFormValuesProxy() {
+      return await inputStoresToFormData(
+        this.get('inputStores'),
+        (...args) => this.getFileRecord(...args)
       );
-      return await atmWorkflowSchemaToFormData(atmWorkflowSchema, {
-        fileManager,
-        datasetManager,
-        // TODO: VFS-7816 uncomment or remove future code
-        // archiveManager,
-      });
     })
   ),
 
@@ -221,9 +265,39 @@ export default Component.extend(I18n, {
               return getValueEditorForStoreType(storeType, storeDataSpec);
             }
           ),
+          afterComponentName: conditional(
+            array.includes(
+              'component.storeIdsForUseSelectionInputMethod',
+              'value.storeId'
+            ),
+            raw('space-automation/input-stores-form/use-selection-button'),
+            raw(undefined)
+          ),
+          async useValueFromSelection() {
+            const injectedValue = get(component, 'localStorageData.inputStoresData.data');
+            const {
+              fields,
+              activeEditor,
+            } = this.getProperties('fields', 'activeEditor', 'value');
+            const {
+              storeType,
+              storeDataSpec,
+            } = getProperties(this.get('value') || {}, 'storeType', 'storeDataSpec');
+            const editorField = fields.findBy('name', activeEditor);
+            if (injectedValue && editorField) {
+              const injectedFormValue = await storeValueToFormValue(
+                storeType,
+                storeDataSpec,
+                injectedValue,
+                (...args) => component.getFileRecord(...args)
+              );
+              editorField.valueChanged(injectedFormValue);
+            }
+          },
         }).create({
           name: 'inputStore',
           valueName: uniqueFieldValueName,
+          component,
           fields: [
             JsonField.extend({
               isVisible: eq('parent.activeEditor', raw('rawValue')),
@@ -303,7 +377,23 @@ export default Component.extend(I18n, {
     'defaultFormValuesProxy.isFulfilled',
     function atmWorkflowSchemaObserver() {
       if (this.get('defaultFormValuesProxy.isFulfilled')) {
-        this.get('fields').reset();
+        const {
+          fields,
+          storeIdsForUseSelectionInputMethod,
+        } = this.getProperties('fields', 'storeIdsForUseSelectionInputMethod');
+        fields.reset();
+
+        if (storeIdsForUseSelectionInputMethod.length === 1) {
+          const storeId = storeIdsForUseSelectionInputMethod[0];
+          const inputStoresFormGroup = fields.getFieldByPath('inputStores');
+          if (inputStoresFormGroup) {
+            const inputStoreFormGroup = get(inputStoresFormGroup, 'fields')
+              .findBy('valueName', `inputStore${storeId}`);
+            if (inputStoreFormGroup) {
+              inputStoreFormGroup.useValueFromSelection();
+            }
+          }
+        }
       }
     }
   ),
@@ -361,6 +451,27 @@ export default Component.extend(I18n, {
       data: formDataToInputStoresValues(fields.dumpValue(), stores),
       isValid: get(fields, 'isValid'),
     });
+  },
+
+  async getFileRecord(modelName, id) {
+    const {
+      fileManager,
+      datasetManager,
+    } = this.getProperties('fileManager', 'datasetManager');
+    switch (modelName) {
+      case 'file': {
+        const entityId = cdmiObjectIdToGuid(id);
+        return fileManager.getFileById(cdmiObjectIdToGuid(id))
+          .catch(() => ({ entityId }));
+      }
+      case 'dataset':
+        return datasetManager.getDataset(id).catch(() => ({ entityId: id }));
+        // TODO: VFS-7816 uncomment or remove future code
+        // case 'archive':
+        //   return archiveManager.getArchive(id).catch(() => ({ entityId: id }));
+      default:
+        return resolve(null);
+    }
   },
 
   startFilesSelection(storeName, storeDataSpec, {
@@ -452,7 +563,7 @@ export default Component.extend(I18n, {
   },
 });
 
-async function atmWorkflowSchemaToFormData(atmWorkflowSchema, managerServices) {
+async function inputStoresToFormData(inputStores, getFileRecord) {
   const inputStoresFormValues = {
     __fieldsValueNames: [],
   };
@@ -460,25 +571,17 @@ async function atmWorkflowSchemaToFormData(atmWorkflowSchema, managerServices) {
     inputStores: inputStoresFormValues,
   };
 
-  if (!atmWorkflowSchema) {
+  if (!inputStores || !inputStores.length) {
     return formValues;
   }
 
-  const inputStores = (get(atmWorkflowSchema, 'stores') || [])
-    .filterBy('requiresInitialValue');
-
-  if (!inputStores.length) {
-    return formValues;
-  }
-  const storePromises = inputStores.map(async (inputStore, idx) => {
+  const storePromises = inputStores.map(async inputStore => {
     if (!inputStore) {
       return;
     }
 
-    const valueName = `inputStore${idx}`;
-    inputStoresFormValues.__fieldsValueNames.push(valueName);
-
     const {
+      id,
       name,
       description,
       type,
@@ -486,6 +589,7 @@ async function atmWorkflowSchemaToFormData(atmWorkflowSchema, managerServices) {
       defaultInitialValue,
     } = getProperties(
       inputStore,
+      'id',
       'name',
       'description',
       'type',
@@ -493,28 +597,19 @@ async function atmWorkflowSchemaToFormData(atmWorkflowSchema, managerServices) {
       'defaultInitialValue',
     );
 
+    const valueName = `inputStore${id}`;
+    inputStoresFormValues.__fieldsValueNames.push(valueName);
+
     const editor = getValueEditorForStoreType(type, dataSpec);
-    let editorValue = defaultInitialValue;
-    if (editor === 'rawValue') {
-      editorValue = [null, undefined].includes(defaultInitialValue) ?
-        '' : JSON.stringify(editorValue, null, 2);
-    } else if (editor === 'filesValue') {
-      const modelName = dataSpec && dataSpec.type;
-      // TODO: VFS-7816 uncomment or remove future code
-      // if (editorValue && ['file', 'dataset', 'archive'].includes(modelName)) {
-      if (editorValue && ['file', 'dataset'].includes(modelName)) {
-        const idFieldName = getIdFieldNameForDataSpec(dataSpec);
-        editorValue = (await allFulfilled(
-          defaultInitialValue.mapBy(idFieldName).compact().map(id =>
-            getFileRecord(modelName, id, managerServices)
-          )
-        )).compact();
-      } else {
-        editorValue = [];
-      }
-    }
+    const editorValue = await storeValueToFormValue(
+      type,
+      dataSpec,
+      defaultInitialValue,
+      getFileRecord
+    );
 
     const inputStoreFormValues = {
+      storeId: id,
       storeName: name,
       storeDescription: description,
       storeType: type,
@@ -639,28 +734,6 @@ function formDataToInputStoresValues(formData, stores) {
   return storeValues;
 }
 
-async function getFileRecord(modelName, id, {
-  fileManager,
-  datasetManager,
-  // TODO: VFS-7816 uncomment or remove future code
-  // archiveManager,
-}) {
-  switch (modelName) {
-    case 'file': {
-      const entityId = cdmiObjectIdToGuid(id);
-      return fileManager.getFileById(cdmiObjectIdToGuid(id))
-        .catch(() => ({ entityId }));
-    }
-    case 'dataset':
-      return datasetManager.getDataset(id).catch(() => ({ entityId: id }));
-      // TODO: VFS-7816 uncomment or remove future code
-      // case 'archive':
-      //   return archiveManager.getArchive(id).catch(() => ({ entityId: id }));
-    default:
-      return resolve(null);
-  }
-}
-
 function getIdFieldNameForDataSpec(dataSpec) {
   switch (dataSpec && dataSpec.type) {
     case 'file':
@@ -671,4 +744,28 @@ function getIdFieldNameForDataSpec(dataSpec) {
       // case 'archive':
       //   return 'archiveId';
   }
+}
+
+async function storeValueToFormValue(storeType, dataSpec, value, getFileRecord) {
+  const editor = getValueEditorForStoreType(storeType, dataSpec);
+  let editorValue = value;
+  if (editor === 'rawValue') {
+    editorValue = [null, undefined].includes(editorValue) ?
+      '' : JSON.stringify(editorValue, null, 2);
+  } else if (editor === 'filesValue') {
+    const modelName = dataSpec && dataSpec.type;
+    // TODO: VFS-7816 uncomment or remove future code
+    // if (editorValue && ['file', 'dataset', 'archive'].includes(modelName)) {
+    if (editorValue && ['file', 'dataset'].includes(modelName)) {
+      const idFieldName = getIdFieldNameForDataSpec(dataSpec);
+      editorValue = (await allFulfilled(
+        editorValue.mapBy(idFieldName).compact().map(id =>
+          getFileRecord(modelName, id)
+        )
+      )).compact();
+    } else {
+      editorValue = [];
+    }
+  }
+  return editorValue;
 }
