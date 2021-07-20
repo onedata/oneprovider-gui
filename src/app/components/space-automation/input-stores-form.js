@@ -222,7 +222,7 @@ export default Component.extend(I18n, {
     return FormFieldsCollectionGroup.extend({
       defaultValue: getBy('component', tag `defaultFormValuesProxy.content.${'path'}`),
       useSelectionPossibilitesCount: array.length(
-        array.filterBy('fields', raw('value.storeHasUseSelectionInputMethod'))
+        array.filterBy('fields', raw('storeHasUseSelectionInputMethod'))
       ),
       fieldFactoryMethod(uniqueFieldValueName) {
         return FormFieldsGroup.extend({
@@ -238,28 +238,58 @@ export default Component.extend(I18n, {
               return getValueEditorForStoreType(storeType, storeDataSpec);
             }
           ),
+          activeEditorField: array.findBy('fields', raw('name'), 'activeEditor'),
           afterComponentName: conditional(
-            'value.storeHasUseSelectionInputMethod',
+            'storeHasUseSelectionInputMethod',
             raw('space-automation/input-stores-form/use-selection-button'),
             raw(undefined)
           ),
+          storeHasUseSelectionInputMethod: reads('value.storeHasUseSelectionInputMethod'),
+          storeUseSelectionData: reads('value.storeUseSelectionData'),
+          hasValueEqualToValueFromSelection: computed(
+            'storeHasUseSelectionInputMethod',
+            'storeUseSelectionData',
+            'activeEditorField.value',
+            function hasValueEqualToValueFromSelection() {
+              const {
+                storeHasUseSelectionInputMethod,
+                storeUseSelectionData,
+                activeEditorField,
+              } = this.getProperties(
+                'storeHasUseSelectionInputMethod',
+                'storeUseSelectionData',
+                'activeEditorField'
+              );
+              if (!storeHasUseSelectionInputMethod) {
+                return false;
+              }
+              const {
+                name,
+                value,
+              } = getProperties(activeEditorField, 'name', 'value');
+              if (name === 'filesValue') {
+                return Array.isArray(value) &&
+                  storeUseSelectionData.length === value.length &&
+                  storeUseSelectionData.every((elem, idx) =>
+                    get(elem, 'entityId') === (get(value[idx], 'entityId'))
+                  );
+              } else {
+                return storeUseSelectionData === value;
+              }
+            }
+          ),
           useValueFromSelection() {
             const {
-              fields,
-              activeEditor,
-              value,
-            } = this.getProperties('fields', 'activeEditor', 'value');
-            const {
+              activeEditorField,
               storeHasUseSelectionInputMethod,
               storeUseSelectionData,
-            } = getProperties(
-              value,
+            } = this.getProperties(
+              'activeEditorField',
               'storeHasUseSelectionInputMethod',
               'storeUseSelectionData'
             );
             if (storeHasUseSelectionInputMethod) {
-              const editorField = fields.findBy('name', activeEditor);
-              editorField.valueChanged(storeUseSelectionData);
+              activeEditorField.valueChanged(storeUseSelectionData);
             }
           },
         }).create({
