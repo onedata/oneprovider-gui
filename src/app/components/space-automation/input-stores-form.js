@@ -350,6 +350,7 @@ export default Component.extend(I18n, {
             }).create({
               name: 'filesValue',
               tagEditorComponentName: 'tags-input/external-editor',
+              isClearButtonVisible: true,
               valueToTags(value) {
                 return (value || []).map(val => FileTag.create({
                   ownerSource: this,
