@@ -9,6 +9,9 @@
     <h1>
       <span class="one-label">{{tt this "header"}}</span>
     </h1>
+    {{#if (and (eq atmWorkflowInputDataSource "filesSelection") atmWorkflowInputData)}}
+      {{modal-file-subheader files=atmWorkflowInputData}}
+    {{/if}}
   {{/modal.header}}
 
   {{#modal.body}}

@@ -168,55 +168,25 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {ComputedProperty<Array<String>>}
-   */
-  storeIdsForUseSelectionInputMethod: computed(
-    'inputStores.[]',
-    'localStorageData',
-    function storeIdsForUseSelectionInputMethod() {
-      const {
-        dataSpec,
-        data,
-      } = getProperties(
-        this.get('localStorageData.inputStoresData') || {},
-        'dataSpec',
-        'data'
-      );
-      const inputStores = this.get('inputStores');
-      if (!dataSpec || !data || !data.length || !inputStores.length) {
-        return [];
-      }
-
-      const requiredDataType = dataSpecToType(dataSpec);
-      const targetStoreTypes = getTargetStoreTypesForType(
-        requiredDataType,
-        data.length > 1
-      );
-      const targetDataTypes = getTargetDataTypesForType(requiredDataType);
-      return inputStores.filter(store => {
-        const {
-          dataSpec: storeDataSpec,
-          type: storeType,
-        } = getProperties(store, 'dataSpec', 'type');
-        const storeDataType = dataSpecToType(storeDataSpec);
-        return targetStoreTypes.includes(storeType) &&
-          targetDataTypes.includes(storeDataType);
-      }).mapBy('id');
-    }
-  ),
-
-  /**
    * Set by `updateDefaultFormValues`
    * @type {Object}
    */
-  defaultFormValuesProxy: promise.object(
-    computed('inputStores.[]', async function defaultFormValuesProxy() {
+  defaultFormValuesProxy: promise.object(computed(
+    'inputStores.[]',
+    'localStorageData',
+    async function defaultFormValuesProxy() {
+      const {
+        inputStores,
+        localStorageData,
+      } = this.getProperties('inputStores', 'localStorageData');
+
       return await inputStoresToFormData(
-        this.get('inputStores'),
-        (...args) => this.getFileRecord(...args)
+        inputStores,
+        (...args) => this.getFileRecord(...args),
+        localStorageData
       );
-    })
-  ),
+    }
+  )),
 
   /**
    * @type {ComputedProperty<Utils.FormComponent.FormFieldsRootGroup>}
@@ -251,6 +221,9 @@ export default Component.extend(I18n, {
     const component = this;
     return FormFieldsCollectionGroup.extend({
       defaultValue: getBy('component', tag `defaultFormValuesProxy.content.${'path'}`),
+      useSelectionPossibilitesCount: array.length(
+        array.filterBy('fields', raw('value.storeHasUseSelectionInputMethod'))
+      ),
       fieldFactoryMethod(uniqueFieldValueName) {
         return FormFieldsGroup.extend({
           label: reads('value.storeName'),
@@ -266,32 +239,27 @@ export default Component.extend(I18n, {
             }
           ),
           afterComponentName: conditional(
-            array.includes(
-              'component.storeIdsForUseSelectionInputMethod',
-              'value.storeId'
-            ),
+            'value.storeHasUseSelectionInputMethod',
             raw('space-automation/input-stores-form/use-selection-button'),
             raw(undefined)
           ),
-          async useValueFromSelection() {
-            const injectedValue = get(component, 'localStorageData.inputStoresData.data');
+          useValueFromSelection() {
             const {
               fields,
               activeEditor,
+              value,
             } = this.getProperties('fields', 'activeEditor', 'value');
             const {
-              storeType,
-              storeDataSpec,
-            } = getProperties(this.get('value') || {}, 'storeType', 'storeDataSpec');
-            const editorField = fields.findBy('name', activeEditor);
-            if (injectedValue && editorField) {
-              const injectedFormValue = await storeValueToFormValue(
-                storeType,
-                storeDataSpec,
-                injectedValue,
-                (...args) => component.getFileRecord(...args)
-              );
-              editorField.valueChanged(injectedFormValue);
+              storeHasUseSelectionInputMethod,
+              storeUseSelectionData,
+            } = getProperties(
+              value,
+              'storeHasUseSelectionInputMethod',
+              'storeUseSelectionData'
+            );
+            if (storeHasUseSelectionInputMethod) {
+              const editorField = fields.findBy('name', activeEditor);
+              editorField.valueChanged(storeUseSelectionData);
             }
           },
         }).create({
@@ -378,31 +346,15 @@ export default Component.extend(I18n, {
     'defaultFormValuesProxy.isFulfilled',
     function atmWorkflowSchemaObserver() {
       if (this.get('defaultFormValuesProxy.isFulfilled')) {
-        const {
-          fields,
-          storeIdsForUseSelectionInputMethod,
-        } = this.getProperties('fields', 'storeIdsForUseSelectionInputMethod');
-        fields.reset();
-
-        if (storeIdsForUseSelectionInputMethod.length === 1) {
-          const storeId = storeIdsForUseSelectionInputMethod[0];
-          const inputStoresFormGroup = fields.getFieldByPath('inputStores');
-          if (inputStoresFormGroup) {
-            const inputStoreFormGroup = get(inputStoresFormGroup, 'fields')
-              .findBy('valueName', `inputStore${storeId}`);
-            if (inputStoreFormGroup) {
-              inputStoreFormGroup.useValueFromSelection();
-            }
-          }
-        }
+        this.get('fields').reset();
       }
     }
   ),
 
   init() {
     this._super(...arguments);
-    this.defaultFormValuesProxyObserver();
     this.loadDataFromLocalStorage();
+    this.defaultFormValuesProxyObserver();
   },
 
   loadDataFromLocalStorage() {
@@ -564,7 +516,7 @@ export default Component.extend(I18n, {
   },
 });
 
-async function inputStoresToFormData(inputStores, getFileRecord) {
+async function inputStoresToFormData(inputStores, getFileRecord, localStorageData) {
   const inputStoresFormValues = {
     __fieldsValueNames: [],
   };
@@ -575,6 +527,9 @@ async function inputStoresToFormData(inputStores, getFileRecord) {
   if (!inputStores || !inputStores.length) {
     return formValues;
   }
+
+  const inputStoresWithUseSelectionInputMethod = inputStores
+    .filter(inputStore => hasUseSelectionInputMethod(inputStore, localStorageData));
 
   const storePromises = inputStores.map(async inputStore => {
     if (!inputStore) {
@@ -602,12 +557,34 @@ async function inputStoresToFormData(inputStores, getFileRecord) {
     inputStoresFormValues.__fieldsValueNames.push(valueName);
 
     const editor = getValueEditorForStoreType(type, dataSpec);
-    const editorValue = await storeValueToFormValue(
+    const { data: editorValue } = await storeValueToFormValue(
       type,
       dataSpec,
       defaultInitialValue,
       getFileRecord
     );
+    const storeHasUseSelectionInputMethod =
+      inputStoresWithUseSelectionInputMethod.includes(inputStore);
+    let storeUseSelectionData;
+    let storeUseSelectionDataCount;
+    if (storeHasUseSelectionInputMethod) {
+      const rawUseSelectionData = get(localStorageData || {}, 'inputStoresData.data');
+      if (rawUseSelectionData) {
+        const {
+          data,
+          count,
+        } = await storeValueToFormValue(
+          type,
+          dataSpec,
+          rawUseSelectionData,
+          getFileRecord
+        );
+        storeUseSelectionData = data;
+        storeUseSelectionDataCount = count;
+      }
+    }
+    const isOnlyStoreWithUseSelectionInputMethod = storeUseSelectionData &&
+      inputStoresWithUseSelectionInputMethod.length === 1;
 
     const inputStoreFormValues = {
       storeId: id,
@@ -615,7 +592,11 @@ async function inputStoresToFormData(inputStores, getFileRecord) {
       storeDescription: description,
       storeType: type,
       storeDataSpec: dataSpec,
-      [editor]: editorValue,
+      storeHasUseSelectionInputMethod,
+      storeUseSelectionData,
+      storeUseSelectionDataCount,
+      [editor]: isOnlyStoreWithUseSelectionInputMethod ?
+        storeUseSelectionData : editorValue,
     };
     inputStoresFormValues[valueName] = inputStoreFormValues;
   });
@@ -750,8 +731,16 @@ function getIdFieldNameForDataSpec(dataSpec) {
 async function storeValueToFormValue(storeType, dataSpec, value, getFileRecord) {
   const editor = getValueEditorForStoreType(storeType, dataSpec);
   let editorValue = value;
+  let valuesCount;
   if (editor === 'rawValue') {
-    editorValue = [null, undefined].includes(editorValue) ?
+    const valueIsNone = [null, undefined].includes(editorValue);
+    if (storeType === 'singleValue' && Array.isArray(value)) {
+      editorValue = value[0];
+    } else if (storeType !== 'singleValue' && !Array.isArray(value) && !valueIsNone) {
+      editorValue = [value];
+    }
+    valuesCount = Array.isArray(editorValue) ? editorValue.length : 1;
+    editorValue = valueIsNone ?
       '' : JSON.stringify(editorValue, null, 2);
   } else if (editor === 'filesValue') {
     const modelName = dataSpec && dataSpec.type;
@@ -767,6 +756,38 @@ async function storeValueToFormValue(storeType, dataSpec, value, getFileRecord) 
     } else {
       editorValue = [];
     }
+    valuesCount = editorValue.length;
   }
-  return editorValue;
+  return {
+    data: editorValue,
+    count: valuesCount,
+  };
+}
+
+function hasUseSelectionInputMethod(inputStore, localStorageData) {
+  const {
+    dataSpec,
+    data,
+  } = getProperties(
+    get(localStorageData || {}, 'inputStoresData') || {},
+    'dataSpec',
+    'data'
+  );
+  if (!dataSpec || !data || !data.length || !inputStore) {
+    return false;
+  }
+
+  const requiredDataType = dataSpecToType(dataSpec);
+  const targetStoreTypes = getTargetStoreTypesForType(
+    requiredDataType,
+    data.length > 1
+  );
+  const targetDataTypes = getTargetDataTypesForType(requiredDataType);
+  const {
+    dataSpec: storeDataSpec,
+    type: storeType,
+  } = getProperties(inputStore, 'dataSpec', 'type');
+  const storeDataType = dataSpecToType(storeDataSpec);
+  return targetStoreTypes.includes(storeType) &&
+    targetDataTypes.includes(storeDataType);
 }

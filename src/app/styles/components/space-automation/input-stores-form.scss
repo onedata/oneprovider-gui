@@ -1,4 +1,8 @@
 .input-stores-form {
+  .cannot-guess-store-warning {
+    margin-bottom: $padding-large-vertical;
+  }
+
   .json-editor-textarea {
     height: 8em;
   }
@@ -13,7 +17,7 @@
     }
 
     > .control-label {
-      flex-basis: calc(100% - 10em);
+      flex-basis: calc(100% - 15em);
       text-align: left;
       padding-top: 0;
     }
