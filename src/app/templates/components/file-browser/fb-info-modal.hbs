@@ -81,6 +81,17 @@
             </td>
           </tr>
         {{/if}}
+        {{#if fileGuiUrl}}
+          <tr class="file-info-row-gui-url">
+            <td class="property-name">{{tt this "guiUrl"  type=typeTranslation}}</td>
+            <td class="property-value">
+              {{clipboard-line
+                value=fileGuiUrl
+                size=(if smallContent "sm")
+              }}
+            </td>
+          </tr>
+        {{/if}}
         <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
           <td class="property-name with-input">
             {{tt this "cdmiObjectId"}}
