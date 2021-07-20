@@ -19,7 +19,7 @@
     <div class="text-right fb-toolbar-container hidden-xs">
       {{#if (and (not media.isMobile) effShowSelectionToolkit)}}
         {{file-browser/fb-selection-toolkit
-          itemsCount=(if isOnlyCurrentDirSelected 0 selectedFiles.length)
+          itemsCount=(if isOnlyCurrentDirSelected 0 selectedItems.length)
           selectionContext=selectionContext
           allButtonsArray=allButtonsArray
         }}
@@ -43,8 +43,8 @@
     browserModel=browserModel
     isInModal=isInModal
     contentScroll=contentScroll
-    selectedFiles=selectedFiles
-    selectedFilesForJump=selectedFilesForJump
+    selectedItems=selectedItems
+    selectedItemsForJump=selectedItemsForJump
     selectionContext=selectionContext
     allButtonsArray=allButtonsArray
     noItemsActions=noItemsActions
@@ -56,7 +56,7 @@
     spacePrivileges=spacePrivileges
     loadingIconFileIds=loadingIconFileIds
     invokeFileAction=(action "invokeFileAction")
-    changeSelectedFiles=(action "changeSelectedFiles")
+    changeSelectedItems=(action "changeSelectedItems")
     openFile=(action "openFile")
     changeDir=(action "changeDir")
     containerScrollTop=(action "containerScrollTop")
@@ -90,7 +90,7 @@
 {{#if (and media.isMobile effShowSelectionToolkit)}}
   {{file-browser/fb-selection-toolkit
     mobileMode=true
-    itemsCount=(if isOnlyCurrentDirSelected 0 selectedFiles.length)
+    itemsCount=(if isOnlyCurrentDirSelected 0 selectedItems.length)
     selectionContext=selectionContext
     allButtonsArray=allButtonsArray
   }}

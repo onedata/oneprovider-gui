@@ -30,6 +30,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import ViewTester from 'onedata-gui-common/utils/view-tester';
 import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -82,13 +83,13 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {Array<models/File>}
    */
-  selectedFilesForJump: undefined,
+  selectedItemsForJump: undefined,
 
   /**
    * @virtual
    * @type {Array<models/File>}
    */
-  selectedFiles: undefined,
+  selectedItems: undefined,
 
   /**
    * @virtual
@@ -112,7 +113,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
-  changeSelectedFiles: notImplementedThrow,
+  changeSelectedItems: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -239,7 +240,7 @@ export default Component.extend(I18n, {
     raw('file-browser/fb-empty-dir')
   ),
 
-  selectionCount: reads('selectedFiles.length'),
+  selectionCount: reads('selectedItems.length'),
 
   viewTester: computed('contentScroll', function viewTester() {
     const $contentScroll = $(this.get('contentScroll'));
@@ -361,21 +362,21 @@ export default Component.extend(I18n, {
   filesArray: computed('dir.entityId', 'browserModel', function filesArray() {
     const dirId = this.get('dir.entityId');
     const {
-      selectedFilesForJump,
-      changeSelectedFiles,
-      selectedFiles,
+      selectedItemsForJump,
+      changeSelectedItems,
+      selectedItems,
     } = this.getProperties(
-      'selectedFilesForJump',
-      'changeSelectedFiles',
-      'selectedFiles'
+      'selectedItemsForJump',
+      'changeSelectedItems',
+      'selectedItems'
     );
     let initialJumpIndex;
-    if (!isEmpty(selectedFilesForJump)) {
-      const firstSelected = A(selectedFilesForJump).sortBy('index').objectAt(0);
+    if (!isEmpty(selectedItemsForJump)) {
+      const firstSelected = A(selectedItemsForJump).sortBy('index').objectAt(0);
       initialJumpIndex = get(firstSelected, 'index');
-      if (!_.isEqual(selectedFiles, selectedFilesForJump)) {
+      if (!_.isEqual(selectedItems, selectedItemsForJump)) {
         scheduleOnce('afterRender', () => {
-          changeSelectedFiles(selectedFilesForJump);
+          changeSelectedItems(selectedItemsForJump);
         });
       }
     }
@@ -467,6 +468,10 @@ export default Component.extend(I18n, {
       getFilesArray: () => {
         return this.get('filesArray');
       },
+      forceSelectAndJump: async (items) => {
+        await this.get('changeSelectedItems')(items);
+        return this.jumpToSelection();
+      },
     };
   }),
 
@@ -526,12 +531,12 @@ export default Component.extend(I18n, {
         const {
           listWatcher,
           element,
-          selectedFiles,
-        } = this.getProperties('listWatcher', 'element', 'selectedFiles');
+          selectedItems,
+        } = this.getProperties('listWatcher', 'element', 'selectedItems');
 
         scheduleOnce('afterRender', () => {
-          const firstSelected = !isEmpty(selectedFiles) &&
-            A(selectedFiles).sortBy('index').objectAt(0);
+          const firstSelected = !isEmpty(selectedItems) &&
+            A(selectedItems).sortBy('index').objectAt(0);
           if (firstSelected) {
             const entityId = get(firstSelected, 'entityId');
             const row = element.querySelector(`[data-row-id="${entityId}"]`);
@@ -563,20 +568,16 @@ export default Component.extend(I18n, {
     }
   ),
 
-  selectedFilesForJumpObserver: observer(
-    'selectedFilesForJump',
-    function selectedFilesForJumpObserver() {
-      const selectedFilesForJump = this.get('selectedFilesForJump');
-      if (!isEmpty(selectedFilesForJump)) {
-        const changeSelectedFiles = this.get('changeSelectedFiles');
-        scheduleOnce('afterRender', () => {
-          changeSelectedFiles(selectedFilesForJump);
-          next(() => {
-            safeExec(this, () => {
-              // TODO: although it should be, we cannot be sure if selection is changed
-              this.jumpToSelection();
-            });
-          });
+  selectedItemsForJumpObserver: observer(
+    'selectedItemsForJump',
+    async function selectedItemsForJumpObserver() {
+      const selectedItemsForJump = this.get('selectedItemsForJump');
+      if (!isEmpty(selectedItemsForJump)) {
+        const changeSelectedItems = this.get('changeSelectedItems');
+        // FIXME: experimental change
+        scheduleOnce('afterRender', async () => {
+          await changeSelectedItems(selectedItemsForJump);
+          this.jumpToSelection();
         });
       }
     }
@@ -596,7 +597,7 @@ export default Component.extend(I18n, {
     fileManager.registerRefreshHandler(this);
     registerApi(api);
     // FIXME: debug code
-    window.filesArray = this.get('filesArray');
+    window.fbTable = this;
   },
 
   didInsertElement() {
@@ -616,15 +617,15 @@ export default Component.extend(I18n, {
 
   jumpToSelection() {
     const {
-      selectedFiles,
+      selectedItems,
       filesArray,
       listWatcher,
       element,
-    } = this.getProperties('selectedFiles', 'filesArray', 'listWatcher', 'element');
-    if (isEmpty(selectedFiles)) {
+    } = this.getProperties('selectedItems', 'filesArray', 'listWatcher', 'element');
+    if (isEmpty(selectedItems)) {
       return resolve();
     }
-    const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
+    const firstSelected = A(selectedItems).sortBy('index').objectAt(0);
     if (!filesArray.includes(firstSelected)) {
       const {
         entityId,
@@ -723,12 +724,12 @@ export default Component.extend(I18n, {
     return filesArray.scheduleReload()
       .finally(() => {
         const {
-          selectedFiles,
-          changeSelectedFiles,
-        } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+          selectedItems,
+          changeSelectedItems,
+        } = this.getProperties('selectedItems', 'changeSelectedItems');
         const sourceArray = get(filesArray, 'sourceArray');
-        if (!isEmpty(selectedFiles)) {
-          changeSelectedFiles(selectedFiles.filter(selectedFile =>
+        if (!isEmpty(selectedItems)) {
+          changeSelectedItems(selectedItems.filter(selectedFile =>
             sourceArray.includes(selectedFile)
           ));
         }
@@ -835,7 +836,7 @@ export default Component.extend(I18n, {
   },
 
   clearFilesSelection() {
-    this.get('changeSelectedFiles')([]);
+    this.get('changeSelectedItems')([]);
   },
 
   /**
@@ -852,11 +853,11 @@ export default Component.extend(I18n, {
     }
 
     const {
-      selectedFiles,
+      selectedItems,
       previewMode,
-    } = this.getProperties('selectedFiles', 'previewMode');
-    const selectedCount = get(selectedFiles, 'length');
-    const fileIsSelected = selectedFiles.includes(file);
+    } = this.getProperties('selectedItems', 'previewMode');
+    const selectedCount = get(selectedItems, 'length');
+    const fileIsSelected = selectedItems.includes(file);
     const otherFilesSelected = selectedCount > (fileIsSelected ? 1 : 0);
     if (previewMode) {
       if (fileIsSelected) {
@@ -895,44 +896,44 @@ export default Component.extend(I18n, {
     }
   },
 
-  addToSelectedFiles(newFiles) {
+  addToSelectedItems(newFiles) {
     const {
-      selectedFiles,
-      changeSelectedFiles,
-    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+      selectedItems,
+      changeSelectedItems,
+    } = this.getProperties('selectedItems', 'changeSelectedItems');
     const filesWithoutBroken = _.difference(
       newFiles.filter(f => get(f, 'type') !== 'broken'),
-      selectedFiles
+      selectedItems
     );
-    const newSelectedFiles = [...selectedFiles, ...filesWithoutBroken];
+    const newSelectedItems = [...selectedItems, ...filesWithoutBroken];
 
-    return changeSelectedFiles(newSelectedFiles);
+    return changeSelectedItems(newSelectedItems);
   },
 
   selectRemoveSingleFile(file) {
     const {
-      selectedFiles,
-      changeSelectedFiles,
-    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
-    changeSelectedFiles(selectedFiles.without(file));
+      selectedItems,
+      changeSelectedItems,
+    } = this.getProperties('selectedItems', 'changeSelectedItems');
+    changeSelectedItems(selectedItems.without(file));
     this.set('lastSelectedFile', null);
   },
 
   selectRemoveFiles(files) {
     const {
-      selectedFiles,
-      changeSelectedFiles,
-    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
-    changeSelectedFiles(_.difference(selectedFiles, files));
+      selectedItems,
+      changeSelectedItems,
+    } = this.getProperties('selectedItems', 'changeSelectedItems');
+    changeSelectedItems(_.difference(selectedItems, files));
   },
 
   selectAddSingleFile(file) {
-    this.addToSelectedFiles([file]);
+    this.addToSelectedItems([file]);
     this.set('lastSelectedFile', file);
   },
 
   selectOnlySingleFile(file) {
-    this.get('changeSelectedFiles')([file]);
+    this.get('changeSelectedItems')([file]);
     this.set('lastSelectedFile', file);
   },
 
@@ -964,44 +965,44 @@ export default Component.extend(I18n, {
 
     const indexA = Math.min(startIndex, fileIndex);
     const indexB = Math.max(startIndex, fileIndex);
-    this.addToSelectedFiles(sourceArray.slice(indexA, indexB + 1));
+    this.addToSelectedItems(sourceArray.slice(indexA, indexB + 1));
   },
 
   deselectBelowList(file) {
     const filesArray = this.get('filesArray');
-    const selectedFiles = this.get('selectedFiles');
+    const selectedItems = this.get('selectedItems');
     const sourceArray = get(filesArray, 'sourceArray');
     const fileIndex = sourceArray.indexOf(file);
-    const selectedFilesSet = new Set(selectedFiles);
+    const selectedItemsSet = new Set(selectedItems);
 
-    const belowSelectedFiles = [];
+    const belowSelectedItems = [];
     let nextFileIndex = fileIndex + 1;
     let nextFile = sourceArray.objectAt(nextFileIndex);
-    while (nextFile && selectedFilesSet.has(nextFile)) {
-      belowSelectedFiles.push(nextFile);
+    while (nextFile && selectedItemsSet.has(nextFile)) {
+      belowSelectedItems.push(nextFile);
       nextFileIndex += 1;
       nextFile = sourceArray.objectAt(nextFileIndex);
     }
 
     this.set('lastSelectedFile', file);
-    this.selectRemoveFiles(belowSelectedFiles);
+    this.selectRemoveFiles(belowSelectedItems);
   },
 
   findNearestSelectedIndex(fileIndex) {
     const {
       visibleFiles,
-      selectedFiles,
+      selectedItems,
     } = this.getProperties(
       'visibleFiles',
-      'selectedFiles'
+      'selectedItems'
     );
 
     // Array<[index: Number, distanceFromFile: Number]>
-    const selectedFilesIndices = selectedFiles.map(sf => {
+    const selectedItemsIndices = selectedItems.map(sf => {
       const index = visibleFiles.indexOf(sf);
       return [index, Math.abs(index - fileIndex)];
     });
-    const nearest = selectedFilesIndices.reduce((prev, current) => {
+    const nearest = selectedItemsIndices.reduce((prev, current) => {
       return current[1] < prev[1] ? current : prev;
     }, [-1, Infinity]);
     let [nearestIndex, nearestDist] = nearest;
@@ -1013,8 +1014,8 @@ export default Component.extend(I18n, {
 
   actions: {
     openContextMenu(file, mouseEvent) {
-      const selectedFiles = this.get('selectedFiles');
-      if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
+      const selectedItems = this.get('selectedItems');
+      if (get(selectedItems, 'length') === 0 || !selectedItems.includes(file)) {
         this.selectOnlySingleFile(file);
       }
       let left;
@@ -1081,7 +1082,7 @@ export default Component.extend(I18n, {
      * @returns {any}
      */
     fileTapped(file) {
-      const areSomeFilesSelected = Boolean(this.get('selectedFiles.length'));
+      const areSomeFilesSelected = Boolean(this.get('selectedItems.length'));
       if (areSomeFilesSelected) {
         return this.fileClicked(file, true, false);
       } else {

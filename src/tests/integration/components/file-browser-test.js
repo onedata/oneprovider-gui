@@ -120,7 +120,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
     this.setProperties({
       dir: rootDir,
-      selectedFiles: [],
+      selectedItems: [],
     });
     this.set('updateDirEntityId', (id) => {
       this.set('dir', dirs.findBy('entityId', id));
@@ -258,7 +258,7 @@ describe('Integration | Component | file browser (main component)', function () 
     this.setProperties({
       openCreateNewDirectory,
       dir,
-      selectedFiles: [],
+      selectedItems: [],
     });
 
     render(this);
@@ -338,7 +338,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
       this.setProperties({
         dir,
-        selectedFiles: [],
+        selectedItems: [],
       });
 
       const fileManager = lookupService(this, 'fileManager');
@@ -387,10 +387,10 @@ describe('Integration | Component | file browser (main component)', function () 
         };
       });
       const selectedFile = files[1];
-      const selectedFilesForJump = [selectedFile];
+      const selectedItemsForJump = [selectedFile];
       this.setProperties({
         dir,
-        selectedFilesForJump,
+        selectedItemsForJump,
       });
       const fileManager = lookupService(this, 'fileManager');
       const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
@@ -444,10 +444,10 @@ describe('Integration | Component | file browser (main component)', function () 
         };
       });
       const selectedFile = files[60];
-      const selectedFilesForJump = [selectedFile];
+      const selectedItemsForJump = [selectedFile];
       this.setProperties({
         dir,
-        selectedFilesForJump,
+        selectedItemsForJump,
       });
       const fileManager = lookupService(this, 'fileManager');
       const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
@@ -513,7 +513,7 @@ describe('Integration | Component | file browser (main component)', function () 
       };
       item1.effFile = item1;
 
-      this.setProperties({ dir, item1, selectedFiles: [] });
+      this.setProperties({ dir, item1, selectedItems: [] });
       stubSimpleFetch(this, dir, [item1]);
       const clock = sinon.useFakeTimers({
         now: Date.now(),
@@ -655,7 +655,7 @@ function mockFilesTree(testCase, treeSpec) {
     fetchDirChildrenStub,
     updateDirEntityId: id => testCase.set('dir', elementsMap[id]),
     dir: root,
-    selectedFiles: [],
+    selectedItems: [],
   });
 }
 
@@ -833,15 +833,15 @@ function render(testCase) {
     browserModel=browserModel
     dir=dir
     spaceId=spaceId
-    selectedFiles=selectedFiles
-    selectedFilesForJump=selectedFilesForJump
+    selectedItems=selectedItems
+    selectedItemsForJump=selectedItemsForJump
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
     openDatasets=openDatasets
     spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
     updateDirEntityId=(action updateDirEntityId)
-    changeSelectedFiles=(action (mut selectedFiles))
+    changeSelectedItems=(action (mut selectedItems))
   }}</div>`);
 }
 

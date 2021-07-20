@@ -11,6 +11,7 @@ import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-
 import { promise } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get } from '@ember/object';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 export default FbTableRowColumns.extend({
   /**
@@ -36,14 +37,16 @@ export default FbTableRowColumns.extend({
   actions: {
     async baseArchiveLinkClick(event) {
       event.stopPropagation();
-      const currentlySelectedForJump = this.get('browserModel.selectedFilesForJump');
+      const currentlySelectedForJump =
+        await this.get('browserModel.selectedItemsForJumpProxy');
       const baseArchiveId = this.get('fileRowModel.baseArchiveId');
       if (
+        currentlySelectedForJump &&
         get(currentlySelectedForJump, 'length') === 1 &&
         get(currentlySelectedForJump[0], 'entityId') === baseArchiveId
       ) {
         const baseArchive = await this.get('fileRowModel.baseArchiveProxy');
-        this.get('browserModel').forceSelectAndJump([baseArchive]);
+        return this.get('browserModel.fbTableApi').forceSelectAndJump([baseArchive]);
       }
     },
   },

@@ -23,10 +23,12 @@ import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-pro
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 
 export default OneEmbeddedComponent.extend(
   I18n,
-  ContentSpaceBaseMixin, {
+  ContentSpaceBaseMixin,
+  ItemBrowserContainerBase, {
     classNames: ['content-file-browser', 'upload-drop-zone-container'],
 
     /**
@@ -105,7 +107,7 @@ export default OneEmbeddedComponent.extend(
      * Initialized on init.
      * @type {Array<Models.File>}
      */
-    selectedFiles: undefined,
+    selectedItems: undefined,
 
     /**
      * @type {String}
@@ -113,38 +115,10 @@ export default OneEmbeddedComponent.extend(
     navigateTarget: '_top',
 
     /**
-     * @type {ComputedProperty<Object>}
+     * @override
      */
-    spacePrivileges: reads('spaceProxy.content.privileges'),
-
-    spaceProxy: promise.object(computed('spaceEntityId', function spaceProxy() {
-      const {
-        spaceManager,
-        spaceEntityId,
-      } = this.getProperties('spaceManager', 'spaceEntityId');
-      return spaceManager.getSpace(spaceEntityId);
-    })),
-
-    /**
-     * NOTE: observing only space, because it should reload initial dir after whole space change
-     * @type {PromiseObject<Models.File>}
-     */
-    initialDirProxy: promise.object(computed('spaceProxy', function initialDirProxy() {
-      return this.get('dirProxy');
-    })),
-
-    /**
-     * NOTE: not observing anything, because it should be one-time proxy
-     * @type {PromiseObject<Models.File>}
-     */
-    initialSelectedFilesForJumpProxy: promise.object(computed(
-      function initialSelectedFilesForJumpProxy() {
-        return this.get('selectedFilesForJumpProxy');
-      }
-    )),
-
-    selectedFilesForJumpProxy: promise.object(
-      computed('selected', function selectedFilesForJumpProxy() {
+    selectedItemsForJumpProxy: promise.object(
+      computed('selected', function selectedItemsForJumpProxy() {
         const {
           selected,
           fileManager,
@@ -169,7 +143,7 @@ export default OneEmbeddedComponent.extend(
             })
             .catch(error => {
               console.error(
-                `component:content-file-browser#selectedFilesForJumpProxy: error loading selected files: ${error}`
+                `component:content-file-browser#selectedItemsForJumpProxy: error loading selected files: ${error}`
               );
               return resolve([]);
             });
@@ -177,13 +151,35 @@ export default OneEmbeddedComponent.extend(
       })
     ),
 
+    /**
+     * @type {ComputedProperty<Object>}
+     */
+    spacePrivileges: reads('spaceProxy.content.privileges'),
+
+    spaceProxy: promise.object(computed('spaceEntityId', function spaceProxy() {
+      const {
+        spaceManager,
+        spaceEntityId,
+      } = this.getProperties('spaceManager', 'spaceEntityId');
+      return spaceManager.getSpace(spaceEntityId);
+    })),
+
+    /**
+     * NOTE: observing only space, because it should reload initial dir after whole space change
+     * @type {PromiseObject<Models.File>}
+     */
+    initialDirProxy: promise.object(computed('spaceProxy', function initialDirProxy() {
+      return this.get('dirProxy');
+    })),
+
     initialRequiredDataProxy: promise.object(promise.all(
       'spaceProxy',
-      'initialSelectedFilesForJumpProxy',
+      'initialSelectedItemsForJumpProxy',
       'initialDirProxy'
     )),
 
-    selectedFilesForJump: reads('selectedFilesForJumpProxy.content'),
+    // FIXME: maybe use the same method as in content-space-datasets (no property overwrite)
+    selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
 
     injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
       const {
@@ -284,18 +280,6 @@ export default OneEmbeddedComponent.extend(
       }
     ),
 
-    /**
-     * Observer: override selected files when value injected from outside changes
-     */
-    injectedSelectedChanged: observer(
-      'selectedFilesForJumpProxy.content',
-      function injectedSelectedChanged() {
-        const selectedFilesForJump = this.get('selectedFilesForJumpProxy.content');
-        if (selectedFilesForJump) {
-          this.set('selectedFilesForJump', selectedFilesForJump);
-        }
-      }),
-
     spaceEntityIdObserver: observer('spaceEntityId', function spaceEntityIdObserver() {
       this.closeAllModals();
       this.clearFilesSelection();
@@ -304,9 +288,6 @@ export default OneEmbeddedComponent.extend(
 
     init() {
       this._super(...arguments);
-      if (!this.get('selectedFiles')) {
-        this.set('selectedFiles', []);
-      }
       this.set('browserModel', this.createBrowserModel());
     },
 
@@ -431,8 +412,7 @@ export default OneEmbeddedComponent.extend(
           }
         }
       }
-      this.set(
-        'selectedFiles',
+      this.changeSelectedItems(
         this.get('filesToRemove').filter(file => newIds.includes(get(file, 'entityId')))
       );
       this.setProperties({
@@ -514,16 +494,15 @@ export default OneEmbeddedComponent.extend(
     },
 
     clearFilesSelection() {
-      this.set('selectedFiles', []);
-      this.set('selectedFilesForJump', []);
+      this.changeSelectedItems([]);
     },
 
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
       },
-      changeSelectedFiles(selectedFiles) {
-        this.set('selectedFiles', selectedFiles);
+      changeSelectedItems(selectedItems) {
+        return this.changeSelectedItems(selectedItems);
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);

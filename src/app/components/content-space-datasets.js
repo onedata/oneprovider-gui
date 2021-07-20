@@ -22,9 +22,10 @@ import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-roo
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
-import { next } from '@ember/runloop';
+import { once } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -194,11 +195,17 @@ export default OneEmbeddedComponent.extend(...mixins, {
   //#endregion
 
   // TODO: VFS-7633 jumping to archive that is not on current list corrupts the list on mock
+  /**
+   * @override
+   */
   selectedItemsForJumpProxy: promise.object(computed(
     // NOTE: not observing viewMode, because jump should not be performed if viewMode
     // changes
+    'spaceId',
+    'datasetId',
     'selected',
     async function selectedItemsForJumpProxy() {
+      console.log('force selectedItemsForJumpProxy');
       const {
         selected,
         viewMode,
@@ -213,24 +220,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
         default:
           return [];
       }
-
-    }
-  )),
-
-  /**
-   * Initial value is taken from proxy, see how it 's overwritten in
-   * `injectedSelectedChanged` after proxy value change.
-   * @type {ComputedProperty<Array<Object>>} array of browsable item
-   */
-  selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
-
-  /**
-   * NOTE: not observing anything, because it should be one-time proxy
-   * @type {PromiseObject<Models.File>}
-   */
-  initialSelectedItemsForJumpProxy: promise.object(computed(
-    function initialSelectedItemsForJumpProxy() {
-      return this.get('selectedItemsForJumpProxy');
     }
   )),
 
@@ -485,11 +474,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
         newBrowserModel = this.createFilesystemBrowserModel();
         break;
       case 'archives':
-        newBrowserModel = this.createArchivesBrowserModel();
+        newBrowserModel = this.createArchiveBrowserModel();
         break;
       case 'datasets':
       default:
-        newBrowserModel = this.createDatasetsBrowerModel();
+        newBrowserModel = this.createDatasetBrowerModel();
     }
     this.set('browserModel', newBrowserModel);
     if (currentBrowserModel) {
@@ -514,17 +503,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   }),
 
+  // FIXME: it should be handled by zone
+  // FIXME: ^^ when user changes attached/detached mode of dataset, list of selected items should be resetted
   clearSelectedObserver: observer(
     'attachmentState',
     'viewMode',
     function clearSelectedObserver() {
-      next(() => {
-        safeExec(this, () => {
-          if (this.get('selectedItems.length') > 0) {
-            this.set('selectedItems', []);
-          }
-        });
-      });
+      if (this.get('selectedItems.length') > 0) {
+        this.changeSelectedItems([]);
+      }
     }
   ),
 
@@ -538,19 +525,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       }
     }
   ),
-
-  /**
-   * Observer: override selected items when value injected from outside changes
-   */
-  injectedSelectedChanged: observer(
-    'selectedItemsForJumpProxy.content',
-    async function injectedSelectedChanged() {
-      const selectedItemsForJump = await this.get('selectedItemsForJumpProxy');
-      // FIXME: tutaj by można sprawdzać, czy tablica nie jest pusta (nie ma sensu dla jump)
-      if (selectedItemsForJump) {
-        this.set('selectedItemsForJump', selectedItemsForJump);
-      }
-    }),
 
   init() {
     this._super(...arguments);
@@ -735,7 +709,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return this.callParent('getTransfersUrl', options);
   },
 
-  createDatasetsBrowerModel() {
+  createDatasetBrowerModel() {
     return DatasetBrowserModel.create({
       ownerSource: this,
       spaceDatasetsViewState: this,
@@ -748,7 +722,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     });
   },
 
-  createArchivesBrowserModel() {
+  createArchiveBrowserModel() {
     return ArchiveBrowserModel.create({
       ownerSource: this,
       spaceDatasetsViewState: this,
@@ -1002,6 +976,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
       });
   },
 
+  async changeSelectedItems(selectedItems) {
+    once(this, 'changeSelectedItemsImmediately', selectedItems);
+    await sleep(0);
+  },
+
+  changeSelectedItemsImmediately(selectedItems) {
+    this.set('selectedItems', selectedItems);
+  },
+
   actions: {
     /**
      * @param {String} itemId datasetId, archiveVirtualRootDirId or fileId (dir)
@@ -1025,7 +1008,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       }
     },
     changeSelectedItems(selectedItems) {
-      this.set('selectedItems', selectedItems);
+      return this.changeSelectedItems(selectedItems);
     },
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);

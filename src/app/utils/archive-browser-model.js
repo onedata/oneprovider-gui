@@ -168,11 +168,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isAnySelectedPurging: array.isAny('selectedFiles', raw('state'), raw('purging')),
+  isAnySelectedPurging: array.isAny('selectedItems', raw('state'), raw('purging')),
 
   selectedArchiveHasDip: and(
-    equal('selectedFiles.length', raw(1)),
-    'selectedFiles.0.config.includeDip'
+    equal('selectedItems.length', raw(1)),
+    'selectedItems.0.config.includeDip'
   ),
 
   //#region Action buttons

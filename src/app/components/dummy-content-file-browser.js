@@ -30,7 +30,7 @@ export default Component.extend({
   /**
    * @type {Array<Models.File>}
    */
-  selectedFiles: undefined,
+  selectedItems: undefined,
 
   spacePrivileges: Object.freeze({
     view: true,
@@ -52,8 +52,8 @@ export default Component.extend({
 
   init() {
     this._super(...arguments);
-    if (!this.get('selectedFiles')) {
-      this.set('selectedFiles', []);
+    if (!this.get('selectedItems')) {
+      this.set('selectedItems', []);
     }
     this.set('browserModel', FilesystemBrowserModel.create({
       ownerSource: this,
@@ -67,20 +67,20 @@ export default Component.extend({
   testJumpUpFromFarMiddle() {
     const file = this.get('mockBackend.entityRecords.file.100');
     console.log('--- jump to file 100 at start ---');
-    this.set('selectedFiles', [file]);
+    this.set('selectedItems', [file]);
     setTimeout(() => {
       const file = this.get('mockBackend.entityRecords.file.20');
       console.log('--- will jump to file 20 (change selection) ---');
-      this.set('selectedFiles', [file]);
+      this.set('selectedItems', [file]);
     }, 2000);
   },
 
   testJumpDownFromStart() {
-    this.set('selectedFiles', []);
+    this.set('selectedItems', []);
     setTimeout(() => {
       const file = this.get('mockBackend.entityRecords.file.80');
       console.log('--- will jump to file 80 (set selection) ---');
-      this.set('selectedFiles', [file]);
+      this.set('selectedItems', [file]);
     }, 2000);
   },
 

@@ -152,8 +152,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   //#region file-browser state
 
   dir: reads('browserInstance.dir'),
-  selectedFiles: reads('browserInstance.selectedFiles'),
-  selectedFilesForJump: reads('browserInstance.selectedFilesForJump'),
+  selectedItems: reads('browserInstance.selectedItems'),
+  selectedItemsForJumpProxy: reads('browserInstance.selectedItemsForJumpProxy'),
   selectionContext: reads('browserInstance.selectionContext'),
   element: reads('browserInstance.element'),
   spacePrivileges: reads('browserInstance.spacePrivileges'),
@@ -243,19 +243,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       });
   },
 
-  forceSelectAndJump(selectedItems) {
-    this.get('browserInstance').setProperties({
-      selectedFilesForJump: selectedItems,
-      selectedFiles: selectedItems,
-    });
-  },
-
-  // FIXME: remove
-  // changeSelectedFiles: computed('browserInstance', function changeSelectedFiles() {
-  //   const browserInstance = this.get('browserInstance');
-  //   return get(browserInstance, 'changeSelectedFiles').bind(browserInstance);
-  // }),
-
   /**
    * Create button or popover menu item for controlling files.
    * @param {object} actionProperties properties of action button:
@@ -292,7 +279,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       showIn: showIn || [],
       disabled: disabled === undefined ? false : disabled,
       action: (files, ...args) => {
-        return action(files || this.get('selectedFiles'), ...args);
+        return action(files || this.get('selectedItems'), ...args);
       },
       class: `file-action-${id} ${elementClass || ''}`,
     });

@@ -12,7 +12,6 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import SelectorDatasetBrowserModel from 'oneprovider-gui/utils/selector-dataset-browser-model';
 import { promise, equal, raw, conditional } from 'ember-awesome-macros';
-import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 import {
   spaceDatasetsRootId,
   SpaceDatasetsRootClass,

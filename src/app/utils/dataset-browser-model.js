@@ -160,9 +160,9 @@ export default BaseBrowserModel.extend(I18n, {
   attachmentState: reads('spaceDatasetsViewState.attachmentState').readOnly(),
 
   selectedDatasetsHaveArchives: computed(
-    'selectedFiles.@each.archiveCount',
+    'selectedItems.@each.archiveCount',
     function selectedDatasetsHaveArchives() {
-      return _.sum(this.get('selectedFiles').mapBy('archiveCount')) > 0;
+      return _.sum(this.get('selectedItems').mapBy('archiveCount')) > 0;
     }
   ),
 
