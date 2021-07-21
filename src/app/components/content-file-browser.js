@@ -17,13 +17,13 @@ import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { promise } from 'ember-awesome-macros';
-import { resolve, Promise } from 'rsvp';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
+import { resolve } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
+import { isEmpty } from '@ember/utils';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -118,35 +118,41 @@ export default OneEmbeddedComponent.extend(
      * @override
      */
     selectedItemsForJumpProxy: promise.object(
-      computed('selected', function selectedItemsForJumpProxy() {
+      computed('selected', async function selectedItemsForJumpProxy() {
         const {
           selected,
           fileManager,
           dirProxy,
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
-          // TODO: something is broken and changing to empty array propagates back to OP
-          // changing selection in file browser should clear Onezone's selection from URL
-          // because it's one-way relation
-          // this.callParent('updateSelected', []);
-          return onlyFulfilledValues(selected.map(id => fileManager.getFileById(id)))
-            .then(files => {
-              return dirProxy.then(dir => !dir ? [] : files.filter(file => {
-                const parentGri = file.belongsTo('parent').id();
-                if (parentGri) {
-                  // filter out files that have other parents than opened dir
-                  return parseGri(parentGri).entityId === get(dir, 'entityId');
-                } else {
-                  return false;
-                }
-              }));
-            })
-            .catch(error => {
-              console.error(
-                `component:content-file-browser#selectedItemsForJumpProxy: error loading selected files: ${error}`
-              );
-              return resolve([]);
+          try {
+            // TODO: something is broken and changing to empty array propagates back to OP
+            // changing selection in file browser should clear Onezone's selection from URL
+            // because it's one-way relation
+            // this.callParent('updateSelected', []);
+            const files = await onlyFulfilledValues(selected.map(id =>
+              fileManager.getFileById(id)
+            ));
+            const dir = await dirProxy;
+            if (!dir) {
+              return [];
+            }
+
+            const validFiles = await files.filter(file => {
+              const fileId = file && file.relationEntityId('parent');
+              if (!fileId) {
+                return false;
+              }
+              // filter out files that have other parents than opened dir
+              return fileId === get(dir, 'entityId');
             });
+
+            return validFiles;
+          } catch (error) {
+            console.error(
+              `component:content-file-browser#selectedItemsForJumpProxy: error loading selected files: ${error}`
+            );
+          }
         }
       })
     ),
@@ -220,12 +226,14 @@ export default OneEmbeddedComponent.extend(
       'spaceProxy',
       async function dirProxy() {
         const {
+          selected,
           injectedDirGri,
           store,
           globalNotify,
           _window,
           navigateTarget,
         } = this.getProperties(
+          'selected',
           'injectedDirGri',
           'store',
           'globalNotify',
@@ -233,15 +241,14 @@ export default OneEmbeddedComponent.extend(
           'navigateTarget'
         );
 
-        if (!injectedDirGri) {
+        if (!injectedDirGri && isEmpty(selected)) {
           return this.get('fallbackDirProxy');
         }
 
-        const redirectUrl = await this.openSelectedParentDir();
+        const redirectUrl = await this.resolveSelectedParentDirUrl();
         if (redirectUrl) {
-          return new Promise(() => {
-            _window.open(redirectUrl, navigateTarget);
-          });
+          _window.open(redirectUrl, navigateTarget);
+          return;
         }
 
         try {
@@ -276,7 +283,7 @@ export default OneEmbeddedComponent.extend(
       'injectedDirGri',
       'selected',
       function injectedDirObserver() {
-        this.openSelectedParentDir();
+        this.resolveSelectedParentDirUrl();
       }
     ),
 
@@ -319,7 +326,7 @@ export default OneEmbeddedComponent.extend(
      * If there is no need to redirect, resolves false.
      * @returns {Promise}
      */
-    openSelectedParentDir() {
+    resolveSelectedParentDirUrl() {
       if (!this.get('injectedDirGri')) {
         const selected = this.get('selected');
         const firstSelectedId = selected && selected[0];
@@ -327,9 +334,8 @@ export default OneEmbeddedComponent.extend(
           const fileManager = this.get('fileManager');
           return fileManager.getFileById(firstSelectedId)
             .then(file => {
-              const parentGri = file.belongsTo('parent').id();
-              if (parentGri) {
-                const parentId = parseGri(parentGri).entityId;
+              const parentId = file && file.relationEntityId('parent');
+              if (parentId) {
                 const dataUrl = this.callParent(
                   'getDataUrl', {
                     fileId: parentId,
