@@ -1,5 +1,5 @@
 export default {
-  cannotGuessStoreForSelection: 'There is more than one store, which accepts selected items. Choose a target for your selection using <strong>Use selected items</strong> button.',
+  cannotGuessStoreForSelection: 'There is more than one store suitable for the selected item(s).<br/>You can apply your selection to desired stores with the <strong>Use selected items</strong> button.',
   fields: {
     inputStores: {
       inputStore: {
