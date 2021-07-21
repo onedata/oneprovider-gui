@@ -30,7 +30,6 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import ViewTester from 'onedata-gui-common/utils/view-tester';
 import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
-import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -631,11 +630,17 @@ export default Component.extend(I18n, {
         entityId,
         index,
       } = getProperties(firstSelected, 'entityId', 'index');
-      return filesArray.jump(index, 50)
+      return filesArray.scheduleJump(index, 50)
         .then(result => {
           if (result !== false) {
             scheduleOnce('afterRender', () => {
               const row = element.querySelector(`[data-row-id="${entityId}"]`);
+              if (!row) {
+                console.warn(
+                  `component:file-browser/fb-table#jumpToSelection: no row element found for "${entityId}"`
+                );
+                return;
+              }
               row.scrollIntoView({ block: 'center' });
               next(() => {
                 // TODO: could be unsafe
