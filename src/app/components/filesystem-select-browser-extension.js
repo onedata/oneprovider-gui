@@ -16,9 +16,17 @@ import { reads } from '@ember/object/computed';
 export default Component.extend({
   /**
    * @virtual
+   * @type {Utils.FilesystemBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
+   * @virtual
    * @type {Utils.ItemsSelectBrowser.FilesystemModel}
    */
   selectorModel: undefined,
+
+  dir: reads('browserModel.dir'),
 
   createItemParentDir: reads('selectorModel.createItemParentDir'),
   createItemType: reads('selectorModel.createItemType'),

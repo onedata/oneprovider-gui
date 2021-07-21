@@ -831,21 +831,26 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   onInsertElement() {
     const {
+      readonlyFilesystem,
       uploadManager,
       uploadDropElement,
       uploadBrowseElement,
       dir,
     } = this.getProperties(
+      'readonlyFilesystem',
       'uploadManager',
       'uploadDropElement',
       'uploadBrowseElement',
       'dir'
     );
 
-    // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
-    // if using selector inside filesystem browser
-    uploadManager.assignUploadDrop(uploadDropElement);
-    uploadManager.assignUploadBrowse(uploadBrowseElement);
+    if (!readonlyFilesystem) {
+      // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
+      // if using selector inside filesystem browser
+      uploadManager.assignUploadDrop(uploadDropElement);
+      uploadManager.assignUploadBrowse(uploadBrowseElement);
+    }
+
     uploadManager.changeTargetDirectory(dir);
   },
 
