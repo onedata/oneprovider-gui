@@ -11,7 +11,6 @@ import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-
 import { promise } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get } from '@ember/object';
-import sleep from 'onedata-gui-common/utils/sleep';
 
 export default FbTableRowColumns.extend({
   /**

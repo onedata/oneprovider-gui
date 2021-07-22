@@ -15,7 +15,11 @@ import EmberObject, { setProperties } from '@ember/object';
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
 
-const DatasetMock = EmberObject.extend(DatasetRuntimeProperties);
+const DatasetMock = EmberObject.extend(DatasetRuntimeProperties, {
+  relationEntityId() {
+    return null;
+  },
+});
 
 describe('Integration | Component | file datasets', function () {
   setupComponentTest('file-datasets', {
@@ -73,11 +77,12 @@ function testDirectDatasetShow(isAttached) {
   const description =
     `direct dataset toggle is visible, in "${directToggleStateText}" state and ${optionsEditableText} when file has established and ${attachedStateText} direct dataset`;
   it(description, async function (done) {
-    const directDataset = {
+    const directDataset = createDataset({
       id: 'dataset_id',
       state: isAttached ? 'attached' : 'detached',
       isAttached,
-    };
+      parent: null,
+    });
     this.set('fileDatasetSummary', createFileDatasetSummary({ directDataset }));
 
     render(this);
@@ -106,6 +111,7 @@ function testDirectDatasetProtection(flags, attached = true) {
       id: 'dataset_id',
       state: attached ? 'attached' : 'detached',
       protectionFlags: flags,
+      parent: null,
     });
     this.set('fileDatasetSummary', createFileDatasetSummary({ directDataset }));
 
