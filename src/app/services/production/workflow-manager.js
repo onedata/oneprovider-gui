@@ -8,17 +8,16 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { getProperties, computed, observer, get } from '@ember/object';
+import { getProperties } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 import { allSettled } from 'rsvp';
 import { reads } from '@ember/object/computed';
-import { bool, and, promise } from 'ember-awesome-macros';
+import { bool, and } from 'ember-awesome-macros';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
-import ArrayProxy from '@ember/array/proxy';
-import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
+import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
 
 export default Service.extend({
   store: service(),
@@ -200,7 +199,7 @@ export default Service.extend({
       this.get('currentUser').getCurrentUserRecord().then(user => {
         const knownAtmWorkflowSchemasProxy =
           AllKnownAtmWorkflowSchemasProxyArray.create({ user });
-        return get(knownAtmWorkflowSchemasProxy, 'atmWorkflowSchemasProxy')
+        return knownAtmWorkflowSchemasProxy.initAsync()
           .then(() => knownAtmWorkflowSchemasProxy);
       })
     );
@@ -214,69 +213,4 @@ export default Service.extend({
       return store.push(modelData);
     });
   },
-});
-
-const AllKnownAtmWorkflowSchemasProxyArray = ArrayProxy.extend({
-  /**
-   * @virtual
-   * @type {Models.User}
-   */
-  user: undefined,
-
-  /**
-   * @type {ComputedProperty<PromiseArray<Model.AtmInventory>>}
-   */
-  atmInventoriesProxy: promise.array(
-    computed('user', async function atmInventoriesProxy() {
-      const user = this.get('user');
-      if (!user) {
-        return [];
-      }
-      const atmInventoriesList = await get(user, 'effAtmInventoryList');
-      return await get(atmInventoriesList, 'list');
-    })
-  ),
-
-  /**
-   * @type {ComputedProperty<PromiseArray<DS.RecordArray<Model.AtmWorkflowSchema>>>}
-   */
-  atmWorkflowSchemaListsProxy: promise.array(computed(
-    'atmInventoriesProxy.@each.isReloading',
-    async function atmWorkflowSchemasListsProxy() {
-      const atmInventoriesProxy = await this.get('atmInventoriesProxy');
-      const atmWorkflowSchemaLists = await onlyFulfilledValues(
-        atmInventoriesProxy.mapBy('atmWorkflowSchemaList')
-      );
-      return await onlyFulfilledValues(atmWorkflowSchemaLists.compact().mapBy('list'));
-    }
-  )),
-
-  /**
-   * @type {ComputedProperty<PromiseArray<Model.AtmWorkflowSchema>>}
-   */
-  atmWorkflowSchemasProxy: promise.array(computed(
-    'atmWorkflowSchemaListsProxy.@each.isReloading',
-    async function atmWorkflowSchemasProxy() {
-      const atmWorkflowSchemaListsProxy = await this.get('atmWorkflowSchemaListsProxy');
-      const atmWorkflowSchemasArray = [];
-      atmWorkflowSchemaListsProxy.forEach(list =>
-        atmWorkflowSchemasArray.push(...list.toArray())
-      );
-      return atmWorkflowSchemasArray;
-    }
-  )),
-
-  atmWorkflowSchemasProxyObserver: observer(
-    'atmWorkflowSchemasProxy.[]',
-    function atmWorkflowSchemasProxyObserver() {
-      const {
-        isFulfilled,
-        content,
-      } = getProperties(this.get('atmWorkflowSchemasProxy'), 'isFulfilled', 'content');
-
-      if (isFulfilled) {
-        this.set('content', content);
-      }
-    }
-  ),
 });

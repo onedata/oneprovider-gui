@@ -1078,7 +1078,7 @@ export default Service.extend({
         const atmWorkflowSchema = await store.createRecord('atmWorkflowSchema', {
           id: gri({
             entityType: atmWorkflowSchemaEntityType,
-            entityId: `workflowSchema${get(atmInventory, 'entityId')}${idx}`,
+            entityId: `workflowSchema${get(atmInventory, 'entityId')}-${idx}`,
             aspect: 'instance',
             scope: 'private',
           }),

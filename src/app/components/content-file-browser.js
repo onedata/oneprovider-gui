@@ -335,7 +335,7 @@ export default OneEmbeddedComponent.extend(
         openFileDistribution: this.openFileDistributionModal.bind(this),
         openQos: this.openQosModal.bind(this),
         openConfirmDownload: this.openConfirmDownload.bind(this),
-        runWorkflow: this.runWorkflow.bind(this),
+        openWorkflowRunView: this.openWorkflowRunView.bind(this),
       });
     },
 
@@ -384,12 +384,13 @@ export default OneEmbeddedComponent.extend(
       }
     },
 
-    runWorkflow({ atmWorkflowSchemaId, inputStoresData }) {
+    openWorkflowRunView({ atmWorkflowSchemaId, inputStoresData }) {
       const {
         _window,
         _localStorage,
         navigateTarget,
-      } = this.getProperties('_window', '_localStorage', 'navigateTarget');
+        globalNotify,
+      } = this.getProperties('_window', '_localStorage', 'navigateTarget', 'globalNotify');
       if (!atmWorkflowSchemaId) {
         return;
       }
@@ -404,7 +405,12 @@ export default OneEmbeddedComponent.extend(
             JSON.stringify(executeWorkflowData)
           );
         } catch (error) {
-          console.error('Persisting initial values for workflow run failed', error);
+          console.error(
+            'component:content-file-browser#openWorkflowRunView: Persisting initial values for workflow run failed',
+            error
+          );
+          globalNotify.error(String(this.t('runWorkflowLocalStorageError')));
+          return;
         }
       }
       const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
@@ -426,7 +432,7 @@ export default OneEmbeddedComponent.extend(
       if (!isBagitUploaderAvailable) {
         return;
       }
-      this.runWorkflow({ atmWorkflowSchemaId: bagitUploaderWorkflowSchemaId });
+      this.openWorkflowRunView({ atmWorkflowSchemaId: bagitUploaderWorkflowSchemaId });
     },
 
     openCreateItemModal(itemType, parentDir) {

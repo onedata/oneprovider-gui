@@ -558,7 +558,7 @@ async function inputStoresToFormData(inputStores, getFileRecord, localStorageDat
     return formValues;
   }
 
-  const inputStoresWithUseSelectionInputMethod = inputStores
+  const inputStoresForSelection = inputStores
     .filter(inputStore => hasUseSelectionInputMethod(inputStore, localStorageData));
 
   const storePromises = inputStores.map(async inputStore => {
@@ -594,7 +594,7 @@ async function inputStoresToFormData(inputStores, getFileRecord, localStorageDat
       getFileRecord
     );
     const storeHasUseSelectionInputMethod =
-      inputStoresWithUseSelectionInputMethod.includes(inputStore);
+      inputStoresForSelection.includes(inputStore);
     let storeUseSelectionData;
     let storeUseSelectionDataCount;
     if (storeHasUseSelectionInputMethod) {
@@ -613,8 +613,8 @@ async function inputStoresToFormData(inputStores, getFileRecord, localStorageDat
         storeUseSelectionDataCount = count;
       }
     }
-    const isOnlyStoreWithUseSelectionInputMethod = storeUseSelectionData &&
-      inputStoresWithUseSelectionInputMethod.length === 1;
+    const isOnlyStoreForSelection = storeUseSelectionData &&
+      inputStoresForSelection.length === 1;
 
     const inputStoreFormValues = {
       storeId: id,
@@ -625,7 +625,7 @@ async function inputStoresToFormData(inputStores, getFileRecord, localStorageDat
       storeHasUseSelectionInputMethod,
       storeUseSelectionData,
       storeUseSelectionDataCount,
-      [editor]: isOnlyStoreWithUseSelectionInputMethod ?
+      [editor]: isOnlyStoreForSelection ?
         storeUseSelectionData : editorValue,
     };
     inputStoresFormValues[valueName] = inputStoreFormValues;
@@ -763,7 +763,7 @@ async function storeValueToFormValue(storeType, dataSpec, value, getFileRecord) 
   let editorValue = value;
   let valuesCount;
   if (editor === 'rawValue') {
-    const valueIsNone = [null, undefined].includes(editorValue);
+    const valueIsNone = editorValue === null || editorValue === undefined;
     if (storeType === 'singleValue' && Array.isArray(value)) {
       editorValue = value[0];
     } else if (storeType !== 'singleValue' && !Array.isArray(value) && !valueIsNone) {
@@ -795,15 +795,18 @@ async function storeValueToFormValue(storeType, dataSpec, value, getFileRecord) 
 }
 
 function hasUseSelectionInputMethod(inputStore, localStorageData) {
+  if (!inputStore || !localStorageData) {
+    return false;
+  }
   const {
     dataSpec,
     data,
   } = getProperties(
-    get(localStorageData || {}, 'inputStoresData') || {},
+    get(localStorageData, 'inputStoresData') || {},
     'dataSpec',
     'data'
   );
-  if (!dataSpec || !data || !data.length || !inputStore) {
+  if (!dataSpec || !data || !data.length) {
     return false;
   }
 
