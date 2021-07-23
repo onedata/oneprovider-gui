@@ -103,6 +103,20 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   /**
    * @override
    */
+  async fetchWorkflowAuditLogContent(startFromIndex, limit, offset) {
+    const auditLogStoreId = this.get('atmWorkflowExecution.systemAuditLogId');
+
+    return await this.fetchStoreInstanceContent(
+      auditLogStoreId,
+      startFromIndex,
+      limit,
+      offset
+    );
+  },
+
+  /**
+   * @override
+   */
   async fetchTaskAuditLogContent(taskSchemaId, startFromIndex, limit, offset) {
     const {
       taskRegistry,

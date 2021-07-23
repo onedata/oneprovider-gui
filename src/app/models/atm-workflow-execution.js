@@ -54,6 +54,11 @@ export default Model.extend(GraphSingleModelMixin, {
   storeRegistry: attr('object'),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  systemAuditLogId: attr('string'),
+
+  /**
    * Array of objects:
    * ```
    * {
