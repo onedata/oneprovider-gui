@@ -184,6 +184,8 @@ export default Component.extend(I18n, {
    */
   _body: document.body,
 
+  rowFocusAnimationClass: 'flash-bg-file-selected-mint',
+
   /**
    * JS time when context menu was last repositioned
    * @type {Number}
@@ -388,6 +390,13 @@ export default Component.extend(I18n, {
       indexMargin: 10,
       initialJumpIndex,
     });
+    if (initialJumpIndex) {
+      get(array, 'initialLoad').then(() => {
+        scheduleOnce('afterRender', () => {
+          this.jumpToSelection();
+        });
+      });
+    }
     array.on(
       'fetchPrevStarted',
       () => this.onFetchingStateUpdate('prev', 'started')
@@ -529,19 +538,15 @@ export default Component.extend(I18n, {
       if (this.get('initialLoad.isFulfilled')) {
         const {
           listWatcher,
-          element,
           selectedItems,
-        } = this.getProperties('listWatcher', 'element', 'selectedItems');
+        } = this.getProperties('listWatcher', 'selectedItems');
 
         scheduleOnce('afterRender', () => {
           const firstSelected = !isEmpty(selectedItems) &&
             A(selectedItems).sortBy('index').objectAt(0);
           if (firstSelected) {
             const entityId = get(firstSelected, 'entityId');
-            const row = element.querySelector(`[data-row-id="${entityId}"]`);
-            if (row) {
-              row.scrollIntoView({ block: 'center' });
-            }
+            this.focusOnRow(entityId);
           }
 
           next(() => {
@@ -570,15 +575,17 @@ export default Component.extend(I18n, {
   selectedItemsForJumpObserver: observer(
     'selectedItemsForJump',
     async function selectedItemsForJumpObserver() {
-      const selectedItemsForJump = this.get('selectedItemsForJump');
-      if (!isEmpty(selectedItemsForJump)) {
-        const changeSelectedItems = this.get('changeSelectedItems');
-        // FIXME: experimental change
-        scheduleOnce('afterRender', async () => {
-          await changeSelectedItems(selectedItemsForJump);
-          this.jumpToSelection();
-        });
+      const {
+        selectedItemsForJump,
+        changeSelectedItems,
+      } = this.getProperties('selectedItemsForJump', 'changeSelectedItems');
+      if (isEmpty(selectedItemsForJump)) {
+        return;
       }
+
+      await changeSelectedItems(selectedItemsForJump);
+      // FIXME: maybe we should wait afterRender
+      this.jumpToSelection();
     }
   ),
 
@@ -614,47 +621,58 @@ export default Component.extend(I18n, {
     }
   },
 
-  jumpToSelection() {
+  async jumpToSelection() {
     const {
       selectedItems,
       filesArray,
-      listWatcher,
-      element,
-    } = this.getProperties('selectedItems', 'filesArray', 'listWatcher', 'element');
+    } = this.getProperties('selectedItems', 'filesArray');
     if (isEmpty(selectedItems)) {
       return resolve();
     }
     const firstSelected = A(selectedItems).sortBy('index').objectAt(0);
+    const {
+      entityId,
+      index,
+    } = getProperties(firstSelected, 'entityId', 'index');
+
     if (!filesArray.includes(firstSelected)) {
-      const {
-        entityId,
-        index,
-      } = getProperties(firstSelected, 'entityId', 'index');
-      return filesArray.scheduleJump(index, 50)
-        .then(result => {
-          if (result !== false) {
-            scheduleOnce('afterRender', () => {
-              const row = element.querySelector(`[data-row-id="${entityId}"]`);
-              if (!row) {
-                console.warn(
-                  `component:file-browser/fb-table#jumpToSelection: no row element found for "${entityId}"`
-                );
-                return;
-              }
-              row.scrollIntoView({ block: 'center' });
-              next(() => {
-                // TODO: could be unsafe
-                // there are edge cases when file is not centered using first scroll
-                row.scrollIntoView({ block: 'center' });
-                next(() => {
-                  listWatcher.scrollHandler();
-                });
-              });
-            });
-          }
-        });
+      const jumpResult = await filesArray.scheduleJump(index, 50);
+      if (!jumpResult) {
+        console.warn(
+          `component:file-browser/fb-table#jumpToSelection: item with index ${index} not found after jump`
+        );
+        return;
+      }
+    }
+
+    this.focusOnRow(entityId);
+  },
+
+  /**
+   * Scrolls to row, so it is visible to user and makes animation on it to gain user's
+   * focus.
+   * @param {String} rowId content of row's `data-row-id`
+   * @returns {Boolean} true if row was found
+   */
+  focusOnRow(rowId) {
+    const {
+      element,
+      rowFocusAnimationClass,
+    } = this.getProperties('element', 'rowFocusAnimationClass');
+    const row = element.querySelector(`[data-row-id="${rowId}"]`);
+    const animationClasses = ['animated', rowFocusAnimationClass];
+    if (row) {
+      row.scrollIntoView({ block: 'center' });
+      row.addEventListener('animationend', () => {
+        row.classList.remove(...animationClasses);
+      }, { once: true });
+      row.classList.add(...animationClasses);
+      return true;
     } else {
-      return resolve();
+      console.warn(
+        `component:file-browser/fb-table#focusOnRow: no row element found for "${rowId}"`
+      );
+      return false;
     }
   },
 
