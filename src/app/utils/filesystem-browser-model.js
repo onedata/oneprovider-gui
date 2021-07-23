@@ -152,7 +152,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Function}
    * @param {String} atmWorkflowSchemaId
    */
-  runWorkflow: notImplementedThrow,
+  openWorkflowRunView: notImplementedThrow,
 
   /**
    * @override
@@ -731,12 +731,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnRunWorkflow: computed(
     'spacePrivileges.scheduleAtmWorkflowExecutions',
     'workflowManager.isOpenfaasAvailable',
+    'openWorkflowRunView',
     function btnRunWorkflow() {
       const {
         i18n,
         modalManager,
-        runWorkflow,
-      } = this.getProperties('i18n', 'modalManager', 'runWorkflow');
+        openWorkflowRunView,
+      } = this.getProperties('i18n', 'modalManager', 'openWorkflowRunView');
       const canScheduleAtmWorkflowExecutions =
         this.get('spacePrivileges.scheduleAtmWorkflowExecutions');
       const isOpenfaasAvailable = this.get('workflowManager.isOpenfaasAvailable');
@@ -765,7 +766,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           modalManager.show('run-workflow-modal', {
             atmWorkflowInputDataSource: 'filesSelection',
             atmWorkflowInputData: [...files],
-            runWorkflowCallback: (...args) => runWorkflow(...args),
+            runWorkflowCallback: (...args) => openWorkflowRunView(...args),
           });
         },
       });

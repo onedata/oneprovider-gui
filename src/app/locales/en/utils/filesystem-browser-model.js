@@ -43,7 +43,7 @@ export default _.merge({}, BaseBrowserModel, {
       symlink: 'symbolic links',
     },
     and: 'and',
-    cannotRunWorkflowOpenfaasNotAvailable: 'This Oneprovider has no OpenFaaS service configured.',
+    cannotRunWorkflowOpenfaasNotAvailable: 'This Oneprovider lacks OpenFaaS integration, required to run workflows.',
   },
   pasteFailed: {
     move: 'moving some of files',

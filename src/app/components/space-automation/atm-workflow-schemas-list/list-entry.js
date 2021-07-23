@@ -52,8 +52,8 @@ export default Component.extend(I18n, {
       onSelect,
     } = this.getProperties('matchesInputData', 'onSelect');
 
-    if (matchesInputData) {
-      onSelect && onSelect();
+    if (matchesInputData && onSelect) {
+      onSelect();
     }
   },
 });
