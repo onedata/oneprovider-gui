@@ -115,7 +115,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
 
     const taskExecutionRecord =
       await workflowManager.getAtmTaskExecutionById(taskExecutionId);
-    const auditLogStoreId = get(taskExecutionRecord, 'auditLogStoreId');
+    const auditLogStoreId = get(taskExecutionRecord, 'systemAuditLogId');
 
     return await this.fetchStoreInstanceContent(
       auditLogStoreId,

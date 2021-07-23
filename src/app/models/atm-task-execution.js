@@ -22,7 +22,7 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {ComputedProperty<String>}
    */
-  auditLogStoreId: attr('string'),
+  systemAuditLogId: attr('string'),
 
   /**
    * One of:
