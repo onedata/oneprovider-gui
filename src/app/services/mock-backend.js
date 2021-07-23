@@ -27,6 +27,7 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 import {
@@ -1075,6 +1076,12 @@ export default Service.extend({
       const inventoryAtmWorkflowSchemas = [];
       for (const idx of [0, 1, 2]) {
         const atmWorkflowSchema = await store.createRecord('atmWorkflowSchema', {
+          id: gri({
+            entityType: atmWorkflowSchemaEntityType,
+            entityId: `workflowSchema${get(atmInventory, 'entityId')}-${idx}`,
+            aspect: 'instance',
+            scope: 'private',
+          }),
           name: `workflow ${idx} [${name}]`,
           description: `workflow ${idx} description`,
           stores: [{

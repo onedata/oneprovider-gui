@@ -26,6 +26,9 @@ module.exports = function (environment) {
       formToggleLabelColumns: 'col-xs-6 col-sm-5',
       formToggleInputColumns: 'col-xs-6 col-sm-7',
     },
+    'timing': {
+      typingActionDebouce: 300,
+    },
     'onedataWebsocket': {
       defaultProtocolVersion: 3,
     },
@@ -70,7 +73,7 @@ module.exports = function (environment) {
   }
 
   if (environment === 'production') {
-    // empty 
+    // empty
   }
 
   return ENV;

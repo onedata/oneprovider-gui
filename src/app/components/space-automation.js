@@ -86,6 +86,12 @@ export default Component.extend(I18n, {
   atmWorkflowSchemaId: undefined,
 
   /**
+   * @virtual
+   * @type {Boolean}
+   */
+  fillInputStores: false,
+
+  /**
    * @type {String}
    */
   atmWorkflowExecutionIdInPreview: undefined,

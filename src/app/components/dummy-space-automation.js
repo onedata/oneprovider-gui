@@ -19,6 +19,8 @@ export default Component.extend({
 
   atmWorkflowExecutionId: undefined,
 
+  atmWorkflowSchemaId: undefined,
+
   spaceProxy: promise.object(computed(function spaceProxy() {
     return this.get('currentUser').getCurrentUserRecord()
       .then(user => get(user, 'effSpaceList'))
@@ -42,6 +44,9 @@ export default Component.extend({
       if (tab === 'preview') {
         this.set('tab', 'waiting');
       }
+    },
+    chooseWorkflowSchemaToRun(atmWorkflowSchemaId) {
+      this.set('atmWorkflowSchemaId', atmWorkflowSchemaId);
     },
   },
 });

@@ -1,4 +1,5 @@
 export default {
+  cannotGuessStoreForSelection: 'There is more than one input store suitable for the selected item(s).<br/>You can apply your selection to desired stores with the <strong>Use selected items</strong> button.',
   fields: {
     inputStores: {
       inputStore: {
@@ -9,6 +10,9 @@ export default {
         },
       },
     },
+  },
+  useSelectionButton: {
+    buttonText: 'Use selected items ({{itemsCount}})',
   },
   fileTag: {
     unknownName: 'Unknown',

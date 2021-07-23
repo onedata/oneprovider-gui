@@ -1,5 +1,30 @@
 .input-stores-form {
+  .cannot-guess-store-warning {
+    margin-bottom: $padding-large-vertical;
+  }
+
   .json-editor-textarea {
     height: 8em;
+  }
+
+  .inputStore-field {
+    justify-content: space-between;
+    align-items: flex-end;
+
+    > .control-label,
+    > .use-selection-button {
+      margin-bottom: $padding-small-vertical;
+    }
+
+    > .control-label {
+      flex-basis: calc(100% - 15em);
+      text-align: left;
+      padding-top: 0;
+    }
+
+    > .field-component {
+      flex-basis: 100%;
+      order: 1;
+    }
   }
 }

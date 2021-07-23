@@ -1,4 +1,14 @@
 .atm-workflow-schemas-list {
+  .search-form-group {
+    max-width: 50em;
+    margin-bottom: $iconified-block-padding;
+  }
+
+  .no-input-match {
+    opacity: $disabled-opacity;
+    cursor: not-allowed !important;
+  }
+
   .workflow-schema-name {
     @include font-semibold();
   }

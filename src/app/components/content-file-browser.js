@@ -23,6 +23,7 @@ import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-pro
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { executeWorkflowDataLocalStorageKey } from 'oneprovider-gui/components/space-automation/input-stores-form';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -81,6 +82,11 @@ export default OneEmbeddedComponent.extend(
       'dirEntityId',
       'selected',
     ]),
+
+    /**
+     * @type {Storage}
+     */
+    _localStorage: localStorage,
 
     _window: window,
 
@@ -329,6 +335,7 @@ export default OneEmbeddedComponent.extend(
         openFileDistribution: this.openFileDistributionModal.bind(this),
         openQos: this.openQosModal.bind(this),
         openConfirmDownload: this.openConfirmDownload.bind(this),
+        openWorkflowRunView: this.openWorkflowRunView.bind(this),
       });
     },
 
@@ -377,27 +384,55 @@ export default OneEmbeddedComponent.extend(
       }
     },
 
-    openBagitUploader() {
+    openWorkflowRunView({ atmWorkflowSchemaId, inputStoresData }) {
       const {
-        workflowManager,
         _window,
+        _localStorage,
         navigateTarget,
-      } = this.getProperties('workflowManager', '_window', 'navigateTarget');
+        globalNotify,
+      } = this.getProperties('_window', '_localStorage', 'navigateTarget', 'globalNotify');
+      if (!atmWorkflowSchemaId) {
+        return;
+      }
+      if (inputStoresData) {
+        const executeWorkflowData = {
+          atmWorkflowSchemaId,
+          inputStoresData,
+        };
+        try {
+          _localStorage.setItem(
+            executeWorkflowDataLocalStorageKey,
+            JSON.stringify(executeWorkflowData)
+          );
+        } catch (error) {
+          console.error(
+            'component:content-file-browser#openWorkflowRunView: Persisting initial values for workflow run failed',
+            error
+          );
+          globalNotify.error(String(this.t('runWorkflowLocalStorageError')));
+          return;
+        }
+      }
+      const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
+        workflowSchemaId: atmWorkflowSchemaId,
+        fillInputStores: Boolean(inputStoresData),
+      });
+      _window.open(redirectUrl, navigateTarget);
+    },
+
+    openBagitUploader() {
       const {
         isBagitUploaderAvailable,
         bagitUploaderWorkflowSchemaId,
       } = getProperties(
-        workflowManager,
+        this.get('workflowManager'),
         'isBagitUploaderAvailable',
         'bagitUploaderWorkflowSchemaId'
       );
       if (!isBagitUploaderAvailable) {
         return;
       }
-      const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
-        workflowSchemaId: bagitUploaderWorkflowSchemaId,
-      });
-      _window.open(redirectUrl, navigateTarget);
+      this.openWorkflowRunView({ atmWorkflowSchemaId: bagitUploaderWorkflowSchemaId });
     },
 
     openCreateItemModal(itemType, parentDir) {

@@ -36,6 +36,7 @@ describe('Integration | Component | space automation', function () {
         },
         requiresInitialValue: true,
       }],
+      isLoaded: true,
     }];
     const atmInventory = {
       atmWorkflowSchemaList: promiseObject(resolve({
@@ -123,7 +124,6 @@ describe('Integration | Component | space automation', function () {
     await click(getSlide('list').querySelector('.list-entry'));
     await fillIn(getSlide('inputStores').querySelector('.form-control'), '10');
     await click(getSlide('inputStores').querySelector('.btn-submit'));
-
     expect(runWorkflowStub).to.be.calledOnce
       .and.to.be.calledWith('workflow1', 'space1', sinon.match.any);
     expect(this.$('.nav-item-waiting')).to.have.class('active');

@@ -3,10 +3,8 @@ import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../../helpers/stub-service';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve, Promise } from 'rsvp';
-import { set } from '@ember/object';
 import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import { isSlideActive, getSlide } from '../../../helpers/one-carousel';
@@ -32,6 +30,7 @@ describe('Integration | Component | space automation/run workflow creator', func
         },
         requiresInitialValue: true,
       }],
+      isLoaded: true,
     }, {
       entityId: 'workflow2',
       name: 'workflow 2',
@@ -45,21 +44,15 @@ describe('Integration | Component | space automation/run workflow creator', func
         },
         requiresInitialValue: true,
       }],
+      isLoaded: true,
     }];
-    const atmInventory = {
-      atmWorkflowSchemaList: promiseObject(resolve({
-        list: promiseArray(resolve(atmWorkflowSchemas)),
-      })),
-    };
-    set(lookupService(this, 'current-user'), 'userProxy', promiseObject(resolve({
-      effAtmInventoryList: promiseObject(resolve({
-        list: promiseArray(resolve([atmInventory])),
-      })),
-    })));
-    sinon.stub(lookupService(this, 'workflow-manager'), 'getAtmWorkflowSchemaById')
+    const workflowManager = lookupService(this, 'workflow-manager');
+    sinon.stub(workflowManager, 'getAtmWorkflowSchemaById')
       .callsFake(atmWorkflowSchemaId =>
         resolve(atmWorkflowSchemas.findBy('entityId', atmWorkflowSchemaId))
       );
+    sinon.stub(workflowManager, 'getAllKnownAtmWorkflowSchemas')
+      .returns(promiseArray(resolve(atmWorkflowSchemas)));
     this.setProperties({
       atmWorkflowSchemas,
       space: { entityId: 'space1' },
