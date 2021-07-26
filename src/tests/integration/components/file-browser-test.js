@@ -32,6 +32,35 @@ const FileManager = Service.extend(Evented, {
   getFileDownloadUrl() {},
 });
 
+class MockArray {
+  constructor(array) {
+    if (!array) {
+      throw new Error('file-browser-test MockArray: array not specified');
+    }
+    this.array = array;
+  }
+  fetch(
+    fromIndex,
+    size = Number.MAX_SAFE_INTEGER,
+    offset = 0
+  ) {
+    const startIndex = fromIndex === null ?
+      0 :
+      this.array.findIndex(item => get(item, 'index') === fromIndex);
+    const startOffset = Math.max(
+      0,
+      Math.min(startIndex + offset, this.array.length)
+    );
+    const endOffset = Math.min(startOffset + size, this.array.length);
+    return resolve(this.array.slice(startOffset, endOffset));
+  }
+  async fetchChildren(dirId, scope, index, offset, limit) {
+    const fetchResult = await this.fetch(index, offset, limit);
+    const result = { childrenRecords: fetchResult, isLast: fetchResult.length < limit };
+    return result;
+  }
+}
+
 describe('Integration | Component | file browser (main component)', function () {
   setupComponentTest('file-browser', {
     integration: true,
@@ -42,55 +71,26 @@ describe('Integration | Component | file browser (main component)', function () 
     registerService(this, 'fileManager', FileManager);
   });
 
-  it('renders files on list', function () {
+  it('renders files on list', async function () {
     const entityId = 'deid';
     const name = 'Test directory';
+    const filesCount = 3;
     const dir = {
       entityId,
       name,
       type: 'dir',
       parent: resolve(null),
     };
-    const files = [{
-        id: 'f1',
-        entityId: 'f1',
-        name: 'File 1',
-        index: 'File 1',
-      },
-      {
-        id: 'f2',
-        entityId: 'f2',
-        name: 'File 2',
-        index: 'File 2',
-      },
-      {
-        id: 'f3',
-        entityId: 'f3',
-        name: 'File 3',
-        index: 'File 3',
-      },
-    ];
     this.set('dir', dir);
-    const fileManager = lookupService(this, 'fileManager');
-    const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren');
-
-    fetchDirChildren.withArgs(
-      entityId,
-      sinon.match.any,
-      null,
-      sinon.match.any,
-      sinon.match.any
-    ).resolves({ childrenRecords: files, isLast: true });
-    fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
+    mockRootFiles({
+      testCase: this,
+      filesCount,
+    });
 
     render(this);
+    await wait();
 
-    return wait().then(() => {
-      expect(fetchDirChildren).to.have.been.called;
-      return wait().then(() => {
-        expect(this.$('.fb-table-row')).to.have.length(3);
-      });
-    });
+    expect(this.$('.fb-table-row')).to.have.length(filesCount);
   });
 
   it('changes directories on double click', function () {
@@ -855,4 +855,29 @@ function notStubbed(stubName) {
   return () => {
     throw new Error(`${stubName} is not stubbed`);
   };
+}
+
+function generateFileId(entityId) {
+  return `file.${entityId}.instance:private`;
+}
+
+function mockRootFiles({ testCase, filesCount }) {
+  const files = _.range(0, filesCount).map(i => {
+    const name = `file-${i.toString().padStart(3, '0')}`;
+    const entityId = name;
+    const file = {
+      id: generateFileId(entityId),
+      entityId,
+      name,
+      index: name,
+      type: 'file',
+    };
+    file.effFile = file;
+    return file;
+  });
+  const fileManager = lookupService(testCase, 'fileManager');
+
+  const mockArray = new MockArray(files);
+  fileManager.fetchDirChildren = (...args) => mockArray.fetchChildren(...args);
+  return mockArray;
 }
