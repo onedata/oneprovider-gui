@@ -348,7 +348,7 @@ export default Component.extend(I18n, {
       }
       const topAfter = $offsetRow.offset().top;
       const topDiff = topAfter - topBefore;
-      if (!topDiff) {
+      if (topDiff <= 0) {
         return;
       }
 
