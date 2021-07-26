@@ -30,6 +30,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import ViewTester from 'onedata-gui-common/utils/view-tester';
 import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -327,32 +328,35 @@ export default Component.extend(I18n, {
 
   adjustScrollOnFirstRowChange: observer(
     'firstRowHeight',
-    function adjustScrollOnFirstRowChange() {
+    async function adjustScrollOnFirstRowChange() {
       const { element: firstRow, renderedRowIndex } = this.getFirstVisibleRow();
       const $firstRow = $(firstRow);
-      if ($firstRow && $firstRow.length) {
-        const topBefore = $firstRow.offset().top;
-        scheduleOnce('afterRender', () => {
-          const isFirstRowInDom = Boolean($firstRow[0].parentElement);
-          let $offsetRow;
-          if (isFirstRowInDom) {
-            $offsetRow = $firstRow;
-          } else {
-            $offsetRow = $(this.getNthRenderedRow(renderedRowIndex));
-          }
-          if (!$offsetRow.length) {
-            return;
-          }
-          const topAfter = $offsetRow.offset().top;
-          const topDiff = topAfter - topBefore;
-          if (!topDiff) {
-            return;
-          }
-          this.set('ignoreNextScroll', true);
-
-          this.get('containerScrollTop')(topDiff, true);
-        });
+      if (!$firstRow || !$firstRow.length) {
+        return;
       }
+      const topBefore = $firstRow.offset().top;
+      await sleep(0);
+      const isFirstRowInDom = Boolean($firstRow[0].parentElement);
+      let $offsetRow;
+      if (isFirstRowInDom) {
+        $offsetRow = $firstRow;
+      } else {
+        $offsetRow = $(this.getNthRenderedRow(renderedRowIndex));
+      }
+      if (!$offsetRow.length) {
+        return;
+      }
+      const topAfter = $offsetRow.offset().top;
+      const topDiff = topAfter - topBefore;
+      if (!topDiff) {
+        return;
+      }
+
+      console.debug(
+        `component:file-browser/fb-table#adjustScrollOnFirstRowChange: adjusting scroll by ${topDiff}`
+      );
+      this.set('ignoreNextScroll', true);
+      this.get('containerScrollTop')(topDiff, true);
     },
   ),
 
