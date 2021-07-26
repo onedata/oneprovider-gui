@@ -771,8 +771,8 @@ const metaXattrs = {
 export default OnedataGraphMock.extend({
   mockBackend: service(),
 
-  childrenIdsCache: computed(() => ({})),
-  childrenDetailsCache: computed(() => ({})),
+  childrenIdsCache: undefined,
+  childrenDetailsCache: undefined,
 
   cancelledTransfers: computed(() => []),
 
@@ -818,6 +818,7 @@ export default OnedataGraphMock.extend({
 
   init() {
     this._super(...arguments);
+    this.clearChildrenCache();
     const _handlers = Object.freeze({
       [spaceEntityType]: spaceHandlers,
       [transferEntityType]: transferHandlers,
@@ -832,6 +833,13 @@ export default OnedataGraphMock.extend({
       'handlers',
       _.merge({}, this.get('handlers'), _handlers)
     );
+  },
+
+  clearChildrenCache() {
+    this.setProperties({
+      childrenIdsCache: {},
+      childrenDetailsCache: {},
+    });
   },
 
   getMockSpaceTransfersSlice(spaceId, state, index, limit = 100000000, offset = 0) {
@@ -892,9 +900,7 @@ export default OnedataGraphMock.extend({
           ..._.range(numberOfDirs).map(i =>
             generateDirEntityId(i, dirId)
           ),
-          ..._.range(numberOfFiles).map(i =>
-            generateFileEntityId(i, dirId)
-          ),
+          ...this.get('mockBackend.entityRecords.file').mapBy('entityId'),
         ];
       } else if (/.*dir-0000.*/.test(decodedDirEntityId)) {
         const rootParentEntityId = decodedDirEntityId
