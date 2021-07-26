@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8086 Jumping to workflow execution details after execution start
 * VFS-7947 Added running workflow from file browser
 * VFS-8005 Fixed non-rendering shares browser after adding files selector upload; blocking upload to data-protected directory in selector
 * VFS-7846 Added BagIt uploader button to file browser
