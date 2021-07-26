@@ -1207,14 +1207,16 @@ export default Service.extend({
               };
               for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
                 const task = parallelBox.tasks[taskIdx];
+                const taskEntityId = generateAtmTaskExecutionEntityId(taskIdx, entityId);
                 const executionTaskRecord = await store.createRecord('atmTaskExecution', {
                   id: gri({
                     entityType: atmTaskExecutionEntityType,
-                    entityId: generateAtmTaskExecutionEntityId(taskIdx, entityId),
+                    entityId: taskEntityId,
                     aspect: 'instance',
                     scope: 'private',
                   }),
                   schemaId: task.id,
+                  systemAuditLogId: `auditLog-task-${taskEntityId}`,
                   status: 'pending',
                   itemsInProcessing: 0,
                   itemsProcessed: 0,
@@ -1235,6 +1237,7 @@ export default Service.extend({
               scope: 'private',
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
+            systemAuditLogId: `auditLog-workflow-${entityId}`,
             lanes: executionLanes,
             scheduleTime,
             startTime,
