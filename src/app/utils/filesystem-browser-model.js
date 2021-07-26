@@ -776,8 +776,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     if (!readonlyFilesystem) {
       // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
       // if using selector inside filesystem browser
-      uploadManager.assignUploadDrop(uploadDropElement);
-      uploadManager.assignUploadBrowse(uploadBrowseElement);
+      if (uploadDropElement) {
+        uploadManager.assignUploadDrop(uploadDropElement);
+      } else {
+        console.error(
+          'util:filesystem-browser-model#onInsertElement: uploadDropElement not found, upload using files drag&drop will not work'
+        );
+      }
+      if (uploadBrowseElement) {
+        uploadManager.assignUploadBrowse(uploadBrowseElement);
+      } else {
+        console.error(
+          'util:filesystem-browser-model#onInsertElement: uploadBrowseElement not found, upload using button will not work'
+        );
+      }
     }
 
     uploadManager.changeTargetDirectory(dir);
