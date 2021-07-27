@@ -74,6 +74,10 @@ describe('Integration | Component | space automation', function () {
       atmWorkflowExecution,
       changeTab: tab => this.set('tab', tab),
       getAtmWorkflowExecutionByIdStub,
+      openPreviewTab: atmWorkflowExecutionId => this.setProperties({
+        tab: 'preview',
+        atmWorkflowExecutionId,
+      }),
       closePreviewTabStub: sinon.stub().callsFake(() => {
         schedule('afterRender', this, () => this.setProperties({
           tab: 'waiting',
@@ -112,7 +116,9 @@ describe('Integration | Component | space automation', function () {
 
   it('allows to run new workflow', async function () {
     const runWorkflowStub =
-      sinon.stub(lookupService(this, 'workflow-manager'), 'runWorkflow').resolves({});
+      sinon.stub(lookupService(this, 'workflow-manager'), 'runWorkflow').resolves({
+        entityId: 'execution1',
+      });
     await render(this);
 
     await click('.nav-link-create');
@@ -126,7 +132,7 @@ describe('Integration | Component | space automation', function () {
     await click(getSlide('inputStores').querySelector('.btn-submit'));
     expect(runWorkflowStub).to.be.calledOnce
       .and.to.be.calledWith('workflow1', 'space1', sinon.match.any);
-    expect(this.$('.nav-item-waiting')).to.have.class('active');
+    expect(this.$('.nav-item-preview')).to.have.class('active');
   });
 
   context('when tab is "preview"', function () {
@@ -206,6 +212,7 @@ async function render(testCase) {
     atmWorkflowExecutionId=atmWorkflowExecutionId
     atmWorkflowSchemaId=atmWorkflowSchemaId
     changeTab=changeTab
+    openPreviewTab=openPreviewTab
     closePreviewTab=closePreviewTabStub
     chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
   }}`);

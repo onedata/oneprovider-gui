@@ -185,8 +185,8 @@ export default Component.extend(I18n, {
     changeTab(tab) {
       this.get('changeTab')(tab);
     },
-    workflowStarted() {
-      this.get('changeTab')('waiting');
+    workflowStarted(atmWorkflowExecution) {
+      this.get('openPreviewTab')(get(atmWorkflowExecution, 'entityId'));
     },
     workflowSelected(atmWorkflowExecutionSummary) {
       this.get('openPreviewTab')(get(atmWorkflowExecutionSummary, 'entityId'));
