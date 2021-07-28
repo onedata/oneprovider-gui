@@ -31,7 +31,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
    */
   taskRegistry: computed(
     'atmWorkflowExecution.lanes',
-    function globalTaskRegistry() {
+    function taskRegistry() {
       const lanes = this.get('atmWorkflowExecution.lanes');
       const parallelBoxes = _.flatten(lanes.mapBy('parallelBoxes'));
       return parallelBoxes.mapBy('taskRegistry')
@@ -88,7 +88,10 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
     const storeRegistry = this.get('atmWorkflowExecution.storeRegistry');
     const storeInstanceId = storeRegistry && storeRegistry[storeSchemaId];
 
-    if (!storeSchemaId) {
+    if (!storeInstanceId) {
+      console.error(
+        'util:workflow-visualiser/execution-data-fetcher#fetchStoreContent: invalid storeSchemaId',
+      );
       throw notFoundError;
     }
 
@@ -124,6 +127,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
     } = this.getProperties('taskRegistry', 'workflowManager');
     const taskExecutionId = taskRegistry[taskSchemaId];
     if (!taskExecutionId) {
+      console.error(
+        'util:workflow-visualiser/execution-data-fetcher#fetchTaskAuditLogContent: invalid taskSchemaId',
+      );
       throw notFoundError;
     }
 
