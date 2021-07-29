@@ -97,26 +97,26 @@ function render(testCase) {
     name: 'Default dataset',
     state: 'attached',
   };
-  setDefaultTestProperty(
+  setTestPropertyDefault(
     testCase,
     'customFetchDirChildren',
     notStubbed('customFetchDirChildren')
   );
-  setDefaultTestProperty(
+  setTestPropertyDefault(
     testCase,
     'resolveFileParentFun',
     () => null,
   );
-  setDefaultTestProperty(testCase, 'spacePrivileges', {});
-  setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
-  setDefaultTestProperty(testCase, 'dataset', defaultDataset);
-  setDefaultTestProperty(testCase, 'browserModel', ArchiveBrowserModel.create({
+  setTestPropertyDefault(testCase, 'spacePrivileges', {});
+  setTestPropertyDefault(testCase, 'spaceId', 'some_space_id');
+  setTestPropertyDefault(testCase, 'dataset', defaultDataset);
+  setTestPropertyDefault(testCase, 'browserModel', ArchiveBrowserModel.create({
     ownerSource: testCase,
     refreshInterval: refreshInterval || 0,
     openCreateArchiveModal: openCreateArchiveModal ||
       notStubbed('openCreateArchiveModal'),
   }));
-  setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
+  setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
     dir=dataset
@@ -156,7 +156,7 @@ function getItemRow({ entityId, name }) {
   return $row;
 }
 
-function setDefaultTestProperty(testCase, propertyName, defaultValue) {
+function setTestPropertyDefault(testCase, propertyName, defaultValue) {
   if (testCase.get(propertyName) === undefined) {
     testCase.set(propertyName, defaultValue);
   }
