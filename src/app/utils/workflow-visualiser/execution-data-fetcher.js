@@ -16,6 +16,7 @@ import { all as allFulfilled } from 'rsvp';
 import { normalizeWorkflowStatus } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 const notFoundError = { id: 'notFound' };
+const emptyStoreContent = { array: [], isLast: true };
 
 export default ExecutionDataFetcher.extend(OwnerInjector, {
   workflowManager: service(),
@@ -108,6 +109,10 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
    */
   async fetchWorkflowAuditLogContent(startFromIndex, limit, offset) {
     const auditLogStoreId = this.get('atmWorkflowExecution.systemAuditLogId');
+    // Workflow executions from some alpha releases do not have auditLog stores attached.
+    if (!auditLogStoreId) {
+      return emptyStoreContent;
+    }
 
     return await this.fetchStoreInstanceContent(
       auditLogStoreId,
@@ -136,6 +141,10 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
     const taskExecutionRecord =
       await workflowManager.getAtmTaskExecutionById(taskExecutionId);
     const auditLogStoreId = get(taskExecutionRecord, 'systemAuditLogId');
+    // Task executions from some alpha releases do not have auditLog stores attached.
+    if (!auditLogStoreId) {
+      return emptyStoreContent;
+    }
 
     return await this.fetchStoreInstanceContent(
       auditLogStoreId,
