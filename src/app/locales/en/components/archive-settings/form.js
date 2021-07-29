@@ -17,9 +17,13 @@ export default {
       },
       incremental: {
         label: 'Incremental',
+        tip: '<p><strong>If enabled</strong>, the new archive will store only the files that have changed in comparison to the base archive (provided below). Unchanged files will be preserved as hard links to the corresponding files in the base archive.</p><div><strong>If disabled</strong>, all files belonging to the dataset will be stored directly in the archive.</div>',
       },
-      baseArchiveName: {
-        label: 'Base archive',
+      baseArchiveGroup: {
+        baseArchiveInfo: {
+          label: 'Base archive',
+          tip: `<p>Base archive for the incremental archive that will be referenced in case of unchanged files.</p><div>To select a different base archive, locate the desired one in archive browser and use the "${createIncrementalArchive}" action from the context menu.</div>`,
+        },
       },
       layout: {
         label: 'Layout',
@@ -36,9 +40,5 @@ export default {
         label: 'Include DIP',
       },
     },
-  },
-  incrementalTip: {
-    latest: `If enabled, new archive will store only files that have changed to <strong>the latest</strong> archive of this dataset. Unchanged files will be preserved as hard links to the base archive.<br>You can select other base archive using "${createIncrementalArchive}" action from an archive context menu.`,
-    selected: 'A new archive will store only files that have changed to the base archive. Unchanged files will be preserved as hard links to the base archive.',
   },
 };

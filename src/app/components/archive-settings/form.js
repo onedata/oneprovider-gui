@@ -8,14 +8,15 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import TextareaField from 'onedata-gui-common/utils/form-component/textarea-field';
 import RadioField from 'onedata-gui-common/utils/form-component/radio-field';
 import ToggleField from 'onedata-gui-common/utils/form-component/toggle-field';
 import StaticTextField from 'onedata-gui-common/utils/form-component/static-text-field';
+import SiblingLoadingField from 'onedata-gui-common/utils/form-component/sibling-loading-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
-import { tag, not } from 'ember-awesome-macros';
+import { tag, not, or, raw } from 'ember-awesome-macros';
 import { scheduleOnce } from '@ember/runloop';
 import { reads } from '@ember/object/computed';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -24,7 +25,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
-  classNames: ['form', 'form-horizontal', 'form-component'],
+  classNames: ['form', 'form-horizontal', 'form-component', 'archive-settings-form'],
 
   i18n: service(),
 
@@ -48,9 +49,15 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {CreateArchiveOptions}
+   * @type {() => PromiseObject<Utils.BrowsableArchive>}
    */
-  options: undefined,
+  baseArchiveProxy: undefined,
+
+  /**
+   * @virtual
+   * @type {() => PromiseObject<Utils.BrowsableArchive>}
+   */
+  updateBaseArchiveProxy: undefined,
 
   rootFormGroupClass: computed(function rootFormGroupClass() {
     const component = this;
@@ -66,11 +73,52 @@ export default Component.extend(I18n, {
       });
   }),
 
+  baseArchiveGroup: computed(function baseArchiveGroup() {
+    const baseArchiveLoadingField = SiblingLoadingField
+      .extend({
+        loadingProxy: reads('parent.baseArchiveProxy'),
+      })
+      .create({
+        siblingName: 'baseArchiveInfo',
+        name: 'baseArchiveLoading',
+      });
+
+    const baseArchiveInfoField = StaticTextField
+      .extend({
+        isVisible: reads('parent.baseArchiveProxy.isSettled'),
+        value: or(
+          'parent.baseArchiveProxy.name',
+          raw('–'),
+        ),
+      })
+      .create({
+        name: 'baseArchiveInfo',
+      });
+
+    return FormFieldsGroup
+      .extend({
+        isIncremental: reads('parent.value.incremental'),
+        isExpanded: reads('isIncremental'),
+        baseArchiveProxy: reads('component.baseArchiveProxy'),
+      })
+      .create({
+        component: this,
+        name: 'baseArchiveGroup',
+        fields: [
+          baseArchiveLoadingField,
+          baseArchiveInfoField,
+        ],
+      });
+  }),
+
   /**
    * @type {ComputedProperty<FormFieldsRootGroup>}
    */
-  rootFieldGroup: computed('options', function rootFieldGroup() {
-    const options = this.get('options');
+  rootFieldGroup: computed(function rootFieldGroup() {
+    const {
+      baseArchiveGroup,
+      options,
+    } = this.getProperties('baseArchiveGroup', 'options');
     const baseArchive = options && options.baseArchive;
     const isBaseArchiveProvided = Boolean(baseArchive);
     const component = this;
@@ -89,12 +137,22 @@ export default Component.extend(I18n, {
       defaultValue: false,
     });
 
-    const configIncrementalField = ToggleField.create({
-      name: 'incremental',
-      defaultValue: isBaseArchiveProvided,
-      isEnabled: !isBaseArchiveProvided,
-      tip: this.t(`incrementalTip.${isBaseArchiveProvided ? 'selected' : 'latest'}`),
-    });
+    const configIncrementalField = ToggleField
+      .extend({
+        onValueChange() {
+          this._super(...arguments);
+          const value = this.get('value');
+          if (value) {
+            this.get('component.updateBaseArchiveProxy')();
+          }
+        },
+      })
+      .create({
+        name: 'incremental',
+        component: this,
+        defaultValue: isBaseArchiveProvided,
+        isEnabled: !isBaseArchiveProvided,
+      });
 
     const configDipField = ToggleField.create({
       name: 'includeDip',
@@ -105,16 +163,9 @@ export default Component.extend(I18n, {
       configLayoutField,
       configNestedField,
       configIncrementalField,
+      baseArchiveGroup,
+      configDipField,
     ];
-
-    if (isBaseArchiveProvided) {
-      const baseArchiveInfoField = StaticTextField.create({
-        name: 'baseArchiveName',
-        value: get(baseArchive, 'name'),
-      });
-      configFields.push(baseArchiveInfoField);
-    }
-    configFields.push(configDipField);
 
     return this.get('rootFormGroupClass')
       .create({
@@ -144,6 +195,17 @@ export default Component.extend(I18n, {
         ],
       });
   }),
+
+  /**
+   * Note: this is a hack to handle base archive loading field fulfillment that
+   * changes `isValid`, because loading field does not emit value change events.
+   */
+  baseArchiveGroupValidObserver: observer(
+    'baseArchiveGroup.isValid',
+    function baseArchiveGroupValidObserver() {
+      scheduleOnce('actions', this, 'notifyAboutChange');
+    }
+  ),
 
   notifyAboutChange() {
     safeExec(this, () => {

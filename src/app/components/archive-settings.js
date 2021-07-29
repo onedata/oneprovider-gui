@@ -15,6 +15,7 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 export default Component.extend(I18n, {
   // do not use tag, because the layout is built by `modal` property
@@ -23,6 +24,7 @@ export default Component.extend(I18n, {
 
   i18n: service(),
   globalNotify: service(),
+  archiveManager: service(),
 
   /**
    * @override
@@ -86,6 +88,56 @@ export default Component.extend(I18n, {
    */
   canSubmit: reads('isValid'),
 
+  /**
+   * Initialized/set by `updateBaseArchiveProxy` method.
+   * @type {PromiseObject<Utils.BrowsableArchive>}
+   */
+  baseArchiveProxy: null,
+
+  init() {
+    this._super(...arguments);
+    if (this.get('options.baseArchive')) {
+      this.updateBaseArchiveProxy();
+    }
+  },
+
+  async getBaseArchive() {
+    const injectedBaseArchive = this.get('options.baseArchive');
+    if (injectedBaseArchive) {
+      return injectedBaseArchive;
+    } else {
+      return this.fetchLatestArchive();
+    }
+  },
+
+  async updateBaseArchiveProxy() {
+    this.set('baseArchiveProxy', promiseObject(this.getBaseArchive()));
+  },
+
+  async fetchLatestArchive() {
+    const {
+      archiveManager,
+      dataset,
+    } = this.getProperties('archiveManager', 'dataset');
+    const archivesData = await archiveManager.fetchDatasetArchives({
+      datasetId: get(dataset, 'entityId'),
+      limit: 1,
+      offset: 0,
+    });
+    const archiveRecord = get(archivesData, 'childrenRecords.0');
+    if (archiveRecord) {
+      return archiveManager.getBrowsableArchive(get(archiveRecord, 'entityId'));
+    } else {
+      if (!archivesData.isLast) {
+        throw new Error(
+          'component:archive-settings#fetchLatestArchive: invalid archive listing data'
+        );
+      }
+      // there is no latest archive, because there are no archives
+      return null;
+    }
+  },
+
   async submitArchive() {
     const {
       formData,
@@ -95,7 +147,7 @@ export default Component.extend(I18n, {
     this.set('isSubmitting', true);
     try {
       if (canSubmit) {
-        const archiveCreateData = this.generateArchiveData(formData);
+        const archiveCreateData = await this.generateArchiveData(formData);
         return await onSubmit(archiveCreateData);
       }
     } finally {
@@ -103,9 +155,8 @@ export default Component.extend(I18n, {
     }
   },
 
-  generateArchiveData(formData) {
+  async generateArchiveData(formData) {
     if (formData) {
-      const options = this.get('options');
       const {
         config,
         description,
@@ -126,14 +177,16 @@ export default Component.extend(I18n, {
         'includeDip',
       );
       const isIncremental = Boolean(get(config, 'incremental'));
-      const baseArchiveId = options && get(options, 'baseArchive.entityId');
-      const incrementalConfig = {
-        enabled: isIncremental,
-      };
-      if (isIncremental && baseArchiveId) {
-        incrementalConfig.basedOn = baseArchiveId;
+      if (isIncremental) {
+        const baseArchive = await this.get('baseArchiveProxy');
+        const baseArchiveId = baseArchive && get(baseArchive, 'baseArchive.entityId');
+        const incrementalConfig = {
+          enabled: isIncremental,
+          basedOn: baseArchiveId,
+        };
+        rawConfig.incremental = incrementalConfig;
       }
-      rawConfig.incremental = incrementalConfig;
+
       return {
         config: rawConfig,
         description,
