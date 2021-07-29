@@ -28,7 +28,7 @@ export default {
             label: 'plain',
           },
           bagit: {
-            label: 'bagit',
+            label: 'BagIt',
           },
         },
       },
