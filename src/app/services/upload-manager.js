@@ -17,7 +17,7 @@ import getGuiAuthToken from 'onedata-gui-websocket-client/utils/get-gui-auth-tok
 import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
 import moment from 'moment';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { later } from '@ember/runloop';
+import { later, throttle } from '@ember/runloop';
 import { v4 as uuid } from 'ember-uuid';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
@@ -79,9 +79,15 @@ export default Service.extend(I18n, {
   injectedUploadState: reads('appProxy.injectedData.uploadFiles'),
 
   /**
-   * @type {Computed<Object>} keys: dir ids (string), values: throttled functions
+   * @type {ComputedProperty<Object>} keys: dir ids (string), values: throttled functions
    */
   throttledRefresh: computed(() => ({})),
+
+  /**
+   * @type {ComputedProperty<Object>} keys: unique file-per-upload id (string),
+   *   values: throttled functions
+   */
+  throttledUploadProgress: computed(() => ({})),
 
   /**
    * @type {Ember.ComputedProperty<Resumable>}
@@ -327,16 +333,28 @@ export default Service.extend(I18n, {
    */
   fileUploadProgress(resumableFile) {
     const progress = resumableFile.progress();
+    const isComplete = resumableFile.isComplete();
     // Notifying about 0% progress is not useful. Also sometimes Resumable
     // treats cancelled files as finished
     const isFakeComplete =
-      progress === 1 && (resumableFile.isCancelled || !resumableFile.isComplete());
-    if (progress > 0 && !isFakeComplete) {
-      this.notifyParent({
-        uploadId: resumableFile.uploadId,
-        path: resumableFile.relativePath,
-        bytesUploaded: Math.floor(resumableFile.progress() * resumableFile.size),
-      });
+      progress === 1 && (resumableFile.isCancelled || !isComplete);
+    if (progress > 0 && !isComplete && !isFakeComplete) {
+      const throttledUploadProgress = this.get('throttledUploadProgress');
+      const throttledUploadProgressKey = getProgressThrottlerKey(resumableFile);
+
+      if (!throttledUploadProgress[throttledUploadProgressKey]) {
+        const notifyProgressCallback = progress => {
+          this.notifyParent({
+            uploadId: resumableFile.uploadId,
+            path: resumableFile.relativePath,
+            bytesUploaded: Math.floor(progress * resumableFile.size),
+          });
+        };
+        throttledUploadProgress[throttledUploadProgressKey] =
+          progress => throttle(this, notifyProgressCallback, progress, 500);
+      }
+
+      throttledUploadProgress[throttledUploadProgressKey](progress);
     }
   },
 
@@ -424,6 +442,8 @@ export default Service.extend(I18n, {
    * @returns {Promise}
    */
   finalizeFileUpload(resumableFile) {
+    const progressThrottlerKey = getProgressThrottlerKey(resumableFile);
+    delete this.get('throttledUploadProgress')[progressThrottlerKey];
     if (resumableFile.isUploadInitialized) {
       return this.get('fileManager')
         .finalizeFileUpload(get(resumableFile, 'fileModel'));
@@ -691,4 +711,8 @@ function sortFilesToUpload(tree) {
  */
 function isResumableFile(object) {
   return object && typeof object.progress === 'function';
+}
+
+function getProgressThrottlerKey(resumableFile) {
+  return `${resumableFile.uploadId}|${resumableFile.relativePath}`;
 }
