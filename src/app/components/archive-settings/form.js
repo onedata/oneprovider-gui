@@ -13,6 +13,7 @@ import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields
 import TextareaField from 'onedata-gui-common/utils/form-component/textarea-field';
 import RadioField from 'onedata-gui-common/utils/form-component/radio-field';
 import ToggleField from 'onedata-gui-common/utils/form-component/toggle-field';
+import StaticTextField from 'onedata-gui-common/utils/form-component/static-text-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import { tag, not } from 'ember-awesome-macros';
 import { scheduleOnce } from '@ember/runloop';
@@ -21,7 +22,6 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import TextField from 'onedata-gui-common/utils/form-component/text-field';
 
 export default Component.extend(I18n, {
   classNames: ['form', 'form-horizontal', 'form-component'],
@@ -47,9 +47,12 @@ export default Component.extend(I18n, {
   isSubmitting: false,
 
   /**
-   * @type {ComputedProperty<FormFieldsRootGroup>}
+   * @virtual
+   * @type {CreateArchiveOptions}
    */
-  rootFieldGroup: computed(function rootFieldGroup() {
+  options: undefined,
+
+  rootFormGroupClass: computed(function rootFormGroupClass() {
     const component = this;
     return FormFieldsRootGroup
       .extend({
@@ -60,7 +63,60 @@ export default Component.extend(I18n, {
           this._super(...arguments);
           scheduleOnce('afterRender', component, 'notifyAboutChange');
         },
-      })
+      });
+  }),
+
+  /**
+   * @type {ComputedProperty<FormFieldsRootGroup>}
+   */
+  rootFieldGroup: computed('options', function rootFieldGroup() {
+    const options = this.get('options');
+    const baseArchive = options && options.baseArchive;
+    const isBaseArchiveProvided = Boolean(baseArchive);
+    const component = this;
+
+    const configLayoutField = RadioField.create({
+      name: 'layout',
+      defaultValue: 'plain',
+      options: [
+        { value: 'plain' },
+        { value: 'bagit' },
+      ],
+    });
+
+    const configNestedField = ToggleField.create({
+      name: 'createNestedArchives',
+      defaultValue: false,
+    });
+
+    const configIncrementalField = ToggleField.create({
+      name: 'incremental',
+      defaultValue: isBaseArchiveProvided,
+      isEnabled: !isBaseArchiveProvided,
+      tip: this.t(`incrementalTip.${isBaseArchiveProvided ? 'selected' : 'latest'}`),
+    });
+
+    const configDipField = ToggleField.create({
+      name: 'includeDip',
+      defaultValue: false,
+    });
+
+    const configFields = [
+      configLayoutField,
+      configNestedField,
+      configIncrementalField,
+    ];
+
+    if (isBaseArchiveProvided) {
+      const baseArchiveInfoField = StaticTextField.create({
+        name: 'baseArchiveName',
+        value: get(baseArchive, 'name'),
+      });
+      configFields.push(baseArchiveInfoField);
+    }
+    configFields.push(configDipField);
+
+    return this.get('rootFormGroupClass')
       .create({
         component,
         fields: [
@@ -71,34 +127,7 @@ export default Component.extend(I18n, {
           }),
           FormFieldsGroup.create({
             name: 'config',
-            fields: [
-              RadioField.create({
-                name: 'layout',
-                defaultValue: 'plain',
-                options: [
-                  { value: 'plain' },
-                  { value: 'bagit' },
-                ],
-              }),
-              ToggleField.create({
-                name: 'createNestedArchives',
-                defaultValue: false,
-              }),
-              ToggleField.create({
-                name: 'incremental',
-                defaultValue: false,
-              }),
-              TextField.extend({
-                isVisible: reads('parent.value.incremental'),
-              }).create({
-                isOptional: true,
-                name: 'baseArchiveId',
-              }),
-              ToggleField.create({
-                name: 'includeDip',
-                defaultValue: false,
-              }),
-            ],
+            fields: configFields,
           }),
           // TODO: VFS-7547 should be available in view/edit mode
           // TextField.create({

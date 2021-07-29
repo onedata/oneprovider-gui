@@ -1,3 +1,5 @@
+import { createIncrementalArchive } from '../../utils/archive-browser-model';
+
 export default {
   settingsForm: {
     description: {
@@ -16,8 +18,8 @@ export default {
       incremental: {
         label: 'Incremental',
       },
-      baseArchiveId: {
-        label: 'Base archive ID',
+      baseArchiveName: {
+        label: 'Base archive',
       },
       layout: {
         label: 'Layout',
@@ -34,5 +36,9 @@ export default {
         label: 'Include DIP',
       },
     },
+  },
+  incrementalTip: {
+    latest: `If enabled, new archive will store only files that have changed to <strong>the latest</strong> archive of this dataset. Unchanged files will be preserved as hard links to the base archive.<br>You can select other base archive using "${createIncrementalArchive}" action from an archive context menu.`,
+    selected: 'A new archive will store only files that have changed to the base archive. Unchanged files will be preserved as hard links to the base archive.',
   },
 };

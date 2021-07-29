@@ -56,6 +56,13 @@ export default Component.extend(I18n, {
   modal: undefined,
 
   /**
+   * Injected options for archive creation.
+   * @virtual optional
+   * @type {CreateArchiveOptions}
+   */
+  options: undefined,
+
+  /**
    * True if submit Promise is pending.
    * @type {Boolean}
    */
@@ -98,6 +105,7 @@ export default Component.extend(I18n, {
 
   generateArchiveData(formData) {
     if (formData) {
+      const options = this.get('options');
       const {
         config,
         description,
@@ -118,7 +126,7 @@ export default Component.extend(I18n, {
         'includeDip',
       );
       const isIncremental = Boolean(get(config, 'incremental'));
-      const baseArchiveId = get(config, 'baseArchiveId');
+      const baseArchiveId = options && get(options, 'baseArchive.entityId');
       const incrementalConfig = {
         enabled: isIncremental,
       };
