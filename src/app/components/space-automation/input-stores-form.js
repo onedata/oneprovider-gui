@@ -641,13 +641,13 @@ function getValueEditorForStoreType(type, dataSpec) {
     case 'singleValue':
     case 'list':
       // TODO: VFS-7816 uncomment or remove future code
-      // case 'auditLog':
       // return ['file', 'dataset', 'archive'].includes(dataSpecType) ?
       //   'filesValue' : 'rawValue';
       return ['file', 'dataset'].includes(dataSpecType) ?
         'filesValue' : 'rawValue';
     case 'treeForest':
       return 'filesValue';
+    case 'auditLog':
     default:
       return 'rawValue';
   }
@@ -661,13 +661,13 @@ function validateStoreInitialValue(initialValue, type, dataSpec) {
 
   switch (type) {
     case 'singleValue':
-      return validateStoreElement(initialValue, dataSpec);
+      return validateStoreElement(initialValue, type, dataSpec);
     case 'list':
+    case 'auditLog':
       // TODO: VFS-7816 uncomment or remove future code
       // case 'histogram':
-      // case 'auditLog':
       return Array.isArray(initialValue) &&
-        initialValue.every(element => validateStoreElement(element, dataSpec));
+        initialValue.every(element => validateStoreElement(element, type, dataSpec));
       // TODO: VFS-7816 uncomment or remove future code
       // case 'map':
       //   return typeof initialValue === 'object' &&
@@ -680,22 +680,39 @@ function validateStoreInitialValue(initialValue, type, dataSpec) {
   }
 }
 
-function validateStoreElement(element, dataSpec) {
+function validateStoreElement(element, storeType, dataSpec) {
+  let normalizedElement = element;
+  if (storeType === 'auditLog') {
+    if (typeof element === 'object') {
+      if (!element) {
+        return false;
+      } else if ('entry' in element) {
+        normalizedElement = element.entry;
+      } else {
+        // element can have field `severity`, but it should not break further validations
+        normalizedElement = element;
+      }
+    }
+  }
+
   switch (dataSpec && dataSpec.type) {
     case 'integer':
-      return Number.isInteger(element);
+      return Number.isInteger(normalizedElement);
     case 'string':
-      return typeof element === 'string';
+      return typeof normalizedElement === 'string';
     case 'object':
-      return typeof element === 'object' && element !== null && !Array.isArray(element);
+      return typeof normalizedElement === 'object' &&
+        normalizedElement !== null &&
+        !Array.isArray(normalizedElement);
     case 'histogram':
       // Format of histograms is not known yet. For now both arrays and objects are valid.
-      return typeof element === 'object' && element !== null;
+      return typeof normalizedElement === 'object' && normalizedElement !== null;
       // TODO: VFS-7816 uncomment or remove future code
       // case 'archive':
     case 'file':
     case 'dataset': {
-      const idValue = element && element[getIdFieldNameForDataSpec(dataSpec)];
+      const idValue = normalizedElement &&
+        normalizedElement[getIdFieldNameForDataSpec(dataSpec)];
       return idValue && typeof idValue === 'string';
     }
     default:

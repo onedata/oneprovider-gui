@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7896 Added workflow and task execution audit log preview
 * VFS-8102 Optimized notifying about upload progress to Onezone GUI
 * VFS-8086 Jumping to workflow execution details after execution start
 * VFS-7947 Added running workflow from file browser

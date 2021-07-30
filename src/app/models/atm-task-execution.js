@@ -20,6 +20,11 @@ export default Model.extend(GraphSingleModelMixin, {
   schemaId: attr('string'),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  systemAuditLogId: attr('string'),
+
+  /**
    * One of:
    * - `'pending'`,
    * - `'active'`,

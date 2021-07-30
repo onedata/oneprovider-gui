@@ -75,14 +75,18 @@ export default Service.extend({
    * @param {Boolean} [fetchOptions.reload=false]
    * @returns {Promise<Models.AtmTaskExecution>}
    */
-  async getAtmTaskExecutionById(taskId, { reload = false } = {}) {
+  async getAtmTaskExecutionById(taskId, {
+    reload = false,
+    backgroundReload = false,
+  } = {}) {
     const taskGri = gri({
       entityType: atmTaskExecutionEntityType,
       entityId: taskId,
       aspect: 'instance',
       scope: 'private',
     });
-    return await this.get('store').findRecord('atmTaskExecution', taskGri, { reload });
+    return await this.get('store')
+      .findRecord('atmTaskExecution', taskGri, { reload, backgroundReload });
   },
 
   /**
