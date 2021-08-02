@@ -1,10 +1,18 @@
-<td class="fb-table-col-size hidden-xs">
+<td class={{concat "fb-table-col-size hidden-xs " (if file.effFile.isShowProgress "multiline")}}>
   <span class="file-item-text">
     {{#if (eq file.effFile.type "file")}}
-      {{#if file.effFile.isPollingSize}}
-        {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+      {{#if (or file.effFile.isShowProgress (not file.effFile.isPollingSize))}}
+        <span class="{{if file.effFile.isShowProgress "infinite animated pulse-mint"}}">
+          {{bytes-to-string file.effFile.size}}
+        </span>
+        {{#if file.effFile.isShowProgress}}
+        <br>
+        <span class="small">
+          {{tt this file.effFile.currentOperation}}
+        </span>
+        {{/if}}
       {{else}}
-        {{bytes-to-string file.effFile.size}}
+        {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
       {{/if}}
     {{else}}
       —

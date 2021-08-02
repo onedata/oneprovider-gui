@@ -19,7 +19,7 @@ import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool } from 'ember-awesome-macros';
+import { bool, array } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
@@ -97,6 +97,16 @@ export const RuntimeProperties = Mixin.create({
    */
   pollSizeTimerId: null,
 
+  /**
+   * @type {boolean}
+   */
+  isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
+
+   /**
+   * @type {string}
+   */
+  currentOperation: '',
+
   dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
   metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
 
@@ -160,7 +170,10 @@ export const RuntimeProperties = Mixin.create({
             later(this, 'pollSize', attempts - 1, interval, targetSize, interval)
           );
         } else {
-          this.set('isPollingSize', false);
+          this.setProperties({
+            isPollingSize: false,
+            currentOperation: '',
+          });
         }
       }
     });

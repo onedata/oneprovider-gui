@@ -21,4 +21,9 @@ export default FbTableRowColumns.extend({
    * @type {Models.File}
    */
   file: undefined,
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.filesystemBrowser.tableRowColumns',
 });
