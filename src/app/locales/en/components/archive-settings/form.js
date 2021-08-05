@@ -40,5 +40,6 @@ export default {
         label: 'Include DIP',
       },
     },
+    latestArchive: '<em>latest</em>',
   },
 };

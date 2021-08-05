@@ -16,13 +16,14 @@ import ToggleField from 'onedata-gui-common/utils/form-component/toggle-field';
 import StaticTextField from 'onedata-gui-common/utils/form-component/static-text-field';
 import SiblingLoadingField from 'onedata-gui-common/utils/form-component/sibling-loading-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
-import { tag, not, or, raw } from 'ember-awesome-macros';
+import { tag, not, or, raw, conditional, and, equal } from 'ember-awesome-macros';
 import { scheduleOnce } from '@ember/runloop';
 import { reads } from '@ember/object/computed';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   classNames: ['form', 'form-horizontal', 'form-component', 'archive-settings-form'],
@@ -46,6 +47,12 @@ export default Component.extend(I18n, {
    * @type {Boolean}
    */
   isSubmitting: false,
+
+  /**
+   * @virtual
+   * @type {CreateArchiveOptions}
+   */
+  options: undefined,
 
   /**
    * @virtual
@@ -86,9 +93,19 @@ export default Component.extend(I18n, {
     const baseArchiveInfoField = StaticTextField
       .extend({
         isVisible: reads('parent.baseArchiveProxy.isSettled'),
-        value: or(
-          'parent.baseArchiveProxy.name',
-          raw('–'),
+        value: conditional(
+          and(
+            'parent.baseArchiveProxy.isCustomOnedataError',
+            equal(
+              'parent.baseArchiveProxy.type',
+              raw('cannot-fetch-latest-archive')
+            ),
+          ),
+          computedT('latestArchive'),
+          or(
+            'parent.baseArchiveProxy.name',
+            raw('–'),
+          ),
         ),
       })
       .create({

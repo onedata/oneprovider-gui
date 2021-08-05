@@ -106,7 +106,19 @@ export default Component.extend(I18n, {
     if (injectedBaseArchive) {
       return injectedBaseArchive;
     } else {
-      return this.fetchLatestArchive();
+      try {
+        return await this.fetchLatestArchive();
+      } catch (error) {
+        // always resolve this promise, but pass error to form
+        console.debug(
+          `component:archive-settings#getBaseArchive: error getting baseArchive: ${error}`
+        );
+        return {
+          isCustomOnedataError: true,
+          type: 'cannot-fetch-latest-archive',
+          reason: error,
+        };
+      }
     }
   },
 
@@ -178,8 +190,8 @@ export default Component.extend(I18n, {
       );
       const isIncremental = Boolean(get(config, 'incremental'));
       if (isIncremental) {
-        const baseArchive = await this.get('baseArchiveProxy');
-        const baseArchiveId = baseArchive && get(baseArchive, 'baseArchive.entityId');
+        const baseArchive = this.get('baseArchiveProxy.content');
+        const baseArchiveId = baseArchive && get(baseArchive, 'entityId');
         const incrementalConfig = {
           enabled: isIncremental,
           basedOn: baseArchiveId,
