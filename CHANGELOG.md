@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7930 Added "create incremental archive" in archive context menu
 * VFS-7896 Added workflow and task execution audit log preview
 * VFS-8102 Optimized notifying about upload progress to Onezone GUI
 * VFS-8086 Jumping to workflow execution details after execution start

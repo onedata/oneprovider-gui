@@ -5,7 +5,10 @@
 {{#modal.body class="archive-settings-part archive-settings-modal-body"}}
   {{archive-settings/form
     dataset=dataset
+    options=options
+    baseArchiveProxy=baseArchiveProxy
     isSubmitting=isSubmitting
+    updateBaseArchiveProxy=(action updateBaseArchiveProxy)
     onChange=(action "formDataUpdate")
   }}
 {{/modal.body}}
