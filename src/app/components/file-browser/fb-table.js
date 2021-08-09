@@ -326,39 +326,45 @@ export default Component.extend(I18n, {
     }
   ),
 
-  adjustScrollOnFirstRowChange: observer(
-    'firstRowHeight',
-    async function adjustScrollOnFirstRowChange() {
-      const { element: firstRow, renderedRowIndex } = this.getFirstVisibleRow();
-      const $firstRow = $(firstRow);
-      if (!$firstRow || !$firstRow.length) {
-        return;
-      }
-      const topBefore = $firstRow.offset().top;
-      await sleep(0);
-      const isFirstRowInDom = Boolean($firstRow[0].parentElement);
-      let $offsetRow;
-      if (isFirstRowInDom) {
-        $offsetRow = $firstRow;
-      } else {
-        $offsetRow = $(this.getNthRenderedRow(renderedRowIndex));
-      }
-      if (!$offsetRow.length) {
-        return;
-      }
-      const topAfter = $offsetRow.offset().top;
-      const topDiff = topAfter - topBefore;
-      if (topDiff <= 0) {
-        return;
-      }
-
-      console.debug(
-        `component:file-browser/fb-table#adjustScrollOnFirstRowChange: adjusting scroll by ${topDiff}`
-      );
-      this.set('ignoreNextScroll', true);
-      this.get('containerScrollTop')(topDiff, true);
-    },
-  ),
+  /**
+   * When replacing chunks array gets expanded on beginning (items are unshifted into
+   * array), we need to compensate scroll because new content is added on top.
+   * Currently (as of 2021) not all browsers support scroll anchoring and
+   * `perfect-scrollbar` has issues with it (anchoring is disabled), so we need to do
+   * scroll correction manually.
+   * @param {Promise} arrayUpdatedPromise promise that resolves when files array
+   *   have new items added and start/end markers are changed
+   */
+  async adjustScroll(arrayUpdatedPromise) {
+    const { element: firstRow, renderedRowIndex } = this.getFirstVisibleRow();
+    const $firstRow = $(firstRow);
+    if (!$firstRow || !$firstRow.length) {
+      return;
+    }
+    const topBefore = $firstRow.offset().top;
+    await arrayUpdatedPromise;
+    await sleep(0);
+    const isFirstRowInDom = Boolean($firstRow[0].parentElement);
+    let $offsetRow;
+    if (isFirstRowInDom) {
+      $offsetRow = $firstRow;
+    } else {
+      $offsetRow = $(this.getNthRenderedRow(renderedRowIndex));
+    }
+    if (!$offsetRow.length) {
+      return;
+    }
+    const topAfter = $offsetRow.offset().top;
+    const topDiff = topAfter - topBefore;
+    if (topDiff <= 0) {
+      return;
+    }
+    console.debug(
+      `component:file-browser/fb-table#adjustScrollOnFirstRowChange: adjusting scroll by ${topDiff}`
+    );
+    this.set('ignoreNextScroll', true);
+    this.get('containerScrollTop')(topDiff, true);
+  },
 
   firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
@@ -424,6 +430,10 @@ export default Component.extend(I18n, {
     array.on(
       'fetchNextRejected',
       () => this.onFetchingStateUpdate('next', 'rejected')
+    );
+    array.on(
+      'willExpandArrayBeginning',
+      (arrayUpdatePromise) => this.adjustScroll(arrayUpdatePromise)
     );
     return array;
   }),
