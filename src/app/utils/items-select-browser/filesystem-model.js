@@ -112,6 +112,20 @@ export default BaseModel.extend(I18n, {
     }
   ),
 
+  submitCurrentAvailable: computed(
+    'submitCurrentLabel',
+    'allowedFileTypes.[]',
+    function submitCurrentAvailable() {
+      const base = this._super(...arguments);
+      if (base) {
+        const allowedFileTypes = this.get('allowedFileTypes');
+        return (allowedFileTypes || []).includes('dir');
+      } else {
+        return base;
+      }
+    }
+  ),
+
   spaceObserver: observer('space', function spaceObserver() {
     const {
       uploadManager,
