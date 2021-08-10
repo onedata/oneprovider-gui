@@ -71,5 +71,8 @@ export default Component.extend({
     closeInfoModal() {
       this.set('fileToShowInfo', null);
     },
+    getDataUrl() {
+      return window.location.toString();
+    },
   },
 });

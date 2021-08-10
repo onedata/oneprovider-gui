@@ -43,7 +43,7 @@
           </td>
         </tr>
         <tr class="file-info-row-path">
-          <td class="property-name">{{tt this "path" type=typeTranslation}}</td>
+          <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "path" type=typeTranslation}}</td>
           <td class="property-value">
             {{#promise-proxy-container
               proxy=filePathProxy
@@ -60,7 +60,7 @@
         </tr>
         {{#if (eq itemType "symlink")}}
           <tr class="file-info-row-target-path">
-            <td class="property-name">{{tt this "symlinkTargetPath"}}</td>
+            <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "symlinkTargetPath"}}</td>
             <td class="property-value">
               {{clipboard-line
                 value=symlinkTargetPath
@@ -81,10 +81,11 @@
             </td>
           </tr>
         {{/if}}
-        {{!-- FIXME: use this optionally - disable in archives mode --}}
         {{#if fileGuiUrl}}
           <tr class="file-info-row-gui-url">
-            <td class="property-name">{{tt this "guiUrl"  type=typeTranslation}}</td>
+            <td class="property-name with-input{{if smallContent "-sm"}}">
+              {{tt this "guiUrl" type=typeTranslation}}
+            </td>
             <td class="property-value">
               {{clipboard-line
                 value=fileGuiUrl

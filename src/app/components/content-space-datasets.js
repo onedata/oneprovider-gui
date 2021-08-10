@@ -1115,5 +1115,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
         return this.fetchDatasetChildren(...fetchArgs);
       }
     },
+    getArchiveFileUrl({ selected }) {
+      const {
+        archiveId,
+        datasetId,
+        dirId,
+      } = this.getProperties('archiveId', 'datasetId', 'dirId');
+      return this.getDatasetsUrl({
+        viewMode: 'files',
+        datasetId,
+        archive: archiveId,
+        selected,
+        dir: dirId || null,
+      });
+    },
   },
 });
