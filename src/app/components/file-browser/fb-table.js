@@ -383,13 +383,8 @@ export default Component.extend(I18n, {
     );
     let initialJumpIndex;
     if (!isEmpty(selectedItemsForJump)) {
-      const firstSelected = A(selectedItemsForJump).sortBy('index').objectAt(0);
-      initialJumpIndex = get(firstSelected, 'index');
-      if (!_.isEqual(selectedItems, selectedItemsForJump)) {
-        scheduleOnce('afterRender', () => {
-          changeSelectedItems(selectedItemsForJump);
-        });
-      }
+      const firstSelectedForJump = A(selectedItemsForJump).sortBy('index').objectAt(0);
+      initialJumpIndex = get(firstSelectedForJump, 'index');
     }
     const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) =>
@@ -402,7 +397,9 @@ export default Component.extend(I18n, {
     });
     if (initialJumpIndex) {
       get(array, 'initialLoad').then(async () => {
-        await sleep(0);
+        if (!_.isEqual(selectedItems, selectedItemsForJump)) {
+          await changeSelectedItems(selectedItemsForJump);
+        }
         this.jumpToSelection();
       });
     }
