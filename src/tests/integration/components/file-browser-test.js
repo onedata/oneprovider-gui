@@ -761,7 +761,9 @@ function itHasWorkingClipboardFunction({
 function prepareDownload(testCase) {
   const fileId = testCase.get('item1.entityId');
   const fileManager = lookupService(testCase, 'fileManager');
-  const sleeper = sleep(500);
+  const sleeper = sleep(500).then(() => ({
+    fileUrl: 'http://localhost/test.tar.gz',
+  }));
   const getFileDownloadUrl = sinon.stub(fileManager, 'getFileDownloadUrl')
     .resolves(sleeper);
   const handleFileDownloadUrl = sinon.stub();
@@ -812,7 +814,9 @@ async function openFileContextMenu(file) {
 
 async function chooseFileContextMenuAction(file, actionId) {
   const $fileActions = await openFileContextMenu(file);
-  await click($fileActions.find(`.file-action-${actionId}`)[0]);
+  const action = $fileActions.find(`.file-action-${actionId}`)[0];
+  expect(action, `action item ${actionId}`).to.exist;
+  await click(action);
 }
 
 function render(testCase) {

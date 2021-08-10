@@ -12,9 +12,7 @@ import { get, getProperties, computed } from '@ember/object';
 import _ from 'lodash';
 import { next } from '@ember/runloop';
 import {
-  numberOfFiles,
   numberOfDirs,
-  generateFileEntityId,
   generateDirEntityId,
   parseDecodedDirEntityId,
   storageIdAlpha,
