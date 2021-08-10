@@ -67,10 +67,9 @@ export default Component.extend({
     // this.testJumpToVisible(null);
     // this.testJumpToVisible(2000);
     // this.testJumpDownFromStart(null);
-    // FIXME: bug - does not focus on item not in current list
     // bug - does not render jumped item
-    this.testJumpDownFromStart(2000);
-    // this.testJumpUpFromFarMiddle(6000);
+    // this.testJumpDownFromStart(2000);
+    this.testJumpUpFromFarMiddle(6000);
   },
 
   async testJumpToVisible(delay = null) {

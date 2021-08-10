@@ -372,15 +372,7 @@ export default Component.extend(I18n, {
 
   filesArray: computed('dir.entityId', 'browserModel', function filesArray() {
     const dirId = this.get('dir.entityId');
-    const {
-      selectedItemsForJump,
-      changeSelectedItems,
-      selectedItems,
-    } = this.getProperties(
-      'selectedItemsForJump',
-      'changeSelectedItems',
-      'selectedItems'
-    );
+    const selectedItemsForJump = this.get('selectedItemsForJump');
     let initialJumpIndex;
     if (!isEmpty(selectedItemsForJump)) {
       const firstSelectedForJump = A(selectedItemsForJump).sortBy('index').objectAt(0);
@@ -397,10 +389,7 @@ export default Component.extend(I18n, {
     });
     if (initialJumpIndex) {
       get(array, 'initialLoad').then(async () => {
-        if (!_.isEqual(selectedItems, selectedItemsForJump)) {
-          await changeSelectedItems(selectedItemsForJump);
-        }
-        this.jumpToSelection();
+        this.selectedItemsForJumpObserver();
       });
     }
     array.on(
@@ -542,31 +531,6 @@ export default Component.extend(I18n, {
     registerApi(api);
   }),
 
-  watchFilesArrayInitialLoad: observer(
-    'initialLoad.isFulfilled',
-    function watchFilesArrayInitialLoad() {
-      if (this.get('initialLoad.isFulfilled')) {
-        const {
-          listWatcher,
-          selectedItems,
-        } = this.getProperties('listWatcher', 'selectedItems');
-
-        scheduleOnce('afterRender', () => {
-          const firstSelected = !isEmpty(selectedItems) &&
-            A(selectedItems).sortBy('index').objectAt(0);
-          if (firstSelected) {
-            const entityId = get(firstSelected, 'entityId');
-            this.focusOnRow(entityId);
-          }
-
-          next(() => {
-            listWatcher.scrollHandler();
-          });
-        });
-      }
-    }
-  ),
-
   /**
    * Change of a start or end index could be needed after source array length change
    */
@@ -586,15 +550,22 @@ export default Component.extend(I18n, {
     'selectedItemsForJump',
     async function selectedItemsForJumpObserver() {
       const {
+        selectedItems,
         selectedItemsForJump,
         changeSelectedItems,
-      } = this.getProperties('selectedItemsForJump', 'changeSelectedItems');
+      } = this.getProperties(
+        'selectedItems',
+        'selectedItemsForJump',
+        'changeSelectedItems'
+      );
       if (isEmpty(selectedItemsForJump)) {
         return;
       }
 
-      await changeSelectedItems(selectedItemsForJump);
-      this.jumpToSelection();
+      if (!_.isEqual(selectedItems, selectedItemsForJump)) {
+        await changeSelectedItems(selectedItemsForJump);
+      }
+      return await this.jumpToSelection();
     }
   ),
 
@@ -644,6 +615,7 @@ export default Component.extend(I18n, {
       index,
     } = getProperties(firstSelected, 'entityId', 'index');
 
+    const listWatcher = this.get('listWatcher');
     if (!filesArray.includes(firstSelected)) {
       const jumpResult = await filesArray.scheduleJump(index, 50);
       if (!jumpResult) {
@@ -652,6 +624,13 @@ export default Component.extend(I18n, {
         );
         return;
       }
+      // wait for render of array fragment containing item to jump
+      await sleep(0);
+      listWatcher.scrollHandler();
+      // wait for fetch prev/next resolve
+      await this.get('filesArray.taskQueue').getCurrentTaskPromise();
+      // wait for fetch prev/next result render
+      await sleep(0);
     }
 
     this.focusOnRow(entityId, false);
@@ -674,6 +653,10 @@ export default Component.extend(I18n, {
           this.highlightAnimateRows([rowId]);
         });
       }
+      scheduleOnce('afterRender', () => {
+        // after scroll, rendered list should be checked for changes
+        this.get('listWatcher').scrollHandler();
+      });
       return true;
     } else {
       console.warn(

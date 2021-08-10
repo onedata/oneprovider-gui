@@ -779,14 +779,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       if (uploadDropElement) {
         uploadManager.assignUploadDrop(uploadDropElement);
       } else {
-        console.error(
+        console.debug(
           'util:filesystem-browser-model#onInsertElement: uploadDropElement not found, upload using files drag&drop will not work'
         );
       }
       if (uploadBrowseElement) {
         uploadManager.assignUploadBrowse(uploadBrowseElement);
       } else {
-        console.error(
+        console.debug(
           'util:filesystem-browser-model#onInsertElement: uploadBrowseElement not found, upload using button will not work'
         );
       }
