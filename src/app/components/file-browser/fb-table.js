@@ -401,10 +401,9 @@ export default Component.extend(I18n, {
       initialJumpIndex,
     });
     if (initialJumpIndex) {
-      get(array, 'initialLoad').then(() => {
-        scheduleOnce('afterRender', () => {
-          this.jumpToSelection();
-        });
+      get(array, 'initialLoad').then(async () => {
+        await sleep(0);
+        this.jumpToSelection();
       });
     }
     array.on(
@@ -598,7 +597,6 @@ export default Component.extend(I18n, {
       }
 
       await changeSelectedItems(selectedItemsForJump);
-      // FIXME: maybe we should wait afterRender
       this.jumpToSelection();
     }
   ),
@@ -659,28 +657,26 @@ export default Component.extend(I18n, {
       }
     }
 
-    this.focusOnRow(entityId);
+    this.focusOnRow(entityId, false);
+    this.highlightAnimateRows(selectedItems.mapBy('entityId'));
   },
 
   /**
    * Scrolls to row, so it is visible to user and makes animation on it to gain user's
-   * focus.
+   * attention.
    * @param {String} rowId content of row's `data-row-id`
+   * @param {Boolean} [animate] if true then use highlight animation after scroll
    * @returns {Boolean} true if row was found
    */
-  focusOnRow(rowId) {
-    const {
-      element,
-      rowFocusAnimationClass,
-    } = this.getProperties('element', 'rowFocusAnimationClass');
-    const row = element.querySelector(`[data-row-id="${rowId}"]`);
-    const animationClasses = ['animated', rowFocusAnimationClass];
+  focusOnRow(rowId, animate = true) {
+    const [row] = this.findItemRows([rowId]);
     if (row) {
       row.scrollIntoView({ block: 'center' });
-      row.addEventListener('animationend', () => {
-        row.classList.remove(...animationClasses);
-      }, { once: true });
-      row.classList.add(...animationClasses);
+      if (animate) {
+        scheduleOnce('afterRender', () => {
+          this.highlightAnimateRows([rowId]);
+        });
+      }
       return true;
     } else {
       console.warn(
@@ -688,6 +684,23 @@ export default Component.extend(I18n, {
       );
       return false;
     }
+  },
+
+  highlightAnimateRows(rowsIds) {
+    const rowFocusAnimationClass = this.get('rowFocusAnimationClass');
+    const animationClasses = ['animated', rowFocusAnimationClass];
+    const rowElements = this.findItemRows(rowsIds);
+    rowElements.forEach(rowElement => {
+      rowElement.addEventListener('animationend', () => {
+        rowElement.classList.remove(...animationClasses);
+      }, { once: true });
+      rowElement.classList.add(...animationClasses);
+    });
+  },
+
+  findItemRows(rowsIds) {
+    const selector = rowsIds.map(rowId => `[data-row-id="${rowId}"]`).join(',');
+    return this.get('element').querySelectorAll(selector);
   },
 
   /**
