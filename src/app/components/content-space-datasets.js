@@ -503,8 +503,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   }),
 
-  // FIXME: it should be handled by zone
-  // FIXME: ^^ when user changes attached/detached mode of dataset, list of selected items should be resetted
   clearSelectedObserver: observer(
     'attachmentState',
     'viewMode',
@@ -534,8 +532,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
     this.updateOnezoneDatasetData();
     this.archiveProxyObserver();
-    // FIXME:
-    window.contentSpaceDatasets = this;
   },
 
   willDestroyElement() {
@@ -578,15 +574,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const {
       datasetManager,
       spaceId,
-    } = this.getProperties('datasetManager', 'spaceId');
+      attachmentState,
+    } = this.getProperties('datasetManager', 'spaceId', 'attachmentState');
     if (ids) {
       const datasets =
         await onlyFulfilledValues(ids.map(id =>
           datasetManager.getBrowsableDataset(id)
         ));
       try {
-        // allow only dataset which belong to current space
-        return datasets.filter(dataset => get(dataset, 'spaceId') === spaceId);
+        // allow only dataset which belong to current space and are in currently
+        // chosen state
+        return datasets.filter(dataset =>
+          get(dataset, 'spaceId') === spaceId && get(dataset, 'state') === attachmentState
+        );
       } catch (error) {
         return [];
       }

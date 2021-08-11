@@ -184,7 +184,6 @@ export default OneEmbeddedComponent.extend(
       'initialDirProxy'
     )),
 
-    // FIXME: maybe use the same method as in content-space-datasets (no property overwrite)
     selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
 
     injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
