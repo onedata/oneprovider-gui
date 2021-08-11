@@ -31,6 +31,7 @@ import ViewTester from 'onedata-gui-common/utils/view-tester';
 import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
 import sleep from 'onedata-gui-common/utils/sleep';
+import animateCss from 'onedata-gui-common/utils/animate-css';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -185,7 +186,10 @@ export default Component.extend(I18n, {
    */
   _body: document.body,
 
-  rowFocusAnimationClass: 'flash-bg-file-selected-mint',
+  /**
+   * @type {Array<String>}
+   */
+  rowFocusAnimationClasses: Object.freeze(['pulse-bg-selected-file-highlight', 'slow']),
 
   /**
    * JS time when context menu was last repositioned
@@ -667,14 +671,10 @@ export default Component.extend(I18n, {
   },
 
   highlightAnimateRows(rowsIds) {
-    const rowFocusAnimationClass = this.get('rowFocusAnimationClass');
-    const animationClasses = ['animated', rowFocusAnimationClass];
+    const rowFocusAnimationClasses = this.get('rowFocusAnimationClasses');
     const rowElements = this.findItemRows(rowsIds);
     rowElements.forEach(rowElement => {
-      rowElement.addEventListener('animationend', () => {
-        rowElement.classList.remove(...animationClasses);
-      }, { once: true });
-      rowElement.classList.add(...animationClasses);
+      animateCss(rowElement, ...rowFocusAnimationClasses);
     });
   },
 

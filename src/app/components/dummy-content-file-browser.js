@@ -64,21 +64,31 @@ export default Component.extend({
       openRemove: this.immediatelyRemove.bind(this),
     }));
     // list of tests
-    // this.testJumpToVisible(null);
+    // this.testJumpToVisible(null, 3, 6);
+    this.testBlinkInterval();
     // this.testJumpToVisible(2000);
     // this.testJumpDownFromStart(null);
     // bug - does not render jumped item
     // this.testJumpDownFromStart(2000);
-    this.testJumpUpFromFarMiddle(6000);
+    // this.testJumpUpFromFarMiddle(6000);
   },
 
-  async testJumpToVisible(delay = null) {
+  async testJumpToVisible(delay = null, start = 3, end = 6) {
     if (delay !== null) {
       await sleep(delay);
     }
-    const files = this.get('mockBackend.entityRecords.file').slice(3, 6);
+    const files = this.get('mockBackend.entityRecords.file').slice(start, end);
     console.log('--- select visible files ---');
     this.set('selectedItemsForJumpProxy', promiseArray(resolve(files)));
+  },
+
+  async testBlinkInterval(range = 2, max = 10, interval = 4000) {
+    let i = 0;
+    const intervalHandler = setInterval(() => {
+      this.testJumpToVisible(null, i % max, (i + range) % max);
+      i += range;
+    }, interval);
+    return intervalHandler;
   },
 
   async testJumpDownFromStart(delay = null) {
