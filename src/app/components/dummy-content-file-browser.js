@@ -65,10 +65,9 @@ export default Component.extend({
     }));
     // list of tests
     // this.testJumpToVisible(null, 3, 6);
-    this.testBlinkInterval();
+    // this.testBlinkInterval();
     // this.testJumpToVisible(2000);
     // this.testJumpDownFromStart(null);
-    // bug - does not render jumped item
     // this.testJumpDownFromStart(2000);
     // this.testJumpUpFromFarMiddle(6000);
   },

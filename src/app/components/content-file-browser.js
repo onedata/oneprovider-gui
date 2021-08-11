@@ -245,10 +245,10 @@ export default OneEmbeddedComponent.extend(
           return this.get('fallbackDirProxy');
         }
 
-        const redirectUrl = await this.resolveSelectedParentDirUrl();
-        if (redirectUrl) {
-          _window.open(redirectUrl, navigateTarget);
-          return;
+        const redirectOptions = await this.resolveSelectedParentDirUrl();
+        if (redirectOptions) {
+          _window.open(redirectOptions.dataUrl, navigateTarget);
+          return (await redirectOptions.dirProxy) || this.get('fallbackDirProxy');
         }
 
         try {
@@ -333,8 +333,9 @@ export default OneEmbeddedComponent.extend(
         if (firstSelectedId) {
           const fileManager = this.get('fileManager');
           return fileManager.getFileById(firstSelectedId)
-            .then(file => {
-              const parentId = file && file.relationEntityId('parent');
+            .then(firstSelectedFile => {
+              const parentId = firstSelectedFile &&
+                firstSelectedFile.relationEntityId('parent');
               if (parentId) {
                 const dataUrl = this.callParent(
                   'getDataUrl', {
@@ -342,15 +343,15 @@ export default OneEmbeddedComponent.extend(
                     selected,
                   }
                 );
-                return resolve(dataUrl);
+                return resolve({ dataUrl, dirProxy: get(firstSelectedFile, 'parent') });
               } else if (get(selected, 'length') === 0) {
                 const dataUrl = this.callParent(
                   'getDataUrl', {
-                    fileId: selected[0],
+                    fileId: firstSelectedId,
                     selected: null,
                   }
                 );
-                return resolve(dataUrl);
+                return resolve({ dataUrl, dirProxy: resolve(firstSelectedFile) });
               } else {
                 return resolve(null);
               }

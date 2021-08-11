@@ -845,6 +845,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       selectedItems,
       selectedItemsContainsOnlySymlinks,
     } = this.getProperties('dir', 'selectedItems', 'selectedItemsContainsOnlySymlinks');
+    if (!dir) {
+      return;
+    }
     let tip;
     if (!tip && protectionType) {
       const protectionProperty = `${protectionType}IsProtected`;
