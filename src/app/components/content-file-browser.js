@@ -475,11 +475,8 @@ export default OneEmbeddedComponent.extend(
         removeParentDir: null,
       });
     },
-    openRenameModal(file, parentDir) {
-      this.setProperties({
-        fileToRename: file,
-        renameParentDir: parentDir,
-      });
+    openRenameModal(file) {
+      this.set('fileToRename', file);
     },
     openInfoModal(file, activeTab) {
       this.setProperties({
@@ -509,10 +506,7 @@ export default OneEmbeddedComponent.extend(
       this.set('fileForConfirmDownload', file);
     },
     closeRenameModal() {
-      this.setProperties({
-        fileToRename: null,
-        renameParentDir: null,
-      });
+      this.set('fileToRename', null);
     },
     closeInfoModal() {
       this.set('fileToShowInfo', null);
