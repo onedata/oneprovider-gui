@@ -293,10 +293,7 @@ export default OneEmbeddedComponent.extend(
     },
 
     closeRenameModal() {
-      this.setProperties({
-        fileToRename: null,
-        renameParentDir: null,
-      });
+      this.set('fileToRename', null);
     },
 
     closeInfoModal() {
@@ -378,11 +375,8 @@ export default OneEmbeddedComponent.extend(
         );
         this.closeRemoveModal();
       },
-      openRenameModal(file, parentDir) {
-        this.setProperties({
-          fileToRename: file,
-          renameParentDir: parentDir,
-        });
+      openRenameModal(file) {
+        this.set('fileToRename', file);
       },
       closeRenameModal() {
         this.closeRenameModal();

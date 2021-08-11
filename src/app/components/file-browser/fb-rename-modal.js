@@ -9,7 +9,6 @@
 
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { get } from '@ember/object';
 import FbSetNameModal from 'oneprovider-gui/components/file-browser/fb-set-name-modal';
 import { reads } from '@ember/object/computed';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
@@ -50,7 +49,6 @@ export default FbSetNameModal.extend(I18n, {
         fileManager,
         editValue,
         submitDisabled,
-        parentDir,
         file,
         onHide,
         globalNotify,
@@ -58,7 +56,6 @@ export default FbSetNameModal.extend(I18n, {
         'fileManager',
         'editValue',
         'submitDisabled',
-        'parentDir',
         'file',
         'onHide',
         'globalNotify',
@@ -66,20 +63,20 @@ export default FbSetNameModal.extend(I18n, {
       if (submitDisabled) {
         return resolve();
       }
-      const parentEntityId = get(parentDir, 'entityId');
       this.set('processing', true);
+      const parentId = file.relationEntityId('parent');
       return fileManager
-        .renameFile(get(file, 'entityId'), parentEntityId, editValue)
+        .renameFile(file, editValue)
         .catch(error => {
           onHide.bind(this)(false);
           globalNotify.backendError(this.t('renaming'), error);
-          return refreshFile(file, fileManager, parentEntityId)
+          return refreshFile(file, fileManager, parentId)
             .finally(() => {
               throw error;
             });
         })
         .then(result => {
-          return refreshFile(file, fileManager, parentEntityId)
+          return refreshFile(file, fileManager, parentId)
             .then(() => result);
         })
         .then(({ id: fileId }) => onHide.bind(this)(true, fileId))
