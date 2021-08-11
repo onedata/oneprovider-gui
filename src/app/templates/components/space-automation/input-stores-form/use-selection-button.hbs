@@ -1,0 +1,9 @@
+{{#bs-button
+  type="default"
+  size="sm"
+  class="use-selection-button"
+  disabled=field.hasValueEqualToValueFromSelection
+  onClick=(action "click")
+}}
+  {{tt this "buttonText" itemsCount=field.value.storeUseSelectionDataCount}}
+{{/bs-button}}

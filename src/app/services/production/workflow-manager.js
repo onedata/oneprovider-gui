@@ -16,11 +16,14 @@ import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models
 import { allSettled } from 'rsvp';
 import { reads } from '@ember/object/computed';
 import { bool, and } from 'ember-awesome-macros';
+import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
+import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
 
 export default Service.extend({
   store: service(),
   onedataGraph: service(),
   onedataConnection: service(),
+  currentUser: service(),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -72,14 +75,18 @@ export default Service.extend({
    * @param {Boolean} [fetchOptions.reload=false]
    * @returns {Promise<Models.AtmTaskExecution>}
    */
-  async getAtmTaskExecutionById(taskId, { reload = false } = {}) {
+  async getAtmTaskExecutionById(taskId, {
+    reload = false,
+    backgroundReload = false,
+  } = {}) {
     const taskGri = gri({
       entityType: atmTaskExecutionEntityType,
       entityId: taskId,
       aspect: 'instance',
       scope: 'private',
     });
-    return await this.get('store').findRecord('atmTaskExecution', taskGri, { reload });
+    return await this.get('store')
+      .findRecord('atmTaskExecution', taskGri, { reload, backgroundReload });
   },
 
   /**
@@ -186,6 +193,20 @@ export default Service.extend({
     });
 
     return { array: list, isLast };
+  },
+
+  /**
+   * @returns {PromiseArray<Models.AtmWorkflowSchema>}
+   */
+  getAllKnownAtmWorkflowSchemas() {
+    return promiseArray(
+      this.get('currentUser').getCurrentUserRecord().then(user => {
+        const knownAtmWorkflowSchemasProxy =
+          AllKnownAtmWorkflowSchemasProxyArray.create({ user });
+        return knownAtmWorkflowSchemasProxy.initAsync()
+          .then(() => knownAtmWorkflowSchemasProxy);
+      })
+    );
   },
 
   async pushAtmWorkflowExecutionSummariesToStore(atmWorkflowExecutionSummariesAttrs) {

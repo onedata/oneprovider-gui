@@ -142,7 +142,12 @@ export default BaseBrowserModel.extend(I18n, {
    */
   buttonNames: computed('attachmentState', function buttonNames() {
     if (this.get('attachmentState') === 'detached') {
-      return _.without(allButtonNames, 'btnCreateArchive', 'btnProtection');
+      return _.without(
+        allButtonNames,
+        'btnCreateArchive',
+        'btnProtection',
+        'btnShowFile'
+      );
     } else {
       return [...allButtonNames];
     }

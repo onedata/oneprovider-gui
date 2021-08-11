@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import onedataCommonTranslations from './onedata-gui-common';
 
+import modals from './components/modals';
 import aclEditor from './components/acl-editor';
 import editPermissionsModal from './components/edit-permissions-modal';
 import contentFileBrowser from './components/content-file-browser';
@@ -42,6 +43,7 @@ import workflowActions from './utils/workflow-actions';
 
 const translations = {
   components: {
+    modals,
     aclEditor,
     editPermissionsModal,
     contentFileBrowser,

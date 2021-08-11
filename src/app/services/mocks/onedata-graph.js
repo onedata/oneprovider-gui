@@ -616,18 +616,11 @@ const atmStoreHandlers = {
     );
     const endPositon = Math.min(startPosition + limit, maxEntriesCount);
     const storeEntries = [];
+    const entryGeneratorFunc = entityId.startsWith('auditLog') ?
+      generateAuditLogContentEntry : generateStoreContentEntry;
+
     for (let i = startPosition; i < endPositon; i++) {
-      const valueKeys = _.range(Math.ceil((startPosition + 1) / 10)).map(j => `key${j}`);
-      const value = valueKeys.reduce((obj, key) => {
-        obj[key] = 123;
-        return obj;
-      }, {});
-      storeEntries.push({
-        index: String(i),
-        success: i % 10 !== 5,
-        value: value,
-        error: { id: 'forbidden' },
-      });
+      storeEntries.push(entryGeneratorFunc({ startPosition, index: i }));
     }
 
     return {
@@ -1055,4 +1048,36 @@ function atmWorkflowExecutionSummaryToAttrsData(record) {
   ), {
     atmWorkflowExecution: record.belongsTo('atmWorkflowExecution').id(),
   });
+}
+
+function generateAuditLogContentEntry({ index }) {
+  return {
+    index: String(index),
+    success: index % 20 !== 19,
+    value: {
+      timestamp: Date.now(),
+      severity: ['debug', 'info', 'warning', 'error'][index % 4],
+      entry: {
+        description: 'my description',
+        someOtherValue: '123',
+      },
+    },
+    error: { id: 'forbidden' },
+  };
+}
+
+function generateStoreContentEntry({ startPosition, index }) {
+  const valueKeys = _.range(Math.ceil((startPosition + 1) / 10))
+    .map(j => `key${j}`);
+  const value = valueKeys.reduce((obj, key) => {
+    obj[key] = 123;
+    return obj;
+  }, {});
+
+  return {
+    index: String(index),
+    success: index % 10 !== 5,
+    value: value,
+    error: { id: 'forbidden' },
+  };
 }

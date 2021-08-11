@@ -1,4 +1,9 @@
 {{#promise-proxy-container proxy=defaultFormValuesProxy}}
+  {{#if (gt inputStoresFieldsCollectionGroup.useSelectionPossibilitesCount 1)}}
+    <div class="alert alert-info text-center cannot-guess-store-warning">
+      {{tt this "cannotGuessStoreForSelection"}}
+    </div>
+  {{/if}}
   <form class="form form-horizontal form-component">
     {{form-component/field-renderer field=fields}}
   </form>

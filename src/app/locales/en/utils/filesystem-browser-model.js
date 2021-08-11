@@ -17,6 +17,7 @@ export default _.merge({}, BaseBrowserModel, {
     permissions: 'Permissions',
     qos: 'Quality of Service',
     distribution: 'Data distribution',
+    runWorkflow: 'Run workflow',
     rename: 'Rename',
     createSymlinkSingular: 'Create symbolic link',
     createSymlinkPlural: 'Create symbolic links',
@@ -42,6 +43,7 @@ export default _.merge({}, BaseBrowserModel, {
       symlink: 'symbolic links',
     },
     and: 'and',
+    cannotRunWorkflowOpenfaasNotAvailable: 'This Oneprovider lacks OpenFaaS integration, required to run workflows.',
   },
   pasteFailed: {
     move: 'moving some of files',

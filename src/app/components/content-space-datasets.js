@@ -176,6 +176,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   datasetToCreateArchive: undefined,
 
+  /**
+   * Injected options for archive creation.
+   * @type {CreateArchiveOptions}
+   */
+  createArchiveOptions: undefined,
+
   fileToShowInfo: null,
 
   fileToShowMetadata: null,
@@ -856,9 +862,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * @param {Models.Dataset} dataset dataset for which create archive form will be shown
+   * @param {Object} options
    */
-  openCreateArchiveModal(dataset) {
-    this.set('datasetToCreateArchive', dataset);
+  openCreateArchiveModal(dataset, options) {
+    this.setProperties({
+      datasetToCreateArchive: dataset,
+      createArchiveOptions: options,
+    });
   },
 
   closeCreateArchiveModal() {

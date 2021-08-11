@@ -1,13 +1,22 @@
 {{#promise-proxy-container proxy=dataLoadingProxy}}
-  {{#each sortedAtmWorkflowSchemas as |atmWorkflowSchema|}}
+  <div class="form-group-light search-form-group">
+    <div class="input-group with-icon-addon">
+      {{search-bar search=(action "changeSearchValue") class="form-control"}}
+      <div class="input-group-addon">
+        {{one-icon icon="search"}}
+      </div>
+    </div>
+  </div>
+  {{#each sortedListEntries as |listEntry|}}
     {{space-automation/atm-workflow-schemas-list/list-entry
-      atmWorkflowSchema=atmWorkflowSchema
-      onSelect=(action "atmWorkflowSchemaSelected" atmWorkflowSchema)
+      atmWorkflowSchema=listEntry.atmWorkflowSchema
+      matchesInputData=listEntry.hasMatchingInputStore
+      onSelect=(action "atmWorkflowSchemaSelected" listEntry.atmWorkflowSchema)
     }}
   {{else}}
     <div class="no-workflows-info">
       {{one-icon icon="checkbox-filled-x"}}
-      {{tt this "noWorkflows"}}
+      {{tt this (if atmWorkflowSchemasProxy.length "noWorkflowsInSearch" "noWorkflows")}}
     </div>
   {{/each}}
 {{/promise-proxy-container}}

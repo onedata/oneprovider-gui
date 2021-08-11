@@ -24,6 +24,7 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
     'tab',
     'workflowExecutionId',
     'workflowSchemaId',
+    'fillInputStores',
   ]),
 
   actions: {

@@ -27,6 +27,7 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 import {
@@ -1129,6 +1130,12 @@ export default Service.extend({
       const inventoryAtmWorkflowSchemas = [];
       for (const idx of [0, 1, 2]) {
         const atmWorkflowSchema = await store.createRecord('atmWorkflowSchema', {
+          id: gri({
+            entityType: atmWorkflowSchemaEntityType,
+            entityId: `workflowSchema${get(atmInventory, 'entityId')}-${idx}`,
+            aspect: 'instance',
+            scope: 'private',
+          }),
           name: `workflow ${idx} [${name}]`,
           description: `workflow ${idx} description`,
           stores: [{
@@ -1254,14 +1261,16 @@ export default Service.extend({
               };
               for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
                 const task = parallelBox.tasks[taskIdx];
+                const taskEntityId = generateAtmTaskExecutionEntityId(taskIdx, entityId);
                 const executionTaskRecord = await store.createRecord('atmTaskExecution', {
                   id: gri({
                     entityType: atmTaskExecutionEntityType,
-                    entityId: generateAtmTaskExecutionEntityId(taskIdx, entityId),
+                    entityId: taskEntityId,
                     aspect: 'instance',
                     scope: 'private',
                   }),
                   schemaId: task.id,
+                  systemAuditLogId: `auditLog-task-${taskEntityId}`,
                   status: 'pending',
                   itemsInProcessing: 0,
                   itemsProcessed: 0,
@@ -1282,6 +1291,7 @@ export default Service.extend({
               scope: 'private',
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
+            systemAuditLogId: `auditLog-workflow-${entityId}`,
             lanes: executionLanes,
             scheduleTime,
             startTime,

@@ -3,11 +3,11 @@ import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve } from 'rsvp';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
+import { lookupService } from '../../../helpers/stub-service';
 
 describe('Integration | Component | space automation/atm workflow schemas list', function () {
   setupComponentTest('space-automation/atm-workflow-schemas-list', {
@@ -18,34 +18,24 @@ describe('Integration | Component | space automation/atm workflow schemas list',
     const atmWorkflowSchemas1 = [{
       name: 'workflow3',
       description: 'w3 description',
+      isLoaded: true,
     }, {
       name: 'workflow1',
       description: 'w1 description',
+      isLoaded: true,
     }];
     const atmWorkflowSchemas2 = [{
       name: 'workflow2',
       description: 'w2 description',
+      isLoaded: true,
     }, {
       name: 'workflow4',
       description: 'w4 description',
+      isLoaded: true,
     }];
-    const atmInventories = [{
-      atmWorkflowSchemaList: promiseObject(resolve({
-        list: promiseArray(resolve(atmWorkflowSchemas1)),
-      })),
-    }, {
-      atmWorkflowSchemaList: promiseObject(resolve({
-        list: promiseArray(resolve(atmWorkflowSchemas2)),
-      })),
-    }];
-    this.setProperties({
-      user: {
-        effAtmInventoryList: promiseObject(resolve({
-          list: promiseArray(resolve(atmInventories)),
-        })),
-      },
-      atmWorkflowSchemaSelectSpy: sinon.spy(),
-    });
+    sinon.stub(lookupService(this, 'workflow-manager'), 'getAllKnownAtmWorkflowSchemas')
+      .returns(promiseArray(resolve([...atmWorkflowSchemas1, ...atmWorkflowSchemas2])));
+    this.set('atmWorkflowSchemaSelectSpy', sinon.spy());
   });
 
   it('has class "atm-workflow-schemas-list"', async function () {
@@ -84,7 +74,6 @@ describe('Integration | Component | space automation/atm workflow schemas list',
 async function render(testCase) {
   testCase.render(hbs `
     {{space-automation/atm-workflow-schemas-list
-      user=user
       onAtmWorkflowSchemaSelect=atmWorkflowSchemaSelectSpy
     }}
   `);
