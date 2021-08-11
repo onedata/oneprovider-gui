@@ -601,8 +601,7 @@ export default Component.extend(I18n, {
     this.set('fileClipboardMode', mode);
   },
 
-  // FIXME: probably will fail because change selected items is now async
-  selectCurrentDir() {
+  async selectCurrentDir() {
     const {
       changeSelectedItems,
       dir,
@@ -635,7 +634,7 @@ export default Component.extend(I18n, {
     changeDir(dir) {
       return this.changeDir(dir);
     },
-    toggleCurrentDirActions(open) {
+    async toggleCurrentDirActions(open) {
       if (!this.get('showCurrentDirActions')) {
         return;
       }
@@ -643,7 +642,7 @@ export default Component.extend(I18n, {
       const _open =
         (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
       if (_open) {
-        this.selectCurrentDir();
+        await this.selectCurrentDir();
       }
       this.set('currentDirActionsOpen', _open);
     },
@@ -651,7 +650,6 @@ export default Component.extend(I18n, {
       return this.get('changeSelectedItems')(selectedItems);
     },
     async invokeFileAction(file, btnId, ...actionArgs) {
-      // FIXME: will fail because of async
       await this.get('changeSelectedItems')([file]);
       const btn = this.get('allButtonsHash')[btnId];
       if (!btn) {

@@ -765,8 +765,7 @@ export default Service.extend({
     const entityRecordsArchives = this.set('entityRecords.archive', []);
     const datasets = this.get('entityRecords.dataset');
     const dirDataset = datasets.find(ds => get(ds, 'rootFileType') === 'dir');
-    // FIXME: revert to 5?
-    await this.createArchivesForDataset(dirDataset, 300);
+    await this.createArchivesForDataset(dirDataset, 100);
     await this.setBaseArchive(
       entityRecordsArchives[2],
       entityRecordsArchives[290]

@@ -216,7 +216,6 @@ export default BaseModel.extend(I18n, {
     };
   },
 
-  // FIXME: redundancy with content-space-datasets
   async browserizeDatasets({ childrenRecords, isLast }) {
     const datasetManager = this.get('datasetManager');
     return {

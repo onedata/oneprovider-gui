@@ -194,7 +194,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   //#endregion
 
-  // TODO: VFS-7633 jumping to archive that is not on current list corrupts the list on mock
   /**
    * @override
    */
@@ -874,7 +873,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     } = this.getProperties('_window', 'archiveManager', 'navigateTarget');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
-      // FIXME: try to use changeSelectedItems
       const archiveSelectUrl = this.getDatasetsUrl({
         viewMode: 'archives',
         datasetId: get(dataset, 'entityId'),

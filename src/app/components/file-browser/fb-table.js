@@ -586,8 +586,6 @@ export default Component.extend(I18n, {
     }
     fileManager.registerRefreshHandler(this);
     registerApi(api);
-    // FIXME: debug code
-    window.fbTable = this;
   },
 
   didInsertElement() {
