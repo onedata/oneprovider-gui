@@ -3,24 +3,3 @@
     font-size: 1em;
   }
 }
-
-.file-datasets-summary-header {
-  .modal-header-effective-info {
-    .label.label-modal-header-large {
-      &.protected-tag-enabled {
-        background-color: $dataset-write-protected-color-bg;
-        border-color: $dataset-write-protected-color-border;
-        .one-icon.protection-tag-status-icon {
-          color: $dataset-write-protected-color;
-        }
-      }
-      &.protected-tag-disabled {
-        background-color: $dataset-write-unprotected-color-bg;
-        border-color: $dataset-write-unprotected-color-border;
-        .one-icon.protection-tag-status-icon {
-          color: $dataset-write-unprotected-color;
-        }
-      }
-    }
-  }
-}

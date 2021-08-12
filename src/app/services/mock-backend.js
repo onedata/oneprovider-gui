@@ -645,7 +645,7 @@ export default Service.extend({
       directDataset: dataset,
       effAncestorDatasets: [],
       effProtectionFlags: get(dataset, 'state') === 'attached' ?
-        get(file, 'effProtectionFlags') : [],
+        (get(file, 'effProtectionFlags') || []) : [],
     }, data)).save();
   },
 
@@ -668,18 +668,20 @@ export default Service.extend({
         effProtectionFlags,
       });
       datasets[i] = ancestorDataset;
+      // effProtectionFlags must be set before createDatasetSummary
+      setProperties(ancestorFile, {
+        effDatasetMembership: 'direct',
+        effProtectionFlags: effProtectionFlags,
+      });
       const datasetSummary = await this.createDatasetSummary(
         ancestorFile,
         ancestorDataset, {
           effAncestorDatasets: datasets.slice(0, i),
         }
       );
+      // fileDatasetSummary must be set after createDatasetSummary
+      set(ancestorFile, 'fileDatasetSummary', datasetSummary);
       summaries[i] = datasetSummary;
-      setProperties(ancestorFile, {
-        effDatasetMembership: 'direct',
-        fileDatasetSummary: datasetSummary,
-        effProtectionFlags: effProtectionFlags,
-      });
       this.get('entityRecords.fileDatasetSummary').push(...summaries);
       await ancestorFile.save();
     }

@@ -2,7 +2,7 @@
  * Table body with list of ancestor datasets.
  * The list is collapsible and have a summary on the collapse header. 
  *
- * @module componensts/file-datasets/ancestor-datasets
+ * @module componensts/dataset-protection/ancestor-datasets
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -18,14 +18,14 @@ import { conditional, equal, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   tagName: 'tbody',
-  classNames: ['file-datasets-ancestor-datasets', 'datasets-table-tbody'],
+  classNames: ['dataset-protection-ancestor-datasets', 'datasets-table-tbody'],
 
   i18n: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDatasets.ancestorDatasets',
+  i18nPrefix: 'components.datasetProtection.ancestorDatasets',
 
   /**
    * @virtual
@@ -44,13 +44,6 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   fileType: 'file',
-
-  /**
-   * Mapping of protection type to icon name
-   * @virtual
-   * @type {Object}
-   */
-  protectionIcons: undefined,
 
   /**
    * @virtual

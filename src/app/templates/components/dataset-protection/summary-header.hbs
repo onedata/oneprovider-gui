@@ -1,0 +1,13 @@
+<div class="header-text-container">
+  <h1 class="dataset-protection-modal-header">
+    {{tt this "protectionHeader"}}
+  </h1>
+  {{modal-dataset-subheader
+    datasets=(array dataset)
+  }}
+</div>
+
+{{dataset-protection/effective-info
+  file=file
+  mode="dataset"
+}}

@@ -1,7 +1,7 @@
 /**
  * Provides data for rendering list of dataset-items with ancestor datasets.
  *
- * @module components/file-datasets/datasets-list-container
+ * @module components/dataset-protection/datasets-list-container
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -31,7 +31,7 @@ export default Component.extend({
   datasets: undefined,
 
   /**
-   * File-datasets view mode. See `file-datasets` for details.
+   * File-datasets view mode. See `dataset-protection` for details.
    * @virtual optional
    * @type {String}
    */

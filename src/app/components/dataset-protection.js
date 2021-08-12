@@ -1,23 +1,28 @@
 /**
- * A file-browser view for managing dataset for file or directory.
- * Contains dataset settings with protection settings and archives browser.
+ * FIXME: jsdoc 
  *
- * @module components/file-datasets
+ * @module components/dataset-protection
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { promise } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.datasetProtection',
+
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
   // of modal elements (header/body/footer)
   tagName: '',
@@ -26,11 +31,6 @@ export default Component.extend(I18n, {
   datasetManager: service(),
   fileManager: service(),
   globalNotify: service(),
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.fileDatasets',
 
   /**
    * @virtual optional
@@ -63,17 +63,22 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Array<Models.File>}
+   * @type {Models.File}
    */
-  files: undefined,
+  file: undefined,
 
   /**
-   * Stores load error if fileDatasetSummary could not be loaded.
-   * It can be cleared to try again fetching.
-   * @type {String}
+   * @virtual
+   * @type {Utils.BrowsableDataset}
    */
-  fileDatasetSummaryLoadError: null,
+  browsableDataset: undefined,
 
+  /**
+   * @type {PromiseObject<Utils.BrowsableDataset>}
+   */
+  directDatasetProxy: promise.object(promise.resolve('browsableDataset')),
+
+  // FIXME: redundancy
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
    * privileges.
@@ -89,11 +94,7 @@ export default Component.extend(I18n, {
     }
   ),
 
-  /**
-   * @type {ComputedProperty<Models.File>}
-   */
-  file: reads('files.firstObject'),
-
+  // FIXME: redundancy
   /**
    * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
    */
@@ -110,35 +111,4 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.FileDatasetSummary>}
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
-
-  /**
-   * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
-   */
-  directDatasetProxy: computedRelationProxy(
-    'fileDatasetSummary',
-    'directDataset',
-    Object.freeze({
-      allowNull: true,
-      reload: true,
-    })
-  ),
-
-  /**
-   * @type {ComputedProperty<Models.Dataset>}
-   */
-  directDataset: reads('directDatasetProxy.content'),
-
-  /**
-   * Valid (non-undefined) only if fileDatasetSummaryProxy is settled
-   * @type {ComputedProperty<Boolean>}
-   */
-  hasDirectDatasetEstablished: computed(
-    'fileDatasetSummary.directDataset.content',
-    function hasDirectDatasetEstablished() {
-      const fileDatasetSummary = this.get('fileDatasetSummary');
-      if (fileDatasetSummary) {
-        return Boolean(fileDatasetSummary.belongsTo('directDataset').id());
-      }
-    }
-  ),
 });

@@ -1,7 +1,7 @@
 /**
  * Table body with one dataset item: direct dataset for a file
  *
- * @module components/file-datasets/direct-dataset
+ * @module components/dataset-protection/direct-dataset
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -17,27 +17,20 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 
 export default Component.extend(I18n, {
   tagName: 'tbody',
-  classNames: ['file-datasets-direct-dataset', 'datasets-table-tbody'],
+  classNames: ['dataset-protection-direct-dataset', 'datasets-table-tbody'],
 
   i18n: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDatasets.directDataset',
+  i18nPrefix: 'components.datasetProtection.directDataset',
 
   /**
    * @virtual
    * @type {PromiseObject<Models.Dataset>}
    */
   directDatasetProxy: undefined,
-
-  /**
-   * Mapping of protection type to icon name
-   * @virtual
-   * @type {Object}
-   */
-  protectionIcons: undefined,
 
   /**
    * @virtual

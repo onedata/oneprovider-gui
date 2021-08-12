@@ -1,0 +1,57 @@
+{{#promise-proxy-container
+  proxy=fileDatasetSummaryProxy
+  tagName="div"
+  class="loadable-row dataset-protection-summary-loadable-row"
+  customErrorMessage=(tt this "cannotLoadFileDatasetSummary")
+}}
+  <table class="table datasets-table {{unless media.isMobile "table-striped"}}">
+    <thead class="datasets-table-head">
+      {{#if hasBlock}}
+        <th class="col-dataset-info">
+          {{yield}}
+        </th>
+      {{else}}
+        <th></th>
+      {{/if}}
+      {{#each (array "data" "metadata") as |protectionType|}}
+        <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
+          <span class="protection-header-label">
+            {{tt this (concat "tableHeaders." protectionType)}}
+          </span>
+          {{#one-icon
+            icon="sign-question-rounded"
+            class="hint-trigger protection-label-hint-trigger clickable"
+          }}
+            {{one-tooltip
+              title=(tt this "protectionHeaderHint"
+                fileType=(tt this (concat "fileType." file.type))
+                protectionTypeUpper=(capitalize
+                  (tt this (concat "protectionType." protectionType))
+                )
+                protectionType=(tt this (concat "protectionType." protectionType))
+              )
+            }}
+          {{/one-icon}}
+        </th>
+      {{/each}}
+    </thead>
+    {{dataset-protection/ancestor-datasets
+      ancestorDatasetsProxy=ancestorDatasetsProxy
+      readonly=(not editPrivilege)
+      mode=mode
+      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+      fileType=file.type
+      close=(action close)
+      getDataUrl=(action getDataUrl)
+      getDatasetsUrl=(action getDatasetsUrl)
+      updateOpenedFileData=(action "updateOpenedFileData")
+    }}
+    {{dataset-protection/direct-dataset
+      file=file
+      directDatasetProxy=directDatasetProxy
+      readonly=(not editPrivilege)
+      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+      getDatasetsUrl=getDatasetsUrl
+    }}
+  </table>
+{{/promise-proxy-container}}

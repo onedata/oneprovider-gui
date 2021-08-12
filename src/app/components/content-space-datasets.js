@@ -188,6 +188,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   fileToShare: null,
 
+  datasetToShowProtection: null,
+
+  fileToShowProtection: null,
+
   filesToEditPermissions: null,
 
   filesToShowDistribution: null,
@@ -715,7 +719,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       spaceDatasetsViewState: this,
       getDataUrl: this.getDataUrl.bind(this),
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
-      openDatasetsModal: this.openDatasetsModal.bind(this),
+      openProtectionModal: this.openProtectionModal.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openDatasetOpenModal: this.openDatasetOpenModal.bind(this),
       openArchivesView: this.openArchivesView.bind(this),
@@ -837,14 +841,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   /**
+   * @param {Utils.BrowsableDataset} dataset
    * @param {Models.File} file root file of selected dataset
    */
-  openDatasetsModal(file) {
-    this.set('filesToShowDatasets', [file]);
+  openProtectionModal(dataset, file) {
+    this.setProperties({
+      datasetToShowProtection: dataset,
+      fileToShowProtection: file,
+    });
   },
 
-  closeDatasetsModal() {
-    this.set('filesToShowDatasets', null);
+  closeProtectionModal() {
+    this.setProperties({
+      datasetToShowProtection: null,
+      fileToShowProtection: null,
+    });
   },
 
   openDatasetOpenModal(dataset) {
