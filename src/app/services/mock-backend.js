@@ -769,7 +769,7 @@ export default Service.extend({
     await this.createArchivesForDataset(dirDataset, 100);
     await this.setBaseArchive(
       entityRecordsArchives[2],
-      entityRecordsArchives[290]
+      entityRecordsArchives[90]
     );
     await this.addArchiveDip(entityRecordsArchives[3]);
     const chainDirDataset = datasets.find(ds =>
