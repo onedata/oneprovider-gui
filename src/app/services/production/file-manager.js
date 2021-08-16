@@ -253,10 +253,10 @@ export default Service.extend({
     });
   },
 
-  renameFile(fileEntityId, parentDirEntityId, targetName) {
+  renameFile(file, targetName) {
     return this.get('onedataRpc').request('moveFile', {
-      guid: fileEntityId,
-      targetParentGuid: parentDirEntityId,
+      guid: get(file, 'entityId'),
+      targetParentGuid: file.relationEntityId('parent'),
       targetName,
     });
   },

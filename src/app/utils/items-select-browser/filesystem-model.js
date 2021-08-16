@@ -210,16 +210,10 @@ export default BaseModel.extend(I18n, {
       createItemType: null,
     });
   },
-  openRenameModal(file, parentDir) {
-    this.setProperties({
-      fileToRename: file,
-      renameParentDir: parentDir,
-    });
+  openRenameModal(file) {
+    this.set('fileToRename', file);
   },
   closeRenameModal() {
-    this.setProperties({
-      fileToRename: null,
-      renameParentDir: null,
-    });
+    this.set('fileToRename', null);
   },
 });
