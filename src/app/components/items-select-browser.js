@@ -15,7 +15,6 @@
 import Component from '@ember/component';
 import { computed, get, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { or, not, gt } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -26,6 +25,7 @@ export default Component.extend(I18n, {
   tagName: '',
 
   fileManager: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -80,6 +80,12 @@ export default Component.extend(I18n, {
   dir: reads('selectorModel.dir'),
 
   space: reads('selectorModel.space'),
+
+  submitMode: reads('selectorModel.submitMode'),
+
+  submitLabel: reads('selectorModel.submitLabel'),
+
+  submitDisabled: reads('selectorModel.submitDisabled'),
 
   initialRequiredDataProxy: reads('selectorModel.initialRequiredDataProxy'),
 
@@ -138,13 +144,6 @@ export default Component.extend(I18n, {
     }
   ),
 
-  noItemSelected: not(gt('selectorSelectedItems.length', 0)),
-
-  submitDisabled: or(
-    'noItemSelected',
-    'validationError',
-  ),
-
   submitSingleItem(item) {
     return this.get('onSubmit')([item]);
   },
@@ -173,8 +172,11 @@ export default Component.extend(I18n, {
       const {
         onSubmit,
         selectorSelectedItems,
-      } = this.getProperties('onSubmit', 'selectorSelectedItems');
-      return onSubmit(selectorSelectedItems);
+        submitMode,
+        dir,
+      } = this.getProperties('onSubmit', 'selectorSelectedItems', 'submitMode', 'dir');
+      const items = submitMode === 'currentDir' ? [dir] : selectorSelectedItems;
+      return onSubmit(items);
     },
     updateDirEntityId(dirId) {
       this.get('selectorModel').setDirId(dirId);
