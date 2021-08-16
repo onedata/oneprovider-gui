@@ -21,8 +21,7 @@ describe('Integration | Component | items select browser/footer', function () {
   });
 
   it('disables submit button when submitDisabled is true', function () {
-    const label = 'Custom button label';
-    this.set('submitDisabled', label);
+    this.set('submitDisabled', true);
 
     const $footer = render(this);
 

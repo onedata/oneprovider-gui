@@ -25,7 +25,7 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import _ from 'lodash';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import { conditional, and, raw, equal, not, gt, or, bool } from 'ember-awesome-macros';
+import { conditional, and, raw, equal, or, bool, isEmpty } from 'ember-awesome-macros';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   i18n: service(),
@@ -122,7 +122,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     computedT('confirmSelection'),
   ),
 
-  noItemSelected: not(gt('selectorSelectedItems.length', 0)),
+  noItemSelected: isEmpty('selectorSelectedItems'),
 
   submitDisabled: bool(
     and(
