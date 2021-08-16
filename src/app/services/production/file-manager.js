@@ -277,8 +277,13 @@ export default Service.extend({
     const getFileAttempts = 1000;
     const getFileInterval = 200;
     
-    this.dirChildrenRefreshHandler(
-      getFileAttempts, getFileInterval, parentDirEntityId, name, size, operation
+    this.pollForFileAfterOperation(
+      getFileAttempts,
+      getFileInterval,
+      parentDirEntityId,
+      name,
+      size,
+      operation
     );
     return this.get('onedataRpc')
       .request(`${operation}File`, {
@@ -334,30 +339,40 @@ export default Service.extend({
 
   //#region browser component utils
 
-  dirChildrenRefreshHandler(
-    attempts, interval, parentDirEntityId, name, targetSize, operation
+  pollForFileAfterOperation(
+    attempts,
+    interval,
+    parentDirEntityId,
+    name,
+    targetSize,
+    operation
   ) {
     const scope = 'private';
     const limit = 1;
     const offset = 0;
     const pollSizeAttempts = 10000;
-    const pollSizeInterval = 100;
+    const pollSizeInterval = 1000;
 
     this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
       .then(fetchedFiles => {
         if (
           fetchedFiles.childrenRecords.length > 0 &&
-          fetchedFiles.childrenRecords[0].get('name') == name
+          get(fetchedFiles.childrenRecords[0], 'name') == name
         ) {
           this.dirChildrenRefresh(parentDirEntityId);
           const file = fetchedFiles.childrenRecords[0];
           file.set('currentOperation', operation);
           file.pollSize(pollSizeAttempts, pollSizeInterval, targetSize);
-        }
-        else {
+        } else {
           later(
-            this, 'dirChildrenRefreshHandler',
-            attempts - 1, interval, parentDirEntityId, name, targetSize, operation,
+            this,
+            'dirChildrenRefreshHandler',
+            attempts - 1,
+            interval,
+            parentDirEntityId,
+            name,
+            targetSize,
+            operation,
             interval
           );
         }

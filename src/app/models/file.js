@@ -102,7 +102,8 @@ export const RuntimeProperties = Mixin.create({
    */
   isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
 
-   /**
+  /**
+   * One of `copy`, `move`
    * @type {string}
    */
   currentOperation: '',
