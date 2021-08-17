@@ -9,5 +9,19 @@
   }
 }
 
+@media (max-width: $screen-xs-max) {
+  .file-datasets-part {
+    .file-datasets-summary-header {
+      flex-direction: column;
+      overflow-x: hidden;
+      .modal-header-effective-info {
+        margin-top: 0;
+        text-align: left;
+        font-size: 80%;
+      }
+    }
+  }
+}
+
 @import './file-datasets/direct-dataset-control';
 @import './file-datasets/summary-header';
