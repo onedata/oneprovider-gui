@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7960 Fixed changing space in file browser during files upload
 * VFS-8031 Added select current directory button in items selector (if applicable)
 * VFS-8212 Fixed not working current directory rename
 * VFS-7930 Added "create incremental archive" in archive context menu
