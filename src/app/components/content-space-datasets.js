@@ -22,10 +22,9 @@ import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-roo
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
-import { once } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
-import sleep from 'onedata-gui-common/utils/sleep';
+import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -60,6 +59,7 @@ export const SpaceDatasetsRootClass = BrowsableDataset.extend({
 const mixins = [
   I18n,
   ContentSpaceBaseMixin,
+  ItemBrowserContainerBase,
 ];
 
 export default OneEmbeddedComponent.extend(...mixins, {
@@ -210,7 +210,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'datasetId',
     'selected',
     async function selectedItemsForJumpProxy() {
-      console.log('force selectedItemsForJumpProxy');
       const {
         selected,
         viewMode,
@@ -532,9 +531,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   init() {
     this._super(...arguments);
     this.switchBrowserModel();
-    if (!this.get('selectedItems')) {
-      this.set('selectedItems', []);
-    }
     this.updateOnezoneDatasetData();
     this.archiveProxyObserver();
   },
@@ -982,15 +978,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       .finally(() => {
         safeExec(this, 'set', 'fileForConfirmDownload', null);
       });
-  },
-
-  async changeSelectedItems(selectedItems) {
-    once(this, 'changeSelectedItemsImmediately', selectedItems);
-    await sleep(0);
-  },
-
-  changeSelectedItemsImmediately(selectedItems) {
-    this.set('selectedItems', selectedItems);
   },
 
   actions: {
