@@ -630,7 +630,7 @@ export default Component.extend(I18n, {
       await sleep(0);
       listWatcher.scrollHandler();
       // wait for fetch prev/next resolve
-      await this.get('filesArray.taskQueue').getCurrentTaskPromise();
+      await this.get('filesArray').getCurrentExpandPromise();
       // wait for fetch prev/next result render
       await sleep(0);
     }
