@@ -108,6 +108,11 @@ export const RuntimeProperties = Mixin.create({
    */
   currentOperation: '',
 
+  /**
+   * @type {boolean}
+   */
+  isCopyingMovingStop: false,
+
   dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
   metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
 
@@ -142,19 +147,25 @@ export const RuntimeProperties = Mixin.create({
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
-   * @param {number} attempts
    * @param {number} interval time in milliseconds
    * @param {number} [targetSize=undefined]
+   * @param {number} [attempts=undefined]
    * @returns {undefined}
    */
-  pollSize(attempts, interval, targetSize = undefined) {
+  pollSize(interval, targetSize = undefined, attempts = undefined) {
     const {
       pollSizeTimerId,
       isDeleted,
-    } = this.getProperties('pollSizeTimerId', 'isDeleted');
+      isCopyingMovingStop,
+    } = this.getProperties('pollSizeTimerId', 'isDeleted', 'isCopyingMovingStop');
 
     cancel(pollSizeTimerId);
-    if (isDeleted) {
+    if (isDeleted || isCopyingMovingStop) {
+      this.setProperties({
+        isPollingSize: false,
+        currentOperation: '',
+        isCopyingMovingStop: false,
+      });
       return;
     }
 
@@ -165,10 +176,17 @@ export const RuntimeProperties = Mixin.create({
         isDeleted,
       } = this.getProperties('size', 'isDeleted');
       if (pollSizeTimerId === this.get('pollSizeTimerId')) {
-        if (size !== targetSize && !isDeleted && attempts > 1) {
+        if (size !== targetSize && !isDeleted && (!attempts || attempts > 1)) {
           this.set(
             'pollSizeTimerId',
-            later(this, 'pollSize', attempts - 1, interval, targetSize, interval)
+            later(
+              this,
+              'pollSize',
+              interval,
+              targetSize,
+              attempts ? attempts - 1 : attempts,
+              interval
+            )
           );
         } else {
           this.setProperties({

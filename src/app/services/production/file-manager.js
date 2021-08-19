@@ -15,7 +15,7 @@ import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
 import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
-import { later } from '@ember/runloop';
+import { later, debounce } from '@ember/runloop';
 
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
@@ -275,7 +275,7 @@ export default Service.extend({
     const entityId = get(file, 'entityId');
     const size = get(file, 'size');
     const getFileAttempts = 1000;
-    const getFileInterval = 200;
+    const getFileInterval = 500;
     
     this.pollForFileAfterOperation(
       getFileAttempts,
@@ -291,7 +291,22 @@ export default Service.extend({
         targetParentGuid: parentDirEntityId,
         targetName: name,
       })
-      .finally(() => this.dirChildrenRefresh(parentDirEntityId));
+      .finally(() => {
+        const scope = 'private';
+        const limit = 1;
+        const offset = 0;
+        this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
+          .then(fetchedFiles => {
+            if (
+              fetchedFiles.childrenRecords.length > 0 &&
+              get(fetchedFiles.childrenRecords[0], 'name') == name
+            ) {
+              this.dirChildrenRefresh(parentDirEntityId);
+              const file = fetchedFiles.childrenRecords[0];
+              file.set('isCopyOrMoveStop', true);
+            }
+          });
+      });
   },
 
   getFileDownloadUrl(fileIds, scope = 'private') {
@@ -350,33 +365,34 @@ export default Service.extend({
     const scope = 'private';
     const limit = 1;
     const offset = 0;
-    const pollSizeAttempts = 10000;
     const pollSizeInterval = 1000;
 
-    this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
-      .then(fetchedFiles => {
-        if (
-          fetchedFiles.childrenRecords.length > 0 &&
-          get(fetchedFiles.childrenRecords[0], 'name') == name
-        ) {
-          this.dirChildrenRefresh(parentDirEntityId);
-          const file = fetchedFiles.childrenRecords[0];
-          file.set('currentOperation', operation);
-          file.pollSize(pollSizeAttempts, pollSizeInterval, targetSize);
-        } else {
-          later(
-            this,
-            'dirChildrenRefreshHandler',
-            attempts - 1,
-            interval,
-            parentDirEntityId,
-            name,
-            targetSize,
-            operation,
-            interval
-          );
-        }
-      });
+    if (attempts > 0) {
+      this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
+        .then(fetchedFiles => {
+          if (
+            fetchedFiles.childrenRecords.length > 0 &&
+            get(fetchedFiles.childrenRecords[0], 'name') == name
+          ) {
+            debounce(this, 'dirChildrenRefresh', parentDirEntityId, 100);
+            const file = fetchedFiles.childrenRecords[0];
+            file.set('currentOperation', operation);
+            file.pollSize(pollSizeInterval, targetSize);
+          } else {
+            later(
+              this,
+              'pollForFileAfterOperation',
+              attempts - 1,
+              interval,
+              parentDirEntityId,
+              name,
+              targetSize,
+              operation,
+              interval
+            );
+          }
+        });
+    }
   },
 
   /**
