@@ -176,7 +176,11 @@ export const RuntimeProperties = Mixin.create({
         isDeleted,
       } = this.getProperties('size', 'isDeleted');
       if (pollSizeTimerId === this.get('pollSizeTimerId')) {
-        if (size !== targetSize && !isDeleted && (!attempts || attempts > 1)) {
+        if (
+          size !== targetSize &&
+          !isDeleted &&
+          ((typeof attempts !== 'number') || attempts > 1)
+        ) {
           this.set(
             'pollSizeTimerId',
             later(

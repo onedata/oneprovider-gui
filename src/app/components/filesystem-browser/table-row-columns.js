@@ -11,6 +11,11 @@ import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-
 
 export default FbTableRowColumns.extend({
   /**
+   * @override
+   */
+  i18nPrefix: 'components.filesystemBrowser.tableRowColumns',
+
+  /**
    * @virtual
    * @type {Object}
    */
@@ -21,9 +26,4 @@ export default FbTableRowColumns.extend({
    * @type {Models.File}
    */
   file: undefined,
-
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.filesystemBrowser.tableRowColumns',
 });

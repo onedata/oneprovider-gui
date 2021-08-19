@@ -6,10 +6,10 @@
           {{bytes-to-string file.effFile.size}}
         </span>
         {{#if file.effFile.isShowProgress}}
-        <br>
-        <span class="small">
-          {{tt this file.effFile.currentOperation}}
-        </span>
+          <br>
+          <span class="small">
+            {{tt this file.effFile.currentOperation}}
+          </span>
         {{/if}}
       {{else}}
         {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}

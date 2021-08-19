@@ -16,6 +16,7 @@ import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
 import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
 import { later, debounce } from '@ember/runloop';
+import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
@@ -30,6 +31,12 @@ export default Service.extend({
    * @type {Array<Ember.Component>}
    */
   fileTableComponents: computed(() => []),
+
+  /**
+   * @type {ComputedProperty<Object>} keys: parent dir entity ids (string), 
+   * values: throttled functions
+   */
+  throttledRefresh: computed(() => ({})),
 
   /**
    * @param {String} fileId
@@ -299,7 +306,7 @@ export default Service.extend({
           .then(fetchedFiles => {
             if (
               fetchedFiles.childrenRecords.length > 0 &&
-              get(fetchedFiles.childrenRecords[0], 'name') == name
+              get(fetchedFiles.childrenRecords[0], 'name') === name
             ) {
               this.dirChildrenRefresh(parentDirEntityId);
               const file = fetchedFiles.childrenRecords[0];
@@ -372,7 +379,7 @@ export default Service.extend({
         .then(fetchedFiles => {
           if (
             fetchedFiles.childrenRecords.length > 0 &&
-            get(fetchedFiles.childrenRecords[0], 'name') == name
+            get(fetchedFiles.childrenRecords[0], 'name') === name
           ) {
             debounce(this, 'dirChildrenRefresh', parentDirEntityId, 100);
             const file = fetchedFiles.childrenRecords[0];
@@ -404,6 +411,17 @@ export default Service.extend({
     return allSettled(this.get('fileTableComponents').map(fileBrowser =>
       fileBrowser.onDirChildrenRefresh(parentDirEntityId)
     ));
+  },
+
+  throttledDirChildrenRefresh(parentDirEntityId) {
+    const throttledRefresh = this.get('throttledRefresh');
+    if (!throttledRefresh[parentDirEntityId]) {
+      throttledRefresh[parentDirEntityId] = createThrottledFunction(
+        () => this.get('dirChildrenRefresh')(parentDirEntityId),
+        500
+      ); 
+    }
+    throttledRefresh[parentDirEntityId]();
   },
 
   async fileParentRefresh(file) {
