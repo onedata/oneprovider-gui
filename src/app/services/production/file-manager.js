@@ -303,7 +303,7 @@ export default Service.extend({
             ) {
               this.dirChildrenRefresh(parentDirEntityId);
               const file = fetchedFiles.childrenRecords[0];
-              file.set('isCopyOrMoveStop', true);
+              file.set('isCopyingMovingStop', true);
             }
           });
       });
