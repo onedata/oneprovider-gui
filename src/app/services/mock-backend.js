@@ -1229,6 +1229,13 @@ export default Service.extend({
             }
             executionLanes.push(executionLane);
           }
+          const storeRegistry = get(atmWorkflowSchemaSnapshot, 'stores').reduce(
+            (registry, store) => {
+              const storeId = get(store, 'id');
+              registry[storeId] = `${storeId}instance`;
+              return registry;
+            }, {}
+          );
           const atmWorkflowExecution = await store.createRecord('atmWorkflowExecution', {
             id: gri({
               entityType: atmWorkflowExecutionEntityType,
@@ -1237,6 +1244,7 @@ export default Service.extend({
               scope: 'private',
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
+            storeRegistry,
             systemAuditLogId: `auditLog-workflow-${entityId}`,
             lanes: executionLanes,
             scheduleTime,

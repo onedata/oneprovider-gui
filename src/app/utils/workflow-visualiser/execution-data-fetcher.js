@@ -1,5 +1,5 @@
 /**
- * Real implementation of workflow execution statistics fetcher.
+ * Real implementation of workflow execution data fetcher.
  *
  * @module utils/workflow-visualiser/execution-data-fetcher
  * @author Michał Borzęcki
@@ -85,8 +85,15 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   /**
    * @override
    */
+  async fetchStoreInstanceIdsMapping() {
+    return this.getStoreRegistry();
+  },
+
+  /**
+   * @override
+   */
   async fetchStoreContent(storeSchemaId, startFromIndex, limit, offset) {
-    const storeRegistry = this.get('atmWorkflowExecution.storeRegistry');
+    const storeRegistry = this.getStoreRegistry();
     const storeInstanceId = storeRegistry && storeRegistry[storeSchemaId];
 
     if (!storeInstanceId) {
@@ -155,6 +162,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   },
 
   /**
+   * @private
    * @param {String} storeInstanceId
    * @param {String} startFromIndex
    * @param {number} limit
@@ -164,5 +172,13 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   async fetchStoreInstanceContent(storeInstanceId, startFromIndex, limit, offset) {
     return await this.get('workflowManager')
       .getStoreContent(storeInstanceId, startFromIndex, limit, offset);
+  },
+
+  /**
+   * @private
+   * @returns {Object}
+   */
+  getStoreRegistry() {
+    return this.get('atmWorkflowExecution.storeRegistry');
   },
 });
