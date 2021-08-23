@@ -97,14 +97,10 @@ describe('Integration | Component | space automation/atm workflow executions tab
   });
 
   afterEach(function () {
-    // Reset stubbed actions
-    [
-      CopyRecordIdAction,
-    ].forEach(action => {
-      if (action.prototype.execute.restore) {
-        action.prototype.execute.restore();
-      }
-    });
+    // Reset stubbed action
+    if (CopyRecordIdAction.prototype.execute.restore) {
+      CopyRecordIdAction.prototype.execute.restore();
+    }
   });
 
   it('has class "workflow-row"', async function () {

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8053 Added ID copiers to places related to workflows
 * VFS-8031 Added select current directory button in items selector (if applicable)
 * VFS-8212 Fixed not working current directory rename
 * VFS-7930 Added "create incremental archive" in archive context menu

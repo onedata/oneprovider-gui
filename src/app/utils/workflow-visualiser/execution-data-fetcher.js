@@ -48,6 +48,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   ),
 
   /**
+   * Format of this object is the same as the one, that should be returned from
+   * `fetchInstanceIdsMapping` method.
    * @type {ComputedProperty<PromiseObject<Object>>}
    */
   instanceIdsMappingProxy: promise.object(computed(
