@@ -24,6 +24,8 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import _ from 'lodash';
+import computedT from 'onedata-gui-common/utils/computed-t';
+import { conditional, and, raw, equal, or, bool, isEmpty } from 'ember-awesome-macros';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   i18n: service(),
@@ -31,7 +33,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'utils.baseBrowserModel',
+  i18nPrefix: 'utils.itemsSelectBrowser.baseModel',
 
   /**
    * To inject.
@@ -98,6 +100,39 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   dirId: undefined,
 
   browserSelectedItems: undefined,
+
+  submitCurrentLabel: computedT('submitCurrentLabel', {}, { defaultValue: '' }),
+
+  submitCurrentAvailable: computed(
+    'submitCurrentLabel',
+    function submitCurrentAvailable() {
+      return Boolean(String(this.get('submitCurrentLabel')));
+    }
+  ),
+
+  submitMode: conditional(
+    and('submitCurrentAvailable', 'noItemSelected'),
+    raw('currentDir'),
+    raw('selected'),
+  ),
+
+  submitLabel: conditional(
+    equal('submitMode', raw('currentDir')),
+    'submitCurrentLabel',
+    computedT('confirmSelection'),
+  ),
+
+  noItemSelected: isEmpty('selectorSelectedItems'),
+
+  submitDisabled: bool(
+    and(
+      equal('submitMode', raw('selected')),
+      or(
+        'noItemSelected',
+        'validationError',
+      ),
+    )
+  ),
 
   selectorSelectedItems: computed(
     'browserSelectedItems.[]',

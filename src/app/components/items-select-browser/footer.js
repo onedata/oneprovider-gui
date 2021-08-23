@@ -14,9 +14,12 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['items-select-browser-footer'],
+
+  i18n: service(),
 
   /**
    * @override
@@ -28,6 +31,18 @@ export default Component.extend(I18n, {
    * @type {Array<Object>} array of items (file-like)
    */
   selectedItems: undefined,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  submitDisabled: undefined,
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  submitLabel: undefined,
 
   /**
    * @virtual optional

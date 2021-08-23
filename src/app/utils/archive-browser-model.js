@@ -30,6 +30,7 @@ const allButtonNames = Object.freeze([
   'btnCreateArchive',
   'btnRefresh',
   'btnCopyId',
+  'btnCreateIncrementalArchive',
   'btnDownloadTar',
   'btnBrowseDip',
   'btnPurge',
@@ -71,7 +72,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   /**
    * @virtual
-   * @type {(dataset: Models.Dataset) => any}
+   * @type {(dataset: Models.Dataset, options: Object) => any}
    */
   openCreateArchiveModal: notImplementedThrow,
 
@@ -80,6 +81,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {(datasets: Array<Models.Dataset>) => any}
    */
   openPurgeModal: notImplementedThrow,
+
+  /**
+   * @virtual optional
+   * @type {Number}
+   */
+  refreshInterval: 5 * 1000,
 
   /**
    * Function argument: data for getDataUrl Onezone function
@@ -264,12 +271,53 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         tip: disabledTip,
         disabled: Boolean(disabledTip),
         action: () => {
-          return this.openCreateArchiveModal(this.get('dataset'));
+          const dataset = this.get('dataset');
+          return this.openCreateArchiveModal(dataset);
         },
         showIn: [
           actionContext.inDir,
           actionContext.currentDir,
           actionContext.spaceRootDir,
+        ],
+      });
+    }
+  ),
+
+  btnCreateIncrementalArchive: computed(
+    'dataset',
+    'spacePrivileges.{manageDatasets,createArchives}',
+    function btnCreateArchive() {
+      const {
+        spacePrivileges,
+        i18n,
+      } = this.getProperties(
+        'spacePrivileges',
+        'i18n',
+      );
+      const hasPrivileges = spacePrivileges.manageDatasets &&
+        spacePrivileges.createArchives;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+        });
+      }
+      return this.createFileAction({
+        id: 'createIncrementalArchive',
+        icon: 'browser-archive-add',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: (archives) => {
+          const dataset = this.get('dataset');
+          return this.openCreateArchiveModal(dataset, {
+            baseArchive: archives[0],
+          });
+        },
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
         ],
       });
     }
@@ -323,8 +371,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   init() {
     this._super(...arguments);
+    const refreshInterval = this.get('refreshInterval');
     const refreshLooper = Looper.create({
-      interval: 5 * 1000,
+      interval: refreshInterval,
       browserModel: this,
       immediate: false,
     });
