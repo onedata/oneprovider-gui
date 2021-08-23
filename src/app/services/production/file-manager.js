@@ -15,7 +15,7 @@ import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
 import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
-import { later, debounce } from '@ember/runloop';
+import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 const childrenAttrsAspect = 'children_details';
