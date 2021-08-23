@@ -33,10 +33,10 @@ export default Service.extend({
   fileTableComponents: computed(() => []),
 
   /**
-   * @type {ComputedProperty<Object>} keys: parent dir entity ids (string), 
-   * values: throttled functions
+   * keys: parent dir entity ids (string), values: throttled functions
+   * @type {ComputedProperty<Object>} 
    */
-  throttledRefresh: computed(() => ({})),
+  throttledDirChildrenRefreshCallbacks: computed(() => ({})),
 
   /**
    * @param {String} fileId
@@ -381,7 +381,7 @@ export default Service.extend({
             fetchedFiles.childrenRecords.length > 0 &&
             get(fetchedFiles.childrenRecords[0], 'name') === name
           ) {
-            debounce(this, 'dirChildrenRefresh', parentDirEntityId, 100);
+            this.throttledDirChildrenRefresh(parentDirEntityId);
             const file = fetchedFiles.childrenRecords[0];
             file.set('currentOperation', operation);
             file.pollSize(pollSizeInterval, targetSize);
@@ -414,14 +414,16 @@ export default Service.extend({
   },
 
   throttledDirChildrenRefresh(parentDirEntityId) {
-    const throttledRefresh = this.get('throttledRefresh');
-    if (!throttledRefresh[parentDirEntityId]) {
-      throttledRefresh[parentDirEntityId] = createThrottledFunction(
-        () => this.get('dirChildrenRefresh')(parentDirEntityId),
+    const throttledDirChildrenRefreshCallbacks = this.get(
+      'throttledDirChildrenRefreshCallbacks'
+    );
+    if (!throttledDirChildrenRefreshCallbacks[parentDirEntityId]) {
+      throttledDirChildrenRefreshCallbacks[parentDirEntityId] = createThrottledFunction(
+        () => this.dirChildrenRefresh(parentDirEntityId),
         500
       ); 
     }
-    throttledRefresh[parentDirEntityId]();
+    throttledDirChildrenRefreshCallbacks[parentDirEntityId]();
   },
 
   async fileParentRefresh(file) {
