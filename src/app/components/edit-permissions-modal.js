@@ -40,6 +40,7 @@ export default Component.extend(
 
     i18n: service(),
     globalNotify: service(),
+    fileManager: service(),
 
     /**
      * @override
@@ -514,12 +515,26 @@ export default Component.extend(
           isSaveEnabled,
           onClose,
           globalNotify,
-        } = this.getProperties('isSaveEnabled', 'onClose', 'globalNotify');
+          files,
+          fileManager,
+        } = this.getProperties(
+          'isSaveEnabled',
+          'onClose',
+          'globalNotify',
+          'files',
+          'fileManager'
+        );
         if (isSaveEnabled) {
           return this.save()
             .finally(() => {
               // Trigger modal close
               closeCallback();
+              for (const file of files) {
+                if (file.get('hardlinksCount') > 1) {
+                  fileManager.fileParentRefresh(file);
+                  return;
+                }
+              }
             })
             .then(() => globalNotify.success(this.t('permissionsModifySuccess')))
             .catch(errors => {
