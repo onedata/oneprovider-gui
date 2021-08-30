@@ -11,6 +11,13 @@ import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
+/**
+ * @typedef {CreateArchiveOptions}
+ * Start configuration for create archive modal.
+ * @property {Utils.BrowsableArchive} [baseArchive] if provided, create modal will have
+ *  incremental option enabled and locked, and this archive will be used as base archive
+ */
+
 export default Component.extend({
   tagName: '',
 
@@ -26,6 +33,13 @@ export default Component.extend({
    * @type {Models.Dataset}
    */
   dataset: undefined,
+
+  /**
+   * Injected options for archive creation.
+   * @virtual optional
+   * @type {CreateArchiveOptions}
+   */
+  options: undefined,
 
   /**
    * @virtual

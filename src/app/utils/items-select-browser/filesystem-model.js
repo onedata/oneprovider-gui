@@ -112,6 +112,20 @@ export default BaseModel.extend(I18n, {
     }
   ),
 
+  submitCurrentAvailable: computed(
+    'submitCurrentLabel',
+    'allowedFileTypes.[]',
+    function submitCurrentAvailable() {
+      const base = this._super(...arguments);
+      if (base) {
+        const allowedFileTypes = this.get('allowedFileTypes');
+        return (allowedFileTypes || []).includes('dir');
+      } else {
+        return base;
+      }
+    }
+  ),
+
   spaceObserver: observer('space', function spaceObserver() {
     const {
       uploadManager,
@@ -210,16 +224,10 @@ export default BaseModel.extend(I18n, {
       createItemType: null,
     });
   },
-  openRenameModal(file, parentDir) {
-    this.setProperties({
-      fileToRename: file,
-      renameParentDir: parentDir,
-    });
+  openRenameModal(file) {
+    this.set('fileToRename', file);
   },
   closeRenameModal() {
-    this.setProperties({
-      fileToRename: null,
-      renameParentDir: null,
-    });
+    this.set('fileToRename', null);
   },
 });
