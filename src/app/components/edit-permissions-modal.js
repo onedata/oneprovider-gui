@@ -529,11 +529,9 @@ export default Component.extend(
             .finally(() => {
               // Trigger modal close
               closeCallback();
-              for (const file of files) {
-                if (file.get('hardlinksCount') > 1) {
-                  fileManager.fileParentRefresh(file);
-                  return;
-                }
+              const hardlinkedFile = files.find(file => get(file, 'hardlinksCount') > 1);
+              if (hardlinkedFile) {
+                fileManager.fileParentRefresh(hardlinkedFile);
               }
             })
             .then(() => globalNotify.success(this.t('permissionsModifySuccess')))

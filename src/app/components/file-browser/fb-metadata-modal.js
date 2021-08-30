@@ -388,18 +388,16 @@ export default Component.extend(...mixins, {
               });
             });
           });
-        })
-        .then(() => {
-          this.get('onHide')();
-        })
-        .then(() => {
           const {
             file,
             fileManager,
           } = this.getProperties('file', 'fileManager');
-          if (file.get('hardlinksCount') > 1) {
+          if (get(file, 'hardlinksCount') > 1) {
             fileManager.fileParentRefresh(file);
           }
+        })
+        .then(() => {
+          this.get('onHide')();
         });
     },
     metadataChanged(type, data) {
