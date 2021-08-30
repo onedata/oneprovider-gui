@@ -30,6 +30,7 @@ import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive'
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
@@ -1192,12 +1193,23 @@ export default Service.extend({
               'lanes'
             )
           ).save();
+          const storeRegistry = get(atmWorkflowSchemaSnapshot, 'stores').reduce(
+            (registry, store) => {
+              const storeId = get(store, 'id');
+              registry[storeId] = `${storeId}instance`;
+              return registry;
+            }, {}
+          );
           const executionLanes = [];
           for (const lane of lanes) {
             const executionLane = {
               schemaId: lane.id,
-              status: 'pending',
-              parallelBoxes: [],
+              runs: [{
+                runNo: 1,
+                iteratedStoreId: storeRegistry[lane.storeIteratorSpec.storeSchemaId],
+                status: 'pending',
+                parallelBoxes: [],
+              }],
             };
             for (const parallelBox of lane.parallelBoxes) {
               const executionParallelBox = {
@@ -1208,6 +1220,11 @@ export default Service.extend({
               for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
                 const task = parallelBox.tasks[taskIdx];
                 const taskEntityId = generateAtmTaskExecutionEntityId(taskIdx, entityId);
+                const systemAuditLogId = `auditLog-task-${taskEntityId}`;
+                await this.createAtmStore(systemAuditLogId, {
+                  type: 'auditLog',
+                  dataSpec: { type: 'object' },
+                });
                 const executionTaskRecord = await store.createRecord('atmTaskExecution', {
                   id: gri({
                     entityType: atmTaskExecutionEntityType,
@@ -1216,7 +1233,7 @@ export default Service.extend({
                     scope: 'private',
                   }),
                   schemaId: task.id,
-                  systemAuditLogId: `auditLog-task-${taskEntityId}`,
+                  systemAuditLogId,
                   status: 'pending',
                   itemsInProcessing: 0,
                   itemsProcessed: 0,
@@ -1225,17 +1242,15 @@ export default Service.extend({
                 executionParallelBox.taskRegistry[task.id] =
                   get(executionTaskRecord, 'entityId');
               }
-              executionLane.parallelBoxes.push(executionParallelBox);
+              executionLane.runs[0].parallelBoxes.push(executionParallelBox);
             }
             executionLanes.push(executionLane);
           }
-          const storeRegistry = get(atmWorkflowSchemaSnapshot, 'stores').reduce(
-            (registry, store) => {
-              const storeId = get(store, 'id');
-              registry[storeId] = `${storeId}instance`;
-              return registry;
-            }, {}
-          );
+          const systemAuditLogId = `auditLog-workflow-${entityId}`;
+          await this.createAtmStore(systemAuditLogId, {
+            type: 'auditLog',
+            dataSpec: { type: 'object' },
+          });
           const atmWorkflowExecution = await store.createRecord('atmWorkflowExecution', {
             id: gri({
               entityType: atmWorkflowExecutionEntityType,
@@ -1245,7 +1260,7 @@ export default Service.extend({
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
             storeRegistry,
-            systemAuditLogId: `auditLog-workflow-${entityId}`,
+            systemAuditLogId,
             lanes: executionLanes,
             scheduleTime,
             startTime,
@@ -1277,6 +1292,18 @@ export default Service.extend({
     this.set('entityRecords.atmWorkflowExecution', atmWorkflowExecutions);
     this.set('entityRecords.atmWorkflowExecutionSummary', atmWorkflowExecutionSummaries);
     return atmWorkflowExecutions;
+  },
+
+  async createAtmStore(atmStoreEntityId, data) {
+    const id = gri({
+      entityType: atmStoreEntityType,
+      entityId: atmStoreEntityId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .createRecord('atmStore', Object.assign({ id }, data))
+      .save();
   },
 
   createEntityRecords(store, type, names, additionalInfo) {

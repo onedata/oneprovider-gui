@@ -8,17 +8,12 @@
  */
 
 import ExecutionDataFetcher from 'onedata-gui-common/utils/workflow-visualiser/execution-data-fetcher';
-import { get, getProperties, computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import { get, getProperties } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
-import _ from 'lodash';
-import { hash } from 'rsvp';
-import { normalizeWorkflowStatus } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
-import { promise } from 'ember-awesome-macros';
+import { taskEndedStatuses } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 
 const notFoundError = { id: 'notFound' };
-const emptyStoreContent = { array: [], isLast: true };
 
 export default ExecutionDataFetcher.extend(OwnerInjector, {
   workflowManager: service(),
@@ -30,102 +25,55 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   atmWorkflowExecution: undefined,
 
   /**
-   * @type {ComputedProperty<Object>}
+   * Mapping: (atmTaskExecutionInstanceId: string) -> Model.AtmTaskExecution
+   * @type {Object}
    */
-  storeRegistry: reads('atmWorkflowExecution.storeRegistry'),
+  atmTaskExecutionRecordsCache: undefined,
 
   /**
-   * @type {ComputedProperty<Object>}
+   * Mapping: (atmStoreInstanceId: string) -> Model.AtmStore
+   * @type {Object}
    */
-  taskRegistry: computed(
-    'atmWorkflowExecution.lanes',
-    function taskRegistry() {
-      const lanes = this.get('atmWorkflowExecution.lanes');
-      const parallelBoxes = _.flatten(lanes.mapBy('parallelBoxes'));
-      return parallelBoxes.mapBy('taskRegistry')
-        .reduce((gtr, tr) => Object.assign(gtr, tr), {});
-    }
-  ),
+  atmStoreRecordsCache: undefined,
 
-  /**
-   * Format of this object is the same as the one, that should be returned from
-   * `fetchInstanceIdsMapping` method.
-   * @type {ComputedProperty<PromiseObject<Object>>}
-   */
-  instanceIdsMappingProxy: promise.object(computed(
-    'atmWorkflowExecution.{entityId,systemAuditLogId}',
-    'storeRegistry',
-    'taskRegistry',
-    async function instanceIdsMappingProxy() {
-      const taskExecutionRecords = await this.fetchTaskExecutionRecords();
-      const taskSystemAuditLog = Object.keys(taskExecutionRecords)
-        .reduce((storeIdsMap, taskSchemaId) => {
-          storeIdsMap[taskSchemaId] =
-            get(taskExecutionRecords, `${taskSchemaId}.systemAuditLogId`);
-          return storeIdsMap;
-        }, {});
+  init() {
+    this._super(...arguments);
 
-      return {
-        workflow: this.get('atmWorkflowExecution.entityId'),
-        task: this.get('taskRegistry') || {},
-        store: {
-          global: this.get('storeRegistry') || {},
-          taskSystemAuditLog,
-          workflowSystemAuditLog: this.get('atmWorkflowExecution.systemAuditLogId'),
-        },
-      };
-    }
-  )),
+    this.setProperties({
+      atmTaskExecutionRecordsCache: {},
+      atmStoreRecordsCache: {},
+    });
+  },
 
   /**
    * @override
    */
-  async fetchStatuses() {
-    const atmWorkflowExecution = this.get('atmWorkflowExecution');
-    await atmWorkflowExecution.reload();
+  async fetchExecutionState() {
+    await this.reloadAtmWorkflowExecution();
 
-    const lanes = get(atmWorkflowExecution, 'lanes');
-    const parallelBoxes = _.flatten(lanes.mapBy('parallelBoxes'));
-    const taskExecutionRecords = await this.fetchTaskExecutionRecords(true);
+    const workflowExecutionState = this.getWorkflowExecutionState();
+    const lanesExecutionState = this.getLanesExecutionState();
+    const parallelBoxesExecutionState = this.getParallelBoxesExecutionState();
+    const tasksExecutionState = await this.getTasksExecutionState();
+    const storesExecutionState = await this.getStoresExecutionState({
+      workflowExecutionState,
+      lanesExecutionState,
+      tasksExecutionState,
+    });
 
     return {
-      global: {
-        status: normalizeWorkflowStatus(get(atmWorkflowExecution, 'status')),
-      },
-      lane: lanes.reduce((laneStatuses, { schemaId, status }) => {
-        laneStatuses[schemaId] = { status };
-        return laneStatuses;
-      }, {}),
-      parallelBox: parallelBoxes.reduce((parallelBoxStatuses, { schemaId, status }) => {
-        parallelBoxStatuses[schemaId] = { status };
-        return parallelBoxStatuses;
-      }, {}),
-      task: Object.keys(taskExecutionRecords).reduce((taskStatuses, taskSchemaId) => {
-        taskStatuses[taskSchemaId] = getProperties(
-          get(taskExecutionRecords, taskSchemaId),
-          'status',
-          'itemsInProcessing',
-          'itemsProcessed',
-          'itemsFailed'
-        );
-        return taskStatuses;
-      }, {}),
+      workflow: workflowExecutionState,
+      lane: lanesExecutionState,
+      parallelBox: parallelBoxesExecutionState,
+      task: tasksExecutionState,
+      store: storesExecutionState,
     };
   },
 
   /**
    * @override
    */
-  async fetchInstanceIdsMapping() {
-    return await this.get('instanceIdsMappingProxy');
-  },
-
-  /**
-   * @override
-   */
-  async fetchStoreContent(storeSchemaId, startFromIndex, limit, offset) {
-    const storeInstanceId = (this.get('storeRegistry') || {})[storeSchemaId];
-
+  async fetchStoreContent(storeInstanceId, startFromIndex, limit, offset) {
     if (!storeInstanceId) {
       console.error(
         'util:workflow-visualiser/execution-data-fetcher#fetchStoreContent: invalid storeSchemaId',
@@ -133,93 +81,286 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
       throw notFoundError;
     }
 
-    return await this.fetchStoreInstanceContent(
-      storeInstanceId,
-      startFromIndex,
-      limit,
-      offset
-    );
-  },
-
-  /**
-   * @override
-   */
-  async fetchWorkflowAuditLogContent(startFromIndex, limit, offset) {
-    const auditLogStoreId = this.get('atmWorkflowExecution.systemAuditLogId');
-    // Workflow executions from some alpha releases do not have auditLog stores attached.
-    if (!auditLogStoreId) {
-      return emptyStoreContent;
-    }
-
-    return await this.fetchStoreInstanceContent(
-      auditLogStoreId,
-      startFromIndex,
-      limit,
-      offset
-    );
-  },
-
-  /**
-   * @override
-   */
-  async fetchTaskAuditLogContent(taskSchemaId, startFromIndex, limit, offset) {
-    const {
-      taskRegistry,
-      workflowManager,
-    } = this.getProperties('taskRegistry', 'workflowManager');
-    const taskExecutionId = taskRegistry[taskSchemaId];
-    if (!taskExecutionId) {
-      console.error(
-        'util:workflow-visualiser/execution-data-fetcher#fetchTaskAuditLogContent: invalid taskSchemaId',
-      );
-      throw notFoundError;
-    }
-
-    const taskExecutionRecord =
-      await workflowManager.getAtmTaskExecutionById(taskExecutionId);
-    const auditLogStoreId = get(taskExecutionRecord, 'systemAuditLogId');
-    // Task executions from some alpha releases do not have auditLog stores attached.
-    if (!auditLogStoreId) {
-      return emptyStoreContent;
-    }
-
-    return await this.fetchStoreInstanceContent(
-      auditLogStoreId,
-      startFromIndex,
-      limit,
-      offset
-    );
-  },
-
-  /**
-   * @private
-   * @param {String} storeInstanceId
-   * @param {String} startFromIndex
-   * @param {number} limit
-   * @param {number} offset
-   * @returns {Promise<{array: Array<StoreContentEntry>, isLast: Boolean}>}
-   */
-  async fetchStoreInstanceContent(storeInstanceId, startFromIndex, limit, offset) {
     return await this.get('workflowManager')
       .getStoreContent(storeInstanceId, startFromIndex, limit, offset);
   },
 
-  /**
-   * @param {Boolean} [reload=false]
-   * @returns {Promise<Object>} Key is task schema id, value is task execution record
-   */
-  async fetchTaskExecutionRecords(reload = false) {
+  async reloadAtmWorkflowExecution() {
+    await this.get('atmWorkflowExecution').reload();
+  },
+
+  getWorkflowExecutionState() {
+    const atmWorkflowExecution = this.get('atmWorkflowExecution');
     const {
-      workflowManager,
-      taskRegistry,
-    } = this.getProperties('workflowManager', 'taskRegistry');
-    return await hash(
-      Object.keys(taskRegistry).reduce((promiseHash, taskSchemaId) => {
-        const taskInstanceId = taskRegistry[taskSchemaId];
-        promiseHash[taskSchemaId] =
-          workflowManager.getAtmTaskExecutionById(taskInstanceId, { reload });
-        return promiseHash;
-      }, {})
+      entityId: instanceId,
+      systemAuditLogId,
+      status,
+    } = getProperties(
+      atmWorkflowExecution,
+      'entityId',
+      'systemAuditLogId',
+      'status'
     );
+
+    return {
+      instanceId,
+      systemAuditLogStoreInstanceId: systemAuditLogId,
+      status,
+    };
+  },
+
+  getLanesExecutionState() {
+    const lanesExecutionState = {};
+    for (const lane of this.getAtmWorkflowExecutionLanes()) {
+      const laneSchemaId = lane.schemaId;
+      const runsState = {};
+      for (const run of this.getLaneRuns(lane)) {
+        runsState[run.runNo] = {
+          iteratedStoreInstanceId: run.iteratedStoreId,
+          status: run.status,
+        };
+      }
+
+      lanesExecutionState[laneSchemaId] = {
+        runs: runsState,
+      };
+    }
+
+    return lanesExecutionState;
+  },
+
+  getParallelBoxesExecutionState() {
+    const parallelBoxesExecutionState = {};
+    for (const lane of this.getAtmWorkflowExecutionLanes()) {
+      for (const run of this.getLaneRuns(lane)) {
+        for (const parallelBox of this.getRunParallelBoxes(run)) {
+          const parallelBoxSchemaId = parallelBox.schemaId;
+          if (!(parallelBoxSchemaId in parallelBoxesExecutionState)) {
+            parallelBoxesExecutionState[parallelBoxSchemaId] = {
+              runs: {},
+            };
+          }
+
+          parallelBoxesExecutionState[parallelBoxSchemaId].runs[run.runNo] = {
+            status: parallelBox.status,
+          };
+        }
+      }
+    }
+
+    return parallelBoxesExecutionState;
+  },
+
+  async getTasksExecutionState() {
+    const tasksExecutionState = {};
+    for (const lane of this.getAtmWorkflowExecutionLanes()) {
+      for (const run of this.getLaneRuns(lane)) {
+        for (const parallelBox of this.getRunParallelBoxes(run)) {
+          const atmTaskExecutionRecords =
+            await this.getParallelBoxTasks(parallelBox, { reload: true });
+          for (const atmTaskExecutionRecord of atmTaskExecutionRecords) {
+            const {
+              entityId: taskInstanceId,
+              schemaId: taskSchemaId,
+              systemAuditLogId,
+              status,
+              itemsInProcessing,
+              itemsProcessed,
+              itemsFailed,
+            } = getProperties(
+              atmTaskExecutionRecord,
+              'entityId',
+              'schemaId',
+              'systemAuditLogId',
+              'status',
+              'itemsInProcessing',
+              'itemsProcessed',
+              'itemsFailed'
+            );
+
+            if (!(taskSchemaId in tasksExecutionState)) {
+              tasksExecutionState[taskSchemaId] = {
+                runs: {},
+              };
+            }
+            tasksExecutionState[taskSchemaId].runs[run.runNo] = {
+              instanceId: taskInstanceId,
+              systemAuditLogStoreInstanceId: systemAuditLogId,
+              status,
+              itemsInProcessing,
+              itemsProcessed,
+              itemsFailed,
+            };
+          }
+        }
+      }
+    }
+    return tasksExecutionState;
+  },
+
+  async getStoresExecutionState({
+    workflowExecutionState,
+    lanesExecutionState,
+    tasksExecutionState,
+  }) {
+    const definedStores = this.getDefinedStoresExecutionState();
+    const definedStoreInstanceIds =
+      Object.values(definedStores).mapBy('instanceId').compact();
+    const generatedStores = await this.getGeneratedStoresExecutionState({
+      workflowExecutionState,
+      lanesExecutionState,
+      tasksExecutionState,
+      definedStoreInstanceIds,
+    });
+    return {
+      defined: definedStores,
+      generated: generatedStores,
+    };
+  },
+
+  getDefinedStoresExecutionState() {
+    const storeRegistry = this.get('atmWorkflowExecution.storeRegistry') || {};
+    const definedStoresExecutionState = {};
+    for (const storeSchemaId in storeRegistry) {
+      const storeInstanceId = storeRegistry[storeSchemaId];
+      if (storeInstanceId) {
+        definedStoresExecutionState[storeSchemaId] = {
+          instanceId: storeInstanceId,
+        };
+      }
+    }
+    return definedStoresExecutionState;
+  },
+
+  async getGeneratedStoresExecutionState({
+    workflowExecutionState,
+    lanesExecutionState,
+    tasksExecutionState,
+    definedStoreInstanceIds,
+  }) {
+    const generatedStoreInstanceIds = new Set();
+    if (workflowExecutionState.systemAuditLogStoreInstanceId) {
+      generatedStoreInstanceIds.add(
+        workflowExecutionState.systemAuditLogStoreInstanceId
+      );
+    }
+
+    const storeInstanceIdsArrays = [];
+    for (const laneExecutionState of Object.values(lanesExecutionState)) {
+      const runs = Object.values(laneExecutionState.runs);
+      storeInstanceIdsArrays.push(
+        runs.mapBy('iteratedStoreInstanceId').compact()
+      );
+    }
+    for (const taskExecutionState of Object.values(tasksExecutionState)) {
+      const runs = Object.values(taskExecutionState.runs);
+      storeInstanceIdsArrays.push(
+        runs.mapBy('systemAuditLogStoreInstanceId').compact()
+      );
+    }
+    for (const storeInstanceIdsArray of storeInstanceIdsArrays) {
+      for (const storeInstanceId of storeInstanceIdsArray) {
+        if (!storeInstanceId) {
+          continue;
+        }
+        generatedStoreInstanceIds.add(storeInstanceId);
+      }
+    }
+
+    for (const definedStoreInstanceId of definedStoreInstanceIds) {
+      generatedStoreInstanceIds.delete(definedStoreInstanceId);
+    }
+
+    const generatedStores = {};
+    for (const storeInstanceId of generatedStoreInstanceIds) {
+      const store = await this.getAtmStoreRecord(storeInstanceId);
+      const {
+        type,
+        dataSpec,
+        initialValue,
+      } = getProperties(store, 'type', 'dataSpec', 'initialValue');
+      generatedStores[storeInstanceId] = {
+        instanceId: storeInstanceId,
+        type,
+        dataSpec,
+        defaultInitialValue: initialValue,
+      };
+    }
+
+    return generatedStores;
+  },
+
+  getAtmWorkflowExecutionLanes() {
+    return (this.get('atmWorkflowExecution.lanes') || []).filterBy('schemaId');
+  },
+
+  getLaneRuns(lane) {
+    return (lane && lane.runs || [])
+      .filter((run) => run && (typeof run.runNo === 'number'));
+  },
+
+  getRunParallelBoxes(run) {
+    return (run && run.parallelBoxes || []).filterBy('schemaId');
+  },
+
+  async getParallelBoxTasks(parallelBox, { reload = false }) {
+    const taskRegistry = parallelBox && parallelBox.taskRegistry || {};
+    const tasks = [];
+    for (const taskSchemaId in taskRegistry) {
+      const taskInstanceId = taskRegistry[taskSchemaId];
+      if (!taskInstanceId) {
+        continue;
+      }
+
+      tasks.push(await this.getAtmTaskExecutionRecord(taskInstanceId, { reload }));
+    }
+
+    return tasks;
+  },
+
+  async getAtmTaskExecutionRecord(atmTaskInstanceId, { reload = false }) {
+    const {
+      atmTaskExecutionRecordsCache,
+      workflowManager,
+    } = this.getProperties(
+      'atmTaskExecutionRecordsCache',
+      'workflowManager'
+    );
+
+    const cachedAtmTaskExecutionRecord =
+      atmTaskExecutionRecordsCache[atmTaskInstanceId];
+    const isCachedAtmTaskExecutionEnded = cachedAtmTaskExecutionRecord &&
+      taskEndedStatuses.includes(get(cachedAtmTaskExecutionRecord, 'status'));
+    if (
+      atmTaskExecutionRecordsCache[atmTaskInstanceId] &&
+      (isCachedAtmTaskExecutionEnded || !reload)
+    ) {
+      return atmTaskExecutionRecordsCache[atmTaskInstanceId];
+    }
+
+    const atmTaskExecutionRecord = await workflowManager
+      .getAtmTaskExecutionById(atmTaskInstanceId, { reload });
+    atmTaskExecutionRecordsCache[atmTaskInstanceId] = atmTaskExecutionRecord;
+    return atmTaskExecutionRecord;
+  },
+
+  async getAtmStoreRecord(atmStoreInstanceId) {
+    const {
+      atmStoreRecordsCache,
+      workflowManager,
+    } = this.getProperties(
+      'atmStoreRecordsCache',
+      'workflowManager'
+    );
+
+    const cachedAtmStoreRecord = atmStoreRecordsCache[atmStoreInstanceId];
+    if (cachedAtmStoreRecord) {
+      return cachedAtmStoreRecord;
+    }
+
+    const atmStoreRecord =
+      await workflowManager.getAtmStoreById(atmStoreInstanceId);
+    atmStoreRecordsCache[atmStoreInstanceId] = atmStoreRecord;
+    return atmStoreRecord;
   },
 });

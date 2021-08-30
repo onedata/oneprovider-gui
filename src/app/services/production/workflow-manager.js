@@ -13,6 +13,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import { allSettled } from 'rsvp';
 import { reads } from '@ember/object/computed';
 import { bool, and } from 'ember-awesome-macros';
@@ -73,6 +74,7 @@ export default Service.extend({
   /**
    * @param {String} taskId
    * @param {Boolean} [fetchOptions.reload=false]
+   * @param {Boolean} [fetchOptions.backgroundReload=false]
    * @returns {Promise<Models.AtmTaskExecution>}
    */
   async getAtmTaskExecutionById(taskId, {
@@ -87,6 +89,26 @@ export default Service.extend({
     });
     return await this.get('store')
       .findRecord('atmTaskExecution', taskGri, { reload, backgroundReload });
+  },
+
+  /**
+   * @param {String} storeId
+   * @param {Boolean} [fetchOptions.reload=false]
+   * @param {Boolean} [fetchOptions.backgroundReload=false]
+   * @returns {Promise<Models.AtmStore>}
+   */
+  async getAtmStoreById(storeId, {
+    reload = false,
+    backgroundReload = false,
+  } = {}) {
+    const storeGri = gri({
+      entityType: atmStoreEntityType,
+      entityId: storeId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .findRecord('atmStore', storeGri, { reload, backgroundReload });
   },
 
   /**
@@ -177,7 +199,7 @@ export default Service.extend({
 
     const onedataGraph = this.get('onedataGraph');
     const storeContentGri = gri({
-      entityType: 'op_atm_store',
+      entityType: atmStoreEntityType,
       entityId: storeInstanceId,
       aspect: 'content',
     });
