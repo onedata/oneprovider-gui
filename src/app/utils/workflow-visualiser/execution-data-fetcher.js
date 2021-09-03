@@ -116,6 +116,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
       const runsState = {};
       for (const run of this.getLaneRuns(lane)) {
         runsState[run.runNo] = {
+          runNo: run.runNo,
+          sourceRunNo: run.sourceRunNo,
           iteratedStoreInstanceId: run.iteratedStoreId,
           status: run.status,
         };
@@ -142,6 +144,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
           }
 
           parallelBoxesExecutionState[parallelBoxSchemaId].runs[run.runNo] = {
+            runNo: run.runNo,
             status: parallelBox.status,
           };
         }
@@ -184,6 +187,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
               };
             }
             tasksExecutionState[taskSchemaId].runs[run.runNo] = {
+              runNo: run.runNo,
               instanceId: taskInstanceId,
               systemAuditLogStoreInstanceId: systemAuditLogId,
               status,

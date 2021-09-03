@@ -1201,50 +1201,63 @@ export default Service.extend({
             }, {}
           );
           const executionLanes = [];
-          for (const lane of lanes) {
-            const executionLane = {
-              schemaId: lane.id,
-              runs: [{
-                runNo: 1,
-                iteratedStoreId: storeRegistry[lane.storeIteratorSpec.storeSchemaId],
-                status: 'pending',
-                parallelBoxes: [],
-              }],
-            };
-            for (const parallelBox of lane.parallelBoxes) {
-              const executionParallelBox = {
-                schemaId: parallelBox.id,
-                status: 'pending',
-                taskRegistry: {},
+          if (i < 5) {
+            for (const lane of lanes) {
+              const executionLane = {
+                schemaId: lane.id,
+                runs: [],
               };
-              for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
-                const task = parallelBox.tasks[taskIdx];
-                const taskEntityId = generateAtmTaskExecutionEntityId(taskIdx, entityId);
-                const systemAuditLogId = `auditLog-task-${taskEntityId}`;
-                await this.createAtmStore(systemAuditLogId, {
-                  type: 'auditLog',
-                  dataSpec: { type: 'object' },
-                });
-                const executionTaskRecord = await store.createRecord('atmTaskExecution', {
-                  id: gri({
-                    entityType: atmTaskExecutionEntityType,
-                    entityId: taskEntityId,
-                    aspect: 'instance',
-                    scope: 'private',
-                  }),
-                  schemaId: task.id,
-                  systemAuditLogId,
-                  status: 'pending',
-                  itemsInProcessing: 0,
-                  itemsProcessed: 0,
-                  itemsFailed: 0,
-                }).save();
-                executionParallelBox.taskRegistry[task.id] =
-                  get(executionTaskRecord, 'entityId');
+              const runsCount = 11;
+              const statusesPerRun = [
+                ..._.times(runsCount - 1, (idx) => [idx + 1, 'failed']),
+                [runsCount, 'active'],
+              ];
+              for (const [runNo, status] of statusesPerRun) {
+                const run = {
+                  runNo,
+                  sourceRunNo: runNo > 1 ? runNo - 1 : null,
+                  iteratedStoreId: storeRegistry[lane.storeIteratorSpec.storeSchemaId],
+                  status,
+                  parallelBoxes: [],
+                };
+                for (const parallelBox of lane.parallelBoxes) {
+                  const executionParallelBox = {
+                    schemaId: parallelBox.id,
+                    status,
+                    taskRegistry: {},
+                  };
+                  for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
+                    const task = parallelBox.tasks[taskIdx];
+                    const taskEntityId =
+                      generateAtmTaskExecutionEntityId(taskIdx, entityId, runNo);
+                    const systemAuditLogId = `auditLog-task-${taskEntityId}`;
+                    await this.createAtmStore(systemAuditLogId, {
+                      type: 'auditLog',
+                      dataSpec: { type: 'object' },
+                    });
+                    const executionTaskRecord = await store.createRecord('atmTaskExecution', {
+                      id: gri({
+                        entityType: atmTaskExecutionEntityType,
+                        entityId: taskEntityId,
+                        aspect: 'instance',
+                        scope: 'private',
+                      }),
+                      schemaId: task.id,
+                      systemAuditLogId,
+                      status,
+                      itemsInProcessing: runNo * 10,
+                      itemsProcessed: runNo * 5,
+                      itemsFailed: runNo * 2,
+                    }).save();
+                    executionParallelBox.taskRegistry[task.id] =
+                      get(executionTaskRecord, 'entityId');
+                  }
+                  run.parallelBoxes.push(executionParallelBox);
+                }
+                executionLane.runs.push(run);
               }
-              executionLane.runs[0].parallelBoxes.push(executionParallelBox);
+              executionLanes.push(executionLane);
             }
-            executionLanes.push(executionLane);
           }
           const systemAuditLogId = `auditLog-workflow-${entityId}`;
           await this.createAtmStore(systemAuditLogId, {
@@ -1365,8 +1378,8 @@ export function generateAtmWorkflowExecutionEntityId(i, state, scheduleTime, sta
   return btoa(`atmWorkflowExecution-${state}-${i}-${scheduleTime}-${startTime}`);
 }
 
-export function generateAtmTaskExecutionEntityId(i, atmWorkflowExecutionEntityId) {
-  return btoa(`atmTaskExecution-${atmWorkflowExecutionEntityId}-${i}`);
+export function generateAtmTaskExecutionEntityId(i, atmWorkflowExecutionEntityId, runNo) {
+  return btoa(`atmTaskExecution-${atmWorkflowExecutionEntityId}-${i}-${runNo}`);
 }
 
 export function generateFileGri(entityId) {
