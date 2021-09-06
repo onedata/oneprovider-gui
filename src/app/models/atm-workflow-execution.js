@@ -67,6 +67,7 @@ export default Model.extend(GraphSingleModelMixin, {
    *     {
    *       status: String,
    *       runNo: Number,
+   *       sourceRunNo: Number|null,
    *       iteratedStoreId: String,
    *       parallelBoxes: [
    *         {
