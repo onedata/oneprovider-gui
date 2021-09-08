@@ -132,10 +132,6 @@ export default OneEmbeddedComponent.extend(
         } = this.getProperties('selected', 'fileManager', 'dirProxy');
         if (selected) {
           try {
-            // TODO: something is broken and changing to empty array propagates back to OP
-            // changing selection in file browser should clear Onezone's selection from URL
-            // because it's one-way relation
-            // this.callParent('updateSelected', []);
             const files = await onlyFulfilledValues(selected.map(id =>
               fileManager.getFileById(id)
             ));
@@ -233,47 +229,65 @@ export default OneEmbeddedComponent.extend(
         const {
           selected,
           injectedDirGri,
-          store,
-          globalNotify,
-          _window,
-          navigateTarget,
         } = this.getProperties(
           'selected',
           'injectedDirGri',
-          'store',
-          'globalNotify',
-          '_window',
-          'navigateTarget'
         );
 
-        if (!injectedDirGri && isEmpty(selected)) {
-          return this.get('fallbackDirProxy');
+        if (injectedDirGri) {
+          return this.resolveDirForGri(injectedDirGri);
+        } else {
+          return this.resolveDirForSelectedIds(selected);
         }
+      }
+    )),
 
+    async resolveDirForGri(dirGri) {
+      const {
+        store,
+        globalNotify,
+      } = this.getProperties('store', 'globalNotify');
+
+      try {
+        // TODO: VFS-7643 refactor to use file-manager
+        const dirItem = await store.findRecord('file', dirGri);
+        const type = get(dirItem, 'type');
+        if (
+          type === 'dir' ||
+          type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
+        ) {
+          return dirItem;
+        } else {
+          return get(dirItem, 'parent');
+        }
+      } catch (error) {
+        globalNotify.backendError(this.t('openingDirectory'), error);
+        return this.get('fallbackDirProxy');
+      }
+    },
+
+    async resolveDirForSelectedIds(selectedIds) {
+      // NOTE: fallbackDirProxy is not got using getPropeties to not load it
+      // unnecessarily
+      const {
+        _window,
+        navigateTarget,
+      } = this.getProperties('_window', 'navigateTarget');
+
+      if (isEmpty(selectedIds)) {
+        // no dir nor selected files provided - go home
+        return this.get('fallbackDirProxy');
+      } else {
         const redirectOptions = await this.resolveSelectedParentDirUrl();
         if (redirectOptions) {
           _window.open(redirectOptions.dataUrl, navigateTarget);
           return (await redirectOptions.dirProxy) || this.get('fallbackDirProxy');
-        }
-
-        try {
-          // TODO: VFS-7643 refactor to use file-manager
-          const dirItem = await store.findRecord('file', injectedDirGri);
-          const type = get(dirItem, 'type');
-          if (
-            type === 'dir' ||
-            type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
-          ) {
-            return dirItem;
-          } else {
-            return get(dirItem, 'parent');
-          }
-        } catch (error) {
-          globalNotify.backendError(this.t('openingDirectory'), error);
+        } else {
+          // resolving parent from selection failed - fallback to home
           return this.get('fallbackDirProxy');
         }
       }
-    )),
+    },
 
     dir: computedLastProxyContent('dirProxy'),
 
@@ -330,44 +344,43 @@ export default OneEmbeddedComponent.extend(
      * Optionally redirects Onezone to URL containing parent directory of first
      * selected file (if there is no injected dir id and at least one selected file).
      * If there is no need to redirect, resolves false.
-     * @returns {Promise}
+     * @returns {Promise<{dataUrl: string, dirProxy: PromiseObject}>}
      */
-    resolveSelectedParentDirUrl() {
-      if (!this.get('injectedDirGri')) {
-        const selected = this.get('selected');
-        const firstSelectedId = selected && selected[0];
-        if (firstSelectedId) {
-          const fileManager = this.get('fileManager');
-          return fileManager.getFileById(firstSelectedId)
-            .then(firstSelectedFile => {
-              const parentId = firstSelectedFile &&
-                firstSelectedFile.relationEntityId('parent');
-              if (parentId) {
-                const dataUrl = this.callParent(
-                  'getDataUrl', {
-                    fileId: parentId,
-                    selected,
-                  }
-                );
-                return resolve({ dataUrl, dirProxy: get(firstSelectedFile, 'parent') });
-              } else if (get(selected, 'length') === 0) {
-                const dataUrl = this.callParent(
-                  'getDataUrl', {
-                    fileId: firstSelectedId,
-                    selected: null,
-                  }
-                );
-                return resolve({ dataUrl, dirProxy: resolve(firstSelectedFile) });
-              } else {
-                return resolve(null);
-              }
-            })
-            .catch(() => null);
-        } else {
-          return resolve(null);
-        }
+    async resolveSelectedParentDirUrl() {
+      const {
+        injectedDirGri,
+        selected,
+        fileManager,
+      } = this.getProperties('injectedDirGri', 'selected', 'fileManager');
+      const firstSelectedId = selected && selected[0];
+
+      if (injectedDirGri || !firstSelectedId) {
+        // no need to resolve parent dir, as it is already specified or there is no
+        // selection specified
+        return null;
+      }
+
+      let firstSelectedFile;
+      try {
+        firstSelectedFile = await fileManager.getFileById(firstSelectedId);
+      } catch (error) {
+        console.debug(
+          `component:content-file-browser#resolveSelectedParentDirUrl: cannot resolve first selected file: "${error}"`
+        );
+        return null;
+      }
+      const parentId = firstSelectedFile &&
+        firstSelectedFile.relationEntityId('parent');
+      if (parentId) {
+        const dataUrl = this.callParent(
+          'getDataUrl', {
+            fileId: parentId,
+            selected,
+          }
+        );
+        return { dataUrl, dirProxy: get(firstSelectedFile, 'parent') };
       } else {
-        return resolve(null);
+        return null;
       }
     },
 
