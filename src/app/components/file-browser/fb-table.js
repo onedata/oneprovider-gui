@@ -649,16 +649,14 @@ export default Component.extend(I18n, {
   focusOnRow(rowId, animate = true) {
     const [row] = this.findItemRows([rowId]);
     if (row) {
+      // force handle scroll into view, because scroll adjust might disabled it
+      this.set('ignoreNextScroll', false);
       row.scrollIntoView({ block: 'center' });
       if (animate) {
         scheduleOnce('afterRender', () => {
           this.highlightAnimateRows([rowId]);
         });
       }
-      scheduleOnce('afterRender', () => {
-        // after scroll, rendered list should be checked for changes
-        this.get('listWatcher').scrollHandler();
-      });
       return true;
     } else {
       console.warn(
