@@ -482,7 +482,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         break;
       case 'datasets':
       default:
-        newBrowserModel = this.createDatasetBrowerModel();
+        newBrowserModel = this.createDatasetBrowserModel();
     }
     this.set('browserModel', newBrowserModel);
     if (currentBrowserModel) {
@@ -577,20 +577,18 @@ export default OneEmbeddedComponent.extend(...mixins, {
       spaceId,
       attachmentState,
     } = this.getProperties('datasetManager', 'spaceId', 'attachmentState');
-    if (ids) {
-      const datasets =
-        await onlyFulfilledValues(ids.map(id =>
-          datasetManager.getBrowsableDataset(id)
-        ));
-      try {
-        // allow only dataset which belong to current space and are in currently
-        // chosen state
-        return datasets.filter(dataset =>
-          get(dataset, 'spaceId') === spaceId && get(dataset, 'state') === attachmentState
-        );
-      } catch (error) {
-        return [];
-      }
+    const datasets =
+      await onlyFulfilledValues(ids.map(id =>
+        datasetManager.getBrowsableDataset(id)
+      ));
+    try {
+      // allow only dataset which belong to current space and are in currently
+      // chosen state
+      return datasets.filter(dataset =>
+        get(dataset, 'spaceId') === spaceId && get(dataset, 'state') === attachmentState
+      );
+    } catch (error) {
+      return [];
     }
   },
 
@@ -603,17 +601,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
       fileManager,
       spaceId,
     } = this.getProperties('fileManager', 'spaceId');
-    if (ids) {
-      const files =
-        await onlyFulfilledValues(ids.map(id =>
-          fileManager.getFileById(id)
-        ));
-      try {
-        // allow only files which belong to current space
-        return files.filter(file => get(file, 'spaceEntityId') === spaceId);
-      } catch (error) {
-        return [];
-      }
+    const files =
+      await onlyFulfilledValues(ids.map(id =>
+        fileManager.getFileById(id)
+      ));
+    try {
+      // allow only files which belong to current space
+      return files.filter(file => get(file, 'spaceEntityId') === spaceId);
+    } catch (error) {
+      return [];
     }
   },
 
@@ -710,7 +706,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return this.callParent('getTransfersUrl', options);
   },
 
-  createDatasetBrowerModel() {
+  createDatasetBrowserModel() {
     return DatasetBrowserModel.create({
       ownerSource: this,
       spaceDatasetsViewState: this,

@@ -392,7 +392,7 @@ export default Component.extend(I18n, {
       initialJumpIndex,
     });
     if (initialJumpIndex) {
-      get(array, 'initialLoad').then(async () => {
+      get(array, 'initialLoad').then(() => {
         this.selectedItemsForJumpObserver();
       });
     }
