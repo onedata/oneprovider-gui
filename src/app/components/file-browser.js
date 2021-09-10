@@ -471,13 +471,6 @@ export default Component.extend(I18n, {
     }
   }),
 
-  ensureSelectedReset: observer('dir', function ensureSelectedReset() {
-    const changeSelectedItems = this.get('changeSelectedItems');
-    if (this.get('selectedItems.length') > 0) {
-      changeSelectedItems([]);
-    }
-  }),
-
   init() {
     this._super(...arguments);
     if (!this.get('selectedItems')) {

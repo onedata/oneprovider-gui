@@ -20,6 +20,13 @@ export default Mixin.create({
   // optional selectedItemsForJumpProxy: PromiseArray<Object> (browsable obj.)
 
   /**
+   * If true, then selected items are not automatically resetted.
+   * See `selectedItemsForJumpChanged` and `ensureSelectedReset`.
+   * @type {Boolean}
+   */
+  lockSelectedReset: false,
+
+  /**
    * NOTE: not observing anything, because it should be one-time proxy
    * @type {PromiseObject<Models.File>}
    */
@@ -36,14 +43,29 @@ export default Mixin.create({
 
   selectedItemsForJumpChanged: observer(
     'selectedItemsForJumpProxy',
-    async function injectedSelectedChanged() {
+    async function selectedItemsForJumpChanged() {
       const selectedItemsForJump = await this.get('selectedItemsForJumpProxy');
       if (!selectedItemsForJump || get(selectedItemsForJump, 'length') === 0) {
         return;
       }
-      this.changeSelectedItems(selectedItemsForJump);
+      this.set('lockSelectedReset', true);
+      try {
+        await this.changeSelectedItems(selectedItemsForJump);
+        await this.get('dirProxy');
+      } finally {
+        this.set('lockSelectedReset', false);
+      }
     }
   ),
+
+  ensureSelectedReset: observer('dirProxy', async function ensureSelectedReset() {
+    if (this.get('lockSelectedReset')) {
+      return;
+    }
+    if (this.get('selectedItems.length') > 0) {
+      this.changeSelectedItems([]);
+    }
+  }),
 
   init() {
     this._super(...arguments);

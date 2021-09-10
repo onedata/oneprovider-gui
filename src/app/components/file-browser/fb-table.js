@@ -391,11 +391,6 @@ export default Component.extend(I18n, {
       indexMargin: 10,
       initialJumpIndex,
     });
-    if (initialJumpIndex) {
-      get(array, 'initialLoad').then(() => {
-        this.selectedItemsForJumpObserver();
-      });
-    }
     array.on(
       'fetchPrevStarted',
       () => this.onFetchingStateUpdate('prev', 'started')
@@ -566,9 +561,11 @@ export default Component.extend(I18n, {
         return;
       }
 
+      await this.get('filesArray.initialLoad');
       if (!_.isEqual(selectedItems, selectedItemsForJump)) {
         await changeSelectedItems(selectedItemsForJump);
       }
+
       return await this.jumpToSelection();
     }
   ),
@@ -580,12 +577,24 @@ export default Component.extend(I18n, {
       registerApi,
       api,
       loadingIconFileIds,
-    } = this.getProperties('fileManager', 'registerApi', 'api', 'loadingIconFileIds');
+      filesArray,
+    } = this.getProperties(
+      'fileManager',
+      'registerApi',
+      'api',
+      'loadingIconFileIds',
+      'filesArray'
+    );
     if (!loadingIconFileIds) {
       this.set('loadingIconFileIds', A());
     }
     fileManager.registerRefreshHandler(this);
     registerApi(api);
+    if (get(filesArray, 'initialJumpIndex')) {
+      get(filesArray, 'initialLoad').then(() => {
+        this.selectedItemsForJumpObserver();
+      });
+    }
   },
 
   didInsertElement() {
@@ -609,13 +618,17 @@ export default Component.extend(I18n, {
       filesArray,
     } = this.getProperties('selectedItems', 'filesArray');
     if (isEmpty(selectedItems)) {
-      return resolve();
+      return;
     }
     const firstSelected = A(selectedItems).sortBy('index').objectAt(0);
     const {
       entityId,
       index,
     } = getProperties(firstSelected, 'entityId', 'index');
+
+    // ensure that array is loaded and rendered
+    await get(filesArray, 'initialLoad');
+    await sleep(0);
 
     const listWatcher = this.get('listWatcher');
     if (!filesArray.includes(firstSelected)) {
@@ -674,6 +687,12 @@ export default Component.extend(I18n, {
     });
   },
 
+  /**
+   * For given row ids, retuns list of rendered table rows ordered as in DOM
+   * (not as specified in `rowIds`).
+   * @param {Array<String>} rowsIds 
+   * @returns {NodeListOf<HTMLTableRowElement>}
+   */
   findItemRows(rowsIds) {
     const selector = rowsIds.map(rowId => `[data-row-id="${rowId}"]`).join(',');
     return this.get('element').querySelectorAll(selector);
@@ -862,7 +881,7 @@ export default Component.extend(I18n, {
   },
 
   clearFilesSelection() {
-    this.get('changeSelectedItems')([]);
+    return this.get('changeSelectedItems')([]);
   },
 
   /**
@@ -936,12 +955,12 @@ export default Component.extend(I18n, {
     return changeSelectedItems(newSelectedItems);
   },
 
-  selectRemoveSingleFile(file) {
+  async selectRemoveSingleFile(file) {
     const {
       selectedItems,
       changeSelectedItems,
     } = this.getProperties('selectedItems', 'changeSelectedItems');
-    changeSelectedItems(selectedItems.without(file));
+    await changeSelectedItems(selectedItems.without(file));
     this.set('lastSelectedFile', null);
   },
 
@@ -950,16 +969,16 @@ export default Component.extend(I18n, {
       selectedItems,
       changeSelectedItems,
     } = this.getProperties('selectedItems', 'changeSelectedItems');
-    changeSelectedItems(_.difference(selectedItems, files));
+    return changeSelectedItems(_.difference(selectedItems, files));
   },
 
-  selectAddSingleFile(file) {
-    this.addToSelectedItems([file]);
+  async selectAddSingleFile(file) {
+    await this.addToSelectedItems([file]);
     this.set('lastSelectedFile', file);
   },
 
-  selectOnlySingleFile(file) {
-    this.get('changeSelectedItems')([file]);
+  async selectOnlySingleFile(file) {
+    await this.get('changeSelectedItems')([file]);
     this.set('lastSelectedFile', file);
   },
 

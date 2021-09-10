@@ -17,7 +17,6 @@ import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { promise } from 'ember-awesome-macros';
-import { resolve } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
@@ -267,12 +266,9 @@ export default OneEmbeddedComponent.extend(
     },
 
     async resolveDirForSelectedIds(selectedIds) {
-      // NOTE: fallbackDirProxy is not got using getPropeties to not load it
+      // NOTE: fallbackDirProxy is not got using `get` to avoid loading it
       // unnecessarily
-      const {
-        _window,
-        navigateTarget,
-      } = this.getProperties('_window', 'navigateTarget');
+      const _window = this.get('_window');
 
       if (isEmpty(selectedIds)) {
         // no dir nor selected files provided - go home
@@ -280,7 +276,8 @@ export default OneEmbeddedComponent.extend(
       } else {
         const redirectOptions = await this.resolveSelectedParentDirUrl();
         if (redirectOptions) {
-          _window.open(redirectOptions.dataUrl, navigateTarget);
+          // TODO: VFS-8342 common util for replacing master URL
+          _window.top.location.replace(redirectOptions.dataUrl);
           return (await redirectOptions.dirProxy) || this.get('fallbackDirProxy');
         } else {
           // resolving parent from selection failed - fallback to home
@@ -548,7 +545,7 @@ export default OneEmbeddedComponent.extend(
     },
 
     clearFilesSelection() {
-      this.changeSelectedItems([]);
+      return this.changeSelectedItems([]);
     },
 
     actions: {
