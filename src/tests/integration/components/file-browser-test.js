@@ -93,7 +93,7 @@ describe('Integration | Component | file browser (main component)', function () 
     expect(this.$('.fb-table-row')).to.have.length(filesCount);
   });
 
-  it('changes directories on double click', function () {
+  it('changes directories on double click', async function () {
     const numberOfDirs = 5;
 
     const rootDir = {
@@ -145,34 +145,30 @@ describe('Integration | Component | file browser (main component)', function () 
     render(this);
 
     let clickCount = numberOfDirs - 2;
-    const enterDir = () => {
+    const enterDir = async () => {
       const $row = this.$('.fb-table-row');
       $row.click();
       $row.click();
-      return wait().then(() => {
-        if (clickCount > 0) {
-          clickCount = clickCount - 1;
-          return enterDir();
-        } else {
-          resolve();
-        }
-      });
+      await wait();
+      if (clickCount > 0) {
+        clickCount = clickCount - 1;
+        return enterDir();
+      }
     };
 
-    return wait().then(() => {
-      expect(fetchDirChildren).to.have.been.calledWith(
-        'root',
-        sinon.match.any,
-        sinon.match.any,
-        sinon.match.any,
-        sinon.match.any
-      );
-      fetchDirChildren.resetHistory();
-      expect(this.$('.fb-table-row')).to.have.length(1);
-      return enterDir().then(() => {
-        expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
-      });
-    });
+    await wait();
+
+    expect(fetchDirChildren).to.have.been.calledWith(
+      'root',
+      sinon.match.any,
+      sinon.match.any,
+      sinon.match.any,
+      sinon.match.any
+    );
+    fetchDirChildren.resetHistory();
+    expect(this.$('.fb-table-row'), 'table rows elements').to.have.length(1);
+    await enterDir();
+    expect(this.$('.fb-table-row').text()).to.contain('Directory 4');
   });
 
   itHasWorkingClipboardFunction({
