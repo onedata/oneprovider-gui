@@ -70,6 +70,17 @@ export default Component.extend({
     // this.testJumpDownFromStart(null);
     // this.testJumpDownFromStart(2000);
     // this.testJumpUpFromFarMiddle(6000);
+    // setTimeout(() => {
+    //   console.clear();
+    //   this.scrollTopInfinite();
+    // }, 3000);
+  },
+
+  scrollTopInfinite() {
+    document.getElementById('content-scroll').scrollTop = document.getElementById('content-scroll').scrollTop - 20;
+    setTimeout(() => {
+      this.scrollTopInfinite();
+    }, 10);
   },
 
   async testJumpToVisible(delay = null, start = 3, end = 6) {
@@ -94,8 +105,8 @@ export default Component.extend({
     if (delay !== null) {
       await sleep(delay);
     }
-    const file = this.get('mockBackend.entityRecords.file.80');
-    console.log('--- will jump to file 80 ---');
+    const file = this.get('mockBackend.entityRecords.file.199');
+    console.log('--- will jump to file 199 ---');
     this.set('selectedItemsForJumpProxy', promiseArray(resolve([file])));
   },
 

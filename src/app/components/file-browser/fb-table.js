@@ -336,30 +336,12 @@ export default Component.extend(I18n, {
    * Currently (as of 2021) not all browsers support scroll anchoring and
    * `perfect-scrollbar` has issues with it (anchoring is disabled), so we need to do
    * scroll correction manually.
-   * @param {Promise} arrayUpdatedPromise promise that resolves when files array
+   * @param {Promise} arrayExpandedPromise promise that resolves when files array
    *   have new items added and start/end markers are changed
    */
-  async adjustScroll(arrayUpdatedPromise) {
-    const { element: firstRow, renderedRowIndex } = this.getFirstVisibleRow();
-    const $firstRow = $(firstRow);
-    if (!$firstRow || !$firstRow.length) {
-      return;
-    }
-    const topBefore = $firstRow.offset().top;
-    await arrayUpdatedPromise;
-    await sleep(0);
-    const isFirstRowInDom = Boolean($firstRow[0].parentElement);
-    let $offsetRow;
-    if (isFirstRowInDom) {
-      $offsetRow = $firstRow;
-    } else {
-      $offsetRow = $(this.getNthRenderedRow(renderedRowIndex));
-    }
-    if (!$offsetRow.length) {
-      return;
-    }
-    const topAfter = $offsetRow.offset().top;
-    const topDiff = topAfter - topBefore;
+  async adjustScroll(arrayExpandedPromise) {
+    const additionalFrontSpace = await arrayExpandedPromise;
+    const topDiff = additionalFrontSpace * this.get('rowHeight');
     if (topDiff <= 0) {
       return;
     }
@@ -367,7 +349,13 @@ export default Component.extend(I18n, {
       `component:file-browser/fb-table#adjustScrollOnFirstRowChange: adjusting scroll by ${topDiff}`
     );
     this.set('ignoreNextScroll', true);
-    this.get('containerScrollTop')(topDiff, true);
+    scheduleOnce('afterRender', this, () => {
+      window.requestAnimationFrame(() => {
+        safeExec(this, () => {
+          this.get('containerScrollTop')(topDiff, true);
+        });
+      });
+    });
   },
 
   firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
