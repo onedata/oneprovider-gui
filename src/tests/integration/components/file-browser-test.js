@@ -95,6 +95,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
   it('changes directories on double click', async function () {
     const numberOfDirs = 5;
+    const fileScope = 'private';
 
     const rootDir = {
       entityId: 'root',
@@ -131,8 +132,8 @@ describe('Integration | Component | file browser (main component)', function () 
     for (let i = -1; i < numberOfDirs; ++i) {
       fetchDirChildren.withArgs(
         i === -1 ? 'root' : `file-${i}`,
-        sinon.match.any,
-        sinon.match.any,
+        fileScope,
+        null,
         sinon.match.any,
         sinon.match.any
       ).resolves({
@@ -160,8 +161,8 @@ describe('Integration | Component | file browser (main component)', function () 
 
     expect(fetchDirChildren).to.have.been.calledWith(
       'root',
-      sinon.match.any,
-      sinon.match.any,
+      fileScope,
+      null,
       sinon.match.any,
       sinon.match.any
     );
