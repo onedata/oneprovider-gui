@@ -63,7 +63,7 @@ export default Mixin.create({
       return;
     }
     if (this.get('selectedItems.length') > 0) {
-      this.changeSelectedItems([]);
+      await this.changeSelectedItems([]);
     }
   }),
 

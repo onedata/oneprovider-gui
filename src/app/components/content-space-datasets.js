@@ -510,9 +510,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
   clearSelectedObserver: observer(
     'attachmentState',
     'viewMode',
-    function clearSelectedObserver() {
+    async function clearSelectedObserver() {
+      if (this.get('lockSelectedReset')) {
+        return;
+      }
       if (this.get('selectedItems.length') > 0) {
-        this.changeSelectedItems([]);
+        await this.changeSelectedItems([]);
       }
     }
   ),
