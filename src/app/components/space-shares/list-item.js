@@ -16,6 +16,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 
 export default Component.extend(I18n, {
   globalNotify: service(),
@@ -148,6 +149,34 @@ export default Component.extend(I18n, {
     ),
     raw(undefined)
   ),
+
+  isViewForOtherForbidden: computed(
+    'share.rootFile.{type,posixPermissions}',
+    function isViewForOtherForbidden() {
+      const file = this.get('share.rootFile');
+      const posixPermissions = get(file, 'posixPermissions');
+      if (!posixPermissions) {
+        return false;
+      }
+      const octalNumber = 2;
+      const entityPermissions = EntityPermissions.create()
+        .fromOctalRepresentation(posixPermissions[octalNumber]);
+      if (get(file, 'type') === 'file') {
+        return !get(entityPermissions, 'read');
+      } else {
+        return !get(entityPermissions, 'read') || !get(entityPermissions, 'execute');
+      }
+    }
+  ),
+
+  tooltipText: computed('share.rootFile.type', function tooltipText() {
+    const sharedFile = this.get('share.rootFile');
+    if (get(sharedFile, 'type') === 'file') {
+      return this.t('warning.file');
+    } else {
+      return this.t('warning.dir');
+    }
+  }),
 
   actions: {
     toggleActions(open) {
