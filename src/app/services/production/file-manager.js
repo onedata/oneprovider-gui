@@ -15,6 +15,8 @@ import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import _ from 'lodash';
 import { entityType as fileEntityType, getFileGri } from 'oneprovider-gui/models/file';
 import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink-utils';
+import { later } from '@ember/runloop';
+import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
@@ -29,6 +31,12 @@ export default Service.extend({
    * @type {Array<Ember.Component>}
    */
   fileTableComponents: computed(() => []),
+
+  /**
+   * keys: parent dir entity ids (string), values: throttled functions
+   * @type {ComputedProperty<Object>} 
+   */
+  throttledDirChildrenRefreshCallbacks: computed(() => ({})),
 
   /**
    * @param {String} fileId
@@ -272,13 +280,40 @@ export default Service.extend({
   copyOrMoveFile(file, parentDirEntityId, operation) {
     const name = get(file, 'name') || 'unknown';
     const entityId = get(file, 'entityId');
+    const size = get(file, 'size');
+    const getFileAttempts = 1000;
+    const getFileInterval = 500;
+    
+    this.pollForFileAfterOperation(
+      getFileAttempts,
+      getFileInterval,
+      parentDirEntityId,
+      name,
+      size,
+      operation
+    );
     return this.get('onedataRpc')
       .request(`${operation}File`, {
         guid: entityId,
         targetParentGuid: parentDirEntityId,
         targetName: name,
       })
-      .finally(() => this.dirChildrenRefresh(parentDirEntityId));
+      .finally(() => {
+        const scope = 'private';
+        const limit = 1;
+        const offset = 0;
+        this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
+          .then(fetchedFiles => {
+            if (
+              fetchedFiles.childrenRecords.length > 0 &&
+              get(fetchedFiles.childrenRecords[0], 'name') === name
+            ) {
+              this.dirChildrenRefresh(parentDirEntityId);
+              const file = fetchedFiles.childrenRecords[0];
+              file.set('isCopyingMovingStop', true);
+            }
+          });
+      });
   },
 
   getFileDownloadUrl(fileIds, scope = 'private') {
@@ -326,6 +361,47 @@ export default Service.extend({
 
   //#region browser component utils
 
+  pollForFileAfterOperation(
+    attempts,
+    interval,
+    parentDirEntityId,
+    name,
+    targetSize,
+    operation
+  ) {
+    const scope = 'private';
+    const limit = 1;
+    const offset = 0;
+    const pollSizeInterval = 1000;
+
+    if (attempts > 0) {
+      this.fetchDirChildren(parentDirEntityId, scope, name, limit, offset)
+        .then(fetchedFiles => {
+          if (
+            fetchedFiles.childrenRecords.length > 0 &&
+            get(fetchedFiles.childrenRecords[0], 'name') === name
+          ) {
+            this.throttledDirChildrenRefresh(parentDirEntityId);
+            const file = fetchedFiles.childrenRecords[0];
+            file.set('currentOperation', operation);
+            file.pollSize(pollSizeInterval, targetSize);
+          } else {
+            later(
+              this,
+              'pollForFileAfterOperation',
+              attempts - 1,
+              interval,
+              parentDirEntityId,
+              name,
+              targetSize,
+              operation,
+              interval
+            );
+          }
+        });
+    }
+  },
+
   /**
    * Invokes request for refresh in all known file browser tables
    * @param {Array<object>} parentDirEntityId
@@ -335,6 +411,19 @@ export default Service.extend({
     return allSettled(this.get('fileTableComponents').map(fileBrowser =>
       fileBrowser.onDirChildrenRefresh(parentDirEntityId)
     ));
+  },
+
+  throttledDirChildrenRefresh(parentDirEntityId) {
+    const throttledDirChildrenRefreshCallbacks = this.get(
+      'throttledDirChildrenRefreshCallbacks'
+    );
+    if (!throttledDirChildrenRefreshCallbacks[parentDirEntityId]) {
+      throttledDirChildrenRefreshCallbacks[parentDirEntityId] = createThrottledFunction(
+        () => this.dirChildrenRefresh(parentDirEntityId),
+        500
+      ); 
+    }
+    throttledDirChildrenRefreshCallbacks[parentDirEntityId]();
   },
 
   async fileParentRefresh(file) {

@@ -466,10 +466,13 @@ export default OneEmbeddedComponent.extend(
           }
         }
       }
-      this.set(
-        'selectedFiles',
-        this.get('filesToRemove').filter(file => newIds.includes(get(file, 'entityId')))
-      );
+      const filesToRemove = this.get('filesToRemove');
+      if (filesToRemove) {
+        this.set(
+          'selectedFiles',
+          filesToRemove.filter(file => newIds.includes(get(file, 'entityId')))
+        );
+      }
       this.setProperties({
         filesToRemove: null,
         removeParentDir: null,
