@@ -50,6 +50,7 @@ export default Component.extend(...mixins, {
   i18n: service(),
   metadataManager: service(),
   globalNotify: service(),
+  fileManager: service(),
 
   open: false,
 
@@ -387,6 +388,13 @@ export default Component.extend(...mixins, {
               });
             });
           });
+          const {
+            file,
+            fileManager,
+          } = this.getProperties('file', 'fileManager');
+          if (get(file, 'hardlinksCount') > 1) {
+            fileManager.fileParentRefresh(file);
+          }
         })
         .then(() => {
           this.get('onHide')();

@@ -19,7 +19,7 @@ import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool } from 'ember-awesome-macros';
+import { bool, array } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 
@@ -97,6 +97,22 @@ export const RuntimeProperties = Mixin.create({
    */
   pollSizeTimerId: null,
 
+  /**
+   * @type {boolean}
+   */
+  isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
+
+  /**
+   * One of `copy`, `move`
+   * @type {string}
+   */
+  currentOperation: '',
+
+  /**
+   * @type {boolean}
+   */
+  isCopyingMovingStop: false,
+
   dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
   metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
 
@@ -131,19 +147,25 @@ export const RuntimeProperties = Mixin.create({
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
-   * @param {number} attempts
    * @param {number} interval time in milliseconds
    * @param {number} [targetSize=undefined]
+   * @param {number} [attempts=undefined]
    * @returns {undefined}
    */
-  pollSize(attempts, interval, targetSize = undefined) {
+  pollSize(interval, targetSize = undefined, attempts = undefined) {
     const {
       pollSizeTimerId,
       isDeleted,
-    } = this.getProperties('pollSizeTimerId', 'isDeleted');
+      isCopyingMovingStop,
+    } = this.getProperties('pollSizeTimerId', 'isDeleted', 'isCopyingMovingStop');
 
     cancel(pollSizeTimerId);
-    if (isDeleted) {
+    if (isDeleted || isCopyingMovingStop) {
+      this.setProperties({
+        isPollingSize: false,
+        currentOperation: '',
+        isCopyingMovingStop: false,
+      });
       return;
     }
 
@@ -154,13 +176,27 @@ export const RuntimeProperties = Mixin.create({
         isDeleted,
       } = this.getProperties('size', 'isDeleted');
       if (pollSizeTimerId === this.get('pollSizeTimerId')) {
-        if (size !== targetSize && !isDeleted && attempts > 1) {
+        if (
+          size !== targetSize &&
+          !isDeleted &&
+          ((typeof attempts !== 'number') || attempts > 1)
+        ) {
           this.set(
             'pollSizeTimerId',
-            later(this, 'pollSize', attempts - 1, interval, targetSize, interval)
+            later(
+              this,
+              'pollSize',
+              interval,
+              targetSize,
+              attempts ? attempts - 1 : attempts,
+              interval
+            )
           );
         } else {
-          this.set('isPollingSize', false);
+          this.setProperties({
+            isPollingSize: false,
+            currentOperation: '',
+          });
         }
       }
     });
