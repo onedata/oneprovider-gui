@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8053 Added ID copiers to places related to workflows
 * VFS-7960 Fixed changing space in file browser during files upload
 * VFS-7730 Added reloading files list after qos/metadata/acl change of file with hardlinks
 * VFS-7371 Added showing progress for copied or moved operation
