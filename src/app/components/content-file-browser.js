@@ -463,19 +463,19 @@ export default OneEmbeddedComponent.extend(
           }
         }
       }
-      this.changeSelectedItems(
-        this.get('filesToRemove').filter(file => newIds.includes(get(file, 'entityId')))
-      );
+      const filesToRemove = this.get('filesToRemove');
+      if (filesToRemove) {
+        this.changeSelectedItems(
+          filesToRemove.filter(file => newIds.includes(get(file, 'entityId')))
+        );
+      }
       this.setProperties({
         filesToRemove: null,
         removeParentDir: null,
       });
     },
-    openRenameModal(file, parentDir) {
-      this.setProperties({
-        fileToRename: file,
-        renameParentDir: parentDir,
-      });
+    openRenameModal(file) {
+      this.set('fileToRename', file);
     },
     openInfoModal(file, activeTab) {
       this.setProperties({
@@ -505,10 +505,7 @@ export default OneEmbeddedComponent.extend(
       this.set('fileForConfirmDownload', file);
     },
     closeRenameModal() {
-      this.setProperties({
-        fileToRename: null,
-        renameParentDir: null,
-      });
+      this.set('fileToRename', null);
     },
     closeInfoModal() {
       this.set('fileToShowInfo', null);

@@ -31,7 +31,6 @@ export default Component.extend({
   createItemParentDir: reads('selectorModel.createItemParentDir'),
   createItemType: reads('selectorModel.createItemType'),
   fileToRename: reads('selectorModel.fileToRename'),
-  renameParentDir: reads('selectorModel.renameParentDir'),
 
   closeCreateItemModal(...args) {
     return this.get('selectorModel').closeCreateItemModal(...args);

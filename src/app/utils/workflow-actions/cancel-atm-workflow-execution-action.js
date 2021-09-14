@@ -32,7 +32,7 @@ export default Action.extend({
   /**
    * @override
    */
-  className: 'cancel-atm-workflow-execution-acton-trigger',
+  className: 'cancel-atm-workflow-execution-action-trigger',
 
   /**
    * @override

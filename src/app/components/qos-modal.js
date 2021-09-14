@@ -385,6 +385,9 @@ export default Component.extend(...mixins, {
         const file = get(fileItem, 'file');
         return qosManager.createQosRequirement(file, expressionInfix, replicasNumber)
           .finally(() => {
+            if (get(file, 'hardlinksCount') > 1) {
+              fileManager.fileParentRefresh(file);
+            }
             if (get(file, 'type') === 'dir') {
               return fileManager.dirChildrenRefresh(get(file, 'entityId'));
             }
@@ -435,6 +438,9 @@ export default Component.extend(...mixins, {
         return qosManager.removeQosRequirement(qosRequirement)
           .finally(() => {
             this.updateData();
+            if (get(file, 'hardlinksCount') > 1) {
+              fileManager.fileParentRefresh(file);
+            }
             if (get(file, 'type') === 'dir') {
               return fileManager.dirChildrenRefresh(get(file, 'entityId'));
             }

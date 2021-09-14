@@ -105,6 +105,7 @@ export default Component.extend(I18n, {
           'startedAt',
           'finishedAt',
           'status',
+          'actions',
         ];
     }
   }),
