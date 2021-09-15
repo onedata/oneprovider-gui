@@ -875,18 +875,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
       _window,
       archiveManager,
       navigateTarget,
-    } = this.getProperties('_window', 'archiveManager', 'navigateTarget');
+      viewMode,
+    } = this.getProperties('_window', 'archiveManager', 'navigateTarget', 'viewMode');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
-      const archiveSelectUrl = this.getDatasetsUrl({
-        viewMode: 'archives',
-        datasetId: get(dataset, 'entityId'),
-        archive: null,
-        selected: get(archive, 'entityId'),
-        dir: null,
-      });
-      if (archiveSelectUrl) {
-        _window.open(archiveSelectUrl, navigateTarget);
+      if (viewMode === 'archives') {
+        const archiveSelectUrl = this.getDatasetsUrl({
+          viewMode: 'archives',
+          datasetId: get(dataset, 'entityId'),
+          archive: null,
+          selected: get(archive, 'entityId'),
+          dir: null,
+        });
+        if (archiveSelectUrl) {
+          _window.open(archiveSelectUrl, navigateTarget);
+        }
       }
     } catch (error) {
       console.error(
