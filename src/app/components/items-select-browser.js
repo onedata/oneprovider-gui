@@ -160,10 +160,6 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  submitSingleItem(item) {
-    return this.get('onSubmit')([item]);
-  },
-
   init() {
     this._super(...arguments);
     const selectorModel = this.get('selectorModel');
@@ -178,6 +174,17 @@ export default Component.extend(...mixins, {
   didInsertElement() {
     this._super(...arguments);
     this.set('isRendered', true);
+  },
+
+  /**
+   * @override
+   */
+  changeSelectedItemsImmediately(selectedItems) {
+    this.get('selectorModel').setSelectedItems(selectedItems);
+  },
+
+  submitSingleItem(item) {
+    return this.get('onSubmit')([item]);
   },
 
   actions: {
@@ -198,7 +205,7 @@ export default Component.extend(...mixins, {
       this.get('selectorModel').setDirId(dirId);
     },
     changeSelectedItems(items) {
-      this.get('selectorModel').setSelectedItems(items);
+      return this.changeSelectedItems(items);
     },
     fetchChildren(...args) {
       const selectorModel = this.get('selectorModel');
