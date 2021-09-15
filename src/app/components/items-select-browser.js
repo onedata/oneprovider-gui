@@ -20,8 +20,14 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
+import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 
-export default Component.extend(I18n, {
+const mixins = [
+  I18n,
+  ItemBrowserContainerBase,
+];
+
+export default Component.extend(...mixins, {
   tagName: '',
 
   fileManager: service(),
@@ -71,11 +77,21 @@ export default Component.extend(I18n, {
    */
   isRendered: false,
 
+  /**
+   * Alias of property for ItemBrowserContainerBase - please do not use it directly
+   * in code. Use: `browserSelectedItems` or `selectorSelectedItems` instead.
+   * @implements ItemBrowserContainerBase
+   */
+  selectedItems: reads('browserSelectedItems'),
+
+  /**
+   * @implements ItemBrowserContainerBase
+   */
+  dirProxy: reads('selectorModel.dirProxy'),
+
   validationError: reads('selectorModel.validationError'),
 
   dirId: reads('selectorModel.dirId'),
-
-  dirProxy: reads('selectorModel.dirProxy'),
 
   dir: reads('selectorModel.dir'),
 

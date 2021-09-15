@@ -1,5 +1,5 @@
 /**
- * Adds render-friendlu browser items selection and auto jump-to-item handling
+ * Adds render-friendly browser items selection and auto jump-to-item handling
  * by observing `selectedItemsForJumpProxy`.
  *
  * @module mixins/item-browser-container-base
@@ -17,6 +17,7 @@ import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Mixin.create({
   // requires selectedItems: Array<Object> (browsable objects)
+  // requires dirProxy: PromiseObject<Object> (browsable object)
   // optional selectedItemsForJumpProxy: PromiseArray<Object> (browsable obj.)
 
   /**
