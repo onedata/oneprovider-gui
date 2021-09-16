@@ -40,6 +40,7 @@ import archiveBrowserModel from './utils/archive-browser-model';
 import selectorFilesystemBrowserModel from './utils/selector-filesystem-browser-model';
 import itemsSelectBrowserUtils from './utils/items-select-browser';
 import workflowActions from './utils/workflow-actions';
+import workflowVisualiser from './utils/workflow-visualiser';
 
 const translations = {
   components: {
@@ -84,6 +85,7 @@ const translations = {
     selectorFilesystemBrowserModel,
     itemsSelectBrowser: itemsSelectBrowserUtils,
     workflowActions,
+    workflowVisualiser,
   },
 };
 

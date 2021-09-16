@@ -1212,11 +1212,23 @@ export default Service.extend({
                 ..._.times(runsCount - 1, (idx) => [idx + 1, 'failed']),
                 [runsCount, 'active'],
               ];
+              const storeIdFromSpec = storeRegistry[lane.storeIteratorSpec.storeSchemaId];
+              const exceptionStoresPerRun = {};
               for (const [runNo, status] of statusesPerRun) {
+                const exceptionStoreId = `exception-${phase}-${i}-${lane.id}-${runNo}`;
+                exceptionStoresPerRun[runNo] =
+                  await this.createAtmStore(exceptionStoreId, {
+                    type: 'list',
+                    dataSpec: { type: 'object' },
+                  });
+                const prevRunExceptionStoreId =
+                  runNo > 1 && get(exceptionStoresPerRun[runNo - 1], 'entityId');
                 const run = {
                   runNo,
                   sourceRunNo: runNo > 1 ? runNo - 1 : null,
-                  iteratedStoreId: storeRegistry[lane.storeIteratorSpec.storeSchemaId],
+                  iteratedStoreId: runNo === 1 || runNo % 5 == 0 ?
+                    storeIdFromSpec : prevRunExceptionStoreId,
+                  exceptionStoreId,
                   status,
                   parallelBoxes: [],
                 };

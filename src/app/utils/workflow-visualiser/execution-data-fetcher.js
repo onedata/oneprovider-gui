@@ -12,11 +12,19 @@ import { get, getProperties } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
 import { taskEndedStatuses } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { hash as hashFulfilled } from 'rsvp';
 
 const notFoundError = { id: 'notFound' };
 
-export default ExecutionDataFetcher.extend(OwnerInjector, {
+export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   workflowManager: service(),
+  i18n: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.workflowVisualiser.executionDataFetcher',
 
   /**
    * @virtual
@@ -119,6 +127,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
           runNo: run.runNo,
           sourceRunNo: run.sourceRunNo,
           iteratedStoreInstanceId: run.iteratedStoreId,
+          exceptionStoreInstanceId: run.exceptionStoreId,
           status: run.status,
         };
       }
@@ -243,31 +252,30 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
     definedStoreInstanceIds,
   }) {
     const generatedStoreInstanceIds = new Set();
+    const failedItemsStoresSourceRun = {};
+
     if (workflowExecutionState.systemAuditLogStoreInstanceId) {
       generatedStoreInstanceIds.add(
         workflowExecutionState.systemAuditLogStoreInstanceId
       );
     }
 
-    const storeInstanceIdsArrays = [];
     for (const laneExecutionState of Object.values(lanesExecutionState)) {
-      const runs = Object.values(laneExecutionState.runs);
-      storeInstanceIdsArrays.push(
-        runs.mapBy('iteratedStoreInstanceId').compact()
-      );
+      for (const run of Object.values(laneExecutionState.runs)) {
+        if (run.iteratedStoreInstanceId) {
+          generatedStoreInstanceIds.add(run.iteratedStoreInstanceId);
+        }
+        if (run.exceptionStoreInstanceId) {
+          generatedStoreInstanceIds.add(run.exceptionStoreInstanceId);
+          failedItemsStoresSourceRun[run.exceptionStoreInstanceId] = run.runNo;
+        }
+      }
     }
     for (const taskExecutionState of Object.values(tasksExecutionState)) {
-      const runs = Object.values(taskExecutionState.runs);
-      storeInstanceIdsArrays.push(
-        runs.mapBy('systemAuditLogStoreInstanceId').compact()
-      );
-    }
-    for (const storeInstanceIdsArray of storeInstanceIdsArrays) {
-      for (const storeInstanceId of storeInstanceIdsArray) {
-        if (!storeInstanceId) {
-          continue;
+      for (const run of Object.values(taskExecutionState.runs)) {
+        if (run.systemAuditLogStoreInstanceId) {
+          generatedStoreInstanceIds.add(run.systemAuditLogStoreInstanceId);
         }
-        generatedStoreInstanceIds.add(storeInstanceId);
       }
     }
 
@@ -275,16 +283,29 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
       generatedStoreInstanceIds.delete(definedStoreInstanceId);
     }
 
+    const storeRecords = await hashFulfilled(
+      [...generatedStoreInstanceIds].reduce((hash, storeInstanceId) => {
+        hash[storeInstanceId] = this.getAtmStoreRecord(storeInstanceId);
+        return hash;
+      }, {})
+    );
     const generatedStores = {};
     for (const storeInstanceId of generatedStoreInstanceIds) {
-      const store = await this.getAtmStoreRecord(storeInstanceId);
+      const store = storeRecords[storeInstanceId];
       const {
         type,
         dataSpec,
         initialValue,
       } = getProperties(store, 'type', 'dataSpec', 'initialValue');
+      let name = null;
+      if (storeInstanceId in failedItemsStoresSourceRun) {
+        name = this.t('failedItemsStore', {
+          sourceRunNo: failedItemsStoresSourceRun[storeInstanceId],
+        });
+      }
       generatedStores[storeInstanceId] = {
         instanceId: storeInstanceId,
+        name,
         type,
         dataSpec,
         defaultInitialValue: initialValue,
