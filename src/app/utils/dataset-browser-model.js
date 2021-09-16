@@ -26,6 +26,7 @@ import { conditional } from 'ember-awesome-macros';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
+  'btnCopyId',
   'btnShowFile',
   'btnManageArchives',
   'btnCreateArchive',
@@ -38,6 +39,7 @@ export default BaseBrowserModel.extend(I18n, {
   modalManager: service(),
   datasetManager: service(),
   globalNotify: service(),
+  globalClipboard: service(),
 
   /**
    * @override
@@ -163,13 +165,33 @@ export default BaseBrowserModel.extend(I18n, {
   attachmentState: reads('spaceDatasetsViewState.attachmentState').readOnly(),
 
   selectedDatasetsHaveArchives: computed(
-    'selectedFiles.@each.archiveCount',
+    'selectedItems.@each.archiveCount',
     function selectedDatasetsHaveArchives() {
-      return _.sum(this.get('selectedFiles').mapBy('archiveCount')) > 0;
+      return _.sum(this.get('selectedItems').mapBy('archiveCount')) > 0;
     }
   ),
 
   //#region Action buttons
+
+  btnCopyId: computed(function btnCopyId() {
+    return this.createFileAction({
+      id: 'copyDatasetId',
+      icon: 'circle-id',
+      action: (datasets) => {
+        const dataset = datasets[0];
+        this.get('globalClipboard').copy(
+          get(dataset, 'entityId'),
+          this.t('datasetId')
+        );
+      },
+      showIn: [
+        actionContext.singleFile,
+        actionContext.singleFilePreview,
+        actionContext.singleDir,
+        actionContext.singleDirPreview,
+      ],
+    });
+  }),
 
   btnShowFile: computed('selectionContext', function btnShowFile() {
     const selectionContext = this.get('selectionContext');

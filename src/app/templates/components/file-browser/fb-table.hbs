@@ -30,7 +30,7 @@
         spacePrivileges=spacePrivileges
         nameConflict=(contains file.index conflictNames)
         fileClipboardMode=(if (contains file fileClipboardFiles) fileClipboardMode null)
-        isSelected=(contains file selectedFiles)
+        isSelected=(contains file selectedItems)
         isLoadingOnIcon=(contains file.entityId loadingIconFileIds)
         touchTap=(action "fileTapped" file)
         touchHold=(action "fileTouchHeld" file)

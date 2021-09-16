@@ -152,7 +152,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   //#region file-browser state
 
   dir: reads('browserInstance.dir'),
-  selectedFiles: reads('browserInstance.selectedFiles'),
+  selectedItems: reads('browserInstance.selectedItems'),
+  selectedItemsForJumpProxy: reads('browserInstance.selectedItemsForJumpProxy'),
   selectionContext: reads('browserInstance.selectionContext'),
   element: reads('browserInstance.element'),
   spacePrivileges: reads('browserInstance.spacePrivileges'),
@@ -278,7 +279,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       showIn: showIn || [],
       disabled: disabled === undefined ? false : disabled,
       action: (files, ...args) => {
-        return action(files || this.get('selectedFiles'), ...args);
+        return action(files || this.get('selectedItems'), ...args);
       },
       class: `file-action-${id} ${elementClass || ''}`,
     });

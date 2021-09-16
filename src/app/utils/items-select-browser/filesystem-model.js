@@ -213,9 +213,8 @@ export default BaseModel.extend(I18n, {
         (!browserSelectedItems || !browserSelectedItems.length) &&
         allowedFileTypes.includes(get(file, 'type'))
       ) {
-        this.setSelectedItems([file]);
-        // TODO: 7633 jump to newly created directory (invoking jumpToSelection of
-        // fb-table now causes problems)
+        // TODO: VFS-8215 jump to newly created directory - something doesn't work
+        this.get('browserModel.fbTableApi').forceSelectAndJump([file]);
       }
     }
 

@@ -10,10 +10,10 @@
       browserModel=browserModel
       dir=dir
       customRootDir=rootDir
-      selectedFiles=selectedFiles
+      selectedItems=selectedItems
       customFetchDirChildren=(if isInShareRoot (action "fetchShareRootDirChildren") undefined)
       previewMode=true
-      changeSelectedFiles=(action (mut selectedFiles))
+      changeSelectedItems=(action "changeSelectedItems")
       getItemByIdFun=(action getItemById)
       resolveFileParentFun=(action "resolveFileParentFun")
       updateDirEntityId=(action "updateDirId")

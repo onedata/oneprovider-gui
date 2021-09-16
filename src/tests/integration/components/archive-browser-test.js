@@ -124,13 +124,13 @@ function render(testCase) {
     resolveFileParentFun=resolveFileParentFun
     spaceId=spaceId
     spacePrivileges = spacePrivileges
-    selectedFiles=selectedFiles
-    selectedFilesForJump=selectedFilesForJump
+    selectedItems=selectedItems
+    selectedItemsForJump=selectedItemsForJump
     isSpaceOwned=true
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
     updateDirEntityId=(action updateDirEntityId)
-    changeSelectedFiles=(action (mut selectedFiles))
+    changeSelectedItems=(action (mut selectedItems))
   }}</div>`);
 }
 

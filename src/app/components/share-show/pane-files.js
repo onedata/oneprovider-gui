@@ -22,6 +22,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 
 const shareRootId = 'shareRoot';
 
@@ -34,7 +35,7 @@ const ShareRootDir = EmberObject.extend({
   parent: promise.object(raw(resolve(null))),
 });
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, ItemBrowserContainerBase, {
   classNames: ['share-show-pane-files', 'pane-files'],
 
   fileManager: service(),
@@ -91,7 +92,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<Models.File>}
    */
-  selectedFiles: undefined,
+  selectedItems: undefined,
 
   isInShareRoot: bool('dirProxy.content.isShareRoot'),
 
@@ -131,8 +132,8 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
-    if (!this.get('selectedFiles')) {
-      this.set('selectedFiles', []);
+    if (!this.get('selectedItems')) {
+      this.set('selectedItems', []);
     }
     this.set('browserModel', this.createBrowserModel());
   },
@@ -237,6 +238,9 @@ export default Component.extend(I18n, {
       } else {
         return get(file, 'parent');
       }
+    },
+    changeSelectedItems(selectedItems) {
+      return this.changeSelectedItems(selectedItems);
     },
   },
 });

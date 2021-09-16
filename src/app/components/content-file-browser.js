@@ -17,17 +17,18 @@ import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { promise } from 'ember-awesome-macros';
-import { resolve, Promise } from 'rsvp';
-import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
+import { isEmpty } from '@ember/utils';
 import { executeWorkflowDataLocalStorageKey } from 'oneprovider-gui/components/space-automation/input-stores-form';
 
 export default OneEmbeddedComponent.extend(
   I18n,
-  ContentSpaceBaseMixin, {
+  ContentSpaceBaseMixin,
+  ItemBrowserContainerBase, {
     classNames: ['content-file-browser', 'upload-drop-zone-container'],
 
     /**
@@ -111,12 +112,51 @@ export default OneEmbeddedComponent.extend(
      * Initialized on init.
      * @type {Array<Models.File>}
      */
-    selectedFiles: undefined,
+    selectedItems: undefined,
 
     /**
      * @type {String}
      */
     navigateTarget: '_top',
+
+    /**
+     * @override
+     */
+    selectedItemsForJumpProxy: promise.object(
+      computed('selected', async function selectedItemsForJumpProxy() {
+        const {
+          selected,
+          fileManager,
+          dirProxy,
+        } = this.getProperties('selected', 'fileManager', 'dirProxy');
+        if (selected) {
+          try {
+            const files = await onlyFulfilledValues(selected.map(id =>
+              fileManager.getFileById(id)
+            ));
+            const dir = await dirProxy;
+            if (!dir) {
+              return [];
+            }
+
+            const validFiles = await files.filter(file => {
+              const fileId = file && file.relationEntityId('parent');
+              if (!fileId) {
+                return false;
+              }
+              // filter out files that have other parents than opened dir
+              return fileId === get(dir, 'entityId');
+            });
+
+            return validFiles;
+          } catch (error) {
+            console.error(
+              `component:content-file-browser#selectedItemsForJumpProxy: error loading selected files: ${error}`
+            );
+          }
+        }
+      })
+    ),
 
     /**
      * @type {ComputedProperty<Object>}
@@ -139,57 +179,13 @@ export default OneEmbeddedComponent.extend(
       return this.get('dirProxy');
     })),
 
-    /**
-     * NOTE: not observing anything, because it should be one-time proxy
-     * @type {PromiseObject<Models.File>}
-     */
-    initialSelectedFilesForJumpProxy: promise.object(computed(
-      function initialSelectedFilesForJumpProxy() {
-        return this.get('selectedFilesForJumpProxy');
-      }
-    )),
-
-    selectedFilesForJumpProxy: promise.object(
-      computed('selected', function selectedFilesForJumpProxy() {
-        const {
-          selected,
-          fileManager,
-          dirProxy,
-        } = this.getProperties('selected', 'fileManager', 'dirProxy');
-        if (selected) {
-          // TODO: something is broken and changing to empty array propagates back to OP
-          // changing selection in file browser should clear Onezone's selection from URL
-          // because it's one-way relation
-          // this.callParent('updateSelected', []);
-          return onlyFulfilledValues(selected.map(id => fileManager.getFileById(id)))
-            .then(files => {
-              return dirProxy.then(dir => !dir ? [] : files.filter(file => {
-                const parentGri = file.belongsTo('parent').id();
-                if (parentGri) {
-                  // filter out files that have other parents than opened dir
-                  return parseGri(parentGri).entityId === get(dir, 'entityId');
-                } else {
-                  return false;
-                }
-              }));
-            })
-            .catch(error => {
-              console.error(
-                `component:content-file-browser#selectedFilesForJumpProxy: error loading selected files: ${error}`
-              );
-              return resolve([]);
-            });
-        }
-      })
-    ),
-
     initialRequiredDataProxy: promise.object(promise.all(
       'spaceProxy',
-      'initialSelectedFilesForJumpProxy',
+      'initialSelectedItemsForJumpProxy',
       'initialDirProxy'
     )),
 
-    selectedFilesForJump: reads('selectedFilesForJumpProxy.content'),
+    selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
 
     injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
       const {
@@ -230,48 +226,65 @@ export default OneEmbeddedComponent.extend(
       'spaceProxy',
       async function dirProxy() {
         const {
+          selected,
           injectedDirGri,
-          store,
-          globalNotify,
-          _window,
-          navigateTarget,
         } = this.getProperties(
+          'selected',
           'injectedDirGri',
-          'store',
-          'globalNotify',
-          '_window',
-          'navigateTarget'
         );
 
-        if (!injectedDirGri) {
-          return this.get('fallbackDirProxy');
-        }
-
-        const redirectUrl = await this.openSelectedParentDir();
-        if (redirectUrl) {
-          return new Promise(() => {
-            _window.open(redirectUrl, navigateTarget);
-          });
-        }
-
-        try {
-          // TODO: VFS-7643 refactor to use file-manager
-          const dirItem = await store.findRecord('file', injectedDirGri);
-          const type = get(dirItem, 'type');
-          if (
-            type === 'dir' ||
-            type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
-          ) {
-            return dirItem;
-          } else {
-            return get(dirItem, 'parent');
-          }
-        } catch (error) {
-          globalNotify.backendError(this.t('openingDirectory'), error);
-          return this.get('fallbackDirProxy');
+        if (injectedDirGri) {
+          return this.resolveDirForGri(injectedDirGri);
+        } else {
+          return this.resolveDirForSelectedIds(selected);
         }
       }
     )),
+
+    async resolveDirForGri(dirGri) {
+      const {
+        store,
+        globalNotify,
+      } = this.getProperties('store', 'globalNotify');
+
+      try {
+        // TODO: VFS-7643 refactor to use file-manager
+        const dirItem = await store.findRecord('file', dirGri);
+        const type = get(dirItem, 'type');
+        if (
+          type === 'dir' ||
+          type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
+        ) {
+          return dirItem;
+        } else {
+          return get(dirItem, 'parent');
+        }
+      } catch (error) {
+        globalNotify.backendError(this.t('openingDirectory'), error);
+        return this.get('fallbackDirProxy');
+      }
+    },
+
+    async resolveDirForSelectedIds(selectedIds) {
+      // NOTE: fallbackDirProxy is not got using `get` to avoid loading it
+      // unnecessarily
+      const _window = this.get('_window');
+
+      if (isEmpty(selectedIds)) {
+        // no dir nor selected files provided - go home
+        return this.get('fallbackDirProxy');
+      } else {
+        const redirectOptions = await this.resolveSelectedParentDirUrl();
+        if (redirectOptions) {
+          // TODO: VFS-8342 common util for replacing master URL
+          _window.top.location.replace(redirectOptions.dataUrl);
+          return (await redirectOptions.dirProxy) || this.get('fallbackDirProxy');
+        } else {
+          // resolving parent from selection failed - fallback to home
+          return this.get('fallbackDirProxy');
+        }
+      }
+    },
 
     dir: computedLastProxyContent('dirProxy'),
 
@@ -286,21 +299,9 @@ export default OneEmbeddedComponent.extend(
       'injectedDirGri',
       'selected',
       function injectedDirObserver() {
-        this.openSelectedParentDir();
+        this.resolveSelectedParentDirUrl();
       }
     ),
-
-    /**
-     * Observer: override selected files when value injected from outside changes
-     */
-    injectedSelectedChanged: observer(
-      'selectedFilesForJumpProxy.content',
-      function injectedSelectedChanged() {
-        const selectedFilesForJump = this.get('selectedFilesForJumpProxy.content');
-        if (selectedFilesForJump) {
-          this.set('selectedFilesForJump', selectedFilesForJump);
-        }
-      }),
 
     spaceEntityIdObserver: observer('spaceEntityId', function spaceEntityIdObserver() {
       this.closeAllModals();
@@ -310,9 +311,6 @@ export default OneEmbeddedComponent.extend(
 
     init() {
       this._super(...arguments);
-      if (!this.get('selectedFiles')) {
-        this.set('selectedFiles', []);
-      }
       this.set('browserModel', this.createBrowserModel());
     },
 
@@ -343,44 +341,43 @@ export default OneEmbeddedComponent.extend(
      * Optionally redirects Onezone to URL containing parent directory of first
      * selected file (if there is no injected dir id and at least one selected file).
      * If there is no need to redirect, resolves false.
-     * @returns {Promise}
+     * @returns {Promise<{dataUrl: string, dirProxy: PromiseObject}>}
      */
-    openSelectedParentDir() {
-      if (!this.get('injectedDirGri')) {
-        const selected = this.get('selected');
-        const firstSelectedId = selected && selected[0];
-        if (firstSelectedId) {
-          const fileManager = this.get('fileManager');
-          return fileManager.getFileById(firstSelectedId)
-            .then(file => {
-              const parentGri = file.belongsTo('parent').id();
-              if (parentGri) {
-                const parentId = parseGri(parentGri).entityId;
-                const dataUrl = this.callParent(
-                  'getDataUrl', {
-                    fileId: parentId,
-                    selected,
-                  }
-                );
-                return resolve(dataUrl);
-              } else if (get(selected, 'length') === 0) {
-                const dataUrl = this.callParent(
-                  'getDataUrl', {
-                    fileId: selected[0],
-                    selected: null,
-                  }
-                );
-                return resolve(dataUrl);
-              } else {
-                return resolve(null);
-              }
-            })
-            .catch(() => null);
-        } else {
-          return resolve(null);
-        }
+    async resolveSelectedParentDirUrl() {
+      const {
+        injectedDirGri,
+        selected,
+        fileManager,
+      } = this.getProperties('injectedDirGri', 'selected', 'fileManager');
+      const firstSelectedId = selected && selected[0];
+
+      if (injectedDirGri || !firstSelectedId) {
+        // no need to resolve parent dir, as it is already specified or there is no
+        // selection specified
+        return null;
+      }
+
+      let firstSelectedFile;
+      try {
+        firstSelectedFile = await fileManager.getFileById(firstSelectedId);
+      } catch (error) {
+        console.debug(
+          `component:content-file-browser#resolveSelectedParentDirUrl: cannot resolve first selected file: "${error}"`
+        );
+        return null;
+      }
+      const parentId = firstSelectedFile &&
+        firstSelectedFile.relationEntityId('parent');
+      if (parentId) {
+        const dataUrl = this.callParent(
+          'getDataUrl', {
+            fileId: parentId,
+            selected,
+          }
+        );
+        return { dataUrl, dirProxy: get(firstSelectedFile, 'parent') };
       } else {
-        return resolve(null);
+        return null;
       }
     },
 
@@ -468,8 +465,7 @@ export default OneEmbeddedComponent.extend(
       }
       const filesToRemove = this.get('filesToRemove');
       if (filesToRemove) {
-        this.set(
-          'selectedFiles',
+        this.changeSelectedItems(
           filesToRemove.filter(file => newIds.includes(get(file, 'entityId')))
         );
       }
@@ -546,16 +542,15 @@ export default OneEmbeddedComponent.extend(
     },
 
     clearFilesSelection() {
-      this.set('selectedFiles', []);
-      this.set('selectedFilesForJump', []);
+      return this.changeSelectedItems([]);
     },
 
     actions: {
       containerScrollTop() {
         return this.get('containerScrollTop')(...arguments);
       },
-      changeSelectedFiles(selectedFiles) {
-        this.set('selectedFiles', selectedFiles);
+      changeSelectedItems(selectedItems) {
+        return this.changeSelectedItems(selectedItems);
       },
       updateDirEntityId(dirEntityId) {
         this.callParent('updateDirEntityId', dirEntityId);
