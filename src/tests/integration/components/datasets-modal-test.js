@@ -14,7 +14,6 @@ import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import wait from 'ember-test-helpers/wait';
 import $ from 'jquery';
-import { click } from 'ember-native-dom-helpers';
 import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
 
 describe('Integration | Component | datasets modal', function () {
@@ -42,7 +41,12 @@ describe('Integration | Component | datasets modal', function () {
     expect($('.datasets-modal.in .file-datasets-modal-header')).to.exist;
     expect($('.modal-file-subheader .file-name')).to.contain('test-file.txt');
     expect(this.get('onHide')).to.have.not.been.called;
-    await click('.close-btn');
+    await closeModalUsingBackground();
     expect(this.get('onHide')).to.have.been.calledOnce;
   });
 });
+
+async function closeModalUsingBackground() {
+  document.querySelector('.modal').click();
+  return wait();
+}
