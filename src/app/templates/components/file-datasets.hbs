@@ -6,25 +6,42 @@
     editPrivilege=editPrivilege
     insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
   }}
+  <div class="file-datasets-header-lower header-with-tags">
+    {{file-datasets/tab-bar
+      activeTab=activeTab
+      disabledTabs=disabledTabs
+      onActiveTabChange=(action (mut activeTab))
+    }}
+    {{dataset-protection/effective-info
+      class="header-tags-container"
+      file=file
+      mode="file"
+      fileDatasetSummaryProxy=fileDatasetSummaryProxy
+    }}
+  </div>
 {{/modal.header}}
 
 {{#modal.body class="file-datasets-part file-datasets-modal-body"}}
-  {{#dataset-protection/table
-    fileDatasetSummaryProxy=fileDatasetSummaryProxy
-    directDatasetProxy=directDatasetProxy
-    file=file
-    mode="file"
-    editPrivilege=editPrivilege
-    insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-    close=close
-    getDataUrl=getDataUrl
-    getDatasetsUrl=getDatasetsUrl
-  }}
-    {{file-datasets/direct-dataset-control
-      file=file
+  {{#if (eq activeTab "settings")}}
+    {{#dataset-protection/table
+      fileDatasetSummaryProxy=fileDatasetSummaryProxy
       directDatasetProxy=directDatasetProxy
-      readonly=(not editPrivilege)
-      togglesReadonlyMessage=insufficientEditPrivilegesMessage
+      file=file
+      mode="file"
+      editPrivilege=editPrivilege
+      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+      close=close
+      getDataUrl=getDataUrl
+      getDatasetsUrl=getDatasetsUrl
     }}
-  {{/dataset-protection/table}}
+      {{file-datasets/direct-dataset-control
+        file=file
+        directDatasetProxy=directDatasetProxy
+        readonly=(not editPrivilege)
+        togglesReadonlyMessage=insufficientEditPrivilegesMessage
+      }}
+    {{/dataset-protection/table}}
+  {{else if (eq activeTab "archives")}}
+    {{file-datasets/tab-archives}}
+  {{/if}}
 {{/modal.body}}

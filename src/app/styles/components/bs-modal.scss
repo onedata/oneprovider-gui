@@ -59,6 +59,22 @@
         }
       }
     }
+
+    &.with-close-button {
+      &.in .modal-content .modal-header {
+        .close {
+          display: block;
+          // FIXME: refactor styles
+          margin-top: 14px;
+          font-size: 2.5em;
+          opacity: 0.4;
+          color: $main-text-color;
+          &:hover {
+            opacity: $disabled-opacity;
+          }
+        }
+      }
+    }
   }
 
   .modal-dialog {

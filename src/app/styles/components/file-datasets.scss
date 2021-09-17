@@ -7,18 +7,33 @@
       border-top: 0;
     }
   }
+  .file-datasets-header-lower {
+    display: flex;
+    .datasets-modal-tab-bar {
+      flex-grow: 1;
+      align-self: flex-end;
+    }
+    .modal-header-effective-info {
+      flex-shrink: 1;
+    }
+  }
+  .modal-header-effective-info {
+    margin-top: 0;
+    font-size: $font-size-small;
+  }
 }
 
 @media (max-width: $screen-xs-max) {
   .file-datasets-part {
-    .file-datasets-summary-header {
+    .file-datasets-header-lower {
       flex-direction: column;
       overflow-x: hidden;
-      .modal-header-effective-info {
-        margin-top: 0;
-        text-align: left;
-        font-size: 80%;
-      }
+    }
+    // FIXME: redundancy with dataset-protection?
+    .modal-header-effective-info {
+      margin-top: 0;
+      text-align: left;
+      font-size: 80%;
     }
   }
 }

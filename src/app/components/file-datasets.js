@@ -16,6 +16,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { collect, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -73,6 +74,12 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   fileDatasetSummaryLoadError: null,
+
+  /**
+   * One of: settings, archives
+   * @type {String}
+   */
+  activeTab: 'settings',
 
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
@@ -141,4 +148,6 @@ export default Component.extend(I18n, {
       }
     }
   ),
+
+  disabledTabs: collect(raw('archives')),
 });

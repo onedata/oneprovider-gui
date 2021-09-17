@@ -5,4 +5,11 @@ export default {
   close: 'Close',
   summaryHeader,
   directDatasetControl,
+  // FIXME: component to other file
+  tabBar: {
+    tabs: {
+      settings: 'Settings',
+      archives: 'Archives',
+    },
+  },
 };
