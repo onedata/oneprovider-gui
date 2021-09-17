@@ -126,6 +126,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         runsState[run.runNo] = {
           runNo: run.runNo,
           sourceRunNo: run.sourceRunNo,
+          runType: run.runType,
           iteratedStoreInstanceId: run.iteratedStoreId,
           exceptionStoreInstanceId: run.exceptionStoreId,
           status: run.status,

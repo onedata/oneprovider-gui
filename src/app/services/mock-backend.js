@@ -1223,10 +1223,12 @@ export default Service.extend({
                   });
                 const prevRunExceptionStoreId =
                   runNo > 1 && get(exceptionStoresPerRun[runNo - 1], 'entityId');
+                const isRerun = runNo % 5 == 0;
                 const run = {
                   runNo,
-                  sourceRunNo: runNo > 1 ? runNo - 1 : null,
-                  iteratedStoreId: runNo === 1 || runNo % 5 == 0 ?
+                  sourceRunNo: runNo === 1 ? null : (isRerun ? 1 : runNo - 1),
+                  runType: runNo === 1 ? 'regular' : (isRerun ? 'rerun' : 'retry'),
+                  iteratedStoreId: runNo === 1 || isRerun ?
                     storeIdFromSpec : prevRunExceptionStoreId,
                   exceptionStoreId,
                   status,
