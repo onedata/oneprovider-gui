@@ -374,7 +374,7 @@ export default Service.extend(I18n, {
             bytesUploaded: resumableFile.size,
             success: true,
           });
-          resumableFile.fileModel.pollSize(10, 2000, resumableFile.size);
+          resumableFile.fileModel.pollSize(2000, resumableFile.size, 10);
         })
         .catch(error => {
           const errorMessage = get(

@@ -21,11 +21,13 @@ export default _.merge({}, BaseBrowserModel, {
   currentDataset: 'Current dataset',
   spaceDatasets: 'Space datasets',
   notAvailableHaveArchives: 'Not availabe for datasets with created archives.',
+  datasetId: 'dataset ID',
   fileType: {
     file: 'file',
     dir: 'directory',
   },
   fileActions: {
+    copyDatasetId: 'Copy dataset ID',
     showFile: 'Show in file browser',
     manageArchives: 'Manage archives',
     createArchive: 'Create archive',

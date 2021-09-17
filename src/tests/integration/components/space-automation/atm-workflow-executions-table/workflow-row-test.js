@@ -58,7 +58,7 @@ const executionActionsSpec = [{
   icon: 'cancelled',
 }, {
   className: 'copy-record-id-action-trigger',
-  label: 'Copy workflow execution ID',
+  label: 'Copy ID',
   icon: 'copy',
 }];
 

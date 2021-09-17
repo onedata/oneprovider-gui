@@ -103,11 +103,11 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * Link on item text, if it has a dataset established.
+   * Link to archives view of dataset, if it has a dataset established.
    * @type {ComputedProperty<String>}
    */
-  datasetLinkProxy: promise.object(computed(
-    'directDatasetProxy',
+  datasetArchivesLinkProxy: promise.object(computed(
+    'directDatasetProxy.content.{parent,state}',
     async function datasetLinkProxy() {
       const directDataset = await this.get('directDatasetProxy');
       if (directDataset) {
@@ -115,6 +115,31 @@ export default Component.extend(I18n, {
         const options = {
           datasetId,
           viewMode: 'archives',
+          attachmentState: get(directDataset, 'state'),
+        };
+        return this.get('getDatasetsUrl')(options);
+      }
+    }
+  )),
+
+  datasetArchivesLink: reads('datasetArchivesLinkProxy.content'),
+
+  /**
+   * Link on item text, if it has a dataset established.
+   * @type {ComputedProperty<String>}
+   */
+  datasetLinkProxy: promise.object(computed(
+    'directDatasetProxy.content.{parent,state}',
+    async function datasetLinkProxy() {
+      const directDataset = await this.get('directDatasetProxy');
+      if (directDataset) {
+        const datasetId = get(directDataset, 'entityId');
+        const parentId = directDataset.relationEntityId('parent');
+        const options = {
+          datasetId: parentId,
+          selected: datasetId,
+          viewMode: 'datasets',
+          attachmentState: get(directDataset, 'state'),
         };
         return this.get('getDatasetsUrl')(options);
       }

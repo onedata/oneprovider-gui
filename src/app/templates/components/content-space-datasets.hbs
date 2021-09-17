@@ -6,11 +6,11 @@
     resolveFileParentFun=(action "resolveItemParent")
     spaceId=spaceId
     spacePrivileges=spacePrivileges
-    selectedFiles=selectedItems
-    selectedFilesForJump=selectedItemsForJump
+    selectedItems=selectedItems
+    selectedItemsForJumpProxy=selectedItemsForJumpProxy
     isSpaceOwned=space.currentUserIsOwner
     getItemByIdFun=(if (eq viewMode "files") (action getFileById))
-    changeSelectedFiles=(action "changeSelectedItems")
+    changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "updateDirEntityId")
   }}
   
@@ -51,7 +51,7 @@
       open=true
       file=fileToShowInfo
       showApiSection=false
-      getDataUrl=(action getDataUrl)
+      getDataUrl=(action "getArchiveFileUrl")
       onHide=(action closeInfoModal)
     }}
   {{/if}}

@@ -34,7 +34,6 @@ export default Component.extend({
   },
 
   getDataUrl(data) {
-    console.log('getDataUrl invoked', data);
     return `http://example.com/${data.fileId}?selected=${data.selected.join(',')}`;
   },
 

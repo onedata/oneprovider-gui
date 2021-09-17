@@ -30,6 +30,8 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import ViewTester from 'onedata-gui-common/utils/view-tester';
 import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
+import sleep from 'onedata-gui-common/utils/sleep';
+import animateCss from 'onedata-gui-common/utils/animate-css';
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -82,13 +84,13 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {Array<models/File>}
    */
-  selectedFilesForJump: undefined,
+  selectedItemsForJump: undefined,
 
   /**
    * @virtual
    * @type {Array<models/File>}
    */
-  selectedFiles: undefined,
+  selectedItems: undefined,
 
   /**
    * @virtual
@@ -107,6 +109,12 @@ export default Component.extend(I18n, {
    * @type {Array<Models.File>}
    */
   fileClipboardFiles: undefined,
+
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  changeSelectedItems: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -179,6 +187,11 @@ export default Component.extend(I18n, {
   _body: document.body,
 
   /**
+   * @type {Array<String>}
+   */
+  rowFocusAnimationClasses: Object.freeze(['pulse-bg-selected-file-highlight', 'slow']),
+
+  /**
    * JS time when context menu was last repositioned
    * @type {Number}
    */
@@ -233,7 +246,7 @@ export default Component.extend(I18n, {
     raw('file-browser/fb-empty-dir')
   ),
 
-  selectionCount: reads('selectedFiles.length'),
+  selectionCount: reads('selectedItems.length'),
 
   viewTester: computed('contentScroll', function viewTester() {
     const $contentScroll = $(this.get('contentScroll'));
@@ -317,36 +330,33 @@ export default Component.extend(I18n, {
     }
   ),
 
-  adjustScrollOnFirstRowChange: observer(
-    'firstRowHeight',
-    function adjustScrollOnFirstRowChange() {
-      const { element: firstRow, renderedRowIndex } = this.getFirstVisibleRow();
-      const $firstRow = $(firstRow);
-      if ($firstRow && $firstRow.length) {
-        const topBefore = $firstRow.offset().top;
-        scheduleOnce('afterRender', () => {
-          const isFirstRowInDom = Boolean($firstRow[0].parentElement);
-          let $offsetRow;
-          if (isFirstRowInDom) {
-            $offsetRow = $firstRow;
-          } else {
-            $offsetRow = $(this.getNthRenderedRow(renderedRowIndex));
-          }
-          if (!$offsetRow.length) {
-            return;
-          }
-          const topAfter = $offsetRow.offset().top;
-          const topDiff = topAfter - topBefore;
-          if (!topDiff) {
-            return;
-          }
-          this.set('ignoreNextScroll', true);
-
+  /**
+   * When replacing chunks array gets expanded on beginning (items are unshifted into
+   * array), we need to compensate scroll because new content is added on top.
+   * Currently (as of 2021) not all browsers support scroll anchoring and
+   * `perfect-scrollbar` has issues with it (anchoring is disabled), so we need to do
+   * scroll correction manually.
+   * @param {Promise} arrayExpandedPromise promise that resolves when files array
+   *   have new items added and start/end markers are changed
+   */
+  async adjustScroll(arrayExpandedPromise) {
+    const additionalFrontSpace = await arrayExpandedPromise;
+    const topDiff = additionalFrontSpace * this.get('rowHeight');
+    if (topDiff <= 0) {
+      return;
+    }
+    console.debug(
+      `component:file-browser/fb-table#adjustScrollOnFirstRowChange: adjusting scroll by ${topDiff}`
+    );
+    this.set('ignoreNextScroll', true);
+    scheduleOnce('afterRender', this, () => {
+      window.requestAnimationFrame(() => {
+        safeExec(this, () => {
           this.get('containerScrollTop')(topDiff, true);
         });
-      }
-    },
-  ),
+      });
+    });
+  },
 
   firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
     return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
@@ -354,24 +364,11 @@ export default Component.extend(I18n, {
 
   filesArray: computed('dir.entityId', 'browserModel', function filesArray() {
     const dirId = this.get('dir.entityId');
-    const {
-      selectedFilesForJump,
-      changeSelectedFiles,
-      selectedFiles,
-    } = this.getProperties(
-      'selectedFilesForJump',
-      'changeSelectedFiles',
-      'selectedFiles'
-    );
+    const selectedItemsForJump = this.get('selectedItemsForJump');
     let initialJumpIndex;
-    if (!isEmpty(selectedFilesForJump)) {
-      const firstSelected = A(selectedFilesForJump).sortBy('index').objectAt(0);
-      initialJumpIndex = get(firstSelected, 'index');
-      if (!_.isEqual(selectedFiles, selectedFilesForJump)) {
-        scheduleOnce('afterRender', () => {
-          changeSelectedFiles(selectedFilesForJump);
-        });
-      }
+    if (!isEmpty(selectedItemsForJump)) {
+      const firstSelectedForJump = A(selectedItemsForJump).sortBy('index').objectAt(0);
+      initialJumpIndex = get(firstSelectedForJump, 'index');
     }
     const array = ReplacingChunksArray.create({
       fetch: (...fetchArgs) =>
@@ -405,6 +402,10 @@ export default Component.extend(I18n, {
     array.on(
       'fetchNextRejected',
       () => this.onFetchingStateUpdate('next', 'rejected')
+    );
+    array.on(
+      'willExpandArrayBeginning',
+      (arrayUpdatePromise) => this.adjustScroll(arrayUpdatePromise)
     );
     return array;
   }),
@@ -461,6 +462,10 @@ export default Component.extend(I18n, {
       getFilesArray: () => {
         return this.get('filesArray');
       },
+      forceSelectAndJump: async (items) => {
+        await this.get('changeSelectedItems')(items);
+        return this.jumpToSelection();
+      },
     };
   }),
 
@@ -513,35 +518,6 @@ export default Component.extend(I18n, {
     registerApi(api);
   }),
 
-  watchFilesArrayInitialLoad: observer(
-    'initialLoad.isFulfilled',
-    function watchFilesArrayInitialLoad() {
-      if (this.get('initialLoad.isFulfilled')) {
-        const {
-          listWatcher,
-          element,
-          selectedFiles,
-        } = this.getProperties('listWatcher', 'element', 'selectedFiles');
-
-        scheduleOnce('afterRender', () => {
-          const firstSelected = !isEmpty(selectedFiles) &&
-            A(selectedFiles).sortBy('index').objectAt(0);
-          if (firstSelected) {
-            const entityId = get(firstSelected, 'entityId');
-            const row = element.querySelector(`[data-row-id="${entityId}"]`);
-            if (row) {
-              row.scrollIntoView({ block: 'center' });
-            }
-          }
-
-          next(() => {
-            listWatcher.scrollHandler();
-          });
-        });
-      }
-    }
-  ),
-
   /**
    * Change of a start or end index could be needed after source array length change
    */
@@ -557,22 +533,28 @@ export default Component.extend(I18n, {
     }
   ),
 
-  selectedFilesForJumpObserver: observer(
-    'selectedFilesForJump',
-    function selectedFilesForJumpObserver() {
-      const selectedFilesForJump = this.get('selectedFilesForJump');
-      if (!isEmpty(selectedFilesForJump)) {
-        const changeSelectedFiles = this.get('changeSelectedFiles');
-        scheduleOnce('afterRender', () => {
-          changeSelectedFiles(selectedFilesForJump);
-          next(() => {
-            safeExec(this, () => {
-              // TODO: although it should be, we cannot be sure if selection is changed
-              this.jumpToSelection();
-            });
-          });
-        });
+  selectedItemsForJumpObserver: observer(
+    'selectedItemsForJump',
+    async function selectedItemsForJumpObserver() {
+      const {
+        selectedItems,
+        selectedItemsForJump,
+        changeSelectedItems,
+      } = this.getProperties(
+        'selectedItems',
+        'selectedItemsForJump',
+        'changeSelectedItems'
+      );
+      if (isEmpty(selectedItemsForJump)) {
+        return;
       }
+
+      await this.get('filesArray.initialLoad');
+      if (!_.isEqual(selectedItems, selectedItemsForJump)) {
+        await changeSelectedItems(selectedItemsForJump);
+      }
+
+      return await this.jumpToSelection();
     }
   ),
 
@@ -583,12 +565,24 @@ export default Component.extend(I18n, {
       registerApi,
       api,
       loadingIconFileIds,
-    } = this.getProperties('fileManager', 'registerApi', 'api', 'loadingIconFileIds');
+      filesArray,
+    } = this.getProperties(
+      'fileManager',
+      'registerApi',
+      'api',
+      'loadingIconFileIds',
+      'filesArray'
+    );
     if (!loadingIconFileIds) {
       this.set('loadingIconFileIds', A());
     }
     fileManager.registerRefreshHandler(this);
     registerApi(api);
+    if (get(filesArray, 'initialJumpIndex')) {
+      get(filesArray, 'initialLoad').then(() => {
+        this.selectedItemsForJumpObserver();
+      });
+    }
   },
 
   didInsertElement() {
@@ -606,42 +600,90 @@ export default Component.extend(I18n, {
     }
   },
 
-  jumpToSelection() {
+  async jumpToSelection() {
     const {
-      selectedFiles,
+      selectedItems,
       filesArray,
-      listWatcher,
-      element,
-    } = this.getProperties('selectedFiles', 'filesArray', 'listWatcher', 'element');
-    if (isEmpty(selectedFiles)) {
-      return resolve();
+    } = this.getProperties('selectedItems', 'filesArray');
+    if (isEmpty(selectedItems)) {
+      return;
     }
-    const firstSelected = A(selectedFiles).sortBy('index').objectAt(0);
+    const firstSelected = A(selectedItems).sortBy('index').objectAt(0);
+    const {
+      entityId,
+      index,
+    } = getProperties(firstSelected, 'entityId', 'index');
+
+    // ensure that array is loaded and rendered
+    await get(filesArray, 'initialLoad');
+    await sleep(0);
+
+    const listWatcher = this.get('listWatcher');
     if (!filesArray.includes(firstSelected)) {
-      const {
-        entityId,
-        index,
-      } = getProperties(firstSelected, 'entityId', 'index');
-      return filesArray.jump(index, 50)
-        .then(result => {
-          if (result !== false) {
-            scheduleOnce('afterRender', () => {
-              const row = element.querySelector(`[data-row-id="${entityId}"]`);
-              row.scrollIntoView({ block: 'center' });
-              next(() => {
-                // TODO: could be unsafe
-                // there are edge cases when file is not centered using first scroll
-                row.scrollIntoView({ block: 'center' });
-                next(() => {
-                  listWatcher.scrollHandler();
-                });
-              });
-            });
-          }
-        });
-    } else {
-      return resolve();
+      const jumpResult = await filesArray.scheduleJump(index, 50);
+      if (!jumpResult) {
+        console.warn(
+          `component:file-browser/fb-table#jumpToSelection: item with index ${index} not found after jump`
+        );
+        return;
+      }
+      // wait for render of array fragment containing item to jump
+      await sleep(0);
+      listWatcher.scrollHandler();
+      // wait for fetch prev/next resolve
+      await this.get('filesArray').getCurrentExpandPromise();
+      // wait for fetch prev/next result render
+      await sleep(0);
     }
+
+    this.focusOnRow(entityId, false);
+    this.highlightAnimateRows(selectedItems.mapBy('entityId'));
+  },
+
+  /**
+   * Scrolls to row, so it is visible to user and makes animation on it to gain user's
+   * attention.
+   * @param {String} rowId content of row's `data-row-id`
+   * @param {Boolean} [animate] if true then use highlight animation after scroll
+   * @returns {Boolean} true if row was found
+   */
+  focusOnRow(rowId, animate = true) {
+    const [row] = this.findItemRows([rowId]);
+    if (row) {
+      // force handle scroll into view, because scroll adjust might disabled it
+      this.set('ignoreNextScroll', false);
+      row.scrollIntoView({ block: 'center' });
+      if (animate) {
+        scheduleOnce('afterRender', () => {
+          this.highlightAnimateRows([rowId]);
+        });
+      }
+      return true;
+    } else {
+      console.warn(
+        `component:file-browser/fb-table#focusOnRow: no row element found for "${rowId}"`
+      );
+      return false;
+    }
+  },
+
+  highlightAnimateRows(rowsIds) {
+    const rowFocusAnimationClasses = this.get('rowFocusAnimationClasses');
+    const rowElements = this.findItemRows(rowsIds);
+    rowElements.forEach(rowElement => {
+      animateCss(rowElement, ...rowFocusAnimationClasses);
+    });
+  },
+
+  /**
+   * For given row ids, retuns list of rendered table rows ordered as in DOM
+   * (not as specified in `rowIds`).
+   * @param {Array<String>} rowsIds 
+   * @returns {NodeListOf<HTMLTableRowElement>}
+   */
+  findItemRows(rowsIds) {
+    const selector = rowsIds.map(rowId => `[data-row-id="${rowId}"]`).join(',');
+    return this.get('element').querySelectorAll(selector);
   },
 
   /**
@@ -712,15 +754,15 @@ export default Component.extend(I18n, {
     const visibleLengthBeforeReload = this.$('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
 
-    return filesArray.reload()
+    return filesArray.scheduleReload()
       .finally(() => {
         const {
-          selectedFiles,
-          changeSelectedFiles,
-        } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+          selectedItems,
+          changeSelectedItems,
+        } = this.getProperties('selectedItems', 'changeSelectedItems');
         const sourceArray = get(filesArray, 'sourceArray');
-        if (!isEmpty(selectedFiles)) {
-          changeSelectedFiles(selectedFiles.filter(selectedFile =>
+        if (!isEmpty(selectedItems)) {
+          changeSelectedItems(selectedItems.filter(selectedFile =>
             sourceArray.includes(selectedFile)
           ));
         }
@@ -768,7 +810,7 @@ export default Component.extend(I18n, {
     if (items[0] && !items[0].getAttribute('data-row-id')) {
       const listWatcher = this.get('listWatcher');
       next(() => {
-        filesArray.fetchPrev().then(result => {
+        filesArray.scheduleTask('fetchPrev').then(result => {
           if (result !== false) {
             // wait for fetched prev render if something more loaded
             next(() => listWatcher.scrollHandler());
@@ -827,7 +869,7 @@ export default Component.extend(I18n, {
   },
 
   clearFilesSelection() {
-    this.get('changeSelectedFiles')([]);
+    return this.get('changeSelectedItems')([]);
   },
 
   /**
@@ -844,11 +886,11 @@ export default Component.extend(I18n, {
     }
 
     const {
-      selectedFiles,
+      selectedItems,
       previewMode,
-    } = this.getProperties('selectedFiles', 'previewMode');
-    const selectedCount = get(selectedFiles, 'length');
-    const fileIsSelected = selectedFiles.includes(file);
+    } = this.getProperties('selectedItems', 'previewMode');
+    const selectedCount = get(selectedItems, 'length');
+    const fileIsSelected = selectedItems.includes(file);
     const otherFilesSelected = selectedCount > (fileIsSelected ? 1 : 0);
     if (previewMode) {
       if (fileIsSelected) {
@@ -887,44 +929,44 @@ export default Component.extend(I18n, {
     }
   },
 
-  addToSelectedFiles(newFiles) {
+  addToSelectedItems(newFiles) {
     const {
-      selectedFiles,
-      changeSelectedFiles,
-    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
+      selectedItems,
+      changeSelectedItems,
+    } = this.getProperties('selectedItems', 'changeSelectedItems');
     const filesWithoutBroken = _.difference(
       newFiles.filter(f => get(f, 'type') !== 'broken'),
-      selectedFiles
+      selectedItems
     );
-    const newSelectedFiles = [...selectedFiles, ...filesWithoutBroken];
+    const newSelectedItems = [...selectedItems, ...filesWithoutBroken];
 
-    return changeSelectedFiles(newSelectedFiles);
+    return changeSelectedItems(newSelectedItems);
   },
 
-  selectRemoveSingleFile(file) {
+  async selectRemoveSingleFile(file) {
     const {
-      selectedFiles,
-      changeSelectedFiles,
-    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
-    changeSelectedFiles(selectedFiles.without(file));
+      selectedItems,
+      changeSelectedItems,
+    } = this.getProperties('selectedItems', 'changeSelectedItems');
+    await changeSelectedItems(selectedItems.without(file));
     this.set('lastSelectedFile', null);
   },
 
   selectRemoveFiles(files) {
     const {
-      selectedFiles,
-      changeSelectedFiles,
-    } = this.getProperties('selectedFiles', 'changeSelectedFiles');
-    changeSelectedFiles(_.difference(selectedFiles, files));
+      selectedItems,
+      changeSelectedItems,
+    } = this.getProperties('selectedItems', 'changeSelectedItems');
+    return changeSelectedItems(_.difference(selectedItems, files));
   },
 
-  selectAddSingleFile(file) {
-    this.addToSelectedFiles([file]);
+  async selectAddSingleFile(file) {
+    await this.addToSelectedItems([file]);
     this.set('lastSelectedFile', file);
   },
 
-  selectOnlySingleFile(file) {
-    this.get('changeSelectedFiles')([file]);
+  async selectOnlySingleFile(file) {
+    await this.get('changeSelectedItems')([file]);
     this.set('lastSelectedFile', file);
   },
 
@@ -956,44 +998,44 @@ export default Component.extend(I18n, {
 
     const indexA = Math.min(startIndex, fileIndex);
     const indexB = Math.max(startIndex, fileIndex);
-    this.addToSelectedFiles(sourceArray.slice(indexA, indexB + 1));
+    this.addToSelectedItems(sourceArray.slice(indexA, indexB + 1));
   },
 
   deselectBelowList(file) {
     const filesArray = this.get('filesArray');
-    const selectedFiles = this.get('selectedFiles');
+    const selectedItems = this.get('selectedItems');
     const sourceArray = get(filesArray, 'sourceArray');
     const fileIndex = sourceArray.indexOf(file);
-    const selectedFilesSet = new Set(selectedFiles);
+    const selectedItemsSet = new Set(selectedItems);
 
-    const belowSelectedFiles = [];
+    const belowSelectedItems = [];
     let nextFileIndex = fileIndex + 1;
     let nextFile = sourceArray.objectAt(nextFileIndex);
-    while (nextFile && selectedFilesSet.has(nextFile)) {
-      belowSelectedFiles.push(nextFile);
+    while (nextFile && selectedItemsSet.has(nextFile)) {
+      belowSelectedItems.push(nextFile);
       nextFileIndex += 1;
       nextFile = sourceArray.objectAt(nextFileIndex);
     }
 
     this.set('lastSelectedFile', file);
-    this.selectRemoveFiles(belowSelectedFiles);
+    this.selectRemoveFiles(belowSelectedItems);
   },
 
   findNearestSelectedIndex(fileIndex) {
     const {
       visibleFiles,
-      selectedFiles,
+      selectedItems,
     } = this.getProperties(
       'visibleFiles',
-      'selectedFiles'
+      'selectedItems'
     );
 
     // Array<[index: Number, distanceFromFile: Number]>
-    const selectedFilesIndices = selectedFiles.map(sf => {
+    const selectedItemsIndices = selectedItems.map(sf => {
       const index = visibleFiles.indexOf(sf);
       return [index, Math.abs(index - fileIndex)];
     });
-    const nearest = selectedFilesIndices.reduce((prev, current) => {
+    const nearest = selectedItemsIndices.reduce((prev, current) => {
       return current[1] < prev[1] ? current : prev;
     }, [-1, Infinity]);
     let [nearestIndex, nearestDist] = nearest;
@@ -1005,8 +1047,8 @@ export default Component.extend(I18n, {
 
   actions: {
     openContextMenu(file, mouseEvent) {
-      const selectedFiles = this.get('selectedFiles');
-      if (get(selectedFiles, 'length') === 0 || !selectedFiles.includes(file)) {
+      const selectedItems = this.get('selectedItems');
+      if (get(selectedItems, 'length') === 0 || !selectedItems.includes(file)) {
         this.selectOnlySingleFile(file);
       }
       let left;
@@ -1073,7 +1115,7 @@ export default Component.extend(I18n, {
      * @returns {any}
      */
     fileTapped(file) {
-      const areSomeFilesSelected = Boolean(this.get('selectedFiles.length'));
+      const areSomeFilesSelected = Boolean(this.get('selectedItems.length'));
       if (areSomeFilesSelected) {
         return this.fileClicked(file, true, false);
       } else {

@@ -204,7 +204,7 @@ export default Component.extend({
       transfersArray,
     } = this.getProperties('tableTopVisible', 'transfersArray');
     const listReload = tableTopVisible ?
-      transfersArray.reload() :
+      transfersArray.scheduleReload() :
       resolve(transfersArray);
 
     return listReload

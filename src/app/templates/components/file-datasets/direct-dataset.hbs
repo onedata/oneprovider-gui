@@ -28,10 +28,16 @@
         icon=directDatasetRowIcon
       }}
       {{#truncated-string class="dataset-label direct-dataset-name"}}
-        {{label}}
+        {{#if datasetLink}}
+          <a class="dataset-link azure" href={{datasetLink}} target={{navigateTarget}}>
+            {{label}}
+          </a>
+        {{else}}
+          {{label}}
+        {{/if}}
       {{/truncated-string}}
-      {{#if datasetLink}}
-        <a class="dataset-link azure" href={{datasetLink}} target={{navigateTarget}}>
+      {{#if datasetArchivesLink}}
+        <a class="dataset-archives-link azure" href={{datasetArchivesLink}} target={{navigateTarget}}>
           {{archiveCountText}}
         </a>
       {{/if}}

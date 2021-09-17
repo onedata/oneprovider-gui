@@ -12,6 +12,10 @@ import { inject as service } from '@ember/service';
 import { get, computed } from '@ember/object';
 import { promise } from 'ember-awesome-macros';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import sleep from 'onedata-gui-common/utils/sleep';
+import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
+import { resolve } from 'rsvp';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend({
   currentUser: service(),
@@ -30,7 +34,7 @@ export default Component.extend({
   /**
    * @type {Array<Models.File>}
    */
-  selectedFiles: undefined,
+  selectedItems: undefined,
 
   spacePrivileges: Object.freeze({
     view: true,
@@ -52,36 +56,68 @@ export default Component.extend({
 
   init() {
     this._super(...arguments);
-    if (!this.get('selectedFiles')) {
-      this.set('selectedFiles', []);
+    if (!this.get('selectedItems')) {
+      this.set('selectedItems', []);
     }
     this.set('browserModel', FilesystemBrowserModel.create({
       ownerSource: this,
       openRemove: this.immediatelyRemove.bind(this),
     }));
     // list of tests
-    // this.testJumpDownFromStart();
-    this.testJumpUpFromFarMiddle();
+    // this.testJumpToVisible(null, 3, 6);
+    // this.testBlinkInterval();
+    // this.testJumpToVisible(2000);
+    // this.testJumpDownFromStart(null);
+    // this.testJumpDownFromStart(2000);
+    // this.testJumpUpFromFarMiddle(6000);
+    // setTimeout(() => {
+    //   console.clear();
+    //   this.scrollTopInfinite();
+    // }, 3000);
   },
 
-  testJumpUpFromFarMiddle() {
+  scrollTopInfinite() {
+    document.getElementById('content-scroll').scrollTop = document.getElementById('content-scroll').scrollTop - 20;
+    setTimeout(() => {
+      this.scrollTopInfinite();
+    }, 10);
+  },
+
+  async testJumpToVisible(delay = null, start = 3, end = 6) {
+    if (delay !== null) {
+      await sleep(delay);
+    }
+    const files = this.get('mockBackend.entityRecords.file').slice(start, end);
+    console.log('--- select visible files ---');
+    this.set('selectedItemsForJumpProxy', promiseArray(resolve(files)));
+  },
+
+  async testBlinkInterval(range = 2, max = 10, interval = 4000) {
+    let i = 0;
+    const intervalHandler = setInterval(() => {
+      this.testJumpToVisible(null, i % max, (i + range) % max);
+      i += range;
+    }, interval);
+    return intervalHandler;
+  },
+
+  async testJumpDownFromStart(delay = null) {
+    if (delay !== null) {
+      await sleep(delay);
+    }
+    const file = this.get('mockBackend.entityRecords.file.199');
+    console.log('--- will jump to file 199 ---');
+    this.set('selectedItemsForJumpProxy', promiseArray(resolve([file])));
+  },
+
+  async testJumpUpFromFarMiddle(delay = 2000) {
     const file = this.get('mockBackend.entityRecords.file.100');
-    console.log('--- jump to file 100 at start ---');
-    this.set('selectedFiles', [file]);
-    setTimeout(() => {
-      const file = this.get('mockBackend.entityRecords.file.20');
-      console.log('--- will jump to file 20 (change selection) ---');
-      this.set('selectedFiles', [file]);
-    }, 2000);
-  },
-
-  testJumpDownFromStart() {
-    this.set('selectedFiles', []);
-    setTimeout(() => {
-      const file = this.get('mockBackend.entityRecords.file.80');
-      console.log('--- will jump to file 80 (set selection) ---');
-      this.set('selectedFiles', [file]);
-    }, 2000);
+    console.log(`--- jump to "${get(file, 'name')}" at start ---`);
+    this.set('selectedItemsForJumpProxy', promiseArray(resolve([file])));
+    await sleep(delay);
+    const otherFile = this.get('mockBackend.entityRecords.file.20');
+    console.log(`--- will jump to "${get(otherFile, 'name')}"---`);
+    this.set('selectedItemsForJumpProxy', promiseArray(resolve([otherFile])));
   },
 
   immediatelyRemove(files, parentDir) {
@@ -102,6 +138,12 @@ export default Component.extend({
   actions: {
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
+    },
+    async changeSelectedItems(items) {
+      await sleep(0);
+      safeExec(this, 'set', 'selectedItems', items);
+      // resolve in future runloop
+      await sleep(0);
     },
   },
 });

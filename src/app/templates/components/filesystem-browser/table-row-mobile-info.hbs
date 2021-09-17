@@ -1,9 +1,11 @@
 <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-size">
   {{#if (eq file.effFile.type "file")}}
-    {{#if file.effFile.isPollingSize}}
-      {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
+    {{#if (or file.effFile.isShowProgress (not file.effFile.isPollingSize))}}
+      <span class="{{if file.effFile.isShowProgress "infinite animated pulse-mint"}}">
+        {{bytes-to-string file.effFile.size}}
+      </span>
     {{else}}
-      {{bytes-to-string file.effFile.size}}
+      {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
     {{/if}}
   {{else}}
     —

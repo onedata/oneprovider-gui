@@ -54,6 +54,13 @@
       padding-top: 0;
     }
   }
+  .fb-table {
+    td.multiline {
+      padding-top: 10px;
+      padding-bottom: 0;
+      white-space: nowrap;
+    }
+  }
 }
 
 .floating-actions-trigger {
