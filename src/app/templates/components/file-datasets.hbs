@@ -10,6 +10,7 @@
     {{file-datasets/tab-bar
       activeTab=activeTab
       disabledTabs=disabledTabs
+      archiveCount=directDatasetProxy.archiveCount
       onActiveTabChange=(action (mut activeTab))
     }}
     {{dataset-protection/effective-info
@@ -42,6 +43,12 @@
       }}
     {{/dataset-protection/table}}
   {{else if (eq activeTab "archives")}}
-    {{file-datasets/tab-archives}}
+    {{#promise-proxy-container proxy=directDatasetProxy}}
+      {{file-datasets/archives-tab
+        parentModalDialogSelector=parentModalDialogSelector
+        space=space
+        dataset=directDatasetProxy.content
+      }}
+    {{/promise-proxy-container}}
   {{/if}}
 {{/modal.body}}

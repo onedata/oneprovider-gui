@@ -144,7 +144,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {Boolean}
+   * @type {Function}
    */
   resolveFileParentFun: defaultResolveParent,
 

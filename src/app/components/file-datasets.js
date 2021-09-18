@@ -16,7 +16,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { collect, raw } from 'ember-awesome-macros';
+import { collect, raw, conditional, and } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -32,6 +32,12 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.fileDatasets',
+
+  /**
+   * @type {Models.Space}
+   * @virtual
+   */
+  space: undefined,
 
   /**
    * @virtual optional
@@ -67,6 +73,12 @@ export default Component.extend(I18n, {
    * @type {Array<Models.File>}
    */
   files: undefined,
+
+  /**
+   * FIXME: jsdoc
+   * @virtual
+   */
+  parentModalDialogSelector: undefined,
 
   /**
    * Stores load error if fileDatasetSummary could not be loaded.
@@ -149,5 +161,9 @@ export default Component.extend(I18n, {
     }
   ),
 
-  disabledTabs: collect(raw('archives')),
+  disabledTabs: conditional(
+    and('fileDatasetSummaryProxy.isFulfilled', 'hasDirectDatasetEstablished'),
+    collect(),
+    collect(raw('archives')),
+  ),
 });

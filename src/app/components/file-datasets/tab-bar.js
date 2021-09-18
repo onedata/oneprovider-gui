@@ -1,5 +1,7 @@
+// FIXME: jsdoc
+
 import Component from '@ember/component';
-import { collect, raw } from 'ember-awesome-macros';
+import { collect, raw, notEmpty } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
@@ -15,6 +17,16 @@ export default Component.extend(I18n, {
   onActiveTabChange: undefined,
 
   disabledTabs: undefined,
+
+  /**
+   * If dataset is established - provider archiveCount here.
+   * Can be undefined to not render number text at all.
+   * @type {Number}
+   * @virtual optional
+   */
+  archiveCount: undefined,
+
+  hasArchiveCount: notEmpty('archiveCount'),
 
   tabIds: collect(raw('settings'), raw('archives')),
 

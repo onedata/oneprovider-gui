@@ -14,6 +14,7 @@
       {{#nav.item
         active=(eq tab.activeId tabId)
         disabled=(contains tabId disabledTabs)
+        class=(concat "nav-item-" tabId)
       }}
         <a href={{concat "#" tabId}}
           class={{concat "nav-link nav-link-file-dataset-panel nav-link-" tabId}}
@@ -23,6 +24,9 @@
           <span class="tab-label">
             <div class="one-label tab-name">
               {{tt this (concat "tabs." tabId)}}
+              {{#if (and (eq tabId "archives") hasArchiveCount)}}
+                ({{archiveCount}})
+              {{/if}}
             </div>
           </span>
         </a>

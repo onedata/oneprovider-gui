@@ -65,12 +65,71 @@ describe('Integration | Component | file datasets', function () {
       testDirectDatasetProtection(fileFlags, false);
     });
 
-    testDirectDatasetShow(true);
-    testDirectDatasetShow(false);
+    it('renders "Archives" nav tab as disabled with proper tooltip if dataset has not been established yet',
+      async function () {
+        this.set(
+          'fileDatasetSummary',
+          createFileDatasetSummary({ directDataset: null })
+        );
+
+        render(this);
+        await wait();
+
+        expect(this.$('.nav-item-archives'), 'archives nav item')
+          .to.have.class('disabled');
+      }
+    );
+
+    testHasArchivesTabEnabled({ datasetState: 'attached' });
+    testHasArchivesTabEnabled({ datasetState: 'detached' });
+
+    it('does not render archives count text if dataset is not established', async function () {
+      this.set(
+        'fileDatasetSummary',
+        createFileDatasetSummary({ directDataset: null })
+      );
+
+      render(this);
+      await wait();
+
+      const $navItemArchives = this.$('.nav-item-archives');
+      expect($navItemArchives, 'archives nav item')
+        .to.exist;
+      expect($navItemArchives.text()).to.match(/Archives\s*$/);
+    });
+
+    testArchivesTabCount({ archiveCount: 0 });
+    testArchivesTabCount({ archiveCount: 5 });
+
+    testDirectDatasetShow({ isAttached: true });
+    testDirectDatasetShow({ isAttached: false });
+
+    it('renders archives browser only after "Archives" tab gets selected', async function () {
+      const directDataset = createDataset({
+        id: 'dataset_id',
+        state: 'attached',
+        protectionFlags: [],
+        parent: null,
+        archiveCount: 0,
+      });
+      this.set(
+        'fileDatasetSummary',
+        createFileDatasetSummary({ directDataset })
+      );
+
+      render(this);
+      await wait();
+      expect($('.file-datasets-archives-tab'), 'archives tab content').to.not.exist;
+      const $navLinkArchives = this.$('.nav-link-archives');
+      $navLinkArchives.click();
+      await wait();
+
+      expect($('.file-datasets-archives-tab'), 'archives tab content').to.exist;
+    });
   });
 });
 
-function testDirectDatasetShow(isAttached) {
+function testDirectDatasetShow({ isAttached }) {
   const directToggleStateText = isAttached ? 'on' : 'off';
   const optionsEditableText = isAttached ? 'enabled' : 'disabled';
   const attachedStateText = isAttached ? 'attached' : 'detached';
@@ -194,4 +253,57 @@ function createFile(override = {}, ownerGri = userGri) {
 
 function createDataset(data) {
   return DatasetMock.create(data);
+}
+
+function testHasArchivesTabEnabled({ datasetState }) {
+  if (!datasetState) {
+    throw new Error('datasetState argument is required');
+  }
+  const description =
+    `renders "Archives" nav tab as enabled if dataset has been established and is ${datasetState}`;
+  it(description, async function () {
+    const directDataset = createDataset({
+      id: 'dataset_id',
+      state: datasetState,
+      protectionFlags: [],
+      parent: null,
+    });
+    this.set(
+      'fileDatasetSummary',
+      createFileDatasetSummary({ directDataset })
+    );
+
+    render(this);
+    await wait();
+
+    expect(this.$('.nav-item-archives'), 'archives nav item')
+      .to.not.have.class('disabled');
+  });
+}
+
+function testArchivesTabCount({ archiveCount }) {
+  const description =
+    `renders archives ${archiveCount} count in "Archives" tab name if ${archiveCount} archives is created for dataset`;
+  it(description, async function () {
+    const directDataset = createDataset({
+      id: 'dataset_id',
+      state: 'attached',
+      protectionFlags: [],
+      parent: null,
+      archiveCount,
+    });
+    this.set(
+      'fileDatasetSummary',
+      createFileDatasetSummary({ directDataset })
+    );
+
+    render(this);
+    await wait();
+
+    const $navItemArchives = this.$('.nav-item-archives');
+    expect($navItemArchives, 'archives nav item')
+      .to.exist;
+    expect($navItemArchives.text())
+      .to.match(new RegExp(`Archives\\s+\\(${archiveCount}\\)`));
+  });
 }
