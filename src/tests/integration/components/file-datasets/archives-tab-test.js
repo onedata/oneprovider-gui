@@ -1,16 +1,26 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import { get } from '@ember/object';
 import { registerService, lookupService } from '../../../helpers/stub-service';
 import _ from 'lodash';
-import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import wait from 'ember-test-helpers/wait';
+import Service from '@ember/service';
+
+const ArchiveManager = Service.extend({
+  createArchive() {},
+  fetchDatasetArchives() {},
+  getBrowsableArchive: notStubbed('getBrowsableArchive'),
+});
 
 describe('Integration | Component | file datasets/archives tab', function () {
   setupComponentTest('file-datasets/archives-tab', {
     integration: true,
+  });
+
+  beforeEach(function () {
+    registerService(this, 'archiveManager', ArchiveManager);
   });
 
   it('renders list of archive items', async function () {
@@ -30,10 +40,6 @@ describe('Integration | Component | file datasets/archives tab', function () {
 // FIXME: clean up unnecessary properties
 
 function render(testCase) {
-  const {
-    refreshInterval,
-    openCreateArchiveModal,
-  } = testCase.getProperties('openCreateArchiveModal', 'refreshInterval');
   const defaultDataset = {
     name: 'Default dataset',
     state: 'attached',
@@ -43,18 +49,17 @@ function render(testCase) {
     'resolveFileParentFun',
     () => null,
   );
-  setTestPropertyDefault(testCase, 'spacePrivileges', {});
-  setTestPropertyDefault(testCase, 'spaceId', 'some_space_id');
+  setTestPropertyDefault(testCase, 'space', {
+    entityId: 'space_id',
+    privileges: {},
+  });
   setTestPropertyDefault(testCase, 'dataset', defaultDataset);
-  setTestPropertyDefault(testCase, 'browserModel', ArchiveBrowserModel.create({
-    ownerSource: testCase,
-    refreshInterval: refreshInterval || 0,
-    openCreateArchiveModal: openCreateArchiveModal ||
-      notStubbed('openCreateArchiveModal'),
-  }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.render(hbs `{{file-datasets/archives-tab
     space=space
+    dataset=dataset
+    archiveBrowserModelOptions=(hash refreshInterval=0)
+    fetchChildren=customFetchDirChildren
   }}`);
 }
 

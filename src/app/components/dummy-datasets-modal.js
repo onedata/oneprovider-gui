@@ -18,11 +18,17 @@ export default Component.extend({
 
   mockBackend: service(),
 
+  // FIXME: refactor component for only one file
   files: collect(
-    'mockBackend.entityRecords.chainDir.2',
+    // use/uncomment for dataset with ancestors
+    // 'mockBackend.entityRecords.chainDir.2',
+    // use/uncomment for dataset with archives
+    'mockBackend.entityRecords.dir.0',
   ),
 
   file: reads('files.firstObject'),
+
+  space: reads('mockBackend.entityRecords.space.firstObject'),
 
   // change for test to true if want to disable dataset edit features
   editPrivilege: true,

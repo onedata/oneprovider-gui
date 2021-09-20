@@ -11,6 +11,8 @@ import ToggleHelper from '../../helpers/toggle';
 import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
 import { RuntimeProperties as DatasetRuntimeProperties } from 'oneprovider-gui/models/dataset';
 import EmberObject, { setProperties } from '@ember/object';
+import Service from '@ember/service';
+import { registerService } from '../../helpers/stub-service';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -19,11 +21,22 @@ const DatasetMock = EmberObject.extend(DatasetRuntimeProperties, {
   relationEntityId() {
     return null;
   },
+  hasParent: () => false,
+});
+
+const ArchiveManager = Service.extend({
+  createArchive() {},
+  fetchDatasetArchives() {},
+  getBrowsableArchive() {},
 });
 
 describe('Integration | Component | file datasets', function () {
   setupComponentTest('file-datasets', {
     integration: true,
+  });
+
+  beforeEach(function () {
+    registerService(this, 'archiveManager', ArchiveManager);
   });
 
   context('for single file', function () {
@@ -35,6 +48,11 @@ describe('Integration | Component | file datasets', function () {
           return promiseObject(resolve(this.get('fileDatasetSummary')));
         }
       };
+      this.set('space', {
+        entityId: 'space_id',
+        name: 'Dummy space',
+        privileges: {},
+      });
     });
 
     it('renders file name of injected file', async function (done) {
@@ -232,6 +250,7 @@ function render(testCase) {
     {{file-datasets
       modal=modal
       files=files
+      space=space
     }}
   {{/one-pseudo-modal}}`);
 }

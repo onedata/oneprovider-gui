@@ -8,14 +8,11 @@
  */
 
 import Component from '@ember/component';
-import { observer, computed, get, set } from '@ember/object';
+import { observer, computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { all as allFulfilled } from 'rsvp';
-import { guidFor } from '@ember/object/internals';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import InModalBrowserContainerBase from 'oneprovider-gui/mixins/in-modal-item-browser-container-base';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
@@ -32,6 +29,7 @@ export default Component.extend(...mixins, {
   classNames: ['file-datasets-archives-tab'],
 
   archiveManager: service(),
+  datasetManager: service(),
 
   /**
    * @type {Models.Space}
@@ -53,6 +51,12 @@ export default Component.extend(...mixins, {
   contentScrollSelector: undefined,
 
   /**
+   * @implements InModalBrowserContainerBase
+   * @virtual
+   */
+  modalBodyId: undefined,
+
+  /**
    * @implements ItemBrowserContainerBase
    */
   selectedItems: undefined,
@@ -68,6 +72,11 @@ export default Component.extend(...mixins, {
    * @type {String}
    */
   dirId: undefined,
+
+  /**
+   * @virtual optional
+   */
+  archiveBrowserModelOptions: Object.freeze({}),
 
   /**
    * One of: archives, files.
@@ -88,13 +97,13 @@ export default Component.extend(...mixins, {
     async function dirProxy() {
       const {
         dirId,
-        dataset,
-      } = this.getProperties('dirId', 'dataset');
+        browsableDataset,
+      } = this.getProperties('dirId', 'browsableDataset');
       if (dirId) {
         // FIXME: dir support
         throw new Error('dir support not implemented');
       } else {
-        return dataset;
+        return browsableDataset;
       }
     }
   )),
@@ -102,11 +111,18 @@ export default Component.extend(...mixins, {
   dir: computedLastProxyContent('dirProxy'),
 
   /**
+   * Just wait for first dirProxy load.
+   */
+  initialDirProxy: computed(function initialDirProxy() {
+    return this.get('dirProxy');
+  }),
+
+  /**
    * Proxy for whole file-browser: loading causes loading screen, recomputing causes
    * `file-browser` to be re-rendered.
    * @type {PromiseObject}
    */
-  initialRequiredDataProxy: reads('initiaDirProxy'),
+  initialRequiredDataProxy: reads('initialDirProxy'),
 
   /**
    * @implements ArchiveBrowserModel.spaceDatasetsViewState
@@ -117,7 +133,7 @@ export default Component.extend(...mixins, {
       dataset,
     } = this.getProperties('datasetManager', 'dataset');
 
-    return datasetManager.getBrowsableDataset(get(dataset, 'entityId'));
+    return datasetManager.getBrowsableDataset(dataset);
   }),
 
   /**
@@ -129,14 +145,19 @@ export default Component.extend(...mixins, {
     const {
       viewMode,
       browserModel: currentBrowserModel,
-    } = this.getProperties('viewMode', 'browserModel');
+      archiveBrowserModelOptions,
+    } = this.getProperties('viewMode', 'browserModel', 'archiveBrowserModelOptions');
     let newBrowserModel;
     switch (viewMode) {
       case 'files':
         throw new Error('not implemented viewMode files');
       case 'archives':
-        newBrowserModel = this.createArchiveBrowserModel();
+        newBrowserModel = this.createArchiveBrowserModel(archiveBrowserModelOptions);
         break;
+      default:
+        throw new Error(
+          `component:file-datasets/archives-tab#switchBrowserModel: not supported viewMode: ${viewMode}`
+        );
     }
     this.set('browserModel', newBrowserModel);
     if (currentBrowserModel) {
@@ -160,18 +181,19 @@ export default Component.extend(...mixins, {
     }
   },
 
-  createArchiveBrowserModel() {
-    return ArchiveBrowserModel.create({
-      ownerSource: this,
-      spaceDatasetsViewState: this,
-      getDatasetsUrl: this.getDatasetsUrl.bind(this),
-      openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
-      openPurgeModal: this.openArchivesPurgeModal.bind(this),
-    });
+  async fetchChildren() {
+    return await this.fetchDatasetArchives(...arguments);
   },
 
-  getDatasetsUrl() {
-    throw new Error('getDatasetsUrl not implemented');
+  createArchiveBrowserModel(options = {}) {
+    return ArchiveBrowserModel.create(Object.assign({
+      ownerSource: this,
+      spaceDatasetsViewState: this,
+      // FIXME: archives url (base archives, DIP etc.)
+      getDatasetsUrl: undefined,
+      openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
+      openPurgeModal: this.openArchivesPurgeModal.bind(this),
+    }, options));
   },
 
   openCreateArchiveModal() {
@@ -225,8 +247,7 @@ export default Component.extend(...mixins, {
       return this.resolveItemParent(...arguments);
     },
     async fetchChildren() {
-      const data = await this.fetchDatasetArchives(...arguments);
-      return data;
+      return this.fetchChildren(...arguments);
     },
     changeSelectedItems(selectedItems) {
       return this.changeSelectedItems(selectedItems);

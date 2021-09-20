@@ -22,7 +22,7 @@
   </div>
 {{/modal.header}}
 
-{{#modal.body class="file-datasets-part file-datasets-modal-body"}}
+{{#modal.body id=modalBodyId class="file-datasets-part file-datasets-modal-body"}}
   {{#if (eq activeTab "settings")}}
     {{#dataset-protection/table
       fileDatasetSummaryProxy=fileDatasetSummaryProxy
@@ -45,8 +45,10 @@
   {{else if (eq activeTab "archives")}}
     {{#promise-proxy-container proxy=directDatasetProxy}}
       {{file-datasets/archives-tab
+        class="in-modal-item-browser-container"
         parentModalDialogSelector=parentModalDialogSelector
         space=space
+        modalBodyId=modalBodyId
         dataset=directDatasetProxy.content
       }}
     {{/promise-proxy-container}}

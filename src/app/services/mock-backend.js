@@ -635,6 +635,7 @@ export default Service.extend({
       creationTime: Math.floor(Date.now() / 1000),
       rootFilePath: stringifyFilePath(await resolveFilePath(file)),
       rootFileType: get(file, 'type'),
+      archiveCount: 0,
       spaceId,
     }, data)).save();
   },
