@@ -71,7 +71,6 @@ describe('Integration | Component | file datasets/archives tab', function () {
 
     render(this);
     await wait();
-    // FIXME: this could be refactored to use generic utils
     const archiveRow = this.$('.fb-table-row')[0];
     await doubleClick(archiveRow);
 
@@ -79,35 +78,45 @@ describe('Integration | Component | file datasets/archives tab', function () {
     expect($fileRows, 'rows').to.have.lengthOf(3);
   });
 
-  it('changes archive to DIP when using DIP switch in archive files view', async function () {
-    const archivesCount = 1;
-    const filesCount = 1;
-    const archivesMockArray = mockItems({
-      testCase: this,
-      itemsCount: archivesCount,
-    });
-    mockDipArchive(archivesMockArray.array[0]);
-    mockRootFiles({
-      testCase: this,
-      filesCount,
-    });
+  [
+    { filesCount: 0 },
+    { filesCount: 1 },
+  ].forEach(({ filesCount }) => {
+    const countText = filesCount > 0 ?
+      `${filesCount} file${filesCount > 1 ? 's' : ''}` : 'no files';
+    const description =
+      `changes archive to DIP when using DIP switch in archive files view (${countText})`;
+    it(description, async function () {
+      const archivesCount = 1;
+      const archivesMockArray = mockItems({
+        testCase: this,
+        itemsCount: archivesCount,
+      });
+      mockDipArchive(archivesMockArray.array[0]);
+      mockRootFiles({
+        testCase: this,
+        filesCount,
+      });
 
-    render(this);
-    await wait();
-    // FIXME: this could be refactored to use generic utils
-    const archiveRow = this.$('.fb-table-row')[0];
-    await doubleClick(archiveRow);
-    const $dipBtn = this.$('.select-archive-dip-btn');
+      render(this);
+      await wait();
+      const archiveRow = this.$('.fb-table-row')[0];
+      await doubleClick(archiveRow);
+      const $dipBtn = this.$('.select-archive-dip-btn:visible');
 
-    expect($dipBtn).to.exist;
-    expect($dipBtn).to.be.not.disabled;
-    $dipBtn.click();
-    await wait();
-    // const $currentDirName =
-    //   this.$('.fb-breadcrumbs-current-dir-button .fb-breadcrumbs-dir-name');
-    // expect($currentDirName.text()).to.contain('dip_archive_root');
-    const fileName = this.$('.fb-table-row .file-base-name')[0].textContent;
-    expect(fileName).to.match(/-dip\s*$/);
+      expect($dipBtn).to.have.lengthOf(1);
+      expect($dipBtn).to.be.not.disabled;
+      expect($dipBtn.text()).to.match(/^\s*DIP\s*$/);
+      $dipBtn.click();
+      await wait();
+      const $currentDirName =
+        this.$('.fb-breadcrumbs-current-dir-button .fb-breadcrumbs-dir-name');
+      expect($currentDirName.text()).to.contain('dip');
+      if (filesCount > 0) {
+        const fileName = this.$('.fb-table-row .file-base-name')[0].textContent;
+        expect(fileName).to.match(/-dip\s*$/);
+      }
+    });
   });
 
   it('invokes archive-manager createArchive from create archive modal',
@@ -287,6 +296,7 @@ function mockDipArchive(aipArchive) {
       entityId: dipEntityId,
       index: name,
       type: 'dir',
+      description: 'dummy_dip',
       stats: {
         bytesArchived: 0,
         filesArchived: 0,

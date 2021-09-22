@@ -65,6 +65,11 @@ export default FilesystemBrowserModel.extend({
   headRowComponentName: 'archive-filesystem-browser/table-head-row',
 
   /**
+   * @override
+   */
+  emptyDirComponentName: 'archive-filesystem-browser/empty-dir',
+
+  /**
    * Used only when `renderArchiveDipSwitch` is true.
    * Should be set to true if opened archive has `relatedDip/Aip`
    * @type {ComputedProperty<Boolean>}

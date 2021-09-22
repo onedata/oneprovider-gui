@@ -1,7 +1,15 @@
 .archive-filesystem-browser {
-  .archive-dip-selector {
+  .dip-switch {
     margin-bottom: -1em;
     margin-left: 2em;
     transform: translateY(-0.5em);
+  }
+  .archive-filesystem-empty-dir {
+    .dip-switch {
+      transform: none;
+      margin: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
   }
 }
