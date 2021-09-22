@@ -19,6 +19,7 @@ import { reads } from '@ember/object/computed';
 import { bool, and } from 'ember-awesome-macros';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Service.extend({
   store: service(),
@@ -215,6 +216,28 @@ export default Service.extend({
     });
 
     return { array: list, isLast };
+  },
+
+  /**
+   * @param {String} atmWorkflowExecutionId
+   * @param {String} atmLaneId
+   * @param {Number} runNo
+   * @returns {Promise}
+   */
+  async retryAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNo */ ) {
+    // TODO: VFS-8287 Implement
+    return await notImplementedReject();
+  },
+
+  /**
+   * @param {String} atmWorkflowExecutionId
+   * @param {String} atmLaneId
+   * @param {Number} runNo
+   * @returns {Promise}
+   */
+  async rerunAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNo */ ) {
+    // TODO: VFS-8287 Implement
+    return await notImplementedReject();
   },
 
   /**

@@ -13,11 +13,11 @@ import { promise } from 'ember-awesome-macros';
 import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/execution-data-fetcher';
 import ActionsFactory from 'onedata-gui-common/utils/workflow-visualiser/actions-factory';
 import { inject as service } from '@ember/service';
-import { resolve } from 'rsvp';
 
 export default Component.extend({
   classNames: ['atm-workflow-execution-preview', 'loadable-row'],
 
+  workflowManager: service(),
   workflowActions: service(),
 
   /**
@@ -97,24 +97,18 @@ export default Component.extend({
    */
   actionsFactory: computed(function actionsFactory() {
     const factory = ActionsFactory.create({ ownerSource: this });
-    factory.setRetryLaneCallback((lane, runNo) => {
-      console.log(
-        'Retry:',
+    factory.setRetryLaneCallback(async (lane, runNo) =>
+      await this.get('workflowManager').retryAtmLane(
         this.get('atmWorkflowExecutionProxy.entityId'),
         get(lane, 'id'),
         runNo
-      );
-      return resolve();
-    });
-    factory.setRerunLaneCallback((lane, runNo) => {
-      console.log(
-        'Rerun:',
+      ));
+    factory.setRerunLaneCallback(async (lane, runNo) =>
+      await this.get('workflowManager').rerunAtmLane(
         this.get('atmWorkflowExecutionProxy.entityId'),
         get(lane, 'id'),
         runNo
-      );
-      return resolve();
-    });
+      ));
     return factory;
   }),
 
