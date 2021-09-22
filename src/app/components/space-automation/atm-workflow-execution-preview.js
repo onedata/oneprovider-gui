@@ -11,7 +11,9 @@ import Component from '@ember/component';
 import { computed, get, getProperties } from '@ember/object';
 import { promise } from 'ember-awesome-macros';
 import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/execution-data-fetcher';
+import ActionsFactory from 'onedata-gui-common/utils/workflow-visualiser/actions-factory';
 import { inject as service } from '@ember/service';
+import { resolve } from 'rsvp';
 
 export default Component.extend({
   classNames: ['atm-workflow-execution-preview', 'loadable-row'],
@@ -89,6 +91,32 @@ export default Component.extend({
       }
     }
   ),
+
+  /**
+   * @type {ComputedProperty<Utils.WorkflowVisualiser.ActionsFactory>}
+   */
+  actionsFactory: computed(function actionsFactory() {
+    const factory = ActionsFactory.create({ ownerSource: this });
+    factory.setRetryLaneCallback((lane, runNo) => {
+      console.log(
+        'Retry:',
+        this.get('atmWorkflowExecutionProxy.entityId'),
+        get(lane, 'id'),
+        runNo
+      );
+      return resolve();
+    });
+    factory.setRerunLaneCallback((lane, runNo) => {
+      console.log(
+        'Rerun:',
+        this.get('atmWorkflowExecutionProxy.entityId'),
+        get(lane, 'id'),
+        runNo
+      );
+      return resolve();
+    });
+    return factory;
+  }),
 
   /**
    * @type {ComputedProperty<Utils.Action>}
