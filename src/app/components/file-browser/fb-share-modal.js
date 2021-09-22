@@ -36,7 +36,7 @@ import backendifyName, {
 } from 'onedata-gui-common/utils/backendify-name';
 import { next } from '@ember/runloop';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
+import isViewForbidden from 'oneprovider-gui/utils/posix-view-permissions-checker';
 
 export default Component.extend(
   I18n,
@@ -176,21 +176,11 @@ export default Component.extend(
     ),
 
     isViewForOtherForbidden: computed(
-      'share.rootFile.{type,posixPermissions}',
+      'file.{type,posixPermissions}',
       function isViewForOtherForbidden() {
         const file = this.get('file');
-        const posixPermissions = get(file, 'posixPermissions');
-        if (!posixPermissions) {
-          return false;
-        }
         const octalNumber = 2;
-        const entityPermissions = EntityPermissions.create()
-          .fromOctalRepresentation(posixPermissions[octalNumber]);
-        if (get(file, 'type') === 'file') {
-          return !get(entityPermissions, 'read');
-        } else {
-          return !get(entityPermissions, 'read') || !get(entityPermissions, 'execute');
-        }
+        return isViewForbidden(file, octalNumber);
       }
     ),
 

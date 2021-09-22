@@ -24,6 +24,6 @@ export default {
   regexpHint: 'Name must be composed only of UTF-8 letters, digits, parentheses and underscores. Dashes, spaces and dots are allowed (but not at the beginning or the end).',
   warning: {
     file: 'This file will not be accessible via any public share because it has no <em>read</em> POSIX permission for <em>other</em>.',
-    dir: 'This directory will not be accessible via any public share because it has no <em>read</em> and <em>execute</em> POSIX permissions for <em>other</em>.',
+    dir: 'This directory will not be accessible via any public share because it does not have both <em>read</em> and <em>execute</em> POSIX permissions for <em>other</em>.',
   },
 };
