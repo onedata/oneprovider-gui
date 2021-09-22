@@ -15,10 +15,10 @@
         </span>
         {{name-conflict tagName="span" item=share tagName="span" class="one-label share-name-header"}}
       {{/truncated-string}}
-      {{#if isViewForOtherForbidden}}
+      {{#if isViewForOtherForbiddenProxy.content}}
         <div class="share-labels-container">
           <span class="label label-warning">{{tt this "noPublicAccess"}}</span>
-          {{one-tooltip title=tooltipText}}
+          {{one-tooltip title=tooltipTextProxy.content}}
         </div>
       {{/if}}
       {{one-menu-toggle

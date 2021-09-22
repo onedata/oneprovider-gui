@@ -9,7 +9,7 @@
 
 import FbTableRowStatusBar from 'oneprovider-gui/components/file-browser/fb-table-row-status-bar';
 import { equal, not, raw, or, and, array } from 'ember-awesome-macros';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -61,6 +61,10 @@ export default FbTableRowStatusBar.extend({
         return false;
       }
       
+      const posixPermissions = get(file, 'posixPermissions');
+      if (!posixPermissions) {
+        return false;
+      }
       let octalNumber;
       if (previewMode) {
         octalNumber = 2;
