@@ -12,6 +12,7 @@ import { click } from 'ember-native-dom-helpers';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
+import sinon from 'sinon';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -29,6 +30,8 @@ const FileManager = Service.extend({
   refreshDirChildren() {},
   getFileDownloadUrl() {},
   getFileById() {},
+  createArchive() {},
+  dirChildrenRefresh() {},
 });
 
 describe('Integration | Component | file datasets/archives tab', function () {
@@ -50,8 +53,6 @@ describe('Integration | Component | file datasets/archives tab', function () {
 
     render(this);
     await wait();
-
-    sleep(1000);
 
     expect(this.$('.fb-table-row'), 'rows').to.have.length(itemsCount);
   });
@@ -108,6 +109,33 @@ describe('Integration | Component | file datasets/archives tab', function () {
     const fileName = this.$('.fb-table-row .file-base-name')[0].textContent;
     expect(fileName).to.match(/-dip\s*$/);
   });
+
+  it('invokes archive-manager createArchive from create archive modal',
+    async function () {
+      const archivesCount = 0;
+      mockItems({
+        testCase: this,
+        itemsCount: archivesCount,
+      });
+      const archiveManager = lookupService(this, 'archiveManager');
+      const createArchive = sinon.spy(archiveManager, 'createArchive');
+
+      render(this);
+      await wait();
+
+      const $createArchiveBtn = this.$('.fb-toolbar-button.file-action-createArchive');
+      expect($createArchiveBtn, 'create archive button').to.exist;
+      expect($createArchiveBtn, 'create archive button').to.not.have.class('disabled');
+      $createArchiveBtn.click();
+      await wait();
+      const $createArchiveModal = this.$('.archive-settings-part');
+      expect($createArchiveModal).to.exist;
+      const $submitBtn = this.$('.submit-archive-creation-btn');
+      $submitBtn.click();
+      await wait();
+      expect(createArchive).to.be.calledOnce;
+    }
+  );
 });
 
 // FIXME: clean up unnecessary properties
@@ -124,7 +152,10 @@ function render(testCase) {
   );
   setTestPropertyDefault(testCase, 'space', {
     entityId: 'space_id',
-    privileges: {},
+    privileges: {
+      manageDatasets: true,
+      createArchives: true,
+    },
   });
   setTestPropertyDefault(testCase, 'dataset', defaultDataset);
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
@@ -188,34 +219,37 @@ function generateItemName(i) {
   return `archive-${i.toString().padStart(3, '0')}`;
 }
 
+function createArchive(entityId, name) {
+  return BrowsableArchive.create({
+    content: {
+      id: generateItemId(entityId),
+      entityId,
+      name,
+      index: name,
+      type: 'dir',
+      stats: {
+        bytesArchived: 0,
+        filesArchived: 0,
+      },
+      config: {
+        includeDip: false,
+      },
+      relationEntityId(relationName) {
+        if (relationName === 'rootDir') {
+          return 'dummy_dir_id';
+        } else {
+          throw new Error(`mock archive relation ${relationName} not implemented`);
+        }
+      },
+    },
+  });
+}
+
 function mockItems({ testCase, itemsCount }) {
   const archives = _.range(0, itemsCount).map(i => {
     const name = generateItemName(i);
     const entityId = name;
-    const archive = BrowsableArchive.create({
-      content: {
-        id: generateItemId(entityId),
-        entityId,
-        name,
-        index: name,
-        type: 'dir',
-        stats: {
-          bytesArchived: 0,
-          filesArchived: 0,
-        },
-        config: {
-          includeDip: false,
-        },
-        relationEntityId(relationName) {
-          if (relationName === 'rootDir') {
-            return 'dummy_dir_id';
-          } else {
-            throw new Error(`mock archive relation ${relationName} not implemented`);
-          }
-        },
-
-      },
-    });
+    const archive = createArchive(entityId, name);
     return archive;
   });
   const archiveManager = lookupService(testCase, 'archiveManager');
@@ -234,6 +268,10 @@ function mockItems({ testCase, itemsCount }) {
     } else {
       return mockArray.array.findBy('entityId', entityId);
     }
+  };
+  archiveManager.createArchive = async ( /* dataset, data */ ) => {
+    const i = mockArray.array.length;
+    mockArray.array.unshift(createArchive(`new-${i}`, `archive-new-${i}`));
   };
   return mockArray;
 }

@@ -14,3 +14,13 @@
     updateDirEntityId=(action "updateDirEntityId")
   }}
 {{/promise-proxy-container}}
+
+{{#if createArchiveOpened}}
+  {{archive-create-modal
+    open=true
+    dataset=dataset
+    options=createArchiveOptions
+    onHide=(action closeCreateArchiveModal)
+    onArchiveCreate=(action submitArchiveCreate)
+  }}
+{{/if}}

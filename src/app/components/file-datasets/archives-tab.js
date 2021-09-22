@@ -97,6 +97,10 @@ export default Component.extend(...mixins, {
    */
   archiveDipMode: 'aip',
 
+  createArchiveOpened: undefined,
+
+  createArchiveOptions: undefined,
+
   /**
    * One of: archives, files.
    * @type {String}
@@ -335,8 +339,22 @@ export default Component.extend(...mixins, {
     });
   }),
 
-  openCreateArchiveModal() {
-    throw new Error('openCreateArchiveModal not implemented');
+  /**
+   * @param {Models.Dataset} dataset dataset for which create archive form will be shown
+   * @param {Object} options
+   */
+  openCreateArchiveModal(dataset, options) {
+    this.setProperties({
+      createArchiveOpened: true,
+      createArchiveOptions: options,
+    });
+  },
+
+  closeCreateArchiveModal() {
+    this.setProperties({
+      createArchiveOpened: false,
+      createArchiveOptions: null,
+    });
   },
 
   openArchivesPurgeModal() {
@@ -458,6 +476,10 @@ export default Component.extend(...mixins, {
         this.set('dirId', itemId);
       }
     }
+  },
+
+  submitArchiveCreate(dataset, archiveData) {
+    return this.get('archiveManager').createArchive(dataset, archiveData);
   },
 
   actions: {
