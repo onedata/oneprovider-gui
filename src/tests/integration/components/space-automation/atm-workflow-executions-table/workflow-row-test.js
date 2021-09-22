@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, before, beforeEach, afterEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
@@ -9,6 +9,8 @@ import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
+import $ from 'jquery';
+import CopyRecordIdAction from 'onedata-gui-common/utils/clipboard-actions/copy-record-id-action';
 
 const columns = [{
   name: 'name',
@@ -50,6 +52,16 @@ const statuses = [{
   tooltip: 'Failed',
 }];
 
+const executionActionsSpec = [{
+  className: 'cancel-atm-workflow-execution-action-trigger',
+  label: 'Cancel',
+  icon: 'cancelled',
+}, {
+  className: 'copy-record-id-action-trigger',
+  label: 'Copy ID',
+  icon: 'copy',
+}];
+
 const scheduleTime = moment();
 const startTime = moment().add(1, 'h');
 const finishTime = moment().add(2, 'h');
@@ -60,9 +72,18 @@ describe('Integration | Component | space automation/atm workflow executions tab
     integration: true,
   });
 
+  before(function () {
+    // Instatiate Action class to make its `prototype.execute` available for
+    // mocking.
+    CopyRecordIdAction.create();
+  });
+
   beforeEach(function () {
     this.setProperties({
       atmWorkflowExecutionSummary: {
+        constructor: {
+          modelName: 'atm-workflow-execution-summary',
+        },
         name: 'workflow1',
         scheduleTime: scheduleTime.unix(),
         startTime: startTime.unix(),
@@ -73,6 +94,13 @@ describe('Integration | Component | space automation/atm workflow executions tab
       },
       selectSpy: sinon.spy(),
     });
+  });
+
+  afterEach(function () {
+    // Reset stubbed action
+    if (CopyRecordIdAction.prototype.execute.restore) {
+      CopyRecordIdAction.prototype.execute.restore();
+    }
   });
 
   it('has class "workflow-row"', async function () {
@@ -149,6 +177,47 @@ describe('Integration | Component | space automation/atm workflow executions tab
       expect(await new OneTooltipHelper('.cell-status .one-icon').getText())
         .to.equal(tooltip);
     });
+  });
+
+  it('allows to choose from workflow execution actions in actions column', async function () {
+    this.set('columnNames', ['actions']);
+
+    await render(this);
+
+    const $actionsTrigger =
+      this.$('.cell-actions .atm-workflow-execution-actions-trigger');
+    expect($actionsTrigger).to.exist;
+
+    await click($actionsTrigger[0]);
+
+    const $actions = $('body .webui-popover.in .actions-popover-content a');
+    expect($actions).to.have.length(executionActionsSpec.length);
+    executionActionsSpec.forEach(({ className, label, icon }, index) => {
+      const $action = $actions.eq(index);
+      expect($action).to.have.class(className);
+      expect($action.text().trim()).to.equal(label);
+      expect($action.find('.one-icon')).to.have.class(`oneicon-${icon}`);
+    });
+  });
+
+  it('allows to copy workflow execution ID', async function () {
+    this.set('columnNames', ['actions']);
+    const atmWorkflowExecutionSummary = this.get('atmWorkflowExecutionSummary');
+    const executeStub = sinon.stub(
+      CopyRecordIdAction.prototype,
+      'execute'
+    ).callsFake(function () {
+      expect(this.get('context.record')).to.equal(atmWorkflowExecutionSummary);
+      return resolve({ status: 'done' });
+    });
+
+    await render(this);
+    await click('.atm-workflow-execution-actions-trigger');
+    await click(
+      $('body .webui-popover.in .copy-record-id-action-trigger')[0]
+    );
+
+    expect(executeStub).to.be.calledOnce;
   });
 
   it('calls "onSelect" when clicked', async function () {

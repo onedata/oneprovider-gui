@@ -296,7 +296,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnShare: computed(
     'spacePrivileges.view',
     'openShare',
-    'selectedFilesContainsOnlySymlinks',
+    'selectedItemsContainsOnlySymlinks',
     function btnShare() {
       const {
         spacePrivileges,
@@ -337,7 +337,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnDatasets: computed(
     'spacePrivileges.view',
-    'selectedFilesContainsOnlySymlinks',
+    'selectedItemsContainsOnlySymlinks',
     function btnDatasets() {
       const {
         spacePrivileges,
@@ -374,7 +374,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnMetadata: computed('selectedFilesContainsOnlySymlinks', function btnMetadata() {
+  btnMetadata: computed('selectedItemsContainsOnlySymlinks', function btnMetadata() {
     const disabledTip = this.generateDisabledTip({
       blockWhenSymlinksOnly: true,
     });
@@ -414,12 +414,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   btnDownload: computed(
-    'selectedFilesContainsOnlyBrokenSymlinks',
+    'selectedItemsContainsOnlyBrokenSymlinks',
     function btnDownload() {
       return this.createFileAction({
         id: 'download',
         icon: 'browser-download',
-        disabled: this.get('selectedFilesContainsOnlyBrokenSymlinks'),
+        disabled: this.get('selectedItemsContainsOnlyBrokenSymlinks'),
         action: (files) => {
           return this.downloadFiles(files);
         },
@@ -432,12 +432,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnDownloadTar: computed(
-    'selectedFilesContainsOnlyBrokenSymlinks',
+    'selectedItemsContainsOnlyBrokenSymlinks',
     function btnDownloadTar() {
       return this.createFileAction({
         id: 'downloadTar',
         icon: 'browser-download',
-        disabled: this.get('selectedFilesContainsOnlyBrokenSymlinks'),
+        disabled: this.get('selectedItemsContainsOnlyBrokenSymlinks'),
         action: (files) => {
           return this.downloadFiles(files);
         },
@@ -459,7 +459,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnRename: computed('selectedFiles.@each.dataIsProtected', function btnRename() {
+  btnRename: computed('selectedItems.@each.dataIsProtected', function btnRename() {
     const actionId = 'rename';
     const tip = this.generateDisabledTip({
       protectionType: 'data',
@@ -485,7 +485,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   btnPermissions: computed(
-    'selectedFilesContainsOnlySymlinks',
+    'selectedItemsContainsOnlySymlinks',
     function btnPermissions() {
       const disabledTip = this.generateDisabledTip({
         blockWhenSymlinksOnly: true,
@@ -505,8 +505,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnCreateSymlink: computed('selectedFiles.length', function btnCreateSymlink() {
-    const areManyFilesSelected = this.get('selectedFiles.length') > 1;
+  btnCreateSymlink: computed('selectedItems.length', function btnCreateSymlink() {
+    const areManyFilesSelected = this.get('selectedItems.length') > 1;
     return this.createFileAction({
       id: 'createSymlink',
       icon: 'shortcut',
@@ -523,10 +523,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   btnCreateHardlink: computed(
-    'selectedFiles.[]',
-    'selectedFilesContainsOnlySymlinks',
+    'selectedItems.[]',
+    'selectedItemsContainsOnlySymlinks',
     function btnCreateHardlink() {
-      const areManyFilesSelected = this.get('selectedFiles.length') > 1;
+      const areManyFilesSelected = this.get('selectedItems.length') > 1;
       const disabledTip = this.generateDisabledTip({
         blockWhenSymlinksOnly: true,
         blockFileTypes: ['dir'],
@@ -578,7 +578,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnCopy: computed('selectedFilesContainsOnlySymlinks', function btnCopy() {
+  btnCopy: computed('selectedItemsContainsOnlySymlinks', function btnCopy() {
     const disabledTip = this.generateDisabledTip({
       blockWhenSymlinksOnly: true,
     });
@@ -596,8 +596,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   btnCut: computed(
-    'selectedFilesContainsOnlySymlinks',
-    'selectedFiles.@each.dataIsProtected',
+    'selectedItemsContainsOnlySymlinks',
+    'selectedItems.@each.dataIsProtected',
     function btnCut() {
       const actionId = 'cut';
       const tip = this.generateDisabledTip({
@@ -643,7 +643,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnDelete: computed('selectedFiles.@each.dataIsProtected', function btnDelete() {
+  btnDelete: computed('selectedItems.@each.dataIsProtected', function btnDelete() {
     const actionId = 'delete';
     const tip = this.generateDisabledTip({
       protectionType: 'data',
@@ -665,7 +665,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   btnDistribution: computed(
-    'selectedFilesContainsOnlySymlinks',
+    'selectedItemsContainsOnlySymlinks',
     function btnDistribution() {
       const disabledTip = this.generateDisabledTip({
         blockWhenSymlinksOnly: true,
@@ -689,7 +689,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnQos: computed(
     'spacePrivileges.{viewQos,manageQos}',
     'openQos',
-    'selectedFilesContainsOnlySymlinks',
+    'selectedItemsContainsOnlySymlinks',
     function btnQos() {
       const {
         spacePrivileges,
@@ -778,29 +778,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  selectedFilesContainsOnlySymlinks: computed(
-    'selectedFiles.[]',
-    function selectedFilesContainsOnlySymlinks() {
-      const selectedFiles = this.get('selectedFiles');
-      return selectedFiles &&
-        get(selectedFiles, 'length') &&
-        selectedFiles.isEvery('type', 'symlink');
+  selectedItemsContainsOnlySymlinks: computed(
+    'selectedItems.[]',
+    function selectedItemsContainsOnlySymlinks() {
+      const selectedItems = this.get('selectedItems');
+      return selectedItems &&
+        get(selectedItems, 'length') &&
+        selectedItems.isEvery('type', 'symlink');
     }
   ),
 
   /**
    * @type {ComputedProperty<boolean>}
    */
-  selectedFilesContainsOnlyBrokenSymlinks: computed(
-    'selectedFilesContainsOnlySymlinks',
-    'selectedFiles.[]',
-    function selectedFilesContainsOnlyBrokenSymlinks() {
+  selectedItemsContainsOnlyBrokenSymlinks: computed(
+    'selectedItemsContainsOnlySymlinks',
+    'selectedItems.[]',
+    function selectedItemsContainsOnlyBrokenSymlinks() {
       const {
-        selectedFiles,
-        selectedFilesContainsOnlySymlinks,
-      } = this.getProperties('selectedFiles', 'selectedFilesContainsOnlySymlinks');
-      return selectedFilesContainsOnlySymlinks &&
-        selectedFiles.filterBy('effFile').length === 0;
+        selectedItems,
+        selectedItemsContainsOnlySymlinks,
+      } = this.getProperties('selectedItems', 'selectedItemsContainsOnlySymlinks');
+      return selectedItemsContainsOnlySymlinks &&
+        selectedItems.filterBy('effFile').length === 0;
     }
   ),
 
@@ -848,8 +848,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     if (!readonlyFilesystem) {
       // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
       // if using selector inside filesystem browser
-      uploadManager.assignUploadDrop(uploadDropElement);
-      uploadManager.assignUploadBrowse(uploadBrowseElement);
+      if (uploadDropElement) {
+        uploadManager.assignUploadDrop(uploadDropElement);
+      } else {
+        console.debug(
+          'util:filesystem-browser-model#onInsertElement: uploadDropElement not found, upload using files drag&drop will not work'
+        );
+      }
+      if (uploadBrowseElement) {
+        uploadManager.assignUploadBrowse(uploadBrowseElement);
+      } else {
+        console.debug(
+          'util:filesystem-browser-model#onInsertElement: uploadBrowseElement not found, upload using button will not work'
+        );
+      }
     }
 
     uploadManager.changeTargetDirectory(dir);
@@ -902,20 +914,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }) {
     const {
       dir,
-      selectedFiles,
-      selectedFilesContainsOnlySymlinks,
-    } = this.getProperties('dir', 'selectedFiles', 'selectedFilesContainsOnlySymlinks');
+      selectedItems,
+      selectedItemsContainsOnlySymlinks,
+    } = this.getProperties('dir', 'selectedItems', 'selectedItemsContainsOnlySymlinks');
+    if (!dir) {
+      return;
+    }
     let tip;
     if (!tip && protectionType) {
       const protectionProperty = `${protectionType}IsProtected`;
       const isProtected = checkProtectionForCurrentDir && get(dir, protectionProperty) ||
-        checkProtectionForSelected && selectedFiles.isAny(protectionProperty);
+        checkProtectionForSelected && selectedItems.isAny(protectionProperty);
       tip = isProtected ? this.t('disabledActionReason.writeProtected', {
         protectionType: this.t(`disabledActionReason.protectionType.${protectionType}`),
       }) : undefined;
     }
     if (!tip && blockFileTypes.length) {
-      if (selectedFiles.any(file => blockFileTypes.includes(get(file, 'type')))) {
+      if (selectedItems.any(file => blockFileTypes.includes(get(file, 'type')))) {
         tip = this.t('disabledActionReason.blockedFileType', {
           fileType: blockFileTypes.map(fileType =>
             this.t(`disabledActionReason.fileTypesPlural.${fileType}`)
@@ -923,7 +938,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         });
       }
     }
-    if (!tip && blockWhenSymlinksOnly && selectedFilesContainsOnlySymlinks) {
+    if (!tip && blockWhenSymlinksOnly && selectedItemsContainsOnlySymlinks) {
       tip = this.t('disabledActionReason.blockedFileType', {
         fileType: this.t('disabledActionReason.fileTypesPlural.symlink'),
       });

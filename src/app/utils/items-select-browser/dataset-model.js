@@ -12,7 +12,6 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import SelectorDatasetBrowserModel from 'oneprovider-gui/utils/selector-dataset-browser-model';
 import { promise, equal, raw, conditional } from 'ember-awesome-macros';
-import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
 import {
   spaceDatasetsRootId,
   SpaceDatasetsRootClass,
@@ -20,6 +19,7 @@ import {
 import { inject as service } from '@ember/service';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { all as allFulfilled } from 'rsvp';
 
 export default BaseModel.extend(I18n, {
   datasetManager: service(),
@@ -68,10 +68,10 @@ export default BaseModel.extend(I18n, {
         if (dirId === spaceDatasetsRootId) {
           return spaceDatasetsRoot;
         }
-        const dataset = await datasetManager.getDataset(dirId);
+        const browsableDataset = await datasetManager.getBrowsableDataset(dirId);
         let isValidDatasetEntityId;
         try {
-          isValidDatasetEntityId = get(dataset, 'spaceId') === spaceId;
+          isValidDatasetEntityId = get(browsableDataset, 'spaceId') === spaceId;
         } catch (error) {
           console.error(
             'util:items-select-browser/dataset-model#dirProxy: error getting spaceId from dataset:',
@@ -82,7 +82,7 @@ export default BaseModel.extend(I18n, {
         if (!isValidDatasetEntityId) {
           return spaceDatasetsRoot;
         }
-        return BrowsableDataset.create({ content: dataset });
+        return browsableDataset;
       } else {
         return spaceDatasetsRoot;
       }
@@ -216,9 +216,12 @@ export default BaseModel.extend(I18n, {
     };
   },
 
-  browserizeDatasets({ childrenRecords, isLast }) {
+  async browserizeDatasets({ childrenRecords, isLast }) {
+    const datasetManager = this.get('datasetManager');
     return {
-      childrenRecords: childrenRecords.map(r => BrowsableDataset.create({ content: r })),
+      childrenRecords: await allFulfilled(childrenRecords.map(r =>
+        datasetManager.getBrowsableDataset(get(r, 'entityId'))
+      )),
       isLast,
     };
   },

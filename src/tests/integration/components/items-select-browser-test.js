@@ -1,12 +1,27 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
+import Evented from '@ember/object/evented';
+import Service from '@ember/service';
+import { registerService } from '../../helpers/stub-service';
+
+const FileManager = Service.extend(Evented, {
+  async fetchDirChildren() {
+    return [];
+  },
+});
 
 describe('Integration | Component | items select browser', function () {
   setupComponentTest('items-select-browser', {
     integration: true,
+  });
+
+  beforeEach(function () {
+    registerService(this, 'fileManager', FileManager);
   });
 
   it('renders header, body and footer in modal', function () {
@@ -19,7 +34,13 @@ describe('Integration | Component | items select browser', function () {
 
 function render(testCase) {
   if (!testCase.get('selectorModel')) {
-    const space = {};
+    const space = {
+      rootDir: promiseObject(resolve({
+        name: 'Test root',
+        entityId: 'test_root_dir',
+        hasParent: false,
+      })),
+    };
     const selectorModel = FilesystemModel.create({
       ownerSource: testCase,
       constraintSpec: {

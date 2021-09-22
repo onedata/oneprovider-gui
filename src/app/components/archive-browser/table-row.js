@@ -111,8 +111,9 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
       }
       return getDatasetsUrl({
         datasetId: baseDatasetId,
-        archive: baseArchiveId,
-        viewMode: 'files',
+        selected: baseArchiveId,
+        archive: null,
+        viewMode: 'archives',
       });
     }
   )),

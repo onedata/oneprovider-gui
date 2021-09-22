@@ -105,6 +105,7 @@ export default Component.extend(I18n, {
           'startedAt',
           'finishedAt',
           'status',
+          'actions',
         ];
     }
   }),
@@ -201,7 +202,7 @@ export default Component.extend(I18n, {
   },
 
   async updateAtmWorkflowExecutionSummaries() {
-    await this.get('atmWorkflowExecutionSummaries').reload();
+    await this.get('atmWorkflowExecutionSummaries').scheduleReload();
   },
 
   /**

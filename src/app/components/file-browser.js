@@ -19,7 +19,6 @@ import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { next } from '@ember/runloop';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import $ from 'jquery';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
@@ -93,11 +92,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @async
    * @type {Function}
-   * @param {Array} selectedFiles
-   * @returns {Array}
+   * @param {Array} selectedItems
+   * @returns {Promise}
    */
-  changeSelectedFiles: notImplementedThrow,
+  changeSelectedItems: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -195,13 +195,15 @@ export default Component.extend(I18n, {
    * Array of selected file records.
    * @type {EmberArray<Models.File>}
    */
-  selectedFiles: undefined,
+  selectedItems: undefined,
 
   /**
    * Injected property to notify about external selection change, that should enable jump.
-   * @type {EmberArray<Models.File>}
+   * @type {PromiseArray<Object>} array proxy of browsable objects (eg. file)
    */
-  selectedFilesForJump: undefined,
+  selectedItemsForJumpProxy: undefined,
+
+  selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
 
   isInModal: bool('parentModalDialogSelector'),
 
@@ -249,28 +251,28 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<string>}
    */
   selectionContext: computed(
-    'selectedFiles.[]',
+    'selectedItems.[]',
     'previewMode',
     function selectionContext() {
       const {
-        selectedFiles,
+        selectedItems,
         previewMode,
-      } = this.getProperties('selectedFiles', 'previewMode');
-      if (selectedFiles) {
-        const count = get(selectedFiles, 'length');
+      } = this.getProperties('selectedItems', 'previewMode');
+      if (selectedItems) {
+        const count = get(selectedItems, 'length');
         if (count === 0) {
           return 'none';
         }
         let context;
         if (count === 1) {
-          if (get(selectedFiles[0], 'type') === 'dir') {
+          if (get(selectedItems[0], 'type') === 'dir') {
             context = actionContext.singleDir;
           } else {
             context = actionContext.singleFile;
           }
         } else {
-          if (selectedFiles.isAny('type', 'dir')) {
-            if (selectedFiles.isAny('type', 'file')) {
+          if (selectedItems.isAny('type', 'dir')) {
+            if (selectedItems.isAny('type', 'file')) {
               context = actionContext.multiMixed;
             } else {
               context = actionContext.multiDir;
@@ -389,16 +391,16 @@ export default Component.extend(I18n, {
   }),
 
   isOnlyCurrentDirSelected: computed(
-    'selectedFiles.[]',
+    'selectedItems.[]',
     'dir',
     function isCurrentDirSelected() {
       const {
-        selectedFiles,
+        selectedItems,
         dir,
-      } = this.getProperties('selectedFiles', 'dir');
-      return selectedFiles &&
-        get(selectedFiles, 'length') === 1 &&
-        selectedFiles.includes(dir);
+      } = this.getProperties('selectedItems', 'dir');
+      return selectedItems &&
+        get(selectedItems, 'length') === 1 &&
+        selectedItems.includes(dir);
     }
   ),
 
@@ -469,24 +471,10 @@ export default Component.extend(I18n, {
     }
   }),
 
-  ensureSelectedReset: observer('dir', function ensureSelectedReset() {
-    const changeSelectedFiles = this.get('changeSelectedFiles');
-    next(() => {
-      safeExec(this, () => {
-        if (this.get('selectedFiles.length') > 0) {
-          changeSelectedFiles([]);
-        }
-      });
-    });
-  }),
-
   init() {
     this._super(...arguments);
-    if (!this.get('selectedFiles')) {
-      this.set('selectedFiles', []);
-    }
-    if (!this.get('selectedFilesForJump')) {
-      this.set('selectedFilesForJump', []);
+    if (!this.get('selectedItems')) {
+      this.set('selectedItems', []);
     }
     this.set('loadingIconFileIds', A());
     if (!this.get('browserModel')) {
@@ -588,7 +576,7 @@ export default Component.extend(I18n, {
   },
 
   clearFilesSelection() {
-    this.get('changeSelectedFiles')([]);
+    this.get('changeSelectedItems')([]);
   },
 
   clearFileClipboard() {
@@ -606,12 +594,12 @@ export default Component.extend(I18n, {
     this.set('fileClipboardMode', mode);
   },
 
-  selectCurrentDir() {
+  async selectCurrentDir() {
     const {
-      changeSelectedFiles,
+      changeSelectedItems,
       dir,
-    } = this.getProperties('changeSelectedFiles', 'dir');
-    return changeSelectedFiles([dir]);
+    } = this.getProperties('changeSelectedItems', 'dir');
+    return changeSelectedItems([dir]);
   },
 
   changeDir(dir) {
@@ -631,7 +619,7 @@ export default Component.extend(I18n, {
 
   actions: {
     selectCurrentDir() {
-      this.selectCurrentDir();
+      return this.selectCurrentDir();
     },
     openFile(file, options) {
       return this.openFile(file, options);
@@ -639,7 +627,7 @@ export default Component.extend(I18n, {
     changeDir(dir) {
       return this.changeDir(dir);
     },
-    toggleCurrentDirActions(open) {
+    async toggleCurrentDirActions(open) {
       if (!this.get('showCurrentDirActions')) {
         return;
       }
@@ -647,15 +635,15 @@ export default Component.extend(I18n, {
       const _open =
         (typeof open === 'boolean') ? open : !this.get('currentDirActionsOpen');
       if (_open) {
-        this.selectCurrentDir();
+        await this.selectCurrentDir();
       }
       this.set('currentDirActionsOpen', _open);
     },
-    changeSelectedFiles(selectedFiles) {
-      return this.get('changeSelectedFiles')(selectedFiles);
+    changeSelectedItems(selectedItems) {
+      return this.get('changeSelectedItems')(selectedItems);
     },
-    invokeFileAction(file, btnId, ...actionArgs) {
-      this.get('changeSelectedFiles')([file]);
+    async invokeFileAction(file, btnId, ...actionArgs) {
+      await this.get('changeSelectedItems')([file]);
       const btn = this.get('allButtonsHash')[btnId];
       if (!btn) {
         throw new Error(

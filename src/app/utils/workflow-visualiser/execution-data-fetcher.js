@@ -1,5 +1,5 @@
 /**
- * Real implementation of workflow execution statistics fetcher.
+ * Real implementation of workflow execution data fetcher.
  *
  * @module utils/workflow-visualiser/execution-data-fetcher
  * @author Michał Borzęcki
@@ -9,11 +9,13 @@
 
 import ExecutionDataFetcher from 'onedata-gui-common/utils/workflow-visualiser/execution-data-fetcher';
 import { get, getProperties, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
 import _ from 'lodash';
-import { all as allFulfilled } from 'rsvp';
+import { hash } from 'rsvp';
 import { normalizeWorkflowStatus } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
+import { promise } from 'ember-awesome-macros';
 
 const notFoundError = { id: 'notFound' };
 const emptyStoreContent = { array: [], isLast: true };
@@ -30,6 +32,11 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   /**
    * @type {ComputedProperty<Object>}
    */
+  storeRegistry: reads('atmWorkflowExecution.storeRegistry'),
+
+  /**
+   * @type {ComputedProperty<Object>}
+   */
   taskRegistry: computed(
     'atmWorkflowExecution.lanes',
     function taskRegistry() {
@@ -41,21 +48,45 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   ),
 
   /**
+   * Format of this object is the same as the one, that should be returned from
+   * `fetchInstanceIdsMapping` method.
+   * @type {ComputedProperty<PromiseObject<Object>>}
+   */
+  instanceIdsMappingProxy: promise.object(computed(
+    'atmWorkflowExecution.{entityId,systemAuditLogId}',
+    'storeRegistry',
+    'taskRegistry',
+    async function instanceIdsMappingProxy() {
+      const taskExecutionRecords = await this.fetchTaskExecutionRecords();
+      const taskSystemAuditLog = Object.keys(taskExecutionRecords)
+        .reduce((storeIdsMap, taskSchemaId) => {
+          storeIdsMap[taskSchemaId] =
+            get(taskExecutionRecords, `${taskSchemaId}.systemAuditLogId`);
+          return storeIdsMap;
+        }, {});
+
+      return {
+        workflow: this.get('atmWorkflowExecution.entityId'),
+        task: this.get('taskRegistry') || {},
+        store: {
+          global: this.get('storeRegistry') || {},
+          taskSystemAuditLog,
+          workflowSystemAuditLog: this.get('atmWorkflowExecution.systemAuditLogId'),
+        },
+      };
+    }
+  )),
+
+  /**
    * @override
    */
   async fetchStatuses() {
-    const {
-      atmWorkflowExecution,
-      workflowManager,
-    } = this.getProperties('atmWorkflowExecution', 'workflowManager');
+    const atmWorkflowExecution = this.get('atmWorkflowExecution');
     await atmWorkflowExecution.reload();
 
     const lanes = get(atmWorkflowExecution, 'lanes');
     const parallelBoxes = _.flatten(lanes.mapBy('parallelBoxes'));
-    const taskIds = Object.values(this.get('taskRegistry'));
-    const taskExecutionRecords = await allFulfilled(taskIds.map(taskId =>
-      workflowManager.getAtmTaskExecutionById(taskId, { reload: true })
-    ));
+    const taskExecutionRecords = await this.fetchTaskExecutionRecords(true);
 
     return {
       global: {
@@ -69,9 +100,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
         parallelBoxStatuses[schemaId] = { status };
         return parallelBoxStatuses;
       }, {}),
-      task: taskExecutionRecords.reduce((taskStatuses, taskExecutionRecord) => {
-        taskStatuses[get(taskExecutionRecord, 'schemaId')] = getProperties(
-          taskExecutionRecord,
+      task: Object.keys(taskExecutionRecords).reduce((taskStatuses, taskSchemaId) => {
+        taskStatuses[taskSchemaId] = getProperties(
+          get(taskExecutionRecords, taskSchemaId),
           'status',
           'itemsInProcessing',
           'itemsProcessed',
@@ -85,9 +116,15 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   /**
    * @override
    */
+  async fetchInstanceIdsMapping() {
+    return await this.get('instanceIdsMappingProxy');
+  },
+
+  /**
+   * @override
+   */
   async fetchStoreContent(storeSchemaId, startFromIndex, limit, offset) {
-    const storeRegistry = this.get('atmWorkflowExecution.storeRegistry');
-    const storeInstanceId = storeRegistry && storeRegistry[storeSchemaId];
+    const storeInstanceId = (this.get('storeRegistry') || {})[storeSchemaId];
 
     if (!storeInstanceId) {
       console.error(
@@ -155,6 +192,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   },
 
   /**
+   * @private
    * @param {String} storeInstanceId
    * @param {String} startFromIndex
    * @param {number} limit
@@ -164,5 +202,24 @@ export default ExecutionDataFetcher.extend(OwnerInjector, {
   async fetchStoreInstanceContent(storeInstanceId, startFromIndex, limit, offset) {
     return await this.get('workflowManager')
       .getStoreContent(storeInstanceId, startFromIndex, limit, offset);
+  },
+
+  /**
+   * @param {Boolean} [reload=false]
+   * @returns {Promise<Object>} Key is task schema id, value is task execution record
+   */
+  async fetchTaskExecutionRecords(reload = false) {
+    const {
+      workflowManager,
+      taskRegistry,
+    } = this.getProperties('workflowManager', 'taskRegistry');
+    return await hash(
+      Object.keys(taskRegistry).reduce((promiseHash, taskSchemaId) => {
+        const taskInstanceId = taskRegistry[taskSchemaId];
+        promiseHash[taskSchemaId] =
+          workflowManager.getAtmTaskExecutionById(taskInstanceId, { reload });
+        return promiseHash;
+      }, {})
+    );
   },
 });

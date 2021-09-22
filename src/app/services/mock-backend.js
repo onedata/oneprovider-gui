@@ -766,10 +766,10 @@ export default Service.extend({
     const entityRecordsArchives = this.set('entityRecords.archive', []);
     const datasets = this.get('entityRecords.dataset');
     const dirDataset = datasets.find(ds => get(ds, 'rootFileType') === 'dir');
-    await this.createArchivesForDataset(dirDataset, 5);
+    await this.createArchivesForDataset(dirDataset, 100);
     await this.setBaseArchive(
       entityRecordsArchives[2],
-      entityRecordsArchives[4]
+      entityRecordsArchives[90]
     );
     await this.addArchiveDip(entityRecordsArchives[3]);
     const chainDirDataset = datasets.find(ds =>
@@ -1065,6 +1065,60 @@ export default Service.extend({
       });
   },
 
+  /**
+   * Method for mocking adding some files between directories and files.
+   * Should be launched manually and after it resolves,
+   * `onedataGraph.clearChildrenCache()` should be launched.
+   * @param {Number} count
+   * @return {Promise}
+   */
+  async addFrontFiles(count = 10) {
+    const store = this.get('store');
+    const parent = this.get('entityRecords.spaceRootDir.firstObject');
+    const parentEntityId = get(parent, 'entityId');
+    const promises = _.range(0, count).map(i => {
+      const name = `A-${String(i).padStart(4, '0')}`;
+      const entityId = btoa(`${parentEntityId}-${name}`);
+      const id = generateFileGri(entityId);
+      return store.createRecord('file', this.createFileData({
+        id,
+        name,
+        index: name,
+        parent,
+      })).save();
+    });
+    const frontFiles = await allFulfilled(promises);
+    const globalFiles = this.get('entityRecords.file');
+    globalFiles.unshift(...frontFiles);
+    return frontFiles;
+  },
+
+  createFileData(customData) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const provider = this.get('entityRecords.provider.firstObject');
+    const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
+    const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
+    const distribution = this.get('entityRecords.fileDistribution.firstObject');
+    const owner = this.get('entityRecords.owner.firstObject');
+    return Object.assign({
+      type: 'file',
+      posixPermissions: '777',
+      hasMetadata: false,
+      effQosMembership: 'none',
+      effDatasetMembership: 'none',
+      effProtectionFlags: [],
+      size: 1024 * 1024,
+      mtime: timestamp,
+      hardlinksCount: 0,
+      distribution: distribution,
+      fileQosSummary: fileQosSummary,
+      fileDatasetSummary: emptyDatasetSummary,
+      provider,
+      targetPath: undefined,
+      owner,
+    }, customData);
+  },
+
   async createAtmInventoryRecords(store, names) {
     const atmInventories = [];
     const atmWorkflowSchemas = [];
@@ -1229,6 +1283,13 @@ export default Service.extend({
             }
             executionLanes.push(executionLane);
           }
+          const storeRegistry = get(atmWorkflowSchemaSnapshot, 'stores').reduce(
+            (registry, store) => {
+              const storeId = get(store, 'id');
+              registry[storeId] = `${storeId}instance`;
+              return registry;
+            }, {}
+          );
           const atmWorkflowExecution = await store.createRecord('atmWorkflowExecution', {
             id: gri({
               entityType: atmWorkflowExecutionEntityType,
@@ -1237,6 +1298,7 @@ export default Service.extend({
               scope: 'private',
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
+            storeRegistry,
             systemAuditLogId: `auditLog-workflow-${entityId}`,
             lanes: executionLanes,
             scheduleTime,
