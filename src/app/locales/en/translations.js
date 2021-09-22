@@ -24,6 +24,7 @@ import qosExpressionInfo from './components/qos-expression-info';
 import qosEvaluationInfo from './components/qos-evaluation-info';
 import queryBuilder from './components/query-builder';
 import filesystemBrowser from './components/filesystem-browser';
+import archiveFilesystemBrowser from './components/archive-filesystem-browser';
 import datasetBrowser from './components/dataset-browser';
 import archiveBrowser from './components/archive-browser';
 import archiveSettings from './components/archive-settings';
@@ -67,6 +68,7 @@ const translations = {
     qosEvaluationInfo,
     queryBuilder,
     filesystemBrowser,
+    archiveFilesystemBrowser,
     datasetBrowser,
     archiveBrowser,
     archiveSettings,

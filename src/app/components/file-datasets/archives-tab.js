@@ -90,6 +90,13 @@ export default Component.extend(...mixins, {
    */
   attachmentState: 'attached',
 
+  // FIXME: introduce "effArchiveDipMode" that is computed from archive model
+  /**
+   * One of: aip, dip.
+   * @type {String}
+   */
+  archiveDipMode: 'aip',
+
   /**
    * One of: archives, files.
    * @type {String}
@@ -185,37 +192,41 @@ export default Component.extend(...mixins, {
     'archiveProxy'
   ),
 
-  switchBrowserModel: observer('viewMode', function switchBrowserModel() {
-    const {
-      viewMode,
-      browserModel: currentBrowserModel,
-      archiveBrowserModelOptions,
-      filesystemBrowserModelOptions,
-    } = this.getProperties(
-      'viewMode',
-      'browserModel',
-      'archiveBrowserModelOptions',
-      'fileBrowserModelOptions',
-    );
-    let newBrowserModel;
-    switch (viewMode) {
-      case 'files':
-        newBrowserModel =
-          this.createFilesystemBrowserModel(filesystemBrowserModelOptions);
-        break;
-      case 'archives':
-        newBrowserModel = this.createArchiveBrowserModel(archiveBrowserModelOptions);
-        break;
-      default:
-        throw new Error(
-          `component:file-datasets/archives-tab#switchBrowserModel: not supported viewMode: ${viewMode}`
-        );
+  switchBrowserModel: observer(
+    'viewMode',
+    'archiveDipMode',
+    async function switchBrowserModel() {
+      const {
+        viewMode,
+        browserModel: currentBrowserModel,
+        archiveBrowserModelOptions,
+        filesystemBrowserModelOptions,
+      } = this.getProperties(
+        'viewMode',
+        'browserModel',
+        'archiveBrowserModelOptions',
+        'fileBrowserModelOptions',
+      );
+      let newBrowserModel;
+      switch (viewMode) {
+        case 'files':
+          newBrowserModel =
+            await this.createFilesystemBrowserModel(filesystemBrowserModelOptions);
+          break;
+        case 'archives':
+          newBrowserModel = this.createArchiveBrowserModel(archiveBrowserModelOptions);
+          break;
+        default:
+          throw new Error(
+            `component:file-datasets/archives-tab#switchBrowserModel: not supported viewMode: ${viewMode}`
+          );
+      }
+      this.set('browserModel', newBrowserModel);
+      if (currentBrowserModel) {
+        currentBrowserModel.destroy();
+      }
     }
-    this.set('browserModel', newBrowserModel);
-    if (currentBrowserModel) {
-      currentBrowserModel.destroy();
-    }
-  }),
+  ),
 
   init() {
     this._super(...arguments);
@@ -240,11 +251,9 @@ export default Component.extend(...mixins, {
   async fetchChildren(...fetchArgs) {
     const {
       viewMode,
-      datasetId,
       dirProxy,
     } = this.getProperties(
       'viewMode',
-      'datasetId',
       'dirProxy',
     );
     // a workaround for fb-table trying to get children when it have not-updated "dir"
@@ -295,12 +304,27 @@ export default Component.extend(...mixins, {
     }, options));
   },
 
-  createFilesystemBrowserModel(options) {
-    return ArchiveFilesystemBrowserModel.create(Object.assign({
-      ownerSource: this,
+  async createFilesystemBrowserModel(options) {
+    const {
+      archiveProxy,
+      filesBrowserModelClass,
+    } = this.getProperties('archiveProxy', 'filesBrowserModelClass');
+    return filesBrowserModelClass.create(
+      Object.assign({
+        ownerSource: this,
+        archive: await archiveProxy,
+      }, options)
+    );
+  },
+
+  filesBrowserModelClass: computed(function filesBrowserModelClass() {
+    return ArchiveFilesystemBrowserModel.extend({
+      renderArchiveDipSwitch: true,
       // TODO: VFS-7406 use dir or file-dataset icons
       rootIcon: 'browser-dataset',
       downloadScope: 'private',
+      archiveDipMode: reads('ownerSource.archiveDipMode'),
+      onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),
       // openInfo: this.openInfoModal.bind(this),
       // openMetadata: this.openMetadataModal.bind(this),
       // openShare: this.openShareModal.bind(this),
@@ -308,8 +332,8 @@ export default Component.extend(...mixins, {
       // openFileDistribution: this.openFileDistributionModal.bind(this),
       // openQos: this.openQosModal.bind(this),
       // openConfirmDownload: this.openConfirmDownload.bind(this),
-    }, options));
-  },
+    });
+  }),
 
   openCreateArchiveModal() {
     throw new Error('openCreateArchiveModal not implemented');
@@ -317,6 +341,25 @@ export default Component.extend(...mixins, {
 
   openArchivesPurgeModal() {
     throw new Error('openPurgeModal not implemented');
+  },
+
+  async changeArchiveDipMode(mode) {
+    const archiveDipMode = this.get('archiveDipMode');
+    // FIXME: proxy may be unnecessary
+    const archive = await this.get('archiveProxy');
+    if (mode !== archiveDipMode) {
+      const newArchiveId = archive.relationEntityId(
+        mode === 'dip' ? 'relatedDip' : 'relatedAip'
+      );
+      this.set('archiveId', newArchiveId);
+      const newArchive = await this.get('archiveProxy');
+      const newDirId = newArchive.relationEntityId('rootDir');
+      return this.setProperties({
+        dirId: newDirId,
+        archiveId: newArchiveId,
+        archiveDipMode: mode,
+      });
+    }
   },
 
   // FIXME: redundancy with content-space-datasets

@@ -14,5 +14,9 @@ export default Component.extend(I18n, {
   tagName: 'tr',
   classNames: ['fb-table-head-row'],
 
-  // TODO: VFS-7643 a table or browser model could be used instead of separate params
+  /**
+   * @virtual
+   * @type {Utils.BaseBrowserModel}
+   */
+  browserModel: undefined,
 });

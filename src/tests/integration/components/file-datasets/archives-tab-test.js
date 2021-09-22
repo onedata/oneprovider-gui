@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
-import { get } from '@ember/object';
+import { get, set } from '@ember/object';
 import { registerService, lookupService } from '../../../helpers/stub-service';
 import _ from 'lodash';
 import wait from 'ember-test-helpers/wait';
@@ -10,6 +10,8 @@ import Service from '@ember/service';
 import sleep from 'onedata-gui-common/utils/sleep';
 import { click } from 'ember-native-dom-helpers';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -74,6 +76,37 @@ describe('Integration | Component | file datasets/archives tab', function () {
 
     const $fileRows = this.$('.fb-table-row');
     expect($fileRows, 'rows').to.have.lengthOf(3);
+  });
+
+  it('changes archive to DIP when using DIP switch in archive files view', async function () {
+    const archivesCount = 1;
+    const filesCount = 1;
+    const archivesMockArray = mockItems({
+      testCase: this,
+      itemsCount: archivesCount,
+    });
+    mockDipArchive(archivesMockArray.array[0]);
+    mockRootFiles({
+      testCase: this,
+      filesCount,
+    });
+
+    render(this);
+    await wait();
+    // FIXME: this could be refactored to use generic utils
+    const archiveRow = this.$('.fb-table-row')[0];
+    await doubleClick(archiveRow);
+    const $dipBtn = this.$('.select-archive-dip-btn');
+
+    expect($dipBtn).to.exist;
+    expect($dipBtn).to.be.not.disabled;
+    $dipBtn.click();
+    await wait();
+    // const $currentDirName =
+    //   this.$('.fb-breadcrumbs-current-dir-button .fb-breadcrumbs-dir-name');
+    // expect($currentDirName.text()).to.contain('dip_archive_root');
+    const fileName = this.$('.fb-table-row .file-base-name')[0].textContent;
+    expect(fileName).to.match(/-dip\s*$/);
   });
 });
 
@@ -160,21 +193,27 @@ function mockItems({ testCase, itemsCount }) {
     const name = generateItemName(i);
     const entityId = name;
     const archive = BrowsableArchive.create({
-      id: generateItemId(entityId),
-      entityId,
-      name,
-      index: name,
-      type: 'dir',
-      stats: {
-        bytesArchived: 0,
-        filesArchived: 0,
-      },
-      relationEntityId(relationName) {
-        if (relationName === 'rootDir') {
-          return 'dummy_dir_id';
-        } else {
-          throw new Error(`mock archive relation ${relationName} not implemented`);
-        }
+      content: {
+        id: generateItemId(entityId),
+        entityId,
+        name,
+        index: name,
+        type: 'dir',
+        stats: {
+          bytesArchived: 0,
+          filesArchived: 0,
+        },
+        config: {
+          includeDip: false,
+        },
+        relationEntityId(relationName) {
+          if (relationName === 'rootDir') {
+            return 'dummy_dir_id';
+          } else {
+            throw new Error(`mock archive relation ${relationName} not implemented`);
+          }
+        },
+
       },
     });
     return archive;
@@ -186,9 +225,64 @@ function mockItems({ testCase, itemsCount }) {
   archiveManager.fetchDatasetArchives = ({ index, limit, offset }) => {
     return mockArray.fetchChildren(index, limit, offset);
   };
-  archiveManager.getBrowsableArchive = (entityId) =>
-    mockArray.array.findBy('entityId', entityId);
+  archiveManager.getBrowsableArchive = async (entityId) => {
+    if (entityId.endsWith('-dip')) {
+      const relatedAipId = entityId.match(/(.*)-dip/)[1];
+      const aipArchive = mockArray.array.findBy('entityId', relatedAipId);
+      const dipArchive = await get(aipArchive, 'relatedDip');
+      return dipArchive;
+    } else {
+      return mockArray.array.findBy('entityId', entityId);
+    }
+  };
   return mockArray;
+}
+
+function mockDipArchive(aipArchive) {
+  const aipEntityId = get(aipArchive, 'entityId');
+  const name = get(aipArchive, 'name') + '-dip';
+  const dipEntityId = aipEntityId + '-dip';
+  const dipArchive = BrowsableArchive.create({
+    content: {
+      id: generateItemId(dipEntityId),
+      name,
+      entityId: dipEntityId,
+      index: name,
+      type: 'dir',
+      stats: {
+        bytesArchived: 0,
+        filesArchived: 0,
+      },
+      config: {
+        includeDip: true,
+      },
+      relationEntityId(relationName) {
+        switch (relationName) {
+          case 'rootDir':
+            return 'dummy_dip_dir_id';
+          case 'relatedAip':
+            return aipEntityId;
+          default:
+            throw new Error(`mock dip archive relation ${relationName} not implemented`);
+        }
+      },
+      relatedAip: promiseObject(resolve(aipArchive)),
+    },
+  });
+  set(aipArchive, 'relatedDip', promiseObject(resolve(dipArchive)));
+  set(aipArchive, 'config.includeDip', true);
+  aipArchive.relationEntityId = (relationName) => {
+    switch (relationName) {
+      case 'rootDir':
+        return 'dummy_dir_id';
+      case 'relatedDip':
+        return dipEntityId;
+      case 'relatedAip':
+        return null;
+      default:
+        throw new Error(`mock aip archive relation ${relationName} not implemented`);
+    }
+  };
 }
 
 function generateFileId(entityId) {
@@ -201,6 +295,14 @@ function mockRootFiles({ testCase, filesCount }) {
     entityId: 'dummy_dir_id',
     name: 'archive_root',
     index: 'archive_root',
+    type: 'dir',
+  };
+
+  const dummyDipDir = {
+    id: generateFileId('dummy_dip_dir_id'),
+    entityId: 'dummy_dip_dir_id',
+    name: 'dip_archive_root',
+    index: 'dip_archive_root',
     type: 'dir',
   };
 
@@ -221,14 +323,25 @@ function mockRootFiles({ testCase, filesCount }) {
 
   const mockArray = new MockArray(files);
 
-  fileManager.fetchDirChildren = (dirId, scope, ...fetchArgs) => {
-    return mockArray.fetchChildren(...fetchArgs);
+  fileManager.fetchDirChildren = async (dirId, scope, ...fetchArgs) => {
+    const result = await mockArray.fetchChildren(...fetchArgs);
+    if (dirId === 'dummy_dip_dir_id') {
+      result.childrenRecords = _.cloneDeep(result.childrenRecords);
+      result.childrenRecords.forEach(file => {
+        file.name = file.name + '-dip';
+        file.index = file.index + '-dip';
+      });
+    }
+    return result;
   };
   fileManager.getFileById = (fileId) => {
-    if (fileId === 'dummy_dir_id') {
-      return dummyDir;
-    } else {
-      return mockArray.array.findBy('entityId', fileId);
+    switch (fileId) {
+      case 'dummy_dir_id':
+        return dummyDir;
+      case 'dummy_dip_dir_id':
+        return dummyDipDir;
+      default:
+        return mockArray.array.findBy('entityId', fileId);
     }
   };
   return mockArray;
