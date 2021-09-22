@@ -24,7 +24,7 @@ export default FilesystemTableHeadRow.extend({
    */
   renderArchiveDipSwitch: or(
     'browserModel.renderArchiveDipSwitch',
-    raw('false')
+    raw(false)
   ),
 
   /**
