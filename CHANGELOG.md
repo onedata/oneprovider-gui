@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8288 Fixed workflow executions list reloading, updated gui commons
 * VFS-7633 Added links between file browser and datasets/archives browser with "blink" animation; infinite scroll bugfixing
 * VFS-8053 Added ID copiers to places related to workflows
 * VFS-7960 Fixed changing space in file browser during files upload
