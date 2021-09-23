@@ -24,3 +24,11 @@
     onArchiveCreate=(action submitArchiveCreate)
   }}
 {{/if}}
+
+{{#if archivesToPurge}}
+  {{archives-purge-modal
+    open=true
+    archives=archivesToPurge
+    onHide=(action closeArchivesPurgeModal)
+  }}
+{{/if}}

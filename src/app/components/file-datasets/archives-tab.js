@@ -76,6 +76,8 @@ export default Component.extend(...mixins, {
    */
   dirId: undefined,
 
+  archivesToPurge: null,
+
   /**
    * @virtual optional
    */
@@ -380,8 +382,15 @@ export default Component.extend(...mixins, {
     });
   },
 
-  openArchivesPurgeModal() {
-    throw new Error('openPurgeModal not implemented');
+  /**
+   * @param {Array<Models.Archive>} archives
+   */
+  openArchivesPurgeModal(archives) {
+    this.set('archivesToPurge', archives);
+  },
+
+  closeArchivesPurgeModal() {
+    this.set('archivesToPurge', null);
   },
 
   async changeArchiveDipMode(mode) {
