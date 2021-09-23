@@ -92,7 +92,7 @@ describe('Integration | Component | file datasets/archives tab', function () {
         testCase: this,
         itemsCount: archivesCount,
       });
-      mockDipArchive(archivesMockArray.array[0]);
+      mockDipArchive(archivesMockArray.array[0], this);
       mockRootFiles({
         testCase: this,
         filesCount,
@@ -228,42 +228,53 @@ function generateItemName(i) {
   return `archive-${i.toString().padStart(3, '0')}`;
 }
 
-function createArchive(entityId, name) {
-  return BrowsableArchive.create({
-    content: {
-      id: generateItemId(entityId),
-      entityId,
-      name,
-      index: name,
-      type: 'dir',
-      stats: {
-        bytesArchived: 0,
-        filesArchived: 0,
+function createMockArchive(entityId, name, testCase) {
+  return BrowsableArchive
+    // .extend({
+    //   rootDir: computed(function rootDir() {
+    //     return this.get('testCase.filesMockArray').getFileById('dummy_dir_id');
+    //   }),
+    // })
+    .create({
+      content: {
+        id: generateItemId(entityId),
+        entityId,
+        name,
+        index: name,
+        type: 'dir',
+        stats: {
+          bytesArchived: 0,
+          filesArchived: 0,
+        },
+        config: {
+          includeDip: false,
+        },
+        get rootDir() {
+          return lookupService(testCase, 'fileManager').getFileById('dummy_dir_id');
+        },
+        relationEntityId(relationName) {
+          if (relationName === 'rootDir') {
+            return 'dummy_dir_id';
+          } else {
+            throw new Error(`mock archive relation ${relationName} not implemented`);
+          }
+        },
       },
-      config: {
-        includeDip: false,
-      },
-      relationEntityId(relationName) {
-        if (relationName === 'rootDir') {
-          return 'dummy_dir_id';
-        } else {
-          throw new Error(`mock archive relation ${relationName} not implemented`);
-        }
-      },
-    },
-  });
+    });
 }
 
 function mockItems({ testCase, itemsCount }) {
   const archives = _.range(0, itemsCount).map(i => {
     const name = generateItemName(i);
     const entityId = name;
-    const archive = createArchive(entityId, name);
+    const archive = createMockArchive(entityId, name, testCase);
     return archive;
   });
   const archiveManager = lookupService(testCase, 'archiveManager');
 
   const mockArray = new MockArray(archives);
+  testCase.set('archivesMockArray', mockArray);
+
   // FIXME: archive-browser seems to have bug in tests
   archiveManager.fetchDatasetArchives = ({ index, limit, offset }) => {
     return mockArray.fetchChildren(index, limit, offset);
@@ -280,12 +291,12 @@ function mockItems({ testCase, itemsCount }) {
   };
   archiveManager.createArchive = async ( /* dataset, data */ ) => {
     const i = mockArray.array.length;
-    mockArray.array.unshift(createArchive(`new-${i}`, `archive-new-${i}`));
+    mockArray.array.unshift(createMockArchive(`new-${i}`, `archive-new-${i}`));
   };
   return mockArray;
 }
 
-function mockDipArchive(aipArchive) {
+function mockDipArchive(aipArchive, testCase) {
   const aipEntityId = get(aipArchive, 'entityId');
   const name = get(aipArchive, 'name') + '-dip';
   const dipEntityId = aipEntityId + '-dip';
@@ -297,12 +308,16 @@ function mockDipArchive(aipArchive) {
       index: name,
       type: 'dir',
       description: 'dummy_dip',
+      testCase,
       stats: {
         bytesArchived: 0,
         filesArchived: 0,
       },
       config: {
         includeDip: true,
+      },
+      get rootDir() {
+        return lookupService(testCase, 'fileManager').getFileById('dummy_dip_dir_id');
       },
       relationEntityId(relationName) {
         switch (relationName) {
@@ -370,6 +385,7 @@ function mockRootFiles({ testCase, filesCount }) {
   const fileManager = lookupService(testCase, 'fileManager');
 
   const mockArray = new MockArray(files);
+  testCase.set('filesMockArray', mockArray);
 
   fileManager.fetchDirChildren = async (dirId, scope, ...fetchArgs) => {
     const result = await mockArray.fetchChildren(...fetchArgs);

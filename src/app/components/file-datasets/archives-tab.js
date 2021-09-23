@@ -19,6 +19,7 @@ import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
 import { promise, conditional, raw, equal } from 'ember-awesome-macros';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 
 const mixins = [
   I18n,
@@ -131,6 +132,22 @@ export default Component.extend(...mixins, {
   )),
 
   dir: computedLastProxyContent('dirProxy'),
+
+  archiveRootDirProxy: promise.object(computed(
+    'archiveProxy.rootDir',
+    'browsableDatasetProxy',
+    async function archiveRootDirProxy() {
+      const browsableDatasetProxy = this.get('browsableDatasetProxy');
+      const archive = await this.get('archiveProxy');
+      const rootDir = await get(archive, 'rootDir');
+      return BrowsableArchiveRootDir.create({
+        content: rootDir,
+        hasParent: true,
+        parent: browsableDatasetProxy,
+        browsableArchive: archive,
+      });
+    }
+  )),
 
   /**
    * Just wait for first dirProxy load.
@@ -294,7 +311,13 @@ export default Component.extend(...mixins, {
    */
   async getFileById(fileId) {
     const fileManager = this.get('fileManager');
-    return fileManager.getFileById(fileId, 'private');
+    const archive = this.get('archive') || await this.get('archiveProxy');
+    const archiveRootDirId = archive.relationEntityId('rootDir');
+    if (!fileId || fileId === archiveRootDirId) {
+      return this.get('archiveRootDirProxy');
+    } else {
+      return fileManager.getFileById(fileId, 'private');
+    }
   },
 
   createArchiveBrowserModel(options = {}) {
