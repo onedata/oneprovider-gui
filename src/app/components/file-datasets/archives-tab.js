@@ -20,6 +20,7 @@ import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesys
 import { promise, conditional, raw, equal } from 'ember-awesome-macros';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const mixins = [
   I18n,
@@ -33,6 +34,7 @@ export default Component.extend(...mixins, {
   archiveManager: service(),
   datasetManager: service(),
   fileManager: service(),
+  appProxy: service(),
 
   /**
    * @type {Models.Space}
@@ -76,8 +78,6 @@ export default Component.extend(...mixins, {
    */
   dirId: undefined,
 
-  archivesToPurge: null,
-
   /**
    * @virtual optional
    */
@@ -100,9 +100,35 @@ export default Component.extend(...mixins, {
    */
   archiveDipMode: 'aip',
 
+  //#region action modals state
+
   createArchiveOpened: undefined,
 
   createArchiveOptions: undefined,
+
+  fileToShowInfo: null,
+
+  fileToShowMetadata: null,
+
+  fileToShare: null,
+
+  datasetToShowProtection: null,
+
+  fileToShowProtection: null,
+
+  filesToEditPermissions: null,
+
+  filesToShowDistribution: null,
+
+  filesToShowQos: null,
+
+  fileForConfirmDownload: null,
+
+  archivesToPurge: null,
+
+  //#endregion action modals state
+
+  spacePrivileges: reads('space.privileges'),
 
   /**
    * One of: archives, files.
@@ -354,13 +380,13 @@ export default Component.extend(...mixins, {
       downloadScope: 'private',
       archiveDipMode: reads('ownerSource.archiveDipMode'),
       onArchiveDipModeChange: this.changeArchiveDipMode.bind(this),
-      // openInfo: this.openInfoModal.bind(this),
-      // openMetadata: this.openMetadataModal.bind(this),
-      // openShare: this.openShareModal.bind(this),
-      // openEditPermissions: this.openEditPermissionsModal.bind(this),
-      // openFileDistribution: this.openFileDistributionModal.bind(this),
-      // openQos: this.openQosModal.bind(this),
-      // openConfirmDownload: this.openConfirmDownload.bind(this),
+      openInfo: this.openInfoModal.bind(this),
+      openMetadata: this.openMetadataModal.bind(this),
+      openShare: this.openShareModal.bind(this),
+      openEditPermissions: this.openEditPermissionsModal.bind(this),
+      openFileDistribution: this.openFileDistributionModal.bind(this),
+      openQos: this.openQosModal.bind(this),
+      openConfirmDownload: this.openConfirmDownload.bind(this),
     });
   }),
 
@@ -391,6 +417,72 @@ export default Component.extend(...mixins, {
 
   closeArchivesPurgeModal() {
     this.set('archivesToPurge', null);
+  },
+
+  openInfoModal(file) {
+    this.set('fileToShowInfo', file);
+  },
+
+  closeInfoModal() {
+    this.set('fileToShowInfo', null);
+  },
+
+  openMetadataModal(file) {
+    this.set('fileToShowMetadata', file);
+  },
+
+  closeMetadataModal() {
+    this.set('fileToShowMetadata', null);
+  },
+
+  openShareModal(file) {
+    this.set('fileToShare', file);
+  },
+
+  closeShareModal() {
+    this.set('fileToShare', null);
+  },
+
+  openEditPermissionsModal(files) {
+    this.set('filesToEditPermissions', [...files]);
+  },
+
+  closeEditPermissionsModal() {
+    this.set('filesToEditPermissions', null);
+  },
+
+  openFileDistributionModal(files) {
+    this.set('filesToShowDistribution', [...files]);
+  },
+
+  closeFileDistributionModal() {
+    this.set('filesToShowDistribution', null);
+  },
+
+  openQosModal(files) {
+    this.set('filesToShowQos', files);
+  },
+
+  closeQosModal() {
+    this.set('filesToShowQos', null);
+  },
+
+  openConfirmDownload(file) {
+    this.set('fileForConfirmDownload', file);
+  },
+
+  closeConfirmFileDownload() {
+    this.set('fileForConfirmDownload', null);
+  },
+
+  confirmFileDownload() {
+    return this.get('browserModel')
+      .downloadFiles([
+        this.get('fileForConfirmDownload'),
+      ])
+      .finally(() => {
+        safeExec(this, 'set', 'fileForConfirmDownload', null);
+      });
   },
 
   async changeArchiveDipMode(mode) {
@@ -513,6 +605,37 @@ export default Component.extend(...mixins, {
   submitArchiveCreate(dataset, archiveData) {
     return this.get('archiveManager').createArchive(dataset, archiveData);
   },
+
+  //#region URL generating methods
+
+  getDatasetsUrl(options) {
+    return this.get('appProxy').callParent('getDatasetsUrl', options);
+  },
+
+  getShareUrl(options) {
+    return this.get('appProxy').callParent('getShareUrl', options);
+  },
+
+  getTransfersUrl(options) {
+    return this.get('appProxy').callParent('getTransfersUrl', options);
+  },
+
+  getArchiveFileUrl({ selected }) {
+    const {
+      archiveId,
+      datasetId,
+      dirId,
+    } = this.getProperties('archiveId', 'datasetId', 'dirId');
+    return this.getDatasetsUrl({
+      viewMode: 'files',
+      datasetId,
+      archive: archiveId,
+      selected,
+      dir: dirId || null,
+    });
+  },
+
+  //#endregion
 
   actions: {
     resolveItemParent() {
