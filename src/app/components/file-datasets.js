@@ -18,6 +18,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { collect, raw, conditional, and } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -170,5 +171,13 @@ export default Component.extend(I18n, {
     and('fileDatasetSummaryProxy.isFulfilled', 'hasDirectDatasetEstablished'),
     collect(),
     collect(raw('archives')),
+  ),
+
+  settingsTabHint: computedT('tabHints.settings'),
+
+  archivesTabHint: conditional(
+    'hasDirectDatasetEstablished',
+    computedT('tabHints.archives.enabled'),
+    computedT('tabHints.archives.notEstablished'),
   ),
 });

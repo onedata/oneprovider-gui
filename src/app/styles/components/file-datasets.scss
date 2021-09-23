@@ -12,6 +12,10 @@
     .file-datasets-tab-bar {
       flex-grow: 1;
       align-self: flex-end;
+      .hint-trigger {
+        font-size: inherit;
+        margin-right: 0;
+      }
     }
     .modal-header-effective-info {
       flex-shrink: 1;

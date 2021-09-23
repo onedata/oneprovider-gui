@@ -26,6 +26,10 @@ export default Component.extend(I18n, {
    */
   archiveCount: undefined,
 
+  settingsTabHint: undefined,
+
+  archivesTabHint: undefined,
+
   hasArchiveCount: notEmpty('archiveCount'),
 
   tabIds: collect(raw('settings'), raw('archives')),
