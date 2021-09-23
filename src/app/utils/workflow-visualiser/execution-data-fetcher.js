@@ -14,8 +14,10 @@ import { inject as service } from '@ember/service';
 import { taskEndedStatuses } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { hash as hashFulfilled } from 'rsvp';
+import _ from 'lodash';
 
 const notFoundError = { id: 'notFound' };
+const unavailableTaskInstanceIdPrefix = '__unavailableTaskInstanceId';
 
 export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   workflowManager: service(),
@@ -57,13 +59,27 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
    * @override
    */
   async fetchExecutionState() {
-    await this.reloadAtmWorkflowExecution();
+    const atmWorkflowSchemaExecution = await this.getReloadedAtmWorkflowExecution();
+    const atmWorkflowSchemaSnapshot = await this.getAtmWorkflowSchemaSnapshot();
+    const rawWorkflowExecutionState = this.getNormalizedRawWorkflowExecutionState(
+      atmWorkflowSchemaExecution,
+      atmWorkflowSchemaSnapshot,
+    );
 
-    const workflowExecutionState = this.getWorkflowExecutionState();
-    const lanesExecutionState = this.getLanesExecutionState();
-    const parallelBoxesExecutionState = this.getParallelBoxesExecutionState();
-    const tasksExecutionState = await this.getTasksExecutionState();
+    const workflowExecutionState = this.getWorkflowExecutionState({
+      rawWorkflowExecutionState,
+    });
+    const lanesExecutionState = this.getLanesExecutionState({
+      rawWorkflowExecutionState,
+    });
+    const parallelBoxesExecutionState = this.getParallelBoxesExecutionState({
+      rawWorkflowExecutionState,
+    });
+    const tasksExecutionState = await this.getTasksExecutionState({
+      rawWorkflowExecutionState,
+    });
     const storesExecutionState = await this.getStoresExecutionState({
+      rawWorkflowExecutionState,
       workflowExecutionState,
       lanesExecutionState,
       tasksExecutionState,
@@ -93,36 +109,28 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       .getStoreContent(storeInstanceId, startFromIndex, limit, offset);
   },
 
-  async reloadAtmWorkflowExecution() {
-    await this.get('atmWorkflowExecution').reload();
+  async getReloadedAtmWorkflowExecution() {
+    return await this.get('atmWorkflowExecution').reload();
   },
 
-  getWorkflowExecutionState() {
-    const atmWorkflowExecution = this.get('atmWorkflowExecution');
-    const {
-      entityId: instanceId,
-      systemAuditLogId,
-      status,
-    } = getProperties(
-      atmWorkflowExecution,
-      'entityId',
-      'systemAuditLogId',
-      'status'
-    );
+  async getAtmWorkflowSchemaSnapshot() {
+    return await get(this.get('atmWorkflowExecution'), 'atmWorkflowSchemaSnapshot');
+  },
 
+  getWorkflowExecutionState({ rawWorkflowExecutionState }) {
     return {
-      instanceId,
-      systemAuditLogStoreInstanceId: systemAuditLogId,
-      status,
+      instanceId: rawWorkflowExecutionState.entityId,
+      systemAuditLogStoreInstanceId: rawWorkflowExecutionState.systemAuditLogId,
+      status: rawWorkflowExecutionState.status,
     };
   },
 
-  getLanesExecutionState() {
+  getLanesExecutionState({ rawWorkflowExecutionState }) {
     const lanesExecutionState = {};
-    for (const lane of this.getAtmWorkflowExecutionLanes()) {
+    for (const lane of rawWorkflowExecutionState.lanes) {
       const laneSchemaId = lane.schemaId;
       const runsState = {};
-      for (const run of this.getLaneRuns(lane)) {
+      for (const run of lane.runs) {
         runsState[run.runNo] = {
           runNo: run.runNo,
           sourceRunNo: run.sourceRunNo,
@@ -141,11 +149,11 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     return lanesExecutionState;
   },
 
-  getParallelBoxesExecutionState() {
+  getParallelBoxesExecutionState({ rawWorkflowExecutionState }) {
     const parallelBoxesExecutionState = {};
-    for (const lane of this.getAtmWorkflowExecutionLanes()) {
-      for (const run of this.getLaneRuns(lane)) {
-        for (const parallelBox of this.getRunParallelBoxes(run)) {
+    for (const lane of rawWorkflowExecutionState.lanes) {
+      for (const run of lane.runs) {
+        for (const parallelBox of run.parallelBoxes) {
           const parallelBoxSchemaId = parallelBox.schemaId;
           if (!(parallelBoxSchemaId in parallelBoxesExecutionState)) {
             parallelBoxesExecutionState[parallelBoxSchemaId] = {
@@ -164,11 +172,11 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     return parallelBoxesExecutionState;
   },
 
-  async getTasksExecutionState() {
+  async getTasksExecutionState({ rawWorkflowExecutionState }) {
     const tasksExecutionState = {};
-    for (const lane of this.getAtmWorkflowExecutionLanes()) {
-      for (const run of this.getLaneRuns(lane)) {
-        for (const parallelBox of this.getRunParallelBoxes(run)) {
+    for (const lane of rawWorkflowExecutionState.lanes) {
+      for (const run of lane.runs) {
+        for (const parallelBox of run.parallelBoxes) {
           const atmTaskExecutionRecords =
             await this.getParallelBoxTasks(parallelBox, { reload: true });
           for (const atmTaskExecutionRecord of atmTaskExecutionRecords) {
@@ -213,11 +221,14 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   },
 
   async getStoresExecutionState({
+    rawWorkflowExecutionState,
     workflowExecutionState,
     lanesExecutionState,
     tasksExecutionState,
   }) {
-    const definedStores = this.getDefinedStoresExecutionState();
+    const definedStores = this.getDefinedStoresExecutionState({
+      rawWorkflowExecutionState,
+    });
     const definedStoreInstanceIds =
       Object.values(definedStores).mapBy('instanceId').compact();
     const generatedStores = await this.getGeneratedStoresExecutionState({
@@ -232,8 +243,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     };
   },
 
-  getDefinedStoresExecutionState() {
-    const storeRegistry = this.get('atmWorkflowExecution.storeRegistry') || {};
+  getDefinedStoresExecutionState({ rawWorkflowExecutionState }) {
+    const storeRegistry = rawWorkflowExecutionState.storeRegistry;
     const definedStoresExecutionState = {};
     for (const storeSchemaId in storeRegistry) {
       const storeInstanceId = storeRegistry[storeSchemaId];
@@ -255,6 +266,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     const generatedStoreInstanceIds = new Set();
     const failedItemsStoresSourceRun = {};
 
+    // workflow audit log store
     if (workflowExecutionState.systemAuditLogStoreInstanceId) {
       generatedStoreInstanceIds.add(
         workflowExecutionState.systemAuditLogStoreInstanceId
@@ -263,9 +275,11 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
 
     for (const laneExecutionState of Object.values(lanesExecutionState)) {
       for (const run of Object.values(laneExecutionState.runs)) {
+        // lane iterated store
         if (run.iteratedStoreInstanceId) {
           generatedStoreInstanceIds.add(run.iteratedStoreInstanceId);
         }
+        // lane exception store
         if (run.exceptionStoreInstanceId) {
           generatedStoreInstanceIds.add(run.exceptionStoreInstanceId);
           failedItemsStoresSourceRun[run.exceptionStoreInstanceId] = run.runNo;
@@ -274,12 +288,14 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     }
     for (const taskExecutionState of Object.values(tasksExecutionState)) {
       for (const run of Object.values(taskExecutionState.runs)) {
+        // task audit log store
         if (run.systemAuditLogStoreInstanceId) {
           generatedStoreInstanceIds.add(run.systemAuditLogStoreInstanceId);
         }
       }
     }
 
+    // deleting stores, which are defined in schema (so are not generated)
     for (const definedStoreInstanceId of definedStoreInstanceIds) {
       generatedStoreInstanceIds.delete(definedStoreInstanceId);
     }
@@ -299,6 +315,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         initialValue,
       } = getProperties(store, 'type', 'dataSpec', 'initialValue');
       let name = null;
+      // For exceptions stores we need to generate names. Some of them will
+      // be visible as an iterated store (so must be distinguishable by name).
       if (storeInstanceId in failedItemsStoresSourceRun) {
         name = this.t('failedItemsStore', {
           sourceRunNo: failedItemsStoresSourceRun[storeInstanceId],
@@ -316,21 +334,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     return generatedStores;
   },
 
-  getAtmWorkflowExecutionLanes() {
-    return (this.get('atmWorkflowExecution.lanes') || []).filterBy('schemaId');
-  },
-
-  getLaneRuns(lane) {
-    return (lane && lane.runs || [])
-      .filter((run) => run && (typeof run.runNo === 'number'));
-  },
-
-  getRunParallelBoxes(run) {
-    return (run && run.parallelBoxes || []).filterBy('schemaId');
-  },
-
   async getParallelBoxTasks(parallelBox, { reload = false }) {
-    const taskRegistry = parallelBox && parallelBox.taskRegistry || {};
+    const taskRegistry = parallelBox.taskRegistry || {};
     const tasks = [];
     for (const taskSchemaId in taskRegistry) {
       const taskInstanceId = taskRegistry[taskSchemaId];
@@ -352,6 +357,21 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       'atmTaskExecutionRecordsCache',
       'workflowManager'
     );
+
+    if (this.isUnavailableAtmTaskInstanceId(atmTaskInstanceId)) {
+      const {
+        schemaId,
+        status,
+      } = this.extractUnavailableAtmTaskInstanceIdData(atmTaskInstanceId);
+      return {
+        schemaId,
+        systemAuditLogId: null,
+        status,
+        itemsInProcessing: 0,
+        itemsProcessed: 0,
+        itemsFailed: 0,
+      };
+    }
 
     const cachedAtmTaskExecutionRecord =
       atmTaskExecutionRecordsCache[atmTaskInstanceId];
@@ -388,5 +408,102 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       await workflowManager.getAtmStoreById(atmStoreInstanceId);
     atmStoreRecordsCache[atmStoreInstanceId] = atmStoreRecord;
     return atmStoreRecord;
+  },
+
+  getNormalizedRawWorkflowExecutionState(
+    atmWorkflowExecution,
+    atmWorkflowSchemaSnapshot
+  ) {
+    const {
+      entityId,
+      lanes,
+      status,
+      systemAuditLogId,
+      storeRegistry,
+    } = getProperties(
+      atmWorkflowExecution,
+      'entityId',
+      'lanes',
+      'status',
+      'systemAuditLogId',
+      'storeRegistry'
+    );
+    const lanesSchemas = get(atmWorkflowSchemaSnapshot, 'lanes') || [];
+
+    const normalizedLanes = _.cloneDeep((lanes || []).filterBy('schemaId'));
+    let prevLaneFirstRunStatus;
+    for (let i = 0; i < normalizedLanes.length; i++) {
+      const lane = normalizedLanes[i];
+      if (!lane.runs) {
+        lane.runs = [];
+      }
+      lane.runs = lane.runs.filter((run) => run && (typeof run.runNo === 'number'));
+
+      for (const run of lane.runs) {
+        run.parallelBoxes = (run.parallelBoxes || []).filterBy('schemaId');
+      }
+
+      // For the first run we have to show something for each lane
+      // (even if backend does not provide enough data). To do this, we have to
+      // "guess" first run execution data depending on the first run in previous lane.
+      // NOTICE: There should be always a first run in the first lane in data
+      // provided by backend. So the logic of inferring data from previous lane
+      // should hold. But in case of an abnormal response, we also check the
+      // first lane and generate "pending" first run if first run is not defined.
+      if (!lane.runs[0]) {
+        const guessedStatus = prevLaneFirstRunStatus === 'cancelled' ||
+          prevLaneFirstRunStatus === 'skipped' ? 'skipped' : 'pending';
+        const laneSchema = lanesSchemas.findBy('id', lane.schemaId) || {};
+        const parallelBoxesSchemas = (laneSchema.parallelBoxes || []).filterBy('id');
+        const guessedParallelBoxes = [];
+        for (const parallelBoxSchema of parallelBoxesSchemas) {
+          const guessedTaskRegistry = {};
+          (parallelBoxSchema.tasks || [])
+          .mapBy('id')
+            .compact()
+            .forEach((taskSchemaId) =>
+              guessedTaskRegistry[taskSchemaId] =
+              this.generateUnavailableAtmTaskInstanceId(taskSchemaId, guessedStatus)
+            );
+          const parallelBoxData = {
+            schemaId: parallelBoxSchema.id,
+            status: guessedStatus,
+            taskRegistry: guessedTaskRegistry,
+          };
+          guessedParallelBoxes.push(parallelBoxData);
+        }
+        lane.runs[0] = {
+          runNo: 1,
+          sourceRunNo: null,
+          runType: 'regular',
+          iteratedStoreInstanceId: null,
+          exceptionStoreInstanceId: null,
+          status: guessedStatus,
+          parallelBoxes: guessedParallelBoxes,
+        };
+      }
+      prevLaneFirstRunStatus = lane.runs[0].status;
+    }
+
+    return {
+      entityId,
+      lanes: normalizedLanes,
+      status,
+      systemAuditLogId,
+      storeRegistry,
+    };
+  },
+
+  generateUnavailableAtmTaskInstanceId(atmTaskSchemaId, status) {
+    return `${unavailableTaskInstanceIdPrefix}|${atmTaskSchemaId}|${status}`;
+  },
+
+  isUnavailableAtmTaskInstanceId(atmTaskInstanceId) {
+    return atmTaskInstanceId.startsWith(unavailableTaskInstanceIdPrefix);
+  },
+
+  extractUnavailableAtmTaskInstanceIdData(unavailableAtmTaskInstanceId) {
+    const [, schemaId, status] = unavailableAtmTaskInstanceId.split('|');
+    return { schemaId, status };
   },
 });
