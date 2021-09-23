@@ -90,7 +90,7 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
     'datasetId',
     'baseArchiveId',
     'browserModel.getDatasetsUrl',
-    async function baseArchiveHref() {
+    async function baseArchiveHrefProxy() {
       const {
         archive,
         datasetId,

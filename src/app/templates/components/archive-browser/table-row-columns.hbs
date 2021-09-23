@@ -13,25 +13,17 @@
       {{#if loadingBaseArchiveProxy.isPending}}
         {{tt this "loading"}}
       {{else if baseArchiveName}}
-        {{#if baseArchiveUrl}}
-          <a
-            class="azure base-archive-link"
-            target={{navigateTarget}}
-            href={{fileRowModel.baseArchiveHrefProxy.content}}
-            onclick={{action "baseArchiveLinkClick"}}
-          >
-            {{#truncated-string class="base-archive-name"}}
-              {{fileRowModel.baseArchiveNameProxy.content}}
-            {{/truncated-string}}
-          </a>
-        {{else}}
-          <span class="base-archive-static">
-            {{#truncated-string class="base-archive-name"}}
-              {{fileRowModel.baseArchiveNameProxy.content}}
-            {{/truncated-string}}
-          </span>
-        {{/if}}
-
+        <a
+          class="azure base-archive-link"
+          target={{navigateTarget}}
+          href={{baseArchiveUrl}}
+          onclick={{action "baseArchiveLinkClick"}}
+          onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
+        >
+          {{#truncated-string class="base-archive-name"}}
+            {{fileRowModel.baseArchiveNameProxy.content}}
+          {{/truncated-string}}
+        </a>
       {{else}}
         –
       {{/if}}

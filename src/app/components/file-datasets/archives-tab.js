@@ -352,8 +352,7 @@ export default Component.extend(...mixins, {
     return ArchiveBrowserModel.create(Object.assign({
       ownerSource: this,
       spaceDatasetsViewState: this,
-      // FIXME: archives url (base archives, DIP etc.)
-      getDatasetsUrl: undefined,
+      getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openPurgeModal: this.openArchivesPurgeModal.bind(this),
     }, options));
