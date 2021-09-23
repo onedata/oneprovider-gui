@@ -21,9 +21,9 @@ export default Component.extend({
   // FIXME: refactor component for only one file
   files: collect(
     // use/uncomment for dataset with ancestors
-    // 'mockBackend.entityRecords.chainDir.2',
+    'mockBackend.entityRecords.chainDir.2',
     // use/uncomment for dataset with archives
-    'mockBackend.entityRecords.dir.0',
+    // 'mockBackend.entityRecords.dir.0',
   ),
 
   file: reads('files.firstObject'),

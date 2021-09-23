@@ -74,6 +74,12 @@ export default Component.extend(I18n, {
   browsableDataset: undefined,
 
   /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  showBrowseDatasetsLink: true,
+
+  /**
    * @type {PromiseObject<Utils.BrowsableDataset>}
    */
   directDatasetProxy: promise.object(promise.resolve('browsableDataset')),

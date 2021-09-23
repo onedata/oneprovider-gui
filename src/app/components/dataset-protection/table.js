@@ -42,6 +42,12 @@ export default Component.extend(I18n, {
   getDatasetsUrl: undefined,
 
   /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  showBrowseDatasetsLink: true,
+
+  /**
    * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
    */
   ancestorDatasetsProxy: promise.array(computed(

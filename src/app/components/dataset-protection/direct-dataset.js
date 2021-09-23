@@ -50,6 +50,12 @@ export default Component.extend(I18n, {
    */
   getDatasetsUrl: notImplementedIgnore,
 
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  showBrowseDatasetsLink: true,
+
   navigateTarget: '_top',
 
   /**
@@ -80,42 +86,6 @@ export default Component.extend(I18n, {
       raw('browser-directory'),
     ),
   ),
-
-  /**
-   * @type {ComputedProperty<SafeString>}
-   */
-  archiveCountText: computed('directDataset.archiveCount', function archiveCountText() {
-    const count = this.get('directDataset.archiveCount');
-    if (!count) {
-      return this.t('archiveCount.none');
-    } else if (count === 1) {
-      return this.t('archiveCount.single');
-    } else {
-      return this.t('archiveCount.multi', { count });
-    }
-  }),
-
-  /**
-   * Link to archives view of dataset, if it has a dataset established.
-   * @type {ComputedProperty<String>}
-   */
-  datasetArchivesLinkProxy: promise.object(computed(
-    'directDatasetProxy.content.{parent,state}',
-    async function datasetLinkProxy() {
-      const directDataset = await this.get('directDatasetProxy');
-      if (directDataset) {
-        const datasetId = get(directDataset, 'entityId');
-        const options = {
-          datasetId,
-          viewMode: 'archives',
-          attachmentState: get(directDataset, 'state'),
-        };
-        return this.get('getDatasetsUrl')(options);
-      }
-    }
-  )),
-
-  datasetArchivesLink: reads('datasetArchivesLinkProxy.content'),
 
   /**
    * Link on item text, if it has a dataset established.
