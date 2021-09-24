@@ -93,7 +93,6 @@ export default Component.extend(...mixins, {
    */
   attachmentState: 'attached',
 
-  // FIXME: introduce "effArchiveDipMode" that is computed from archive model
   /**
    * One of: aip, dip.
    * @type {String}
@@ -230,7 +229,6 @@ export default Component.extend(...mixins, {
 
   archive: computedLastProxyContent('archiveProxy'),
 
-  // FIXME: redundancy
   /**
    * @type {PromiseOBject<EmberObject>} resolve with file-like object for
    *  `file-browser#dir` property
@@ -317,7 +315,7 @@ export default Component.extend(...mixins, {
     }
   },
 
-  // FIXME: DRY
+  // TODO: VFS-7643 make common util for empty response
   getEmptyFetchChildrenResponse() {
     return {
       childrenRecords: [],
@@ -325,7 +323,7 @@ export default Component.extend(...mixins, {
     };
   },
 
-  // FIXME: DRY
+  // TODO: VFS-7643 maybe fetch dir children will be a common operation in browser model
   async fetchDirChildren(dirId, startIndex, size, offset) {
     const fileManager = this.get('fileManager');
     return fileManager
@@ -486,7 +484,6 @@ export default Component.extend(...mixins, {
 
   async changeArchiveDipMode(mode) {
     const archiveDipMode = this.get('archiveDipMode');
-    // FIXME: proxy may be unnecessary
     const archive = await this.get('archiveProxy');
     if (mode !== archiveDipMode) {
       const newArchiveId = archive.relationEntityId(
@@ -503,7 +500,7 @@ export default Component.extend(...mixins, {
     }
   },
 
-  // FIXME: redundancy with content-space-datasets
+  // TODO: VFS-7643 maybe it will be a common operation in archive browser model
   async fetchDatasetArchives(datasetId, startIndex, size, offset) {
     const archiveManager = this.get('archiveManager');
     return this.browserizeArchives(await archiveManager.fetchDatasetArchives({
@@ -514,7 +511,7 @@ export default Component.extend(...mixins, {
     }));
   },
 
-  // FIXME: redundancy with content-space-archives
+  // TODO: VFS-7643 maybe it will be a common operation in archive browser model
   async browserizeArchives({ childrenRecords, isLast }) {
     const archiveManager = this.get('archiveManager');
     return {
@@ -525,12 +522,12 @@ export default Component.extend(...mixins, {
     };
   },
 
-  // FIXME: redundancy with content-space-archives
+  // TODO: VFS-7643 remove partial redundancy with content-space-datasets
   async resolveItemParent(item) {
     const itemEntityId = get(item, 'entityId');
     const browsableType = get(item, 'browsableType');
-    // // if browsable item has no type, it defaults to file (first and original
-    // // browsable object)
+    // if browsable item has no type, it defaults to file (first and original
+    // browsable object)
     if (!browsableType || browsableType === 'file') {
       const archive = this.get('archive') || await this.get('archiveProxy');
       const archiveRootDirId = archive && archive.relationEntityId('rootDir');
@@ -544,25 +541,7 @@ export default Component.extend(...mixins, {
           return this.get('archiveRootDirProxy');
         } else {
           // file browser: inside archive filesystem
-          const parent = await get(item, 'parent');
-          if (get(parent, 'isArchiveRootDir')) {
-            const dirParentArchiveId = parent.relationEntityId('archive');
-            const dirParentArchive = await get(parent, 'archive');
-            const datasetIdOfArchive = dirParentArchive.relationEntityId('dataset');
-            const url = this.getDatasetsUrl({
-              datasetId: datasetIdOfArchive,
-              archive: dirParentArchiveId,
-            });
-            // TODO: VFS-7850 a workaround for not-updating breadcrumbs,
-            // see details in JIRA ticket
-            // FIXME:
-            throw new Error(`FIXME: VFS-7850: ${url}`);
-            // window.top.location = url;
-            // window.location.reload();
-            // return null;
-          }
-
-          return parent;
+          return get(item, 'parent');
         }
       } else {
         // file browser: it's rather some problem with getting dir parent,

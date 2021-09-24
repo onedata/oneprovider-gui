@@ -147,8 +147,6 @@ describe('Integration | Component | file datasets/archives tab', function () {
   );
 });
 
-// FIXME: clean up unnecessary properties
-
 function render(testCase) {
   const defaultDataset = {
     name: 'Default dataset',
@@ -175,8 +173,6 @@ function render(testCase) {
   }}`);
 }
 
-// FIXME: common browser tests redundancy
-
 function setTestPropertyDefault(testCase, propertyName, defaultValue) {
   if (testCase.get(propertyName) === undefined) {
     testCase.set(propertyName, defaultValue);
@@ -188,8 +184,6 @@ function notStubbed(stubName) {
     throw new Error(`${stubName} is not stubbed`);
   };
 }
-
-// FIXME: archive-browser-test redundancy
 
 class MockArray {
   constructor(array) {
@@ -230,11 +224,6 @@ function generateItemName(i) {
 
 function createMockArchive(entityId, name, testCase) {
   return BrowsableArchive
-    // .extend({
-    //   rootDir: computed(function rootDir() {
-    //     return this.get('testCase.filesMockArray').getFileById('dummy_dir_id');
-    //   }),
-    // })
     .create({
       content: {
         id: generateItemId(entityId),

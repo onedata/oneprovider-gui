@@ -368,7 +368,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
           ) {
             const parent = await get(browsableDataset, 'parent');
             return parent &&
-              await datasetManager.getBrowsableDataset(get(parent, 'entityId')) ||
+              await datasetManager.getBrowsableDataset(parent) ||
               spaceDatasetsRoot;
           }
           return browsableDataset;
@@ -618,7 +618,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
           dir: null,
         }
       );
-      return { dataUrl, datasetProxy: datasetManager.getBrowsableDataset(parentId) };
+      return {
+        dataUrl,
+        datasetProxy: datasetManager.getBrowsableDataset(firstSelectedItem),
+      };
     } else {
       return null;
     }
@@ -895,7 +898,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const datasetManager = this.get('datasetManager');
     return {
       childrenRecords: await allFulfilled(childrenRecords.map(r =>
-        datasetManager.getBrowsableDataset(get(r, 'entityId'))
+        datasetManager.getBrowsableDataset(r)
       )),
       isLast,
     };

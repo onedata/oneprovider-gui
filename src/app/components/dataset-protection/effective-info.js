@@ -1,5 +1,5 @@
 /**
- * FIXME: jsdoc 
+ * Shows effective write protection info (final summary of protection).
  *
  * @module components/dataset-protection/effective-info
  * @author Jakub Liput

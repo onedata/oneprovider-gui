@@ -1,4 +1,11 @@
-// FIXME: jsdoc
+/**
+ * Displays navigation tab links for file datasets panel. 
+ *
+ * @module components/file-datasets/tab-bar
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import Component from '@ember/component';
 import { collect, raw, notEmpty } from 'ember-awesome-macros';
@@ -12,10 +19,24 @@ export default Component.extend(I18n, {
    */
   i18nPrefix: 'components.fileDatasets.tabBar',
 
+  /**
+   * One of: settings, archives.
+   * @virtual
+   * @type {String}
+   */
   activeTab: undefined,
 
+  /**
+   * @virtual
+   * @type {(activeTab: String) => any}
+   */
   onActiveTabChange: undefined,
 
+  /**
+   * Array with possible archive tab IDs.
+   * @virtual optional
+   * @type {Array<String>}
+   */
   disabledTabs: undefined,
 
   /**
@@ -26,12 +47,27 @@ export default Component.extend(I18n, {
    */
   archiveCount: undefined,
 
+  /**
+   * @virtual optional
+   * @type {String|SafeString}
+   */
   settingsTabHint: undefined,
 
+  /**
+   * @virtual optional
+   * @type {String|SafeString}
+   */
   archivesTabHint: undefined,
 
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
   hasArchiveCount: notEmpty('archiveCount'),
 
+  /**
+   * Ordered list of displayed tabs.
+   * @type {ComputedProperty<Array<String>>}
+   */
   tabIds: collect(raw('settings'), raw('archives')),
 
   actions: {

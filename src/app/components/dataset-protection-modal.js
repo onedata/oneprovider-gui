@@ -1,5 +1,6 @@
 /**
- * FIXME: jsdoc
+ * A modal for single item in dataset browser showing protection settings of dataset
+ * hierarchy.
  *
  * @module components/dataset-protection-modal
  * @author Jakub Liput

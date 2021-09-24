@@ -4,7 +4,7 @@ import tabBar from './file-datasets/tab-bar';
 
 export default {
   close: 'Close',
-  // FIXME: text
+  // FIXME: i18n to discuss
   tabHints: {
     settings: 'There are some settings.',
     archives: {

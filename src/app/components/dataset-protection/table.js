@@ -1,5 +1,8 @@
 /**
- * FIXME: jsdoc, virtual properties jsdoc
+ * Table listing selected and ancestor datasets with toggles for changing their write
+ * protection settings. Can be used in two modes:
+ * - file: suitable for filesystem browser
+ * - dataset: suitable for dataset browser
  *
  * @module components/dataset-protection/table
  * @author Jakub Liput
@@ -21,20 +24,58 @@ export default Component.extend(I18n, {
   i18n: service(),
   media: service(),
 
+  /**
+   * @override
+   */
   i18nPrefix: 'components.datasetProtection.table',
 
+  /**
+   * @virtual
+   * @type {PromiseObject<Models.FielDatasetSummary>}
+   */
   fileDatasetSummaryProxy: undefined,
 
+  /**
+   * @virtual
+   * @type {PromiseObject<Utils.BrowsableDataset>}
+   */
   directDatasetProxy: undefined,
 
+  /**
+   * Selected file in file mode or `rootDir` of selected dataset in dataset mode.
+   * @virtual
+   * @type {Models.File}
+   */
   file: undefined,
 
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
   editPrivilege: undefined,
 
+  /**
+   * Text displayed in various places when settings cannot be edited due to lack of
+   * privileges.
+   * @type {ComputedProperty<SafeString>}
+   */
   insufficientEditPrivilegesMessage: undefined,
 
+  /**
+   * @virtual
+   * @type {Function}
+   */
   close: undefined,
 
+  /**
+   * One of: file, dataset.
+   * - file: suitable for filesystem-browser, show info about ancestors
+   *     in filesystem context
+   * - dataset: suitable for dataset-browser, show info about ancestors
+   *     in dataset tree context
+   * @virtual optional
+   * @type {String}
+   */
   mode: undefined,
 
   getDataUrl: undefined,

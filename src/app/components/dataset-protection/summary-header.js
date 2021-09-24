@@ -1,5 +1,5 @@
 /**
- * FIXME: jsdoc 
+ * Information about selected dataset and its effective write protection.
  *
  * @module components/dataset-protection/summary-header
  * @author Jakub Liput

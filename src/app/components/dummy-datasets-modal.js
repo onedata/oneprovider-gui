@@ -18,7 +18,6 @@ export default Component.extend({
 
   mockBackend: service(),
 
-  // FIXME: refactor component for only one file
   files: collect(
     // use/uncomment for dataset with ancestors
     'mockBackend.entityRecords.chainDir.2',

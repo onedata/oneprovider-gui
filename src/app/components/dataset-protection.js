@@ -1,5 +1,6 @@
 /**
- * FIXME: jsdoc 
+ * Summarizes and allows to change dataset protection settings and protection of its
+ * ancestors.
  *
  * @module components/dataset-protection
  * @author Jakub Liput
@@ -84,7 +85,6 @@ export default Component.extend(I18n, {
    */
   directDatasetProxy: promise.object(promise.resolve('browsableDataset')),
 
-  // FIXME: redundancy
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
    * privileges.
@@ -100,7 +100,6 @@ export default Component.extend(I18n, {
     }
   ),
 
-  // FIXME: redundancy
   /**
    * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
    */

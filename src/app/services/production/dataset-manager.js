@@ -50,7 +50,6 @@ export default Service.extend({
     return this.get('store').findRecord('dataset', requestGri);
   },
 
-  // FIXME: refactor usages of getBrowsableDataset
   /**
    * Creates or returns previously created BrowsableDataset object.
    * Only one `BrowsableDataset` for specific `datasetId` is created.

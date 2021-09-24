@@ -220,7 +220,7 @@ export default BaseModel.extend(I18n, {
     const datasetManager = this.get('datasetManager');
     return {
       childrenRecords: await allFulfilled(childrenRecords.map(r =>
-        datasetManager.getBrowsableDataset(get(r, 'entityId'))
+        datasetManager.getBrowsableDataset(r)
       )),
       isLast,
     };

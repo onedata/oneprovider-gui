@@ -77,8 +77,9 @@ export default Component.extend(I18n, {
   files: undefined,
 
   /**
-   * FIXME: jsdoc
-   * @virtual
+   * Selector of modal that is parent of this component (if modal is used).
+   * @virtual optional
+   * @type {String}
    */
   parentModalDialogSelector: undefined,
 
