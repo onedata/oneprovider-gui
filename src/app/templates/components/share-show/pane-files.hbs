@@ -4,6 +4,12 @@
     header=(tt this "fileDeleted.title")
     text=(tt this "fileDeleted.content")
   }}
+{{else if (not isDirExisted)}}
+  {{content-info
+    class="scroll-breakpoint-300"
+    header=(tt this "noSuchElem")
+    imagePath=(root-url "assets/images/data-error-enoent.svg")
+  }}
 {{else}}
   {{#promise-proxy-container proxy=requiredDataProxy}}
     {{file-browser

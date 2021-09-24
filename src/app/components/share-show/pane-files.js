@@ -121,6 +121,19 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
     }
   })),
 
+  isDirExisted: computed('dirId', function isDirExisted() {
+    try {
+      const {
+        fileManager,
+        dirId,
+      } = this.getProperties('fileManager', 'dirId');
+      fileManager.getFileById(dirId, 'public');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }),
+
   dir: computedLastProxyContent('dirProxy'),
 
   rootDir: computed('share.{name,entityId}', function rootDir() {
