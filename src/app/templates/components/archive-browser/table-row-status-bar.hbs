@@ -3,7 +3,7 @@
     {{tt this "status.bagit"}}
   </div>
 {{/if}}
-{{#if showDipTag}}
+{{#if isDipTag}}
   <div
     class="file-status-tag archive-dip-tag {{if disabled "file-status-tag-disabled"}}"
     {{action
@@ -15,5 +15,9 @@
     }}
   >
     {{tt this "status.dip"}}
+  </div>
+{{else}}
+  <div class="file-status-tag archive-aip-tag file-status-tag-disabled">
+    {{tt this "status.aip"}}
   </div>
 {{/if}}
