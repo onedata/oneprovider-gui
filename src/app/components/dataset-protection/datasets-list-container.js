@@ -26,6 +26,12 @@ export default Component.extend({
 
   /**
    * @virtual
+   * @type {Function}
+   */
+  getDatasetsUrl: notImplementedWarn,
+
+  /**
+   * @virtual
    * @type {Array<Models.Dataset>}
    */
   datasets: undefined,
@@ -60,10 +66,10 @@ export default Component.extend({
       return await allFulfilled(datasetsArray.reverse().map(async (dataset) => {
         const itemId = mode === 'dataset' ?
           get(dataset, 'entityId') : dataset.relationEntityId('rootFile');
-        const filePathString = await this.getPathString(dataset);
+        const itemPathString = await this.getPathString(dataset);
         return {
           dataset,
-          filePathString,
+          itemPathString,
           itemHref: getUrl({ selected: [itemId] }),
         };
       }));

@@ -49,13 +49,21 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Function}
    */
+  updateOpenedFileData: notImplementedWarn,
+
+  /**
+   * Used for resolving file paths in "file" mode.
+   * @virtual optional
+   * @type {Function}
+   */
   getDataUrl: notImplementedWarn,
 
   /**
-   * @virtual
+   * Used for resolving dataset paths in "dataset" mode.
+   * @virtual optional
    * @type {Function}
    */
-  updateOpenedFileData: notImplementedWarn,
+  getDatasetsUrl: notImplementedWarn,
 
   /**
    * Where file links should open

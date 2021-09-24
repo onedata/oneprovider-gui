@@ -59,20 +59,14 @@
           <div class="dataset-label-section">
             {{one-icon class="path-icon" icon=ancestorIcon}}
             <div class="dataset-label path-label">
-              {{#if (eq mode "dataset")}}
-                <span class="dataset-path truncate">
-                  {{data.filePathString}}
-                </span>
-              {{else}}
-                <a
-                  onclick={{action "ancestorLinkClicked"}}
-                  target={{navigateDataTarget}}
-                  class="azure file-path truncate"
-                  href={{data.itemHref}}
-                >
-                  {{data.filePathString}}
-                </a>
-              {{/if}}
+              <a
+                onclick={{action "ancestorLinkClicked"}}
+                target={{navigateDataTarget}}
+                class="azure file-path truncate"
+                href={{data.itemHref}}
+              >
+                {{data.itemPathString}}
+              </a>
             </div>
           </div>
         {{/dataset-protection/dataset-item}}
