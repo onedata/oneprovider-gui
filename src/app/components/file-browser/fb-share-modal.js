@@ -36,6 +36,7 @@ import backendifyName, {
 } from 'onedata-gui-common/utils/backendify-name';
 import { next } from '@ember/runloop';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
 
 export default Component.extend(
   I18n,
@@ -171,6 +172,15 @@ export default Component.extend(
             });
           }
         });
+      }
+    ),
+
+    isViewForOtherForbidden: computed(
+      'file.{type,posixPermissions}',
+      function isViewForOtherForbidden() {
+        const file = this.get('file');
+        const octalNumber = 2;
+        return isPosixViewForbidden(file, octalNumber);
       }
     ),
 

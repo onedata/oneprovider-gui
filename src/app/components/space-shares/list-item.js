@@ -10,12 +10,13 @@
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { htmlSafe } from '@ember/string';
-import { conditional, raw, eq, tag, collect } from 'ember-awesome-macros';
+import { conditional, raw, eq, tag, collect, promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
 
 export default Component.extend(I18n, {
   globalNotify: service(),
@@ -148,6 +149,27 @@ export default Component.extend(I18n, {
     ),
     raw(undefined)
   ),
+
+  isViewForOtherForbiddenProxy: promise.object(computed(
+    'share.rootFile.{type,posixPermissions}',
+    async function isViewForOtherForbiddenProxy() {
+      const file = await this.get('share.rootFile');
+      const octalNumber = 2;
+      return isPosixViewForbidden(file, octalNumber);
+    }
+  )),
+
+  forbiddenTooltipTextProxy: promise.object(computed(
+    'share.rootFile.type',
+    async function forbiddenTooltipTextProxy() {
+      const sharedFile = await this.get('share.rootFile');
+      if (get(sharedFile, 'type') === 'file') {
+        return this.t('warning.file');
+      } else {
+        return this.t('warning.dir');
+      }
+    }
+  )),
 
   actions: {
     toggleActions(open) {

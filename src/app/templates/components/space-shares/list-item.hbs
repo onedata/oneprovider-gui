@@ -1,7 +1,7 @@
 <a href={{href}} target={{target}} class="space-share-list-item list-item one-collapsible-list-item">
   <div class="one-collapsible-list-item-header row list-header-row truncate hoverable">
     <div class="list-header-content">
-      {{#truncated-string}}
+      {{#truncated-string class="icon-with-name"}}
         <span class="item-icon-container">
           {{one-icon-tagged
             icon=icon
@@ -15,7 +15,12 @@
         </span>
         {{name-conflict tagName="span" item=share tagName="span" class="one-label share-name-header"}}
       {{/truncated-string}}
-
+      {{#if isViewForOtherForbiddenProxy.content}}
+        <div class="share-labels-container">
+          <span class="label label-warning">{{tt this "noPublicAccess"}}</span>
+          {{one-tooltip title=forbiddenTooltipTextProxy.content}}
+        </div>
+      {{/if}}
       {{one-menu-toggle
         class=(concat-classes triggerClass "share-menu-trigger")
         click=(disable-bubbling (action "toggleActions"))
