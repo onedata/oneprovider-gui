@@ -1,7 +1,7 @@
 /**
  * Check posix permissions and return if view is forbidden
  * 
- * @module utils/is-view-forbidden
+ * @module utils/is-posix-view-forbidden
  * @author Agnieszka Warchoł
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -10,7 +10,7 @@
 import { get } from '@ember/object';
 import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 
-export default function isViewForbidden(file, octalNumber) {
+export default function isPosixViewForbidden(file, octalNumber) {
   const posixPermissions = get(file, 'posixPermissions');
   if (!posixPermissions) {
     return false;

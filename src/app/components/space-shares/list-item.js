@@ -16,7 +16,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import isViewForbidden from 'oneprovider-gui/utils/is-view-forbidden';
+import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
 
 export default Component.extend(I18n, {
   globalNotify: service(),
@@ -155,7 +155,7 @@ export default Component.extend(I18n, {
     async function isViewForOtherForbiddenProxy() {
       const file = await this.get('share.rootFile');
       const octalNumber = 2;
-      return isViewForbidden(file, octalNumber);
+      return isPosixViewForbidden(file, octalNumber);
     }
   )),
 

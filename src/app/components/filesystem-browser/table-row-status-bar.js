@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { inject as service } from '@ember/service';
-import isViewForbidden from 'oneprovider-gui/utils/is-view-forbidden';
+import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
 
 export default FbTableRowStatusBar.extend({
   classNames: ['filesystem-table-row-status-bar'],
@@ -77,7 +77,7 @@ export default FbTableRowStatusBar.extend({
           octalNumber = 1;
         }
       }
-      return isViewForbidden(file, octalNumber);
+      return isPosixViewForbidden(file, octalNumber);
     }
   ),
 
