@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7210 Added showing error when root dir not existed in public scope
 * VFS-7112 Added warning when shared file has 0 perms for other
 * VFS-8288 Fixed workflow executions list reloading, updated gui commons
 * VFS-7633 Added links between file browser and datasets/archives browser with "blink" animation; infinite scroll bugfixing

@@ -75,9 +75,9 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
 
   /**
    * @virtual
-   * @type {Boolean}
+   * @type {PromiseObject<Boolean>}
    */
-  shareRootDeleted: false,
+  shareRootDeletedProxy: undefined,
 
   //#region browser items for various modals
 
@@ -102,7 +102,8 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
 
   requiredDataProxy: promise.object(promise.all(
     'initialDirProxy',
-    'share.rootFile'
+    'share.rootFile',
+    'shareRootDeletedProxy',
   )),
 
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
@@ -120,6 +121,22 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
       return resolve(rootDir);
     }
   })),
+
+  isRootDirExistingProxy: promise.object(computed('share.rootFile',
+    async function isRootDirExistingProxy() {
+      try {
+        const {
+          fileManager,
+          share,
+        } = this.getProperties('fileManager', 'share');
+        const fileId = share.relationEntityId('rootFile');
+        await fileManager.getFileById(fileId, 'public');
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+  )),
 
   dir: computedLastProxyContent('dirProxy'),
 
