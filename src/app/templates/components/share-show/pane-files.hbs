@@ -4,10 +4,10 @@
     header=(tt this "fileDeleted.title")
     text=(tt this "fileDeleted.content")
   }}
-{{else if (not isDirExisted)}}
+{{else if (and (not-eq shareRootDeleted undefined) (not isRootDirExistingProxy.content))}}
   {{content-info
-    class="scroll-breakpoint-300"
-    header=(tt this "noSuchElem")
+    class="scroll-breakpoint-600"
+    header=(tt this "noSuchItem")
     imagePath=(root-url "assets/images/data-error-enoent.svg")
   }}
 {{else}}
