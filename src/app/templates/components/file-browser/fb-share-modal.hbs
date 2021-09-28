@@ -9,6 +9,9 @@
   {{#modal.header}}
     <h1>{{tt this "header" fileType=(tt this (concat "fileType." file.type))}}</h1>
     {{modal-file-subheader files=(array file)}}
+    {{#if isViewForOtherForbidden}}
+      <div class="alert alert-warning">{{tt this (concat "warning." file.type)}}</div>
+    {{/if}}
   {{/modal.header}}
   {{#modal.body}}
     <div class="share-modal-loadable-row loadable-row">
