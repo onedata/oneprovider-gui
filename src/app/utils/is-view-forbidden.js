@@ -1,7 +1,7 @@
 /**
  * Check posix permissions and return if view is forbidden
  * 
- * @module utils/posix-view-permissions-checker
+ * @module utils/is-view-forbidden
  * @author Agnieszka Warchoł
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

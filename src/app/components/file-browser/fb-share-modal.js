@@ -36,7 +36,7 @@ import backendifyName, {
 } from 'onedata-gui-common/utils/backendify-name';
 import { next } from '@ember/runloop';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import isViewForbidden from 'oneprovider-gui/utils/posix-view-permissions-checker';
+import isViewForbidden from 'oneprovider-gui/utils/is-view-forbidden';
 
 export default Component.extend(
   I18n,

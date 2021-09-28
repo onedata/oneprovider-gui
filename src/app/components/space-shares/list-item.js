@@ -16,7 +16,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import { inject as service } from '@ember/service';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
-import isViewForbidden from 'oneprovider-gui/utils/posix-view-permissions-checker';
+import isViewForbidden from 'oneprovider-gui/utils/is-view-forbidden';
 
 export default Component.extend(I18n, {
   globalNotify: service(),
@@ -159,9 +159,9 @@ export default Component.extend(I18n, {
     }
   )),
 
-  tooltipTextProxy: promise.object(computed(
+  forbiddenTooltipTextProxy: promise.object(computed(
     'share.rootFile.type',
-    async function tooltipTextProxy() {
+    async function forbiddenTooltipTextProxy() {
       const sharedFile = await this.get('share.rootFile');
       if (get(sharedFile, 'type') === 'file') {
         return this.t('warning.file');
