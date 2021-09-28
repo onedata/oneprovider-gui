@@ -75,9 +75,9 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
 
   /**
    * @virtual
-   * @type {Boolean}
+   * @type {PromiseObject<Boolean>}
    */
-  shareRootDeleted: undefined,
+  shareRootDeletedProxy: undefined,
 
   //#region browser items for various modals
 
@@ -102,7 +102,8 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
 
   requiredDataProxy: promise.object(promise.all(
     'initialDirProxy',
-    'share.rootFile'
+    'share.rootFile',
+    'shareRootDeletedProxy',
   )),
 
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {

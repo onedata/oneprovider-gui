@@ -1,10 +1,10 @@
-{{#if shareRootDeleted}}
+{{#if shareRootDeletedProxy.content}}
   {{content-info
     class="scroll-breakpoint-300"
     header=(tt this "fileDeleted.title")
     text=(tt this "fileDeleted.content")
   }}
-{{else if (and (not-eq shareRootDeleted undefined) (not isRootDirExistingProxy.content))}}
+{{else if (and shareRootDeletedProxy.isSettled (not isRootDirExistingProxy.content))}}
   {{content-info
     class="scroll-breakpoint-600"
     header=(tt this "noSuchItem")
