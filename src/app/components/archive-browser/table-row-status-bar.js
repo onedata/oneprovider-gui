@@ -25,7 +25,7 @@ export default FbTableRowStatusBar.extend(I18n, {
    */
   archive: reads('file'),
 
-  isDipTag: reads('fileRowModel.includeDip'),
+  hasDip: reads('fileRowModel.includeDip'),
 
   showBagitTag: equal('fileRowModel.archiveLayout', raw('bagit')),
 });

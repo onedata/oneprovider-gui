@@ -29,9 +29,6 @@ export default Component.extend(I18n, {
   tagName: '',
 
   i18n: service(),
-  datasetManager: service(),
-  fileManager: service(),
-  globalNotify: service(),
 
   /**
    * @virtual optional

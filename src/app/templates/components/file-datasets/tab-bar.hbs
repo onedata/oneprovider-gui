@@ -10,36 +10,34 @@
     class="nav-tabs-file-dataset-panel"
     as |nav|
   }}
-    {{#each tabIds as |tabId|}}
+    {{#each tabsSpec key="id" as |tabSpec|}}
       {{#nav.item
-        active=(eq tab.activeId tabId)
-        disabled=(contains tabId disabledTabs)
-        class=(concat "nav-item-" tabId)
+        active=(eq tab.activeId tabSpec.id)
+        disabled=tabSpec.disabled
+        class=(concat "nav-item-" tabSpec.id)
       }}
-        <a href={{concat "#" tabId}}
-          class={{concat "nav-link nav-link-file-dataset-panel nav-link-" tabId}}
+        <a href={{concat "#" tabSpec.id}}
+          class={{concat "nav-link nav-link-file-dataset-panel nav-link-" tabSpec.id}}
           role="tab"
-          {{action "onActiveTabChange" tabId}}
+          {{action "onActiveTabChange" tabSpec.id}}
         >
           <span class="tab-label">
             <div class="one-label tab-name">
-              {{tt this (concat "tabs." tabId)}}
-              {{#if (and (eq tabId "archives") hasArchiveCount)}}
-                ({{archiveCount}})
+              {{tabSpec.label}}
+              {{#if tabSpec.tip}}
+                {{#one-icon
+                  icon="sign-question-rounded"
+                  class="hint-trigger clickable"
+                }}
+                  {{one-tooltip title=tabSpec.tip}}
+                {{/one-icon}}
               {{/if}}
-              {{#with (get this (concat tabId "TabHint")) as |hint|}}
-                {{#if hint}}
-                  {{#one-icon
-                    icon="sign-question-rounded"
-                    class="hint-trigger clickable"
-                  }}
-                    {{one-tooltip title=(get this (concat tabId "TabHint"))}}
-                  {{/one-icon}}
-                {{/if}}
-              {{/with}}
             </div>
           </span>
         </a>
+        {{#if tabSpec.fullTabTip}}
+          {{one-tooltip title=tabSpec.fullTabTip}}
+        {{/if}}
       {{/nav.item}}
     {{/each}}
   {{/bs-nav}}

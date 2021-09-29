@@ -9,14 +9,14 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { collect, raw, conditional, and } from 'ember-awesome-macros';
+import { or, not, conditional, and, notEmpty } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
@@ -121,6 +121,11 @@ export default Component.extend(I18n, {
   file: reads('files.firstObject'),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  fileType: reads('file.type'),
+
+  /**
    * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
    */
   fileDatasetSummaryProxy: computedRelationProxy(
@@ -168,17 +173,75 @@ export default Component.extend(I18n, {
     }
   ),
 
-  disabledTabs: conditional(
-    and('fileDatasetSummaryProxy.isFulfilled', 'hasDirectDatasetEstablished'),
-    collect(),
-    collect(raw('archives')),
+  archivesTabDisabled: or(
+    not('fileDatasetSummaryProxy.isFulfilled'),
+    not('hasDirectDatasetEstablished'),
   ),
 
-  settingsTabHint: computedT('tabHints.settings'),
+  tabsSpec: computed(function tabSpecs() {
+    const {
+      i18n,
+      i18nPrefix,
+    } = this.getProperties('i18n', 'i18nPrefix');
+    return [
+      EmberObject.extend(I18n, {
+        /**
+         * @virtual
+         * @type {Components.FileDatasets}
+         */
+        fileDatasets: undefined,
 
-  archivesTabHint: conditional(
-    'hasDirectDatasetEstablished',
-    computedT('tabHints.archives.enabled'),
-    computedT('tabHints.archives.notEstablished'),
-  ),
+        i18n,
+        i18nPrefix: i18nPrefix + '.tabs.settings',
+        id: 'settings',
+        label: computedT('label'),
+        tip: computed('fileDatasets.fileType', function tip() {
+          return this.t('tip', {
+            fileType: this.t('fileType.' + this.get('fileDatasets.fileType')),
+          });
+        }),
+        disabled: false,
+      }).create({
+        fileDatasets: this,
+      }),
+      EmberObject.extend(I18n, {
+        /**
+         * @virtual
+         * @type {Components.FileDatasets}
+         */
+        fileDatasets: undefined,
+
+        i18n,
+        i18nPrefix: i18nPrefix + '.tabs.archives',
+        id: 'archives',
+        archiveCount: reads('fileDatasets.directDataset.archiveCount'),
+        hasArchiveCount: notEmpty('archiveCount'),
+        label: conditional(
+          'hasArchiveCount',
+          computed('archiveCount', function labelCounted() {
+            return this.t('labelCounted', {
+              count: this.get('archiveCount'),
+            });
+          }),
+          computedT('label'),
+        ),
+        tip: and(not('disabled'), computedT('tip')),
+        fullTabTip: computed('disabled', 'fileDatasets.fileType', function tip() {
+          if (this.get('disabled')) {
+            return this.t('tipDisabled', {
+              fileType: this.t('fileType.' + this.get('fileDatasets.fileType')),
+            });
+          }
+        }),
+        disabled: reads('fileDatasets.archivesTabDisabled'),
+      }).create({
+        fileDatasets: this,
+      }),
+    ];
+  }),
+
+  fileTypeText: computed('fileType', function fileTypeText() {
+    const fileType = this.get('fileType');
+    return this.t(`fileType.${fileType}`);
+  }),
 });

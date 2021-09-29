@@ -301,8 +301,10 @@ function testHasArchivesTabEnabled({ datasetState }) {
 }
 
 function testArchivesTabCount({ archiveCount }) {
+  const archivesCountText = archiveCount === 1 ?
+    `${archiveCount} archive is` : `${archiveCount} archives are`;
   const description =
-    `renders archives ${archiveCount} count in "Archives" tab name if ${archiveCount} archives is created for dataset`;
+    `renders archives ${archiveCount} count in "Archives" tab name if ${archivesCountText} created for dataset`;
   it(description, async function () {
     const directDataset = createDataset({
       id: 'dataset_id',

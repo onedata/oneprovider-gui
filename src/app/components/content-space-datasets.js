@@ -559,9 +559,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   async resolveDatasetForSelectedIds(selectedIds) {
-    // NOTE: fallbackDirProxy is not got using `get` to avoid loading it
-    // unnecessarily
-    const _window = this.get('_window');
+    const {
+      _window,
+      spaceDatasetsRoot,
+    } = this.getProperties('_window', 'spaceDatasetsRoot');
 
     if (isEmpty(selectedIds)) {
       // no dir nor selected files provided - go home
@@ -571,16 +572,17 @@ export default OneEmbeddedComponent.extend(...mixins, {
       if (redirectOptions) {
         // TODO: VFS-8342 common util for replacing master URL
         _window.top.location.replace(redirectOptions.dataUrl);
-        return (await redirectOptions.datasetProxy) || this.get('spaceDatasetsRoot');
+        return (await redirectOptions.datasetProxy) || spaceDatasetsRoot;
       } else {
         // resolving parent from selection failed - fallback to home
-        return this.get('spaceDatasetsRoot');
+        return spaceDatasetsRoot;
       }
     }
   },
+
   /**
-   * Optionally redirects Onezone to URL containing parent directory of first
-   * selected file (if there is no injected dir id and at least one selected file).
+   * Optionally computes Onezone URL redirect options for containing parent directory of
+   * first selected file (if there is no injected dir id and at least one selected file).
    * If there is no need to redirect, resolves false.
    * @returns {Promise<{dataUrl: string, dirProxy: PromiseObject}>}
    */

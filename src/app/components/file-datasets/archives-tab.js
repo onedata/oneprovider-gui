@@ -1,7 +1,7 @@
 /**
  * A container for archives browser embedded into file-datasets panel.
  *
- * @module components/archives-tab
+ * @module components/file-datasets/archives-tab
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -51,18 +51,20 @@ export default Component.extend(...mixins, {
   /**
    * Custom selector for items list scroll container.
    * Should be overriden **only** if archives-tab is not in one-modal.
+   * @type {String}
    * @virtual optional
    */
   contentScrollSelector: undefined,
 
   /**
    * @implements InModalBrowserContainerBase
+   * @type {String}
    * @virtual
    */
   modalBodyId: undefined,
 
   /**
-   * @implements ItemBrowserContainerBase
+   * @implements ItemBrowserContainerBase.selectedItems
    */
   selectedItems: undefined,
 
@@ -79,11 +81,13 @@ export default Component.extend(...mixins, {
   dirId: undefined,
 
   /**
+   * Additional properties for `ArchiveBrowserModel` on model creation.
    * @virtual optional
    */
   archiveBrowserModelOptions: Object.freeze({}),
 
   /**
+   * Additional properties for `ArchiveFilesystemBrowserModel` on model creation.
    * @virtual optional
    */
   filesystemBrowserModelOptions: Object.freeze({}),
@@ -101,37 +105,72 @@ export default Component.extend(...mixins, {
 
   //#region action modals state
 
+  // Below properties are used to configure items action modals embedded into template.
+
+  /**
+   * @type {Boolean}
+   */
   createArchiveOpened: undefined,
 
+  /**
+   * See `ArchiveManager.createArchive` `data` argument.
+   * @type {Object}
+   */
   createArchiveOptions: undefined,
 
+  /**
+   * @type {Models.File}
+   */
   fileToShowInfo: null,
 
+  /**
+   * @type {Models.File}
+   */
   fileToShowMetadata: null,
 
+  /**
+   * @type {Models.File}
+   */
   fileToShare: null,
 
-  datasetToShowProtection: null,
-
-  fileToShowProtection: null,
-
+  /**
+   * In fact, file permissions cannot be edited inside archives, but the modal is named
+   * `edit-permissions-modal`, so the property name is compatible with its convention.
+   * @type {Array<Models.File>}
+   */
   filesToEditPermissions: null,
 
+  /**
+   * @type {Array<Models.File>}
+   */
   filesToShowDistribution: null,
 
+  /**
+   * @type {Array<Models.File>}
+   */
   filesToShowQos: null,
 
+  /**
+   * @type {Models.File}
+   */
   fileForConfirmDownload: null,
 
+  /**
+   * @type {Utils.BrowsableArchive}
+   */
   archivesToPurge: null,
 
   //#endregion action modals state
 
+  /**
+   * See `Models.Space#spacePrivileges` object format.
+   * @type {Object}
+   */
   spacePrivileges: reads('space.privileges'),
 
   /**
    * One of: archives, files.
-   * @type {String}
+   * @type {ComputedProperty<String>}
    */
   viewMode: conditional(
     'dirId',
@@ -158,8 +197,15 @@ export default Component.extend(...mixins, {
     }
   )),
 
+  /**
+   * If archive files are browsed, this is the currently opened dir.
+   * @type {ComputedProperty<Models.File>}
+   */
   dir: computedLastProxyContent('dirProxy'),
 
+  /**
+   * @type {ComputedProperty<PromiseObject<BrowsableArchiveRootDir>>}
+   */
   archiveRootDirProxy: promise.object(computed(
     'archiveProxy.rootDir',
     'browsableDatasetProxy',
@@ -178,6 +224,7 @@ export default Component.extend(...mixins, {
 
   /**
    * Just wait for first dirProxy load.
+   * @type {ComputedProperty<PromiseObject<Models.File>>}
    */
   initialDirProxy: computed(function initialDirProxy() {
     return this.get('dirProxy');
@@ -194,7 +241,9 @@ export default Component.extend(...mixins, {
   )),
 
   /**
-   * @implements ArchiveBrowserModel.spaceDatasetsViewState
+   *
+   * @type {ComputedProperty<PromiseObject<Utils.BrowsableDataset>>}
+   * @implements ArchiveBrowserModel.spaceDatasetsViewState.browsableDatasetProxy
    */
   browsableDatasetProxy: promise.object(computed('dataset', function browsableDataset() {
     const {
@@ -205,12 +254,18 @@ export default Component.extend(...mixins, {
     return datasetManager.getBrowsableDataset(dataset);
   })),
 
+  /**
+   * @type {ComputedProperty<Utils.BrowsableDataset>}
+   */
   browsableDataset: reads('browsableDatasetProxy.content'),
 
+  /**
+   * @type {ComputedProperty<String>}
+   */
   datasetId: reads('browsableDataset.entityId'),
 
   /**
-   * @type {PromiseObject<Models.Archive>}
+   * @type {PromiseObject<Utils.BrowsableArchive>}
    */
   archiveProxy: promise.object(computed(
     'archiveId',
@@ -227,6 +282,10 @@ export default Component.extend(...mixins, {
     }
   )),
 
+  /**
+   * If archive files are browsed, this is the currently selected archive for browse.
+   * @type {ComputedProperty<Utils.BrowsableArchive>}
+   */
   archive: computedLastProxyContent('archiveProxy'),
 
   /**

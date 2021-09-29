@@ -9,10 +9,7 @@
   <div class="file-datasets-header-lower header-with-tags">
     {{file-datasets/tab-bar
       activeTab=activeTab
-      disabledTabs=disabledTabs
-      archiveCount=directDatasetProxy.archiveCount
-      settingsTabHint=settingsTabHint
-      archivesTabHint=archivesTabHint
+      tabsSpec=tabsSpec
       onActiveTabChange=(action (mut activeTab))
     }}
     {{dataset-protection/effective-info

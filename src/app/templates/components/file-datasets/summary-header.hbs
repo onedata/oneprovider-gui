@@ -21,8 +21,14 @@
         <h1>{{tt this "hint.title"}}</h1>
       {{/ospm.modal.header}}
       {{#ospm.modal.body}}
-        <p>{{tt this "hint.intro"}}</p>
-        <p>{{tt this "hint.guide" fileType=(tt this (concat "fileType." fileType))}}</p>
+        {{#with (tt this (concat "fileType." fileType)) as |fileTypeText|}}
+          <p>{{tt this "hint.intro"}}</p>
+          <p>{{tt this "hint.guide" fileType=fileTypeText}}</p>
+          <ul>
+            <li>{{tt this "hint.settingsTab" fileType=fileTypeText}}</li>
+            <li>{{tt this "hint.archivesTab" fileType=fileTypeText}}</li>
+          </ul>
+        {{/with}}
       {{/ospm.modal.body}}
       {{#ospm.modal.footer}}
         <div class="btn-toolbar text-right visible-xs-block">

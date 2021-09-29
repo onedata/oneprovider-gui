@@ -1,3 +1,1 @@
-import TableHeadRow from '../filesystem-browser/table-head-row';
-
-export default TableHeadRow;
+export { default } from '../filesystem-browser/table-head-row';

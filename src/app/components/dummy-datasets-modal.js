@@ -20,9 +20,11 @@ export default Component.extend({
 
   files: collect(
     // use/uncomment for dataset with ancestors
-    'mockBackend.entityRecords.chainDir.2',
+    // 'mockBackend.entityRecords.chainDir.2',
     // use/uncomment for dataset with archives
-    // 'mockBackend.entityRecords.dir.0',
+    'mockBackend.entityRecords.dir.0',
+    // use/uncomment for no archives
+    // 'mockBackend.entityRecords.dir.2',
   ),
 
   file: reads('files.firstObject'),
