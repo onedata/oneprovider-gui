@@ -10,6 +10,7 @@
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
 import { promise } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
+import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 
 export default FbTableRowColumns.extend({
   /**
@@ -35,8 +36,7 @@ export default FbTableRowColumns.extend({
   actions: {
     async baseArchiveLinkClick(event) {
       event.stopPropagation();
-      const isNewTabRequest = event.getModifierState &&
-        (event.getModifierState('Control') || event.getModifierState('Meta'));
+      const isNewTabRequest = isNewTabRequestEvent(event);
       if (!isNewTabRequest) {
         event.preventDefault();
         const baseArchive = await this.get('fileRowModel.baseArchiveProxy');
