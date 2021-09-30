@@ -412,6 +412,7 @@ export default Component.extend(...mixins, {
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openPurgeModal: this.openArchivesPurgeModal.bind(this),
+      browseArchiveDip: this.browseArchiveDip.bind(this),
     }, options));
   },
 
@@ -541,9 +542,20 @@ export default Component.extend(...mixins, {
       });
   },
 
-  async changeArchiveDipMode(mode) {
+  browseArchiveDip(archive) {
+    this.changeArchiveDipMode('dip', archive);
+  },
+
+  /**
+   * Open related AIP/DIP archive of currenlty opened archive or provided one.
+   * @param {String} mode one of: aip, dip
+   * @param {Models.Archive} [relatedArchive] optionally use related archive for opening
+   *   its AIP/DIP
+   * @returns {Object}
+   */
+  async changeArchiveDipMode(mode, relatedArchive) {
     const archiveDipMode = this.get('archiveDipMode');
-    const archive = await this.get('archiveProxy');
+    const archive = relatedArchive || await this.get('archiveProxy');
     if (mode !== archiveDipMode) {
       const newArchiveId = archive.relationEntityId(
         mode === 'dip' ? 'relatedDip' : 'relatedAip'
