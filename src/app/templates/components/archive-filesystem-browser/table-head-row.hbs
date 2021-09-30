@@ -1,7 +1,7 @@
 <th class="fb-table-col-files fb-table-secondary-col">
   <span class="header-label">{{tt this "files"}}</span>
   {{#if renderArchiveDipSwitch}}
-    {{archive-filesystem-browser/dip-switch
+    {{archive-dip-switch
       disabled=(not isArchiveDipAvailable)
       archiveDipMode=archiveDipMode
       onArchiveDipModeChange=onArchiveDipModeChange
