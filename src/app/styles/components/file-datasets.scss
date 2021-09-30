@@ -9,9 +9,10 @@
   }
   .file-datasets-header-lower {
     display: flex;
+    align-items: flex-end;
+    min-height: 5.2em;
     .file-datasets-tab-bar {
       flex-grow: 1;
-      align-self: flex-end;
       .hint-trigger {
         font-size: inherit;
         margin-right: 0;
@@ -31,7 +32,16 @@
   .file-datasets-part {
     .file-datasets-header-lower {
       flex-direction: column;
+      align-items: flex-start;
       overflow-x: hidden;
+      min-height: auto;
+      .file-datasets-tab-bar {
+        // workaround for strange internal scrollar in tab bar
+        margin-bottom: 0.1em;
+      }
+      .file-datasets-tab-bar + .datasets-effective-protection-info {
+        margin-top: 1.5em;
+      }
     }
     .modal-header-effective-info {
       margin-top: 0;

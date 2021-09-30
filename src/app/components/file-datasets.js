@@ -9,7 +9,7 @@
  */
 
 import Component from '@ember/component';
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -244,4 +244,13 @@ export default Component.extend(I18n, {
     const fileType = this.get('fileType');
     return this.t(`fileType.${fileType}`);
   }),
+
+  actions: {
+    changeActiveTab(chosenTabId) {
+      const tabSpec = this.get('tabsSpec').findBy('id', chosenTabId);
+      if (tabSpec && !get(tabSpec, 'disabled')) {
+        this.set('activeTab', chosenTabId);
+      }
+    },
+  },
 });

@@ -10,17 +10,16 @@
     {{file-datasets/tab-bar
       activeTab=activeTab
       tabsSpec=tabsSpec
-      onActiveTabChange=(action (mut activeTab))
+      onActiveTabChange=(action "changeActiveTab")
     }}
-    {{dataset-protection/effective-info
-      class=(concat-classes
-        "header-tags-container"
-        (if (not-eq activeTab "settings") "transparent")
-      )
-      file=file
-      mode="file"
-      fileDatasetSummaryProxy=fileDatasetSummaryProxy
-    }}
+    {{#if (eq activeTab "settings")}}
+      {{dataset-protection/effective-info
+        class="header-tags-container"
+        file=file
+        mode="file"
+        fileDatasetSummaryProxy=fileDatasetSummaryProxy
+      }}
+    {{/if}}
   </div>
 {{/modal.header}}
 
