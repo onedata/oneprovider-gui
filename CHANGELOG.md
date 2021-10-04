@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8452 Fixed showing correct error page when shared file has been deleted
 * VFS-7629 Added new datasets panel with archives browser in file browser
 * VFS-8379 Added auto-redirect to archives view after archive create
 * VFS-7210 Added showing error when root dir not existed in public scope
