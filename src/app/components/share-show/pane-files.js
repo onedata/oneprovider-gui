@@ -103,7 +103,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   requiredDataProxy: promise.object(promise.all(
     'initialDirProxy',
     'share.rootFile',
-    'shareRootDeletedProxy',
   )),
 
   dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
