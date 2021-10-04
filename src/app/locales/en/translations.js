@@ -24,11 +24,13 @@ import qosExpressionInfo from './components/qos-expression-info';
 import qosEvaluationInfo from './components/qos-evaluation-info';
 import queryBuilder from './components/query-builder';
 import filesystemBrowser from './components/filesystem-browser';
+import archiveFilesystemBrowser from './components/archive-filesystem-browser';
 import datasetBrowser from './components/dataset-browser';
 import archiveBrowser from './components/archive-browser';
 import archiveSettings from './components/archive-settings';
 import archivesPurge from './components/archives-purge';
 import itemsSelectBrowser from './components/items-select-browser';
+import datasetProtection from './components/dataset-protection';
 
 import uploadManager from './services/upload-manager';
 
@@ -66,11 +68,13 @@ const translations = {
     qosEvaluationInfo,
     queryBuilder,
     filesystemBrowser,
+    archiveFilesystemBrowser,
     datasetBrowser,
     archiveBrowser,
     archiveSettings,
     archivesPurge,
     itemsSelectBrowser,
+    datasetProtection,
   },
   services: {
     uploadManager,

@@ -19,6 +19,7 @@ export default Mixin.create({
   // requires selectedItems: Array<Object> (browsable objects)
   // requires dirProxy: PromiseObject<Object> (browsable object)
   // optional selectedItemsForJumpProxy: PromiseArray<Object> (browsable obj.)
+  // optional space: Models.Space
 
   /**
    * If true, then selected items are not automatically resetted.
@@ -26,6 +27,11 @@ export default Mixin.create({
    * @type {Boolean}
    */
   lockSelectedReset: false,
+
+  /**
+   * @type {ComputedProperty<Object>}
+   */
+  spacePrivileges: reads('space.privileges'),
 
   /**
    * NOTE: not observing anything, because it should be one-time proxy

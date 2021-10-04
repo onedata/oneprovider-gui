@@ -1,7 +1,7 @@
 /**
  * Entry with information about an effective dataset for file/directory.
  *
- * @module components/file-datasets/dataset-item
+ * @module components/dataset-protection/dataset-item
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -14,6 +14,7 @@ import { and } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import protectionIcons from 'oneprovider-gui/utils/dataset-protection/protection-icons';
 
 export default Component.extend(I18n, {
   tagName: 'tr',
@@ -25,7 +26,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.fileDatasets.datasetItem',
+  i18nPrefix: 'components.datasetProtection.datasetItem',
 
   /**
    * @virtual
@@ -67,10 +68,9 @@ export default Component.extend(I18n, {
 
   /**
    * Mapping of protection type (data or metadata) to name of icon representing it
-   * @virtual
    * @type {Object}
    */
-  protectionIcons: undefined,
+  protectionIcons,
 
   /**
    * @type {ComputedProperty<Boolean>}

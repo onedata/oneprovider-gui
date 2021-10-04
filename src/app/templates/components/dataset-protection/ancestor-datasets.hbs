@@ -1,13 +1,12 @@
 {{#if ancestorDatasetsProxy.isFulfilled}}
   {{#if ancestorDatasets.length}}
-    {{#file-datasets/dataset-item
+    {{#dataset-protection/dataset-item
       class=(concat-classes
         "parent-group-dataset-item dataset-item-head-row"
         (if ancestorDatasetsCollapsed "closed" "opened")
       )
       dataset=virtualParentDataset
       readonly=true
-      protectionIcons=protectionIcons
       dataToggleReadonlyMessage=(tt this "summaryAncestorsReadonlyFlags"
         protectionType=(tt this "protectionType.data")
       )
@@ -38,8 +37,8 @@
           </div>
         </div>
       </div>
-    {{/file-datasets/dataset-item}}
-    {{#file-datasets/datasets-list-container
+    {{/dataset-protection/dataset-item}}
+    {{#dataset-protection/datasets-list-container
       getDataUrl=getDataUrl
       getDatasetsUrl=getDatasetsUrl
       mode=mode
@@ -47,7 +46,7 @@
       as |dataList|
     }}
       {{#each dataList as |data|}}
-        {{#file-datasets/dataset-item
+        {{#dataset-protection/dataset-item
           class=(concat-classes
             "parent-dataset-item"
             (if ancestorDatasetsCollapsed "closed" "opened")
@@ -55,31 +54,24 @@
           dataset=data.dataset
           readonly=readonly
           togglesReadonlyMessage=insufficientEditPrivilegesMessage
-          protectionIcons=protectionIcons
           updateOpenedFileData=updateOpenedFileData
         }}
           <div class="dataset-label-section">
             {{one-icon class="path-icon" icon=ancestorIcon}}
             <div class="dataset-label path-label">
-              {{#if (eq mode "dataset")}}
-                <span class="dataset-path truncate">
-                  {{data.filePathString}}
-                </span>
-              {{else}}
-                <a
-                  onclick={{action "ancestorLinkClicked"}}
-                  target={{navigateDataTarget}}
-                  class="azure file-path truncate"
-                  href={{data.itemHref}}
-                >
-                  {{data.filePathString}}
-                </a>
-              {{/if}}
+              <a
+                onclick={{action "ancestorLinkClicked"}}
+                target={{navigateDataTarget}}
+                class="azure file-path truncate"
+                href={{data.itemHref}}
+              >
+                {{data.itemPathString}}
+              </a>
             </div>
           </div>
-        {{/file-datasets/dataset-item}}
+        {{/dataset-protection/dataset-item}}
       {{/each}}
-    {{/file-datasets/datasets-list-container}}
+    {{/dataset-protection/datasets-list-container}}
   {{else}}
     <tr class="dataset-item dataset-item-head-row no-parent-datasets-row">
       <td class="no-parent-datasets-cell col-dataset-info">

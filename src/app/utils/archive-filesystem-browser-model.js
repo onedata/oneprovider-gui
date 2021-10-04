@@ -9,8 +9,31 @@
  */
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import { bool } from 'ember-awesome-macros';
 
 export default FilesystemBrowserModel.extend({
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  renderArchiveDipSwitch: false,
+
+  /**
+   * One of: aip, dip.
+   * Selected corelated archive type to show.
+   * Used only when `renderArchiveDipSwitch` is true.
+   * @type {String}
+   * @virtual
+   */
+  archiveDipMode: undefined,
+
+  /**
+   * Parent archive for browsed filesystem.
+   * @virtual
+   * @type {Models.Archive}
+   */
+  archive: undefined,
+
   /**
    * @override
    */
@@ -30,4 +53,26 @@ export default FilesystemBrowserModel.extend({
    * @override
    */
   readonlyFilesystem: true,
+
+  /**
+   * @override
+   */
+  browserClass: 'filesystem-browser archive-filesystem-browser',
+
+  /**
+   * @override
+   */
+  headRowComponentName: 'archive-filesystem-browser/table-head-row',
+
+  /**
+   * @override
+   */
+  emptyDirComponentName: 'archive-filesystem-browser/empty-dir',
+
+  /**
+   * Used only when `renderArchiveDipSwitch` is true.
+   * Should be set to true if opened archive has `relatedDip/Aip`
+   * @type {ComputedProperty<Boolean>}
+   */
+  isArchiveDipAvailable: bool('archive.config.includeDip'),
 });

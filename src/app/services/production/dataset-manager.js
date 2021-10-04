@@ -53,16 +53,26 @@ export default Service.extend({
   /**
    * Creates or returns previously created BrowsableDataset object.
    * Only one `BrowsableDataset` for specific `datasetId` is created.
-   * @param {String} datasetId
+   * @param {String|Models.Dataset} datasetOrEntityId
    * @returns {Utils.BrowsableArchive}
    */
-  async getBrowsableDataset(datasetId) {
+  async getBrowsableDataset(datasetOrEntityId) {
+    let datasetId;
+    let dataset;
+    if (typeof (datasetOrEntityId) === 'string') {
+      datasetId = datasetOrEntityId;
+    } else {
+      datasetId = get(datasetOrEntityId, 'entityId');
+      dataset = datasetOrEntityId;
+    }
     const browsableDatasetsStore = this.get('browsableDatasetsStore');
     const cachedBrowsableDataset = browsableDatasetsStore[datasetId];
     if (cachedBrowsableDataset) {
       return cachedBrowsableDataset;
     } else {
-      const dataset = await this.getDataset(datasetId);
+      if (!dataset) {
+        dataset = await this.getDataset(datasetId);
+      }
       const browsableDataset = BrowsableDataset.create({
         content: dataset,
       });

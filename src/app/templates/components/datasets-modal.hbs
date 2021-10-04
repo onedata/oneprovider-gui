@@ -1,17 +1,19 @@
 {{#one-modal
-  class="datasets-modal"
+  id=modalId
+  class="datasets-modal modal-content-overlay without-footer with-close-button"
   open=open
   size="xl"
-  backdropClose=false
-  keyboard=false
+  backdropClose=true
+  keyboard=true
   onHide=(action "onHide")
   as |modal|
 }}
   {{file-datasets
     modal=modal
     files=files
-    mode=mode
+    space=space
     editPrivilege=editPrivilege
+    parentModalDialogSelector=parentModalDialogSelector
     fileDatasetSummaryLoadError=(if open null)
     getDataUrl=getDataUrl
     getDatasetsUrl=getDatasetsUrl

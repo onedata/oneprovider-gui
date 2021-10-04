@@ -12,12 +12,13 @@
     {{#if fileRowModel.isIncremental}}
       {{#if loadingBaseArchiveProxy.isPending}}
         {{tt this "loading"}}
-      {{else if (and baseArchiveName baseArchiveUrl)}}
+      {{else if baseArchiveName}}
         <a
           class="azure base-archive-link"
           target={{navigateTarget}}
-          href={{fileRowModel.baseArchiveHrefProxy.content}}
+          href={{baseArchiveUrl}}
           onclick={{action "baseArchiveLinkClick"}}
+          onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
         >
           {{#truncated-string class="base-archive-name"}}
             {{fileRowModel.baseArchiveNameProxy.content}}

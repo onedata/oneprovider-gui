@@ -1,0 +1,9 @@
+<h1 class="empty-dir-text dir-box-text">{{tt this "emptyDirectory"}}</h1>
+{{#if renderArchiveDipSwitch}}
+  {{archive-dip-switch
+    disabled=(not isArchiveDipAvailable)
+    archiveDipMode=archiveDipMode
+    onArchiveDipModeChange=onArchiveDipModeChange
+  }}
+{{/if}}
+<div class="empty-dir-image dir-box-image"></div>

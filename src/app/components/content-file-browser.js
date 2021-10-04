@@ -338,9 +338,9 @@ export default OneEmbeddedComponent.extend(
     },
 
     /**
-     * Optionally redirects Onezone to URL containing parent directory of first
-     * selected file (if there is no injected dir id and at least one selected file).
-     * If there is no need to redirect, resolves false.
+     * Optionally computes Onezone URL redirect options for containing parent directory of
+     * first selected file (if there is no injected dir id and at least one selected
+     * file). If there is no need to redirect, resolves false.
      * @returns {Promise<{dataUrl: string, dirProxy: PromiseObject}>}
      */
     async resolveSelectedParentDirUrl() {

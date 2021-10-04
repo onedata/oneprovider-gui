@@ -77,9 +77,9 @@ export default BaseBrowserModel.extend(I18n, {
 
   /**
    * @override
-   * @type {(dataset: Models.Dataset) => any}
+   * @type {(dataset: Models.Dataset, file: Models.File) => any}
    */
-  openDatasetsModal: notImplementedThrow,
+  openProtectionModal: notImplementedThrow,
 
   /**
    * @override
@@ -343,10 +343,11 @@ export default BaseBrowserModel.extend(I18n, {
       icon: 'browser-permissions',
       action: async (datasets) => {
         const globalNotify = this.get('globalNotify');
+        const dataset = datasets[0];
         try {
-          const rootFile = await get(datasets[0], 'rootFile');
+          const rootFile = await get(dataset, 'rootFile');
           if (rootFile) {
-            return this.openDatasetsModal(rootFile);
+            return this.openProtectionModal(dataset, rootFile);
           } else {
             globalNotify.backendError(this.t('protection.loadingRootFile'));
           }

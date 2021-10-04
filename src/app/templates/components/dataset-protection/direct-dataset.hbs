@@ -1,5 +1,5 @@
 {{#if directDatasetProxy.isFulfilled}}
-  {{#file-datasets/dataset-item
+  {{#dataset-protection/dataset-item
     class=(concat-classes
       "direct-dataset-item dataset-item-head-row"
       (if directDataset.isAttached
@@ -9,7 +9,6 @@
     )
     dataset=directDataset
     readonly=(or (not directDataset.isAttached) readonly)
-    protectionIcons=protectionIcons
     togglesReadonlyMessage=(if readonly insufficientEditPrivilegesMessage)
     dataToggleReadonlyMessage=(if (not directDataset.isAttached)
       (tt this "notAttachedReadonlyFlags"
@@ -28,21 +27,18 @@
         icon=directDatasetRowIcon
       }}
       {{#truncated-string class="dataset-label direct-dataset-name"}}
-        {{#if datasetLink}}
-          <a class="dataset-link azure" href={{datasetLink}} target={{navigateTarget}}>
-            {{label}}
-          </a>
-        {{else}}
-          {{label}}
-        {{/if}}
+        {{label}}
       {{/truncated-string}}
-      {{#if datasetArchivesLink}}
-        <a class="dataset-archives-link azure" href={{datasetArchivesLink}} target={{navigateTarget}}>
-          {{archiveCountText}}
+      {{#if (and showBrowseDatasetsLink datasetLink)}}
+        <a class="dataset-link azure" href={{datasetLink}} target={{navigateTarget}}>
+          {{tt this "browseDatasets"}}
+          <div class="inline-icon-container">
+            {{one-icon icon="link-external"}}
+          </div>
         </a>
       {{/if}}
     </div>
-  {{/file-datasets/dataset-item}}
+  {{/dataset-protection/dataset-item}}
 {{else}}
   <tr
     class="loadable-row dataset-loadable-row direct-dataset-loadable-row"

@@ -1,4 +1,4 @@
-import { fileType, protectionType } from '../file-datasets/-common';
+import { fileType, protectionType } from './-common';
 
 export default {
   fileType,

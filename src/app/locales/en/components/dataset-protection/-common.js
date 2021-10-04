@@ -1,6 +1,7 @@
 export const fileType = {
   file: 'file',
   dir: 'directory',
+  symlink: 'symlink',
 };
 
 export const protectionType = {

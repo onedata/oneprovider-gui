@@ -11,6 +11,8 @@ import ToggleHelper from '../../helpers/toggle';
 import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
 import { RuntimeProperties as DatasetRuntimeProperties } from 'oneprovider-gui/models/dataset';
 import EmberObject, { setProperties } from '@ember/object';
+import Service from '@ember/service';
+import { registerService } from '../../helpers/stub-service';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -19,11 +21,22 @@ const DatasetMock = EmberObject.extend(DatasetRuntimeProperties, {
   relationEntityId() {
     return null;
   },
+  hasParent: () => false,
+});
+
+const ArchiveManager = Service.extend({
+  createArchive() {},
+  fetchDatasetArchives() {},
+  getBrowsableArchive() {},
 });
 
 describe('Integration | Component | file datasets', function () {
   setupComponentTest('file-datasets', {
     integration: true,
+  });
+
+  beforeEach(function () {
+    registerService(this, 'archiveManager', ArchiveManager);
   });
 
   context('for single file', function () {
@@ -35,6 +48,11 @@ describe('Integration | Component | file datasets', function () {
           return promiseObject(resolve(this.get('fileDatasetSummary')));
         }
       };
+      this.set('space', {
+        entityId: 'space_id',
+        name: 'Dummy space',
+        privileges: {},
+      });
     });
 
     it('renders file name of injected file', async function (done) {
@@ -65,12 +83,71 @@ describe('Integration | Component | file datasets', function () {
       testDirectDatasetProtection(fileFlags, false);
     });
 
-    testDirectDatasetShow(true);
-    testDirectDatasetShow(false);
+    it('renders "Archives" nav tab as disabled with proper tooltip if dataset has not been established yet',
+      async function () {
+        this.set(
+          'fileDatasetSummary',
+          createFileDatasetSummary({ directDataset: null })
+        );
+
+        render(this);
+        await wait();
+
+        expect(this.$('.nav-item-archives'), 'archives nav item')
+          .to.have.class('disabled');
+      }
+    );
+
+    testHasArchivesTabEnabled({ datasetState: 'attached' });
+    testHasArchivesTabEnabled({ datasetState: 'detached' });
+
+    it('does not render archives count text if dataset is not established', async function () {
+      this.set(
+        'fileDatasetSummary',
+        createFileDatasetSummary({ directDataset: null })
+      );
+
+      render(this);
+      await wait();
+
+      const $navItemArchives = this.$('.nav-item-archives');
+      expect($navItemArchives, 'archives nav item')
+        .to.exist;
+      expect($navItemArchives.text()).to.match(/Archives\s*$/);
+    });
+
+    testArchivesTabCount({ archiveCount: 0 });
+    testArchivesTabCount({ archiveCount: 5 });
+
+    testDirectDatasetShow({ isAttached: true });
+    testDirectDatasetShow({ isAttached: false });
+
+    it('renders archives browser only after "Archives" tab gets selected', async function () {
+      const directDataset = createDataset({
+        id: 'dataset_id',
+        state: 'attached',
+        protectionFlags: [],
+        parent: null,
+        archiveCount: 0,
+      });
+      this.set(
+        'fileDatasetSummary',
+        createFileDatasetSummary({ directDataset })
+      );
+
+      render(this);
+      await wait();
+      expect($('.file-datasets-archives-tab'), 'archives tab content').to.not.exist;
+      const $navLinkArchives = this.$('.nav-link-archives');
+      $navLinkArchives.click();
+      await wait();
+
+      expect($('.file-datasets-archives-tab'), 'archives tab content').to.exist;
+    });
   });
 });
 
-function testDirectDatasetShow(isAttached) {
+function testDirectDatasetShow({ isAttached }) {
   const directToggleStateText = isAttached ? 'on' : 'off';
   const optionsEditableText = isAttached ? 'enabled' : 'disabled';
   const attachedStateText = isAttached ? 'attached' : 'detached';
@@ -173,6 +250,7 @@ function render(testCase) {
     {{file-datasets
       modal=modal
       files=files
+      space=space
     }}
   {{/one-pseudo-modal}}`);
 }
@@ -194,4 +272,59 @@ function createFile(override = {}, ownerGri = userGri) {
 
 function createDataset(data) {
   return DatasetMock.create(data);
+}
+
+function testHasArchivesTabEnabled({ datasetState }) {
+  if (!datasetState) {
+    throw new Error('datasetState argument is required');
+  }
+  const description =
+    `renders "Archives" nav tab as enabled if dataset has been established and is ${datasetState}`;
+  it(description, async function () {
+    const directDataset = createDataset({
+      id: 'dataset_id',
+      state: datasetState,
+      protectionFlags: [],
+      parent: null,
+    });
+    this.set(
+      'fileDatasetSummary',
+      createFileDatasetSummary({ directDataset })
+    );
+
+    render(this);
+    await wait();
+
+    expect(this.$('.nav-item-archives'), 'archives nav item')
+      .to.not.have.class('disabled');
+  });
+}
+
+function testArchivesTabCount({ archiveCount }) {
+  const archivesCountText = archiveCount === 1 ?
+    `${archiveCount} archive is` : `${archiveCount} archives are`;
+  const description =
+    `renders archives ${archiveCount} count in "Archives" tab name if ${archivesCountText} created for dataset`;
+  it(description, async function () {
+    const directDataset = createDataset({
+      id: 'dataset_id',
+      state: 'attached',
+      protectionFlags: [],
+      parent: null,
+      archiveCount,
+    });
+    this.set(
+      'fileDatasetSummary',
+      createFileDatasetSummary({ directDataset })
+    );
+
+    render(this);
+    await wait();
+
+    const $navItemArchives = this.$('.nav-item-archives');
+    expect($navItemArchives, 'archives nav item')
+      .to.exist;
+    expect($navItemArchives.text())
+      .to.match(new RegExp(`Archives\\s+\\(${archiveCount}\\)`));
+  });
 }

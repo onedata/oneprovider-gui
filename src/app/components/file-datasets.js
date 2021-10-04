@@ -1,7 +1,6 @@
 /**
- * Main component for managing datasets for file or directory.
- *
- * Currently used in file-browser wrapped with one-modal.
+ * A file-browser view for managing dataset for file or directory.
+ * Contains dataset settings with protection settings and archives browser.
  *
  * @module components/file-datasets
  * @author Jakub Liput
@@ -10,15 +9,16 @@
  */
 
 import Component from '@ember/component';
-import { get, computed } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { promise, equal, raw } from 'ember-awesome-macros';
-import { all as allFulfilled } from 'rsvp';
+import { or, not, conditional, and, notEmpty } from 'ember-awesome-macros';
+import { guidFor } from '@ember/object/internals';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -36,19 +36,16 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.fileDatasets',
 
   /**
+   * @type {Models.Space}
+   * @virtual
+   */
+  space: undefined,
+
+  /**
    * @virtual optional
    * @type {Boolean}
    */
   editPrivilege: true,
-
-  /**
-   * One of: file, dataset.
-   * - file: suitable for filesystem-browser, allow to toggle attachment state
-   * - dataset: suitable for dataset-browser, no attachment toggle
-   * @virtual optional
-   * @type {String}
-   */
-  mode: 'file',
 
   /**
    * @virtual
@@ -80,18 +77,28 @@ export default Component.extend(I18n, {
   files: undefined,
 
   /**
+   * Selector of modal that is parent of this component (if modal is used).
+   * @virtual optional
+   * @type {String}
+   */
+  parentModalDialogSelector: undefined,
+
+  /**
    * Stores load error if fileDatasetSummary could not be loaded.
    * It can be cleared to try again fetching.
    * @type {String}
    */
   fileDatasetSummaryLoadError: null,
 
-  protectionIcons: Object.freeze({
-    data: 'provider',
-    metadata: 'browser-attribute',
-  }),
+  /**
+   * One of: settings, archives
+   * @type {String}
+   */
+  activeTab: 'settings',
 
-  showAttachmentToggle: equal('mode', raw('file')),
+  modalBodyId: computed(function modalBodyId() {
+    return `${guidFor(this)}-body`;
+  }),
 
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
@@ -114,6 +121,11 @@ export default Component.extend(I18n, {
   file: reads('files.firstObject'),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  fileType: reads('file.type'),
+
+  /**
    * @type {ComputedProperty<PromiseObject<Models.FileDatasetSummary>>}
    */
   fileDatasetSummaryProxy: computedRelationProxy(
@@ -129,6 +141,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Models.FileDatasetSummary>}
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
+
   /**
    * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
    */
@@ -160,62 +173,84 @@ export default Component.extend(I18n, {
     }
   ),
 
-  /**
-   * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
-   */
-  ancestorDatasetsProxy: promise.array(computed(
-    'fileDatasetSummaryProxy',
-    async function ancestorDatasets() {
-      const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
-      return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
-    }
-  )),
+  archivesTabDisabled: or(
+    not('fileDatasetSummaryProxy.isFulfilled'),
+    not('hasDirectDatasetEstablished'),
+  ),
 
-  /**
-   * @type {ComputedProperty<Models.Dataset>}
-   */
-  ancestorDatasets: reads('ancestorDatasetsProxy.content'),
+  tabsSpec: computed(function tabSpecs() {
+    const {
+      i18n,
+      i18nPrefix,
+    } = this.getProperties('i18n', 'i18nPrefix');
+    return [
+      EmberObject.extend(I18n, {
+        /**
+         * @virtual
+         * @type {Components.FileDatasets}
+         */
+        fileDatasets: undefined,
+
+        i18n,
+        i18nPrefix: i18nPrefix + '.tabs.settings',
+        id: 'settings',
+        label: computedT('label'),
+        tip: computed('fileDatasets.fileType', function tip() {
+          return this.t('tip', {
+            fileType: this.t('fileType.' + this.get('fileDatasets.fileType')),
+          });
+        }),
+        disabled: false,
+      }).create({
+        fileDatasets: this,
+      }),
+      EmberObject.extend(I18n, {
+        /**
+         * @virtual
+         * @type {Components.FileDatasets}
+         */
+        fileDatasets: undefined,
+
+        i18n,
+        i18nPrefix: i18nPrefix + '.tabs.archives',
+        id: 'archives',
+        archiveCount: reads('fileDatasets.directDataset.archiveCount'),
+        hasArchiveCount: notEmpty('archiveCount'),
+        label: conditional(
+          'hasArchiveCount',
+          computed('archiveCount', function labelCounted() {
+            return this.t('labelCounted', {
+              count: this.get('archiveCount'),
+            });
+          }),
+          computedT('label'),
+        ),
+        tip: and(not('disabled'), computedT('tip')),
+        fullTabTip: computed('disabled', 'fileDatasets.fileType', function tip() {
+          if (this.get('disabled')) {
+            return this.t('tipDisabled', {
+              fileType: this.t('fileType.' + this.get('fileDatasets.fileType')),
+            });
+          }
+        }),
+        disabled: reads('fileDatasets.archivesTabDisabled'),
+      }).create({
+        fileDatasets: this,
+      }),
+    ];
+  }),
+
+  fileTypeText: computed('fileType', function fileTypeText() {
+    const fileType = this.get('fileType');
+    return this.t(`fileType.${fileType}`);
+  }),
 
   actions: {
-    /**
-     * Update information about file currently opened in `file-datasets` component
-     * @param {Object} options
-     * @param {Models.File} options.fileInvokingUpdate file whose datasets changes caused
-     *   invocation of this update - if this is the file opened in `file-datasets` or
-     *   its direct parent, then we skip the refresh, because updates are automatically
-     *   done by file-manager on this "invoking" file
-     */
-    async updateOpenedFileData({ fileInvokingUpdate } = {}) {
-      const {
-        fileManager,
-        file,
-      } = this.getProperties('fileManager', 'file', 'mode');
-      if (!file || fileInvokingUpdate === file) {
-        return;
+    changeActiveTab(chosenTabId) {
+      const tabSpec = this.get('tabsSpec').findBy('id', chosenTabId);
+      if (tabSpec && !get(tabSpec, 'disabled')) {
+        this.set('activeTab', chosenTabId);
       }
-      const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
-      const promises = [
-        file.reload(),
-        fileDatasetSummaryRelation.reload(),
-      ];
-      // refresh opened file parent and its children only if invoker is not this parent
-      const parentRelation = file.belongsTo('parent');
-      if (get(fileInvokingUpdate, 'id') !== parentRelation.id()) {
-        promises.push(parentRelation.reload());
-        promises.push(fileManager.fileParentRefresh(file));
-      }
-
-      const invokingDatasetSummary =
-        await get(fileInvokingUpdate, 'fileDatasetSummary');
-      const invokingDataset = invokingDatasetSummary &&
-        await get(invokingDatasetSummary, 'directDataset');
-      const directDataset = await this.get('directDatasetProxy');
-      if (invokingDataset) {
-        const datasetParentRelation = directDataset.belongsTo('parent');
-        promises.push(datasetParentRelation.reload());
-        promises.push(fileManager.fileParentRefresh(directDataset));
-      }
-      await allFulfilled(promises);
     },
   },
 });

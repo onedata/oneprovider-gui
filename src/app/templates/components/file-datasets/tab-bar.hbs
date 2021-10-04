@@ -1,0 +1,44 @@
+{{#bs-tab
+  fade=false
+  class="bs-tab bs-tab-onedata bs-tab-modern tab-file-dataset-panel"
+  customTabs=true
+  activeId=activeTab
+  as |tab|
+}}
+  {{#bs-nav
+    type="tabs"
+    class="nav-tabs-file-dataset-panel"
+    as |nav|
+  }}
+    {{#each tabsSpec key="id" as |tabSpec|}}
+      {{#nav.item
+        active=(eq tab.activeId tabSpec.id)
+        disabled=tabSpec.disabled
+        class=(concat "nav-item-" tabSpec.id)
+      }}
+        <a href={{concat "#" tabSpec.id}}
+          class={{concat "nav-link nav-link-file-dataset-panel nav-link-" tabSpec.id}}
+          role="tab"
+          {{action "onActiveTabChange" tabSpec.id}}
+        >
+          <span class="tab-label">
+            <div class="one-label tab-name">
+              {{tabSpec.label}}
+              {{#if tabSpec.tip}}
+                {{#one-icon
+                  icon="sign-question-rounded"
+                  class="hint-trigger clickable"
+                }}
+                  {{one-tooltip title=tabSpec.tip}}
+                {{/one-icon}}
+              {{/if}}
+            </div>
+          </span>
+        </a>
+        {{#if tabSpec.fullTabTip}}
+          {{one-tooltip title=tabSpec.fullTabTip}}
+        {{/if}}
+      {{/nav.item}}
+    {{/each}}
+  {{/bs-nav}}
+{{/bs-tab}}
