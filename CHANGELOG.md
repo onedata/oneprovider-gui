@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8379 Added auto-redirect to archives view after archive create
 * VFS-7210 Added showing error when root dir not existed in public scope
 * VFS-7112 Added warning when shared file has 0 perms for other
 * VFS-8288 Fixed workflow executions list reloading, updated gui commons
