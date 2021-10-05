@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8360 Fixed compatibility between Onezone GUI 21.02 and Oneprovider GUI 20.02 by moving shared properties caching to Oneprovider GUI
 * VFS-8452 Fixed showing correct error page when shared file has been deleted
 * VFS-7629 Added new datasets panel with archives browser in file browser
 * VFS-8379 Added auto-redirect to archives view after archive create
