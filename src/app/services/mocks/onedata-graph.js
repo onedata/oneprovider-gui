@@ -507,14 +507,18 @@ const fileHandlers = {
       };
     }
   },
-  hardlinks(operation, entityId) {
+  hardlinks(operation, entityId, data, authHint, aspectId) {
     switch (operation) {
       case 'get':
-        return {
-          hardlinks: this.getHardlinks(entityId),
-        };
-      default:
-        return messageNotSupported;
+        if (aspectId) {
+          return {};
+        } else {
+          return {
+            hardlinks: this.getHardlinks(entityId),
+          };
+        }
+        default:
+          return messageNotSupported;
     }
   },
   symlink_target(operation, entityId) {

@@ -1,6 +1,6 @@
 /**
  * Modal for viewing and editing QoS entries for file
- * 
+ *
  * @module components/qos-modal
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -170,6 +170,7 @@ export default Component.extend(...mixins, {
     const filesSorted = [...this.get('files')].sortBy('name');
     return filesSorted.map(file => {
       return QosModalFileItem.create({
+        ownerSource: this,
         file,
       });
     });
@@ -288,7 +289,7 @@ export default Component.extend(...mixins, {
   },
 
   /**
-   * @param {Array<QosParameterSuggestion>} suggestions 
+   * @param {Array<QosParameterSuggestion>} suggestions
    * @returns {Promise}
    */
   resolveSpecialSuggestions(suggestions) {

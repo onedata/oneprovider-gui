@@ -34,7 +34,7 @@ export default Service.extend({
 
   /**
    * keys: parent dir entity ids (string), values: throttled functions
-   * @type {ComputedProperty<Object>} 
+   * @type {ComputedProperty<Object>}
    */
   throttledDirChildrenRefreshCallbacks: computed(() => ({})),
 
@@ -283,7 +283,7 @@ export default Service.extend({
     const size = get(file, 'size');
     const getFileAttempts = 1000;
     const getFileInterval = 500;
-    
+
     this.pollForFileAfterOperation(
       getFileAttempts,
       getFileInterval,
@@ -357,6 +357,55 @@ export default Service.extend({
     }));
   },
 
+  async areFilesHardlinked(fileRecordOrIdA, fileRecordOrIdB) {
+    let fileIdA;
+    let fileIdB;
+    let fileA;
+    let fileB;
+    if (typeof fileRecordOrIdA === 'string') {
+      fileIdA = fileRecordOrIdA;
+      fileA = await this.getFileById(fileIdA);
+    } else {
+      fileIdA = get(fileRecordOrIdA, 'entityId');
+      fileA = fileRecordOrIdA;
+    }
+    if (typeof fileRecordOrIdB === 'string') {
+      fileIdB = fileRecordOrIdB;
+      fileB = await this.getFileById(fileIdB);
+    } else {
+      fileIdB = get(fileRecordOrIdB, 'entityId');
+      fileB = fileRecordOrIdB;
+    }
+    const hardlinksCountA = get(fileA, 'hardlinksCount');
+    const hardlinksCountB = get(fileB, 'hardlinksCount');
+    if (
+      hardlinksCountA && hardlinksCountA <= 1 ||
+      hardlinksCountB && hardlinksCountB <= 1
+    ) {
+      return false;
+    }
+    try {
+      await this.get('onedataGraph').request({
+        operation: 'get',
+        gri: gri({
+          entityType: fileEntityType,
+          entityId: fileIdA,
+          aspect: 'hardlinks',
+          aspectId: fileIdB,
+          scope: 'private',
+        }),
+        subscribe: false,
+      });
+      return true;
+    } catch (error) {
+      if (error.id === 'notFound') {
+        return false;
+      } else {
+        throw error;
+      }
+    }
+  },
+
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service
 
   //#region browser component utils
@@ -421,7 +470,7 @@ export default Service.extend({
       throttledDirChildrenRefreshCallbacks[parentDirEntityId] = createThrottledFunction(
         () => this.dirChildrenRefresh(parentDirEntityId),
         500
-      ); 
+      );
     }
     throttledDirChildrenRefreshCallbacks[parentDirEntityId]();
   },
