@@ -471,9 +471,24 @@ export default BaseBrowserModel.extend(I18n, {
       yesButtonClassName: 'btn-danger',
       onSubmit: async () => {
         const submitResult = await this.removeDatasets(datasets);
-        const firstRejected = submitResult.findBy('state', 'rejected');
-        if (firstRejected) {
-          const error = get(firstRejected, 'reason');
+        const rejectedFatally = submitResult.filter(result => {
+          if (get(result, 'state') === 'rejected') {
+            const reason = get(result, 'reason');
+            if (
+              reason && reason.id === 'posix' &&
+              reason.details && reason.details.errno === 'enoent'
+            ) {
+              // allow enoent errors because source files can not exists at the time
+              return false;
+            }
+          }
+
+          // no error or unexpected error
+          return true;
+        });
+        const firstFatallyRejected = rejectedFatally[0];
+        if (firstFatallyRejected) {
+          const error = get(firstFatallyRejected, 'reason');
           globalNotify.backendError(
             this.t('remove.removing'),
             error
