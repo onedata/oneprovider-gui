@@ -66,7 +66,7 @@ export default Model.extend(GraphSingleModelMixin, {
    *   runs: [
    *     {
    *       status: String,
-   *       runNo: Number,
+   *       runNo: Number|null, // null means run prepared in advance
    *       sourceRunNo: Number|null,
    *       runType: String, // `'regular'` | `'rerun'` | `'retry'`
    *       iteratedStoreId: String,

@@ -15,6 +15,7 @@ import { taskEndedStatuses } from 'onedata-gui-common/utils/workflow-visualiser/
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { hash as hashFulfilled } from 'rsvp';
 import _ from 'lodash';
+import { inAdvanceRunNo } from 'onedata-gui-common/utils/workflow-visualiser/run-utils';
 
 const notFoundError = { id: 'notFound' };
 const unavailableTaskInstanceIdPrefix = '__unavailableTaskInstanceId';
@@ -149,8 +150,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       const laneSchemaId = lane.schemaId;
       const runsRegistry = {};
       for (const run of lane.runs) {
-        runsRegistry[run.runNo] = {
-          runNo: run.runNo,
+        const runNo = this.normalizeRunNo(run.runNo);
+        runsRegistry[runNo] = {
+          runNo,
           sourceRunNo: run.sourceRunNo,
           runType: run.runType,
           iteratedStoreInstanceId: run.iteratedStoreId,
@@ -174,6 +176,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     const parallelBoxesExecutionState = {};
     for (const lane of rawWorkflowExecutionState.lanes) {
       for (const run of lane.runs) {
+        const runNo = this.normalizeRunNo(run.runNo);
         for (const parallelBox of run.parallelBoxes) {
           const parallelBoxSchemaId = parallelBox.schemaId;
           if (!(parallelBoxSchemaId in parallelBoxesExecutionState)) {
@@ -182,8 +185,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
             };
           }
 
-          parallelBoxesExecutionState[parallelBoxSchemaId].runsRegistry[run.runNo] = {
-            runNo: run.runNo,
+          parallelBoxesExecutionState[parallelBoxSchemaId].runsRegistry[runNo] = {
+            runNo,
             status: parallelBox.status,
           };
         }
@@ -200,6 +203,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     const tasksExecutionState = {};
     for (const lane of rawWorkflowExecutionState.lanes) {
       for (const run of lane.runs) {
+        const runNo = this.normalizeRunNo(run.runNo);
         for (const parallelBox of run.parallelBoxes) {
           const atmTaskExecutionRecords =
             await this.getParallelBoxTasks(parallelBox, { reload: true });
@@ -228,8 +232,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
                 runsRegistry: {},
               };
             }
-            tasksExecutionState[taskSchemaId].runsRegistry[run.runNo] = {
-              runNo: run.runNo,
+            tasksExecutionState[taskSchemaId].runsRegistry[runNo] = {
+              runNo,
               instanceId: taskInstanceId,
               systemAuditLogStoreInstanceId: systemAuditLogId,
               status,
@@ -444,7 +448,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       if (!lane.runs) {
         lane.runs = [];
       }
-      lane.runs = lane.runs.filter((run) => run && (typeof run.runNo === 'number'));
+      lane.runs = lane.runs.filter((run) =>
+        run && (typeof run.runNo === 'number' || run.runNo === null)
+      );
 
       for (const run of lane.runs) {
         run.parallelBoxes = (run.parallelBoxes || []).filterBy('schemaId');
@@ -512,5 +518,13 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   extractUnavailableAtmTaskInstanceIdData(unavailableAtmTaskInstanceId) {
     const [, schemaId, status] = unavailableAtmTaskInstanceId.split('|');
     return { schemaId, status };
+  },
+
+  normalizeRunNo(rawRunNo) {
+    if (rawRunNo === null) {
+      return inAdvanceRunNo;
+    } else {
+      return Number.parseInt(rawRunNo);
+    }
   },
 });
