@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import EmberObject, { get, observer, computed, setProperties } from '@ember/object';
+import EmberObject, { get, observer, computed, setProperties, getProperties } from '@ember/object';
 import { reads, gt } from '@ember/object/computed';
 import { conditional, raw, equal, and, getBy, array, promise, or, not } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
@@ -430,23 +430,37 @@ export default Component.extend(...mixins, {
     save() {
       return this.addEntry(this.get('newEntryData'));
     },
-    removeQosRequirement(qosRequirement) {
+
+    /**
+     * @param {Utils.QosModalItem} qosItem
+     */
+    async removeQosRequirement(qosItem) {
       const {
         qosManager,
         fileManager,
       } = this.getProperties('qosManager', 'fileManager');
-      return get(qosRequirement, 'file').then(file => {
-        return qosManager.removeQosRequirement(qosRequirement)
-          .finally(() => {
-            this.updateData();
-            if (get(file, 'hardlinksCount') > 1) {
-              fileManager.fileParentRefresh(file);
-            }
-            if (get(file, 'type') === 'dir') {
-              return fileManager.dirChildrenRefresh(get(file, 'entityId'));
-            }
-          });
-      });
+      const {
+        qosSourceFile: file,
+        qos: qosRequirement,
+      } = getProperties(qosItem, 'qosSourceFile', 'qos');
+      try {
+        qosManager.removeQosRequirement(qosRequirement);
+      } finally {
+        try {
+          this.updateData();
+          if (file && get(file, 'hardlinksCount') > 1) {
+            fileManager.fileParentRefresh(file);
+          }
+          if (file && get(file, 'type') === 'dir') {
+            fileManager.dirChildrenRefresh(get(file, 'entityId'));
+          }
+        } catch (updateError) {
+          console.error(
+            'component:qosModal#removeQosRequirement: error updating data:',
+            updateError
+          );
+        }
+      }
     },
     evaluateQosExpression(expression) {
       return this.evaluateQosExpression(expression);

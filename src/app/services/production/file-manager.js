@@ -358,32 +358,39 @@ export default Service.extend({
   },
 
   async areFilesHardlinked(fileRecordOrIdA, fileRecordOrIdB) {
-    let fileIdA;
-    let fileIdB;
-    let fileA;
-    let fileB;
-    if (typeof fileRecordOrIdA === 'string') {
-      fileIdA = fileRecordOrIdA;
-      fileA = await this.getFileById(fileIdA);
-    } else {
-      fileIdA = get(fileRecordOrIdA, 'entityId');
-      fileA = fileRecordOrIdA;
-    }
-    if (typeof fileRecordOrIdB === 'string') {
-      fileIdB = fileRecordOrIdB;
-      fileB = await this.getFileById(fileIdB);
-    } else {
-      fileIdB = get(fileRecordOrIdB, 'entityId');
-      fileB = fileRecordOrIdB;
-    }
-    const hardlinksCountA = get(fileA, 'hardlinksCount');
-    const hardlinksCountB = get(fileB, 'hardlinksCount');
-    if (
-      hardlinksCountA && hardlinksCountA <= 1 ||
-      hardlinksCountB && hardlinksCountB <= 1
-    ) {
+    const isRecordA = fileRecordOrIdA && typeof fileRecordOrIdA !== 'string';
+    const isRecordB = fileRecordOrIdB && typeof fileRecordOrIdB !== 'string';
+
+    if (fileRecordOrIdA === fileRecordOrIdB) {
       return false;
     }
+    if (isRecordA && get(fileRecordOrIdA, 'type') === 'dir') {
+      return false;
+    }
+    if (isRecordB && get(fileRecordOrIdB, 'type') === 'dir') {
+      return false;
+    }
+    if (!fileRecordOrIdA || !fileRecordOrIdB) {
+      throw new Error(
+        'service:file-manager#areFilesHardlinked: at least one of params is empty'
+      );
+    }
+    if (isRecordA && isRecordB) {
+      const hardlinksCountA = get(fileRecordOrIdA, 'hardlinksCount');
+      const hardlinksCountB = get(fileRecordOrIdB, 'hardlinksCount');
+      // checking if both counts are greater than 1 because data can be out of sync with
+      // backend
+      if (
+        hardlinksCountA && hardlinksCountA <= 1 &&
+        hardlinksCountB && hardlinksCountB <= 1
+      ) {
+        return false;
+      }
+    }
+
+    const fileIdA = isRecordA ? get(fileRecordOrIdA, 'entityId') : fileRecordOrIdA;
+    const fileIdB = isRecordB ? get(fileRecordOrIdB, 'entityId') : fileRecordOrIdB;
+
     try {
       await this.get('onedataGraph').request({
         operation: 'get',
@@ -396,9 +403,10 @@ export default Service.extend({
         }),
         subscribe: false,
       });
+      // above method just passes if files are hardlinks and throws with notFound if not
       return true;
     } catch (error) {
-      if (error.id === 'notFound') {
+      if (error && error.id === 'notFound') {
         return false;
       } else {
         throw error;
