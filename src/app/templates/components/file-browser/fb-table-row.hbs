@@ -16,13 +16,17 @@
           }}
         {{/if}}
         <div class="inline-icon-container inline-icon-container-file">
-          {{one-icon-tagged
-            class=(concat-classes "tag-right" (if hasErrorIconTag "danger"))
+          {{#one-icon-tagged
+            class=(concat-classes "tag-right" iconTaggedClass)
             icon=icon
             iconClass="file-icon"
             tagIcon=iconTag
             shadowType=(if iconTag "circle" "none")
           }}
+            {{#if iconTip}}
+              {{one-tooltip title=iconTip}}
+            {{/if}}
+          {{/one-icon-tagged}}
         </div>
       </div>
       <div class="file-item-text">
