@@ -8,12 +8,13 @@ import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 
 describe('Unit | Utility | qos modal file item', function () {
-  it('has status empty when qos items loads and are empty', function () {
+  it('has status empty when qos items load and are empty', function () {
     const fetchFileQosSummary = sinon.stub().resolves({
       fulfilled: true,
     });
     const fetchQosItems = sinon.stub().resolves([]);
     const item = QosModalFileItem.create({
+      ownerSource: this.owner,
       fetchFileQosSummary,
       fetchQosItems,
     });
@@ -35,6 +36,7 @@ describe('Unit | Utility | qos modal file item', function () {
     }
     const fetchQosItems = sinon.stub().resolves([{}]);
     const item = QosModalFileItem.create({
+      ownerSource: this.owner,
       fetchFileQosSummary,
       fetchQosItems,
     });
@@ -60,6 +62,7 @@ describe('Unit | Utility | qos modal file item', function () {
       }
       const fetchQosItems = sinon.stub().resolves([{}]);
       const item = QosModalFileItem.create({
+        ownerSource: this.owner,
         fetchFileQosSummary,
         fetchQosItems,
       });
@@ -79,6 +82,7 @@ describe('Unit | Utility | qos modal file item', function () {
     });
     const fetchQosItems = sinon.stub().rejects();
     const item = QosModalFileItem.create({
+      ownerSource: this.owner,
       fetchFileQosSummary,
       fetchQosItems,
     });

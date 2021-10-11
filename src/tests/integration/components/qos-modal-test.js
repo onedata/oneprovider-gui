@@ -26,6 +26,13 @@ class MockQos {
       throw new Error(`relation ${relation} not mocked`);
     }
   }
+  async getRelation(relationName) {
+    if (relationName === 'file') {
+      return this.file;
+    } else {
+      throw new Error('not implemented relation:', relationName);
+    }
+  }
 }
 
 describe('Integration | Component | qos modal', function () {

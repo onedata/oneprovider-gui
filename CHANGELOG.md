@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8405 Added support for QoS requirements defined in hardlinks that were deleted
 * VFS-8233 Fixed unnecessary error message when removing detached dataset which source file was deleted
 * VFS-8452 Fixed showing correct error page when shared file has been deleted
 * VFS-7629 Added new datasets panel with archives browser in file browser
