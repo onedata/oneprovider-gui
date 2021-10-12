@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8038 Refactored build process to support faster builds on CI
 * VFS-8346 Disabled reattach action for detached datasets with deleted root file
 * VFS-8405 Added support for QoS requirements defined in hardlinks that were deleted
 * VFS-8233 Fixed unnecessary error message when removing detached dataset which source file was deleted
