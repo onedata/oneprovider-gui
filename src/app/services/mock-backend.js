@@ -754,6 +754,7 @@ export default Service.extend({
         state: 'detached',
         protectionFlags: ['metadata_protection'],
         effProtectionFlags: [],
+        rootFileDeleted: true,
       });
       const fileDetachedDatasetSummary =
         await this.createDatasetSummary(fileDetached, detachedDataset);

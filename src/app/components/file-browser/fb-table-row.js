@@ -143,7 +143,7 @@ export default Component.extend(I18n, FastDoubleClick, {
    * Should be set to true, if other file on list have the same name
    * @virtual
    * @type {Boolean}
-   * 
+   *
    */
   nameConflict: false,
 
@@ -191,6 +191,12 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {boolean}
    */
   tapIncoming: undefined,
+
+  /**
+   * If provided, show tooltip with this text on item icon.
+   * @type {String|SafeString}
+   */
+  iconTip: '',
 
   statusBarModel: Object.freeze({}),
 
@@ -253,6 +259,15 @@ export default Component.extend(I18n, FastDoubleClick, {
   icon: 'browser-file',
 
   hasErrorIconTag: isEmpty('effFileType'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  iconTaggedClass: conditional(
+    'hasErrorIconTag',
+    raw('danger'),
+    raw(null),
+  ),
 
   iconTag: conditional(
     'hasErrorIconTag',
