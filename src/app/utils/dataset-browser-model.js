@@ -182,9 +182,7 @@ export default BaseBrowserModel.extend(I18n, {
         attachmentState,
         selectedItems,
       } = this.getProperties('attachmentState', 'selectedItems');
-      return attachmentState === 'detached' && selectedItems.any(item =>
-        get(item, 'rootFileDeleted')
-      );
+      return attachmentState === 'detached' && selectedItems.isAny('rootFileDeleted');
     }
   ),
 
@@ -317,7 +315,6 @@ export default BaseBrowserModel.extend(I18n, {
         id: 'showFile',
         icon: isAttachAction ? 'plug-in' : 'plug-out',
         disabled,
-        disabledTip,
         tip: disabledTip,
         title: this.t(
           `fileActions.changeState.${isAttachAction ? 'attach' : 'detach'}`

@@ -73,7 +73,7 @@ export default FbTableRow.extend(I18n, {
    */
   iconConfig: conditional(
     'fileRowModel.rootFileDeleted',
-    computed('rootFileType', function iconConfig() {
+    computed('fileRowModel.rootFileType', function iconConfig() {
       const fileType = this.get('fileRowModel.rootFileType');
       return {
         iconTag: 'x',
