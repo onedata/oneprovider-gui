@@ -1164,6 +1164,7 @@ export default Service.extend({
           lanes: [{
             id: 'lane1',
             name: 'lane 1',
+            maxRetries: 3,
             storeIteratorSpec: {
               strategy: {
                 type: 'serial',
