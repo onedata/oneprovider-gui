@@ -10,9 +10,18 @@
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { tag } from 'ember-awesome-macros';
+import { guidFor } from '@ember/object/internals';
+import { computed } from '@ember/object';
 
 export default Component.extend(I18n, {
   tagName: '',
+
+  /**
+   * @type {Models.Space}
+   * @virtual
+   */
+  space: undefined,
 
   /**
    * @virtual optional
@@ -30,23 +39,29 @@ export default Component.extend(I18n, {
   mode: 'file',
 
   /**
-   * @virtual
+   * @virtual optional
    * Callback when the modal is starting to hide
    * @type {Function}
    */
   onHide: notImplementedIgnore,
 
   /**
-   * @virtual
+   * @virtual optional
    * @type {Function}
    */
   getDataUrl: notImplementedIgnore,
 
   /**
-   * @virtual
+   * @virtual optional
    * @type {Function}
    */
   getDatasetsUrl: notImplementedIgnore,
+
+  modalId: computed(function modalId() {
+    return `${guidFor(this)}-items-select-browser-modal`;
+  }),
+
+  parentModalDialogSelector: tag `#${'modalId'} > .modal-dialog`,
 
   actions: {
     onHide() {

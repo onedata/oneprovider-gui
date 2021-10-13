@@ -1,0 +1,100 @@
+{{#promise-proxy-container proxy=initialRequiredDataProxy}}
+  {{file-browser
+    dir=dir
+    browserModel=browserModel
+    parentModalDialogSelector=parentModalDialogSelector
+    isSpaceOwned=space.currentUserIsOwner
+    spaceId=space.entityId
+    contentScroll=contentScroll
+    selectedItems=selectedItems
+    spacePrivileges=spacePrivileges
+    resolveFileParentFun=(action "resolveItemParent")
+    customFetchDirChildren=(action "fetchChildren")
+    changeSelectedItems=(action "changeSelectedItems")
+    updateDirEntityId=(action "updateDirEntityId")
+  }}
+{{/promise-proxy-container}}
+
+{{#if createArchiveOpened}}
+  {{archive-create-modal
+    open=true
+    dataset=dataset
+    options=createArchiveOptions
+    onHide=(action closeCreateArchiveModal)
+    onArchiveCreate=(action submitArchiveCreate)
+  }}
+{{/if}}
+
+{{#if archivesToPurge}}
+  {{archives-purge-modal
+    open=true
+    archives=archivesToPurge
+    onHide=(action closeArchivesPurgeModal)
+  }}
+{{/if}}
+
+{{#if fileToShowInfo}}
+  {{file-browser/fb-info-modal
+    modalClass="disable-hardlink-path-anchors"
+    open=true
+    file=fileToShowInfo
+    showApiSection=false
+    getDataUrl=(action getArchiveFileUrl)
+    onHide=(action closeInfoModal)
+  }}
+{{/if}}
+
+{{#if fileToShowMetadata}}
+  {{file-browser/fb-metadata-modal
+    open=true
+    file=fileToShowMetadata
+    previewMode=true
+    fileModelScope="private"
+    onHide=(action closeMetadataModal)
+  }}
+{{/if}}
+
+{{#if filesToEditPermissions}}
+  {{edit-permissions-modal
+    readonly=true
+    files=filesToEditPermissions
+    space=space
+    onClose=(action closeEditPermissionsModal)
+  }}
+{{/if}}
+
+{{#if filesToShowDistribution}}
+  {{file-distribution-modal
+    files=filesToShowDistribution
+    space=space
+    onClose=(action closeFileDistributionModal)
+    getTransfersUrl=(action getTransfersUrl)
+  }}
+{{/if}}
+
+{{#if fileToShare}}
+  {{file-browser/fb-share-modal
+    open=true
+    file=fileToShare
+    managePrivilege=spacePrivileges.manageShares
+    onHide=(action closeShareModal)
+    getShareUrl=(action getShareUrl)
+  }}
+{{/if}}
+
+{{#if filesToShowQos}}
+  {{qos-modal
+    open=true
+    files=filesToShowQos
+    space=space
+    showPrivilege=spacePrivileges.viewQos
+    editPrivilege=spacePrivileges.manageQos
+    onHide=(action closeQosModal)
+  }}
+{{/if}}
+
+{{file-browser/fb-download-modal
+  file=fileForConfirmDownload
+  confirmDownload=(action confirmFileDownload)
+  onHide=(action closeConfirmFileDownload)
+}}

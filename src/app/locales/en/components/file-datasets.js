@@ -1,30 +1,24 @@
-import {
-  fileType,
-  protectionType,
-  headerData,
-  headerMetadata,
-}
-from './file-datasets/-common';
 import summaryHeader from './file-datasets/summary-header';
 import directDatasetControl from './file-datasets/direct-dataset-control';
-import directDataset from './file-datasets/direct-dataset';
-import ancestorDatasets from './file-datasets/ancestor-datasets';
-import datasetItem from './file-datasets/dataset-item';
+import { fileType } from './dataset-protection/-common';
 
 export default {
   fileType,
-  protectionType,
   close: 'Close',
-  tableHeaders: {
-    data: headerData,
-    metadata: headerMetadata,
+  tabs: {
+    settings: {
+      fileType,
+      label: 'Settings',
+      tip: 'The selected {{fileType}} can be individually marked as a dataset with optional write protection settings. Please note that all ancestor datasets (ones that contain the {{fileType}}) are also considered when determining the effective write protection – presented in the top-right corner. This is depicted in the below table, which allows manipulating the settings for each dataset in the hierarchy.',
+    },
+    archives: {
+      fileType,
+      label: 'Archives',
+      labelCounted: 'Archives ({{count}})',
+      tip: 'Archive is a read-only, persistent snapshot of a dataset, created at a certain point in time. It contains both physical data and metadata from the dataset, stored as a copy within the space.',
+      tipDisabled: 'This {{fileType}} is not marked as a dataset and cannot be archived.',
+    },
   },
-  cannotLoadFileDatasetSummary: 'Could not load dataset summary for selected element.',
-  protectionHeaderHint: '{{protectionTypeUpper}} write protection can be individually set for each dataset in the hierarchy. The effective write protection of this {{fileType}} depends on all these settings – if any ancestor dataset has {{protectionType}} write protection enabled, then all nested content inherits the protection.',
-
-  datasetItem,
   summaryHeader,
-  ancestorDatasets,
-  directDataset,
   directDatasetControl,
 };

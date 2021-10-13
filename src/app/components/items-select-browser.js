@@ -21,16 +21,17 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
+import InModalBrowserContainerBase from 'oneprovider-gui/mixins/in-modal-item-browser-container-base';
 
 const mixins = [
   I18n,
   ItemBrowserContainerBase,
+  InModalBrowserContainerBase,
 ];
 
 export default Component.extend(...mixins, {
   tagName: '',
 
-  fileManager: service(),
   i18n: service(),
 
   /**
@@ -71,11 +72,6 @@ export default Component.extend(...mixins, {
   contentScrollSelector: undefined,
 
   _document: document,
-
-  /**
-   * True if element has been redered (used because component is tagless)
-   */
-  isRendered: false,
 
   /**
    * Alias of property for ItemBrowserContainerBase - please do not use it directly
@@ -125,41 +121,6 @@ export default Component.extend(...mixins, {
     return `${guidFor(this)}-body`;
   }),
 
-  contentScroll: computed(
-    'isRendered',
-    'modalBodyId',
-    'contentScrollSelector',
-    function contentScroll() {
-      const {
-        _document,
-        isRendered,
-        modalBodyId,
-        contentScrollSelector,
-      } = this.getProperties(
-        '_document',
-        'isRendered',
-        'modalBodyId',
-        'contentScrollSelector'
-      );
-      if (!isRendered) {
-        console.error(
-          'component:items-select-browser#contentScroll: tried to compute contentScroll before render'
-        );
-      }
-      if (contentScrollSelector) {
-        return _document.querySelector(contentScrollSelector);
-      }
-      let scrollElement = _document.querySelector(`#${modalBodyId} .bs-modal-body-scroll`);
-      if (!scrollElement) {
-        console.error(
-          'component:items-select-browser#contentScroll: no .bs-modal-body-scroll body element found, infinite scroll may be broken'
-        );
-        scrollElement = _document.body;
-      }
-      return scrollElement;
-    }
-  ),
-
   init() {
     this._super(...arguments);
     const selectorModel = this.get('selectorModel');
@@ -169,11 +130,6 @@ export default Component.extend(...mixins, {
       );
     }
     set(selectorModel, 'itemsSelectBrowser', this);
-  },
-
-  didInsertElement() {
-    this._super(...arguments);
-    this.set('isRendered', true);
   },
 
   /**

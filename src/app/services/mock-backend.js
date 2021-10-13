@@ -636,6 +636,7 @@ export default Service.extend({
       creationTime: Math.floor(Date.now() / 1000),
       rootFilePath: stringifyFilePath(await resolveFilePath(file)),
       rootFileType: get(file, 'type'),
+      archiveCount: 0,
       spaceId,
     }, data)).save();
   },
@@ -646,7 +647,7 @@ export default Service.extend({
       directDataset: dataset,
       effAncestorDatasets: [],
       effProtectionFlags: get(dataset, 'state') === 'attached' ?
-        get(file, 'effProtectionFlags') : [],
+        (get(file, 'effProtectionFlags') || []) : [],
     }, data)).save();
   },
 
@@ -669,18 +670,20 @@ export default Service.extend({
         effProtectionFlags,
       });
       datasets[i] = ancestorDataset;
+      // effProtectionFlags must be set before createDatasetSummary
+      setProperties(ancestorFile, {
+        effDatasetMembership: 'direct',
+        effProtectionFlags: effProtectionFlags,
+      });
       const datasetSummary = await this.createDatasetSummary(
         ancestorFile,
         ancestorDataset, {
           effAncestorDatasets: datasets.slice(0, i),
         }
       );
+      // fileDatasetSummary must be set after createDatasetSummary
+      set(ancestorFile, 'fileDatasetSummary', datasetSummary);
       summaries[i] = datasetSummary;
-      setProperties(ancestorFile, {
-        effDatasetMembership: 'direct',
-        fileDatasetSummary: datasetSummary,
-        effProtectionFlags: effProtectionFlags,
-      });
       this.get('entityRecords.fileDatasetSummary').push(...summaries);
       await ancestorFile.save();
     }
@@ -752,6 +755,7 @@ export default Service.extend({
         state: 'detached',
         protectionFlags: ['metadata_protection'],
         effProtectionFlags: [],
+        rootFileDeleted: true,
       });
       const fileDetachedDatasetSummary =
         await this.createDatasetSummary(fileDetached, detachedDataset);

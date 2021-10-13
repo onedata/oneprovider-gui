@@ -14,13 +14,14 @@
     updateDirEntityId=(action "updateDirEntityId")
   }}
   
-  {{#if filesToShowDatasets}}
-    {{datasets-modal
+  {{#if (and datasetToShowProtection fileToShowProtection)}}
+    {{dataset-protection-modal
       open=true
       mode="dataset"
-      files=filesToShowDatasets
-      editPrivilege=true
-      onHide=(action closeDatasetsModal)
+      file=fileToShowProtection
+      browsableDataset=datasetToShowProtection
+      editPrivilege=spacePrivileges.manageDatasets
+      onHide=(action closeProtectionModal)
       getDataUrl=(action getDataUrl)
       getDatasetsUrl=(action getDatasetsUrl)
     }}

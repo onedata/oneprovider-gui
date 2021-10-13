@@ -1,0 +1,31 @@
+{{#modal.header class="dataset-protection-part dataset-protection-modal-header"}}
+  {{dataset-protection/summary-header
+    dataset=browsableDataset
+    file=file
+  }}
+{{/modal.header}}
+
+{{#modal.body class="dataset-protection-part dataset-protection-modal-body"}}
+  {{dataset-protection/table
+    fileDatasetSummaryProxy=fileDatasetSummaryProxy
+    directDatasetProxy=directDatasetProxy
+    mode=mode
+    file=file
+    editPrivilege=editPrivilege
+    insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+    showBrowseDatasetsLink=showBrowseDatasetsLink
+    close=close
+    getDataUrl=getDataUrl
+    getDatasetsUrl=getDatasetsUrl
+  }}
+{{/modal.body}}
+
+{{#modal.footer class="dataset-protection-part dataset-protection-modal-footer"}}
+  {{#bs-button
+    onClick=(action close)
+    type="default"
+    class="close-btn"
+  }}
+    {{tt this "close"}}
+  {{/bs-button}}
+{{/modal.footer}}

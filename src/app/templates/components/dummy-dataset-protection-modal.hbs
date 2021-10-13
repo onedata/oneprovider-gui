@@ -1,0 +1,22 @@
+<div class="row">
+  <div class="row">
+    <label for="dummy-datasets-modal-opened">Opened</label>
+    {{one-way-toggle
+      id="dummy-datasets-modal-opened"
+      checked=opened
+      update=(action (mut opened))
+    }}
+  </div>
+</div>
+{{#promise-proxy-container proxy=browsableDatasetProxy}}
+  {{dataset-protection-modal
+    open=opened
+    file=file
+    mode="dataset"
+    browsableDataset=browsableDatasetProxy.content
+    editPrivilege=editPrivilege
+    onHide=(action onHide)
+    getDataUrl=(action getDataUrl)
+    getDatasetsUrl=(action getDatasetsUrl)
+  }}
+{{/promise-proxy-container}}

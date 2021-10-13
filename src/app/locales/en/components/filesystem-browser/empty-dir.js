@@ -1,4 +1,4 @@
-import { dataWriteProtectionEnabled } from '../file-datasets/summary-header';
+import { dataWriteProtectionEnabled } from '../dataset-protection/effective-info';
 
 export default {
   emptyDirectory: 'Empty directory',

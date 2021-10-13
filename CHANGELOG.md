@@ -7,6 +7,15 @@ CHANGELOG
 ### Latest changes
 
 * VFS-8283 Added showing multiple runs of workflow lanes
+* VFS-8038 Refactored build process to support faster builds on CI
+* VFS-8346 Disabled reattach action for detached datasets with deleted root file
+* VFS-8405 Added support for QoS requirements defined in hardlinks that were deleted
+* VFS-8233 Fixed unnecessary error message when removing detached dataset which source file was deleted
+* VFS-8452 Fixed showing correct error page when shared file has been deleted
+* VFS-7629 Added new datasets panel with archives browser in file browser
+* VFS-8379 Added auto-redirect to archives view after archive create
+* VFS-7210 Added showing error when root dir not existed in public scope
+* VFS-7112 Added warning when shared file has 0 perms for other
 * VFS-8288 Fixed workflow executions list reloading, updated gui commons
 * VFS-7633 Added links between file browser and datasets/archives browser with "blink" animation; infinite scroll bugfixing
 * VFS-8053 Added ID copiers to places related to workflows

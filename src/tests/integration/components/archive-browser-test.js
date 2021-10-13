@@ -41,7 +41,6 @@ class MockArray {
   async fetchChildren(index, limit, offset) {
     const fetchResult = await this.fetch(index, limit, offset);
     const result = { childrenRecords: fetchResult, isLast: fetchResult.length < limit };
-    console.dir(result);
     return result;
   }
 }

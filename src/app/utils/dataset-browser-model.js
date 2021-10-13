@@ -77,9 +77,9 @@ export default BaseBrowserModel.extend(I18n, {
 
   /**
    * @override
-   * @type {(dataset: Models.Dataset) => any}
+   * @type {(dataset: Models.Dataset, file: Models.File) => any}
    */
-  openDatasetsModal: notImplementedThrow,
+  openProtectionModal: notImplementedThrow,
 
   /**
    * @override
@@ -168,6 +168,21 @@ export default BaseBrowserModel.extend(I18n, {
     'selectedItems.@each.archiveCount',
     function selectedDatasetsHaveArchives() {
       return _.sum(this.get('selectedItems').mapBy('archiveCount')) > 0;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isAnySelectedRootDeleted: computed(
+    'attachmentState',
+    'selectedItems.@each.rootFileDeleted',
+    function isAnySelectedRootDeleted() {
+      const {
+        attachmentState,
+        selectedItems,
+      } = this.getProperties('attachmentState', 'selectedItems');
+      return attachmentState === 'detached' && selectedItems.isAny('rootFileDeleted');
     }
   ),
 
@@ -284,26 +299,38 @@ export default BaseBrowserModel.extend(I18n, {
     }
   ),
 
-  btnChangeState: computed('attachmentState', function btnChangeState() {
-    const attachmentState = this.get('attachmentState');
-    const isAttachAction = attachmentState === 'detached';
-    return this.createFileAction({
-      id: 'showFile',
-      icon: isAttachAction ? 'plug-in' : 'plug-out',
-      title: this.t(
-        `fileActions.changeState.${isAttachAction ? 'attach' : 'detach'}`
-      ),
-      action: (datasets) => {
-        return this.askForToggleAttachment(
-          datasets,
-          isAttachAction ? 'attached' : 'detached'
-        );
-      },
-      showIn: [
-        ...anySelectedContexts,
-      ],
-    });
-  }),
+  btnChangeState: computed(
+    'attachmentState',
+    'isAnySelectedRootDeleted',
+    function btnChangeState() {
+      const {
+        attachmentState,
+        isAnySelectedRootDeleted,
+      } = this.getProperties('attachmentState', 'isAnySelectedRootDeleted');
+      const isAttachAction = attachmentState === 'detached';
+      const disabledTip = isAnySelectedRootDeleted ?
+        this.t('actionHints.cannotReattachDeleted') : null;
+      const disabled = Boolean(disabledTip);
+      return this.createFileAction({
+        id: 'showFile',
+        icon: isAttachAction ? 'plug-in' : 'plug-out',
+        disabled,
+        tip: disabledTip,
+        title: this.t(
+          `fileActions.changeState.${isAttachAction ? 'attach' : 'detach'}`
+        ),
+        action: (datasets) => {
+          return this.askForToggleAttachment(
+            datasets,
+            isAttachAction ? 'attached' : 'detached'
+          );
+        },
+        showIn: [
+          ...anySelectedContexts,
+        ],
+      });
+    }
+  ),
 
   btnRemove: computed(
     'areMultipleSelected',
@@ -343,10 +370,11 @@ export default BaseBrowserModel.extend(I18n, {
       icon: 'browser-permissions',
       action: async (datasets) => {
         const globalNotify = this.get('globalNotify');
+        const dataset = datasets[0];
         try {
-          const rootFile = await get(datasets[0], 'rootFile');
+          const rootFile = await get(dataset, 'rootFile');
           if (rootFile) {
-            return this.openDatasetsModal(rootFile);
+            return this.openProtectionModal(dataset, rootFile);
           } else {
             globalNotify.backendError(this.t('protection.loadingRootFile'));
           }

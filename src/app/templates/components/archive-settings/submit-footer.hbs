@@ -1,4 +1,5 @@
 {{#bs-button
+  class="cancel-archive-creation-btn"
   type="default"
   disabled=isSubmitting
   onClick=(action "close")
@@ -6,7 +7,7 @@
   {{tt this "cancel"}}
 {{/bs-button}}
 {{#one-spin-button
-  class="btn btn-primary"
+  class="btn btn-primary submit-archive-creation-btn"
   disabled=disabled
   inFlight=isSubmitting
   action=(action "submit")

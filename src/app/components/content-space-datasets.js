@@ -25,6 +25,7 @@ import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesys
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
+import { isEmpty } from '@ember/utils';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -188,6 +189,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   fileToShare: null,
 
+  datasetToShowProtection: null,
+
+  fileToShowProtection: null,
+
   filesToEditPermissions: null,
 
   filesToShowDistribution: null,
@@ -323,6 +328,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
         spaceDatasetsRoot,
         spaceId,
         viewMode,
+        // NOTE: selected is not observed because change of selected should not cause
+        // dir change
+        selected,
       } = this.getProperties(
         'datasetManager',
         'globalNotify',
@@ -330,6 +338,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         'spaceDatasetsRoot',
         'spaceId',
         'viewMode',
+        'selected',
       );
 
       if (datasetId) {
@@ -359,7 +368,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
           ) {
             const parent = await get(browsableDataset, 'parent');
             return parent &&
-              await datasetManager.getBrowsableDataset(get(parent, 'entityId')) ||
+              await datasetManager.getBrowsableDataset(parent) ||
               spaceDatasetsRoot;
           }
           return browsableDataset;
@@ -368,7 +377,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
           return spaceDatasetsRoot;
         }
       } else {
-        return spaceDatasetsRoot;
+        return this.resolveDatasetForSelectedIds(selected);
       }
     }
   )),
@@ -549,6 +558,77 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
+  async resolveDatasetForSelectedIds(selectedIds) {
+    const {
+      _window,
+      spaceDatasetsRoot,
+    } = this.getProperties('_window', 'spaceDatasetsRoot');
+
+    if (isEmpty(selectedIds)) {
+      // no dir nor selected files provided - go home
+      return this.get('spaceDatasetsRoot');
+    } else {
+      const redirectOptions = await this.resolveSelectedParentDatasetUrl();
+      if (redirectOptions) {
+        // TODO: VFS-8342 common util for replacing master URL
+        _window.top.location.replace(redirectOptions.dataUrl);
+        return (await redirectOptions.datasetProxy) || spaceDatasetsRoot;
+      } else {
+        // resolving parent from selection failed - fallback to home
+        return spaceDatasetsRoot;
+      }
+    }
+  },
+
+  /**
+   * Optionally computes Onezone URL redirect options for containing parent directory of
+   * first selected file (if there is no injected dir id and at least one selected file).
+   * If there is no need to redirect, resolves false.
+   * @returns {Promise<{dataUrl: string, dirProxy: PromiseObject}>}
+   */
+  async resolveSelectedParentDatasetUrl() {
+    const {
+      datasetId,
+      selected,
+      datasetManager,
+    } = this.getProperties('datasetId', 'selected', 'datasetManager');
+    const firstSelectedId = selected && selected[0];
+
+    if (datasetId || !firstSelectedId) {
+      // no need to resolve parent dataset, as it is already specified or there is no
+      // selection specified
+      return null;
+    }
+
+    let firstSelectedItem;
+    try {
+      firstSelectedItem = await datasetManager.getBrowsableDataset(firstSelectedId);
+    } catch (error) {
+      console.debug(
+        `component:content-file-browser#resolveSelectedParentDatasetUrl: cannot resolve first selected dataset: "${error}"`
+      );
+      return null;
+    }
+    const parentId = firstSelectedItem && firstSelectedItem.relationEntityId('parent');
+    if (parentId) {
+      const dataUrl = this.callParent(
+        'getDatasetsUrl', {
+          viewMode: 'datasets',
+          datasetId: parentId,
+          selected,
+          archive: null,
+          dir: null,
+        }
+      );
+      return {
+        dataUrl,
+        datasetProxy: datasetManager.getBrowsableDataset(firstSelectedItem),
+      };
+    } else {
+      return null;
+    }
+  },
+
   async getArchivesForView(ids) {
     if (!ids) {
       return [];
@@ -715,7 +795,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       spaceDatasetsViewState: this,
       getDataUrl: this.getDataUrl.bind(this),
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
-      openDatasetsModal: this.openDatasetsModal.bind(this),
+      openProtectionModal: this.openProtectionModal.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openDatasetOpenModal: this.openDatasetOpenModal.bind(this),
       openArchivesView: this.openArchivesView.bind(this),
@@ -820,7 +900,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const datasetManager = this.get('datasetManager');
     return {
       childrenRecords: await allFulfilled(childrenRecords.map(r =>
-        datasetManager.getBrowsableDataset(get(r, 'entityId'))
+        datasetManager.getBrowsableDataset(r)
       )),
       isLast,
     };
@@ -837,14 +917,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   /**
+   * @param {Utils.BrowsableDataset} dataset
    * @param {Models.File} file root file of selected dataset
    */
-  openDatasetsModal(file) {
-    this.set('filesToShowDatasets', [file]);
+  openProtectionModal(dataset, file) {
+    this.setProperties({
+      datasetToShowProtection: dataset,
+      fileToShowProtection: file,
+    });
   },
 
-  closeDatasetsModal() {
-    this.set('filesToShowDatasets', null);
+  closeProtectionModal() {
+    this.setProperties({
+      datasetToShowProtection: null,
+      fileToShowProtection: null,
+    });
   },
 
   openDatasetOpenModal(dataset) {
@@ -875,21 +962,18 @@ export default OneEmbeddedComponent.extend(...mixins, {
       _window,
       archiveManager,
       navigateTarget,
-      viewMode,
-    } = this.getProperties('_window', 'archiveManager', 'navigateTarget', 'viewMode');
+    } = this.getProperties('_window', 'archiveManager', 'navigateTarget');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
-      if (viewMode === 'archives') {
-        const archiveSelectUrl = this.getDatasetsUrl({
-          viewMode: 'archives',
-          datasetId: get(dataset, 'entityId'),
-          archive: null,
-          selected: get(archive, 'entityId'),
-          dir: null,
-        });
-        if (archiveSelectUrl) {
-          _window.open(archiveSelectUrl, navigateTarget);
-        }
+      const archiveSelectUrl = this.getDatasetsUrl({
+        viewMode: 'archives',
+        datasetId: get(dataset, 'entityId'),
+        archive: null,
+        selected: get(archive, 'entityId'),
+        dir: null,
+      });
+      if (archiveSelectUrl) {
+        _window.open(archiveSelectUrl, navigateTarget);
       }
     } catch (error) {
       console.error(

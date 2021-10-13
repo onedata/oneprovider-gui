@@ -53,16 +53,26 @@ export default Service.extend({
   /**
    * Creates or returns previously created BrowsableDataset object.
    * Only one `BrowsableDataset` for specific `datasetId` is created.
-   * @param {String} datasetId
+   * @param {String|Models.Dataset} datasetOrEntityId
    * @returns {Utils.BrowsableArchive}
    */
-  async getBrowsableDataset(datasetId) {
+  async getBrowsableDataset(datasetOrEntityId) {
+    let datasetId;
+    let dataset;
+    if (typeof (datasetOrEntityId) === 'string') {
+      datasetId = datasetOrEntityId;
+    } else {
+      datasetId = get(datasetOrEntityId, 'entityId');
+      dataset = datasetOrEntityId;
+    }
     const browsableDatasetsStore = this.get('browsableDatasetsStore');
     const cachedBrowsableDataset = browsableDatasetsStore[datasetId];
     if (cachedBrowsableDataset) {
       return cachedBrowsableDataset;
     } else {
-      const dataset = await this.getDataset(datasetId);
+      if (!dataset) {
+        dataset = await this.getDataset(datasetId);
+      }
       const browsableDataset = BrowsableDataset.create({
         content: dataset,
       });
@@ -94,12 +104,22 @@ export default Service.extend({
    * @param {Models.Dataset} dataset
    */
   async destroyDataset(dataset) {
-    const fileRelation = dataset.belongsTo('rootFile');
+    const isAttached = get(dataset, 'state') === 'attached';
+    const fileRelation = isAttached ? dataset.belongsTo('rootFile') : null;
     await dataset.destroyRecord();
-    if (fileRelation && fileRelation.id()) {
-      const file = await fileRelation.load();
-      if (file) {
-        await this.updateFileDatasetsData(file);
+    // if file is not attached, updating file is redundant (and causes problems when
+    // source file has been deleted)
+    if (isAttached && fileRelation && fileRelation.id()) {
+      try {
+        const file = await fileRelation.load();
+        if (file) {
+          await this.updateFileDatasetsData(file);
+        }
+      } catch (error) {
+        // tolerating file not found error, because it is only file update
+        if (!isEnoentError(error)) {
+          throw error;
+        }
       }
     }
   },
@@ -307,3 +327,8 @@ export default Service.extend({
     });
   },
 });
+
+function isEnoentError(error) {
+  return error && error.id === 'posix' && error.details &&
+    error.details.errno === 'enoent';
+}

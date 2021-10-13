@@ -1,100 +1,46 @@
 <div class="header-text-container">
   <h1 class="datasets-modal-header">
     <span class="header-text">
-      {{tt this (if (eq mode "file") "datasets" "protectionHeader")}}
+      {{tt this "datasets"}}
     </span>
-    {{#if (eq mode "file")}}
-      <div class="inline-icon-container">
-        {{one-icon
-          icon="sign-question-rounded"
-          class="hint-trigger datasets-header-hint-trigger clickable"
-        }}
-      </div>
-      {{#one-switchable-popover-modal
-        class="datasets-hint"
-        modalClass="modal-compact-help"
-        triggersConfiguration=".datasets-header-hint-trigger"
-        layoutType="modal"
-        popoverStyle="datasets-hint-info over-modals"
-        as |ospm|
+    <div class="inline-icon-container">
+      {{one-icon
+        icon="sign-question-rounded"
+        class="hint-trigger datasets-header-hint-trigger clickable"
       }}
-        {{#ospm.modal.header}}
-          <h1>{{tt this "hint.title"}}</h1>
-        {{/ospm.modal.header}}
-        {{#ospm.modal.body}}
+    </div>
+    {{#one-switchable-popover-modal
+      class="datasets-hint"
+      modalClass="modal-compact-help"
+      triggersConfiguration=".datasets-header-hint-trigger"
+      layoutType="modal"
+      popoverStyle="datasets-hint-info over-modals"
+      as |ospm|
+    }}
+      {{#ospm.modal.header}}
+        <h1>{{tt this "hint.title"}}</h1>
+      {{/ospm.modal.header}}
+      {{#ospm.modal.body}}
+        {{#with (tt this (concat "fileType." fileType)) as |fileTypeText|}}
           <p>{{tt this "hint.intro"}}</p>
-          <p>{{tt this "hint.guide" fileType=(tt this (concat "fileType." fileType))}}</p>
-        {{/ospm.modal.body}}
-        {{#ospm.modal.footer}}
-          <div class="btn-toolbar text-right visible-xs-block">
-            {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
-              {{tt this "hint.close"}}
-            {{/bs-button}}
-          </div>
-        {{/ospm.modal.footer}}
-      {{/one-switchable-popover-modal}}
-    {{/if}}
+          <p>{{tt this "hint.guide" fileType=fileTypeText}}</p>
+          <ul>
+            <li>{{tt this "hint.settingsTab" fileType=fileTypeText}}</li>
+            <li>{{tt this "hint.archivesTab" fileType=fileTypeText}}</li>
+          </ul>
+        {{/with}}
+      {{/ospm.modal.body}}
+      {{#ospm.modal.footer}}
+        <div class="btn-toolbar text-right visible-xs-block">
+          {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+            {{tt this "hint.close"}}
+          {{/bs-button}}
+        </div>
+      {{/ospm.modal.footer}}
+    {{/one-switchable-popover-modal}}
   </h1>
-  {{!-- it's not modal-dataset-subheader, because it's modal for file, but in context of
-        its dataset
-  --}}
   {{modal-file-subheader
     files=(array file)
-    fileIcon="browser-dataset-file"
-    dirIcon="browser-dataset"
   }}
 </div>
-<div
-  class="modal-header-effective-info header-tags-container datasets-effective-protection-info"
->
-  {{#each (array "data" "metadata") as |protectionType|}}
-    {{#with (if
-      (get this (concat protectionType "IsProtectedForFile")) "enabled" "disabled")
-      as |flagState|
-    }}
-      <div class="labels-container">
-        <div class={{concat-classes
-          "label label-modal-header-large protected-tag"
-          (concat "protected-tag-" flagState)
-          (concat protectionType "-protected-tag")
-        }}>
-          {{one-icon
-            class="tag-icon protection-tag-status-icon"
-            icon=(get protectionIcons protectionType)
-          }}
-          <span class="label-text protected-text">
-            {{tt this (concat "fileProtectionTag." flagState)
-              fileTypeUpper=(capitalize (tt this (if
-                (eq mode "dataset")
-                "dataset"
-                (concat "fileType." fileType)
-              )))
-              protectionType=(tt this (concat "protectionType." protectionType))
-            }}
-          </span>
-          {{#one-icon
-            icon="sign-question-rounded"
-            class=(concat-classes
-              "hint-trigger clickable"
-              (concat protectionType "-protection-hint-trigger")
-            )
-          }}
-            {{one-tooltip
-              title=(if (eq flagState "enabled")
-                (tt this (concat "fileProtectionTagTip.enabled." protectionType))
-                (tt this (concat "fileProtectionTagTip.disabled")
-                  fileType=(tt this (if
-                    (eq mode "dataset")
-                    "dataset"
-                    (concat "fileType." fileType)
-                  ))
-                  protectionType=(tt this (concat "protectionType." protectionType))
-                )
-              )
-            }}
-          {{/one-icon}}
-        </div>
-      </div>
-    {{/with}}
-  {{/each}}
-</div>
+

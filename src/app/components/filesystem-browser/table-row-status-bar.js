@@ -12,9 +12,9 @@ import { equal, not, raw, or, and, array } from 'ember-awesome-macros';
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { EntityPermissions } from 'oneprovider-gui/utils/posix-permissions';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { inject as service } from '@ember/service';
+import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
 
 export default FbTableRowStatusBar.extend({
   classNames: ['filesystem-table-row-status-bar'],
@@ -60,9 +60,10 @@ export default FbTableRowStatusBar.extend({
       if (isSpaceOwned) {
         return false;
       }
+      
       const posixPermissions = get(file, 'posixPermissions');
       if (!posixPermissions) {
-        return undefined;
+        return false;
       }
       let octalNumber;
       if (previewMode) {
@@ -76,13 +77,7 @@ export default FbTableRowStatusBar.extend({
           octalNumber = 1;
         }
       }
-      const entityPermissions = EntityPermissions.create()
-        .fromOctalRepresentation(get(file, 'posixPermissions')[octalNumber]);
-      if (get(file, 'type') === 'file') {
-        return !get(entityPermissions, 'read');
-      } else {
-        return !get(entityPermissions, 'read') || !get(entityPermissions, 'execute');
-      }
+      return isPosixViewForbidden(file, octalNumber);
     }
   ),
 

@@ -65,6 +65,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * State of space-datasets container for datasets-browser.
    * Properties:
    * - `browsableDataset: String`
+   * - `attachmentState: String`
    * @virtual
    * @type {Object}
    */
@@ -149,9 +150,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   currentDirTranslation: computedT('archiveList'),
 
-  /**
-   * @override
-   */
   /**
    * @override
    */

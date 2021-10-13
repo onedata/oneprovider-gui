@@ -1,6 +1,6 @@
 /**
  * Tools (actions) for selected files.
- * 
+ *
  * @module components/file-browser/fb-selection-toolkit
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -13,6 +13,7 @@ import { observer, computed } from '@ember/object';
 import { gt } from '@ember/object/computed';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { inject as service } from '@ember/service';
+import { conditional, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['fb-selection-toolkit'],
@@ -36,6 +37,12 @@ export default Component.extend(I18n, {
   selectionContext: undefined,
 
   /**
+   * @virtual
+   * @type {Boolean}
+   */
+  isInModal: false,
+
+  /**
    * Set to true, to make it floating
    * @type {boolean}
    */
@@ -55,6 +62,12 @@ export default Component.extend(I18n, {
         this.set('lastPositiveItemsCount', itemsCount);
       }
     }
+  ),
+
+  popoverClass: conditional(
+    'isInModal',
+    raw('over-modals'),
+    raw(null)
   ),
 
   menuButtons: computed(

@@ -1,4 +1,4 @@
-.file-datasets-direct-dataset {
+.dataset-protection-direct-dataset {
   .direct-dataset-item {
     > td {
       border-top: 0;
@@ -14,11 +14,12 @@
     .dataset-label {
       flex-grow: 1;
     }
-    .dataset-archives-link {
+    .dataset-link {
       padding-left: 2em;
+      white-space: nowrap;
     }
   }
-  
+
   @media (max-width: $screen-xs-max) {
     .attach-dataset-hint-trigger {
       display: none;
