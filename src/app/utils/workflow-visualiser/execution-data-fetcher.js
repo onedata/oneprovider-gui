@@ -11,10 +11,11 @@ import ExecutionDataFetcher from 'onedata-gui-common/utils/workflow-visualiser/e
 import { get, getProperties } from '@ember/object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
-import { taskEndedStatuses } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
+import { laneEndedStatuses, taskEndedStatuses } from 'onedata-gui-common/utils/workflow-visualiser/statuses';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { hash as hashFulfilled } from 'rsvp';
 import _ from 'lodash';
+import { inAdvanceRunNo } from 'onedata-gui-common/utils/workflow-visualiser/run-utils';
 
 const notFoundError = { id: 'notFound' };
 const unavailableTaskInstanceIdPrefix = '__unavailableTaskInstanceId';
@@ -149,8 +150,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       const laneSchemaId = lane.schemaId;
       const runsRegistry = {};
       for (const run of lane.runs) {
-        runsRegistry[run.runNo] = {
-          runNo: run.runNo,
+        const runNo = this.normalizeRunNo(run.runNo);
+        runsRegistry[runNo] = {
+          runNo,
           sourceRunNo: run.sourceRunNo,
           runType: run.runType,
           iteratedStoreInstanceId: run.iteratedStoreId,
@@ -174,6 +176,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     const parallelBoxesExecutionState = {};
     for (const lane of rawWorkflowExecutionState.lanes) {
       for (const run of lane.runs) {
+        const runNo = this.normalizeRunNo(run.runNo);
         for (const parallelBox of run.parallelBoxes) {
           const parallelBoxSchemaId = parallelBox.schemaId;
           if (!(parallelBoxSchemaId in parallelBoxesExecutionState)) {
@@ -182,8 +185,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
             };
           }
 
-          parallelBoxesExecutionState[parallelBoxSchemaId].runsRegistry[run.runNo] = {
-            runNo: run.runNo,
+          parallelBoxesExecutionState[parallelBoxSchemaId].runsRegistry[runNo] = {
+            runNo,
             status: parallelBox.status,
           };
         }
@@ -200,6 +203,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     const tasksExecutionState = {};
     for (const lane of rawWorkflowExecutionState.lanes) {
       for (const run of lane.runs) {
+        const runNo = this.normalizeRunNo(run.runNo);
         for (const parallelBox of run.parallelBoxes) {
           const atmTaskExecutionRecords =
             await this.getParallelBoxTasks(parallelBox, { reload: true });
@@ -228,8 +232,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
                 runsRegistry: {},
               };
             }
-            tasksExecutionState[taskSchemaId].runsRegistry[run.runNo] = {
-              runNo: run.runNo,
+            tasksExecutionState[taskSchemaId].runsRegistry[runNo] = {
+              runNo,
               instanceId: taskInstanceId,
               systemAuditLogStoreInstanceId: systemAuditLogId,
               status,
@@ -435,61 +439,72 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       'systemAuditLogId',
       'storeRegistry'
     );
-    const lanesSchemas = get(atmWorkflowSchemaSnapshot, 'lanes') || [];
+    const lanesSchemas = (get(atmWorkflowSchemaSnapshot, 'lanes') || []).filterBy('id');
 
-    const normalizedLanes = _.cloneDeep((lanes || []).filterBy('schemaId'));
-    let prevLaneFirstRunStatus;
-    for (let i = 0; i < normalizedLanes.length; i++) {
-      const lane = normalizedLanes[i];
-      if (!lane.runs) {
-        lane.runs = [];
-      }
-      lane.runs = lane.runs.filter((run) => run && (typeof run.runNo === 'number'));
+    const normalizedLanes = [];
+    // mapping (runNo -> status) for previous processed lane (used by loop below)
+    let prevLaneStatusesPerRun = {};
+    // mapping (runNo -> status) for lane under processing (used by loop below)
+    let laneStatusesPerRun = {};
+    // status for the latest run of previous processed lane (this is a shortcut, can be
+    // also calculated from `prevLaneStatusesPerRun`).
+    let prevLaneLatestRunStatus;
+    // for each lane schema
+    for (let i = 0; i < lanesSchemas.length; i++) {
+      const laneSchema = lanesSchemas[i];
+      // find lane associated to lane schema (or create an empty one if not exist)
+      const lane = _.cloneDeep((lanes || []).findBy('schemaId', laneSchema.id)) || {
+        schemaId: laneSchema.id,
+      };
 
-      for (const run of lane.runs) {
-        run.parallelBoxes = (run.parallelBoxes || []).filterBy('schemaId');
-      }
-
-      // For the first run we have to show something for each lane
-      // (even if backend does not provide enough data). To do this, we have to
-      // "guess" first run execution data depending on the first run in previous lane.
-      // NOTICE: There should be always a first run in the first lane in data
-      // provided by backend. So the logic of inferring data from previous lane
-      // should hold. But in case of an abnormal response, we also check the
-      // first lane and generate "pending" first run if first run is not defined.
+      // Reject lane runs with unknown runNo
+      lane.runs = (lane.runs || []).filter((run) =>
+        run && (typeof run.runNo === 'number' || run.runNo === null)
+      );
+      // Each lane must have at least one run. If backend hasn't sent us any,
+      // we add a fake "prepare-in-advance" run.
       if (!lane.runs[0]) {
-        const guessedStatus = prevLaneFirstRunStatus === 'cancelled' ||
-          prevLaneFirstRunStatus === 'skipped' ? 'skipped' : 'pending';
-        const laneSchema = lanesSchemas.findBy('id', lane.schemaId) || {};
-        const parallelBoxesSchemas = (laneSchema.parallelBoxes || []).filterBy('id');
-        const guessedParallelBoxes = [];
-        for (const parallelBoxSchema of parallelBoxesSchemas) {
-          const guessedTaskRegistry = {};
-          (parallelBoxSchema.tasks || [])
-          .mapBy('id')
-            .compact()
-            .forEach((taskSchemaId) =>
-              guessedTaskRegistry[taskSchemaId] =
-              this.generateUnavailableAtmTaskInstanceId(taskSchemaId, guessedStatus)
-            );
-          const parallelBoxData = {
-            schemaId: parallelBoxSchema.id,
-            status: guessedStatus,
-            taskRegistry: guessedTaskRegistry,
-          };
-          guessedParallelBoxes.push(parallelBoxData);
-        }
         lane.runs[0] = {
-          runNo: 1,
+          runNo: null,
           sourceRunNo: null,
           runType: 'regular',
-          iteratedStoreInstanceId: null,
-          exceptionStoreInstanceId: null,
-          status: guessedStatus,
-          parallelBoxes: guessedParallelBoxes,
         };
       }
-      prevLaneFirstRunStatus = lane.runs[0].status;
+
+      const parallelBoxesSchemas = (laneSchema.parallelBoxes || []).filterBy('id');
+      // for each run of this lane
+      for (let j = 0; j < lane.runs.length; j++) {
+        const run = lane.runs[j];
+        const isPreparedInAdvanceRun = run.runNo === null;
+        // status of the previous lane in the same run
+        const prevLaneRunStatus = (isPreparedInAdvanceRun ?
+          prevLaneLatestRunStatus : prevLaneStatusesPerRun[run.no]) || 'pending';
+        // status, that should be used as a fallback value when status of this run
+        // is not defined
+        const fallbackLaneRunStatus = laneEndedStatuses.includes(prevLaneRunStatus) ?
+          'skipped' : 'pending';
+        run.status = run.status || fallbackLaneRunStatus;
+        // status, that should be used as a fallback value when status of inner-lane
+        // elements (parallel boxes and tasks) is not defined
+        const laneElementsFallbackRunStatus =
+          laneEndedStatuses.includes(run.status) ? 'skipped' : 'pending';
+        const parallelBoxes = run.parallelBoxes || [];
+        // normalize each parallel box (and so tasks inside it) in this run
+        run.parallelBoxes = parallelBoxesSchemas.map((parallelBoxSchema) =>
+          this.getNormalizedRawParallelBoxExecutionState({
+            parallelBoxSchema,
+            rawParallelBoxes: parallelBoxes,
+            laneElementsFallbackRunStatus,
+          })
+        );
+        laneStatusesPerRun[run.runNo] = run.status;
+        if (j === lane.runs.length - 1) {
+          prevLaneLatestRunStatus = run.status;
+        }
+      }
+      prevLaneStatusesPerRun = laneStatusesPerRun;
+      laneStatusesPerRun = {};
+      normalizedLanes.push(lane);
     }
 
     return {
@@ -499,6 +514,37 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       systemAuditLogId,
       storeRegistry,
     };
+  },
+
+  getNormalizedRawParallelBoxExecutionState({
+    parallelBoxSchema,
+    rawParallelBoxes,
+    laneElementsFallbackRunStatus,
+  }) {
+    // find pbox associated to pbox schema (or create an empty one if not exist)
+    const parallelBox = rawParallelBoxes.findBy('schemaId', parallelBoxSchema.id) || {
+      schemaId: parallelBoxSchema.id,
+    };
+    if (!parallelBox.status) {
+      parallelBox.status = laneElementsFallbackRunStatus;
+    }
+
+    const taskRegistry = parallelBox.taskRegistry || {};
+    const taskSchemas = (parallelBoxSchema.tasks || []).filterBy('id');
+    const normalizedTaskRegistry = {};
+    for (const taskSchema of taskSchemas) {
+      // use taskInstanceId received via taskRegistry or generate a fake one
+      // which will contain info about schema id and status (will be used to mock
+      // task records, which does not exist in the backend)
+      const taskInstanceId = taskRegistry[taskSchema.id] ||
+        this.generateUnavailableAtmTaskInstanceId(
+          taskSchema.id,
+          laneElementsFallbackRunStatus
+        );
+      normalizedTaskRegistry[taskSchema.id] = taskInstanceId;
+    }
+    parallelBox.taskRegistry = normalizedTaskRegistry;
+    return parallelBox;
   },
 
   generateUnavailableAtmTaskInstanceId(atmTaskSchemaId, status) {
@@ -512,5 +558,13 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   extractUnavailableAtmTaskInstanceIdData(unavailableAtmTaskInstanceId) {
     const [, schemaId, status] = unavailableAtmTaskInstanceId.split('|');
     return { schemaId, status };
+  },
+
+  normalizeRunNo(rawRunNo) {
+    if (rawRunNo === null) {
+      return inAdvanceRunNo;
+    } else {
+      return Number.parseInt(rawRunNo);
+    }
   },
 });

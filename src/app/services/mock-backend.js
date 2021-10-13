@@ -1325,6 +1325,11 @@ export default Service.extend({
                 }
                 executionLane.runs.push(run);
               }
+              // simulate prepare in advance
+              Object.assign(executionLane.runs[executionLane.runs.length - 1], {
+                runNo: null,
+                sourceRunNo: null,
+              });
               executionLanes.push(executionLane);
             }
           }

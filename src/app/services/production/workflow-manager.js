@@ -221,7 +221,7 @@ export default Service.extend({
   /**
    * @param {String} atmWorkflowExecutionId
    * @param {String} atmLaneId
-   * @param {Number} runNo
+   * @param {AtmLaneRunNo} runNo
    * @returns {Promise}
    */
   async retryAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNo */ ) {
@@ -232,7 +232,7 @@ export default Service.extend({
   /**
    * @param {String} atmWorkflowExecutionId
    * @param {String} atmLaneId
-   * @param {Number} runNo
+   * @param {AtmLaneRunNo} runNo
    * @returns {Promise}
    */
   async rerunAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNo */ ) {
