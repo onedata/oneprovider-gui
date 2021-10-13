@@ -1273,21 +1273,21 @@ export default Service.extend({
               ];
               const storeIdFromSpec = storeRegistry[lane.storeIteratorSpec.storeSchemaId];
               const exceptionStoresPerRun = {};
-              for (const [runNo, status] of statusesPerRun) {
-                const exceptionStoreId = `exception-${phase}-${i}-${lane.id}-${runNo}`;
-                exceptionStoresPerRun[runNo] =
+              for (const [runNumber, status] of statusesPerRun) {
+                const exceptionStoreId = `exception-${phase}-${i}-${lane.id}-${runNumber}`;
+                exceptionStoresPerRun[runNumber] =
                   await this.createAtmStore(exceptionStoreId, {
                     type: 'list',
                     dataSpec: { type: 'object' },
                   });
                 const prevRunExceptionStoreId =
-                  runNo > 1 && get(exceptionStoresPerRun[runNo - 1], 'entityId');
-                const isRerun = runNo % 5 == 0;
+                  runNumber > 1 && get(exceptionStoresPerRun[runNumber - 1], 'entityId');
+                const isRerun = runNumber % 5 == 0;
                 const run = {
-                  runNo,
-                  sourceRunNo: runNo === 1 ? null : (isRerun ? 1 : runNo - 1),
-                  runType: runNo === 1 ? 'regular' : (isRerun ? 'rerun' : 'retry'),
-                  iteratedStoreId: runNo === 1 || isRerun ?
+                  runNumber,
+                  originRunNumber: runNumber === 1 ? null : (isRerun ? 1 : runNumber - 1),
+                  runType: runNumber === 1 ? 'regular' : (isRerun ? 'rerun' : 'retry'),
+                  iteratedStoreId: runNumber === 1 || isRerun ?
                     storeIdFromSpec : prevRunExceptionStoreId,
                   exceptionStoreId,
                   status,
@@ -1302,7 +1302,7 @@ export default Service.extend({
                   for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
                     const task = parallelBox.tasks[taskIdx];
                     const taskEntityId =
-                      generateAtmTaskExecutionEntityId(taskIdx, entityId, runNo);
+                      generateAtmTaskExecutionEntityId(taskIdx, entityId, runNumber);
                     const systemAuditLogId = `auditLog-task-${taskEntityId}`;
                     await this.createAtmStore(systemAuditLogId, {
                       type: 'auditLog',
@@ -1318,9 +1318,9 @@ export default Service.extend({
                       schemaId: task.id,
                       systemAuditLogId,
                       status,
-                      itemsInProcessing: runNo * 10,
-                      itemsProcessed: runNo * 5,
-                      itemsFailed: runNo * 2,
+                      itemsInProcessing: runNumber * 10,
+                      itemsProcessed: runNumber * 5,
+                      itemsFailed: runNumber * 2,
                     }).save();
                     executionParallelBox.taskRegistry[task.id] =
                       get(executionTaskRecord, 'entityId');
@@ -1331,8 +1331,8 @@ export default Service.extend({
               }
               // simulate prepare in advance
               Object.assign(executionLane.runs[executionLane.runs.length - 1], {
-                runNo: null,
-                sourceRunNo: null,
+                runNumber: null,
+                originRunNumber: null,
               });
               executionLanes.push(executionLane);
             }
@@ -1456,8 +1456,12 @@ export function generateAtmWorkflowExecutionEntityId(i, state, scheduleTime, sta
   return btoa(`atmWorkflowExecution-${state}-${i}-${scheduleTime}-${startTime}`);
 }
 
-export function generateAtmTaskExecutionEntityId(i, atmWorkflowExecutionEntityId, runNo) {
-  return btoa(`atmTaskExecution-${atmWorkflowExecutionEntityId}-${i}-${runNo}`);
+export function generateAtmTaskExecutionEntityId(
+  i,
+  atmWorkflowExecutionEntityId,
+  runNumber
+) {
+  return btoa(`atmTaskExecution-${atmWorkflowExecutionEntityId}-${i}-${runNumber}`);
 }
 
 export function generateFileGri(entityId) {

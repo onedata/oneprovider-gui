@@ -1,3 +1,3 @@
 export default {
-  failedItemsStore: 'Failed items (run {{sourceRunNo}})',
+  failedItemsStore: 'Failed items (run {{originRunNumber}})',
 };

@@ -15,7 +15,7 @@ import { laneEndedStatuses, taskEndedStatuses } from 'onedata-gui-common/utils/w
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { hash as hashFulfilled } from 'rsvp';
 import _ from 'lodash';
-import { inAdvanceRunNo } from 'onedata-gui-common/utils/workflow-visualiser/run-utils';
+import { inAdvanceRunNumber } from 'onedata-gui-common/utils/workflow-visualiser/run-utils';
 
 const notFoundError = { id: 'notFound' };
 const unavailableTaskInstanceIdPrefix = '__unavailableTaskInstanceId';
@@ -150,10 +150,10 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       const laneSchemaId = lane.schemaId;
       const runsRegistry = {};
       for (const run of lane.runs) {
-        const runNo = this.normalizeRunNo(run.runNo);
-        runsRegistry[runNo] = {
-          runNo,
-          sourceRunNo: run.sourceRunNo,
+        const runNumber = this.normalizeRunNumber(run.runNumber);
+        runsRegistry[runNumber] = {
+          runNumber,
+          originRunNumber: run.originRunNumber,
           runType: run.runType,
           iteratedStoreInstanceId: run.iteratedStoreId,
           exceptionStoreInstanceId: run.exceptionStoreId,
@@ -176,7 +176,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     const parallelBoxesExecutionState = {};
     for (const lane of rawWorkflowExecutionState.lanes) {
       for (const run of lane.runs) {
-        const runNo = this.normalizeRunNo(run.runNo);
+        const runNumber = this.normalizeRunNumber(run.runNumber);
         for (const parallelBox of run.parallelBoxes) {
           const parallelBoxSchemaId = parallelBox.schemaId;
           if (!(parallelBoxSchemaId in parallelBoxesExecutionState)) {
@@ -185,8 +185,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
             };
           }
 
-          parallelBoxesExecutionState[parallelBoxSchemaId].runsRegistry[runNo] = {
-            runNo,
+          parallelBoxesExecutionState[parallelBoxSchemaId].runsRegistry[runNumber] = {
+            runNumber,
             status: parallelBox.status,
           };
         }
@@ -203,7 +203,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     const tasksExecutionState = {};
     for (const lane of rawWorkflowExecutionState.lanes) {
       for (const run of lane.runs) {
-        const runNo = this.normalizeRunNo(run.runNo);
+        const runNumber = this.normalizeRunNumber(run.runNumber);
         for (const parallelBox of run.parallelBoxes) {
           const atmTaskExecutionRecords =
             await this.getParallelBoxTasks(parallelBox, { reload: true });
@@ -232,8 +232,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
                 runsRegistry: {},
               };
             }
-            tasksExecutionState[taskSchemaId].runsRegistry[runNo] = {
-              runNo,
+            tasksExecutionState[taskSchemaId].runsRegistry[runNumber] = {
+              runNumber,
               instanceId: taskInstanceId,
               systemAuditLogStoreInstanceId: systemAuditLogId,
               status,
@@ -275,7 +275,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     definedStoresExecutionState,
   }) {
     const generatedStoreInstanceIds = new Set();
-    const failedItemsStoresSourceRun = {};
+    const failedItemsStoresOriginRun = {};
 
     // workflow audit log store
     if (workflowExecutionState.systemAuditLogStoreInstanceId) {
@@ -293,7 +293,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         // lane exception store
         if (run.exceptionStoreInstanceId) {
           generatedStoreInstanceIds.add(run.exceptionStoreInstanceId);
-          failedItemsStoresSourceRun[run.exceptionStoreInstanceId] = run.runNo;
+          failedItemsStoresOriginRun[run.exceptionStoreInstanceId] = run.runNumber;
         }
       }
     }
@@ -328,9 +328,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       let name = null;
       // For exceptions stores we need to generate names. Some of them will
       // be visible as an iterated store (so must be distinguishable by name).
-      if (storeInstanceId in failedItemsStoresSourceRun) {
+      if (storeInstanceId in failedItemsStoresOriginRun) {
         name = this.t('failedItemsStore', {
-          sourceRunNo: failedItemsStoresSourceRun[storeInstanceId],
+          originRunNumber: failedItemsStoresOriginRun[storeInstanceId],
         });
       }
       generatedStores[storeInstanceId] = {
@@ -442,9 +442,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     const lanesSchemas = (get(atmWorkflowSchemaSnapshot, 'lanes') || []).filterBy('id');
 
     const normalizedLanes = [];
-    // mapping (runNo -> status) for previous processed lane (used by loop below)
+    // mapping (runNumber -> status) for previous processed lane (used by loop below)
     let prevLaneStatusesPerRun = {};
-    // mapping (runNo -> status) for lane under processing (used by loop below)
+    // mapping (runNumber -> status) for lane under processing (used by loop below)
     let laneStatusesPerRun = {};
     // status for the latest run of previous processed lane (this is a shortcut, can be
     // also calculated from `prevLaneStatusesPerRun`).
@@ -457,16 +457,16 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         schemaId: laneSchema.id,
       };
 
-      // Reject lane runs with unknown runNo
+      // Reject lane runs with unknown runNumber
       lane.runs = (lane.runs || []).filter((run) =>
-        run && (typeof run.runNo === 'number' || run.runNo === null)
+        run && (typeof run.runNumber === 'number' || run.runNumber === null)
       );
       // Each lane must have at least one run. If backend hasn't sent us any,
       // we add a fake "prepare-in-advance" run.
       if (!lane.runs[0]) {
         lane.runs[0] = {
-          runNo: null,
-          sourceRunNo: null,
+          runNumber: null,
+          originRunNumber: null,
           runType: 'regular',
         };
       }
@@ -475,7 +475,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       // for each run of this lane
       for (let j = 0; j < lane.runs.length; j++) {
         const run = lane.runs[j];
-        const isPreparedInAdvanceRun = run.runNo === null;
+        const isPreparedInAdvanceRun = run.runNumber === null;
         // status of the previous lane in the same run
         const prevLaneRunStatus = (isPreparedInAdvanceRun ?
           prevLaneLatestRunStatus : prevLaneStatusesPerRun[run.no]) || 'pending';
@@ -497,7 +497,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
             laneElementsFallbackRunStatus,
           })
         );
-        laneStatusesPerRun[run.runNo] = run.status;
+        laneStatusesPerRun[run.runNumber] = run.status;
         if (j === lane.runs.length - 1) {
           prevLaneLatestRunStatus = run.status;
         }
@@ -560,11 +560,11 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     return { schemaId, status };
   },
 
-  normalizeRunNo(rawRunNo) {
-    if (rawRunNo === null) {
-      return inAdvanceRunNo;
+  normalizeRunNumber(rawRunNumber) {
+    if (rawRunNumber === null) {
+      return inAdvanceRunNumber;
     } else {
-      return Number.parseInt(rawRunNo);
+      return Number.parseInt(rawRunNumber);
     }
   },
 });

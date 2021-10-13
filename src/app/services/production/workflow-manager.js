@@ -221,10 +221,10 @@ export default Service.extend({
   /**
    * @param {String} atmWorkflowExecutionId
    * @param {String} atmLaneId
-   * @param {AtmLaneRunNo} runNo
+   * @param {AtmLaneRunNumber} runNumber
    * @returns {Promise}
    */
-  async retryAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNo */ ) {
+  async retryAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNumber */ ) {
     // TODO: VFS-8287 Implement
     return await notImplementedReject();
   },
@@ -232,10 +232,10 @@ export default Service.extend({
   /**
    * @param {String} atmWorkflowExecutionId
    * @param {String} atmLaneId
-   * @param {AtmLaneRunNo} runNo
+   * @param {AtmLaneRunNumber} runNumber
    * @returns {Promise}
    */
-  async rerunAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNo */ ) {
+  async rerunAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNumber */ ) {
     // TODO: VFS-8287 Implement
     return await notImplementedReject();
   },

@@ -97,17 +97,17 @@ export default Component.extend({
    */
   actionsFactory: computed(function actionsFactory() {
     const factory = ActionsFactory.create({ ownerSource: this });
-    factory.setRetryLaneCallback(async (lane, runNo) =>
+    factory.setRetryLaneCallback(async (lane, runNumber) =>
       await this.get('workflowManager').retryAtmLane(
         this.get('atmWorkflowExecutionProxy.entityId'),
         get(lane, 'id'),
-        runNo
+        runNumber
       ));
-    factory.setRerunLaneCallback(async (lane, runNo) =>
+    factory.setRerunLaneCallback(async (lane, runNumber) =>
       await this.get('workflowManager').rerunAtmLane(
         this.get('atmWorkflowExecutionProxy.entityId'),
         get(lane, 'id'),
-        runNo
+        runNumber
       ));
     return factory;
   }),
