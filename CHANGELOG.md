@@ -6,9 +6,10 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8038 Refactored build process to support faster builds on CI
 * VFS-8212 Fixed not working current directory rename
 * VFS-7427 Changed copiable REST URLs into curl commands
-* VFS-7293 Added copyable REST URLs for shares and shared files, shares UX improvements 
+* VFS-7293 Added copyable REST URLs for shares and shared files, shares UX improvements
 * VFS-6842 Fixed JS console errors while scrolling file transfers list
 * VFS-7349 Fixed share root dir view crash after adding isLast flag support
 * VFS-7316 Added ANONYMOUS special ACE subject
