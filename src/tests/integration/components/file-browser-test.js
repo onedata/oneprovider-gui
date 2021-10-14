@@ -533,6 +533,67 @@ describe('Integration | Component | file browser (main component)', function () 
           this.set('spacePrivileges', { view: true });
         });
 
+        ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosMembership => {
+          it(`displays functional qos tag in table header if current dir has "${effQosMembership}" qos`,
+            async function () {
+              this.set('dir.effQosMembership', effQosMembership);
+              const openQos = sinon.spy();
+              this.set('openQos', openQos);
+
+              render(this);
+              await wait();
+              expect(openQos).to.have.not.been.called;
+
+              const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+              const $qosTagGroup = $headStatusBar.find('.qos-file-status-tag-group');
+              expect($headStatusBar, 'head status bar').to.have.length(1);
+              expect($qosTagGroup, 'qos tag').to.have.length(1);
+              expect($qosTagGroup.text()).to.contain('QoS');
+              if (['ancestor', 'directAndAncestor'].includes(effQosMembership)) {
+                const $inheritanceIcon = $qosTagGroup.find('.oneicon-inheritance');
+                expect($inheritanceIcon, 'inheritance icon').to.have.length(1);
+              }
+              await click($qosTagGroup.find('.file-status-qos')[0]);
+              expect(openQos).to.have.been.calledOnce;
+              expect(openQos).to.have.been.calledWith([this.get('dir')]);
+            }
+          );
+        });
+
+        it('does not display qos tag in table header if current dir has none qos membership',
+          async function () {
+            this.set('dir.effQosMembership', 'none');
+
+            render(this);
+            await wait();
+
+            const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+            const $qosTag = $headStatusBar.find('.file-status-qos');
+            expect($headStatusBar, 'head status bar').to.have.length(1);
+            expect($qosTag, 'qos tag').to.not.exist;
+          }
+        );
+
+        it('displays functional dataset tag in table header if current dir has direct dataset',
+          async function () {
+            this.set('dir.effDatasetMembership', 'direct');
+            const openDatasets = sinon.spy();
+            this.set('openDatasets', openDatasets);
+
+            render(this);
+            await wait();
+            expect(openDatasets).to.have.not.been.called;
+
+            const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+            const $datasetTag = $headStatusBar.find('.file-status-dataset');
+            expect($headStatusBar, 'head status bar').to.have.length(1);
+            expect($datasetTag, 'dataset tag').to.have.length(1);
+            expect($datasetTag.text()).to.contain('Dataset');
+            await click($datasetTag[0]);
+            expect(openDatasets).to.have.been.calledOnce;
+          }
+        );
+
         it('has enabled datasets item in context menu', async function (done) {
           render(this);
           await wait();
@@ -660,7 +721,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
   it(`invokes datasets modal opening when ${openDescription}`, async function (done) {
     const openDatasets = sinon.spy();
     this.set('openDatasets', openDatasets);
-    this.set('item1.effDatasetMembership', 'ancestor');
+    this.set('item1.effDatasetMembership', 'direct');
 
     render(this);
 
@@ -820,7 +881,8 @@ function render(testCase) {
   const {
     openCreateNewDirectory,
     openDatasets,
-  } = testCase.getProperties('openCreateNewDirectory', 'openDatasets');
+    openQos,
+  } = testCase.getProperties('openCreateNewDirectory', 'openDatasets', 'openQos');
   setDefaultTestProperty(testCase, 'spacePrivileges', {});
   setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
   setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel.create({
@@ -828,6 +890,7 @@ function render(testCase) {
     openCreateNewDirectory: openCreateNewDirectory ||
       notStubbed('openCreateNewDirectory'),
     openDatasets: openDatasets || notStubbed('openDatasets'),
+    openQos: openQos || notStubbed('openQos'),
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.render(hbs `<div id="content-scroll">{{file-browser
@@ -838,7 +901,6 @@ function render(testCase) {
     selectedItemsForJump=selectedItemsForJump
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
-    openDatasets=openDatasets
     spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
     updateDirEntityId=(action updateDirEntityId)

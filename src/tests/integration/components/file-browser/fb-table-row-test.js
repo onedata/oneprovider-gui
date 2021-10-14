@@ -10,6 +10,7 @@ import $ from 'jquery';
 import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/models/file';
 import EmberObject, { set } from '@ember/object';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import { click } from 'ember-native-dom-helpers';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -103,26 +104,32 @@ describe('Integration | Component | file browser/fb table row', function () {
     }
   });
 
-  it('renders qos tag with inherited icon if file has effective qos, but not direct', function () {
-    this.set('file', createFile({
-      effQosMembership: 'ancestor',
-    }));
+  it('shows qos tag with inherited icon after inherited icon click if file has effective qos, but not direct',
+    async function () {
+      this.set('file', createFile({
+        effQosMembership: 'ancestor',
+      }));
 
-    render(this);
+      render(this);
+      await expandIneheritanceTag(this);
 
-    expect(this.$('.qos-inherited-icon')).to.exist;
-  });
+      expect(this.$('.qos-inherited-icon')).to.exist;
+    }
+  );
 
-  it('renders dataset tag with inherited icon if file has an effective dataset, but not direct', function () {
-    this.set('file', createFile({
-      effDatasetMembership: 'ancestor',
-    }));
+  it('shows dataset tag with inherited icon after inherited icon click if file has an effective dataset, but not direct',
+    async function () {
+      this.set('file', createFile({
+        effDatasetMembership: 'ancestor',
+      }));
 
-    render(this);
+      render(this);
+      await expandIneheritanceTag(this);
 
-    expect(this.$('.file-status-dataset'), 'file-status-dataset').to.exist;
-    expect(this.$('.dataset-inherited-icon'), 'inherited icon').to.exist;
-  });
+      expect(this.$('.file-status-dataset'), 'file-status-dataset').to.exist;
+      expect(this.$('.dataset-inherited-icon'), 'inherited icon').to.exist;
+    }
+  );
 
   it('renders dataset tag without inherited icon if file has direct dataset', function () {
     this.set('file', createFile({
@@ -146,6 +153,45 @@ describe('Integration | Component | file browser/fb table row', function () {
     const $tag = this.$('.file-status-dataset');
     expect($tag, 'file-status-dataset').to.exist;
     expect($tag).to.have.class('file-status-tag-disabled');
+  });
+
+  it('renders dataset tag as enabled if file has dataset and has space_view privileges', function () {
+    this.set('spacePrivileges.view', true);
+    this.set('file', createFile({
+      effDatasetMembership: 'direct',
+    }));
+
+    render(this);
+
+    const $tag = this.$('.file-status-dataset');
+    expect($tag, 'file-status-dataset').to.exist;
+    expect($tag).to.not.have.class('file-status-tag-disabled');
+  });
+
+  it('renders qos tag as disabled if file has direct qos, but not having space_view_qos privileges', function () {
+    this.set('spacePrivileges.viewQos', false);
+    this.set('file', createFile({
+      effQosMembership: 'direct',
+    }));
+
+    render(this);
+
+    const $tag = this.$('.file-status-qos');
+    expect($tag, 'file-status-qos').to.exist;
+    expect($tag).to.have.class('file-status-tag-disabled');
+  });
+
+  it('renders qos tag as enabled if file has direct qos and has space_view_qos privileges', function () {
+    this.set('spacePrivileges.viewQos', true);
+    this.set('file', createFile({
+      effQosMembership: 'direct',
+    }));
+
+    render(this);
+
+    const $tag = this.$('.file-status-qos');
+    expect($tag, 'file-status-qos').to.exist;
+    expect($tag).to.not.have.class('file-status-tag-disabled');
   });
 
   testProtectedFlag(['data']);
@@ -207,6 +253,7 @@ function testProtectedFlag(flagTypes) {
     );
 
     render(this);
+    await expandIneheritanceTag(this);
 
     expect(this.$('.file-protected-icon')).to.have.length(effProtectionFlags.length);
     flagTypes.forEach(type => {
@@ -224,6 +271,7 @@ function testShowsTooltip(elementDescription, text, selector, contextData) {
     this.setProperties(contextData);
 
     render(this);
+    await expandIneheritanceTag(this);
     await triggerEvent(selector, 'mouseenter');
 
     const $tooltip = $('.tooltip.in');
@@ -271,6 +319,7 @@ function createFile(override = {}, ownerGri = userGri) {
 }
 
 function render(testCase) {
+  testCase.set('browserModel.spacePrivileges', testCase.get('spacePrivileges'));
   testCase.render(hbs `{{file-browser/fb-table-row
     file=file
     browserModel=browserModel
@@ -278,4 +327,9 @@ function render(testCase) {
     isSpaceOwned=isSpaceOwned
     spacePrivileges=spacePrivileges
   }}`);
+}
+
+async function expandIneheritanceTag(testCase) {
+  const $inheritanceTag = testCase.$('.file-status-inherited');
+  await click($inheritanceTag[0]);
 }

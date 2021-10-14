@@ -2,7 +2,7 @@
  * A base class for logic and co-related data for file-browser.
  * It acts as a strategy for `file-browser` component, while the component serves
  * state (see region file-browser state) and API (region file-browser API).
- * 
+ *
  * Extend this class to implement specific browsers like filesystem-browser.
  *
  * @module utils/base-browser-model
@@ -75,6 +75,12 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @type {String}
    */
   statusBarComponentName: '',
+
+  /**
+   * @virtual
+   * @type {String}
+   */
+  headStatusBarComponentName: '',
 
   /**
    * @virtual
@@ -159,6 +165,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   spacePrivileges: reads('browserInstance.spacePrivileges'),
   spaceId: reads('browserInstance.spaceId'),
   previewMode: reads('browserInstance.previewMode'),
+  isSpaceOwned: reads('browserInstance.isSpaceOwned'),
   // TODO: VFS-7643 refactor generic-browser to use names other than "file" for leaves
   fileClipboardMode: reads('browserInstance.fileClipboardMode'),
   fileClipboardFiles: reads('browserInstance.fileClipboardFiles'),

@@ -8,10 +8,20 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
-import { equal, raw, conditional, isEmpty, hash } from 'ember-awesome-macros';
+import { equal, raw, conditional, isEmpty } from 'ember-awesome-macros';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
-import { computed } from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
+
+const RowModel = EmberObject.extend({
+  /**
+   * @virtual
+   * @type {Components.FilesystemBrowser.TableRow}
+   */
+  tableRow: undefined,
+
+  isSymlink: reads('tableRow.isSymlink'),
+});
 
 export default FbTableRow.extend({
   classNames: ['filesystem-table-row'],
@@ -64,10 +74,12 @@ export default FbTableRow.extend({
     }
   },
 
-  // TODO: VFS-7643 if there will be a table-row model, this will be probably injected from above
-  fileRowModel: hash(
-    'isSymlink',
-  ),
+  // TODO: VFS-7643 this will be probably injected from above
+  fileRowModel: computed(function fileRowModel() {
+    return RowModel.create({
+      tableRow: this,
+    });
+  }),
 
   isSymlink: equal('type', raw('symlink')),
 

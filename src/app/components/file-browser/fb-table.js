@@ -246,6 +246,8 @@ export default Component.extend(I18n, {
     raw('file-browser/fb-empty-dir')
   ),
 
+  headStatusBarComponentName: reads('browserModel.headStatusBarComponentName'),
+
   selectionCount: reads('selectedItems.length'),
 
   viewTester: computed('contentScroll', function viewTester() {
@@ -678,7 +680,7 @@ export default Component.extend(I18n, {
   /**
    * For given row ids, retuns list of rendered table rows ordered as in DOM
    * (not as specified in `rowIds`).
-   * @param {Array<String>} rowsIds 
+   * @param {Array<String>} rowsIds
    * @returns {NodeListOf<HTMLTableRowElement>}
    */
   findItemRows(rowsIds) {

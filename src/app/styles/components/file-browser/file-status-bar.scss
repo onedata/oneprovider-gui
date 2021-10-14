@@ -1,0 +1,132 @@
+$file-status-tag-padding: 6px;
+$file-status-tag-height: 26px;
+$file-status-tag-border-width: 1px;
+$file-status-tag-line-height: $file-status-tag-height - 2 * $file-status-tag-border-width;
+$file-status-tag-border-radius: 8px;
+$file-status-tag-font-size: 11px;
+$file-status-tag-icon-width: 14px;
+$file-status-tag-spacing: 6px;
+
+.file-status-bar {
+  display: inline-flex;
+  .file-status-tag-group {
+    display: flex;
+    .file-status-tag {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      &:last-of-type {
+        margin-left: 0;
+        border-left-width: 0;
+        border-top-right-radius: $file-status-tag-border-radius;
+        border-bottom-right-radius: $file-status-tag-border-radius;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        &:first-of-type {
+          border-left-width: $file-status-tag-border-width;
+          border-top-left-radius: $file-status-tag-border-radius;
+          border-bottom-left-radius: $file-status-tag-border-radius;
+        }
+      }
+    }
+
+    &+.file-status-tag, &+.file-status-tag-group {
+      margin-left: $file-status-tag-spacing;
+    }
+  }
+  .file-status-tag {
+    $margin-vertical-fix: ($file-status-tag-height - 20px) / 2;
+
+    display: inline-flex;
+    height: $file-status-tag-height;
+    @include font-semibold;
+    border-width: $file-status-tag-border-width;
+    border-style: solid;
+    border-radius: $file-status-tag-border-radius;
+    font-size: $file-status-tag-font-size;
+    line-height: $file-status-tag-line-height;
+    padding-left: $file-status-tag-padding;
+    padding-right: $file-status-tag-padding;
+    margin-top: -$margin-vertical-fix - $file-status-tag-border-width;
+    margin-bottom: -$margin-vertical-fix - $file-status-tag-border-width;
+    white-space: nowrap;
+
+    .one-icon {
+      position: relative;
+      font-size: 2.1em;
+      line-height: $file-status-tag-line-height;
+      font-weight: normal;
+    }
+
+    .tag-text {
+      display: inline-block;
+      +.one-icon {
+        margin-left: 0.1
+      }
+    }
+
+    .inline-icon-container {
+      width: $file-status-tag-icon-width;
+      .one-icon {
+        font-size: 150%;
+      }
+    }
+
+    &.file-status-tag-icon {
+      position: relative;
+      padding-left: 0.2em;
+      padding-right: 0.2em;
+      min-width: $file-status-tag-height;
+    }
+
+    &.file-status-tag-icon-only {
+      padding-left: 0;
+      padding-right: 0;
+      width: $file-status-tag-height;
+      text-align: center;
+      height: $file-status-tag-height;
+    }
+
+    @include tag-colors-default;
+
+    &.file-status-tag-success {
+      @include tag-colors-success;
+    }
+
+    &.file-status-tag-warning {
+      @include tag-colors-warning;
+    }
+
+    &.file-status-tag-danger {
+      @include tag-colors-danger;
+    }
+
+    &.file-status-tag-disabled {
+      @include tag-colors-disabled;
+    }
+
+    &.file-status-tag-inherited {
+      @include tag-colors-disabled;
+    }
+
+    &.file-status-tag-icon.file-status-protected {
+      .one-icon {
+        opacity: 0.8;
+        +.one-icon {
+          margin-left: -0.2em;
+        }
+      }
+    }
+
+    &+.file-status-tag, &+.file-status-tag-group {
+      margin-left: $file-status-tag-spacing;
+    }
+
+    &+.file-status-tag:first-child {
+      margin-left: 0;
+    }
+
+    &:first-of-type {
+      margin-left: $file-status-tag-spacing;
+    }
+  }
+}

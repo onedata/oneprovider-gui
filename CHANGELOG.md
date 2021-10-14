@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7512 Added current directory QoS/Dataset tags in file browser header and collapsing inherited tags in file rows
 * VFS-8038 Refactored build process to support faster builds on CI
 * VFS-8346 Disabled reattach action for detached datasets with deleted root file
 * VFS-8405 Added support for QoS requirements defined in hardlinks that were deleted

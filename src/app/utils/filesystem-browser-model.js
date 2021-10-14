@@ -167,6 +167,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  headStatusBarComponentName: 'filesystem-browser/table-head-status-bar',
+
+  /**
+   * @override
+   */
   mobileInfoComponentName: 'filesystem-browser/table-row-mobile-info',
 
   /**

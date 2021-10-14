@@ -1,0 +1,15 @@
+// requires file-status-bar variables
+
+.item-features {
+  display: flex;
+}
+
+// additional styles to cooperate with generic status bar styles
+// FIXME: probably to remove
+// .file-status-bar {
+//   .file-status-tag, .file-status-tag-group {
+//     &+.item-features {
+//       margin-left: $file-status-tag-spacing;
+//     }
+//   }
+// }

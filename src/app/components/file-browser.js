@@ -456,7 +456,7 @@ export default Component.extend(I18n, {
    * parent is ambiguous (eg. when entering symlinked directory we want to render
    * breadcrums and want to resolve symlinked dir as a parent, while it's not current
    * dir parent).
-   * 
+   *
    * Computed property initializes empty cache for every `browserModel` change.
    * @type {ComputedProperty<Object>}
    */
@@ -643,14 +643,15 @@ export default Component.extend(I18n, {
       return this.get('changeSelectedItems')(selectedItems);
     },
     async invokeFileAction(file, btnId, ...actionArgs) {
-      await this.get('changeSelectedItems')([file]);
+      const selectedFiles = [file];
+      await this.get('changeSelectedItems')(selectedFiles);
       const btn = this.get('allButtonsHash')[btnId];
       if (!btn) {
         throw new Error(
           `component:file-browser#actions.invokeFileAction: no action button with id: ${btnId}`
         );
       }
-      next(this, () => btn.action(undefined, ...actionArgs));
+      next(this, () => btn.action(selectedFiles, ...actionArgs));
     },
     containerScrollTop() {
       this.get('containerScrollTop')(...arguments);

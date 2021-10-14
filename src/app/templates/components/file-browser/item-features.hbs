@@ -1,0 +1,111 @@
+{{!-- FIXME: change selector of inheritance icons in gui-acceptance --}}
+{{!-- FIXME: inherited_dataset_tag, qos_inherited_tag --}}
+
+{{#file-browser/item-features-container
+  item=item
+  features=(array "effDatasetMembership" "effQosMembership")
+  expanded=expanded
+  as |displayed|
+}}
+  {{#if displayed.effDatasetMembership.isShown}}
+    <div class="file-status-tag-group dataset-file-status-tag-group">
+      <div
+        class={{concat-classes
+          "file-status-tag"
+          "file-status-dataset"
+          (if (or
+            disabled
+            datasetsViewForbidden
+            (eq displayed.effDatasetMembership.membership "ancestor")
+          ) "file-status-tag-inherited")
+        }}
+        {{action
+          (if (or disabled datasetsViewForbidden)
+            (no-action)
+            (action "tagClicked" "datasets")
+          )
+          bubbles=(bool disabled)
+        }}
+      >
+        <span class="tag-text">{{tt this "status.dataset"}}</span>
+        {{#if (eq displayed.effDatasetMembership.membership "ancestor")}}
+          {{one-icon class="dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
+        {{/if}}
+        {{#if datasetsViewForbidden}}
+          {{one-tooltip title=hintDatasetsViewForbidden}}
+        {{/if}}
+      </div>
+      {{#if hasAnyProtectionFlag}}
+        <div
+          class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
+        >
+          {{#if dataIsProtected}}
+            {{one-icon
+              icon="provider"
+              class="file-protected-icon file-data-protected-icon"
+            }}
+          {{/if}}
+          {{#if metadataIsProtected}}
+            {{one-icon
+              icon="browser-attribute"
+              class="file-protected-icon file-metadata-protected-icon"
+            }}
+          {{/if}}
+          {{#if protectionFlagsInfo}}
+            {{one-tooltip title=protectionFlagsInfo}}
+          {{/if}}
+        </div>
+      {{/if}}
+      {{#if (eq displayed.effDatasetMembership.membership "directAndAncestor")}}
+        <div
+          class="file-status-tag file-status-tag-inherited file-status-tag-icon file-status-inherited-addon"
+        >
+          {{one-icon
+            icon=inheritedIcon
+            class="inherited-icon"
+          }}
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+  {{#if displayed.effQosMembership.isShown}}
+    <div class="file-status-tag-group qos-file-status-tag-group">
+      <div
+        class={{concat-classes
+          "file-status-tag"
+          "file-status-qos"
+          (if (or
+            disabled
+            qosViewForbidden
+            (eq displayed.effQosMembership.membership "ancestor")
+          ) "file-status-tag-inherited")
+        }}
+        {{action
+          (if disabled
+            (no-action)
+            (action "tagClicked" "qos")
+          )
+          bubbles=(bool disabled)
+        }}
+      >
+        <span class="tag-text">{{tt this "status.qos"}}</span>
+        {{#if (eq displayed.effQosMembership.membership "ancestor")}}
+          {{one-icon class="qos-inherited-icon inherited-icon" icon=inheritedIcon}}
+        {{/if}}
+        {{#if qosViewForbidden}}
+          {{one-tooltip title=hintQosViewForbidden}}
+        {{/if}}
+      </div>
+      {{#if (eq displayed.effQosMembership.membership "directAndAncestor")}}
+        <div
+          class="file-status-tag file-status-tag-inherited file-status-tag-icon file-status-inherited-addon"
+        >
+          {{one-icon
+            icon=inheritedIcon
+            class="inherited-icon"
+          }}
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+{{/file-browser/item-features-container}}
