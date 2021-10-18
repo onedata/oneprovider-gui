@@ -14,23 +14,19 @@ $file-status-tag-spacing: 6px;
     .file-status-tag {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
-      &:last-of-type {
-        margin-left: 0;
+      margin-left: 0;
+      &:first-of-type {
+        margin-left: $file-status-tag-spacing;
+      }
+      &+.file-status-tag {
         border-left-width: 0;
-        border-top-right-radius: $file-status-tag-border-radius;
-        border-bottom-right-radius: $file-status-tag-border-radius;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
-        &:first-of-type {
-          border-left-width: $file-status-tag-border-width;
-          border-top-left-radius: $file-status-tag-border-radius;
-          border-bottom-left-radius: $file-status-tag-border-radius;
-        }
       }
-    }
-
-    &+.file-status-tag, &+.file-status-tag-group {
-      margin-left: $file-status-tag-spacing;
+      &:last-of-type {
+        border-top-right-radius: $file-status-tag-border-radius;
+        border-bottom-right-radius: $file-status-tag-border-radius;
+      }
     }
   }
   .file-status-tag {
@@ -48,6 +44,7 @@ $file-status-tag-spacing: 6px;
     padding-right: $file-status-tag-padding;
     margin-top: -$margin-vertical-fix - $file-status-tag-border-width;
     margin-bottom: -$margin-vertical-fix - $file-status-tag-border-width;
+    margin-left: $file-status-tag-spacing;
     white-space: nowrap;
 
     .one-icon {
@@ -107,26 +104,18 @@ $file-status-tag-spacing: 6px;
     &.file-status-tag-inherited {
       @include tag-colors-disabled;
     }
+  }
+}
 
-    &.file-status-tag-icon.file-status-protected {
-      .one-icon {
-        opacity: 0.8;
-        +.one-icon {
-          margin-left: -0.2em;
-        }
+// special styles FIXME: refactor?
+
+.file-status-bar {
+  .file-status-tag.file-status-tag-icon.file-status-protected {
+    .one-icon {
+      opacity: 0.8;
+      +.one-icon {
+        margin-left: -0.2em;
       }
-    }
-
-    &+.file-status-tag, &+.file-status-tag-group {
-      margin-left: $file-status-tag-spacing;
-    }
-
-    &+.file-status-tag:first-child {
-      margin-left: 0;
-    }
-
-    &:first-of-type {
-      margin-left: $file-status-tag-spacing;
     }
   }
 }

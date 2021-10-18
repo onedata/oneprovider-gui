@@ -714,7 +714,7 @@ export default Service.extend({
       const file = files[i];
       let effProtectionFlags;
       const effDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
-        i >= 2 && i <= 6 && 'ancestor' ||
+        i >= 2 && i <= 6 && 'directAndAncestor' ||
         'none';
       if (i === 2) {
         effProtectionFlags = ['data_protection'];
