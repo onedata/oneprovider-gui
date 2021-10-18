@@ -65,6 +65,8 @@ export default Component.extend(I18n, {
 
   hasAnyProtectionFlag: or('dataIsProtected', 'metadataIsProtected'),
 
+  effDatasetDisabled: or('disabled', 'datasetsViewForbidden'),
+
   /**
    * Content for protection tag tooltip
    * @type {ComputedProperty<SafeString>}
@@ -116,6 +118,8 @@ export default Component.extend(I18n, {
       privilegeFlag: 'space_view_qos',
     });
   }),
+
+  effQosDisabled: or('disabled', 'qosViewForbidden'),
 
   /**
    * Text for dataset tag tooltip, when cannot open datasets modal

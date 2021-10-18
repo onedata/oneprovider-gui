@@ -1,6 +1,3 @@
-{{!-- FIXME: change selector of inheritance icons in gui-acceptance --}}
-{{!-- FIXME: inherited_dataset_tag, qos_inherited_tag --}}
-
 {{#file-browser/item-features-container
   item=item
   features=(array "effDatasetMembership" "effQosMembership")
@@ -13,11 +10,10 @@
         class={{concat-classes
           "file-status-tag"
           "file-status-dataset"
-          (if (or
-            disabled
-            datasetsViewForbidden
-            (eq displayed.effDatasetMembership.membership "ancestor")
-          ) "file-status-tag-inherited")
+          (if (eq displayed.effDatasetMembership.membership "ancestor")
+            "file-status-tag-inherited"
+          )
+          (if effDatasetDisabled "file-status-tag-disabled")
         }}
         {{action
           (if (or disabled datasetsViewForbidden)
@@ -74,11 +70,10 @@
         class={{concat-classes
           "file-status-tag"
           "file-status-qos"
-          (if (or
-            disabled
-            qosViewForbidden
-            (eq displayed.effQosMembership.membership "ancestor")
-          ) "file-status-tag-inherited")
+          (if (eq displayed.effQosMembership.membership "ancestor")
+            "file-status-tag-inherited"
+          )
+          (if effQosDisabled "file-status-tag-disabled")
         }}
         {{action
           (if disabled
