@@ -1,7 +1,7 @@
 /**
  * Container for tags representing features that can be direct or inherited for file.
  *
- * @module components/file-browser/item-features
+ * @module components/filesystem-browser/file-features
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -17,16 +17,15 @@ import { computed } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { inject as service } from '@ember/service';
 
-// FIXME: this could be moved to filesystem-browser specific components
 export default Component.extend(I18n, {
-  classNames: ['item-features'],
+  classNames: ['file-features'],
 
   i18n: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.fileBrowser.itemFeatures',
+  i18nPrefix: 'components.filesystemBrowser.fileFeatures',
 
   /**
    * @virtual

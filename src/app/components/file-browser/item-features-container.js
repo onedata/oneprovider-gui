@@ -1,5 +1,5 @@
 import Component from '@ember/component';
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, observer } from '@ember/object';
 import { and, notEqual, raw, not, conditional, array } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
@@ -64,18 +64,23 @@ export default Component.extend(I18n, {
     return EmberObject.create(aggregatedData);
   }),
 
+  regenerateComputedHasInheritance: observer(
+    'features',
+    function regenerateComputedHasInheritance() {
+      const features = this.get('features');
+      const computedHasInheritance = computed(`item.{${features.join(',')}}`, function hasInheritance() {
+        return features.some(feature => {
+          const membership = this.get(`item.${feature}`);
+          return membership === 'ancestor' || membership === 'directAndAncestor';
+        });
+      });
+      this.hasInheritance = computedHasInheritance;
+    }
+  ),
+
   init() {
     this._super(...arguments);
-
-    // FIXME: generate using observer, because features can change
-    const features = this.get('features');
-    const computedHasInheritance = computed(`item.{${features.join(',')}}`, function hasInheritance() {
-      return features.some(feature => {
-        const membership = this.get(`item.${feature}`);
-        return membership === 'ancestor' || membership === 'directAndAncestor';
-      });
-    });
-    this.hasInheritance = computedHasInheritance;
+    this.regenerateComputedHasInheritance();
   },
 
   actions: {

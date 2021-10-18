@@ -13,8 +13,8 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  // FIXME: maybe base class
   classNames: [
+    'table-head-status-bar',
     'file-status-bar',
     'filesystem-table-head-status-bar',
   ],

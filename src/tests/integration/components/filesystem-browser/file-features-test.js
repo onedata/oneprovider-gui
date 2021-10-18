@@ -5,8 +5,8 @@ import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
 
-describe('Integration | Component | file browser/item features', function () {
-  setupComponentTest('file-browser/item-features', {
+describe('Integration | Component | filesystem browser/file features', function () {
+  setupComponentTest('filesystem-browser/file-features', {
     integration: true,
   });
 
@@ -20,7 +20,7 @@ describe('Integration | Component | file browser/item features', function () {
       };
       this.set('item', item);
 
-      this.render(hbs `{{file-browser/item-features item=item expanded=false}}`);
+      this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
 
       expect(this.$('.file-status-inherited-collapsed')).to.not.exist;
     });
@@ -34,7 +34,7 @@ describe('Integration | Component | file browser/item features', function () {
       };
       this.set('item', item);
 
-      this.render(hbs `{{file-browser/item-features item=item expanded=false}}`);
+      this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
 
       expect(this.$('.file-status-inherited-collapsed')).to.exist;
     });
@@ -47,7 +47,7 @@ describe('Integration | Component | file browser/item features', function () {
     };
     this.set('item', item);
 
-    this.render(hbs `{{file-browser/item-features item=item expanded=true}}`);
+    this.render(hbs `{{filesystem-browser/file-features item=item expanded=true}}`);
 
     expect(this.$('.file-status-dataset'), 'dataset').to.exist;
     expect(this.$('.file-status-qos'), 'qos').to.exist;
@@ -61,7 +61,7 @@ describe('Integration | Component | file browser/item features', function () {
       };
       this.set('item', item);
 
-      this.render(hbs `{{file-browser/item-features item=item expanded=false}}`);
+      this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
 
       expect(this.$('.file-status-dataset'), 'dataset').to.exist;
       expect(this.$('.file-status-qos'), 'qos').to.exist;
@@ -76,7 +76,7 @@ describe('Integration | Component | file browser/item features', function () {
       };
       this.set('item', item);
 
-      this.render(hbs `{{file-browser/item-features item=item expanded=false}}`);
+      this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
 
       const $datasetTag = this.$('.file-status-dataset');
       const $qosTag = this.$('.file-status-qos');
@@ -96,7 +96,7 @@ describe('Integration | Component | file browser/item features', function () {
       };
       this.set('item', item);
 
-      this.render(hbs `{{file-browser/item-features item=item expanded=true}}`);
+      this.render(hbs `{{filesystem-browser/file-features item=item expanded=true}}`);
 
       expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed')
         .to.not.exist;
@@ -120,7 +120,7 @@ describe('Integration | Component | file browser/item features', function () {
       };
       this.set('item', item);
 
-      this.render(hbs `{{file-browser/item-features item=item expanded=true}}`);
+      this.render(hbs `{{filesystem-browser/file-features item=item expanded=true}}`);
 
       expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed')
         .to.not.exist;
@@ -154,7 +154,7 @@ describe('Integration | Component | file browser/item features', function () {
           spacePrivileges,
         });
 
-        this.render(hbs `{{file-browser/item-features
+        this.render(hbs `{{filesystem-browser/file-features
           item=item
           expanded=false
           spacePrivileges=spacePrivileges
@@ -184,7 +184,7 @@ describe('Integration | Component | file browser/item features', function () {
         onInvokeItemAction,
       });
 
-      this.render(hbs `{{file-browser/item-features
+      this.render(hbs `{{filesystem-browser/file-features
           item=item
           expanded=false
           onInvokeItemAction=onInvokeItemAction
@@ -203,7 +203,7 @@ describe('Integration | Component | file browser/item features', function () {
     };
     this.set('item', item);
 
-    this.render(hbs `{{file-browser/item-features item=item expanded=false}}`);
+    this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
     const $inheritanceTag = this.$('.file-status-inherited-collapsed');
     expect($inheritanceTag).to.have.length(1);
     expect(this.$('.file-status-dataset'), 'dataset').to.exist;

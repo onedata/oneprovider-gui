@@ -68,11 +68,20 @@ $file-status-tag-spacing: 6px;
       }
     }
 
+    // known icons that looks better inside tags with some modifications
+    .oneicon-provider, .oneicon-browser-attribute {
+      opacity: 0.9;
+    }
+
     &.file-status-tag-icon {
       position: relative;
       padding-left: 0.2em;
       padding-right: 0.2em;
       min-width: $file-status-tag-height;
+      // icons have internal padding, so they look better in row when condensed
+      .one-icon + .one-icon {
+        margin-left: -0.2em;
+      }
     }
 
     &.file-status-tag-icon-only {
@@ -166,21 +175,6 @@ $file-status-tag-spacing: 6px;
   &.highlight-inherited-qos {
     .table-header-status-bar .file-status-tag-group.qos-file-status-tag-group .file-status-tag {
       @include highlight-tag;
-    }
-  }
-}
-
-
-
-// special styles FIXME: refactor?
-
-.file-status-bar {
-  .file-status-tag.file-status-tag-icon.file-status-protected {
-    .one-icon {
-      opacity: 0.8;
-      +.one-icon {
-        margin-left: -0.2em;
-      }
     }
   }
 }
