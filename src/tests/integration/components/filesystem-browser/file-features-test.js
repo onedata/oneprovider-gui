@@ -10,8 +10,6 @@ describe('Integration | Component | filesystem browser/file features', function 
     integration: true,
   });
 
-  // FIXME: test disabled and tooltip when disabled datasetsViewForbidden
-
   ['none', 'direct'].forEach(membership => {
     it(`does not show collapsed inherited tag if features are "${membership}" in collapsed mode`, function () {
       const item = {

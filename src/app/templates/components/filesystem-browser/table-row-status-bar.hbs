@@ -74,8 +74,10 @@
   </div>
 {{/if}}
 
-{{filesystem-browser/file-features
-  item=file
-  spacePrivileges=browserModel.spacePrivileges
-  onInvokeItemAction=(action invokeFileAction)
-}}
+{{#unless previewMode}}
+  {{filesystem-browser/file-features
+    item=file
+    spacePrivileges=browserModel.spacePrivileges
+    onInvokeItemAction=(action invokeFileAction)
+  }}
+{{/unless}}
