@@ -1,9 +1,15 @@
 import Component from '@ember/component';
 import EmberObject, { computed } from '@ember/object';
 import { and, notEqual, raw, not, conditional, array } from 'ember-awesome-macros';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: '',
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileBrowser.itemFeaturesContainer',
 
   /**
    * @virtual

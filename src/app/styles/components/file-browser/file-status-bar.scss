@@ -102,7 +102,7 @@ $file-status-tag-spacing: 6px;
     }
 
     &.file-status-tag-inherited {
-      @include tag-colors-disabled;
+      @include tag-colors-inherited;
     }
   }
 }
