@@ -22,6 +22,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
+import { array, raw } from 'ember-awesome-macros';
 
 const buttonNames = Object.freeze([
   'btnBagitUpload',
@@ -192,7 +193,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  browserClass: 'filesystem-browser',
+  browserClass: array.join(
+    array.concat(
+      raw(['filesystem-browser']),
+      array.join('customClassNames', raw(' '))
+    ),
+    raw(' '),
+  ),
 
   /**
    * @override
@@ -211,6 +218,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Boolean}
    */
   readonlyFilesystem: false,
+
+  /**
+   * True if QoS tag in header is currenlty hovered.
+   * @type {Boolean}
+   */
+  qosHeaderTagIsHovered: false,
+
+  /**
+   * True if dataset tag in header is currenlty hovered.
+   * @type {Boolean}
+   */
+  datasetHeaderTagIsHovered: false,
 
   // #region Action buttons
 
@@ -780,6 +799,28 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   // #endregion
 
+  customClassNames: computed(
+    'qosHeaderTagIsHovered',
+    'datasetHeaderTagIsHovered',
+    function customClassNames() {
+      const {
+        qosHeaderTagIsHovered,
+        datasetHeaderTagIsHovered,
+      } = this.getProperties('qosHeaderTagIsHovered', 'datasetHeaderTagIsHovered');
+      const classes = [];
+      if (qosHeaderTagIsHovered) {
+        classes.push('highlight-inherited-qos');
+      }
+      if (datasetHeaderTagIsHovered) {
+        classes.push('highlight-inherited-dataset');
+      }
+      if (classes.length) {
+        classes.push('highlight-inherited');
+      }
+      return classes;
+    }
+  ),
+
   /**
    * @type {ComputedProperty<boolean>}
    */
@@ -821,6 +862,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     if (element) {
       return element.querySelector('.fb-upload-trigger');
     }
+  }),
+
+  onTagHoverChange: computed(function onTagHoverChange() {
+    return this.changeTagHover.bind(this);
   }),
 
   /**
@@ -1099,5 +1144,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   emptyDirPaste() {
     return this.get('btnPaste.action')(...arguments);
+  },
+
+  changeTagHover(tag, isHovered) {
+    this.set(`${tag}HeaderTagIsHovered`, isHovered);
   },
 });

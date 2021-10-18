@@ -5,7 +5,10 @@
   as |displayed|
 }}
   {{#if displayed.effDatasetMembership.isShown}}
-    <div class="file-status-tag-group dataset-file-status-tag-group">
+    <div class="file-status-tag-group dataset-file-status-tag-group"
+      onmouseover={{action "changeTagHover" "dataset" true}}
+      onmouseout={{action "changeTagHover" "dataset" false}}
+    >
       <div
         class={{concat-classes
           "file-status-tag"
@@ -26,7 +29,7 @@
         <span class="tag-text">{{tt this "status.dataset"}}</span>
         {{#if (eq displayed.effDatasetMembership.membership "ancestor")}}
           {{one-icon class="dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
-          {{one-tooltip title=(tt this "inheritedTip.ancestor.dataset")}}
+          {{one-tooltip title=(tt this "inheritedTip.dataset" fileType=typeText)}}
         {{/if}}
         {{#if datasetsViewForbidden}}
           {{one-tooltip title=hintDatasetsViewForbidden}}
@@ -61,13 +64,16 @@
             icon=inheritedIcon
             class="inherited-icon"
           }}
-          {{one-tooltip title=(tt this "inheritedTip.directAndAncestor.dataset")}}
+          {{one-tooltip title=(tt this "inheritedTip.dataset" fileType=typeText)}}
         </div>
       {{/if}}
     </div>
   {{/if}}
   {{#if displayed.effQosMembership.isShown}}
-    <div class="file-status-tag-group qos-file-status-tag-group">
+    <div class="file-status-tag-group qos-file-status-tag-group"
+      onmouseover={{action "changeTagHover" "qos" true}}
+      onmouseout={{action "changeTagHover" "qos" false}}
+    >
       <div
         class={{concat-classes
           "file-status-tag"
@@ -88,7 +94,7 @@
         <span class="tag-text">{{tt this "status.qos"}}</span>
         {{#if (eq displayed.effQosMembership.membership "ancestor")}}
           {{one-icon class="qos-inherited-icon inherited-icon" icon=inheritedIcon}}
-          {{one-tooltip title=(tt this "inheritedTip.ancestor.qos")}}
+          {{one-tooltip title=(tt this "inheritedTip.qos.ancestor")}}
         {{/if}}
         {{#if qosViewForbidden}}
           {{one-tooltip title=hintQosViewForbidden}}
@@ -102,7 +108,7 @@
             icon=inheritedIcon
             class="inherited-icon"
           }}
-          {{one-tooltip title=(tt this "inheritedTip.directAndAncestor.qos")}}
+          {{one-tooltip title=(tt this "inheritedTip.qos.directAndAncestor")}}
         </div>
       {{/if}}
     </div>

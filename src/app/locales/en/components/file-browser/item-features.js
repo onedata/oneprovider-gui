@@ -14,14 +14,10 @@ export default {
     both: 'This {{fileType}}\'s data and metadata are write protected.',
   },
   inheritedTip: {
-    // FIXME: new text
-    directAndAncestor: {
-      qos: 'Some QoS requirements are inherited from ancestor directories.',
-      dataset: 'Dataset has ancestors inherited from ancestor directories.',
+    qos: {
+      directAndAncestor: 'Some QoS requirements are inherited from ancestor directories.',
+      ancestor: 'All QoS requirements are inherited from ancestor directories.',
     },
-    ancestor: {
-      qos: 'All QoS requirements are inherited from ancestor directories.',
-      dataset: 'Part of dataset of ancestor directories.',
-    },
+    dataset: 'This {{fileType}} belongs to one or more datasets established on its ancestor directories.',
   },
 };

@@ -22,7 +22,7 @@ describe('Integration | Component | file browser/item features', function () {
 
       this.render(hbs `{{file-browser/item-features item=item expanded=false}}`);
 
-      expect(this.$('.file-status-inherited')).to.not.exist;
+      expect(this.$('.file-status-inherited-collapsed')).to.not.exist;
     });
   });
 
@@ -36,7 +36,7 @@ describe('Integration | Component | file browser/item features', function () {
 
       this.render(hbs `{{file-browser/item-features item=item expanded=false}}`);
 
-      expect(this.$('.file-status-inherited')).to.exist;
+      expect(this.$('.file-status-inherited-collapsed')).to.exist;
     });
   });
 
@@ -84,7 +84,7 @@ describe('Integration | Component | file browser/item features', function () {
       expect($qosTag, 'qos').to.exist;
       expect($datasetTag.find('.inherited-icon'), 'dataset inherited').to.not.exist;
       expect($qosTag.find('.inherited-icon'), 'qos inherited').to.not.exist;
-      expect(this.$('.file-status-inherited'), 'inherited collapsed').to.exist;
+      expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed').to.exist;
     }
   );
 
@@ -98,7 +98,8 @@ describe('Integration | Component | file browser/item features', function () {
 
       this.render(hbs `{{file-browser/item-features item=item expanded=true}}`);
 
-      expect(this.$('.file-status-inherited'), 'inherited collapsed').to.not.exist;
+      expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed')
+        .to.not.exist;
       const $datasetTag = this.$('.dataset-file-status-tag-group');
       const $qosTag = this.$('.qos-file-status-tag-group');
       expect($datasetTag, 'dataset group').to.exist;
@@ -121,7 +122,8 @@ describe('Integration | Component | file browser/item features', function () {
 
       this.render(hbs `{{file-browser/item-features item=item expanded=true}}`);
 
-      expect(this.$('.file-status-inherited'), 'inherited collapsed').to.not.exist;
+      expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed')
+        .to.not.exist;
       const $datasetTag = this.$('.dataset-file-status-tag-group');
       const $qosTag = this.$('.qos-file-status-tag-group');
       expect($datasetTag, 'dataset group').to.exist;
@@ -202,7 +204,7 @@ describe('Integration | Component | file browser/item features', function () {
     this.set('item', item);
 
     this.render(hbs `{{file-browser/item-features item=item expanded=false}}`);
-    const $inheritanceTag = this.$('.file-status-inherited');
+    const $inheritanceTag = this.$('.file-status-inherited-collapsed');
     expect($inheritanceTag).to.have.length(1);
     expect(this.$('.file-status-dataset'), 'dataset').to.exist;
     expect(this.$('.file-status-qos'), 'qos').to.exist;
@@ -212,7 +214,8 @@ describe('Integration | Component | file browser/item features', function () {
       .to.not.exist;
     await click($inheritanceTag[0]);
 
-    expect(this.$('.file-status-inherited'), 'inheritance tag after click').to.not.exist;
+    expect(this.$('.file-status-inherited-collapsed'), 'inheritance tag after click')
+      .to.not.exist;
     expect(this.$('.dataset-file-status-tag-group .inherited-icon'), 'dataset inherited a. click')
       .to.exist;
     expect(this.$('.qos-file-status-tag-group .inherited-icon'), 'qos inherited a. click')

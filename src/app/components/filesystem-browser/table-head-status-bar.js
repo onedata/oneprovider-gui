@@ -51,4 +51,10 @@ export default Component.extend(I18n, {
   disabled: reads('browserModel.disableStatusBar'),
 
   previewMode: reads('browserModel.previewMode'),
+
+  actions: {
+    changeTagHover(tag, isHovered) {
+      this.get('browserModel.onTagHoverChange')(tag, isHovered);
+    },
+  },
 });

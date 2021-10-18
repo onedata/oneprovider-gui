@@ -107,6 +107,71 @@ $file-status-tag-spacing: 6px;
   }
 }
 
+@mixin highlight-tag-color {
+  @include tag-colors-inherited-highlight;
+}
+
+@mixin highlight-tag-shadow {
+  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.3);
+}
+
+@mixin highlight-tag-transition {
+  transition: all 0.2s ease-in;
+}
+
+@mixin highlight-tag {
+  @include highlight-tag-color;
+  @include highlight-tag-transition;
+  @include highlight-tag-shadow;
+}
+
+.file-browser:not(.highlight-inherited) {
+  .file-status-tag {
+    transition: all 0.2s ease-out;
+  }
+}
+
+.file-browser.highlight-inherited {
+  .fb-table-row {
+    .file-status-bar .file-status-tag.file-status-inherited-collapsed {
+      @include highlight-tag;
+    }
+  }
+  &.highlight-inherited-qos {
+    .fb-table-row {
+      .file-status-bar .qos-file-status-tag-group {
+        .file-status-tag-inherited-addon, .file-status-tag-inherited {
+          @include highlight-tag;
+        }
+      }
+    }
+  }
+  &.highlight-inherited-dataset {
+    .fb-table-row {
+      .file-status-bar .dataset-file-status-tag-group {
+        .file-status-tag-inherited-addon, .file-status-tag-inherited {
+          @include highlight-tag;
+        }
+      }
+    }
+  }
+}
+
+.file-browser {
+  &.highlight-inherited-dataset {
+    .table-header-status-bar .file-status-tag-group.dataset-file-status-tag-group .file-status-tag {
+      @include highlight-tag;
+    }
+  }
+  &.highlight-inherited-qos {
+    .table-header-status-bar .file-status-tag-group.qos-file-status-tag-group .file-status-tag {
+      @include highlight-tag;
+    }
+  }
+}
+
+
+
 // special styles FIXME: refactor?
 
 .file-status-bar {

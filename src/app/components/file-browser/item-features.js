@@ -9,6 +9,7 @@
 
 import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { or, not } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
@@ -43,7 +44,6 @@ export default Component.extend(I18n, {
   spacePrivileges: undefined,
 
   /**
-   * FIXME: not implemented
    * @virtual
    */
   disabled: false,
@@ -57,7 +57,11 @@ export default Component.extend(I18n, {
 
   inheritedIcon: 'inheritance',
 
-  // FIXME: todo
+  /**
+   * @virtual
+   * @type {(tag: String, isHovered: Boolean) => undefined}
+   */
+  onTagHoverChange: notImplementedIgnore,
 
   dataIsProtected: reads('item.dataIsProtected'),
 
@@ -149,6 +153,9 @@ export default Component.extend(I18n, {
         item,
       } = this.getProperties('onInvokeItemAction', 'item');
       return onInvokeItemAction(item, actionName);
+    },
+    changeTagHover(tag, hovered) {
+      this.get('onTagHoverChange')(tag, hovered);
     },
   },
 });
