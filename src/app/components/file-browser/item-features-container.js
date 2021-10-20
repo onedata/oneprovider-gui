@@ -46,6 +46,13 @@ export default Component.extend(I18n, {
   item: undefined,
 
   /**
+   * If set to true, features will be expanded on init.
+   * @virtual
+   * @type {Boolean}
+   */
+  initiallyExpanded: false,
+
+  /**
    * If true, full features inheritance info is provided for displayed tags in
    * `displayedState` and expand button is not rendered.
    * @type {Booelan}
@@ -129,6 +136,9 @@ export default Component.extend(I18n, {
 
   init() {
     this._super(...arguments);
+    if (this.get('initiallyExpanded')) {
+      this.set('expanded', true);
+    }
     this.regenerateComputedHasInheritance();
   },
 

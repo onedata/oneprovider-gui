@@ -23,7 +23,7 @@ import { scheduleOnce } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
-import { resolve, Promise } from 'rsvp';
+import { resolve, all as allFulfilled, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -743,12 +743,14 @@ export default Component.extend(I18n, {
     }
   },
 
-  refreshFileList() {
+  async refreshFileList() {
     const {
+      dir,
       filesArray,
       viewTester,
       containerScrollTop,
     } = this.getProperties(
+      'dir',
       'filesArray',
       'viewTester',
       'containerScrollTop',
@@ -756,7 +758,11 @@ export default Component.extend(I18n, {
     const visibleLengthBeforeReload = this.$('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
 
-    return filesArray.scheduleReload()
+    const promises = [];
+    if (dir && dir.reload) {
+      promises.push(dir.reload());
+    }
+    const filesArrayReload = filesArray.scheduleReload()
       .finally(() => {
         const {
           selectedItems,
@@ -797,6 +803,9 @@ export default Component.extend(I18n, {
           }
         });
       });
+
+    promises.push(filesArrayReload);
+    await allFulfilled(promises);
   },
 
   onTableScroll(items, headerVisible) {

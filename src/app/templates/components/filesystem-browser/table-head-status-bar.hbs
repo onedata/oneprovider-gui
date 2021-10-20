@@ -1,7 +1,7 @@
 {{#unless browserModel.previewMode}}
   {{filesystem-browser/file-features
     item=file
-    expanded=true
+    initiallyExpanded=true
     spacePrivileges=browserModel.spacePrivileges
     onInvokeItemAction=(action invokeFileAction)
     onTagHoverChange=(action "changeTagHover")
