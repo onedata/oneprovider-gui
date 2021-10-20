@@ -126,6 +126,7 @@ export default Component.extend(I18n, {
       const promises = [
         file.reload(),
         fileDatasetSummaryRelation.reload(),
+        fileManager.dirChildrenRefresh(get(file, 'entityId')),
       ];
       // refresh opened file parent and its children only if invoker is not this parent
       const parentRelation = file.belongsTo('parent');
@@ -139,7 +140,7 @@ export default Component.extend(I18n, {
       const invokingDataset = invokingDatasetSummary &&
         await get(invokingDatasetSummary, 'directDataset');
       const directDataset = await this.get('directDatasetProxy');
-      if (invokingDataset) {
+      if (directDataset && invokingDataset) {
         const datasetParentRelation = directDataset.belongsTo('parent');
         promises.push(datasetParentRelation.reload());
         promises.push(fileManager.fileParentRefresh(directDataset));
