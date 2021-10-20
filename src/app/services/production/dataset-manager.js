@@ -211,6 +211,7 @@ export default Service.extend({
     const fileManager = this.get('fileManager');
     const fileDatasetSummaryRelation = file.belongsTo('fileDatasetSummary');
     const promises = [
+      file.reload(),
       fileDatasetSummaryRelation.reload(),
     ];
     if (get(file, 'type') === 'dir') {
@@ -218,8 +219,6 @@ export default Service.extend({
       promises.push(
         fileManager.dirChildrenRefresh(get(file, 'entityId'))
       );
-    } else {
-      promises.push(file.reload());
     }
     await allSettled(promises);
   },
