@@ -129,60 +129,70 @@ $file-status-tag-spacing: 6px;
   transition: all 0.1s ease-in;
 }
 
-@mixin highlight-tag {
-  @include highlight-tag-color;
-  @include highlight-tag-transition;
-}
+// file rows
 
-@mixin highlight-tag-group {
-  @include highlight-tag-shadow;
-}
-
-.file-browser:not(.highlight-inherited) {
+.file-browser.highlight-transition {
   .file-status-tag {
-    transition: all 0.1s ease-out;
+    @include highlight-tag-transition;
   }
 }
-
 .file-browser.highlight-inherited {
   .fb-table-row .file-status-bar {
     .file-status-tag.file-status-inherited-collapsed {
-      @include highlight-tag;
-      @include highlight-tag-group;
+      @include highlight-tag-color;
+      @include highlight-tag-shadow;
     }
   }
   &.highlight-inherited-qos {
-    .fb-table-row  .file-status-bar .qos-file-status-tag-group {
-      .file-status-tag-inherited-addon, .file-status-tag-inherited {
-        @include highlight-tag;
-        @include highlight-tag-group;
+    .fb-table-row .file-status-bar {
+      .qos-file-status-tag-group {
+        .file-status-tag-inherited-addon {
+          @include highlight-tag-color;
+          @include highlight-tag-shadow;
+        }
+        &.file-status-tag-group-fully-inherited {
+          @include highlight-tag-shadow;
+          .file-status-tag {
+            @include highlight-tag-color;
+          }
+        }
       }
     }
   }
   &.highlight-inherited-dataset {
-    .fb-table-row  .file-status-bar .dataset-file-status-tag-group {
-      .file-status-tag-inherited-addon, .file-status-tag-inherited {
-        @include highlight-tag;
-        @include highlight-tag-group;
+    .fb-table-row .file-status-bar {
+      .dataset-file-status-tag-group {
+        .file-status-tag-inherited-addon {
+          @include highlight-tag-color;
+          @include highlight-tag-shadow;
+        }
+        &.file-status-tag-group-fully-inherited {
+          @include highlight-tag-shadow;
+          .file-status-tag {
+            @include highlight-tag-color;
+          }
+        }
       }
     }
   }
 }
+
+// header
 
 .file-browser {
   &.highlight-inherited-dataset {
     .table-header-status-bar .file-status-tag-group.dataset-file-status-tag-group {
-      @include highlight-tag-group;
+      @include highlight-tag-shadow;
       .file-status-tag {
-        @include highlight-tag;
+        @include highlight-tag-color;
       }
     }
   }
   &.highlight-inherited-qos {
     .table-header-status-bar .file-status-tag-group.qos-file-status-tag-group {
-      @include highlight-tag-group;
+      @include highlight-tag-shadow;
       .file-status-tag {
-        @include highlight-tag;
+        @include highlight-tag-color;
       }
     }
   }

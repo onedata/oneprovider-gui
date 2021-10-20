@@ -5,7 +5,13 @@
   as |displayed|
 }}
   {{#if displayed.effDatasetMembership.isShown}}
-    <div class="file-status-tag-group dataset-file-status-tag-group"
+    <div
+      class={{concat-classes
+        "file-status-tag-group dataset-file-status-tag-group"
+        (if (eq displayed.effDatasetMembership.membership "ancestor")
+          "file-status-tag-group-fully-inherited"
+        )
+      }}
       onmouseover={{action "changeTagHover" "dataset" true}}
       onmouseout={{action "changeTagHover" "dataset" false}}
       onclick={{action "datasetTagClicked" bubbles=(bool effDatasetDisabled)}}
@@ -67,7 +73,13 @@
     </div>
   {{/if}}
   {{#if displayed.effQosMembership.isShown}}
-    <div class="file-status-tag-group qos-file-status-tag-group"
+    <div
+      class={{concat-classes
+        "file-status-tag-group qos-file-status-tag-group"
+        (if (eq displayed.effQosMembership.membership "ancestor")
+          "file-status-tag-group-fully-inherited"
+        )
+      }}
       onmouseover={{action "changeTagHover" "qos" true}}
       onmouseout={{action "changeTagHover" "qos" false}}
       onclick={{unless effQosDisabled (action "qosTagClicked" bubbles=(bool effQosDisabled))}}
