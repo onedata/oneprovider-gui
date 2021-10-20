@@ -59,6 +59,13 @@ export default Component.extend(I18n, {
   onTagHoverChange: notImplementedIgnore,
 
   /**
+   * If set to true, features will be expanded on init.
+   * @virtual
+   * @type {Boolean}
+   */
+  initiallyExpanded: false,
+
+  /**
    * @virtual optional
    * @type {Boolean}
    */
@@ -150,6 +157,13 @@ export default Component.extend(I18n, {
       return this.t('fileType.' + itemType);
     }
   }),
+
+  init() {
+    this._super(...arguments);
+    if (this.get('initiallyExpanded')) {
+      this.set('expanded', true);
+    }
+  },
 
   tagClicked(actionName) {
     const {

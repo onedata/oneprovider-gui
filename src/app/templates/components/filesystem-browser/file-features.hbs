@@ -14,7 +14,7 @@
       }}
       onmouseover={{action "changeTagHover" "dataset" true}}
       onmouseout={{action "changeTagHover" "dataset" false}}
-      onclick={{action "datasetTagClicked" bubbles=(bool effDatasetDisabled)}}
+      onclick={{unless effDatasetDisabled (action "datasetTagClicked")}}
     >
       <div
         class={{concat-classes
@@ -82,7 +82,7 @@
       }}
       onmouseover={{action "changeTagHover" "qos" true}}
       onmouseout={{action "changeTagHover" "qos" false}}
-      onclick={{unless effQosDisabled (action "qosTagClicked" bubbles=(bool effQosDisabled))}}
+      onclick={{unless effQosDisabled (action "qosTagClicked")}}
     >
       <div
         class={{concat-classes

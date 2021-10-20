@@ -18,7 +18,10 @@ describe('Integration | Component | filesystem browser/file features', function 
       };
       this.set('item', item);
 
-      this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        initiallyExpanded=false
+      }}`);
 
       expect(this.$('.file-status-inherited-collapsed')).to.not.exist;
     });
@@ -32,7 +35,10 @@ describe('Integration | Component | filesystem browser/file features', function 
       };
       this.set('item', item);
 
-      this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        initiallyExpanded=false
+      }}`);
 
       expect(this.$('.file-status-inherited-collapsed')).to.exist;
     });
@@ -45,7 +51,10 @@ describe('Integration | Component | filesystem browser/file features', function 
     };
     this.set('item', item);
 
-    this.render(hbs `{{filesystem-browser/file-features item=item expanded=true}}`);
+    this.render(hbs `{{filesystem-browser/file-features
+      item=item
+      initiallyExpanded=true
+    }}`);
 
     expect(this.$('.file-status-dataset'), 'dataset').to.exist;
     expect(this.$('.file-status-qos'), 'qos').to.exist;
@@ -59,7 +68,10 @@ describe('Integration | Component | filesystem browser/file features', function 
       };
       this.set('item', item);
 
-      this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        initiallyExpanded=false
+      }}`);
 
       expect(this.$('.file-status-dataset'), 'dataset').to.exist;
       expect(this.$('.file-status-qos'), 'qos').to.exist;
@@ -74,7 +86,10 @@ describe('Integration | Component | filesystem browser/file features', function 
       };
       this.set('item', item);
 
-      this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        initiallyExpanded=false
+      }}`);
 
       const $datasetTag = this.$('.file-status-dataset');
       const $qosTag = this.$('.file-status-qos');
@@ -94,7 +109,10 @@ describe('Integration | Component | filesystem browser/file features', function 
       };
       this.set('item', item);
 
-      this.render(hbs `{{filesystem-browser/file-features item=item expanded=true}}`);
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        initiallyExpanded=true
+      }}`);
 
       expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed')
         .to.not.exist;
@@ -118,7 +136,10 @@ describe('Integration | Component | filesystem browser/file features', function 
       };
       this.set('item', item);
 
-      this.render(hbs `{{filesystem-browser/file-features item=item expanded=true}}`);
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        initiallyExpanded=true
+      }}`);
 
       expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed')
         .to.not.exist;
@@ -145,6 +166,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         const onInvokeItemAction = sinon.spy();
         const spacePrivileges = {
           view: true,
+          viewQos: true,
         };
         this.setProperties({
           item,
@@ -154,13 +176,14 @@ describe('Integration | Component | filesystem browser/file features', function 
 
         this.render(hbs `{{filesystem-browser/file-features
           item=item
-          expanded=false
+          initiallyExpanded=false
           spacePrivileges=spacePrivileges
           onInvokeItemAction=onInvokeItemAction
         }}`);
-        const $tag = this.$(`.file-status-${tag}`);
-        expect($tag).to.have.length(1);
-        await click($tag[0]);
+        const $tagGroup = this.$(`.${tag}-file-status-tag-group`);
+        expect($tagGroup).to.have.length(1);
+        // await sleep(3000);
+        await click($tagGroup[0]);
 
         expect(onInvokeItemAction).to.have.been.calledOnce;
         expect(onInvokeItemAction).to.have.been.calledWith(item, action);
@@ -184,7 +207,7 @@ describe('Integration | Component | filesystem browser/file features', function 
 
       this.render(hbs `{{filesystem-browser/file-features
           item=item
-          expanded=false
+          initiallyExpanded=false
           onInvokeItemAction=onInvokeItemAction
         }}`);
       const $tag = this.$(`.file-status-${tag}`);
@@ -201,7 +224,10 @@ describe('Integration | Component | filesystem browser/file features', function 
     };
     this.set('item', item);
 
-    this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
+    this.render(hbs `{{filesystem-browser/file-features
+      item=item
+      initiallyExpanded=false
+    }}`);
     const $inheritanceTag = this.$('.file-status-inherited-collapsed');
     expect($inheritanceTag).to.have.length(1);
     await click($inheritanceTag[0]);

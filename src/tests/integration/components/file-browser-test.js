@@ -519,6 +519,7 @@ describe('Integration | Component | file browser (main component)', function () 
           it(`displays functional qos tag in table header if current dir has "${effQosMembership}" qos`,
             async function (done) {
               this.set('dir.effQosMembership', effQosMembership);
+              this.set('spacePrivileges', { view: true, viewQos: true });
               const openQos = sinon.spy();
               this.set('openQos', openQos);
 
