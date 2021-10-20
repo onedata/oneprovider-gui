@@ -106,12 +106,13 @@ $file-status-tag-spacing: 6px;
       @include tag-colors-danger;
     }
 
-    &.file-status-tag-disabled {
-      @include tag-colors-disabled;
-    }
-
     &.file-status-tag-inherited {
       @include tag-colors-inherited;
+    }
+
+    // disabled color should be defined last to allow override colors
+    &.file-status-tag-disabled {
+      @include tag-colors-disabled;
     }
   }
 }
@@ -121,46 +122,48 @@ $file-status-tag-spacing: 6px;
 }
 
 @mixin highlight-tag-shadow {
-  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.3);
+  filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.3));
 }
 
 @mixin highlight-tag-transition {
-  transition: all 0.2s ease-in;
+  transition: all 0.1s ease-in;
 }
 
 @mixin highlight-tag {
   @include highlight-tag-color;
   @include highlight-tag-transition;
+}
+
+@mixin highlight-tag-group {
   @include highlight-tag-shadow;
 }
 
 .file-browser:not(.highlight-inherited) {
   .file-status-tag {
-    transition: all 0.2s ease-out;
+    transition: all 0.1s ease-out;
   }
 }
 
 .file-browser.highlight-inherited {
-  .fb-table-row {
-    .file-status-bar .file-status-tag.file-status-inherited-collapsed {
+  .fb-table-row .file-status-bar {
+    .file-status-tag.file-status-inherited-collapsed {
       @include highlight-tag;
+      @include highlight-tag-group;
     }
   }
   &.highlight-inherited-qos {
-    .fb-table-row {
-      .file-status-bar .qos-file-status-tag-group {
-        .file-status-tag-inherited-addon, .file-status-tag-inherited {
-          @include highlight-tag;
-        }
+    .fb-table-row  .file-status-bar .qos-file-status-tag-group {
+      .file-status-tag-inherited-addon, .file-status-tag-inherited {
+        @include highlight-tag;
+        @include highlight-tag-group;
       }
     }
   }
   &.highlight-inherited-dataset {
-    .fb-table-row {
-      .file-status-bar .dataset-file-status-tag-group {
-        .file-status-tag-inherited-addon, .file-status-tag-inherited {
-          @include highlight-tag;
-        }
+    .fb-table-row  .file-status-bar .dataset-file-status-tag-group {
+      .file-status-tag-inherited-addon, .file-status-tag-inherited {
+        @include highlight-tag;
+        @include highlight-tag-group;
       }
     }
   }
@@ -168,13 +171,19 @@ $file-status-tag-spacing: 6px;
 
 .file-browser {
   &.highlight-inherited-dataset {
-    .table-header-status-bar .file-status-tag-group.dataset-file-status-tag-group .file-status-tag {
-      @include highlight-tag;
+    .table-header-status-bar .file-status-tag-group.dataset-file-status-tag-group {
+      @include highlight-tag-group;
+      .file-status-tag {
+        @include highlight-tag;
+      }
     }
   }
   &.highlight-inherited-qos {
-    .table-header-status-bar .file-status-tag-group.qos-file-status-tag-group .file-status-tag {
-      @include highlight-tag;
+    .table-header-status-bar .file-status-tag-group.qos-file-status-tag-group {
+      @include highlight-tag-group;
+      .file-status-tag {
+        @include highlight-tag;
+      }
     }
   }
 }

@@ -111,7 +111,7 @@ describe('Integration | Component | file browser/fb table row', function () {
       }));
 
       render(this);
-      await expandIneheritanceTag(this);
+      await expandInheritanceTag(this);
 
       expect(this.$('.qos-inherited-icon')).to.exist;
     }
@@ -124,7 +124,7 @@ describe('Integration | Component | file browser/fb table row', function () {
       }));
 
       render(this);
-      await expandIneheritanceTag(this);
+      await expandInheritanceTag(this);
 
       expect(this.$('.file-status-dataset'), 'file-status-dataset').to.exist;
       expect(this.$('.dataset-inherited-icon'), 'inherited icon').to.exist;
@@ -253,7 +253,7 @@ function testProtectedFlag(flagTypes) {
     );
 
     render(this);
-    await expandIneheritanceTag(this);
+    await expandInheritanceTag(this);
 
     expect(this.$('.file-protected-icon')).to.have.length(effProtectionFlags.length);
     flagTypes.forEach(type => {
@@ -271,7 +271,7 @@ function testShowsTooltip(elementDescription, text, selector, contextData) {
     this.setProperties(contextData);
 
     render(this);
-    await expandIneheritanceTag(this);
+    await expandInheritanceTag(this);
     await triggerEvent(selector, 'mouseenter');
 
     const $tooltip = $('.tooltip.in');
@@ -329,7 +329,7 @@ function render(testCase) {
   }}`);
 }
 
-async function expandIneheritanceTag(testCase) {
+async function expandInheritanceTag(testCase) {
   const $inheritanceTag = testCase.$('.file-status-inherited');
   await click($inheritanceTag[0]);
 }

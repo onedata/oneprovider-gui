@@ -196,7 +196,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   browserClass: array.join(
     array.concat(
       raw(['filesystem-browser']),
-      array.join('customClassNames', raw(' '))
+      'customClassNames',
     ),
     raw(' '),
   ),
@@ -799,6 +799,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   // #endregion
 
+  /**
+   * @type {ComputedProperty<Array<String>>}
+   */
   customClassNames: computed(
     'qosHeaderTagIsHovered',
     'datasetHeaderTagIsHovered',

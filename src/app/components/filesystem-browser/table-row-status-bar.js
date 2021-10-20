@@ -8,7 +8,7 @@
  */
 
 import FbTableRowStatusBar from 'oneprovider-gui/components/file-browser/fb-table-row-status-bar';
-import { equal, not, raw, or, and, array } from 'ember-awesome-macros';
+import { equal, raw, or } from 'ember-awesome-macros';
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -78,22 +78,6 @@ export default FbTableRowStatusBar.extend({
       }
       return isPosixViewForbidden(file, octalNumber);
     }
-  ),
-
-  /**
-   * If true, should display dataset tag
-   * @type {ComputedProperty<Boolean>}
-   */
-  showDatasetTag: and(
-    not('previewMode'),
-    not('isSymlink'),
-    array.includes(raw(['ancestor', 'direct']), 'effDatasetMembership')
-  ),
-
-  showQosTag: and(
-    not('previewMode'),
-    not('isSymlink'),
-    array.includes(raw(['ancestor', 'direct']), 'effQosMembership')
   ),
 
   hasMetadata: reads('file.hasMetadata'),

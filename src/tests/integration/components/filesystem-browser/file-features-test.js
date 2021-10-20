@@ -102,7 +102,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       const $qosTag = this.$('.qos-file-status-tag-group');
       expect($datasetTag, 'dataset group').to.exist;
       expect($qosTag, 'qos group').to.exist;
-      const addonIconSelector = '.file-status-inherited-addon .inherited-icon';
+      const addonIconSelector = '.file-status-inherited-addon > .inherited-icon';
       const $datasetAddonIcon = $datasetTag.find(addonIconSelector);
       const $qosAddonIcon = $qosTag.find(addonIconSelector);
       expect($datasetAddonIcon, 'dataset inherited addon').to.exist;
@@ -126,7 +126,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       const $qosTag = this.$('.qos-file-status-tag-group');
       expect($datasetTag, 'dataset group').to.exist;
       expect($qosTag, 'qos group').to.exist;
-      const iconSelector = ':not(.file-status-inherited-addon) .inherited-icon';
+      const iconSelector = ':not(.file-status-inherited-addon) > .inherited-icon';
       expect($datasetTag.find(iconSelector), 'dataset inherited').to.exist;
       expect($qosTag.find(iconSelector), 'qos inherited').to.exist;
     }
@@ -204,12 +204,6 @@ describe('Integration | Component | filesystem browser/file features', function 
     this.render(hbs `{{filesystem-browser/file-features item=item expanded=false}}`);
     const $inheritanceTag = this.$('.file-status-inherited-collapsed');
     expect($inheritanceTag).to.have.length(1);
-    expect(this.$('.file-status-dataset'), 'dataset').to.exist;
-    expect(this.$('.file-status-qos'), 'qos').to.exist;
-    expect(this.$('.dataset-file-status-tag-group .inherited-icon'), 'dataset inherited')
-      .to.not.exist;
-    expect(this.$('.qos-file-status-tag-group .inherited-icon'), 'qos inherited')
-      .to.not.exist;
     await click($inheritanceTag[0]);
 
     expect(this.$('.file-status-inherited-collapsed'), 'inheritance tag after click')

@@ -227,12 +227,12 @@ export default Model.extend(
     targetPath: attr('string'),
 
     /**
-     * Possible values: none, direct, ancestor
+     * Possible values: none, direct, ancestor, directAndAncestor
      */
     effQosMembership: attr('string', { defaultValue: 'none' }),
 
     /**
-     * Possible values: none, direct, ancestor
+     * Possible values: none, direct, ancestor, directAndAncestor
      */
     effDatasetMembership: attr('string', { defaultValue: 'none' }),
 

@@ -29,38 +29,44 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {Models.File}
    */
   item: undefined,
 
   /**
+   * Same as in: `components/file-browser/item-features-container`
    * @virtual
+   * @type {Array<String>}
    */
   features: undefined,
 
   /**
    * @virtual
+   * @type {Object}
    */
   spacePrivileges: undefined,
 
   /**
    * @virtual
-   */
-  disabled: false,
-
-  /**
-   * @virtual
+   * @type {(item: BrowsableItem, actionName: String) => undefined}
    */
   onInvokeItemAction: notImplementedThrow,
-
-  expanded: false,
-
-  inheritedIcon: 'inheritance',
 
   /**
    * @virtual
    * @type {(tag: String, isHovered: Boolean) => undefined}
    */
   onTagHoverChange: notImplementedIgnore,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  disabled: false,
+
+  expanded: false,
+
+  inheritedIcon: 'inheritance',
 
   dataIsProtected: reads('item.dataIsProtected'),
 
@@ -145,13 +151,24 @@ export default Component.extend(I18n, {
     }
   }),
 
+  tagClicked(actionName) {
+    const {
+      onInvokeItemAction,
+      item,
+    } = this.getProperties('onInvokeItemAction', 'item');
+    return onInvokeItemAction(item, actionName);
+  },
+
   actions: {
-    tagClicked(actionName) {
-      const {
-        onInvokeItemAction,
-        item,
-      } = this.getProperties('onInvokeItemAction', 'item');
-      return onInvokeItemAction(item, actionName);
+    datasetTagClicked() {
+      if (!this.get('effDatasetDisabled')) {
+        this.tagClicked('datasets');
+      }
+    },
+    qosTagClicked() {
+      if (!this.get('effQosDisabled')) {
+        this.tagClicked('qos');
+      }
     },
     changeTagHover(tag, hovered) {
       this.get('onTagHoverChange')(tag, hovered);
