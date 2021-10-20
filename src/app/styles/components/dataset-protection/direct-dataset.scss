@@ -16,9 +16,10 @@
     }
     .dataset-link {
       padding-left: 2em;
+      white-space: nowrap;
     }
   }
-  
+
   @media (max-width: $screen-xs-max) {
     .attach-dataset-hint-trigger {
       display: none;

@@ -41,6 +41,9 @@ export default _.merge({}, BaseBrowserModel, {
       multi: 'Remove datasets',
     },
   },
+  actionHints: {
+    cannotReattachDeleted: 'Not available for datasets with root file deleted.',
+  },
   toggleDatasetAttachment: {
     header: {
       single: {

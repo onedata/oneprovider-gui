@@ -34,7 +34,7 @@ export default Service.extend({
 
   /**
    * keys: parent dir entity ids (string), values: throttled functions
-   * @type {ComputedProperty<Object>} 
+   * @type {ComputedProperty<Object>}
    */
   throttledDirChildrenRefreshCallbacks: computed(() => ({})),
 
@@ -283,7 +283,7 @@ export default Service.extend({
     const size = get(file, 'size');
     const getFileAttempts = 1000;
     const getFileInterval = 500;
-    
+
     this.pollForFileAfterOperation(
       getFileAttempts,
       getFileInterval,
@@ -357,6 +357,63 @@ export default Service.extend({
     }));
   },
 
+  async areFilesHardlinked(fileRecordOrIdA, fileRecordOrIdB) {
+    const isRecordA = fileRecordOrIdA && typeof fileRecordOrIdA !== 'string';
+    const isRecordB = fileRecordOrIdB && typeof fileRecordOrIdB !== 'string';
+
+    if (fileRecordOrIdA === fileRecordOrIdB) {
+      return false;
+    }
+    if (isRecordA && get(fileRecordOrIdA, 'type') === 'dir') {
+      return false;
+    }
+    if (isRecordB && get(fileRecordOrIdB, 'type') === 'dir') {
+      return false;
+    }
+    if (!fileRecordOrIdA || !fileRecordOrIdB) {
+      throw new Error(
+        'service:file-manager#areFilesHardlinked: at least one of params is empty'
+      );
+    }
+    if (isRecordA && isRecordB) {
+      const hardlinksCountA = get(fileRecordOrIdA, 'hardlinksCount');
+      const hardlinksCountB = get(fileRecordOrIdB, 'hardlinksCount');
+      // checking if both counts are greater than 1 because data can be out of sync with
+      // backend
+      if (
+        hardlinksCountA && hardlinksCountA <= 1 &&
+        hardlinksCountB && hardlinksCountB <= 1
+      ) {
+        return false;
+      }
+    }
+
+    const fileIdA = isRecordA ? get(fileRecordOrIdA, 'entityId') : fileRecordOrIdA;
+    const fileIdB = isRecordB ? get(fileRecordOrIdB, 'entityId') : fileRecordOrIdB;
+
+    try {
+      await this.get('onedataGraph').request({
+        operation: 'get',
+        gri: gri({
+          entityType: fileEntityType,
+          entityId: fileIdA,
+          aspect: 'hardlinks',
+          aspectId: fileIdB,
+          scope: 'private',
+        }),
+        subscribe: false,
+      });
+      // above method just passes if files are hardlinks and throws with notFound if not
+      return true;
+    } catch (error) {
+      if (error && error.id === 'notFound') {
+        return false;
+      } else {
+        throw error;
+      }
+    }
+  },
+
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service
 
   //#region browser component utils
@@ -421,7 +478,7 @@ export default Service.extend({
       throttledDirChildrenRefreshCallbacks[parentDirEntityId] = createThrottledFunction(
         () => this.dirChildrenRefresh(parentDirEntityId),
         500
-      ); 
+      );
     }
     throttledDirChildrenRefreshCallbacks[parentDirEntityId]();
   },
