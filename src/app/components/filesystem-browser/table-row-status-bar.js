@@ -8,10 +8,9 @@
  */
 
 import FbTableRowStatusBar from 'oneprovider-gui/components/file-browser/fb-table-row-status-bar';
-import { equal, not, raw, or, and, array } from 'ember-awesome-macros';
+import { equal, raw, or } from 'ember-awesome-macros';
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
 import { inject as service } from '@ember/service';
 import isPosixViewForbidden from 'oneprovider-gui/utils/is-posix-view-forbidden';
@@ -60,7 +59,7 @@ export default FbTableRowStatusBar.extend({
       if (isSpaceOwned) {
         return false;
       }
-      
+
       const posixPermissions = get(file, 'posixPermissions');
       if (!posixPermissions) {
         return false;
@@ -81,112 +80,7 @@ export default FbTableRowStatusBar.extend({
     }
   ),
 
-  /**
-   * If true, should display dataset tag
-   * @type {ComputedProperty<Boolean>}
-   */
-  showDatasetTag: and(
-    not('previewMode'),
-    not('isSymlink'),
-    array.includes(raw(['ancestor', 'direct']), 'effDatasetMembership')
-  ),
-
-  showQosTag: and(
-    not('previewMode'),
-    not('isSymlink'),
-    array.includes(raw(['ancestor', 'direct']), 'effQosMembership')
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  datasetsViewForbidden: not('spacePrivileges.view'),
-
-  effDatasetMembership: reads('file.effDatasetMembership'),
-
   hasMetadata: reads('file.hasMetadata'),
 
-  effQosMembership: reads('file.effQosMembership'),
-
   hasAcl: equal('file.activePermissionsType', raw('acl')),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  dataIsProtected: and(
-    'showDatasetTag',
-    'file.dataIsProtected'
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  metadataIsProtected: and(
-    'showDatasetTag',
-    'file.metadataIsProtected'
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  hasAnyProtectionFlag: or('metadataIsProtected', 'dataIsProtected'),
-
-  /**
-   * Content for protection tag tooltip
-   * @type {ComputedProperty<SafeString>}
-   */
-  protectionFlagsInfo: computed(
-    'typeText',
-    'metadataIsProtected',
-    'dataIsProtected',
-    function protectionFlagsInfo() {
-      const {
-        typeText,
-        metadataIsProtected,
-        dataIsProtected,
-      } = this.getProperties('typeText', 'metadataIsProtected', 'dataIsProtected');
-      let translationKey;
-      if (dataIsProtected && metadataIsProtected) {
-        translationKey = 'both';
-      } else if (dataIsProtected) {
-        translationKey = 'data';
-      } else if (metadataIsProtected) {
-        translationKey = 'metadata';
-      }
-      if (translationKey) {
-        return this.t(`protectionFlagsInfo.${translationKey}`, { fileType: typeText });
-      } else {
-        return '';
-      }
-    }
-  ),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  qosViewForbidden: not('spacePrivileges.viewQos'),
-
-  /**
-   * Text for QoS tag tooltip, when cannot open QoS modal
-   * @type {ComputedProperty<SafeString>}
-   */
-  hintQosViewForbidden: computed(function hintQosForbidden() {
-    return insufficientPrivilegesMessage({
-      i18n: this.get('i18n'),
-      modelName: 'space',
-      privilegeFlag: 'space_view_qos',
-    });
-  }),
-
-  /**
-   * Text for dataset tag tooltip, when cannot open datasets modal
-   * @type {ComputedProperty<SafeString>}
-   */
-  hintDatasetsViewForbidden: computed(function hintDatasetsViewForbidden() {
-    return insufficientPrivilegesMessage({
-      i18n: this.get('i18n'),
-      modelName: 'space',
-      privilegeFlag: 'space_view',
-    });
-  }),
 });

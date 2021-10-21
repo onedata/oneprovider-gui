@@ -57,7 +57,7 @@
     align-items: center;
     // align icon right
     transform: translateX(5%);
-    
+
     .clipboard-btn {
       display: flex;
       align-items: center;
@@ -114,7 +114,7 @@
   }
   .remove-icon {
     &:not(:hover) {
-      color: inherit; 
+      color: inherit;
     }
     .one-icon {
       font-size: $qos-icon-size;
@@ -122,6 +122,10 @@
   }
   .qos-path-subheader {
     display: flex;
+    // adjust icons manually because of their internal SVG padding
+    .oneicon-inheritance {
+      left: 0.08em;
+    }
     .file-path {
       display: block;
       direction: rtl;
@@ -130,6 +134,12 @@
         // thanks to this, "/" do not go to end when using direction: rtl
         unicode-bidi: plaintext;
       }
+    }
+  }
+  .qos-expression-info-subheader {
+    // adjust icons manually because of their internal SVG padding
+    .oneicon-support {
+      left: -0.05em;
     }
   }
 }

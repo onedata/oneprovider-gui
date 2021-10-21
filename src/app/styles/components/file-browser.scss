@@ -1,3 +1,6 @@
+// not a component, but used commonly by browser-components
+@import './file-browser/file-status-bar';
+
 @import './file-browser/fb-breadcrumbs';
 @import './file-browser/fb-remove-modal';
 @import './file-browser/fb-selection-toolkit';

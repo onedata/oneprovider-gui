@@ -465,8 +465,8 @@ export default Service.extend({
    * @returns {Array<object>}
    */
   dirChildrenRefresh(parentDirEntityId) {
-    return allSettled(this.get('fileTableComponents').map(fileBrowser =>
-      fileBrowser.onDirChildrenRefresh(parentDirEntityId)
+    return allSettled(this.get('fileTableComponents').map(fbTable =>
+      fbTable.onDirChildrenRefresh(parentDirEntityId)
     ));
   },
 

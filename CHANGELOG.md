@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7512 Added current directory QoS/Dataset tags in file browser header and collapsing inherited tags in file rows
 * VFS-8360 Fixed compatibility between Onezone GUI 21.02 and Oneprovider GUI 20.02 by moving shared properties caching to Oneprovider GUI
 * VFS-8038 Refactored build process to support faster builds on CI
 * VFS-8346 Disabled reattach action for detached datasets with deleted root file

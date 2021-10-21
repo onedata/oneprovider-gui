@@ -215,6 +215,7 @@ export default Service.extend({
       fileDatasetSummaryRelation.reload(),
     ];
     if (get(file, 'type') === 'dir') {
+      // dirChildrenRefresh refreshes also currently opened dir
       promises.push(
         fileManager.dirChildrenRefresh(get(file, 'entityId'))
       );

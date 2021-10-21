@@ -13,7 +13,7 @@ import handleMultiFilesOperation from 'oneprovider-gui/utils/handle-multi-files-
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { computed, get } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
@@ -22,6 +22,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
+import { array, raw } from 'ember-awesome-macros';
 
 const buttonNames = Object.freeze([
   'btnBagitUpload',
@@ -167,6 +168,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  headStatusBarComponentName: 'filesystem-browser/table-head-status-bar',
+
+  /**
+   * @override
+   */
   mobileInfoComponentName: 'filesystem-browser/table-row-mobile-info',
 
   /**
@@ -187,7 +193,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  browserClass: 'filesystem-browser',
+  browserClass: array.join(
+    array.concat(
+      raw(['filesystem-browser']),
+      'customClassNames',
+    ),
+    raw(' '),
+  ),
 
   /**
    * @override
@@ -206,6 +218,25 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Boolean}
    */
   readonlyFilesystem: false,
+
+  /**
+   * True if QoS tag in header is currenlty hovered.
+   * @type {Boolean}
+   */
+  qosHeaderTagIsHovered: false,
+
+  /**
+   * True if dataset tag in header is currenlty hovered.
+   * @type {Boolean}
+   */
+  datasetHeaderTagIsHovered: false,
+
+  /**
+   * Timeout ID for removing transition class for tags.
+   * See `animateHighlight` observer.
+   * @type {Number|null}
+   */
+  highlightAnimationTimeoutId: null,
 
   // #region Action buttons
 
@@ -776,6 +807,35 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   // #endregion
 
   /**
+   * @type {ComputedProperty<Array<String>>}
+   */
+  customClassNames: computed(
+    'qosHeaderTagIsHovered',
+    'datasetHeaderTagIsHovered',
+    'highlightAnimationTimeoutId',
+    function customClassNames() {
+      const {
+        qosHeaderTagIsHovered,
+        datasetHeaderTagIsHovered,
+        highlightAnimationTimeoutId,
+      } = this.getProperties('qosHeaderTagIsHovered', 'datasetHeaderTagIsHovered', 'highlightAnimationTimeoutId');
+      const classes = [];
+      if (qosHeaderTagIsHovered) {
+        classes.push('highlight-inherited-qos');
+      }
+      if (datasetHeaderTagIsHovered) {
+        classes.push('highlight-inherited-dataset');
+      }
+      if (classes.length) {
+        classes.push('highlight-inherited', 'highlight-transition');
+      } else if (highlightAnimationTimeoutId) {
+        classes.push('highlight-transition');
+      }
+      return classes;
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<boolean>}
    */
   selectedItemsContainsOnlySymlinks: computed(
@@ -817,6 +877,36 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return element.querySelector('.fb-upload-trigger');
     }
   }),
+
+  onTagHoverChange: computed(function onTagHoverChange() {
+    return this.changeTagHover.bind(this);
+  }),
+
+  animateHighlight: observer(
+    'qosHeaderTagIsHovered',
+    'datasetHeaderTagIsHovered',
+    function animateHighlight() {
+      const {
+        qosHeaderTagIsHovered,
+        datasetHeaderTagIsHovered,
+        highlightAnimationTimeoutId,
+      } = this.getProperties('qosHeaderTagIsHovered', 'datasetHeaderTagIsHovered', 'highlightAnimationTimeoutId');
+      if (highlightAnimationTimeoutId) {
+        this.set('highlightAnimationTimeoutId', null);
+        window.clearTimeout(highlightAnimationTimeoutId);
+      }
+      if (!qosHeaderTagIsHovered && !datasetHeaderTagIsHovered) {
+        this.set(
+          'highlightAnimationTimeoutId',
+          // timeout time is slightly longer than defined transition time in
+          // file-status-bar.scss
+          window.setTimeout(() => {
+            this.set('highlightAnimationTimeoutId', null);
+          }, 101)
+        );
+      }
+    }
+  ),
 
   /**
    * @override
@@ -1094,5 +1184,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   emptyDirPaste() {
     return this.get('btnPaste.action')(...arguments);
+  },
+
+  changeTagHover(tag, isHovered) {
+    this.set(`${tag}HeaderTagIsHovered`, isHovered);
   },
 });
