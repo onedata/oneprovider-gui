@@ -13,7 +13,8 @@ import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 export function resolveParent(
   dir,
   dirsOnPathToRoot,
-  resolveFileParentFun = defaultResolveParent) {
+  resolveFileParentFun = defaultResolveParent
+) {
   return resolveFileParentFun(dir).then(parent => {
     if (parent) {
       dirsOnPathToRoot.unshift(parent);
