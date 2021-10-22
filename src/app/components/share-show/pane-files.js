@@ -23,6 +23,7 @@ import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-mod
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
+import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 
 const shareRootId = 'shareRoot';
 
@@ -39,6 +40,7 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   classNames: ['share-show-pane-files', 'pane-files'],
 
   fileManager: service(),
+  filesViewResolver: service(),
 
   /**
    * @override
@@ -105,21 +107,74 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
     'share.rootFile',
   )),
 
-  dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
-    const {
-      fileManager,
-      dirId,
-      rootDir,
-    } = this.getProperties('fileManager', 'dirId', 'rootDir');
-    if (dirId) {
-      return fileManager.getFileById(dirId, 'public')
-        .then(file => this.isChildOfShare(file)
-          .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
-        );
-    } else {
-      return resolve(rootDir);
+  // FIXME:
+  // dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
+  //   const {
+  //     fileManager,
+  //     dirId,
+  //     rootDir,
+  //   } = this.getProperties('fileManager', 'dirId', 'rootDir');
+  //   if (dirId) {
+  //     return fileManager.getFileById(dirId, 'public')
+  //       .then(file => this.isChildOfShare(file)
+  //         .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
+  //       );
+  //   } else {
+  //     return resolve(rootDir);
+  //   }
+  // })),
+
+  // FIXME: check file from another share or file not from share
+  //     return fileManager.getFileById(dirId, 'public')
+  //       .then(file => this.isChildOfShare(file)
+  //         .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
+  //       );
+  dirProxy: promise.object(computed(
+    'dirEntityId',
+    'spaceId',
+    async function dirProxy() {
+      const {
+        share,
+        spaceId,
+        selectedItems,
+        dirEntityId,
+        filesViewResolver,
+        rootDir,
+      } = this.getProperties(
+        'share',
+        'spaceId',
+        'selectedItems',
+        'dirEntityId',
+        'filesViewResolver',
+        'rootDir',
+      );
+
+      const selectedIds = selectedItems && selectedItems.mapBy('entityId') || [];
+      const shareId = get(share, 'entityId');
+      const currentFilesViewContext = FilesViewContext.create({
+        spaceId,
+        shareId,
+      });
+
+      const resolverResult = await filesViewResolver.resolveViewOptions({
+        dirId: dirEntityId,
+        currentFilesViewContext,
+        selectedIds,
+        scope: 'public',
+        fallbackDir: rootDir,
+      });
+
+      if (!resolverResult) {
+        return null;
+      }
+      if (resolverResult.result === 'resolve') {
+        return resolverResult.dir;
+      } else {
+        window.location.replace(resolverResult.url);
+        return rootDir;
+      }
     }
-  })),
+  )),
 
   isRootDirExistingProxy: promise.object(computed('share.rootFile',
     async function isRootDirExistingProxy() {

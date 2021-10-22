@@ -38,6 +38,7 @@ describe('Unit | Service | files view resolver', function () {
       const dir = {
         entityId: 'fake_dir_id',
         name: 'fake_dir_inside_archive',
+        type: 'dir',
       };
       const dirId = dir.entityId;
       sinon.stub(fileManager, 'getFileById').withArgs(dirId).resolves(dir);
@@ -95,6 +96,7 @@ describe('Unit | Service | files view resolver', function () {
       const dir = {
         entityId: 'fake_dir_id',
         name: 'fake_dir',
+        type: 'dir',
       };
       const dirId = dir.entityId;
       sinon.stub(fileManager, 'getFileById').withArgs(dirId).resolves(dir);
@@ -180,6 +182,7 @@ describe('Unit | Service | files view resolver', function () {
       const dir = {
         entityId: 'fake_dir_id',
         name: 'fake_dir',
+        type: 'dir',
       };
       const fallbackDir = {};
       const dirId = dir.entityId;
@@ -224,28 +227,33 @@ describe('Unit | Service | files view resolver', function () {
     const parentDir = {
       entityId: 'fake_parent_dir_id',
       name: 'fake_parent_dir',
+      type: 'dir',
       hasParent: false,
     };
-    const selectedDir1 = {
+    const selectedFile1 = {
       entityId: 'selected1',
       name: 'selected1_name',
+      type: 'file',
       parent: promiseObject(resolve(parentDir)),
       hasParent: true,
     };
-    const selectedDir2 = {
+    const selectedFile2 = {
       entityId: 'selected2',
       name: 'selected2_name',
+      type: 'file',
       parent: promiseObject(resolve(parentDir)),
       hasParent: true,
     };
-    const fallbackDir = {};
+    const fallbackDir = { entityId: 'fallback_dir_id' };
     const parentDirId = parentDir.entityId;
-    const selectedDir1Id = selectedDir1.entityId;
-    const selectedDir2Id = selectedDir2.entityId;
-    sinon.stub(fileManager, 'getFileById')
-      .withArgs(parentDirId).resolves(parentDir)
-      .withArgs(selectedDir1Id).resolves(selectedDir1)
-      .withArgs(selectedDir2Id).resolves(selectedDir2);
+    const selectedDir1Id = selectedFile1.entityId;
+    const selectedDir2Id = selectedFile2.entityId;
+    const getFileById = sinon.stub(fileManager, 'getFileById');
+    getFileById.withArgs(parentDirId, 'private').resolves(parentDir);
+    getFileById.withArgs(selectedDir1Id, 'private').resolves(selectedFile1);
+    getFileById.withArgs(selectedDir2Id, 'private').resolves(selectedFile2);
+    // getFileById.withArgs(selectedDir1Id, 'private').returns('xp');
+    // .returns('xddd');
     const currentFilesViewContext = FilesViewContext.create({
       file: {},
       spaceId,
@@ -260,14 +268,15 @@ describe('Unit | Service | files view resolver', function () {
     });
 
     const result = await service.resolveViewOptions({
-      dirId: parentDirId,
-      selectedIds: ['selected_1', 'selected_2'],
+      dirId: null,
+      selectedIds: [selectedDir1Id, selectedDir2Id],
       scope: 'private',
       fallbackDir,
       currentFilesViewContext,
     });
 
     expect(callParent).to.have.not.been.called;
+    expect(getFileById).to.have.been.calledWith(selectedDir1Id, 'private');
     expect(result.result).to.equal('resolve');
     expect(result.dir).to.equal(parentDir);
   });

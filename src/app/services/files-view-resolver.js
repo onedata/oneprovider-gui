@@ -14,12 +14,29 @@ export default Service.extend({
     scope = 'private',
     fallbackDir = null,
   }) {
-    if (!dirId) {
-      return this.generateFallbackResponse(fallbackDir);
-    }
     const fileManager = this.get('fileManager');
-    const dir = await fileManager.getFileById(dirId, scope);
-    if (dir) {
+    const file = dirId && await fileManager.getFileById(dirId, scope);
+    if (file) {
+      let dir;
+      // FIXME: support for symlinked dirs type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
+      const fileType = get(file, 'type');
+      if (fileType !== 'dir') {
+        if (fileType === 'symlink' && get(file, 'effFile.type') === 'dir') {
+          // a directory symlink is shown as a dir (not its effective dir!)
+          dir = file;
+        } else {
+          try {
+            dir = await get(file, 'parent');
+          } catch (error) {
+            return this.generateFallbackResponse(fallbackDir);
+          }
+          if (!dir) {
+            return this.generateFallbackResponse(fallbackDir);
+          }
+        }
+      } else {
+        dir = file;
+      }
       return this.resolveForDir(dir, currentFilesViewContext);
     } else {
       if (isEmpty(selectedIds)) {
@@ -50,6 +67,7 @@ export default Service.extend({
     } else {
       const dirId = get(dir, 'entityId');
       let url;
+      // FIXME: browserType share
       if (get(filesViewContext, 'browserType') === 'archive') {
         url = appProxy.callParent('getDatasetsUrl', {
           datasetId: get(filesViewContext, 'datasetId'),
