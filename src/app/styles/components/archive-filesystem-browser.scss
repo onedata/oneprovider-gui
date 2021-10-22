@@ -12,4 +12,12 @@
       transform: translateX(-50%);
     }
   }
+  .fb-table-first-col-container {
+    .table-header-text {
+      flex-grow: 0;
+    }
+    .spacer {
+      flex-grow: 1;
+    }
+  }
 }
