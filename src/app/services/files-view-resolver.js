@@ -72,6 +72,7 @@ export default Service.extend({
             datasetId: get(filesViewContext, 'datasetId'),
             archive: get(filesViewContext, 'archiveId'),
             dir: dirId,
+            viewMode: 'files',
           });
           break;
         case 'space':

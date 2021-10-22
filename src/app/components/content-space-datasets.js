@@ -26,6 +26,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import { isEmpty } from '@ember/utils';
+import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -76,6 +77,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   globalNotify: service(),
   archiveManager: service(),
   fileManager: service(),
+  filesViewResolver: service(),
 
   /**
    * **Injected from parent frame.**
@@ -114,7 +116,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * One of: 'attached', 'detached'
-   * 
+   *
    * **Injected from parent frame.**
    * @virtual
    * @type {String}
@@ -123,7 +125,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * One of: 'datasets', 'archives', 'files'
-   * 
+   *
    * **Injected from parent frame.**
    * @virtual
    * @type {String}
@@ -393,22 +395,54 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   dirProxy: promise.object(computed(
     'dirId',
-    'archiveId',
+    'spaceId',
+    'archiveRootDirProxy',
     async function dirProxy() {
       const {
+        spaceId,
+        selected,
         dirId,
+        filesViewResolver,
+        archiveRootDirProxy,
+        datasetId,
         archiveId,
-      } = this.getProperties('dirId', 'archiveId');
-      if (dirId || archiveId) {
-        const dir = this.fetchDir(dirId);
-        const isValid = await this.isValidFileForContext(dir);
-        if (isValid) {
-          return dir;
-        } else {
-          throw new Error('invalid dir specified', dir && get(dir, 'id'));
-        }
-      } else {
+        _window,
+      } = this.getProperties(
+        'spaceId',
+        'selected',
+        'dirId',
+        'filesViewResolver',
+        'archiveRootDirProxy',
+        'datasetId',
+        'archiveId',
+        '_window',
+      );
+
+      const currentFilesViewContext = FilesViewContext.create({
+        spaceId,
+        datasetId,
+        archiveId,
+      });
+      const archiveRootDir = await archiveRootDirProxy;
+      const resolverResult = await filesViewResolver.resolveViewOptions({
+        dirId,
+        currentFilesViewContext,
+        selectedIds: selected,
+        scope: 'private',
+        fallbackDir: archiveRootDir,
+      });
+
+      if (!resolverResult) {
         return null;
+      }
+      if (resolverResult.result === 'resolve') {
+        return resolverResult.dir;
+      } else {
+        // TODO: VFS-8342 common util for replacing master URL
+        if (resolverResult.url) {
+          _window.top.location.replace(resolverResult.url);
+        }
+        return archiveRootDir;
       }
     }
   )),
@@ -826,11 +860,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       openQos: this.openQosModal.bind(this),
       openConfirmDownload: this.openConfirmDownload.bind(this),
     });
-  },
-
-  // TODO: VFS-7406 to implement check if file is from current space and archive
-  async isValidFileForContext( /* file */ ) {
-    return true;
   },
 
   async fetchSpaceDatasets(rootId, startIndex, size, offset /**, array */ ) {

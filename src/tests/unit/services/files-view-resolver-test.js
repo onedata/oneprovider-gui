@@ -76,6 +76,7 @@ describe('Unit | Service | files view resolver', function () {
           datasetId,
           archive: archiveId,
           dir: dirId,
+          viewMode: 'files',
         }
       );
       expect(result.result).to.equal('redirect');

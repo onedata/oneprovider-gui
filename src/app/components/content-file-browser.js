@@ -198,7 +198,7 @@ export default OneEmbeddedComponent.extend(
 
     dirProxy: promise.object(computed(
       'dirEntityId',
-      'spaceId',
+      'spaceEntityId',
       async function dirProxy() {
         const {
           spaceEntityId,
@@ -226,7 +226,7 @@ export default OneEmbeddedComponent.extend(
           currentFilesViewContext,
           selectedIds: selected,
           scope: 'private',
-          fallbackDir: await fallbackDirProxy,
+          fallbackDir,
         });
 
         if (!resolverResult) {
@@ -243,51 +243,6 @@ export default OneEmbeddedComponent.extend(
         }
       }
     )),
-
-    // async resolveDirForGri(dirGri) {
-    //   const {
-    //     store,
-    //     globalNotify,
-    //   } = this.getProperties('store', 'globalNotify');
-
-    //   try {
-    //     // TODO: VFS-7643 refactor to use file-manager
-    //     const dirItem = await store.findRecord('file', dirGri);
-    //     const type = get(dirItem, 'type');
-    //     if (
-    //       type === 'dir' ||
-    //       type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
-    //     ) {
-    //       return dirItem;
-    //     } else {
-    //       return get(dirItem, 'parent');
-    //     }
-    //   } catch (error) {
-    //     globalNotify.backendError(this.t('openingDirectory'), error);
-    //     return this.get('fallbackDirProxy');
-    //   }
-    // },
-
-    // async resolveDirForSelectedIds(selectedIds) {
-    //   // NOTE: fallbackDirProxy is not got using `get` to avoid loading it
-    //   // unnecessarily
-    //   const _window = this.get('_window');
-
-    //   if (isEmpty(selectedIds)) {
-    //     // no dir nor selected files provided - go home
-    //     return this.get('fallbackDirProxy');
-    //   } else {
-    //     const redirectOptions = await this.resolveSelectedParentDirUrl();
-    //     if (redirectOptions) {
-    //       // TODO: VFS-8342 common util for replacing master URL
-    //       _window.top.location.replace(redirectOptions.dataUrl);
-    //       return (await redirectOptions.dirProxy) || this.get('fallbackDirProxy');
-    //     } else {
-    //       // resolving parent from selection failed - fallback to home
-    //       return this.get('fallbackDirProxy');
-    //     }
-    //   }
-    // },
 
     dir: computedLastProxyContent('dirProxy'),
 
