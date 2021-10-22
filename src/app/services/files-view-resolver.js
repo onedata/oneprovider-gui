@@ -18,7 +18,6 @@ export default Service.extend({
     const file = dirId && await fileManager.getFileById(dirId, scope);
     if (file) {
       let dir;
-      // FIXME: support for symlinked dirs type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
       const fileType = get(file, 'type');
       if (fileType !== 'dir') {
         if (fileType === 'symlink' && get(file, 'effFile.type') === 'dir') {
@@ -37,7 +36,7 @@ export default Service.extend({
       } else {
         dir = file;
       }
-      return this.resolveForDir(dir, currentFilesViewContext);
+      return this.resolveForDir(dir, currentFilesViewContext, fallbackDir);
     } else {
       if (isEmpty(selectedIds)) {
         return this.generateFallbackResponse(fallbackDir);
@@ -48,7 +47,7 @@ export default Service.extend({
           if (!parent) {
             return this.generateFallbackResponse(fallbackDir);
           }
-          return this.resolveForDir(parent, currentFilesViewContext);
+          return this.resolveForDir(parent, currentFilesViewContext, fallbackDir);
         } catch (firstSelectedGetError) {
           return this.generateFallbackResponse(fallbackDir);
         }
@@ -56,7 +55,7 @@ export default Service.extend({
     }
   },
 
-  async resolveForDir(dir, currentFilesViewContext) {
+  async resolveForDir(dir, currentFilesViewContext, fallbackDir) {
     const {
       appProxy,
       filesViewContextFactory,
@@ -67,17 +66,24 @@ export default Service.extend({
     } else {
       const dirId = get(dir, 'entityId');
       let url;
-      // FIXME: browserType share
-      if (get(filesViewContext, 'browserType') === 'archive') {
-        url = appProxy.callParent('getDatasetsUrl', {
-          datasetId: get(filesViewContext, 'datasetId'),
-          archive: get(filesViewContext, 'archiveId'),
-          dir: dirId,
-        });
-      } else {
-        url = appProxy.callParent('getDataUrl', {
-          fileId: dirId,
-        });
+      switch (get(filesViewContext, 'browserType')) {
+        case 'archive':
+          url = appProxy.callParent('getDatasetsUrl', {
+            datasetId: get(filesViewContext, 'datasetId'),
+            archive: get(filesViewContext, 'archiveId'),
+            dir: dirId,
+          });
+          break;
+        case 'space':
+          url = appProxy.callParent('getDataUrl', {
+            fileId: dirId,
+          });
+          break;
+        case 'share':
+        default:
+          // currently requesting shared dir from other view is not supported, fallback
+          // also use fallback when `filesViewContext` is of unknown type
+          return this.generateFallbackResponse(fallbackDir);
       }
       return { result: 'redirect', url };
     }

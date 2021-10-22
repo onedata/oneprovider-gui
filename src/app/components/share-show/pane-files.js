@@ -10,6 +10,7 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import EmberObject, { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import {
@@ -81,6 +82,8 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
    */
   shareRootDeletedProxy: undefined,
 
+  _window: window,
+
   //#region browser items for various modals
 
   fileToShowInfo: null,
@@ -107,46 +110,28 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
     'share.rootFile',
   )),
 
-  // FIXME:
-  // dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
-  //   const {
-  //     fileManager,
-  //     dirId,
-  //     rootDir,
-  //   } = this.getProperties('fileManager', 'dirId', 'rootDir');
-  //   if (dirId) {
-  //     return fileManager.getFileById(dirId, 'public')
-  //       .then(file => this.isChildOfShare(file)
-  //         .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
-  //       );
-  //   } else {
-  //     return resolve(rootDir);
-  //   }
-  // })),
+  spaceId: reads('share.spaceId'),
 
-  // FIXME: check file from another share or file not from share
-  //     return fileManager.getFileById(dirId, 'public')
-  //       .then(file => this.isChildOfShare(file)
-  //         .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
-  //       );
   dirProxy: promise.object(computed(
-    'dirEntityId',
+    'dirId',
     'spaceId',
     async function dirProxy() {
       const {
         share,
         spaceId,
         selectedItems,
-        dirEntityId,
+        dirId,
         filesViewResolver,
         rootDir,
+        _window,
       } = this.getProperties(
         'share',
         'spaceId',
         'selectedItems',
-        'dirEntityId',
+        'dirId',
         'filesViewResolver',
         'rootDir',
+        '_window',
       );
 
       const selectedIds = selectedItems && selectedItems.mapBy('entityId') || [];
@@ -157,7 +142,7 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
       });
 
       const resolverResult = await filesViewResolver.resolveViewOptions({
-        dirId: dirEntityId,
+        dirId,
         currentFilesViewContext,
         selectedIds,
         scope: 'public',
@@ -170,7 +155,10 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
       if (resolverResult.result === 'resolve') {
         return resolverResult.dir;
       } else {
-        window.location.replace(resolverResult.url);
+        // TODO: VFS-8342 common util for replacing master URL
+        if (resolverResult.result === 'redirect' && resolverResult.url) {
+          _window.top.location.replace(resolverResult.url);
+        }
         return rootDir;
       }
     }
