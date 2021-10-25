@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8482 Added dedicated page for privacy policy content
 * VFS-8038 Refactored build process to support faster builds on CI
 * VFS-8212 Fixed not working current directory rename
 * VFS-7427 Changed copiable REST URLs into curl commands
