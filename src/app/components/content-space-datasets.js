@@ -395,8 +395,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   dirProxy: promise.object(computed(
     'dirId',
-    'spaceId',
-    'archiveRootDirProxy',
+    'archiveId',
     async function dirProxy() {
       const {
         spaceId,
