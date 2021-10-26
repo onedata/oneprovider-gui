@@ -126,6 +126,12 @@ export default Component.extend(...mixins, {
   fileToShowInfo: null,
 
   /**
+   * One of: general, hardlinks.
+   * @type {String}
+   */
+  showInfoInitialTab: undefined,
+
+  /**
    * @type {Models.File}
    */
   fileToShowMetadata: null,
@@ -478,10 +484,12 @@ export default Component.extend(...mixins, {
     this.set('archivesToPurge', null);
   },
 
-  openInfoModal(file) {
-    this.set('fileToShowInfo', file);
+  openInfoModal(file, activeTab) {
+    this.setProperties({
+      fileToShowInfo: file,
+      showInfoInitialTab: activeTab || 'general',
+    });
   },
-
   closeInfoModal() {
     this.set('fileToShowInfo', null);
   },
