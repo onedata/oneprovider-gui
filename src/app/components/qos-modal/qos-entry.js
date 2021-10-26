@@ -1,6 +1,6 @@
 /**
  * Show information about single QoS requirement
- * 
+ *
  * @module components/qos-modal/qos-entry
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -169,13 +169,21 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
     }
   )),
 
-  qosSourceFileHref: computed('qosSourceFileId', function qosSourceFileHref() {
-    const {
-      getDataUrl,
-      qosSourceFileId,
-    } = this.getProperties('getDataUrl', 'qosSourceFileId');
-    return getDataUrl && getDataUrl({ fileId: null, selected: [qosSourceFileId] });
-  }),
+  qosSourceFileHrefProxy: promise.object(computed(
+    'qosSourceFileId',
+    async function qosSourceFileHref() {
+      const {
+        getDataUrl,
+        qosSourceFileId,
+      } = this.getProperties('getDataUrl', 'qosSourceFileId');
+      return getDataUrl && await getDataUrl({
+        fileId: null,
+        selected: [qosSourceFileId],
+      });
+    }
+  )),
+
+  qosSourceFileHref: reads('qosSourceFileHrefProxy.content'),
 
   evaluationUpdater: observer(
     'rawExpressionInfix',

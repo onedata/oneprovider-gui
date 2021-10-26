@@ -48,7 +48,7 @@ export const FilesViewContextFactory = EmberObject.extend(OwnerInjector, {
 
   async createFromFileId(fileId, scope = 'private') {
     const file = await this.get('fileManager').getFileById(fileId, scope);
-    return this.createForFile(file);
+    return this.createFromFile(file);
   },
 
   async createFromFile(file) {

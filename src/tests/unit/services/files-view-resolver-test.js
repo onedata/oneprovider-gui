@@ -76,11 +76,18 @@ describe('Unit | Service | files view resolver', function () {
           datasetId,
           archive: archiveId,
           dir: dirId,
+          selected: null,
           viewMode: 'files',
         }
       );
       expect(result.result).to.equal('redirect');
       expect(result.url).to.equal(fakeUrl);
+      expect(result.filesViewContext).to.be.not.empty;
+      expect(result.filesViewContext.isEqual(FilesViewContext.create({
+        archiveId,
+        datasetId,
+        spaceId,
+      }))).to.be.true;
     }
   );
 
@@ -130,10 +137,15 @@ describe('Unit | Service | files view resolver', function () {
       expect(callParent).to.have.been.calledWith(
         'getDataUrl', {
           fileId: dirId,
+          selected: null,
         }
       );
       expect(result.result).to.equal('redirect');
       expect(result.url).to.equal(fakeUrl);
+      expect(result.filesViewContext).to.be.not.empty;
+      expect(result.filesViewContext.isEqual(FilesViewContext.create({
+        spaceId,
+      }))).to.be.true;
     }
   );
 
@@ -152,10 +164,13 @@ describe('Unit | Service | files view resolver', function () {
         file: {},
         spaceId,
       });
+      const createFromFile = sinon.stub();
+      createFromFile.withArgs(fallbackDir).resolves(FilesViewContext.create({
+        file: {},
+        spaceId,
+      }));
       set(service, 'filesViewContextFactory', {
-        async createFromFile() {
-          throw new Error('createFromFile should not be invoked');
-        },
+        createFromFile,
       });
 
       const result = await service.resolveViewOptions({
@@ -166,9 +181,14 @@ describe('Unit | Service | files view resolver', function () {
         currentFilesViewContext,
       });
 
+      expect(createFromFile).to.have.been.calledWith(fallbackDir);
       expect(callParent).to.have.not.been.called;
       expect(result.result).to.equal('resolve');
       expect(result.dir).to.equal(fallbackDir);
+      expect(result.filesViewContext).to.be.not.empty;
+      expect(result.filesViewContext.isEqual(FilesViewContext.create({
+        spaceId,
+      }))).to.be.true;
     }
   );
 
@@ -215,6 +235,10 @@ describe('Unit | Service | files view resolver', function () {
       expect(callParent).to.have.not.been.called;
       expect(result.result).to.equal('resolve');
       expect(result.dir).to.equal(dir);
+      expect(result.filesViewContext).to.be.not.empty;
+      expect(result.filesViewContext.isEqual(FilesViewContext.create({
+        spaceId,
+      }))).to.be.true;
     }
   );
 
@@ -253,8 +277,6 @@ describe('Unit | Service | files view resolver', function () {
     getFileById.withArgs(parentDirId, 'private').resolves(parentDir);
     getFileById.withArgs(selectedDir1Id, 'private').resolves(selectedFile1);
     getFileById.withArgs(selectedDir2Id, 'private').resolves(selectedFile2);
-    // getFileById.withArgs(selectedDir1Id, 'private').returns('xp');
-    // .returns('xddd');
     const currentFilesViewContext = FilesViewContext.create({
       file: {},
       spaceId,
@@ -280,5 +302,9 @@ describe('Unit | Service | files view resolver', function () {
     expect(getFileById).to.have.been.calledWith(selectedDir1Id, 'private');
     expect(result.result).to.equal('resolve');
     expect(result.dir).to.equal(parentDir);
+    expect(result.filesViewContext).to.be.not.empty;
+    expect(result.filesViewContext.isEqual(FilesViewContext.create({
+      spaceId,
+    }))).to.be.true;
   });
 });

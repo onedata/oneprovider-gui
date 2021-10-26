@@ -21,6 +21,7 @@ import { promise, conditional, raw, equal } from 'ember-awesome-macros';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { isEmpty } from '@ember/utils';
 
 const mixins = [
   I18n,
@@ -35,6 +36,7 @@ export default Component.extend(...mixins, {
   datasetManager: service(),
   fileManager: service(),
   appProxy: service(),
+  filesViewResolver: service(),
 
   /**
    * @type {Models.Space}
@@ -669,21 +671,6 @@ export default Component.extend(...mixins, {
     return this.get('appProxy').callParent('getTransfersUrl', options);
   },
 
-  getArchiveFileUrl({ selected }) {
-    const {
-      archiveId,
-      datasetId,
-      dirId,
-    } = this.getProperties('archiveId', 'datasetId', 'dirId');
-    return this.getDatasetsUrl({
-      viewMode: 'files',
-      datasetId,
-      archive: archiveId,
-      selected,
-      dir: dirId || null,
-    });
-  },
-
   //#endregion
 
   actions: {
@@ -698,6 +685,25 @@ export default Component.extend(...mixins, {
     },
     updateDirEntityId() {
       return this.updateDirEntityId(...arguments);
+    },
+    /**
+     * @param {Object} data
+     * @param {String} data.fileId entity id of directory to open
+     * @param {String|Array<String>} data.selected list of entity ids of files
+     *  to be selected on view
+     * @returns {String}
+     */
+    async getFileUrl({ fileId, selected }) {
+      let id;
+      let type;
+      if (isEmpty(selected)) {
+        id = fileId;
+        type = 'open';
+      } else {
+        id = selected[0];
+        type = 'select';
+      }
+      return this.get('filesViewResolver').generateUrlById(id, type);
     },
   },
 });

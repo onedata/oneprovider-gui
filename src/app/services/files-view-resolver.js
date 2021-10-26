@@ -7,6 +7,12 @@ export default Service.extend({
   fileManager: service(),
   appProxy: service(),
 
+  /**
+   * Initialized on init if undefined.
+   * @type {Utils.FilesViewContextFactory}
+   */
+  filesViewContextFactory: undefined,
+
   async resolveViewOptions({
     dirId,
     currentFilesViewContext,
@@ -56,48 +62,66 @@ export default Service.extend({
   },
 
   async resolveForDir(dir, currentFilesViewContext, fallbackDir) {
-    const {
-      appProxy,
-      filesViewContextFactory,
-    } = this.getProperties('appProxy', 'filesViewContextFactory');
+    const filesViewContextFactory = this.get('filesViewContextFactory');
     const filesViewContext = await filesViewContextFactory.createFromFile(dir);
     if (filesViewContext.isEqual(currentFilesViewContext)) {
-      return { result: 'resolve', dir };
+      return { result: 'resolve', dir, filesViewContext };
     } else {
-      const dirId = get(dir, 'entityId');
-      let url;
-      switch (get(filesViewContext, 'browserType')) {
-        case 'archive':
-          url = appProxy.callParent('getDatasetsUrl', {
-            datasetId: get(filesViewContext, 'datasetId'),
-            archive: get(filesViewContext, 'archiveId'),
-            dir: dirId,
-            viewMode: 'files',
-          });
-          break;
-        case 'space':
-          url = appProxy.callParent('getDataUrl', {
-            fileId: dirId,
-          });
-          break;
-        case 'share':
-        default:
-          // currently requesting shared dir from other view is not supported, fallback
-          // also use fallback when `filesViewContext` is of unknown type
-          return this.generateFallbackResponse(fallbackDir);
+      const url = this.generateUrl(filesViewContext, 'open');
+      if (url) {
+        return { result: 'redirect', url, filesViewContext };
+      } else {
+        // currently requesting shared dir from other view is not supported, fallback
+        // also use fallback when `filesViewContext` is of unknown type
+        return this.generateFallbackResponse(fallbackDir);
       }
-      return { result: 'redirect', url };
     }
   },
 
-  generateFallbackResponse(fallbackDir) {
-    return { result: 'resolve', dir: fallbackDir };
+  async generateFallbackResponse(fallbackDir) {
+    const filesViewContextFactory = this.get('filesViewContextFactory');
+    const filesViewContext = await filesViewContextFactory.createFromFile(fallbackDir);
+    return { result: 'resolve', dir: fallbackDir, filesViewContext };
   },
 
   /**
-   * @type {Utils.FilesViewContextFactory}
+   * @param {FilesViewContext} filesViewContext
+   * @param {String} [type] one of:
+   *   - select - file from context is selected in view, the parent is opened *
+   *   - open - file from context must be a dir, and it is opened as current dir
+   * @returns {String|null}
    */
-  filesViewContextFactory: undefined,
+  generateUrl(filesViewContext, type = 'select') {
+    const appProxy = this.get('appProxy');
+    const fileId = get(filesViewContext, 'file.entityId');
+    let url = null;
+    switch (get(filesViewContext, 'browserType')) {
+      case 'archive':
+        url = appProxy.callParent('getDatasetsUrl', {
+          datasetId: get(filesViewContext, 'datasetId'),
+          archive: get(filesViewContext, 'archiveId'),
+          dir: type === 'open' ? fileId : null,
+          selected: type === 'select' ? [fileId] : null,
+          viewMode: 'files',
+        });
+        break;
+      case 'space':
+        url = appProxy.callParent('getDataUrl', {
+          fileId: type === 'open' ? fileId : null,
+          selected: type === 'select' ? [fileId] : null,
+        });
+        break;
+      default:
+        break;
+    }
+    return url;
+  },
+
+  async generateUrlById(fileId, type) {
+    const factory = FilesViewContextFactory.create({ ownerSource: this });
+    const filesViewContext = await factory.createFromFileId(fileId);
+    return this.generateUrl(filesViewContext, type);
+  },
 
   init() {
     this._super(...arguments);

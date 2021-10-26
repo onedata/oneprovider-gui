@@ -22,6 +22,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import { executeWorkflowDataLocalStorageKey } from 'oneprovider-gui/components/space-automation/input-stores-form';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
+import { isEmpty } from '@ember/utils';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -520,6 +521,10 @@ export default OneEmbeddedComponent.extend(
         return this.callParent('getShareUrl', { shareId });
       },
 
+      getDatasetsUrl(data) {
+        return this.callParent('getDatasetsUrl', data);
+      },
+
       /**
        * @param {Object} data
        * @param {String} data.fileId entity id of directory to open
@@ -527,12 +532,17 @@ export default OneEmbeddedComponent.extend(
        *  to be selected on view
        * @returns {String}
        */
-      getDataUrl(data) {
-        return this.callParent('getDataUrl', data);
-      },
-
-      getDatasetsUrl(data) {
-        return this.callParent('getDatasetsUrl', data);
+      async getFileUrl({ fileId, selected }) {
+        let id;
+        let type;
+        if (isEmpty(selected)) {
+          id = fileId;
+          type = 'open';
+        } else {
+          id = selected[0];
+          type = 'select';
+        }
+        return this.get('filesViewResolver').generateUrlById(id, type);
       },
 
       closeConfirmFileDownload() {

@@ -406,7 +406,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
         archiveRootDirProxy,
         datasetId,
         archiveId,
-        _window,
       } = this.getProperties(
         'spaceId',
         'selected',
@@ -415,7 +414,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
         'archiveRootDirProxy',
         'datasetId',
         'archiveId',
-        '_window',
       );
 
       const currentFilesViewContext = FilesViewContext.create({
@@ -440,7 +438,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       } else {
         // TODO: VFS-8342 common util for replacing master URL
         if (resolverResult.url) {
-          _window.top.location.replace(resolverResult.url);
+          this.openUrl(resolverResult.url, true);
         }
         return archiveRootDir;
       }
@@ -538,12 +536,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
   }),
 
   archiveProxyObserver: observer('archiveProxy', async function archiveProxyObserver() {
-    const {
-      archiveId,
-      archiveProxy,
-    } = this.getProperties('archiveId', 'archiveProxy');
-    if (archiveId) {
-      const archive = await archiveProxy;
+    const archive = await this.get('archiveProxy');
+    if (archive) {
       const onezoneArchiveData =
         this.createOnezoneArchiveData(archive);
       this.callParent('updateArchiveData', onezoneArchiveData);
@@ -592,11 +586,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
-  async resolveDatasetForSelectedIds(selectedIds) {
+  openUrl(url, replace = false) {
     const {
       _window,
-      spaceDatasetsRoot,
-    } = this.getProperties('_window', 'spaceDatasetsRoot');
+      navigateTarget,
+    } = this.getProperties('_window', 'navigateTarget');
+    // TODO: VFS-8342 common util for replacing master URL
+    if (replace) {
+      _window.top.location.replace(url);
+    } else {
+      _window.open(url, navigateTarget);
+    }
+  },
+
+  async resolveDatasetForSelectedIds(selectedIds) {
+    const spaceDatasetsRoot = this.get('spaceDatasetsRoot');
 
     if (isEmpty(selectedIds)) {
       // no dir nor selected files provided - go home
@@ -604,8 +608,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     } else {
       const redirectOptions = await this.resolveSelectedParentDatasetUrl();
       if (redirectOptions) {
-        // TODO: VFS-8342 common util for replacing master URL
-        _window.top.location.replace(redirectOptions.dataUrl);
+        this.openUrl(redirectOptions.dataUrl, true);
         return (await redirectOptions.datasetProxy) || spaceDatasetsRoot;
       } else {
         // resolving parent from selection failed - fallback to home
@@ -987,11 +990,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   async submitArchiveCreate(dataset, archiveData) {
-    const {
-      _window,
-      archiveManager,
-      navigateTarget,
-    } = this.getProperties('_window', 'archiveManager', 'navigateTarget');
+    const archiveManager = this.get('archiveManager');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
       const archiveSelectUrl = this.getDatasetsUrl({
@@ -1002,7 +1001,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         dir: null,
       });
       if (archiveSelectUrl) {
-        _window.open(archiveSelectUrl, navigateTarget);
+        this.openUrl(archiveSelectUrl);
       }
     } catch (error) {
       console.error(
@@ -1225,19 +1224,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
         return this.fetchDatasetChildren(...fetchArgs);
       }
     },
-    getArchiveFileUrl({ selected }) {
-      const {
-        archiveId,
-        datasetId,
-        dirId,
-      } = this.getProperties('archiveId', 'datasetId', 'dirId');
-      return this.getDatasetsUrl({
-        viewMode: 'files',
-        datasetId,
-        archive: archiveId,
-        selected,
-        dir: dirId || null,
-      });
+    async getFileUrl({ selected }) {
+      if (isEmpty(selected)) {
+        return null;
+      }
+      const fileId = selected[0];
+      return this.get('filesViewResolver').generateUrlById(fileId);
     },
   },
 });
