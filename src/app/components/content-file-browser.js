@@ -200,6 +200,7 @@ export default OneEmbeddedComponent.extend(
     dirProxy: promise.object(computed(
       'dirEntityId',
       'spaceEntityId',
+      'selected',
       async function dirProxy() {
         const {
           spaceEntityId,
@@ -207,14 +208,12 @@ export default OneEmbeddedComponent.extend(
           dirEntityId,
           filesViewResolver,
           fallbackDirProxy,
-          _window,
         } = this.getProperties(
           'spaceEntityId',
           'selected',
           'dirEntityId',
           'filesViewResolver',
           'fallbackDirProxy',
-          '_window',
         );
 
         const currentFilesViewContext = FilesViewContext.create({
@@ -238,7 +237,7 @@ export default OneEmbeddedComponent.extend(
         } else {
           // TODO: VFS-8342 common util for replacing master URL
           if (resolverResult.url) {
-            _window.top.location.replace(resolverResult.url);
+            this.openUrl(resolverResult.url, true);
           }
           return fallbackDir;
         }
@@ -250,17 +249,6 @@ export default OneEmbeddedComponent.extend(
     spaceObserver: observer('spaceProxy.content', function spaceObserver() {
       this.get('uploadManager').changeTargetSpace(this.get('spaceProxy.content'));
     }),
-
-    /**
-     * Observer: watch if injected selection and dir changed to redirect to correct URL
-     */
-    injectedDirObserver: observer(
-      'injectedDirGri',
-      'selected',
-      function injectedDirObserver() {
-        this.resolveSelectedParentDirUrl();
-      }
-    ),
 
     spaceEntityIdObserver: observer('spaceEntityId', function spaceEntityIdObserver() {
       this.closeAllModals();
@@ -296,57 +284,11 @@ export default OneEmbeddedComponent.extend(
       });
     },
 
-    /**
-     * Optionally computes Onezone URL redirect options for containing parent directory of
-     * first selected file (if there is no injected dir id and at least one selected
-     * file). If there is no need to redirect, resolves false.
-     * @returns {Promise<{dataUrl: string, dirProxy: PromiseObject}>}
-     */
-    async resolveSelectedParentDirUrl() {
-      const {
-        injectedDirGri,
-        selected,
-        fileManager,
-      } = this.getProperties('injectedDirGri', 'selected', 'fileManager');
-      const firstSelectedId = selected && selected[0];
-
-      if (injectedDirGri || !firstSelectedId) {
-        // no need to resolve parent dir, as it is already specified or there is no
-        // selection specified
-        return null;
-      }
-
-      let firstSelectedFile;
-      try {
-        firstSelectedFile = await fileManager.getFileById(firstSelectedId);
-      } catch (error) {
-        console.debug(
-          `component:content-file-browser#resolveSelectedParentDirUrl: cannot resolve first selected file: "${error}"`
-        );
-        return null;
-      }
-      const parentId = firstSelectedFile &&
-        firstSelectedFile.relationEntityId('parent');
-      if (parentId) {
-        const dataUrl = this.callParent(
-          'getDataUrl', {
-            fileId: parentId,
-            selected,
-          }
-        );
-        return { dataUrl, dirProxy: get(firstSelectedFile, 'parent') };
-      } else {
-        return null;
-      }
-    },
-
     openWorkflowRunView({ atmWorkflowSchemaId, inputStoresData }) {
       const {
-        _window,
         _localStorage,
-        navigateTarget,
         globalNotify,
-      } = this.getProperties('_window', '_localStorage', 'navigateTarget', 'globalNotify');
+      } = this.getProperties('_localStorage', 'globalNotify');
       if (!atmWorkflowSchemaId) {
         return;
       }
@@ -373,7 +315,7 @@ export default OneEmbeddedComponent.extend(
         workflowSchemaId: atmWorkflowSchemaId,
         fillInputStores: Boolean(inputStoresData),
       });
-      _window.open(redirectUrl, navigateTarget);
+      this.openUrl(redirectUrl);
     },
 
     openBagitUploader() {

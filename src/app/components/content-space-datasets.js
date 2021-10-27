@@ -585,19 +585,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
-  openUrl(url, replace = false) {
-    const {
-      _window,
-      navigateTarget,
-    } = this.getProperties('_window', 'navigateTarget');
-    // TODO: VFS-8342 common util for replacing master URL
-    if (replace) {
-      _window.top.location.replace(url);
-    } else {
-      _window.open(url, navigateTarget);
-    }
-  },
-
   async resolveDatasetForSelectedIds(selectedIds) {
     const spaceDatasetsRoot = this.get('spaceDatasetsRoot');
 
