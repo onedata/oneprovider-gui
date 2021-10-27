@@ -167,15 +167,19 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       min-height: calc(100vh - #{$share-show-content-header-height-private + 2 * $content-col-padding});
     }
   }
+  .public-footer {
+    height: $share-show-public-footer-height;
+    line-height: $share-show-public-footer-height;
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+  }
 }
 
 @import './share-show/header-management';
 @import './share-show/header-public';
-@import './share-show/footer-public';
 @import './share-show/public-url-viewer';
 @import './share-show/open-data';
 @import './share-show/open-data-editor';
 @import './share-show/open-data-preview';
 @import './share-show/markdown-editor';
-
   
