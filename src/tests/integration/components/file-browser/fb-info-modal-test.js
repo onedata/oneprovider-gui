@@ -65,7 +65,14 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
     sinon.stub(lookupService(this, 'file-manager'), 'getFileHardlinks')
       .resolves(fileHardlinksResult);
-    this.set('getDataUrl', ({ selected: [firstSelected] }) => `link-${firstSelected}`);
+    const getDataUrl = ({ selected: [firstSelected] }) => `link-${firstSelected}`;
+    lookupService(this, 'app-proxy').callParent =
+      function callParent(methodName, ...args) {
+        if (methodName === 'getDataUrl') {
+          return getDataUrl(...args);
+        }
+      };
+    this.set('getDataUrl', getDataUrl);
   });
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy
@@ -226,14 +233,16 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
+    await wait();
 
     const $fileHardlinks = this.$('.file-hardlink');
     expect($fileHardlinks).to.have.length(2);
     expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
-    expect($fileHardlinks.eq(0).find('.file-path').text().trim()).to.match(/Path:\s*\/abc/);
+    expect($fileHardlinks.eq(0).find('.file-path').text().trim()).to.match(/Path:\s*\/\s*abc/);
+    expect($fileHardlinks.eq(0).find('.file-path a')).to.exist;
     expect($fileHardlinks.eq(0).find('.file-path a')).to.have.attr('href', 'link-f1');
     expect($fileHardlinks.eq(1).find('.file-name').text().trim()).to.equal('def');
-    expect($fileHardlinks.eq(1).find('.file-path').text().trim()).to.match(/Path:\s*\/def/);
+    expect($fileHardlinks.eq(1).find('.file-path').text().trim()).to.match(/Path:\s*\/\s*def/);
     expect($fileHardlinks.eq(1).find('.file-path a')).to.have.attr('href', 'link-f2');
     expect($fileHardlinks.find('.file-type-icon.oneicon-browser-file')).to.have.length(2);
   });

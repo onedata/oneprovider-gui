@@ -25,7 +25,6 @@ const directorySeparator = '/';
 const ellipsisString = '...';
 
 export default Component.extend(WindowResizeHandler, {
-  tagName: 'a',
   classNames: ['item-path'],
 
   filesViewResolver: service(),

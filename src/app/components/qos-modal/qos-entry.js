@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { promise, tag, getBy, raw } from 'ember-awesome-macros';
+import { tag, getBy, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed, observer } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -16,7 +16,6 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { guidFor } from '@ember/object/internals';
-import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
