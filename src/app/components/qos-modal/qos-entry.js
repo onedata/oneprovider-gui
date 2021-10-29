@@ -21,6 +21,7 @@ import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 
 export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],
@@ -161,30 +162,6 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    */
   statusIcon: getBy(raw(qosStatusIcons), 'statusId'),
 
-  qosSourceFilePathProxy: promise.object(computed(
-    'qosSourceFile.{name,parent}',
-    async function qosSourceFilePathProxy() {
-      return await resolveFilePath(this.get('qosSourceFile'))
-        .then(path => stringifyFilePath(path));
-    }
-  )),
-
-  qosSourceFileHrefProxy: promise.object(computed(
-    'qosSourceFileId',
-    async function qosSourceFileHref() {
-      const {
-        getDataUrl,
-        qosSourceFileId,
-      } = this.getProperties('getDataUrl', 'qosSourceFileId');
-      return getDataUrl && await getDataUrl({
-        fileId: null,
-        selected: [qosSourceFileId],
-      });
-    }
-  )),
-
-  qosSourceFileHref: reads('qosSourceFileHrefProxy.content'),
-
   evaluationUpdater: observer(
     'rawExpressionInfix',
     'statusId',
@@ -209,7 +186,9 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
       return removeQosRequirement(get(qosItem, 'qos'));
     },
     fileLinkClicked(event) {
-      this.get('closeModal')();
+      if (!isNewTabRequestEvent(event)) {
+        this.get('closeModal')();
+      }
       event.stopPropagation();
     },
   },

@@ -928,7 +928,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const archiveManager = this.get('archiveManager');
     return {
       childrenRecords: await allFulfilled(childrenRecords.map(record =>
-        archiveManager.getBrowsableArchive(get(record, 'entityId'))
+        archiveManager.getBrowsableArchive(record)
       )),
       isLast,
     };

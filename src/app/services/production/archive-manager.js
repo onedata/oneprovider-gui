@@ -51,16 +51,26 @@ export default Service.extend({
   /**
    * Creates or returns previously created BrowsableArchive object.
    * Only one `BrowsableArchive` for specific `archiveId` is created.
-   * @param {String} archiveId
+   * @param {String|Models.Archive} archiveOrEntityId
    * @returns {Utils.BrowsableArchive}
    */
-  async getBrowsableArchive(archiveId) {
+  async getBrowsableArchive(archiveOrEntityId) {
+    let archiveId;
+    let archive;
+    if (typeof (archiveOrEntityId) === 'string') {
+      archiveId = archiveOrEntityId;
+    } else {
+      archiveId = get(archiveOrEntityId, 'entityId');
+      archive = archiveOrEntityId;
+    }
     const browsableArchivesStore = this.get('browsableArchivesStore');
     const cachedBrowsableArchive = browsableArchivesStore[archiveId];
     if (cachedBrowsableArchive) {
       return cachedBrowsableArchive;
     } else {
-      const archive = await this.getArchive(archiveId);
+      if (!archive) {
+        archive = await this.getArchive(archiveId);
+      }
       const browsableArchive = BrowsableArchive.create({
         content: archive,
       });
@@ -108,7 +118,7 @@ export default Service.extend({
   },
 
   /**
-   * @param {Models.Archive} archive 
+   * @param {Models.Archive} archive
    * @param {{
    *   description: String,
    *   preservedCallback: String,

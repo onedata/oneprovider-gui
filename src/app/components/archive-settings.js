@@ -138,7 +138,7 @@ export default Component.extend(I18n, {
     });
     const archiveRecord = get(archivesData, 'childrenRecords.0');
     if (archiveRecord) {
-      return archiveManager.getBrowsableArchive(get(archiveRecord, 'entityId'));
+      return archiveManager.getBrowsableArchive(archiveRecord);
     } else {
       if (!archivesData.isLast) {
         throw new Error(

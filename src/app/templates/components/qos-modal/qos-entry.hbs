@@ -105,38 +105,17 @@
     </div>
     {{#unless direct}}
       <div class="qos-subheader qos-path-subheader with-icon-left">
-        {{#promise-proxy-container
-          proxy=qosSourceFilePathProxy
-          centered=false
-          spinnerBlockClass="spinner-block-path"
-          sizeClass="xs"
-          inlineError=true
+        <span class="inherited-text">
+          <div class="inline-icon-container info-icon">
+            {{one-icon icon="inheritance"}}
+          </div>
+          {{tt this "inheritedFrom"}}
+        </span>
+        {{item-path
+          item=qosSourceFile
+          target=navigateDataTarget
+          onLinkClicked=(action "fileLinkClicked")
         }}
-          <span class="inherited-text">
-            <div class="inline-icon-container info-icon">
-              {{one-icon icon="inheritance"}}
-            </div>
-            {{tt this "inheritedFrom"}}
-          </span>
-          {{#if qosSourceFileHref}}
-            <a
-              onclick={{action "fileLinkClicked"}}
-              href={{qosSourceFileHref}}
-              target={{navigateDataTarget}}
-              class="file-path truncate"
-            >
-              <span class="file-path-text truncate">
-                {{qosSourceFilePathProxy.content}}
-              </span>
-            </a>
-          {{else}}
-            <span class="file-path truncate">
-              <span class="file-path-text truncate">
-                {{qosSourceFilePathProxy.content}}
-              </span>
-            </span>
-          {{/if}}
-        {{/promise-proxy-container}}
       </div>
     {{/unless}}
   </div>

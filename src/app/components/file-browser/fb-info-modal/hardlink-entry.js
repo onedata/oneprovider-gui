@@ -11,6 +11,7 @@ import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 
 export default Component.extend(I18n, {
   tagName: 'li',
@@ -66,8 +67,10 @@ export default Component.extend(I18n, {
   }),
 
   actions: {
-    linkClicked() {
-      this.get('closeModal')();
+    linkClicked(event) {
+      if (!isNewTabRequestEvent(event)) {
+        this.get('closeModal')();
+      }
     },
   },
 });

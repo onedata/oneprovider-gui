@@ -1,0 +1,33 @@
+<div class="path-container">
+  <a
+    class={{concat-classes "path" anchorClassname}}
+    href={{href}}
+    target={{target}}
+    onclick={{onLinkClicked}}
+    onkeydown={{onLinkKeydown}}
+  >
+    {{#if allItemsProxy.isPending}}
+      {{!-- FIXME: use spinner of i18n with style --}}
+      <span class="path-item path-item-loading">Loading...</span>
+    {{else}}
+      {{log displayedItems}}
+      {{#each displayedItems as |item|}}
+        {{#if item.separator}}
+          <div class="path-item path-separator">{{item.separator}}</div>
+        {{/if}}
+        {{#if item.icon}}
+          <div class="path-item path-icon-container">
+            {{one-icon icon=item.icon class="path-icon"}}
+          </div>
+        {{/if}}
+        <div class="path-item path-label">{{item.record.name}}</div>
+      {{/each}}
+    {{/if}}
+  </a>
+  {{#if renderTooltip}}
+    {{one-tooltip
+      class="string-path-tooltip"
+      title=stringifiedPath
+    }}
+  {{/if}}
+</div>
