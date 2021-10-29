@@ -51,6 +51,9 @@ export const SpaceDatasetsRootBaseClass = EmberObject.extend({
   relationEntityId( /*relation*/ ) {
     return null;
   },
+  async reload() {
+    return this;
+  },
 });
 
 export const SpaceDatasetsRootClass = BrowsableDataset.extend({
@@ -114,7 +117,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * One of: 'attached', 'detached'
-   * 
+   *
    * **Injected from parent frame.**
    * @virtual
    * @type {String}
@@ -123,7 +126,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * One of: 'datasets', 'archives', 'files'
-   * 
+   *
    * **Injected from parent frame.**
    * @virtual
    * @type {String}
