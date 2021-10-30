@@ -6,6 +6,9 @@ import { registerService, lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
+import { triggerEvent } from 'ember-native-dom-helpers';
+import { reject } from 'rsvp';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import {
   createArchiveRootDir,
   createFilesChain,
@@ -27,12 +30,6 @@ describe('Integration | Component | item path', function () {
   setupComponentTest('item-path', {
     integration: true,
   });
-
-  // FIXME: it shortens the rendered path by removing central entry if it overflows its container
-  // FIXME: it renders tooltip file path in text form if hovered
-  // FIXME: it does not render tooltip if file path does not overflow its container
-  // FIXME: it renders first entry with ellipsis if more entries overflows its container
-  // FIXME: shows loading before path resolves; shows error when failed
 
   beforeEach(function () {
     const getDataUrl = ({ selected: [firstSelected] }) => `link-${firstSelected}`;
@@ -59,8 +56,7 @@ describe('Integration | Component | item path', function () {
       item,
     });
 
-    this.render(hbs `{{item-path item=item}}`);
-    await wait();
+    await render(this);
 
     expect(this.$().text()).to.match(
       /space root\s*\/\s*one\s*\/\s*two\s*\/\s*three\s*\/\s*file is here\s*/
@@ -114,8 +110,7 @@ describe('Integration | Component | item path', function () {
       item,
     });
 
-    this.render(hbs `{{item-path item=item}}`);
-    await wait();
+    await render(this);
 
     const $datasetIcon =
       this.$('.path-item.path-icon-container .oneicon-browser-dataset');
@@ -130,4 +125,119 @@ describe('Integration | Component | item path', function () {
     const $archiveIconLabel = $archiveIconContainer.next('.path-item.path-label');
     expect($archiveIconLabel.text()).to.contain(browsableArchiveName);
   });
+
+  it('renders ellipsis in place of central items if container is too small', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+      'three',
+      'file',
+    ]);
+    const item = filesChain[filesChain.length - 1];
+    this.setProperties({
+      item,
+    });
+
+    await renderInSmallContainer(this);
+
+    expect(this.$().text()).to.match(
+      /space root\s*\/\s*one\s*\/\s*\.\.\.\s*\/\s*file\s*/
+    );
+  });
+
+  it('shows tooltip with full path on hover if path is shortened', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+      'three',
+      'file',
+    ]);
+    const item = filesChain[filesChain.length - 1];
+    this.setProperties({
+      item,
+    });
+
+    await renderInSmallContainer(this);
+    await triggerEvent('.path', 'mouseenter');
+
+    const tooltip = document.querySelector('.string-path-tooltip');
+    expect(tooltip).to.exist;
+    expect(tooltip.textContent).to.contain('/space root/one/two/three/file');
+  });
+
+  it('does not show tooltip with full path on hover if path is not', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+      'three',
+      'file',
+    ]);
+    const item = filesChain[filesChain.length - 1];
+    this.setProperties({
+      item,
+    });
+
+    await render(this);
+    await triggerEvent('.path', 'mouseenter');
+
+    const tooltip = document.querySelector('.string-path-tooltip');
+    expect(tooltip).to.not.exist;
+  });
+
+  it('shows loading text while file path is loading', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+      'three',
+      'file',
+    ]);
+    const item = filesChain[filesChain.length - 1];
+    this.setProperties({
+      item,
+    });
+
+    render(this);
+
+    expect(this.$('.item-path .path-loading')).to.exist;
+    expect(this.$('.item-path').text()).to.match(/Loading path.../);
+  });
+
+  it('shows error text when path resolving failed', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+      'three',
+      'file',
+    ]);
+    const item = filesChain[filesChain.length - 1];
+    filesChain[2].parent = promiseObject(reject());
+    this.setProperties({
+      item,
+    });
+
+    await render(this);
+
+    expect(this.$('.item-path .path-error')).to.exist;
+    expect(this.$('.item-path').text()).to.match(/Path loading failed!/);
+  });
 });
+
+async function render(testCase) {
+  testCase.render(hbs `{{item-path item=item}}`);
+  await wait();
+}
+
+async function renderInSmallContainer(testCase) {
+  testCase.render(hbs `<div
+    class="test-path-container"
+    style="width: 200px;"
+  >
+    {{item-path item=item}}
+  </div>`);
+  await wait();
+}

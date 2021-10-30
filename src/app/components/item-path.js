@@ -16,20 +16,32 @@ import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-contex
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import { scheduleOnce } from '@ember/runloop';
-import { promise, lte } from 'ember-awesome-macros';
+import { promise, lte, or } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 const datasetSeparator = '›';
 const directorySeparator = '/';
 const ellipsisString = '...';
 
-export default Component.extend(WindowResizeHandler, {
+const mixins = [
+  I18n,
+  WindowResizeHandler,
+];
+
+export default Component.extend(...mixins, {
   classNames: ['item-path'],
 
+  i18n: service(),
   filesViewResolver: service(),
   datasetManager: service(),
   archiveManager: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.itemPath',
 
   /**
    * @type {Object} browsable object like file
@@ -139,6 +151,10 @@ export default Component.extend(WindowResizeHandler, {
 
   //#endregion
 
+  isLoading: or('allItemsProxy.isPending', 'filesViewContextProxy.isPending'),
+
+  isError: or('allItemsProxy.isRejected', 'filesViewContextProxy.isRejected'),
+
   filesViewContext: reads('filesViewContextProxy.content'),
 
   allItems: reads('allItemsProxy.content'),
@@ -233,8 +249,9 @@ export default Component.extend(WindowResizeHandler, {
     const element = this.get('element');
     const pathContainer = element.querySelector('.path-container');
     const path = pathContainer.querySelector('.path');
-    console.log(path.clientWidth, pathContainer.clientWidth);
-    if (path.clientWidth > pathContainer.clientWidth) {
+    // FIXME: debug code
+    // console.log(path.clientWidth, pathContainer.clientWidth);
+    if (path && path.clientWidth > pathContainer.clientWidth) {
       this.decrementProperty('displayedItemsCount');
     }
   },
