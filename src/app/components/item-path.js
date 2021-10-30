@@ -67,15 +67,7 @@ export default Component.extend(WindowResizeHandler, {
 
   displayedItemsCount: Number.MAX_SAFE_INTEGER,
 
-  /**
-   * @override
-   */
-  onWindowResize() {
-    this.resetDisplayedItemsCount();
-    scheduleOnce('afterRender', () => {
-      this.adjustItemsCount();
-    });
-  },
+  //#region asynchronous data
 
   itemPathProxy: promise.object(computed('item.parent', function itemPathProxy() {
     const item = this.get('item');
@@ -145,6 +137,8 @@ export default Component.extend(WindowResizeHandler, {
     }
   )),
 
+  //#endregion
+
   filesViewContext: reads('filesViewContextProxy.content'),
 
   allItems: reads('allItemsProxy.content'),
@@ -201,11 +195,27 @@ export default Component.extend(WindowResizeHandler, {
     this.set('displayedItemsCount', this.get('allItems.length') + 1);
   }),
 
+  /**
+   * @override
+   */
+  onWindowResize() {
+    this.resetDisplayedItemsCount();
+    scheduleOnce('afterRender', () => {
+      this.adjustItemsCount();
+    });
+  },
+
+  /**
+   * @override
+   */
   didInsertElement() {
     this._super(...arguments);
     this.attachWindowResizeHandler();
   },
 
+  /**
+   * @override
+   */
   willRemoveElement() {
     this._super(...arguments);
     this.detachWindowResizeHandler();

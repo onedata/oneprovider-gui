@@ -3,10 +3,14 @@ import { setupComponentTest } from 'ember-mocha';
 import { expect } from 'chai';
 import FilesViewContext, { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import { get } from '@ember/object';
-import { resolve } from 'rsvp';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-
-const defaultSpaceId = 'space_default_id';
+import {
+  createSpaceRootDir,
+  createArchiveRootDir,
+  createFile,
+  createEntityId,
+  createPublicEntityId,
+  createShareRootDir,
+} from '../../helpers/files';
 
 describe('Integration | Utility | files view context', function () {
   setupComponentTest('test-component', {
@@ -223,69 +227,4 @@ function testCompare(testCase, options) {
       expect(resultAB).to.equal(expectedResult);
     }
   );
-}
-
-function createSpaceRootDir(spaceId = defaultSpaceId) {
-  return createFile({
-    entityId: createEntityId('space_root'),
-    name: 'space_name_' + spaceId,
-    type: 'dir',
-    parentObject: null,
-  });
-}
-
-function createArchiveRootDir(datasetId, archiveId, spaceId = defaultSpaceId) {
-  const spaceRootDir = createSpaceRootDir(spaceId);
-  const specialDir = createFile({
-    entityId: createEntityId('special_dir'),
-    name: '.__onedata__archive',
-    type: 'dir',
-    parentObject: spaceRootDir,
-  });
-  const datasetDir = createFile({
-    entityId: createEntityId('dataset_dir_id'),
-    name: `dataset_archives_${datasetId}`,
-    type: 'dir',
-    parentObject: specialDir,
-  });
-  const archiveDir = createFile({
-    entityId: createEntityId('archive_dir_id'),
-    name: `archive_${archiveId}`,
-    type: 'dir',
-    parentObject: datasetDir,
-  });
-  return archiveDir;
-}
-
-function createShareRootDir(shareId, spaceId = defaultSpaceId) {
-  return createFile({
-    entityId: createPublicEntityId('share_root_123', shareId, spaceId),
-    name: `share_root_${shareId}`,
-    type: 'dir',
-    scope: 'public',
-    parentObject: null,
-  });
-}
-
-function createFile(override = {}) {
-  const obj = Object.assign({
-    posixPermissions: '777',
-    type: 'file',
-    scope: 'private',
-    parent: promiseObject(resolve(override.parentObject || null)),
-    hasParent: Boolean(override.parentObject),
-  }, override);
-  if (!obj.entityId) {
-    const randomGuid = String(Math.floor(Math.random() * 10000));
-    obj.entityId = createEntityId(randomGuid);
-  }
-  return obj;
-}
-
-function createEntityId(guid, spaceId = defaultSpaceId) {
-  return window.btoa(`guid#${guid}#${spaceId}`);
-}
-
-function createPublicEntityId(guid, shareId, spaceId = defaultSpaceId) {
-  return window.btoa(`shareGuid#${guid}#${spaceId}#${shareId}`);
 }
