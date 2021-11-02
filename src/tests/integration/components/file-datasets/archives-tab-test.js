@@ -264,7 +264,6 @@ function mockItems({ testCase, itemsCount }) {
   const mockArray = new MockArray(archives);
   testCase.set('archivesMockArray', mockArray);
 
-  // FIXME: archive-browser seems to have bug in tests
   archiveManager.fetchDatasetArchives = ({ index, limit, offset }) => {
     return mockArray.fetchChildren(index, limit, offset);
   };

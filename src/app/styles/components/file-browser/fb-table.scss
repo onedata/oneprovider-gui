@@ -95,6 +95,17 @@
   .fb-table-thead th:first-of-type {
     text-align: left;
   }
+  .fb-table-first-col-container {
+    display: flex;
+    .table-header-text {
+      flex-grow: 1;
+    }
+    .table-header-status-bar {
+      display: inline-flex;
+      align-items: center;
+      font-weight: normal;
+    }
+  }
   .fb-table-col-files {
     // enables text truncate inside
     max-width: 0;

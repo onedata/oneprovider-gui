@@ -1,0 +1,13 @@
+{{yield displayedState}}
+{{#if showInhertedTag}}
+  <div
+    class="file-status-tag file-status-tag-inherited file-status-tag-icon file-status-tag-icon-only file-status-inherited file-status-inherited-collapsed"
+    {{action "inheritanceTagClicked" bubbles=false}}
+  >
+    {{one-icon
+      icon="inheritance"
+      class="item-inheritance-icon inherited-icon"
+    }}
+    {{one-tooltip title=(tt this "expandTip")}}
+  </div>
+{{/if}}

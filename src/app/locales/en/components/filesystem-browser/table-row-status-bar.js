@@ -14,15 +14,8 @@ export default {
     hardlinks: '{{hardlinksCount}} hard links',
     shared: 'Shared',
     metadata: 'Meta',
-    qos: 'QoS',
     acl: 'ACL',
     conflict: 'Conflict',
     forbidden: 'No access',
-    dataset: 'Dataset',
-  },
-  protectionFlagsInfo: {
-    metadata: 'This {{fileType}}\'s metadata is write protected.',
-    data: 'This {{fileType}}\'s data is write protected.',
-    both: 'This {{fileType}}\'s data and metadata are write protected.',
   },
 };

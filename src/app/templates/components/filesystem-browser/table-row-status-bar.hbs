@@ -38,54 +38,6 @@
     {{one-tooltip title=(tt this (concat "hintForbidden." file.type))}}
   </div>
 {{/if}}
-{{#if showDatasetTag}}
-  <div class="file-status-tag-group dataset-file-status-tag-group">
-    <div
-      class={{concat-classes
-        "file-status-tag"
-        "file-status-dataset"
-        (if (or disabled datasetsViewForbidden) "file-status-tag-disabled")
-      }}
-      {{action
-        (if (or disabled datasetsViewForbidden)
-          (no-action)
-          (action invokeFileAction file "datasets")
-        )
-        bubbles=(bool disabled)
-      }}
-    >
-      {{#if (eq effDatasetMembership "direct")}}
-        {{tt this "status.dataset"}}
-      {{else if (eq effDatasetMembership "ancestor")}}
-        {{tt this "status.dataset"}}&nbsp;{{one-icon class="dataset-status-arrow dataset-inherited-icon inherited-icon" icon=inheritedIcon}}
-      {{/if}}
-      {{#if datasetsViewForbidden}}
-        {{one-tooltip title=hintDatasetsViewForbidden}}
-      {{/if}}
-    </div>
-    {{#if hasAnyProtectionFlag}}
-      <div
-        class="file-status-tag file-status-tag-warning file-status-tag-icon file-status-protected"
-      >
-        {{#if dataIsProtected}}
-          {{one-icon
-            icon="provider"
-            class="file-protected-icon file-data-protected-icon"
-          }}
-        {{/if}}
-        {{#if metadataIsProtected}}
-          {{one-icon
-            icon="browser-attribute"
-            class="file-protected-icon file-metadata-protected-icon"
-          }}
-        {{/if}}
-        {{#if protectionFlagsInfo}}
-          {{one-tooltip title=protectionFlagsInfo}}
-        {{/if}}
-      </div>
-    {{/if}}
-  </div>
-{{/if}}
 {{#if (and (not isSymlink) hasMetadata)}}
   <div
     class="file-status-tag file-status-metadata {{if disabled "file-status-tag-disabled"}}"
@@ -121,29 +73,11 @@
     {{/if}}
   </div>
 {{/if}}
-{{#if showQosTag}}
-  <div
-    class={{concat-classes
-      "file-status-tag"
-      "file-status-qos"
-      (if hasDirectQos "file-status-qos-direct")
-      (if (or qosViewForbidden disabled) "file-status-tag-disabled")
-    }}
-    {{action
-      (if disabled
-        (no-action)
-        (action invokeFileAction file "qos")
-      )
-      bubbles=(bool disabled)
-    }}
-  >
-    {{#if (eq effQosMembership "direct")}}
-      {{tt this "status.qos"}}
-    {{else if (eq effQosMembership "ancestor")}}
-      {{tt this "status.qos"}}&nbsp;{{one-icon class="qos-status-arrow qos-inherited-icon inherited-icon" icon=inheritedIcon}}
-    {{/if}}
-    {{#if qosViewForbidden}}
-      {{one-tooltip title=hintQosViewForbidden}}
-    {{/if}}
-  </div>
-{{/if}}
+
+{{#unless previewMode}}
+  {{filesystem-browser/file-features
+    item=file
+    spacePrivileges=browserModel.spacePrivileges
+    onInvokeItemAction=(action invokeFileAction)
+  }}
+{{/unless}}

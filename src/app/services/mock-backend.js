@@ -715,7 +715,7 @@ export default Service.extend({
       const file = files[i];
       let effProtectionFlags;
       const effDatasetMembership = i >= 3 && i <= 5 && 'direct' ||
-        i >= 2 && i <= 6 && 'ancestor' ||
+        i >= 2 && i <= 6 && 'directAndAncestor' ||
         'none';
       if (i === 2) {
         effProtectionFlags = ['data_protection'];
@@ -730,7 +730,10 @@ export default Service.extend({
         effDatasetMembership,
         effProtectionFlags,
       });
-      if (effDatasetMembership === 'direct') {
+      if (
+        effDatasetMembership === 'direct' ||
+        effDatasetMembership === 'directAndAncestor'
+      ) {
         const dataset = await this.createDataset(file, {
           parent: null,
           protectionFlags: protectionFlagSets[i % protectionFlagSets.length],
@@ -745,6 +748,24 @@ export default Service.extend({
       }
       await file.save();
     }
+
+    // FIXME: root dir
+    // const spaceRootFile = this.get('entityRecords.rootDir.0');
+    // const dataset = await this.createDataset(spaceRootFile, {
+    //   parent: null,
+    //   protectionFlags: protectionFlagSets[4],
+    //   effProtectionFlags: protectionFlagSets[4],
+    // });
+    // const fileDatasetSummary = await this.createDatasetSummary(spaceRootFile, dataset);
+    // setProperties(spaceRootFile, {
+    //   fileDatasetSummary,
+    // });
+    // this.get('entityRecords.dataset').push(dataset);
+    // this.get('entityRecords.fileDatasetSummary').push(fileDatasetSummary);
+    // await spaceRootFile.save();
+    // await dataset.save();
+    // await fileDatasetSummary.save();
+
     await this.addDetachedDatasetMock();
   },
 

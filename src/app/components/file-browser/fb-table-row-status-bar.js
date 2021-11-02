@@ -82,5 +82,5 @@ export default Component.extend(I18n, {
    * Name of icon to indicate that some property in tag is inhertied from ancestor
    * @type {String}
    */
-  inheritedIcon: 'arrow-long-up',
+  inheritedIcon: 'inheritance',
 });

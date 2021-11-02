@@ -87,8 +87,7 @@ describe('Integration | Component | file browser (main component)', function () 
       filesCount,
     });
 
-    render(this);
-    await wait();
+    await render(this);
 
     expect(this.$('.fb-table-row')).to.have.length(filesCount);
   });
@@ -143,7 +142,7 @@ describe('Integration | Component | file browser (main component)', function () 
     }
     fetchDirChildren.resolves({ isLast: true, childrenRecords: [] });
 
-    render(this);
+    await render(this);
 
     let clickCount = numberOfDirs - 2;
     const enterDir = async () => {
@@ -156,8 +155,6 @@ describe('Integration | Component | file browser (main component)', function () 
         return enterDir();
       }
     };
-
-    await wait();
 
     expect(fetchDirChildren).to.have.been.calledWith(
       'root',
@@ -226,9 +223,8 @@ describe('Integration | Component | file browser (main component)', function () 
       f1: {},
     });
 
-    render(this);
+    await render(this);
 
-    await wait();
     expect(this.$('.fb-table-row')).to.exist;
 
     const $actions = await openFileContextMenu({ name: 'f1 name' });
@@ -237,7 +233,7 @@ describe('Integration | Component | file browser (main component)', function () 
       .to.have.class('disabled');
   });
 
-  it('shows empty dir message with working new directory button', function () {
+  it('shows empty dir message with working new directory button', async function () {
     const entityId = 'deid';
     const name = 'Test directory';
     const dir = {
@@ -258,22 +254,18 @@ describe('Integration | Component | file browser (main component)', function () 
       selectedItems: [],
     });
 
-    render(this);
+    await render(this);
 
-    return wait().then(() => {
-      expect(fetchDirChildren).to.have.been.called;
-      return wait().then(() => {
-        expect(this.$('.fb-table-row')).to.have.length(0);
-        expect(this.$('.empty-dir')).to.exist;
-        return click('.empty-dir-new-directory-action').then(() => {
-          expect(openCreateNewDirectory).to.have.been.calledOnce;
-          expect(openCreateNewDirectory).to.have.been.calledWith(dir);
-        });
-      });
-    });
+    expect(fetchDirChildren).to.have.been.called;
+    await wait();
+    expect(this.$('.fb-table-row')).to.have.length(0);
+    expect(this.$('.empty-dir')).to.exist;
+    await click('.empty-dir-new-directory-action');
+    expect(openCreateNewDirectory).to.have.been.calledOnce;
+    expect(openCreateNewDirectory).to.have.been.calledWith(dir);
   });
 
-  it('adds file-cut class if file is in clipboard in move mode', function () {
+  it('adds file-cut class if file is in clipboard in move mode', async function () {
     const entityId = 'deid';
     const name = 'Test directory';
     const dir = {
@@ -306,18 +298,15 @@ describe('Integration | Component | file browser (main component)', function () 
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves({ childrenRecords: files, isLast: true });
 
-    render(this);
+    await render(this);
 
-    return wait().then(() => {
-      expect(fetchDirChildren).to.have.been.called;
-      return wait().then(() => {
-        expect(this.$('.fb-table-row')).to.have.class('file-cut');
-      });
-    });
+    expect(fetchDirChildren).to.have.been.called;
+    await wait();
+    expect(this.$('.fb-table-row')).to.have.class('file-cut');
   });
 
   it('shows refresh button which invokes refresh file list API action',
-    function () {
+    async function () {
       const dir = {
         entityId: 'root',
         name: 'Test directory',
@@ -348,23 +337,19 @@ describe('Integration | Component | file browser (main component)', function () 
         isLast: true,
       });
 
-      render(this);
+      await render(this);
 
-      return wait()
-        .then(() => {
-          expect(fetchDirChildren).to.be.called;
-          fetchDirChildren.resetHistory();
-          expect(this.$('.file-action-refresh')).to.exist;
-          return click('.file-action-refresh');
-        })
-        .then(() => {
-          expect(fetchDirChildren).to.be.called;
-        });
+      expect(fetchDirChildren).to.be.called;
+      fetchDirChildren.resetHistory();
+      expect(this.$('.file-action-refresh')).to.exist;
+      await click('.file-action-refresh');
+      expect(fetchDirChildren).to.be.called;
     }
   );
 
+  // NOTE: use "done" callback for async tests because of bug in ember test framework
   describe('selects using injected file ids', function () {
-    it('visible file on list', function () {
+    it('visible file on list', async function (done) {
       const entityId = 'deid';
       const name = 'Test directory';
       const dir = {
@@ -403,25 +388,23 @@ describe('Integration | Component | file browser (main component)', function () 
       // default
       fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
-      render(this);
+      await render(this);
 
-      return wait().then(() => {
-        expect(fetchDirChildren).to.have.been.calledWith(
-          entityId,
-          sinon.match.any,
-          selectedFile.index,
-          sinon.match.any,
-          sinon.match.any
-        );
-        return wait();
-      }).then(() => {
-        const $fileSelected = this.$('.file-selected');
-        expect($fileSelected, 'selected file row').to.have.lengthOf(1);
-        expect($fileSelected).to.have.attr('data-row-id', selectedFile.id);
-      });
+      expect(fetchDirChildren).to.have.been.calledWith(
+        entityId,
+        sinon.match.any,
+        selectedFile.index,
+        sinon.match.any,
+        sinon.match.any
+      );
+      await wait();
+      const $fileSelected = this.$('.file-selected');
+      expect($fileSelected, 'selected file row').to.have.lengthOf(1);
+      expect($fileSelected).to.have.attr('data-row-id', selectedFile.id);
+      done();
     });
 
-    it('file that is out of initial list range', function () {
+    it('file that is out of initial list range', async function (done) {
       const entityId = 'deid';
       const name = 'Test directory';
       const dir = {
@@ -465,27 +448,26 @@ describe('Integration | Component | file browser (main component)', function () 
       // default
       fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
-      render(this);
+      await render(this);
 
-      return wait().then(() => {
-        expect(fetchDirChildren).to.have.been.calledWith(
-          entityId,
-          sinon.match.any,
-          selectedFile.index,
-          sinon.match.any,
-          sinon.match.any
-        );
-        expect(fetchDirChildren).to.have.been.calledWith(
-          entityId,
-          sinon.match.any,
-          files[60].index,
-          sinon.match.any,
-          sinon.match.any
-        );
-        const $fileSelected = this.$('.file-selected');
-        expect($fileSelected, 'selected file row').to.exist;
-        expect($fileSelected).to.have.attr('data-row-id', selectedFile.id);
-      });
+      expect(fetchDirChildren).to.have.been.calledWith(
+        entityId,
+        sinon.match.any,
+        selectedFile.index,
+        sinon.match.any,
+        sinon.match.any
+      );
+      expect(fetchDirChildren).to.have.been.calledWith(
+        entityId,
+        sinon.match.any,
+        files[60].index,
+        sinon.match.any,
+        sinon.match.any
+      );
+      const $fileSelected = this.$('.file-selected');
+      expect($fileSelected, 'selected file row').to.exist;
+      expect($fileSelected).to.have.attr('data-row-id', selectedFile.id);
+      done();
     });
   });
 
@@ -533,9 +515,87 @@ describe('Integration | Component | file browser (main component)', function () 
           this.set('spacePrivileges', { view: true });
         });
 
+        ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosMembership => {
+          it(`displays functional qos tag in table header if current dir has "${effQosMembership}" qos`,
+            async function (done) {
+              this.set('dir.effQosMembership', effQosMembership);
+              this.set('spacePrivileges', { view: true, viewQos: true });
+              const openQos = sinon.spy();
+              this.set('openQos', openQos);
+
+              await render(this);
+              expect(openQos).to.have.not.been.called;
+
+              const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+              const $qosTagGroup = $headStatusBar.find('.qos-file-status-tag-group');
+              expect($headStatusBar, 'head status bar').to.have.length(1);
+              expect($qosTagGroup, 'qos tag').to.have.length(1);
+              expect($qosTagGroup.text()).to.contain('QoS');
+              if (['ancestor', 'directAndAncestor'].includes(effQosMembership)) {
+                const $inheritanceIcon = $qosTagGroup.find('.oneicon-inheritance');
+                expect($inheritanceIcon, 'inheritance icon').to.have.length(1);
+              }
+              await click($qosTagGroup.find('.file-status-qos')[0]);
+              expect(openQos).to.have.been.calledOnce;
+              expect(openQos).to.have.been.calledWith([this.get('dir')]);
+              done();
+            }
+          );
+        });
+
+        it('does not display qos tag in table header if current dir has none qos membership',
+          async function (done) {
+            this.set('dir.effQosMembership', 'none');
+
+            await render(this);
+
+            const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+            const $qosTag = $headStatusBar.find('.file-status-qos');
+            expect($headStatusBar, 'head status bar').to.have.length(1);
+            expect($qosTag, 'qos tag').to.not.exist;
+            done();
+          }
+        );
+
+        it('displays functional dataset tag in table header if current dir has direct dataset',
+          async function (done) {
+            this.set('dir.effDatasetMembership', 'direct');
+            const openDatasets = sinon.spy();
+            this.set('openDatasets', openDatasets);
+
+            await render(this);
+            expect(openDatasets).to.have.not.been.called;
+
+            const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+            const $datasetTag = $headStatusBar.find('.file-status-dataset');
+            expect($headStatusBar, 'head status bar').to.have.length(1);
+            expect($datasetTag, 'dataset tag').to.have.length(1);
+            expect($datasetTag.text()).to.contain('Dataset');
+            await click($datasetTag[0]);
+            expect(openDatasets).to.have.been.calledOnce;
+            done();
+          }
+        );
+
+        it('does not display functional dataset tag in table header if current dir has "none" dataset membership',
+          async function (done) {
+            this.set('dir.effDatasetMembership', 'none');
+            const openDatasets = sinon.spy();
+            this.set('openDatasets', openDatasets);
+
+            await render(this);
+            expect(openDatasets).to.have.not.been.called;
+
+            const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+            const $datasetTag = $headStatusBar.find('.file-status-dataset');
+            expect($headStatusBar, 'head status bar').to.have.length(1);
+            expect($datasetTag, 'dataset tag').to.not.exist;
+            done();
+          }
+        );
+
         it('has enabled datasets item in context menu', async function (done) {
-          render(this);
-          await wait();
+          await render(this);
           const $menu = await openFileContextMenu({ entityId: 'i1' });
           expect(
             $menu.find('li:not(.disabled) .file-action-datasets'),
@@ -566,8 +626,7 @@ describe('Integration | Component | file browser (main component)', function () 
         });
 
         it('has disabled datasets item in context menu', async function (done) {
-          render(this);
-          await wait();
+          await render(this);
           const $menu = await openFileContextMenu({ entityId: 'i1' });
           expect($menu.find('li.disabled .file-action-datasets')).to.exist;
 
@@ -660,9 +719,9 @@ function testOpenDatasetsModal(openDescription, openFunction) {
   it(`invokes datasets modal opening when ${openDescription}`, async function (done) {
     const openDatasets = sinon.spy();
     this.set('openDatasets', openDatasets);
-    this.set('item1.effDatasetMembership', 'ancestor');
+    this.set('item1.effDatasetMembership', 'direct');
 
-    render(this);
+    await render(this);
 
     expect(openDatasets).to.have.not.been.called;
     await openFunction.call(this);
@@ -704,8 +763,7 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
     sleeper,
   } = prepareDownload(testCase);
 
-  render(testCase);
-  await wait();
+  await render(testCase);
   const $row = getFileRow({ entityId: fileId });
 
   expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
@@ -728,7 +786,7 @@ function itHasWorkingClipboardFunction({
   expectedToolbarActionId,
   finalExpect,
 }) {
-  it(description, async function () {
+  it(description, async function (done) {
     mockFilesTree(this, {
       f1: null,
       f2: {
@@ -739,9 +797,8 @@ function itHasWorkingClipboardFunction({
 
     this.set('spaceId', 'myspaceid');
 
-    render(this);
+    await render(this);
 
-    await wait();
     expect(this.$('.fb-table-row')).to.exist;
 
     await chooseFileContextMenuAction({ name: 'f1 name' }, contextMenuActionId);
@@ -752,6 +809,7 @@ function itHasWorkingClipboardFunction({
     await click(`.file-action-${expectedToolbarActionId}`);
 
     finalExpect(this);
+    done();
   });
 }
 
@@ -816,11 +874,12 @@ async function chooseFileContextMenuAction(file, actionId) {
   await click(action);
 }
 
-function render(testCase) {
+async function render(testCase) {
   const {
     openCreateNewDirectory,
     openDatasets,
-  } = testCase.getProperties('openCreateNewDirectory', 'openDatasets');
+    openQos,
+  } = testCase.getProperties('openCreateNewDirectory', 'openDatasets', 'openQos');
   setDefaultTestProperty(testCase, 'spacePrivileges', {});
   setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
   setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel.create({
@@ -828,6 +887,7 @@ function render(testCase) {
     openCreateNewDirectory: openCreateNewDirectory ||
       notStubbed('openCreateNewDirectory'),
     openDatasets: openDatasets || notStubbed('openDatasets'),
+    openQos: openQos || notStubbed('openQos'),
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.render(hbs `<div id="content-scroll">{{file-browser
@@ -838,12 +898,12 @@ function render(testCase) {
     selectedItemsForJump=selectedItemsForJump
     fileClipboardMode=fileClipboardMode
     fileClipboardFiles=fileClipboardFiles
-    openDatasets=openDatasets
     spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
     updateDirEntityId=(action updateDirEntityId)
     changeSelectedItems=(action (mut selectedItems))
   }}</div>`);
+  await wait();
 }
 
 function setDefaultTestProperty(testCase, propertyName, defaultValue) {
