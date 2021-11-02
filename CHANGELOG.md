@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8287 Added manual reruns and retries of a workflow lane run
 * VFS-8283 Added showing multiple runs of workflow lanes
 * VFS-8482 Added dedicated page for privacy policy content
 * VFS-7512 Added current directory QoS/Dataset tags in file browser header and collapsing inherited tags in file rows

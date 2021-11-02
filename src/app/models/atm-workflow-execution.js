@@ -71,6 +71,7 @@ export default Model.extend(GraphSingleModelMixin, {
    *       runType: String, // `'regular'` | `'rerun'` | `'retry'`
    *       iteratedStoreId: String,
    *       exceptionStoreId: String|null,
+   *       canBeRetried: Boolean,
    *       parallelBoxes: [
    *         {
    *           schemaId: String, // parallel box schema id,

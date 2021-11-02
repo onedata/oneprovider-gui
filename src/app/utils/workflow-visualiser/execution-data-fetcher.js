@@ -158,6 +158,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
           iteratedStoreInstanceId: run.iteratedStoreId,
           exceptionStoreInstanceId: run.exceptionStoreId,
           status: run.status,
+          canBeRetried: run.canBeRetried,
         };
       }
 
