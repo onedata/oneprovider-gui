@@ -15,8 +15,8 @@ import { reads } from '@ember/object/computed';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
-import { scheduleOnce } from '@ember/runloop';
-import { promise, lte, or } from 'ember-awesome-macros';
+import { debounce } from '@ember/runloop';
+import { promise, lte, or, array, raw } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -67,17 +67,26 @@ export default Component.extend(...mixins, {
    */
   target: '_top',
 
+  /**
+   * Classname added to internal `<a>` element.
+   * @type {String}
+   */
   anchorClassname: 'path-anchor-default',
 
-  archiveId: undefined,
-
-  datasetId: undefined,
-
-  spaceId: undefined,
-
-  archive: reads('archiveProxy.content'),
-
   displayedItemsCount: Number.MAX_SAFE_INTEGER,
+
+  /**
+   * Initialized on init - a bound rerefence to window resize handler.
+   * @type {Function}
+   */
+  onWindowResizeFun: undefined,
+
+  /**
+   * Indicates that path length needs adjustments on next render.
+   * If this flag is set to true, `didRender` will invoke path length adjustment.
+   * @type {Boolean}
+   */
+  adjustmentNeeded: false,
 
   //#region asynchronous data
 
@@ -114,7 +123,7 @@ export default Component.extend(...mixins, {
       if (datasetId && archiveId) {
         const browsableDataset = await datasetManager.getBrowsableDataset(datasetId);
         const browsableArchive = await archiveManager.getBrowsableArchive(archiveId);
-        // FIXME: too low-level
+        // remove special directories from path
         remainFiles.splice(0, 4);
         result.push({
           itemType: 'dataset',
@@ -181,7 +190,7 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  stringifiedPath: computed('allItems.[]', function stringifiedPath() {
+  stringifiedPath: computed('allItems', 'allNames.[]', function stringifiedPath() {
     const allItems = this.get('allItems');
     if (!allItems) {
       return;
@@ -204,21 +213,41 @@ export default Component.extend(...mixins, {
 
   renderTooltip: lte('displayedItemsCount', 'allItems.length'),
 
+  allRecords: array.mapBy('allItems', raw('record')),
+
+  allNames: array.mapBy('allRecords', raw('name')),
+
   resetDisplayedItemsCount: observer('allItems.length', function resetDisplayedItemsCount() {
     if (!this.get('allItems')) {
       return;
     }
-    this.set('displayedItemsCount', this.get('allItems.length') + 1);
+    const prevValue = this.get('allItems.length');
+    const newValue = this.set('displayedItemsCount', prevValue + 1);
+    return prevValue - newValue;
   }),
+
+  init() {
+    this._super(...arguments);
+    this.set('onWindowResizeFun', this.onWindowResize.bind(this));
+  },
 
   /**
    * @override
+   * @param {TransitionEvent|UIEvent} event
    */
-  onWindowResize() {
-    this.resetDisplayedItemsCount();
-    scheduleOnce('afterRender', () => {
-      this.adjustItemsCount();
-    });
+  onWindowResize(event) {
+    if (
+      event &&
+      event.type === 'transitionend' && !['width', 'height'].includes(event.propertyName)
+    ) {
+      return;
+    }
+    const countDiff = this.resetDisplayedItemsCount();
+    this.set('adjustmentNeeded', true);
+    if (countDiff < 0) {
+      // prevents bug when two events (eg. transitionend) are fired at the same moment
+      debounce(this, 'didRender', 100);
+    }
   },
 
   /**
@@ -227,14 +256,27 @@ export default Component.extend(...mixins, {
   didInsertElement() {
     this._super(...arguments);
     this.attachWindowResizeHandler();
+    const onWindowResizeFun = this.get('onWindowResizeFun');
+    document.querySelector('body').addEventListener(
+      'transitionend',
+      onWindowResizeFun
+    );
+    this.get('allItemsProxy').then(() => {
+      this.displayedItemsObserver();
+    });
   },
 
   /**
    * @override
    */
-  willRemoveElement() {
+  willDestroyElement() {
     this._super(...arguments);
     this.detachWindowResizeHandler();
+    const onWindowResizeFun = this.get('onWindowResizeFun');
+    document.querySelector('body').removeEventListener(
+      'transitionend',
+      onWindowResizeFun
+    );
   },
 
   /**
@@ -245,14 +287,29 @@ export default Component.extend(...mixins, {
     this.adjustItemsCount();
   },
 
+  displayedItemsObserver: observer(
+    'displayedItems.[]',
+    'allNames.[]',
+    function displayedItemsObserver() {
+      let countDiff;
+      if (!this.get('adjustmentNeeded')) {
+        countDiff = this.resetDisplayedItemsCount();
+      }
+      this.set('adjustmentNeeded', true);
+      if (countDiff && countDiff < 0) {
+        debounce(this, 'didRender', 100);
+      }
+    }
+  ),
+
   adjustItemsCount() {
     const element = this.get('element');
     const pathContainer = element.querySelector('.path-container');
     const path = pathContainer.querySelector('.path');
-    // FIXME: debug code
-    // console.log(path.clientWidth, pathContainer.clientWidth);
     if (path && path.clientWidth > pathContainer.clientWidth) {
       this.decrementProperty('displayedItemsCount');
+    } else {
+      this.set('adjustmentNeeded', false);
     }
   },
 });

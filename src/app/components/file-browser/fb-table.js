@@ -505,7 +505,7 @@ export default Component.extend(I18n, {
       if (get(dir, 'entityId') !== entityId) {
         // due to incomplete async implementation in fb-table, sometimes it can ask for
         // children of dir that is not currently opened
-        throw new Error('dir.entityId does not match current dir');
+        return { childrenRecords: [], isLast: true };
       }
       const effEntityId = get(dir, 'effFile.entityId') || get(dir, 'entityId');
       return fetchFun(effEntityId, ...args);

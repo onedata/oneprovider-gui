@@ -18,3 +18,32 @@
     }
   }
 }
+
+.dummy-item-path {
+  .item-path {
+    border: 1px solid red;
+  }
+  .item-path-1 {
+    width: 300px;
+  }
+  .item-path-2 {
+    width: 700px;
+  }
+  .item-path-3 {
+    width: 800px;
+  }
+  .item-path-4 {
+    width: 700px;
+    transition: width 1s ease-in;
+    &.transitioned {
+      width: 800px;
+    }
+  }
+  .item-path-5 {
+    width: 800px;
+    transition: width 1s ease-out;
+    &.transitioned {
+      width: 700px;
+    }
+  }
+}
