@@ -78,7 +78,13 @@ export default Service.extend({
   async resolveForDir(dir, currentFilesViewContext, fallbackDir, selectedIds) {
     const filesViewContextFactory = this.get('filesViewContextFactory');
     const filesViewContext = await filesViewContextFactory.createFromFile(dir);
-    if (filesViewContext.isEqual(currentFilesViewContext)) {
+    if (
+      get(filesViewContext, 'isSpecialHiddenDir') &&
+      get(filesViewContext, 'archiveId') === null
+    ) {
+      // special case - directory that should not be opened
+      return this.generateFallbackResponse(fallbackDir);
+    } else if (filesViewContext.isEqual(currentFilesViewContext)) {
       return { result: 'resolve', dir, filesViewContext };
     } else {
       const url = this.generateUrl(

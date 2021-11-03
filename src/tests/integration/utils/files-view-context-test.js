@@ -8,6 +8,7 @@ import {
   createArchiveRootDir,
   createFile,
   createEntityId,
+  createOnedataArchivesRootDir,
   createPublicEntityId,
   createShareRootDir,
 } from '../../helpers/files';
@@ -21,12 +22,6 @@ describe('Integration | Utility | files view context', function () {
     const factory = FilesViewContextFactory.create({ ownerSource: this });
     this.set('factory', factory);
   });
-
-  // FIXME: detects different browserType/share/archive/dataset when comparing to other instance
-  // FIXME: generates URL to dataset browser using service if is generated for archived file
-  // FIXME: generates URL to regular file browser using service
-  // FIXME: generates URL to parent dir of selected files using service to regular file browser
-  // FIXME: ^ to archive file browser
 
   it('has "archive" browser type and valid datasetId and archiveId when constructed from a dir inside an archive',
     async function () {
@@ -52,6 +47,7 @@ describe('Integration | Utility | files view context', function () {
 
       expect(get(filesViewContext, 'spaceId')).to.equal(spaceId);
       expect(get(filesViewContext, 'shareId')).to.equal(null);
+      expect(get(filesViewContext, 'isSpecialHiddenDir')).to.equal(false);
       expect(get(filesViewContext, 'datasetId')).to.equal(datasetId);
       expect(get(filesViewContext, 'archiveId')).to.equal(archiveId);
       expect(get(filesViewContext, 'browserType')).to.equal('archive');
@@ -80,6 +76,7 @@ describe('Integration | Utility | files view context', function () {
 
       expect(get(filesViewContext, 'spaceId')).to.equal(spaceId);
       expect(get(filesViewContext, 'shareId')).to.equal(null);
+      expect(get(filesViewContext, 'isSpecialHiddenDir')).to.equal(false);
       expect(get(filesViewContext, 'datasetId')).to.equal(null);
       expect(get(filesViewContext, 'archiveId')).to.equal(null);
       expect(get(filesViewContext, 'browserType')).to.equal('space');
@@ -111,9 +108,27 @@ describe('Integration | Utility | files view context', function () {
 
       expect(get(filesViewContext, 'spaceId')).to.equal(spaceId);
       expect(get(filesViewContext, 'shareId')).to.equal(shareId);
+      expect(get(filesViewContext, 'isSpecialHiddenDir')).to.equal(false);
       expect(get(filesViewContext, 'datasetId')).to.equal(null);
       expect(get(filesViewContext, 'archiveId')).to.equal(null);
       expect(get(filesViewContext, 'browserType')).to.equal('share');
+    }
+  );
+
+  it('detects special hidden dir when constructed from a datasets-archives hidden root dir',
+    async function () {
+      const factory = this.get('factory');
+      const spaceId = 'space_id_123';
+      const onedataArchivesRootDir = createOnedataArchivesRootDir(spaceId);
+
+      const filesViewContext = await factory.createFromFile(onedataArchivesRootDir);
+
+      expect(get(filesViewContext, 'spaceId')).to.equal(spaceId);
+      expect(get(filesViewContext, 'shareId')).to.equal(null);
+      expect(get(filesViewContext, 'isSpecialHiddenDir')).to.equal(true);
+      expect(get(filesViewContext, 'datasetId')).to.equal(null);
+      expect(get(filesViewContext, 'archiveId')).to.equal(null);
+      expect(get(filesViewContext, 'browserType')).to.equal('space');
     }
   );
 

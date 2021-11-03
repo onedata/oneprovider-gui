@@ -12,22 +12,26 @@ export function createSpaceRootDir(spaceId = defaultSpaceId) {
   });
 }
 
-export function createArchiveRootDir(datasetId, archiveId, spaceId = defaultSpaceId) {
+export function createOnedataArchivesRootDir(spaceId = defaultSpaceId) {
   const spaceRootDir = createSpaceRootDir(spaceId);
-  const specialDir = createFile({
-    entityId: createEntityId('special_dir'),
+  return createFile({
+    entityId: createEntityId('special_dir', spaceId),
     name: '.__onedata__archive',
     type: 'dir',
     parentObject: spaceRootDir,
   });
+}
+
+export function createArchiveRootDir(datasetId, archiveId, spaceId = defaultSpaceId) {
+  const specialDir = createOnedataArchivesRootDir(spaceId);
   const datasetDir = createFile({
-    entityId: createEntityId('dataset_dir_id'),
+    entityId: createEntityId('dataset_dir_id', spaceId),
     name: `dataset_archives_${datasetId}`,
     type: 'dir',
     parentObject: specialDir,
   });
   const archiveDir = createFile({
-    entityId: createEntityId('archive_dir_id'),
+    entityId: createEntityId('archive_dir_id', spaceId),
     name: `archive_${archiveId}`,
     type: 'dir',
     parentObject: datasetDir,

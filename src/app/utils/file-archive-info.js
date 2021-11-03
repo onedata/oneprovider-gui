@@ -46,6 +46,25 @@ export default EmberObject.extend(OwnerInjector, {
     }
   )),
 
+  isSpecialHiddenDirProxy: promise.object(computed(
+    'filePathProxy',
+    async function archiveIdProxy() {
+      const onedataArchivesRootDirName = this.get('onedataArchivesRootDirName');
+      const filePath = await this.get('filePathProxy');
+      if (!isArray(filePath)) {
+        return null;
+      }
+
+      const length = get(filePath, 'length');
+      const lastFileType = get(filePath[length - 1], 'type');
+      console.log(lastFileType);
+      return lastFileType === 'dir' && (
+        length >= 2 && length <= 4 &&
+        get(filePath[1], 'name') === onedataArchivesRootDirName
+      );
+    }
+  )),
+
   datasetIdProxy: promise.object(computed(
     'filePathProxy',
     async function archiveIdProxy() {

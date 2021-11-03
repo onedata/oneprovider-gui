@@ -35,6 +35,7 @@ const FilesViewContext = EmberObject.extend({
       'browserType',
       'spaceId',
       'shareId',
+      'isSpecialHiddenDirProxy',
       'datasetId',
       'archiveId',
     ].every((property) => {
@@ -62,6 +63,7 @@ export const FilesViewContextFactory = EmberObject.extend(OwnerInjector, {
       ownerSource: this,
       spaceId: getSpaceIdFromFileId(fileId),
       shareId,
+      isSpecialHiddenDir: await get(fileArchiveInfo, 'isSpecialHiddenDirProxy'),
       archiveId: await get(fileArchiveInfo, 'archiveIdProxy'),
       datasetId: await get(fileArchiveInfo, 'datasetIdProxy'),
       file,
