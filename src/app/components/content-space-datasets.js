@@ -1093,10 +1093,16 @@ export default OneEmbeddedComponent.extend(...mixins, {
         this.callParent('updateArchiveId', itemId);
         this.callParent('updateDirId', null);
       } else if (viewMode === 'files') {
-        if (itemId === this.get('datasetId')) {
+        const {
+          datasetId,
+          archive,
+        } = this.getProperties('datasetId', 'archive');
+        if (itemId === datasetId) {
           this.callParent('updateArchiveId', null);
           this.callParent('updateDirId', null);
           this.callParent('updateViewMode', 'archives');
+        } else if (itemId === archive && archive.relationEntityId('rootDir')) {
+          this.callParent('updateDirId', null);
         } else {
           this.callParent('updateDirId', itemId);
         }
