@@ -25,6 +25,7 @@ import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { htmlSafe } from '@ember/string';
 import { isEmpty } from 'ember-awesome-macros';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 
 /**
  * @type {number}
@@ -41,6 +42,7 @@ export default Component.extend(
     classNames: ['fb-breadcrumbs'],
 
     fileManager: service(),
+    archiveManager: service(),
     i18n: service(),
 
     /**
@@ -191,15 +193,27 @@ export default Component.extend(
     /**
      * @override
      */
-    fetchDirPath() {
+    async fetchDirPath() {
       const {
         dir,
         rootDir,
-      } = this.getProperties('dir', 'rootDir');
-      return resolveFilePath(dir, this.resolveFileParent.bind(this))
-        .then(dirPath => {
-          return rootDir ? cutDirsPath(dirPath, rootDir) : dirPath;
-        });
+        archiveManager,
+      } = this.getProperties('dir', 'rootDir', 'archiveManager');
+      let dirPath = await resolveFilePath(dir, this.resolveFileParent.bind(this));
+      dirPath = rootDir ? cutDirsPath(dirPath, rootDir) : dirPath;
+      for (let i = 0; i < get(dirPath, 'length'); ++i) {
+        const currentDir = dirPath[i];
+        if (get(currentDir, 'isArchiveRootDir')) {
+          const browsableArchive =
+            await archiveManager.getBrowsableArchive(currentDir.relationEntityId('archive'));
+          dirPath[i] = BrowsableArchiveRootDir.create({
+            content: currentDir,
+            browsableArchive,
+          });
+          break;
+        }
+      }
+      return dirPath;
     },
 
     /**
