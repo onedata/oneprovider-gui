@@ -9,12 +9,11 @@
       {{#promise-proxy-container proxy=archiveInfoProxy sizeClass="xs"}}
         <div class="fb-breadcrumbs-container">
           {{file-browser/fb-breadcrumbs
-            class=(if archiveInfo.isInArchive "breadcrumbs-links-disabled")
             dir=share.privateRootFile.content
             rootDir=breadcrumbsRootDir
             rootIcon=breadcrumbsRootIcon
             alwaysShowRootName=archiveInfo.isInArchive
-            changeDir=(unless archiveInfo.isInArchive (action "openSpaceDir"))
+            changeDir=(action "openSpaceDir")
           }}
         </div>
       {{/promise-proxy-container}}

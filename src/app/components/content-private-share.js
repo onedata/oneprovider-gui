@@ -1,6 +1,6 @@
 /**
  * Container for private share file browser to use in an iframe with injected properties.
- * 
+ *
  * @module component/content-private-share
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
