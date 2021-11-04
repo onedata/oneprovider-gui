@@ -15,7 +15,7 @@ import { reads } from '@ember/object/computed';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
-import { debounce } from '@ember/runloop';
+import { debounce, scheduleOnce } from '@ember/runloop';
 import { promise, lte, or, array, raw } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -226,6 +226,21 @@ export default Component.extend(...mixins, {
     return prevValue - newValue;
   }),
 
+  displayedItemsObserver: observer(
+    'displayedItems.[]',
+    'allNames.[]',
+    function displayedItemsObserver() {
+      let countDiff;
+      if (!this.get('adjustmentNeeded')) {
+        countDiff = this.resetDisplayedItemsCount();
+      }
+      this.set('adjustmentNeeded', true);
+      if (countDiff && countDiff < 0) {
+        debounce(this, 'didRender', 100);
+      }
+    }
+  ),
+
   init() {
     this._super(...arguments);
     this.set('onWindowResizeFun', this.onWindowResize.bind(this));
@@ -235,13 +250,11 @@ export default Component.extend(...mixins, {
    * @override
    * @param {TransitionEvent|UIEvent} event
    */
-  onWindowResize(event) {
-    if (
-      event &&
-      event.type === 'transitionend' && !['width', 'height'].includes(event.propertyName)
-    ) {
+  onWindowResize( /** event */ ) {
+    if (!this.updatePathWidthInfo().changed) {
       return;
     }
+    console.log('event true');
     const countDiff = this.resetDisplayedItemsCount();
     this.set('adjustmentNeeded', true);
     if (countDiff < 0) {
@@ -287,29 +300,38 @@ export default Component.extend(...mixins, {
     this.adjustItemsCount();
   },
 
-  displayedItemsObserver: observer(
-    'displayedItems.[]',
-    'allNames.[]',
-    function displayedItemsObserver() {
-      let countDiff;
-      if (!this.get('adjustmentNeeded')) {
-        countDiff = this.resetDisplayedItemsCount();
-      }
-      this.set('adjustmentNeeded', true);
-      if (countDiff && countDiff < 0) {
-        debounce(this, 'didRender', 100);
-      }
-    }
-  ),
-
   adjustItemsCount() {
-    const element = this.get('element');
-    const pathContainer = element.querySelector('.path-container');
-    const path = pathContainer.querySelector('.path');
-    if (path && path.clientWidth > pathContainer.clientWidth) {
+    if (this.isPathOverflow()) {
       this.decrementProperty('displayedItemsCount');
     } else {
       this.set('adjustmentNeeded', false);
     }
+  },
+
+  isPathOverflow() {
+    const {
+      pathWidth,
+      pathContainerWidth,
+    } = this.updatePathWidthInfo();
+    return pathWidth && pathWidth > pathContainerWidth || false;
+  },
+
+  updatePathWidthInfo() {
+    const element = this.get('element');
+    const pathContainer = element.querySelector('.path-container');
+    const path = pathContainer.querySelector('.path');
+    const pathWidth = path && path.clientWidth || 0;
+    const pathContainerWidth = pathContainer.clientWidth;
+    const changed = this.get('lastPathWidth') !== pathWidth ||
+      this.get('lastPathContainerWidth') !== pathContainerWidth;
+    this.setProperties({
+      lastPathWidth: pathWidth,
+      lastPathContainerWidth: pathContainerWidth,
+    });
+    return {
+      pathWidth,
+      pathContainerWidth,
+      changed,
+    };
   },
 });
