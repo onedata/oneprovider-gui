@@ -134,6 +134,11 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
         '_window',
       );
 
+      // special case - virtual share root, not supported by resolver (not a real dir)
+      if (!dirId || dirId === shareRootId) {
+        return rootDir;
+      }
+
       const selectedIds = selectedItems && selectedItems.mapBy('entityId') || [];
       const shareId = get(share, 'entityId');
       const currentFilesViewContext = FilesViewContext.create({
