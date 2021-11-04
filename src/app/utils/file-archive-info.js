@@ -57,7 +57,6 @@ export default EmberObject.extend(OwnerInjector, {
 
       const length = get(filePath, 'length');
       const lastFileType = get(filePath[length - 1], 'type');
-      console.log(lastFileType);
       return lastFileType === 'dir' && (
         length >= 2 && length <= 4 &&
         get(filePath[1], 'name') === onedataArchivesRootDirName
