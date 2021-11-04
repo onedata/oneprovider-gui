@@ -15,7 +15,7 @@ import { reads } from '@ember/object/computed';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
-import { debounce, scheduleOnce } from '@ember/runloop';
+import { debounce } from '@ember/runloop';
 import { promise, lte, or, array, raw } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';

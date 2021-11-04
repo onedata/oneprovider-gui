@@ -200,10 +200,11 @@ describe('Integration | Component | item path', function () {
       item,
     });
 
-    render(this);
+    const renderPromise = render(this);
 
     expect(this.$('.item-path .path-loading')).to.exist;
     expect(this.$('.item-path').text()).to.match(/Loading path.../);
+    await renderPromise;
   });
 
   it('shows error text when path resolving failed', async function () {
