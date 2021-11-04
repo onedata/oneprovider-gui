@@ -35,6 +35,9 @@ const ShareRootDir = EmberObject.extend({
   isShareRoot: true,
   hasParent: false,
   parent: promise.object(raw(resolve(null))),
+  async reload() {
+    return this;
+  },
 });
 
 export default Component.extend(I18n, ItemBrowserContainerBase, {

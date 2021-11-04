@@ -52,6 +52,9 @@ export const SpaceDatasetsRootBaseClass = EmberObject.extend({
   relationEntityId( /*relation*/ ) {
     return null;
   },
+  async reload() {
+    return this;
+  },
 });
 
 export const SpaceDatasetsRootClass = BrowsableDataset.extend({
