@@ -11,12 +11,17 @@ import fileName from 'oneprovider-gui/utils/file-name';
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import { promise, and, not } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: ['cell-data-name', 'cell-file-name'],
+
   i18n: service(),
+  filesViewResolver: service(),
+  isMobile: service(),
 
   /**
    * @override
@@ -29,16 +34,19 @@ export default Component.extend(I18n, {
    */
   openDbViewModal: notImplementedThrow,
 
+  navigateTarget: '_top',
+
   record: undefined,
 
   /**
    * Same as in `Transfer.dataSourceType`.
    * One of: dir, file, deleted, view, unknown
    */
-  dataSourceType: computed.reads('record.transfer.dataSourceType'),
-  dataSourceName: computed.reads('record.transfer.dataSourceName'),
-  totalFiles: computed.reads('record.totalFiles'),
-  space: computed.reads('record.space'),
+  dataSourceType: reads('record.transfer.dataSourceType'),
+  dataSourceName: reads('record.transfer.dataSourceName'),
+  dataSourceId: reads('record.transfer.dataSourceId'),
+  totalFiles: reads('record.totalFiles'),
+  space: reads('record.space'),
 
   name: computed(
     'dataSourceType',
@@ -110,7 +118,38 @@ export default Component.extend(I18n, {
         default:
           break;
       }
-    }),
+    }
+  ),
+
+  hrefProxy: promise.object(computed(
+    'dataSourceType',
+    'dataSourceId',
+    async function hrefProxy() {
+      const {
+        filesViewResolver,
+        dataSourceType,
+        dataSourceId,
+      } = this.getProperties('filesViewResolver', 'dataSourceType', 'dataSourceId');
+      if (!dataSourceId || (dataSourceType !== 'file' && dataSourceType !== 'dir')) {
+        return null;
+      }
+      try {
+        return await filesViewResolver.generateUrlById(dataSourceId, 'select');
+      } catch (error) {
+        console.warn(
+          'component:space-transfers/cell-data-name#hrefProxy: generating URL failed',
+          error
+        );
+        return null;
+      }
+    }
+  )),
+
+  href: reads('hrefProxy.content'),
+
+  enableMobileHint: and('hint', 'isMobile.any'),
+
+  enableDesktopHint: and('hint', not('isMobile.any')),
 
   actions: {
     openDbViewModal(mouseEvent) {
@@ -120,6 +159,9 @@ export default Component.extend(I18n, {
       } finally {
         mouseEvent.stopPropagation();
       }
+    },
+    stopEventPropagation(event) {
+      event.stopPropagation();
     },
   },
 });

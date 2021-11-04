@@ -1,17 +1,45 @@
 {{#one-icon icon=icon class="transfer-file-icon"}}
-  {{bs-tooltip placement="top" title=hint}}
+  {{#if enableMobileHint}}
+    {{bs-tooltip placement="top" title=hint}}
+  {{/if}}
 {{/one-icon}}
 {{#if (or (eq dataSourceType "file") (eq dataSourceType "dir"))}}
-  <span class="transfer-file-name">{{name}}</span>
-  {{!-- TODO: links to files - currently there is no dataSourceRecord property --}}
-  {{!-- {{#link-to "onedata.data.data-space.dir" space dataSourceRecord class="transfer-file-name"}}{{dataSourceName}}{{/link-to}} --}}
+  {{#if href}}
+    <a
+      class="transfer-file-name azure"
+      href={{href}}
+      target={{navigateTarget}}
+      onclick={{action "stopEventPropagation" bubbles=false}}
+      onkeydown={{action "stopEventPropagation" bubbles=false}}
+    >
+      {{name}}
+      {{#if enableDesktopHint}}
+        {{bs-tooltip placement="top" title=hint}}
+      {{/if}}
+    </a>
+  {{else}}
+    <span class="transfer-file-name">
+      {{name}}
+      {{#if enableDesktopHint}}
+        {{bs-tooltip placement="top" title=hint}}
+      {{/if}}
+    </span>
+  {{/if}}
 {{else if (eq dataSourceType "view")}}
   <a
     class="transfer-file-name transfer-data-name"
     onclick={{action "openDbViewModal" bubbles=false}}
   >
     {{name}}
+    {{#if enableDesktopHint}}
+      {{bs-tooltip placement="top" title=hint}}
+    {{/if}}
   </a>
 {{else}}
-  <span class="transfer-file-name transfer-data-name">{{name}}</span>
+  <span class="transfer-file-name transfer-data-name">
+    {{name}}
+    {{#if enableDesktopHint}}
+      {{bs-tooltip placement="top" title=hint}}
+    {{/if}}
+  </span>
 {{/if}}

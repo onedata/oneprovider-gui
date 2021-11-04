@@ -21,6 +21,10 @@ const TransferManager = Service.extend({
 
 const GuiContext = Service.extend({});
 
+const FilesViewResolver = Service.extend({
+  async generateUrlById() { return 'https://dummy_url'; },
+});
+
 describe('Integration | Component | content space transfers', function () {
   setupComponentTest('content-space-transfers', {
     integration: true,
@@ -30,6 +34,7 @@ describe('Integration | Component | content space transfers', function () {
     registerService(this, 'store', Store);
     registerService(this, 'transferManager', TransferManager);
     registerService(this, 'guiContext', GuiContext);
+    registerService(this, 'filesViewResolver', FilesViewResolver);
   });
 
   describe('renders in an iframe', function () {

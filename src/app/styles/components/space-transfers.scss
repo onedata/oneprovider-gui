@@ -9,21 +9,21 @@ $space-transfers-gray: #B6BAC0;
 
 .space-transfers {
   $-table-border-color: $main-border-color;
-  
+
   tr.transfer-row, .transfer-item-header {
     height: 73px;
-    
+
     &.other-collection {
       td {
         opacity: $disabled-opacity;
       }
     }
   }
-  
+
   .transfer-item-header .cell-data-name {
     margin-top: 8px;
   }
-  
+
   // TODO: this seems to be generic for new style in content views
   h1, h2 {
     font-size: 100%;
@@ -36,7 +36,7 @@ $space-transfers-gray: #B6BAC0;
       top: -9px;
     }
   }
-  
+
   .ct-label.ct-vertical, .ct-label.ct-horizontal {
     white-space: nowrap;
   }
@@ -49,7 +49,7 @@ $space-transfers-gray: #B6BAC0;
   .transfers-throughput-distribution {
     $-ct-chart-height: 350px;
     $-ct-chart-padding-top: 20px;
-    
+
     position: relative;
     .loadable-row {
       height: $-ct-chart-height + $-ct-chart-padding-top;
@@ -269,7 +269,7 @@ $space-transfers-gray: #B6BAC0;
       border-bottom: none;
     }
   }
-  
+
   .nav-tabs-transfers {
     .nav-link-file {
       min-width: 120px;
@@ -278,7 +278,7 @@ $space-transfers-gray: #B6BAC0;
         padding-left: 4px;
         padding-right: 8px;
         &.truncate {
-          max-width: 200px;  
+          max-width: 200px;
         }
       }
       .tab-close {
@@ -307,7 +307,7 @@ $space-transfers-gray: #B6BAC0;
     margin-top: -2px;
   }
   .transfer-file-name {
-    padding-left: 40px;
+    margin-left: 40px;
   }
   .transfer-file-icon {
     font-size: 32px;
@@ -319,7 +319,6 @@ $space-transfers-gray: #B6BAC0;
   .cell-icon {
     display: block;
     position: relative;
-    
   }
 }
 .cell-icon {
