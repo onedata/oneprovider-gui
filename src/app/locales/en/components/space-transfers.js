@@ -34,6 +34,7 @@ export default {
     dir: 'Directory',
     view: 'View',
     deleted: 'deleted',
+    unknown: 'unknown',
   },
   cellStatus: {
     completed: 'Completed',

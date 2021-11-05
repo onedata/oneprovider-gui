@@ -138,14 +138,19 @@ export default Component.extend(I18n, {
             const archiveId = await get(fileArchiveInfo, 'archiveIdProxy');
             const archive = await archiveManager.getBrowsableArchive(archiveId);
             const relativePath = dirSeparator + fileNames.slice(4).join(dirSeparator);
+            const unknownHtml = `<em>${this.t('unknown')}</em>`;
             return htmlSafe(`
               <div class="tip-row-dataset">
                 <span class="tip-label">${this.t('dataset')}:</span>
-                <span class="dataset-name">${get(dataset, 'name')}</span>
+                <span class="dataset-name">
+                  ${dataset && get(dataset, 'name') || unknownHtml}
+                </span>
               </div>
               <div class="tip-row-archive">
                 <span class="tip-label">${this.t('archive')}:</span>
-                <span class="archive-name">${get(archive, 'name')}</span>
+                <span class="archive-name">
+                  ${archive && get(archive, 'name') || unknownHtml}
+                </span>
               </div>
               <div class="tip-row-path">
                 <span class="tip-label">${this.t(dataSourceType)}:</span>
