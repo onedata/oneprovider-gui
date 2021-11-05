@@ -139,12 +139,12 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
   fileName: reads('file.name'),
 
-  fileGuiUrl: computed('file.entidyId', function fileGuiUrl() {
+  fileGuiUrl: computed('file.entityId', function fileGuiUrl() {
     const {
       file,
       getDataUrl,
     } = this.getProperties('file', 'getDataUrl');
-    if (!file && !getDataUrl) {
+    if (!file || !getDataUrl || getDataUrl === notImplementedThrow) {
       return;
     }
     return getDataUrl({
