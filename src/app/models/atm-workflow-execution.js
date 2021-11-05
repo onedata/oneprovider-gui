@@ -63,17 +63,27 @@ export default Model.extend(GraphSingleModelMixin, {
    * ```
    * {
    *   schemaId: String, // lane schema id,
-   *   status: String, // for possible values see `status` field in `atmTaskExecution` model
-   *   parallelBoxes: [
+   *   runs: [
    *     {
-   *       schemaId: String, // lane schema id,
-   *       status: String, // for possible values see `status` field in
-   *         // `atmTaskExecution` model
-   *       taskRegistry: Object // Mapping: `{ taskSchemaId -> taskId }`
+   *       status: String,
+   *       runNumber: Number|null, // null means run prepared in advance
+   *       originRunNumber: Number|null,
+   *       runType: String, // `'regular'` | `'rerun'` | `'retry'`
+   *       iteratedStoreId: String,
+   *       exceptionStoreId: String|null,
+   *       parallelBoxes: [
+   *         {
+   *           schemaId: String, // parallel box schema id,
+   *           status: String,
+   *           taskRegistry: Object // Mapping: `{ taskSchemaId -> taskId }`
+   *         },
+   *         { ... },
+   *         ...
+   *       ]
    *     },
    *     { ... },
    *     ...
-   *  ]
+   *   ]
    * }
    * ```
    * @type {ComputedProperty<Array<Object>>}

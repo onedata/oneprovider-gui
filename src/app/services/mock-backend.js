@@ -30,6 +30,7 @@ import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive'
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
@@ -1188,6 +1189,7 @@ export default Service.extend({
           lanes: [{
             id: 'lane1',
             name: 'lane 1',
+            maxRetries: 3,
             storeIteratorSpec: {
               strategy: {
                 type: 'serial',
@@ -1271,43 +1273,6 @@ export default Service.extend({
               'lanes'
             )
           ).save();
-          const executionLanes = [];
-          for (const lane of lanes) {
-            const executionLane = {
-              schemaId: lane.id,
-              status: 'pending',
-              parallelBoxes: [],
-            };
-            for (const parallelBox of lane.parallelBoxes) {
-              const executionParallelBox = {
-                schemaId: parallelBox.id,
-                status: 'pending',
-                taskRegistry: {},
-              };
-              for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
-                const task = parallelBox.tasks[taskIdx];
-                const taskEntityId = generateAtmTaskExecutionEntityId(taskIdx, entityId);
-                const executionTaskRecord = await store.createRecord('atmTaskExecution', {
-                  id: gri({
-                    entityType: atmTaskExecutionEntityType,
-                    entityId: taskEntityId,
-                    aspect: 'instance',
-                    scope: 'private',
-                  }),
-                  schemaId: task.id,
-                  systemAuditLogId: `auditLog-task-${taskEntityId}`,
-                  status: 'pending',
-                  itemsInProcessing: 0,
-                  itemsProcessed: 0,
-                  itemsFailed: 0,
-                }).save();
-                executionParallelBox.taskRegistry[task.id] =
-                  get(executionTaskRecord, 'entityId');
-              }
-              executionLane.parallelBoxes.push(executionParallelBox);
-            }
-            executionLanes.push(executionLane);
-          }
           const storeRegistry = get(atmWorkflowSchemaSnapshot, 'stores').reduce(
             (registry, store) => {
               const storeId = get(store, 'id');
@@ -1315,6 +1280,89 @@ export default Service.extend({
               return registry;
             }, {}
           );
+          const executionLanes = [];
+          if (i < 5) {
+            for (const lane of lanes) {
+              const executionLane = {
+                schemaId: lane.id,
+                runs: [],
+              };
+              const runsCount = 11;
+              const statusesPerRun = [
+                ..._.times(runsCount - 1, (idx) => [idx + 1, 'failed']),
+                [runsCount, 'active'],
+              ];
+              const storeIdFromSpec = storeRegistry[lane.storeIteratorSpec.storeSchemaId];
+              const exceptionStoresPerRun = {};
+              for (const [runNumber, status] of statusesPerRun) {
+                const exceptionStoreId = `exception-${phase}-${i}-${lane.id}-${runNumber}`;
+                exceptionStoresPerRun[runNumber] =
+                  await this.createAtmStore(exceptionStoreId, {
+                    type: 'list',
+                    dataSpec: { type: 'object' },
+                  });
+                const prevRunExceptionStoreId =
+                  runNumber > 1 && get(exceptionStoresPerRun[runNumber - 1], 'entityId');
+                const isRerun = runNumber % 5 == 0;
+                const run = {
+                  runNumber,
+                  originRunNumber: runNumber === 1 ? null : (isRerun ? 1 : runNumber - 1),
+                  runType: runNumber === 1 ? 'regular' : (isRerun ? 'rerun' : 'retry'),
+                  iteratedStoreId: runNumber === 1 || isRerun ?
+                    storeIdFromSpec : prevRunExceptionStoreId,
+                  exceptionStoreId,
+                  status,
+                  parallelBoxes: [],
+                };
+                for (const parallelBox of lane.parallelBoxes) {
+                  const executionParallelBox = {
+                    schemaId: parallelBox.id,
+                    status,
+                    taskRegistry: {},
+                  };
+                  for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
+                    const task = parallelBox.tasks[taskIdx];
+                    const taskEntityId =
+                      generateAtmTaskExecutionEntityId(taskIdx, entityId, runNumber);
+                    const systemAuditLogId = `auditLog-task-${taskEntityId}`;
+                    await this.createAtmStore(systemAuditLogId, {
+                      type: 'auditLog',
+                      dataSpec: { type: 'object' },
+                    });
+                    const executionTaskRecord = await store.createRecord('atmTaskExecution', {
+                      id: gri({
+                        entityType: atmTaskExecutionEntityType,
+                        entityId: taskEntityId,
+                        aspect: 'instance',
+                        scope: 'private',
+                      }),
+                      schemaId: task.id,
+                      systemAuditLogId,
+                      status,
+                      itemsInProcessing: runNumber * 10,
+                      itemsProcessed: runNumber * 5,
+                      itemsFailed: runNumber * 2,
+                    }).save();
+                    executionParallelBox.taskRegistry[task.id] =
+                      get(executionTaskRecord, 'entityId');
+                  }
+                  run.parallelBoxes.push(executionParallelBox);
+                }
+                executionLane.runs.push(run);
+              }
+              // simulate prepare in advance
+              Object.assign(executionLane.runs[executionLane.runs.length - 1], {
+                runNumber: null,
+                originRunNumber: null,
+              });
+              executionLanes.push(executionLane);
+            }
+          }
+          const systemAuditLogId = `auditLog-workflow-${entityId}`;
+          await this.createAtmStore(systemAuditLogId, {
+            type: 'auditLog',
+            dataSpec: { type: 'object' },
+          });
           const atmWorkflowExecution = await store.createRecord('atmWorkflowExecution', {
             id: gri({
               entityType: atmWorkflowExecutionEntityType,
@@ -1324,7 +1372,7 @@ export default Service.extend({
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
             storeRegistry,
-            systemAuditLogId: `auditLog-workflow-${entityId}`,
+            systemAuditLogId,
             lanes: executionLanes,
             scheduleTime,
             startTime,
@@ -1356,6 +1404,18 @@ export default Service.extend({
     this.set('entityRecords.atmWorkflowExecution', atmWorkflowExecutions);
     this.set('entityRecords.atmWorkflowExecutionSummary', atmWorkflowExecutionSummaries);
     return atmWorkflowExecutions;
+  },
+
+  async createAtmStore(atmStoreEntityId, data) {
+    const id = gri({
+      entityType: atmStoreEntityType,
+      entityId: atmStoreEntityId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .createRecord('atmStore', Object.assign({ id }, data))
+      .save();
   },
 
   createEntityRecords(store, type, names, additionalInfo) {
@@ -1417,8 +1477,12 @@ export function generateAtmWorkflowExecutionEntityId(i, state, scheduleTime, sta
   return btoa(`atmWorkflowExecution-${state}-${i}-${scheduleTime}-${startTime}`);
 }
 
-export function generateAtmTaskExecutionEntityId(i, atmWorkflowExecutionEntityId) {
-  return btoa(`atmTaskExecution-${atmWorkflowExecutionEntityId}-${i}`);
+export function generateAtmTaskExecutionEntityId(
+  i,
+  atmWorkflowExecutionEntityId,
+  runNumber
+) {
+  return btoa(`atmTaskExecution-${atmWorkflowExecutionEntityId}-${i}-${runNumber}`);
 }
 
 export function generateFileGri(entityId) {
