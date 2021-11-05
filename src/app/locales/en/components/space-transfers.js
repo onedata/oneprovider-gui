@@ -28,6 +28,8 @@ export default {
     rerunTransfer: 'Rerun transfer',
   },
   cellDataName: {
+    dataset: 'Dataset',
+    archive: 'Archive',
     file: 'File',
     dir: 'Directory',
     view: 'View',

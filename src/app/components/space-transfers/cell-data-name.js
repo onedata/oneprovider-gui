@@ -10,11 +10,15 @@
 import fileName from 'oneprovider-gui/utils/file-name';
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { promise, and, not } from 'ember-awesome-macros';
+import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
+import { htmlSafe } from '@ember/string';
 
 export default Component.extend(I18n, {
   classNames: ['cell-data-name', 'cell-file-name'],
@@ -22,6 +26,8 @@ export default Component.extend(I18n, {
   i18n: service(),
   filesViewResolver: service(),
   isMobile: service(),
+  datasetManager: service(),
+  archiveManager: service(),
 
   /**
    * @override
@@ -92,15 +98,23 @@ export default Component.extend(I18n, {
   }),
 
   /**
-   * @type {ComputedProperty<string>}
+   * @type {ComputedProperty<PromiseObject<string>>}
    */
-  hint: computed('dataSourceName', 'viewName', 'dataSourceType', 'deletedIsDir',
-    function hint() {
+  hintProxy: promise.object(computed(
+    'dataSourceName',
+    'viewName',
+    'dataSourceType',
+    'deletedIsDir',
+    async function hint() {
       const {
+        datasetManager,
+        archiveManager,
         dataSourceName,
         dataSourceType,
         deletedIsDir,
       } = this.getProperties(
+        'datasetManager',
+        'archiveManager',
         'dataSourceName',
         'dataSourceType',
         'deletedIsDir'
@@ -108,18 +122,67 @@ export default Component.extend(I18n, {
 
       switch (dataSourceType) {
         case 'file':
-          return `${this.t('file')}: ${dataSourceName}`;
-        case 'dir':
-          return `${this.t('dir')}: ${dataSourceName}`;
+        case 'dir': {
+          const dirSeparator = '/';
+          const fileNames = dataSourceName.split(dirSeparator).slice(1);
+          const filePath = fileNames.map(fileName => ({
+            name: fileName,
+          }));
+          const fileArchiveInfo = FileArchiveInfo.create({
+            filePathProxy: promiseObject(resolve(filePath)),
+          });
+          const isInArchive = await get(fileArchiveInfo, 'isInArchiveProxy');
+          if (isInArchive) {
+            const datasetId = await get(fileArchiveInfo, 'datasetIdProxy');
+            const dataset = await datasetManager.getBrowsableDataset(datasetId);
+            const archiveId = await get(fileArchiveInfo, 'archiveIdProxy');
+            const archive = await archiveManager.getBrowsableArchive(archiveId);
+            const relativePath = dirSeparator + fileNames.slice(4).join(dirSeparator);
+            return htmlSafe(`
+              <div class="tip-row-dataset">
+                <span class="tip-label">${this.t('dataset')}:</span>
+                <span class="dataset-name">${get(dataset, 'name')}</span>
+              </div>
+              <div class="tip-row-archive">
+                <span class="tip-label">${this.t('archive')}:</span>
+                <span class="archive-name">${get(archive, 'name')}</span>
+              </div>
+              <div class="tip-row-path">
+                <span class="tip-label">${this.t(dataSourceType)}:</span>
+                <span class="path">${relativePath}</span>
+              </div>
+            `);
+          } else {
+            return htmlSafe(`
+              <div class="tip-row-path">
+                <span class="tip-label">${this.t(dataSourceType)}:</span>
+                <span class="path">${dataSourceName}</span>
+              </div>
+            `);
+          }
+        }
         case 'deleted':
-          return `${this.t((deletedIsDir ? 'file' : 'dir'))}: ${dataSourceName} (${this.t('deleted')})`;
+          return htmlSafe(`
+            <div class="tip-row-path">
+              <span class="tip-label">${this.t((deletedIsDir ? 'file' : 'dir'))}:</span>
+              <span class="path">${dataSourceName}</span>
+              <span class="tip-label">(${this.t('deleted')})</span>
+            </div>
+          `);
         case 'view':
-          return `${this.t('view')}: ${dataSourceName}`;
+          return htmlSafe(`
+            <div class="tip-row-path">
+              <span class="tip-label">${this.t(dataSourceType)}:</span>
+              <span class="view-name">${dataSourceName}</span>
+            </div>
+          `);
         default:
           break;
       }
     }
-  ),
+  )),
+
+  hint: reads('hintProxy.content'),
 
   hrefProxy: promise.object(computed(
     'dataSourceType',

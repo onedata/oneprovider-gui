@@ -93,7 +93,7 @@ export default EmberObject.extend(OwnerInjector, {
     'isInArchiveProxy',
     'archiveIdProxy',
     'filePathProxy',
-    async function archiveIdProxy() {
+    async function archiveRelativeFilePathProxy() {
       if (!(await this.get('isInArchiveProxy'))) {
         return null;
       }

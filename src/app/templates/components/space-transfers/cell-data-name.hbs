@@ -1,6 +1,10 @@
 {{#one-icon icon=icon class="transfer-file-icon"}}
   {{#if enableMobileHint}}
-    {{bs-tooltip placement="top" title=hint}}
+    {{one-tooltip
+      class="transfer-file-tooltip string-path-tooltip"
+      placement="top"
+      title=hint
+    }}
   {{/if}}
 {{/one-icon}}
 {{#if (or (eq dataSourceType "file") (eq dataSourceType "dir"))}}
@@ -14,32 +18,48 @@
     >
       {{name}}
       {{#if enableDesktopHint}}
-        {{bs-tooltip placement="top" title=hint}}
+        {{one-tooltip
+          class="transfer-file-tooltip string-path-tooltip"
+          placement="top"
+          title=hint
+        }}
       {{/if}}
     </a>
   {{else}}
     <span class="transfer-file-name">
       {{name}}
       {{#if enableDesktopHint}}
-        {{bs-tooltip placement="top" title=hint}}
+        {{one-tooltip
+          class="transfer-file-tooltip string-path-tooltip"
+          placement="top"
+          title=hint
+        }}
       {{/if}}
     </span>
   {{/if}}
 {{else if (eq dataSourceType "view")}}
   <a
-    class="transfer-file-name transfer-data-name"
+    class="transfer-file-name transfer-data-name azure"
     onclick={{action "openDbViewModal" bubbles=false}}
   >
     {{name}}
     {{#if enableDesktopHint}}
-      {{bs-tooltip placement="top" title=hint}}
+      {{one-tooltip
+        class="transfer-file-tooltip string-path-tooltip"
+        placement="top"
+        title=hint
+      }}
     {{/if}}
   </a>
 {{else}}
   <span class="transfer-file-name transfer-data-name">
     {{name}}
     {{#if enableDesktopHint}}
-      {{bs-tooltip placement="top" title=hint}}
+      {{one-tooltip
+        class="transfer-file-tooltip string-path-tooltip"
+        placement="top"
+        title=hint
+      }}
     {{/if}}
   </span>
 {{/if}}

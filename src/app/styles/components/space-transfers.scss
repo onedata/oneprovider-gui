@@ -391,3 +391,11 @@ $space-transfers-gray: #B6BAC0;
     }
   }
 }
+
+// tooltip style - must be outside component class
+.transfer-file-tooltip {
+  .tip-label {
+    @include font-regular;
+    @include font-semibold;
+  }
+}
