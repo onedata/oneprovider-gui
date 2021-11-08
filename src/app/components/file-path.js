@@ -20,6 +20,7 @@ import { promise, lte, or, array, raw, equal } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { getArchiveRelativeFilePath } from 'oneprovider-gui/utils/file-archive-info';
 
 const datasetSeparator = '›';
 const directorySeparator = '/';
@@ -124,8 +125,6 @@ export default Component.extend(...mixins, {
       if (datasetId && archiveId) {
         const browsableDataset = await datasetManager.getBrowsableDataset(datasetId);
         const browsableArchive = await archiveManager.getBrowsableArchive(archiveId);
-        // remove special directories from path
-        remainFiles.splice(0, 4);
         result.push({
           itemType: 'dataset',
           icon: get(browsableDataset, 'rootFileType') === 'file' ?
@@ -138,6 +137,8 @@ export default Component.extend(...mixins, {
           record: browsableArchive,
           separator: datasetSeparator,
         });
+        // remove special directories from path
+        remainFiles = getArchiveRelativeFilePath(remainFiles);
       } else if (spaceId) {
         const spaceRootDir = remainFiles[0];
         remainFiles.splice(0, 1);

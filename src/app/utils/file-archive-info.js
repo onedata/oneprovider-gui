@@ -12,9 +12,16 @@ import EmberObject, { computed, get } from '@ember/object';
 import { promise } from 'ember-awesome-macros';
 import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { isArray } from '@ember/array';
-import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
+
+export const onedataArchivesRootDirName = '.__onedata__archive';
+
+export const onedataArchivesRootIndex = 1;
+
+export const datasetDirIndex = 2;
+
+export const archiveDirIndex = 3;
 
 export default EmberObject.extend(OwnerInjector, {
   archiveManager: service(),
@@ -27,6 +34,10 @@ export default EmberObject.extend(OwnerInjector, {
 
   onedataArchivesRootDirName: '.__onedata__archive',
 
+  /**
+   * An array of file objects that makes an absolute path to file.
+   * @type {Array<Models.File>} array of file-like objects
+   */
   filePathProxy: promise.object(computed('file.parent', function filePathProxy() {
     const file = this.get('file');
     return file && resolveFilePath(file);
@@ -35,44 +46,59 @@ export default EmberObject.extend(OwnerInjector, {
   isInArchiveProxy: promise.object(computed(
     'filePathProxy',
     async function archiveIdProxy() {
-      const onedataArchivesRootDirName = this.get('onedataArchivesRootDirName');
-      const filePath = await this.get('filePathProxy');
+      const {
+        onedataArchivesRootDirName,
+        filePathProxy,
+      } = this.getProperties(
+        'onedataArchivesRootDirName',
+        'filePathProxy'
+      );
+      const filePath = await filePathProxy;
       if (!isArray(filePath)) {
-        return null;
+        return false;
       }
 
-      return get(filePath, 'length') >= 2 &&
-        get(filePath[1], 'name') === onedataArchivesRootDirName;
+      const lastIndex = get(filePath, 'length') - 1;
+      return lastIndex >= archiveDirIndex &&
+        get(filePath[onedataArchivesRootIndex], 'name') === onedataArchivesRootDirName;
     }
   )),
 
   isSpecialHiddenDirProxy: promise.object(computed(
     'filePathProxy',
-    async function archiveIdProxy() {
-      const onedataArchivesRootDirName = this.get('onedataArchivesRootDirName');
-      const filePath = await this.get('filePathProxy');
+    async function isSpecialHiddenDirProxy() {
+      const {
+        onedataArchivesRootDirName,
+        filePathProxy,
+      } = this.getProperties(
+        'onedataArchivesRootDirName',
+        'filePathProxy'
+      );
+      const filePath = await filePathProxy;
       if (!isArray(filePath)) {
         return null;
       }
 
-      const length = get(filePath, 'length');
-      const lastFileType = get(filePath[length - 1], 'type');
+      const lastIndex = get(filePath, 'length') - 1;
+      const lastFileType = get(filePath[lastIndex], 'type');
       return lastFileType === 'dir' && (
-        length >= 2 && length <= 4 &&
-        get(filePath[1], 'name') === onedataArchivesRootDirName
+        lastIndex >= onedataArchivesRootIndex && lastIndex <= archiveDirIndex &&
+        get(filePath[onedataArchivesRootIndex], 'name') === onedataArchivesRootDirName
       );
     }
   )),
 
   datasetIdProxy: promise.object(computed(
     'filePathProxy',
-    async function archiveIdProxy() {
+    async function datasetIdProxy() {
       const filePath = await this.get('filePathProxy');
       if (!isArray(filePath)) {
         return null;
       }
 
-      const name = get(filePath, 'length') >= 3 && get(filePath[2], 'name') || null;
+      const lastIndex = get(filePath, 'length') - 1;
+      const name = lastIndex >= datasetDirIndex &&
+        get(filePath[datasetDirIndex], 'name') || null;
       return this.getDatasetIdFromDirName(name);
     }
   )),
@@ -84,35 +110,27 @@ export default EmberObject.extend(OwnerInjector, {
       if (!isArray(filePath)) {
         return null;
       }
-      const name = get(filePath, 'length') >= 4 && get(filePath[3], 'name') || null;
+      const lastIndex = get(filePath, 'length') - 1;
+      const name = lastIndex >= archiveDirIndex &&
+        get(filePath[archiveDirIndex], 'name') || null;
       return this.getArchiveIdFromDirName(name);
     }
   )),
 
   archiveRelativeFilePathProxy: promise.object(computed(
     'isInArchiveProxy',
-    'archiveIdProxy',
     'filePathProxy',
     async function archiveRelativeFilePathProxy() {
       if (!(await this.get('isInArchiveProxy'))) {
         return null;
       }
       const filePath = await this.get('filePathProxy');
-      const archiveId = await this.get('archiveIdProxy');
-      if (!archiveId) {
-        return null;
-      }
-      try {
-        const archive = await this.get('archiveManager').getArchive(archiveId);
-        const archiveRootDirId = archive.relationEntityId('rootDir');
-        const archiveRootDir = filePath.findBy('entityId', archiveRootDirId);
-        return cutDirsPath(filePath, archiveRootDir);
-      } catch (error) {
-        return null;
-      }
+
+      return this.getArchiveRelativeFilePath(filePath);
     }
   )),
 
+  getArchiveRelativeFilePath,
   getArchiveIdFromDirName,
   getDatasetIdFromDirName,
 });
@@ -125,4 +143,12 @@ export function getArchiveIdFromDirName(dirName) {
 export function getDatasetIdFromDirName(dirName) {
   const m = dirName && dirName.match('^dataset_archives_(.*)');
   return m && m[1] || null;
+}
+
+/**
+ * @param {Array<Models.File>} path
+ * @returns {Array<Models.File>}
+ */
+export function getArchiveRelativeFilePath(path) {
+  return path.slice(archiveDirIndex + 1);
 }

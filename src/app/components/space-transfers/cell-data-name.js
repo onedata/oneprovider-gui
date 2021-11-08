@@ -19,6 +19,8 @@ import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import { htmlSafe } from '@ember/string';
+import { getArchiveRelativeFilePath } from 'oneprovider-gui/utils/file-archive-info';
+import { stringifyFilePath, dirSeparator } from 'oneprovider-gui/utils/resolve-file-path';
 
 export default Component.extend(I18n, {
   classNames: ['cell-data-name', 'cell-file-name'],
@@ -123,7 +125,6 @@ export default Component.extend(I18n, {
       switch (dataSourceType) {
         case 'file':
         case 'dir': {
-          const dirSeparator = '/';
           const fileNames = dataSourceName.split(dirSeparator).slice(1);
           const filePath = fileNames.map(fileName => ({
             name: fileName,
@@ -137,7 +138,8 @@ export default Component.extend(I18n, {
             const dataset = await datasetManager.getBrowsableDataset(datasetId);
             const archiveId = await get(fileArchiveInfo, 'archiveIdProxy');
             const archive = await archiveManager.getBrowsableArchive(archiveId);
-            const relativePath = dirSeparator + fileNames.slice(4).join(dirSeparator);
+            const relativePathString =
+              stringifyFilePath(getArchiveRelativeFilePath(filePath));
             const unknownHtml = `<em>${this.t('unknown')}</em>`;
             return htmlSafe(`
               <div class="tip-row-dataset">
@@ -154,7 +156,7 @@ export default Component.extend(I18n, {
               </div>
               <div class="tip-row-path">
                 <span class="tip-label">${this.t(dataSourceType)}:</span>
-                <span class="path">${relativePath}</span>
+                <span class="path">${relativePathString}</span>
               </div>
             `);
           } else {
