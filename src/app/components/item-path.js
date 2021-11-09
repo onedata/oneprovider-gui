@@ -71,7 +71,7 @@ export default Component.extend(...mixins, {
    * Classname added to internal `<a>` element.
    * @type {String}
    */
-  anchorClassname: 'path-anchor-default',
+  anchorClassName: 'path-anchor-default',
 
   displayedItemsCount: Number.MAX_SAFE_INTEGER,
 
@@ -108,12 +108,16 @@ export default Component.extend(...mixins, {
         datasetManager,
         archiveManager,
         filesViewContextProxy,
+        itemPathProxy,
       } = this.getProperties(
         'datasetManager',
         'archiveManager',
-        'filesViewContextProxy'
+        'filesViewContextProxy',
+        'itemPathProxy',
       );
-      const remainFiles = Array.from(this.get('itemPathProxy.content') || await this.get('itemPathProxy'));
+      const remainFiles = Array.from(
+        get(itemPathProxy, 'content') || await itemPathProxy
+      );
       const result = [];
       const {
         spaceId,

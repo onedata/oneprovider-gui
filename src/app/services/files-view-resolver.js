@@ -1,7 +1,31 @@
+/**
+ *
+ *
+ * @module
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service, { inject as service } from '@ember/service';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import { get } from '@ember/object';
 import { isEmpty } from '@ember/utils';
+
+/**
+ * Information what directory should be loaded in current file browser or where to
+ * redirect to reach desired directory view.
+ * @typedef Object ViewOptions
+ * @property {String} result what action should be taken in file browser view, one of:
+ *  - `resolve` - a directory record from `dir` property should be opened as current dir
+ *  - `redirect` - other browser should be opened using `url` property
+ * @property {Utils.FilesViewContext} filesViewContext a files view context computed
+ *   for desired browsr view
+ * @property {Models.File} [dir] a dir-type file to open as current dir in current browser
+ *   view, only if result` equals `'resolve'`
+ * @property {String} [url] a URL to load to display desired browser view; only if
+ *  `result` equals `'redirect'`
+ */
 
 export default Service.extend({
   fileManager: service(),
@@ -13,6 +37,29 @@ export default Service.extend({
    */
   filesViewContextFactory: undefined,
 
+  init() {
+    this._super(...arguments);
+    if (!this.get('filesViewContextFactory')) {
+      this.set(
+        'filesViewContextFactory',
+        FilesViewContextFactory.create({ ownerSource: this })
+      );
+    }
+  },
+
+  /**
+   * Invoked in already opened browser view, resolves directory to open or redirect URL
+   * to another browser view based on desired directory and/or selected files IDs.
+   * @param {Object} options
+   * @param {String} options.dirId desired directory ID to open
+   * @param {Utils.FilesViewContext} options.currentFilesViewContext context computed for
+   *   currently opened directory in file browser
+   * @param {Array<String>} [options.selectedIds] desired files IDs to select in view
+   * @param {String} [options.scope='private'] GS scope for fetching files
+   * @param {Utils.File} options.fallbackDir a dir-type file that will be resolved if dir
+   *   for context cannot be resolved or is invalid
+   * @returns {ViewOptions}
+   */
   async resolveViewOptions({
     dirId,
     currentFilesViewContext,
@@ -150,15 +197,5 @@ export default Service.extend({
     const factory = FilesViewContextFactory.create({ ownerSource: this });
     const filesViewContext = await factory.createFromFileId(fileId);
     return this.generateUrl(filesViewContext, type);
-  },
-
-  init() {
-    this._super(...arguments);
-    if (!this.get('filesViewContextFactory')) {
-      this.set(
-        'filesViewContextFactory',
-        FilesViewContextFactory.create({ ownerSource: this })
-      );
-    }
   },
 });

@@ -1,3 +1,19 @@
+/**
+ * Describes context of view that is needed to display a `file` .
+ *
+ * Eg. a file can be a part of archive in some dataset - then the context tells that
+ * the browser view should be configured for the particular dataset and archive in
+ * a particular space.
+ *
+ * This file contains the Ember class that is the comparable (see `isEqual`) describing
+ * the context and a factory (in named export) for producing context objects.
+ *
+ * @module utils/files-view-context
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { computed, get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
@@ -11,6 +27,15 @@ const FilesViewContext = EmberObject.extend({
   shareId: null,
   archiveId: null,
   datasetId: null,
+
+  /**
+   * If true, the file is a special hidden directory that should not be viewed in any
+   * files browser EXCEPT share root dir that can be viewed as archive root in
+   * archive files browser.
+   * @virtual
+   * @type {Boolean}
+   */
+  isSpecialHiddenDir: false,
 
   browserType: computed('shareId', 'archiveId', 'datasetId', function browserType() {
     const {
@@ -35,7 +60,7 @@ const FilesViewContext = EmberObject.extend({
       'browserType',
       'spaceId',
       'shareId',
-      'isSpecialHiddenDirProxy',
+      'isSpecialHiddenDir',
       'datasetId',
       'archiveId',
     ].every((property) => {
