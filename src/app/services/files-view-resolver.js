@@ -89,7 +89,7 @@ export default Service.extend({
       } else {
         dir = file;
       }
-      return this.resolveForDir(dir, currentFilesViewContext, fallbackDir);
+      return this.resolveForDir(dir, currentFilesViewContext, fallbackDir, selectedIds);
     } else {
       if (isEmpty(selectedIds)) {
         return this.generateFallbackResponse(fallbackDir);
@@ -118,7 +118,7 @@ export default Service.extend({
    * @param {Models.File} dir
    * @param {FilesViewContextFactory} currentFilesViewContext currently opened context
    * @param {Models.File} fallbackDir
-   * @param {Array<String>} selectedIds array of file IDs that should be selected in
+   * @param {Array<String>} [selectedIds] array of file IDs that should be selected in
    *   generated URL
    * @returns {Promise<Object>} see format of object returned by `resolveViewOptions`
    */

@@ -14,7 +14,7 @@
       color: darken($color-one-blue-gray, 20%);
     }
     &::after {
-      content: ' ';
+      content: '';
       bottom: 0.15em;
       left: 0;
       right: 0;
@@ -25,7 +25,6 @@
   }
   .path-item {
     white-space: nowrap;
-    // word-break: break-all;
     flex-shrink: 1;
     &:first-child {
       padding-left: 0;
@@ -52,7 +51,6 @@
   .tooltip-inner {
     @include font-monospace;
     max-width: 80vw;
-    overflow-wrap: anywhere;
     word-break: break-all;
     text-align: left;
   }

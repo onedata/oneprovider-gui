@@ -6,13 +6,14 @@ import { registerService, lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
-import { triggerEvent } from 'ember-native-dom-helpers';
-import { reject } from 'rsvp';
+import { set } from '@ember/object';
+import { Promise, reject } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import {
   createArchiveRootDir,
   createFilesChain,
 } from '../../helpers/files';
+import OneTooltipHelper from '../../helpers/one-tooltip';
 
 const DatasetManager = Service.extend({
   async getBrowsableDataset() {
@@ -160,14 +161,12 @@ describe('Integration | Component | item path', function () {
     });
 
     await renderInSmallContainer(this);
-    await triggerEvent('.path', 'mouseenter');
+    const tooltip = new OneTooltipHelper('.path');
 
-    const tooltip = document.querySelector('.string-path-tooltip');
-    expect(tooltip).to.exist;
-    expect(tooltip.textContent).to.contain('/space root/one/two/three/file');
+    expect(await tooltip.getText()).to.contain('/space root/one/two/three/file');
   });
 
-  it('does not show tooltip with full path on hover if path is not', async function () {
+  it('does not show tooltip with full path on hover if path is not shortened', async function () {
     const filesChain = createFilesChain([
       'space root',
       'one',
@@ -181,10 +180,9 @@ describe('Integration | Component | item path', function () {
     });
 
     await render(this);
-    await triggerEvent('.path', 'mouseenter');
+    const tooltip = new OneTooltipHelper('.path');
 
-    const tooltip = document.querySelector('.string-path-tooltip');
-    expect(tooltip).to.not.exist;
+    expect(await tooltip.hasTooltip()).to.be.false;
   });
 
   it('shows loading text while file path is loading', async function () {
@@ -199,12 +197,12 @@ describe('Integration | Component | item path', function () {
     this.setProperties({
       item,
     });
+    set(item, 'parent', promiseObject(new Promise(() => {})));
 
-    const renderPromise = render(this);
+    await render(this);
 
     expect(this.$('.item-path .path-loading')).to.exist;
     expect(this.$('.item-path').text()).to.match(/Loading path.../);
-    await renderPromise;
   });
 
   it('shows error text when path resolving failed', async function () {

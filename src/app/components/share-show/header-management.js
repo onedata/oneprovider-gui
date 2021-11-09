@@ -32,12 +32,6 @@ export default HeaderBaseComponent.extend(I18n, {
 
   /**
    * @virtual
-   * @type {String}
-   */
-  spaceId: undefined,
-
-  /**
-   * @virtual
    * @type {Models.Share}
    */
   share: undefined,
@@ -77,6 +71,11 @@ export default HeaderBaseComponent.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   menuTriggerSelector: tag `.${'menuTriggerClass'}`,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  spaceId: reads('share.spaceId'),
 
   /**
    * @type {ComputedProperty<Array<Object>>}

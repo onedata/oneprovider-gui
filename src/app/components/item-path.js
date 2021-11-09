@@ -15,7 +15,7 @@ import { reads } from '@ember/object/computed';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
-import { debounce } from '@ember/runloop';
+import { debounce, scheduleOnce, next } from '@ember/runloop';
 import { promise, lte, or, array, raw } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -221,27 +221,24 @@ export default Component.extend(...mixins, {
 
   allNames: array.mapBy('allRecords', raw('name')),
 
-  resetDisplayedItemsCount: observer('allItems.length', function resetDisplayedItemsCount() {
-    if (!this.get('allItems')) {
-      return;
-    }
-    const prevValue = this.get('allItems.length');
-    const newValue = this.set('displayedItemsCount', prevValue + 1);
-    return prevValue - newValue;
+  allItemsObserver: observer('allItems.length', function allItemsObserver() {
+    this.resetDisplayedItemsCount();
   }),
 
   displayedItemsObserver: observer(
     'displayedItems.[]',
     'allNames.[]',
     function displayedItemsObserver() {
-      let countDiff;
-      if (!this.get('adjustmentNeeded')) {
-        countDiff = this.resetDisplayedItemsCount();
-      }
-      this.set('adjustmentNeeded', true);
-      if (countDiff && countDiff < 0) {
-        debounce(this, 'didRender', 100);
-      }
+      next(() => {
+        let countDiff;
+        if (!this.get('adjustmentNeeded')) {
+          countDiff = this.resetDisplayedItemsCount();
+        }
+        this.set('adjustmentNeeded', true);
+        if (countDiff && countDiff < 0) {
+          this.scheduleUpdateView();
+        }
+      });
     }
   ),
 
@@ -258,12 +255,10 @@ export default Component.extend(...mixins, {
     if (!this.updatePathWidthInfo().changed) {
       return;
     }
-    console.log('event true');
     const countDiff = this.resetDisplayedItemsCount();
     this.set('adjustmentNeeded', true);
     if (countDiff < 0) {
-      // prevents bug when two events (eg. transitionend) are fired at the same moment
-      debounce(this, 'didRender', 100);
+      this.scheduleUpdateView();
     }
   },
 
@@ -272,7 +267,6 @@ export default Component.extend(...mixins, {
    */
   didInsertElement() {
     this._super(...arguments);
-    this.attachWindowResizeHandler();
     const onWindowResizeFun = this.get('onWindowResizeFun');
     document.querySelector('body').addEventListener(
       'transitionend',
@@ -281,6 +275,10 @@ export default Component.extend(...mixins, {
     this.get('allItemsProxy').then(() => {
       this.displayedItemsObserver();
     });
+    // a hack to activate observers
+    scheduleOnce('afterRender', () => {
+      this.get('allNames');
+    });
   },
 
   /**
@@ -288,7 +286,6 @@ export default Component.extend(...mixins, {
    */
   willDestroyElement() {
     this._super(...arguments);
-    this.detachWindowResizeHandler();
     const onWindowResizeFun = this.get('onWindowResizeFun');
     document.querySelector('body').removeEventListener(
       'transitionend',
@@ -301,7 +298,37 @@ export default Component.extend(...mixins, {
    */
   didRender() {
     this._super(...arguments);
+    this.updateView();
+  },
+
+  /**
+   * Should be invoked every time the view of componetn or its container view changes
+   * somehow, eg.
+   * - on `didRender` hook, because content of component changed
+   * - on window resize
+   * - on container size change
+   */
+  updateView() {
     this.adjustItemsCount();
+  },
+
+  /**
+   * Debounces invocation of `updateView` to allow view settle down before computations
+   * or handle multiple events fired at the same time or in very short period.
+   * Originally written to prevent bug when multiple `transitionend` events were fired at
+   * the same moment.
+   */
+  scheduleUpdateView() {
+    debounce(this, 'updateView', 100);
+  },
+
+  resetDisplayedItemsCount() {
+    if (!this.get('allItems')) {
+      return;
+    }
+    const prevValue = this.get('allItems.length');
+    const newValue = this.set('displayedItemsCount', prevValue + 1);
+    return prevValue - newValue;
   },
 
   adjustItemsCount() {
@@ -328,10 +355,12 @@ export default Component.extend(...mixins, {
     const pathContainerWidth = pathContainer.clientWidth;
     const changed = this.get('lastPathWidth') !== pathWidth ||
       this.get('lastPathContainerWidth') !== pathContainerWidth;
-    this.setProperties({
-      lastPathWidth: pathWidth,
-      lastPathContainerWidth: pathContainerWidth,
-    });
+    if (changed) {
+      this.setProperties({
+        lastPathWidth: pathWidth,
+        lastPathContainerWidth: pathContainerWidth,
+      });
+    }
     return {
       pathWidth,
       pathContainerWidth,
