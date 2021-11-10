@@ -76,12 +76,6 @@ export default Component.extend(...mixins, {
   displayedItemsCount: Number.MAX_SAFE_INTEGER,
 
   /**
-   * Initialized on init - a bound rerefence to window resize handler.
-   * @type {Function}
-   */
-  onWindowResizeFun: undefined,
-
-  /**
    * Indicates that path length needs adjustments on next render.
    * If this flag is set to true, `didRender` will invoke path length adjustment.
    * @type {Boolean}
@@ -241,11 +235,6 @@ export default Component.extend(...mixins, {
     }
   ),
 
-  init() {
-    this._super(...arguments);
-    this.set('onWindowResizeFun', this.onWindowResize.bind(this));
-  },
-
   /**
    * @override
    * @param {TransitionEvent|UIEvent} event
@@ -266,10 +255,10 @@ export default Component.extend(...mixins, {
    */
   didInsertElement() {
     this._super(...arguments);
-    const onWindowResizeFun = this.get('onWindowResizeFun');
+    const windowResizeHandler = this.get('windowResizeHandler');
     document.querySelector('body').addEventListener(
       'transitionend',
-      onWindowResizeFun
+      windowResizeHandler
     );
     this.get('allItemsProxy').then(() => {
       next(() => {
@@ -287,10 +276,10 @@ export default Component.extend(...mixins, {
    */
   willDestroyElement() {
     this._super(...arguments);
-    const onWindowResizeFun = this.get('onWindowResizeFun');
+    const windowResizeHandler = this.get('windowResizeHandler');
     document.querySelector('body').removeEventListener(
       'transitionend',
-      onWindowResizeFun
+      windowResizeHandler
     );
   },
 
@@ -318,11 +307,9 @@ export default Component.extend(...mixins, {
   /**
    * Debounces invocation of `updateView` to allow view settle down before computations
    * or handle multiple events fired at the same time or in very short period.
-   * Originally written to prevent bug when multiple `transitionend` events were fired at
-   * the same moment.
    */
   scheduleUpdateView() {
-    debounce(this, 'updateView', 100);
+    debounce(this, 'updateView', 20);
   },
 
   resetDisplayedItemsCount() {
