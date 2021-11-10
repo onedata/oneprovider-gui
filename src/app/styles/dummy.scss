@@ -19,28 +19,28 @@
   }
 }
 
-.dummy-item-path {
+.dummy-file-path {
   @include font-monospace;
-  .item-path {
+  .file-path {
     border: 1px solid red;
   }
-  .item-path-1 {
+  .file-path-1 {
     width: 300px;
   }
-  .item-path-2 {
+  .file-path-2 {
     width: 700px;
   }
-  .item-path-3 {
+  .file-path-3 {
     width: 800px;
   }
-  .item-path-4 {
+  .file-path-4 {
     width: 700px;
     transition: width 1s ease-in;
     &.transitioned {
       width: 800px;
     }
   }
-  .item-path-5 {
+  .file-path-5 {
     width: 800px;
     transition: width 1s ease-out;
     &.transitioned {

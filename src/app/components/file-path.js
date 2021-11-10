@@ -1,9 +1,9 @@
 /**
- * Renders path to browsable item (eg. file) taking archive membership into account.
+ * Renders path to browsable file (eg. file) taking archive membership into account.
  * The path is shortened if its too long to fit into container - to achieve it,
- * this is a block element, so it is recommended to render it as a flex container item.
+ * this is a block element, so it is recommended to render it in a flex container.
  *
- * @module components/item-path
+ * @module components/file-path
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -31,7 +31,7 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
-  classNames: ['item-path'],
+  classNames: ['file-path'],
   classNameBindings: [
     'hasSinglePathItem:has-single-path-item',
   ],
@@ -44,13 +44,13 @@ export default Component.extend(...mixins, {
   /**
    * @override
    */
-  i18nPrefix: 'components.itemPath',
+  i18nPrefix: 'components.filePath',
 
   /**
-   * @type {Object} browsable object like file
+   * @type {Models.File}
    * @virtual
    */
-  item: undefined,
+  file: undefined,
 
   /**
    * @type {Function}
@@ -76,7 +76,7 @@ export default Component.extend(...mixins, {
    */
   anchorClassName: 'path-anchor-default',
 
-  displayedItemsCount: Number.MAX_SAFE_INTEGER,
+  displayedPathItemsCount: Number.MAX_SAFE_INTEGER,
 
   /**
    * Indicates that path length needs adjustments on next render.
@@ -87,33 +87,33 @@ export default Component.extend(...mixins, {
 
   //#region asynchronous data
 
-  itemPathProxy: promise.object(computed('item.parent', function itemPathProxy() {
-    const item = this.get('item');
-    return resolveFilePath(item);
+  filePathProxy: promise.object(computed('file.parent', function filePathProxy() {
+    const file = this.get('file');
+    return resolveFilePath(file);
   })),
 
-  filesViewContextProxy: promise.object(computed('item', function filesViewContext() {
-    const item = this.get('item');
-    return FilesViewContextFactory.create({ ownerSource: this }).createFromFile(item);
+  filesViewContextProxy: promise.object(computed('file', function filesViewContext() {
+    const file = this.get('file');
+    return FilesViewContextFactory.create({ ownerSource: this }).createFromFile(file);
   })),
 
-  allItemsProxy: promise.array(computed(
-    'itemPathProxy',
+  allPathItemsProxy: promise.array(computed(
+    'filePathProxy',
     'filesViewContextProxy',
-    async function allItemsProxy() {
+    async function allPathItemsProxy() {
       const {
         datasetManager,
         archiveManager,
         filesViewContextProxy,
-        itemPathProxy,
+        filePathProxy,
       } = this.getProperties(
         'datasetManager',
         'archiveManager',
         'filesViewContextProxy',
-        'itemPathProxy',
+        'filePathProxy',
       );
       const remainFiles = Array.from(
-        get(itemPathProxy, 'content') || await itemPathProxy
+        get(filePathProxy, 'content') || await filePathProxy
       );
       const result = [];
       const {
@@ -161,77 +161,77 @@ export default Component.extend(...mixins, {
 
   //#endregion
 
-  hasSinglePathItem: equal('displayedItemsCount', 1),
+  hasSinglePathItem: equal('displayedPathItemsCount', 1),
 
-  isLoading: or('allItemsProxy.isPending', 'filesViewContextProxy.isPending'),
+  isLoading: or('allPathItemsProxy.isPending', 'filesViewContextProxy.isPending'),
 
-  isError: or('allItemsProxy.isRejected', 'filesViewContextProxy.isRejected'),
+  isError: or('allPathItemsProxy.isRejected', 'filesViewContextProxy.isRejected'),
 
   filesViewContext: reads('filesViewContextProxy.content'),
 
-  allItems: reads('allItemsProxy.content'),
+  allPathItems: reads('allPathItemsProxy.content'),
 
-  displayedItems: computed(
-    'allItems.[]',
-    'displayedItemsCount',
-    function displayedItems() {
+  displayedPathItems: computed(
+    'allPathItems.[]',
+    'displayedPathItemsCount',
+    function displayedPathItems() {
       const {
-        allItems,
-        displayedItemsCount,
-      } = this.getProperties('allItems', 'displayedItemsCount');
-      if (!allItems) {
+        allPathItems,
+        displayedPathItemsCount,
+      } = this.getProperties('allPathItems', 'displayedPathItemsCount');
+      if (!allPathItems) {
         return [];
       }
       return pathShorten(
-        allItems, {
+        allPathItems, {
           itemType: 'ellipsis',
           separator: directorySeparator,
           record: { name: ellipsisString },
         },
-        displayedItemsCount
+        displayedPathItemsCount
       );
     }
   ),
 
-  stringifiedPath: computed('allItems', 'allNames.[]', function stringifiedPath() {
-    const allItems = this.get('allItems');
-    if (!allItems) {
+  stringifiedPath: computed('allPathItems', 'allNames.[]', function stringifiedPath() {
+    const allPathItems = this.get('allPathItems');
+    if (!allPathItems) {
       return;
     }
-    const records = allItems.filterBy('record').mapBy('record');
+    const records = allPathItems.filterBy('record').mapBy('record');
     return stringifyFilePath(records);
   }),
 
-  href: computed('item', 'filesViewContext', function href() {
+  href: computed('file', 'filesViewContext', function href() {
     const {
-      item,
+      file,
       filesViewContext,
       filesViewResolver,
-    } = this.getProperties('item', 'filesViewContext', 'filesViewResolver');
-    if (!item || !filesViewContext) {
+    } = this.getProperties('file', 'filesViewContext', 'filesViewResolver');
+    if (!file || !filesViewContext) {
       return null;
     }
     return filesViewResolver.generateUrl(filesViewContext, 'select');
   }),
 
-  renderTooltip: lte('displayedItemsCount', 'allItems.length'),
+  renderTooltip: lte('displayedPathItemsCount', 'allPathItems.length'),
 
-  allRecords: array.mapBy('allItems', raw('record')),
+  allRecords: array.mapBy('allPathItems', raw('record')),
 
   allNames: array.mapBy('allRecords', raw('name')),
 
-  allItemsObserver: observer('allItems.length', function allItemsObserver() {
-    this.resetDisplayedItemsCount();
+  allPathItemsObserver: observer('allPathItems.length', function allPathItemsObserver() {
+    this.resetDisplayedPathItemsCount();
   }),
 
   // TODO: VFS-8581 if path is made longer, the shortening is not done properly
-  displayedItemsObserver: observer(
-    'displayedItems.[]',
+  displayedPathItemsObserver: observer(
+    'displayedPathItems.[]',
     'allNames.[]',
-    function displayedItemsObserver() {
+    function displayedPathItemsObserver() {
       let countDiff;
       if (!this.get('adjustmentNeeded')) {
-        countDiff = this.resetDisplayedItemsCount();
+        countDiff = this.resetDisplayedPathItemsCount();
       }
       this.set('adjustmentNeeded', true);
       if (countDiff && countDiff < 0) {
@@ -248,7 +248,7 @@ export default Component.extend(...mixins, {
     if (!this.updatePathWidthInfo().changed) {
       return;
     }
-    const countDiff = this.resetDisplayedItemsCount();
+    const countDiff = this.resetDisplayedPathItemsCount();
     this.set('adjustmentNeeded', true);
     if (countDiff < 0) {
       this.scheduleUpdateView();
@@ -265,9 +265,9 @@ export default Component.extend(...mixins, {
       'transitionend',
       windowResizeHandler
     );
-    this.get('allItemsProxy').then(() => {
+    this.get('allPathItemsProxy').then(() => {
       next(() => {
-        this.displayedItemsObserver();
+        this.displayedPathItemsObserver();
       });
     });
   },
@@ -313,20 +313,20 @@ export default Component.extend(...mixins, {
     debounce(this, 'updateView', 20);
   },
 
-  resetDisplayedItemsCount() {
-    if (!this.get('allItems')) {
+  resetDisplayedPathItemsCount() {
+    if (!this.get('allPathItems')) {
       return;
     }
-    const prevValue = this.get('allItems.length');
-    const newValue = this.set('displayedItemsCount', prevValue + 1);
+    const prevValue = this.get('allPathItems.length');
+    const newValue = this.set('displayedPathItemsCount', prevValue + 1);
     return prevValue - newValue;
   },
 
   adjustItemsCount() {
     if (this.isPathOverflow()) {
-      const displayedItemsCount = this.get('displayedItemsCount');
-      if (displayedItemsCount && displayedItemsCount > 1) {
-        this.decrementProperty('displayedItemsCount');
+      const displayedPathItemsCount = this.get('displayedPathItemsCount');
+      if (displayedPathItemsCount && displayedPathItemsCount > 1) {
+        this.decrementProperty('displayedPathItemsCount');
       } else {
         this.set('adjustmentNeeded', false);
       }

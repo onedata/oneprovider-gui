@@ -16,7 +16,7 @@
       onclick={{onLinkClicked}}
       onkeydown={{onLinkKeydown}}
     >
-      {{#each displayedItems as |item|}}
+      {{#each displayedPathItems as |item|}}
         {{#if item.separator}}
           <div class="path-item path-separator">{{item.separator}}</div>
         {{/if}}

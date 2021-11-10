@@ -95,6 +95,7 @@
     .anchor-container {
       margin-left: 0.4em;
       min-width: 0;
+      flex-grow: 1;
     }
 
     &.extra-hardlink-description {

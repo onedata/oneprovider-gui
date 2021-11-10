@@ -6,9 +6,9 @@
   <small class="file-path">
     <span class="file-path-label">{{tt this "pathLabel"}}:</span>
     {{#if file}}
-      {{item-path
+      {{file-path
         class="anchor-container"
-        item=file
+        file=file
         target=navigateLinkTarget
         onLinkClicked=(action "linkClicked")
       }}

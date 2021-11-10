@@ -5,11 +5,11 @@ import { set, get } from '@ember/object';
 import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend({
-  classNames: ['dummy-item-path'],
+  classNames: ['dummy-file-path'],
 
   mockBackend: service(),
 
-  item: reads('mockBackend.entityRecords.chainDir.3'),
+  file: reads('mockBackend.entityRecords.chainDir.3'),
 
   /**
    * @override
@@ -51,29 +51,29 @@ export default Component.extend({
 
   async testNamesChangeShorter() {
     // test path items names change to shorter
-    let item = this.get('item');
-    while (item) {
-      set(item, 'name', 'xyz123');
-      item = await get(item, 'parent');
+    let file = this.get('file');
+    while (file) {
+      set(file, 'name', 'xyz123');
+      file = await get(file, 'parent');
     }
   },
 
   async testNamesChangeShortOther() {
     // test path items names change to other version of short to test the-same-width
     // changes detection
-    let item = this.get('item');
-    while (item) {
-      set(item, 'name', 'abc456');
-      item = await get(item, 'parent');
+    let file = this.get('file');
+    while (file) {
+      set(file, 'name', 'abc456');
+      file = await get(file, 'parent');
     }
   },
 
   async testNamesChangeLonger() {
     // test path items names change to longer
-    let item = this.get('item');
-    while (item) {
-      set(item, 'name', 'Amet pariatur velit adipisicing');
-      item = await get(item, 'parent');
+    let file = this.get('file');
+    while (file) {
+      set(file, 'name', 'Amet pariatur velit adipisicing');
+      file = await get(file, 'parent');
     }
   },
 });

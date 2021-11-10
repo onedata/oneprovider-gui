@@ -27,8 +27,8 @@ const ArchiveManager = Service.extend({
   },
 });
 
-describe('Integration | Component | item path', function () {
-  setupComponentTest('item-path', {
+describe('Integration | Component | file path', function () {
+  setupComponentTest('file-path', {
     integration: true,
   });
 
@@ -52,9 +52,9 @@ describe('Integration | Component | item path', function () {
       'three',
       'file is here',
     ]);
-    const item = filesChain[filesChain.length - 1];
+    const file = filesChain[filesChain.length - 1];
     this.setProperties({
-      item,
+      file,
     });
 
     await render(this);
@@ -70,12 +70,12 @@ describe('Integration | Component | item path', function () {
       'one',
       'two',
     ]);
-    const item = filesChain[filesChain.length - 1];
+    const file = filesChain[filesChain.length - 1];
     this.setProperties({
-      item,
+      file,
     });
 
-    this.render(hbs `{{item-path item=item}}`);
+    this.render(hbs `{{file-path file=file}}`);
     await wait();
 
     expect(this.$('.path-icon-container .oneicon-space')).to.have.length(1);
@@ -100,7 +100,7 @@ describe('Integration | Component | item path', function () {
     const dataset = {
       name: browsableDatasetName,
     };
-    const item = filesChain[filesChain.length - 1];
+    const file = filesChain[filesChain.length - 1];
     const datasetManager = lookupService(this, 'datasetManager');
     const archiveManager = lookupService(this, 'archiveManager');
     sinon.stub(datasetManager, 'getBrowsableDataset')
@@ -108,7 +108,7 @@ describe('Integration | Component | item path', function () {
     sinon.stub(archiveManager, 'getBrowsableArchive')
       .withArgs(archiveId).resolves(archive);
     this.setProperties({
-      item,
+      file,
     });
 
     await render(this);
@@ -135,9 +135,9 @@ describe('Integration | Component | item path', function () {
       'three',
       'file',
     ]);
-    const item = filesChain[filesChain.length - 1];
+    const file = filesChain[filesChain.length - 1];
     this.setProperties({
-      item,
+      file,
     });
 
     await renderInSmallContainer(this);
@@ -155,9 +155,9 @@ describe('Integration | Component | item path', function () {
       'three',
       'file',
     ]);
-    const item = filesChain[filesChain.length - 1];
+    const file = filesChain[filesChain.length - 1];
     this.setProperties({
-      item,
+      file,
     });
 
     await renderInSmallContainer(this);
@@ -174,9 +174,9 @@ describe('Integration | Component | item path', function () {
       'three',
       'file',
     ]);
-    const item = filesChain[filesChain.length - 1];
+    const file = filesChain[filesChain.length - 1];
     this.setProperties({
-      item,
+      file,
     });
 
     await render(this);
@@ -193,16 +193,16 @@ describe('Integration | Component | item path', function () {
       'three',
       'file',
     ]);
-    const item = filesChain[filesChain.length - 1];
+    const file = filesChain[filesChain.length - 1];
     this.setProperties({
-      item,
+      file,
     });
-    set(item, 'parent', promiseObject(new Promise(() => {})));
+    set(file, 'parent', promiseObject(new Promise(() => {})));
 
     await render(this);
 
-    expect(this.$('.item-path .path-loading')).to.exist;
-    expect(this.$('.item-path').text()).to.match(/Loading path.../);
+    expect(this.$('.file-path .path-loading')).to.exist;
+    expect(this.$('.file-path').text()).to.match(/Loading path.../);
   });
 
   it('shows error text when path resolving failed', async function () {
@@ -213,21 +213,21 @@ describe('Integration | Component | item path', function () {
       'three',
       'file',
     ]);
-    const item = filesChain[filesChain.length - 1];
+    const file = filesChain[filesChain.length - 1];
     filesChain[2].parent = promiseObject(reject());
     this.setProperties({
-      item,
+      file,
     });
 
     await render(this);
 
-    expect(this.$('.item-path .path-error')).to.exist;
-    expect(this.$('.item-path').text()).to.match(/Path loading failed!/);
+    expect(this.$('.file-path .path-error')).to.exist;
+    expect(this.$('.file-path').text()).to.match(/Path loading failed!/);
   });
 });
 
 async function render(testCase) {
-  testCase.render(hbs `{{item-path item=item}}`);
+  testCase.render(hbs `{{file-path file=file}}`);
   await wait();
 }
 
@@ -236,7 +236,7 @@ async function renderInSmallContainer(testCase) {
     class="test-path-container"
     style="width: 200px;"
   >
-    {{item-path item=item}}
+    {{file-path file=file}}
   </div>`);
   await wait();
 }
