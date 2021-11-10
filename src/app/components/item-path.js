@@ -225,20 +225,19 @@ export default Component.extend(...mixins, {
     this.resetDisplayedItemsCount();
   }),
 
+  // TODO: VFS-8581 if path is made longer, the shortening is not done properly
   displayedItemsObserver: observer(
     'displayedItems.[]',
     'allNames.[]',
     function displayedItemsObserver() {
-      next(() => {
-        let countDiff;
-        if (!this.get('adjustmentNeeded')) {
-          countDiff = this.resetDisplayedItemsCount();
-        }
-        this.set('adjustmentNeeded', true);
-        if (countDiff && countDiff < 0) {
-          this.scheduleUpdateView();
-        }
-      });
+      let countDiff;
+      if (!this.get('adjustmentNeeded')) {
+        countDiff = this.resetDisplayedItemsCount();
+      }
+      this.set('adjustmentNeeded', true);
+      if (countDiff && countDiff < 0) {
+        this.scheduleUpdateView();
+      }
     }
   ),
 
@@ -273,7 +272,9 @@ export default Component.extend(...mixins, {
       onWindowResizeFun
     );
     this.get('allItemsProxy').then(() => {
-      this.displayedItemsObserver();
+      next(() => {
+        this.displayedItemsObserver();
+      });
     });
     // a hack to activate observers
     scheduleOnce('afterRender', () => {
@@ -309,7 +310,9 @@ export default Component.extend(...mixins, {
    * - on container size change
    */
   updateView() {
-    this.adjustItemsCount();
+    if (this.get('adjustmentNeeded')) {
+      this.adjustItemsCount();
+    }
   },
 
   /**
