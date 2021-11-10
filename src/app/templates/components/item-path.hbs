@@ -1,4 +1,7 @@
-<div class="path-container">
+<div class="path-container"
+  {{!-- An UGLY hack to activate observers, this action is dummy --}}
+  onload={{no-action allNames}}
+>
   {{#if isLoading}}
     <span class="path-loading">{{tt this "loading"}}</span>
   {{else if isError}}

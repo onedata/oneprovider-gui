@@ -265,10 +265,6 @@ export default Component.extend(...mixins, {
         this.displayedItemsObserver();
       });
     });
-    // a hack to activate observers
-    scheduleOnce('afterRender', () => {
-      this.get('allNames');
-    });
   },
 
   /**

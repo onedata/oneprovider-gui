@@ -24,6 +24,7 @@ export default Component.extend({
       'testResizeUpdate',
       'testTransitionDetection',
       'testNamesChangeShorter',
+      'testNamesChangeShortOther',
       'testNamesChangeLonger',
     ];
     await sleep(2000);
@@ -53,6 +54,16 @@ export default Component.extend({
     let item = this.get('item');
     while (item) {
       set(item, 'name', 'xyz123');
+      item = await get(item, 'parent');
+    }
+  },
+
+  async testNamesChangeShortOther() {
+    // test path items names change to other version of short to test the-same-width
+    // changes detection
+    let item = this.get('item');
+    while (item) {
+      set(item, 'name', 'abc456');
       item = await get(item, 'parent');
     }
   },
