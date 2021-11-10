@@ -1,4 +1,16 @@
 .item-path {
+  &.has-single-path-item {
+    .path {
+      display: flex;
+    }
+    .path-icon-container {
+      flex-shrink: 0;
+    }
+    .path-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
   .path-container {
     display: block;
     overflow: hidden;

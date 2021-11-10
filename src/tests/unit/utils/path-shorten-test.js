@@ -7,10 +7,10 @@ const ellipsis = 'ellipsis';
 const shortSource = ['a', 'b', 'c', 'd', 'e', 'f'];
 
 describe('Unit | Utility | path shorten', function () {
-  it('returns [ell] for length 0', function () {
+  it('returns [] for length 0', function () {
     const result = pathShorten(shortSource, ellipsis, 0);
 
-    expectSameArrays(result, [ellipsis]);
+    expectSameArrays(result, []);
   });
 
   it('returns [i_1] for length 1', function () {
@@ -61,11 +61,11 @@ describe('Unit | Utility | path shorten', function () {
     expectSameArrays(result, ['a', 'b', 'c', 'd', 'e', 'f']);
   });
 
-  it('returns array with all items without ellipsis for length 7 for 7-items array', function () {
+  it('returns array with all items without ellipsis for length 8 for 7-items array', function () {
     const result = pathShorten(
       ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
-      7,
-      10
+      ellipsis,
+      8
     );
 
     expectSameArrays(result, ['a', 'b', 'c', 'd', 'e', 'f', 'g']);

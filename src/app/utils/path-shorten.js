@@ -12,8 +12,8 @@ export default function pathShorten(array, ellipsisItem, targetLength = 0) {
   if (typeof (targetLength) !== 'number' || targetLength < 0) {
     return [];
   }
-  if (targetLength === 0) {
-    return [ellipsisItem];
+  if (targetLength <= 0) {
+    return [];
   } else if (targetLength === 1) {
     return [array[0]];
   } else {

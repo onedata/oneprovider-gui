@@ -15,8 +15,8 @@ import { reads } from '@ember/object/computed';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
-import { debounce, scheduleOnce, next } from '@ember/runloop';
-import { promise, lte, or, array, raw } from 'ember-awesome-macros';
+import { debounce, next } from '@ember/runloop';
+import { promise, lte, or, array, raw, equal } from 'ember-awesome-macros';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -32,6 +32,9 @@ const mixins = [
 
 export default Component.extend(...mixins, {
   classNames: ['item-path'],
+  classNameBindings: [
+    'hasSinglePathItem:has-single-path-item',
+  ],
 
   i18n: service(),
   filesViewResolver: service(),
@@ -157,6 +160,8 @@ export default Component.extend(...mixins, {
   )),
 
   //#endregion
+
+  hasSinglePathItem: equal('displayedItemsCount', 1),
 
   isLoading: or('allItemsProxy.isPending', 'filesViewContextProxy.isPending'),
 
@@ -319,7 +324,12 @@ export default Component.extend(...mixins, {
 
   adjustItemsCount() {
     if (this.isPathOverflow()) {
-      this.decrementProperty('displayedItemsCount');
+      const displayedItemsCount = this.get('displayedItemsCount');
+      if (displayedItemsCount && displayedItemsCount > 1) {
+        this.decrementProperty('displayedItemsCount');
+      } else {
+        this.set('adjustmentNeeded', false);
+      }
     } else {
       this.set('adjustmentNeeded', false);
     }
