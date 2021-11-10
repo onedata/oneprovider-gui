@@ -455,8 +455,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'archiveProxy.rootDir',
     'browsableDatasetProxy',
     async function archiveRootDirProxy() {
-      const browsableDatasetProxy = this.get('browsableDatasetProxy');
-      const archive = await this.get('archiveProxy');
+      const {
+        browsableDatasetProxy,
+        archiveProxy,
+      } = this.getProperties('browsableDatasetProxy', 'archiveProxy');
+      const archive = get(archiveProxy, 'content') || await archiveProxy;
+      // archive may not be loaded at this time, which is an expected case
+      if (!archive) {
+        return null;
+      }
       const rootDir = await get(archive, 'rootDir');
       return BrowsableArchiveRootDir.create({
         content: rootDir,

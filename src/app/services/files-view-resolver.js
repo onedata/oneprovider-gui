@@ -151,7 +151,8 @@ export default Service.extend({
 
   async generateFallbackResponse(fallbackDir) {
     const filesViewContextFactory = this.get('filesViewContextFactory');
-    const filesViewContext = await filesViewContextFactory.createFromFile(fallbackDir);
+    const filesViewContext = fallbackDir &&
+      await filesViewContextFactory.createFromFile(fallbackDir);
     return { result: 'resolve', dir: fallbackDir, filesViewContext };
   },
 
