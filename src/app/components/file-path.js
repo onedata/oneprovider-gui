@@ -113,7 +113,7 @@ export default Component.extend(...mixins, {
         'filesViewContextProxy',
         'filePathProxy',
       );
-      const remainFiles = Array.from(
+      let remainFiles = Array.from(
         get(filePathProxy, 'content') || await filePathProxy
       );
       const result = [];
