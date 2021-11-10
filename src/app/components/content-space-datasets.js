@@ -190,6 +190,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   fileToShowInfo: null,
 
+  showInfoInitialTab: undefined,
+
   fileToShowMetadata: null,
 
   fileToShare: null,
@@ -1017,8 +1019,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.callParent('updateDatasetData', this.createOnezoneDatasetData(dataset));
   },
 
-  openInfoModal(file) {
-    this.set('fileToShowInfo', file);
+  openInfoModal(file, activeTab) {
+    this.setProperties({
+      fileToShowInfo: file,
+      showInfoInitialTab: activeTab || 'general',
+    });
   },
 
   closeInfoModal() {
