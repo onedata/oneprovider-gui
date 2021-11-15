@@ -129,6 +129,7 @@ export default Component.extend(I18n, {
       switch (dataSourceType) {
         case 'file':
         case 'dir': {
+          const unknownHtml = `<em>${this.t('unknown')}</em>`;
           const fileNames = dataSourceName.split(dirSeparator).slice(1);
           const filePath = fileNames.map(fileName => ({
             name: fileName,
@@ -138,25 +139,42 @@ export default Component.extend(I18n, {
           });
           const isInArchive = await get(fileArchiveInfo, 'isInArchiveProxy');
           if (isInArchive) {
-            const datasetId = await get(fileArchiveInfo, 'datasetIdProxy');
-            const dataset = await datasetManager.getBrowsableDataset(datasetId);
-            const archiveId = await get(fileArchiveInfo, 'archiveIdProxy');
-            const archive = await archiveManager.getBrowsableArchive(archiveId);
+            let datasetName;
+            try {
+              const datasetId = await get(fileArchiveInfo, 'datasetIdProxy');
+              datasetName = `<code>${datasetId}</code>`;
+              const dataset = await datasetManager.getBrowsableDataset(datasetId);
+              if (dataset) {
+                datasetName = get(dataset, 'name') || datasetName;
+              }
+            } catch (error) {
+              if (!datasetName) {
+                datasetName = unknownHtml;
+              }
+            }
+            let archiveName;
+            try {
+              const archiveId = await get(fileArchiveInfo, 'archiveIdProxy');
+              archiveName = `<code>${archiveId}</code>`;
+              const archive = await archiveManager.getBrowsableArchive(archiveId);
+              if (archive) {
+                archiveName = get(archive, 'name') || archiveName;
+              }
+            } catch (error) {
+              if (!archiveName) {
+                archiveName = unknownHtml;
+              }
+            }
             const relativePathString =
               stringifyFilePath(getArchiveRelativeFilePath(filePath));
-            const unknownHtml = `<em>${this.t('unknown')}</em>`;
             return htmlSafe(`
               <div class="tip-row-dataset">
                 <span class="tip-label">${this.t('dataset')}:</span>
-                <span class="dataset-name">
-                  ${dataset && get(dataset, 'name') || unknownHtml}
-                </span>
+                <span class="dataset-name">${datasetName}</span>
               </div>
               <div class="tip-row-archive">
                 <span class="tip-label">${this.t('archive')}:</span>
-                <span class="archive-name">
-                  ${archive && get(archive, 'name') || unknownHtml}
-                </span>
+                <span class="archive-name">${archiveName}</span>
               </div>
               <div class="tip-row-path">
                 <span class="tip-label">${this.t(dataSourceType)}:</span>

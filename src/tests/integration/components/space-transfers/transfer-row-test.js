@@ -86,6 +86,61 @@ describe('Integration | Component | space transfers/transfer row', function () {
     expect(tooltipText).to.match(new RegExp('Archive:\\s+archive_name'));
     expect(tooltipText).to.match(new RegExp('File:\\s+/hello/onefile_txt'));
   });
+
+  it('renders tooltip with dataset ID, archive ID and relative file path if dataset containg file cannot be fetched',
+    async function () {
+      const path =
+        '/space_name/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
+      this.set('record.transfer.dataSourceName', path);
+      const datasetManager = lookupService(this, 'datasetManager');
+      const archiveManager = lookupService(this, 'archiveManager');
+      sinon.stub(datasetManager, 'getBrowsableDataset').withArgs('ds123').rejects({
+        type: 'posix',
+        details: {
+          errno: 'enoent',
+        },
+      });
+      sinon.stub(archiveManager, 'getBrowsableArchive').withArgs('a123').rejects({
+        type: 'posix',
+        details: {
+          errno: 'enoent',
+        },
+      });
+
+      await render(this);
+
+      const tooltipText = await new OneTooltipHelper('.transfer-file-name').getText();
+      expect(tooltipText).to.match(new RegExp('Dataset:\\s+ds123'));
+      expect(tooltipText).to.match(new RegExp('Archive:\\s+a123'));
+      expect(tooltipText).to.match(new RegExp('File:\\s+/hello/onefile_txt'));
+    }
+  );
+
+  it('renders tooltip with dataset name, archive ID and relative file path if archive containg file cannot be fetched',
+    async function () {
+      const path =
+        '/space_name/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
+      this.set('record.transfer.dataSourceName', path);
+      const datasetManager = lookupService(this, 'datasetManager');
+      const archiveManager = lookupService(this, 'archiveManager');
+      sinon.stub(datasetManager, 'getBrowsableDataset').withArgs('ds123').resolves({
+        name: 'dataset_name',
+      });
+      sinon.stub(archiveManager, 'getBrowsableArchive').withArgs('a123').rejects({
+        type: 'posix',
+        details: {
+          errno: 'enoent',
+        },
+      });
+
+      await render(this);
+
+      const tooltipText = await new OneTooltipHelper('.transfer-file-name').getText();
+      expect(tooltipText).to.match(new RegExp('Dataset:\\s+dataset_name'));
+      expect(tooltipText).to.match(new RegExp('Archive:\\s+a123'));
+      expect(tooltipText).to.match(new RegExp('File:\\s+/hello/onefile_txt'));
+    }
+  );
 });
 
 function generateTestData(testCase) {
