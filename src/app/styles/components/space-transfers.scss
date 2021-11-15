@@ -306,7 +306,7 @@ $space-transfers-gray: #B6BAC0;
     // custom pull up for folder icons
     margin-top: -2px;
   }
-  .transfer-file-name {
+  .transfer-data-name {
     margin-left: 40px;
   }
   .transfer-file-icon {
@@ -394,8 +394,10 @@ $space-transfers-gray: #B6BAC0;
 
 // tooltip style - must be outside component class
 .transfer-file-tooltip {
-  .tip-label {
-    @include font-regular;
+  .tip-label, .file-deleted {
     @include font-semibold;
+  }
+  code {
+    padding: 0;
   }
 }

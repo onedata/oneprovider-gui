@@ -24,6 +24,7 @@ export const datasetDirPathPosition = 2;
 export const archiveDirPathPosition = 3;
 
 export default EmberObject.extend(OwnerInjector, {
+  datasetManager: service(),
   archiveManager: service(),
 
   /**
@@ -127,6 +128,38 @@ export default EmberObject.extend(OwnerInjector, {
       const filePath = await this.get('filePathProxy');
 
       return this.getArchiveRelativeFilePath(filePath);
+    }
+  )),
+
+  archiveProxy: promise.object(computed(
+    'isInArchiveProxy',
+    'archiveIdProxy',
+    async function archiveProxy() {
+      if (!(await this.get('isInArchiveProxy'))) {
+        return null;
+      }
+      const archiveId = await this.get('archiveIdProxy');
+      if (!archiveId) {
+        return null;
+      }
+
+      return this.get('archiveManager').getArchive(archiveId);
+    }
+  )),
+
+  datasetProxy: promise.object(computed(
+    'isInArchiveProxy',
+    'datasetIdProxy',
+    async function archiveProxy() {
+      if (!(await this.get('isInArchiveProxy'))) {
+        return null;
+      }
+      const datasetId = await this.get('datasetIdProxy');
+      if (!datasetId) {
+        return null;
+      }
+
+      return this.get('datasetManager').getDataset(datasetId);
     }
   )),
 
