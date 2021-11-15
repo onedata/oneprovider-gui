@@ -13,7 +13,7 @@
     changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "updateDirEntityId")
   }}
-  
+
   {{#if (and datasetToShowProtection fileToShowProtection)}}
     {{dataset-protection-modal
       open=true
@@ -35,7 +35,7 @@
       onOpenArchivesView=(action openArchivesView)
     }}
   {{/if}}
-  
+
   {{#if datasetToCreateArchive}}
     {{archive-create-modal
       open=true
@@ -45,14 +45,14 @@
       onArchiveCreate=(action submitArchiveCreate)
     }}
   {{/if}}
-  
+
   {{#if fileToShowInfo}}
     {{file-browser/fb-info-modal
-      modalClass="disable-hardlink-path-anchors"
       open=true
       file=fileToShowInfo
+      initialTab=showInfoInitialTab
       showApiSection=false
-      getDataUrl=(action "getArchiveFileUrl")
+      getDataUrl=(action "getFileUrl")
       onHide=(action closeInfoModal)
     }}
   {{/if}}
@@ -102,6 +102,7 @@
       space=space
       showPrivilege=spacePrivileges.viewQos
       editPrivilege=spacePrivileges.manageQos
+      getDataUrl=(action "getFileUrl")
       onHide=(action closeQosModal)
     }}
   {{/if}}

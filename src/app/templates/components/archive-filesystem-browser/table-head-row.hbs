@@ -1,12 +1,16 @@
 <th class="fb-table-col-files fb-table-secondary-col">
-  <span class="header-label">{{tt this "files"}}</span>
-  {{#if renderArchiveDipSwitch}}
-    {{archive-dip-switch
-      disabled=(not isArchiveDipAvailable)
-      archiveDipMode=archiveDipMode
-      onArchiveDipModeChange=onArchiveDipModeChange
-    }}
-  {{/if}}
+  <div class="fb-table-first-col-container">
+    <div class="table-header-text">{{tt this "files"}}</div>
+    {{#if renderArchiveDipSwitch}}
+      {{archive-dip-switch
+        disabled=(not isArchiveDipAvailable)
+        archiveDipMode=archiveDipMode
+        onArchiveDipModeChange=onArchiveDipModeChange
+      }}
+    {{/if}}
+    <div class="spacer"></div>
+    <div class="table-header-status-bar">{{yield}}</div>
+  </div>
 </th>
 <th class="fb-table-col-size fb-table-secondary-col hidden-xs">{{tt this "size"}}</th>
 <th class="fb-table-col-modification fb-table-secondary-col hidden-xs">

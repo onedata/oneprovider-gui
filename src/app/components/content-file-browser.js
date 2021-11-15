@@ -9,10 +9,8 @@
 
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
-import gri from 'onedata-gui-websocket-client/utils/gri';
 import { computed, get, getProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { getSpaceIdFromFileId } from 'oneprovider-gui/models/file';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -22,8 +20,9 @@ import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values'
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
-import { isEmpty } from '@ember/utils';
 import { executeWorkflowDataLocalStorageKey } from 'oneprovider-gui/components/space-automation/input-stores-form';
+import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
+import { isEmpty } from '@ember/utils';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -42,6 +41,7 @@ export default OneEmbeddedComponent.extend(
     spaceManager: service(),
     workflowManager: service(),
     globalNotify: service(),
+    filesViewResolver: service(),
 
     /**
      * Entity ID of space for which the file browser is rendered.
@@ -187,30 +187,6 @@ export default OneEmbeddedComponent.extend(
 
     selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
 
-    injectedDirGri: computed('dirEntityId', 'spaceEntityId', function injectedDirGri() {
-      const {
-        spaceEntityId,
-        dirEntityId,
-      } = this.getProperties('spaceEntityId', 'dirEntityId');
-      let isValidDirEntityId;
-      try {
-        isValidDirEntityId = dirEntityId &&
-          getSpaceIdFromFileId(dirEntityId) === spaceEntityId;
-      } catch (error) {
-        isValidDirEntityId = false;
-      }
-      if (isValidDirEntityId) {
-        return gri({
-          entityType: 'file',
-          entityId: dirEntityId,
-          aspect: 'instance',
-          scope: 'private',
-        });
-      } else {
-        return null;
-      }
-    }),
-
     fallbackDirProxy: promise.object(computed(
       'spaceProxy.rootDir',
       async function fallbackDirProxy() {
@@ -222,86 +198,57 @@ export default OneEmbeddedComponent.extend(
     )),
 
     dirProxy: promise.object(computed(
-      'injectedDirGri',
-      'spaceProxy',
+      'dirEntityId',
+      'spaceEntityId',
+      'selected',
       async function dirProxy() {
         const {
+          spaceEntityId,
           selected,
-          injectedDirGri,
+          dirEntityId,
+          filesViewResolver,
+          fallbackDirProxy,
         } = this.getProperties(
+          'spaceEntityId',
           'selected',
-          'injectedDirGri',
+          'dirEntityId',
+          'filesViewResolver',
+          'fallbackDirProxy',
         );
 
-        if (injectedDirGri) {
-          return this.resolveDirForGri(injectedDirGri);
+        const currentFilesViewContext = FilesViewContext.create({
+          spaceId: spaceEntityId,
+        });
+        const fallbackDir = await fallbackDirProxy;
+
+        const resolverResult = await filesViewResolver.resolveViewOptions({
+          dirId: dirEntityId,
+          currentFilesViewContext,
+          selectedIds: selected,
+          scope: 'private',
+          fallbackDir,
+        });
+
+        if (!resolverResult) {
+          return null;
+        }
+        if (resolverResult.result === 'resolve') {
+          return resolverResult.dir;
         } else {
-          return this.resolveDirForSelectedIds(selected);
+          // TODO: VFS-8342 common util for replacing master URL
+          if (resolverResult.url) {
+            this.openUrl(resolverResult.url, true);
+          }
+          return fallbackDir;
         }
       }
     )),
-
-    async resolveDirForGri(dirGri) {
-      const {
-        store,
-        globalNotify,
-      } = this.getProperties('store', 'globalNotify');
-
-      try {
-        // TODO: VFS-7643 refactor to use file-manager
-        const dirItem = await store.findRecord('file', dirGri);
-        const type = get(dirItem, 'type');
-        if (
-          type === 'dir' ||
-          type === 'symlink' && get(dirItem, 'effFile.type') === 'dir'
-        ) {
-          return dirItem;
-        } else {
-          return get(dirItem, 'parent');
-        }
-      } catch (error) {
-        globalNotify.backendError(this.t('openingDirectory'), error);
-        return this.get('fallbackDirProxy');
-      }
-    },
-
-    async resolveDirForSelectedIds(selectedIds) {
-      // NOTE: fallbackDirProxy is not got using `get` to avoid loading it
-      // unnecessarily
-      const _window = this.get('_window');
-
-      if (isEmpty(selectedIds)) {
-        // no dir nor selected files provided - go home
-        return this.get('fallbackDirProxy');
-      } else {
-        const redirectOptions = await this.resolveSelectedParentDirUrl();
-        if (redirectOptions) {
-          // TODO: VFS-8342 common util for replacing master URL
-          _window.top.location.replace(redirectOptions.dataUrl);
-          return (await redirectOptions.dirProxy) || this.get('fallbackDirProxy');
-        } else {
-          // resolving parent from selection failed - fallback to home
-          return this.get('fallbackDirProxy');
-        }
-      }
-    },
 
     dir: computedLastProxyContent('dirProxy'),
 
     spaceObserver: observer('spaceProxy.content', function spaceObserver() {
       this.get('uploadManager').changeTargetSpace(this.get('spaceProxy.content'));
     }),
-
-    /**
-     * Observer: watch if injected selection and dir changed to redirect to correct URL
-     */
-    injectedDirObserver: observer(
-      'injectedDirGri',
-      'selected',
-      function injectedDirObserver() {
-        this.resolveSelectedParentDirUrl();
-      }
-    ),
 
     spaceEntityIdObserver: observer('spaceEntityId', function spaceEntityIdObserver() {
       this.closeAllModals();
@@ -337,57 +284,11 @@ export default OneEmbeddedComponent.extend(
       });
     },
 
-    /**
-     * Optionally computes Onezone URL redirect options for containing parent directory of
-     * first selected file (if there is no injected dir id and at least one selected
-     * file). If there is no need to redirect, resolves false.
-     * @returns {Promise<{dataUrl: string, dirProxy: PromiseObject}>}
-     */
-    async resolveSelectedParentDirUrl() {
-      const {
-        injectedDirGri,
-        selected,
-        fileManager,
-      } = this.getProperties('injectedDirGri', 'selected', 'fileManager');
-      const firstSelectedId = selected && selected[0];
-
-      if (injectedDirGri || !firstSelectedId) {
-        // no need to resolve parent dir, as it is already specified or there is no
-        // selection specified
-        return null;
-      }
-
-      let firstSelectedFile;
-      try {
-        firstSelectedFile = await fileManager.getFileById(firstSelectedId);
-      } catch (error) {
-        console.debug(
-          `component:content-file-browser#resolveSelectedParentDirUrl: cannot resolve first selected file: "${error}"`
-        );
-        return null;
-      }
-      const parentId = firstSelectedFile &&
-        firstSelectedFile.relationEntityId('parent');
-      if (parentId) {
-        const dataUrl = this.callParent(
-          'getDataUrl', {
-            fileId: parentId,
-            selected,
-          }
-        );
-        return { dataUrl, dirProxy: get(firstSelectedFile, 'parent') };
-      } else {
-        return null;
-      }
-    },
-
     openWorkflowRunView({ atmWorkflowSchemaId, inputStoresData }) {
       const {
-        _window,
         _localStorage,
-        navigateTarget,
         globalNotify,
-      } = this.getProperties('_window', '_localStorage', 'navigateTarget', 'globalNotify');
+      } = this.getProperties('_localStorage', 'globalNotify');
       if (!atmWorkflowSchemaId) {
         return;
       }
@@ -414,7 +315,7 @@ export default OneEmbeddedComponent.extend(
         workflowSchemaId: atmWorkflowSchemaId,
         fillInputStores: Boolean(inputStoresData),
       });
-      _window.open(redirectUrl, navigateTarget);
+      this.openUrl(redirectUrl);
     },
 
     openBagitUploader() {
@@ -562,6 +463,10 @@ export default OneEmbeddedComponent.extend(
         return this.callParent('getShareUrl', { shareId });
       },
 
+      getDatasetsUrl(data) {
+        return this.callParent('getDatasetsUrl', data);
+      },
+
       /**
        * @param {Object} data
        * @param {String} data.fileId entity id of directory to open
@@ -569,12 +474,17 @@ export default OneEmbeddedComponent.extend(
        *  to be selected on view
        * @returns {String}
        */
-      getDataUrl(data) {
-        return this.callParent('getDataUrl', data);
-      },
-
-      getDatasetsUrl(data) {
-        return this.callParent('getDatasetsUrl', data);
+      async getFileUrl({ fileId, selected }) {
+        let id;
+        let type;
+        if (isEmpty(selected)) {
+          id = fileId;
+          type = 'open';
+        } else {
+          id = selected[0];
+          type = 'select';
+        }
+        return this.get('filesViewResolver').generateUrlById(id, type);
       },
 
       closeConfirmFileDownload() {

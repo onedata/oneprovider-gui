@@ -31,6 +31,7 @@ import archiveSettings from './components/archive-settings';
 import archivesPurge from './components/archives-purge';
 import itemsSelectBrowser from './components/items-select-browser';
 import datasetProtection from './components/dataset-protection';
+import filePath from './components/file-path';
 
 import uploadManager from './services/upload-manager';
 
@@ -76,6 +77,7 @@ const translations = {
     archivesPurge,
     itemsSelectBrowser,
     datasetProtection,
+    filePath,
   },
   services: {
     uploadManager,

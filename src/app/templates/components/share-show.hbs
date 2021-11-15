@@ -8,7 +8,6 @@
     {{else}}
       {{share-show/header-management
         share=share
-        spaceId=spaceId
         shareRootDeleted=shareRootDeleted
         showHandle=(eq handleState "available")
         getDataUrl=(action "getDataUrl")
@@ -16,7 +15,6 @@
       }}
     {{/if}}
     {{#bs-tab
-      fade=false
       class="bs-tab bs-tab-onedata bs-tab-modern tab-share-show-mode"
       customTabs=true
       activeId=activeTab

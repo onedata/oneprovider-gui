@@ -54,12 +54,6 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual optional
-   * @type {String}
-   */
-  spaceId: undefined,
-
-  /**
-   * @virtual optional
    * @type {Boolean}
    */
   publicMode: false,
@@ -121,6 +115,11 @@ export default Component.extend(...mixins, {
    * @type {ComputedProperty<String>}
    */
   description: reads('share.description'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  spaceId: reads('share.spaceId'),
 
   /**
    * @type {ComputedProperty<PromiseObject>}

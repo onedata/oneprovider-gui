@@ -1,6 +1,6 @@
 /**
  * Class for creating objects providing info about file membership in archive and
- * dataset. Info is currently obtained in a hacky way, because backend lacks API. 
+ * dataset. Info is currently obtained in a hacky way, because backend lacks API.
  *
  * @module utils/file-archive-info
  * @author Jakub Liput
@@ -46,6 +46,24 @@ export default EmberObject.extend(OwnerInjector, {
     }
   )),
 
+  isSpecialHiddenDirProxy: promise.object(computed(
+    'filePathProxy',
+    async function archiveIdProxy() {
+      const onedataArchivesRootDirName = this.get('onedataArchivesRootDirName');
+      const filePath = await this.get('filePathProxy');
+      if (!isArray(filePath)) {
+        return null;
+      }
+
+      const length = get(filePath, 'length');
+      const lastFileType = get(filePath[length - 1], 'type');
+      return lastFileType === 'dir' && (
+        length >= 2 && length <= 4 &&
+        get(filePath[1], 'name') === onedataArchivesRootDirName
+      );
+    }
+  )),
+
   datasetIdProxy: promise.object(computed(
     'filePathProxy',
     async function archiveIdProxy() {
@@ -55,7 +73,7 @@ export default EmberObject.extend(OwnerInjector, {
       }
 
       const name = get(filePath, 'length') >= 3 && get(filePath[2], 'name') || null;
-      return this.getArchiveIdFromDirName(name);
+      return this.getDatasetIdFromDirName(name);
     }
   )),
 
@@ -66,7 +84,6 @@ export default EmberObject.extend(OwnerInjector, {
       if (!isArray(filePath)) {
         return null;
       }
-
       const name = get(filePath, 'length') >= 4 && get(filePath[3], 'name') || null;
       return this.getArchiveIdFromDirName(name);
     }
@@ -101,9 +118,11 @@ export default EmberObject.extend(OwnerInjector, {
 });
 
 export function getArchiveIdFromDirName(dirName) {
-  return dirName && dirName.split('archive_')[1] || null;
+  const m = dirName && dirName.match('^archive_(.*)');
+  return m && m[1] || null;
 }
 
 export function getDatasetIdFromDirName(dirName) {
-  return dirName && dirName.split('dataset_archives_')[1] || null;
+  const m = dirName && dirName.match('^dataset_archives_(.*)');
+  return m && m[1] || null;
 }

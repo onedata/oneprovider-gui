@@ -1,19 +1,21 @@
 /**
  * Header for single share view for signed-in user that allows to modify the share.
- * 
+ *
  * @module components/share-show/header-management
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 import { Promise, hash as hashFulfilled } from 'rsvp';
-import { computed, get, getProperties } from '@ember/object';
+import { computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { collect, tag, conditional, raw, promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import HeaderBaseComponent from './-header-base';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
+import { inject as service } from '@ember/service';
+import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 
 export default HeaderBaseComponent.extend(I18n, {
   classNames: [
@@ -21,13 +23,12 @@ export default HeaderBaseComponent.extend(I18n, {
     'share-show-header-management',
   ],
 
-  i18nPrefix: 'components.shareShow.headerManagemenet',
+  filesViewResolver: service(),
 
   /**
-   * @virtual
-   * @type {String}
+   * @override
    */
-  spaceId: undefined,
+  i18nPrefix: 'components.shareShow.headerManagemenet',
 
   /**
    * @virtual
@@ -57,6 +58,8 @@ export default HeaderBaseComponent.extend(I18n, {
    */
   _window: window,
 
+  navigateDirTarget: '_top',
+
   actionsOpened: false,
 
   /**
@@ -68,6 +71,11 @@ export default HeaderBaseComponent.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   menuTriggerSelector: tag `.${'menuTriggerClass'}`,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  spaceId: reads('share.spaceId'),
 
   /**
    * @type {ComputedProperty<Array<Object>>}
@@ -139,14 +147,24 @@ export default HeaderBaseComponent.extend(I18n, {
   ),
 
   actions: {
-    openSpaceDir(dir) {
+    async openSpaceDir(dir) {
       const {
-        getDataUrl,
         spaceId,
         _window,
         navigateDirTarget,
-      } = this.getProperties('getDataUrl', 'spaceId', '_window', 'navigateDirTarget');
-      const dataUrl = getDataUrl({ spaceId, dirId: get(dir, 'entityId') });
+        filesViewResolver,
+      } = this.getProperties(
+        'spaceId',
+        '_window',
+        'navigateDirTarget',
+        'filesViewResolver'
+      );
+
+      const filesViewContextFactory =
+        FilesViewContextFactory.create({ ownerSource: this });
+      const filesViewContext = await filesViewContextFactory.createFromFile(dir);
+      const dataUrl = filesViewResolver.generateUrl(filesViewContext, 'open', { spaceId });
+
       return new Promise(() => {
         _window.open(dataUrl, navigateDirTarget);
       });
