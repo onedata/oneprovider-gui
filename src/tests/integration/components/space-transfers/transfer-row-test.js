@@ -8,6 +8,8 @@ import Service from '@ember/service';
 import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
 
 const FilesViewResolver = Service.extend({
   async generateUrlById() { return 'https://dummy_url'; },
@@ -141,6 +143,42 @@ describe('Integration | Component | space transfers/transfer row', function () {
       expect(tooltipText).to.match(new RegExp('File:\\s+/hello/onefile_txt'));
     }
   );
+
+  it('renders tooltip with DB index name on link hover when transferred object is a view', async function () {
+    const dbIndexName = 'my_db_index';
+    this.set('record.transfer.dataSourceType', 'view');
+    this.set('record.transfer.dataSourceName', dbIndexName);
+
+    await render(this);
+
+    expect(await new OneTooltipHelper('.transfer-db-index-name').getText())
+      .to.match(new RegExp(`^View:\\s+${dbIndexName}`));
+  });
+
+  [
+    'file',
+    'directory',
+  ].forEach(fileTypeLong => {
+    const fileType = fileTypeLong === 'directory' ? 'dir' : 'file';
+    const isDir = fileType === 'dir';
+    it(`renders tooltip with ${fileTypeLong} name and deletion information on link hover when transferred object is a ${fileTypeLong} and it has been deleted`,
+      async function () {
+        const path = `/space_name/onedir/one_${fileType}`;
+        this.set('record.transfer.dataSourceName', path);
+        this.set('record.transfer.dataSourceType', 'deleted');
+        this.set('record.transfer.transferProgressProxy', promiseObject(resolve({
+          status: 'completed',
+          replicatedFiles: isDir ? 2 : 1,
+          evictedFiles: 0,
+        })));
+
+        await render(this);
+
+        expect(await new OneTooltipHelper('.transfer-data-name').getText())
+          .to.match(new RegExp(`^${isDir ? 'Directory' : 'File'}:\\s+${path}\\s+.*deleted`));
+      }
+    );
+  });
 });
 
 function generateTestData(testCase) {

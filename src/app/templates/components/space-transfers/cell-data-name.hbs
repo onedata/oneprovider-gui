@@ -10,7 +10,7 @@
 {{#if (or (eq dataSourceType "file") (eq dataSourceType "dir"))}}
   {{#if href}}
     <a
-      class="transfer-file-name azure"
+      class="transfer-file-name transfer-data-name azure"
       href={{href}}
       target={{navigateTarget}}
       onclick={{action "stopEventPropagation" bubbles=false}}
@@ -26,7 +26,7 @@
       {{/if}}
     </a>
   {{else}}
-    <span class="transfer-file-name">
+    <span class="transfer-file-name transfer-data-name">
       {{name}}
       {{#if enableDesktopHint}}
         {{one-tooltip
@@ -39,7 +39,7 @@
   {{/if}}
 {{else if (eq dataSourceType "view")}}
   <a
-    class="transfer-file-name transfer-data-name azure"
+    class="transfer-db-index-name transfer-data-name azure"
     onclick={{action "openDbViewModal" bubbles=false}}
   >
     {{name}}
@@ -52,7 +52,7 @@
     {{/if}}
   </a>
 {{else}}
-  <span class="transfer-file-name transfer-data-name">
+  <span class="transfer-data-name">
     {{name}}
     {{#if enableDesktopHint}}
       {{one-tooltip
