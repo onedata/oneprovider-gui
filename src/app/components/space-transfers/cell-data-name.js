@@ -53,13 +53,22 @@ export default Component.extend(I18n, {
   dataSourceType: reads('record.transfer.dataSourceType'),
   dataSourceName: reads('record.transfer.dataSourceName'),
   dataSourceId: reads('record.transfer.dataSourceId'),
-  totalFiles: reads('record.totalFiles'),
   space: reads('record.space'),
+
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  totalFiles: computed('record.{replicatedFiles,evictedFiles}', function () {
+    const {
+      replicatedFiles,
+      evictedFiles,
+    } = getProperties(this.get('record'), 'replicatedFiles', 'evictedFiles');
+    return (replicatedFiles + evictedFiles) || 0;
+  }),
 
   name: computed(
     'dataSourceType',
     'dataSourceName',
-    'viewName',
     function name() {
       switch (this.get('dataSourceType')) {
         case 'file':
