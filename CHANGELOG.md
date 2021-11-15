@@ -6,6 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8348 Added links to files in transfers view with support for files inside archives
+* VFS-7898 Added self-shortening links to files with support for files inside archives
 * VFS-8283 Added showing multiple runs of workflow lanes
 * VFS-8547 Fixed minor bugs: reloading datatasets root, opening file info modal in share and opening hardlinks info tab
 * VFS-8482 Added dedicated page for privacy policy content

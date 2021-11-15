@@ -1,6 +1,6 @@
 /**
  * Container for transfers table providing infinite scroll and auto-update support
- * 
+ *
  * @module components/space-transfers/transfers-table-container
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -142,7 +142,7 @@ export default Component.extend({
   },
 
   /**
-   * @param {Array<HTMLElement>} items 
+   * @param {Array<HTMLElement>} items
    * @param {boolean} headerVisible
    */
   onTableScroll(items, headerVisible) {
@@ -194,7 +194,9 @@ export default Component.extend({
       if (isBackwardLoading) {
         listWatcher.scrollHandler();
       }
-      this.set('tableTopVisible', headerVisible && !isBackwardLoading);
+      safeExec(this, () => {
+        this.set('tableTopVisible', headerVisible && !isBackwardLoading);
+      });
     });
   },
 

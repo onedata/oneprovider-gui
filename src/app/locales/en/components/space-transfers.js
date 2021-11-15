@@ -23,15 +23,18 @@ export default {
     dir: 'directory',
     unknown: 'data item',
   },
-  cellActions: {
-    cancelTransfer: 'Cancel transfer',
-    rerunTransfer: 'Rerun transfer',
-  },
-  cellDataName: {
+  dataNameTooltip: {
+    dataset: 'Dataset',
+    archive: 'Archive',
     file: 'File',
     dir: 'Directory',
     view: 'View',
     deleted: 'deleted',
+    unknown: 'unknown',
+  },
+  cellActions: {
+    cancelTransfer: 'Cancel transfer',
+    rerunTransfer: 'Rerun transfer',
   },
   cellStatus: {
     completed: 'Completed',

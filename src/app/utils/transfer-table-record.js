@@ -1,5 +1,5 @@
 /**
- * Transfer record wrapper for transfers table/list item 
+ * Transfer record wrapper for transfers table/list item
  *
  * @module utils/transfer-table-record
  * @author Jakub Liput

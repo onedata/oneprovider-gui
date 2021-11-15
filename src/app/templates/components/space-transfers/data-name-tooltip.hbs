@@ -1,0 +1,42 @@
+{{#one-tooltip
+  class=(concat-classes
+   "transfer-file-tooltip"
+   "string-path-tooltip"
+   customClass
+  )
+  placement=placement
+}}
+  {{#if (and isFileSource isInArchive)}}
+    <div class="tip-row-dataset">
+      <span class="tip-label">{{tt this "dataset"}}:</span>
+      {{#if displayedDatasetName}}
+        <code class="dataset-name">{{displayedDatasetName}}</code>
+      {{else}}
+        <em class="dataset-name">{{tt this "unknown"}}</em>
+      {{/if}}
+    </div>
+    <div class="tip-row-archive">
+      <span class="tip-label">{{tt this "archive"}}:</span>
+      <span class="archive-name">
+        {{#if displayedArchiveName}}
+          <code>{{displayedArchiveName}}</code>
+        {{else}}
+          <em>{{tt this "unknown"}}</em>
+        {{/if}}
+      </span>
+    </div>
+  {{/if}}
+  <div class="tip-row-path">
+    <span class="tip-label">{{tt this dataSourceTypeLabelKey}}:</span>
+    {{#if isFileSource}}
+      <code class="path">{{displayedFilePath}}</code>
+      {{#if isFileDeleted}}
+        <span class="file-deleted">({{tt this "deleted"}})</span>
+      {{/if}}
+    {{else if (eq dataSourceType "view")}}
+      <code class="view-name">{{dataSourceName}}</code>
+    {{else}}
+      <em>{{tt this "unknown"}}</em>
+    {{/if}}
+  </div>
+{{/one-tooltip}}

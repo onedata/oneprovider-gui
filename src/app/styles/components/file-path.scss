@@ -59,12 +59,3 @@
     padding-right: 0.2em;
   }
 }
-
-.string-path-tooltip {
-  .tooltip-inner {
-    @include font-monospace;
-    max-width: 80vw;
-    word-break: break-all;
-    text-align: left;
-  }
-}
