@@ -15,13 +15,13 @@ import { isArray } from '@ember/array';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
 
-export const onedataArchivesRootDirName = '.__onedata__archive';
+export const oneArchivesRootDirName = '.__onedata__archive';
 
-export const onedataArchivesRootIndex = 1;
+export const oneArchivesRootPathPosition = 1;
 
-export const datasetDirIndex = 2;
+export const datasetDirPathPosition = 2;
 
-export const archiveDirIndex = 3;
+export const archiveDirPathPosition = 3;
 
 export default EmberObject.extend(OwnerInjector, {
   archiveManager: service(),
@@ -32,7 +32,7 @@ export default EmberObject.extend(OwnerInjector, {
    */
   file: undefined,
 
-  onedataArchivesRootDirName: '.__onedata__archive',
+  oneArchivesRootDirName,
 
   /**
    * An array of file objects that makes an absolute path to file.
@@ -47,10 +47,10 @@ export default EmberObject.extend(OwnerInjector, {
     'filePathProxy',
     async function archiveIdProxy() {
       const {
-        onedataArchivesRootDirName,
+        oneArchivesRootDirName,
         filePathProxy,
       } = this.getProperties(
-        'onedataArchivesRootDirName',
+        'oneArchivesRootDirName',
         'filePathProxy'
       );
       const filePath = await filePathProxy;
@@ -59,8 +59,8 @@ export default EmberObject.extend(OwnerInjector, {
       }
 
       const lastIndex = get(filePath, 'length') - 1;
-      return lastIndex >= archiveDirIndex &&
-        get(filePath[onedataArchivesRootIndex], 'name') === onedataArchivesRootDirName;
+      return lastIndex >= archiveDirPathPosition &&
+        get(filePath[oneArchivesRootPathPosition], 'name') === oneArchivesRootDirName;
     }
   )),
 
@@ -68,10 +68,10 @@ export default EmberObject.extend(OwnerInjector, {
     'filePathProxy',
     async function isSpecialHiddenDirProxy() {
       const {
-        onedataArchivesRootDirName,
+        oneArchivesRootDirName,
         filePathProxy,
       } = this.getProperties(
-        'onedataArchivesRootDirName',
+        'oneArchivesRootDirName',
         'filePathProxy'
       );
       const filePath = await filePathProxy;
@@ -82,8 +82,8 @@ export default EmberObject.extend(OwnerInjector, {
       const lastIndex = get(filePath, 'length') - 1;
       const lastFileType = get(filePath[lastIndex], 'type');
       return lastFileType === 'dir' && (
-        lastIndex >= onedataArchivesRootIndex && lastIndex <= archiveDirIndex &&
-        get(filePath[onedataArchivesRootIndex], 'name') === onedataArchivesRootDirName
+        lastIndex >= oneArchivesRootPathPosition && lastIndex <= archiveDirPathPosition &&
+        get(filePath[oneArchivesRootPathPosition], 'name') === oneArchivesRootDirName
       );
     }
   )),
@@ -97,8 +97,8 @@ export default EmberObject.extend(OwnerInjector, {
       }
 
       const lastIndex = get(filePath, 'length') - 1;
-      const name = lastIndex >= datasetDirIndex &&
-        get(filePath[datasetDirIndex], 'name') || null;
+      const name = lastIndex >= datasetDirPathPosition &&
+        get(filePath[datasetDirPathPosition], 'name') || null;
       return this.getDatasetIdFromDirName(name);
     }
   )),
@@ -111,8 +111,8 @@ export default EmberObject.extend(OwnerInjector, {
         return null;
       }
       const lastIndex = get(filePath, 'length') - 1;
-      const name = lastIndex >= archiveDirIndex &&
-        get(filePath[archiveDirIndex], 'name') || null;
+      const name = lastIndex >= archiveDirPathPosition &&
+        get(filePath[archiveDirPathPosition], 'name') || null;
       return this.getArchiveIdFromDirName(name);
     }
   )),
@@ -150,5 +150,5 @@ export function getDatasetIdFromDirName(dirName) {
  * @returns {Array<Models.File>}
  */
 export function getArchiveRelativeFilePath(path) {
-  return path.slice(archiveDirIndex + 1);
+  return path.slice(archiveDirPathPosition + 1);
 }

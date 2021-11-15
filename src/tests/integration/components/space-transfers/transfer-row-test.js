@@ -41,6 +41,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
   });
 
   beforeEach(function () {
+    generateTestData(this);
     registerService(this, 'filesViewResolver', FilesViewResolver);
     registerService(this, 'fileManager', FileManager);
     registerService(this, 'datasetManager', DatasetManager);
@@ -48,7 +49,6 @@ describe('Integration | Component | space transfers/transfer row', function () {
   });
 
   it('renders file name', async function () {
-    generateTestData(this);
     this.set('record.transfer.dataSourceName', '/space_name/onedir/onefile_txt');
 
     await render(this);
@@ -57,7 +57,6 @@ describe('Integration | Component | space transfers/transfer row', function () {
   });
 
   it('renders tooltip with file path on link hover', async function () {
-    generateTestData(this);
     const path = '/space_name/onedir/onefile_txt';
     this.set('record.transfer.dataSourceName', path);
 
@@ -68,7 +67,6 @@ describe('Integration | Component | space transfers/transfer row', function () {
   });
 
   it('renders tooltip with dataset info, archive info and file path on link hover', async function () {
-    generateTestData(this);
     const path =
       '/space_name/.__onedata__archive/dataset_archives_ds123/archive_a123/hello/onefile_txt';
     this.set('record.transfer.dataSourceName', path);
@@ -129,6 +127,7 @@ async function render(testCase) {
     transfersTable=transfersTable
     forbiddenOperations=forbiddenOperations
     transferActions=transferActions
+    openDbViewModal=openDbViewModal
   }}`);
   await wait();
 }

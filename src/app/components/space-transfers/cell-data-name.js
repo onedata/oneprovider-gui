@@ -10,7 +10,7 @@
 import fileName from 'oneprovider-gui/utils/file-name';
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { computed, get } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -74,15 +74,13 @@ export default Component.extend(I18n, {
     }
   ),
 
-  deletedIsDir: computed('totalFiles', function deletedType() {
-    return this.get('totalFiles') > 1;
+  deletedIsDir: computed('totalFiles', function deletedIsDir() {
+    const totalFiles = this.get('totalFiles');
+    return Boolean(totalFiles) && totalFiles > 1;
   }),
 
-  icon: computed('dataSourceType', 'deletedIsDir', function () {
-    const {
-      dataSourceType,
-      // deletedIsDir,
-    } = this.getProperties('dataSourceType', 'deletedIsDir');
+  icon: computed('dataSourceType', function icon() {
+    const dataSourceType = this.get('dataSourceType');
     switch (dataSourceType) {
       case 'view':
         return 'index';
@@ -92,8 +90,6 @@ export default Component.extend(I18n, {
         return 'browser-directory';
       case 'deleted':
         return 'x';
-        // TODO: icons for deleted file and dir
-        //   return deletedIsDir ? 'folder-deleted' : 'file-deleted';
       default:
         return 'unknown';
     }
@@ -104,7 +100,6 @@ export default Component.extend(I18n, {
    */
   hintProxy: promise.object(computed(
     'dataSourceName',
-    'viewName',
     'dataSourceType',
     'deletedIsDir',
     async function hint() {
@@ -171,7 +166,7 @@ export default Component.extend(I18n, {
         case 'deleted':
           return htmlSafe(`
             <div class="tip-row-path">
-              <span class="tip-label">${this.t((deletedIsDir ? 'file' : 'dir'))}:</span>
+              <span class="tip-label">${this.t((deletedIsDir ? 'dir' : 'file'))}:</span>
               <span class="path">${dataSourceName}</span>
               <span class="tip-label">(${this.t('deleted')})</span>
             </div>

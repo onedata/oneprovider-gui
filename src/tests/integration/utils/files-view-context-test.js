@@ -119,9 +119,9 @@ describe('Integration | Utility | files view context', function () {
     async function () {
       const factory = this.get('factory');
       const spaceId = 'space_id_123';
-      const onedataArchivesRootDir = createOnedataArchivesRootDir(spaceId);
+      const oneArchivesRootDir = createOnedataArchivesRootDir(spaceId);
 
-      const filesViewContext = await factory.createFromFile(onedataArchivesRootDir);
+      const filesViewContext = await factory.createFromFile(oneArchivesRootDir);
 
       expect(get(filesViewContext, 'spaceId')).to.equal(spaceId);
       expect(get(filesViewContext, 'shareId')).to.equal(null);
