@@ -284,17 +284,22 @@ export default OneEmbeddedComponent.extend(
       });
     },
 
-    openWorkflowRunView({ atmWorkflowSchemaId, inputStoresData }) {
+    openWorkflowRunView({
+      atmWorkflowSchemaId,
+      atmWorkflowSchemaRevisionNumber,
+      inputStoresData,
+    }) {
       const {
         _localStorage,
         globalNotify,
       } = this.getProperties('_localStorage', 'globalNotify');
-      if (!atmWorkflowSchemaId) {
+      if (!atmWorkflowSchemaId || !atmWorkflowSchemaRevisionNumber) {
         return;
       }
       if (inputStoresData) {
         const executeWorkflowData = {
           atmWorkflowSchemaId,
+          atmWorkflowSchemaRevisionNumber,
           inputStoresData,
         };
         try {
@@ -313,6 +318,7 @@ export default OneEmbeddedComponent.extend(
       }
       const redirectUrl = this.callParent('getExecuteWorkflowUrl', {
         workflowSchemaId: atmWorkflowSchemaId,
+        workflowSchemaRevision: atmWorkflowSchemaRevisionNumber,
         fillInputStores: Boolean(inputStoresData),
       });
       this.openUrl(redirectUrl);

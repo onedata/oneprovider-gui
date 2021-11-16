@@ -44,7 +44,8 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Function>}
    * @param {String} options.atmWorkflowSchemaId
-   * @param {Boolean} options.fillInputStores
+   * @param {Number} options.atmWorkflowSchemaRevisionNumber
+   * @param {any} options.fillInputStores
    */
   runWorkflowCallback: reads('modalOptions.runWorkflowCallback'),
 
@@ -142,6 +143,8 @@ export default Component.extend(I18n, {
       }
       runWorkflowCallback && runWorkflowCallback({
         atmWorkflowSchemaId: get(atmWorkflowSchema, 'entityId'),
+        // TODO: VFS-8255 pass revision number
+        atmWorkflowSchemaRevisionNumber: 123456,
         inputStoresData,
       });
     },

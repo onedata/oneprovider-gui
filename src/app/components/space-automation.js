@@ -87,6 +87,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {number|null}
+   */
+  atmWorkflowSchemaRevisionNumber: undefined,
+
+  /**
+   * @virtual
    * @type {Boolean}
    */
   fillInputStores: false,
@@ -194,8 +200,11 @@ export default Component.extend(I18n, {
     closeWorkflowPreview() {
       this.get('closePreviewTab')();
     },
-    chooseWorkflowSchemaToRun(atmWorkflowSchemaId) {
-      this.get('chooseWorkflowSchemaToRun')(atmWorkflowSchemaId);
+    chooseWorkflowSchemaToRun(atmWorkflowSchemaId, atmWorkflowSchemaRevisionNumber) {
+      this.get('chooseWorkflowSchemaToRun')(
+        atmWorkflowSchemaId,
+        atmWorkflowSchemaRevisionNumber
+      );
     },
   },
 });
