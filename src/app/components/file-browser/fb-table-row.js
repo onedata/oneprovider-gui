@@ -37,7 +37,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     'isInvalidated:is-invalidated',
     'isLoadingOnIcon:is-loading-on-icon',
   ],
-  attributeBindings: ['fileEntityId:data-row-id'],
+  attributeBindings: ['fileEntityId:data-row-id', 'tabIndex'],
 
   errorExtractor: service(),
   media: service(),
@@ -166,6 +166,12 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {Object}
    */
   spacePrivileges: undefined,
+
+  /**
+   * Element attribute binding.
+   * Allow to listen for keyboard events.
+   */
+  tabIndex: '0',
 
   /**
    * Time in ms when the touch should be treated as a hold
@@ -442,6 +448,24 @@ export default Component.extend(I18n, FastDoubleClick, {
   click(clickEvent) {
     this._super(...arguments);
     this.get('fastClick')(clickEvent);
+  },
+
+  /**
+   * @param {KeyboardEvent} event
+   */
+  keyDown(event) {
+    const {
+      fileDoubleClicked,
+      isSelected,
+      selectionContext,
+    } = this.getProperties(
+      'fileDoubleClicked',
+      'isSelected',
+      'selectionContext',
+    );
+    if (isSelected && selectionContext.startsWith('single') && event.key === 'Enter') {
+      fileDoubleClicked();
+    }
   },
 
   async _fastDoubleClick() {
