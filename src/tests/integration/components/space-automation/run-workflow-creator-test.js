@@ -96,7 +96,7 @@ describe('Integration | Component | space automation/run workflow creator', func
       expect(isSlideActive('list')).to.be.true;
       const listSlide = getSlide('list');
       expect(listSlide.querySelector('.slide-header').textContent.trim())
-        .to.equal('Choose workflow revision you would like to run');
+        .to.equal('Choose workflow you would like to run');
       const workflowsListComponent =
         listSlide.querySelector('.atm-workflow-schemas-list');
       expect(workflowsListComponent).to.exist;

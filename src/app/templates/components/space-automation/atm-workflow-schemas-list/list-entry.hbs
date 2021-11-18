@@ -25,12 +25,12 @@
       {{/if}}
     {{/revisions-table}}
     {{#if hiddenRevisionsCount}}
-      <p class="hidden-revisions-info">{{tt this "someRevisionsNotSuitable"}}</p>
+      <small class="hidden-revisions-info text-muted">{{tt this "someRevisionsNotSuitable"}}</small>
     {{/if}}
   {{else}}
-    <p class="hidden-revisions-info">
+    <small class="hidden-revisions-info text-muted">
       {{tt this (if hiddenRevisionsCount "noSuitableRevision" "noRevision")}}
-    </p>
+    </small>
   {{/if}}
 </div>
 {{yield}}
