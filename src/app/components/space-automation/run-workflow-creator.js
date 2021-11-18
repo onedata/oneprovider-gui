@@ -53,6 +53,7 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {Function}
    * @param {String} atmWorkflowSchemaId
+   * @param {number} atmWorkflowSchemaRevisionNumber
    * @returns {any}
    */
   chooseWorkflowSchemaToRun: undefined,
@@ -72,6 +73,12 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   atmWorkflowSchemaIdToRun: undefined,
+
+  /**
+   * See `atmWorkflowSchemaIdToRun`
+   * @type {String}
+   */
+  atmWorkflowSchemaRevisionNumberToRun: undefined,
 
   /**
    * One of: `'list'`, `'inputStores'`
@@ -102,32 +109,50 @@ export default Component.extend(I18n, {
   isStartingWorkflow: false,
 
   /**
+   * @type {ComputedProperty<AtmWorkflowSchemaRevision>}
+   */
+  atmWorkflowSchemaRevision: computed(
+    'atmWorkflowSchemaToRunProxy.content.revisionRegistry',
+    'atmWorkflowSchemaRevisionNumber',
+    function atmWorkflowSchemaRevision() {
+      return this.get(
+        `atmWorkflowSchemaToRunProxy.content.revisionRegistry.${this.get('atmWorkflowSchemaRevisionNumber')}`
+      );
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<Boolean>}
    */
   areInitialValuesNeeded: computed(
-    'atmWorkflowSchemaToRunProxy.content',
+    'atmWorkflowSchemaRevision.stores',
     function areInitialValuesNeeded() {
-      const stores = this.get('atmWorkflowSchemaToRunProxy.content.stores') || [];
+      const stores = this.get('atmWorkflowSchemaRevision.stores') || [];
       return stores.isAny('requiresInitialValue');
     }
   ),
 
   atmWorkflowSchemaToRunLoader: observer(
     'atmWorkflowSchemaId',
+    'atmWorkflowSchemaRevisionNumber',
     function atmWorkflowSchemaToRunLoader() {
       const {
         atmWorkflowSchemaId,
+        atmWorkflowSchemaRevisionNumber,
         atmWorkflowSchemaIdToRun,
+        atmWorkflowSchemaRevisionNumberToRun,
         workflowManager,
         activeSlide,
       } = this.getProperties(
         'atmWorkflowSchemaId',
+        'atmWorkflowSchemaRevisionNumber',
         'atmWorkflowSchemaIdToRun',
+        'atmWorkflowSchemaRevisionNumberToRun',
         'workflowManager',
         'activeSlide',
       );
 
-      if (!atmWorkflowSchemaId) {
+      if (!atmWorkflowSchemaId || !atmWorkflowSchemaRevisionNumber) {
         if (activeSlide === 'inputStores') {
           this.changeSlide('list');
         }
@@ -135,7 +160,10 @@ export default Component.extend(I18n, {
       }
 
       this.changeSlide('inputStores');
-      if (atmWorkflowSchemaId === atmWorkflowSchemaIdToRun) {
+      if (
+        atmWorkflowSchemaId === atmWorkflowSchemaIdToRun &&
+        atmWorkflowSchemaRevisionNumber === atmWorkflowSchemaRevisionNumberToRun
+      ) {
         return;
       }
 
@@ -144,6 +172,7 @@ export default Component.extend(I18n, {
 
       this.setProperties({
         atmWorkflowSchemaIdToRun: atmWorkflowSchemaId,
+        atmWorkflowSchemaRevisionNumberToRun: atmWorkflowSchemaRevisionNumber,
         atmWorkflowSchemaToRunProxy: promiseObject(loadSchemaPromise),
         inputStoresData: undefined,
         areInputStoresValid: true,
@@ -161,10 +190,16 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    atmWorkflowSchemaSelected(atmWorkflowSchema) {
+    atmWorkflowSchemaRevisionSelected(
+      atmWorkflowSchema,
+      atmWorkflowSchemaRevisionNumber
+    ) {
       const chooseWorkflowSchemaToRun = this.get('chooseWorkflowSchemaToRun');
       if (chooseWorkflowSchemaToRun) {
-        chooseWorkflowSchemaToRun(get(atmWorkflowSchema, 'entityId'));
+        chooseWorkflowSchemaToRun(
+          get(atmWorkflowSchema, 'entityId'),
+          atmWorkflowSchemaRevisionNumber
+        );
       }
     },
     inputStoresChanged({ data, isValid }) {
@@ -179,6 +214,7 @@ export default Component.extend(I18n, {
         workflowManager,
         space,
         atmWorkflowSchemaIdToRun,
+        atmWorkflowSchemaRevisionNumberToRun,
         inputStoresData,
         onWorkflowStarted,
         globalNotify,
@@ -187,6 +223,7 @@ export default Component.extend(I18n, {
         'workflowManager',
         'space',
         'atmWorkflowSchemaIdToRun',
+        'atmWorkflowSchemaRevisionNumberToRun',
         'inputStoresData',
         'onWorkflowStarted',
         'globalNotify',
@@ -197,12 +234,13 @@ export default Component.extend(I18n, {
       try {
         const atmWorkflowExecution = await workflowManager.runWorkflow(
           atmWorkflowSchemaIdToRun,
+          atmWorkflowSchemaRevisionNumberToRun,
           spaceId,
           inputStoresData || {}
         );
         globalNotify.success(this.t('workflowStartSuccessNotify'));
         onWorkflowStarted && onWorkflowStarted(atmWorkflowExecution);
-        chooseWorkflowSchemaToRun && chooseWorkflowSchemaToRun(null);
+        chooseWorkflowSchemaToRun && chooseWorkflowSchemaToRun(null, null);
       } catch (error) {
         globalNotify.backendError(this.t('workflowStartFailureOperationName'), error);
       } finally {
@@ -211,7 +249,7 @@ export default Component.extend(I18n, {
     },
     backSlide() {
       const chooseWorkflowSchemaToRun = this.get('chooseWorkflowSchemaToRun');
-      chooseWorkflowSchemaToRun && chooseWorkflowSchemaToRun(null);
+      chooseWorkflowSchemaToRun && chooseWorkflowSchemaToRun(null, null);
     },
   },
 });

@@ -1163,51 +1163,58 @@ export default Service.extend({
             scope: 'private',
           }),
           name: `workflow ${idx} [${name}]`,
-          description: `workflow ${idx} description`,
-          stores: [{
-            id: 'store1',
-            name: 'list of integers',
-            type: 'list',
-            dataSpec: {
-              type: 'integer',
-              valueConstraints: {},
-            },
-            requiresInitialValue: true,
-            defaultInitialValue: [1, 2, 3],
-          }, {
-            id: 'store2',
-            name: 'single value file',
-            type: 'singleValue',
-            dataSpec: {
-              type: 'file',
-              valueConstraints: {
-                fileType: 'ANY',
-              },
-            },
-            requiresInitialValue: true,
-          }],
-          lanes: [{
-            id: 'lane1',
-            name: 'lane 1',
-            maxRetries: 3,
-            storeIteratorSpec: {
-              strategy: {
-                type: 'serial',
-              },
-              storeSchemaId: 'store1',
-            },
-            parallelBoxes: [{
-              id: 'pbox1-1',
-              name: 'Parallel box',
-              tasks: [{
-                id: 'task1-1-1',
-                name: 'task1',
-                lambdaId: 'lambda1',
-                argumentMappings: [],
-                resultMappings: [],
+          summary: `workflow ${idx} summary`,
+          revisionRegistry: {
+            1: {
+              description: `workflow ${idx} description`,
+              state: 'stable',
+              stores: [{
+                id: 'store1',
+                name: 'list of integers',
+                type: 'list',
+                dataSpec: {
+                  type: 'integer',
+                  valueConstraints: {},
+                },
+                requiresInitialValue: true,
+                defaultInitialValue: [1, 2, 3],
+              }, {
+                id: 'store2',
+                name: 'single value file',
+                type: 'singleValue',
+                dataSpec: {
+                  type: 'file',
+                  valueConstraints: {
+                    fileType: 'ANY',
+                  },
+                },
+                requiresInitialValue: true,
               }],
-            }],
-          }],
+              lanes: [{
+                id: 'lane1',
+                name: 'lane 1',
+                maxRetries: 3,
+                storeIteratorSpec: {
+                  strategy: {
+                    type: 'serial',
+                  },
+                  storeSchemaId: 'store1',
+                },
+                parallelBoxes: [{
+                  id: 'pbox1-1',
+                  name: 'Parallel box',
+                  tasks: [{
+                    id: 'task1-1-1',
+                    name: 'task1',
+                    lambdaId: 'lambda1',
+                    lambdaRevisionNumber: 1,
+                    argumentMappings: [],
+                    resultMappings: [],
+                  }],
+                }],
+              }],
+            },
+          },
         }).save();
         inventoryAtmWorkflowSchemas.push(atmWorkflowSchema);
       }
@@ -1262,18 +1269,17 @@ export default Service.extend({
             finishTime
           );
           const atmWorkflowSchema = atmWorkflowSchemas[i % atmWorkflowSchemasCount];
-          const lanes = get(atmWorkflowSchema, 'lanes');
+          const revision = get(atmWorkflowSchema, 'revisionRegistry.1');
+          const lanes = revision.lanes;
           const atmWorkflowSchemaSnapshot = await store.createRecord(
             'atmWorkflowSchemaSnapshot',
-            getProperties(
+            Object.assign(getProperties(
               atmWorkflowSchema,
               'name',
-              'description',
-              'stores',
-              'lanes'
-            )
+              'summary',
+            ), { revisionRegistry: { 1: revision } })
           ).save();
-          const storeRegistry = get(atmWorkflowSchemaSnapshot, 'stores').reduce(
+          const storeRegistry = get(revision, 'stores').reduce(
             (registry, store) => {
               const storeId = get(store, 'id');
               registry[storeId] = `${storeId}instance`;

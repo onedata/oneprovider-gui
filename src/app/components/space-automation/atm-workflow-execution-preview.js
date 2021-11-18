@@ -51,23 +51,17 @@ export default Component.extend({
    * @type {ComputedProperty<Object>}
    */
   rawSchema: computed(
-    'atmWorkflowSchemaSnapshotProxy.content.{lanes,stores}',
+    'atmWorkflowSchemaSnapshotProxy.revisionRegistry',
     function rawSchema() {
-      const {
-        isFulfilled,
-        lanes,
-        stores,
-      } = getProperties(
-        this.get('atmWorkflowSchemaSnapshotProxy'),
-        'isFulfilled',
-        'lanes',
-        'stores'
-      );
-      if (isFulfilled) {
-        return {
-          lanes,
-          stores,
-        };
+      const revisionRegistry =
+        this.get('atmWorkflowSchemaSnapshotProxy.revisionRegistry');
+      const revision = Object.values(revisionRegistry || {})[0];
+      if (revision) {
+        return getProperties(
+          revision,
+          'lanes',
+          'stores'
+        );
       }
     }
   ),

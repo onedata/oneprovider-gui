@@ -15,7 +15,7 @@ export default Component.extend(I18n, {
     'list-entry',
     'iconified-block',
   ],
-  classNameBindings: ['matchesInputData:hoverable:no-input-match'],
+  classNameBindings: ['matchesInputData::no-input-match'],
 
   /**
    * @override
@@ -36,24 +36,20 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Function}
-   * @returns {any}
+   * @type {(atmWorkflowSchema: Models.AtmWorkflowSchema, revisionNumber: number) => void}
    */
-  onSelect: undefined,
+  onRevisionClick: undefined,
 
-  /**
-   * @override
-   */
-  click() {
-    this._super(...arguments);
+  actions: {
+    revisionClick(revisionNumber) {
+      const {
+        atmWorkflowSchema,
+        onRevisionClick,
+      } = this.getProperties('atmWorkflowSchema', 'onRevisionClick');
 
-    const {
-      matchesInputData,
-      onSelect,
-    } = this.getProperties('matchesInputData', 'onSelect');
-
-    if (matchesInputData && onSelect) {
-      onSelect();
-    }
+      if (onRevisionClick) {
+        onRevisionClick(atmWorkflowSchema, revisionNumber);
+      }
+    },
   },
 });

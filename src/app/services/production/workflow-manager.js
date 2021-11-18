@@ -114,15 +114,22 @@ export default Service.extend({
 
   /**
    * @param {String} atmWorkflowSchemaId
+   * @param {Number} atmWorkflowSchemaRevisionNumber
    * @param {String} spaceId
    * @param {Object} storeInitialValues map (storeSchemaId => initial value)
    * @returns {Promise<Models.AtmWorkflowExecution>}
    */
-  async runWorkflow(atmWorkflowSchemaId, spaceId, storeInitialValues) {
+  async runWorkflow(
+    atmWorkflowSchemaId,
+    atmWorkflowSchemaRevisionNumber,
+    spaceId,
+    storeInitialValues
+  ) {
     return await this.get('store').createRecord('atmWorkflowExecution', {
       _meta: {
         additionalData: {
           atmWorkflowSchemaId,
+          atmWorkflowSchemaRevisionNumber,
           spaceId,
           storeInitialValues,
         },

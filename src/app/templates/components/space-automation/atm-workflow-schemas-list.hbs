@@ -11,7 +11,7 @@
     {{space-automation/atm-workflow-schemas-list/list-entry
       atmWorkflowSchema=listEntry.atmWorkflowSchema
       matchesInputData=listEntry.hasMatchingInputStore
-      onSelect=(action "atmWorkflowSchemaSelected" listEntry.atmWorkflowSchema)
+      onRevisionClick=onAtmWorkflowSchemaRevisionSelect
     }}
   {{else}}
     <div class="no-workflows-info">

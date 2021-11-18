@@ -11,7 +11,6 @@ import Component from '@ember/component';
 import { promise } from 'ember-awesome-macros';
 import { computed, get, getProperties } from '@ember/object';
 import { sort } from '@ember/object/computed';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import config from 'ember-get-config';
@@ -51,11 +50,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Function}
-   * @param {Models.AtmWorkflowSchema} selectedAtmWorkflowSchema
-   * @returns {any}
+   * @type {(atmWorkflowSchema: Models.AtmWorkflowSchema, revisionNumber: number) => void}
    */
-  onAtmWorkflowSchemaSelect: notImplementedIgnore,
+  onAtmWorkflowSchemaRevisionSelect: undefined,
 
   /**
    * @type {String}
@@ -160,10 +157,6 @@ export default Component.extend(I18n, {
   actions: {
     changeSearchValue(newValue) {
       debounce(this, 'set', 'searchValue', newValue, typingActionDebouce);
-    },
-    atmWorkflowSchemaSelected(atmWorkflowSchema) {
-      const onAtmWorkflowSchemaSelect = this.get('onAtmWorkflowSchemaSelect');
-      onAtmWorkflowSchemaSelect && onAtmWorkflowSchemaSelect(atmWorkflowSchema);
     },
   },
 });
