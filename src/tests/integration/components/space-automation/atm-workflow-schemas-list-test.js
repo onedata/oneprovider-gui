@@ -17,25 +17,37 @@ describe('Integration | Component | space automation/atm workflow schemas list',
   beforeEach(function () {
     const atmWorkflowSchemas1 = [{
       name: 'workflow3',
-      description: 'w3 description',
+      summary: 'w3 summary',
+      revisionRegistry: {
+        1: {},
+      },
       isLoaded: true,
     }, {
       name: 'workflow1',
-      description: 'w1 description',
+      summary: 'w1 summary',
+      revisionRegistry: {
+        1: {},
+      },
       isLoaded: true,
     }];
     const atmWorkflowSchemas2 = [{
       name: 'workflow2',
-      description: 'w2 description',
+      summary: 'w2 summary',
+      revisionRegistry: {
+        1: {},
+      },
       isLoaded: true,
     }, {
       name: 'workflow4',
-      description: 'w4 description',
+      summary: 'w4 summary',
+      revisionRegistry: {
+        1: {},
+      },
       isLoaded: true,
     }];
     sinon.stub(lookupService(this, 'workflow-manager'), 'getAllKnownAtmWorkflowSchemas')
       .returns(promiseArray(resolve([...atmWorkflowSchemas1, ...atmWorkflowSchemas2])));
-    this.set('atmWorkflowSchemaSelectSpy', sinon.spy());
+    this.set('onAtmWorkflowSchemaRevisionSelect', sinon.spy());
   });
 
   it('has class "atm-workflow-schemas-list"', async function () {
@@ -53,20 +65,20 @@ describe('Integration | Component | space automation/atm workflow schemas list',
     [1, 2, 3, 4].forEach(entryNo => {
       expect($entries.eq(entryNo - 1).find('.workflow-schema-name').text().trim())
         .to.equal(`workflow${entryNo}`);
-      expect($entries.eq(entryNo - 1).find('.workflow-schema-description').text().trim())
-        .to.equal(`w${entryNo} description`);
+      expect($entries.eq(entryNo - 1).find('.workflow-schema-summary').text().trim())
+        .to.equal(`w${entryNo} summary`);
     });
   });
 
   it('notifies about workflow schema selection', async function () {
-    const atmWorkflowSchemaSelectSpy = this.get('atmWorkflowSchemaSelectSpy');
+    const onAtmWorkflowSchemaRevisionSelect = this.get('onAtmWorkflowSchemaRevisionSelect');
     await render(this);
 
-    expect(atmWorkflowSchemaSelectSpy).to.be.not.called;
-    await click(this.$('.list-entry')[1]);
+    expect(onAtmWorkflowSchemaRevisionSelect).to.be.not.called;
+    await click(this.$('.list-entry').eq(1).find('.revisions-table-revision-entry')[0]);
 
-    expect(atmWorkflowSchemaSelectSpy).to.be.calledOnce.and.to.be.calledWith(
-      sinon.match({ name: 'workflow2' })
+    expect(onAtmWorkflowSchemaRevisionSelect).to.be.calledOnce.and.to.be.calledWith(
+      sinon.match({ name: 'workflow2' }), 1
     );
   });
 });
@@ -74,7 +86,7 @@ describe('Integration | Component | space automation/atm workflow schemas list',
 async function render(testCase) {
   testCase.render(hbs `
     {{space-automation/atm-workflow-schemas-list
-      onAtmWorkflowSchemaSelect=atmWorkflowSchemaSelectSpy
+      onAtmWorkflowSchemaRevisionSelect=onAtmWorkflowSchemaRevisionSelect
     }}
   `);
   await wait();

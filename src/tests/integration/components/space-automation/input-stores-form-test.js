@@ -193,39 +193,44 @@ describe('Integration | Component | space automation/input stores form', functio
   beforeEach(function () {
     this.setProperties({
       atmWorkflowSchema: {
-        stores: [{
-          id: 'store1',
-          name: 'singleValueIntegerStore',
-          description: 'single value integer store',
-          type: 'singleValue',
-          dataSpec: {
-            type: 'integer',
-            valueConstraints: {},
+        revisionRegistry: {
+          1: {
+            stores: [{
+              id: 'store1',
+              name: 'singleValueIntegerStore',
+              description: 'single value integer store',
+              type: 'singleValue',
+              dataSpec: {
+                type: 'integer',
+                valueConstraints: {},
+              },
+              defaultInitialValue: 10,
+              requiresInitialValue: true,
+            }, {
+              id: 'store2',
+              name: 'listStringStore',
+              description: 'list string store',
+              type: 'list',
+              dataSpec: {
+                type: 'string',
+                valueConstraints: {},
+              },
+              requiresInitialValue: true,
+            }, {
+              id: 'store3',
+              name: 'singleValueStringStore',
+              description: 'single value string store',
+              type: 'singleValue',
+              dataSpec: {
+                type: 'string',
+                valueConstraints: {},
+              },
+              requiresInitialValue: false,
+            }],
           },
-          defaultInitialValue: 10,
-          requiresInitialValue: true,
-        }, {
-          id: 'store2',
-          name: 'listStringStore',
-          description: 'list string store',
-          type: 'list',
-          dataSpec: {
-            type: 'string',
-            valueConstraints: {},
-          },
-          requiresInitialValue: true,
-        }, {
-          id: 'store3',
-          name: 'singleValueStringStore',
-          description: 'single value string store',
-          type: 'singleValue',
-          dataSpec: {
-            type: 'string',
-            valueConstraints: {},
-          },
-          requiresInitialValue: false,
-        }],
+        },
       },
+      atmWorkflowSchemaRevisionNumber: 1,
       isDisabled: false,
       changeSpy: sinon.spy(),
     });
@@ -261,7 +266,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
   it('does not show field tooltip when store does not have a description',
     async function () {
-      this.get('atmWorkflowSchema.stores').forEach(store => delete store.description);
+      getStores(this).forEach(store => delete store.description);
 
       await render(this);
 
@@ -282,7 +287,7 @@ describe('Integration | Component | space automation/input stores form', functio
     }) => {
       context(`when store is of type ${storeTypeName} with ${dataSpecName} elements`, function () {
         beforeEach(function () {
-          this.set('atmWorkflowSchema.stores', [{
+          setStores(this, [{
             id: 's1',
             name: 'store1',
             type: storeTypeName,
@@ -342,10 +347,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
           it('fills initial value with JSON', async function () {
             const rawValue = JSON.parse(correctInitialValues[0]);
-            this.set(
-              'atmWorkflowSchema.stores.0.defaultInitialValue',
-              rawValue
-            );
+            getStores(this)[0].defaultInitialValue = rawValue;
 
             await render(this);
 
@@ -356,9 +358,9 @@ describe('Integration | Component | space automation/input stores form', functio
 
         if (editor === 'filesValue') {
           it('fills initial value with an element with known name', async function () {
-            this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
+            getStores(this)[0].defaultInitialValue = [{
               [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
-            }]);
+            }];
             const isArchive = dataSpec.type === 'archive';
             const fileData = isArchive ? { creationTime: 1623318692 } : { name: 'someName' };
             mockFileRecord(this, dataSpec, 0, fileData);
@@ -371,9 +373,9 @@ describe('Integration | Component | space automation/input stores form', functio
 
           it('fills initial value with an element, that cannot be loaded',
             async function () {
-              this.set('atmWorkflowSchema.stores.0.defaultInitialValue', [{
+              getStores(this)[0].defaultInitialValue = [{
                 [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
-              }]);
+              }];
               mockFileRecord(this, dataSpec, 0, null);
 
               await render(this);
@@ -409,11 +411,20 @@ async function render(testCase) {
   testCase.render(hbs `
     {{space-automation/input-stores-form
       atmWorkflowSchema=atmWorkflowSchema
+      atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
       isDisabled=isDisabled
       onChange=changeSpy
     }}
   `);
   await wait();
+}
+
+function getStores(testCase) {
+  return testCase.get('atmWorkflowSchema.revisionRegistry.1.stores');
+}
+
+function setStores(testCase, stores) {
+  return testCase.set('atmWorkflowSchema.revisionRegistry.1.stores', stores);
 }
 
 function getFileIdFieldName(dataSpec) {

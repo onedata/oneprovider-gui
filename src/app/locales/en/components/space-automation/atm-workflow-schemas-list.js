@@ -4,6 +4,7 @@ export default {
   listEntry: {
     someRevisionsNotSuitable: 'Some revisions are hidden as they have no input stores suitable for selected item(s).',
     noSuitableRevision: 'This workflow has no revision with input stores suitable for selected item(s).',
+    noRevision: 'This workflow has no revision.',
     columns: {
       description: {
         title: 'Description',

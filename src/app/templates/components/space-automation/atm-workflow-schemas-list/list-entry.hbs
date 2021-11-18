@@ -28,7 +28,9 @@
       <p class="hidden-revisions-info">{{tt this "someRevisionsNotSuitable"}}</p>
     {{/if}}
   {{else}}
-    <p class="hidden-revisions-info">{{tt this "noSuitableRevision"}}</p>
+    <p class="hidden-revisions-info">
+      {{tt this (if hiddenRevisionsCount "noSuitableRevision" "noRevision")}}
+    </p>
   {{/if}}
 </div>
 {{yield}}
