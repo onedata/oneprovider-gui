@@ -2,28 +2,34 @@
   {{record-icon record=atmWorkflowSchema}}
 </div>
 <div class="content-section">
-  <div class="workflow-schema-name">{{atmWorkflowSchema.name}}</div>
-  {{#if atmWorkflowSchema.summary}}
-    <div class="workflow-schema-summary">{{atmWorkflowSchema.summary}}</div>
-  {{/if}}
-  {{#revisions-table
-    revisionRegistry=atmWorkflowSchema.revisionRegistry
-    customColumnsCount=1
-    isReadOnly=true
-    onRevisionClick=(action "revisionClick")
-    as |section data|
-  }}
-    {{#if (eq section "header")}}
-      <th class="description-column filling-column">{{tt this "columns.description.title"}}</th>
-    {{else}}
-      <td class="description filling-column {{unless data.revision.description "no-value"}}">
-        {{or data.revision.description (tt this "columns.description.fallback")}}
-      </td>
+  <div class="workflow-schema-details">
+    <div class="workflow-schema-name">{{atmWorkflowSchema.name}}</div>
+    {{#if atmWorkflowSchema.summary}}
+      <div class="workflow-schema-summary">{{atmWorkflowSchema.summary}}</div>
     {{/if}}
-  {{/revisions-table}}
+  </div>
+  {{#if hasMatchingRevisions}}
+    {{#revisions-table
+      revisionRegistry=matchingRevisionRegistry
+      customColumnsCount=1
+      isReadOnly=true
+      onRevisionClick=(action "revisionClick")
+      as |section data|
+    }}
+      {{#if (eq section "header")}}
+        <th class="description-column filling-column">{{tt this "columns.description.title"}}</th>
+      {{else}}
+        <td class="description filling-column {{unless data.revision.description "no-value"}}">
+          {{or data.revision.description (tt this "columns.description.fallback")}}
+        </td>
+      {{/if}}
+    {{/revisions-table}}
+    {{#if hiddenRevisionsCount}}
+      <p class="hidden-revisions-info">{{tt this "someRevisionsNotSuitable"}}</p>
+    {{/if}}
+  {{else}}
+    <p class="hidden-revisions-info">{{tt this "noSuitableRevision"}}</p>
+  {{/if}}
 </div>
-{{#if (not matchesInputData)}}
-  {{one-tooltip title=(tt this "noInputMatch")}}
-{{/if}}
 {{yield}}
 

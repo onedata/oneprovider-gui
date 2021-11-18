@@ -123,7 +123,10 @@ export default Component.extend(I18n, {
   ),
 
   actions: {
-    atmWorkflowSchemaSelected(atmWorkflowSchema) {
+    atmWorkflowSchemaRevisionSelected(
+      atmWorkflowSchema,
+      atmWorkflowSchemaRevisionNumber
+    ) {
       const {
         runWorkflowCallback,
         requiredInputStoreSpec,
@@ -143,8 +146,7 @@ export default Component.extend(I18n, {
       }
       runWorkflowCallback && runWorkflowCallback({
         atmWorkflowSchemaId: get(atmWorkflowSchema, 'entityId'),
-        // TODO: VFS-8255 pass revision number
-        atmWorkflowSchemaRevisionNumber: 123456,
+        atmWorkflowSchemaRevisionNumber,
         inputStoresData,
       });
     },

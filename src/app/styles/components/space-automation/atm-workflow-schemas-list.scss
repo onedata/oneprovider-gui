@@ -9,11 +9,15 @@
     cursor: not-allowed !important;
   }
 
+  .workflow-schema-details {
+    padding-bottom: 1em;
+  }
+
   .workflow-schema-name {
     @include font-semibold();
   }
 
-  .workflow-schema-description {
+  .workflow-schema-summary {
     padding-top: 0.4em;
   }
 

@@ -8,14 +8,16 @@
  */
 
 import Component from '@ember/component';
+import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { or, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   classNames: [
     'list-entry',
     'iconified-block',
   ],
-  classNameBindings: ['matchesInputData::no-input-match'],
+  classNameBindings: ['hasMatchingRevisions::no-input-match'],
 
   /**
    * @override
@@ -30,15 +32,61 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Boolean}
+   * @type {number[]}
    */
-  matchesInputData: true,
+  revisionNumbersMatchingInput: undefined,
 
   /**
    * @virtual
    * @type {(atmWorkflowSchema: Models.AtmWorkflowSchema, revisionNumber: number) => void}
    */
   onRevisionClick: undefined,
+
+  /**
+   * @type {ComputedProperty<Object>}
+   */
+  revisionRegistry: or('atmWorkflowSchema.revisionRegistry', raw({})),
+
+  /**
+   * Revision registry with revisions described by `revisionNumbersMatchingInput`
+   * @type {ComputedProperty<Object>}
+   */
+  matchingRevisionRegistry: computed(
+    'revisionRegistry',
+    'revisionNumbersMatchingInput',
+    function matchingRevisionRegistry() {
+      const revisionRegistry = this.get('revisionRegistry');
+      const revisionNumbersMatchingInput = this.get('revisionNumbersMatchingInput');
+      return revisionNumbersMatchingInput.reduce((acc, revisionNumber) => {
+        acc[revisionNumber] = revisionRegistry[revisionNumber];
+        return acc;
+      }, {});
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  hasMatchingRevisions: computed('matchingRevisionRegistry', function () {
+    return Object.keys(this.get('matchingRevisionRegistry')).length > 0;
+  }),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  hiddenRevisionsCount: computed(
+    'revisionRegistry',
+    'matchingRevisionRegistry',
+    function hiddenRevisionsCount() {
+      const {
+        revisionRegistry,
+        matchingRevisionRegistry,
+      } = this.getProperties('revisionRegistry', 'matchingRevisionRegistry');
+
+      return Object.keys(revisionRegistry).length -
+        Object.keys(matchingRevisionRegistry).length;
+    }
+  ),
 
   actions: {
     revisionClick(revisionNumber) {

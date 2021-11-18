@@ -10,7 +10,7 @@
   {{#each sortedListEntries as |listEntry|}}
     {{space-automation/atm-workflow-schemas-list/list-entry
       atmWorkflowSchema=listEntry.atmWorkflowSchema
-      matchesInputData=listEntry.hasMatchingInputStore
+      revisionNumbersMatchingInput=listEntry.revisionNumbersMatchingInput
       onRevisionClick=onAtmWorkflowSchemaRevisionSelect
     }}
   {{else}}
