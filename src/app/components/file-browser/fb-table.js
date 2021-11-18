@@ -41,6 +41,7 @@ export default Component.extend(I18n, {
     'specialViewClass:special-dir-view',
     'refreshStarted',
   ],
+  attributeBindings: ['tabIndex'],
 
   fileManager: service(),
   i18n: service(),
@@ -166,6 +167,12 @@ export default Component.extend(I18n, {
    * @type {(file: Models.File, confirmModal?: Boolean) => any}
    */
   openFile: notImplementedIgnore,
+
+  /**
+   * Element attribute binding.
+   * Allows to listen for keyboard events.
+   */
+  tabIndex: '0',
 
   /**
    * @type {EmberArray<String>}
@@ -587,12 +594,37 @@ export default Component.extend(I18n, {
     }
   },
 
+  /**
+   * @override
+   * @param {KeyboardEvent} event
+   */
+  keyDown(event) {
+    const {
+      openFile,
+      selectedItems,
+      selectionContext,
+    } = this.getProperties(
+      'openFile',
+      'selectedItems',
+      'selectionContext',
+    );
+    if (selectionContext.startsWith('single') && event.key === 'Enter') {
+      openFile(selectedItems[0]);
+    }
+  },
+
+  /**
+   * @override
+   */
   didInsertElement() {
     this._super(...arguments);
     const listWatcher = this.set('listWatcher', this.createListWatcher());
     listWatcher.scrollHandler();
   },
 
+  /**
+   * @override
+   */
   willDestroyElement() {
     try {
       this.get('listWatcher').destroy();
