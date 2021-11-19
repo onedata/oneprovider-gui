@@ -71,9 +71,9 @@
       }
     }
     .empty-dir-image {
-      @media (max-height: 700px) {
+      // @media (max-height: 10px) {
         display: none;
-      }
+      // }
     }
   }
 
@@ -153,10 +153,6 @@
     //   @include hide-before-shadow;
     // }
   }
-
-  .bottom-panel-content {
-    flex-grow: 1;
-  }
   .split-line {
     height: $split-line-height;
     margin-left: -$content-col-padding;
@@ -169,6 +165,10 @@
     user-select: none;
   }
   .bottom-panel-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
     font-size: 1.5em;
     opacity: $disabled-opacity;
   }

@@ -14,6 +14,7 @@
       selectedItemsForJumpProxy=selectedItemsForJumpProxy
       isSpaceOwned=space.currentUserIsOwner
       contentScroll=perfectScrollbarContainer.element
+      ignoreDeselectSelector=".archive-browser-container, .archive-browser-container *, .split-line, .split-line *"
       getItemByIdFun=(if (eq viewMode "files") (action getFileById))
       changeSelectedItems=(action "changeSelectedItems")
       updateDirEntityId=(action "updateDirEntityId")
@@ -67,6 +68,7 @@
       space=space
       dataset=selectedItems.firstObject
       contentScroll=perfectScrollbarContainer.element
+      ignoreDeselectSelector=".dataset-browser-container, .dataset-browser-container *, .split-line, .split-line *"
     }}
   {{else}}
     <div class="bottom-panel-content">

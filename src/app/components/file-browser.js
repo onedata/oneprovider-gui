@@ -307,25 +307,34 @@ export default Component.extend(I18n, {
     }),
   ),
 
+  // FIXME: virtual
+  ignoreDeselectSelector: '',
+
   clickInsideSelector: computed(
     'insideBrowserSelectors',
     'floatingItemsSelectors',
+    'ignoreDeselectSelector',
     function clickInsideSelector() {
       const {
         insideBrowserSelectors,
         floatingItemsSelectors,
+        ignoreDeselectSelector,
         elementId,
       } = this.getProperties(
         'insideBrowserSelectors',
         'floatingItemsSelectors',
+        'ignoreDeselectSelector',
         'elementId'
       );
-      return [
-          ...insideBrowserSelectors
-          .map(selector => `#${elementId} ${selector}`),
-          ...floatingItemsSelectors,
-        ]
-        .join(', ');
+      const selectors = [
+        ...insideBrowserSelectors
+        .map(selector => `#${elementId} ${selector}`),
+        ...floatingItemsSelectors,
+      ];
+      if (ignoreDeselectSelector) {
+        selectors.push(ignoreDeselectSelector);
+      }
+      return selectors.join(', ');
     }
   ),
 

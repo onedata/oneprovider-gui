@@ -32,6 +32,8 @@ export default Component.extend(...mixins, {
   // FIXME: new thing, not compatible with archives tab probably
   contentScroll: undefined,
 
+  ignoreDeselectSelector: '',
+
   /**
    * @type {Models.Space}
    * @virtual
