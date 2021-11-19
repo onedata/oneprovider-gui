@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8518 Unlocked possibility to create a hardlink for symlink
 * VFS-8514 Added support for entering directories and downloading single file using "Enter" key on keyboard
 * VFS-8348 Added links to files in transfers view with support for files inside archives
 * VFS-7898 Added self-shortening links to files with support for files inside archives

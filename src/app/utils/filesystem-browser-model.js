@@ -559,7 +559,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     function btnCreateHardlink() {
       const areManyFilesSelected = this.get('selectedItems.length') > 1;
       const disabledTip = this.generateDisabledTip({
-        blockWhenSymlinksOnly: true,
         blockFileTypes: ['dir'],
       });
       return this.createFileAction({
@@ -572,7 +571,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         ),
         action: (files) => {
           const browserInstance = this.get('browserInstance');
-          browserInstance.setFileClipboardFiles(files.rejectBy('type', 'symlink'));
+          browserInstance.setFileClipboardFiles(files);
           browserInstance.setFileClipboardMode('hardlink');
         },
         showIn: anySelectedContexts,
