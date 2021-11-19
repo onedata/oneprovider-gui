@@ -1,124 +1,87 @@
-{{#promise-proxy-container proxy=initialRequiredDataProxy}}
-  {{file-browser
-    browserModel=browserModel
-    dir=currentBrowsableItem
-    customFetchDirChildren=(action "fetchChildren")
-    resolveFileParentFun=(action "resolveItemParent")
-    spaceId=spaceId
-    spacePrivileges=spacePrivileges
-    selectedItems=selectedItems
-    selectedItemsForJumpProxy=selectedItemsForJumpProxy
-    isSpaceOwned=space.currentUserIsOwner
-    getItemByIdFun=(if (eq viewMode "files") (action getFileById))
-    changeSelectedItems=(action "changeSelectedItems")
-    updateDirEntityId=(action "updateDirEntityId")
-  }}
-
-  {{#if (and datasetToShowProtection fileToShowProtection)}}
-    {{dataset-protection-modal
-      open=true
-      mode="dataset"
-      file=fileToShowProtection
-      browsableDataset=datasetToShowProtection
-      editPrivilege=spacePrivileges.manageDatasets
-      onHide=(action closeProtectionModal)
-      getDataUrl=(action getDataUrl)
-      getDatasetsUrl=(action getDatasetsUrl)
+{{#perfect-scrollbar-element
+  class="split-browser-container dataset-browser-container"
+  as |perfectScrollbarContainer|
+}}
+  {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+    {{file-browser
+      browserModel=browserModel
+      dir=currentBrowsableItem
+      customFetchDirChildren=(action "fetchChildren")
+      resolveFileParentFun=(action "resolveItemParent")
+      spaceId=spaceId
+      spacePrivileges=spacePrivileges
+      selectedItems=selectedItems
+      selectedItemsForJumpProxy=selectedItemsForJumpProxy
+      isSpaceOwned=space.currentUserIsOwner
+      contentScroll=perfectScrollbarContainer.element
+      getItemByIdFun=(if (eq viewMode "files") (action getFileById))
+      changeSelectedItems=(action "changeSelectedItems")
+      updateDirEntityId=(action "updateDirEntityId")
     }}
-  {{/if}}
 
-  {{#if fileToShowDatasetOpen}}
-    {{dataset-browser/dataset-open-modal
-      open=true
-      dataset=fileToShowDatasetOpen
-      onHide=(action closeDatasetOpenModal)
-      onOpenArchivesView=(action openArchivesView)
-    }}
-  {{/if}}
+    {{#if (and datasetToShowProtection fileToShowProtection)}}
+      {{dataset-protection-modal
+        open=true
+        mode="dataset"
+        file=fileToShowProtection
+        browsableDataset=datasetToShowProtection
+        editPrivilege=spacePrivileges.manageDatasets
+        onHide=(action closeProtectionModal)
+        getDataUrl=(action getDataUrl)
+        getDatasetsUrl=(action getDatasetsUrl)
+      }}
+    {{/if}}
 
-  {{#if datasetToCreateArchive}}
-    {{archive-create-modal
-      open=true
-      dataset=datasetToCreateArchive
-      options=createArchiveOptions
-      onHide=(action closeCreateArchiveModal)
-      onArchiveCreate=(action submitArchiveCreate)
-    }}
-  {{/if}}
+    {{#if fileToShowDatasetOpen}}
+      {{dataset-browser/dataset-open-modal
+        open=true
+        dataset=fileToShowDatasetOpen
+        onHide=(action closeDatasetOpenModal)
+        onOpenArchivesView=(action openArchivesView)
+      }}
+    {{/if}}
 
-  {{#if fileToShowInfo}}
-    {{file-browser/fb-info-modal
-      open=true
-      file=fileToShowInfo
-      initialTab=showInfoInitialTab
-      showApiSection=false
-      getDataUrl=(action "getFileUrl")
-      onHide=(action closeInfoModal)
-    }}
-  {{/if}}
-
-  {{#if fileToShowMetadata}}
-    {{file-browser/fb-metadata-modal
-      open=true
-      file=fileToShowMetadata
-      previewMode=true
-      fileModelScope="private"
-      onHide=(action closeMetadataModal)
-    }}
-  {{/if}}
-
-  {{#if filesToEditPermissions}}
-    {{edit-permissions-modal
-      readonly=true
-      files=filesToEditPermissions
+    {{#if datasetToCreateArchive}}
+      {{archive-create-modal
+        open=true
+        dataset=datasetToCreateArchive
+        options=createArchiveOptions
+        onHide=(action closeCreateArchiveModal)
+        onArchiveCreate=(action submitArchiveCreate)
+      }}
+    {{/if}}
+  {{/promise-proxy-container}}
+{{/perfect-scrollbar-element}}
+{{!-- FIXME: experimental split-line content --}}
+<div class="split-line">░░░░░░</div>
+{{!-- <div class="split-browser-container archive-browser-container"> --}}
+{{!-- <div class="skrol browser-scroll-container"> --}}
+{{#perfect-scrollbar-element
+  class="split-browser-container archive-browser-container"
+  __class="browser-scroll-container"
+  as |perfectScrollbarContainer|
+}}
+  {{!-- FIXME: make delay before changing selectedItems count --}}
+  {{#if (eq selectedItems.length 1)}}
+    {{dataset-archives-browser
       space=space
-      onClose=(action closeEditPermissionsModal)
+      dataset=selectedItems.firstObject
+      contentScroll=perfectScrollbarContainer.element
     }}
+  {{else}}
+    <div class="bottom-panel-content">
+      <div class="bottom-panel-text">
+        {{#if (gt selectedItems.length 1)}}
+          {{tt this "multiDatasetsSelected" count=selectedItems.length}}
+        {{else}}
+          {{tt this "noDatasetSelected"}}
+        {{/if}}
+      </div>
+      <div class="bottom-panel-text bottom-panel-text-secondary">
+        {{tt this "selectSingleDataset"}}
+      </div>
+    </div>
   {{/if}}
-
-  {{#if filesToShowDistribution}}
-    {{file-distribution-modal
-      files=filesToShowDistribution
-      space=space
-      onClose=(action closeFileDistributionModal)
-      getTransfersUrl=(action getTransfersUrl)
-    }}
-  {{/if}}
-
-  {{#if fileToShare}}
-    {{file-browser/fb-share-modal
-      open=true
-      file=fileToShare
-      managePrivilege=spacePrivileges.manageShares
-      onHide=(action closeShareModal)
-      getShareUrl=(action getShareUrl)
-    }}
-  {{/if}}
-
-  {{#if filesToShowQos}}
-    {{qos-modal
-      open=true
-      files=filesToShowQos
-      space=space
-      showPrivilege=spacePrivileges.viewQos
-      editPrivilege=spacePrivileges.manageQos
-      getDataUrl=(action "getFileUrl")
-      onHide=(action closeQosModal)
-    }}
-  {{/if}}
-
-  {{file-browser/fb-download-modal
-    file=fileForConfirmDownload
-    confirmDownload=(action confirmFileDownload)
-    onHide=(action closeConfirmFileDownload)
-  }}
-
-  {{#if archivesToPurge}}
-    {{archives-purge-modal
-      open=true
-      archives=archivesToPurge
-      onHide=(action closeArchivesPurgeModal)
-    }}
-  {{/if}}
-
-{{/promise-proxy-container}}
+{{/perfect-scrollbar-element}}
+{{!-- </div> --}}
+{{!-- </div> --}}

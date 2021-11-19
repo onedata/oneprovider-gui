@@ -5,16 +5,178 @@
   }
 }
 
+// disable hiding shadow when embedded-content is scrolled to top, because it is always
+// scrolled to top in splitted view - see styles for `.split-browser-container`
+.embedded-content {
+  &.on-top {
+    // FIXME: currently only for upper browser
+    .split-browser-container .file-browser-head-container {
+      @include before-bottom-shadow;
+    }
+  }
+}
+
 .content-space-datasets {
   position: relative;
   height: 100%;
   flex-grow: 1;
+  align-items: stretch;
+  justify-content: flex-start;
 
   .file-browser-head-container {
     z-index: $zindex-file-browser-head;
   }
 
-  + .ps__rail-x + .ps__rail-y {
-    z-index: $zindex-file-browser-head + 1;
+
+  // FIXME: experimental
+
+  .skrol {
+    overflow: auto;
   }
+
+  .browser-scroll-container {
+    flex-grow: 1;
+  }
+
+  $split-line-height: 20px;
+
+  .split-browser-container {
+    margin-left: -$content-col-padding;
+    padding-left: $content-col-padding;
+    margin-right: -$content-col-padding;
+    padding-right: $content-col-padding;
+
+    .ps__rail-x + .ps__rail-y {
+      z-index: $zindex-file-browser-head + 1;
+    }
+
+    .file-browser-head-container {
+      @include before-bottom-shadow;
+    }
+    &.on-top {
+      .file-browser-head-container {
+        @include hide-before-shadow;
+      }
+    }
+
+    .fb-table {
+      // there is no need for large bottom spacing in modal, because it should be compact
+      .table-bottom-spacing {
+        height: 2em;
+      }
+    }
+    .fb-table {
+      .refresh-spinner {
+        position: absolute;
+      }
+    }
+    .empty-dir-image {
+      @media (max-height: 700px) {
+        display: none;
+      }
+    }
+  }
+
+  .dataset-archives-browser {
+    flex-grow: 1;
+
+    // FIXME: maybe generic for splitted
+
+    .fb-table {
+      // there is no need for large bottom spacing in modal, because it should be compact
+      .table-bottom-spacing {
+        height: 2em;
+      }
+    }
+    // FIXME: to remove
+    // .file-browser-head-container {
+    //   position: absolute;
+    //   padding-left: $content-col-padding + $file-browser-padding-left;
+    //   padding-right: $content-col-padding + 2px;
+    //   // padding-top: 0;
+    // }
+    .fb-table {
+      .refresh-spinner {
+        position: absolute;
+      }
+    }
+    .empty-dir-image {
+      @media (max-height: 700px) {
+        display: none;
+      }
+    }
+  }
+
+  .dataset-browser-container {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+  }
+
+  .archive-browser-container {
+    display: flex;
+    // FIXME: center in message mode
+    // align-items: center;
+    // FIXME: browser does not want to fit its container - its a mystery
+    // flex-grow: 0;
+    // flex-shrink: 0;
+    // flex-basis: 40vw;
+    margin-bottom: -$content-col-padding;
+    height: 40vw;
+
+    .browser-scroll-container {
+      // FIXME: will be flexible
+      height: 40vw;
+    }
+
+    .file-browser-head-container {
+      position: sticky;
+      margin-left: -$content-col-padding;
+      padding-left: $content-col-padding + $file-browser-padding-left;
+      // FIXME: experimental change
+      margin-right: -$content-col-padding;
+      padding-right: $content-col-padding + $file-browser-padding-right;
+      padding-top: 0;
+    }
+
+    .file-browser {
+      height: auto;
+
+      .fb-table-container {
+        // header is sticky, so we do not need margin
+        margin-top: 0;
+      }
+    }
+
+    // @include before-top-shadow;
+    // &.on-top {
+    //   @include hide-before-shadow;
+    // }
+  }
+
+  .bottom-panel-content {
+    flex-grow: 1;
+  }
+  .split-line {
+    height: $split-line-height;
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+    background-color: $color-one-semiwhite;
+    text-align: center;
+    font-size: 60%;
+    line-height: $split-line-height;
+    cursor: n-resize;
+    user-select: none;
+  }
+  .bottom-panel-content {
+    font-size: 1.5em;
+    opacity: $disabled-opacity;
+  }
+  .bottom-panel-text {
+    text-align: center;
+  }
+  .bottom-panel-text.bottom-panel-text-secondary {
+    font-size: 90%;
+  }
+
 }
