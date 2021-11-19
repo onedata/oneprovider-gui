@@ -116,6 +116,7 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   spaceId: reads('share.spaceId'),
 
   dirProxy: promise.object(computed(
+    'rootDir',
     'dirId',
     'spaceId',
     async function dirProxy() {
@@ -191,6 +192,7 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   dir: computedLastProxyContent('dirProxy'),
 
   rootDir: computed('share.{name,entityId}', function rootDir() {
+    // FIXME: should be observed?
     return ShareRootDir.create({
       name: this.get('share.name'),
       shareRootId: this.get('share.entityId'),
