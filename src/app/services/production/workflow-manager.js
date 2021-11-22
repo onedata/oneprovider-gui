@@ -19,7 +19,6 @@ import { reads } from '@ember/object/computed';
 import { bool, and } from 'ember-awesome-macros';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
-import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Service.extend({
   store: service(),
@@ -222,22 +221,46 @@ export default Service.extend({
    * @param {String} atmWorkflowExecutionId
    * @param {String} atmLaneId
    * @param {AtmLaneRunNumber} runNumber
-   * @returns {Promise}
    */
-  async retryAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNumber */ ) {
-    // TODO: VFS-8287 Implement
-    return await notImplementedReject();
+  async retryAtmLane(atmWorkflowExecutionId, atmLaneId, runNumber) {
+    const retryGri = gri({
+      entityType: atmWorkflowExecutionEntityType,
+      entityId: atmWorkflowExecutionId,
+      aspect: 'retry',
+      scope: 'private',
+    });
+    await this.get('onedataGraph').request({
+      gri: retryGri,
+      operation: 'create',
+      subscribe: false,
+      data: {
+        laneSchemaId: atmLaneId,
+        laneRunNumber: runNumber,
+      },
+    });
   },
 
   /**
    * @param {String} atmWorkflowExecutionId
    * @param {String} atmLaneId
    * @param {AtmLaneRunNumber} runNumber
-   * @returns {Promise}
    */
-  async rerunAtmLane( /* atmWorkflowExecutionId, atmLaneId, runNumber */ ) {
-    // TODO: VFS-8287 Implement
-    return await notImplementedReject();
+  async rerunAtmLane(atmWorkflowExecutionId, atmLaneId, runNumber) {
+    const rerunGri = gri({
+      entityType: atmWorkflowExecutionEntityType,
+      entityId: atmWorkflowExecutionId,
+      aspect: 'rerun',
+      scope: 'private',
+    });
+    await this.get('onedataGraph').request({
+      gri: rerunGri,
+      operation: 'create',
+      subscribe: false,
+      data: {
+        laneSchemaId: atmLaneId,
+        laneRunNumber: runNumber,
+      },
+    });
   },
 
   /**

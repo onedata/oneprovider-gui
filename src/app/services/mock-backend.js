@@ -1294,7 +1294,8 @@ export default Service.extend({
                   iteratedStoreId: runNumber === 1 || isRerun ?
                     storeIdFromSpec : prevRunExceptionStoreId,
                   exceptionStoreId,
-                  canBeRetried: status === 'failed',
+                  isRetriable: status === 'failed',
+                  isRerunable: true,
                   status,
                   parallelBoxes: [],
                 };
