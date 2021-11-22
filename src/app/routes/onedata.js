@@ -19,6 +19,19 @@ export default OnedataRoute.extend(AuthenticationErrorHandlerMixin, {
   globalNotify: service(),
   appStorage: service(),
   navigationState: service(),
+  workflowManager: service(),
+
+  async beforeModel() {
+    const superResult = await this._super(...arguments);
+    try {
+      await this.get('workflowManager.bagitUploaderWorkflowSchemaProxy');
+    } catch (error) {
+      // When bagit uploader workflow cannot be fetched, then it is not a
+      // big deal. GUI can still work without it.
+      console.error(error);
+    }
+    return superResult;
+  },
 
   model() {
     const currentUser = this.get('currentUser');

@@ -8,7 +8,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { getProperties } from '@ember/object';
+import { getProperties, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
@@ -16,7 +16,7 @@ import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models
 import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import { allSettled } from 'rsvp';
 import { reads } from '@ember/object/computed';
-import { bool, and } from 'ember-awesome-macros';
+import { bool, promise } from 'ember-awesome-macros';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
@@ -40,7 +40,33 @@ export default Service.extend({
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isBagitUploaderAvailable: and('isOpenfaasAvailable', 'bagitUploaderWorkflowSchemaId'),
+  isBagitUploaderAvailable: computed(
+    'isOpenfaasAvailable',
+    'bagitUploaderWorkflowSchemaProxy.revisionRegistry',
+    function isBagitUploaderAvailable() {
+      const isOpenfaasAvailable = this.get('isOpenfaasAvailable');
+      const bagitRevisionRegistry =
+        this.get('bagitUploaderWorkflowSchemaProxy.revisionRegistry');
+      return isOpenfaasAvailable &&
+        bagitRevisionRegistry &&
+        Object.keys(bagitRevisionRegistry).length > 0;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Models.AtmWorkflowSchema|null>}
+   */
+  bagitUploaderWorkflowSchemaProxy: promise.object(computed(
+    'bagitUploaderWorkflowSchemaId',
+    async function bagitUploaderWorkflowSchemaProxy() {
+      const bagitUploaderWorkflowSchemaId =
+        this.get('bagitUploaderWorkflowSchemaId');
+      if (!bagitUploaderWorkflowSchemaId) {
+        return null;
+      }
+      return await this.getAtmWorkflowSchemaById(bagitUploaderWorkflowSchemaId);
+    }
+  )),
 
   /**
    * @param {String} atmWorkflowSchemaId

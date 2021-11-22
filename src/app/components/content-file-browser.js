@@ -23,6 +23,7 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import { executeWorkflowDataLocalStorageKey } from 'oneprovider-gui/components/space-automation/input-stores-form';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { isEmpty } from '@ember/utils';
+import sortRevisionNumbers from 'onedata-gui-common/utils/revisions/sort-revision-numbers';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -327,16 +328,41 @@ export default OneEmbeddedComponent.extend(
     openBagitUploader() {
       const {
         isBagitUploaderAvailable,
-        bagitUploaderWorkflowSchemaId,
+        bagitUploaderWorkflowSchemaProxy,
       } = getProperties(
         this.get('workflowManager'),
         'isBagitUploaderAvailable',
-        'bagitUploaderWorkflowSchemaId'
+        'bagitUploaderWorkflowSchemaProxy'
       );
       if (!isBagitUploaderAvailable) {
         return;
       }
-      this.openWorkflowRunView({ atmWorkflowSchemaId: bagitUploaderWorkflowSchemaId });
+      // isBagitUploaderAvailable === true means, that
+      // bagitUploaderWorkflowSchemaProxy has resolved value and non-empty
+      // revision registry
+      const {
+        entityId,
+        revisionRegistry,
+      } = getProperties(
+        bagitUploaderWorkflowSchemaProxy,
+        'entityId',
+        'revisionRegistry'
+      );
+      const revNumbers =
+        sortRevisionNumbers(Object.keys(revisionRegistry || {})).reverse();
+      const latestStableRevNumber = revNumbers.find(revNumber =>
+        revisionRegistry[revNumber].state === 'stable'
+      );
+      const latestDraftRevNumber = revNumbers.find(revNumber =>
+        revisionRegistry[revNumber].state === 'draft'
+      );
+      const revNumberToRun = latestStableRevNumber ||
+        latestDraftRevNumber ||
+        revNumbers[0];
+      this.openWorkflowRunView({
+        atmWorkflowSchemaId: entityId,
+        atmWorkflowSchemaRevisionNumber: revNumberToRun,
+      });
     },
 
     openCreateItemModal(itemType, parentDir) {
