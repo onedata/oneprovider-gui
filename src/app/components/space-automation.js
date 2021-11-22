@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { get, observer } from '@ember/object';
+import { get, getProperties, observer, computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { conditional, raw, array } from 'ember-awesome-macros';
@@ -129,6 +129,29 @@ export default Component.extend(I18n, {
    * @type {PromiseObject<Models.AtmWorkflowExecution>}
    */
   atmWorkflowExecutionForPreviewProxy: undefined,
+
+  /**
+   * @type {ComputedProperty<string|undefined>}
+   */
+  atmWorkflowExecutionForPreviewLabel: computed(
+    'atmWorkflowExecutionForPreviewProxy.atmWorkflowSchemaSnapshot.{name,revisionRegistry}',
+    function atmWorkflowExecutionForPreviewLabel() {
+      const atmWorkflowSchemaSnapshot =
+        this.get('atmWorkflowExecutionForPreviewProxy.atmWorkflowSchemaSnapshot');
+      if (atmWorkflowSchemaSnapshot) {
+        const {
+          name,
+          revisionRegistry,
+        } = getProperties(atmWorkflowSchemaSnapshot, 'name', 'revisionRegistry');
+        if (name) {
+          return this.t('tabs.preview.tabLoadedLabel', {
+            schemaName: name,
+            revisionNumber: Object.keys(revisionRegistry)[0] || 1,
+          });
+        }
+      }
+    }
+  ),
 
   atmWorkflowExecutionForPreviewLoader: observer(
     'atmWorkflowExecutionId',
