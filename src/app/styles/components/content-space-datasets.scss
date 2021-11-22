@@ -47,10 +47,17 @@
     z-index: $zindex-file-browser-head;
   }
 
-  // FIXME: experimental
-
-  .skrol {
-    overflow: auto;
+  .fb-table.special-dir-view {
+    position: absolute;
+    background-size: 80%;
+    top: $fb-table-margin-top + 20px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: auto;
+    .dir-box {
+      margin-top: -20px;
+    }
   }
 
   .browser-scroll-container {
