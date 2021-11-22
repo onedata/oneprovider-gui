@@ -10,10 +10,13 @@
 import { resolve } from 'rsvp';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 
+export const dirSeparator = '/';
+
 export function resolveParent(
   dir,
   dirsOnPathToRoot,
-  resolveFileParentFun = defaultResolveParent) {
+  resolveFileParentFun = defaultResolveParent
+) {
   return resolveFileParentFun(dir).then(parent => {
     if (parent) {
       dirsOnPathToRoot.unshift(parent);
@@ -27,7 +30,7 @@ export function resolveParent(
 export function stringifyFilePath(
   path,
   nameProperty = 'name',
-  separator = '/',
+  separator = dirSeparator,
   showLeadingSeparator = true
 ) {
   return (showLeadingSeparator ? separator : '') +

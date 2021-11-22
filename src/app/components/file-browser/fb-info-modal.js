@@ -139,19 +139,21 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
   fileName: reads('file.name'),
 
-  fileGuiUrl: computed('file.entidyId', function fileGuiUrl() {
+  fileGuiUrlProxy: promise.object(computed('file.entityId', async function fileGuiUrl() {
     const {
       file,
       getDataUrl,
     } = this.getProperties('file', 'getDataUrl');
-    if (!file && !getDataUrl) {
+    if (!file || !getDataUrl || getDataUrl === notImplementedThrow) {
       return;
     }
-    return getDataUrl({
+    return await getDataUrl({
       dir: null,
       selected: [get(file, 'entityId')],
     });
-  }),
+  })),
+
+  fileGuiUrl: reads('fileGuiUrlProxy.content'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -434,9 +436,9 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
             resolveFilePath(hardlinkFile)
             .then(path => stringifyFilePath(path))
             .catch(() => null)
-            .then(path => ({
+            .then(async path => ({
               file: hardlinkFile,
-              fileUrl: getDataUrl({
+              fileUrl: await getDataUrl({
                 fileId: null,
                 selected: [get(hardlinkFile, 'entityId')],
               }),

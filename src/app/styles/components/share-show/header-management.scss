@@ -25,14 +25,8 @@
       // container suitable for auto-shortening file path
       .col-value {
         flex-grow: 1;
-        flex-basis: auto; 
+        flex-basis: auto;
         overflow-x: hidden;
-      }
-    }
-    .breadcrumbs-links-disabled {
-      a {
-        color: $text-color;
-        pointer-events: none;
       }
     }
   }

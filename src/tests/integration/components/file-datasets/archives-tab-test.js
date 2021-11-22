@@ -267,7 +267,9 @@ function mockItems({ testCase, itemsCount }) {
   archiveManager.fetchDatasetArchives = ({ index, limit, offset }) => {
     return mockArray.fetchChildren(index, limit, offset);
   };
-  archiveManager.getBrowsableArchive = async (entityId) => {
+  archiveManager.getBrowsableArchive = async (recordOrEntityId) => {
+    const entityId = typeof recordOrEntityId === 'string' ?
+      recordOrEntityId : get(recordOrEntityId, 'entityId');
     if (entityId.endsWith('-dip')) {
       const relatedAipId = entityId.match(/(.*)-dip/)[1];
       const aipArchive = mockArray.array.findBy('entityId', relatedAipId);

@@ -10,6 +10,7 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import EmberObject, { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import {
@@ -23,6 +24,7 @@ import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-mod
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
+import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 
 const shareRootId = 'shareRoot';
 
@@ -33,12 +35,16 @@ const ShareRootDir = EmberObject.extend({
   isShareRoot: true,
   hasParent: false,
   parent: promise.object(raw(resolve(null))),
+  async reload() {
+    return this;
+  },
 });
 
 export default Component.extend(I18n, ItemBrowserContainerBase, {
   classNames: ['share-show-pane-files', 'pane-files'],
 
   fileManager: service(),
+  filesViewResolver: service(),
 
   /**
    * @override
@@ -79,6 +85,8 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
    */
   shareRootDeletedProxy: undefined,
 
+  _window: window,
+
   //#region browser items for various modals
 
   fileToShowInfo: null,
@@ -105,21 +113,64 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
     'share.rootFile',
   )),
 
-  dirProxy: promise.object(computed('rootDir', 'dirId', function dirProxy() {
-    const {
-      fileManager,
-      dirId,
-      rootDir,
-    } = this.getProperties('fileManager', 'dirId', 'rootDir');
-    if (dirId) {
-      return fileManager.getFileById(dirId, 'public')
-        .then(file => this.isChildOfShare(file)
-          .then(isChildOfShare => resolve(isChildOfShare ? file : rootDir))
-        );
-    } else {
-      return resolve(rootDir);
+  spaceId: reads('share.spaceId'),
+
+  dirProxy: promise.object(computed(
+    'dirId',
+    'spaceId',
+    async function dirProxy() {
+      const {
+        share,
+        spaceId,
+        selectedItems,
+        dirId,
+        filesViewResolver,
+        rootDir,
+        _window,
+      } = this.getProperties(
+        'share',
+        'spaceId',
+        'selectedItems',
+        'dirId',
+        'filesViewResolver',
+        'rootDir',
+        '_window',
+      );
+
+      // special case - virtual share root, not supported by resolver (not a real dir)
+      if (!dirId || dirId === shareRootId) {
+        return rootDir;
+      }
+
+      const selectedIds = selectedItems && selectedItems.mapBy('entityId') || [];
+      const shareId = get(share, 'entityId');
+      const currentFilesViewContext = FilesViewContext.create({
+        spaceId,
+        shareId,
+      });
+
+      const resolverResult = await filesViewResolver.resolveViewOptions({
+        dirId,
+        currentFilesViewContext,
+        selectedIds,
+        scope: 'public',
+        fallbackDir: rootDir,
+      });
+
+      if (!resolverResult) {
+        return null;
+      }
+      if (resolverResult.result === 'resolve') {
+        return resolverResult.dir;
+      } else {
+        // TODO: VFS-8342 common util for replacing master URL
+        if (resolverResult.result === 'redirect' && resolverResult.url) {
+          _window.top.location.replace(resolverResult.url);
+        }
+        return rootDir;
+      }
     }
-  })),
+  )),
 
   isRootDirExistingProxy: promise.object(computed('share.rootFile',
     async function isRootDirExistingProxy() {

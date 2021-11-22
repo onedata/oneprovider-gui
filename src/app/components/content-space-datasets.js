@@ -26,6 +26,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import { isEmpty } from '@ember/utils';
+import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -50,6 +51,9 @@ export const SpaceDatasetsRootBaseClass = EmberObject.extend({
   // dataset-like methods
   relationEntityId( /*relation*/ ) {
     return null;
+  },
+  async reload() {
+    return this;
   },
 });
 
@@ -76,6 +80,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   globalNotify: service(),
   archiveManager: service(),
   fileManager: service(),
+  filesViewResolver: service(),
 
   /**
    * **Injected from parent frame.**
@@ -114,7 +119,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * One of: 'attached', 'detached'
-   * 
+   *
    * **Injected from parent frame.**
    * @virtual
    * @type {String}
@@ -123,7 +128,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * One of: 'datasets', 'archives', 'files'
-   * 
+   *
    * **Injected from parent frame.**
    * @virtual
    * @type {String}
@@ -184,6 +189,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
   createArchiveOptions: undefined,
 
   fileToShowInfo: null,
+
+  showInfoInitialTab: undefined,
 
   fileToShowMetadata: null,
 
@@ -396,19 +403,48 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'archiveId',
     async function dirProxy() {
       const {
+        spaceId,
+        selected,
         dirId,
+        filesViewResolver,
+        archiveRootDirProxy,
+        datasetId,
         archiveId,
-      } = this.getProperties('dirId', 'archiveId');
-      if (dirId || archiveId) {
-        const dir = this.fetchDir(dirId);
-        const isValid = await this.isValidFileForContext(dir);
-        if (isValid) {
-          return dir;
-        } else {
-          throw new Error('invalid dir specified', dir && get(dir, 'id'));
-        }
-      } else {
+      } = this.getProperties(
+        'spaceId',
+        'selected',
+        'dirId',
+        'filesViewResolver',
+        'archiveRootDirProxy',
+        'datasetId',
+        'archiveId',
+      );
+
+      const currentFilesViewContext = FilesViewContext.create({
+        spaceId,
+        datasetId,
+        archiveId,
+      });
+      const archiveRootDir = await archiveRootDirProxy;
+      const resolverResult = await filesViewResolver.resolveViewOptions({
+        dirId,
+        currentFilesViewContext,
+        selectedIds: selected,
+        scope: 'private',
+        fallbackDir: archiveRootDir,
+      });
+
+      if (!resolverResult) {
         return null;
+      }
+      if (resolverResult.result === 'resolve') {
+        return resolverResult.dir;
+      } else {
+        // TODO: VFS-8342 common util for replacing master URL
+        if (resolverResult.url) {
+          this.openUrl(resolverResult.url, true);
+        }
+        return archiveRootDir;
       }
     }
   )),
@@ -419,8 +455,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'archiveProxy.rootDir',
     'browsableDatasetProxy',
     async function archiveRootDirProxy() {
-      const browsableDatasetProxy = this.get('browsableDatasetProxy');
-      const archive = await this.get('archiveProxy');
+      const {
+        browsableDatasetProxy,
+        archiveProxy,
+      } = this.getProperties('browsableDatasetProxy', 'archiveProxy');
+      const archive = get(archiveProxy, 'content') || await archiveProxy;
+      // archive may not be loaded at this time, which is an expected case
+      if (!archive) {
+        return null;
+      }
       const rootDir = await get(archive, 'rootDir');
       return BrowsableArchiveRootDir.create({
         content: rootDir,
@@ -504,12 +547,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
   }),
 
   archiveProxyObserver: observer('archiveProxy', async function archiveProxyObserver() {
-    const {
-      archiveId,
-      archiveProxy,
-    } = this.getProperties('archiveId', 'archiveProxy');
-    if (archiveId) {
-      const archive = await archiveProxy;
+    const archive = await this.get('archiveProxy');
+    if (archive) {
       const onezoneArchiveData =
         this.createOnezoneArchiveData(archive);
       this.callParent('updateArchiveData', onezoneArchiveData);
@@ -559,10 +598,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   async resolveDatasetForSelectedIds(selectedIds) {
-    const {
-      _window,
-      spaceDatasetsRoot,
-    } = this.getProperties('_window', 'spaceDatasetsRoot');
+    const spaceDatasetsRoot = this.get('spaceDatasetsRoot');
 
     if (isEmpty(selectedIds)) {
       // no dir nor selected files provided - go home
@@ -570,8 +606,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     } else {
       const redirectOptions = await this.resolveSelectedParentDatasetUrl();
       if (redirectOptions) {
-        // TODO: VFS-8342 common util for replacing master URL
-        _window.top.location.replace(redirectOptions.dataUrl);
+        this.openUrl(redirectOptions.dataUrl, true);
         return (await redirectOptions.datasetProxy) || spaceDatasetsRoot;
       } else {
         // resolving parent from selection failed - fallback to home
@@ -828,11 +863,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     });
   },
 
-  // TODO: VFS-7406 to implement check if file is from current space and archive
-  async isValidFileForContext( /* file */ ) {
-    return true;
-  },
-
   async fetchSpaceDatasets(rootId, startIndex, size, offset /**, array */ ) {
     if (rootId !== spaceDatasetsRootId) {
       throw new Error(
@@ -910,7 +940,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const archiveManager = this.get('archiveManager');
     return {
       childrenRecords: await allFulfilled(childrenRecords.map(record =>
-        archiveManager.getBrowsableArchive(get(record, 'entityId'))
+        archiveManager.getBrowsableArchive(record)
       )),
       isLast,
     };
@@ -958,11 +988,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   async submitArchiveCreate(dataset, archiveData) {
-    const {
-      _window,
-      archiveManager,
-      navigateTarget,
-    } = this.getProperties('_window', 'archiveManager', 'navigateTarget');
+    const archiveManager = this.get('archiveManager');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
       const archiveSelectUrl = this.getDatasetsUrl({
@@ -973,7 +999,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         dir: null,
       });
       if (archiveSelectUrl) {
-        _window.open(archiveSelectUrl, navigateTarget);
+        this.openUrl(archiveSelectUrl);
       }
     } catch (error) {
       console.error(
@@ -1000,8 +1026,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.callParent('updateDatasetData', this.createOnezoneDatasetData(dataset));
   },
 
-  openInfoModal(file) {
-    this.set('fileToShowInfo', file);
+  openInfoModal(file, activeTab) {
+    this.setProperties({
+      fileToShowInfo: file,
+      showInfoInitialTab: activeTab || 'general',
+    });
   },
 
   closeInfoModal() {
@@ -1079,10 +1108,16 @@ export default OneEmbeddedComponent.extend(...mixins, {
         this.callParent('updateArchiveId', itemId);
         this.callParent('updateDirId', null);
       } else if (viewMode === 'files') {
-        if (itemId === this.get('datasetId')) {
+        const {
+          datasetId,
+          archive,
+        } = this.getProperties('datasetId', 'archive');
+        if (itemId === datasetId) {
           this.callParent('updateArchiveId', null);
           this.callParent('updateDirId', null);
           this.callParent('updateViewMode', 'archives');
+        } else if (itemId === (archive && archive.relationEntityId('rootDir'))) {
+          this.callParent('updateDirId', null);
         } else {
           this.callParent('updateDirId', itemId);
         }
@@ -1196,19 +1231,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
         return this.fetchDatasetChildren(...fetchArgs);
       }
     },
-    getArchiveFileUrl({ selected }) {
-      const {
-        archiveId,
-        datasetId,
-        dirId,
-      } = this.getProperties('archiveId', 'datasetId', 'dirId');
-      return this.getDatasetsUrl({
-        viewMode: 'files',
-        datasetId,
-        archive: archiveId,
-        selected,
-        dir: dirId || null,
-      });
+    async getFileUrl({ selected }) {
+      if (isEmpty(selected)) {
+        return null;
+      }
+      const fileId = selected[0];
+      return this.get('filesViewResolver').generateUrlById(fileId);
     },
   },
 });

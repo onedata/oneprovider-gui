@@ -11,17 +11,22 @@ import fileName from 'oneprovider-gui/utils/file-name';
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { reads } from '@ember/object/computed';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import { promise, not } from 'ember-awesome-macros';
 
-export default Component.extend(I18n, {
+export default Component.extend({
   classNames: ['cell-data-name', 'cell-file-name'],
+
   i18n: service(),
+  filesViewResolver: service(),
+  isMobile: service(),
 
   /**
-   * @override
+   * @virtual
+   * @type {Utils.TransferTableRecord}
    */
-  i18nPrefix: 'components.spaceTransfers.cellDataName',
+  record: undefined,
 
   /**
    * @virtual
@@ -29,21 +34,20 @@ export default Component.extend(I18n, {
    */
   openDbViewModal: notImplementedThrow,
 
-  record: undefined,
+  navigateTarget: '_top',
 
   /**
    * Same as in `Transfer.dataSourceType`.
    * One of: dir, file, deleted, view, unknown
    */
-  dataSourceType: computed.reads('record.transfer.dataSourceType'),
-  dataSourceName: computed.reads('record.transfer.dataSourceName'),
-  totalFiles: computed.reads('record.totalFiles'),
-  space: computed.reads('record.space'),
+  dataSourceType: reads('record.transfer.dataSourceType'),
+  dataSourceName: reads('record.transfer.dataSourceName'),
+  dataSourceId: reads('record.transfer.dataSourceId'),
+  space: reads('record.space'),
 
   name: computed(
     'dataSourceType',
     'dataSourceName',
-    'viewName',
     function name() {
       switch (this.get('dataSourceType')) {
         case 'file':
@@ -58,15 +62,8 @@ export default Component.extend(I18n, {
     }
   ),
 
-  deletedIsDir: computed('totalFiles', function deletedType() {
-    return this.get('totalFiles') > 1;
-  }),
-
-  icon: computed('dataSourceType', 'deletedIsDir', function () {
-    const {
-      dataSourceType,
-      // deletedIsDir,
-    } = this.getProperties('dataSourceType', 'deletedIsDir');
+  icon: computed('dataSourceType', function icon() {
+    const dataSourceType = this.get('dataSourceType');
     switch (dataSourceType) {
       case 'view':
         return 'index';
@@ -76,41 +73,40 @@ export default Component.extend(I18n, {
         return 'browser-directory';
       case 'deleted':
         return 'x';
-        // TODO: icons for deleted file and dir
-        //   return deletedIsDir ? 'folder-deleted' : 'file-deleted';
       default:
         return 'unknown';
     }
   }),
 
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  hint: computed('dataSourceName', 'viewName', 'dataSourceType', 'deletedIsDir',
-    function hint() {
+  hrefProxy: promise.object(computed(
+    'dataSourceType',
+    'dataSourceId',
+    async function hrefProxy() {
       const {
-        dataSourceName,
+        filesViewResolver,
         dataSourceType,
-        deletedIsDir,
-      } = this.getProperties(
-        'dataSourceName',
-        'dataSourceType',
-        'deletedIsDir'
-      );
-
-      switch (dataSourceType) {
-        case 'file':
-          return `${this.t('file')}: ${dataSourceName}`;
-        case 'dir':
-          return `${this.t('dir')}: ${dataSourceName}`;
-        case 'deleted':
-          return `${this.t((deletedIsDir ? 'file' : 'dir'))}: ${dataSourceName} (${this.t('deleted')})`;
-        case 'view':
-          return `${this.t('view')}: ${dataSourceName}`;
-        default:
-          break;
+        dataSourceId,
+      } = this.getProperties('filesViewResolver', 'dataSourceType', 'dataSourceId');
+      if (!dataSourceId || (dataSourceType !== 'file' && dataSourceType !== 'dir')) {
+        return null;
       }
-    }),
+      try {
+        return await filesViewResolver.generateUrlById(dataSourceId, 'select');
+      } catch (error) {
+        console.warn(
+          'component:space-transfers/cell-data-name#hrefProxy: generating URL failed',
+          error
+        );
+        return null;
+      }
+    }
+  )),
+
+  href: reads('hrefProxy.content'),
+
+  enableMobileHint: reads('isMobile.any'),
+
+  enableDesktopHint: not('isMobile.any'),
 
   actions: {
     openDbViewModal(mouseEvent) {
@@ -120,6 +116,9 @@ export default Component.extend(I18n, {
       } finally {
         mouseEvent.stopPropagation();
       }
+    },
+    stopEventPropagation(event) {
+      event.stopPropagation();
     },
   },
 });

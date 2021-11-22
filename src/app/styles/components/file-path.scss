@@ -1,0 +1,61 @@
+.file-path {
+  &.has-single-path-item {
+    .path {
+      display: flex;
+    }
+    .path-icon-container {
+      flex-shrink: 0;
+    }
+    .path-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .path-container {
+    display: block;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+  .path {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+  }
+  .path-anchor-default {
+    color: $color-one-blue-gray;
+    &:hover {
+      color: darken($color-one-blue-gray, 20%);
+    }
+    &::after {
+      content: '';
+      bottom: 0.15em;
+      left: 0;
+      right: 0;
+      position: absolute;
+      border-bottom: 1px solid;
+      opacity: 0.8;
+    }
+  }
+  .path-item {
+    white-space: nowrap;
+    flex-shrink: 1;
+    &:first-child {
+      padding-left: 0;
+    }
+  }
+  .path-icon-container {
+    width: 1.4em;
+    height: 1em;
+    position: relative;
+    .one-icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2em;
+    }
+  }
+  .path-separator {
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+  }
+}

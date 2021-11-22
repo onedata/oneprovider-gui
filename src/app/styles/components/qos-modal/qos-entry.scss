@@ -127,13 +127,8 @@
       left: 0.08em;
     }
     .file-path {
-      display: block;
-      direction: rtl;
-      padding-left: 0.4em;
-      .file-path-text {
-        // thanks to this, "/" do not go to end when using direction: rtl
-        unicode-bidi: plaintext;
-      }
+      min-width: 0;
+      width: 100%;
     }
   }
   .qos-expression-info-subheader {

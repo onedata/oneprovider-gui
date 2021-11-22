@@ -35,12 +35,12 @@
 
 {{#if fileToShowInfo}}
   {{file-browser/fb-info-modal
-    modalClass="disable-hardlink-path-anchors"
     open=true
     file=fileToShowInfo
+    initialTab=showInfoInitialTab
     showApiSection=false
-    getDataUrl=(action getArchiveFileUrl)
     onHide=(action closeInfoModal)
+    getDataUrl=(action "getFileUrl")
   }}
 {{/if}}
 
@@ -90,6 +90,7 @@
     showPrivilege=spacePrivileges.viewQos
     editPrivilege=spacePrivileges.manageQos
     onHide=(action closeQosModal)
+    getDataUrl=(action "getFileUrl")
   }}
 {{/if}}
 

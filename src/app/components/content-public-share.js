@@ -1,6 +1,6 @@
 /**
  * Container for public share file browser to use in an iframe with injected properties.
- * 
+ *
  * @module component/content-public-share
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -14,6 +14,7 @@ import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { promise } from 'ember-awesome-macros';
 import { tag, eq, raw } from 'ember-awesome-macros';
+import { reads } from '@ember/object/computed';
 
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('share'),
@@ -41,7 +42,7 @@ export default OneEmbeddedComponent.extend(
     /**
      * @type {String}
      */
-    spaceId: undefined,
+    spaceId: reads('share.spaceId'),
 
     /**
      * @type {String}
