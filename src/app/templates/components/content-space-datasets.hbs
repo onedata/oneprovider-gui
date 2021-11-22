@@ -14,7 +14,7 @@
       selectedItemsForJumpProxy=selectedItemsForJumpProxy
       isSpaceOwned=space.currentUserIsOwner
       contentScroll=perfectScrollbarContainer.element
-      ignoreDeselectSelector=".archive-browser-container, .archive-browser-container *, .split-line, .split-line *"
+      ignoreDeselectSelector=".archive-browser-container, .archive-browser-container *, #content-scroll, .dataset-browser-container .ps__rail-y, .dataset-browser-container .ps__rail-y *"
       getItemByIdFun=(if (eq viewMode "files") (action getFileById))
       changeSelectedItems=(action "changeSelectedItems")
       updateDirEntityId=(action "updateDirEntityId")
@@ -53,13 +53,10 @@
     {{/if}}
   {{/promise-proxy-container}}
 {{/perfect-scrollbar-element}}
-{{!-- FIXME: experimental split-line content --}}
-<div class="split-line">░░░░░░</div>
-{{!-- <div class="split-browser-container archive-browser-container"> --}}
-{{!-- <div class="skrol browser-scroll-container"> --}}
+<div class="gutter-row gutter-row-1"></div>
 {{#perfect-scrollbar-element
+  id=archiveBrowserContainerId
   class="split-browser-container archive-browser-container"
-  __class="browser-scroll-container"
   as |perfectScrollbarContainer|
 }}
   {{!-- FIXME: make delay before changing selectedItems count --}}
@@ -68,7 +65,7 @@
       space=space
       dataset=selectedItems.firstObject
       contentScroll=perfectScrollbarContainer.element
-      ignoreDeselectSelector=".dataset-browser-container, .dataset-browser-container *, .split-line, .split-line *"
+      ignoreDeselectSelector=".dataset-browser-container, .dataset-browser-container *, #content-scroll, .archive-browser-container .ps__rail-y, .archive-browser-container .ps__rail-y *"
     }}
   {{else}}
     <div class="bottom-panel-content">

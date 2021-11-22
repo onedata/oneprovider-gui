@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw, bool, equal, conditional } from 'ember-awesome-macros';
+import { promise, raw, bool, equal, conditional, tag } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
@@ -27,6 +27,7 @@ import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values'
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import { isEmpty } from '@ember/utils';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
+import SplitGrid from 'npm:split-grid';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -154,12 +155,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'viewMode',
   ]),
 
-  getEmptyFetchChildrenResponse() {
-    return {
-      childrenRecords: [],
-      isLast: true,
-    };
-  },
+  /**
+   * Initialized on `didInsertElement`.
+   * @type {Split} see `split-grid` NPM package
+   */
+  splitGrid: undefined,
 
   _window: window,
 
@@ -586,15 +586,48 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.archiveProxyObserver();
   },
 
+  /**
+   * @override
+   */
+  didInsertElement() {
+    window.SplitGrid = SplitGrid;
+    const splitGrid = SplitGrid({
+      rowGutters: [{
+        track: 1,
+        element: this.element.querySelector('.gutter-row-1'),
+      }],
+      sizes: [10, 1],
+      minSize: 200,
+    });
+    this.set('splitGrid', splitGrid);
+    window.split = splitGrid;
+  },
+
+  /**
+   * @override
+   */
   willDestroyElement() {
     try {
-      const browserModel = this.get('browserModel');
+      const {
+        browserModel,
+        splitGrid,
+      } = this.getProperties('browserModel', 'splitGrid');
       if (browserModel) {
         browserModel.destroy();
+      }
+      if (splitGrid) {
+        splitGrid.destroy();
       }
     } finally {
       this._super(...arguments);
     }
+  },
+
+  getEmptyFetchChildrenResponse() {
+    return {
+      childrenRecords: [],
+      isLast: true,
+    };
   },
 
   async resolveDatasetForSelectedIds(selectedIds) {

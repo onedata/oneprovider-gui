@@ -19,14 +19,33 @@
 .content-space-datasets {
   position: relative;
   height: 100%;
-  flex-grow: 1;
-  align-items: stretch;
-  justify-content: flex-start;
+
+  display: grid;
+  grid-template-rows: 1fr 10px 1fr;
+
+  .gutter-row {
+    grid-column: 1/-1;
+    cursor: row-resize;
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+    background-color: $color-one-semiwhite;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+    z-index: $zindex-file-browser-head + 1;
+
+    &:hover {
+      background-color: $color-one-gray-sand;
+    }
+  }
+
+  .gutter-row-1 {
+    grid-row: 2;
+  }
 
   .file-browser-head-container {
     z-index: $zindex-file-browser-head;
   }
-
 
   // FIXME: experimental
 
@@ -37,8 +56,6 @@
   .browser-scroll-container {
     flex-grow: 1;
   }
-
-  $split-line-height: 20px;
 
   .split-browser-container {
     margin-left: -$content-col-padding;
@@ -122,12 +139,7 @@
     // flex-shrink: 0;
     // flex-basis: 40vw;
     margin-bottom: -$content-col-padding;
-    height: 40vw;
-
-    .browser-scroll-container {
-      // FIXME: will be flexible
-      height: 40vw;
-    }
+    // height: 40vw;
 
     .file-browser-head-container {
       position: sticky;
@@ -153,17 +165,7 @@
     //   @include hide-before-shadow;
     // }
   }
-  .split-line {
-    height: $split-line-height;
-    margin-left: -$content-col-padding;
-    margin-right: -$content-col-padding;
-    background-color: $color-one-semiwhite;
-    text-align: center;
-    font-size: 60%;
-    line-height: $split-line-height;
-    cursor: n-resize;
-    user-select: none;
-  }
+
   .bottom-panel-content {
     display: flex;
     flex-direction: column;
@@ -178,5 +180,16 @@
   .bottom-panel-text.bottom-panel-text-secondary {
     font-size: 90%;
   }
+
+  // .gutter {
+  //   background-color: #eee;
+  //   background-repeat: no-repeat;
+  //   background-position: 50%;
+  // }
+
+  // .gutter.gutter-vertical {
+  //     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+  //     cursor: row-resize;
+  // }
 
 }
