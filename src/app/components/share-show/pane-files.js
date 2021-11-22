@@ -192,7 +192,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   dir: computedLastProxyContent('dirProxy'),
 
   rootDir: computed('share.{name,entityId}', function rootDir() {
-    // FIXME: should be observed?
     return ShareRootDir.create({
       name: this.get('share.name'),
       shareRootId: this.get('share.entityId'),
