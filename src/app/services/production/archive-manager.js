@@ -15,6 +15,9 @@ import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset'
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { all as allFulfilled } from 'rsvp';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
+import NpmAwaitLock from 'npm:await-lock';
+
+const AwaitLock = NpmAwaitLock.default;
 
 const datasetArchivesAspect = 'archives_details';
 
@@ -29,9 +32,18 @@ export default Service.extend({
    */
   browsableArchivesStore: undefined,
 
+  /**
+   * Initialized on init.
+   * @type {AwaitLock}
+   */
+  browsableArchiveGetterLock: undefined,
+
   init() {
     this._super(...arguments);
-    this.set('browsableArchivesStore', {});
+    this.setProperties({
+      browsableArchivesStore: {},
+      browsableArchiveGetterLock: new AwaitLock(),
+    });
   },
 
   /**
@@ -57,26 +69,33 @@ export default Service.extend({
   async getBrowsableArchive(archiveOrEntityId) {
     let archiveId;
     let archive;
-    if (typeof (archiveOrEntityId) === 'string') {
-      archiveId = archiveOrEntityId;
-    } else {
-      archiveId = get(archiveOrEntityId, 'entityId');
-      archive = archiveOrEntityId;
-    }
-    const browsableArchivesStore = this.get('browsableArchivesStore');
-    const cachedBrowsableArchive = browsableArchivesStore[archiveId];
-    if (cachedBrowsableArchive) {
-      return cachedBrowsableArchive;
-    } else {
-      if (!archive) {
-        archive = await this.getArchive(archiveId);
+    const browsableArchiveGetterLock = this.get('browsableArchiveGetterLock');
+    await browsableArchiveGetterLock.acquireAsync();
+    let browsableArchive = null;
+    try {
+      if (typeof (archiveOrEntityId) === 'string') {
+        archiveId = archiveOrEntityId;
+      } else {
+        archiveId = get(archiveOrEntityId, 'entityId');
+        archive = archiveOrEntityId;
       }
-      const browsableArchive = BrowsableArchive.create({
-        content: archive,
-      });
-      browsableArchivesStore[archiveId] = browsableArchive;
-      return browsableArchive;
+      const browsableArchivesStore = this.get('browsableArchivesStore');
+      const cachedBrowsableArchive = browsableArchivesStore[archiveId];
+      if (cachedBrowsableArchive) {
+        browsableArchive = cachedBrowsableArchive;
+      } else {
+        if (!archive) {
+          archive = await this.getArchive(archiveId);
+        }
+        browsableArchive = BrowsableArchive.create({
+          content: archive,
+        });
+        browsableArchivesStore[archiveId] = browsableArchive;
+      }
+    } finally {
+      browsableArchiveGetterLock.release();
     }
+    return browsableArchive;
   },
 
   /**

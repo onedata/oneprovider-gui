@@ -15,6 +15,9 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
+import NpmAwaitLock from 'npm:await-lock';
+
+const AwaitLock = NpmAwaitLock.default;
 
 const spaceDatasetsAspect = 'datasets_details';
 const datasetChildrenAspect = 'children_details';
@@ -30,9 +33,18 @@ export default Service.extend({
    */
   browsableDatasetsStore: undefined,
 
+  /**
+   * Initialized on init.
+   * @type {AwaitLock}
+   */
+  browsableDatasetGetterLock: undefined,
+
   init() {
     this._super(...arguments);
-    this.set('browsableDatasetsStore', {});
+    this.setProperties({
+      browsableDatasetsStore: {},
+      browsableDatasetGetterLock: new AwaitLock(),
+    });
   },
 
   /**
@@ -57,28 +69,35 @@ export default Service.extend({
    * @returns {Utils.BrowsableArchive}
    */
   async getBrowsableDataset(datasetOrEntityId) {
-    let datasetId;
-    let dataset;
-    if (typeof (datasetOrEntityId) === 'string') {
-      datasetId = datasetOrEntityId;
-    } else {
-      datasetId = get(datasetOrEntityId, 'entityId');
-      dataset = datasetOrEntityId;
-    }
-    const browsableDatasetsStore = this.get('browsableDatasetsStore');
-    const cachedBrowsableDataset = browsableDatasetsStore[datasetId];
-    if (cachedBrowsableDataset) {
-      return cachedBrowsableDataset;
-    } else {
-      if (!dataset) {
-        dataset = await this.getDataset(datasetId);
+    const browsableDatasetGetterLock = this.get('browsableDatasetGetterLock');
+    await browsableDatasetGetterLock.acquireAsync();
+    let browsableDataset = null;
+    try {
+      let datasetId;
+      let dataset;
+      if (typeof (datasetOrEntityId) === 'string') {
+        datasetId = datasetOrEntityId;
+      } else {
+        datasetId = get(datasetOrEntityId, 'entityId');
+        dataset = datasetOrEntityId;
       }
-      const browsableDataset = BrowsableDataset.create({
-        content: dataset,
-      });
-      browsableDatasetsStore[datasetId] = browsableDataset;
-      return browsableDataset;
+      const browsableDatasetsStore = this.get('browsableDatasetsStore');
+      const cachedBrowsableDataset = browsableDatasetsStore[datasetId];
+      if (cachedBrowsableDataset) {
+        browsableDataset = cachedBrowsableDataset;
+      } else {
+        if (!dataset) {
+          dataset = await this.getDataset(datasetId);
+        }
+        browsableDataset = BrowsableDataset.create({
+          content: dataset,
+        });
+        browsableDatasetsStore[datasetId] = browsableDataset;
+      }
+    } finally {
+      browsableDatasetGetterLock.release();
     }
+    return browsableDataset;
   },
 
   /**

@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw, bool, equal, conditional, tag } from 'ember-awesome-macros';
+import { promise, raw, bool, equal, conditional } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
@@ -568,6 +568,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   ),
 
+  // FIXME: may be unnecessary when there will be splitted browser
   updateOnezoneDatasetData: observer(
     'browsableDatasetProxy',
     async function updateOnezoneDatasetData() {
@@ -1054,9 +1055,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   openArchivesView(dataset) {
-    this.callParent('updateViewMode', 'archives');
-    this.callParent('updateDatasetId', get(dataset, 'entityId'));
-    this.callParent('updateDatasetData', this.createOnezoneDatasetData(dataset));
+    // FIXME: purge when presenting dataset in zone will be removed
+    // this.callParent('updateDatasetData', this.createOnezoneDatasetData(dataset));
+    const datasetId = dataset && get(dataset, 'entityId');
+    if (datasetId) {
+      this.callParent('updateSelected', [datasetId]);
+    }
   },
 
   openInfoModal(file, activeTab) {
