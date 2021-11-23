@@ -55,8 +55,10 @@ export default Component.extend(I18n, {
     'revisionRegistry',
     'revisionNumbersMatchingInput',
     function matchingRevisionRegistry() {
-      const revisionRegistry = this.get('revisionRegistry');
-      const revisionNumbersMatchingInput = this.get('revisionNumbersMatchingInput');
+      const {
+        revisionRegistry,
+        revisionNumbersMatchingInput,
+      } = this.getProperties('revisionRegistry', 'revisionNumbersMatchingInput');
       return revisionNumbersMatchingInput.reduce((acc, revisionNumber) => {
         acc[revisionNumber] = revisionRegistry[revisionNumber];
         return acc;
@@ -67,9 +69,12 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  hasMatchingRevisions: computed('matchingRevisionRegistry', function () {
-    return Object.keys(this.get('matchingRevisionRegistry')).length > 0;
-  }),
+  hasMatchingRevisions: computed(
+    'matchingRevisionRegistry',
+    function hasMatchingRevisions() {
+      return Object.keys(this.get('matchingRevisionRegistry')).length > 0;
+    }
+  ),
 
   /**
    * @type {ComputedProperty<number>}

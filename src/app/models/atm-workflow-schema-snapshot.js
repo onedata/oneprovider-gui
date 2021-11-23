@@ -26,7 +26,7 @@ export default Model.extend(GraphSingleModelMixin, {
 
   /**
    * Contains mapping (revisionNumber: String) -> AtmWorkflowSchemaRevision
-   * It should contain only one revision - the one used during a workflow execution.
+   * It should contain only one revision - the one used during workflow execution.
    * @type {ComputedProperty<Object>}
    */
   revisionRegistry: attr('object'),

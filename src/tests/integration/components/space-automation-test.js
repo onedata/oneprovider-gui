@@ -123,7 +123,7 @@ describe('Integration | Component | space automation', function () {
 
     expect(this.$('.nav-item-waiting')).to.have.class('active');
   });
-  this.timeout(10000000);
+
   it('allows to run new workflow', async function () {
     const runWorkflowStub =
       sinon.stub(lookupService(this, 'workflow-manager'), 'runWorkflow').resolves({
@@ -158,7 +158,7 @@ describe('Integration | Component | space automation', function () {
 
         const $previewNavItem = this.$('.nav-item-preview');
         expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('workflow 1');
+        expect($previewNavItem.text().trim()).to.equal('workflow 1 (rev. 1)');
       });
 
     it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to a non-existing execution',

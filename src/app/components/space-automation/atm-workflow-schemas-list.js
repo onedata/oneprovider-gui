@@ -140,7 +140,7 @@ export default Component.extend(I18n, {
   getMatchingRevisionNumbers(atmWorkflowSchema, requiredInputStoreSpec) {
     const revisionRegistry = get(atmWorkflowSchema, 'revisionRegistry') || {};
     const allRevisionNumbers = Object.keys(revisionRegistry).map(key => parseInt(key));
-    if (!requiredInputStoreSpec || !revisionRegistry) {
+    if (!requiredInputStoreSpec) {
       return allRevisionNumbers;
     }
     const requiredDataType = dataSpecToType(requiredInputStoreSpec.dataSpec);
