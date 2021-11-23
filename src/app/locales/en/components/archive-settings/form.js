@@ -39,6 +39,10 @@ export default {
       includeDip: {
         label: 'Include DIP',
       },
+      followSymlinks: {
+        label: 'Follow symbolic links',
+        tip: '<p><strong>If enabled</strong>, symbolic links in the dataset will be resolved during archive creation and their target files will be copied.</p><div><strong>If disabled</strong>, symbolic links will be copied into the archive and will point to their original target paths.</div>',
+      },
     },
     latestArchive: '<em>latest</em>',
   },
