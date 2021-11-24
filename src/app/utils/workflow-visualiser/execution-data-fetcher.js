@@ -158,6 +158,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
           iteratedStoreInstanceId: run.iteratedStoreId,
           exceptionStoreInstanceId: run.exceptionStoreId,
           status: run.status,
+          isRetriable: run.isRetriable,
+          isRerunable: run.isRerunable,
         };
       }
 

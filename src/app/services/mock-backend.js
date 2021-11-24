@@ -749,23 +749,6 @@ export default Service.extend({
       await file.save();
     }
 
-    // FIXME: root dir
-    // const spaceRootFile = this.get('entityRecords.rootDir.0');
-    // const dataset = await this.createDataset(spaceRootFile, {
-    //   parent: null,
-    //   protectionFlags: protectionFlagSets[4],
-    //   effProtectionFlags: protectionFlagSets[4],
-    // });
-    // const fileDatasetSummary = await this.createDatasetSummary(spaceRootFile, dataset);
-    // setProperties(spaceRootFile, {
-    //   fileDatasetSummary,
-    // });
-    // this.get('entityRecords.dataset').push(dataset);
-    // this.get('entityRecords.fileDatasetSummary').push(fileDatasetSummary);
-    // await spaceRootFile.save();
-    // await dataset.save();
-    // await fileDatasetSummary.save();
-
     await this.addDetachedDatasetMock();
   },
 
@@ -1317,6 +1300,8 @@ export default Service.extend({
                   iteratedStoreId: runNumber === 1 || isRerun ?
                     storeIdFromSpec : prevRunExceptionStoreId,
                   exceptionStoreId,
+                  isRetriable: status === 'failed',
+                  isRerunable: true,
                   status,
                   parallelBoxes: [],
                 };

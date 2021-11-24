@@ -3,6 +3,8 @@
 
   position: relative;
   height: 100%;
+  // diabled outline, because keyboard navigation causes fb-table to be presented focused
+  outline: none;
   .refresh-spinner {
     position: fixed;
     transition: opacity $refresh-transition-duration ease-out;
