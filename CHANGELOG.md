@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8653 Added "follow symlinks" option when creating archive
 * VFS-8604 Fixed auto update of share name in breadcrumbs after rename
 * VFS-8518 Unlocked possibility to create a hardlink for symlink
 * VFS-8514 Added support for entering directories and downloading single file using "Enter" key on keyboard
