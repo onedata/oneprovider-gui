@@ -7,6 +7,9 @@ CHANGELOG
 ### Latest changes
 
 * VFS-8287 Added manual reruns and retries of a workflow lane run
+* VFS-8653 Added "follow symlinks" option when creating archive
+* VFS-8604 Fixed auto update of share name in breadcrumbs after rename
+* VFS-8518 Unlocked possibility to create a hardlink for symlink
 * VFS-8514 Added support for entering directories and downloading single file using "Enter" key on keyboard
 * VFS-8348 Added links to files in transfers view with support for files inside archives
 * VFS-7898 Added self-shortening links to files with support for files inside archives

@@ -187,6 +187,7 @@ export default Component.extend(I18n, {
         'createNestedArchives',
         'layout',
         'includeDip',
+        'followSymlinks',
       );
       const isIncremental = Boolean(get(config, 'incremental'));
       if (isIncremental) {

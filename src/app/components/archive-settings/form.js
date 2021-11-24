@@ -1,5 +1,5 @@
 /**
- * Form with settings for archive model 
+ * Form with settings for archive model
  *
  * @module components/archive-settings/form
  * @author Jakub Liput
@@ -176,12 +176,18 @@ export default Component.extend(I18n, {
       defaultValue: false,
     });
 
+    const configSymlinksField = ToggleField.create({
+      name: 'followSymlinks',
+      defaultValue: true,
+    });
+
     const configFields = [
       configLayoutField,
       configNestedField,
       configIncrementalField,
       baseArchiveGroup,
       configDipField,
+      configSymlinksField,
     ];
 
     return this.get('rootFormGroupClass')
