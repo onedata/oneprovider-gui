@@ -90,6 +90,7 @@ export default Component.extend(I18n, {
       case 'active':
         return 'update';
       case 'aborting':
+      case 'interrupted':
       case 'cancelled':
         return 'cancelled';
       case 'skipped':

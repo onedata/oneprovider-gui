@@ -90,7 +90,8 @@
     }
 
     &.status-enqueued,
-    &.status-active {
+    &.status-active,
+    &.status-interrupted {
       color: $color-one-warning;
     }
 
