@@ -127,7 +127,10 @@ export default Component.extend(I18n, {
   areInitialValuesNeeded: computed(
     'atmWorkflowSchemaRevision.stores',
     function areInitialValuesNeeded() {
-      const stores = this.get('atmWorkflowSchemaRevision.stores') || [];
+      const stores = this.get('atmWorkflowSchemaRevision.stores');
+      if (!stores) {
+        return;
+      }
       return stores.isAny('requiresInitialValue');
     }
   ),

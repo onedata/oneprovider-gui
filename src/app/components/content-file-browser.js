@@ -180,10 +180,16 @@ export default OneEmbeddedComponent.extend(
       return this.get('dirProxy');
     })),
 
+    /**
+     * @type {ComputedProperty<PromiseObject>}
+     */
+    bagitUploaderLoaderProxy: reads('workflowManager.bagitUploaderWorkflowSchemaProxy'),
+
     initialRequiredDataProxy: promise.object(promise.all(
       'spaceProxy',
       'initialSelectedItemsForJumpProxy',
-      'initialDirProxy'
+      'initialDirProxy',
+      'bagitUploaderLoaderProxy'
     )),
 
     selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),

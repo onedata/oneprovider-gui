@@ -143,7 +143,7 @@ export default Component.extend(I18n, {
           name,
           revisionRegistry,
         } = getProperties(atmWorkflowSchemaSnapshot, 'name', 'revisionRegistry');
-        if (name) {
+        if (name && revisionRegistry) {
           return this.t('tabs.preview.tabLoadedLabel', {
             schemaName: name,
             revisionNumber: Object.keys(revisionRegistry)[0] || 1,
