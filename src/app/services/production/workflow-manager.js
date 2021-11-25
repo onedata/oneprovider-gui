@@ -20,6 +20,7 @@ import { bool, promise } from 'ember-awesome-macros';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import config from 'ember-get-config';
 
 export default Service.extend({
   store: service(),
@@ -64,7 +65,19 @@ export default Service.extend({
       if (!bagitUploaderWorkflowSchemaId) {
         return null;
       }
-      return await this.getAtmWorkflowSchemaById(bagitUploaderWorkflowSchemaId);
+      try {
+        return await this.getAtmWorkflowSchemaById(bagitUploaderWorkflowSchemaId);
+      } catch (error) {
+        // When bagit uploader workflow cannot be fetched, then it is not a
+        // big deal. GUI can still work without it.
+        if (config.environment !== 'test') {
+          console.error(
+            'component:content-file-browser#bagitUploaderLoaderProxy: cannot fetch bagit uploader workflow schema',
+            error
+          );
+        }
+        return null;
+      }
     }
   )),
 
