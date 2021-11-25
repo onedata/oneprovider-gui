@@ -17,7 +17,7 @@ export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
 
   /**
-   * One of: pending, building, preserved, failed, purging
+   * One of: pending, building, verifying, preserved, verification_failed, failed, purging
    * @type {String}
    */
   state: attr('string'),
