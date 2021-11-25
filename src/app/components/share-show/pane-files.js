@@ -116,6 +116,7 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   spaceId: reads('share.spaceId'),
 
   dirProxy: promise.object(computed(
+    'rootDir',
     'dirId',
     'spaceId',
     async function dirProxy() {

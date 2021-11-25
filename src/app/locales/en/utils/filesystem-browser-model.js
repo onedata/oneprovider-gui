@@ -45,6 +45,10 @@ export default _.merge({}, BaseBrowserModel, {
     and: 'and',
     cannotRunWorkflowOpenfaasNotAvailable: 'This Oneprovider lacks OpenFaaS integration, required to run workflows.',
   },
+  hardlinkCreatesNewSymlinkTip: {
+    single: 'This will create a copy of the symbolic link (e.g. a new symbolic link that references the same path).',
+    plural: 'This will create a copy of the symbolic link (e.g. a new symbolic link that references the same path), for each selected symbolic link.',
+  },
   pasteFailed: {
     move: 'moving some of files',
     copy: 'copying some of files',

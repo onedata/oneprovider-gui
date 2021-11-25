@@ -43,6 +43,18 @@ const statuses = [{
   icon: 'update',
   tooltip: 'Active',
 }, {
+  name: 'aborting',
+  icon: 'cancelled',
+  tooltip: 'Aborting',
+}, {
+  name: 'interrupted',
+  icon: 'cancelled',
+  tooltip: 'Interrupted',
+}, {
+  name: 'skipped',
+  icon: 'skipped',
+  tooltip: 'Skipped',
+}, {
   name: 'finished',
   icon: 'checkbox-filled',
   tooltip: 'Finished',

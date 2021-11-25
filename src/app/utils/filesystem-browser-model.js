@@ -559,22 +559,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'selectedItems.[]',
     'selectedItemsContainsOnlySymlinks',
     function btnCreateHardlink() {
+      const selectedItemsContainsOnlySymlinks =
+        this.get('selectedItemsContainsOnlySymlinks');
       const areManyFilesSelected = this.get('selectedItems.length') > 1;
       const disabledTip = this.generateDisabledTip({
-        blockWhenSymlinksOnly: true,
         blockFileTypes: ['dir'],
       });
+      let tip;
+      if (!disabledTip && selectedItemsContainsOnlySymlinks) {
+        tip = this.t(
+          `hardlinkCreatesNewSymlinkTip.${areManyFilesSelected ? 'plural' : 'single'}`
+        );
+      }
       return this.createFileAction({
         id: 'createHardlink',
         icon: 'text-link',
         disabled: Boolean(disabledTip),
-        tip: disabledTip,
+        tip: disabledTip || tip,
         title: this.t(
           `fileActions.createHardlink${areManyFilesSelected ? 'Plural' : 'Singular'}`
         ),
         action: (files) => {
           const browserInstance = this.get('browserInstance');
-          browserInstance.setFileClipboardFiles(files.rejectBy('type', 'symlink'));
+          browserInstance.setFileClipboardFiles(files);
           browserInstance.setFileClipboardMode('hardlink');
         },
         showIn: anySelectedContexts,
