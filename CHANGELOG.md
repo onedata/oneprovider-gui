@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8255 Added workflows and lambdas revisions
 * VFS-8561 Added support for "verifying" and "verification_failed" archive state
 * VFS-8287 Added manual reruns and retries of a workflow lane run
 * VFS-8653 Added "follow symlinks" option when creating archive
