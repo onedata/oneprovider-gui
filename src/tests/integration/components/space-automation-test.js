@@ -26,16 +26,20 @@ describe('Integration | Component | space automation', function () {
     const atmWorkflowSchemas = [{
       entityId: 'workflow1',
       name: 'workflow 1',
-      stores: [{
-        id: 'store1',
-        name: 'store 1',
-        type: 'singleValue',
-        dataSpec: {
-          type: 'integer',
-          valueConstraints: {},
+      revisionRegistry: {
+        1: {
+          stores: [{
+            id: 'store1',
+            name: 'store 1',
+            type: 'singleValue',
+            dataSpec: {
+              type: 'integer',
+              valueConstraints: {},
+            },
+            requiresInitialValue: true,
+          }],
         },
-        requiresInitialValue: true,
-      }],
+      },
       isLoaded: true,
     }];
     const atmInventory = {
@@ -85,7 +89,13 @@ describe('Integration | Component | space automation', function () {
         }));
       }),
       atmWorkflowSchemaId: undefined,
-      chooseWorkflowSchemaToRun: id => this.set('atmWorkflowSchemaId', id),
+      atmWorkflowSchemaRevisionNumber: undefined,
+      chooseWorkflowSchemaToRun: (id, revNo) => {
+        this.setProperties({
+          atmWorkflowSchemaId: id,
+          atmWorkflowSchemaRevisionNumber: revNo,
+        });
+      },
     });
   });
   suppressRejections();
@@ -127,11 +137,11 @@ describe('Integration | Component | space automation', function () {
     const $createTabPane = this.$('#create.tab-pane');
     expect($createTabPane).to.have.class('active');
     expect($createTabPane.find('.run-workflow-creator')).to.exist;
-    await click(getSlide('list').querySelector('.list-entry'));
+    await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
     await fillIn(getSlide('inputStores').querySelector('.form-control'), '10');
     await click(getSlide('inputStores').querySelector('.btn-submit'));
     expect(runWorkflowStub).to.be.calledOnce
-      .and.to.be.calledWith('workflow1', 'space1', sinon.match.any);
+      .and.to.be.calledWith('workflow1', 1, 'space1', sinon.match.any);
     expect(this.$('.nav-item-preview')).to.have.class('active');
   });
 
@@ -148,7 +158,7 @@ describe('Integration | Component | space automation', function () {
 
         const $previewNavItem = this.$('.nav-item-preview');
         expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('workflow 1');
+        expect($previewNavItem.text().trim()).to.equal('workflow 1 (rev. 1)');
       });
 
     it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to a non-existing execution',
@@ -211,6 +221,7 @@ async function render(testCase) {
     tab=tab
     atmWorkflowExecutionId=atmWorkflowExecutionId
     atmWorkflowSchemaId=atmWorkflowSchemaId
+    atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
     changeTab=changeTab
     openPreviewTab=openPreviewTab
     closePreviewTab=closePreviewTabStub

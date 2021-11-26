@@ -24,7 +24,7 @@
               {{#truncated-string class="one-label tab-name"}}
                 {{#if (eq tabId "preview")}}
                   {{#if atmWorkflowExecutionForPreviewProxy.isFulfilled}}
-                    {{atmWorkflowExecutionForPreviewProxy.atmWorkflowSchemaSnapshot.name}}
+                    {{atmWorkflowExecutionForPreviewLabel}}
                   {{else if atmWorkflowExecutionForPreviewProxy.isRejected}}
                     {{tt this "tabs.preview.tabErrorLabel"}}
                   {{else}}
@@ -77,6 +77,7 @@
             {{space-automation/run-workflow-creator
               space=space
               atmWorkflowSchemaId=atmWorkflowSchemaId
+              atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
               fillInputStores=fillInputStores
               chooseWorkflowSchemaToRun=(action "chooseWorkflowSchemaToRun")
               onWorkflowStarted=(action "workflowStarted")

@@ -22,17 +22,14 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {ComputedProperty<String>}
    */
-  description: attr('string'),
+  summary: attr('string'),
 
   /**
-   * @type {ComputedProperty<Array<Object>>}
+   * Contains mapping (revisionNumber: String) -> AtmWorkflowSchemaRevision
+   * It should contain only one revision - the one used during workflow execution.
+   * @type {ComputedProperty<Object>}
    */
-  stores: attr('array'),
-
-  /**
-   * @type {ComputedProperty<Array<Object>>}
-   */
-  lanes: attr('array'),
+  revisionRegistry: attr('object'),
 
   /**
    * @type {ComputedProperty<Models.AtmInventory>}

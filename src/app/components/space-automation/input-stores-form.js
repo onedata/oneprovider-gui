@@ -106,6 +106,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {number}
+   */
+  atmWorkflowSchemaRevisionNumber: undefined,
+
+  /**
+   * @virtual
    * @type {Boolean}
    */
   loadValuesFromLocalStorage: false,
@@ -161,10 +167,24 @@ export default Component.extend(I18n, {
   localStorageData: undefined,
 
   /**
+   * @type {ComputedProperty<AtmWorkflowSchemaRevision>}
+   */
+  atmWorkflowSchemaRevision: computed(
+    'atmWorkflowSchema.revisionRegistry',
+    'atmWorkflowSchemaRevisionNumber',
+    function atmWorkflowSchemaRevision() {
+      return this.get(
+        `atmWorkflowSchema.revisionRegistry.${this.get('atmWorkflowSchemaRevisionNumber')}`
+      );
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<Array<Object>>}
    */
-  inputStores: computed('atmWorkflowSchema.stores', function inputStores() {
-    return (this.get('atmWorkflowSchema.stores') || []).filterBy('requiresInitialValue');
+  inputStores: computed('atmWorkflowSchemaRevision.stores', function inputStores() {
+    return (this.get('atmWorkflowSchemaRevision.stores') || [])
+      .filterBy('requiresInitialValue');
   }),
 
   /**
@@ -374,7 +394,7 @@ export default Component.extend(I18n, {
 
   defaultFormValuesProxyObserver: observer(
     'defaultFormValuesProxy.isFulfilled',
-    function atmWorkflowSchemaObserver() {
+    function defaultFormValuesProxyObserver() {
       if (this.get('defaultFormValuesProxy.isFulfilled')) {
         this.get('fields').reset();
       }
@@ -391,10 +411,12 @@ export default Component.extend(I18n, {
     const {
       _localStorage,
       atmWorkflowSchema,
+      atmWorkflowSchemaRevisionNumber,
       loadValuesFromLocalStorage,
     } = this.getProperties(
       '_localStorage',
       'atmWorkflowSchema',
+      'atmWorkflowSchemaRevisionNumber',
       'loadValuesFromLocalStorage'
     );
     const atmWorkflowSchemaId = get(atmWorkflowSchema, 'entityId');
@@ -412,7 +434,10 @@ export default Component.extend(I18n, {
           );
         }
 
-        if (data && data.atmWorkflowSchemaId !== atmWorkflowSchemaId) {
+        if (data && (
+            data.atmWorkflowSchemaId !== atmWorkflowSchemaId ||
+            data.atmWorkflowSchemaRevisionNumber !== atmWorkflowSchemaRevisionNumber
+          )) {
           data = null;
         }
       }
@@ -428,7 +453,7 @@ export default Component.extend(I18n, {
       fields,
     } = this.getProperties('onChange', 'fields');
 
-    const stores = this.get('atmWorkflowSchema.stores') || [];
+    const stores = this.get('atmWorkflowSchemaRevision.stores') || [];
 
     onChange({
       data: formDataToInputStoresValues(fields.dumpValue(), stores),

@@ -44,7 +44,8 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Function>}
    * @param {String} options.atmWorkflowSchemaId
-   * @param {Boolean} options.fillInputStores
+   * @param {Number} options.atmWorkflowSchemaRevisionNumber
+   * @param {any} options.fillInputStores
    */
   runWorkflowCallback: reads('modalOptions.runWorkflowCallback'),
 
@@ -122,7 +123,10 @@ export default Component.extend(I18n, {
   ),
 
   actions: {
-    atmWorkflowSchemaSelected(atmWorkflowSchema) {
+    atmWorkflowSchemaRevisionSelected(
+      atmWorkflowSchema,
+      atmWorkflowSchemaRevisionNumber
+    ) {
       const {
         runWorkflowCallback,
         requiredInputStoreSpec,
@@ -142,6 +146,7 @@ export default Component.extend(I18n, {
       }
       runWorkflowCallback && runWorkflowCallback({
         atmWorkflowSchemaId: get(atmWorkflowSchema, 'entityId'),
+        atmWorkflowSchemaRevisionNumber,
         inputStoresData,
       });
     },

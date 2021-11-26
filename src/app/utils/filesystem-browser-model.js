@@ -151,7 +151,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @virtual
    * @type {Function}
-   * @param {String} atmWorkflowSchemaId
+   * @param {string} options.atmWorkflowSchemaId
+   * @param {number} options.atmWorkflowSchemaRevisionNumber
+   * @param {Object} options.inputStoresData
    */
   openWorkflowRunView: notImplementedThrow,
 

@@ -24,6 +24,7 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
     'tab',
     'workflowExecutionId',
     'workflowSchemaId',
+    'workflowSchemaRevision',
     'fillInputStores',
   ]),
 
@@ -37,8 +38,12 @@ export default OneEmbeddedComponent.extend(ContentSpaceBaseMixin, {
     closePreviewTab() {
       return this.callParent('closePreviewTab');
     },
-    chooseWorkflowSchemaToRun(atmWorkflowSchemaId) {
-      return this.callParent('chooseWorkflowSchemaToRun', atmWorkflowSchemaId);
+    chooseWorkflowSchemaToRun(atmWorkflowSchemaId, atmWorkflowSchemaRevisionNumber) {
+      return this.callParent(
+        'chooseWorkflowSchemaToRun',
+        atmWorkflowSchemaId,
+        atmWorkflowSchemaRevisionNumber
+      );
     },
   },
 });

@@ -441,7 +441,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       'systemAuditLogId',
       'storeRegistry'
     );
-    const lanesSchemas = (get(atmWorkflowSchemaSnapshot, 'lanes') || []).filterBy('id');
+    const revisionRegistry = get(atmWorkflowSchemaSnapshot, 'revisionRegistry');
+    const revision = Object.values(revisionRegistry || {})[0];
+    const lanesSchemas = (get(revision || {}, 'lanes') || []).filterBy('id');
 
     const normalizedLanes = [];
     // mapping (runNumber -> status) for previous processed lane (used by loop below)

@@ -20,30 +20,38 @@ describe('Integration | Component | space automation/run workflow creator', func
     const atmWorkflowSchemas = [{
       entityId: 'workflow1',
       name: 'workflow 1',
-      stores: [{
-        id: 'store1',
-        name: 'store 1',
-        type: 'singleValue',
-        dataSpec: {
-          type: 'integer',
-          valueConstraints: {},
+      revisionRegistry: {
+        1: {
+          stores: [{
+            id: 'store1',
+            name: 'store 1',
+            type: 'singleValue',
+            dataSpec: {
+              type: 'integer',
+              valueConstraints: {},
+            },
+            requiresInitialValue: true,
+          }],
         },
-        requiresInitialValue: true,
-      }],
+      },
       isLoaded: true,
     }, {
       entityId: 'workflow2',
       name: 'workflow 2',
-      stores: [{
-        id: 'store2',
-        name: 'store 2',
-        type: 'list',
-        dataSpec: {
-          type: 'string',
-          valueConstraints: {},
+      revisionRegistry: {
+        1: {
+          stores: [{
+            id: 'store2',
+            name: 'store 2',
+            type: 'list',
+            dataSpec: {
+              type: 'string',
+              valueConstraints: {},
+            },
+            requiresInitialValue: true,
+          }],
         },
-        requiresInitialValue: true,
-      }],
+      },
       isLoaded: true,
     }];
     const workflowManager = lookupService(this, 'workflow-manager');
@@ -59,7 +67,11 @@ describe('Integration | Component | space automation/run workflow creator', func
       workflowStartedSpy: sinon.spy(),
       runWorkflowStub: sinon.stub(lookupService(this, 'workflow-manager'), 'runWorkflow'),
       atmWorkflowSchemaId: undefined,
-      chooseWorkflowSchemaToRun: id => this.set('atmWorkflowSchemaId', id),
+      atmWorkflowSchemaRevisionNumber: undefined,
+      chooseWorkflowSchemaToRun: (id, revNo) => this.setProperties({
+        atmWorkflowSchemaId: id,
+        atmWorkflowSchemaRevisionNumber: revNo,
+      }),
     });
   });
 
@@ -94,7 +106,7 @@ describe('Integration | Component | space automation/run workflow creator', func
   it('shows "inputStores" slide after workflow schema selection', async function () {
     await render(this);
 
-    await click(getSlide('list').querySelector('.list-entry'));
+    await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
     expect(isSlideActive('inputStores')).to.be.true;
     const inputStoresSlide = getSlide('inputStores');
@@ -115,7 +127,7 @@ describe('Integration | Component | space automation/run workflow creator', func
 
   it('disables submit button when input store value is invalid', async function () {
     await render(this);
-    await click(getSlide('list').querySelector('.list-entry'));
+    await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
     await fillIn(getSlide('inputStores').querySelector('.form-control'), 'abc');
 
@@ -124,7 +136,7 @@ describe('Integration | Component | space automation/run workflow creator', func
 
   it('enables submit button when input store value is valid', async function () {
     await render(this);
-    await click(getSlide('list').querySelector('.list-entry'));
+    await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
     await fillIn(getSlide('inputStores').querySelector('.form-control'), '10');
 
@@ -133,10 +145,11 @@ describe('Integration | Component | space automation/run workflow creator', func
 
   it('enabled submit button and shows proper message when workflow does not need any initial values',
     async function () {
-      this.get('atmWorkflowSchemas.0.stores').setEach('requiresInitialValue', false);
+      this.get('atmWorkflowSchemas.0.revisionRegistry.1.stores')
+        .setEach('requiresInitialValue', false);
       await render(this);
 
-      await click(getSlide('list').querySelector('.list-entry'));
+      await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
       const inputStoresSlide = getSlide('inputStores');
       expect($(inputStoresSlide.querySelector('.btn-submit'))).to.be.enabled;
@@ -160,12 +173,12 @@ describe('Integration | Component | space automation/run workflow creator', func
       expect(workflowStartedSpy).to.be.not.called;
       const listSlide = getSlide('list');
       const inputStoresSlide = getSlide('inputStores');
-      await click(listSlide.querySelector('.list-entry'));
+      await click(listSlide.querySelector('.revisions-table-revision-entry'));
       await fillIn(inputStoresSlide.querySelector('.form-control'), '10');
       await click(inputStoresSlide.querySelector('.btn-submit'));
 
       expect(runWorkflowStub).to.be.calledOnce
-        .and.to.be.calledWith('workflow1', 'space1', {
+        .and.to.be.calledWith('workflow1', 1, 'space1', {
           store1: 10,
         });
       expect(workflowStartedSpy).to.be.calledOnce
@@ -185,7 +198,7 @@ describe('Integration | Component | space automation/run workflow creator', func
 
       const listSlide = getSlide('list');
       const inputStoresSlide = getSlide('inputStores');
-      await click(listSlide.querySelector('.list-entry'));
+      await click(listSlide.querySelector('.revisions-table-revision-entry'));
       await fillIn(inputStoresSlide.querySelector('.form-control'), '10');
       await click(inputStoresSlide.querySelector('.btn-submit'));
       rejectPromise();
@@ -198,7 +211,7 @@ describe('Integration | Component | space automation/run workflow creator', func
   it('blocks all controls during workflow start process', async function () {
     this.get('runWorkflowStub').returns(new Promise(() => {}));
     await render(this);
-    await click(getSlide('list').querySelector('.list-entry'));
+    await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
     const inputStoresSlide = getSlide('inputStores');
     await fillIn(inputStoresSlide.querySelector('.form-control'), '10');
 
@@ -214,11 +227,11 @@ describe('Integration | Component | space automation/run workflow creator', func
     async function () {
       await render(this);
 
-      await click(getSlide('list').querySelector('.list-entry'));
+      await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
       await click(getSlide('inputStores').querySelector('.btn-back'));
 
       expect(isSlideActive('list')).to.be.true;
-      await click(getSlide('list').querySelectorAll('.list-entry')[1]);
+      await click(getSlide('list').querySelectorAll('.revisions-table-revision-entry')[1]);
 
       expect(isSlideActive('inputStores')).to.be.true;
       expect(getSlide('inputStores').textContent).to.contain('store 2');
@@ -231,6 +244,7 @@ async function render(testCase) {
     onWorkflowStarted=workflowStartedSpy
     chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
     atmWorkflowSchemaId=atmWorkflowSchemaId
+    atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
   }}`);
   await wait();
 }

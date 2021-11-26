@@ -21,15 +21,13 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {ComputedProperty<String>}
    */
-  description: attr('string'),
+  summary: attr('string'),
 
   /**
-   * @type {ComputedProperty<Array<Object>>}
+   * Contains mapping (revisionNumber: String) -> AtmWorkflowSchemaRevision.
+   * For more information about AtmWorkflowSchemaRevision type look at the
+   * atm-workflow-schema model documentation in onezone-gui project.
+   * @type {ComputedProperty<Object>}
    */
-  stores: attr('array'),
-
-  /**
-   * @type {ComputedProperty<Array<Object>>}
-   */
-  lanes: attr('array'),
+  revisionRegistry: attr('object'),
 }).reopenClass(StaticGraphModelMixin);
