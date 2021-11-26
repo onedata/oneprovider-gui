@@ -1178,10 +1178,8 @@ export default Service.extend({
                 name: 'lane 1',
                 maxRetries: 3,
                 storeIteratorSpec: {
-                  strategy: {
-                    type: 'serial',
-                  },
                   storeSchemaId: 'store1',
+                  maxBatchSize: 100,
                 },
                 parallelBoxes: [{
                   id: 'pbox1-1',
