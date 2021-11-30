@@ -32,13 +32,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {number[]}
+   * @type {RevisionNumber[]}
    */
   revisionNumbersMatchingInput: undefined,
 
   /**
    * @virtual
-   * @type {(atmWorkflowSchema: Models.AtmWorkflowSchema, revisionNumber: number) => void}
+   * @type {(atmWorkflowSchema: Models.AtmWorkflowSchema, revisionNumber: RevisionNumber) => void}
    */
   onRevisionClick: undefined,
 
