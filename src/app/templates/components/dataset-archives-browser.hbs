@@ -1,12 +1,15 @@
+{{log "dataset-archives-browser dirId changed" dirId}}
+
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   {{file-browser
-    dir=dir
+    dir=currentBrowsableItem
     browserModel=browserModel
     parentModalDialogSelector=parentModalDialogSelector
     isSpaceOwned=space.currentUserIsOwner
     spaceId=space.entityId
     contentScroll=contentScroll
     selectedItems=selectedItems
+    selectedItemsForJumpProxy=selectedItemsForJumpProxy
     spacePrivileges=spacePrivileges
     ignoreDeselectSelector=ignoreDeselectSelector
     resolveFileParentFun=(action "resolveItemParent")
@@ -95,7 +98,7 @@
 {{#if createArchiveOpened}}
   {{archive-create-modal
     open=true
-    dataset=dataset
+    dataset=browsableDataset
     options=createArchiveOptions
     onHide=(action closeCreateArchiveModal)
     onArchiveCreate=(action submitArchiveCreate)

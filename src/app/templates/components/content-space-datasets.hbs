@@ -1,11 +1,15 @@
+{{log "content-space-datasets dirId changed" dirId}}
+
+{{!-- FIXME: refactor: move ignore deselect selector to JS --}}
 {{#perfect-scrollbar-element
   class="split-browser-container dataset-browser-container"
   as |perfectScrollbarContainer|
 }}
+  {{!-- FIXME: removed injection of getItemByIdFun --}}
   {{#promise-proxy-container proxy=initialRequiredDataProxy}}
     {{file-browser
       browserModel=browserModel
-      dir=currentBrowsableItem
+      dir=browsableDataset
       customFetchDirChildren=(action "fetchChildren")
       resolveFileParentFun=(action "resolveItemParent")
       spaceId=spaceId
@@ -15,7 +19,6 @@
       isSpaceOwned=space.currentUserIsOwner
       contentScroll=perfectScrollbarContainer.element
       ignoreDeselectSelector=".archive-browser-container, .archive-browser-container *, #content-scroll, .dataset-browser-container .ps__rail-y, .dataset-browser-container .ps__rail-y *"
-      getItemByIdFun=(if (eq viewMode "files") (action getFileById))
       changeSelectedItems=(action "changeSelectedItems")
       updateDirEntityId=(action "updateDirEntityId")
     }}
@@ -60,13 +63,20 @@
   as |perfectScrollbarContainer|
 }}
   {{!-- FIXME: make delay before changing selectedItems count --}}
+  {{!-- FIXME: browsableDataset is ready - change implementation to allow injecting browsableDataset directly without dataset --}}
   {{#if (eq selectedItems.length 1)}}
     {{dataset-archives-browser
       space=space
-      dataset=selectedItems.firstObject
+      browsableDataset=selectedItems.firstObject
       contentScroll=perfectScrollbarContainer.element
       ignoreDeselectSelector=".dataset-browser-container, .dataset-browser-container *, #content-scroll, .archive-browser-container .ps__rail-y, .archive-browser-container .ps__rail-y *"
+      selectedIds=selectedSecondary
+      archiveId=archiveId
+      dirId=dirId
+      onUpdateArchiveId=(action "updateArchiveId")
+      onUpdateDirId=(action "updateDirId")
     }}
+    <div class="debug" style="display: none;">dir: {{dirProxy.content}}</div>
   {{else}}
     <div class="bottom-panel-content">
       <div class="bottom-panel-text">
@@ -82,5 +92,3 @@
     </div>
   {{/if}}
 {{/perfect-scrollbar-element}}
-{{!-- </div> --}}
-{{!-- </div> --}}

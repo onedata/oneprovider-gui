@@ -77,6 +77,7 @@ export default Component.extend({
     }
   },
 
+  // FIXME: this could be a part of service (onezone navigation)
   openUrl(url, replace = false) {
     const {
       _window,

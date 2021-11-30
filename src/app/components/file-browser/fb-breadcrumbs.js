@@ -203,7 +203,7 @@ export default Component.extend(
       dirPath = rootDir ? cutDirsPath(dirPath, rootDir) : dirPath;
       for (let i = 0; i < get(dirPath, 'length'); ++i) {
         const currentDir = dirPath[i];
-        if (get(currentDir, 'isArchiveRootDir')) {
+        if (currentDir && get(currentDir, 'isArchiveRootDir')) {
           const browsableArchive =
             await archiveManager.getBrowsableArchive(currentDir.relationEntityId('archive'));
           dirPath[i] = BrowsableArchiveRootDir.create({

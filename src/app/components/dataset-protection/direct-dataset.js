@@ -101,7 +101,6 @@ export default Component.extend(I18n, {
         const options = {
           datasetId: parentId,
           selected: datasetId,
-          viewMode: 'datasets',
           attachmentState: get(directDataset, 'state'),
         };
         return this.get('getDatasetsUrl')(options);

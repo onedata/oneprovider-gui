@@ -1,7 +1,7 @@
 /**
+ * FIXME: lack of jsdoc
  *
- *
- * @module
+ * @module services/files-view-resolver
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -171,11 +171,10 @@ export default Service.extend({
     switch (get(filesViewContext, 'browserType')) {
       case 'archive': {
         const options = Object.assign({
-          datasetId: get(filesViewContext, 'datasetId'),
+          selected: [get(filesViewContext, 'datasetId')],
           archive: get(filesViewContext, 'archiveId'),
           dir: type === 'open' ? fileId : null,
-          selected: type === 'select' ? [fileId] : null,
-          viewMode: 'files',
+          selectedSecondary: type === 'select' ? [fileId] : null,
         }, urlOptions);
         url = appProxy.callParent('getDatasetsUrl', options);
         break;

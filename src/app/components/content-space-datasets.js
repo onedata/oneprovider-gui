@@ -28,6 +28,7 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import { isEmpty } from '@ember/utils';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import SplitGrid from 'npm:split-grid';
+import _ from 'lodash';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -113,10 +114,20 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * **Injected from parent frame.**
+   * IDs of selected datasets.
+   * Single selected dataset means that its archives browser will be rendered.
    * @virtual optional
    * @type {Array<String>}
    */
   selected: undefined,
+
+  /**
+   * **Injected from parent frame.**
+   * IDs of selected archives or files (for secondary browser).
+   * @virtual optional
+   * @type {Array<String>}
+   */
+  selectedSecondary: undefined,
 
   /**
    * One of: 'attached', 'detached'
@@ -126,15 +137,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @type {String}
    */
   attachmentState: undefined,
-
-  /**
-   * One of: 'datasets', 'archives', 'files'
-   *
-   * **Injected from parent frame.**
-   * @virtual
-   * @type {String}
-   */
-  viewMode: 'datasets',
 
   /**
    * @virtual optional
@@ -151,8 +153,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'archiveId',
     'dirId',
     'selected',
+    'selectedSecondary',
     'attachmentState',
-    'viewMode',
   ]),
 
   /**
@@ -166,8 +168,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
   navigateTarget: '_top',
 
   /**
-   * Managed by `switchBrowserModel` observer.
-   * @type {Utils.BaseBrowserModel}
+   * Set on init.
+   * @type {Utils.DatasetBrowserModel}
    */
   browserModel: undefined,
 
@@ -216,26 +218,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @override
    */
   selectedItemsForJumpProxy: promise.object(computed(
-    // NOTE: not observing viewMode, because jump should not be performed if viewMode
-    // changes
     'spaceId',
     'datasetId',
     'selected',
     async function selectedItemsForJumpProxy() {
-      const {
-        selected,
-        viewMode,
-      } = this.getProperties('selected', 'viewMode');
-      switch (viewMode) {
-        case 'archives':
-          return this.getArchivesForView(selected);
-        case 'datasets':
-          return this.getDatasetsForView(selected);
-        case 'files':
-          return this.getFilesForView(selected);
-        default:
-          return [];
-      }
+      const selected = this.get('selected');
+      return this.getDatasetsForView(selected);
     }
   )),
 
@@ -268,21 +256,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   )),
 
-  /**
-   * Directory to be viewed on component load - this proxy not recomputes on every dir
-   * change.
-   * @type {PromiseObject<Models.File>}
-   */
-  initialDirProxy: promise.object(computed(
-    'spaceProxy',
-    'initialArchiveProxy',
-    async function initialDirProxy() {
-      await this.get('spaceProxy');
-      await this.get('initialArchiveProxy');
-      return this.get('dirProxy');
-    }
-  )),
-
   spaceDatasetsRoot: computed(
     'space',
     'attachmentState',
@@ -300,25 +273,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   isInRoot: bool('browsableDataset.isDatasetsRoot'),
 
-  /**
-   * @type {PromiseObject<Models.Archive>}
-   */
-  archiveProxy: promise.object(computed(
-    'archiveId',
-    async function archiveProxy() {
-      const {
-        archiveManager,
-        archiveId,
-      } = this.getProperties('archiveManager', 'archiveId');
-      if (archiveId) {
-        return archiveManager.getBrowsableArchive(archiveId);
-      } else {
-        return null;
-      }
-    }
-  )),
-
   archive: computedLastProxyContent('archiveProxy'),
+
+  currentBrowsableItemProxy: reads('browsableDatasetProxy'),
 
   /**
    * @type {ComputedProperty<PromiseObject<Models.Dataset>>}
@@ -326,7 +283,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   browsableDatasetProxy: promise.object(computed(
     'datasetId',
     'spaceDatasetsRoot',
-    'viewMode',
     async function browsableDatasetProxy() {
       const {
         datasetManager,
@@ -334,7 +290,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
         datasetId,
         spaceDatasetsRoot,
         spaceId,
-        viewMode,
         // NOTE: selected is not observed because change of selected should not cause
         // dir change
         selected,
@@ -344,7 +299,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
         'datasetId',
         'spaceDatasetsRoot',
         'spaceId',
-        'viewMode',
         'selected',
       );
 
@@ -369,10 +323,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
             return spaceDatasetsRoot;
           }
           // return only dir-type datasets, for files try to return parent or null
-          if (
-            viewMode === 'datasets' &&
-            get(browsableDataset, 'rootFileType') !== 'dir'
-          ) {
+          if (get(browsableDataset, 'rootFileType') !== 'dir') {
             const parent = await get(browsableDataset, 'parent');
             return parent &&
               await datasetManager.getBrowsableDataset(parent) ||
@@ -394,97 +345,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   browsableDataset: computedLastProxyContent('browsableDatasetProxy'),
 
-  /**
-   * Currently viewed directory in archive-file-browser
-   * @type {ComputedProperty<Models.File>}
-   */
-  dirProxy: promise.object(computed(
-    'dirId',
-    'archiveId',
-    async function dirProxy() {
-      const {
-        spaceId,
-        selected,
-        dirId,
-        filesViewResolver,
-        archiveRootDirProxy,
-        datasetId,
-        archiveId,
-      } = this.getProperties(
-        'spaceId',
-        'selected',
-        'dirId',
-        'filesViewResolver',
-        'archiveRootDirProxy',
-        'datasetId',
-        'archiveId',
-      );
-
-      const currentFilesViewContext = FilesViewContext.create({
-        spaceId,
-        datasetId,
-        archiveId,
-      });
-      const archiveRootDir = await archiveRootDirProxy;
-      const resolverResult = await filesViewResolver.resolveViewOptions({
-        dirId,
-        currentFilesViewContext,
-        selectedIds: selected,
-        scope: 'private',
-        fallbackDir: archiveRootDir,
-      });
-
-      if (!resolverResult) {
-        return null;
-      }
-      if (resolverResult.result === 'resolve') {
-        return resolverResult.dir;
-      } else {
-        // TODO: VFS-8342 common util for replacing master URL
-        if (resolverResult.url) {
-          this.openUrl(resolverResult.url, true);
-        }
-        return archiveRootDir;
-      }
-    }
-  )),
-
-  dir: computedLastProxyContent('dirProxy'),
-
-  archiveRootDirProxy: promise.object(computed(
-    'archiveProxy.rootDir',
-    'browsableDatasetProxy',
-    async function archiveRootDirProxy() {
-      const {
-        browsableDatasetProxy,
-        archiveProxy,
-      } = this.getProperties('browsableDatasetProxy', 'archiveProxy');
-      const archive = get(archiveProxy, 'content') || await archiveProxy;
-      // archive may not be loaded at this time, which is an expected case
-      if (!archive) {
-        return null;
-      }
-      const rootDir = await get(archive, 'rootDir');
-      return BrowsableArchiveRootDir.create({
-        content: rootDir,
-        hasParent: true,
-        parent: browsableDatasetProxy,
-        browsableArchive: archive,
-      });
-    }
-  )),
-
-  /**
-   * @type {PromiseOBject<EmberObject>} resolve with file-like object for
-   *  `file-browser#dir` property
-   */
-  currentBrowsableItemProxy: conditional(
-    equal('viewMode', raw('files')),
-    'dirProxy',
-    'browsableDatasetProxy'
-  ),
-
-  currentBrowsableItem: computedLastProxyContent('currentBrowsableItemProxy'),
+  // FIXME: implement auto-redirect to dir in other dataset here or in archives panel (dirProxy)
 
   /**
    * Proxy for whole file-browser: loading causes loading screen, recomputing causes
@@ -495,69 +356,31 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'spaceProxy',
     'initialBrowsableDatasetProxy',
     'initialSelectedItemsForJumpProxy',
-    'initialDirProxy',
     function initialRequiredDataProxy() {
-      // viewMode is not observed to prevent unnecessary proxy recompute
       const {
         spaceProxy,
-        viewMode,
         initialSelectedItemsForJumpProxy,
+        initialBrowsableDatasetProxy,
       } = this.getProperties(
         'spaceProxy',
-        'viewMode',
-        'initialSelectedItemsForJumpProxy'
+        'initialSelectedItemsForJumpProxy',
+        'initialBrowsableDatasetProxy',
       );
-      const proxies = [spaceProxy, initialSelectedItemsForJumpProxy];
-      if (viewMode === 'files') {
-        const initialDirProxy = this.get('initialDirProxy');
-        proxies.push(initialDirProxy);
-      } else {
-        const initialBrowsableDatasetProxy = this.get('initialBrowsableDatasetProxy');
-        proxies.push(initialBrowsableDatasetProxy);
-      }
+      const proxies = [
+        spaceProxy,
+        initialSelectedItemsForJumpProxy,
+        initialBrowsableDatasetProxy,
+      ];
       return allFulfilled(proxies);
     }
   )),
-
-  switchBrowserModel: observer('viewMode', function switchBrowserModel() {
-    const {
-      viewMode,
-      browserModel: currentBrowserModel,
-    } = this.getProperties('viewMode', 'browserModel');
-    let newBrowserModel;
-    switch (viewMode) {
-      case 'files':
-        newBrowserModel = this.createFilesystemBrowserModel();
-        break;
-      case 'archives':
-        newBrowserModel = this.createArchiveBrowserModel();
-        break;
-      case 'datasets':
-      default:
-        newBrowserModel = this.createDatasetBrowserModel();
-    }
-    this.set('browserModel', newBrowserModel);
-    if (currentBrowserModel) {
-      currentBrowserModel.destroy();
-    }
-  }),
 
   spaceIdObserver: observer('spaceId', function spaceIdObserver() {
     this.get('containerScrollTop')(0);
   }),
 
-  archiveProxyObserver: observer('archiveProxy', async function archiveProxyObserver() {
-    const archive = await this.get('archiveProxy');
-    if (archive) {
-      const onezoneArchiveData =
-        this.createOnezoneArchiveData(archive);
-      this.callParent('updateArchiveData', onezoneArchiveData);
-    }
-  }),
-
   clearSelectedObserver: observer(
     'attachmentState',
-    'viewMode',
     async function clearSelectedObserver() {
       if (this.get('lockSelectedReset')) {
         return;
@@ -568,30 +391,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   ),
 
-  // FIXME: may be unnecessary when there will be splitted browser
-  updateOnezoneDatasetData: observer(
-    'browsableDatasetProxy',
-    async function updateOnezoneDatasetData() {
-      const browsableDataset = await this.get('browsableDatasetProxy');
-      if (browsableDataset) {
-        const data = this.createOnezoneDatasetData(browsableDataset);
-        this.callParent('updateDatasetData', data);
-      }
-    }
-  ),
-
   init() {
     this._super(...arguments);
-    this.switchBrowserModel();
-    this.updateOnezoneDatasetData();
-    this.archiveProxyObserver();
+    this.set('browserModel', this.createDatasetBrowserModel());
   },
 
   /**
    * @override
    */
   didInsertElement() {
-    window.SplitGrid = SplitGrid;
     const splitGrid = SplitGrid({
       rowGutters: [{
         track: 1,
@@ -601,7 +409,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       minSize: 200,
     });
     this.set('splitGrid', splitGrid);
-    window.split = splitGrid;
   },
 
   /**
@@ -650,8 +457,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   /**
-   * Optionally computes Onezone URL redirect options for containing parent directory of
-   * first selected file (if there is no injected dir id and at least one selected file).
+   * Optionally computes Onezone URL redirect options for containing parent dataset of
+   * first selected file-type dataset (if there is no injected dataset ID and at least one
+   * selected dataset provided).
    * If there is no need to redirect, resolves false.
    * @returns {Promise<{dataUrl: string, dirProxy: PromiseObject}>}
    */
@@ -659,8 +467,18 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const {
       datasetId,
       selected,
+      selectedSecondary,
       datasetManager,
-    } = this.getProperties('datasetId', 'selected', 'datasetManager');
+      archiveId,
+      dirId,
+    } = this.getProperties(
+      'datasetId',
+      'selected',
+      'selectedSecondary',
+      'datasetManager',
+      'archiveId',
+      'dirId'
+    );
     const firstSelectedId = selected && selected[0];
 
     if (datasetId || !firstSelectedId) {
@@ -682,11 +500,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
     if (parentId) {
       const dataUrl = this.callParent(
         'getDatasetsUrl', {
-          viewMode: 'datasets',
           datasetId: parentId,
           selected,
-          archive: null,
-          dir: null,
+          selectedSecondary,
+          archive: archiveId,
+          dir: dirId,
         }
       );
       return {
@@ -695,27 +513,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       };
     } else {
       return null;
-    }
-  },
-
-  async getArchivesForView(ids) {
-    if (!ids) {
-      return [];
-    }
-
-    const {
-      archiveManager,
-      datasetId,
-    } = this.getProperties('archiveManager', 'datasetId');
-    const items =
-      await onlyFulfilledValues(ids.map(id =>
-        archiveManager.getBrowsableArchive(id)
-      ));
-    try {
-      // allow only archives which belong to current dataset
-      return items.filter(item => item.relationEntityId('dataset') === datasetId);
-    } catch (error) {
-      return [];
     }
   },
 
@@ -744,96 +541,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
-  async getFilesForView(ids) {
-    if (!ids) {
-      return [];
-    }
-
-    const {
-      fileManager,
-      spaceId,
-    } = this.getProperties('fileManager', 'spaceId');
-    const files =
-      await onlyFulfilledValues(ids.map(id =>
-        fileManager.getFileById(id)
-      ));
-    try {
-      // allow only files which belong to current space
-      return files.filter(file => get(file, 'spaceEntityId') === spaceId);
-    } catch (error) {
-      return [];
-    }
-  },
-
-  /**
-   * Should be used as file-browser `getItemById` only in files mode.
-   * @param {String} fileId
-   * @return {Promise<Models.File|Object>}
-   */
-  async getFileById(fileId) {
-    const fileManager = this.get('fileManager');
-    const archive = this.get('archive') || await this.get('archiveProxy');
-    const archiveRootDirId = archive.relationEntityId('rootDir');
-    if (!fileId || fileId === archiveRootDirId) {
-      return this.get('archiveRootDirProxy');
-    } else {
-      return fileManager.getFileById(fileId, 'private');
-    }
-  },
-
-  async fetchDir(fileId) {
-    return this.getFileById(fileId);
-  },
-
-  createOnezoneDatasetData(dataset) {
-    const data = getProperties(
-      dataset,
-      'entityId',
-      'name',
-      'state',
-      'spaceId',
-      'protectionFlags',
-      'effProtectionFlags',
-      'creationTime',
-      'archiveCount',
-      'rootFilePath',
-      'rootFileType',
-    );
-    data.parentId = dataset.relationEntityId('parent') || null;
-    data.rootFileId = dataset.relationEntityId('rootFile') || null;
-    return data;
-  },
-
-  /**
-   * Create object with archive information to use in Onezone.
-   * @param {Utils.BrowsableArchive} archive
-   * @returns {Object}
-   */
-  createOnezoneArchiveData(archive) {
-    // NOTE: stats and state are not passed to Onezone, because archive data is not
-    // observed for change to be passed to Onezone
-    const data = getProperties(
-      archive,
-      'entityId',
-      'name',
-      'creationTime',
-      'description',
-      'preservedCallback',
-      'purgedCallback',
-    );
-    data.config = Object.assign({}, get(archive, 'config'));
-    [
-      'baseArchive',
-      'relatedDip',
-      'relatedAip',
-      'dataset',
-      'rootDir',
-    ].forEach(relationName => {
-      data[`${relationName}Id`] = archive.relationEntityId(relationName) || null;
-    });
-    return data;
-  },
-
+  // FIXME: to refactor- maybe unnecessary
   /**
    * @param {Object} options
    * @returns {String} Onezone URL for directory in file browser
@@ -850,14 +558,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return this.callParent('getDatasetsUrl', options);
   },
 
-  getShareUrl(options) {
-    return this.callParent('getShareUrl', options);
-  },
-
-  getTransfersUrl(options) {
-    return this.callParent('getTransfersUrl', options);
-  },
-
   createDatasetBrowserModel() {
     return DatasetBrowserModel.create({
       ownerSource: this,
@@ -868,32 +568,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openDatasetOpenModal: this.openDatasetOpenModal.bind(this),
       openArchivesView: this.openArchivesView.bind(this),
-    });
-  },
-
-  createArchiveBrowserModel() {
-    return ArchiveBrowserModel.create({
-      ownerSource: this,
-      spaceDatasetsViewState: this,
-      getDatasetsUrl: this.getDatasetsUrl.bind(this),
-      openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
-      openPurgeModal: this.openArchivesPurgeModal.bind(this),
-    });
-  },
-
-  createFilesystemBrowserModel() {
-    return ArchiveFilesystemBrowserModel.create({
-      ownerSource: this,
-      // TODO: VFS-7406 use dir or file-dataset icons
-      rootIcon: 'browser-dataset',
-      downloadScope: 'private',
-      openInfo: this.openInfoModal.bind(this),
-      openMetadata: this.openMetadataModal.bind(this),
-      openShare: this.openShareModal.bind(this),
-      openEditPermissions: this.openEditPermissionsModal.bind(this),
-      openFileDistribution: this.openFileDistributionModal.bind(this),
-      openQos: this.openQosModal.bind(this),
-      openConfirmDownload: this.openConfirmDownload.bind(this),
     });
   },
 
@@ -944,37 +618,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }));
   },
 
-  async fetchDatasetArchives(datasetId, startIndex, size, offset) {
-    const archiveManager = this.get('archiveManager');
-    return this.browserizeArchives(await archiveManager.fetchDatasetArchives({
-      datasetId,
-      index: startIndex,
-      limit: size,
-      offset,
-    }));
-  },
-
-  async fetchDirChildren(dirId, startIndex, size, offset) {
-    const fileManager = this.get('fileManager');
-    return fileManager
-      .fetchDirChildren(dirId, 'private', startIndex, size, offset);
-  },
-
   async browserizeDatasets({ childrenRecords, isLast }) {
     const datasetManager = this.get('datasetManager');
     return {
       childrenRecords: await allFulfilled(childrenRecords.map(r =>
         datasetManager.getBrowsableDataset(r)
-      )),
-      isLast,
-    };
-  },
-
-  async browserizeArchives({ childrenRecords, isLast }) {
-    const archiveManager = this.get('archiveManager');
-    return {
-      childrenRecords: await allFulfilled(childrenRecords.map(record =>
-        archiveManager.getBrowsableArchive(record)
       )),
       isLast,
     };
@@ -1006,6 +654,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.set('fileToShowDatasetOpen', null);
   },
 
+  // FIXME: maybe common modal
   /**
    * @param {Models.Dataset} dataset dataset for which create archive form will be shown
    * @param {Object} options
@@ -1025,11 +674,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const archiveManager = this.get('archiveManager');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
+      const datasetId = get(dataset, 'entityId');
+      const archiveId = get(archive, 'entityId');
       const archiveSelectUrl = this.getDatasetsUrl({
-        viewMode: 'archives',
-        datasetId: get(dataset, 'entityId'),
+        dataset: dataset.relationEntityId('parent'),
+        selected: [datasetId],
         archive: null,
-        selected: get(archive, 'entityId'),
+        selectedSecondary: [archiveId],
         dir: null,
       });
       if (archiveSelectUrl) {
@@ -1043,93 +694,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return archive;
   },
 
-  /**
-   * @param {Array<Models.Archive>} archives
-   */
-  openArchivesPurgeModal(archives) {
-    this.set('archivesToPurge', archives);
-  },
-
-  closeArchivesPurgeModal() {
-    this.set('archivesToPurge', null);
-  },
-
   openArchivesView(dataset) {
-    // FIXME: purge when presenting dataset in zone will be removed
-    // this.callParent('updateDatasetData', this.createOnezoneDatasetData(dataset));
     const datasetId = dataset && get(dataset, 'entityId');
     if (datasetId) {
       this.callParent('updateSelected', [datasetId]);
     }
-  },
-
-  openInfoModal(file, activeTab) {
-    this.setProperties({
-      fileToShowInfo: file,
-      showInfoInitialTab: activeTab || 'general',
-    });
-  },
-
-  closeInfoModal() {
-    this.set('fileToShowInfo', null);
-  },
-
-  openMetadataModal(file) {
-    this.set('fileToShowMetadata', file);
-  },
-
-  closeMetadataModal() {
-    this.set('fileToShowMetadata', null);
-  },
-
-  openShareModal(file) {
-    this.set('fileToShare', file);
-  },
-
-  closeShareModal() {
-    this.set('fileToShare', null);
-  },
-
-  openEditPermissionsModal(files) {
-    this.set('filesToEditPermissions', [...files]);
-  },
-
-  closeEditPermissionsModal() {
-    this.set('filesToEditPermissions', null);
-  },
-
-  openFileDistributionModal(files) {
-    this.set('filesToShowDistribution', [...files]);
-  },
-
-  closeFileDistributionModal() {
-    this.set('filesToShowDistribution', null);
-  },
-
-  openQosModal(files) {
-    this.set('filesToShowQos', files);
-  },
-
-  closeQosModal() {
-    this.set('filesToShowQos', null);
-  },
-
-  openConfirmDownload(file) {
-    this.set('fileForConfirmDownload', file);
-  },
-
-  closeConfirmFileDownload() {
-    this.set('fileForConfirmDownload', null);
-  },
-
-  confirmFileDownload() {
-    return this.get('browserModel')
-      .downloadFiles([
-        this.get('fileForConfirmDownload'),
-      ])
-      .finally(() => {
-        safeExec(this, 'set', 'fileForConfirmDownload', null);
-      });
   },
 
   actions: {
@@ -1137,35 +706,39 @@ export default OneEmbeddedComponent.extend(...mixins, {
      * @param {String} itemId datasetId, archiveVirtualRootDirId or fileId (dir)
      */
     async updateDirEntityId(itemId) {
-      const viewMode = this.get('viewMode');
-      if (viewMode === 'datasets') {
-        this.callParent('updateDatasetId', itemId);
-      } else if (viewMode === 'archives') {
-        this.callParent('updateViewMode', 'files');
-        this.callParent('updateArchiveId', itemId);
-        this.callParent('updateDirId', null);
-      } else if (viewMode === 'files') {
-        const {
-          datasetId,
-          archive,
-        } = this.getProperties('datasetId', 'archive');
-        if (itemId === datasetId) {
-          this.callParent('updateArchiveId', null);
-          this.callParent('updateDirId', null);
-          this.callParent('updateViewMode', 'archives');
-        } else if (itemId === (archive && archive.relationEntityId('rootDir'))) {
-          this.callParent('updateDirId', null);
-        } else {
-          this.callParent('updateDirId', itemId);
-        }
-      }
+      this.callParent('updateDatasetId', itemId);
     },
-    changeSelectedItems(selectedItems) {
-      return this.changeSelectedItems(selectedItems);
+    async changeSelectedItems(selectedItems) {
+      const isChangeForArchiveBrowsing = selectedItems.length === 1;
+      const currentSelectedItems = this.get('selectedItems');
+      // clearing archive and dir clears secondary browser - it should be done only
+      // if selected dataset is changed; in other circumstances it is probably initial
+      // selection change (after jump) or some unnecessary url update
+      if (
+        !isEmpty(currentSelectedItems) &&
+        !_.isEqual(currentSelectedItems, selectedItems)
+      ) {
+        this.callParent('updateArchiveId', null);
+        this.callParent('updateDirId', null);
+      }
+      // should be done before changing url "selected" because url changes are propagated
+      // with delay
+      await this.changeSelectedItems(selectedItems);
+      this.callParent(
+        'updateSelected',
+        isChangeForArchiveBrowsing ? selectedItems.mapBy('entityId') : null
+      );
+    },
+    updateArchiveId(archiveId) {
+      this.callParent('updateArchiveId', archiveId);
+    },
+    updateDirId(dirId) {
+      this.callParent('updateDirId', dirId);
     },
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
     },
+    // FIXME: reimplement
     async resolveItemParent(item) {
       const viewMode = this.get('viewMode');
       if (!item) {
@@ -1238,42 +811,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
     async fetchChildren(...fetchArgs) {
       const {
         isInRoot,
-        viewMode,
-        datasetId,
-        currentBrowsableItemProxy,
+        browsableDatasetProxy,
       } = this.getProperties(
         'isInRoot',
-        'viewMode',
-        'datasetId',
-        'currentBrowsableItemProxy',
+        'browsableDatasetProxy',
       );
       // a workaround for fb-table trying to get children when it have not-updated "dir"
-      if (!get(currentBrowsableItemProxy, 'isSettled')) {
+      if (!get(browsableDatasetProxy, 'isSettled')) {
         return this.getEmptyFetchChildrenResponse();
       }
 
-      if (viewMode === 'files') {
-        const entityId = fetchArgs[0];
-        if (entityId === datasetId) {
-          // a workaround for fb-table trying to get children when it have not-updated "dir"
-          return this.getEmptyFetchChildrenResponse();
-        } else {
-          return this.fetchDirChildren(...fetchArgs);
-        }
-      } else if (viewMode === 'archives' && datasetId) {
-        return this.fetchDatasetArchives(...fetchArgs);
-      } else if (isInRoot) {
+      if (isInRoot) {
         return this.fetchSpaceDatasets(...fetchArgs);
       } else {
         return this.fetchDatasetChildren(...fetchArgs);
       }
-    },
-    async getFileUrl({ selected }) {
-      if (isEmpty(selected)) {
-        return null;
-      }
-      const fileId = selected[0];
-      return this.get('filesViewResolver').generateUrlById(fileId);
     },
   },
 });

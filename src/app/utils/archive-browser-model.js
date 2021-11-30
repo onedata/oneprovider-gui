@@ -419,11 +419,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       dataset,
     } = this.getProperties('_window', 'getDatasetsUrl', 'navigateDataTarget', 'dataset');
     const dipArchiveId = archive.relationEntityId('relatedDip');
+    const datasetId = get(dataset, 'entityId');
     const url = getDatasetsUrl({
-      datasetId: get(dataset, 'entityId'),
+      selected: [datasetId],
       archive: dipArchiveId,
-      dir: null,
-      viewMode: 'files',
     });
     return _window.open(url, navigateDataTarget);
   },
