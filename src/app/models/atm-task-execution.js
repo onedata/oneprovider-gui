@@ -11,7 +11,21 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
+/**
+ * @typedef {Object} AtmTaskExecutor
+ * @property {OpenfaasAtmTaskExecutor} openfaasTaskExecutor
+ */
+
+/**
+ * @typedef {Object} OpenfaasAtmTaskExecutor
+ * @property {string} activityRegistryId can be used to fetch
+ *   Models/OpenfaasFunctionActivityRegistry record
+ */
+
 export const entityType = 'op_atm_task_execution';
+export const aspects = {
+  openfaasFunctionActivityRegistry: 'openfaas_function_activity_registry',
+};
 
 export default Model.extend(GraphSingleModelMixin, {
   /**
@@ -48,6 +62,11 @@ export default Model.extend(GraphSingleModelMixin, {
    * @type {ComputedProperty<Number>}
    */
   itemsFailed: attr('number'),
+
+  /**
+   * @type {ComputedProperty<AtmTaskExecutor>}
+   */
+  executor: attr('object'),
 
   /**
    * @type {ComputedProperty<Models.AtmWorkflowExecution>}

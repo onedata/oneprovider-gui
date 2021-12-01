@@ -29,7 +29,10 @@ import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset'
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
-import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import {
+  entityType as atmTaskExecutionEntityType,
+  aspects as atmTaskExecutionAspects,
+} from 'oneprovider-gui/models/atm-task-execution';
 import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import {
   exampleMarkdownLong as exampleMarkdown,
@@ -1313,6 +1316,20 @@ export default Service.extend({
                     const task = parallelBox.tasks[taskIdx];
                     const taskEntityId =
                       generateAtmTaskExecutionEntityId(taskIdx, entityId, runNumber);
+                    await this.createAtmTaskOpenfaasActivityRegistry(taskEntityId, {
+                      registry: {
+                        'w90b1146c16-s74f09087db-bagit-uploader-validate-69dfc69d872x5jw': {
+                          currentStatus: 'active',
+                          lastStatusChangeTimestamp: startTime + 10,
+                          eventLogId: 'someId',
+                        },
+                        'w90b1146c16-s8d97e3a2d5-bagit-uploader-unpack-data-df69578p8g85': {
+                          currentStatus: 'terminated',
+                          lastStatusChangeTimestamp: startTime + 20,
+                          eventLogId: 'someOtherId',
+                        },
+                      },
+                    });
                     const systemAuditLogId = `auditLog-task-${taskEntityId}`;
                     await this.createAtmStore(systemAuditLogId, {
                       type: 'auditLog',
@@ -1393,6 +1410,18 @@ export default Service.extend({
     this.set('entityRecords.atmWorkflowExecution', atmWorkflowExecutions);
     this.set('entityRecords.atmWorkflowExecutionSummary', atmWorkflowExecutionSummaries);
     return atmWorkflowExecutions;
+  },
+
+  async createAtmTaskOpenfaasActivityRegistry(taskEntityId, data) {
+    const id = gri({
+      entityType: atmTaskExecutionEntityType,
+      entityId: taskEntityId,
+      aspect: atmTaskExecutionAspects.openfaasFunctionActivityRegistry,
+      scope: 'private',
+    });
+    return await this.get('store')
+      .createRecord('openfaasFunctionActivityRegistry', Object.assign({ id }, data))
+      .save();
   },
 
   async createAtmStore(atmStoreEntityId, data) {
