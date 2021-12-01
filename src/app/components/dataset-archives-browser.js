@@ -115,12 +115,6 @@ export default Component.extend(...mixins, {
    */
   attachmentState: 'attached',
 
-  /**
-   * One of: aip, dip.
-   * @type {String}
-   */
-  archiveDipMode: 'aip',
-
   navigateTarget: '_top',
 
   _window: window,
@@ -207,6 +201,22 @@ export default Component.extend(...mixins, {
     raw('files'),
     raw('archives'),
   ),
+
+  /**
+   * One of: aip, dip.
+   * @type {String}
+   */
+  archiveDipModeProxy: promise.object(computed(
+    'archiveProxy',
+    async function archiveDipMode() {
+      const archive = await this.get('archiveProxy');
+      if (archive) {
+        return archive.relationEntityId('relatedAip') ? 'dip' : 'aip';
+      }
+    }
+  )),
+
+  archiveDipMode: computedLastProxyContent('archiveDipModeProxy'),
 
   /**
    * @implements ItemBrowserContainerBase
@@ -690,9 +700,6 @@ export default Component.extend(...mixins, {
       const newArchiveId = archive.relationEntityId(
         mode === 'dip' ? 'relatedDip' : 'relatedAip'
       );
-      // FIXME: archiveDipMode should be computed using currently opened archive
-      // to be safer and consistent
-      this.set('archiveDipMode', mode);
       onUpdateDirId(null);
       onUpdateArchiveId(newArchiveId);
     }
