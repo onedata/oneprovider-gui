@@ -318,10 +318,11 @@ export default Component.extend(...mixins, {
    * change.
    * @type {PromiseObject<Models.File>}
    */
-  initialDirProxy: promise.object(computed(
+  initialBrowsableItemProxy: promise.object(computed(
     'space',
-    async function initialDirProxy() {
-      return this.get('dirProxy');
+    'browsableDataset',
+    async function initialBrowsableItemProxy() {
+      return this.get('currentBrowsableItemProxy');
     }
   )),
 
@@ -330,7 +331,7 @@ export default Component.extend(...mixins, {
    * `file-browser` to be re-rendered.
    * @type {PromiseObject}
    */
-  initialRequiredDataProxy: reads('initialDirProxy'),
+  initialRequiredDataProxy: reads('initialBrowsableItemProxy'),
 
   /**
    * @type {ComputedProperty<String>}
