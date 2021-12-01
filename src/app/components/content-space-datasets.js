@@ -9,24 +9,19 @@
 
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
-import EmberObject, { computed, get, observer, getProperties } from '@ember/object';
+import EmberObject, { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw, bool, equal, conditional } from 'ember-awesome-macros';
+import { promise, raw, bool } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
-import BrowsableArchiveRootDir from 'oneprovider-gui/utils/browsable-archive-root-dir';
 import DatasetBrowserModel from 'oneprovider-gui/utils/dataset-browser-model';
-import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
-import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
 import { isEmpty } from '@ember/utils';
-import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import SplitGrid from 'npm:split-grid';
 import _ from 'lodash';
 
@@ -709,8 +704,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
       this.callParent('updateDatasetId', itemId);
     },
     async changeSelectedItems(selectedItems) {
-      const isChangeForArchiveBrowsing = selectedItems.length === 1;
       const currentSelectedItems = this.get('selectedItems');
+      // single selected dataset should be stored in URL - user can navigate with
+      // prev/next when selects single dataset for browsing
+      const isChangeStoredInUrl = selectedItems.length === 1;
       // clearing archive and dir clears secondary browser - it should be done only
       // if selected dataset is changed; in other circumstances it is probably initial
       // selection change (after jump) or some unnecessary url update
@@ -721,13 +718,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
         this.callParent('updateArchiveId', null);
         this.callParent('updateDirId', null);
       }
-      // should be done before changing url "selected" because url changes are propagated
-      // with delay
-      await this.changeSelectedItems(selectedItems);
-      this.callParent(
-        'updateSelected',
-        isChangeForArchiveBrowsing ? selectedItems.mapBy('entityId') : null
-      );
+      // only one method of updating component selectedItems to new value should be used,
+      // because they are both async and cause random error when used both
+      if (isChangeStoredInUrl) {
+        this.callParent('updateSelected', selectedItems.mapBy('entityId'));
+      } else {
+        // clear selection in URL, because this selection should not be stored
+        this.callParent('updateSelected', null);
+        await this.changeSelectedItems(selectedItems);
+      }
     },
     updateArchiveId(archiveId) {
       this.callParent('updateArchiveId', archiveId);
