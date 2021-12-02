@@ -1,0 +1,20 @@
+<thead>
+  {{modals/atm-task-execution-pods-activity-modal/pods-table/header-row
+    podsFilter=podsFilter
+    onPodsFilterChange=(action "podsFilterChange")
+  }}
+</thead>
+<tbody>
+  {{#each filteredPodRows key="podId" as |podRow|}}
+    {{modals/atm-task-execution-pods-activity-modal/pods-table/pod-row
+      podId=podRow.podId
+      podActivity=podRow.podActivity
+      isSelected=(eq podRow.podId selectedPodId)
+      onSelect=onPodSelect
+    }}
+  {{else}}
+    <tr class="pods-table-no-pods-row">
+      <td colspan="3">{{noPodsMessage}}</td>
+    </tr>
+  {{/each}}
+</tbody>

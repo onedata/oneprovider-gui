@@ -1,0 +1,8 @@
+<td class="pod-id">{{or podId "—"}}</td>
+<td class="pod-status">{{or podActivity.currentStatus "—"}}</td>
+<td class="pod-status-since">
+  {{date-format podActivity.lastStatusChangeTimestamp
+    format="report"
+    blank="—"
+  }}
+</td>
