@@ -74,11 +74,10 @@ describe('Unit | Service | files view resolver', function () {
       // FIXME: url generating changed
       expect(callParent).to.have.been.calledWith(
         'getDatasetsUrl', {
-          datasetId,
           archive: archiveId,
           dir: dirId,
-          selected: null,
-          viewMode: 'files',
+          selected: [datasetId],
+          selectedSecondary: null,
         }
       );
       expect(result.result).to.equal('redirect');
