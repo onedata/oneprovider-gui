@@ -16,6 +16,7 @@ import {
   entityType as atmTaskExecutionEntityType,
   aspects as atmTaskExecutionAspects,
 } from 'oneprovider-gui/models/atm-task-execution';
+import { entityType as atmLambdaSnapshotEntityType } from 'oneprovider-gui/models/atm-lambda-snapshot';
 import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import { allSettled } from 'rsvp';
 import { reads } from '@ember/object/computed';
@@ -131,6 +132,21 @@ export default Service.extend({
     });
     return await this.get('store')
       .findRecord('atmTaskExecution', taskGri, { reload, backgroundReload });
+  },
+
+  /**
+   * @param {String} atmLambdaSnapshotId
+   * @returns {Promise<Models.AtmLambdaSnapshot>}
+   */
+  async getAtmLambdaSnapshotById(atmLambdaSnapshotId) {
+    const atmLambdaSnapshotGri = gri({
+      entityType: atmLambdaSnapshotEntityType,
+      entityId: atmLambdaSnapshotId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .findRecord('atmLambdaSnapshot', atmLambdaSnapshotGri);
   },
 
   /**

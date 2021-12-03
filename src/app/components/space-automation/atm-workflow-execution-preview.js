@@ -13,6 +13,7 @@ import { promise } from 'ember-awesome-macros';
 import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/execution-data-fetcher';
 import ActionsFactory from 'onedata-gui-common/utils/workflow-visualiser/actions-factory';
 import { inject as service } from '@ember/service';
+import { hash as hashFulfilled } from 'rsvp';
 
 export default Component.extend({
   classNames: ['atm-workflow-execution-preview', 'loadable-row'],
@@ -40,11 +41,43 @@ export default Component.extend({
   )),
 
   /**
+   * @type {ComputedProperty<PromiseObject<Object<string,Models.AtmLambdaSnapshot>>>}
+   */
+  usedLambdasMapProxy: promise.object(computed(
+    'atmWorkflowExecutionProxy',
+    async function usedLambdasProxy() {
+      const {
+        atmWorkflowExecutionProxy,
+        workflowManager,
+      } = this.getProperties('atmWorkflowExecutionProxy', 'workflowManager');
+      const lambdaSnapshotRegistry = get(
+        await atmWorkflowExecutionProxy,
+        'lambdaSnapshotRegistry'
+      );
+
+      if (!lambdaSnapshotRegistry) {
+        return {};
+      }
+
+      const lambdaPromisesHash = Object.keys(lambdaSnapshotRegistry)
+        .reduce((acc, lambdaId) => {
+          acc[lambdaId] = workflowManager.getAtmLambdaSnapshotById(
+            lambdaSnapshotRegistry[lambdaId]
+          );
+          return acc;
+        }, {});
+
+      return hashFulfilled(lambdaPromisesHash);
+    }
+  )),
+
+  /**
    * @type {ComputedProperty<PromiseObject>}
    */
   initialLoadingProxy: promise.object(promise.all(
     'atmWorkflowExecutionProxy',
-    'atmWorkflowSchemaSnapshotProxy'
+    'atmWorkflowSchemaSnapshotProxy',
+    'usedLambdasMapProxy'
   )),
 
   /**
@@ -103,6 +136,7 @@ export default Component.extend({
         get(lane, 'id'),
         runNumber
       ));
+    factory.setShowTaskPodsActivityCallback(() => console.log('show activity'));
     return factory;
   }),
 

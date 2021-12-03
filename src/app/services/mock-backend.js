@@ -28,6 +28,7 @@ import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirem
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
+import { entityType as atmLambdaSnapshotEntityType } from 'oneprovider-gui/models/atm-lambda-snapshot';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
 import {
   entityType as atmTaskExecutionEntityType,
@@ -1271,6 +1272,7 @@ export default Service.extend({
             }, {}
           );
           const executionLanes = [];
+          const lambdaIdsToSnapshot = [];
           if (i < 5) {
             for (const lane of lanes) {
               const executionLane = {
@@ -1314,6 +1316,7 @@ export default Service.extend({
                   };
                   for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
                     const task = parallelBox.tasks[taskIdx];
+                    lambdaIdsToSnapshot.push(task.lambdaId);
                     const taskEntityId =
                       generateAtmTaskExecutionEntityId(taskIdx, entityId, runNumber);
                     await this.createAtmTaskOpenfaasActivityRegistry(taskEntityId, {
@@ -1364,6 +1367,20 @@ export default Service.extend({
               executionLanes.push(executionLane);
             }
           }
+          const lambdaSnapshotRegistry = {};
+          for (const lambdaId of lambdaIdsToSnapshot.uniq()) {
+            const lambdaSnapshot =
+              await this.createAtmLambdaShapshot(lambdaId, entityId, {
+                revisionRegistry: {
+                  1: {
+                    operationSpec: {
+                      engine: 'openfaas',
+                    },
+                  },
+                },
+              });
+            lambdaSnapshotRegistry[lambdaId] = get(lambdaSnapshot, 'entityId');
+          }
           const systemAuditLogId = `auditLog-workflow-${entityId}`;
           await this.createAtmStore(systemAuditLogId, {
             type: 'auditLog',
@@ -1377,6 +1394,7 @@ export default Service.extend({
               scope: 'private',
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
+            lambdaSnapshotRegistry,
             storeRegistry,
             systemAuditLogId,
             lanes: executionLanes,
@@ -1410,6 +1428,18 @@ export default Service.extend({
     this.set('entityRecords.atmWorkflowExecution', atmWorkflowExecutions);
     this.set('entityRecords.atmWorkflowExecutionSummary', atmWorkflowExecutionSummaries);
     return atmWorkflowExecutions;
+  },
+
+  async createAtmLambdaShapshot(atmLambdaId, atmWorkflowExecutionId, data) {
+    const id = gri({
+      entityType: atmLambdaSnapshotEntityType,
+      entityId: `${atmLambdaId}Snapshot${atmWorkflowExecutionId}`,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .createRecord('atmLambdaSnapshot', Object.assign({ id }, data))
+      .save();
   },
 
   async createAtmTaskOpenfaasActivityRegistry(taskEntityId, data) {
