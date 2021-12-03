@@ -24,6 +24,8 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import { isEmpty } from '@ember/utils';
 import SplitGrid from 'npm:split-grid';
 import _ from 'lodash';
+import sleep from 'onedata-gui-common/utils/sleep';
+import { throttleTimeout } from 'onedata-gui-common/services/app-proxy';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -725,8 +727,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
       } else {
         // clear selection in URL, because this selection should not be stored
         this.callParent('updateSelected', null);
-        await this.changeSelectedItems(selectedItems);
       }
+      // FIXME: a probably bug in createThrottledFunction prevents to make a waitForFlush
+      await sleep(throttleTimeout + 1);
+      await this.changeSelectedItems(selectedItems);
     },
     updateArchiveId(archiveId) {
       this.callParent('updateArchiveId', archiveId);
