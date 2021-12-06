@@ -1,8 +1,7 @@
 .fb-table {
   $refresh-transition-duration: 300ms;
 
-  // FIXME: experimental
-  // position: relative;
+  position: relative;
   height: 100%;
   // diabled outline, because keyboard navigation causes fb-table to be presented focused
   outline: none;
