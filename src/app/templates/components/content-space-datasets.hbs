@@ -21,6 +21,7 @@
       ignoreDeselectSelector=".archive-browser-container, .archive-browser-container *, #content-scroll, .dataset-browser-container .ps__rail-y, .dataset-browser-container .ps__rail-y *"
       changeSelectedItems=(action "changeSelectedItems")
       updateDirEntityId=(action "updateDirEntityId")
+      onRegisterApi=(action (mut datasetBrowserApi))
     }}
 
     {{#if (and datasetToShowProtection fileToShowProtection)}}
@@ -86,6 +87,7 @@
       dirId=dirId
       onUpdateArchiveId=(action "updateArchiveId")
       onUpdateDirId=(action "updateDirId")
+      onRegisterApi=(action (mut archiveBrowserApi))
     }}
     <div class="debug" style="display: none;">dir: {{dirProxy.content}}</div>
   {{else}}

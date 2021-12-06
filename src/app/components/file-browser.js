@@ -162,6 +162,13 @@ export default Component.extend(I18n, {
   parentModalDialogSelector: '',
 
   /**
+   * Passes `fbTableApi` on it's change.
+   * @virtual optional
+   * @type {(api: FbTableApi) => any}
+   */
+  onRegisterApi: notImplementedIgnore,
+
+  /**
    * Initialized in init.
    * @type {EmberArray<String>}
    */
@@ -169,12 +176,14 @@ export default Component.extend(I18n, {
 
   /**
    * Should be set by some instance of `components:fb-table`
-   * API for file browser table, methods:
-   * - refresh
-   * @type {Object}
+   * API for file browser table.
+   * @type {FbTableApi}
    */
   fbTableApi: Object.freeze({
     refresh: notImplementedThrow,
+    getFilesArray: notImplementedThrow,
+    forceSelectAndJump: notImplementedThrow,
+    recomputeTableItems: notImplementedThrow,
   }),
 
   /**
@@ -477,6 +486,16 @@ export default Component.extend(I18n, {
     const browserModel = this.get('browserModel');
     if (browserModel) {
       set(browserModel, 'browserInstance', this);
+    }
+  }),
+
+  fbTableApiObserver: observer('fbTableApi', function fbTableApiObserver() {
+    const {
+      fbTableApi,
+      onRegisterApi,
+    } = this.getProperties('fbTableApi', 'onRegisterApi');
+    if (onRegisterApi) {
+      onRegisterApi(fbTableApi);
     }
   }),
 

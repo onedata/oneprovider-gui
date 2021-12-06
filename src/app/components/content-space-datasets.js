@@ -142,6 +142,18 @@ export default OneEmbeddedComponent.extend(...mixins, {
   containerScrollTop: notImplementedIgnore,
 
   /**
+   * Reference to browser API registered by internal component (if available).
+   * @type {FbTableApi}
+   */
+  datasetBrowserApi: undefined,
+
+  /**
+   * Reference to browser API registered by internal component (if available).
+   * @type {FbTableApi}
+   */
+  archiveBrowserApi: undefined,
+
+  /**
    * @override
    */
   iframeInjectedProperties: Object.freeze([
@@ -420,6 +432,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       }],
       sizes: [10, 1],
       minSize: 200,
+      onDragEnd: (...args) => this.onGutterDragEnd(...args),
     });
     this.set('splitGrid', splitGrid);
   },
@@ -441,6 +454,24 @@ export default OneEmbeddedComponent.extend(...mixins, {
       }
     } finally {
       this._super(...arguments);
+    }
+  },
+
+  /**
+   * Handler of `onDragEnd` of `split-grid`.
+   * See https://github.com/nathancahill/split/tree/master/packages/split-grid
+   * for details.
+   */
+  onGutterDragEnd( /* direction, track */ ) {
+    const {
+      datasetBrowserApi,
+      archiveBrowserApi,
+    } = this.getProperties('datasetBrowserApi', 'archiveBrowserApi');
+    if (datasetBrowserApi) {
+      datasetBrowserApi.recomputeTableItems();
+    }
+    if (archiveBrowserApi) {
+      archiveBrowserApi.recomputeTableItems();
     }
   },
 

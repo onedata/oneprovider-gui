@@ -475,6 +475,10 @@ export default Component.extend(I18n, {
         await this.get('changeSelectedItems')(items);
         return this.jumpToSelection();
       },
+      recomputeTableItems: async () => {
+        await sleep(0);
+        this.get('listWatcher').scrollHandler();
+      },
     };
   }),
 

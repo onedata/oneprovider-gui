@@ -15,6 +15,7 @@ import { isEmpty } from '@ember/utils';
 import onlyFulfilledValues from 'onedata-gui-common/utils/only-fulfilled-values';
 import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 // FIXME: re-use with archives-tab
 
@@ -74,6 +75,12 @@ export default Component.extend(...mixins, {
       this.set('dirId', dirId);
     };
   }),
+
+  /**
+   * @virtual optional
+   * @type {Function}
+   */
+  onRegisterApi: notImplementedIgnore,
 
   /**
    * @implements ItemBrowserContainerBase.selectedItems

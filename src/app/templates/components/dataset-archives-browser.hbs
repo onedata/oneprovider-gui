@@ -1,5 +1,3 @@
-{{log "dataset-archives-browser dirId changed" dirId}}
-
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   {{file-browser
     dir=currentBrowsableItem
@@ -12,6 +10,7 @@
     selectedItemsForJumpProxy=selectedItemsForJumpProxy
     spacePrivileges=spacePrivileges
     ignoreDeselectSelector=ignoreDeselectSelector
+    onRegisterApi=onRegisterApi
     resolveFileParentFun=(action "resolveItemParent")
     customFetchDirChildren=(action "fetchChildren")
     changeSelectedItems=(action "changeSelectedItems")
