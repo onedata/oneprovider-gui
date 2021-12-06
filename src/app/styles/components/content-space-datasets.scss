@@ -83,7 +83,7 @@
 
   .fb-table.special-dir-view {
     position: absolute;
-    background-size: 80%;
+    background-size: contain;
     top: $fb-table-margin-top + 20px;
     left: 0;
     bottom: 0;
@@ -135,25 +135,25 @@
     }
   }
 
+  // stretching vertically specific for "secondary" browser on the bottom
   .dataset-archives-browser {
     flex-grow: 1;
-
-    // FIXME: maybe generic for splitted
-
+    .file-browser {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+    .fb-table-container {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: column;
+    }
     .fb-table {
+      flex-grow: 1;
       // there is no need for large bottom spacing in modal, because it should be compact
       .table-bottom-spacing {
         height: 2em;
       }
-    }
-    // FIXME: to remove
-    // .file-browser-head-container {
-    //   position: absolute;
-    //   padding-left: $content-col-padding + $file-browser-padding-left;
-    //   padding-right: $content-col-padding + 2px;
-    //   // padding-top: 0;
-    // }
-    .fb-table {
       .refresh-spinner {
         position: absolute;
       }
