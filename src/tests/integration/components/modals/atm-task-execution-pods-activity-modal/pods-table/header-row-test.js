@@ -28,7 +28,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
     const $labels = this.$('.column-label');
     [
-      'Name',
+      'Pod name',
       'Status',
       'Status since',
     ].forEach((colLabel, idx) =>

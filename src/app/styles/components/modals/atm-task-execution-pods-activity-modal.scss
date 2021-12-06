@@ -1,0 +1,32 @@
+.atm-task-execution-pods-activity-modal {
+  .pods-filter-btn-group {
+    margin-left: 2em;
+  }
+
+  .pods-table-header-cell + .pods-table-header-cell,
+  .pods-table-data-cell + .pods-table-data-cell {
+    text-align: center;
+  }
+
+  .pods-table-pod-row {
+    &:hover {
+      background-color: $main-content-hover-background;
+    }
+
+    &.is-selected {
+      background-color: $color-file-selected;
+
+      &:hover {
+        background-color: darken($color-file-selected, 3%);
+      }
+    }
+  }
+
+  .pod-status {
+    width: 10em;
+  }
+
+  .pod-status-since {
+    width: 15em;
+  }
+}

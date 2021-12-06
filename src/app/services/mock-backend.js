@@ -1319,16 +1319,17 @@ export default Service.extend({
                     lambdaIdsToSnapshot.push(task.lambdaId);
                     const taskEntityId =
                       generateAtmTaskExecutionEntityId(taskIdx, entityId, runNumber);
+                    const podStatusTime = scheduleTime || startTime;
                     await this.createAtmTaskOpenfaasActivityRegistry(taskEntityId, {
                       registry: {
                         'w90b1146c16-s74f09087db-bagit-uploader-validate-69dfc69d872x5jw': {
-                          currentStatus: 'active',
-                          lastStatusChangeTimestamp: startTime + 10,
+                          currentStatus: 'running',
+                          lastStatusChangeTimestamp: podStatusTime + 10,
                           eventLogId: 'someId',
                         },
                         'w90b1146c16-s8d97e3a2d5-bagit-uploader-unpack-data-df69578p8g85': {
                           currentStatus: 'terminated',
-                          lastStatusChangeTimestamp: startTime + 20,
+                          lastStatusChangeTimestamp: podStatusTime + 20,
                           eventLogId: 'someOtherId',
                         },
                       },

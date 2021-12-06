@@ -10,7 +10,7 @@ const notWorkingStatuses = ['terminated'];
 
 export default Component.extend(I18n, {
   tagName: 'table',
-  classNames: ['pods-table'],
+  classNames: ['pods-table', 'table'],
 
   i18n: service(),
 

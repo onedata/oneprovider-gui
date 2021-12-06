@@ -1,4 +1,4 @@
-<th>
+<th class="pods-table-header-cell">
   <span class="column-label">{{tt this "columnLabel.name"}}</span>
   {{#bs-button-group
     value=podsFilter
@@ -15,5 +15,9 @@
     {{/bg.button}}
   {{/bs-button-group}}
 </th>
-<th><span class="column-label">{{tt this "columnLabel.status"}}</span></th>
-<th><span class="column-label">{{tt this "columnLabel.statusSince"}}</span></th>
+<th class="pods-table-header-cell">
+  <span class="column-label">{{tt this "columnLabel.status"}}</span>
+</th>
+<th class="pods-table-header-cell">
+  <span class="column-label">{{tt this "columnLabel.statusSince"}}</span>
+</th>

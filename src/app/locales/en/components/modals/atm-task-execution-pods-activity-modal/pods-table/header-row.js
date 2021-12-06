@@ -1,6 +1,6 @@
 export default {
   columnLabel: {
-    name: 'Name',
+    name: 'Pod name',
     status: 'Status',
     statusSince: 'Status since',
   },

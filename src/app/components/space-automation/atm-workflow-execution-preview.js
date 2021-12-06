@@ -20,6 +20,7 @@ export default Component.extend({
 
   workflowManager: service(),
   workflowActions: service(),
+  modalManager: service(),
 
   /**
    * @virtual
@@ -123,6 +124,7 @@ export default Component.extend({
    * @type {ComputedProperty<Utils.WorkflowVisualiser.ActionsFactory>}
    */
   actionsFactory: computed(function actionsFactory() {
+    const modalManager = this.get('modalManager');
     const factory = ActionsFactory.create({ ownerSource: this });
     factory.setRetryLaneCallback(async (lane, runNumber) =>
       await this.get('workflowManager').retryAtmLane(
@@ -136,7 +138,16 @@ export default Component.extend({
         get(lane, 'id'),
         runNumber
       ));
-    factory.setShowTaskPodsActivityCallback(() => console.log('show activity'));
+    factory.setShowTaskPodsActivityCallback((task) => {
+      const {
+        name,
+        instanceId,
+      } = getProperties(task, 'name', 'instanceId');
+      return modalManager.show('atm-task-execution-pods-activity-modal', {
+        atmTaskName: name,
+        atmTaskExecutionId: instanceId,
+      }).hiddenPromise;
+    });
     return factory;
   }),
 

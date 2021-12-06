@@ -1,0 +1,32 @@
+{{#global-modal
+  classNames="atm-task-execution-pods-activity-modal modal-content-overlay"
+  modalId=modalId
+  size="xl"
+  as |modal|
+}}
+
+  {{#modal.header}}
+    <h1>{{tt this "header"}}</h1>
+  {{/modal.header}}
+
+  {{#modal.body}}
+    {{#promise-proxy-container proxy=podsActivityRegistryProxy}}
+      <div class="pods-table-section">
+        {{modals/atm-task-execution-pods-activity-modal/pods-table
+          activityRegistry=podsActivityRegistryProxy.registry
+          selectedPodId=selectedPodId
+          onPodSelect=(action "podSelected")
+        }}
+      </div>
+      <div class="events-table-section">
+        {{#if selectedPodId}}
+        {{else}}
+          <p class="events-table-placeholder">
+            {{tt this "eventsTablePlaceholder"}}
+          </p>
+        {{/if}}
+      </div>
+    {{/promise-proxy-container}}
+  {{/modal.body}}
+
+{{/global-modal}}
