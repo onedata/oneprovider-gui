@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw, bool } from 'ember-awesome-macros';
+import { promise, raw, bool, conditional, equal } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
@@ -371,6 +371,22 @@ export default OneEmbeddedComponent.extend(...mixins, {
       return allFulfilled(proxies);
     }
   )),
+
+  gutterLabelVisibleClass: conditional(
+    'gutterLabelVisible',
+    raw('gutter-label-visible'),
+    raw('gutter-label-hidden')
+  ),
+
+  gutterLabelVisible: reads('singleDatasetIsSelected'),
+
+  singleDatasetIsSelected: bool('selectedSingleDataset'),
+
+  selectedSingleDataset: conditional(
+    equal('selectedItems.length', raw(1)),
+    'selectedItems.firstObject',
+    raw(null)
+  ),
 
   spaceIdObserver: observer('spaceId', function spaceIdObserver() {
     this.get('containerScrollTop')(0);

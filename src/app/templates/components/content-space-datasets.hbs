@@ -56,7 +56,18 @@
     {{/if}}
   {{/promise-proxy-container}}
 {{/perfect-scrollbar-element}}
-<div class="gutter-row gutter-row-1"></div>
+<div class="gutter-row gutter-row-1 gutter-row-selected-dataset">
+  <div
+    class={{concat-classes
+      "gutter-label gutter-label-selected-dataset gutter-label-hideable"
+      gutterLabelVisibleClass
+    }}
+  >
+    <div class="gutter-label-content">
+      {{tt this "selectedDatasetGutterLabel"}}
+    </div>
+  </div>
+</div>
 {{#perfect-scrollbar-element
   id=archiveBrowserContainerId
   class="split-browser-container archive-browser-container"
@@ -64,10 +75,10 @@
 }}
   {{!-- FIXME: make delay before changing selectedItems count --}}
   {{!-- FIXME: browsableDataset is ready - change implementation to allow injecting browsableDataset directly without dataset --}}
-  {{#if (eq selectedItems.length 1)}}
+  {{#if singleDatasetIsSelected}}
     {{dataset-archives-browser
       space=space
-      browsableDataset=selectedItems.firstObject
+      browsableDataset=selectedSingleDataset
       contentScroll=perfectScrollbarContainer.element
       ignoreDeselectSelector=".dataset-browser-container, .dataset-browser-container *, #content-scroll, .archive-browser-container .ps__rail-y, .archive-browser-container .ps__rail-y *"
       selectedIds=selectedSecondary

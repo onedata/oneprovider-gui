@@ -17,18 +17,21 @@
 }
 
 .content-space-datasets {
+  $-gutter-background-color: $color-one-semiwhite;
+  $-gutter-height: 10px;
   position: relative;
   height: 100%;
 
   display: grid;
-  grid-template-rows: 1fr 10px 1fr;
+  grid-template-rows: 1fr $-gutter-height 1fr;
 
   .gutter-row {
+    position: relative;
     grid-column: 1/-1;
     cursor: row-resize;
     margin-left: -$content-col-padding;
     margin-right: -$content-col-padding;
-    background-color: $color-one-semiwhite;
+    background-color: $-gutter-background-color;
     background-repeat: no-repeat;
     background-position: 50%;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
@@ -41,6 +44,36 @@
 
   .gutter-row-1 {
     grid-row: 2;
+  }
+
+  .gutter-label {
+    // additional em paddgin is added because of internal dataset one-icon padding
+    $-padding-horizontal: calc(#{$file-browser-padding-left} + 0.2em);
+    $-padding-vertical: 0.2em;
+    display: inline-block;
+    @include vertical-align-middle;
+    left: $content-col-padding;
+    padding-left: $-padding-horizontal;
+    padding-right: $-padding-horizontal;
+    border-radius: $border-radius-large;
+    background-color: $-gutter-background-color;
+    padding-top: $-padding-vertical;
+    padding-bottom: $-padding-vertical;
+  }
+
+  .gutter-label-hideable {
+    transition: transition-ease(all);
+    overflow: hidden;
+  }
+
+  .gutter-label-hidden {
+    max-height: $-gutter-height;
+    opacity: 0;
+  }
+
+  .gutter-label-visible {
+    max-height: 2em;
+    opacity: 1;
   }
 
   .file-browser-head-container {
