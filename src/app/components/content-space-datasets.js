@@ -551,9 +551,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
         'getDatasetsUrl', {
           datasetId: parentId,
           selected,
-          selectedSecondary,
-          archive: archiveId,
-          dir: dirId,
+          selectedSecondary: isEmpty(selectedSecondary) ? null : selectedSecondary,
+          archive: archiveId || null,
+          dir: dirId || null,
         }
       );
       return {
