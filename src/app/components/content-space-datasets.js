@@ -703,7 +703,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     this.set('fileToShowDatasetOpen', null);
   },
 
-  // FIXME: maybe common modal
   /**
    * @param {Models.Dataset} dataset dataset for which create archive form will be shown
    * @param {Object} options
@@ -729,7 +728,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       const datasetId = get(dataset, 'entityId');
       const archiveId = get(archive, 'entityId');
       const archiveSelectUrl = this.getDatasetsUrl({
-        dataset: dataset.relationEntityId('parent'),
+        datasetId: dataset.relationEntityId('parent'),
         selected: [datasetId],
         archive: null,
         selectedSecondary: [archiveId],
