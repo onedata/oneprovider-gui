@@ -1,0 +1,15 @@
+<td class="event-time events-table-data-cell">
+  {{date-format eventData.timestamp
+    format="report"
+    blank="—"
+  }}
+</td>
+<td class="event-type events-table-data-cell">
+  {{or eventData.payload.type "—"}}
+</td>
+<td class="event-reason events-table-data-cell">
+  {{or eventData.payload.reason "—"}}
+</td>
+<td class="event-message events-table-data-cell">
+  {{or eventData.payload.message "—"}}
+</td>

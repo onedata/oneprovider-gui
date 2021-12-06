@@ -1,0 +1,5 @@
+{{#each (array "time" "type" "reason" "message") as |colName|}}
+  <th class="pods-table-header-cell">
+    <span class="column-label">{{tt this (concat "columnLabel." colName)}}</span>
+  </th>
+{{/each}}
