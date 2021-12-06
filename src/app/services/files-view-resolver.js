@@ -1,5 +1,10 @@
 /**
- * FIXME: lack of jsdoc
+ * A global point to resolve options or URL for displaying a file browser for given
+ * directory or selected files.
+ *
+ * Directory view can be requested from already opened file browser view (eg. by changing
+ * URL), so resolve may lead to redirect to another file browser view (eg. trying to open
+ * directory placed in some archive should lead to redirect to proper archive browser).
  *
  * @module services/files-view-resolver
  * @author Jakub Liput

@@ -21,6 +21,7 @@ export default Component.extend({
   i18n: service(),
   filesViewResolver: service(),
   isMobile: service(),
+  onedataNavigation: service(),
 
   /**
    * @virtual
@@ -34,7 +35,7 @@ export default Component.extend({
    */
   openDbViewModal: notImplementedThrow,
 
-  navigateTarget: '_top',
+  navigateTarget: reads('onedataNavigation.navigateTarget'),
 
   /**
    * Same as in `Transfer.dataSourceType`.

@@ -20,6 +20,7 @@ export default Component.extend(I18n, {
   classNames: ['dataset-protection-direct-dataset', 'datasets-table-tbody'],
 
   i18n: service(),
+  onedataNavigation: service(),
 
   /**
    * @override
@@ -56,7 +57,7 @@ export default Component.extend(I18n, {
    */
   showBrowseDatasetsLink: true,
 
-  navigateTarget: '_top',
+  navigateTarget: reads('onedataNavigation.navigateTarget'),
 
   /**
    * Displayed name of dataset item

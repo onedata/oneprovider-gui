@@ -71,7 +71,6 @@ describe('Unit | Service | files view resolver', function () {
       });
 
       expect(callParent).to.have.been.calledOnce;
-      // FIXME: url generating changed
       expect(callParent).to.have.been.calledWith(
         'getDatasetsUrl', {
           archive: archiveId,

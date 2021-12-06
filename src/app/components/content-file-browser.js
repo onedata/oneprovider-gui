@@ -43,6 +43,7 @@ export default OneEmbeddedComponent.extend(
     workflowManager: service(),
     globalNotify: service(),
     filesViewResolver: service(),
+    onedataNavigation: service(),
 
     /**
      * Entity ID of space for which the file browser is rendered.
@@ -114,11 +115,6 @@ export default OneEmbeddedComponent.extend(
      * @type {Array<Models.File>}
      */
     selectedItems: undefined,
-
-    /**
-     * @type {String}
-     */
-    navigateTarget: '_top',
 
     /**
      * @override
@@ -215,12 +211,14 @@ export default OneEmbeddedComponent.extend(
           dirEntityId,
           filesViewResolver,
           fallbackDirProxy,
+          onedataNavigation,
         } = this.getProperties(
           'spaceEntityId',
           'selected',
           'dirEntityId',
           'filesViewResolver',
           'fallbackDirProxy',
+          'onedataNavigation',
         );
 
         const currentFilesViewContext = FilesViewContext.create({
@@ -242,9 +240,8 @@ export default OneEmbeddedComponent.extend(
         if (resolverResult.result === 'resolve') {
           return resolverResult.dir;
         } else {
-          // TODO: VFS-8342 common util for replacing master URL
           if (resolverResult.url) {
-            this.openUrl(resolverResult.url, true);
+            onedataNavigation.openUrl(resolverResult.url, true);
           }
           return fallbackDir;
         }
@@ -299,7 +296,8 @@ export default OneEmbeddedComponent.extend(
       const {
         _localStorage,
         globalNotify,
-      } = this.getProperties('_localStorage', 'globalNotify');
+        onedataNavigation,
+      } = this.getProperties('_localStorage', 'globalNotify', 'onedataNavigation');
       if (!atmWorkflowSchemaId || !atmWorkflowSchemaRevisionNumber) {
         return;
       }
@@ -328,7 +326,7 @@ export default OneEmbeddedComponent.extend(
         workflowSchemaRevision: atmWorkflowSchemaRevisionNumber,
         fillInputStores: Boolean(inputStoresData),
       });
-      this.openUrl(redirectUrl);
+      onedataNavigation.openUrl(redirectUrl);
     },
 
     openBagitUploader() {

@@ -17,8 +17,6 @@ import FilesViewContext from 'oneprovider-gui/utils/files-view-context';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
-// FIXME: re-use with archives-tab
-
 const mixins = [
   I18n,
   ItemBrowserContainerBase,
@@ -32,6 +30,7 @@ export default Component.extend(...mixins, {
   fileManager: service(),
   appProxy: service(),
   filesViewResolver: service(),
+  onedataNavigation: service(),
 
   // FIXME: new thing, not compatible with archives tab probably
   contentScroll: undefined,
@@ -121,8 +120,6 @@ export default Component.extend(...mixins, {
    * @implements ArchiveBrowserModel.spaceDatasetsViewState
    */
   attachmentState: 'attached',
-
-  navigateTarget: '_top',
 
   _window: window,
 
@@ -247,6 +244,7 @@ export default Component.extend(...mixins, {
         filesViewResolver,
         archiveRootDirProxy,
         selectedIds,
+        onedataNavigation,
       } = this.getProperties(
         'spaceId',
         'datasetId',
@@ -255,9 +253,8 @@ export default Component.extend(...mixins, {
         'filesViewResolver',
         'archiveRootDirProxy',
         'selectedIds',
+        'onedataNavigation',
       );
-      console.log('FIXME: debug ----------- dirProxy');
-
       const currentFilesViewContext = FilesViewContext.create({
         spaceId,
         datasetId,
@@ -278,9 +275,8 @@ export default Component.extend(...mixins, {
       if (resolverResult.result === 'resolve') {
         return resolverResult.dir;
       } else {
-        // TODO: VFS-8342 common util for replacing master URL
         if (resolverResult.url) {
-          this.openUrl(resolverResult.url, true);
+          onedataNavigation.openUrl(resolverResult.url, true);
         }
         return archiveRootDir;
       }
@@ -814,20 +810,6 @@ export default Component.extend(...mixins, {
 
   submitArchiveCreate(dataset, archiveData) {
     return this.get('archiveManager').createArchive(dataset, archiveData);
-  },
-
-  // FIXME: copied from one-embedded-component
-  openUrl(url, replace = false) {
-    const {
-      _window,
-      navigateTarget,
-    } = this.getProperties('_window', 'navigateTarget');
-    // TODO: VFS-8342 common util for replacing master URL
-    if (replace) {
-      _window.top.location.replace(url);
-    } else {
-      _window.open(url, navigateTarget);
-    }
   },
 
   //#region URL generating methods

@@ -80,6 +80,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   archiveManager: service(),
   fileManager: service(),
   filesViewResolver: service(),
+  onedataNavigation: service(),
 
   /**
    * **Injected from parent frame.**
@@ -173,8 +174,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   splitGrid: undefined,
 
   _window: window,
-
-  navigateTarget: '_top',
 
   /**
    * Set on init.
@@ -486,7 +485,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   async resolveDatasetForSelectedIds(selectedIds) {
-    const spaceDatasetsRoot = this.get('spaceDatasetsRoot');
+    const {
+      spaceDatasetsRoot,
+      onedataNavigation,
+    } = this.getProperties('spaceDatasetsRoot', 'onedataNavigation');
 
     if (isEmpty(selectedIds)) {
       // no dir nor selected files provided - go home
@@ -494,7 +496,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     } else {
       const redirectOptions = await this.resolveSelectedParentDatasetUrl();
       if (redirectOptions) {
-        this.openUrl(redirectOptions.dataUrl, true);
+        onedataNavigation.openUrl(redirectOptions.dataUrl, true);
         return (await redirectOptions.datasetProxy) || spaceDatasetsRoot;
       } else {
         // resolving parent from selection failed - fallback to home
@@ -718,7 +720,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
   },
 
   async submitArchiveCreate(dataset, archiveData) {
-    const archiveManager = this.get('archiveManager');
+    const {
+      archiveManager,
+      onedataNavigation,
+    } = this.getProperties('archiveManager', 'onedataNavigation');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
       const datasetId = get(dataset, 'entityId');
@@ -731,7 +736,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         dir: null,
       });
       if (archiveSelectUrl) {
-        this.openUrl(archiveSelectUrl);
+        onedataNavigation.openUrl(archiveSelectUrl);
       }
     } catch (error) {
       console.error(

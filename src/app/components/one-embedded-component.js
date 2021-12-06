@@ -53,8 +53,6 @@ export default Component.extend({
    */
   _window: window,
 
-  navigateTarget: 'top',
-
   init() {
     this._super(...arguments);
     const frameElement = this.get('frameElement');
@@ -74,20 +72,6 @@ export default Component.extend({
       throw new Error(
         'component:one-embedded-component: view with this component must be rendered in an iframe'
       );
-    }
-  },
-
-  // FIXME: this could be a part of service (onezone navigation)
-  openUrl(url, replace = false) {
-    const {
-      _window,
-      navigateTarget,
-    } = this.getProperties('_window', 'navigateTarget');
-    // TODO: VFS-8342 common util for replacing master URL
-    if (replace) {
-      _window.top.location.replace(url);
-    } else {
-      _window.open(url, navigateTarget);
     }
   },
 

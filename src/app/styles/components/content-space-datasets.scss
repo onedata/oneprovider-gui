@@ -173,20 +173,12 @@
 
   .archive-browser-container {
     display: flex;
-    // FIXME: center in message mode
-    // align-items: center;
-    // FIXME: browser does not want to fit its container - its a mystery
-    // flex-grow: 0;
-    // flex-shrink: 0;
-    // flex-basis: 40vw;
     margin-bottom: -$content-col-padding;
-    // height: 40vw;
 
     .file-browser-head-container {
       position: sticky;
       margin-left: -$content-col-padding;
       padding-left: $content-col-padding + $file-browser-padding-left;
-      // FIXME: experimental change
       margin-right: -$content-col-padding;
       padding-right: $content-col-padding + $file-browser-padding-right;
       padding-top: 0;
