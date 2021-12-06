@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw, bool, conditional, equal } from 'ember-awesome-macros';
+import { promise, raw, bool, conditional, equal, and, notEqual } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
@@ -395,7 +395,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
   singleDatasetIsSelected: bool('selectedSingleDataset'),
 
   selectedSingleDataset: conditional(
-    equal('selectedItems.length', raw(1)),
+    and(
+      equal('selectedItems.length', raw(1)),
+      notEqual('selectedItems.firstObject', 'browsableDataset'),
+    ),
     'selectedItems.firstObject',
     raw(null)
   ),
@@ -753,10 +756,15 @@ export default OneEmbeddedComponent.extend(...mixins, {
       this.callParent('updateDatasetId', itemId);
     },
     async changeSelectedItems(selectedItems) {
-      const currentSelectedItems = this.get('selectedItems');
+      const {
+        selectedItems: currentSelectedItems,
+        browsableDataset,
+      } = this.getProperties('selectedItems', 'browsableDataset');
       // single selected dataset should be stored in URL - user can navigate with
-      // prev/next when selects single dataset for browsing
-      const isChangeStoredInUrl = selectedItems.length === 1;
+      // prev/next when selects single dataset for browsing;
+      // alsp a current "dir" could be selected, but should not be stored in URL
+      const isChangeStoredInUrl = selectedItems.length === 1 &&
+        selectedItems[0] !== browsableDataset;
       // clearing archive and dir clears secondary browser - it should be done only
       // if selected dataset is changed; in other circumstances it is probably initial
       // selection change (after jump) or some unnecessary url update
