@@ -1,11 +1,7 @@
-{{log "content-space-datasets dirId changed" dirId}}
-
-{{!-- FIXME: refactor: move ignore deselect selector to JS --}}
 {{#perfect-scrollbar-element
   class="split-browser-container dataset-browser-container"
   as |perfectScrollbarContainer|
 }}
-  {{!-- FIXME: removed injection of getItemByIdFun --}}
   {{#promise-proxy-container proxy=initialRequiredDataProxy}}
     {{file-browser
       browserModel=browserModel
@@ -18,7 +14,7 @@
       selectedItemsForJumpProxy=selectedItemsForJumpProxy
       isSpaceOwned=space.currentUserIsOwner
       contentScroll=perfectScrollbarContainer.element
-      ignoreDeselectSelector=".archive-browser-container, .archive-browser-container *, #content-scroll, .dataset-browser-container .ps__rail-y, .dataset-browser-container .ps__rail-y *"
+      ignoreDeselectSelector=ignoreDatasetDeselectSelector
       changeSelectedItems=(action "changeSelectedItems")
       updateDirEntityId=(action "updateDirEntityId")
       onRegisterApi=(action (mut datasetBrowserApi))
@@ -74,14 +70,12 @@
   class="split-browser-container archive-browser-container"
   as |perfectScrollbarContainer|
 }}
-  {{!-- FIXME: make delay before changing selectedItems count --}}
-  {{!-- FIXME: browsableDataset is ready - change implementation to allow injecting browsableDataset directly without dataset --}}
   {{#if singleDatasetIsSelected}}
     {{dataset-archives-browser
       space=space
       browsableDataset=selectedSingleDataset
       contentScroll=perfectScrollbarContainer.element
-      ignoreDeselectSelector=".dataset-browser-container, .dataset-browser-container *, #content-scroll, .archive-browser-container .ps__rail-y, .archive-browser-container .ps__rail-y *"
+      ignoreDeselectSelector=ignoreArchiveDeselectSelector
       selectedIds=selectedSecondary
       archiveId=archiveId
       dirId=dirId

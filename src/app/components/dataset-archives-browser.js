@@ -32,12 +32,6 @@ export default Component.extend(...mixins, {
   filesViewResolver: service(),
   onedataNavigation: service(),
 
-  // FIXME: new thing, not compatible with archives tab probably
-  contentScroll: undefined,
-
-  // FIXME: jsdoc
-  ignoreDeselectSelector: '',
-
   /**
    * @virtual
    * @type {Models.Space}
@@ -52,8 +46,24 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual optional
+   * @type {Array<String>}
    */
   selectedIds: undefined,
+
+  /**
+   * Scrollable file browser container passed to `file-browser` component.
+   * See `component:file-browser#contentScroll` property for details.
+   * @virtual optional
+   * @type {HTMLElement}
+   */
+  contentScroll: undefined,
+
+  /**
+   * See `component:file-browser#ignoreDeselectSelector` property.
+   * @virtual optional
+   * @type {String}
+   */
+  ignoreDeselectSelector: '',
 
   /**
    * @virtual optional
@@ -226,8 +236,6 @@ export default Component.extend(...mixins, {
    * @implements ItemBrowserContainerBase
    */
   dirProxy: promise.object(computed(
-    // FIXME: workaround change - check without it
-    'viewMode',
     'datasetId',
     'dirId',
     'archiveProxy',
@@ -432,8 +440,6 @@ export default Component.extend(...mixins, {
   init() {
     this._super(...arguments);
     this.switchBrowserModel();
-    // FIXME: debug code
-    window.dab = this;
   },
 
   willDestroyElement() {
@@ -794,8 +800,6 @@ export default Component.extend(...mixins, {
       'onUpdateDirId'
     );
 
-    console.log('FIXME: debug ----------- updateDirEntityId');
-
     if (itemId === datasetId) {
       onUpdateDirId(null);
       onUpdateArchiveId(null);
@@ -803,7 +807,6 @@ export default Component.extend(...mixins, {
       onUpdateDirId(null);
       onUpdateArchiveId(itemId);
     } else if (viewMode === 'files') {
-      // FIXME: check clicking on archive root in breadcrumbs
       onUpdateDirId(itemId);
     }
   },

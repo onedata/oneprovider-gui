@@ -513,9 +513,8 @@ export default Component.extend(I18n, {
       this._fetchDirChildren.bind(this);
     return async (entityId, ...args) => {
       const dir = this.get('dir');
-      // FIXME: workaround for bug in archives browser - check if it works properly
       // it shows empty directory for a while
-      if (!dir || get(dir, 'entityId') !== entityId) {
+      if (get(dir, 'entityId') !== entityId) {
         // due to incomplete async implementation in fb-table, sometimes it can ask for
         // children of dir that is not currently opened
         return { childrenRecords: [], isLast: true };

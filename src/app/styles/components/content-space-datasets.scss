@@ -9,7 +9,6 @@
 // scrolled to top in splitted view - see styles for `.split-browser-container`
 .embedded-content {
   &.on-top {
-    // FIXME: currently only for upper browser
     .split-browser-container .file-browser-head-container {
       @include before-bottom-shadow;
     }

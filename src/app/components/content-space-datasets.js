@@ -176,6 +176,20 @@ export default OneEmbeddedComponent.extend(...mixins, {
   _window: window,
 
   /**
+   * Ignore deselect selector for dataset browser.
+   * See `component:file-browser#ignoreDeselectSelector` purpose.
+   * @type {String}
+   */
+  ignoreDatasetDeselectSelector: '#content-scroll, .archive-browser-container, .archive-browser-container *, .dataset-browser-container .ps__rail-y, .dataset-browser-container .ps__rail-y *',
+
+  /**
+   * Ignore deselect selector for archive browser.
+   * See `component:file-browser#ignoreDeselectSelector` purpose.
+   * @type {String}
+   */
+  ignoreArchiveDeselectSelector: '#content-scroll, .dataset-browser-container, .dataset-browser-container *, .archive-browser-container .ps__rail-y, .archive-browser-container .ps__rail-y *',
+
+  /**
    * Set on init.
    * @type {Utils.DatasetBrowserModel}
    */
@@ -590,7 +604,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
     }
   },
 
-  // FIXME: to refactor- maybe unnecessary
   /**
    * @param {Object} options
    * @returns {String} Onezone URL for directory in file browser

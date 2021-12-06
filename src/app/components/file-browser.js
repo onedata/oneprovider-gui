@@ -162,6 +162,14 @@ export default Component.extend(I18n, {
   parentModalDialogSelector: '',
 
   /**
+   * CSS selector of element(s) which click on SHOULD NOT cause selection to be cleared
+   * in browser.
+   * @virtual optional
+   * @type {String}
+   */
+  ignoreDeselectSelector: '',
+
+  /**
    * Passes `fbTableApi` on it's change.
    * @virtual optional
    * @type {(api: FbTableApi) => any}
@@ -315,9 +323,6 @@ export default Component.extend(I18n, {
       return `${selector} *`;
     }),
   ),
-
-  // FIXME: virtual
-  ignoreDeselectSelector: '',
 
   clickInsideSelector: computed(
     'insideBrowserSelectors',
