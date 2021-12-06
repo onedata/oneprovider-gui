@@ -25,6 +25,7 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
+import { jsonAuditLogEntityType } from 'oneprovider-gui/services/audit-log-manager';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -621,7 +622,7 @@ const atmStoreHandlers = {
     const endPositon = Math.min(startPosition + limit, maxEntriesCount);
     const storeEntries = [];
     const entryGeneratorFunc = entityId.startsWith('auditLog') ?
-      generateAuditLogContentEntry : generateStoreContentEntry;
+      generateStoreAuditLogContentEntry : generateStoreContentEntry;
 
     for (let i = startPosition; i < endPositon; i++) {
       storeEntries.push(entryGeneratorFunc({ startPosition, index: i }));
@@ -630,6 +631,44 @@ const atmStoreHandlers = {
     return {
       list: storeEntries,
       isLast: startPosition >= maxEntriesCount,
+    };
+  },
+};
+
+const jsonAuditLogHandlers = {
+  content(operation, entityId, data) {
+    const auditLogType = this.get(`mockBackend.auditLogsTypes.${entityId}`);
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    const firstEntryDate = new Date();
+    firstEntryDate.setMinutes(0, 0, 0);
+    const firstEntryTimestamp = Math.floor(firstEntryDate.valueOf() / 1000);
+    const {
+      index,
+      offset,
+      limit,
+    } = data;
+    const startPosition = Math.max((Number(index) || 0) + offset, 0);
+    const startTimestampOffset = startPosition * 10;
+    const startEntryTimestamp = firstEntryTimestamp + startTimestampOffset;
+    const nowTimestamp = Math.floor(new Date().valueOf() / 1000);
+    const entries = [];
+    let entryIdx = startPosition;
+    for (
+      let i = startEntryTimestamp; i <= nowTimestamp && entries.length < limit; i += 10
+    ) {
+      entries.push(generateJsonAuditLogEntry({
+        index: entryIdx,
+        timestamp: i,
+        type: auditLogType,
+      }));
+      entryIdx++;
+    }
+
+    return {
+      list: entries,
+      isLast: entries.length === limit,
     };
   },
 };
@@ -823,6 +862,7 @@ export default OnedataGraphMock.extend({
       // Using entity type string directly, because op_atm_store does not have
       // dedicated model in ember data.
       op_atm_store: atmStoreHandlers,
+      [jsonAuditLogEntityType]: jsonAuditLogHandlers,
     });
     this.set(
       'handlers',
@@ -1054,7 +1094,7 @@ function atmWorkflowExecutionSummaryToAttrsData(record) {
   });
 }
 
-function generateAuditLogContentEntry({ index }) {
+function generateStoreAuditLogContentEntry({ index }) {
   return {
     index: String(index),
     success: index % 20 !== 19,
@@ -1084,4 +1124,21 @@ function generateStoreContentEntry({ startPosition, index }) {
     value: value,
     error: { id: 'forbidden' },
   };
+}
+
+function generateJsonAuditLogEntry({ index, timestamp, auditLogType }) {
+  const entry = {
+    index,
+    value: {
+      timestamp,
+    },
+  };
+  if (auditLogType === 'openfaasActivity') {
+    entry.value.payload = {
+      type: 'Normal',
+      reason: 'Completed',
+      message: `Message of event at ${timestamp} (index: #${index})`,
+    };
+  }
+  return entry;
 }

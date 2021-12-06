@@ -139,6 +139,13 @@ export default Service.extend({
    */
   symlinkMap: computed(() => ({})),
 
+  /**
+   * WARNING: Will be initialized only after generating development model.
+   * Contains mapping:
+   * auditLog entityId -> content type of auditLog (e.g. openfaasActivity)
+   */
+  auditLogsTypes: computed(() => ({})),
+
   generateDevelopmentModel() {
     const store = this.get('store');
     const promiseHash = {};
@@ -1325,12 +1332,12 @@ export default Service.extend({
                         'w90b1146c16-s74f09087db-bagit-uploader-validate-69dfc69d872x5jw': {
                           currentStatus: 'running',
                           lastStatusChangeTimestamp: podStatusTime + 10,
-                          eventLogId: 'someId',
+                          eventLogId: `0-${taskEntityId}`,
                         },
                         'w90b1146c16-s8d97e3a2d5-bagit-uploader-unpack-data-df69578p8g85': {
                           currentStatus: 'terminated',
                           lastStatusChangeTimestamp: podStatusTime + 20,
-                          eventLogId: 'someOtherId',
+                          eventLogId: `1-${taskEntityId}`,
                         },
                       },
                     });
@@ -1450,6 +1457,10 @@ export default Service.extend({
       aspect: atmTaskExecutionAspects.openfaasFunctionActivityRegistry,
       scope: 'private',
     });
+    Object.values(data.registry).mapBy('eventLogId').forEach((eventLogId) => {
+      this.set(`auditLogsTypes.${eventLogId}`, 'openfaasActivity');
+    });
+
     return await this.get('store')
       .createRecord('openfaasFunctionActivityRegistry', Object.assign({ id }, data))
       .save();
