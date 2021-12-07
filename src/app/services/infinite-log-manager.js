@@ -1,7 +1,7 @@
 /**
- * Executes backend operations related to audit logs.
+ * Executes backend operations related to infinite logs.
  *
- * @module services/audit-log-manager
+ * @module services/infinite-log-manager
  * @author Michał Borzęcki
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -11,7 +11,7 @@ import Service, { inject as service } from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 
 /**
- * @typedef {Object} JsonAuditLogEntry
+ * @typedef {Object} JsonInfiniteLogEntry
  * @property {number} timestamp
  * @property {any} payload
  */
@@ -22,25 +22,25 @@ export default Service.extend({
   onedataGraph: service(),
 
   /**
-   * @param {string} jsonAuditLogId
+   * @param {string} jsonInfiniteLogId
    * @param {string} startFromIndex
    * @param {number} limit
    * @param {number} offset
-   * @returns {Promise<{array: Array<JsonAuditLogEntry>, isLast: boolean}>}
+   * @returns {Promise<{array: Array<JsonInfiniteLogEntry>, isLast: boolean}>}
    */
-  async getJsonAuditLogContent(jsonAuditLogId, startFromIndex, limit, offset) {
+  async getJsonInfiniteLogContent(jsonInfiniteLogId, startFromIndex, limit, offset) {
     if (!limit || limit <= 0) {
       return { array: [], isLast: false };
     }
 
     const onedataGraph = this.get('onedataGraph');
-    const auditLogContentGri = gri({
+    const infiniteLogContentGri = gri({
       entityType: jsonInfiniteLogEntityType,
-      entityId: jsonAuditLogId,
+      entityId: jsonInfiniteLogId,
       aspect: 'content',
     });
     const { list, isLast } = await onedataGraph.request({
-      gri: auditLogContentGri,
+      gri: infiniteLogContentGri,
       operation: 'get',
       data: {
         index: startFromIndex,

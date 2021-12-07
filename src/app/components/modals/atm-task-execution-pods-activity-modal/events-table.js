@@ -1,0 +1,212 @@
+import Component from '@ember/component';
+import { computed, get, getProperties } from '@ember/object';
+import { htmlSafe } from '@ember/string';
+import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import Looper from 'onedata-gui-common/utils/looper';
+import { next } from '@ember/runloop';
+import ListWatcher from 'onedata-gui-common/utils/list-watcher';
+import { isEmpty } from '@ember/utils';
+import { inject as service } from '@ember/service';
+
+export default Component.extend({
+  infiniteLogManager: service(),
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  eventLogId: undefined,
+
+  /**
+   * @type {Number}
+   */
+  rowHeight: 44,
+
+  /**
+   * @type {Number}
+   */
+  updateInterval: 5000,
+
+  /**
+   * @type {Utils.Looper}
+   */
+  updater: undefined,
+
+  /**
+   * If true, should render top loading indicator
+   * @type {Boolean}
+   */
+  fetchingPrev: false,
+
+  /**
+   * If true, should render bottom loading indicator
+   * @type {Boolean}
+   */
+  fetchingNext: false,
+
+  /**
+   * @type {Window}
+   */
+  _window: window,
+
+  /**
+   * @type {ComputedProperty<Number>}
+   */
+  firstRowHeight: computed(
+    'rowHeight',
+    'eventsEntries._start',
+    function firstRowHeight() {
+      const _start = this.get('eventsEntries._start');
+      console.log('firstRowHeight', _start ? _start * this.get('rowHeight') : 0, _start);
+      return _start ? _start * this.get('rowHeight') : 0;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  firstRowStyle: computed('firstRowHeight', function firstRowStyle() {
+    return htmlSafe(`height: ${this.get('firstRowHeight')}px;`);
+  }),
+
+  /**
+   * @type {ComputedProperty<ReplacingChunksArray<StoreContentTableEntry>>}
+   */
+  eventsEntries: computed('eventLogId', function eventsEntries() {
+    return ReplacingChunksArray.create({
+      fetch: this.fetchEventsEntries.bind(this),
+      startIndex: 0,
+      endIndex: 50,
+      indexMargin: 10,
+    });
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.startUpdater();
+  },
+
+  didInsertElement() {
+    this._super(...arguments);
+
+    this.get('eventsEntries.initialLoad').then(() => {
+      next(() => {
+        const listWatcher = this.set('listWatcher', this.createListWatcher());
+        listWatcher.scrollHandler();
+      });
+    });
+  },
+
+  willDestroyElement() {
+    try {
+      const listWatcher = this.get('listWatcher');
+      listWatcher && listWatcher.destroy();
+      this.stopUpdater();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  startUpdater() {
+    const updater = Looper.create({
+      immediate: false,
+      interval: this.get('updateInterval'),
+    });
+    updater.on('tick', () => {
+      this.updateEventsEntries();
+    });
+    this.set('updater', updater);
+  },
+
+  stopUpdater() {
+    const updater = this.get('updater');
+    updater && safeExec(updater, () => updater.destroy());
+  },
+
+  async fetchEventsEntries() {
+    const {
+      eventLogId,
+      infiniteLogManager,
+    } = this.getProperties('eventLogId', 'infiniteLogManager');
+    const result =
+      await infiniteLogManager.getJsonInfiniteLogContent(eventLogId, ...arguments);
+    const entries = result && result.array;
+    // Infinite log entries does not have id, which is required by replacing chunks array.
+    // Solution: using entry index as id.
+    entries && entries.forEach(entry => entry.id = entry.index);
+
+    return result;
+  },
+
+  async updateEventsEntries() {
+    await this.get('eventsEntries').scheduleReload();
+  },
+
+  createListWatcher() {
+    return new ListWatcher(
+      this.$().closest('.ps'),
+      '.data-row',
+      items => {
+        if (this.$().parents('.global-modal').hasClass('in')) {
+          return safeExec(this, 'onTableScroll', items);
+        }
+      }
+    );
+  },
+
+  /**
+   * @param {Array<HTMLElement>} items
+   */
+  onTableScroll(items) {
+    const {
+      eventsEntries,
+    } = this.getProperties(
+      'eventsEntries',
+    );
+    const sourceArray = get(eventsEntries, 'sourceArray');
+
+    if (isEmpty(items) && !isEmpty(sourceArray)) {
+      eventsEntries.setProperties({ startIndex: 0, endIndex: 50 });
+      return;
+    }
+
+    const eventsEntriesIds = sourceArray.mapBy('id');
+    const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
+    const firstId =
+      firstNonEmptyRow && firstNonEmptyRow.getAttribute('data-row-id') || null;
+    const lastId = items[items.length - 1] &&
+      items[items.length - 1].getAttribute('data-row-id') || null;
+
+    let startIndex;
+    let endIndex;
+    console.log('firstId', firstId);
+    if (firstId === null && get(sourceArray, 'length') !== 0) {
+      const {
+        _window,
+        rowHeight,
+      } = this.getProperties('_window', 'rowHeight');
+      const $firstRow = this.$('.first-row');
+      const firstRowTop = $firstRow.offset().top;
+      const blankStart = firstRowTop * -1;
+      const blankEnd = blankStart + _window.innerHeight;
+      startIndex = firstRowTop < 0 ? Math.floor(blankStart / rowHeight) : 0;
+      endIndex = Math.floor(blankEnd / rowHeight);
+      if (endIndex < 0) {
+        endIndex = 50;
+      }
+    } else {
+      startIndex = eventsEntriesIds.indexOf(firstId);
+      endIndex = eventsEntriesIds.indexOf(lastId, startIndex);
+    }
+
+    const {
+      startIndex: oldStartIndex,
+      endIndex: oldEndIndex,
+    } = getProperties(eventsEntries, 'startIndex', 'endIndex');
+    if (oldStartIndex !== startIndex || oldEndIndex !== endIndex) {
+      console.log('startIndex', startIndex, 'endIndex', endIndex);
+      eventsEntries.setProperties({ startIndex, endIndex });
+    }
+  },
+});

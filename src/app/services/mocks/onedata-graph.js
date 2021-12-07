@@ -25,7 +25,7 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
-import { jsonAuditLogEntityType } from 'oneprovider-gui/services/audit-log-manager';
+import { jsonInfiniteLogEntityType } from 'oneprovider-gui/services/infinite-log-manager';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -635,15 +635,15 @@ const atmStoreHandlers = {
   },
 };
 
-const jsonAuditLogHandlers = {
+const jsonInfiniteLogHandlers = {
   content(operation, entityId, data) {
-    const auditLogType = this.get(`mockBackend.auditLogsTypes.${entityId}`);
+    const infiniteLogType = this.get(`mockBackend.infiniteLogsTypes.${entityId}`);
     if (operation !== 'get') {
       return messageNotSupported;
     }
     const firstEntryDate = new Date();
     firstEntryDate.setMinutes(0, 0, 0);
-    const firstEntryTimestamp = Math.floor(firstEntryDate.valueOf() / 1000);
+    const firstEntryTimestamp = Math.floor(firstEntryDate.valueOf() / 1000) - 3600;
     const {
       index,
       offset,
@@ -658,17 +658,17 @@ const jsonAuditLogHandlers = {
     for (
       let i = startEntryTimestamp; i <= nowTimestamp && entries.length < limit; i += 10
     ) {
-      entries.push(generateJsonAuditLogEntry({
-        index: entryIdx,
+      entries.push(generateJsonInfiniteLogEntry({
+        index: String(entryIdx),
         timestamp: i,
-        type: auditLogType,
+        type: infiniteLogType,
       }));
       entryIdx++;
     }
 
     return {
       list: entries,
-      isLast: entries.length === limit,
+      isLast: entries.length < limit,
     };
   },
 };
@@ -862,7 +862,7 @@ export default OnedataGraphMock.extend({
       // Using entity type string directly, because op_atm_store does not have
       // dedicated model in ember data.
       op_atm_store: atmStoreHandlers,
-      [jsonAuditLogEntityType]: jsonAuditLogHandlers,
+      [jsonInfiniteLogEntityType]: jsonInfiniteLogHandlers,
     });
     this.set(
       'handlers',
@@ -1126,14 +1126,14 @@ function generateStoreContentEntry({ startPosition, index }) {
   };
 }
 
-function generateJsonAuditLogEntry({ index, timestamp, auditLogType }) {
+function generateJsonInfiniteLogEntry({ index, timestamp, type }) {
   const entry = {
     index,
     value: {
       timestamp,
     },
   };
-  if (auditLogType === 'openfaasActivity') {
+  if (type === 'openfaasActivity') {
     entry.value.payload = {
       type: 'Normal',
       reason: 'Completed',

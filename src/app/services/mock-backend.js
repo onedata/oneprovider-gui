@@ -142,9 +142,9 @@ export default Service.extend({
   /**
    * WARNING: Will be initialized only after generating development model.
    * Contains mapping:
-   * auditLog entityId -> content type of auditLog (e.g. openfaasActivity)
+   * infiniteLog entityId -> content type of infiniteLog (e.g. openfaasActivity)
    */
-  auditLogsTypes: computed(() => ({})),
+  infiniteLogsTypes: computed(() => ({})),
 
   generateDevelopmentModel() {
     const store = this.get('store');
@@ -1458,7 +1458,7 @@ export default Service.extend({
       scope: 'private',
     });
     Object.values(data.registry).mapBy('eventLogId').forEach((eventLogId) => {
-      this.set(`auditLogsTypes.${eventLogId}`, 'openfaasActivity');
+      this.set(`infiniteLogsTypes.${eventLogId}`, 'openfaasActivity');
     });
 
     return await this.get('store')

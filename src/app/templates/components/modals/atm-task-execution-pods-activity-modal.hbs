@@ -20,6 +20,12 @@
       </div>
       <div class="events-table-section">
         {{#if selectedPodId}}
+          {{modals/atm-task-execution-pods-activity-modal/events-table
+            eventLogId=(get
+              podsActivityRegistryProxy.registry
+              (concat selectedPodId ".eventLogId")
+            )
+          }}
         {{else}}
           <p class="events-table-placeholder">
             {{tt this "eventsTablePlaceholder"}}
