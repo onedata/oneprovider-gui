@@ -237,7 +237,7 @@ export default Component.extend(...mixins, {
     }
   )),
 
-  archiveDipMode: computedLastProxyContent('archiveDipModeProxy'),
+  archiveDipMode: reads('archiveDipModeProxy.content'),
 
   /**
    * @implements ItemBrowserContainerBase
@@ -700,17 +700,18 @@ export default Component.extend(...mixins, {
   },
 
   /**
-   * Open related AIP/DIP archive of currenlty opened archive or provided one.
+   * Open related AIP/DIP archive of currently opened archive or provided one.
    * @param {String} mode one of: aip, dip
    * @param {Models.Archive} [relatedArchive] optionally use related archive for opening
    *   its AIP/DIP
    */
   async changeArchiveDipMode(mode, relatedArchive) {
     const {
-      archiveDipMode,
+      archiveDipModeProxy,
       onUpdateArchiveId,
       onUpdateDirId,
-    } = this.getProperties('archiveDipMode', 'onUpdateArchiveId', 'onUpdateDirId');
+    } = this.getProperties('archiveDipModeProxy', 'onUpdateArchiveId', 'onUpdateDirId');
+    const archiveDipMode = await archiveDipModeProxy;
     if (mode !== archiveDipMode) {
       const archive = relatedArchive || await this.get('archiveProxy');
       const newArchiveId = archive.relationEntityId(
