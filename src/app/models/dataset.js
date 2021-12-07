@@ -42,7 +42,7 @@ export const RuntimeProperties = Mixin.create({
     return '';
   }),
 
-  hasParent: computed(function hasParent() {
+  hasParent: computed('parent', function hasParent() {
     return Boolean(this.belongsTo('parent').id());
   }),
 });
