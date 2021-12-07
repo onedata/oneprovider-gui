@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { notEmpty, not, raw, collect, and, bool } from 'ember-awesome-macros';
+import { notEmpty, not, raw, collect, and, bool, or, equal } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -149,8 +149,11 @@ export default Component.extend(I18n, {
   resolveFileParentFun: defaultResolveParent,
 
   /**
+   * If boolean - enable selection toolkit in both desktop and mobile mode.
+   * If object - specify in which modes the toolkit should be rendered:
+   * `{ desktop: boolean, mobile: boolean }`.
    * @virtual optional
-   * @type {Boolean}
+   * @type {Boolean|Object}
    */
   showSelectionToolkit: true,
 
@@ -224,7 +227,23 @@ export default Component.extend(I18n, {
 
   isInModal: bool('parentModalDialogSelector'),
 
-  effShowSelectionToolkit: and('showSelectionToolkit', not('previewMode')),
+  renderSelectionToolkitDesktop: and(
+    not('media.isMobile'),
+    or(
+      equal('showSelectionToolkit', raw(true)),
+      'showSelectionToolkit.desktop'
+    ),
+    not('previewMode')
+  ),
+
+  renderSelectionToolkitMobile: and(
+    'media.isMobile',
+    or(
+      equal('showSelectionToolkit', raw(true)),
+      'showSelectionToolkit.mobile'
+    ),
+    not('previewMode')
+  ),
 
   /**
    * @type {ComputedProperty<Array<String>>}

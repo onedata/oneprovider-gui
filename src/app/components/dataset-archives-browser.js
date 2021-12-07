@@ -66,6 +66,13 @@ export default Component.extend(...mixins, {
   ignoreDeselectSelector: '',
 
   /**
+   * Passed to `file-browser#showSelectionToolkit`.
+   * @virtual optional
+   * @type {Boolean|Object}
+   */
+  showSelectionToolkit: true,
+
+  /**
    * @virtual optional
    * @type {Function}
    */
