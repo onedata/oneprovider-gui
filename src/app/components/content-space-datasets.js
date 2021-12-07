@@ -756,9 +756,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return archive;
   },
 
-  openArchivesView(dataset) {
+  async openArchivesView(dataset) {
     const datasetId = dataset && get(dataset, 'entityId');
     if (datasetId) {
+      this.callParent('updateDatasetId', null);
       this.callParent('updateSelected', [datasetId]);
     }
   },

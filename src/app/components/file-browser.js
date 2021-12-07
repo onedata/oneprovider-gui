@@ -308,6 +308,7 @@ export default Component.extend(I18n, {
     '.fb-breadcrumbs *',
     '.fb-toolbar *',
     '.fb-selection-toolkit *',
+    '.special-dir-view *',
   ]),
 
   floatingItemsSelectors: collect(
