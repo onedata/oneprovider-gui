@@ -586,17 +586,22 @@ export default OneEmbeddedComponent.extend(...mixins, {
       datasetManager,
       spaceId,
       attachmentState,
-    } = this.getProperties('datasetManager', 'spaceId', 'attachmentState');
+      datasetId,
+    } = this.getProperties('datasetManager', 'spaceId', 'attachmentState', 'datasetId');
     const datasets =
       await onlyFulfilledValues(ids.map(id =>
         datasetManager.getBrowsableDataset(id)
       ));
     try {
-      // allow only dataset which belong to current space and are in currently
-      // chosen state
-      return datasets.filter(dataset =>
-        get(dataset, 'spaceId') === spaceId && get(dataset, 'state') === attachmentState
-      );
+      // allow only dataset which belong to current space, are in currently
+      // chosen state and have parent of currently chosen dataset
+      return datasets.filter(dataset => {
+        const currentParentId = datasetId ?
+          (datasetId === spaceDatasetsRootId ? null : datasetId) : null;
+        return get(dataset, 'spaceId') === spaceId &&
+          get(dataset, 'state') === attachmentState &&
+          (dataset.relationEntityId('parent') || null) === currentParentId;
+      });
     } catch (error) {
       return [];
     }
@@ -768,7 +773,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     /**
      * @param {String} itemId datasetId, archiveVirtualRootDirId or fileId (dir)
      */
-    async updateDirEntityId(itemId) {
+    async updateDatasetId(itemId) {
       this.callParent('updateDatasetId', itemId);
     },
     async changeSelectedItems(selectedItems) {
@@ -778,7 +783,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       } = this.getProperties('selectedItems', 'browsableDataset');
       // single selected dataset should be stored in URL - user can navigate with
       // prev/next when selects single dataset for browsing;
-      // alsp a current "dir" could be selected, but should not be stored in URL
+      // also a current "dir" could be selected, but should not be stored in URL
       const isChangeStoredInUrl = selectedItems.length === 1 &&
         selectedItems[0] !== browsableDataset;
       // clearing archive and dir clears secondary browser - it should be done only
