@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7724 Changed separate dataset and archives views into splitted browser
 * VFS-8639 Removed iterator strategy from workflows
 * VFS-8255 Added workflows and lambdas revisions
 * VFS-8561 Added support for "verifying" and "verification_failed" archive state
