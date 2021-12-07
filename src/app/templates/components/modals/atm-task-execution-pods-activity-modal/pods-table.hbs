@@ -1,12 +1,11 @@
-<thead>
+{{#scrollable-table class="table one-infinite-list"}}
   {{modals/atm-task-execution-pods-activity-modal/pods-table/header-row
     podsFilter=podsFilter
     onPodsFilterChange=(action "podsFilterChange")
   }}
-</thead>
-<tbody>
   {{#each filteredPodRows key="podId" as |podRow|}}
     {{modals/atm-task-execution-pods-activity-modal/pods-table/pod-row
+      class="data-row"
       podId=podRow.podId
       podActivity=podRow.podActivity
       isSelected=(eq podRow.podId selectedPodId)
@@ -17,4 +16,4 @@
       <td colspan="3">{{noPodsMessage}}</td>
     </tr>
   {{/each}}
-</tbody>
+{{/scrollable-table}}

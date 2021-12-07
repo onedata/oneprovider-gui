@@ -9,8 +9,7 @@ const statusesOrder = ['running', 'waiting', 'terminated'];
 const notWorkingStatuses = ['terminated'];
 
 export default Component.extend(I18n, {
-  tagName: 'table',
-  classNames: ['pods-table', 'table'],
+  classNames: ['pods-table'],
 
   i18n: service(),
 

@@ -3,8 +3,13 @@
     margin-left: 2em;
   }
 
-  .pods-table-header-cell + .pods-table-header-cell,
-  .pods-table-data-cell + .pods-table-data-cell {
+  .column-label:first-child {
+    text-align: left;
+    padding-left: 1em;
+  }
+
+  .pods-table-data-cell + .pods-table-data-cell,
+  .events-table-data-cell + .events-table-data-cell {
     text-align: center;
   }
 
@@ -28,5 +33,69 @@
 
   .pod-status-since {
     width: 15em;
+  }
+
+  .events-table {
+    .column-time-label {
+      width: 8em;
+    }
+
+    .column-type-label {
+      width: 7em;
+    }
+
+    .column-reason-label {
+      width: 8em;
+    }
+
+    .column-message-label,
+    .event-message {
+      padding-left: 1em;
+      text-align: left;
+    }
+  }
+
+  .bs-modal-body-scroll {
+    display: flex;
+    flex-direction: column;
+
+    > * {
+      flex-basis: 50%;
+    }
+  }
+
+  .pods-table-section {
+    border-bottom: 1px solid $main-border-color;
+  }
+
+  .data-row td {
+    border-top: 1px solid $table-border-color;
+  }
+
+  .pods-table-section,
+  .pods-table,
+  .events-table-section,
+  .events-table {
+    min-height: 0;
+  }
+
+  .scrollable-table-content {
+    width: 100%;
+  }
+
+  h2 {
+    @include font-semibold();
+    text-transform: none;
+  }
+
+  .events-table-placeholder {
+    margin: auto;
+    font-size: 130%;
+  }
+
+  .loading-row-cell {
+    position: relative;
+    height: 44px;
+    border-top: 1px solid $table-border-color;
   }
 }

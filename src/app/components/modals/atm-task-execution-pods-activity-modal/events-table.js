@@ -1,15 +1,16 @@
 import Component from '@ember/component';
-import { computed, get, getProperties } from '@ember/object';
+import { computed, get, getProperties, observer } from '@ember/object';
 import { htmlSafe } from '@ember/string';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import Looper from 'onedata-gui-common/utils/looper';
 import { next } from '@ember/runloop';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
-import { isEmpty } from '@ember/utils';
 import { inject as service } from '@ember/service';
 
 export default Component.extend({
+  classNames: ['events-table'],
+
   infiniteLogManager: service(),
 
   /**
@@ -26,7 +27,7 @@ export default Component.extend({
   /**
    * @type {Number}
    */
-  updateInterval: 5000,
+  updateInterval: 3000,
 
   /**
    * @type {Utils.Looper}
@@ -58,7 +59,6 @@ export default Component.extend({
     'eventsEntries._start',
     function firstRowHeight() {
       const _start = this.get('eventsEntries._start');
-      console.log('firstRowHeight', _start ? _start * this.get('rowHeight') : 0, _start);
       return _start ? _start * this.get('rowHeight') : 0;
     }
   ),
@@ -74,28 +74,35 @@ export default Component.extend({
    * @type {ComputedProperty<ReplacingChunksArray<StoreContentTableEntry>>}
    */
   eventsEntries: computed('eventLogId', function eventsEntries() {
-    return ReplacingChunksArray.create({
+    const rca = ReplacingChunksArray.create({
       fetch: this.fetchEventsEntries.bind(this),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
     });
+    rca.on('fetchPrevStarted', () => this.set('fetchingPrev', true));
+    rca.on('fetchPrevResolved', () => this.set('fetchingPrev', false));
+    rca.on('fetchPrevRejected', () => this.set('fetchingPrev', false));
+    rca.on('fetchNextStarted', () => this.set('fetchingNext', true));
+    rca.on('fetchNextResolved', () => this.set('fetchingNext', false));
+    rca.on('fetchNextRejected', () => this.set('fetchingNext', false));
+    return rca;
+  }),
+
+  listWatcherSetter: observer('eventsEntries.isLoaded', function listWatcherSetter() {
+    const existingListWatcher = this.get('listWatcher');
+    if (existingListWatcher) {
+      existingListWatcher.destroy();
+    }
+    next(() => safeExec(this, () => {
+      const listWatcher = this.set('listWatcher', this.createListWatcher());
+      listWatcher.scrollHandler();
+    }));
   }),
 
   init() {
     this._super(...arguments);
     this.startUpdater();
-  },
-
-  didInsertElement() {
-    this._super(...arguments);
-
-    this.get('eventsEntries.initialLoad').then(() => {
-      next(() => {
-        const listWatcher = this.set('listWatcher', this.createListWatcher());
-        listWatcher.scrollHandler();
-      });
-    });
   },
 
   willDestroyElement() {
@@ -114,7 +121,7 @@ export default Component.extend({
       interval: this.get('updateInterval'),
     });
     updater.on('tick', () => {
-      this.updateEventsEntries();
+      // this.updateEventsEntries();
     });
     this.set('updater', updater);
   },
@@ -145,7 +152,7 @@ export default Component.extend({
 
   createListWatcher() {
     return new ListWatcher(
-      this.$().closest('.ps'),
+      this.$('.ps'),
       '.data-row',
       items => {
         if (this.$().parents('.global-modal').hasClass('in')) {
@@ -166,11 +173,6 @@ export default Component.extend({
     );
     const sourceArray = get(eventsEntries, 'sourceArray');
 
-    if (isEmpty(items) && !isEmpty(sourceArray)) {
-      eventsEntries.setProperties({ startIndex: 0, endIndex: 50 });
-      return;
-    }
-
     const eventsEntriesIds = sourceArray.mapBy('id');
     const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));
     const firstId =
@@ -180,7 +182,6 @@ export default Component.extend({
 
     let startIndex;
     let endIndex;
-    console.log('firstId', firstId);
     if (firstId === null && get(sourceArray, 'length') !== 0) {
       const {
         _window,
@@ -205,7 +206,6 @@ export default Component.extend({
       endIndex: oldEndIndex,
     } = getProperties(eventsEntries, 'startIndex', 'endIndex');
     if (oldStartIndex !== startIndex || oldEndIndex !== endIndex) {
-      console.log('startIndex', startIndex, 'endIndex', endIndex);
       eventsEntries.setProperties({ startIndex, endIndex });
     }
   },

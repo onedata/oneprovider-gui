@@ -1,8 +1,6 @@
 {{#loading-container isLoading=eventsEntries.isLoading sizeClass="sm"}}
-  <table class="table one-infinite-list">
-    {{#if storeEntries.length}}
-      {{modals/atm-task-execution-pods-activity-modal/events-table/header-row}}
-    {{/if}}
+  {{#scrollable-table class="table one-infinite-list"}}
+    {{modals/atm-task-execution-pods-activity-modal/events-table/header-row}}
     <tr class="first-row">
       <td colspan="4" style={{firstRowStyle}}></td>
     </tr>
@@ -14,7 +12,7 @@
         </td>
       </tr>
     {{else}}
-      {{#if (and storeEntries.initialLoad.isSettled fetchingPrev)}}
+      {{#if (and eventsEntries.initialLoad.isSettled fetchingPrev)}}
         <tr class="loading-row">
           <td colspan="4" class="loading-row-cell">
             {{spin-spinner-block
@@ -24,13 +22,13 @@
           </td>
         </tr>
       {{/if}}
-      {{#each eventsEntries key="index" as |eventEntry|}}
+      {{#each eventsEntries as |eventEntry|}}
         {{modals/atm-task-execution-pods-activity-modal/events-table/event-row
           eventData=eventEntry.value
           rowIndex=eventEntry.index
         }}
       {{/each}}
-      {{#if (and storeEntries.initialLoad.isSettled fetchingNext)}}
+      {{#if (and eventsEntries.initialLoad.isSettled fetchingNext)}}
         <tr class="loading-row">
           <td colspan="4" class="loading-row-cell">
             {{spin-spinner-block
@@ -41,5 +39,5 @@
         </tr>
       {{/if}}
     {{/unless}}
-  </table>
+  {{/scrollable-table}}
 {{/loading-container}}

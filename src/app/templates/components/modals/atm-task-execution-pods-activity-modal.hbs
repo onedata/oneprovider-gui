@@ -11,16 +11,19 @@
 
   {{#modal.body}}
     {{#promise-proxy-container proxy=podsActivityRegistryProxy}}
-      <div class="pods-table-section">
+      <div class="pods-table-section fill-flex-using-column">
         {{modals/atm-task-execution-pods-activity-modal/pods-table
+          class="fill-flex-using-column"
           activityRegistry=podsActivityRegistryProxy.registry
           selectedPodId=selectedPodId
           onPodSelect=(action "podSelected")
         }}
       </div>
-      <div class="events-table-section">
+      <div class="events-table-section fill-flex-using-column relative">
         {{#if selectedPodId}}
+          <h2>{{tt this "eventsHeader" podName=selectedPodId}}</h2>
           {{modals/atm-task-execution-pods-activity-modal/events-table
+            class="fill-flex-using-column"
             eventLogId=(get
               podsActivityRegistryProxy.registry
               (concat selectedPodId ".eventLogId")
