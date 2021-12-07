@@ -11,5 +11,5 @@
   {{or eventData.payload.reason "—"}}
 </td>
 <td class="event-message events-table-data-cell">
-  {{or eventData.payload.message "—"}}
+  {{#truncated-string}}{{or eventData.payload.message "—"}}{{/truncated-string}}
 </td>

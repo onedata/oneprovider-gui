@@ -20,12 +20,12 @@ export default Component.extend({
   eventLogId: undefined,
 
   /**
-   * @type {Number}
+   * @type {number}
    */
   rowHeight: 44,
 
   /**
-   * @type {Number}
+   * @type {number}
    */
   updateInterval: 3000,
 
@@ -36,13 +36,13 @@ export default Component.extend({
 
   /**
    * If true, should render top loading indicator
-   * @type {Boolean}
+   * @type {boolean}
    */
   fetchingPrev: false,
 
   /**
    * If true, should render bottom loading indicator
-   * @type {Boolean}
+   * @type {boolean}
    */
   fetchingNext: false,
 
@@ -52,7 +52,7 @@ export default Component.extend({
   _window: window,
 
   /**
-   * @type {ComputedProperty<Number>}
+   * @type {ComputedProperty<number>}
    */
   firstRowHeight: computed(
     'rowHeight',
@@ -121,7 +121,7 @@ export default Component.extend({
       interval: this.get('updateInterval'),
     });
     updater.on('tick', () => {
-      // this.updateEventsEntries();
+      this.updateEventsEntries();
     });
     this.set('updater', updater);
   },

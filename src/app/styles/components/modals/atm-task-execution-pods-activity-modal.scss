@@ -27,25 +27,38 @@
     }
   }
 
-  .pod-status {
-    width: 10em;
-  }
+  .pods-table {
+    .column-name-label,
+    .pod-id {
+      width: 100%;
+      max-width: 0;
+    }
 
-  .pod-status-since {
-    width: 15em;
+    .column-status-label {
+      min-width: 8em;
+    }
+
+    .column-status-since-label {
+      min-width: 12em;
+    }
   }
 
   .events-table {
     .column-time-label {
-      width: 8em;
+      min-width: 8em;
     }
 
     .column-type-label {
-      width: 7em;
+      min-width: 7em;
     }
 
     .column-reason-label {
-      width: 8em;
+      min-width: 8em;
+    }
+
+    .event-message {
+      max-width: 0;
+      width: 100%;
     }
 
     .column-message-label,
@@ -97,5 +110,22 @@
     position: relative;
     height: 44px;
     border-top: 1px solid $table-border-color;
+  }
+
+  @media (max-width: 600px) {
+    .pods-table {
+      .column-name-label {
+        min-width: 13em;
+        // Make place for filter buttons at the top
+        padding-top: 3em;
+      }
+    }
+
+    .pods-filter-btn-group {
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin-left: 1em;
+    }
   }
 }
