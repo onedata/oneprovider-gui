@@ -395,7 +395,6 @@ class MockData {
     this.filesMockArray = mockArray;
 
     fileManager.fetchDirChildren = async (dirId, scope, ...fetchArgs) => {
-      console.log('fetch dir', dirId);
       const result = await mockArray.fetchChildren(...fetchArgs);
       if (dirId === rootDirDipId) {
         result.childrenRecords = _.cloneDeep(result.childrenRecords);

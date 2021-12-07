@@ -367,8 +367,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   browsableDataset: computedLastProxyContent('browsableDatasetProxy'),
 
-  // FIXME: implement auto-redirect to dir in other dataset here or in archives panel (dirProxy)
-
   /**
    * Proxy for whole file-browser: loading causes loading screen, recomputing causes
    * `file-browser` to be re-rendered.
@@ -800,8 +798,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
         // clear selection in URL, because this selection should not be stored
         this.callParent('updateSelected', null);
       }
-      // FIXME: a probably bug in createThrottledFunction prevents to make a waitForFlush
-      await sleep(throttleTimeout + 1);
+      // TODO: VFS-8737 try to make proper wait-for-shared-properties method
+      await sleep(throttleTimeout + 10);
       await this.changeSelectedItems(selectedItems);
     },
     updateArchiveId(archiveId) {
@@ -813,73 +811,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
     },
-    // FIXME: reimplement
     async resolveItemParent(item) {
-      const viewMode = this.get('viewMode');
       if (!item) {
         return null;
       }
       const itemEntityId = get(item, 'entityId');
-      if (viewMode === 'files') {
-        const browsableType = get(item, 'browsableType');
-        // if browsable item has no type, it defaults to file (first and original
-        // browsable object)
-        if (!browsableType || browsableType === 'file') {
-          const archive = this.get('archive') || await this.get('archiveProxy');
-          const archiveRootDirId = archive && archive.relationEntityId('rootDir');
-          if (itemEntityId === archiveRootDirId) {
-            // file browser: archive root dir, parent: dataset
-            return this.get('browsableDatasetProxy');
-          } else if (get(item, 'hasParent')) {
-            // file browser: it's a subdir
-            if (item.relationEntityId('parent') === archiveRootDirId) {
-              // file browser: it's a direct child of archive root dir
-              // return wrapped archive root dir (for special name and parent)
-              return this.get('archiveRootDirProxy');
-            } else {
-              // file browser: inside archive filesystem
-              const parent = await get(item, 'parent');
-              if (get(parent, 'isArchiveRootDir')) {
-                const dirParentArchiveId = parent.relationEntityId('archive');
-                const dirParentArchive = await get(parent, 'archive');
-                const datasetIdOfArchive = dirParentArchive.relationEntityId('dataset');
-                const url = this.getDatasetsUrl({
-                  datasetId: datasetIdOfArchive,
-                  archive: dirParentArchiveId,
-                });
-                // TODO: VFS-7850 a workaround for not-updating breadcrumbs,
-                // see details in JIRA ticket
-                window.top.location = url;
-                window.location.reload();
-                return null;
-              }
-
-              return parent;
-            }
-          } else {
-            // file browser: it's rather some problem with getting dir parent,
-            // so resolve archive root dir
-            console.warn(
-              'component:content-space-datasets: cannot resolve dir parent, fallback to rootDir'
-            );
-            return get(archive, 'rootDir');
-          }
-        } else if (browsableType === 'dataset') {
-          // file browser: dataset on path
-          return null;
-        }
-      } else if (viewMode === 'archives') {
-        // archive browser: root (there is no archives tree - only flat list starting
-        // from root)
-        return null;
-      } else if (itemEntityId === spaceDatasetsRootId) {
-        // dataset browser: space root
+      if (itemEntityId === spaceDatasetsRootId) {
+        // space root
         return null;
       } else if (!get(item, 'hasParent')) {
-        // dataset browser: tree top
+        // tree top
         return this.get('spaceDatasetsRoot');
       } else {
-        // dataset browser: regular dataset
+        // regular dataset
         return get(item, 'parent');
       }
     },

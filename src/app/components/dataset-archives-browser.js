@@ -316,7 +316,6 @@ export default Component.extend(...mixins, {
     'archiveProxy.rootDir',
     'browsableDataset',
     async function archiveRootDirProxy() {
-      console.log('archiveRootDirProxy compute');
       const {
         archiveProxy,
         browsableDataset,
