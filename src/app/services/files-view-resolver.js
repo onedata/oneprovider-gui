@@ -175,14 +175,17 @@ export default Service.extend({
     let url = null;
     switch (get(filesViewContext, 'browserType')) {
       case 'archive': {
+        const archiveUrlOptions = Object.assign({}, urlOptions);
+        if (!isEmpty(archiveUrlOptions.selected)) {
+          archiveUrlOptions.selectedSecondary = archiveUrlOptions.selected;
+        }
+        archiveUrlOptions.selected = [get(filesViewContext, 'datasetId')];
         const options = Object.assign({
             archive: get(filesViewContext, 'archiveId'),
             dir: type === 'open' ? fileId : null,
             selectedSecondary: type === 'select' ? [fileId] : null,
           },
-          urlOptions, {
-            selected: [get(filesViewContext, 'datasetId')],
-          }
+          archiveUrlOptions
         );
         url = appProxy.callParent('getDatasetsUrl', options);
         break;
