@@ -60,9 +60,10 @@
       gutterLabelVisibleClass
     }}
   >
-    <div class="gutter-label-content">
-      {{tt this "selectedDatasetGutterLabel"}}
-    </div>
+    {{#truncated-string class="gutter-label-content"}}
+      <strong>{{tt this "selectedDatasetGutterLabel"}}</strong>
+      <span class="gutter-label-dataset-name">{{selectedSingleDataset.name}}</span>
+    {{/truncated-string}}
   </div>
 </div>
 {{#perfect-scrollbar-element

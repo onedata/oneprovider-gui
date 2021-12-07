@@ -51,14 +51,23 @@
     $-padding-horizontal: calc(#{$file-browser-padding-left} + 0.2em);
     $-padding-vertical: 0.2em;
     display: inline-block;
-    @include vertical-align-middle;
-    left: $content-col-padding;
     padding-left: $-padding-horizontal;
     padding-right: $-padding-horizontal;
     border-radius: $border-radius-large;
     background-color: inherit;
     padding-top: $-padding-vertical;
     padding-bottom: $-padding-vertical;
+
+    // mobile-first
+    @include absolute-align-middle-center();
+    max-width: 80%;
+
+    // tablet/desktop
+    @media (min-width: $screen-sm-min) {
+      @include vertical-align-middle;
+      left: $content-col-padding;
+      max-width: 40%;
+    }
   }
 
   .gutter-label-hideable {
