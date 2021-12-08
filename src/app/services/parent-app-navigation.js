@@ -2,7 +2,7 @@
  * Provides methods for navigating the master application.
  * Currently it could be only a Onezone app (unified GUI).
  *
- * @module services/onedata-navigation
+ * @module services/parent-app-navigation
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

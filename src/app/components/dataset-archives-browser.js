@@ -30,7 +30,7 @@ export default Component.extend(...mixins, {
   fileManager: service(),
   appProxy: service(),
   filesViewResolver: service(),
-  onedataNavigation: service(),
+  parentAppNavigation: service(),
 
   /**
    * @virtual
@@ -259,7 +259,7 @@ export default Component.extend(...mixins, {
         filesViewResolver,
         archiveRootDirProxy,
         selectedIds,
-        onedataNavigation,
+        parentAppNavigation,
       } = this.getProperties(
         'spaceId',
         'datasetId',
@@ -268,7 +268,7 @@ export default Component.extend(...mixins, {
         'filesViewResolver',
         'archiveRootDirProxy',
         'selectedIds',
-        'onedataNavigation',
+        'parentAppNavigation',
       );
       const currentFilesViewContext = FilesViewContext.create({
         spaceId,
@@ -291,7 +291,7 @@ export default Component.extend(...mixins, {
         return resolverResult.dir;
       } else {
         if (resolverResult.url) {
-          onedataNavigation.openUrl(resolverResult.url, true);
+          parentAppNavigation.openUrl(resolverResult.url, true);
         }
         return archiveRootDir;
       }

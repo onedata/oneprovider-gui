@@ -46,7 +46,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   globalNotify: service(),
   i18n: service(),
   globalClipboard: service(),
-  onedataNavigation: service(),
+  parentAppNavigation: service(),
 
   /**
    * @override
@@ -412,14 +412,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const {
       getDatasetsUrl,
       dataset,
-      onedataNavigation,
-    } = this.getProperties('getDatasetsUrl', 'dataset', 'onedataNavigation');
+      parentAppNavigation,
+    } = this.getProperties('getDatasetsUrl', 'dataset', 'parentAppNavigation');
     const dipArchiveId = archive.relationEntityId('relatedDip');
     const datasetId = get(dataset, 'entityId');
     const url = getDatasetsUrl({
       selected: [datasetId],
       archive: dipArchiveId,
     });
-    return onedataNavigation.openUrl(url);
+    return parentAppNavigation.openUrl(url);
   },
 });

@@ -14,7 +14,7 @@ import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-ev
 import { inject as service } from '@ember/service';
 
 export default FbTableRowColumns.extend({
-  onedataNavigation: service(),
+  parentAppNavigation: service(),
 
   /**
    * @override
@@ -25,7 +25,7 @@ export default FbTableRowColumns.extend({
    * Frame name, where Onezone link should be opened
    * @type {String}
    */
-  navigateTarget: reads('onedataNavigation.navigateTarget'),
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   loadingBaseArchiveProxy: promise.object(promise.all(
     'fileRowModel.baseArchiveHrefProxy',

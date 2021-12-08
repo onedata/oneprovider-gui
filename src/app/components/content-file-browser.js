@@ -43,7 +43,7 @@ export default OneEmbeddedComponent.extend(
     workflowManager: service(),
     globalNotify: service(),
     filesViewResolver: service(),
-    onedataNavigation: service(),
+    parentAppNavigation: service(),
 
     /**
      * Entity ID of space for which the file browser is rendered.
@@ -211,14 +211,14 @@ export default OneEmbeddedComponent.extend(
           dirEntityId,
           filesViewResolver,
           fallbackDirProxy,
-          onedataNavigation,
+          parentAppNavigation,
         } = this.getProperties(
           'spaceEntityId',
           'selected',
           'dirEntityId',
           'filesViewResolver',
           'fallbackDirProxy',
-          'onedataNavigation',
+          'parentAppNavigation',
         );
 
         const currentFilesViewContext = FilesViewContext.create({
@@ -241,7 +241,7 @@ export default OneEmbeddedComponent.extend(
           return resolverResult.dir;
         } else {
           if (resolverResult.url) {
-            onedataNavigation.openUrl(resolverResult.url, true);
+            parentAppNavigation.openUrl(resolverResult.url, true);
           }
           return fallbackDir;
         }
@@ -296,8 +296,8 @@ export default OneEmbeddedComponent.extend(
       const {
         _localStorage,
         globalNotify,
-        onedataNavigation,
-      } = this.getProperties('_localStorage', 'globalNotify', 'onedataNavigation');
+        parentAppNavigation,
+      } = this.getProperties('_localStorage', 'globalNotify', 'parentAppNavigation');
       if (!atmWorkflowSchemaId || !atmWorkflowSchemaRevisionNumber) {
         return;
       }
@@ -326,7 +326,7 @@ export default OneEmbeddedComponent.extend(
         workflowSchemaRevision: atmWorkflowSchemaRevisionNumber,
         fillInputStores: Boolean(inputStoresData),
       });
-      onedataNavigation.openUrl(redirectUrl);
+      parentAppNavigation.openUrl(redirectUrl);
     },
 
     openBagitUploader() {

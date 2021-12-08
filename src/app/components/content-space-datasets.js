@@ -80,7 +80,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   archiveManager: service(),
   fileManager: service(),
   filesViewResolver: service(),
-  onedataNavigation: service(),
+  parentAppNavigation: service(),
 
   /**
    * **Injected from parent frame.**
@@ -499,8 +499,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
   async resolveDatasetForSelectedIds(selectedIds) {
     const {
       spaceDatasetsRoot,
-      onedataNavigation,
-    } = this.getProperties('spaceDatasetsRoot', 'onedataNavigation');
+      parentAppNavigation,
+    } = this.getProperties('spaceDatasetsRoot', 'parentAppNavigation');
 
     if (isEmpty(selectedIds)) {
       // no dir nor selected files provided - go home
@@ -508,7 +508,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     } else {
       const redirectOptions = await this.resolveSelectedParentDatasetUrl();
       if (redirectOptions) {
-        onedataNavigation.openUrl(redirectOptions.dataUrl, true);
+        parentAppNavigation.openUrl(redirectOptions.dataUrl, true);
         return (await redirectOptions.datasetProxy) || spaceDatasetsRoot;
       } else {
         // resolving parent from selection failed - fallback to home
@@ -737,8 +737,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
   async submitArchiveCreate(dataset, archiveData) {
     const {
       archiveManager,
-      onedataNavigation,
-    } = this.getProperties('archiveManager', 'onedataNavigation');
+      parentAppNavigation,
+    } = this.getProperties('archiveManager', 'parentAppNavigation');
     const archive = await archiveManager.createArchive(dataset, archiveData);
     try {
       const datasetId = get(dataset, 'entityId');
@@ -751,7 +751,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         dir: null,
       });
       if (archiveSelectUrl) {
-        onedataNavigation.openUrl(archiveSelectUrl);
+        parentAppNavigation.openUrl(archiveSelectUrl);
       }
     } catch (error) {
       console.error(
