@@ -15,9 +15,7 @@ import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset'
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { all as allFulfilled } from 'rsvp';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
-import NpmAwaitLock from 'npm:await-lock';
-
-const AwaitLock = NpmAwaitLock.default;
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const datasetArchivesAspect = 'archives_details';
 
@@ -27,23 +25,14 @@ export default Service.extend({
   fileManager: service(),
 
   /**
-   * Mapping of `archiveId` -> cached browsable-wrapped archive
+   * Mapping of `archiveId` -> PromiseProxy of cached browsable-wrapped archive
    * @type {Object}
    */
   browsableArchivesStore: undefined,
 
-  /**
-   * Initialized on init.
-   * @type {AwaitLock}
-   */
-  browsableArchiveGetterLock: undefined,
-
   init() {
     this._super(...arguments);
-    this.setProperties({
-      browsableArchivesStore: {},
-      browsableArchiveGetterLock: new AwaitLock(),
-    });
+    this.set('browsableArchivesStore', {});
   },
 
   /**
@@ -64,38 +53,29 @@ export default Service.extend({
    * Creates or returns previously created BrowsableArchive object.
    * Only one `BrowsableArchive` for specific `archiveId` is created.
    * @param {String|Models.Archive} archiveOrEntityId
-   * @returns {Utils.BrowsableArchive}
+   * @returns {Promise<Utils.BrowsableArchive>}
    */
   async getBrowsableArchive(archiveOrEntityId) {
     let archiveId;
     let archive;
-    const browsableArchiveGetterLock = this.get('browsableArchiveGetterLock');
-    await browsableArchiveGetterLock.acquireAsync();
-    let browsableArchive = null;
-    try {
-      if (typeof (archiveOrEntityId) === 'string') {
-        archiveId = archiveOrEntityId;
-      } else {
-        archiveId = get(archiveOrEntityId, 'entityId');
-        archive = archiveOrEntityId;
-      }
-      const browsableArchivesStore = this.get('browsableArchivesStore');
-      const cachedBrowsableArchive = browsableArchivesStore[archiveId];
-      if (cachedBrowsableArchive) {
-        browsableArchive = cachedBrowsableArchive;
-      } else {
-        if (!archive) {
-          archive = await this.getArchive(archiveId);
-        }
-        browsableArchive = BrowsableArchive.create({
-          content: archive,
-        });
-        browsableArchivesStore[archiveId] = browsableArchive;
-      }
-    } finally {
-      browsableArchiveGetterLock.release();
+    if (typeof (archiveOrEntityId) === 'string') {
+      archiveId = archiveOrEntityId;
+    } else {
+      archiveId = get(archiveOrEntityId, 'entityId');
+      archive = archiveOrEntityId;
     }
-    return browsableArchive;
+    const browsableArchivesStore = this.get('browsableArchivesStore');
+    const cachedBrowsableArchiveProxy = browsableArchivesStore[archiveId];
+    if (cachedBrowsableArchiveProxy) {
+      return await cachedBrowsableArchiveProxy;
+    } else {
+      const browsableDatasetPromise = (async () => BrowsableArchive.create({
+        content: archive || await this.getArchive(archiveId),
+      }))();
+      const browsableArchiveProxy = promiseObject(browsableDatasetPromise);
+      browsableArchivesStore[archiveId] = browsableArchiveProxy;
+      return await browsableArchiveProxy;
+    }
   },
 
   /**

@@ -15,9 +15,7 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as spaceEntityType } from 'oneprovider-gui/models/space';
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
-import NpmAwaitLock from 'npm:await-lock';
-
-const AwaitLock = NpmAwaitLock.default;
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const spaceDatasetsAspect = 'datasets_details';
 const datasetChildrenAspect = 'children_details';
@@ -28,23 +26,14 @@ export default Service.extend({
   fileManager: service(),
 
   /**
-   * Mapping of `datasetId` -> cached browsable-wrapped dataset
+   * Mapping of `datasetId` -> PromiseProxy of cached browsable-wrapped dataset
    * @type {Object}
    */
   browsableDatasetsStore: undefined,
 
-  /**
-   * Initialized on init.
-   * @type {AwaitLock}
-   */
-  browsableDatasetGetterLock: undefined,
-
   init() {
     this._super(...arguments);
-    this.setProperties({
-      browsableDatasetsStore: {},
-      browsableDatasetGetterLock: new AwaitLock(),
-    });
+    this.set('browsableDatasetsStore', {});
   },
 
   /**
@@ -66,38 +55,29 @@ export default Service.extend({
    * Creates or returns previously created BrowsableDataset object.
    * Only one `BrowsableDataset` for specific `datasetId` is created.
    * @param {String|Models.Dataset} datasetOrEntityId
-   * @returns {Utils.BrowsableArchive}
+   * @returns {Promise<Utils.BrowsableDataset>}
    */
   async getBrowsableDataset(datasetOrEntityId) {
-    const browsableDatasetGetterLock = this.get('browsableDatasetGetterLock');
-    await browsableDatasetGetterLock.acquireAsync();
-    let browsableDataset = null;
-    try {
-      let datasetId;
-      let dataset;
-      if (typeof (datasetOrEntityId) === 'string') {
-        datasetId = datasetOrEntityId;
-      } else {
-        datasetId = get(datasetOrEntityId, 'entityId');
-        dataset = datasetOrEntityId;
-      }
-      const browsableDatasetsStore = this.get('browsableDatasetsStore');
-      const cachedBrowsableDataset = browsableDatasetsStore[datasetId];
-      if (cachedBrowsableDataset) {
-        browsableDataset = cachedBrowsableDataset;
-      } else {
-        if (!dataset) {
-          dataset = await this.getDataset(datasetId);
-        }
-        browsableDataset = BrowsableDataset.create({
-          content: dataset,
-        });
-        browsableDatasetsStore[datasetId] = browsableDataset;
-      }
-    } finally {
-      browsableDatasetGetterLock.release();
+    let datasetId;
+    let dataset;
+    if (typeof (datasetOrEntityId) === 'string') {
+      datasetId = datasetOrEntityId;
+    } else {
+      datasetId = get(datasetOrEntityId, 'entityId');
+      dataset = datasetOrEntityId;
     }
-    return browsableDataset;
+    const browsableDatasetsStore = this.get('browsableDatasetsStore');
+    const cachedBrowsableDatasetProxy = browsableDatasetsStore[datasetId];
+    if (cachedBrowsableDatasetProxy) {
+      return await cachedBrowsableDatasetProxy;
+    } else {
+      const browsableDatasetPromise = (async () => BrowsableDataset.create({
+        content: dataset || await this.getDataset(datasetId),
+      }))();
+      const browsableDatasetProxy = promiseObject(browsableDatasetPromise);
+      browsableDatasetsStore[datasetId] = browsableDatasetProxy;
+      return await browsableDatasetProxy;
+    }
   },
 
   /**

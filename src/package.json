@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "autosize": "4.0.2",
-    "await-lock": "2.1.0",
     "babel-plugin-ember-modules-api-polyfill": "2.13.0",
     "basictable": "git+https://github.com/kliput/basictable.git#b00a7e52512e43a526e8f5b0ae8b3063efbe0bf5",
     "bootstrap-sass": "3.3.7",
