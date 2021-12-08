@@ -301,7 +301,11 @@ export default Component.extend(...mixins, {
    * - on container size change
    */
   updateView() {
-    if (this.get('adjustmentNeeded')) {
+    const {
+      element,
+      adjustmentNeeded,
+    } = this.getProperties('element', 'adjustmentNeeded');
+    if (element && adjustmentNeeded) {
       this.adjustItemsCount();
     }
   },
@@ -346,6 +350,13 @@ export default Component.extend(...mixins, {
 
   updatePathWidthInfo() {
     const element = this.get('element');
+    if (!element) {
+      return {
+        pathWidth: 0,
+        pathContainerWidth: 0,
+        changed: false,
+      };
+    }
     const pathContainer = element.querySelector('.path-container');
     const path = pathContainer.querySelector('.path');
     const pathWidth = path && path.clientWidth || 0;
