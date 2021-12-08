@@ -26,7 +26,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('shows labels of columns', async function () {
     await render(this);
 
-    const $labels = this.$('.column-label');
+    const $labels = this.$('.column-label-text');
     [
       'Pod name',
       'Status',

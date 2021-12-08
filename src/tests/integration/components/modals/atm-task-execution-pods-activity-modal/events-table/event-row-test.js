@@ -4,6 +4,8 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import wait from 'ember-test-helpers/wait';
+import { click } from 'ember-native-dom-helpers';
+import sinon from 'sinon';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/events table/event row', function () {
   setupComponentTest('modals/atm-task-execution-pods-activity-modal/events-table/event-row', {
@@ -38,11 +40,48 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     expect(this.$('.event-reason').text().trim()).to.equal(reason);
     expect(this.$('.event-message').text().trim()).to.equal(message);
   });
+
+  it('is collapsed by default', async function () {
+    await render(this);
+
+    expect(this.$('.events-table-event-row')).to.not.have.class('is-expanded');
+    expect(this.$('.events-table-expanded-event-row')).to.not.exist;
+  });
+
+  it('can be expanded and collapsed', async function () {
+    const {
+      rowIndex,
+      onToggleExpand,
+    } = this.setProperties({
+      rowIndex: 'abc',
+      isExpanded: false,
+      onToggleExpand: sinon.stub().callsFake(() => {
+        this.set('isExpanded', !this.get('isExpanded'));
+      }),
+    });
+    this.set('isExpanded', false);
+    await render(this);
+    expect(onToggleExpand).to.be.not.called;
+
+    await click('.events-table-event-row');
+    expect(this.$('.events-table-event-row')).to.have.class('is-expanded');
+    expect(this.$('.events-table-expanded-event-row')).to.exist;
+    expect(onToggleExpand).to.be.calledOnce.and.to.be.calledWith(rowIndex);
+    onToggleExpand.resetHistory();
+
+    await click('.events-table-event-row');
+    expect(this.$('.events-table-event-row')).to.not.have.class('is-expanded');
+    expect(this.$('.events-table-expanded-event-row')).to.not.exist;
+    expect(onToggleExpand).to.be.calledOnce.and.to.be.calledWith(rowIndex);
+  });
 });
 
 async function render(testCase) {
   testCase.render(hbs `{{modals/atm-task-execution-pods-activity-modal/events-table/event-row
+    rowIndex=rowIndex
     eventData=eventData
+    isExpanded=isExpanded
+    onToggleExpand=onToggleExpand
   }}`);
   await wait();
 }
