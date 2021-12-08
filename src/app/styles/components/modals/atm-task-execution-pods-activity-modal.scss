@@ -56,9 +56,14 @@
       min-width: 8em;
     }
 
+    .column-message-label {
+      min-width: 12em;
+    }
+
     .event-message {
       max-width: 0;
       width: 100%;
+      padding-right: 2.5em;
     }
 
     .column-message-label,
@@ -104,6 +109,50 @@
   .events-table-placeholder {
     margin: auto;
     font-size: 130%;
+  }
+
+  .events-table-event-row {
+    position: relative;
+
+    &:hover {
+      background-color: $main-content-hover-background;
+    }
+
+    &.is-expanded {
+      &,
+      & + .events-table-expanded-event-row {
+        background-color: $color-file-selected;
+      }
+
+      &:hover {
+        background-color: darken($color-file-selected, 3%);
+      }
+    }
+
+    .expand-icon {
+      position: absolute;
+      right: 0.5em;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 130%;
+    }
+  }
+
+  .events-table-expanded-event-row {
+    td {
+      padding: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+    }
+
+    textarea {
+      font-size: 85%;
+    }
+  }
+
+  .events-table-data-cell {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
   }
 
   .loading-row-cell {

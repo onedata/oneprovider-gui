@@ -11,9 +11,15 @@ import Service, { inject as service } from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 
 /**
- * @typedef {Object} JsonInfiniteLogEntry
+ * @typedef {Object} JsonInfiniteLogEntry<T>
+ * @property {string} index
+ * @property {JsonInfiniteLogValue<T>} value
+ */
+
+/**
+ * @typedef {Object} JsonInfiniteLogValue<T>
  * @property {number} timestamp
- * @property {any} payload
+ * @property {T} payload
  */
 
 export const jsonInfiniteLogEntityType = 'json_infinite_log';

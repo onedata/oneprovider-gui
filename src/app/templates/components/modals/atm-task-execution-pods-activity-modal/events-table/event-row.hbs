@@ -1,15 +1,36 @@
-<td class="event-time events-table-data-cell">
-  {{date-format eventData.timestamp
-    format="report"
-    blank="—"
-  }}
-</td>
-<td class="event-type events-table-data-cell">
-  {{or eventData.payload.type "—"}}
-</td>
-<td class="event-reason events-table-data-cell">
-  {{or eventData.payload.reason "—"}}
-</td>
-<td class="event-message events-table-data-cell">
-  {{#truncated-string}}{{or eventData.payload.message "—"}}{{/truncated-string}}
-</td>
+<tr
+  class="events-table-event-row data-row clickable {{if isExpanded "is-expanded"}}"
+  data-row-id={{rowIndex}}
+  onClick={{action "onToggleExpand"}}
+>
+  <td class="event-time events-table-data-cell">
+    {{date-format eventData.timestamp
+      format="report"
+      blank="—"
+    }}
+  </td>
+  <td class="event-type events-table-data-cell">
+    {{or eventData.payload.type "—"}}
+  </td>
+  <td class="event-reason events-table-data-cell">
+    {{or eventData.payload.reason "—"}}
+  </td>
+  <td class="event-message events-table-data-cell">
+    {{#truncated-string}}{{or eventData.payload.message "—"}}{{/truncated-string}}
+    {{one-icon
+      class="expand-icon"
+      icon=(if isExpanded "arrow-up" "arrow-down")
+    }}
+  </td>
+</tr>
+{{#if isExpanded}}
+  <tr class="events-table-expanded-event-row" data-row-id={{rowIndex}}>
+    <td colspan="4">
+      {{one-clipboard-line
+        value=eventDataAsJson
+        type="textarea"
+        inputClass="code-textarea"
+      }}
+    </td>
+  </tr>
+{{/if}}

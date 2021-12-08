@@ -8,6 +8,13 @@ import { next } from '@ember/runloop';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import { inject as service } from '@ember/service';
 
+/**
+ * @typedef {Object} OpenfaasFunctionEvent
+ * @property {string} type
+ * @property {string} reason
+ * @property {string} message
+ */
+
 export default Component.extend({
   classNames: ['events-table'],
 
@@ -18,6 +25,12 @@ export default Component.extend({
    * @type {string}
    */
   eventLogId: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  expandedRowIndex: undefined,
 
   /**
    * @type {number}
@@ -71,7 +84,7 @@ export default Component.extend({
   }),
 
   /**
-   * @type {ComputedProperty<ReplacingChunksArray<StoreContentTableEntry>>}
+   * @type {ComputedProperty<ReplacingChunksArray<JsonInfiniteLogEntry<OpenfaasFunctionEvent>>>}
    */
   eventsEntries: computed('eventLogId', function eventsEntries() {
     const rca = ReplacingChunksArray.create({
@@ -89,19 +102,29 @@ export default Component.extend({
     return rca;
   }),
 
-  listWatcherSetter: observer('eventsEntries.isLoaded', function listWatcherSetter() {
-    const existingListWatcher = this.get('listWatcher');
-    if (existingListWatcher) {
-      existingListWatcher.destroy();
+  eventsEntriesLoadedObserver: observer(
+    'eventsEntries.isLoaded',
+    function eventsEntriesLoadedObserver() {
+      if (!this.get('eventsEntries.isLoaded')) {
+        return;
+      }
+
+      const existingListWatcher = this.get('listWatcher');
+      if (existingListWatcher) {
+        existingListWatcher.destroy();
+      }
+      next(() => safeExec(this, () => {
+        const listWatcher = this.set('listWatcher', this.createListWatcher());
+        listWatcher.scrollHandler();
+      }));
+
+      this.set('expandedRowIndex', undefined);
     }
-    next(() => safeExec(this, () => {
-      const listWatcher = this.set('listWatcher', this.createListWatcher());
-      listWatcher.scrollHandler();
-    }));
-  }),
+  ),
 
   init() {
     this._super(...arguments);
+    this.eventsEntriesLoadedObserver();
     this.startUpdater();
   },
 
@@ -208,5 +231,14 @@ export default Component.extend({
     if (oldStartIndex !== startIndex || oldEndIndex !== endIndex) {
       eventsEntries.setProperties({ startIndex, endIndex });
     }
+  },
+
+  actions: {
+    toggleRowExpand(rowIndex) {
+      this.set(
+        'expandedRowIndex',
+        rowIndex === this.get('expandedRowIndex') ? undefined : rowIndex
+      );
+    },
   },
 });
