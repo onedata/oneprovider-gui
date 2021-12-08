@@ -27,15 +27,19 @@ export default Component.extend({
   eventLogId: undefined,
 
   /**
-   * @virtual
    * @type {string}
    */
   expandedRowIndex: undefined,
 
   /**
+   * @type {boolean}
+   */
+  tableTopVisible: true,
+
+  /**
    * @type {number}
    */
-  rowHeight: 44,
+  rowHeight: 55,
 
   /**
    * @type {number}
@@ -170,25 +174,33 @@ export default Component.extend({
   },
 
   async updateEventsEntries() {
-    await this.get('eventsEntries').scheduleReload();
+    const {
+      tableTopVisible,
+      eventsEntries,
+    } = this.getProperties('tableTopVisible', 'eventsEntries');
+    if (tableTopVisible && get(eventsEntries, 'isLoaded')) {
+      await eventsEntries.scheduleReload();
+    }
   },
 
   createListWatcher() {
     return new ListWatcher(
       this.$('.ps'),
       '.data-row',
-      items => {
+      (items, headerVisible) => {
         if (this.$().parents('.global-modal').hasClass('in')) {
-          return safeExec(this, 'onTableScroll', items);
+          return safeExec(this, 'onTableScroll', items, headerVisible);
         }
-      }
+      },
+      '.table-start-row'
     );
   },
 
   /**
    * @param {Array<HTMLElement>} items
+   * @param {boolean} headerVisible
    */
-  onTableScroll(items) {
+  onTableScroll(items, headerVisible) {
     const {
       eventsEntries,
     } = this.getProperties(
@@ -230,6 +242,11 @@ export default Component.extend({
     } = getProperties(eventsEntries, 'startIndex', 'endIndex');
     if (oldStartIndex !== startIndex || oldEndIndex !== endIndex) {
       eventsEntries.setProperties({ startIndex, endIndex });
+    }
+    safeExec(this, 'set', 'tableTopVisible', headerVisible);
+    if (headerVisible) {
+      // schedule update immediately to see new records just after scrolling up
+      this.updateEventsEntries();
     }
   },
 

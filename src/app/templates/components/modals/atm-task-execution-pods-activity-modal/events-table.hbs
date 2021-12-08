@@ -1,10 +1,10 @@
 {{#loading-container isLoading=eventsEntries.isLoading sizeClass="sm"}}
   {{#scrollable-table class="table one-infinite-list"}}
     {{modals/atm-task-execution-pods-activity-modal/events-table/header-row}}
+    <tr class="table-start-row"></tr>
     <tr class="first-row">
       <td colspan="4" style={{firstRowStyle}}></td>
     </tr>
-    <div class="table-start-row"></div>
     {{#unless eventsEntries.length}}
       <tr class="table-is-empty-row">
         <td class="table-is-empty-cell" colspan="4">
