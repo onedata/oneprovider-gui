@@ -1,3 +1,12 @@
+/**
+ * Container with browser of archives and their filesystem for single dataset.
+ *
+ * @module components/dataset-archives-browser
+ * @author Jakub Liput
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { observer, computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
