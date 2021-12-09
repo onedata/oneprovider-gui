@@ -145,7 +145,7 @@ export default Component.extend(...mixins, {
   /**
    * @implements ArchiveBrowserModel.spaceDatasetsViewState
    */
-  attachmentState: 'attached',
+  attachmentState: reads('browsableDataset.state'),
 
   _window: window,
 

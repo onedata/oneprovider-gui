@@ -7,6 +7,7 @@ export default _.merge({}, BaseBrowserModel, {
   startingDownload: 'starting archive download',
   archiveList: 'Archives list',
   alreadyPurging: 'Not available for archives that are being purged.',
+  notAvailableForDetached: 'Not available in detached dataset.',
   fileActions: {
     createArchive: 'Create archive',
     createIncrementalArchive,

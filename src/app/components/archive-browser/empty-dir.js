@@ -10,6 +10,7 @@
 import FbDirLoadError from 'oneprovider-gui/components/file-browser/fb-dir-load-error';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
+import { equal, raw } from 'ember-awesome-macros';
 
 export default FbDirLoadError.extend(I18n, {
   classNames: ['archive-empty-dir'],
@@ -20,6 +21,8 @@ export default FbDirLoadError.extend(I18n, {
   onOpenCreateArchiveModal: reads('browserModel.openCreateArchiveModal'),
 
   dataset: reads('browserModel.dataset'),
+
+  datasetIsDetached: equal('browserModel.attachmentState', raw('detached')),
 
   /**
    * @override

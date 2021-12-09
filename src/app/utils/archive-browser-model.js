@@ -280,24 +280,31 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnCreateIncrementalArchive: computed(
     'dataset',
+    'attachmentState',
     'spacePrivileges.{manageDatasets,createArchives}',
     function btnCreateArchive() {
       const {
         spacePrivileges,
+        attachmentState,
         i18n,
       } = this.getProperties(
         'spacePrivileges',
+        'attachmentState',
         'i18n',
       );
-      const hasPrivileges = spacePrivileges.manageDatasets &&
-        spacePrivileges.createArchives;
       let disabledTip;
-      if (!hasPrivileges) {
-        disabledTip = insufficientPrivilegesMessage({
-          i18n,
-          modelName: 'space',
-          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
-        });
+      if (attachmentState === 'detached') {
+        disabledTip = this.t('notAvailableForDetached');
+      } else {
+        const hasPrivileges = spacePrivileges.manageDatasets &&
+          spacePrivileges.createArchives;
+        if (!hasPrivileges) {
+          disabledTip = insufficientPrivilegesMessage({
+            i18n,
+            modelName: 'space',
+            privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+          });
+        }
       }
       return this.createFileAction({
         id: 'createIncrementalArchive',
