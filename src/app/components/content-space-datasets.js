@@ -609,19 +609,18 @@ export default OneEmbeddedComponent.extend(...mixins, {
       await onlyFulfilledValues(ids.map(id =>
         datasetManager.getBrowsableDataset(id)
       ));
-    try {
-      // allow only dataset which belong to current space, are in currently
-      // chosen state and have parent of currently chosen dataset
-      return datasets.filter(dataset => {
-        const currentParentId = datasetId ?
-          (datasetId === spaceDatasetsRootId ? null : datasetId) : null;
-        return get(dataset, 'spaceId') === spaceId &&
-          get(dataset, 'state') === attachmentState &&
-          (dataset.relationEntityId('parent') || null) === currentParentId;
-      });
-    } catch (error) {
-      return [];
-    }
+    // allow only dataset which belong to current space, are in currently
+    // chosen state and have parent of currently chosen dataset
+    return datasets.filter(dataset => {
+      if (!dataset || !dataset.relationEntityId) {
+        return false;
+      }
+      const currentParentId = datasetId ?
+        (datasetId === spaceDatasetsRootId ? null : datasetId) : null;
+      return get(dataset, 'spaceId') === spaceId &&
+        get(dataset, 'state') === attachmentState &&
+        (dataset.relationEntityId('parent') || null) === currentParentId;
+    });
   },
 
   /**
