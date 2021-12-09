@@ -78,8 +78,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   spaceManager: service(),
   globalNotify: service(),
   archiveManager: service(),
-  fileManager: service(),
-  filesViewResolver: service(),
   parentAppNavigation: service(),
 
   /**

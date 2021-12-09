@@ -522,8 +522,12 @@ export default Component.extend(...mixins, {
       'viewMode',
       'currentBrowsableItemProxy',
     );
+    const fetchDirId = fetchArgs[0];
     // a workaround for fb-table trying to get children when it have not-updated "dir"
-    if (!get(currentBrowsableItemProxy, 'isSettled')) {
+    if (
+      !get(currentBrowsableItemProxy, 'isSettled') ||
+      fetchDirId !== get(currentBrowsableItemProxy, 'content.entityId')
+    ) {
       return this.getEmptyFetchChildrenResponse();
     }
 
