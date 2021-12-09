@@ -110,8 +110,8 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
         baseDatasetId = baseArchive.relationEntityId('dataset');
       }
       return getDatasetsUrl({
-        selected: [baseDatasetId],
-        selectedSecondary: [baseArchiveId],
+        selectedDatasets: [baseDatasetId],
+        selectedArchives: [baseArchiveId],
       });
     }
   )),

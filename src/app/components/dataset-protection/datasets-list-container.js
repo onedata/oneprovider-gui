@@ -70,7 +70,7 @@ export default Component.extend({
         return {
           dataset,
           filePathString,
-          itemHref: await getUrl({ selected: [itemId] }),
+          itemHref: await getUrl({ selectedDatasets: [itemId] }),
         };
       }));
     }

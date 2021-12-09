@@ -112,20 +112,29 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   /**
    * **Injected from parent frame.**
-   * IDs of selected datasets.
+   * IDs of selected datasets injected for jump.
    * Single selected dataset means that its archives browser will be rendered.
    * @virtual optional
    * @type {Array<String>}
    */
-  selected: undefined,
+  selectedDatasets: undefined,
 
   /**
    * **Injected from parent frame.**
-   * IDs of selected archives or files (for secondary browser).
+   * IDs of selected archives injected for jump (for secondary browser).
    * @virtual optional
    * @type {Array<String>}
    */
-  selectedSecondary: undefined,
+  selectedArchives: undefined,
+
+  /**
+   * **Injected from parent frame.**
+   * IDs of selected files injected for jump (for secondary browser, if archive filesystem
+   * is browsed).
+   * @virtual optional
+   * @type {Array<String>}
+   */
+  selectedFiles: undefined,
 
   /**
    * One of: 'attached', 'detached'
@@ -162,8 +171,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'datasetId',
     'archiveId',
     'dirId',
-    'selected',
-    'selectedSecondary',
+    'selectedDatasets',
+    'selectedArchives',
+    'selectedFiles',
     'attachmentState',
   ]),
 
@@ -242,10 +252,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
   selectedItemsForJumpProxy: promise.object(computed(
     'spaceId',
     'datasetId',
-    'selected',
+    'selectedDatasets',
     async function selectedItemsForJumpProxy() {
-      const selected = this.get('selected');
-      return this.getDatasetsForView(selected);
+      const selectedDatasets = this.get('selectedDatasets');
+      return this.getDatasetsForView(selectedDatasets);
     }
   )),
 
@@ -314,14 +324,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
         spaceId,
         // NOTE: selected is not observed because change of selected should not cause
         // dir change
-        selected,
+        selectedDatasets,
       } = this.getProperties(
         'datasetManager',
         'globalNotify',
         'datasetId',
         'spaceDatasetsRoot',
         'spaceId',
-        'selected',
+        'selectedDatasets',
       );
 
       if (datasetId) {
@@ -357,7 +367,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
           return spaceDatasetsRoot;
         }
       } else {
-        return this.resolveDatasetForSelectedIds(selected);
+        return this.resolveDatasetForSelectedIds(selectedDatasets);
       }
     }
   )),
@@ -412,6 +422,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
     ),
     'selectedItems.firstObject',
     raw(null)
+  ),
+
+  selectedSecondaryIds: conditional(
+    'archiveId',
+    'selectedFiles',
+    'selectedArchives',
   ),
 
   spaceIdObserver: observer('spaceId', function spaceIdObserver() {
@@ -527,20 +543,22 @@ export default OneEmbeddedComponent.extend(...mixins, {
   async resolveSelectedParentDatasetUrl() {
     const {
       datasetId,
-      selected,
-      selectedSecondary,
+      selectedDatasets,
+      selectedArchives,
+      selectedFiles,
       datasetManager,
       archiveId,
       dirId,
     } = this.getProperties(
       'datasetId',
-      'selected',
-      'selectedSecondary',
+      'selectedDatasets',
+      'selectedArchives',
+      'selectedFiles',
       'datasetManager',
       'archiveId',
       'dirId'
     );
-    const firstSelectedId = selected && selected[0];
+    const firstSelectedId = selectedDatasets && selectedDatasets[0];
 
     if (datasetId || !firstSelectedId) {
       // no need to resolve parent dataset, as it is already specified or there is no
@@ -562,8 +580,9 @@ export default OneEmbeddedComponent.extend(...mixins, {
       const dataUrl = this.callParent(
         'getDatasetsUrl', {
           datasetId: parentId,
-          selected,
-          selectedSecondary: isEmpty(selectedSecondary) ? null : selectedSecondary,
+          selectedDatasets,
+          selectedArchives: isEmpty(selectedArchives) ? null : selectedArchives,
+          selectedFiles: isEmpty(selectedFiles) ? null : selectedFiles,
           archive: archiveId || null,
           dir: dirId || null,
         }
@@ -745,10 +764,11 @@ export default OneEmbeddedComponent.extend(...mixins, {
       const archiveId = get(archive, 'entityId');
       const archiveSelectUrl = this.getDatasetsUrl({
         datasetId: dataset.relationEntityId('parent'),
-        selected: [datasetId],
+        selectedDatasets: [datasetId],
         archive: null,
-        selectedSecondary: [archiveId],
+        selectedArchives: [archiveId],
         dir: null,
+        selectedFiles: null,
       });
       if (archiveSelectUrl) {
         parentAppNavigation.openUrl(archiveSelectUrl);
@@ -765,7 +785,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const datasetId = dataset && get(dataset, 'entityId');
     if (datasetId) {
       this.callParent('updateDatasetId', null);
-      this.callParent('updateSelected', [datasetId]);
+      this.callParent('updateSelectedDatasets', [datasetId]);
     }
   },
 
@@ -799,10 +819,10 @@ export default OneEmbeddedComponent.extend(...mixins, {
       // only one method of updating component selectedItems to new value should be used,
       // because they are both async and cause random error when used both
       if (isChangeStoredInUrl) {
-        this.callParent('updateSelected', selectedItems.mapBy('entityId'));
+        this.callParent('updateSelectedDatasets', selectedItems.mapBy('entityId'));
       } else {
         // clear selection in URL, because this selection should not be stored
-        this.callParent('updateSelected', null);
+        this.callParent('updateSelectedDatasets', null);
       }
       // TODO: VFS-8737 try to make proper wait-for-shared-properties method
       await sleep(throttleTimeout + 10);

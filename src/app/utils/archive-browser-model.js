@@ -417,7 +417,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const dipArchiveId = archive.relationEntityId('relatedDip');
     const datasetId = get(dataset, 'entityId');
     const url = getDatasetsUrl({
-      selected: [datasetId],
+      selectedDatasets: [datasetId],
       archive: dipArchiveId,
     });
     return parentAppNavigation.openUrl(url);

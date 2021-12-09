@@ -75,8 +75,8 @@ describe('Unit | Service | files view resolver', function () {
         'getDatasetsUrl', {
           archive: archiveId,
           dir: dirId,
-          selected: [datasetId],
-          selectedSecondary: null,
+          selectedDatasets: [datasetId],
+          selectedFiles: null,
         }
       );
       expect(result.result).to.equal('redirect');

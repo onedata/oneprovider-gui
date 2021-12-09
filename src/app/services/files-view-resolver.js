@@ -177,13 +177,14 @@ export default Service.extend({
       case 'archive': {
         const archiveUrlOptions = Object.assign({}, urlOptions);
         if (!isEmpty(archiveUrlOptions.selected)) {
-          archiveUrlOptions.selectedSecondary = archiveUrlOptions.selected;
+          archiveUrlOptions.selectedFiles = archiveUrlOptions.selected;
         }
-        archiveUrlOptions.selected = [get(filesViewContext, 'datasetId')];
+        delete archiveUrlOptions.selected;
+        archiveUrlOptions.selectedDatasets = [get(filesViewContext, 'datasetId')];
         const options = Object.assign({
             archive: get(filesViewContext, 'archiveId'),
             dir: type === 'open' ? fileId : null,
-            selectedSecondary: type === 'select' ? [fileId] : null,
+            selectedFiles: type === 'select' ? [fileId] : null,
           },
           archiveUrlOptions
         );

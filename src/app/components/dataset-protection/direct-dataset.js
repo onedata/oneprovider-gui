@@ -101,7 +101,7 @@ export default Component.extend(I18n, {
         const parentId = directDataset.relationEntityId('parent');
         const options = {
           datasetId: parentId,
-          selected: datasetId,
+          selectedDatasets: [datasetId],
           attachmentState: get(directDataset, 'state'),
         };
         return this.get('getDatasetsUrl')(options);
