@@ -66,11 +66,15 @@ export default Component.extend({
       return await allFulfilled(datasetsArray.reverse().map(async (dataset) => {
         const itemId = mode === 'dataset' ?
           get(dataset, 'entityId') : dataset.relationEntityId('rootFile');
+        const options = {
+          [mode === 'dataset' ? 'selectedDatasets' : 'selected']: [itemId],
+        };
+        console.log('options for dataset list container', options);
         const filePathString = await this.getPathString(dataset);
         return {
           dataset,
           filePathString,
-          itemHref: await getUrl({ selectedDatasets: [itemId] }),
+          itemHref: await getUrl(options),
         };
       }));
     }
