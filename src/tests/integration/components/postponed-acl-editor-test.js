@@ -1,3 +1,11 @@
+// Execution of this test suite is postponed, hence "postponed-" prefix to move
+// it down in the order of tests execution. When it was executed at the beginning,
+// it caused random failures due to the execution timeout.
+// Probably acl-editor component uses a very specific combination of utils
+// and subcomponents, which causes many loading-related computations. When
+// postponed, then some of the things used by acl-editor are already loaded and
+// tests are not so much biased by the loading time.
+
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
