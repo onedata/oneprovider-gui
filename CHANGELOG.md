@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8698 Fixed ESLint warnings
 * VFS-8755 Fixed randomly failing tests
 * VFS-8639 Removed iterator strategy from workflows
 * VFS-8255 Added workflows and lambdas revisions

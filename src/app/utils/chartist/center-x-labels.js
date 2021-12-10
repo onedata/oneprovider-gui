@@ -7,6 +7,8 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
+
 import $ from 'jquery';
 
 export default function centerXLabels() {

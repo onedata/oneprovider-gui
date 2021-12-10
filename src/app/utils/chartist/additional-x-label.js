@@ -1,11 +1,11 @@
 /**
  * Plugin for Chartist which adds additional label on the right side of the x-axis.
- * 
+ *
  * Options:
- * - xOffsetMultiply - label will be moved right by xOffsetMultiply 
+ * - xOffsetMultiply - label will be moved right by xOffsetMultiply
  * (default width of a label)
  * - insertBefore - label will be inserted before last label node
- * 
+ *
  * Module imported from onedata-gui-common.
  *
  * @module utils/chartist/additional-x-label
@@ -16,6 +16,8 @@
 
 /* global Chartist */
 
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
+
 import $ from 'jquery';
 
 export default function additionalXLabel(options) {
@@ -23,7 +25,7 @@ export default function additionalXLabel(options) {
     xOffsetMultiply: 1,
     insertBefore: false,
   };
-  options = Chartist.extend({}, defaultOptions, options);
+  const normalizedOptions = Chartist.extend({}, defaultOptions, options);
   return (chart) => {
     chart.on('created', () => {
       const labelsNode = $(chart.svg._node).find('.ct-labels');
@@ -37,11 +39,11 @@ export default function additionalXLabel(options) {
 
       const newLabelNode = sourceLabelNode.clone();
       newLabelNode.attr('x',
-        parseFloat(lastLabelNode.attr('x')) + options.xOffsetMultiply * parseFloat(
-          sourceLabelNode.attr('width'))
+        parseFloat(lastLabelNode.attr('x')) +
+        normalizedOptions.xOffsetMultiply * parseFloat(sourceLabelNode.attr('width'))
       );
       newLabelNode.find('span').text(chart.data.lastLabel);
-      if (!options.insertBefore) {
+      if (!normalizedOptions.insertBefore) {
         newLabelNode.insertAfter(lastLabelNode);
       } else {
         newLabelNode.insertBefore(lastLabelNode);

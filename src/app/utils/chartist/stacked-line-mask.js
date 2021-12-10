@@ -1,9 +1,9 @@
 /**
  * Chartist plugin that creates mask to simulate stacked line chart.
- * Warning: to use it, chart must render already "manually" stacked series 
+ * Warning: to use it, chart must render already "manually" stacked series
  * (each series is a sum of original values and all preceding series)
  * in descending value order.
- * 
+ *
  * @module utils/chartist/stacked-line-mask
  * @author Michal Borzecki
  * @copyright (C) 2017 ACK CYFRONET AGH
@@ -11,6 +11,8 @@
  */
 
 /* global Chartist */
+
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
 
 import $ from 'jquery';
 
