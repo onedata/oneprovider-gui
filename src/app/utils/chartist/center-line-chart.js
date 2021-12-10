@@ -1,7 +1,7 @@
 /**
- * Plugin for Chartist which centers charts (moves chart by a half of width of a column), 
+ * Plugin for Chartist which centers charts (moves chart by a half of width of a column),
  * that have one more column than there is available data.
- * 
+ *
  * Module imported from onedata-gui-common.
  *
  * @module utils/chartist/center-line-chart
@@ -9,6 +9,8 @@
  * @copyright (C) 2017 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
+
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
 
 import $ from 'jquery';
 

@@ -1,15 +1,15 @@
 /**
  * A plugin for Chartist which adds pie chart labels.
- * 
+ *
  * Options:
  * * lineTextMargin - margin between text and line,
  * * lineLength - horizontal (next to text) line length,
  * * linePointerLength - diagonal (pointer to slice) line length,
  * * hideLabelThresholdPercent - percent below which label is hidden.
- * 
+ *
  * Both lineLength and linePointerLength can be a number (means px),
  * or a percent string (relative to radius size).
- * 
+ *
  * Used css classes:
  * * ct-pie-label-line - for lines,
  * * ct-pie-label-text - for text (both top and bottom),
@@ -17,7 +17,7 @@
  * * ct-pie-label-text-bottom - for bottom text
  *
  * Module imported from onedata-gui-common.
- * 
+ *
  * @module utils/chartist/pie-labels
  * @author Michal Borzecki
  * @copyright (C) 2017 ACK CYFRONET AGH
@@ -25,6 +25,8 @@
  */
 
 /* global Chartist */
+
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
 
 import _ from 'lodash';
 import $ from 'jquery';
@@ -41,7 +43,7 @@ export default function pieLabels(options) {
     linePointerLength: DEFAULT_LINE_POINTER_LENGTH,
     hideLabelThresholdPercent: 15,
   };
-  options = Chartist.extend({}, defaultOptions, options);
+  const normalizedOptions = Chartist.extend({}, defaultOptions, options);
   return (chart) => {
     chart.on('draw', (data) => {
       if (!isPluginEnabled(chart)) {
@@ -64,14 +66,14 @@ export default function pieLabels(options) {
         const y = data.center.y - distance * Math.cos(radiansAverage);
 
         const lineLength = normalizeLength(
-          options.lineLength,
+          normalizedOptions.lineLength,
           data.radius,
           DEFAULT_LINE_LENGTH
         );
         const horizDirection = x > data.center.x ? 1 : -1;
         const vertDirection = y > data.center.y ? 1 : -1;
         const pointerLineLength = normalizeLength(
-          options.linePointerLength,
+          normalizedOptions.linePointerLength,
           data.radius,
           DEFAULT_LINE_POINTER_LENGTH
         );
@@ -89,9 +91,9 @@ export default function pieLabels(options) {
         const line = labelGroup.elem('path', lineAttributes, 'ct-pie-label-line');
         labelGroup.append(line);
 
-        addText(chart, data, options, labelGroup,
+        addText(chart, data, normalizedOptions, labelGroup,
           lineX3a, lineY3a, horizDirection, lineLength);
-        autohideLabel(data, options, labelGroup);
+        autohideLabel(data, normalizedOptions, labelGroup);
         chart.eventEmitter.emit('draw', {
           type: 'pie-label',
           element: labelGroup,
@@ -110,7 +112,7 @@ export default function pieLabels(options) {
         lastActiveTooltipTarget = $(lastActiveTooltipTarget);
         const lastTooltipId = lastActiveTooltipTarget.attr('aria-describedby');
         if ($('#' + lastTooltipId).hasClass('in')) {
-          // tooltip was active while rerender. Try to activate tooltip, which is 
+          // tooltip was active while rerender. Try to activate tooltip, which is
           // rendered exactly in the same place
           const dx = lastActiveTooltipTarget.attr('dx');
           const dy = lastActiveTooltipTarget.attr('dy');
@@ -143,17 +145,18 @@ function getLabelsGroup(svg) {
 }
 
 function normalizeLength(length, relativeLength, defaultValue) {
+  let normalizedLength;
   if (typeof length === 'string') {
-    length = length.trim();
+    normalizedLength = length.trim();
   } else if (typeof length === 'number') {
-    length = String(length);
+    normalizedLength = String(length);
   } else {
-    length = String(defaultValue);
+    normalizedLength = String(defaultValue);
   }
-  if (length[length.length - 1] === '%') {
-    return relativeLength * (parseFloat(length) / 100);
+  if (normalizedLength[normalizedLength.length - 1] === '%') {
+    return relativeLength * (parseFloat(normalizedLength) / 100);
   } else {
-    return parseFloat(length);
+    return parseFloat(normalizedLength);
   }
 }
 
@@ -189,9 +192,9 @@ function addText(
 
 function clipText(textElement, text, width, chart) {
   // some padding for readability
-  width -= 5;
+  const normalizedWidth = width - 5;
   textElement.text(text);
-  if (textElement.width() <= width || text.length <= 1) {
+  if (textElement.width() <= normalizedWidth || text.length <= 1) {
     return;
   } else {
     // binary search of proper text length
@@ -202,7 +205,7 @@ function clipText(textElement, text, width, chart) {
       const newIndex = Math.ceil((upperIndex + lowerIndex) / 2);
       clippedText = text.substring(0, newIndex) + '...';
       textElement.empty().text(clippedText);
-      if (textElement.width() > width) {
+      if (textElement.width() > normalizedWidth) {
         upperIndex = newIndex - 1;
       } else {
         lowerIndex = newIndex;

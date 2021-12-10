@@ -97,7 +97,7 @@ describe('Integration | Component | acl editor', function () {
     }];
 
     let testPromise = resolve();
-    toCheck.map(({ name, selected }, index) => {
+    toCheck.forEach(({ name, selected }, index) => {
       const selectorPrefix =
         `.one-collapsible-list-item:nth-child(${index + 1}) `;
       testPromise = testPromise.then(() =>
@@ -112,7 +112,6 @@ describe('Integration | Component | acl editor', function () {
             '.has-checkbox-group .one-tree .one-way-toggle.checked'))
           .to.have.length(selected.length);
       });
-
     });
 
     return testPromise;

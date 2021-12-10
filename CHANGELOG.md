@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8698 Fixed ESLint warnings
 * VFS-8639 Removed iterator strategy from workflows
 * VFS-8255 Added workflows and lambdas revisions
 * VFS-8561 Added support for "verifying" and "verification_failed" archive state
