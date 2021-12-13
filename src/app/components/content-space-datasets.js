@@ -26,6 +26,7 @@ import SplitGrid from 'npm:split-grid';
 import _ from 'lodash';
 import sleep from 'onedata-gui-common/utils/sleep';
 import { throttleTimeout } from 'onedata-gui-common/services/app-proxy';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -79,6 +80,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   globalNotify: service(),
   archiveManager: service(),
   parentAppNavigation: service(),
+  isMobile: service(),
 
   /**
    * **Injected from parent frame.**
@@ -412,6 +414,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
   gutterLabelVisible: reads('singleDatasetIsSelected'),
 
   singleDatasetIsSelected: bool('selectedSingleDataset'),
+
+  selectSingleDatasetText: conditional(
+    'isMobile.any',
+    computedT('selectSingleDatasetMobile'),
+    computedT('selectSingleDataset')
+  ),
 
   selectedSingleDataset: conditional(
     and(
