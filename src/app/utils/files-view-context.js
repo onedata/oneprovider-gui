@@ -60,7 +60,6 @@ const FilesViewContext = EmberObject.extend({
       'browserType',
       'spaceId',
       'shareId',
-      'isSpecialHiddenDir',
       'datasetId',
       'archiveId',
     ].every((property) => {

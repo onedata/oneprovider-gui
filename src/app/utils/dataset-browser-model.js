@@ -28,7 +28,6 @@ const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnCopyId',
   'btnShowFile',
-  'btnManageArchives',
   'btnCreateArchive',
   'btnProtection',
   'btnChangeState',
@@ -56,8 +55,7 @@ export default BaseBrowserModel.extend(I18n, {
   spaceDatasetsViewState: Object.freeze({}),
 
   /**
-   * Set to true, to turn off archives view links( in dataset rows and *
-   * no-children -dataset screens).
+   * Set to true, to turn off archives view links.
    * @virtual
    */
   archivesLinkDisabled: false,
@@ -68,12 +66,6 @@ export default BaseBrowserModel.extend(I18n, {
    * @type {Function}
    */
   getDataUrl: notImplementedThrow,
-
-  /**
-   * @override
-   * @type {(dataset: Models.Dataset) => any}
-   */
-  openDatasetOpenModal: notImplementedThrow,
 
   /**
    * @override
@@ -263,42 +255,6 @@ export default BaseBrowserModel.extend(I18n, {
     }
   ),
 
-  btnManageArchives: computed(
-    'spacePrivileges.viewArchives',
-    function btnManageArchives() {
-      const {
-        spacePrivileges,
-        i18n,
-      } = this.getProperties(
-        'spacePrivileges',
-        'i18n',
-      );
-      const hasPrivileges = spacePrivileges.viewArchives;
-      let disabledTip;
-      if (!hasPrivileges) {
-        disabledTip = insufficientPrivilegesMessage({
-          i18n,
-          modelName: 'space',
-          privilegeFlag: ['space_view_archives'],
-        });
-      }
-      return this.createFileAction({
-        id: 'manageArchives',
-        icon: 'browser-archive',
-        tip: disabledTip,
-        disabled: Boolean(disabledTip),
-        action: (datasets) => {
-          return this.get('openArchivesView')(datasets[0]);
-        },
-        showIn: [
-          actionContext.singleDir,
-          actionContext.singleFile,
-          actionContext.currentDir,
-        ],
-      });
-    }
-  ),
-
   btnChangeState: computed(
     'attachmentState',
     'isAnySelectedRootDeleted',
@@ -398,8 +354,8 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  onOpenFile(dataset) {
-    this.get('openDatasetOpenModal')(dataset);
+  onOpenFile( /* dataset */ ) {
+    // ignore - file dataset cannot be opened
   },
 
   showRootFile(dataset) {

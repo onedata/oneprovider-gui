@@ -5,16 +5,223 @@
   }
 }
 
+// disable hiding shadow when embedded-content is scrolled to top, because it is always
+// scrolled to top in splitted view - see styles for `.split-browser-container`
+.embedded-content {
+  &.on-top {
+    .split-browser-container .file-browser-head-container {
+      @include before-bottom-shadow;
+    }
+  }
+}
+
 .content-space-datasets {
+  $-gutter-background-color: $color-one-semiwhite;
+  $-gutter-background-color-hovered: $color-one-gray-sand;
+  $-gutter-height: 10px;
   position: relative;
   height: 100%;
-  flex-grow: 1;
+
+  display: grid;
+  grid-template-rows: 1fr $-gutter-height 1fr;
+
+  .gutter-row {
+    position: relative;
+    grid-column: 1/-1;
+    cursor: row-resize;
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+    background-color: $-gutter-background-color;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+    z-index: $zindex-file-browser-head + 1;
+
+    &:hover {
+      background-color: $color-one-gray-sand;
+    }
+  }
+
+  .gutter-row-1 {
+    grid-row: 2;
+  }
+
+  .gutter-label {
+    // additional em paddgin is added because of internal dataset one-icon padding
+    $-padding-horizontal: calc(#{$file-browser-padding-left} + 0.2em);
+    $-padding-vertical: 0.2em;
+    display: inline-block;
+    padding-left: $-padding-horizontal;
+    padding-right: $-padding-horizontal;
+    border-radius: $border-radius-large;
+    background-color: inherit;
+    padding-top: $-padding-vertical;
+    padding-bottom: $-padding-vertical;
+
+    // mobile-first
+    @include absolute-align-middle-center();
+    max-width: 80%;
+
+    // tablet/desktop
+    @media (min-width: $screen-sm-min) {
+      @include vertical-align-middle;
+      left: $content-col-padding;
+      max-width: 40%;
+    }
+  }
+
+  .gutter-label-hideable {
+    transition: transition-ease(max-height), transition-ease(opacity);
+    overflow: hidden;
+  }
+
+  .gutter-label-hidden {
+    max-height: $-gutter-height;
+    opacity: 0;
+  }
+
+  .gutter-label-visible {
+    max-height: 2em;
+    opacity: 1;
+  }
 
   .file-browser-head-container {
     z-index: $zindex-file-browser-head;
   }
 
-  + .ps__rail-x + .ps__rail-y {
-    z-index: $zindex-file-browser-head + 1;
+  .fb-table.special-dir-view {
+    position: absolute;
+    background-size: contain;
+    top: $fb-table-margin-top + 20px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: auto;
+    .dir-box {
+      margin-top: -20px;
+    }
+  }
+
+  .browser-scroll-container {
+    flex-grow: 1;
+  }
+
+  .split-browser-container {
+    margin-left: -$content-col-padding;
+    padding-left: $content-col-padding;
+    margin-right: -$content-col-padding;
+    padding-right: $content-col-padding;
+
+    .ps__rail-x + .ps__rail-y {
+      z-index: $zindex-file-browser-head + 1;
+    }
+
+    .file-browser-head-container {
+      @include before-bottom-shadow;
+    }
+    &.on-top {
+      .file-browser-head-container {
+        @include hide-before-shadow;
+      }
+    }
+
+    .fb-table {
+      // there is no need for large bottom spacing in modal, because it should be compact
+      .table-bottom-spacing {
+        height: 2em;
+      }
+    }
+    .fb-table {
+      .refresh-spinner {
+        position: absolute;
+      }
+    }
+    .empty-dir-image {
+      // @media (max-height: 10px) {
+        display: none;
+      // }
+    }
+  }
+
+  // stretching vertically specific for "secondary" browser on the bottom
+  .dataset-archives-browser {
+    flex-grow: 1;
+    .file-browser {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+    .fb-table-container {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: column;
+    }
+    .fb-table {
+      flex-grow: 1;
+      // there is no need for large bottom spacing in modal, because it should be compact
+      .table-bottom-spacing {
+        height: 2em;
+      }
+      .refresh-spinner {
+        position: absolute;
+      }
+    }
+    .empty-dir-image {
+      @media (max-height: 700px) {
+        display: none;
+      }
+    }
+  }
+
+  .dataset-browser-container {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+  }
+
+  .archive-browser-container {
+    display: flex;
+    margin-bottom: -$content-col-padding;
+
+    .file-browser-head-container {
+      position: sticky;
+      padding-top: 0;
+
+      @media (min-width: $screen-sm-min) {
+        margin-left: -$content-col-padding;
+        padding-left: $content-col-padding + $file-browser-padding-left;
+        margin-right: -$content-col-padding;
+        padding-right: $content-col-padding + $file-browser-padding-right;
+      }
+    }
+
+    .file-browser {
+      height: auto;
+
+      .fb-table-container {
+        // header is sticky, so we do not need margin
+        margin-top: 0;
+      }
+    }
+
+    // @include before-top-shadow;
+    // &.on-top {
+    //   @include hide-before-shadow;
+    // }
+  }
+
+  .bottom-panel-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    font-size: 1.5em;
+    opacity: $disabled-opacity;
+  }
+  .bottom-panel-text {
+    text-align: center;
+  }
+  .bottom-panel-text.bottom-panel-text-secondary {
+    font-size: 90%;
   }
 }

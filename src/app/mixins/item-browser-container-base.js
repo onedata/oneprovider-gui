@@ -17,7 +17,8 @@ import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Mixin.create({
   // requires selectedItems: Array<Object> (browsable objects)
-  // requires dirProxy: PromiseObject<Object> (browsable object)
+  // requires `currentBrowsableItem` (recommended) or `dirProxy` (backward compatibility)
+  //   with type PromiseObject<Object> (browsable object)
   // optional selectedItemsForJumpProxy: PromiseArray<Object> (browsable obj.)
   // optional space: Models.Space
 
@@ -27,6 +28,13 @@ export default Mixin.create({
    * @type {Boolean}
    */
   lockSelectedReset: false,
+
+  /**
+   * Reading `dirProxy` to be backward-compatible.
+   * It is recommended to implement this in class.
+   * @type {ComputedProperty<PromiseObject<Object>>}
+   */
+  currentBrowsableItemProxy: reads('dirProxy'),
 
   /**
    * @type {ComputedProperty<Object>}
@@ -58,21 +66,24 @@ export default Mixin.create({
       this.set('lockSelectedReset', true);
       try {
         await this.changeSelectedItems(selectedItemsForJump);
-        await this.get('dirProxy');
+        await this.get('currentBrowsableItemProxy');
       } finally {
         this.set('lockSelectedReset', false);
       }
     }
   ),
 
-  ensureSelectedReset: observer('dirProxy', async function ensureSelectedReset() {
-    if (this.get('lockSelectedReset')) {
-      return;
+  ensureSelectedReset: observer(
+    'currentBrowsableItemProxy',
+    async function ensureSelectedReset() {
+      if (this.get('lockSelectedReset')) {
+        return;
+      }
+      if (this.get('selectedItems.length') > 0) {
+        await this.changeSelectedItems([]);
+      }
     }
-    if (this.get('selectedItems.length') > 0) {
-      await this.changeSelectedItems([]);
-    }
-  }),
+  ),
 
   init() {
     this._super(...arguments);

@@ -2,10 +2,12 @@
   {{tt this "noArchives"}}
 </h1>
 <div class="empty-dir-image dir-box-image"></div>
-<h2 class="empty-dir-text dir-box-text">
-  <a class="empty-archives-create-action" {{action "openCreateArchiveModal"}}>
-    <div class="inline-icon-container bind-right-text">
-      {{one-icon icon="browser-archive-add"}}
-    </div>&nbsp;{{tt this "createArchive"}}
-  </a>
-</h2>
+{{#unless datasetIsDetached}}
+  <h2 class="empty-dir-text dir-box-text">
+    <a class="empty-archives-create-action" {{action "openCreateArchiveModal"}}>
+      <div class="inline-icon-container bind-right-text">
+        {{one-icon icon="browser-archive-add"}}
+      </div>&nbsp;{{tt this "createArchive"}}
+    </a>
+  </h2>
+{{/unless}}
