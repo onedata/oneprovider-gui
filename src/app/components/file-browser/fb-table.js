@@ -255,6 +255,13 @@ export default Component.extend(I18n, {
 
   headStatusBarComponentName: reads('browserModel.headStatusBarComponentName'),
 
+  /**
+   * If true, files table will not jump to changed `itemsForJump` if these items are
+   * already selected.
+   * @type {ComputedProperty<Boolean>}
+   */
+  disableReJumps: reads('browserModel.disableReJumps'),
+
   selectionCount: reads('selectedItems.length'),
 
   viewTester: computed('contentScroll', function viewTester() {
@@ -554,21 +561,25 @@ export default Component.extend(I18n, {
         selectedItems,
         selectedItemsForJump,
         changeSelectedItems,
+        disableReJumps,
       } = this.getProperties(
         'selectedItems',
         'selectedItemsForJump',
-        'changeSelectedItems'
+        'changeSelectedItems',
+        'disableReJumps',
       );
       if (isEmpty(selectedItemsForJump)) {
         return;
       }
 
       await this.get('filesArray.initialLoad');
-      if (!_.isEqual(selectedItems, selectedItemsForJump)) {
+      const alreadySelected = _.isEqual(selectedItems, selectedItemsForJump);
+      if (!alreadySelected) {
         await changeSelectedItems(selectedItemsForJump);
       }
-
-      return await this.jumpToSelection();
+      if (!disableReJumps || !alreadySelected) {
+        await this.jumpToSelection();
+      }
     }
   ),
 

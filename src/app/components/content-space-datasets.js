@@ -643,6 +643,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     return DatasetBrowserModel.create({
       ownerSource: this,
       spaceDatasetsViewState: this,
+      disableReJumps: true,
       getDataUrl: this.getDataUrl.bind(this),
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openProtectionModal: this.openProtectionModal.bind(this),
@@ -798,11 +799,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
         selectedItems: currentSelectedItems,
         browsableDataset,
       } = this.getProperties('selectedItems', 'browsableDataset');
-      // single selected dataset should be stored in URL - user can navigate with
-      // prev/next when selects single dataset for browsing;
-      // also a current "dir" could be selected, but should not be stored in URL
-      const isChangeStoredInUrl = selectedItems.length === 1 &&
-        selectedItems[0] !== browsableDataset;
       // clearing archive and dir clears secondary browser - it should be done only
       // if selected dataset is changed; in other circumstances it is probably initial
       // selection change (after jump) or some unnecessary url update
@@ -812,7 +808,16 @@ export default OneEmbeddedComponent.extend(...mixins, {
       ) {
         this.callParent('updateArchiveId', null);
         this.callParent('updateDirId', null);
+        // TODO: VFS-8737 try to make proper wait-for-shared-properties method
+        await sleep(throttleTimeout * 2);
       }
+      await this.changeSelectedItems(selectedItems);
+
+      // single selected dataset should be stored in URL - user can navigate with
+      // prev/next when selects single dataset for browsing;
+      // also a current "dir" could be selected, but should not be stored in URL
+      const isChangeStoredInUrl = selectedItems.length === 1 &&
+        selectedItems[0] !== browsableDataset;
       // only one method of updating component selectedItems to new value should be used,
       // because they are both async and cause random error when used both
       if (isChangeStoredInUrl) {
@@ -821,9 +826,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
         // clear selection in URL, because this selection should not be stored
         this.callParent('updateSelectedDatasets', null);
       }
-      // TODO: VFS-8737 try to make proper wait-for-shared-properties method
-      await sleep(throttleTimeout + 10);
-      await this.changeSelectedItems(selectedItems);
     },
     updateArchiveId(archiveId) {
       this.callParent('updateArchiveId', archiveId);
