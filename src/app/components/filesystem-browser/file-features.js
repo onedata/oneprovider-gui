@@ -38,7 +38,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Array<String>}
    */
-  features: undefined,
+  features: Object.freeze(['effDatasetMembership', 'effQosMembership']),
 
   /**
    * @virtual

@@ -69,7 +69,6 @@ export default Component.extend({
         const options = {
           [mode === 'dataset' ? 'selectedDatasets' : 'selected']: [itemId],
         };
-        console.log('options for dataset list container', options);
         const filePathString = await this.getPathString(dataset);
         return {
           dataset,
