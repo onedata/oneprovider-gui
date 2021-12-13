@@ -28,7 +28,6 @@ const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnCopyId',
   'btnShowFile',
-  'btnManageArchives',
   'btnCreateArchive',
   'btnProtection',
   'btnChangeState',
@@ -56,8 +55,7 @@ export default BaseBrowserModel.extend(I18n, {
   spaceDatasetsViewState: Object.freeze({}),
 
   /**
-   * Set to true, to turn off archives view links( in dataset rows and *
-   * no-children -dataset screens).
+   * Set to true, to turn off archives view links.
    * @virtual
    */
   archivesLinkDisabled: false,
@@ -253,42 +251,6 @@ export default BaseBrowserModel.extend(I18n, {
         disabled: Boolean(disabledTip),
         action: (datasets) => {
           return this.openCreateArchiveModal(datasets[0]);
-        },
-        showIn: [
-          actionContext.singleDir,
-          actionContext.singleFile,
-          actionContext.currentDir,
-        ],
-      });
-    }
-  ),
-
-  btnManageArchives: computed(
-    'spacePrivileges.viewArchives',
-    function btnManageArchives() {
-      const {
-        spacePrivileges,
-        i18n,
-      } = this.getProperties(
-        'spacePrivileges',
-        'i18n',
-      );
-      const hasPrivileges = spacePrivileges.viewArchives;
-      let disabledTip;
-      if (!hasPrivileges) {
-        disabledTip = insufficientPrivilegesMessage({
-          i18n,
-          modelName: 'space',
-          privilegeFlag: ['space_view_archives'],
-        });
-      }
-      return this.createFileAction({
-        id: 'manageArchives',
-        icon: 'browser-archive',
-        tip: disabledTip,
-        disabled: Boolean(disabledTip),
-        action: (datasets) => {
-          return this.get('openArchivesView')(datasets[0]);
         },
         showIn: [
           actionContext.singleDir,
