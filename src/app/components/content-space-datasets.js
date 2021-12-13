@@ -656,7 +656,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openProtectionModal: this.openProtectionModal.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
-      openDatasetOpenModal: this.openDatasetOpenModal.bind(this),
       openArchivesView: this.openArchivesView.bind(this),
     });
   },
@@ -734,14 +733,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       datasetToShowProtection: null,
       fileToShowProtection: null,
     });
-  },
-
-  openDatasetOpenModal(dataset) {
-    this.set('fileToShowDatasetOpen', dataset);
-  },
-
-  closeDatasetOpenModal() {
-    this.set('fileToShowDatasetOpen', null);
   },
 
   /**

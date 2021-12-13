@@ -34,15 +34,6 @@
       }}
     {{/if}}
 
-    {{#if fileToShowDatasetOpen}}
-      {{dataset-browser/dataset-open-modal
-        open=true
-        dataset=fileToShowDatasetOpen
-        onHide=(action closeDatasetOpenModal)
-        onOpenArchivesView=(action openArchivesView)
-      }}
-    {{/if}}
-
     {{#if datasetToCreateArchive}}
       {{archive-create-modal
         open=true

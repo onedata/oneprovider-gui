@@ -69,12 +69,6 @@ export default BaseBrowserModel.extend(I18n, {
 
   /**
    * @override
-   * @type {(dataset: Models.Dataset) => any}
-   */
-  openDatasetOpenModal: notImplementedThrow,
-
-  /**
-   * @override
    * @type {(dataset: Models.Dataset, file: Models.File) => any}
    */
   openProtectionModal: notImplementedThrow,
@@ -360,8 +354,8 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  onOpenFile(dataset) {
-    this.get('openDatasetOpenModal')(dataset);
+  onOpenFile( /* dataset */ ) {
+    // ignore - file dataset cannot be opened
   },
 
   showRootFile(dataset) {
