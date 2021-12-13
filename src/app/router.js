@@ -15,6 +15,8 @@ const Router = OnedataRouter.extend({
   rootURL: config.rootURL,
 });
 
+// `Router` is not an array - disabling ESLint warning for `map`
+// eslint-disable-next-line array-callback-return
 Router.map(function () {
   Router.reopen({
     location: 'hash',

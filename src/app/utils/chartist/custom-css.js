@@ -1,5 +1,5 @@
 /**
- * Plugin for Chartist which changes chart elements styles to custom values 
+ * Plugin for Chartist which changes chart elements styles to custom values
  * using data.customCss. It has to be a list with objects in format e.g.:
  * {
  *   slice: {
@@ -9,10 +9,10 @@
  * Name of an element is the same as the one we can obtain from data.type,
  * where `data` if from `chart.on('draw', (data) => {...})`. Styles are applied to
  * `data.element`.
- * 
- * If transition is necessary, special object transitionProperties 
- * can be used. It is a object with css properties and values, 
- * that will be applied just after (in the next run-loop) standard 
+ *
+ * If transition is necessary, special object transitionProperties
+ * can be used. It is a object with css properties and values,
+ * that will be applied just after (in the next run-loop) standard
  * (not in transitionProperties) properties application. Example:
  * {
  *   slice: {
@@ -28,7 +28,7 @@
  * stroke-opacity animation 0.5 to 1.
  *
  * Module imported from onedata-gui-common.
- * 
+ *
  * @module utils/chartist/custom-css
  * @author Michal Borzecki
  * @copyright (C) 2017 ACK CYFRONET AGH
@@ -37,17 +37,19 @@
 
 /* global Chartist */
 
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
+
 import $ from 'jquery';
 
 export default function customCss(options) {
   const defaultOptions = {
     filterBySeriesIndex: false,
   };
-  options = Chartist.extend({}, defaultOptions, options);
+  const normalizedOptions = Chartist.extend({}, defaultOptions, options);
   return (chart) => {
     chart.on('draw', (data) => {
       let css = chart.data.customCss;
-      if (options.filterBySeriesIndex) {
+      if (normalizedOptions.filterBySeriesIndex) {
         css = css[data.seriesIndex];
       }
       const elementCss = css && css[data.index] && css[data.index][data.type];

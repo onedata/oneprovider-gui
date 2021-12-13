@@ -1,6 +1,6 @@
 /**
  * A stacked line chart component for visualizing transfer throughput history.
- * 
+ *
  * @module components/space-transfers/transfer-chart
  * @author Michal Borzecki
  * @copyright (C) 2017-2019 ACK CYFRONET AGH
@@ -764,9 +764,9 @@ export default Component.extend(
       );
       let x = _transferLastUpdateTime + 1;
       const scaledStats = [];
-      statValues = statValues.filter(y => y !== null);
-      for (let i = 0; i < statValues.length; i++) {
-        scaledStats.push({ x, y: statValues[i] });
+      const normalizedStatValues = statValues.filter(y => y !== null);
+      for (let i = 0; i < normalizedStatValues.length; i++) {
+        scaledStats.push({ x, y: normalizedStatValues[i] });
         const timeDelta = x % _timePeriod === 0 ? _timePeriod : x % _timePeriod;
         const newX = Math.max(
           x - timeDelta,

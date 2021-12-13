@@ -1,12 +1,12 @@
 /**
  * Plugin for Chartist which adds axis (x and y) labels.
- * 
+ *
  * Options:
  * - xLabel, yLabel - labels
  * - xLabelXOffset, xLabelYOffset, yLabelXOffset, yLabelYOffset - position
  * - yAlignment - 'left' (default) or 'right' - y axis label alignment
  * adjustments for x and y labels
- * 
+ *
  * Module imported from onedata-gui-common.
  *
  * @module utils/chartist/axis-labels
@@ -16,6 +16,8 @@
  */
 
 /* global Chartist */
+
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
 
 import $ from 'jquery';
 
@@ -32,24 +34,24 @@ export default function axisLabel(options) {
 
   return (chart) => {
     chart.on('created', function () {
-      options = Chartist.extend({}, defaultOptions, options);
+      const normalizedOptions = Chartist.extend({}, defaultOptions, options);
       const dataAxisLabels = chart.data.axisLabels;
       if (dataAxisLabels) {
-        options.xLabel = dataAxisLabels.xLabel;
-        options.yLabel = dataAxisLabels.yLabel;
+        normalizedOptions.xLabel = dataAxisLabels.xLabel;
+        normalizedOptions.yLabel = dataAxisLabels.yLabel;
       }
       const svgNode = $(chart.svg._node);
       const axisLabelsGroup = chart.svg.elem('g', {}, 'ct-axis-labels');
       axisLabelsGroup.elem('text', {
-        x: (options.yAlignment === 'right' ? -1 : 1) *
-          (-svgNode.innerHeight() / 2 + options.yLabelYOffset),
-        y: options.yAlignment === 'right' ?
-          -svgNode.innerWidth() - options.yLabelXOffset : options.yLabelXOffset,
-      }, 'ct-axis-y-label ' + options.yAlignment).text(options.yLabel);
+        x: (normalizedOptions.yAlignment === 'right' ? -1 : 1) *
+          (-svgNode.innerHeight() / 2 + normalizedOptions.yLabelYOffset),
+        y: normalizedOptions.yAlignment === 'right' ? -svgNode.innerWidth() -
+          normalizedOptions.yLabelXOffset : normalizedOptions.yLabelXOffset,
+      }, 'ct-axis-y-label ' + normalizedOptions.yAlignment).text(normalizedOptions.yLabel);
       axisLabelsGroup.elem('text', {
-        x: svgNode.innerWidth() / 2 + options.xLabelXOffset,
-        y: svgNode.innerHeight() + options.xLabelYOffset,
-      }, 'ct-axis-x-label').text(options.xLabel);
+        x: svgNode.innerWidth() / 2 + normalizedOptions.xLabelXOffset,
+        y: svgNode.innerHeight() + normalizedOptions.xLabelYOffset,
+      }, 'ct-axis-x-label').text(normalizedOptions.xLabel);
     });
   };
 }
