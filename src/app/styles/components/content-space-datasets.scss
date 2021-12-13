@@ -185,11 +185,14 @@
 
     .file-browser-head-container {
       position: sticky;
-      margin-left: -$content-col-padding;
-      padding-left: $content-col-padding + $file-browser-padding-left;
-      margin-right: -$content-col-padding;
-      padding-right: $content-col-padding + $file-browser-padding-right;
       padding-top: 0;
+
+      @media (min-width: $screen-sm-min) {
+        margin-left: -$content-col-padding;
+        padding-left: $content-col-padding + $file-browser-padding-left;
+        margin-right: -$content-col-padding;
+        padding-right: $content-col-padding + $file-browser-padding-right;
+      }
     }
 
     .file-browser {
