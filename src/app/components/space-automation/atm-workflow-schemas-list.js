@@ -26,7 +26,7 @@ const typingActionDebouce = config.timing.typingActionDebouce;
 /**
  * @typedef {Object} AtmWorkflowSchemasListEntry
  * @property {Model.AtmWorkflowSchema} atmWorkflowSchema
- * @property {number[]} revisionNumbersMatchingInput
+ * @property {RevisionNumber[]} revisionNumbersMatchingInput
  * @property {String} name
  * @property {boolean} isLoaded
  */
@@ -50,7 +50,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {(atmWorkflowSchema: Models.AtmWorkflowSchema, revisionNumber: number) => void}
+   * @type {(atmWorkflowSchema: Models.AtmWorkflowSchema, revisionNumber: RevisionNumber) => void}
    */
   onAtmWorkflowSchemaRevisionSelect: undefined,
 

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8617 Removed usages of ember-invoke-action
 * VFS-8739 Fixed double-listing datasets whose names have number suffixes
 * VFS-8574 Updated backend errors translations
 * VFS-7724 Changed separate dataset and archives views into splitted browser
