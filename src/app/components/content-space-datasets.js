@@ -14,7 +14,17 @@ import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw, bool, conditional, equal, and, notEqual } from 'ember-awesome-macros';
+import {
+  promise,
+  raw,
+  bool,
+  conditional,
+  equal,
+  and,
+  notEqual,
+  array,
+  collect,
+} from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
@@ -185,19 +195,39 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   _window: window,
 
+  ignoreCommonSelector: '#content-scroll, .modal.in',
+
   /**
    * Ignore deselect selector for dataset browser.
    * See `component:file-browser#ignoreDeselectSelector` purpose.
    * @type {String}
    */
-  ignoreDatasetDeselectSelector: '#content-scroll, .archive-browser-container, .archive-browser-container *, .dataset-browser-container .ps__rail-y, .dataset-browser-container .ps__rail-y *',
+  ignoreDatasetDeselectSelector: array.join(
+    collect(
+      'ignoreCommonSelector',
+      raw('.archive-browser-container'),
+      raw('.archive-browser-container *'),
+      raw('.dataset-browser-container .ps__rail-y'),
+      raw('.dataset-browser-container .ps__rail-y *'),
+    ),
+    raw(',')
+  ),
 
   /**
    * Ignore deselect selector for archive browser.
    * See `component:file-browser#ignoreDeselectSelector` purpose.
    * @type {String}
    */
-  ignoreArchiveDeselectSelector: '#content-scroll, .dataset-browser-container, .dataset-browser-container *, .archive-browser-container .ps__rail-y, .archive-browser-container .ps__rail-y *',
+  ignoreArchiveDeselectSelector: array.join(
+    collect(
+      'ignoreCommonSelector',
+      raw('.dataset-browser-container'),
+      raw('.dataset-browser-container *'),
+      raw('.archive-browser-container .ps__rail-y'),
+      raw('.archive-browser-container .ps__rail-y *'),
+    ),
+    raw(',')
+  ),
 
   /**
    * Set on init.
