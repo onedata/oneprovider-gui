@@ -16,7 +16,7 @@
   .file-browser-head-container {
     @include before-bottom-shadow;
   }
-  &.scroll-on-top {
+  &.on-top {
     .file-browser-head-container {
       @include hide-before-shadow;
     }

@@ -8,8 +8,8 @@
   }
   .file-browser-head-container {
     position: absolute;
-    padding-left: 12px;
-    padding-right: 32px;
+    padding-left: $file-browser-padding-left;
+    padding-right: $content-col-padding;
     padding-top: 0;
     margin-top: -10px;
   }

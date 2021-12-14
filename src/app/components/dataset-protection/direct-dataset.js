@@ -20,6 +20,7 @@ export default Component.extend(I18n, {
   classNames: ['dataset-protection-direct-dataset', 'datasets-table-tbody'],
 
   i18n: service(),
+  parentAppNavigation: service(),
 
   /**
    * @override
@@ -56,7 +57,7 @@ export default Component.extend(I18n, {
    */
   showBrowseDatasetsLink: true,
 
-  navigateTarget: '_top',
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   /**
    * Displayed name of dataset item
@@ -100,8 +101,7 @@ export default Component.extend(I18n, {
         const parentId = directDataset.relationEntityId('parent');
         const options = {
           datasetId: parentId,
-          selected: datasetId,
-          viewMode: 'datasets',
+          selectedDatasets: [datasetId],
           attachmentState: get(directDataset, 'state'),
         };
         return this.get('getDatasetsUrl')(options);

@@ -126,6 +126,14 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   currentDirTranslation: '',
 
   /**
+   * If true, files table will not jump to changed `itemsForJump` if these items are
+   * already selected.
+   * @virtual optional
+   * @type {Boolean}
+   */
+  disableReJumps: false,
+
+  /**
    * @type {String}
    */
   rootIcon: 'space',

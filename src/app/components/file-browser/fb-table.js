@@ -255,6 +255,13 @@ export default Component.extend(I18n, {
 
   headStatusBarComponentName: reads('browserModel.headStatusBarComponentName'),
 
+  /**
+   * If true, files table will not jump to changed `itemsForJump` if these items are
+   * already selected.
+   * @type {ComputedProperty<Boolean>}
+   */
+  disableReJumps: reads('browserModel.disableReJumps'),
+
   selectionCount: reads('selectedItems.length'),
 
   viewTester: computed('contentScroll', function viewTester() {
@@ -475,6 +482,10 @@ export default Component.extend(I18n, {
         await this.get('changeSelectedItems')(items);
         return this.jumpToSelection();
       },
+      recomputeTableItems: async () => {
+        await sleep(0);
+        this.get('listWatcher').scrollHandler();
+      },
     };
   }),
 
@@ -509,6 +520,7 @@ export default Component.extend(I18n, {
       this._fetchDirChildren.bind(this);
     return async (entityId, ...args) => {
       const dir = this.get('dir');
+      // it shows empty directory for a while
       if (get(dir, 'entityId') !== entityId) {
         // due to incomplete async implementation in fb-table, sometimes it can ask for
         // children of dir that is not currently opened
@@ -549,21 +561,25 @@ export default Component.extend(I18n, {
         selectedItems,
         selectedItemsForJump,
         changeSelectedItems,
+        disableReJumps,
       } = this.getProperties(
         'selectedItems',
         'selectedItemsForJump',
-        'changeSelectedItems'
+        'changeSelectedItems',
+        'disableReJumps',
       );
       if (isEmpty(selectedItemsForJump)) {
         return;
       }
 
       await this.get('filesArray.initialLoad');
-      if (!_.isEqual(selectedItems, selectedItemsForJump)) {
+      const alreadySelected = _.isEqual(selectedItems, selectedItemsForJump);
+      if (!alreadySelected) {
         await changeSelectedItems(selectedItemsForJump);
       }
-
-      return await this.jumpToSelection();
+      if (!disableReJumps || !alreadySelected) {
+        await this.jumpToSelection();
+      }
     }
   ),
 

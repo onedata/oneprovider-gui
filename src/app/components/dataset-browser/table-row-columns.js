@@ -16,12 +16,6 @@ export default FbTableRowColumns.extend({
    */
   dataset: reads('file'),
 
-  /**
-   * If set to true, do not expose browsing archives links on archives count.
-   * @type {ComputedProperty<Boolean>}
-   */
-  archivesLinkDisabled: reads('browserModel.archivesLinkDisabled'),
-
   actions: {
     manageArchives() {
       const {

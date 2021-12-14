@@ -1,13 +1,17 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   {{file-browser
-    dir=dir
+    dir=currentBrowsableItem
     browserModel=browserModel
     parentModalDialogSelector=parentModalDialogSelector
     isSpaceOwned=space.currentUserIsOwner
     spaceId=space.entityId
     contentScroll=contentScroll
     selectedItems=selectedItems
+    selectedItemsForJumpProxy=selectedItemsForJumpProxy
     spacePrivileges=spacePrivileges
+    ignoreDeselectSelector=ignoreDeselectSelector
+    onRegisterApi=onRegisterApi
+    showSelectionToolkit=showSelectionToolkit
     resolveFileParentFun=(action "resolveItemParent")
     customFetchDirChildren=(action "fetchChildren")
     changeSelectedItems=(action "changeSelectedItems")
@@ -15,32 +19,14 @@
   }}
 {{/promise-proxy-container}}
 
-{{#if createArchiveOpened}}
-  {{archive-create-modal
-    open=true
-    dataset=dataset
-    options=createArchiveOptions
-    onHide=(action closeCreateArchiveModal)
-    onArchiveCreate=(action submitArchiveCreate)
-  }}
-{{/if}}
-
-{{#if archivesToPurge}}
-  {{archives-purge-modal
-    open=true
-    archives=archivesToPurge
-    onHide=(action closeArchivesPurgeModal)
-  }}
-{{/if}}
-
 {{#if fileToShowInfo}}
   {{file-browser/fb-info-modal
     open=true
     file=fileToShowInfo
     initialTab=showInfoInitialTab
     showApiSection=false
-    onHide=(action closeInfoModal)
     getDataUrl=(action "getFileUrl")
+    onHide=(action closeInfoModal)
   }}
 {{/if}}
 
@@ -89,8 +75,8 @@
     space=space
     showPrivilege=spacePrivileges.viewQos
     editPrivilege=spacePrivileges.manageQos
-    onHide=(action closeQosModal)
     getDataUrl=(action "getFileUrl")
+    onHide=(action closeQosModal)
   }}
 {{/if}}
 
@@ -99,3 +85,21 @@
   confirmDownload=(action confirmFileDownload)
   onHide=(action closeConfirmFileDownload)
 }}
+
+{{#if archivesToPurge}}
+  {{archives-purge-modal
+    open=true
+    archives=archivesToPurge
+    onHide=(action closeArchivesPurgeModal)
+  }}
+{{/if}}
+
+{{#if createArchiveOpened}}
+  {{archive-create-modal
+    open=true
+    dataset=browsableDataset
+    options=createArchiveOptions
+    onHide=(action closeCreateArchiveModal)
+    onArchiveCreate=(action submitArchiveCreate)
+  }}
+{{/if}}

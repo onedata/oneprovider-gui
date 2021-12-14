@@ -1,21 +1,23 @@
 /**
  * Plugin for Chartist which adds additional text in the center of the chart.
- * 
+ *
  * Options:
  * * text - text to display
- * * fontSize - [optional] text font size (percents will be relative 
+ * * fontSize - [optional] text font size (percents will be relative
  *   to `min(chart.width, chart.height)`)
- * * maxWidth - [optional] max text width (in the same format as fontSize). 
+ * * maxWidth - [optional] max text width (in the same format as fontSize).
  *   If text width is greater than maxWidth, then font size is scaled down
  * * class - class for text svg element
  *
  * Module imported from onedata-gui-common.
- * 
+ *
  * @module utils/chartist/centered-text
  * @author Michal Borzecki
  * @copyright (C) 2017 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
+
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
 
 import _ from 'lodash';
 
@@ -60,20 +62,21 @@ export default function centeredText(options) {
 }
 
 function normalizeSize(size, relativeSize, defaultValue) {
+  let normalizedSize;
   if (typeof size === 'string') {
-    size = size.trim();
+    normalizedSize = size.trim();
   } else if (typeof size === 'number') {
     return size;
   } else {
     if (typeof defaultValue === 'number') {
       return defaultValue;
     } else {
-      size = String(defaultValue);
+      normalizedSize = String(defaultValue);
     }
   }
-  if (size[size.length - 1] === '%') {
-    return relativeSize * (parseFloat(size) / 100);
+  if (normalizedSize[normalizedSize.length - 1] === '%') {
+    return relativeSize * (parseFloat(normalizedSize) / 100);
   } else {
-    return parseFloat(size);
+    return parseFloat(normalizedSize);
   }
 }

@@ -45,13 +45,13 @@
       }}
     {{/dataset-protection/table}}
   {{else if (eq activeTab "archives")}}
-    {{#promise-proxy-container proxy=directDatasetProxy}}
+    {{#promise-proxy-container proxy=browsableDatasetProxy}}
       {{file-datasets/archives-tab
         class="in-modal-item-browser-container"
         parentModalDialogSelector=parentModalDialogSelector
         space=space
         modalBodyId=modalBodyId
-        dataset=directDatasetProxy.content
+        browsableDataset=browsableDatasetProxy.content
       }}
     {{/promise-proxy-container}}
   {{/if}}

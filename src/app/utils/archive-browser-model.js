@@ -46,6 +46,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   globalNotify: service(),
   i18n: service(),
   globalClipboard: service(),
+  parentAppNavigation: service(),
 
   /**
    * @override
@@ -160,10 +161,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return [...allButtonNames];
     }
   }),
-
-  _window: window,
-
-  navigateDataTarget: '_top',
 
   /**
    * @type {Looper}
@@ -283,24 +280,31 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnCreateIncrementalArchive: computed(
     'dataset',
+    'attachmentState',
     'spacePrivileges.{manageDatasets,createArchives}',
     function btnCreateArchive() {
       const {
         spacePrivileges,
+        attachmentState,
         i18n,
       } = this.getProperties(
         'spacePrivileges',
+        'attachmentState',
         'i18n',
       );
-      const hasPrivileges = spacePrivileges.manageDatasets &&
-        spacePrivileges.createArchives;
       let disabledTip;
-      if (!hasPrivileges) {
-        disabledTip = insufficientPrivilegesMessage({
-          i18n,
-          modelName: 'space',
-          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
-        });
+      if (attachmentState === 'detached') {
+        disabledTip = this.t('notAvailableForDetached');
+      } else {
+        const hasPrivileges = spacePrivileges.manageDatasets &&
+          spacePrivileges.createArchives;
+        if (!hasPrivileges) {
+          disabledTip = insufficientPrivilegesMessage({
+            i18n,
+            modelName: 'space',
+            privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+          });
+        }
       }
       return this.createFileAction({
         id: 'createIncrementalArchive',
@@ -413,18 +417,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   browseArchiveDip(archive) {
     const {
-      _window,
       getDatasetsUrl,
-      navigateDataTarget,
       dataset,
-    } = this.getProperties('_window', 'getDatasetsUrl', 'navigateDataTarget', 'dataset');
+      parentAppNavigation,
+    } = this.getProperties('getDatasetsUrl', 'dataset', 'parentAppNavigation');
     const dipArchiveId = archive.relationEntityId('relatedDip');
+    const datasetId = get(dataset, 'entityId');
     const url = getDatasetsUrl({
-      datasetId: get(dataset, 'entityId'),
+      selectedDatasets: [datasetId],
       archive: dipArchiveId,
-      dir: null,
-      viewMode: 'files',
     });
-    return _window.open(url, navigateDataTarget);
+    return parentAppNavigation.openUrl(url);
   },
 });

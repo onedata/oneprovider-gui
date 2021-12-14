@@ -1,17 +1,19 @@
 /**
  * Plugin for Chartist which sets custom colors for chartist-legend
- * 
+ *
  * Options:
  * * colors - array of colors for series
  * * styles - object of css styles for a legend item colored square
  *
  * Module imported from onedata-gui-common.
- * 
+ *
  * @module utils/chartist/legend-colors
  * @author Michal Borzecki
  * @copyright (C) 2017 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
+
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
 
 import $ from 'jquery';
 

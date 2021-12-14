@@ -16,7 +16,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { or, not, conditional, and, notEmpty } from 'ember-awesome-macros';
+import { or, not, conditional, and, notEmpty, promise } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
@@ -153,6 +153,18 @@ export default Component.extend(I18n, {
       reload: true,
     })
   ),
+
+  browsableDatasetProxy: promise.object(computed(
+    'directDatasetProxy',
+    async function browsableDatasetProxy() {
+      const {
+        directDatasetProxy,
+        datasetManager,
+      } = this.getProperties('directDatasetProxy', 'datasetManager');
+      const directDataset = await directDatasetProxy;
+      return datasetManager.getBrowsableDataset(directDataset);
+    }
+  )),
 
   /**
    * @type {ComputedProperty<Models.Dataset>}

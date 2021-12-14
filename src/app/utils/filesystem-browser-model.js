@@ -158,6 +158,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   openWorkflowRunView: notImplementedThrow,
 
   /**
+   * File features displayed in status bar - see `component:file-browser/file-features`
+   * `features` property.
+   * @virtual optional
+   * @type {Array<String>}
+   */
+  fileFeatures: Object.freeze(['effDatasetMembership', 'effQosMembership']),
+
+  /**
    * @override
    */
   rowComponentName: 'filesystem-browser/table-row',

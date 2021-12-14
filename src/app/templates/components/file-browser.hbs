@@ -17,7 +17,7 @@
       }}
     </div>
     <div class="text-right fb-toolbar-container hidden-xs">
-      {{#if (and (not media.isMobile) effShowSelectionToolkit)}}
+      {{#if renderSelectionToolkitDesktop}}
         {{file-browser/fb-selection-toolkit
           itemsCount=(if isOnlyCurrentDirSelected 0 selectedItems.length)
           selectionContext=selectionContext
@@ -88,7 +88,7 @@
 {{/one-webui-popover}}
 <div class="current-dir-actions-trigger floating-actions-trigger"></div>
 
-{{#if (and media.isMobile effShowSelectionToolkit)}}
+{{#if renderSelectionToolkitMobile}}
   {{file-browser/fb-selection-toolkit
     mobileMode=true
     itemsCount=(if isOnlyCurrentDirSelected 0 selectedItems.length)
