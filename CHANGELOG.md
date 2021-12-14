@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8739 Fixed double-listing datasets whose names have number suffixes
 * VFS-8574 Updated backend errors translations
 * VFS-7724 Changed separate dataset and archives views into splitted browser
 * VFS-8698 Fixed ESLint warnings
