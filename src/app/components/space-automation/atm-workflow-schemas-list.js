@@ -145,10 +145,10 @@ export default Component.extend(I18n, {
     }
     const requiredDataType = dataSpecToType(requiredInputStoreSpec.dataSpec);
     const targetStoreTypes = getTargetStoreTypesForType(
-      requiredDataType,
+      requiredDataType.type,
       requiredInputStoreSpec.valuesCount > 1
     );
-    const targetDataTypes = getTargetDataTypesForType(requiredDataType);
+    const targetDataTypes = getTargetDataTypesForType(requiredDataType.type);
     return allRevisionNumbers.filter(revisionNumber => {
       const stores = get(revisionRegistry[revisionNumber] || {}, 'stores') || [];
       const inputStores = stores.filterBy('requiresInitialValue');
@@ -156,7 +156,7 @@ export default Component.extend(I18n, {
         const storeType = get(store, 'type');
         const storeDataType = dataSpecToType(get(store, 'dataSpec'));
         return targetStoreTypes.includes(storeType) &&
-          targetDataTypes.includes(storeDataType);
+          targetDataTypes.includes(storeDataType.type);
       });
     });
   },

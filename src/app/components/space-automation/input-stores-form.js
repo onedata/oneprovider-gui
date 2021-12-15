@@ -854,15 +854,15 @@ function hasUseSelectionInputMethod(inputStore, localStorageData) {
 
   const requiredDataType = dataSpecToType(dataSpec);
   const targetStoreTypes = getTargetStoreTypesForType(
-    requiredDataType,
+    requiredDataType.type,
     data.length > 1
   );
-  const targetDataTypes = getTargetDataTypesForType(requiredDataType);
+  const targetDataTypes = getTargetDataTypesForType(requiredDataType.type);
   const {
     dataSpec: storeDataSpec,
     type: storeType,
   } = getProperties(inputStore, 'dataSpec', 'type');
   const storeDataType = dataSpecToType(storeDataSpec);
   return targetStoreTypes.includes(storeType) &&
-    targetDataTypes.includes(storeDataType);
+    targetDataTypes.includes(storeDataType.type);
 }
