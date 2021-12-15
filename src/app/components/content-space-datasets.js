@@ -91,6 +91,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   archiveManager: service(),
   parentAppNavigation: service(),
   isMobile: service(),
+  appProxy: service(),
 
   /**
    * **Injected from parent frame.**
@@ -812,8 +813,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const datasetId = dataset && get(dataset, 'entityId');
     if (datasetId) {
       this.callParent('updateDatasetId', null);
-      this.callParent('updateSelectedDatasets', [datasetId]);
+      await this.updateSelectedDatasetsInUrl([datasetId]);
     }
+  },
+
+  async updateSelectedDatasetsInUrl(selectedDatasets) {
+    this.callParent('updateSelectedDatasets', selectedDatasets);
+    await this.get('appProxy').waitForNextFlush();
   },
 
   actions: {
@@ -822,12 +828,14 @@ export default OneEmbeddedComponent.extend(...mixins, {
      */
     async updateDatasetId(itemId) {
       this.callParent('updateDatasetId', itemId);
+      await this.get('appProxy').waitForNextFlush();
     },
     async changeSelectedItems(selectedItems) {
       const {
         selectedItems: currentSelectedItems,
         browsableDataset,
-      } = this.getProperties('selectedItems', 'browsableDataset');
+        appProxy,
+      } = this.getProperties('selectedItems', 'browsableDataset', 'appProxy');
       // clearing archive and dir clears secondary browser - it should be done only
       // if selected dataset is changed; in other circumstances it is probably initial
       // selection change (after jump) or some unnecessary url update
@@ -837,30 +845,25 @@ export default OneEmbeddedComponent.extend(...mixins, {
       ) {
         this.callParent('updateArchiveId', null);
         this.callParent('updateDirId', null);
-        // TODO: VFS-8737 try to make proper wait-for-shared-properties method
-        await sleep(throttleTimeout * 2);
+        await appProxy.waitForNextFlush();
       }
-      await this.changeSelectedItems(selectedItems);
+      this.changeSelectedItemsImmediately(selectedItems);
 
       // single selected dataset should be stored in URL - user can navigate with
       // prev/next when selects single dataset for browsing;
       // also a current "dir" could be selected, but should not be stored in URL
       const isChangeStoredInUrl = selectedItems.length === 1 &&
         selectedItems[0] !== browsableDataset;
-      // only one method of updating component selectedItems to new value should be used,
-      // because they are both async and cause random error when used both
-      if (isChangeStoredInUrl) {
-        this.callParent('updateSelectedDatasets', selectedItems.mapBy('entityId'));
-      } else {
-        // clear selection in URL, because this selection should not be stored
-        this.callParent('updateSelectedDatasets', null);
-      }
+      const externalUpdate = isChangeStoredInUrl ? selectedItems.mapBy('entityId') : null;
+      await this.updateSelectedDatasetsInUrl(externalUpdate);
     },
-    updateArchiveId(archiveId) {
+    async updateArchiveId(archiveId) {
       this.callParent('updateArchiveId', archiveId);
+      await this.get('appProxy').waitForNextFlush();
     },
-    updateDirId(dirId) {
+    async updateDirId(dirId) {
       this.callParent('updateDirId', dirId);
+      await this.get('appProxy').waitForNextFlush();
     },
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);

@@ -655,7 +655,7 @@ export default Component.extend(I18n, {
     return changeSelectedItems([dir]);
   },
 
-  changeDir(dir) {
+  async changeDir(dir) {
     const {
       updateDirEntityId,
       containerScrollTop,
@@ -665,7 +665,7 @@ export default Component.extend(I18n, {
       'containerScrollTop',
       'browserModel',
     );
-    updateDirEntityId(get(dir, 'entityId'));
+    await updateDirEntityId(get(dir, 'entityId'));
     browserModel.onChangeDir(dir);
     containerScrollTop(0);
   },

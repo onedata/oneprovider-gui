@@ -83,7 +83,7 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual optional
-   * @type {Function}
+   * @type {(archiveId: String) => (Promise|undefined)}
    */
   onUpdateArchiveId: computed(function onUpdateArchiveId() {
     return (archiveId) => {
@@ -93,7 +93,7 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual optional
-   * @type {Function}
+   * @type {(fileId: String) => (Promise|undefined)}
    */
   onUpdateDirId: computed(function onUpdateDirId() {
     return (dirId) => {
@@ -737,7 +737,7 @@ export default Component.extend(...mixins, {
         mode === 'dip' ? 'relatedDip' : 'relatedAip'
       );
       onUpdateDirId(null);
-      onUpdateArchiveId(newArchiveId);
+      await onUpdateArchiveId(newArchiveId);
     }
   },
 
@@ -828,12 +828,12 @@ export default Component.extend(...mixins, {
 
     if (itemId === datasetId) {
       onUpdateDirId(null);
-      onUpdateArchiveId(null);
+      await onUpdateArchiveId(null);
     } else if (viewMode === 'archives') {
       onUpdateDirId(null);
-      onUpdateArchiveId(itemId);
+      await onUpdateArchiveId(itemId);
     } else if (viewMode === 'files') {
-      onUpdateDirId(itemId);
+      await onUpdateDirId(itemId);
     }
   },
 
