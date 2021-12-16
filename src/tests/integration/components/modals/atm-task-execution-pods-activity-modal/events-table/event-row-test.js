@@ -22,10 +22,10 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('shows event info', async function () {
     const {
       timestamp,
-      payload: { type, reason, message },
-    } = this.set('eventData', {
-      timestamp: 1638360000, // 12:00:00 01.12.2021
-      payload: {
+      content: { type, reason, message },
+    } = this.set('eventEntry', {
+      timestamp: 1638360000 * 1000, // 12:00:00.000 01.12.2021
+      content: {
         type: 'some type',
         reason: 'some reason',
         message: 'some message',
@@ -34,7 +34,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     await render(this);
 
     expect(this.$('.event-time').text().trim()).to.equal(
-      moment.unix(timestamp).format('D MMM YYYY H:mm:ss')
+      moment(timestamp).format('D MMM YYYY H:mm:ss.SSS')
     );
     expect(this.$('.event-type').text().trim()).to.equal(type);
     expect(this.$('.event-reason').text().trim()).to.equal(reason);
@@ -50,10 +50,12 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
   it('can be expanded and collapsed', async function () {
     const {
-      rowIndex,
+      eventEntry: { index },
       onToggleExpand,
     } = this.setProperties({
-      rowIndex: 'abc',
+      eventEntry: {
+        index: 'abc',
+      },
       isExpanded: false,
       onToggleExpand: sinon.stub().callsFake(() => {
         this.set('isExpanded', !this.get('isExpanded'));
@@ -66,20 +68,19 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     await click('.events-table-event-row');
     expect(this.$('.events-table-event-row')).to.have.class('is-expanded');
     expect(this.$('.events-table-expanded-event-row')).to.exist;
-    expect(onToggleExpand).to.be.calledOnce.and.to.be.calledWith(rowIndex);
+    expect(onToggleExpand).to.be.calledOnce.and.to.be.calledWith(index);
     onToggleExpand.resetHistory();
 
     await click('.events-table-event-row');
     expect(this.$('.events-table-event-row')).to.not.have.class('is-expanded');
     expect(this.$('.events-table-expanded-event-row')).to.not.exist;
-    expect(onToggleExpand).to.be.calledOnce.and.to.be.calledWith(rowIndex);
+    expect(onToggleExpand).to.be.calledOnce.and.to.be.calledWith(index);
   });
 });
 
 async function render(testCase) {
   testCase.render(hbs `{{modals/atm-task-execution-pods-activity-modal/events-table/event-row
-    rowIndex=rowIndex
-    eventData=eventData
+    eventEntry=eventEntry
     isExpanded=isExpanded
     onToggleExpand=onToggleExpand
   }}`);
