@@ -110,16 +110,6 @@
     }
   }
   .dir-box {
-    // @include absolute-align-middle-center();
-    // width: 100%;
-
-    // .dir-box-image {
-      // height: 260px;
-      // margin: $padding-large-vertical * 2 auto;
-      // background-repeat: no-repeat;
-      // background-position: center;
-      // background-size: contain;
-    // }
     .dir-box-text {
       text-align: center;
     }
@@ -127,18 +117,6 @@
       @include font-semibold();
       text-transform: uppercase;
     }
-
-    // @media (max-width: $screen-xs-max) {
-    //   .empty-dir-image {
-    //     height: 180px;
-    //   }
-    //   h1 {
-    //     font-size: 26px;
-    //   }
-    //   h2 {
-    //     font-size: 20px;
-    //   }
-    // }
   }
   th {
     user-select: none;
