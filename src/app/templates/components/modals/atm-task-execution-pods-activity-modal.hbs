@@ -19,6 +19,10 @@
           onPodSelect=(action "podSelected")
         }}
       </div>
+      {{modals/atm-task-execution-pods-activity-modal/pods-events-splitter
+        gridTrackNumber=1
+        onMoveEnd=(action "splitChanged")
+      }}
       <div class="events-table-section fill-flex-using-column relative">
         {{#if selectedPodId}}
           <h2>{{tt this "eventsHeader" podName=selectedPodId}}</h2>
@@ -26,6 +30,7 @@
             class="fill-flex-using-column"
             atmTaskExecutionId=atmTaskExecutionId
             podId=selectedPodId
+            registerApi=(action "registerEventsTableApi")
           }}
         {{else}}
           <p class="events-table-placeholder">

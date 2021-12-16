@@ -5,6 +5,7 @@ import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import Looper from 'onedata-gui-common/utils/looper';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { next } from '@ember/runloop';
 
 const mixins = [
   I18n,
@@ -51,6 +52,11 @@ export default Component.extend(...mixins, {
   updater: undefined,
 
   /**
+   * @type {EventsTableApi}
+   */
+  eventsTableApi: undefined,
+
+  /**
    * @type {ComputedProperty<string>}
    */
   atmTaskName: reads('modalOptions.atmTaskName'),
@@ -95,9 +101,9 @@ export default Component.extend(...mixins, {
       immediate: false,
       interval: this.get('updateInterval'),
     });
-    updater.on('tick', () => {
-      this.updatePodsActivityRegistry();
-    });
+    // updater.on('tick', () => {
+    //   this.updatePodsActivityRegistry();
+    // });
     this.set('updater', updater);
   },
 
@@ -120,6 +126,17 @@ export default Component.extend(...mixins, {
   actions: {
     podSelected(podId) {
       this.set('selectedPodId', podId);
+    },
+    splitChanged() {
+      next(() => safeExec(this, () => {
+        const eventsTableApi = this.get('eventsTableApi');
+        if (eventsTableApi && typeof eventsTableApi.recomputeTableItems === 'function') {
+          eventsTableApi.recomputeTableItems();
+        }
+      }));
+    },
+    registerEventsTableApi(api) {
+      this.set('eventsTableApi', api);
     },
   },
 });

@@ -9,6 +9,11 @@ import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
+/**
+ * @typedef {Object} EventsTableApi
+ * @property {() => void} recomputeTableItems
+ */
+
 export default Component.extend(I18n, {
   classNames: ['events-table'],
 
@@ -32,9 +37,20 @@ export default Component.extend(I18n, {
   podId: undefined,
 
   /**
+   * @virtual optional
+   * @type {(api: EventsTableApi) => void}
+   */
+  registerApi: undefined,
+
+  /**
    * @type {string}
    */
   expandedRowIndex: undefined,
+
+  /**
+   * @type {Utils.ListWatcher}
+   */
+  listWatcher: undefined,
 
   /**
    * @type {boolean}
@@ -72,6 +88,20 @@ export default Component.extend(I18n, {
    * @type {Window}
    */
   _window: window,
+
+  /**
+   * @type {ComputedProperty<EventsTableApi>}
+   */
+  api: computed(function api() {
+    return {
+      recomputeTableItems: () => safeExec(this, () => {
+        const listWatcher = this.get('listWatcher');
+        if (listWatcher) {
+          listWatcher.scrollHandler();
+        }
+      }),
+    };
+  }),
 
   /**
    * @type {ComputedProperty<number>}
@@ -131,8 +161,19 @@ export default Component.extend(I18n, {
     }
   ),
 
+  registerApiCaller: observer('registerApi', 'api', function registerApiCaller() {
+    const {
+      api,
+      registerApi,
+    } = this.getProperties('registerApi', 'api');
+    if (registerApi) {
+      registerApi(api);
+    }
+  }),
+
   init() {
     this._super(...arguments);
+    this.registerApiCaller();
     this.eventsEntriesLoadedObserver();
     this.startUpdater();
   },
@@ -153,7 +194,7 @@ export default Component.extend(I18n, {
       interval: this.get('updateInterval'),
     });
     updater.on('tick', () => {
-      this.updateEventsEntries();
+      // this.updateEventsEntries();
     });
     this.set('updater', updater);
   },
