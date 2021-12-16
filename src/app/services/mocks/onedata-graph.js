@@ -1133,7 +1133,8 @@ function generateJsonInfiniteLogEntries(type, pagingParams, extraData = {}) {
 function generateJsonInfiniteLogEntry({ index, timestamp, type, extraData }) {
   const entry = {
     index,
-    timestamp,
+    // infinite log timestamps are in milliseconds
+    timestamp: timestamp * 1000,
   };
   if (type === 'openfaasActivity') {
     const podId = extraData && extraData.podId;
