@@ -44,7 +44,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Function>}
    * @param {String} options.atmWorkflowSchemaId
-   * @param {Number} options.atmWorkflowSchemaRevisionNumber
+   * @param {RevisionNumber} options.atmWorkflowSchemaRevisionNumber
    * @param {any} options.fillInputStores
    */
   runWorkflowCallback: reads('modalOptions.runWorkflowCallback'),

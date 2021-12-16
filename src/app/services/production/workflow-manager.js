@@ -179,7 +179,7 @@ export default Service.extend({
 
   /**
    * @param {String} atmWorkflowSchemaId
-   * @param {Number} atmWorkflowSchemaRevisionNumber
+   * @param {RevisionNumber} atmWorkflowSchemaRevisionNumber
    * @param {String} spaceId
    * @param {Object} storeInitialValues map (storeSchemaId => initial value)
    * @returns {Promise<Models.AtmWorkflowExecution>}

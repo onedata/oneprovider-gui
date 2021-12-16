@@ -1,16 +1,18 @@
 /**
  * Searches for appropriate column index according to mouse and columns positions.
- * 
+ *
  * @module utils/chartist/identify-hovered-values-column
  * @author Michal Borzecki
  * @copyright (C) 2018-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
+
 import $ from 'jquery';
 
 /**
- * @param {MouseEvent} event 
+ * @param {MouseEvent} event
  * @param {object} chart Chartist object
  * @param {Array<number>} _pointsColumnXPos Array of columns positions
  * @return {number} positive index if column has been found, -1 otherwise

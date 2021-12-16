@@ -1,6 +1,6 @@
 /**
- * Plugin for Chartist which adds tooltip. For bar and line charts tooltip 
- * creates description based on chartist legend and values. For pie chart data for tooltip is 
+ * Plugin for Chartist which adds tooltip. For bar and line charts tooltip
+ * creates description based on chartist legend and values. For pie chart data for tooltip is
  * taken from data.series.tooltipElements. For example:
  * ```
  * tooltipElements: [{
@@ -16,14 +16,14 @@
  * Options:
  * - chartType - type of the chart (bar, line, pie)
  * - rangeInTitle - takes two x axis labels instead of one to tooltip title
- * - renderAboveBarDescription - [bar chart only] if true, places tooltip 
+ * - renderAboveBarDescription - [bar chart only] if true, places tooltip
  * above a text instead of bar
  * - topOffset - top offset of a tooltip
  * - valueSuffix - [bar/line chart only] suffix for tooltip entries (e.g. for units)
  * - roundValues - if true, values in tooltip will be rounded
- * 
+ *
  * Module imported from onedata-gui-common.
- * 
+ *
  * @module utils/chartist/tooltip
  * @author Michal Borzecki
  * @copyright (C) 2017 ACK CYFRONET AGH
@@ -31,6 +31,9 @@
  */
 
 /* global Chartist */
+
+// TODO: VFS-8724 remove and use chartist plugins from onedata-gui-common
+
 import _ from 'lodash';
 import dynamicRound from 'oneprovider-gui/utils/dynamic-round';
 import $ from 'jquery';
@@ -55,7 +58,7 @@ export default function tooltip(options) {
     valueSuffix: '',
     roundValues: true,
   };
-  options = Chartist.extend({}, defaultOptions, options);
+  const normalizedOptions = Chartist.extend({}, defaultOptions, options);
 
   return (chart) => {
     let tooltipNode;
@@ -68,7 +71,7 @@ export default function tooltip(options) {
       const title = tooltipNode.find('.chart-tooltip-title');
       title.empty();
       title.append(chart.data.labels[data.index]);
-      if (options.rangeInTitle) {
+      if (normalizedOptions.rangeInTitle) {
         if (chart.data.labels[data.index - 1] &&
           chart.data.labels[data.index - 1] !== chart.data.labels[data.index]) {
           title.prepend(chart.data.labels[data.index - 1] + ' - ');
@@ -78,10 +81,10 @@ export default function tooltip(options) {
       // data series and values
       const ul = tooltipNode.find('.ct-legend');
       ul.empty();
-      const suffix = options.valueSuffix ? ' ' + options.valueSuffix : '';
+      const suffix = normalizedOptions.valueSuffix ? ' ' + normalizedOptions.valueSuffix : '';
       tooltipData.forEach(d => {
         let value = d.value;
-        if (options.roundValues && typeof value === 'number') {
+        if (normalizedOptions.roundValues && typeof value === 'number') {
           value = dynamicRound(value);
         }
         const styleAttr = d.cssString ? `style="${d.cssString}"` : '';
@@ -102,7 +105,7 @@ export default function tooltip(options) {
         container.append(tooltipNode);
         tooltipNode.css(
           'transform',
-          `translateY(-100%) translateY(${options.topOffset}px) translateX(-50%)`
+          `translateY(-100%) translateY(${normalizedOptions.topOffset}px) translateX(-50%)`
         );
       } else {
         if (chartEntry.x !== null) {
@@ -136,7 +139,7 @@ export default function tooltip(options) {
         value: s.data[data.index],
       }));
 
-      if (data.type === 'bar' && options.chartType === 'bar') {
+      if (data.type === 'bar' && normalizedOptions.chartType === 'bar') {
         const groupNode = $(data.group._node);
         const barNode = $(data.element._node);
 
@@ -145,7 +148,7 @@ export default function tooltip(options) {
           const lastGroupBar = $(lastGroupNode.children('line')[data.index]);
 
           // top position
-          if (options.renderAboveBarDescription) {
+          if (normalizedOptions.renderAboveBarDescription) {
             const sumLabel = $(lastGroupNode.children('text')[data.index]);
             tooltipNode.css(
               'top',
@@ -169,7 +172,7 @@ export default function tooltip(options) {
           tooltipNode.removeClass('active');
         });
       }
-      if (data.type === 'point' && options.chartType === 'line') {
+      if (data.type === 'point' && normalizedOptions.chartType === 'line') {
         const groupNode = $(data.group._node);
         const pointNode = $(data.element._node);
         tooltipData = data.series.tooltipElements && data.series.tooltipElements[data
@@ -178,7 +181,7 @@ export default function tooltip(options) {
         pointNode.mouseover(() => {
           // top position
           const rect = pointNode[0].getBoundingClientRect();
-          if (options.renderAboveBarDescription) {
+          if (normalizedOptions.renderAboveBarDescription) {
             const sumLabel = $(groupNode.children('text')[data.index]);
             tooltipNode.css(
               'top',
@@ -203,7 +206,7 @@ export default function tooltip(options) {
           tooltipNode.removeClass('active');
         });
       }
-      if (data.type === 'slice' && options.chartType === 'pie') {
+      if (data.type === 'slice' && normalizedOptions.chartType === 'pie') {
         data.series.tooltipElements.forEach((element) =>
           element.className = 'no-padding'
         );

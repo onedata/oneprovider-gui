@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { notEmpty, not, raw, collect, and, bool } from 'ember-awesome-macros';
+import { notEmpty, not, raw, collect, and, bool, or, equal } from 'ember-awesome-macros';
 import isPopoverOpened from 'onedata-gui-common/utils/is-popover-opened';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -149,8 +149,11 @@ export default Component.extend(I18n, {
   resolveFileParentFun: defaultResolveParent,
 
   /**
+   * If boolean - enable selection toolkit in both desktop and mobile mode.
+   * If object - specify in which modes the toolkit should be rendered:
+   * `{ desktop: boolean, mobile: boolean }`.
    * @virtual optional
-   * @type {Boolean}
+   * @type {Boolean|Object}
    */
   showSelectionToolkit: true,
 
@@ -162,6 +165,21 @@ export default Component.extend(I18n, {
   parentModalDialogSelector: '',
 
   /**
+   * CSS selector of element(s) which click on SHOULD NOT cause selection to be cleared
+   * in browser.
+   * @virtual optional
+   * @type {String}
+   */
+  ignoreDeselectSelector: '',
+
+  /**
+   * Passes `fbTableApi` on it's change.
+   * @virtual optional
+   * @type {(api: FbTableApi) => any}
+   */
+  onRegisterApi: notImplementedIgnore,
+
+  /**
    * Initialized in init.
    * @type {EmberArray<String>}
    */
@@ -169,12 +187,14 @@ export default Component.extend(I18n, {
 
   /**
    * Should be set by some instance of `components:fb-table`
-   * API for file browser table, methods:
-   * - refresh
-   * @type {Object}
+   * API for file browser table.
+   * @type {FbTableApi}
    */
   fbTableApi: Object.freeze({
     refresh: notImplementedThrow,
+    getFilesArray: notImplementedThrow,
+    forceSelectAndJump: notImplementedThrow,
+    recomputeTableItems: notImplementedThrow,
   }),
 
   /**
@@ -207,7 +227,23 @@ export default Component.extend(I18n, {
 
   isInModal: bool('parentModalDialogSelector'),
 
-  effShowSelectionToolkit: and('showSelectionToolkit', not('previewMode')),
+  renderSelectionToolkitDesktop: and(
+    not('media.isMobile'),
+    or(
+      equal('showSelectionToolkit', raw(true)),
+      'showSelectionToolkit.desktop'
+    ),
+    not('previewMode')
+  ),
+
+  renderSelectionToolkitMobile: and(
+    'media.isMobile',
+    or(
+      equal('showSelectionToolkit', raw(true)),
+      'showSelectionToolkit.mobile'
+    ),
+    not('previewMode')
+  ),
 
   /**
    * @type {ComputedProperty<Array<String>>}
@@ -291,6 +327,7 @@ export default Component.extend(I18n, {
     '.fb-breadcrumbs *',
     '.fb-toolbar *',
     '.fb-selection-toolkit *',
+    '.special-dir-view *',
   ]),
 
   floatingItemsSelectors: collect(
@@ -310,22 +347,28 @@ export default Component.extend(I18n, {
   clickInsideSelector: computed(
     'insideBrowserSelectors',
     'floatingItemsSelectors',
+    'ignoreDeselectSelector',
     function clickInsideSelector() {
       const {
         insideBrowserSelectors,
         floatingItemsSelectors,
+        ignoreDeselectSelector,
         elementId,
       } = this.getProperties(
         'insideBrowserSelectors',
         'floatingItemsSelectors',
+        'ignoreDeselectSelector',
         'elementId'
       );
-      return [
-          ...insideBrowserSelectors
-          .map(selector => `#${elementId} ${selector}`),
-          ...floatingItemsSelectors,
-        ]
-        .join(', ');
+      const selectors = [
+        ...insideBrowserSelectors
+        .map(selector => `#${elementId} ${selector}`),
+        ...floatingItemsSelectors,
+      ];
+      if (ignoreDeselectSelector) {
+        selectors.push(ignoreDeselectSelector);
+      }
+      return selectors.join(', ');
     }
   ),
 
@@ -468,6 +511,16 @@ export default Component.extend(I18n, {
     const browserModel = this.get('browserModel');
     if (browserModel) {
       set(browserModel, 'browserInstance', this);
+    }
+  }),
+
+  fbTableApiObserver: observer('fbTableApi', function fbTableApiObserver() {
+    const {
+      fbTableApi,
+      onRegisterApi,
+    } = this.getProperties('fbTableApi', 'onRegisterApi');
+    if (onRegisterApi) {
+      onRegisterApi(fbTableApi);
     }
   }),
 

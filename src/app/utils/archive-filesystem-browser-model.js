@@ -70,6 +70,11 @@ export default FilesystemBrowserModel.extend({
   emptyDirComponentName: 'archive-filesystem-browser/empty-dir',
 
   /**
+   * @override
+   */
+  fileFeatures: Object.freeze(['effQosMembership']),
+
+  /**
    * Used only when `renderArchiveDipSwitch` is true.
    * Should be set to true if opened archive has `relatedDip/Aip`
    * @type {ComputedProperty<Boolean>}

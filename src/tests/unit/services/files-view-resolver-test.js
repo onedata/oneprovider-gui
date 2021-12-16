@@ -73,11 +73,10 @@ describe('Unit | Service | files view resolver', function () {
       expect(callParent).to.have.been.calledOnce;
       expect(callParent).to.have.been.calledWith(
         'getDatasetsUrl', {
-          datasetId,
           archive: archiveId,
           dir: dirId,
-          selected: null,
-          viewMode: 'files',
+          selectedDatasets: [datasetId],
+          selectedFiles: null,
         }
       );
       expect(result.result).to.equal('redirect');

@@ -53,7 +53,7 @@ export default Component.extend(I18n, {
    * @virtual optional
    * @type {Function}
    * @param {String} atmWorkflowSchemaId
-   * @param {number} atmWorkflowSchemaRevisionNumber
+   * @param {RevisionNumber} atmWorkflowSchemaRevisionNumber
    * @returns {any}
    */
   chooseWorkflowSchemaToRun: undefined,
@@ -76,7 +76,7 @@ export default Component.extend(I18n, {
 
   /**
    * See `atmWorkflowSchemaIdToRun`
-   * @type {String}
+   * @type {RevisionNumber}
    */
   atmWorkflowSchemaRevisionNumberToRun: undefined,
 

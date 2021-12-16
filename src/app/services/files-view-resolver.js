@@ -1,7 +1,12 @@
 /**
+ * A global point to resolve options or URL for displaying a file browser for given
+ * directory or selected files.
  *
+ * Directory view can be requested from already opened file browser view (eg. by changing
+ * URL), so resolve may lead to redirect to another file browser view (eg. trying to open
+ * directory placed in some archive should lead to redirect to proper archive browser).
  *
- * @module
+ * @module services/files-view-resolver
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -170,13 +175,19 @@ export default Service.extend({
     let url = null;
     switch (get(filesViewContext, 'browserType')) {
       case 'archive': {
+        const archiveUrlOptions = Object.assign({}, urlOptions);
+        if (!isEmpty(archiveUrlOptions.selected)) {
+          archiveUrlOptions.selectedFiles = archiveUrlOptions.selected;
+        }
+        delete archiveUrlOptions.selected;
+        archiveUrlOptions.selectedDatasets = [get(filesViewContext, 'datasetId')];
         const options = Object.assign({
-          datasetId: get(filesViewContext, 'datasetId'),
-          archive: get(filesViewContext, 'archiveId'),
-          dir: type === 'open' ? fileId : null,
-          selected: type === 'select' ? [fileId] : null,
-          viewMode: 'files',
-        }, urlOptions);
+            archive: get(filesViewContext, 'archiveId'),
+            dir: type === 'open' ? fileId : null,
+            selectedFiles: type === 'select' ? [fileId] : null,
+          },
+          archiveUrlOptions
+        );
         url = appProxy.callParent('getDatasetsUrl', options);
         break;
       }

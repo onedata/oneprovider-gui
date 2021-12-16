@@ -11,8 +11,11 @@ import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-
 import { promise } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
+import { inject as service } from '@ember/service';
 
 export default FbTableRowColumns.extend({
+  parentAppNavigation: service(),
+
   /**
    * @override
    */
@@ -22,7 +25,7 @@ export default FbTableRowColumns.extend({
    * Frame name, where Onezone link should be opened
    * @type {String}
    */
-  navigateTarget: '_top',
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   loadingBaseArchiveProxy: promise.object(promise.all(
     'fileRowModel.baseArchiveHrefProxy',

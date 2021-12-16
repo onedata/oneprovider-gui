@@ -152,10 +152,18 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @virtual
    * @type {Function}
    * @param {string} options.atmWorkflowSchemaId
-   * @param {number} options.atmWorkflowSchemaRevisionNumber
+   * @param {RevisionNumber} options.atmWorkflowSchemaRevisionNumber
    * @param {Object} options.inputStoresData
    */
   openWorkflowRunView: notImplementedThrow,
+
+  /**
+   * File features displayed in status bar - see `component:file-browser/file-features`
+   * `features` property.
+   * @virtual optional
+   * @type {Array<String>}
+   */
+  fileFeatures: Object.freeze(['effDatasetMembership', 'effQosMembership']),
 
   /**
    * @override

@@ -106,7 +106,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {number}
+   * @type {RevisionNumber}
    */
   atmWorkflowSchemaRevisionNumber: undefined,
 

@@ -15,6 +15,7 @@ import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset'
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { all as allFulfilled } from 'rsvp';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
 const datasetArchivesAspect = 'archives_details';
 
@@ -24,7 +25,7 @@ export default Service.extend({
   fileManager: service(),
 
   /**
-   * Mapping of `archiveId` -> cached browsable-wrapped archive
+   * Mapping of `archiveId` -> PromiseProxy of cached browsable-wrapped archive
    * @type {Object}
    */
   browsableArchivesStore: undefined,
@@ -52,7 +53,7 @@ export default Service.extend({
    * Creates or returns previously created BrowsableArchive object.
    * Only one `BrowsableArchive` for specific `archiveId` is created.
    * @param {String|Models.Archive} archiveOrEntityId
-   * @returns {Utils.BrowsableArchive}
+   * @returns {Promise<Utils.BrowsableArchive>}
    */
   async getBrowsableArchive(archiveOrEntityId) {
     let archiveId;
@@ -64,18 +65,16 @@ export default Service.extend({
       archive = archiveOrEntityId;
     }
     const browsableArchivesStore = this.get('browsableArchivesStore');
-    const cachedBrowsableArchive = browsableArchivesStore[archiveId];
-    if (cachedBrowsableArchive) {
-      return cachedBrowsableArchive;
+    const cachedBrowsableArchiveProxy = browsableArchivesStore[archiveId];
+    if (cachedBrowsableArchiveProxy) {
+      return await cachedBrowsableArchiveProxy;
     } else {
-      if (!archive) {
-        archive = await this.getArchive(archiveId);
-      }
-      const browsableArchive = BrowsableArchive.create({
-        content: archive,
-      });
-      browsableArchivesStore[archiveId] = browsableArchive;
-      return browsableArchive;
+      const browsableDatasetPromise = (async () => BrowsableArchive.create({
+        content: archive || await this.getArchive(archiveId),
+      }))();
+      const browsableArchiveProxy = promiseObject(browsableDatasetPromise);
+      browsableArchivesStore[archiveId] = browsableArchiveProxy;
+      return await browsableArchiveProxy;
     }
   },
 

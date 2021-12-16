@@ -1,5 +1,6 @@
 import { resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { get } from '@ember/object';
 
 export const defaultSpaceId = 'space_default_id';
 
@@ -22,16 +23,38 @@ export function createOnedataArchivesRootDir(spaceId = defaultSpaceId) {
   });
 }
 
-export function createArchiveRootDir(datasetId, archiveId, spaceId = defaultSpaceId) {
+export function createArchiveRootDir(...options) {
+  let datasetId;
+  let archiveId;
+  let spaceId;
+  let datasetDirId;
+  let archiveDirId;
+  const firstOption = options[0];
+  if (options.length === 1 && typeof firstOption === 'object') {
+    datasetId = firstOption.datasetId;
+    archiveId = options.archiveId;
+    ({ datasetId, archiveId, spaceId, datasetDirId, archiveDirId } = firstOption);
+  } else {
+    [datasetId, archiveId, spaceId] = options;
+  }
+  if (!spaceId) {
+    spaceId = defaultSpaceId;
+  }
+  if (!datasetDirId) {
+    datasetDirId = 'dataset_dir_id';
+  }
+  if (!archiveDirId) {
+    archiveDirId = 'archive_dir_id';
+  }
   const specialDir = createOnedataArchivesRootDir(spaceId);
   const datasetDir = createFile({
-    entityId: createEntityId('dataset_dir_id', spaceId),
+    entityId: createEntityId(datasetDirId, spaceId),
     name: `dataset_archives_${datasetId}`,
     type: 'dir',
     parentObject: specialDir,
   });
   const archiveDir = createFile({
-    entityId: createEntityId('archive_dir_id', spaceId),
+    entityId: createEntityId(archiveDirId, spaceId),
     name: `archive_${archiveId}`,
     type: 'dir',
     parentObject: datasetDir,
@@ -56,6 +79,14 @@ export function createFile(override = {}) {
     scope: 'private',
     parent: promiseObject(resolve(override.parentObject || null)),
     hasParent: Boolean(override.parentObject),
+    relationEntityId(relationName) {
+      const relationObject = this[relationName + 'Object'];
+      if (relationObject) {
+        return get(relationObject, 'entityId') || null;
+      } else {
+        return null;
+      }
+    },
   }, override);
   if (!obj.entityId) {
     const randomGuid = String(Math.floor(Math.random() * 10000));
