@@ -3,16 +3,16 @@
 </h1>
 <div class="empty-dir-image dir-box-image"></div>
 {{#unless archivesLinkDisabled}}
-  <h2 class="empty-dir-text dir-box-text">  
+  <h2 class="empty-dir-text dir-box-text">
     {{#if rootDirId}}
-      <a class="empty-dataset-manage-archives-action" {{action "openArchivesView"}}>
+      <a class="empty-dataset-manage-archives-action nowrap" {{action "openArchivesView"}}>
         <div class="inline-icon-container bind-right-text">
           {{one-icon icon="browser-archive"}}
         </div>&nbsp;{{tt this "manageArchives"}}
       </a>
       {{tt this "or"}}
       <a
-        class="empty-dataset-browse-link"
+        class="empty-dataset-browse-link nowrap"
         href={{browseDirectoryHref}}
         target={{navigateOnezoneTarget}}
       >
