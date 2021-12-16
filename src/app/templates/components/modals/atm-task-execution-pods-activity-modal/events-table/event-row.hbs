@@ -4,19 +4,19 @@
   onClick={{action "onToggleExpand"}}
 >
   <td class="event-time events-table-data-cell">
-    {{date-format eventData.timestamp
-      format="report"
+    {{date-format timestamp
+      format="detailedReport"
       blank="—"
     }}
   </td>
   <td class="event-type events-table-data-cell">
-    {{or eventData.payload.type "—"}}
+    {{or eventData.type "—"}}
   </td>
   <td class="event-reason events-table-data-cell">
-    {{or eventData.payload.reason "—"}}
+    {{or eventData.reason "—"}}
   </td>
   <td class="event-message events-table-data-cell">
-    {{#truncated-string}}{{or eventData.payload.message "—"}}{{/truncated-string}}
+    {{#truncated-string}}{{or eventData.message "—"}}{{/truncated-string}}
     {{one-icon
       class="expand-icon"
       icon=(if isExpanded "arrow-up" "arrow-down")

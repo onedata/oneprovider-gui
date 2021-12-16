@@ -7,24 +7,29 @@ import Looper from 'onedata-gui-common/utils/looper';
 import { next } from '@ember/runloop';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import { inject as service } from '@ember/service';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-/**
- * @typedef {Object} OpenfaasFunctionEvent
- * @property {string} type
- * @property {string} reason
- * @property {string} message
- */
-
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['events-table'],
 
-  infiniteLogManager: service(),
+  workflowManager: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.modals.atmTaskExecutionPodsActivityModal.eventsTable',
 
   /**
    * @virtual
    * @type {string}
    */
-  eventLogId: undefined,
+  atmTaskExecutionId: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  podId: undefined,
 
   /**
    * @type {string}
@@ -90,7 +95,7 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<ReplacingChunksArray<JsonInfiniteLogEntry<OpenfaasFunctionEvent>>>}
    */
-  eventsEntries: computed('eventLogId', function eventsEntries() {
+  eventsEntries: computed('taskId', 'podId', function eventsEntries() {
     const rca = ReplacingChunksArray.create({
       fetch: this.fetchEventsEntries.bind(this),
       startIndex: 0,
@@ -158,13 +163,21 @@ export default Component.extend({
     updater && safeExec(updater, () => updater.destroy());
   },
 
-  async fetchEventsEntries() {
+  async fetchEventsEntries(index, limit, offset) {
     const {
-      eventLogId,
-      infiniteLogManager,
-    } = this.getProperties('eventLogId', 'infiniteLogManager');
-    const result =
-      await infiniteLogManager.getJsonInfiniteLogContent(eventLogId, ...arguments);
+      atmTaskExecutionId,
+      podId,
+      workflowManager,
+    } = this.getProperties('atmTaskExecutionId', 'podId', 'workflowManager');
+    const result = await workflowManager
+      .getAtmTaskExecutionOpenfaasPodEventLogs(
+        atmTaskExecutionId,
+        podId, {
+          index,
+          limit,
+          offset,
+        }
+      );
     const entries = result && result.array;
     // Infinite log entries does not have id, which is required by replacing chunks array.
     // Solution: using entry index as id.

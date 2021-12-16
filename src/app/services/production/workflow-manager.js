@@ -25,11 +25,19 @@ import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
 import config from 'ember-get-config';
 
+/**
+ * @typedef {Object} OpenfaasFunctionEvent
+ * @property {string} type
+ * @property {string} reason
+ * @property {string} message
+ */
+
 export default Service.extend({
   store: service(),
   onedataGraph: service(),
   onedataConnection: service(),
   currentUser: service(),
+  infiniteLogManager: service(),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -347,6 +355,29 @@ export default Service.extend({
         laneRunNumber: runNumber,
       },
     });
+  },
+
+  /**
+   * @param {string} atmTaskExecutionId
+   * @param {string} podId
+   * @param {JsonInfiniteLogPagingParams} pagingParams
+   * @returns {Promise<JsonInfiniteLogPage<OpenfaasFunctionEvent>>}
+   */
+  async getAtmTaskExecutionOpenfaasPodEventLogs(
+    atmTaskExecutionId,
+    podId,
+    pagingParams
+  ) {
+    const eventLogGri = gri({
+      entityType: atmTaskExecutionEntityType,
+      entityId: atmTaskExecutionId,
+      aspect: atmTaskExecutionAspects.openfaasFunctionPodEventLog,
+      aspectId: podId,
+    });
+    return this.get('infiniteLogManager').getJsonInfiniteLogContent(
+      eventLogGri,
+      pagingParams
+    );
   },
 
   /**

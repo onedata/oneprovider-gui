@@ -1,20 +1,15 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 
 export default Component.extend({
   tagName: '',
 
   /**
    * @virtual
-   * @type {JsonInfiniteLogValue<OpenfaasFunctionEvent>}
+   * @type {JsonInfiniteLogEntry<OpenfaasFunctionEvent>}
    */
-  eventData: undefined,
-
-  /**
-   * @virtual
-   * @type {string}
-   */
-  rowIndex: undefined,
+  eventEntry: undefined,
 
   /**
    * @type {boolean}
@@ -25,6 +20,24 @@ export default Component.extend({
    * @type {(rowIndex: string) => void}
    */
   onToggleExpand: undefined,
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  rowIndex: reads('eventEntry.index'),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  timestamp: computed('eventEntry.timestamp', function () {
+    const timestampMs = this.get('eventEntry.timestamp');
+    return Number.isInteger(timestampMs) ? timestampMs / 1000 : null;
+  }),
+
+  /**
+   * @type {ComputedProperty<OpenfaasFunctionEvent>}
+   */
+  eventData: reads('eventEntry.content'),
 
   /**
    * @type {ComputedProperty<string>}

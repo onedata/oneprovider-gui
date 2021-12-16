@@ -25,7 +25,7 @@ import { entityType as transferEntityType } from 'oneprovider-gui/models/transfe
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
-import { jsonInfiniteLogEntityType } from 'oneprovider-gui/services/infinite-log-manager';
+import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -635,41 +635,12 @@ const atmStoreHandlers = {
   },
 };
 
-const jsonInfiniteLogHandlers = {
-  content(operation, entityId, data) {
-    const infiniteLogType = this.get(`mockBackend.infiniteLogsTypes.${entityId}`);
-    if (operation !== 'get') {
+const atmTaskExecutionHandlers = {
+  openfaas_function_pod_event_log(operation, entityId, data, authHint, aspectId) {
+    if (operation !== 'get' || !aspectId) {
       return messageNotSupported;
     }
-    const firstEntryDate = new Date();
-    firstEntryDate.setMinutes(0, 0, 0);
-    const firstEntryTimestamp = Math.floor(firstEntryDate.valueOf() / 1000) - 3600;
-    const {
-      index,
-      offset,
-      limit,
-    } = data;
-    const startPosition = Math.max((Number(index) || 0) + offset, 0);
-    const startTimestampOffset = startPosition * 10;
-    const startEntryTimestamp = firstEntryTimestamp + startTimestampOffset;
-    const nowTimestamp = Math.floor(new Date().valueOf() / 1000);
-    const entries = [];
-    let entryIdx = startPosition;
-    for (
-      let i = startEntryTimestamp; i <= nowTimestamp && entries.length < limit; i += 10
-    ) {
-      entries.push(generateJsonInfiniteLogEntry({
-        index: String(entryIdx),
-        timestamp: i,
-        type: infiniteLogType,
-      }));
-      entryIdx++;
-    }
-
-    return {
-      list: entries,
-      isLast: entries.length < limit,
-    };
+    return generateJsonInfiniteLogEntries('openfaasActivity', data, { podId: aspectId });
   },
 };
 
@@ -862,7 +833,7 @@ export default OnedataGraphMock.extend({
       // Using entity type string directly, because op_atm_store does not have
       // dedicated model in ember data.
       op_atm_store: atmStoreHandlers,
-      [jsonInfiniteLogEntityType]: jsonInfiniteLogHandlers,
+      [atmTaskExecutionEntityType]: atmTaskExecutionHandlers,
     });
     this.set(
       'handlers',
@@ -1126,18 +1097,53 @@ function generateStoreContentEntry({ startPosition, index }) {
   };
 }
 
-function generateJsonInfiniteLogEntry({ index, timestamp, type }) {
+function generateJsonInfiniteLogEntries(type, pagingParams, extraData = {}) {
+  const firstEntryDate = new Date();
+  firstEntryDate.setMinutes(0, 0, 0);
+  const firstEntryTimestamp = Math.floor(firstEntryDate.valueOf() / 1000) - 3600;
+  const {
+    index,
+    offset,
+    limit,
+  } = pagingParams;
+  const startPosition = Math.max((Number(index) || 0) + offset, 0);
+  const startTimestampOffset = startPosition * 10;
+  const startEntryTimestamp = firstEntryTimestamp + startTimestampOffset;
+  const nowTimestamp = Math.floor(new Date().valueOf() / 1000);
+  const entries = [];
+  let entryIdx = startPosition;
+  for (
+    let i = startEntryTimestamp; i <= nowTimestamp && entries.length < limit; i += 10
+  ) {
+    entries.push(generateJsonInfiniteLogEntry({
+      index: String(entryIdx),
+      timestamp: i,
+      type,
+      extraData,
+    }));
+    entryIdx++;
+  }
+
+  return {
+    logEntries: entries,
+    isLast: entries.length < limit,
+  };
+}
+
+function generateJsonInfiniteLogEntry({ index, timestamp, type, extraData }) {
   const entry = {
     index,
-    value: {
-      timestamp,
-    },
+    timestamp,
   };
   if (type === 'openfaasActivity') {
-    entry.value.payload = {
+    const podId = extraData && extraData.podId;
+    if (!podId) {
+      throw new Error('Pod ID not specified!');
+    }
+    entry.content = {
       type: 'Normal',
       reason: 'Completed',
-      message: `Message of event at ${timestamp} (index: #${index})`,
+      message: `Message of event at ${timestamp} (${podId}) (index: #${index})`,
     };
   }
   return entry;

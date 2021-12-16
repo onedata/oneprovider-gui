@@ -24,8 +24,7 @@
       {{/if}}
       {{#each eventsEntries as |eventEntry|}}
         {{modals/atm-task-execution-pods-activity-modal/events-table/event-row
-          eventData=eventEntry.value
-          rowIndex=eventEntry.index
+          eventEntry=eventEntry
           isExpanded=(eq eventEntry.index expandedRowIndex)
           onToggleExpand=(action "toggleRowExpand")
         }}

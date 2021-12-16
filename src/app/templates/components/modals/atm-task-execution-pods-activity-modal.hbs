@@ -24,10 +24,8 @@
           <h2>{{tt this "eventsHeader" podName=selectedPodId}}</h2>
           {{modals/atm-task-execution-pods-activity-modal/events-table
             class="fill-flex-using-column"
-            eventLogId=(get
-              podsActivityRegistryProxy.registry
-              (concat selectedPodId ".eventLogId")
-            )
+            atmTaskExecutionId=atmTaskExecutionId
+            podId=selectedPodId
           }}
         {{else}}
           <p class="events-table-placeholder">

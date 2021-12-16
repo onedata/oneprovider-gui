@@ -8,54 +8,48 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import gri from 'onedata-gui-websocket-client/utils/gri';
+
+/**
+ * @typedef {Object} JsonInfiniteLogPagingParams
+ * @property {string|null} index
+ * @property {number} limit
+ * @property {number} offset
+ */
+
+/**
+ * @typedef {Object} JsonInfiniteLogPage<T>
+ * @property {Array<JsonInfiniteLogEntry<T>>} array
+ * @property {boolean} isLast
+ */
 
 /**
  * @typedef {Object} JsonInfiniteLogEntry<T>
  * @property {string} index
- * @property {JsonInfiniteLogValue<T>} value
- */
-
-/**
- * @typedef {Object} JsonInfiniteLogValue<T>
  * @property {number} timestamp
  * @property {T} payload
  */
-
-export const jsonInfiniteLogEntityType = 'json_infinite_log';
 
 export default Service.extend({
   onedataGraph: service(),
 
   /**
-   * @param {string} jsonInfiniteLogId
-   * @param {string} startFromIndex
-   * @param {number} limit
-   * @param {number} offset
-   * @returns {Promise<{array: Array<JsonInfiniteLogEntry>, isLast: boolean}>}
+   * @param {string} jsonInfiniteLogGri
+   * @param {JsonInfiniteLogPagingParams} pagingParams
+   * @returns {Promise<JsonInfiniteLogPage>}
    */
-  async getJsonInfiniteLogContent(jsonInfiniteLogId, startFromIndex, limit, offset) {
-    if (!limit || limit <= 0) {
+  async getJsonInfiniteLogContent(jsonInfiniteLogGri, pagingParams) {
+    if (!pagingParams || !pagingParams.limit || pagingParams.limit <= 0) {
       return { array: [], isLast: false };
     }
 
     const onedataGraph = this.get('onedataGraph');
-    const infiniteLogContentGri = gri({
-      entityType: jsonInfiniteLogEntityType,
-      entityId: jsonInfiniteLogId,
-      aspect: 'content',
-    });
-    const { list, isLast } = await onedataGraph.request({
-      gri: infiniteLogContentGri,
+    const { logEntries, isLast } = await onedataGraph.request({
+      gri: jsonInfiniteLogGri,
       operation: 'get',
-      data: {
-        index: startFromIndex,
-        offset,
-        limit,
-      },
+      data: pagingParams,
       subscribe: false,
     });
 
-    return { array: list, isLast };
+    return { array: logEntries, isLast };
   },
 });
