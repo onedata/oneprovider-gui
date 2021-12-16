@@ -89,19 +89,6 @@
     z-index: $zindex-file-browser-head;
   }
 
-  .fb-table.special-dir-view {
-    position: absolute;
-    background-size: contain;
-    top: $fb-table-margin-top + 20px;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    height: auto;
-    .dir-box {
-      margin-top: -20px;
-    }
-  }
-
   .browser-scroll-container {
     flex-grow: 1;
   }
@@ -119,6 +106,16 @@
     .file-browser-head-container {
       @include before-bottom-shadow;
     }
+
+    &.low-height {
+      .special-dir-view {
+        background: none;
+      }
+      .dir-box-image {
+        display: none;
+      }
+    }
+
     &.on-top {
       .file-browser-head-container {
         @include hide-before-shadow;
@@ -136,11 +133,12 @@
         position: absolute;
       }
     }
-    .empty-dir-image {
-      // @media (max-height: 10px) {
-        display: none;
-      // }
-    }
+  }
+
+  .fb-table-container {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
   }
 
   // stretching vertically specific for "secondary" browser on the bottom
@@ -151,11 +149,6 @@
       flex-direction: column;
       min-height: 100%;
     }
-    .fb-table-container {
-      display: flex;
-      flex-grow: 1;
-      flex-direction: column;
-    }
     .fb-table {
       flex-grow: 1;
       // there is no need for large bottom spacing in modal, because it should be compact
@@ -164,11 +157,6 @@
       }
       .refresh-spinner {
         position: absolute;
-      }
-    }
-    .empty-dir-image {
-      @media (max-height: 700px) {
-        display: none;
       }
     }
   }
@@ -203,11 +191,6 @@
         margin-top: 0;
       }
     }
-
-    // @include before-top-shadow;
-    // &.on-top {
-    //   @include hide-before-shadow;
-    // }
   }
 
   .bottom-panel-content {

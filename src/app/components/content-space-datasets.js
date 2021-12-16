@@ -34,8 +34,6 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import { isEmpty } from '@ember/utils';
 import SplitGrid from 'npm:split-grid';
 import _ from 'lodash';
-import sleep from 'onedata-gui-common/utils/sleep';
-import { throttleTimeout } from 'onedata-gui-common/services/app-proxy';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
@@ -173,6 +171,20 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @type {FbTableApi}
    */
   archiveBrowserApi: undefined,
+
+  /**
+   * Managed by `updateContainersClasses`.
+   * @private
+   * @type {String}
+   */
+  datasetBrowserContainerClass: '',
+
+  /**
+   * Managed by `updateContainersClasses`.
+   * @private
+   * @type {String}
+   */
+  archiveBrowserContainerClass: '',
 
   /**
    * @override
@@ -502,6 +514,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       onDragEnd: (...args) => this.onGutterDragEnd(...args),
     });
     this.set('splitGrid', splitGrid);
+    this.updateContainersClasses();
   },
 
   /**
@@ -534,11 +547,31 @@ export default OneEmbeddedComponent.extend(...mixins, {
       datasetBrowserApi,
       archiveBrowserApi,
     } = this.getProperties('datasetBrowserApi', 'archiveBrowserApi');
+    this.updateContainersClasses();
     if (datasetBrowserApi) {
       datasetBrowserApi.recomputeTableItems();
     }
     if (archiveBrowserApi) {
       archiveBrowserApi.recomputeTableItems();
+    }
+  },
+
+  updateContainersClasses() {
+    const element = this.get('element');
+    const lowHeightBreakpoint = 300;
+    const datasetBrowserContainer = element.querySelector('.dataset-browser-container');
+    const archiveBrowserContainer = element.querySelector('.archive-browser-container');
+    // Cannot change classes via property injection, because it would override
+    // perfect-scrollbar dynamic classes.
+    if (datasetBrowserContainer) {
+      const isLowHeight =
+        datasetBrowserContainer.clientHeight <= lowHeightBreakpoint;
+      datasetBrowserContainer.classList[isLowHeight ? 'add' : 'remove']('low-height');
+    }
+    if (archiveBrowserContainer) {
+      const isLowHeight =
+        archiveBrowserContainer.clientHeight <= lowHeightBreakpoint;
+      archiveBrowserContainer.classList[isLowHeight ? 'add' : 'remove']('low-height');
     }
   },
 

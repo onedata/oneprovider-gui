@@ -1,5 +1,9 @@
+{{!-- do not use variable class injecting because of on-top computation --}}
 {{#perfect-scrollbar-element
-  class="split-browser-container dataset-browser-container"
+  class=(concat-classes
+    "split-browser-container dataset-browser-container"
+    datasetBrowserContainerClass
+  )
   as |perfectScrollbarContainer|
 }}
   {{#promise-proxy-container proxy=initialRequiredDataProxy}}
@@ -58,6 +62,7 @@
     {{/truncated-string}}
   </div>
 </div>
+{{!-- do not use variable class injecting because of on-top computation --}}
 {{#perfect-scrollbar-element
   id=archiveBrowserContainerId
   class="split-browser-container archive-browser-container"

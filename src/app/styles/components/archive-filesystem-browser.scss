@@ -5,11 +5,15 @@
     transform: translateY(-0.5em);
   }
   .archive-filesystem-empty-dir {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
     .dip-switch {
       transform: none;
       margin: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      align-self: center;
     }
   }
   .fb-table-first-col-container {
