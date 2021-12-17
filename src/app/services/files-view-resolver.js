@@ -94,7 +94,12 @@ export default Service.extend({
       } else {
         dir = file;
       }
-      return this.resolveForDir(dir, currentFilesViewContext, fallbackDir, selectedIds);
+      // the currentFilesViewContext can be ommited to force resolving dir
+      if (currentFilesViewContext) {
+        return this.resolveForDir(dir, currentFilesViewContext, fallbackDir, selectedIds);
+      } else {
+        return { result: 'resolve', dir };
+      }
     } else {
       if (isEmpty(selectedIds)) {
         return this.generateFallbackResponse(fallbackDir);
@@ -105,12 +110,17 @@ export default Service.extend({
           if (!parent) {
             return this.generateFallbackResponse(fallbackDir);
           }
-          return this.resolveForDir(
-            parent,
-            currentFilesViewContext,
-            fallbackDir,
-            selectedIds
-          );
+          // the currentFilesViewContext can be ommited to force resolving dir
+          if (currentFilesViewContext) {
+            return this.resolveForDir(
+              parent,
+              currentFilesViewContext,
+              fallbackDir,
+              selectedIds
+            );
+          } else {
+            return { result: 'resolve', dir: parent };
+          }
         } catch (firstSelectedGetError) {
           return this.generateFallbackResponse(fallbackDir);
         }
@@ -152,6 +162,10 @@ export default Service.extend({
         return this.generateFallbackResponse(fallbackDir);
       }
     }
+  },
+
+  async resolveDir() {
+
   },
 
   async generateFallbackResponse(fallbackDir) {
