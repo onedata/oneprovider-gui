@@ -2,6 +2,7 @@
   .bs-modal-body-scroll {
     display: grid;
     grid-template-rows: 1fr 10px 1fr;
+    grid-template-columns: 100%;
   }
 
   .pods-events-splitter {
@@ -47,6 +48,10 @@
     .pod-id {
       width: 100%;
       max-width: 0;
+    }
+
+    .column-readiness-label {
+      min-width: 8em;
     }
 
     .column-status-label {

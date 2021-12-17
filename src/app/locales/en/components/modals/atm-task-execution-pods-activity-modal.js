@@ -5,6 +5,6 @@ export default {
   podsTable,
   eventsTable,
   header: 'Function pods activity',
-  eventsHeader: 'Events of "{{podName}}" pod',
+  eventsHeader: '"{{podName}}" pod events',
   eventsTablePlaceholder: 'Select pod to see events.',
 };
