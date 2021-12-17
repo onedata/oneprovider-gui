@@ -6,7 +6,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 
 const statusesOrder = ['running', 'waiting', 'terminated'];
-const notWorkingStatuses = ['terminated'];
+const notCurrentStatuses = ['terminated'];
 
 export default Component.extend(I18n, {
   classNames: ['pods-table'],
@@ -37,9 +37,9 @@ export default Component.extend(I18n, {
   onPodSelect: undefined,
 
   /**
-   * @type {'working'|'all'}
+   * @type {'current'|'all'}
    */
-  podsFilter: 'working',
+  podsFilter: 'current',
 
   /**
    * @type {Array<string>}
@@ -49,7 +49,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<string>}
    */
-  notWorkingStatuses,
+  notCurrentStatuses,
 
   /**
    * @type {ComputedProperty<Array<{ podId: OpenfaasPodId, podActivity: OpenfaasPodActivity }>>}
@@ -87,23 +87,23 @@ export default Component.extend(I18n, {
   filteredPodRows: computed(
     'podRows',
     'podsFilter',
-    'notWorkingStatuses',
+    'notCurrentStatuses',
     function filteredPodRows() {
       const {
         podRows,
         podsFilter,
-        notWorkingStatuses,
+        notCurrentStatuses,
       } = this.getProperties(
         'podRows',
         'podsFilter',
-        'notWorkingStatuses'
+        'notCurrentStatuses'
       );
 
-      if (podsFilter !== 'working') {
+      if (podsFilter !== 'current') {
         return podRows;
       }
       return podRows.filter(({ podActivity: { currentStatus } }) =>
-        !notWorkingStatuses.includes(currentStatus)
+        !notCurrentStatuses.includes(currentStatus)
       );
     }
   ),
@@ -112,8 +112,8 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   noPodsMessage: conditional(
-    eq('podsFilter', raw('working')),
-    computedT('noPods.working'),
+    eq('podsFilter', raw('current')),
+    computedT('noPods.current'),
     computedT('noPods.all'),
   ),
 

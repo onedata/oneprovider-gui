@@ -7,13 +7,16 @@
     onChange=(action "podsFilterChange")
     as |bg|
   }}
-    {{#bg.button type="default" class="btn-sm filter-working" value="working"}}
-      <span class="text">{{tt this "filter.working"}}</span>
+    {{#bg.button type="default" class="btn-sm filter-current" value="current"}}
+      <span class="text">{{tt this "filter.current"}}</span>
     {{/bg.button}}
     {{#bg.button type="default" class="btn-sm filter-all" value="all"}}
       <span class="text">{{tt this "filter.all"}}</span>
     {{/bg.button}}
   {{/bs-button-group}}
+</th>
+<th class="pods-table-header-cell column-label column-readiness-label">
+  <span class="column-label-text">{{tt this "columnLabel.readiness"}}</span>
 </th>
 <th class="pods-table-header-cell column-label column-status-label">
   <span class="column-label-text">{{tt this "columnLabel.status"}}</span>

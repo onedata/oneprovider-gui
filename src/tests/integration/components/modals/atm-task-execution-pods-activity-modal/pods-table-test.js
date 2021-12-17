@@ -17,12 +17,12 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     expect(this.$().children()).to.have.class('pods-table').and.to.have.length(1);
   });
 
-  it('shows header and pods with filter set to "working" on init', async function () {
+  it('shows header and pods with filter set to "current" on init', async function () {
     this.set('activityRegistry', generateActivityRegistry());
     await render(this);
 
     expect(this.$('.pods-table-header-row')).to.exist;
-    expect(this.$('.filter-working')).to.have.class('active');
+    expect(this.$('.filter-current')).to.have.class('active');
     const $podRows = this.$('.pods-table-pod-row');
     expect($podRows).to.have.length(2);
     expect($podRows.eq(0).text()).to.contain('pod3').and.to.contain('running');
@@ -65,11 +65,11 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     expect(onPodSelect).to.be.calledOnce.and.to.be.calledWith('pod2');
   });
 
-  it('shows info that there are no working pods to show', async function () {
+  it('shows info that there are no current pods to show', async function () {
     await render(this);
 
     expect(this.$('.pods-table-no-pods-row').text().trim())
-      .to.equal('There are no working pods.');
+      .to.equal('There are no current pods.');
   });
 
   it('shows info that there are no pods to show', async function () {

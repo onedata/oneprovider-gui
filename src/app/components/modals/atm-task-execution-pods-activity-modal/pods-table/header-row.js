@@ -12,13 +12,13 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {'working'|'all'}
+   * @type {'current'|'all'}
    */
   podsFilter: undefined,
 
   /**
    * @virtual
-   * @type {(filter: 'working'|'all') => void}
+   * @type {(filter: 'current'|'all') => void}
    */
   onPodsFilterChange: undefined,
 

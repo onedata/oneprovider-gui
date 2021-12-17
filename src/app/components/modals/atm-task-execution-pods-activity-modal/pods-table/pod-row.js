@@ -1,5 +1,6 @@
 import Component from '@ember/component';
 import isDirectlyClicked from 'onedata-gui-common/utils/is-directly-clicked';
+import { computed } from '@ember/object';
 
 export default Component.extend({
   tagName: 'tr',
@@ -30,6 +31,19 @@ export default Component.extend({
    * @type {(podId: OpenfaasPodId) => void}
    */
   onSelect: undefined,
+
+  /**
+   * @type {ComputedProperty<number|null>}
+   */
+  statusSinceTimestamp: computed(
+    'podActivity.lastStatusChangeTimestamp',
+    function statusSinceTimestamp() {
+      const lastStatusChangeTimestamp =
+        this.get('podActivity.lastStatusChangeTimestamp');
+      return Number.isInteger(lastStatusChangeTimestamp) ?
+        lastStatusChangeTimestamp / 1000 : null;
+    }
+  ),
 
   /**
    * @override

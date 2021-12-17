@@ -1324,11 +1324,13 @@ export default Service.extend({
                       registry: {
                         'w90b1146c16-s74f09087db-bagit-uploader-validate-69dfc69d872x5jw': {
                           currentStatus: 'running',
-                          lastStatusChangeTimestamp: podStatusTime + 10,
+                          lastStatusChangeTimestamp: (podStatusTime + 10) * 1000,
+                          currentContainersReadiness: '1/1',
                         },
                         'w90b1146c16-s8d97e3a2d5-bagit-uploader-unpack-data-df69578p8g85': {
                           currentStatus: 'terminated',
-                          lastStatusChangeTimestamp: podStatusTime + 20,
+                          lastStatusChangeTimestamp: (podStatusTime + 20) * 1000,
+                          currentContainersReadiness: '1/1',
                         },
                       },
                     });

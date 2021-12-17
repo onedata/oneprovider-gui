@@ -1,11 +1,12 @@
 export default {
   columnLabel: {
     name: 'Pod name',
+    readiness: 'Readiness',
     status: 'Status',
     statusSince: 'Status since',
   },
   filter: {
-    working: 'Working',
+    current: 'Current',
     all: 'All',
   },
 };

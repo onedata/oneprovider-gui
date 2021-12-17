@@ -1,10 +1,12 @@
 <td class="pod-id pods-table-data-cell">
   {{#truncated-string}}{{or podId "—"}}{{/truncated-string}}
 </td>
-<td class="pod-status pods-table-data-cell">{{or podActivity.currentStatus "—"}}</td>
+<td class="pod-readiness pods-table-data-cell">
+  {{or podActivity.currentContainersReadiness "—"}}
+</td>
+<td class="pod-status pods-table-data-cell">
+  {{or podActivity.currentStatus "—"}}
+</td>
 <td class="pod-status-since pods-table-data-cell">
-  {{date-format podActivity.lastStatusChangeTimestamp
-    format="report"
-    blank="—"
-  }}
+  {{date-format statusSinceTimestamp format="report" blank="—"}}
 </td>

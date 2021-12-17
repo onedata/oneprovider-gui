@@ -13,6 +13,7 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 /**
  * @typedef {Object} OpenfaasPodActivity
  * @property {string} currentStatus
+ * @property {string} currentContainersReadiness
  * @property {number} lastStatusChangeTimestamp
  * @property {string} eventLogId
  */

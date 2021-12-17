@@ -39,15 +39,18 @@ describe('Integration | Component | modals/atm task execution pods activity moda
       podId: 'abcd',
       podActivity: {
         currentStatus: 'active',
-        lastStatusChangeTimestamp: 1638360000, // 12:00:00 01.12.2021
+        currentContainersReadiness: '1/1',
+        lastStatusChangeTimestamp: 1638360000 * 1000, // 12:00:00 01.12.2021
       },
     });
     await render(this);
 
     expect(this.$('.pod-id').text().trim()).to.equal(podId);
+    expect(this.$('.pod-readiness').text().trim())
+      .to.equal(podActivity.currentContainersReadiness);
     expect(this.$('.pod-status').text().trim()).to.equal(podActivity.currentStatus);
     expect(this.$('.pod-status-since').text().trim()).to.equal(
-      moment.unix(podActivity.lastStatusChangeTimestamp).format('D MMM YYYY H:mm:ss')
+      moment(podActivity.lastStatusChangeTimestamp).format('D MMM YYYY H:mm:ss')
     );
   });
 

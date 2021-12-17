@@ -29,6 +29,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     const $labels = this.$('.column-label-text');
     [
       'Pod name',
+      'Readiness',
       'Status',
       'Status since',
     ].forEach((colLabel, idx) =>
@@ -40,15 +41,15 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     await render(this);
 
     [
-      { name: 'working', label: 'Working' },
+      { name: 'current', label: 'Current' },
       { name: 'all', label: 'All' },
     ].forEach(({ name, label }) =>
       expect(this.$(`.filter-${name}`).text().trim()).to.equal(label)
     );
 
-    this.set('podsFilter', 'working');
+    this.set('podsFilter', 'current');
     await wait();
-    expect(this.$('.filter-working')).to.have.class('active');
+    expect(this.$('.filter-current')).to.have.class('active');
 
     this.set('podsFilter', 'all');
     await wait();
@@ -60,8 +61,8 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     await render(this);
     expect(onPodsFilterChange).to.be.not.called;
 
-    await click('.filter-working');
-    expect(onPodsFilterChange).to.be.calledOnce.and.to.be.calledWith('working');
+    await click('.filter-current');
+    expect(onPodsFilterChange).to.be.calledOnce.and.to.be.calledWith('current');
     onPodsFilterChange.resetHistory();
 
     await click('.filter-all');

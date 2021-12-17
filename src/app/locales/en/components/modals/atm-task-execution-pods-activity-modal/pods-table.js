@@ -3,7 +3,7 @@ import headerRow from './pods-table/header-row';
 export default {
   headerRow,
   noPods: {
-    working: 'There are no working pods.',
+    current: 'There are no current pods.',
     all: 'There are no pods.',
   },
 };
