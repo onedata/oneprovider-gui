@@ -5,8 +5,8 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 
-const statusesOrder = ['running', 'waiting', 'terminated'];
-const notCurrentStatuses = ['terminated'];
+const statusesOrder = ['running', 'pending', 'succeeded', 'failed', 'unknown'];
+const notCurrentStatuses = ['succeeded', 'failed', 'unknown'];
 
 export default Component.extend(I18n, {
   classNames: ['pods-table'],
@@ -60,13 +60,22 @@ export default Component.extend(I18n, {
       return [];
     }
     const podsIds = Object.keys(activityRegistry);
+    // Generating sorting keys for each pod. Sorting key consists of two elements:
+    // - position of pod status in `statusesOrder` array,
+    // - pod ID.
+    // Example generated key: `'0002#some_pod_id'`
     const sortKeyToPodId = podsIds.reduce((acc, podId) => {
-      let statusIdx = statusesOrder.indexOf(activityRegistry[podId].currentStatus);
+      let statusIdx = statusesOrder.indexOf(
+        (activityRegistry[podId].currentStatus || '').toLowerCase()
+      );
       if (statusIdx === -1) {
         statusIdx = statusesOrder.length;
       }
-      // Using `#` character as separator because `#` < `0` when sorting
-      const sortKey = `${statusIdx}#${podId}`;
+      // This method of sorting is correct only when `statusesOrder.length <= 9999`.
+      // Increment padding to handle more statuses.
+      const statusIdxString = String(statusIdx).padStart(4, '0');
+      // Using `#` character as separator because `#` < `0` when sorting.
+      const sortKey = `${statusIdxString}#${podId}`;
       acc[sortKey] = podId;
       return acc;
     }, {});
@@ -103,7 +112,7 @@ export default Component.extend(I18n, {
         return podRows;
       }
       return podRows.filter(({ podActivity: { currentStatus } }) =>
-        !notCurrentStatuses.includes(currentStatus)
+        !notCurrentStatuses.includes((currentStatus || '').toLowerCase())
       );
     }
   ),

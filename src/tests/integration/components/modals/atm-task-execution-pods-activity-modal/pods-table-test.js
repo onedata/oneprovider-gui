@@ -25,8 +25,8 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     expect(this.$('.filter-current')).to.have.class('active');
     const $podRows = this.$('.pods-table-pod-row');
     expect($podRows).to.have.length(2);
-    expect($podRows.eq(0).text()).to.contain('pod3').and.to.contain('running');
-    expect($podRows.eq(1).text()).to.contain('pod2').and.to.contain('waiting');
+    expect($podRows.eq(0).text()).to.contain('pod3').and.to.contain('Running');
+    expect($podRows.eq(1).text()).to.contain('pod2').and.to.contain('Pending');
   });
 
   it('allows changing pods filter to "all"', async function () {
@@ -93,13 +93,13 @@ async function render(testCase) {
 function generateActivityRegistry() {
   return {
     pod1: {
-      currentStatus: 'terminated',
+      currentStatus: 'Succeeded',
     },
     pod2: {
-      currentStatus: 'waiting',
+      currentStatus: 'Pending',
     },
     pod3: {
-      currentStatus: 'running',
+      currentStatus: 'Running',
     },
   };
 }

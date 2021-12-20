@@ -72,7 +72,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('shows pods table', async function () {
-    setupPods(this, ['terminated', 'waiting', 'running']);
+    setupPods(this, ['Succeeded', 'Pending', 'Running']);
 
     await showModal(this);
 
@@ -83,7 +83,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('allows selecting pod', async function () {
-    setupPods(this, ['running', 'running']);
+    setupPods(this, ['Running', 'Running']);
     await showModal(this);
 
     await click('[data-pod-id="pod2"]');
@@ -94,7 +94,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('shows empty events section when no pod is selected', async function () {
-    setupPods(this, ['running']);
+    setupPods(this, ['Running']);
     await showModal(this);
 
     expect(getModalBody().find('.events-table-section').text())
