@@ -1,3 +1,12 @@
+/**
+ * Splits pods and events table with possibility to resize them.
+ *
+ * @module components/modals/atm-task-execution-pods-activity-modal/pods-events-splitter
+ * @author Michał Borzęcki
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import SplitGrid from 'npm:split-grid';
 

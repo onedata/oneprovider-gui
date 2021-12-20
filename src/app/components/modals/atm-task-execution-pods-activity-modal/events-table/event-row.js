@@ -1,3 +1,12 @@
+/**
+ * Shows events table data row.
+ *
+ * @module components/modals/atm-task-execution-pods-activity-modal/events-table/event-row
+ * @author Michał Borzęcki
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';

@@ -6,13 +6,9 @@
   }
 
   .pods-events-splitter {
-    background: gray;
+    @include horizontal-drag-dots-background();
     grid-row: 2;
     cursor: row-resize;
-    background-color: $color-one-semiwhite;
-    background-repeat: no-repeat;
-    background-position: 50%;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
   }
 
   .pods-filter-btn-group {

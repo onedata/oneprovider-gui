@@ -15,7 +15,6 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
  * @property {string} currentStatus
  * @property {string} currentContainersReadiness
  * @property {number} lastStatusChangeTimestamp
- * @property {string} eventLogId
  */
 
 /**

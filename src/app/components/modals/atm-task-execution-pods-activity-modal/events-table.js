@@ -1,3 +1,12 @@
+/**
+ * Shows events related to specific task execution pod.
+ *
+ * @module components/modals/atm-task-execution-pods-activity-modal/events-table
+ * @author Michał Borzęcki
+ * @copyright (C) 2021 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get, getProperties, observer } from '@ember/object';
 import { htmlSafe } from '@ember/string';
