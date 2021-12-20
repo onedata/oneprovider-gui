@@ -266,6 +266,7 @@ export default Component.extend(...mixins, {
         dirId,
         archiveId,
         filesViewResolver,
+        archiveProxy,
         archiveRootDirProxy,
         selectedIds,
         parentAppNavigation,
@@ -275,15 +276,24 @@ export default Component.extend(...mixins, {
         'dirId',
         'archiveId',
         'filesViewResolver',
+        'archiveProxy',
         'archiveRootDirProxy',
         'selectedIds',
         'parentAppNavigation',
       );
-      const currentFilesViewContext = FilesViewContext.create({
-        spaceId,
-        datasetId,
-        archiveId,
-      });
+      const archive = await archiveProxy;
+      // Special case: if archive is nested, do not check if directory is from current
+      // archive and dataset, because we can browse nested archives and in current
+      // implementation we don't have enough information to check if directory is in
+      // nested archive.
+      const isNestedArchive = archive && get(archive, 'config.createNestedArchives');
+      const currentFilesViewContext = isNestedArchive ?
+        null :
+        FilesViewContext.create({
+          spaceId,
+          datasetId,
+          archiveId,
+        });
       const archiveRootDir = await archiveRootDirProxy;
       const resolverResult = await filesViewResolver.resolveViewOptions({
         dirId,
@@ -522,12 +532,8 @@ export default Component.extend(...mixins, {
       'viewMode',
       'currentBrowsableItemProxy',
     );
-    const fetchDirId = fetchArgs[0];
     // a workaround for fb-table trying to get children when it have not-updated "dir"
-    if (
-      !get(currentBrowsableItemProxy, 'isSettled') ||
-      fetchDirId !== get(currentBrowsableItemProxy, 'content.entityId')
-    ) {
+    if (!get(currentBrowsableItemProxy, 'isSettled')) {
       return this.getEmptyFetchChildrenResponse();
     }
 
@@ -833,6 +839,10 @@ export default Component.extend(...mixins, {
 
   submitArchiveCreate(dataset, archiveData) {
     return this.get('archiveManager').createArchive(dataset, archiveData);
+  },
+
+  getItemById(itemId) {
+    return this.get('fileManager').getFileById(itemId, 'private');
   },
 
   //#region URL generating methods

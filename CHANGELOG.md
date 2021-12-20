@@ -7,6 +7,8 @@ CHANGELOG
 ### Latest changes
 
 * VFS-8640 Added modal with OpenFaaS pods activity to workflow execution preview
+* VFS-8799 Fixed browsing directories in nested archives
+* VFS-8783 Fixed not listing files of nested archive
 * VFS-8617 Removed usages of ember-invoke-action
 * VFS-8739 Fixed double-listing datasets whose names have number suffixes
 * VFS-8574 Updated backend errors translations
