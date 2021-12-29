@@ -869,6 +869,8 @@ export default OneEmbeddedComponent.extend(...mixins, {
         browsableDataset,
         appProxy,
       } = this.getProperties('selectedItems', 'browsableDataset', 'appProxy');
+      const isSingleSelected = selectedItems && selectedItems.length === 1;
+
       // clearing archive and dir clears secondary browser - it should be done only
       // if selected dataset is changed; in other circumstances it is probably initial
       // selection change (after jump) or some unnecessary url update
@@ -878,13 +880,25 @@ export default OneEmbeddedComponent.extend(...mixins, {
       ) {
         this.callParent('updateArchiveId', null);
         this.callParent('updateDirId', null);
-        await appProxy.waitForNextFlush();
+        if (isSingleSelected) {
+          // When changing to other specific dataset, archiveId and dirId should be
+          // cleared before dataset change to prevent injecting wrong ids set to
+          // dataset-archives-browser (eg. incompatible dir for currently opened dataset).
+          // Unfortunately it could cause showing archives list for a short period, but in
+          // current architecture there is no simple solution for this issue.
+          // We cannot change dataset in URL here because of blink-scroll animation
+          // prevention (see comment below).
+          await appProxy.waitForNextFlush();
+        }
       }
+
+      // Be prepared for injected selected items change which will be done async -
+      // it prevents blink animation and scrolling to selected dataset.
       this.changeSelectedItemsImmediately(selectedItems);
 
-      // single selected dataset should be stored in URL - user can navigate with
-      // prev/next when selects single dataset for browsing;
-      // also a current "dir" could be selected, but should not be stored in URL
+      // Single selected dataset should be stored in URL - user can navigate with
+      // prev/next when selects single dataset for browsing.
+      // Also a current dataset-dir could be selected, but should not be stored in URL.
       const isChangeStoredInUrl = selectedItems.length === 1 &&
         selectedItems[0] !== browsableDataset;
       const externalUpdate = isChangeStoredInUrl ? selectedItems.mapBy('entityId') : null;
