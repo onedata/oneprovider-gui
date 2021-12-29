@@ -6,7 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
-* VFS-8723 Splitter datasets archives browser Service Pack 1: fixed graphical/UX glitches
+* VFS-8723 Splitted datasets-archives view Service Pack 1: fixed graphical/UX glitches
 * VFS-8799 Fixed browsing directories in nested archives
 * VFS-8783 Fixed not listing files of nested archive
 * VFS-8617 Removed usages of ember-invoke-action
