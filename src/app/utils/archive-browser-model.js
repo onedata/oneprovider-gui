@@ -31,6 +31,7 @@ const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnCopyId',
   'btnCreateIncrementalArchive',
+  'btnRecall',
   'btnDownloadTar',
   'btnBrowseDip',
   'btnPurge',
@@ -83,6 +84,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {(datasets: Array<Models.Dataset>) => any}
    */
   openPurgeModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {(dataset: Models.Dataset, options: Object) => any}
+   */
+  openRecallModal: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -316,6 +323,44 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           return this.openCreateArchiveModal(dataset, {
             baseArchive: archives[0],
           });
+        },
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnRecall: computed(
+    'spacePrivileges.recallArchives',
+    function btnPurge() {
+      const {
+        spacePrivileges,
+        i18n,
+      } =
+      this.getProperties(
+        'spacePrivileges',
+        'i18n',
+      );
+      // FIXME: are there privileges enough? maybe space_write_data is also needed?
+      const hasPrivileges = spacePrivileges.recallArchives;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_recall_archives'],
+        });
+      }
+      return this.createFileAction({
+        id: 'recall',
+        // FIXME: recall icon
+        icon: 'browser-directory',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: (archives) => {
+          return this.openRecallModal(archives[0]);
         },
         showIn: [
           actionContext.singleDir,

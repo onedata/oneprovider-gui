@@ -9,6 +9,9 @@ import { get } from '@ember/object';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import _ from 'lodash';
 import Service from '@ember/service';
+import { click } from 'ember-native-dom-helpers';
+import sinon from 'sinon';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -67,23 +70,66 @@ describe('Integration | Component | archive browser', function () {
     expect(this.$('.fb-table-row')).to.have.length(itemsCount);
   });
 
-  it('have "create incremental action" for archive item', async function () {
+  it('has "create incremental" action for archive item which opens create archive modal on click',
+    async function () {
+      const itemsCount = 1;
+      const mockArray = mockItems({
+        testCase: this,
+        itemsCount,
+      });
+      const firstArchiveName = mockArray.array[0].name;
+      const openCreateArchiveModal = sinon.spy();
+      this.set('openCreateArchiveModal', openCreateArchiveModal);
+      this.set('spacePrivileges', {
+        manageDatasets: true,
+        createArchives: true,
+      });
+
+      render(this);
+      await wait();
+
+      const $actions = await openItemContextMenu({ name: firstArchiveName });
+      const $action = $actions.find('.file-action-createIncrementalArchive');
+      expect(
+        $action,
+        'create incremental archive item'
+      ).to.exist;
+      await click($action[0]);
+      expect(openCreateArchiveModal).to.have.been.calledOnce;
+      expect(openCreateArchiveModal).to.have.been.calledWith(
+        this.get('dataset'), {
+          baseArchive: mockArray.array[0],
+        }
+      );
+    }
+  );
+
+  it('has "recall" action for archive item that invokes open recall modal on click', async function () {
     const itemsCount = 1;
     const mockArray = mockItems({
       testCase: this,
       itemsCount,
     });
-
     const firstArchiveName = mockArray.array[0].name;
+    const openRecallModal = sinon.spy();
+    this.set('openRecallModal', openRecallModal);
+    this.set('spacePrivileges', {
+      recallArchives: true,
+    });
 
     render(this);
     await wait();
 
     const $actions = await openItemContextMenu({ name: firstArchiveName });
+    const $recallAction = $actions.find('.file-action-recall');
     expect(
-      $actions.find('.file-action-createIncrementalArchive'),
-      'create incremental archive item'
-    ).to.exist;
+      $recallAction,
+      'recall archive menu item'
+    ).to.have.length(1);
+    expect($recallAction.text()).exist.to.contain('Recall as...');
+    await click($recallAction[0]);
+    expect(openRecallModal).to.have.been.calledOnce;
+    expect(openRecallModal).to.have.been.calledWith(mockArray.array[0]);
   });
 });
 
@@ -91,7 +137,12 @@ function render(testCase) {
   const {
     refreshInterval,
     openCreateArchiveModal,
-  } = testCase.getProperties('openCreateArchiveModal', 'refreshInterval');
+    openRecallModal,
+  } = testCase.getProperties(
+    'refreshInterval',
+    'openCreateArchiveModal',
+    'openRecallModal'
+  );
   const defaultDataset = {
     name: 'Default dataset',
     state: 'attached',
@@ -109,11 +160,18 @@ function render(testCase) {
   setTestPropertyDefault(testCase, 'spacePrivileges', {});
   setTestPropertyDefault(testCase, 'spaceId', 'some_space_id');
   setTestPropertyDefault(testCase, 'dataset', defaultDataset);
+  const spaceDatasetsViewState = {
+    browsableDataset: testCase.get('dataset'),
+    attachmentState: testCase.get('dataset.state'),
+  };
   setTestPropertyDefault(testCase, 'browserModel', ArchiveBrowserModel.create({
     ownerSource: testCase,
+    spaceDatasetsViewState,
     refreshInterval: refreshInterval || 0,
     openCreateArchiveModal: openCreateArchiveModal ||
       notStubbed('openCreateArchiveModal'),
+    openRecallModal: openRecallModal ||
+      notStubbed('openRecallModal'),
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.render(hbs `<div id="content-scroll">{{file-browser
@@ -122,7 +180,7 @@ function render(testCase) {
     customFetchDirChildren=customFetchDirChildren
     resolveFileParentFun=resolveFileParentFun
     spaceId=spaceId
-    spacePrivileges = spacePrivileges
+    spacePrivileges=spacePrivileges
     selectedItems=selectedItems
     selectedItemsForJump=selectedItemsForJump
     isSpaceOwned=true

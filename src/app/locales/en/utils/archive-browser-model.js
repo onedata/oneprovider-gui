@@ -11,6 +11,7 @@ export default _.merge({}, BaseBrowserModel, {
   fileActions: {
     createArchive: 'Create archive',
     createIncrementalArchive,
+    recall: 'Recall as...',
     downloadTar: 'Download (tar)',
     copyArchiveId: 'Copy archive ID',
     purge: {
