@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-6397 Removed redundant bower dependencies
 * VFS-8799 Fixed browsing directories in nested archives
 * VFS-8783 Fixed not listing files of nested archive
 * VFS-8617 Removed usages of ember-invoke-action
