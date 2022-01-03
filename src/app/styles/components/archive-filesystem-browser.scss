@@ -5,9 +5,7 @@
     transform: translateY(-0.5em);
   }
   .archive-filesystem-empty-dir {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+    @include fill-flex-using-column;
     justify-content: center;
 
     .dip-switch {

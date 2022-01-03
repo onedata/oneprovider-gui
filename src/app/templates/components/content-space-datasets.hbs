@@ -1,54 +1,55 @@
-{{!-- do not use variable class injecting because of on-top computation --}}
-{{#perfect-scrollbar-element
-  class=(concat-classes
-    "split-browser-container dataset-browser-container"
-    datasetBrowserContainerClass
-  )
-  as |perfectScrollbarContainer|
-}}
-  {{#promise-proxy-container proxy=initialRequiredDataProxy}}
-    {{file-browser
-      browserModel=browserModel
-      dir=browsableDataset
-      customFetchDirChildren=(action "fetchChildren")
-      resolveFileParentFun=(action "resolveItemParent")
-      spaceId=spaceId
-      spacePrivileges=spacePrivileges
-      selectedItems=selectedItems
-      selectedItemsForJumpProxy=selectedItemsForJumpProxy
-      isSpaceOwned=space.currentUserIsOwner
-      contentScroll=perfectScrollbarContainer.element
-      ignoreDeselectSelector=ignoreDatasetDeselectSelector
-      showSelectionToolkit=(hash desktop=true mobile=false)
-      changeSelectedItems=(action "changeSelectedItems")
-      updateDirEntityId=(action "updateDatasetId")
-      onRegisterApi=(action (mut datasetBrowserApi))
-    }}
-
-    {{#if (and datasetToShowProtection fileToShowProtection)}}
-      {{dataset-protection-modal
-        open=true
-        mode="dataset"
-        file=fileToShowProtection
-        browsableDataset=datasetToShowProtection
-        editPrivilege=spacePrivileges.manageDatasets
-        onHide=(action closeProtectionModal)
-        getDataUrl=(action getDataUrl)
-        getDatasetsUrl=(action getDatasetsUrl)
+<div class={{concat-classes
+  "dataset-browser-grid-element split-browser-grid-element"
+  (if datasetContainerLowHeight "low-height")
+}}>
+  {{#perfect-scrollbar-element
+    class="split-browser-container dataset-browser-container"
+    as |perfectScrollbarContainer|
+  }}
+    {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+      {{file-browser
+        browserModel=browserModel
+        dir=browsableDataset
+        customFetchDirChildren=(action "fetchChildren")
+        resolveFileParentFun=(action "resolveItemParent")
+        spaceId=spaceId
+        spacePrivileges=spacePrivileges
+        selectedItems=selectedItems
+        selectedItemsForJumpProxy=selectedItemsForJumpProxy
+        isSpaceOwned=space.currentUserIsOwner
+        contentScroll=perfectScrollbarContainer.element
+        ignoreDeselectSelector=ignoreDatasetDeselectSelector
+        showSelectionToolkit=(hash desktop=true mobile=false)
+        changeSelectedItems=(action "changeSelectedItems")
+        updateDirEntityId=(action "updateDatasetId")
+        onRegisterApi=(action (mut datasetBrowserApi))
       }}
-    {{/if}}
 
-    {{#if datasetToCreateArchive}}
-      {{archive-create-modal
-        open=true
-        dataset=datasetToCreateArchive
-        options=createArchiveOptions
-        onHide=(action closeCreateArchiveModal)
-        onArchiveCreate=(action submitArchiveCreate)
-      }}
-    {{/if}}
-  {{/promise-proxy-container}}
-{{/perfect-scrollbar-element}}
+      {{#if (and datasetToShowProtection fileToShowProtection)}}
+        {{dataset-protection-modal
+          open=true
+          mode="dataset"
+          file=fileToShowProtection
+          browsableDataset=datasetToShowProtection
+          editPrivilege=spacePrivileges.manageDatasets
+          onHide=(action closeProtectionModal)
+          getDataUrl=(action getDataUrl)
+          getDatasetsUrl=(action getDatasetsUrl)
+        }}
+      {{/if}}
+
+      {{#if datasetToCreateArchive}}
+        {{archive-create-modal
+          open=true
+          dataset=datasetToCreateArchive
+          options=createArchiveOptions
+          onHide=(action closeCreateArchiveModal)
+          onArchiveCreate=(action submitArchiveCreate)
+        }}
+      {{/if}}
+    {{/promise-proxy-container}}
+  {{/perfect-scrollbar-element}}
+</div>
 <div class="gutter-row gutter-row-1 gutter-row-selected-dataset">
   <div
     class={{concat-classes
@@ -62,39 +63,43 @@
     {{/truncated-string}}
   </div>
 </div>
-{{!-- do not use variable class injecting because of on-top computation --}}
-{{#perfect-scrollbar-element
-  id=archiveBrowserContainerId
-  class="split-browser-container archive-browser-container"
-  as |perfectScrollbarContainer|
-}}
-  {{#if singleDatasetIsSelected}}
-    {{dataset-archives-browser
-      space=space
-      browsableDataset=selectedSingleDataset
-      contentScroll=perfectScrollbarContainer.element
-      ignoreDeselectSelector=ignoreArchiveDeselectSelector
-      showSelectionToolkit=(hash desktop=true mobile=false)
-      selectedIds=selectedSecondaryIds
-      archiveId=archiveId
-      dirId=dirId
-      openCreateArchiveModal=(action openCreateArchiveModal)
-      onUpdateArchiveId=(action "updateArchiveId")
-      onUpdateDirId=(action "updateDirId")
-      onRegisterApi=(action (mut archiveBrowserApi))
-    }}
-  {{else}}
-    <div class="bottom-panel-content">
-      <div class="bottom-panel-text">
-        {{#if (gt selectedItems.length 1)}}
-          {{tt this "multiDatasetsSelected" count=selectedItems.length}}
-        {{else}}
-          {{tt this "noDatasetSelected"}}
-        {{/if}}
+<div class={{concat-classes
+  "archive-browser-grid-element split-browser-grid-element"
+  (if archiveContainerLowHeight "low-height")
+}}>
+  {{#perfect-scrollbar-element
+    id=archiveBrowserContainerId
+    class="split-browser-container archive-browser-container"
+    as |perfectScrollbarContainer|
+  }}
+    {{#if singleDatasetIsSelected}}
+      {{dataset-archives-browser
+        space=space
+        browsableDataset=selectedSingleDataset
+        contentScroll=perfectScrollbarContainer.element
+        ignoreDeselectSelector=ignoreArchiveDeselectSelector
+        showSelectionToolkit=(hash desktop=true mobile=false)
+        selectedIds=selectedSecondaryIds
+        archiveId=archiveId
+        dirId=dirId
+        openCreateArchiveModal=(action openCreateArchiveModal)
+        onUpdateArchiveId=(action "updateArchiveId")
+        onUpdateDirId=(action "updateDirId")
+        onRegisterApi=(action (mut archiveBrowserApi))
+      }}
+    {{else}}
+      <div class="bottom-panel-content">
+        <div class="bottom-panel-text">
+          {{#if (gt selectedItems.length 1)}}
+            {{tt this "multiDatasetsSelected" count=selectedItems.length}}
+          {{else}}
+            {{tt this "noDatasetSelected"}}
+          {{/if}}
+        </div>
+        <div class="bottom-panel-text bottom-panel-text-secondary">
+          {{selectSingleDatasetText}}
+        </div>
       </div>
-      <div class="bottom-panel-text bottom-panel-text-secondary">
-        {{selectSingleDatasetText}}
-      </div>
-    </div>
-  {{/if}}
-{{/perfect-scrollbar-element}}
+    {{/if}}
+  {{/perfect-scrollbar-element}}
+</div>

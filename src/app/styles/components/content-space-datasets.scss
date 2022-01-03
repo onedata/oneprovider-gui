@@ -1,3 +1,10 @@
+@mixin ignore-horizontal-content-padding() {
+  margin-left: -$content-col-padding;
+  padding-left: $content-col-padding;
+  margin-right: -$content-col-padding;
+  padding-right: $content-col-padding;
+}
+
 @media (max-width: $screen-xs-max) {
   .one-embedded-component.content-space-datasets {
     margin-left: 0;
@@ -21,6 +28,7 @@
   $-gutter-height: 10px;
   position: relative;
   height: 100%;
+  padding-bottom: 0;
 
   display: grid;
   grid-template-rows: 1fr $-gutter-height 1fr;
@@ -93,19 +101,10 @@
     flex-grow: 1;
   }
 
-  .split-browser-container {
-    margin-left: -$content-col-padding;
-    padding-left: $content-col-padding;
-    margin-right: -$content-col-padding;
-    padding-right: $content-col-padding;
-
-    .ps__rail-x + .ps__rail-y {
-      z-index: $zindex-file-browser-head + 1;
-    }
-
-    .file-browser-head-container {
-      @include before-bottom-shadow;
-    }
+  .split-browser-grid-element {
+    display: flex;
+    overflow-y: hidden;
+    @include ignore-horizontal-content-padding;
 
     &.low-height {
       .special-dir-view {
@@ -114,6 +113,19 @@
       .dir-box-image {
         display: none;
       }
+    }
+  }
+
+  .split-browser-container {
+    flex-grow: 1;
+    @include ignore-horizontal-content-padding;;
+
+    .ps__rail-x + .ps__rail-y {
+      z-index: $zindex-file-browser-head + 1;
+    }
+
+    .file-browser-head-container {
+      @include before-bottom-shadow;
     }
 
     &.on-top {
@@ -136,9 +148,7 @@
   }
 
   .fb-table-container {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
+    @include fill-flex-using-column;
   }
 
   // stretching vertically specific for "secondary" browser on the bottom
@@ -169,7 +179,6 @@
 
   .archive-browser-container {
     display: flex;
-    margin-bottom: -$content-col-padding;
 
     .file-browser-head-container {
       position: sticky;

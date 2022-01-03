@@ -173,20 +173,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
   archiveBrowserApi: undefined,
 
   /**
-   * Managed by `updateContainersClasses`.
-   * @private
-   * @type {String}
-   */
-  datasetBrowserContainerClass: '',
-
-  /**
-   * Managed by `updateContainersClasses`.
-   * @private
-   * @type {String}
-   */
-  archiveBrowserContainerClass: '',
-
-  /**
    * @override
    */
   iframeInjectedProperties: Object.freeze([
@@ -207,6 +193,20 @@ export default OneEmbeddedComponent.extend(...mixins, {
   splitGrid: undefined,
 
   _window: window,
+
+  /**
+   * Set to true in `updateContainersClasses` if panel with datasets browser is lower
+   * than some breakpoint. Causes adding special styles for low-height panels.
+   * @type {Boolean}
+   */
+  datasetContainerLowHeight: false,
+
+  /**
+   * Set to true in `updateContainersClasses` if panel with archive browser is lower
+   * than some breakpoint. Causes adding special styles for low-height panels.
+   * @type {Boolean}
+   */
+  archiveContainerLowHeight: false,
 
   ignoreCommonSelector: '#content-scroll, .modal.in',
 
@@ -558,21 +558,26 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   updateContainersClasses() {
     const element = this.get('element');
+    if (!element) {
+      return;
+    }
+
     const lowHeightBreakpoint = 300;
-    const datasetBrowserContainer = element.querySelector('.dataset-browser-container');
-    const archiveBrowserContainer = element.querySelector('.archive-browser-container');
-    // Cannot change classes via property injection, because it would override
-    // perfect-scrollbar dynamic classes.
-    if (datasetBrowserContainer) {
-      const isLowHeight =
-        datasetBrowserContainer.clientHeight <= lowHeightBreakpoint;
-      datasetBrowserContainer.classList[isLowHeight ? 'add' : 'remove']('low-height');
-    }
-    if (archiveBrowserContainer) {
-      const isLowHeight =
-        archiveBrowserContainer.clientHeight <= lowHeightBreakpoint;
-      archiveBrowserContainer.classList[isLowHeight ? 'add' : 'remove']('low-height');
-    }
+    const datasetBrowserContainer =
+      element.querySelector('.dataset-browser-container');
+    const archiveBrowserContainer =
+      element.querySelector('.archive-browser-container');
+
+    this.set(
+      'datasetContainerLowHeight',
+      datasetBrowserContainer &&
+      datasetBrowserContainer.clientHeight <= lowHeightBreakpoint
+    );
+    this.set(
+      'archiveContainerLowHeight',
+      archiveBrowserContainer &&
+      archiveBrowserContainer.clientHeight <= lowHeightBreakpoint
+    );
   },
 
   getEmptyFetchChildrenResponse() {
