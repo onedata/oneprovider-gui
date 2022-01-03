@@ -11,10 +11,15 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 /**
+ * @typedef {'Pending'|'Running'|'Succeeded'|'Failed'|'Unknown'} OpenfaasPodPhase
+ */
+
+/**
  * @typedef {Object} OpenfaasPodActivity
- * @property {string} currentStatus
- * @property {string} currentContainersReadiness
- * @property {number} lastStatusChangeTimestamp
+ * @property {OpenfaasPodPhase} currentStatus
+ * @property {string} currentContainersReadiness readiness indicator like the one
+ * returned by `kubectl get pods` command. Examaple: `'2/3'`
+ * @property {number} lastStatusChangeTimestamp timestamp in milliseconds
  */
 
 /**

@@ -117,12 +117,13 @@ export default Component.extend(I18n, {
         'notCurrentStatuses'
       );
 
-      if (podsFilter !== 'current') {
+      if (podsFilter === 'current') {
+        return podRows.filter(({ podActivity: { currentStatus } }) =>
+          !notCurrentStatuses.includes((currentStatus || '').toLowerCase())
+        );
+      } else {
         return podRows;
       }
-      return podRows.filter(({ podActivity: { currentStatus } }) =>
-        !notCurrentStatuses.includes((currentStatus || '').toLowerCase())
-      );
     }
   ),
 

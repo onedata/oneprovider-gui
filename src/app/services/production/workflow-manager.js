@@ -27,7 +27,8 @@ import config from 'ember-get-config';
 
 /**
  * @typedef {Object} OpenfaasFunctionEvent
- * @property {string} type
+ * For more information about fields used in this object see Kubernetes documentation.
+ * @property {'Normal'|'Warning'} type
  * @property {string} reason
  * @property {string} message
  */

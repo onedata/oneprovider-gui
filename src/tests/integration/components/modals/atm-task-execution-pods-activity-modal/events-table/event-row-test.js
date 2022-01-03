@@ -34,7 +34,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     await render(this);
 
     expect(this.$('.event-time').text().trim()).to.equal(
-      moment(timestamp).format('D MMM YYYY H:mm:ss.SSS')
+      moment(timestamp).format('D MMM YYYY H:mm:ss')
     );
     expect(this.$('.event-type').text().trim()).to.equal(type);
     expect(this.$('.event-reason').text().trim()).to.equal(reason);

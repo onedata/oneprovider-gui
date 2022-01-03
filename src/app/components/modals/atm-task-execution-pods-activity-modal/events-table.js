@@ -17,6 +17,7 @@ import { next } from '@ember/runloop';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { camelize } from '@ember/string';
 
 /**
  * @typedef {Object} EventsTableApi
@@ -50,6 +51,11 @@ export default Component.extend(I18n, {
    * @type {(api: EventsTableApi) => void}
    */
   registerApi: undefined,
+
+  /**
+   * @type {number}
+   */
+  columnsCount: 4,
 
   /**
    * @type {string}
@@ -141,12 +147,12 @@ export default Component.extend(I18n, {
       endIndex: 50,
       indexMargin: 10,
     });
-    rca.on('fetchPrevStarted', () => this.set('fetchingPrev', true));
-    rca.on('fetchPrevResolved', () => this.set('fetchingPrev', false));
-    rca.on('fetchPrevRejected', () => this.set('fetchingPrev', false));
-    rca.on('fetchNextStarted', () => this.set('fetchingNext', true));
-    rca.on('fetchNextResolved', () => this.set('fetchingNext', false));
-    rca.on('fetchNextRejected', () => this.set('fetchingNext', false));
+    rca.on('fetchPrevStarted', () => this.updateFetchStatus('prev', true));
+    rca.on('fetchPrevResolved', () => this.updateFetchStatus('prev', false));
+    rca.on('fetchPrevRejected', () => this.updateFetchStatus('prev', false));
+    rca.on('fetchNextStarted', () => this.updateFetchStatus('next', true));
+    rca.on('fetchNextResolved', () => this.updateFetchStatus('next', false));
+    rca.on('fetchNextRejected', () => this.updateFetchStatus('next', false));
     return rca;
   }),
 
@@ -203,7 +209,7 @@ export default Component.extend(I18n, {
       interval: this.get('updateInterval'),
     });
     updater.on('tick', () => {
-      // this.updateEventsEntries();
+      this.updateEventsEntries();
     });
     this.set('updater', updater);
   },
@@ -229,7 +235,7 @@ export default Component.extend(I18n, {
         }
       );
     const entries = result && result.array;
-    // Infinite log entries does not have id, which is required by replacing chunks array.
+    // Infinite log entries don't have id, which are required by replacing chunks array.
     // Solution: using entry index as id.
     entries && entries.forEach(entry => entry.id = entry.index);
 
@@ -244,6 +250,15 @@ export default Component.extend(I18n, {
     if (tableTopVisible && get(eventsEntries, 'isLoaded')) {
       await eventsEntries.scheduleReload();
     }
+  },
+
+  /**
+   * @param {'prev'|'next'} fetchArraySide
+   * @param {boolean} isLoading
+   * @returns {undefined}
+   */
+  updateFetchStatus(fetchArraySide, isLoading) {
+    safeExec(this, 'set', camelize(`fetching-${fetchArraySide}`), isLoading);
   },
 
   createListWatcher() {

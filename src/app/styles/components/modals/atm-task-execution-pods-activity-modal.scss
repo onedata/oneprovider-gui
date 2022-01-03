@@ -1,4 +1,6 @@
 .atm-task-execution-pods-activity-modal {
+  $entry-selected-hovered-bg: darken($color-file-selected, 3%);
+
   .bs-modal-body-scroll {
     display: grid;
     grid-template-rows: 1fr 10px 1fr;
@@ -34,7 +36,7 @@
       background-color: $color-file-selected;
 
       &:hover {
-        background-color: darken($color-file-selected, 3%);
+        background-color: $entry-selected-hovered-bg;
       }
     }
   }
@@ -130,7 +132,7 @@
       }
 
       &:hover {
-        background-color: darken($color-file-selected, 3%);
+        background-color: $entry-selected-hovered-bg;
       }
     }
 

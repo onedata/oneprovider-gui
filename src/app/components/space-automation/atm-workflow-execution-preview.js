@@ -46,7 +46,7 @@ export default Component.extend({
    */
   usedLambdasMapProxy: promise.object(computed(
     'atmWorkflowExecutionProxy',
-    async function usedLambdasProxy() {
+    async function usedLambdasMapProxy() {
       const {
         atmWorkflowExecutionProxy,
         workflowManager,

@@ -1,5 +1,8 @@
 /**
  * Shows pods activity related to function used by specific task execution.
+ * Needed properties passed via `modalOptions`:
+ * - `atmTaskName`,
+ * - `atmTaskExecutionId`.
  *
  * @module components/modals/atm-task-execution-pods-activity-modal
  * @author Michał Borzęcki
@@ -110,9 +113,9 @@ export default Component.extend(...mixins, {
       immediate: false,
       interval: this.get('updateInterval'),
     });
-    // updater.on('tick', () => {
-    //   this.updatePodsActivityRegistry();
-    // });
+    updater.on('tick', () => {
+      this.updatePodsActivityRegistry();
+    });
     this.set('updater', updater);
   },
 
