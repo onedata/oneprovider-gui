@@ -499,6 +499,7 @@ export default Service.extend({
             'space_manage_qos',
             'space_manage_datasets',
             'space_create_archives',
+            'space_recall_archives',
             'space_view_archives',
             'space_remove_archives',
             'space_view_atm_workflow_executions',

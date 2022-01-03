@@ -355,8 +355,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       }
       return this.createFileAction({
         id: 'recall',
-        // FIXME: recall icon
-        icon: 'browser-directory',
+        icon: 'browser-archive-recall',
         tip: disabledTip,
         disabled: Boolean(disabledTip),
         action: (archives) => {
