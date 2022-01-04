@@ -54,11 +54,12 @@ export default BaseModel.extend(I18n, {
    */
   dirProxy: promise.object(computed('space.rootDir', 'dirId', function dirProxy() {
     const {
+      fileManager,
       space,
       dirId,
-    } = this.getProperties('space', 'dirId');
+    } = this.getProperties('fileManager', 'space', 'dirId');
     if (dirId) {
-      return this.get('fileManager').getFileById(dirId);
+      return fileManager.getFileById(dirId);
     } else {
       return get(space, 'rootDir');
     }

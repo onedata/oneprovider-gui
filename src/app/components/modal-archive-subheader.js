@@ -1,10 +1,10 @@
 /**
- * Subheader for dataset-operation modals with dataset(s) name.
- * It's a special version of `modal-file-subheader` aimed for datasets.
+ * Subheader for archive-operation modals with archive(s) name.
+ * It's a special version of `modal-file-subheader` aimed for archives.
  *
- * @module components/modal-dataset-subheader
+ * @module components/modal-archive-subheader
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -15,18 +15,19 @@ import ModalFileSubheader from 'oneprovider-gui/components/modal-file-subheader'
 import layout from 'oneprovider-gui/templates/components/modal-file-subheader';
 
 export default ModalFileSubheader.extend(I18n, {
+  classNames: ['modal-archive-subheader'],
   layout,
 
   /**
    * @virtual
-   * @type {Array<Utils.BrowsableDataset>}
+   * @type {Array<Utils.BrowsableArchive>}
    */
-  datasets: alias('files'),
+  archives: alias('files'),
 
   /**
-   * @type {ComputedProperty<Utils.BrowsableDataset>}
+   * @type {ComputedProperty<Utils.BrowsableArchive>}
    */
-  firstDataset: alias('firstFile'),
+  firstArchive: alias('firstFile'),
 
   /**
    * @override
@@ -34,16 +35,17 @@ export default ModalFileSubheader.extend(I18n, {
   type: conditional(
     'multi',
     raw('multi'),
-    or('firstDataset.rootFileType', raw('dir'))
+    or('firstArchive.type', raw('dir'))
   ),
 
   /**
+   * File type should not be used - setting for fallbasck.
    * @override
    */
-  fileIcon: 'browser-dataset-file',
+  fileIcon: 'browser-archive',
 
   /**
    * @override
    */
-  dirIcon: 'browser-dataset',
+  dirIcon: 'browser-archive',
 });

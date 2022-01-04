@@ -1,0 +1,25 @@
+{{#modal.header class="archive-recall-part archive-recall-modal-header"}}
+  {{archive-recall/header archive=archive}}
+{{/modal.header}}
+
+{{#modal.body class="archive-recall-part archive-recall-modal-body"}}
+  {{archive-recall/browser
+    modal=modal
+    parentModalDialogSelector=parentModalDialogSelector
+    space=space
+    options=options
+    disabled=disabled
+    browserRequiredDataProxy=browserRequiredDataProxy
+    currentBrowsableItem=currentBrowsableItem
+    onDirIdChange=(action (mut dirId))
+    onSelectedItemsChange=(action changeSelectedItems)
+  }}
+{{/modal.body}}
+
+{{#modal.footer class="archive-recall-part archive-recall-modal-footer"}}
+  {{archive-recall/submit-footer
+    isSubmitting=isSubmitting
+    onSubmit=(action "submit")
+    onCancel=(action onCancel)
+  }}
+{{/modal.footer}}

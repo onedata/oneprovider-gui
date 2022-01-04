@@ -17,8 +17,8 @@ import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Mixin.create({
   // requires selectedItems: Array<Object> (browsable objects)
-  // requires `currentBrowsableItem` (recommended) or `dirProxy` (backward compatibility)
-  //   with type PromiseObject<Object> (browsable object)
+  // requires `currentBrowsableItemProxy` (recommended) or `dirProxy` (backward
+  //   compatibility) with type PromiseObject<Object> (browsable object)
   // optional selectedItemsForJumpProxy: PromiseArray<Object> (browsable obj.)
   // optional space: Models.Space
 

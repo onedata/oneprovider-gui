@@ -1,0 +1,20 @@
+{{#one-modal
+  id=modalId
+  class="archive-recall-modal modal-content-overlay"
+  open=open
+  size="xl"
+  backdropClose=false
+  keyboard=false
+  onHide=(action "hide")
+  as |modal|
+}}
+  {{archive-recall
+    modal=modal
+    space=space
+    archive=archive
+    options=options
+    onCancel=(action "hide")
+    onArchiveRecallStarted=(action "recallStarted")
+  }}
+  {{yield}}
+{{/one-modal}}

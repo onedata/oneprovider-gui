@@ -11,7 +11,6 @@ import _ from 'lodash';
 import Service from '@ember/service';
 import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
-import sleep from 'onedata-gui-common/utils/sleep';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -126,7 +125,7 @@ describe('Integration | Component | archive browser', function () {
       $recallAction,
       'recall archive menu item'
     ).to.have.length(1);
-    expect($recallAction.text()).exist.to.contain('Recall as...');
+    expect($recallAction.text()).exist.to.contain('Recall into...');
     await click($recallAction[0]);
     expect(openRecallModal).to.have.been.calledOnce;
     expect(openRecallModal).to.have.been.calledWith(mockArray.array[0]);

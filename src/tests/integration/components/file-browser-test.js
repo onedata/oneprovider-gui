@@ -14,6 +14,7 @@ import { click } from 'ember-native-dom-helpers';
 import $ from 'jquery';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
+import { mockRootFiles } from '../../helpers/files';
 
 const UploadManager = Service.extend({
   assignUploadDrop() {},
@@ -31,35 +32,6 @@ const FileManager = Service.extend(Evented, {
   refreshDirChildren() {},
   getFileDownloadUrl() {},
 });
-
-class MockArray {
-  constructor(array) {
-    if (!array) {
-      throw new Error('file-browser-test MockArray: array not specified');
-    }
-    this.array = array;
-  }
-  fetch(
-    fromIndex,
-    size = Number.MAX_SAFE_INTEGER,
-    offset = 0
-  ) {
-    const startIndex = fromIndex === null ?
-      0 :
-      this.array.findIndex(item => get(item, 'index') === fromIndex);
-    const startOffset = Math.max(
-      0,
-      Math.min(startIndex + offset, this.array.length)
-    );
-    const endOffset = Math.min(startOffset + size, this.array.length);
-    return resolve(this.array.slice(startOffset, endOffset));
-  }
-  async fetchChildren(dirId, scope, index, offset, limit) {
-    const fetchResult = await this.fetch(index, offset, limit);
-    const result = { childrenRecords: fetchResult, isLast: fetchResult.length < limit };
-    return result;
-  }
-}
 
 describe('Integration | Component | file browser (main component)', function () {
   setupComponentTest('file-browser', {
@@ -916,29 +888,4 @@ function notStubbed(stubName) {
   return () => {
     throw new Error(`${stubName} is not stubbed`);
   };
-}
-
-function generateFileId(entityId) {
-  return `file.${entityId}.instance:private`;
-}
-
-function mockRootFiles({ testCase, filesCount }) {
-  const files = _.range(0, filesCount).map(i => {
-    const name = `file-${i.toString().padStart(3, '0')}`;
-    const entityId = name;
-    const file = {
-      id: generateFileId(entityId),
-      entityId,
-      name,
-      index: name,
-      type: 'file',
-    };
-    file.effFile = file;
-    return file;
-  });
-  const fileManager = lookupService(testCase, 'fileManager');
-
-  const mockArray = new MockArray(files);
-  fileManager.fetchDirChildren = (...args) => mockArray.fetchChildren(...args);
-  return mockArray;
 }

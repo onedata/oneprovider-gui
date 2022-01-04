@@ -576,6 +576,7 @@ export default Component.extend(...mixins, {
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openPurgeModal: this.openArchivesPurgeModal.bind(this),
+      openRecallModal: this.openArchiveRecallModal.bind(this),
       browseArchiveDip: this.browseArchiveDip.bind(this),
     }, options));
   },
@@ -833,6 +834,18 @@ export default Component.extend(...mixins, {
 
   submitArchiveCreate(dataset, archiveData) {
     return this.get('archiveManager').createArchive(dataset, archiveData);
+  },
+
+  openArchiveRecallModal(archive) {
+    this.set('archiveToRecall', archive);
+  },
+
+  closeArchiveRecallModal() {
+    this.set('archiveToRecall', null);
+  },
+
+  handleArchiveRecallStarted( /* dirId */ ) {
+    // FIXME: currently there is no api for getting dirId, so doing nothing
   },
 
   getItemById(itemId) {

@@ -21,7 +21,7 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
-import { equal, and, not, or, raw } from 'ember-awesome-macros';
+import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
 import _ from 'lodash';
@@ -32,6 +32,8 @@ import { A } from '@ember/array';
 import { isEmpty } from '@ember/utils';
 import sleep from 'onedata-gui-common/utils/sleep';
 import animateCss from 'onedata-gui-common/utils/animate-css';
+
+const defaultIsItemDisabled = () => false;
 
 export default Component.extend(I18n, {
   classNames: ['fb-table'],
@@ -261,6 +263,43 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Boolean>}
    */
   disableReJumps: reads('browserModel.disableReJumps'),
+
+  /**
+   * When true, allow to select only single item on list.
+   * @type {ComputedProperty<Boolean>}
+   */
+  singleSelect: bool(or('browserModel.singleSelect', 'previewMode')),
+
+  /**
+   * @type {(item: Object) => boolean}
+   */
+  isItemDisabledFunction: computed(
+    'browserModel.isItemDisabled',
+    function isItemDisabledFunction() {
+      const browserModel = this.get('browserModel');
+      const isItemDisabledMethod = browserModel.isItemDisabled;
+      if (typeof isItemDisabledMethod === 'function') {
+        return isItemDisabledMethod.bind(browserModel);
+      } else {
+        return defaultIsItemDisabled;
+      }
+    }
+  ),
+
+  disabledItems: computed(
+    'isItemDisabledFunction',
+    'filesArray.[]',
+    function disabledItems() {
+      const {
+        isItemDisabledFunction,
+        filesArray,
+      } = this.getProperties(
+        'isItemDisabledFunction',
+        'filesArray'
+      );
+      return filesArray.filter(item => isItemDisabledFunction(item));
+    }
+  ),
 
   selectionCount: reads('selectedItems.length'),
 
@@ -940,18 +979,18 @@ export default Component.extend(I18n, {
    */
   fileClicked(file, ctrlKey, shiftKey) {
     // do not change selection if only clicking to close context menu
-    if (isPopoverOpened()) {
+    if (isPopoverOpened() || this.isItemDisabled(file)) {
       return;
     }
 
     const {
       selectedItems,
-      previewMode,
-    } = this.getProperties('selectedItems', 'previewMode');
+      singleSelect,
+    } = this.getProperties('selectedItems', 'singleSelect');
     const selectedCount = get(selectedItems, 'length');
     const fileIsSelected = selectedItems.includes(file);
     const otherFilesSelected = selectedCount > (fileIsSelected ? 1 : 0);
-    if (previewMode) {
+    if (singleSelect) {
       if (fileIsSelected) {
         this.selectRemoveSingleFile(file);
       } else {
@@ -1102,6 +1141,10 @@ export default Component.extend(I18n, {
       nearestIndex = fileIndex;
     }
     return nearestIndex;
+  },
+
+  isItemDisabled(item) {
+    return this.get('isItemDisabledFunction')(item) || false;
   },
 
   actions: {

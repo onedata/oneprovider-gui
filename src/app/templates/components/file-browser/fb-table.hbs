@@ -44,6 +44,7 @@
         nameConflict=(contains file.index conflictNames)
         fileClipboardMode=(if (contains file fileClipboardFiles) fileClipboardMode null)
         isSelected=(contains file selectedItems)
+        isDisabled=(contains file disabledItems)
         isLoadingOnIcon=(contains file.entityId loadingIconFileIds)
         touchTap=(action "fileTapped" file)
         touchHold=(action "fileTouchHeld" file)

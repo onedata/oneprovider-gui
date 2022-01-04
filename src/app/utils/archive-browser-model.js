@@ -81,13 +81,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   /**
    * @virtual
-   * @type {(datasets: Array<Models.Dataset>) => any}
+   * @type {(archives: Array<Utils.BrowsableArchive>) => any}
    */
   openPurgeModal: notImplementedThrow,
 
   /**
    * @virtual
-   * @type {(dataset: Models.Dataset, options: Object) => any}
+   * @type {(archive: Utils.BrowsableArchive, options: Object) => any}
    */
   openRecallModal: notImplementedThrow,
 

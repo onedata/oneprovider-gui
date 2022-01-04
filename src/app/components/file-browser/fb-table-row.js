@@ -36,6 +36,8 @@ export default Component.extend(I18n, FastDoubleClick, {
     'fileCut:file-cut',
     'isInvalidated:is-invalidated',
     'isLoadingOnIcon:is-loading-on-icon',
+    'isDisabled:item-disabled',
+    'isMuted:item-muted',
   ],
   attributeBindings: ['fileEntityId:data-row-id'],
 
@@ -140,6 +142,12 @@ export default Component.extend(I18n, FastDoubleClick, {
   fileCut: false,
 
   /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  isDisabled: false,
+
+  /**
    * Should be set to true, if other file on list have the same name
    * @virtual
    * @type {Boolean}
@@ -216,6 +224,12 @@ export default Component.extend(I18n, FastDoubleClick, {
   ),
 
   isInvalidated: not('file.type'),
+
+  /**
+   * Applies a "muted" style for file row (looks like something inactive).
+   * @type {ComputedProperty<Boolean>}
+   */
+  isMuted: or('isDisabled', 'fileCut'),
 
   fileNameParser: computed('file', function fileNameParser() {
     return FileNameParser.create({ file: this.get('file') });

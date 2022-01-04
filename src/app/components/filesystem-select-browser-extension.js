@@ -1,8 +1,11 @@
 /**
  * Provides additional components used by filesystem browser used as selector
  * (eg. action modals).
- * 
+ *
  * See `utils/items-select-browser/filesystem-model` for logic implementation.
+ *
+ * // FIXME: as this is used also in select-location, it must be more generic
+ * // eg. selectorModel -> browserContainer
  *
  * @module components/filesystem-select-browser-extension
  * @author Jakub Liput

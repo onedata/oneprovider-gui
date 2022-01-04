@@ -178,6 +178,31 @@ export default Service.extend({
   },
 
   /**
+   * @param {Models.Archive} archive
+   * @param {String} targetDirId entityId of directory where target directory with archive
+   *  files should be created
+   * @returns {Promise}
+   */
+  async recallArchive(archive, targetDirId) {
+    const onedataGraph = this.get('onedataGraph');
+    return await onedataGraph.request({
+      operation: 'create',
+      gri: gri({
+        entityType: archiveEntityType,
+        entityId: get(archive, 'entityId'),
+        aspect: 'recall',
+        scope: 'private',
+        data: {
+          targetFileId: targetDirId,
+          // FIXME: there will be probably new directory name parameter
+        },
+      }),
+      subscribe: false,
+    });
+    // FIXME: add refreshing containg dir view
+  },
+
+  /**
    * @param {String} datasetId entityId of dataset to list its archive children
    * @param {String} index
    * @param {Number} limit
