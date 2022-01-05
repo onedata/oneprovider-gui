@@ -1,0 +1,24 @@
+.archive-recall-part {
+  .archive-recall-header {
+    .intro-text {
+      margin-top: 2em;
+    }
+  }
+  .archive-recall-footer {
+    display: flex;
+    align-items: center;
+    .path-summary {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: center;
+      text-align: left;
+      .selection-count-none {
+        color: $main-text-color-disabled;
+      }
+    }
+    .target-dir-name {
+      @include font-semibold;
+    }
+  }
+}

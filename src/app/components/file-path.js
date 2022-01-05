@@ -88,7 +88,7 @@ export default Component.extend(...mixins, {
 
   //#region asynchronous data
 
-  filePathProxy: promise.object(computed('file.parent', function filePathProxy() {
+  filePathProxy: promise.object(computed('file', function filePathProxy() {
     const file = this.get('file');
     return resolveFilePath(file);
   })),

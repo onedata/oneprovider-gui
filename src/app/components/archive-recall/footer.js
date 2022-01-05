@@ -5,12 +5,12 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  classNames: ['archive-recall-submit-footer'],
+  classNames: ['archive-recall-footer'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.archiveRecall.submitFooter',
+  i18nPrefix: 'components.archiveRecall.footer',
 
   i18n: service(),
 
@@ -25,6 +25,20 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   onSubmit: notImplementedReject,
+
+  /**
+   * Parent directory for root recalled directory to be created.
+   * @virtual
+   * @type {Models.File}
+   */
+  parentDir: undefined,
+
+  /**
+   * Desired name of root recalled directory.
+   * @virtual
+   * @type {String}
+   */
+  targetDirName: '',
 
   /**
    * @virtual

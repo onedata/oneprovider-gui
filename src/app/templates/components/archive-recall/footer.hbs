@@ -1,0 +1,32 @@
+<div class="path-summary">
+  <div class="path-summary-info">
+    {{tt this "pathSummaryInfo"}}
+  </div>
+  {{#if parentDir}}
+    <div class="path-summary-path">
+      {{#file-path file=parentDir}}
+        <div class="path-item path-separator">/</div>
+        <div class="path-item path-label target-dir-name">{{targetDirName}}</div>
+      {{/file-path}}
+    </div>
+  {{/if}}
+  {{#if validationError}}
+    <div class="path-validation-error text-danger">{{validationError}}</div>
+  {{/if}}
+</div>
+{{#bs-button
+  class="cancel-btn"
+  type="default"
+  disabled=isSubmitting
+  onClick=(action onCancel)
+}}
+  {{tt this "cancel"}}
+{{/bs-button}}
+{{#one-spin-button
+  class="btn btn-primary submit-btn"
+  disabled=disabled
+  inFlight=isSubmitting
+  action=(action onSubmit)
+}}
+  {{tt this "proceed"}}
+{{/one-spin-button}}

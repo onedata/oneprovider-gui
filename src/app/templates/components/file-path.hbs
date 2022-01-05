@@ -7,6 +7,7 @@
   {{else if isError}}
     <span class="path-error">
       <span class="text-danger">{{tt this "error"}}</span>
+      {{allPathItemsProxy.reason}}, {{filesViewContextProxy.reason}}
     </span>
   {{else}}
     <a
@@ -27,6 +28,7 @@
         {{/if}}
         <div class="path-item path-label">{{item.record.name}}</div>
       {{/each}}
+      {{yield}}
     </a>
     {{#if renderTooltip}}
       {{one-tooltip

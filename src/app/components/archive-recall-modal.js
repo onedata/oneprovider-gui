@@ -32,7 +32,7 @@ export default Component.extend({
    * @virtual
    * @type {Models.Dataset}
    */
-  dataset: undefined,
+  archive: undefined,
 
   /**
    * Injected options for archive recall.

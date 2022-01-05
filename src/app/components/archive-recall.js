@@ -1,9 +1,9 @@
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { tag } from 'ember-awesome-macros';
+import { promise, tag } from 'ember-awesome-macros';
 import { computed, get } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
-import { promise } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { guidFor } from '@ember/object/internals';
@@ -33,6 +33,10 @@ export default Component.extend(...mixins, {
    */
   modalId: null,
 
+  onCancel: notImplementedIgnore,
+
+  onArchiveRecallStarted: notImplementedIgnore,
+
   dirId: null,
 
   /**
@@ -46,9 +50,12 @@ export default Component.extend(...mixins, {
     return `${guidFor(this)}-body`;
   }),
 
-  onCancel: notImplementedIgnore,
-
-  onArchiveRecallStarted: notImplementedIgnore,
+  /**
+   * A dataset of archive.
+   * @virtual optional
+   * @type {Models.Dataset}
+   */
+  dataset: reads('archive.dataset.content'),
 
   /**
    * @implements ItemBrowserContainerBase
