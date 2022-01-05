@@ -1,6 +1,6 @@
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { promise, tag } from 'ember-awesome-macros';
+import { promise, tag, or } from 'ember-awesome-macros';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
@@ -93,27 +93,23 @@ export default Component.extend(...mixins, {
 
   currentBrowsableItem: computedLastProxyContent('currentBrowsableItemProxy'),
 
+  targetRecallDir: or('selectedItems.firstObject', 'currentBrowsableItem'),
+
   async recallArchive() {
     const {
       globalNotify,
       archiveManager,
       archive,
-      currentBrowsableItem,
+      targetRecallDir,
     } = this.getProperties(
       'globalNotify',
       'archiveManager',
       'archive',
-      'currentBrowsableItem'
+      'targetRecallDir'
     );
-    const targetDirId = currentBrowsableItem && get(currentBrowsableItem, 'entityId');
-    if (!targetDirId) {
-      throw new Error(
-        'component:archive-recall#recallArchive: no currentBrowsableItem.entityId'
-      );
-    }
     let result;
     try {
-      result = await archiveManager.recallArchive(archive, targetDirId);
+      result = await archiveManager.recallArchive(archive, targetRecallDir);
     } catch (error) {
       globalNotify.backendError(this.t('archiveRecallProcessStart'), error);
       throw error;

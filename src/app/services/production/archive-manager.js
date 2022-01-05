@@ -179,11 +179,11 @@ export default Service.extend({
 
   /**
    * @param {Models.Archive} archive
-   * @param {String} targetDirId entityId of directory where target directory with archive
-   *  files should be created
+   * @param {String} targetDir directory where target directory with archive files should
+   *   be created
    * @returns {Promise}
    */
-  async recallArchive(archive, targetDirId) {
+  async recallArchive(archive, targetDir) {
     const onedataGraph = this.get('onedataGraph');
     return await onedataGraph.request({
       operation: 'create',
@@ -192,11 +192,11 @@ export default Service.extend({
         entityId: get(archive, 'entityId'),
         aspect: 'recall',
         scope: 'private',
-        data: {
-          targetFileId: targetDirId,
-          // FIXME: there will be probably new directory name parameter
-        },
       }),
+      data: {
+        targetFileId: get(targetDir, 'cdmiObjectId'),
+        // FIXME: there will be probably new directory name parameter
+      },
       subscribe: false,
     });
     // FIXME: add refreshing containg dir view

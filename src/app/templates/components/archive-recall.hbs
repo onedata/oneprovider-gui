@@ -21,7 +21,7 @@
 {{#modal.footer class="archive-recall-part archive-recall-modal-footer"}}
   {{archive-recall/footer
     targetDirName=dataset.name
-    parentDir=(or selectedItems.firstObject currentBrowsableItem)
+    parentDir=targetRecallDir
     isSubmitting=isSubmitting
     onSubmit=(action "submit")
     onCancel=(action onCancel)
