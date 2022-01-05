@@ -16,6 +16,8 @@ export default Component.extend(...mixins, {
   tagName: '',
 
   fileManager: service(),
+  archiveManager: service(),
+  globalNotify: service(),
 
   /**
    * @implements ItemBrowserContainerBase
@@ -84,7 +86,32 @@ export default Component.extend(...mixins, {
   currentBrowsableItem: computedLastProxyContent('currentBrowsableItemProxy'),
 
   async recallArchive() {
-
+    const {
+      globalNotify,
+      archiveManager,
+      archive,
+      currentBrowsableItem,
+    } = this.getProperties(
+      'globalNotify',
+      'archiveManager',
+      'archive',
+      'currentBrowsableItem'
+    );
+    const targetDirId = currentBrowsableItem && get(currentBrowsableItem, 'entityId');
+    if (!targetDirId) {
+      throw new Error(
+        'component:archive-recall#recallArchive: no currentBrowsableItem.entityId'
+      );
+    }
+    let result;
+    try {
+      result = await archiveManager.recallArchive(archive, targetDirId);
+    } catch (error) {
+      globalNotify.backendError(this.t('archiveRecallProcessStart'), error);
+      throw error;
+    }
+    globalNotify.success(this.t('archiveRecallStartSuccess'));
+    return result;
   },
 
   actions: {

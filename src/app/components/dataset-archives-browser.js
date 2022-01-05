@@ -844,8 +844,8 @@ export default Component.extend(...mixins, {
     this.set('archiveToRecall', null);
   },
 
-  handleArchiveRecallStarted( /* dirId */ ) {
-    // FIXME: currently there is no api for getting dirId, so doing nothing
+  handleArchiveRecallStarted( /* result */ ) {
+    // FIXME: currently there is no api for getting dirId, so go to enclosing dir
   },
 
   getItemById(itemId) {
