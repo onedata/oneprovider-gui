@@ -20,6 +20,8 @@ const mixins = [
 ];
 
 export default Component.extend(...mixins, {
+  classNames: ['archive-recall-browser', 'in-modal-item-browser-container'],
+
   i18n: service(),
   fileManager: service(),
 
@@ -48,6 +50,13 @@ export default Component.extend(...mixins, {
    * @virtual
    */
   browserRequiredDataProxy: undefined,
+
+  /**
+   * @implements InModalBrowserContainerBase
+   * @type {String}
+   * @virtual
+   */
+  modalBodyId: undefined,
 
   onDirIdChange: notImplementedThrow,
 

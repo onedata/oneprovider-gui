@@ -33,14 +33,14 @@ export default Mixin.create({
       );
       if (!isRendered) {
         console.debug(
-          'component:items-select-browser#contentScroll: tried to compute contentScroll before render'
+          'mixin:in-modal-item-browser-container-base#contentScroll: tried to compute contentScroll before render'
         );
       }
       if (contentScrollSelector) {
         const customScrollElement = _document.querySelector(contentScrollSelector);
         if (!customScrollElement) {
           console.error(
-            'component:items-select-browser#contentScroll: no #{contentScrollSelector} element found, infinite scroll may be broken'
+            'mixin:in-modal-item-browser-container-base#contentScroll: no #{contentScrollSelector} element found, infinite scroll may be broken'
           );
         }
         return customScrollElement;
@@ -48,7 +48,7 @@ export default Mixin.create({
       let scrollElement = _document.querySelector(`#${modalBodyId} .bs-modal-body-scroll`);
       if (!scrollElement) {
         console.error(
-          'component:items-select-browser#contentScroll: no .bs-modal-body-scroll body element found, infinite scroll may be broken'
+          'mixin:in-modal-item-browser-container-base#contentScroll: no .bs-modal-body-scroll body element found, infinite scroll may be broken'
         );
         scrollElement = _document.body;
       }

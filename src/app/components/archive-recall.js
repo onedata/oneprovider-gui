@@ -6,12 +6,15 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import { promise } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import { guidFor } from '@ember/object/internals';
 
 const mixins = [
   ItemBrowserContainerBase,
 ];
 
 export default Component.extend(...mixins, {
+  tagName: '',
+
   fileManager: service(),
 
   /**
@@ -38,6 +41,10 @@ export default Component.extend(...mixins, {
   selectedItems: null,
 
   parentModalDialogSelector: tag `#${'modalId'} > .modal-dialog`,
+
+  modalBodyId: computed(function modalBodyId() {
+    return `${guidFor(this)}-body`;
+  }),
 
   onCancel: notImplementedIgnore,
 

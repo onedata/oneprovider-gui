@@ -2,15 +2,17 @@
   {{archive-recall/header archive=archive}}
 {{/modal.header}}
 
-{{#modal.body class="archive-recall-part archive-recall-modal-body"}}
+{{#modal.body id=modalBodyId class="archive-recall-part archive-recall-modal-body"}}
   {{archive-recall/browser
     modal=modal
+    modalBodyId=modalBodyId
     parentModalDialogSelector=parentModalDialogSelector
     space=space
     options=options
     disabled=disabled
     browserRequiredDataProxy=browserRequiredDataProxy
     currentBrowsableItem=currentBrowsableItem
+    selectedItems=selectedItems
     onDirIdChange=(action (mut dirId))
     onSelectedItemsChange=(action changeSelectedItems)
   }}
