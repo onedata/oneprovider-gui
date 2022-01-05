@@ -7,17 +7,25 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import { inject as service } from '@ember/service';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { guidFor } from '@ember/object/internals';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 const mixins = [
+  I18n,
   ItemBrowserContainerBase,
 ];
 
 export default Component.extend(...mixins, {
   tagName: '',
 
+  i18n: service(),
   fileManager: service(),
   archiveManager: service(),
   globalNotify: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.archiveRecall',
 
   /**
    * @implements ItemBrowserContainerBase

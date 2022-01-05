@@ -22,6 +22,10 @@ import { mockRootFiles } from '../../helpers/files';
 import { resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 
+const ArchiveManager = Service.extend({
+  async recallArchive() {},
+});
+
 const FileManager = Service.extend(Evented, {
   async fetchDirChildren() {
     return [];
@@ -37,6 +41,7 @@ describe('Integration | Component | archive recall modal', function () {
 
   beforeEach(function () {
     registerService(this, 'fileManager', FileManager);
+    registerService(this, 'archiveManager', ArchiveManager);
     this.setProperties({
       open: true,
       space: {

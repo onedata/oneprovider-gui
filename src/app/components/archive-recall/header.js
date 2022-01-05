@@ -13,9 +13,12 @@ import { eq, conditional, typeOf, raw } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['archive-recall-header'],
+
+  i18n: service(),
 
   /**
    * @override

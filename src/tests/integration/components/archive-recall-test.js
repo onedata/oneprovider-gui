@@ -6,6 +6,12 @@ import wait from 'ember-test-helpers/wait';
 import { mockRootFiles } from '../../helpers/files';
 import { resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import Service from '@ember/service';
+import { registerService } from '../../helpers/stub-service';
+
+const ArchiveManager = Service.extend({
+  async recallArchive() {},
+});
 
 describe('Integration | Component | archive recall', function () {
   setupComponentTest('archive-recall', {
@@ -17,6 +23,7 @@ describe('Integration | Component | archive recall', function () {
       onCancel: () => {},
       onArchiveRecallStarted: () => {},
     });
+    registerService(this, 'archiveManager', ArchiveManager);
   });
 
   it('lists contents of injected directory', async function () {
