@@ -72,14 +72,6 @@ module.exports = function (defaults) {
     'ember-cli-string-helpers': {
       only: ['capitalize', 'lowercase', 'truncate'],
     },
-    'nodeAssets': {
-      'chartist-plugin-legend': {
-        vendor: {
-          include: ['chartist-plugin-legend.js'],
-        },
-        public: {},
-      },
-    },
     'ace': {
       themes: ['textmate'],
       modes: ['json', 'xml'],
@@ -105,24 +97,15 @@ module.exports = function (defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
-  const BOWER_ASSETS = [
-    'basictable/jquery.basictable.min.js',
-    'basictable/basictable.css',
-  ];
-
   const NODE_ASSETS = [
+    'chartist-plugin-legend/chartist-plugin-legend.js',
+    'basictable/basictable.css',
     'perfect-scrollbar/css/perfect-scrollbar.css',
     'webui-popover/dist/jquery.webui-popover.css',
     'webui-popover/dist/jquery.webui-popover.js',
   ];
 
-  const VENDOR_ASSETS = [
-    'chartist-plugin-legend/chartist-plugin-legend.js',
-  ];
-
-  BOWER_ASSETS.forEach(path => app.import(app.bowerDirectory + '/' + path));
   NODE_ASSETS.forEach(path => app.import(`node_modules/${path}`));
-  VENDOR_ASSETS.forEach(path => app.import('vendor/' + path));
 
   return app.toTree();
 };
