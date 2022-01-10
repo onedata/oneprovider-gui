@@ -28,18 +28,61 @@
     }
   }
   &.special-dir-view {
-    @extend .world-map;
-    @extend .light;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
+    @include fill-flex-using-column;
+    height: auto;
+    background-origin: content-box;
+    padding-bottom: 1em;
+    padding-top: 1em;
+
+    @media (max-height: 400px) {
+      background: none;
+      .dir-box-image {
+        display: none;
+      }
+    }
+
+    @media (max-width: $screen-xs-max) {
+      h1 {
+        font-size: 26px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      line-height: normal;
+      margin-left: 1.5em;
+      margin-right: 1.5em;
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+    .dir-box {
+      @include fill-flex-using-column;
+      justify-content: center;
+      position: static;
+      transform: none;
+      width: auto;
+    }
+    .dir-box-image {
+      margin: 1.5em;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      flex-grow: 1;
+      align-self: stretch;
+      max-height: 18em;
+      height: auto;
+    }
     .table {
       display: none;
     }
-    .empty-dir-box {
-      display: block;
+    .table-bottom-spacing {
+      display: none;
     }
   }
+
   .data-row td.special-row-cell, td.special-row-cell {
     position: relative;
     height: 61px;
@@ -58,34 +101,12 @@
     }
   }
   .dir-box {
-    @include absolute-align-middle-center();
-    width: 100%;
-
-    .dir-box-image {
-      height: 260px;
-      margin: $padding-large-vertical * 2 auto;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: contain;
-    }
     .dir-box-text {
       text-align: center;
     }
     h1 {
       @include font-semibold();
       text-transform: uppercase;
-    }
-
-    @media (max-width: $screen-xs-max) {
-      .empty-dir-image {
-        height: 180px;
-      }
-      h1 {
-        font-size: 26px;
-      }
-      h2 {
-        font-size: 20px;
-      }
     }
   }
   th {
@@ -152,3 +173,36 @@
     }
   }
 }
+
+.special-dir-view {
+  @extend .world-map;
+  @extend .light;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+// adjust typography and sizes for non-full-content browsers
+.modal, .split-browser-container {
+  .fb-table.special-dir-view {
+    .dir-box-image {
+      max-height: 12em;
+    }
+    h1 {
+      font-size: 1.8em;
+    }
+    h2 {
+      font-size: 1.6em;
+    }
+    h3 {
+      font-size: 1.2em;
+    }
+    h4 {
+      font-size: 1em;
+    }
+    .empty-dir-image {
+      display: none;
+    }
+  }
+}
+

@@ -10,7 +10,7 @@
 import Component from '@ember/component';
 import { observer, computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { resolve, all as allFulfilled } from 'rsvp';
+import { resolve, all as allFulfilled, Promise } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-container-base';
@@ -83,7 +83,7 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual optional
-   * @type {Function}
+   * @type {(archiveId: String) => (Promise|undefined)}
    */
   onUpdateArchiveId: computed(function onUpdateArchiveId() {
     return (archiveId) => {
@@ -93,7 +93,7 @@ export default Component.extend(...mixins, {
 
   /**
    * @virtual optional
-   * @type {Function}
+   * @type {(fileId: String) => (Promise|undefined)}
    */
   onUpdateDirId: computed(function onUpdateDirId() {
     return (dirId) => {
@@ -533,8 +533,10 @@ export default Component.extend(...mixins, {
       'currentBrowsableItemProxy',
     );
     // a workaround for fb-table trying to get children when it have not-updated "dir"
+    // not waiting for proxy to resolve, because it could cause double fetching
+    // (on next, proper fetchChildren)
     if (!get(currentBrowsableItemProxy, 'isSettled')) {
-      return this.getEmptyFetchChildrenResponse();
+      return new Promise(() => {});
     }
 
     if (viewMode === 'files') {
@@ -542,14 +544,6 @@ export default Component.extend(...mixins, {
     } else if (viewMode === 'archives') {
       return this.fetchDatasetArchives(...fetchArgs);
     }
-  },
-
-  // TODO: VFS-7643 make common util for empty response
-  getEmptyFetchChildrenResponse() {
-    return {
-      childrenRecords: [],
-      isLast: true,
-    };
   },
 
   // TODO: VFS-7643 maybe fetch dir children will be a common operation in browser model
@@ -737,7 +731,7 @@ export default Component.extend(...mixins, {
         mode === 'dip' ? 'relatedDip' : 'relatedAip'
       );
       onUpdateDirId(null);
-      onUpdateArchiveId(newArchiveId);
+      await onUpdateArchiveId(newArchiveId);
     }
   },
 
@@ -828,12 +822,12 @@ export default Component.extend(...mixins, {
 
     if (itemId === datasetId) {
       onUpdateDirId(null);
-      onUpdateArchiveId(null);
+      await onUpdateArchiveId(null);
     } else if (viewMode === 'archives') {
       onUpdateDirId(null);
-      onUpdateArchiveId(itemId);
+      await onUpdateArchiveId(itemId);
     } else if (viewMode === 'files') {
-      onUpdateDirId(itemId);
+      await onUpdateDirId(itemId);
     }
   },
 

@@ -77,6 +77,8 @@
 .fb-table-container {
   margin-top: $fb-table-margin-top;
   height: 100%;
+
+  @include fill-flex-using-column;
 }
 
 .fb-toolbar-container {
