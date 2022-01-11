@@ -82,6 +82,13 @@ export default Component.extend(...mixins, {
   showSelectionToolkit: true,
 
   /**
+   * If true, navigate to archive recalling target file when recall sucessfully starts.
+   * @virtual optional
+   * @type {Boolean}
+   */
+  navigateAfterRecall: false,
+
+  /**
    * @virtual optional
    * @type {(archiveId: String) => (Promise|undefined)}
    */
@@ -848,6 +855,9 @@ export default Component.extend(...mixins, {
    * @param {RecallArchiveResponse} result
    */
   async handleArchiveRecallStarted(result) {
+    if (!this.get('navigateAfterRecall')) {
+      return;
+    }
     if (!result || !result.rootId) {
       return;
     }
