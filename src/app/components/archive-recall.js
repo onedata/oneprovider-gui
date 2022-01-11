@@ -43,8 +43,16 @@ export default Component.extend(...mixins, {
    */
   modalId: null,
 
+  /**
+   * @virtual
+   * @type {() => void}
+   */
   onCancel: notImplementedIgnore,
 
+  /**
+   * @virtual
+   * @type {(result: RecallArchiveResponse) => (any|Promise<any>)}
+   */
   onArchiveRecallStarted: notImplementedIgnore,
 
   //#region state
@@ -107,6 +115,44 @@ export default Component.extend(...mixins, {
    */
   targetRecallParent: or('selectedItems.firstObject', 'currentBrowsableItem'),
 
+  targetFileExistsProxy: promise.object(computed(
+    'targetName',
+    'targetRecallParent',
+    async function targetFileExistsProxy() {
+      const {
+        fileManager,
+        targetName,
+        targetRecallParent,
+      } = this.getProperties(
+        'fileManager',
+        'targetName',
+        'targetRecallParent',
+      );
+      if (targetName && targetRecallParent) {
+        const parentId = get(targetRecallParent, 'entityId');
+        return await fileManager.checkFileNameExists(parentId, targetName);
+      }
+    }
+  )),
+
+  validationErrorProxy: promise.object(computed(
+    'targetName',
+    'targetFileExistsProxy',
+    async function validationErrorProxy() {
+      const targetName = this.get('targetName');
+      if (!targetName) {
+        return this.t('targetNameValidation.empty');
+      } else {
+        const targetFileExists = await this.get('targetFileExistsProxy');
+        if (targetFileExists) {
+          return this.t('targetNameValidation.exists');
+        } else {
+          return null;
+        }
+      }
+    }
+  )),
+
   init() {
     this._super(...arguments);
     // try to set default targetName
@@ -119,27 +165,31 @@ export default Component.extend(...mixins, {
 
   targetNameChanged(targetName) {
     this.set('targetName', targetName);
-    // FIXME: invoke validation?
   },
 
   /**
    * @returns {Promise<RecallArchiveResponse>}
    */
   async recallArchive() {
-    // FIXME: do not allow if invalid
     const {
       globalNotify,
       archiveManager,
       archive,
       targetRecallParent,
       targetName,
+      validationErrorProxy,
     } = this.getProperties(
       'globalNotify',
       'archiveManager',
       'archive',
       'targetRecallParent',
-      'targetName'
+      'targetName',
+      'validationErrorProxy',
     );
+    if (await validationErrorProxy) {
+      return;
+    }
+
     let result;
     try {
       result = await archiveManager.recallArchive(

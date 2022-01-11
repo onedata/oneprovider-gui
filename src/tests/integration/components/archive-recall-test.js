@@ -14,9 +14,8 @@ import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive'
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { get } from '@ember/object';
 import { generateDirEntityId } from 'oneprovider-gui/services/mock-backend';
-import $ from 'jquery';
 
-describe('Integration | Component | archive recall', function () {
+describe('Integration | Component | archive recall (internal)', function () {
   setupComponentTest('archive-recall', {
     integration: true,
   });
@@ -113,6 +112,7 @@ describe('Integration | Component | archive recall', function () {
       rootDir: this.get('spaceRootDir'),
       filesCount,
     });
+    stubDefaultCheckFileNameExists(this);
 
     await render(this);
 
@@ -134,14 +134,16 @@ describe('Integration | Component | archive recall', function () {
     });
     const archiveManager = lookupService(this, 'archiveManager');
     const recallArchiveSpy = sinon.spy(archiveManager, 'recallArchive');
+    stubDefaultCheckFileNameExists(this);
 
     await render(this);
 
     const row = getFileRow(dir1)[0];
     await click(row);
     await fillIn('.target-name-input', 'expected_target_name');
-    expect($('.file-selected')).to.have.length(1);
-    expect($('.target-name-input').val()).to.contain('expected_target_name');
+    expect(this.$('.file-selected')).to.have.length(1);
+    expect(this.$('.target-name-input').val()).to.contain('expected_target_name');
+    expect(this.$('.submit-btn')).to.not.have.attr('disabled');
     await click('.submit-btn');
     expect(recallArchiveSpy).to.have.been.calledOnce;
     expect(recallArchiveSpy).to.have.been.calledWith(
@@ -150,6 +152,72 @@ describe('Integration | Component | archive recall', function () {
       'expected_target_name'
     );
   });
+
+  it('shows "already exists" validation message when selected directory contains file with the same name',
+    async function () {
+      const expectedMessage =
+        'File with specified name already exists in selected location';
+      const existingName = 'dir1';
+      this.setProperties({
+        space: this.get('space'),
+      });
+      const dir1 = createFile({
+        name: existingName,
+        type: 'dir',
+      });
+      mockRootFiles({
+        testCase: this,
+        rootDir: this.get('spaceRootDir'),
+        files: [dir1],
+      });
+      const fileManager = lookupService(this, 'fileManager');
+      const fetchChildrenAttrs = sinon.stub(fileManager, 'fetchChildrenAttrs');
+      // default name initially entered into input
+      fetchChildrenAttrs
+        .withArgs({
+          dirId: this.get('spaceRootDir.entityId'),
+          scope: 'private',
+          index: this.get('dataset.name'),
+          limit: 1,
+          offset: 0,
+        })
+        .resolves({
+          children: [dir1],
+          isLast: true,
+        });
+      // name entered by user into input
+      fetchChildrenAttrs
+        .withArgs({
+          dirId: this.get('spaceRootDir.entityId'),
+          scope: 'private',
+          index: existingName,
+          limit: 1,
+          offset: 0,
+        })
+        .resolves({
+          children: [dir1],
+          isLast: true,
+        });
+
+      await render(this);
+
+      const $this = this.$();
+      const $submitBtn = this.$('.submit-btn');
+      const $targetNameFormGroup = this.$('.target-name-form');
+
+      // right after render - file with initial name does not exist
+      expect($targetNameFormGroup).to.not.have.class('has-error');
+      expect($submitBtn).to.not.have.attr('disabled');
+      expect($this.text()).to.not.contain(expectedMessage);
+
+      // change name to exising - show validation error
+      await fillIn('.target-name-input', existingName);
+
+      expect($targetNameFormGroup).to.have.class('has-error');
+      expect($submitBtn).to.have.attr('disabled');
+      expect($this.text()).to.contain(expectedMessage);
+    }
+  );
 });
 
 async function render(testCase) {
@@ -167,4 +235,11 @@ async function render(testCase) {
     {{/one-pseudo-modal}}
   `);
   await wait();
+}
+
+function stubDefaultCheckFileNameExists(testCase) {
+  sinon.stub(
+    lookupService(testCase, 'fileManager'),
+    'checkFileNameExists'
+  ).resolves(false);
 }

@@ -1,4 +1,4 @@
-<div class="target-name-form">
+<div class="target-name-form form-group {{if validationError "has-error"}}">
   <label class="target-name-label" for={{targetNameInputId}}>
     {{tt this "targetNameInputLabel" fileType=fileTypeText}}:
   </label>
@@ -10,10 +10,15 @@
       fileType=fileTypeText
     }}
     value={{targetName}}
-    disabled={{if effDisabled true}}
+    disabled={{if effInputDisabled true}}
     oninput={{action (action onTargetNameChange) value="target.value"}}
   >
 </div>
+{{#if validationError}}
+  <div class="form-message text-right text-danger target-name-input-validation">
+    {{validationError}}
+  </div>
+{{/if}}
 <div class="submit-summary">
   <div class="path-summary">
     <div class="path-summary-info">
@@ -26,9 +31,6 @@
           <div class="path-item path-label target-path-item">{{targetName}}</div>
         {{/file-path}}
       </div>
-    {{/if}}
-    {{#if validationError}}
-      <div class="path-validation-error text-danger">{{validationError}}</div>
     {{/if}}
   </div>
   <div class="submit-buttons">
@@ -43,9 +45,9 @@
     <div class="btn-tooltip-container">
       {{#one-spin-button
         class="btn btn-primary submit-btn"
-        disabled=effDisabled
+        disabled=effSubmitDisabled
         inFlight=isSubmitting
-        action=(action onSubmit)
+        action=(action "submit")
       }}
         {{tt this "proceed"}}
       {{/one-spin-button}}

@@ -5,10 +5,11 @@
     }
   }
   .archive-recall-footer {
+    $target-name-margin: $modal-footer-vertical-padding;
     .target-name-form {
       display: flex;
       align-items: baseline;
-      margin-bottom: $modal-footer-vertical-padding;
+      margin-bottom: $target-name-margin;
       .target-name-label {
         @include font-semibold;
         margin-right: $padding-large-vertical;
@@ -17,6 +18,10 @@
         width: auto;
         flex-grow: 1;
       }
+    }
+    .target-name-form + .target-name-input-validation {
+      margin-top: -$target-name-margin;
+      min-height: $target-name-margin;
     }
     .submit-summary {
       display: flex;
@@ -27,18 +32,15 @@
       }
     }
     .path-summary {
-      align-self: flex-start;
       flex-grow: 1;
       display: flex;
       flex-direction: column;
       text-align: left;
+      margin-right: 2em;
       // prevent taking as much space as it wants
       min-width: 0;
       .path-summary-info {
         margin-bottom: 0.5em;
-      }
-      .path-summary-path {
-
       }
     }
     .target-path-item {

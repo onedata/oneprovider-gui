@@ -32,6 +32,9 @@ const FileManager = Service.extend(Evented, {
   },
   registerRefreshHandler() {},
   deregisterRefreshHandler() {},
+  async checkFileNameExists() {
+    return false;
+  },
 });
 
 describe('Integration | Component | archive recall modal', function () {
@@ -62,7 +65,9 @@ describe('Integration | Component | archive recall modal', function () {
       type: 'dir',
       parent: resolve(null),
     };
-    const dataset = {};
+    const dataset = {
+      name: 'dataset_name',
+    };
     this.setProperties({
       dir,
       space: {

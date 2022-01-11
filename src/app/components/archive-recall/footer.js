@@ -72,14 +72,24 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual optional
-   * @type {String}
+   * @type {PromiseObject<String>}
    */
-  validationError: null,
+  validationErrorProxy: null,
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  validationError: reads('validationErrorProxy.content'),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effDisabled: or('disabled', 'validationError'),
+  effInputDisabled: or('disabled', 'isSubmitting'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  effSubmitDisabled: or('disabled', 'validationErrorProxy.isPending', 'validationError'),
 
   /**
    * @type {ComputedProperty<String>}
@@ -100,4 +110,16 @@ export default Component.extend(I18n, {
   ),
 
   targetNameInputId: tag `${'elementId'}-target-name-input`,
+
+  actions: {
+    submit() {
+      const {
+        onSubmit,
+        effSubmitDisabled,
+      } = this.getProperties('onSubmit', 'effSubmitDisabled');
+      if (!effSubmitDisabled) {
+        return onSubmit();
+      }
+    },
+  },
 });

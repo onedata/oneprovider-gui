@@ -414,6 +414,18 @@ export default Service.extend({
     }
   },
 
+  async checkFileNameExists(parentDirId, fileName, scope = 'private') {
+    const attrs = await this.fetchChildrenAttrs({
+      dirId: parentDirId,
+      scope,
+      index: fileName,
+      limit: 1,
+      offset: 0,
+    });
+    const children = attrs.children;
+    return children && children.length > 0 && children[0].index === fileName;
+  },
+
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service
 
   //#region browser component utils

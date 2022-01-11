@@ -1,6 +1,10 @@
 export default {
   archiveRecallStartSuccess: 'Archive recall process successfully started.',
   archiveRecallProcessStart: 'archive recall process start',
+  targetNameValidation: {
+    exists: 'File with specified name already exists in selected location',
+    empty: 'Target name must not be empty',
+  },
   header: {
     headerText: 'Recall archive into a selected directory',
     intro: 'You are about to recall an archive – this operation will copy archive contents to selected location. Note that recalling will take some time depending on the size of the archive ({{filesCount}} files, {{size}}) and you will be able to watch recalling progress in file browser.',
