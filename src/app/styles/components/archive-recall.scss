@@ -5,19 +5,43 @@
     }
   }
   .archive-recall-footer {
-    display: flex;
-    align-items: center;
-    .path-summary {
+    .target-name-form {
       display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      justify-content: center;
-      text-align: left;
-      .selection-count-none {
-        color: $main-text-color-disabled;
+      align-items: baseline;
+      margin-bottom: $modal-footer-vertical-padding;
+      .target-name-label {
+        @include font-semibold;
+        margin-right: $padding-large-vertical;
+      }
+      .target-name-input {
+        width: auto;
+        flex-grow: 1;
       }
     }
-    .target-dir-name {
+    .submit-summary {
+      display: flex;
+      align-items: flex-end;
+      .submit-buttons {
+        display: flex;
+        align-items: center;
+      }
+    }
+    .path-summary {
+      align-self: flex-start;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      // prevent taking as much space as it wants
+      min-width: 0;
+      .path-summary-info {
+        margin-bottom: 0.5em;
+      }
+      .path-summary-path {
+
+      }
+    }
+    .target-path-item {
       @include font-semibold;
     }
   }

@@ -8,7 +8,13 @@ export default {
     unknownSize: 'unknown size',
   },
   footer: {
-    pathSummaryInfo: 'The archive will be recalled to newly created directory:',
+    fileType: {
+      file: 'file',
+      dir: 'directory',
+    },
+    pathSummaryInfo: 'The archive will be recalled as a newly created {{fileType}}',
+    targetNameInputLabel: 'Target {{fileType}} name',
+    targetNameInputPlaceholder: 'Enter target {{fileType}} name...',
     cancel: 'Cancel',
     proceed: 'Proceed',
   },

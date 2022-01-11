@@ -20,9 +20,13 @@
 
 {{#modal.footer class="archive-recall-part archive-recall-modal-footer"}}
   {{archive-recall/footer
-    targetDirName=dataset.name
-    parentDir=targetRecallDir
+    dataset=dataset
+    parentDir=targetRecallParent
     isSubmitting=isSubmitting
+    validationError=validationError
+    disabled=disabled
+    targetName=targetName
+    onTargetNameChange=(action targetNameChanged)
     onSubmit=(action "submit")
     onCancel=(action onCancel)
   }}

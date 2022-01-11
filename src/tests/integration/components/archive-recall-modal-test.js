@@ -62,6 +62,7 @@ describe('Integration | Component | archive recall modal', function () {
       type: 'dir',
       parent: resolve(null),
     };
+    const dataset = {};
     this.setProperties({
       dir,
       space: {
@@ -72,6 +73,10 @@ describe('Integration | Component | archive recall modal', function () {
         },
         rootDir: promiseObject(resolve(dir)),
       },
+      archive: {
+        name: 'My archive name',
+        dataset: promiseObject(resolve(dataset)),
+      },
     });
     mockRootFiles({
       testCase: this,
@@ -81,9 +86,6 @@ describe('Integration | Component | archive recall modal', function () {
 
   it('renders modal with archive name in header and invokes onHide on close', async function () {
     this.setProperties({
-      archive: {
-        name: 'My archive name',
-      },
       onHide: sinon.spy(),
       onArchiveRecallStarted: sinon.spy(),
     });
@@ -105,9 +107,6 @@ describe('Integration | Component | archive recall modal', function () {
     const onHide = sinon.spy();
     const onArchiveRecallStarted = sinon.spy();
     this.setProperties({
-      archive: {
-        name: 'My archive name',
-      },
       onHide,
       onArchiveRecallStarted,
     });

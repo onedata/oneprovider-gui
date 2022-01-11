@@ -1,32 +1,57 @@
-<div class="path-summary">
-  <div class="path-summary-info">
-    {{tt this "pathSummaryInfo"}}
-  </div>
-  {{#if parentDir}}
-    <div class="path-summary-path">
-      {{#file-path file=parentDir}}
-        <div class="path-item path-separator">/</div>
-        <div class="path-item path-label target-dir-name">{{targetDirName}}</div>
-      {{/file-path}}
-    </div>
-  {{/if}}
-  {{#if validationError}}
-    <div class="path-validation-error text-danger">{{validationError}}</div>
-  {{/if}}
+<div class="target-name-form">
+  <label class="target-name-label" for={{targetNameInputId}}>
+    {{tt this "targetNameInputLabel" fileType=fileTypeText}}:
+  </label>
+  <input
+    id={{targetNameInputId}}
+    class="form-control target-name-input"
+    type="text"
+    placeholder={{tt this "targetNameInputPlaceholder"
+      fileType=fileTypeText
+    }}
+    value={{targetName}}
+    disabled={{if effDisabled true}}
+    oninput={{action (action onTargetNameChange) value="target.value"}}
+  >
 </div>
-{{#bs-button
-  class="cancel-btn"
-  type="default"
-  disabled=isSubmitting
-  onClick=(action onCancel)
-}}
-  {{tt this "cancel"}}
-{{/bs-button}}
-{{#one-spin-button
-  class="btn btn-primary submit-btn"
-  disabled=disabled
-  inFlight=isSubmitting
-  action=(action onSubmit)
-}}
-  {{tt this "proceed"}}
-{{/one-spin-button}}
+<div class="submit-summary">
+  <div class="path-summary">
+    <div class="path-summary-info">
+      {{tt this "pathSummaryInfo" fileType=fileTypeText}}:
+    </div>
+    {{#if parentDir}}
+      <div class="path-summary-path">
+        {{#file-path file=parentDir}}
+          <div class="path-item path-separator">/</div>
+          <div class="path-item path-label target-path-item">{{targetName}}</div>
+        {{/file-path}}
+      </div>
+    {{/if}}
+    {{#if validationError}}
+      <div class="path-validation-error text-danger">{{validationError}}</div>
+    {{/if}}
+  </div>
+  <div class="submit-buttons">
+    {{#bs-button
+      class="cancel-btn"
+      type="default"
+      disabled=isSubmitting
+      onClick=(action onCancel)
+    }}
+      {{tt this "cancel"}}
+    {{/bs-button}}
+    <div class="btn-tooltip-container">
+      {{#one-spin-button
+        class="btn btn-primary submit-btn"
+        disabled=effDisabled
+        inFlight=isSubmitting
+        action=(action onSubmit)
+      }}
+        {{tt this "proceed"}}
+      {{/one-spin-button}}
+      {{#if proceedTip}}
+        {{one-tooltip title=proceedTip}}
+      {{/if}}
+    </div>
+  </div>
+</div>

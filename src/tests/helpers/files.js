@@ -42,23 +42,34 @@ export function generateFileId(entityId) {
 }
 
 // Used in pure filesystem browsers tests.
-export function mockRootFiles({ testCase, filesCount }) {
-  const files = _.range(0, filesCount).map(i => {
-    const name = `file-${i.toString().padStart(3, '0')}`;
-    const entityId = name;
-    const file = {
-      id: generateFileId(entityId),
-      entityId,
-      name,
-      index: name,
-      type: 'file',
-    };
-    file.effFile = file;
-    return file;
+export function mockRootFiles({ testCase, files, filesCount, rootDir = null }) {
+  if (files && filesCount) {
+    throw new Error('mockRootFiles: use only one of: files and filesCount');
+  }
+  let effFiles;
+  if (files) {
+    effFiles = files;
+  } else {
+    effFiles = _.range(0, filesCount || 0).map(i => {
+      const name = `file-${i.toString().padStart(3, '0')}`;
+      const entityId = name;
+      const file = {
+        id: generateFileId(entityId),
+        entityId,
+        name,
+        index: name,
+        type: 'file',
+      };
+      file.effFile = file;
+      return file;
+    });
+  }
+  effFiles = effFiles.map(fileSpec => {
+    return createFile(Object.assign({ parentObject: rootDir }, fileSpec));
   });
   const fileManager = lookupService(testCase, 'fileManager');
 
-  const mockArray = new MockArray(files);
+  const mockArray = new MockArray(effFiles);
   fileManager.fetchDirChildren = (...args) => mockArray.fetchChildren(...args);
   return mockArray;
 }
@@ -138,6 +149,7 @@ export function createFile(override = {}) {
     scope: 'private',
     parent: promiseObject(resolve(override.parentObject || null)),
     hasParent: Boolean(override.parentObject),
+    index: override.name,
     relationEntityId(relationName) {
       const relationObject = this[relationName + 'Object'];
       if (relationObject) {
@@ -146,10 +158,23 @@ export function createFile(override = {}) {
         return null;
       }
     },
+    // NOTE: the mock is incomplete - if you need to use belongsTo, better consider
+    // rewriting mock methods to use real models and store
+    belongsTo(relationName) {
+      const entityId = this.relationEntityId(relationName);
+      return {
+        id() {
+          return `${relationName}.${entityId}.instance:private`;
+        },
+      };
+    },
   }, override);
   if (!obj.entityId) {
     const randomGuid = String(Math.floor(Math.random() * 10000));
     obj.entityId = createEntityId(randomGuid);
+  }
+  if (!obj.effFile && obj.type !== 'symlink') {
+    obj.effFile = obj;
   }
   return obj;
 }

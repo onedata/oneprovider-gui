@@ -323,6 +323,7 @@ export default Component.extend(I18n, {
   ),
 
   insideBrowserSelectors: Object.freeze([
+    '.fb-table-row',
     '.fb-table-row *',
     '.fb-breadcrumbs *',
     '.fb-toolbar *',

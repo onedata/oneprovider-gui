@@ -178,14 +178,24 @@ export default Service.extend({
   },
 
   /**
-   * @param {Models.Archive} archive
-   * @param {String} targetDir directory where target directory with archive files should
-   *   be created
-   * @returns {Promise}
+   * @typedef {Object} RecallArchiveResponse
+   * @param {String} rootId entity ID of newly created recalled file or root directory
    */
-  async recallArchive(archive, targetDir) {
-    const onedataGraph = this.get('onedataGraph');
-    return await onedataGraph.request({
+
+  /**
+   * @param {Models.Archive} archive
+   * @param {Models.File} targetDir directory where target directory with archive files should
+   *   be created
+   * @param {String} name name of created directory or file in filesystem that will
+   *   contain recalled data
+   * @returns {Promise<RecallArchiveResponse>}
+   */
+  async recallArchive(archive, targetDir, name) {
+    const {
+      onedataGraph,
+      fileManager,
+    } = this.getProperties('onedataGraph', 'fileManager');
+    const result = await onedataGraph.request({
       operation: 'create',
       gri: gri({
         entityType: archiveEntityType,
@@ -194,12 +204,20 @@ export default Service.extend({
         scope: 'private',
       }),
       data: {
-        targetFileId: get(targetDir, 'cdmiObjectId'),
-        // FIXME: there will be probably new directory name parameter
+        targetParentId: get(targetDir, 'cdmiObjectId'),
+        targetRootName: name,
       },
       subscribe: false,
     });
-    // FIXME: add refreshing containg dir view
+    try {
+      fileManager.dirChildrenRefresh(get(targetDir, 'entityId'));
+    } catch (error) {
+      console.warn(
+        'service:archive-manager#recallArchive: refreshing dirs view failed',
+        error
+      );
+    }
+    return result;
   },
 
   /**
