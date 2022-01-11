@@ -66,6 +66,13 @@ export default Component.extend(...mixins, {
   onLinkKeydown: undefined,
 
   /**
+   * Tag name of direct container for path elements
+   * @virtual optional
+   * @type {String}
+   */
+  internalTagName: 'a',
+
+  /**
    * Anchor target attribute.
    * @type {String}
    */

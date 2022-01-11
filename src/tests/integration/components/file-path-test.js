@@ -14,6 +14,7 @@ import {
   createFilesChain,
 } from '../../helpers/files';
 import OneTooltipHelper from '../../helpers/one-tooltip';
+import { click } from 'ember-native-dom-helpers';
 
 const DatasetManager = Service.extend({
   async getBrowsableDataset() {
@@ -42,6 +43,83 @@ describe('Integration | Component | file path', function () {
       };
     registerService(this, 'dataset-manager', DatasetManager);
     registerService(this, 'archive-manager', ArchiveManager);
+  });
+
+  it('renders HTML A element by default', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+    ]);
+    const file = filesChain[filesChain.length - 1];
+    this.setProperties({
+      file,
+    });
+
+    await render(this);
+
+    const $anchorPath = this.$('a.path');
+
+    expect($anchorPath).to.have.length(1);
+
+    expect($anchorPath).to.have.attr('href');
+    expect($anchorPath).to.have.attr('target');
+  });
+
+  it('renders HTML A element with onclick event listener', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+    ]);
+    const file = filesChain[filesChain.length - 1];
+    const onLinkClicked = sinon.stub().callsFake(event => {
+      event.preventDefault();
+    });
+    this.setProperties({
+      file,
+      onLinkClicked,
+    });
+
+    this.render(hbs `{{file-path
+      file=file
+      onLinkClicked=onLinkClicked
+      onLinkKeydown=onLinkKeydown
+    }}`);
+    await wait();
+
+    const $anchorPath = this.$('a.path');
+    await click($anchorPath[0]);
+    expect(onLinkClicked).to.have.been.calledOnce;
+  });
+
+  it('renders custom HTML tag element if provided', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+    ]);
+    const file = filesChain[filesChain.length - 1];
+    this.setProperties({
+      file,
+      internalTagName: 'span',
+    });
+
+    // not using internalTagName in generic render, because it would override default
+    // internalTagName
+    this.render(hbs `{{file-path
+      file=file
+      internalTagName=internalTagName
+    }}`);
+    await wait();
+
+    expect(this.$('a.path')).to.not.exist;
+    const $spanPath = this.$('span.path');
+    expect($spanPath).to.have.length(1);
+    expect($spanPath).to.not.have.attr('onkeydown');
+    expect($spanPath).to.not.have.attr('onclick');
+    expect($spanPath).to.not.have.attr('href');
+    expect($spanPath).to.not.have.attr('target');
   });
 
   it('renders text of path to file in space', async function () {

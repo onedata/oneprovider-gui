@@ -26,7 +26,11 @@
     </div>
     {{#if parentDir}}
       <div class="path-summary-path">
-        {{#file-path file=parentDir}}
+        {{#file-path
+          internalTagName="span"
+          file=parentDir
+          anchorClassName=""
+        }}
           <div class="path-item path-separator">/</div>
           <div class="path-item path-label target-path-item">{{targetName}}</div>
         {{/file-path}}

@@ -10,13 +10,14 @@
       {{allPathItemsProxy.reason}}, {{filesViewContextProxy.reason}}
     </span>
   {{else}}
-    <a
-      class={{concat-classes "path" anchorClassName}}
-      href={{href}}
-      target={{target}}
-      onclick={{onLinkClicked}}
-      onkeydown={{onLinkKeydown}}
-    >
+    {{#file-path/internal-container
+      tagName=internalTagName
+      class=(concat-classes "path" anchorClassName)
+      linkHref=href
+      linkTarget=target
+      onLinkClicked=onLinkClicked
+      onLinkKeydown=onLinkKeydown
+    }}
       {{#each displayedPathItems as |item|}}
         {{#if item.separator}}
           <div class="path-item path-separator">{{item.separator}}</div>
@@ -29,7 +30,7 @@
         <div class="path-item path-label">{{item.record.name}}</div>
       {{/each}}
       {{yield}}
-    </a>
+    {{/file-path/internal-container}}
     {{#if renderTooltip}}
       {{one-tooltip
         class="string-path-tooltip"
