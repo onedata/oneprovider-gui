@@ -844,8 +844,22 @@ export default Component.extend(...mixins, {
     this.set('archiveToRecall', null);
   },
 
-  handleArchiveRecallStarted( /* result */ ) {
-    // FIXME: currently there is no api for getting dirId, so go to enclosing dir
+  /**
+   * @param {RecallArchiveResponse} result
+   */
+  async handleArchiveRecallStarted(result) {
+    if (!result || !result.rootId) {
+      return;
+    }
+    const {
+      parentAppNavigation,
+      filesViewResolver,
+    } = this.getProperties('parentAppNavigation', 'filesViewResolver');
+    const rootId = result.rootId;
+    const url = await filesViewResolver.generateUrlById(rootId);
+    if (url) {
+      parentAppNavigation.openUrl(url);
+    }
   },
 
   getItemById(itemId) {
