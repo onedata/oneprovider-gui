@@ -36,6 +36,7 @@ import {
   exampleDublinCore,
 } from 'oneprovider-gui/utils/mock-data';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -220,6 +221,10 @@ export default Service.extend({
       })
       .then(listRecords => {
         return this.createAtmWorkflowExecutionRecords(store).then(() => listRecords);
+      })
+      .then(async listRecords => {
+        await this.createRecallStatus(store);
+        return listRecords;
       })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
@@ -959,6 +964,35 @@ export default Service.extend({
       this.set('entityRecords.handleService', records);
       return records;
     });
+  },
+
+  async createRecallStatus(store) {
+    const archive = this.get('entityRecords.archive.0');
+    const chainDirs = this.get('entityRecords.chainDir');
+    const chainRootDir = await get(chainDirs[0], 'parent');
+    const chainDirId = get(chainRootDir, 'entityId');
+    const detailsGri = gri({
+      entityType: fileEntityType,
+      entityId: chainDirId,
+      aspect: archiveRecallInfoAspect,
+    });
+    const archiveRecallInfo = store.createRecord('archive-recall-info', {
+      id: detailsGri,
+      sourceArchive: archive,
+      sourceDataset: await get(archive, 'dataset'),
+      targetFiles: 100,
+      targetBytes: 112304000,
+      startTimestamp: Math.floor(Date.now() / 1000) - 1000,
+      finishTimestamp: null,
+    });
+    this.set('entityRecords.archiveRecallInfo', [archiveRecallInfo]);
+    await archiveRecallInfo.save();
+    await allFulfilled([chainRootDir, ...chainDirs].map(dir => {
+      set(dir, 'recallRootId', chainDirId);
+      set(dir, 'archiveRecallInfo', archiveRecallInfo);
+      return dir.save();
+    }));
+    return archiveRecallInfo;
   },
 
   createFileRecords(store, parent, owner) {

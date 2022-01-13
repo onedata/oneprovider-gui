@@ -19,9 +19,10 @@ import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool, array } from 'ember-awesome-macros';
+import { bool, array, promise } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
 export const entityType = 'file';
 
@@ -145,6 +146,43 @@ export const RuntimeProperties = Mixin.create({
   }),
 
   /**
+   * Membership of running archive recall process:
+   * - direct - if the file is a root of running recall target
+   * - ancestor - if the file is an ancestor of running recall target
+   * - none - none of above or the associated recall process finished
+   * @type {ComputedProperty<PromiseObject<null|'none'|'direct'|'ancestor'>>}
+   */
+  recallingMembershipProxy: promise.object(computed(
+    'recallRootId',
+    'archiveRecallInfo.finishTimestamp',
+    async function recallingMembershipProxy() {
+      const {
+        recallRootId,
+        entityId,
+        archiveRecallInfo,
+      } = this.getProperties('recallRootId', 'entityId', 'archiveRecallInfo');
+      if (recallRootId) {
+        const archiveRecallInfoContent = await archiveRecallInfo;
+        if (
+          archiveRecallInfoContent &&
+          get(archiveRecallInfoContent, 'finishTimestamp')
+        ) {
+          return 'none';
+        } else {
+          return recallRootId === entityId ? 'direct' : 'ancestor';
+        }
+      } else {
+        return 'none';
+      }
+    }
+  )),
+
+  /**
+   * @type {ComputedProperty<null|'none'|'direct'|'ancestor'>}
+   */
+  recallingMembership: computedLastProxyContent('recallingMembershipProxy'),
+
+  /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
    * @param {number} interval time in milliseconds
@@ -244,6 +282,13 @@ export default Model.extend(
     effProtectionFlags: attr('array'),
 
     /**
+     * If file is a recalled archive root or ancestor of one, GUID of recalled archive
+     * root. Null or empty otherwise.
+     * @type {ComputedProperty<String>}
+     */
+    recallRootId: attr('string'),
+
+    /**
      * Modification time in UNIX timestamp format.
      */
     mtime: attr('number'),
@@ -262,6 +307,8 @@ export default Model.extend(
     provider: belongsTo('provider'),
     fileQosSummary: belongsTo('file-qos-summary'),
     fileDatasetSummary: belongsTo('file-dataset-summary'),
+    archiveRecallInfo: belongsTo('archive-recall-info'),
+    archiveRecallState: belongsTo('archive-recall-state'),
 
     /**
      * Relation to archive model if this file is a root dir of archive.

@@ -7,6 +7,7 @@ export default {
   status: {
     qos: 'QoS',
     dataset: 'Dataset',
+    recalling: 'Recalling...',
   },
   protectionFlagsInfo: {
     metadata: 'This {{fileType}}\'s metadata is write protected.',
@@ -19,5 +20,7 @@ export default {
       ancestor: 'All QoS requirements are inherited from ancestor directories.',
     },
     dataset: 'This {{fileType}} belongs to one or more datasets established on its ancestor directories.',
+    // FIXME: tooltip - should be changed to something that has details
+    recalling: 'This {{fileType}} belongs to filesystem tree that is currently recalled from an archive.',
   },
 };

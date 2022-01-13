@@ -50,7 +50,7 @@ export default Component.extend({
       .then(list => list.objectAt(0));
   })),
 
-  dirProxy: promise.object(computed(function dirProxy() {
+  dirProxy: promise.object(computed(async function dirProxy() {
     return this.get('spaceProxy').then(space => get(space, 'rootDir'));
   })),
 

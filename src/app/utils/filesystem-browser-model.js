@@ -23,6 +23,7 @@ import {
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
 import { array, raw } from 'ember-awesome-macros';
+import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 
 const buttonNames = Object.freeze([
   'btnBagitUpload',
@@ -163,7 +164,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @virtual optional
    * @type {Array<String>}
    */
-  fileFeatures: Object.freeze(['effDatasetMembership', 'effQosMembership']),
+  fileFeatures: defaultFilesystemFeatures,
 
   /**
    * @override
@@ -240,6 +241,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Boolean}
    */
   datasetHeaderTagIsHovered: false,
+
+  /**
+   * True if recalling tag in header is currenlty hovered.
+   * @type {Boolean}
+   */
+  recallingHeaderTagIsHovered: false,
 
   /**
    * Timeout ID for removing transition class for tags.
@@ -829,19 +836,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   customClassNames: computed(
     'qosHeaderTagIsHovered',
     'datasetHeaderTagIsHovered',
+    'recallingHeaderTagIsHovered',
     'highlightAnimationTimeoutId',
     function customClassNames() {
       const {
         qosHeaderTagIsHovered,
         datasetHeaderTagIsHovered,
+        recallingHeaderTagIsHovered,
         highlightAnimationTimeoutId,
-      } = this.getProperties('qosHeaderTagIsHovered', 'datasetHeaderTagIsHovered', 'highlightAnimationTimeoutId');
+      } = this.getProperties(
+        'qosHeaderTagIsHovered',
+        'datasetHeaderTagIsHovered',
+        'recallingHeaderTagIsHovered',
+        'highlightAnimationTimeoutId'
+      );
       const classes = [];
       if (qosHeaderTagIsHovered) {
         classes.push('highlight-inherited-qos');
       }
       if (datasetHeaderTagIsHovered) {
         classes.push('highlight-inherited-dataset');
+      }
+      if (recallingHeaderTagIsHovered) {
+        classes.push('highlight-inherited-recalling');
       }
       if (classes.length) {
         classes.push('highlight-inherited', 'highlight-transition');
@@ -902,17 +919,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   animateHighlight: observer(
     'qosHeaderTagIsHovered',
     'datasetHeaderTagIsHovered',
+    'recallingHeaderTagIsHovered',
     function animateHighlight() {
       const {
         qosHeaderTagIsHovered,
         datasetHeaderTagIsHovered,
+        recallingHeaderTagIsHovered,
         highlightAnimationTimeoutId,
-      } = this.getProperties('qosHeaderTagIsHovered', 'datasetHeaderTagIsHovered', 'highlightAnimationTimeoutId');
+      } = this.getProperties(
+        'qosHeaderTagIsHovered',
+        'datasetHeaderTagIsHovered',
+        'recallingHeaderTagIsHovered',
+        'highlightAnimationTimeoutId');
       if (highlightAnimationTimeoutId) {
         this.set('highlightAnimationTimeoutId', null);
         window.clearTimeout(highlightAnimationTimeoutId);
       }
-      if (!qosHeaderTagIsHovered && !datasetHeaderTagIsHovered) {
+      if (
+        !qosHeaderTagIsHovered &&
+        !datasetHeaderTagIsHovered &&
+        !recallingHeaderTagIsHovered
+      ) {
         this.set(
           'highlightAnimationTimeoutId',
           // timeout time is slightly longer than defined transition time in

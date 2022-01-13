@@ -15,6 +15,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       const item = {
         effDatasetMembership: membership,
         effQosMembership: membership,
+        recallingMembership: membership,
       };
       this.set('item', item);
 
@@ -28,19 +29,29 @@ describe('Integration | Component | filesystem browser/file features', function 
   });
 
   ['ancestor', 'directAndAncestor'].forEach(membership => {
-    it(`shows collapsed inherited tag if features are "${membership}" in collapsed mode`, function () {
-      const item = {
-        effDatasetMembership: membership,
-        effQosMembership: membership,
-      };
-      this.set('item', item);
+    [
+      'effDatasetMembership',
+      'effQosMembership',
+      'recallingMembership',
+    ].forEach(feature => {
+      if (feature === 'recallingMembership' && membership === 'directAndAncestor') {
+        // an exception - not used in recalling
+        return;
+      }
+      it(`shows collapsed inherited tag if "${feature}" feature is "${membership}" in collapsed mode`,
+        function () {
+          const item = {
+            [feature]: membership,
+          };
+          this.set('item', item);
 
-      this.render(hbs `{{filesystem-browser/file-features
-        item=item
-        initiallyExpanded=false
-      }}`);
+          this.render(hbs `{{filesystem-browser/file-features
+            item=item
+            initiallyExpanded=false
+          }}`);
 
-      expect(this.$('.file-status-inherited-collapsed')).to.exist;
+          expect(this.$('.file-status-inherited-collapsed')).to.exist;
+        });
     });
   });
 
@@ -48,6 +59,7 @@ describe('Integration | Component | filesystem browser/file features', function 
     const item = {
       effDatasetMembership: 'direct',
       effQosMembership: 'direct',
+      recallingMembership: 'direct',
     };
     this.set('item', item);
 
@@ -58,13 +70,15 @@ describe('Integration | Component | filesystem browser/file features', function 
 
     expect(this.$('.file-status-dataset'), 'dataset').to.exist;
     expect(this.$('.file-status-qos'), 'qos').to.exist;
+    expect(this.$('.file-status-recalling'), 'recalling').to.exist;
   });
 
   ['direct', 'directAndAncestor'].forEach(membership => {
     it(`shows tags with "${membership}" features in collapsed mode`, function () {
       const item = {
-        effDatasetMembership: 'direct',
-        effQosMembership: 'direct',
+        effDatasetMembership: membership,
+        effQosMembership: membership,
+        recallingMembership: membership,
       };
       this.set('item', item);
 
@@ -75,9 +89,11 @@ describe('Integration | Component | filesystem browser/file features', function 
 
       expect(this.$('.file-status-dataset'), 'dataset').to.exist;
       expect(this.$('.file-status-qos'), 'qos').to.exist;
+      expect(this.$('.file-status-recalling'), 'recalling').to.exist;
     });
   });
 
+  // NOTE: not testing recalling tag, because it's not using "directAndAncestor"
   it('shows direct tags and collapsed inheritance icon when features are "directAndAncestor" in collapsed mode',
     function () {
       const item = {
@@ -101,6 +117,7 @@ describe('Integration | Component | filesystem browser/file features', function 
     }
   );
 
+  // NOTE: not testing recalling tag, because it's not using "directAndAncestor"
   it('shows pill-like direct-ancestor tags without collapsed inheritance icon when features are "directAndAncestor" in expanded mode',
     function () {
       const item = {
@@ -133,6 +150,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       const item = {
         effDatasetMembership: 'ancestor',
         effQosMembership: 'ancestor',
+        recallingMembership: 'ancestor',
       };
       this.set('item', item);
 
@@ -145,11 +163,14 @@ describe('Integration | Component | filesystem browser/file features', function 
         .to.not.exist;
       const $datasetTag = this.$('.dataset-file-status-tag-group');
       const $qosTag = this.$('.qos-file-status-tag-group');
+      const $recallingTag = this.$('.recalling-file-status-tag-group');
       expect($datasetTag, 'dataset group').to.exist;
       expect($qosTag, 'qos group').to.exist;
+      expect($recallingTag, 'recalling group').to.exist;
       const iconSelector = ':not(.file-status-inherited-addon) > .inherited-icon';
       expect($datasetTag.find(iconSelector), 'dataset inherited').to.exist;
       expect($qosTag.find(iconSelector), 'qos inherited').to.exist;
+      expect($recallingTag.find(iconSelector), 'recalling inherited').to.exist;
     }
   );
 
@@ -193,11 +214,13 @@ describe('Integration | Component | filesystem browser/file features', function 
   [
     { tag: 'dataset', text: 'Dataset' },
     { tag: 'qos', text: 'QoS' },
+    { tag: 'recalling', text: 'Recalling...' },
   ].forEach(({ tag, text }) => {
     it(`displays "${text}" text on ${tag} tag`, function () {
       const item = {
         effDatasetMembership: 'direct',
         effQosMembership: 'direct',
+        recallingMembership: 'direct',
       };
       const onInvokeItemAction = sinon.spy();
       this.setProperties({
@@ -217,6 +240,7 @@ describe('Integration | Component | filesystem browser/file features', function 
     });
   });
 
+  // NOTE: "directAndAncestor" not used with recalling feature
   it('changes direct tags into direct-ancestor tags after inheritance tag click', async function () {
     const item = {
       effDatasetMembership: 'directAndAncestor',

@@ -17,6 +17,12 @@ import { computed } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { inject as service } from '@ember/service';
 
+export const defaultFilesystemFeatures = Object.freeze([
+  'effDatasetMembership',
+  'effQosMembership',
+  'recallingMembership',
+]);
+
 export default Component.extend(I18n, {
   classNames: ['file-features'],
 
@@ -38,7 +44,11 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Array<String>}
    */
-  features: Object.freeze(['effDatasetMembership', 'effQosMembership']),
+  features: Object.freeze([
+    'effDatasetMembership',
+    'effQosMembership',
+    'recallingMembership',
+  ]),
 
   /**
    * @virtual
@@ -139,6 +149,8 @@ export default Component.extend(I18n, {
       privilegeFlag: 'space_view',
     });
   }),
+
+  effRecallingDisabled: reads('disabled'),
 
   itemType: reads('item.type'),
 

@@ -17,6 +17,8 @@ import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
+import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archive-recall-state';
 
 export const qosSummaryAspect = 'qos_summary';
 export const datasetSummaryAspect = 'dataset_summary';
@@ -27,6 +29,8 @@ export default Serializer.extend({
     { name: 'distribution', aspect: 'distribution' },
     { name: 'fileQosSummary', aspect: qosSummaryAspect },
     { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
+    { name: 'archiveRecallInfo', aspect: archiveRecallInfoAspect },
+    { name: 'archiveRecallState', aspect: archiveRecallStateAspect },
   ]),
 
   /**
@@ -167,6 +171,9 @@ export default Serializer.extend({
 
   normalizeData(hash) {
     if (!hash.gri) {
+      // NOTE: The mock is broken, because it does not include guid and scope properties.
+      // "gri" could be replaced here by "id", but virtual relations still does not work
+      // properly - in mock, please use setting these relations manually or try to fix it.
       hash.gri = getFileGri(hash.guid, hash.scope);
     }
     const parsedGri = parseGri(hash.gri);
