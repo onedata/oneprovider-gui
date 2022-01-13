@@ -181,6 +181,23 @@ export const RuntimeProperties = Mixin.create({
    */
   recallingMembership: computedLastProxyContent('recallingMembershipProxy'),
 
+  isRecalledProxy: promise.object(computed(
+    'recallRootId',
+    'archiveRecallInfo.finishTimestamp',
+    async function recallingMembershipProxy() {
+      const recallRootId = this.get('recallRootId');
+      if (recallRootId) {
+        const archiveRecallInfoContent = await this.get('archiveRecallInfo');
+        return archiveRecallInfoContent &&
+          get(archiveRecallInfoContent, 'finishTimestamp');
+      } else {
+        return false;
+      }
+    }
+  )),
+
+  isRecalled: computedLastProxyContent('isRecalledProxy'),
+
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
    * will be equal `targetSize`.
