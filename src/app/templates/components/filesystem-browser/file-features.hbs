@@ -4,6 +4,36 @@
   initiallyExpanded=initiallyExpanded
   as |displayed|
 }}
+  {{#if displayed.recallingMembership.isShown}}
+    <div
+      class={{concat-classes
+        "file-status-tag-group recalling-file-status-tag-group"
+        (if (eq displayed.recallingMembership.membership "ancestor")
+          "file-status-tag-group-fully-inherited"
+        )
+      }}
+      onmouseover={{action "changeTagHover" "recalling" true}}
+      onmouseout={{action "changeTagHover" "recalling" false}}
+    >
+      <div
+        class={{concat-classes
+          "file-status-tag"
+          "file-status-tag-success"
+          "file-status-recalling"
+          (if (eq displayed.recallingMembership.membership "ancestor")
+            "file-status-tag-inherited"
+          )
+          (if effRecallingDisabled "file-status-tag-disabled")
+        }}
+      >
+        <span class="tag-text">{{tt this "status.recalling"}}</span>
+        {{#if (eq displayed.recallingMembership.membership "ancestor")}}
+          {{one-icon class="recalling-inherited-icon inherited-icon" icon=inheritedIcon}}
+          {{one-tooltip title=(tt this "inheritedTip.recalling" fileType=typeText)}}
+        {{/if}}
+      </div>
+    </div>
+  {{/if}}
   {{#if displayed.effDatasetMembership.isShown}}
     <div
       class={{concat-classes
@@ -117,36 +147,6 @@
           {{one-tooltip title=(tt this "inheritedTip.qos.directAndAncestor")}}
         </div>
       {{/if}}
-    </div>
-  {{/if}}
-  {{#if displayed.recallingMembership.isShown}}
-    <div
-      class={{concat-classes
-        "file-status-tag-group recalling-file-status-tag-group"
-        (if (eq displayed.recallingMembership.membership "ancestor")
-          "file-status-tag-group-fully-inherited"
-        )
-      }}
-      onmouseover={{action "changeTagHover" "recalling" true}}
-      onmouseout={{action "changeTagHover" "recalling" false}}
-    >
-      <div
-        class={{concat-classes
-          "file-status-tag"
-          "file-status-tag-success"
-          "file-status-recalling"
-          (if (eq displayed.recallingMembership.membership "ancestor")
-            "file-status-tag-inherited"
-          )
-          (if effRecallingDisabled "file-status-tag-disabled")
-        }}
-      >
-        <span class="tag-text">{{tt this "status.recalling"}}</span>
-        {{#if (eq displayed.recallingMembership.membership "ancestor")}}
-          {{one-icon class="recalling-inherited-icon inherited-icon" icon=inheritedIcon}}
-          {{one-tooltip title=(tt this "inheritedTip.recalling" fileType=typeText)}}
-        {{/if}}
-      </div>
     </div>
   {{/if}}
   {{yield displayed}}
