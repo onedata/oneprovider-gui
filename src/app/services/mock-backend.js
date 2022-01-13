@@ -37,6 +37,7 @@ import {
 } from 'oneprovider-gui/utils/mock-data';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
+import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archive-recall-state';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -223,7 +224,7 @@ export default Service.extend({
         return this.createAtmWorkflowExecutionRecords(store).then(() => listRecords);
       })
       .then(async listRecords => {
-        await this.createRecallStatus(store);
+        await this.createRecallState(store);
         return listRecords;
       })
       .then(listRecords => this.createUserRecord(store, listRecords))
@@ -461,7 +462,7 @@ export default Service.extend({
    * @returns {Promise<Array<Model>>}
    */
   createSpaceRecords(store, names) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const provider = this.get('entityRecords.provider.firstObject');
     const providerId = get(provider, 'entityId');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
@@ -523,7 +524,7 @@ export default Service.extend({
    * @returns {Promise<Array<Model>>}
    */
   createTransferRecords(store) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const waitingStateIndex = transferStates.indexOf('waiting');
     const ongoingStateIndex = transferStates.indexOf('ongoing');
     const endedStateIndex = transferStates.indexOf('ended');
@@ -639,7 +640,7 @@ export default Service.extend({
       state: 'attached',
       protectionFlags: [],
       effProtectionFlags: [],
-      creationTime: Math.floor(Date.now() / 1000),
+      creationTime: getCurrentTimestamp(),
       rootFilePath: stringifyFilePath(await resolveFilePath(file)),
       rootFileType: get(file, 'type'),
       archiveCount: 0,
@@ -828,7 +829,7 @@ export default Service.extend({
           scope: 'private',
         }),
         index: name + archiveEntityId,
-        creationTime: Math.floor(Date.now() / 1000),
+        creationTime: getCurrentTimestamp(),
         state: 'preserved',
         stats: {
           bytesArchived: (i + 1) * 5678990000,
@@ -897,7 +898,7 @@ export default Service.extend({
   async createArchiveRootDir(archiveId, fileId) {
     const store = this.get('store');
     const owner = this.get('entityRecords.owner.0');
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const provider = this.get('entityRecords.provider.firstObject');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
     const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
@@ -966,37 +967,120 @@ export default Service.extend({
     });
   },
 
-  async createRecallStatus(store) {
+  async createRecallState(store) {
     const archive = this.get('entityRecords.archive.0');
     const chainDirs = this.get('entityRecords.chainDir');
     const chainRootDir = await get(chainDirs[0], 'parent');
     const chainDirId = get(chainRootDir, 'entityId');
-    const detailsGri = gri({
+    const infoGri = gri({
       entityType: fileEntityType,
       entityId: chainDirId,
       aspect: archiveRecallInfoAspect,
     });
+    const stateGri = gri({
+      entityType: fileEntityType,
+      entityId: chainDirId,
+      aspect: archiveRecallStateAspect,
+    });
     const archiveRecallInfo = store.createRecord('archive-recall-info', {
-      id: detailsGri,
+      id: infoGri,
       sourceArchive: archive,
       sourceDataset: await get(archive, 'dataset'),
       targetFiles: 100,
-      targetBytes: 112304000,
-      startTimestamp: Math.floor(Date.now() / 1000) - 1000,
+      targetBytes: 1000000,
+      // FIXME: update startTimestamp on first update of state
+      startTimestamp: null,
       finishTimestamp: null,
     });
+    const archiveRecallState = store.createRecord('archive-recall-state', {
+      id: stateGri,
+      currentBytes: 0,
+      currentFiles: 0,
+      failedFiles: 0,
+      lastError: 0,
+    });
+    // FIXME: invoke method that will invoke itself and update
     this.set('entityRecords.archiveRecallInfo', [archiveRecallInfo]);
+    this.set('entityRecords.archiveRecallState', [archiveRecallState]);
     await archiveRecallInfo.save();
     await allFulfilled([chainRootDir, ...chainDirs].map(dir => {
       set(dir, 'recallRootId', chainDirId);
       set(dir, 'archiveRecallInfo', archiveRecallInfo);
       return dir.save();
     }));
+    this.updateRecallState();
     return archiveRecallInfo;
   },
 
+  async updateRecallState() {
+    const archiveRecallInfo = this.get('entityRecords.archiveRecallInfo.0');
+    const archiveRecallState = this.get('entityRecords.archiveRecallState.0');
+    const {
+      startTimestamp,
+      finishTimestamp,
+      targetFiles,
+      targetBytes,
+    } = getProperties(
+      archiveRecallInfo,
+      'startTimestamp',
+      'finishTimestamp',
+      'targetFiles',
+      'targetBytes',
+    );
+    if (finishTimestamp) {
+      return;
+    }
+
+    let infoModified = false;
+    let {
+      currentBytes,
+      currentFiles,
+    } = getProperties(
+      archiveRecallState,
+      'currentBytes',
+      'currentFiles',
+    );
+    if (!startTimestamp) {
+      set(archiveRecallInfo, 'startTimestamp', getCurrentTimestamp());
+      infoModified = true;
+    }
+    if (currentBytes < targetBytes) {
+      const filesIncrement = Math.floor(targetFiles / 10);
+      const bytesIncrement = Math.floor(targetBytes / 10);
+      currentFiles = Math.min(targetFiles, currentFiles + filesIncrement);
+      currentBytes = Math.min(targetBytes, currentBytes + bytesIncrement);
+    }
+    setProperties(archiveRecallState, {
+      currentBytes,
+      currentFiles,
+    });
+
+    const savePromises = [];
+    const finished = currentBytes >= targetBytes || currentFiles >= targetFiles;
+    if (finished) {
+      // just to be certain
+      currentFiles = targetFiles;
+      currentBytes = targetBytes;
+      set(archiveRecallInfo, 'finishTimestamp', getCurrentTimestamp());
+      infoModified = true;
+    }
+    setProperties(archiveRecallState, {
+      currentBytes,
+      currentFiles,
+    });
+    if (infoModified) {
+      savePromises.push(archiveRecallInfo.save());
+    }
+    savePromises.push(archiveRecallState.save());
+    await allFulfilled(savePromises);
+    console.log('recall state changed', archiveRecallInfo, archiveRecallState);
+    if (!finished) {
+      window.setTimeout(() => this.updateRecallState(), 2000);
+    }
+  },
+
   createFileRecords(store, parent, owner) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const parentEntityId = get(parent, 'entityId');
     const provider = this.get('entityRecords.provider.firstObject');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
@@ -1138,7 +1222,7 @@ export default Service.extend({
   },
 
   createFileData(customData) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const provider = this.get('entityRecords.provider.firstObject');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
     const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
@@ -1260,7 +1344,7 @@ export default Service.extend({
     const atmInventories = this.get('entityRecords.atmInventory');
     const atmWorkflowSchemas = this.get('entityRecords.atmWorkflowSchema');
     const atmWorkflowSchemasCount = get(atmWorkflowSchemas, 'length');
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const waitingPhaseIndex = atmWorkflowExecutionPhases.indexOf('waiting');
     const ongoingPhaseIndex = atmWorkflowExecutionPhases.indexOf('ongoing');
     const endedPhaseIndex = atmWorkflowExecutionPhases.indexOf('ended');
@@ -1533,4 +1617,8 @@ function addShareList(parentRecord, shares, store, additionalData) {
       }
       return parentRecord.save();
     });
+}
+
+function getCurrentTimestamp() {
+  return Math.floor(Date.now() / 1000);
 }
