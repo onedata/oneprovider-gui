@@ -70,6 +70,8 @@ export default Component.extend(...mixins, {
 
   parentModalDialogSelector: tag `#${'modalId'} > .modal-dialog`,
 
+  ignoreDeselectSelector: '.archive-recall-modal-footer, .archive-recall-modal-footer *',
+
   modalBodyId: computed(function modalBodyId() {
     return `${guidFor(this)}-body`;
   }),

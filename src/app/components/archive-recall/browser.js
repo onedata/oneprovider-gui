@@ -52,6 +52,11 @@ export default Component.extend(...mixins, {
   browserRequiredDataProxy: undefined,
 
   /**
+   * @virtual optional
+   */
+  ignoreDeselectSelector: '',
+
+  /**
    * @implements InModalBrowserContainerBase
    * @type {String}
    * @virtual
