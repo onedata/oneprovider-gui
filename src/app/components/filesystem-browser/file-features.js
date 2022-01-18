@@ -13,7 +13,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { or, not } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
-import { computed } from '@ember/object';
+import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { inject as service } from '@ember/service';
 
@@ -27,6 +27,7 @@ export default Component.extend(I18n, {
   classNames: ['file-features'],
 
   i18n: service(),
+  archiveRecallStateManager: service(),
 
   /**
    * @override
@@ -160,6 +161,49 @@ export default Component.extend(I18n, {
       return this.t('fileType.' + itemType);
     }
   }),
+
+  recallingPercent: computed(
+    'item.{recallingMembership,archiveRecallState.content.currentBytes,archiveRecallInfo.content.targetBytes}',
+    function recallingPercent() {
+      const recallingMembership = this.get('item.recallingMembership');
+      if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+        const item = this.get('item');
+        try {
+          const archiveRecallState = get(item, 'archiveRecallState.content');
+          const archiveRecallInfo = get(item, 'archiveRecallInfo.content');
+          if (archiveRecallState && archiveRecallInfo) {
+            const currentBytes = get(archiveRecallState, 'currentBytes') || 0;
+            const targetBytes = get(archiveRecallInfo, 'targetBytes') || 0;
+            return targetBytes && Math.floor(currentBytes / targetBytes * 100) || null;
+          } else {
+            return null;
+          }
+        } catch (error) {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+  ),
+
+  recallingMembershipObserver: observer(
+    'item.recallingMembership',
+    function recallingMembershipObserver() {
+      const {
+        item,
+        archiveRecallStateManager,
+      } = this.getProperties(
+        'item',
+        'archiveRecallStateManager',
+      );
+      const recallingMembership = item && get(item, 'recallingMembership');
+      if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+        // FIXME: unwatch by token...
+        archiveRecallStateManager.watchRecall(get(item, 'entityId'));
+      }
+    }
+  ),
 
   tagClicked(actionName) {
     const {

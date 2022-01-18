@@ -11,7 +11,7 @@ import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import { alias } from '@ember/object/computed';
 import { belongsTo, hasMany } from 'onedata-gui-websocket-client/utils/relationships';
-import { computed, get, getProperties } from '@ember/object';
+import { computed, get, getProperties, observer } from '@ember/object';
 import Mixin from '@ember/object/mixin';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -66,20 +66,6 @@ export const RuntimeProperties = Mixin.create({
   symlinkTargetFile: undefined,
 
   /**
-   * When file is a symlink, then `effFile` is the file pointed
-   * by the symlink (so can be empty). For other types of files it points to
-   * the same file (as normal file can be treated as a "symlink to itself").
-   * @type {Models.File}
-   */
-  effFile: computed('type', 'symlinkTargetFile', function effFile() {
-    const {
-      type,
-      symlinkTargetFile,
-    } = this.getProperties('type', 'symlinkTargetFile');
-    return type === 'symlink' ? symlinkTargetFile : this;
-  }),
-
-  /**
    * Contains error of loading file distribution. Is null if distribution has not
    * been fetched yet or it has been fetched successfully. It is persisted in this place
    * due to the bug in Ember that makes belongsTo relationship unusable after
@@ -99,11 +85,6 @@ export const RuntimeProperties = Mixin.create({
   pollSizeTimerId: null,
 
   /**
-   * @type {boolean}
-   */
-  isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
-
-  /**
    * One of `copy`, `move`
    * @type {string}
    */
@@ -113,6 +94,25 @@ export const RuntimeProperties = Mixin.create({
    * @type {boolean}
    */
   isCopyingMovingStop: false,
+
+  /**
+   * @type {boolean}
+   */
+  isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
+
+  /**
+   * When file is a symlink, then `effFile` is the file pointed
+   * by the symlink (so can be empty). For other types of files it points to
+   * the same file (as normal file can be treated as a "symlink to itself").
+   * @type {Models.File}
+   */
+  effFile: computed('type', 'symlinkTargetFile', function effFile() {
+    const {
+      type,
+      symlinkTargetFile,
+    } = this.getProperties('type', 'symlinkTargetFile');
+    return type === 'symlink' ? symlinkTargetFile : this;
+  }),
 
   dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
   metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
@@ -197,6 +197,24 @@ export const RuntimeProperties = Mixin.create({
   )),
 
   isRecalled: computedLastProxyContent('isRecalledProxy'),
+
+  recallPollingObserver: observer(
+    'recallPollingClients',
+    function recallPollingObserver() {
+      const {
+        recallPollingClients,
+        isPollingRecall,
+      } = this.getProperties({
+        recallPollingClients,
+        isPollingRecall,
+      });
+      if (isPollingRecall && recallPollingClients <= 0) {
+        this.startRecallPolling();
+      } else if (!isPollingRecall && recallPollingClients > 0) {
+        this.stopRecallPolling();
+      }
+    }
+  ),
 
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size

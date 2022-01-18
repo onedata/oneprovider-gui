@@ -26,7 +26,12 @@
           (if effRecallingDisabled "file-status-tag-disabled")
         }}
       >
-        <span class="tag-text">{{tt this "status.recalling"}}</span>
+        <span class="tag-text">
+          <span class="recalling-label">{{tt this "status.recalling"}}</span>
+          {{#unless (is-empty recallingPercent)}}
+            <span class="recalling-progress">({{recallingPercent}}%)</span>
+          {{/unless}}
+        </span>
         {{#if (eq displayed.recallingMembership.membership "ancestor")}}
           {{one-icon class="recalling-inherited-icon inherited-icon" icon=inheritedIcon}}
           {{one-tooltip title=(tt this "inheritedTip.recalling" fileType=typeText)}}

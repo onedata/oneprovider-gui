@@ -4,6 +4,8 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
+import { createArchiveRecallData } from '../../../helpers/archive-recall';
+import wait from 'ember-test-helpers/wait';
 
 describe('Integration | Component | filesystem browser/file features', function () {
   setupComponentTest('filesystem-browser/file-features', {
@@ -214,7 +216,7 @@ describe('Integration | Component | filesystem browser/file features', function 
   [
     { tag: 'dataset', text: 'Dataset' },
     { tag: 'qos', text: 'QoS' },
-    { tag: 'recalling', text: 'Recalling...' },
+    { tag: 'recalling', text: 'Recalling' },
   ].forEach(({ tag, text }) => {
     it(`displays "${text}" text on ${tag} tag`, function () {
       const item = {
@@ -236,8 +238,34 @@ describe('Integration | Component | filesystem browser/file features', function 
       const $tag = this.$(`.file-status-${tag}`);
 
       expect($tag).to.exist;
-      expect($tag.text().trim()).to.equal(text);
+      expect($tag.text().trim()).to.contain(text);
     });
+  });
+
+  it('displays percentage progress of archive recalling in recalling tag', async function () {
+    createArchiveRecallData(this);
+    const targetFile = this.get('targetFile');
+    this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes') / 2
+    );
+    const onInvokeItemAction = sinon.spy();
+    this.setProperties({
+      item: targetFile,
+      onInvokeItemAction,
+    });
+
+    this.render(hbs `{{filesystem-browser/file-features
+      item=item
+      initiallyExpanded=false
+      onInvokeItemAction=onInvokeItemAction
+    }}`);
+    await wait();
+
+    const $tag = this.$('.file-status-recalling');
+    expect($tag).to.exist;
+    const text = $tag.text().trim();
+    expect(text).to.contain('50%');
   });
 
   // NOTE: "directAndAncestor" not used with recalling feature

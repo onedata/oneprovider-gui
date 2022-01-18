@@ -988,7 +988,6 @@ export default Service.extend({
       sourceDataset: await get(archive, 'dataset'),
       targetFiles: 100,
       targetBytes: 1000000,
-      // FIXME: update startTimestamp on first update of state
       startTimestamp: null,
       finishTimestamp: null,
     });
@@ -999,13 +998,13 @@ export default Service.extend({
       failedFiles: 0,
       lastError: 0,
     });
-    // FIXME: invoke method that will invoke itself and update
     this.set('entityRecords.archiveRecallInfo', [archiveRecallInfo]);
     this.set('entityRecords.archiveRecallState', [archiveRecallState]);
     await archiveRecallInfo.save();
     await allFulfilled([chainRootDir, ...chainDirs].map(dir => {
       set(dir, 'recallRootId', chainDirId);
       set(dir, 'archiveRecallInfo', archiveRecallInfo);
+      set(dir, 'archiveRecallState', archiveRecallState);
       return dir.save();
     }));
     this.updateRecallState();
@@ -1073,7 +1072,9 @@ export default Service.extend({
     }
     savePromises.push(archiveRecallState.save());
     await allFulfilled(savePromises);
-    console.log('recall state changed', archiveRecallInfo, archiveRecallState);
+    console.debug(
+      `service:mock-backend: recall state changed (${get(archiveRecallState, 'entityId')})`
+    );
     if (!finished) {
       window.setTimeout(() => this.updateRecallState(), 2000);
     }
