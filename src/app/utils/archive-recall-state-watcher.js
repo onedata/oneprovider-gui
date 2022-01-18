@@ -74,6 +74,10 @@ export default EmberObject.extend({
     try {
       info = await this.getInfo();
     } catch (getInfoError) {
+      console.error(
+        'util:archive-recall-state-watcher#update: getInfo failed',
+        getInfoError
+      );
       this.stop();
       return;
     }
@@ -87,6 +91,10 @@ export default EmberObject.extend({
         state = await this.reloadState();
         isFinished = isFinished || get(state, 'currentBytes') >= get(info, 'targetBytes');
       } catch (reloadStateError) {
+        console.error(
+          'util:archive-recall-state-watcher#update: reloadState failed',
+          reloadStateError
+        );
         pollingMode = this.set('pollingMode', 'info');
       }
     }
@@ -102,6 +110,10 @@ export default EmberObject.extend({
       try {
         await this.reloadInfo();
       } catch (reloadInfoError) {
+        console.error(
+          'util:archive-recall-state-watcher#update: reloadInfo failed',
+          reloadInfoError
+        );
         this.stop();
         return;
       }
@@ -117,10 +129,10 @@ export default EmberObject.extend({
   },
 
   reloadInfo() {
-    return this.get('targetFile').belongsTo('archiveRecallInfo').reload();
+    return this.get('targetFile').getRelation('archiveRecallInfo', { reload: true });
   },
 
   reloadState() {
-    return this.get('targetFile').belongsTo('archiveRecallState').reload();
+    return this.get('targetFile').getRelation('archiveRecallState', { reload: true });
   },
 });

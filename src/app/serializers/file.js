@@ -29,8 +29,16 @@ export default Serializer.extend({
     { name: 'distribution', aspect: 'distribution' },
     { name: 'fileQosSummary', aspect: qosSummaryAspect },
     { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
-    { name: 'archiveRecallInfo', aspect: archiveRecallInfoAspect },
-    { name: 'archiveRecallState', aspect: archiveRecallStateAspect },
+    {
+      name: 'archiveRecallInfo',
+      idSource: 'recallRootId',
+      aspect: archiveRecallInfoAspect,
+    },
+    {
+      name: 'archiveRecallState',
+      idSource: 'recallRootId',
+      aspect: archiveRecallStateAspect,
+    },
   ]),
 
   /**
@@ -149,8 +157,9 @@ export default Serializer.extend({
   },
 
   normalizeVirtualRelations(hash, fileId, scope) {
-    this.get('fileRelations').forEach(({ name, entityType, aspect }) => {
-      hash[name] = this.getRelation({ fileId, entityType, aspect, scope });
+    this.get('fileRelations').forEach(({ name, idSource, entityType, aspect }) => {
+      const entityId = idSource ? hash[idSource] : fileId;
+      hash[name] = this.getRelation({ entityType, entityId, aspect, scope });
     });
   },
 
@@ -186,14 +195,14 @@ export default Serializer.extend({
   },
 
   getRelation({
-    fileId,
+    entityId,
     aspect,
     entityType = fileEntityType,
     scope = 'private',
   }) {
     return gri({
       entityType,
-      entityId: fileId,
+      entityId,
       aspect,
       scope,
     });

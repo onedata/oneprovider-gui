@@ -77,6 +77,12 @@ export default Component.extend(I18n, {
 
   inheritedIcon: 'inheritance',
 
+  /**
+   * See: `service:archive-recall-state-manager`
+   * @type {String}
+   */
+  archiveRecallWatcherToken: null,
+
   dataIsProtected: reads('item.dataIsProtected'),
 
   metadataIsProtected: reads('item.metadataIsProtected'),
@@ -193,14 +199,21 @@ export default Component.extend(I18n, {
       const {
         item,
         archiveRecallStateManager,
+        archiveRecallWatcherToken,
       } = this.getProperties(
         'item',
         'archiveRecallStateManager',
+        'archiveRecallWatcherToken',
       );
+      if (archiveRecallWatcherToken) {
+        // watcher already registered for this component
+        return;
+      }
       const recallingMembership = item && get(item, 'recallingMembership');
       if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
-        // FIXME: unwatch by token...
-        archiveRecallStateManager.watchRecall(get(item, 'entityId'));
+        const archiveRecallWatcherToken =
+          archiveRecallStateManager.watchRecall(item);
+        this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);
       }
     }
   ),
@@ -211,6 +224,25 @@ export default Component.extend(I18n, {
       item,
     } = this.getProperties('onInvokeItemAction', 'item');
     return onInvokeItemAction(item, actionName);
+  },
+
+  willDestroyElement() {
+    this._super(...arguments);
+    const {
+      archiveRecallStateManager,
+      archiveRecallWatcherToken,
+      item,
+    } = this.getProperties(
+      'archiveRecallStateManager',
+      'archiveRecallWatcherToken',
+      'item',
+    );
+    if (archiveRecallWatcherToken) {
+      archiveRecallStateManager.unwatchRecall(
+        get(item, 'entityId'),
+        archiveRecallWatcherToken
+      );
+    }
   },
 
   actions: {

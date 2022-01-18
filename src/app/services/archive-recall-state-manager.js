@@ -1,10 +1,20 @@
 import Service from '@ember/service';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
+import { v4 as uuid } from 'ember-uuid';
+import { get } from '@ember/object';
+
+/**
+ * @typedef {Object} ArchiveRecallStateManagerEntry
+ * @property {Set<String>} tokens tokens generated for registered clients that
+ *   want to use watcher; tokens are obtained when using `watchRecall` and can be used
+ *   to deregister using `unwatchRecall`
+ * @property {ArchiveRecallStateWatcher} watcher a common polling watcher for all clients
+ */
 
 export default Service.extend({
   /**
    * Initialized on init.
-   * @type {Map<fileId: String, {count: Number, watcher: ArchiveRecallStateWatcher}>}
+   * @type {Map<String, ArchiveRecallStateManagerEntry>}
    */
   watchersRegistry: null,
 
@@ -15,56 +25,65 @@ export default Service.extend({
 
   /**
    * @public
-   * @param {String} fileId
-   * @returns {ArchiveRecallStateWatcher}
+   * @param {Models.File} file
+   * @returns {String} token for managing registered watcher (see
+   *   `ArchiveRecallStateManagerEntry`)
    */
-  watchRecall(fileId) {
+  watchRecall(file) {
+    const recallRootId = get(file, 'recallRootId');
     const watchersRegistry = this.get('watchersRegistry');
-    let entry = watchersRegistry.get(fileId);
+    let entry = watchersRegistry.get(recallRootId);
     if (!entry) {
       entry = {
-        count: 0,
+        tokens: new Set(),
         watcher: null,
       };
-      watchersRegistry.set(fileId, entry);
+      watchersRegistry.set(recallRootId, entry);
     }
-    if (!entry.count || !entry.watcher) {
-      entry.watcher = this.createWatcherObject(fileId);
+    if (!entry.tokens.size || !entry.watcher) {
+      entry.watcher = this.createWatcherObject(file);
       entry.watcher.start();
     }
-    entry.count += 1;
-    return entry.watcher;
+    const token = uuid();
+    entry.tokens.add(token);
+    return token;
   },
 
   /**
    * @public
-   * @param {String} fileId
+   * @param {Models.File} file
+   * @param {String} token for managing registered watcher (see
+   *   `ArchiveRecallStateManagerEntry`)
    */
-  unwatchRecall(fileId) {
+  unwatchRecall(file, token) {
+    const recallRootId = get(file, 'recallRootId');
+    if (!token) {
+      throw new Error(
+        'service:archive-recall-state-manager#unwatchRecall: token must not be empty'
+      );
+    }
     const watchersRegistry = this.get('watchersRegistry');
-    const entry = watchersRegistry.get(fileId);
-    if (!entry) {
+    const entry = watchersRegistry.get(recallRootId);
+    if (!entry || !entry.tokens.has(token)) {
       return;
     }
-    if (entry.count > 0) {
-      entry.count -= 1;
-      if (entry.count <= 0) {
-        if (entry.watcher) {
-          entry.watcher.destroy();
-        }
-        watchersRegistry.delete(fileId);
+    entry.tokens.delete(token);
+    if (!entry.tokens.size) {
+      if (entry.watcher) {
+        entry.watcher.destroy();
       }
+      watchersRegistry.delete(recallRootId);
     }
   },
 
   /**
    * @private
-   * @param {String} fileId
+   * @param {Models.File} file
    * @returns {ArchiveRecallStateWatcher}
    */
-  createWatcherObject(fileId) {
+  createWatcherObject(file) {
     return ArchiveRecallStateWatcher.create({
-      fileId,
+      targetFile: file,
     });
   },
 });
