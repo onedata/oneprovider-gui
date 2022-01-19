@@ -1,7 +1,8 @@
 {{#one-modal
   open=open
-  backdropClose=(not processing)
-  keyboard=(not processing)
+  backdropClose=false
+  keyboard=false
+  onHide=(action "close")
   class="proceed-modal fb-remove-modal"
   as |modal|
 }}
