@@ -18,4 +18,10 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.filesystemBrowser.tagRecalled',
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   */
+  disabled: false,
 });
