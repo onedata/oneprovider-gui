@@ -4,7 +4,10 @@
 
 {{#modal.body
   id=modalBodyId
-  class="archive-recall-part archive-recall-modal-body upload-drop-zone-container"
+  class=(concat-classes
+    "archive-recall-part archive-recall-modal-body upload-drop-zone-container"
+    (if (or disabled isSubmitting) "disabled")
+  )
 }}
   {{archive-recall/browser
     modal=modal
@@ -12,7 +15,7 @@
     parentModalDialogSelector=parentModalDialogSelector
     space=space
     options=options
-    disabled=disabled
+    disabled=(or disabled isSubmitting)
     browserRequiredDataProxy=browserRequiredDataProxy
     currentBrowsableItem=currentBrowsableItem
     selectedItems=selectedItems

@@ -63,6 +63,13 @@ export default Component.extend(...mixins, {
    */
   modalBodyId: undefined,
 
+  /**
+   * If set to true - disable some functions of file browser to prevent user interaction.
+   * @virtual optional
+   * @type {Boolean}
+   */
+  disabled: false,
+
   onDirIdChange: notImplementedThrow,
 
   onSelectedItemsChange: notImplementedThrow,
@@ -99,9 +106,6 @@ export default Component.extend(...mixins, {
   updateDirEntityId(dirId) {
     this.get('onDirIdChange')(dirId);
   },
-  changeSelectedItems(items) {
-    return this.get('onSelectedItemsChange')(items);
-  },
   async fetchChildren(dirId, startIndex, size, offset) {
     const fileManager = this.get('fileManager');
     return fileManager
@@ -113,5 +117,32 @@ export default Component.extend(...mixins, {
     return resolveItemParentFun ?
       resolveItemParentFun.call(selectorModel, item) :
       defaultResolveParent(item);
+  },
+
+  actions: {
+    changeSelectedItems() {
+      const {
+        disabled,
+        onSelectedItemsChange,
+      } = this.getProperties(
+        'disabled',
+        'onSelectedItemsChange',
+      );
+      if (!disabled && onSelectedItemsChange) {
+        onSelectedItemsChange(...arguments);
+      }
+    },
+    changeDirId() {
+      const {
+        disabled,
+        onDirIdChange,
+      } = this.getProperties(
+        'disabled',
+        'onDirIdChange',
+      );
+      if (!disabled && onDirIdChange) {
+        onDirIdChange(...arguments);
+      }
+    },
   },
 });

@@ -117,6 +117,11 @@ export default OneEmbeddedComponent.extend(
     selectedItems: undefined,
 
     /**
+     * @type {ComputedProperty<Boolean>}
+     */
+    effUploadDisabled: reads('dir.dataIsProtected'),
+
+    /**
      * @override
      */
     selectedItemsForJumpProxy: promise.object(
