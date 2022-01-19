@@ -1149,6 +1149,9 @@ export default Component.extend(I18n, {
 
   actions: {
     openContextMenu(file, mouseEvent) {
+      if (isPopoverOpened() || this.isItemDisabled(file)) {
+        return;
+      }
       const selectedItems = this.get('selectedItems');
       if (get(selectedItems, 'length') === 0 || !selectedItems.includes(file)) {
         this.selectOnlySingleFile(file);
