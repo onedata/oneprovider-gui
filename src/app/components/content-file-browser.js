@@ -459,7 +459,14 @@ export default OneEmbeddedComponent.extend(
       this.set('fileToShare', null);
     },
     closeDatasetsModal() {
+      const {
+        uploadManager,
+        dir,
+      } = this.getProperties('uploadManager', 'dir');
       this.set('filesToShowDatasets', null);
+      // datasets browser could have recall panel opened that can change upload target
+      // directory, so make sure that it is restored
+      uploadManager.changeTargetDirectory(dir);
     },
     closeEditPermissionsModal() {
       this.set('filesToEditPermissions', null);
