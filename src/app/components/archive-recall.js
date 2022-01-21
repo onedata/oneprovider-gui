@@ -101,6 +101,14 @@ export default Component.extend(...mixins, {
    */
   targetFileCheckDeferred: null,
 
+  /**
+   * Stores previous value of `targetRecallParent` to prevent unecessary observer
+   * operations (selectedItems are updated on every click, so it could update on every
+   * click).
+   * @type {Model.File}
+   */
+  prevTargetRecallParent: null,
+
   //#endregion
 
   //#region constants
@@ -207,11 +215,24 @@ export default Component.extend(...mixins, {
    * Invoke on changes that affects target file/directory, so a validation is needed
    * (with some debounce).
    */
-  targetParamsObserver: observer(
+  targetNameObserver: observer(
     'targetName',
-    'targetRecallParent',
     function targetNameObserver() {
       this.scheduleTargetCheck();
+    }
+  ),
+
+  targetParentObserver: observer(
+    'targetRecallParent',
+    function targetParentObserver() {
+      const {
+        targetRecallParent,
+        prevTargetRecallParent,
+      } = this.getProperties('targetRecallParent', 'prevTargetRecallParent');
+      if (targetRecallParent !== prevTargetRecallParent) {
+        this.scheduleTargetCheck();
+        this.set('prevTargetRecallParent', targetRecallParent);
+      }
     }
   ),
 
