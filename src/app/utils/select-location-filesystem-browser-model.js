@@ -11,8 +11,16 @@
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import { get } from '@ember/object';
 import { raw } from 'ember-awesome-macros';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default FilesystemBrowserModel.extend({
+  /**
+   * Called after refresh resolves.
+   * @virtual
+   * @type {() => void}
+   */
+  onRefresh: notImplementedIgnore,
+
   /**
    * @override
    */
@@ -46,5 +54,21 @@ export default FilesystemBrowserModel.extend({
    */
   onOpenFile( /* item, options */ ) {
     // completely ignore opening files
+  },
+
+  /**
+   * @override
+   */
+  async refresh() {
+    const result = await this._super(...arguments);
+    try {
+      this.get('onRefresh')();
+    } catch (onRefreshError) {
+      console.error(
+        'utils:select-location-filesystem-browser-model#refresh: onRefresh call failed',
+        onRefreshError
+      );
+    }
+    return result;
   },
 });
