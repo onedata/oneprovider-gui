@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, afterEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
@@ -24,6 +24,9 @@ describe('Integration | Component | archive recall (internal)', function () {
     this.setProperties({
       onCancel: () => {},
       onArchiveRecallStarted: () => {},
+      options: {
+        checkTargetDelay: 10,
+      },
     });
     const archiveManager = lookupService(this, 'archiveManager');
     archiveManager.recallArchive = async () => {};
@@ -102,6 +105,14 @@ describe('Integration | Component | archive recall (internal)', function () {
     });
   });
 
+  afterEach(function () {
+    // NOTE: using clock (that should be sinon fake timer) is optional - you should
+    // initialize this.clock in selected test scenario
+    if (this.clock) {
+      this.clock.restore();
+    }
+  });
+
   it('lists contents of injected directory', async function () {
     const filesCount = 3;
     this.setProperties({
@@ -155,49 +166,7 @@ describe('Integration | Component | archive recall (internal)', function () {
 
   it('shows "already exists" validation message when selected directory contains file with the same name',
     async function () {
-      const expectedMessage =
-        'File with specified name already exists in selected location';
-      const existingName = 'dir1';
-      this.setProperties({
-        space: this.get('space'),
-      });
-      const dir1 = createFile({
-        name: existingName,
-        type: 'dir',
-      });
-      mockRootFiles({
-        testCase: this,
-        rootDir: this.get('spaceRootDir'),
-        files: [dir1],
-      });
-      const fileManager = lookupService(this, 'fileManager');
-      const fetchChildrenAttrs = sinon.stub(fileManager, 'fetchChildrenAttrs');
-      // default name initially entered into input
-      fetchChildrenAttrs
-        .withArgs({
-          dirId: this.get('spaceRootDir.entityId'),
-          scope: 'private',
-          index: this.get('dataset.name'),
-          limit: 1,
-          offset: 0,
-        })
-        .resolves({
-          children: [dir1],
-          isLast: true,
-        });
-      // name entered by user into input
-      fetchChildrenAttrs
-        .withArgs({
-          dirId: this.get('spaceRootDir.entityId'),
-          scope: 'private',
-          index: existingName,
-          limit: 1,
-          offset: 0,
-        })
-        .resolves({
-          children: [dir1],
-          isLast: true,
-        });
+      prepareAlreadyExistEnv(this);
 
       await render(this);
 
@@ -208,16 +177,96 @@ describe('Integration | Component | archive recall (internal)', function () {
       // right after render - file with initial name does not exist
       expect($targetNameFormGroup).to.not.have.class('has-error');
       expect($submitBtn).to.not.have.attr('disabled');
-      expect($this.text()).to.not.contain(expectedMessage);
+      expect($this.text()).to.not.contain(this.expectedMessage);
 
       // change name to exising - show validation error
-      await fillIn('.target-name-input', existingName);
+      await fillIn('.target-name-input', this.existingName);
 
       expect($targetNameFormGroup).to.have.class('has-error');
       expect($submitBtn).to.have.attr('disabled');
-      expect($this.text()).to.contain(expectedMessage);
+      expect($this.text()).to.contain(this.expectedMessage);
     }
   );
+
+  // FIXME: malfunctioning test - to fix or remove
+  // an error occurs: "Uncaught Error: end called without begin" when using useFakeTimers
+  // with shouldAdvanceTime, but when shouldAdvanceTime is false (and not using await with
+  // render) wait in other tests are stuck
+
+  // it('checks if file exists with delay when typing in target name',
+  //   async function () {
+  //     this.clock = sinon.useFakeTimers({
+  //       now: Date.now(),
+  //       shouldAdvanceTime: true,
+  //     });
+  //     this.setProperties({
+  //       options: {
+  //         checkTargetDelay: 10,
+  //       },
+  //     });
+  //     const checkTargetDelay = this.get('options.checkTargetDelay');
+  //     prepareAlreadyExistEnv(this);
+
+  //     await render(this);
+  //     this.clock.tick(checkTargetDelay + 1);
+
+  //     // Then: check async behaviour when user types part of names with delay
+
+  //     const $this = this.$();
+  //     const $submitBtn = this.$('.submit-btn');
+  //     const $targetNameFormGroup = this.$('.target-name-form');
+
+  //     // right after render - file with initial name does not exist
+  //     expect($targetNameFormGroup).to.not.have.class('has-error');
+  //     expect($submitBtn).to.not.have.attr('disabled');
+  //     expect($this.text()).to.not.contain(this.expectedMessage);
+
+  //     // change name to something that does not exists(valid)
+  //     fillIn(
+  //       '.target-name-input',
+  //       'random_name'
+  //     );
+
+  //     expect($targetNameFormGroup, 'random name')
+  //       .to.not.have.class('has-error');
+  //     // submit should be disabled until check is invoked and done
+  //     expect($submitBtn, 'random name')
+  //       .to.have.attr('disabled');
+
+  //     this.clock.tick(checkTargetDelay / 2);
+
+  //     // waiting for check to start - validation state should not change
+  //     expect($targetNameFormGroup, 'random name, after short time')
+  //       .to.not.have.class('has-error');
+  //     expect($submitBtn, 'random name, after short time')
+  //       .to.have.attr('disabled');
+
+  //     // change name to something that exists (invalid)
+  //     fillIn(
+  //       '.target-name-input',
+  //       this.existingName
+  //     );
+
+  //     this.clock.tick(checkTargetDelay / 2 + 1);
+
+  //     // waiting for check to start (delay because of next fillIn) - validation state
+  //     // should not change
+  //     expect($targetNameFormGroup, 'existing name, after short time')
+  //       .to.not.have.class('has-error');
+  //     expect($submitBtn, 'existing name, after short time')
+  //       .to.have.attr('disabled');
+
+  //     this.clock.tick(checkTargetDelay / 2 + 1);
+
+  //     // after full checkTargetDelay time, validation error should be visible
+  //     expect($targetNameFormGroup, 'existing name, after delay time')
+  //       .to.have.class('has-error');
+  //     expect($submitBtn, 'existing name, after delay time')
+  //       .to.have.attr('disabled');
+  //     expect($this.text(), 'existing name, after delay time')
+  //       .to.contain(this.expectedMessage);
+  //   }
+  // );
 });
 
 async function render(testCase) {
@@ -243,3 +292,81 @@ function stubDefaultCheckFileNameExists(testCase) {
     'checkFileNameExists'
   ).resolves(false);
 }
+
+function prepareAlreadyExistEnv(testCase) {
+  testCase.expectedMessage =
+    'File with specified name already exists in selected location';
+  testCase.existingName = 'dir1';
+  const dir1 = createFile({
+    name: testCase.existingName,
+    type: 'dir',
+  });
+  mockRootFiles({
+    testCase: testCase,
+    rootDir: testCase.get('spaceRootDir'),
+    files: [dir1],
+  });
+  const fileManager = lookupService(testCase, 'fileManager');
+  const fetchChildrenAttrs = sinon.stub(fileManager, 'fetchChildrenAttrs');
+  // any name
+  fetchChildrenAttrs
+    .resolves({
+      children: [],
+      isLast: true,
+    });
+  // default name initially entered into input
+  fetchChildrenAttrs
+    .withArgs({
+      dirId: testCase.get('spaceRootDir.entityId'),
+      scope: 'private',
+      index: testCase.get('dataset.name'),
+      limit: 1,
+      offset: 0,
+    })
+    .resolves({
+      children: [],
+      isLast: true,
+    });
+  // name entered by user into input
+  fetchChildrenAttrs
+    .withArgs({
+      dirId: testCase.get('spaceRootDir.entityId'),
+      scope: 'private',
+      index: testCase.existingName,
+      limit: 1,
+      offset: 0,
+    })
+    .resolves({
+      children: [dir1],
+      isLast: true,
+    });
+}
+
+// FIXME: incomplete class to remove
+// class FileExistCheckWithDelay {
+//   constructor(testCase, existingName, expectedMessage) {
+//     this.testCase = testCase;
+//     this.$body = testCase.$();
+//     this.$submitBtn = testCase.$('.submit-btn');
+//     this.$targetNameFormGroup = testCase.$('.target-name-form');
+//     this.existingName = existingName;
+//     this.expectedMessage = expectedMessage;
+//   }
+//   expectAllValid() {
+//     expect(this.$targetNameFormGroup).to.not.have.class('has-error');
+//     expect(this.$submitBtn).to.not.have.attr('disabled');
+//     expect(this.$body.text()).to.not.contain(this.expectedMessage);
+//   }
+//   async setTargetName(targetName) {
+//     await fillIn(
+//       '.target-name-input',
+//       targetName
+//     );
+//   }
+//   async setFreeTargetName() {
+//     await this.setTargetName('abc');
+//   }
+//   async set() {
+
+//   }
+// }
