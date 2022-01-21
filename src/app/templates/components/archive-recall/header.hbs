@@ -5,5 +5,12 @@
   </span>
 </h1>
 {{modal-archive-subheader archives=(array archive)}}
-<p class="intro-text">{{tt this "intro" filesCount=filesCount size=sizeText}}</p>
+<p class="intro-text">
+  {{!-- TODO: VFS-8320 make archive size text and util and fix in other places --}}
+  {{tt this "intro"
+    filesCount=filesCount
+    filesText=(tt this (concat "filesText." (if (eq filesCount 1) "singular" "plural")))
+    size=sizeText
+  }}
+</p>
 {{yield}}
