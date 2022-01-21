@@ -176,20 +176,26 @@ export default Component.extend(...mixins, {
   )),
 
   validationErrorProxy: promise.object(computed(
+    'targetRecallParent.recallingMembership',
     'targetName',
     'targetFileExistsProxy',
     async function validationErrorProxy() {
       const targetName = this.get('targetName');
       if (!targetName) {
         return this.t('targetNameValidation.empty');
-      } else {
-        const targetFileExists = await this.get('targetFileExistsProxy');
-        if (targetFileExists) {
-          return this.t('targetNameValidation.exists');
-        } else {
-          return null;
-        }
       }
+
+      const recallingMembership = this.get('targetRecallParent.recallingMembership');
+      if (recallingMembership && recallingMembership !== 'none') {
+        return this.t('targetNameValidation.recalling');
+      }
+
+      const targetFileExists = await this.get('targetFileExistsProxy');
+      if (targetFileExists) {
+        return this.t('targetNameValidation.exists');
+      }
+
+      return null;
     }
   )),
 

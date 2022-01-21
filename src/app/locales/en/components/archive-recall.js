@@ -4,6 +4,7 @@ export default {
   targetNameValidation: {
     exists: 'File with specified name already exists in selected location',
     empty: 'Target name must not be empty',
+    recalling: 'Cannot recall the archive to location that is currently recalling',
   },
   header: {
     headerText: 'Recall archive into a selected directory',
