@@ -73,6 +73,13 @@ export default Component.extend(...mixins, {
   internalTagName: 'a',
 
   /**
+   * Custom shortened path tooltip text.
+   * Can be useful if file-path has some additional template block.
+   * @type {String}
+   */
+  customTip: '',
+
+  /**
    * Anchor target attribute.
    * @type {String}
    */
@@ -209,6 +216,8 @@ export default Component.extend(...mixins, {
     const records = allPathItems.filterBy('record').mapBy('record');
     return stringifyFilePath(records);
   }),
+
+  tooltipText: or('customTip', 'stringifiedPath'),
 
   href: computed('file', 'filesViewContext', function href() {
     const {

@@ -3,9 +3,11 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { or, tag, conditional, eq, raw } from 'ember-awesome-macros';
+import { or, tag, conditional, eq, raw, promise } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { computed } from '@ember/object';
+import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 
 export default Component.extend(I18n, {
   classNames: ['archive-recall-footer'],
@@ -110,6 +112,24 @@ export default Component.extend(I18n, {
   ),
 
   targetNameInputId: tag `${'elementId'}-target-name-input`,
+
+  targetPathStringProxy: promise.object(computed(
+    'parentDir.name',
+    'targetName',
+    async function filePathTip() {
+      const {
+        parentDir,
+        targetName,
+      } = this.getProperties('parentDir', 'targetName');
+      const parentDirPath = await resolveFilePath(parentDir);
+      return stringifyFilePath([
+        ...parentDirPath,
+        { name: targetName },
+      ], 'name');
+    }
+  )),
+
+  targetPathString: reads('targetPathStringProxy.content'),
 
   actions: {
     submit() {

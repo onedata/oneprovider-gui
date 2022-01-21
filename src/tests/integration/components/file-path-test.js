@@ -263,6 +263,48 @@ describe('Integration | Component | file path', function () {
     expect(await tooltip.hasTooltip()).to.be.false;
   });
 
+  it('shows tooltip with custom text on hover if path is shortened', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+      'three',
+      'file',
+    ]);
+    const file = filesChain[filesChain.length - 1];
+    const customTip = 'custom tip';
+    this.setProperties({
+      file,
+      customTip,
+    });
+
+    await renderInSmallContainer(this);
+    const tooltip = new OneTooltipHelper('.path');
+
+    expect(await tooltip.getText()).to.contain(customTip);
+  });
+
+  it('does now show tooltip with custom text on hover if path is not shortened', async function () {
+    const filesChain = createFilesChain([
+      'space root',
+      'one',
+      'two',
+      'three',
+      'file',
+    ]);
+    const file = filesChain[filesChain.length - 1];
+    const customTip = 'custom tip';
+    this.setProperties({
+      file,
+      customTip,
+    });
+
+    await render(this);
+    const tooltip = new OneTooltipHelper('.path');
+
+    expect(await tooltip.hasTooltip()).to.be.false;
+  });
+
   it('shows loading text while file path is loading', async function () {
     const filesChain = createFilesChain([
       'space root',
@@ -305,7 +347,7 @@ describe('Integration | Component | file path', function () {
 });
 
 async function render(testCase) {
-  testCase.render(hbs `{{file-path file=file}}`);
+  testCase.render(hbs `{{file-path file=file customTip=customTip}}`);
   await wait();
 }
 
@@ -314,7 +356,7 @@ async function renderInSmallContainer(testCase) {
     class="test-path-container"
     style="width: 200px;"
   >
-    {{file-path file=file}}
+    {{file-path file=file customTip=customTip}}
   </div>`);
   await wait();
 }
