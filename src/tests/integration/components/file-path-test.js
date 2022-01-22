@@ -344,6 +344,31 @@ describe('Integration | Component | file path', function () {
     expect(this.$('.file-path .path-error')).to.exist;
     expect(this.$('.file-path').text()).to.match(/Path loading failed!/);
   });
+
+  it('changes text of path when injected file is replaced', async function () {
+    const filesChain1 = createFilesChain([
+      'space root',
+      'hello',
+      'world',
+    ]);
+    const filesChain2 = createFilesChain([
+      'space root',
+      'foo',
+      'bar',
+    ]);
+    const file1 = filesChain1[filesChain1.length - 1];
+    const file2 = filesChain2[filesChain2.length - 1];
+    this.setProperties({
+      file: file1,
+    });
+
+    await render(this);
+
+    expect(this.$().text()).to.match(/space root\s*\/\s*hello\s*\/\s*world\s*/);
+    this.set('file', file2);
+    await wait();
+    expect(this.$().text()).to.match(/space root\s*\/\s*foo\s*\/\s*bar\s*/);
+  });
 });
 
 async function render(testCase) {
