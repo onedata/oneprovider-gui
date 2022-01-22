@@ -343,14 +343,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         'spacePrivileges',
         'i18n',
       );
-      // FIXME: are there privileges enough? maybe space_write_data is also needed?
-      const hasPrivileges = spacePrivileges.recallArchives;
+      const hasPrivileges = spacePrivileges.recallArchives && spacePrivileges.writeData;
       let disabledTip;
       if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
-          privilegeFlag: ['space_recall_archives'],
+          privilegeFlag: ['space_recall_archives', 'space_write_data'],
         });
       }
       return this.createFileAction({

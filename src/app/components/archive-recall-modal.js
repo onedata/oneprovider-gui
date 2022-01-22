@@ -13,9 +13,8 @@ import { computed } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
-// FIXME: options object
 /**
- * @typedef {Object} RecallArchiveOptions
+ * @typedef {Object} ArchiveRecallComponentOptions
  */
 
 export default Component.extend({
@@ -37,9 +36,9 @@ export default Component.extend({
   /**
    * Injected options for archive recall.
    * @virtual optional
-   * @type {RecallArchiveOptions}
+   * @type {ArchiveRecallComponentOptions}
    */
-  options: undefined,
+  options: Object.freeze({}),
 
   /**
    * @virtual

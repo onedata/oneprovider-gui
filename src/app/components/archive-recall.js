@@ -174,11 +174,9 @@ export default Component.extend(...mixins, {
   targetFileExistsProxy: promise.object(computed(
     'targetFileCheckDeferred',
     async function targetFileExistsProxy() {
-      console.log('FIXME: targetFileExistsProxy recompute');
       const targetFileCheckDeferred = this.get('targetFileCheckDeferred');
       const exists = targetFileCheckDeferred ?
         await targetFileCheckDeferred.promise : false;
-      console.log('FIXME: targetFileExistsProxy will resolve', exists);
       return exists;
     }
   )),
@@ -275,10 +273,8 @@ export default Component.extend(...mixins, {
   async updateTargetCheckDeferred() {
     // current deferred can change when checking is in progress, so we need to use
     // a current deferred from time moment when update was invoked
-    console.log('FIXME: update deferred start');
     const targetFileCheckDeferred = this.get('targetFileCheckDeferred');
     const targetFileExists = await this.checkTargetFileExists();
-    console.log('FIXME: update deferred resolve', targetFileExists);
     targetFileCheckDeferred.resolve(targetFileExists);
     return targetFileExists;
   },

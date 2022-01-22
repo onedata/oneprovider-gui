@@ -20,6 +20,9 @@ const mixins = [
   InModalBrowserContainerBase,
 ];
 
+/**
+ * @implements {FilesystemSelectBrowserExtensionModel}
+ */
 export default Component.extend(...mixins, {
   classNames: ['archive-recall-browser', 'in-modal-item-browser-container'],
 
@@ -93,9 +96,15 @@ export default Component.extend(...mixins, {
       });
   }),
 
+  /**
+   * @implements {FilesystemSelectBrowserExtensionModel}
+   */
   createItemParentDir: null,
 
-  createItemType: 'dir',
+  /**
+   * @implements {FilesystemSelectBrowserExtensionModel}
+   */
+  fileToRename: null,
 
   openCreateNewDirectory(parentDir) {
     this.set('createItemParentDir', parentDir);

@@ -341,32 +341,3 @@ function prepareAlreadyExistEnv(testCase) {
       isLast: true,
     });
 }
-
-// FIXME: incomplete class to remove
-// class FileExistCheckWithDelay {
-//   constructor(testCase, existingName, expectedMessage) {
-//     this.testCase = testCase;
-//     this.$body = testCase.$();
-//     this.$submitBtn = testCase.$('.submit-btn');
-//     this.$targetNameFormGroup = testCase.$('.target-name-form');
-//     this.existingName = existingName;
-//     this.expectedMessage = expectedMessage;
-//   }
-//   expectAllValid() {
-//     expect(this.$targetNameFormGroup).to.not.have.class('has-error');
-//     expect(this.$submitBtn).to.not.have.attr('disabled');
-//     expect(this.$body.text()).to.not.contain(this.expectedMessage);
-//   }
-//   async setTargetName(targetName) {
-//     await fillIn(
-//       '.target-name-input',
-//       targetName
-//     );
-//   }
-//   async setFreeTargetName() {
-//     await this.setTargetName('abc');
-//   }
-//   async set() {
-
-//   }
-// }
