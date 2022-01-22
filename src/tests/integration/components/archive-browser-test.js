@@ -114,6 +114,7 @@ describe('Integration | Component | archive browser', function () {
     this.set('openRecallModal', openRecallModal);
     this.set('spacePrivileges', {
       recallArchives: true,
+      writeData: true,
     });
 
     render(this);
