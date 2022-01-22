@@ -1,5 +1,5 @@
 /**
- * A container for browser for selecing
+ * A container for browser for selecing parent location to recall an archive
  *
  * @module components/archive-recall/browser
  * @author Jakub Liput

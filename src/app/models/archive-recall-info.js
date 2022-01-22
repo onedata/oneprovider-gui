@@ -11,6 +11,7 @@ import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
+// model name differs from aspect name to avoid "s" on end of model name
 export const aspect = 'archive_recall_details';
 
 export default Model.extend(GraphSingleModelMixin, {

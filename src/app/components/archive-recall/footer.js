@@ -1,3 +1,12 @@
+/**
+ * A footer part of archive recall component with some settings, summary and submit button
+ *
+ * @module components/archive-recall/footer
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';

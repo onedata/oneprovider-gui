@@ -1,3 +1,25 @@
+/**
+ * Manage state updates of recall (info and state).
+ *
+ * If you want to have polling of recall state (storeg and accessible globally in app)
+ * for a file enabled during component life, use `watchRecall` method until component
+ * is destroyed.
+ * It will return a token that should be stored and used in `unwatchRecall` method when
+ * polling is no longer needed.
+ * The manager makes sure, that if multiple entities (eg. component) watches file's
+ * recall state, there is only one watcher for recall root. It is useful if you want to
+ * watch recall state for files with inherited recalling state.
+ *
+ * This manager uses `ArchiveRecallStateWatcher` objects, that are doing polling
+ * only when the polling is needed (recall is not finished) and handle errors.
+ * See `util:archive-recall-state-watcher` for details.
+ *
+ * @module services/archive-recall-state-manager
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Service from '@ember/service';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
 import { v4 as uuid } from 'ember-uuid';

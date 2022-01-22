@@ -1,3 +1,12 @@
+/**
+ * Polls for archive recall info and state for specified `targetFile`.
+ *
+ * @module utils/archive-recall-state-watcher
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { get } from '@ember/object';
 import { bool } from 'ember-awesome-macros';
 import Looper from 'onedata-gui-common/utils/looper';
@@ -41,8 +50,11 @@ export default EmberObject.extend({
    * @override
    */
   destroy() {
-    this._super(...arguments);
-    this.stop();
+    try {
+      this._super(...arguments);
+    } finally {
+      this.stop();
+    }
   },
 
   start() {
@@ -123,15 +135,27 @@ export default EmberObject.extend({
     }
   },
 
+  /**
+   * @private
+   * @returns {Promise<Models.ArchiveRecallInfo>}
+   */
   async getInfo() {
     return this.get('targetFile.archiveRecallInfo.content') ||
       this.get('targetFile').getRelation('archiveRecallInfo');
   },
 
+  /**
+   * @private
+   * @returns {Promise<Models.ArchiveRecallInfo>}
+   */
   reloadInfo() {
     return this.get('targetFile').getRelation('archiveRecallInfo', { reload: true });
   },
 
+  /**
+   * @private
+   * @returns {Promise<Models.ArchiveRecallState>}
+   */
   reloadState() {
     return this.get('targetFile').getRelation('archiveRecallState', { reload: true });
   },

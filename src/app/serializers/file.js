@@ -3,7 +3,7 @@
  *
  * @module serializers/file
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -29,6 +29,9 @@ export default Serializer.extend({
     { name: 'distribution', aspect: 'distribution' },
     { name: 'fileQosSummary', aspect: qosSummaryAspect },
     { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
+    // NOTE: currently recallRootId should be already set when doing ls++
+    // to create valid relations; if this cointraint will to be changed,
+    // a re-implementation will be needed
     {
       name: 'archiveRecallInfo',
       idSource: 'recallRootId',
