@@ -502,6 +502,8 @@ export default Service.extend({
             'space_view',
             'space_view_qos',
             'space_view_transfers',
+            'space_read_data',
+            'space_write_data',
             'space_manage_qos',
             'space_manage_datasets',
             'space_create_archives',
