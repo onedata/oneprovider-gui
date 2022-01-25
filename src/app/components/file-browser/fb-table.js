@@ -866,8 +866,14 @@ export default Component.extend(I18n, {
           if (this.get('isDestroyed')) {
             return;
           }
+          const $dataRows = this.$('.data-row');
+          // a strange bug - despite of checking if component is destroyed and scheduling
+          // afterRender sometimes this.$() returns null or undefined
+          if (!$dataRows) {
+            return;
+          }
 
-          const anyRowVisible = this.$('.data-row').toArray()
+          const anyRowVisible = $dataRows.toArray()
             .some(row => viewTester.isInView(row));
 
           if (!anyRowVisible) {

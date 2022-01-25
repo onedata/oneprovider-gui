@@ -348,5 +348,8 @@ export default Component.extend(...mixins, {
     filesystemChanged() {
       this.scheduleTargetCheck(0);
     },
+    changeSelectedItems(items) {
+      return this.changeSelectedItems(items);
+    },
   },
 });
