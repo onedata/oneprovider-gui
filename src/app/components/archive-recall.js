@@ -337,5 +337,8 @@ export default Component.extend(...mixins, {
       await this.onArchiveRecallStarted(result);
       return result;
     },
+    filesystemChanged() {
+      this.scheduleTargetCheck(0);
+    },
   },
 });

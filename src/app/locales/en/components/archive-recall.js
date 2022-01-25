@@ -8,6 +8,7 @@ export default {
   },
   header: {
     headerText: 'Recall archive into a selected directory',
+    headerTextMobile: 'Recall archive',
     intro: 'You are about to recall an archive – this operation will copy archive contents to selected location. Note that recalling will take some time depending on the size of the archive ({{filesCount}} {{filesText}}, {{size}}) and you will be able to watch recalling progress in file browser.',
     unknownNumberOf: 'unknown number of',
     unknownSize: 'unknown size',
@@ -15,6 +16,8 @@ export default {
       singular: 'file',
       plural: 'files',
     },
+    recallHintTitle: 'Recall archive into a selected directory',
+    hintClose: 'OK',
   },
   footer: {
     fileType: {

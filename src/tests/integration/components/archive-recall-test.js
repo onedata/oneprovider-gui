@@ -179,7 +179,7 @@ describe('Integration | Component | archive recall (internal)', function () {
       expect($submitBtn).to.not.have.attr('disabled');
       expect($this.text()).to.not.contain(this.expectedMessage);
 
-      // change name to exising - show validation error
+      // change name to existing - show validation error
       await fillIn('.target-name-input', this.existingName);
 
       expect($targetNameFormGroup).to.have.class('has-error');
