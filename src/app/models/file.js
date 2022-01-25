@@ -148,7 +148,7 @@ export const RuntimeProperties = Mixin.create({
   /**
    * Membership of running archive recall process:
    * - direct - if the file is a target (root) for recall process
-   * - ancestor - if the file is an ancestor of root for recall process (as above)
+   * - ancestor - if the file is a descendant of root for recall process (as above)
    * - none - none of above or the associated recall process finished
    * @type {ComputedProperty<PromiseObject<null|'none'|'direct'|'ancestor'>>}
    */

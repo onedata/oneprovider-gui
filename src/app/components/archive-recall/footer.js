@@ -12,7 +12,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { or, tag, conditional, eq, raw, promise } from 'ember-awesome-macros';
+import { or, tag, conditional, eq, raw, promise, bool } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { computed } from '@ember/object';
@@ -95,7 +95,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  effInputDisabled: or('disabled', 'isSubmitting'),
+  effInputDisabled: bool(or('disabled', 'isSubmitting')),
 
   /**
    * @type {ComputedProperty<Boolean>}
