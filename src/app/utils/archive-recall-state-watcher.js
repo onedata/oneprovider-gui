@@ -101,7 +101,6 @@ export default EmberObject.extend({
     if (pollingMode === 'state') {
       try {
         state = await this.reloadState();
-        isFinished = isFinished || get(state, 'currentBytes') >= get(info, 'targetBytes');
       } catch (reloadStateError) {
         console.error(
           'util:archive-recall-state-watcher#update: reloadState failed',
@@ -110,8 +109,9 @@ export default EmberObject.extend({
         pollingMode = this.set('pollingMode', 'info');
       }
     }
-
+    // pollingMode could change if reloadState failed, so check one more time
     if (pollingMode === 'state') {
+      isFinished = isFinished || get(state, 'currentBytes') >= get(info, 'targetBytes');
       shouldUpdateInfo = (
         !get(info, 'startTimestamp') && get(state, 'currentBytes')
       ) || isFinished;

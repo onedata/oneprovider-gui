@@ -855,10 +855,7 @@ export default Component.extend(...mixins, {
    * @param {RecallArchiveResponse} result
    */
   async handleArchiveRecallStarted(result) {
-    if (!this.get('navigateAfterRecall')) {
-      return;
-    }
-    if (!result || !result.rootId) {
+    if (!this.get('navigateAfterRecall') || !result || !result.rootId) {
       return;
     }
     const {

@@ -63,8 +63,7 @@ describe('Integration | Component | archive browser', function () {
       itemsCount,
     });
 
-    render(this);
-    await wait();
+    await render(this);
 
     expect(this.$('.fb-table-row')).to.have.length(itemsCount);
   });
@@ -84,8 +83,7 @@ describe('Integration | Component | archive browser', function () {
         createArchives: true,
       });
 
-      render(this);
-      await wait();
+      await render(this);
 
       const $actions = await openItemContextMenu({ name: firstArchiveName });
       const $action = $actions.find('.file-action-createIncrementalArchive');
@@ -117,8 +115,7 @@ describe('Integration | Component | archive browser', function () {
       writeData: true,
     });
 
-    render(this);
-    await wait();
+    await render(this);
 
     const $actions = await openItemContextMenu({ name: firstArchiveName });
     const $recallAction = $actions.find('.file-action-recall');
@@ -189,6 +186,7 @@ function render(testCase) {
     updateDirEntityId=(action updateDirEntityId)
     changeSelectedItems=(action (mut selectedItems))
   }}</div>`);
+  return wait();
 }
 
 // TODO: VFS-7643 common test utils for browsers

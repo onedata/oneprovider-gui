@@ -29,7 +29,7 @@ export default Component.extend({
   /**
    * An achive to be recalled.
    * @virtual
-   * @type {Models.Dataset}
+   * @type {Utils.BrowsableArchive}
    */
   archive: undefined,
 

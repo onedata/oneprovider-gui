@@ -45,11 +45,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Array<String>}
    */
-  features: Object.freeze([
-    'effDatasetMembership',
-    'effQosMembership',
-    'recallingMembership',
-  ]),
+  features: defaultFilesystemFeatures,
 
   /**
    * @virtual
@@ -171,25 +167,21 @@ export default Component.extend(I18n, {
   recallingPercent: computed(
     'item.{recallingMembership,archiveRecallState.content.currentBytes,archiveRecallInfo.content.targetBytes}',
     function recallingPercent() {
-      const recallingMembership = this.get('item.recallingMembership');
+      const item = this.get('item');
+      const recallingMembership = item && get(item, 'recallingMembership');
       if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
-        const item = this.get('item');
-        try {
-          const archiveRecallState = get(item, 'archiveRecallState.content');
-          const archiveRecallInfo = get(item, 'archiveRecallInfo.content');
-          if (archiveRecallState && archiveRecallInfo) {
-            const currentBytes = get(archiveRecallState, 'currentBytes') || 0;
-            const targetBytes = get(archiveRecallInfo, 'targetBytes') || 0;
-            return targetBytes && Math.floor(currentBytes / targetBytes * 100) || null;
-          } else {
-            return null;
+        const archiveRecallState = get(item, 'archiveRecallState.content');
+        const archiveRecallInfo = get(item, 'archiveRecallInfo.content');
+        if (archiveRecallState && archiveRecallInfo) {
+          const currentBytes = get(archiveRecallState, 'currentBytes') || 0;
+          const targetBytes = get(archiveRecallInfo, 'targetBytes');
+          if (targetBytes) {
+            return Math.floor(currentBytes / targetBytes * 100);
           }
-        } catch (error) {
-          return null;
         }
-      } else {
-        return null;
       }
+
+      return null;
     }
   ),
 

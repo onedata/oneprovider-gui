@@ -162,7 +162,8 @@ export default Serializer.extend({
   normalizeVirtualRelations(hash, fileId, scope) {
     this.get('fileRelations').forEach(({ name, idSource, entityType, aspect }) => {
       const entityId = idSource ? hash[idSource] : fileId;
-      hash[name] = this.getRelation({ entityType, entityId, aspect, scope });
+      hash[name] = entityId ?
+        this.getRelation({ entityType, entityId, aspect, scope }) : null;
     });
   },
 

@@ -11,7 +11,7 @@ import Model from 'ember-data/model';
 import attr from 'ember-data/attr';
 import { alias } from '@ember/object/computed';
 import { belongsTo, hasMany } from 'onedata-gui-websocket-client/utils/relationships';
-import { computed, get, getProperties, observer } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import Mixin from '@ember/object/mixin';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import parseGri from 'onedata-gui-websocket-client/utils/parse-gri';
@@ -147,8 +147,8 @@ export const RuntimeProperties = Mixin.create({
 
   /**
    * Membership of running archive recall process:
-   * - direct - if the file is a root of running recall target
-   * - ancestor - if the file is an ancestor of running recall target
+   * - direct - if the file is a target (root) for recall process
+   * - ancestor - if the file is an ancestor of root for recall process (as above)
    * - none - none of above or the associated recall process finished
    * @type {ComputedProperty<PromiseObject<null|'none'|'direct'|'ancestor'>>}
    */
@@ -197,24 +197,6 @@ export const RuntimeProperties = Mixin.create({
   )),
 
   isRecalled: computedLastProxyContent('isRecalledProxy'),
-
-  recallPollingObserver: observer(
-    'recallPollingClients',
-    function recallPollingObserver() {
-      const {
-        recallPollingClients,
-        isPollingRecall,
-      } = this.getProperties({
-        recallPollingClients,
-        isPollingRecall,
-      });
-      if (isPollingRecall && recallPollingClients <= 0) {
-        this.startRecallPolling();
-      } else if (!isPollingRecall && recallPollingClients > 0) {
-        this.stopRecallPolling();
-      }
-    }
-  ),
 
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size

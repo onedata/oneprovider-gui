@@ -1,5 +1,5 @@
 /**
- * Header for archive properties editor component
+ * Header for archive recall component
  *
  * @module components/archive-recall/header
  * @author Jakub Liput
@@ -27,7 +27,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.Dataset}
+   * @type {Utils.BrowsableArchive}
    */
   archive: undefined,
 

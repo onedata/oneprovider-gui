@@ -20,6 +20,12 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.filesystemBrowser.tagRecalled',
 
   /**
+   * @virtual
+   * @type {Models.File}
+   */
+  file: undefined,
+
+  /**
    * @virtual optional
    * @type {Boolean}
    */

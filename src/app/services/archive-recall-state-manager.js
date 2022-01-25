@@ -1,7 +1,7 @@
 /**
  * Manage state updates of recall (info and state).
  *
- * If you want to have polling of recall state (storeg and accessible globally in app)
+ * If you want to have polling of recall state (stored and accessible globally in app)
  * for a file enabled during component life, use `watchRecall` method until component
  * is destroyed.
  * It will return a token that should be stored and used in `unwatchRecall` method when

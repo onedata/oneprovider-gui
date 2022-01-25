@@ -11,10 +11,11 @@ describe('Integration | Utility | archive recall state watcher', function () {
     integration: true,
   });
 
-  beforeEach(function () {
+  beforeEach(async function () {
     this.clock = sinon.useFakeTimers({
       now: Date.now(),
     });
+    await createArchiveRecallData(this);
   });
 
   afterEach(function () {
@@ -24,12 +25,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     }
   });
 
-  beforeEach(async function () {
-    await createArchiveRecallData(this);
-  });
-
   it('does not reload state and stops polling if info says it is already finished', async function () {
-    this.timeout(1000);
     this.watcher = ArchiveRecallStateWatcher.create({
       targetFile: this.get('targetFile'),
     });
@@ -75,8 +71,8 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.clock.tick(interval + 1);
     expect(stopSpy).to.have.been.calledOnce;
     expect(get(this.watcher, 'isPolling')).to.equal(false);
-    this.clock.tick(interval + 1);
     reloadStateSpy.reset();
+    this.clock.tick(interval + 1);
     expect(reloadStateSpy).to.have.not.been.called;
   });
 
