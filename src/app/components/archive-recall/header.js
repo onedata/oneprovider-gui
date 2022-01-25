@@ -49,4 +49,13 @@ export default Component.extend(I18n, {
     computedPipe('archive.stats.bytesArchived', bytesToString),
     computedT('unknownSize')
   ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  filesText: conditional(
+    eq('filesCount', raw(1)),
+    computedT('filesText.singular'),
+    computedT('filesText.plural')
+  ),
 });

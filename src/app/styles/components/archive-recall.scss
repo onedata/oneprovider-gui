@@ -18,6 +18,10 @@
     .archive-recall-header-hint-trigger {
       font-size: 1em;
     }
+    .archive-files-info {
+      margin-left: 0.5em;
+      opacity: $disabled-opacity;
+    }
   }
   .archive-recall-footer {
     $target-name-margin: $modal-footer-vertical-padding;

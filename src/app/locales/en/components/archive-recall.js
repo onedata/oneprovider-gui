@@ -9,9 +9,10 @@ export default {
     slash: 'Target name cannot contain "/" character',
   },
   header: {
-    headerText: 'Recall archive into a selected directory',
-    headerTextMobile: 'Recall archive',
-    intro: 'You are about to recall an archive – this operation will copy archive contents to selected location. Note that recalling will take some time depending on the size of the archive ({{filesCount}} {{filesText}}, {{size}}) and you will be able to watch recalling progress in file browser.',
+    headerText: 'Recall archive',
+    // intro: 'You are about to recall an archive – this operation will copy archive contents to selected location. Note that recalling will take some time depending on the size of the archive ({{filesCount}} {{filesText}}, {{size}}) and you will be able to watch recalling progress in file browser.',
+    intro: 'This operation will copy archive contents to a selected destination. The recall process might take some time, depending on the size of the archive. The recall progress and status will be visible in the file browser.',
+    selectDestination: 'Select archive recall destination',
     unknownNumberOf: 'unknown number of',
     unknownSize: 'unknown size',
     filesText: {

@@ -1,6 +1,6 @@
 <h1>
   <span class="header-text">
-    {{tt this (if media.isMobile "headerTextMobile" "headerText")}}
+    {{tt this "headerText"}}
   </span>
   {{#if media.isMobile}}
     {{one-icon
@@ -31,14 +31,12 @@
     {{/one-switchable-popover-modal}}
   {{/if}}
 </h1>
-{{modal-archive-subheader archives=(array archive)}}
+{{#modal-archive-subheader archives=(array archive)}}
+  <span class="archive-files-info">({{filesCount}} {{filesText}}, {{sizeText}})</span>
+{{/modal-archive-subheader}}
 {{#unless media.isMobile}}
   <p class="intro-text">
-    {{tt this "intro"
-      filesCount=filesCount
-      filesText=(tt this (concat "filesText." (if (eq filesCount 1) "singular" "plural")))
-      size=sizeText
-    }}
+    {{tt this "intro"}}
   </p>
 {{/unless}}
 {{yield}}

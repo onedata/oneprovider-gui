@@ -123,7 +123,7 @@ describe('Integration | Component | archive browser', function () {
       $recallAction,
       'recall archive menu item'
     ).to.have.length(1);
-    expect($recallAction.text()).exist.to.contain('Recall into...');
+    expect($recallAction.text()).exist.to.contain('Recall to...');
     await click($recallAction[0]);
     expect(openRecallModal).to.have.been.calledOnce;
     expect(openRecallModal).to.have.been.calledWith(mockArray.array[0]);
