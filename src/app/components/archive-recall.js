@@ -206,6 +206,14 @@ export default Component.extend(...mixins, {
         return this.t('targetNameValidation.recalling');
       }
 
+      if (targetName === '.' || targetName === '..') {
+        return this.t('targetNameValidation.dots', { targetName });
+      }
+
+      if (targetName.includes('/')) {
+        return this.t('targetNameValidation.slash');
+      }
+
       const targetFileExists = await this.get('targetFileExistsProxy');
       if (targetFileExists) {
         return this.t('targetNameValidation.exists');

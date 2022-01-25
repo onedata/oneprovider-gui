@@ -5,6 +5,8 @@ export default {
     exists: 'File with specified name already exists in selected location',
     empty: 'Target name must not be empty',
     recalling: 'Cannot recall the archive to location that is currently recalling',
+    dots: 'Target name "{{targetName}}" is not alllowed',
+    slash: 'Target name cannot contain "/" character',
   },
   header: {
     headerText: 'Recall archive into a selected directory',
