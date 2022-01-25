@@ -191,7 +191,7 @@ export default Component.extend(...mixins, {
   )),
 
   validationErrorProxy: promise.object(computed(
-    'targetRecallParent.recallingMembership',
+    'targetRecallParent.effFile.recallingMembership',
     'targetName',
     'targetFileExistsProxy',
     async function validationErrorProxy() {
@@ -200,7 +200,8 @@ export default Component.extend(...mixins, {
         return this.t('targetNameValidation.empty');
       }
 
-      const recallingMembership = this.get('targetRecallParent.recallingMembership');
+      const recallingMembership =
+        this.get('targetRecallParent.effFile.recallingMembership');
       if (recallingMembership && recallingMembership !== 'none') {
         return this.t('targetNameValidation.recalling');
       }
