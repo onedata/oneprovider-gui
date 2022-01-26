@@ -16,6 +16,7 @@ import { reads } from '@ember/object/computed';
 import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { inject as service } from '@ember/service';
+import { htmlSafe } from '@ember/string';
 
 export const defaultFilesystemFeatures = Object.freeze([
   'effDatasetMembership',
@@ -182,6 +183,14 @@ export default Component.extend(I18n, {
       }
 
       return null;
+    }
+  ),
+
+  recallingProgressStyle: computed(
+    'recallingPercent',
+    function recallingProgressStyle() {
+      const recallingPercent = this.get('recallingPercent');
+      return htmlSafe(`width: ${recallingPercent}%;`);
     }
   ),
 

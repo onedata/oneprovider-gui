@@ -20,12 +20,19 @@
           "file-status-tag"
           "file-status-tag-success"
           "file-status-recalling"
+          "file-status-progress"
           (if (eq displayed.recallingMembership.membership "ancestor")
             "file-status-tag-inherited"
           )
           (if effRecallingDisabled "file-status-tag-disabled")
         }}
       >
+        <div class="tag-background"></div>
+        <div
+          class="tag-progress progress-bar progress-bar-striped active"
+          style={{recallingProgressStyle}}
+        >
+        </div>
         <span class="tag-text">
           <span class="recalling-label">{{tt this "status.recalling"}}</span>
           {{#unless (is-empty recallingPercent)}}

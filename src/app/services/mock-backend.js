@@ -995,8 +995,8 @@ export default Service.extend({
     });
     const archiveRecallState = store.createRecord('archive-recall-state', {
       id: stateGri,
-      currentBytes: 0,
-      currentFiles: 0,
+      currentFiles: 50,
+      currentBytes: 500000,
       failedFiles: 0,
       lastError: 0,
     });
@@ -1014,6 +1014,7 @@ export default Service.extend({
   },
 
   async updateRecallState() {
+    const stepsCount = 1000;
     const archiveRecallInfo = this.get('entityRecords.archiveRecallInfo.0');
     const archiveRecallState = this.get('entityRecords.archiveRecallState.0');
     const {
@@ -1046,8 +1047,8 @@ export default Service.extend({
       infoModified = true;
     }
     if (currentBytes < targetBytes) {
-      const filesIncrement = Math.floor(targetFiles / 10);
-      const bytesIncrement = Math.floor(targetBytes / 10);
+      const filesIncrement = Math.floor(targetFiles / stepsCount);
+      const bytesIncrement = Math.floor(targetBytes / stepsCount);
       currentFiles = Math.min(targetFiles, currentFiles + filesIncrement);
       currentBytes = Math.min(targetBytes, currentBytes + bytesIncrement);
     }
