@@ -169,7 +169,7 @@ export default Component.extend(I18n, {
     'sharedFilesToRemoveCount',
     'sharesToRemoveCount',
     'canRemoveShares',
-    function sharesCountInfo() {
+    function removingSharesInfo() {
       const {
         sharedFilesToRemoveCount,
         sharesToRemoveCount,
