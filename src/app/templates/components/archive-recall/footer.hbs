@@ -1,4 +1,9 @@
-<div class="target-name-form form-group {{if validationError "has-error"}}">
+{{#if browserValidationError}}
+  <div class="archive-recall-body-error text-danger">
+    {{browserValidationError}}
+  </div>
+{{/if}}
+<div class="target-name-form form-group {{if nameValidationError "has-error"}}">
   <label class="target-name-label" for={{targetNameInputId}}>
     {{tt this "targetNameInputLabel" fileType=fileTypeText}}:
   </label>
@@ -14,9 +19,9 @@
     oninput={{action (action onTargetNameChange) value="target.value"}}
   >
 </div>
-{{#if validationError}}
+{{#if nameValidationError}}
   <div class="form-message text-right text-danger target-name-input-validation">
-    {{validationError}}
+    {{nameValidationError}}
   </div>
 {{/if}}
 <div class="submit-summary">

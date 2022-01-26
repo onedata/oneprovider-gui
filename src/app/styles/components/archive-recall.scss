@@ -65,5 +65,23 @@
     .target-path-item {
       @include font-semibold;
     }
+    .archive-recall-body-error {
+      position: relative;
+      top: -$modal-footer-vertical-padding;
+      right: 0;
+      padding-top: 0.25em;
+      margin-bottom: -0.25em;
+      color: $brand-danger;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: -$content-col-padding;
+        top: -1px;
+        height: 1px;
+        background: linear-gradient(90deg, rgba($brand-danger, 0) 0%, $brand-danger 20%, $brand-danger 94%, rgba($brand-danger, 0) 100%);
+      }
+    }
   }
 }

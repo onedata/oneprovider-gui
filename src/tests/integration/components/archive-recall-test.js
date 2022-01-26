@@ -164,7 +164,7 @@ describe('Integration | Component | archive recall (internal)', function () {
     );
   });
 
-  it('shows "already exists" validation message when selected directory contains file with the same name',
+  it('shows "already in use" validation message when selected directory contains file with the same name',
     async function () {
       prepareAlreadyExistEnv(this);
 
@@ -215,7 +215,7 @@ function stubDefaultCheckFileNameExists(testCase) {
 
 function prepareAlreadyExistEnv(testCase) {
   testCase.expectedMessage =
-    'File with specified name already exists in selected location';
+    'This filename is already in use';
   testCase.existingName = 'dir1';
   const dir1 = createFile({
     name: testCase.existingName,

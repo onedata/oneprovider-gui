@@ -101,7 +101,7 @@ describe('Integration | Component | archive recall modal', function () {
     expect($('.archive-recall-modal.in'), 'opened modal').to.exist;
     expect($('.archive-recall-modal.in .archive-recall-modal-header'), 'header').to.exist;
     expect($('.archive-recall-header .header-text').text())
-      .to.contain('Recall archive into a selected directory');
+      .to.contain('Recall archive');
     expect($('.modal-archive-subheader .file-name')).to.exist;
     expect($('.modal-archive-subheader .file-name').text()).to.contain('My archive name');
     expect(this.get('onHide')).to.have.not.been.called;

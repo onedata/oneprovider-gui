@@ -190,20 +190,13 @@ export default Component.extend(...mixins, {
     }
   )),
 
-  validationErrorProxy: promise.object(computed(
-    'targetRecallParent.effFile.recallingMembership',
+  nameValidationErrorProxy: promise.object(computed(
     'targetName',
     'targetFileExistsProxy',
-    async function validationErrorProxy() {
+    async function nameValidationErrorProxy() {
       const targetName = this.get('targetName');
       if (!targetName) {
         return this.t('targetNameValidation.empty');
-      }
-
-      const recallingMembership =
-        this.get('targetRecallParent.effFile.recallingMembership');
-      if (recallingMembership && recallingMembership !== 'none') {
-        return this.t('targetNameValidation.recalling');
       }
 
       if (targetName === '.' || targetName === '..') {
@@ -222,6 +215,25 @@ export default Component.extend(...mixins, {
       return null;
     }
   )),
+
+  browserValidationErrorProxy: promise.object(computed(
+    'targetRecallParent.effFile.recallingMembershipProxy',
+    async function browserValidationError() {
+      const recallingMembership =
+        await this.get('targetRecallParent.effFile.recallingMembershipProxy');
+      if (recallingMembership && recallingMembership !== 'none') {
+        return this.t('browserValidation.recalling');
+      }
+
+      return null;
+    }
+  )),
+
+  footerDisabled: or(
+    'disabled',
+    'browserValidationErrorProxy.isPending',
+    'browserValidationError'
+  ),
 
   //#endregion
 

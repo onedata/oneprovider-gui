@@ -82,30 +82,54 @@ export default Component.extend(I18n, {
   disabled: false,
 
   /**
+   * Proxy of error message displayed for name input.
    * @virtual optional
    * @type {PromiseObject<String>}
    */
-  validationErrorProxy: null,
+  nameValidationErrorProxy: null,
 
   /**
    * @type {ComputedProperty<String>}
    */
-  validationError: reads('validationErrorProxy.content'),
+  nameValidationError: reads('nameValidationErrorProxy.content'),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * Proxy of error message displayed for browser (which should be placed in body above).
+   * @virtual optional
+   * @type {PromiseObject<String>}
    */
-  effInputDisabled: bool(or('disabled', 'isSubmitting')),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  effSubmitDisabled: or('disabled', 'validationErrorProxy.isPending', 'validationError'),
+  browserValidationErrorProxy: null,
 
   /**
    * @type {ComputedProperty<String>}
    */
-  proceedTip: reads('validationError'),
+  browserValidationError: reads('browserValidationErrorProxy.content'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  effInputDisabled: bool(or(
+    'disabled',
+    'browserValidationErrorProxy.isPending',
+    'browserValidationError',
+    'isSubmitting',
+  )),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  effSubmitDisabled: or(
+    'disabled',
+    'nameValidationErrorProxy.isPending',
+    'nameValidationError',
+    'browserValidationErrorProxy.isPending',
+    'browserValidationError',
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  proceedTip: or('nameValidationError', 'browserValidationError'),
 
   /**
    * One of: file, dir.
