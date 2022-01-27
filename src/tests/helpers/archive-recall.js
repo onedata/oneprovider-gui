@@ -45,8 +45,27 @@ export async function createArchiveRecallData(testCase) {
     dataset,
   });
   const guid = createEntityId('file_guid');
+  const targetParent1 = store.createRecord('file', {
+    id: generateFileId('p1'),
+    type: 'dir',
+    parent: null,
+    name: 'parent1',
+  });
+  const targetParent2 = store.createRecord('file', {
+    id: generateFileId('p2'),
+    type: 'dir',
+    parent: targetParent1,
+    name: 'parent2',
+  });
+  const targetParent3 = store.createRecord('file', {
+    id: generateFileId('p3'),
+    type: 'dir',
+    parent: targetParent2,
+    name: 'parent3',
+  });
   const targetFile = store.createRecord('file', {
     id: generateFileId(guid),
+    parent: targetParent3,
     name: 'test_file',
   });
   const infoGri = gri({
@@ -84,6 +103,9 @@ export async function createArchiveRecallData(testCase) {
     datasetRootFile,
     dataset,
     archive,
+    targetParent1,
+    targetParent2,
+    targetParent3,
     targetFile,
     archiveRecallInfo,
     archiveRecallState,

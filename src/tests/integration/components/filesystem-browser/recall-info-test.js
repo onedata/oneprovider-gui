@@ -16,7 +16,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     integration: true,
   });
 
-  it('shows archive name, files recalled count and total files', async function () {
+  it('renders archive name, files recalled count and total files', async function () {
     createArchiveRecallData(this);
     const browsableArchiveName = await getBrowsableArchiveName(this);
     const targetFile = this.get('targetFile');
@@ -37,7 +37,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     expect(text).to.contain('200 B / 1 KiB');
   });
 
-  it('shows dataset name', async function () {
+  it('renders dataset name', async function () {
     createArchiveRecallData(this);
     const browsableDatasetName = await getBrowsableDatasetName(this);
     const targetFile = this.get('targetFile');
@@ -54,6 +54,21 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     const $row = this.$('.recall-info-row-dataset');
     expect(browsableDatasetName).to.be.not.empty;
     expect($row.text()).to.contain(browsableDatasetName);
+  });
+
+  it('renders path to recall root', async function () {
+    createArchiveRecallData(this);
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    const $value = this.$('.recall-info-row-target-path .property-value .file-path');
+    expect($value.text()).to.match(
+      /parent1\s*\/\s*parent2\s*\/\s*parent3\s*\/\s*test_file/
+    );
   });
 
   // FIXME: renders archive link
