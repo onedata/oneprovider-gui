@@ -1,3 +1,10 @@
+@mixin ignore-horizontal-content-padding() {
+  margin-left: -$content-col-padding;
+  padding-left: $content-col-padding;
+  margin-right: -$content-col-padding;
+  padding-right: $content-col-padding;
+}
+
 @media (max-width: $screen-xs-max) {
   .one-embedded-component.content-space-datasets {
     margin-left: 0;
@@ -19,6 +26,7 @@
   $-gutter-height: 10px;
   position: relative;
   height: 100%;
+  padding-bottom: 0;
 
   display: grid;
   grid-template-rows: 1fr $-gutter-height 1fr;
@@ -80,28 +88,28 @@
     z-index: $zindex-file-browser-head;
   }
 
-  .fb-table.special-dir-view {
-    position: absolute;
-    background-size: contain;
-    top: $fb-table-margin-top + 20px;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    height: auto;
-    .dir-box {
-      margin-top: -20px;
-    }
-  }
-
   .browser-scroll-container {
     flex-grow: 1;
   }
 
+  .split-browser-grid-element {
+    display: flex;
+    overflow-y: hidden;
+    @include ignore-horizontal-content-padding;
+
+    &.low-height {
+      .special-dir-view {
+        background: none;
+      }
+      .dir-box-image {
+        display: none;
+      }
+    }
+  }
+
   .split-browser-container {
-    margin-left: -$content-col-padding;
-    padding-left: $content-col-padding;
-    margin-right: -$content-col-padding;
-    padding-right: $content-col-padding;
+    flex-grow: 1;
+    @include ignore-horizontal-content-padding;;
 
     .ps__rail-x + .ps__rail-y {
       z-index: $zindex-file-browser-head + 1;
@@ -110,6 +118,7 @@
     .file-browser-head-container {
       @include before-bottom-shadow;
     }
+
     &.on-top {
       .file-browser-head-container {
         @include hide-before-shadow;
@@ -127,11 +136,10 @@
         position: absolute;
       }
     }
-    .empty-dir-image {
-      // @media (max-height: 10px) {
-        display: none;
-      // }
-    }
+  }
+
+  .fb-table-container {
+    @include fill-flex-using-column;
   }
 
   // stretching vertically specific for "secondary" browser on the bottom
@@ -142,11 +150,6 @@
       flex-direction: column;
       min-height: 100%;
     }
-    .fb-table-container {
-      display: flex;
-      flex-grow: 1;
-      flex-direction: column;
-    }
     .fb-table {
       flex-grow: 1;
       // there is no need for large bottom spacing in modal, because it should be compact
@@ -155,11 +158,6 @@
       }
       .refresh-spinner {
         position: absolute;
-      }
-    }
-    .empty-dir-image {
-      @media (max-height: 700px) {
-        display: none;
       }
     }
   }
@@ -172,7 +170,6 @@
 
   .archive-browser-container {
     display: flex;
-    margin-bottom: -$content-col-padding;
 
     .file-browser-head-container {
       position: sticky;
@@ -194,11 +191,6 @@
         margin-top: 0;
       }
     }
-
-    // @include before-top-shadow;
-    // &.on-top {
-    //   @include hide-before-shadow;
-    // }
   }
 
   .bottom-panel-content {

@@ -1,8 +1,6 @@
 {
-  "name": "oneprovider-gui", 
+  "name": "oneprovider-gui",
   "dependencies": {
-    "animate.css": "3.5.2",
-    "basictable": "1.0.6",
     "spin.js": "2.3.2"
   }
 }

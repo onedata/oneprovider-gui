@@ -14,7 +14,17 @@ import { reads } from '@ember/object/computed';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise, raw, bool, conditional, equal, and, notEqual } from 'ember-awesome-macros';
+import {
+  promise,
+  raw,
+  bool,
+  conditional,
+  equal,
+  and,
+  notEqual,
+  array,
+  collect,
+} from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import BrowsableDataset from 'oneprovider-gui/utils/browsable-dataset';
@@ -24,8 +34,6 @@ import ItemBrowserContainerBase from 'oneprovider-gui/mixins/item-browser-contai
 import { isEmpty } from '@ember/utils';
 import SplitGrid from 'npm:split-grid';
 import _ from 'lodash';
-import sleep from 'onedata-gui-common/utils/sleep';
-import { throttleTimeout } from 'onedata-gui-common/services/app-proxy';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
@@ -81,6 +89,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   archiveManager: service(),
   parentAppNavigation: service(),
   isMobile: service(),
+  appProxy: service(),
 
   /**
    * **Injected from parent frame.**
@@ -186,18 +195,52 @@ export default OneEmbeddedComponent.extend(...mixins, {
   _window: window,
 
   /**
+   * Set to true in `updateContainersClasses` if panel with datasets browser is lower
+   * than some breakpoint. Causes adding special styles for low-height panels.
+   * @type {Boolean}
+   */
+  datasetContainerLowHeight: false,
+
+  /**
+   * Set to true in `updateContainersClasses` if panel with archive browser is lower
+   * than some breakpoint. Causes adding special styles for low-height panels.
+   * @type {Boolean}
+   */
+  archiveContainerLowHeight: false,
+
+  ignoreCommonSelector: '#content-scroll, .modal.in',
+
+  /**
    * Ignore deselect selector for dataset browser.
    * See `component:file-browser#ignoreDeselectSelector` purpose.
    * @type {String}
    */
-  ignoreDatasetDeselectSelector: '#content-scroll, .archive-browser-container, .archive-browser-container *, .dataset-browser-container .ps__rail-y, .dataset-browser-container .ps__rail-y *',
+  ignoreDatasetDeselectSelector: array.join(
+    collect(
+      'ignoreCommonSelector',
+      raw('.archive-browser-container'),
+      raw('.archive-browser-container *'),
+      raw('.dataset-browser-container .ps__rail-y'),
+      raw('.dataset-browser-container .ps__rail-y *'),
+    ),
+    raw(',')
+  ),
 
   /**
    * Ignore deselect selector for archive browser.
    * See `component:file-browser#ignoreDeselectSelector` purpose.
    * @type {String}
    */
-  ignoreArchiveDeselectSelector: '#content-scroll, .dataset-browser-container, .dataset-browser-container *, .archive-browser-container .ps__rail-y, .archive-browser-container .ps__rail-y *',
+  ignoreArchiveDeselectSelector: array.join(
+    collect(
+      'ignoreCommonSelector',
+      raw('.dataset-browser-container'),
+      raw('.dataset-browser-container *'),
+      raw('.archive-browser-container .ps__rail-y'),
+      raw('.archive-browser-container .ps__rail-y *'),
+    ),
+    raw(',')
+  ),
 
   /**
    * Set on init.
@@ -471,6 +514,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
       onDragEnd: (...args) => this.onGutterDragEnd(...args),
     });
     this.set('splitGrid', splitGrid);
+    this.updateContainersClasses();
   },
 
   /**
@@ -503,12 +547,37 @@ export default OneEmbeddedComponent.extend(...mixins, {
       datasetBrowserApi,
       archiveBrowserApi,
     } = this.getProperties('datasetBrowserApi', 'archiveBrowserApi');
+    this.updateContainersClasses();
     if (datasetBrowserApi) {
       datasetBrowserApi.recomputeTableItems();
     }
     if (archiveBrowserApi) {
       archiveBrowserApi.recomputeTableItems();
     }
+  },
+
+  updateContainersClasses() {
+    const element = this.get('element');
+    if (!element) {
+      return;
+    }
+
+    const lowHeightBreakpoint = 300;
+    const datasetBrowserContainer =
+      element.querySelector('.dataset-browser-container');
+    const archiveBrowserContainer =
+      element.querySelector('.archive-browser-container');
+
+    this.set(
+      'datasetContainerLowHeight',
+      datasetBrowserContainer &&
+      datasetBrowserContainer.clientHeight <= lowHeightBreakpoint
+    );
+    this.set(
+      'archiveContainerLowHeight',
+      archiveBrowserContainer &&
+      archiveBrowserContainer.clientHeight <= lowHeightBreakpoint
+    );
   },
 
   getEmptyFetchChildrenResponse() {
@@ -782,8 +851,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
     const datasetId = dataset && get(dataset, 'entityId');
     if (datasetId) {
       this.callParent('updateDatasetId', null);
-      this.callParent('updateSelectedDatasets', [datasetId]);
+      await this.updateSelectedDatasetsInUrl([datasetId]);
     }
+  },
+
+  async updateSelectedDatasetsInUrl(selectedDatasets) {
+    this.callParent('updateSelectedDatasets', selectedDatasets);
+    await this.get('appProxy').waitForNextFlush();
   },
 
   actions: {
@@ -792,12 +866,16 @@ export default OneEmbeddedComponent.extend(...mixins, {
      */
     async updateDatasetId(itemId) {
       this.callParent('updateDatasetId', itemId);
+      await this.get('appProxy').waitForNextFlush();
     },
     async changeSelectedItems(selectedItems) {
       const {
         selectedItems: currentSelectedItems,
         browsableDataset,
-      } = this.getProperties('selectedItems', 'browsableDataset');
+        appProxy,
+      } = this.getProperties('selectedItems', 'browsableDataset', 'appProxy');
+      const isSingleSelected = selectedItems && selectedItems.length === 1;
+
       // clearing archive and dir clears secondary browser - it should be done only
       // if selected dataset is changed; in other circumstances it is probably initial
       // selection change (after jump) or some unnecessary url update
@@ -807,30 +885,37 @@ export default OneEmbeddedComponent.extend(...mixins, {
       ) {
         this.callParent('updateArchiveId', null);
         this.callParent('updateDirId', null);
-        // TODO: VFS-8737 try to make proper wait-for-shared-properties method
-        await sleep(throttleTimeout * 2);
+        if (isSingleSelected) {
+          // When changing to other specific dataset, archiveId and dirId should be
+          // cleared before dataset change to prevent injecting wrong ids set to
+          // dataset-archives-browser (eg. incompatible dir for currently opened dataset).
+          // Unfortunately it could cause showing archives list for a short period, but in
+          // current architecture there is no simple solution for this issue.
+          // We cannot change dataset in URL here because of blink-scroll animation
+          // prevention (see comment below).
+          await appProxy.waitForNextFlush();
+        }
       }
-      await this.changeSelectedItems(selectedItems);
 
-      // single selected dataset should be stored in URL - user can navigate with
-      // prev/next when selects single dataset for browsing;
-      // also a current "dir" could be selected, but should not be stored in URL
+      // Be prepared for injected selected items change which will be done async -
+      // it prevents blink animation and scrolling to selected dataset.
+      this.changeSelectedItemsImmediately(selectedItems);
+
+      // Single selected dataset should be stored in URL - user can navigate with
+      // prev/next when selects single dataset for browsing.
+      // Also a current dataset-dir could be selected, but should not be stored in URL.
       const isChangeStoredInUrl = selectedItems.length === 1 &&
         selectedItems[0] !== browsableDataset;
-      // only one method of updating component selectedItems to new value should be used,
-      // because they are both async and cause random error when used both
-      if (isChangeStoredInUrl) {
-        this.callParent('updateSelectedDatasets', selectedItems.mapBy('entityId'));
-      } else {
-        // clear selection in URL, because this selection should not be stored
-        this.callParent('updateSelectedDatasets', null);
-      }
+      const externalUpdate = isChangeStoredInUrl ? selectedItems.mapBy('entityId') : null;
+      await this.updateSelectedDatasetsInUrl(externalUpdate);
     },
-    updateArchiveId(archiveId) {
+    async updateArchiveId(archiveId) {
       this.callParent('updateArchiveId', archiveId);
+      await this.get('appProxy').waitForNextFlush();
     },
-    updateDirId(dirId) {
+    async updateDirId(dirId) {
       this.callParent('updateDirId', dirId);
+      await this.get('appProxy').waitForNextFlush();
     },
     containerScrollTop() {
       return this.get('containerScrollTop')(...arguments);
