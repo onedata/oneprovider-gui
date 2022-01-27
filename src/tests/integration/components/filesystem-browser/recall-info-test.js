@@ -3,13 +3,13 @@ import { describe, it } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
-import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 import {
   createArchiveRecallData,
   getBrowsableArchiveName,
   getBrowsableDatasetName,
 } from '../../../helpers/archive-recall';
+import { lookupService } from '../../../helpers/stub-service';
+import sinon from 'sinon';
 
 describe('Integration | Component | filesystem browser/recall info', function () {
   setupComponentTest('filesystem-browser/recall-info', {
@@ -71,11 +71,243 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     );
   });
 
-  // FIXME: renders archive link
+  it('renders number of failed files', async function () {
+    createArchiveRecallData(this);
+    this.set(
+      'archiveRecallInfo.startTimestamp',
+      Math.floor(Date.now() / 1000)
+    );
+    this.set(
+      'archiveRecallInfo.finishTimestamp',
+      Math.floor(Date.now() / 1000) + 10000
+    );
+    this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes')
+    );
+    this.set(
+      'archiveRecallState.currentFiles',
+      this.get('archiveRecallInfo.targetFiles')
+    );
+    this.set(
+      'archiveRecallState.filesFailed',
+      2
+    );
+    this.set(
+      'archiveRecallState.lastError', { id: 'posix', details: { errno: 'enospc' } }
+    );
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    const $value = this.$('.recall-info-row-files-failed .property-value');
+    expect($value.text()).to.contain('2');
+  });
+
+  it('renders formatted start time if provided', async function () {
+    createArchiveRecallData(this);
+    const timestamp = Math.floor(Date.parse('Thu Jan 27 2022 16:42:11') / 1000);
+    this.set('archiveRecallInfo.startTimestamp', timestamp);
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    const $value = this.$('.recall-info-row-started-at .property-value');
+    expect($value.text()).to.contain('27 Jan 2022 16:42:11');
+  });
+
+  it('renders formatted finish time if provided', async function () {
+    createArchiveRecallData(this);
+    const timestamp = Math.floor(Date.parse('Thu Jan 27 2022 16:42:11') / 1000);
+    this.set('archiveRecallInfo.finishTimestamp', timestamp);
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    const $value = this.$('.recall-info-row-finished-at .property-value');
+    expect($value.text()).to.contain('27 Jan 2022 16:42:11');
+  });
+
+  it('does not render finish time row if not finished', async function () {
+    createArchiveRecallData(this);
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    expect(this.$('.recall-info-row-finished-at')).to.not.exist;
+  });
+
+  it('has "recall scheduled" header if recall started', async function () {
+    createArchiveRecallData(this);
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    expect(this.$('.recall-status-header').text())
+      .to.contain('Archive recall scheduled');
+  });
+
+  it('has "recall in progress" with percentage completion header if recall started', async function () {
+    createArchiveRecallData(this);
+    this.set(
+      'archiveRecallInfo.startTimestamp',
+      Math.floor(Date.now() / 1000)
+    );
+    this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes') / 2
+    );
+    this.set(
+      'archiveRecallState.currentFiles',
+      this.get('archiveRecallInfo.targetFiles') / 2
+    );
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    expect(this.$('.recall-status-header').text())
+      .to.match(/Archive recall in progress\s*\(50%\)/);
+  });
+
+  it('has "recall finished successfully" header if recall finished without errors', async function () {
+    createArchiveRecallData(this);
+    this.set(
+      'archiveRecallInfo.startTimestamp',
+      Math.floor(Date.now() / 1000)
+    );
+    this.set(
+      'archiveRecallInfo.finishTimestamp',
+      Math.floor(Date.now() / 1000) + 10000
+    );
+    this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes')
+    );
+    this.set(
+      'archiveRecallState.currentFiles',
+      this.get('archiveRecallInfo.targetFiles')
+    );
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    expect(this.$('.recall-status-header').text())
+      .to.contain('Archive recall finished successfully');
+  });
+
+  it('has "recall finished with errors" header if recall finished without errors', async function () {
+    createArchiveRecallData(this);
+    this.set(
+      'archiveRecallInfo.startTimestamp',
+      Math.floor(Date.now() / 1000)
+    );
+    this.set(
+      'archiveRecallInfo.finishTimestamp',
+      Math.floor(Date.now() / 1000) + 10000
+    );
+    this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes')
+    );
+    this.set(
+      'archiveRecallState.currentFiles',
+      this.get('archiveRecallInfo.targetFiles')
+    );
+    this.set(
+      'archiveRecallState.filesFailed',
+      2
+    );
+    this.set(
+      'archiveRecallState.lastError', { id: 'posix', details: { errno: 'enospc' } }
+    );
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    expect(this.$('.recall-status-header').text())
+      .to.contain('Archive recall finished with errors');
+  });
+
+  it('has href to archive on archive name link', async function () {
+    createArchiveRecallData(this);
+    const correctUrl = 'https://example.com/correct';
+    const randomUrl = 'https://example.com/wrong';
+    const appProxy = lookupService(this, 'appProxy');
+    const callParent = sinon.stub(appProxy, 'callParent');
+    const archiveId = this.get('archive.entityId');
+    const datasetId = this.get('dataset.entityId');
+    callParent.returns(randomUrl);
+    callParent.withArgs(
+      'getDatasetsUrl',
+      sinon.match({
+        selectedArchives: [archiveId],
+        selectedDatasets: [datasetId],
+      })
+    ).returns(correctUrl);
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    const $archiveLink = this.$('.archive-link');
+    expect($archiveLink).to.have.attr('href', correctUrl);
+  });
+
+  it('has href to dataset on dataset name link', async function () {
+    createArchiveRecallData(this);
+    const correctUrl = 'https://example.com/correct';
+    const randomUrl = 'https://example.com/wrong';
+    const appProxy = lookupService(this, 'appProxy');
+    const callParent = sinon.stub(appProxy, 'callParent');
+    const datasetId = this.get('dataset.entityId');
+    callParent.returns(randomUrl);
+    callParent.withArgs(
+      'getDatasetsUrl',
+      sinon.match({
+        selectedDatasets: [datasetId],
+      })
+    ).returns(correctUrl);
+    const targetFile = this.get('targetFile');
+    this.setProperties({
+      file: targetFile,
+    });
+
+    await render(this);
+
+    const $datasetLink = this.$('.dataset-link');
+    expect($datasetLink).to.have.attr('href', correctUrl);
+  });
+
   // FIXME: renders archive id if archive cannot be resolved
-  // FIXME: renders dataset link
   // FIXME: renders dataset id if dataset cannot be resolved
   // FIXME: shows loading indicator until info and state is loaded, but does not appear on update
+  // FIXME: last error should be parsed and/or displayed in textarea
 });
 
 async function render(testCase) {

@@ -3,11 +3,12 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { promise } from 'ember-awesome-macros';
-import { allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
+import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
 
 export default Component.extend(I18n, {
   classNames: ['recall-info'],
@@ -16,6 +17,8 @@ export default Component.extend(I18n, {
   archiveManager: service(),
   datasetManager: service(),
   archiveRecallStateManager: service(),
+  parentAppNavigation: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -37,11 +40,31 @@ export default Component.extend(I18n, {
 
   //#endregion
 
+  /**
+   * Frame name, where Onezone link should be opened
+   * @type {String}
+   */
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
+
   initialRequiredDataProxy: promise.object(computed(
     function initialRequiredDataProxy() {
-      return allSettled([
-        this.get('archiveRecallInfoProxy'),
-        this.get('archiveRecallStateProxy'),
+      const {
+        archive,
+        dataset,
+        archiveRecallInfoProxy,
+        archiveRecallStateProxy,
+      } = this.getProperties(
+        'archive',
+        'dataset',
+        'archiveRecallInfoProxy',
+        'archiveRecallStateProxy',
+      );
+      // FIXME: support for failures
+      return allFulfilled([
+        archive,
+        dataset,
+        archiveRecallInfoProxy,
+        archiveRecallStateProxy,
       ]);
     }
   )),
@@ -102,6 +125,10 @@ export default Component.extend(I18n, {
 
   filesToRecall: reads('archiveRecallInfo.targetFiles'),
 
+  filesFailed: reads('archiveRecallState.filesFailed'),
+
+  lastError: reads('archiveRecallState.lastError'),
+
   bytesRecalled: reads('archiveRecallState.currentBytes'),
 
   bytesToRecall: reads('archiveRecallInfo.targetBytes'),
@@ -109,6 +136,103 @@ export default Component.extend(I18n, {
   bytesRecalledText: computedPipe('bytesRecalled', bytesToString),
 
   bytesToRecallText: computedPipe('bytesToRecall', bytesToString),
+
+  startedAt: reads('archiveRecallInfo.startTimestamp'),
+
+  finishedAt: reads('archiveRecallInfo.finishTimestamp'),
+
+  recallingPercent: computed(
+    'file.{recallingMembership,archiveRecallState.content.currentBytes,archiveRecallInfo.content.targetBytes}',
+    function recallingPercent() {
+      const file = this.get('file');
+      return recallingPercentageProgress(file);
+    }
+  ),
+
+  /**
+   * @type {'scheduled'|'pending'|'succeeded'|'failed'}
+   */
+  processStatus: computed(
+    'startedAt',
+    'finishedAt',
+    'filesFailed',
+    'lastError',
+    function processStatus() {
+      const {
+        startedAt,
+        finishedAt,
+        filesFailed,
+        lastError,
+      } = this.getProperties(
+        'startedAt',
+        'finishedAt',
+        'filesFailed',
+        'lastError',
+      );
+      if (!startedAt) {
+        return 'scheduled';
+      }
+      if (finishedAt) {
+        if (filesFailed || lastError) {
+          return 'failed';
+        } else {
+          return 'succeeded';
+        }
+      } else {
+        return 'pending';
+      }
+    }
+  ),
+
+  archiveUrlProxy: promise.object(computed(
+    'archiveProxy',
+    'datasetProxy',
+    async function archiveUrlProxy() {
+      const {
+        archiveProxy,
+        datasetProxy,
+        appProxy,
+      } = this.getProperties('archiveProxy', 'datasetProxy', 'appProxy');
+
+      const [archive, dataset] = await allFulfilled([archiveProxy, datasetProxy]);
+      const archiveId = get(archive, 'entityId');
+      const datasetId = get(dataset, 'entityId') || null;
+
+      if (!archiveId) {
+        return null;
+      }
+
+      return appProxy.callParent('getDatasetsUrl', {
+        selectedArchives: [archiveId],
+        selectedDatasets: datasetId ? [datasetId] : null,
+      });
+    }
+  )),
+
+  archiveUrl: reads('archiveUrlProxy.content'),
+
+  datasetUrlProxy: promise.object(computed(
+    'datasetProxy',
+    async function datasetUrlProxy() {
+      const {
+        datasetProxy,
+        appProxy,
+      } = this.getProperties('datasetProxy', 'appProxy');
+
+      const dataset = await datasetProxy;
+      const datasetId = get(dataset, 'entityId');
+
+      if (!datasetId) {
+        return null;
+      }
+
+      return appProxy.callParent('getDatasetsUrl', {
+        selectedDatasets: [datasetId],
+      });
+    }
+  )),
+
+  datasetUrl: reads('datasetUrlProxy.content'),
 
   init() {
     this._super(...arguments);

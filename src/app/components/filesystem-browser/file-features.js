@@ -17,6 +17,7 @@ import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { inject as service } from '@ember/service';
 import { htmlSafe } from '@ember/string';
+import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
 
 export const defaultFilesystemFeatures = Object.freeze([
   'effDatasetMembership',
@@ -169,20 +170,7 @@ export default Component.extend(I18n, {
     'item.{recallingMembership,archiveRecallState.content.currentBytes,archiveRecallInfo.content.targetBytes}',
     function recallingPercent() {
       const item = this.get('item');
-      const recallingMembership = item && get(item, 'recallingMembership');
-      if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
-        const archiveRecallState = get(item, 'archiveRecallState.content');
-        const archiveRecallInfo = get(item, 'archiveRecallInfo.content');
-        if (archiveRecallState && archiveRecallInfo) {
-          const currentBytes = get(archiveRecallState, 'currentBytes') || 0;
-          const targetBytes = get(archiveRecallInfo, 'targetBytes');
-          if (targetBytes) {
-            return Math.floor(currentBytes / targetBytes * 100);
-          }
-        }
-      }
-
-      return null;
+      return recallingPercentageProgress(item);
     }
   ),
 
