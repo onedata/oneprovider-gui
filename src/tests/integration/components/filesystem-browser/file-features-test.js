@@ -4,8 +4,9 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
-import { createArchiveRecallData } from '../../../helpers/archive-recall';
+import { createArchiveRecallData, getBrowsableArchiveName } from '../../../helpers/archive-recall';
 import wait from 'ember-test-helpers/wait';
+import $ from 'jquery';
 
 describe('Integration | Component | filesystem browser/file features', function () {
   setupComponentTest('filesystem-browser/file-features', {
@@ -242,6 +243,32 @@ describe('Integration | Component | filesystem browser/file features', function 
     });
   });
 
+  // NOTE: "directAndAncestor" not used with recalling feature
+  it('changes direct tags into direct-ancestor tags after inheritance tag click', async function () {
+    const item = {
+      effDatasetMembership: 'directAndAncestor',
+      effQosMembership: 'directAndAncestor',
+    };
+    this.set('item', item);
+
+    this.render(hbs `{{filesystem-browser/file-features
+      item=item
+      initiallyExpanded=false
+    }}`);
+    const $inheritanceTag = this.$('.file-status-inherited-collapsed');
+    expect($inheritanceTag).to.have.length(1);
+    await click($inheritanceTag[0]);
+
+    expect(this.$('.file-status-inherited-collapsed'), 'inheritance tag after click')
+      .to.not.exist;
+    expect(this.$('.dataset-file-status-tag-group .inherited-icon'), 'dataset inherited a. click')
+      .to.exist;
+    expect(this.$('.qos-file-status-tag-group .inherited-icon'), 'qos inherited a. click')
+      .to.exist;
+  });
+
+  //#region recalling tag
+
   it('displays percentage progress of archive recalling in recalling tag', async function () {
     createArchiveRecallData(this);
     const targetFile = this.get('targetFile');
@@ -268,27 +295,118 @@ describe('Integration | Component | filesystem browser/file features', function 
     expect(text).to.contain('50%');
   });
 
-  // NOTE: "directAndAncestor" not used with recalling feature
-  it('changes direct tags into direct-ancestor tags after inheritance tag click', async function () {
-    const item = {
-      effDatasetMembership: 'directAndAncestor',
-      effQosMembership: 'directAndAncestor',
-    };
-    this.set('item', item);
+  it('has percentage width style applied to progress element in recalling tag', async function () {
+    createArchiveRecallData(this);
+    const targetFile = this.get('targetFile');
+    this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes') / 2
+    );
+    const onInvokeItemAction = sinon.spy();
+    this.setProperties({
+      item: targetFile,
+      onInvokeItemAction,
+    });
 
     this.render(hbs `{{filesystem-browser/file-features
       item=item
       initiallyExpanded=false
+      onInvokeItemAction=onInvokeItemAction
     }}`);
-    const $inheritanceTag = this.$('.file-status-inherited-collapsed');
-    expect($inheritanceTag).to.have.length(1);
-    await click($inheritanceTag[0]);
+    await wait();
 
-    expect(this.$('.file-status-inherited-collapsed'), 'inheritance tag after click')
-      .to.not.exist;
-    expect(this.$('.dataset-file-status-tag-group .inherited-icon'), 'dataset inherited a. click')
-      .to.exist;
-    expect(this.$('.qos-file-status-tag-group .inherited-icon'), 'qos inherited a. click')
-      .to.exist;
+    const tagProgress = this.$('.file-status-recalling .tag-progress')[0];
+    expect(tagProgress.style.width).to.equal('50%');
   });
+
+  it('recalling popover is not rendered if recalling tag has not been clicked', async function () {
+    createArchiveRecallData(this);
+    const targetFile = this.get('targetFile');
+    this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes') / 2
+    );
+    const onInvokeItemAction = sinon.spy();
+    this.setProperties({
+      item: targetFile,
+      onInvokeItemAction,
+    });
+
+    this.render(hbs `{{filesystem-browser/file-features
+      item=item
+      initiallyExpanded=false
+      onInvokeItemAction=onInvokeItemAction
+    }}`);
+    await wait();
+
+    const $tagGroup = this.$('.recalling-file-status-tag-group');
+    expect($tagGroup).to.exist;
+
+    expect($('.webui-popover'), 'popover').to.not.exist;
+    expect($('.recalling-popover-content'), 'recalling-popover-content').to.not.exist;
+  });
+
+  it('allows to toggle recalling popover when clicking on tag and outside', async function () {
+    createArchiveRecallData(this);
+    const targetFile = this.get('targetFile');
+    this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes') / 2
+    );
+    const onInvokeItemAction = sinon.spy();
+    this.setProperties({
+      item: targetFile,
+      onInvokeItemAction,
+    });
+
+    this.render(hbs `{{filesystem-browser/file-features
+      item=item
+      initiallyExpanded=false
+      onInvokeItemAction=onInvokeItemAction
+    }}`);
+    await wait();
+
+    const $tagGroup = this.$('.recalling-file-status-tag-group');
+    expect($tagGroup).to.exist;
+    await click($tagGroup[0]);
+
+    expect($('.webui-popover'), 'popover').to.exist.and.have.class('in');
+    expect($('.recalling-popover-content')).to.be.visible;
+
+    await click(this.$()[0]);
+    expect($('.webui-popover'), 'popover after outside click').to.not.have.class('in');
+  });
+
+  it('shows popover for recalling tag with archive name, files recalled count and total files', async function () {
+    createArchiveRecallData(this);
+    const browsableArchiveName = await getBrowsableArchiveName(this);
+    const targetFile = this.get('targetFile');
+    this.set('archiveRecallInfo.targetFiles', 100);
+    this.set('archiveRecallState.currentFiles', 20);
+    this.set('archiveRecallInfo.targetBytes', 1024);
+    this.set('archiveRecallState.currentBytes', 200);
+    const onInvokeItemAction = sinon.spy();
+    this.setProperties({
+      item: targetFile,
+      onInvokeItemAction,
+    });
+
+    this.render(hbs `{{filesystem-browser/file-features
+      item=item
+      initiallyExpanded=false
+      onInvokeItemAction=onInvokeItemAction
+      recallingPopoverOpened=true
+    }}`);
+    await wait();
+
+    const $tagGroup = this.$('.recalling-file-status-tag-group');
+    expect($tagGroup).to.exist;
+    const $content = $('.recalling-popover-content');
+    expect($content).to.be.visible;
+    expect($content.text()).to.contain(browsableArchiveName);
+    expect($content.text()).to.contain('20 / 100');
+    expect($content.text()).to.contain('200 B / 1 KiB');
+  });
+
+  //#endregion
 });

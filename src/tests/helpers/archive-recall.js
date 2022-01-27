@@ -9,8 +9,41 @@ import { get, setProperties } from '@ember/object';
 
 export async function createArchiveRecallData(testCase) {
   const store = lookupService(testCase, 'store');
-  const archive = store.createRecord('archive', {});
-  const dataset = store.createRecord('dataset', {});
+  const targetFiles = 100;
+  const targetBytes = 10000;
+  const spaceId = 's123';
+  const datasetRootFile = store.createRecord('file', {
+    index: 'dummy_dataset_root',
+    name: 'dummy_dataset_root',
+    type: 'dir',
+  });
+  const dataset = store.createRecord('dataset', {
+    index: 'd123',
+    spaceId,
+    state: 'attached',
+    rootFile: datasetRootFile,
+    rootFilePath: '/one/two/dummy_dataset_root',
+  });
+  const archive = store.createRecord('archive', {
+    index: '123',
+    state: 'preserved',
+    creationTime: Date.now() / 1000,
+    config: {
+      createNestedArchives: false,
+      incremental: {
+        enabled: false,
+      },
+      layout: 'plain',
+      includeDip: false,
+    },
+    description: 'foobarchive',
+    stats: {
+      filesArchived: targetFiles,
+      bytesArchived: targetBytes,
+      failedFiles: 0,
+    },
+    dataset,
+  });
   const guid = createEntityId('file_guid');
   const targetFile = store.createRecord('file', {
     id: generateFileId(guid),
@@ -30,8 +63,8 @@ export async function createArchiveRecallData(testCase) {
     id: infoGri,
     sourceArchive: archive,
     sourceDataset: dataset,
-    targetFiles: 100,
-    targetBytes: 10000,
+    targetFiles,
+    targetBytes,
     startTimestamp: null,
     finishTimestamp: null,
   });
@@ -48,11 +81,26 @@ export async function createArchiveRecallData(testCase) {
     archiveRecallState,
   });
   const records = testCase.setProperties({
-    archive,
+    datasetRootFile,
     dataset,
+    archive,
     targetFile,
     archiveRecallInfo,
     archiveRecallState,
   });
   await allFulfilled(Object.values(records).invoke('save'));
+}
+
+export async function getBrowsableArchiveName(testCase) {
+  const archiveManager = lookupService(testCase, 'archive-manager');
+  const browsableArchive =
+    await archiveManager.getBrowsableArchive(testCase.get('archive'));
+  return get(browsableArchive, 'name');
+}
+
+export async function getBrowsableDatasetName(testCase) {
+  const datasetManager = lookupService(testCase, 'dataset-manager');
+  const browsableDataset =
+    await datasetManager.getBrowsableDataset(testCase.get('dataset'));
+  return get(browsableDataset, 'name');
 }

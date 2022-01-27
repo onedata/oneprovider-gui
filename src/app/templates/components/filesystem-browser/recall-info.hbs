@@ -1,0 +1,41 @@
+<table class="table table-info table-info-large table-info-collapsible">
+  <tbody>
+    <tr class="recall-info-row-archive">
+      <td class="property-name">
+        {{tt this "archive"}}
+      </td>
+      <td class="property-value">
+        <a>
+          {{archiveName}}
+        </a>
+      </td>
+    </tr>
+    <tr class="recall-info-row-dataset">
+      <td class="property-name">
+        {{tt this "dataset"}}
+      </td>
+      <td class="property-value">
+        <a>
+          {{datasetName}}
+        </a>
+      </td>
+    </tr>
+    <tr class="recall-info-row-files">
+      <td class="property-name">
+        {{tt this "filesRecalled"}}
+      </td>
+      <td class="property-value">
+        {{filesRecalled}} / {{filesToRecall}}
+      </td>
+    </tr>
+    <tr class="recall-info-row-bytes">
+      <td class="property-name">
+        {{tt this "dataRecalled"}}
+      </td>
+      <td class="property-value">
+        {{bytesRecalledText}} / {{bytesToRecallText}}
+      </td>
+    </tr>
+  </tbody>
+</table>
+{{yield}}

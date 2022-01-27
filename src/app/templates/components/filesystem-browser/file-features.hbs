@@ -1,3 +1,7 @@
+{{#if isInModal}}
+  <span>FIXME: is in modal</span>
+{{/if}}
+
 {{#file-browser/item-features-container
   item=item
   features=features
@@ -14,6 +18,7 @@
       }}
       onmouseover={{action "changeTagHover" "recalling" true}}
       onmouseout={{action "changeTagHover" "recalling" false}}
+      onclick={{unless effRecallingDisabled (action "recallingTagClicked")}}
     >
       <div
         class={{concat-classes
@@ -21,6 +26,7 @@
           "file-status-tag-success"
           "file-status-recalling"
           "file-status-progress"
+          "recalling-popover-trigger"
           (if (eq displayed.recallingMembership.membership "ancestor")
             "file-status-tag-inherited"
           )
@@ -44,6 +50,28 @@
         {{/if}}
       </div>
     </div>
+    {{#render-later triggerRender=recallingPopoverOpened}}
+      {{#one-webui-popover
+        popoverStyle=(concat-classes
+          "recalling"
+          (if isInModal "over-modals")
+        )
+        popoverTrigger="manual"
+        triggerSelector=recallingPopoverTriggerSelector
+        open=recallingPopoverOpened
+        onToggle=(action (mut recallingPopoverOpened))
+      }}
+        {{#click-outside
+          action=(action (mut recallingPopoverOpened) false)
+          except-selector=recallingPopoverTriggerSelector
+        }}
+          {{filesystem-browser/recall-info
+            class="recalling-popover-content"
+            file=item
+          }}
+        {{/click-outside}}
+      {{/one-webui-popover}}
+    {{/render-later}}
   {{/if}}
   {{#if displayed.effDatasetMembership.isShown}}
     <div

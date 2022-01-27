@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { or, not } from 'ember-awesome-macros';
+import { or, not, tag } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
@@ -194,6 +194,18 @@ export default Component.extend(I18n, {
     }
   ),
 
+  isInModal: computed('element', function isInModal() {
+    /** @type {JQuery} */
+    const $element = this.$();
+    if (!$element) {
+      return;
+    }
+
+    return $element.parent('.modal').length;
+  }),
+
+  recallingPopoverTriggerSelector: tag `#${'elementId'} .recalling-popover-trigger`,
+
   recallingMembershipObserver: observer(
     'item.recallingMembership',
     function recallingMembershipObserver() {
@@ -219,7 +231,7 @@ export default Component.extend(I18n, {
     }
   ),
 
-  tagClicked(actionName) {
+  invokeItemAction(actionName) {
     const {
       onInvokeItemAction,
       item,
@@ -249,12 +261,24 @@ export default Component.extend(I18n, {
   actions: {
     datasetTagClicked() {
       if (!this.get('effDatasetDisabled')) {
-        this.tagClicked('datasets');
+        this.invokeItemAction('datasets');
       }
     },
     qosTagClicked() {
       if (!this.get('effQosDisabled')) {
-        this.tagClicked('qos');
+        this.invokeItemAction('qos');
+      }
+    },
+    recallingTagClicked() {
+      const {
+        effRecallingDisabled,
+        recallingPopoverOpened,
+      } = this.getProperties(
+        'effRecallingDisabled',
+        'recallingPopoverOpened',
+      );
+      if (!effRecallingDisabled) {
+        this.set('recallingPopoverOpened', !recallingPopoverOpened);
       }
     },
     changeTagHover(tag, hovered) {
