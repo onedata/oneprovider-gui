@@ -79,12 +79,14 @@
                 {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
                   {{tt this "removeQuestion.cancel"}}
                 {{/bs-button}}
-                {{#one-spin-button
-                  class="btn btn-sm btn-danger"
-                  action=ospm.submit
+                {{#one-button
+                  type="danger"
+                  buttonType="submit"
+                  size="sm"
+                  onClick=ospm.submit
                 }}
                   {{one-icon icon="remove"}} <span>{{tt this "removeQuestion.remove"}}</span>
-                {{/one-spin-button}}
+                {{/one-button}}
               </div>
             {{/one-switchable-popover-modal}}
           {{/if}}

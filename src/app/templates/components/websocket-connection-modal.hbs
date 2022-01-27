@@ -11,11 +11,12 @@
     {{tt this "content"}}
   {{/modal.body}}
   {{#modal.footer}}
-    {{#one-spin-button
-      action=(action "reload")
-      class="btn btn-primary"
+    {{#one-button
+      type="primary"
+      buttonType="submit"
+      onClick=(action "reload")
     }}
       {{tt this "reload"}}
-    {{/one-spin-button}}
+    {{/one-button}}
   {{/modal.footer}}
 {{/bs-modal}}
