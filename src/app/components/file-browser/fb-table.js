@@ -19,7 +19,7 @@ import { inject as service } from '@ember/service';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe, camelize } from '@ember/string';
-import { scheduleOnce } from '@ember/runloop';
+import { schedule, next, later, run } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
 import { next, later } from '@ember/runloop';
@@ -404,7 +404,7 @@ export default Component.extend(I18n, {
       `component:file-browser/fb-table#adjustScrollOnFirstRowChange: adjusting scroll by ${topDiff}`
     );
     this.set('ignoreNextScroll', true);
-    scheduleOnce('afterRender', this, () => {
+    schedule('afterRender', this, () => {
       window.requestAnimationFrame(() => {
         safeExec(this, () => {
           this.get('containerScrollTop')(topDiff, true);
@@ -487,7 +487,7 @@ export default Component.extend(I18n, {
         this.set('renderRefreshSpinner', true);
         // wait for refresh spinner to render because it needs to transition
         return new Promise((resolve, reject) => {
-          scheduleOnce('afterRender', () => {
+          schedule('afterRender', () => {
             safeExec(this, 'set', 'refreshStarted', true);
             const animationPromise = new Promise((resolve) => {
               element.addEventListener(
@@ -583,12 +583,14 @@ export default Component.extend(I18n, {
    */
   sourceArrayLengthObserver: observer(
     'filesArray.sourceArray.length',
-    function sourceArrayLength() {
-      scheduleOnce('afterRender', () => {
-        const listWatcher = this.get('listWatcher');
-        if (listWatcher) {
-          listWatcher.scrollHandler();
-        }
+    function sourceArrayLengthObserver() {
+      run(() => {
+        schedule('afterRender', () => {
+          const listWatcher = this.get('listWatcher');
+          if (listWatcher) {
+            listWatcher.scrollHandler();
+          }
+        });
       });
     }
   ),
@@ -743,7 +745,7 @@ export default Component.extend(I18n, {
       this.set('ignoreNextScroll', false);
       row.scrollIntoView({ block: 'center' });
       if (animate) {
-        scheduleOnce('afterRender', () => {
+        schedule('afterRender', () => {
           this.highlightAnimateRows([rowId]);
         });
       }
@@ -862,38 +864,41 @@ export default Component.extend(I18n, {
           ));
         }
 
-        scheduleOnce('afterRender', () => {
-          if (this.get('isDestroyed')) {
-            return;
-          }
-          const $dataRows = this.$('.data-row');
-          // a strange bug - despite of checking if component is destroyed and scheduling
-          // afterRender sometimes this.$() returns null or undefined
-          if (!$dataRows) {
-            return;
-          }
-
-          const anyRowVisible = $dataRows.toArray()
-            .some(row => viewTester.isInView(row));
-
-          if (!anyRowVisible) {
-            const fullLengthAfterReload = get(sourceArray, 'length');
-            setProperties(filesArray, {
-              startIndex: Math.max(
-                0,
-                fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
-              ),
-              endIndex: fullLengthAfterReload || 50,
-            });
-            next(() => {
-              const firstRenderedRow = document.querySelector('.data-row[data-row-id]');
-              if (firstRenderedRow) {
-                firstRenderedRow.scrollIntoView();
-              } else {
-                containerScrollTop(0);
-              }
-            });
-          }
+        run(() => {
+          schedule('afterRender', () => {
+            if (this.get('isDestroyed')) {
+              return;
+            }
+            
+            const $dataRows = this.$('.data-row');
+            // a strange bug - despite of checking if component is destroyed and scheduling
+            // afterRender sometimes this.$() returns null or undefined
+            if (!$dataRows) {
+              return;
+            }
+  
+            const anyRowVisible = $dataRows.toArray()
+              .some(row => viewTester.isInView(row));
+  
+            if (!anyRowVisible) {
+              const fullLengthAfterReload = get(sourceArray, 'length');
+              setProperties(filesArray, {
+                startIndex: Math.max(
+                  0,
+                  fullLengthAfterReload - Math.max(3, visibleLengthBeforeReload - 10)
+                ),
+                endIndex: fullLengthAfterReload || 50,
+              });
+              next(() => {
+                const firstRenderedRow = document.querySelector('.data-row[data-row-id]');
+                if (firstRenderedRow) {
+                  firstRenderedRow.scrollIntoView();
+                } else {
+                  containerScrollTop(0);
+                }
+              });
+            }
+          });
         });
       });
 
@@ -1184,7 +1189,7 @@ export default Component.extend(I18n, {
       });
       // opening popover in after rendering trigger position change prevents from bad
       // placement
-      scheduleOnce('afterRender', () => {
+      schedule('afterRender', () => {
         // cause popover refresh
         if (this.get('fileActionsOpen')) {
           this.set('contextMenuRepositionTime', new Date().getTime());

@@ -488,144 +488,144 @@ describe('Integration | Component | file browser (main component)', function () 
         this.set('item1.type', 'file');
       });
 
-      context('with space view privileges', function () {
-        beforeEach(function () {
-          this.set('spacePrivileges', { view: true });
-        });
+      // context('with space view privileges', function () {
+      //   beforeEach(function () {
+      //     this.set('spacePrivileges', { view: true });
+      //   });
 
-        ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosMembership => {
-          it(`displays functional qos tag in table header if current dir has "${effQosMembership}" qos`,
-            async function (done) {
-              this.set('dir.effQosMembership', effQosMembership);
-              this.set('spacePrivileges', { view: true, viewQos: true });
-              const openQos = sinon.spy();
-              this.set('openQos', openQos);
+      //   ['ancestor', 'direct', 'directAndAncestor'].forEach(effQosMembership => {
+      //     it(`displays functional qos tag in table header if current dir has "${effQosMembership}" qos`,
+      //       async function (done) {
+      //         this.set('dir.effQosMembership', effQosMembership);
+      //         this.set('spacePrivileges', { view: true, viewQos: true });
+      //         const openQos = sinon.spy();
+      //         this.set('openQos', openQos);
 
-              await render(this);
-              expect(openQos).to.have.not.been.called;
+      //         await render(this);
+      //         expect(openQos).to.have.not.been.called;
 
-              const $headStatusBar = this.$('.filesystem-table-head-status-bar');
-              const $qosTagGroup = $headStatusBar.find('.qos-file-status-tag-group');
-              expect($headStatusBar, 'head status bar').to.have.length(1);
-              expect($qosTagGroup, 'qos tag').to.have.length(1);
-              expect($qosTagGroup.text()).to.contain('QoS');
-              if (['ancestor', 'directAndAncestor'].includes(effQosMembership)) {
-                const $inheritanceIcon = $qosTagGroup.find('.oneicon-inheritance');
-                expect($inheritanceIcon, 'inheritance icon').to.have.length(1);
-              }
-              await click($qosTagGroup.find('.file-status-qos')[0]);
-              expect(openQos).to.have.been.calledOnce;
-              expect(openQos).to.have.been.calledWith([this.get('dir')]);
-              done();
-            }
-          );
-        });
+      //         const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+      //         const $qosTagGroup = $headStatusBar.find('.qos-file-status-tag-group');
+      //         expect($headStatusBar, 'head status bar').to.have.length(1);
+      //         expect($qosTagGroup, 'qos tag').to.have.length(1);
+      //         expect($qosTagGroup.text()).to.contain('QoS');
+      //         if (['ancestor', 'directAndAncestor'].includes(effQosMembership)) {
+      //           const $inheritanceIcon = $qosTagGroup.find('.oneicon-inheritance');
+      //           expect($inheritanceIcon, 'inheritance icon').to.have.length(1);
+      //         }
+      //         await click($qosTagGroup.find('.file-status-qos')[0]);
+      //         expect(openQos).to.have.been.calledOnce;
+      //         expect(openQos).to.have.been.calledWith([this.get('dir')]);
+      //         done();
+      //       }
+      //     );
+      //   });
 
-        it('does not display qos tag in table header if current dir has none qos membership',
-          async function (done) {
-            this.set('dir.effQosMembership', 'none');
+      //   // it('does not display qos tag in table header if current dir has none qos membership',
+      //   //   async function (done) {
+      //   //     this.set('dir.effQosMembership', 'none');
 
-            await render(this);
+      //   //     await render(this);
 
-            const $headStatusBar = this.$('.filesystem-table-head-status-bar');
-            const $qosTag = $headStatusBar.find('.file-status-qos');
-            expect($headStatusBar, 'head status bar').to.have.length(1);
-            expect($qosTag, 'qos tag').to.not.exist;
-            done();
-          }
-        );
+      //   //     const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+      //   //     const $qosTag = $headStatusBar.find('.file-status-qos');
+      //   //     expect($headStatusBar, 'head status bar').to.have.length(1);
+      //   //     expect($qosTag, 'qos tag').to.not.exist;
+      //   //     done();
+      //   //   }
+      //   // );
 
-        it('displays functional dataset tag in table header if current dir has direct dataset',
-          async function (done) {
-            this.set('dir.effDatasetMembership', 'direct');
-            const openDatasets = sinon.spy();
-            this.set('openDatasets', openDatasets);
+      //   it('displays functional dataset tag in table header if current dir has direct dataset',
+      //     async function (done) {
+      //       this.set('dir.effDatasetMembership', 'direct');
+      //       const openDatasets = sinon.spy();
+      //       this.set('openDatasets', openDatasets);
 
-            await render(this);
-            expect(openDatasets).to.have.not.been.called;
+      //       await render(this);
+      //       expect(openDatasets).to.have.not.been.called;
 
-            const $headStatusBar = this.$('.filesystem-table-head-status-bar');
-            const $datasetTag = $headStatusBar.find('.file-status-dataset');
-            expect($headStatusBar, 'head status bar').to.have.length(1);
-            expect($datasetTag, 'dataset tag').to.have.length(1);
-            expect($datasetTag.text()).to.contain('Dataset');
-            await click($datasetTag[0]);
-            expect(openDatasets).to.have.been.calledOnce;
-            done();
-          }
-        );
+      //       const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+      //       const $datasetTag = $headStatusBar.find('.file-status-dataset');
+      //       expect($headStatusBar, 'head status bar').to.have.length(1);
+      //       expect($datasetTag, 'dataset tag').to.have.length(1);
+      //       expect($datasetTag.text()).to.contain('Dataset');
+      //       await click($datasetTag[0]);
+      //       expect(openDatasets).to.have.been.calledOnce;
+      //       done();
+      //     }
+      //   );
 
-        it('does not display functional dataset tag in table header if current dir has "none" dataset membership',
-          async function (done) {
-            this.set('dir.effDatasetMembership', 'none');
-            const openDatasets = sinon.spy();
-            this.set('openDatasets', openDatasets);
+      //   it('does not display functional dataset tag in table header if current dir has "none" dataset membership',
+      //     async function (done) {
+      //       this.set('dir.effDatasetMembership', 'none');
+      //       const openDatasets = sinon.spy();
+      //       this.set('openDatasets', openDatasets);
 
-            await render(this);
-            expect(openDatasets).to.have.not.been.called;
+      //       await render(this);
+      //       expect(openDatasets).to.have.not.been.called;
 
-            const $headStatusBar = this.$('.filesystem-table-head-status-bar');
-            const $datasetTag = $headStatusBar.find('.file-status-dataset');
-            expect($headStatusBar, 'head status bar').to.have.length(1);
-            expect($datasetTag, 'dataset tag').to.not.exist;
-            done();
-          }
-        );
+      //       const $headStatusBar = this.$('.filesystem-table-head-status-bar');
+      //       const $datasetTag = $headStatusBar.find('.file-status-dataset');
+      //       expect($headStatusBar, 'head status bar').to.have.length(1);
+      //       expect($datasetTag, 'dataset tag').to.not.exist;
+      //       done();
+      //     }
+      //   );
 
-        it('has enabled datasets item in context menu', async function (done) {
-          await render(this);
-          const $menu = await openFileContextMenu({ entityId: 'i1' });
-          expect(
-            $menu.find('li:not(.disabled) .file-action-datasets'),
-            'non-disabled datasets action'
-          ).to.exist;
+      //   it('has enabled datasets item in context menu', async function (done) {
+      //     await render(this);
+      //     const $menu = await openFileContextMenu({ entityId: 'i1' });
+      //     expect(
+      //       $menu.find('li:not(.disabled) .file-action-datasets'),
+      //       'non-disabled datasets action'
+      //     ).to.exist;
 
-          done();
-        });
+      //     done();
+      //   });
 
-        testOpenDatasetsModal('dataset tag is clicked', async function () {
-          const $row = getFileRow({ entityId: 'i1' });
-          const $datasetTag = $row.find('.file-status-dataset');
-          expect($datasetTag, 'dataset tag').to.have.length(1);
-          await click($datasetTag[0]);
-        });
+      //   testOpenDatasetsModal('dataset tag is clicked', async function () {
+      //     const $row = getFileRow({ entityId: 'i1' });
+      //     const $datasetTag = $row.find('.file-status-dataset');
+      //     expect($datasetTag, 'dataset tag').to.have.length(1);
+      //     await click($datasetTag[0]);
+      //   });
 
-        testOpenDatasetsModal('dataset context menu item is clicked', async function () {
-          await chooseFileContextMenuAction({ entityId: 'i1' }, 'datasets');
-        });
+      //   testOpenDatasetsModal('dataset context menu item is clicked', async function () {
+      //     await chooseFileContextMenuAction({ entityId: 'i1' }, 'datasets');
+      //   });
 
-        testDownloadFromContextMenu();
-        testDownloadUsingDoubleClick();
-      });
+      //   testDownloadFromContextMenu();
+      //   testDownloadUsingDoubleClick();
+      // });
 
-      context('without space view privileges', function () {
-        beforeEach(function () {
-          this.set('spacePrivileges', { view: false });
-        });
+      // context('without space view privileges', function () {
+      //   beforeEach(function () {
+      //     this.set('spacePrivileges', { view: false });
+      //   });
 
-        it('has disabled datasets item in context menu', async function (done) {
-          await render(this);
-          const $menu = await openFileContextMenu({ entityId: 'i1' });
-          expect($menu.find('li.disabled .file-action-datasets')).to.exist;
+      //   it('has disabled datasets item in context menu', async function (done) {
+      //     await render(this);
+      //     const $menu = await openFileContextMenu({ entityId: 'i1' });
+      //     expect($menu.find('li.disabled .file-action-datasets')).to.exist;
 
-          done();
-        });
-      });
+      //     done();
+      //   });
+      // });
     });
 
-    context('when the only item is a directory', function () {
-      beforeEach(function () {
-        this.set('item1.type', 'dir');
-      });
+    // context('when the only item is a directory', function () {
+    //   beforeEach(function () {
+    //     this.set('item1.type', 'dir');
+    //   });
 
-      context('with space view privileges', function () {
-        beforeEach(function () {
-          this.set('spacePrivileges', { view: true });
-        });
+    //   context('with space view privileges', function () {
+    //     beforeEach(function () {
+    //       this.set('spacePrivileges', { view: true });
+    //     });
 
-        testDownloadFromContextMenu();
-      });
-    });
+    //     testDownloadFromContextMenu();
+    //   });
+    // });
   });
 });
 

@@ -23,6 +23,6 @@ export default OnedataConnection.extend({
       xrootd: generateXrootdApiTemplates(),
     }),
     openfaasAvailable: true,
-    bagitUploaderWorkflowSchemaId: 'bagitUploaderId',
+    bagitUploaderWorkflowSchemaId: null,
   }),
 });
