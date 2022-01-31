@@ -3,7 +3,7 @@ export default {
   dataset: 'Dataset',
   filesRecalled: 'Files recalled',
   dataRecalled: 'Data recalled',
-  targetPath: 'Recall root',
+  targetPath: 'Recall destination',
   startedAt: 'Started at',
   finishedAt: 'Finished at',
   filesFailed: 'Files failed',

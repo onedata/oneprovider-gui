@@ -14,6 +14,7 @@ export default Component.extend(I18n, {
   classNames: ['recall-info'],
 
   i18n: service(),
+  fileManager: service(),
   archiveManager: service(),
   datasetManager: service(),
   archiveRecallStateManager: service(),
@@ -49,20 +50,23 @@ export default Component.extend(I18n, {
   initialRequiredDataProxy: promise.object(computed(
     function initialRequiredDataProxy() {
       const {
-        archive,
-        dataset,
+        archiveProxy,
+        datasetProxy,
+        recallRootFileProxy,
         archiveRecallInfoProxy,
         archiveRecallStateProxy,
       } = this.getProperties(
-        'archive',
-        'dataset',
+        'archiveProxy',
+        'datasetProxy',
+        'recallRootFileProxy',
         'archiveRecallInfoProxy',
         'archiveRecallStateProxy',
       );
       // FIXME: support for failures
       return allFulfilled([
-        archive,
-        dataset,
+        archiveProxy,
+        datasetProxy,
+        recallRootFileProxy,
         archiveRecallInfoProxy,
         archiveRecallStateProxy,
       ]);
@@ -109,6 +113,22 @@ export default Component.extend(I18n, {
     }
   )),
 
+  recallRootFileProxy: promise.object(computed(
+    'file.recallRootId',
+    function recallRootFileProxy() {
+      const {
+        file,
+        fileManager,
+      } = this.getProperties(
+        'fileManager',
+        'file',
+      );
+      return fileManager.getFileById(get(file, 'recallRootId'));
+    }
+  )),
+
+  recallRootFile: reads('recallRootFileProxy.content'),
+
   archiveRecallInfo: computedLastProxyContent('archiveRecallInfoProxy'),
 
   archiveRecallState: computedLastProxyContent('archiveRecallStateProxy'),
@@ -137,9 +157,15 @@ export default Component.extend(I18n, {
 
   bytesToRecallText: computedPipe('bytesToRecall', bytesToString),
 
-  startedAt: reads('archiveRecallInfo.startTimestamp'),
+  startedAt: computedPipe(
+    'archiveRecallInfo.startTimestamp',
+    (millis) => millis && Math.floor(millis / 1000)
+  ),
 
-  finishedAt: reads('archiveRecallInfo.finishTimestamp'),
+  finishedAt: computedPipe(
+    'archiveRecallInfo.finishTimestamp',
+    (millis) => millis && Math.floor(millis / 1000)
+  ),
 
   recallingPercent: computed(
     'file.{recallingMembership,archiveRecallState.content.currentBytes,archiveRecallInfo.content.targetBytes}',

@@ -75,11 +75,11 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     createArchiveRecallData(this);
     this.set(
       'archiveRecallInfo.startTimestamp',
-      Math.floor(Date.now() / 1000)
+      Date.now()
     );
     this.set(
       'archiveRecallInfo.finishTimestamp',
-      Math.floor(Date.now() / 1000) + 10000
+      Date.now() + 10000
     );
     this.set(
       'archiveRecallState.currentBytes',
@@ -109,7 +109,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
   it('renders formatted start time if provided', async function () {
     createArchiveRecallData(this);
-    const timestamp = Math.floor(Date.parse('Thu Jan 27 2022 16:42:11') / 1000);
+    const timestamp = Date.parse('Thu Jan 27 2022 16:42:11');
     this.set('archiveRecallInfo.startTimestamp', timestamp);
     const targetFile = this.get('targetFile');
     this.setProperties({
@@ -124,7 +124,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
   it('renders formatted finish time if provided', async function () {
     createArchiveRecallData(this);
-    const timestamp = Math.floor(Date.parse('Thu Jan 27 2022 16:42:11') / 1000);
+    const timestamp = Date.parse('Thu Jan 27 2022 16:42:11');
     this.set('archiveRecallInfo.finishTimestamp', timestamp);
     const targetFile = this.get('targetFile');
     this.setProperties({
@@ -166,7 +166,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     createArchiveRecallData(this);
     this.set(
       'archiveRecallInfo.startTimestamp',
-      Math.floor(Date.now() / 1000)
+      Date.now()
     );
     this.set(
       'archiveRecallState.currentBytes',
@@ -191,11 +191,11 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     createArchiveRecallData(this);
     this.set(
       'archiveRecallInfo.startTimestamp',
-      Math.floor(Date.now() / 1000)
+      Date.now()
     );
     this.set(
       'archiveRecallInfo.finishTimestamp',
-      Math.floor(Date.now() / 1000) + 10000
+      Date.now() + 10000
     );
     this.set(
       'archiveRecallState.currentBytes',
@@ -220,11 +220,11 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     createArchiveRecallData(this);
     this.set(
       'archiveRecallInfo.startTimestamp',
-      Math.floor(Date.now() / 1000)
+      Date.now()
     );
     this.set(
       'archiveRecallInfo.finishTimestamp',
-      Math.floor(Date.now() / 1000) + 10000
+      Date.now() + 10000
     );
     this.set(
       'archiveRecallState.currentBytes',
