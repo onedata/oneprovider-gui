@@ -16,6 +16,11 @@
   }
 }
 
+.recalling-popover-content {
+  width: 29em;
+  min-height: 18em;
+}
+
 .recall-info {
   .table.table-info {
     margin-bottom: 0;
@@ -23,10 +28,16 @@
     td.property-name {
       text-align: right;
     }
+    td.property-value {
+      overflow-wrap: break-word;
+    }
     td {
       padding-top: 5px;
       padding-bottom: 5px;
     }
+  }
+  .recall-status-header {
+    padding-top: 5px;
   }
   h1 {
     text-align: center;

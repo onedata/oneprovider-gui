@@ -30,7 +30,6 @@
               (if effRecallingDisabled "file-status-tag-disabled")
             }}
           >
-            <div class="tag-background"></div>
             <div
               class="tag-progress progress-bar progress-bar-striped active"
               style={{recallingProgressStyle}}
@@ -43,7 +42,10 @@
               {{/unless}}
             </span>
             {{#if (eq displayed.recallingMembership.membership "ancestor")}}
-              {{one-icon class="recalling-inherited-icon inherited-icon" icon=inheritedIcon}}
+              {{one-icon
+                class="tag-icon recalling-inherited-icon inherited-icon"
+                icon=inheritedIcon
+              }}
             {{/if}}
           </div>
         </div>

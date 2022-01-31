@@ -13,11 +13,12 @@
       {{tt this "status.failed"}}
     {{/if}}
   </h1>
+  <hr>
   <table class="table table-info table-info-collapsible">
     <tbody>
       <tr class="recall-info-row-archive">
         <td class="property-name">
-          {{tt this "archive"}}
+          {{tt this "archive"}}:
         </td>
         <td class="property-value">
           <a class="archive-link azure" href={{archiveUrl}} target={{navigateTarget}}>
@@ -27,7 +28,7 @@
       </tr>
       <tr class="recall-info-row-dataset">
         <td class="property-name">
-          {{tt this "dataset"}}
+          {{tt this "dataset"}}:
         </td>
         <td class="property-value">
           <a class="dataset-link azure" href={{datasetUrl}} target={{navigateTarget}}>
@@ -37,7 +38,7 @@
       </tr>
       <tr class="recall-info-row-target-path">
         <td class="property-name">
-          {{tt this "targetPath"}}
+          {{tt this "targetPath"}}:
         </td>
         <td class="property-value">
           {{file-path file=recallRootFile}}
@@ -46,7 +47,7 @@
 
       <tr class="recall-info-row-started-at">
         <td class="property-name">
-          {{tt this "startedAt"}}
+          {{tt this "startedAt"}}:
         </td>
         <td class="property-value">
           {{date-format startedAt format="report" blank="—"}}
@@ -55,7 +56,7 @@
       {{#if finishedAt}}
         <tr class="recall-info-row-finished-at">
           <td class="property-name">
-            {{tt this "finishedAt"}}
+            {{tt this "finishedAt"}}:
           </td>
           <td class="property-value">
             {{date-format finishedAt format="report" blank="—"}}
@@ -65,7 +66,7 @@
 
       <tr class="recall-info-row-files">
         <td class="property-name">
-          {{tt this "filesRecalled"}}
+          {{tt this "filesRecalled"}}:
         </td>
         <td class="property-value">
           {{filesRecalled}} / {{filesToRecall}}
@@ -73,7 +74,7 @@
       </tr>
       <tr class="recall-info-row-bytes">
         <td class="property-name">
-          {{tt this "dataRecalled"}}
+          {{tt this "dataRecalled"}}:
         </td>
         <td class="property-value">
           {{bytesRecalledText}} / {{bytesToRecallText}}
@@ -83,7 +84,7 @@
       {{#if filesFailed}}
         <tr class="recall-info-row-files-failed">
           <td class="property-name">
-            {{tt this "filesFailed"}}
+            {{tt this "filesFailed"}}:
           </td>
           <td class="property-value">
             {{filesFailed}}
@@ -93,7 +94,7 @@
       {{#if lastError}}
         <tr class="recall-info-row-last-error">
           <td class="property-name">
-            {{tt this "lastError"}}
+            {{tt this "lastError"}}:
           </td>
           <td class="property-value">
             {{lastError}}
