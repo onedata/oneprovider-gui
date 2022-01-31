@@ -18,32 +18,45 @@
 
 .recalling-popover-content {
   width: 29em;
-  min-height: 18em;
+  min-height: 16em;
 }
 
 .recall-info {
-  .table.table-info {
-    margin-bottom: 0;
-
-    td.property-name {
-      text-align: right;
-    }
-    td.property-value {
-      overflow-wrap: break-word;
-    }
-    td {
-      padding-top: 5px;
-      padding-bottom: 5px;
-    }
+  h1 {
+    text-align: center;
   }
   .recall-status-header {
     padding-top: 5px;
   }
-  h1 {
-    text-align: center;
+  .table.table-info {
+    margin-bottom: 0;
+    tr {
+      margin-bottom: 5px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    td {
+      margin-bottom: 0;
+      padding-bottom: 5px;
+    }
   }
-  hr {
-    margin-top: 15px;
-    margin-bottom: 5px;
+  @media (min-width: $screen-sm-min) {
+    .table.table-info {
+      margin-bottom: 0;
+      td.property-name {
+        text-align: right;
+      }
+      td.property-value {
+        overflow-wrap: break-word;
+      }
+      td {
+        padding-top: 5px;
+      }
+    }
+    hr {
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
   }
 }
