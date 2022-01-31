@@ -14,7 +14,7 @@ import { computed } from '@ember/object';
 export default Component.extend({
   tagName: 'tr',
   classNames: ['pods-table-pod-row'],
-  classNameBindings: ['isSelected'],
+  classNameBindings: ['isSelected', 'statusClass'],
   attributeBindings: ['podId:data-pod-id'],
 
   /**
@@ -40,6 +40,14 @@ export default Component.extend({
    * @type {(podId: OpenfaasPodId) => void}
    */
   onSelect: undefined,
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  statusClass: computed('podActivity.currentStatus', function statusClass() {
+    const currentStatus = String(this.get('podActivity.currentStatus') || '');
+    return currentStatus ? `status-${currentStatus.toLowerCase()}` : '';
+  }),
 
   /**
    * @type {ComputedProperty<number|null>}

@@ -36,6 +36,14 @@ export default Component.extend({
   rowIndex: reads('eventEntry.index'),
 
   /**
+   * @type {ComputedProperty<string>}
+   */
+  typeClass: computed('eventData.type', function typeClass() {
+    const type = String(this.get('eventData.type') || '');
+    return type ? `type-${type.toLowerCase()}` : '';
+  }),
+
+  /**
    * @type {ComputedProperty<number>}
    */
   timestamp: computed('eventEntry.timestamp', function () {

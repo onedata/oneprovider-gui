@@ -1,4 +1,6 @@
 .atm-task-execution-pods-activity-modal {
+  $entry-warning-bg: lighten($color-one-warning, 35%);
+  $entry-danger-bg: lighten($color-one-danger, 35%);
   $entry-selected-hovered-bg: darken($color-file-selected, 3%);
 
   .bs-modal-body-scroll {
@@ -30,6 +32,14 @@
   .pods-table-pod-row {
     &:hover {
       background-color: $main-content-hover-background;
+    }
+
+    &.status-failed {
+      background-color: $entry-danger-bg;
+    }
+
+    &.status-unknown {
+      background-color: $entry-warning-bg;
     }
 
     &.is-selected {
@@ -123,6 +133,10 @@
 
     &:hover {
       background-color: $main-content-hover-background;
+    }
+
+    &.type-warning {
+      background-color: $entry-warning-bg;
     }
 
     &.is-expanded {

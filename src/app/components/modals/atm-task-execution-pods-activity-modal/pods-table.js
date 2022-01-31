@@ -14,8 +14,19 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 
-const statusesOrder = ['running', 'pending', 'succeeded', 'failed', 'unknown'];
-const notCurrentStatuses = ['succeeded', 'failed', 'unknown'];
+const statusesOrder = [
+  'running',
+  'pending',
+  'succeeded',
+  'failed',
+  'unknown',
+  'terminated',
+];
+const notCurrentStatuses = [
+  'succeeded',
+  'failed',
+  'terminated',
+];
 
 export default Component.extend(I18n, {
   classNames: ['pods-table'],
