@@ -30,4 +30,16 @@ export default Component.extend(I18n, {
    * @type {Boolean}
    */
   disabled: false,
+
+  /**
+   * @virtual
+   * @type () => void
+   */
+  onTagClicked: undefined,
+
+  actions: {
+    tagClicked() {
+      this.get('onTagClicked')();
+    },
+  },
 });

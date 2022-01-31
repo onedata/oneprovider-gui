@@ -73,6 +73,8 @@ export default Component.extend(I18n, {
    */
   disabled: false,
 
+  recallingPopoverOpened: false,
+
   inheritedIcon: 'inheritance',
 
   /**
@@ -181,16 +183,6 @@ export default Component.extend(I18n, {
       return htmlSafe(`width: ${recallingPercent}%;`);
     }
   ),
-
-  isInModal: computed('element', function isInModal() {
-    /** @type {JQuery} */
-    const $element = this.$();
-    if (!$element) {
-      return;
-    }
-
-    return $element.parent('.modal').length;
-  }),
 
   recallingPopoverTriggerSelector: tag `#${'elementId'} .recalling-popover-trigger`,
 

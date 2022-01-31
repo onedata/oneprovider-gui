@@ -1,11 +1,15 @@
 {{#if file.isRecalled}}
-  <div
-    class={{concat-classes
-      "file-status-tag"
-      "file-status-recalled"
-      (if disabled "file-status-tag-disabled")
-    }}
-  >
-    {{tt this "recalled"}}
+  <div class="file-status-tag-group recalled-file-status-tab-group">
+    <div
+      class={{concat-classes
+        "file-status-tag"
+        "file-status-recalled"
+        "recalling-popover-trigger"
+        (if disabled "file-status-tag-disabled")
+      }}
+      onclick={{action "tagClicked"}}
+    >
+      {{tt this "recalled"}}
+    </div>
   </div>
 {{/if}}

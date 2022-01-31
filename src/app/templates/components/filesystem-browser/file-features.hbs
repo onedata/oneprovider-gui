@@ -1,77 +1,75 @@
-{{#if isInModal}}
-  <span>FIXME: is in modal</span>
-{{/if}}
-
 {{#file-browser/item-features-container
   item=item
   features=features
   initiallyExpanded=initiallyExpanded
   as |displayed|
 }}
-  {{#if displayed.recallingMembership.isShown}}
-    <div
-      class={{concat-classes
-        "file-status-tag-group recalling-file-status-tag-group"
-        (if (eq displayed.recallingMembership.membership "ancestor")
-          "file-status-tag-group-fully-inherited"
-        )
-      }}
-      onmouseover={{action "changeTagHover" "recalling" true}}
-      onmouseout={{action "changeTagHover" "recalling" false}}
-      onclick={{unless effRecallingDisabled (action "recallingTagClicked")}}
-    >
-      <div
-        class={{concat-classes
-          "file-status-tag"
-          "file-status-tag-success"
-          "file-status-recalling"
-          "file-status-progress"
-          "recalling-popover-trigger"
-          (if (eq displayed.recallingMembership.membership "ancestor")
-            "file-status-tag-inherited"
-          )
-          (if effRecallingDisabled "file-status-tag-disabled")
-        }}
-      >
-        <div class="tag-background"></div>
+  {{#if (contains "recallingMembership" features)}}
+    <div class="recalling-popover-trigger">
+      {{#if displayed.recallingMembership.isShown}}
         <div
-          class="tag-progress progress-bar progress-bar-striped active"
-          style={{recallingProgressStyle}}
-        >
-        </div>
-        <span class="tag-text">
-          <span class="recalling-label">{{tt this "status.recalling"}}</span>
-          {{#unless (is-empty recallingPercent)}}
-            <span class="recalling-progress">({{recallingPercent}}%)</span>
-          {{/unless}}
-        </span>
-        {{#if (eq displayed.recallingMembership.membership "ancestor")}}
-          {{one-icon class="recalling-inherited-icon inherited-icon" icon=inheritedIcon}}
-        {{/if}}
-      </div>
-    </div>
-    {{#render-later triggerRender=recallingPopoverOpened}}
-      {{#one-webui-popover
-        popoverStyle=(concat-classes
-          "recalling"
-          (if isInModal "over-modals")
-        )
-        popoverTrigger="manual"
-        triggerSelector=recallingPopoverTriggerSelector
-        open=recallingPopoverOpened
-        onToggle=(action (mut recallingPopoverOpened))
-      }}
-        {{#click-outside
-          action=(action (mut recallingPopoverOpened) false)
-          except-selector=recallingPopoverTriggerSelector
-        }}
-          {{filesystem-browser/recall-info
-            class="recalling-popover-content"
-            file=item
+          class={{concat-classes
+            "file-status-tag-group recalling-file-status-tag-group"
+            (if (eq displayed.recallingMembership.membership "ancestor")
+              "file-status-tag-group-fully-inherited"
+            )
           }}
-        {{/click-outside}}
-      {{/one-webui-popover}}
-    {{/render-later}}
+          onmouseover={{action "changeTagHover" "recalling" true}}
+          onmouseout={{action "changeTagHover" "recalling" false}}
+          onclick={{unless effRecallingDisabled (action "recallingTagClicked")}}
+        >
+          <div
+            class={{concat-classes
+              "file-status-tag"
+              "file-status-tag-success"
+              "file-status-recalling"
+              "file-status-progress"
+              (if (eq displayed.recallingMembership.membership "ancestor")
+                "file-status-tag-inherited"
+              )
+              (if effRecallingDisabled "file-status-tag-disabled")
+            }}
+          >
+            <div class="tag-background"></div>
+            <div
+              class="tag-progress progress-bar progress-bar-striped active"
+              style={{recallingProgressStyle}}
+            >
+            </div>
+            <span class="tag-text">
+              <span class="recalling-label">{{tt this "status.recalling"}}</span>
+              {{#unless (is-empty recallingPercent)}}
+                <span class="recalling-progress">({{recallingPercent}}%)</span>
+              {{/unless}}
+            </span>
+            {{#if (eq displayed.recallingMembership.membership "ancestor")}}
+              {{one-icon class="recalling-inherited-icon inherited-icon" icon=inheritedIcon}}
+            {{/if}}
+          </div>
+        </div>
+      {{else if item.isRecalled}}
+        {{filesystem-browser/tag-recalled
+          file=item
+          disabled=effRecallingDisabled
+          onTagClicked=(unless effRecallingDisabled (action "recallingTagClicked"))
+        }}
+      {{/if}}
+    </div>
+  {{/if}}
+
+  {{#if (and
+    (contains "recallingMembership" features)
+    (or
+      displayed.recallingMembership.isShown
+      item.isRecalled
+    )
+  )}}
+    {{filesystem-browser/recall-info-popover
+      file=item
+      opened=recallingPopoverOpened
+      onChangeOpened=(action (mut recallingPopoverOpened))
+      triggerSelector=recallingPopoverTriggerSelector
+    }}
   {{/if}}
   {{#if displayed.effDatasetMembership.isShown}}
     <div
