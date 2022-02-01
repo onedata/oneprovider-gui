@@ -189,27 +189,36 @@ export default Component.extend(I18n, {
   recallingMembershipObserver: observer(
     'item.recallingMembership',
     function recallingMembershipObserver() {
-      const {
-        item,
-        archiveRecallStateManager,
-        archiveRecallWatcherToken,
-      } = this.getProperties(
-        'item',
-        'archiveRecallStateManager',
-        'archiveRecallWatcherToken',
-      );
-      if (archiveRecallWatcherToken) {
-        // watcher already registered for this component
-        return;
-      }
-      const recallingMembership = item && get(item, 'recallingMembership');
-      if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
-        const archiveRecallWatcherToken =
-          archiveRecallStateManager.watchRecall(item);
-        this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);
-      }
+      this.tryCreateRecallWatcher();
     }
   ),
+
+  init() {
+    this._super(...arguments);
+    this.tryCreateRecallWatcher();
+  },
+
+  tryCreateRecallWatcher() {
+    const {
+      item,
+      archiveRecallStateManager,
+      archiveRecallWatcherToken,
+    } = this.getProperties(
+      'item',
+      'archiveRecallStateManager',
+      'archiveRecallWatcherToken',
+    );
+    if (archiveRecallWatcherToken) {
+      // watcher already registered for this component
+      return;
+    }
+    const recallingMembership = item && get(item, 'recallingMembership');
+    if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+      const archiveRecallWatcherToken =
+        archiveRecallStateManager.watchRecall(item);
+      this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);
+    }
+  },
 
   invokeItemAction(actionName) {
     const {
@@ -232,7 +241,7 @@ export default Component.extend(I18n, {
     );
     if (archiveRecallWatcherToken) {
       archiveRecallStateManager.unwatchRecall(
-        get(item, 'entityId'),
+        item,
         archiveRecallWatcherToken
       );
     }
