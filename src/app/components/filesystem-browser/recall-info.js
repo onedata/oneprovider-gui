@@ -145,7 +145,7 @@ export default Component.extend(I18n, {
 
   filesToRecall: reads('archiveRecallInfo.targetFiles'),
 
-  filesFailed: reads('archiveRecallState.filesFailed'),
+  failedFiles: reads('archiveRecallState.failedFiles'),
 
   lastError: reads('archiveRecallState.lastError'),
 
@@ -181,25 +181,25 @@ export default Component.extend(I18n, {
   processStatus: computed(
     'startedAt',
     'finishedAt',
-    'filesFailed',
+    'failedFiles',
     'lastError',
     function processStatus() {
       const {
         startedAt,
         finishedAt,
-        filesFailed,
+        failedFiles,
         lastError,
       } = this.getProperties(
         'startedAt',
         'finishedAt',
-        'filesFailed',
+        'failedFiles',
         'lastError',
       );
       if (!startedAt) {
         return 'scheduled';
       }
       if (finishedAt) {
-        if (filesFailed || lastError) {
+        if (failedFiles || lastError) {
           return 'failed';
         } else {
           return 'succeeded';

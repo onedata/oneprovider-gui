@@ -836,7 +836,7 @@ export default Service.extend({
         stats: {
           bytesArchived: (i + 1) * 5678990000,
           filesArchived: (i + 1) * 43,
-          filesFailed: 0,
+          failedFiles: 0,
         },
         relatedAip: null,
         relatedDip: null,
@@ -1043,7 +1043,7 @@ export default Service.extend({
       'currentFiles',
     );
     if (!startTimestamp) {
-      set(archiveRecallInfo, 'startTimestamp', getCurrentTimestamp());
+      set(archiveRecallInfo, 'startTimestamp', Date.now());
       infoModified = true;
     }
     if (currentBytes < targetBytes) {
@@ -1063,7 +1063,7 @@ export default Service.extend({
       // just to be certain
       currentFiles = targetFiles;
       currentBytes = targetBytes;
-      set(archiveRecallInfo, 'finishTimestamp', getCurrentTimestamp());
+      set(archiveRecallInfo, 'finishTimestamp', Date.now());
       infoModified = true;
     }
     setProperties(archiveRecallState, {
@@ -1094,7 +1094,7 @@ export default Service.extend({
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name =
-          `Directory ${String(i).padStart(4, '0')}`;
+          `Directory with very very very long name ${String(i).padStart(4, '0')}`;
         return store.createRecord('file', {
           id,
           name,

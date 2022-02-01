@@ -61,7 +61,7 @@ export default Model.extend(GraphSingleModelMixin, {
    * Object params:
    * - `filesArchived: Number`
    * - `bytesArchived: Boolean`
-   * - `filesFailed: Number`
+   * - `failedFiles: Number`
    * @type {Object}
    */
   stats: attr('object', { defaultValue: () => {} }),

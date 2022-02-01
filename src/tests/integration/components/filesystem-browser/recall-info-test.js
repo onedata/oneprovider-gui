@@ -90,7 +90,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
       this.get('archiveRecallInfo.targetFiles')
     );
     this.set(
-      'archiveRecallState.filesFailed',
+      'archiveRecallState.failedFiles',
       2
     );
     this.set(
@@ -235,7 +235,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
       this.get('archiveRecallInfo.targetFiles')
     );
     this.set(
-      'archiveRecallState.filesFailed',
+      'archiveRecallState.failedFiles',
       2
     );
     this.set(

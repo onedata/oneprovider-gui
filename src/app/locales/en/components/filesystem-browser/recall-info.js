@@ -6,7 +6,7 @@ export default {
   targetPath: 'Recall destination',
   startedAt: 'Started at',
   finishedAt: 'Finished at',
-  filesFailed: 'Files failed',
+  failedFiles: 'Files failed',
   lastError: 'Last error',
   status: {
     scheduled: 'Archive recall scheduled',
