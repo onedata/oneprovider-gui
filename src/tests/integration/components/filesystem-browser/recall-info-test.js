@@ -184,7 +184,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     await render(this);
 
     expect(this.$('.recall-status-header').text())
-      .to.match(/Archive recall in progress\s*\(50%\)/);
+      .to.match(/Archive recall in progress\s*\(50% done\)/);
   });
 
   it('has "recall finished successfully" header if recall finished without errors', async function () {
@@ -218,6 +218,12 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
   it('has "recall finished with errors" header if recall finished without errors', async function () {
     createArchiveRecallData(this);
+    const targetFiles = 10;
+    const filesToFail = 5;
+    this.set(
+      'archiveRecallInfo.targetFiles',
+      targetFiles
+    );
     this.set(
       'archiveRecallInfo.startTimestamp',
       Date.now()
@@ -231,12 +237,16 @@ describe('Integration | Component | filesystem browser/recall info', function ()
       this.get('archiveRecallInfo.targetBytes')
     );
     this.set(
+      'archiveRecallState.currentBytes',
+      this.get('archiveRecallInfo.targetBytes') * 0.2
+    );
+    this.set(
       'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles')
+      this.get('archiveRecallInfo.targetFiles') - filesToFail
     );
     this.set(
       'archiveRecallState.failedFiles',
-      2
+      filesToFail
     );
     this.set(
       'archiveRecallState.lastError', { id: 'posix', details: { errno: 'enospc' } }
@@ -249,7 +259,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     await render(this);
 
     expect(this.$('.recall-status-header').text())
-      .to.contain('Archive recall finished with errors');
+      .to.match(/Archive recall finished with errors\s+\(20% done\)/);
   });
 
   it('has href to archive on archive name link', async function () {

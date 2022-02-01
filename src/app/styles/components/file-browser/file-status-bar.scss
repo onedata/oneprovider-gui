@@ -72,6 +72,9 @@ $file-status-tag-spacing: 6px;
     .oneicon-provider, .oneicon-browser-attribute, .oneicon-warning {
       opacity: 0.9;
     }
+    .oneicon-warning {
+      margin-bottom: -0.05em;
+    }
 
     &.file-status-tag-icon {
       position: relative;

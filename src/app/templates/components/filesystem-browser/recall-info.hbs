@@ -5,12 +5,15 @@
     {{else if (eq processStatus "pending")}}
       {{tt this "status.pending"}}
       {{#if recallingPercent}}
-        ({{recallingPercent}}%)
+        {{tt this "percentageDone" percentage=recallingPercent}}
       {{/if}}
     {{else if (eq processStatus "succeeded")}}
       {{tt this "status.succeeded"}}
     {{else if (eq processStatus "failed")}}
       {{tt this "status.failed"}}
+      {{#if recallingPercent}}
+        {{tt this "percentageDone" percentage=recallingPercent}}
+      {{/if}}
     {{/if}}
   </h1>
   <hr>

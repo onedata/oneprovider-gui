@@ -65,8 +65,8 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.clock.tick(interval + 1);
     expect(reloadStateSpy).to.have.been.calledThrice;
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes')
+      'archiveRecallState.currentFiles',
+      this.get('archiveRecallInfo.targetFiles')
     );
     this.clock.tick(interval + 1);
     expect(stopSpy).to.have.been.calledOnce;
@@ -230,4 +230,28 @@ describe('Integration | Utility | archive recall state watcher', function () {
     expect(reloadInfoStub).to.have.been.calledOnce;
     expect(get(this.watcher, 'isPolling')).to.be.false;
   });
+
+  it('updates info if sum of succeeded and failed files equals total files',
+    async function () {
+      const interval = 1000;
+      this.watcher = ArchiveRecallStateWatcher.create({
+        interval,
+        targetFile: this.get('targetFile'),
+      });
+      const currentFiles = 70;
+      const failedFiles = 30;
+      const targetFiles = currentFiles + failedFiles;
+      const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
+      this.set('archiveRecallInfo.startTimestamp', 1000);
+      this.set('archiveRecallInfo.finishTimestamp', null);
+      this.set('archiveRecallInfo.targetFiles', targetFiles);
+      this.set('archiveRecallState.currentFiles', currentFiles);
+      this.set('archiveRecallState.failedFiles', failedFiles);
+
+      this.watcher.start();
+      this.clock.tick(1);
+
+      expect(reloadInfoSpy).to.have.been.calledOnce;
+    }
+  );
 });

@@ -2,7 +2,12 @@ import { get } from '@ember/object';
 
 export default function recallingPercentageProgress(file) {
   const recallingMembership = file && get(file, 'recallingMembership');
-  if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+  const isRecallInfoApplicable = Boolean(file && (
+    get(file, 'isRecalled') ||
+    recallingMembership === 'direct' ||
+    recallingMembership === 'ancestor'
+  ));
+  if (isRecallInfoApplicable) {
     const archiveRecallState = get(file, 'archiveRecallState.content');
     const archiveRecallInfo = get(file, 'archiveRecallInfo.content');
     if (archiveRecallState && archiveRecallInfo) {
