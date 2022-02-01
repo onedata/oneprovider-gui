@@ -7,6 +7,8 @@ import { get } from '@ember/object';
 class WatcherMock {
   start() {}
   destroy() {}
+  addToAutoRefresh() {}
+  removeFromAutoRefresh() {}
 }
 
 describe('Unit | service | archive recall state manager', function () {
@@ -82,10 +84,9 @@ describe('Unit | service | archive recall state manager', function () {
     const file = { recallRootId: 'rr1' };
     this.createWatcherObjectStub.reset();
     const destroyWatcherStub = sinon.stub();
-    const fakeWatcher = {
-      start() {},
+    const fakeWatcher = Object.assign(new WatcherMock(), {
       destroy: destroyWatcherStub,
-    };
+    });
     this.createWatcherObjectStub.returns(fakeWatcher);
 
     const token = this.service.watchRecall(file);
@@ -98,10 +99,9 @@ describe('Unit | service | archive recall state manager', function () {
     const file = { recallRootId: 'rr1' };
     this.createWatcherObjectStub.reset();
     const startWatcherStub = sinon.stub();
-    const fakeWatcher = {
+    const fakeWatcher = Object.assign(new WatcherMock(), {
       start: startWatcherStub,
-      destroy() {},
-    };
+    });
     this.createWatcherObjectStub.returns(fakeWatcher);
 
     const token = this.service.watchRecall(file);

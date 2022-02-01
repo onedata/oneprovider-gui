@@ -15,4 +15,5 @@ export default {
     succeeded: 'Archive recall finished successfully',
     failed: 'Archive recall finished with errors',
   },
+  percentageDone: '({{percentage}}% done)',
 };

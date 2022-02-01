@@ -15,6 +15,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.clock = sinon.useFakeTimers({
       now: Date.now(),
     });
+    this.ownerSource = {};
     await createArchiveRecallData(this);
   });
 
@@ -49,6 +50,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.watcher = ArchiveRecallStateWatcher.create({
       interval,
       targetFile: this.get('targetFile'),
+      ownerSource: this,
     });
     const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
     const stopSpy = sinon.spy(this.watcher, 'stop');
@@ -81,6 +83,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.watcher = ArchiveRecallStateWatcher.create({
       interval,
       targetFile: this.get('targetFile'),
+      ownerSource: this,
     });
     const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
     this.set('archiveRecallInfo.startTimestamp', 1000);
@@ -108,6 +111,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.watcher = ArchiveRecallStateWatcher.create({
       interval,
       targetFile: this.get('targetFile'),
+      ownerSource: this,
     });
     const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
     this.set('archiveRecallInfo.startTimestamp', 1000);
@@ -132,6 +136,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.watcher = ArchiveRecallStateWatcher.create({
       interval,
       targetFile: this.get('targetFile'),
+      ownerSource: this,
     });
     const stopSpy = sinon.spy(this.watcher, 'stop');
     this.set('archiveRecallInfo.startTimestamp', 1000);
@@ -162,6 +167,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
       this.watcher = ArchiveRecallStateWatcher.create({
         interval,
         targetFile: this.get('targetFile'),
+        ownerSource: this,
       });
       const reloadInfoStub = sinon.stub(this.watcher, 'reloadInfo');
       const reloadStateStub = sinon.stub(this.watcher, 'reloadState');
@@ -192,6 +198,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.watcher = ArchiveRecallStateWatcher.create({
       interval,
       targetFile: this.get('targetFile'),
+      ownerSource: this,
     });
     const getInfoStub = sinon.stub(this.watcher, 'getInfo');
     getInfoStub.rejects(new Error('get info reject mock'));
@@ -210,6 +217,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.watcher = ArchiveRecallStateWatcher.create({
       interval,
       targetFile: this.get('targetFile'),
+      ownerSource: this,
     });
     const reloadInfoStub = sinon.stub(this.watcher, 'reloadInfo');
     reloadInfoStub.rejects(new Error('reload info reject mock'));
@@ -237,6 +245,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
       this.watcher = ArchiveRecallStateWatcher.create({
         interval,
         targetFile: this.get('targetFile'),
+        ownerSource: this,
       });
       const currentFiles = 70;
       const failedFiles = 30;

@@ -10,8 +10,13 @@
 import EmberObject, { get } from '@ember/object';
 import { bool } from 'ember-awesome-macros';
 import Looper from 'onedata-gui-common/utils/looper';
+import { inject as service } from '@ember/service';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import { all as allSettled } from 'rsvp';
 
-export default EmberObject.extend({
+export default EmberObject.extend(OwnerInjector, {
+  fileManager: service(),
+
   /**
    * @virtual
    * @type {File}
@@ -26,10 +31,17 @@ export default EmberObject.extend({
   interval: 2000,
 
   /**
-   * Created on init.
+   * Created on `start`.
    * @type {Looper}
    */
   looper: null,
+
+  /**
+   * Stores entity IDs of directories to be auto-refreshed on update.
+   * Created on init.
+   * @type {Set<String>}
+   */
+  refreshedDirsIdSet: null,
 
   /**
    * @type {Boolean}
@@ -45,6 +57,11 @@ export default EmberObject.extend({
    * @type {'state'|'info'}
    */
   pollingMode: 'state',
+
+  init() {
+    this._super(...arguments);
+    this.set('refreshedDirsIdSet', new Set());
+  },
 
   /**
    * @override
@@ -130,8 +147,42 @@ export default EmberObject.extend({
         return;
       }
     }
+    this.updateFileBrowsers();
     if (isFinished) {
       this.stop();
+    }
+  },
+
+  addToAutoRefresh(file) {
+    const refreshedDirsIdSet = this.get('refreshedDirsIdSet');
+    const dirToRefreshId = this.getDirIdToRefresh(file);
+    refreshedDirsIdSet.add(dirToRefreshId);
+  },
+
+  removeFromAutoRefresh(file) {
+    const refreshedDirsIdSet = this.get('refreshedDirsIdSet');
+    const dirToRefreshId = this.getDirIdToRefresh(file);
+    refreshedDirsIdSet.delete(dirToRefreshId);
+  },
+
+  /**
+   * @param {Models.File} file
+   * @returns {String}
+   */
+  getDirIdToRefresh(file) {
+    return get(file, 'type') === 'dir' ?
+      get(file, 'entityId') : file.relationEntityId('parent');
+  },
+
+  async updateFileBrowsers() {
+    const {
+      refreshedDirsIdSet,
+      fileManager,
+    } = this.getProperties('refreshedDirsIdSet', 'fileManager');
+    if (refreshedDirsIdSet.size) {
+      await allSettled(Array.from(refreshedDirsIdSet.values()).map(dirId =>
+        fileManager.dirChildrenRefresh(dirId)
+      ));
     }
   },
 
