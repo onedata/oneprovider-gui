@@ -18,7 +18,7 @@ export default Model.extend(GraphSingleModelMixin, {
   currentBytes: attr('number'),
   currentFiles: attr('number'),
   failedFiles: attr('number'),
-  lastError: attr('string'),
+  lastError: attr('object', { defaultValue: null }),
 
   errorOccured: or('failedFiles', 'lastError'),
 }).reopenClass(StaticGraphModelMixin);

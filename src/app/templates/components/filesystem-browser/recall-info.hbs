@@ -83,21 +83,43 @@
 
       {{#if failedFiles}}
         <tr class="recall-info-row-files-failed">
-          <td class="property-name">
+          <td class="property-name text-danger">
             {{tt this "failedFiles"}}:
           </td>
-          <td class="property-value">
+          <td class="property-value text-danger">
             {{failedFiles}}
           </td>
         </tr>
       {{/if}}
       {{#if lastError}}
         <tr class="recall-info-row-last-error">
-          <td class="property-name">
+          {{!-- FIXME: with-input if using input --}}
+          <td class="property-name text-danger">
             {{tt this "lastError"}}:
           </td>
           <td class="property-value">
-            {{lastError}}
+            {{#if (eq lastErrorParsed.type "raw")}}
+              <div class="input-group input-group-clipboard-textarea has-error">
+                {{clipboard-line
+                  value=lastErrorParsed.message
+                  type="textarea"
+                  textareaRows="4"
+                  size="sm"
+                  class="monospace-font compact"
+                }}
+              </div>
+            {{else}}
+              {{#if (eq lastErrorParsed.type "unknown")}}
+                <em class="error-string">
+                  {{tt this "unknownError"}}
+                </em>
+              {{else}}
+                <span class="error-string text-danger">
+                  {{lastErrorParsed.message}}
+                </span>
+              {{/if}}
+
+            {{/if}}
           </td>
         </tr>
       {{/if}}

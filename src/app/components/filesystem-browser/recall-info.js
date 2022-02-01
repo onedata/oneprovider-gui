@@ -20,6 +20,7 @@ export default Component.extend(I18n, {
   archiveRecallStateManager: service(),
   parentAppNavigation: service(),
   appProxy: service(),
+  errorExtractor: service(),
 
   /**
    * @override
@@ -259,6 +260,22 @@ export default Component.extend(I18n, {
   )),
 
   datasetUrl: reads('datasetUrlProxy.content'),
+
+  lastErrorParsed: computed('lastError', function lastErrorString() {
+    const {
+      lastError,
+      errorExtractor,
+    } = this.getProperties('lastError', 'errorExtractor');
+    if (lastError) {
+      const messageObject = errorExtractor.getMessage(lastError && lastError.reason);
+      if (messageObject && messageObject.message) {
+        return { type: 'message', message: messageObject.message };
+      } else {
+        return { type: 'raw', message: JSON.stringify(lastError, null, 2) };
+      }
+    }
+    return { type: 'unknown' };
+  }),
 
   init() {
     this._super(...arguments);
