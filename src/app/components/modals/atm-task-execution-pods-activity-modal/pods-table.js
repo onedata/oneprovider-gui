@@ -113,28 +113,38 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Array<{ podId: OpenfaasPodId, podActivity: OpenfaasPodActivity }>>}
    */
+  currentPodRows: computed('podRows', 'notCurrentStatuses', function currentPodRows() {
+    const {
+      podRows,
+      notCurrentStatuses,
+    } = this.getProperties(
+      'podRows',
+      'notCurrentStatuses'
+    );
+
+    return podRows.filter(({ podActivity: { currentStatus } }) =>
+      !notCurrentStatuses.includes((currentStatus || '').toLowerCase())
+    );
+  }),
+
+  /**
+   * @type {ComputedProperty<Array<{ podId: OpenfaasPodId, podActivity: OpenfaasPodActivity }>>}
+   */
   filteredPodRows: computed(
-    'podRows',
     'podsFilter',
-    'notCurrentStatuses',
+    'podRows',
+    'currentPodRows',
     function filteredPodRows() {
       const {
-        podRows,
         podsFilter,
-        notCurrentStatuses,
+        podRows,
+        currentPodRows,
       } = this.getProperties(
-        'podRows',
         'podsFilter',
-        'notCurrentStatuses'
+        'podRows',
+        'currentPodRows'
       );
-
-      if (podsFilter === 'current') {
-        return podRows.filter(({ podActivity: { currentStatus } }) =>
-          !notCurrentStatuses.includes((currentStatus || '').toLowerCase())
-        );
-      } else {
-        return podRows;
-      }
+      return podsFilter === 'current' ? currentPodRows : podRows;
     }
   ),
 
@@ -146,6 +156,21 @@ export default Component.extend(I18n, {
     computedT('noPods.current'),
     computedT('noPods.all'),
   ),
+
+  init() {
+    this._super(...arguments);
+
+    const {
+      podRows,
+      currentPodRows,
+    } = this.getProperties('podRows', 'currentPodRows');
+
+    // There are no current pods, but are some pods in general -> switch to
+    // "all" view.
+    if (!currentPodRows.length && podRows.length) {
+      this.set('podsFilter', 'all');
+    }
+  },
 
   actions: {
     podsFilterChange(newPodsFilter) {

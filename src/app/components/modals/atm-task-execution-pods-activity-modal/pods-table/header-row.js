@@ -21,6 +21,18 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {number}
+   */
+  allPodsCount: undefined,
+
+  /**
+   * @virtual
+   * @type {number}
+   */
+  currentPodsCount: undefined,
+
+  /**
+   * @virtual
    * @type {'current'|'all'}
    */
   podsFilter: undefined,

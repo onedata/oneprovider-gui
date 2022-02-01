@@ -43,6 +43,24 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     expect($podRows.eq(2).text()).to.contain('pod1');
   });
 
+  it('automatically changes pods filter to "all" on init when there are no pods in "current" but are some in "all"',
+    async function () {
+      this.set('activityRegistry', generateActivityRegistry(['Terminated', 'Terminated']));
+      await render(this);
+
+      expect(this.$('.filter-all')).to.have.class('active');
+      expect(this.$('.pods-table-pod-row')).to.have.length(2);
+    });
+
+  it('shows table with pods filter equal to "current" when there are no pods',
+    async function () {
+      this.set('activityRegistry', generateActivityRegistry([]));
+      await render(this);
+
+      expect(this.$('.filter-current')).to.have.class('active');
+      expect(this.$('.pods-table-pod-row')).to.have.length(0);
+    });
+
   it('shows row selection', async function () {
     this.setProperties({
       activityRegistry: generateActivityRegistry(),
@@ -90,16 +108,11 @@ async function render(testCase) {
   await wait();
 }
 
-function generateActivityRegistry() {
-  return {
-    pod1: {
-      currentStatus: 'Succeeded',
-    },
-    pod2: {
-      currentStatus: 'Pending',
-    },
-    pod3: {
-      currentStatus: 'Running',
-    },
-  };
+function generateActivityRegistry(statuses = ['Terminated', 'Pending', 'Running']) {
+  return statuses.reduce((acc, status, idx) => {
+    acc[`pod${idx + 1}`] = {
+      currentStatus: status,
+    };
+    return acc;
+  }, {});
 }

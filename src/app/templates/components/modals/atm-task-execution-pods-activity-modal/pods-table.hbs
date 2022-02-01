@@ -1,5 +1,7 @@
 {{#scrollable-table class="table one-infinite-list"}}
   {{modals/atm-task-execution-pods-activity-modal/pods-table/header-row
+    allPodsCount=podRows.length
+    currentPodsCount=currentPodRows.length
     podsFilter=podsFilter
     onPodsFilterChange=(action "podsFilterChange")
   }}

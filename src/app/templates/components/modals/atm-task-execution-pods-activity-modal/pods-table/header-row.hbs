@@ -8,10 +8,10 @@
     as |bg|
   }}
     {{#bg.button type="default" class="btn-sm filter-current" value="current"}}
-      <span class="text">{{tt this "filter.current"}}</span>
+      <span class="text">{{tt this "filter.current"}} ({{or currentPodsCount 0}})</span>
     {{/bg.button}}
     {{#bg.button type="default" class="btn-sm filter-all" value="all"}}
-      <span class="text">{{tt this "filter.all"}}</span>
+      <span class="text">{{tt this "filter.all"}} ({{or allPodsCount 0}})</span>
     {{/bg.button}}
   {{/bs-button-group}}
 </th>

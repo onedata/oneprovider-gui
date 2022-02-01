@@ -38,11 +38,15 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('shows filtering buttons and filtering state', async function () {
+    this.setProperties({
+      allPodsCount: 3,
+      currentPodsCount: 2,
+    });
     await render(this);
 
     [
-      { name: 'current', label: 'Current' },
-      { name: 'all', label: 'All' },
+      { name: 'current', label: 'Current (2)' },
+      { name: 'all', label: 'All (3)' },
     ].forEach(({ name, label }) =>
       expect(this.$(`.filter-${name}`).text().trim()).to.equal(label)
     );
@@ -72,6 +76,8 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
 async function render(testCase) {
   testCase.render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table/header-row
+    allPodsCount=allPodsCount
+    currentPodsCount=currentPodsCount
     podsFilter=podsFilter
     onPodsFilterChange=onPodsFilterChange
   }}`);
