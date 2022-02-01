@@ -44,13 +44,15 @@
               </span>
             {{/bs-button}}
           {{/if}}
-          {{#one-spin-button
-            class="btn btn-primary btn-submit"
-            action=(action "runWorkflow")
+          {{#one-button
+            type="primary"
+            buttonType="submit"
+            class="btn-submit"
+            onClick=(action "runWorkflow")
             disabled=(not areInputStoresValid)
           }}
             {{tt this "slides.inputStores.runWorkflowBtn"}}
-          {{/one-spin-button}}
+          {{/one-button}}
         </div>
       </div>
     {{/promise-proxy-container}}
