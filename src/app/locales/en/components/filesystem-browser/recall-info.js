@@ -16,4 +16,5 @@ export default {
     failed: 'Archive recall finished with errors',
   },
   percentageDone: '({{percentage}}% done)',
+  couldNotLoad: 'Could not load',
 };

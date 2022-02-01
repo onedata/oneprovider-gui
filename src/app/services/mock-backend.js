@@ -998,7 +998,7 @@ export default Service.extend({
       currentFiles: 50,
       currentBytes: 500000,
       failedFiles: 0,
-      lastError: 0,
+      lastError: null,
     });
     this.set('entityRecords.archiveRecallInfo', [archiveRecallInfo]);
     this.set('entityRecords.archiveRecallState', [archiveRecallState]);

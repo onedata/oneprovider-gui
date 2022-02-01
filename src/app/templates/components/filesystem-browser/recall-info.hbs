@@ -24,9 +24,17 @@
           {{tt this "archive"}}:
         </td>
         <td class="property-value">
-          <a class="archive-link azure" href={{archiveUrl}} target={{navigateTarget}}>
-            {{archiveName}}
-          </a>
+          {{#if archiveProxy.isFulfilled}}
+            <a class="archive-link azure" href={{archiveUrl}} target={{navigateTarget}}>
+              {{archiveName}}
+            </a>
+          {{else}}
+            {{#if archiveId}}
+              <code class="archive-id">{{archiveId}}</code>
+            {{else}}
+              <em>{{tt this "couldNotLoad"}}</em>
+            {{/if}}
+          {{/if}}
         </td>
       </tr>
       <tr class="recall-info-row-dataset">
@@ -34,9 +42,17 @@
           {{tt this "dataset"}}:
         </td>
         <td class="property-value">
-          <a class="dataset-link azure" href={{datasetUrl}} target={{navigateTarget}}>
-            {{datasetName}}
-          </a>
+          {{#if datasetProxy.isFulfilled}}
+            <a class="datset-link azure" href={{datasetUrl}} target={{navigateTarget}}>
+              {{datasetName}}
+            </a>
+          {{else}}
+            {{#if datasetId}}
+              <code class="dataset-id">{{datasetId}}</code>
+            {{else}}
+              <em>{{tt this "couldNotLoad"}}</em>
+            {{/if}}
+          {{/if}}
         </td>
       </tr>
       <tr class="recall-info-row-target-path">
@@ -44,7 +60,11 @@
           {{tt this "targetPath"}}:
         </td>
         <td class="property-value">
-          {{file-path file=recallRootFile}}
+          {{#if recallRootFileProxy.isFulfilled}}
+            {{file-path file=recallRootFile}}
+          {{else}}
+            <em>{{tt this "couldNotLoad"}}</em>
+          {{/if}}
         </td>
       </tr>
 
@@ -121,7 +141,6 @@
                   {{lastErrorParsed.message}}
                 </span>
               {{/if}}
-
             {{/if}}
           </td>
         </tr>

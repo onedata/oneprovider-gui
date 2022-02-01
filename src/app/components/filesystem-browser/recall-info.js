@@ -3,12 +3,13 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { promise } from 'ember-awesome-macros';
-import { all as allFulfilled } from 'rsvp';
+import { all as allFulfilled, hashSettled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
+import _ from 'lodash';
 
 export default Component.extend(I18n, {
   classNames: ['recall-info'],
@@ -49,7 +50,7 @@ export default Component.extend(I18n, {
   navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   initialRequiredDataProxy: promise.object(computed(
-    function initialRequiredDataProxy() {
+    async function initialRequiredDataProxy() {
       const {
         archiveProxy,
         datasetProxy,
@@ -63,14 +64,16 @@ export default Component.extend(I18n, {
         'archiveRecallInfoProxy',
         'archiveRecallStateProxy',
       );
-      // FIXME: support for failures
-      return allFulfilled([
-        archiveProxy,
-        datasetProxy,
-        recallRootFileProxy,
-        archiveRecallInfoProxy,
-        archiveRecallStateProxy,
-      ]);
+      const result = await hashSettled({
+        archive: archiveProxy,
+        dataset: datasetProxy,
+        root: recallRootFileProxy,
+        info: archiveRecallInfoProxy,
+        state: archiveRecallStateProxy,
+      });
+      if (result.root.state === 'rejected' || result.info.state === 'rejected') {
+        throw result.root.reason || result.info.reason;
+      }
     }
   )),
 
@@ -88,10 +91,7 @@ export default Component.extend(I18n, {
         'archiveRecallInfoProxy',
         'archiveManager',
       );
-      const archive = get(
-        await archiveRecallInfoProxy,
-        'sourceArchive'
-      );
+      const archive = await (await archiveRecallInfoProxy).getRelation('sourceArchive');
       return archiveManager.getBrowsableArchive(archive);
     }
   )),
@@ -106,11 +106,8 @@ export default Component.extend(I18n, {
         'archiveRecallInfoProxy',
         'datasetManager',
       );
-      const archive = get(
-        await archiveRecallInfoProxy,
-        'sourceDataset'
-      );
-      return datasetManager.getBrowsableDataset(archive);
+      const dataset = await (await archiveRecallInfoProxy).getRelation('sourceDataset');
+      return datasetManager.getBrowsableDataset(dataset);
     }
   )),
 
@@ -127,6 +124,16 @@ export default Component.extend(I18n, {
       return fileManager.getFileById(get(file, 'recallRootId'));
     }
   )),
+
+  archiveId: computed('archiveRecallInfo.sourceArchive', function archiveId() {
+    const archiveRecallInfo = this.get('archiveRecallInfo');
+    return archiveRecallInfo && archiveRecallInfo.relationEntityId('sourceArchive');
+  }),
+
+  datasetId: computed('archiveRecallInfo.sourceDataset', function datasetId() {
+    const archiveRecallInfo = this.get('archiveRecallInfo');
+    return archiveRecallInfo && archiveRecallInfo.relationEntityId('sourceDataset');
+  }),
 
   recallRootFile: reads('recallRootFileProxy.content'),
 
@@ -148,7 +155,10 @@ export default Component.extend(I18n, {
 
   failedFiles: reads('archiveRecallState.failedFiles'),
 
-  lastError: reads('archiveRecallState.lastError'),
+  lastError: computed('archiveRecallState.lastError', function lastError() {
+    const lastErrorData = this.get('archiveRecallState.lastError');
+    return _.isEmpty(lastErrorData) ? null : lastErrorData;
+  }),
 
   bytesRecalled: reads('archiveRecallState.currentBytes'),
 
