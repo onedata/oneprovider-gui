@@ -855,15 +855,15 @@ export default Component.extend(...mixins, {
    * @param {RecallArchiveResponse} result
    */
   async handleArchiveRecallStarted(result) {
-    if (!this.get('navigateAfterRecall') || !result || !result.rootId) {
+    if (!this.get('navigateAfterRecall') || !result || !result.rootFileId) {
       return;
     }
     const {
       parentAppNavigation,
       filesViewResolver,
     } = this.getProperties('parentAppNavigation', 'filesViewResolver');
-    const rootId = result.rootId;
-    const url = await filesViewResolver.generateUrlById(rootId);
+    const rootFileId = result.rootFileId;
+    const url = await filesViewResolver.generateUrlById(rootFileId);
     if (url) {
       parentAppNavigation.openUrl(url);
     }

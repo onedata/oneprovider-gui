@@ -93,7 +93,7 @@ export default EmberObject.extend({
       this.stop();
       return;
     }
-    isFinished = get(info, 'finishTimestamp');
+    isFinished = get(info, 'finishTime');
     if (isFinished) {
       this.stop();
       return;
@@ -111,9 +111,9 @@ export default EmberObject.extend({
     }
     // pollingMode could change if reloadState failed, so check one more time
     if (pollingMode === 'state') {
-      isFinished = isFinished || get(state, 'currentBytes') >= get(info, 'targetBytes');
+      isFinished = isFinished || get(state, 'bytesCopied') >= get(info, 'totalByteSize');
       shouldUpdateInfo = (
-        !get(info, 'startTimestamp') && get(state, 'currentBytes')
+        !get(info, 'startTime') && get(state, 'bytesCopied')
       ) || isFinished;
     } else if (pollingMode === 'info') {
       shouldUpdateInfo = true;

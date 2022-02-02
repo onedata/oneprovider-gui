@@ -246,8 +246,8 @@ describe('Integration | Component | filesystem browser/file features', function 
     createArchiveRecallData(this);
     const targetFile = this.get('targetFile');
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes') / 2
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize') / 2
     );
     const onInvokeItemAction = sinon.spy();
     this.setProperties({

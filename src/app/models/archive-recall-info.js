@@ -15,10 +15,10 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 export const aspect = 'archive_recall_details';
 
 export default Model.extend(GraphSingleModelMixin, {
-  sourceArchive: belongsTo('archive'),
-  sourceDataset: belongsTo('dataset'),
-  targetFiles: attr('number'),
-  targetBytes: attr('number'),
-  startTimestamp: attr('number'),
-  finishTimestamp: attr('number'),
+  archive: belongsTo('archive'),
+  dataset: belongsTo('dataset'),
+  totalFileCount: attr('number'),
+  totalByteSize: attr('number'),
+  startTime: attr('number'),
+  finishTime: attr('number'),
 }).reopenClass(StaticGraphModelMixin);

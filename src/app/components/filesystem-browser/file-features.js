@@ -165,7 +165,7 @@ export default Component.extend(I18n, {
   }),
 
   recallingPercent: computed(
-    'item.{recallingMembership,archiveRecallState.content.currentBytes,archiveRecallInfo.content.targetBytes}',
+    'item.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
     function recallingPercent() {
       const item = this.get('item');
       const recallingMembership = item && get(item, 'recallingMembership');
@@ -173,10 +173,10 @@ export default Component.extend(I18n, {
         const archiveRecallState = get(item, 'archiveRecallState.content');
         const archiveRecallInfo = get(item, 'archiveRecallInfo.content');
         if (archiveRecallState && archiveRecallInfo) {
-          const currentBytes = get(archiveRecallState, 'currentBytes') || 0;
-          const targetBytes = get(archiveRecallInfo, 'targetBytes');
-          if (targetBytes) {
-            return Math.floor(currentBytes / targetBytes * 100);
+          const bytesCopied = get(archiveRecallState, 'bytesCopied') || 0;
+          const totalByteSize = get(archiveRecallInfo, 'totalByteSize');
+          if (totalByteSize) {
+            return Math.floor(bytesCopied / totalByteSize * 100);
           }
         }
       }

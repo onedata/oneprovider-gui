@@ -28,18 +28,18 @@ export async function createArchiveRecallData(testCase) {
   });
   const archiveRecallInfo = store.createRecord('archiveRecallInfo', {
     id: infoGri,
-    sourceArchive: archive,
-    sourceDataset: dataset,
-    targetFiles: 100,
-    targetBytes: 10000,
-    startTimestamp: null,
-    finishTimestamp: null,
+    archive,
+    dataset,
+    totalFileCount: 100,
+    totalByteSize: 10000,
+    startTime: null,
+    finishTime: null,
   });
   const archiveRecallState = store.createRecord('archiveRecallState', {
     id: stateGri,
-    currentBytes: 0,
-    currentFiles: 0,
-    failedFiles: 0,
+    bytesCopied: 0,
+    filesCopied: 0,
+    filesFailed: 0,
     lastError: 0,
   });
   setProperties(targetFile, {

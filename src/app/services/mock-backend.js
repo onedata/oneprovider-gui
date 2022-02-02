@@ -986,18 +986,18 @@ export default Service.extend({
     });
     const archiveRecallInfo = store.createRecord('archive-recall-info', {
       id: infoGri,
-      sourceArchive: archive,
-      sourceDataset: await get(archive, 'dataset'),
-      targetFiles: 100,
-      targetBytes: 1000000,
-      startTimestamp: null,
-      finishTimestamp: null,
+      archive,
+      dataset: await get(archive, 'dataset'),
+      totalFileCount: 100,
+      totalByteSize: 1000000,
+      startTime: null,
+      finishTime: null,
     });
     const archiveRecallState = store.createRecord('archive-recall-state', {
       id: stateGri,
-      currentBytes: 0,
-      currentFiles: 0,
-      failedFiles: 0,
+      bytesCopied: 0,
+      filesCopied: 0,
+      filesFailed: 0,
       lastError: 0,
     });
     this.set('entityRecords.archiveRecallInfo', [archiveRecallInfo]);
@@ -1017,57 +1017,57 @@ export default Service.extend({
     const archiveRecallInfo = this.get('entityRecords.archiveRecallInfo.0');
     const archiveRecallState = this.get('entityRecords.archiveRecallState.0');
     const {
-      startTimestamp,
-      finishTimestamp,
-      targetFiles,
-      targetBytes,
+      startTime,
+      finishTime,
+      totalFileCount,
+      totalByteSize,
     } = getProperties(
       archiveRecallInfo,
-      'startTimestamp',
-      'finishTimestamp',
-      'targetFiles',
-      'targetBytes',
+      'startTime',
+      'finishTime',
+      'totalFileCount',
+      'totalByteSize',
     );
-    if (finishTimestamp) {
+    if (finishTime) {
       return;
     }
 
     let infoModified = false;
     let {
-      currentBytes,
-      currentFiles,
+      bytesCopied,
+      filesCopied,
     } = getProperties(
       archiveRecallState,
-      'currentBytes',
-      'currentFiles',
+      'bytesCopied',
+      'filesCopied',
     );
-    if (!startTimestamp) {
-      set(archiveRecallInfo, 'startTimestamp', getCurrentTimestamp());
+    if (!startTime) {
+      set(archiveRecallInfo, 'startTime', getCurrentTimestamp());
       infoModified = true;
     }
-    if (currentBytes < targetBytes) {
-      const filesIncrement = Math.floor(targetFiles / 10);
-      const bytesIncrement = Math.floor(targetBytes / 10);
-      currentFiles = Math.min(targetFiles, currentFiles + filesIncrement);
-      currentBytes = Math.min(targetBytes, currentBytes + bytesIncrement);
+    if (bytesCopied < totalByteSize) {
+      const filesIncrement = Math.floor(totalFileCount / 10);
+      const bytesIncrement = Math.floor(totalByteSize / 10);
+      filesCopied = Math.min(totalFileCount, filesCopied + filesIncrement);
+      bytesCopied = Math.min(totalByteSize, bytesCopied + bytesIncrement);
     }
     setProperties(archiveRecallState, {
-      currentBytes,
-      currentFiles,
+      bytesCopied,
+      filesCopied,
     });
 
     const savePromises = [];
-    const finished = currentBytes >= targetBytes || currentFiles >= targetFiles;
+    const finished = bytesCopied >= totalByteSize || filesCopied >= totalFileCount;
     if (finished) {
       // just to be certain
-      currentFiles = targetFiles;
-      currentBytes = targetBytes;
-      set(archiveRecallInfo, 'finishTimestamp', getCurrentTimestamp());
+      filesCopied = totalFileCount;
+      bytesCopied = totalByteSize;
+      set(archiveRecallInfo, 'finishTime', getCurrentTimestamp());
       infoModified = true;
     }
     setProperties(archiveRecallState, {
-      currentBytes,
-      currentFiles,
+      bytesCopied,
+      filesCopied,
     });
     if (infoModified) {
       savePromises.push(archiveRecallInfo.save());

@@ -32,8 +32,8 @@ describe('Integration | Utility | archive recall state watcher', function () {
     const getInfoSpy = sinon.spy(this.watcher, 'getInfo');
     const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
     const stopSpy = sinon.spy(this.watcher, 'stop');
-    this.set('archiveRecallInfo.startTimestamp', 1000);
-    this.set('archiveRecallInfo.finishTimestamp', 2000);
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.finishTime', 2000);
 
     this.watcher.start();
     this.clock.tick(1);
@@ -52,10 +52,10 @@ describe('Integration | Utility | archive recall state watcher', function () {
     });
     const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
     const stopSpy = sinon.spy(this.watcher, 'stop');
-    this.set('archiveRecallInfo.startTimestamp', 1000);
-    this.set('archiveRecallInfo.finishTimestamp', null);
-    this.set('archiveRecallState.currentBytes', 0);
-    this.set('archiveRecallState.currentFiles', 0);
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.finishTime', null);
+    this.set('archiveRecallState.bytesCopied', 0);
+    this.set('archiveRecallState.filesCopied', 0);
 
     this.watcher.start();
     this.clock.tick(1);
@@ -65,8 +65,8 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.clock.tick(interval + 1);
     expect(reloadStateSpy).to.have.been.calledThrice;
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes')
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize')
     );
     this.clock.tick(interval + 1);
     expect(stopSpy).to.have.been.calledOnce;
@@ -83,15 +83,15 @@ describe('Integration | Utility | archive recall state watcher', function () {
       targetFile: this.get('targetFile'),
     });
     const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
-    this.set('archiveRecallInfo.startTimestamp', 1000);
-    this.set('archiveRecallInfo.finishTimestamp', null);
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.finishTime', null);
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes') / 2
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize') / 2
     );
     this.set(
-      'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles') / 2
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount') / 2
     );
 
     this.watcher.start();
@@ -110,15 +110,15 @@ describe('Integration | Utility | archive recall state watcher', function () {
       targetFile: this.get('targetFile'),
     });
     const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
-    this.set('archiveRecallInfo.startTimestamp', 1000);
-    this.set('archiveRecallInfo.finishTimestamp', null);
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.finishTime', null);
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes')
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize')
     );
     this.set(
-      'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles')
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount')
     );
 
     this.watcher.start();
@@ -134,20 +134,20 @@ describe('Integration | Utility | archive recall state watcher', function () {
       targetFile: this.get('targetFile'),
     });
     const stopSpy = sinon.spy(this.watcher, 'stop');
-    this.set('archiveRecallInfo.startTimestamp', 1000);
-    this.set('archiveRecallInfo.finishTimestamp', null);
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.finishTime', null);
 
     this.watcher.start();
     this.clock.tick(1);
     expect(get(this.watcher, 'looper')).to.be.not.null;
     const looperDestroySpy = sinon.spy(get(this.watcher, 'looper'), 'destroy');
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes')
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize')
     );
     this.set(
-      'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles')
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount')
     );
     this.clock.tick(interval + 1);
     expect(stopSpy).to.have.been.calledOnce;
@@ -156,7 +156,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
     expect(looperDestroySpy).to.have.been.calledOnce;
   });
 
-  it('stops polling for state and starts for info when reloading state fails because of notFound until finishTimestamp is non-empty',
+  it('stops polling for state and starts for info when reloading state fails because of notFound until finishTime is non-empty',
     async function () {
       const interval = 1000;
       this.watcher = ArchiveRecallStateWatcher.create({
@@ -166,8 +166,8 @@ describe('Integration | Utility | archive recall state watcher', function () {
       const reloadInfoStub = sinon.stub(this.watcher, 'reloadInfo');
       const reloadStateStub = sinon.stub(this.watcher, 'reloadState');
       reloadStateStub.rejects(new Error({ id: 'notFound' }));
-      this.set('archiveRecallInfo.startTimestamp', 1000);
-      this.set('archiveRecallInfo.finishTimestamp', null);
+      this.set('archiveRecallInfo.startTime', 1000);
+      this.set('archiveRecallInfo.finishTime', null);
 
       this.watcher.start();
       this.clock.tick(1);
@@ -180,7 +180,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
       expect(reloadInfoStub).to.have.been.calledThrice;
       expect(reloadStateStub).to.have.been.calledOnce;
       expect(get(this.watcher, 'isPolling')).to.be.true;
-      this.set('archiveRecallInfo.finishTimestamp', 2000);
+      this.set('archiveRecallInfo.finishTime', 2000);
       this.clock.tick(interval);
       expect(get(this.watcher, 'isPolling')).to.be.false;
       this.watcher.destroy();
@@ -195,8 +195,8 @@ describe('Integration | Utility | archive recall state watcher', function () {
     });
     const getInfoStub = sinon.stub(this.watcher, 'getInfo');
     getInfoStub.rejects(new Error('get info reject mock'));
-    this.set('archiveRecallInfo.startTimestamp', 1000);
-    this.set('archiveRecallInfo.finishTimestamp', null);
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.finishTime', null);
 
     this.watcher.start();
     this.clock.tick(1);
@@ -213,15 +213,15 @@ describe('Integration | Utility | archive recall state watcher', function () {
     });
     const reloadInfoStub = sinon.stub(this.watcher, 'reloadInfo');
     reloadInfoStub.rejects(new Error('reload info reject mock'));
-    this.set('archiveRecallInfo.startTimestamp', null);
-    this.set('archiveRecallInfo.finishTimestamp', null);
+    this.set('archiveRecallInfo.startTime', null);
+    this.set('archiveRecallInfo.finishTime', null);
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes')
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize')
     );
     this.set(
-      'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles')
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount')
     );
 
     this.watcher.start();

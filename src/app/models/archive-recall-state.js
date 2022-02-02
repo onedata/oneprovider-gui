@@ -14,8 +14,12 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 export const aspect = 'archive_recall_progress';
 
 export default Model.extend(GraphSingleModelMixin, {
-  currentBytes: attr('number'),
-  currentFiles: attr('number'),
-  failedFiles: attr('number'),
-  lastError: attr('string'),
+  bytesCopied: attr('number'),
+  filesCopied: attr('number'),
+  filesFailed: attr('number'),
+
+  /**
+   * @type {ComputedProperty<{ fileId: String, reason: Object }>}
+   */
+  lastError: attr('object', { defaultValue: null }),
 }).reopenClass(StaticGraphModelMixin);
