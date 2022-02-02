@@ -404,7 +404,7 @@ export default BaseBrowserModel.extend(I18n, {
           text: this.t('toggleDatasetAttachment.proceedQuestion'),
         }],
         yesButtonText: this.t('toggleDatasetAttachment.yes'),
-        yesButtonClassName: attach ? 'btn-primary' : 'btn-danger',
+        yesButtonType: attach ? 'primary' : 'danger',
         onSubmit: async () => {
           const submitResult = await this.toggleDatasetsAttachment(datasets, attach);
           const firstRejected = submitResult.findBy('state', 'rejected');
@@ -451,7 +451,7 @@ export default BaseBrowserModel.extend(I18n, {
         text: this.t('remove.proceedQuestion'),
       }],
       yesButtonText: this.t('remove.yes'),
-      yesButtonClassName: 'btn-danger',
+      yesButtonType: 'danger',
       onSubmit: async () => {
         const submitResult = await this.removeDatasets(datasets);
         const firstRejected = submitResult.findBy('state', 'rejected');

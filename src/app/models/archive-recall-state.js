@@ -16,9 +16,13 @@ import { get } from '@ember/object';
 export const aspect = 'archive_recall_progress';
 
 export default Model.extend(GraphSingleModelMixin, {
-  currentBytes: attr('number'),
-  currentFiles: attr('number'),
-  failedFiles: attr('number'),
+  bytesCopied: attr('number'),
+  filesCopied: attr('number'),
+  filesFailed: attr('number'),
+
+  /**
+   * @type {ComputedProperty<{ fileId: String, reason: Object }>}
+   */
   lastError: attr('object', { defaultValue: null }),
 
   errorOccured: or('failedFiles', 'lastError'),
@@ -34,10 +38,10 @@ export default Model.extend(GraphSingleModelMixin, {
       return;
     }
     const {
-      currentFiles,
-      failedFiles,
-    } = this.getProperties('currentFiles', 'failedFiles');
+      filesCopied,
+      filesFailed,
+    } = this.getProperties('filesCopied', 'filesFailed');
     const targetFiles = get(archiveRecallInfo, 'targetFiles');
-    return currentFiles + failedFiles >= targetFiles;
+    return filesCopied + filesFailed >= targetFiles;
   },
 }).reopenClass(StaticGraphModelMixin);

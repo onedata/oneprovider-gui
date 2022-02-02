@@ -3,8 +3,14 @@
   {{#bs-button onClick=onCancel disabled=(not canCancel) size="sm" class="cancel-subsequent-transfer"}}
     {{tt this "cancelButton"}}
   {{/bs-button}}
-  {{#one-spin-button action=(action "confirm") class="btn btn-primary btn-sm confirm-subsequent-transfer"}}
+  {{#one-button
+    type="primary"
+    size="sm"
+    buttonType="submit"
+    onClick=(action "confirm")
+    class="confirm-subsequent-transfer"
+  }}
     {{confirmButtonText}}
-  {{/one-spin-button}}
+  {{/one-button}}
 </div>
 {{yield}}

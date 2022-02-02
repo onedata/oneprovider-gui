@@ -110,7 +110,7 @@ export default EmberObject.extend(OwnerInjector, {
       this.stop();
       return;
     }
-    isFinished = Boolean(get(info, 'finishTimestamp'));
+    isFinished = Boolean(get(info, 'finishTime'));
     if (isFinished) {
       this.stop();
       return;
@@ -130,7 +130,7 @@ export default EmberObject.extend(OwnerInjector, {
     if (pollingMode === 'state') {
       isFinished = isFinished || state.isFinished(info);
       shouldUpdateInfo = (
-        !get(info, 'startTimestamp') && get(state, 'currentBytes')
+        !get(info, 'startTime') && get(state, 'bytesCopied')
       ) || isFinished;
     } else if (pollingMode === 'info') {
       shouldUpdateInfo = true;

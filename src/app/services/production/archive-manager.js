@@ -179,13 +179,14 @@ export default Service.extend({
 
   /**
    * @typedef {Object} RecallArchiveResponse
-   * @param {String} rootId entity ID of newly created recalled file or root directory
+   * @param {String} rootFileId entity ID of newly created recalled root file
+   *   or directory
    */
 
   /**
    * @param {Models.Archive} archive
-   * @param {Models.File} targetDir directory where target directory with archive files should
-   *   be created
+   * @param {Models.File} targetDir directory where target directory with archive files
+   *   should be created
    * @param {String} name name of created directory or file in filesystem that will
    *   contain recalled data
    * @returns {Promise<RecallArchiveResponse>}
@@ -204,8 +205,8 @@ export default Service.extend({
         scope: 'private',
       }),
       data: {
-        targetParentId: get(targetDir, 'cdmiObjectId'),
-        targetRootName: name,
+        parentDirectoryId: get(targetDir, 'cdmiObjectId'),
+        targetFileName: name,
       },
       subscribe: false,
     });

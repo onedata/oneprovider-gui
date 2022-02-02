@@ -11,10 +11,10 @@ export default function recallingPercentageProgress(file) {
     const archiveRecallState = get(file, 'archiveRecallState.content');
     const archiveRecallInfo = get(file, 'archiveRecallInfo.content');
     if (archiveRecallState && archiveRecallInfo) {
-      const currentBytes = get(archiveRecallState, 'currentBytes') || 0;
-      const targetBytes = get(archiveRecallInfo, 'targetBytes');
-      if (targetBytes) {
-        return Math.floor(currentBytes / targetBytes * 100);
+      const bytesCopied = get(archiveRecallState, 'bytesCopied') || 0;
+      const totalByteSize = get(archiveRecallInfo, 'totalByteSize');
+      if (totalByteSize) {
+        return Math.floor(bytesCopied / totalByteSize * 100);
       }
     }
   }

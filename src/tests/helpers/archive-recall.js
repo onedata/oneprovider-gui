@@ -9,8 +9,8 @@ import { get, setProperties } from '@ember/object';
 
 export async function createArchiveRecallData(testCase) {
   const store = lookupService(testCase, 'store');
-  const targetFiles = 100;
-  const targetBytes = 10000;
+  const totalFileCount = 100;
+  const totalByteSize = 10000;
   const spaceId = 's123';
   const datasetRootFile = store.createRecord('file', {
     index: 'dummy_dataset_root',
@@ -38,8 +38,8 @@ export async function createArchiveRecallData(testCase) {
     },
     description: 'foobarchive',
     stats: {
-      filesArchived: targetFiles,
-      bytesArchived: targetBytes,
+      filesArchived: totalFileCount,
+      bytesArchived: totalByteSize,
       failedFiles: 0,
     },
     dataset,
@@ -80,18 +80,18 @@ export async function createArchiveRecallData(testCase) {
   });
   const archiveRecallInfo = store.createRecord('archiveRecallInfo', {
     id: infoGri,
-    sourceArchive: archive,
-    sourceDataset: dataset,
-    targetFiles,
-    targetBytes,
-    startTimestamp: null,
-    finishTimestamp: null,
+    archive,
+    dataset,
+    totalFileCount,
+    totalByteSize,
+    startTime: null,
+    finishTime: null,
   });
   const archiveRecallState = store.createRecord('archiveRecallState', {
     id: stateGri,
-    currentBytes: 0,
-    currentFiles: 0,
-    failedFiles: 0,
+    bytesCopied: 0,
+    filesCopied: 0,
+    filesFailed: 0,
     lastError: 0,
   });
   setProperties(targetFile, {

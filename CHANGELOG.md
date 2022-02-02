@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-8792 Added support for recalling archives
+* VFS-8874 Removed bower and ember-spin-button
 * VFS-8887 Fixed not working file information modal in shares file browser
 * VFS-6397 Removed redundant bower dependencies
 * VFS-8723 Splitted datasets-archives view Service Pack 1: fixed graphical/UX glitches

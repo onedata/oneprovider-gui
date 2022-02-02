@@ -154,7 +154,7 @@ export const RuntimeProperties = Mixin.create({
    */
   recallingMembershipProxy: promise.object(computed(
     'recallRootId',
-    'archiveRecallInfo.finishTimestamp',
+    'archiveRecallInfo.finishTime',
     async function recallingMembershipProxy() {
       const {
         recallRootId,
@@ -164,7 +164,7 @@ export const RuntimeProperties = Mixin.create({
         const archiveRecallInfoContent = await this.get('archiveRecallInfo');
         if (
           archiveRecallInfoContent &&
-          get(archiveRecallInfoContent, 'finishTimestamp')
+          get(archiveRecallInfoContent, 'finishTime')
         ) {
           return 'none';
         } else {
@@ -183,13 +183,13 @@ export const RuntimeProperties = Mixin.create({
 
   isRecalledProxy: promise.object(computed(
     'recallRootId',
-    'archiveRecallInfo.finishTimestamp',
+    'archiveRecallInfo.finishTime',
     async function recallingMembershipProxy() {
       const recallRootId = this.get('recallRootId');
       if (recallRootId) {
         const archiveRecallInfoContent = await this.get('archiveRecallInfo');
         return archiveRecallInfoContent &&
-          get(archiveRecallInfoContent, 'finishTimestamp');
+          get(archiveRecallInfoContent, 'finishTime');
       } else {
         return false;
       }

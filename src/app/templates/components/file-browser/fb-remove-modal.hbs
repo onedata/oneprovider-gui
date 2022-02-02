@@ -78,15 +78,17 @@
     {{#bs-button disabled=processing onClick=(action "close") class="cancel"}}
       {{tt this "no"}}
     {{/bs-button}}
-    {{#one-spin-button
-      action=(action "remove")
-      class="btn btn-danger proceed remove-proceed"
+    {{#one-button
+      type="danger"
+      buttonType="submit"
+      onClick=(action "remove")
+      class="proceed remove-proceed"
       disabled=processing
     }}
       {{tt this "yes"}}
       {{#if (and processing (gt filesToRemoveCount 1))}}
         ({{filesProcessedCount}}/{{filesToRemoveCount}})
       {{/if}}
-    {{/one-spin-button}}
+    {{/one-button}}
   {{/modal.footer}}
 {{/one-modal}}

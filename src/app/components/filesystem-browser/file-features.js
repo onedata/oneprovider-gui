@@ -169,7 +169,7 @@ export default Component.extend(I18n, {
   }),
 
   recallingPercent: computed(
-    'item.{recallingMembership,archiveRecallState.content.currentBytes,archiveRecallInfo.content.targetBytes}',
+    'item.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
     function recallingPercent() {
       const item = this.get('item');
       return recallingPercentageProgress(item);
