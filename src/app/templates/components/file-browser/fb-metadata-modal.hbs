@@ -108,14 +108,16 @@
     {{/bs-button}}
     {{#unless effectiveReadonly}}
       <div class="btn-tooltip-container">
-        {{#one-spin-button
-          action=(action "saveAll")
-          inFlight=processing
+        {{#one-button
+          type="primary"
+          buttonType="submit"
+          onClick=(action "saveAll")
+          isPending=processing
           disabled=saveAllDisabled
-          class="btn btn-primary btn-save-all"
+          class="btn-save-all"
         }}
           {{tt this "saveAll"}}
-        {{/one-spin-button}}
+        {{/one-button}}
         {{#if saveAllDisabledMessage}}
           {{one-tooltip title=saveAllDisabledMessage}}
         {{/if}}

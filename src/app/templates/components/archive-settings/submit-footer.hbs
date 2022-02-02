@@ -6,11 +6,13 @@
 }}
   {{tt this "cancel"}}
 {{/bs-button}}
-{{#one-spin-button
-  class="btn btn-primary submit-archive-creation-btn"
+{{#one-button
+  type="primary"
+  buttonType="submit"
+  class="submit-archive-creation-btn"
   disabled=disabled
-  inFlight=isSubmitting
-  action=(action "submit")
+  isPending=isSubmitting
+  onClick=(action "submit")
 }}
   {{tt this "create"}}
-{{/one-spin-button}}
+{{/one-button}}

@@ -75,14 +75,15 @@
       {{tt this (if addAnotherOneMode "cancel" "close")}}
     {{/bs-button}}
     {{#if (eq mode "new")}}
-      {{#one-spin-button
-        action=(action "submitNew")
-        inFlight=isSaving
-        class="btn btn-primary"
+      {{#one-button
+        type="primary"
+        buttonType="submit"
+        onClick=(action "submitNew")
+        isPending=isSaving
         disabled=submitNewDisabled
       }}
         {{tt this "createNew"}}
-      {{/one-spin-button}}
+      {{/one-button}}
     {{else if (eq mode "show")}}
       <div class="btn-tooltip-container">
         {{#bs-button
