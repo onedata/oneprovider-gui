@@ -88,7 +88,7 @@ describe('Integration | Component | archive recall (internal)', function () {
       stats: {
         bytesArchived: 2048,
         filesArchived: 20,
-        failedFiles: 0,
+        filesFailed: 0,
       },
       relatedAip: null,
       relatedDip: null,

@@ -20,10 +20,10 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     createArchiveRecallData(this);
     const browsableArchiveName = await getBrowsableArchiveName(this);
     const targetFile = this.get('targetFile');
-    this.set('archiveRecallInfo.targetFiles', 100);
-    this.set('archiveRecallState.currentFiles', 20);
-    this.set('archiveRecallInfo.targetBytes', 1024);
-    this.set('archiveRecallState.currentBytes', 200);
+    this.set('archiveRecallInfo.totalFileCount', 100);
+    this.set('archiveRecallState.filesCopied', 20);
+    this.set('archiveRecallInfo.totalByteSize', 1024);
+    this.set('archiveRecallState.bytesCopied', 200);
     this.setProperties({
       file: targetFile,
     });
@@ -41,10 +41,10 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     createArchiveRecallData(this);
     const browsableDatasetName = await getBrowsableDatasetName(this);
     const targetFile = this.get('targetFile');
-    this.set('archiveRecallInfo.targetFiles', 100);
-    this.set('archiveRecallState.currentFiles', 20);
-    this.set('archiveRecallInfo.targetBytes', 1024);
-    this.set('archiveRecallState.currentBytes', 200);
+    this.set('archiveRecallInfo.totalFileCount', 100);
+    this.set('archiveRecallState.filesCopied', 20);
+    this.set('archiveRecallInfo.totalByteSize', 1024);
+    this.set('archiveRecallState.bytesCopied', 200);
     this.setProperties({
       file: targetFile,
     });
@@ -74,23 +74,23 @@ describe('Integration | Component | filesystem browser/recall info', function ()
   it('renders number of failed files', async function () {
     createArchiveRecallData(this);
     this.set(
-      'archiveRecallInfo.startTimestamp',
+      'archiveRecallInfo.startTime',
       Date.now()
     );
     this.set(
-      'archiveRecallInfo.finishTimestamp',
+      'archiveRecallInfo.finishTime',
       Date.now() + 10000
     );
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes')
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize')
     );
     this.set(
-      'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles')
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount')
     );
     this.set(
-      'archiveRecallState.failedFiles',
+      'archiveRecallState.filesFailed',
       2
     );
     this.set(
@@ -110,7 +110,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
   it('renders formatted start time if provided', async function () {
     createArchiveRecallData(this);
     const timestamp = Date.parse('Thu Jan 27 2022 16:42:11');
-    this.set('archiveRecallInfo.startTimestamp', timestamp);
+    this.set('archiveRecallInfo.startTime', timestamp);
     const targetFile = this.get('targetFile');
     this.setProperties({
       file: targetFile,
@@ -125,7 +125,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
   it('renders formatted finish time if provided', async function () {
     createArchiveRecallData(this);
     const timestamp = Date.parse('Thu Jan 27 2022 16:42:11');
-    this.set('archiveRecallInfo.finishTimestamp', timestamp);
+    this.set('archiveRecallInfo.finishTime', timestamp);
     const targetFile = this.get('targetFile');
     this.setProperties({
       file: targetFile,
@@ -165,16 +165,16 @@ describe('Integration | Component | filesystem browser/recall info', function ()
   it('has "recall in progress" with percentage completion header if recall started', async function () {
     createArchiveRecallData(this);
     this.set(
-      'archiveRecallInfo.startTimestamp',
+      'archiveRecallInfo.startTime',
       Date.now()
     );
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes') / 2
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize') / 2
     );
     this.set(
-      'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles') / 2
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount') / 2
     );
     const targetFile = this.get('targetFile');
     this.setProperties({
@@ -190,20 +190,20 @@ describe('Integration | Component | filesystem browser/recall info', function ()
   it('has "recall finished successfully" header if recall finished without errors', async function () {
     createArchiveRecallData(this);
     this.set(
-      'archiveRecallInfo.startTimestamp',
+      'archiveRecallInfo.startTime',
       Date.now()
     );
     this.set(
-      'archiveRecallInfo.finishTimestamp',
+      'archiveRecallInfo.finishTime',
       Date.now() + 10000
     );
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes')
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize')
     );
     this.set(
-      'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles')
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount')
     );
     const targetFile = this.get('targetFile');
     this.setProperties({
@@ -218,34 +218,34 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
   it('has "recall finished with errors" header if recall finished without errors', async function () {
     createArchiveRecallData(this);
-    const targetFiles = 10;
+    const totalFileCount = 10;
     const filesToFail = 5;
     this.set(
-      'archiveRecallInfo.targetFiles',
-      targetFiles
+      'archiveRecallInfo.totalFileCount',
+      totalFileCount
     );
     this.set(
-      'archiveRecallInfo.startTimestamp',
+      'archiveRecallInfo.startTime',
       Date.now()
     );
     this.set(
-      'archiveRecallInfo.finishTimestamp',
+      'archiveRecallInfo.finishTime',
       Date.now() + 10000
     );
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes')
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize')
     );
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes') * 0.2
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize') * 0.2
     );
     this.set(
-      'archiveRecallState.currentFiles',
-      this.get('archiveRecallInfo.targetFiles') - filesToFail
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount') - filesToFail
     );
     this.set(
-      'archiveRecallState.failedFiles',
+      'archiveRecallState.filesFailed',
       filesToFail
     );
     this.set(

@@ -11,6 +11,8 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 import { or } from 'ember-awesome-macros';
 import { get } from '@ember/object';
+import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
+import _ from 'lodash';
 
 // model name differs from aspect name to avoid "s" on end of model name
 export const aspect = 'archive_recall_progress';
@@ -25,7 +27,10 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   lastError: attr('object', { defaultValue: null }),
 
-  errorOccured: or('failedFiles', 'lastError'),
+  errorOccured: or(
+    'filesFailed',
+    computedPipe('lastError', (value) => !_.isEmpty(value))
+  ),
 
   /**
    *
@@ -41,7 +46,7 @@ export default Model.extend(GraphSingleModelMixin, {
       filesCopied,
       filesFailed,
     } = this.getProperties('filesCopied', 'filesFailed');
-    const targetFiles = get(archiveRecallInfo, 'targetFiles');
-    return filesCopied + filesFailed >= targetFiles;
+    const totalFileCount = get(archiveRecallInfo, 'totalFileCount');
+    return filesCopied + filesFailed >= totalFileCount;
   },
 }).reopenClass(StaticGraphModelMixin);

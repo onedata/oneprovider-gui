@@ -91,7 +91,7 @@ export default Component.extend(I18n, {
         'archiveRecallInfoProxy',
         'archiveManager',
       );
-      const archive = await (await archiveRecallInfoProxy).getRelation('sourceArchive');
+      const archive = await (await archiveRecallInfoProxy).getRelation('archive');
       return archiveManager.getBrowsableArchive(archive);
     }
   )),
@@ -106,7 +106,7 @@ export default Component.extend(I18n, {
         'archiveRecallInfoProxy',
         'datasetManager',
       );
-      const dataset = await (await archiveRecallInfoProxy).getRelation('sourceDataset');
+      const dataset = await (await archiveRecallInfoProxy).getRelation('dataset');
       return datasetManager.getBrowsableDataset(dataset);
     }
   )),
@@ -125,14 +125,14 @@ export default Component.extend(I18n, {
     }
   )),
 
-  archiveId: computed('archiveRecallInfo.sourceArchive', function archiveId() {
+  archiveId: computed('archiveRecallInfo.archive', function archiveId() {
     const archiveRecallInfo = this.get('archiveRecallInfo');
-    return archiveRecallInfo && archiveRecallInfo.relationEntityId('sourceArchive');
+    return archiveRecallInfo && archiveRecallInfo.relationEntityId('archive');
   }),
 
-  datasetId: computed('archiveRecallInfo.sourceDataset', function datasetId() {
+  datasetId: computed('archiveRecallInfo.dataset', function datasetId() {
     const archiveRecallInfo = this.get('archiveRecallInfo');
-    return archiveRecallInfo && archiveRecallInfo.relationEntityId('sourceDataset');
+    return archiveRecallInfo && archiveRecallInfo.relationEntityId('dataset');
   }),
 
   recallRootFile: reads('recallRootFileProxy.content'),
@@ -149,37 +149,37 @@ export default Component.extend(I18n, {
 
   datasetName: reads('dataset.name'),
 
-  filesRecalled: reads('archiveRecallState.currentFiles'),
+  filesRecalled: reads('archiveRecallState.filesCopied'),
 
-  filesToRecall: reads('archiveRecallInfo.targetFiles'),
+  filesToRecall: reads('archiveRecallInfo.totalFileCount'),
 
-  failedFiles: reads('archiveRecallState.failedFiles'),
+  filesFailed: reads('archiveRecallState.filesFailed'),
 
   lastError: computed('archiveRecallState.lastError', function lastError() {
     const lastErrorData = this.get('archiveRecallState.lastError');
     return _.isEmpty(lastErrorData) ? null : lastErrorData;
   }),
 
-  bytesRecalled: reads('archiveRecallState.currentBytes'),
+  bytesRecalled: reads('archiveRecallState.bytesCopied'),
 
-  bytesToRecall: reads('archiveRecallInfo.targetBytes'),
+  bytesToRecall: reads('archiveRecallInfo.totalByteSize'),
 
   bytesRecalledText: computedPipe('bytesRecalled', bytesToString),
 
   bytesToRecallText: computedPipe('bytesToRecall', bytesToString),
 
   startedAt: computedPipe(
-    'archiveRecallInfo.startTimestamp',
+    'archiveRecallInfo.startTime',
     (millis) => millis && Math.floor(millis / 1000)
   ),
 
   finishedAt: computedPipe(
-    'archiveRecallInfo.finishTimestamp',
+    'archiveRecallInfo.finishTime',
     (millis) => millis && Math.floor(millis / 1000)
   ),
 
   recallingPercent: computed(
-    'file.{recallingMembership,archiveRecallState.content.currentBytes,archiveRecallInfo.content.targetBytes}',
+    'file.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
     function recallingPercent() {
       const file = this.get('file');
       return recallingPercentageProgress(file);
@@ -192,25 +192,25 @@ export default Component.extend(I18n, {
   processStatus: computed(
     'startedAt',
     'finishedAt',
-    'failedFiles',
+    'filesFailed',
     'lastError',
     function processStatus() {
       const {
         startedAt,
         finishedAt,
-        failedFiles,
+        filesFailed,
         lastError,
       } = this.getProperties(
         'startedAt',
         'finishedAt',
-        'failedFiles',
+        'filesFailed',
         'lastError',
       );
       if (!startedAt) {
         return 'scheduled';
       }
       if (finishedAt) {
-        if (failedFiles || lastError) {
+        if (filesFailed || lastError) {
           return 'failed';
         } else {
           return 'succeeded';

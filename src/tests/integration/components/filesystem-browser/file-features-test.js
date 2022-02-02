@@ -294,8 +294,8 @@ describe('Integration | Component | filesystem browser/file features', function 
     createArchiveRecallData(this);
     const targetFile = this.get('targetFile');
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes') / 2
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize') / 2
     );
     const onInvokeItemAction = sinon.spy();
     this.setProperties({
@@ -318,8 +318,8 @@ describe('Integration | Component | filesystem browser/file features', function 
     createArchiveRecallData(this);
     const targetFile = this.get('targetFile');
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes') / 2
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize') / 2
     );
     const onInvokeItemAction = sinon.spy();
     this.setProperties({
@@ -345,8 +345,8 @@ describe('Integration | Component | filesystem browser/file features', function 
     createArchiveRecallData(this);
     const targetFile = this.get('targetFile');
     this.set(
-      'archiveRecallState.currentBytes',
-      this.get('archiveRecallInfo.targetBytes') / 2
+      'archiveRecallState.bytesCopied',
+      this.get('archiveRecallInfo.totalByteSize') / 2
     );
     const onInvokeItemAction = sinon.spy();
     this.setProperties({
@@ -376,10 +376,10 @@ describe('Integration | Component | filesystem browser/file features', function 
     createArchiveRecallData(this);
     const browsableArchiveName = await getBrowsableArchiveName(this);
     const targetFile = this.get('targetFile');
-    this.set('archiveRecallInfo.targetFiles', 100);
-    this.set('archiveRecallState.currentFiles', 20);
-    this.set('archiveRecallInfo.targetBytes', 1024);
-    this.set('archiveRecallState.currentBytes', 200);
+    this.set('archiveRecallInfo.totalFileCount', 100);
+    this.set('archiveRecallState.filesCopied', 20);
+    this.set('archiveRecallInfo.totalByteSize', 1024);
+    this.set('archiveRecallState.bytesCopied', 200);
     const onInvokeItemAction = sinon.spy();
     this.setProperties({
       item: targetFile,

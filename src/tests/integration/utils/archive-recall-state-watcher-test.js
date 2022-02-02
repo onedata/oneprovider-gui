@@ -247,15 +247,15 @@ describe('Integration | Utility | archive recall state watcher', function () {
         targetFile: this.get('targetFile'),
         ownerSource: this,
       });
-      const currentFiles = 70;
-      const failedFiles = 30;
-      const targetFiles = currentFiles + failedFiles;
+      const filesCopied = 70;
+      const filesFailed = 30;
+      const totalFileCount = filesCopied + filesFailed;
       const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
-      this.set('archiveRecallInfo.startTimestamp', 1000);
-      this.set('archiveRecallInfo.finishTimestamp', null);
-      this.set('archiveRecallInfo.targetFiles', targetFiles);
-      this.set('archiveRecallState.currentFiles', currentFiles);
-      this.set('archiveRecallState.failedFiles', failedFiles);
+      this.set('archiveRecallInfo.startTime', 1000);
+      this.set('archiveRecallInfo.finishTime', null);
+      this.set('archiveRecallInfo.totalFileCount', totalFileCount);
+      this.set('archiveRecallState.filesCopied', filesCopied);
+      this.set('archiveRecallState.filesFailed', filesFailed);
 
       this.watcher.start();
       this.clock.tick(1);

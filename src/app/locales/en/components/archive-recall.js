@@ -1,8 +1,12 @@
 export default {
   archiveRecallStartSuccess: 'Archive recall process successfully started.',
   archiveRecallProcessStart: 'archive recall process start',
+  fileType: {
+    file: 'file',
+    dir: 'directory',
+  },
   browserValidation: {
-    recalling: 'Cannot recall here – selected is currently being recalled',
+    recalling: 'Cannot recall here – selected directory is currently being recalled',
   },
   targetNameValidation: {
     exists: 'This filename is already in use',

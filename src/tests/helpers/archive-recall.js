@@ -40,7 +40,7 @@ export async function createArchiveRecallData(testCase) {
     stats: {
       filesArchived: totalFileCount,
       bytesArchived: totalByteSize,
-      failedFiles: 0,
+      filesFailed: 0,
     },
     dataset,
   });

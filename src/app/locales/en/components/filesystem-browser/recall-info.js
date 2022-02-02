@@ -6,7 +6,7 @@ export default {
   targetPath: 'Recall destination',
   startedAt: 'Started at',
   finishedAt: 'Finished at',
-  failedFiles: 'Files failed',
+  filesFailed: 'Files failed',
   lastError: 'Last error',
   unknownError: 'Unknown error',
   status: {

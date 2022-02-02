@@ -995,9 +995,9 @@ export default Service.extend({
     });
     const archiveRecallState = store.createRecord('archive-recall-state', {
       id: stateGri,
-      currentFiles: 50,
-      currentBytes: 500000,
-      failedFiles: 0,
+      filesCopied: 50,
+      bytesCopied: 500000,
+      filesFailed: 0,
       lastError: null,
       // // -- uncomment for real parsable error
       // lastError: {
