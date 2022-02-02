@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8640 Added modal with OpenFaaS pods activity to workflow execution preview
 * VFS-8874 Removed bower and ember-spin-button
 * VFS-8887 Fixed not working file information modal in shares file browser
 * VFS-6397 Removed redundant bower dependencies

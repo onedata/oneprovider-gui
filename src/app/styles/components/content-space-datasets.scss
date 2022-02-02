@@ -23,8 +23,6 @@
 }
 
 .content-space-datasets {
-  $-gutter-background-color: $color-one-semiwhite;
-  $-gutter-background-color-hovered: $color-one-gray-sand;
   $-gutter-height: 10px;
   position: relative;
   height: 100%;
@@ -34,20 +32,13 @@
   grid-template-rows: 1fr $-gutter-height 1fr;
 
   .gutter-row {
+    @include horizontal-drag-dots-background();
     position: relative;
     grid-column: 1/-1;
     cursor: row-resize;
     margin-left: -$content-col-padding;
     margin-right: -$content-col-padding;
-    background-color: $-gutter-background-color;
-    background-repeat: no-repeat;
-    background-position: 50%;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
     z-index: $zindex-file-browser-head + 1;
-
-    &:hover {
-      background-color: $color-one-gray-sand;
-    }
   }
 
   .gutter-row-1 {
