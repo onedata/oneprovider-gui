@@ -139,12 +139,6 @@ $file-status-tag-spacing: 6px;
       z-index: 3;
     }
   }
-
-  // FIXME: specific, move?
-  .file-status-recalling {
-    width: 11em;
-    justify-content: center;
-  }
 }
 
 @mixin highlight-tag-color {

@@ -43,7 +43,7 @@
         </td>
         <td class="property-value">
           {{#if datasetProxy.isFulfilled}}
-            <a class="datset-link azure" href={{datasetUrl}} target={{navigateTarget}}>
+            <a class="dataset-link azure" href={{datasetUrl}} target={{navigateTarget}}>
               {{datasetName}}
             </a>
           {{else}}
@@ -116,12 +116,15 @@
       {{/if}}
       {{#if lastError}}
         <tr class="recall-info-row-last-error">
-          {{!-- FIXME: with-input if using input --}}
-          <td class="property-name text-danger">
+          <td class={{concat-classes
+            "property-name"
+            "text-danger"
+            (if showErrorTextarea "with-input")
+          }}>
             {{tt this "lastError"}}:
           </td>
           <td class="property-value">
-            {{#if (eq lastErrorParsed.type "raw")}}
+            {{#if showErrorTextarea}}
               <div class="input-group input-group-clipboard-textarea has-error">
                 {{clipboard-line
                   value=lastErrorParsed.message

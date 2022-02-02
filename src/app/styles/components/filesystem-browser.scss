@@ -21,6 +21,13 @@
   min-height: 16em;
 }
 
+.file-status-bar {
+  .file-status-recalling {
+    width: 11em;
+    justify-content: center;
+  }
+}
+
 .recall-info {
   h1 {
     text-align: center;

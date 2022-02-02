@@ -313,11 +313,6 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     const $datasetLink = this.$('.dataset-link');
     expect($datasetLink).to.have.attr('href', correctUrl);
   });
-
-  // FIXME: renders archive id if archive cannot be resolved
-  // FIXME: renders dataset id if dataset cannot be resolved
-  // FIXME: shows loading indicator until info and state is loaded, but does not appear on update
-  // FIXME: last error should be parsed and/or displayed in textarea
 });
 
 async function render(testCase) {

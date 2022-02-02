@@ -999,6 +999,19 @@ export default Service.extend({
       currentBytes: 500000,
       failedFiles: 0,
       lastError: null,
+      // // -- uncomment for real parsable error
+      // lastError: {
+      //   reason: {
+      //     id: 'posix',
+      //     details: { errno: 'enospc' },
+      //   },
+      // },
+      // // -- uncomment for unparsable error
+      // lastError: {
+      //   reason: {
+      //     id: 'random',
+      //   },
+      // },
     });
     this.set('entityRecords.archiveRecallInfo', [archiveRecallInfo]);
     this.set('entityRecords.archiveRecallState', [archiveRecallState]);

@@ -1,4 +1,11 @@
-// FIXME: documentation
+/**
+ * Popover container for recall-info component
+ *
+ * @module components/filesystem-browser/recall-info-popover
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';

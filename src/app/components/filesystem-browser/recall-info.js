@@ -2,7 +2,7 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import { promise } from 'ember-awesome-macros';
+import { promise, equal, raw } from 'ember-awesome-macros';
 import { all as allFulfilled, hashSettled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -271,6 +271,13 @@ export default Component.extend(I18n, {
 
   datasetUrl: reads('datasetUrlProxy.content'),
 
+  /**
+   * @typedef  {'message'|'raw'|'unknown'} RecallInfoErrorType
+   */
+
+  /**
+   * @returns {{ type: RecallInfoErrorType, message: String }}
+   */
   lastErrorParsed: computed('lastError', function lastErrorString() {
     const {
       lastError,
@@ -286,6 +293,8 @@ export default Component.extend(I18n, {
     }
     return { type: 'unknown' };
   }),
+
+  showErrorTextarea: equal('lastErrorParsed.type', raw('raw')),
 
   init() {
     this._super(...arguments);
