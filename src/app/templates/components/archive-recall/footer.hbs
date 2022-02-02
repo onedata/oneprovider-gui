@@ -53,14 +53,16 @@
       {{tt this "cancel"}}
     {{/bs-button}}
     <div class="btn-tooltip-container">
-      {{#one-spin-button
-        class="btn btn-primary submit-btn"
+      {{#one-button
+        class="submit-btn"
+        type="primary"
+        buttonType="submit"
         disabled=effSubmitDisabled
-        inFlight=isSubmitting
-        action=(action "submit")
+        isPending=isSubmitting
+        onClick=(action "submit")
       }}
         {{tt this "proceed"}}
-      {{/one-spin-button}}
+      {{/one-button}}
       {{#if proceedTip}}
         {{one-tooltip title=proceedTip}}
       {{/if}}
