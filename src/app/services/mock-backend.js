@@ -1027,7 +1027,7 @@ export default Service.extend({
   },
 
   async updateRecallState() {
-    const stepsCount = 1000;
+    const stepsCount = 100;
     const archiveRecallInfo = this.get('entityRecords.archiveRecallInfo.0');
     const archiveRecallState = this.get('entityRecords.archiveRecallState.0');
     const {

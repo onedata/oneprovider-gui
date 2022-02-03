@@ -154,7 +154,7 @@ export default Component.extend(I18n, {
     return archiveRecallInfo && archiveRecallInfo.relationEntityId('dataset');
   }),
 
-  recallRootFile: reads('recallRootFileProxy.content'),
+  recallRootFile: computedLastProxyContent('recallRootFileProxy'),
 
   archiveRecallInfo: computedLastProxyContent('archiveRecallInfoProxy'),
 
@@ -265,7 +265,7 @@ export default Component.extend(I18n, {
     }
   )),
 
-  archiveUrl: reads('archiveUrlProxy.content'),
+  archiveUrl: computedLastProxyContent('archiveUrlProxy.content'),
 
   datasetUrlProxy: promise.object(computed(
     'datasetProxy',

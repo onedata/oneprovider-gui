@@ -28,7 +28,7 @@
           {{tt this "archive"}}
         </td>
         <td class="property-value">
-          {{#if archiveProxy.isFulfilled}}
+          {{#if archive}}
             <a class="archive-link azure" href={{archiveUrl}} target={{navigateTarget}}>
               {{archiveName}}
             </a>
@@ -46,7 +46,7 @@
           {{tt this "dataset"}}
         </td>
         <td class="property-value">
-          {{#if datasetProxy.isFulfilled}}
+          {{#if dataset}}
             <a class="dataset-link azure" href={{datasetUrl}} target={{navigateTarget}}>
               {{datasetName}}
             </a>
@@ -64,7 +64,7 @@
           {{tt this "targetPath"}}
         </td>
         <td class="property-value">
-          {{#if recallRootFileProxy.isFulfilled}}
+          {{#if recallRootFile}}
             {{file-path file=recallRootFile click=(action "targetFileLinkClicked")}}
           {{else}}
             <em>{{tt this "couldNotLoad"}}</em>
