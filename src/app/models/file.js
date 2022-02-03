@@ -188,8 +188,10 @@ export const RuntimeProperties = Mixin.create({
       const recallRootId = this.get('recallRootId');
       if (recallRootId) {
         const archiveRecallInfoContent = await this.get('archiveRecallInfo');
-        return archiveRecallInfoContent &&
-          get(archiveRecallInfoContent, 'finishTime');
+        return Boolean(
+          archiveRecallInfoContent &&
+          get(archiveRecallInfoContent, 'finishTime')
+        );
       } else {
         return false;
       }

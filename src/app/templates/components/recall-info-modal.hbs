@@ -1,0 +1,21 @@
+{{#one-modal
+  class="recall-info-modal modal-content-overlay without-footer with-close-button"
+  open=open
+  size="xl"
+  backdropClose=true
+  keyboard=true
+  onHide=(action "hide")
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>{{tt this "header"}}</h1>
+    {{modal-file-subheader files=(array file)}}
+  {{/modal.header}}
+  {{#modal.body}}
+    {{filesystem-browser/recall-info
+      file=file
+      onClose=(action "hide")
+    }}
+    {{yield}}
+  {{/modal.body}}
+{{/one-modal}}

@@ -158,7 +158,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
     await render(this);
 
-    expect(this.$('.recall-status-header').text())
+    expect(this.$('.recall-info-row-process-status .property-value').text())
       .to.contain('Archive recall scheduled');
   });
 
@@ -183,7 +183,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
     await render(this);
 
-    expect(this.$('.recall-status-header').text())
+    expect(this.$('.recall-info-row-process-status .property-value').text())
       .to.match(/Archive recall in progress\s*\(50% done\)/);
   });
 
@@ -212,7 +212,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
     await render(this);
 
-    expect(this.$('.recall-status-header').text())
+    expect(this.$('.recall-info-row-process-status .property-value').text())
       .to.contain('Archive recall finished successfully');
   });
 
@@ -258,7 +258,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
     await render(this);
 
-    expect(this.$('.recall-status-header').text())
+    expect(this.$('.recall-info-row-process-status .property-value').text())
       .to.match(/Archive recall finished with errors\s+\(20% done\)/);
   });
 

@@ -49,6 +49,14 @@
     }}
   {{/if}}
 
+  {{#if fileToShowRecallInfo}}
+    {{recall-info-modal
+      open=true
+      file=fileToShowRecallInfo
+      onHide=(action closeRecallInfoModal)
+    }}
+  {{/if}}
+
   {{#if fileToShare}}
     {{file-browser/fb-share-modal
       open=true

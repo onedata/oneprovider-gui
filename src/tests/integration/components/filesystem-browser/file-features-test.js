@@ -4,9 +4,8 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
-import { createArchiveRecallData, getBrowsableArchiveName } from '../../../helpers/archive-recall';
+import { createArchiveRecallData } from '../../../helpers/archive-recall';
 import wait from 'ember-test-helpers/wait';
-import $ from 'jquery';
 import { lookupService } from '../../../helpers/stub-service';
 
 describe('Integration | Component | filesystem browser/file features', function () {
@@ -312,95 +311,6 @@ describe('Integration | Component | filesystem browser/file features', function 
 
     const tagProgress = this.$('.file-status-recalling .tag-progress')[0];
     expect(tagProgress.style.width).to.equal('50%');
-  });
-
-  it('recalling popover is not rendered if recalling tag has not been clicked', async function () {
-    createArchiveRecallData(this);
-    const targetFile = this.get('targetFile');
-    this.set(
-      'archiveRecallState.bytesCopied',
-      this.get('archiveRecallInfo.totalByteSize') / 2
-    );
-    const onInvokeItemAction = sinon.spy();
-    this.setProperties({
-      item: targetFile,
-      onInvokeItemAction,
-    });
-
-    this.render(hbs `{{filesystem-browser/file-features
-      item=item
-      initiallyExpanded=false
-      onInvokeItemAction=onInvokeItemAction
-    }}`);
-    await wait();
-
-    const $tagGroup = this.$('.recalling-file-status-tag-group');
-    expect($tagGroup).to.exist;
-
-    expect($('.webui-popover'), 'popover').to.not.exist;
-    expect($('.recalling-popover-content'), 'recalling-popover-content').to.not.exist;
-  });
-
-  it('allows to toggle recalling popover when clicking on tag and outside', async function () {
-    createArchiveRecallData(this);
-    const targetFile = this.get('targetFile');
-    this.set(
-      'archiveRecallState.bytesCopied',
-      this.get('archiveRecallInfo.totalByteSize') / 2
-    );
-    const onInvokeItemAction = sinon.spy();
-    this.setProperties({
-      item: targetFile,
-      onInvokeItemAction,
-    });
-
-    this.render(hbs `{{filesystem-browser/file-features
-      item=item
-      initiallyExpanded=false
-      onInvokeItemAction=onInvokeItemAction
-    }}`);
-    await wait();
-
-    const $tagGroup = this.$('.recalling-file-status-tag-group');
-    expect($tagGroup).to.exist;
-    await click($tagGroup[0]);
-
-    expect($('.webui-popover'), 'popover').to.exist.and.have.class('in');
-    expect($('.recalling-popover-content')).to.be.visible;
-
-    await click(this.$()[0]);
-    expect($('.webui-popover'), 'popover after outside click').to.not.have.class('in');
-  });
-
-  it('shows popover for recalling tag with archive name, files recalled count and total files', async function () {
-    createArchiveRecallData(this);
-    const browsableArchiveName = await getBrowsableArchiveName(this);
-    const targetFile = this.get('targetFile');
-    this.set('archiveRecallInfo.totalFileCount', 100);
-    this.set('archiveRecallState.filesCopied', 20);
-    this.set('archiveRecallInfo.totalByteSize', 1024);
-    this.set('archiveRecallState.bytesCopied', 200);
-    const onInvokeItemAction = sinon.spy();
-    this.setProperties({
-      item: targetFile,
-      onInvokeItemAction,
-    });
-
-    this.render(hbs `{{filesystem-browser/file-features
-      item=item
-      initiallyExpanded=false
-      onInvokeItemAction=onInvokeItemAction
-      recallingPopoverOpened=true
-    }}`);
-    await wait();
-
-    const $tagGroup = this.$('.recalling-file-status-tag-group');
-    expect($tagGroup).to.exist;
-    const $content = $('.recalling-popover-content');
-    expect($content).to.be.visible;
-    expect($content.text()).to.contain(browsableArchiveName);
-    expect($content.text()).to.contain('20 / 100');
-    expect($content.text()).to.contain('200 B / 1 KiB');
   });
 
   //#endregion

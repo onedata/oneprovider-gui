@@ -108,6 +108,8 @@ export default OneEmbeddedComponent.extend(
 
     showInfoInitialTab: undefined,
 
+    fileToShowRecallInfo: undefined,
+
     fileToShowMetadata: undefined,
 
     /**
@@ -282,6 +284,7 @@ export default OneEmbeddedComponent.extend(
         openRemove: this.openRemoveModal.bind(this),
         openRename: this.openRenameModal.bind(this),
         openInfo: this.openInfoModal.bind(this),
+        openRecallInfo: this.openRecallInfoModal.bind(this),
         openMetadata: this.openMetadataModal.bind(this),
         openShare: this.openShareModal.bind(this),
         openDatasets: this.openDatasetsModal.bind(this),
@@ -425,6 +428,9 @@ export default OneEmbeddedComponent.extend(
         showInfoInitialTab: activeTab || 'general',
       });
     },
+    openRecallInfoModal(file) {
+      this.set('fileToShowRecallInfo', file);
+    },
     openMetadataModal(file) {
       this.set('fileToShowMetadata', file);
     },
@@ -451,6 +457,9 @@ export default OneEmbeddedComponent.extend(
     },
     closeInfoModal() {
       this.set('fileToShowInfo', null);
+    },
+    closeRecallInfoModal() {
+      this.set('fileToShowRecallInfo', null);
     },
     closeMetadataModal() {
       this.set('fileToShowMetadata', null);

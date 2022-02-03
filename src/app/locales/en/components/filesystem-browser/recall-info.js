@@ -9,6 +9,7 @@ export default {
   filesFailed: 'Files failed',
   lastError: 'Last error',
   unknownError: 'Unknown error',
+  processStatus: 'Status',
   status: {
     scheduled: 'Archive recall scheduled',
     pending: 'Archive recall in progress',

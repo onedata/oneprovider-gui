@@ -1,3 +1,13 @@
+/**
+ * Information about file in recalling or recalled archive - basic info and live
+ * statistics.
+ *
+ * @module components/recall-info
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -10,6 +20,8 @@ import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
 import _ from 'lodash';
+import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   classNames: ['recall-info'],
@@ -33,6 +45,13 @@ export default Component.extend(I18n, {
    * @type {Models.File}
    */
   file: undefined,
+
+  /**
+   * If recall info is in closeable container, it should be closed on this callback.
+   * @virtual optional
+   * @type {() => void}
+   */
+  onClose: notImplementedIgnore,
 
   //#region state
 
@@ -327,5 +346,13 @@ export default Component.extend(I18n, {
     } finally {
       this._super(...arguments);
     }
+  },
+
+  actions: {
+    targetFileLinkClicked(event) {
+      if (!isNewTabRequestEvent(event)) {
+        this.get('onClose')();
+      }
+    },
   },
 });

@@ -258,16 +258,9 @@ export default Component.extend(I18n, {
         this.invokeItemAction('qos');
       }
     },
-    recallingTagClicked() {
-      const {
-        effRecallingDisabled,
-        recallingPopoverOpened,
-      } = this.getProperties(
-        'effRecallingDisabled',
-        'recallingPopoverOpened',
-      );
-      if (!effRecallingDisabled) {
-        this.set('recallingPopoverOpened', !recallingPopoverOpened);
+    recallTagClicked() {
+      if (!this.get('effRecallingDisabled')) {
+        this.invokeItemAction('recallInfo');
       }
     },
     changeTagHover(tag, hovered) {

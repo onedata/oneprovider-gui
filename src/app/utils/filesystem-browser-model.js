@@ -22,7 +22,7 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
-import { array, raw } from 'ember-awesome-macros';
+import { array, raw, and } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 
 const buttonNames = Object.freeze([
@@ -31,6 +31,7 @@ const buttonNames = Object.freeze([
   'btnNewDirectory',
   'btnRefresh',
   'btnInfo',
+  'btnRecallInfo',
   'btnDownload',
   'btnDownloadTar',
   'btnShare',
@@ -77,6 +78,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @param {Models.File} file file to show its info
    */
   openInfo: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models.File} file file to show recall state modal
+   */
+  openRecallInfo: notImplementedThrow,
 
   /**
    * @virtual
@@ -460,6 +468,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       ],
     });
   }),
+
+  btnRecallInfo: computed(
+    'showRecallInfoButton',
+    function btnRecallInfo() {
+      const hidden = !this.get('showRecallInfoButton');
+      return this.createFileAction({
+        id: 'recallInfo',
+        icon: 'browser-archive-recall',
+        action: (files, activeTab) => {
+          return this.get('openRecallInfo')(files[0], activeTab);
+        },
+        hidden,
+        showIn: [
+          actionContext.spaceRootDir,
+          actionContext.singleDir,
+          actionContext.singleFile,
+          actionContext.currentDir,
+        ],
+      });
+    }
+  ),
 
   btnDownload: computed(
     'selectedItemsContainsOnlyBrokenSymlinks',
@@ -897,6 +926,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         selectedItems.filterBy('effFile').length === 0;
     }
   ),
+
+  selectedItemIsRecallTarget: computed(
+    'selectedItems.[]',
+    function selectedItemIsRecallTarget() {
+      const selectedItems = this.get('selectedItems');
+      return selectedItems && selectedItems.length === 1 && (
+        get(selectedItems[0], 'isRecalled') ||
+        get(selectedItems[0], 'recallingMembership') === 'ancestor' ||
+        get(selectedItems[0], 'recallingMembership') === 'direct'
+      );
+    }
+  ),
+
+  showRecallInfoButton: and('isMobile.any', 'selectedItemIsRecallTarget'),
 
   uploadDropElement: computed('element', function uploadDropElement() {
     const element = this.get('element');

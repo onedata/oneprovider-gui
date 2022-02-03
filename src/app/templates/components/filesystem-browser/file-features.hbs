@@ -16,7 +16,7 @@
           }}
           onmouseover={{action "changeTagHover" "recalling" true}}
           onmouseout={{action "changeTagHover" "recalling" false}}
-          onclick={{unless effRecallingDisabled (action "recallingTagClicked")}}
+          onclick={{unless effRecallingDisabled (action "recallTagClicked")}}
         >
           <div
             class={{concat-classes
@@ -53,25 +53,10 @@
         {{filesystem-browser/tag-recalled
           file=item
           disabled=effRecallingDisabled
-          onTagClicked=(unless effRecallingDisabled (action "recallingTagClicked"))
+          onTagClicked=(unless effRecallingDisabled (action "recallTagClicked"))
         }}
       {{/if}}
     </div>
-  {{/if}}
-
-  {{#if (and
-    (contains "recallingMembership" features)
-    (or
-      displayed.recallingMembership.isShown
-      item.isRecalled
-    )
-  )}}
-    {{filesystem-browser/recall-info-popover
-      file=item
-      opened=recallingPopoverOpened
-      onChangeOpened=(action (mut recallingPopoverOpened))
-      triggerSelector=recallingPopoverTriggerSelector
-    }}
   {{/if}}
   {{#if displayed.effDatasetMembership.isShown}}
     <div
