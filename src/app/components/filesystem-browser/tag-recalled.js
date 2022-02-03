@@ -11,6 +11,7 @@
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { reads } from '@ember/object/computed';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -33,16 +34,19 @@ export default Component.extend(I18n, {
   disabled: false,
 
   /**
-   * @virtual
+   * @virtual optional
    * @type () => void
    */
-  onTagClicked: undefined,
+  onTagClicked: notImplementedIgnore,
 
-  errorOccured: reads('file.archiveRecallState.errorOccured'),
+  errorOccurred: reads('file.archiveRecallState.errorOccurred'),
 
   actions: {
     tagClicked() {
-      this.get('onTagClicked')();
+      const onTagClicked = this.get('onTagClicked');
+      if (onTagClicked) {
+        onTagClicked();
+      }
     },
   },
 });

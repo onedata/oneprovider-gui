@@ -1,7 +1,10 @@
 {{#promise-proxy-container proxy=initialRequiredDataProxy}}
   <table class="table table-info table-info-collapsible">
     <tbody>
-      <tr class="recall-info-row-process-status">
+      <tr class={{concat-classes
+        "recall-info-row-process-status"
+        (if errorOccurred "text-danger")
+      }}>
         <td class="property-name">
           {{tt this "processStatus"}}
         </td>

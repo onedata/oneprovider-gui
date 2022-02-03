@@ -27,7 +27,7 @@ export default Model.extend(GraphSingleModelMixin, {
    */
   lastError: attr('object', { defaultValue: null }),
 
-  errorOccured: or(
+  errorOccurred: or(
     'filesFailed',
     computedPipe('lastError', (value) => !_.isEmpty(value))
   ),

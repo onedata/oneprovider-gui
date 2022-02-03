@@ -179,6 +179,8 @@ export default Component.extend(I18n, {
 
   filesFailed: reads('archiveRecallState.filesFailed'),
 
+  errorOccurred: reads('archiveRecallState.errorOccurred'),
+
   lastError: computed('archiveRecallState.lastError', function lastError() {
     const lastErrorData = this.get('archiveRecallState.lastError');
     return _.isEmpty(lastErrorData) ? null : lastErrorData;
@@ -331,12 +333,13 @@ export default Component.extend(I18n, {
         recallRootFile,
       } = this.getProperties('file', 'recallRootFile');
       const path = await resolveFilePath(file);
-      return stringifyFilePath(
+      const stringifiedRelativePath = stringifyFilePath(
         cutDirsPath(path, recallRootFile).slice(1),
         'name',
         dirSeparator,
         false
       );
+      return `.${dirSeparator}${stringifiedRelativePath}`;
     }
   )),
 

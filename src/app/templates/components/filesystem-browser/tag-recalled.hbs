@@ -3,22 +3,17 @@
     class="file-status-tag-group recalled-file-status-tab-group"
     onclick={{action "tagClicked"}}
   >
-    <div
-      class={{concat-classes
-        "file-status-tag"
-        "file-status-recalled"
-        (if disabled "file-status-tag-disabled")
-      }}
-    >
-      {{tt this "recalled"}}
+    <div class={{concat-classes
+      "file-status-tag"
+      "file-status-recalled"
+      (if disabled "file-status-tag-disabled" (if errorOccurred "file-status-tag-danger"))
+    }}>
+      {{tt this (if errorOccurred "recallFailed" "recalled")}}
     </div>
-    {{#if errorOccured}}
-      <div
-        class="file-status-tag file-status-tag-warning file-status-tag-icon"
-      >
-        {{one-icon icon="warning"}}
-        {{one-tooltip title=(tt this "errorsDuringRecall")}}
-      </div>
+    {{#if errorOccurred}}
+      {{one-tooltip
+        title=(tt this (if disabled "errorsDuringRecallDisabled" "errorsDuringRecall"))
+      }}
     {{/if}}
   </div>
 {{/if}}
