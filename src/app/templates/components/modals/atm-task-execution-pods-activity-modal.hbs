@@ -1,0 +1,44 @@
+{{#global-modal
+  classNames="atm-task-execution-pods-activity-modal modal-content-overlay"
+  modalId=modalId
+  size="xl"
+  as |modal|
+}}
+
+  {{#modal.header}}
+    <h1>{{tt this "header"}}</h1>
+  {{/modal.header}}
+
+  {{#modal.body}}
+    {{#promise-proxy-container proxy=podsActivityRegistryProxy}}
+      <div class="pods-table-section fill-flex-using-column">
+        {{modals/atm-task-execution-pods-activity-modal/pods-table
+          class="fill-flex-using-column"
+          activityRegistry=podsActivityRegistryProxy.registry
+          selectedPodId=selectedPodId
+          onPodSelect=(action "podSelected")
+        }}
+      </div>
+      {{modals/atm-task-execution-pods-activity-modal/pods-events-splitter
+        gridTrackNumber=1
+        onMoveEnd=(action "splitChanged")
+      }}
+      <div class="events-table-section fill-flex-using-column relative">
+        {{#if selectedPodId}}
+          <h2>{{tt this "eventsHeader" podName=selectedPodId}}</h2>
+          {{modals/atm-task-execution-pods-activity-modal/events-table
+            class="fill-flex-using-column"
+            atmTaskExecutionId=atmTaskExecutionId
+            podId=selectedPodId
+            registerApi=(action "registerEventsTableApi")
+          }}
+        {{else}}
+          <p class="events-table-placeholder">
+            {{tt this "eventsTablePlaceholder"}}
+          </p>
+        {{/if}}
+      </div>
+    {{/promise-proxy-container}}
+  {{/modal.body}}
+
+{{/global-modal}}

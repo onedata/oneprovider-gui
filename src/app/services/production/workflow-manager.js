@@ -12,7 +12,11 @@ import { getProperties, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
-import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import {
+  entityType as atmTaskExecutionEntityType,
+  aspects as atmTaskExecutionAspects,
+} from 'oneprovider-gui/models/atm-task-execution';
+import { entityType as atmLambdaSnapshotEntityType } from 'oneprovider-gui/models/atm-lambda-snapshot';
 import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import { allSettled } from 'rsvp';
 import { reads } from '@ember/object/computed';
@@ -21,11 +25,20 @@ import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import AllKnownAtmWorkflowSchemasProxyArray from 'oneprovider-gui/utils/workflow-manager/all-known-atm-workflow-schemas-proxy-array';
 import config from 'ember-get-config';
 
+/**
+ * @typedef {Object} OpenfaasFunctionEvent
+ * For more information about fields used in this object see Kubernetes documentation.
+ * @property {'Normal'|'Warning'} type
+ * @property {string} reason
+ * @property {string} message
+ */
+
 export default Service.extend({
   store: service(),
   onedataGraph: service(),
   onedataConnection: service(),
   currentUser: service(),
+  infiniteLogManager: service(),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -131,6 +144,21 @@ export default Service.extend({
   },
 
   /**
+   * @param {String} atmLambdaSnapshotId
+   * @returns {Promise<Models.AtmLambdaSnapshot>}
+   */
+  async getAtmLambdaSnapshotById(atmLambdaSnapshotId) {
+    const atmLambdaSnapshotGri = gri({
+      entityType: atmLambdaSnapshotEntityType,
+      entityId: atmLambdaSnapshotId,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .findRecord('atmLambdaSnapshot', atmLambdaSnapshotGri);
+  },
+
+  /**
    * @param {String} storeId
    * @param {Boolean} [fetchOptions.reload=false]
    * @param {Boolean} [fetchOptions.backgroundReload=false]
@@ -232,6 +260,27 @@ export default Service.extend({
   },
 
   /**
+   * @param {string} atmTaskExecutionId
+   * @param {Boolean} [fetchOptions.reload=false]
+   * @param {Boolean} [fetchOptions.backgroundReload=false]
+   * @returns {Promise<Models.OpenfaasFunctionActivityRegistry>}
+   */
+  async getAtmTaskExecutionOpenfaasActivityRegistry(atmTaskExecutionId, {
+    reload = false,
+    backgroundReload = false,
+  } = {}) {
+    const activityRegistryGri = gri({
+      entityType: atmTaskExecutionEntityType,
+      entityId: atmTaskExecutionId,
+      aspect: atmTaskExecutionAspects.openfaasFunctionActivityRegistry,
+    });
+    return await this.get('store').findRecord(
+      'openfaasFunctionActivityRegistry',
+      activityRegistryGri, { reload, backgroundReload }
+    );
+  },
+
+  /**
    * @param {String} storeInstanceId
    * @param {String} startFromIndex
    * @param {number} limit
@@ -307,6 +356,29 @@ export default Service.extend({
         laneRunNumber: runNumber,
       },
     });
+  },
+
+  /**
+   * @param {string} atmTaskExecutionId
+   * @param {string} podId
+   * @param {JsonInfiniteLogPagingParams} pagingParams
+   * @returns {Promise<JsonInfiniteLogPage<OpenfaasFunctionEvent>>}
+   */
+  async getAtmTaskExecutionOpenfaasPodEventLogs(
+    atmTaskExecutionId,
+    podId,
+    pagingParams
+  ) {
+    const eventLogGri = gri({
+      entityType: atmTaskExecutionEntityType,
+      entityId: atmTaskExecutionId,
+      aspect: atmTaskExecutionAspects.openfaasFunctionPodEventLog,
+      aspectId: podId,
+    });
+    return this.get('infiniteLogManager').getJsonInfiniteLogContent(
+      eventLogGri,
+      pagingParams
+    );
   },
 
   /**

@@ -1,0 +1,44 @@
+{{#loading-container isLoading=eventsEntries.isLoading sizeClass="sm"}}
+  {{#scrollable-table class="table one-infinite-list"}}
+    {{modals/atm-task-execution-pods-activity-modal/events-table/header-row}}
+    <tr class="table-start-row"></tr>
+    <tr class="first-row">
+      <td colspan={{columnsCount}} style={{firstRowStyle}}></td>
+    </tr>
+    {{#unless eventsEntries.length}}
+      <tr class="table-is-empty-row">
+        <td class="table-is-empty-cell" colspan={{columnsCount}}>
+          {{tt this "noEvents"}}
+        </td>
+      </tr>
+    {{else}}
+      {{#if (and eventsEntries.initialLoad.isSettled fetchingPrev tableTopVisible)}}
+        <tr class="loading-row">
+          <td colspan={{columnsCount}} class="loading-row-cell">
+            {{spin-spinner-block
+              sizeClass="xs"
+              class="absolute-middle-centered"
+            }}
+          </td>
+        </tr>
+      {{/if}}
+      {{#each eventsEntries key="index" as |eventEntry|}}
+        {{modals/atm-task-execution-pods-activity-modal/events-table/event-row
+          eventEntry=eventEntry
+          isExpanded=(eq eventEntry.index expandedRowIndex)
+          onToggleExpand=(action "toggleRowExpand")
+        }}
+      {{/each}}
+      {{#if (and eventsEntries.initialLoad.isSettled fetchingNext)}}
+        <tr class="loading-row">
+          <td colspan={{columnsCount}} class="loading-row-cell">
+            {{spin-spinner-block
+              sizeClass="xs"
+              class="absolute-middle-centered"
+            }}
+          </td>
+        </tr>
+      {{/if}}
+    {{/unless}}
+  {{/scrollable-table}}
+{{/loading-container}}
