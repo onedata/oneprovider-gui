@@ -12,7 +12,7 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import { promise, equal, raw } from 'ember-awesome-macros';
+import { promise, equal, raw, and, not } from 'ember-awesome-macros';
 import { all as allFulfilled, hashSettled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -22,6 +22,8 @@ import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percent
 import _ from 'lodash';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import resolveFilePath, { stringifyFilePath, dirSeparator } from 'oneprovider-gui/utils/resolve-file-path';
+import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 
 export default Component.extend(I18n, {
   classNames: ['recall-info'],
@@ -76,12 +78,14 @@ export default Component.extend(I18n, {
         recallRootFileProxy,
         archiveRecallInfoProxy,
         archiveRecallStateProxy,
+        relativePathProxy,
       } = this.getProperties(
         'archiveProxy',
         'datasetProxy',
         'recallRootFileProxy',
         'archiveRecallInfoProxy',
         'archiveRecallStateProxy',
+        'relativePathProxy',
       );
       const result = await hashSettled({
         archive: archiveProxy,
@@ -89,6 +93,7 @@ export default Component.extend(I18n, {
         root: recallRootFileProxy,
         info: archiveRecallInfoProxy,
         state: archiveRecallStateProxy,
+        relativePath: relativePathProxy,
       });
       if (result.root.state === 'rejected' || result.info.state === 'rejected') {
         throw result.root.reason || result.info.reason;
@@ -265,7 +270,7 @@ export default Component.extend(I18n, {
     }
   )),
 
-  archiveUrl: computedLastProxyContent('archiveUrlProxy.content'),
+  archiveUrl: computedLastProxyContent('archiveUrlProxy'),
 
   datasetUrlProxy: promise.object(computed(
     'datasetProxy',
@@ -288,7 +293,7 @@ export default Component.extend(I18n, {
     }
   )),
 
-  datasetUrl: reads('datasetUrlProxy.content'),
+  datasetUrl: computedLastProxyContent('datasetUrlProxy'),
 
   /**
    * @typedef  {'message'|'raw'|'unknown'} RecallInfoErrorType
@@ -314,6 +319,30 @@ export default Component.extend(I18n, {
   }),
 
   showErrorTextarea: equal('lastErrorParsed.type', raw('raw')),
+
+  fileIsRecallRoot: equal('file', 'recallRootFile'),
+
+  relativePathProxy: promise.object(computed(
+    'file',
+    'recallRootFile',
+    async function relativePathProxy() {
+      const {
+        file,
+        recallRootFile,
+      } = this.getProperties('file', 'recallRootFile');
+      const path = await resolveFilePath(file);
+      return stringifyFilePath(
+        cutDirsPath(path, recallRootFile).slice(1),
+        'name',
+        dirSeparator,
+        false
+      );
+    }
+  )),
+
+  relativePath: computedLastProxyContent('relativePathProxy'),
+
+  renderRelativePathInput: and('relativePath', not('fileIsRecallRoot')),
 
   init() {
     this._super(...arguments);

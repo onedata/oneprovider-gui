@@ -4,6 +4,7 @@ export default {
   filesRecalled: 'Files recalled',
   dataRecalled: 'Data recalled',
   targetPath: 'Recall destination',
+  relativePath: 'Relative location',
   startedAt: 'Started at',
   finishedAt: 'Finished at',
   filesFailed: 'Files failed',
@@ -18,4 +19,5 @@ export default {
   },
   percentageDone: '({{percentage}}% done)',
   couldNotLoad: 'Could not load',
+  rootDirectory: 'Root directory',
 };

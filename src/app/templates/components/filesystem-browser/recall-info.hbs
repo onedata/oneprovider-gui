@@ -71,7 +71,28 @@
           {{/if}}
         </td>
       </tr>
-
+      {{#if (eq recallRootFile.type "dir")}}
+        <tr class="recall-info-row-relative-path">
+          <td class={{concat-classes
+            "property-name"
+            (if renderRelativePathInput "with-input-sm")
+          }}>
+            {{tt this "relativePath"}}
+          </td>
+          <td class="property-value">
+            {{#if renderRelativePathInput}}
+              {{clipboard-line
+                value=relativePath
+                size="sm"
+              }}
+            {{else if fileIsRecallRoot}}
+              <em>{{tt this "rootDirectory"}}</em>
+            {{else if (not relativePath)}}
+              <em>{{tt this "couldNotLoad"}}</em>
+            {{/if}}
+          </td>
+        </tr>
+      {{/if}}
       <tr class="recall-info-row-started-at">
         <td class="property-name">
           {{tt this "startedAt"}}
@@ -123,7 +144,7 @@
           <td class={{concat-classes
             "property-name"
             "text-danger"
-            (if showErrorTextarea "with-input")
+            (if showErrorTextarea "with-input-sm")
           }}>
             {{tt this "lastError"}}
           </td>
