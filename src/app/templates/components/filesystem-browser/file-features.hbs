@@ -21,11 +21,11 @@
           <div
             class={{concat-classes
               "file-status-tag"
-              "file-status-tag-success"
               "file-status-recalling"
               "file-status-progress"
               (if (eq displayed.recallingMembership.membership "ancestor")
                 "file-status-tag-inherited"
+                "file-status-tag-success"
               )
               (if effRecallingDisabled "file-status-tag-disabled")
             }}
