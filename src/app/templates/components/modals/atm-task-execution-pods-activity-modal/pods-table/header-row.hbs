@@ -1,0 +1,26 @@
+<th class="pods-table-header-cell column-label column-name-label">
+  <span class="column-label-text">{{tt this "columnLabel.name"}}</span>
+  {{#bs-button-group
+    value=podsFilter
+    class="pods-filter-btn-group"
+    type="radio"
+    onChange=(action "podsFilterChange")
+    as |bg|
+  }}
+    {{#bg.button type="default" class="btn-sm filter-current" value="current"}}
+      <span class="text">{{tt this "filter.current"}} ({{or currentPodsCount 0}})</span>
+    {{/bg.button}}
+    {{#bg.button type="default" class="btn-sm filter-all" value="all"}}
+      <span class="text">{{tt this "filter.all"}} ({{or allPodsCount 0}})</span>
+    {{/bg.button}}
+  {{/bs-button-group}}
+</th>
+<th class="pods-table-header-cell column-label column-readiness-label">
+  <span class="column-label-text">{{tt this "columnLabel.readiness"}}</span>
+</th>
+<th class="pods-table-header-cell column-label column-status-label">
+  <span class="column-label-text">{{tt this "columnLabel.status"}}</span>
+</th>
+<th class="pods-table-header-cell column-label column-status-since-label">
+  <span class="column-label-text">{{tt this "columnLabel.statusSince"}}</span>
+</th>

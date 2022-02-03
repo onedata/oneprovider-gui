@@ -1,0 +1,201 @@
+.atm-task-execution-pods-activity-modal {
+  $entry-warning-bg: lighten($color-one-warning, 35%);
+  $entry-danger-bg: lighten($color-one-danger, 35%);
+  $entry-selected-hovered-bg: darken($color-file-selected, 3%);
+
+  .bs-modal-body-scroll {
+    display: grid;
+    grid-template-rows: 1fr 10px 1fr;
+    grid-template-columns: 100%;
+  }
+
+  .pods-events-splitter {
+    @include horizontal-drag-dots-background();
+    grid-row: 2;
+    cursor: row-resize;
+  }
+
+  .pods-filter-btn-group {
+    margin-left: 2em;
+  }
+
+  .column-label:first-child {
+    text-align: left;
+    padding-left: 1em;
+  }
+
+  .pods-table-data-cell + .pods-table-data-cell,
+  .events-table-data-cell + .events-table-data-cell {
+    text-align: center;
+  }
+
+  .pods-table-pod-row {
+    &:hover {
+      background-color: $main-content-hover-background;
+    }
+
+    &.status-failed {
+      background-color: $entry-danger-bg;
+    }
+
+    &.status-unknown {
+      background-color: $entry-warning-bg;
+    }
+
+    &.is-selected {
+      background-color: $color-file-selected;
+
+      &:hover {
+        background-color: $entry-selected-hovered-bg;
+      }
+    }
+  }
+
+  .pods-table {
+    .column-name-label,
+    .pod-id {
+      width: 100%;
+      max-width: 0;
+    }
+
+    .column-readiness-label {
+      min-width: 8em;
+    }
+
+    .column-status-label {
+      min-width: 8em;
+    }
+
+    .column-status-since-label {
+      min-width: 12em;
+    }
+  }
+
+  .events-table {
+    .column-time-label {
+      min-width: 8em;
+    }
+
+    .column-type-label {
+      min-width: 7em;
+    }
+
+    .column-reason-label {
+      min-width: 8em;
+    }
+
+    .column-message-label {
+      max-width: 0;
+      width: 100%;
+      min-width: 12em;
+    }
+
+    .event-message {
+      max-width: 0;
+      width: 100%;
+      padding-right: 2.5em;
+    }
+
+    .column-message-label,
+    .event-message {
+      padding-left: 1em;
+      text-align: left;
+    }
+  }
+
+  .data-row td {
+    border-top: 1px solid $table-border-color;
+  }
+
+  .pods-table-section,
+  .pods-table,
+  .events-table-section,
+  .events-table {
+    min-height: 0;
+  }
+
+  .scrollable-table-content {
+    width: 100%;
+  }
+
+  h2 {
+    @include font-semibold();
+    text-transform: none;
+  }
+
+  .events-table-placeholder {
+    margin: auto;
+    font-size: 130%;
+  }
+
+  .events-table-event-row {
+    position: relative;
+
+    &:hover {
+      background-color: $main-content-hover-background;
+    }
+
+    &.type-warning {
+      background-color: $entry-warning-bg;
+    }
+
+    &.is-expanded {
+      &,
+      & + .events-table-expanded-event-row {
+        background-color: $color-file-selected;
+      }
+
+      &:hover {
+        background-color: $entry-selected-hovered-bg;
+      }
+    }
+
+    .expand-icon {
+      position: absolute;
+      right: 0.5em;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 130%;
+    }
+  }
+
+  .events-table-expanded-event-row {
+    td {
+      padding: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+    }
+
+    textarea {
+      font-size: 85%;
+    }
+  }
+
+  .events-table-data-cell {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+
+  .loading-row-cell {
+    position: relative;
+    height: 44px;
+    border-top: 1px solid $table-border-color;
+  }
+
+  @media (max-width: 600px) {
+    .pods-table {
+      .column-name-label {
+        min-width: 13em;
+        // Make place for filter buttons at the top
+        padding-top: 3em;
+      }
+    }
+
+    .pods-filter-btn-group {
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin-left: 1em;
+    }
+  }
+}
