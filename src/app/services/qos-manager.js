@@ -1,9 +1,9 @@
 /**
  * Backend operations for QoS
- * 
+ *
  * @module services/qos-manager
- * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @author Jakub Liput, Michał Borzęcki
+ * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,11 +12,11 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { get } from '@ember/object';
 
-export function getGri(entityId, scope) {
+export function getGri(entityId, { aspect = 'instance', scope = 'private' } = {}) {
   return gri({
     entityType: qosEntityType,
     entityId: entityId,
-    aspect: 'instance',
+    aspect,
     scope,
   });
 }
@@ -24,6 +24,7 @@ export function getGri(entityId, scope) {
 export default Service.extend({
   store: service(),
   onedataGraph: service(),
+  timeSeriesManager: service(),
 
   async getRecord(qosGri, reload = false) {
     const cachedRecord = reload ?
@@ -36,7 +37,7 @@ export default Service.extend({
   },
 
   getRecordById(entityId, scope = 'private') {
-    return this.getRecord(getGri(entityId, scope));
+    return this.getRecord(getGri(entityId, { scope }));
   },
 
   createQosRequirement(file, expression, replicasNum) {
@@ -53,5 +54,23 @@ export default Service.extend({
 
   removeQosRequirement(qosRequirement) {
     return qosRequirement.destroyRecord();
+  },
+
+  /**
+   * @param {string} qosRequirementId
+   * @param {'bytes'|'files'} timeSeriesCollectionId
+   * @param {TimeSeriesMetricsQueryParams} queryParams
+   * @returns {Promise<TimeSeriesMetricsQueryResult>}
+   */
+  async queryTimeSeriesMetrics(
+    qosRequirementId,
+    timeSeriesCollectionId,
+    queryParams
+  ) {
+    const gri = getGri(qosRequirementId, {
+      aspect: `time_series_collection.${timeSeriesCollectionId}`,
+    });
+    return this.get('timeSeriesManager')
+      .queryTimeSeriesMetrics(gri, queryParams);
   },
 });
