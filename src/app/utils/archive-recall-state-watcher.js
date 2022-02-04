@@ -159,12 +159,6 @@ export default EmberObject.extend(OwnerInjector, {
     refreshedDirsIdSet.add(dirToRefreshId);
   },
 
-  removeFromAutoRefresh(file) {
-    const refreshedDirsIdSet = this.get('refreshedDirsIdSet');
-    const dirToRefreshId = this.getDirIdToRefresh(file);
-    refreshedDirsIdSet.delete(dirToRefreshId);
-  },
-
   /**
    * @param {Models.File} file
    * @returns {String}
@@ -180,7 +174,7 @@ export default EmberObject.extend(OwnerInjector, {
       fileManager,
     } = this.getProperties('refreshedDirsIdSet', 'fileManager');
     if (refreshedDirsIdSet.size) {
-      await allSettled(Array.from(refreshedDirsIdSet.values()).map(dirId =>
+      await allSettled([...refreshedDirsIdSet].map(dirId =>
         fileManager.dirChildrenRefresh(dirId)
       ));
     }

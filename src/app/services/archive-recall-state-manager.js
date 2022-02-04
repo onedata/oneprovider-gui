@@ -63,7 +63,7 @@ export default Service.extend({
       };
       watchersRegistry.set(recallRootId, entry);
     }
-    if (!entry.tokens.size || !entry.watcher) {
+    if (!entry.watcher) {
       watcher = this.createWatcherObject(file);
       entry.watcher = watcher;
       entry.watcher.start();
@@ -94,7 +94,6 @@ export default Service.extend({
       return;
     }
     entry.tokens.delete(token);
-    entry.watcher.removeFromAutoRefresh(file);
     if (!entry.tokens.size) {
       if (entry.watcher) {
         entry.watcher.destroy();

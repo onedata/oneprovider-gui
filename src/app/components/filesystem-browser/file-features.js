@@ -73,8 +73,6 @@ export default Component.extend(I18n, {
    */
   disabled: false,
 
-  recallingPopoverOpened: false,
-
   inheritedIcon: 'inheritance',
 
   /**
@@ -183,8 +181,6 @@ export default Component.extend(I18n, {
       return htmlSafe(`width: ${recallingPercent}%;`);
     }
   ),
-
-  recallingPopoverTriggerSelector: tag `#${'elementId'} .recalling-popover-trigger`,
 
   recallingMembershipObserver: observer(
     'item.recallingMembership',

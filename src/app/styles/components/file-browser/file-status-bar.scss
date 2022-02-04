@@ -132,7 +132,17 @@ $file-status-tag-spacing: 6px;
 
       // override for stronger look
       &.progress-bar-striped {
-        background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.25) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0.25) 75%, transparent 75%, transparent);
+        $-whitening-stripe-color: rgba(255, 255, 255, 0.25);
+        background-image: linear-gradient(
+          45deg,
+          $-whitening-stripe-color 25%,
+          transparent 25%,
+          transparent 50%,
+          $-whitening-stripe-color 50%,
+          $-whitening-stripe-color 75%,
+          transparent 75%,
+          transparent
+        );
       }
     }
     .tag-text, .tag-icon {

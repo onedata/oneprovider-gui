@@ -15,7 +15,6 @@ describe('Integration | Utility | archive recall state watcher', function () {
     this.clock = sinon.useFakeTimers({
       now: Date.now(),
     });
-    this.ownerSource = {};
     await createArchiveRecallData(this);
   });
 
@@ -27,9 +26,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
   });
 
   it('does not reload state and stops polling if info says it is already finished', async function () {
-    this.watcher = ArchiveRecallStateWatcher.create({
-      targetFile: this.get('targetFile'),
-    });
+    this.watcher = createWatcher(this);
     const getInfoSpy = sinon.spy(this.watcher, 'getInfo');
     const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
     const stopSpy = sinon.spy(this.watcher, 'stop');
@@ -47,11 +44,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
   it('polls for state until recall is not finished', async function () {
     const interval = 1000;
-    this.watcher = ArchiveRecallStateWatcher.create({
-      interval,
-      targetFile: this.get('targetFile'),
-      ownerSource: this,
-    });
+    this.watcher = createWatcher(this, { interval });
     const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
     const stopSpy = sinon.spy(this.watcher, 'stop');
     this.set('archiveRecallInfo.startTime', 1000);
@@ -80,11 +73,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
   it('does not update info if state is not finished', async function () {
     const interval = 1000;
-    this.watcher = ArchiveRecallStateWatcher.create({
-      interval,
-      targetFile: this.get('targetFile'),
-      ownerSource: this,
-    });
+    this.watcher = createWatcher(this, { interval });
     const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
     this.set('archiveRecallInfo.startTime', 1000);
     this.set('archiveRecallInfo.finishTime', null);
@@ -107,12 +96,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
   });
 
   it('updates info when state gets finished', async function () {
-    const interval = 1000;
-    this.watcher = ArchiveRecallStateWatcher.create({
-      interval,
-      targetFile: this.get('targetFile'),
-      ownerSource: this,
-    });
+    this.watcher = createWatcher(this);
     const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
     this.set('archiveRecallInfo.startTime', 1000);
     this.set('archiveRecallInfo.finishTime', null);
@@ -133,11 +117,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
   it('destroys looper after recalling has been finished', async function () {
     const interval = 1000;
-    this.watcher = ArchiveRecallStateWatcher.create({
-      interval,
-      targetFile: this.get('targetFile'),
-      ownerSource: this,
-    });
+    this.watcher = createWatcher(this, { interval });
     const stopSpy = sinon.spy(this.watcher, 'stop');
     this.set('archiveRecallInfo.startTime', 1000);
     this.set('archiveRecallInfo.finishTime', null);
@@ -164,11 +144,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
   it('stops polling for state and starts for info when reloading state fails because of notFound until finishTime is non-empty',
     async function () {
       const interval = 1000;
-      this.watcher = ArchiveRecallStateWatcher.create({
-        interval,
-        targetFile: this.get('targetFile'),
-        ownerSource: this,
-      });
+      this.watcher = createWatcher(this, { interval });
       const reloadInfoStub = sinon.stub(this.watcher, 'reloadInfo');
       const reloadStateStub = sinon.stub(this.watcher, 'reloadState');
       reloadStateStub.rejects(new Error({ id: 'notFound' }));
@@ -194,12 +170,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
   );
 
   it('stops looper when getting info fails', async function () {
-    const interval = 1000;
-    this.watcher = ArchiveRecallStateWatcher.create({
-      interval,
-      targetFile: this.get('targetFile'),
-      ownerSource: this,
-    });
+    this.watcher = createWatcher(this);
     const getInfoStub = sinon.stub(this.watcher, 'getInfo');
     getInfoStub.rejects(new Error('get info reject mock'));
     this.set('archiveRecallInfo.startTime', 1000);
@@ -213,12 +184,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
   });
 
   it('stops looper when reloading info fails', async function () {
-    const interval = 1000;
-    this.watcher = ArchiveRecallStateWatcher.create({
-      interval,
-      targetFile: this.get('targetFile'),
-      ownerSource: this,
-    });
+    this.watcher = createWatcher(this);
     const reloadInfoStub = sinon.stub(this.watcher, 'reloadInfo');
     reloadInfoStub.rejects(new Error('reload info reject mock'));
     this.set('archiveRecallInfo.startTime', null);
@@ -241,12 +207,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
   it('updates info if sum of succeeded and failed files equals total files',
     async function () {
-      const interval = 1000;
-      this.watcher = ArchiveRecallStateWatcher.create({
-        interval,
-        targetFile: this.get('targetFile'),
-        ownerSource: this,
-      });
+      this.watcher = createWatcher(this);
       const filesCopied = 70;
       const filesFailed = 30;
       const totalFileCount = filesCopied + filesFailed;
@@ -264,3 +225,11 @@ describe('Integration | Utility | archive recall state watcher', function () {
     }
   );
 });
+
+function createWatcher(testCase, options = {}) {
+  return ArchiveRecallStateWatcher.create(Object.assign({
+    interval: 1000,
+    targetFile: testCase.get('targetFile'),
+    ownerSource: testCase,
+  }, options));
+}

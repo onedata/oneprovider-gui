@@ -25,6 +25,10 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import resolveFilePath, { stringifyFilePath, dirSeparator } from 'oneprovider-gui/utils/resolve-file-path';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
 
+/**
+ * @typedef  {'message'|'raw'|'unknown'} RecallInfoErrorType
+ */
+
 export default Component.extend(I18n, {
   classNames: ['recall-info'],
 
@@ -259,7 +263,7 @@ export default Component.extend(I18n, {
 
       const [archive, dataset] = await allFulfilled([archiveProxy, datasetProxy]);
       const archiveId = get(archive, 'entityId');
-      const datasetId = get(dataset, 'entityId') || null;
+      const datasetId = get(dataset, 'entityId');
 
       if (!archiveId) {
         return null;
@@ -296,10 +300,6 @@ export default Component.extend(I18n, {
   )),
 
   datasetUrl: computedLastProxyContent('datasetUrlProxy'),
-
-  /**
-   * @typedef  {'message'|'raw'|'unknown'} RecallInfoErrorType
-   */
 
   /**
    * @returns {{ type: RecallInfoErrorType, message: String }}

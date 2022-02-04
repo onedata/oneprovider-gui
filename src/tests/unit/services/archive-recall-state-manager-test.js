@@ -8,7 +8,6 @@ class WatcherMock {
   start() {}
   destroy() {}
   addToAutoRefresh() {}
-  removeFromAutoRefresh() {}
 }
 
 describe('Unit | service | archive recall state manager', function () {

@@ -840,7 +840,7 @@ export default Service.extend({
         stats: {
           bytesArchived: (i + 1) * 5678990000,
           filesArchived: (i + 1) * 43,
-          failedFiles: 0,
+          filesFailed: 0,
         },
         relatedAip: null,
         relatedDip: null,
