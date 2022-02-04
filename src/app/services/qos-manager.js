@@ -12,6 +12,12 @@ import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { get } from '@ember/object';
 
+/**
+ * @typedef {Object} QosEntryTimeSeriesCollections
+ * @param {Array<string>} bytes
+ * @param {Array<string>} files
+ */
+
 export function getGri(entityId, { aspect = 'instance', scope = 'private' } = {}) {
   return gri({
     entityType: qosEntityType,
@@ -68,9 +74,24 @@ export default Service.extend({
     queryParams
   ) {
     const gri = getGri(qosRequirementId, {
-      aspect: `time_series_collection.${timeSeriesCollectionId}`,
+      aspect: `time_series_collection,${timeSeriesCollectionId}`,
     });
     return this.get('timeSeriesManager')
       .queryTimeSeriesMetrics(gri, queryParams);
+  },
+
+  /**
+   * @param {string} qosRequirementId
+   * @returns {Promise<QosEntryTimeSeriesCollections>}
+   */
+  async getTimeSeriesCollections(qosRequirementId) {
+    const gri = getGri(qosRequirementId, {
+      aspect: 'time_series_collections',
+    });
+    return this.get('onedataGraph').request({
+      gri,
+      operation: 'get',
+      subscribe: false,
+    });
   },
 });

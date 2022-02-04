@@ -137,4 +137,13 @@
       left: -0.05em;
     }
   }
+
+  .qos-entry-charts {
+    display: flex;
+  }
+
+  .chart-container {
+    flex-basis: 50%;
+    height: 300px;
+  }
 }
