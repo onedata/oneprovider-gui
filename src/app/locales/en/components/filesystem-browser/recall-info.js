@@ -17,7 +17,7 @@ export default {
   unknownError: 'Unknown error',
   processStatus: 'Status',
   tips: {
-    targetPath: 'Path to the root directory of this recall.',
+    targetPath: 'Path to the root {{fileType}} of this recall.',
     relativePath: 'Relative path to this {{fileType}} from the root directory of this recall.',
     filesFailed: 'Number of files or directories which failed to be recalled due to errors.',
   },

@@ -73,7 +73,10 @@
       <tr class="recall-info-row-target-path">
         <td class="property-name">
           {{tt this "targetPath"}}
-          {{one-label-tip title=(tt this "tips.targetPath")}}
+          {{one-label-tip title=(tt this
+            "tips.targetPath"
+            fileType=(tt this (concat "fileType." recallRootFile.type))
+          )}}
         </td>
         <td class="property-value">
           {{#if recallRootFile}}

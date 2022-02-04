@@ -47,6 +47,7 @@
           value={{confirmationValue}}
           disabled={{if processing true}}
           oninput={{action (mut confirmationValue) value="target.value"}}
+          onkeydown={{ignore-enter}}
         >
       </form>
     </div>
@@ -61,7 +62,7 @@
     <div class="btn-tooltip-container">
       {{#one-button
         type="danger"
-        buttonType="submit"
+        buttonType="button"
         onClick=(action "purge")
         class="proceed remove-proceed"
         disabled=purgeDisabled
