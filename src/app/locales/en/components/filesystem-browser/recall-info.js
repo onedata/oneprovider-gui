@@ -12,14 +12,14 @@ export default {
   relativePath: 'Relative location',
   startedAt: 'Started at',
   finishedAt: 'Finished at',
-  filesFailed: 'Files failed',
+  filesFailed: 'Items failed',
   lastError: 'Last error',
   unknownError: 'Unknown error',
   processStatus: 'Status',
   tips: {
-    targetPath: 'Path to the root directory of this recall',
-    relativePath: 'Relative path to this {{fileType}} from the root directory of this recall',
-    filesFailed: 'Number of files or directories whose recall cannot be completed due to errors',
+    targetPath: 'Path to the root directory of this recall.',
+    relativePath: 'Relative path to this {{fileType}} from the root directory of this recall.',
+    filesFailed: 'Number of files or directories which failed to be recalled due to errors.',
   },
   status: {
     scheduled: 'Archive recall scheduled',
