@@ -18,20 +18,21 @@ describe('Integration | Component | filesystem browser/file features', function 
   });
 
   ['none', 'direct'].forEach(membership => {
-    it(`does not show collapsed inherited tag if features are "${membership}" in collapsed mode`, function () {
-      this.createItem({
-        effDatasetMembership: membership,
-        effQosMembership: membership,
-        recallingMembership: membership,
-      });
+    it(`does not show collapsed inherited tag if features are "${membership}" in collapsed mode`,
+    async function () {
+        await this.createItem({
+          effDatasetMembership: membership,
+          effQosMembership: membership,
+          recallingMembership: membership,
+        });
 
-      this.render(hbs `{{filesystem-browser/file-features
+        this.render(hbs `{{filesystem-browser/file-features
         item=item
         initiallyExpanded=false
       }}`);
 
-      expect(this.$('.file-status-inherited-collapsed')).to.not.exist;
-    });
+        expect(this.$('.file-status-inherited-collapsed')).to.not.exist;
+      });
   });
 
   ['ancestor', 'directAndAncestor'].forEach(membership => {
@@ -45,8 +46,8 @@ describe('Integration | Component | filesystem browser/file features', function 
         return;
       }
       it(`shows collapsed inherited tag if "${feature}" feature is "${membership}" in collapsed mode`,
-        function () {
-          this.createItem({
+        async function () {
+          await this.createItem({
             [feature]: membership,
           });
 
@@ -60,8 +61,8 @@ describe('Integration | Component | filesystem browser/file features', function 
     });
   });
 
-  it('shows tags with "direct" features in expanded mode', function () {
-    this.createItem({
+  it('shows tags with "direct" features in expanded mode', async function () {
+    await this.createItem({
       effDatasetMembership: 'direct',
       effQosMembership: 'direct',
       recallingMembership: 'direct',
@@ -78,8 +79,8 @@ describe('Integration | Component | filesystem browser/file features', function 
   });
 
   ['direct', 'directAndAncestor'].forEach(membership => {
-    it(`shows tags with "${membership}" features in collapsed mode`, function () {
-      this.createItem({
+    it(`shows tags with "${membership}" features in collapsed mode`, async function () {
+      await this.createItem({
         effDatasetMembership: membership,
         effQosMembership: membership,
         recallingMembership: membership,
@@ -98,8 +99,8 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   // NOTE: not testing recalling tag, because it's not using "directAndAncestor"
   it('shows direct tags and collapsed inheritance icon when features are "directAndAncestor" in collapsed mode',
-    function () {
-      this.createItem({
+    async function () {
+      await this.createItem({
         effDatasetMembership: 'directAndAncestor',
         effQosMembership: 'directAndAncestor',
       });
@@ -121,8 +122,8 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   // NOTE: not testing recalling tag, because it's not using "directAndAncestor"
   it('shows pill-like direct-ancestor tags without collapsed inheritance icon when features are "directAndAncestor" in expanded mode',
-    function () {
-      this.createItem({
+    async function () {
+      await this.createItem({
         effDatasetMembership: 'directAndAncestor',
         effQosMembership: 'directAndAncestor',
       });
@@ -147,8 +148,8 @@ describe('Integration | Component | filesystem browser/file features', function 
   );
 
   it('shows feature ancestor tags without collapsed inheritance icon when features are "ancestor" in expanded mode',
-    function () {
-      this.createItem({
+    async function () {
+      await this.createItem({
         effDatasetMembership: 'ancestor',
         effQosMembership: 'ancestor',
         recallingMembership: 'ancestor',
@@ -180,7 +181,7 @@ describe('Integration | Component | filesystem browser/file features', function 
   ].forEach(({ tag, action }) => {
     it(`invokes onInvokeItemAction item and actionName="${action}" when clicking on "${tag}" tag`,
       async function () {
-        const item = this.createItem({
+        const item = await this.createItem({
           effDatasetMembership: 'direct',
           effQosMembership: 'direct',
         });
@@ -215,8 +216,8 @@ describe('Integration | Component | filesystem browser/file features', function 
     { tag: 'qos', text: 'QoS' },
     { tag: 'recalling', text: 'Recalling' },
   ].forEach(({ tag, text }) => {
-    it(`displays "${text}" text on ${tag} tag`, function () {
-      this.createItem({
+    it(`displays "${text}" text on ${tag} tag`, async function () {
+      await this.createItem({
         effDatasetMembership: 'direct',
         effQosMembership: 'direct',
         recallingMembership: 'direct',
@@ -240,7 +241,7 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   // NOTE: "directAndAncestor" not used with recalling feature
   it('changes direct tags into direct-ancestor tags after inheritance tag click', async function () {
-    this.createItem({
+    await this.createItem({
       effDatasetMembership: 'directAndAncestor',
       effQosMembership: 'directAndAncestor',
     });
@@ -316,8 +317,9 @@ describe('Integration | Component | filesystem browser/file features', function 
   //#endregion
 });
 
-function createFileItem(testCase, data) {
+async function createFileItem(testCase, data) {
   const store = lookupService(testCase, 'store');
   const file = store.createRecord('file', data);
+  await file.save();
   return testCase.set('item', file);
 }
