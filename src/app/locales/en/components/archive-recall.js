@@ -4,6 +4,7 @@ export default {
   fileType: {
     file: 'file',
     dir: 'directory',
+    symlink: 'symbolic link',
   },
   browserValidation: {
     recalling: 'Cannot recall here – selected directory is currently being recalled',

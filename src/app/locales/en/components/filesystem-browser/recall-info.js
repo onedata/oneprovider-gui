@@ -1,4 +1,9 @@
 export default {
+  fileType: {
+    file: 'file',
+    dir: 'directory',
+    symlink: 'symbolic link',
+  },
   archive: 'Archive',
   dataset: 'Dataset',
   filesRecalled: 'Files recalled',
@@ -11,6 +16,11 @@ export default {
   lastError: 'Last error',
   unknownError: 'Unknown error',
   processStatus: 'Status',
+  tips: {
+    targetPath: 'Path to the root directory of this recall',
+    relativePath: 'Relative path to this {{fileType}} from the root directory of this recall',
+    filesFailed: 'Number of files or directories whose recall cannot be completed due to errors',
+  },
   status: {
     scheduled: 'Archive recall scheduled',
     pending: 'Archive recall in progress',

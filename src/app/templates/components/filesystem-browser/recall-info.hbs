@@ -73,6 +73,7 @@
       <tr class="recall-info-row-target-path">
         <td class="property-name">
           {{tt this "targetPath"}}
+          {{one-label-tip title=(tt this "tips.targetPath")}}
         </td>
         <td class="property-value">
           {{#if recallRootFile}}
@@ -89,6 +90,10 @@
             (if renderRelativePathInput "with-input-sm")
           }}>
             {{tt this "relativePath"}}
+            {{one-label-tip title=(tt this
+              "tips.relativePath"
+              fileType=(tt this (concat "fileType." recallRootFile.type))
+            )}}
           </td>
           <td class="property-value">
             {{#if renderRelativePathInput}}
@@ -144,6 +149,7 @@
         <tr class="recall-info-row-files-failed">
           <td class="property-name text-danger">
             {{tt this "filesFailed"}}
+            {{one-label-tip title=(tt this "tips.filesFailed")}}
           </td>
           <td class="property-value text-danger">
             {{filesFailed}}
