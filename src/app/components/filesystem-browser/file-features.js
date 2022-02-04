@@ -3,7 +3,7 @@
  *
  * @module components/filesystem-browser/file-features
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,14 +13,21 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { or, not } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
-import { computed } from '@ember/object';
+import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { inject as service } from '@ember/service';
+
+export const defaultFilesystemFeatures = Object.freeze([
+  'effDatasetMembership',
+  'effQosMembership',
+  'recallingMembership',
+]);
 
 export default Component.extend(I18n, {
   classNames: ['file-features'],
 
   i18n: service(),
+  archiveRecallStateManager: service(),
 
   /**
    * @override
@@ -38,7 +45,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Array<String>}
    */
-  features: Object.freeze(['effDatasetMembership', 'effQosMembership']),
+  features: defaultFilesystemFeatures,
 
   /**
    * @virtual
@@ -65,6 +72,12 @@ export default Component.extend(I18n, {
   disabled: false,
 
   inheritedIcon: 'inheritance',
+
+  /**
+   * See: `service:archive-recall-state-manager`
+   * @type {String}
+   */
+  archiveRecallWatcherToken: null,
 
   dataIsProtected: reads('item.dataIsProtected'),
 
@@ -140,6 +153,8 @@ export default Component.extend(I18n, {
     });
   }),
 
+  effRecallingDisabled: reads('disabled'),
+
   itemType: reads('item.type'),
 
   typeText: computed('itemType', function typeText() {
@@ -149,12 +164,77 @@ export default Component.extend(I18n, {
     }
   }),
 
+  recallingPercent: computed(
+    'item.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
+    function recallingPercent() {
+      const item = this.get('item');
+      const recallingMembership = item && get(item, 'recallingMembership');
+      if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+        const archiveRecallState = get(item, 'archiveRecallState.content');
+        const archiveRecallInfo = get(item, 'archiveRecallInfo.content');
+        if (archiveRecallState && archiveRecallInfo) {
+          const bytesCopied = get(archiveRecallState, 'bytesCopied') || 0;
+          const totalByteSize = get(archiveRecallInfo, 'totalByteSize');
+          if (totalByteSize) {
+            return Math.floor(bytesCopied / totalByteSize * 100);
+          }
+        }
+      }
+
+      return null;
+    }
+  ),
+
+  recallingMembershipObserver: observer(
+    'item.recallingMembership',
+    function recallingMembershipObserver() {
+      const {
+        item,
+        archiveRecallStateManager,
+        archiveRecallWatcherToken,
+      } = this.getProperties(
+        'item',
+        'archiveRecallStateManager',
+        'archiveRecallWatcherToken',
+      );
+      if (archiveRecallWatcherToken) {
+        // watcher already registered for this component
+        return;
+      }
+      const recallingMembership = item && get(item, 'recallingMembership');
+      if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+        const archiveRecallWatcherToken =
+          archiveRecallStateManager.watchRecall(item);
+        this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);
+      }
+    }
+  ),
+
   tagClicked(actionName) {
     const {
       onInvokeItemAction,
       item,
     } = this.getProperties('onInvokeItemAction', 'item');
     return onInvokeItemAction(item, actionName);
+  },
+
+  willDestroyElement() {
+    this._super(...arguments);
+    const {
+      archiveRecallStateManager,
+      archiveRecallWatcherToken,
+      item,
+    } = this.getProperties(
+      'archiveRecallStateManager',
+      'archiveRecallWatcherToken',
+      'item',
+    );
+    if (archiveRecallWatcherToken) {
+      archiveRecallStateManager.unwatchRecall(
+        get(item, 'entityId'),
+        archiveRecallWatcherToken
+      );
+    }
   },
 
   actions: {

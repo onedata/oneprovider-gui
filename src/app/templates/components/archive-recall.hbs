@@ -1,0 +1,42 @@
+{{#modal.header class="archive-recall-part archive-recall-modal-header"}}
+  {{archive-recall/header archive=archive}}
+{{/modal.header}}
+
+{{#modal.body
+  id=modalBodyId
+  class=(concat-classes
+    "archive-recall-part archive-recall-modal-body upload-drop-zone-container"
+    (if (or disabled isSubmitting) "disabled")
+  )
+}}
+  {{archive-recall/browser
+    modal=modal
+    modalBodyId=modalBodyId
+    parentModalDialogSelector=parentModalDialogSelector
+    space=space
+    options=options
+    disabled=(or disabled isSubmitting)
+    browserRequiredDataProxy=browserRequiredDataProxy
+    currentBrowsableItem=currentBrowsableItem
+    selectedItems=selectedItems
+    ignoreDeselectSelector=ignoreDeselectSelector
+    onDirIdChange=(action (mut dirId))
+    onSelectedItemsChange=(action "changeSelectedItems")
+    onFilesystemChange=(action "filesystemChanged")
+  }}
+{{/modal.body}}
+
+{{#modal.footer class="archive-recall-part archive-recall-modal-footer"}}
+  {{archive-recall/footer
+    dataset=dataset
+    parentDir=targetRecallParent
+    isSubmitting=isSubmitting
+    nameValidationErrorProxy=nameValidationErrorProxy
+    browserValidationErrorProxy=browserValidationErrorProxy
+    disabled=disabled
+    targetName=targetName
+    onTargetNameChange=(action targetNameChanged)
+    onSubmit=(action "submit")
+    onCancel=(action onCancel)
+  }}
+{{/modal.footer}}

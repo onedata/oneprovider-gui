@@ -4,12 +4,12 @@
  *
  * @module components/file-browser
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { observer, computed, get, set } from '@ember/object';
+import { observer, computed, get, set, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -323,6 +323,7 @@ export default Component.extend(I18n, {
   ),
 
   insideBrowserSelectors: Object.freeze([
+    '.fb-table-row',
     '.fb-table-row *',
     '.fb-breadcrumbs *',
     '.fb-toolbar *',
@@ -372,15 +373,40 @@ export default Component.extend(I18n, {
     }
   ),
 
+  clickInsideExceptionsSelector: computed('elementId', function clickInsideExceptionsSelector() {
+    const elementId = this.get('elementId');
+    return [
+      '.fb-table-row.item-disabled',
+      '.fb-table-row.item-disabled *',
+    ].map(selector => `#${elementId} ${selector}`).join(', ');
+  }),
+
   clickOutsideDeselectHandler: computed(function clickOutsideDeselectHandler() {
     const component = this;
     return function clickOutsideDeselect(mouseEvent) {
       // Check for matching `body *` to not clear selection on destroyed elements click
       // (issue of some elements, that are removed from DOM just after click, like
       // dynamic popover menu items or contextual buttons).
-      if (!isPopoverOpened() && mouseEvent.target.matches('body *') &&
+      const target = mouseEvent.target;
+      const $target = $(target);
+      const {
+        clickInsideSelector,
+        clickInsideExceptionsSelector,
+      } = getProperties(
+        component,
+        'clickInsideSelector',
+        'clickInsideExceptionsSelector'
+      );
+
+      if (
+        !isPopoverOpened() &&
+        target.matches('body *') &&
         // jQuery is must be used for backward compatibility: https://caniuse.com/css-not-sel-list
-        !$(mouseEvent.target).is(get(component, 'clickInsideSelector'))) {
+        (
+          !$target.is(clickInsideSelector) ||
+          $target.is(clickInsideExceptionsSelector)
+        )
+      ) {
         component.clearFilesSelection();
       }
     };

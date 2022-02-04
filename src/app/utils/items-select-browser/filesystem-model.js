@@ -17,6 +17,9 @@ import joinStrings from 'onedata-gui-common/utils/i18n/join-strings';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 
+/**
+ * @implements {FilesystemSelectBrowserExtensionModel}
+ */
 export default BaseModel.extend(I18n, {
   fileManager: service(),
   i18n: service(),
@@ -31,6 +34,21 @@ export default BaseModel.extend(I18n, {
    * @override
    */
   browserExtensionComponentName: 'filesystem-select-browser-extension',
+
+  /**
+   * @implements {FilesystemSelectBrowserExtensionModel}
+   */
+  createItemParentDir: null,
+
+  /**
+   * @implements {FilesystemSelectBrowserExtensionModel}
+   */
+  createItemType: null,
+
+  /**
+   * @implements {FilesystemSelectBrowserExtensionModel}
+   */
+  fileToRename: null,
 
   /**
    * @override
@@ -54,11 +72,12 @@ export default BaseModel.extend(I18n, {
    */
   dirProxy: promise.object(computed('space.rootDir', 'dirId', function dirProxy() {
     const {
+      fileManager,
       space,
       dirId,
-    } = this.getProperties('space', 'dirId');
+    } = this.getProperties('fileManager', 'space', 'dirId');
     if (dirId) {
-      return this.get('fileManager').getFileById(dirId);
+      return fileManager.getFileById(dirId);
     } else {
       return get(space, 'rootDir');
     }
@@ -203,6 +222,7 @@ export default BaseModel.extend(I18n, {
       createItemType: 'dir',
     });
   },
+
   closeCreateItemModal(isCreated, file) {
     if (isCreated && file) {
       const {
@@ -223,9 +243,11 @@ export default BaseModel.extend(I18n, {
       createItemType: null,
     });
   },
+
   openRenameModal(file) {
     this.set('fileToRename', file);
   },
+
   closeRenameModal() {
     this.set('fileToRename', null);
   },

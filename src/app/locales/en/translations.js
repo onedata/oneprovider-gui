@@ -32,6 +32,7 @@ import archivesPurge from './components/archives-purge';
 import itemsSelectBrowser from './components/items-select-browser';
 import datasetProtection from './components/dataset-protection';
 import filePath from './components/file-path';
+import archiveRecall from './components/archive-recall';
 
 import uploadManager from './services/upload-manager';
 
@@ -78,6 +79,7 @@ const translations = {
     itemsSelectBrowser,
     datasetProtection,
     filePath,
+    archiveRecall,
   },
   services: {
     uploadManager,

@@ -3,7 +3,7 @@
  *
  * @module services/archive-manager
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -175,6 +175,50 @@ export default Service.extend({
       }
     }
     return purgeResponse;
+  },
+
+  /**
+   * @typedef {Object} RecallArchiveResponse
+   * @param {String} rootFileId entity ID of newly created recalled root file
+   *   or directory
+   */
+
+  /**
+   * @param {Models.Archive} archive
+   * @param {Models.File} targetDir directory where target directory with archive files
+   *   should be created
+   * @param {String} name name of created directory or file in filesystem that will
+   *   contain recalled data
+   * @returns {Promise<RecallArchiveResponse>}
+   */
+  async recallArchive(archive, targetDir, name) {
+    const {
+      onedataGraph,
+      fileManager,
+    } = this.getProperties('onedataGraph', 'fileManager');
+    const result = await onedataGraph.request({
+      operation: 'create',
+      gri: gri({
+        entityType: archiveEntityType,
+        entityId: get(archive, 'entityId'),
+        aspect: 'recall',
+        scope: 'private',
+      }),
+      data: {
+        parentDirectoryId: get(targetDir, 'cdmiObjectId'),
+        targetFileName: name,
+      },
+      subscribe: false,
+    });
+    try {
+      fileManager.dirChildrenRefresh(get(targetDir, 'entityId'));
+    } catch (error) {
+      console.warn(
+        'service:archive-manager#recallArchive: refreshing dirs view failed',
+        error
+      );
+    }
+    return result;
   },
 
   /**

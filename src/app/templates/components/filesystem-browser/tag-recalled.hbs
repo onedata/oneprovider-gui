@@ -1,0 +1,11 @@
+{{#if file.isRecalled}}
+  <div
+    class={{concat-classes
+      "file-status-tag"
+      "file-status-recalled"
+      (if disabled "file-status-tag-disabled")
+    }}
+  >
+    {{tt this "recalled"}}
+  </div>
+{{/if}}

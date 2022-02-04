@@ -11,6 +11,7 @@
 import ProductionManager from '../production/archive-manager';
 import { all as allFulfilled } from 'rsvp';
 import { get } from '@ember/object';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 export default ProductionManager.extend({
   /**
@@ -21,5 +22,14 @@ export default ProductionManager.extend({
     return allFulfilled(attrs.map(attrs =>
       store.findRecord('archive', get(attrs, 'id'))
     ));
+  },
+
+  /**
+   * @override
+   */
+  async recallArchive() {
+    // for testing long freezed recall calls that should disable file browser
+    await sleep(10000);
+    return this._super(...arguments);
   },
 });

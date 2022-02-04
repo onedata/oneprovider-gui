@@ -175,6 +175,22 @@ $file-status-tag-spacing: 6px;
       }
     }
   }
+  &.highlight-inherited-recalling {
+    .fb-table-row .file-status-bar {
+      .recalling-file-status-tag-group {
+        .file-status-tag-inherited-addon {
+          @include highlight-tag-color;
+          @include highlight-tag-shadow;
+        }
+        &.file-status-tag-group-fully-inherited {
+          @include highlight-tag-shadow;
+          .file-status-tag {
+            @include highlight-tag-color;
+          }
+        }
+      }
+    }
+  }
 }
 
 // header
@@ -190,6 +206,14 @@ $file-status-tag-spacing: 6px;
   }
   &.highlight-inherited-qos {
     .table-header-status-bar .file-status-tag-group.qos-file-status-tag-group {
+      @include highlight-tag-shadow;
+      .file-status-tag {
+        @include highlight-tag-color;
+      }
+    }
+  }
+  &.highlight-inherited-recalling {
+    .table-header-status-bar .file-status-tag-group.recalling-file-status-tag-group {
       @include highlight-tag-shadow;
       .file-status-tag {
         @include highlight-tag-color;

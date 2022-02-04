@@ -65,6 +65,13 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   onOpenFile: notImplementedIgnore,
 
   /**
+   * Return true for item that should be presented as disabled (muted, non-selectable).
+   * @virtual optional
+   * @type {(item: Object) => boolean}
+   */
+  isItemDisabled: notImplementedIgnore,
+
+  /**
    * @virtual
    * @type {String}
    */
@@ -132,6 +139,13 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @type {Boolean}
    */
   disableReJumps: false,
+
+  /**
+   * @virtual optional
+   * @type {Boolean}
+   * When true, allow to select only single item on list.
+   */
+  singleSelect: false,
 
   /**
    * @type {String}

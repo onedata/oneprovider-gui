@@ -1,0 +1,42 @@
+<h1>
+  <span class="header-text">
+    {{tt this "headerText"}}
+  </span>
+  {{#if media.isMobile}}
+    {{one-icon
+      icon="sign-question-rounded"
+      class="archive-recall-header-hint-trigger hint-trigger clickable"
+    }}
+    {{#one-switchable-popover-modal
+      class="archive-recall-hint qos-hint"
+      triggersConfiguration=".archive-recall-header-hint-trigger"
+      popoverStyle="archive-recall-hint-info over-modals"
+      modalClass="modal-compact-help"
+      layoutType="modal"
+      as |ospm|
+    }}
+      {{#ospm.modal.header}}
+        <h1>{{tt this "recallHintTitle"}}</h1>
+      {{/ospm.modal.header}}
+      {{#ospm.modal.body}}
+        <p>{{tt this "intro"}}</p>
+      {{/ospm.modal.body}}
+      {{#ospm.modal.footer}}
+        <div class="btn-toolbar text-right visible-xs-block">
+          {{#bs-button class="btn btn-sm" type="info" onClick=ospm.close}}
+            {{tt this "hintClose"}}
+          {{/bs-button}}
+        </div>
+      {{/ospm.modal.footer}}
+    {{/one-switchable-popover-modal}}
+  {{/if}}
+</h1>
+{{#modal-archive-subheader archives=(array archive)}}
+  <span class="archive-files-info">({{filesCount}} {{filesText}}, {{sizeText}})</span>
+{{/modal-archive-subheader}}
+{{#unless media.isMobile}}
+  <p class="intro-text">
+    {{tt this "intro"}}
+  </p>
+{{/unless}}
+{{yield}}

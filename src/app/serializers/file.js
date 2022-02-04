@@ -3,7 +3,7 @@
  *
  * @module serializers/file
  * @author Jakub Liput
- * @copyright (C) 2020 ACK CYFRONET AGH
+ * @copyright (C) 2020-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -17,6 +17,8 @@ import { entityType as shareEntityType } from 'oneprovider-gui/models/share';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { get, computed } from '@ember/object';
 import { getFileGri } from 'oneprovider-gui/models/file';
+import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
+import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archive-recall-state';
 
 export const qosSummaryAspect = 'qos_summary';
 export const datasetSummaryAspect = 'dataset_summary';
@@ -27,6 +29,19 @@ export default Serializer.extend({
     { name: 'distribution', aspect: 'distribution' },
     { name: 'fileQosSummary', aspect: qosSummaryAspect },
     { name: 'fileDatasetSummary', aspect: datasetSummaryAspect },
+    // NOTE: currently recallRootId should be already set when doing ls++
+    // to create valid relations; if this cointraint will to be changed,
+    // a re-implementation will be needed
+    {
+      name: 'archiveRecallInfo',
+      idSource: 'recallRootId',
+      aspect: archiveRecallInfoAspect,
+    },
+    {
+      name: 'archiveRecallState',
+      idSource: 'recallRootId',
+      aspect: archiveRecallStateAspect,
+    },
   ]),
 
   /**
@@ -145,8 +160,10 @@ export default Serializer.extend({
   },
 
   normalizeVirtualRelations(hash, fileId, scope) {
-    this.get('fileRelations').forEach(({ name, entityType, aspect }) => {
-      hash[name] = this.getRelation({ fileId, entityType, aspect, scope });
+    this.get('fileRelations').forEach(({ name, idSource, entityType, aspect }) => {
+      const entityId = idSource ? hash[idSource] : fileId;
+      hash[name] = entityId ?
+        this.getRelation({ entityType, entityId, aspect, scope }) : null;
     });
   },
 
@@ -167,6 +184,9 @@ export default Serializer.extend({
 
   normalizeData(hash) {
     if (!hash.gri) {
+      // NOTE: The mock is broken, because it does not include guid and scope properties.
+      // "gri" could be replaced here by "id", but virtual relations still does not work
+      // properly - in mock, please use setting these relations manually or try to fix it.
       hash.gri = getFileGri(hash.guid, hash.scope);
     }
     const parsedGri = parseGri(hash.gri);
@@ -179,14 +199,14 @@ export default Serializer.extend({
   },
 
   getRelation({
-    fileId,
+    entityId,
     aspect,
     entityType = fileEntityType,
     scope = 'private',
   }) {
     return gri({
       entityType,
-      entityId: fileId,
+      entityId,
       aspect,
       scope,
     });

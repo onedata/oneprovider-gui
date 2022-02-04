@@ -3,7 +3,7 @@
  *
  * @module component/content-file-browser
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -115,6 +115,11 @@ export default OneEmbeddedComponent.extend(
      * @type {Array<Models.File>}
      */
     selectedItems: undefined,
+
+    /**
+     * @type {ComputedProperty<Boolean>}
+     */
+    effUploadDisabled: reads('dir.dataIsProtected'),
 
     /**
      * @override
@@ -454,7 +459,14 @@ export default OneEmbeddedComponent.extend(
       this.set('fileToShare', null);
     },
     closeDatasetsModal() {
+      const {
+        uploadManager,
+        dir,
+      } = this.getProperties('uploadManager', 'dir');
       this.set('filesToShowDatasets', null);
+      // datasets browser could have recall panel opened that can change upload target
+      // directory, so make sure that it is restored
+      uploadManager.changeTargetDirectory(dir);
     },
     closeEditPermissionsModal() {
       this.set('filesToEditPermissions', null);

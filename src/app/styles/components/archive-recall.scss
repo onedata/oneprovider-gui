@@ -1,0 +1,87 @@
+.archive-recall-part {
+  &.disabled {
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      opacity: 0.55;
+    }
+  }
+  .archive-recall-header {
+    .intro-text {
+      margin-top: 2em;
+    }
+    .archive-recall-header-hint-trigger {
+      font-size: 1em;
+    }
+    .archive-files-info {
+      margin-left: 0.5em;
+      opacity: $disabled-opacity;
+    }
+  }
+  .archive-recall-footer {
+    $target-name-margin: $modal-footer-vertical-padding;
+    .target-name-form {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: $target-name-margin;
+      .target-name-label {
+        @include font-semibold;
+        margin-right: $padding-large-vertical;
+      }
+      .target-name-input {
+        width: auto;
+        flex-grow: 1;
+      }
+    }
+    .target-name-form + .target-name-input-validation {
+      margin-top: -$target-name-margin;
+      min-height: $target-name-margin;
+    }
+    .submit-summary {
+      display: flex;
+      align-items: flex-end;
+      .submit-buttons {
+        display: flex;
+        align-items: center;
+      }
+    }
+    .path-summary {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      margin-right: 2em;
+      // prevent taking as much space as it wants
+      min-width: 0;
+      .path-summary-info {
+        margin-bottom: 0.5em;
+      }
+    }
+    .target-path-item {
+      @include font-semibold;
+    }
+    .archive-recall-body-error {
+      position: relative;
+      top: -$modal-footer-vertical-padding;
+      right: 0;
+      padding-top: 0.25em;
+      margin-bottom: -0.25em;
+      color: $brand-danger;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: -$content-col-padding;
+        top: -1px;
+        height: 1px;
+        background: linear-gradient(90deg, rgba($brand-danger, 0) 0%, $brand-danger 20%, $brand-danger 94%, rgba($brand-danger, 0) 100%);
+      }
+    }
+  }
+}
