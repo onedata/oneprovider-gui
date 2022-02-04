@@ -19,7 +19,7 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   ['none', 'direct'].forEach(membership => {
     it(`does not show collapsed inherited tag if features are "${membership}" in collapsed mode`,
-    async function () {
+      async function () {
         await this.createItem({
           effDatasetMembership: membership,
           effQosMembership: membership,

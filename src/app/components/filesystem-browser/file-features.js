@@ -185,6 +185,7 @@ export default Component.extend(I18n, {
   recallingMembershipObserver: observer(
     'item.recallingMembership',
     function recallingMembershipObserver() {
+      this.tryDestroyRecallWatcher();
       this.tryCreateRecallWatcher();
     }
   ),
@@ -216,16 +217,7 @@ export default Component.extend(I18n, {
     }
   },
 
-  invokeItemAction(actionName) {
-    const {
-      onInvokeItemAction,
-      item,
-    } = this.getProperties('onInvokeItemAction', 'item');
-    return onInvokeItemAction(item, actionName);
-  },
-
-  willDestroyElement() {
-    this._super(...arguments);
+  tryDestroyRecallWatcher() {
     const {
       archiveRecallStateManager,
       archiveRecallWatcherToken,
@@ -241,6 +233,19 @@ export default Component.extend(I18n, {
         archiveRecallWatcherToken
       );
     }
+  },
+
+  invokeItemAction(actionName) {
+    const {
+      onInvokeItemAction,
+      item,
+    } = this.getProperties('onInvokeItemAction', 'item');
+    return onInvokeItemAction(item, actionName);
+  },
+
+  willDestroyElement() {
+    this._super(...arguments);
+    this.tryDestroyRecallWatcher();
   },
 
   actions: {
