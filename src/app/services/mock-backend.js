@@ -999,10 +999,23 @@ export default Service.extend({
     });
     const archiveRecallState = store.createRecord('archive-recall-state', {
       id: stateGri,
-      bytesCopied: 0,
-      filesCopied: 0,
+      filesCopied: 50,
+      bytesCopied: 500000,
       filesFailed: 0,
-      lastError: 0,
+      lastError: null,
+      // // -- uncomment for real parsable error
+      // lastError: {
+      //   reason: {
+      //     id: 'posix',
+      //     details: { errno: 'enospc' },
+      //   },
+      // },
+      // // -- uncomment for unparsable error
+      // lastError: {
+      //   reason: {
+      //     id: 'random',
+      //   },
+      // },
     });
     this.set('entityRecords.archiveRecallInfo', [archiveRecallInfo]);
     this.set('entityRecords.archiveRecallState', [archiveRecallState]);
@@ -1018,6 +1031,7 @@ export default Service.extend({
   },
 
   async updateRecallState() {
+    const stepsCount = 100;
     const archiveRecallInfo = this.get('entityRecords.archiveRecallInfo.0');
     const archiveRecallState = this.get('entityRecords.archiveRecallState.0');
     const {
@@ -1046,12 +1060,12 @@ export default Service.extend({
       'filesCopied',
     );
     if (!startTime) {
-      set(archiveRecallInfo, 'startTime', getCurrentTimestamp());
+      set(archiveRecallInfo, 'startTime', Date.now());
       infoModified = true;
     }
     if (bytesCopied < totalByteSize) {
-      const filesIncrement = Math.floor(totalFileCount / 10);
-      const bytesIncrement = Math.floor(totalByteSize / 10);
+      const filesIncrement = Math.floor(totalFileCount / stepsCount);
+      const bytesIncrement = Math.floor(totalByteSize / stepsCount);
       filesCopied = Math.min(totalFileCount, filesCopied + filesIncrement);
       bytesCopied = Math.min(totalByteSize, bytesCopied + bytesIncrement);
     }
@@ -1066,7 +1080,7 @@ export default Service.extend({
       // just to be certain
       filesCopied = totalFileCount;
       bytesCopied = totalByteSize;
-      set(archiveRecallInfo, 'finishTime', getCurrentTimestamp());
+      set(archiveRecallInfo, 'finishTime', Date.now());
       infoModified = true;
     }
     setProperties(archiveRecallState, {
@@ -1097,7 +1111,7 @@ export default Service.extend({
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name =
-          `Directory ${String(i).padStart(4, '0')}`;
+          `Directory with very very very long name ${String(i).padStart(4, '0')}`;
         return store.createRecord('file', {
           id,
           name,

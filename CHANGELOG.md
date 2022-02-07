@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8841 Added archive recall info modal and progress bar in tag
 * VFS-8792 Added support for recalling archives
 * VFS-8640 Added modal with OpenFaaS pods activity to workflow execution preview
 * VFS-8874 Removed bower and ember-spin-button

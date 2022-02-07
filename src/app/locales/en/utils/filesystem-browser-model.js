@@ -9,6 +9,7 @@ export default _.merge({}, BaseBrowserModel, {
     newDirectory: 'New directory',
     refresh: 'Refresh',
     info: 'Information',
+    recallInfo: 'Recall information',
     download: 'Download',
     downloadTar: 'Download (tar)',
     share: 'Share',

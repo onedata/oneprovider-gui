@@ -55,6 +55,7 @@ export default Service.extend({
     const recallRootId = get(file, 'recallRootId');
     const watchersRegistry = this.get('watchersRegistry');
     let entry = watchersRegistry.get(recallRootId);
+    let watcher;
     if (!entry) {
       entry = {
         tokens: new Set(),
@@ -62,10 +63,13 @@ export default Service.extend({
       };
       watchersRegistry.set(recallRootId, entry);
     }
-    if (!entry.tokens.size || !entry.watcher) {
-      entry.watcher = this.createWatcherObject(file);
+    if (!entry.watcher) {
+      watcher = this.createWatcherObject(file);
+      entry.watcher = watcher;
       entry.watcher.start();
     }
+    watcher = watcher || watchersRegistry.get(recallRootId).watcher;
+    watcher.addToAutoRefresh(file);
     const token = uuid();
     entry.tokens.add(token);
     return token;
@@ -105,6 +109,7 @@ export default Service.extend({
    */
   createWatcherObject(file) {
     return ArchiveRecallStateWatcher.create({
+      ownerSource: this,
       targetFile: file,
     });
   },

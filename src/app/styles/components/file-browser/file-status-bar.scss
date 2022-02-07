@@ -69,8 +69,11 @@ $file-status-tag-spacing: 6px;
     }
 
     // known icons that looks better inside tags with some modifications
-    .oneicon-provider, .oneicon-browser-attribute {
+    .oneicon-provider, .oneicon-browser-attribute, .oneicon-warning {
       opacity: 0.9;
+    }
+    .oneicon-warning {
+      margin-bottom: -0.05em;
     }
 
     &.file-status-tag-icon {
@@ -113,6 +116,37 @@ $file-status-tag-spacing: 6px;
     // disabled color should be defined last to allow override colors
     &.file-status-tag-disabled {
       @include tag-colors-disabled;
+    }
+  }
+
+  .tag-status-progress {
+    position: relative;
+    overflow: hidden;
+    .tag-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      z-index: 2;
+
+      // override for stronger look
+      &.progress-bar-striped {
+        $-whitening-stripe-color: rgba(255, 255, 255, 0.25);
+        background-image: linear-gradient(
+          45deg,
+          $-whitening-stripe-color 25%,
+          transparent 25%,
+          transparent 50%,
+          $-whitening-stripe-color 50%,
+          $-whitening-stripe-color 75%,
+          transparent 75%,
+          transparent
+        );
+      }
+    }
+    .tag-text, .tag-icon {
+      z-index: 3;
     }
   }
 }

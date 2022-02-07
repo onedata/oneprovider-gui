@@ -9,11 +9,63 @@ import { get, setProperties } from '@ember/object';
 
 export async function createArchiveRecallData(testCase) {
   const store = lookupService(testCase, 'store');
-  const archive = store.createRecord('archive', {});
-  const dataset = store.createRecord('dataset', {});
+  const totalFileCount = 100;
+  const totalByteSize = 10000;
+  const spaceId = 's123';
+  const datasetRootFile = store.createRecord('file', {
+    index: 'dummy_dataset_root',
+    name: 'dummy_dataset_root',
+    type: 'dir',
+  });
+  const dataset = store.createRecord('dataset', {
+    index: 'd123',
+    spaceId,
+    state: 'attached',
+    rootFile: datasetRootFile,
+    rootFilePath: '/one/two/dummy_dataset_root',
+  });
+  const archive = store.createRecord('archive', {
+    index: '123',
+    state: 'preserved',
+    creationTime: Date.now() / 1000,
+    config: {
+      createNestedArchives: false,
+      incremental: {
+        enabled: false,
+      },
+      layout: 'plain',
+      includeDip: false,
+    },
+    description: 'foobarchive',
+    stats: {
+      filesArchived: totalFileCount,
+      bytesArchived: totalByteSize,
+      filesFailed: 0,
+    },
+    dataset,
+  });
   const guid = createEntityId('file_guid');
+  const targetParent1 = store.createRecord('file', {
+    id: generateFileId('p1'),
+    type: 'dir',
+    parent: null,
+    name: 'parent1',
+  });
+  const targetParent2 = store.createRecord('file', {
+    id: generateFileId('p2'),
+    type: 'dir',
+    parent: targetParent1,
+    name: 'parent2',
+  });
+  const targetParent3 = store.createRecord('file', {
+    id: generateFileId('p3'),
+    type: 'dir',
+    parent: targetParent2,
+    name: 'parent3',
+  });
   const targetFile = store.createRecord('file', {
     id: generateFileId(guid),
+    parent: targetParent3,
     name: 'test_file',
   });
   const infoGri = gri({
@@ -30,8 +82,8 @@ export async function createArchiveRecallData(testCase) {
     id: infoGri,
     archive,
     dataset,
-    totalFileCount: 100,
-    totalByteSize: 10000,
+    totalFileCount,
+    totalByteSize,
     startTime: null,
     finishTime: null,
   });
@@ -48,11 +100,29 @@ export async function createArchiveRecallData(testCase) {
     archiveRecallState,
   });
   const records = testCase.setProperties({
-    archive,
+    datasetRootFile,
     dataset,
+    archive,
+    targetParent1,
+    targetParent2,
+    targetParent3,
     targetFile,
     archiveRecallInfo,
     archiveRecallState,
   });
   await allFulfilled(Object.values(records).invoke('save'));
+}
+
+export async function getBrowsableArchiveName(testCase) {
+  const archiveManager = lookupService(testCase, 'archive-manager');
+  const browsableArchive =
+    await archiveManager.getBrowsableArchive(testCase.get('archive'));
+  return get(browsableArchive, 'name');
+}
+
+export async function getBrowsableDatasetName(testCase) {
+  const datasetManager = lookupService(testCase, 'dataset-manager');
+  const browsableDataset =
+    await datasetManager.getBrowsableDataset(testCase.get('dataset'));
+  return get(browsableDataset, 'name');
 }

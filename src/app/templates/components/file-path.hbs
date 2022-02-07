@@ -30,12 +30,12 @@
         <div class="path-item path-label">{{item.record.name}}</div>
       {{/each}}
       {{yield}}
+      {{#if renderTooltip}}
+        {{one-tooltip
+          class="string-path-tooltip"
+          title=tooltipText
+        }}
+      {{/if}}
     {{/file-path/internal-container}}
-    {{#if renderTooltip}}
-      {{one-tooltip
-        class="string-path-tooltip"
-        title=tooltipText
-      }}
-    {{/if}}
   {{/if}}
 </div>

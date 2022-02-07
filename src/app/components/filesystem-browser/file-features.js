@@ -16,6 +16,8 @@ import { reads } from '@ember/object/computed';
 import { computed, observer, get } from '@ember/object';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { inject as service } from '@ember/service';
+import { htmlSafe } from '@ember/string';
+import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
 
 export const defaultFilesystemFeatures = Object.freeze([
   'effDatasetMembership',
@@ -168,58 +170,54 @@ export default Component.extend(I18n, {
     'item.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
     function recallingPercent() {
       const item = this.get('item');
-      const recallingMembership = item && get(item, 'recallingMembership');
-      if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
-        const archiveRecallState = get(item, 'archiveRecallState.content');
-        const archiveRecallInfo = get(item, 'archiveRecallInfo.content');
-        if (archiveRecallState && archiveRecallInfo) {
-          const bytesCopied = get(archiveRecallState, 'bytesCopied') || 0;
-          const totalByteSize = get(archiveRecallInfo, 'totalByteSize');
-          if (totalByteSize) {
-            return Math.floor(bytesCopied / totalByteSize * 100);
-          }
-        }
-      }
+      return recallingPercentageProgress(item);
+    }
+  ),
 
-      return null;
+  recallingProgressStyle: computed(
+    'recallingPercent',
+    function recallingProgressStyle() {
+      const recallingPercent = this.get('recallingPercent');
+      return htmlSafe(`width: ${recallingPercent}%;`);
     }
   ),
 
   recallingMembershipObserver: observer(
     'item.recallingMembership',
     function recallingMembershipObserver() {
-      const {
-        item,
-        archiveRecallStateManager,
-        archiveRecallWatcherToken,
-      } = this.getProperties(
-        'item',
-        'archiveRecallStateManager',
-        'archiveRecallWatcherToken',
-      );
-      if (archiveRecallWatcherToken) {
-        // watcher already registered for this component
-        return;
-      }
-      const recallingMembership = item && get(item, 'recallingMembership');
-      if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
-        const archiveRecallWatcherToken =
-          archiveRecallStateManager.watchRecall(item);
-        this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);
-      }
+      this.tryDestroyRecallWatcher();
+      this.tryCreateRecallWatcher();
     }
   ),
 
-  tagClicked(actionName) {
-    const {
-      onInvokeItemAction,
-      item,
-    } = this.getProperties('onInvokeItemAction', 'item');
-    return onInvokeItemAction(item, actionName);
+  init() {
+    this._super(...arguments);
+    this.tryCreateRecallWatcher();
   },
 
-  willDestroyElement() {
-    this._super(...arguments);
+  tryCreateRecallWatcher() {
+    const {
+      item,
+      archiveRecallStateManager,
+      archiveRecallWatcherToken,
+    } = this.getProperties(
+      'item',
+      'archiveRecallStateManager',
+      'archiveRecallWatcherToken',
+    );
+    if (archiveRecallWatcherToken) {
+      // watcher already registered for this component
+      return;
+    }
+    const recallingMembership = item && get(item, 'recallingMembership');
+    if (recallingMembership === 'direct' || recallingMembership === 'ancestor') {
+      const archiveRecallWatcherToken =
+        archiveRecallStateManager.watchRecall(item);
+      this.set('archiveRecallWatcherToken', archiveRecallWatcherToken);
+    }
+  },
+
+  tryDestroyRecallWatcher() {
     const {
       archiveRecallStateManager,
       archiveRecallWatcherToken,
@@ -231,21 +229,39 @@ export default Component.extend(I18n, {
     );
     if (archiveRecallWatcherToken) {
       archiveRecallStateManager.unwatchRecall(
-        get(item, 'entityId'),
+        item,
         archiveRecallWatcherToken
       );
     }
   },
 
+  invokeItemAction(actionName) {
+    const {
+      onInvokeItemAction,
+      item,
+    } = this.getProperties('onInvokeItemAction', 'item');
+    return onInvokeItemAction(item, actionName);
+  },
+
+  willDestroyElement() {
+    this._super(...arguments);
+    this.tryDestroyRecallWatcher();
+  },
+
   actions: {
     datasetTagClicked() {
       if (!this.get('effDatasetDisabled')) {
-        this.tagClicked('datasets');
+        this.invokeItemAction('datasets');
       }
     },
     qosTagClicked() {
       if (!this.get('effQosDisabled')) {
-        this.tagClicked('qos');
+        this.invokeItemAction('qos');
+      }
+    },
+    recallTagClicked() {
+      if (!this.get('effRecallingDisabled')) {
+        this.invokeItemAction('recallInfo');
       }
     },
     changeTagHover(tag, hovered) {
