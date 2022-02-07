@@ -107,6 +107,7 @@ export default Component.extend(I18n, {
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
+            minInterval: 1,
             valueFormatter: {
               functionName: 'asBytes',
               functionArguments: {
@@ -118,6 +119,7 @@ export default Component.extend(I18n, {
           }, {
             id: 'filesAxis',
             name: String(this.t('axes.files')),
+            minInterval: 1,
           }],
           series: [{
             factoryName: 'static',
@@ -189,6 +191,7 @@ export default Component.extend(I18n, {
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
+            minInterval: 1,
             valueFormatter: {
               functionName: 'asBytes',
               functionArguments: {

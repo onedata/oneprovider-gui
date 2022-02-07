@@ -23,7 +23,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 
 export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
-  classNames: ['qos-entry', 'qos-entry-saved', 'list-item', 'one-collapsible-list-item'],
+  classNames: ['qos-entry', 'qos-entry-saved', 'list-item'],
 
   /**
    * @override

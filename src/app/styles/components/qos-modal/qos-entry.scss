@@ -1,8 +1,8 @@
 .qos-entry {
-  .one-collapsible-list-item-header {
-    // adding some padding because to align with icons in header
-    padding-left: $collapsible-list-item-padding + 3px;
-    padding-right: $collapsible-list-item-padding + 5px;
+  padding: $padding-large-vertical 0;
+
+  & + .qos-entry {
+    border-top: 1px solid $main-border-color;
   }
   .qos-main-line {
     display: flex;
@@ -24,32 +24,9 @@
     display: inline-block;
     flex-grow: 1;
   }
-  .qos-header-text {
-    overflow-x: hidden;
-    &::after {
-      @include header-fog-style(white);
-    }
-  }
   .spinner-block-path {
     margin-top: 2px;
     margin-left: 6px;
-  }
-  .one-collapsible-list-item-header {
-    &:hover {
-      .qos-header-text::after {
-        @include header-fog-style($main-content-hover-background);
-      }
-    }
-    &.opened {
-      .qos-header-text::after {
-        @include header-fog-style($collapsible-list-item-header-opened);
-      }
-      &:hover {
-        .qos-header-text::after {
-          @include header-fog-style($collapsible-list-item-header-opened-hover);
-        }
-      }
-    }
   }
   .qos-buttons {
     place-self: flex-start;
@@ -93,16 +70,6 @@
     }
   }
 
-  .list-content {
-    padding-top: 8px;
-    .table-info {
-      margin-top: 10px;
-      .property-name, .property-value {
-        padding-left: 15px;
-        padding-right: 15px;
-      }
-    }
-  }
   .qos-status-icon-container {
     // not needed, as the icon is moved left to align left
     margin-right: 0;
@@ -144,6 +111,7 @@
 
   .chart-container {
     flex-basis: 50%;
+    flex-shrink: 0;
     height: 300px;
   }
 }

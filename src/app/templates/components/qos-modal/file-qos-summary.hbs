@@ -1,6 +1,6 @@
 {{#promise-proxy-container proxy=qosItemsProxy}}
   {{#if (gt qosItemsProxy.length 0)}}
-    <div class="one-collapsible-list qos-list hide-final-border">
+    <div class="qos-list">
       {{#each sortedQosItems key="entityId" as |qosItem|}}
         {{qos-modal/qos-entry
           qosItem=qosItem
