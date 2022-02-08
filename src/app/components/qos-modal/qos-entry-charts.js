@@ -40,6 +40,11 @@ export default Component.extend(I18n, {
   qosTransferStatsConfig: reads('onedataConnection.qosTransferStatsConfig'),
 
   /**
+   * @type {ComputedProperty<number>}
+   */
+  globalTimeSecondsOffset: reads('onedataConnection.globalTimeSecondsOffset'),
+
+  /**
    * @type {Array<QosEntryChartTimeResolution>}
    */
   timeResolutionSpecs: computed(
@@ -100,9 +105,14 @@ export default Component.extend(I18n, {
    */
   savedDataChartConfig: computed(
     'timeResolutionSpecs',
+    'globalTimeSecondsOffset',
     function savedDataChartConfig() {
-      const timeResolutionSpecs = this.get('timeResolutionSpecs');
-      return new OTSCConfiguration({
+      const {
+        timeResolutionSpecs,
+        globalTimeSecondsOffset,
+      } = this.getProperties('timeResolutionSpecs', 'globalTimeSecondsOffset');
+      const config = new OTSCConfiguration({
+        nowTimestampOffset: globalTimeSecondsOffset,
         rawConfiguration: {
           yAxes: [{
             id: 'bytesAxis',
@@ -130,16 +140,22 @@ export default Component.extend(I18n, {
                 type: 'line',
                 yAxisId: 'bytesAxis',
                 data: {
-                  functionName: 'loadSeries',
+                  functionName: 'replaceEmpty',
                   functionArguments: {
-                    sourceType: 'external',
-                    sourceParameters: {
-                      externalSourceName: 'qosEntryData',
-                      externalSourceParameters: {
-                        collectionId: 'bytes',
-                        seriesId: 'total',
+                    data: {
+                      functionName: 'loadSeries',
+                      functionArguments: {
+                        sourceType: 'external',
+                        sourceParameters: {
+                          externalSourceName: 'qosEntryData',
+                          externalSourceParameters: {
+                            collectionId: 'bytes',
+                            seriesId: 'total',
+                          },
+                        },
                       },
                     },
+                    fallbackValue: 0,
                   },
                 },
               },
@@ -153,16 +169,22 @@ export default Component.extend(I18n, {
                 type: 'bar',
                 yAxisId: 'filesAxis',
                 data: {
-                  functionName: 'loadSeries',
+                  functionName: 'replaceEmpty',
                   functionArguments: {
-                    sourceType: 'external',
-                    sourceParameters: {
-                      externalSourceName: 'qosEntryData',
-                      externalSourceParameters: {
-                        collectionId: 'files',
-                        seriesId: 'total',
+                    data: {
+                      functionName: 'loadSeries',
+                      functionArguments: {
+                        sourceType: 'external',
+                        sourceParameters: {
+                          externalSourceName: 'qosEntryData',
+                          externalSourceParameters: {
+                            collectionId: 'files',
+                            seriesId: 'total',
+                          },
+                        },
                       },
                     },
+                    fallbackValue: 0,
                   },
                 },
               },
@@ -176,6 +198,8 @@ export default Component.extend(I18n, {
           },
         },
       });
+      config.setViewParameters({ live: true });
+      return config;
     }
   ),
 
@@ -184,9 +208,14 @@ export default Component.extend(I18n, {
    */
   incomingDataChartConfig: computed(
     'timeResolutionSpecs',
+    'globalTimeSecondsOffset',
     function incomingDataChartConfig() {
-      const timeResolutionSpecs = this.get('timeResolutionSpecs');
-      return new OTSCConfiguration({
+      const {
+        timeResolutionSpecs,
+        globalTimeSecondsOffset,
+      } = this.getProperties('timeResolutionSpecs', 'globalTimeSecondsOffset');
+      const config = new OTSCConfiguration({
+        nowTimestampOffset: globalTimeSecondsOffset,
         rawConfiguration: {
           yAxes: [{
             id: 'bytesAxis',
@@ -230,15 +259,21 @@ export default Component.extend(I18n, {
                 yAxisId: 'bytesAxis',
                 stackId: 'receivedBytesStack',
                 data: {
-                  functionName: 'loadSeries',
+                  functionName: 'replaceEmpty',
                   functionArguments: {
-                    sourceType: 'external',
-                    sourceParameters: {
-                      functionName: 'getDynamicSeriesConfigData',
+                    data: {
+                      functionName: 'loadSeries',
                       functionArguments: {
-                        propertyName: 'pointsSource',
+                        sourceType: 'external',
+                        sourceParameters: {
+                          functionName: 'getDynamicSeriesConfigData',
+                          functionArguments: {
+                            propertyName: 'pointsSource',
+                          },
+                        },
                       },
                     },
+                    fallbackValue: 0,
                   },
                 },
               },
@@ -266,6 +301,8 @@ export default Component.extend(I18n, {
           },
         },
       });
+      config.setViewParameters({ live: true });
+      return config;
     }
   ),
 
