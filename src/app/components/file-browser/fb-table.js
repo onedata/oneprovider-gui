@@ -22,7 +22,6 @@ import { htmlSafe, camelize } from '@ember/string';
 import { schedule, next, later, run } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
-import { next, later } from '@ember/runloop';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
