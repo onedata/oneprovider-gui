@@ -244,15 +244,12 @@ export default Component.extend(
         elementsToShow,
       } = this.getProperties('breadcrumbsItemsProxy', 'elementsToShow');
 
-      // FIXME:
       return breadcrumbsItemsProxy.then(breadcrumbsItems =>
-        // run(() => 
-          filterBreadcrumbsItems(
-            breadcrumbsItems,
-            elementsToShow,
-            this.resolveFileParent.bind(this)
-          )
-        // )
+        filterBreadcrumbsItems(
+          breadcrumbsItems,
+          elementsToShow,
+          this.resolveFileParent.bind(this)
+        )
       );
     },
 
