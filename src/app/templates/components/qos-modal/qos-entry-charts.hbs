@@ -1,2 +1,7 @@
-<div class="chart-container">{{one-time-series-chart configuration=savedDataChartConfig}}</div>
-<div class="chart-container">{{one-time-series-chart configuration=incomingDataChartConfig}}</div>
+{{one-time-series-chart/toolbar
+  models=(array savedDataChartModel incomingDataChartModel)
+}}
+<div class="chart-plots">
+  {{one-time-series-chart/plot model=savedDataChartModel}}
+  {{one-time-series-chart/plot model=incomingDataChartModel}}
+</div>

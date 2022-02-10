@@ -6,6 +6,7 @@ import { allSettled } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import QueryBatcher from 'onedata-gui-common/utils/one-time-series-chart/query-batcher';
 import OTSCConfiguration from 'onedata-gui-common/utils/one-time-series-chart/configuration';
+import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
 
 /**
  * @typedef {Object} QosEntryChartTimeResolution
@@ -303,6 +304,30 @@ export default Component.extend(I18n, {
       });
       config.setViewParameters({ live: true });
       return config;
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Utils.OneTimeSeriesChart.Model>}
+   */
+  savedDataChartModel: computed(
+    'savedDataChartConfig',
+    function savedDataChartModel() {
+      return OTSCModel.create({
+        configuration: this.get('savedDataChartConfig'),
+      });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Utils.OneTimeSeriesChart.Model>}
+   */
+  incomingDataChartModel: computed(
+    'incomingDataChartModel',
+    function savedDataChartModel() {
+      return OTSCModel.create({
+        configuration: this.get('incomingDataChartConfig'),
+      });
     }
   ),
 
