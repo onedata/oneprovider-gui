@@ -1,9 +1,9 @@
 /**
  * Provides model functions related to providers.
- * 
+ *
  * @module services/provider-manager
- * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @author Jakub Liput, Michał Borzęcki
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,21 +11,33 @@ import Service from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
+import { spaceGri } from 'oneprovider-gui/services/space-manager';
 
 export default Service.extend({
   store: service(),
 
   /**
-   * @param {String} providerId 
+   * @param {string} providerId
+   * @param {string} [throughSpaceId]
    * @returns {Promise<Models.Provider>}
    */
-  getProviderById(providerId) {
+  getProviderById(providerId, throughSpaceId) {
+    const {
+      store,
+      onedataGraphContext,
+    } = this.getProperties('store', 'onedataGraphContext');
+
     const providerGri = gri({
       entityType: providerEntityType,
       entityId: providerId,
       aspect: 'instance',
       scope: 'protected',
     });
-    return this.get('store').findRecord('provider', providerGri);
+
+    if (throughSpaceId) {
+      onedataGraphContext.register(providerGri, spaceGri(throughSpaceId));
+    }
+
+    return store.findRecord('provider', providerGri);
   },
 });
