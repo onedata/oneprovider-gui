@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-7451 Fixed non-rounded corners in textarea in file info modal
+* VFS-7731 Showing error after delete share failed
 * VFS-8841 Added archive recall info modal and progress bar in tag
 * VFS-8792 Added support for recalling archives
 * VFS-8640 Added modal with OpenFaaS pods activity to workflow execution preview
