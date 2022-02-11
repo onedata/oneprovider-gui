@@ -145,12 +145,14 @@
       {{#bs-button disabled=isSaving onClick=modal.close}}
         {{tt this "cancel"}}
       {{/bs-button}}
-      {{#one-spin-button
-        action=(action "save" modal.close)
-        class="btn btn-primary"
-        disabled=(not isSaveEnabled)}}
+      {{#one-button
+        type="primary"
+        buttonType="submit"
+        onClick=(action "save" modal.close)
+        disabled=(not isSaveEnabled)
+      }}
         {{tt this "save"}}
-      {{/one-spin-button}}
+      {{/one-button}}
     {{/if}}
   {{/modal.footer}}
 {{/bs-modal}}

@@ -28,14 +28,20 @@ import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirem
 import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
+import { entityType as atmLambdaSnapshotEntityType } from 'oneprovider-gui/models/atm-lambda-snapshot';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
-import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import {
+  entityType as atmTaskExecutionEntityType,
+  aspects as atmTaskExecutionAspects,
+} from 'oneprovider-gui/models/atm-task-execution';
 import { entityType as atmStoreEntityType } from 'oneprovider-gui/models/atm-store';
 import {
   exampleMarkdownLong as exampleMarkdown,
   exampleDublinCore,
 } from 'oneprovider-gui/utils/mock-data';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
+import { aspect as archiveRecallInfoAspect } from 'oneprovider-gui/models/archive-recall-info';
+import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archive-recall-state';
 
 const userEntityId = 'stub_user_id';
 const fullName = 'Stub user';
@@ -220,6 +226,10 @@ export default Service.extend({
       })
       .then(listRecords => {
         return this.createAtmWorkflowExecutionRecords(store).then(() => listRecords);
+      })
+      .then(async listRecords => {
+        await this.createRecallState(store);
+        return listRecords;
       })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
@@ -456,7 +466,7 @@ export default Service.extend({
    * @returns {Promise<Array<Model>>}
    */
   createSpaceRecords(store, names) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const provider = this.get('entityRecords.provider.firstObject');
     const providerId = get(provider, 'entityId');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
@@ -496,9 +506,12 @@ export default Service.extend({
             'space_view',
             'space_view_qos',
             'space_view_transfers',
+            'space_read_data',
+            'space_write_data',
             'space_manage_qos',
             'space_manage_datasets',
             'space_create_archives',
+            'space_recall_archives',
             'space_view_archives',
             'space_remove_archives',
             'space_view_atm_workflow_executions',
@@ -517,7 +530,7 @@ export default Service.extend({
    * @returns {Promise<Array<Model>>}
    */
   createTransferRecords(store) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const waitingStateIndex = transferStates.indexOf('waiting');
     const ongoingStateIndex = transferStates.indexOf('ongoing');
     const endedStateIndex = transferStates.indexOf('ended');
@@ -633,7 +646,7 @@ export default Service.extend({
       state: 'attached',
       protectionFlags: [],
       effProtectionFlags: [],
-      creationTime: Math.floor(Date.now() / 1000),
+      creationTime: getCurrentTimestamp(),
       rootFilePath: stringifyFilePath(await resolveFilePath(file)),
       rootFileType: get(file, 'type'),
       archiveCount: 0,
@@ -822,7 +835,7 @@ export default Service.extend({
           scope: 'private',
         }),
         index: name + archiveEntityId,
-        creationTime: Math.floor(Date.now() / 1000),
+        creationTime: getCurrentTimestamp(),
         state: 'preserved',
         stats: {
           bytesArchived: (i + 1) * 5678990000,
@@ -891,7 +904,7 @@ export default Service.extend({
   async createArchiveRootDir(archiveId, fileId) {
     const store = this.get('store');
     const owner = this.get('entityRecords.owner.0');
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const provider = this.get('entityRecords.provider.firstObject');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
     const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
@@ -960,8 +973,135 @@ export default Service.extend({
     });
   },
 
+  async createRecallState(store) {
+    const archive = this.get('entityRecords.archive.0');
+    const chainDirs = this.get('entityRecords.chainDir');
+    const chainRootDir = await get(chainDirs[0], 'parent');
+    const chainDirId = get(chainRootDir, 'entityId');
+    const infoGri = gri({
+      entityType: fileEntityType,
+      entityId: chainDirId,
+      aspect: archiveRecallInfoAspect,
+    });
+    const stateGri = gri({
+      entityType: fileEntityType,
+      entityId: chainDirId,
+      aspect: archiveRecallStateAspect,
+    });
+    const archiveRecallInfo = store.createRecord('archive-recall-info', {
+      id: infoGri,
+      archive,
+      dataset: await get(archive, 'dataset'),
+      totalFileCount: 100,
+      totalByteSize: 1000000,
+      startTime: null,
+      finishTime: null,
+    });
+    const archiveRecallState = store.createRecord('archive-recall-state', {
+      id: stateGri,
+      filesCopied: 50,
+      bytesCopied: 500000,
+      filesFailed: 0,
+      lastError: null,
+      // // -- uncomment for real parsable error
+      // lastError: {
+      //   reason: {
+      //     id: 'posix',
+      //     details: { errno: 'enospc' },
+      //   },
+      // },
+      // // -- uncomment for unparsable error
+      // lastError: {
+      //   reason: {
+      //     id: 'random',
+      //   },
+      // },
+    });
+    this.set('entityRecords.archiveRecallInfo', [archiveRecallInfo]);
+    this.set('entityRecords.archiveRecallState', [archiveRecallState]);
+    await archiveRecallInfo.save();
+    await allFulfilled([chainRootDir, ...chainDirs].map(dir => {
+      set(dir, 'recallRootId', chainDirId);
+      set(dir, 'archiveRecallInfo', archiveRecallInfo);
+      set(dir, 'archiveRecallState', archiveRecallState);
+      return dir.save();
+    }));
+    this.updateRecallState();
+    return archiveRecallInfo;
+  },
+
+  async updateRecallState() {
+    const stepsCount = 100;
+    const archiveRecallInfo = this.get('entityRecords.archiveRecallInfo.0');
+    const archiveRecallState = this.get('entityRecords.archiveRecallState.0');
+    const {
+      startTime,
+      finishTime,
+      totalFileCount,
+      totalByteSize,
+    } = getProperties(
+      archiveRecallInfo,
+      'startTime',
+      'finishTime',
+      'totalFileCount',
+      'totalByteSize',
+    );
+    if (finishTime) {
+      return;
+    }
+
+    let infoModified = false;
+    let {
+      bytesCopied,
+      filesCopied,
+    } = getProperties(
+      archiveRecallState,
+      'bytesCopied',
+      'filesCopied',
+    );
+    if (!startTime) {
+      set(archiveRecallInfo, 'startTime', Date.now());
+      infoModified = true;
+    }
+    if (bytesCopied < totalByteSize) {
+      const filesIncrement = Math.floor(totalFileCount / stepsCount);
+      const bytesIncrement = Math.floor(totalByteSize / stepsCount);
+      filesCopied = Math.min(totalFileCount, filesCopied + filesIncrement);
+      bytesCopied = Math.min(totalByteSize, bytesCopied + bytesIncrement);
+    }
+    setProperties(archiveRecallState, {
+      bytesCopied,
+      filesCopied,
+    });
+
+    const savePromises = [];
+    const finished = bytesCopied >= totalByteSize || filesCopied >= totalFileCount;
+    if (finished) {
+      // just to be certain
+      filesCopied = totalFileCount;
+      bytesCopied = totalByteSize;
+      set(archiveRecallInfo, 'finishTime', Date.now());
+      infoModified = true;
+    }
+    setProperties(archiveRecallState, {
+      bytesCopied,
+      filesCopied,
+    });
+    if (infoModified) {
+      savePromises.push(archiveRecallInfo.save());
+    }
+    savePromises.push(archiveRecallState.save());
+    await allFulfilled(savePromises);
+    console.debug(
+      `service:mock-backend: recall state changed (${get(archiveRecallState, 'entityId')})`
+    );
+    if (!finished) {
+      window.setTimeout(() => this.updateRecallState(), 2000);
+    }
+  },
+
   createFileRecords(store, parent, owner) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const parentEntityId = get(parent, 'entityId');
     const provider = this.get('entityRecords.provider.firstObject');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
@@ -971,7 +1111,7 @@ export default Service.extend({
         const entityId = generateDirEntityId(i, parentEntityId);
         const id = generateFileGri(entityId);
         const name =
-          `Directory ${String(i).padStart(4, '0')}`;
+          `Directory with very very very long name ${String(i).padStart(4, '0')}`;
         return store.createRecord('file', {
           id,
           name,
@@ -1103,7 +1243,7 @@ export default Service.extend({
   },
 
   createFileData(customData) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const provider = this.get('entityRecords.provider.firstObject');
     const fileQosSummary = this.get('entityRecords.fileQosSummary.firstObject');
     const emptyDatasetSummary = this.get('entityRecords.fileDatasetSummary.firstObject');
@@ -1225,7 +1365,7 @@ export default Service.extend({
     const atmInventories = this.get('entityRecords.atmInventory');
     const atmWorkflowSchemas = this.get('entityRecords.atmWorkflowSchema');
     const atmWorkflowSchemasCount = get(atmWorkflowSchemas, 'length');
-    const timestamp = Math.floor(Date.now() / 1000);
+    const timestamp = getCurrentTimestamp();
     const waitingPhaseIndex = atmWorkflowExecutionPhases.indexOf('waiting');
     const ongoingPhaseIndex = atmWorkflowExecutionPhases.indexOf('ongoing');
     const endedPhaseIndex = atmWorkflowExecutionPhases.indexOf('ended');
@@ -1268,6 +1408,7 @@ export default Service.extend({
             }, {}
           );
           const executionLanes = [];
+          const lambdaIdsToSnapshot = [];
           if (i < 5) {
             for (const lane of lanes) {
               const executionLane = {
@@ -1311,8 +1452,24 @@ export default Service.extend({
                   };
                   for (let taskIdx = 0; taskIdx < parallelBox.tasks.length; taskIdx++) {
                     const task = parallelBox.tasks[taskIdx];
+                    lambdaIdsToSnapshot.push(task.lambdaId);
                     const taskEntityId =
                       generateAtmTaskExecutionEntityId(taskIdx, entityId, runNumber);
+                    const podStatusTime = scheduleTime || startTime;
+                    await this.createAtmTaskOpenfaasActivityRegistry(taskEntityId, {
+                      registry: {
+                        'w90b1146c16-s74f09087db-bagit-uploader-validate-69dfc69d872x5jw': {
+                          currentStatus: 'Running',
+                          lastStatusChangeTimestamp: (podStatusTime + 10) * 1000,
+                          currentContainersReadiness: '1/1',
+                        },
+                        'w90b1146c16-s8d97e3a2d5-bagit-uploader-unpack-data-df69578p8g85': {
+                          currentStatus: 'Succeeded',
+                          lastStatusChangeTimestamp: (podStatusTime + 20) * 1000,
+                          currentContainersReadiness: '1/1',
+                        },
+                      },
+                    });
                     const systemAuditLogId = `auditLog-task-${taskEntityId}`;
                     await this.createAtmStore(systemAuditLogId, {
                       type: 'auditLog',
@@ -1347,6 +1504,20 @@ export default Service.extend({
               executionLanes.push(executionLane);
             }
           }
+          const lambdaSnapshotRegistry = {};
+          for (const lambdaId of lambdaIdsToSnapshot.uniq()) {
+            const lambdaSnapshot =
+              await this.createAtmLambdaShapshot(lambdaId, entityId, {
+                revisionRegistry: {
+                  1: {
+                    operationSpec: {
+                      engine: 'openfaas',
+                    },
+                  },
+                },
+              });
+            lambdaSnapshotRegistry[lambdaId] = get(lambdaSnapshot, 'entityId');
+          }
           const systemAuditLogId = `auditLog-workflow-${entityId}`;
           await this.createAtmStore(systemAuditLogId, {
             type: 'auditLog',
@@ -1360,6 +1531,7 @@ export default Service.extend({
               scope: 'private',
             }),
             status: atmWorkflowExecutionStatusForPhase[phase],
+            lambdaSnapshotRegistry,
             storeRegistry,
             systemAuditLogId,
             lanes: executionLanes,
@@ -1393,6 +1565,31 @@ export default Service.extend({
     this.set('entityRecords.atmWorkflowExecution', atmWorkflowExecutions);
     this.set('entityRecords.atmWorkflowExecutionSummary', atmWorkflowExecutionSummaries);
     return atmWorkflowExecutions;
+  },
+
+  async createAtmLambdaShapshot(atmLambdaId, atmWorkflowExecutionId, data) {
+    const id = gri({
+      entityType: atmLambdaSnapshotEntityType,
+      entityId: `${atmLambdaId}Snapshot${atmWorkflowExecutionId}`,
+      aspect: 'instance',
+      scope: 'private',
+    });
+    return await this.get('store')
+      .createRecord('atmLambdaSnapshot', Object.assign({ id }, data))
+      .save();
+  },
+
+  async createAtmTaskOpenfaasActivityRegistry(taskEntityId, data) {
+    const id = gri({
+      entityType: atmTaskExecutionEntityType,
+      entityId: taskEntityId,
+      aspect: atmTaskExecutionAspects.openfaasFunctionActivityRegistry,
+      scope: 'private',
+    });
+
+    return await this.get('store')
+      .createRecord('openfaasFunctionActivityRegistry', Object.assign({ id }, data))
+      .save();
   },
 
   async createAtmStore(atmStoreEntityId, data) {
@@ -1498,4 +1695,8 @@ function addShareList(parentRecord, shares, store, additionalData) {
       }
       return parentRecord.save();
     });
+}
+
+function getCurrentTimestamp() {
+  return Math.floor(Date.now() / 1000);
 }

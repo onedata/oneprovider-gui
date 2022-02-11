@@ -1,0 +1,23 @@
+{{#promise-proxy-container proxy=browserRequiredDataProxy}}
+  {{file-browser
+    dir=currentBrowsableItem
+    browserModel=browserModel
+    parentModalDialogSelector=parentModalDialogSelector
+    showSelectionToolkit=false
+    isSpaceOwned=space.currentUserIsOwner
+    spaceId=space.entityId
+    spacePrivileges=space.privileges
+    contentScroll=contentScroll
+    selectedItems=selectedItems
+    ignoreDeselectSelector=ignoreDeselectSelector
+    changeSelectedItems=(action "changeSelectedItems")
+    updateDirEntityId=(action "changeDirId")
+  }}
+{{/promise-proxy-container}}
+
+{{filesystem-select-browser-extension
+  selectorModel=this
+  browserModel=browserModel
+}}
+
+{{yield}}

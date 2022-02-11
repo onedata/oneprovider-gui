@@ -1,9 +1,10 @@
 {{#unless browserModel.previewMode}}
   {{filesystem-browser/file-features
-    item=file
+    item=file.effFile
     initiallyExpanded=true
     spacePrivileges=browserModel.spacePrivileges
     features=browserModel.fileFeatures
+    disabled=disabled
     onInvokeItemAction=(action invokeFileAction)
     onTagHoverChange=(action "changeTagHover")
   }}

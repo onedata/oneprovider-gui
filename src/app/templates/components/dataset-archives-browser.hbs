@@ -104,3 +104,13 @@
     onArchiveCreate=(action submitArchiveCreate)
   }}
 {{/if}}
+
+{{#if archiveToRecall}}
+  {{archive-recall-modal
+    open=true
+    space=space
+    archive=archiveToRecall
+    onHide=(action closeArchiveRecallModal)
+    onArchiveRecallStarted=(action handleArchiveRecallStarted)
+  }}
+{{/if}}

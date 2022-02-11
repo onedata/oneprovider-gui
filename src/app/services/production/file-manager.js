@@ -3,7 +3,7 @@
  *
  * @module services/production/file-manager
  * @author Michał Borzęcki, Jakub Liput
- * @copyright (C) 2019-2021 ACK CYFRONET AGH
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -412,6 +412,18 @@ export default Service.extend({
         throw error;
       }
     }
+  },
+
+  async checkFileNameExists(parentDirId, fileName, scope = 'private') {
+    const attrs = await this.fetchChildrenAttrs({
+      dirId: parentDirId,
+      scope,
+      index: fileName,
+      limit: 1,
+      offset: 0,
+    });
+    const children = attrs.children;
+    return children && children.length > 0 && children[0].index === fileName;
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service

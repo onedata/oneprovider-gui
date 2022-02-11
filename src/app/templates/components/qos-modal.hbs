@@ -178,13 +178,14 @@
 
     {{#if isAddMode}}
       <div class="btn-tooltip-container">
-        {{#one-spin-button
-          class="btn btn-primary"
+        {{#one-button
+          type="primary"
+          buttonType="submit"
           disabled=saveDisabled
-          action=(action "save")
+          onClick=(action "save")
         }}
           {{tt this "save"}}
-        {{/one-spin-button}}
+        {{/one-button}}
         {{#if (and (not saveDisabled) multipleFiles)}}
           {{one-tooltip title=(tt this "addMultiHint" count=files.length)}}
         {{/if}}

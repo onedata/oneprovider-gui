@@ -22,7 +22,8 @@ import {
 } from 'oneprovider-gui/components/file-browser';
 import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
-import { array, raw } from 'ember-awesome-macros';
+import { array, raw, and } from 'ember-awesome-macros';
+import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 
 const buttonNames = Object.freeze([
   'btnBagitUpload',
@@ -30,6 +31,7 @@ const buttonNames = Object.freeze([
   'btnNewDirectory',
   'btnRefresh',
   'btnInfo',
+  'btnRecallInfo',
   'btnDownload',
   'btnDownloadTar',
   'btnShare',
@@ -76,6 +78,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @param {Models.File} file file to show its info
    */
   openInfo: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {Function}
+   * @param {Models.File} file file to show recall state modal
+   */
+  openRecallInfo: notImplementedThrow,
 
   /**
    * @virtual
@@ -163,7 +172,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @virtual optional
    * @type {Array<String>}
    */
-  fileFeatures: Object.freeze(['effDatasetMembership', 'effQosMembership']),
+  fileFeatures: defaultFilesystemFeatures,
 
   /**
    * @override
@@ -240,6 +249,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Boolean}
    */
   datasetHeaderTagIsHovered: false,
+
+  /**
+   * True if recalling tag in header is currenlty hovered.
+   * @type {Boolean}
+   */
+  recallingHeaderTagIsHovered: false,
 
   /**
    * Timeout ID for removing transition class for tags.
@@ -453,6 +468,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       ],
     });
   }),
+
+  btnRecallInfo: computed(
+    'showRecallInfoButton',
+    function btnRecallInfo() {
+      const hidden = !this.get('showRecallInfoButton');
+      return this.createFileAction({
+        id: 'recallInfo',
+        icon: 'browser-archive-recall',
+        action: (files, activeTab) => {
+          return this.get('openRecallInfo')(files[0], activeTab);
+        },
+        hidden,
+        showIn: [
+          actionContext.spaceRootDir,
+          actionContext.singleDir,
+          actionContext.singleFile,
+          actionContext.currentDir,
+        ],
+      });
+    }
+  ),
 
   btnDownload: computed(
     'selectedItemsContainsOnlyBrokenSymlinks',
@@ -829,19 +865,29 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   customClassNames: computed(
     'qosHeaderTagIsHovered',
     'datasetHeaderTagIsHovered',
+    'recallingHeaderTagIsHovered',
     'highlightAnimationTimeoutId',
     function customClassNames() {
       const {
         qosHeaderTagIsHovered,
         datasetHeaderTagIsHovered,
+        recallingHeaderTagIsHovered,
         highlightAnimationTimeoutId,
-      } = this.getProperties('qosHeaderTagIsHovered', 'datasetHeaderTagIsHovered', 'highlightAnimationTimeoutId');
+      } = this.getProperties(
+        'qosHeaderTagIsHovered',
+        'datasetHeaderTagIsHovered',
+        'recallingHeaderTagIsHovered',
+        'highlightAnimationTimeoutId'
+      );
       const classes = [];
       if (qosHeaderTagIsHovered) {
         classes.push('highlight-inherited-qos');
       }
       if (datasetHeaderTagIsHovered) {
         classes.push('highlight-inherited-dataset');
+      }
+      if (recallingHeaderTagIsHovered) {
+        classes.push('highlight-inherited-recalling');
       }
       if (classes.length) {
         classes.push('highlight-inherited', 'highlight-transition');
@@ -881,6 +927,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
+  selectedItemIsRecallTarget: computed(
+    'selectedItems.[]',
+    function selectedItemIsRecallTarget() {
+      const selectedItems = this.get('selectedItems');
+      return selectedItems && selectedItems.length === 1 && (
+        get(selectedItems[0], 'isRecalled') ||
+        get(selectedItems[0], 'recallingMembership') === 'ancestor' ||
+        get(selectedItems[0], 'recallingMembership') === 'direct'
+      );
+    }
+  ),
+
+  showRecallInfoButton: and('isMobile.any', 'selectedItemIsRecallTarget'),
+
   uploadDropElement: computed('element', function uploadDropElement() {
     const element = this.get('element');
     if (element) {
@@ -902,17 +962,27 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   animateHighlight: observer(
     'qosHeaderTagIsHovered',
     'datasetHeaderTagIsHovered',
+    'recallingHeaderTagIsHovered',
     function animateHighlight() {
       const {
         qosHeaderTagIsHovered,
         datasetHeaderTagIsHovered,
+        recallingHeaderTagIsHovered,
         highlightAnimationTimeoutId,
-      } = this.getProperties('qosHeaderTagIsHovered', 'datasetHeaderTagIsHovered', 'highlightAnimationTimeoutId');
+      } = this.getProperties(
+        'qosHeaderTagIsHovered',
+        'datasetHeaderTagIsHovered',
+        'recallingHeaderTagIsHovered',
+        'highlightAnimationTimeoutId');
       if (highlightAnimationTimeoutId) {
         this.set('highlightAnimationTimeoutId', null);
         window.clearTimeout(highlightAnimationTimeoutId);
       }
-      if (!qosHeaderTagIsHovered && !datasetHeaderTagIsHovered) {
+      if (
+        !qosHeaderTagIsHovered &&
+        !datasetHeaderTagIsHovered &&
+        !recallingHeaderTagIsHovered
+      ) {
         this.set(
           'highlightAnimationTimeoutId',
           // timeout time is slightly longer than defined transition time in

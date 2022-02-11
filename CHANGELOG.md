@@ -7,6 +7,10 @@ CHANGELOG
 ### Latest changes
 
 * VFS-7451 Fixed rounded corners in textarea in file info modal
+* VFS-8841 Added archive recall info modal and progress bar in tag
+* VFS-8792 Added support for recalling archives
+* VFS-8640 Added modal with OpenFaaS pods activity to workflow execution preview
+* VFS-8874 Removed bower and ember-spin-button
 * VFS-8887 Fixed not working file information modal in shares file browser
 * VFS-6397 Removed redundant bower dependencies
 * VFS-8723 Splitted datasets-archives view Service Pack 1: fixed graphical/UX glitches

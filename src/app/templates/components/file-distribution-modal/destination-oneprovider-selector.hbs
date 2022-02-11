@@ -39,8 +39,15 @@
   {{#bs-button onClick=onCancel disabled=(not canCancel) size="sm"}}
     {{tt this "cancelButton"}}
   {{/bs-button}}
-  {{#one-spin-button action=(action "migrate") class="btn btn-primary btn-sm start-migration" disabled=(not canMigrate)}}
+  {{#one-button
+    onClick=(action "migrate")
+    type="primary"
+    buttonType="submit"
+    size="sm"
+    class="start-migration"
+    disabled=(not canMigrate)
+  }}
     {{tt this "migrateButton"}}
-  {{/one-spin-button}}
+  {{/one-button}}
 </div>
 {{yield}}

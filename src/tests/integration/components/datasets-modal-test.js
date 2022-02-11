@@ -15,6 +15,7 @@ import sinon from 'sinon';
 import wait from 'ember-test-helpers/wait';
 import $ from 'jquery';
 import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
+import { closeModalUsingBackground } from '../../helpers/modal';
 
 describe('Integration | Component | datasets modal', function () {
   setupComponentTest('datasets-modal', {
@@ -45,8 +46,3 @@ describe('Integration | Component | datasets modal', function () {
     expect(this.get('onHide')).to.have.been.calledOnce;
   });
 });
-
-async function closeModalUsingBackground() {
-  document.querySelector('.modal').click();
-  return wait();
-}

@@ -1,0 +1,71 @@
+{{#if browserValidationError}}
+  <div class="archive-recall-body-error text-danger">
+    {{browserValidationError}}
+  </div>
+{{/if}}
+<div class="target-name-form form-group {{if nameValidationError "has-error"}}">
+  <label class="target-name-label" for={{targetNameInputId}}>
+    {{tt this "targetNameInputLabel" fileType=fileTypeText}}:
+  </label>
+  <input
+    id={{targetNameInputId}}
+    class="form-control target-name-input"
+    type="text"
+    placeholder={{tt this "targetNameInputPlaceholder"
+      fileType=fileTypeText
+    }}
+    value={{targetName}}
+    disabled={{effInputDisabled}}
+    oninput={{action (action onTargetNameChange) value="target.value"}}
+  >
+</div>
+{{#if nameValidationError}}
+  <div class="form-message text-right text-danger target-name-input-validation">
+    {{nameValidationError}}
+  </div>
+{{/if}}
+<div class="submit-summary">
+  <div class="path-summary">
+    <div class="path-summary-info">
+      {{tt this "pathSummaryInfo" fileType=fileTypeText}}:
+    </div>
+    {{#if parentDir}}
+      <div class="path-summary-path">
+        {{#file-path
+          internalTagName="span"
+          file=parentDir
+          customTip=targetPathString
+          anchorClassName=""
+        }}
+          <div class="path-item path-separator">/</div>
+          <div class="path-item path-label target-path-item">{{targetName}}</div>
+        {{/file-path}}
+      </div>
+    {{/if}}
+  </div>
+  <div class="submit-buttons">
+    {{#bs-button
+      class="cancel-btn"
+      type="default"
+      disabled=isSubmitting
+      onClick=(action onCancel)
+    }}
+      {{tt this "cancel"}}
+    {{/bs-button}}
+    <div class="btn-tooltip-container">
+      {{#one-button
+        class="submit-btn"
+        type="primary"
+        buttonType="submit"
+        disabled=effSubmitDisabled
+        isPending=isSubmitting
+        onClick=(action "submit")
+      }}
+        {{tt this "proceed"}}
+      {{/one-button}}
+      {{#if proceedTip}}
+        {{one-tooltip title=proceedTip}}
+      {{/if}}
+    </div>
+  </div>
+</div>

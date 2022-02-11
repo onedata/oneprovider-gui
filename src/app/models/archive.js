@@ -71,7 +71,7 @@ export default Model.extend(GraphSingleModelMixin, {
    * This relation is typically non-empty if `config.incremental` is true.
    * Exception is when the very first archive is incremental (there is no other archive
    * to be base).
-   * @type { ComputedProperty < Models.Archive > }
+   * @type {ComputedProperty<Models.Archive>}
    */
   baseArchive: belongsTo('archive'),
 

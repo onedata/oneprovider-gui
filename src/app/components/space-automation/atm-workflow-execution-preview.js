@@ -13,12 +13,14 @@ import { promise } from 'ember-awesome-macros';
 import ExecutionDataFetcher from 'oneprovider-gui/utils/workflow-visualiser/execution-data-fetcher';
 import ActionsFactory from 'onedata-gui-common/utils/workflow-visualiser/actions-factory';
 import { inject as service } from '@ember/service';
+import { hash as hashFulfilled } from 'rsvp';
 
 export default Component.extend({
   classNames: ['atm-workflow-execution-preview', 'loadable-row'],
 
   workflowManager: service(),
   workflowActions: service(),
+  modalManager: service(),
 
   /**
    * @virtual
@@ -40,11 +42,43 @@ export default Component.extend({
   )),
 
   /**
+   * @type {ComputedProperty<PromiseObject<Object<string,Models.AtmLambdaSnapshot>>>}
+   */
+  usedLambdasMapProxy: promise.object(computed(
+    'atmWorkflowExecutionProxy',
+    async function usedLambdasMapProxy() {
+      const {
+        atmWorkflowExecutionProxy,
+        workflowManager,
+      } = this.getProperties('atmWorkflowExecutionProxy', 'workflowManager');
+      const lambdaSnapshotRegistry = get(
+        await atmWorkflowExecutionProxy,
+        'lambdaSnapshotRegistry'
+      );
+
+      if (!lambdaSnapshotRegistry) {
+        return {};
+      }
+
+      const lambdaPromisesHash = Object.keys(lambdaSnapshotRegistry)
+        .reduce((acc, lambdaId) => {
+          acc[lambdaId] = workflowManager.getAtmLambdaSnapshotById(
+            lambdaSnapshotRegistry[lambdaId]
+          );
+          return acc;
+        }, {});
+
+      return hashFulfilled(lambdaPromisesHash);
+    }
+  )),
+
+  /**
    * @type {ComputedProperty<PromiseObject>}
    */
   initialLoadingProxy: promise.object(promise.all(
     'atmWorkflowExecutionProxy',
-    'atmWorkflowSchemaSnapshotProxy'
+    'atmWorkflowSchemaSnapshotProxy',
+    'usedLambdasMapProxy'
   )),
 
   /**
@@ -90,6 +124,7 @@ export default Component.extend({
    * @type {ComputedProperty<Utils.WorkflowVisualiser.ActionsFactory>}
    */
   actionsFactory: computed(function actionsFactory() {
+    const modalManager = this.get('modalManager');
     const factory = ActionsFactory.create({ ownerSource: this });
     factory.setRetryLaneCallback(async (lane, runNumber) =>
       await this.get('workflowManager').retryAtmLane(
@@ -103,6 +138,16 @@ export default Component.extend({
         get(lane, 'id'),
         runNumber
       ));
+    factory.setShowTaskPodsActivityCallback((task) => {
+      const {
+        name,
+        instanceId,
+      } = getProperties(task, 'name', 'instanceId');
+      return modalManager.show('atm-task-execution-pods-activity-modal', {
+        atmTaskName: name,
+        atmTaskExecutionId: instanceId,
+      }).hiddenPromise;
+    });
     return factory;
   }),
 

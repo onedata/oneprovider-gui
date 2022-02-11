@@ -12,6 +12,10 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 export const entityType = 'op_atm_task_execution';
+export const aspects = {
+  openfaasFunctionActivityRegistry: 'openfaas_function_activity_registry',
+  openfaasFunctionPodEventLog: 'openfaas_function_pod_event_log',
+};
 
 export default Model.extend(GraphSingleModelMixin, {
   /**
