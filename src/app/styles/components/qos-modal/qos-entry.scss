@@ -32,8 +32,9 @@
     place-self: flex-start;
     display: flex;
     align-items: center;
-    // align icon right
-    transform: translateX(5%);
+    // Without this style .remove-qos-trigger button moved a bit to the right
+    // causes modal to show horizontal scrollbar for a couple of milliseconds.
+    overflow: hidden;
 
     .clipboard-btn {
       display: flex;
@@ -51,6 +52,9 @@
         position: relative;
       }
     }
+  }
+  .remove-qos-trigger {
+    margin-right: -0.15em;
   }
   .icon-trigger {
     line-height: 40px;
@@ -113,5 +117,6 @@
     flex-basis: 50%;
     flex-shrink: 0;
     height: 300px;
+    min-width: 0;
   }
 }

@@ -12,7 +12,7 @@ import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
  * @typedef {Object} QosEntryChartTimeResolution
  * @property {string} metricId
  * @property {number} timeResolution
- * @property {number} windowsCount
+ * @property {number} pointsCount
  * @property {number} updateInterval
  */
 
@@ -55,22 +55,22 @@ export default Component.extend(I18n, {
       return [{
         metricId: qosTransferStatsConfig.minuteMetricId,
         timeResolution: 60,
-        windowsCount: 60,
+        pointsCount: 60,
         updateInterval: 10,
       }, {
         metricId: qosTransferStatsConfig.hourMetricId,
         timeResolution: 60 * 60,
-        windowsCount: 24,
+        pointsCount: 24,
         updateInterval: 30,
       }, {
         metricId: qosTransferStatsConfig.dayMetricId,
         timeResolution: 24 * 60 * 60,
-        windowsCount: 30,
+        pointsCount: 30,
         updateInterval: 30,
       }, {
         metricId: qosTransferStatsConfig.monthMetricId,
         timeResolution: 30 * 24 * 60 * 60,
-        windowsCount: 12,
+        pointsCount: 12,
         updateInterval: 30,
       }];
     }
@@ -114,7 +114,7 @@ export default Component.extend(I18n, {
       } = this.getProperties('timeResolutionSpecs', 'globalTimeSecondsOffset');
       const config = new OTSCConfiguration({
         nowTimestampOffset: globalTimeSecondsOffset,
-        rawConfiguration: {
+        chartDefinition: {
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
@@ -217,7 +217,7 @@ export default Component.extend(I18n, {
       } = this.getProperties('timeResolutionSpecs', 'globalTimeSecondsOffset');
       const config = new OTSCConfiguration({
         nowTimestampOffset: globalTimeSecondsOffset,
-        rawConfiguration: {
+        chartDefinition: {
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
@@ -347,8 +347,8 @@ export default Component.extend(I18n, {
       collectionId: externalSourceParameters.collectionId,
       seriesId: externalSourceParameters.seriesId,
       metricId,
-      firstTimestamp: context.lastWindowTimestamp,
-      limit: context.windowsCount,
+      firstTimestamp: context.lastPointTimestamp,
+      limit: context.pointsCount,
     };
     return timeSeriesQueryBatcher.query(queryParams);
   },
