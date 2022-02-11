@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-7731 Showing error after delete share failed
 * VFS-8887 Fixed not working file information modal in shares file browser
 * VFS-6397 Removed redundant bower dependencies
 * VFS-8723 Splitted datasets-archives view Service Pack 1: fixed graphical/UX glitches
