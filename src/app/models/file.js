@@ -3,7 +3,7 @@
  *
  * @module models/file
  * @author Jakub Liput, Michał Borzęcki
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -19,9 +19,10 @@ import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool, array } from 'ember-awesome-macros';
+import { bool, array, promise } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
 export const entityType = 'file';
 
@@ -65,20 +66,6 @@ export const RuntimeProperties = Mixin.create({
   symlinkTargetFile: undefined,
 
   /**
-   * When file is a symlink, then `effFile` is the file pointed
-   * by the symlink (so can be empty). For other types of files it points to
-   * the same file (as normal file can be treated as a "symlink to itself").
-   * @type {Models.File}
-   */
-  effFile: computed('type', 'symlinkTargetFile', function effFile() {
-    const {
-      type,
-      symlinkTargetFile,
-    } = this.getProperties('type', 'symlinkTargetFile');
-    return type === 'symlink' ? symlinkTargetFile : this;
-  }),
-
-  /**
    * Contains error of loading file distribution. Is null if distribution has not
    * been fetched yet or it has been fetched successfully. It is persisted in this place
    * due to the bug in Ember that makes belongsTo relationship unusable after
@@ -98,11 +85,6 @@ export const RuntimeProperties = Mixin.create({
   pollSizeTimerId: null,
 
   /**
-   * @type {boolean}
-   */
-  isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
-
-  /**
    * One of `copy`, `move`
    * @type {string}
    */
@@ -112,6 +94,25 @@ export const RuntimeProperties = Mixin.create({
    * @type {boolean}
    */
   isCopyingMovingStop: false,
+
+  /**
+   * @type {boolean}
+   */
+  isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
+
+  /**
+   * When file is a symlink, then `effFile` is the file pointed
+   * by the symlink (so can be empty). For other types of files it points to
+   * the same file (as normal file can be treated as a "symlink to itself").
+   * @type {Models.File}
+   */
+  effFile: computed('type', 'symlinkTargetFile', function effFile() {
+    const {
+      type,
+      symlinkTargetFile,
+    } = this.getProperties('type', 'symlinkTargetFile');
+    return type === 'symlink' ? symlinkTargetFile : this;
+  }),
 
   dataIsProtected: hasProtectionFlag('effProtectionFlags', 'data'),
   metadataIsProtected: hasProtectionFlag('effProtectionFlags', 'metadata'),
@@ -143,6 +144,61 @@ export const RuntimeProperties = Mixin.create({
   internalFileId: computed('entityId', function internalFileId() {
     return getInternalFileIdFromFileId(this.get('entityId'));
   }),
+
+  /**
+   * Membership of running archive recall process:
+   * - direct - if the file is a target (root) for recall process
+   * - ancestor - if the file is a descendant of root for recall process (as above)
+   * - none - none of above or the associated recall process finished
+   * @type {ComputedProperty<PromiseObject<null|'none'|'direct'|'ancestor'>>}
+   */
+  recallingMembershipProxy: promise.object(computed(
+    'recallRootId',
+    'archiveRecallInfo.finishTime',
+    async function recallingMembershipProxy() {
+      const {
+        recallRootId,
+        entityId,
+      } = this.getProperties('recallRootId', 'entityId');
+      if (recallRootId) {
+        const archiveRecallInfoContent = await this.get('archiveRecallInfo');
+        if (
+          archiveRecallInfoContent &&
+          get(archiveRecallInfoContent, 'finishTime')
+        ) {
+          return 'none';
+        } else {
+          return recallRootId === entityId ? 'direct' : 'ancestor';
+        }
+      } else {
+        return 'none';
+      }
+    }
+  )),
+
+  /**
+   * @type {ComputedProperty<null|'none'|'direct'|'ancestor'>}
+   */
+  recallingMembership: computedLastProxyContent('recallingMembershipProxy'),
+
+  isRecalledProxy: promise.object(computed(
+    'recallRootId',
+    'archiveRecallInfo.finishTime',
+    async function recallingMembershipProxy() {
+      const recallRootId = this.get('recallRootId');
+      if (recallRootId) {
+        const archiveRecallInfoContent = await this.get('archiveRecallInfo');
+        return Boolean(
+          archiveRecallInfoContent &&
+          get(archiveRecallInfoContent, 'finishTime')
+        );
+      } else {
+        return false;
+      }
+    }
+  )),
+
+  isRecalled: computedLastProxyContent('isRecalledProxy'),
 
   /**
    * Polls file size. Will stop after `attempts` retries or when fetched size
@@ -244,6 +300,13 @@ export default Model.extend(
     effProtectionFlags: attr('array'),
 
     /**
+     * If file is a recalled archive root or ancestor of one, GUID of recalled archive
+     * root. Null or empty otherwise.
+     * @type {ComputedProperty<String>}
+     */
+    recallRootId: attr('string'),
+
+    /**
      * Modification time in UNIX timestamp format.
      */
     mtime: attr('number'),
@@ -262,6 +325,8 @@ export default Model.extend(
     provider: belongsTo('provider'),
     fileQosSummary: belongsTo('file-qos-summary'),
     fileDatasetSummary: belongsTo('file-dataset-summary'),
+    archiveRecallInfo: belongsTo('archive-recall-info'),
+    archiveRecallState: belongsTo('archive-recall-state'),
 
     /**
      * Relation to archive model if this file is a root dir of archive.

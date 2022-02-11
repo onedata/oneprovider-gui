@@ -158,14 +158,16 @@
           {{tt this "editor.back"}}
         </span>
       {{/bs-button}}
-      {{#one-spin-button
-        action=(action "submit")
+      {{#one-button
+        type="primary"
+        buttonType="submit"
+        onClick=(action "submit")
         disabled=submitDisabled
-        class="btn btn-primary btn-submit"
+        class="btn-submit"
       }}
         {{tt this "editor.publish"}}
         <span class="hidden-custom-xs">{{tt this "editor.asOpenData"}}</span>
-      {{/one-spin-button}}
+      {{/one-button}}
     </div>
   </div>
 </div>

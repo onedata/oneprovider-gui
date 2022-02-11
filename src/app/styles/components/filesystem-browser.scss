@@ -15,3 +15,16 @@
     display: flex;
   }
 }
+
+.file-status-bar {
+  .file-status-recalling {
+    width: 11em;
+    justify-content: center;
+  }
+}
+
+.recall-info {
+  .table.table-info td.property-name {
+    width: 180px;
+  }
+}

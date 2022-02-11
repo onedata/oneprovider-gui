@@ -27,13 +27,3 @@
     }
   }
 }
-
-.modal.modal-content-overlay .modal-xl .items-select-browser-part {
-  .items-select-browser-body {
-    .upload-drop-zone {
-      width: calc(100% - #{3 * $padding-small-horizontal});
-      max-width: calc(#{$modal-xl} - #{2 * $padding-small-horizontal});
-      left: auto;
-    }
-  }
-}

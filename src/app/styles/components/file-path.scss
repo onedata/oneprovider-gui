@@ -21,21 +21,6 @@
     position: relative;
     align-items: center;
   }
-  .path-anchor-default {
-    color: $color-one-blue-gray;
-    &:hover {
-      color: darken($color-one-blue-gray, 20%);
-    }
-    &::after {
-      content: '';
-      bottom: 0.15em;
-      left: 0;
-      right: 0;
-      position: absolute;
-      border-bottom: 1px solid;
-      opacity: 0.8;
-    }
-  }
   .path-item {
     white-space: nowrap;
     flex-shrink: 1;

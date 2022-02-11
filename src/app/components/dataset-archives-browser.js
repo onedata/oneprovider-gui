@@ -3,7 +3,7 @@
  *
  * @module components/dataset-archives-browser
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -80,6 +80,13 @@ export default Component.extend(...mixins, {
    * @type {Boolean|Object}
    */
   showSelectionToolkit: true,
+
+  /**
+   * If true, navigate to archive recalling target file when recall sucessfully starts.
+   * @virtual optional
+   * @type {Boolean}
+   */
+  navigateAfterRecall: false,
 
   /**
    * @virtual optional
@@ -576,6 +583,7 @@ export default Component.extend(...mixins, {
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openPurgeModal: this.openArchivesPurgeModal.bind(this),
+      openRecallModal: this.openArchiveRecallModal.bind(this),
       browseArchiveDip: this.browseArchiveDip.bind(this),
     }, options));
   },
@@ -833,6 +841,32 @@ export default Component.extend(...mixins, {
 
   submitArchiveCreate(dataset, archiveData) {
     return this.get('archiveManager').createArchive(dataset, archiveData);
+  },
+
+  openArchiveRecallModal(archive) {
+    this.set('archiveToRecall', archive);
+  },
+
+  closeArchiveRecallModal() {
+    this.set('archiveToRecall', null);
+  },
+
+  /**
+   * @param {RecallArchiveResponse} result
+   */
+  async handleArchiveRecallStarted(result) {
+    if (!this.get('navigateAfterRecall') || !result || !result.rootFileId) {
+      return;
+    }
+    const {
+      parentAppNavigation,
+      filesViewResolver,
+    } = this.getProperties('parentAppNavigation', 'filesViewResolver');
+    const rootFileId = result.rootFileId;
+    const url = await filesViewResolver.generateUrlById(rootFileId);
+    if (url) {
+      parentAppNavigation.openUrl(url);
+    }
   },
 
   getItemById(itemId) {

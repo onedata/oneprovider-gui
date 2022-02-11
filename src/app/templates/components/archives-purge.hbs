@@ -47,6 +47,7 @@
           value={{confirmationValue}}
           disabled={{if processing true}}
           oninput={{action (mut confirmationValue) value="target.value"}}
+          onkeydown={{ignore-enter}}
         >
       </form>
     </div>
@@ -59,15 +60,17 @@
       {{tt this "footer.cancel"}}
     {{/bs-button}}
     <div class="btn-tooltip-container">
-      {{#one-spin-button
-        action=(action "purge")
-        class="btn btn-danger proceed remove-proceed"
+      {{#one-button
+        type="danger"
+        buttonType="button"
+        onClick=(action "purge")
+        class="proceed remove-proceed"
         disabled=purgeDisabled
       }}
         {{tt this (concat "footer.purgeSubmit." (if isSingleItem "single" "multi"))
           count=archives.length
         }}
-      {{/one-spin-button}}
+      {{/one-button}}
       {{#if purgeTip}}
         {{one-tooltip title=purgeTip}}
       {{/if}}

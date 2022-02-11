@@ -1,13 +1,8 @@
 {{#promise-proxy-container proxy=initialLoadingProxy}}
-  {{actions-toolbar
-    isMinimized=false
-    dropdownPlacement="auto"
-    toolbarClasses="workflow-actions"
-    actionsArray=workflowActions
-  }}
   {{workflow-visualiser
     mode="view"
     rawData=rawSchema
+    usedLambdasMap=usedLambdasMapProxy.content
     actionsFactory=actionsFactory
     executionDataFetcher=executionDataFetcher
     cancelExecutionAction=cancelAction

@@ -4,6 +4,58 @@
   initiallyExpanded=initiallyExpanded
   as |displayed|
 }}
+  {{#if (contains "recallingMembership" features)}}
+    {{#if displayed.recallingMembership.isShown}}
+      <div
+        class={{concat-classes
+          "file-status-tag-group recalling-file-status-tag-group"
+          (if (eq displayed.recallingMembership.membership "ancestor")
+            "file-status-tag-group-fully-inherited"
+          )
+        }}
+        onmouseover={{action "changeTagHover" "recalling" true}}
+        onmouseout={{action "changeTagHover" "recalling" false}}
+        onclick={{unless effRecallingDisabled (action "recallTagClicked")}}
+      >
+        <div
+          class={{concat-classes
+            "file-status-tag"
+            "file-status-recalling"
+            "tag-status-progress"
+            (if (eq displayed.recallingMembership.membership "ancestor")
+              "file-status-tag-inherited"
+              "file-status-tag-success"
+            )
+            (if effRecallingDisabled "file-status-tag-disabled")
+          }}
+        >
+          <div
+            class="tag-progress progress-bar progress-bar-striped active"
+            style={{recallingProgressStyle}}
+          >
+          </div>
+          <span class="tag-text">
+            <span class="recalling-label">{{tt this "status.recalling"}}</span>
+            {{#unless (is-empty recallingPercent)}}
+              <span class="recalling-progress">({{recallingPercent}}%)</span>
+            {{/unless}}
+          </span>
+          {{#if (eq displayed.recallingMembership.membership "ancestor")}}
+            {{one-icon
+              class="tag-icon recalling-inherited-icon inherited-icon"
+              icon=inheritedIcon
+            }}
+          {{/if}}
+        </div>
+      </div>
+    {{else if item.isRecalled}}
+      {{filesystem-browser/tag-recalled
+        file=item
+        disabled=effRecallingDisabled
+        onTagClicked=(unless effRecallingDisabled (action "recallTagClicked"))
+      }}
+    {{/if}}
+  {{/if}}
   {{#if displayed.effDatasetMembership.isShown}}
     <div
       class={{concat-classes
