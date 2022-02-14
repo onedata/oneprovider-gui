@@ -18,10 +18,16 @@ export default Service.extend({
 
   /**
    * @param {string} providerId
-   * @param {string} [throughSpaceId]
+   * @param {string} [fetchOptions.throughSpaceId]
+   * @param {Boolean} [fetchOptions.reload=false]
+   * @param {Boolean} [fetchOptions.backgroundReload=false]
    * @returns {Promise<Models.Provider>}
    */
-  getProviderById(providerId, throughSpaceId) {
+  getProviderById(providerId, {
+    throughSpaceId,
+    reload = false,
+    backgroundReload = false,
+  } = {}) {
     const {
       store,
       onedataGraphContext,
@@ -38,6 +44,6 @@ export default Service.extend({
       onedataGraphContext.register(providerGri, spaceGri(throughSpaceId));
     }
 
-    return store.findRecord('provider', providerGri);
+    return store.findRecord('provider', providerGri, { reload, backgroundReload });
   },
 });

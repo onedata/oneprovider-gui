@@ -2,11 +2,12 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
-import { allSettled } from 'rsvp';
+import { all as allFulfilled } from 'rsvp';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import QueryBatcher from 'onedata-gui-common/utils/one-time-series-chart/query-batcher';
 import OTSCConfiguration from 'onedata-gui-common/utils/one-time-series-chart/configuration';
 import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
 /**
  * @typedef {Object} QosEntryChartTimeResolution
@@ -16,13 +17,14 @@ import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
  * @property {number} updateInterval
  */
 
-export default Component.extend(I18n, {
+export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   classNames: ['qos-entry-charts'],
 
   i18n: service(),
   onedataConnection: service(),
   qosManager: service(),
   providerManager: service(),
+  storageManager: service(),
 
   /**
    * @override
@@ -33,7 +35,19 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {string}
    */
+  spaceId: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
   qosRequirementId: undefined,
+
+  /**
+   * Timestamp of the last timeSeriesCollections proxy reload
+   * @type {number}
+   */
+  lastTsCollectionsReloadTimestamp: undefined,
 
   /**
    * @type {ComputedProperty<QosTransferStatsConfig>}
@@ -162,13 +176,33 @@ export default Component.extend(I18n, {
               },
             },
           }, {
-            factoryName: 'static',
+            factoryName: 'dynamic',
             factoryArguments: {
+              dynamicSeriesConfigs: {
+                sourceType: 'external',
+                sourceParameters: {
+                  externalSourceName: 'qosEntryData',
+                  externalSourceParameters: {
+                    collectionId: 'files',
+                  },
+                },
+              },
               seriesTemplate: {
-                id: 'totalFiles',
-                name: String(this.t('series.totalFiles')),
+                id: {
+                  functionName: 'getDynamicSeriesConfigData',
+                  functionArguments: {
+                    propertyName: 'id',
+                  },
+                },
+                name: {
+                  functionName: 'getDynamicSeriesConfigData',
+                  functionArguments: {
+                    propertyName: 'name',
+                  },
+                },
                 type: 'bar',
                 yAxisId: 'filesAxis',
+                stackId: 'savedFilesStack',
                 data: {
                   functionName: 'replaceEmpty',
                   functionArguments: {
@@ -177,10 +211,9 @@ export default Component.extend(I18n, {
                       functionArguments: {
                         sourceType: 'external',
                         sourceParameters: {
-                          externalSourceName: 'qosEntryData',
-                          externalSourceParameters: {
-                            collectionId: 'files',
-                            seriesId: 'total',
+                          functionName: 'getDynamicSeriesConfigData',
+                          functionArguments: {
+                            propertyName: 'pointsSource',
                           },
                         },
                       },
@@ -195,7 +228,9 @@ export default Component.extend(I18n, {
         timeResolutionSpecs,
         externalDataSources: {
           qosEntryData: {
-            fetchSeries: (...args) => this.fetchSeriesPoints(...args),
+            fetchSeries: (...args) => this.fetchSeries(...args),
+            fetchDynamicSeriesConfigs: (...args) =>
+              this.fetchDynamicSeriesConfigs(...args),
           },
         },
       });
@@ -284,21 +319,9 @@ export default Component.extend(I18n, {
         timeResolutionSpecs,
         externalDataSources: {
           qosEntryData: {
-            fetchSeries: (...args) => this.fetchSeriesPoints(...args),
-            fetchDynamicSeriesConfigs: async ({ collectionId }) => {
-              return (await this.fetchProvidersSeries(collectionId))
-                .map(({ providerId, providerName }) => ({
-                  id: providerId,
-                  name: providerName,
-                  pointsSource: {
-                    externalSourceName: 'qosEntryData',
-                    externalSourceParameters: {
-                      collectionId: 'bytes',
-                      seriesId: providerId,
-                    },
-                  },
-                }));
-            },
+            fetchSeries: (...args) => this.fetchSeries(...args),
+            fetchDynamicSeriesConfigs: (...args) =>
+              this.fetchDynamicSeriesConfigs(...args),
           },
         },
       });
@@ -331,61 +354,172 @@ export default Component.extend(I18n, {
     }
   ),
 
-  async fetchSeriesPoints(context, externalSourceParameters) {
+  willDestroyElement() {
+    try {
+      const {
+        savedDataChartModel,
+        incomingDataChartModel,
+      } = this.getProperties('savedDataChartModel', 'incomingDataChartModel');
+      savedDataChartModel.destroy();
+      incomingDataChartModel.destroy();
+    } finally {
+      this._super(...arguments);
+    }
+  },
+
+  /**
+   * @param {OTSCDataSourceFetchParams} seriesParameters
+   * @param {{ collectionId: string, seriesId: string }} sourceParameters
+   * @returns {Promise<Array<RawOTSCSeriesPoint>>}
+   */
+  async fetchSeries(seriesParameters, sourceParameters) {
     const {
       timeResolutionSpecs,
       timeSeriesQueryBatcher,
     } = this.getProperties('timeResolutionSpecs', 'timeSeriesQueryBatcher');
     const matchingTimeResolutionSpec = timeResolutionSpecs
-      .findBy('timeResolution', context.timeResolution);
+      .findBy('timeResolution', seriesParameters.timeResolution);
     const metricId = matchingTimeResolutionSpec ?
       matchingTimeResolutionSpec.metricId : null;
     if (!metricId) {
       return [];
     }
     const queryParams = {
-      collectionId: externalSourceParameters.collectionId,
-      seriesId: externalSourceParameters.seriesId,
+      collectionId: sourceParameters.collectionId,
+      seriesId: sourceParameters.seriesId,
       metricId,
-      firstTimestamp: context.lastPointTimestamp,
-      limit: context.pointsCount,
+      startTimestamp: seriesParameters.lastPointTimestamp,
+      limit: seriesParameters.pointsCount,
     };
     return timeSeriesQueryBatcher.query(queryParams);
   },
 
   /**
-   * @param {'bytes'|'files'} collectionId
-   * @returns {Promise<Array<{ providerId, providerName }>>}
+   * @param {{ collectionId: string }} sourceParameters
+   * @returns {Promise<Array<{ id: string, name: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
-  async fetchProvidersSeries(collectionId) {
+  async fetchDynamicSeriesConfigs(sourceParameters) {
+    return (await this.fetchStorageSeriesConfigs(sourceParameters.collectionId))
+      .map(({ storageId, name }) => ({
+        id: storageId,
+        name,
+        pointsSource: {
+          externalSourceName: 'qosEntryData',
+          externalSourceParameters: {
+            collectionId: sourceParameters.collectionId,
+            seriesId: storageId,
+          },
+        },
+      }));
+  },
+
+  /**
+   * @param {'bytes'|'files'} collectionId
+   * @returns {Promise<Array<{ storageId, name }>>}
+   */
+  async fetchStorageSeriesConfigs(collectionId) {
     const {
-      qosManager,
+      spaceId,
+      storageManager,
       providerManager,
-      qosRequirementId,
       qosTransferStatsConfig,
     } = this.getProperties(
-      'qosManager',
+      'spaceId',
+      'storageManager',
       'providerManager',
-      'qosRequirementId',
       'qosTransferStatsConfig'
     );
 
-    const collectionSeries =
-      (await qosManager.getTimeSeriesCollections(qosRequirementId))[collectionId];
-    const providersIds = collectionSeries ?
+    const collectionSeries = (await this.getTsCollections())[collectionId];
+    const storagesIds = collectionSeries ?
       collectionSeries.without(qosTransferStatsConfig.totalTimeSeriesId) : [];
-    const providers = await allSettled(providersIds.map((providerId) =>
-      providerManager.getProviderById(providerId)
-    ));
-    return providersIds.map((providerId, idx) => {
-      const provider = providers[idx].value;
-      const providerName = provider ?
-        get(provider, 'name') :
-        String(this.t('unknownProvider', { id: providerId.slice(0, 6) }));
-      return {
-        providerId,
-        providerName,
-      };
-    });
+
+    const seriesPromises = [];
+    for (let i = 0; i < storagesIds.length; i++) {
+      const storageId = storagesIds[i];
+      seriesPromises.push((async () => {
+        const seriesEntry = { storageId };
+        try {
+          const storage = await storageManager.getStorageById(storageId, {
+            throughSpaceId: spaceId,
+            backgroundReload: false,
+          });
+          seriesEntry.storageName = get(storage, 'name');
+          seriesEntry.providerId = storage.relationEntityId('provider');
+        } catch (error) {
+          console.error(
+            `component:qos-modal/qos-entry-charts#fetchProvidersSeries: cannot load storage with ID "${storageId}"`,
+            error
+          );
+          seriesEntry.providerId = null;
+        }
+        const providerId = seriesEntry.providerId;
+        if (providerId) {
+          try {
+            const provider = await providerManager.getProviderById(providerId, {
+              throughSpaceId: spaceId,
+              backgroundReload: false,
+            });
+            seriesEntry.providerName = get(provider, 'name');
+          } catch (error) {
+            console.error(
+              `component:qos-modal/qos-entry-charts#fetchProvidersSeries: cannot load provider with ID "${providerId}"`,
+              error
+            );
+          }
+        }
+        let name = seriesEntry.storageName || String(this.t('unknownStorage', {
+          id: storageId.slice(0, 6),
+        }));
+        if (seriesEntry.storageName) {
+          name += ' ‐ ';
+          name += seriesEntry.providerName || String(this.t('unknownProvider', {
+            id: providerId.slice(0, 6),
+          }));
+        }
+        seriesEntry.name = name;
+        const providerSortKey =
+          `${Number(!seriesEntry.providerName)}${seriesEntry.providerName || providerId}`;
+        const storageSortKey =
+          `${Number(!seriesEntry.storageName)}${seriesEntry.storageName || storageId}`;
+        seriesEntry.sortKey = `${providerSortKey}\n${storageSortKey}`;
+        return seriesEntry;
+      })());
+    }
+
+    const seriesEntries = await allFulfilled(seriesPromises);
+    return seriesEntries.sortBy('sortKey').map(({ storageId, name }) => ({ storageId, name }));
+  },
+
+  /**
+   * @override
+   */
+  async fetchTsCollections() {
+    const {
+      qosManager,
+      qosRequirementId,
+    } = this.getProperties(
+      'qosManager',
+      'qosRequirementId',
+    );
+    return qosManager.getTimeSeriesCollections(qosRequirementId);
+  },
+
+  /**
+   * @returns {Promise<QosEntryTimeSeriesCollections>}
+   */
+  async getTsCollections() {
+    const lastTsCollectionsReloadTimestamp =
+      this.get('lastTsCollectionsReloadTimestamp');
+    const nowTimestamp = Math.floor(Date.now() / 1000);
+    if (
+      !lastTsCollectionsReloadTimestamp ||
+      nowTimestamp - lastTsCollectionsReloadTimestamp > 10
+    ) {
+      this.set('lastTsCollectionsReloadTimestamp', nowTimestamp);
+      return this.updateTsCollectionsProxy();
+    } else {
+      return this.getTsCollectionsProxy();
+    }
   },
 });

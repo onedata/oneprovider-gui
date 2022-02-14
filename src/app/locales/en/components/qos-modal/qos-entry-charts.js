@@ -1,4 +1,5 @@
 export default {
+  unknownStorage: 'Storage#{{id}}',
   unknownProvider: 'Provider#{{id}}',
   axes: {
     bytes: 'Bytes',

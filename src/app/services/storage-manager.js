@@ -20,10 +20,16 @@ export default Service.extend({
   /**
    * @public
    * @param {string} storageId
-   * @param {string} [throughSpaceId]
+   * @param {string} [fetchOptions.throughSpaceId]
+   * @param {Boolean} [fetchOptions.reload=false]
+   * @param {Boolean} [fetchOptions.backgroundReload=false]
    * @returns {Promise<Models.Storage>}
    */
-  getStorageById(storageId, throughSpaceId) {
+  getStorageById(storageId, {
+    throughSpaceId,
+    reload = false,
+    backgroundReload = false,
+  } = {}) {
     const {
       store,
       onedataGraphContext,
@@ -40,6 +46,6 @@ export default Service.extend({
       onedataGraphContext.register(storageGri, spaceGri(throughSpaceId));
     }
 
-    return store.findRecord('storage', storageGri);
+    return store.findRecord('storage', storageGri, { reload, backgroundReload });
   },
 });
