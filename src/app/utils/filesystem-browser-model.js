@@ -998,10 +998,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  onChangeDir(dir) {
+  async onChangeDir(targetDir, updateBrowserDir) {
+    await updateBrowserDir(targetDir);
     // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
     // if using selector inside filesystem browser
-    this.get('uploadManager').changeTargetDirectory(dir);
+    this.get('uploadManager').changeTargetDirectory(targetDir);
   },
 
   /**

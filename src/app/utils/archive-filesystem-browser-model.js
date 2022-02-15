@@ -12,8 +12,15 @@ import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-mod
 import { bool } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
+import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
+import { get } from '@ember/object';
+import { inject as service } from '@ember/service';
 
 export default FilesystemBrowserModel.extend({
+  // FIXME: remove when modal will be made
+  filesViewResolver: service(),
+  parentAppNavigation: service(),
+
   /**
    * @virtual
    * @type {Boolean}
@@ -82,4 +89,54 @@ export default FilesystemBrowserModel.extend({
    * @type {ComputedProperty<Boolean>}
    */
   isArchiveDipAvailable: bool('archive.config.includeDip'),
+
+  /**
+   * @override
+   */
+  async onChangeDir(targetDir, updateBrowserDir) {
+    let shouldChangeDir = true;
+    if (get(targetDir, 'type') === 'symlink') {
+      shouldChangeDir = !(await this.handlePotentialExternalSymlink(targetDir));
+    }
+    if (shouldChangeDir) {
+      await updateBrowserDir(targetDir);
+    }
+  },
+
+  async symlinkedDirExternalContext(dirSymlink) {
+    const currentDir = this.get('dir');
+    const filesViewContextFactory =
+      FilesViewContextFactory.create({ ownerSource: this });
+    const targetDir = get(dirSymlink, 'effFile');
+    const targetFileContext = await filesViewContextFactory.createFromFile(targetDir);
+    const currentFileContext = await filesViewContextFactory.createFromFile(currentDir);
+    return currentFileContext.isEqual(targetFileContext) ? null : targetFileContext;
+  },
+
+  /**
+   * @param {Model.File} dirSymlink
+   * @returns {boolean} true if `dirSymlink` is link to external archive and dir open
+   *   should be handled by question to user, not by standard dir change
+   */
+  async handlePotentialExternalSymlink(dirSymlink) {
+    const externalContext = await this.symlinkedDirExternalContext(dirSymlink);
+    if (externalContext) {
+      this.openExternalSymlinkModal(
+        dirSymlink,
+        externalContext
+      );
+      return true;
+    } else {
+      return false;
+    }
+  },
+
+  async openExternalSymlinkModal(dirSymlink, externalContext) {
+    // FIXME: dummy implementation
+    const shouldRedirect = window.confirm('redirect?');
+    if (shouldRedirect) {
+      const url = this.get('filesViewResolver').generateUrl(externalContext, 'open');
+      this.get('parentAppNavigation').openUrl(url);
+    }
+  },
 });
