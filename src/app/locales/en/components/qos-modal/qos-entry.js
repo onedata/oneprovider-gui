@@ -6,6 +6,7 @@ const translations = {
   direct: 'Direct',
   remove: 'Remove QoS requirement',
   inheritedFrom: 'Inherited from',
+  showStatistics: 'Show statistics',
   replica: 'replica',
   replicas: 'replicas',
   disabledRemoveHint: '<strong>Inherited requirement</strong> – cannot be removed directly.<br>You can remove it from the directory indicated as the inheritance source.',

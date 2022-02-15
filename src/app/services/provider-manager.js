@@ -15,6 +15,7 @@ import { spaceGri } from 'oneprovider-gui/services/space-manager';
 
 export default Service.extend({
   store: service(),
+  onedataGraphContext: service(),
 
   /**
    * @param {string} providerId

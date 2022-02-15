@@ -29,14 +29,12 @@
 }
 
 @media (max-width: $screen-xs-max) {
-  .modal.in .modal-dialog {
-    .btn {
-      padding: 8px 24px;
-    }
+  .modal .btn {
+    padding: 8px 24px;
   }
 }
 
-// a full-height modal that looks like content overlay (currently starting from right) 
+// a full-height modal that looks like content overlay (currently starting from right)
 .modal.modal-content-overlay {
   &.in {
     .modal-dialog {
@@ -78,7 +76,7 @@
 
   .modal-dialog {
     transform: translateX(100%);
-    transition: transition-ease(transform); 
+    transition: transition-ease(transform);
 
     top: 0;
     bottom: 0;

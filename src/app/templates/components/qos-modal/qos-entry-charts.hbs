@@ -1,7 +1,10 @@
-{{one-time-series-chart/toolbar
-  models=(array savedDataChartModel incomingDataChartModel)
-}}
-<div class="chart-plots">
+<div class="charts-header">
+  <div class="title">{{tt this "header"}}</div>
+  {{one-time-series-chart/toolbar
+    models=(array savedDataChartModel incomingDataChartModel)
+  }}
+</div>
+<div class="charts-plots">
   {{one-time-series-chart/plot model=savedDataChartModel}}
   {{one-time-series-chart/plot model=incomingDataChartModel}}
 </div>

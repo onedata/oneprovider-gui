@@ -69,7 +69,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       return [{
         metricId: qosTransferStatsConfig.minuteMetricId,
         timeResolution: 60,
-        pointsCount: 60,
+        pointsCount: 30,
         updateInterval: 10,
       }, {
         metricId: qosTransferStatsConfig.hourMetricId,
@@ -129,6 +129,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       const config = new OTSCConfiguration({
         nowTimestampOffset: globalTimeSecondsOffset,
         chartDefinition: {
+          title: String(this.t('titles.inbound')),
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
@@ -253,6 +254,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       const config = new OTSCConfiguration({
         nowTimestampOffset: globalTimeSecondsOffset,
         chartDefinition: {
+          title: String(this.t('titles.outbound')),
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),

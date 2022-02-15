@@ -112,10 +112,6 @@
   .qos-subheader {
     margin-top: 0.8em;
     font-size: $font-size-small;
-    // need to align icons, but it must be custom because of icons internal padding
-    &.with-icon-left {
-      margin-left: -0.4em;
-    }
     // this class is so custom, because of need of aligning icon to right on desktop
     // and to left on mobile
     &.qos-expression-copy-subheader {
@@ -138,6 +134,13 @@
     .inherited-text {
       white-space: nowrap;
       margin-right: 0.4em;
+    }
+    .statistics-text {
+      color: $color-one-mint;
+
+      .oneicon-arrow-down {
+        vertical-align: middle;
+      }
     }
     @media (max-width: $screen-xs-max) {
       margin-left: 0;

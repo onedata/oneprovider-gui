@@ -1,6 +1,6 @@
 /**
  * A list of QoS requirements for file
- * 
+ *
  * @module components/qos-modal/file-qos-summary
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -78,6 +78,14 @@ export default Component.extend(...objectMixins, {
    * @type {Array<Models.Provider>}
    */
   providers: undefined,
+
+  /**
+   * If true and file has only one qos entry, then that qos entry will have
+   * expanded charts by default
+   * @virtual optional
+   * @type {boolean}
+   */
+  showChartsOfSingleQos: false,
 
   /**
    * @type {ComputedProperty<Array<Utils.QosItem>>}
