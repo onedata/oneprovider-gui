@@ -19,6 +19,7 @@ import {
   getTargetStoreTypesForType,
   getTargetDataTypesForType,
   dataSpecToType,
+  getStoreWriteDataSpec,
 } from 'onedata-gui-common/utils/workflow-visualiser/data-spec-converters';
 
 const typingActionDebouce = config.timing.typingActionDebouce;
@@ -151,12 +152,14 @@ export default Component.extend(I18n, {
     const targetDataTypes = getTargetDataTypesForType(requiredDataType.type);
     return allRevisionNumbers.filter(revisionNumber => {
       const stores = get(revisionRegistry[revisionNumber] || {}, 'stores') || [];
-      const inputStores = stores.filterBy('requiresInitialValue');
+      const inputStores = stores.filterBy('requiresInitialContent');
       return inputStores.some(store => {
         const storeType = get(store, 'type');
-        const storeDataType = dataSpecToType(get(store, 'dataSpec'));
-        return targetStoreTypes.includes(storeType) &&
-          targetDataTypes.includes(storeDataType.type);
+        const storeWriteDataSpec = getStoreWriteDataSpec(store);
+        const storeWriteDataType = storeWriteDataSpec ?
+          dataSpecToType(storeWriteDataSpec) : null;
+        return storeWriteDataType && targetStoreTypes.includes(storeType) &&
+          targetDataTypes.includes(storeWriteDataType.type);
       });
     });
   },

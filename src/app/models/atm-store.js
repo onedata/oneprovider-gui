@@ -39,7 +39,7 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {ComputedProperty<Object>}
    */
-  dataSpec: attr('object'),
+  config: attr('object'),
 
   /**
    * @type {ComputedProperty<Models.AtmWorkflowExecution>}

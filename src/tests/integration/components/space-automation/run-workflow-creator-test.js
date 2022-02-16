@@ -26,11 +26,13 @@ describe('Integration | Component | space automation/run workflow creator', func
             id: 'store1',
             name: 'store 1',
             type: 'singleValue',
-            dataSpec: {
-              type: 'integer',
-              valueConstraints: {},
+            config: {
+              itemDataSpec: {
+                type: 'integer',
+                valueConstraints: {},
+              },
             },
-            requiresInitialValue: true,
+            requiresInitialContent: true,
           }],
         },
       },
@@ -44,11 +46,13 @@ describe('Integration | Component | space automation/run workflow creator', func
             id: 'store2',
             name: 'store 2',
             type: 'list',
-            dataSpec: {
-              type: 'string',
-              valueConstraints: {},
+            config: {
+              itemDataSpec: {
+                type: 'string',
+                valueConstraints: {},
+              },
             },
-            requiresInitialValue: true,
+            requiresInitialContent: true,
           }],
         },
       },
@@ -146,7 +150,7 @@ describe('Integration | Component | space automation/run workflow creator', func
   it('enabled submit button and shows proper message when workflow does not need any initial values',
     async function () {
       this.get('atmWorkflowSchemas.0.revisionRegistry.1.stores')
-        .setEach('requiresInitialValue', false);
+        .setEach('requiresInitialContent', false);
       await render(this);
 
       await click(getSlide('list').querySelector('.revisions-table-revision-entry'));

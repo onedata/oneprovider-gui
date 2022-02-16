@@ -32,6 +32,7 @@ import {
   getTargetStoreTypesForType,
   getTargetDataTypesForType,
   dataSpecToType,
+  getStoreWriteDataSpec,
 } from 'onedata-gui-common/utils/workflow-visualiser/data-spec-converters';
 
 export const executeWorkflowDataLocalStorageKey = 'executeWorkflowInputData';
@@ -184,7 +185,7 @@ export default Component.extend(I18n, {
    */
   inputStores: computed('atmWorkflowSchemaRevision.stores', function inputStores() {
     return (this.get('atmWorkflowSchemaRevision.stores') || [])
-      .filterBy('requiresInitialValue');
+      .filterBy('requiresInitialContent');
   }),
 
   /**
@@ -596,26 +597,25 @@ async function inputStoresToFormData(inputStores, getFileRecord, localStorageDat
       name,
       description,
       type,
-      dataSpec,
-      defaultInitialValue,
+      defaultInitialContent,
     } = getProperties(
       inputStore,
       'id',
       'name',
       'description',
       'type',
-      'dataSpec',
-      'defaultInitialValue',
+      'defaultInitialContent',
     );
 
     const valueName = `inputStore${id}`;
     inputStoresFormValues.__fieldsValueNames.push(valueName);
 
-    const editor = getValueEditorForStoreType(type, dataSpec);
+    const writeDataSpec = getStoreWriteDataSpec(inputStore);
+    const editor = getValueEditorForStoreType(type, writeDataSpec);
     const { data: editorValue } = await storeValueToFormValue(
       type,
-      dataSpec,
-      defaultInitialValue,
+      writeDataSpec,
+      defaultInitialContent,
       getFileRecord
     );
     const storeHasUseSelectionInputMethod =
@@ -630,7 +630,7 @@ async function inputStoresToFormData(inputStores, getFileRecord, localStorageDat
           count,
         } = await storeValueToFormValue(
           type,
-          dataSpec,
+          writeDataSpec,
           rawUseSelectionData,
           getFileRecord
         );
@@ -646,7 +646,7 @@ async function inputStoresToFormData(inputStores, getFileRecord, localStorageDat
       storeName: name,
       storeDescription: description,
       storeType: type,
-      storeDataSpec: dataSpec,
+      storeDataSpec: writeDataSpec,
       storeHasUseSelectionInputMethod,
       storeUseSelectionData,
       storeUseSelectionDataCount,
@@ -747,7 +747,7 @@ function validateStoreElement(element, storeType, dataSpec) {
 
 function formDataToInputStoresValues(formData, stores) {
   const inputStores = get(formData, 'inputStores') || {};
-  const inputStoresSpecs = (stores || []).filterBy('requiresInitialValue');
+  const inputStoresSpecs = (stores || []).filterBy('requiresInitialContent');
   const storeValues = {};
   (get(inputStores, '__fieldsValueNames') || []).forEach((valueName, idx) => {
     const inputStore = get(inputStores, valueName);
@@ -759,10 +759,10 @@ function formDataToInputStoresValues(formData, stores) {
     const {
       id,
       type,
-      dataSpec,
-    } = getProperties(storeSpec, 'id', 'type', 'dataSpec');
+    } = getProperties(storeSpec, 'id', 'type');
+    const writeDataSpec = getStoreWriteDataSpec(storeSpec);
 
-    const editor = getValueEditorForStoreType(type, dataSpec);
+    const editor = getValueEditorForStoreType(type, writeDataSpec);
     let initialValue;
     if (editor === 'rawValue') {
       try {
@@ -771,8 +771,8 @@ function formDataToInputStoresValues(formData, stores) {
         return;
       }
     } else {
-      const idFieldName = getIdFieldNameForDataSpec(dataSpec);
-      const transformId = dataSpec && dataSpec.type === 'file' ?
+      const idFieldName = getIdFieldNameForDataSpec(writeDataSpec);
+      const transformId = writeDataSpec && writeDataSpec.type === 'file' ?
         (id => guidToCdmiObjectId(id)) : (id => id);
       initialValue = (get(inputStore, editor) || []).map(item => ({
         [idFieldName]: transformId(get(item, 'entityId')),
@@ -806,9 +806,13 @@ async function storeValueToFormValue(storeType, dataSpec, value, getFileRecord) 
   let valuesCount;
   if (editor === 'rawValue') {
     const valueIsNone = editorValue === null || editorValue === undefined;
-    if (storeType === 'singleValue' && Array.isArray(value)) {
+    if ((storeType === 'singleValue' || storeType === 'range') && Array.isArray(value)) {
       editorValue = value[0];
-    } else if (storeType !== 'singleValue' && !Array.isArray(value) && !valueIsNone) {
+    } else if (
+      storeType !== 'singleValue' &&
+      storeType !== 'range' &&
+      !Array.isArray(value) && !valueIsNone
+    ) {
       editorValue = [value];
     }
     valuesCount = Array.isArray(editorValue) ? editorValue.length : 1;
@@ -858,11 +862,9 @@ function hasUseSelectionInputMethod(inputStore, localStorageData) {
     data.length > 1
   );
   const targetDataTypes = getTargetDataTypesForType(requiredDataType.type);
-  const {
-    dataSpec: storeDataSpec,
-    type: storeType,
-  } = getProperties(inputStore, 'dataSpec', 'type');
-  const storeDataType = dataSpecToType(storeDataSpec);
+  const storeType = get(inputStore, 'type');
+  const storeWriteDataSpec = getStoreWriteDataSpec(inputStore);
+  const storeDataType = dataSpecToType(storeWriteDataSpec);
   return targetStoreTypes.includes(storeType) &&
     targetDataTypes.includes(storeDataType.type);
 }
