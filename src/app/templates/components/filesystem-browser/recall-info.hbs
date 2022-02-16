@@ -1,0 +1,199 @@
+{{#promise-proxy-container proxy=initialRequiredDataProxy}}
+  <table class="table table-info table-info-collapsible">
+    <tbody>
+      <tr class={{concat-classes
+        "recall-info-row-process-status"
+        (if errorOccurred "text-danger")
+      }}>
+        <td class="property-name">
+          {{tt this "processStatus"}}
+        </td>
+        <td class="property-value">
+          {{#if (eq processStatus "scheduled")}}
+            {{tt this "status.scheduled"}}
+          {{else if (eq processStatus "pending")}}
+            {{tt this "status.pending"}}
+            {{#if (not (is-empty recallingPercent))}}
+              {{tt this "percentageDone" percentage=recallingPercent}}
+            {{/if}}
+          {{else if (eq processStatus "succeeded")}}
+            {{tt this "status.succeeded"}}
+          {{else if (eq processStatus "failed")}}
+            {{tt this "status.failed"}}
+            {{#if (not (is-empty recallingPercent))}}
+              {{tt this "percentageDone" percentage=recallingPercent}}
+            {{/if}}
+          {{/if}}
+        </td>
+      </tr>
+      <tr class="recall-info-row-archive">
+        <td class="property-name">
+          {{tt this "archive"}}
+        </td>
+        <td class="property-value">
+          {{#if archive}}
+            <a
+              class="archive-link navy underlined"
+              href={{archiveUrl}}
+              target={{navigateTarget}}
+            >
+              {{archiveName}}
+            </a>
+          {{else}}
+            {{#if archiveId}}
+              <code class="archive-id">{{archiveId}}</code>
+            {{else}}
+              <em>{{tt this "couldNotLoad"}}</em>
+            {{/if}}
+          {{/if}}
+        </td>
+      </tr>
+      <tr class="recall-info-row-dataset">
+        <td class="property-name">
+          {{tt this "dataset"}}
+        </td>
+        <td class="property-value">
+          {{#if dataset}}
+            <a
+              class="dataset-link navy underlined"
+              href={{datasetUrl}}
+              target={{navigateTarget}}
+            >
+              {{datasetName}}
+            </a>
+          {{else}}
+            {{#if datasetId}}
+              <code class="dataset-id">{{datasetId}}</code>
+            {{else}}
+              <em>{{tt this "couldNotLoad"}}</em>
+            {{/if}}
+          {{/if}}
+        </td>
+      </tr>
+      <tr class="recall-info-row-target-path">
+        <td class="property-name">
+          {{tt this "targetPath"}}
+          {{one-label-tip title=(tt this
+            "tips.targetPath"
+            fileType=(tt this (concat "fileType." recallRootFile.type))
+          )}}
+        </td>
+        <td class="property-value">
+          {{#if recallRootFile}}
+            {{file-path file=recallRootFile click=(action "targetFileLinkClicked")}}
+          {{else}}
+            <em>{{tt this "couldNotLoad"}}</em>
+          {{/if}}
+        </td>
+      </tr>
+      {{#if (eq recallRootFile.type "dir")}}
+        <tr class="recall-info-row-relative-path">
+          <td class={{concat-classes
+            "property-name"
+            (if renderRelativePathInput "with-input-sm")
+          }}>
+            {{tt this "relativePath"}}
+            {{one-label-tip title=(tt this
+              "tips.relativePath"
+              fileType=(tt this (concat "fileType." recallRootFile.type))
+            )}}
+          </td>
+          <td class="property-value">
+            {{#if renderRelativePathInput}}
+              {{clipboard-line
+                value=relativePath
+                size="sm"
+              }}
+            {{else if fileIsRecallRoot}}
+              <em>{{tt this "rootDirectory"}}</em>
+            {{else if (not relativePath)}}
+              <em>{{tt this "couldNotLoad"}}</em>
+            {{/if}}
+          </td>
+        </tr>
+      {{/if}}
+      <tr class="recall-info-row-started-at">
+        <td class="property-name">
+          {{tt this "startedAt"}}
+        </td>
+        <td class="property-value">
+          {{date-format startedAt format="report" blank="—"}}
+        </td>
+      </tr>
+      {{#if finishedAt}}
+        <tr class="recall-info-row-finished-at">
+          <td class="property-name">
+            {{tt this "finishedAt"}}
+          </td>
+          <td class="property-value">
+            {{date-format finishedAt format="report" blank="—"}}
+          </td>
+        </tr>
+      {{/if}}
+
+      <tr class="recall-info-row-files">
+        <td class="property-name">
+          {{tt this "filesRecalled"}}
+        </td>
+        <td class="property-value">
+          {{filesRecalled}} / {{filesToRecall}}
+        </td>
+      </tr>
+      <tr class="recall-info-row-bytes">
+        <td class="property-name">
+          {{tt this "dataRecalled"}}
+        </td>
+        <td class="property-value">
+          {{bytesRecalledText}} / {{bytesToRecallText}}
+        </td>
+      </tr>
+
+      {{#if filesFailed}}
+        <tr class="recall-info-row-files-failed">
+          <td class="property-name text-danger">
+            {{tt this "filesFailed"}}
+            {{one-label-tip title=(tt this "tips.filesFailed")}}
+          </td>
+          <td class="property-value text-danger">
+            {{filesFailed}}
+          </td>
+        </tr>
+      {{/if}}
+      {{#if lastError}}
+        <tr class="recall-info-row-last-error">
+          <td class={{concat-classes
+            "property-name"
+            "text-danger"
+            (if showErrorTextarea "with-input-sm")
+          }}>
+            {{tt this "lastError"}}
+          </td>
+          <td class="property-value">
+            {{#if showErrorTextarea}}
+              <div class="input-group-clipboard-textarea has-error">
+                {{clipboard-line
+                  value=lastErrorParsed.message
+                  type="textarea"
+                  textareaRows="8"
+                  size="sm"
+                  class="monospace-font compact"
+                }}
+              </div>
+            {{else}}
+              {{#if (eq lastErrorParsed.type "unknown")}}
+                <em class="error-string">
+                  {{tt this "unknownError"}}
+                </em>
+              {{else}}
+                <span class="error-string text-danger">
+                  {{lastErrorParsed.message}}
+                </span>
+              {{/if}}
+            {{/if}}
+          </td>
+        </tr>
+      {{/if}}
+    </tbody>
+  </table>
+  {{yield}}
+{{/promise-proxy-container}}

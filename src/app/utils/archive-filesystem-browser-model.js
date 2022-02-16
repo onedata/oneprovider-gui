@@ -10,6 +10,8 @@
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import { bool } from 'ember-awesome-macros';
+import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
+import _ from 'lodash';
 
 export default FilesystemBrowserModel.extend({
   /**
@@ -72,7 +74,7 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  fileFeatures: Object.freeze(['effQosMembership']),
+  fileFeatures: _.without(defaultFilesystemFeatures, 'effDatasetMembership'),
 
   /**
    * Used only when `renderArchiveDipSwitch` is true.

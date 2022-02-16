@@ -52,6 +52,8 @@ export default Component.extend({
 
   dirProxy: promise.object(computed(function dirProxy() {
     return this.get('spaceProxy').then(space => get(space, 'rootDir'));
+    // uncomment for simulating nested directory
+    // return resolve(this.get('mockBackend.entityRecords.chainDir.2'));
   })),
 
   init() {

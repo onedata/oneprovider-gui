@@ -7,7 +7,7 @@
       background-color: $color-file-selected;
     }
   }
-  &.file-cut {
+  &.item-muted {
     .file-icon-container, .file-item-text {
       opacity: $disabled-opacity;
     }

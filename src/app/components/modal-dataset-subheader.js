@@ -4,7 +4,7 @@
  *
  * @module components/modal-dataset-subheader
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -16,16 +16,15 @@ import layout from 'oneprovider-gui/templates/components/modal-file-subheader';
 
 export default ModalFileSubheader.extend(I18n, {
   layout,
-  tagName: 'h2',
 
   /**
    * @virtual
-   * @type {Array<Model.Dataset>}
+   * @type {Array<Utils.BrowsableDataset>}
    */
   datasets: alias('files'),
 
   /**
-   * @type {ComputedProperty<Models.Dataset>}
+   * @type {ComputedProperty<Utils.BrowsableDataset>}
    */
   firstDataset: alias('firstFile'),
 

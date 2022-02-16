@@ -16,6 +16,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 
 export default ProceedProcessModal.extend({
   shareManager: service(),
+  globalNotify: service(),
 
   /**
    * @virtual
@@ -69,10 +70,16 @@ export default ProceedProcessModal.extend({
       const {
         shareManager,
         share,
-      } = this.getProperties('shareManager', 'share');
+        globalNotify,
+      } = this.getProperties('shareManager', 'share', 'globalNotify');
       return shareManager.removeShare(share)
         .then(() => {
           return this.get('onShowShareList')();
+        })
+        .catch(error => {
+          globalNotify.backendError(this.t('deletingShare'), error);
+          share.rollbackAttributes();
+          this.close();
         });
     };
   }),

@@ -3,6 +3,7 @@
     {{multiTextPrefix}}
   {{/if}}
   {{tt this "selectedItems" count=filesCount}}
+  {{yield}}
 {{else}}
   {{#truncated-string}}
     {{#if icon}}
@@ -11,5 +12,6 @@
       </div>
     {{/if}}
     {{file-name-conflict class="file-name" file=firstFile}}
+    {{yield}}
   {{/truncated-string}}
 {{/if}}

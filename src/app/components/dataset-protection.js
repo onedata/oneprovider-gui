@@ -54,7 +54,7 @@ export default Component.extend(I18n, {
   /**
    * @virtual
    * Callback to generate URL to dataset (here: selecting the dataset).
-   * See eg. parent-action `getDatsetUrl` in `component:content-space-datasets`
+   * See eg. parent-action `getDatasetUrl` in `component:content-space-datasets`
    * @type {Function}
    */
   getDatasetsUrl: notImplementedIgnore,

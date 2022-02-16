@@ -3,7 +3,7 @@
  *
  * An instance of `selectorModel` should be provided for logic, settings and state of
  * this component.
- * 
+ *
  * See `utils/items-select-browser/base-model` for model implementation.
  *
  * @module components/items-select-browser

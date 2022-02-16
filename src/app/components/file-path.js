@@ -5,7 +5,7 @@
  *
  * @module components/file-path
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -66,6 +66,20 @@ export default Component.extend(...mixins, {
   onLinkKeydown: undefined,
 
   /**
+   * Tag name of direct container for path elements
+   * @virtual optional
+   * @type {String}
+   */
+  internalTagName: 'a',
+
+  /**
+   * Custom shortened path tooltip text.
+   * Can be useful if file-path has some additional template block.
+   * @type {String}
+   */
+  customTip: '',
+
+  /**
    * Anchor target attribute.
    * @type {String}
    */
@@ -75,7 +89,7 @@ export default Component.extend(...mixins, {
    * Classname added to internal `<a>` element.
    * @type {String}
    */
-  anchorClassName: 'path-anchor-default',
+  anchorClassName: 'navy underlined',
 
   displayedPathItemsCount: Number.MAX_SAFE_INTEGER,
 
@@ -88,7 +102,7 @@ export default Component.extend(...mixins, {
 
   //#region asynchronous data
 
-  filePathProxy: promise.object(computed('file.parent', function filePathProxy() {
+  filePathProxy: promise.object(computed('file', function filePathProxy() {
     const file = this.get('file');
     return resolveFilePath(file);
   })),
@@ -202,6 +216,8 @@ export default Component.extend(...mixins, {
     const records = allPathItems.filterBy('record').mapBy('record');
     return stringifyFilePath(records);
   }),
+
+  tooltipText: or('customTip', 'stringifiedPath'),
 
   href: computed('file', 'filesViewContext', function href() {
     const {

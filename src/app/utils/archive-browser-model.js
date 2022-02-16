@@ -31,6 +31,7 @@ const allButtonNames = Object.freeze([
   'btnRefresh',
   'btnCopyId',
   'btnCreateIncrementalArchive',
+  'btnRecall',
   'btnDownloadTar',
   'btnBrowseDip',
   'btnPurge',
@@ -80,9 +81,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   /**
    * @virtual
-   * @type {(datasets: Array<Models.Dataset>) => any}
+   * @type {(archives: Array<Utils.BrowsableArchive>) => any}
    */
   openPurgeModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {(archive: Utils.BrowsableArchive, options: Object) => any}
+   */
+  openRecallModal: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -316,6 +323,42 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           return this.openCreateArchiveModal(dataset, {
             baseArchive: archives[0],
           });
+        },
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnRecall: computed(
+    'spacePrivileges.recallArchives',
+    function btnPurge() {
+      const {
+        spacePrivileges,
+        i18n,
+      } =
+      this.getProperties(
+        'spacePrivileges',
+        'i18n',
+      );
+      const hasPrivileges = spacePrivileges.recallArchives && spacePrivileges.writeData;
+      let disabledTip;
+      if (!hasPrivileges) {
+        disabledTip = insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_recall_archives', 'space_write_data'],
+        });
+      }
+      return this.createFileAction({
+        id: 'recall',
+        icon: 'browser-archive-recall',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
+        action: (archives) => {
+          return this.openRecallModal(archives[0]);
         },
         showIn: [
           actionContext.singleDir,
