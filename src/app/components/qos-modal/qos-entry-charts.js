@@ -1,3 +1,12 @@
+/**
+ * Shows charts with QoS transfer statistics.
+ *
+ * @module components/qos-modal/qos-entry-charts
+ * @author Michał Borzęcki
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -65,7 +74,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   timeResolutionSpecs: computed(
     'qosTransferStatsConfig',
     function timeResolutionSpecs() {
-      const qosTransferStatsConfig = this.get('qosTransferStatsConfig');
+      const qosTransferStatsConfig = this.get('qosTransferStatsConfig') || {};
       return [{
         metricId: qosTransferStatsConfig.minuteMetricId,
         timeResolution: 60,
@@ -86,7 +95,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
         timeResolution: 30 * 24 * 60 * 60,
         pointsCount: 12,
         updateInterval: 30,
-      }];
+      }].filterBy('metricId');
     }
   ),
 
@@ -118,16 +127,16 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   /**
    * @type {ComputedProperty<Utils.OneTimeSeriesChart.Configuration>}
    */
-  savedDataChartConfig: computed(
+  inboundChartConfig: computed(
     'timeResolutionSpecs',
     'globalTimeSecondsOffset',
-    function savedDataChartConfig() {
+    function inboundChartConfig() {
       const {
         timeResolutionSpecs,
         globalTimeSecondsOffset,
       } = this.getProperties('timeResolutionSpecs', 'globalTimeSecondsOffset');
       const config = new OTSCConfiguration({
-        nowTimestampOffset: globalTimeSecondsOffset,
+        nowTimestampOffset: globalTimeSecondsOffset || 0,
         chartDefinition: {
           title: String(this.t('titles.inbound')),
           yAxes: [{
@@ -203,7 +212,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 },
                 type: 'bar',
                 yAxisId: 'filesAxis',
-                stackId: 'savedFilesStack',
+                stackId: 'filesStack',
                 data: {
                   functionName: 'replaceEmpty',
                   functionArguments: {
@@ -243,16 +252,16 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   /**
    * @type {ComputedProperty<Utils.OneTimeSeriesChart.Configuration>}
    */
-  incomingDataChartConfig: computed(
+  outboundChartConfig: computed(
     'timeResolutionSpecs',
     'globalTimeSecondsOffset',
-    function incomingDataChartConfig() {
+    function outboundChartConfig() {
       const {
         timeResolutionSpecs,
         globalTimeSecondsOffset,
       } = this.getProperties('timeResolutionSpecs', 'globalTimeSecondsOffset');
       const config = new OTSCConfiguration({
-        nowTimestampOffset: globalTimeSecondsOffset,
+        nowTimestampOffset: globalTimeSecondsOffset || 0,
         chartDefinition: {
           title: String(this.t('titles.outbound')),
           yAxes: [{
@@ -295,7 +304,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 },
                 type: 'line',
                 yAxisId: 'bytesAxis',
-                stackId: 'receivedBytesStack',
+                stackId: 'bytesStack',
                 data: {
                   functionName: 'replaceEmpty',
                   functionArguments: {
@@ -335,11 +344,11 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   /**
    * @type {ComputedProperty<Utils.OneTimeSeriesChart.Model>}
    */
-  savedDataChartModel: computed(
-    'savedDataChartConfig',
-    function savedDataChartModel() {
+  inboundChartModel: computed(
+    'inboundChartConfig',
+    function inboundChartModel() {
       return OTSCModel.create({
-        configuration: this.get('savedDataChartConfig'),
+        configuration: this.get('inboundChartConfig'),
       });
     }
   ),
@@ -347,23 +356,26 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   /**
    * @type {ComputedProperty<Utils.OneTimeSeriesChart.Model>}
    */
-  incomingDataChartModel: computed(
-    'incomingDataChartModel',
-    function savedDataChartModel() {
+  outboundChartModel: computed(
+    'outboundChartModel',
+    function outboundChartModel() {
       return OTSCModel.create({
-        configuration: this.get('incomingDataChartConfig'),
+        configuration: this.get('outboundChartConfig'),
       });
     }
   ),
 
+  /**
+   * @override
+   */
   willDestroyElement() {
     try {
       const {
-        savedDataChartModel,
-        incomingDataChartModel,
-      } = this.getProperties('savedDataChartModel', 'incomingDataChartModel');
-      savedDataChartModel.destroy();
-      incomingDataChartModel.destroy();
+        inboundChartModel,
+        outboundChartModel,
+      } = this.getProperties('inboundChartModel', 'outboundChartModel');
+      inboundChartModel.destroy();
+      outboundChartModel.destroy();
     } finally {
       this._super(...arguments);
     }
@@ -424,7 +436,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       spaceId,
       storageManager,
       providerManager,
-      qosTransferStatsConfig,
+      qosTransferStatsConfig = {},
     } = this.getProperties(
       'spaceId',
       'storageManager',
@@ -450,7 +462,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           seriesEntry.providerId = storage.relationEntityId('provider');
         } catch (error) {
           console.error(
-            `component:qos-modal/qos-entry-charts#fetchProvidersSeries: cannot load storage with ID "${storageId}"`,
+            `component:qos-modal/qos-entry-charts#fetchStorageSeriesConfigs: cannot load storage with ID "${storageId}"`,
             error
           );
           seriesEntry.providerId = null;
@@ -465,7 +477,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             seriesEntry.providerName = get(provider, 'name');
           } catch (error) {
             console.error(
-              `component:qos-modal/qos-entry-charts#fetchProvidersSeries: cannot load provider with ID "${providerId}"`,
+              `component:qos-modal/qos-entry-charts#fetchStorageSeriesConfigs: cannot load provider with ID "${providerId}"`,
               error
             );
           }
