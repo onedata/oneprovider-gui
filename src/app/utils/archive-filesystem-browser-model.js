@@ -17,9 +17,7 @@ import { get } from '@ember/object';
 import { inject as service } from '@ember/service';
 
 export default FilesystemBrowserModel.extend({
-  // FIXME: remove when modal will be made
-  filesViewResolver: service(),
-  parentAppNavigation: service(),
+  modalManager: service(),
 
   /**
    * @virtual
@@ -103,7 +101,7 @@ export default FilesystemBrowserModel.extend({
     }
   },
 
-  async symlinkedDirExternalContext(dirSymlink) {
+  async symlinkExternalContext(dirSymlink) {
     const currentDir = this.get('dir');
     const filesViewContextFactory =
       FilesViewContextFactory.create({ ownerSource: this });
@@ -114,15 +112,15 @@ export default FilesystemBrowserModel.extend({
   },
 
   /**
-   * @param {Model.File} dirSymlink
+   * @param {Model.File} symlink
    * @returns {boolean} true if `dirSymlink` is link to external archive and dir open
    *   should be handled by question to user, not by standard dir change
    */
-  async handlePotentialExternalSymlink(dirSymlink) {
-    const externalContext = await this.symlinkedDirExternalContext(dirSymlink);
+  async handlePotentialExternalSymlink(symlink) {
+    const externalContext = await this.symlinkExternalContext(symlink);
     if (externalContext) {
       this.openExternalSymlinkModal(
-        dirSymlink,
+        symlink,
         externalContext
       );
       return true;
@@ -131,12 +129,11 @@ export default FilesystemBrowserModel.extend({
     }
   },
 
-  async openExternalSymlinkModal(dirSymlink, externalContext) {
-    // FIXME: dummy implementation
-    const shouldRedirect = window.confirm('redirect?');
-    if (shouldRedirect) {
-      const url = this.get('filesViewResolver').generateUrl(externalContext, 'open');
-      this.get('parentAppNavigation').openUrl(url);
-    }
+  async openExternalSymlinkModal(symlink, externalContext) {
+    this.get('modalManager').show('external-symlink-modal', {
+      currentContextType: 'archive',
+      symlinkFile: symlink,
+      targetFileContext: externalContext,
+    });
   },
 });

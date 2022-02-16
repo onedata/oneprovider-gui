@@ -251,6 +251,7 @@ export default Component.extend(I18n, {
     }
   ),
 
+  // FIXME: moved to file-archive-info?
   archiveUrlProxy: promise.object(computed(
     'archiveProxy',
     'datasetProxy',
@@ -278,6 +279,7 @@ export default Component.extend(I18n, {
 
   archiveUrl: computedLastProxyContent('archiveUrlProxy'),
 
+  // FIXME: moved to file-archive-info?
   datasetUrlProxy: promise.object(computed(
     'datasetProxy',
     async function datasetUrlProxy() {
