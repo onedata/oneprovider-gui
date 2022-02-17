@@ -126,9 +126,9 @@
     padding-bottom: 0;
 
     .title {
+      @include font-semibold();
       flex-grow: 1;
       text-transform: uppercase;
-      font-family: 'Open Sans Semibold';
     }
   }
 

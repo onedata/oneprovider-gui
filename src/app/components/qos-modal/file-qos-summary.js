@@ -8,6 +8,7 @@
  */
 
 import Component from '@ember/component';
+import { computed } from '@ember/object';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { array } from 'ember-awesome-macros';
@@ -86,6 +87,18 @@ export default Component.extend(...objectMixins, {
    * @type {boolean}
    */
   showChartsOfSingleQos: false,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  areChartsInitiallyVisible: computed(
+    'sortedQosItems.length',
+    'showChartsOfSingleQos',
+    function areChartsInitiallyVisible() {
+      return this.get('showChartsOfSingleQos') &&
+        this.get('sortedQosItems.length') === 1;
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Array<Utils.QosItem>>}

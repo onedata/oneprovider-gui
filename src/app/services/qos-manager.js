@@ -18,10 +18,15 @@ import { get } from '@ember/object';
  * @param {Array<string>} files
  */
 
-export function getGri(entityId, { aspect = 'instance', scope = 'private' } = {}) {
+/**
+ * @param {string} qosId
+ * @param {{ aspect: string?, scope: string? }} griOptions
+ * @returns {string}
+ */
+export function getGri(qosId, { aspect = 'instance', scope = 'private' } = {}) {
   return gri({
     entityType: qosEntityType,
-    entityId: entityId,
+    entityId: qosId,
     aspect,
     scope,
   });

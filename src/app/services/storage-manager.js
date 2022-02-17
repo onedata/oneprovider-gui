@@ -11,7 +11,7 @@ import Service from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
 import { entityType as storageEntityType } from 'oneprovider-gui/models/storage';
-import { spaceGri } from 'oneprovider-gui/services/space-manager';
+import { getGri as spaceGri } from 'oneprovider-gui/services/space-manager';
 
 export default Service.extend({
   store: service(),
@@ -20,7 +20,7 @@ export default Service.extend({
   /**
    * @public
    * @param {string} storageId
-   * @param {string} [fetchOptions.throughSpaceId]
+   * @param {string} [fetchOptions.throughSpaceId] space ID to use in auth hint
    * @param {Boolean} [fetchOptions.reload=false]
    * @param {Boolean} [fetchOptions.backgroundReload=false]
    * @returns {Promise<Models.Storage>}

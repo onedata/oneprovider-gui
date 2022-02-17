@@ -5,7 +5,7 @@
       {{one-tooltip title=(tt this (concat "statusHint." statusId))}}
     </span>
     <span class="header-replicas-number">
-      <span class="replicast-number-text">
+      <span class="replicas-number-text">
         <span class="replicas-number">
           {{if (gt replicasNumber 99) "99+" replicasNumber}}
         </span>
@@ -120,12 +120,11 @@
 {{/unless}}
 {{#unless areChartsVisible}}
   <div class="qos-subheader qos-path-subheader with-icon-left">
-    <span class="statistics-text clickable" onClick={{action "showCharts"}}>
+    <span class="statistics-text clickable link navy" onClick={{action "showCharts"}}>
       <div class="inline-icon-container">
         {{one-icon icon="overview"}}
       </div>
       {{tt this "showStatistics"}}
-      {{one-icon icon="arrow-down"}}
     </span>
   </div>
 {{/unless}}

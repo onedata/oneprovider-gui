@@ -26,14 +26,15 @@ import { all as allFulfilled } from 'rsvp';
 
 /**
  * @param {string} spaceId
+ * @param {{ aspect: string?, scope: string? }} griOptions
  * @returns {string}
  */
-export function spaceGri(spaceId) {
+export function getGri(spaceId, { aspect = 'instance', scope = 'private' } = {}) {
   return gri({
     entityType: spaceEntityType,
     entityId: spaceId,
-    aspect: 'instance',
-    scope: 'private',
+    aspect,
+    scope,
   });
 }
 
@@ -43,7 +44,7 @@ export default Service.extend({
   providerManager: service(),
 
   getSpace(spaceId) {
-    return this.get('store').findRecord('space', spaceGri(spaceId));
+    return this.get('store').findRecord('space', getGri(spaceId));
   },
 
   /**
