@@ -811,7 +811,8 @@ async function storeValueToFormValue(storeType, dataSpec, value, getFileRecord) 
     } else if (
       storeType !== 'singleValue' &&
       storeType !== 'range' &&
-      !Array.isArray(value) && !valueIsNone
+      !Array.isArray(value) &&
+      !valueIsNone
     ) {
       editorValue = [value];
     }
