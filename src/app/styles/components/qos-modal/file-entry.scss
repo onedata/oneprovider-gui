@@ -6,6 +6,9 @@
       @include vertical-align-middle;
       position: relative;
     }
+    &.item-icon-container-right {
+      margin-right: -0.3em;
+    }
   }
   .item-icon.file-qos-status {
     font-size: $qos-icon-size;
@@ -22,10 +25,13 @@
   .no-requirements {
     font-style: italic;
   }
-  @media (max-width: $screen-xs-max) {
-    .list-content {
-      padding-left: $padding-large-horizontal;
-      padding-right: $padding-large-horizontal;
-    }
+
+  .list-content {
+    padding-left: $padding-large-horizontal;
+    padding-right: $padding-large-horizontal;
+  }
+
+  .no-qos-requirements {
+    margin: $padding-large-horizontal 0;
   }
 }

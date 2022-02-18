@@ -1,5 +1,5 @@
 {{#one-modal
-  class="qos-modal"
+  class="qos-modal modal-content-overlay"
   open=open
   size="xl"
   backdropClose=false
@@ -155,6 +155,7 @@
             queryProperties=queryPropertiesProxy.content
             storages=storages
             providers=providers
+            showChartsOfSingleQos=true
             getDataUrl=getDataUrl
             evaluateQosExpression=(action "evaluateQosExpression")
             removeQosRequirement=(action "removeQosRequirement")

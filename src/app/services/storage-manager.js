@@ -1,16 +1,16 @@
 /**
- * Provides model functions related to providers.
+ * Provides model functions related to storages.
  *
- * @module services/provider-manager
- * @author Jakub Liput, Michał Borzęcki
- * @copyright (C) 2019-2022 ACK CYFRONET AGH
+ * @module services/storage-manager
+ * @author Michał Borzęcki
+ * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Service from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { inject as service } from '@ember/service';
-import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
+import { entityType as storageEntityType } from 'oneprovider-gui/models/storage';
 import { getGri as spaceGri } from 'oneprovider-gui/services/space-manager';
 
 export default Service.extend({
@@ -18,13 +18,14 @@ export default Service.extend({
   onedataGraphContext: service(),
 
   /**
-   * @param {string} providerId
+   * @public
+   * @param {string} storageId
    * @param {string} [fetchOptions.throughSpaceId] space ID to use in auth hint
    * @param {Boolean} [fetchOptions.reload=false]
    * @param {Boolean} [fetchOptions.backgroundReload=false]
-   * @returns {Promise<Models.Provider>}
+   * @returns {Promise<Models.Storage>}
    */
-  getProviderById(providerId, {
+  getStorageById(storageId, {
     throughSpaceId,
     reload = false,
     backgroundReload = false,
@@ -34,17 +35,17 @@ export default Service.extend({
       onedataGraphContext,
     } = this.getProperties('store', 'onedataGraphContext');
 
-    const providerGri = gri({
-      entityType: providerEntityType,
-      entityId: providerId,
+    const storageGri = gri({
+      entityType: storageEntityType,
+      entityId: storageId,
       aspect: 'instance',
-      scope: 'protected',
+      scope: 'shared',
     });
 
     if (throughSpaceId) {
-      onedataGraphContext.register(providerGri, spaceGri(throughSpaceId));
+      onedataGraphContext.register(storageGri, spaceGri(throughSpaceId));
     }
 
-    return store.findRecord('provider', providerGri, { reload, backgroundReload });
+    return store.findRecord('storage', storageGri, { reload, backgroundReload });
   },
 });

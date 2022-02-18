@@ -11,6 +11,8 @@ const defineSassBreakpoints = require(
 const colors = require('./lib/onedata-gui-common/addon/colors').default;
 const breakpointValues =
   require('./lib/onedata-gui-common/addon/breakpoint-values').default;
+const copyDynamicLibraries = require('./lib/onedata-gui-common/addon/utils/copy-dynamic-libraries');
+const dynamicLibraries = require('./lib/onedata-gui-common/config/dynamic-libraries');
 const sass = require('sass');
 
 module.exports = function (defaults) {
@@ -83,6 +85,7 @@ module.exports = function (defaults) {
 
   defineSassColors(app, colors);
   defineSassBreakpoints(app, breakpointValues);
+  copyDynamicLibraries(app, dynamicLibraries);
 
   // Use `app.import` to add additional libraries to the generated
   // output files.

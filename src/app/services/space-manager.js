@@ -1,6 +1,6 @@
 /**
  * Provides model functions related to spaces.
- * 
+ *
  * @module services/space-manager
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -24,24 +24,32 @@ import { all as allFulfilled } from 'rsvp';
  * @property {Array<String>} providers
  */
 
+/**
+ * @param {string} spaceId
+ * @param {{ aspect: string?, scope: string? }} griOptions
+ * @returns {string}
+ */
+export function getGri(spaceId, { aspect = 'instance', scope = 'private' } = {}) {
+  return gri({
+    entityType: spaceEntityType,
+    entityId: spaceId,
+    aspect,
+    scope,
+  });
+}
+
 export default Service.extend({
   onedataGraph: service(),
   store: service(),
   providerManager: service(),
 
   getSpace(spaceId) {
-    const requestGri = gri({
-      entityType: spaceEntityType,
-      entityId: spaceId,
-      aspect: 'instance',
-      scope: 'private',
-    });
-    return this.get('store').findRecord('space', requestGri);
+    return this.get('store').findRecord('space', getGri(spaceId));
   },
 
   /**
-   * @param {Models.Space} space 
-   * @param {String} dbViewName 
+   * @param {Models.Space} space
+   * @param {String} dbViewName
    * @returns {Promise<DbView>}
    */
   getDbView(space, dbViewName) {
@@ -68,7 +76,7 @@ export default Service.extend({
    * defined for storages supporting the space with `spaceId`
    * (object properties: `{ stringValues: Array, numberValues: Array }`).
    * @param {String} spaceId
-   * @returns {Promise<Object>} 
+   * @returns {Promise<Object>}
    */
   getAvailableQosParameters(spaceId) {
     return this.get('onedataGraph').request({
@@ -86,7 +94,7 @@ export default Service.extend({
    * Validate, convert infix QoS expression to RPN and return list of matching storages
    * @param {String} spaceId
    * @param {String} expression
-   * @returns {Promise<{ expressionRpn: Array, matchingStorages: Array<StorageModel> }>} 
+   * @returns {Promise<{ expressionRpn: Array, matchingStorages: Array<StorageModel> }>}
    */
   evaluateQosExpression(spaceId, expression) {
     const {
@@ -127,7 +135,7 @@ export default Service.extend({
   },
 
   /**
-   * @param {String} spaceId 
+   * @param {String} spaceId
    * @returns {Promise<Array<StorageModel>>}
    */
   getSupportingStorages(spaceId) {
