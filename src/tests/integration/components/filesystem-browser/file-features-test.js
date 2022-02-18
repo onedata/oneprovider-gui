@@ -339,11 +339,11 @@ async function createFileItem(testCase, data) {
 async function createFileItemWithRecallData(testCase, data = {}) {
   await createArchiveRecallData(testCase);
   const targetFile = testCase.get('targetFile');
-  await run(async () => {
+  run(() => {
     targetFile.setProperties(data);
   });
-  await run(async () => {
-    await targetFile.save();
+  run(() => {
+    targetFile.save();
   });
   testCase.set('item', targetFile);
 }
