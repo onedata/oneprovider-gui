@@ -1,0 +1,10 @@
+<div class="charts-header">
+  <div class="title">{{tt this "header"}}</div>
+  {{one-time-series-chart/toolbar
+    models=(array inboundChartModel outboundChartModel)
+  }}
+</div>
+<div class="charts-plots">
+  {{one-time-series-chart/plot model=inboundChartModel}}
+  {{one-time-series-chart/plot model=outboundChartModel}}
+</div>

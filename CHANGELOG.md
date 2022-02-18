@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8794 Added transfer charts to QoS requirements
 * VFS-7451 Fixed non-rounded corners in textarea in file info modal
 * VFS-7731 Showing error after delete share failed
 * VFS-8841 Added archive recall info modal and progress bar in tag

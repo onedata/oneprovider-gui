@@ -29,10 +29,8 @@
 }
 
 @media (max-width: $screen-xs-max) {
-  .modal.in .modal-dialog {
-    .btn {
-      padding: 8px 24px;
-    }
+  .modal .btn {
+    padding: 8px 24px;
   }
 }
 

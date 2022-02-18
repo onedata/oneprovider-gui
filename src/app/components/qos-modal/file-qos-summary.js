@@ -1,6 +1,6 @@
 /**
  * A list of QoS requirements for file
- * 
+ *
  * @module components/qos-modal/file-qos-summary
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -8,6 +8,7 @@
  */
 
 import Component from '@ember/component';
+import { computed } from '@ember/object';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { array } from 'ember-awesome-macros';
@@ -78,6 +79,26 @@ export default Component.extend(...objectMixins, {
    * @type {Array<Models.Provider>}
    */
   providers: undefined,
+
+  /**
+   * If true and file has only one qos entry, then that qos entry will have
+   * expanded charts by default
+   * @virtual optional
+   * @type {boolean}
+   */
+  showChartsOfSingleQos: false,
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  areChartsInitiallyVisible: computed(
+    'sortedQosItems.length',
+    'showChartsOfSingleQos',
+    function areChartsInitiallyVisible() {
+      return this.get('showChartsOfSingleQos') &&
+        this.get('sortedQosItems.length') === 1;
+    }
+  ),
 
   /**
    * @type {ComputedProperty<Array<Utils.QosItem>>}

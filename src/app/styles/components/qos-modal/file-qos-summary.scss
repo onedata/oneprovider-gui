@@ -5,15 +5,11 @@
   .no-qos-requirements {
     background-image: url($root-url + "/images/no-qos.svg");
     background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
-    height: 150px;
-    margin-bottom: 70px;
-    margin-top: 36px;
+    background-position: center top;
+    background-size: auto 150px;
+    padding-top: 170px;
     .no-qos-requirements-message {
       text-align: center;
-      top: 170px;
-      position: absolute;
       width: 100%;
     }
   }

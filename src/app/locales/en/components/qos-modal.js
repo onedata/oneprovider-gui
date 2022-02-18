@@ -1,6 +1,7 @@
 import fileQosSummary from './qos-modal/file-qos-summary';
 import fileEntry from './qos-modal/file-entry';
 import qosEntry from './qos-modal/qos-entry';
+import qosEntryCharts from './qos-modal/qos-entry-charts';
 import qosAdd from './qos-modal/qos-add';
 
 export default {
@@ -39,5 +40,6 @@ export default {
   fileQosSummary,
   fileEntry,
   qosEntry,
+  qosEntryCharts,
   qosAdd,
 };
