@@ -14,10 +14,11 @@ export default {
     config: {
       createNestedArchives: {
         label: 'Create nested archives',
+        tip: '<p>If <strong>enabled</strong>, a separate archive will be created for each nested dataset, and a symbolic link to the nested archive will be created in the parent archive in the place of the nested dataset\'s root file/directory. The procedure is recursive and may effectively create a tree of linked archives.</p><div>If <strong>disabled</strong>, the resulting archive will be monolithic, i. e. all files and directories from nested datasets will be copied directly to the archive, in their respective locations. Effectively, the internal hierarchy of datasets has no impact on the resulting archive content.</div>',
       },
       incremental: {
         label: 'Incremental',
-        tip: '<p><strong>If enabled</strong>, the new archive will store only the files that have changed in comparison to the base archive (provided below). Unchanged files will be preserved as hard links to the corresponding files in the base archive.</p><div><strong>If disabled</strong>, all files belonging to the dataset will be stored directly in the archive.</div>',
+        tip: '<p>If <strong>enabled</strong>, the new archive will store only the files that have changed in comparison to the base archive (provided below). Unchanged files will be preserved as hard links to the corresponding files in the base archive.</p><div>If <strong>disabled</strong>, all files belonging to the dataset will be stored directly in the archive.</div>',
       },
       baseArchiveGroup: {
         baseArchiveInfo: {
