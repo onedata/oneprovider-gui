@@ -12,6 +12,15 @@ import ProductionSymbol from 'onedata-gui-websocket-client/services/onedata-conn
 import DevelopmentSymbol from 'oneprovider-gui/services/mocks/onedata-connection';
 import { reads } from '@ember/object/computed';
 
+/**
+ * @typedef {Object} QosTransferStatsConfig
+ * @property {string} dayMetricId
+ * @property {string} hourMetricId
+ * @property {string} minuteMetricId
+ * @property {string} monthMetricId
+ * @property {string} totalTimeSeriesId
+ */
+
 export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).extend({
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -33,4 +42,9 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
    * @type {ComputedProperty<String|undefined>}
    */
   bagitUploaderWorkflowSchemaId: reads('attributes.bagitUploaderWorkflowSchemaId'),
+
+  /**
+   * @type {ComputedProperty<QosTransferStatsConfig>}
+   */
+  qosTransferStatsConfig: reads('attributes.qosTransferStatsConfig'),
 });

@@ -8,6 +8,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
+import suppressRejections from '../../helpers/suppress-rejections';
 
 class MockQos {
   constructor(data) {
@@ -39,6 +40,8 @@ describe('Integration | Component | qos modal', function () {
   setupComponentTest('qos-modal', {
     integration: true,
   });
+
+  suppressRejections();
 
   it('renders file name and entry info if at least one item is present',
     async function () {
