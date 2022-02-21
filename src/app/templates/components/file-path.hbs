@@ -20,14 +20,30 @@
     }}
       {{#each displayedPathItems as |item|}}
         {{#if item.separator}}
-          <div class="path-item path-separator">{{item.separator}}</div>
+          <div class={{concat-classes
+            "path-item path-separator"
+            (if item.isLast "path-item-last")
+            (if item.isFirst "path-item-first")
+          }}>
+            {{item.separator}}
+          </div>
         {{/if}}
         {{#if item.icon}}
-          <div class="path-item path-icon-container">
+          <div class={{concat-classes
+            "path-item path-icon-container"
+            (if item.isLast "path-item-last")
+            (if item.isFirst "path-item-first")
+          }}>
             {{one-icon icon=item.icon class="path-icon"}}
           </div>
         {{/if}}
-        <div class="path-item path-label">{{item.record.name}}</div>
+        <div class={{concat-classes
+          "path-item path-label"
+          (if item.isLast "path-item-last")
+          (if item.isFirst "path-item-first")
+        }}>
+          {{item.record.name}}
+        </div>
       {{/each}}
       {{yield}}
       {{#if renderTooltip}}

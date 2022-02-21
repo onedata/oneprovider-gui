@@ -10,7 +10,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, observer, get, getProperties } from '@ember/object';
+import { computed, observer, get, getProperties, set } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import pathShorten from 'oneprovider-gui/utils/path-shorten';
@@ -21,6 +21,16 @@ import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolv
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { getArchiveRelativeFilePath } from 'oneprovider-gui/utils/file-archive-info';
+
+/**
+ * @typedef {Object} FilePathItem
+ * @property {'ellipsis'|'dataset'|'archive'|'space'|'file'} itemType
+ * @property {string} separator
+ * @property {Models.File|{ name: string}} record
+ * @property {string} [icon]
+ * @property {boolean} [isFirst]
+ * @property {boolean} [isLast]
+ */
 
 const datasetSeparator = '›';
 const directorySeparator = '/';
@@ -186,6 +196,9 @@ export default Component.extend(...mixins, {
 
   allPathItems: reads('allPathItemsProxy.content'),
 
+  /**
+   * @type {ComputedProperty<Array<FilePathItem>>}
+   */
   displayedPathItems: computed(
     'allPathItems.[]',
     'displayedPathItemsCount',
@@ -197,7 +210,7 @@ export default Component.extend(...mixins, {
       if (!allPathItems) {
         return [];
       }
-      return pathShorten(
+      const shortenedPath = pathShorten(
         allPathItems, {
           itemType: 'ellipsis',
           separator: directorySeparator,
@@ -205,6 +218,11 @@ export default Component.extend(...mixins, {
         },
         displayedPathItemsCount
       );
+      if (shortenedPath.length) {
+        set(shortenedPath[0], 'isFirst', true);
+        set(shortenedPath[shortenedPath.length - 1], 'isLast', true);
+      }
+      return shortenedPath;
     }
   ),
 

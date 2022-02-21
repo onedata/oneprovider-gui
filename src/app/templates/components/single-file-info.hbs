@@ -8,8 +8,7 @@
     </div>
   {{else if (eq nameDisplayMode "link")}}
     <div class="row row-single-file-info-file-link">
-      {{!-- FIXME: strong last segment --}}
-      {{file-path file=file}}
+      {{file-path class="single-file-info-file-link" file=file}}
     </div>
   {{/if}}
   {{!-- FIXME: loading --}}
