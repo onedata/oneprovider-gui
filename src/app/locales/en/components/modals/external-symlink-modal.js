@@ -5,7 +5,8 @@ export default {
     symlink: 'symlink',
   },
   header: 'External symbolic link',
-  text: 'The <strong>{{symlinkName}}</strong> symbolic link points to {{fileType}} outside {{currentContextText}}.',
+  textBeforeSymlink: 'The',
+  textAfterSymlink: 'symbolic link points to {{fileType}} outside {{currentContextText}}.',
   currentContextText: {
     archive: 'currently browsed archive',
   },

@@ -11,8 +11,9 @@
 
   {{#modal.body}}
     <p class="text">
-      {{tt this "text"
-        symlinkName=symlinkFile.name
+      {{tt this "textBeforeSymlink"}}
+      <span class="symlink-name">{{symlinkFile.name}}</span>
+      {{tt this "textAfterSymlink"
         fileType=(tt this (concat "fileType." effFileType))
         currentContextText=(tt this (concat "currentContextText." currentContextType))
       }}
