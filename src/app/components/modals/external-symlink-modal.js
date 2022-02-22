@@ -12,6 +12,19 @@ import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { or, raw } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
+
+/**
+ * @typedef {Object} ExternalSymlinkModalOptions
+ * @property {Models.File} symlinkfile
+ * @property {Utils.FilesViewContext} targetFileContext
+ * @property {(file: Models.File) => Promise} onDownloadFile
+ * @property {() => void} onClose
+ * @property {() => void} onCloseAllModals
+ * @property {string} [currentContextType='archive']
+ */
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -36,10 +49,7 @@ export default Component.extend(I18n, {
    * For particular properties description see descripion of this class properties
    * matching `modalOptions` properties.
    * @virtual
-   * @type {Object}
-   * @property {Models.File} symlinkfile
-   * @property {Utils.FilesViewContext} targetFileContext
-   * @property {string} [currentContextType='archive']
+   * @type {ExternalSymlinkModalOptions}
    */
   modalOptions: undefined,
 
@@ -64,6 +74,21 @@ export default Component.extend(I18n, {
   currentContextType: or('modalOptions.currentContextType', raw('archive')),
 
   /**
+   * See `ExternalSymlinkModalOptions.onDownloadFile`
+   */
+  onDownloadFile: or('modalOptions.onDownloadFile', notImplementedReject),
+
+  /**
+   * See `ExternalSymlinkModalOptions.onClose`
+   */
+  onClose: or('modalOptions.onClose', notImplementedIgnore),
+
+  /**
+   * See `ExternalSymlinkModalOptions.onCloseAllModals`
+   */
+  onCloseAllModals: or('modalOptions.onCloseAllModals', notImplementedIgnore),
+
+  /**
    * @type {ComputedProperty<Models.File>}
    */
   effFile: reads('symlinkFile.effFile'),
@@ -73,33 +98,75 @@ export default Component.extend(I18n, {
    */
   effFileType: reads('effFile.type'),
 
-  // FIXME: onClose when we are in datasets panel, hide a panel
-
   openDirectory() {
     const {
+      globalNotify,
       targetFileContext,
       filesViewResolver,
       parentAppNavigation,
+      onClose,
+      onCloseAllModals,
     } = this.getProperties(
+      'globalNotify',
       'targetFileContext',
       'filesViewResolver',
       'parentAppNavigation',
+      'onClose',
+      'onCloseAllModals',
     );
-    const url = filesViewResolver.generateUrl(targetFileContext, 'open');
-    parentAppNavigation.openUrl(url);
+    try {
+      const url = filesViewResolver.generateUrl(targetFileContext, 'open');
+      parentAppNavigation.openUrl(url);
+      onClose();
+      onCloseAllModals();
+    } catch (error) {
+      globalNotify.backendError(this.t('changingDirectory'), error);
+    }
   },
 
-  downloadFile() {
-    // FIXME: implement
+  async downloadFile() {
+    const {
+      globalNotify,
+      onDownloadFile,
+      onClose,
+      onCloseAllModals,
+      effFile,
+    } = this.getProperties(
+      'globalNotify',
+      'onDownloadFile',
+      'onClose',
+      'onCloseAllModals',
+      'effFile',
+    );
+    try {
+      await onDownloadFile(effFile);
+      onClose();
+      onCloseAllModals();
+    } catch (error) {
+      globalNotify.backendError(this.t('preparingDownload'), error);
+      throw error;
+    }
   },
 
   actions: {
-    open() {
+    async open() {
       const effFileType = this.get('effFileType');
       if (effFileType === 'dir') {
-        this.openDirectory();
+        await this.openDirectory();
       } else if (effFileType === 'file') {
-        this.downloadFile();
+        await this.downloadFile();
+      }
+    },
+    fileLinkClicked(event) {
+      event.stopPropagation();
+      const isNewTabRequest = isNewTabRequestEvent(event);
+      if (!isNewTabRequest) {
+        const {
+          onClose,
+          onCloseAllModals,
+        } = this.getProperties('onClose', 'onCloseAllModals');
+        onClose();
+        onCloseAllModals();
       }
     },
   },

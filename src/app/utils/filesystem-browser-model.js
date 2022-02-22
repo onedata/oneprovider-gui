@@ -24,6 +24,7 @@ import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
 import { array, raw, and } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const buttonNames = Object.freeze([
   'btnBagitUpload',
@@ -165,6 +166,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @param {Object} options.inputStoresData
    */
   openWorkflowRunView: notImplementedThrow,
+
+  /**
+   * Close all opened modals that overlays browser view.
+   * Should be used only for main file browser (not opened in modal).
+   * @virtual optional
+   * @type {Function}
+   */
+  closeAllModals: notImplementedIgnore,
 
   /**
    * File features displayed in status bar - see `component:file-browser/file-features`
@@ -1078,6 +1087,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     return actions;
   },
 
+  /**
+   * @param {Array<Models.File>} files
+   * @returns {Promise}
+   */
   downloadFiles(files) {
     const fileIds = files.mapBy('entityId');
     return this.downloadFilesById(fileIds);

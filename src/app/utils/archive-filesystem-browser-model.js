@@ -81,6 +81,13 @@ export default FilesystemBrowserModel.extend({
    */
   fileFeatures: _.without(defaultFilesystemFeatures, 'effDatasetMembership'),
 
+  globalModalName: 'external-symlink-modal',
+
+  /**
+   * @type {Utils.ModalManager.ModalInstance}
+   */
+  externalSymlinkModal: null,
+
   /**
    * Used only when `renderArchiveDipSwitch` is true.
    * Should be set to true if opened archive has `relatedDip/Aip`
@@ -99,6 +106,22 @@ export default FilesystemBrowserModel.extend({
     if (shouldChangeDir) {
       await updateBrowserDir(targetDir);
     }
+  },
+
+  /**
+   * @override
+   */
+  onOpenFile(file, /* options */ ) {
+    const _super = this._super;
+    try {
+      return this.handlePotentialExternalSymlink(file);
+    } catch (error) {
+      console.error(
+        'util:archive-filesystem-browser-model#onOpenFile: external symlink check failed',
+        error
+      );
+    }
+    return _super.apply(this, arguments);
   },
 
   async symlinkExternalContext(dirSymlink) {
@@ -121,7 +144,7 @@ export default FilesystemBrowserModel.extend({
     if (externalContext) {
       this.openExternalSymlinkModal(
         symlink,
-        externalContext
+        externalContext,
       );
       return true;
     } else {
@@ -130,10 +153,37 @@ export default FilesystemBrowserModel.extend({
   },
 
   async openExternalSymlinkModal(symlink, externalContext) {
-    this.get('modalManager').show('external-symlink-modal', {
+    const {
+      modalManager,
+      globalModalName,
+    } = this.getProperties('modalManager', 'globalModalName');
+    const externalSymlinkModal = modalManager.show(globalModalName, {
       currentContextType: 'archive',
       symlinkFile: symlink,
       targetFileContext: externalContext,
+      onDownloadFile: this.downloadExternalSymlinkedFile.bind(this),
+      onClose: this.closeExternalSymlinkModal.bind(this),
+      onCloseAllModals: this.closeAllModals.bind(this),
     });
+    this.set('externalSymlinkModal', externalSymlinkModal);
+  },
+
+  /**
+   * @param {Models.File} file
+   * @returns {Promise}
+   */
+  async downloadExternalSymlinkedFile(file) {
+    await this.downloadFiles([file]);
+  },
+
+  closeExternalSymlinkModal() {
+    const {
+      modalManager,
+      externalSymlinkModal,
+    } = this.getProperties('modalManager', 'externalSymlinkModal');
+    if (externalSymlinkModal) {
+      modalManager.hide(get(externalSymlinkModal, 'id'));
+      this.set('externalSymlinkModal', null);
+    }
   },
 });

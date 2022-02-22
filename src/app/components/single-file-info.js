@@ -15,6 +15,7 @@ import { computed, getProperties } from '@ember/object';
 import FileArchiveInfo from 'oneprovider-gui/utils/file-archive-info';
 import { hash as hashFulfilled } from 'rsvp';
 import { inject as service } from '@ember/service';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend(I18n, {
   classNames: ['row', 'row-single-file-info', 'single-file-info'],
@@ -47,6 +48,12 @@ export default Component.extend(I18n, {
    * @type {'name'|'link'}
    */
   nameDisplayMode: 'name',
+
+  /**
+   * @virtual optional
+   * @type {(MouseEvent) => void}
+   */
+  onLinkClicked: notImplementedIgnore,
 
   /**
    * Frame name, where Onezone link should be opened
@@ -103,4 +110,11 @@ export default Component.extend(I18n, {
   )),
 
   archiveInfo: reads('archiveInfoProxy.content'),
+
+  actions: {
+    linkClicked(event) {
+      const onLinkClicked = this.get('onLinkClicked');
+      onLinkClicked(event);
+    },
+  },
 });

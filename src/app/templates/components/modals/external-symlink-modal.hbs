@@ -18,7 +18,12 @@
         currentContextText=(tt this (concat "currentContextText." currentContextType))
       }}
     </p>
-    {{single-file-info file=effFile showArchiveInfo=true nameDisplayMode="link"}}
+    {{single-file-info
+      file=effFile
+      showArchiveInfo=true
+      nameDisplayMode="link"
+      onLinkClicked=(action "fileLinkClicked")
+    }}
     {{yield}}
   {{/modal.body}}
 
