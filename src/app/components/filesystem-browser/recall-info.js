@@ -9,7 +9,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
+import { computed, get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 import { promise, equal, raw, and, not } from 'ember-awesome-macros';
@@ -347,6 +347,14 @@ export default Component.extend(I18n, {
 
   renderRelativePathInput: and('relativePath', not('fileIsRecallRoot')),
 
+  processStatusObserver: observer('processStatus', function processStatusObserver() {
+    const {
+      processStatus,
+      onProcessStatusChange,
+    } = this.getProperties('processStatus', 'onProcessStatusChange');
+    onProcessStatusChange(processStatus);
+  }),
+
   init() {
     this._super(...arguments);
     const {
@@ -358,6 +366,7 @@ export default Component.extend(I18n, {
     );
     const token = archiveRecallStateManager.watchRecall(file);
     this.set('archiveRecallStateToken', token);
+    this.processStatusObserver();
   },
 
   /**
