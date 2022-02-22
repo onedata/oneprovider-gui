@@ -315,6 +315,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
+        blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -340,6 +341,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
+        blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -553,6 +555,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const actionId = 'rename';
     const tip = this.generateDisabledTip({
       protectionType: 'data',
+      blockRecalling: true,
     });
     const disabled = Boolean(tip);
     return this.createFileAction({
@@ -700,6 +703,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       const tip = this.generateDisabledTip({
         protectionType: 'data',
         blockWhenSymlinksOnly: true,
+        blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -724,6 +728,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
+        blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -744,6 +749,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     const actionId = 'delete';
     const tip = this.generateDisabledTip({
       protectionType: 'data',
+      blockRecalling: true,
     });
     const disabled = Boolean(tip);
     return this.createFileAction({
@@ -899,6 +905,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       return classes;
     }
   ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  selectedItemsContainsRecalling: array.isAny('selectedItems', raw('isRecalling')),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -1099,12 +1110,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     checkProtectionForSelected = true,
     blockFileTypes = [],
     blockWhenSymlinksOnly = false,
+    blockRecalling = false,
   }) {
     const {
       dir,
       selectedItems,
       selectedItemsContainsOnlySymlinks,
-    } = this.getProperties('dir', 'selectedItems', 'selectedItemsContainsOnlySymlinks');
+      selectedItemsContainsRecalling,
+    } = this.getProperties(
+      'dir',
+      'selectedItems',
+      'selectedItemsContainsOnlySymlinks',
+      'selectedItemsContainsRecalling'
+    );
     if (!dir) {
       return;
     }
@@ -1130,6 +1148,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       tip = this.t('disabledActionReason.blockedFileType', {
         fileType: this.t('disabledActionReason.fileTypesPlural.symlink'),
       });
+    }
+    if (!tip && blockRecalling && selectedItemsContainsRecalling) {
+      tip = this.t('disabledActionReason.recalling');
     }
     return tip;
   },
