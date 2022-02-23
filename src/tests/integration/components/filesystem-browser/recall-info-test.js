@@ -16,8 +16,8 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     integration: true,
   });
 
-  beforeEach(function () {
-    createArchiveRecallData(this);
+  beforeEach(async function () {
+    await createArchiveRecallData(this);
     const targetFile = this.get('targetFile');
     this.setProperties({
       file: targetFile,

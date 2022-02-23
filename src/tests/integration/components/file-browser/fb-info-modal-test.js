@@ -108,31 +108,31 @@ describe('Integration | Component | file browser/fb info modal', function () {
     done();
   });
 
-  it('does not render symlink target path when file is not symlink', function () {
+  it('does not render symlink target path when file is not symlink', async function () {
     this.set('file', {
       type: 'file',
       targetPath: 'some/path',
     });
 
-    render(this);
+    await render(this);
 
     expect(this.$('.file-info-row-target-path')).to.not.exist;
   });
 
-  it('does render symlink target relative path when file is a symlink', function () {
+  it('does render symlink target relative path when file is a symlink', async function () {
     this.set('file', {
       type: 'symlink',
       targetPath: 'some/path',
     });
 
-    render(this);
+    await render(this);
 
     expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
       .to.equal('some/path');
   });
 
   it('renders symlink target absolute path with space name when file is a symlink and space id is known',
-    function () {
+    async function () {
       this.setProperties({
         file: {
           type: 'symlink',
@@ -144,7 +144,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         },
       });
 
-      render(this);
+      await render(this);
 
       expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
         .to.equal('/space 1/some/path');
@@ -152,7 +152,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
   );
 
   it('renders symlink target absolute path  with "unknown space" when file is a symlink and space id is unknown',
-    function () {
+    async function () {
       this.setProperties({
         file: {
           type: 'symlink',
@@ -164,7 +164,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         },
       });
 
-      render(this);
+      await render(this);
 
       expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
         .to.equal('/<unknown space>/some/path');
@@ -172,7 +172,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
   );
 
   it('renders symlink target absolute path with "unknown space" when file is a symlink and space is not provided',
-    function () {
+    async function () {
       this.setProperties({
         file: {
           type: 'symlink',
@@ -181,7 +181,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         space: undefined,
       });
 
-      render(this);
+      await render(this);
 
       expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
         .to.equal('/<unknown space>/some/path');
@@ -194,7 +194,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       hardlinksCount: 1,
     });
 
-    render(this);
+    await render(this);
     await wait();
 
     expect(this.$('.nav-tabs')).to.not.exist;
@@ -206,7 +206,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       hardlinksCount: 2,
     });
 
-    render(this);
+    await render(this);
     await wait();
 
     expect(this.$('.nav-tabs').text()).to.contain('Hard links (2)');
@@ -229,7 +229,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       errors: [],
     });
 
-    render(this);
+    await render(this);
 
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
@@ -267,7 +267,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       }],
     });
 
-    render(this);
+    await render(this);
 
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
@@ -298,7 +298,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       }],
     });
 
-    render(this);
+    await render(this);
 
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
@@ -322,7 +322,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     it('renders size', async function (done) {
       this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
 
-      render(this);
+      await render(this);
       await wait();
 
       expect(
@@ -332,7 +332,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     it('renders name', async function (done) {
-      render(this);
+      await render(this);
       await wait();
 
       expect(
@@ -346,7 +346,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       const spaceEntityId = 's893y37439';
       this.set('space', { entityId: spaceEntityId });
 
-      render(this);
+      await render(this);
 
       expect(
         this.$('.file-info-row-space-id .property-value .clipboard-input').val()
@@ -356,7 +356,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     it('renders cdmi object id', async function (done) {
-      render(this);
+      await render(this);
 
       expect(
         this.$('.file-info-row-cdmi-object-id .property-value .clipboard-input')
@@ -451,7 +451,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 function testRenderApiSection(renders = true) {
   const renderText = renders ? 'renders' : 'does not render';
   it(`${renderText} API section`, async function (done) {
-    render(this);
+    await render(this);
     expect(this.$('.file-info-row-api-command'), 'row').to.have.length(renders ? 1 : 0);
     if (renders) {
       expect(this.$('.file-info-row-api-command .property-name'))
@@ -467,7 +467,7 @@ function testRenderApiSection(renders = true) {
 function testRenderRestUrlTypeOptions(options) {
   const optionsString = options.map(option => `"${option}"`).join(', ');
   it(`renders only ${optionsString} REST URL type option(s) in selector`, async function (done) {
-    render(this);
+    await render(this);
     await clickTrigger('.api-command-type-row');
     const $options = $('li.ember-power-select-option');
     checkUrlTypeOptions($options, options);
@@ -485,7 +485,7 @@ function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
     const restMethodStub = sinon.stub(restApiGenerator, methodName)
       .returns(restApiGeneratorResult);
 
-    render(this);
+    await render(this);
 
     const typeTranslation = getUrlTypeTranslation(type);
     const typeDescriptionTranslation = getUrlTypeDescriptionTranslation(type);
@@ -516,7 +516,7 @@ function testRenderRestUrlAndInfoForType(type, useSelector = true, customText) {
   });
 }
 
-function render(testCase) {
+async function render(testCase) {
   testCase.render(hbs `{{file-browser/fb-info-modal
     open=true
     file=file
@@ -526,6 +526,7 @@ function render(testCase) {
     selectedRestUrlType=selectedRestUrlType
     getDataUrl=getDataUrl
   }}`);
+  await wait();
 }
 
 function getUrlTypeTranslation(type) {

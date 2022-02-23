@@ -7,6 +7,9 @@ import { click } from 'ember-native-dom-helpers';
 import { createArchiveRecallData } from '../../../helpers/archive-recall';
 import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../../helpers/stub-service';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 
 describe('Integration | Component | filesystem browser/file features', function () {
   setupComponentTest('filesystem-browser/file-features', {
@@ -15,21 +18,23 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   beforeEach(function () {
     this.createItem = (...args) => createFileItem(this, ...args);
+    this.createItemWithRecallData =
+      (...args) => createFileItemWithRecallData(this, ...args);
   });
 
   ['none', 'direct'].forEach(membership => {
     it(`does not show collapsed inherited tag if features are "${membership}" in collapsed mode`,
       async function () {
-        await this.createItem({
+        await this.createItemWithRecallData({
           effDatasetMembership: membership,
           effQosMembership: membership,
-          recallingMembership: membership,
+          recallingMembershipProxy: promiseObject(resolve(membership)),
         });
 
         this.render(hbs `{{filesystem-browser/file-features
-        item=item
-        initiallyExpanded=false
-      }}`);
+          item=item
+          initiallyExpanded=false
+        }}`);
 
         expect(this.$('.file-status-inherited-collapsed')).to.not.exist;
       });
@@ -47,7 +52,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       }
       it(`shows collapsed inherited tag if "${feature}" feature is "${membership}" in collapsed mode`,
         async function () {
-          await this.createItem({
+          await this.createItemWithRecallData({
             [feature]: membership,
           });
 
@@ -55,14 +60,16 @@ describe('Integration | Component | filesystem browser/file features', function 
             item=item
             initiallyExpanded=false
           }}`);
+          await wait();
 
           expect(this.$('.file-status-inherited-collapsed')).to.exist;
-        });
+        }
+      );
     });
   });
 
   it('shows tags with "direct" features in expanded mode', async function () {
-    await this.createItem({
+    await this.createItemWithRecallData({
       effDatasetMembership: 'direct',
       effQosMembership: 'direct',
       recallingMembership: 'direct',
@@ -80,7 +87,7 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   ['direct', 'directAndAncestor'].forEach(membership => {
     it(`shows tags with "${membership}" features in collapsed mode`, async function () {
-      await this.createItem({
+      await this.createItemWithRecallData({
         effDatasetMembership: membership,
         effQosMembership: membership,
         recallingMembership: membership,
@@ -149,7 +156,7 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   it('shows feature ancestor tags without collapsed inheritance icon when features are "ancestor" in expanded mode',
     async function () {
-      await this.createItem({
+      await this.createItemWithRecallData({
         effDatasetMembership: 'ancestor',
         effQosMembership: 'ancestor',
         recallingMembership: 'ancestor',
@@ -212,16 +219,21 @@ describe('Integration | Component | filesystem browser/file features', function 
   });
 
   [
-    { tag: 'dataset', text: 'Dataset' },
-    { tag: 'qos', text: 'QoS' },
-    { tag: 'recalling', text: 'Recalling' },
-  ].forEach(({ tag, text }) => {
+    { tag: 'dataset', text: 'Dataset', feature: 'effDatasetMembership' },
+    { tag: 'qos', text: 'QoS', feature: 'effQosMembership' },
+    { tag: 'recalling', text: 'Recalling', feature: 'recallingMembership' },
+  ].forEach(({ tag, text, feature }) => {
     it(`displays "${text}" text on ${tag} tag`, async function () {
-      await this.createItem({
-        effDatasetMembership: 'direct',
-        effQosMembership: 'direct',
-        recallingMembership: 'direct',
-      });
+      if (tag === 'recalling') {
+        await this.createItemWithRecallData({
+          [feature]: 'direct',
+        });
+      } else {
+        await this.createItem({
+          [feature]: 'direct',
+        });
+      }
+
       const onInvokeItemAction = sinon.spy();
       this.setProperties({
         onInvokeItemAction,
@@ -265,7 +277,7 @@ describe('Integration | Component | filesystem browser/file features', function 
   //#region recalling tag
 
   it('displays percentage progress of archive recalling in recalling tag', async function () {
-    createArchiveRecallData(this);
+    await createArchiveRecallData(this);
     const targetFile = this.get('targetFile');
     this.set(
       'archiveRecallState.bytesCopied',
@@ -291,7 +303,7 @@ describe('Integration | Component | filesystem browser/file features', function 
   });
 
   it('has percentage width style applied to progress element in recalling tag', async function () {
-    createArchiveRecallData(this);
+    await createArchiveRecallData(this);
     const targetFile = this.get('targetFile');
     this.set(
       'archiveRecallState.bytesCopied',
@@ -322,4 +334,16 @@ async function createFileItem(testCase, data) {
   const file = store.createRecord('file', data);
   await file.save();
   return testCase.set('item', file);
+}
+
+async function createFileItemWithRecallData(testCase, data = {}) {
+  await createArchiveRecallData(testCase);
+  const targetFile = testCase.get('targetFile');
+  run(() => {
+    targetFile.setProperties(data);
+  });
+  run(() => {
+    targetFile.save();
+  });
+  testCase.set('item', targetFile);
 }
