@@ -324,9 +324,9 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       const store = storeRecords[storeInstanceId];
       const {
         type,
-        dataSpec,
+        config,
         initialValue,
-      } = getProperties(store, 'type', 'dataSpec', 'initialValue');
+      } = getProperties(store, 'type', 'config', 'initialValue');
       let name = null;
       // For exceptions stores we need to generate names. Some of them will
       // be visible as an iterated store (so must be distinguishable by name).
@@ -339,8 +339,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         instanceId: storeInstanceId,
         name,
         type,
-        dataSpec,
-        defaultInitialValue: initialValue,
+        config,
+        defaultInitialContent: initialValue,
       };
     }
 

@@ -1295,23 +1295,27 @@ export default Service.extend({
                 id: 'store1',
                 name: 'list of integers',
                 type: 'list',
-                dataSpec: {
-                  type: 'integer',
-                  valueConstraints: {},
+                config: {
+                  itemDataSpec: {
+                    type: 'integer',
+                    valueConstraints: {},
+                  },
                 },
-                requiresInitialValue: true,
-                defaultInitialValue: [1, 2, 3],
+                requiresInitialContent: true,
+                defaultInitialContent: [1, 2, 3],
               }, {
                 id: 'store2',
                 name: 'single value file',
                 type: 'singleValue',
-                dataSpec: {
-                  type: 'file',
-                  valueConstraints: {
-                    fileType: 'ANY',
+                config: {
+                  itemDataSpec: {
+                    type: 'file',
+                    valueConstraints: {
+                      fileType: 'ANY',
+                    },
                   },
                 },
-                requiresInitialValue: true,
+                requiresInitialContent: true,
               }],
               lanes: [{
                 id: 'lane1',
@@ -1427,7 +1431,9 @@ export default Service.extend({
                 exceptionStoresPerRun[runNumber] =
                   await this.createAtmStore(exceptionStoreId, {
                     type: 'list',
-                    dataSpec: { type: 'object' },
+                    config: {
+                      itemDataSpec: { type: 'object' },
+                    },
                   });
                 const prevRunExceptionStoreId =
                   runNumber > 1 && get(exceptionStoresPerRun[runNumber - 1], 'entityId');
@@ -1473,7 +1479,9 @@ export default Service.extend({
                     const systemAuditLogId = `auditLog-task-${taskEntityId}`;
                     await this.createAtmStore(systemAuditLogId, {
                       type: 'auditLog',
-                      dataSpec: { type: 'object' },
+                      config: {
+                        logContentDataSpec: { type: 'object' },
+                      },
                     });
                     const executionTaskRecord = await store.createRecord('atmTaskExecution', {
                       id: gri({
@@ -1521,7 +1529,9 @@ export default Service.extend({
           const systemAuditLogId = `auditLog-workflow-${entityId}`;
           await this.createAtmStore(systemAuditLogId, {
             type: 'auditLog',
-            dataSpec: { type: 'object' },
+            config: {
+              logContentDataSpec: { type: 'object' },
+            },
           });
           const atmWorkflowExecution = await store.createRecord('atmWorkflowExecution', {
             id: gri({
