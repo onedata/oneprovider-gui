@@ -206,6 +206,12 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   iconTip: '',
 
+  /**
+   * If true, block icon is hovered
+   * @type {boolean}
+   */
+  isIconHovered: false,
+
   statusBarModel: Object.freeze({}),
 
   statusBarComponentName: or(
@@ -489,6 +495,9 @@ export default Component.extend(I18n, FastDoubleClick, {
     },
     invokeFileAction(file, btnId, ...args) {
       this.get('invokeFileAction')(file, btnId, ...args);
+    },
+    changeIconHover(isIconHovered) {
+      this.set('isIconHovered', isIconHovered);
     },
   },
 });
