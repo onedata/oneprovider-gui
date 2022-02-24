@@ -229,6 +229,11 @@ export default Component.extend(I18n, FastDoubleClick, {
     raw('file-browser/fb-table-row-columns')
   ),
 
+  /**
+   * @type {String|undefined}
+   */
+  infoIconActionName: reads('browserModel.infoIconActionName'),
+
   isInvalidated: not('file.type'),
 
   /**

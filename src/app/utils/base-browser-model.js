@@ -152,6 +152,11 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    */
   rootIcon: 'space',
 
+  /**
+   * @virtual optional
+   */
+  infoIconActionName: undefined,
+
   getCurrentDirMenuButtons(availableActions) {
     return availableActions;
   },

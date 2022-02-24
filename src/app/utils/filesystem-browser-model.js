@@ -226,6 +226,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   buttonNames,
 
   /**
+   * @override
+   */
+  infoIconActionName: 'info',
+
+  /**
    * Reference to Document object - can be stubbed for testing purposes.
    * @type {Document}
    */

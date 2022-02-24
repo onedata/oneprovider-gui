@@ -36,30 +36,34 @@
     }
     .file-info-container {
       display: flex;
-      perspective: 1000px;
-      background-color: transparent;
-      &:hover {
-        .inline-icon-container {
-          &.inline-icon-container-file {
-            transform: rotateY(180deg) translateY(-50%) translateY(-2px) translateX(2px);
+      .inline-icon-container-file {
+        transform: translateY(-50%) translateY(-2px);
+      }
+      &.animation {
+        perspective: 1000px;
+        background-color: transparent;
+        &:hover {
+          .inline-icon-container {
+            &.inline-icon-container-file {
+              transform: rotateY(180deg) translateY(-50%) translateY(-2px) translateX(2px);
+            }
           }
         }
-      }
-      .inline-icon-container-file, .spinner-container {
-        transition-property: opacity;
-        transition-duration: .25s;
-        transition-timing-function: ease;
-      }
-      .inline-icon-container-file {
-        transition: transform 0.5s;
-        transform-style: preserve-3d;
-        transform: translateY(-50%) translateY(-2px);
-        .oneicon-browser-info.one-icon, .one-icon-tagged.tag-right {
-          backface-visibility: hidden;
+        .inline-icon-container-file, .spinner-container {
+          transition-property: opacity;
+          transition-duration: .25s;
+          transition-timing-function: ease;
         }
-        .oneicon-browser-info.one-icon {
-          transform: rotateY(180deg);
-          color: inherit;
+        .inline-icon-container-file {
+          transition: transform 0.5s;
+          transform-style: preserve-3d;
+          .oneicon-browser-info.one-icon, .one-icon-tagged.tag-right {
+            backface-visibility: hidden;
+          }
+          .oneicon-browser-info.one-icon {
+            transform: rotateY(180deg);
+            color: inherit;
+          }
         }
       }
       .file-icon-container, .file-item-text {

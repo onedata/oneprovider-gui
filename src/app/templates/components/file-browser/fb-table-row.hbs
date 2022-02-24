@@ -8,9 +8,9 @@
 {{else}}
   <td class="fb-table-col-files">
     <div 
-      class="file-info-container"
-      onmouseover={{action "changeIconHover" true}}
-      onmouseout={{action "changeIconHover" false}}
+      class={{concat-classes "file-info-container" (if infoIconActionName "animation")}}
+      onmouseover={{if infoIconActionName (action "changeIconHover" true)}}
+      onmouseout={{if infoIconActionName (action "changeIconHover" false)}}
     >
       {{#if isLoadingOnIcon}}
         {{spin-spinner-block
@@ -20,7 +20,7 @@
       {{/if}}
       <div 
         class="inline-icon-container inline-icon-container-file"
-        onmousedown={{action "invokeFileAction" file "info"}}
+        onmousedown={{if infoIconActionName (action "invokeFileAction" file openInfoActionName)}}
       >
         {{#one-icon-tagged
           class=(concat-classes "tag-right" iconTaggedClass)
@@ -33,7 +33,9 @@
             {{one-tooltip title=iconTip}}
           {{/if}}
         {{/one-icon-tagged}}
-        {{one-icon icon="browser-info"}}
+        {{#if infoIconActionName}}
+          {{one-icon icon="browser-info"}}
+        {{/if}}
       </div>
       <div class="file-item-text">
         <div class="file-item-text-upper">
