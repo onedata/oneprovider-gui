@@ -1,0 +1,44 @@
+{{#modal.header class="file-recall-part file-recall-modal-header"}}
+  <h1>{{tt this "header"}}</h1>
+  {{modal-file-subheader files=(array file)}}
+{{/modal.header}}
+{{#modal.body class="file-recall-part file-recall-modal-body"}}
+  {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+    {{file-recall/info-table
+      file=file
+      recallRootFile=recallRootFile
+      processStatus=processStatus
+      recallingPercent=recallingPercent
+      archive=archive
+      archiveUrl=archiveUrl
+      dataset=dataset
+      datasetUrl=datasetUrl
+      archiveRecallInfo=archiveRecallInfo
+      archiveRecallState=archiveRecallState
+      relativePath=relativePath
+      onClose=onClose
+    }}
+    {{yield}}
+  {{/promise-proxy-container}}
+{{/modal.body}}
+{{#if showFooter}}
+  {{#modal.footer class="file-recall-part file-recall-modal-footer"}}
+    {{#one-button
+      class="cancel-recall-btn"
+      buttonType="button"
+      size="sm"
+      type="danger"
+      disabled=isCancelling
+      onClick=(action "cancelRecallClicked")
+    }}
+      {{tt this (if isCancelling "cancellingRecallBtn" "cancelRecall")}}
+    {{/one-button}}
+    {{#render-later triggerRender=cancelRecallOpened}}
+      {{file-recall/cancel-recall-modal
+        opened=cancelRecallOpened
+        file=file
+        onClose=(action "closeCancelRecallModal")
+      }}
+    {{/render-later}}
+  {{/modal.footer}}
+{{/if}}

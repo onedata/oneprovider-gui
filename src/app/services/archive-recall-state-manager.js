@@ -103,23 +103,15 @@ export default Service.extend({
   },
 
   /**
-   * If file has a watcher registered for file - invokes update now and resolves true.
-   * If there is no watcher - ignores and resolves false.
    * @public
    * @param {Models.File} file
-   * @returns {Promise<boolean>}
+   * @returns {ArchiveRecallStateWatcher|null}
    */
-  async updateWatcherNow(file) {
+  getWatcher(file) {
     const recallRootId = get(file, 'recallRootId');
     const watchersRegistry = this.get('watchersRegistry');
     const entry = watchersRegistry.get(recallRootId);
-    const watcher = entry && entry.watcher;
-    if (watcher) {
-      await watcher.update();
-      return true;
-    } else {
-      return false;
-    }
+    return entry && entry.watcher || null;
   },
 
   /**

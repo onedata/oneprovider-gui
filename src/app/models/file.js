@@ -305,7 +305,7 @@ export default Model.extend(
     effProtectionFlags: attr('array'),
 
     /**
-     * If file is a recalled archive root or ancestor of one, GUID of recalled archive
+     * If file is a recalled archive root or descendant of one, GUID of recalled archive
      * root. Null or empty otherwise.
      * @type {ComputedProperty<String>}
      */

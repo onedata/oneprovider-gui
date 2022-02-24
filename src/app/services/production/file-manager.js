@@ -18,6 +18,7 @@ import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink
 import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
+const cancelRecallAspect = 'archive_recall_cancel';
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
 const fileModelName = 'file';
@@ -424,6 +425,33 @@ export default Service.extend({
     });
     const children = attrs.children;
     return children && children.length > 0 && children[0].index === fileName;
+  },
+
+  /**
+   * Begins a procedure of cancelling recall of tree which the file is a part of.
+   * @param {Models.File} file
+   * @returns {Promise<Object|null>} stop recall response or null if file is not a part
+   *   of recalled tree
+   */
+  async cancelRecall(file) {
+    const recallRootId = file && get(file, 'recallRootId');
+    if (!recallRootId) {
+      console.warn(
+        'service:file-manager#cancelRecall: provided file is not a part of recalled tree',
+        file
+      );
+      return null;
+    }
+    const requestGri = gri({
+      entityType: fileEntityType,
+      entityId: recallRootId,
+      aspect: cancelRecallAspect,
+    });
+    return this.get('onedataGraph').request({
+      operation: 'create',
+      gri: requestGri,
+      subscribe: false,
+    });
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service

@@ -21,4 +21,5 @@ export default Model.extend(GraphSingleModelMixin, {
   totalByteSize: attr('number'),
   startTime: attr('number'),
   finishTime: attr('number'),
+  cancelTime: attr('number'),
 }).reopenClass(StaticGraphModelMixin);

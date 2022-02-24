@@ -1,26 +1,22 @@
 /**
- * Information about file in recalling or recalled archive - basic info and live
- * statistics.
+ * Information and actions for file in recalling or recalled archive.
  *
- * @module components/recall-info
+ * @module components/file-recall
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { computed, get, observer } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import { promise, equal, raw, and, not } from 'ember-awesome-macros';
+import { promise, raw, array, equal } from 'ember-awesome-macros';
 import { all as allFulfilled, hashSettled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
-import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
 import _ from 'lodash';
-import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import resolveFilePath, { stringifyFilePath, dirSeparator } from 'oneprovider-gui/utils/resolve-file-path';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
@@ -29,22 +25,25 @@ import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
  * @typedef  {'message'|'raw'|'unknown'} RecallInfoErrorType
  */
 
+/**
+ * @typedef {'scheduled'|'pending'|'cancelling'|'stopped'|'succeeded'|'failed'} FileRecallProcessStatus
+ */
+
 export default Component.extend(I18n, {
-  classNames: ['recall-info'],
+  tagName: '',
 
   i18n: service(),
   fileManager: service(),
   archiveManager: service(),
   datasetManager: service(),
   archiveRecallStateManager: service(),
-  parentAppNavigation: service(),
   appProxy: service(),
-  errorExtractor: service(),
+  globalNotify: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.filesystemBrowser.recallInfo',
+  i18nPrefix: 'components.fileRecall',
 
   /**
    * @virtual
@@ -66,13 +65,12 @@ export default Component.extend(I18n, {
    */
   archiveRecallStateToken: null,
 
-  //#endregion
-
   /**
-   * Frame name, where Onezone link should be opened
-   * @type {String}
+   * @type {boolean}
    */
-  navigateTarget: reads('parentAppNavigation.navigateTarget'),
+  cancelRecallOpened: false,
+
+  //#endregion
 
   initialRequiredDataProxy: promise.object(computed(
     async function initialRequiredDataProxy() {
@@ -153,104 +151,6 @@ export default Component.extend(I18n, {
     }
   )),
 
-  archiveId: computed('archiveRecallInfo.archive', function archiveId() {
-    const archiveRecallInfo = this.get('archiveRecallInfo');
-    return archiveRecallInfo && archiveRecallInfo.relationEntityId('archive');
-  }),
-
-  datasetId: computed('archiveRecallInfo.dataset', function datasetId() {
-    const archiveRecallInfo = this.get('archiveRecallInfo');
-    return archiveRecallInfo && archiveRecallInfo.relationEntityId('dataset');
-  }),
-
-  recallRootFile: computedLastProxyContent('recallRootFileProxy'),
-
-  archiveRecallInfo: computedLastProxyContent('archiveRecallInfoProxy'),
-
-  archiveRecallState: computedLastProxyContent('archiveRecallStateProxy'),
-
-  archive: computedLastProxyContent('archiveProxy'),
-
-  dataset: computedLastProxyContent('datasetProxy'),
-
-  archiveName: reads('archive.name'),
-
-  datasetName: reads('dataset.name'),
-
-  filesRecalled: reads('archiveRecallState.filesCopied'),
-
-  filesToRecall: reads('archiveRecallInfo.totalFileCount'),
-
-  filesFailed: reads('archiveRecallState.filesFailed'),
-
-  errorOccurred: reads('archiveRecallState.errorOccurred'),
-
-  lastError: computed('archiveRecallState.lastError', function lastError() {
-    const lastErrorData = this.get('archiveRecallState.lastError');
-    return _.isEmpty(lastErrorData) ? null : lastErrorData;
-  }),
-
-  bytesRecalled: reads('archiveRecallState.bytesCopied'),
-
-  bytesToRecall: reads('archiveRecallInfo.totalByteSize'),
-
-  bytesRecalledText: computedPipe('bytesRecalled', bytesToString),
-
-  bytesToRecallText: computedPipe('bytesToRecall', bytesToString),
-
-  startedAt: computedPipe(
-    'archiveRecallInfo.startTime',
-    (millis) => millis && Math.floor(millis / 1000)
-  ),
-
-  finishedAt: computedPipe(
-    'archiveRecallInfo.finishTime',
-    (millis) => millis && Math.floor(millis / 1000)
-  ),
-
-  recallingPercent: computed(
-    'file.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
-    function recallingPercent() {
-      const file = this.get('file');
-      return recallingPercentageProgress(file);
-    }
-  ),
-
-  /**
-   * @type {'scheduled'|'pending'|'succeeded'|'failed'}
-   */
-  processStatus: computed(
-    'startedAt',
-    'finishedAt',
-    'filesFailed',
-    'lastError',
-    function processStatus() {
-      const {
-        startedAt,
-        finishedAt,
-        filesFailed,
-        lastError,
-      } = this.getProperties(
-        'startedAt',
-        'finishedAt',
-        'filesFailed',
-        'lastError',
-      );
-      if (!startedAt) {
-        return 'scheduled';
-      }
-      if (finishedAt) {
-        if (filesFailed || lastError) {
-          return 'failed';
-        } else {
-          return 'succeeded';
-        }
-      } else {
-        return 'pending';
-      }
-    }
-  ),
-
   archiveUrlProxy: promise.object(computed(
     'archiveProxy',
     'datasetProxy',
@@ -276,8 +176,6 @@ export default Component.extend(I18n, {
     }
   )),
 
-  archiveUrl: computedLastProxyContent('archiveUrlProxy'),
-
   datasetUrlProxy: promise.object(computed(
     'datasetProxy',
     async function datasetUrlProxy() {
@@ -299,31 +197,6 @@ export default Component.extend(I18n, {
     }
   )),
 
-  datasetUrl: computedLastProxyContent('datasetUrlProxy'),
-
-  /**
-   * @returns {{ type: RecallInfoErrorType, message: String }}
-   */
-  lastErrorParsed: computed('lastError', function lastErrorString() {
-    const {
-      lastError,
-      errorExtractor,
-    } = this.getProperties('lastError', 'errorExtractor');
-    if (lastError) {
-      const messageObject = errorExtractor.getMessage(lastError && lastError.reason);
-      if (messageObject && messageObject.message) {
-        return { type: 'message', message: messageObject.message };
-      } else {
-        return { type: 'raw', message: JSON.stringify(lastError, null, 2) };
-      }
-    }
-    return { type: 'unknown' };
-  }),
-
-  showErrorTextarea: equal('lastErrorParsed.type', raw('raw')),
-
-  fileIsRecallRoot: equal('file', 'recallRootFile'),
-
   relativePathProxy: promise.object(computed(
     'file',
     'recallRootFile',
@@ -343,17 +216,97 @@ export default Component.extend(I18n, {
     }
   )),
 
+  archiveRecallInfo: computedLastProxyContent('archiveRecallInfoProxy'),
+
+  archiveRecallState: computedLastProxyContent('archiveRecallStateProxy'),
+
+  archive: computedLastProxyContent('archiveProxy'),
+
+  dataset: computedLastProxyContent('datasetProxy'),
+
+  recallRootFile: computedLastProxyContent('recallRootFileProxy'),
+
+  archiveUrl: computedLastProxyContent('archiveUrlProxy'),
+
+  datasetUrl: computedLastProxyContent('datasetUrlProxy'),
+
   relativePath: computedLastProxyContent('relativePathProxy'),
 
-  renderRelativePathInput: and('relativePath', not('fileIsRecallRoot')),
+  recallingPercent: computed(
+    'file.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
+    function recallingPercent() {
+      const file = this.get('file');
+      return recallingPercentageProgress(file);
+    }
+  ),
 
-  processStatusObserver: observer('processStatus', function processStatusObserver() {
-    const {
-      processStatus,
-      onProcessStatusChange,
-    } = this.getProperties('processStatus', 'onProcessStatusChange');
-    onProcessStatusChange(processStatus);
+  startTime: reads('archiveRecallInfo.startTime'),
+
+  finishTime: reads('archiveRecallInfo.finishTime'),
+
+  cancelTime: reads('archiveRecallInfo.cancelTime'),
+
+  filesFailed: reads('archiveRecallState.filesFailed'),
+
+  lastError: computed('archiveRecallState.lastError', function lastError() {
+    const lastErrorData = this.get('archiveRecallState.lastError');
+    return _.isEmpty(lastErrorData) ? null : lastErrorData;
   }),
+
+  /**
+   * @type {ComputedProperty<FileRecallProcessStatus>}
+   */
+  processStatus: computed(
+    'startTime',
+    'finishTime',
+    'cancelTime',
+    'filesFailed',
+    'lastError',
+    function processStatus() {
+      const {
+        startTime,
+        finishTime,
+        cancelTime,
+        filesFailed,
+        lastError,
+      } = this.getProperties(
+        'startTime',
+        'finishTime',
+        'cancelTime',
+        'filesFailed',
+        'lastError',
+      );
+      if (!startTime) {
+        return 'scheduled';
+      }
+      if (finishTime) {
+        if (filesFailed || lastError) {
+          return 'failed';
+        } else if (cancelTime) {
+          return 'cancelled';
+        } else {
+          return 'succeeded';
+        }
+      } else if (cancelTime) {
+        return 'cancelling';
+      } else {
+        return 'pending';
+      }
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  showFooter: array.includes(
+    raw(['scheduled', 'pending', 'cancelling']),
+    'processStatus'
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isCancelling: equal('processStatus', raw('cancelling')),
 
   init() {
     this._super(...arguments);
@@ -366,7 +319,6 @@ export default Component.extend(I18n, {
     );
     const token = archiveRecallStateManager.watchRecall(file);
     this.set('archiveRecallStateToken', token);
-    this.processStatusObserver();
   },
 
   /**
@@ -390,10 +342,14 @@ export default Component.extend(I18n, {
   },
 
   actions: {
-    targetFileLinkClicked(event) {
-      if (!isNewTabRequestEvent(event)) {
-        this.get('onClose')();
+    cancelRecallClicked() {
+      if (this.get('isCancelling')) {
+        return;
       }
+      this.set('cancelRecallOpened', true);
+    },
+    closeCancelRecallModal() {
+      this.set('cancelRecallOpened', false);
     },
   },
 });

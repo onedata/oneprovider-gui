@@ -24,10 +24,13 @@ export default {
   status: {
     scheduled: 'Archive recall scheduled',
     pending: 'Archive recall in progress',
+    cancelling: 'Archive recall is being cancelled',
+    cancelled: 'Archive recall has been cancelled',
     succeeded: 'Archive recall finished successfully',
     failed: 'Archive recall finished with errors',
   },
   percentageDone: '({{percentage}}% done)',
+  percentageRecallDone: '({{percentage}}% of recall done)',
   couldNotLoad: 'Could not load',
   rootDirectory: 'Root directory',
 };

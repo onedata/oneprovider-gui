@@ -7,12 +7,13 @@ import {
   createArchiveRecallData,
   getBrowsableArchiveName,
   getBrowsableDatasetName,
-} from '../../../helpers/archive-recall';
-import { lookupService } from '../../../helpers/stub-service';
+} from '../../helpers/archive-recall';
+import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
+import { click } from 'ember-native-dom-helpers';
 
-describe('Integration | Component | filesystem browser/recall info', function () {
-  setupComponentTest('filesystem-browser/recall-info', {
+describe('Integration | Component | file recall', function () {
+  setupComponentTest('file-recall', {
     integration: true,
   });
 
@@ -33,8 +34,8 @@ describe('Integration | Component | filesystem browser/recall info', function ()
 
     await render(this);
 
-    const $recallInfo = this.$('.recall-info');
-    const text = $recallInfo.text();
+    const $fileRecall = this.$('.file-recall-info-table');
+    const text = $fileRecall.text();
     expect(text).to.contain(browsableArchiveName);
     expect(text).to.contain('20 / 100');
     expect(text).to.contain('200 B / 1 KiB');
@@ -95,7 +96,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     expect(this.$('.recall-info-row-finished-at')).to.not.exist;
   });
 
-  it('has "recall scheduled" header if recall does not started', async function () {
+  it('has "recall scheduled" status text if recall does not started', async function () {
     this.set('archiveRecallInfo.startTime', null);
 
     await render(this);
@@ -104,7 +105,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
       .to.contain('Archive recall scheduled');
   });
 
-  it('has "recall in progress" with percentage completion header if recall started', async function () {
+  it('has "recall in progress" status text with percentage completion header if recall started', async function () {
     this.set('archiveRecallInfo.startTime', Date.now());
     this.set(
       'archiveRecallState.bytesCopied',
@@ -117,7 +118,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
       .to.match(/Archive recall in progress\s*\(50% done\)/);
   });
 
-  it('has "recall finished successfully" header if recall finished without errors', async function () {
+  it('has "recall finished successfully" status text if recall finished without errors', async function () {
     this.set('archiveRecallInfo.startTime', Date.now());
     this.set('archiveRecallInfo.finishTime', Date.now() + 10000);
     this.set(
@@ -135,7 +136,7 @@ describe('Integration | Component | filesystem browser/recall info', function ()
       .to.contain('Archive recall finished successfully');
   });
 
-  it('has "recall finished with errors" header with percentage done if recall finished with errors',
+  it('has "recall finished with errors" status text with percentage done if recall finished with errors',
     async function () {
       const totalFileCount = 10;
       const filesToFail = 5;
@@ -162,6 +163,26 @@ describe('Integration | Component | filesystem browser/recall info', function ()
         .to.match(/Archive recall finished with errors\s+\(20% done\)/);
     }
   );
+
+  it('has "recall is cancelling" status text with percentage done while recall is cancelling', async function () {
+    whenRecallIsCancelling(this);
+
+    await render(this);
+
+    expect(this.$('.recall-info-row-process-status .property-value').text())
+      .to.match(/Archive recall is being cancelled\s*\(50% of recall done\)/);
+    expect(this.$('.recall-info-row-process-status')).to.have.class('text-warning');
+  });
+
+  it('has "recall is cancelled" status text with percentage done if recall is cancelled', async function () {
+    whenRecallIsCancelled(this);
+
+    await render(this);
+
+    expect(this.$('.recall-info-row-process-status .property-value').text())
+      .to.match(/Archive recall has been cancelled\s*\(50% of recall done\)/);
+    expect(this.$('.recall-info-row-process-status')).to.have.class('text-warning');
+  });
 
   it('has href to archive on archive name link', async function () {
     const correctUrl = 'https://example.com/correct';
@@ -204,11 +225,72 @@ describe('Integration | Component | filesystem browser/recall info', function ()
     const $datasetLink = this.$('.dataset-link');
     expect($datasetLink).to.have.attr('href', correctUrl);
   });
+
+  it('has "Cancel recall" button which clicked opens recall modal', async function () {
+    whenRecallIsPending(this);
+
+    await render(this);
+
+    const $cancelRecallBtn = this.$('.cancel-recall-btn');
+
+    expect($cancelRecallBtn).to.exist;
+    expect($cancelRecallBtn.text()).to.contain('Cancel recall');
+    expect(this.$('.cancel-recall-modal')).to.not.exist;
+    await click($cancelRecallBtn[0]);
+    expect(this.$('.cancel-recall-modal')).to.exist;
+  });
+
+  it('has "Cancelling recall..." disabled button when recall is being cancelled', async function () {
+    whenRecallIsCancelling(this);
+
+    await render(this);
+
+    const $cancelRecallBtn = this.$('.cancel-recall-btn');
+
+    expect($cancelRecallBtn).to.exist;
+    expect($cancelRecallBtn.text()).to.contain('Cancelling recall...');
+    expect($cancelRecallBtn).to.be.disabled;
+    await click($cancelRecallBtn[0]);
+    expect(this.$('.cancel-recall-modal')).to.not.exist;
+  });
 });
 
 async function render(testCase) {
-  testCase.render(hbs `{{filesystem-browser/recall-info
-    file=file
-  }}`);
+  testCase.render(hbs `
+  {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
+    {{file-recall
+      modal=modal
+      file=file
+      onClose=modal.close
+    }}
+  {{/one-pseudo-modal}}
+  `);
   await wait();
+}
+
+function whenRecallIsCancelling(testCase) {
+  testCase.set('archiveRecallInfo.startTime', Date(1000));
+  testCase.set('archiveRecallInfo.cancelTime', Date(2000));
+  testCase.set(
+    'archiveRecallState.bytesCopied',
+    testCase.get('archiveRecallInfo.totalByteSize') / 2
+  );
+}
+
+function whenRecallIsCancelled(testCase) {
+  testCase.set('archiveRecallInfo.startTime', Date(1000));
+  testCase.set('archiveRecallInfo.cancelTime', Date(2000));
+  testCase.set('archiveRecallInfo.finishTime', Date(3000));
+  testCase.set(
+    'archiveRecallState.bytesCopied',
+    testCase.get('archiveRecallInfo.totalByteSize') / 2
+  );
+}
+
+function whenRecallIsPending(testCase) {
+  testCase.set('archiveRecallInfo.startTime', Date.now());
+  testCase.set(
+    'archiveRecallState.bytesCopied',
+    testCase.get('archiveRecallInfo.totalByteSize') / 2
+  );
 }

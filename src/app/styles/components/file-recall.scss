@@ -1,0 +1,12 @@
+.file-recall-modal-body {
+  // complex selector to override defaults
+  .file-recall-info-table.table.table-info td.property-name {
+    width: 180px;
+  }
+}
+
+// overriding default styles inside modal
+.modal.in .modal-dialog .modal-content .modal-footer.file-recall-modal-footer {
+  text-align: left;
+  margin-bottom: 0;
+}

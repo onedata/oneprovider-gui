@@ -7,28 +7,9 @@
   onHide=(action "hide")
   as |modal|
 }}
-  {{#modal.header}}
-    <h1>{{tt this "header"}}</h1>
-    {{modal-file-subheader files=(array file)}}
-  {{/modal.header}}
-  {{#modal.body}}
-    {{filesystem-browser/recall-info
-      file=file
-      onProcessStatusChange=(action "processStatusChanged")
-      onClose=(action "hide")
-    }}
-    {{yield}}
-  {{/modal.body}}
-  {{#if showFooter}}
-    {{#modal.footer}}
-      {{#one-button
-        class="stop-recall-btn"
-        buttonType="button"
-        type="danger"
-        onClick=(action "stopRecall")
-      }}
-        {{tt this "stopRecall"}}
-      {{/one-button}}
-    {{/modal.footer}}
-  {{/if}}
+  {{file-recall
+    modal=modal
+    file=file
+    onClose=(action "hide")
+  }}
 {{/one-modal}}
