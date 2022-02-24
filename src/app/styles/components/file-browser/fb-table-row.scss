@@ -57,6 +57,7 @@
         .inline-icon-container-file {
           transition: transform 0.5s;
           transform-style: preserve-3d;
+          -moz-backface-visibility: hidden;
           .oneicon-browser-info.one-icon, .one-icon-tagged.tag-right {
             backface-visibility: hidden;
           }
