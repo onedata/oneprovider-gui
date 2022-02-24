@@ -20,7 +20,7 @@
       {{/if}}
       <div 
         class="inline-icon-container inline-icon-container-file"
-        onmousedown={{if infoIconActionName (action "invokeFileAction" file openInfoActionName)}}
+        onmousedown={{if infoIconActionName (action "invokeFileAction" file infoIconActionName)}}
       >
         {{#one-icon-tagged
           class=(concat-classes "tag-right" iconTaggedClass)

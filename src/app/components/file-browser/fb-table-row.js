@@ -230,9 +230,21 @@ export default Component.extend(I18n, FastDoubleClick, {
   ),
 
   /**
-   * @type {String|undefined}
+   * @type {ComputedProperty<String|undefined>}
    */
-  infoIconActionName: reads('browserModel.infoIconActionName'),
+  infoIconActionName: computed(
+    'media.isMobile',
+    'browserModel.infoIconActionName',
+    function infoIconActionName() {
+      const isMobile = this.get('media.isMobile');
+      const actionName = this.get('browserModel.infoIconActionName');
+      if (isMobile) {
+        return '';
+      } else {
+        return actionName;
+      }
+    }
+  ),
 
   isInvalidated: not('file.type'),
 
