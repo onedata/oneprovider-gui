@@ -30,10 +30,6 @@
   }
   td.fb-table-col-files {
     vertical-align: middle;
-    @media (max-width: $screen-xs-max) {
-      padding-top: 8px;
-      padding-bottom: 8px;
-    }
     .file-info-container {
       display: flex;
       .file-icon-container, .file-item-text {
@@ -54,14 +50,16 @@
       .file-item-text {
         width: 100%;
         padding-left: 10px;
-        .file-name {
+        .file-item-text-upper {
+          display: flex;
+          align-items: center;
+        }
+        .file-info-container {
           min-height: 1em * $line-height-base;
           overflow: hidden;
           flex-grow: 1;
-        }
-        .file-item-text-upper {
           display: flex;
-          flex-grow: 1;
+          flex-direction: column;
         }
         .file-suffix.conflict-label {
           color: $color-one-danger;
@@ -90,18 +88,18 @@
     }
   }
   .file-info-mobile {
-    display: none;
+    padding-top: 4px;
+    .file-info-mobile-inner {
+      color: $color-one-light-gray;
+    }
+    .file-info-mobile-right {
+      float: right;
+    }
   }
-  @media (max-width: $screen-xs-max) {
-    .file-info-mobile {
-      display: block;
-      padding-top: 4px;
-      .file-info-mobile-inner {
-        color: $color-one-light-gray;
-      }
-      .file-info-mobile-right {
-        float: right;
-      }
+  .file-info-secondary {
+    .file-info-secondary-inner {
+      font-size: 90%;
+      opacity: $disabled-opacity;
     }
   }
   .file-icon-container .one-icon {
@@ -120,7 +118,7 @@
     .file-icon {
       color: $color-one-red;
     }
-    .file-name {
+    .file-name-inner {
       color: $color-one-red;
       font-style: italic;
     }

@@ -103,6 +103,11 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
+  secondaryInfoComponentName: 'dataset-browser/table-row-secondary-info',
+
+  /**
+   * @override
+   */
   columnsComponentName: 'dataset-browser/table-row-columns',
 
   /**

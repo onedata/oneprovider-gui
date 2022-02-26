@@ -59,8 +59,9 @@
   }
   .fb-table {
     td.multiline {
-      padding-top: 10px;
-      padding-bottom: 0;
+      vertical-align: middle;
+      padding-top: 8px;
+      padding-bottom: 8px;
       white-space: nowrap;
     }
   }
