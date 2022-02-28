@@ -127,18 +127,21 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  onOpenFile(file, /* options */ ) {
+  async onOpenFile(file, /* options */ ) {
+    const _super = this._super;
+    let hasBeenHandled = false;
     try {
-      return this.handlePotentialExternalSymlink(file);
+      hasBeenHandled = await this.handlePotentialExternalSymlink(file);
     } catch (error) {
       console.error(
         'util:archive-filesystem-browser-model#onOpenFile: external symlink check failed',
         error
       );
     }
-    return this._super(...arguments);
+    if (!hasBeenHandled) {
+      return _super.apply(this, arguments);
+    }
   },
-
   async symlinkExternalContext(dirSymlink) {
     const currentDir = this.get('dir');
     const filesViewContextFactory =
