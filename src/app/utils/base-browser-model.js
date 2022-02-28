@@ -153,7 +153,9 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   rootIcon: 'space',
 
   /**
+   * Item action invoked when flipped row icon is clicked
    * @virtual optional
+   * @type { String }
    */
   infoIconActionName: undefined,
 

@@ -25,6 +25,16 @@
       }
     }
   }
+  &:hover {
+    td.fb-table-col-files {
+      .inline-icon-container {
+        &.inline-icon-container-file {
+          transform: rotateY(180deg) translateY(-50%) translateY(-6px);
+          cursor: pointer;
+        }
+      }
+    }
+  }
   .fb-table-secondary-col {
     text-align: center;
   }
@@ -37,31 +47,27 @@
     .file-info-container {
       display: flex;
       .inline-icon-container-file {
-        transform: translateY(-50%) translateY(-2px);
+        transform: translateY(-50%) translateY(-6px);
       }
-      &.animation {
+      .inline-icon-container-file, .spinner-container {
+        transition-property: opacity;
+        transition-duration: .25s;
+        transition-timing-function: ease;
+      }
+      &.flip-animated {
         perspective: 1000px;
-        background-color: transparent;
-        &:hover {
-          .inline-icon-container {
-            &.inline-icon-container-file {
-              transform: rotateY(180deg) translateY(-50%) translateY(-2px) translateX(2px);
-            }
-          }
-        }
-        .inline-icon-container-file, .spinner-container {
-          transition-property: opacity;
-          transition-duration: .25s;
-          transition-timing-function: ease;
-        }
         .inline-icon-container-file {
           transition: transform 0.5s;
           transform-style: preserve-3d;
+          // a hack to prevent visibility backface to fix issues in Firefox
           -moz-backface-visibility: hidden;
-          .oneicon-browser-info.one-icon, .one-icon-tagged.tag-right {
+          .flippable-back, .flippable-front {
             backface-visibility: hidden;
+            // for Safari <= 15.3
+            -webkit-backface-visibility: hidden;
+            transform: rotateX(0deg);
           }
-          .oneicon-browser-info.one-icon {
+          .flippable-back {
             transform: rotateY(180deg);
             color: inherit;
           }
@@ -93,23 +99,10 @@
           color: $color-one-danger;
         }
       }
-      .file-icon-container {
+      &.file-icon-container {
         .inline-icon-container-file {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%) translateY(-2px);
-          .one-icon-tagged {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%) translateY(1px);
-            .one-icon-tagged-main {
-              top: initial;
-              left: initial;
-            }
-            .one-icon-tag-icon {
-              transform: none;
-            }
+          .one-icon-tag-icon {
+            transform: none;
           }
         }
       }

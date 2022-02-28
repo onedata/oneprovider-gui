@@ -42,7 +42,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   attributeBindings: ['fileEntityId:data-row-id'],
 
   errorExtractor: service(),
-  media: service(),
+  isMobile: service(),
   currentUser: service(),
   i18n: service(),
 
@@ -206,12 +206,6 @@ export default Component.extend(I18n, FastDoubleClick, {
    */
   iconTip: '',
 
-  /**
-   * If true, block icon is hovered
-   * @type {boolean}
-   */
-  isIconHovered: false,
-
   statusBarModel: Object.freeze({}),
 
   statusBarComponentName: or(
@@ -230,16 +224,16 @@ export default Component.extend(I18n, FastDoubleClick, {
   ),
 
   /**
-   * @type {ComputedProperty<String|undefined>}
+   * @type {ComputedProperty<String|undefined/null>}
    */
   infoIconActionName: computed(
-    'media.isMobile',
+    'isMobile.any',
     'browserModel.infoIconActionName',
     function infoIconActionName() {
-      const isMobile = this.get('media.isMobile');
+      const isMobile = this.get('isMobile.any');
       const actionName = this.get('browserModel.infoIconActionName');
       if (isMobile) {
-        return '';
+        return null;
       } else {
         return actionName;
       }
@@ -512,9 +506,6 @@ export default Component.extend(I18n, FastDoubleClick, {
     },
     invokeFileAction(file, btnId, ...args) {
       this.get('invokeFileAction')(file, btnId, ...args);
-    },
-    changeIconHover(isIconHovered) {
-      this.set('isIconHovered', isIconHovered);
     },
   },
 });
