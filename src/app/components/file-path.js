@@ -219,8 +219,8 @@ export default Component.extend(...mixins, {
         displayedPathItemsCount
       );
       if (shortenedPath.length) {
-        set(shortenedPath[0], 'isFirst', true);
-        set(shortenedPath[shortenedPath.length - 1], 'isLast', true);
+        set(shortenedPath[0], 'className', 'path-item-first');
+        set(shortenedPath[shortenedPath.length - 1], 'className', 'path-item-last');
       }
       return shortenedPath;
     }

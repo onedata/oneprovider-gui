@@ -1,5 +1,6 @@
 /**
- * FIXME: jsdoc
+ * Show information about symlink of file or directory that targets outside browsed
+ * context, especially from archive to regular space.
  *
  * @module components/modals/external-symlink-modal
  * @author Jakub Liput
@@ -22,7 +23,7 @@ import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-ev
  * @property {Utils.FilesViewContext} targetFileContext
  * @property {(file: Models.File) => Promise} onDownloadFile
  * @property {() => void} onClose
- * @property {() => void} onCloseAllModals
+ * @property {() => void} onDirectoryChanged
  * @property {string} [currentContextType='archive']
  */
 
@@ -84,9 +85,9 @@ export default Component.extend(I18n, {
   onClose: or('modalOptions.onClose', notImplementedIgnore),
 
   /**
-   * See `ExternalSymlinkModalOptions.onCloseAllModals`
+   * See `ExternalSymlinkModalOptions.onDirectoryChanged`
    */
-  onCloseAllModals: or('modalOptions.onCloseAllModals', notImplementedIgnore),
+  onDirectoryChanged: or('modalOptions.onDirectoryChanged', notImplementedIgnore),
 
   /**
    * @type {ComputedProperty<Models.File>}
@@ -105,20 +106,20 @@ export default Component.extend(I18n, {
       filesViewResolver,
       parentAppNavigation,
       onClose,
-      onCloseAllModals,
+      onDirectoryChanged,
     } = this.getProperties(
       'globalNotify',
       'targetFileContext',
       'filesViewResolver',
       'parentAppNavigation',
       'onClose',
-      'onCloseAllModals',
+      'onDirectoryChanged',
     );
     try {
       const url = filesViewResolver.generateUrl(targetFileContext, 'open');
       parentAppNavigation.openUrl(url);
       onClose();
-      onCloseAllModals();
+      onDirectoryChanged();
     } catch (error) {
       globalNotify.backendError(this.t('changingDirectory'), error);
     }
@@ -129,23 +130,20 @@ export default Component.extend(I18n, {
       globalNotify,
       onDownloadFile,
       onClose,
-      onCloseAllModals,
       effFile,
     } = this.getProperties(
       'globalNotify',
       'onDownloadFile',
       'onClose',
-      'onCloseAllModals',
       'effFile',
     );
     try {
       await onDownloadFile(effFile);
-      onClose();
-      onCloseAllModals();
     } catch (error) {
       globalNotify.backendError(this.t('preparingDownload'), error);
       throw error;
     }
+    onClose();
   },
 
   actions: {
@@ -163,10 +161,10 @@ export default Component.extend(I18n, {
       if (!isNewTabRequest) {
         const {
           onClose,
-          onCloseAllModals,
-        } = this.getProperties('onClose', 'onCloseAllModals');
+          onDirectoryChanged,
+        } = this.getProperties('onClose', 'onDirectoryChanged');
         onClose();
-        onCloseAllModals();
+        onDirectoryChanged();
       }
     },
   },

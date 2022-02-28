@@ -15,6 +15,7 @@ import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
 import { get } from '@ember/object';
 import { inject as service } from '@ember/service';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
@@ -40,6 +41,12 @@ export default FilesystemBrowserModel.extend({
    * @type {Models.Archive}
    */
   archive: undefined,
+
+  /**
+   * @virtual optional
+   * @type {Function}
+   */
+  onDirectoryChanged: notImplementedIgnore,
 
   /**
    * @override
@@ -81,8 +88,6 @@ export default FilesystemBrowserModel.extend({
    */
   fileFeatures: _.without(defaultFilesystemFeatures, 'effDatasetMembership'),
 
-  globalModalName: 'external-symlink-modal',
-
   /**
    * @type {Utils.ModalManager.ModalInstance}
    */
@@ -94,6 +99,17 @@ export default FilesystemBrowserModel.extend({
    * @type {ComputedProperty<Boolean>}
    */
   isArchiveDipAvailable: bool('archive.config.includeDip'),
+
+  /**
+   * @override
+   */
+  destroy() {
+    try {
+      this.closeExternalSymlinkModal();
+    } finally {
+      this._super(...arguments);
+    }
+  },
 
   /**
    * @override
@@ -112,7 +128,6 @@ export default FilesystemBrowserModel.extend({
    * @override
    */
   onOpenFile(file, /* options */ ) {
-    const _super = this._super;
     try {
       return this.handlePotentialExternalSymlink(file);
     } catch (error) {
@@ -121,7 +136,7 @@ export default FilesystemBrowserModel.extend({
         error
       );
     }
-    return _super.apply(this, arguments);
+    return this._super(...arguments);
   },
 
   async symlinkExternalContext(dirSymlink) {
@@ -152,20 +167,29 @@ export default FilesystemBrowserModel.extend({
     }
   },
 
-  async openExternalSymlinkModal(symlink, externalContext) {
-    const {
-      modalManager,
-      globalModalName,
-    } = this.getProperties('modalManager', 'globalModalName');
-    const externalSymlinkModal = modalManager.show(globalModalName, {
+  /**
+   * @param {Models.File} symlink
+   * @param {Utils.FilesViewContext} externalContext
+   * @returns {Utils.ModalManager.ModalInstance}
+   */
+  openExternalSymlinkModal(symlink, externalContext) {
+    const modalManager = this.get('modalManager');
+    const externalSymlinkModal = modalManager.show('external-symlink-modal', {
       currentContextType: 'archive',
       symlinkFile: symlink,
       targetFileContext: externalContext,
       onDownloadFile: this.downloadExternalSymlinkedFile.bind(this),
+      onDirectoryChanged: this.directoryChanged.bind(this),
       onClose: this.closeExternalSymlinkModal.bind(this),
-      onCloseAllModals: this.closeAllModals.bind(this),
     });
-    this.set('externalSymlinkModal', externalSymlinkModal);
+    return this.set('externalSymlinkModal', externalSymlinkModal);
+  },
+
+  directoryChanged() {
+    const onDirectoryChanged = this.get('onDirectoryChanged');
+    if (onDirectoryChanged) {
+      onDirectoryChanged(arguments);
+    }
   },
 
   /**

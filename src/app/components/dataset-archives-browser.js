@@ -115,6 +115,12 @@ export default Component.extend(...mixins, {
   onRegisterApi: notImplementedIgnore,
 
   /**
+   * @virtual optional
+   * @type {Function}
+   */
+  onCloseAllModals: notImplementedIgnore,
+
+  /**
    * @implements ItemBrowserContainerBase.selectedItems
    */
   selectedItems: undefined,
@@ -597,6 +603,7 @@ export default Component.extend(...mixins, {
       Object.assign({
         ownerSource: this,
         archive: await archiveProxy,
+        onDirectoryChanged: () => this.get('onCloseAllModals')(),
       }, options)
     );
   },

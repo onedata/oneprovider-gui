@@ -562,6 +562,9 @@ export default OneEmbeddedComponent.extend(
             safeExec(this, 'set', 'fileForConfirmDownload', null);
           });
       },
+      closeAllModals() {
+        this.closeAllModals();
+      },
     },
   }
 );

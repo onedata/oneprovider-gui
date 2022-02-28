@@ -22,8 +22,7 @@
         {{#if item.separator}}
           <div class={{concat-classes
             "path-item path-separator"
-            (if item.isLast "path-item-last")
-            (if item.isFirst "path-item-first")
+            item.className
           }}>
             {{item.separator}}
           </div>
@@ -31,16 +30,14 @@
         {{#if item.icon}}
           <div class={{concat-classes
             "path-item path-icon-container"
-            (if item.isLast "path-item-last")
-            (if item.isFirst "path-item-first")
+            item.className
           }}>
             {{one-icon icon=item.icon class="path-icon"}}
           </div>
         {{/if}}
         <div class={{concat-classes
           "path-item path-label"
-          (if item.isLast "path-item-last")
-          (if item.isFirst "path-item-first")
+          item.className
         }}>
           {{item.record.name}}
         </div>

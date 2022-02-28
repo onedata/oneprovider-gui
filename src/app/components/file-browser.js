@@ -688,7 +688,6 @@ export default Component.extend(I18n, {
       containerScrollTop,
       browserModel,
       loadingIconFileIds,
-
     } = this.getProperties(
       'updateDirEntityId',
       'containerScrollTop',

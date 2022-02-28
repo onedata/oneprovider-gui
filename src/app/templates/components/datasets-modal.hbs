@@ -5,7 +5,7 @@
   size="xl"
   backdropClose=true
   keyboard=true
-  onHide=(action "onHide")
+  onHide=(action "hide")
   as |modal|
 }}
   {{file-datasets
@@ -17,6 +17,9 @@
     fileDatasetSummaryLoadError=(if open null)
     getDataUrl=getDataUrl
     getDatasetsUrl=getDatasetsUrl
-    close=(action "onHide")
+    onCloseAllModals=onCloseAllModals
+    close=(action "hide")
   }}
+  {{!-- FIXME: --}}
+  {{log "FIXME: datasetsModal" onCloseAllModals}}
 {{/one-modal}}

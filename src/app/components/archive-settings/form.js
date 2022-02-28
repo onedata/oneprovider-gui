@@ -147,13 +147,13 @@ export default Component.extend(I18n, {
         { value: 'plain' },
         { value: 'bagit' },
       ],
-      tooltipClass: 'tooltip-lg',
+      tooltipClass: 'tooltip-lg tooltip-text-left',
     });
 
     const configNestedField = ToggleField.create({
       name: 'createNestedArchives',
       defaultValue: false,
-      tooltipClass: 'tooltip-lg',
+      tooltipClass: 'tooltip-lg tooltip-text-left',
     });
 
     const configIncrementalField = ToggleField
@@ -171,19 +171,19 @@ export default Component.extend(I18n, {
         component: this,
         defaultValue: isBaseArchiveProvided,
         isEnabled: !isBaseArchiveProvided,
-        tooltipClass: 'tooltip-lg',
+        tooltipClass: 'tooltip-lg tooltip-text-left',
       });
 
     const configDipField = ToggleField.create({
       name: 'includeDip',
       defaultValue: false,
-      tooltipClass: 'tooltip-lg',
+      tooltipClass: 'tooltip-lg tooltip-text-left',
     });
 
     const configSymlinksField = ToggleField.create({
       name: 'followSymlinks',
       defaultValue: true,
-      tooltipClass: 'tooltip-lg',
+      tooltipClass: 'tooltip-lg tooltip-text-left',
     });
 
     const configFields = [
