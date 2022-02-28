@@ -89,11 +89,18 @@
   }
   .file-info-mobile {
     padding-top: 4px;
+    display: flex;
+    overflow: hidden;
+
     .file-info-mobile-inner {
+      flex-grow: 1;
       color: $color-one-light-gray;
     }
+    .file-info-mobile-inner + .file-info-mobile-inner {
+      padding-left: 1em;
+    }
     .file-info-mobile-right {
-      float: right;
+      text-align: right;
     }
   }
   .file-info-secondary {
