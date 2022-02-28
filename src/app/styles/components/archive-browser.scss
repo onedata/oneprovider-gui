@@ -4,6 +4,10 @@
   }
   .fb-table-col-state {
     width: 110px;
+    .archive-state-text {
+      display: flex;
+      flex-direction: column;
+    }
   }
   .fb-table-col-incremental {
     width: 14em;

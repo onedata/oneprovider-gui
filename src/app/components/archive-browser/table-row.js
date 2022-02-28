@@ -14,7 +14,7 @@ import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw, or, promise, bool } from 'ember-awesome-macros';
+import { conditional, equal, raw, or, promise, bool, getBy } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
@@ -39,6 +39,16 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
    * @type {Utils.ArchiveBrowserModel}
    */
   browserModel: undefined,
+
+  /**
+   * @type {Object<ArchiveMetaState, string>}
+   */
+  stateClassMapping: Object.freeze({
+    creating: 'infinite animated pulse-mint',
+    succeeded: '',
+    failed: 'text-danger',
+    destroying: 'infinite animated pulse-orange',
+  }),
 
   /**
    * @override
@@ -130,41 +140,59 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
     }
   )),
 
+  // FIXME: refactor names to match details and vice verss
   showArchivedCounters: or(
     equal('archive.state', raw('building')),
     equal('archive.state', raw('preserved')),
   ),
 
-  stateText: computed(
-    'archive.{state,stats}',
-    function stateText() {
+  stateTypeText: computed(
+    'archive.state',
+    function stateTypeText() {
+      const archiveState = this.get('archive.state');
+      const text = this.t(
+        `state.${archiveState}`, {}, { defaultValue: this.t('state.unknown') }
+      );
+      return htmlSafe(text);
+    }
+  ),
+
+  stateDetailsText: computed(
+    'archive.stats',
+    function stateDetailsText() {
       const {
         archive,
         showArchivedCounters,
       } = this.getProperties('archive', 'showArchivedCounters');
-      const {
-        state,
-        stats,
-      } = getProperties(archive, 'state', 'stats');
-      const {
-        bytesArchived,
-        filesArchived,
-      } = getProperties(stats, 'bytesArchived', 'filesArchived');
-      const bytes = bytesArchived || 0;
-      const filesText = filesArchived || '0';
-      let text = this.t(`state.${state}`, {}, { defaultValue: this.t('state.unknown') });
       if (showArchivedCounters) {
+        const stats = get(archive, 'stats');
+        const {
+          bytesArchived,
+          filesArchived,
+        } = getProperties(stats, 'bytesArchived', 'filesArchived');
+        const bytes = bytesArchived || 0;
+        const filesText = filesArchived || '0';
         const sizeText = bytesToString(bytes);
-        text += `<br>${this.t('stateInfo.archived', { filesCount: filesText, size: sizeText })}`;
+        const text = this.t(
+          'stateInfo.archived', {
+            filesCount: filesText,
+            size: sizeText,
+          }
+        );
+        return htmlSafe(text);
+      } else {
+        return null;
       }
-      return htmlSafe(text);
     }
   ),
+
   stateColClass: conditional(
     'showArchivedCounters',
     raw('multiline'),
     raw(''),
   ),
+
+  stateTypeTextClass: getBy('stateClassMapping', 'archive.metaState'),
 
   browseDip() {
     const {
