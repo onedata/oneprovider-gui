@@ -131,7 +131,7 @@ export default Component.extend(I18n, {
       if (!stores) {
         return;
       }
-      return stores.isAny('requiresInitialValue');
+      return stores.isAny('requiresInitialContent');
     }
   ),
 

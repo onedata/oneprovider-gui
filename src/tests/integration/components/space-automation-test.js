@@ -32,11 +32,13 @@ describe('Integration | Component | space automation', function () {
             id: 'store1',
             name: 'store 1',
             type: 'singleValue',
-            dataSpec: {
-              type: 'integer',
-              valueConstraints: {},
+            config: {
+              itemDataSpec: {
+                type: 'integer',
+                valueConstraints: {},
+              },
             },
-            requiresInitialValue: true,
+            requiresInitialContent: true,
           }],
         },
       },

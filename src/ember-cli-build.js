@@ -8,11 +8,11 @@ const defineSassColors = require(
 const defineSassBreakpoints = require(
   './lib/onedata-gui-common/addon/utils/define-sass-breakpoints'
 );
-const colors = require('./lib/onedata-gui-common/addon/colors').default;
-const breakpointValues =
-  require('./lib/onedata-gui-common/addon/breakpoint-values').default;
+const colors = require('./lib/onedata-gui-common/config/colors');
+const breakpoints = require('./lib/onedata-gui-common/config/breakpoints');
 const copyDynamicLibraries = require('./lib/onedata-gui-common/addon/utils/copy-dynamic-libraries');
 const dynamicLibraries = require('./lib/onedata-gui-common/config/dynamic-libraries');
+
 const sass = require('sass');
 
 module.exports = function (defaults) {
@@ -34,9 +34,8 @@ module.exports = function (defaults) {
       ],
       replaceExtensions: ['html', 'css', 'js', 'webmanifest'],
     },
-    'ember-cli-babel': {
-      includePolyfill: true,
-    },
+    // see: https://github.com/babel/ember-cli-babel/tree/v7.3.0#options
+    'babel': {},
     'sassOptions': {
       implementation: sass,
       includePaths: [
@@ -84,7 +83,7 @@ module.exports = function (defaults) {
   });
 
   defineSassColors(app, colors);
-  defineSassBreakpoints(app, breakpointValues);
+  defineSassBreakpoints(app, breakpoints);
   copyDynamicLibraries(app, dynamicLibraries);
 
   // Use `app.import` to add additional libraries to the generated

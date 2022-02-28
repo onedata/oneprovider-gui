@@ -127,6 +127,7 @@ const arrayLikeValuesGenerator = elements =>
 const storeTypes = {
   list: {
     allowedDataSpecConfigs: dataSpecConfigsArray,
+    dataSpecConfigKey: 'itemDataSpec',
     editors: dataSpecSpecificEditors,
     complexValuesGenerator: arrayLikeValuesGenerator,
   },
@@ -150,6 +151,7 @@ const storeTypes = {
       dataSpecConfigs.symlink,
       dataSpecConfigs.dataset,
     ],
+    dataSpecConfigKey: 'itemDataSpec',
     editors: {
       default: 'filesValue',
     },
@@ -157,6 +159,7 @@ const storeTypes = {
   },
   singleValue: {
     allowedDataSpecConfigs: dataSpecConfigsArray,
+    dataSpecConfigKey: 'itemDataSpec',
     editors: dataSpecSpecificEditors,
     complexValuesGenerator: simpleValues => simpleValues,
     filesLimit: 1,
@@ -200,32 +203,38 @@ describe('Integration | Component | space automation/input stores form', functio
               name: 'singleValueIntegerStore',
               description: 'single value integer store',
               type: 'singleValue',
-              dataSpec: {
-                type: 'integer',
-                valueConstraints: {},
+              config: {
+                itemDataSpec: {
+                  type: 'integer',
+                  valueConstraints: {},
+                },
               },
-              defaultInitialValue: 10,
-              requiresInitialValue: true,
+              defaultInitialContent: 10,
+              requiresInitialContent: true,
             }, {
               id: 'store2',
               name: 'listStringStore',
               description: 'list string store',
               type: 'list',
-              dataSpec: {
-                type: 'string',
-                valueConstraints: {},
+              config: {
+                itemDataSpec: {
+                  type: 'string',
+                  valueConstraints: {},
+                },
               },
-              requiresInitialValue: true,
+              requiresInitialContent: true,
             }, {
               id: 'store3',
               name: 'singleValueStringStore',
               description: 'single value string store',
               type: 'singleValue',
-              dataSpec: {
-                type: 'string',
-                valueConstraints: {},
+              config: {
+                itemDataSpec: {
+                  type: 'string',
+                  valueConstraints: {},
+                },
               },
-              requiresInitialValue: false,
+              requiresInitialContent: false,
             }],
           },
         },
@@ -276,6 +285,7 @@ describe('Integration | Component | space automation/input stores form', functio
   storeTypesArray.forEach(({
     name: storeTypeName,
     allowedDataSpecConfigs,
+    dataSpecConfigKey,
     editors,
     complexValuesGenerator,
   }) => {
@@ -291,8 +301,10 @@ describe('Integration | Component | space automation/input stores form', functio
             id: 's1',
             name: 'store1',
             type: storeTypeName,
-            dataSpec,
-            requiresInitialValue: true,
+            config: {
+              [dataSpecConfigKey]: dataSpec,
+            },
+            requiresInitialContent: true,
           }]);
         });
 
@@ -347,7 +359,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
           it('fills initial value with JSON', async function () {
             const rawValue = JSON.parse(correctInitialValues[0]);
-            getStores(this)[0].defaultInitialValue = rawValue;
+            getStores(this)[0].defaultInitialContent = rawValue;
 
             await render(this);
 
@@ -358,7 +370,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
         if (editor === 'filesValue') {
           it('fills initial value with an element with known name', async function () {
-            getStores(this)[0].defaultInitialValue = [{
+            getStores(this)[0].defaultInitialContent = [{
               [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
             }];
             const isArchive = dataSpec.type === 'archive';
@@ -373,7 +385,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
           it('fills initial value with an element, that cannot be loaded',
             async function () {
-              getStores(this)[0].defaultInitialValue = [{
+              getStores(this)[0].defaultInitialContent = [{
                 [getFileIdFieldName(dataSpec)]: getStoreFileId(dataSpec, 0),
               }];
               mockFileRecord(this, dataSpec, 0, null);

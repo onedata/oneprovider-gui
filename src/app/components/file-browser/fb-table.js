@@ -19,10 +19,9 @@ import { inject as service } from '@ember/service';
 import ListWatcher from 'onedata-gui-common/utils/list-watcher';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { htmlSafe, camelize } from '@ember/string';
-import { scheduleOnce } from '@ember/runloop';
+import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
-import { next, later } from '@ember/runloop';
 import { resolve, all as allFulfilled, Promise } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -583,7 +582,7 @@ export default Component.extend(I18n, {
    */
   sourceArrayLengthObserver: observer(
     'filesArray.sourceArray.length',
-    function sourceArrayLength() {
+    function sourceArrayLengthObserver() {
       scheduleOnce('afterRender', () => {
         const listWatcher = this.get('listWatcher');
         if (listWatcher) {
@@ -866,6 +865,7 @@ export default Component.extend(I18n, {
           if (this.get('isDestroyed')) {
             return;
           }
+
           const $dataRows = this.$('.data-row');
           // a strange bug - despite of checking if component is destroyed and scheduling
           // afterRender sometimes this.$() returns null or undefined

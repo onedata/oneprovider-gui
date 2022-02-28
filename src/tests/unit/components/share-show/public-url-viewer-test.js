@@ -36,6 +36,7 @@ describe('Unit | Component | share show/public url viewer', function () {
     needs: [
       'service:i18n',
       'service:rest-api-generator',
+      'service:onedata-connection',
       'locale:en/translations',
       'util:i18n/missing-message',
       'util:i18n/compile-template',

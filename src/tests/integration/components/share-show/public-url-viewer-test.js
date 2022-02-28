@@ -79,7 +79,7 @@ describe('Integration | Component | share show/public url viewer', function () {
           selectedUrlType: 'handle',
         });
 
-        render(this);
+        await render(this);
         await clickTrigger('.col-key');
 
         const $options = $('li.ember-power-select-option');
@@ -107,7 +107,7 @@ describe('Integration | Component | share show/public url viewer', function () {
 
       it('renders "share", "handle" and "rest" url options in selector if handle resolves but handle service rejects',
         async function (done) {
-          render(this);
+          await render(this);
           await clickTrigger('.col-key');
 
           const $options = $('li.ember-power-select-option');
@@ -124,7 +124,7 @@ describe('Integration | Component | share show/public url viewer', function () {
       async function (done) {
         this.set('selectedUrlType', 'handle');
 
-        render(this);
+        await render(this);
         await wait();
 
         expect($('.input-handle-service-name'), 'handle service name').to.exist;
@@ -148,7 +148,7 @@ describe('Integration | Component | share show/public url viewer', function () {
           selectedUrlType: 'handle',
         });
 
-        render(this);
+        await render(this);
         await clickTrigger('.col-key');
 
         expect($('.input-handle-service-name'), 'handle service name').to.not.exist;
@@ -191,7 +191,7 @@ describe('Integration | Component | share show/public url viewer', function () {
       it('does not render handle service name, but only icon', async function (done) {
         this.set('selectedUrlType', 'handle');
 
-        render(this);
+        await render(this);
         await wait();
 
         expect($('.input-handle-service-name'), 'handle service name').to.not.exist;
@@ -200,7 +200,7 @@ describe('Integration | Component | share show/public url viewer', function () {
       });
 
       it('renders handle, share and rest url options in selector', async function (done) {
-        render(this);
+        await render(this);
 
         await click('.url-type-selector-trigger');
 
@@ -217,7 +217,7 @@ describe('Integration | Component | share show/public url viewer', function () {
             handle: promiseObject(reject()),
           });
 
-          render(this);
+          await render(this);
           await click('.url-type-selector-trigger');
 
           const $options = $('.compact-url-type-selector-actions li');
@@ -237,7 +237,7 @@ describe('Integration | Component | share show/public url viewer', function () {
       testChangeSelectedUrlTypeCompact('rest');
 
       it('renders share and rest url options in selector', async function (done) {
-        render(this);
+        await render(this);
 
         await click('.url-type-selector-trigger');
 
@@ -253,7 +253,7 @@ function testClipboardInput(type, evaluateValue) {
   it(`renders ${type} url in clipboard line if ${type} type is selected`, async function (done) {
     this.set('selectedUrlType', type);
 
-    render(this);
+    await render(this);
     await wait();
 
     const $input = this.$('.clipboard-line-public-url-input');
@@ -265,7 +265,7 @@ function testClipboardInput(type, evaluateValue) {
 
 function testChangeSelectedUrlTypeCompact(type) {
   it(`changes selectedUrlType to ${type} after selecting it from compact selector`, async function (done) {
-    render(this);
+    await render(this);
     await click('.url-type-selector-trigger');
     await click(`.option-${type}-link`);
 
@@ -277,7 +277,7 @@ function testChangeSelectedUrlTypeCompact(type) {
 
 function testChangeSelectedUrlTypePowerSelect(type) {
   it(`changes selectedUrlType to ${type} after selecting it from selector`, async function (done) {
-    render(this);
+    await render(this);
     await selectChoose('.col-key', urlTypeTranslations[type]);
 
     expect(this.$(`.public-url-viewer-${type}`), `.public-url-viewer-${type}`).to.exist;
@@ -311,7 +311,7 @@ function testShowsUrlTypeInformationInPopover(type, informationOptions = {}) {
   it(`opens popover with information about "${type}" URL ${suffix}`, async function (done) {
     this.set('selectedUrlType', type);
 
-    render(this);
+    await render(this);
     await wait();
     await click('.url-type-info-trigger');
 
@@ -322,7 +322,7 @@ function testShowsUrlTypeInformationInPopover(type, informationOptions = {}) {
   });
 }
 
-function render(testCase) {
+async function render(testCase) {
   testCase.render(hbs `{{share-show/public-url-viewer
     share=share
     compact=compact
@@ -330,6 +330,7 @@ function render(testCase) {
     selectedUrlType=selectedUrlType
     changeSelectedUrlType=(action (mut selectedUrlType))
   }}`);
+  await wait();
 }
 
 function checkUrlTypeOptions($options, urlTypes) {

@@ -19,9 +19,12 @@ describe('Integration | Utility | archive recall state watcher', function () {
   });
 
   afterEach(function () {
-    this.clock.restore();
-    if (this.watcher) {
-      this.watcher.destroy();
+    try {
+      if (this.watcher) {
+        this.watcher.destroy();
+      }
+    } finally {
+      this.clock.restore();
     }
   });
 
