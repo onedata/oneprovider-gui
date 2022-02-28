@@ -98,7 +98,7 @@ export default BaseBrowserModel.extend(I18n, {
   /**
    * @override
    */
-  mobileInfoComponentName: 'dataset-browser/table-row-mobile-info',
+  mobileSecondaryInfoComponentName: 'dataset-browser/table-row-mobile-secondary-info',
 
   /**
    * @override

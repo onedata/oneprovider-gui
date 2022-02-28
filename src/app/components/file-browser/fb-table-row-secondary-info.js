@@ -1,7 +1,7 @@
 /**
  * Base class for secondary text container displayed under main item name with "secondary"
  * style.
- * Used only in desktop browser mode! In mobile mode, `table-row-mobile-info` will be
+ * Used only in desktop browser mode! In mobile mode, `table-row-mobile-secondary-info` will be
  * displayed in second line.
  *
  * @module components/file-browser/fb-table-row-secondary-info

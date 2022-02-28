@@ -213,7 +213,7 @@ export default Component.extend(I18n, FastDoubleClick, {
     raw('file-browser/fb-table-row-status-bar')
   ),
 
-  mobileInfoComponentName: reads('browserModel.mobileInfoComponentName'),
+  mobileSecondaryInfoComponentName: reads('browserModel.mobileSecondaryInfoComponentName'),
 
   secondaryInfoComponentName: reads('browserModel.secondaryInfoComponentName'),
 
@@ -222,11 +222,11 @@ export default Component.extend(I18n, FastDoubleClick, {
     raw('file-browser/fb-table-row-columns')
   ),
 
-  showSecondaryInfo: and(not('showMobileInfo'), 'secondaryInfoComponentName'),
+  showSecondaryInfo: and(not('showMobileSecondaryInfo'), 'secondaryInfoComponentName'),
 
-  showMobileInfo: and('media.isMobile', 'mobileInfoComponentName'),
+  showMobileSecondaryInfo: and('media.isMobile', 'mobileSecondaryInfoComponentName'),
 
-  multilineInfo: or('showSecondaryInfo', 'showMobileInfo'),
+  multilineInfo: or('showSecondaryInfo', 'showMobileSecondaryInfo'),
 
   isInvalidated: not('file.type'),
 

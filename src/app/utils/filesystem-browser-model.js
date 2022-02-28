@@ -192,7 +192,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  mobileInfoComponentName: 'filesystem-browser/table-row-mobile-info',
+  mobileSecondaryInfoComponentName: 'filesystem-browser/table-row-mobile-secondary-info',
 
   /**
    * @override

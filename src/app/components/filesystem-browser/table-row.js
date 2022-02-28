@@ -2,7 +2,7 @@
  * Implementation of table row for filesystem-browser. Represents single file, directory
  * or symlink.
  *
- * @module components/filesystem-browser/table-row-mobile-info
+ * @module components/filesystem-browser/table-row-mobile-secondary-info
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
