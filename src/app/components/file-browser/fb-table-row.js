@@ -226,7 +226,7 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   showMobileInfo: and('media.isMobile', 'mobileInfoComponentName'),
 
-  mulitlineInfo: or('showSecondaryInfo', 'showMobileInfo'),
+  multilineInfo: or('showSecondaryInfo', 'showMobileInfo'),
 
   isInvalidated: not('file.type'),
 
