@@ -25,4 +25,10 @@
       bottom: 0;
     }
   }
+  @media (max-width: 450px) {
+    .file-info-mobile-created {
+      display: none;
+    }
+  }
+
 }

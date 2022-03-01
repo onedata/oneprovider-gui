@@ -117,7 +117,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  mobileInfoComponentName: 'archive-browser/table-row-mobile-info',
+  mobileSecondaryInfoComponentName: 'archive-browser/table-row-mobile-secondary-info',
 
   /**
    * @override

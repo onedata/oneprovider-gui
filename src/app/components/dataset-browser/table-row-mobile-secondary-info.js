@@ -1,22 +1,22 @@
 /**
  * Implementation of mobile table row part for dataset-browser.
  *
- * @module components/dataset-browser/table-row-mobile-info
+ * @module components/dataset-browser/table-row-mobile-secondary-info
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import FbTableRowMobileInfo from 'oneprovider-gui/components/file-browser/fb-table-row-mobile-info';
+import FbTableRowMobileSecondaryInfo from 'oneprovider-gui/components/file-browser/fb-table-row-mobile-secondary-info';
 import { computed } from '@ember/object';
 
-export default FbTableRowMobileInfo.extend({
-  classNames: ['dataset-table-row-mobile-info'],
+export default FbTableRowMobileSecondaryInfo.extend({
+  classNames: ['dataset-table-row-mobile-secondary-info'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.datasetBrowser.tableRowMobileInfo',
+  i18nPrefix: 'components.datasetBrowser.tableRowMobileSecondaryInfo',
 
   /**
    * @type {ComputedProperty<SafeString>}

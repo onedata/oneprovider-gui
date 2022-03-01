@@ -93,7 +93,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @virtual
    * @type {String}
    */
-  mobileInfoComponentName: '',
+  mobileSecondaryInfoComponentName: '',
 
   /**
    * @virtual
