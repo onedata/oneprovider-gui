@@ -14,6 +14,7 @@ import resolveFilePath from 'oneprovider-gui/utils/resolve-file-path';
 import { isArray } from '@ember/array';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import { inject as service } from '@ember/service';
+import { all as allFulfilled } from 'rsvp';
 
 export const oneArchivesRootDirName = '.__onedata__archive';
 
@@ -26,6 +27,7 @@ export const archiveDirPathPosition = 3;
 export default EmberObject.extend(OwnerInjector, {
   datasetManager: service(),
   archiveManager: service(),
+  appProxy: service(),
 
   /**
    * @virtual
@@ -160,6 +162,101 @@ export default EmberObject.extend(OwnerInjector, {
       }
 
       return this.get('datasetManager').getDataset(datasetId);
+    }
+  )),
+
+  browsableArchiveProxy: promise.object(computed(
+    'archiveProxy',
+    async function browsableArchiveProxy() {
+      const {
+        archiveProxy,
+        archiveManager,
+      } = this.getProperties(
+        'archiveProxy',
+        'archiveManager',
+      );
+      const archive = await archiveProxy;
+      if (archive) {
+        return archiveManager.getBrowsableArchive(archive);
+      } else {
+        return null;
+      }
+    }
+  )),
+
+  browsableDatasetProxy: promise.object(computed(
+    'datasetProxy',
+    async function browsableDatasetProxy() {
+      const {
+        datasetProxy,
+        datasetManager,
+      } = this.getProperties(
+        'datasetProxy',
+        'datasetManager',
+      );
+      const dataset = await datasetProxy;
+      if (dataset) {
+        return datasetManager.getBrowsableDataset(dataset);
+      } else {
+        return null;
+      }
+    }
+  )),
+
+  datasetUrlProxy: promise.object(computed(
+    'datasetProxy',
+    async function datasetUrlProxy() {
+      const {
+        datasetProxy,
+        appProxy,
+      } = this.getProperties('datasetProxy', 'appProxy');
+
+      const dataset = await datasetProxy;
+      if (!dataset) {
+        return null;
+      }
+
+      const datasetId = get(dataset, 'entityId');
+      if (!datasetId) {
+        return null;
+      }
+
+      return appProxy.callParent('getDatasetsUrl', {
+        archive: null,
+        dir: null,
+        selectedDatasets: [datasetId],
+      });
+    }
+  )),
+
+  archiveUrlProxy: promise.object(computed(
+    'archiveProxy',
+    'datasetProxy',
+    async function archiveUrlProxy() {
+      const {
+        archiveProxy,
+        datasetProxy,
+        appProxy,
+      } = this.getProperties('archiveProxy', 'datasetProxy', 'appProxy');
+
+      const [archive, dataset] = await allFulfilled([archiveProxy, datasetProxy]);
+      if (!archive) {
+        return null;
+      }
+
+      const archiveId = get(archive, 'entityId');
+      const datasetId = dataset && get(dataset, 'entityId');
+
+      if (!archiveId) {
+        return null;
+      }
+
+      return appProxy.callParent('getDatasetsUrl', {
+        archive: null,
+        dir: null,
+        selectedArchives: [archiveId],
+        selectedDatasets: datasetId ? [datasetId] : null,
+      });
     }
   )),
 

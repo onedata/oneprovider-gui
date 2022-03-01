@@ -48,13 +48,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   /**
    * @virtual
    * @type {Function}
-   * @param {Object} dir file-like object
-   */
-  onChangeDir: notImplementedIgnore,
-
-  /**
-   * @virtual
-   * @type {Function}
    */
   onInsertElement: notImplementedIgnore,
 
@@ -93,7 +86,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @virtual
    * @type {String}
    */
-  mobileInfoComponentName: '',
+  mobileSecondaryInfoComponentName: '',
 
   /**
    * @virtual
@@ -260,6 +253,18 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   init() {
     this._super(...arguments);
     this.generateAllButtonsArray();
+  },
+
+  /**
+   * @param {Object} dir file-like object
+   * @param {Function} updateBrowserDir A standard procedure of file
+   *   browser that must be invoked to really change the dir in browser.
+   *   If you want to stop opening dir in real browser, do not invoke this callback.
+   *   The first argument if dir to be effectively opened - if you invoke the function
+   *   without arguments it will open `dir` by default.
+   */
+  async onChangeDir(dir, updateBrowserDir) {
+    return await updateBrowserDir(dir);
   },
 
   refresh() {

@@ -24,6 +24,7 @@ import DownloadInBrowser from 'oneprovider-gui/mixins/download-in-browser';
 import recordIcon from 'onedata-gui-common/utils/record-icon';
 import { array, raw, and } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 const buttonNames = Object.freeze([
   'btnBagitUpload',
@@ -167,6 +168,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   openWorkflowRunView: notImplementedThrow,
 
   /**
+   * Close all opened modals that overlays browser view.
+   * Should be used only for main file browser (not opened in modal).
+   * @virtual optional
+   * @type {Function}
+   */
+  closeAllModals: notImplementedIgnore,
+
+  /**
    * File features displayed in status bar - see `component:file-browser/file-features`
    * `features` property.
    * @virtual optional
@@ -192,7 +201,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  mobileInfoComponentName: 'filesystem-browser/table-row-mobile-info',
+  mobileSecondaryInfoComponentName: 'filesystem-browser/table-row-mobile-secondary-info',
 
   /**
    * @override
@@ -1003,10 +1012,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  onChangeDir(dir) {
+  async onChangeDir(targetDir, updateBrowserDir) {
+    await updateBrowserDir(targetDir);
     // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
     // if using selector inside filesystem browser
-    this.get('uploadManager').changeTargetDirectory(dir);
+    this.get('uploadManager').changeTargetDirectory(targetDir);
   },
 
   /**
@@ -1082,6 +1092,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     return actions;
   },
 
+  /**
+   * @param {Array<Models.File>} files
+   * @returns {Promise}
+   */
   downloadFiles(files) {
     const fileIds = files.mapBy('entityId');
     return this.downloadFilesById(fileIds);

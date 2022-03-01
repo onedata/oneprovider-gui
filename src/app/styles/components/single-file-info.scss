@@ -2,7 +2,7 @@
   display: flex;
   align-items: flex-start;
   margin-top: 20px;
-  
+
   .single-file-info-icon {
     font-size: 48px;
     // pull up, because of top margin inside icon
@@ -16,6 +16,11 @@
     }
     .row-single-file-info-file-name {
       padding-bottom: 6px;
+    }
+  }
+  .single-file-info-file-link {
+    .path-label.path-item-last {
+      @include font-semibold;
     }
   }
 }

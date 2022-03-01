@@ -1,0 +1,46 @@
+{{#global-modal
+  classNames="external-symlink-global-modal"
+  modalId=modalId
+  as |modal|
+}}
+  {{#modal.header}}
+    <h1>
+      <span class="one-label">{{tt this "header"}}</span>
+    </h1>
+  {{/modal.header}}
+
+  {{#modal.body}}
+    <p class="text">
+      {{tt this "textBeforeSymlink"}}
+      <span class="symlink-name">{{symlinkFile.name}}</span>
+      {{tt this "textAfterSymlink"
+        fileType=(tt this (concat "fileType." effFileType))
+        currentContextText=(tt this (concat "currentContextText." currentContextType))
+      }}
+    </p>
+    {{single-file-info
+      file=effFile
+      showArchiveInfo=true
+      nameDisplayMode="link"
+      onLinkClicked=(action "fileLinkClicked")
+    }}
+    {{yield}}
+  {{/modal.body}}
+
+  {{#modal.footer class="btn-toolbar"}}
+    {{#one-button
+      type="default"
+      class="btn-cancel"
+      onClick=modal.close
+    }}
+      {{tt this "cancel"}}
+    {{/one-button}}
+    {{#one-button
+      type="primary"
+      class="btn-open"
+      onClick=(action "open")
+    }}
+      {{tt this (concat "openBtn." effFileType)}}
+    {{/one-button}}
+  {{/modal.footer}}
+{{/global-modal}}

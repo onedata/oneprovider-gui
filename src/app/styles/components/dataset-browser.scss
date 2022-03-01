@@ -22,4 +22,19 @@
     display: inline-block;
     min-width: 2em;
   }
+  .dataset-table-row-secondary-info {
+    .dataset-info-secondary-file-path {
+      text-align: left;
+      direction: rtl;
+      // must be specified to fix "/" characters to be rendered on right
+      .dataset-info-secondary-file-path-internal {
+        unicode-bidi: plaintext;
+      }
+    }
+  }
+  @media (max-width: 380px) {
+    .file-info-mobile-created {
+      display: none;
+    }
+  }
 }

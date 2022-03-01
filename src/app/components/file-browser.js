@@ -22,6 +22,7 @@ import { next } from '@ember/runloop';
 import $ from 'jquery';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
+import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
 
 export const actionContext = {
   none: 'none',
@@ -686,14 +687,23 @@ export default Component.extend(I18n, {
       updateDirEntityId,
       containerScrollTop,
       browserModel,
+      loadingIconFileIds,
     } = this.getProperties(
       'updateDirEntityId',
       'containerScrollTop',
       'browserModel',
+      'loadingIconFileIds',
     );
-    await updateDirEntityId(get(dir, 'entityId'));
-    browserModel.onChangeDir(dir);
-    containerScrollTop(0);
+    const dirId = get(dir, 'entityId');
+    loadingIconFileIds.pushObject(dirId);
+    try {
+      await browserModel.onChangeDir(dir, async (effDir = dir) => {
+        await updateDirEntityId(get(effDir, 'entityId'));
+        containerScrollTop(0);
+      });
+    } finally {
+      removeObjectsFirstOccurence(loadingIconFileIds, [dirId]);
+    }
   },
 
   actions: {

@@ -369,6 +369,46 @@ describe('Integration | Component | file path', function () {
     await wait();
     expect(this.$().text()).to.match(/space root\s*\/\s*foo\s*\/\s*bar\s*/);
   });
+
+  it('adds "path-item-last" class to last path item', async function () {
+    const filesChain = createFilesChain([
+      'root',
+      'one',
+      'two',
+      'three',
+    ]);
+    const file = filesChain[filesChain.length - 1];
+    this.setProperties({
+      file,
+    });
+
+    await render(this);
+
+    expect(this.$('.path-item-last.path-separator'), 'separator').to.have.lengthOf(1);
+    expect(this.$('.path-item-last.path-label'), 'label').to.have.lengthOf(1);
+    expect(this.$('.path-item.path-label.path-item-last').text().trim())
+      .to.equal('three');
+  });
+
+  it('adds "path-item-first" class to first path item', async function () {
+    const filesChain = createFilesChain([
+      'root',
+      'one',
+      'two',
+      'three',
+    ]);
+    const file = filesChain[filesChain.length - 1];
+    this.setProperties({
+      file,
+    });
+
+    await render(this);
+
+    expect(this.$('.path-item-first.path-icon-container'), 'icon').to.have.lengthOf(1);
+    expect(this.$('.path-item-first.path-label'), 'label').to.have.lengthOf(1);
+    expect(this.$('.path-item.path-label.path-item-first').text().trim())
+      .to.equal('root');
+  });
 });
 
 async function render(testCase) {

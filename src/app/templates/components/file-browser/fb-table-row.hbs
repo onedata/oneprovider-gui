@@ -11,6 +11,7 @@
       class={{concat-classes 
         "file-info-container file-icon-container" 
         (if infoIconActionName "flip-animated")
+        (if multilineInfo "multiline")
       }}
     >
       {{#if isLoadingOnIcon}}
@@ -40,16 +41,26 @@
       </div>
       <div class="file-item-text">
         <div class="file-item-text-upper">
-          <div class="file-name">
-            {{#truncated-string}}
-              <span class="file-name-inner">
+          <div class="file-info-container">
+            <div class="file-name">
+              {{#truncated-string class="file-name-inner"}}
                 {{!-- NOTE: everything in one line because we avoid space --}}
                 <span class="file-base-name">{{fileNameBase}}</span>{{#if fileNameSuffix}}<span class="file-suffix conflict-label">{{fileNameSuffix}}</span>{{/if}}
                 {{#if fileLoadError}}
                   {{one-tooltip title=fileLoadError.message}}
                 {{/if}}
-              </span>
-            {{/truncated-string}}
+              {{/truncated-string}}
+            </div>
+            {{#if showSecondaryInfo}}
+              {{component secondaryInfoComponentName
+                file=file
+                previewMode=previewMode
+                nameConflict=nameConflict
+                fileRowModel=fileRowModel
+                browserModel=browserModel
+                invokeFileAction=invokeFileAction
+              }}
+            {{/if}}
           </div>
           {{#if statusBarComponentName}}
             {{component statusBarComponentName
@@ -64,11 +75,9 @@
             }}
           {{/if}}
         </div>
-        {{#if (and media.isMobile mobileInfoComponentName)}}
-          {{component mobileInfoComponentName
+        {{#if showMobileSecondaryInfo}}
+          {{component mobileSecondaryInfoComponentName
             file=file
-            previewMode=previewMode
-            nameConflict=nameConflict
             fileRowModel=fileRowModel
             browserModel=browserModel
             invokeFileAction=invokeFileAction

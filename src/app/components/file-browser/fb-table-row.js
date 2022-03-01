@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { reads, not } from '@ember/object/computed';
-import { raw, conditional, isEmpty, or } from 'ember-awesome-macros';
+import { raw, conditional, isEmpty, or, and } from 'ember-awesome-macros';
 import { get, computed, getProperties, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { later, cancel, scheduleOnce } from '@ember/runloop';
@@ -213,10 +213,9 @@ export default Component.extend(I18n, FastDoubleClick, {
     raw('file-browser/fb-table-row-status-bar')
   ),
 
-  mobileInfoComponentName: or(
-    'browserModel.mobileInfoComponentName',
-    raw('file-browser/fb-table-row-mobile-info')
-  ),
+  mobileSecondaryInfoComponentName: reads('browserModel.mobileSecondaryInfoComponentName'),
+
+  secondaryInfoComponentName: reads('browserModel.secondaryInfoComponentName'),
 
   columnsComponentName: or(
     'browserModel.columnsComponentName',
@@ -239,6 +238,11 @@ export default Component.extend(I18n, FastDoubleClick, {
       }
     }
   ),
+  showSecondaryInfo: and(not('showMobileSecondaryInfo'), 'secondaryInfoComponentName'),
+
+  showMobileSecondaryInfo: and('media.isMobile', 'mobileSecondaryInfoComponentName'),
+
+  multilineInfo: or('showSecondaryInfo', 'showMobileSecondaryInfo'),
 
   isInvalidated: not('file.type'),
 

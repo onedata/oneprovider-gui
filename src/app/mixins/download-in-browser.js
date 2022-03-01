@@ -29,6 +29,10 @@ export default Mixin.create({
 
   downloadScope: conditional('previewMode', raw('public'), raw('private')),
 
+  /**
+   * @param {Array<string>} fileIds
+   * @returns {Promise}
+   */
   downloadFilesById(fileIds) {
     const {
       fileManager,

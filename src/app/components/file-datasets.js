@@ -71,6 +71,12 @@ export default Component.extend(I18n, {
   getDatasetsUrl: notImplementedIgnore,
 
   /**
+   * @virtual optional
+   * @type {Function}
+   */
+  onCloseAllModals: notImplementedIgnore,
+
+  /**
    * @virtual
    * @type {Array<Models.File>}
    */

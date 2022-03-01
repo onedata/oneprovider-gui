@@ -208,7 +208,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   archiveContainerLowHeight: false,
 
-  ignoreCommonSelector: '#content-scroll, .modal.in',
+  ignoreCommonSelector: '#content-scroll, .modal',
 
   /**
    * Ignore deselect selector for dataset browser.
