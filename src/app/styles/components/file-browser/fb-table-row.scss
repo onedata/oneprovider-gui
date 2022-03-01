@@ -44,9 +44,9 @@
     vertical-align: middle;
     .file-info-container {
       display: flex;
-      align-items: center;
       .inline-icon-container-file {
         transform: translateY(-50%) translateY(-8px);
+        align-self: center;
       }
       .inline-icon-container-file, .spinner-container {
         transition-property: opacity;
