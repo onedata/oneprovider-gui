@@ -1,10 +1,49 @@
 {{one-icon icon=fileIcon class="single-file-info-icon single-browsable-item-icon"}}
 <div class="single-file-info-text">
-  <div class="row row-single-file-info-file-name">
-    {{#truncated-string class="single-file-info-file-name"}}
-      {{file-name-conflict file=file}}
-    {{/truncated-string}}
-  </div>
+  {{#if (eq nameDisplayMode "name")}}
+    <div class="row row-single-file-info-file-name">
+      {{#truncated-string class="single-file-info-file-name"}}
+        {{file-name-conflict file=file}}
+      {{/truncated-string}}
+    </div>
+  {{else if (eq nameDisplayMode "link")}}
+    <div class="row row-single-file-info-file-link">
+      {{file-path
+        class="single-file-info-file-link"
+        file=file
+        onLinkClicked=(action "linkClicked")
+        onLinkKeydown=(action "linkClicked")
+      }}
+    </div>
+  {{/if}}
+  {{#if (and showArchiveInfo archiveInfo)}}
+    <div class="row row-additional-file-info small">
+      <span class="single-file-info-label">
+        {{tt this "dataset"}}:
+      </span>
+      <a
+        class="dataset-link navy underlined"
+        href={{archiveInfo.datasetUrl}}
+        target={{navigateTarget}}
+        onclick={{action "linkClicked"}}
+      >
+        {{archiveInfo.dataset.name}}
+      </a>
+    </div>
+    <div class="row row-additional-file-info small">
+      <span class="single-file-info-label">
+        {{tt this "archive"}}:
+      </span>
+      <a
+        class="archive-link navy underlined"
+        href={{archiveInfo.archiveUrl}}
+        target={{navigateTarget}}
+        onclick={{action "linkClicked"}}
+      >
+        {{archiveInfo.archive.name}}
+      </a>
+    </div>
+  {{/if}}
   {{#if (eq file.type "file")}}
     <div class="row row-additional-file-info small">
       <span class="single-file-info-label">

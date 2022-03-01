@@ -261,6 +261,10 @@ export default OneEmbeddedComponent.extend(
       this.get('uploadManager').changeTargetSpace(this.get('spaceProxy.content'));
     }),
 
+    dirObserver: observer('dir', function dirObserver() {
+      this.closeAllModals();
+    }),
+
     spaceEntityIdObserver: observer('spaceEntityId', function spaceEntityIdObserver() {
       this.closeAllModals();
       this.clearFilesSelection();
@@ -293,6 +297,7 @@ export default OneEmbeddedComponent.extend(
         openQos: this.openQosModal.bind(this),
         openConfirmDownload: this.openConfirmDownload.bind(this),
         openWorkflowRunView: this.openWorkflowRunView.bind(this),
+        closeAllModals: this.closeAllModals.bind(this),
       });
     },
 
@@ -497,6 +502,7 @@ export default OneEmbeddedComponent.extend(
       this.closeEditPermissionsModal();
       this.closeFileDistributionModal();
       this.closeQosModal();
+      this.closeDatasetsModal();
     },
 
     clearFilesSelection() {
@@ -555,6 +561,9 @@ export default OneEmbeddedComponent.extend(
           .finally(() => {
             safeExec(this, 'set', 'fileForConfirmDownload', null);
           });
+      },
+      closeAllModals() {
+        this.closeAllModals();
       },
     },
   }

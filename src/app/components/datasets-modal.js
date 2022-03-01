@@ -1,6 +1,6 @@
 /**
  * Modal for viewing and editing dataset settings for file/directory
- * 
+ *
  * @module components/datasets-modal
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
@@ -57,15 +57,25 @@ export default Component.extend(I18n, {
    */
   getDatasetsUrl: notImplementedIgnore,
 
+  /**
+   * @virtual optional
+   * @type {Function}
+   */
+  onCloseAllModals: notImplementedIgnore,
+
   modalId: computed(function modalId() {
     return `${guidFor(this)}-items-select-browser-modal`;
   }),
 
   parentModalDialogSelector: tag `#${'modalId'} > .modal-dialog`,
 
+  hide() {
+    this.get('onHide')();
+  },
+
   actions: {
-    onHide() {
-      this.get('onHide')();
+    hide() {
+      this.hide();
     },
   },
 });
