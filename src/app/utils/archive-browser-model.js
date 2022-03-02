@@ -455,6 +455,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     this.set('refreshLooper', refreshLooper);
   },
 
+  /**
+   * @override
+   */
   destroy() {
     try {
       const refreshLooper = this.get('refreshLooper');
@@ -464,7 +467,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     } finally {
       this._super(...arguments);
     }
+  },
 
+  /**
+   * @override
+   */
+  isItemDisabled(item) {
+    return item && get(item, 'metaState') === 'destroying';
   },
 
   refreshList() {
