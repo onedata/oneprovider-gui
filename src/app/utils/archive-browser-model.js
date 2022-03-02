@@ -179,6 +179,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   isAnySelectedPurging: array.isAny('selectedItems', raw('state'), raw('purging')),
 
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isAnySelectedCreating: array.isAny(
+    'selectedItems',
+    raw('metaState'),
+    raw('creating')
+  ),
+
   selectedArchiveHasDip: and(
     equal('selectedItems.length', raw(1)),
     'selectedItems.0.config.includeDip'
@@ -205,10 +214,15 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   btnDownloadTar: computed(
+    'isAnySelectedCreating',
     function btnDownloadTar() {
+      const disabledTip = this.get('isAnySelectedCreating') ?
+        this.t('notAvailableForCreating') : null;
       return this.createFileAction({
         id: 'downloadTar',
         icon: 'browser-download',
+        tip: disabledTip,
+        disabled: Boolean(disabledTip),
         action: (archives) => {
           return this.downloadArchives(archives);
         },
@@ -289,18 +303,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'dataset',
     'attachmentState',
     'spacePrivileges.{manageDatasets,createArchives}',
+    'isAnySelectedCreating',
     function btnCreateArchive() {
       const {
         spacePrivileges,
         attachmentState,
+        isAnySelectedCreating,
         i18n,
       } = this.getProperties(
         'spacePrivileges',
         'attachmentState',
+        'isAnySelectedCreating',
         'i18n',
       );
       let disabledTip;
-      if (attachmentState === 'detached') {
+      if (isAnySelectedCreating) {
+        disabledTip = this.t('notAvailableForCreating');
+      } else if (attachmentState === 'detached') {
         disabledTip = this.t('notAvailableForDetached');
       } else {
         const hasPrivileges = spacePrivileges.manageDatasets &&
@@ -334,18 +353,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnRecall: computed(
     'spacePrivileges.recallArchives',
+    'isAnySelectedCreating',
     function btnPurge() {
       const {
+        isAnySelectedCreating,
         spacePrivileges,
         i18n,
       } =
       this.getProperties(
+        'isAnySelectedCreating',
         'spacePrivileges',
         'i18n',
       );
       const hasPrivileges = spacePrivileges.recallArchives && spacePrivileges.writeData;
       let disabledTip;
-      if (!hasPrivileges) {
+      if (isAnySelectedCreating) {
+        disabledTip = this.t('notAvailableForCreating');
+      } else if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
@@ -372,14 +396,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     'areMultipleSelected',
     'isAnySelectedPurging',
     'spacePrivileges.removeArchives',
+    'isAnySelectedCreating',
     function btnPurge() {
       const {
+        isAnySelectedCreating,
         areMultipleSelected,
         isAnySelectedPurging,
         spacePrivileges,
         i18n,
       } =
       this.getProperties(
+        'isAnySelectedCreating',
         'areMultipleSelected',
         'isAnySelectedPurging',
         'spacePrivileges',
@@ -387,7 +414,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       );
       const hasPrivileges = spacePrivileges.removeArchives;
       let disabledTip;
-      if (!hasPrivileges) {
+      if (isAnySelectedCreating) {
+        disabledTip = this.t('notAvailableForCreating');
+      } else if (!hasPrivileges) {
         disabledTip = insufficientPrivilegesMessage({
           i18n,
           modelName: 'space',
