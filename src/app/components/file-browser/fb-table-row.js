@@ -223,7 +223,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   ),
 
   /**
-   * @type {ComputedProperty<String|undefined|null>}
+   * @type {ComputedProperty<String|null>}
    */
   infoIconActionName: computed(
     'isMobile.any',

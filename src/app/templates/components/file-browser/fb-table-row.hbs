@@ -6,39 +6,42 @@
     }}
   </td>
 {{else}}
-  <td class="fb-table-col-files">
+  <td class={{concat-classes "fb-table-col-files" (if multilineInfo "multiline")}}>
     <div
       class={{concat-classes 
         "file-info-container file-icon-container" 
         (if infoIconActionName "flip-animated")
-        (if multilineInfo "multiline")
       }}
     >
       {{#if isLoadingOnIcon}}
         {{spin-spinner-block
           sizeClass="xs"
-          class="on-icon-loading-spinner absolute-middle-centered"
+          class="on-icon-loading-spinner"
         }}
-      {{/if}}
-      <div
-        class="inline-icon-container inline-icon-container-file"
-        onclick={{if infoIconActionName (action "invokeFileAction" file infoIconActionName)}}
-      >
-        {{#one-icon-tagged
-          class=(concat-classes "tag-right flippable-front" iconTaggedClass)
-          icon=icon
-          iconClass="file-icon"
-          tagIcon=iconTag
-          shadowType=(if iconTag "circle" "none")
-        }}
-          {{#if iconTip}}
-            {{one-tooltip title=iconTip}}
+      {{else}}
+        <div
+          class="inline-icon-container inline-icon-container-file"
+          onclick={{if infoIconActionName 
+            (action "invokeFileAction" file infoIconActionName)
+          }}
+          style={{if infoIconActionName "cursor: pointer" "cursor: default"}}
+        >
+          {{#one-icon-tagged
+            class=(concat-classes "tag-right flippable-front" iconTaggedClass)
+            icon=icon
+            iconClass="file-icon"
+            tagIcon=iconTag
+            shadowType=(if iconTag "circle" "none")
+          }}
+            {{#if iconTip}}
+              {{one-tooltip title=iconTip}}
+            {{/if}}
+          {{/one-icon-tagged}}
+          {{#if infoIconActionName}}
+            {{one-icon icon="browser-info" class="flippable-back"}}
           {{/if}}
-        {{/one-icon-tagged}}
-        {{#if infoIconActionName}}
-          {{one-icon icon="browser-info" class="flippable-back"}}
-        {{/if}}
-      </div>
+        </div>
+      {{/if}}
       <div class="file-item-text">
         <div class="file-item-text-upper">
           <div class="file-info-container">

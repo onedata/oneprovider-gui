@@ -31,7 +31,6 @@
         .inline-icon-container {
           &.inline-icon-container-file {
             transform: rotateY(180deg) translateY(-50%) translateY(-8px);
-            cursor: pointer;
           }
         }
       }
@@ -81,6 +80,7 @@
       }
       .spinner-container {
         opacity: 0;
+        align-self: center;
       }
       .file-item-text {
         width: 100%;
