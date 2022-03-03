@@ -14,10 +14,12 @@
       }}
     >
       {{#if isLoadingOnIcon}}
-        {{spin-spinner-block
-          sizeClass="xs"
-          class="on-icon-loading-spinner"
-        }}
+        <div class="inline-icon-container">
+          {{spin-spinner-block
+            sizeClass="xs"
+            class="on-icon-loading-spinner"
+          }}
+        </div>
       {{else}}
         <div
           class="inline-icon-container inline-icon-container-file"

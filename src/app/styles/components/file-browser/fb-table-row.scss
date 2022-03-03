@@ -45,6 +45,8 @@
       display: flex;
       .inline-icon-container-file {
         transform: translateY(-50%) translateY(-8px);
+      }
+      .inline-icon-container {
         align-self: center;
       }
       .inline-icon-container-file, .spinner-container {
@@ -80,7 +82,8 @@
       }
       .spinner-container {
         opacity: 0;
-        align-self: center;
+        transform: translateY(-5px);
+        min-width: 2em;
       }
       .file-item-text {
         width: 100%;
