@@ -181,7 +181,9 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
 
   init() {
     this._super(...arguments);
-    this.set('areChartsVisible', this.get('areChartsInitiallyVisible'));
+    if (this.get('areChartsInitiallyVisible')) {
+      this.showCharts();
+    }
   },
 
   /**
@@ -189,6 +191,25 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
    */
   fetchQosEvaluation() {
     return this.get('evaluateQosExpression')(this.get('rawExpressionInfix'));
+  },
+
+  showCharts() {
+    this.setProperties({
+      isChartsSectionExpanded: true,
+      areChartsRendered: true,
+    });
+  },
+
+  hideCharts() {
+    this.set('isChartsSectionExpanded', false);
+  },
+
+  toggleCharts() {
+    if (this.get('isChartsSectionExpanded')) {
+      this.hideCharts();
+    } else {
+      this.showCharts();
+    }
   },
 
   actions: {
@@ -205,8 +226,11 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
       }
       event.stopPropagation();
     },
-    showCharts() {
-      this.set('areChartsVisible', true);
+    toggleCharts() {
+      this.toggleCharts();
+    },
+    chartsHidden() {
+      this.set('areChartsRendered', false);
     },
   },
 });
