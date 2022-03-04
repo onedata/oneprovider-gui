@@ -21,6 +21,7 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-table-row';
+import { htmlSafe } from '@ember/string';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -42,7 +43,7 @@ export default Component.extend(I18n, FastDoubleClick, {
   attributeBindings: ['fileEntityId:data-row-id'],
 
   errorExtractor: service(),
-  media: service(),
+  isMobile: service(),
   currentUser: service(),
   i18n: service(),
 
@@ -222,6 +223,22 @@ export default Component.extend(I18n, FastDoubleClick, {
     raw('file-browser/fb-table-row-columns')
   ),
 
+  /**
+   * @type {ComputedProperty<String|null>}
+   */
+  infoIconActionName: computed(
+    'isMobile.any',
+    'browserModel.infoIconActionName',
+    function infoIconActionName() {
+      const isMobile = this.get('isMobile.any');
+      const actionName = this.get('browserModel.infoIconActionName');
+      if (isMobile) {
+        return null;
+      } else {
+        return actionName;
+      }
+    }
+  ),
   showSecondaryInfo: and(not('showMobileSecondaryInfo'), 'secondaryInfoComponentName'),
 
   showMobileSecondaryInfo: and('media.isMobile', 'mobileSecondaryInfoComponentName'),
@@ -276,6 +293,14 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {String}
    */
   icon: 'browser-file',
+
+  /**
+   * @type {SafeString}
+   */
+  cursorStyleForIcon: computed('infoIconActionName', function cursorStyleForIcon() {
+    return this.get('infoIconActionName') ?
+      htmlSafe('cursor: pointer;') : htmlSafe('cursor: default;');
+  }),
 
   hasErrorIconTag: isEmpty('effFileType'),
 

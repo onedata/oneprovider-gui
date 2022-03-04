@@ -25,27 +25,66 @@
       }
     }
   }
+  &:hover {
+    td.fb-table-col-files {
+      .flip-animated {
+        .inline-icon-container {
+          &.inline-icon-container-file {
+            transform: rotateY(180deg) translateY(-50%) translateY(-8px);
+          }
+        }
+      }
+    }
+  }
   .fb-table-secondary-col {
     text-align: center;
   }
   td.fb-table-col-files {
     vertical-align: middle;
     .file-info-container {
+      $min-icon-width: 2em;
       display: flex;
+      .inline-icon-container-file {
+        transform: translateY(-50%) translateY(-8px);
+      }
+      .inline-icon-container {
+        align-self: center;
+      }
+      .inline-icon-container-file, .spinner-container {
+        transition-property: opacity;
+        transition-duration: .25s;
+        transition-timing-function: ease;
+      }
+      &.flip-animated {
+        perspective: 1000px;
+        .inline-icon-container-file {
+          transition: transform 0.5s;
+          transform-style: preserve-3d;
+          // a hack to prevent visibility backface to fix issues in Firefox
+          -moz-backface-visibility: hidden;
+          .flippable-back, .flippable-front {
+            backface-visibility: hidden;
+            // for Safari <= 15.3
+            -webkit-backface-visibility: hidden;
+            transform: rotateX(0deg);
+          }
+          .flippable-back {
+            transform: rotateY(180deg);
+            color: inherit;
+          }
+        }
+      }
       .file-icon-container, .file-item-text {
         position: relative;
-        min-width: 2em;
+        min-width: $min-icon-width;
       }
       .inline-icon-container {
         opacity: 1;
       }
       .spinner-container {
         opacity: 0;
-      }
-      .inline-icon-container-file, .spinner-container {
-        transition-property: opacity;
-        transition-duration: .25s;
-        transition-timing-function: ease;
+        transform: translateY(-5px);
+        min-width: $min-icon-width;
       }
       .file-item-text {
         width: 100%;
@@ -65,23 +104,10 @@
           color: $color-one-danger;
         }
       }
-      .file-icon-container {
+      &.file-icon-container {
         .inline-icon-container-file {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%) translateY(-2px);
-          .one-icon-tagged {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%) translateY(1px);
-            .one-icon-tagged-main {
-              top: initial;
-              left: initial;
-            }
-            .one-icon-tag-icon {
-              transform: none;
-            }
+          .one-icon-tag-icon {
+            transform: none;
           }
         }
       }
