@@ -26,7 +26,7 @@
           onclick={{if infoIconActionName 
             (action "invokeFileAction" file infoIconActionName)
           }}
-          style={{if infoIconActionName "cursor: pointer" "cursor: default"}}
+          style={{cursorStyleForIcon}}
         >
           {{#one-icon-tagged
             class=(concat-classes "tag-right flippable-front" iconTaggedClass)

@@ -21,6 +21,7 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-table-row';
+import { htmlSafe } from '@ember/string';
 
 function isEventFromMenuToggle(event) {
   return event.target.matches('.one-menu-toggle, .one-menu-toggle *');
@@ -292,6 +293,14 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {String}
    */
   icon: 'browser-file',
+
+  /**
+   * @type {SafeString}
+   */
+  cursorStyleForIcon: computed('infoIconActionName', function cursorStyleForIcon() {
+    return this.get('infoIconActionName') ?
+      htmlSafe('cursor: pointer;') : htmlSafe('cursor: default;');
+  }),
 
   hasErrorIconTag: isEmpty('effFileType'),
 
