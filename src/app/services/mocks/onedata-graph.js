@@ -661,7 +661,7 @@ const qosRequirementHandlers = {
     return {
       bytes: ['total'],
       files: ['total'],
-    }
+    };
   },
   time_series_collection(operation, data) {
     if (operation !== 'get') {
@@ -690,7 +690,7 @@ const qosRequirementHandlers = {
       }
     }
     return { windows: result };
-  }
+  },
 };
 
 const metaJson = {

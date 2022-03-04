@@ -17,6 +17,7 @@ import QueryBatcher from 'onedata-gui-common/utils/one-time-series-chart/query-b
 import OTSCConfiguration from 'onedata-gui-common/utils/one-time-series-chart/configuration';
 import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 
 /**
  * @typedef {Object} QosEntryChartTimeResolution
@@ -57,6 +58,11 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
    * @type {number}
    */
   lastTsCollectionsReloadTimestamp: undefined,
+
+  /**
+   * @type {ComputedProperty<Utils.ColorGenerator>}
+   */
+  colorGenerator: computed(() => new ColorGenerator()),
 
   /**
    * @type {ComputedProperty<QosTransferStatsConfig>}
@@ -162,6 +168,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               seriesTemplate: {
                 id: 'totalBytes',
                 name: String(this.t('series.totalBytes')),
+                color: '#4A6089',
                 type: 'line',
                 yAxisId: 'bytesAxis',
                 data: {
@@ -208,6 +215,12 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                   functionName: 'getDynamicSeriesConfigData',
                   functionArguments: {
                     propertyName: 'name',
+                  },
+                },
+                color: {
+                  functionName: 'getDynamicSeriesConfigData',
+                  functionArguments: {
+                    propertyName: 'color',
                   },
                 },
                 type: 'bar',
@@ -300,6 +313,12 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                   functionName: 'getDynamicSeriesConfigData',
                   functionArguments: {
                     propertyName: 'name',
+                  },
+                },
+                color: {
+                  functionName: 'getDynamicSeriesConfigData',
+                  functionArguments: {
+                    propertyName: 'color',
                   },
                 },
                 type: 'line',
@@ -410,13 +429,15 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
 
   /**
    * @param {{ collectionId: string }} sourceParameters
-   * @returns {Promise<Array<{ id: string, name: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
+   * @returns {Promise<Array<{ id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
   async fetchDynamicSeriesConfigs(sourceParameters) {
+    const colorGenerator = this.get('colorGenerator');
     return (await this.fetchStorageSeriesConfigs(sourceParameters.collectionId))
       .map(({ storageId, name }) => ({
         id: storageId,
         name,
+        color: colorGenerator.generateColorForKey(storageId),
         pointsSource: {
           externalSourceName: 'qosEntryData',
           externalSourceParameters: {
