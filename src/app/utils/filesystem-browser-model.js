@@ -184,6 +184,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   fileFeatures: defaultFilesystemFeatures,
 
   /**
+   * If provided, the additional component will be injected inside file-features.
+   * Interface of extenstion component:
+   * - `browserModel: Utils.FilesystemBrowserModel` (or child classes)
+   * - `item: Models.File`
+   * - `displayedState: Object` (see `components/file-browsre/item-features-container`)
+   * @virtual optional
+   * @type {String}
+   */
+  fileFeaturesExtensionComponentName: null,
+
+  /**
    * @override
    */
   rowComponentName: 'filesystem-browser/table-row',
@@ -1085,6 +1096,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       actions = actions.rejectBy('id', 'paste');
     }
     return actions;
+  },
+
+  /**
+   * In some specific file browsers, there is a need to show additional inheritable file
+   * tags (called "features") that need additional data beside standard file data.
+   * This method can be overriden to add additional computed properties to file (by
+   * wrapping it) so item-features-container can read status of these features.
+   * @param {Models.File} item
+   * @returns {Object} a wrapped item with additional feature-properties used by
+   *   specific implementation of item-features-container
+   */
+  featurizeItem(item) {
+    return item;
   },
 
   /**

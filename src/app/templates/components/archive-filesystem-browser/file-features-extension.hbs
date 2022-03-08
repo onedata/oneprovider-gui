@@ -1,0 +1,66 @@
+{{!-- FIXME: tooltip --}}
+
+{{#if displayedState.archiveCreating.isShown}}
+  <div
+    class={{concat-classes
+      "file-status-tag-group archive-creating-file-status-tag-group"
+      (if (eq displayedState.archiveCreating.membership "ancestor")
+        "file-status-tag-group-fully-inherited"
+      )
+    }}
+    onmouseover={{action "changeTagHover" "archiveCreating" true}}
+    onmouseout={{action "changeTagHover" "archiveCreating" false}}
+  >
+    {{!-- FIXME: is style ok? using both inhertied and success, maybe not use inherited: file-status-tag-inherited --}}
+    <div
+      class={{concat-classes
+        "file-status-tag"
+        "file-status-archive-creating"
+        "file-status-tag-warning"
+        (if effArchiveCreatingDisabled "file-status-tag-disabled")
+      }}
+    >
+      <span class="tag-text">{{creatingStateLabel}}</span>
+      {{#if (eq displayedState.archiveCreating.membership "ancestor")}}
+        {{one-icon
+          class="tag-icon archive-creating-inherited-icon inherited-icon"
+          icon=inheritedIcon
+        }}
+      {{/if}}
+    </div>
+  </div>
+{{/if}}
+
+{{#if displayedState.archiveFailed.isShown}}
+  <div
+    class={{concat-classes
+      "file-status-tag-group archive-failed-file-status-tag-group"
+      (if (eq displayedState.archiveFailed.membership "ancestor")
+        "file-status-tag-group-fully-inherited"
+      )
+    }}
+    onmouseover={{action "changeTagHover" "archiveFailed" true}}
+    onmouseout={{action "changeTagHover" "archiveFailed" false}}
+  >
+    {{!-- FIXME: is style ok? using both inhertied and success, maybe not use inherited --}}
+    <div
+      class={{concat-classes
+        "file-status-tag"
+        "file-status-archive-failed"
+        "file-status-tag-danger"
+        (if effArchiveFailedDisabled "file-status-tag-disabled")
+      }}
+    >
+      <span class="tag-text">
+        {{tt this "failed"}}
+      </span>
+      {{#if (eq displayedState.archiveFailed.membership "ancestor")}}
+        {{one-icon
+          class="tag-icon archive-failed-inherited-icon inherited-icon"
+          icon=inheritedIcon
+        }}
+      {{/if}}
+    </div>
+  </div>
+{{/if}}
+{{yield displayedState item}}

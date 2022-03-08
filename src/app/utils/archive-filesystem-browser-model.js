@@ -16,6 +16,7 @@ import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-contex
 import { get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
@@ -86,7 +87,16 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  fileFeatures: _.without(defaultFilesystemFeatures, 'effDatasetMembership'),
+  fileFeaturesExtensionComponentName: 'archive-filesystem-browser/file-features-extension',
+
+  /**
+   * @override
+   */
+  fileFeatures: Object.freeze([
+    ..._.without(defaultFilesystemFeatures, 'effDatasetMembership'),
+    'archiveCreating',
+    'archiveFailed',
+  ]),
 
   /**
    * @type {Utils.ModalManager.ModalInstance}
@@ -142,6 +152,18 @@ export default FilesystemBrowserModel.extend({
       return _super.apply(this, arguments);
     }
   },
+
+  /**
+   * @override
+   */
+  featurizeItem(item) {
+    const archive = this.get('archive');
+    return FileInArchive.create({
+      file: item,
+      archive,
+    });
+  },
+
   async symlinkExternalContext(dirSymlink) {
     const currentDir = this.get('dir');
     const filesViewContextFactory =

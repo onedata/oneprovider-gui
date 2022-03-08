@@ -165,6 +165,8 @@ $file-status-tag-spacing: 6px;
 
 // file rows
 
+// FIXME: refactor
+
 .file-browser.highlight-transition {
   .file-status-tag {
     @include highlight-tag-transition;

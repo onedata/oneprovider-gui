@@ -14,6 +14,16 @@ import { computed } from '@ember/object';
 
 export const entityType = 'op_archive';
 
+export const validArchiveStates = [
+  'pending',
+  'building',
+  'verifying',
+  'preserved',
+  'verification_failed',
+  'failed',
+  'purging',
+];
+
 /**
  * @typedef {'creating'|'succeeded'|'failed'|'destroying'} ArchiveMetaState
  */

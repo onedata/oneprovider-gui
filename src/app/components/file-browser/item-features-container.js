@@ -31,6 +31,12 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.fileBrowser.itemFeaturesContainer',
 
   /**
+   * @virtual
+   * @type {Utils.BaseBrowserModel}
+   */
+  browserModel: undefined,
+
+  /**
    * Names of item's properties that can have following states:
    * `'none'`, `'direct'`, `'ancestor'`, `'directAndAncestor'`.
    * For each "feature", a property is added in yielded `displayedState`.
@@ -64,6 +70,24 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Boolean>}
    */
   hasInheritance: undefined,
+
+  /**
+   * Injected item wrapped by optional browser model method, that adds contextual
+   * features.
+   * @type {ComputedProperty<EmberObject>}
+   */
+  itemWithFeatures: computed(
+    'item',
+    'browserModel',
+    function itemWithFeatures() {
+      const {
+        item,
+        browserModel,
+      } = this.getProperties('item', 'browserModel');
+      return browserModel && browserModel.featurizeItem ?
+        browserModel.featurizeItem(item) : item;
+    }
+  ),
 
   showInhertedTag: and(
     not('expanded'),
@@ -99,12 +123,12 @@ export default Component.extend(I18n, {
         membership: conditional(
           'container.expanded',
           // just the same as source membership - no need to hide anything
-          `container.item.${featureName}`,
+          `container.itemWithFeatures.${featureName}`,
           // hide information about ancestor
           conditional(
             array.includes(
               raw(['direct', 'directAndAncestor']),
-              `container.item.${featureName}`
+              `container.itemWithFeatures.${featureName}`
             ),
             raw('direct'),
             raw('none')
@@ -124,12 +148,15 @@ export default Component.extend(I18n, {
     'features',
     function regenerateComputedHasInheritance() {
       const features = this.get('features');
-      const computedHasInheritance = computed(`item.{${features.join(',')}}`, function hasInheritance() {
-        return features.some(feature => {
-          const membership = this.get(`item.${feature}`);
-          return membership === 'ancestor' || membership === 'directAndAncestor';
-        });
-      });
+      const computedHasInheritance = computed(
+        `itemWithFeatures.{${features.join(',')}}`,
+        function hasInheritance() {
+          return features.some(feature => {
+            const membership = this.get(`itemWithFeatures.${feature}`);
+            return membership === 'ancestor' || membership === 'directAndAncestor';
+          });
+        }
+      );
       this.hasInheritance = computedHasInheritance;
     }
   ),
