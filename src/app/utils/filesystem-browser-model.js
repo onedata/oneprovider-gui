@@ -179,7 +179,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * File features displayed in status bar - see `component:file-browser/file-features`
    * `features` property.
    * @virtual optional
-   * @type {Array<String>}
+   * @type {Array<ItemFeatureSpec>}
    */
   fileFeatures: defaultFilesystemFeatures,
 

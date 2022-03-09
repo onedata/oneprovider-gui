@@ -94,8 +94,8 @@ export default FilesystemBrowserModel.extend({
    */
   fileFeatures: Object.freeze([
     ..._.without(defaultFilesystemFeatures, 'effDatasetMembership'),
-    'archiveCreating',
-    'archiveFailed',
+    Object.freeze({ key: 'archiveCreating', noticeLevel: 'warning' }),
+    Object.freeze({ key: 'archiveFailed', noticeLevel: 'danger' }),
   ]),
 
   /**

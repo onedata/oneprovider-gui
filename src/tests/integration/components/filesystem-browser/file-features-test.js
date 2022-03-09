@@ -292,6 +292,28 @@ describe('Integration | Component | filesystem browser/file features', function 
       .to.exist;
   });
 
+  it('shows collapsed inherited tag in "inherited" style if there is no feature with custom noticeLevel in collapsed mode',
+    async function () {
+      await this.createItem({
+        effQosMembership: 'ancestor',
+        effDatasetMembership: 'ancestor',
+      });
+
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=false
+      }}`);
+      await wait();
+
+      const collapsedElementClasses = [
+        ...find('.file-status-inherited-collapsed').classList,
+      ];
+      expect(collapsedElementClasses, collapsedElementClasses.join(', '))
+        .to.contain('file-status-tag-inherited');
+    }
+  );
+
   //#region recalling tag
 
   it('displays percentage progress of archive recalling in recalling tag', async function () {
@@ -417,7 +439,7 @@ describe('Integration | Component | filesystem browser/file features', function 
   it('shows archive creating ancestor tag with inheritance icon in expanded mode',
     async function () {
       await this.createItem();
-      await whenUsedInArchiveFilesystemBrowser(this, {
+      whenUsedInArchiveFilesystemBrowser(this, {
         archiveState: 'building',
         archiveRootDir: null,
       });
@@ -438,7 +460,7 @@ describe('Integration | Component | filesystem browser/file features', function 
   it('shows archive failed ancestor tag with inheritance icon in expanded mode',
     async function () {
       await this.createItem();
-      await whenUsedInArchiveFilesystemBrowser(this, {
+      whenUsedInArchiveFilesystemBrowser(this, {
         archiveState: 'failed',
         archiveRootDir: null,
       });
@@ -453,6 +475,56 @@ describe('Integration | Component | filesystem browser/file features', function 
       const tag = find('.file-status-archive-failed');
       expect(tag).to.exist;
       expect(tag.querySelector('.inherited-icon.oneicon-inheritance')).to.exist;
+    }
+  );
+
+  it('shows collapsed inherited tag in warning style if just one active feature has warning noticeLevel in collapsed mode',
+    async function () {
+      await this.createItem({
+        effQosMembership: 'ancestor',
+      });
+      whenUsedInArchiveFilesystemBrowser(this, {
+        archiveState: 'building',
+        archiveRootDir: null,
+      });
+
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=false
+      }}`);
+      await wait();
+
+      const collapsedElementClasses = [
+        ...find('.file-status-inherited-collapsed').classList,
+      ];
+      expect(collapsedElementClasses, collapsedElementClasses.join(', '))
+        .to.contain('file-status-tag-warning');
+    }
+  );
+
+  it('shows collapsed inherited tag in danger style if just one active feature has danger noticeLevel in collapsed mode',
+    async function () {
+      await this.createItem({
+        effQosMembership: 'ancestor',
+      });
+      whenUsedInArchiveFilesystemBrowser(this, {
+        archiveState: 'failed',
+        archiveRootDir: null,
+      });
+
+      this.render(hbs `{{filesystem-browser/file-features
+      item=item
+      browserModel=browserModel
+      initiallyExpanded=false
+    }}`);
+      await wait();
+
+      const collapsedElementClasses = [
+        ...find('.file-status-inherited-collapsed').classList,
+      ];
+      expect(collapsedElementClasses, collapsedElementClasses.join(', '))
+        .to.contain('file-status-tag-danger');
     }
   );
 

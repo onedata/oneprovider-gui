@@ -19,8 +19,29 @@
 
 import Component from '@ember/component';
 import EmberObject, { computed, observer } from '@ember/object';
-import { and, notEqual, raw, not, conditional, array } from 'ember-awesome-macros';
+import { and, notEqual, raw, not, conditional, array, collect, getBy, or } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { defineProperty } from '@ember/object';
+
+/**
+ * @typedef {'none'|'direct'|'directAndAncestor'|'ancestor'} ItemFeatureMembership
+ */
+
+/**
+ * @typedef {'default'|'warning'|'danger'} ItemFeatureNoticeLevel
+ */
+
+/**
+ * @typedef {String|Object} ItemFeatureSpec
+ * @description A key of feature of the item like `effQosMembership` or object with
+ *   additional display configuration for feature. If the feature is specified (like
+ *   aforementioned `effQosMembeship`), a browser item (eg. file) provide a property with
+ *   that name and one of values: `'none'`, `'direct'`, `'directAndAncestor`` o
+ *   `'ancestor'` indicating how the feature is affecting the item. You can also wrap
+ *   an item to add features (see: `browserModel.featurizeItem`).
+ * @property {String} [key]
+ * @property {ItemFeatureNoticeLevel} [noticeLevel]
+ */
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -40,8 +61,10 @@ export default Component.extend(I18n, {
    * Names of item's properties that can have following states:
    * `'none'`, `'direct'`, `'ancestor'`, `'directAndAncestor'`.
    * For each "feature", a property is added in yielded `displayedState`.
+   * You can also wrap original item with additional features - see
+   * `browserModel.featurizeItem`.
    * @virtual
-   * @type {Array<String>}
+   * @type {Array<ItemFeatureSpec>}
    */
   features: Object.freeze([]),
 
@@ -95,6 +118,12 @@ export default Component.extend(I18n, {
   ),
 
   /**
+   * States that indicates that feature is present in any state.
+   * @type {ComputedProperty<Array<ItemFeatureMembership>>}
+   */
+  activeStates: raw(['direct', 'directAndAncestor', 'ancestor']),
+
+  /**
    * Provides features inheritance information that should be shown on tags.
    * Has property for each provided `features` in `features`.
    * For example for features: `effFooMembership` and `effBarMembership`, object
@@ -117,9 +146,29 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<EmberObject>}
    */
   displayedState: computed('features.[]', function displayedState() {
-    const aggregatedData = this.get('features').reduce((obj, featureName) => {
+    const aggregatedData = this.get('features').reduce((obj, featureSpec) => {
+      const {
+        key: featureName,
+        noticeLevel,
+      } = this.normalizeItemFeatureSpec(featureSpec);
+      if (!featureName) {
+        return obj;
+      }
       obj[featureName] = EmberObject.extend({
+        /**
+         * Provides following data to observe:
+         * - `expanded: Boolean`
+         * - `itemWithFeatures: EmberObject`
+         * - `activeStates: Array<String>`
+         * ItemFeaturesContainer implements this interface.
+         */
         container: undefined,
+        /**
+         * Currently visible membership.
+         * Note, that if container is collapsed, membership is not visible,
+         * so it is virtually "none".
+         * @type {ComputedProperty<ItemFeatureMembership>}
+         */
         membership: conditional(
           'container.expanded',
           // just the same as source membership - no need to hide anything
@@ -134,30 +183,102 @@ export default Component.extend(I18n, {
             raw('none')
           ),
         ),
+        /**
+         * True if feature tag should be not hidden.
+         * @type {ComputedProperty<Boolean>}
+         */
         isShown: and('membership', notEqual(
           'membership',
           raw('none')
         )),
+        /**
+         * True if feature state is anything than "none".
+         * @type {ComputedProperty<Boolean>}
+         */
+        isActive: array.includes(
+          'container.activeStates',
+          `container.itemWithFeatures.${featureName}`
+        ),
+        /**
+         * @type {ItemFeatureNoticeLevel}
+         */
+        noticeLevel,
       }).create({ container: this });
       return obj;
     }, {});
     return EmberObject.create(aggregatedData);
   }),
 
+  /**
+   * @type {ComputedProperty<ItemFeatureNoticeLevel>}
+   */
+  activeNoticeLevel: computed('activeFeatures', function activeNoticeLevel() {
+    const activeFeatures = this.get('activeFeatures');
+    const levels = activeFeatures.map(spec =>
+      this.normalizeItemFeatureSpec(spec).noticeLevel
+    );
+    return levels.includes('danger') && 'danger' ||
+      levels.includes('warning') && 'warning' ||
+      'default';
+  }),
+
+  tagNoticeLevelClass: or(
+    getBy(
+      raw({
+        warning: 'file-status-tag-warning',
+        danger: 'file-status-tag-danger',
+      }),
+      'activeNoticeLevel'
+    ),
+    raw('file-status-tag-inherited')
+  ),
+
+  tagClasses: array.concat(
+    collect('tagNoticeLevelClass'),
+    raw([
+      'file-status-tag',
+      'file-status-tag-icon',
+      'file-status-tag-icon-only',
+      'file-status-inherited',
+      'file-status-inherited-collapsed',
+    ]),
+  ),
+
+  tagClassName: array.join('tagClasses', raw(' ')),
+
   regenerateComputedHasInheritance: observer(
     'features',
     function regenerateComputedHasInheritance() {
       const features = this.get('features');
+      const featuresNames = features.map(featureSpec =>
+        this.normalizeItemFeatureSpec(featureSpec).key
+      );
       const computedHasInheritance = computed(
-        `itemWithFeatures.{${features.join(',')}}`,
+        `itemWithFeatures.{${featuresNames.join(',')}}`,
         function hasInheritance() {
-          return features.some(feature => {
-            const membership = this.get(`itemWithFeatures.${feature}`);
+          return featuresNames.some(featureName => {
+            const membership = this.get(`itemWithFeatures.${featureName}`);
             return membership === 'ancestor' || membership === 'directAndAncestor';
           });
         }
       );
-      this.hasInheritance = computedHasInheritance;
+      defineProperty(
+        this,
+        'hasInheritance',
+        computedHasInheritance
+      );
+    }
+  ),
+
+  regenerateComputedActiveFeatures: observer(
+    'features',
+    function regenerateComputedActiveFeatures() {
+      const property = this.createArchiveFeaturesProperty();
+      defineProperty(
+        this,
+        'activeFeatures',
+        property,
+      );
     }
   ),
 
@@ -167,6 +288,35 @@ export default Component.extend(I18n, {
       this.set('expanded', true);
     }
     this.regenerateComputedHasInheritance();
+    this.regenerateComputedActiveFeatures();
+  },
+
+  createArchiveFeaturesProperty() {
+    const features = this.get('features');
+    const featuresNames = features.map(spec => this.normalizeItemFeatureSpec(spec).key);
+    return computed(
+      ...featuresNames.map(featureName => `displayedState.${featureName}.isActive`),
+      function activeFeatures() {
+        return features.filter(spec => {
+          const featureName = this.normalizeItemFeatureSpec(spec).key;
+          return this.get(`displayedState.${featureName}.isActive`);
+        });
+      }
+    );
+  },
+
+  /**
+   * @param {ItemFeatureSpec} featureSpec
+   * @returns {{ key, noticeLevel }}
+   */
+  normalizeItemFeatureSpec(featureSpec) {
+    const isStringSpec = typeof featureSpec === 'string';
+    const key = isStringSpec ?
+      featureSpec : (featureSpec && featureSpec.key);
+    const noticeLevel = (
+      !isStringSpec && featureSpec && featureSpec.noticeLevel
+    ) || 'default';
+    return { key, noticeLevel };
   },
 
   actions: {
