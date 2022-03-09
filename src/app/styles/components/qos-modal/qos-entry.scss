@@ -111,6 +111,12 @@
     }
   }
 
+  .qos-charts-subheader {
+    .oneicon-overview {
+      top: calc(50% + 1px);
+    }
+  }
+
   .qos-entry-charts {
     margin-top: 0.8em;
     background-color: rgba(0, 0, 0, 0.02);

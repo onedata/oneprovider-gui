@@ -663,17 +663,18 @@ const qosRequirementHandlers = {
       files: ['total'],
     };
   },
-  time_series_collection(operation, data) {
+  time_series_collection(operation, entityId, data) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
     const {
       limit,
       startTimestamp,
+      metrics,
     } = data;
     const result = {};
-    for (const seriesId in data.metrics) {
-      const metricsIds = data.metrics[seriesId];
+    for (const seriesId in metrics) {
+      const metricsIds = metrics[seriesId];
       const seriesResult = {};
       result[seriesId] = seriesResult;
       for (const metricId of metricsIds) {
