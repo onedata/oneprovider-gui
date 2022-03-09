@@ -16,6 +16,7 @@ import { getGri as spaceGri } from 'oneprovider-gui/services/space-manager';
 export default Service.extend({
   store: service(),
   onedataGraphContext: service(),
+  guiContext: service(),
 
   /**
    * @param {string} providerId
@@ -46,5 +47,19 @@ export default Service.extend({
     }
 
     return store.findRecord('provider', providerGri, { reload, backgroundReload });
+  },
+
+  /**
+   * @returns {string}
+   */
+  getCurrentProviderId() {
+    return this.get('guiContext.clusterId');
+  },
+
+  /**
+   * @returns {Promise<Models.Provider>}
+   */
+  getCurrentProvider() {
+    return this.getProviderById(this.getCurrentProviderId());
   },
 });
