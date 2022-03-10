@@ -14,6 +14,14 @@
       {{else}}
         {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
       {{/if}}
+    {{else if (and (eq file.effFile.type "dir") true)}}
+      <div class="dir-size" onclick={{action "invokeFileAction" file "info"}}>
+        <span class="dir-size-value">43.1 KiB</span>
+        {{one-icon 
+          icon="overview" 
+          class="inline-icon-container"
+        }}
+      </div>
     {{else}}
       —
     {{/if}}

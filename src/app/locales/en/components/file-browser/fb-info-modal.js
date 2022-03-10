@@ -69,6 +69,9 @@ export default {
     general: {
       tabTitle: 'General',
     },
+    size: {
+      tabTitle: 'Size',
+    },
     hardlinks: {
       tabTitle: 'Hard links ({{hardlinksCount}})',
       showingOnlyNFirst: 'Showing only {{limit}} first hard links.',

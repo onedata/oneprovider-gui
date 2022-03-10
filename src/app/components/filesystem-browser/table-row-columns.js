@@ -26,4 +26,10 @@ export default FbTableRowColumns.extend({
    * @type {Models.File}
    */
   file: undefined,
+
+  actions: {
+    invokeFileAction(file, btnId, ...args) {
+      this.get('invokeFileAction')(file, btnId, ...args);
+    },
+  },
 });

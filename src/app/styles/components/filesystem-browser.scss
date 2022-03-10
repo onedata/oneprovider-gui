@@ -1,8 +1,20 @@
 .filesystem-browser {
   .fb-table-col-size {
     position: relative;
-    width: 120px;
+    width: 150px;
     text-align: center;
+
+    .dir-size-value {
+      text-align: center;
+    }
+
+    .oneicon-overview {
+      position: absolute;
+      font-size: 140%;
+      margin-top: 1px;
+      width: 30px;
+      opacity: 0.4;
+    }
   }
   .fb-table-col-modification {
     width: 200px;

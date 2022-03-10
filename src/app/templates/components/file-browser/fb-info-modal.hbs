@@ -1,8 +1,11 @@
-{{#bs-modal
-  class=(concat-classes "fb-info-modal" modalClass)
+{{#one-modal
+  id=modalId
+  class=(concat-classes "fb-info-modal modal-content-overlay without-footer with-close-button" modalClass)
   open=open
+  size="xl"
+  backdropClose=true
+  keyboard=true
   onHide=(action "close")
-  size="lg"
   as |modal|
 }}
   {{#modal.header}}
@@ -10,14 +13,15 @@
     {{modal-file-subheader files=(array file)}}
   {{/modal.header}}
   {{#modal.body}}
-  {{#if (gt hardlinksCount 1)}}
-    {{#bs-tab
-      class="bs-tab-onedata bs-tab-modern"
-      activeId=activeTab
-      onChange=(action "changeTab")
-      as |tab|
-    }}
-      {{tab.pane id="general" title=(tt this "tabs.general.tabTitle")}}
+  {{#bs-tab
+    class="bs-tab-onedata bs-tab-modern"
+    activeId=activeTab
+    onChange=(action "changeTab")
+    as |tab|
+  }}
+    {{tab.pane id="general" title=(tt this "tabs.general.tabTitle")}}
+    {{tab.pane id="size" title=(tt this "tabs.size.tabTitle")}}
+    {{#if (gt hardlinksCount 1)}}
       {{tab.pane
         id="hardlinks"
         title=(tt this "tabs.hardlinks.tabTitle" hardlinksCount=(if
@@ -26,8 +30,8 @@
           hardlinksCount
         ))
       }}
-    {{/bs-tab}}
-  {{/if}}
+    {{/if}}
+  {{/bs-tab}}
   {{#if (eq activeTab "general")}}
     <table class="table table-info table-info-large table-info-collapsible">
       <tbody>
@@ -261,6 +265,8 @@
         </tr>
       </tbody>
     </table>
+  {{else if (eq activeTab "size")}}
+    –
   {{else if (eq activeTab "hardlinks")}}
     {{#promise-proxy-container tagName="div" class="loadable-row" proxy=fileHardlinksProxy}}
       {{#if (and hardlinksLimitExceeded fileHardlinks.hardlinks.length)}}
@@ -304,9 +310,4 @@
     {{/promise-proxy-container}}
   {{/if}}
   {{/modal.body}}
-  {{#modal.footer}}
-    {{#bs-button onClick=modal.close}}
-      {{tt this "close"}}
-    {{/bs-button}}
-  {{/modal.footer}}
-{{/bs-modal}}
+{{/one-modal}}
