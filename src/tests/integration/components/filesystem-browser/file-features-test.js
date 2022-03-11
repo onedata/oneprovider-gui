@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, afterEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
@@ -30,6 +30,13 @@ describe('Integration | Component | filesystem browser/file features', function 
         viewQos: true,
       },
     });
+  });
+
+  afterEach(function () {
+    const browserModel = this.get('browserModel');
+    if (browserModel && browserModel.destroy) {
+      browserModel.destroy();
+    }
   });
 
   ['none', 'direct'].forEach(membership => {
