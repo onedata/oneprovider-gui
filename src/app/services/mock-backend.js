@@ -839,7 +839,7 @@ export default Service.extend({
         }),
         index: name + archiveEntityId,
         creationTime: getCurrentTimestamp(),
-        state: 'failed',
+        state: 'preserved',
         stats: {
           bytesArchived: (i + 1) * 5678990000,
           filesArchived: (i + 1) * 43,
