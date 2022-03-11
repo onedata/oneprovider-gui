@@ -1,5 +1,3 @@
-{{!-- FIXME: tooltip --}}
-
 {{#if displayedState.archiveCreating.isShown}}
   <div
     class={{concat-classes
@@ -11,7 +9,6 @@
     onmouseover={{action "changeTagHover" "archiveCreating" true}}
     onmouseout={{action "changeTagHover" "archiveCreating" false}}
   >
-    {{!-- FIXME: is style ok? using both inhertied and success, maybe not use inherited: file-status-tag-inherited --}}
     <div
       class={{concat-classes
         "file-status-tag"
@@ -27,6 +24,10 @@
           icon=inheritedIcon
         }}
       {{/if}}
+      {{#one-tooltip}}
+        <p class="semibold">{{tt this "parentArchiveState"}}:</p>
+        <p>{{archive-state archive=archive}}</p>
+      {{/one-tooltip}}
     </div>
   </div>
 {{/if}}
@@ -42,7 +43,6 @@
     onmouseover={{action "changeTagHover" "archiveFailed" true}}
     onmouseout={{action "changeTagHover" "archiveFailed" false}}
   >
-    {{!-- FIXME: is style ok? using both inhertied and success, maybe not use inherited --}}
     <div
       class={{concat-classes
         "file-status-tag"
@@ -60,6 +60,9 @@
           icon=inheritedIcon
         }}
       {{/if}}
+      {{#one-tooltip}}
+        {{tt this "failedArchiveBuild"}}
+      {{/one-tooltip}}
     </div>
   </div>
 {{/if}}

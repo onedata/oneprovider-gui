@@ -1,15 +1,7 @@
 <td
-  class="fb-table-col-state fb-table-secondary-col hidden-xs {{fileRowModel.stateColClass}}"
+  class="fb-table-col-state fb-table-secondary-col hidden-xs multiline"
 >
-  <span class="file-item-text archive-state-text">
-    <div class={{concat-classes
-      "archive-state-type"
-      fileRowModel.stateTypeTextClass
-    }}>
-      {{fileRowModel.stateTypeText}}
-    </div>
-    <div class="archive-state-details">{{fileRowModel.stateDetailsText}}</div>
-  </span>
+  {{archive-state archive=fileRowModel.archive stateClassMapping=stateClassMapping}}
 </td>
 <td class="fb-table-col-incremental fb-table-secondary-col hidden-xs">
   <span

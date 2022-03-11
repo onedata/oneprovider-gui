@@ -41,16 +41,6 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
   browserModel: undefined,
 
   /**
-   * @type {Object<ArchiveMetaState, string>}
-   */
-  stateClassMapping: Object.freeze({
-    creating: 'infinite animated pulse-mint',
-    succeeded: '',
-    failed: 'text-danger',
-    destroying: 'infinite animated pulse-orange',
-  }),
-
-  /**
    * @override
    */
   ownerSource: reads('tableRow'),
@@ -139,60 +129,6 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
       return get(baseArchive, 'name');
     }
   )),
-
-  // FIXME: refactor names to match details and vice verss
-  showArchivedCounters: or(
-    equal('archive.state', raw('building')),
-    equal('archive.state', raw('preserved')),
-  ),
-
-  stateTypeText: computed(
-    'archive.state',
-    function stateTypeText() {
-      const archiveState = this.get('archive.state');
-      const text = this.t(
-        `state.${archiveState}`, {}, { defaultValue: this.t('state.unknown') }
-      );
-      return htmlSafe(text);
-    }
-  ),
-
-  stateDetailsText: computed(
-    'archive.stats',
-    function stateDetailsText() {
-      const {
-        archive,
-        showArchivedCounters,
-      } = this.getProperties('archive', 'showArchivedCounters');
-      if (showArchivedCounters) {
-        const stats = get(archive, 'stats');
-        const {
-          bytesArchived,
-          filesArchived,
-        } = getProperties(stats, 'bytesArchived', 'filesArchived');
-        const bytes = bytesArchived || 0;
-        const filesText = filesArchived || '0';
-        const sizeText = bytesToString(bytes);
-        const text = this.t(
-          'stateInfo.archived', {
-            filesCount: filesText,
-            size: sizeText,
-          }
-        );
-        return htmlSafe(text);
-      } else {
-        return null;
-      }
-    }
-  ),
-
-  stateColClass: conditional(
-    'showArchivedCounters',
-    raw('multiline'),
-    raw(''),
-  ),
-
-  stateTypeTextClass: getBy('stateClassMapping', 'archive.metaState'),
 
   browseDip() {
     const {

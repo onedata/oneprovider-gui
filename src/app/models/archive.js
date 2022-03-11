@@ -14,7 +14,10 @@ import { computed } from '@ember/object';
 
 export const entityType = 'op_archive';
 
-export const validArchiveStates = [
+/**
+ * @type {Array<ArchiveState>}
+ */
+export const validArchiveStates = Object.freeze([
   'pending',
   'building',
   'verifying',
@@ -22,7 +25,11 @@ export const validArchiveStates = [
   'verification_failed',
   'failed',
   'purging',
-];
+]);
+
+/**
+ * @typedef {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'purging'} ArchiveState
+ */
 
 /**
  * @typedef {'creating'|'succeeded'|'failed'|'destroying'} ArchiveMetaState

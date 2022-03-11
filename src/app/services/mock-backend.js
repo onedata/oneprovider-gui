@@ -836,8 +836,7 @@ export default Service.extend({
         }),
         index: name + archiveEntityId,
         creationTime: getCurrentTimestamp(),
-        // FIXME: debug code
-        state: 'building',
+        state: 'failed',
         stats: {
           bytesArchived: (i + 1) * 5678990000,
           filesArchived: (i + 1) * 43,
