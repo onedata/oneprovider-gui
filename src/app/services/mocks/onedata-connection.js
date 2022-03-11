@@ -24,5 +24,12 @@ export default OnedataConnection.extend({
     }),
     openfaasAvailable: true,
     bagitUploaderWorkflowSchemaId: null,
+    qosTransferStatsConfig: {
+      minuteMetricId: 'minute',
+      hourMetricId: 'hour',
+      dayMetricId: 'day',
+      monthMetricId: 'month',
+      totalTimeSeriesId: 'total',
+    },
   }),
 });

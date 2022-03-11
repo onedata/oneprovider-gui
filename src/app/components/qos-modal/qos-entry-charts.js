@@ -12,11 +12,13 @@ import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled } from 'rsvp';
+import { promise } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import QueryBatcher from 'onedata-gui-common/utils/one-time-series-chart/query-batcher';
 import OTSCConfiguration from 'onedata-gui-common/utils/one-time-series-chart/configuration';
 import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 
 /**
  * @typedef {Object} QosEntryChartTimeResolution
@@ -33,6 +35,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   onedataConnection: service(),
   qosManager: service(),
   providerManager: service(),
+  spaceManager: service(),
   storageManager: service(),
 
   /**
@@ -59,6 +62,11 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   lastTsCollectionsReloadTimestamp: undefined,
 
   /**
+   * @type {ComputedProperty<Utils.ColorGenerator>}
+   */
+  colorGenerator: computed(() => new ColorGenerator()),
+
+  /**
    * @type {ComputedProperty<QosTransferStatsConfig>}
    */
   qosTransferStatsConfig: reads('onedataConnection.qosTransferStatsConfig'),
@@ -67,6 +75,62 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
    * @type {ComputedProperty<number>}
    */
   globalTimeSecondsOffset: reads('onedataConnection.globalTimeSecondsOffset'),
+
+  /**
+   * @type {ComputedProperty<PromiseObject<{ current: Model.Provider, all: Array<Model.Provider>}>>}
+   */
+  spaceProvidersProxy: promise.object(computed(
+    'spaceId',
+    async function spaceProvidersProxy() {
+      const {
+        spaceId,
+        spaceManager,
+        providerManager,
+      } = this.getProperties('spaceId', 'spaceManager', 'providerManager');
+
+      const space = await spaceManager.getSpace(spaceId);
+      const providerList = (await get(await get(space, 'providerList'), 'list')).toArray();
+
+      const currentProviderId = providerManager.getCurrentProviderId();
+      const currentProvider = providerList.findBy('entityId', currentProviderId);
+      if (!currentProvider) {
+        throw { id: 'notFound' };
+      }
+
+      return {
+        current: currentProvider,
+        all: providerList,
+      };
+    }
+  )),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  currentProviderName: reads('spaceProvidersProxy.content.current.name'),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  spaceProvidersCount: reads('spaceProvidersProxy.content.all.length'),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  headerTooltip: computed(
+    'currentProviderName',
+    'spaceProvidersCount',
+    function headerTooltip() {
+      const {
+        currentProviderName,
+        spaceProvidersCount,
+      } = this.getProperties('currentProviderName', 'spaceProvidersCount');
+
+      const translationKey = 'headerTooltip.' +
+        (spaceProvidersCount > 1 ? 'manyProviders' : 'singleProvider');
+      return this.t(translationKey, { currentProviderName });
+    }
+  ),
 
   /**
    * @type {Array<QosEntryChartTimeResolution>}
@@ -130,15 +194,24 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   inboundChartConfig: computed(
     'timeResolutionSpecs',
     'globalTimeSecondsOffset',
+    'currentProviderName',
     function inboundChartConfig() {
       const {
         timeResolutionSpecs,
         globalTimeSecondsOffset,
-      } = this.getProperties('timeResolutionSpecs', 'globalTimeSecondsOffset');
+        currentProviderName,
+      } = this.getProperties(
+        'timeResolutionSpecs',
+        'globalTimeSecondsOffset',
+        'currentProviderName'
+      );
       const config = new OTSCConfiguration({
         nowTimestampOffset: globalTimeSecondsOffset || 0,
         chartDefinition: {
-          title: String(this.t('titles.inbound')),
+          title: {
+            content: this.t('titles.inbound.content'),
+            tip: this.t('titles.inbound.tip', { currentProviderName }),
+          },
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
@@ -162,6 +235,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               seriesTemplate: {
                 id: 'totalBytes',
                 name: String(this.t('series.totalBytes')),
+                color: '#4A6089',
                 type: 'line',
                 yAxisId: 'bytesAxis',
                 data: {
@@ -210,6 +284,12 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                     propertyName: 'name',
                   },
                 },
+                color: {
+                  functionName: 'getDynamicSeriesConfigData',
+                  functionArguments: {
+                    propertyName: 'color',
+                  },
+                },
                 type: 'bar',
                 yAxisId: 'filesAxis',
                 stackId: 'filesStack',
@@ -255,15 +335,24 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   outboundChartConfig: computed(
     'timeResolutionSpecs',
     'globalTimeSecondsOffset',
+    'currentProviderName',
     function outboundChartConfig() {
       const {
         timeResolutionSpecs,
         globalTimeSecondsOffset,
-      } = this.getProperties('timeResolutionSpecs', 'globalTimeSecondsOffset');
+        currentProviderName,
+      } = this.getProperties(
+        'timeResolutionSpecs',
+        'globalTimeSecondsOffset',
+        'currentProviderName'
+      );
       const config = new OTSCConfiguration({
         nowTimestampOffset: globalTimeSecondsOffset || 0,
         chartDefinition: {
-          title: String(this.t('titles.outbound')),
+          title: {
+            content: String(this.t('titles.outbound.content')),
+            tip: this.t('titles.outbound.tip', { currentProviderName }),
+          },
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
@@ -300,6 +389,12 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                   functionName: 'getDynamicSeriesConfigData',
                   functionArguments: {
                     propertyName: 'name',
+                  },
+                },
+                color: {
+                  functionName: 'getDynamicSeriesConfigData',
+                  functionArguments: {
+                    propertyName: 'color',
                   },
                 },
                 type: 'line',
@@ -410,13 +505,15 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
 
   /**
    * @param {{ collectionId: string }} sourceParameters
-   * @returns {Promise<Array<{ id: string, name: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
+   * @returns {Promise<Array<{ id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
   async fetchDynamicSeriesConfigs(sourceParameters) {
+    const colorGenerator = this.get('colorGenerator');
     return (await this.fetchStorageSeriesConfigs(sourceParameters.collectionId))
       .map(({ storageId, name }) => ({
         id: storageId,
         name,
+        color: colorGenerator.generateColorForKey(storageId),
         pointsSource: {
           externalSourceName: 'qosEntryData',
           externalSourceParameters: {

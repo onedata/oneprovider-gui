@@ -7,17 +7,29 @@
   </td>
 {{else}}
   <td class={{concat-classes "fb-table-col-files" (if multilineInfo "multiline")}}>
-    <div class="file-info-container">
-      <div class="file-icon-container">
-        {{#if isLoadingOnIcon}}
+    <div
+      class={{concat-classes 
+        "file-info-container file-icon-container" 
+        (if infoIconActionName "flip-animated")
+      }}
+    >
+      {{#if isLoadingOnIcon}}
+        <div class="inline-icon-container">
           {{spin-spinner-block
             sizeClass="xs"
-            class="on-icon-loading-spinner absolute-middle-centered"
+            class="on-icon-loading-spinner"
           }}
-        {{/if}}
-        <div class="inline-icon-container inline-icon-container-file">
+        </div>
+      {{else}}
+        <div
+          class="inline-icon-container inline-icon-container-file"
+          onclick={{if infoIconActionName 
+            (action "invokeFileAction" file infoIconActionName)
+          }}
+          style={{cursorStyleForIcon}}
+        >
           {{#one-icon-tagged
-            class=(concat-classes "tag-right" iconTaggedClass)
+            class=(concat-classes "tag-right flippable-front" iconTaggedClass)
             icon=icon
             iconClass="file-icon"
             tagIcon=iconTag
@@ -27,8 +39,11 @@
               {{one-tooltip title=iconTip}}
             {{/if}}
           {{/one-icon-tagged}}
+          {{#if infoIconActionName}}
+            {{one-icon icon="browser-info" class="flippable-back"}}
+          {{/if}}
         </div>
-      </div>
+      {{/if}}
       <div class="file-item-text">
         <div class="file-item-text-upper">
           <div class="file-info-container">
