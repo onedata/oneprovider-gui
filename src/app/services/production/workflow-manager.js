@@ -314,9 +314,6 @@ export default Service.extend({
         operation: 'get',
         data: {
           options: browseOptions,
-          index: startFromIndex,
-          offset,
-          limit,
         },
         subscribe: false,
       });
