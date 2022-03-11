@@ -15,6 +15,14 @@
       width: 30px;
       opacity: 0.4;
     }
+
+    .dir-size:hover {
+      font-weight: bold;
+      .oneicon-overview {
+        color: $color-one-mint;
+        opacity: 1;
+      }
+    }
   }
   .fb-table-col-modification {
     width: 200px;
