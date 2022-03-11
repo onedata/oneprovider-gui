@@ -9,7 +9,7 @@
  */
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
-import { bool } from 'ember-awesome-macros';
+import { bool, array, raw } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
@@ -74,7 +74,13 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  browserClass: 'filesystem-browser archive-filesystem-browser',
+  browserClass: array.join(
+    array.concat(
+      raw(['filesystem-browser', 'archive-filesystem-browser']),
+      'customClassNames',
+    ),
+    raw(' '),
+  ),
 
   /**
    * @override
