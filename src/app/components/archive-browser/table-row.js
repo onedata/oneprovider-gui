@@ -9,12 +9,10 @@
  */
 
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
-import EmberObject, { computed, getProperties, get } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
-import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw, or, promise, bool, getBy } from 'ember-awesome-macros';
+import { promise, bool } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 

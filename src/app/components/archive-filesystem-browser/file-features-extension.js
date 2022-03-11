@@ -1,4 +1,11 @@
-// FIXME: jsdoc
+/**
+ * Adds file features suitable for files inside archive.
+ *
+ * @module components/archive-filesystem-browser/file-features-extension
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 import Component from '@ember/component';
 import { computed } from '@ember/object';
@@ -12,21 +19,37 @@ export default Component.extend(I18n, {
 
   i18n: service(),
 
-  // FIXME: jsdoc
+  /**
+   * @virtual
+   * @type {Utils.ArchiveFilesystemBrowserModel}
+   */
   browserModel: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.FileInArchive}
+   */
   item: undefined,
+
+  /**
+   * @virtual
+   * @type {EmberObject}
+   *   see `components/file-browser/item-features-container#displayedState`
+   */
   displayedState: undefined,
+
+  /**
+   * @virtual
+   * @type {(tag, isHovered) => void}
+   */
   onChangeTagHover: undefined,
 
   inheritedIcon: 'inheritance',
 
+  /**
+   * @type {ComputedProperty<Models.Archive}
+   */
   archive: reads('browserModel.archive'),
-
-  // FIXME: maybe do not use these disabled flags
-
-  effArchiveCreatingDisabled: false,
-
-  effArchiveFailedDisabled: false,
 
   creatingStateLabel: computed('archive.state', function stateLabel() {
     const archiveState = this.get('archive.state');
