@@ -336,7 +336,7 @@ export default Component.extend(I18n, {
                   const storeType = get(field, 'parent.value.storeType');
                   const storeDataSpec = get(field, 'parent.value.storeDataSpec');
                   const isValid =
-                    validateStoreInitialValue(parsedValue, storeType, storeDataSpec);
+                    validateStoreInitialContent(parsedValue, storeType, storeDataSpec);
                   return isValid ||
                     String(field.t(`${get(field, 'path')}.errors.badValue`));
                 }, {
@@ -678,7 +678,7 @@ function getValueEditorForStoreType(type, dataSpec) {
   }
 }
 
-function validateStoreInitialValue(initialValue, type, dataSpec) {
+function validateStoreInitialContent(initialContent, type, dataSpec) {
   if (getValueEditorForStoreType(type, dataSpec) !== 'rawValue') {
     // Only raw JSONs entered by user are validated
     return true;
@@ -686,19 +686,19 @@ function validateStoreInitialValue(initialValue, type, dataSpec) {
 
   switch (type) {
     case 'singleValue':
-      return validateStoreElement(initialValue, type, dataSpec);
+      return validateStoreElement(initialContent, type, dataSpec);
     case 'list':
     case 'auditLog':
       // TODO: VFS-7816 uncomment or remove future code
       // case 'histogram':
-      return Array.isArray(initialValue) &&
-        initialValue.every(element => validateStoreElement(element, type, dataSpec));
+      return Array.isArray(initialContent) &&
+        initialContent.every(element => validateStoreElement(element, type, dataSpec));
       // TODO: VFS-7816 uncomment or remove future code
       // case 'map':
-      //   return typeof initialValue === 'object' &&
-      //     initialValue !== null &&
-      //     !Array.isArray(initialValue) &&
-      //     Object.values(initialValue)
+      //   return typeof initialContent === 'object' &&
+      //     initialContent !== null &&
+      //     !Array.isArray(initialContent) &&
+      //     Object.values(initialContent)
       //     .every(element => validateStoreElement(element, dataSpec));
     default:
       return true;
@@ -763,10 +763,10 @@ function formDataToInputStoresValues(formData, stores) {
     const writeDataSpec = getStoreWriteDataSpec(storeSpec);
 
     const editor = getValueEditorForStoreType(type, writeDataSpec);
-    let initialValue;
+    let initialContent;
     if (editor === 'rawValue') {
       try {
-        initialValue = JSON.parse(get(inputStore, editor));
+        initialContent = JSON.parse(get(inputStore, editor));
       } catch (e) {
         return;
       }
@@ -774,15 +774,15 @@ function formDataToInputStoresValues(formData, stores) {
       const idFieldName = getIdFieldNameForDataSpec(writeDataSpec);
       const transformId = writeDataSpec && writeDataSpec.type === 'file' ?
         (id => guidToCdmiObjectId(id)) : (id => id);
-      initialValue = (get(inputStore, editor) || []).map(item => ({
+      initialContent = (get(inputStore, editor) || []).map(item => ({
         [idFieldName]: transformId(get(item, 'entityId')),
       }));
       if (type === 'singleValue') {
-        initialValue = initialValue[0];
+        initialContent = initialContent[0];
       }
     }
 
-    storeValues[id] = initialValue;
+    storeValues[id] = initialContent;
   });
 
   return storeValues;

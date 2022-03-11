@@ -8,7 +8,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { getProperties, computed } from '@ember/object';
+import { getProperties, get, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
@@ -32,6 +32,8 @@ import config from 'ember-get-config';
  * @property {string} reason
  * @property {string} message
  */
+
+const emptyAtmStoreContent = { array: [], isLast: true };
 
 export default Service.extend({
   store: service(),
@@ -182,14 +184,14 @@ export default Service.extend({
    * @param {String} atmWorkflowSchemaId
    * @param {RevisionNumber} atmWorkflowSchemaRevisionNumber
    * @param {String} spaceId
-   * @param {Object} storeInitialValues map (storeSchemaId => initial value)
+   * @param {Object} storeInitialContents map (storeSchemaId => initial content)
    * @returns {Promise<Models.AtmWorkflowExecution>}
    */
   async runWorkflow(
     atmWorkflowSchemaId,
     atmWorkflowSchemaRevisionNumber,
     spaceId,
-    storeInitialValues
+    storeInitialContents
   ) {
     return await this.get('store').createRecord('atmWorkflowExecution', {
       _meta: {
@@ -197,7 +199,7 @@ export default Service.extend({
           atmWorkflowSchemaId,
           atmWorkflowSchemaRevisionNumber,
           spaceId,
-          storeInitialValues,
+          storeInitialContents,
         },
       },
     }).save();
@@ -281,35 +283,51 @@ export default Service.extend({
   },
 
   /**
-   * @param {String} storeInstanceId
-   * @param {String} startFromIndex
+   * @param {string} atmStoreInstanceId
+   * @param {string} startFromIndex
    * @param {number} limit
    * @param {number} offset
-   * @returns {Promise<{array: Array<StoreContentEntry>, isLast: Boolean}>}
+   * @returns {Promise<{array: Array<StoreContentEntry>, isLast: boolean}>}
    */
-  async getStoreContent(storeInstanceId, startFromIndex, limit, offset) {
-    if (!limit || limit <= 0) {
-      return { array: [], isLast: false };
+  async getAtmStoreContent(atmStoreInstanceId, startFromIndex, limit, offset) {
+    const atmStore = await this.getAtmStoreById(atmStoreInstanceId);
+    const atmStoreType = get(atmStore, 'type');
+    const browseOptions = createAtmStoreContentBrowseOptions(
+      atmStoreType,
+      startFromIndex,
+      limit,
+      offset
+    );
+    if (!browseOptions) {
+      return emptyAtmStoreContent;
     }
 
-    const onedataGraph = this.get('onedataGraph');
     const storeContentGri = gri({
       entityType: atmStoreEntityType,
-      entityId: storeInstanceId,
+      entityId: atmStoreInstanceId,
       aspect: 'content',
     });
-    const { list, isLast } = await onedataGraph.request({
-      gri: storeContentGri,
-      operation: 'get',
-      data: {
-        index: startFromIndex,
-        offset,
-        limit,
-      },
-      subscribe: false,
-    });
 
-    return { array: list, isLast };
+    try {
+      const content = await this.get('onedataGraph').request({
+        gri: storeContentGri,
+        operation: 'get',
+        data: {
+          options: browseOptions,
+          index: startFromIndex,
+          offset,
+          limit,
+        },
+        subscribe: false,
+      });
+      return normalizeAtmStoreContent(atmStoreType, content);
+    } catch (error) {
+      if (error && error.id === 'atmStoreEmpty') {
+        return emptyAtmStoreContent;
+      } else {
+        throw error;
+      }
+    }
   },
 
   /**
@@ -404,3 +422,75 @@ export default Service.extend({
     });
   },
 });
+
+/**
+ * @param {string} atmStoreType
+ * @param {string|null} startFromIndex
+ * @param {number} limit
+ * @param {number} offset
+ * @returns {Object|null} returns null if browse operation should not be performed
+ *   due to incorrect parameters
+ */
+function createAtmStoreContentBrowseOptions(atmStoreType, startFromIndex, limit, offset) {
+  if (!limit || limit <= 0) {
+    return null;
+  }
+
+  const browseOptions = {
+    type: `${atmStoreType}StoreContentBrowseOptions`,
+  };
+
+  if (['list', 'treeForest', 'auditLog'].includes(atmStoreType)) {
+    browseOptions.index = startFromIndex;
+    browseOptions.offset = offset;
+    browseOptions.limit = limit;
+  } else if (startFromIndex !== null || offset !== 0) {
+    return null;
+  }
+
+  return browseOptions;
+}
+
+/**
+ * @param {string} atmStoreType
+ * @param {unknown} content
+ * @returns {{array: Array<StoreContentEntry>, isLast: boolean}}
+ */
+function normalizeAtmStoreContent(atmStoreType, content) {
+  if (!content) {
+    return emptyAtmStoreContent;
+  }
+
+  switch (atmStoreType) {
+    case 'auditLog': {
+      const { logs = [], isLast = true } = content;
+      return { array: logs, isLast };
+    }
+    case 'list': {
+      const { items = [], isLast = true } = content;
+      return { array: items, isLast };
+    }
+    case 'range': {
+      return {
+        array: [{
+          index: '0',
+          success: true,
+          value: content,
+        }],
+        isLast: true,
+      };
+    }
+    case 'singleValue': {
+      return {
+        array: [Object.assign({ index: '0' }, content)],
+        isLast: true,
+      };
+    }
+    case 'treeForest': {
+      const { treeRoots = [], isLast = true } = content;
+      return { array: treeRoots, isLast };
+    }
+    default:
+      return emptyAtmStoreContent;
+  }
+}
