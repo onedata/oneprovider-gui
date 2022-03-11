@@ -13,10 +13,12 @@ import { bool } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
-import { get } from '@ember/object';
+import { get, set, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
+import Looper from 'onedata-gui-common/utils/looper';
+import { allSettled } from 'rsvp';
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
@@ -104,11 +106,27 @@ export default FilesystemBrowserModel.extend({
   externalSymlinkModal: null,
 
   /**
+   * Managed by `autoConfigureRefreshLooper`.
+   * Initialized in `startRefreshLooper`.
+   * @type {Utils.Looper}
+   */
+  refreshLooper: null,
+
+  /**
    * Used only when `renderArchiveDipSwitch` is true.
    * Should be set to true if opened archive has `relatedDip/Aip`
    * @type {ComputedProperty<Boolean>}
    */
   isArchiveDipAvailable: bool('archive.config.includeDip'),
+
+  metaStateObserver: observer('archive.metaState', function metaStateObserver() {
+    this.autoConfigureRefreshLooper();
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.autoConfigureRefreshLooper();
+  },
 
   /**
    * @override
@@ -116,6 +134,7 @@ export default FilesystemBrowserModel.extend({
   destroy() {
     try {
       this.closeExternalSymlinkModal();
+      this.destroyRefreshLooper();
     } finally {
       this._super(...arguments);
     }
@@ -162,6 +181,52 @@ export default FilesystemBrowserModel.extend({
       file: item,
       archive,
     });
+  },
+
+  autoConfigureRefreshLooper() {
+    const archiveMetaState = this.get('archive.metaState');
+    if (archiveMetaState === 'creating') {
+      this.startRefreshLooper();
+    } else {
+      this.destroyRefreshLooper();
+    }
+  },
+
+  startRefreshLooper() {
+    const interval = 2000;
+    let refreshLooper = this.get('refreshLooper');
+    if (!refreshLooper) {
+      refreshLooper = this.set('refreshLooper', Looper.create({
+        immediate: false,
+      }));
+      refreshLooper.on('tick', () => this.refreshData());
+    }
+    if (get(refreshLooper, 'inverval') !== interval) {
+      set(refreshLooper, 'interval', interval);
+    }
+  },
+
+  destroyRefreshLooper() {
+    const refreshLooper = this.get('refreshLooper');
+    if (refreshLooper) {
+      refreshLooper.destroy();
+    }
+  },
+
+  /**
+   * @returns {Promise}
+   */
+  refreshData() {
+    const {
+      fileManager,
+      archive,
+      dir,
+    } = this.getProperties('fileManager', 'archive', 'dir');
+    const dirId = dir && get(dir, 'entityId');
+    return allSettled([
+      dirId && fileManager.dirChildrenRefresh(dirId),
+      archive && archive.reload(),
+    ]);
   },
 
   async symlinkExternalContext(dirSymlink) {
