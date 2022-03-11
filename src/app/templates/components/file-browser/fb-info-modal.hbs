@@ -16,21 +16,40 @@
   {{#bs-tab
     class="bs-tab-onedata bs-tab-modern"
     activeId=activeTab
-    onChange=(action "changeTab")
+    customTabs=true
+    fade=false
     as |tab|
   }}
-    {{tab.pane id="general" title=(tt this "tabs.general.tabTitle")}}
-    {{tab.pane id="size" title=(tt this "tabs.size.tabTitle")}}
-    {{#if (gt hardlinksCount 1)}}
-      {{tab.pane
-        id="hardlinks"
-        title=(tt this "tabs.hardlinks.tabTitle" hardlinksCount=(if
-          hardlinksLimitExceeded
-          (concat hardlinksLimit "+")
-          hardlinksCount
-        ))
-      }}
-    {{/if}}
+    {{#bs-nav
+      type="tabs"
+      class="nav-tabs-file-panel"
+      as |nav|
+    }}
+      {{#each tabsSpec key="id" as |tabSpec|}}
+        {{#if tabSpec.show}}
+          {{#nav.item
+            active=(eq tab.activeId tabSpec.id)
+            disabled=tabSpec.disabled
+            class=(concat "nav-item-" tabSpec.id)
+          }}
+            <a href={{concat "#" tabSpec.id}}
+              class={{concat "nav-link nav-link-file-dataset-panel nav-link-" tabSpec.id}}
+              role="tab"
+              {{action "changeTab" tabSpec.id}}
+            >
+              <span class="tab-label">
+                <div class="one-label tab-name">
+                  {{tabSpec.label}}
+                </div>
+              </span>
+            </a>
+            {{#if (and tabSpec.disabled tabSpec.disabledTip)}}
+              {{one-tooltip title=tabSpec.disabledTip}}
+            {{/if}}
+          {{/nav.item}}
+        {{/if}}
+      {{/each}}
+    {{/bs-nav}}
   {{/bs-tab}}
   {{#if (eq activeTab "general")}}
     <table class="table table-info table-info-large table-info-collapsible">
@@ -266,7 +285,10 @@
       </tbody>
     </table>
   {{else if (eq activeTab "size")}}
-    –
+    {{file-browser/file-entry-charts
+      space=space
+      file=file
+    }}
   {{else if (eq activeTab "hardlinks")}}
     {{#promise-proxy-container tagName="div" class="loadable-row" proxy=fileHardlinksProxy}}
       {{#if (and hardlinksLimitExceeded fileHardlinks.hardlinks.length)}}

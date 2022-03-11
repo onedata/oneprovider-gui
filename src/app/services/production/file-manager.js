@@ -18,6 +18,12 @@ import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink
 import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
+/**
+ * @typedef {Object} FileEntryTimeSeriesCollections
+ * @param {Array<string>} bytes
+ * @param {Array<string>} files
+ */
+
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
 const fileModelName = 'file';
@@ -424,6 +430,39 @@ export default Service.extend({
     });
     const children = attrs.children;
     return children && children.length > 0 && children[0].index === fileName;
+  },
+
+  /**
+   * @param {string} fileRequirementId
+   * @param {'bytes'|'files'} timeSeriesCollectionId
+   * @param {TimeSeriesMetricsQueryParams} queryParams
+   * @returns {Promise<TimeSeriesMetricsQueryResult>}
+   */
+  async queryTimeSeriesMetrics(
+    fileRequirementId,
+    timeSeriesCollectionId,
+    queryParams
+  ) {
+    const gri = getFileGri(fileRequirementId, {
+      aspect: `time_series_collection,${timeSeriesCollectionId}`,
+    });
+    return this.get('timeSeriesManager')
+      .queryTimeSeriesMetrics(gri, queryParams);
+  },
+
+  /**
+   * @param {string} fileRequirementId
+   * @returns {Promise<FileEntryTimeSeriesCollections>}
+   */
+  async getTimeSeriesCollections(fileRequirementId) {
+    const gri = getFileGri(fileRequirementId, {
+      aspect: 'time_series_collections',
+    });
+    return this.get('onedataGraph').request({
+      gri,
+      operation: 'get',
+      subscribe: false,
+    });
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service

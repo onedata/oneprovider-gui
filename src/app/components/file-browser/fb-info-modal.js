@@ -97,7 +97,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   initialTab: undefined,
 
   /**
-   * One of: general, hardlinks
+   * One of: general, hardlinks, size
    * @type {String}
    */
   activeTab: 'general',
@@ -402,7 +402,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   init() {
     this._super(...arguments);
     const initialTab = this.get('initialTab');
-    if (['general', 'hardlinks'].includes(initialTab)) {
+    if (['general', 'hardlinks', 'size'].includes(initialTab)) {
       this.set('activeTab', initialTab);
     }
   },
@@ -453,6 +453,47 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
       ));
     });
   },
+
+  tabsSpec: computed(
+    'itemType',
+    'file.effFile.type',
+    'hardlinksLimitExceeded',
+    'hardlinksLimit',
+    'hardlinksCount',
+    function tabSpecs() {
+      const {
+        itemType,
+        hardlinksLimitExceeded,
+        hardlinksLimit,
+        hardlinksCount,
+      } = this.getProperties('itemType', 'hardlinksLimitExceeded', 'hardlinksLimit', 'hardlinksCount');
+      const effItemType = this.get('file.effFile.type');
+      return [{
+          id: 'general',
+          label: this.t('tabs.general.tabTitle'),
+          disabled: false,
+          show: true,
+        },
+        {
+          id: 'hardlinks',
+          label: this.t('tabs.hardlinks.tabTitle', {
+            hardlinksCount: (hardlinksLimitExceeded ?
+              hardlinksLimit + '+' :
+              hardlinksCount
+            ),
+          }),
+          disabled: false,
+          show: (hardlinksCount > 1),
+        },
+        {
+          id: 'size',
+          label: this.t('tabs.size.tabTitle'),
+          disabledTip: this.t('tabs.size.disabledTip'),
+          disabled: (itemType === 'symlink'),
+          show: (effItemType !== 'file'),
+        },
+      ];
+    }),
 
   actions: {
     changeTab(tab) {

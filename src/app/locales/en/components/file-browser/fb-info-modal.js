@@ -71,6 +71,7 @@ export default {
     },
     size: {
       tabTitle: 'Size',
+      disabledTip: 'Not available for symbolic links.',
     },
     hardlinks: {
       tabTitle: 'Hard links ({{hardlinksCount}})',
