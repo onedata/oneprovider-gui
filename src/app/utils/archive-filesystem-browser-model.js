@@ -19,6 +19,7 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
 import Looper from 'onedata-gui-common/utils/looper';
 import { allSettled } from 'rsvp';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
@@ -140,10 +141,22 @@ export default FilesystemBrowserModel.extend({
   destroy() {
     try {
       this.closeExternalSymlinkModal();
-      this.destroyRefreshLooper();
-    } finally {
-      this._super(...arguments);
+    } catch (error) {
+      console.error(
+        'util:archive-filesystem-browser-model#destroy: closeExternalSymlinkModal failed',
+        error
+      );
     }
+    try {
+      this.destroyRefreshLooper();
+    } catch (error) {
+      console.error(
+        'util:archive-filesystem-browser-model#destroy: destroyRefreshLooper failed',
+        error
+      );
+    }
+
+    this._super(...arguments);
   },
 
   /**
@@ -192,7 +205,9 @@ export default FilesystemBrowserModel.extend({
   autoConfigureRefreshLooper() {
     const archiveMetaState = this.get('archive.metaState');
     if (archiveMetaState === 'creating') {
-      this.startRefreshLooper();
+      safeExec(this, () => {
+        this.startRefreshLooper();
+      });
     } else {
       this.destroyRefreshLooper();
     }
