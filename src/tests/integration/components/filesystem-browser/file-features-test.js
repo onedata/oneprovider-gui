@@ -521,10 +521,10 @@ describe('Integration | Component | filesystem browser/file features', function 
       });
 
       this.render(hbs `{{filesystem-browser/file-features
-      item=item
-      browserModel=browserModel
-      initiallyExpanded=false
-    }}`);
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=false
+      }}`);
       await wait();
 
       const collapsedElementClasses = [

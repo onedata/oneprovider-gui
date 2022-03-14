@@ -230,7 +230,9 @@ export default FilesystemBrowserModel.extend({
   destroyRefreshLooper() {
     const refreshLooper = this.get('refreshLooper');
     if (refreshLooper) {
+      refreshLooper.trigger('tick');
       refreshLooper.destroy();
+      this.set('refreshLooper', null);
     }
   },
 

@@ -51,7 +51,7 @@ export default Component.extend(I18n, {
    */
   archive: reads('browserModel.archive'),
 
-  creatingStateLabel: computed('archive.state', function stateLabel() {
+  creatingStateLabel: computed('archive.state', function creatingStateLabel() {
     const archiveState = this.get('archive.state');
     if (validArchiveStates.includes(archiveState)) {
       return this.t(`state.${archiveState}`);
@@ -62,7 +62,10 @@ export default Component.extend(I18n, {
 
   actions: {
     changeTagHover(tag, hovered) {
-      this.get('onChangeTagHover')(tag, hovered);
+      const onChangeTagHover = this.get('onChangeTagHover');
+      if (onChangeTagHover) {
+        onChangeTagHover(tag, hovered);
+      }
     },
   },
 });
