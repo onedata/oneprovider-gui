@@ -32,7 +32,8 @@
   {{/if}}
 </h1>
 {{#modal-archive-subheader archives=(array archive)}}
-  <span class="archive-files-info">({{filesCount}} {{filesText}}, {{sizeText}})</span>
+  ({{archive-content-count archive=archive}})
+  <span class="archive-files-info">()</span>
 {{/modal-archive-subheader}}
 {{#unless media.isMobile}}
   <p class="intro-text">

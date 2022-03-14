@@ -34,6 +34,7 @@ import datasetProtection from './components/dataset-protection';
 import filePath from './components/file-path';
 import archiveRecall from './components/archive-recall';
 import recallInfoModal from './components/recall-info-modal';
+import archiveContentCount from './components/archive-content-count';
 
 import uploadManager from './services/upload-manager';
 
@@ -82,6 +83,7 @@ const translations = {
     filePath,
     archiveRecall,
     recallInfoModal,
+    archiveContentCount,
   },
   services: {
     uploadManager,
