@@ -186,7 +186,8 @@ export default FilesystemBrowserModel.extend({
     const _super = this._super;
     let hasBeenHandled = false;
     try {
-      hasBeenHandled = await this.handlePotentialExternalSymlink(file);
+      hasBeenHandled = get(file, 'type') === 'symlink' &&
+        await this.handlePotentialExternalSymlink(file);
     } catch (error) {
       console.error(
         'util:archive-filesystem-browser-model#onOpenFile: external symlink check failed',
@@ -275,6 +276,9 @@ export default FilesystemBrowserModel.extend({
    *   should be handled by question to user, not by standard dir change
    */
   async handlePotentialExternalSymlink(symlink) {
+    if (get(symlink, 'type') !== 'symlink') {
+      return false;
+    }
     try {
       const externalContext = await this.symlinkExternalContext(symlink);
       if (externalContext && !(await this.isNestedArchiveContext(externalContext))) {
