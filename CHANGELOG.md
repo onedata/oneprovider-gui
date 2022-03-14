@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9088 Fixed considering nested archives symlinks and BagIt files as external symlinks
 * VFS-8598 Added feature tags for indicating files inside building and failed archives
 * VFS-9013 QoS time series charts Service Pack 1
 * VFS-9030 Added animated info icon for files and directories
