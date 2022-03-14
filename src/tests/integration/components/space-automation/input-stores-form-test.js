@@ -129,7 +129,7 @@ const storeTypes = {
     allowedDataSpecConfigs: dataSpecConfigsArray,
     dataSpecConfigKey: 'itemDataSpec',
     editors: dataSpecSpecificEditors,
-    complexValuesGenerator: arrayLikeValuesGenerator,
+    complexContentsGenerator: arrayLikeValuesGenerator,
   },
   // TODO: VFS-7816 uncomment or remove future code
   // map: {
@@ -137,7 +137,7 @@ const storeTypes = {
   //   editors: {
   //     default: 'rawValue',
   //   },
-  //   complexValuesGenerator: simpleValues =>
+  //   complexContentsGenerator: simpleValues =>
   //     simpleValues.map(simpleValue => `{"k0":${simpleValue}}`)
   //     .concat(simpleValues.length > 1 ? [
   //       `{${simpleValues.map((simpleValue, i) => `"k${i}":${simpleValue}`).join(',')}}`,
@@ -155,13 +155,13 @@ const storeTypes = {
     editors: {
       default: 'filesValue',
     },
-    complexValuesGenerator: () => [],
+    complexContentsGenerator: () => [],
   },
   singleValue: {
     allowedDataSpecConfigs: dataSpecConfigsArray,
     dataSpecConfigKey: 'itemDataSpec',
     editors: dataSpecSpecificEditors,
-    complexValuesGenerator: simpleValues => simpleValues,
+    complexContentsGenerator: simpleValues => simpleValues,
     filesLimit: 1,
   },
   // TODO: VFS-7816 uncomment or remove future code
@@ -172,12 +172,12 @@ const storeTypes = {
   //   editors: {
   //     default: 'rawValue',
   //   },
-  //   complexValuesGenerator: arrayLikeValuesGenerator,
+  //   complexContentsGenerator: arrayLikeValuesGenerator,
   // },
   // auditLog: {
   //   allowedDataSpecConfigs: dataSpecConfigsArray,
   //   editors: dataSpecSpecificEditors,
-  //   complexValuesGenerator: arrayLikeValuesGenerator,
+  //   complexContentsGenerator: arrayLikeValuesGenerator,
   // },
 };
 
@@ -287,7 +287,7 @@ describe('Integration | Component | space automation/input stores form', functio
     allowedDataSpecConfigs,
     dataSpecConfigKey,
     editors,
-    complexValuesGenerator,
+    complexContentsGenerator,
   }) => {
     allowedDataSpecConfigs.forEach(({
       name: dataSpecName,
@@ -320,8 +320,8 @@ describe('Integration | Component | space automation/input stores form', functio
         });
 
         if (editor === 'rawValue') {
-          const correctInitialContents = complexValuesGenerator(correctValues);
-          const incorrectInitialContents = complexValuesGenerator(incorrectValues);
+          const correctInitialContents = complexContentsGenerator(correctValues);
+          const incorrectInitialContents = complexContentsGenerator(incorrectValues);
 
           correctInitialContents.forEach(initialContent => {
             it(`recognizes ${initialContent} value as valid`, async function () {
