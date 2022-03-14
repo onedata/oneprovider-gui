@@ -15,7 +15,7 @@ import { inject as service } from '@ember/service';
 import { promise } from 'ember-awesome-macros';
 import _ from 'lodash';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import generateColors from 'onedata-gui-common/utils/generate-colors';
+import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 
 export default Component.extend(I18n, {
@@ -61,6 +61,11 @@ export default Component.extend(I18n, {
    */
   tab: undefined,
 
+  /**
+   * @type {ComputedProperty<Utils.ColorGenerator>}
+   */
+  colorGenerator: computed(() => new ColorGenerator()),
+
   providers: reads('providersProxy.content'),
 
   /**
@@ -78,14 +83,19 @@ export default Component.extend(I18n, {
    * Global colors for each provider
    * @type {ComputedProperty<Object>}
    */
-  providersColors: computed('providers.@each.entityId', function providersColors() {
-    const providers = this.get('providers');
+  providersColors: computed('providers.@each.entityId', 'colorGenerator', function providersColors() {
+    const {
+      providers,
+      colorGenerator,
+    } = this.getProperties('providers', 'colorGenerator');
     if (providers) {
       const providerIds = providers.mapBy('entityId').sort();
-      const colors = generateColors(providerIds.length + 1);
-      return _.assign(
-        _.zipObject(providerIds, colors), { unknown: colors[colors.length - 1] }
+      const colors = providerIds.map((providerId) =>
+        colorGenerator.generateColorForKey(providerId)
       );
+      return _.assign(_.zipObject(providerIds, colors), {
+        unknown: colorGenerator.generateColorForKey('unknown'),
+      });
     }
   }),
 

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9013 QoS time series charts Service Pack 1
 * VFS-9030 Added animated info icon for files and directories
 * VFS-8654 Added support for symlinks in archives that points to external files and directories
 * VFS-7631 Added file path to dataset item in datasets modal

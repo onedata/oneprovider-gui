@@ -2,7 +2,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { computed, get } from '@ember/object';
-import generateColors from 'onedata-gui-common/utils/generate-colors';
+import ColorGenerator from 'onedata-gui-common/utils/color-generator';
 
 export default Component.extend({
   classNames: ['dummy-providers-map'],
@@ -11,16 +11,26 @@ export default Component.extend({
 
   space: reads('mockBackend.entityRecords.space.firstObject'),
 
-  providersColors: computed('space.providerList.list', function providersColors() {
-    const providers = this.get('space.providerList.list');
-    if (providers) {
-      const colors = generateColors(get(providers, 'length'));
-      return providers.reduce((result, provider, i) => {
-        result[get(provider, 'entityId')] = colors[i];
-        return result;
-      }, {});
-    } else {
-      return {};
+  /**
+   * @type {ComputedProperty<Utils.ColorGenerator>}
+   */
+  colorGenerator: computed(() => new ColorGenerator()),
+
+  providersColors: computed(
+    'space.providerList.list',
+    'colorGenerator',
+    function providersColors() {
+      const providers = this.get('space.providerList.list');
+      const colorGenerator = this.get('colorGenerator');
+      if (providers) {
+        return providers.reduce((result, provider) => {
+          const providerId = get(provider, 'entityId');
+          result[providerId] = colorGenerator.generateColorForKey(providerId);
+          return result;
+        }, {});
+      } else {
+        return {};
+      }
     }
-  }),
+  ),
 });

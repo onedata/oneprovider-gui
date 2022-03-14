@@ -26,6 +26,7 @@ import { entityType as datasetEntityType } from 'oneprovider-gui/models/dataset'
 import { entityType as fileEntityType } from 'oneprovider-gui/models/file';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import { entityType as atmTaskExecutionEntityType } from 'oneprovider-gui/models/atm-task-execution';
+import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/qos-requirement';
 
 const messagePosixError = (errno) => ({
   success: false,
@@ -644,6 +645,55 @@ const atmTaskExecutionHandlers = {
   },
 };
 
+const qosTimeSeriesMetricSeconds = {
+  minute: 60,
+  hour: 60 * 60,
+  day: 24 * 60 * 60,
+  month: 30 * 24 * 60 * 60,
+};
+
+const qosRequirementHandlers = {
+  time_series_collections(operation) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+
+    return {
+      bytes: ['total'],
+      files: ['total'],
+    };
+  },
+  time_series_collection(operation, entityId, data) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    const {
+      limit,
+      startTimestamp,
+      metrics,
+    } = data;
+    const result = {};
+    for (const seriesId in metrics) {
+      const metricsIds = metrics[seriesId];
+      const seriesResult = {};
+      result[seriesId] = seriesResult;
+      for (const metricId of metricsIds) {
+        const metricSeconds = qosTimeSeriesMetricSeconds[metricId];
+        const lastPointTimestamp = startTimestamp - (startTimestamp % metricSeconds);
+        seriesResult[metricId] = [];
+        for (let i = 0; i < limit - 1; i++) {
+          const pointTimestamp = lastPointTimestamp - i * metricSeconds;
+          seriesResult[metricId].push({
+            timestamp: lastPointTimestamp - i * metricSeconds,
+            value: pointTimestamp % 1024,
+          });
+        }
+      }
+    }
+    return { windows: result };
+  },
+};
+
 const metaJson = {
   query: {
     count: 10,
@@ -834,6 +884,7 @@ export default OnedataGraphMock.extend({
       // dedicated model in ember data.
       op_atm_store: atmStoreHandlers,
       [atmTaskExecutionEntityType]: atmTaskExecutionHandlers,
+      [qosRequirementEntityType]: qosRequirementHandlers,
     });
     this.set(
       'handlers',
