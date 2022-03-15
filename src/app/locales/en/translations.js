@@ -35,6 +35,7 @@ import filePath from './components/file-path';
 import archiveRecall from './components/archive-recall';
 import recallInfoModal from './components/recall-info-modal';
 import archiveContentCount from './components/archive-content-count';
+import archiveState from './components/archive-state';
 
 import uploadManager from './services/upload-manager';
 
@@ -84,6 +85,7 @@ const translations = {
     archiveRecall,
     recallInfoModal,
     archiveContentCount,
+    archiveState,
   },
   services: {
     uploadManager,

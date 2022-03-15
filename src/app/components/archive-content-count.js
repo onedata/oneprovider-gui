@@ -16,6 +16,7 @@ import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
+  tagName: 'span',
   classNames: ['archive-content-count'],
 
   i18n: service(),
