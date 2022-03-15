@@ -24,6 +24,8 @@ import notImplementedReject from 'onedata-gui-common/utils/not-implemented-rejec
 import defaultResolveParent from 'oneprovider-gui/utils/default-resolve-parent';
 import removeObjectsFirstOccurence from 'onedata-gui-common/utils/remove-objects-first-occurence';
 
+const defaultIsItemDisabled = () => false;
+
 export const actionContext = {
   none: 'none',
   inDir: 'inDir',
@@ -534,6 +536,22 @@ export default Component.extend(I18n, {
     return {};
   }),
 
+  /**
+   * @type {(item: Object) => boolean}
+   */
+  isItemDisabledFunction: computed(
+    'browserModel.isItemDisabled',
+    function isItemDisabledFunction() {
+      const browserModel = this.get('browserModel');
+      const isItemDisabledMethod = browserModel.isItemDisabled;
+      if (typeof isItemDisabledMethod === 'function') {
+        return isItemDisabledMethod.bind(browserModel);
+      } else {
+        return defaultIsItemDisabled;
+      }
+    }
+  ),
+
   bindBrowserModel: observer('browserModel', function bindBrowserModel() {
     const browserModel = this.get('browserModel');
     if (browserModel) {
@@ -628,8 +646,9 @@ export default Component.extend(I18n, {
   },
 
   openFile(file, options = {}) {
+    const isItemDisabled = this.get('isItemDisabledFunction');
     const effFile = get(file, 'effFile');
-    if (!effFile) {
+    if (!effFile || isItemDisabled(file)) {
       return;
     }
     const isDir = get(file, 'type') === 'dir' ||

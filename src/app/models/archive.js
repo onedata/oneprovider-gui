@@ -10,15 +10,36 @@ import attr from 'ember-data/attr';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { computed } from '@ember/object';
 
 export const entityType = 'op_archive';
+
+/**
+ * @type {Array<ArchiveState>}
+ */
+export const validArchiveStates = Object.freeze([
+  'pending',
+  'building',
+  'verifying',
+  'preserved',
+  'verification_failed',
+  'failed',
+  'purging',
+]);
+
+/**
+ * @typedef {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'purging'} ArchiveState
+ */
+
+/**
+ * @typedef {'creating'|'succeeded'|'failed'|'destroying'} ArchiveMetaState
+ */
 
 export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
 
   /**
-   * One of: pending, building, verifying, preserved, verification_failed, failed, purging
-   * @type {String}
+   * @type {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'purging'}
    */
   state: attr('string'),
 
@@ -91,4 +112,27 @@ export default Model.extend(GraphSingleModelMixin, {
 
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),
+
+  /**
+   * A less-detailed state of archive to simplify state presentation.
+   * Flow: creating -> succeeded or failed -> destroying
+   * @type {ArchiveMetaState}
+   */
+  metaState: computed('state', function metaState() {
+    switch (this.get('state')) {
+      case 'pending':
+      case 'building':
+      case 'verifying':
+        return 'creating';
+      case 'preserved':
+        return 'succeeded';
+      case 'verification_failed':
+      case 'failed':
+        return 'failed';
+      case 'purging':
+        return 'destroying';
+      default:
+        return 'unknown';
+    }
+  }),
 }).reopenClass(StaticGraphModelMixin);

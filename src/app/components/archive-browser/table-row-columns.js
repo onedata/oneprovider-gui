@@ -36,6 +36,13 @@ export default FbTableRowColumns.extend({
 
   baseArchiveUrl: reads('fileRowModel.baseArchiveHrefProxy.content'),
 
+  stateClassMapping: Object.freeze({
+    creating: 'infinite animated pulse-mint',
+    succeeded: '',
+    failed: 'text-danger',
+    destroying: 'infinite animated pulse-orange',
+  }),
+
   actions: {
     async baseArchiveLinkClick(event) {
       event.stopPropagation();

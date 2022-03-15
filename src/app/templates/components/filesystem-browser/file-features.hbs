@@ -1,8 +1,9 @@
 {{#file-browser/item-features-container
+  browserModel=browserModel
   item=item
   features=features
   initiallyExpanded=initiallyExpanded
-  as |displayed|
+  as |displayed itemWithFeatures|
 }}
   {{#if (contains "recallingMembership" features)}}
     {{#if displayed.recallingMembership.isShown}}
@@ -48,9 +49,9 @@
           {{/if}}
         </div>
       </div>
-    {{else if item.isRecalled}}
+    {{else if itemWithFeatures.isRecalled}}
       {{filesystem-browser/tag-recalled
-        file=item
+        file=itemWithFeatures
         disabled=effRecallingDisabled
         onTagClicked=(unless effRecallingDisabled (action "recallTagClicked"))
       }}
@@ -171,5 +172,13 @@
       {{/if}}
     </div>
   {{/if}}
-  {{yield displayed}}
+  {{#if browserModel.fileFeaturesExtensionComponentName}}
+    {{component browserModel.fileFeaturesExtensionComponentName
+      browserModel=browserModel
+      item=itemWithFeatures
+      displayedState=displayed
+      onChangeTagHover=(action "changeTagHover")
+    }}
+  {{/if}}
+  {{yield displayed itemWithFeatures}}
 {{/file-browser/item-features-container}}

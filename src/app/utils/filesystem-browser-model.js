@@ -179,9 +179,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * File features displayed in status bar - see `component:file-browser/file-features`
    * `features` property.
    * @virtual optional
-   * @type {Array<String>}
+   * @type {Array<ItemFeatureSpec>}
    */
   fileFeatures: defaultFilesystemFeatures,
+
+  /**
+   * If provided, the additional component will be injected inside file-features.
+   * Interface of extension component:
+   * - `browserModel: Utils.FilesystemBrowserModel` (or child classes)
+   * - `item: Models.File`
+   * - `displayedState: Object` (see `components/file-browser/item-features-container`)
+   * @virtual optional
+   * @type {String}
+   */
+  fileFeaturesExtensionComponentName: null,
 
   /**
    * @override
@@ -253,22 +264,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   readonlyFilesystem: false,
 
   /**
-   * True if QoS tag in header is currenlty hovered.
+   * Name of feature tag in header that is currently hovered.
    * @type {Boolean}
    */
-  qosHeaderTagIsHovered: false,
-
-  /**
-   * True if dataset tag in header is currenlty hovered.
-   * @type {Boolean}
-   */
-  datasetHeaderTagIsHovered: false,
-
-  /**
-   * True if recalling tag in header is currenlty hovered.
-   * @type {Boolean}
-   */
-  recallingHeaderTagIsHovered: false,
+  hoveredHeaderTag: null,
 
   /**
    * Timeout ID for removing transition class for tags.
@@ -877,35 +876,24 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {ComputedProperty<Array<String>>}
    */
   customClassNames: computed(
-    'qosHeaderTagIsHovered',
-    'datasetHeaderTagIsHovered',
-    'recallingHeaderTagIsHovered',
+    'hoveredHeaderTag',
     'highlightAnimationTimeoutId',
     function customClassNames() {
       const {
-        qosHeaderTagIsHovered,
-        datasetHeaderTagIsHovered,
-        recallingHeaderTagIsHovered,
+        hoveredHeaderTag,
         highlightAnimationTimeoutId,
       } = this.getProperties(
-        'qosHeaderTagIsHovered',
-        'datasetHeaderTagIsHovered',
-        'recallingHeaderTagIsHovered',
+        'hoveredHeaderTag',
         'highlightAnimationTimeoutId'
       );
       const classes = [];
-      if (qosHeaderTagIsHovered) {
-        classes.push('highlight-inherited-qos');
+      if (hoveredHeaderTag) {
+        classes.push(
+          `highlight-inherited-${hoveredHeaderTag}`,
+          'highlight-inherited',
+        );
       }
-      if (datasetHeaderTagIsHovered) {
-        classes.push('highlight-inherited-dataset');
-      }
-      if (recallingHeaderTagIsHovered) {
-        classes.push('highlight-inherited-recalling');
-      }
-      if (classes.length) {
-        classes.push('highlight-inherited', 'highlight-transition');
-      } else if (highlightAnimationTimeoutId) {
+      if (hoveredHeaderTag || highlightAnimationTimeoutId) {
         classes.push('highlight-transition');
       }
       return classes;
@@ -974,29 +962,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   animateHighlight: observer(
-    'qosHeaderTagIsHovered',
-    'datasetHeaderTagIsHovered',
-    'recallingHeaderTagIsHovered',
+    'hoveredHeaderTag',
     function animateHighlight() {
       const {
-        qosHeaderTagIsHovered,
-        datasetHeaderTagIsHovered,
-        recallingHeaderTagIsHovered,
+        hoveredHeaderTag,
         highlightAnimationTimeoutId,
       } = this.getProperties(
-        'qosHeaderTagIsHovered',
-        'datasetHeaderTagIsHovered',
-        'recallingHeaderTagIsHovered',
-        'highlightAnimationTimeoutId');
+        'hoveredHeaderTag',
+        'highlightAnimationTimeoutId'
+      );
       if (highlightAnimationTimeoutId) {
         this.set('highlightAnimationTimeoutId', null);
         window.clearTimeout(highlightAnimationTimeoutId);
       }
-      if (
-        !qosHeaderTagIsHovered &&
-        !datasetHeaderTagIsHovered &&
-        !recallingHeaderTagIsHovered
-      ) {
+      if (!hoveredHeaderTag) {
         this.set(
           'highlightAnimationTimeoutId',
           // timeout time is slightly longer than defined transition time in
@@ -1090,6 +1069,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       actions = actions.rejectBy('id', 'paste');
     }
     return actions;
+  },
+
+  /**
+   * In some specific file browsers, there is a need to show additional inheritable file
+   * tags (called "features") that need additional data beside standard file data.
+   * This method can be overridden to add additional computed properties to file (by
+   * wrapping it) so item-features-container can read status of these features.
+   * @param {Models.File} item
+   * @returns {Object} a wrapped item with additional feature-properties used by
+   *   specific implementation of item-features-container
+   */
+  featurizeItem(item) {
+    return item;
   },
 
   /**
@@ -1293,6 +1285,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   changeTagHover(tag, isHovered) {
-    this.set(`${tag}HeaderTagIsHovered`, isHovered);
+    this.set('hoveredHeaderTag', isHovered ? tag : null);
   },
 });

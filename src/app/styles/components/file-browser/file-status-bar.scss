@@ -163,7 +163,54 @@ $file-status-tag-spacing: 6px;
   transition: all 0.1s ease-in;
 }
 
-// file rows
+//#region inherited tags highlight
+
+/**
+ * When user hovers a feature tag in header, uncollapsed suitable inherited tags in rows
+ * should be highlighted.
+ */
+
+$file-feature-tags: qos dataset recalling archive-creating archive-failed;
+
+@mixin feature-row-tag-highlight($tag) {
+  &.highlight-inherited-#{$tag} {
+    .fb-table-row .file-status-bar {
+      .#{$tag}-file-status-tag-group {
+        .file-status-tag-inherited-addon {
+          @include highlight-tag-color;
+          @include highlight-tag-shadow;
+        }
+        &.file-status-tag-group-fully-inherited {
+          @include highlight-tag-shadow;
+          .file-status-tag {
+            @include highlight-tag-color;
+          }
+        }
+      }
+    }
+  }
+}
+
+@mixin feature-head-tag-highlight($tag) {
+  &.highlight-inherited-#{$tag} {
+    .table-header-status-bar .file-status-tag-group.#{$tag}-file-status-tag-group {
+      @include highlight-tag-shadow;
+      .file-status-tag {
+        @include highlight-tag-color;
+      }
+    }
+  }
+}
+
+// highlighting tags in header
+
+.file-browser {
+  @each $tag in $file-feature-tags {
+    @include feature-head-tag-highlight($tag);
+  }
+}
+
+// highlighting tags in rows
 
 .file-browser.highlight-transition {
   .file-status-tag {
@@ -177,81 +224,9 @@ $file-status-tag-spacing: 6px;
       @include highlight-tag-shadow;
     }
   }
-  &.highlight-inherited-qos {
-    .fb-table-row .file-status-bar {
-      .qos-file-status-tag-group {
-        .file-status-tag-inherited-addon {
-          @include highlight-tag-color;
-          @include highlight-tag-shadow;
-        }
-        &.file-status-tag-group-fully-inherited {
-          @include highlight-tag-shadow;
-          .file-status-tag {
-            @include highlight-tag-color;
-          }
-        }
-      }
-    }
-  }
-  &.highlight-inherited-dataset {
-    .fb-table-row .file-status-bar {
-      .dataset-file-status-tag-group {
-        .file-status-tag-inherited-addon {
-          @include highlight-tag-color;
-          @include highlight-tag-shadow;
-        }
-        &.file-status-tag-group-fully-inherited {
-          @include highlight-tag-shadow;
-          .file-status-tag {
-            @include highlight-tag-color;
-          }
-        }
-      }
-    }
-  }
-  &.highlight-inherited-recalling {
-    .fb-table-row .file-status-bar {
-      .recalling-file-status-tag-group {
-        .file-status-tag-inherited-addon {
-          @include highlight-tag-color;
-          @include highlight-tag-shadow;
-        }
-        &.file-status-tag-group-fully-inherited {
-          @include highlight-tag-shadow;
-          .file-status-tag {
-            @include highlight-tag-color;
-          }
-        }
-      }
-    }
+  @each $tag in $file-feature-tags {
+    @include feature-row-tag-highlight($tag);
   }
 }
 
-// header
-
-.file-browser {
-  &.highlight-inherited-dataset {
-    .table-header-status-bar .file-status-tag-group.dataset-file-status-tag-group {
-      @include highlight-tag-shadow;
-      .file-status-tag {
-        @include highlight-tag-color;
-      }
-    }
-  }
-  &.highlight-inherited-qos {
-    .table-header-status-bar .file-status-tag-group.qos-file-status-tag-group {
-      @include highlight-tag-shadow;
-      .file-status-tag {
-        @include highlight-tag-color;
-      }
-    }
-  }
-  &.highlight-inherited-recalling {
-    .table-header-status-bar .file-status-tag-group.recalling-file-status-tag-group {
-      @include highlight-tag-shadow;
-      .file-status-tag {
-        @include highlight-tag-color;
-      }
-    }
-  }
-}
+//#endregion
