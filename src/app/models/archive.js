@@ -98,9 +98,9 @@ export default Model.extend(GraphSingleModelMixin, {
 
   /**
    * Relation to archive that is direct parent in nested archives hierarchy.
-   * This relation is typically non-empty if the archive is a part of nested archives
+   * This relation should be non-empty if the archive is a part of nested archives
    * hierarchy and is not a root of that hierarchy.
-   * See `config.createNestedArchives` field.
+   * A parent of nested archive should have `config.createNestedArchives` enabled.
    * @type {ComputedProperty<Models.Archive>}
    */
   parentArchive: belongsTo('archive'),
