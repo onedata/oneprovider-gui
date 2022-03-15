@@ -37,16 +37,17 @@ export default Service.extend({
 
   /**
    * @param {String} archiveId entityId of archive
+   * @param {Object} requestOptions `store.findRecord` options
    * @returns {Promise<Models.Archive>}
    */
-  async getArchive(archiveId) {
+  async getArchive(archiveId, requestOptions) {
     const requestGri = gri({
       entityType: archiveEntityType,
       entityId: archiveId,
       aspect: 'instance',
       scope: 'private',
     });
-    return this.get('store').findRecord('archive', requestGri);
+    return this.get('store').findRecord('archive', requestGri, requestOptions);
   },
 
   /**

@@ -8,6 +8,9 @@
   .fb-table-col-incremental {
     width: 14em;
     max-width: 14em;
+    .base-archive-id {
+      display: block;
+    }
   }
   .col-status-no {
     color: $main-text-color-disabled;
