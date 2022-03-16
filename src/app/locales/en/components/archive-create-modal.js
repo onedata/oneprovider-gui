@@ -1,4 +1,3 @@
 export default {
-  // FIXME: consult with English language expert
-  noArchivesViewPrivilege: 'Note, that although you can create an archive, currently you have insufficient privileges to see and browse it (requires {{privilegeExpression}} in this space).',
+  noArchivesViewPrivilege: 'Created archive will not be visible as you do not have the "view archives" privilege in this space.',
 };
