@@ -460,13 +460,18 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     'hardlinksLimitExceeded',
     'hardlinksLimit',
     'hardlinksCount',
-    function tabSpecs() {
+    function tabsSpec() {
       const {
         itemType,
         hardlinksLimitExceeded,
         hardlinksLimit,
         hardlinksCount,
-      } = this.getProperties('itemType', 'hardlinksLimitExceeded', 'hardlinksLimit', 'hardlinksCount');
+      } = this.getProperties(
+        'itemType',
+        'hardlinksLimitExceeded',
+        'hardlinksLimit',
+        'hardlinksCount'
+      );
       const effItemType = this.get('file.effFile.type');
       return [{
           id: 'general',
@@ -493,7 +498,8 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
           show: (effItemType !== 'file'),
         },
       ];
-    }),
+    }
+  ),
 
   actions: {
     changeTab(tab) {

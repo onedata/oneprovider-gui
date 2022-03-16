@@ -47,13 +47,12 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   file: undefined,
 
   /**
-   * @virtual optional
+   * @virtual
    * @type {Models.Space}
    */
   space: undefined,
 
   /**
-   * @virtual
    * @type {string}
    */
   fileId: reads('file.entityId'),
@@ -436,7 +435,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   },
 
   /**
-   * @returns { Promise < Array < { id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters } >> }
+   * @returns {Promise<Array<{ id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
   async fetchDynamicSeriesConfigs() {
     const colorGenerator = this.get('colorGenerator');
@@ -509,6 +508,5 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       bytesColor: colorGenerator.generateColorForKey('bytes'),
     };
     this.set('chartsColor', colors);
-    console.log(typeof this.get('chartsColor'));
   },
 });

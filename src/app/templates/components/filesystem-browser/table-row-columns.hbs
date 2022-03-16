@@ -15,7 +15,10 @@
         {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
       {{/if}}
     {{else if (and (eq file.type "dir") (gte file.effFile.size 0))}}
-      <div class="dir-size" onclick={{action (action "invokeFileAction" file "info" "size")}}>
+      <div 
+        class="dir-size-container" 
+        onclick={{action (action "invokeFileAction" file "info" "size")}}
+      >
         <span class="dir-size-value">
           {{bytes-to-string file.effFile.size}}
         </span>
@@ -27,7 +30,7 @@
       {{one-tooltip
         title=(tt this "sizeInfo")
       }}
-    {{else if (and (eq file.effFile.type "dir") file.effFile.size)}}
+    {{else if file.effFile.size}}
       {{bytes-to-string file.effFile.size}}
     {{else}}
       —

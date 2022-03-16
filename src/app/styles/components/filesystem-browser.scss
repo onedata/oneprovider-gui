@@ -4,6 +4,14 @@
     width: 150px;
     text-align: center;
 
+    .dir-size-container:hover {
+      font-weight: bold;
+      .oneicon-overview {
+        color: $color-one-mint;
+        opacity: 1;
+      }
+    }
+
     .dir-size-value {
       text-align: center;
     }
@@ -14,14 +22,6 @@
       margin-top: 1px;
       width: 30px;
       opacity: 0.4;
-    }
-
-    .dir-size:hover {
-      font-weight: bold;
-      .oneicon-overview {
-        color: $color-one-mint;
-        opacity: 1;
-      }
     }
   }
   .fb-table-col-modification {
