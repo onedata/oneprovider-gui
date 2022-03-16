@@ -32,6 +32,7 @@ export default Service.extend({
   store: service(),
   onedataRpc: service(),
   onedataGraph: service(),
+  timeSeriesManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -433,33 +434,37 @@ export default Service.extend({
   },
 
   /**
-   * @param {string} fileRequirementId
-   * @param {'bytes'|'files'} timeSeriesCollectionId
+   * @param { string } fileId
    * @param {TimeSeriesMetricsQueryParams} queryParams
    * @returns {Promise<TimeSeriesMetricsQueryResult>}
    */
   async queryTimeSeriesMetrics(
-    fileRequirementId,
-    timeSeriesCollectionId,
+    fileId,
     queryParams
   ) {
-    const gri = getFileGri(fileRequirementId, {
-      aspect: `time_series_collection,${timeSeriesCollectionId}`,
+    const requestGri = gri({
+      entityId: fileId,
+      entityType: fileEntityType,
+      aspect: 'time_series_collection,dirStats',
+      scope: 'private',
     });
     return this.get('timeSeriesManager')
-      .queryTimeSeriesMetrics(gri, queryParams);
+      .queryTimeSeriesMetrics(requestGri, queryParams);
   },
 
   /**
-   * @param {string} fileRequirementId
+   * @param { string } fileId
    * @returns {Promise<FileEntryTimeSeriesCollections>}
    */
-  async getTimeSeriesCollections(fileRequirementId) {
-    const gri = getFileGri(fileRequirementId, {
+  async getTimeSeriesCollections(fileId) {
+    const requestGri = gri({
+      entityId: fileId,
+      entityType: fileEntityType,
       aspect: 'time_series_collections',
+      scope: 'private',
     });
     return this.get('onedataGraph').request({
-      gri,
+      gri: requestGri,
       operation: 'get',
       subscribe: false,
     });
