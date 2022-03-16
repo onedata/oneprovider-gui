@@ -24,6 +24,7 @@ import {
   notEqual,
   array,
   collect,
+  not,
 } from 'ember-awesome-macros';
 import { resolve, all as allFulfilled } from 'rsvp';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
@@ -35,6 +36,7 @@ import { isEmpty } from '@ember/utils';
 import SplitGrid from 'npm:split-grid';
 import _ from 'lodash';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 export const spaceDatasetsRootId = 'spaceDatasetsRoot';
 
@@ -77,6 +79,7 @@ const mixins = [
 
 export default OneEmbeddedComponent.extend(...mixins, {
   classNames: ['content-space-datasets'],
+  classNameBindings: ['noViewArchivesPrivilege:no-archives-view'],
 
   /**
    * @override
@@ -90,6 +93,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   parentAppNavigation: service(),
   isMobile: service(),
   appProxy: service(),
+  i18n: service(),
 
   /**
    * **Injected from parent frame.**
@@ -185,6 +189,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'selectedFiles',
     'attachmentState',
   ]),
+
+  /**
+   * Minimum height in pixels that a section (uppper part of lower part) can have.
+   * @type {number}
+   */
+  sectionMinHeight: 200,
 
   /**
    * Initialized on `didInsertElement`.
@@ -454,7 +464,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
     raw('gutter-label-hidden')
   ),
 
-  gutterLabelVisible: reads('singleDatasetIsSelected'),
+  gutterLabelVisible: and(not('noViewArchivesPrivilege'), 'singleDatasetIsSelected'),
 
   singleDatasetIsSelected: bool('selectedSingleDataset'),
 
@@ -478,6 +488,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
     'selectedFiles',
     'selectedArchives',
   ),
+
+  noViewArchivesPrivilege: not('space.privileges.viewArchives'),
+
+  viewPrivilegeExpression: computed(function viewPrivilegeExpression() {
+    const i18n = this.get('i18n');
+    return createPrivilegeExpression(i18n, 'space', 'space_view_archives');
+  }),
 
   spaceIdObserver: observer('spaceId', function spaceIdObserver() {
     this.get('containerScrollTop')(0);
@@ -504,13 +521,13 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @override
    */
   didInsertElement() {
+    const sectionMinHeight = this.get('sectionMinHeight');
     const splitGrid = SplitGrid({
       rowGutters: [{
         track: 1,
         element: this.element.querySelector('.gutter-row-1'),
       }],
-      sizes: [10, 1],
-      minSize: 200,
+      minSize: sectionMinHeight,
       onDragEnd: (...args) => this.onGutterDragEnd(...args),
     });
     this.set('splitGrid', splitGrid);

@@ -31,6 +31,10 @@
   display: grid;
   grid-template-rows: 1fr $-gutter-height 1fr;
 
+  &.no-archives-view {
+    grid-template-rows: 1fr $-gutter-height 200px;
+  }
+
   .gutter-row {
     @include horizontal-drag-dots-background();
     position: relative;
@@ -200,6 +204,10 @@
     flex-grow: 1;
     font-size: 1.5em;
     opacity: $disabled-opacity;
+
+    .no-archives-view-image .image {
+      height: 100px;
+    }
   }
   .bottom-panel-text {
     text-align: center;

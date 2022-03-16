@@ -72,7 +72,20 @@
     class="split-browser-container archive-browser-container"
     as |perfectScrollbarContainer|
   }}
-    {{#if singleDatasetIsSelected}}
+    {{#if noViewArchivesPrivilege}}
+      <div class="bottom-panel-content">
+        <div class="bottom-panel-text">
+          {{tt this "insufficientPrivileges"}}
+        </div>
+        {{one-image
+          class="no-archives-view-image"
+          imagePath="assets/images/no-view.svg"
+        }}
+        <div class="bottom-panel-text bottom-panel-text-secondary">
+          {{tt this "requiresPrivilege" privilegeExpression=viewPrivilegeExpression}}
+        </div>
+      </div>
+    {{else if singleDatasetIsSelected}}
       {{dataset-archives-browser
         space=space
         browsableDataset=selectedSingleDataset
