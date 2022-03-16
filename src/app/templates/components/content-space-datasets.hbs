@@ -41,6 +41,7 @@
       {{#if datasetToCreateArchive}}
         {{archive-create-modal
           open=true
+          space=space
           dataset=datasetToCreateArchive
           options=createArchiveOptions
           onHide=(action closeCreateArchiveModal)

@@ -1,6 +1,6 @@
 /**
  * Just for testing archive-create-modal
- * 
+ *
  * @module components/dummy-archive-create-modal
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
@@ -15,6 +15,8 @@ export default Component.extend({
   mockBackend: service(),
 
   open: true,
+
+  space: reads('mockBackend.entityRecords.space.0'),
 
   dataset: reads('mockBackend.entityRecords.dataset.0'),
 

@@ -3,6 +3,7 @@
 {{/modal.header}}
 
 {{#modal.body class="archive-settings-part archive-settings-modal-body"}}
+  {{yield}}
   {{archive-settings/form
     dataset=dataset
     options=options
