@@ -1,5 +1,8 @@
 <span class="file-info-mobile-inner file-info-mobile-left file-info-mobile-state">
-  {{tt this "state"}}: {{fileRowModel.stateText}}
+  {{archive-state
+    archive=fileRowModel.archive
+    stateClassMapping=stateClassMapping
+  }}
 </span>
 <span class="file-info-mobile-inner file-info-mobile-right file-info-mobile-created">
   {{date-format file.creationTime format="dateWithMinutes" blank="—"}}
