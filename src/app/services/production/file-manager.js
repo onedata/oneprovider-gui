@@ -18,7 +18,7 @@ import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink
 import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
-const cancelRecallAspect = 'archive_recall_cancel';
+const cancelRecallAspect = 'cancel_archive_recall';
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
 const fileModelName = 'file';
