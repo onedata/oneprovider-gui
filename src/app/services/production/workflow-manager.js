@@ -184,14 +184,14 @@ export default Service.extend({
    * @param {String} atmWorkflowSchemaId
    * @param {RevisionNumber} atmWorkflowSchemaRevisionNumber
    * @param {String} spaceId
-   * @param {Object} storeInitialContents map (storeSchemaId => initial content)
+   * @param {Object} storeInitialContentOverlay map (storeSchemaId => initial content)
    * @returns {Promise<Models.AtmWorkflowExecution>}
    */
   async runWorkflow(
     atmWorkflowSchemaId,
     atmWorkflowSchemaRevisionNumber,
     spaceId,
-    storeInitialContents
+    storeInitialContentOverlay
   ) {
     return await this.get('store').createRecord('atmWorkflowExecution', {
       _meta: {
@@ -199,7 +199,7 @@ export default Service.extend({
           atmWorkflowSchemaId,
           atmWorkflowSchemaRevisionNumber,
           spaceId,
-          storeInitialContents,
+          storeInitialContentOverlay,
         },
       },
     }).save();
