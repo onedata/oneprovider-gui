@@ -28,6 +28,9 @@
       bottom: 0;
     }
   }
+  .error-dir-image-no-view {
+    background-image: url($root-url + 'images/no-view.svg');
+  }
   @media (max-width: 450px) {
     .file-info-mobile-created {
       display: none;

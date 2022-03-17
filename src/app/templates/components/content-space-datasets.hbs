@@ -76,14 +76,16 @@
     {{#if noViewArchivesPrivilege}}
       <div class="bottom-panel-content">
         <div class="bottom-panel-text">
-          {{tt this "insufficientPrivileges"}}
+          {{tt this "noViewPrivilege.insufficientPrivileges"}}
         </div>
         {{one-image
           class="no-archives-view-image"
           imagePath="assets/images/no-view.svg"
         }}
         <div class="bottom-panel-text bottom-panel-text-secondary">
-          {{tt this "requiresPrivilege" privilegeExpression=viewPrivilegeExpression}}
+          {{tt this "noViewPrivilege.requiresPrivilege"
+            privilegeExpression=viewPrivilegeExpression
+          }}
         </div>
       </div>
     {{else if singleDatasetIsSelected}}
