@@ -1,6 +1,6 @@
 /**
- * Gets percentage(floored to integer) progress of recall process.
- * *NOTE: `archiveRecallState` and `archiveRecallInfo`should be resolved.
+ * Gets percentage (floored to integer) progress of recall process.
+ * *NOTE:* `archiveRecallState` and `archiveRecallInfo` should be resolved.
  *
  * @module utils/recalling-percentage-progress
  * @author Jakub Liput
@@ -18,8 +18,10 @@ export default function recallingPercentageProgress(file) {
     recallingMembership === 'ancestor'
   ));
   if (isRecallInfoApplicable) {
-    const archiveRecallState = get(file, 'archiveRecallState.content');
-    const archiveRecallInfo = get(file, 'archiveRecallInfo.content');
+    const archiveRecallState = get(file, 'archiveRecallState.isLoaded') &&
+      get(file, 'archiveRecallState.content');
+    const archiveRecallInfo = get(file, 'archiveRecallInfo.isLoaded') &&
+      get(file, 'archiveRecallInfo.content');
     if (archiveRecallState && archiveRecallInfo) {
       const bytesCopied = get(archiveRecallState, 'bytesCopied') || 0;
       const totalByteSize = get(archiveRecallInfo, 'totalByteSize');
