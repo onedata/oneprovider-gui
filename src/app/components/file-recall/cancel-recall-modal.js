@@ -43,21 +43,25 @@ export default Component.extend(I18n, {
       archiveRecallStateManager,
       globalNotify,
       file,
+      onCancelInvoked,
       onClose,
     } = this.getProperties(
       'fileManager',
       'archiveRecallStateManager',
       'globalNotify',
       'file',
+      'onCancelInvoked',
       'onClose',
     );
     try {
-      return await fileManager.cancelRecall(file);
+      const cancelResult = await fileManager.cancelRecall(file);
+      onCancelInvoked();
+      return cancelResult;
     } catch (error) {
       globalNotify.backendError(this.t('cancellingRecall'), error);
-      onClose();
       throw error;
     } finally {
+      onClose();
       try {
         const watcher = archiveRecallStateManager.getWatcher(file);
         if (watcher) {

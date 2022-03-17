@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import { promise, raw, array, equal } from 'ember-awesome-macros';
+import { promise, raw, array, equal, or } from 'ember-awesome-macros';
 import { all as allFulfilled, hashSettled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -69,6 +69,15 @@ export default Component.extend(I18n, {
    * @type {boolean}
    */
   cancelRecallOpened: false,
+
+  /**
+   * Should be set to true if recall cancel has been successfully invoked in current
+   * file recall component. It is needed, because it is not guaranteed that cancelling
+   * state will be set on archive right after successful cancel request on remote
+   * Oneproviders.
+   * @type {Boolean}
+   */
+  wasCancelInvoked: false,
 
   //#endregion
 
@@ -298,7 +307,7 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  showFooter: array.includes(
+  showCancelButton: array.includes(
     raw(['scheduled', 'pending', 'cancelling']),
     'processStatus'
   ),
@@ -306,7 +315,15 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isCancelling: equal('processStatus', raw('cancelling')),
+  showFooter: reads('showCancelButton'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isCancelling: or(
+    equal('processStatus', raw('cancelling')),
+    'wasCancelInvoked',
+  ),
 
   init() {
     this._super(...arguments);
@@ -350,6 +367,9 @@ export default Component.extend(I18n, {
     },
     closeCancelRecallModal() {
       this.set('cancelRecallOpened', false);
+    },
+    cancelInvoked() {
+      this.set('wasCancelInvoked', true);
     },
   },
 });

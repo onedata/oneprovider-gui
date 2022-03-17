@@ -37,6 +37,7 @@
       {{file-recall/cancel-recall-modal
         opened=cancelRecallOpened
         file=file
+        onCancelInvoked=(action "cancelInvoked")
         onClose=(action "closeCancelRecallModal")
       }}
     {{/render-later}}
