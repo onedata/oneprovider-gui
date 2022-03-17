@@ -101,18 +101,21 @@ export default Service.extend({
         },
       },
     }, data));
-    await archive.save();
     try {
-      const datasetId = dataset && get(dataset, 'entityId');
-      await allFulfilled([
-        dataset.reload(),
-        fileManager.dirChildrenRefresh(datasetId),
-      ]);
-    } catch (error) {
-      console.error(
-        'services:archive-manager#createArchive: error updating dataset',
-        error
-      );
+      await archive.save();
+    } finally {
+      try {
+        const datasetId = dataset && get(dataset, 'entityId');
+        await allFulfilled([
+          dataset.reload(),
+          fileManager.dirChildrenRefresh(datasetId),
+        ]);
+      } catch (error) {
+        console.error(
+          'services:archive-manager#createArchive: error updating dataset',
+          error
+        );
+      }
     }
     return archive;
   },
