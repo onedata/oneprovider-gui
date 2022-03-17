@@ -100,6 +100,11 @@ export default Component.extend(I18n, {
     (millis) => millis && Math.floor(millis / 1000)
   ),
 
+  cancelledAt: computedPipe(
+    'archiveRecallInfo.cancelTime',
+    (millis) => millis && Math.floor(millis / 1000)
+  ),
+
   finishedAt: computedPipe(
     'archiveRecallInfo.finishTime',
     (millis) => millis && Math.floor(millis / 1000)

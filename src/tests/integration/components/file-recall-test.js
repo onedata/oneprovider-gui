@@ -88,6 +88,16 @@ describe('Integration | Component | file recall', function () {
     expect($value.text()).to.contain('27 Jan 2022 16:42:11');
   });
 
+  it('renders formatted cancel time if provided', async function () {
+    const timestamp = Date.parse('Thu Jan 27 2022 16:42:11');
+    this.set('archiveRecallInfo.cancelTime', timestamp);
+
+    await render(this);
+
+    const $value = this.$('.recall-info-row-cancelled-at .property-value');
+    expect($value.text()).to.contain('27 Jan 2022 16:42:11');
+  });
+
   it('does not render finish time row if not finished', async function () {
     this.set('archiveRecallInfo.finishTime', null);
 

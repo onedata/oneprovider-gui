@@ -11,6 +11,7 @@ export default {
   targetPath: 'Recall destination',
   relativePath: 'Relative location',
   startedAt: 'Started at',
+  cancelledAt: 'Cancelled at',
   finishedAt: 'Finished at',
   filesFailed: 'Items failed',
   lastError: 'Last error',
