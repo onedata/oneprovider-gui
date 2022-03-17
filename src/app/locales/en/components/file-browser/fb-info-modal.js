@@ -70,7 +70,7 @@ export default {
       tabTitle: 'General',
     },
     size: {
-      tabTitle: 'Size',
+      tabTitle: 'Size statistics',
       disabledTip: 'Not available for symbolic links.',
     },
     hardlinks: {

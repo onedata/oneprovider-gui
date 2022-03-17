@@ -154,6 +154,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
         chartDefinition: {
           title: {
             content: this.t('titles.fileCount.content'),
+            tip: this.t('titles.fileCount.tip'),
           },
           yAxes: [{
             id: 'countAxis',
