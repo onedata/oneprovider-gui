@@ -9,12 +9,10 @@
  */
 
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
-import EmberObject, { computed, getProperties, get } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
-import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw, or, promise, bool } from 'ember-awesome-macros';
+import { promise, bool } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 
@@ -129,42 +127,6 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
       return get(baseArchive, 'name');
     }
   )),
-
-  showArchivedCounters: or(
-    equal('archive.state', raw('building')),
-    equal('archive.state', raw('preserved')),
-  ),
-
-  stateText: computed(
-    'archive.{state,stats}',
-    function stateText() {
-      const {
-        archive,
-        showArchivedCounters,
-      } = this.getProperties('archive', 'showArchivedCounters');
-      const {
-        state,
-        stats,
-      } = getProperties(archive, 'state', 'stats');
-      const {
-        bytesArchived,
-        filesArchived,
-      } = getProperties(stats, 'bytesArchived', 'filesArchived');
-      const bytes = bytesArchived || 0;
-      const filesText = filesArchived || '0';
-      let text = this.t(`state.${state}`, {}, { defaultValue: this.t('state.unknown') });
-      if (showArchivedCounters) {
-        const sizeText = bytesToString(bytes);
-        text += `<br>${this.t('stateInfo.archived', { filesCount: filesText, size: sizeText })}`;
-      }
-      return htmlSafe(text);
-    }
-  ),
-  stateColClass: conditional(
-    'showArchivedCounters',
-    raw('multiline'),
-    raw(''),
-  ),
 
   browseDip() {
     const {

@@ -5,12 +5,13 @@ import hbs from 'htmlbars-inline-precompile';
 import $ from 'jquery';
 import wait from 'ember-test-helpers/wait';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
-import { get } from '@ember/object';
+import { get, setProperties } from '@ember/object';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import _ from 'lodash';
 import Service from '@ember/service';
 import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
+import { findAll } from 'ember-native-dom-helpers';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -65,7 +66,34 @@ describe('Integration | Component | archive browser', function () {
 
     await render(this);
 
-    expect(this.$('.fb-table-row')).to.have.length(itemsCount);
+    expect(findAll('.fb-table-row')).to.have.length(itemsCount);
+  });
+
+  it('renders "Building" state with stats of archive on list', async function () {
+    const itemsCount = 1;
+    const mockArray = mockItems({
+      testCase: this,
+      itemsCount,
+    });
+    const archive = mockArray.array[0];
+    const filesArchived = 8;
+    const bytesArchived = 2048;
+    setProperties(archive, {
+      state: 'building',
+      stats: {
+        filesArchived,
+        bytesArchived,
+      },
+    });
+
+    await render(this);
+
+    const colStates = findAll('.fb-table-row .fb-table-col-state');
+    expect(colStates).to.have.length(1);
+    const colState = colStates[0];
+    expect(colState.textContent).to.contain('Building');
+    expect(colState.textContent).to.contain('8 files');
+    expect(colState.textContent).to.contain('2 KiB');
   });
 
   it('has "create incremental" action for archive item which opens create archive modal on click',
@@ -241,9 +269,10 @@ function mockItems({ testCase, itemsCount }) {
       name,
       index: name,
       type: 'dir',
+      state: 'preserved',
       stats: {
-        bytesArchived: 0,
-        filesArchived: 0,
+        bytesArchived: 100,
+        filesArchived: 10,
       },
     };
     return archive;

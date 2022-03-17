@@ -1,11 +1,17 @@
 {{#if showBagitTag}}
-  <div class="file-status-tag archive-bagit-tag">
+  <div class={{concat-classes
+    "file-status-tag archive-bagit-tag"
+    (if disabled "file-status-tag-disabled")
+  }}>
     {{tt this "status.bagit"}}
   </div>
 {{/if}}
 {{#if hasDip}}
   <div
-    class="file-status-tag archive-dip-tag {{if disabled "file-status-tag-disabled"}}"
+    class={{concat-classes
+      "file-status-tag archive-dip-tag"
+      (if disabled "file-status-tag-disabled")
+    }}
     {{action
       (if disabled
         (no-action)

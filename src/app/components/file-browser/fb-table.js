@@ -119,6 +119,12 @@ export default Component.extend(I18n, {
   changeSelectedItems: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {(item: Object) => boolean}
+   */
+  isItemDisabledFunction: defaultIsItemDisabled,
+
+  /**
    * @virtual optional
    * @type {(api: { refresh: Function, getFilesArray: Function }) => undefined}
    */
@@ -268,22 +274,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Boolean>}
    */
   singleSelect: bool(or('browserModel.singleSelect', 'previewMode')),
-
-  /**
-   * @type {(item: Object) => boolean}
-   */
-  isItemDisabledFunction: computed(
-    'browserModel.isItemDisabled',
-    function isItemDisabledFunction() {
-      const browserModel = this.get('browserModel');
-      const isItemDisabledMethod = browserModel.isItemDisabled;
-      if (typeof isItemDisabledMethod === 'function') {
-        return isItemDisabledMethod.bind(browserModel);
-      } else {
-        return defaultIsItemDisabled;
-      }
-    }
-  ),
 
   disabledItems: computed(
     'isItemDisabledFunction',
