@@ -19,12 +19,6 @@ export default {
     headerText: 'Recall archive',
     intro: 'This operation will copy the archive contents to a selected destination. The recall process might take some time, depending on the size of the archive. Its progress and status will be visible in the file browser.',
     selectDestination: 'Select archive recall destination',
-    unknownNumberOf: 'unknown number of',
-    unknownSize: 'unknown size',
-    filesText: {
-      singular: 'file',
-      plural: 'files',
-    },
     recallHintTitle: 'Recall archive into a selected directory',
     hintClose: 'OK',
   },

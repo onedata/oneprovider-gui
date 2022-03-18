@@ -1,0 +1,20 @@
+{{#if isPrivilegesError}}
+  <div class="errir-dir-box dir-box">
+    <h1 class="error-dir-text dir-box-text">
+      {{tt this "noViewPrivilege.insufficientPrivileges"}}
+    </h1>
+    <div class="error-dir-image dir-box-image error-dir-image-no-view"></div>
+    <h2 class="error-dir-text dir-box-text">
+      {{tt this "noViewPrivilege.requiresPrivilege"
+        privilegeExpression=viewPrivilegeExpression
+      }}
+    </h2>
+  </div>
+{{else}}
+  {{file-browser/fb-dir-load-error
+    dir=dir
+    previewMode=previewMode
+    dirLoadError=dirLoadError
+    browserModel=browserModel
+  }}
+{{/if}}

@@ -142,6 +142,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  dirLoadErrorComponentName: 'archive-browser/dir-load-error',
+
+  /**
+   * @override
+   */
   browserClass: 'archive-browser',
 
   /**

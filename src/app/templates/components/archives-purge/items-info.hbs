@@ -12,10 +12,7 @@
         <span class="single-file-info-label">
           {{tt this "archived"}}:
         </span>
-        {{tt this "archivedValue"
-          filesCount=(or firstItem.stats.filesArchived 0)
-          size=(or (bytes-to-string firstItem.stats.bytesArchived) 0)
-        }}
+        {{archive-content-count archive=firstItem}}
       {{/truncated-string}}
     </div>
   </div>
@@ -39,10 +36,7 @@
               {{tt this "archived"}}:
             </span>
             <span class="item-info-value archive-size">
-              {{tt this "archivedValue"
-                filesCount=(or item.stats.filesArchived 0)
-                size=(or (bytes-to-string item.stats.bytesArchived) 0)
-              }}
+              {{archive-content-count archive=item}}
             </span>
           </div>
         {{/one-label-tip}}

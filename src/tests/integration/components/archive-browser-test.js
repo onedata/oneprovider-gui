@@ -260,12 +260,12 @@ function generateItemName(i) {
 }
 
 function mockItems({ testCase, itemsCount }) {
+  const store = lookupService(testCase, 'store');
   const archives = _.range(0, itemsCount).map(i => {
     const name = generateItemName(i);
     const entityId = name;
-    const archive = {
+    const archive = store.createRecord('archive', {
       id: generateItemId(entityId),
-      entityId,
       name,
       index: name,
       type: 'dir',
@@ -274,7 +274,7 @@ function mockItems({ testCase, itemsCount }) {
         bytesArchived: 100,
         filesArchived: 10,
       },
-    };
+    });
     return archive;
   });
   const archiveManager = lookupService(testCase, 'archiveManager');
