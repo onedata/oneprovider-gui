@@ -183,9 +183,19 @@ export default Component.extend(I18n, {
     'recallingPercent',
     function recallingProgressStyle() {
       const recallingPercent = this.get('recallingPercent');
-      return htmlSafe(`width: ${recallingPercent}%;`);
+      const widthPercent = recallingPercent === null ? 100 : recallingPercent;
+      return htmlSafe(`width: ${widthPercent}%;`);
     }
   ),
+
+  recallingLabelKey: computed('recallingPercent', function recallingLabelKey() {
+    const recallingPercent = this.get('recallingPercent');
+    if (typeof recallingPercent === 'number') {
+      return 'status.recalling';
+    } else {
+      return 'status.recallingUnknownPercent';
+    }
+  }),
 
   recallingMembershipObserver: observer(
     'item.recallingMembership',
