@@ -35,10 +35,11 @@
       {{else if baseArchiveId}}
         {{#truncated-string
           tagName="code"
-          class="base-archive-id"
+          class="base-archive-id-container"
           tooltipClass="tooltip-lg tooltip-text-monospace"
         }}
-          {{baseArchiveId}}
+          <strong>{{tt this "id"}}:</strong>
+          <span class="base-archive-id">{{baseArchiveId}}</span>
         {{/truncated-string}}
       {{else}}
         –

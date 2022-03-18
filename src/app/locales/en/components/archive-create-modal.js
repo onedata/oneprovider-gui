@@ -1,3 +1,3 @@
 export default {
-  noArchivesViewPrivilege: 'Created archive will not be visible as you do not have the "view archives" privilege in this space.',
+  noArchivesViewPrivilege: 'Created archive will not be visible as you do not have the {{privilegeExpression}} in this space.',
 };

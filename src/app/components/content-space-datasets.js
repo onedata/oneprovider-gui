@@ -191,7 +191,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   ]),
 
   /**
-   * Minimum height in pixels that a section (uppper part of lower part) can have.
+   * Minimum height in pixels that a section (upper or lower part) can have.
    * @type {number}
    */
   sectionMinHeight: 200,

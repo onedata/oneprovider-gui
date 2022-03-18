@@ -26,12 +26,12 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 export default Component.extend(I18n, {
   tagName: '',
 
+  i18n: service(),
+
   /**
    * @override
    */
   i18nPrefix: 'components.archiveCreateModal',
-
-  i18n: service(),
 
   /**
    * @virtual

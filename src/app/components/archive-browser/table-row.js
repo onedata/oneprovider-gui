@@ -58,27 +58,6 @@ const RowModel = EmberObject.extend(...rowModelMixins, {
 
   archiveLayout: reads('archive.config.layout'),
 
-  // baseArchiveProxy: promise.object(computed(
-  //   // do not watch archive.baseArchive to avoid refreshing proxy on updates/failures
-  //   'archive',
-  //   'archiveFetchTrigger',
-  //   async function baseArchiveProxy() {
-  //     const {
-  //       archive,
-  //       baseArchiveId,
-  //       archiveManager,
-  //     } = this.getProperties('archive', 'baseArchiveId', 'archiveManager');
-  //     if (!this.get('baseArchiveId')) {
-  //       return;
-  //     }
-  //     const baseArchive = await archive.getRelation('baseArchive');
-  //     if (!baseArchive) {
-  //       return null;
-  //     }
-  //     return archiveManager.getBrowsableArchive(baseArchiveId);
-  //   }
-  // )),
-
   baseArchiveId: computed('archive.baseArchive', function baseArchiveId() {
     const archive = this.get('archive');
     if (archive) {
