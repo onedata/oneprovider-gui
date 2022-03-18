@@ -46,6 +46,7 @@ import filesystemBrowserModel from './utils/filesystem-browser-model';
 import datasetBrowserModel from './utils/dataset-browser-model';
 import archiveBrowserModel from './utils/archive-browser-model';
 import selectorFilesystemBrowserModel from './utils/selector-filesystem-browser-model';
+import archiveFilesystemBrowserModel from './utils/archive-filesystem-browser-model';
 import itemsSelectBrowserUtils from './utils/items-select-browser';
 import workflowActions from './utils/workflow-actions';
 import workflowVisualiser from './utils/workflow-visualiser';
@@ -99,6 +100,7 @@ const translations = {
     datasetBrowserModel,
     archiveBrowserModel,
     selectorFilesystemBrowserModel,
+    archiveFilesystemBrowserModel,
     itemsSelectBrowser: itemsSelectBrowserUtils,
     workflowActions,
     workflowVisualiser,

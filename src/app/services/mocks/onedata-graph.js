@@ -612,10 +612,11 @@ const atmStoreHandlers = {
 
     const maxEntriesCount = 200;
     const {
-      index,
-      offset,
-      limit,
-    } = data;
+      type,
+      index = 0,
+      offset = 0,
+      limit = 1,
+    } = data.options;
     const startPosition = Math.min(
       Math.max((Number(index) || 0) + offset, 0),
       maxEntriesCount
@@ -629,10 +630,21 @@ const atmStoreHandlers = {
       storeEntries.push(entryGeneratorFunc({ startPosition, index: i }));
     }
 
-    return {
-      list: storeEntries,
-      isLast: startPosition >= maxEntriesCount,
-    };
+    const storeType = type.slice(0, type.indexOf('StoreContentBrowseOptions'));
+    const isLast = startPosition >= maxEntriesCount;
+    if (storeType === 'list') {
+      return {
+        items: storeEntries,
+        isLast,
+      };
+    } else if (storeType === 'auditLog') {
+      return {
+        logs: storeEntries,
+        isLast,
+      };
+    } else if (storeType === 'singleValue') {
+      return storeEntries[0];
+    }
   },
 };
 
@@ -1140,11 +1152,12 @@ function generateStoreContentEntry({ startPosition, index }) {
     return obj;
   }, {});
 
+  const success = index % 10 !== 5;
   return {
     index: String(index),
-    success: index % 10 !== 5,
+    success,
     value: value,
-    error: { id: 'forbidden' },
+    error: success ? undefined : { id: 'forbidden' },
   };
 }
 
