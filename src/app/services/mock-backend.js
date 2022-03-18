@@ -1407,13 +1407,15 @@ export default Service.extend({
               'summary',
             ), { revisionRegistry: { 1: revision } })
           ).save();
-          const storeRegistry = get(revision, 'stores').reduce(
-            (registry, store) => {
-              const storeId = get(store, 'id');
-              registry[storeId] = `${storeId}instance`;
-              return registry;
-            }, {}
-          );
+          const storeRegistry = {};
+          for (const storeSchema of get(revision, 'stores')) {
+            const storeInstanceId = `definedStore${storeSchema.id}-${phase}-${i}`;
+            await this.createAtmStore(storeInstanceId, {
+              type: storeSchema.type,
+              config: storeSchema.config,
+            });
+            storeRegistry[storeSchema.id] = storeInstanceId;
+          }
           const executionLanes = [];
           const lambdaIdsToSnapshot = [];
           if (i < 5) {

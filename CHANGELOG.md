@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9034 Added support for new range data type and changed API of browsing automation stores
 * VFS-9088 Fixed considering nested archives symlinks and BagIt files as external symlinks
 * VFS-8598 Added feature tags for indicating files inside building and failed archives
 * VFS-9013 QoS time series charts Service Pack 1

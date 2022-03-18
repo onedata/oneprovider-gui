@@ -113,7 +113,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     }
 
     return await this.get('workflowManager')
-      .getStoreContent(storeInstanceId, startFromIndex, limit, offset);
+      .getAtmStoreContent(storeInstanceId, startFromIndex, limit, offset);
   },
 
   /**
@@ -325,8 +325,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       const {
         type,
         config,
-        initialValue,
-      } = getProperties(store, 'type', 'config', 'initialValue');
+        initialContent,
+      } = getProperties(store, 'type', 'config', 'initialContent');
       let name = null;
       // For exceptions stores we need to generate names. Some of them will
       // be visible as an iterated store (so must be distinguishable by name).
@@ -340,7 +340,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         name,
         type,
         config,
-        defaultInitialContent: initialValue,
+        defaultInitialContent: initialContent,
       };
     }
 
