@@ -8,6 +8,9 @@
   .fb-table-col-incremental {
     width: 14em;
     max-width: 14em;
+    .base-archive-id-container {
+      display: block;
+    }
   }
   .col-status-no {
     color: $main-text-color-disabled;
@@ -24,6 +27,9 @@
       // individually adjusting icon to text (because of its shape)
       bottom: 0;
     }
+  }
+  .error-dir-image-no-view {
+    background-image: url($root-url + 'images/no-view.svg');
   }
   @media (max-width: 450px) {
     .file-info-mobile-created {

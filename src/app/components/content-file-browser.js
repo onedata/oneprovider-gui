@@ -327,7 +327,7 @@ export default OneEmbeddedComponent.extend(
           );
         } catch (error) {
           console.error(
-            'component:content-file-browser#openWorkflowRunView: Persisting initial values for workflow run failed',
+            'component:content-file-browser#openWorkflowRunView: Persisting initial contents for workflow run failed',
             error
           );
           globalNotify.error(String(this.t('runWorkflowLocalStorageError')));

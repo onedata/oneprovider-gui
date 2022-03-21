@@ -23,6 +23,13 @@ import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
+  archiveManager: service(),
+  globalNotify: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.archiveFilesystemBrowserModel',
 
   /**
    * @virtual
@@ -179,7 +186,8 @@ export default FilesystemBrowserModel.extend({
     const _super = this._super;
     let hasBeenHandled = false;
     try {
-      hasBeenHandled = await this.handlePotentialExternalSymlink(file);
+      hasBeenHandled = get(file, 'type') === 'symlink' &&
+        await this.handlePotentialExternalSymlink(file);
     } catch (error) {
       console.error(
         'util:archive-filesystem-browser-model#onOpenFile: external symlink check failed',
@@ -268,15 +276,23 @@ export default FilesystemBrowserModel.extend({
    *   should be handled by question to user, not by standard dir change
    */
   async handlePotentialExternalSymlink(symlink) {
-    const externalContext = await this.symlinkExternalContext(symlink);
-    if (externalContext) {
-      this.openExternalSymlinkModal(
-        symlink,
-        externalContext,
-      );
-      return true;
-    } else {
+    if (get(symlink, 'type') !== 'symlink') {
       return false;
+    }
+    try {
+      const externalContext = await this.symlinkExternalContext(symlink);
+      if (externalContext && !(await this.isNestedArchiveContext(externalContext))) {
+        this.openExternalSymlinkModal(
+          symlink,
+          externalContext,
+        );
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      this.get('globalNotify').backendError(this.t('checkingSymlinkInArchive'), error);
+      return true;
     }
   },
 
@@ -322,5 +338,25 @@ export default FilesystemBrowserModel.extend({
       modalManager.hide(get(externalSymlinkModal, 'id'));
       this.set('externalSymlinkModal', null);
     }
+  },
+
+  async isNestedArchiveContext(filesViewContext) {
+    const {
+      archiveManager,
+      archive,
+    } = this.getProperties('archiveManager', 'archive');
+    const archiveId = get(filesViewContext, 'archiveId');
+    if (!archiveId) {
+      return false;
+    }
+    const archiveToOpen = await archiveManager.getArchive(archiveId);
+    const modelArchiveId = get(archive, 'entityId');
+    let checkedArchiveParent = archiveToOpen;
+    do {
+      checkedArchiveParent = await get(checkedArchiveParent, 'parentArchive');
+    } while (
+      checkedArchiveParent && get(checkedArchiveParent, 'entityId') !== modelArchiveId
+    );
+    return Boolean(checkedArchiveParent);
   },
 });

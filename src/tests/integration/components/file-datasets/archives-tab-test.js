@@ -254,6 +254,8 @@ class MockData {
                 return 'dummy_dir_id';
               case 'relatedAip':
                 return null;
+              case 'baseArchive':
+                return null;
               default:
                 throw new Error(`mock archive relation ${relationName} not implemented`);
             }
@@ -299,6 +301,8 @@ class MockData {
               return rootDirDipId;
             case 'relatedAip':
               return aipEntityId;
+            case 'baseArchive':
+              return null;
             default:
               throw new Error(`mock dip archive relation ${relationName} not implemented`);
           }
@@ -315,6 +319,8 @@ class MockData {
         case 'relatedDip':
           return dipEntityId;
         case 'relatedAip':
+          return null;
+        case 'baseArchive':
           return null;
         default:
           throw new Error(`mock aip archive relation ${relationName} not implemented`);

@@ -34,6 +34,10 @@ import datasetProtection from './components/dataset-protection';
 import filePath from './components/file-path';
 import archiveRecall from './components/archive-recall';
 import fileRecall from './components/file-recall';
+import recallInfoModal from './components/recall-info-modal';
+import archiveContentCount from './components/archive-content-count';
+import archiveState from './components/archive-state';
+import archiveCreateModal from './components/archive-create-modal';
 
 import uploadManager from './services/upload-manager';
 
@@ -43,6 +47,7 @@ import filesystemBrowserModel from './utils/filesystem-browser-model';
 import datasetBrowserModel from './utils/dataset-browser-model';
 import archiveBrowserModel from './utils/archive-browser-model';
 import selectorFilesystemBrowserModel from './utils/selector-filesystem-browser-model';
+import archiveFilesystemBrowserModel from './utils/archive-filesystem-browser-model';
 import itemsSelectBrowserUtils from './utils/items-select-browser';
 import workflowActions from './utils/workflow-actions';
 import workflowVisualiser from './utils/workflow-visualiser';
@@ -82,6 +87,10 @@ const translations = {
     filePath,
     archiveRecall,
     fileRecall,
+    recallInfoModal,
+    archiveContentCount,
+    archiveState,
+    archiveCreateModal,
   },
   services: {
     uploadManager,
@@ -93,6 +102,7 @@ const translations = {
     datasetBrowserModel,
     archiveBrowserModel,
     selectorFilesystemBrowserModel,
+    archiveFilesystemBrowserModel,
     itemsSelectBrowser: itemsSelectBrowserUtils,
     workflowActions,
     workflowVisualiser,

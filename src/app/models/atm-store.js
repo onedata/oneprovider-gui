@@ -22,7 +22,7 @@ export default Model.extend(GraphSingleModelMixin, {
   /**
    * @type {ComputedProperty<any>}
    */
-  initialValue: attr(),
+  initialContent: attr(),
 
   /**
    * True, when store cannot be modified (which means, that it will not accept

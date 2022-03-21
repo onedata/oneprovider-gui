@@ -7,30 +7,50 @@
     stateClassMapping=stateClassMapping
   }}
 </td>
-<td class="fb-table-col-incremental fb-table-secondary-col hidden-xs">
-  <span
-    class="file-item-text {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
+<td class="fb-table-col-incremental fb-table-secondary-col hidden-xs multiline">
+  <div
+    class="file-item-text base-archive-info {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
   >
     {{#if fileRowModel.isIncremental}}
       {{#if loadingBaseArchiveProxy.isPending}}
         {{tt this "loading"}}
       {{else if baseArchiveName}}
-        <a
-          class="azure base-archive-link"
-          target={{navigateTarget}}
-          href={{baseArchiveUrl}}
-          onclick={{action "baseArchiveLinkClick"}}
-          onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
-        >
+        {{#if baseArchiveUrl}}
+          <a
+            class="azure base-archive-link"
+            target={{navigateTarget}}
+            href={{baseArchiveUrl}}
+            onclick={{action "baseArchiveLinkClick"}}
+            onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
+          >
+            {{#truncated-string class="base-archive-name"}}
+              {{fileRowModel.baseArchiveNameProxy.content}}
+            {{/truncated-string}}
+          </a>
+        {{else}}
           {{#truncated-string class="base-archive-name"}}
             {{fileRowModel.baseArchiveNameProxy.content}}
           {{/truncated-string}}
-        </a>
+        {{/if}}
+      {{else if baseArchiveId}}
+        {{#truncated-string
+          tagName="code"
+          class="base-archive-id-container"
+          tooltipClass="tooltip-lg tooltip-text-monospace"
+        }}
+          <strong>{{tt this "id"}}:</strong>
+          <span class="base-archive-id">{{baseArchiveId}}</span>
+        {{/truncated-string}}
       {{else}}
         –
       {{/if}}
     {{else}}
       {{tt this "no"}}
     {{/if}}
-  </span>
+  </div>
+  {{#if baseArchiveIsDeleted}}
+    <div class="file-item-text text-muted base-archive-deleted small">
+      {{tt this "baseArchiveDeleted"}}
+    </div>
+  {{/if}}
 </td>

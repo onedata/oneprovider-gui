@@ -124,9 +124,9 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  areInitialValuesNeeded: computed(
+  areInitialContentsNeeded: computed(
     'atmWorkflowSchemaRevision.stores',
-    function areInitialValuesNeeded() {
+    function areInitialContentsNeeded() {
       const stores = this.get('atmWorkflowSchemaRevision.stores');
       if (!stores) {
         return;
