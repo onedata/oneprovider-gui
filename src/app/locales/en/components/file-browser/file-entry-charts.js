@@ -15,6 +15,9 @@ export default {
     files: 'Count',
     bytes: 'Bytes',
   },
+  seriesGroups: {
+    totalCount: 'Total',
+  },
   series: {
     directoriesCount: 'Directories',
     filesCount: 'Reg. files and links',

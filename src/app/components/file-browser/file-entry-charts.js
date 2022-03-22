@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled } from 'rsvp';
@@ -34,6 +34,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   fileManager: service(),
   onedataConnection: service(),
   storageManager: service(),
+  providerManager: service(),
 
   /**
    * @override
@@ -161,6 +162,17 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             name: String(this.t('axes.files')),
             minInterval: 1,
           }],
+          seriesGroups: [{
+            factoryName: 'static',
+            factoryArguments: {
+              seriesGroupTemplate: {
+                id: 'totalCount',
+                name: String(this.t('seriesGroups.totalCount')),
+                stack: true,
+                showSeriesSum: true,
+              },
+            },
+          }],
           series: [{
             factoryName: 'static',
             factoryArguments: {
@@ -170,23 +182,21 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 color: this.get('chartsColor.directoriesCountColor'),
                 type: 'line',
                 yAxisId: 'countAxis',
-                stackId: 'totalCount',
+                groupId: 'totalCount',
                 data: {
-                  functionName: 'replaceEmpty',
+                  functionName: 'loadSeries',
                   functionArguments: {
-                    data: {
-                      functionName: 'loadSeries',
-                      functionArguments: {
-                        sourceType: 'external',
-                        sourceParameters: {
-                          externalSourceName: 'filesCountData',
-                          externalSourceParameters: {
-                            seriesId: 'dir_count',
-                          },
-                        },
+                    sourceType: 'external',
+                    sourceParameters: {
+                      externalSourceName: 'filesCountData',
+                      externalSourceParameters: {
+                        seriesId: 'dir_count',
                       },
                     },
-                    fallbackValue: 0,
+                    replaceEmptyOptions: {
+                      strategy: 'usePrevious',
+                      fallbackValue: 0,
+                    },
                   },
                 },
               },
@@ -200,23 +210,21 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 color: this.get('chartsColor.filesCountColor'),
                 type: 'line',
                 yAxisId: 'countAxis',
-                stackId: 'totalCount',
+                groupId: 'totalCount',
                 data: {
-                  functionName: 'replaceEmpty',
+                  functionName: 'loadSeries',
                   functionArguments: {
-                    data: {
-                      functionName: 'loadSeries',
-                      functionArguments: {
-                        sourceType: 'external',
-                        sourceParameters: {
-                          externalSourceName: 'filesCountData',
-                          externalSourceParameters: {
-                            seriesId: 'reg_file_and_link_count',
-                          },
-                        },
+                    sourceType: 'external',
+                    sourceParameters: {
+                      externalSourceName: 'filesCountData',
+                      externalSourceParameters: {
+                        seriesId: 'reg_file_and_link_count',
                       },
                     },
-                    fallbackValue: 0,
+                    replaceEmptyOptions: {
+                      strategy: 'usePrevious',
+                      fallbackValue: 0,
+                    },
                   },
                 },
               },
@@ -269,6 +277,33 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               },
             },
           }],
+          seriesGroups: [{
+            factoryName: 'dynamic',
+            factoryArguments: {
+              dynamicSeriesGroupConfigs: {
+                sourceType: 'external',
+                sourceParameters: {
+                  externalSourceName: 'filesCountData',
+                },
+              },
+              seriesGroupTemplate: {
+                id: {
+                  functionName: 'getDynamicSeriesGroupConfigData',
+                  functionArguments: {
+                    propertyName: 'id',
+                  },
+                },
+                name: {
+                  functionName: 'getDynamicSeriesGroupConfigData',
+                  functionArguments: {
+                    propertyName: 'name',
+                  },
+                },
+                stack: true,
+                showSeriesSum: true,
+              },
+            },
+          }],
           series: [{
             factoryName: 'static',
             factoryArguments: {
@@ -278,21 +313,19 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 type: 'line',
                 yAxisId: 'bytesAxis',
                 data: {
-                  functionName: 'replaceEmpty',
+                  functionName: 'loadSeries',
                   functionArguments: {
-                    data: {
-                      functionName: 'loadSeries',
-                      functionArguments: {
-                        sourceType: 'external',
-                        sourceParameters: {
-                          externalSourceName: 'filesCountData',
-                          externalSourceParameters: {
-                            seriesId: 'total_size',
-                          },
-                        },
+                    sourceType: 'external',
+                    sourceParameters: {
+                      externalSourceName: 'filesCountData',
+                      externalSourceParameters: {
+                        seriesId: 'total_size',
                       },
                     },
-                    fallbackValue: 0,
+                    replaceEmptyOptions: {
+                      strategy: 'usePrevious',
+                      fallbackValue: 0,
+                    },
                   },
                 },
               },
@@ -327,23 +360,26 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 },
                 type: 'bar',
                 yAxisId: 'bytesAxis',
-                stackId: 'perStorageSize',
-                data: {
-                  functionName: 'replaceEmpty',
+                groupId: {
+                  functionName: 'getDynamicSeriesConfigData',
                   functionArguments: {
-                    data: {
-                      functionName: 'loadSeries',
+                    propertyName: 'groupId',
+                  },
+                },
+                data: {
+                  functionName: 'loadSeries',
+                  functionArguments: {
+                    sourceType: 'external',
+                    sourceParameters: {
+                      functionName: 'getDynamicSeriesConfigData',
                       functionArguments: {
-                        sourceType: 'external',
-                        sourceParameters: {
-                          functionName: 'getDynamicSeriesConfigData',
-                          functionArguments: {
-                            propertyName: 'pointsSource',
-                          },
-                        },
+                        propertyName: 'pointsSource',
                       },
                     },
-                    fallbackValue: 0,
+                    replaceEmptyOptions: {
+                      strategy: 'usePrevious',
+                      fallbackValue: 0,
+                    },
                   },
                 },
               },
@@ -354,6 +390,8 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
         externalDataSources: {
           filesCountData: {
             fetchSeries: (...args) => this.fetchSeries(...args),
+            fetchDynamicSeriesGroupConfigs: (...args) =>
+              this.fetchDynamicSeriesGroupConfigs(...args),
             fetchDynamicSeriesConfigs: (...args) =>
               this.fetchDynamicSeriesConfigs(...args),
           },
@@ -435,6 +473,18 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       .filter(point => point.timestamp >= statisticsStartDate);
   },
 
+  async fetchDynamicSeriesGroupConfigs() {
+    const currentProvider = await this.get('providerManager').getCurrentProvider();
+    const {
+      entityId,
+      name,
+    } = getProperties(currentProvider, 'entityId', 'name');
+    return [{
+      id: `provider_${entityId}`,
+      name,
+    }];
+  },
+
   /**
    * @returns {Promise<Array<{ id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
@@ -456,6 +506,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
         return {
           id: storageId,
           name: storage.get('name'),
+          groupId: `provider_${storage.relationEntityId('provider')}`,
           color: colorGenerator.generateColorForKey(storageId),
           pointsSource: {
             externalSourceName: 'filesCountData',
