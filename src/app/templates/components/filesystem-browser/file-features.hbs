@@ -30,11 +30,13 @@
             (if effRecallingDisabled "file-status-tag-disabled")
           }}
         >
-          <div
-            class="tag-progress progress-bar progress-bar-striped active"
-            style={{recallingProgressStyle}}
-          >
-          </div>
+          {{#unless archiveRecallStateProxy.isPending}}
+            <div
+              class="tag-progress progress-bar progress-bar-striped active"
+              style={{recallingProgressStyle}}
+            >
+            </div>
+          {{/unless}}
           <span class="tag-text">
             <span class="recalling-label">{{tt this recallingLabelKey}}</span>
             {{#unless (is-empty recallingPercent)}}

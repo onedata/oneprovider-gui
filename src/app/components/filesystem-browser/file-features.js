@@ -197,8 +197,7 @@ export default Component.extend(I18n, {
   recallingPercent: computed(
     'file.{recallingMembership,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
     function recallingPercent() {
-      const file = this.get('file');
-      return recallingPercentageProgress(file);
+      return recallingPercentageProgress(this.get('file'));
     }
   ),
 
