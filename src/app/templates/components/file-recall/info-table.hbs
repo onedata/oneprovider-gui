@@ -82,7 +82,7 @@
     <td class="property-name">
       {{tt this "targetPath"}}
       {{one-label-tip title=(tt this
-        "tips.targetPath"
+        "labelTips.targetPath"
         fileType=(tt this (concat "fileType." recallRootFile.type))
       )}}
     </td>
@@ -102,7 +102,7 @@
       }}>
         {{tt this "relativePath"}}
         {{one-label-tip title=(tt this
-          "tips.relativePath"
+          "labelTips.relativePath"
           fileType=(tt this (concat "fileType." recallRootFile.type))
         )}}
       </td>
@@ -149,20 +149,48 @@
     </tr>
   {{/if}}
 
-  <tr class="recall-info-row-files">
+  <tr class={{concat-classes
+    "recall-info-row-files"
+    (if stateNotAvailable "text-disabled")
+  }}>
     <td class="property-name">
       {{tt this "filesRecalled"}}
     </td>
     <td class="property-value">
-      {{filesRecalled}} / {{filesToRecall}}
+      <div class="progress-counter">
+        {{#if stateNotAvailable}}
+          {{one-label-tip
+            class="state-not-available-tip"
+            title=(tt this "recalledFilesNotAvailableTip")
+          }}
+        {{else}}
+          <span class="files-recalled-value">{{filesRecalled}}</span>
+        {{/if}}
+        <span class="counter-divider">/</span>
+        <span class="files-to-recall-value">{{filesToRecall}}</span>
+      </div>
     </td>
   </tr>
-  <tr class="recall-info-row-bytes">
+  <tr class={{concat-classes
+    "recall-info-row-bytes"
+    (if stateNotAvailable "text-disabled")
+  }}>
     <td class="property-name">
       {{tt this "dataRecalled"}}
     </td>
     <td class="property-value">
-      {{bytesRecalledText}} / {{bytesToRecallText}}
+      <div class="progress-counter">
+        {{#if stateNotAvailable}}
+          {{one-label-tip
+            class="state-not-available-tip"
+            title=(tt this "recalledDataNotAvailableTip")
+          }}
+        {{else}}
+          <span class="bytes-recalled-value">{{bytesRecalledText}}</span>
+        {{/if}}
+        <span class="counter-divider">/</span>
+        <span class="bytes-to-recall-value">{{bytesToRecallText}}</span>
+      </div>
     </td>
   </tr>
 
@@ -170,7 +198,7 @@
     <tr class="recall-info-row-files-failed">
       <td class="property-name text-danger">
         {{tt this "filesFailed"}}
-        {{one-label-tip title=(tt this "tips.filesFailed")}}
+        {{one-label-tip title=(tt this "recalledDataNotAvailableTip")}}
       </td>
       <td class="property-value text-danger">
         {{filesFailed}}

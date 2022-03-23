@@ -16,7 +16,6 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
-import _ from 'lodash';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
@@ -44,6 +43,25 @@ export default Component.extend(I18n, {
   processStatus: undefined,
 
   /**
+   * @virtual
+   * @type {Object}
+   */
+  lastError: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.ArchiveRecallInfo}
+   */
+  archiveRecallInfo: undefined,
+
+  /**
+   * If not provided, progress info like number of recalled files will be unavailable.
+   * @virtual optional
+   * @type {Models.ArchiveRecallState}
+   */
+  archiveRecallState: undefined,
+
+  /**
    * @virtual optional
    * @type {() => void}
    */
@@ -55,9 +73,14 @@ export default Component.extend(I18n, {
    */
   navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  stateNotAvailable: not('archiveRecallState'),
+
   processStatusTextClass: or(
     conditional(
-      'errorOccurred',
+      equal('processStatus', raw('failed')),
       raw('text-danger')
     ),
     conditional(
@@ -110,11 +133,6 @@ export default Component.extend(I18n, {
     (millis) => millis && Math.floor(millis / 1000)
   ),
 
-  lastError: computed('archiveRecallState.lastError', function lastError() {
-    const lastErrorData = this.get('archiveRecallState.lastError');
-    return _.isEmpty(lastErrorData) ? null : lastErrorData;
-  }),
-
   /**
    * @returns {{ type: RecallInfoErrorType, message: String }}
    */
@@ -139,8 +157,6 @@ export default Component.extend(I18n, {
   filesToRecall: reads('archiveRecallInfo.totalFileCount'),
 
   filesFailed: reads('archiveRecallState.filesFailed'),
-
-  errorOccurred: reads('archiveRecallState.errorOccurred'),
 
   actions: {
     targetFileLinkClicked(event) {

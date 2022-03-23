@@ -5,6 +5,10 @@ import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-stat
 import { get } from '@ember/object';
 import sinon from 'sinon';
 import { createArchiveRecallData } from '../../helpers/archive-recall';
+import { lookupService } from '../../helpers/stub-service';
+import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
+import gri from 'onedata-gui-websocket-client/utils/gri';
+import { run } from '@ember/runloop';
 
 describe('Integration | Utility | archive recall state watcher', function () {
   setupComponentTest('test-component', {
@@ -16,6 +20,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
       now: Date.now(),
     });
     await createArchiveRecallData(this);
+    whenOnLocalProvider(this);
   });
 
   afterEach(function () {
@@ -227,6 +232,22 @@ describe('Integration | Utility | archive recall state watcher', function () {
       expect(reloadInfoSpy).to.have.been.calledOnce;
     }
   );
+
+  it('never tries to fetch state on remote provider', async function () {
+    whenOnRemoteProvider(this);
+    const interval = 1000;
+    this.watcher = createWatcher(this, { interval });
+    const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.finishTime', null);
+    this.set('archiveRecallState.bytesCopied', 0);
+    this.set('archiveRecallState.filesCopied', 0);
+
+    this.watcher.start();
+    this.clock.tick(1);
+
+    expect(reloadStateSpy).to.have.not.been.called;
+  });
 });
 
 function createWatcher(testCase, options = {}) {
@@ -235,4 +256,49 @@ function createWatcher(testCase, options = {}) {
     targetFile: testCase.get('targetFile'),
     ownerSource: testCase,
   }, options));
+}
+
+function whenOnLocalProvider(testCase) {
+  const providerId = 'provider_id';
+  const store = lookupService(testCase, 'store');
+  const provider = store.createRecord('provider', {
+    id: gri({
+      entityType: providerEntityType,
+      entityId: providerId,
+      aspect: 'instance',
+    }),
+    name: 'Dummy provider',
+  });
+  const providerManager = lookupService(testCase, 'providerManager');
+  providerManager.getCurrentProviderId = () => get(provider, 'entityId');
+  run(() => {
+    testCase.set('archiveRecallInfo.recallingProvider', provider);
+  });
+}
+
+function whenOnRemoteProvider(testCase) {
+  const store = lookupService(testCase, 'store');
+  const localProviderId = 'local_provider_id';
+  const localProvider = store.createRecord('provider', {
+    id: gri({
+      entityType: providerEntityType,
+      entityId: localProviderId,
+      aspect: 'instance',
+    }),
+    name: 'Local provider',
+  });
+  const recallingProviderId = 'recalling_provider_id';
+  const recallingProvider = store.createRecord('provider', {
+    id: gri({
+      entityType: providerEntityType,
+      entityId: recallingProviderId,
+      aspect: 'instance',
+    }),
+    name: 'Recalling provider',
+  });
+  const providerManager = lookupService(testCase, 'providerManager');
+  providerManager.getCurrentProviderId = () => get(localProvider, 'entityId');
+  run(() => {
+    testCase.set('archiveRecallInfo.recallingProvider', recallingProvider);
+  });
 }

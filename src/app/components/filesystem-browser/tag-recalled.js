@@ -40,10 +40,11 @@ export default Component.extend(I18n, {
    */
   onTagClicked: notImplementedIgnore,
 
-  // FIXME: not working if recall state is unavailable
-  errorOccurred: reads('file.archiveRecallState.errorOccurred'),
+  archiveRecallInfo: reads('file.archiveRecallInfo.content'),
 
-  cancelled: bool('file.archiveRecallInfo.cancelTime'),
+  errorOccurred: reads('archiveRecallInfo.errorOccurred'),
+
+  cancelled: bool('archiveRecallInfo.cancelTime'),
 
   statusTagClass: or(
     and('disabled', raw('file-status-tag-disabled')),

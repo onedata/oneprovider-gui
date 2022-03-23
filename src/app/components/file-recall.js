@@ -20,6 +20,8 @@ import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import resolveFilePath, { stringifyFilePath, dirSeparator } from 'oneprovider-gui/utils/resolve-file-path';
 import cutDirsPath from 'oneprovider-gui/utils/cut-dirs-path';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
 
 /**
  * @typedef  {'message'|'raw'|'unknown'} RecallInfoErrorType
@@ -39,6 +41,7 @@ export default Component.extend(I18n, {
   archiveRecallStateManager: service(),
   appProxy: service(),
   globalNotify: service(),
+  parentAppNavigation: service(),
 
   /**
    * @override
@@ -89,6 +92,7 @@ export default Component.extend(I18n, {
         recallRootFileProxy,
         archiveRecallInfoProxy,
         archiveRecallStateProxy,
+        recallingProviderProxy,
         relativePathProxy,
       } = this.getProperties(
         'archiveProxy',
@@ -96,6 +100,7 @@ export default Component.extend(I18n, {
         'recallRootFileProxy',
         'archiveRecallInfoProxy',
         'archiveRecallStateProxy',
+        'recallingProviderProxy',
         'relativePathProxy',
       );
       const result = await hashSettled({
@@ -104,6 +109,7 @@ export default Component.extend(I18n, {
         root: recallRootFileProxy,
         info: archiveRecallInfoProxy,
         state: archiveRecallStateProxy,
+        recallingProvider: recallingProviderProxy,
         relativePath: relativePathProxy,
       });
       if (result.root.state === 'rejected' || result.info.state === 'rejected') {
@@ -112,9 +118,37 @@ export default Component.extend(I18n, {
     }
   )),
 
-  archiveRecallInfoProxy: reads('file.archiveRecallInfo'),
+  archiveRecallInfoProxy: computedRelationProxy(
+    'file',
+    'archiveRecallInfo'
+  ),
 
-  archiveRecallStateProxy: reads('file.archiveRecallState'),
+  archiveRecallStateProxy: computedArchiveRecallStateProxy(
+    'archiveRecallInfoProxy',
+    'internalArchiveRecallStateProxy',
+  ),
+
+  /**
+   * @private
+   * @type {ComputedProperty<PromiseObject<Models.ArchiveRecallState>>}
+   */
+  internalArchiveRecallStateProxy: computedRelationProxy(
+    'file',
+    'archiveRecallState'
+  ),
+
+  /**
+   * @type {ComputedProperty<PromiseObject>}
+   */
+  recallingProviderProxy: promise.object(computed(
+    'archiveRecallInfoProxy.recallingProvider',
+    async function recallingProviderProxy() {
+      const archiveRecallInfo = await this.get('archiveRecallInfo');
+      const recallingProvider = archiveRecallInfo &&
+        await get(archiveRecallInfo, 'recallingProvider');
+      return recallingProvider;
+    }
+  )),
 
   archiveProxy: promise.object(computed(
     'archiveRecallInfoProxy',
@@ -239,10 +273,42 @@ export default Component.extend(I18n, {
 
   datasetUrl: computedLastProxyContent('datasetUrlProxy'),
 
+  recallingProvider: computedLastProxyContent('recallingProviderProxy'),
+
   relativePath: computedLastProxyContent('relativePathProxy'),
 
+  recallingProviderName: reads('recallingProvider.name'),
+
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
+
+  recallingProviderHref: computed(
+    'archiveRecallInfo.recallingProvider',
+    function recallingProviderHref() {
+      const {
+        appProxy,
+        file,
+        archiveRecallInfo,
+      } = this.getProperties(
+        'appProxy',
+        'file',
+        'archiveRecallInfo',
+      );
+      const recallingProviderId = archiveRecallInfo &&
+        archiveRecallInfo.relationEntityId('recallingProvider');
+      if (!recallingProviderId) {
+        return null;
+      }
+      return appProxy.callParent('getDataUrl', {
+        selected: [get(file, 'entityId')],
+        oneproviderId: recallingProviderId,
+      });
+    }
+  ),
+
   recallingPercent: computed(
-    'file.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
+    'archiveRecallInfo.totalByteSize',
+    'archiveRecallState.bytesCopied',
+    'file.recallingMembership',
     function recallingPercent() {
       const file = this.get('file');
       return recallingPercentageProgress(file);
@@ -257,10 +323,22 @@ export default Component.extend(I18n, {
 
   filesFailed: reads('archiveRecallState.filesFailed'),
 
-  lastError: computed('archiveRecallState.lastError', function lastError() {
-    const lastErrorData = this.get('archiveRecallState.lastError');
-    return _.isEmpty(lastErrorData) ? null : lastErrorData;
-  }),
+  lastError: computed(
+    'archiveRecallInfo.lastError',
+    'archiveRecallState.lastError',
+    function lastError() {
+      const archiveRecallInfo = this.get('archiveRecallInfo');
+      let lastErrorData = archiveRecallInfo && get(archiveRecallInfo, 'lastError');
+      if (
+        _.isEmpty(lastErrorData) &&
+        archiveRecallInfo &&
+        get(archiveRecallInfo, 'isOnLocalProvider')
+      ) {
+        lastErrorData = get(archiveRecallInfo, 'lastError');
+      }
+      return _.isEmpty(lastErrorData) ? null : lastErrorData;
+    }
+  ),
 
   /**
    * @type {ComputedProperty<FileRecallProcessStatus>}

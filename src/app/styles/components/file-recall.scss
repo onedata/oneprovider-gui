@@ -1,7 +1,23 @@
 .file-recall-modal-body {
-  // complex selector to override defaults
-  .file-recall-info-table.table.table-info td.property-name {
-    width: 180px;
+  .file-recall-info-table {
+    // complex selector to override defaults
+    &.table.table-info td.property-name {
+      width: 180px;
+    }
+    .text-disabled {
+      color: $main-text-color-disabled;
+    }
+    .progress-counter {
+      display: flex;
+      align-items: center;
+      .state-not-available-tip {
+        line-height: 1;
+      }
+      .counter-divider {
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+      }
+    }
   }
 }
 

@@ -115,6 +115,9 @@ export default EmberObject.extend(OwnerInjector, {
       this.stop();
       return;
     }
+    if (!get(info, 'isOnLocalProvider')) {
+      pollingMode = this.set('pollingMode', 'info');
+    }
     if (pollingMode === 'state') {
       try {
         state = await this.reloadState();
@@ -202,6 +205,7 @@ export default EmberObject.extend(OwnerInjector, {
    * @returns {Promise<Models.ArchiveRecallState>}
    */
   reloadState() {
+    console.log('FIXME: reloadState');
     return this.get('targetFile').getRelation('archiveRecallState', { reload: true });
   },
 });

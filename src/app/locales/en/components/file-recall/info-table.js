@@ -17,11 +17,13 @@ export default {
   lastError: 'Last error',
   unknownError: 'Unknown error',
   processStatus: 'Status',
-  tips: {
+  labelTips: {
     targetPath: 'Path to the root {{fileType}} of this recall.',
     relativePath: 'Relative path to this {{fileType}} from the root directory of this recall.',
     filesFailed: 'Number of files or directories which failed to be recalled due to errors.',
   },
+  recalledFilesNotAvailableTip: 'Recalled files count is not available on this provider.',
+  recalledDataNotAvailableTip: 'Recalled data size is not available on this provider.',
   status: {
     scheduled: 'Archive recall scheduled',
     pending: 'Archive recall in progress',
