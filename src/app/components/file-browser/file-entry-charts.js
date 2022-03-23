@@ -280,7 +280,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           seriesGroups: [{
             factoryName: 'dynamic',
             factoryArguments: {
-              dynamicSeriesGroupConfigs: {
+              dynamicSeriesGroupConfigsSource: {
                 sourceType: 'external',
                 sourceParameters: {
                   externalSourceName: 'filesCountData',
@@ -333,7 +333,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           }, {
             factoryName: 'dynamic',
             factoryArguments: {
-              dynamicSeriesConfigs: {
+              dynamicSeriesConfigsSource: {
                 sourceType: 'external',
                 sourceParameters: {
                   externalSourceName: 'filesCountData',
@@ -473,18 +473,6 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       .filter(point => point.timestamp >= statisticsStartDate);
   },
 
-  async fetchDynamicSeriesGroupConfigs() {
-    const currentProvider = await this.get('providerManager').getCurrentProvider();
-    const {
-      entityId,
-      name,
-    } = getProperties(currentProvider, 'entityId', 'name');
-    return [{
-      id: `provider_${entityId}`,
-      name,
-    }];
-  },
-
   /**
    * @returns {Promise<Array<{ id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
@@ -560,5 +548,20 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       bytesColor: colorGenerator.generateColorForKey('bytes'),
     };
     this.set('chartsColor', colors);
+  },
+
+  /**
+   * @returns {Promise<Array<{ id: string, name: string }>>}
+   */
+  async fetchDynamicSeriesGroupConfigs() {
+    const currentProvider = await this.get('providerManager').getCurrentProvider();
+    const {
+      entityId,
+      name,
+    } = getProperties(currentProvider, 'entityId', 'name');
+    return [{
+      id: `provider_${entityId}`,
+      name,
+    }];
   },
 });

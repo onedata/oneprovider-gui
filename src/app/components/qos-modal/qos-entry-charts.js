@@ -269,7 +269,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           }, {
             factoryName: 'dynamic',
             factoryArguments: {
-              dynamicSeriesConfigs: {
+              dynamicSeriesConfigsSource: {
                 sourceType: 'external',
                 sourceParameters: {
                   externalSourceName: 'qosEntryData',
@@ -383,7 +383,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           series: [{
             factoryName: 'dynamic',
             factoryArguments: {
-              dynamicSeriesConfigs: {
+              dynamicSeriesConfigsSource: {
                 sourceType: 'external',
                 sourceParameters: {
                   externalSourceName: 'qosEntryData',
