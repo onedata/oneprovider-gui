@@ -551,31 +551,35 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnRename: computed('selectedItems.@each.dataIsProtected', function btnRename() {
-    const actionId = 'rename';
-    const tip = this.generateDisabledTip({
-      protectionType: 'data',
-      blockRecalling: true,
-    });
-    const disabled = Boolean(tip);
-    return this.createFileAction({
-      id: actionId,
-      action: (files) => {
-        const {
-          openRename,
-          dir,
-        } = this.getProperties('openRename', 'dir');
-        return openRename(files[0], dir);
-      },
-      disabled,
-      tip,
-      showIn: [
-        actionContext.singleDir,
-        actionContext.singleFile,
-        actionContext.currentDir,
-      ],
-    });
-  }),
+  btnRename: computed(
+    'selectedItems.@each.dataIsProtected',
+    'selectedItemsContainsRecalling',
+    function btnRename() {
+      const actionId = 'rename';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        blockRecalling: true,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: (files) => {
+          const {
+            openRename,
+            dir,
+          } = this.getProperties('openRename', 'dir');
+          return openRename(files[0], dir);
+        },
+        disabled,
+        tip,
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleFile,
+          actionContext.currentDir,
+        ],
+      });
+    }
+  ),
 
   btnPermissions: computed(
     'selectedItemsContainsOnlySymlinks',
@@ -698,6 +702,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnCut: computed(
     'selectedItemsContainsOnlySymlinks',
     'selectedItems.@each.dataIsProtected',
+    'selectedItemsContainsRecalling',
     function btnCut() {
       const actionId = 'cut';
       const tip = this.generateDisabledTip({
@@ -722,6 +727,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnPaste: computed(
     'dir.dataIsProtected',
+    'selectedItemsContainsRecalling',
     function btnPaste() {
       const actionId = 'paste';
       const tip = this.generateDisabledTip({
@@ -745,27 +751,31 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnDelete: computed('selectedItems.@each.dataIsProtected', function btnDelete() {
-    const actionId = 'delete';
-    const tip = this.generateDisabledTip({
-      protectionType: 'data',
-      blockRecalling: true,
-    });
-    const disabled = Boolean(tip);
-    return this.createFileAction({
-      id: actionId,
-      action: (files) => {
-        const {
-          openRemove,
-          dir,
-        } = this.getProperties('openRemove', 'dir');
-        return openRemove(files, dir);
-      },
-      disabled,
-      tip,
-      showIn: anySelectedContexts,
-    });
-  }),
+  btnDelete: computed(
+    'selectedItems.@each.dataIsProtected',
+    'selectedItemsContainsRecalling',
+    function btnDelete() {
+      const actionId = 'delete';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        blockRecalling: true,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: (files) => {
+          const {
+            openRemove,
+            dir,
+          } = this.getProperties('openRemove', 'dir');
+          return openRemove(files, dir);
+        },
+        disabled,
+        tip,
+        showIn: anySelectedContexts,
+      });
+    }
+  ),
 
   btnDistribution: computed(
     'selectedItemsContainsOnlySymlinks',
