@@ -27,6 +27,7 @@ import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const allButtonNames = Object.freeze([
+  'btnArchiveSettings',
   'btnCreateArchive',
   'btnRefresh',
   'btnCopyId',
@@ -90,6 +91,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {(archive: Utils.BrowsableArchive, options: Object) => any}
    */
   openRecallModal: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {(archives: Array<Utils.BrowsableArchive>) => any}
+   */
+  openArchiveSettingsModal: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -257,6 +264,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
         tip: disabledTip,
         disabled: Boolean(disabledTip),
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnArchiveSettings: computed(
+    'dataset',
+    function btnArchiveSettings() {
+      return this.createFileAction({
+        id: 'archiveSettings',
+        icon: 'settings',
+        action: (archives) => {
+          return this.openArchiveSettingsModal(archives[0]);
+        },
         showIn: [
           actionContext.singleDir,
           actionContext.singleDirPreview,

@@ -28,6 +28,7 @@ import archiveFilesystemBrowser from './components/archive-filesystem-browser';
 import datasetBrowser from './components/dataset-browser';
 import archiveBrowser from './components/archive-browser';
 import archiveSettings from './components/archive-settings';
+import archiveCreate from './components/archive-create';
 import archivesPurge from './components/archives-purge';
 import itemsSelectBrowser from './components/items-select-browser';
 import datasetProtection from './components/dataset-protection';
@@ -36,7 +37,7 @@ import archiveRecall from './components/archive-recall';
 import recallInfoModal from './components/recall-info-modal';
 import archiveContentCount from './components/archive-content-count';
 import archiveState from './components/archive-state';
-import archiveCreateModal from './components/archive-create-modal';
+import archiveSettingsModal from './components/archive-settings-modal';
 
 import uploadManager from './services/upload-manager';
 
@@ -80,6 +81,7 @@ const translations = {
     datasetBrowser,
     archiveBrowser,
     archiveSettings,
+    archiveCreate,
     archivesPurge,
     itemsSelectBrowser,
     datasetProtection,
@@ -88,7 +90,7 @@ const translations = {
     recallInfoModal,
     archiveContentCount,
     archiveState,
-    archiveCreateModal,
+    archiveSettingsModal,
   },
   services: {
     uploadManager,

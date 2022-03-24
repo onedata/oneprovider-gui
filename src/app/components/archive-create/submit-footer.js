@@ -1,7 +1,7 @@
 /**
  * A part of archive properties editor that allows to take submit actions
  *
- * @module components/archive-settings/submit-footer
+ * @module components/archive-create/submit-footer
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -14,12 +14,12 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  classNames: ['archive-settings-submit-footer'],
+  classNames: ['archive-create-submit-footer'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.archiveSettings.submitFooter',
+  i18nPrefix: 'components.archiveCreate.submitFooter',
 
   i18n: service(),
 

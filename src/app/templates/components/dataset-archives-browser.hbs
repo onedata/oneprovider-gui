@@ -95,6 +95,14 @@
   }}
 {{/if}}
 
+{{#if archivesToShowSettings}}
+  {{archive-settings-modal
+    open=true
+    archives=archivesToShowSettings
+    onHide=(action closeArchiveSettingsModal)
+  }}
+{{/if}}
+
 {{#if createArchiveOpened}}
   {{archive-create-modal
     open=true

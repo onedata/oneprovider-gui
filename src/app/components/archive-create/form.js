@@ -1,7 +1,7 @@
 /**
  * Form with settings for archive model
  *
- * @module components/archive-settings/form
+ * @module components/archive-create/form
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -26,14 +26,14 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import computedT from 'onedata-gui-common/utils/computed-t';
 
 export default Component.extend(I18n, {
-  classNames: ['form', 'form-horizontal', 'form-component', 'archive-settings-form'],
+  classNames: ['form', 'form-horizontal', 'form-component', 'archive-create-form'],
 
   i18n: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.archiveSettings.form',
+  i18nPrefix: 'components.archiveCreate.form',
 
   /**
    * @virtual

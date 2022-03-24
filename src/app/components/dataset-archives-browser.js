@@ -225,6 +225,11 @@ export default Component.extend(...mixins, {
    */
   archivesToPurge: null,
 
+  /**
+   * @type {Utils.BrowsableArchive}
+   */
+  archivesToShowSettings: null,
+
   //#endregion action modals state
 
   spaceId: reads('space.entityId'),
@@ -642,6 +647,14 @@ export default Component.extend(...mixins, {
       createArchiveOpened: false,
       createArchiveOptions: null,
     });
+  },
+
+  openArchiveSettingsModal(archive) {
+    this.set('archiveToShowSettings', archive);
+  },
+
+  closeArchiveSettingsModal() {
+    this.set('archiveToShowSettings', null);
   },
 
   /**

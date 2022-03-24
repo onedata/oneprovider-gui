@@ -1,0 +1,29 @@
+{{#modal.header class="archive-create-part archive-create-modal-header"}}
+  {{archive-create/header dataset=dataset}}
+{{/modal.header}}
+
+{{#modal.body class="archive-create-part archive-create-modal-body"}}
+  {{#if noViewArchivesPrivilege}}
+    <div class="alert alert-warning no-archives-view-alert">
+      {{tt this "noArchivesViewPrivilege" privilegeExpression=viewPrivilegeExpression}}
+    </div>
+  {{/if}}
+  {{archive-create/form
+    dataset=dataset
+    options=options
+    baseArchiveProxy=baseArchiveProxy
+    isSubmitting=isSubmitting
+    updateBaseArchiveProxy=(action updateBaseArchiveProxy)
+    onChange=(action "formDataUpdate")
+  }}
+  {{yield}}
+{{/modal.body}}
+
+{{#modal.footer class="archive-create-part archive-create-modal-footer"}}
+  {{archive-create/submit-footer
+    disabled=(not canSubmit)
+    isSubmitting=isSubmitting
+    onSubmit=(action "submit")
+    onClose=(action "close")
+  }}
+{{/modal.footer}}
