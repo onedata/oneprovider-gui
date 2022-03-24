@@ -4,11 +4,7 @@ import { setupComponentTest } from 'ember-mocha';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
 import { get } from '@ember/object';
 import sinon from 'sinon';
-import { createArchiveRecallData } from '../../helpers/archive-recall';
-import { lookupService } from '../../helpers/stub-service';
-import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
-import gri from 'onedata-gui-websocket-client/utils/gri';
-import { run } from '@ember/runloop';
+import { createArchiveRecallData, whenOnLocalProvider, whenOnRemoteProvider } from '../../helpers/archive-recall';
 
 describe('Integration | Utility | archive recall state watcher', function () {
   setupComponentTest('test-component', {
@@ -256,49 +252,4 @@ function createWatcher(testCase, options = {}) {
     targetFile: testCase.get('targetFile'),
     ownerSource: testCase,
   }, options));
-}
-
-function whenOnLocalProvider(testCase) {
-  const providerId = 'provider_id';
-  const store = lookupService(testCase, 'store');
-  const provider = store.createRecord('provider', {
-    id: gri({
-      entityType: providerEntityType,
-      entityId: providerId,
-      aspect: 'instance',
-    }),
-    name: 'Dummy provider',
-  });
-  const providerManager = lookupService(testCase, 'providerManager');
-  providerManager.getCurrentProviderId = () => get(provider, 'entityId');
-  run(() => {
-    testCase.set('archiveRecallInfo.recallingProvider', provider);
-  });
-}
-
-function whenOnRemoteProvider(testCase) {
-  const store = lookupService(testCase, 'store');
-  const localProviderId = 'local_provider_id';
-  const localProvider = store.createRecord('provider', {
-    id: gri({
-      entityType: providerEntityType,
-      entityId: localProviderId,
-      aspect: 'instance',
-    }),
-    name: 'Local provider',
-  });
-  const recallingProviderId = 'recalling_provider_id';
-  const recallingProvider = store.createRecord('provider', {
-    id: gri({
-      entityType: providerEntityType,
-      entityId: recallingProviderId,
-      aspect: 'instance',
-    }),
-    name: 'Recalling provider',
-  });
-  const providerManager = lookupService(testCase, 'providerManager');
-  providerManager.getCurrentProviderId = () => get(localProvider, 'entityId');
-  run(() => {
-    testCase.set('archiveRecallInfo.recallingProvider', recallingProvider);
-  });
 }

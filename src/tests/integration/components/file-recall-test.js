@@ -7,6 +7,7 @@ import {
   createArchiveRecallData,
   getBrowsableArchiveName,
   getBrowsableDatasetName,
+  whenOnLocalProvider,
 } from '../../helpers/archive-recall';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
@@ -19,6 +20,7 @@ describe('Integration | Component | file recall', function () {
 
   beforeEach(async function () {
     await createArchiveRecallData(this);
+    whenOnLocalProvider(this);
     const targetFile = this.get('targetFile');
     this.setProperties({
       file: targetFile,
@@ -37,8 +39,8 @@ describe('Integration | Component | file recall', function () {
     const $fileRecall = this.$('.file-recall-info-table');
     const text = $fileRecall.text();
     expect(text).to.contain(browsableArchiveName);
-    expect(text).to.contain('20 / 100');
-    expect(text).to.contain('200 B / 1 KiB');
+    expect(text).to.match(/20\s+\/\s+100/);
+    expect(text).to.match(/200 B\s+\/\s+1 KiB/);
   });
 
   it('renders dataset name', async function () {
