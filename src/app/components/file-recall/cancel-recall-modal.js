@@ -1,3 +1,12 @@
+/**
+ * A small modal with information about cancelling the recall and confirmation buttons.
+ *
+ * @module components/file-recall/cancel-modal/recall
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';

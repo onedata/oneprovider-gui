@@ -22,8 +22,7 @@ export default {
     relativePath: 'Relative path to this {{fileType}} from the root directory of this recall.',
     filesFailed: 'Number of files or directories which failed to be recalled due to errors.',
   },
-  recalledFilesNotAvailableTip: 'Recalled files count is not available on this provider.',
-  recalledDataNotAvailableTip: 'Recalled data size is not available on this provider.',
+  statisticNotAvailableTip: 'This statistic is available only on the recalling Oneprovider.',
   status: {
     scheduled: 'Archive recall scheduled',
     pending: 'Archive recall in progress',

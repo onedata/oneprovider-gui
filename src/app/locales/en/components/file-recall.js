@@ -6,9 +6,9 @@ export default {
   cancelRecall: 'Cancel recall',
   cancellingRecallBtn: 'Cancelling recall...',
   stateNotAvailableAlert: {
-    intro: 'Recall progress details are not available on currently selected Oneprovider.',
-    providerInfoHead: 'Visit',
-    providerInfoTail: 'provider to see statistics.',
+    intro: 'Some of the recall details are available only on the recalling Oneprovider. ',
+    providerInfoHead: 'Switch to',
+    providerInfoTail: 'to view complete statistics.',
   },
   infoTable,
   cancelRecallModal,

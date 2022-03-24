@@ -44,9 +44,7 @@
           class="archive-link navy underlined"
           href={{archiveUrl}}
           target={{navigateTarget}}
-        >
-          {{archiveName}}
-        </a>
+        >{{archiveName}}</a>
       {{else}}
         {{#if archiveId}}
           <code class="archive-id">{{archiveId}}</code>
@@ -66,9 +64,7 @@
           class="dataset-link navy underlined"
           href={{datasetUrl}}
           target={{navigateTarget}}
-        >
-          {{datasetName}}
-        </a>
+        >{{datasetName}}</a>
       {{else}}
         {{#if datasetId}}
           <code class="dataset-id">{{datasetId}}</code>
@@ -161,7 +157,7 @@
         {{#if stateNotAvailable}}
           {{one-label-tip
             class="state-not-available-tip"
-            title=(tt this "recalledFilesNotAvailableTip")
+            title=(tt this "statisticNotAvailableTip")
           }}
         {{else}}
           <span class="files-recalled-value">{{filesRecalled}}</span>
@@ -183,7 +179,7 @@
         {{#if stateNotAvailable}}
           {{one-label-tip
             class="state-not-available-tip"
-            title=(tt this "recalledDataNotAvailableTip")
+            title=(tt this "statisticNotAvailableTip")
           }}
         {{else}}
           <span class="bytes-recalled-value">{{bytesRecalledText}}</span>

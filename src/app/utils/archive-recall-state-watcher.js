@@ -205,7 +205,6 @@ export default EmberObject.extend(OwnerInjector, {
    * @returns {Promise<Models.ArchiveRecallState>}
    */
   reloadState() {
-    console.log('FIXME: reloadState');
     return this.get('targetFile').getRelation('archiveRecallState', { reload: true });
   },
 });
