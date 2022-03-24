@@ -244,6 +244,46 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     expect(reloadStateSpy).to.have.not.been.called;
   });
+
+  it('polls both for state and info if recall is being cancelled but not not finished', async function () {
+    const interval = 1000;
+    this.watcher = createWatcher(this, { interval });
+    const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
+    const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
+    const stopSpy = sinon.spy(this.watcher, 'stop');
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.cancelTime', null);
+    this.set('archiveRecallInfo.finishTime', null);
+    this.set('archiveRecallState.bytesCopied', 0);
+    this.set('archiveRecallState.filesCopied', 0);
+
+    this.watcher.start();
+    this.clock.tick(1);
+    expect(reloadInfoSpy).to.have.callCount(0);
+    expect(reloadStateSpy).to.have.callCount(1);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.have.callCount(0);
+    expect(reloadStateSpy).to.have.callCount(2);
+    this.set('archiveRecallInfo.cancelTime', 2000);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.to.have.callCount(1);
+    expect(reloadStateSpy).to.have.callCount(3);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.to.have.callCount(2);
+    expect(reloadStateSpy).to.have.callCount(4);
+    this.set(
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount')
+    );
+    this.clock.tick(interval + 1);
+    expect(stopSpy).to.have.been.calledOnce;
+    expect(get(this.watcher, 'isPolling')).to.equal(false);
+    reloadInfoSpy.reset();
+    reloadStateSpy.reset();
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.have.not.been.called;
+    expect(reloadStateSpy).to.have.not.been.called;
+  });
 });
 
 function createWatcher(testCase, options = {}) {
