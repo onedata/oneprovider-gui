@@ -74,6 +74,28 @@
       {{/if}}
     </td>
   </tr>
+  <tr class="recall-info-row-recalling-provider">
+    <td class="property-name">
+      {{tt this "recallingProvider"}}
+      {{one-label-tip title=(tt this "labelTips.recallingProvider")}}
+    </td>
+    <td class="property-value">
+      {{#if recallingProviderInfo.name}}
+        {{#if recallingProviderInfo.isLocal}}
+          <span class="recalling-provider-name">{{recallingProviderInfo.name}}</span>
+          <span class="text-disabled">({{tt this "currentOneprovider"}})</span>
+        {{else}}
+          <a
+            class="recalling-provider-name recalling-provider-link navy underlined"
+            href={{recallingProviderInfo.href}}
+            target={{navigateTarget}}
+          >{{recallingProviderInfo.name}}</a>
+        {{/if}}
+      {{else}}
+        <em>{{tt this "couldNotLoad"}}</em>
+      {{/if}}
+    </td>
+  </tr>
   <tr class="recall-info-row-target-path">
     <td class="property-name">
       {{tt this "targetPath"}}

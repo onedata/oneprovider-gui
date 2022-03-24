@@ -50,6 +50,12 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {BasicRecallingProviderInfo}
+   */
+  recallingProviderInfo: undefined,
+
+  /**
+   * @virtual
    * @type {Models.ArchiveRecallInfo}
    */
   archiveRecallInfo: undefined,

@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import { promise, raw, array, equal, or } from 'ember-awesome-macros';
+import { promise, raw, array, equal, or, hash } from 'ember-awesome-macros';
 import { all as allFulfilled, hashSettled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -29,6 +29,14 @@ import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-arch
 
 /**
  * @typedef {'scheduled'|'pending'|'cancelling'|'stopped'|'succeeded'|'failed'} FileRecallProcessStatus
+ */
+
+/**
+ * Basic information for view and child components about recalling Oneprovider.
+ * @typedef {Object} BasicRecallingProviderInfo
+ * @property {string} name
+ * @property {string} href
+ * @property {string} isLocal true if this is the same provider as currently used
  */
 
 export default Component.extend(I18n, {
@@ -304,6 +312,15 @@ export default Component.extend(I18n, {
       });
     }
   ),
+
+  /**
+   * @type {ComputedProperty<BasicRecallingProviderInfo>}
+   */
+  recallingProviderInfo: hash({
+    name: 'recallingProviderName',
+    href: 'recallingProviderHref',
+    isLocal: 'archiveRecallInfo.isOnLocalProvider',
+  }),
 
   recallingPercent: computed(
     'archiveRecallInfo.totalByteSize',

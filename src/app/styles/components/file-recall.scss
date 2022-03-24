@@ -2,7 +2,7 @@
   .file-recall-info-table {
     // complex selector to override defaults
     &.table.table-info td.property-name {
-      width: 180px;
+      width: 200px;
     }
     .text-disabled {
       color: $main-text-color-disabled;
@@ -17,6 +17,9 @@
         margin-left: 0.5em;
         margin-right: 0.5em;
       }
+    }
+    .recalling-provider-name {
+      word-break: break-word;
     }
   }
 }
