@@ -1,7 +1,7 @@
 /**
  * A small modal with information about cancelling the recall and confirmation buttons.
  *
- * @module components/file-recall/cancel-modal/recall
+ * @module components/file-recall/cancel-recall-modal
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

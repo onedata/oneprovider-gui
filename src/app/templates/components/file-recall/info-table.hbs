@@ -7,31 +7,7 @@
       {{tt this "processStatus"}}
     </td>
     <td class="property-value">
-      {{#if (eq processStatus "scheduled")}}
-        {{tt this "status.scheduled"}}
-      {{else if (eq processStatus "pending")}}
-        {{tt this "status.pending"}}
-        {{#if (not (is-empty recallingPercent))}}
-          {{tt this "percentageDone" percentage=recallingPercent}}
-        {{/if}}
-      {{else if (eq processStatus "cancelling")}}
-        {{tt this "status.cancelling"}}
-        {{#if (not (is-empty recallingPercent))}}
-          {{tt this "percentageDone" percentage=recallingPercent}}
-        {{/if}}
-      {{else if (eq processStatus "succeeded")}}
-        {{tt this "status.succeeded"}}
-      {{else if (eq processStatus "cancelled")}}
-        {{tt this "status.cancelled"}}
-        {{#if (not (is-empty recallingPercent))}}
-          {{tt this "percentageDone" percentage=recallingPercent}}
-        {{/if}}
-      {{else if (eq processStatus "failed")}}
-        {{tt this "status.failed"}}
-        {{#if (not (is-empty recallingPercent))}}
-          {{tt this "percentageDone" percentage=recallingPercent}}
-        {{/if}}
-      {{/if}}
+      {{processStatusText}}
     </td>
   </tr>
   <tr class="recall-info-row-archive">

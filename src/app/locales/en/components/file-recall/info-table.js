@@ -32,6 +32,7 @@ export default {
     cancelled: 'Cancelled',
     succeeded: 'Finished successfully',
     failed: 'Finished with errors',
+    unknown: 'Unknown',
   },
   percentageDone: '(recall progress: {{percentage}}%)',
   couldNotLoad: 'Could not load',

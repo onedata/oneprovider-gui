@@ -28,8 +28,21 @@ import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-arch
  */
 
 /**
- * @typedef {'scheduled'|'pending'|'cancelling'|'stopped'|'succeeded'|'failed'} FileRecallProcessStatus
+ * @typedef {'scheduled'|'pending'|'cancelling'|'cancelled'|'succeeded'|'failed'} FileRecallProcessStatus
  */
+
+export const validFileRecallProcessStates = [
+  'scheduled',
+  'pending',
+  'cancelling',
+  'cancelled',
+  'succeeded',
+  'failed',
+];
+
+export function isValidFileRecallProcessStatus(status) {
+  return validFileRecallProcessStates.includes(status);
+}
 
 /**
  * Basic information for view and child components about recalling Oneprovider.

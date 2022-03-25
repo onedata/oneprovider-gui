@@ -18,6 +18,7 @@ import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { isValidFileRecallProcessStatus } from 'oneprovider-gui/components/file-recall';
 
 export default Component.extend(I18n, {
   tagName: 'table',
@@ -30,11 +31,24 @@ export default Component.extend(I18n, {
 
   parentAppNavigation: service(),
   errorExtractor: service(),
+  i18n: service(),
 
   /**
    * @override
    */
   i18nPrefix: 'components.fileRecall.infoTable',
+
+  /**
+   * @virtual
+   * @type {Models.File}
+   */
+  file: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.File}
+   */
+  recallRootFile: undefined,
 
   /**
    * @virtual
@@ -44,15 +58,33 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {number}
    */
-  lastError: undefined,
+  recallingPercent: undefined,
 
   /**
    * @virtual
-   * @type {BasicRecallingProviderInfo}
+   * @type {Utils.BrowsableArchive}
    */
-  recallingProviderInfo: undefined,
+  archive: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  archiveUrl: undefined,
+
+  /**
+   * @virtual
+   * @type {Utils.BrowsableDataset}
+   */
+  dataset: undefined,
+
+  /**
+   * @virtual
+   * @type {string}
+   */
+  datasetUrl: undefined,
 
   /**
    * @virtual
@@ -68,10 +100,35 @@ export default Component.extend(I18n, {
   archiveRecallState: undefined,
 
   /**
+   * @virtual
+   * @type {string}
+   */
+  relativePath: undefined,
+
+  /**
+   * @virtual
+   * @type {Object}
+   */
+  lastError: undefined,
+
+  /**
+   * @virtual
+   * @type {BasicRecallingProviderInfo}
+   */
+  recallingProviderInfo: undefined,
+
+  /**
    * @virtual optional
    * @type {() => void}
    */
   onClose: notImplementedIgnore,
+
+  statesToShowPercentage: Object.freeze([
+    'pending',
+    'cancelling',
+    'cancelled',
+    'failed',
+  ]),
 
   /**
    * Frame name, where Onezone link should be opened
@@ -163,6 +220,30 @@ export default Component.extend(I18n, {
   filesToRecall: reads('archiveRecallInfo.totalFileCount'),
 
   filesFailed: reads('archiveRecallState.filesFailed'),
+
+  processStatusText: computed(
+    'processStatus',
+    'recallingPercent',
+    'statesToShowPercentage',
+    function processStatusText() {
+      const {
+        processStatus,
+        recallingPercent,
+        statesToShowPercentage,
+      } = this.getProperties('processStatus', 'recallingPercent', 'statesToShowPercentage');
+      if (!isValidFileRecallProcessStatus(processStatus)) {
+        return this.t('status.unknown');
+      }
+      let text = this.t(`status.${processStatus}`);
+      if (
+        statesToShowPercentage.includes(processStatus) &&
+        recallingPercent != null
+      ) {
+        text += ` ${this.t('percentageDone', { percentage: recallingPercent })}`;
+      }
+      return text;
+    }
+  ),
 
   actions: {
     targetFileLinkClicked(event) {
