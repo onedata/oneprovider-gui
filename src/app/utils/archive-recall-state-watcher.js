@@ -43,6 +43,10 @@ export default EmberObject.extend(OwnerInjector, {
    */
   refreshedDirsIdSet: null,
 
+  lastInfoError: null,
+
+  lastStateError: null,
+
   /**
    * @type {Boolean}
    */
@@ -108,6 +112,7 @@ export default EmberObject.extend(OwnerInjector, {
         'util:archive-recall-state-watcher#update: getInfo failed',
         getInfoError
       );
+      this.set('lastInfoError', getInfoError);
       this.stop();
       return;
     }
@@ -118,7 +123,11 @@ export default EmberObject.extend(OwnerInjector, {
     }
     if (pollingMode !== 'info' && !get(info, 'isOnLocalProvider')) {
       pollingMode = this.set('pollingMode', 'info');
-    } else if (pollingMode !== 'all' && get(info, 'cancelTime')) {
+    } else if (
+      pollingMode !== 'all' &&
+      get(info, 'cancelTime') &&
+      get(info, 'isOnLocalProvider')
+    ) {
       pollingMode = this.set('pollingMode', 'all');
     }
     if (pollingMode === 'state' || pollingMode === 'all') {
@@ -129,6 +138,7 @@ export default EmberObject.extend(OwnerInjector, {
           'util:archive-recall-state-watcher#update: reloadState failed',
           reloadStateError
         );
+        this.set('lastStateError', reloadStateError);
         pollingMode = this.set('pollingMode', 'info');
       }
     }
@@ -152,6 +162,7 @@ export default EmberObject.extend(OwnerInjector, {
           'util:archive-recall-state-watcher#update: reloadInfo failed',
           reloadInfoError
         );
+        this.set('lastInfoError', reloadInfoError);
         this.stop();
         return;
       }

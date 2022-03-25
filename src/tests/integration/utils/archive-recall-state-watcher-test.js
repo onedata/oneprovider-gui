@@ -284,6 +284,34 @@ describe('Integration | Utility | archive recall state watcher', function () {
     expect(reloadInfoSpy).to.have.not.been.called;
     expect(reloadStateSpy).to.have.not.been.called;
   });
+
+  it('polls only for info if recall is being cancelled but not not finished on remote provider', async function () {
+    whenOnRemoteProvider(this);
+    const interval = 1000;
+    this.watcher = createWatcher(this, { interval });
+    const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
+    const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.cancelTime', null);
+    this.set('archiveRecallInfo.finishTime', null);
+    this.set('archiveRecallState.bytesCopied', 0);
+    this.set('archiveRecallState.filesCopied', 0);
+
+    this.watcher.start();
+    this.clock.tick(1);
+    expect(reloadInfoSpy).to.have.callCount(1);
+    expect(reloadStateSpy).to.have.callCount(0);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.have.callCount(2);
+    expect(reloadStateSpy).to.have.callCount(0);
+    this.set('archiveRecallInfo.cancelTime', 2000);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.to.have.callCount(3);
+    expect(reloadStateSpy).to.have.callCount(0);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.to.have.callCount(4);
+    expect(reloadStateSpy).to.have.callCount(0);
+  });
 });
 
 function createWatcher(testCase, options = {}) {
