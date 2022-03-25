@@ -18,7 +18,9 @@
         margin-right: 0.5em;
       }
     }
-    .recalling-provider-name {
+    td {
+      // although word-break: break word is deprecated, it is still not supported
+      // on Safari (as of 03.2022)
       word-break: break-word;
     }
   }

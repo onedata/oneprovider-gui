@@ -428,20 +428,13 @@ export default Service.extend({
   },
 
   /**
-   * Begins a procedure of cancelling recall of tree which the file is a part of.
-   * @param {Models.File} file
+   * Begins a procedure of cancelling archive recall process that has root in
+   * file with `recallRootId` entity ID.
+   * @param {string} recallRootId
    * @returns {Promise<Object|null>} stop recall response or null if file is not a part
    *   of recalled tree
    */
-  async cancelRecall(file) {
-    const recallRootId = file && get(file, 'recallRootId');
-    if (!recallRootId) {
-      console.warn(
-        'service:file-manager#cancelRecall: provided file is not a part of recalled tree',
-        file
-      );
-      return null;
-    }
+  async cancelRecall(recallRootId) {
     const requestGri = gri({
       entityType: fileEntityType,
       entityId: recallRootId,

@@ -11,12 +11,8 @@
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
-  globalNotify: service(),
-  archiveRecallStateManager: service(),
-
   /**
    * @override
    */

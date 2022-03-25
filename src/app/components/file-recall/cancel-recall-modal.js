@@ -11,6 +11,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
+import { get } from '@ember/object';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -63,7 +64,8 @@ export default Component.extend(I18n, {
       'onClose',
     );
     try {
-      const cancelResult = await fileManager.cancelRecall(file);
+      const recallRootId = get(file, 'recallRootId');
+      const cancelResult = await fileManager.cancelRecall(recallRootId);
       onCancelInvoked();
       return cancelResult;
     } catch (error) {

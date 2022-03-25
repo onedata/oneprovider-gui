@@ -11,7 +11,7 @@ import {
 } from '../../helpers/archive-recall';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
+import { click, find } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | file recall', function () {
   setupComponentTest('file-recall', {
@@ -108,12 +108,12 @@ describe('Integration | Component | file recall', function () {
     expect(this.$('.recall-info-row-finished-at')).to.not.exist;
   });
 
-  it('has "recall scheduled" status text if recall does not started', async function () {
+  it('has "scheduled" status text if recall does not started', async function () {
     this.set('archiveRecallInfo.startTime', null);
 
     await render(this);
 
-    expect(this.$('.recall-info-row-process-status .property-value').text())
+    expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.contain('Scheduled');
   });
 
@@ -126,7 +126,7 @@ describe('Integration | Component | file recall', function () {
 
     await render(this);
 
-    expect(this.$('.recall-info-row-process-status .property-value').text())
+    expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.match(/Ongoing\s*\(recall progress: 50%\)/);
   });
 
@@ -144,7 +144,7 @@ describe('Integration | Component | file recall', function () {
 
     await render(this);
 
-    expect(this.$('.recall-info-row-process-status .property-value').text())
+    expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.contain('Finished successfully');
   });
 
@@ -171,7 +171,7 @@ describe('Integration | Component | file recall', function () {
 
       await render(this);
 
-      expect(this.$('.recall-info-row-process-status .property-value').text())
+      expect(find('.recall-info-row-process-status .property-value').textContent)
         .to.match(/Finished with errors\s+\(recall progress: 20%\)/);
     }
   );
@@ -181,7 +181,7 @@ describe('Integration | Component | file recall', function () {
 
     await render(this);
 
-    expect(this.$('.recall-info-row-process-status .property-value').text())
+    expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.match(/Cancelling\s*\(recall progress: 50%\)/);
     expect(this.$('.recall-info-row-process-status')).to.have.class('text-warning');
   });
@@ -191,7 +191,7 @@ describe('Integration | Component | file recall', function () {
 
     await render(this);
 
-    expect(this.$('.recall-info-row-process-status .property-value').text())
+    expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.match(/Cancelled\s*\(recall progress: 50%\)/);
     expect(this.$('.recall-info-row-process-status')).to.have.class('text-warning');
   });

@@ -116,9 +116,9 @@ export default EmberObject.extend(OwnerInjector, {
       this.stop();
       return;
     }
-    if (pollingMode != 'info' && !get(info, 'isOnLocalProvider')) {
+    if (pollingMode !== 'info' && !get(info, 'isOnLocalProvider')) {
       pollingMode = this.set('pollingMode', 'info');
-    } else if (pollingMode != 'all' && get(info, 'cancelTime')) {
+    } else if (pollingMode !== 'all' && get(info, 'cancelTime')) {
       pollingMode = this.set('pollingMode', 'all');
     }
     if (pollingMode === 'state' || pollingMode === 'all') {
