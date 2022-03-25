@@ -114,10 +114,10 @@ describe('Integration | Component | file recall', function () {
     await render(this);
 
     expect(this.$('.recall-info-row-process-status .property-value').text())
-      .to.contain('Archive recall scheduled');
+      .to.contain('Scheduled');
   });
 
-  it('has "recall in progress" status text with percentage completion header if recall started', async function () {
+  it('has "in progress" status text with percentage completion header if recall started', async function () {
     this.set('archiveRecallInfo.startTime', Date.now());
     this.set(
       'archiveRecallState.bytesCopied',
@@ -127,10 +127,10 @@ describe('Integration | Component | file recall', function () {
     await render(this);
 
     expect(this.$('.recall-info-row-process-status .property-value').text())
-      .to.match(/Archive recall in progress\s*\(50% done\)/);
+      .to.match(/Ongoing\s*\(recall progress: 50%\)/);
   });
 
-  it('has "recall finished successfully" status text if recall finished without errors', async function () {
+  it('has "finished successfully" status text if recall finished without errors', async function () {
     this.set('archiveRecallInfo.startTime', Date.now());
     this.set('archiveRecallInfo.finishTime', Date.now() + 10000);
     this.set(
@@ -145,10 +145,10 @@ describe('Integration | Component | file recall', function () {
     await render(this);
 
     expect(this.$('.recall-info-row-process-status .property-value').text())
-      .to.contain('Archive recall finished successfully');
+      .to.contain('Finished successfully');
   });
 
-  it('has "recall finished with errors" status text with percentage done if recall finished with errors',
+  it('has "finished with errors" status text with percentage done if recall finished with errors',
     async function () {
       const totalFileCount = 10;
       const filesToFail = 5;
@@ -172,27 +172,27 @@ describe('Integration | Component | file recall', function () {
       await render(this);
 
       expect(this.$('.recall-info-row-process-status .property-value').text())
-        .to.match(/Archive recall finished with errors\s+\(20% done\)/);
+        .to.match(/Finished with errors\s+\(recall progress: 20%\)/);
     }
   );
 
-  it('has "recall is cancelling" status text with percentage done while recall is cancelling', async function () {
+  it('has "cancelling" status text with percentage done while recall is cancelling', async function () {
     whenRecallIsCancelling(this);
 
     await render(this);
 
     expect(this.$('.recall-info-row-process-status .property-value').text())
-      .to.match(/Archive recall is being cancelled\s*\(50% of recall done\)/);
+      .to.match(/Cancelling\s*\(recall progress: 50%\)/);
     expect(this.$('.recall-info-row-process-status')).to.have.class('text-warning');
   });
 
-  it('has "recall is cancelled" status text with percentage done if recall is cancelled', async function () {
+  it('has "cancelled" status text with percentage done if recall is cancelled', async function () {
     whenRecallIsCancelled(this);
 
     await render(this);
 
     expect(this.$('.recall-info-row-process-status .property-value').text())
-      .to.match(/Archive recall has been cancelled\s*\(50% of recall done\)/);
+      .to.match(/Cancelled\s*\(recall progress: 50%\)/);
     expect(this.$('.recall-info-row-process-status')).to.have.class('text-warning');
   });
 

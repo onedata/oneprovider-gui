@@ -17,14 +17,14 @@
       {{else if (eq processStatus "cancelling")}}
         {{tt this "status.cancelling"}}
         {{#if (not (is-empty recallingPercent))}}
-          {{tt this "percentageRecallDone" percentage=recallingPercent}}
+          {{tt this "percentageDone" percentage=recallingPercent}}
         {{/if}}
       {{else if (eq processStatus "succeeded")}}
         {{tt this "status.succeeded"}}
       {{else if (eq processStatus "cancelled")}}
         {{tt this "status.cancelled"}}
         {{#if (not (is-empty recallingPercent))}}
-          {{tt this "percentageRecallDone" percentage=recallingPercent}}
+          {{tt this "percentageDone" percentage=recallingPercent}}
         {{/if}}
       {{else if (eq processStatus "failed")}}
         {{tt this "status.failed"}}
