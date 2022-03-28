@@ -31,6 +31,9 @@
         .inline-icon-container {
           &.inline-icon-container-file {
             transform: rotateY(180deg) translateY(-50%) translateY(-8px);
+            .flippable-back {
+              opacity: 1;
+            }
           }
         }
       }
@@ -56,19 +59,20 @@
         transition-timing-function: ease;
       }
       &.flip-animated {
-        perspective: 1000px;
         .inline-icon-container-file {
           transition: transform 0.5s;
           transform-style: preserve-3d;
           // a hack to prevent visibility backface to fix issues in Firefox
           -moz-backface-visibility: hidden;
-          .flippable-back, .flippable-front {
+          .flippable-front {
             backface-visibility: hidden;
             // for Safari <= 15.3
             -webkit-backface-visibility: hidden;
             transform: rotateX(0deg);
           }
           .flippable-back {
+            opacity: 0;
+            transition: opacity 0.5s;
             transform: rotateY(180deg);
             color: inherit;
           }
