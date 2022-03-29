@@ -95,10 +95,10 @@
   }}
 {{/if}}
 
-{{#if archivesToShowSettings}}
+{{#if archiveToShowSettings}}
   {{archive-settings-modal
     open=true
-    archives=archivesToShowSettings
+    browsableArchive=archiveToShowSettings
     onHide=(action closeArchiveSettingsModal)
   }}
 {{/if}}

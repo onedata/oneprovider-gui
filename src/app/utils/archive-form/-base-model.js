@@ -1,13 +1,7 @@
-/**
- * Form with settings for archive model
- *
- * @module components/archive-create/form
- * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
- * @license This software is released under the MIT license cited in 'LICENSE.txt'.
- */
-
-import Component from '@ember/component';
+import EmberObject from '@ember/object';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import TextareaField from 'onedata-gui-common/utils/form-component/textarea-field';
@@ -17,65 +11,35 @@ import StaticTextField from 'onedata-gui-common/utils/form-component/static-text
 import SiblingLoadingField from 'onedata-gui-common/utils/form-component/sibling-loading-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
 import { tag, not, or, raw, conditional, and, equal } from 'ember-awesome-macros';
-import { scheduleOnce } from '@ember/runloop';
-import { reads } from '@ember/object/computed';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import { inject as service } from '@ember/service';
-import I18n from 'onedata-gui-common/mixins/components/i18n';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import { reads } from '@ember/object/computed';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { scheduleOnce } from '@ember/runloop';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
-export default Component.extend(I18n, {
-  classNames: ['form', 'form-horizontal', 'form-component', 'archive-create-form'],
-
-  i18n: service(),
-
+export default EmberObject.extend(OwnerInjector, I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.archiveCreate.form',
+  i18nPrefix: 'utils.archiveForm.baseModel',
 
   /**
    * @virtual
-   * @type {({ formData: EmberObject, isValid: Boolean }) => any}
+   * @type {({ formData: Object, isValid: boolean }) => void}
    */
   onChange: notImplementedIgnore,
 
-  /**
-   * Set to true, to indicate that form submit is in progress
-   * @virtual optional
-   * @type {Boolean}
-   */
-  isSubmitting: false,
-
-  /**
-   * @virtual
-   * @type {CreateArchiveOptions}
-   */
-  options: undefined,
-
-  /**
-   * @virtual
-   * @type {() => PromiseObject<Utils.BrowsableArchive>}
-   */
-  baseArchiveProxy: undefined,
-
-  /**
-   * @virtual
-   * @type {() => PromiseObject<Utils.BrowsableArchive>}
-   */
-  updateBaseArchiveProxy: undefined,
-
   rootFormGroupClass: computed(function rootFormGroupClass() {
-    const component = this;
     return FormFieldsRootGroup
       .extend({
-        ownerSource: reads('component'),
-        i18nPrefix: tag `${'component.i18nPrefix'}.settingsForm`,
-        isEnabled: not('component.isSubmitting'),
+        ownerSource: reads('formModel'),
+        i18nPrefix: tag `${'formModel.i18nPrefix'}`,
+        isEnabled: not('formModel.isSubmitting'),
         onValueChange() {
           this._super(...arguments);
-          scheduleOnce('afterRender', component, 'notifyAboutChange');
+          const formModel = this.get('formModel');
+          scheduleOnce('afterRender', formModel, 'notifyAboutChange');
         },
       });
   }),
@@ -94,6 +58,7 @@ export default Component.extend(I18n, {
       .extend({
         isVisible: reads('parent.baseArchiveProxy.isSettled'),
         value: conditional(
+          // handling cannot fetch latest archive should be in create-model
           and(
             'parent.baseArchiveProxy.isCustomOnedataError',
             equal(
@@ -116,10 +81,10 @@ export default Component.extend(I18n, {
       .extend({
         isIncremental: reads('parent.value.incremental'),
         isExpanded: reads('isIncremental'),
-        baseArchiveProxy: reads('component.baseArchiveProxy'),
+        baseArchiveProxy: reads('formModel.baseArchiveProxy'),
       })
       .create({
-        component: this,
+        formModel: this,
         name: 'baseArchiveGroup',
         fields: [
           baseArchiveLoadingField,
@@ -128,19 +93,8 @@ export default Component.extend(I18n, {
       });
   }),
 
-  /**
-   * @type {ComputedProperty<FormFieldsRootGroup>}
-   */
-  rootFieldGroup: computed(function rootFieldGroup() {
-    const {
-      baseArchiveGroup,
-      options,
-    } = this.getProperties('baseArchiveGroup', 'options');
-    const baseArchive = options && options.baseArchive;
-    const isBaseArchiveProvided = Boolean(baseArchive);
-    const component = this;
-
-    const configLayoutField = RadioField.create({
+  configLayoutField: computed(function configLayoutField() {
+    return RadioField.create({
       name: 'layout',
       defaultValue: 'plain',
       options: [
@@ -149,43 +103,69 @@ export default Component.extend(I18n, {
       ],
       tooltipClass: 'tooltip-lg tooltip-text-left',
     });
+  }),
 
-    const configNestedField = ToggleField.create({
+  configNestedField: computed(function configNestedField() {
+    return ToggleField.create({
       name: 'createNestedArchives',
       defaultValue: false,
       tooltipClass: 'tooltip-lg tooltip-text-left',
     });
+  }),
 
-    const configIncrementalField = ToggleField
-      .extend({
-        onValueChange() {
-          this._super(...arguments);
-          const value = this.get('value');
-          if (value) {
-            this.get('component.updateBaseArchiveProxy')();
-          }
-        },
-      })
-      .create({
-        name: 'incremental',
-        component: this,
-        defaultValue: isBaseArchiveProvided,
-        isEnabled: !isBaseArchiveProvided,
-        tooltipClass: 'tooltip-lg tooltip-text-left',
-      });
-
-    const configDipField = ToggleField.create({
+  configDipField: computed(function configDipField() {
+    return ToggleField.create({
       name: 'includeDip',
       defaultValue: false,
       tooltipClass: 'tooltip-lg tooltip-text-left',
     });
+  }),
 
-    const configSymlinksField = ToggleField.create({
+  configSymlinksField: computed(function configSymlinksField() {
+    return ToggleField.create({
       name: 'followSymlinks',
       defaultValue: true,
       tooltipClass: 'tooltip-lg tooltip-text-left',
     });
+  }),
 
+  configIncrementalFieldClass: computed(function configIncrementalFieldClass() {
+    return ToggleField
+      .extend({
+        name: 'incremental',
+        tooltipClass: 'tooltip-lg tooltip-text-left',
+      });
+  }),
+
+  /**
+   * @virtual
+   */
+  configIncrementalField: undefined,
+
+  descriptionField: computed(function descriptionField() {
+    return TextareaField.create({
+      name: 'description',
+      defaultValue: '',
+      isOptional: true,
+    });
+  }),
+
+  configField: computed(function configField() {
+    const {
+      baseArchiveGroup,
+      configLayoutField,
+      configNestedField,
+      configDipField,
+      configSymlinksField,
+      configIncrementalField,
+    } = this.getProperties(
+      'baseArchiveGroup',
+      'configLayoutField',
+      'configNestedField',
+      'configDipField',
+      'configSymlinksField',
+      'configIncrementalField',
+    );
     const configFields = [
       configLayoutField,
       configNestedField,
@@ -194,20 +174,32 @@ export default Component.extend(I18n, {
       configDipField,
       configSymlinksField,
     ];
+    return FormFieldsGroup.create({
+      name: 'config',
+      fields: configFields,
+    });
+  }),
 
-    return this.get('rootFormGroupClass')
+  /**
+   * @type {ComputedProperty<FormFieldsRootGroup>}
+   */
+  rootFieldGroup: computed(function rootFieldGroup() {
+    const {
+      rootFormGroupClass,
+      descriptionField,
+      configField,
+    } = this.getProperties(
+      'rootFormGroupClass',
+      'descriptionField',
+      'configField',
+    );
+
+    return rootFormGroupClass
       .create({
-        component,
+        formModel: this,
         fields: [
-          TextareaField.create({
-            name: 'description',
-            defaultValue: '',
-            isOptional: true,
-          }),
-          FormFieldsGroup.create({
-            name: 'config',
-            fields: configFields,
-          }),
+          descriptionField,
+          configField,
           // TODO: VFS-7547 should be available in view/edit mode
           // TextField.create({
           //   name: 'preservedCallback',
@@ -241,9 +233,7 @@ export default Component.extend(I18n, {
         rootFieldGroup,
         onChange,
       } = this.getProperties('rootFieldGroup', 'onChange');
-
       const isValid = get(rootFieldGroup, 'isValid');
-
       onChange({
         formData: rootFieldGroup.dumpValue(),
         isValid,
@@ -251,10 +241,7 @@ export default Component.extend(I18n, {
     });
   },
 
-  /**
-   * @override
-   */
-  willDestroyElement() {
+  destroy() {
     this._super(...arguments);
     this.get('rootFieldGroup').destroy();
   },

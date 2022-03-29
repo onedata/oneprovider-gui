@@ -595,6 +595,7 @@ export default Component.extend(...mixins, {
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openPurgeModal: this.openArchivesPurgeModal.bind(this),
       openRecallModal: this.openArchiveRecallModal.bind(this),
+      openArchiveSettingsModal: this.openArchiveSettingsModal.bind(this),
       browseArchiveDip: this.browseArchiveDip.bind(this),
     }, options));
   },

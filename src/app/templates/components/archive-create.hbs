@@ -8,13 +8,9 @@
       {{tt this "noArchivesViewPrivilege" privilegeExpression=viewPrivilegeExpression}}
     </div>
   {{/if}}
-  {{archive-create/form
-    dataset=dataset
-    options=options
-    baseArchiveProxy=baseArchiveProxy
+  {{archive-form
+    formModel=formModel
     isSubmitting=isSubmitting
-    updateBaseArchiveProxy=(action updateBaseArchiveProxy)
-    onChange=(action "formDataUpdate")
   }}
   {{yield}}
 {{/modal.body}}

@@ -56,6 +56,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   downloadScope: 'private',
 
   /**
+   * @override
+   */
+  infoIconActionName: 'archiveSettings',
+
+  /**
    * One of: attached, detached.
    * Which state tree of datasets is displayed.
    * @type {ComputedProperty<String>}

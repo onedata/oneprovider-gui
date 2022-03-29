@@ -46,9 +46,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.Dataset}
+   * @type {Utils.BrowsableArchive}
    */
-  dataset: undefined,
+  browsableArchive: undefined,
 
   /**
    * Instance of modal-like component to render layout (header, body, footer)
@@ -101,6 +101,7 @@ export default Component.extend(I18n, {
     }
   },
 
+  // FIXME: no options
   async getBaseArchive() {
     const injectedBaseArchive = this.get('options.baseArchive');
     if (injectedBaseArchive) {

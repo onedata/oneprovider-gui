@@ -1,24 +1,41 @@
-{{!-- {{#modal.header class="archive-settings-part archive-settings-modal-header"}}
-  {{archive-settings/header dataset=dataset}}
+{{#modal.header class="archive-settings-part archive-settings-modal-header"}}
+  <h1 class="archive-settings-header">
+    <span class="header-text">
+      {{tt this "archiveSettingsHeader"}}
+    </span>
+  </h1>
+  {{modal-archive-subheader archives=(array browsableArchive)}}
 {{/modal.header}}
 
 {{#modal.body class="archive-settings-part archive-settings-modal-body"}}
-  {{yield}}
-  {{archive-settings/form
-    dataset=dataset
+  {{archive-form
     options=options
     baseArchiveProxy=baseArchiveProxy
     isSubmitting=isSubmitting
     updateBaseArchiveProxy=(action updateBaseArchiveProxy)
     onChange=(action "formDataUpdate")
   }}
+  {{yield}}
 {{/modal.body}}
 
 {{#modal.footer class="archive-settings-part archive-settings-modal-footer"}}
-  {{archive-settings/submit-footer
-    disabled=(not canSubmit)
-    isSubmitting=isSubmitting
-    onSubmit=(action "submit")
-    onClose=(action "close")
+  {{#bs-button
+    class="close-btn"
+    type="default"
+    disabled=isSubmitting
+    onClick=(action "close")
   }}
-{{/modal.footer}} --}}
+    {{tt this (if (eq mode "edit") "cancel" "close")}}
+  {{/bs-button}}
+  {{#one-button
+    type="primary"
+    buttonType="submit"
+    class="submit-archive-modification-btn"
+    disabled=disabled
+    isPending=isSubmitting
+    onClick=(action "submit")
+  }}
+    {{tt this "submit"}}
+  {{/one-button}}
+
+{{/modal.footer}}

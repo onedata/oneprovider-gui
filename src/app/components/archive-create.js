@@ -18,6 +18,7 @@ import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { not } from 'ember-awesome-macros';
+import ArchiveFormCreateModel from 'oneprovider-gui/utils/archive-form/create-model';
 
 export default Component.extend(I18n, {
   // do not use tag, because the layout is built by `modal` property
@@ -109,12 +110,18 @@ export default Component.extend(I18n, {
     return createPrivilegeExpression(i18n, 'space', 'space_view_archives');
   }),
 
-  init() {
-    this._super(...arguments);
-    if (this.get('options.baseArchive')) {
-      this.updateBaseArchiveProxy();
-    }
-  },
+  formModel: computed(function formModel() {
+    const {
+      dataset,
+      options,
+    } = this.getProperties('dataset', 'options');
+    return ArchiveFormCreateModel.create({
+      ownerSource: this,
+      dataset,
+      options,
+      onChange: this.formDataUpdate.bind(this),
+    });
+  }),
 
   async getBaseArchive() {
     const injectedBaseArchive = this.get('options.baseArchive');
@@ -233,6 +240,13 @@ export default Component.extend(I18n, {
     this.get('onClose')();
   },
 
+  formDataUpdate({ formData = {}, isValid = false } = {}) {
+    this.setProperties({
+      formData,
+      isValid,
+    });
+  },
+
   actions: {
     async submit() {
       try {
@@ -241,12 +255,6 @@ export default Component.extend(I18n, {
       } catch (error) {
         this.get('globalNotify').backendError(this.t('creatingArchive'), error);
       }
-    },
-    formDataUpdate({ formData = {}, isValid = false } = {}) {
-      this.setProperties({
-        formData,
-        isValid,
-      });
     },
     close() {
       this.close();
