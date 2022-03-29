@@ -3,10 +3,12 @@ import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
-import { find } from 'ember-native-dom-helpers';
+import { find, click, fillIn } from 'ember-native-dom-helpers';
 import { lookupService } from '../../helpers/stub-service';
 import { all as allFulfilled } from 'rsvp';
 import { getBrowsableDatasetName } from '../../helpers/archive-recall';
+import sinon from 'sinon';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 describe('Integration | Component | archive create', function () {
   setupComponentTest('archive-create', {
@@ -72,6 +74,32 @@ describe('Integration | Component | archive create', function () {
     expect(optionPlain.textContent).to.contain('plain');
     const optionBagit = field.querySelector('.option-bagit');
     expect(optionBagit.textContent).to.contain('BagIt');
+  });
+
+  it('calls onSubmit with archive data when submit button is clicked', async function () {
+    const myDescription = 'my description';
+    const onSubmit = sinon.spy();
+    this.set('onSubmit', onSubmit);
+    await render(this);
+
+    fillIn('.description-field textarea', myDescription);
+    click('.option-bagit input');
+    click('.createNestedArchives-field .form-control');
+    click('.includeDip-field .form-control');
+    click('.followSymlinks-field .form-control');
+    await wait();
+    await click('.submit-archive-creation-btn');
+
+    expect(onSubmit).to.have.been.calledOnce;
+    expect(onSubmit).to.have.been.calledWith(sinon.match({
+      description: myDescription,
+      config: {
+        createNestedArchives: true,
+        layout: 'bagit',
+        includeDip: true,
+        followSymlinks: false,
+      },
+    }));
   });
 });
 
