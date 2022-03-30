@@ -28,7 +28,10 @@ export default ArchiveFormViewModel.extend({
       },
       onFocusLost(field) {
         this._super(...arguments);
-        if (get(field, 'name') === 'description') {
+        if (
+          get(field, 'name') === 'description' &&
+          field.dumpValue() === archiveDescription
+        ) {
           field.markAsNotModified();
         }
       },
