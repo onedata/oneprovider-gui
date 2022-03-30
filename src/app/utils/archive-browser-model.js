@@ -282,7 +282,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     function btnArchiveSettings() {
       return this.createFileAction({
         id: 'archiveSettings',
-        icon: 'settings',
+        icon: 'properties',
         action: (archives) => {
           return this.openArchiveSettingsModal(archives[0]);
         },
