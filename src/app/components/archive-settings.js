@@ -109,6 +109,7 @@ export default Component.extend(I18n, {
     };
     if (isEditable) {
       options.onChange = this.formDataUpdate.bind(this);
+      options.disabled = reads('ownerSource.isSubmitting');
     }
     return ModelClass.create(options);
   }),

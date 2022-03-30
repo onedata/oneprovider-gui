@@ -38,15 +38,18 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   /**
    * @virtual
+   * @type {Utils.FormComponent.ToggleField}
    */
   configIncrementalField: undefined,
+
+  disabled: false,
 
   rootFormGroupClass: computed(function rootFormGroupClass() {
     return FormFieldsRootGroup
       .extend({
         ownerSource: reads('formModel'),
         i18nPrefix: tag `${'formModel.i18nPrefix'}`,
-        isEnabled: not('formModel.isSubmitting'),
+        isEnabled: not('formModel.disabled'),
         onValueChange() {
           this._super(...arguments);
           const formModel = this.get('formModel');

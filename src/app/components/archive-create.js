@@ -117,8 +117,10 @@ export default Component.extend(I18n, {
     } = this.getProperties('dataset', 'options');
     return ArchiveFormCreateModel.create({
       ownerSource: this,
+      container: this,
       dataset,
       options,
+      disabled: reads('ownerSource.isSubmitting'),
       onChange: this.formDataUpdate.bind(this),
     });
   }),
