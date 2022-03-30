@@ -8,7 +8,7 @@ import _ from 'lodash';
 import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
 import sleep from 'onedata-gui-common/utils/sleep';
-import { click } from 'ember-native-dom-helpers';
+import { click, find, findAll } from 'ember-native-dom-helpers';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
@@ -52,10 +52,9 @@ describe('Integration | Component | file datasets/archives tab', function () {
       itemsCount,
     });
 
-    render(this);
-    await wait();
+    await render(this);
 
-    expect(this.$('.fb-table-row'), 'rows').to.have.length(itemsCount);
+    expect(findAll('.fb-table-row'), 'rows').to.have.length(itemsCount);
   });
 
   it('lists archive root dir items when entered some archive', async function () {
@@ -71,13 +70,12 @@ describe('Integration | Component | file datasets/archives tab', function () {
       filesCount,
     });
 
-    render(this);
-    await wait();
-    const archiveRow = this.$('.fb-table-row')[0];
+    await render(this);
+    const archiveRow = find('.fb-table-row');
     await doubleClick(archiveRow);
 
-    const $fileRows = this.$('.fb-table-row');
-    expect($fileRows, 'rows').to.have.lengthOf(3);
+    const fileRows = findAll('.fb-table-row');
+    expect(fileRows, 'rows').to.have.lengthOf(3);
   });
 
   [
@@ -102,22 +100,20 @@ describe('Integration | Component | file datasets/archives tab', function () {
       });
       mockData.mockDipArchive(archive, this);
 
-      render(this);
-      await wait();
-      const archiveRow = this.$('.fb-table-row')[0];
-      await doubleClick(archiveRow);
-      const $dipBtn = this.$('.select-archive-dip-btn:visible');
+      await render(this);
 
-      expect($dipBtn).to.have.lengthOf(1);
-      expect($dipBtn).to.be.not.disabled;
-      expect($dipBtn.text()).to.match(/^\s*DIP\s*$/);
-      $dipBtn.click();
-      await wait();
-      const $currentDirName =
-        this.$('.fb-breadcrumbs-current-dir-button .fb-breadcrumbs-dir-name');
-      expect($currentDirName.text()).to.contain('dip');
+      const archiveRow = find('.fb-table-row');
+      await doubleClick(archiveRow);
+      const $visibleDipButtons = this.$('.select-archive-dip-btn:visible');
+      expect($visibleDipButtons).to.have.lengthOf(1);
+      expect($visibleDipButtons).to.be.not.disabled;
+      expect($visibleDipButtons.text()).to.match(/^\s*DIP\s*$/);
+      await click($visibleDipButtons[0]);
+      const currentDirName =
+        find('.fb-breadcrumbs-current-dir-button .fb-breadcrumbs-dir-name');
+      expect(currentDirName.textContent).to.contain('dip');
       if (filesCount > 0) {
-        const fileName = this.$('.fb-table-row .file-base-name')[0].textContent;
+        const fileName = find('.fb-table-row .file-base-name').textContent;
         expect(fileName).to.match(/-dip\s*$/);
       }
     });
@@ -133,25 +129,21 @@ describe('Integration | Component | file datasets/archives tab', function () {
       const archiveManager = lookupService(this, 'archiveManager');
       const createArchive = sinon.spy(archiveManager, 'createArchive');
 
-      render(this);
-      await wait();
+      await render(this);
 
-      const $createArchiveBtn = this.$('.fb-toolbar-button.file-action-createArchive');
-      expect($createArchiveBtn, 'create archive button').to.exist;
-      expect($createArchiveBtn, 'create archive button').to.not.have.class('disabled');
-      $createArchiveBtn.click();
-      await wait();
-      const $createArchiveModal = this.$('.archive-settings-part');
-      expect($createArchiveModal).to.exist;
-      const $submitBtn = this.$('.submit-archive-creation-btn');
-      $submitBtn.click();
-      await wait();
+      const createArchiveBtn = find('.empty-archives-create-action');
+      expect(createArchiveBtn, 'create archive button').to.exist;
+      await click(createArchiveBtn);
+      const createArchiveModal = find('.archive-create-part');
+      expect(createArchiveModal).to.exist;
+      await click('.submit-archive-creation-btn');
+
       expect(createArchive).to.be.calledOnce;
     }
   );
 });
 
-function render(testCase) {
+async function render(testCase) {
   const defaultBrowsableDataset = {
     name: 'Default dataset',
     entityId: 'default_dataset_id',
@@ -177,6 +169,7 @@ function render(testCase) {
     browsableDataset=browsableDataset
     archiveBrowserModelOptions=(hash refreshInterval=0)
   }}`);
+  await wait();
 }
 
 function setTestPropertyDefault(testCase, propertyName, defaultValue) {

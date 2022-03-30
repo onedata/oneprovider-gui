@@ -4,18 +4,19 @@
  *
  * @module components/archive-settings
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { get, getProperties } from '@ember/object';
+import { computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import ArchiveFormEditModel from 'oneprovider-gui/utils/archive-form/edit-model';
+import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
+import { and } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   // do not use tag, because the layout is built by `modal` property
@@ -38,17 +39,16 @@ export default Component.extend(I18n, {
   onClose: notImplementedIgnore,
 
   /**
-   * Should be invoked with object suitable for `datasetManager#createArchive` data
-   * @virtual
-   * @type {(archiveCreateData: Object) => any}
-   */
-  onSubmit: notImplementedWarn,
-
-  /**
    * @virtual
    * @type {Utils.BrowsableArchive}
    */
   browsableArchive: undefined,
+
+  /**
+   * @virtual
+   * @type {Model.Space}
+   */
+  space: undefined,
 
   /**
    * Instance of modal-like component to render layout (header, body, footer)
@@ -57,12 +57,7 @@ export default Component.extend(I18n, {
    */
   modal: undefined,
 
-  /**
-   * Injected options for archive creation.
-   * @virtual optional
-   * @type {CreateArchiveOptions}
-   */
-  options: undefined,
+  //#region state
 
   /**
    * True if submit Promise is pending.
@@ -82,134 +77,86 @@ export default Component.extend(I18n, {
    */
   isValid: undefined,
 
+  //#endregion
+
   /**
    * True, if submit is available for component state and current form data
    * @type {ComputedProperty<Boolean>}
    */
-  canSubmit: reads('isValid'),
+  canSubmit: reads('hasEditPrivileges', 'isValid'),
 
-  /**
-   * Initialized/set by `updateBaseArchiveProxy` method.
-   * @type {PromiseObject<Utils.BrowsableArchive>}
-   */
-  baseArchiveProxy: null,
+  hasEditPrivileges: and(
+    'space.privileges.manageDatasets',
+    'space.privileges.createArchives'
+  ),
 
-  init() {
-    this._super(...arguments);
-    if (this.get('options.baseArchive')) {
-      this.updateBaseArchiveProxy();
+  isEditable: reads('hasEditPrivileges'),
+
+  isModified: reads('formModel.isModified'),
+
+  formModel: computed(function formModel() {
+    const {
+      browsableArchive,
+      isEditable,
+    } = this.getProperties(
+      'browsableArchive',
+      'isEditable',
+    );
+    const ModelClass = isEditable ? ArchiveFormEditModel : ArchiveFormViewModel;
+    const options = {
+      ownerSource: this,
+      archive: browsableArchive,
+    };
+    if (isEditable) {
+      options.onChange = this.formDataUpdate.bind(this);
     }
-  },
+    return ModelClass.create(options);
+  }),
 
-  // FIXME: no options
-  async getBaseArchive() {
-    const injectedBaseArchive = this.get('options.baseArchive');
-    if (injectedBaseArchive) {
-      return injectedBaseArchive;
-    } else {
-      try {
-        return await this.fetchLatestArchive();
-      } catch (error) {
-        // always resolve this promise, but pass error to form
-        console.debug(
-          `component:archive-settings#getBaseArchive: error getting baseArchive: ${error}`
-        );
-        return {
-          isCustomOnedataError: true,
-          type: 'cannot-fetch-latest-archive',
-          reason: error,
-        };
-      }
-    }
-  },
-
-  async updateBaseArchiveProxy() {
-    this.set('baseArchiveProxy', promiseObject(this.getBaseArchive()));
-  },
-
-  async fetchLatestArchive() {
+  async modifyArchive() {
     const {
       archiveManager,
-      dataset,
-    } = this.getProperties('archiveManager', 'dataset');
-    const archivesData = await archiveManager.fetchDatasetArchives({
-      datasetId: get(dataset, 'entityId'),
-      limit: 1,
-      offset: 0,
-    });
-    const archiveRecord = get(archivesData, 'childrenRecords.0');
-    if (archiveRecord) {
-      return archiveManager.getBrowsableArchive(archiveRecord);
-    } else {
-      if (!archivesData.isLast) {
-        throw new Error(
-          'component:archive-settings#fetchLatestArchive: invalid archive listing data'
-        );
-      }
-      // there is no latest archive, because there are no archives
-      return null;
-    }
-  },
-
-  async submitArchive() {
-    const {
+      browsableArchive,
       formData,
       canSubmit,
-      onSubmit,
-    } = this.getProperties('formData', 'canSubmit', 'onSubmit');
+    } = this.getProperties(
+      'archiveManager',
+      'browsableArchive',
+      'formData',
+      'canSubmit',
+    );
     this.set('isSubmitting', true);
     try {
       if (canSubmit) {
-        const archiveCreateData = await this.generateArchiveData(formData);
-        return await onSubmit(archiveCreateData);
+        const archiveModifyData = await this.generateArchiveModifyData(formData);
+        return await archiveManager.modifyArchive(browsableArchive, archiveModifyData);
       }
     } finally {
       this.set('isSubmitting', false);
     }
   },
 
-  async generateArchiveData(formData) {
+  async generateArchiveModifyData(formData) {
     if (formData) {
       const {
-        config,
         description,
         preservedCallback,
         purgedCallback,
       } = getProperties(
         formData,
-        'config',
         'description',
         'preservedCallback',
         'purgedCallback'
       );
-      // these properties are used in config directly as in form
-      const rawConfig = getProperties(
-        config,
-        'createNestedArchives',
-        'layout',
-        'includeDip',
-        'followSymlinks',
-      );
-      const isIncremental = Boolean(get(config, 'incremental'));
-      if (isIncremental) {
-        const baseArchive = this.get('baseArchiveProxy.content');
-        const baseArchiveId = baseArchive && get(baseArchive, 'entityId');
-        const incrementalConfig = {
-          enabled: isIncremental,
-          basedOn: baseArchiveId,
-        };
-        rawConfig.incremental = incrementalConfig;
-      }
 
       return {
-        config: rawConfig,
         description,
         preservedCallback,
         purgedCallback,
       };
     } else {
       console.warn(
-        'component:archive-settings#generateArchiveData: empty form data'
+        'generateArchiveData: empty form data'
       );
       return {};
     }
@@ -219,20 +166,21 @@ export default Component.extend(I18n, {
     this.get('onClose')();
   },
 
+  formDataUpdate({ formData = {}, isValid = false } = {}) {
+    this.setProperties({
+      formData,
+      isValid,
+    });
+  },
+
   actions: {
     async submit() {
       try {
-        await this.submitArchive();
+        await this.modifyArchive();
         this.close();
       } catch (error) {
-        this.get('globalNotify').backendError(this.t('creatingArchive'), error);
+        this.get('globalNotify').backendError(this.t('modifyingArchive'), error);
       }
-    },
-    formDataUpdate({ formData = {}, isValid = false } = {}) {
-      this.setProperties({
-        formData,
-        isValid,
-      });
     },
     close() {
       this.close();

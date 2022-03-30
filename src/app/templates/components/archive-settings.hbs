@@ -9,11 +9,8 @@
 
 {{#modal.body class="archive-settings-part archive-settings-modal-body"}}
   {{archive-form
-    options=options
-    baseArchiveProxy=baseArchiveProxy
+    formModel=formModel
     isSubmitting=isSubmitting
-    updateBaseArchiveProxy=(action updateBaseArchiveProxy)
-    onChange=(action "formDataUpdate")
   }}
   {{yield}}
 {{/modal.body}}
@@ -25,17 +22,18 @@
     disabled=isSubmitting
     onClick=(action "close")
   }}
-    {{tt this (if (eq mode "edit") "cancel" "close")}}
+    {{tt this (if isModified "cancel" "close")}}
   {{/bs-button}}
-  {{#one-button
-    type="primary"
-    buttonType="submit"
-    class="submit-archive-modification-btn"
-    disabled=disabled
-    isPending=isSubmitting
-    onClick=(action "submit")
-  }}
-    {{tt this "submit"}}
-  {{/one-button}}
-
+  {{#if isModified}}
+    {{#one-button
+      type="primary"
+      buttonType="submit"
+      class="submit-archive-modification-btn"
+      disabled=disabled
+      isPending=isSubmitting
+      onClick=(action "submit")
+    }}
+      {{tt this "submit"}}
+    {{/one-button}}
+  {{/if}}
 {{/modal.footer}}

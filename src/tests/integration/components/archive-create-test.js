@@ -8,7 +8,6 @@ import { lookupService } from '../../helpers/stub-service';
 import { all as allFulfilled } from 'rsvp';
 import { getBrowsableDatasetName } from '../../helpers/archive-recall';
 import sinon from 'sinon';
-import sleep from 'onedata-gui-common/utils/sleep';
 
 describe('Integration | Component | archive create', function () {
   setupComponentTest('archive-create', {

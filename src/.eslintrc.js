@@ -52,9 +52,10 @@ module.exports = {
     'semi': 2,
     'no-restricted-globals': [
       2,
-      'name',
       'blur',
       'fetch',
+      'find',
+      'name',
       'parent',
     ],
     'valid-jsdoc': [

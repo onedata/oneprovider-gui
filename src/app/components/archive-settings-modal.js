@@ -10,9 +10,6 @@
 
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
-import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { conditional, and, raw } from 'ember-awesome-macros';
-import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
@@ -44,7 +41,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Utils.BrowsableArchive}
    */
-  archive: undefined,
+  browsableArchive: undefined,
 
   /**
    * @virtual
@@ -52,73 +49,9 @@ export default Component.extend(I18n, {
    */
   onHide: notImplementedIgnore,
 
-  /**
-   * Notifies about successful archive modification.
-   * @virtual optional
-   * @type {(archive: Models.Archive) => Promise}
-   */
-  onArchiveModified: notImplementedIgnore,
-
-  hasEditPrivileges: and(
-    'space.privileges.manageDatasets',
-    'space.privileges.viewArchives'
-  ),
-
-  mode: conditional(
-    'hasEditPrivileges',
-    raw('edit'),
-    raw('show'),
-  ),
-
-  // FIXME: unused
-  viewPrivilegeExpression: computed(function viewPrivilegeExpression() {
-    const i18n = this.get('i18n');
-    return createPrivilegeExpression(
-      i18n,
-      'space',
-      ['space_manage_datasets', 'space_view_archives']
-    );
-  }),
-
-  async modifyArchive() {
-    const {
-      globalNotify,
-      archiveManager,
-      archive,
-      onArchiveModified,
-      currentArchiveData,
-    } = this.getProperties(
-      'globalNotify',
-      'archiveManager',
-      'archive',
-      'onArchiveModified',
-      'currentArchiveData',
-    );
-    // FIXME: implement currnetArchiveData modification
-    let result;
-    try {
-      result = await archiveManager.modifyArchive(archive, currentArchiveData);
-    } catch (error) {
-      globalNotify.backendError(this.t('updatingArchive'), error);
-      throw error;
-    }
-    try {
-      await onArchiveModified(result);
-    } catch (error) {
-      console.warn(
-        'component:archive-settings-modal#modifyArchive: onArchiveModified callback failed',
-        error
-      );
-    }
-    return result;
-  },
-
   actions: {
     hide() {
       this.get('onHide')();
-    },
-    submit() {
-      return this.modifyArchive();
     },
   },
 });

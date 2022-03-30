@@ -1,7 +1,13 @@
+/**
+ * Base configuration of archive form.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject from '@ember/object';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
-import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
 import FormFieldsGroup from 'onedata-gui-common/utils/form-component/form-fields-group';
 import TextareaField from 'onedata-gui-common/utils/form-component/textarea-field';
@@ -29,6 +35,11 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @type {({ formData: Object, isValid: boolean }) => void}
    */
   onChange: notImplementedIgnore,
+
+  /**
+   * @virtual
+   */
+  configIncrementalField: undefined,
 
   rootFormGroupClass: computed(function rootFormGroupClass() {
     return FormFieldsRootGroup
@@ -58,7 +69,8 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       .extend({
         isVisible: reads('parent.baseArchiveProxy.isSettled'),
         value: conditional(
-          // handling cannot fetch latest archive should be in create-model
+          // FIXME: handling cannot fetch latest archive should be in create-model
+          // FIXME: handle errors in fetching base archive in show model
           and(
             'parent.baseArchiveProxy.isCustomOnedataError',
             equal(
@@ -75,6 +87,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       })
       .create({
         name: 'baseArchiveInfo',
+        tooltipClass: 'tooltip-lg tooltip-text-left',
       });
 
     return FormFieldsGroup
@@ -136,11 +149,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
         tooltipClass: 'tooltip-lg tooltip-text-left',
       });
   }),
-
-  /**
-   * @virtual
-   */
-  configIncrementalField: undefined,
 
   descriptionField: computed(function descriptionField() {
     return TextareaField.create({

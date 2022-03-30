@@ -8,7 +8,6 @@
  */
 
 import Component from '@ember/component';
-import { computed, get } from '@ember/object';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { inject as service } from '@ember/service';

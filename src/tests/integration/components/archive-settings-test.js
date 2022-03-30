@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, context } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
@@ -19,14 +19,14 @@ describe('Integration | Component | archive settings', function () {
     await run(() => createArchive(this));
   });
 
-  it('renders "Archive settings" text and archive name in header', async function () {
+  it('renders "Archive properties" text and archive name in header', async function () {
     const name = await getBrowsableArchiveName(this);
 
     await render(this);
 
     const header = find('.archive-settings-modal-header');
     expect(header).to.exist;
-    expect(header.textContent).to.contain('Archive settings');
+    expect(header.textContent).to.contain('Archive properties');
     expect(header.textContent).to.contain(name);
   });
 
