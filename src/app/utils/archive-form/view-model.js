@@ -17,6 +17,11 @@ export default ArchiveFormBaseModel.extend({
   archiveManager: service(),
 
   /**
+   * @override
+   */
+  i18nPrefix: 'utils.archiveForm.viewModel',
+
+  /**
    * @virtual
    * @type {Models.Archive}
    */

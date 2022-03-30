@@ -53,6 +53,7 @@ import itemsSelectBrowserUtils from './utils/items-select-browser';
 import workflowActions from './utils/workflow-actions';
 import workflowVisualiser from './utils/workflow-visualiser';
 import archiveFormBaseModel from './utils/archive-form/-base-model';
+import archiveFormViewModel from './utils/archive-form/view-model';
 
 const translations = {
   components: {
@@ -111,6 +112,7 @@ const translations = {
     workflowVisualiser,
     archiveForm: {
       baseModel: archiveFormBaseModel,
+      viewModel: archiveFormViewModel,
     },
   },
 };
