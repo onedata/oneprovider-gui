@@ -9,39 +9,42 @@
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
+import { get, computed } from '@ember/object';
 
 export default ArchiveFormViewModel.extend({
   archiveManager: service(),
 
   isModified: reads('rootFieldGroup.isModified'),
 
+  rootFormGroupClass: computed(function rootFormGroupClass() {
+    const archiveDescription = this.get('archive.description');
+    const baseClass = this._super(...arguments);
+    return baseClass.extend({
+      onValueChange(value, field) {
+        this._super(...arguments);
+        if (get(field, 'name') === 'description' && value === archiveDescription) {
+          field.markAsNotModified();
+        }
+      },
+      onFocusLost(field) {
+        this._super(...arguments);
+        if (get(field, 'name') === 'description') {
+          field.markAsNotModified();
+        }
+      },
+    });
+  }),
+
   init() {
     this._super(...arguments);
     const {
       rootFieldGroup,
       configField,
-      descriptionField,
     } = this.getProperties(
       'rootFieldGroup',
       'configField',
-      'descriptionField',
     );
-    const archiveDescription = this.get('archive.description');
     rootFieldGroup.changeMode('edit');
     configField.changeMode('view');
-    const origOnFocustLost = descriptionField.onFocusLost;
-    const origOnValueChange = descriptionField.onValueChange;
-    descriptionField.onFocusLost = function onFocusLost() {
-      origOnFocustLost.apply(this, arguments);
-      if (this.dumpValue() === archiveDescription) {
-        this.markAsNotModified();
-      }
-    };
-    descriptionField.onValueChange = function onValueChange() {
-      origOnValueChange.apply(this, arguments);
-      if (this.dumpValue() === archiveDescription) {
-        this.markAsNotModified();
-      }
-    };
   },
 });
