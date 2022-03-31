@@ -31,10 +31,15 @@
   .error-dir-image-no-view {
     background-image: url($root-url + 'images/no-view.svg');
   }
+  .archive-table-row-secondary-info {
+    .no-description {
+      font-style: italic;
+      opacity: 0.8;
+    }
+  }
   @media (max-width: 450px) {
     .file-info-mobile-created {
       display: none;
     }
   }
-
 }

@@ -134,6 +134,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
+  secondaryInfoComponentName: 'archive-browser/table-row-secondary-info',
+
+  /**
+   * @override
+   */
   columnsComponentName: 'archive-browser/table-row-columns',
 
   /**
