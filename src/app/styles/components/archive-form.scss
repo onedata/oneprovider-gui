@@ -1,0 +1,9 @@
+.archive-form {
+  .config-field {
+    flex-direction: column;
+    > label {
+      margin-top: 1em;
+      text-transform: uppercase;
+    }
+  }
+}

@@ -17,14 +17,20 @@ export default BrowsableWrapper.extend({
 
   type: 'dir',
 
-  name: computed('content.{description,creationTime}', function name() {
+  name: computed('content.creationTime', function name() {
     const creationTime = this.get('content.creationTime');
-    const description = this.get('content.description');
-    const descriptionMaxLength = this.get('descriptionMaxLength');
-    const dateString = dateFormat([creationTime], {
+    return dateFormat([creationTime], {
       format: 'dateWithMinutes',
       blank: '—',
     });
+  }),
+
+  extendedName: computed('name', function extendedName() {
+    const description = this.get('content.description');
+    const {
+      name,
+      descriptionMaxLength,
+    } = this.getProperties('name', 'descriptionMaxLength');
     if (description) {
       let shortDescription;
       if (description.length > descriptionMaxLength) {
@@ -32,9 +38,9 @@ export default BrowsableWrapper.extend({
       } else {
         shortDescription = description;
       }
-      return `${dateString} — ${shortDescription}`;
+      return `${name} — ${shortDescription}`;
     } else {
-      return dateString;
+      return name;
     }
   }),
 

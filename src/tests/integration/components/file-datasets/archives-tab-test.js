@@ -110,7 +110,7 @@ describe('Integration | Component | file datasets/archives tab', function () {
       expect($visibleDipButtons.text()).to.match(/^\s*DIP\s*$/);
       await click($visibleDipButtons[0]);
       const currentDirName =
-        find('.fb-breadcrumbs-current-dir-button .fb-breadcrumbs-dir-name');
+        find('.fb-breadcrumbs-current-dir-button .fb-breadcrumbs-dir-name .dir-name');
       expect(currentDirName.textContent).to.contain('dip');
       if (filesCount > 0) {
         const fileName = find('.fb-table-row .file-base-name').textContent;

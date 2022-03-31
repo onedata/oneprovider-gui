@@ -33,10 +33,10 @@
       <span class="fb-breadcrumbs-dir-name">
         {{#if areItemsEmpty}}
           <div class="inline-icon-container root-icon-container">
-            {{one-icon icon=rootIcon}}  
+            {{one-icon icon=rootIcon}}
           </div>
         {{/if}}
-        {{currentItem.name}}
+        <span class="dir-name">{{currentItem.name}}</span>
         <div class="inline-icon-container breadcrumbs-current-dir-actions-trigger">
           {{one-icon icon="arrow-down"}}
         </div>

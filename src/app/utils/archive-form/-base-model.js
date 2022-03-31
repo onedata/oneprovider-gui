@@ -187,6 +187,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     ];
     return FormFieldsGroup.create({
       name: 'config',
+      addColonToLabel: false,
       fields: configFields,
     });
   }),
