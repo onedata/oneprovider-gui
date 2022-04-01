@@ -650,8 +650,10 @@ export default Component.extend(...mixins, {
     });
   },
 
-  openArchiveSettingsModal(archive) {
+  // FIXME: add properties in file
+  openArchiveSettingsModal(archive, options) {
     this.set('archiveToShowSettings', archive);
+    this.set('archiveSettingsOptions', options);
   },
 
   closeArchiveSettingsModal() {

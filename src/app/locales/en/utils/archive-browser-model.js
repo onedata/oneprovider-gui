@@ -11,6 +11,7 @@ export default _.merge({}, BaseBrowserModel, {
   notAvailableForDetached: 'Not available in detached dataset.',
   fileActions: {
     archiveSettings: 'Properties',
+    editDescription: 'Edit description',
     createArchive: 'Create archive',
     createIncrementalArchive,
     recall: 'Recall to...',

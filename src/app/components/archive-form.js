@@ -31,6 +31,8 @@ export default Component.extend(I18n, {
    */
   onChange: notImplementedIgnore,
 
+  // FIXME: options param
+
   /**
    * Set to true, to indicate that form submit is in progress
    * @virtual optional
@@ -73,6 +75,20 @@ export default Component.extend(I18n, {
         isValid,
       });
     });
+  },
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    this._super(...arguments);
+    if (this.get('options.focusDescription')) {
+      /** @type {HTMLElement} */
+      const descriptionField = this.get('element').querySelector('.description-field');
+      if (descriptionField) {
+        descriptionField.focus();
+      }
+    }
   },
 
   /**

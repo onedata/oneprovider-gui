@@ -12,6 +12,8 @@ import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { computed } from '@ember/object';
+import { guidFor } from '@ember/object/internals';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -36,6 +38,8 @@ export default Component.extend(I18n, {
    */
   space: undefined,
 
+  // FIXME: virtual options
+
   /**
    * An archive for which info will be displayed or modified.
    * @virtual
@@ -49,9 +53,29 @@ export default Component.extend(I18n, {
    */
   onHide: notImplementedIgnore,
 
+  formId: computed(function formId() {
+    return `archive-form-${guidFor(this)}`;
+  }),
+
+  onShown() {
+    if (this.get('options.focusDescription')) {
+      const formId = this.get('formId');
+      /** @type {HTMLElement} */
+      const descriptionInput =
+        document.querySelector(`#${formId} .description-field .form-control`);
+      if (descriptionInput) {
+        descriptionInput.focus();
+        descriptionInput.select();
+      }
+    }
+  },
+
   actions: {
     hide() {
       this.get('onHide')();
+    },
+    onShown() {
+      this.onShown();
     },
   },
 });

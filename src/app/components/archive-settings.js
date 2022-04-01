@@ -16,7 +16,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import ArchiveFormEditModel from 'oneprovider-gui/utils/archive-form/edit-model';
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
-import { and } from 'ember-awesome-macros';
+import { and, or } from 'ember-awesome-macros';
+import { guidFor } from '@ember/object/internals';
 
 export default Component.extend(I18n, {
   // do not use tag, because the layout is built by `modal` property
@@ -57,6 +58,13 @@ export default Component.extend(I18n, {
    */
   modal: undefined,
 
+  // FIXME: document options type
+  /**
+   * @virtual optional
+   * @type {Object}
+   */
+  options: undefined,
+
   //#region state
 
   /**
@@ -92,9 +100,9 @@ export default Component.extend(I18n, {
 
   isEditable: reads('hasEditPrivileges'),
 
-  isModified: reads('formModel.isModified'),
+  isModified: or('options.focusDescription', 'formModel.isModified'),
 
-  formModel: computed(function formModel() {
+  formModel: computed('options.focusDescription', function formModel() {
     const {
       browsableArchive,
       isEditable,
@@ -102,16 +110,22 @@ export default Component.extend(I18n, {
       'browsableArchive',
       'isEditable',
     );
+    const focusDescription = Boolean(this.get('options.focusDescription'));
     const ModelClass = isEditable ? ArchiveFormEditModel : ArchiveFormViewModel;
-    const options = {
+    const modelOptions = {
       ownerSource: this,
       archive: browsableArchive,
+      checkUnmodifiedDescription: !focusDescription,
     };
     if (isEditable) {
-      options.onChange = this.formDataUpdate.bind(this);
-      options.disabled = reads('ownerSource.isSubmitting');
+      modelOptions.onChange = this.formDataUpdate.bind(this);
+      modelOptions.disabled = reads('ownerSource.isSubmitting');
     }
-    return ModelClass.create(options);
+    return ModelClass.create(modelOptions);
+  }),
+
+  formId: computed(function formId() {
+    return `archive-form-${guidFor(this)}`;
   }),
 
   async modifyArchive() {
@@ -172,6 +186,22 @@ export default Component.extend(I18n, {
       formData,
       isValid,
     });
+  },
+
+  // FIXME:
+  // applyOptions(options = {}) {
+  //   if (options.focusDescription) {
+
+  //   }
+  // },
+
+  init() {
+    this._super(...arguments);
+    // FIXME:
+    // const options = this.get('options');
+    // if (options) {
+    //   this.applyOptions(options);
+    // }
   },
 
   actions: {

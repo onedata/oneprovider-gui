@@ -28,6 +28,7 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 
 const allButtonNames = Object.freeze([
   'btnArchiveSettings',
+  'btnEditDescription',
   'btnCreateArchive',
   'btnRefresh',
   'btnCopyId',
@@ -99,7 +100,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   /**
    * @virtual
-   * @type {(archives: Array<Utils.BrowsableArchive>) => any}
+   * @type {(archives: Array<Utils.BrowsableArchive>, options: Object) => any}
    */
   openArchiveSettingsModal: notImplementedThrow,
 
@@ -283,13 +284,28 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   ),
 
   btnArchiveSettings: computed(
-    'dataset',
     function btnArchiveSettings() {
       return this.createFileAction({
         id: 'archiveSettings',
         icon: 'properties',
         action: (archives) => {
           return this.openArchiveSettingsModal(archives[0]);
+        },
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnEditDescription: computed(
+    function btnEditDescription() {
+      return this.createFileAction({
+        id: 'editDescription',
+        icon: 'rename',
+        action: (archives) => {
+          return this.openArchiveSettingsModal(archives[0], { focusDescription: true });
         },
         showIn: [
           actionContext.singleDir,
