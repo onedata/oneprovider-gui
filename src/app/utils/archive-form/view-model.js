@@ -9,6 +9,7 @@
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
+import ClipboardField from 'onedata-gui-common/utils/form-component/clipboard-field';
 import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model';
 import _ from 'lodash';
 import { promise } from 'ember-awesome-macros';
@@ -38,22 +39,44 @@ export default ArchiveFormBaseModel.extend({
       });
   }),
 
-  valuesSource: computed('archive', function valuesSource() {
-    const archive = this.get('archive');
-    const description = get(archive, 'description');
-    const archiveConfig = get(archive, 'config');
-    const formConfig = _.cloneDeep(archiveConfig);
+  /**
+   * @override
+   */
+  rootFormGroupClass: computed(function rootFormGroupClass() {
+    const baseRootFieldGroupClass = this._super(...arguments);
+    return baseRootFieldGroupClass.extend({
+      valuesSource: reads('formModel.valuesSource'),
+    });
+  }),
 
-    const incrementalConfig = get(archiveConfig, 'incremental');
-    formConfig.incremental = Boolean(
-      incrementalConfig &&
-      get(incrementalConfig, 'enabled')
+  /**
+   * @override
+   * @type {ComputedProperty<FormFieldsRootGroup>}
+   */
+  rootFieldGroup: computed('rootFieldGroupClass', function rootFieldGroup() {
+    const {
+      rootFormGroupClass,
+      archiveIdField,
+      descriptionField,
+      configField,
+    } = this.getProperties(
+      'rootFormGroupClass',
+      'archiveIdField',
+      'descriptionField',
+      'configField',
     );
 
-    return {
-      description,
-      config: formConfig,
-    };
+    const fieldGroup = rootFormGroupClass
+      .create({
+        formModel: this,
+        fields: [
+          archiveIdField,
+          descriptionField,
+          configField,
+        ],
+      });
+    fieldGroup.changeMode('view');
+    return fieldGroup;
   }),
 
   /**
@@ -76,14 +99,33 @@ export default ArchiveFormBaseModel.extend({
     );
   })),
 
-  rootFieldGroup: computed(function rootFieldGroup() {
-    const baseRootFieldGroup = this._super(...arguments);
-    baseRootFieldGroup.set('valuesSource', reads('formModel.valuesSource'));
-    return baseRootFieldGroup;
+  valuesSource: computed('archive', function valuesSource() {
+    const archive = this.get('archive');
+    const description = get(archive, 'description');
+    const archiveConfig = get(archive, 'config');
+    const archiveId = get(archive, 'entityId');
+    const formConfig = _.cloneDeep(archiveConfig);
+
+    const incrementalConfig = get(archiveConfig, 'incremental');
+    formConfig.incremental = Boolean(
+      incrementalConfig &&
+      get(incrementalConfig, 'enabled')
+    );
+
+    return {
+      archiveId,
+      description,
+      config: formConfig,
+    };
   }),
 
-  init() {
-    this._super(...arguments);
-    this.get('rootFieldGroup').changeMode('view');
-  },
+  // FIXME: small input, monospace font
+  archiveIdField: computed(function archiveIdField() {
+    return ClipboardField.create({
+      name: 'archiveId',
+      type: 'input',
+      size: 'sm',
+      clipboardLineClass: 'monospace-font',
+    });
+  }),
 });

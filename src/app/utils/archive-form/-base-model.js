@@ -42,6 +42,12 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    */
   configIncrementalField: undefined,
 
+  /**
+   * @virtual
+   * @type {FormFieldsRootGroup}
+   */
+  rootFieldGroup: undefined,
+
   disabled: false,
 
   rootFormGroupClass: computed(function rootFormGroupClass() {
@@ -190,42 +196,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       addColonToLabel: false,
       fields: configFields,
     });
-  }),
-
-  /**
-   * @type {ComputedProperty<FormFieldsRootGroup>}
-   */
-  rootFieldGroup: computed(function rootFieldGroup() {
-    const {
-      rootFormGroupClass,
-      descriptionField,
-      configField,
-    } = this.getProperties(
-      'rootFormGroupClass',
-      'descriptionField',
-      'configField',
-    );
-
-    return rootFormGroupClass
-      .create({
-        formModel: this,
-        fields: [
-          descriptionField,
-          configField,
-          // TODO: VFS-7547 should be available in view/edit mode
-          // TextField.create({
-          //   name: 'preservedCallback',
-          //   defaultValue: '',
-          //   isOptional: true,
-          // }),
-          // TODO: VFS-7547 should be available in view/edit mode
-          // TextField.create({
-          //   name: 'purgedCallback',
-          //   defaultValue: '',
-          //   isOptional: true,
-          // }),
-        ],
-      });
   }),
 
   /**

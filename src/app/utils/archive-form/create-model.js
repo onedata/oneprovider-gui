@@ -28,9 +28,35 @@ export default ArchiveFormBaseModel.extend({
 
   /**
    * Set by `updateBaseArchiveProxy`.
+   * @override
    * @type {PromiseObject<Utils.BrowsableArchive>}
    */
   baseArchiveProxy: null,
+
+  /**
+   * @override
+   * @type {ComputedProperty<FormFieldsRootGroup>}
+   */
+  rootFieldGroup: computed(function rootFieldGroup() {
+    const {
+      rootFormGroupClass,
+      descriptionField,
+      configField,
+    } = this.getProperties(
+      'rootFormGroupClass',
+      'descriptionField',
+      'configField',
+    );
+
+    return rootFormGroupClass
+      .create({
+        formModel: this,
+        fields: [
+          descriptionField,
+          configField,
+        ],
+      });
+  }),
 
   configIncrementalField: computed('options', function configIncrementalField() {
     const options = this.get('options');
