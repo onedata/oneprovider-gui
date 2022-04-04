@@ -10,8 +10,6 @@ export default {
   owner: 'Owner',
   size: 'Size',
   api: 'Public API',
-  operation: 'Operation',
-  command: 'Command',
   guiUrl: '{{type}} URL',
   apiCommandTipIntro: {
     rest: 'The Onezone\'s public REST API can be used to access information and contents of all shared files and directories, without any authentication. It redirects to the corresponding REST API in one of the supporting Oneproviders. The Oneprovider is chosen dynamically and may change in time, so the redirection URL should not be cached.',
@@ -57,10 +55,6 @@ export default {
       downloadSharedDirectoryContent: 'Download directory (recursively)',
     },
   },
-  apiType: {
-    rest: 'REST',
-    xrootd: 'XRootD',
-  },
   fileType: {
     file: 'file',
     dir: 'directory',
@@ -79,12 +73,20 @@ export default {
       hardlinksFetchMultiErrorTip: 'Cannot load files due to error: "{{fetchError}}" and {{moreCount}} more errors.',
       unknownFetchError: 'unknown error',
     },
-    restApi: {
+    apiSamples: {
       tabTitle: '{*} API',
     },
   },
   hardlinkEntry: {
     pathLabel: 'Path',
     unknownPath: 'unknown',
+  },
+  apiEntry: {
+    operation: 'Operation',
+    command: 'Command',
+    apiType: {
+      rest: 'REST',
+      xrootd: 'XRootD',
+    },
   },
 };

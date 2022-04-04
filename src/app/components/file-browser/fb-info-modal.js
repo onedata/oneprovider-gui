@@ -24,9 +24,9 @@ import _ from 'lodash';
 
 export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
-  restApiGenerator: service(),
   xrootdApiGenerator: service(),
   fileManager: service(),
+  shareManager: service(),
   errorExtractor: service(),
 
   open: false,
@@ -107,20 +107,6 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    * @type {boolean}
    */
   smallContent: true,
-
-  /**
-   * If true, info about REST URL is opened
-   * @type {Boolean}
-   */
-  apiCommandTypeInfoOpened: false,
-
-  /**
-   * For available values see: `commonRestUrlTypes` and `availableRestUrlCommands`
-   * @type {String}
-   */
-  selectedRestUrlType: null,
-
-  selectedApiCommand: null,
 
   /**
    * @type {Number}
@@ -257,94 +243,11 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   filePath: reads('filePathProxy.content'),
 
   /**
-   * ID for API command info trigger (hint about API commands)
-   * @type {ComputedProperty<String>}
-   */
-  apiCommandInfoTriggerId: tag `${'elementId'}-api-command-type-info-trigger`,
-
-  /**
-   * @type {ComputedProperty<String>}
-   */
-  selectedApiCommandString: computed(
-    'effSelectedApiCommand',
-    'cdmiObjectId',
-    'spaceId',
-    'share',
-    'filePath',
-    function selectedApiCommandString() {
-      const {
-        restApiGenerator,
-        xrootdApiGenerator,
-        effSelectedApiCommand,
-        cdmiObjectId,
-        spaceId,
-        share,
-        filePath,
-      } = this.getProperties(
-        'restApiGenerator',
-        'xrootdApiGenerator',
-        'effSelectedApiCommand',
-        'cdmiObjectId',
-        'spaceId',
-        'share',
-        'filePath',
-      );
-      const generator = {
-        rest: restApiGenerator,
-        xrootd: xrootdApiGenerator,
-      } [effSelectedApiCommand.type];
-      if (!generator) {
-        console.error(
-          `component:file-browser/fb-info-modal#selectedApiCommandString: no generator for type: ${effSelectedApiCommand.type}`
-        );
-        return '';
-      }
-
-      const shareId = get(share, 'entityId');
-      if (generator[effSelectedApiCommand.id]) {
-        return generator[effSelectedApiCommand.id]({
-          cdmiObjectId,
-          spaceId,
-          shareId,
-          path: filePath,
-        });
-      } else {
-        console.error(
-          `component:file-browser/fb-info-modal#selectedApiCommandString: no such generator method: ${effSelectedApiCommand.id}`
-        );
-        return '';
-      }
-    }
-  ),
-
-  /**
    * @type {ComputedProperty<String>}
    */
   cdmiRowId: computed('elementId', function cdmiRowId() {
     return this.get('elementId') + '-row-cdmi';
   }),
-
-  /**
-   * @type {ComputedProperty<Array<String>>}
-   */
-  commonRestUrlTypes: raw([
-    'getSharedFileAttributes',
-    'getSharedFileExtendedAttributes',
-    'getSharedFileJsonMetadata',
-    'getSharedFileRdfMetadata',
-  ]),
-
-  /**
-   * @type {ComputedProperty<Array<String>>}
-   */
-  availableRestUrlCommands: array.concat(
-    conditional(
-      equal('itemType', raw('dir')),
-      raw(['listSharedDirectoryChildren', 'downloadSharedDirectoryContent']),
-      raw(['downloadSharedFileContent']),
-    ),
-    'commonRestUrlTypes'
-  ),
 
   /**
    * @type {ComputedProperty<Array<String>>}
@@ -359,50 +262,10 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     raw([]),
   ),
 
-  /**
-   * @type {ComputedProperty<Array<String>>}
-   */
-  availableApiCommands: computed(
-    'availableRestUrlCommands.[]',
-    'availableXrootdCommandIds.[]',
-    function availableApiCommands() {
-      const {
-        availableRestUrlCommands,
-        availableXrootdCommandIds,
-      } = this.getProperties('availableRestUrlCommands', 'availableXrootdCommandIds');
-      return [
-        ...availableRestUrlCommands.map(id => ({ type: 'rest', id })),
-        ...availableXrootdCommandIds.map(id => ({ type: 'xrootd', id })),
-      ];
-    }
-  ),
-
-  /**
-   * Readonly property with valid name of REST URL type to display.
-   * Set `selectedRestUrlType` property to change its value.
-   * @type {ComputedProperty<String>}
-   */
-  effSelectedRestUrlType: conditional(
-    array.includes('availableRestUrlCommands', 'selectedRestUrlType'),
-    'selectedRestUrlType',
-    'availableRestUrlCommands.firstObject',
-  ),
-
-  /**
-   * Readonly property with valid API command specification to display.
-   * Set `selectedApiComman` property to change its value.
-   * @type {ComputedProperty<Object>}
-   */
-  effSelectedApiCommand: conditional(
-    array.includes('availableApiCommands', 'selectedApiCommand'),
-    'selectedApiCommand',
-    'availableApiCommands.firstObject',
-  ),
-
   init() {
     this._super(...arguments);
     const initialTab = this.get('initialTab');
-    if (['general', 'hardlinks'].includes(initialTab)) {
+    if (['general', 'hardlinks', 'restApi'].includes(initialTab)) {
       this.set('activeTab', initialTab);
     }
   },
@@ -460,9 +323,6 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     },
     close() {
       return this.get('onHide')();
-    },
-    selectApiCommand(apiCommand) {
-      this.set('selectedApiCommand', apiCommand);
     },
   },
 });

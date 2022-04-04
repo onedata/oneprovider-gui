@@ -58,4 +58,19 @@ export default Service.extend({
     });
     return this.get('store').findRecord('share', requestGri);
   },
+
+  getApiSamples(shareId, scope = 'public') {
+    console.log('share manager getApiSamples');
+    return this.get('onedataGraph').request({
+      operation: 'get',
+      gri: gri({
+        entityType: 'file',
+        entityId: shareId,
+        aspect: 'api_samples',
+        scope,
+      }),
+
+      subscribe: false,
+    });
+  },
 });

@@ -1,0 +1,64 @@
+<table class="table table-info table-info-large table-info-collapsible">
+  <tbody>
+    {{#promise-proxy-container
+      proxy=apiSamplesProxy
+      sizeClass="xs"
+      centered=false
+      spinnerBlockClass="loading-api-command"
+    }}
+      <tr class="file-info-row-api-command">
+        <td class="property-name with-input">
+          {{tt this "operation"}}
+        </td>
+        <td class="property-value">
+          <div class="api-command-type-row">
+            {{#one-dropdown
+              triggerClass="small api-command-type-selector-trigger"
+              dropdownClass="small api-command-type-selector-dropdown"
+              renderInPlace=false
+              options=availableApiCommands
+              selected=effSelectedApiCommand
+              searchEnabled=false
+              onchange=(action "selectApiCommand")
+              as |apiCommand|
+            }}
+              <span class="api-command-title">
+                {{apiCommand.name}}
+              </span>
+              <span class="api-command-type">
+                <span
+                  class="label label-info api-tag-label {{apiCommand.type}}-api-tag-label"
+                >
+                  {{tt this (concat "apiType." apiCommand.type)}}
+                </span>
+              </span>
+            {{/one-dropdown}}
+            <span class="labels-container hidden-xs">
+              <span
+                class="label label-info api-tag-label {{effSelectedApiCommand.type}}-api-tag-label"
+              >
+                {{tt this (concat "apiType." effSelectedApiCommand.type)}}
+              </span>
+            </span>
+          </div>
+        </td>
+      </tr>
+      <tr class="file-info-row-api-command">
+        <td class="property-name with-input">
+          {{tt this "command"}}
+        </td>
+        <td class="property-value">
+          <div class="input-group-clipboard-textarea">
+            {{clipboard-line
+              value=selectedApiCommandString
+              textareaRows="4"
+              type="textarea"
+              size=(if smallContent "sm")
+              class="monospace-font compact"
+            }}
+          </div>
+        </td>
+      </tr>
+    {{/promise-proxy-container}}
+  </tbody>
+</table>

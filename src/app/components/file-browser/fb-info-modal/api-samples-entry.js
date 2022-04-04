@@ -1,0 +1,118 @@
+/**
+ * Renders api samples entry.
+ *
+ * @author Agnieszka Warchoł
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
+import Component from '@ember/component';
+import { computed, get } from '@ember/object';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { reads } from '@ember/object/computed';
+import { conditional, promise, array, tag } from 'ember-awesome-macros';
+import { inject as service } from '@ember/service';
+
+export default Component.extend(I18n, {
+  classNames: ['api-entry'],
+  shareManager: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileBrowser.fbInfoModal.apiEntry',
+
+  /**
+   * @virtual
+   * @type {Models.File}
+   */
+  file: undefined,
+
+  selectedApiCommand: null,
+
+  /**
+   * For available values see: `commonRestUrlTypes` and `availableRestUrlCommands`
+   * @type {String}
+   */
+  selectedRestUrlType: null,
+
+  apiSamplesProxy: promise.object(computed(function apiSamples() {
+    const fileId = this.get('file.entityId');
+    return this.get('shareManager').getApiSamples(fileId);
+  })),
+
+  apiSamples: reads('apiSamplesProxy.content'),
+
+  /**
+   * ID for API command info trigger (hint about API commands)
+   * @type {ComputedProperty<String>}
+   */
+  apiCommandInfoTriggerId: tag `${'elementId'}-api-command-type-info-trigger`,
+
+  /**
+   * @type {ComputedProperty<Array<String>>}
+   */
+  availableApiCommands: computed(
+    'apiSamples',
+    function availableApiCommands() {
+      const apiSamples = this.get('apiSamples');
+      const apiRoot = apiSamples.rest.apiRoot;
+      const restSamples = apiSamples.rest.samples
+        .map(sample => {
+          sample.type = 'rest';
+          sample.apiRoot = apiRoot;
+          return sample;
+        });
+      return restSamples;
+    }
+  ),
+
+  /**
+   * Readonly property with valid API command specification to display.
+   * Set `selectedApiComman` property to change its value.
+   * @type {ComputedProperty<Object>}
+   */
+  effSelectedApiCommand: conditional(
+    array.includes('availableApiCommands', 'selectedApiCommand'),
+    'selectedApiCommand',
+    'availableApiCommands.firstObject',
+  ),
+
+  /**
+   * Readonly property with valid name of REST URL type to display.
+   * Set `selectedRestUrlType` property to change its value.
+   * @type {ComputedProperty<String>}
+   */
+  effSelectedRestUrlType: conditional(
+    array.includes('availableRestUrlCommands', 'selectedRestUrlType'),
+    'selectedRestUrlType',
+    'availableRestUrlCommands.firstObject',
+  ),
+  // TODO czy to potrzebne?
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  selectedApiCommandString: computed(
+    'effSelectedApiCommand',
+    'spaceId',
+    'share',
+    'filePath',
+    function selectedApiCommandString() {
+      const {
+        effSelectedApiCommand,
+      } = this.getProperties(
+        'effSelectedApiCommand',
+      );
+      const method = get(effSelectedApiCommand, 'method');
+      const path = get(effSelectedApiCommand, 'apiRoot') + get(effSelectedApiCommand, 'path');
+      return `curl -X ${method} ${path}`;
+    }
+  ),
+
+  actions: {
+    selectApiCommand(apiCommand) {
+      this.set('selectedApiCommand', apiCommand);
+    },
+  },
+});
