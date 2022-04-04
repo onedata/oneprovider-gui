@@ -8,9 +8,10 @@ export default {
   cdmiObjectId: 'File ID',
   modificationTime: 'Modified at',
   owner: 'Owner',
-  close: 'Close',
   size: 'Size',
   api: 'Public API',
+  operation: 'Operation',
+  command: 'Command',
   guiUrl: '{{type}} URL',
   apiCommandTipIntro: {
     rest: 'The Onezone\'s public REST API can be used to access information and contents of all shared files and directories, without any authentication. It redirects to the corresponding REST API in one of the supporting Oneproviders. The Oneprovider is chosen dynamically and may change in time, so the redirection URL should not be cached.',
@@ -77,6 +78,9 @@ export default {
       hardlinksFetchSingleErrorTip: 'Cannot load files due to error: "{{fetchError}}".',
       hardlinksFetchMultiErrorTip: 'Cannot load files due to error: "{{fetchError}}" and {{moreCount}} more errors.',
       unknownFetchError: 'unknown error',
+    },
+    restApi: {
+      tabTitle: '{*} API',
     },
   },
   hardlinkEntry: {

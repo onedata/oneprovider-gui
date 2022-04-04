@@ -1,8 +1,13 @@
-{{#bs-modal
-  class=(concat-classes "fb-info-modal" modalClass)
+{{#one-modal
+  class=(concat-classes 
+    "fb-info-modal modal-content-overlay without-footer with-close-button" 
+    modalClass
+  )
   open=open
   onHide=(action "close")
-  size="lg"
+  size="xl"
+  backdropClose=true
+  keyboard=true
   as |modal|
 }}
   {{#modal.header}}
@@ -10,7 +15,6 @@
     {{modal-file-subheader files=(array file)}}
   {{/modal.header}}
   {{#modal.body}}
-  {{#if (gt hardlinksCount 1)}}
     {{#bs-tab
       class="bs-tab-onedata bs-tab-modern"
       activeId=activeTab
@@ -18,295 +22,306 @@
       as |tab|
     }}
       {{tab.pane id="general" title=(tt this "tabs.general.tabTitle")}}
-      {{tab.pane
-        id="hardlinks"
-        title=(tt this "tabs.hardlinks.tabTitle" hardlinksCount=(if
-          hardlinksLimitExceeded
-          (concat hardlinksLimit "+")
-          hardlinksCount
-        ))
-      }}
+      {{#if (gt hardlinksCount 1)}}
+        {{tab.pane
+          id="hardlinks"
+          title=(tt this "tabs.hardlinks.tabTitle" hardlinksCount=(if
+            hardlinksLimitExceeded
+            (concat hardlinksLimit "+")
+            hardlinksCount
+          ))
+        }}
+      {{/if}}
+      {{#if (and showApiSection (not-eq itemType "symlink"))}}
+        {{tab.pane id="restApi" title=(tt this "tabs.restApi.tabTitle")}}
+      {{/if}}
     {{/bs-tab}}
-  {{/if}}
-  {{#if (eq activeTab "general")}}
-    <table class="table table-info table-info-large table-info-collapsible">
-      <tbody>
-        <tr class="file-info-row-name">
-          <td class="property-name with-input{{if smallContent "-sm"}}">
-            {{tt this "name" type=typeTranslation}}
-          </td>
-          <td class="property-value">
-            {{clipboard-line
-              value=fileName
-              size=(if smallContent "sm")
-            }}
-          </td>
-        </tr>
-        <tr class="file-info-row-path">
-          <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "path" type=typeTranslation}}</td>
-          <td class="property-value">
-            {{#promise-proxy-container
-              proxy=filePathProxy
-              sizeClass="xs"
-              centered=false
-              spinnerBlockClass="loading-file-path"
-            }}
-              {{clipboard-line
-                value=filePathProxy.content
-                size=(if smallContent "sm")
-              }}
-            {{/promise-proxy-container}}
-          </td>
-        </tr>
-        {{#if (eq itemType "symlink")}}
-          <tr class="file-info-row-target-path">
-            <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "symlinkTargetPath"}}</td>
-            <td class="property-value">
-              {{clipboard-line
-                value=symlinkTargetPath
-                size=(if smallContent "sm")
-              }}
-            </td>
-          </tr>
-        {{/if}}
-        {{#if space.entityId}}
-          <tr class="file-info-row-space-id">
-            <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
-            <td class="property-value">
-              {{clipboard-line
-                value=space.entityId
-                class="monospace-font"
-                size=(if smallContent "sm")
-              }}
-            </td>
-          </tr>
-        {{/if}}
-        {{#if fileGuiUrl}}
-          <tr class="file-info-row-gui-url">
+    {{#if (eq activeTab "general")}}
+      <table class="table table-info table-info-large table-info-collapsible">
+        <tbody>
+          <tr class="file-info-row-name">
             <td class="property-name with-input{{if smallContent "-sm"}}">
-              {{tt this "guiUrl" type=typeTranslation}}
+              {{tt this "name" type=typeTranslation}}
             </td>
             <td class="property-value">
               {{clipboard-line
-                value=fileGuiUrl
+                value=fileName
                 size=(if smallContent "sm")
               }}
             </td>
           </tr>
-        {{/if}}
-        <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
-          <td class="property-name with-input">
-            {{tt this "cdmiObjectId"}}
-          </td>
-          <td class="property-value">
-            <div class="input-group-clipboard-textarea">
-              {{clipboard-line
-                value=cdmiObjectId
-                type="textarea"
-                textareaRows="3"
-                size=(if smallContent "sm")
-                class="monospace-font compact"
-              }}
-            </div>
-          </td>
-        </tr>
-        {{#if (and showApiSection (not-eq itemType "symlink"))}}
-          <tr class="file-info-row-api-command">
-            <td class="property-name with-input">
-              {{tt this "api"}}
-            </td>
+          <tr class="file-info-row-path">
+            <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "path" type=typeTranslation}}</td>
             <td class="property-value">
               {{#promise-proxy-container
                 proxy=filePathProxy
                 sizeClass="xs"
                 centered=false
-                spinnerBlockClass="loading-api-command"
+                spinnerBlockClass="loading-file-path"
               }}
-                <div class="api-command-type-row">
-                  {{#one-dropdown
-                    triggerClass="small api-command-type-selector-trigger"
-                    dropdownClass="small api-command-type-selector-dropdown"
-                    renderInPlace=false
-                    options=availableApiCommands
-                    selected=effSelectedApiCommand
-                    searchEnabled=false
-                    onchange=(action "selectApiCommand")
-                    as |apiCommand|
-                  }}
-                    <span class="api-command-title">
-                      {{tt this (concat
-                        "apiCommandTitle."
-                        apiCommand.type
-                        "."
-                        apiCommand.id
-                      )}}
-                    </span>
-                    <span class="api-command-type">
-                      <span
-                        class="label label-info api-tag-label {{apiCommand.type}}-api-tag-label"
-                      >
-                        {{tt this (concat "apiType." apiCommand.type)}}
-                      </span>
-                    </span>
-                  {{/one-dropdown}}
-                  <div
-                    class="inline-icon-container api-command-type-info-trigger-container"
-                    {{action (mut apiCommandTypeInfoOpened) (not apiCommandTypeInfoOpened)}}
-                  >
-                    {{one-icon
-                      id=apiCommandInfoTriggerId
-                      icon="browser-info"
-                      class="api-command-type-info-trigger hint-trigger"
-                    }}
-                  </div>
-                  {{#one-webui-popover
-                    popoverStyle="api-command-type-info over-modals"
-                    padding=true
-                    open=apiCommandTypeInfoOpened
-                    triggerSelector=(concat "#" apiCommandInfoTriggerId)
-                    as |popover|
-                  }}
-                    {{#click-outside
-                      action=(action (mut apiCommandTypeInfoOpened) false)
-                      except-selector=".api-command-type-info-trigger, .webui-popover-api-command-type-info"
-                    }}
-                      <p class="api-command-tip-intro">
-                        {{tt this
-                          (concat "apiCommandTipIntro." effSelectedApiCommand.type)
-                        }}
-                        {{one-doc-see-more
-                          linkName=(tt this
-                            (concat "apiCommandTipLinkName." effSelectedApiCommand.type)
-                          )
-                          href=(if (eq effSelectedApiCommand.type "xrootd")
-                            "https://xrootd.slac.stanford.edu/"
-                            (one-api-doc-url
-                              product="onezone"
-                              version="latest"
-                              anchor="operation/get_shared_data"
-                            )
-                          )
-                        }}
-                      </p>
-                      <hr class="sharp">
-                      <p
-                        class="last api-command-tip-specific api-command-tip-{{effSelectedApiCommand.type}}"
-                      >
-                        {{tt this
-                          (concat
-                            "apiCommandTipSpecificIntro."
-                            effSelectedApiCommand.type
-                          )
-                          typeDescription=(tt this (concat
-                            "apiCommandTipSpecificType."
-                            effSelectedApiCommand.type
-                            "."
-                            effSelectedApiCommand.id
-                          ))
-                        }}
-                      </p>
-                    {{/click-outside}}
-                  {{/one-webui-popover}}
-                  <span class="labels-container hidden-xs">
-                    <span
-                      class="label label-info api-tag-label {{effSelectedApiCommand.type}}-api-tag-label"
-                    >
-                      {{tt this (concat "apiType." effSelectedApiCommand.type)}}
-                    </span>
-                  </span>
-                </div>
-                <div class="input-group-clipboard-textarea">
-                  {{clipboard-line
-                    value=selectedApiCommandString
-                    textareaRows="4"
-                    type="textarea"
-                    size=(if smallContent "sm")
-                    class="monospace-font compact"
-                  }}
-                </div>
+                {{clipboard-line
+                  value=filePathProxy.content
+                  size=(if smallContent "sm")
+                }}
               {{/promise-proxy-container}}
             </td>
           </tr>
-        {{/if}}
-        {{#if (eq itemType "file")}}
-          <tr class="file-info-row-size">
-            <td class="property-name">{{tt this "size"}}</td>
+          {{#if (eq itemType "symlink")}}
+            <tr class="file-info-row-target-path">
+              <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "symlinkTargetPath"}}</td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=symlinkTargetPath
+                  size=(if smallContent "sm")
+                }}
+              </td>
+            </tr>
+          {{/if}}
+          {{#if space.entityId}}
+            <tr class="file-info-row-space-id">
+              <td class="property-name with-input{{if smallContent "-sm"}}">{{tt this "spaceId"}}</td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=space.entityId
+                  class="monospace-font"
+                  size=(if smallContent "sm")
+                }}
+              </td>
+            </tr>
+          {{/if}}
+          {{#if fileGuiUrl}}
+            <tr class="file-info-row-gui-url">
+              <td class="property-name with-input{{if smallContent "-sm"}}">
+                {{tt this "guiUrl" type=typeTranslation}}
+              </td>
+              <td class="property-value">
+                {{clipboard-line
+                  value=fileGuiUrl
+                  size=(if smallContent "sm")
+                }}
+              </td>
+            </tr>
+          {{/if}}
+          <tr id={{cdmiRowId}} class="file-info-row-cdmi-object-id">
+            <td class="property-name with-input">
+              {{tt this "cdmiObjectId"}}
+            </td>
             <td class="property-value">
-              {{bytes-to-string fileSize}}
+              <div class="input-group-clipboard-textarea">
+                {{clipboard-line
+                  value=cdmiObjectId
+                  type="textarea"
+                  textareaRows="3"
+                  size=(if smallContent "sm")
+                  class="monospace-font compact"
+                }}
+              </div>
             </td>
           </tr>
+          {{#if (eq itemType "file")}}
+            <tr class="file-info-row-size">
+              <td class="property-name">{{tt this "size"}}</td>
+              <td class="property-value">
+                {{bytes-to-string fileSize}}
+              </td>
+            </tr>
+          {{/if}}
+          <tr class="file-info-row-modification-time">
+            <td class="property-name">{{tt this "modificationTime"}}</td>
+            <td class="property-value">
+              {{#truncated-string}}
+                {{date-format modificationTime format="dateWithMinutes" blank="—"}}
+              {{/truncated-string}}
+            </td>
+          </tr>
+          <tr class="file-info-row-owner">
+            <td class="property-name">{{tt this "owner"}}</td>
+            <td class="property-value">
+              {{#promise-proxy-container
+                proxy=ownerFullNameProxy
+                sizeClass="xs"
+                centered=false
+                spinnerBlockClass="loading-owner-full-name"
+              }}
+                {{#truncated-string}}
+                  {{or ownerFullNameProxy.content "—"}}
+                {{/truncated-string}}
+              {{/promise-proxy-container}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    {{else if (eq activeTab "hardlinks")}}
+      {{#promise-proxy-container tagName="div" class="loadable-row" proxy=fileHardlinksProxy}}
+        {{#if (and hardlinksLimitExceeded fileHardlinks.hardlinks.length)}}
+          <p class="shows-first-n-hardlinks text-center">
+            <em>{{tt this "tabs.hardlinks.showingOnlyNFirst" limit=hardlinksLimit}}</em>
+          </p>
         {{/if}}
-        <tr class="file-info-row-modification-time">
-          <td class="property-name">{{tt this "modificationTime"}}</td>
-          <td class="property-value">
-            {{#truncated-string}}
-              {{date-format modificationTime format="dateWithMinutes" blank="—"}}
-            {{/truncated-string}}
-          </td>
-        </tr>
-        <tr class="file-info-row-owner">
-          <td class="property-name">{{tt this "owner"}}</td>
-          <td class="property-value">
+        <ul class="file-hardlinks-list">
+          {{#each fileHardlinks.hardlinks as |fileHardlink|}}
+            {{file-browser/fb-info-modal/hardlink-entry
+              class="file-hardlink"
+              file=fileHardlink.file
+              fileUrl=fileHardlink.fileUrl
+              path=fileHardlink.path
+              closeModal=modal.close
+            }}
+          {{else}}
+            <li class="file-hardlink extra-hardlink-description">
+              <em>{{tt this "tabs.hardlinks.noAccessToAll"
+                fileType=(tt this (concat "fileType." itemType))
+              }}</em>
+              {{#if hardlinksFetchError}}
+                {{one-label-tip title=hardlinksFetchError}}
+              {{/if}}
+            </li>
+          {{/each}}
+          {{#if (and
+            (gt fileHardlinks.hardlinks.length 0)
+            (lt fileHardlinks.hardlinks.length fileHardlinks.hardlinksCount)
+          )}}
+            <li class="file-hardlink extra-hardlink-description">
+              <em>{{tt this "tabs.hardlinks.andNMoreYouHaveNoAccess"
+                count=(sub fileHardlinks.hardlinksCount fileHardlinks.hardlinks.length)
+              }}</em>
+              {{#if hardlinksFetchError}}
+                {{one-label-tip title=hardlinksFetchError}}
+              {{/if}}
+            </li>
+          {{/if}}
+        </ul>
+      {{/promise-proxy-container}}
+    {{else if (eq activeTab "restApi")}}
+      <table class="table table-info table-info-large table-info-collapsible">
+        <tbody>
+          {{#if (and showApiSection (not-eq itemType "symlink"))}}
             {{#promise-proxy-container
-              proxy=ownerFullNameProxy
+              proxy=filePathProxy
               sizeClass="xs"
               centered=false
-              spinnerBlockClass="loading-owner-full-name"
+              spinnerBlockClass="loading-api-command"
             }}
-              {{#truncated-string}}
-                {{or ownerFullNameProxy.content "—"}}
-              {{/truncated-string}}
+              <tr class="file-info-row-api-command">
+                <td class="property-name with-input">
+                  {{tt this "operation"}}
+                </td>
+                <td class="property-value">
+                  <div class="api-command-type-row">
+                    {{#one-dropdown
+                      triggerClass="small api-command-type-selector-trigger"
+                      dropdownClass="small api-command-type-selector-dropdown"
+                      renderInPlace=false
+                      options=availableApiCommands
+                      selected=effSelectedApiCommand
+                      searchEnabled=false
+                      onchange=(action "selectApiCommand")
+                      as |apiCommand|
+                    }}
+                      <span class="api-command-title">
+                        {{tt this (concat
+                          "apiCommandTitle."
+                          apiCommand.type
+                          "."
+                          apiCommand.id
+                        )}}
+                      </span>
+                      <span class="api-command-type">
+                        <span
+                          class="label label-info api-tag-label {{apiCommand.type}}-api-tag-label"
+                        >
+                          {{tt this (concat "apiType." apiCommand.type)}}
+                        </span>
+                      </span>
+                    {{/one-dropdown}}
+                    <div
+                      class="inline-icon-container api-command-type-info-trigger-container"
+                      {{action (mut apiCommandTypeInfoOpened) (not apiCommandTypeInfoOpened)}}
+                    >
+                      {{one-icon
+                        id=apiCommandInfoTriggerId
+                        icon="browser-info"
+                        class="api-command-type-info-trigger hint-trigger"
+                      }}
+                    </div>
+                    {{#one-webui-popover
+                      popoverStyle="api-command-type-info over-modals"
+                      padding=true
+                      open=apiCommandTypeInfoOpened
+                      triggerSelector=(concat "#" apiCommandInfoTriggerId)
+                      as |popover|
+                    }}
+                      {{#click-outside
+                        action=(action (mut apiCommandTypeInfoOpened) false)
+                        except-selector=".api-command-type-info-trigger, .webui-popover-api-command-type-info"
+                      }}
+                        <p class="api-command-tip-intro">
+                          {{tt this
+                            (concat "apiCommandTipIntro." effSelectedApiCommand.type)
+                          }}
+                          {{one-doc-see-more
+                            linkName=(tt this
+                              (concat "apiCommandTipLinkName." effSelectedApiCommand.type)
+                            )
+                            href=(if (eq effSelectedApiCommand.type "xrootd")
+                              "https://xrootd.slac.stanford.edu/"
+                              (one-api-doc-url
+                                product="onezone"
+                                version="latest"
+                                anchor="operation/get_shared_data"
+                              )
+                            )
+                          }}
+                        </p>
+                        <hr class="sharp">
+                        <p
+                          class="last api-command-tip-specific api-command-tip-{{effSelectedApiCommand.type}}"
+                        >
+                          {{tt this
+                            (concat
+                              "apiCommandTipSpecificIntro."
+                              effSelectedApiCommand.type
+                            )
+                            typeDescription=(tt this (concat
+                              "apiCommandTipSpecificType."
+                              effSelectedApiCommand.type
+                              "."
+                              effSelectedApiCommand.id
+                            ))
+                          }}
+                        </p>
+                      {{/click-outside}}
+                    {{/one-webui-popover}}
+                    <span class="labels-container hidden-xs">
+                      <span
+                        class="label label-info api-tag-label {{effSelectedApiCommand.type}}-api-tag-label"
+                      >
+                        {{tt this (concat "apiType." effSelectedApiCommand.type)}}
+                      </span>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+              <tr class="file-info-row-api-command">
+                <td class="property-name with-input">
+                  {{tt this "command"}}
+                </td>
+                <td class="property-value">
+                  <div class="input-group-clipboard-textarea">
+                    {{clipboard-line
+                      value=selectedApiCommandString
+                      textareaRows="4"
+                      type="textarea"
+                      size=(if smallContent "sm")
+                      class="monospace-font compact"
+                    }}
+                  </div>
+                </td>
+              </tr>
             {{/promise-proxy-container}}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  {{else if (eq activeTab "hardlinks")}}
-    {{#promise-proxy-container tagName="div" class="loadable-row" proxy=fileHardlinksProxy}}
-      {{#if (and hardlinksLimitExceeded fileHardlinks.hardlinks.length)}}
-        <p class="shows-first-n-hardlinks text-center">
-          <em>{{tt this "tabs.hardlinks.showingOnlyNFirst" limit=hardlinksLimit}}</em>
-        </p>
-      {{/if}}
-      <ul class="file-hardlinks-list">
-        {{#each fileHardlinks.hardlinks as |fileHardlink|}}
-          {{file-browser/fb-info-modal/hardlink-entry
-            class="file-hardlink"
-            file=fileHardlink.file
-            fileUrl=fileHardlink.fileUrl
-            path=fileHardlink.path
-            closeModal=modal.close
-          }}
-        {{else}}
-          <li class="file-hardlink extra-hardlink-description">
-            <em>{{tt this "tabs.hardlinks.noAccessToAll"
-              fileType=(tt this (concat "fileType." itemType))
-            }}</em>
-            {{#if hardlinksFetchError}}
-              {{one-label-tip title=hardlinksFetchError}}
-            {{/if}}
-          </li>
-        {{/each}}
-        {{#if (and
-          (gt fileHardlinks.hardlinks.length 0)
-          (lt fileHardlinks.hardlinks.length fileHardlinks.hardlinksCount)
-        )}}
-          <li class="file-hardlink extra-hardlink-description">
-            <em>{{tt this "tabs.hardlinks.andNMoreYouHaveNoAccess"
-              count=(sub fileHardlinks.hardlinksCount fileHardlinks.hardlinks.length)
-            }}</em>
-            {{#if hardlinksFetchError}}
-              {{one-label-tip title=hardlinksFetchError}}
-            {{/if}}
-          </li>
-        {{/if}}
-      </ul>
-    {{/promise-proxy-container}}
-  {{/if}}
+          {{/if}}
+        </tbody>
+      </table>
+    {{/if}}
   {{/modal.body}}
-  {{#modal.footer}}
-    {{#bs-button onClick=modal.close}}
-      {{tt this "close"}}
-    {{/bs-button}}
-  {{/modal.footer}}
-{{/bs-modal}}
+{{/one-modal}}
