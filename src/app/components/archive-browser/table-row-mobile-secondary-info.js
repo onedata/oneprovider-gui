@@ -8,6 +8,7 @@
  */
 
 import FbTableRowMobileSecondaryInfo from 'oneprovider-gui/components/file-browser/fb-table-row-mobile-secondary-info';
+import { reads } from '@ember/object/computed';
 
 export default FbTableRowMobileSecondaryInfo.extend({
   classNames: ['archive-table-row-mobile-secondary-info'],
@@ -16,4 +17,6 @@ export default FbTableRowMobileSecondaryInfo.extend({
    * @override
    */
   i18nPrefix: 'components.archiveBrowser.tableRowMobileSecondaryInfo',
+
+  archive: reads('fileRowModel.archive'),
 });

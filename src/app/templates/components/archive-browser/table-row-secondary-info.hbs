@@ -1,14 +1,4 @@
-{{#truncated-string
-  class="file-info-secondary-inner file-info-secondary-left archive-info-secondary-description"
-  tooltipClass="tooltip-lg tooltip-text-left"
+{{archive-browser/secondary-description
+  archive=archive
+  class="file-info-secondary-inner file-info-secondary-left"
 }}
-  {{#if archive.description}}
-    <span class="archive-info-secondary-description-internal">
-      {{archive.description}}
-    </span>
-  {{else}}
-    <span class="archive-info-secondary-description-internal no-description">
-      {{tt this "noDescription"}}
-    </span>
-  {{/if}}
-{{/truncated-string}}

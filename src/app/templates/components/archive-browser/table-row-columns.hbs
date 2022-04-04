@@ -32,6 +32,12 @@
             {{fileRowModel.baseArchiveNameProxy.content}}
           {{/truncated-string}}
         {{/if}}
+        <div class="file-info-secondary">
+          {{archive-browser/secondary-description
+            archive=baseArchiveProxy.content
+            class="file-info-secondary-inner file-info-secondary-left"
+          }}
+        </div>
       {{else if baseArchiveId}}
         {{#truncated-string
           tagName="code"
