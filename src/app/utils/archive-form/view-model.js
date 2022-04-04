@@ -6,13 +6,19 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import { get, computed } from '@ember/object';
+import { get, computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import ClipboardField from 'onedata-gui-common/utils/form-component/clipboard-field';
 import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model';
 import _ from 'lodash';
-import { promise } from 'ember-awesome-macros';
+import { promise, bool } from 'ember-awesome-macros';
+
+const CallbackFieldClass = ClipboardField
+  .extend({
+    type: 'input',
+    isVisible: bool('value'),
+  });
 
 export default ArchiveFormBaseModel.extend({
   archiveManager: service(),
@@ -59,11 +65,15 @@ export default ArchiveFormBaseModel.extend({
       archiveIdField,
       descriptionField,
       configField,
+      preservedCallbackField,
+      purgedCallbackField,
     } = this.getProperties(
       'rootFormGroupClass',
       'archiveIdField',
       'descriptionField',
       'configField',
+      'preservedCallbackField',
+      'purgedCallbackField',
     );
 
     const fieldGroup = rootFormGroupClass
@@ -73,6 +83,8 @@ export default ArchiveFormBaseModel.extend({
           archiveIdField,
           descriptionField,
           configField,
+          preservedCallbackField,
+          purgedCallbackField,
         ],
       });
     fieldGroup.changeMode('view');
@@ -101,9 +113,20 @@ export default ArchiveFormBaseModel.extend({
 
   valuesSource: computed('archive', function valuesSource() {
     const archive = this.get('archive');
-    const description = get(archive, 'description');
-    const archiveConfig = get(archive, 'config');
-    const archiveId = get(archive, 'entityId');
+    const {
+      description,
+      config: archiveConfig,
+      entityId: archiveId,
+      preservedCallback,
+      purgedCallback,
+    } = getProperties(
+      archive,
+      'description',
+      'config',
+      'entityId',
+      'preservedCallback',
+      'purgedCallback',
+    );
     const formConfig = _.cloneDeep(archiveConfig);
 
     const incrementalConfig = get(archiveConfig, 'incremental');
@@ -116,16 +139,28 @@ export default ArchiveFormBaseModel.extend({
       archiveId,
       description,
       config: formConfig,
+      preservedCallback,
+      purgedCallback,
     };
   }),
 
-  // FIXME: small input, monospace font
   archiveIdField: computed(function archiveIdField() {
     return ClipboardField.create({
       name: 'archiveId',
       type: 'input',
-      size: 'sm',
       clipboardLineClass: 'monospace-font',
+    });
+  }),
+
+  preservedCallbackField: computed(function archiveIdField() {
+    return CallbackFieldClass.create({
+      name: 'preservedCallback',
+    });
+  }),
+
+  purgedCallbackField: computed(function archiveIdField() {
+    return CallbackFieldClass.create({
+      name: 'purgedCallback',
     });
   }),
 });

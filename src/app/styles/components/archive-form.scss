@@ -6,4 +6,7 @@
       text-transform: uppercase;
     }
   }
+  .field-renderer > label {
+    min-width: 220px;
+  }
 }
