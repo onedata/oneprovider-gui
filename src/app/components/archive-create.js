@@ -166,7 +166,7 @@ export default Component.extend(I18n, {
     } else {
       if (!archivesData.isLast) {
         throw new Error(
-          'component:archive-settings#fetchLatestArchive: invalid archive listing data'
+          'fetchLatestArchive: invalid archive listing data'
         );
       }
       // there is no latest archive, because there are no archives

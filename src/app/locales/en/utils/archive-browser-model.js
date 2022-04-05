@@ -10,7 +10,7 @@ export default _.merge({}, BaseBrowserModel, {
   notAvailableForCreating: 'Not available for archives that are not built yet.',
   notAvailableForDetached: 'Not available in detached dataset.',
   fileActions: {
-    archiveSettings: 'Properties',
+    archiveProperties: 'Properties',
     editDescription: 'Edit description',
     createArchive: 'Create archive',
     createIncrementalArchive,

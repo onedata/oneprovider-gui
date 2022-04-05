@@ -2,7 +2,7 @@
  * Component for managing properties of archive or create archives.
  * Needs modal-like for layout rendering.
  *
- * @module components/archive-settings
+ * @module components/archive-properties
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -21,7 +21,7 @@ import { guidFor } from '@ember/object/internals';
 
 export default Component.extend(I18n, {
   // do not use tag, because the layout is built by `modal` property
-  // for styling, use: `archive-settings-part` class
+  // for styling, use: `archive-properties-part` class
   tagName: '',
 
   i18n: service(),
@@ -31,7 +31,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.archiveSettings',
+  i18nPrefix: 'components.archiveProperties',
 
   /**
    * @virtual

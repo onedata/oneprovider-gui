@@ -27,7 +27,7 @@ import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const allButtonNames = Object.freeze([
-  'btnArchiveSettings',
+  'btnArchiveProperties',
   'btnEditDescription',
   'btnCreateArchive',
   'btnRefresh',
@@ -59,7 +59,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @override
    */
-  infoIconActionName: 'archiveSettings',
+  infoIconActionName: 'archiveProperties',
 
   /**
    * One of: attached, detached.
@@ -102,7 +102,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @virtual
    * @type {(archives: Array<Utils.BrowsableArchive>, options: Object) => any}
    */
-  openArchiveSettingsModal: notImplementedThrow,
+  openArchivePropertiesModal: notImplementedThrow,
 
   /**
    * @virtual optional
@@ -283,13 +283,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnArchiveSettings: computed(
-    function btnArchiveSettings() {
+  btnArchiveProperties: computed(
+    function btnArchiveProperties() {
       return this.createFileAction({
-        id: 'archiveSettings',
+        id: 'archiveProperties',
         icon: 'properties',
         action: (archives) => {
-          return this.openArchiveSettingsModal(archives[0]);
+          return this.openArchivePropertiesModal(archives[0]);
         },
         showIn: [
           actionContext.singleDir,
@@ -305,7 +305,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         id: 'editDescription',
         icon: 'rename',
         action: (archives) => {
-          return this.openArchiveSettingsModal(archives[0], { focusDescription: true });
+          return this.openArchivePropertiesModal(archives[0], { focusDescription: true });
         },
         showIn: [
           actionContext.singleDir,

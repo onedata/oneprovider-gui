@@ -165,8 +165,8 @@ describe('Integration | Component | archive browser', function () {
     });
     const archive = mockArray.array[0];
     const firstArchiveName = mockArray.array[0].name;
-    const openArchiveSettingsModal = sinon.spy();
-    this.set('openArchiveSettingsModal', openArchiveSettingsModal);
+    const openArchivePropertiesModal = sinon.spy();
+    this.set('openArchivePropertiesModal', openArchivePropertiesModal);
     this.set('spacePrivileges', {
       viewArchives: true,
       manageDatasets: true,
@@ -176,14 +176,14 @@ describe('Integration | Component | archive browser', function () {
     await render(this);
 
     const actions = (await openItemContextMenu({ name: firstArchiveName }))[0];
-    const action = actions.querySelector('.file-action-archiveSettings');
+    const action = actions.querySelector('.file-action-archiveProperties');
     expect(
       action,
       'archive settings item'
     ).to.exist;
     await click(action);
-    expect(openArchiveSettingsModal).to.have.been.calledOnce;
-    expect(openArchiveSettingsModal).to.have.been.calledWith(archive);
+    expect(openArchivePropertiesModal).to.have.been.calledOnce;
+    expect(openArchivePropertiesModal).to.have.been.calledWith(archive);
   });
 });
 
@@ -192,12 +192,12 @@ function render(testCase) {
     refreshInterval,
     openCreateArchiveModal,
     openRecallModal,
-    openArchiveSettingsModal,
+    openArchivePropertiesModal,
   } = testCase.getProperties(
     'refreshInterval',
     'openCreateArchiveModal',
     'openRecallModal',
-    'openArchiveSettingsModal',
+    'openArchivePropertiesModal',
   );
   const defaultDataset = {
     name: 'Default dataset',
@@ -228,8 +228,8 @@ function render(testCase) {
       notStubbed('openCreateArchiveModal'),
     openRecallModal: openRecallModal ||
       notStubbed('openRecallModal'),
-    openArchiveSettingsModal: openArchiveSettingsModal ||
-      notStubbed('openArchiveSettingsModal'),
+    openArchivePropertiesModal: openArchivePropertiesModal ||
+      notStubbed('openArchivePropertiesModal'),
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.render(hbs `<div id="content-scroll">{{file-browser

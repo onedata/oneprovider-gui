@@ -2,7 +2,7 @@
  * Standalone component for viewing and editing archive properties using archive settings
  * editor.
  *
- * @module components/archive-settings-modal
+ * @module components/archive-properties-modal
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -24,7 +24,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.archiveSettingsModal',
+  i18nPrefix: 'components.archivePropertiesModal',
 
   /**
    * @virtual

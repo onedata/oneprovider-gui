@@ -1,13 +1,13 @@
-{{#modal.header class="archive-settings-part archive-settings-modal-header"}}
-  <h1 class="archive-settings-header">
+{{#modal.header class="archive-properties-part archive-properties-modal-header"}}
+  <h1 class="archive-properties-header">
     <span class="header-text">
-      {{tt this "archiveSettingsHeader"}}
+      {{tt this "archivePropertiesHeader"}}
     </span>
   </h1>
   {{modal-archive-subheader archives=(array browsableArchive)}}
 {{/modal.header}}
 
-{{#modal.body class="archive-settings-part archive-settings-modal-body"}}
+{{#modal.body class="archive-properties-part archive-properties-modal-body"}}
   {{archive-form
     id=formId
     formModel=formModel
@@ -17,7 +17,7 @@
   {{yield}}
 {{/modal.body}}
 
-{{#modal.footer class="archive-settings-part archive-settings-modal-footer"}}
+{{#modal.footer class="archive-properties-part archive-properties-modal-footer"}}
   {{#bs-button
     class="close-btn"
     type="default"

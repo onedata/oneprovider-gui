@@ -12,7 +12,7 @@ import {
 import { run } from '@ember/runloop';
 
 describe('Integration | Component | archive settings', function () {
-  setupComponentTest('archive-settings', {
+  setupComponentTest('archive-properties', {
     integration: true,
   });
 
@@ -26,7 +26,7 @@ describe('Integration | Component | archive settings', function () {
 
     await render(this);
 
-    const header = find('.archive-settings-modal-header');
+    const header = find('.archive-properties-modal-header');
     expect(header).to.exist;
     expect(header.textContent).to.contain('Archive properties');
     expect(header.textContent).to.contain(name);
@@ -90,7 +90,7 @@ async function render(testCase) {
   }
   testCase.render(hbs `
     {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
-      {{archive-settings
+      {{archive-properties
         browsableArchive=browsableArchive
         modal=modal
         spacePrivileges=spacePrivileges

@@ -96,12 +96,12 @@
 {{/if}}
 
 {{#if archiveToShowSettings}}
-  {{archive-settings-modal
+  {{archive-properties-modal
     open=true
     space=space
     browsableArchive=archiveToShowSettings
-    options=archiveSettingsOptions
-    onHide=(action closeArchiveSettingsModal)
+    options=archivePropertiesOptions
+    onHide=(action closeArchivePropertiesModal)
   }}
 {{/if}}
 

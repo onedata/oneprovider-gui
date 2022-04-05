@@ -185,7 +185,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {ArchiveFormOptions}
    */
-  archiveSettingsOptions: null,
+  archivePropertiesOptions: null,
 
   /**
    * @type {Models.File}
@@ -605,7 +605,7 @@ export default Component.extend(...mixins, {
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openPurgeModal: this.openArchivesPurgeModal.bind(this),
       openRecallModal: this.openArchiveRecallModal.bind(this),
-      openArchiveSettingsModal: this.openArchiveSettingsModal.bind(this),
+      openArchivePropertiesModal: this.openArchivePropertiesModal.bind(this),
       browseArchiveDip: this.browseArchiveDip.bind(this),
     }, options));
   },
@@ -660,17 +660,17 @@ export default Component.extend(...mixins, {
     });
   },
 
-  openArchiveSettingsModal(archive, options) {
+  openArchivePropertiesModal(archive, options) {
     this.setProperties({
       archiveToShowSettings: archive,
-      archiveSettingsOptions: options,
+      archivePropertiesOptions: options,
     });
   },
 
-  closeArchiveSettingsModal() {
+  closeArchivePropertiesModal() {
     this.setProperties({
       archiveToShowSettings: null,
-      archiveSettingsOptions: null,
+      archivePropertiesOptions: null,
     });
   },
 
