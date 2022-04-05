@@ -78,45 +78,32 @@ describe('Integration | Component | file datasets/archives tab', function () {
     expect(fileRows, 'rows').to.have.lengthOf(3);
   });
 
-  [
-    { filesCount: 0 },
-    { filesCount: 1 },
-  ].forEach(({ filesCount }) => {
-    const countText = filesCount > 0 ?
-      `${filesCount} file${filesCount > 1 ? 's' : ''}` : 'no files';
-    const description =
-      `changes archive to DIP when using DIP switch in archive files view (${countText})`;
-    it(description, async function () {
-      const mockData = new MockData(this);
-      const archivesCount = 1;
-      const archivesMockArray = mockData.mockArchives({
-        testCase: this,
-        itemsCount: archivesCount,
-      });
-      const archive = archivesMockArray.array[0];
-      mockData.mockRootFiles({
-        archive,
-        filesCount,
-      });
-      mockData.mockDipArchive(archive, this);
-
-      await render(this);
-
-      const archiveRow = find('.fb-table-row');
-      await doubleClick(archiveRow);
-      const $visibleDipButtons = this.$('.select-archive-dip-btn:visible');
-      expect($visibleDipButtons).to.have.lengthOf(1);
-      expect($visibleDipButtons).to.be.not.disabled;
-      expect($visibleDipButtons.text()).to.match(/^\s*DIP\s*$/);
-      await click($visibleDipButtons[0]);
-      const currentDirName =
-        find('.fb-breadcrumbs-current-dir-button .fb-breadcrumbs-dir-name .dir-name');
-      expect(currentDirName.textContent).to.contain('dip');
-      if (filesCount > 0) {
-        const fileName = find('.fb-table-row .file-base-name').textContent;
-        expect(fileName).to.match(/-dip\s*$/);
-      }
+  it('changes archive to DIP when using DIP switch in archive files view', async function () {
+    const mockData = new MockData(this);
+    const archivesCount = 1;
+    const archivesMockArray = mockData.mockArchives({
+      testCase: this,
+      itemsCount: archivesCount,
     });
+    const archive = archivesMockArray.array[0];
+    mockData.mockRootFiles({
+      archive,
+      filesCount: 1,
+    });
+    mockData.mockDipArchive(archive, this);
+
+    await render(this);
+
+    const archiveRow = find('.fb-table-row');
+    await doubleClick(archiveRow);
+    const $visibleDipButtons = this.$('.select-archive-dip-btn:visible');
+    expect($visibleDipButtons).to.have.lengthOf(1);
+    expect($visibleDipButtons).to.be.not.disabled;
+    expect($visibleDipButtons.text()).to.match(/^\s*DIP\s*$/);
+    await click($visibleDipButtons[0]);
+
+    const fileName = find('.fb-table-row .file-base-name').textContent;
+    expect(fileName).to.match(/-dip\s*$/);
   });
 
   it('invokes archive-manager createArchive from create archive modal',
@@ -276,7 +263,6 @@ class MockData {
         entityId: dipEntityId,
         index: name,
         type: 'dir',
-        description: 'dummy_dip',
         testCase,
         stats: {
           bytesArchived: 0,

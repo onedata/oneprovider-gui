@@ -22,7 +22,6 @@ export default BrowsableWrapper.extend({
 
   name: computed('content.creationTime', function name() {
     const creationTime = this.get('content.creationTime');
-    console.log('extraName');
     return dateFormat([creationTime], {
       format: 'dateWithMinutes',
       blank: '—',
