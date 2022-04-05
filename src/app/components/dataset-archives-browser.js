@@ -178,6 +178,16 @@ export default Component.extend(...mixins, {
   createArchiveOptions: undefined,
 
   /**
+   * @type {Utils.BrowsableArchive}
+   */
+  archiveToShowSettings: null,
+
+  /**
+   * @type {ArchiveFormOptions}
+   */
+  archiveSettingsOptions: null,
+
+  /**
    * @type {Models.File}
    */
   fileToShowInfo: null,
@@ -650,14 +660,18 @@ export default Component.extend(...mixins, {
     });
   },
 
-  // FIXME: add properties in file
   openArchiveSettingsModal(archive, options) {
-    this.set('archiveToShowSettings', archive);
-    this.set('archiveSettingsOptions', options);
+    this.setProperties({
+      archiveToShowSettings: archive,
+      archiveSettingsOptions: options,
+    });
   },
 
   closeArchiveSettingsModal() {
-    this.set('archiveToShowSettings', null);
+    this.setProperties({
+      archiveToShowSettings: null,
+      archiveSettingsOptions: null,
+    });
   },
 
   /**

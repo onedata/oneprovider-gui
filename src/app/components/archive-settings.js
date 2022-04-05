@@ -58,10 +58,9 @@ export default Component.extend(I18n, {
    */
   modal: undefined,
 
-  // FIXME: document options type
   /**
    * @virtual optional
-   * @type {Object}
+   * @type {ArchiveFormOptions}
    */
   options: undefined,
 
@@ -186,22 +185,6 @@ export default Component.extend(I18n, {
       formData,
       isValid,
     });
-  },
-
-  // FIXME:
-  // applyOptions(options = {}) {
-  //   if (options.focusDescription) {
-
-  //   }
-  // },
-
-  init() {
-    this._super(...arguments);
-    // FIXME:
-    // const options = this.get('options');
-    // if (options) {
-    //   this.applyOptions(options);
-    // }
   },
 
   actions: {

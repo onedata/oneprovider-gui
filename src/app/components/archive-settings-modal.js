@@ -38,8 +38,6 @@ export default Component.extend(I18n, {
    */
   space: undefined,
 
-  // FIXME: virtual options
-
   /**
    * An archive for which info will be displayed or modified.
    * @virtual
@@ -52,6 +50,12 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   onHide: notImplementedIgnore,
+
+  /**
+   * @virtual optional
+   * @type {ArchiveFormOptions}
+   */
+  options: undefined,
 
   formId: computed(function formId() {
     return `archive-form-${guidFor(this)}`;

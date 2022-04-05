@@ -1,7 +1,6 @@
 /**
  * Form with settings for archive model
  *
- * @module components/archive-form
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -15,6 +14,11 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
+/**
+ * @typedef {Object} ArchiveFormOptions
+ * @property {boolean} focusDescription
+ */
+
 export default Component.extend(I18n, {
   classNames: ['form', 'form-horizontal', 'form-component', 'archive-form'],
 
@@ -27,11 +31,17 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {({ formData: EmberObject, isValid: Boolean }) => any}
+   * @type {Utils.ArchiveForm.BaseModel}
    */
-  onChange: notImplementedIgnore,
+  formModel: undefined,
 
-  // FIXME: options param
+  /**
+   * @virtual optional
+   * @type {ArchiveFormOptions}
+   */
+  options: Object.freeze({
+    focusDescription: false,
+  }),
 
   /**
    * Set to true, to indicate that form submit is in progress
@@ -41,41 +51,12 @@ export default Component.extend(I18n, {
   isSubmitting: false,
 
   /**
-   * @type {ArchiveFormModel}
+   * @virtual
+   * @type {({ formData: EmberObject, isValid: Boolean }) => any}
    */
-  formModel: undefined,
+  onChange: notImplementedIgnore,
 
   rootFieldGroup: reads('formModel.rootFieldGroup'),
-
-  // FIXME: proxy from model
-  /**
-   * @virtual
-   * @type {PromiseObject<Utils.BrowsableArchive>}
-   */
-  baseArchiveProxy: undefined,
-
-  // FIXME: move into create model only
-  /**
-   * @virtual
-   * @type {() => PromiseObject<Utils.BrowsableArchive>}
-   */
-  updateBaseArchiveProxy: undefined,
-
-  notifyAboutChange() {
-    safeExec(this, () => {
-      const {
-        rootFieldGroup,
-        onChange,
-      } = this.getProperties('rootFieldGroup', 'onChange');
-
-      const isValid = get(rootFieldGroup, 'isValid');
-
-      onChange({
-        formData: rootFieldGroup.dumpValue(),
-        isValid,
-      });
-    });
-  },
 
   /**
    * @override
@@ -97,5 +78,21 @@ export default Component.extend(I18n, {
   willDestroyElement() {
     this._super(...arguments);
     this.get('formModel').destroy();
+  },
+
+  notifyAboutChange() {
+    safeExec(this, () => {
+      const {
+        rootFieldGroup,
+        onChange,
+      } = this.getProperties('rootFieldGroup', 'onChange');
+
+      const isValid = get(rootFieldGroup, 'isValid');
+
+      onChange({
+        formData: rootFieldGroup.dumpValue(),
+        isValid,
+      });
+    });
   },
 });

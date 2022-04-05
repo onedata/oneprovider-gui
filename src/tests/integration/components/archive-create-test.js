@@ -4,9 +4,7 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
 import { find, click, fillIn } from 'ember-native-dom-helpers';
-import { lookupService } from '../../helpers/stub-service';
-import { all as allFulfilled } from 'rsvp';
-import { getBrowsableDatasetName } from '../../helpers/archive-recall';
+import { getBrowsableDatasetName, createDataset } from '../../helpers/datasets-archives';
 import sinon from 'sinon';
 
 describe('Integration | Component | archive create', function () {
@@ -121,33 +119,4 @@ async function render(testCase) {
     {{/one-pseudo-modal}}
   `);
   await wait();
-}
-
-// FIXME: refactor, move to common archive helpers
-async function createDataset(testCase) {
-  const store = lookupService(testCase, 'store');
-  const spaceId = 's123';
-  const fileName = 'dummy_dataset_root';
-  const datasetRootFile = store.createRecord('file', {
-    index: fileName,
-    name: fileName,
-    type: 'dir',
-  });
-  const dataset = store.createRecord('dataset', {
-    index: 'd123',
-    spaceId,
-    state: 'attached',
-    rootFile: datasetRootFile,
-    rootFilePath: `/one/two/${fileName}`,
-  });
-  const records = [
-    datasetRootFile,
-    dataset,
-  ];
-  const result = testCase.setProperties({
-    datasetRootFile,
-    dataset,
-  });
-  await allFulfilled(Object.values(records).invoke('save'));
-  return result;
 }

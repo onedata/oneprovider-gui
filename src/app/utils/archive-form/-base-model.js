@@ -72,14 +72,13 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       .create({
         siblingName: 'baseArchiveInfo',
         name: 'baseArchiveLoading',
+        tooltipClass: 'tooltip-lg tooltip-text-left',
       });
 
     const baseArchiveInfoField = StaticTextField
       .extend({
-        isVisible: reads('parent.baseArchiveProxy.isSettled'),
+        isVisible: reads('parent.baseArchiveProxy.isFulfilled'),
         value: conditional(
-          // FIXME: handling cannot fetch latest archive should be in create-model
-          // FIXME: handle errors in fetching base archive in show model
           and(
             'parent.baseArchiveProxy.isCustomOnedataError',
             equal(

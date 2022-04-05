@@ -38,7 +38,6 @@ import recallInfoModal from './components/recall-info-modal';
 import archiveContentCount from './components/archive-content-count';
 import archiveState from './components/archive-state';
 import archiveSettingsModal from './components/archive-settings-modal';
-import archiveForm from './components/archive-form';
 
 import uploadManager from './services/upload-manager';
 
@@ -94,7 +93,6 @@ const translations = {
     archiveContentCount,
     archiveState,
     archiveSettingsModal,
-    archiveForm,
   },
   services: {
     uploadManager,
