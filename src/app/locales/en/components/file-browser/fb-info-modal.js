@@ -9,7 +9,6 @@ export default {
   modificationTime: 'Modified at',
   owner: 'Owner',
   size: 'Size',
-  api: 'Public API',
   guiUrl: '{{type}} URL',
   apiCommandTipIntro: {
     rest: 'The Onezone\'s public REST API can be used to access information and contents of all shared files and directories, without any authentication. It redirects to the corresponding REST API in one of the supporting Oneproviders. The Oneprovider is chosen dynamically and may change in time, so the redirection URL should not be cached.',
@@ -18,42 +17,6 @@ export default {
   apiCommandTipLinkName: {
     rest: 'REST API',
     xrootd: 'XRootD',
-  },
-  apiCommandTipSpecificIntro: {
-    rest: 'This endpoint returns {{typeDescription}}.',
-    xrootd: 'This shell command {{typeDescription}}.',
-  },
-  apiCommandTipSpecificType: {
-    rest: {
-      listSharedDirectoryChildren: 'the list of directory files and subdirectories',
-      downloadSharedFileContent: 'the binary file content',
-      downloadSharedDirectoryContent: 'a TAR archive with directory contents',
-      getSharedFileAttributes: 'basic attributes of a file or directory',
-      getSharedFileJsonMetadata: 'custom JSON metadata associated with a file or directory',
-      getSharedFileRdfMetadata: 'custom RDF metadata associated with a file or directory',
-      getSharedFileExtendedAttributes: 'custom extended attributes (xattrs) associated with a file or directory',
-    },
-    xrootd: {
-      listSharedDirectoryChildren: 'returns the list of directory files and subdirectories',
-      downloadSharedFileContent: 'downloads the file',
-      downloadSharedDirectoryContent: 'downloads the directory recursively',
-    },
-  },
-  apiCommandTitle: {
-    rest: {
-      listSharedDirectoryChildren: 'List directory files and subdirectories',
-      downloadSharedFileContent: 'Download file content',
-      downloadSharedDirectoryContent: 'Download directory (tar)',
-      getSharedFileAttributes: 'Get attributes',
-      getSharedFileJsonMetadata: 'Get JSON metadata',
-      getSharedFileRdfMetadata: 'Get RDF metadata',
-      getSharedFileExtendedAttributes: 'Get extended attributes (xattrs)',
-    },
-    xrootd: {
-      listSharedDirectoryChildren: 'List directory files and subdirectories',
-      downloadSharedFileContent: 'Download file',
-      downloadSharedDirectoryContent: 'Download directory (recursively)',
-    },
   },
   fileType: {
     file: 'file',

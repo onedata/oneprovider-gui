@@ -17,7 +17,7 @@ export default ApiStringGenerator.extend({
    */
   apiType: 'xrootd',
 
-  hasXrootdTemplates: bool('onedataConnection.apiTemplates.xrootd'),
+  hasXrootdTemplates: bool(true),
 
   isAvailableFor({ share }) {
     return this.get('hasXrootdTemplates') && get(share, 'hasHandle');

@@ -14,14 +14,12 @@ import pupa from 'npm:pupa';
 import shellEscape from 'npm:shell-escape';
 
 export default Service.extend({
-  onedataConnection: service(),
-
   /**
    * - Keys: template names equal to name of corresponding REST method.
    * - Values: templates parseable with `pupa` library.
    * @type {ComputedProperty<Object>}
    */
-  apiTemplates: reads('onedataConnection.apiTemplates'),
+  apiTemplates: reads(''),
 
   /**
    * Type of API from `apiTemplates`, eg. rest, xrootd

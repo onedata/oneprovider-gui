@@ -12,7 +12,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { reads } from '@ember/object/computed';
-import { conditional, equal, promise, raw, array, tag, or, gt } from 'ember-awesome-macros';
+import { promise, raw, or, gt } from 'ember-awesome-macros';
 import { computed, get, getProperties } from '@ember/object';
 import resolveFilePath, { stringifyFilePath } from 'oneprovider-gui/utils/resolve-file-path';
 import { inject as service } from '@ember/service';
@@ -24,9 +24,7 @@ import _ from 'lodash';
 
 export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
-  xrootdApiGenerator: service(),
   fileManager: service(),
-  shareManager: service(),
   errorExtractor: service(),
 
   open: false,
@@ -141,19 +139,6 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
   fileGuiUrl: reads('fileGuiUrlProxy.content'),
 
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isXrootdApiAvailable: computed('share.hasHandle', function isXrootdApiAvailable() {
-    const {
-      share,
-      xrootdApiGenerator,
-    } = this.getProperties('share', 'xrootdApiGenerator');
-    if (share) {
-      return xrootdApiGenerator.isAvailableFor({ share });
-    }
-  }),
-
   symlinkTargetPath: computed(
     'file.{type,targetPath}',
     'space.{entityId,name}',
@@ -248,19 +233,6 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   cdmiRowId: computed('elementId', function cdmiRowId() {
     return this.get('elementId') + '-row-cdmi';
   }),
-
-  /**
-   * @type {ComputedProperty<Array<String>>}
-   */
-  availableXrootdCommandIds: conditional(
-    'isXrootdApiAvailable',
-    conditional(
-      equal('itemType', raw('dir')),
-      raw(['listSharedDirectoryChildren', 'downloadSharedDirectoryContent']),
-      raw(['downloadSharedFileContent']),
-    ),
-    raw([]),
-  ),
 
   init() {
     this._super(...arguments);

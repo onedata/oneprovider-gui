@@ -56,14 +56,26 @@ export default Component.extend(I18n, {
     'apiSamples',
     function availableApiCommands() {
       const apiSamples = this.get('apiSamples');
-      const apiRoot = apiSamples.rest.apiRoot;
-      const restSamples = apiSamples.rest.samples
-        .map(sample => {
-          sample.type = 'rest';
-          sample.apiRoot = apiRoot;
-          return sample;
-        });
-      return restSamples;
+      let availableApiSamples = [];
+      for (const [key, value] of Object.entries(apiSamples)) {
+        if ('samples' in value) {
+          availableApiSamples = availableApiSamples.concat(value.samples
+            .map(sample => {
+              sample.type = key;
+              if ('apiRoot' in value) {
+                sample.apiRoot = value.apiRoot;
+              }
+              return sample;
+            }));
+        } else {
+          availableApiSamples = availableApiSamples.concat(value
+            .map(sample => {
+              sample.type = key;
+              return sample;
+            }));
+        }
+      }
+      return availableApiSamples;
     }
   ),
 
@@ -104,9 +116,14 @@ export default Component.extend(I18n, {
       } = this.getProperties(
         'effSelectedApiCommand',
       );
-      const method = get(effSelectedApiCommand, 'method');
-      const path = get(effSelectedApiCommand, 'apiRoot') + get(effSelectedApiCommand, 'path');
-      return `curl -X ${method} ${path}`;
+      const type = get(effSelectedApiCommand, 'type');
+      if (type === 'rest') {
+        const method = get(effSelectedApiCommand, 'method');
+        const path = get(effSelectedApiCommand, 'apiRoot') + get(effSelectedApiCommand, 'path');
+        return `curl -X ${method} ${path}`;
+      } else {
+        return get(effSelectedApiCommand, 'command');
+      }
     }
   ),
 

@@ -24,31 +24,6 @@ export default ApiStringGenerator.extend({
     return this.fillTemplate('listSharedDirectoryChildren', { id: cdmiObjectId });
   },
 
-  downloadSharedFileContent({ cdmiObjectId }) {
-    return this.fillTemplate('downloadSharedFileContent', { id: cdmiObjectId });
-  },
-
-  downloadSharedDirectoryContent({ cdmiObjectId }) {
-    // Using the same template as in `downloadSharedFileContent`
-    return this.fillTemplate('downloadSharedFileContent', { id: cdmiObjectId });
-  },
-
-  getSharedFileAttributes({ cdmiObjectId }) {
-    return this.fillTemplate('getSharedFileAttributes', { id: cdmiObjectId });
-  },
-
-  getSharedFileJsonMetadata({ cdmiObjectId }) {
-    return this.fillTemplate('getSharedFileJsonMetadata', { id: cdmiObjectId });
-  },
-
-  getSharedFileRdfMetadata({ cdmiObjectId }) {
-    return this.fillTemplate('getSharedFileRdfMetadata', { id: cdmiObjectId });
-  },
-
-  getSharedFileExtendedAttributes({ cdmiObjectId }) {
-    return this.fillTemplate('getSharedFileExtendedAttributes', { id: cdmiObjectId });
-  },
-
   curlize(url, curlOptions) {
     return `curl${curlOptions? ' ' + curlOptions : ''} ${url}`;
   },
