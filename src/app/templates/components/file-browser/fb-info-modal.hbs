@@ -194,9 +194,8 @@
       {{/promise-proxy-container}}
     {{else if (eq activeTab "apiSamples")}}
       {{#if (and showApiSection (not-eq itemType "symlink"))}}
-        {{file-browser/fb-info-modal/api-samples-entry
+        {{content-api-samples
           file=file
-          share=share
         }}
       {{/if}}
     {{/if}}
