@@ -38,8 +38,9 @@ export default {
   },
   apiEntry: {
     operation: 'Operation',
-    command: 'Command',
+    type: 'Type',
     description: 'Description',
+    command: 'Command example',
     apiType: {
       rest: 'REST',
       xrootd: 'XRootD',
