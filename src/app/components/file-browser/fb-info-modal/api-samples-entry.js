@@ -15,7 +15,8 @@ import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
   classNames: ['api-entry'],
-  shareManager: service(),
+  fileManager: service(),
+  apiStringGenerator: service(),
 
   /**
    * @override
@@ -38,7 +39,7 @@ export default Component.extend(I18n, {
 
   apiSamplesProxy: promise.object(computed(function apiSamples() {
     const fileId = this.get('file.entityId');
-    return this.get('shareManager').getApiSamples(fileId);
+    return this.get('fileManager').getFileApiSamples(fileId, 'public');
   })),
 
   apiSamples: reads('apiSamplesProxy.content'),
@@ -101,6 +102,7 @@ export default Component.extend(I18n, {
     'availableRestUrlCommands.firstObject',
   ),
   // TODO czy to potrzebne?
+  description: reads('effSelectedApiCommand.description'),
 
   /**
    * @type {ComputedProperty<String>}
@@ -117,12 +119,19 @@ export default Component.extend(I18n, {
         'effSelectedApiCommand',
       );
       const type = get(effSelectedApiCommand, 'type');
+      const apiStringGenerator = this.get('apiStringGenerator');
       if (type === 'rest') {
         const method = get(effSelectedApiCommand, 'method');
         const path = get(effSelectedApiCommand, 'apiRoot') + get(effSelectedApiCommand, 'path');
-        return `curl -X ${method} ${path}`;
+        const redirect = get(effSelectedApiCommand, 'followRedirects') ? '-L' : '';
+        return apiStringGenerator.fillTemplate(['curl', '{redirect}', '-X', '{method}', '{path}'], {
+          method,
+          path,
+          redirect,
+        });
       } else {
-        return get(effSelectedApiCommand, 'command');
+        const command = get(effSelectedApiCommand, 'command');
+        return apiStringGenerator.fillTemplate(command, {});
       }
     }
   ),

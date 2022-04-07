@@ -18,10 +18,6 @@ export default OnedataConnection.extend({
    */
   attributes: Object.freeze({
     transfersHistoryLimitPerFile: 100,
-    apiTemplates: Object.freeze({
-      rest: generateRestApiTemplates(),
-      xrootd: generateXrootdApiTemplates(),
-    }),
     openfaasAvailable: true,
     bagitUploaderWorkflowSchemaId: null,
     qosTransferStatsConfig: {

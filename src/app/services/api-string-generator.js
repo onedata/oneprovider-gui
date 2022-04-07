@@ -29,16 +29,11 @@ export default Service.extend({
   apiType: undefined,
 
   fillTemplate(templateName, templateParams) {
-    const {
-      apiTemplates,
-      apiType,
-    } = this.getProperties('apiTemplates', 'apiType');
-    const template = get(apiTemplates, `${apiType}.${templateName}`);
-    if (template) {
-      if (typeof template === 'string') {
-        return pupa(template, templateParams);
-      } else if (Array.isArray(template)) {
-        return shellEscape(template.map(arg => pupa(arg, templateParams)));
+    if (templateName) {
+      if (typeof templateName === 'string') {
+        return pupa(templateName, templateParams);
+      } else if (Array.isArray(templateName)) {
+        return shellEscape(templateName.map(arg => pupa(arg, templateParams)));
       } else {
         return '';
       }

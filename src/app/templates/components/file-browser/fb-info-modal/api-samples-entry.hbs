@@ -33,6 +33,47 @@
                 </span>
               </span>
             {{/one-dropdown}}
+            <div
+              class="inline-icon-container api-command-type-info-trigger-container"
+              {{action (mut apiCommandTypeInfoOpened) (not apiCommandTypeInfoOpened)}}
+            >
+              {{one-icon
+                id=apiCommandInfoTriggerId
+                icon="browser-info"
+                class="api-command-type-info-trigger hint-trigger"
+              }}
+            </div>
+            {{#one-webui-popover
+              popoverStyle="api-command-type-info over-modals"
+              padding=true
+              open=apiCommandTypeInfoOpened
+              triggerSelector=(concat "#" apiCommandInfoTriggerId)
+              as |popover|
+            }}
+              {{#click-outside
+                action=(action (mut apiCommandTypeInfoOpened) false)
+                except-selector=".api-command-type-info-trigger, .webui-popover-api-command-type-info"
+              }}
+                <p class="api-command-tip-intro">
+                  {{tt this
+                    (concat "apiCommandTipIntro." effSelectedApiCommand.type)
+                  }}
+                  {{one-doc-see-more
+                    linkName=(tt this
+                      (concat "apiCommandTipLinkName." effSelectedApiCommand.type)
+                    )
+                    href=(if (eq effSelectedApiCommand.type "xrootd")
+                      "https://xrootd.slac.stanford.edu/"
+                      (one-api-doc-url
+                        product="onezone"
+                        version="latest"
+                        anchor="operation/get_shared_data"
+                      )
+                    )
+                  }}
+                </p>
+              {{/click-outside}}
+            {{/one-webui-popover}}
             <span class="labels-container hidden-xs">
               <span
                 class="label label-info api-tag-label {{effSelectedApiCommand.type}}-api-tag-label"
@@ -56,6 +97,14 @@
               class="monospace-font compact"
             }}
           </div>
+        </td>
+      </tr>
+      <tr class="file-info-row-api-command">
+        <td class="property-name with-input">
+          {{tt this "description"}}
+        </td>
+        <td class="property-value description-value">
+          {{description}}
         </td>
       </tr>
     {{/promise-proxy-container}}
