@@ -15,7 +15,7 @@ import $ from 'jquery';
  * @param {MouseEvent} event
  * @param {object} chart Chartist object
  * @param {Array<number>} _pointsColumnXPos Array of columns positions
- * @return {number} positive index if column has been found, -1 otherwise
+ * @returns {number} positive index if column has been found, -1 otherwise
  */
 export default function identifyHoveredValuesColumn(event, chart, _pointsColumnXPos) {
   const chartContainer = $(chart.container);

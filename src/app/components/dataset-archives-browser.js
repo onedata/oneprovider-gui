@@ -569,7 +569,7 @@ export default Component.extend(...mixins, {
   /**
    * Should be used as file-browser `getItemById` only in files mode.
    * @param {String} fileId
-   * @return {Promise<Models.File|Object>}
+   * @returns {Promise<Models.File|Object>}
    */
   async getFileById(fileId) {
     const fileManager = this.get('fileManager');
