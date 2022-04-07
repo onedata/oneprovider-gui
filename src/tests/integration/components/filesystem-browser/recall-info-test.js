@@ -7,7 +7,7 @@ import {
   createArchiveRecallData,
   getBrowsableArchiveName,
   getBrowsableDatasetName,
-} from '../../../helpers/archive-recall';
+} from '../../../helpers/datasets-archives';
 import { lookupService } from '../../../helpers/stub-service';
 import sinon from 'sinon';
 
