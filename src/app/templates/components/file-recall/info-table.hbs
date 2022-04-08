@@ -1,0 +1,237 @@
+<tbody>
+  <tr class={{concat-classes
+    "recall-info-row-process-status"
+    processStatusTextClass
+  }}>
+    <td class="property-name">
+      {{tt this "processStatus"}}
+    </td>
+    <td class="property-value">
+      {{processStatusText}}
+    </td>
+  </tr>
+  <tr class="recall-info-row-archive">
+    <td class="property-name">
+      {{tt this "archive"}}
+    </td>
+    <td class="property-value">
+      {{#if archive}}
+        <a
+          class="archive-link navy underlined"
+          href={{archiveUrl}}
+          target={{navigateTarget}}
+        >{{archiveName}}</a>
+      {{else}}
+        {{#if archiveId}}
+          <code class="archive-id">{{archiveId}}</code>
+        {{else}}
+          <em>{{tt this "couldNotLoad"}}</em>
+        {{/if}}
+      {{/if}}
+    </td>
+  </tr>
+  <tr class="recall-info-row-dataset">
+    <td class="property-name">
+      {{tt this "dataset"}}
+    </td>
+    <td class="property-value">
+      {{#if dataset}}
+        <a
+          class="dataset-link navy underlined"
+          href={{datasetUrl}}
+          target={{navigateTarget}}
+        >{{datasetName}}</a>
+      {{else}}
+        {{#if datasetId}}
+          <code class="dataset-id">{{datasetId}}</code>
+        {{else}}
+          <em>{{tt this "couldNotLoad"}}</em>
+        {{/if}}
+      {{/if}}
+    </td>
+  </tr>
+  <tr class="recall-info-row-recalling-provider">
+    <td class="property-name">
+      {{tt this "recallingProvider"}}
+      {{one-label-tip title=(tt this "labelTips.recallingProvider")}}
+    </td>
+    <td class="property-value">
+      {{#if recallingProviderInfo.name}}
+        {{#if recallingProviderInfo.isLocal}}
+          <span class="recalling-provider-name">{{recallingProviderInfo.name}}</span>
+          <span class="text-disabled">({{tt this "currentOneprovider"}})</span>
+        {{else}}
+          <a
+            class="recalling-provider-name recalling-provider-link navy underlined"
+            href={{recallingProviderInfo.href}}
+            target={{navigateTarget}}
+          >{{recallingProviderInfo.name}}</a>
+        {{/if}}
+      {{else}}
+        <em>{{tt this "couldNotLoad"}}</em>
+      {{/if}}
+    </td>
+  </tr>
+  <tr class="recall-info-row-target-path">
+    <td class="property-name">
+      {{tt this "targetPath"}}
+      {{one-label-tip title=(tt this
+        "labelTips.targetPath"
+        fileType=(tt this (concat "fileType." recallRootFile.type))
+      )}}
+    </td>
+    <td class="property-value">
+      {{#if recallRootFile}}
+        {{file-path file=recallRootFile click=(action "targetFileLinkClicked")}}
+      {{else}}
+        <em>{{tt this "couldNotLoad"}}</em>
+      {{/if}}
+    </td>
+  </tr>
+  {{#if (eq recallRootFile.type "dir")}}
+    <tr class="recall-info-row-relative-path">
+      <td class={{concat-classes
+        "property-name"
+        (if renderRelativePathInput "with-input-sm")
+      }}>
+        {{tt this "relativePath"}}
+        {{one-label-tip title=(tt this
+          "labelTips.relativePath"
+          fileType=(tt this (concat "fileType." recallRootFile.type))
+        )}}
+      </td>
+      <td class="property-value">
+        {{#if renderRelativePathInput}}
+          {{clipboard-line
+            value=relativePath
+            size="sm"
+          }}
+        {{else if fileIsRecallRoot}}
+          <em>{{tt this "rootDirectory"}}</em>
+        {{else if (not relativePath)}}
+          <em>{{tt this "couldNotLoad"}}</em>
+        {{/if}}
+      </td>
+    </tr>
+  {{/if}}
+  <tr class="recall-info-row-started-at">
+    <td class="property-name">
+      {{tt this "startedAt"}}
+    </td>
+    <td class="property-value">
+      {{date-format startedAt format="report" blank="—"}}
+    </td>
+  </tr>
+  {{#if cancelledAt}}
+    <tr class="recall-info-row-cancelled-at text-warning">
+      <td class="property-name">
+        {{tt this "cancelledAt"}}
+      </td>
+      <td class="property-value">
+        {{date-format cancelledAt format="report" blank="—"}}
+      </td>
+    </tr>
+  {{/if}}
+  {{#if finishedAt}}
+    <tr class="recall-info-row-finished-at">
+      <td class="property-name">
+        {{tt this "finishedAt"}}
+      </td>
+      <td class="property-value">
+        {{date-format finishedAt format="report" blank="—"}}
+      </td>
+    </tr>
+  {{/if}}
+
+  <tr class={{concat-classes
+    "recall-info-row-files"
+    (if stateNotAvailable "text-disabled")
+  }}>
+    <td class="property-name">
+      {{tt this "filesRecalled"}}
+    </td>
+    <td class="property-value">
+      <div class="progress-counter">
+        {{#if stateNotAvailable}}
+          {{one-label-tip
+            class="state-not-available-tip"
+            title=(tt this "statisticNotAvailableTip")
+          }}
+        {{else}}
+          <span class="files-recalled-value">{{filesRecalled}}</span>
+        {{/if}}
+        <span class="counter-divider">/</span>
+        <span class="files-to-recall-value">{{filesToRecall}}</span>
+      </div>
+    </td>
+  </tr>
+  <tr class={{concat-classes
+    "recall-info-row-bytes"
+    (if stateNotAvailable "text-disabled")
+  }}>
+    <td class="property-name">
+      {{tt this "dataRecalled"}}
+    </td>
+    <td class="property-value">
+      <div class="progress-counter">
+        {{#if stateNotAvailable}}
+          {{one-label-tip
+            class="state-not-available-tip"
+            title=(tt this "statisticNotAvailableTip")
+          }}
+        {{else}}
+          <span class="bytes-recalled-value">{{bytesRecalledText}}</span>
+        {{/if}}
+        <span class="counter-divider">/</span>
+        <span class="bytes-to-recall-value">{{bytesToRecallText}}</span>
+      </div>
+    </td>
+  </tr>
+
+  {{#if filesFailed}}
+    <tr class="recall-info-row-files-failed">
+      <td class="property-name text-danger">
+        {{tt this "filesFailed"}}
+        {{one-label-tip title=(tt this "labelTips.filesFailed")}}
+      </td>
+      <td class="property-value text-danger">
+        {{filesFailed}}
+      </td>
+    </tr>
+  {{/if}}
+  {{#if lastError}}
+    <tr class="recall-info-row-last-error">
+      <td class={{concat-classes
+        "property-name"
+        "text-danger"
+        (if showErrorTextarea "with-input-sm")
+      }}>
+        {{tt this "lastError"}}
+      </td>
+      <td class="property-value">
+        {{#if showErrorTextarea}}
+          <div class="input-group-clipboard-textarea has-error">
+            {{clipboard-line
+              value=lastErrorParsed.message
+              type="textarea"
+              textareaRows="8"
+              size="sm"
+              class="monospace-font compact"
+            }}
+          </div>
+        {{else}}
+          {{#if (eq lastErrorParsed.type "unknown")}}
+            <em class="error-string">
+              {{tt this "unknownError"}}
+            </em>
+          {{else}}
+            <span class="error-string text-danger">
+              {{lastErrorParsed.message}}
+            </span>
+          {{/if}}
+        {{/if}}
+      </td>
+    </tr>
+  {{/if}}
+  {{yield}}
+</tbody>

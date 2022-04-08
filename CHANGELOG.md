@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9023 Added support for archive recall cancelling and recall information on non-recalling providers
 * VFS-9138 Fixed glitch during info icon animation
 * VFS-9102 Archives support Service Pack 22.03
 * VFS-9034 Added support for new range data type and changed API of browsing automation stores

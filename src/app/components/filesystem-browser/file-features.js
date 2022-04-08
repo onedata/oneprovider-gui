@@ -18,6 +18,8 @@ import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insuffi
 import { inject as service } from '@ember/service';
 import { htmlSafe } from '@ember/string';
 import recallingPercentageProgress from 'oneprovider-gui/utils/recalling-percentage-progress';
+import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
 
 export const defaultFilesystemFeatures = Object.freeze([
   'effDatasetMembership',
@@ -72,6 +74,8 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Array<String>>}
    */
   features: reads('browserModel.fileFeatures'),
+
+  file: reads('item'),
 
   /**
    * @type {ComputedProperty<Object>}
@@ -171,11 +175,29 @@ export default Component.extend(I18n, {
     }
   }),
 
+  archiveRecallInfoProxy: computedRelationProxy(
+    'file',
+    'archiveRecallInfo'
+  ),
+
+  archiveRecallStateProxy: computedArchiveRecallStateProxy(
+    'archiveRecallInfoProxy',
+    'internalArchiveRecallStateProxy',
+  ),
+
+  /**
+   * @private
+   * @type {ComputedProperty<PromiseObject<Models.ArchiveRecallState>>}
+   */
+  internalArchiveRecallStateProxy: computedRelationProxy(
+    'file',
+    'archiveRecallState'
+  ),
+
   recallingPercent: computed(
-    'item.{recallingMembership,archiveRecallState.content.bytesCopied,archiveRecallInfo.content.totalByteSize}',
+    'file.{recallingMembership,archiveRecallState.bytesCopied,archiveRecallInfo.totalByteSize}',
     function recallingPercent() {
-      const item = this.get('item');
-      return recallingPercentageProgress(item);
+      return recallingPercentageProgress(this.get('file'));
     }
   ),
 
@@ -183,9 +205,19 @@ export default Component.extend(I18n, {
     'recallingPercent',
     function recallingProgressStyle() {
       const recallingPercent = this.get('recallingPercent');
-      return htmlSafe(`width: ${recallingPercent}%;`);
+      const widthPercent = recallingPercent === null ? 100 : recallingPercent;
+      return htmlSafe(`width: ${widthPercent}%;`);
     }
   ),
+
+  recallingLabelKey: computed('recallingPercent', function recallingLabelKey() {
+    const recallingPercent = this.get('recallingPercent');
+    if (typeof recallingPercent === 'number') {
+      return 'status.recalling';
+    } else {
+      return 'status.recallingUnknownPercent';
+    }
+  }),
 
   recallingMembershipObserver: observer(
     'item.recallingMembership',

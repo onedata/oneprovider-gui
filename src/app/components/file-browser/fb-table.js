@@ -845,10 +845,16 @@ export default Component.extend(I18n, {
           changeSelectedItems,
         } = this.getProperties('selectedItems', 'changeSelectedItems');
         const sourceArray = get(filesArray, 'sourceArray');
-        if (!isEmpty(selectedItems)) {
-          changeSelectedItems(selectedItems.filter(selectedFile =>
-            sourceArray.includes(selectedFile)
-          ));
+        const updatedSelectedItems = selectedItems.filter(selectedFile =>
+          sourceArray.includes(selectedFile)
+        );
+        if (
+          !isEmpty(selectedItems) &&
+          // refresh may result in loss of some previously selected item, so only check
+          // length - checking content of array is unnecessary
+          selectedItems.length != updatedSelectedItems.length
+        ) {
+          changeSelectedItems(updatedSelectedItems);
         }
 
         scheduleOnce('afterRender', () => {

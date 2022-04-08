@@ -17,13 +17,19 @@ import _ from 'lodash';
 // model name differs from aspect name to avoid "s" on end of model name
 export const aspect = 'archive_recall_progress';
 
+/**
+ * @typedef {Object} ArchiveRecallLastError
+ * @property {string} fileId
+ * @property {Object} reason
+ */
+
 export default Model.extend(GraphSingleModelMixin, {
   bytesCopied: attr('number'),
   filesCopied: attr('number'),
   filesFailed: attr('number'),
 
   /**
-   * @type {ComputedProperty<{ fileId: String, reason: Object }>}
+   * @type {ArchiveRecallLastError}
    */
   lastError: attr('object', { defaultValue: null }),
 
