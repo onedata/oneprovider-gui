@@ -474,7 +474,7 @@ export default Service.extend(I18n, {
   /**
    * Makes `dropElement` a target for drag-n-drop upload
    * @param {HTMLElement} dropElement
-   * @return {undefined}
+   * @returns {undefined}
    */
   assignUploadDrop(dropElement) {
     if (dropElement === this.get('dropElement')) {
@@ -505,7 +505,7 @@ export default Service.extend(I18n, {
   /**
    * Makes `browseElement` a target for browse upload
    * @param {HTMLElement} browseElement
-   * @return {undefined}
+   * @returns{undefined}
    */
   assignUploadBrowse(browseElement) {
     if (this.get('browseElement') === browseElement) {

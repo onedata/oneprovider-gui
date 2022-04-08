@@ -262,6 +262,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    *   If you want to stop opening dir in real browser, do not invoke this callback.
    *   The first argument if dir to be effectively opened - if you invoke the function
    *   without arguments it will open `dir` by default.
+   * @returns {Promise<void>}
    */
   async onChangeDir(dir, updateBrowserDir) {
     return await updateBrowserDir(dir);

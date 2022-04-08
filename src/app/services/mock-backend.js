@@ -1222,7 +1222,7 @@ export default Service.extend({
    * Should be launched manually and after it resolves,
    * `onedataGraph.clearChildrenCache()` should be launched.
    * @param {Number} count
-   * @return {Promise}
+   * @returns {Promise}
    */
   async addFrontFiles(count = 10) {
     const store = this.get('store');

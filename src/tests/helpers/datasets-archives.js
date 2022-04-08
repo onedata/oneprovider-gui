@@ -9,6 +9,8 @@ import { get, setProperties } from '@ember/object';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
+import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
+import { run } from '@ember/runloop';
 
 export async function createArchiveRecallData(testCase) {
   const store = lookupService(testCase, 'store');
@@ -89,13 +91,14 @@ export async function createArchiveRecallData(testCase) {
     totalByteSize,
     startTime: null,
     finishTime: null,
+    lastError: {},
   });
   const archiveRecallState = store.createRecord('archiveRecallState', {
     id: stateGri,
     bytesCopied: 0,
     filesCopied: 0,
     filesFailed: 0,
-    lastError: 0,
+    lastError: null,
   });
   setProperties(targetFile, {
     recallRootId: get(targetFile, 'entityId'),
@@ -236,4 +239,49 @@ export function createFileDatasetSummary({
       }
     },
   };
+}
+
+export function whenOnLocalProvider(testCase) {
+  const providerId = 'provider_id';
+  const store = lookupService(testCase, 'store');
+  const provider = store.createRecord('provider', {
+    id: gri({
+      entityType: providerEntityType,
+      entityId: providerId,
+      aspect: 'instance',
+    }),
+    name: 'Dummy provider',
+  });
+  const providerManager = lookupService(testCase, 'providerManager');
+  providerManager.getCurrentProviderId = () => get(provider, 'entityId');
+  run(() => {
+    testCase.set('archiveRecallInfo.recallingProvider', provider);
+  });
+}
+
+export function whenOnRemoteProvider(testCase) {
+  const store = lookupService(testCase, 'store');
+  const localProviderId = 'local_provider_id';
+  const localProvider = store.createRecord('provider', {
+    id: gri({
+      entityType: providerEntityType,
+      entityId: localProviderId,
+      aspect: 'instance',
+    }),
+    name: 'Local provider',
+  });
+  const recallingProviderId = 'recalling_provider_id';
+  const recallingProvider = store.createRecord('provider', {
+    id: gri({
+      entityType: providerEntityType,
+      entityId: recallingProviderId,
+      aspect: 'instance',
+    }),
+    name: 'Recalling provider',
+  });
+  const providerManager = lookupService(testCase, 'providerManager');
+  providerManager.getCurrentProviderId = () => get(localProvider, 'entityId');
+  run(() => {
+    testCase.set('archiveRecallInfo.recallingProvider', recallingProvider);
+  });
 }

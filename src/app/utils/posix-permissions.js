@@ -1,7 +1,7 @@
 /**
  * Posix permissions class, that allows to convert permissions between various
  * representations.
- * 
+ *
  * @module utils/posix-permissions
  * @author Michał Borzęcki
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -55,7 +55,7 @@ export default EmberObject.extend({
    * Sets permissions using given octal representation
    * @param {string} octal permissions representation
    *   (octal number in range 000-777)
-   * @return {undefined}
+   * @returns {undefined}
    */
   fromOctalRepresentation(octal) {
     const {
@@ -132,7 +132,7 @@ export const EntityPermissions = EmberObject.extend({
    * Sets permissions using given octal representation
    * @param {string} octal permissions representation (stringified number
    *   in range 0-7)
-   * @return {undefined}
+   * @returns {undefined}
    */
   fromOctalRepresentation(octal) {
     const octalNumber = Number.parseInt(octal);

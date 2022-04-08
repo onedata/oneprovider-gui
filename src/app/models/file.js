@@ -19,7 +19,7 @@ import { later, cancel } from '@ember/runloop';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { bool, array, promise } from 'ember-awesome-macros';
+import { bool, array, promise, or, eq, raw } from 'ember-awesome-macros';
 import { createConflictModelMixin } from 'onedata-gui-websocket-client/mixins/models/list-conflict-model';
 import { hasProtectionFlag } from 'oneprovider-gui/utils/dataset-tools';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
@@ -181,6 +181,11 @@ export const RuntimeProperties = Mixin.create({
    */
   recallingMembership: computedLastProxyContent('recallingMembershipProxy'),
 
+  isRecalling: or(
+    eq('recallingMembership', raw('direct')),
+    eq('recallingMembership', raw('ancestor')),
+  ),
+
   isRecalledProxy: promise.object(computed(
     'recallRootId',
     'archiveRecallInfo.finishTime',
@@ -300,7 +305,7 @@ export default Model.extend(
     effProtectionFlags: attr('array'),
 
     /**
-     * If file is a recalled archive root or ancestor of one, GUID of recalled archive
+     * If file is a recalled archive root or descendant of one, GUID of recalled archive
      * root. Null or empty otherwise.
      * @type {ComputedProperty<String>}
      */
