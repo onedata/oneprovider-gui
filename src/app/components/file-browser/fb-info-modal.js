@@ -123,6 +123,13 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
   fileName: reads('file.name'),
 
+  apiSamplesProxy: promise.object(computed(function apiSamples() {
+    const fileId = this.get('file.entityId');
+    return this.get('fileManager').getFileApiSamples(fileId, 'public');
+  })),
+
+  apiSamples: reads('apiSamplesProxy.content'),
+
   fileGuiUrlProxy: promise.object(computed('file.entityId', async function fileGuiUrl() {
     const {
       file,

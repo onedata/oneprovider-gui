@@ -188,7 +188,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     }
   );
 
-  it('does not show tabs when hardlinks count is 1', async function () {
+  it('does not show hardlink\'s tab when hardlinks count is 1', async function () {
     this.set('file', {
       type: 'file',
       hardlinksCount: 1,
@@ -197,7 +197,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(this.$('.nav-tabs')).to.not.exist;
+    expect(this.$('.nav-tabs')).to.not.contain('Hard links (1)');
   });
 
   it('shows hardlinks tab when hardlinks count is 2', async function () {

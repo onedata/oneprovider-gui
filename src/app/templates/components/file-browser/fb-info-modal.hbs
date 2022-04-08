@@ -193,11 +193,16 @@
         </ul>
       {{/promise-proxy-container}}
     {{else if (eq activeTab "apiSamples")}}
-      {{#if (and showApiSection (not-eq itemType "symlink"))}}
+      {{#promise-proxy-container 
+        proxy=apiSamplesProxy
+        sizeClass="xs"
+        centered=false
+        spinnerBlockClass="loading-api-command"
+      }}
         {{content-api-samples
-          file=file
+          apiSamples=apiSamples
         }}
-      {{/if}}
+      {{/promise-proxy-container}}
     {{/if}}
   {{/modal.body}}
 {{/one-modal}}
