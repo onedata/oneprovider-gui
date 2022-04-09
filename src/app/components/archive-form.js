@@ -7,9 +7,7 @@
  */
 
 import Component from '@ember/component';
-import { get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
@@ -57,42 +55,4 @@ export default Component.extend(I18n, {
   onChange: notImplementedIgnore,
 
   rootFieldGroup: reads('formModel.rootFieldGroup'),
-
-  /**
-   * @override
-   */
-  didInsertElement() {
-    this._super(...arguments);
-    if (this.get('options.focusDescription')) {
-      /** @type {HTMLElement} */
-      const descriptionField = this.get('element').querySelector('.description-field');
-      if (descriptionField) {
-        descriptionField.focus();
-      }
-    }
-  },
-
-  /**
-   * @override
-   */
-  willDestroyElement() {
-    this._super(...arguments);
-    this.get('formModel').destroy();
-  },
-
-  notifyAboutChange() {
-    safeExec(this, () => {
-      const {
-        rootFieldGroup,
-        onChange,
-      } = this.getProperties('rootFieldGroup', 'onChange');
-
-      const isValid = get(rootFieldGroup, 'isValid');
-
-      onChange({
-        formData: rootFieldGroup.dumpValue(),
-        isValid,
-      });
-    });
-  },
 });

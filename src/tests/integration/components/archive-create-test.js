@@ -13,13 +13,14 @@ describe('Integration | Component | archive create', function () {
   });
 
   beforeEach(async function () {
+    this.set('onClose', function () {});
     await createDataset(this);
   });
 
   it('renders "Create archive" text and dataset name in header', async function () {
     const name = await getBrowsableDatasetName(this);
 
-    await render(this);
+    await renderComponent(this);
 
     const header = find('.archive-create-header');
     expect(header).to.exist;
@@ -32,7 +33,7 @@ describe('Integration | Component | archive create', function () {
       viewArchives: false,
     });
 
-    await render(this);
+    await renderComponent(this);
 
     const alertElement = find('.no-archives-view-alert');
     expect(alertElement).to.exist;
@@ -46,14 +47,14 @@ describe('Integration | Component | archive create', function () {
       viewArchives: true,
     });
 
-    await render(this);
+    await renderComponent(this);
 
     const alertElement = find('.no-archives-view-alert');
     expect(alertElement).to.not.exist;
   });
 
   it('renders "Description" field with label and textarea', async function () {
-    await render(this);
+    await renderComponent(this);
 
     const field = find('.description-field');
     expect(field).to.exist;
@@ -62,7 +63,7 @@ describe('Integration | Component | archive create', function () {
   });
 
   it('renders "Layout" field with label and two radio options: "plain", "BagIt"', async function () {
-    await render(this);
+    await renderComponent(this);
 
     const field = find('.layout-field');
     expect(field).to.exist;
@@ -77,14 +78,13 @@ describe('Integration | Component | archive create', function () {
     const myDescription = 'my description';
     const onSubmit = sinon.spy();
     this.set('onSubmit', onSubmit);
-    await render(this);
+    await renderComponent(this);
 
-    fillIn('.description-field textarea', myDescription);
-    click('.option-bagit input');
-    click('.createNestedArchives-field .form-control');
-    click('.includeDip-field .form-control');
-    click('.followSymlinks-field .form-control');
-    await wait();
+    await fillIn('.description-field textarea', myDescription);
+    await click('.option-bagit input');
+    await click('.createNestedArchives-field .form-control');
+    await click('.includeDip-field .form-control');
+    await click('.followSymlinks-field .form-control');
     await click('.submit-archive-creation-btn');
 
     expect(onSubmit).to.have.been.calledOnce;
@@ -100,7 +100,7 @@ describe('Integration | Component | archive create', function () {
   });
 });
 
-async function render(testCase) {
+async function renderComponent(testCase) {
   if (!testCase.get('spacePrivileges')) {
     testCase.set('spacePrivileges', {
       viewArchives: true,

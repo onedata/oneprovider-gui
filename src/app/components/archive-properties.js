@@ -9,7 +9,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, getProperties } from '@ember/object';
+import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -17,7 +17,6 @@ import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignor
 import ArchiveFormEditModel from 'oneprovider-gui/utils/archive-form/edit-model';
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
 import { and, or } from 'ember-awesome-macros';
-import { guidFor } from '@ember/object/internals';
 
 export default Component.extend(I18n, {
   // do not use tag, because the layout is built by `modal` property
@@ -101,7 +100,7 @@ export default Component.extend(I18n, {
 
   isModified: or('options.focusDescription', 'formModel.isModified'),
 
-  formModel: computed('options.focusDescription', function formModel() {
+  formModel: computed(function formModel() {
     const {
       browsableArchive,
       isEditable,
@@ -110,7 +109,7 @@ export default Component.extend(I18n, {
       'isEditable',
     );
     const focusDescription = Boolean(this.get('options.focusDescription'));
-    const ModelClass = isEditable ? ArchiveFormEditModel : ArchiveFormViewModel;
+    let ModelClass = isEditable ? ArchiveFormEditModel : ArchiveFormViewModel;
     const modelOptions = {
       ownerSource: this,
       archive: browsableArchive,
@@ -118,14 +117,23 @@ export default Component.extend(I18n, {
     };
     if (isEditable) {
       modelOptions.onChange = this.formDataUpdate.bind(this);
-      modelOptions.disabled = reads('ownerSource.isSubmitting');
+      ModelClass = ModelClass.extend({
+        disabled: reads('ownerSource.isSubmitting'),
+      });
     }
     return ModelClass.create(modelOptions);
   }),
 
-  formId: computed(function formId() {
-    return `archive-form-${guidFor(this)}`;
-  }),
+  /**
+   * @override
+   */
+  willDestroyElement() {
+    this._super(...arguments);
+    const formModel = this.get('formModel');
+    if (formModel) {
+      formModel.destroy();
+    }
+  },
 
   async modifyArchive() {
     const {
@@ -152,21 +160,9 @@ export default Component.extend(I18n, {
 
   async generateArchiveModifyData(formData) {
     if (formData) {
-      const {
-        description,
-        preservedCallback,
-        purgedCallback,
-      } = getProperties(
-        formData,
-        'description',
-        'preservedCallback',
-        'purgedCallback'
-      );
-
+      const description = get(formData, 'description');
       return {
         description,
-        preservedCallback,
-        purgedCallback,
       };
     } else {
       console.warn(

@@ -57,16 +57,16 @@ export default Component.extend(I18n, {
    */
   options: undefined,
 
-  formId: computed(function formId() {
-    return `archive-form-${guidFor(this)}`;
+  modalId: computed(function modalId() {
+    return `archive-properties-modal-${guidFor(this)}`;
   }),
 
   onShown() {
     if (this.get('options.focusDescription')) {
-      const formId = this.get('formId');
+      const modalId = this.get('modalId');
       /** @type {HTMLElement} */
       const descriptionInput =
-        document.querySelector(`#${formId} .description-field .form-control`);
+        document.querySelector(`#${modalId} .description-field .form-control`);
       if (descriptionInput) {
         descriptionInput.focus();
         descriptionInput.select();

@@ -115,15 +115,29 @@ export default Component.extend(I18n, {
       dataset,
       options,
     } = this.getProperties('dataset', 'options');
-    return ArchiveFormCreateModel.create({
-      ownerSource: this,
-      container: this,
-      dataset,
-      options,
-      disabled: reads('ownerSource.isSubmitting'),
-      onChange: this.formDataUpdate.bind(this),
-    });
+    return ArchiveFormCreateModel
+      .extend({
+        disabled: reads('ownerSource.isSubmitting'),
+      })
+      .create({
+        ownerSource: this,
+        container: this,
+        dataset,
+        options,
+        onChange: this.formDataUpdate.bind(this),
+      });
   }),
+
+  /**
+   * @override
+   */
+  willDestroyElement() {
+    this._super(...arguments);
+    const formModel = this.get('formModel');
+    if (formModel) {
+      formModel.destroy();
+    }
+  },
 
   async getBaseArchive() {
     const injectedBaseArchive = this.get('options.baseArchive');

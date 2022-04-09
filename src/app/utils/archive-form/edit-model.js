@@ -7,13 +7,10 @@
  */
 
 import { reads } from '@ember/object/computed';
-import { inject as service } from '@ember/service';
 import ArchiveFormViewModel from 'oneprovider-gui/utils/archive-form/view-model';
 import { get, computed } from '@ember/object';
 
 export default ArchiveFormViewModel.extend({
-  archiveManager: service(),
-
   /**
    * If set to true, if description is left the same as original from archive model,
    * modification flag will be resetted to false (not as in default forms behavior).

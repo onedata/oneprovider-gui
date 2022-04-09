@@ -24,7 +24,7 @@ describe('Integration | Component | archive settings', function () {
   it('renders "Archive properties" text and archive name in header', async function () {
     const name = await getBrowsableArchiveName(this);
 
-    await render(this);
+    await renderComponent(this);
 
     const header = find('.archive-properties-modal-header');
     expect(header).to.exist;
@@ -35,7 +35,7 @@ describe('Integration | Component | archive settings', function () {
   it('renders "Description" field with label and textarea in edit mode', async function () {
     whenInEditMode(this);
 
-    await render(this);
+    await renderComponent(this);
 
     const field = find('.description-field');
     expect(field).to.exist;
@@ -46,7 +46,7 @@ describe('Integration | Component | archive settings', function () {
   it('does not render callback fields in edit mode when not provided', async function () {
     whenInEditMode(this);
 
-    await render(this);
+    await renderComponent(this);
 
     const preservedField = find('.preservedCallback-field');
     const purgedField = find('.purgedCallback-field');
@@ -67,7 +67,7 @@ describe('Integration | Component | archive settings', function () {
       });
     });
 
-    await render(this);
+    await renderComponent(this);
 
     const preservedField = find('.preservedCallback-field');
     const purgedField = find('.purgedCallback-field');
@@ -82,7 +82,7 @@ describe('Integration | Component | archive settings', function () {
   });
 });
 
-async function render(testCase) {
+async function renderComponent(testCase) {
   if (!testCase.get('spacePrivileges')) {
     testCase.set('spacePrivileges', {
       viewArchives: true,

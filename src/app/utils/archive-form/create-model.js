@@ -21,6 +21,7 @@ export default ArchiveFormBaseModel.extend({
 
   /**
    * Injected options for archive creation.
+   * Note, that changing options in runtime will NOT cause form to recompute.
    * @virtual optional
    * @type {CreateArchiveOptions}
    */
@@ -58,7 +59,10 @@ export default ArchiveFormBaseModel.extend({
       });
   }),
 
-  configIncrementalField: computed('options', function configIncrementalField() {
+  /**
+   * @override
+   */
+  configIncrementalField: computed(function configIncrementalField() {
     const options = this.get('options');
     const baseArchive = options && options.baseArchive;
     const isBaseArchiveProvided = Boolean(baseArchive);
