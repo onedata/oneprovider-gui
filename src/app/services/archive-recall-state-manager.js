@@ -103,6 +103,18 @@ export default Service.extend({
   },
 
   /**
+   * @public
+   * @param {Models.File} file
+   * @returns {ArchiveRecallStateWatcher|null}
+   */
+  getWatcher(file) {
+    const recallRootId = get(file, 'recallRootId');
+    const watchersRegistry = this.get('watchersRegistry');
+    const entry = watchersRegistry.get(recallRootId);
+    return entry && entry.watcher || null;
+  },
+
+  /**
    * @private
    * @param {Models.File} file
    * @returns {ArchiveRecallStateWatcher}
