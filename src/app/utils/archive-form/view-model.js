@@ -144,7 +144,7 @@ export default ArchiveFormBaseModel.extend({
     return ClipboardField.create({
       name: 'archiveId',
       type: 'input',
-      clipboardLineClass: 'monospace-font',
+      fieldStyle: 'monospace',
     });
   }),
 
