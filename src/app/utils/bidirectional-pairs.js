@@ -15,7 +15,7 @@ import _ from 'lodash';
  * Order in connection is random; each pair can occur once.
  * @param {object} mapping object with fields:
  * sourceProviderId -> [destinationProviderId]
- * @return {Array<Array>} each array element has 2 elements, eg.
+ * @returns {Array<Array>} each array element has 2 elements, eg.
  *    `[['a', 'b'], ['c', 'a'], ['b', 'c']]`
  */
 export default function bidirectionalPairs(mapping) {
