@@ -51,8 +51,10 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   disabled: false,
 
   rootFormGroupClass: computed(function rootFormGroupClass() {
+    const formModel = this;
     return FormFieldsRootGroup
       .extend({
+        formModel,
         ownerSource: reads('formModel'),
         i18nPrefix: tag `${'formModel.i18nPrefix'}`,
         isEnabled: not('formModel.disabled'),
@@ -105,7 +107,6 @@ export default EmberObject.extend(OwnerInjector, I18n, {
         baseArchiveProxy: reads('formModel.baseArchiveProxy'),
       })
       .create({
-        formModel: this,
         name: 'baseArchiveGroup',
         fields: [
           baseArchiveLoadingField,

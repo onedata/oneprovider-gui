@@ -39,10 +39,7 @@ export default ArchiveFormBaseModel.extend({
    */
   configIncrementalField: computed(function configIncrementalField() {
     const configIncrementalFieldClass = this.get('configIncrementalFieldClass');
-    return configIncrementalFieldClass
-      .create({
-        formModel: this,
-      });
+    return configIncrementalFieldClass.create();
   }),
 
   /**
@@ -78,7 +75,6 @@ export default ArchiveFormBaseModel.extend({
 
     const fieldGroup = rootFormGroupClass
       .create({
-        formModel: this,
         fields: [
           archiveIdField,
           descriptionField,

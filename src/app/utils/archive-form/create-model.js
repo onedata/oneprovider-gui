@@ -51,7 +51,6 @@ export default ArchiveFormBaseModel.extend({
 
     return rootFormGroupClass
       .create({
-        formModel: this,
         fields: [
           descriptionField,
           configField,
@@ -78,7 +77,6 @@ export default ArchiveFormBaseModel.extend({
         },
       })
       .create({
-        formModel: this,
         defaultValue: isBaseArchiveProvided,
         isEnabled: !isBaseArchiveProvided,
       });
