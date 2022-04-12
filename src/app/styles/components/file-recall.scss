@@ -1,0 +1,33 @@
+.file-recall-modal-body {
+  .file-recall-info-table {
+    // complex selector to override defaults
+    &.table.table-info td.property-name {
+      width: 200px;
+    }
+    .text-disabled {
+      color: $main-text-color-disabled;
+    }
+    .progress-counter {
+      display: flex;
+      align-items: center;
+      .state-not-available-tip {
+        line-height: 1;
+      }
+      .counter-divider {
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+      }
+    }
+    td {
+      // although word-break: break word is deprecated, it is still not supported
+      // on Safari (as of 03.2022)
+      word-break: break-word;
+    }
+  }
+}
+
+// overriding default styles inside modal
+.modal.in .modal-dialog .modal-content .modal-footer.file-recall-modal-footer {
+  text-align: left;
+  margin-bottom: 0;
+}

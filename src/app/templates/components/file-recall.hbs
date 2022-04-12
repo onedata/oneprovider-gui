@@ -1,0 +1,64 @@
+{{#modal.header class="file-recall-part file-recall-modal-header"}}
+  <h1>{{tt this "header"}}</h1>
+  {{modal-file-subheader files=(array file)}}
+{{/modal.header}}
+{{#modal.body class="file-recall-part file-recall-modal-body"}}
+  {{#promise-proxy-container proxy=initialRequiredDataProxy}}
+    {{#unless archiveRecallState}}
+      <div class="alert alert-warning">
+        <p>
+          {{tt this "stateNotAvailableAlert.intro"}}
+        </p>
+        {{#if recallingProvider}}
+          <p>
+            {{tt this "stateNotAvailableAlert.providerInfoHead"}}
+            <a
+              class="navy underlined"
+              href={{recallingProviderHref}}
+              target={{navigateTarget}}
+            >{{recallingProviderName}}</a>
+            {{tt this "stateNotAvailableAlert.providerInfoTail"}}
+          </p>
+        {{/if}}
+      </div>
+    {{/unless}}
+    {{file-recall/info-table
+      file=file
+      recallRootFile=recallRootFile
+      processStatus=processStatus
+      recallingPercent=recallingPercent
+      archive=archive
+      archiveUrl=archiveUrl
+      dataset=dataset
+      datasetUrl=datasetUrl
+      archiveRecallInfo=archiveRecallInfo
+      archiveRecallState=archiveRecallState
+      relativePath=relativePath
+      lastError=lastError
+      recallingProviderInfo=recallingProviderInfo
+      onClose=onClose
+    }}
+    {{yield}}
+  {{/promise-proxy-container}}
+{{/modal.body}}
+{{#if showFooter}}
+  {{#modal.footer class="file-recall-part file-recall-modal-footer"}}
+    {{#one-button
+      class="cancel-recall-btn"
+      size="sm"
+      type="danger"
+      disabled=isCancelling
+      onClick=(action "cancelRecallClicked")
+    }}
+      {{tt this (if isCancelling "cancellingRecallBtn" "cancelRecall")}}
+    {{/one-button}}
+    {{#render-later triggerRender=cancelRecallOpened}}
+      {{file-recall/cancel-recall-modal
+        opened=cancelRecallOpened
+        file=file
+        onCancelInvoked=(action "cancelInvoked")
+        onClose=(action "closeCancelRecallModal")
+      }}
+    {{/render-later}}
+  {{/modal.footer}}
+{{/if}}

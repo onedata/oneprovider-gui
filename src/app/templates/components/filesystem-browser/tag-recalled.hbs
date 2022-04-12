@@ -6,9 +6,9 @@
     <div class={{concat-classes
       "file-status-tag"
       "file-status-recalled"
-      (if disabled "file-status-tag-disabled" (if errorOccurred "file-status-tag-danger"))
+      statusTagClass
     }}>
-      {{tt this (if errorOccurred "recallFailed" "recalled")}}
+      {{tt this labelKey}}
     </div>
     {{#if errorOccurred}}
       {{one-tooltip

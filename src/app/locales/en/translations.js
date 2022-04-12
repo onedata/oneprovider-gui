@@ -33,7 +33,7 @@ import itemsSelectBrowser from './components/items-select-browser';
 import datasetProtection from './components/dataset-protection';
 import filePath from './components/file-path';
 import archiveRecall from './components/archive-recall';
-import recallInfoModal from './components/recall-info-modal';
+import fileRecall from './components/file-recall';
 import archiveContentCount from './components/archive-content-count';
 import archiveState from './components/archive-state';
 import archiveCreateModal from './components/archive-create-modal';
@@ -85,7 +85,7 @@ const translations = {
     datasetProtection,
     filePath,
     archiveRecall,
-    recallInfoModal,
+    fileRecall,
     archiveContentCount,
     archiveState,
     archiveCreateModal,

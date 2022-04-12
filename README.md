@@ -33,42 +33,7 @@ To build a production release of GUI:
 make rel         # run natively (requires npm, ember)
 ./make.py rel    # run in docker (onedata/gui_builder) that has all deps
 ```
-<br />
 
-To package a built release into a static docker:
-
-```
-./sr-dockerbuild
-```
-<br />
-
-To package a built release into a static docker and
-push it to docker repo:
-
-```
-./sr-dockerbuild --push --remove
-```
-<br />
-
-To get more info on ****sr-dockerbuild.sh**** usage:
-
-```
-./sr-dockerbuild --help
-```
-<br />
-
-To start an ember build process that watches for changes and rebuilds:
-
-```
-./build_watch.sh
-```
-<br />
-
-To find all broken symbolic links (those that point to nothing):
-
-```
-./find_broken_links.sh
-```
 <br />
 
 Development

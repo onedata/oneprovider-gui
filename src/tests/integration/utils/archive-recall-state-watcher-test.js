@@ -4,7 +4,7 @@ import { setupComponentTest } from 'ember-mocha';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
 import { get } from '@ember/object';
 import sinon from 'sinon';
-import { createArchiveRecallData } from '../../helpers/archive-recall';
+import { createArchiveRecallData, whenOnLocalProvider, whenOnRemoteProvider } from '../../helpers/archive-recall';
 
 describe('Integration | Utility | archive recall state watcher', function () {
   setupComponentTest('test-component', {
@@ -16,6 +16,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
       now: Date.now(),
     });
     await createArchiveRecallData(this);
+    whenOnLocalProvider(this);
   });
 
   afterEach(function () {
@@ -227,6 +228,90 @@ describe('Integration | Utility | archive recall state watcher', function () {
       expect(reloadInfoSpy).to.have.been.calledOnce;
     }
   );
+
+  it('never tries to fetch state on remote provider', async function () {
+    whenOnRemoteProvider(this);
+    const interval = 1000;
+    this.watcher = createWatcher(this, { interval });
+    const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.finishTime', null);
+    this.set('archiveRecallState.bytesCopied', 0);
+    this.set('archiveRecallState.filesCopied', 0);
+
+    this.watcher.start();
+    this.clock.tick(1);
+
+    expect(reloadStateSpy).to.have.not.been.called;
+  });
+
+  it('polls both for state and info if recall is being cancelled but not not finished', async function () {
+    const interval = 1000;
+    this.watcher = createWatcher(this, { interval });
+    const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
+    const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
+    const stopSpy = sinon.spy(this.watcher, 'stop');
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.cancelTime', null);
+    this.set('archiveRecallInfo.finishTime', null);
+    this.set('archiveRecallState.bytesCopied', 0);
+    this.set('archiveRecallState.filesCopied', 0);
+
+    this.watcher.start();
+    this.clock.tick(1);
+    expect(reloadInfoSpy).to.have.callCount(0);
+    expect(reloadStateSpy).to.have.callCount(1);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.have.callCount(0);
+    expect(reloadStateSpy).to.have.callCount(2);
+    this.set('archiveRecallInfo.cancelTime', 2000);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.to.have.callCount(1);
+    expect(reloadStateSpy).to.have.callCount(3);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.to.have.callCount(2);
+    expect(reloadStateSpy).to.have.callCount(4);
+    this.set(
+      'archiveRecallState.filesCopied',
+      this.get('archiveRecallInfo.totalFileCount')
+    );
+    this.clock.tick(interval + 1);
+    expect(stopSpy).to.have.been.calledOnce;
+    expect(get(this.watcher, 'isPolling')).to.equal(false);
+    reloadInfoSpy.reset();
+    reloadStateSpy.reset();
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.have.not.been.called;
+    expect(reloadStateSpy).to.have.not.been.called;
+  });
+
+  it('polls only for info if recall is being cancelled but not not finished on remote provider', async function () {
+    whenOnRemoteProvider(this);
+    const interval = 1000;
+    this.watcher = createWatcher(this, { interval });
+    const reloadInfoSpy = sinon.spy(this.watcher, 'reloadInfo');
+    const reloadStateSpy = sinon.spy(this.watcher, 'reloadState');
+    this.set('archiveRecallInfo.startTime', 1000);
+    this.set('archiveRecallInfo.cancelTime', null);
+    this.set('archiveRecallInfo.finishTime', null);
+    this.set('archiveRecallState.bytesCopied', 0);
+    this.set('archiveRecallState.filesCopied', 0);
+
+    this.watcher.start();
+    this.clock.tick(1);
+    expect(reloadInfoSpy).to.have.callCount(1);
+    expect(reloadStateSpy).to.have.callCount(0);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.have.callCount(2);
+    expect(reloadStateSpy).to.have.callCount(0);
+    this.set('archiveRecallInfo.cancelTime', 2000);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.to.have.callCount(3);
+    expect(reloadStateSpy).to.have.callCount(0);
+    this.clock.tick(interval + 1);
+    expect(reloadInfoSpy).to.to.have.callCount(4);
+    expect(reloadStateSpy).to.have.callCount(0);
+  });
 });
 
 function createWatcher(testCase, options = {}) {
