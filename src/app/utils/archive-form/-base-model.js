@@ -16,8 +16,7 @@ import ToggleField from 'onedata-gui-common/utils/form-component/toggle-field';
 import StaticTextField from 'onedata-gui-common/utils/form-component/static-text-field';
 import SiblingLoadingField from 'onedata-gui-common/utils/form-component/sibling-loading-field';
 import FormFieldsRootGroup from 'onedata-gui-common/utils/form-component/form-fields-root-group';
-import { tag, not, or, raw, conditional, and, equal } from 'ember-awesome-macros';
-import computedT from 'onedata-gui-common/utils/computed-t';
+import { tag, not } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { scheduleOnce } from '@ember/runloop';
@@ -50,6 +49,12 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   disabled: false,
 
+  /**
+   * @virtual
+   * @type {string|SafeString}
+   */
+  baseArchiveTextProxy: undefined,
+
   rootFormGroupClass: computed(function rootFormGroupClass() {
     const formModel = this;
     return FormFieldsRootGroup
@@ -69,7 +74,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   baseArchiveGroup: computed(function baseArchiveGroup() {
     const baseArchiveLoadingField = SiblingLoadingField
       .extend({
-        loadingProxy: reads('parent.baseArchiveProxy'),
+        loadingProxy: reads('parent.baseArchiveTextProxy'),
       })
       .create({
         siblingName: 'baseArchiveInfo',
@@ -79,21 +84,9 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
     const baseArchiveInfoField = StaticTextField
       .extend({
-        isVisible: reads('parent.baseArchiveProxy.isFulfilled'),
-        value: conditional(
-          and(
-            'parent.baseArchiveProxy.isCustomOnedataError',
-            equal(
-              'parent.baseArchiveProxy.type',
-              raw('cannot-fetch-latest-archive')
-            ),
-          ),
-          computedT('latestArchive'),
-          or(
-            'parent.baseArchiveProxy.name',
-            raw('–'),
-          ),
-        ),
+        baseArchiveTextProxy: reads('parent.baseArchiveTextProxy'),
+        isVisible: reads('baseArchiveTextProxy.isFulfilled'),
+        value: reads('baseArchiveTextProxy.content'),
       })
       .create({
         name: 'baseArchiveInfo',
@@ -102,9 +95,10 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
     return FormFieldsGroup
       .extend({
+        formModel: reads('parent.formModel'),
         isIncremental: reads('parent.value.incremental'),
         isExpanded: reads('isIncremental'),
-        baseArchiveProxy: reads('formModel.baseArchiveProxy'),
+        baseArchiveTextProxy: reads('formModel.baseArchiveTextProxy'),
       })
       .create({
         name: 'baseArchiveGroup',
@@ -154,6 +148,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   configIncrementalFieldClass: computed(function configIncrementalFieldClass() {
     return ToggleField
       .extend({
+        formModel: reads('parent.formModel'),
         name: 'incremental',
         tooltipClass: 'tooltip-lg tooltip-text-left',
       });
@@ -191,11 +186,15 @@ export default EmberObject.extend(OwnerInjector, I18n, {
       configDipField,
       configSymlinksField,
     ];
-    return FormFieldsGroup.create({
-      name: 'config',
-      addColonToLabel: false,
-      fields: configFields,
-    });
+    return FormFieldsGroup
+      .extend({
+        formModel: reads('parent.formModel'),
+      })
+      .create({
+        name: 'config',
+        addColonToLabel: false,
+        fields: configFields,
+      });
   }),
 
   /**

@@ -13,6 +13,7 @@ import ClipboardField from 'onedata-gui-common/utils/form-component/clipboard-fi
 import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model';
 import _ from 'lodash';
 import { promise, bool } from 'ember-awesome-macros';
+import { htmlSafe } from '@ember/string';
 
 const CallbackFieldClass = ClipboardField
   .extend({
@@ -22,6 +23,7 @@ const CallbackFieldClass = ClipboardField
 
 export default ArchiveFormBaseModel.extend({
   archiveManager: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -106,6 +108,43 @@ export default ArchiveFormBaseModel.extend({
       archive.relationEntityId('baseArchive')
     );
   })),
+
+  /**
+   * @override
+   */
+  baseArchiveTextProxy: promise.object(computed(
+    'archive',
+    'baseArchiveProxy',
+
+    async function baseArchiveTextProxy() {
+      const {
+        archive,
+        baseArchiveProxy,
+      } = this.getProperties(
+        'archive',
+        'baseArchiveProxy',
+      );
+      const baseArchiveId = archive && archive.relationEntityId('baseArchive');
+      try {
+        const baseArchive = await baseArchiveProxy;
+        return get(baseArchive, 'name') || '–';
+      } catch (error) {
+        if (
+          error &&
+          error.id === 'notFound'
+        ) {
+          // HTML without new lines to avoid whitespaces
+          const htmlValue = `
+            <code class="base-archive-id-container"><strong>${this.t('baseArchiveId')}:</strong>&nbsp;<span class="base-archive-id">${baseArchiveId}</span></code>
+            <span class="text-muted base-archive-deleted">(${this.t('baseArchiveDeleted')})</span>
+          `;
+          return htmlSafe(htmlValue);
+        } else {
+          throw error;
+        }
+      }
+    }
+  )),
 
   valuesSource: computed('archive', function valuesSource() {
     const archive = this.get('archive');

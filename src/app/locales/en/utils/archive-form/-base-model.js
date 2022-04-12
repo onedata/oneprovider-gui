@@ -1,5 +1,8 @@
 import { createIncrementalArchive } from '../archive-browser-model';
 
+export const baseArchiveIntro =
+  'Base archive for the incremental archive that will be referenced in case of unchanged files.';
+
 export default {
   description: {
     label: 'Description',
@@ -29,7 +32,7 @@ export default {
       baseArchiveInfo: {
         label: 'Base archive',
         tip: `
-          <p>Base archive for the incremental archive that will be referenced in case of unchanged files.</p>
+          <p>${baseArchiveIntro}</p>
           <p>To select a different base archive, locate the desired one in archive browser and use the "${createIncrementalArchive}" action from the context menu.</p>
         `,
       },

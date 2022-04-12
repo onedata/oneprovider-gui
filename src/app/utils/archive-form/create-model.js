@@ -10,6 +10,7 @@ import { get, computed } from '@ember/object';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { inject as service } from '@ember/service';
 import ArchiveFormBaseModel from 'oneprovider-gui/utils/archive-form/-base-model';
+import { promise } from 'ember-awesome-macros';
 
 export default ArchiveFormBaseModel.extend({
   archiveManager: service(),
@@ -82,6 +83,29 @@ export default ArchiveFormBaseModel.extend({
       });
   }),
 
+  /**
+   * @override
+   */
+  baseArchiveTextProxy: promise.object(computed(
+    'baseArchiveProxy',
+    async function baseArchiveTextProxy() {
+      try {
+        const baseArchive = await this.get('baseArchiveProxy');
+        return baseArchive && get(baseArchive, 'name') || '–';
+      } catch (error) {
+        if (
+          error &&
+          error.isCustomOnedataError &&
+          error.type === 'cannot-fetch-latest-archive'
+        ) {
+          return this.t('latestArchive');
+        } else {
+          throw error;
+        }
+      }
+    }
+  )),
+
   init() {
     this._super(...arguments);
     if (this.get('options.baseArchive')) {
@@ -101,11 +125,10 @@ export default ArchiveFormBaseModel.extend({
       try {
         return await this.fetchLatestArchive();
       } catch (error) {
-        // always resolve this promise, but pass error to form
         console.debug(
           `getBaseArchive: error getting baseArchive: ${error}`
         );
-        return {
+        throw {
           isCustomOnedataError: true,
           type: 'cannot-fetch-latest-archive',
           reason: error,
