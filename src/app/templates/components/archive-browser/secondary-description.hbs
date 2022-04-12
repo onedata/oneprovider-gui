@@ -1,0 +1,18 @@
+{{#truncated-string
+  class=(concat-classes
+    "secondary-description"
+    class
+  )
+  tooltipClass="tooltip-lg tooltip-text-left"
+}}
+  {{#if archive.description}}
+    <span class="secondary-description-internal">
+      {{archive.description}}
+    </span>
+  {{else}}
+    <span class="secondary-description-internal no-description">
+      {{tt this "noDescription"}}
+    </span>
+  {{/if}}
+  {{yield}}
+{{/truncated-string}}

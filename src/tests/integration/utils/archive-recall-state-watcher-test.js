@@ -4,7 +4,11 @@ import { setupComponentTest } from 'ember-mocha';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
 import { get } from '@ember/object';
 import sinon from 'sinon';
-import { createArchiveRecallData, whenOnLocalProvider, whenOnRemoteProvider } from '../../helpers/archive-recall';
+import {
+  createArchiveRecallData,
+  whenOnLocalProvider,
+  whenOnRemoteProvider,
+} from '../../helpers/datasets-archives';
 
 describe('Integration | Utility | archive recall state watcher', function () {
   setupComponentTest('test-component', {

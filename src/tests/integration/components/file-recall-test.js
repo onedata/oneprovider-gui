@@ -8,7 +8,7 @@ import {
   getBrowsableArchiveName,
   getBrowsableDatasetName,
   whenOnLocalProvider,
-} from '../../helpers/archive-recall';
+} from '../../helpers/datasets-archives';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import { click, find } from 'ember-native-dom-helpers';

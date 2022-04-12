@@ -125,7 +125,7 @@
 
     .file-info-mobile-inner {
       flex-grow: 1;
-      color: $color-one-light-gray;
+      opacity: $disabled-opacity;
     }
     .file-info-mobile-inner + .file-info-mobile-inner {
       padding-left: 1em;

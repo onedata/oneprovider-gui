@@ -156,6 +156,35 @@ describe('Integration | Component | archive browser', function () {
     expect(openRecallModal).to.have.been.calledOnce;
     expect(openRecallModal).to.have.been.calledWith(mockArray.array[0]);
   });
+
+  it('has "settings" action for archive item that invokes settings modal on click', async function () {
+    const itemsCount = 1;
+    const mockArray = mockItems({
+      testCase: this,
+      itemsCount,
+    });
+    const archive = mockArray.array[0];
+    const firstArchiveName = mockArray.array[0].name;
+    const openArchivePropertiesModal = sinon.spy();
+    this.set('openArchivePropertiesModal', openArchivePropertiesModal);
+    this.set('spacePrivileges', {
+      viewArchives: true,
+      manageDatasets: true,
+      createArchives: true,
+    });
+
+    await render(this);
+
+    const actions = (await openItemContextMenu({ name: firstArchiveName }))[0];
+    const action = actions.querySelector('.file-action-archiveProperties');
+    expect(
+      action,
+      'archive settings item'
+    ).to.exist;
+    await click(action);
+    expect(openArchivePropertiesModal).to.have.been.calledOnce;
+    expect(openArchivePropertiesModal).to.have.been.calledWith(archive);
+  });
 });
 
 function render(testCase) {
@@ -163,10 +192,12 @@ function render(testCase) {
     refreshInterval,
     openCreateArchiveModal,
     openRecallModal,
+    openArchivePropertiesModal,
   } = testCase.getProperties(
     'refreshInterval',
     'openCreateArchiveModal',
-    'openRecallModal'
+    'openRecallModal',
+    'openArchivePropertiesModal',
   );
   const defaultDataset = {
     name: 'Default dataset',
@@ -197,6 +228,8 @@ function render(testCase) {
       notStubbed('openCreateArchiveModal'),
     openRecallModal: openRecallModal ||
       notStubbed('openRecallModal'),
+    openArchivePropertiesModal: openArchivePropertiesModal ||
+      notStubbed('openArchivePropertiesModal'),
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.render(hbs `<div id="content-scroll">{{file-browser
