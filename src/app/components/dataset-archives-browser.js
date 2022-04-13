@@ -178,6 +178,16 @@ export default Component.extend(...mixins, {
   createArchiveOptions: undefined,
 
   /**
+   * @type {Utils.BrowsableArchive}
+   */
+  archiveToShowSettings: null,
+
+  /**
+   * @type {ArchiveFormOptions}
+   */
+  archivePropertiesOptions: null,
+
+  /**
    * @type {Models.File}
    */
   fileToShowInfo: null,
@@ -224,6 +234,11 @@ export default Component.extend(...mixins, {
    * @type {Utils.BrowsableArchive}
    */
   archivesToPurge: null,
+
+  /**
+   * @type {Utils.BrowsableArchive}
+   */
+  archivesToShowSettings: null,
 
   //#endregion action modals state
 
@@ -590,6 +605,7 @@ export default Component.extend(...mixins, {
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
       openPurgeModal: this.openArchivesPurgeModal.bind(this),
       openRecallModal: this.openArchiveRecallModal.bind(this),
+      openArchivePropertiesModal: this.openArchivePropertiesModal.bind(this),
       browseArchiveDip: this.browseArchiveDip.bind(this),
     }, options));
   },
@@ -641,6 +657,20 @@ export default Component.extend(...mixins, {
     this.setProperties({
       createArchiveOpened: false,
       createArchiveOptions: null,
+    });
+  },
+
+  openArchivePropertiesModal(archive, options) {
+    this.setProperties({
+      archiveToShowSettings: archive,
+      archivePropertiesOptions: options,
+    });
+  },
+
+  closeArchivePropertiesModal() {
+    this.setProperties({
+      archiveToShowSettings: null,
+      archivePropertiesOptions: null,
     });
   },
 

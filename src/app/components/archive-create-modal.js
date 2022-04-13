@@ -10,9 +10,6 @@
 import Component from '@ember/component';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
-import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
-import { not } from 'ember-awesome-macros';
-import { computed } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
@@ -72,13 +69,6 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   onArchiveCreate: notImplementedReject,
-
-  noViewArchivesPrivilege: not('space.privileges.viewArchives'),
-
-  viewPrivilegeExpression: computed(function viewPrivilegeExpression() {
-    const i18n = this.get('i18n');
-    return createPrivilegeExpression(i18n, 'space', 'space_view_archives');
-  }),
 
   actions: {
     hide() {

@@ -1,9 +1,8 @@
 /**
- * Header for archive properties editor component 
+ * Renders truncated description of archive with secondary info classes for browser row.
  *
- * @module components/archive-settings/header
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -11,16 +10,16 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  classNames: ['archive-settings-header'],
+  tagName: '',
 
   /**
    * @override
    */
-  i18nPrefix: 'components.archiveSettings.header',
+  i18nPrefix: 'components.archiveBrowser.secondaryDescription',
 
   /**
    * @virtual
-   * @type {Models.Dataset}
+   * @type {Models.Archive}
    */
-  dataset: undefined,
+  archive: undefined,
 });

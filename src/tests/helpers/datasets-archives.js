@@ -6,6 +6,9 @@ import { aspect as archiveRecallStateAspect } from 'oneprovider-gui/models/archi
 import { generateFileId, createEntityId } from './files';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { get, setProperties } from '@ember/object';
+import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { resolve } from 'rsvp';
+import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { run } from '@ember/runloop';
 
@@ -128,6 +131,114 @@ export async function getBrowsableDatasetName(testCase) {
   const browsableDataset =
     await datasetManager.getBrowsableDataset(testCase.get('dataset'));
   return get(browsableDataset, 'name');
+}
+
+export async function createDataset(testCase) {
+  const store = lookupService(testCase, 'store');
+  const spaceId = 's123';
+  const fileName = 'dummy_dataset_root';
+  const datasetRootFile = store.createRecord('file', {
+    index: fileName,
+    name: fileName,
+    type: 'dir',
+  });
+  const dataset = store.createRecord('dataset', {
+    index: 'd123',
+    spaceId,
+    state: 'attached',
+    rootFile: datasetRootFile,
+    rootFilePath: `/one/two/${fileName}`,
+  });
+  const records = [
+    datasetRootFile,
+    dataset,
+  ];
+  const result = testCase.setProperties({
+    datasetRootFile,
+    dataset,
+  });
+  await allFulfilled(Object.values(records).invoke('save'));
+  return result;
+}
+
+export async function createArchive(testCase) {
+  const dataset = testCase.get('dataset');
+  const store = lookupService(testCase, 'store');
+  const archiveManager = lookupService(testCase, 'archiveManager');
+  const totalFileCount = 100;
+  const totalByteSize = 10000;
+  const archive = store.createRecord('archive', {
+    index: '123',
+    state: 'preserved',
+    creationTime: Date.now() / 1000,
+    config: {
+      createNestedArchives: false,
+      incremental: {
+        enabled: false,
+      },
+      layout: 'plain',
+      includeDip: false,
+    },
+    description: 'foobarchive',
+    stats: {
+      filesArchived: totalFileCount,
+      bytesArchived: totalByteSize,
+      filesFailed: 0,
+    },
+    dataset,
+  });
+  const records = [
+    archive,
+  ];
+  await allFulfilled(Object.values(records).invoke('save'));
+  const browsableArchive = await archiveManager.getBrowsableArchive(archive);
+  const result = testCase.setProperties({
+    archive,
+    browsableArchive,
+  });
+  return result;
+}
+
+/**
+ * Legacy helper using non-store mocking - please use store models mocking in new code.
+ * @returns {Object} dataset-like
+ */
+export function createFileDatasetSummary({
+  directDataset = null,
+  effAncestorDatasets = [],
+} = {}) {
+  return {
+    getRelation(relation) {
+      if (relation === 'directDataset') {
+        return promiseObject(resolve(directDataset));
+      }
+    },
+    belongsTo(relation) {
+      if (relation === 'directDataset') {
+        return {
+          id: () => directDataset ? get(directDataset, 'id') : null,
+          async load() {
+            return directDataset;
+          },
+          async reload() {
+            return directDataset;
+          },
+        };
+      }
+    },
+    hasMany(relation) {
+      if (relation === 'effAncestorDatasets') {
+        return {
+          load() {
+            return promiseArray(resolve(effAncestorDatasets));
+          },
+          reload() {
+            return promiseArray(resolve(effAncestorDatasets));
+          },
+        };
+      }
+    },
+  };
 }
 
 export function whenOnLocalProvider(testCase) {

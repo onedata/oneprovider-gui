@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9207 Removed usage of local OpenSans fonts
+* VFS-9028 Added archive properties modal with description editor, improved archive description presentation
 * VFS-9023 Added support for archive recall cancelling and recall information on non-recalling providers
 * VFS-9138 Fixed glitch during info icon animation
 * VFS-9102 Archives support Service Pack 22.03

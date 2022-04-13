@@ -1,25 +1,28 @@
 /**
- * Component for managing properties of archive or create archives.
+ * Component for creating archives.
  * Needs modal-like for layout rendering.
  *
- * @module components/archive-settings
+ * @module components/archive-create
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { get, getProperties } from '@ember/object';
+import { computed, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
+import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { not } from 'ember-awesome-macros';
+import ArchiveFormCreateModel from 'oneprovider-gui/utils/archive-form/create-model';
 
 export default Component.extend(I18n, {
   // do not use tag, because the layout is built by `modal` property
-  // for styling, use: `archive-settings-part` class
+  // for styling, use: `archive-create-part` class
   tagName: '',
 
   i18n: service(),
@@ -29,7 +32,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.archiveSettings',
+  i18nPrefix: 'components.archiveCreate',
 
   /**
    * @virtual
@@ -58,6 +61,12 @@ export default Component.extend(I18n, {
   modal: undefined,
 
   /**
+   * @virtual
+   * @type {Object}
+   */
+  spacePrivileges: undefined,
+
+  /**
    * Injected options for archive creation.
    * @virtual optional
    * @type {CreateArchiveOptions}
@@ -83,21 +92,50 @@ export default Component.extend(I18n, {
   isValid: undefined,
 
   /**
-   * True, if submit is available for component state and current form data
-   * @type {ComputedProperty<Boolean>}
-   */
-  canSubmit: reads('isValid'),
-
-  /**
    * Initialized/set by `updateBaseArchiveProxy` method.
    * @type {PromiseObject<Utils.BrowsableArchive>}
    */
   baseArchiveProxy: null,
 
-  init() {
+  /**
+   * True, if submit is available for component state and current form data
+   * @type {ComputedProperty<Boolean>}
+   */
+  canSubmit: reads('isValid'),
+
+  noViewArchivesPrivilege: not('spacePrivileges.viewArchives'),
+
+  viewPrivilegeExpression: computed(function viewPrivilegeExpression() {
+    const i18n = this.get('i18n');
+    return createPrivilegeExpression(i18n, 'space', 'space_view_archives');
+  }),
+
+  formModel: computed(function formModel() {
+    const {
+      dataset,
+      options,
+    } = this.getProperties('dataset', 'options');
+    return ArchiveFormCreateModel
+      .extend({
+        disabled: reads('ownerSource.isSubmitting'),
+      })
+      .create({
+        ownerSource: this,
+        container: this,
+        dataset,
+        options,
+        onChange: this.formDataUpdate.bind(this),
+      });
+  }),
+
+  /**
+   * @override
+   */
+  willDestroyElement() {
     this._super(...arguments);
-    if (this.get('options.baseArchive')) {
-      this.updateBaseArchiveProxy();
+    const formModel = this.get('formModel');
+    if (formModel) {
+      formModel.destroy();
     }
   },
 
@@ -111,7 +149,7 @@ export default Component.extend(I18n, {
       } catch (error) {
         // always resolve this promise, but pass error to form
         console.debug(
-          `component:archive-settings#getBaseArchive: error getting baseArchive: ${error}`
+          `component:archive-create#getBaseArchive: error getting baseArchive: ${error}`
         );
         return {
           isCustomOnedataError: true,
@@ -142,7 +180,7 @@ export default Component.extend(I18n, {
     } else {
       if (!archivesData.isLast) {
         throw new Error(
-          'component:archive-settings#fetchLatestArchive: invalid archive listing data'
+          'fetchLatestArchive: invalid archive listing data'
         );
       }
       // there is no latest archive, because there are no archives
@@ -208,7 +246,7 @@ export default Component.extend(I18n, {
       };
     } else {
       console.warn(
-        'component:archive-settings#generateArchiveData: empty form data'
+        'component:archive-create#generateArchiveData: empty form data'
       );
       return {};
     }
@@ -216,6 +254,13 @@ export default Component.extend(I18n, {
 
   close() {
     this.get('onClose')();
+  },
+
+  formDataUpdate({ formData = {}, isValid = false } = {}) {
+    this.setProperties({
+      formData,
+      isValid,
+    });
   },
 
   actions: {
@@ -226,12 +271,6 @@ export default Component.extend(I18n, {
       } catch (error) {
         this.get('globalNotify').backendError(this.t('creatingArchive'), error);
       }
-    },
-    formDataUpdate({ formData = {}, isValid = false } = {}) {
-      this.setProperties({
-        formData,
-        isValid,
-      });
     },
     close() {
       this.close();
