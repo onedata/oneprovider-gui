@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9036 Added time series features to automation GUI
 * VFS-9138 Fixed glitch during info icon animation
 * VFS-9102 Archives support Service Pack 22.03
 * VFS-9034 Added support for new range data type and changed API of browsing automation stores
