@@ -7,17 +7,12 @@
   onHide=(action "hide")
   as |modal|
 }}
-  {{#archive-settings
+  {{archive-create
     dataset=dataset
     modal=modal
     options=options
+    spacePrivileges=space.privileges
     onClose=(action "hide")
     onSubmit=(action "submit")
   }}
-    {{#if noViewArchivesPrivilege}}
-      <div class="alert alert-warning no-archives-view-alert">
-        {{tt this "noArchivesViewPrivilege" privilegeExpression=viewPrivilegeExpression}}
-      </div>
-    {{/if}}
-  {{/archive-settings}}
 {{/one-modal}}

@@ -8,7 +8,7 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import ToggleHelper from '../../helpers/toggle';
-import { createFileDatasetSummary } from '../../helpers/dataset-helpers';
+import { createFileDatasetSummary } from '../../helpers/datasets-archives';
 import { RuntimeProperties as DatasetRuntimeProperties } from 'oneprovider-gui/models/dataset';
 import EmberObject, { setProperties } from '@ember/object';
 import Service from '@ember/service';

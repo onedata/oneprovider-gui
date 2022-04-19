@@ -97,6 +97,12 @@ $file-status-tag-spacing: 6px;
 
     @include tag-colors-default;
 
+    // not necessary to use normally, but can be used to override styles or to explicitly
+    // set the default colors
+    &.file-status-tag-default {
+      @include tag-colors-default;
+    }
+
     &.file-status-tag-success {
       @include tag-colors-success;
     }

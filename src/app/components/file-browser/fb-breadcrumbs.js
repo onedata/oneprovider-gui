@@ -127,6 +127,10 @@ export default Component.extend(
 
     _window: window,
 
+    extraNameIcon: 'sign-info-rounded',
+
+    extraNameTooltipClass: 'tooltip-lg tooltip-text-left',
+
     areItemsEmpty: isEmpty('filteredBreadcrumbsItemsProxy'),
 
     /**

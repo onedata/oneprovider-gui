@@ -7,3 +7,6 @@
 [submodule "src/lib/onedata-gui-websocket-client"]
 	path = src/lib/onedata-gui-websocket-client
 	url = ../onedata-gui-websocket-client.git
+[submodule "onedata-gui-utils"]
+	path = onedata-gui-utils
+	url = ../onedata-gui-utils.git

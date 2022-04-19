@@ -1,0 +1,19 @@
+{{#one-modal
+  modalId=modalId
+  class="archive-properties-modal"
+  open=open
+  size="xl"
+  backdropClose=true
+  keyboard=true
+  onHide=(action "hide")
+  onShown=(action "onShown")
+  as |modal|
+}}
+  {{archive-properties
+    space=space
+    browsableArchive=browsableArchive
+    options=options
+    modal=modal
+    onClose=(action "hide")
+  }}
+{{/one-modal}}

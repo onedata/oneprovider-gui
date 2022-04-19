@@ -4,7 +4,7 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { click, find, findAll } from 'ember-native-dom-helpers';
-import { createArchiveRecallData } from '../../../helpers/archive-recall';
+import { createArchiveRecallData } from '../../../helpers/datasets-archives';
 import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';

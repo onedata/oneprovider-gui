@@ -1,6 +1,6 @@
 /**
- * Gets percentage(floored to integer) progress of recall process.
- * *NOTE: `archiveRecallState` and `archiveRecallInfo`should be resolved.
+ * Gets percentage (floored to integer) progress of recall process.
+ * *NOTE:* `archiveRecallState` and `archiveRecallInfo` should be resolved.
  *
  * @module utils/recalling-percentage-progress
  * @author Jakub Liput
@@ -10,6 +10,8 @@
 
 import { get } from '@ember/object';
 
+const emptyValue = null;
+
 export default function recallingPercentageProgress(file) {
   const recallingMembership = file && get(file, 'recallingMembership');
   const isRecallInfoApplicable = Boolean(file && (
@@ -17,17 +19,27 @@ export default function recallingPercentageProgress(file) {
     recallingMembership === 'direct' ||
     recallingMembership === 'ancestor'
   ));
-  if (isRecallInfoApplicable) {
-    const archiveRecallState = get(file, 'archiveRecallState.content');
-    const archiveRecallInfo = get(file, 'archiveRecallInfo.content');
-    if (archiveRecallState && archiveRecallInfo) {
-      const bytesCopied = get(archiveRecallState, 'bytesCopied') || 0;
-      const totalByteSize = get(archiveRecallInfo, 'totalByteSize');
-      if (totalByteSize) {
-        return Math.floor(bytesCopied / totalByteSize * 100);
-      }
-    }
+  if (!isRecallInfoApplicable) {
+    return emptyValue;
+  }
+  const archiveRecallInfo = get(file, 'archiveRecallInfo.isLoaded') &&
+    get(file, 'archiveRecallInfo.content');
+  if (!archiveRecallInfo || !get(archiveRecallInfo, 'isOnLocalProvider')) {
+    return emptyValue;
   }
 
-  return null;
+  const archiveRecallState = get(file, 'archiveRecallState.isLoaded') &&
+    get(file, 'archiveRecallState.content');
+  if (!archiveRecallState) {
+    return emptyValue;
+  }
+
+  const bytesCopied = get(archiveRecallState, 'bytesCopied') || 0;
+  const totalByteSize = get(archiveRecallInfo, 'totalByteSize');
+
+  if (!totalByteSize) {
+    return emptyValue;
+  }
+
+  return Math.floor(bytesCopied / totalByteSize * 100);
 }

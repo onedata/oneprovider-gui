@@ -104,7 +104,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   /**
    * @override
    */
-  async fetchStoreContent(storeInstanceId, startFromIndex, limit, offset) {
+  async fetchStoreContent(storeInstanceId, browseOptions) {
     if (!storeInstanceId) {
       console.error(
         'util:workflow-visualiser/execution-data-fetcher#fetchStoreContent: invalid storeSchemaId',
@@ -113,7 +113,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     }
 
     return await this.get('workflowManager')
-      .getAtmStoreContent(storeInstanceId, startFromIndex, limit, offset);
+      .getAtmStoreContent(storeInstanceId, browseOptions);
   },
 
   /**

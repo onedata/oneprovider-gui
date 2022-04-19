@@ -39,6 +39,7 @@ export default _.merge({}, BaseBrowserModel, {
     },
     writeProtected: 'Not available for files with {{protectionType}} write protection.',
     blockedFileType: 'Not available for {{fileType}}.',
+    recalling: 'Not available for files being recalled from an archive.',
     fileTypesPlural: {
       file: 'files',
       dir: 'directories',

@@ -43,6 +43,10 @@ export default EmberObject.extend(OwnerInjector, {
    */
   refreshedDirsIdSet: null,
 
+  lastInfoError: null,
+
+  lastStateError: null,
+
   /**
    * @type {Boolean}
    */
@@ -51,10 +55,11 @@ export default EmberObject.extend(OwnerInjector, {
   /**
    * When `'state'` - poll for state and reload info only if needed.
    * When `'info'` - poll only for info.
+   * When `'all'` - poll both for state and info.
    * Normally 'state' pollingMode should be used, but when state is not available (eg. because
    * we are on another provider and does not have access to progress) we can fall back to
    * polling only info (watch `finishTime` changes).
-   * @type {'state'|'info'}
+   * @type {'state'|'info'|'all'}
    */
   pollingMode: 'state',
 
@@ -107,6 +112,7 @@ export default EmberObject.extend(OwnerInjector, {
         'util:archive-recall-state-watcher#update: getInfo failed',
         getInfoError
       );
+      this.set('lastInfoError', getInfoError);
       this.stop();
       return;
     }
@@ -115,7 +121,16 @@ export default EmberObject.extend(OwnerInjector, {
       this.stop();
       return;
     }
-    if (pollingMode === 'state') {
+    if (pollingMode !== 'info' && !get(info, 'isOnLocalProvider')) {
+      pollingMode = this.set('pollingMode', 'info');
+    } else if (
+      pollingMode !== 'all' &&
+      get(info, 'cancelTime') &&
+      get(info, 'isOnLocalProvider')
+    ) {
+      pollingMode = this.set('pollingMode', 'all');
+    }
+    if (pollingMode === 'state' || pollingMode === 'all') {
       try {
         state = await this.reloadState();
       } catch (reloadStateError) {
@@ -123,16 +138,20 @@ export default EmberObject.extend(OwnerInjector, {
           'util:archive-recall-state-watcher#update: reloadState failed',
           reloadStateError
         );
+        this.set('lastStateError', reloadStateError);
         pollingMode = this.set('pollingMode', 'info');
       }
     }
     // pollingMode could change if reloadState failed, so check one more time
-    if (pollingMode === 'state') {
+    if (pollingMode === 'state' || pollingMode === 'all') {
       isFinished = isFinished || state.isFinished(info);
+    }
+    if (pollingMode === 'state') {
       shouldUpdateInfo = (
         !get(info, 'startTime') && get(state, 'bytesCopied')
       ) || isFinished;
-    } else if (pollingMode === 'info') {
+    }
+    if (pollingMode === 'info' || pollingMode === 'all') {
       shouldUpdateInfo = true;
     }
     if (shouldUpdateInfo) {
@@ -143,6 +162,7 @@ export default EmberObject.extend(OwnerInjector, {
           'util:archive-recall-state-watcher#update: reloadInfo failed',
           reloadInfoError
         );
+        this.set('lastInfoError', reloadInfoError);
         this.stop();
         return;
       }

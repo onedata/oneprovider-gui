@@ -8,7 +8,7 @@
  */
 
 import Service, { inject as service } from '@ember/service';
-import { getProperties, get, computed } from '@ember/object';
+import { getProperties, computed } from '@ember/object';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as atmWorkflowSchemaEntityType } from 'oneprovider-gui/models/atm-workflow-schema';
 import { entityType as atmWorkflowExecutionEntityType } from 'oneprovider-gui/models/atm-workflow-execution';
@@ -32,8 +32,6 @@ import config from 'ember-get-config';
  * @property {string} reason
  * @property {string} message
  */
-
-const emptyAtmStoreContent = { array: [], isLast: true };
 
 export default Service.extend({
   store: service(),
@@ -284,24 +282,10 @@ export default Service.extend({
 
   /**
    * @param {string} atmStoreInstanceId
-   * @param {string} startFromIndex
-   * @param {number} limit
-   * @param {number} offset
-   * @returns {Promise<{array: Array<StoreContentEntry>, isLast: boolean}>}
+   * @param {AtmStoreContentBrowseOptions} browseOptions
+   * @returns {Promise<AtmStoreContentBrowseResult|null>} null when store is empty
    */
-  async getAtmStoreContent(atmStoreInstanceId, startFromIndex, limit, offset) {
-    const atmStore = await this.getAtmStoreById(atmStoreInstanceId);
-    const atmStoreType = get(atmStore, 'type');
-    const browseOptions = createAtmStoreContentBrowseOptions(
-      atmStoreType,
-      startFromIndex,
-      limit,
-      offset
-    );
-    if (!browseOptions) {
-      return emptyAtmStoreContent;
-    }
-
+  async getAtmStoreContent(atmStoreInstanceId, browseOptions) {
     const storeContentGri = gri({
       entityType: atmStoreEntityType,
       entityId: atmStoreInstanceId,
@@ -309,7 +293,7 @@ export default Service.extend({
     });
 
     try {
-      const content = await this.get('onedataGraph').request({
+      return await this.get('onedataGraph').request({
         gri: storeContentGri,
         operation: 'get',
         data: {
@@ -317,10 +301,9 @@ export default Service.extend({
         },
         subscribe: false,
       });
-      return normalizeAtmStoreContent(atmStoreType, content);
     } catch (error) {
       if (error && error.id === 'atmStoreEmpty') {
-        return emptyAtmStoreContent;
+        return null;
       } else {
         throw error;
       }
@@ -419,75 +402,3 @@ export default Service.extend({
     });
   },
 });
-
-/**
- * @param {string} atmStoreType
- * @param {string|null} startFromIndex
- * @param {number} limit
- * @param {number} offset
- * @returns {Object|null} returns null if browse operation should not be performed
- *   due to incorrect parameters
- */
-function createAtmStoreContentBrowseOptions(atmStoreType, startFromIndex, limit, offset) {
-  if (!limit || limit <= 0) {
-    return null;
-  }
-
-  const browseOptions = {
-    type: `${atmStoreType}StoreContentBrowseOptions`,
-  };
-
-  if (['list', 'treeForest', 'auditLog'].includes(atmStoreType)) {
-    browseOptions.index = startFromIndex;
-    browseOptions.offset = offset;
-    browseOptions.limit = limit;
-  } else if (startFromIndex !== null || offset !== 0) {
-    return null;
-  }
-
-  return browseOptions;
-}
-
-/**
- * @param {string} atmStoreType
- * @param {unknown} content
- * @returns {{array: Array<StoreContentEntry>, isLast: boolean}}
- */
-function normalizeAtmStoreContent(atmStoreType, content) {
-  if (!content) {
-    return emptyAtmStoreContent;
-  }
-
-  switch (atmStoreType) {
-    case 'auditLog': {
-      const { logs = [], isLast = true } = content;
-      return { array: logs, isLast };
-    }
-    case 'list': {
-      const { items = [], isLast = true } = content;
-      return { array: items, isLast };
-    }
-    case 'range': {
-      return {
-        array: [{
-          index: '0',
-          success: true,
-          value: content,
-        }],
-        isLast: true,
-      };
-    }
-    case 'singleValue': {
-      return {
-        array: [Object.assign({ index: '0' }, content)],
-        isLast: true,
-      };
-    }
-    case 'treeForest': {
-      const { treeRoots = [], isLast = true } = content;
-      return { array: treeRoots, isLast };
-    }
-    default:
-      return emptyAtmStoreContent;
-  }
-}

@@ -19,5 +19,7 @@ export default BrowsableWrapper.extend({
 
   name: reads('browsableArchive.name'),
 
+  extraName: reads('browsableArchive.extraName'),
+
   browsableType: 'file',
 });
