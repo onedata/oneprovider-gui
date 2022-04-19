@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9029 Changed showing rest api for shares
 * VFS-9036 Added time series features to automation GUI
 * VFS-9207 Removed usage of local OpenSans fonts
 * VFS-9028 Added archive properties modal with description editor, improved archive description presentation
