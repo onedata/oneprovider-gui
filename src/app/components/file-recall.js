@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
-import { promise, raw, array, equal, or, hash } from 'ember-awesome-macros';
+import { promise, raw, array, equal, or, hash, bool } from 'ember-awesome-macros';
 import { all as allFulfilled, hashSettled } from 'rsvp';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -31,6 +31,10 @@ import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-arch
  * @typedef {'scheduled'|'pending'|'cancelling'|'cancelled'|'succeeded'|'failed'} FileRecallProcessStatus
  */
 
+/**
+ * @typedef {'status'|'logs'} FileRecallTabId
+ */
+
 export const validFileRecallProcessStates = [
   'scheduled',
   'pending',
@@ -40,13 +44,18 @@ export const validFileRecallProcessStates = [
   'failed',
 ];
 
+/**
+ * @param {string} status
+ * @returns {boolean}
+ */
 export function isValidFileRecallProcessStatus(status) {
   return validFileRecallProcessStates.includes(status);
 }
 
 /**
  * Basic information for view and child components about recalling Oneprovider.
- * @typedef {Object} BasicRecallingProviderInfo
+ *
+ * @typedef {object} BasicRecallingProviderInfo
  * @property {string} name
  * @property {string} href
  * @property {string} isLocal true if this is the same provider as currently used
@@ -85,7 +94,7 @@ export default Component.extend(I18n, {
   //#region state
 
   /**
-   * @type {String}
+   * @type {string}
    */
   archiveRecallStateToken: null,
 
@@ -99,9 +108,14 @@ export default Component.extend(I18n, {
    * file recall component. It is needed, because it is not guaranteed that cancelling
    * state will be set on archive right after successful cancel request on remote
    * Oneproviders.
-   * @type {Boolean}
+   * @type {boolean}
    */
   wasCancelInvoked: false,
+
+  /**
+   * @type {FileRecallTabId}
+   */
+  activeTab: 'status',
 
   //#endregion
 
@@ -284,6 +298,8 @@ export default Component.extend(I18n, {
 
   archiveRecallState: computedLastProxyContent('archiveRecallStateProxy'),
 
+  showLogsTab: bool('recallingProviderInfo.isLocal'),
+
   archive: computedLastProxyContent('archiveProxy'),
 
   dataset: computedLastProxyContent('datasetProxy'),
@@ -413,7 +429,7 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
   showCancelButton: array.includes(
     raw(['scheduled', 'pending', 'cancelling']),
@@ -421,12 +437,12 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
   showFooter: reads('showCancelButton'),
 
   /**
-   * @type {ComputedProperty<Boolean>}
+   * @type {ComputedProperty<boolean>}
    */
   isCancelling: or(
     equal('processStatus', raw('cancelling')),
@@ -478,6 +494,13 @@ export default Component.extend(I18n, {
     },
     cancelInvoked() {
       this.set('wasCancelInvoked', true);
+    },
+    /**
+     *
+     * @param {FileRecallTabId} tabId
+     */
+    changeTab(tabId) {
+      this.set('activeTab', tabId);
     },
   },
 });

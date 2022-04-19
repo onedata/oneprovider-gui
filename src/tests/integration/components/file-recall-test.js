@@ -8,10 +8,12 @@ import {
   getBrowsableArchiveName,
   getBrowsableDatasetName,
   whenOnLocalProvider,
+  whenOnRemoteProvider,
 } from '../../helpers/datasets-archives';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import { click, find } from 'ember-native-dom-helpers';
+import { findByText } from '../../helpers/find';
 
 describe('Integration | Component | file recall', function () {
   setupComponentTest('file-recall', {
@@ -265,8 +267,28 @@ describe('Integration | Component | file recall', function () {
     await click($cancelRecallBtn[0]);
     expect(this.$('.cancel-recall-modal')).to.not.exist;
   });
+
+  it('has no tab bar when on remote provider', async function () {
+    whenOnRemoteProvider(this);
+
+    await render(this);
+
+    expect(find('.main-recall-tab-bar')).to.not.exist;
+  });
+
+  it('allows to switch to logs tab with logs view when on local provider', async function () {
+    await render(this);
+
+    const logsTab = findByText('Logs', '.main-recall-tab-bar .nav-link');
+    expect(logsTab, 'logs tab').to.exist;
+    await click(logsTab);
+    expect(find('.file-recall-logs'), 'logs component').to.exist;
+  });
 });
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 async function render(testCase) {
   testCase.render(hbs `
   {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
@@ -280,6 +302,9 @@ async function render(testCase) {
   await wait();
 }
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 function whenRecallIsCancelling(testCase) {
   testCase.set('archiveRecallInfo.startTime', Date(1000));
   testCase.set('archiveRecallInfo.cancelTime', Date(2000));
@@ -289,6 +314,9 @@ function whenRecallIsCancelling(testCase) {
   );
 }
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 function whenRecallIsCancelled(testCase) {
   testCase.set('archiveRecallInfo.startTime', Date(1000));
   testCase.set('archiveRecallInfo.cancelTime', Date(2000));
@@ -299,6 +327,9 @@ function whenRecallIsCancelled(testCase) {
   );
 }
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 function whenRecallIsPending(testCase) {
   testCase.set('archiveRecallInfo.startTime', Date.now());
   testCase.set(

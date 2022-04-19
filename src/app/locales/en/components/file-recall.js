@@ -10,6 +10,10 @@ export default {
     providerInfoHead: 'Switch to',
     providerInfoTail: 'to view complete statistics.',
   },
+  tabs: {
+    status: 'Status',
+    logs: 'Logs',
+  },
   infoTable,
   cancelRecallModal,
 };

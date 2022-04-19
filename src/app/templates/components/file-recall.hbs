@@ -22,22 +22,37 @@
         {{/if}}
       </div>
     {{/unless}}
-    {{file-recall/info-table
-      file=file
-      recallRootFile=recallRootFile
-      processStatus=processStatus
-      recallingPercent=recallingPercent
-      archive=archive
-      archiveUrl=archiveUrl
-      dataset=dataset
-      datasetUrl=datasetUrl
-      archiveRecallInfo=archiveRecallInfo
-      archiveRecallState=archiveRecallState
-      relativePath=relativePath
-      lastError=lastError
-      recallingProviderInfo=recallingProviderInfo
-      onClose=onClose
-    }}
+    {{#if showLogsTab}}
+      {{#bs-tab
+        class="bs-tab-onedata bs-tab-modern main-recall-tab-bar"
+        activeId=activeTab
+        onChange=(action "changeTab")
+        as |tab|
+      }}
+        {{tab.pane id="status" title=(tt this "tabs.status")}}
+        {{tab.pane id="logs" title=(tt this "tabs.logs")}}
+      {{/bs-tab}}
+    {{/if}}
+    {{#if (eq activeTab "status")}}
+      {{file-recall/info-table
+        file=file
+        recallRootFile=recallRootFile
+        processStatus=processStatus
+        recallingPercent=recallingPercent
+        archive=archive
+        archiveUrl=archiveUrl
+        dataset=dataset
+        datasetUrl=datasetUrl
+        archiveRecallInfo=archiveRecallInfo
+        archiveRecallState=archiveRecallState
+        relativePath=relativePath
+        lastError=lastError
+        recallingProviderInfo=recallingProviderInfo
+        onClose=onClose
+      }}
+    {{else if (eq activeTab "logs")}}
+      {{file-recall/logs}}
+    {{/if}}
     {{yield}}
   {{/promise-proxy-container}}
 {{/modal.body}}
