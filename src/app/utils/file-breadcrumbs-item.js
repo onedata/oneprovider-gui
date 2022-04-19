@@ -37,6 +37,8 @@ const FileBreadcrumbsItem = EmberObject.extend({
    */
   name: reads('file.name'),
 
+  extraName: reads('file.extraName'),
+
   isRoot: not('file.hasParent'),
 });
 

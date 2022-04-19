@@ -9,6 +9,7 @@
  */
 
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import BrowsableWrapper from 'oneprovider-gui/utils/browsable-wrapper';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
 
@@ -17,30 +18,19 @@ export default BrowsableWrapper.extend({
 
   type: 'dir',
 
-  name: computed('content.{description,creationTime}', function name() {
+  browsableType: 'archive',
+
+  name: computed('content.creationTime', function name() {
     const creationTime = this.get('content.creationTime');
-    const description = this.get('content.description');
-    const descriptionMaxLength = this.get('descriptionMaxLength');
-    const dateString = dateFormat([creationTime], {
+    return dateFormat([creationTime], {
       format: 'dateWithMinutes',
       blank: '—',
     });
-    if (description) {
-      let shortDescription;
-      if (description.length > descriptionMaxLength) {
-        shortDescription = description.slice(0, descriptionMaxLength) + '…';
-      } else {
-        shortDescription = description;
-      }
-      return `${dateString} — ${shortDescription}`;
-    } else {
-      return dateString;
-    }
   }),
 
   effFile: computed(function effFile() {
     return this;
   }),
 
-  browsableType: 'archive',
+  extraName: reads('content.description'),
 });

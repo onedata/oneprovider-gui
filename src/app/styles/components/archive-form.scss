@@ -1,0 +1,15 @@
+.archive-form {
+  .config-field {
+    flex-direction: column;
+    > label {
+      margin-top: 1em;
+      text-transform: uppercase;
+    }
+  }
+  .field-renderer > label {
+    min-width: 220px;
+  }
+  .base-archive-id-container {
+    word-break: break-word;
+  }
+}

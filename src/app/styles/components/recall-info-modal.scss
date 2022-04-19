@@ -1,0 +1,6 @@
+.recall-info-modal {
+  // overriding default styles
+  &.modal.in .modal-dialog .modal-content .modal-footer {
+    text-align: left;
+  }
+}

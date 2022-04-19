@@ -27,6 +27,8 @@ import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const allButtonNames = Object.freeze([
+  'btnArchiveProperties',
+  'btnEditDescription',
   'btnCreateArchive',
   'btnRefresh',
   'btnCopyId',
@@ -53,6 +55,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   downloadScope: 'private',
+
+  /**
+   * @override
+   */
+  infoIconActionName: 'archiveProperties',
 
   /**
    * One of: attached, detached.
@@ -92,6 +99,12 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   openRecallModal: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {(archives: Array<Utils.BrowsableArchive>, options: Object) => any}
+   */
+  openArchivePropertiesModal: notImplementedThrow,
+
+  /**
    * @virtual optional
    * @type {Number}
    */
@@ -118,6 +131,11 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @override
    */
   mobileSecondaryInfoComponentName: 'archive-browser/table-row-mobile-secondary-info',
+
+  /**
+   * @override
+   */
+  secondaryInfoComponentName: 'archive-browser/table-row-secondary-info',
 
   /**
    * @override
@@ -257,6 +275,38 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         },
         tip: disabledTip,
         disabled: Boolean(disabledTip),
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnArchiveProperties: computed(
+    function btnArchiveProperties() {
+      return this.createFileAction({
+        id: 'archiveProperties',
+        icon: 'properties',
+        action: (archives) => {
+          return this.openArchivePropertiesModal(archives[0]);
+        },
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleDirPreview,
+        ],
+      });
+    }
+  ),
+
+  btnEditDescription: computed(
+    function btnEditDescription() {
+      return this.createFileAction({
+        id: 'editDescription',
+        icon: 'rename',
+        action: (archives) => {
+          return this.openArchivePropertiesModal(archives[0], { focusDescription: true });
+        },
         showIn: [
           actionContext.singleDir,
           actionContext.singleDirPreview,

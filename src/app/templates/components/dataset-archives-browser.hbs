@@ -95,6 +95,16 @@
   }}
 {{/if}}
 
+{{#if archiveToShowSettings}}
+  {{archive-properties-modal
+    open=true
+    space=space
+    browsableArchive=archiveToShowSettings
+    options=archivePropertiesOptions
+    onHide=(action closeArchivePropertiesModal)
+  }}
+{{/if}}
+
 {{#if createArchiveOpened}}
   {{archive-create-modal
     open=true
