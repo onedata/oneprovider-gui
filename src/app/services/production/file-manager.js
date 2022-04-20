@@ -18,15 +18,23 @@ import { generateAbsoluteSymlinkPathPrefix } from 'oneprovider-gui/utils/symlink
 import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
+/**
+ * @typedef {RecallLogEntry} Object
+ * @property {string} fileId
+ * @property {Object} reason
+ */
+
 const cancelRecallAspect = 'cancel_archive_recall';
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
+const recallLogAspect = 'archive_recall_log';
 const fileModelName = 'file';
 
 export default Service.extend({
   store: service(),
   onedataRpc: service(),
   onedataGraph: service(),
+  infiniteLogManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -445,6 +453,23 @@ export default Service.extend({
       gri: requestGri,
       subscribe: false,
     });
+  },
+
+  /**
+   * Begins a procedure of cancelling archive recall process that has root in
+   * file with `recallRootId` entity ID.
+   * @param {string} recallRootId
+   * @param {JsonInfiniteLogPagingParams} pagingParams
+   * @returns {Promise<JsonInfiniteLogPage<RecallLogEntry>>}
+   */
+  async getRecallLogs(recallRootId, pagingParams) {
+    const infiniteLogManager = this.get('infiniteLogManager');
+    const requestGri = gri({
+      entityType: fileEntityType,
+      entityId: recallRootId,
+      aspect: recallLogAspect,
+    });
+    return infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service

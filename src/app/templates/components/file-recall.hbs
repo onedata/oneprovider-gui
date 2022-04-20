@@ -51,7 +51,9 @@
         onClose=onClose
       }}
     {{else if (eq activeTab "logs")}}
-      {{file-recall/logs}}
+      {{file-recall/event-log
+        recallRootFile=recallRootFile
+      }}
     {{/if}}
     {{yield}}
   {{/promise-proxy-container}}

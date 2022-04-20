@@ -9,6 +9,7 @@ import {
   getBrowsableDatasetName,
   whenOnLocalProvider,
   whenOnRemoteProvider,
+  stubEmptyRecallLogs,
 } from '../../helpers/datasets-archives';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
@@ -277,12 +278,14 @@ describe('Integration | Component | file recall', function () {
   });
 
   it('allows to switch to logs tab with logs view when on local provider', async function () {
+    stubEmptyRecallLogs(this);
+
     await render(this);
 
     const logsTab = findByText('Logs', '.main-recall-tab-bar .nav-link');
     expect(logsTab, 'logs tab').to.exist;
     await click(logsTab);
-    expect(find('.file-recall-logs'), 'logs component').to.exist;
+    expect(find('.file-recall-event-log'), 'logs component').to.exist;
   });
 });
 

@@ -1,5 +1,6 @@
 import infoTable from './file-recall/info-table';
 import cancelRecallModal from './file-recall/cancel-recall-modal';
+import eventLog from './file-recall/event-log';
 
 export default {
   header: 'Archive recall information',
@@ -16,4 +17,5 @@ export default {
   },
   infoTable,
   cancelRecallModal,
+  eventLog,
 };
