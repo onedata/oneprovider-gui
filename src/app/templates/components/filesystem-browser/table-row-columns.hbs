@@ -14,7 +14,7 @@
       {{else}}
         {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
       {{/if}}
-    {{else if (and (eq file.type "dir") (gte file.effFile.size 0))}}
+    {{else if (and (eq file.type "dir") (not-eq file.effFile.size null))}}
       <div 
         class="dir-size-container" 
         onclick={{action (action "invokeFileAction" file "info" "size")}}

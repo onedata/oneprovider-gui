@@ -142,4 +142,33 @@ export default Service.extend({
     return this.evaluateQosExpression(spaceId, 'anyStorage')
       .then(({ matchingStorages }) => matchingStorages);
   },
+
+  fetchDirSizeStatsConfig(spaceId) {
+    const activeChannelsGri = gri({
+      entityType: spaceEntityType,
+      entityId: spaceId,
+      aspect: 'dir_size_stats_config',
+    });
+    return this.get('onedataGraph').request({
+      gri: activeChannelsGri,
+      operation: 'get',
+      subscribe: false,
+    });
+  },
+
+  patchDirSizeStatsConfig(spaceId) {
+    const activeChannelsGri = gri({
+      entityType: spaceEntityType,
+      entityId: spaceId,
+      aspect: 'dir_size_stats_config',
+    });
+    return this.get('onedataGraph').request({
+      gri: activeChannelsGri,
+      operation: 'update',
+      data: {
+        statsCollectionEnabled: true,
+      },
+      subscribe: false,
+    });
+  },
 });

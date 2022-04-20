@@ -28,6 +28,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   xrootdApiGenerator: service(),
   fileManager: service(),
   errorExtractor: service(),
+  spaceManager: service(),
 
   open: false,
 
@@ -205,6 +206,10 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   modificationTime: reads('file.modificationTime'),
 
   fileSize: reads('file.size'),
+
+  statsCollectionEnabled: reads('dirSizeStatsConfig.statsCollectionStatus'),
+
+  dirSizeStatsConfig: undefined,
 
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
@@ -460,17 +465,20 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
     'hardlinksLimitExceeded',
     'hardlinksLimit',
     'hardlinksCount',
+    'statsCollectionEnabled',
     function tabsSpec() {
       const {
         itemType,
         hardlinksLimitExceeded,
         hardlinksLimit,
         hardlinksCount,
+        statsCollectionEnabled,
       } = this.getProperties(
         'itemType',
         'hardlinksLimitExceeded',
         'hardlinksLimit',
-        'hardlinksCount'
+        'hardlinksCount',
+        'statsCollectionEnabled'
       );
       const effItemType = this.get('file.effFile.type');
       return [{
@@ -495,7 +503,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
           label: this.t('tabs.size.tabTitle'),
           disabledTip: this.t('tabs.size.disabledTip'),
           disabled: (itemType === 'symlink'),
-          show: (effItemType !== 'file'),
+          show: (['enabled', 'initializing'].includes(statsCollectionEnabled) && effItemType !== 'file'),
         },
       ];
     }
