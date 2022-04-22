@@ -20,8 +20,14 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
 
 /**
  * @typedef {RecallLogEntry} Object
- * @property {string} fileId
- * @property {Object} reason
+ * @property {string} fileId CDMI Object ID of file that message is about
+ * @property {string} relativePath relative path to error-affected file from archive
+ * @property {RecallError} reason object with error reason
+ */
+
+/**
+ * An error object from backend in standard format, parsable using ErrorExtractor
+ * @typedef {RecallError} Object
  */
 
 const cancelRecallAspect = 'cancel_archive_recall';
@@ -469,7 +475,7 @@ export default Service.extend({
       entityId: recallRootId,
       aspect: recallLogAspect,
     });
-    return infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
+    return await infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
   },
 
   // TODO: VFS-7643 move browser non-file-model-specific methods to other service

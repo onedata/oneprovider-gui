@@ -24,10 +24,6 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import computedArchiveRecallStateProxy from 'oneprovider-gui/utils/computed-archive-recall-state-proxy';
 
 /**
- * @typedef  {'message'|'raw'|'unknown'} RecallInfoErrorType
- */
-
-/**
  * @typedef {'scheduled'|'pending'|'cancelling'|'cancelled'|'succeeded'|'failed'} FileRecallProcessStatus
  */
 

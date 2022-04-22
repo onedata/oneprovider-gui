@@ -1,5 +1,5 @@
 {{#loading-container isLoading=entries.isLoading sizeClass="sm"}}
-  {{#scrollable-table class="table one-infinite-list"}}
+  <table class="table one-infinite-list">
     {{file-recall/event-log/header-row}}
     <tr class="table-start-row"></tr>
     <tr class="first-row">
@@ -40,6 +40,6 @@
         </tr>
       {{/if}}
     {{/if}}
-  {{/scrollable-table}}
+  </table>
 {{/loading-container}}
 {{yield}}

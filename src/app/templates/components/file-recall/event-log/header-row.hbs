@@ -1,1 +1,7 @@
-{{yield}}
+{{#each (array "timestamp" "file" "message") as |columnId|}}
+  <th class="column-{{columnId}}">
+    <span class="column-label-text">
+      {{tt this (concat "columnLabel." columnId)}}
+    </span>
+  </th>
+{{/each}}

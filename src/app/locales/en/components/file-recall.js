@@ -13,7 +13,7 @@ export default {
   },
   tabs: {
     status: 'Status',
-    logs: 'Logs',
+    logs: 'Error log',
   },
   infoTable,
   cancelRecallModal,

@@ -16,6 +16,8 @@ import sinon from 'sinon';
 import { click, find } from 'ember-native-dom-helpers';
 import { findByText } from '../../helpers/find';
 
+const errorLogTabName = 'Error log';
+
 describe('Integration | Component | file recall', function () {
   setupComponentTest('file-recall', {
     integration: true,
@@ -269,12 +271,14 @@ describe('Integration | Component | file recall', function () {
     expect(this.$('.cancel-recall-modal')).to.not.exist;
   });
 
-  it('has no tab bar when on remote provider', async function () {
+  it('has error log tab disabled when on remote provider', async function () {
     whenOnRemoteProvider(this);
 
     await render(this);
 
-    expect(find('.main-recall-tab-bar')).to.not.exist;
+    const errorLogTab = findByText(errorLogTabName, '.nav-tab');
+    expect(errorLogTab).to.exist;
+    expect([...errorLogTab.classList]).to.contain('disabled');
   });
 
   it('allows to switch to logs tab with logs view when on local provider', async function () {
@@ -282,7 +286,7 @@ describe('Integration | Component | file recall', function () {
 
     await render(this);
 
-    const logsTab = findByText('Logs', '.main-recall-tab-bar .nav-link');
+    const logsTab = findByText(errorLogTabName, '.main-recall-tab-bar .nav-link');
     expect(logsTab, 'logs tab').to.exist;
     await click(logsTab);
     expect(find('.file-recall-event-log'), 'logs component').to.exist;

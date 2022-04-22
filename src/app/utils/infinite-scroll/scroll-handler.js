@@ -83,13 +83,13 @@ export default EmberObject.extend({
     let startIndex;
     let endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
-      const rowHeight = get(firstRow, 'height');
+      const rowHeight = get(firstRow, 'singleRowHeight');
       const $firstRow = $(element.querySelector('.first-row'));
       const firstRowTop = $firstRow.offset().top;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;
       startIndex = firstRowTop < 0 ?
-        Math.floor(blankStart / get(firstRow, 'height')) : 0;
+        Math.floor(blankStart / rowHeight) : 0;
       endIndex = Math.floor(blankEnd / rowHeight);
       if (endIndex < 0) {
         endIndex = fallbackEndIndex;
@@ -146,7 +146,7 @@ export default EmberObject.extend({
   createListWatcher() {
     const element = this.get('element');
     return new ListWatcher(
-      $(element.querySelector('.ps')),
+      $(element.closest('.ps')),
       '.data-row',
       (items, headerVisible) => {
         // FIXME: custom for global-modal

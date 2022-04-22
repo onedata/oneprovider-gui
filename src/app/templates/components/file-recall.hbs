@@ -22,39 +22,70 @@
         {{/if}}
       </div>
     {{/unless}}
-    {{#if showLogsTab}}
-      {{#bs-tab
-        class="bs-tab-onedata bs-tab-modern main-recall-tab-bar"
-        activeId=activeTab
-        onChange=(action "changeTab")
-        as |tab|
-      }}
-        {{tab.pane id="status" title=(tt this "tabs.status")}}
-        {{tab.pane id="logs" title=(tt this "tabs.logs")}}
-      {{/bs-tab}}
-    {{/if}}
-    {{#if (eq activeTab "status")}}
-      {{file-recall/info-table
-        file=file
-        recallRootFile=recallRootFile
-        processStatus=processStatus
-        recallingPercent=recallingPercent
-        archive=archive
-        archiveUrl=archiveUrl
-        dataset=dataset
-        datasetUrl=datasetUrl
-        archiveRecallInfo=archiveRecallInfo
-        archiveRecallState=archiveRecallState
-        relativePath=relativePath
-        lastError=lastError
-        recallingProviderInfo=recallingProviderInfo
-        onClose=onClose
-      }}
-    {{else if (eq activeTab "logs")}}
-      {{file-recall/event-log
-        recallRootFile=recallRootFile
-      }}
-    {{/if}}
+
+    {{#bs-tab
+      fade=false
+      class="bs-tab-onedata bs-tab-modern fill-flex-using-column main-recall-tab-bar"
+      customTabs=true
+      activeId=activeTab
+      onChange=(action "changeTab")
+      as |tab|
+    }}
+      {{#bs-nav type="tabs" as |nav|}}
+        {{#nav.item class="nav-tab" active=(eq activeTab "status")}}
+          <a
+            class="nav-link status-nav-link"
+            role="tab"
+            {{action (mut activeTab) "status"}}
+          >
+            {{tt this "tabs.status"}}
+          </a>
+        {{/nav.item}}
+        {{#nav.item
+          active=(eq activeTab "logs")
+          class=(concat-classes "nav-tab" (unless showLogsTab "disabled"))
+        }}
+          <a
+            role="tab"
+            class="nav-link logs-nav-link"
+            onclick={{if showLogsTab (action (mut activeTab) "logs")}}
+          >
+            {{tt this "tabs.logs"}}
+          </a>
+        {{/nav.item}}
+      {{/bs-nav}}
+      <div class="tab-content">
+        {{#tab.pane id="status"}}
+          {{file-recall/info-table
+            file=file
+            recallRootFile=recallRootFile
+            processStatus=processStatus
+            recallingPercent=recallingPercent
+            archive=archive
+            archiveUrl=archiveUrl
+            dataset=dataset
+            datasetUrl=datasetUrl
+            archiveRecallInfo=archiveRecallInfo
+            archiveRecallState=archiveRecallState
+            relativePath=relativePath
+            lastError=lastError
+            recallingProviderInfo=recallingProviderInfo
+            onClose=onClose
+          }}
+        {{/tab.pane}}
+        {{#tab.pane
+          id="logs"
+          title=(tt this "tabs.logs")
+        }}
+          {{#render-later triggerRender=(eq activeTab "logs")}}
+            {{file-recall/event-log
+              class="fill-flex-using-column"
+              recallRootFile=recallRootFile
+            }}
+          {{/render-later}}
+        {{/tab.pane}}
+      </div>
+    {{/bs-tab}}
     {{yield}}
   {{/promise-proxy-container}}
 {{/modal.body}}

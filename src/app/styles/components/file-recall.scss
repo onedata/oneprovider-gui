@@ -1,4 +1,8 @@
 .file-recall-modal-body {
+  .tab-content {
+    padding-left: 0;
+    padding-right: 0;
+  }
   .file-recall-info-table {
     // complex selector to override defaults
     &.table.table-info td.property-name {
@@ -22,6 +26,23 @@
       // although word-break: break word is deprecated, it is still not supported
       // on Safari (as of 03.2022)
       word-break: break-word;
+    }
+  }
+  .file-recall-event-log {
+    min-height: 0;
+    .column-label:first-child {
+      padding-left: 1em;
+    }
+    .column-timestamp {
+      min-width: 8em;
+    }
+    .column-file {
+      min-width: 12em;
+    }
+    .column-message {
+      min-width: 16em;
+      width: 100%;
+      max-width: 0;
     }
   }
 }
