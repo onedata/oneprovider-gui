@@ -73,8 +73,7 @@ export default Component.extend(I18n, {
     const entries = this.get('entries');
     this.set('firstRow', InfiniteScrollFirstRow.create({
       entries,
-      // FIXME: for debugging
-      singleRowHeight: 40,
+      singleRowHeight: 55,
     }));
   },
 

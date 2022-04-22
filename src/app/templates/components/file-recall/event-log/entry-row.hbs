@@ -1,9 +1,9 @@
-<td class="column-timestamp table-data-timestamp">
+<td class="table-data-cell column-timestamp table-data-timestamp">
   <span class="table-data-text">
     {{date-format timestamp format="report" blank="—"}}
   </span>
 </td>
-<td class="column-file table-data-file">
+<td class="table-data-cell column-file table-data-file">
   <span class="table-data-text truncated-string">
     {{!-- FIXME: use file name from parsed path --}}
     {{!-- FIXME: loading state --}}
@@ -16,7 +16,7 @@
     {{one-tooltip title=filePath class="string-path-tooltip"}}
   </span>
 </td>
-<td class="column-message table-data-message">
+<td class="table-data-cell column-message table-data-message">
   <span class="table-data-text">
     {{#truncated-string class=(concat-classes "table-data-text" messageClass)}}
       {{message}}

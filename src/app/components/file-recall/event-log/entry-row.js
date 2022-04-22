@@ -10,6 +10,7 @@ import { equal, raw, or, and } from 'ember-awesome-macros';
 
 export default Component.extend({
   tagName: 'tr',
+  classNames: ['entry-row', 'data-row'],
 
   fileManager: service(),
   errorExtractor: service(),

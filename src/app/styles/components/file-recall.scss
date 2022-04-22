@@ -30,19 +30,45 @@
   }
   .file-recall-event-log {
     min-height: 0;
-    .column-label:first-child {
-      padding-left: 1em;
-    }
-    .column-timestamp {
-      min-width: 8em;
-    }
-    .column-file {
-      min-width: 12em;
-    }
-    .column-message {
-      min-width: 16em;
+    .event-log-table {
       width: 100%;
-      max-width: 0;
+      // FIXME: partially copied from scrollable-table, make a ticket
+      .data-row td {
+        border-top: 1px solid $table-border-color;
+      }
+      .column-label {
+        vertical-align: bottom;
+        text-align: center;
+        padding-top: $padding-large-vertical;
+        padding-bottom: $padding-large-vertical;
+        background-color: $color-one-white;
+        &:first-child {
+          padding-left: 1em;
+          text-align: left;
+        }
+      }
+      .table-data-cell {
+        $padding: 0.5em;
+        text-align: center;
+        padding-right: $padding;
+        padding-top: $padding;
+        padding-bottom: $padding;
+        &:not(:first-child) {
+          padding-left: $padding;
+        }
+      }
+      .column-timestamp {
+        min-width: 8em;
+        text-align: left;
+      }
+      .column-file {
+        min-width: 10em;
+      }
+      .column-message {
+        min-width: 16em;
+        width: 100%;
+        max-width: 0;
+      }
     }
   }
 }

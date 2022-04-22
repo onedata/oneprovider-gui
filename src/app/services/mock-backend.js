@@ -75,7 +75,7 @@ export const numberOfFiles = 200;
 export const numberOfDirs = 5;
 export const numberOfChainDirs = 5;
 export const numberOfTransfers = 150;
-export const numberOfAtmWorkflowExecutions = 150;
+export const numberOfAtmWorkflowExecutions = 1;
 
 export const storageIdAlpha = '90ca74738947307403740234723bca7890678acb5c7bac567b8ac';
 export const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731901';
@@ -218,19 +218,19 @@ export default Service.extend({
       .then(listRecords => {
         return this.createAndAddQos(store).then(() => listRecords);
       })
-      .then(listRecords => {
-        return this.createDatasetMock(store).then(() => listRecords);
-      })
-      .then(listRecords => {
-        return this.createArchivesMock(store).then(() => listRecords);
-      })
+      // .then(listRecords => {
+      //   return this.createDatasetMock(store).then(() => listRecords);
+      // })
+      // .then(listRecords => {
+      //   return this.createArchivesMock(store).then(() => listRecords);
+      // })
       .then(listRecords => {
         return this.createAtmWorkflowExecutionRecords(store).then(() => listRecords);
       })
-      .then(async listRecords => {
-        await this.createRecallState(store);
-        return listRecords;
-      })
+      // .then(async listRecords => {
+      //   await this.createRecallState(store);
+      //   return listRecords;
+      // })
       .then(listRecords => this.createUserRecord(store, listRecords))
       .then(user => {
         return user.get('effSpaceList')
