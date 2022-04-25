@@ -29,7 +29,7 @@ export default {
       unknownFetchError: 'unknown error',
     },
     apiSamples: {
-      tabTitle: '{*} API',
+      tabTitle: 'API',
     },
   },
   hardlinkEntry: {

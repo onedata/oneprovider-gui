@@ -12,6 +12,18 @@
     }
   }
 
+  .nav-link {
+    .tab-icon.oneicon-rest {
+      font-size: 19px;
+      font-weight: bold;
+      padding-top: 3px;
+    }
+
+    .tab-label-api-samples {
+      margin-left: 14px;
+    }
+  }
+
   .shows-first-n-hardlinks {
     margin-bottom: $padding-base-vertical;
   }

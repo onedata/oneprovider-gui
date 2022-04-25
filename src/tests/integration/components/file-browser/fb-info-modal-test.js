@@ -13,6 +13,7 @@ import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
+import { find } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | file browser/fb info modal', function () {
   setupComponentTest('file-browser/fb-info-modal', {
@@ -44,11 +45,11 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     render(this);
 
-    expect(this.$('.loading-file-path'), 'loading-file-path').to.exist;
+    expect(find('.loading-file-path'), 'loading-file-path').to.exist;
     await wait();
-    expect(this.$('.loading-file-path'), 'loading-file-path').to.not.exist;
+    expect(find('.loading-file-path'), 'loading-file-path').to.not.exist;
     expect(
-      this.$('.file-info-row-path .property-value .clipboard-input').val()
+      find('.file-info-row-path .property-value .clipboard-input').value
     ).to.contain(file1.name);
 
     done();
@@ -59,12 +60,12 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     render(this);
 
-    expect(this.$('.loading-owner-full-name'), 'loading-owner-full-name').to.exist;
+    expect(find('.loading-owner-full-name'), 'loading-owner-full-name').to.exist;
     await wait();
-    expect(this.$('.loading-owner-full-name'), 'loading-owner-full-name')
+    expect(find('.loading-owner-full-name'), 'loading-owner-full-name')
       .to.not.exist;
     expect(
-      this.$('.file-info-row-owner .property-value').text()
+      find('.file-info-row-owner .property-value').textContent
     ).to.contain(owner1.fullName);
 
     done();
@@ -78,7 +79,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await render(this);
 
-    expect(this.$('.file-info-row-target-path')).to.not.exist;
+    expect(find('.file-info-row-target-path')).to.not.exist;
   });
 
   it('does render symlink target relative path when file is a symlink', async function () {
@@ -89,7 +90,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await render(this);
 
-    expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+    expect(find('.file-info-row-target-path .property-value .clipboard-input').value)
       .to.equal('some/path');
   });
 
@@ -108,7 +109,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
       await render(this);
 
-      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+      expect(find('.file-info-row-target-path .property-value .clipboard-input').value)
         .to.equal('/space 1/some/path');
     }
   );
@@ -128,7 +129,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
       await render(this);
 
-      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+      expect(find('.file-info-row-target-path .property-value .clipboard-input').value)
         .to.equal('/<unknown space>/some/path');
     }
   );
@@ -145,7 +146,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
       await render(this);
 
-      expect(this.$('.file-info-row-target-path .property-value .clipboard-input').val())
+      expect(find('.file-info-row-target-path .property-value .clipboard-input').value)
         .to.equal('/<unknown space>/some/path');
     }
   );
@@ -158,8 +159,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await render(this);
     await wait();
-
-    expect(this.$('.nav-tabs')).to.not.contain('Hard links (1)');
+    expect(find('.nav-tabs').textContent).to.not.contain('Hard links (1)');
   });
 
   it('shows hardlinks tab when hardlinks count is 2', async function () {
@@ -171,7 +171,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(this.$('.nav-tabs').text()).to.contain('Hard links (2)');
+    expect(find('.nav-tabs').textContent).to.contain('Hard links (2)');
   });
 
   it('shows api sample tab when previewMode is true', async function () {
@@ -183,7 +183,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(this.$('.nav-tabs')).to.contain('{*} API');
+    expect(find('.nav-tabs').textContent).to.contain('{ } API');
   });
 
   it('does not show api sample tab when file type is symlink', async function () {
@@ -195,7 +195,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(this.$('.nav-tabs')).to.not.contain('{*} API');
+    expect(find('.nav-tabs').textContent).to.not.contain('{ } API');
   });
 
   it('does not show api sample tab when previewMode is false', async function () {
@@ -207,7 +207,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(this.$('.nav-tabs')).to.not.contain('{*} API');
+    expect(find('.nav-tabs').textContent).to.not.contain('{*} API');
   });
 
   it('shows hardlinks list', async function () {
@@ -324,7 +324,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       await wait();
 
       expect(
-        this.$('.file-info-row-size .property-value').text()
+        find('.file-info-row-size .property-value').textContent
       ).to.contain('1 GiB');
       done();
     });
@@ -334,7 +334,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       await wait();
 
       expect(
-        this.$('.file-info-row-name .property-value .clipboard-input').val()
+        find('.file-info-row-name .property-value .clipboard-input').value
       ).to.contain(this.get('file.name'));
 
       done();
@@ -347,7 +347,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       await render(this);
 
       expect(
-        this.$('.file-info-row-space-id .property-value .clipboard-input').val()
+        find('.file-info-row-space-id .property-value .clipboard-input').value
       ).to.contain(spaceEntityId);
 
       done();
@@ -357,8 +357,8 @@ describe('Integration | Component | file browser/fb info modal', function () {
       await render(this);
 
       expect(
-        this.$('.file-info-row-cdmi-object-id .property-value .clipboard-input')
-        .val()
+        find('.file-info-row-cdmi-object-id .property-value .clipboard-input')
+        .value
       ).to.contain(exampleCdmiObjectId);
 
       done();

@@ -30,27 +30,24 @@ export default ProductionFileManager.extend({
   },
 
   getFileApiSamples() {
-    const apiSamples = {
-      rest: {
-        apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
-        samples: [{
-          swaggerOperationId: 'get_test_data',
-          requiresAuthorization: false,
-          placeholders: {},
-          path: '/test/path/to/data',
-          name: 'Get test data',
-          description: 'Return test data',
-          method: 'GET',
-          data: null,
-          followRedirects: true,
-        }],
-      },
-      xrootd: [{
-        name: 'Test xrootd command',
-        description: 'Test xrootd',
-        command: ['xrdcp', '-r', 'root://root.example.com//data/test', '.'],
-      }],
-    };
+    const apiSamples = [{
+      apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
+      type: 'rest',
+      swaggerOperationId: 'get_test_data',
+      requiresAuthorization: false,
+      placeholders: {},
+      path: '/test/path/to/data',
+      name: 'Get test data',
+      description: 'Return test data.',
+      method: 'GET',
+      data: null,
+      followRedirects: true,
+    }, {
+      type: 'xrootd',
+      name: 'Test xrootd command',
+      description: 'Test xrootd',
+      command: ['xrdcp', '-r', 'root://root.example.com//data/test', '.'],
+    }];
     return new Promise((resolve) => {
       setTimeout(() => resolve(apiSamples), 2000);
     });
