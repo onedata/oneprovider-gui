@@ -29,6 +29,11 @@ export default Model.extend(GraphSingleModelMixin, {
   systemAuditLogId: attr('string'),
 
   /**
+   * @type {ComputedProperty<String>}
+   */
+  timeSeriesStoreId: attr('string'),
+
+  /**
    * One of:
    * - `'pending'`,
    * - `'active'`,

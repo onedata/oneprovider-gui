@@ -214,6 +214,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
               entityId: taskInstanceId,
               schemaId: taskSchemaId,
               systemAuditLogId,
+              timeSeriesStoreId,
               status,
               itemsInProcessing,
               itemsProcessed,
@@ -223,6 +224,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
               'entityId',
               'schemaId',
               'systemAuditLogId',
+              'timeSeriesStoreId',
               'status',
               'itemsInProcessing',
               'itemsProcessed',
@@ -238,6 +240,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
               runNumber,
               instanceId: taskInstanceId,
               systemAuditLogStoreInstanceId: systemAuditLogId,
+              timeSeriesStoreInstanceId: timeSeriesStoreId,
               status,
               itemsInProcessing,
               itemsProcessed,
@@ -304,6 +307,10 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         // task audit log store
         if (run.systemAuditLogStoreInstanceId) {
           generatedStoreInstanceIds.add(run.systemAuditLogStoreInstanceId);
+        }
+        // task time series store
+        if (run.timeSeriesStoreInstanceId) {
+          generatedStoreInstanceIds.add(run.timeSeriesStoreInstanceId);
         }
       }
     }
@@ -379,6 +386,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       return {
         schemaId,
         systemAuditLogId: null,
+        timeSeriesStoreId: null,
         status,
         itemsInProcessing: 0,
         itemsProcessed: 0,
