@@ -15,7 +15,6 @@ import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
-import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { createPrivilegeExpression } from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { not } from 'ember-awesome-macros';
 import ArchiveFormCreateModel from 'oneprovider-gui/utils/archive-form/create-model';
