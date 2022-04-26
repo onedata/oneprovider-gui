@@ -1,11 +1,12 @@
 import Component from '@ember/component';
-import { computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import { not } from 'ember-awesome-macros';
 import InfiniteScrollScrollHandler from 'oneprovider-gui/utils/infinite-scroll/scroll-handler';
 import InfiniteScrollFetchingStatus from 'oneprovider-gui/utils/infinite-scroll/fetching-status';
 import InfiniteScrollFirstRow from 'oneprovider-gui/utils/infinite-scroll/first-row';
+import InfiniteScrollListUpdater from 'oneprovider-gui/utils/infinite-scroll/list-updater';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 
@@ -13,6 +14,7 @@ export default Component.extend(I18n, {
   classNames: ['file-recall-event-log'],
 
   fileManager: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -24,6 +26,18 @@ export default Component.extend(I18n, {
    * @type {Models.File}
    */
   recallRootFile: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.Archive}
+   */
+  archive: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.Dataset}
+   */
+  dataset: undefined,
 
   //#region configuration
 
@@ -48,9 +62,18 @@ export default Component.extend(I18n, {
    */
   scrollHandler: undefined,
 
+  /**
+   * @type {Looper}
+   */
+  listUpdater: undefined,
+
   //#endregion
 
   recallRootFileId: reads('recallRootFile.entityId'),
+
+  archiveId: reads('archive.entityId'),
+
+  datasetId: reads('dataset.entityId'),
 
   /**
    * @type {ComputedProperty<ReplacingChunksArray<JsonInfiniteLogEntry<RecallLogEvent>>>}
@@ -63,6 +86,7 @@ export default Component.extend(I18n, {
       indexMargin: 10,
     });
     this.initFetchingStatus(rca);
+    this.initListUpdater(rca);
     return rca;
   }),
 
@@ -72,8 +96,9 @@ export default Component.extend(I18n, {
     this._super(...arguments);
     const entries = this.get('entries');
     this.set('firstRow', InfiniteScrollFirstRow.create({
+      // changes should be synchronized with .table-data-cell-content height in styles
+      singleRowHeight: 44,
       entries,
-      singleRowHeight: 55,
     }));
   },
 
@@ -89,18 +114,32 @@ export default Component.extend(I18n, {
    * @override
    */
   willDestroyElement() {
+    const {
+      scrollHandler,
+      listUpdater,
+    } = this.getProperties('scrollHandler', 'listUpdater');
     try {
-      const scrollHandler = this.get('scrollHandler');
       if (scrollHandler) {
         scrollHandler.destroy();
+      }
+      if (listUpdater) {
+        listUpdater.destroy();
       }
     } finally {
       this._super(...arguments);
     }
   },
 
-  handleScrollTop() {
-    // FIXME: update
+  handleTableScroll({ headerVisible }) {
+    const listUpdater = this.get('listUpdater');
+    if (!listUpdater) {
+      return;
+    }
+    if (headerVisible && !get(listUpdater, 'isActive')) {
+      listUpdater.start(true);
+    } else if (!headerVisible && get(listUpdater, 'isActive')) {
+      listUpdater.stop();
+    }
   },
 
   /**
@@ -128,39 +167,6 @@ export default Component.extend(I18n, {
     return result;
   },
 
-  // FIXME: debug code
-  // async fetchEntries() {
-  //   const recallRootFileId = this.get('recallRootFileId');
-  //   const result = {
-  //     array: [{
-  //         index: 'a1',
-  //         timestamp: 100000000,
-  //         content: {
-  //           fileId: recallRootFileId,
-  //           reason: { id: 'posix', details: { errno: 'enospc' } },
-  //         },
-  //       },
-  //       {
-  //         index: 'a2',
-  //         timestamp: 230000000,
-  //         content: {
-  //           fileId: recallRootFileId,
-  //           reason: { id: 'posix', details: { errno: 'enospc' } },
-  //         },
-  //       },
-  //     ],
-  //     isLast: true,
-  //   };
-  //   const entries = result && result.array;
-  //   // Infinite log entries don't have id, which are required by replacing chunks array.
-  //   // Solution: using entry index as id.
-  //   if (entries) {
-  //     entries.forEach(entry => entry.id = entry.index);
-  //   }
-
-  //   return result;
-  // },
-
   initFetchingStatus(replacingChunksArray) {
     this.set('fetchingStatus', InfiniteScrollFetchingStatus.create({
       replacingChunksArray,
@@ -181,7 +187,40 @@ export default Component.extend(I18n, {
       element,
       entries,
       firstRow,
-      onScrolledTop: this.handleScrollTop.bind(this),
+      onScroll: this.handleTableScroll.bind(this),
     }));
+  },
+
+  initListUpdater(entries) {
+    const listUpdater = this.set('listUpdater', InfiniteScrollListUpdater.create({
+      entries,
+    }));
+    listUpdater.start();
+  },
+
+  /**
+   * @param {string} fileId ID of file in archive
+   * @returns {string} URL of file in archive
+   */
+  generateSourceFileUrl(fileId) {
+    const {
+      appProxy,
+      archiveId,
+      datasetId,
+    } = this.getProperties('appProxy', 'archiveId', 'datasetId');
+    if (!archiveId || !datasetId) {
+      return null;
+    }
+    return appProxy.callParent('getDatasetsUrl', {
+      selectedDatasets: [datasetId],
+      archive: archiveId,
+      selectedFiles: [fileId],
+    });
+  },
+
+  actions: {
+    generateSourceFileUrl(fileId) {
+      return this.generateSourceFileUrl(fileId);
+    },
   },
 });

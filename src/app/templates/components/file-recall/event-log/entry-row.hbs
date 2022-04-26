@@ -1,25 +1,33 @@
 <td class="table-data-cell column-timestamp table-data-timestamp">
-  <span class="table-data-text">
+  <div class="table-data-cell-content">
     {{date-format timestamp format="report" blank="—"}}
-  </span>
+  </div>
 </td>
 <td class="table-data-cell column-file table-data-file">
-  <span class="table-data-text truncated-string">
-    {{!-- FIXME: use file name from parsed path --}}
-    {{!-- FIXME: loading state --}}
-    {{!-- FIXME: file link? --}}
-    {{!-- <a
-      href={{fileHref}}
-    > --}}
-      <span class="file-name">{{fileName}}</span>
-    {{!-- </a> --}}
-    {{one-tooltip title=filePath class="string-path-tooltip"}}
-  </span>
+  <div class="table-data-cell-content">
+    {{#if fileHref}}
+      <a
+        class="source-file navy underlined"
+        target={{navigateTarget}}
+        href={{fileHref}}
+      >
+        <div class="truncate">
+          <span class="file-name">{{fileName}}</span>
+          {{one-tooltip title=filePath class="string-path-tooltip"}}
+        </div>
+      </a>
+    {{else}}
+      <div class="truncate">
+        <span class="file-name">{{fileName}}</span>
+        {{one-tooltip title=filePath class="string-path-tooltip"}}
+      </div>
+    {{/if}}
+  </div>
 </td>
 <td class="table-data-cell column-message table-data-message">
-  <span class="table-data-text">
-    {{#truncated-string class=(concat-classes "table-data-text" messageClass)}}
+  <div class="table-data-cell-content">
+    {{#truncated-string class=messageClass}}
       {{message}}
     {{/truncated-string}}
-  </span>
+  </div>
 </td>

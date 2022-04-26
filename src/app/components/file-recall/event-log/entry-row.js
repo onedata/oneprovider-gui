@@ -7,19 +7,32 @@ import { get, computed } from '@ember/object';
 import { promise } from 'ember-awesome-macros';
 import parseRecallError from 'oneprovider-gui/utils/parse-recall-error';
 import { equal, raw, or, and } from 'ember-awesome-macros';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default Component.extend({
   tagName: 'tr',
   classNames: ['entry-row', 'data-row'],
+  attributeBindings: ['entry.index:data-row-id'],
 
   fileManager: service(),
   errorExtractor: service(),
+  parentAppNavigation: service(),
+  appProxy: service(),
 
   /**
    * @virtual
    * @type {JsonInfiniteLogPage<RecallLogEntry>}
    */
   entry: undefined,
+
+  /**
+   * Should generate a full source file URL inside archive.
+   * @virtual
+   * @type {(fileId: string) => string}
+   */
+  onGenerateSourceFileUrl: notImplementedIgnore,
+
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   fileCdmiObjectId: reads('entry.content.fileId'),
 
@@ -40,9 +53,6 @@ export default Component.extend({
     return get(await fileProxy, 'name');
   })),
 
-  // FIXME: to remove?
-  // fileName: reads('fileNameProxy.content'),
-
   fileName: computed('filePath', function fileName() {
     const filePath = this.get('filePath');
     if (!filePath || typeof filePath !== 'string') {
@@ -51,6 +61,8 @@ export default Component.extend({
     const pathArray = filePath.split('/');
     return pathArray[pathArray.length - 1];
   }),
+
+  fileHref: computedPipe('fileId', 'onGenerateSourceFileUrl'),
 
   /**
    * @type {ComputedProperty<number>}

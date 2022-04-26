@@ -22,7 +22,7 @@ export default EmberObject.extend({
     'entries._start',
     function height() {
       const _start = this.get('entries._start');
-      return _start ? _start * this.get('rowHeight') : 0;
+      return _start ? _start * this.get('singleRowHeight') : 0;
     }
   ),
 

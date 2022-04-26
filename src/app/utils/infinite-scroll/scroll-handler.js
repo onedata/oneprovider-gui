@@ -43,7 +43,7 @@ export default EmberObject.extend({
 
   //#region state
 
-  tableTopVisible: true,
+  headerVisible: true,
 
   /**
    * @type {Utils.ListWatcher}
@@ -63,14 +63,14 @@ export default EmberObject.extend({
       fallbackEndIndex,
       entries,
       firstRow,
-      onScrolledTop,
+      onScroll,
     } = this.getProperties(
       '_window',
       'element',
       'fallbackEndIndex',
       'entries',
       'firstRow',
-      'onScrolledTop',
+      'onScroll',
     );
     const sourceArray = this.get('entries.sourceArray');
     const entriesIds = sourceArray.mapBy('id');
@@ -106,10 +106,8 @@ export default EmberObject.extend({
     if (oldStartIndex !== startIndex || oldEndIndex !== endIndex) {
       setProperties(entries, { startIndex, endIndex });
     }
-    safeExec(this, 'set', 'tableTopVisible', headerVisible);
-    if (headerVisible && onScrolledTop) {
-      onScrolledTop();
-    }
+    safeExec(this, 'set', 'headerVisible', headerVisible);
+    onScroll({ headerVisible });
   },
 
   entriesLoadedObserver: observer(
@@ -149,10 +147,7 @@ export default EmberObject.extend({
       $(element.closest('.ps')),
       '.data-row',
       (items, headerVisible) => {
-        // FIXME: custom for global-modal
-        // if (element.closest('.global-modal').matches('.in')) {
         return safeExec(this, 'onTableScroll', items, headerVisible);
-        // }
       },
       '.table-start-row'
     );

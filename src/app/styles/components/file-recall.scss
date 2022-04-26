@@ -31,41 +31,61 @@
   .file-recall-event-log {
     min-height: 0;
     .event-log-table {
+      $cell-padding: 0.5em;
       width: 100%;
-      // FIXME: partially copied from scrollable-table, make a ticket
       .data-row td {
         border-top: 1px solid $table-border-color;
       }
       .column-label {
         vertical-align: bottom;
-        text-align: center;
+        text-align: left;
         padding-top: $padding-large-vertical;
         padding-bottom: $padding-large-vertical;
         background-color: $color-one-white;
+        padding-left: $cell-padding;
         &:first-child {
           padding-left: 1em;
           text-align: left;
         }
       }
       .table-data-cell {
-        $padding: 0.5em;
-        text-align: center;
-        padding-right: $padding;
-        padding-top: $padding;
-        padding-bottom: $padding;
+        max-width: 0;
         &:not(:first-child) {
-          padding-left: $padding;
+          .table-data-cell-content {
+            padding-left: $cell-padding;
+          }
         }
       }
-      .column-timestamp {
-        min-width: 8em;
+      .table-data-cell-content {
+        display: flex;
+        align-items: center;
+        height: 44px;
+        overflow: hidden;
+        text-overflow: ellipsis;
         text-align: left;
+        padding-right: $cell-padding;
+        padding-top: $cell-padding;
+        padding-bottom: $cell-padding;
+      }
+      .column-timestamp {
+        min-width: 12em;
+        @media (max-width: $screen-xs-max) {
+          min-width: 8em;
+        }
       }
       .column-file {
         min-width: 10em;
+        padding-left: 0;
+        text-align: center;
+        .table-data-cell-content {
+          text-align: center;
+          justify-content: center;
+        }
+        @media (max-width: $screen-xs-max) {
+          min-width: 7em;
+        }
       }
       .column-message {
-        min-width: 16em;
         width: 100%;
         max-width: 0;
       }

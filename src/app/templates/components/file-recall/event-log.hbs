@@ -26,6 +26,7 @@
       {{#each entries key="index" as |entry|}}
         {{file-recall/event-log/entry-row
           entry=entry
+          onGenerateSourceFileUrl=(action "generateSourceFileUrl")
         }}
       {{/each}}
 
