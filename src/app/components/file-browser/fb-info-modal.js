@@ -297,9 +297,6 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   },
 
   actions: {
-    changeTab(tab) {
-      this.set('activeTab', tab);
-    },
     close() {
       return this.get('onHide')();
     },

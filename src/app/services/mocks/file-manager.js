@@ -45,11 +45,11 @@ export default ProductionFileManager.extend({
     }, {
       type: 'xrootd',
       name: 'Test xrootd command',
-      description: 'Test xrootd',
+      description: 'Test xrootd.',
       command: ['xrdcp', '-r', 'root://root.example.com//data/test', '.'],
     }];
     return new Promise((resolve) => {
-      setTimeout(() => resolve(apiSamples), 2000);
+      setTimeout(() => resolve(apiSamples), 1);
     });
   },
 });

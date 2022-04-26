@@ -31,7 +31,7 @@
           <a href="#general"
             class={{concat "nav-link nav-link-general"}}
             role="tab"
-            {{action (mut changeTab) "general"}}
+            {{action (mut activeTab) "general"}}
           >
             {{tt this "tabs.general.tabTitle"}}
           </a>
@@ -43,7 +43,7 @@
             <a href="#hardlinks"
               class={{concat "nav-link nav-link-hardlinks"}}
               role="tab"
-              {{action (mut changeTab) "hardlinks"}}
+              {{action (mut activeTab) "hardlinks"}}
             >
               {{tt this "tabs.hardlinks.tabTitle" hardlinksCount=(if
                 hardlinksLimitExceeded
@@ -61,7 +61,7 @@
             <a href="#apiSamples"
               class={{concat "nav-link nav-link-metadata-type nav-link-" 'apiSamples'}}
               role="tab"
-              {{action (mut changeTab) 'apiSamples'}}
+              {{action (mut activeTab) "apiSamples"}}
             > 
               {{one-icon class="tab-icon" icon="rest"}}
               <div class="tab-label-api-samples">

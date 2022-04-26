@@ -4,7 +4,6 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import {
   file1,
-  fileParent1,
   owner1,
   exampleCdmiObjectId,
 } from 'oneprovider-gui/components/dummy-file-info';
@@ -13,7 +12,9 @@ import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
-import { find } from 'ember-native-dom-helpers';
+import { find, findAll } from 'ember-native-dom-helpers';
+import { clickTrigger } from '../../../helpers/ember-power-select';
+import $ from 'jquery';
 
 describe('Integration | Component | file browser/fb info modal', function () {
   setupComponentTest('file-browser/fb-info-modal', {
@@ -159,7 +160,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await render(this);
     await wait();
-    expect(find('.nav-tabs').textContent).to.not.contain('Hard links (1)');
+    expect(find('.tab-content .nav-tabs').textContent).to.not.contain('Hard links (1)');
   });
 
   it('shows hardlinks tab when hardlinks count is 2', async function () {
@@ -171,7 +172,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(find('.nav-tabs').textContent).to.contain('Hard links (2)');
+    expect(find('.tab-content .nav-tabs').textContent).to.contain('Hard links (2)');
   });
 
   it('shows api sample tab when previewMode is true', async function () {
@@ -183,7 +184,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(find('.nav-tabs').textContent).to.contain('{ } API');
+    expect(find('.tab-content .nav-tabs').textContent).to.contain('API');
   });
 
   it('does not show api sample tab when file type is symlink', async function () {
@@ -195,7 +196,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(find('.nav-tabs').textContent).to.not.contain('{ } API');
+    expect(find('.tab-content .nav-tabs').textContent).to.not.contain('API');
   });
 
   it('does not show api sample tab when previewMode is false', async function () {
@@ -207,7 +208,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(find('.nav-tabs').textContent).to.not.contain('{*} API');
+    expect(find('.tab-content .nav-tabs').textContent).to.not.contain('API');
   });
 
   it('shows hardlinks list', async function () {
@@ -365,10 +366,60 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
   });
 
-  context('for directory', function () {
+  context('for api samples tab', function () {
     beforeEach(function () {
-      this.set('file', fileParent1);
+      this.set('file', {
+        type: 'file',
+      });
+      this.set('previewMode', true);
     });
+
+    it('shows 2 api operations in dropdown', async function () {
+      await render(this);
+      await wait();
+      await click($(find()).find('.nav-link:contains("API")')[0]);
+      await clickTrigger('.api-operation-row');
+      const $options = findAll('li.ember-power-select-option');
+      expect($options).to.have.length(2);
+      const optionTitles = $options
+        .map(opt => find(opt, '.api-command-title').textContent.trim());
+      const fullOptionsString = optionTitles.join(',');
+      expect(fullOptionsString).to.contain('Get test data');
+      expect(fullOptionsString).to.contain('Test xrootd command');
+    });
+
+    it('shows type, description and clipboard for rest operation', async function () {
+      await render(this);
+      await wait();
+      await click($(find()).find('.nav-link:contains("API")')[0]);
+      await clickTrigger('.api-operation-row');
+      await click(this.$('li.ember-power-select-option:contains("get test data")')[0]);
+      expect(find('.item-info-row-type-api-command .api-tag-label').textContent.trim())
+        .to.contain('REST');
+      expect(find('.item-info-row-description .description-value').textContent.trim())
+        .to.contain('Return test data.');
+      expect(find('.item-info-row-api-command .clipboard-input').textContent.trim())
+        .to.contain(
+          'curl -L -X GET \'https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data\''
+        );
+    });
+
+    it('shows type, description and clipboard for xrootd command',
+      async function () {
+        await render(this);
+        await wait();
+        await click($(find()).find('.nav-link:contains("API")')[0]);
+        await clickTrigger('.api-operation-row');
+        await click($(
+          '.api-command-title:contains("Test xrootd command")')[0]);
+        await wait();
+        expect(find('.item-info-row-type-api-command .api-tag-label').textContent.trim())
+          .to.contain('XRootD');
+        expect(find('.item-info-row-description .description-value').textContent.trim())
+          .to.contain('Test xrootd.');
+        expect(find('.item-info-row-api-command .clipboard-input').textContent.trim())
+          .to.contain('xrdcp -r \'root://root.example.com//data/test\' \'.\'');
+      });
   });
 });
 
