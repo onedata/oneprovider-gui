@@ -1,3 +1,11 @@
+/**
+ * Infinite scroll table with events (currently only errors) of recall process.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -167,9 +175,9 @@ export default Component.extend(I18n, {
     return result;
   },
 
-  initFetchingStatus(replacingChunksArray) {
+  initFetchingStatus(entries) {
     this.set('fetchingStatus', InfiniteScrollFetchingStatus.create({
-      replacingChunksArray,
+      entries,
     }));
   },
 

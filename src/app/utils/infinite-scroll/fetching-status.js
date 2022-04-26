@@ -1,3 +1,12 @@
+/**
+ * Exposes a state of fetching process of infinite scroll array for view.
+ * It can be used for showing begin/end spinner of infinite scroll list.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject from '@ember/object';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
@@ -6,7 +15,7 @@ export default EmberObject.extend({
    * @virtual
    * @type {ReplacingChunksArray}
    */
-  replacingChunksArray: undefined,
+  entries: undefined,
 
   //#region state
 
@@ -24,7 +33,7 @@ export default EmberObject.extend({
 
   init() {
     this._super(...arguments);
-    this.bindLoadingStateNotifications(this.get('replacingChunksArray'));
+    this.bindLoadingStateNotifications(this.get('entries'));
   },
 
   /**

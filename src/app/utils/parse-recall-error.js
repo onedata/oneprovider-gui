@@ -1,4 +1,11 @@
-// FIXME: jsdoc
+/**
+ * Simplifies raw recall error object from backend to message object that is used
+ * in views.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
 
 /**
  * Error in recall process parsed for showing a simple info for user.
