@@ -56,36 +56,38 @@
       {{/bs-nav}}
       <div class="tab-content">
         {{#tab.pane id="status"}}
-          {{file-recall/info-table
-            file=file
-            recallRootFile=recallRootFile
-            processStatus=processStatus
-            recallingPercent=recallingPercent
-            archive=archive
-            archiveUrl=archiveUrl
-            dataset=dataset
-            datasetUrl=datasetUrl
-            archiveRecallInfo=archiveRecallInfo
-            archiveRecallState=archiveRecallState
-            relativePath=relativePath
-            lastError=lastError
-            recallingProviderInfo=recallingProviderInfo
-            onClose=onClose
-            onOpenErrorLog=(action (mut activeTab) "logs")
-          }}
+          {{#if (eq activeTab "status")}}
+            {{file-recall/info-table
+              file=file
+              recallRootFile=recallRootFile
+              processStatus=processStatus
+              recallingPercent=recallingPercent
+              archive=archive
+              archiveUrl=archiveUrl
+              dataset=dataset
+              datasetUrl=datasetUrl
+              archiveRecallInfo=archiveRecallInfo
+              archiveRecallState=archiveRecallState
+              relativePath=relativePath
+              lastError=lastError
+              recallingProviderInfo=recallingProviderInfo
+              onClose=onClose
+              onOpenErrorLog=(action (mut activeTab) "logs")
+            }}
+          {{/if}}
         {{/tab.pane}}
         {{#tab.pane
           id="logs"
           title=(tt this "tabs.logs")
         }}
-          {{#render-later triggerRender=(eq activeTab "logs")}}
+          {{#if (eq activeTab "logs")}}
             {{file-recall/event-log
               class="fill-flex-using-column"
               recallRootFile=recallRootFile
               archive=archive
               dataset=dataset
             }}
-          {{/render-later}}
+          {{/if}}
         {{/tab.pane}}
       </div>
     {{/bs-tab}}

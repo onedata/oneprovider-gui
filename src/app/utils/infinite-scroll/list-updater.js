@@ -48,7 +48,6 @@ export default EmberObject.extend({
   stop() {
     const looper = this.get('looper');
     if (looper) {
-      console.log('list updater stop');
       looper.destroy();
       this.set('looper', null);
     }
