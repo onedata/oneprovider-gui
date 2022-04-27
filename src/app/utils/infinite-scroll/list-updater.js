@@ -1,3 +1,11 @@
+/**
+ * Periodically reloads visible part of array when enabled.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject from '@ember/object';
 import Looper from 'onedata-gui-common/utils/looper';
 import { bool } from 'ember-awesome-macros';

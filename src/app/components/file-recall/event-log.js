@@ -13,7 +13,7 @@ import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-arra
 import { not } from 'ember-awesome-macros';
 import InfiniteScrollScrollHandler from 'oneprovider-gui/utils/infinite-scroll/scroll-handler';
 import InfiniteScrollFetchingStatus from 'oneprovider-gui/utils/infinite-scroll/fetching-status';
-import InfiniteScrollFirstRow from 'oneprovider-gui/utils/infinite-scroll/first-row';
+import InfiniteScrollFirstRowModel from 'oneprovider-gui/utils/infinite-scroll/first-row-model';
 import InfiniteScrollListUpdater from 'oneprovider-gui/utils/infinite-scroll/list-updater';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
@@ -56,17 +56,17 @@ export default Component.extend(I18n, {
   //#region state
 
   /**
-   * @type {InfiniteScrollListFetchingStatus}
+   * @type {InfiniteScroll.FetchingStatus}
    */
   fetchingStatus: undefined,
 
   /**
-   * @type {InfiniteScrollListFirstRow}
+   * @type {InfiniteScroll.FirstRowModel}
    */
   firstRow: undefined,
 
   /**
-   * @type {InfiniteScrollScrollHandler}
+   * @type {InfiniteScroll.ScrollHandler}
    */
   scrollHandler: undefined,
 
@@ -103,7 +103,7 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     const entries = this.get('entries');
-    this.set('firstRow', InfiniteScrollFirstRow.create({
+    this.set('firstRow', InfiniteScrollFirstRowModel.create({
       // changes should be synchronized with .table-data-cell-content height in styles
       singleRowHeight: 44,
       entries,

@@ -1,3 +1,13 @@
+/**
+ * Changes range of displayed entries basing on current view state.
+ * The procedure of range changing is triggered by scroll events, for which this class
+ * registers.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, {
   get,
   getProperties,
@@ -18,9 +28,9 @@ export default EmberObject.extend({
 
   /**
    * @virtual
-   * @type {InfiniteScrollListFirstRow}
+   * @type {InfiniteScroll.FirstRowModel}
    */
-  firstRow: undefined,
+  firstRowModel: undefined,
 
   /**
    * @virtual
@@ -62,14 +72,14 @@ export default EmberObject.extend({
       element,
       fallbackEndIndex,
       entries,
-      firstRow,
+      firstRowModel,
       onScroll,
     } = this.getProperties(
       '_window',
       'element',
       'fallbackEndIndex',
       'entries',
-      'firstRow',
+      'firstRowModel',
       'onScroll',
     );
     const sourceArray = this.get('entries.sourceArray');
@@ -83,7 +93,7 @@ export default EmberObject.extend({
     let startIndex;
     let endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
-      const rowHeight = get(firstRow, 'singleRowHeight');
+      const rowHeight = get(firstRowModel, 'singleRowHeight');
       const $firstRow = $(element.querySelector('.first-row'));
       const firstRowTop = $firstRow.offset().top;
       const blankStart = firstRowTop * -1;

@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9021 Added recall process error log
 * VFS-9360 Fixed creating incremental archive using always latest archive despite of user select
 * VFS-9036 Added time series features to automation GUI
 * VFS-9207 Removed usage of local OpenSans fonts

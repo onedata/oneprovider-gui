@@ -1,6 +1,6 @@
 /**
- * Exposes a state of fetching process of infinite scroll array for view.
- * It can be used for showing begin/end spinner of infinite scroll list.
+ * Exposes a state of spinners that indicates current fetching operation (eg. fetching
+ * next chunk). It registers for replacing chunks array events.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH

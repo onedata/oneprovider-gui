@@ -1,3 +1,12 @@
+/**
+ * Provides desired height of first row of infinite scroll list, which is a blank
+ * placeholder replacing a number of not visible entries on on list head.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import EmberObject, { computed } from '@ember/object';
 import { htmlSafe } from '@ember/string';
 
