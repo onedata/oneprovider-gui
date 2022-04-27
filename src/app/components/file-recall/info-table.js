@@ -124,6 +124,12 @@ export default Component.extend(I18n, {
    */
   onClose: notImplementedIgnore,
 
+  /**
+   * @virtual optional
+   * @type {() => void}
+   */
+  onOpenErrorLog: notImplementedIgnore,
+
   statesToShowPercentage: Object.freeze([
     'pending',
     'cancelling',
@@ -244,6 +250,9 @@ export default Component.extend(I18n, {
       if (!isNewTabRequestEvent(event) && onClose) {
         onClose();
       }
+    },
+    openErrorLog() {
+      this.get('onOpenErrorLog')();
     },
   },
 });
