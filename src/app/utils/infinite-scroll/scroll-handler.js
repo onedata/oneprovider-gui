@@ -82,6 +82,10 @@ export default EmberObject.extend({
       'firstRowModel',
       'onScroll',
     );
+    if (!firstRowModel) {
+      return;
+    }
+
     const sourceArray = this.get('entries.sourceArray');
     const entriesIds = sourceArray.mapBy('id');
     const firstNonEmptyRow = items.find(elem => elem.getAttribute('data-row-id'));

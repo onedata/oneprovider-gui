@@ -49,7 +49,7 @@ export default Component.extend(I18n, {
 
   //#region configuration
 
-  columnsCount: 2,
+  columnsCount: 3,
 
   //#endregion
 
@@ -63,7 +63,7 @@ export default Component.extend(I18n, {
   /**
    * @type {InfiniteScroll.FirstRowModel}
    */
-  firstRow: undefined,
+  firstRowModel: undefined,
 
   /**
    * @type {InfiniteScroll.ScrollHandler}
@@ -103,7 +103,7 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     const entries = this.get('entries');
-    this.set('firstRow', InfiniteScrollFirstRowModel.create({
+    this.set('firstRowModel', InfiniteScrollFirstRowModel.create({
       // changes should be synchronized with .table-data-cell-content height in styles
       singleRowHeight: 44,
       entries,
@@ -139,9 +139,15 @@ export default Component.extend(I18n, {
   },
 
   handleTableScroll({ headerVisible }) {
-    const listUpdater = this.get('listUpdater');
+    const {
+      listUpdater,
+      headerVisible: currentHeaderVisible,
+    } = this.getProperties('listUpdater', 'headerVisible');
     if (!listUpdater) {
       return;
+    }
+    if (headerVisible !== currentHeaderVisible) {
+      this.set('headerVisible', headerVisible);
     }
     if (headerVisible && !get(listUpdater, 'isActive')) {
       listUpdater.start(true);
@@ -185,16 +191,16 @@ export default Component.extend(I18n, {
     const {
       element,
       entries,
-      firstRow,
+      firstRowModel,
     } = this.getProperties(
       'element',
       'entries',
-      'firstRow',
+      'firstRowModel',
     );
     this.set('scrollHandler', InfiniteScrollScrollHandler.create({
       element,
       entries,
-      firstRow,
+      firstRowModel,
       onScroll: this.handleTableScroll.bind(this),
     }));
   },

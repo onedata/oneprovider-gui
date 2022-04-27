@@ -34,6 +34,7 @@
   .file-recall-event-log {
     min-height: 0;
     .event-log-table {
+      $row-height: 44px;
       $cell-padding: 0.5em;
       width: 100%;
       .data-row td {
@@ -62,7 +63,7 @@
       .table-data-cell-content {
         display: flex;
         align-items: center;
-        height: 44px;
+        height: $row-height;
         overflow: hidden;
         text-overflow: ellipsis;
         text-align: left;
@@ -91,6 +92,9 @@
       .column-message {
         width: 100%;
         max-width: 0;
+      }
+      .loading-row-cell {
+        height: $row-height * 1.5;
       }
     }
   }
