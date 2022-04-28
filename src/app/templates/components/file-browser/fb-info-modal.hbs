@@ -18,6 +18,7 @@
     {{#bs-tab
       class="bs-tab-onedata bs-tab-modern"
       activeId=activeTab
+      customTabs=true
       as |tab|
     }}
       {{#bs-nav
@@ -49,8 +50,7 @@
                 hardlinksLimitExceeded
                 (concat hardlinksLimit "+")
                 hardlinksCount
-                )
-              }}
+              )}}
             </a>
           {{/nav.item}}
         {{/if}}
@@ -59,7 +59,7 @@
             active=(eq tab.activeId "apiSamples")
           }}
             <a href="#apiSamples"
-              class={{concat "nav-link nav-link-metadata-type nav-link-" 'apiSamples'}}
+              class="nav-link nav-link-metadata-type nav-link-apiSamples"
               role="tab"
               {{action (mut activeTab) "apiSamples"}}
             > 

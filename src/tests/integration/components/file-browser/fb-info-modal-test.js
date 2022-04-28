@@ -21,6 +21,25 @@ describe('Integration | Component | file browser/fb info modal', function () {
     integration: true,
   });
 
+  const apiSamples = [{
+    apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
+    type: 'rest',
+    swaggerOperationId: 'get_test_data',
+    requiresAuthorization: false,
+    placeholders: {},
+    path: '/test/path/to/data',
+    name: 'Get test data',
+    description: 'Return test data.',
+    method: 'GET',
+    data: null,
+    followRedirects: true,
+  }, {
+    type: 'xrootd',
+    name: 'Test xrootd command',
+    description: 'Test xrootd.',
+    command: ['xrdcp', '-r', 'root://root.example.com//data/test', '.'],
+  }];
+
   beforeEach(function () {
     const fileHardlinksResult = this.set('fileHardlinksResult', {
       hardlinksCount: 1,
@@ -160,7 +179,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await render(this);
     await wait();
-    expect(find('.tab-content .nav-tabs').textContent).to.not.contain('Hard links (1)');
+    expect(find('.nav-tabs').textContent).to.not.contain('Hard links (1)');
   });
 
   it('shows hardlinks tab when hardlinks count is 2', async function () {
@@ -172,7 +191,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(find('.tab-content .nav-tabs').textContent).to.contain('Hard links (2)');
+    expect(find('.nav-tabs').textContent).to.contain('Hard links (2)');
   });
 
   it('shows api sample tab when previewMode is true', async function () {
@@ -184,7 +203,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(find('.tab-content .nav-tabs').textContent).to.contain('API');
+    expect(find('.nav-tabs').textContent).to.contain('API');
   });
 
   it('does not show api sample tab when file type is symlink', async function () {
@@ -196,7 +215,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(find('.tab-content .nav-tabs').textContent).to.not.contain('API');
+    expect(find('.nav-tabs').textContent).to.not.contain('API');
   });
 
   it('does not show api sample tab when previewMode is false', async function () {
@@ -208,7 +227,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     await render(this);
     await wait();
 
-    expect(find('.tab-content .nav-tabs').textContent).to.not.contain('API');
+    expect(find('.nav-tabs').textContent).to.not.contain('API');
   });
 
   it('shows hardlinks list', async function () {
@@ -366,19 +385,23 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
   });
 
-  context('for api samples tab', function () {
-    beforeEach(function () {
-      this.set('file', {
-        type: 'file',
+  context('for file type and API samples tab', function () {
+    beforeEach(async function () {
+      const fileApiSamples =
+        sinon.stub(lookupService(this, 'fileManager'), 'getFileApiSamples')
+        .resolves(apiSamples);
+      this.setProperties({
+        file: { type: 'file' },
+        previewMode: true,
+        fileApiSamples,
       });
-      this.set('previewMode', true);
-    });
-
-    it('shows 2 api operations in dropdown', async function () {
       await render(this);
       await wait();
       await click($(find()).find('.nav-link:contains("API")')[0]);
       await clickTrigger('.api-operation-row');
+    });
+
+    it('shows API operations provided by fileManager', async function (done) {
       const $options = findAll('li.ember-power-select-option');
       expect($options).to.have.length(2);
       const optionTitles = $options
@@ -386,13 +409,10 @@ describe('Integration | Component | file browser/fb info modal', function () {
       const fullOptionsString = optionTitles.join(',');
       expect(fullOptionsString).to.contain('Get test data');
       expect(fullOptionsString).to.contain('Test xrootd command');
+      done();
     });
 
-    it('shows type, description and clipboard for rest operation', async function () {
-      await render(this);
-      await wait();
-      await click($(find()).find('.nav-link:contains("API")')[0]);
-      await clickTrigger('.api-operation-row');
+    it('shows type, description and clipboard for selected REST operation', async function (done) {
       await click(this.$('li.ember-power-select-option:contains("get test data")')[0]);
       expect(find('.item-info-row-type-api-command .api-tag-label').textContent.trim())
         .to.contain('REST');
@@ -402,14 +422,11 @@ describe('Integration | Component | file browser/fb info modal', function () {
         .to.contain(
           'curl -L -X GET \'https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data\''
         );
+      done();
     });
 
-    it('shows type, description and clipboard for xrootd command',
-      async function () {
-        await render(this);
-        await wait();
-        await click($(find()).find('.nav-link:contains("API")')[0]);
-        await clickTrigger('.api-operation-row');
+    it('shows type, description and clipboard for selected xrootd operation',
+      async function (done) {
         await click($(
           '.api-command-title:contains("Test xrootd command")')[0]);
         await wait();
@@ -419,6 +436,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
           .to.contain('Test xrootd.');
         expect(find('.item-info-row-api-command .clipboard-input').textContent.trim())
           .to.contain('xrdcp -r \'root://root.example.com//data/test\' \'.\'');
+        done();
       });
   });
 });
