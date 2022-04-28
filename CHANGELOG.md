@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9029 Changed showing rest api for shares
+* VFS-9360 Fixed creating incremental archive using always latest archive despite of user select
 * VFS-9036 Added time series features to automation GUI
 * VFS-9207 Removed usage of local OpenSans fonts
 * VFS-9028 Added archive properties modal with description editor, improved archive description presentation
@@ -22,6 +23,7 @@ CHANGELOG
 * VFS-7631 Added file path to dataset item in datasets modal
 * VFS-7717 Upgraded Babel to version 7.3, using EcmaScript 2019 for development
 * VFS-8997 Added support for new data specs format in automation stores
+* VFS-9354 Fixed loading echarts library
 * VFS-8794 Added transfer charts to QoS requirements
 * VFS-7451 Fixed non-rounded corners in textarea in file info modal
 * VFS-7731 Showing error after delete share failed
