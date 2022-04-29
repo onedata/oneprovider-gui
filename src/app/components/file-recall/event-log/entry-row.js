@@ -29,7 +29,7 @@ export default Component.extend({
 
   /**
    * @virtual
-   * @type {JsonInfiniteLogPage<RecallLogEntry>}
+   * @type {RecallLogEntry}
    */
   entry: undefined,
 
@@ -55,9 +55,7 @@ export default Component.extend({
   })),
 
   fileNameProxy: promise.object(computed('fileProxy.name', async function fileProxy() {
-    const {
-      fileProxy,
-    } = this.getProperties('fileProxy');
+    const fileProxy = this.get('fileProxy');
     return get(await fileProxy, 'name');
   })),
 
@@ -75,7 +73,7 @@ export default Component.extend({
   /**
    * @type {ComputedProperty<number>}
    */
-  timestamp: computed('entry.timestamp', function () {
+  timestamp: computed('entry.timestamp', function timestamp() {
     const timestampMs = this.get('entry.timestamp');
     return Number.isInteger(timestampMs) ? timestampMs / 1000 : null;
   }),

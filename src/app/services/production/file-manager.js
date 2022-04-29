@@ -19,7 +19,7 @@ import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 /**
- * @typedef {RecallLogEntry} Object
+ * @typedef {Object} RecallLogData
  * @property {string} fileId CDMI Object ID of file that message is about
  * @property {string} relativePath relative path to error-affected file from archive
  * @property {RecallError} reason object with error reason
@@ -28,6 +28,10 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
 /**
  * An error object from backend in standard format, parsable using ErrorExtractor
  * @typedef {RecallError} Object
+ */
+
+/**
+ * @typedef {JsonInfiniteLogEntry<RecallLogData>} RecallLogEntry
  */
 
 const cancelRecallAspect = 'cancel_archive_recall';
@@ -466,7 +470,7 @@ export default Service.extend({
    * file with `recallRootId` entity ID.
    * @param {string} recallRootId
    * @param {JsonInfiniteLogPagingParams} pagingParams
-   * @returns {Promise<JsonInfiniteLogPage<RecallLogEntry>>}
+   * @returns {Promise<JsonInfiniteLogPage<RecallLogData>>}
    */
   async getRecallLogs(recallRootId, pagingParams) {
     const infiniteLogManager = this.get('infiniteLogManager');

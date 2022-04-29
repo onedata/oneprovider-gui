@@ -84,7 +84,7 @@ export default Component.extend(I18n, {
   datasetId: reads('dataset.entityId'),
 
   /**
-   * @type {ComputedProperty<ReplacingChunksArray<JsonInfiniteLogEntry<RecallLogEvent>>>}
+   * @type {ComputedProperty<ReplacingChunksArray<RecallLogEntry>>}
    */
   entries: computed(function entries() {
     const rca = ReplacingChunksArray.create({
@@ -161,7 +161,7 @@ export default Component.extend(I18n, {
   },
 
   /**
-   * @returns {Promise<Array<JsonInfiniteLogEntry<RecallLogEntry>>>}
+   * @returns {Promise<Array<JsonInfiniteLogEntry<RecallLogData>>>}
    */
   async fetchEntries(index, limit, offset) {
     const {

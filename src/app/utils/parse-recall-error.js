@@ -17,9 +17,9 @@
 /**
  * Types:
  * - `message` - error is known and we have it translated
- * - `raw` - error could not be parsed as known known error, the message will contain
+ * - `raw` - error could not be parsed as known error, the message will contain
  *           a formatted raw JSON
- * - `uknown` - there is not information about error, message will be empty
+ * - `unknown` - there is not information about error, message will be empty
  * @typedef {'message'|'raw'|'unknown'} RecallInfoErrorType
  */
 
