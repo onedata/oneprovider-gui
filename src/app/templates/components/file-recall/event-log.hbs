@@ -12,7 +12,11 @@
         </td>
       </tr>
     {{else}}
-      {{#if (and entries.initialLoad.isSettled fetchingStatus.prev tableTopVisible)}}
+      {{#if (and
+        entries.initialLoad.isSettled
+        fetchingStatus.isFetchingPrev
+        tableTopVisible
+      )}}
         <tr class="loading-row">
           <td colspan={{columnsCount}} class="loading-row-cell">
             {{spin-spinner-block
@@ -30,7 +34,7 @@
         }}
       {{/each}}
 
-      {{#if (and entries.initialLoad.isSettled fetchingStatus.next)}}
+      {{#if (and entries.initialLoad.isSettled fetchingStatus.isFetchingNext)}}
         <tr class="loading-row">
           <td colspan={{columnsCount}} class="loading-row-cell">
             {{spin-spinner-block

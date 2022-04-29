@@ -125,13 +125,17 @@ export default Component.extend(I18n, {
     const {
       scrollHandler,
       listUpdater,
-    } = this.getProperties('scrollHandler', 'listUpdater');
+      fetchingStatus,
+    } = this.getProperties('scrollHandler', 'listUpdater', 'fetchingStatus');
     try {
       if (scrollHandler) {
         scrollHandler.destroy();
       }
       if (listUpdater) {
         listUpdater.destroy();
+      }
+      if (fetchingStatus) {
+        fetchingStatus.destroy();
       }
     } finally {
       this._super(...arguments);
