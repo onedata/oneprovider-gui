@@ -7,17 +7,15 @@
   <div class="table-data-cell-content">
     {{#if fileHref}}
       <a
-        class="source-file navy underlined"
+        class="source-file navy underlined truncate"
         target={{navigateTarget}}
         href={{fileHref}}
       >
-        <div class="truncate">
-          <span class="file-name">{{fileName}}</span>
-          {{one-tooltip title=filePath class="string-path-tooltip"}}
-        </div>
+        <span class="file-name">{{fileName}}</span>
+        {{one-tooltip title=filePath class="string-path-tooltip"}}
       </a>
     {{else}}
-      <div class="truncate">
+      <div class="source-file truncate">
         <span class="file-name">{{fileName}}</span>
         {{one-tooltip title=filePath class="string-path-tooltip"}}
       </div>

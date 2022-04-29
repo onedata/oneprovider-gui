@@ -34,7 +34,6 @@ export default EmberObject.extend({
     if (oldLooper) {
       return;
     }
-    console.log('list updater start');
     const newLooper = Looper.create({
       immediate,
       interval,

@@ -70,6 +70,9 @@
         padding-right: $cell-padding;
         padding-top: $cell-padding;
         padding-bottom: $cell-padding;
+        .truncate {
+          max-width: 100%;
+        }
       }
       .column-timestamp {
         min-width: 12em;

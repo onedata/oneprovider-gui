@@ -1026,7 +1026,7 @@ export default OnedataGraphMock.extend({
       ...get(mockEntityRecords, 'dir'),
       ...get(mockEntityRecords, 'chainDir'),
       ...get(mockEntityRecords, 'file'),
-      // ...get(mockEntityRecords, 'archiveDir'),
+      ...get(mockEntityRecords, 'archiveDir'),
     ];
 
     let cache = childrenDetailsCache[dirEntityId];
