@@ -36,13 +36,13 @@ export default EmberObject.extend({
    * @virtual
    * @type {HTMLElement}
    */
-  element: undefined,
+  listContainerElement: undefined,
 
   /**
    * @virtual
-   * @type {() => void}
+   * @type {({ headerVisible: boolean }) => void}
    */
-  onScrolledTop: undefined,
+  onScroll: undefined,
 
   /**
    * @type {Window}
@@ -69,14 +69,14 @@ export default EmberObject.extend({
   onTableScroll(items, headerVisible) {
     const {
       _window,
-      element,
+      listContainerElement,
       fallbackEndIndex,
       entries,
       firstRowModel,
       onScroll,
     } = this.getProperties(
       '_window',
-      'element',
+      'listContainerElement',
       'fallbackEndIndex',
       'entries',
       'firstRowModel',
@@ -98,7 +98,7 @@ export default EmberObject.extend({
     let endIndex;
     if (firstId === null && get(sourceArray, 'length') !== 0) {
       const rowHeight = get(firstRowModel, 'singleRowHeight');
-      const $firstRow = $(element.querySelector('.first-row'));
+      const $firstRow = $(listContainerElement.querySelector('.first-row'));
       const firstRowTop = $firstRow.offset().top;
       const blankStart = firstRowTop * -1;
       const blankEnd = blankStart + _window.innerHeight;
@@ -156,9 +156,9 @@ export default EmberObject.extend({
   },
 
   createListWatcher() {
-    const element = this.get('element');
+    const listContainerElement = this.get('listContainerElement');
     return new ListWatcher(
-      $(element.closest('.ps')),
+      $(listContainerElement.closest('.ps')),
       '.data-row',
       (items, headerVisible) => {
         return safeExec(this, 'onTableScroll', items, headerVisible);

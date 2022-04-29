@@ -11,12 +11,9 @@ import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import { not } from 'ember-awesome-macros';
-import InfiniteScrollScrollHandler from 'oneprovider-gui/utils/infinite-scroll/scroll-handler';
-import InfiniteScrollFetchingStatus from 'oneprovider-gui/utils/infinite-scroll/fetching-status';
-import InfiniteScrollFirstRowModel from 'oneprovider-gui/utils/infinite-scroll/first-row-model';
-import InfiniteScrollListUpdater from 'oneprovider-gui/utils/infinite-scroll/list-updater';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
+import InfiniteScroll from 'oneprovider-gui/utils/infinite-scroll';
 
 export default Component.extend(I18n, {
   classNames: ['file-recall-event-log'],
@@ -56,24 +53,9 @@ export default Component.extend(I18n, {
   //#region state
 
   /**
-   * @type {InfiniteScroll.FetchingStatus}
+   * @type {Utils.InfiniteScroll}
    */
-  fetchingStatus: undefined,
-
-  /**
-   * @type {InfiniteScroll.FirstRowModel}
-   */
-  firstRowModel: undefined,
-
-  /**
-   * @type {InfiniteScroll.ScrollHandler}
-   */
-  scrollHandler: undefined,
-
-  /**
-   * @type {Looper}
-   */
-  listUpdater: undefined,
+  infiniteScroll: undefined,
 
   //#endregion
 
@@ -87,15 +69,12 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<ReplacingChunksArray<RecallLogEntry>>}
    */
   entries: computed(function entries() {
-    const rca = ReplacingChunksArray.create({
+    return ReplacingChunksArray.create({
       fetch: this.fetchEntries.bind(this),
       startIndex: 0,
       endIndex: 50,
       indexMargin: 10,
     });
-    this.initFetchingStatus(rca);
-    this.initListUpdater(rca);
-    return rca;
   }),
 
   noEntries: not('entries.length'),
@@ -103,11 +82,13 @@ export default Component.extend(I18n, {
   init() {
     this._super(...arguments);
     const entries = this.get('entries');
-    this.set('firstRowModel', InfiniteScrollFirstRowModel.create({
+    const infiniteScroll = this.set('infiniteScroll', InfiniteScroll.create({
+      entries,
       // changes should be synchronized with .table-data-cell-content height in styles
       singleRowHeight: 44,
-      entries,
+      onScroll: this.handleTableScroll.bind(this),
     }));
+    infiniteScroll.startAutoUpdate();
   },
 
   /**
@@ -115,28 +96,22 @@ export default Component.extend(I18n, {
    */
   didInsertElement() {
     this._super(...arguments);
-    this.initScrollHandler();
+    const {
+      infiniteScroll,
+      element,
+    } = this.getProperties(
+      'infiniteScroll',
+      'element',
+    );
+    infiniteScroll.mount(element);
   },
 
   /**
    * @override
    */
   willDestroyElement() {
-    const {
-      scrollHandler,
-      listUpdater,
-      fetchingStatus,
-    } = this.getProperties('scrollHandler', 'listUpdater', 'fetchingStatus');
     try {
-      if (scrollHandler) {
-        scrollHandler.destroy();
-      }
-      if (listUpdater) {
-        listUpdater.destroy();
-      }
-      if (fetchingStatus) {
-        fetchingStatus.destroy();
-      }
+      this.get('infiniteScroll').destroy();
     } finally {
       this._super(...arguments);
     }
@@ -144,19 +119,19 @@ export default Component.extend(I18n, {
 
   handleTableScroll({ headerVisible }) {
     const {
-      listUpdater,
+      infiniteScroll,
       headerVisible: currentHeaderVisible,
-    } = this.getProperties('listUpdater', 'headerVisible');
-    if (!listUpdater) {
+    } = this.getProperties('infiniteScroll', 'headerVisible');
+    if (!infiniteScroll) {
       return;
     }
     if (headerVisible !== currentHeaderVisible) {
       this.set('headerVisible', headerVisible);
     }
-    if (headerVisible && !get(listUpdater, 'isActive')) {
-      listUpdater.start(true);
-    } else if (!headerVisible && get(listUpdater, 'isActive')) {
-      listUpdater.stop();
+    if (headerVisible && !get(infiniteScroll, 'isAutoUpdating')) {
+      infiniteScroll.startAutoUpdate(true);
+    } else if (!headerVisible && get(infiniteScroll, 'isAutoUpdating')) {
+      infiniteScroll.stopAutoUpdate();
     }
   },
 
@@ -183,37 +158,6 @@ export default Component.extend(I18n, {
     }
 
     return result;
-  },
-
-  initFetchingStatus(entries) {
-    this.set('fetchingStatus', InfiniteScrollFetchingStatus.create({
-      entries,
-    }));
-  },
-
-  initScrollHandler() {
-    const {
-      element,
-      entries,
-      firstRowModel,
-    } = this.getProperties(
-      'element',
-      'entries',
-      'firstRowModel',
-    );
-    this.set('scrollHandler', InfiniteScrollScrollHandler.create({
-      element,
-      entries,
-      firstRowModel,
-      onScroll: this.handleTableScroll.bind(this),
-    }));
-  },
-
-  initListUpdater(entries) {
-    const listUpdater = this.set('listUpdater', InfiniteScrollListUpdater.create({
-      entries,
-    }));
-    listUpdater.start();
   },
 
   /**

@@ -1,9 +1,9 @@
-<td class="table-data-cell column-timestamp table-data-timestamp">
+<td class="table-data-cell column-timestamp">
   <div class="table-data-cell-content">
     {{date-format timestamp format="report" blank="—"}}
   </div>
 </td>
-<td class="table-data-cell column-file table-data-file">
+<td class="table-data-cell column-file">
   <div class="table-data-cell-content">
     {{#if fileHref}}
       <a
@@ -22,7 +22,7 @@
     {{/if}}
   </div>
 </td>
-<td class="table-data-cell column-message table-data-message">
+<td class="table-data-cell column-message">
   <div class="table-data-cell-content">
     {{#truncated-string class=messageClass}}
       {{message}}

@@ -3,7 +3,7 @@
     {{file-recall/event-log/header-row}}
     <tr class="table-start-row"></tr>
     <tr class="first-row">
-      <td colspan={{columnsCount}} style={{firstRowModel.style}}></td>
+      <td colspan={{columnsCount}} style={{infiniteScroll.firstRowStyle}}></td>
     </tr>
     {{#if noEntries}}
       <tr class="table-is-empty-row">
@@ -14,7 +14,7 @@
     {{else}}
       {{#if (and
         entries.initialLoad.isSettled
-        fetchingStatus.isFetchingPrev
+        infiniteScroll.fetchingStatus.isFetchingPrev
         tableTopVisible
       )}}
         <tr class="loading-row">
@@ -34,7 +34,10 @@
         }}
       {{/each}}
 
-      {{#if (and entries.initialLoad.isSettled fetchingStatus.isFetchingNext)}}
+      {{#if (and
+        entries.initialLoad.isSettled
+        infiniteScroll.fetchingStatus.isFetchingNext
+      )}}
         <tr class="loading-row">
           <td colspan={{columnsCount}} class="loading-row-cell">
             {{spin-spinner-block
