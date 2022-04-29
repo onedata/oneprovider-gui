@@ -445,7 +445,7 @@ export default Service.extend({
     const requestGri = gri({
       entityId: fileId,
       entityType: fileEntityType,
-      aspect: 'time_series_collection,dirStats',
+      aspect: 'dir_size_stats',
       scope: 'private',
     });
     return this.get('timeSeriesManager')
@@ -460,13 +460,16 @@ export default Service.extend({
     const requestGri = gri({
       entityId: fileId,
       entityType: fileEntityType,
-      aspect: 'time_series_collections',
+      aspect: 'dir_size_stats',
       scope: 'private',
     });
     return this.get('onedataGraph').request({
       gri: requestGri,
       operation: 'get',
       subscribe: false,
+      data: {
+        mode: 'layout',
+      },
     });
   },
 

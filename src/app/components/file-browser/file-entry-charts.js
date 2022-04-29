@@ -8,7 +8,7 @@
  */
 
 import Component from '@ember/component';
-import { computed, getProperties } from '@ember/object';
+import { get, computed, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import { all as allFulfilled } from 'rsvp';
@@ -18,6 +18,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import OTSCConfiguration from 'onedata-gui-common/utils/one-time-series-chart/configuration';
 import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
 import QueryBatcher from 'onedata-gui-common/utils/one-time-series-chart/query-batcher';
+import { promise } from 'ember-awesome-macros';
 
 /**
  * @typedef {Object} FileEntryChartTimeResolution
@@ -35,6 +36,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   onedataConnection: service(),
   storageManager: service(),
   providerManager: service(),
+  spaceManager: service(),
 
   /**
    * @override
@@ -74,10 +76,33 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
    */
   chartsColor: undefined,
 
+  spaceEntityId: reads('space.entityId'),
+
+  /**
+   * @type {Boolean}
+   */
+  emptyStatistics: false,
+
   /**
    * @type {ComputedProperty<dirStatsConfig>}
    */
-  dirStatsConfig: reads('onedataConnection.dirStatsConfig'),
+  dirStatsConfig: Object({
+    totalTimeSeriesId: 'total',
+    monthMetricId: 'month',
+    minuteMetricId: 'minute',
+    hourMetricId: 'hour',
+    dayMetricId: 'day',
+  }),
+
+  dirSizeStatsConfigProxy: promise.object(computed(
+    'spaceEntityId',
+    function dirSizeStatsConfigProxy() {
+      const {
+        spaceManager,
+        spaceEntityId,
+      } = this.getProperties('spaceManager', 'spaceEntityId');
+      return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
+    })),
 
   /**
    * @type {ComputedProperty<number>}
@@ -125,14 +150,14 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
         fileManager,
         fileId,
       } = this.getProperties('fileManager', 'fileId');
-
       return new QueryBatcher({
         fetchData: (batchedQuery) =>
           fileManager.queryTimeSeriesMetrics(
             fileId, {
-              metrics: batchedQuery.metrics,
+              layout: batchedQuery.metrics,
               startTimestamp: batchedQuery.startTimestamp,
               limit: batchedQuery.limit,
+              mode: 'slice',
             }
           ),
       });
@@ -452,7 +477,8 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       timeResolutionSpecs,
       timeSeriesQueryBatcher,
     } = this.getProperties('timeResolutionSpecs', 'timeSeriesQueryBatcher');
-    const statisticsStartDate = this.get('space.statisticsStartDate');
+    const dirSizeStatsConfig = await this.get('dirSizeStatsConfigProxy');
+    const statisticsStartDate = await get(dirSizeStatsConfig, 'since');
     const matchingTimeResolutionSpec = timeResolutionSpecs
       .findBy('timeResolution', seriesParameters.timeResolution);
     const metricId = matchingTimeResolutionSpec ?
@@ -469,8 +495,13 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       startTimestamp: seriesParameters.lastPointTimestamp,
       limit: seriesParameters.pointsCount,
     };
-    return (await timeSeriesQueryBatcher.query(queryParams))
-      .filter(point => point.timestamp >= statisticsStartDate);
+    try {
+      this.set('emptyStatistics', false);
+      return (await timeSeriesQueryBatcher.query(queryParams))
+        .filter(point => point.timestamp >= statisticsStartDate);
+    } catch (error) {
+      this.set('emptyStatistics', true);
+    }
   },
 
   /**
@@ -480,10 +511,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
     const colorGenerator = this.get('colorGenerator');
     const storageManager = this.get('storageManager');
     const spaceId = this.get('space.entityId');
-    const dynamicSeriesName = 'size_on_storage_';
+    const dynamicSeriesName = 'storage_use_';
     const tsCollections = await this.getTsCollections();
-
-    return await allFulfilled(tsCollections.dirStats
+    return await allFulfilled(Object.keys(tsCollections)
       .filter(name => name.startsWith(dynamicSeriesName))
       .map(async (tsName) => {
         const storageId = tsName.replace(dynamicSeriesName, '');

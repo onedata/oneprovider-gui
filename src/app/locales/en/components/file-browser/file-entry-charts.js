@@ -1,6 +1,7 @@
 export default {
   header: 'Directory size statistics',
   headerTooltip: 'Show statistics for directory',
+  noStatistics: 'There are no statistics',
   titles: {
     fileCount: {
       content: 'File count',
