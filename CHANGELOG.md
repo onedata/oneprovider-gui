@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9270 Added task time series store
 * VFS-9029 Changed showing rest api for shares
 * VFS-9360 Fixed creating incremental archive using always latest archive despite of user select
 * VFS-9036 Added time series features to automation GUI
