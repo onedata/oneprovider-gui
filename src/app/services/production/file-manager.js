@@ -45,6 +45,7 @@ export default Service.extend({
   onedataRpc: service(),
   onedataGraph: service(),
   infiniteLogManager: service(),
+  apiSamplesManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -349,6 +350,11 @@ export default Service.extend({
       },
       subscribe: false,
     });
+  },
+
+  getFileApiSamples(fileId, scope = 'private') {
+    const apiSamplesManager = this.get('apiSamplesManager');
+    return apiSamplesManager.getApiSamples(fileId, 'file', scope);
   },
 
   async getFileHardlinks(fileId, limit = 100) {

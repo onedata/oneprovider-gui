@@ -7,7 +7,9 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9021 Added recall process error log
+* VFS-9270 Added task time series store
 * VFS-9354 Fixed loading echarts library
+* VFS-9029 Changed showing rest api for shares
 * VFS-9360 Fixed creating incremental archive using always latest archive despite of user select
 * VFS-9036 Added time series features to automation GUI
 * VFS-9207 Removed usage of local OpenSans fonts
