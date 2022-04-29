@@ -9,8 +9,6 @@
  */
 
 import OnedataConnection from 'onedata-gui-websocket-client/services/mocks/onedata-connection';
-import generateXrootdApiTemplates from 'oneprovider-gui/utils/mocks/generate-xrootd-api-templates';
-import generateRestApiTemplates from 'oneprovider-gui/utils/mocks/generate-rest-api-templates';
 
 export default OnedataConnection.extend({
   /**
@@ -18,10 +16,6 @@ export default OnedataConnection.extend({
    */
   attributes: Object.freeze({
     transfersHistoryLimitPerFile: 100,
-    apiTemplates: Object.freeze({
-      rest: generateRestApiTemplates(),
-      xrootd: generateXrootdApiTemplates(),
-    }),
     openfaasAvailable: true,
     bagitUploaderWorkflowSchemaId: null,
     qosTransferStatsConfig: {
