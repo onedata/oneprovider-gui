@@ -30,7 +30,10 @@
           active=(eq tab.activeId "general")
         }}
           <a href="#general"
-            class={{concat "nav-link nav-link-general"}}
+            class={{concat-classes 
+              "nav-link nav-link-general" 
+              (if (eq tab.activeId "general") "active")
+            }}
             role="tab"
             {{action (mut activeTab) "general"}}
           >
@@ -42,7 +45,10 @@
             active=(eq tab.activeId "hardlinks")
           }}
             <a href="#hardlinks"
-              class={{concat "nav-link nav-link-hardlinks"}}
+              class={{concat-classes 
+                "nav-link nav-link-hardlinks" 
+                (if (eq tab.activeId "hardlinks") "active")
+              }}
               role="tab"
               {{action (mut activeTab) "hardlinks"}}
             >
@@ -60,7 +66,10 @@
             disabled=(eq itemType 'symlink')
           }}
             <a href="#size"
-              class="nav-link nav-link-metadata-type nav-link-size"
+              class={{concat-classes 
+                "nav-link nav-link-metadata-type nav-link-size" 
+                (if (eq tab.activeId "size") "active")
+              }}
               role="tab"
               {{action (mut activeTab) "size"}}
             > 
@@ -78,7 +87,10 @@
             active=(eq tab.activeId "apiSamples")
           }}
             <a href="#apiSamples"
-              class="nav-link nav-link-metadata-type nav-link-apiSamples"
+              class={{concat-classes 
+                "nav-link nav-link-metadata-type nav-link-apiSamples" 
+                (if (eq tab.activeId "apiSamples") "active")
+              }}
               role="tab"
               {{action (mut activeTab) "apiSamples"}}
             > 

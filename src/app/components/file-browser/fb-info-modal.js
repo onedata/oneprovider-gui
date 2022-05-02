@@ -206,11 +206,9 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   /**
    * @type {Boolean}
    */
-  showSizeTab: computed('statsCollectionEnabled', 'effItemType', function showSizeTab() {
-    const {
-      statsCollectionEnabled,
-      effItemType,
-    } = this.getProperties('statsCollectionEnabled', 'effItemType');
+  showSizeTab: computed('statsCollectionEnabled', 'file.effFile.type', function showSizeTab() {
+    const statsCollectionEnabled = this.get('statsCollectionEnabled');
+    const effItemType = this.get('file.effFile.type');
     return (['enabled', 'initializing'].includes(statsCollectionEnabled) &&
       effItemType !== 'file');
   }),
