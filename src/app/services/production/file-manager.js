@@ -24,6 +24,7 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
  * @param {Array<string>} files
  */
 
+const cancelRecallAspect = 'cancel_archive_recall';
 const childrenAttrsAspect = 'children_details';
 const symlinkTargetAttrsAspect = 'symlink_target';
 const fileModelName = 'file';
@@ -33,6 +34,7 @@ export default Service.extend({
   onedataRpc: service(),
   onedataGraph: service(),
   timeSeriesManager: service(),
+  apiSamplesManager: service(),
 
   /**
    * @type {Array<Ember.Component>}
@@ -339,6 +341,11 @@ export default Service.extend({
     });
   },
 
+  getFileApiSamples(fileId, scope = 'private') {
+    const apiSamplesManager = this.get('apiSamplesManager');
+    return apiSamplesManager.getApiSamples(fileId, 'file', scope);
+  },
+
   async getFileHardlinks(fileId, limit = 100) {
     const idsResult = await this.get('onedataGraph').request({
       operation: 'get',
@@ -470,6 +477,26 @@ export default Service.extend({
       data: {
         mode: 'layout',
       },
+    });
+  },
+
+  /**  
+   * Begins a procedure of cancelling archive recall process that has root in
+   * file with `recallRootId` entity ID.
+   * @param {string} recallRootId
+   * @returns {Promise<Object|null>} stop recall response or null if file is not a part
+   *   of recalled tree
+   */
+  async cancelRecall(recallRootId) {
+    const requestGri = gri({
+      entityType: fileEntityType,
+      entityId: recallRootId,
+      aspect: cancelRecallAspect,
+    });
+    return this.get('onedataGraph').request({
+      operation: 'create',
+      gri: requestGri,
+      subscribe: false,
     });
   },
 

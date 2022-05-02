@@ -21,7 +21,7 @@ export default DatasetArchivesBrowser.extend(...mixins, {
 
   /**
    * Custom selector for items list scroll container.
-   * Should be overriden **only** if archives-tab is not in one-modal.
+   * Should be overridden **only** if archives-tab is not in one-modal.
    * @type {String}
    * @virtual optional
    */

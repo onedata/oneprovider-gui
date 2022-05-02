@@ -1,34 +1,62 @@
 <td
-  class="fb-table-col-state fb-table-secondary-col hidden-xs {{fileRowModel.stateColClass}}"
+  class="fb-table-col-state fb-table-secondary-col hidden-xs multiline"
 >
-  <span class="file-item-text">
-    {{fileRowModel.stateText}}
-  </span>
+  {{archive-state
+    class="file-item-text"
+    archive=fileRowModel.archive
+    stateClassMapping=stateClassMapping
+  }}
 </td>
-<td class="fb-table-col-incremental fb-table-secondary-col hidden-xs">
-  <span
-    class="file-item-text {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
+<td class="fb-table-col-incremental fb-table-secondary-col hidden-xs multiline">
+  <div
+    class="file-item-text base-archive-info {{if fileRowModel.isIncremental "col-status-yes" "col-status-no"}}"
   >
     {{#if fileRowModel.isIncremental}}
       {{#if loadingBaseArchiveProxy.isPending}}
         {{tt this "loading"}}
       {{else if baseArchiveName}}
-        <a
-          class="azure base-archive-link"
-          target={{navigateTarget}}
-          href={{baseArchiveUrl}}
-          onclick={{action "baseArchiveLinkClick"}}
-          onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
-        >
+        {{#if baseArchiveUrl}}
+          <a
+            class="azure base-archive-link"
+            target={{navigateTarget}}
+            href={{baseArchiveUrl}}
+            onclick={{action "baseArchiveLinkClick"}}
+            onkeydown={{invoke-on-enter (action "baseArchiveLinkClick")}}
+          >
+            {{#truncated-string class="base-archive-name"}}
+              {{fileRowModel.baseArchiveNameProxy.content}}
+            {{/truncated-string}}
+          </a>
+        {{else}}
           {{#truncated-string class="base-archive-name"}}
             {{fileRowModel.baseArchiveNameProxy.content}}
           {{/truncated-string}}
-        </a>
+        {{/if}}
+        <div class="file-info-secondary">
+          {{archive-browser/secondary-description
+            archive=baseArchiveProxy.content
+            class="file-info-secondary-inner file-info-secondary-left"
+          }}
+        </div>
+      {{else if baseArchiveId}}
+        {{#truncated-string
+          tagName="code"
+          class="base-archive-id-container"
+          tooltipClass="tooltip-lg tooltip-text-monospace"
+        }}
+          <strong>{{tt this "id"}}:</strong>
+          <span class="base-archive-id">{{baseArchiveId}}</span>
+        {{/truncated-string}}
       {{else}}
         –
       {{/if}}
     {{else}}
       {{tt this "no"}}
     {{/if}}
-  </span>
+  </div>
+  {{#if baseArchiveIsDeleted}}
+    <div class="file-item-text text-muted base-archive-deleted small">
+      {{tt this "baseArchiveDeleted"}}
+    </div>
+  {{/if}}
 </td>

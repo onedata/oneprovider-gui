@@ -76,6 +76,18 @@
     }
   }
 
+  .nav-link {
+    .tab-icon.oneicon-rest {
+      font-size: 19px;
+      font-weight: bold;
+      padding-top: 3px;
+    }
+
+    .tab-label-api-samples {
+      margin-left: 14px;
+    }
+  }
+
   .shows-first-n-hardlinks {
     margin-bottom: $padding-base-vertical;
   }
@@ -183,27 +195,8 @@
     border: 1px solid rgba(0, 0, 0, 0.03);
     border-radius: $border-radius-base;
   }
-} 
 
-.fb-info-modal, .api-command-type-selector-dropdown {
-  .api-command-type {
-    opacity: $disabled-opacity;
-    float: right;
-  }
-  .xrootd-api-tag-label {
-    background-color: #a95bde;
-  }
-  .ember-power-select-option {
-    .api-command-type {
-      position: relative;
-    }
-    .api-tag-label {
-      position: relative;
-      top: -0.2em;
-    }
-  }
-  // override to show all options
-  .ember-power-select-options[role=listbox] {
-    max-height: 280px;
+  .bs-tab-onedata {
+    padding-bottom: 2 * $padding-large-vertical;
   }
 }

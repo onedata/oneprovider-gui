@@ -1,15 +1,17 @@
 import tableRow from './archive-browser/table-row';
 import tableRowColumns from './archive-browser/table-row-columns';
-import tableRowMobileSecondaryInfo from './archive-browser/table-row-mobile-secondary-info';
 import tableRowStatusBar from './archive-browser/table-row-status-bar';
 import tableHeadRow from './archive-browser/table-head-row';
 import emptyDir from './archive-browser/empty-dir';
+import dirLoadError from './archive-browser/dir-load-error';
+import secondaryDescription from './archive-browser/secondary-description';
 
 export default {
   tableRow,
   tableRowColumns,
-  tableRowMobileSecondaryInfo,
   tableRowStatusBar,
   tableHeadRow,
   emptyDir,
+  dirLoadError,
+  secondaryDescription,
 };

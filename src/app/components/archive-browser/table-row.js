@@ -9,17 +9,22 @@
  */
 
 import FbTableRow from 'oneprovider-gui/components/file-browser/fb-table-row';
-import EmberObject, { computed, getProperties, get } from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
-import { htmlSafe } from '@ember/string';
-import { conditional, equal, raw, or, promise, bool } from 'ember-awesome-macros';
+import { promise, bool } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+
+const rowModelMixins = [
+  OwnerInjector,
+  I18n,
+  createDataProxyMixin('baseArchive'),
+];
 
 // TODO: VFS-7643 move to other file
-const RowModel = EmberObject.extend(OwnerInjector, I18n, {
+const RowModel = EmberObject.extend(...rowModelMixins, {
   i18n: service(),
   archiveManager: service(),
 
@@ -53,24 +58,6 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
 
   archiveLayout: reads('archive.config.layout'),
 
-  baseArchiveProxy: promise.object(computed(
-    'archive.baseArchive',
-    async function baseArchiveProxy() {
-      const {
-        baseArchiveId,
-        archiveManager,
-      } = this.getProperties('baseArchiveId', 'archiveManager');
-      if (!this.get('baseArchiveId')) {
-        return;
-      }
-      const baseArchive = await this.get('archive.baseArchive');
-      if (!baseArchive) {
-        return;
-      }
-      return archiveManager.getBrowsableArchive(baseArchiveId);
-    }
-  )),
-
   baseArchiveId: computed('archive.baseArchive', function baseArchiveId() {
     const archive = this.get('archive');
     if (archive) {
@@ -90,6 +77,7 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
     'datasetId',
     'baseArchiveId',
     'browserModel.getDatasetsUrl',
+    'baseArchiveProxy.content',
     async function baseArchiveHrefProxy() {
       const {
         archive,
@@ -107,7 +95,7 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
         baseDatasetId = archive.relationEntityId('dataset');
       } else {
         const baseArchive = await this.get('baseArchiveProxy');
-        baseDatasetId = baseArchive.relationEntityId('dataset');
+        baseDatasetId = baseArchive && baseArchive.relationEntityId('dataset') || null;
       }
       return getDatasetsUrl({
         selectedDatasets: [baseDatasetId],
@@ -117,7 +105,7 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
   )),
 
   baseArchiveNameProxy: promise.object(computed(
-    'baseArchiveProxy',
+    'baseArchiveProxy.content',
     async function baseArchiveNameProxy() {
       if (!this.get('baseArchiveId')) {
         return;
@@ -130,41 +118,24 @@ const RowModel = EmberObject.extend(OwnerInjector, I18n, {
     }
   )),
 
-  showArchivedCounters: or(
-    equal('archive.state', raw('building')),
-    equal('archive.state', raw('preserved')),
-  ),
-
-  stateText: computed(
-    'archive.{state,stats}',
-    function stateText() {
-      const {
-        archive,
-        showArchivedCounters,
-      } = this.getProperties('archive', 'showArchivedCounters');
-      const {
-        state,
-        stats,
-      } = getProperties(archive, 'state', 'stats');
-      const {
-        bytesArchived,
-        filesArchived,
-      } = getProperties(stats, 'bytesArchived', 'filesArchived');
-      const bytes = bytesArchived || 0;
-      const filesText = filesArchived || '0';
-      let text = this.t(`state.${state}`, {}, { defaultValue: this.t('state.unknown') });
-      if (showArchivedCounters) {
-        const sizeText = bytesToString(bytes);
-        text += `<br>${this.t('stateInfo.archived', { filesCount: filesText, size: sizeText })}`;
-      }
-      return htmlSafe(text);
+  /**
+   * @override
+   */
+  async fetchBaseArchive() {
+    const {
+      archive,
+      baseArchiveId,
+      archiveManager,
+    } = this.getProperties('archive', 'baseArchiveId', 'archiveManager');
+    if (!this.get('baseArchiveId')) {
+      return;
     }
-  ),
-  stateColClass: conditional(
-    'showArchivedCounters',
-    raw('multiline'),
-    raw(''),
-  ),
+    const baseArchive = await archive.getRelation('baseArchive', { reload: true });
+    if (!baseArchive) {
+      return null;
+    }
+    return archiveManager.getBrowsableArchive(baseArchiveId);
+  },
 
   browseDip() {
     const {

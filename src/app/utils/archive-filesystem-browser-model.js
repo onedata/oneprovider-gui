@@ -9,16 +9,27 @@
  */
 
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
-import { bool } from 'ember-awesome-macros';
+import { bool, array, raw } from 'ember-awesome-macros';
 import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
 import _ from 'lodash';
 import { FilesViewContextFactory } from 'oneprovider-gui/utils/files-view-context';
-import { get } from '@ember/object';
+import { get, set, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import FileInArchive from 'oneprovider-gui/utils/file-in-archive';
+import Looper from 'onedata-gui-common/utils/looper';
+import { allSettled } from 'rsvp';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default FilesystemBrowserModel.extend({
   modalManager: service(),
+  archiveManager: service(),
+  globalNotify: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'utils.archiveFilesystemBrowserModel',
 
   /**
    * @virtual
@@ -71,7 +82,13 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  browserClass: 'filesystem-browser archive-filesystem-browser',
+  browserClass: array.join(
+    array.concat(
+      raw(['filesystem-browser', 'archive-filesystem-browser']),
+      'customClassNames',
+    ),
+    raw(' '),
+  ),
 
   /**
    * @override
@@ -86,12 +103,28 @@ export default FilesystemBrowserModel.extend({
   /**
    * @override
    */
-  fileFeatures: _.without(defaultFilesystemFeatures, 'effDatasetMembership'),
+  fileFeaturesExtensionComponentName: 'archive-filesystem-browser/file-features-extension',
+
+  /**
+   * @override
+   */
+  fileFeatures: Object.freeze([
+    ..._.without(defaultFilesystemFeatures, 'effDatasetMembership'),
+    Object.freeze({ key: 'archiveCreating', noticeLevel: 'warning' }),
+    Object.freeze({ key: 'archiveFailed', noticeLevel: 'danger' }),
+  ]),
 
   /**
    * @type {Utils.ModalManager.ModalInstance}
    */
   externalSymlinkModal: null,
+
+  /**
+   * Managed by `autoConfigureRefreshLooper`.
+   * Initialized in `startRefreshLooper`.
+   * @type {Utils.Looper}
+   */
+  refreshLooper: null,
 
   /**
    * Used only when `renderArchiveDipSwitch` is true.
@@ -100,15 +133,37 @@ export default FilesystemBrowserModel.extend({
    */
   isArchiveDipAvailable: bool('archive.config.includeDip'),
 
+  metaStateObserver: observer('archive.metaState', function metaStateObserver() {
+    this.autoConfigureRefreshLooper();
+  }),
+
+  init() {
+    this._super(...arguments);
+    this.autoConfigureRefreshLooper();
+  },
+
   /**
    * @override
    */
   destroy() {
     try {
       this.closeExternalSymlinkModal();
-    } finally {
-      this._super(...arguments);
+    } catch (error) {
+      console.error(
+        'util:archive-filesystem-browser-model#destroy: closeExternalSymlinkModal failed',
+        error
+      );
     }
+    try {
+      this.destroyRefreshLooper();
+    } catch (error) {
+      console.error(
+        'util:archive-filesystem-browser-model#destroy: destroyRefreshLooper failed',
+        error
+      );
+    }
+
+    this._super(...arguments);
   },
 
   /**
@@ -131,7 +186,8 @@ export default FilesystemBrowserModel.extend({
     const _super = this._super;
     let hasBeenHandled = false;
     try {
-      hasBeenHandled = await this.handlePotentialExternalSymlink(file);
+      hasBeenHandled = get(file, 'type') === 'symlink' &&
+        await this.handlePotentialExternalSymlink(file);
     } catch (error) {
       console.error(
         'util:archive-filesystem-browser-model#onOpenFile: external symlink check failed',
@@ -142,6 +198,68 @@ export default FilesystemBrowserModel.extend({
       return _super.apply(this, arguments);
     }
   },
+
+  /**
+   * @override
+   */
+  featurizeItem(item) {
+    const archive = this.get('archive');
+    return FileInArchive.create({
+      file: item,
+      archive,
+    });
+  },
+
+  autoConfigureRefreshLooper() {
+    const archiveMetaState = this.get('archive.metaState');
+    if (archiveMetaState === 'creating') {
+      safeExec(this, () => {
+        this.startRefreshLooper();
+      });
+    } else {
+      this.destroyRefreshLooper();
+    }
+  },
+
+  startRefreshLooper() {
+    const interval = 2000;
+    let refreshLooper = this.get('refreshLooper');
+    if (!refreshLooper) {
+      refreshLooper = this.set('refreshLooper', Looper.create({
+        immediate: false,
+      }));
+      refreshLooper.on('tick', () => this.refreshData());
+    }
+    if (get(refreshLooper, 'inverval') !== interval) {
+      set(refreshLooper, 'interval', interval);
+    }
+  },
+
+  destroyRefreshLooper() {
+    const refreshLooper = this.get('refreshLooper');
+    if (refreshLooper) {
+      refreshLooper.trigger('tick');
+      refreshLooper.destroy();
+      this.set('refreshLooper', null);
+    }
+  },
+
+  /**
+   * @returns {Promise}
+   */
+  refreshData() {
+    const {
+      fileManager,
+      archive,
+      dir,
+    } = this.getProperties('fileManager', 'archive', 'dir');
+    const dirId = dir && get(dir, 'entityId');
+    return allSettled([
+      dirId && fileManager.dirChildrenRefresh(dirId),
+      archive && archive.reload(),
+    ]);
+  },
+
   async symlinkExternalContext(dirSymlink) {
     const currentDir = this.get('dir');
     const filesViewContextFactory =
@@ -158,15 +276,23 @@ export default FilesystemBrowserModel.extend({
    *   should be handled by question to user, not by standard dir change
    */
   async handlePotentialExternalSymlink(symlink) {
-    const externalContext = await this.symlinkExternalContext(symlink);
-    if (externalContext) {
-      this.openExternalSymlinkModal(
-        symlink,
-        externalContext,
-      );
-      return true;
-    } else {
+    if (get(symlink, 'type') !== 'symlink') {
       return false;
+    }
+    try {
+      const externalContext = await this.symlinkExternalContext(symlink);
+      if (externalContext && !(await this.isNestedArchiveContext(externalContext))) {
+        this.openExternalSymlinkModal(
+          symlink,
+          externalContext,
+        );
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      this.get('globalNotify').backendError(this.t('checkingSymlinkInArchive'), error);
+      return true;
     }
   },
 
@@ -212,5 +338,25 @@ export default FilesystemBrowserModel.extend({
       modalManager.hide(get(externalSymlinkModal, 'id'));
       this.set('externalSymlinkModal', null);
     }
+  },
+
+  async isNestedArchiveContext(filesViewContext) {
+    const {
+      archiveManager,
+      archive,
+    } = this.getProperties('archiveManager', 'archive');
+    const archiveId = get(filesViewContext, 'archiveId');
+    if (!archiveId) {
+      return false;
+    }
+    const archiveToOpen = await archiveManager.getArchive(archiveId);
+    const modelArchiveId = get(archive, 'entityId');
+    let checkedArchiveParent = archiveToOpen;
+    do {
+      checkedArchiveParent = await get(checkedArchiveParent, 'parentArchive');
+    } while (
+      checkedArchiveParent && get(checkedArchiveParent, 'entityId') !== modelArchiveId
+    );
+    return Boolean(checkedArchiveParent);
   },
 });

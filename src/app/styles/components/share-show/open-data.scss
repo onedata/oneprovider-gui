@@ -17,22 +17,22 @@ $open-data-remove-col-width: $content-col-padding;
     font-size: 1.6em;
     margin-bottom: 1em;
   }
-  
+
   h2 {
     @include font-semibold;
     font-size: 1.3em;
     margin-bottom: 1em;
   }
-  
+
   textarea.open-data-xml-textarea {
     min-height: 250px;
     height: calc(100vh - 500px);
     @include font-monospace;
   }
-  
+
   .metadata-header-section {
     position: sticky;
-    // should be overriden to match fixed headers in share-shows
+    // should be overridden to match fixed headers in share-shows
     top: 0;
     // force to be above static elements inside absolute element
     z-index: 1;
@@ -44,7 +44,7 @@ $open-data-remove-col-width: $content-col-padding;
     margin-bottom: 0;
     background-color: $color-one-white;
   }
-  
+
   .metadata-header-section-content {
     display: flex;
     flex-wrap: wrap;

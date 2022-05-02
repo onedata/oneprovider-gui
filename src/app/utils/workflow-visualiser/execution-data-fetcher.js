@@ -104,7 +104,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
   /**
    * @override
    */
-  async fetchStoreContent(storeInstanceId, startFromIndex, limit, offset) {
+  async fetchStoreContent(storeInstanceId, browseOptions) {
     if (!storeInstanceId) {
       console.error(
         'util:workflow-visualiser/execution-data-fetcher#fetchStoreContent: invalid storeSchemaId',
@@ -113,7 +113,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
     }
 
     return await this.get('workflowManager')
-      .getStoreContent(storeInstanceId, startFromIndex, limit, offset);
+      .getAtmStoreContent(storeInstanceId, browseOptions);
   },
 
   /**
@@ -214,6 +214,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
               entityId: taskInstanceId,
               schemaId: taskSchemaId,
               systemAuditLogId,
+              timeSeriesStoreId,
               status,
               itemsInProcessing,
               itemsProcessed,
@@ -223,6 +224,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
               'entityId',
               'schemaId',
               'systemAuditLogId',
+              'timeSeriesStoreId',
               'status',
               'itemsInProcessing',
               'itemsProcessed',
@@ -238,6 +240,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
               runNumber,
               instanceId: taskInstanceId,
               systemAuditLogStoreInstanceId: systemAuditLogId,
+              timeSeriesStoreInstanceId: timeSeriesStoreId,
               status,
               itemsInProcessing,
               itemsProcessed,
@@ -305,6 +308,10 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         if (run.systemAuditLogStoreInstanceId) {
           generatedStoreInstanceIds.add(run.systemAuditLogStoreInstanceId);
         }
+        // task time series store
+        if (run.timeSeriesStoreInstanceId) {
+          generatedStoreInstanceIds.add(run.timeSeriesStoreInstanceId);
+        }
       }
     }
 
@@ -325,8 +332,8 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       const {
         type,
         config,
-        initialValue,
-      } = getProperties(store, 'type', 'config', 'initialValue');
+        initialContent,
+      } = getProperties(store, 'type', 'config', 'initialContent');
       let name = null;
       // For exceptions stores we need to generate names. Some of them will
       // be visible as an iterated store (so must be distinguishable by name).
@@ -340,7 +347,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
         name,
         type,
         config,
-        defaultInitialContent: initialValue,
+        defaultInitialContent: initialContent,
       };
     }
 
@@ -379,6 +386,7 @@ export default ExecutionDataFetcher.extend(OwnerInjector, I18n, {
       return {
         schemaId,
         systemAuditLogId: null,
+        timeSeriesStoreId: null,
         status,
         itemsInProcessing: 0,
         itemsProcessed: 0,

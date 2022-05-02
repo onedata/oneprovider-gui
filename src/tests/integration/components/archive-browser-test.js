@@ -5,12 +5,13 @@ import hbs from 'htmlbars-inline-precompile';
 import $ from 'jquery';
 import wait from 'ember-test-helpers/wait';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
-import { get } from '@ember/object';
+import { get, setProperties } from '@ember/object';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import _ from 'lodash';
 import Service from '@ember/service';
 import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
+import { findAll } from 'ember-native-dom-helpers';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -65,7 +66,34 @@ describe('Integration | Component | archive browser', function () {
 
     await render(this);
 
-    expect(this.$('.fb-table-row')).to.have.length(itemsCount);
+    expect(findAll('.fb-table-row')).to.have.length(itemsCount);
+  });
+
+  it('renders "Building" state with stats of archive on list', async function () {
+    const itemsCount = 1;
+    const mockArray = mockItems({
+      testCase: this,
+      itemsCount,
+    });
+    const archive = mockArray.array[0];
+    const filesArchived = 8;
+    const bytesArchived = 2048;
+    setProperties(archive, {
+      state: 'building',
+      stats: {
+        filesArchived,
+        bytesArchived,
+      },
+    });
+
+    await render(this);
+
+    const colStates = findAll('.fb-table-row .fb-table-col-state');
+    expect(colStates).to.have.length(1);
+    const colState = colStates[0];
+    expect(colState.textContent).to.contain('Building');
+    expect(colState.textContent).to.contain('8 files');
+    expect(colState.textContent).to.contain('2 KiB');
   });
 
   it('has "create incremental" action for archive item which opens create archive modal on click',
@@ -128,6 +156,35 @@ describe('Integration | Component | archive browser', function () {
     expect(openRecallModal).to.have.been.calledOnce;
     expect(openRecallModal).to.have.been.calledWith(mockArray.array[0]);
   });
+
+  it('has "settings" action for archive item that invokes settings modal on click', async function () {
+    const itemsCount = 1;
+    const mockArray = mockItems({
+      testCase: this,
+      itemsCount,
+    });
+    const archive = mockArray.array[0];
+    const firstArchiveName = mockArray.array[0].name;
+    const openArchivePropertiesModal = sinon.spy();
+    this.set('openArchivePropertiesModal', openArchivePropertiesModal);
+    this.set('spacePrivileges', {
+      viewArchives: true,
+      manageDatasets: true,
+      createArchives: true,
+    });
+
+    await render(this);
+
+    const actions = (await openItemContextMenu({ name: firstArchiveName }))[0];
+    const action = actions.querySelector('.file-action-archiveProperties');
+    expect(
+      action,
+      'archive settings item'
+    ).to.exist;
+    await click(action);
+    expect(openArchivePropertiesModal).to.have.been.calledOnce;
+    expect(openArchivePropertiesModal).to.have.been.calledWith(archive);
+  });
 });
 
 function render(testCase) {
@@ -135,10 +192,12 @@ function render(testCase) {
     refreshInterval,
     openCreateArchiveModal,
     openRecallModal,
+    openArchivePropertiesModal,
   } = testCase.getProperties(
     'refreshInterval',
     'openCreateArchiveModal',
-    'openRecallModal'
+    'openRecallModal',
+    'openArchivePropertiesModal',
   );
   const defaultDataset = {
     name: 'Default dataset',
@@ -169,6 +228,8 @@ function render(testCase) {
       notStubbed('openCreateArchiveModal'),
     openRecallModal: openRecallModal ||
       notStubbed('openRecallModal'),
+    openArchivePropertiesModal: openArchivePropertiesModal ||
+      notStubbed('openArchivePropertiesModal'),
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
   testCase.render(hbs `<div id="content-scroll">{{file-browser
@@ -232,20 +293,21 @@ function generateItemName(i) {
 }
 
 function mockItems({ testCase, itemsCount }) {
+  const store = lookupService(testCase, 'store');
   const archives = _.range(0, itemsCount).map(i => {
     const name = generateItemName(i);
     const entityId = name;
-    const archive = {
+    const archive = store.createRecord('archive', {
       id: generateItemId(entityId),
-      entityId,
       name,
       index: name,
       type: 'dir',
+      state: 'preserved',
       stats: {
-        bytesArchived: 0,
-        filesArchived: 0,
+        bytesArchived: 100,
+        filesArchived: 10,
       },
-    };
+    });
     return archive;
   });
   const archiveManager = lookupService(testCase, 'archiveManager');

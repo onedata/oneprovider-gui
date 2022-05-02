@@ -10,15 +10,36 @@ import attr from 'ember-data/attr';
 import { belongsTo } from 'onedata-gui-websocket-client/utils/relationships';
 import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/static-graph-model';
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
+import { computed } from '@ember/object';
 
 export const entityType = 'op_archive';
+
+/**
+ * @type {Array<ArchiveState>}
+ */
+export const validArchiveStates = Object.freeze([
+  'pending',
+  'building',
+  'verifying',
+  'preserved',
+  'verification_failed',
+  'failed',
+  'purging',
+]);
+
+/**
+ * @typedef {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'purging'} ArchiveState
+ */
+
+/**
+ * @typedef {'creating'|'succeeded'|'failed'|'destroying'} ArchiveMetaState
+ */
 
 export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
 
   /**
-   * One of: pending, building, verifying, preserved, verification_failed, failed, purging
-   * @type {String}
+   * @type {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'purging'}
    */
   state: attr('string'),
 
@@ -33,8 +54,9 @@ export default Model.extend(GraphSingleModelMixin, {
    * - `createNestedArchives: Boolean`
    * - `incremental: Object`
    *    - `enabled: Boolean` set this flag to true to create incremental archive
-   *    - `[basedOn: String]` you can provide archive ID from which incrementation will be
-   *       computed; by default it is latest archive in this dataset
+   *    - `[basedOn: String]` **only when creating:** you can provide archive ID from
+   *       which incrementation will be computed; by default it is latest archive in this
+   *       dataset
    * - `layout: String`, one of: `bagit`, `plain`
    * - `includeDip: Boolean` - if true dissemination information package (DIP) is created
    *      alongside with archival information package (AIP), on the storage
@@ -76,6 +98,15 @@ export default Model.extend(GraphSingleModelMixin, {
   baseArchive: belongsTo('archive'),
 
   /**
+   * Relation to archive that is direct parent in nested archives hierarchy.
+   * This relation should be non-empty if the archive is a part of nested archives
+   * hierarchy and is not a root of that hierarchy.
+   * A parent of nested archive should have `config.createNestedArchives` enabled.
+   * @type {ComputedProperty<Models.Archive>}
+   */
+  parentArchive: belongsTo('archive'),
+
+  /**
    * Used in AIP archives only if the archive includes DIP.
    * This relation should be non-empty if `config.includeDip` is true.
    * @type {ComputedProperty<Models.Archive>}
@@ -91,4 +122,27 @@ export default Model.extend(GraphSingleModelMixin, {
 
   dataset: belongsTo('dataset'),
   rootDir: belongsTo('file'),
+
+  /**
+   * A less-detailed state of archive to simplify state presentation.
+   * Flow: creating -> succeeded or failed -> destroying
+   * @type {ArchiveMetaState}
+   */
+  metaState: computed('state', function metaState() {
+    switch (this.get('state')) {
+      case 'pending':
+      case 'building':
+      case 'verifying':
+        return 'creating';
+      case 'preserved':
+        return 'succeeded';
+      case 'verification_failed':
+      case 'failed':
+        return 'failed';
+      case 'purging':
+        return 'destroying';
+      default:
+        return 'unknown';
+    }
+  }),
 }).reopenClass(StaticGraphModelMixin);

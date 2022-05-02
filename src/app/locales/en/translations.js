@@ -27,13 +27,17 @@ import filesystemBrowser from './components/filesystem-browser';
 import archiveFilesystemBrowser from './components/archive-filesystem-browser';
 import datasetBrowser from './components/dataset-browser';
 import archiveBrowser from './components/archive-browser';
-import archiveSettings from './components/archive-settings';
+import archiveProperties from './components/archive-properties';
+import archiveCreate from './components/archive-create';
 import archivesPurge from './components/archives-purge';
 import itemsSelectBrowser from './components/items-select-browser';
 import datasetProtection from './components/dataset-protection';
 import filePath from './components/file-path';
 import archiveRecall from './components/archive-recall';
-import recallInfoModal from './components/recall-info-modal';
+import fileRecall from './components/file-recall';
+import archiveContentCount from './components/archive-content-count';
+import archiveState from './components/archive-state';
+import archivePropertiesModal from './components/archive-properties-modal';
 
 import uploadManager from './services/upload-manager';
 
@@ -43,9 +47,12 @@ import filesystemBrowserModel from './utils/filesystem-browser-model';
 import datasetBrowserModel from './utils/dataset-browser-model';
 import archiveBrowserModel from './utils/archive-browser-model';
 import selectorFilesystemBrowserModel from './utils/selector-filesystem-browser-model';
+import archiveFilesystemBrowserModel from './utils/archive-filesystem-browser-model';
 import itemsSelectBrowserUtils from './utils/items-select-browser';
 import workflowActions from './utils/workflow-actions';
 import workflowVisualiser from './utils/workflow-visualiser';
+import archiveFormBaseModel from './utils/archive-form/-base-model';
+import archiveFormViewModel from './utils/archive-form/view-model';
 
 const translations = {
   components: {
@@ -75,13 +82,17 @@ const translations = {
     archiveFilesystemBrowser,
     datasetBrowser,
     archiveBrowser,
-    archiveSettings,
+    archiveProperties,
+    archiveCreate,
     archivesPurge,
     itemsSelectBrowser,
     datasetProtection,
     filePath,
     archiveRecall,
-    recallInfoModal,
+    fileRecall,
+    archiveContentCount,
+    archiveState,
+    archivePropertiesModal,
   },
   services: {
     uploadManager,
@@ -93,9 +104,14 @@ const translations = {
     datasetBrowserModel,
     archiveBrowserModel,
     selectorFilesystemBrowserModel,
+    archiveFilesystemBrowserModel,
     itemsSelectBrowser: itemsSelectBrowserUtils,
     workflowActions,
     workflowVisualiser,
+    archiveForm: {
+      baseModel: archiveFormBaseModel,
+      viewModel: archiveFormViewModel,
+    },
   },
 };
 

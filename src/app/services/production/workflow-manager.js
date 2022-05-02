@@ -182,14 +182,14 @@ export default Service.extend({
    * @param {String} atmWorkflowSchemaId
    * @param {RevisionNumber} atmWorkflowSchemaRevisionNumber
    * @param {String} spaceId
-   * @param {Object} storeInitialValues map (storeSchemaId => initial value)
+   * @param {Object} storeInitialContentOverlay map (storeSchemaId => initial content)
    * @returns {Promise<Models.AtmWorkflowExecution>}
    */
   async runWorkflow(
     atmWorkflowSchemaId,
     atmWorkflowSchemaRevisionNumber,
     spaceId,
-    storeInitialValues
+    storeInitialContentOverlay
   ) {
     return await this.get('store').createRecord('atmWorkflowExecution', {
       _meta: {
@@ -197,7 +197,7 @@ export default Service.extend({
           atmWorkflowSchemaId,
           atmWorkflowSchemaRevisionNumber,
           spaceId,
-          storeInitialValues,
+          storeInitialContentOverlay,
         },
       },
     }).save();
@@ -281,35 +281,33 @@ export default Service.extend({
   },
 
   /**
-   * @param {String} storeInstanceId
-   * @param {String} startFromIndex
-   * @param {number} limit
-   * @param {number} offset
-   * @returns {Promise<{array: Array<StoreContentEntry>, isLast: Boolean}>}
+   * @param {string} atmStoreInstanceId
+   * @param {AtmStoreContentBrowseOptions} browseOptions
+   * @returns {Promise<AtmStoreContentBrowseResult|null>} null when store is empty
    */
-  async getStoreContent(storeInstanceId, startFromIndex, limit, offset) {
-    if (!limit || limit <= 0) {
-      return { array: [], isLast: false };
-    }
-
-    const onedataGraph = this.get('onedataGraph');
+  async getAtmStoreContent(atmStoreInstanceId, browseOptions) {
     const storeContentGri = gri({
       entityType: atmStoreEntityType,
-      entityId: storeInstanceId,
+      entityId: atmStoreInstanceId,
       aspect: 'content',
     });
-    const { list, isLast } = await onedataGraph.request({
-      gri: storeContentGri,
-      operation: 'get',
-      data: {
-        index: startFromIndex,
-        offset,
-        limit,
-      },
-      subscribe: false,
-    });
 
-    return { array: list, isLast };
+    try {
+      return await this.get('onedataGraph').request({
+        gri: storeContentGri,
+        operation: 'get',
+        data: {
+          options: browseOptions,
+        },
+        subscribe: false,
+      });
+    } catch (error) {
+      if (error && error.id === 'atmStoreEmpty') {
+        return null;
+      } else {
+        throw error;
+      }
+    }
   },
 
   /**

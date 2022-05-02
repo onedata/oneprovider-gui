@@ -1222,7 +1222,7 @@ export default Service.extend({
    * Should be launched manually and after it resolves,
    * `onedataGraph.clearChildrenCache()` should be launched.
    * @param {Number} count
-   * @return {Promise}
+   * @returns {Promise}
    */
   async addFrontFiles(count = 10) {
     const store = this.get('store');
@@ -1407,13 +1407,15 @@ export default Service.extend({
               'summary',
             ), { revisionRegistry: { 1: revision } })
           ).save();
-          const storeRegistry = get(revision, 'stores').reduce(
-            (registry, store) => {
-              const storeId = get(store, 'id');
-              registry[storeId] = `${storeId}instance`;
-              return registry;
-            }, {}
-          );
+          const storeRegistry = {};
+          for (const storeSchema of get(revision, 'stores')) {
+            const storeInstanceId = `definedStore${storeSchema.id}-${phase}-${i}`;
+            await this.createAtmStore(storeInstanceId, {
+              type: storeSchema.type,
+              config: storeSchema.config,
+            });
+            storeRegistry[storeSchema.id] = storeInstanceId;
+          }
           const executionLanes = [];
           const lambdaIdsToSnapshot = [];
           if (i < 5) {

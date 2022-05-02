@@ -31,11 +31,13 @@ const FileBreadcrumbsItem = EmberObject.extend({
   /**
    * A name of item displayed in breadcrumbs.
    * By default it uses `file.name` computed property.
-   * If set, the name is overriden but original `file.name` is untouched.
-   * 
+   * If set, the name is overridden but original `file.name` is untouched.
+   *
    * NOTE that it can be shortened with CSS ellipsis later before rendering.
    */
   name: reads('file.name'),
+
+  extraName: reads('file.extraName'),
 
   isRoot: not('file.hasParent'),
 });

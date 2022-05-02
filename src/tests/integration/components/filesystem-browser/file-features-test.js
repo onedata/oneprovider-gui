@@ -1,15 +1,18 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, afterEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
-import { createArchiveRecallData } from '../../../helpers/archive-recall';
+import { click, find, findAll } from 'ember-native-dom-helpers';
+import { createArchiveRecallData } from '../../../helpers/datasets-archives';
 import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
+import { defaultFilesystemFeatures } from 'oneprovider-gui/components/filesystem-browser/file-features';
+import { set } from '@ember/object';
+import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
 
 describe('Integration | Component | filesystem browser/file features', function () {
   setupComponentTest('filesystem-browser/file-features', {
@@ -20,6 +23,20 @@ describe('Integration | Component | filesystem browser/file features', function 
     this.createItem = (...args) => createFileItem(this, ...args);
     this.createItemWithRecallData =
       (...args) => createFileItemWithRecallData(this, ...args);
+    this.set('browserModel', {
+      fileFeatures: defaultFilesystemFeatures,
+      spacePrivileges: {
+        view: true,
+        viewQos: true,
+      },
+    });
+  });
+
+  afterEach(function () {
+    const browserModel = this.get('browserModel');
+    if (browserModel && browserModel.destroy) {
+      browserModel.destroy();
+    }
   });
 
   ['none', 'direct'].forEach(membership => {
@@ -36,7 +53,7 @@ describe('Integration | Component | filesystem browser/file features', function 
           initiallyExpanded=false
         }}`);
 
-        expect(this.$('.file-status-inherited-collapsed')).to.not.exist;
+        expect(find('.file-status-inherited-collapsed')).to.not.exist;
       });
   });
 
@@ -58,11 +75,12 @@ describe('Integration | Component | filesystem browser/file features', function 
 
           this.render(hbs `{{filesystem-browser/file-features
             item=item
+            browserModel=browserModel
             initiallyExpanded=false
           }}`);
           await wait();
 
-          expect(this.$('.file-status-inherited-collapsed')).to.exist;
+          expect(find('.file-status-inherited-collapsed')).to.exist;
         }
       );
     });
@@ -77,12 +95,13 @@ describe('Integration | Component | filesystem browser/file features', function 
 
     this.render(hbs `{{filesystem-browser/file-features
       item=item
+      browserModel=browserModel
       initiallyExpanded=true
     }}`);
 
-    expect(this.$('.file-status-dataset'), 'dataset').to.exist;
-    expect(this.$('.file-status-qos'), 'qos').to.exist;
-    expect(this.$('.file-status-recalling'), 'recalling').to.exist;
+    expect(find('.file-status-dataset'), 'dataset').to.exist;
+    expect(find('.file-status-qos'), 'qos').to.exist;
+    expect(find('.file-status-recalling'), 'recalling').to.exist;
   });
 
   ['direct', 'directAndAncestor'].forEach(membership => {
@@ -95,12 +114,13 @@ describe('Integration | Component | filesystem browser/file features', function 
 
       this.render(hbs `{{filesystem-browser/file-features
         item=item
+        browserModel=browserModel
         initiallyExpanded=false
       }}`);
 
-      expect(this.$('.file-status-dataset'), 'dataset').to.exist;
-      expect(this.$('.file-status-qos'), 'qos').to.exist;
-      expect(this.$('.file-status-recalling'), 'recalling').to.exist;
+      expect(find('.file-status-dataset'), 'dataset').to.exist;
+      expect(find('.file-status-qos'), 'qos').to.exist;
+      expect(find('.file-status-recalling'), 'recalling').to.exist;
     });
   });
 
@@ -114,16 +134,18 @@ describe('Integration | Component | filesystem browser/file features', function 
 
       this.render(hbs `{{filesystem-browser/file-features
         item=item
+        browserModel=browserModel
         initiallyExpanded=false
       }}`);
 
-      const $datasetTag = this.$('.file-status-dataset');
-      const $qosTag = this.$('.file-status-qos');
-      expect($datasetTag, 'dataset').to.exist;
-      expect($qosTag, 'qos').to.exist;
-      expect($datasetTag.find('.inherited-icon'), 'dataset inherited').to.not.exist;
-      expect($qosTag.find('.inherited-icon'), 'qos inherited').to.not.exist;
-      expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed').to.exist;
+      const datasetTag = find('.file-status-dataset');
+      const qosTag = find('.file-status-qos');
+      expect(datasetTag, 'dataset').to.exist;
+      expect(qosTag, 'qos').to.exist;
+      expect(datasetTag.querySelector('.inherited-icon'), 'dataset inherited')
+        .to.not.exist;
+      expect(qosTag.querySelector('.inherited-icon'), 'qos inherited').to.not.exist;
+      expect(find('.file-status-inherited-collapsed'), 'inherited collapsed').to.exist;
     }
   );
 
@@ -137,18 +159,19 @@ describe('Integration | Component | filesystem browser/file features', function 
 
       this.render(hbs `{{filesystem-browser/file-features
         item=item
+        browserModel=browserModel
         initiallyExpanded=true
       }}`);
 
-      expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed')
+      expect(find('.file-status-inherited-collapsed'), 'inherited collapsed')
         .to.not.exist;
-      const $datasetTag = this.$('.dataset-file-status-tag-group');
-      const $qosTag = this.$('.qos-file-status-tag-group');
-      expect($datasetTag, 'dataset group').to.exist;
-      expect($qosTag, 'qos group').to.exist;
+      const datasetTag = find('.dataset-file-status-tag-group');
+      const qosTag = find('.qos-file-status-tag-group');
+      expect(datasetTag, 'dataset group').to.exist;
+      expect(qosTag, 'qos group').to.exist;
       const addonIconSelector = '.file-status-inherited-addon > .inherited-icon';
-      const $datasetAddonIcon = $datasetTag.find(addonIconSelector);
-      const $qosAddonIcon = $qosTag.find(addonIconSelector);
+      const $datasetAddonIcon = datasetTag.querySelector(addonIconSelector);
+      const $qosAddonIcon = qosTag.querySelector(addonIconSelector);
       expect($datasetAddonIcon, 'dataset inherited addon').to.exist;
       expect($qosAddonIcon, 'qos inherited addon').to.exist;
     }
@@ -164,21 +187,22 @@ describe('Integration | Component | filesystem browser/file features', function 
 
       this.render(hbs `{{filesystem-browser/file-features
         item=item
+        browserModel=browserModel
         initiallyExpanded=true
       }}`);
 
-      expect(this.$('.file-status-inherited-collapsed'), 'inherited collapsed')
+      expect(find('.file-status-inherited-collapsed'), 'inherited collapsed')
         .to.not.exist;
-      const $datasetTag = this.$('.dataset-file-status-tag-group');
-      const $qosTag = this.$('.qos-file-status-tag-group');
-      const $recallingTag = this.$('.recalling-file-status-tag-group');
-      expect($datasetTag, 'dataset group').to.exist;
-      expect($qosTag, 'qos group').to.exist;
-      expect($recallingTag, 'recalling group').to.exist;
+      const datasetTag = find('.dataset-file-status-tag-group');
+      const qosTag = find('.qos-file-status-tag-group');
+      const recallingTag = find('.recalling-file-status-tag-group');
+      expect(datasetTag, 'dataset group').to.exist;
+      expect(qosTag, 'qos group').to.exist;
+      expect(recallingTag, 'recalling group').to.exist;
       const iconSelector = ':not(.file-status-inherited-addon) > .inherited-icon';
-      expect($datasetTag.find(iconSelector), 'dataset inherited').to.exist;
-      expect($qosTag.find(iconSelector), 'qos inherited').to.exist;
-      expect($recallingTag.find(iconSelector), 'recalling inherited').to.exist;
+      expect(datasetTag.querySelector(iconSelector), 'dataset inherited').to.exist;
+      expect(qosTag.querySelector(iconSelector), 'qos inherited').to.exist;
+      expect(recallingTag.querySelector(iconSelector), 'recalling inherited').to.exist;
     }
   );
 
@@ -204,14 +228,13 @@ describe('Integration | Component | filesystem browser/file features', function 
 
         this.render(hbs `{{filesystem-browser/file-features
           item=item
+          browserModel=browserModel
           initiallyExpanded=false
-          spacePrivileges=spacePrivileges
           onInvokeItemAction=onInvokeItemAction
         }}`);
-        const $tagGroup = this.$(`.${tag}-file-status-tag-group`);
-        expect($tagGroup).to.have.length(1);
-        // await sleep(3000);
-        await click($tagGroup[0]);
+        const tagGroups = findAll(`.${tag}-file-status-tag-group`);
+        expect(tagGroups).to.have.lengthOf(1);
+        await click(tagGroups[0]);
 
         expect(onInvokeItemAction).to.have.been.calledOnce;
         expect(onInvokeItemAction).to.have.been.calledWith(item, action);
@@ -240,14 +263,15 @@ describe('Integration | Component | filesystem browser/file features', function 
       });
 
       this.render(hbs `{{filesystem-browser/file-features
-          item=item
-          initiallyExpanded=false
-          onInvokeItemAction=onInvokeItemAction
-        }}`);
-      const $tag = this.$(`.file-status-${tag}`);
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=false
+        onInvokeItemAction=onInvokeItemAction
+      }}`);
+      const tagElement = find(`.file-status-${tag}`);
 
-      expect($tag).to.exist;
-      expect($tag.text().trim()).to.contain(text);
+      expect(tagElement).to.exist;
+      expect(tagElement.textContent.trim()).to.contain(text);
     });
   });
 
@@ -260,19 +284,42 @@ describe('Integration | Component | filesystem browser/file features', function 
 
     this.render(hbs `{{filesystem-browser/file-features
       item=item
+      browserModel=browserModel
       initiallyExpanded=false
     }}`);
-    const $inheritanceTag = this.$('.file-status-inherited-collapsed');
-    expect($inheritanceTag).to.have.length(1);
-    await click($inheritanceTag[0]);
+    const inheritanceTags = findAll('.file-status-inherited-collapsed');
+    expect(inheritanceTags).to.have.length(1);
+    await click(inheritanceTags[0]);
 
-    expect(this.$('.file-status-inherited-collapsed'), 'inheritance tag after click')
+    expect(find('.file-status-inherited-collapsed'), 'inheritance tag after click')
       .to.not.exist;
-    expect(this.$('.dataset-file-status-tag-group .inherited-icon'), 'dataset inherited a. click')
+    expect(find('.dataset-file-status-tag-group .inherited-icon'), 'dataset inherited a. click')
       .to.exist;
-    expect(this.$('.qos-file-status-tag-group .inherited-icon'), 'qos inherited a. click')
+    expect(find('.qos-file-status-tag-group .inherited-icon'), 'qos inherited a. click')
       .to.exist;
   });
+
+  it('shows collapsed inherited tag in "inherited" style if there is no feature with custom noticeLevel in collapsed mode',
+    async function () {
+      await this.createItem({
+        effQosMembership: 'ancestor',
+        effDatasetMembership: 'ancestor',
+      });
+
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=false
+      }}`);
+      await wait();
+
+      const collapsedElementClasses = [
+        ...find('.file-status-inherited-collapsed').classList,
+      ];
+      expect(collapsedElementClasses, collapsedElementClasses.join(', '))
+        .to.contain('file-status-tag-inherited');
+    }
+  );
 
   //#region recalling tag
 
@@ -291,14 +338,15 @@ describe('Integration | Component | filesystem browser/file features', function 
 
     this.render(hbs `{{filesystem-browser/file-features
       item=item
+      browserModel=browserModel
       initiallyExpanded=false
       onInvokeItemAction=onInvokeItemAction
     }}`);
     await wait();
 
-    const $tag = this.$('.file-status-recalling');
-    expect($tag).to.exist;
-    const text = $tag.text().trim();
+    const tagElement = find('.file-status-recalling');
+    expect(tagElement).to.exist;
+    const text = tagElement.textContent.trim();
     expect(text).to.contain('50%');
   });
 
@@ -317,6 +365,7 @@ describe('Integration | Component | filesystem browser/file features', function 
 
     this.render(hbs `{{filesystem-browser/file-features
       item=item
+      browserModel=browserModel
       initiallyExpanded=false
       onInvokeItemAction=onInvokeItemAction
     }}`);
@@ -325,6 +374,166 @@ describe('Integration | Component | filesystem browser/file features', function 
     const tagProgress = this.$('.file-status-recalling .tag-progress')[0];
     expect(tagProgress.style.width).to.equal('50%');
   });
+
+  //#endregion
+
+  //#region file-in-archive
+
+  [
+    { state: 'pending', label: 'Pending' },
+    { state: 'building', label: 'Building' },
+    { state: 'verifying', label: 'Verifying' },
+  ].forEach((spec) => {
+    it(`shows creating archive tag with label for "${spec.state}" state when used with archive filesystem browser`,
+      async function () {
+        await this.createItem();
+        await whenUsedInArchiveFilesystemBrowser(this, { archiveState: spec.state });
+
+        this.render(hbs `{{filesystem-browser/file-features
+          item=item
+          browserModel=browserModel
+          initiallyExpanded=true
+        }}`);
+
+        /** @type {HTMLElement} */
+        const tag = find('.file-status-archive-creating');
+        expect(tag).to.exist;
+        expect([...tag.classList]).to.contain('file-status-tag-warning');
+        expect(tag.textContent.trim()).to.equal(spec.label);
+      }
+    );
+  });
+
+  it('does not show creating nor failed archive tag with label for "preserved" state when used with archive filesystem browser',
+    async function () {
+      await this.createItem();
+      await whenUsedInArchiveFilesystemBrowser(this, { archiveState: 'preserved' });
+
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=true
+      }}`);
+
+      expect(find('.file-status-archive-creating')).to.not.exist;
+      expect(find('.file-status-archive-failed')).to.not.exist;
+    }
+  );
+
+  [
+    { state: 'failed' },
+    { state: 'verification_failed' },
+  ].forEach((spec) => {
+    it(`shows failed archive tag for "${spec.state}" state when used with archive filesystem browser`,
+      async function () {
+        await this.createItem();
+        await whenUsedInArchiveFilesystemBrowser(this, { archiveState: spec.state });
+
+        this.render(hbs `{{filesystem-browser/file-features
+          item=item
+          browserModel=browserModel
+          initiallyExpanded=true
+        }}`);
+
+        const failedTag = find('.file-status-archive-failed');
+        expect(failedTag).to.exist;
+        expect([...failedTag.classList]).to.contain('file-status-tag-danger');
+        expect(failedTag.textContent.trim()).to.equal('Failed');
+      }
+    );
+  });
+
+  it('shows archive creating ancestor tag with inheritance icon in expanded mode',
+    async function () {
+      await this.createItem();
+      whenUsedInArchiveFilesystemBrowser(this, {
+        archiveState: 'building',
+        archiveRootDir: null,
+      });
+
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=true
+      }}`);
+
+      /** @type {HTMLElement} */
+      const tag = find('.file-status-archive-creating');
+      expect(tag).to.exist;
+      expect(tag.querySelector('.inherited-icon.oneicon-inheritance')).to.exist;
+    }
+  );
+
+  it('shows archive failed ancestor tag with inheritance icon in expanded mode',
+    async function () {
+      await this.createItem();
+      whenUsedInArchiveFilesystemBrowser(this, {
+        archiveState: 'failed',
+        archiveRootDir: null,
+      });
+
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=true
+      }}`);
+
+      /** @type {HTMLElement} */
+      const tag = find('.file-status-archive-failed');
+      expect(tag).to.exist;
+      expect(tag.querySelector('.inherited-icon.oneicon-inheritance')).to.exist;
+    }
+  );
+
+  it('shows collapsed inherited tag in warning style if just one active feature has warning noticeLevel in collapsed mode',
+    async function () {
+      await this.createItem({
+        effQosMembership: 'ancestor',
+      });
+      whenUsedInArchiveFilesystemBrowser(this, {
+        archiveState: 'building',
+        archiveRootDir: null,
+      });
+
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=false
+      }}`);
+      await wait();
+
+      const collapsedElementClasses = [
+        ...find('.file-status-inherited-collapsed').classList,
+      ];
+      expect(collapsedElementClasses, collapsedElementClasses.join(', '))
+        .to.contain('file-status-tag-warning');
+    }
+  );
+
+  it('shows collapsed inherited tag in danger style if just one active feature has danger noticeLevel in collapsed mode',
+    async function () {
+      await this.createItem({
+        effQosMembership: 'ancestor',
+      });
+      whenUsedInArchiveFilesystemBrowser(this, {
+        archiveState: 'failed',
+        archiveRootDir: null,
+      });
+
+      this.render(hbs `{{filesystem-browser/file-features
+        item=item
+        browserModel=browserModel
+        initiallyExpanded=false
+      }}`);
+      await wait();
+
+      const collapsedElementClasses = [
+        ...find('.file-status-inherited-collapsed').classList,
+      ];
+      expect(collapsedElementClasses, collapsedElementClasses.join(', '))
+        .to.contain('file-status-tag-danger');
+    }
+  );
 
   //#endregion
 });
@@ -346,4 +555,49 @@ async function createFileItemWithRecallData(testCase, data = {}) {
     targetFile.save();
   });
   testCase.set('item', targetFile);
+}
+
+function whenUsedInArchiveFilesystemBrowser(
+  testCase, { archiveState = 'preserved', archiveRootDir = testCase.get('item') } = {}
+) {
+  let archive;
+  run(() => {
+    archive = createArchiveForBrowser(testCase, archiveRootDir);
+  });
+  const browserModel = ArchiveFilesystemBrowserModel.create({
+    ownerSource: testCase,
+    archive,
+  });
+  testCase.set('browserModel', browserModel);
+  run(() => {
+    set(archive, 'state', archiveState);
+  });
+}
+
+function createArchiveForBrowser(testCase, rootDir = null) {
+  const store = lookupService(testCase, 'store');
+  const archive = store.createRecord('archive', {
+    config: {
+      incremental: {
+        enabled: false,
+      },
+      layout: 'plain',
+      includeDip: false,
+    },
+    dataset: null,
+    // properties not normally used when create
+    creationTime: Math.floor(Date.now() / 1000),
+    state: 'preserved',
+    stats: {
+      bytesArchived: 2048,
+      filesArchived: 20,
+      filesFailed: 0,
+    },
+    relatedAip: null,
+    relatedDip: null,
+    rootDir: rootDir,
+    baseArchive: null,
+  });
+  testCase.set('archive', archive);
+  return archive;
 }

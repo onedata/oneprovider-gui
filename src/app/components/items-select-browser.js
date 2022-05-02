@@ -66,7 +66,7 @@ export default Component.extend(...mixins, {
 
   /**
    * Custom selector for items list scroll container.
-   * Should be overriden **only** if items-select-browser is not in one-modal.
+   * Should be overridden **only** if items-select-browser is not in one-modal.
    * @virtual optional
    */
   contentScrollSelector: undefined,

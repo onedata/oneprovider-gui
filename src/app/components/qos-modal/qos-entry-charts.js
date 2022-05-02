@@ -491,7 +491,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   /**
    * @param {OTSCDataSourceFetchParams} seriesParameters
    * @param {{ collectionId: string, seriesId: string }} sourceParameters
-   * @returns {Promise<Array<RawOTSCSeriesPoint>>}
+   * @returns {Promise<Array<OTSCRawSeriesPoint>>}
    */
   async fetchSeries(seriesParameters, sourceParameters) {
     const {

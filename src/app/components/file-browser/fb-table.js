@@ -119,6 +119,12 @@ export default Component.extend(I18n, {
   changeSelectedItems: notImplementedThrow,
 
   /**
+   * @virtual
+   * @type {(item: Object) => boolean}
+   */
+  isItemDisabledFunction: defaultIsItemDisabled,
+
+  /**
    * @virtual optional
    * @type {(api: { refresh: Function, getFilesArray: Function }) => undefined}
    */
@@ -268,22 +274,6 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<Boolean>}
    */
   singleSelect: bool(or('browserModel.singleSelect', 'previewMode')),
-
-  /**
-   * @type {(item: Object) => boolean}
-   */
-  isItemDisabledFunction: computed(
-    'browserModel.isItemDisabled',
-    function isItemDisabledFunction() {
-      const browserModel = this.get('browserModel');
-      const isItemDisabledMethod = browserModel.isItemDisabled;
-      if (typeof isItemDisabledMethod === 'function') {
-        return isItemDisabledMethod.bind(browserModel);
-      } else {
-        return defaultIsItemDisabled;
-      }
-    }
-  ),
 
   disabledItems: computed(
     'isItemDisabledFunction',
@@ -855,10 +845,16 @@ export default Component.extend(I18n, {
           changeSelectedItems,
         } = this.getProperties('selectedItems', 'changeSelectedItems');
         const sourceArray = get(filesArray, 'sourceArray');
-        if (!isEmpty(selectedItems)) {
-          changeSelectedItems(selectedItems.filter(selectedFile =>
-            sourceArray.includes(selectedFile)
-          ));
+        const updatedSelectedItems = selectedItems.filter(selectedFile =>
+          sourceArray.includes(selectedFile)
+        );
+        if (
+          !isEmpty(selectedItems) &&
+          // refresh may result in loss of some previously selected item, so only check
+          // length - checking content of array is unnecessary
+          selectedItems.length != updatedSelectedItems.length
+        ) {
+          changeSelectedItems(updatedSelectedItems);
         }
 
         scheduleOnce('afterRender', () => {

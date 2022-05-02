@@ -179,9 +179,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * File features displayed in status bar - see `component:file-browser/file-features`
    * `features` property.
    * @virtual optional
-   * @type {Array<String>}
+   * @type {Array<ItemFeatureSpec>}
    */
   fileFeatures: defaultFilesystemFeatures,
+
+  /**
+   * If provided, the additional component will be injected inside file-features.
+   * Interface of extension component:
+   * - `browserModel: Utils.FilesystemBrowserModel` (or child classes)
+   * - `item: Models.File`
+   * - `displayedState: Object` (see `components/file-browser/item-features-container`)
+   * @virtual optional
+   * @type {String}
+   */
+  fileFeaturesExtensionComponentName: null,
 
   /**
    * @override
@@ -253,22 +264,10 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   readonlyFilesystem: false,
 
   /**
-   * True if QoS tag in header is currenlty hovered.
+   * Name of feature tag in header that is currently hovered.
    * @type {Boolean}
    */
-  qosHeaderTagIsHovered: false,
-
-  /**
-   * True if dataset tag in header is currenlty hovered.
-   * @type {Boolean}
-   */
-  datasetHeaderTagIsHovered: false,
-
-  /**
-   * True if recalling tag in header is currenlty hovered.
-   * @type {Boolean}
-   */
-  recallingHeaderTagIsHovered: false,
+  hoveredHeaderTag: null,
 
   /**
    * Timeout ID for removing transition class for tags.
@@ -316,6 +315,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
+        blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -341,6 +341,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
+        blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -550,30 +551,35 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnRename: computed('selectedItems.@each.dataIsProtected', function btnRename() {
-    const actionId = 'rename';
-    const tip = this.generateDisabledTip({
-      protectionType: 'data',
-    });
-    const disabled = Boolean(tip);
-    return this.createFileAction({
-      id: actionId,
-      action: (files) => {
-        const {
-          openRename,
-          dir,
-        } = this.getProperties('openRename', 'dir');
-        return openRename(files[0], dir);
-      },
-      disabled,
-      tip,
-      showIn: [
-        actionContext.singleDir,
-        actionContext.singleFile,
-        actionContext.currentDir,
-      ],
-    });
-  }),
+  btnRename: computed(
+    'selectedItems.@each.dataIsProtected',
+    'selectedItemsContainsRecalling',
+    function btnRename() {
+      const actionId = 'rename';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        blockRecalling: true,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: (files) => {
+          const {
+            openRename,
+            dir,
+          } = this.getProperties('openRename', 'dir');
+          return openRename(files[0], dir);
+        },
+        disabled,
+        tip,
+        showIn: [
+          actionContext.singleDir,
+          actionContext.singleFile,
+          actionContext.currentDir,
+        ],
+      });
+    }
+  ),
 
   btnPermissions: computed(
     'selectedItemsContainsOnlySymlinks',
@@ -696,11 +702,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnCut: computed(
     'selectedItemsContainsOnlySymlinks',
     'selectedItems.@each.dataIsProtected',
+    'selectedItemsContainsRecalling',
     function btnCut() {
       const actionId = 'cut';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
         blockWhenSymlinksOnly: true,
+        blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -719,12 +727,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnPaste: computed(
     'dir.dataIsProtected',
+    'selectedItemsContainsRecalling',
     function btnPaste() {
       const actionId = 'paste';
       const tip = this.generateDisabledTip({
         protectionType: 'data',
         checkProtectionForCurrentDir: true,
         checkProtectionForSelected: false,
+        blockRecalling: true,
       });
       const disabled = Boolean(tip);
       return this.createFileAction({
@@ -741,26 +751,31 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnDelete: computed('selectedItems.@each.dataIsProtected', function btnDelete() {
-    const actionId = 'delete';
-    const tip = this.generateDisabledTip({
-      protectionType: 'data',
-    });
-    const disabled = Boolean(tip);
-    return this.createFileAction({
-      id: actionId,
-      action: (files) => {
-        const {
-          openRemove,
-          dir,
-        } = this.getProperties('openRemove', 'dir');
-        return openRemove(files, dir);
-      },
-      disabled,
-      tip,
-      showIn: anySelectedContexts,
-    });
-  }),
+  btnDelete: computed(
+    'selectedItems.@each.dataIsProtected',
+    'selectedItemsContainsRecalling',
+    function btnDelete() {
+      const actionId = 'delete';
+      const tip = this.generateDisabledTip({
+        protectionType: 'data',
+        blockRecalling: true,
+      });
+      const disabled = Boolean(tip);
+      return this.createFileAction({
+        id: actionId,
+        action: (files) => {
+          const {
+            openRemove,
+            dir,
+          } = this.getProperties('openRemove', 'dir');
+          return openRemove(files, dir);
+        },
+        disabled,
+        tip,
+        showIn: anySelectedContexts,
+      });
+    }
+  ),
 
   btnDistribution: computed(
     'selectedItemsContainsOnlySymlinks',
@@ -877,40 +892,34 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {ComputedProperty<Array<String>>}
    */
   customClassNames: computed(
-    'qosHeaderTagIsHovered',
-    'datasetHeaderTagIsHovered',
-    'recallingHeaderTagIsHovered',
+    'hoveredHeaderTag',
     'highlightAnimationTimeoutId',
     function customClassNames() {
       const {
-        qosHeaderTagIsHovered,
-        datasetHeaderTagIsHovered,
-        recallingHeaderTagIsHovered,
+        hoveredHeaderTag,
         highlightAnimationTimeoutId,
       } = this.getProperties(
-        'qosHeaderTagIsHovered',
-        'datasetHeaderTagIsHovered',
-        'recallingHeaderTagIsHovered',
+        'hoveredHeaderTag',
         'highlightAnimationTimeoutId'
       );
       const classes = [];
-      if (qosHeaderTagIsHovered) {
-        classes.push('highlight-inherited-qos');
+      if (hoveredHeaderTag) {
+        classes.push(
+          `highlight-inherited-${hoveredHeaderTag}`,
+          'highlight-inherited',
+        );
       }
-      if (datasetHeaderTagIsHovered) {
-        classes.push('highlight-inherited-dataset');
-      }
-      if (recallingHeaderTagIsHovered) {
-        classes.push('highlight-inherited-recalling');
-      }
-      if (classes.length) {
-        classes.push('highlight-inherited', 'highlight-transition');
-      } else if (highlightAnimationTimeoutId) {
+      if (hoveredHeaderTag || highlightAnimationTimeoutId) {
         classes.push('highlight-transition');
       }
       return classes;
     }
   ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  selectedItemsContainsRecalling: array.isAny('selectedItems', raw('isRecalling')),
 
   /**
    * @type {ComputedProperty<boolean>}
@@ -974,29 +983,20 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   }),
 
   animateHighlight: observer(
-    'qosHeaderTagIsHovered',
-    'datasetHeaderTagIsHovered',
-    'recallingHeaderTagIsHovered',
+    'hoveredHeaderTag',
     function animateHighlight() {
       const {
-        qosHeaderTagIsHovered,
-        datasetHeaderTagIsHovered,
-        recallingHeaderTagIsHovered,
+        hoveredHeaderTag,
         highlightAnimationTimeoutId,
       } = this.getProperties(
-        'qosHeaderTagIsHovered',
-        'datasetHeaderTagIsHovered',
-        'recallingHeaderTagIsHovered',
-        'highlightAnimationTimeoutId');
+        'hoveredHeaderTag',
+        'highlightAnimationTimeoutId'
+      );
       if (highlightAnimationTimeoutId) {
         this.set('highlightAnimationTimeoutId', null);
         window.clearTimeout(highlightAnimationTimeoutId);
       }
-      if (
-        !qosHeaderTagIsHovered &&
-        !datasetHeaderTagIsHovered &&
-        !recallingHeaderTagIsHovered
-      ) {
+      if (!hoveredHeaderTag) {
         this.set(
           'highlightAnimationTimeoutId',
           // timeout time is slightly longer than defined transition time in
@@ -1093,6 +1093,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   /**
+   * In some specific file browsers, there is a need to show additional inheritable file
+   * tags (called "features") that need additional data beside standard file data.
+   * This method can be overridden to add additional computed properties to file (by
+   * wrapping it) so item-features-container can read status of these features.
+   * @param {Models.File} item
+   * @returns {Object} a wrapped item with additional feature-properties used by
+   *   specific implementation of item-features-container
+   */
+  featurizeItem(item) {
+    return item;
+  },
+
+  /**
    * @param {Array<Models.File>} files
    * @returns {Promise}
    */
@@ -1107,12 +1120,19 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     checkProtectionForSelected = true,
     blockFileTypes = [],
     blockWhenSymlinksOnly = false,
+    blockRecalling = false,
   }) {
     const {
       dir,
       selectedItems,
       selectedItemsContainsOnlySymlinks,
-    } = this.getProperties('dir', 'selectedItems', 'selectedItemsContainsOnlySymlinks');
+      selectedItemsContainsRecalling,
+    } = this.getProperties(
+      'dir',
+      'selectedItems',
+      'selectedItemsContainsOnlySymlinks',
+      'selectedItemsContainsRecalling'
+    );
     if (!dir) {
       return;
     }
@@ -1138,6 +1158,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       tip = this.t('disabledActionReason.blockedFileType', {
         fileType: this.t('disabledActionReason.fileTypesPlural.symlink'),
       });
+    }
+    if (!tip && blockRecalling && selectedItemsContainsRecalling) {
+      tip = this.t('disabledActionReason.recalling');
     }
     return tip;
   },
@@ -1293,6 +1316,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   },
 
   changeTagHover(tag, isHovered) {
-    this.set(`${tag}HeaderTagIsHovered`, isHovered);
+    this.set('hoveredHeaderTag', isHovered ? tag : null);
   },
 });

@@ -1,8 +1,9 @@
 {{#file-browser/item-features-container
+  browserModel=browserModel
   item=item
   features=features
   initiallyExpanded=initiallyExpanded
-  as |displayed|
+  as |displayed itemWithFeatures|
 }}
   {{#if (contains "recallingMembership" features)}}
     {{#if displayed.recallingMembership.isShown}}
@@ -29,13 +30,15 @@
             (if effRecallingDisabled "file-status-tag-disabled")
           }}
         >
-          <div
-            class="tag-progress progress-bar progress-bar-striped active"
-            style={{recallingProgressStyle}}
-          >
-          </div>
+          {{#unless archiveRecallStateProxy.isPending}}
+            <div
+              class="tag-progress progress-bar progress-bar-striped active"
+              style={{recallingProgressStyle}}
+            >
+            </div>
+          {{/unless}}
           <span class="tag-text">
-            <span class="recalling-label">{{tt this "status.recalling"}}</span>
+            <span class="recalling-label">{{tt this recallingLabelKey}}</span>
             {{#unless (is-empty recallingPercent)}}
               <span class="recalling-progress">({{recallingPercent}}%)</span>
             {{/unless}}
@@ -48,9 +51,9 @@
           {{/if}}
         </div>
       </div>
-    {{else if item.isRecalled}}
+    {{else if itemWithFeatures.isRecalled}}
       {{filesystem-browser/tag-recalled
-        file=item
+        file=itemWithFeatures
         disabled=effRecallingDisabled
         onTagClicked=(unless effRecallingDisabled (action "recallTagClicked"))
       }}
@@ -171,5 +174,13 @@
       {{/if}}
     </div>
   {{/if}}
-  {{yield displayed}}
+  {{#if browserModel.fileFeaturesExtensionComponentName}}
+    {{component browserModel.fileFeaturesExtensionComponentName
+      browserModel=browserModel
+      item=itemWithFeatures
+      displayedState=displayed
+      onChangeTagHover=(action "changeTagHover")
+    }}
+  {{/if}}
+  {{yield displayed itemWithFeatures}}
 {{/file-browser/item-features-container}}

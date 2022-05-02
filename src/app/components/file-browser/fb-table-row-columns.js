@@ -9,6 +9,7 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Component.extend(I18n, {
   tagName: '',
@@ -21,9 +22,33 @@ export default Component.extend(I18n, {
 
   // TODO: VFS-7643 maybe something like table-row model will be better than separated props
 
-  previewMode: undefined,
-
+  /**
+   * @virtual
+   * @type {any} browsable object like Models.File
+   */
   file: undefined,
 
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  previewMode: undefined,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
   nameConflict: undefined,
+
+  /**
+   * @virtual
+   * @type {Object}
+   */
+  fileRowModel: undefined,
+
+  /**
+   * @virtual
+   * @type {(item: any, actionName: string) => void}
+   */
+  invokeFileAction: notImplementedReject,
 });

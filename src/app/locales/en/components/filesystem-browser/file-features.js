@@ -8,6 +8,7 @@ export default {
     qos: 'QoS',
     dataset: 'Dataset',
     recalling: 'Recalling',
+    recallingUnknownPercent: 'Recalling...',
   },
   protectionFlagsInfo: {
     metadata: 'This {{fileType}}\'s metadata is write protected.',

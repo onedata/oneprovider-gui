@@ -1,0 +1,67 @@
+{{#if displayedState.archiveCreating.isShown}}
+  <div
+    class={{concat-classes
+      "file-status-tag-group archive-creating-file-status-tag-group"
+      (if (eq displayedState.archiveCreating.membership "ancestor")
+        "file-status-tag-group-fully-inherited"
+      )
+    }}
+    onmouseover={{action "changeTagHover" "archive-creating" true}}
+    onmouseout={{action "changeTagHover" "archive-creating" false}}
+  >
+    <div
+      class={{concat-classes
+        "file-status-tag"
+        "file-status-archive-creating"
+        "file-status-tag-warning"
+      }}
+    >
+      <span class="tag-text">{{creatingStateLabel}}</span>
+      {{#if (eq displayedState.archiveCreating.membership "ancestor")}}
+        {{one-icon
+          class="tag-icon archive-creating-inherited-icon inherited-icon"
+          icon=inheritedIcon
+        }}
+      {{/if}}
+      {{#one-tooltip}}
+        <p class="semibold">{{tt this "parentArchiveState"}}:</p>
+        <p>{{archive-state archive=archive}}</p>
+      {{/one-tooltip}}
+    </div>
+  </div>
+{{/if}}
+
+{{#if displayedState.archiveFailed.isShown}}
+  <div
+    class={{concat-classes
+      "file-status-tag-group archive-failed-file-status-tag-group"
+      (if (eq displayedState.archiveFailed.membership "ancestor")
+        "file-status-tag-group-fully-inherited"
+      )
+    }}
+    onmouseover={{action "changeTagHover" "archive-failed" true}}
+    onmouseout={{action "changeTagHover" "archive-failed" false}}
+  >
+    <div
+      class={{concat-classes
+        "file-status-tag"
+        "file-status-archive-failed"
+        "file-status-tag-danger"
+      }}
+    >
+      <span class="tag-text">
+        {{tt this "failed"}}
+      </span>
+      {{#if (eq displayedState.archiveFailed.membership "ancestor")}}
+        {{one-icon
+          class="tag-icon archive-failed-inherited-icon inherited-icon"
+          icon=inheritedIcon
+        }}
+      {{/if}}
+      {{#one-tooltip}}
+        {{tt this "failedArchiveBuild"}}
+      {{/one-tooltip}}
+    </div>
+  </div>
+{{/if}}
+{{yield displayedState item}}

@@ -36,12 +36,6 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
   transfersHistoryLimitPerFile: reads('attributes.transfersHistoryLimitPerFile'),
 
   /**
-   * See `service:api-string-generator` and its subclasses for used templates
-   * @type {Ember.ComputedProperty<Object>}
-   */
-  apiTemplates: reads('attributes.apiTemplates'),
-
-  /**
    * @type {ComputedProperty<Boolean>}
    */
   openfaasAvailable: reads('attributes.openfaasAvailable'),

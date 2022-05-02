@@ -8,6 +8,9 @@
   .fb-table-col-incremental {
     width: 14em;
     max-width: 14em;
+    .base-archive-id-container {
+      display: block;
+    }
   }
   .col-status-no {
     color: $main-text-color-disabled;
@@ -25,10 +28,18 @@
       bottom: 0;
     }
   }
+  .error-dir-image-no-view {
+    background-image: url($root-url + 'images/no-view.svg');
+  }
+  .secondary-description {
+    .no-description {
+      font-style: italic;
+      opacity: 0.8;
+    }
+  }
   @media (max-width: 450px) {
     .file-info-mobile-created {
       display: none;
     }
   }
-
 }
