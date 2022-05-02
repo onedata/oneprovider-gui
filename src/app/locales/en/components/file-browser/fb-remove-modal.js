@@ -27,7 +27,7 @@ export default {
     },
     forManySelected: {
       andOneShared: {
-        prefix: 'The selection contains 1 element, that is shared ',
+        prefix: 'The selection contains 1 element that is shared ',
         suffixOneShare: '1 time.',
         suffixManyShares: '{{sharesCount}} times.',
       },

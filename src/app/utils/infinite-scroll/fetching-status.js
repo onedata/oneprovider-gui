@@ -83,7 +83,7 @@ export default EmberObject.extend({
   },
 
   /**
-   * @param {boolean} bind if true - bind events, if false bind events
+   * @param {boolean} bind if true - bind events, if false unbind events
    */
   toggleNotificationsBindings(bind) {
     const {
