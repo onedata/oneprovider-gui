@@ -22,6 +22,12 @@ import { next } from '@ember/runloop';
 import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
 import _ from 'lodash';
 
+/**
+ * @typedef {Object} DirSizeStatsConfig
+ * @property {string} statsCollectionStatus One of `enabled`, `disabled`, `stopping`, `initializing`
+ * @property {number} since
+ */
+
 export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
   fileManager: service(),
@@ -96,7 +102,13 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   initialTab: undefined,
 
   /**
-   * One of: general, hardlinks, size
+   * @virtual
+   * @type {DirSizeStatsConfig}
+   */
+  dirSizeStatsConfig: undefined,
+
+  /**
+   * One of: general, hardlinks, size, apiSamples
    * @type {String}
    */
   activeTab: 'general',
@@ -185,10 +197,15 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
   fileSize: reads('file.size'),
 
+  /**
+   * One of `enabled`, `disabled`, `stopping`, `initializing`
+   * @type {string}
+   */
   statsCollectionEnabled: reads('dirSizeStatsConfig.statsCollectionStatus'),
 
-  dirSizeStatsConfig: undefined,
-
+  /**
+   * @type {Boolean}
+   */
   showSizeTab: computed('statsCollectionEnabled', 'effItemType', function showSizeTab() {
     const {
       statsCollectionEnabled,
@@ -258,7 +275,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   init() {
     this._super(...arguments);
     const initialTab = this.get('initialTab');
-    if (['general', 'hardlinks', 'size', 'restApi'].includes(initialTab)) {
+    if (['general', 'hardlinks', 'size', 'apiSamples'].includes(initialTab)) {
       this.set('activeTab', initialTab);
     }
   },

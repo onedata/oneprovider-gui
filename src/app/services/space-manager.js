@@ -143,6 +143,10 @@ export default Service.extend({
       .then(({ matchingStorages }) => matchingStorages);
   },
 
+  /**
+   * @param {String} spaceId
+   * @returns {Promise<Object>}
+   */
   fetchDirSizeStatsConfig(spaceId) {
     const activeChannelsGri = gri({
       entityType: spaceEntityType,
@@ -156,7 +160,12 @@ export default Service.extend({
     });
   },
 
-  patchDirSizeStatsConfig(spaceId) {
+  /**
+   * @param {String} spaceId
+   * @param {Boolean} statsCollectionEnabled
+   * @returns {Promise<Object>}
+   */
+  patchDirSizeStatsConfig(spaceId, statsCollectionEnabled = true) {
     const activeChannelsGri = gri({
       entityType: spaceEntityType,
       entityId: spaceId,
@@ -166,7 +175,7 @@ export default Service.extend({
       gri: activeChannelsGri,
       operation: 'update',
       data: {
-        statsCollectionEnabled: true,
+        statsCollectionEnabled: statsCollectionEnabled,
       },
       subscribe: false,
     });

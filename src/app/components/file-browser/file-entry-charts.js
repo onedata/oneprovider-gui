@@ -28,6 +28,14 @@ import { promise } from 'ember-awesome-macros';
  * @property {number} updateInterval
  */
 
+/**
+ * @typedef {Object} DirStatsConfig
+ * @property {string} dayMetricId
+ * @property {string} hourMetricId
+ * @property {string} minuteMetricId
+ * @property {string} monthMetricId
+ */
+
 export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   classNames: ['file-entry-charts'],
 
@@ -76,6 +84,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
    */
   chartsColor: undefined,
 
+  /**
+   * @type {String}
+   */
   spaceEntityId: reads('space.entityId'),
 
   /**

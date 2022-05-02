@@ -1,5 +1,4 @@
 {{#one-modal
-  id=modalId
   class=(concat-classes 
     "fb-info-modal modal-content-overlay without-footer with-close-button" 
     modalClass
@@ -58,6 +57,7 @@
         {{#if showSizeTab}}
           {{#nav.item
             active=(eq tab.activeId "size")
+            disabled=(eq itemType 'symlink')
           }}
             <a href="#size"
               class="nav-link nav-link-metadata-type nav-link-size"
@@ -66,11 +66,11 @@
             > 
               <div class="tab-label-size">
                {{tt this "tabs.size.tabTitle"}}
-               {{#if (and (eq itemType 'symlink') tabSpec.disabledTip)}}
-                  {{one-tooltip title=(tt this "tabs.size.disabledTip")}}
-                {{/if}}
               </div>
             </a>
+            {{#if (eq itemType 'symlink')}}
+              {{one-tooltip title=(tt this "tabs.size.disabledTip")}}
+            {{/if}}
           {{/nav.item}}
         {{/if}}
         {{#if (and showApiSection (not-eq itemType "symlink"))}}
@@ -248,6 +248,11 @@
           {{/if}}
         </ul>
       {{/promise-proxy-container}}
+    {{else if (eq activeTab "size")}}
+      {{file-browser/file-entry-charts
+        space=space
+        file=file
+      }}
     {{else if (eq activeTab "apiSamples")}}
       {{#promise-proxy-container 
         proxy=apiSamplesProxy

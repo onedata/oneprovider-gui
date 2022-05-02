@@ -13,7 +13,6 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 import allSpacePrivilegeFlags from 'onedata-gui-websocket-client/utils/space-privileges-flags';
 import { inject as service } from '@ember/service';
 import computedCurrentUserPrivileges from 'onedata-gui-common/utils/computed-current-user-privileges';
-import { computed } from '@ember/object';
 
 export const entityType = 'op_space';
 
@@ -38,12 +37,6 @@ export default Model.extend(
     fetchTransfersActiveChannels() {
       return this.get('transferManager').getSpaceTransfersActiveChannels(this);
     },
-
-    // TODO: change after backend add properties
-    statisticsStartDate: computed(function statisticsStartDate() {
-      const dt = Date.now() - 7200000;
-      return Math.floor(dt / 1000);
-    }),
 
     privileges: computedCurrentUserPrivileges({ allFlags: allSpacePrivilegeFlags }),
   }

@@ -21,14 +21,6 @@ import { reads } from '@ember/object/computed';
  * @property {string} totalTimeSeriesId
  */
 
-/**
- * @typedef { Object } DirStatsConfig
- * @property {string} dayMetricId
- * @property {string} hourMetricId
- * @property {string} minuteMetricId
- * @property {string} monthMetricId
- */
-
 export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).extend({
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -50,8 +42,4 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
    */
   qosTransferStatsConfig: reads('attributes.qosTransferStatsConfig'),
 
-  /**
-   * @type { ComputedProperty <DirStatsConfig> }
-   */
-  dirStatsConfig: reads('attributes.dirStatsConfig'),
 });
