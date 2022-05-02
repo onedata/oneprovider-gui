@@ -58,8 +58,7 @@ describe('Integration | Component | file datasets', function () {
     it('renders file name of injected file', async function (done) {
       this.set('file.name', 'hello world');
 
-      render(this);
-      await wait();
+      await render(this);
 
       expect($('.modal-file-subheader .file-name').text()).to.contain('hello world');
 
@@ -90,8 +89,7 @@ describe('Integration | Component | file datasets', function () {
           createFileDatasetSummary({ directDataset: null })
         );
 
-        render(this);
-        await wait();
+        await render(this);
 
         expect(this.$('.nav-item-archives'), 'archives nav item')
           .to.have.class('disabled');
@@ -107,8 +105,7 @@ describe('Integration | Component | file datasets', function () {
         createFileDatasetSummary({ directDataset: null })
       );
 
-      render(this);
-      await wait();
+      await render(this);
 
       const $navItemArchives = this.$('.nav-item-archives');
       expect($navItemArchives, 'archives nav item')
@@ -135,8 +132,7 @@ describe('Integration | Component | file datasets', function () {
         createFileDatasetSummary({ directDataset })
       );
 
-      render(this);
-      await wait();
+      await render(this);
       expect($('.file-datasets-archives-tab'), 'archives tab content').to.not.exist;
       const $navLinkArchives = this.$('.nav-link-archives');
       $navLinkArchives.click();
@@ -144,6 +140,24 @@ describe('Integration | Component | file datasets', function () {
 
       expect($('.file-datasets-archives-tab'), 'archives tab content').to.exist;
     });
+
+    it('shows "no dataset" information and "Establish..." button when file does not belong to any dataset',
+      async function () {
+        // FIXME: implement tests
+      }
+    );
+
+    it('does not show "no dataset" information when file does not belong to any dataset',
+      async function () {
+        // FIXME: implement tests
+      }
+    );
+
+    it('invokes dataset estabilish when clicked on "Establish..." button on "no dataset" view',
+      async function () {
+        // FIXME: implement tests
+      }
+    );
   });
 });
 
@@ -162,8 +176,7 @@ function testDirectDatasetShow({ isAttached }) {
     });
     this.set('fileDatasetSummary', createFileDatasetSummary({ directDataset }));
 
-    render(this);
-    await wait();
+    await render(this);
 
     const $directDatasetControl = this.$('.direct-dataset-control');
     expect($directDatasetControl, 'direct dataset section').exist;
@@ -192,8 +205,7 @@ function testDirectDatasetProtection(flags, attached = true) {
     });
     this.set('fileDatasetSummary', createFileDatasetSummary({ directDataset }));
 
-    render(this);
-    await wait();
+    await render(this);
 
     const $directDatasetItem = this.$('.direct-dataset-item');
     expect($directDatasetItem, 'direct dataset item').to.exist;
@@ -226,7 +238,7 @@ function testEffectiveProtectionInfo(flags) {
       setProperties(fileDatasetSummary, { dataIsProtected, metadataIsProtected });
       setProperties(file, { dataIsProtected, metadataIsProtected });
 
-      render(this);
+      await render(this);
 
       const $protectionInfo = this.$('.datasets-effective-protection-info');
       expect($protectionInfo, 'protection info container').to.exist;
@@ -244,7 +256,7 @@ function testEffectiveProtectionInfo(flags) {
   );
 }
 
-function render(testCase) {
+async function render(testCase) {
   testCase.set('files', [testCase.get('file')]);
   testCase.render(hbs `{{#one-pseudo-modal as |modal|}}
     {{file-datasets
@@ -253,6 +265,7 @@ function render(testCase) {
       space=space
     }}
   {{/one-pseudo-modal}}`);
+  await wait();
 }
 
 function createFile(override = {}, ownerGri = userGri) {
@@ -292,8 +305,7 @@ function testHasArchivesTabEnabled({ datasetState }) {
       createFileDatasetSummary({ directDataset })
     );
 
-    render(this);
-    await wait();
+    await render(this);
 
     expect(this.$('.nav-item-archives'), 'archives nav item')
       .to.not.have.class('disabled');
@@ -318,8 +330,7 @@ function testArchivesTabCount({ archiveCount }) {
       createFileDatasetSummary({ directDataset })
     );
 
-    render(this);
-    await wait();
+    await render(this);
 
     const $navItemArchives = this.$('.nav-item-archives');
     expect($navItemArchives, 'archives nav item')

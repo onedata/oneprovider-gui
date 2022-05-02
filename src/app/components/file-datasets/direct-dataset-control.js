@@ -1,5 +1,5 @@
 /**
- * Control of dataset estabilished directly for some file/directory 
+ * Control of dataset estabilished directly for some file/directory
  *
  * @module components/file-dataset/direct-dataset-control
  * @author Jakub Liput
@@ -12,6 +12,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { equal, reads } from '@ember/object/computed';
 import { tag } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 
 export default Component.extend(I18n, {
   classNames: ['direct-dataset-control'],
@@ -35,6 +36,12 @@ export default Component.extend(I18n, {
    * @type {PromiseObject<Models.Dataset>}
    */
   directDatasetProxy: undefined,
+
+  /**
+   * @virtual
+   * @type {() => Promise<void>}
+   */
+  onEstablishDirectDataset: notImplementedReject,
 
   /**
    * @virtual optional
@@ -61,29 +68,21 @@ export default Component.extend(I18n, {
 
   toggleId: tag `${'elementId'}-direct-dataset-attached-toggle`,
 
-  async establishDirectDataset() {
-    const {
-      file,
-      datasetManager,
-      globalNotify,
-    } = this.getProperties('file', 'datasetManager', 'globalNotify');
-    try {
-      return await datasetManager.establishDataset(file);
-    } catch (error) {
-      globalNotify.backendError(this.t('establishingDataset'), error);
-    }
-  },
-
   actions: {
     async toggleDatasetAttachment(state) {
       const {
         directDataset,
         datasetManager,
-      } = this.getProperties('directDataset', 'datasetManager');
+        onEstablishDirectDataset,
+      } = this.getProperties(
+        'directDataset',
+        'datasetManager',
+        'onEstablishDirectDataset'
+      );
       if (directDataset) {
         return await datasetManager.toggleDatasetAttachment(directDataset, state);
       } else if (state) {
-        return await this.establishDirectDataset();
+        return await onEstablishDirectDataset();
       } else {
         return null;
       }

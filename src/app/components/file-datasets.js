@@ -191,10 +191,35 @@ export default Component.extend(I18n, {
     }
   ),
 
+  /**
+   * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
+   */
+  ancestorDatasetsProxy: promise.array(computed(
+    'fileDatasetSummaryProxy',
+    async function ancestorDatasetsProxy() {
+      const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
+      return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
+    }
+  )),
+
   archivesTabDisabled: or(
     not('fileDatasetSummaryProxy.isFulfilled'),
     not('hasDirectDatasetEstablished'),
   ),
+
+  belongsToSomeDatasetProxy: promise.object(computed(
+    'hasDirectDatasetEstablished',
+    'ancestorDatasetsProxy',
+    async function belongsToSomeDatasetProxy() {
+      if (this.get('hasDirectDatasetEstablished')) {
+        return true;
+      }
+      const ancestorDatasets = await this.get('ancestorDatasetsProxy');
+      return Boolean(get(ancestorDatasets, 'length'));
+    }
+  )),
+
+  belongsToSomeDataset: reads('belongsToSomeDatasetProxy.content'),
 
   tabsSpec: computed(function tabSpecs() {
     const {
@@ -263,12 +288,28 @@ export default Component.extend(I18n, {
     return this.t(`fileType.${fileType}`);
   }),
 
+  async establishDirectDataset() {
+    const {
+      file,
+      datasetManager,
+      globalNotify,
+    } = this.getProperties('file', 'datasetManager', 'globalNotify');
+    try {
+      return await datasetManager.establishDataset(file);
+    } catch (error) {
+      globalNotify.backendError(this.t('establishingDataset'), error);
+    }
+  },
+
   actions: {
     changeActiveTab(chosenTabId) {
       const tabSpec = this.get('tabsSpec').findBy('id', chosenTabId);
       if (tabSpec && !get(tabSpec, 'disabled')) {
         this.set('activeTab', chosenTabId);
       }
+    },
+    establishDataset() {
+      return this.establishDirectDataset();
     },
   },
 });

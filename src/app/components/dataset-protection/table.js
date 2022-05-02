@@ -89,16 +89,8 @@ export default Component.extend(I18n, {
    */
   showBrowseDatasetsLink: true,
 
-  /**
-   * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
-   */
-  ancestorDatasetsProxy: promise.array(computed(
-    'fileDatasetSummaryProxy',
-    async function ancestorDatasetsProxy() {
-      const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
-      return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
-    }
-  )),
+  // FIXME: property jsdoc
+  ancestorDatasetsProxy: undefined,
 
   /**
    * @type {ComputedProperty<Models.Dataset>}

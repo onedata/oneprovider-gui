@@ -24,36 +24,52 @@
 {{/modal.header}}
 
 {{#modal.body id=modalBodyId class="file-datasets-part file-datasets-modal-body"}}
-  {{#if (eq activeTab "settings")}}
-    {{#dataset-protection/table
-      fileDatasetSummaryProxy=fileDatasetSummaryProxy
-      directDatasetProxy=directDatasetProxy
-      file=file
-      mode="file"
-      editPrivilege=editPrivilege
-      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-      showBrowseDatasetsLink=true
-      close=close
-      getDataUrl=getDataUrl
-      getDatasetsUrl=getDatasetsUrl
-    }}
-      {{file-datasets/direct-dataset-control
-        file=file
-        directDatasetProxy=directDatasetProxy
-        readonly=(not editPrivilege)
-        togglesReadonlyMessage=insufficientEditPrivilegesMessage
+  {{#promise-proxy-container proxy=belongsToSomeDatasetProxy}}
+    {{#unless belongsToSomeDataset}}
+      {{!-- FIXME: header to remove --}}
+      {{!-- FIXME: disable action when no privileges --}}
+      {{content-info
+        class="scroll-breakpoint-700 fill-flex-using-column content-info-no-dataset"
+        header=(tt this "noDataset.text" fileType=(tt this (concat "fileType." file.type)))
+        buttonAction=(action "establishDataset")
+        buttonLabel=(tt this "noDataset.buttonEstablish")
+        __buttonDisabled=(not selectedHandleService)
       }}
-    {{/dataset-protection/table}}
-  {{else if (eq activeTab "archives")}}
-    {{#promise-proxy-container proxy=browsableDatasetProxy}}
-      {{file-datasets/archives-tab
-        class="in-modal-item-browser-container"
-        parentModalDialogSelector=parentModalDialogSelector
-        space=space
-        modalBodyId=modalBodyId
-        browsableDataset=browsableDatasetProxy.content
-        onCloseAllModals=onCloseAllModals
-      }}
-    {{/promise-proxy-container}}
-  {{/if}}
+    {{else}}
+      {{#if (eq activeTab "settings")}}
+        {{#dataset-protection/table
+          fileDatasetSummaryProxy=fileDatasetSummaryProxy
+          directDatasetProxy=directDatasetProxy
+          ancestorDatasetsProxy=ancestorDatasetsProxy
+          file=file
+          mode="file"
+          editPrivilege=editPrivilege
+          insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+          showBrowseDatasetsLink=true
+          close=close
+          getDataUrl=getDataUrl
+          getDatasetsUrl=getDatasetsUrl
+        }}
+          {{file-datasets/direct-dataset-control
+            file=file
+            onEstablishDirectDataset=(action "establishDataset")
+            directDatasetProxy=directDatasetProxy
+            readonly=(not editPrivilege)
+            togglesReadonlyMessage=insufficientEditPrivilegesMessage
+          }}
+        {{/dataset-protection/table}}
+      {{else if (eq activeTab "archives")}}
+        {{#promise-proxy-container proxy=browsableDatasetProxy}}
+          {{file-datasets/archives-tab
+            class="in-modal-item-browser-container"
+            parentModalDialogSelector=parentModalDialogSelector
+            space=space
+            modalBodyId=modalBodyId
+            browsableDataset=browsableDatasetProxy.content
+            onCloseAllModals=onCloseAllModals
+          }}
+        {{/promise-proxy-container}}
+      {{/if}}
+    {{/unless}}
+  {{/promise-proxy-container}}
 {{/modal.body}}

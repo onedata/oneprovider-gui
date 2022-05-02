@@ -5,6 +5,11 @@ import { fileType } from './dataset-protection/-common';
 export default {
   fileType,
   close: 'Close',
+  noDataset: {
+    text: 'This {{fileType}} does not belong to any dataset',
+    buttonEstablish: 'Establish dataset here',
+    // FIXME: tooltip or text with info
+  },
   tabs: {
     settings: {
       fileType,
