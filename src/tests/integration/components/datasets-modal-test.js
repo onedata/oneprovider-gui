@@ -14,7 +14,7 @@ import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import wait from 'ember-test-helpers/wait';
 import $ from 'jquery';
-import { createFileDatasetSummary } from '../../helpers/datasets-archives';
+import { createMockFileDatasetSummary } from '../../helpers/datasets-archives';
 import { closeModalUsingBackground } from '../../helpers/modal';
 
 describe('Integration | Component | datasets modal', function () {
@@ -23,7 +23,7 @@ describe('Integration | Component | datasets modal', function () {
   });
 
   it('renders file-datasets with file name and invokes onHide on close', async function () {
-    const fileDatasetSummary = createFileDatasetSummary();
+    const fileDatasetSummary = createMockFileDatasetSummary();
     this.setProperties({
       open: true,
       files: [{

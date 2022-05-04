@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { describe, it, context, beforeEach } from 'mocha';
+import { describe, it, beforeEach, before } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
@@ -8,21 +8,15 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import ToggleHelper from '../../helpers/toggle';
-import { createFileDatasetSummary } from '../../helpers/datasets-archives';
-import { RuntimeProperties as DatasetRuntimeProperties } from 'oneprovider-gui/models/dataset';
-import EmberObject, { setProperties } from '@ember/object';
+import { createFileDatasetSummary, createDataset } from '../../helpers/datasets-archives';
+import { setProperties } from '@ember/object';
 import Service from '@ember/service';
-import { registerService } from '../../helpers/stub-service';
+import { lookupService, registerService } from '../../helpers/stub-service';
+import { click, find } from 'ember-native-dom-helpers';
+import sinon from 'sinon';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
-
-const DatasetMock = EmberObject.extend(DatasetRuntimeProperties, {
-  relationEntityId() {
-    return null;
-  },
-  hasParent: () => false,
-});
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -35,130 +29,149 @@ describe('Integration | Component | file datasets', function () {
     integration: true,
   });
 
-  beforeEach(function () {
-    registerService(this, 'archiveManager', ArchiveManager);
+  before(async function () {
+    this.createFileDatasetSummary = (options) => createFileDatasetSummary(
+      Object.assign({ testCase: this }, options)
+    );
+    this.createDataset = (...args) => createDataset(this, ...args);
   });
 
-  context('for single file', function () {
-    beforeEach(function () {
-      this.set('file', createFile({ name: 'test-file.txt' }));
-      this.set('fileDatasetSummary', createFileDatasetSummary());
-      this.get('file').getRelation = (relation) => {
-        if (relation === 'fileDatasetSummary') {
-          return promiseObject(resolve(this.get('fileDatasetSummary')));
-        }
-      };
-      this.set('space', {
-        entityId: 'space_id',
-        name: 'Dummy space',
-        privileges: {},
-      });
-    });
+  beforeEach(async function () {
+    registerService(this, 'archiveManager', ArchiveManager);
+    await givenSingleFile(this);
+  });
 
-    it('renders file name of injected file', async function (done) {
-      this.set('file.name', 'hello world');
+  it('renders file name of injected file', async function () {
+    this.set('file.name', 'hello world');
 
-      await render(this);
+    await render(this);
 
-      expect($('.modal-file-subheader .file-name').text()).to.contain('hello world');
+    expect($('.modal-file-subheader .file-name').text()).to.contain('hello world');
+  });
 
-      done();
-    });
+  [
+    [],
+    ['data_protection'],
+    ['metadata_protection'],
+    ['data_protection', 'metadata_protection'],
+  ].forEach(fileFlags => {
+    testEffectiveProtectionInfo(fileFlags);
+    testDirectDatasetProtection(fileFlags);
+  });
 
-    [
-      [],
-      ['data_protection'],
-      ['metadata_protection'],
-      ['data_protection', 'metadata_protection'],
-    ].forEach(fileFlags => {
-      testEffectiveProtectionInfo(fileFlags);
-      testDirectDatasetProtection(fileFlags);
-    });
+  [
+    [],
+    ['data_protection', 'metadata_protection'],
+  ].forEach(fileFlags => {
+    testDirectDatasetProtection(fileFlags, false);
+  });
 
-    [
-      [],
-      ['data_protection', 'metadata_protection'],
-    ].forEach(fileFlags => {
-      testDirectDatasetProtection(fileFlags, false);
-    });
-
-    it('renders "Archives" nav tab as disabled with proper tooltip if dataset has not been established yet',
-      async function () {
-        this.set(
-          'fileDatasetSummary',
-          createFileDatasetSummary({ directDataset: null })
-        );
-
-        await render(this);
-
-        expect(this.$('.nav-item-archives'), 'archives nav item')
-          .to.have.class('disabled');
-      }
-    );
-
-    testHasArchivesTabEnabled({ datasetState: 'attached' });
-    testHasArchivesTabEnabled({ datasetState: 'detached' });
-
-    it('does not render archives count text if dataset is not established', async function () {
-      this.set(
-        'fileDatasetSummary',
-        createFileDatasetSummary({ directDataset: null })
-      );
+  it('renders "Archives" nav tab as disabled with proper tooltip if dataset has not been established yet',
+    async function () {
+      await this.createFileDatasetSummary({ directDataset: null });
 
       await render(this);
 
-      const $navItemArchives = this.$('.nav-item-archives');
-      expect($navItemArchives, 'archives nav item')
-        .to.exist;
-      expect($navItemArchives.text()).to.match(/Archives\s*$/);
+      expect(this.$('.nav-item-archives'), 'archives nav item')
+        .to.have.class('disabled');
+    }
+  );
+
+  testHasArchivesTabEnabled({ datasetState: 'attached' });
+  testHasArchivesTabEnabled({ datasetState: 'detached' });
+
+  it('does not render archives count text if dataset is not established', async function () {
+    await this.createFileDatasetSummary({ directDataset: null });
+
+    await render(this);
+
+    const $navItemArchives = this.$('.nav-item-archives');
+    expect($navItemArchives, 'archives nav item')
+      .to.exist;
+    expect($navItemArchives.text()).to.match(/Archives\s*$/);
+  });
+
+  testArchivesTabCount({ archiveCount: 0 });
+  testArchivesTabCount({ archiveCount: 5 });
+
+  testDirectDatasetShow({ isAttached: true });
+  testDirectDatasetShow({ isAttached: false });
+
+  it('renders archives browser only after "Archives" tab gets selected', async function () {
+    await this.createDataset({
+      state: 'attached',
+      protectionFlags: [],
+      parent: null,
+      archiveCount: 0,
     });
+    await this.createFileDatasetSummary();
 
-    testArchivesTabCount({ archiveCount: 0 });
-    testArchivesTabCount({ archiveCount: 5 });
+    await render(this);
+    expect(find('.file-datasets-archives-tab'), 'archives tab content').to.not.exist;
+    await click(find('.nav-link-archives'));
 
-    testDirectDatasetShow({ isAttached: true });
-    testDirectDatasetShow({ isAttached: false });
+    expect(find('.file-datasets-archives-tab'), 'archives tab content').to.exist;
+  });
 
-    it('renders archives browser only after "Archives" tab gets selected', async function () {
-      const directDataset = createDataset({
-        id: 'dataset_id',
+  it('shows "no dataset" information and "Establish..." button when file does not belong to any dataset',
+    async function () {
+      await this.createDataset({
         state: 'attached',
         protectionFlags: [],
         parent: null,
         archiveCount: 0,
       });
-      this.set(
-        'fileDatasetSummary',
-        createFileDatasetSummary({ directDataset })
+
+      await render(this);
+
+      const contentInfoNoDataset = find('.content-info-no-dataset');
+      expect(contentInfoNoDataset).to.exist;
+      expect(contentInfoNoDataset.textContent).to.contain('This file does not belong to any dataset');
+      const establishButton = find('.establish-first-dataset-btn');
+      expect(establishButton).to.exist;
+      expect(establishButton.textContent).to.contain('Establish dataset here');
+    }
+  );
+
+  it('invokes dataset estabilish when clicked on "Establish..." button on "no dataset" view',
+    async function () {
+      await this.createDataset({
+        state: 'attached',
+        protectionFlags: [],
+        parent: null,
+        archiveCount: 0,
+      });
+      const establishDatasetSpy = sinon.spy(
+        lookupService(this, 'datasetManager'),
+        'establishDataset'
       );
 
       await render(this);
-      expect($('.file-datasets-archives-tab'), 'archives tab content').to.not.exist;
-      const $navLinkArchives = this.$('.nav-link-archives');
-      $navLinkArchives.click();
-      await wait();
+      await click('.establish-first-dataset-btn');
 
-      expect($('.file-datasets-archives-tab'), 'archives tab content').to.exist;
-    });
+      expect(establishDatasetSpy).to.have.been.calledOnce;
+    }
+  );
 
-    it('shows "no dataset" information and "Establish..." button when file does not belong to any dataset',
-      async function () {
-        // FIXME: implement tests
-      }
-    );
+  it('does not show "no dataset" information when file has ancestor dataset, but is not a direct dataset itself',
+    async function () {
+      await this.createDataset({
+        state: 'attached',
+        protectionFlags: [],
+        parent: null,
+        archiveCount: 0,
+      });
+      await this.createFileDatasetSummary({
+        directDataset: null,
+        effAncestorDatasets: [this.get('dataset')],
+      });
 
-    it('does not show "no dataset" information when file does not belong to any dataset',
-      async function () {
-        // FIXME: implement tests
-      }
-    );
+      await render(this);
 
-    it('invokes dataset estabilish when clicked on "Establish..." button on "no dataset" view',
-      async function () {
-        // FIXME: implement tests
-      }
-    );
-  });
+      const contentInfoNoDataset = find('.content-info-no-dataset');
+      expect(contentInfoNoDataset).to.not.exist;
+    }
+  );
 });
 
 function testDirectDatasetShow({ isAttached }) {
@@ -167,14 +180,13 @@ function testDirectDatasetShow({ isAttached }) {
   const attachedStateText = isAttached ? 'attached' : 'detached';
   const description =
     `direct dataset toggle is visible, in "${directToggleStateText}" state and ${optionsEditableText} when file has established and ${attachedStateText} direct dataset`;
-  it(description, async function (done) {
-    const directDataset = createDataset({
-      id: 'dataset_id',
+  it(description, async function () {
+    await this.createDataset({
       state: isAttached ? 'attached' : 'detached',
       isAttached,
       parent: null,
     });
-    this.set('fileDatasetSummary', createFileDatasetSummary({ directDataset }));
+    await this.createFileDatasetSummary();
 
     await render(this);
 
@@ -184,8 +196,6 @@ function testDirectDatasetShow({ isAttached }) {
     expect($toggle, 'direct-dataset-attached-toggle').to.exist;
     const toggleHelper = new ToggleHelper($toggle);
     expect(toggleHelper.isChecked()).to.equal(isAttached);
-
-    done();
   });
 }
 
@@ -196,14 +206,13 @@ function testDirectDatasetProtection(flags, attached = true) {
   const attachedText = attached ? 'attached' : 'detached';
   const description =
     `displays proper information about direct protection flags for ${flagsText} flag(s) in ${attachedText} dataset`;
-  it(description, async function (done) {
-    const directDataset = createDataset({
-      id: 'dataset_id',
+  it(description, async function () {
+    await this.createDataset({
       state: attached ? 'attached' : 'detached',
       protectionFlags: flags,
       parent: null,
     });
-    this.set('fileDatasetSummary', createFileDatasetSummary({ directDataset }));
+    await this.createFileDatasetSummary();
 
     await render(this);
 
@@ -218,8 +227,6 @@ function testDirectDatasetProtection(flags, attached = true) {
       const toggleHelper = new ToggleHelper($toggle);
       expect(toggleHelper.isChecked(), flag).to.equal(shouldToggleBeEnabled);
     });
-
-    done();
   });
 }
 
@@ -228,7 +235,7 @@ function testEffectiveProtectionInfo(flags) {
   const shortFlags = flags.map(f => f.split('_protection')[0]);
   const availableShortFlags = ['data', 'metadata'];
   it(`displays tags with information about effective protection flags for ${flagsText} file flag(s)`,
-    async function (done) {
+    async function () {
       const {
         file,
         fileDatasetSummary,
@@ -250,8 +257,6 @@ function testEffectiveProtectionInfo(flags) {
         expect($tag, tagSelector)
           .to.have.class(`protected-tag-${isEnabled ? 'enabled' : 'disabled'}`);
       });
-
-      done();
     }
   );
 }
@@ -283,10 +288,6 @@ function createFile(override = {}, ownerGri = userGri) {
   }, override);
 }
 
-function createDataset(data) {
-  return DatasetMock.create(data);
-}
-
 function testHasArchivesTabEnabled({ datasetState }) {
   if (!datasetState) {
     throw new Error('datasetState argument is required');
@@ -294,16 +295,12 @@ function testHasArchivesTabEnabled({ datasetState }) {
   const description =
     `renders "Archives" nav tab as enabled if dataset has been established and is ${datasetState}`;
   it(description, async function () {
-    const directDataset = createDataset({
-      id: 'dataset_id',
+    await this.createDataset({
       state: datasetState,
       protectionFlags: [],
       parent: null,
     });
-    this.set(
-      'fileDatasetSummary',
-      createFileDatasetSummary({ directDataset })
-    );
+    await this.createFileDatasetSummary();
 
     await render(this);
 
@@ -318,17 +315,13 @@ function testArchivesTabCount({ archiveCount }) {
   const description =
     `renders archives ${archiveCount} count in "Archives" tab name if ${archivesCountText} created for dataset`;
   it(description, async function () {
-    const directDataset = createDataset({
-      id: 'dataset_id',
+    await this.createDataset({
       state: 'attached',
       protectionFlags: [],
       parent: null,
       archiveCount,
     });
-    this.set(
-      'fileDatasetSummary',
-      createFileDatasetSummary({ directDataset })
-    );
+    await this.createFileDatasetSummary();
 
     await render(this);
 
@@ -337,5 +330,20 @@ function testArchivesTabCount({ archiveCount }) {
       .to.exist;
     expect($navItemArchives.text())
       .to.match(new RegExp(`Archives\\s+\\(${archiveCount}\\)`));
+  });
+}
+
+async function givenSingleFile(testCase) {
+  testCase.set('file', createFile({ name: 'test-file.txt' }));
+  await testCase.createFileDatasetSummary();
+  testCase.get('file').getRelation = (relation) => {
+    if (relation === 'fileDatasetSummary') {
+      return promiseObject(resolve(testCase.get('fileDatasetSummary')));
+    }
+  };
+  testCase.set('space', {
+    entityId: 'space_id',
+    name: 'Dummy space',
+    privileges: {},
   });
 }
