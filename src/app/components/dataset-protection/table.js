@@ -42,6 +42,12 @@ export default Component.extend(I18n, {
   directDatasetProxy: undefined,
 
   /**
+   * @virtual
+   * @type {PromiseArray<Models.Dataset>}
+   */
+  ancestorDatasetsProxy: undefined,
+
+  /**
    * Selected file in file mode or `rootDir` of selected dataset in dataset mode.
    * @virtual
    * @type {Models.File}
@@ -57,6 +63,7 @@ export default Component.extend(I18n, {
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
    * privileges.
+   * @virtual
    * @type {ComputedProperty<SafeString>}
    */
   insufficientEditPrivilegesMessage: undefined,
@@ -78,18 +85,11 @@ export default Component.extend(I18n, {
    */
   mode: undefined,
 
-  getDataUrl: undefined,
-
-  getDatasetsUrl: undefined,
-
   /**
    * @virtual optional
    * @type {Boolean}
    */
   showBrowseDatasetsLink: true,
-
-  // FIXME: property jsdoc
-  ancestorDatasetsProxy: undefined,
 
   /**
    * @type {ComputedProperty<Models.Dataset>}

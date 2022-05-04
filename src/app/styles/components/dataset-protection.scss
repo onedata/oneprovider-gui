@@ -37,6 +37,8 @@ $dataset-write-unprotected-color: #596E99;
   }
   .table.datasets-table {
     table-layout: fixed;
+    $header-padding: 2em;
+    $header-padding-bottom: 1em;
     &.table-striped {
       $row-bg-lighter: lighten($table-bg-accent, 1%);
       $row-bg-darker: darken($table-bg-accent, 1%);
@@ -54,19 +56,34 @@ $dataset-write-unprotected-color: #596E99;
         }
       }
     }
+    th {
+      padding-top: $header-padding;
+      padding-bottom: $header-padding-bottom;
+      padding-left: $header-padding;
+      padding-right: $header-padding;
+    }
     th.col-dataset-protection {
-      $padding-bottom: 1em;
       position: relative;
       width: 12em;
-      padding-top: 2em;
-      padding-bottom: $padding-bottom;
-      padding-left: 2em;
-      padding-right: 2em;
       text-align: center;
       .protection-label-hint-trigger {
         position: absolute;
         right: 0.3em;
-        bottom: calc(#{$padding-bottom} + 0.2em);
+        bottom: calc(#{$header-padding-bottom} + 0.2em);
+      }
+    }
+    th.col-dataset-info {
+      padding-left: $first-column-padding-left;
+      .table-header-content {
+        display: flex;
+        align-items: center;
+        .table-header-text {
+          // FIXME: sync with dataset-item styles
+          margin-left: 8px;
+        }
+        .one-icon {
+          font-size: 200%;
+        }
       }
     }
     td {
@@ -76,9 +93,6 @@ $dataset-write-unprotected-color: #596E99;
 }
 
 @media (max-width: $screen-xs-max) {
-  .datasets-table-head .col-dataset-info {
-    padding-top: 1em;
-  }
   .table.datasets-table {
     display: block;
     thead, tbody, th, td, tr {

@@ -38,7 +38,7 @@
       }}
     {{else}}
       {{#if (eq activeTab "settings")}}
-        {{#dataset-protection/table
+        {{dataset-protection/table
           fileDatasetSummaryProxy=fileDatasetSummaryProxy
           directDatasetProxy=directDatasetProxy
           ancestorDatasetsProxy=ancestorDatasetsProxy
@@ -51,14 +51,6 @@
           getDataUrl=getDataUrl
           getDatasetsUrl=getDatasetsUrl
         }}
-          {{file-datasets/direct-dataset-control
-            file=file
-            onEstablishDirectDataset=(action "establishDataset")
-            directDatasetProxy=directDatasetProxy
-            readonly=(not editPrivilege)
-            togglesReadonlyMessage=insufficientEditPrivilegesMessage
-          }}
-        {{/dataset-protection/table}}
       {{else if (eq activeTab "archives")}}
         {{#promise-proxy-container proxy=browsableDatasetProxy}}
           {{file-datasets/archives-tab

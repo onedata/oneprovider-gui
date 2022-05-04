@@ -6,13 +6,12 @@
 }}
   <table class="table datasets-table {{unless media.isMobile "table-striped"}}">
     <thead class="datasets-table-head">
-      {{#if hasBlock}}
-        <th class="col-dataset-info">
-          {{yield}}
-        </th>
-      {{else}}
-        <th></th>
-      {{/if}}
+      <th class="col-dataset-info">
+        <div class="table-header-content">
+          {{one-icon icon="inheritance"}}
+          <span class="table-header-text">{{tt this "hierarchy"}}</span>
+        </div>
+      </th>
       {{#each (array "data" "metadata") as |protectionType|}}
         <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
           <span class="protection-header-label">
