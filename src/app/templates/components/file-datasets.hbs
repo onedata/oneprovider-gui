@@ -38,6 +38,13 @@
       }}
     {{else}}
       {{#if (eq activeTab "settings")}}
+        {{!-- FIXME: clean up togglesReadonlyMessage --}}
+        {{file-datasets/direct-dataset-control
+          file=file
+          directDatasetProxy=directDatasetProxy
+          readonly=(not editPrivilege)
+          togglesReadonlyMessage=insufficientEditPrivilegesMessage
+        }}
         {{dataset-protection/table
           fileDatasetSummaryProxy=fileDatasetSummaryProxy
           directDatasetProxy=directDatasetProxy

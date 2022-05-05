@@ -94,9 +94,6 @@ describe('Integration | Component | file datasets', function () {
   testArchivesTabCount({ archiveCount: 0 });
   testArchivesTabCount({ archiveCount: 5 });
 
-  testDirectDatasetShow({ isAttached: true });
-  testDirectDatasetShow({ isAttached: false });
-
   it('renders archives browser only after "Archives" tab gets selected', async function () {
     await this.createDataset({
       state: 'attached',
@@ -172,32 +169,26 @@ describe('Integration | Component | file datasets', function () {
       expect(contentInfoNoDataset).to.not.exist;
     }
   );
+
+  it('renders direct dataset control with "not established" information when file has ancestor dataset, but is not a direct dataset itself',
+    async function () {
+      await this.createDataset({
+        state: 'attached',
+      });
+      await this.createFileDatasetSummary({
+        directDataset: null,
+        effAncestorDatasets: [this.get('dataset')],
+      });
+
+      await render(this);
+
+      const directDatasetControl = find('.direct-dataset-control');
+      expect(directDatasetControl).to.exist;
+      expect(directDatasetControl.textContent)
+        .to.contain('This file has no direct dataset established');
+    }
+  );
 });
-
-function testDirectDatasetShow({ isAttached }) {
-  const directToggleStateText = isAttached ? 'on' : 'off';
-  const optionsEditableText = isAttached ? 'enabled' : 'disabled';
-  const attachedStateText = isAttached ? 'attached' : 'detached';
-  const description =
-    `direct dataset toggle is visible, in "${directToggleStateText}" state and ${optionsEditableText} when file has established and ${attachedStateText} direct dataset`;
-  it(description, async function () {
-    await this.createDataset({
-      state: isAttached ? 'attached' : 'detached',
-      isAttached,
-      parent: null,
-    });
-    await this.createFileDatasetSummary();
-
-    await render(this);
-
-    const $directDatasetControl = this.$('.direct-dataset-control');
-    expect($directDatasetControl, 'direct dataset section').exist;
-    const $toggle = $directDatasetControl.find('.direct-dataset-attached-toggle');
-    expect($toggle, 'direct-dataset-attached-toggle').to.exist;
-    const toggleHelper = new ToggleHelper($toggle);
-    expect(toggleHelper.isChecked()).to.equal(isAttached);
-  });
-}
 
 function testDirectDatasetProtection(flags, attached = true) {
   const flagsText = flags.length ? flags.map(f => `"${f}"`).join(', ') : 'no';

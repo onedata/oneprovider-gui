@@ -9,16 +9,23 @@
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { computed } from '@ember/object';
 import { equal, reads } from '@ember/object/computed';
-import { tag } from 'ember-awesome-macros';
+import { or, raw, getBy } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import { dateFormat } from 'onedata-gui-common/helpers/date-format';
+
+/**
+ * @typedef {'notEstablished'|'attached'|'detached'} DirectDatasetControlStatus
+ */
 
 export default Component.extend(I18n, {
   classNames: ['direct-dataset-control'],
 
   datasetManager: service(),
   globalNotify: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -66,7 +73,60 @@ export default Component.extend(I18n, {
    */
   isDatasetAttached: equal('directDataset.state', 'attached'),
 
-  toggleId: tag `${'elementId'}-direct-dataset-attached-toggle`,
+  /**
+   * @type {ComputedProperty<DirectDatasetControlStatus>}
+   */
+  status: or(
+    'directDataset.state',
+    raw('notEstablished'),
+  ),
+
+  statusIconMapping: Object.freeze({
+    notEstablished: 'browser-info',
+    attached: 'checkbox',
+    detached: 'plug-out',
+  }),
+
+  statusIconClassMapping: Object.freeze({
+    notEstablished: '',
+    attached: 'text-success',
+    detached: 'text-warning',
+  }),
+
+  statusIcon: or(
+    getBy('statusIconMapping', 'status'),
+    raw('x'),
+  ),
+
+  statusIconClass: or(
+    getBy('statusIconClassMapping', 'status'),
+    raw(''),
+  ),
+
+  /**
+   * @type {SafeString}
+   */
+  statusText: computed(
+    'status',
+    'file.type',
+    'directDataset.creationTime',
+    function statusText() {
+      const status = this.get('status');
+      const fileType = this.get('file.type');
+      const creationTime = this.get('directDataset.creationTime');
+      const fileTypeText = this.t(`fileType.${fileType}`);
+      const creationTimeText = dateFormat([creationTime], {
+        format: 'dateWithMinutes',
+        blank: '—',
+      });
+      return this.t(`statusText.${status}`, {
+        fileType: fileTypeText,
+        creationTime: creationTimeText,
+      }, {
+        defaultValue: '',
+      });
+    }
+  ),
 
   actions: {
     async toggleDatasetAttachment(state) {

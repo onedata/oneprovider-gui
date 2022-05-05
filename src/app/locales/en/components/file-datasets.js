@@ -5,6 +5,7 @@ import { fileType } from './dataset-protection/-common';
 export default {
   fileType,
   close: 'Close',
+  establishingDataset: 'establishing dataset',
   noDataset: {
     text: 'This {{fileType}} does not belong to any dataset',
     buttonEstablish: 'Establish dataset here',

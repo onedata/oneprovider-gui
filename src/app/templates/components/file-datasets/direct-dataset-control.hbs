@@ -4,38 +4,16 @@
     reason=directDatasetProxy.reason
   }}
 {{else}}
-  <h2 class="toggle-header {{if directDatasetProxy.isPending "loading"}}">
-    <div class="attach-dataset-label-section">
-      <label
-        class="direct-dataset-attached-label"
-        for={{toggleId}}
-      >
-        {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
-      </label>
-      {{#one-icon
-        icon="sign-question-rounded"
-        class="hint-trigger attach-dataset-hint-trigger clickable"
-      }}
-        {{one-tooltip
-          class="tooltip-lg"
-          title=(tt this "attachToggleTip"
-            fileType=(tt this (concat "fileType." file.type))
-          )
-        }}
-      {{/one-icon}}
+  <div class="direct-dataset-control-inner">
+    <div class="direct-dataset-col-icon">
+      {{one-icon icon=statusIcon class=statusIconClass}}
     </div>
-    {{#if directDatasetProxy.isFulfilled}}
-      {{one-way-toggle
-        inputId=toggleId
-        class="direct-dataset-attached-toggle"
-        checked=isDatasetAttached
-        spinnerSide=(if media.isMobile "left" "right")
-        isReadOnly=readonly
-        lockHint=readonlyMessage
-        update=(action "toggleDatasetAttachment")
-      }}
-    {{else if directDatasetProxy.isPending}}
-      {{spin-spinner-block class="direct-dataset-toggle-spinner" sizeClass="xs"}}
-    {{/if}}
-  </h2>
+    <div class="direct-dataset-col-text">
+      {{#truncated-string class="status-text"}}
+        {{statusText}}
+      {{/truncated-string}}
+    </div>
+    <div class="direct-dataset-col-label-tip"></div>
+    <div class="direct-dataset-col-label-action-trigger"></div>
+  </div>
 {{/if}}
