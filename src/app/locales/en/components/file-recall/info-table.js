@@ -38,4 +38,9 @@ export default {
   couldNotLoad: 'Could not load',
   rootDirectory: 'Root directory',
   currentOneprovider: 'current',
+  errorLogText: {
+    open: 'open',
+    errorLog: 'error log',
+    forDetails: 'for details',
+  },
 };

@@ -11,6 +11,7 @@ import { resolve } from 'rsvp';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { entityType as providerEntityType } from 'oneprovider-gui/models/provider';
 import { run } from '@ember/runloop';
+import sinon from 'sinon';
 
 export async function createArchiveRecallData(testCase) {
   const store = lookupService(testCase, 'store');
@@ -283,5 +284,16 @@ export function whenOnRemoteProvider(testCase) {
   providerManager.getCurrentProviderId = () => get(localProvider, 'entityId');
   run(() => {
     testCase.set('archiveRecallInfo.recallingProvider', recallingProvider);
+  });
+}
+
+/**
+ * @param {Mocha.Context} testCase
+ */
+export function stubEmptyRecallLogs(testCase) {
+  const fileManager = lookupService(testCase, 'fileManager');
+  sinon.stub(fileManager, 'getRecallLogs').resolves({
+    array: [],
+    isLast: true,
   });
 }

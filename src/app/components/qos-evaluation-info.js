@@ -1,6 +1,6 @@
 /**
  * Shows info about QoS expression evaluation: storages matching or parse error
- * 
+ *
  * @module components/qos-evaluation-info
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -39,7 +39,7 @@ export default Component.extend(I18n, {
         return errorReason.description;
       }
     } else {
-      return this.t('qosEvaluationUknownError');
+      return this.t('qosEvaluationUnknownError');
     }
   }),
 });
