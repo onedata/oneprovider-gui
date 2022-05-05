@@ -15,6 +15,18 @@
       {{/truncated-string}}
     </div>
     <div class="direct-dataset-col-label-tip"></div>
-    <div class="direct-dataset-col-label-action-trigger"></div>
+    <div class="direct-dataset-col-label-action-trigger">
+      {{#if (eq status "notEstablished")}}
+        {{#one-button
+          class="btn-sm establish-btn"
+          type="primary"
+          onClick=(action "establishDirectDataset")
+        }}
+          {{tt this "establishDatasetHere"}}
+        {{/one-button}}
+      {{else}}
+
+      {{/if}}
+    </div>
   </div>
 {{/if}}

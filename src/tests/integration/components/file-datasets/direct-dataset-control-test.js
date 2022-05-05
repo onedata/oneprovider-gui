@@ -15,7 +15,8 @@ import { lookupService } from '../../../helpers/stub-service';
 import { run } from '@ember/runloop';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
-import { find } from 'ember-native-dom-helpers';
+import { click, find } from 'ember-native-dom-helpers';
+import sinon from 'sinon';
 
 describe('Integration | Component | file datasets/direct dataset control', function () {
   setupComponentTest('file-datasets/direct-dataset-control', {
@@ -54,7 +55,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     );
     const icon = directDatasetControl.querySelector('.oneicon-checkbox-filled');
     expect(icon).to.exist;
-    expect(...icon.classList).to.contain('text-success');
+    expect([...icon.classList]).to.contain('text-success');
   });
 
   it('renders icon and text proper for "detached" direct dataset for file', async function () {
@@ -73,7 +74,21 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     );
     const icon = directDatasetControl.querySelector('.oneicon-plug-out');
     expect(icon).to.exist;
-    expect(...icon.classList).to.contain('text-warning');
+    expect([...icon.classList]).to.contain('text-warning');
+  });
+
+  it('renders "establish" button with proper action if direct dataset is not established', async function () {
+    const onEstablishDirectDataset = sinon.stub();
+    onEstablishDirectDataset.resolves();
+    this.set('onEstablishDirectDataset', onEstablishDirectDataset);
+
+    await this.helper.renderComponent();
+
+    const establishButton = find('.establish-btn');
+    expect(establishButton).to.exist;
+    expect(establishButton.textContent).to.contain('Establish dataset here');
+    await click(establishButton);
+    expect(onEstablishDirectDataset).to.have.been.calledOnce;
   });
 });
 
@@ -107,6 +122,7 @@ class DirectDatsetControlHelper {
         file=file
         directDatasetProxy=directDatasetProxy
         readonly=readonly
+        onEstablishDirectDataset=onEstablishDirectDataset
       }}
     `);
   }

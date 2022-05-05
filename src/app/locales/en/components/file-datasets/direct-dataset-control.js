@@ -5,6 +5,7 @@ const establishedTextCommon = 'Dataset has been established on this {{fileType}}
 export default {
   fileType,
   cannotLoadDirectDataset: 'Could not load direct dataset state.',
+  establishDatasetHere: 'Establish dataset here',
   statusText: {
     notEstablished: 'This {{fileType}} has no direct dataset established.',
     attached: `${establishedTextCommon}.`,
