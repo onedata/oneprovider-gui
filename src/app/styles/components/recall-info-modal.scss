@@ -3,4 +3,8 @@
   &.modal.in .modal-dialog .modal-content .modal-footer {
     text-align: left;
   }
+  // custom modal width to have space for logs (between sm and lg)
+  &.modal.modal-content-overlay.in .modal-dialog {
+    max-width: 800px;
+  }
 }

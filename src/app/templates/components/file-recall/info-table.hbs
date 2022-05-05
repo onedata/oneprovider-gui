@@ -59,7 +59,7 @@
       {{#if recallingProviderInfo.name}}
         {{#if recallingProviderInfo.isLocal}}
           <span class="recalling-provider-name">{{recallingProviderInfo.name}}</span>
-          <span class="text-disabled">({{tt this "currentOneprovider"}})</span>
+          <span class="aside-text text-disabled">({{tt this "currentOneprovider"}})</span>
         {{else}}
           <a
             class="recalling-provider-name recalling-provider-link navy underlined"
@@ -194,8 +194,15 @@
         {{tt this "filesFailed"}}
         {{one-label-tip title=(tt this "labelTips.filesFailed")}}
       </td>
-      <td class="property-value text-danger">
-        {{filesFailed}}
+      <td class="property-value">
+        <span class="files-failed-count text-danger">{{filesFailed}}</span>
+        <span class="aside-text">
+          ({{tt this "errorLogText.open"}}
+          <a class="error-log-link navy underlined" {{action "openErrorLog"}}>
+            {{tt this "errorLogText.errorLog"}}
+          </a>
+          {{tt this "errorLogText.forDetails"}})
+        </span>
       </td>
     </tr>
   {{/if}}
