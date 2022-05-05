@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9332 Added handling time series measurements in all types of stores
 * VFS-9021 Added recall process error log
 * VFS-9270 Added task time series store
 * VFS-9354 Fixed loading echarts library
