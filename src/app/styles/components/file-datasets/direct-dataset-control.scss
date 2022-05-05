@@ -25,6 +25,12 @@
       font-size: 200%;
     }
   }
+  .direct-dataset-actions-trigger {
+    .one-icon.menu-trigger-arrow {
+      left: 0;
+      font-size: 150%;
+    }
+  }
   @media (max-width: $screen-xs-max) {
     // FIXME: test and adjust mobile styles
   }

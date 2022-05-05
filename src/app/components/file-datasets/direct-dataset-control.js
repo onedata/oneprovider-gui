@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { equal, reads } from '@ember/object/computed';
-import { or, raw, getBy } from 'ember-awesome-macros';
+import { or, raw, getBy, tag, collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
@@ -61,6 +61,15 @@ export default Component.extend(I18n, {
    * @type {SafeString}
    */
   readonlyMessage: undefined,
+
+  //#region state
+
+  /**
+   * @type {boolean}
+   */
+  areActionsOpened: false,
+
+  //#endregion
 
   /**
    * @type {ComputedProperty<Models.Dataset>}
@@ -128,9 +137,64 @@ export default Component.extend(I18n, {
     }
   ),
 
+  // FIXME: remove redundancy with dataset-browser-model
+  // FIXME: i18n
+
+  btnCopyId: computed(function btnCopyId() {
+    return {
+      className: 'copy-dataset-id',
+      icon: 'circle-id',
+      title: 'Copy dataset ID',
+    };
+  }),
+
+  btnCreateArchive: computed(function btnCreateArchive() {
+    return {
+      className: 'create-archive',
+      icon: 'browser-archive-add',
+      title: 'Create archive',
+    };
+  }),
+
+  btnChangeState: computed('directDataset.state', function btnChangeState() {
+    const isAttachAction = this.get('directDataset.state') !== 'attached';
+    return {
+      id: 'changeState',
+      icon: isAttachAction ? 'plug-in' : 'plug-out',
+      title: isAttachAction ? 'Reattach' : 'Detach',
+    };
+  }),
+
+  btnRemove: computed(function btnRemove() {
+    return {
+      id: 'remove',
+      icon: 'browser-delete',
+      title: 'Remove dataset',
+    };
+  }),
+
+  directDatasetActions: collect(
+    'btnCopyId',
+    'btnCreateArchive',
+    'btnChangeState',
+    'btnRemove',
+  ),
+
+  actionsTriggerClass: 'direct-dataset-actions-trigger',
+
+  actionsTriggerSelector: tag `#${'elementId'} .${'actionsTriggerClass'} .menu-trigger-arrow`,
+
   actions: {
     async establishDirectDataset() {
       return await this.get('onEstablishDirectDataset')();
+    },
+    toggleActionsOpen(state) {
+      let effState = state;
+      if (typeof effState !== 'boolean') {
+        effState = !this.get('areActionsOpened');
+      }
+      effState = Boolean(effState);
+      this.set('areActionsOpened', effState);
     },
   },
 });

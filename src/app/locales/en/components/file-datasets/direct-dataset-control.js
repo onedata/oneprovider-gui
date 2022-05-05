@@ -6,6 +6,7 @@ export default {
   fileType,
   cannotLoadDirectDataset: 'Could not load direct dataset state.',
   establishDatasetHere: 'Establish dataset here',
+  actionsButton: 'Actions',
   statusText: {
     notEstablished: 'This {{fileType}} has no direct dataset established.',
     attached: `${establishedTextCommon}.`,

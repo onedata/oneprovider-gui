@@ -273,7 +273,7 @@ export default BaseBrowserModel.extend(I18n, {
         this.t('actionHints.cannotReattachDeleted') : null;
       const disabled = Boolean(disabledTip);
       return this.createFileAction({
-        id: 'showFile',
+        id: 'changeState',
         icon: isAttachAction ? 'plug-in' : 'plug-out',
         disabled,
         tip: disabledTip,

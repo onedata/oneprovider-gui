@@ -12,6 +12,7 @@ import { setupComponentTest } from 'ember-mocha';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import { lookupService } from '../../../helpers/stub-service';
+import { findByText } from '../../../helpers/find';
 import { run } from '@ember/runloop';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
@@ -62,7 +63,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     const time = moment('2020-01-01T08:50:00+00:00').unix();
     await this.helper.givenDirectDataset({
       state: 'detached',
-      creationTime: moment('2020-01-01T08:50:00+00:00').unix(),
+      creationTime: time,
     });
 
     await this.helper.renderComponent();
@@ -89,6 +90,50 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     expect(establishButton.textContent).to.contain('Establish dataset here');
     await click(establishButton);
     expect(onEstablishDirectDataset).to.have.been.calledOnce;
+  });
+
+  const menuActions = {
+    attached: ['Copy dataset ID', 'Create archive', 'Detach', 'Remove dataset'],
+    detached: ['Copy dataset ID', 'Create archive', 'Reattach', 'Remove dataset'],
+  };
+
+  ['attached', 'detached'].forEach(state => {
+    it(
+      `renders dataset actions trigger button that shows menu on click if direct dataset is established and ${state}`,
+      async function () {
+        await this.helper.givenDirectDataset({
+          state,
+        });
+
+        await this.helper.renderComponent();
+
+        expect(find('.actions-popover-content')).to.not.exist;
+        const menuTrigger = this.helper.getActionsTrigger();
+        expect(menuTrigger).to.exist;
+        expect(menuTrigger.textContent).to.contain('Actions');
+        await click(menuTrigger);
+        expect(find('.actions-popover-content')).to.exist;
+      }
+    );
+    const menuActionsForState = menuActions[state];
+    it(
+      `shows proper actions in menu if direct dataset is established and ${state}`,
+      async function () {
+        await this.helper.givenDirectDataset({
+          state,
+        });
+
+        await this.helper.renderComponent();
+        await this.helper.openActions();
+
+        menuActionsForState.forEach(actionText => {
+          expect(
+            findByText(actionText, '.actions-popover-content .one-label'),
+            actionText
+          ).to.exist;
+        });
+      }
+    );
   });
 });
 
@@ -125,5 +170,11 @@ class DirectDatsetControlHelper {
         onEstablishDirectDataset=onEstablishDirectDataset
       }}
     `);
+  }
+  getActionsTrigger() {
+    return find('.direct-dataset-actions-trigger');
+  }
+  async openActions() {
+    return await click(this.getActionsTrigger());
   }
 }

@@ -25,7 +25,34 @@
           {{tt this "establishDatasetHere"}}
         {{/one-button}}
       {{else}}
-
+        {{#one-button
+          class="btn-sm direct-dataset-actions-trigger"
+          onClick=(action "toggleActionsOpen")
+        }}
+          {{one-icon icon="settings"}}
+          <span class="text">{{tt this "actionsButton"}}</span>
+          {{one-icon class="menu-trigger-arrow" icon="arrow-down"}}
+        {{/one-button}}
+        {{#render-later triggerRender=areActionsOpened}}
+          {{#one-webui-popover
+            class="lane-run-actions"
+            padding=false
+            popoverStyle="with-dropdown"
+            triggerSelector=actionsTriggerSelector
+            open=areActionsOpened
+            as |popover|
+          }}
+            {{#click-outside
+              action=(action "toggleActionsOpen" false)
+              except-selector=actionsTriggerSelector
+            }}
+              {{actions-popover-content
+                actionsArray=directDatasetActions
+                actionClicked=(action "toggleActionsOpen" false)
+              }}
+            {{/click-outside}}
+          {{/one-webui-popover}}
+        {{/render-later}}
       {{/if}}
     </div>
   </div>
