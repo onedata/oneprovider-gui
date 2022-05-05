@@ -52,7 +52,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     expect(directDatasetControl.textContent).to.contain(
       `Dataset has been established on this file at ${moment(time * 1000).format('D MMM YYYY H:mm')}.`
     );
-    const icon = directDatasetControl.querySelector('.oneicon-checkbox');
+    const icon = directDatasetControl.querySelector('.oneicon-checkbox-filled');
     expect(icon).to.exist;
     expect(...icon.classList).to.contain('text-success');
   });

@@ -11,9 +11,15 @@
   .direct-dataset-control-inner {
     display: flex;
     align-items: center;
+    margin-left: $first-column-padding-left;
     .direct-dataset-col-text {
       min-width: 0;
-
+      // FIXME: sync with general file-datasets styles
+      margin-left: 8px;
+    }
+    .direct-dataset-col-icon {
+      // FIXME: sync with general file-datasets styles
+      font-size: 200%;
     }
   }
   @media (max-width: $screen-xs-max) {

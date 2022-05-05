@@ -5,9 +5,10 @@
   }}
 {{else}}
   <div class="direct-dataset-control-inner">
-    <div class="direct-dataset-col-icon">
-      {{one-icon icon=statusIcon class=statusIconClass}}
-    </div>
+    {{one-icon
+      class=(concat-classes "direct-dataset-col-icon" statusIconClass)
+      icon=statusIcon
+    }}
     <div class="direct-dataset-col-text">
       {{#truncated-string class="status-text"}}
         {{statusText}}

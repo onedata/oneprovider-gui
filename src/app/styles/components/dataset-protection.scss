@@ -37,8 +37,8 @@ $dataset-write-unprotected-color: #596E99;
   }
   .table.datasets-table {
     table-layout: fixed;
-    $header-padding: 2em;
-    $header-padding-bottom: 1em;
+    $header-padding-vertical: 2em;
+    $header-padding-horizontal: 1em;
     &.table-striped {
       $row-bg-lighter: lighten($table-bg-accent, 1%);
       $row-bg-darker: darken($table-bg-accent, 1%);
@@ -57,10 +57,7 @@ $dataset-write-unprotected-color: #596E99;
       }
     }
     th {
-      padding-top: $header-padding;
-      padding-bottom: $header-padding-bottom;
-      padding-left: $header-padding;
-      padding-right: $header-padding;
+      padding: $header-padding-horizontal $header-padding-vertical;
     }
     th.col-dataset-protection {
       position: relative;
@@ -69,7 +66,7 @@ $dataset-write-unprotected-color: #596E99;
       .protection-label-hint-trigger {
         position: absolute;
         right: 0.3em;
-        bottom: calc(#{$header-padding-bottom} + 0.2em);
+        bottom: calc(#{$header-padding-horizontal} + 0.2em);
       }
     }
     th.col-dataset-info {

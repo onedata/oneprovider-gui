@@ -1,4 +1,8 @@
 .file-datasets-part {
+  .direct-dataset-control {
+    padding-top: 0.8em;
+    padding-bottom: 0.5em;
+  }
   .table.datasets-table {
     > tbody + tbody {
       border-top-width: 0;

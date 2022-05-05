@@ -83,7 +83,7 @@ export default Component.extend(I18n, {
 
   statusIconMapping: Object.freeze({
     notEstablished: 'browser-info',
-    attached: 'checkbox',
+    attached: 'checkbox-filled',
     detached: 'plug-out',
   }),
 
