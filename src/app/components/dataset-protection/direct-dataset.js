@@ -20,7 +20,6 @@ export default Component.extend(I18n, {
   classNames: ['dataset-protection-direct-dataset', 'datasets-table-tbody'],
 
   i18n: service(),
-  parentAppNavigation: service(),
 
   /**
    * @override
@@ -44,20 +43,6 @@ export default Component.extend(I18n, {
    * @type {Models.File}
    */
   file: undefined,
-
-  /**
-   * @virtual
-   * @type {Function}
-   */
-  getDatasetsUrl: notImplementedIgnore,
-
-  /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  showBrowseDatasetsLink: true,
-
-  navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   /**
    * Displayed name of dataset item
@@ -87,27 +72,4 @@ export default Component.extend(I18n, {
       raw('browser-directory'),
     ),
   ),
-
-  /**
-   * Link on item text, if it has a dataset established.
-   * @type {ComputedProperty<String>}
-   */
-  datasetLinkProxy: promise.object(computed(
-    'directDatasetProxy.content.{parent,state}',
-    async function datasetLinkProxy() {
-      const directDataset = await this.get('directDatasetProxy');
-      if (directDataset) {
-        const datasetId = get(directDataset, 'entityId');
-        const parentId = directDataset.relationEntityId('parent');
-        const options = {
-          datasetId: parentId,
-          selectedDatasets: [datasetId],
-          attachmentState: get(directDataset, 'state'),
-        };
-        return this.get('getDatasetsUrl')(options);
-      }
-    }
-  )),
-
-  datasetLink: reads('datasetLinkProxy.content'),
 });

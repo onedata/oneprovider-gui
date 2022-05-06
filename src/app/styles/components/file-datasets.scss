@@ -32,6 +32,12 @@
   }
 }
 
+// overriding default styles inside modal
+.modal.in .modal-dialog .modal-content .modal-footer.file-datasets-modal-footer {
+  text-align: left;
+  margin-bottom: 0;
+}
+
 @media (max-width: $screen-xs-max) {
   .file-datasets-part {
     .file-datasets-header-lower {

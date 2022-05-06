@@ -54,7 +54,6 @@
           mode="file"
           editPrivilege=editPrivilege
           insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-          showBrowseDatasetsLink=true
           close=close
           getDataUrl=getDataUrl
           getDatasetsUrl=getDatasetsUrl
@@ -74,3 +73,12 @@
     {{/unless}}
   {{/promise-proxy-container}}
 {{/modal.body}}
+
+{{#if renderFooter}}
+  {{#modal.footer class="file-datasets-part file-datasets-modal-footer"}}
+    <a class="btn btn-default dataset-link" href={{datasetLink}} target={{navigateTarget}}>
+      <span class="text">{{tt this "showInDatasetsBrowser"}}</span>
+      {{one-icon icon="link-external"}}
+    </a>
+  {{/modal.footer}}
+{{/if}}

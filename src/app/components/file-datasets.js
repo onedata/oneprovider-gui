@@ -16,7 +16,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { or, not, conditional, and, notEmpty, promise } from 'ember-awesome-macros';
+import { or, not, conditional, and, notEmpty, promise, bool } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
@@ -29,6 +29,8 @@ export default Component.extend(I18n, {
   datasetManager: service(),
   fileManager: service(),
   globalNotify: service(),
+  parentAppNavigation: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -101,6 +103,8 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   activeTab: 'settings',
+
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   modalBodyId: computed(function modalBodyId() {
     return `${guidFor(this)}-body`;
@@ -287,6 +291,35 @@ export default Component.extend(I18n, {
     const fileType = this.get('fileType');
     return this.t(`fileType.${fileType}`);
   }),
+
+  /**
+   * Link on item text, if it has a dataset established.
+   * @type {ComputedProperty<String>}
+   */
+  datasetLinkProxy: promise.object(computed(
+    'directDatasetProxy.content.{parent,state}',
+    async function datasetLinkProxy() {
+      const {
+        getDatasetsUrl,
+        directDatasetProxy,
+      } = this.getProperties('getDatasetsUrl', 'directDatasetProxy');
+      const directDataset = await directDatasetProxy;
+      if (directDataset) {
+        const datasetId = get(directDataset, 'entityId');
+        const parentId = directDataset.relationEntityId('parent');
+        const options = {
+          datasetId: parentId,
+          selectedDatasets: [datasetId],
+          attachmentState: get(directDataset, 'state'),
+        };
+        return getDatasetsUrl && getDatasetsUrl(options);
+      }
+    }
+  )),
+
+  datasetLink: reads('datasetLinkProxy.content'),
+
+  renderFooter: bool('datasetLink'),
 
   async establishDirectDataset() {
     const {

@@ -11,6 +11,7 @@ export default {
     buttonEstablish: 'Establish dataset here',
     // FIXME: tooltip or text with info
   },
+  showInDatasetsBrowser: 'Show in datasets browser',
   tabs: {
     settings: {
       fileType,

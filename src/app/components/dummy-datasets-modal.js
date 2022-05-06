@@ -44,6 +44,10 @@ export default Component.extend({
     return `http://example.com/${data.fileId}?selected=${data.selected.join(',')}`;
   },
 
+  getDatasetsUrl() {
+    return 'http://example.com/datasets_url';
+  },
+
   actions: {
     async toggleDatasetAttached(state) {
       const summary = await this.get('file.fileDatasetSummary');

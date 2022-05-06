@@ -159,7 +159,7 @@ export default Component.extend(I18n, {
   btnChangeState: computed('directDataset.state', function btnChangeState() {
     const isAttachAction = this.get('directDataset.state') !== 'attached';
     return {
-      id: 'changeState',
+      className: 'changeState',
       icon: isAttachAction ? 'plug-in' : 'plug-out',
       title: isAttachAction ? 'Reattach' : 'Detach',
     };
@@ -173,6 +173,9 @@ export default Component.extend(I18n, {
     };
   }),
 
+  /**
+   * @type {Utils.Action}
+   */
   directDatasetActions: collect(
     'btnCopyId',
     'btnCreateArchive',

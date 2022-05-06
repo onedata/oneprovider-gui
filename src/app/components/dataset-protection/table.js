@@ -86,12 +86,6 @@ export default Component.extend(I18n, {
   mode: undefined,
 
   /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  showBrowseDatasetsLink: true,
-
-  /**
    * @type {ComputedProperty<Models.Dataset>}
    */
   ancestorDatasets: reads('ancestorDatasetsProxy.content'),
