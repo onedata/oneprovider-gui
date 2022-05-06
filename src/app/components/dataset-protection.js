@@ -110,6 +110,17 @@ export default Component.extend(I18n, {
   ),
 
   /**
+   * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
+   */
+  ancestorDatasetsProxy: promise.array(computed(
+    'fileDatasetSummaryProxy',
+    async function ancestorDatasetsProxy() {
+      const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
+      return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
+    }
+  )),
+
+  /**
    * @type {ComputedProperty<Models.FileDatasetSummary>}
    */
   fileDatasetSummary: reads('fileDatasetSummaryProxy.content'),
