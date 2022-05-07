@@ -6,7 +6,7 @@
 {{else}}
   <div class="direct-dataset-control-inner">
     {{one-icon
-      class=(concat-classes "direct-dataset-col-icon" statusIconClass)
+      class="direct-dataset-col-icon"
       icon=statusIcon
     }}
     <div class="direct-dataset-col-text">
@@ -18,7 +18,7 @@
     <div class="direct-dataset-col-label-action-trigger">
       {{#if (eq status "notEstablished")}}
         {{#one-button
-          class="btn-sm establish-btn"
+          class=(concat-classes "btn-sm establish-btn" mainButtonType)
           type="primary"
           onClick=(action "establishDirectDataset")
         }}
@@ -26,7 +26,10 @@
         {{/one-button}}
       {{else}}
         {{#one-button
-          class="btn-sm direct-dataset-actions-trigger"
+          class=(concat-classes
+            "btn-sm direct-dataset-actions-trigger"
+            mainButtonType
+          )
           onClick=(action "toggleActionsOpen")
         }}
           {{one-icon icon="settings"}}

@@ -1,4 +1,7 @@
 .direct-dataset-control {
+  &.alert {
+    padding: ($first-column-padding-left * 0.75) $first-column-padding-left;
+  }
   .direct-dataset-loadable-row.loadable-row {
     // FIXME: test and adjust loding styles
     min-height: 2em;
@@ -11,7 +14,6 @@
   .direct-dataset-control-inner {
     display: flex;
     align-items: center;
-    margin-left: $first-column-padding-left;
     .direct-dataset-col-text {
       // FIXME: sync with general file-datasets styles
       $vertical-margin: 8px;

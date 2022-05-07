@@ -19,6 +19,8 @@ export default Component.extend({
   mockBackend: service(),
 
   files: collect(
+    // use/uncomment for no dataset
+    // 'mockBackend.entityRecords.dir.1',
     // use/uncomment for dataset with ancestors
     // 'mockBackend.entityRecords.chainDir.2',
     // use/uncomment for dataset with archives

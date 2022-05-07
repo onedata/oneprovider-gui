@@ -21,7 +21,8 @@ import { dateFormat } from 'onedata-gui-common/helpers/date-format';
  */
 
 export default Component.extend(I18n, {
-  classNames: ['direct-dataset-control'],
+  classNames: ['direct-dataset-control', 'alert'],
+  classNameBindings: ['alertClass'],
 
   datasetManager: service(),
   globalNotify: service(),
@@ -90,26 +91,37 @@ export default Component.extend(I18n, {
     raw('notEstablished'),
   ),
 
+  alertClassMapping: Object.freeze({
+    notEstablished: 'alert-light',
+    attached: 'alert-info',
+    detached: 'alert-warning',
+  }),
+
   statusIconMapping: Object.freeze({
     notEstablished: 'browser-info',
     attached: 'checkbox-filled',
     detached: 'plug-out',
   }),
 
-  statusIconClassMapping: Object.freeze({
-    notEstablished: '',
-    attached: 'text-success',
-    detached: 'text-warning',
+  mainButtonTypeMapping: Object.freeze({
+    notEstablished: 'default',
+    attached: 'default',
+    detached: 'warning',
   }),
+
+  alertClass: or(
+    getBy('alertClassMapping', 'status'),
+    raw('alert-light'),
+  ),
 
   statusIcon: or(
     getBy('statusIconMapping', 'status'),
     raw('x'),
   ),
 
-  statusIconClass: or(
-    getBy('statusIconClassMapping', 'status'),
-    raw(''),
+  mainButtonType: or(
+    getBy('mainButtonTypeMapping', 'status'),
+    raw('default'),
   ),
 
   /**
