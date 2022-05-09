@@ -41,5 +41,4 @@ export default environmentExport(config, ProductionSymbol, DevelopmentSymbol).ex
    * @type {ComputedProperty<QosTransferStatsConfig>}
    */
   qosTransferStatsConfig: reads('attributes.qosTransferStatsConfig'),
-
 });

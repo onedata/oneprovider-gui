@@ -22,12 +22,6 @@ import { next } from '@ember/runloop';
 import { extractDataFromPrefixedSymlinkPath } from 'oneprovider-gui/utils/symlink-utils';
 import _ from 'lodash';
 
-/**
- * @typedef {Object} DirSizeStatsConfig
- * @property {string} statsCollectionStatus One of `enabled`, `disabled`, `stopping`, `initializing`
- * @property {number} since
- */
-
 export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
   fileManager: service(),
@@ -199,19 +193,23 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
   /**
    * One of `enabled`, `disabled`, `stopping`, `initializing`
-   * @type {string}
+   * @type {ComputedProperty<String>}
    */
-  statsCollectionEnabled: reads('dirSizeStatsConfig.statsCollectionStatus'),
+  statsCollectionStatus: reads('dirSizeStatsConfig.statsCollectionStatus'),
 
   /**
-   * @type {Boolean}
+   * @type {ComputedProperty<Boolean>}
    */
-  showSizeTab: computed('statsCollectionEnabled', 'file.effFile.type', function showSizeTab() {
-    const statsCollectionEnabled = this.get('statsCollectionEnabled');
-    const effItemType = this.get('file.effFile.type');
-    return (['enabled', 'initializing'].includes(statsCollectionEnabled) &&
-      effItemType !== 'file');
-  }),
+  showSizeTab: computed(
+    'statsCollectionStatus',
+    'file.effFile.type',
+    function showSizeTab() {
+      const statsCollectionStatus = this.get('statsCollectionStatus');
+      const effItemType = this.get('file.effFile.type');
+      return ['enabled', 'initializing'].includes(statsCollectionStatus) &&
+        effItemType !== 'file';
+    }
+  ),
 
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 

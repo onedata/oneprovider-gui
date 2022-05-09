@@ -29,8 +29,7 @@
         {{#nav.item
           active=(eq tab.activeId "general")
         }}
-          <a href="#general"
-            class={{concat-classes 
+          <a class={{concat-classes 
               "nav-link nav-link-general" 
               (if (eq tab.activeId "general") "active")
             }}
@@ -44,8 +43,7 @@
           {{#nav.item
             active=(eq tab.activeId "hardlinks")
           }}
-            <a href="#hardlinks"
-              class={{concat-classes 
+            <a class={{concat-classes 
                 "nav-link nav-link-hardlinks" 
                 (if (eq tab.activeId "hardlinks") "active")
               }}
@@ -63,10 +61,9 @@
         {{#if showSizeTab}}
           {{#nav.item
             active=(eq tab.activeId "size")
-            disabled=(eq itemType 'symlink')
+            disabled=(eq itemType "symlink")
           }}
-            <a href="#size"
-              class={{concat-classes 
+            <a class={{concat-classes 
                 "nav-link nav-link-metadata-type nav-link-size" 
                 (if (eq tab.activeId "size") "active")
               }}
@@ -77,7 +74,7 @@
                {{tt this "tabs.size.tabTitle"}}
               </div>
             </a>
-            {{#if (eq itemType 'symlink')}}
+            {{#if (eq itemType "symlink")}}
               {{one-tooltip title=(tt this "tabs.size.disabledTip")}}
             {{/if}}
           {{/nav.item}}
@@ -86,8 +83,7 @@
           {{#nav.item
             active=(eq tab.activeId "apiSamples")
           }}
-            <a href="#apiSamples"
-              class={{concat-classes 
+            <a class={{concat-classes 
                 "nav-link nav-link-metadata-type nav-link-apiSamples" 
                 (if (eq tab.activeId "apiSamples") "active")
               }}
@@ -264,6 +260,7 @@
       {{file-browser/file-entry-charts
         space=space
         file=file
+        dirSizeStatsConfig=dirSizeStatsConfig
       }}
     {{else if (eq activeTab "apiSamples")}}
       {{#promise-proxy-container 

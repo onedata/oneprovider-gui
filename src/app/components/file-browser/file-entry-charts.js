@@ -29,7 +29,7 @@ import { promise } from 'ember-awesome-macros';
  */
 
 /**
- * @typedef {Object} DirStatsConfig
+ * @typedef {Object} DirStatsMetricIds
  * @property {string} dayMetricId
  * @property {string} hourMetricId
  * @property {string} minuteMetricId
@@ -64,6 +64,12 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   space: undefined,
 
   /**
+   * @virtual
+   * @type {DirSizeStatsConfig}
+   */
+  dirSizeStatsConfig: undefined,
+
+  /**
    * @type {string}
    */
   fileId: reads('file.entityId'),
@@ -80,9 +86,13 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   colorGenerator: computed(() => new ColorGenerator()),
 
   /**
+   * Properties:
+   * - directoriesCountColor: string
+   * - regAndLinksCountColor: string
+   * - bytesColor: string
    * @type {Object}
    */
-  chartsColor: undefined,
+  seriesColorsConfig: undefined,
 
   /**
    * @type {String}
@@ -95,25 +105,14 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   emptyStatistics: false,
 
   /**
-   * @type {ComputedProperty<dirStatsConfig>}
+   * @type {DirStatsMetricIds}
    */
-  dirStatsConfig: Object({
-    totalTimeSeriesId: 'total',
+  dirStatsMetricIds: Object.freeze({
     monthMetricId: 'month',
     minuteMetricId: 'minute',
     hourMetricId: 'hour',
     dayMetricId: 'day',
   }),
-
-  dirSizeStatsConfigProxy: promise.object(computed(
-    'spaceEntityId',
-    function dirSizeStatsConfigProxy() {
-      const {
-        spaceManager,
-        spaceEntityId,
-      } = this.getProperties('spaceManager', 'spaceEntityId');
-      return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
-    })),
 
   /**
    * @type {ComputedProperty<number>}
@@ -124,26 +123,26 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
    * @type {Array<FileEntryChartTimeResolution>}
    */
   timeResolutionSpecs: computed(
-    'dirStatsConfig',
+    'dirStatsMetricIds',
     function timeResolutionSpecs() {
-      const dirStatsConfig = this.get('dirStatsConfig') || {};
+      const dirStatsMetricIds = this.get('dirStatsMetricIds') || {};
       return [{
-        metricId: dirStatsConfig.minuteMetricId,
+        metricId: dirStatsMetricIds.minuteMetricId,
         timeResolution: 60,
         pointsCount: 30,
         updateInterval: 10,
       }, {
-        metricId: dirStatsConfig.hourMetricId,
+        metricId: dirStatsMetricIds.hourMetricId,
         timeResolution: 60 * 60,
         pointsCount: 24,
         updateInterval: 30,
       }, {
-        metricId: dirStatsConfig.dayMetricId,
+        metricId: dirStatsMetricIds.dayMetricId,
         timeResolution: 24 * 60 * 60,
         pointsCount: 30,
         updateInterval: 30,
       }, {
-        metricId: dirStatsConfig.monthMetricId,
+        metricId: dirStatsMetricIds.monthMetricId,
         timeResolution: 30 * 24 * 60 * 60,
         pointsCount: 12,
         updateInterval: 30,
@@ -168,7 +167,6 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               layout: batchedQuery.metrics,
               startTimestamp: batchedQuery.startTimestamp,
               limit: batchedQuery.limit,
-              mode: 'slice',
             }
           ),
       });
@@ -215,7 +213,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               seriesTemplate: {
                 id: 'directoriesCount',
                 name: String(this.t('series.directoriesCount')),
-                color: this.get('chartsColor.directoriesCountColor'),
+                color: this.get('seriesColorsConfig.directoriesCountColor'),
                 type: 'line',
                 yAxisId: 'countAxis',
                 groupId: 'totalCount',
@@ -241,9 +239,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             factoryName: 'static',
             factoryArguments: {
               seriesTemplate: {
-                id: 'filesCount',
-                name: String(this.t('series.filesCount')),
-                color: this.get('chartsColor.filesCountColor'),
+                id: 'regAndLinksCount',
+                name: String(this.t('series.regAndLinksCount')),
+                color: this.get('seriesColorsConfig.regAndLinksCountColor'),
                 type: 'line',
                 yAxisId: 'countAxis',
                 groupId: 'totalCount',
@@ -302,7 +300,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           yAxes: [{
             id: 'bytesAxis',
             name: String(this.t('axes.bytes')),
-            color: this.get('chartsColor.bytesColor'),
+            color: this.get('seriesColorsConfig.bytesColor'),
             minInterval: 1,
             valueFormatter: {
               functionName: 'asBytes',
@@ -480,7 +478,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
 
   /**
    * @param {OTSCDataSourceFetchParams} seriesParameters
-   * @param {{ collectionId: string, seriesId: string }} sourceParameters
+   * @param {{ seriesId: string }} sourceParameters
    * @returns {Promise<Array<RawOTSCSeriesPoint>>}
    */
   async fetchSeries(seriesParameters, sourceParameters) {
@@ -488,8 +486,8 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       timeResolutionSpecs,
       timeSeriesQueryBatcher,
     } = this.getProperties('timeResolutionSpecs', 'timeSeriesQueryBatcher');
-    const dirSizeStatsConfig = await this.get('dirSizeStatsConfigProxy');
-    const statisticsStartDate = await get(dirSizeStatsConfig, 'since');
+    const dirSizeStatsConfig = this.get('dirSizeStatsConfig');
+    const statisticsStartDate = get(dirSizeStatsConfig, 'since');
     const matchingTimeResolutionSpec = timeResolutionSpecs
       .findBy('timeResolution', seriesParameters.timeResolution);
     const metricId = matchingTimeResolutionSpec ?
@@ -584,11 +582,11 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
     this._super();
     const colorGenerator = this.get('colorGenerator');
     const colors = {
-      filesCountColor: colorGenerator.generateColorForKey('filesCount'),
+      regAndLinksCountColor: colorGenerator.generateColorForKey('regAndLinksCount'),
       directoriesCountColor: colorGenerator.generateColorForKey('directoriesCount'),
       bytesColor: colorGenerator.generateColorForKey('bytes'),
     };
-    this.set('chartsColor', colors);
+    this.set('seriesColorsConfig', colors);
   },
 
   /**

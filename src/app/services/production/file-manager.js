@@ -441,7 +441,7 @@ export default Service.extend({
   },
 
   /**
-   * @param { string } fileId
+   * @param {string} fileId
    * @param {TimeSeriesMetricsQueryParams} queryParams
    * @returns {Promise<TimeSeriesMetricsQueryResult>}
    */
@@ -449,27 +449,20 @@ export default Service.extend({
     fileId,
     queryParams
   ) {
-    const requestGri = gri({
-      entityId: fileId,
-      entityType: fileEntityType,
-      aspect: 'dir_size_stats',
-      scope: 'private',
-    });
+    const requestGri = dirSizeStatsGri(fileId);
     return this.get('timeSeriesManager')
-      .queryTimeSeriesMetrics(requestGri, queryParams);
+      .queryTimeSeriesMetrics(
+        requestGri,
+        Object.assign({}, queryParams, { mode: 'slice' })
+      );
   },
 
   /**
-   * @param { string } fileId
+   * @param {string} fileId
    * @returns {Promise<FileEntryTimeSeriesCollections>}
    */
   async getTimeSeriesCollections(fileId) {
-    const requestGri = gri({
-      entityId: fileId,
-      entityType: fileEntityType,
-      aspect: 'dir_size_stats',
-      scope: 'private',
-    });
+    const requestGri = dirSizeStatsGri(fileId);
     return this.get('onedataGraph').request({
       gri: requestGri,
       operation: 'get',
@@ -588,3 +581,16 @@ export default Service.extend({
 
   //#endregion browser component utils
 });
+
+/**
+ * @param {string} fileId
+ * @returns {string}
+ */
+export function dirSizeStatsGri(fileId) {
+  return gri({
+    entityId: fileId,
+    entityType: fileEntityType,
+    aspect: 'dir_size_stats',
+    scope: 'private',
+  });
+}

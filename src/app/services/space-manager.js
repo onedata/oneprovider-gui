@@ -25,6 +25,13 @@ import { all as allFulfilled } from 'rsvp';
  */
 
 /**
+ * @typedef {Object} DirSizeStatsConfig
+ * @property {string} statsCollectionStatus One of `enabled`, `disabled`, 
+ * `stopping`, `initializing`
+ * @property {number} since
+ */
+
+/**
  * @param {string} spaceId
  * @param {{ aspect: string?, scope: string? }} griOptions
  * @returns {string}
@@ -145,16 +152,16 @@ export default Service.extend({
 
   /**
    * @param {String} spaceId
-   * @returns {Promise<Object>}
+   * @returns {Promise<DirSizeStatsConfig>}
    */
   fetchDirSizeStatsConfig(spaceId) {
-    const activeChannelsGri = gri({
+    const requestGri = gri({
       entityType: spaceEntityType,
       entityId: spaceId,
       aspect: 'dir_size_stats_config',
     });
     return this.get('onedataGraph').request({
-      gri: activeChannelsGri,
+      gri: requestGri,
       operation: 'get',
       subscribe: false,
     });
@@ -162,21 +169,19 @@ export default Service.extend({
 
   /**
    * @param {String} spaceId
-   * @param {Boolean} statsCollectionEnabled
+   * @param {Object} dirSizeStatsConfig { statsCollectionEnabled: boolean }
    * @returns {Promise<Object>}
    */
-  patchDirSizeStatsConfig(spaceId, statsCollectionEnabled = true) {
-    const activeChannelsGri = gri({
+  saveDirSizeStatsConfig(spaceId, dirSizeStatsConfig) {
+    const requestGri = gri({
       entityType: spaceEntityType,
       entityId: spaceId,
       aspect: 'dir_size_stats_config',
     });
     return this.get('onedataGraph').request({
-      gri: activeChannelsGri,
+      gri: requestGri,
       operation: 'update',
-      data: {
-        statsCollectionEnabled: statsCollectionEnabled,
-      },
+      data: dirSizeStatsConfig,
       subscribe: false,
     });
   },

@@ -21,7 +21,7 @@ export default {
   },
   series: {
     directoriesCount: 'Directories',
-    filesCount: 'Reg. files and links',
+    regAndLinksCount: 'Reg. files and links',
     totalSize: 'Logical size',
   },
 };
