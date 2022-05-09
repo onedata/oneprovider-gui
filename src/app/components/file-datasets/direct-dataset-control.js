@@ -15,6 +15,7 @@ import { or, raw, getBy, tag, collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
+import CopyDatasetId from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id';
 
 /**
  * @typedef {'notEstablished'|'attached'|'detached'} DirectDatasetControlStatus
@@ -152,12 +153,17 @@ export default Component.extend(I18n, {
   // FIXME: remove redundancy with dataset-browser-model
   // FIXME: i18n
 
-  btnCopyId: computed(function btnCopyId() {
-    return {
-      className: 'copy-dataset-id',
-      icon: 'circle-id',
-      title: 'Copy dataset ID',
-    };
+  btnCopyId: computed('directDataset', function btnCopyId() {
+    const directDataset = this.get('directDataset');
+    if (!directDataset) {
+      return;
+    }
+    return CopyDatasetId.create({
+      ownerSource: this,
+      context: {
+        selectedItems: [directDataset],
+      },
+    });
   }),
 
   btnCreateArchive: computed(function btnCreateArchive() {

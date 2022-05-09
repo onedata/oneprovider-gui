@@ -38,7 +38,7 @@
         {{/one-button}}
         {{#render-later triggerRender=areActionsOpened}}
           {{#one-webui-popover
-            class="lane-run-actions"
+            class="direct-dataset-actions"
             padding=false
             popoverStyle="with-dropdown"
             triggerSelector=actionsTriggerSelector
@@ -51,6 +51,7 @@
             }}
               {{actions-popover-content
                 actionsArray=directDatasetActions
+                actionsArg=(array directDataset)
                 actionClicked=(action "toggleActionsOpen" false)
               }}
             {{/click-outside}}

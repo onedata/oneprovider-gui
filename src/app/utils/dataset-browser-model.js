@@ -23,6 +23,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { conditional } from 'ember-awesome-macros';
+import CopyDatasetId from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -38,7 +39,6 @@ export default BaseBrowserModel.extend(I18n, {
   modalManager: service(),
   datasetManager: service(),
   globalNotify: service(),
-  globalClipboard: service(),
 
   /**
    * @override
@@ -186,23 +186,7 @@ export default BaseBrowserModel.extend(I18n, {
   //#region Action buttons
 
   btnCopyId: computed(function btnCopyId() {
-    return this.createFileAction({
-      id: 'copyDatasetId',
-      icon: 'circle-id',
-      action: (datasets) => {
-        const dataset = datasets[0];
-        this.get('globalClipboard').copy(
-          get(dataset, 'entityId'),
-          this.t('datasetId')
-        );
-      },
-      showIn: [
-        actionContext.singleFile,
-        actionContext.singleFilePreview,
-        actionContext.singleDir,
-        actionContext.singleDirPreview,
-      ],
-    });
+    return this.createFileAction(CopyDatasetId);
   }),
 
   btnShowFile: computed('selectionContext', function btnShowFile() {
