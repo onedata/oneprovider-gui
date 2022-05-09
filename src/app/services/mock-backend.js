@@ -74,8 +74,8 @@ export const numberOfSpaces = 1;
 export const numberOfFiles = 200;
 export const numberOfDirs = 5;
 export const numberOfChainDirs = 5;
-export const numberOfTransfers = 150;
-export const numberOfAtmWorkflowExecutions = 150;
+export const numberOfTransfers = 10;
+export const numberOfAtmWorkflowExecutions = 10;
 
 export const storageIdAlpha = '90ca74738947307403740234723bca7890678acb5c7bac567b8ac';
 export const storageIdBeta = '39a423bbc90437434723bca789ab9ddc8a7abd8b8b8a232731901';

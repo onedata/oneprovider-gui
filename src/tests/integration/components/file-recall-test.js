@@ -8,10 +8,15 @@ import {
   getBrowsableArchiveName,
   getBrowsableDatasetName,
   whenOnLocalProvider,
+  whenOnRemoteProvider,
+  stubEmptyRecallLogs,
 } from '../../helpers/datasets-archives';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 import { click, find } from 'ember-native-dom-helpers';
+import { findByText } from '../../helpers/find';
+
+const errorLogTabName = 'Error log';
 
 describe('Integration | Component | file recall', function () {
   setupComponentTest('file-recall', {
@@ -265,8 +270,32 @@ describe('Integration | Component | file recall', function () {
     await click($cancelRecallBtn[0]);
     expect(this.$('.cancel-recall-modal')).to.not.exist;
   });
+
+  it('has error log tab disabled when on remote provider', async function () {
+    whenOnRemoteProvider(this);
+
+    await render(this);
+
+    const errorLogTab = findByText(errorLogTabName, '.nav-tab');
+    expect(errorLogTab).to.exist;
+    expect([...errorLogTab.classList]).to.contain('disabled');
+  });
+
+  it('allows to switch to logs tab with logs view when on local provider', async function () {
+    stubEmptyRecallLogs(this);
+
+    await render(this);
+
+    const logsTab = findByText(errorLogTabName, '.main-recall-tab-bar .nav-link');
+    expect(logsTab, 'logs tab').to.exist;
+    await click(logsTab);
+    expect(find('.file-recall-event-log'), 'logs component').to.exist;
+  });
 });
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 async function render(testCase) {
   testCase.render(hbs `
   {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
@@ -280,6 +309,9 @@ async function render(testCase) {
   await wait();
 }
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 function whenRecallIsCancelling(testCase) {
   testCase.set('archiveRecallInfo.startTime', Date(1000));
   testCase.set('archiveRecallInfo.cancelTime', Date(2000));
@@ -289,6 +321,9 @@ function whenRecallIsCancelling(testCase) {
   );
 }
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 function whenRecallIsCancelled(testCase) {
   testCase.set('archiveRecallInfo.startTime', Date(1000));
   testCase.set('archiveRecallInfo.cancelTime', Date(2000));
@@ -299,6 +334,9 @@ function whenRecallIsCancelled(testCase) {
   );
 }
 
+/**
+ * @param {Mocha.Context} testCase
+ */
 function whenRecallIsPending(testCase) {
   testCase.set('archiveRecallInfo.startTime', Date.now());
   testCase.set(

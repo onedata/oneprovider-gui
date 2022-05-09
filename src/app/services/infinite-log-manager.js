@@ -25,8 +25,8 @@ import Service, { inject as service } from '@ember/service';
 /**
  * @typedef {Object} JsonInfiniteLogEntry<T>
  * @property {string} index
- * @property {number} timestamp
- * @property {T} payload
+ * @property {number} timestamp milliseconds from Epoch
+ * @property {T} content
  */
 
 export default Service.extend({

@@ -6,7 +6,10 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9332 Added handling time series measurements in all types of stores
+* VFS-9021 Added recall process error log
 * VFS-9270 Added task time series store
+* VFS-9354 Fixed loading echarts library
 * VFS-9029 Changed showing rest api for shares
 * VFS-9360 Fixed creating incremental archive using always latest archive despite of user select
 * VFS-9036 Added time series features to automation GUI
@@ -24,7 +27,6 @@ CHANGELOG
 * VFS-7631 Added file path to dataset item in datasets modal
 * VFS-7717 Upgraded Babel to version 7.3, using EcmaScript 2019 for development
 * VFS-8997 Added support for new data specs format in automation stores
-* VFS-9354 Fixed loading echarts library
 * VFS-8794 Added transfer charts to QoS requirements
 * VFS-7451 Fixed non-rounded corners in textarea in file info modal
 * VFS-7731 Showing error after delete share failed
