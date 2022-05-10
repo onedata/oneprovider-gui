@@ -1,7 +1,7 @@
 /**
- * Container for space config view to use in an iframe with injected properties.
+ * Container for space configuration per provider view to use in an iframe 
+ * with injected properties.
  * 
- * @module component/content-space-config
  * @author Agnieszka Warchoł
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -10,66 +10,72 @@
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { promise } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 
-export default OneEmbeddedComponent.extend(
-  I18n, ContentSpaceBaseMixin, {
-    classNames: ['content-space-config'],
+export default OneEmbeddedComponent.extend(I18n, ContentSpaceBaseMixin, {
+  classNames: ['content-space-config'],
 
-    /**
-     * @override
-     */
-    i18nPrefix: 'components.contentSpaceConfig',
+  store: service(),
+  spaceManager: service(),
 
-    store: service(),
-    spaceManager: service(),
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.contentSpaceConfig',
 
-    /**
-     * @virtual optional
-     * @type {Function}
-     */
-    containerScrollTop: notImplementedIgnore,
+  /**
+   * @override
+   */
+  iframeInjectedProperties: Object.freeze([
+    'spaceEntityId',
+  ]),
 
-    dirSizeStatsConfigProxy: promise.object(computed(
-      'spaceEntityId',
-      function dirSizeStatsConfigProxy() {
-        const {
-          spaceManager,
-          spaceEntityId,
-        } = this.getProperties('spaceManager', 'spaceEntityId');
-        return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
-      }
-    )),
+  /**
+   * @virtual
+   * @type {Promise<DirSizeStatsConfig>}
+   */
+  dirSizeStatsConfigProxy: promise.object(computed(
+    'spaceEntityId',
+    function dirSizeStatsConfigProxy() {
+      const {
+        spaceManager,
+        spaceEntityId,
+      } = this.getProperties('spaceManager', 'spaceEntityId');
+      return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
+    }
+  )),
 
-    spaceStatisticCount: computed(
-      'dirSizeStatsConfigProxy',
-      function spaceStatisticCount() {
-        const statsCollectionStatus = this.get('dirSizeStatsConfigProxy.statsCollectionStatus');
-        return ['enabled', 'initializing'].includes(statsCollectionStatus);
-      }
-    ),
+  /**
+   * One of `enabled`, `disabled`, `stopping`, `initializing`
+   * @type {ComputedProperty<String>}
+   */
+  statsCollectionStatus: reads('dirSizeStatsConfigProxy.content.statsCollectionStatus'),
 
-    /**
-     * @override
-     */
-    iframeInjectedProperties: Object.freeze([
-      'spaceEntityId',
-    ]),
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isSpaceStatisticCount: computed(
+    'statsCollectionStatus',
+    function isSpaceStatisticCount() {
+      const statsCollectionStatus = this.get('statsCollectionStatus');
+      return ['enabled', 'initializing'].includes(statsCollectionStatus);
+    }
+  ),
 
-    actions: {
-      changeStatisticCount(enabled) {
-        const {
-          spaceManager,
-          spaceEntityId,
-        } = this.getProperties('spaceManager', 'spaceEntityId');
-        spaceManager.patchDirSizeStatsConfig(spaceEntityId, enabled).finally((result) => {
-          console.log('wyniki', result);
-        });
-        this.set('spaceStatisticCount', enabled);
-      },
+  actions: {
+    changeStatisticCount(enabled) {
+      const {
+        spaceManager,
+        spaceEntityId,
+      } = this.getProperties('spaceManager', 'spaceEntityId');
+      const dirSizeStatsConfig = {
+        statsCollectionEnabled: enabled,
+      };
+      this.set('isSpaceStatisticCount', enabled);
+      spaceManager.saveDirSizeStatsConfig(spaceEntityId, dirSizeStatsConfig);
     },
-  }
-);
+  },
+});

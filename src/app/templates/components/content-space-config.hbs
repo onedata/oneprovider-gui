@@ -1,18 +1,17 @@
 {{#promise-proxy-container proxy=dirSizeStatsConfigProxy spinnerBlockClass="absolute-middle-centered"}}
-{{#content-info
-  class="scroll-breakpoint-500"
-  header=(tt this "title")
-  text=(tt this "text")
-}}
-  <div class="text-center">
-    <label for="space-statistic-count" class="inline-label">Turn on/off statistics</label>
-    {{one-way-toggle
-      class=(concat "form-control toggle-field-space-statistic-count")
-      inputId="space-statistic-count"
-      checked=spaceStatisticCount
-      update=(action "changeStatisticCount")
-    }}
-  </div>
-{{/content-info}}
-
+  {{#content-info
+    class="scroll-breakpoint-500"
+    header=(tt this "title")
+    text=(tt this "text")
+  }}
+    <div class="text-center">
+      <label for="space-statistic-count" class="inline-label">{{tt this "toggle"}}</label>
+      {{one-way-toggle
+        class=(concat "form-control toggle-field-space-statistic-count")
+        inputId="space-statistic-count"
+        checked=isSpaceStatisticCount
+        update=(action "changeStatisticCount")
+      }}
+    </div>
+  {{/content-info}}
 {{/promise-proxy-container}}
