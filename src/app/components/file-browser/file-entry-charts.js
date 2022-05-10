@@ -18,7 +18,6 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 import OTSCConfiguration from 'onedata-gui-common/utils/one-time-series-chart/configuration';
 import OTSCModel from 'onedata-gui-common/utils/one-time-series-chart/model';
 import QueryBatcher from 'onedata-gui-common/utils/one-time-series-chart/query-batcher';
-import { promise } from 'ember-awesome-macros';
 
 /**
  * @typedef {Object} FileEntryChartTimeResolution
@@ -98,11 +97,6 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
    * @type {String}
    */
   spaceEntityId: reads('space.entityId'),
-
-  /**
-   * @type {Boolean}
-   */
-  emptyStatistics: false,
 
   /**
    * @type {DirStatsMetricIds}
@@ -222,7 +216,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                   functionArguments: {
                     sourceType: 'external',
                     sourceParameters: {
-                      externalSourceName: 'filesCountData',
+                      externalSourceName: 'dirStatisticsData',
                       externalSourceParameters: {
                         seriesId: 'dir_count',
                       },
@@ -250,7 +244,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                   functionArguments: {
                     sourceType: 'external',
                     sourceParameters: {
-                      externalSourceName: 'filesCountData',
+                      externalSourceName: 'dirStatisticsData',
                       externalSourceParameters: {
                         seriesId: 'reg_file_and_link_count',
                       },
@@ -267,7 +261,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
         },
         timeResolutionSpecs,
         externalDataSources: {
-          filesCountData: {
+          dirStatisticsData: {
             fetchSeries: (...args) => this.fetchSeries(...args),
             fetchDynamicSeriesConfigs: (...args) =>
               this.fetchDynamicSeriesConfigs(...args),
@@ -317,7 +311,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               dynamicSeriesGroupConfigsSource: {
                 sourceType: 'external',
                 sourceParameters: {
-                  externalSourceName: 'filesCountData',
+                  externalSourceName: 'dirStatisticsData',
                 },
               },
               seriesGroupTemplate: {
@@ -351,7 +345,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                   functionArguments: {
                     sourceType: 'external',
                     sourceParameters: {
-                      externalSourceName: 'filesCountData',
+                      externalSourceName: 'dirStatisticsData',
                       externalSourceParameters: {
                         seriesId: 'total_size',
                       },
@@ -370,7 +364,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               dynamicSeriesConfigsSource: {
                 sourceType: 'external',
                 sourceParameters: {
-                  externalSourceName: 'filesCountData',
+                  externalSourceName: 'dirStatisticsData',
                 },
               },
               seriesTemplate: {
@@ -422,7 +416,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
         },
         timeResolutionSpecs,
         externalDataSources: {
-          filesCountData: {
+          dirStatisticsData: {
             fetchSeries: (...args) => this.fetchSeries(...args),
             fetchDynamicSeriesGroupConfigs: (...args) =>
               this.fetchDynamicSeriesGroupConfigs(...args),
@@ -495,7 +489,10 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
     if (!metricId) {
       return [];
     }
-    if (seriesParameters.lastPointTimestamp < statisticsStartDate) {
+    const timeResolution = matchingTimeResolutionSpec.timeResolution;
+    const metricStartDate = Math.floor(statisticsStartDate / timeResolution) *
+      timeResolution;
+    if (seriesParameters.lastPointTimestamp < metricStartDate) {
       return [];
     }
     const queryParams = {
@@ -504,13 +501,8 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       startTimestamp: seriesParameters.lastPointTimestamp,
       limit: seriesParameters.pointsCount,
     };
-    try {
-      this.set('emptyStatistics', false);
-      return (await timeSeriesQueryBatcher.query(queryParams))
-        .filter(point => point.timestamp >= statisticsStartDate);
-    } catch (error) {
-      this.set('emptyStatistics', true);
-    }
+    return (await timeSeriesQueryBatcher.query(queryParams))
+      .filter(point => point.timestamp >= metricStartDate);
   },
 
   /**
@@ -526,17 +518,30 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       .filter(name => name.startsWith(dynamicSeriesName))
       .map(async (tsName) => {
         const storageId = tsName.replace(dynamicSeriesName, '');
-        const storage = await storageManager.getStorageById(storageId, {
-          throughSpaceId: spaceId,
-          backgroundReload: false,
-        });
+        let storage_name;
+        let groupId;
+        try {
+          const storage = await storageManager.getStorageById(storageId, {
+            throughSpaceId: spaceId,
+            backgroundReload: false,
+          });
+          storage_name = storage.get('name');
+          groupId = `provider_${storage.relationEntityId('provider')}`;
+        } catch (error) {
+          console.error(
+            `component:file-browser/file-entry-charts#fetchDynamicSeriesConfigs: cannot load storage with ID "${storageId}"`,
+            error
+          );
+          storage_name = 'Storage#' + storageId.slice(0, 6);
+          groupId = 'provider_unknown';
+        }
         return {
           id: storageId,
-          name: storage.get('name'),
-          groupId: `provider_${storage.relationEntityId('provider')}`,
+          name: storage_name,
+          groupId: groupId,
           color: colorGenerator.generateColorForKey(storageId),
           pointsSource: {
-            externalSourceName: 'filesCountData',
+            externalSourceName: 'dirStatisticsData',
             externalSourceParameters: {
               seriesId: tsName,
             },
@@ -599,8 +604,13 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       name,
     } = getProperties(currentProvider, 'entityId', 'name');
     return [{
-      id: `provider_${entityId}`,
-      name,
-    }];
+        id: `provider_${entityId}`,
+        name,
+      },
+      {
+        id: 'provider_unknown',
+        name: 'Unknown provider',
+      },
+    ];
   },
 });

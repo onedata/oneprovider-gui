@@ -20,8 +20,11 @@ import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-f
 
 /**
  * @typedef {Object} FileEntryTimeSeriesCollections
- * @param {Array<string>} bytes
- * @param {Array<string>} files
+ * @param {Array<string>} dir_count
+ * @param {Array<string>} incarnation
+ * @param {Array<string>} reg_file_and_link_count
+ * @param {Array<string>} storage_use_<id>
+ * @param {Array<string>} total_size
  */
 
 /**

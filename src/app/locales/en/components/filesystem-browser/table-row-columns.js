@@ -1,6 +1,6 @@
 export default {
   copy: 'copying',
   move: 'moving',
-  noSizeInfo: 'Statistics are turn off',
+  noSizeInfo: 'Directory size statistics gathering is not enabled',
   sizeInfo: 'Show more size statistics',
 };

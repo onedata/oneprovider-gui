@@ -155,11 +155,7 @@ export default Service.extend({
    * @returns {Promise<DirSizeStatsConfig>}
    */
   fetchDirSizeStatsConfig(spaceId) {
-    const requestGri = gri({
-      entityType: spaceEntityType,
-      entityId: spaceId,
-      aspect: 'dir_size_stats_config',
-    });
+    const requestGri = dirSizeStatsConfigGri(spaceId);
     return this.get('onedataGraph').request({
       gri: requestGri,
       operation: 'get',
@@ -173,11 +169,7 @@ export default Service.extend({
    * @returns {Promise<Object>}
    */
   saveDirSizeStatsConfig(spaceId, dirSizeStatsConfig) {
-    const requestGri = gri({
-      entityType: spaceEntityType,
-      entityId: spaceId,
-      aspect: 'dir_size_stats_config',
-    });
+    const requestGri = dirSizeStatsConfigGri(spaceId);
     return this.get('onedataGraph').request({
       gri: requestGri,
       operation: 'update',
@@ -186,3 +178,16 @@ export default Service.extend({
     });
   },
 });
+
+/**
+ * @param {string} spaceId
+ * @returns {string}
+ */
+export function dirSizeStatsConfigGri(spaceId) {
+  return gri({
+    entityType: spaceEntityType,
+    entityId: spaceId,
+    aspect: 'dir_size_stats_config',
+    scope: 'private',
+  });
+}
