@@ -24,6 +24,9 @@ export default {
   },
   createArchive: {
     title: 'Create archive',
+    tip: {
+      notAvailableForDetached: 'Not available for detached datasets.',
+    },
   },
   changeState: {
     fileType,

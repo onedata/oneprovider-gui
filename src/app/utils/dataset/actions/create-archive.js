@@ -13,7 +13,7 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { bool } from 'ember-awesome-macros';
+import { bool, equal, raw } from 'ember-awesome-macros';
 
 export default BaseAction.extend({
   /**
@@ -57,6 +57,8 @@ export default BaseAction.extend({
    */
   tip: reads('disabledTip'),
 
+  isDetached: equal('selectedItems.0.state', raw('detached')),
+
   /**
    * @type {ComputedProperty<SafeString>}
    */
@@ -65,11 +67,16 @@ export default BaseAction.extend({
     function disabled() {
       const {
         spacePrivileges,
+        isDetached,
         i18n,
       } = this.getProperties(
         'spacePrivileges',
+        'isDetached',
         'i18n',
       );
+      if (isDetached) {
+        return this.t('tip.notAvailableForDetached');
+      }
       const hasPrivileges = spacePrivileges.manageDatasets &&
         spacePrivileges.createArchives;
       if (!hasPrivileges) {
