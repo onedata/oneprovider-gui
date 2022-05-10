@@ -35,7 +35,11 @@
     {{else}}
       —
       {{one-tooltip
-        title=(tt this "noSizeInfo")
+        title=(
+          tt this (if isDirSizeStatsStarted 
+          "initializingSizeInfo" 
+          "noSizeInfo")
+        )
       }}
     {{/if}}
   </span>

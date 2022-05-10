@@ -8,6 +8,7 @@
  */
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
+import { raw, array } from 'ember-awesome-macros';
 
 export default FbTableRowColumns.extend({
   /**
@@ -26,6 +27,20 @@ export default FbTableRowColumns.extend({
    * @type {Models.File}
    */
   file: undefined,
+
+  /**
+   * @virtual
+   * @type {DirSizeStatsConfig}
+   */
+  dirSizeStatsConfig: undefined,
+
+  /**
+   * @type {boolean}
+   */
+  isDirSizeStatsStarted: array.includes(
+    raw(['enabled', 'initializing']),
+    'dirSizeStatsConfig.statsCollectionStatus'
+  ),
 
   actions: {
     invokeFileAction(file, btnId, ...args) {
