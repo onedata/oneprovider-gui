@@ -170,21 +170,6 @@ export default BaseBrowserModel.extend(I18n, {
     }
   ),
 
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isAnySelectedRootDeleted: computed(
-    'attachmentState',
-    'selectedItems.@each.rootFileDeleted',
-    function isAnySelectedRootDeleted() {
-      const {
-        attachmentState,
-        selectedItems,
-      } = this.getProperties('attachmentState', 'selectedItems');
-      return attachmentState === 'detached' && selectedItems.isAny('rootFileDeleted');
-    }
-  ),
-
   //#region Action buttons
 
   btnCopyId: computed(function btnCopyId() {
@@ -331,61 +316,6 @@ export default BaseBrowserModel.extend(I18n, {
     return _window.open(url, navigateDataTarget);
   },
 
-  askForToggleAttachment(datasets, targetState) {
-    const {
-      modalManager,
-      globalNotify,
-    } = this.getProperties('modalManager', 'globalNotify');
-    const count = get(datasets, 'length');
-    const attach = targetState === 'attached';
-    const actionName = (attach ? 'attach' : 'detach');
-    const isMulti = count > 1;
-    const pluralType = isMulti ? 'multi' : 'single';
-    const descriptionKey = `toggleDatasetAttachment.intro.${actionName}.${pluralType}`;
-    let descriptionInterpolation;
-    if (isMulti) {
-      descriptionInterpolation = {
-        count,
-      };
-    } else {
-      descriptionInterpolation = {
-        name: get(datasets[0], 'name'),
-        path: get(datasets[0], 'rootFilePath'),
-        fileType: this.t('fileType.' + get(datasets[0], 'rootFileType')),
-      };
-    }
-    const introText = this.t(descriptionKey, descriptionInterpolation);
-    return modalManager.show('question-modal', {
-        headerIcon: attach ? 'sign-info-rounded' : 'sign-warning-rounded',
-        headerText: this.t(
-          `toggleDatasetAttachment.header.${pluralType}.${actionName}`
-        ),
-        descriptionParagraphs: [{
-          text: introText,
-        }, {
-          text: this.t('toggleDatasetAttachment.proceedQuestion'),
-        }],
-        yesButtonText: this.t('toggleDatasetAttachment.yes'),
-        yesButtonType: attach ? 'primary' : 'danger',
-        onSubmit: async () => {
-          const submitResult = await this.toggleDatasetsAttachment(datasets, attach);
-          const firstRejected = submitResult.findBy('state', 'rejected');
-          if (firstRejected) {
-            const error = get(firstRejected, 'reason');
-            globalNotify.backendError(
-              this.t('toggleDatasetAttachment.changingState'),
-              error
-            );
-            throw error;
-          }
-          return submitResult;
-        },
-      }).hiddenPromise
-      .then(() => {
-        // TODO: VFS-7632 show modal with to links to moved datasets after attach/detach
-      });
-  },
-
   askForRemoveDatasets(datasets) {
     const {
       modalManager,
@@ -430,22 +360,6 @@ export default BaseBrowserModel.extend(I18n, {
     }).hiddenPromise;
   },
 
-  async toggleDatasetsAttachment(datasets, attach) {
-    const datasetManager = this.get('datasetManager');
-    const result = await allSettled(datasets.map(dataset =>
-      datasetManager.toggleDatasetAttachment(dataset, attach)
-    ));
-    try {
-      await this.refresh();
-    } catch (error) {
-      console.error(
-        'util:dataset-browser-model#toggleDatasetsAttachment: refreshing browser after toggling attachment failed:',
-        error
-      );
-    }
-    return result;
-  },
-
   async removeDatasets(datasets) {
     const datasetManager = this.get('datasetManager');
     const result = await allSettled(datasets.map(dataset =>
@@ -455,7 +369,7 @@ export default BaseBrowserModel.extend(I18n, {
       await this.refresh();
     } catch (error) {
       console.error(
-        'util:dataset-browser-model#toggleDatasetsAttachment: refreshing browser after removing datasets failed:',
+        'util:dataset-browser-model#removeDatasets: refreshing browser after removing datasets failed:',
         error
       );
     }

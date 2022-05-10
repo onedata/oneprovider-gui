@@ -1,5 +1,6 @@
 /**
- * Implementation of copy ID menu action for dataset.
+ * Implementation of create archive menu action for dataset.
+ * Does not include create modal implementation - needs injected open modal function.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH

@@ -19,9 +19,8 @@ import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw'
 import {
   CopyDatasetId,
   CreateArchive,
+  ChangeState,
 } from 'oneprovider-gui/utils/dataset/actions';
-// import CopyDatasetId from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id';
-// import CreateArchive from 'oneprovider-gui/utils/dataset/actions/create-archive';
 
 /**
  * @typedef {'notEstablished'|'attached'|'detached'} DirectDatasetControlStatus
@@ -189,36 +188,47 @@ export default Component.extend(I18n, {
     });
   }),
 
-  btnCreateArchive: computed(function btnCreateArchive() {
-    const {
-      directDataset,
-      onOpenCreateArchive,
-      spacePrivileges,
-    } = this.getProperties(
-      'directDataset',
-      'onOpenCreateArchive',
-      'spacePrivileges',
-    );
+  btnCreateArchive: computed(
+    'directDataset',
+    'onOpenCreateArchive',
+    'spacePrivileges',
+    function btnCreateArchive() {
+      const {
+        directDataset,
+        onOpenCreateArchive,
+        spacePrivileges,
+      } = this.getProperties(
+        'directDataset',
+        'onOpenCreateArchive',
+        'spacePrivileges',
+      );
+      if (!directDataset) {
+        return;
+      }
+      return CreateArchive.create({
+        ownerSource: this,
+        onOpenCreateArchive,
+        spacePrivileges,
+        context: {
+          selectedItems: [directDataset],
+        },
+      });
+    }
+  ),
+
+  // FIXME: refactor actions create - function here or factory
+
+  btnChangeState: computed('directDataset', function btnChangeState() {
+    const directDataset = this.get('directDataset');
     if (!directDataset) {
       return;
     }
-    return CreateArchive.create({
+    return ChangeState.create({
       ownerSource: this,
-      onOpenCreateArchive,
-      spacePrivileges,
       context: {
         selectedItems: [directDataset],
       },
     });
-  }),
-
-  btnChangeState: computed('directDataset.state', function btnChangeState() {
-    const isAttachAction = this.get('directDataset.state') !== 'attached';
-    return {
-      className: 'changeState',
-      icon: isAttachAction ? 'plug-in' : 'plug-out',
-      title: isAttachAction ? 'Reattach' : 'Detach',
-    };
   }),
 
   btnRemove: computed(function btnRemove() {

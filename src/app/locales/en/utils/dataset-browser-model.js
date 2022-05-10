@@ -27,47 +27,13 @@ export default _.merge({}, BaseBrowserModel, {
     dir: 'directory',
   },
   fileActions: {
-    copyDatasetId: 'Copy dataset ID',
     showFile: 'Show in file browser',
     manageArchives: 'Manage archives',
-    createArchive: 'Create archive',
     protection: 'Write protection',
-    changeState: {
-      attach: 'Reattach',
-      detach: 'Detach',
-    },
     remove: {
       single: 'Remove dataset',
       multi: 'Remove datasets',
     },
-  },
-  actionHints: {
-    cannotReattachDeleted: 'Not available for datasets with root file deleted.',
-  },
-  toggleDatasetAttachment: {
-    header: {
-      single: {
-        attach: 'Reattach dataset',
-        detach: 'Detach dataset',
-      },
-      multi: {
-        attach: 'Reattach datasets',
-        detach: 'Detach datasets',
-      },
-    },
-    intro: {
-      attach: {
-        single: 'You are about to reattach <strong>{{name}}</strong> dataset to its original root {{fileType}} at <code class="inline-file-path">{{path}}</code>.',
-        multi: 'You are about to reattach <strong>{{count}}</strong> selected datasets to their original root directories/files',
-      },
-      detach: {
-        single: 'You are about to detach <strong>{{name}}</strong> dataset from its root {{fileType}} (<code class="inline-file-path">{{path}}</code>).',
-        multi: 'You are about to detach <strong>{{count}}</strong> selected datasets from their root directories/files.',
-      },
-    },
-    proceedQuestion,
-    yes: 'Proceed',
-    changingState: 'changing some dataset(s) state',
   },
   remove: {
     header: {

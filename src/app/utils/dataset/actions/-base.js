@@ -13,6 +13,7 @@
 
 import { inject as service } from '@ember/service';
 import EmberObject, { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import OwnerInjector from 'onedata-gui-common/mixins/owner-injector';
 import computedT from 'onedata-gui-common/utils/computed-t';
@@ -78,10 +79,15 @@ export default EmberObject.extend(...mixins, {
    */
   showIn: Object.freeze([]),
 
+  /**
+   * @type {ComputedProperty<Array<Object>>}
+   */
+  selectedItems: reads('context.selectedItems'),
+
   // TODO: VFS-9396 refactor to be compatible with Utils.Action
   execute(selectedItems) {
     const effSelectedItems = selectedItems ?
-      selectedItems : this.get('context.selectedItems');
+      selectedItems : this.get('selectedItems');
     return this.onExecute(effSelectedItems);
   },
 
