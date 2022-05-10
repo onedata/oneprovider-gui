@@ -1,6 +1,6 @@
 /**
  * Table body with list of ancestor datasets.
- * The list is collapsible and have a summary on the collapse header. 
+ * The list is collapsible and have a summary on the collapse header.
  *
  * @module componensts/dataset-protection/ancestor-datasets
  * @author Jakub Liput
@@ -9,12 +9,12 @@
  */
 
 import Component from '@ember/component';
-import { reads } from '@ember/object/computed';
+import { reads, equal } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { conditional, equal, raw } from 'ember-awesome-macros';
+import { conditional, raw } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   tagName: 'tbody',
@@ -26,6 +26,11 @@ export default Component.extend(I18n, {
    * @override
    */
   i18nPrefix: 'components.datasetProtection.ancestorDatasets',
+
+  /**
+   * @type {'file'|'dataset'}
+   */
+  mode: 'dataset',
 
   /**
    * @virtual
@@ -50,6 +55,12 @@ export default Component.extend(I18n, {
    * @type {Function}
    */
   updateOpenedFileData: notImplementedWarn,
+
+  /**
+   * If true, ancestors entries will be collapsed on init.
+   * @type {boolean}
+   */
+  ancestorsInitiallyCollapsed: true,
 
   /**
    * Used for resolving file paths in "file" mode.
@@ -104,10 +115,16 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   ancestorIcon: conditional(
-    equal('mode', raw('file')),
+    equal('mode', 'file'),
     raw('browser-directory'),
     raw('browser-dataset')
   ),
+
+  init() {
+    this._super(...arguments);
+    const ancestorsInitiallyCollapsed = this.get('ancestorsInitiallyCollapsed');
+    this.set('ancestorDatasetsCollapsed', ancestorsInitiallyCollapsed);
+  },
 
   actions: {
     toggleParentDatasetsCollapse() {

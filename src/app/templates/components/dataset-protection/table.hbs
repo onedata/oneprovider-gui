@@ -34,23 +34,29 @@
         </th>
       {{/each}}
     </thead>
-    {{dataset-protection/ancestor-datasets
-      ancestorDatasetsProxy=ancestorDatasetsProxy
-      readonly=(not editPrivilege)
-      mode=mode
-      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-      fileType=file.type
-      close=(action close)
-      getDataUrl=(action getDataUrl)
-      getDatasetsUrl=(action getDatasetsUrl)
-      updateOpenedFileData=(action "updateOpenedFileData")
-    }}
-    {{dataset-protection/direct-dataset
-      file=file
-      directDatasetProxy=directDatasetProxy
-      readonly=(not editPrivilege)
-      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-      getDatasetsUrl=getDatasetsUrl
-    }}
+    {{#loading-container isLoading=directDatasetProxy.isPending}}
+      {{dataset-protection/ancestor-datasets
+        ancestorDatasetsProxy=ancestorDatasetsProxy
+        readonly=(not editPrivilege)
+        mode=mode
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+        fileType=file.type
+        close=(action close)
+        getDataUrl=(action getDataUrl)
+        getDatasetsUrl=(action getDatasetsUrl)
+        updateOpenedFileData=(action "updateOpenedFileData")
+        ancestorsInitiallyCollapsed=(bool directDataset)
+      }}
+    {{/loading-container}}
+    {{#if directDataset}}
+      {{dataset-protection/direct-dataset
+        file=file
+        mode=mode
+        directDatasetProxy=directDatasetProxy
+        readonly=(not editPrivilege)
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+        getDatasetsUrl=getDatasetsUrl
+      }}
+    {{/if}}
   </table>
 {{/promise-proxy-container}}

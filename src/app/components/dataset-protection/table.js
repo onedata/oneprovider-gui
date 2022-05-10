@@ -90,6 +90,11 @@ export default Component.extend(I18n, {
    */
   ancestorDatasets: reads('ancestorDatasetsProxy.content'),
 
+  /**
+   * @type {ComputedProperty<Models.Dataset>}
+   */
+  directDataset: reads('directDatasetProxy.content'),
+
   actions: {
     /**
      * Update information about file currently opened in `file-datasets` component

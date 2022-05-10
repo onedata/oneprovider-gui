@@ -45,6 +45,11 @@ export default Component.extend(I18n, {
   file: undefined,
 
   /**
+   * @type {'file'|'dataset'}
+   */
+  mode: 'dataset',
+
+  /**
    * Displayed name of dataset item
    * @type {ComputedProperty<String>}
    */
@@ -60,7 +65,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   directDatasetRowIcon: conditional(
-    'directDataset.isAttached',
+    equal('mode', 'dataset'),
     conditional(
       equal('file.type', 'file'),
       raw('browser-dataset-file'),
