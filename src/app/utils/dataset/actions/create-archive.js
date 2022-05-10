@@ -1,0 +1,91 @@
+/**
+ * Implementation of copy ID menu action for dataset.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
+import BaseAction from './-base';
+import { actionContext } from 'oneprovider-gui/components/file-browser';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
+import { bool } from 'ember-awesome-macros';
+
+export default BaseAction.extend({
+  /**
+   * @virtual
+   * @type {Function}
+   */
+  onOpenCreateArchive: notImplementedThrow,
+
+  /**
+   * @virtual
+   * @type {SpacePrivileges}
+   */
+  spacePrivileges: undefined,
+
+  /**
+   * @override
+   */
+  actionId: 'createArchive',
+
+  /**
+   * @override
+   */
+  icon: 'browser-archive-add',
+
+  /**
+   * @override
+   */
+  showIn: Object.freeze([
+    actionContext.singleDir,
+    actionContext.singleFile,
+    actionContext.currentDir,
+  ]),
+
+  /**
+   * @override
+   */
+  disabled: bool('disabledTip'),
+
+  /**
+   * @override
+   */
+  tip: reads('disabledTip'),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  disabledTip: computed(
+    'spacePrivileges.{manageDatasets,createArchives}',
+    function disabled() {
+      const {
+        spacePrivileges,
+        i18n,
+      } = this.getProperties(
+        'spacePrivileges',
+        'i18n',
+      );
+      const hasPrivileges = spacePrivileges.manageDatasets &&
+        spacePrivileges.createArchives;
+      if (!hasPrivileges) {
+        return insufficientPrivilegesMessage({
+          i18n,
+          modelName: 'space',
+          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
+        });
+      }
+    }
+  ),
+
+  /**
+   * @override
+   */
+  onExecute(selectedItems) {
+    const dataset = selectedItems[0];
+    this.get('onOpenCreateArchive')(dataset);
+  },
+});

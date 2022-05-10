@@ -21,9 +21,11 @@ import { allSettled } from 'rsvp';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
-import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { conditional } from 'ember-awesome-macros';
-import CopyDatasetId from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id';
+import {
+  CopyDatasetId,
+  CreateArchive,
+} from 'oneprovider-gui/utils/dataset/actions';
 
 const allButtonNames = Object.freeze([
   'btnRefresh',
@@ -207,42 +209,13 @@ export default BaseBrowserModel.extend(I18n, {
     });
   }),
 
-  btnCreateArchive: computed(
-    'spacePrivileges.{manageDatasets,createArchives}',
-    function btnCreateArchive() {
-      const {
-        spacePrivileges,
-        i18n,
-      } = this.getProperties(
-        'spacePrivileges',
-        'i18n',
-      );
-      const hasPrivileges = spacePrivileges.manageDatasets &&
-        spacePrivileges.createArchives;
-      let disabledTip;
-      if (!hasPrivileges) {
-        disabledTip = insufficientPrivilegesMessage({
-          i18n,
-          modelName: 'space',
-          privilegeFlag: ['space_manage_datasets', 'space_create_archives'],
-        });
-      }
-      return this.createFileAction({
-        id: 'createArchive',
-        icon: 'browser-archive-add',
-        tip: disabledTip,
-        disabled: Boolean(disabledTip),
-        action: (datasets) => {
-          return this.openCreateArchiveModal(datasets[0]);
-        },
-        showIn: [
-          actionContext.singleDir,
-          actionContext.singleFile,
-          actionContext.currentDir,
-        ],
-      });
-    }
-  ),
+  btnCreateArchive: computed('spacePrivileges', function btnCreateArchive() {
+    const spacePrivileges = this.get('spacePrivileges');
+    return this.createFileAction(CreateArchive, {
+      onOpenCreateArchive: this.openCreateArchiveModal.bind(this),
+      spacePrivileges,
+    });
+  }),
 
   btnChangeState: computed(
     'attachmentState',

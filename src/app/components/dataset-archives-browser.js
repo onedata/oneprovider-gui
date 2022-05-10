@@ -245,8 +245,7 @@ export default Component.extend(...mixins, {
   spaceId: reads('space.entityId'),
 
   /**
-   * See `Models.Space#spacePrivileges` object format.
-   * @type {Object}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: reads('space.privileges'),
 

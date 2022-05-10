@@ -163,7 +163,7 @@ export default OneEmbeddedComponent.extend(
     ),
 
     /**
-     * @type {ComputedProperty<Object>}
+     * @type {ComputedProperty<SpacePrivileges>}
      */
     spacePrivileges: reads('spaceProxy.content.privileges'),
 

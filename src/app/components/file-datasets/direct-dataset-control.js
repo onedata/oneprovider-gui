@@ -15,7 +15,13 @@ import { or, raw, getBy, tag, collect } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
-import CopyDatasetId from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import {
+  CopyDatasetId,
+  CreateArchive,
+} from 'oneprovider-gui/utils/dataset/actions';
+// import CopyDatasetId from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id';
+// import CreateArchive from 'oneprovider-gui/utils/dataset/actions/create-archive';
 
 /**
  * @typedef {'notEstablished'|'attached'|'detached'} DirectDatasetControlStatus
@@ -39,6 +45,18 @@ export default Component.extend(I18n, {
    * @type {Models.File}
    */
   file: undefined,
+
+  /**
+   * @virtual
+   * @type {Models.Space}
+   */
+  space: undefined,
+
+  /**
+   * @virtual
+   * @type {(dataset: Utils.BrowsableDataset) => void}
+   */
+  onOpenCreateArchive: notImplementedThrow,
 
   /**
    * @virtual
@@ -91,6 +109,11 @@ export default Component.extend(I18n, {
     'directDataset.state',
     raw('notEstablished'),
   ),
+
+  /**
+   * @type {ComputedProperty<SpacePrivileges>}
+   */
+  spacePrivileges: reads('space.privileges'),
 
   alertClassMapping: Object.freeze({
     notEstablished: 'alert-light',
@@ -167,11 +190,26 @@ export default Component.extend(I18n, {
   }),
 
   btnCreateArchive: computed(function btnCreateArchive() {
-    return {
-      className: 'create-archive',
-      icon: 'browser-archive-add',
-      title: 'Create archive',
-    };
+    const {
+      directDataset,
+      onOpenCreateArchive,
+      spacePrivileges,
+    } = this.getProperties(
+      'directDataset',
+      'onOpenCreateArchive',
+      'spacePrivileges',
+    );
+    if (!directDataset) {
+      return;
+    }
+    return CreateArchive.create({
+      ownerSource: this,
+      onOpenCreateArchive,
+      spacePrivileges,
+      context: {
+        selectedItems: [directDataset],
+      },
+    });
   }),
 
   btnChangeState: computed('directDataset.state', function btnChangeState() {

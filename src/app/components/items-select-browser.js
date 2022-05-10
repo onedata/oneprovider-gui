@@ -113,7 +113,7 @@ export default Component.extend(...mixins, {
   resolveItemParent: reads('selectorModel.resolveItemParent'),
 
   /**
-   * @type {ComputedProperty<Object>}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: reads('space.privileges'),
 

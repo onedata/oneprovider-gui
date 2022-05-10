@@ -10,6 +10,7 @@
 import InModalBrowserContainerBase from 'oneprovider-gui/mixins/in-modal-item-browser-container-base';
 import DatasetArchivesBrowser from 'oneprovider-gui/components/dataset-archives-browser';
 import layout from 'oneprovider-gui/templates/components/dataset-archives-browser';
+import { observer, get } from '@ember/object';
 
 const mixins = [
   InModalBrowserContainerBase,
@@ -33,4 +34,29 @@ export default DatasetArchivesBrowser.extend(...mixins, {
    * @virtual
    */
   modalBodyId: undefined,
+
+  // FIXME: document type
+  options: undefined,
+
+  optionsObserver: observer('options', function optionsObserver() {
+    this.parseOptions();
+  }),
+
+  parseOptions() {
+    const options = this.get('options');
+    if (!options) {
+      return;
+    }
+    const actionToInvoke = get(options, 'actionToInvoke');
+    if (actionToInvoke) {
+      if (actionToInvoke.name === 'createArchive') {
+        this.openCreateArchiveModal();
+      }
+    }
+  },
+
+  init() {
+    this._super(...arguments);
+    this.optionsObserver();
+  },
 });

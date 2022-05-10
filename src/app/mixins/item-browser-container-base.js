@@ -37,7 +37,7 @@ export default Mixin.create({
   currentBrowsableItemProxy: reads('dirProxy'),
 
   /**
-   * @type {ComputedProperty<Object>}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: reads('space.privileges'),
 

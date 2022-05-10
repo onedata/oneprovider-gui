@@ -104,6 +104,13 @@ export default Component.extend(I18n, {
    */
   activeTab: 'settings',
 
+  // FIXME: jsdoc
+  tabOptions: computed(function tabOptions() {
+    return {
+      archives: {},
+    };
+  }),
+
   navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   modalBodyId: computed(function modalBodyId() {
@@ -334,15 +341,27 @@ export default Component.extend(I18n, {
     }
   },
 
+  changeActiveTab(chosenTabId, tabOptions = {}) {
+    const tabSpec = this.get('tabsSpec').findBy('id', chosenTabId);
+    if (tabSpec && !get(tabSpec, 'disabled')) {
+      this.set('activeTab', chosenTabId);
+      this.set(`tabOptions.${chosenTabId}`, tabOptions);
+    }
+  },
+
   actions: {
-    changeActiveTab(chosenTabId) {
-      const tabSpec = this.get('tabsSpec').findBy('id', chosenTabId);
-      if (tabSpec && !get(tabSpec, 'disabled')) {
-        this.set('activeTab', chosenTabId);
-      }
+    changeActiveTab() {
+      return this.changeActiveTab(...arguments);
     },
     establishDataset() {
       return this.establishDirectDataset();
+    },
+    openCreateArchive() {
+      this.changeActiveTab('archives', {
+        actionToInvoke: {
+          name: 'createArchive',
+        },
+      });
     },
   },
 });

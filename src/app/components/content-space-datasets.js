@@ -323,7 +323,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   space: reads('spaceProxy.content'),
 
   /**
-   * @type {ComputedProperty<Object>}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: reads('space.privileges'),
 

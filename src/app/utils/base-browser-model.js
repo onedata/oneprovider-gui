@@ -302,9 +302,10 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   /**
    * Create button or popover menu item for controlling files.
    * @param {BrowserItemActionSpec|EmberClass} fileActionSpec
+   * @param {Object} options additional options for object create
    * @returns {EmberObject}
    */
-  createFileAction(fileActionSpec) {
+  createFileAction(fileActionSpec, options = {}) {
     const {
       id,
       icon,
@@ -335,12 +336,12 @@ export default EmberObject.extend(OwnerInjector, I18n, {
           action: (files, ...args) => {
             return action(files || this.get('selectedItems'), ...args);
           },
-        });
+        }, options);
       case 'class':
         return fileActionSpec.create({
           ownerSource: this,
           context: this,
-        });
+        }, options);
       default:
         throw new Error(`createFileAction: not supported spec type: ${specType}`);
     }

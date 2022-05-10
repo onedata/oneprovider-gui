@@ -41,9 +41,11 @@
         {{!-- FIXME: clean up togglesReadonlyMessage --}}
         {{file-datasets/direct-dataset-control
           file=file
+          space=space
           directDatasetProxy=directDatasetProxy
           readonly=(not editPrivilege)
           togglesReadonlyMessage=insufficientEditPrivilegesMessage
+          onOpenCreateArchive=(action "openCreateArchive")
           onEstablishDirectDataset=(action "establishDataset")
         }}
         {{dataset-protection/table
@@ -66,6 +68,7 @@
             space=space
             modalBodyId=modalBodyId
             browsableDataset=browsableDatasetProxy.content
+            options=tabOptions.archives
             onCloseAllModals=onCloseAllModals
           }}
         {{/promise-proxy-container}}
