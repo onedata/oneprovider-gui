@@ -8,12 +8,10 @@
  */
 
 import Component from '@ember/component';
-import { get, computed } from '@ember/object';
 import { reads, equal } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { raw, conditional, promise } from 'ember-awesome-macros';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { raw, conditional } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   tagName: 'tbody',

@@ -41,9 +41,8 @@
         {{!-- FIXME: clean up togglesReadonlyMessage --}}
         {{file-datasets/direct-dataset-control
           file=file
-          space=space
+          spacePrivileges=space.privileges
           directDatasetProxy=directDatasetProxy
-          readonly=(not editPrivilege)
           togglesReadonlyMessage=insufficientEditPrivilegesMessage
           onOpenCreateArchive=(action "openCreateArchive")
           onEstablishDirectDataset=(action "establishDataset")

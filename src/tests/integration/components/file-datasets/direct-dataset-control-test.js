@@ -56,7 +56,6 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     );
     const icon = directDatasetControl.querySelector('.oneicon-checkbox-filled');
     expect(icon).to.exist;
-    expect([...icon.classList]).to.contain('text-success');
   });
 
   it('renders icon and text proper for "detached" direct dataset for file', async function () {
@@ -75,7 +74,6 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     );
     const icon = directDatasetControl.querySelector('.oneicon-plug-out');
     expect(icon).to.exist;
-    expect([...icon.classList]).to.contain('text-warning');
   });
 
   it('renders "establish" button with proper action if direct dataset is not established', async function () {
@@ -93,8 +91,8 @@ describe('Integration | Component | file datasets/direct dataset control', funct
   });
 
   const menuActions = {
-    attached: ['Copy dataset ID', 'Create archive', 'Detach', 'Remove dataset'],
-    detached: ['Copy dataset ID', 'Create archive', 'Reattach', 'Remove dataset'],
+    attached: ['Copy ID', 'Create archive', 'Detach', 'Remove'],
+    detached: ['Copy ID', 'Create archive', 'Reattach', 'Remove'],
   };
 
   ['attached', 'detached'].forEach(state => {
@@ -141,6 +139,11 @@ class DirectDatsetControlHelper {
   constructor(testCase) {
     this.testCase = testCase;
     this.store = lookupService(this.testCase, 'store');
+    this.spacePrivileges = {
+      manageDatasets: true,
+      createArchives: true,
+    };
+    this.testCase.set('spacePrivileges', this.spacePrivileges);
   }
   async givenFile(data = {}) {
     const file = run(() => this.store.createRecord('file', Object.assign({
@@ -166,7 +169,7 @@ class DirectDatsetControlHelper {
       {{file-datasets/direct-dataset-control
         file=file
         directDatasetProxy=directDatasetProxy
-        readonly=readonly
+        spacePrivileges=spacePrivileges
         onEstablishDirectDataset=onEstablishDirectDataset
       }}
     `);

@@ -48,9 +48,9 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Models.Space}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
-  space: undefined,
+  spacePrivileges: undefined,
 
   /**
    * @virtual
@@ -69,18 +69,6 @@ export default Component.extend(I18n, {
    * @type {() => Promise<void>}
    */
   onEstablishDirectDataset: notImplementedReject,
-
-  /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  readonly: false,
-
-  /**
-   * @virtual optional
-   * @type {SafeString}
-   */
-  readonlyMessage: undefined,
 
   //#region state
 
@@ -109,11 +97,6 @@ export default Component.extend(I18n, {
     'directDataset.state',
     raw('notEstablished'),
   ),
-
-  /**
-   * @type {ComputedProperty<SpacePrivileges>}
-   */
-  spacePrivileges: reads('space.privileges'),
 
   alertClassMapping: Object.freeze({
     notEstablished: 'alert-light',
