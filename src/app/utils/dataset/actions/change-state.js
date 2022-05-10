@@ -127,7 +127,7 @@ export default BaseAction.extend({
     const actionName = (attach ? 'attach' : 'detach');
     const isMulti = count > 1;
     const pluralType = isMulti ? 'multi' : 'single';
-    const descriptionKey = `toggleDatasetAttachment.intro.${actionName}.${pluralType}`;
+    const descriptionKey = `confirmModal.intro.${actionName}.${pluralType}`;
     let descriptionInterpolation;
     if (isMulti) {
       descriptionInterpolation = {
@@ -144,14 +144,14 @@ export default BaseAction.extend({
     return modalManager.show('question-modal', {
       headerIcon: attach ? 'sign-info-rounded' : 'sign-warning-rounded',
       headerText: this.t(
-        `toggleDatasetAttachment.header.${pluralType}.${actionName}`
+        `confirmModal.header.${pluralType}.${actionName}`
       ),
       descriptionParagraphs: [{
         text: introText,
       }, {
-        text: this.t('toggleDatasetAttachment.proceedQuestion'),
+        text: this.t('confirmModal.proceedQuestion'),
       }],
-      yesButtonText: this.t('toggleDatasetAttachment.yes'),
+      yesButtonText: this.t('confirmModal.yes'),
       yesButtonType: attach ? 'primary' : 'danger',
       onSubmit: async () => {
         const submitResult = await this.toggleDatasetsAttachment(datasets, attach);
@@ -159,7 +159,7 @@ export default BaseAction.extend({
         if (firstRejected) {
           const error = get(firstRejected, 'reason');
           globalNotify.backendError(
-            this.t('toggleDatasetAttachment.changingState'),
+            this.t('confirmModal.changingState'),
             error
           );
           throw error;

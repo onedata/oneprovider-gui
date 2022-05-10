@@ -10,14 +10,12 @@
 
 import BaseBrowserModel from 'oneprovider-gui/utils/base-browser-model';
 import {
-  anySelectedContexts,
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
 import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { inject as service } from '@ember/service';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
-import { allSettled } from 'rsvp';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
@@ -26,6 +24,7 @@ import {
   CopyDatasetId,
   CreateArchive,
   ChangeState,
+  Remove,
 } from 'oneprovider-gui/utils/dataset/actions';
 
 const allButtonNames = Object.freeze([
@@ -164,13 +163,6 @@ export default BaseBrowserModel.extend(I18n, {
    */
   attachmentState: reads('spaceDatasetsViewState.attachmentState').readOnly(),
 
-  selectedDatasetsHaveArchives: computed(
-    'selectedItems.@each.archiveCount',
-    function selectedDatasetsHaveArchives() {
-      return _.sum(this.get('selectedItems').mapBy('archiveCount')) > 0;
-    }
-  ),
-
   //#region Action buttons
 
   btnCopyId: computed(function btnCopyId() {
@@ -215,37 +207,11 @@ export default BaseBrowserModel.extend(I18n, {
     }
   ),
 
-  btnRemove: computed(
-    'areMultipleSelected',
-    'selectedDatasetsHaveArchives',
-    function btnRemove() {
-      const {
-        areMultipleSelected,
-        selectedDatasetsHaveArchives,
-      } =
-      this.getProperties(
-        'areMultipleSelected',
-        'selectedDatasetsHaveArchives',
-      );
-      let disabledTip;
-      if (selectedDatasetsHaveArchives) {
-        disabledTip = this.t('notAvailableHaveArchives');
-      }
-      return this.createFileAction({
-        id: 'remove',
-        icon: 'browser-delete',
-        title: this.t(`fileActions.remove.${areMultipleSelected ? 'multi' : 'single'}`),
-        tip: disabledTip,
-        disabled: Boolean(disabledTip),
-        action: (datasets) => {
-          return this.askForRemoveDatasets(datasets);
-        },
-        showIn: [
-          ...anySelectedContexts,
-        ],
-      });
-    }
-  ),
+  btnRemove: computed(function btnRemove() {
+    return this.createFileAction(Remove, {
+      onRemoved: this.refresh.bind(this),
+    });
+  }),
 
   btnProtection: computed(function btnProtection() {
     return this.createFileAction({
@@ -294,65 +260,5 @@ export default BaseBrowserModel.extend(I18n, {
     const fileId = dataset.relationEntityId('rootFile');
     const url = getDataUrl({ fileId: null, selected: [fileId] });
     return _window.open(url, navigateDataTarget);
-  },
-
-  askForRemoveDatasets(datasets) {
-    const {
-      modalManager,
-      globalNotify,
-    } = this.getProperties('modalManager', 'globalNotify');
-    const count = get(datasets, 'length');
-    const isMulti = count > 1;
-    const descriptionKey = `remove.description.${isMulti ? 'multi' : 'single'}`;
-    let descriptionInterpolation;
-    if (isMulti) {
-      descriptionInterpolation = {
-        count,
-      };
-    } else {
-      descriptionInterpolation = {
-        name: get(datasets, 'firstObject.name'),
-      };
-    }
-    return modalManager.show('question-modal', {
-      headerIcon: 'sign-warning-rounded',
-      headerText: this.t('remove.header.' + (isMulti ? 'multi' : 'single')),
-      descriptionParagraphs: [{
-        text: this.t(descriptionKey, descriptionInterpolation),
-      }, {
-        text: this.t('remove.proceedQuestion'),
-      }],
-      yesButtonText: this.t('remove.yes'),
-      yesButtonType: 'danger',
-      onSubmit: async () => {
-        const submitResult = await this.removeDatasets(datasets);
-        const firstRejected = submitResult.findBy('state', 'rejected');
-        if (firstRejected) {
-          const error = get(firstRejected, 'reason');
-          globalNotify.backendError(
-            this.t('remove.removing'),
-            error
-          );
-          throw error;
-        }
-        return submitResult;
-      },
-    }).hiddenPromise;
-  },
-
-  async removeDatasets(datasets) {
-    const datasetManager = this.get('datasetManager');
-    const result = await allSettled(datasets.map(dataset =>
-      datasetManager.destroyDataset(dataset)
-    ));
-    try {
-      await this.refresh();
-    } catch (error) {
-      console.error(
-        'util:dataset-browser-model#removeDatasets: refreshing browser after removing datasets failed:',
-        error
-      );
-    }
-    return result;
   },
 });

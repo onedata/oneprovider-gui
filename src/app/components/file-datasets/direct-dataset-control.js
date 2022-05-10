@@ -20,6 +20,7 @@ import {
   CopyDatasetId,
   CreateArchive,
   ChangeState,
+  Remove,
 } from 'oneprovider-gui/utils/dataset/actions';
 
 /**
@@ -232,11 +233,16 @@ export default Component.extend(I18n, {
   }),
 
   btnRemove: computed(function btnRemove() {
-    return {
-      id: 'remove',
-      icon: 'browser-delete',
-      title: 'Remove dataset',
-    };
+    const directDataset = this.get('directDataset');
+    if (!directDataset) {
+      return;
+    }
+    return Remove.create({
+      ownerSource: this,
+      context: {
+        selectedItems: [directDataset],
+      },
+    });
   }),
 
   /**

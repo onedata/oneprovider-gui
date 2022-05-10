@@ -1,26 +1,9 @@
 import BaseBrowserModel from './base-browser-model';
 import _ from 'lodash';
 
-const proceedQuestion = 'Do you want to proceed?';
-
-const partials = {
-  selectedSingle: '<strong>{{name}}</strong> dataset',
-  selectedMulti: '<strong>{{count}}</strong> selected datasets',
-};
-
-function removeDescription(isMulti) {
-  const selected = partials[isMulti ? 'selectedMulti' : 'selectedSingle'];
-  return `You are about to remove ${selected}. This procedure does not modify any files or directories that were a part of the dataset${isMulti ? 's' : ''}.`;
-}
-
-function removeHeader(isMulti) {
-  return `Remove selected dataset${isMulti ? 's' : ''}`;
-}
-
 export default _.merge({}, BaseBrowserModel, {
   currentDataset: 'Current dataset',
   spaceDatasets: 'Space datasets',
-  notAvailableHaveArchives: 'Not availabe for datasets with created archives.',
   datasetId: 'dataset ID',
   fileType: {
     file: 'file',
@@ -30,23 +13,6 @@ export default _.merge({}, BaseBrowserModel, {
     showFile: 'Show in file browser',
     manageArchives: 'Manage archives',
     protection: 'Write protection',
-    remove: {
-      single: 'Remove dataset',
-      multi: 'Remove datasets',
-    },
-  },
-  remove: {
-    header: {
-      single: removeHeader(false),
-      multi: removeHeader(true),
-    },
-    description: {
-      single: removeDescription(false),
-      multi: removeDescription(true),
-    },
-    proceedQuestion,
-    yes: 'Remove',
-    removing: 'removing some dataset(s)',
   },
   protection: {
     loadingRootFile: 'loading dataset root file',
