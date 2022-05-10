@@ -25,6 +25,7 @@ import { conditional } from 'ember-awesome-macros';
 import {
   CopyDatasetId,
   CreateArchive,
+  ChangeState,
 } from 'oneprovider-gui/utils/dataset/actions';
 
 const allButtonNames = Object.freeze([
@@ -204,33 +205,12 @@ export default BaseBrowserModel.extend(I18n, {
 
   btnChangeState: computed(
     'attachmentState',
-    'isAnySelectedRootDeleted',
     function btnChangeState() {
-      const {
+      // use attachmentState from this component to prevent unnecessary action recompute
+      const attachmentState = this.get('attachmentState');
+      return this.createFileAction(ChangeState, {
         attachmentState,
-        isAnySelectedRootDeleted,
-      } = this.getProperties('attachmentState', 'isAnySelectedRootDeleted');
-      const isAttachAction = attachmentState === 'detached';
-      const disabledTip = isAnySelectedRootDeleted ?
-        this.t('actionHints.cannotReattachDeleted') : null;
-      const disabled = Boolean(disabledTip);
-      return this.createFileAction({
-        id: 'changeState',
-        icon: isAttachAction ? 'plug-in' : 'plug-out',
-        disabled,
-        tip: disabledTip,
-        title: this.t(
-          `fileActions.changeState.${isAttachAction ? 'attach' : 'detach'}`
-        ),
-        action: (datasets) => {
-          return this.askForToggleAttachment(
-            datasets,
-            isAttachAction ? 'attached' : 'detached'
-          );
-        },
-        showIn: [
-          ...anySelectedContexts,
-        ],
+        onStateChanged: this.refresh.bind(this),
       });
     }
   ),

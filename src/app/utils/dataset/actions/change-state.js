@@ -16,11 +16,19 @@ import { bool, equal, raw, conditional, or } from 'ember-awesome-macros';
 import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
 import { allSettled } from 'rsvp';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
 export default BaseAction.extend({
   modalManager: service(),
   globalNotify: service(),
   datasetManager: service(),
+
+  /**
+   * Callback called after successful state change.
+   * @virtual optional
+   * @type {Function}
+   */
+  onStateChanged: notImplementedIgnore,
 
   /**
    * @override
@@ -163,15 +171,21 @@ export default BaseAction.extend({
   },
 
   async toggleDatasetsAttachment(datasets, attach) {
-    const datasetManager = this.get('datasetManager');
+    const {
+      datasetManager,
+      onStateChanged,
+    } = this.getProperties(
+      'datasetManager',
+      'onStateChanged',
+    );
     const result = await allSettled(datasets.map(dataset =>
       datasetManager.toggleDatasetAttachment(dataset, attach)
     ));
     try {
-      await this.refresh();
+      await onStateChanged();
     } catch (error) {
       console.error(
-        'util:dataset-browser-model#toggleDatasetsAttachment: refreshing browser after toggling attachment failed:',
+        'toggleDatasetsAttachment: post-processing after toggling attachment failed:',
         error
       );
     }
