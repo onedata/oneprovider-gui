@@ -1,13 +1,14 @@
 export default {
   header: 'Directory size statistics',
+  headerTooltip: 'Below charts present changes in time of the directory size statistics, calculated for all items in this directory and all its subdirectories. The file count and logical byte size statistics are synchronized among all Oneproviders, while the physical byte size statistics are collected and viewable independently (use the switch in the top menu of the Data view to display physical size statistics for corresponding Oneprovider).',
   titles: {
     fileCount: {
       content: 'File count',
-      tip: 'Total count of files in this directory and its subdirectories, divided into two categories; the number of directories and the number of all regular files, symbolic links and hard links.',
+      tip: 'Total count of files in this directory and its subdirectories, divided into two categories; the number of directories and the number of all regular files, symbolic links or hard links.',
     },
     size: {
       content: 'Logical and physical byte size',
-      tip: 'Logical byte size – the total size of the information contained in this directory and its subdirectories.<br>Physical byte size – the total storage size used by the physical data of files contained in this directory and its subdirectories, per storage. These statistics are collected independently by each Oneprovider supporting the space.',
+      tip: 'Logical byte size is the total size of file data contained in this directory, i.e. the sum of logical byte sizes of all regular files. Physical byte size is the total storage size used to store the regular file data, per storage, collected independently by each supporting Oneprovider. To view physical size statistics for a different Oneprovider, switch to it in the top menu of the Data view.',
     },
   },
   axes: {
