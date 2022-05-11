@@ -9,7 +9,6 @@
 
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import { inject as service } from '@ember/service';
-import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
@@ -17,7 +16,6 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 
 export default OneEmbeddedComponent.extend(
   I18n,
-  ContentSpaceBaseMixin,
   createDataProxyMixin('dirSizeStatsConfig'), {
     classNames: ['content-space-config'],
 
@@ -46,9 +44,9 @@ export default OneEmbeddedComponent.extend(
     /**
      * @type {ComputedProperty<Boolean>}
      */
-    isSpaceStatisticCount: computed(
+    isDirStatsCount: computed(
       'statsCollectionStatus',
-      function isSpaceStatisticCount() {
+      function isDirStatsCount() {
         const statsCollectionStatus = this.get('statsCollectionStatus');
         return ['enabled', 'initializing'].includes(statsCollectionStatus);
       }
@@ -75,7 +73,7 @@ export default OneEmbeddedComponent.extend(
        * @param {boolean} enabled
        * @returns {Promise<any>}
        */
-      changeStatisticCount(enabled) {
+      changeStatsCount(enabled) {
         const {
           spaceManager,
           spaceEntityId,

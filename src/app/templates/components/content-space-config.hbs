@@ -1,20 +1,23 @@
-{{#promise-proxy-container proxy=dirSizeStatsConfigProxy spinnerBlockClass="absolute-middle-centered"}}
   <div class="row content-row no-border">
     <h1>{{tt this "title"}}</h1>
     <div class="inner-row-content">
-      <div class="subheader-text dns-check-state-info">
-        {{tt this "text"}}
+      <div class="subheader-text dir-size-stats-config-info">
+        {{tt this "description"}}
       </div>
-      <label for="space-statistic-count" class="inline-label">
-        {{tt this "toggle"}}
-      </label>
-      {{one-way-toggle
-        class=(concat "form-control toggle-field-space-statistic-count")
-        inputId="space-statistic-count"
-        checked=isSpaceStatisticCount
-        spinnerSide=(if media.isMobile "left" "right")
-        update=(action "changeStatisticCount")
+      {{#promise-proxy-container 
+        proxy=dirSizeStatsConfigProxy 
+        spinnerBlockClass="absolute-middle-centered"
       }}
+        <label for="dir-size-stats-config" class="inline-label">
+          {{tt this "toggleDescription"}}
+        </label>
+        {{one-way-toggle
+          class=(concat "form-control toggle-field-dir-size-stats-config")
+          inputId="dir-size-stats-config"
+          checked=isDirStatsCount
+          spinnerSide=(if media.isMobile "left" "right")
+          update=(action "changeStatsCount")
+        }}
+      {{/promise-proxy-container}}
     </div>
   </div>
-{{/promise-proxy-container}}
