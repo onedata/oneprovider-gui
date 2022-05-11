@@ -11,7 +11,7 @@ import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { equal, reads } from '@ember/object/computed';
-import { or, raw, getBy, tag, collect } from 'ember-awesome-macros';
+import { or, raw, getBy, tag, collect, conditional } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
@@ -22,6 +22,7 @@ import {
   ChangeState,
   Remove,
 } from 'oneprovider-gui/utils/dataset/actions';
+import computedT from 'onedata-gui-common/utils/computed-t';
 
 /**
  * @typedef {'notEstablished'|'attached'|'detached'} DirectDatasetControlStatus
@@ -154,6 +155,12 @@ export default Component.extend(I18n, {
         defaultValue: '',
       });
     }
+  ),
+
+  statusTip: conditional(
+    equal('status', 'detached'),
+    computedT('statusTip.detached'),
+    raw(null),
   ),
 
   // FIXME: remove redundancy with dataset-browser-model

@@ -7,16 +7,16 @@ export default {
   close: 'Close',
   establishingDataset: 'establishing dataset',
   noDataset: {
-    text: 'This {{fileType}} does not belong to any dataset',
-    buttonEstablish: 'Establish dataset here',
-    // FIXME: tooltip or text with info
+    header: 'This {{fileType}} does not belong to any dataset',
+    text: 'You may establish a new dataset on this {{fileType}}.',
+    buttonEstablish: 'Establish dataset',
   },
-  showInDatasetsBrowser: 'Show in datasets browser',
+  showInBrowser: 'Show in dataset browser',
   tabs: {
     settings: {
       fileType,
       label: 'Settings',
-      tip: 'The selected {{fileType}} can be individually marked as a dataset with optional write protection settings. Please note that all ancestor datasets (ones that contain the {{fileType}}) are also considered when determining the effective write protection – presented in the top-right corner. This is depicted in the below table, which allows manipulating the settings for each dataset in the hierarchy.',
+      tip: 'Settings for selected {{fileType}} in the context of datasets, with the possibility to establish a dataset on it and manipulate write protection settings. Please note that all ancestor datasets (ones that contain the {{fileType}}) are also considered when determining the effective write protection, which is presented in the top-right corner. The dataset hierarchy is depicted in the below table, which allows manipulating the settings on each level.',
     },
     archives: {
       fileType,

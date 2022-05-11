@@ -114,9 +114,6 @@ describe('Integration | Component | file datasets', function () {
     async function () {
       await this.createDataset({
         state: 'attached',
-        protectionFlags: [],
-        parent: null,
-        archiveCount: 0,
       });
 
       await render(this);
@@ -126,7 +123,23 @@ describe('Integration | Component | file datasets', function () {
       expect(contentInfoNoDataset.textContent).to.contain('This file does not belong to any dataset');
       const establishButton = find('.establish-first-dataset-btn');
       expect(establishButton).to.exist;
-      expect(establishButton.textContent).to.contain('Establish dataset here');
+      expect(establishButton.getAttribute('disabled')).to.not.exist;
+      expect(establishButton.textContent).to.contain('Establish dataset');
+    }
+  );
+
+  it('has disabled "Establish..." button when file does not belong to any dataset and space has no "manageDatasets" privilege',
+    async function () {
+      await this.createDataset({
+        state: 'attached',
+      });
+      this.set('space.privileges.manageDatasets', false);
+
+      await render(this);
+
+      const establishButton = find('.establish-first-dataset-btn');
+      expect(establishButton).to.exist;
+      expect(establishButton.getAttribute('disabled')).to.exist;
     }
   );
 
@@ -138,6 +151,7 @@ describe('Integration | Component | file datasets', function () {
         parent: null,
         archiveCount: 0,
       });
+      this.set('space.privileges.manageDatasets', true);
       const establishDatasetSpy = sinon.spy(
         lookupService(this, 'datasetManager'),
         'establishDataset'
@@ -185,7 +199,7 @@ describe('Integration | Component | file datasets', function () {
       const directDatasetControl = find('.direct-dataset-control');
       expect(directDatasetControl).to.exist;
       expect(directDatasetControl.textContent)
-        .to.contain('This file has no direct dataset established');
+        .to.contain('No dataset has been established on this file.');
     }
   );
 });
@@ -335,6 +349,8 @@ async function givenSingleFile(testCase) {
   testCase.set('space', {
     entityId: 'space_id',
     name: 'Dummy space',
-    privileges: {},
+    privileges: {
+      manageDatasets: true,
+    },
   });
 }

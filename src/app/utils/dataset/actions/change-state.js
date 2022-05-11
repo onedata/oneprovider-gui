@@ -149,6 +149,8 @@ export default BaseAction.extend({
       descriptionParagraphs: [{
         text: introText,
       }, {
+        text: this.t(`confirmModal.generalInfo.${actionName}`),
+      }, {
         text: this.t('confirmModal.proceedQuestion'),
       }],
       yesButtonText: this.t('confirmModal.yes'),

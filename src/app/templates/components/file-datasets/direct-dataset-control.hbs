@@ -13,8 +13,12 @@
       {{#truncated-string class="status-text"}}
         {{statusText}}
       {{/truncated-string}}
+      {{#if statusTip}}
+        <div class="status-tip-container">
+          {{one-label-tip title=statusTip tooltipClass="tooltip-lg tooltip-text-left"}}
+        </div>
+      {{/if}}
     </div>
-    <div class="direct-dataset-col-label-tip"></div>
     <div class="direct-dataset-col-label-action-trigger">
       {{#if (eq status "notEstablished")}}
         {{#one-button

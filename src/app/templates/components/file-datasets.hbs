@@ -26,16 +26,15 @@
 {{#modal.body id=modalBodyId class="file-datasets-part file-datasets-modal-body"}}
   {{#promise-proxy-container proxy=belongsToSomeDatasetProxy}}
     {{#unless belongsToSomeDataset}}
-      {{!-- FIXME: header to remove --}}
-      {{!-- FIXME: disable action when no privileges --}}
       {{content-info
         class="scroll-breakpoint-700 fill-flex-using-column content-info-no-dataset"
-        header=(tt this "noDataset.text" fileType=(tt this (concat "fileType." file.type)))
+        header=(tt this "noDataset.header" fileType=fileTypeText)
+        text=(tt this "noDataset.text" fileType=fileTypeText)
         buttonAction=(action "establishDataset")
         buttonLabel=(tt this "noDataset.buttonEstablish")
         buttonClass="establish-first-dataset-btn"
-        imagePath="assets/images/no-datasets.svg"
-        __buttonDisabled=(not selectedHandleService)
+        buttonDisabled=establishButtonDisabled
+        buttonTip=establishButtonDisabledTip
       }}
     {{else}}
       {{#if (eq activeTab "settings")}}
@@ -80,7 +79,7 @@
 {{#if renderFooter}}
   {{#modal.footer class="file-datasets-part file-datasets-modal-footer"}}
     <a class="btn btn-default dataset-link" href={{datasetLink}} target={{navigateTarget}}>
-      <span class="text">{{tt this "showInDatasetsBrowser"}}</span>
+      <span class="text">{{tt this "showInBrowser"}}</span>
       {{one-icon icon="link-external"}}
     </a>
   {{/modal.footer}}

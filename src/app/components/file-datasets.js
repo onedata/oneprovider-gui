@@ -16,7 +16,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { or, not, conditional, and, notEmpty, promise, bool } from 'ember-awesome-macros';
+import { or, not, conditional, and, notEmpty, promise, bool, raw } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
@@ -202,6 +202,14 @@ export default Component.extend(I18n, {
     }
   ),
 
+  establishButtonDisabledTip: conditional(
+    not('space.privileges.manageDatasets'),
+    'insufficientEditPrivilegesMessage',
+    raw(null),
+  ),
+
+  establishButtonDisabled: bool('establishButtonDisabledTip'),
+
   /**
    * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
    */
@@ -296,7 +304,7 @@ export default Component.extend(I18n, {
 
   fileTypeText: computed('fileType', function fileTypeText() {
     const fileType = this.get('fileType');
-    return this.t(`fileType.${fileType}`);
+    return this.t(`fileType.${fileType || 'file'}`);
   }),
 
   /**

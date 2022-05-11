@@ -35,7 +35,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     const directDatasetControl = find('.direct-dataset-control');
     expect(directDatasetControl).to.exist;
     expect(directDatasetControl.textContent)
-      .to.contain('This file has no direct dataset established.');
+      .to.contain('No dataset has been established on this file.');
     const icon = directDatasetControl.querySelector('.oneicon-browser-info');
     expect(icon).to.exist;
   });
@@ -52,7 +52,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     const directDatasetControl = find('.direct-dataset-control');
     expect(directDatasetControl).to.exist;
     expect(directDatasetControl.textContent).to.contain(
-      `Dataset has been established on this file at ${moment(time * 1000).format('D MMM YYYY H:mm')}.`
+      `This file is a dataset (established at ${moment(time * 1000).format('D MMM YYYY H:mm')}).`
     );
     const icon = directDatasetControl.querySelector('.oneicon-checkbox-filled');
     expect(icon).to.exist;
@@ -70,7 +70,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
     const directDatasetControl = find('.direct-dataset-control');
     expect(directDatasetControl).to.exist;
     expect(directDatasetControl.textContent).to.contain(
-      `Dataset has been established on this file at ${moment(time * 1000).format('D MMM YYYY H:mm')}, but currently is detached.`
+      `This file has been detached from its dataset (established at ${moment(time * 1000).format('D MMM YYYY H:mm')}).`
     );
     const icon = directDatasetControl.querySelector('.oneicon-plug-out');
     expect(icon).to.exist;
@@ -85,7 +85,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
 
     const establishButton = find('.establish-btn');
     expect(establishButton).to.exist;
-    expect(establishButton.textContent).to.contain('Establish dataset here');
+    expect(establishButton.textContent).to.contain('Establish dataset');
     await click(establishButton);
     expect(onEstablishDirectDataset).to.have.been.calledOnce;
   });
