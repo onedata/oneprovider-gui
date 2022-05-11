@@ -23,7 +23,6 @@ import {
   ChangeState,
   Remove,
 } from 'oneprovider-gui/utils/dataset/actions';
-import computedT from 'onedata-gui-common/utils/computed-t';
 
 /**
  * @typedef {'notEstablished'|'attached'|'detached'} DirectDatasetControlStatus
@@ -149,7 +148,12 @@ export default Component.extend(I18n, {
 
   statusTip: conditional(
     equal('status', 'detached'),
-    computedT('statusTip.detached'),
+    computed(function statusTip() {
+      const fileTypeText = this.t(`fileType.${this.get('file.type')}`);
+      return this.t('statusTip.detached', {
+        fileType: fileTypeText,
+      });
+    }),
     raw(null),
   ),
 

@@ -59,7 +59,7 @@ export default {
         },
       },
       generalInfo: {
-        attach: 'Reattaching a dataset will once again make it coupled with its root file/directory. The file/directory will be once again treated as a dataset and its contents will be directly the dataset contents.',
+        attach: 'Reattaching a dataset will once again make it coupled with its root file/directory. The file/directory will be treated as a dataset and its contents will be directly the dataset contents.',
         detach: 'A <strong>detached</strong> dataset is decoupled from its root file/directory and serves only archival purposes – to keep track of the archives that were created during its <strong>attached</strong> lifecycle. Such a dataset does not correspond to any physical content in the file tree and changes to the original root file/directory contents are not reflected in the dataset. A <strong>detached</strong> dataset can be reattached, but only to the original file/directory and only if it still exists. Once a dataset has been established, its root file/directory can no longer be changed.',
       },
       proceedQuestion: 'Do you want to proceed?',

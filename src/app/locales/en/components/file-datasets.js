@@ -23,7 +23,7 @@ export default {
       label: 'Archives',
       labelCounted: 'Archives ({{count}})',
       tip: 'Archive is a read-only, persistent snapshot of a dataset, created at a certain point in time. It contains both physical data and metadata from the dataset, stored as a copy within the space.',
-      tipDisabled: 'This {{fileType}} is not marked as a dataset and cannot be archived.',
+      tipDisabled: 'This {{fileType}} is not a dataset and cannot be archived.',
     },
   },
   summaryHeader,
