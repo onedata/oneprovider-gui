@@ -17,6 +17,7 @@ import computedT from 'onedata-gui-common/utils/computed-t';
 import { inject as service } from '@ember/service';
 import { allSettled } from 'rsvp';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 export default BaseAction.extend({
   modalManager: service(),
@@ -60,7 +61,26 @@ export default BaseAction.extend({
   disabledTip: conditional(
     'selectedDatasetsHaveArchives',
     computedT('tip.notAvailableHaveArchives'),
-    null,
+    computed(
+      'spacePrivileges.{manageDatasets,createArchives}',
+      function disabledTip() {
+        const {
+          spacePrivileges,
+          i18n,
+        } = this.getProperties(
+          'spacePrivileges',
+          'i18n',
+        );
+        const hasPrivileges = spacePrivileges.manageDatasets;
+        if (!hasPrivileges) {
+          return insufficientPrivilegesMessage({
+            i18n,
+            modelName: 'space',
+            privilegeFlag: 'space_manage_datasets',
+          });
+        }
+      }
+    )
   ),
 
   areMultipleSelected: gt('selectedItems.length', 1),

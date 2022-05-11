@@ -16,6 +16,7 @@ import { inject as service } from '@ember/service';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { dateFormat } from 'onedata-gui-common/helpers/date-format';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import {
   CopyDatasetId,
   CreateArchive,
@@ -111,12 +112,6 @@ export default Component.extend(I18n, {
     detached: 'plug-out',
   }),
 
-  mainButtonTypeMapping: Object.freeze({
-    notEstablished: 'default',
-    attached: 'default',
-    detached: 'warning',
-  }),
-
   alertClass: or(
     getBy('alertClassMapping', 'status'),
     raw('alert-light'),
@@ -125,11 +120,6 @@ export default Component.extend(I18n, {
   statusIcon: or(
     getBy('statusIconMapping', 'status'),
     raw('x'),
-  ),
-
-  mainButtonType: or(
-    getBy('mainButtonTypeMapping', 'status'),
-    raw('default'),
   ),
 
   /**
@@ -161,6 +151,23 @@ export default Component.extend(I18n, {
     equal('status', 'detached'),
     computedT('statusTip.detached'),
     raw(null),
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  establishButtonDisabledTip: computed(
+    'spacePrivileges.manageDatasets',
+    function insufficientEditPrivilegesMessage() {
+      if (this.get('spacePrivileges.manageDatasets')) {
+        return null;
+      }
+      return insufficientPrivilegesMessage({
+        i18n: this.get('i18n'),
+        modelName: 'space',
+        privilegeFlag: 'space_manage_datasets',
+      });
+    }
   ),
 
   // FIXME: remove redundancy with dataset-browser-model
@@ -209,31 +216,52 @@ export default Component.extend(I18n, {
 
   // FIXME: refactor actions create - function here or factory
 
-  btnChangeState: computed('directDataset', function btnChangeState() {
-    const directDataset = this.get('directDataset');
-    if (!directDataset) {
-      return;
+  btnChangeState: computed(
+    'directDataset',
+    'spacePrivileges',
+    function btnChangeState() {
+      const {
+        directDataset,
+        spacePrivileges,
+      } = this.getProperties(
+        'directDataset',
+        'spacePrivileges',
+      );
+      if (!directDataset) {
+        return;
+      }
+      return ChangeState.create({
+        ownerSource: this,
+        spacePrivileges,
+        context: {
+          selectedItems: [directDataset],
+        },
+      });
     }
-    return ChangeState.create({
-      ownerSource: this,
-      context: {
-        selectedItems: [directDataset],
-      },
-    });
-  }),
+  ),
 
-  btnRemove: computed(function btnRemove() {
-    const directDataset = this.get('directDataset');
-    if (!directDataset) {
-      return;
+  btnRemove: computed('directDataset',
+    'spacePrivileges',
+    function btnRemove() {
+      const {
+        directDataset,
+        spacePrivileges,
+      } = this.getProperties(
+        'directDataset',
+        'spacePrivileges',
+      );
+      if (!directDataset) {
+        return;
+      }
+      return Remove.create({
+        ownerSource: this,
+        spacePrivileges,
+        context: {
+          selectedItems: [directDataset],
+        },
+      });
     }
-    return Remove.create({
-      ownerSource: this,
-      context: {
-        selectedItems: [directDataset],
-      },
-    });
-  }),
+  ),
 
   /**
    * @type {Utils.Action}

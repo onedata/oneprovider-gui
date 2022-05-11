@@ -21,19 +21,22 @@
     </div>
     <div class="direct-dataset-col-label-action-trigger">
       {{#if (eq status "notEstablished")}}
-        {{#one-button
-          class=(concat-classes "btn-sm establish-btn" mainButtonType)
-          type="primary"
-          onClick=(action "establishDirectDataset")
-        }}
-          {{tt this "establishDatasetHere"}}
-        {{/one-button}}
+        <div class="btn-tooltip-container">
+          {{#one-button
+            class="btn-sm establish-btn"
+            type="primary"
+            disabled=(bool establishButtonDisabledTip)
+            onClick=(action "establishDirectDataset")
+          }}
+            {{tt this "establishDatasetHere"}}
+          {{/one-button}}
+          {{#if establishButtonDisabledTip}}
+            {{one-tooltip title=establishButtonDisabledTip}}
+          {{/if}}
+        </div>
       {{else}}
         {{#one-button
-          class=(concat-classes
-            "btn-sm direct-dataset-actions-trigger"
-            mainButtonType
-          )
+          class="btn-sm direct-dataset-actions-trigger"
           onClick=(action "toggleActionsOpen")
         }}
           {{one-icon icon="settings"}}

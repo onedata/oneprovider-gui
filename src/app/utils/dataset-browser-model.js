@@ -198,17 +198,26 @@ export default BaseBrowserModel.extend(I18n, {
   btnChangeState: computed(
     'attachmentState',
     function btnChangeState() {
-      // use attachmentState from this component to prevent unnecessary action recompute
-      const attachmentState = this.get('attachmentState');
+      const {
+        // use attachmentState from this component to prevent unnecessary action recompute
+        attachmentState,
+        spacePrivileges,
+      } = this.getProperties(
+        'attachmentState',
+        'spacePrivileges',
+      );
       return this.createFileAction(ChangeState, {
         attachmentState,
+        spacePrivileges,
         onStateChanged: this.refresh.bind(this),
       });
     }
   ),
 
   btnRemove: computed(function btnRemove() {
+    const spacePrivileges = this.get('spacePrivileges');
     return this.createFileAction(Remove, {
+      spacePrivileges,
       onRemoved: this.refresh.bind(this),
     });
   }),
