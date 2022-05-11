@@ -174,96 +174,38 @@ export default Component.extend(I18n, {
     }
   ),
 
-  // FIXME: remove redundancy with dataset-browser-model
-  // FIXME: i18n
-
-  btnCopyId: computed('directDataset', function btnCopyId() {
-    const directDataset = this.get('directDataset');
-    if (!directDataset) {
-      return;
-    }
-    return CopyDatasetId.create({
-      ownerSource: this,
-      context: {
-        selectedItems: [directDataset],
-      },
-    });
-  }),
-
-  btnCreateArchive: computed(
+  btnCopyId: computed(
     'directDataset',
-    'onOpenCreateArchive',
-    'spacePrivileges',
-    function btnCreateArchive() {
-      const {
-        directDataset,
-        onOpenCreateArchive,
-        spacePrivileges,
-      } = this.getProperties(
-        'directDataset',
-        'onOpenCreateArchive',
-        'spacePrivileges',
-      );
-      if (!directDataset) {
-        return;
-      }
-      return CreateArchive.create({
-        ownerSource: this,
-        onOpenCreateArchive,
-        spacePrivileges,
-        context: {
-          selectedItems: [directDataset],
-        },
-      });
+    // spacePrivileges are not needed
+    function btnCopyId() {
+      return this.createButton(CopyDatasetId);
     }
   ),
 
-  // FIXME: refactor actions create - function here or factory
+  btnCreateArchive: computed(
+    'directDataset',
+    'spacePrivileges',
+    'onOpenCreateArchive',
+    function btnCreateArchive() {
+      return this.createButton(CreateArchive, {
+        onOpenCreateArchive: this.get('onOpenCreateArchive'),
+      });
+    }
+  ),
 
   btnChangeState: computed(
     'directDataset',
     'spacePrivileges',
     function btnChangeState() {
-      const {
-        directDataset,
-        spacePrivileges,
-      } = this.getProperties(
-        'directDataset',
-        'spacePrivileges',
-      );
-      if (!directDataset) {
-        return;
-      }
-      return ChangeState.create({
-        ownerSource: this,
-        spacePrivileges,
-        context: {
-          selectedItems: [directDataset],
-        },
-      });
+      return this.createButton(ChangeState);
     }
   ),
 
-  btnRemove: computed('directDataset',
+  btnRemove: computed(
+    'directDataset',
     'spacePrivileges',
     function btnRemove() {
-      const {
-        directDataset,
-        spacePrivileges,
-      } = this.getProperties(
-        'directDataset',
-        'spacePrivileges',
-      );
-      if (!directDataset) {
-        return;
-      }
-      return Remove.create({
-        ownerSource: this,
-        spacePrivileges,
-        context: {
-          selectedItems: [directDataset],
-        },
-      });
+      return this.createButton(Remove);
     }
   ),
 
@@ -280,6 +222,26 @@ export default Component.extend(I18n, {
   actionsTriggerClass: 'direct-dataset-actions-trigger',
 
   actionsTriggerSelector: tag `#${'elementId'} .${'actionsTriggerClass'} .menu-trigger-arrow`,
+
+  createButton(buttonClass, properties = {}) {
+    const {
+      directDataset,
+      spacePrivileges,
+    } = this.getProperties(
+      'directDataset',
+      'spacePrivileges',
+    );
+    if (!directDataset) {
+      return;
+    }
+    return buttonClass.create({
+      ownerSource: this,
+      spacePrivileges,
+      context: {
+        selectedItems: [directDataset],
+      },
+    }, properties);
+  },
 
   actions: {
     async establishDirectDataset() {

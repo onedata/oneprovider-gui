@@ -2,17 +2,14 @@
   &.alert {
     padding: ($first-column-padding-left * 0.75) $first-column-padding-left;
   }
-  .direct-dataset-loadable-row.loadable-row {
-    // FIXME: test and adjust loding styles
-    min-height: 2em;
+  .direct-dataset-spinner-block {
+    height: 2em;
   }
-  // FIXME: test and ajust error styles
   .alert.alert-promise-error {
     @include font-regular;
     font-weight: normal;
   }
   .direct-dataset-control-inner {
-    // FIXME: sync with general file-datasets styles
     $vertical-element-margin: 8px;
     display: flex;
     align-items: center;
@@ -27,8 +24,7 @@
       }
     }
     .direct-dataset-col-icon {
-      // FIXME: sync with general file-datasets styles
-      font-size: 200%;
+      font-size: $dataset-table-item-icon-size;
     }
     .direct-dataset-col-label-action-trigger {
       margin-left: $vertical-element-margin;
@@ -39,8 +35,5 @@
       left: 0;
       font-size: 150%;
     }
-  }
-  @media (max-width: $screen-xs-max) {
-    // FIXME: test and adjust mobile styles
   }
 }

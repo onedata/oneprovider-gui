@@ -2,7 +2,6 @@ import { fileType } from '../dataset-protection/-common';
 
 export default {
   fileType,
-  cannotLoadDirectDataset: 'Could not load direct dataset state.',
   establishDatasetHere: 'Establish dataset here',
   actionsButton: 'Actions',
   statusText: {

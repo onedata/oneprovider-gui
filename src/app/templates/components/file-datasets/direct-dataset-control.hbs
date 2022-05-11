@@ -1,9 +1,9 @@
-{{#if directDatasetProxy.isRejected}}
-  {{resource-load-error
-    message=(tt this "cannotLoadDirectDataset")
-    reason=directDatasetProxy.reason
-  }}
-{{else}}
+{{#promise-proxy-container
+  proxy=directDatasetProxy
+  spinnerBlockClass="direct-dataset-spinner-block"
+  absoluteCentered=false
+  sizeClass="xs"
+}}
   <div class="direct-dataset-control-inner">
     {{one-icon
       class="direct-dataset-col-icon"
@@ -67,4 +67,4 @@
       {{/if}}
     </div>
   </div>
-{{/if}}
+{{/promise-proxy-container}}

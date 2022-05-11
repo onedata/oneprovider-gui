@@ -6,6 +6,8 @@ $dataset-write-unprotected-color-bg: #E6E9F0;
 $dataset-write-unprotected-color-border: #B1BACF;
 $dataset-write-unprotected-color: #596E99;
 
+$dataset-table-item-text-left-margin: 8px;
+
 .dataset-protection-part {
   .table.datasets-table {
     > tbody + tbody {
@@ -23,11 +25,10 @@ $dataset-write-unprotected-color: #596E99;
       display: flex;
       align-items: center;
       .table-header-text {
-        // FIXME: sync with dataset-item styles
-        margin-left: 8px;
+        margin-left: $dataset-table-item-text-left-margin;
       }
       .one-icon {
-        font-size: 200%;
+        font-size: $dataset-table-item-icon-size;
       }
     }
   }

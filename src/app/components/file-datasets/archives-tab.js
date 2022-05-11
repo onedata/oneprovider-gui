@@ -12,6 +12,12 @@ import DatasetArchivesBrowser from 'oneprovider-gui/components/dataset-archives-
 import layout from 'oneprovider-gui/templates/components/dataset-archives-browser';
 import { observer, get } from '@ember/object';
 
+/**
+ * @typedef {Object} FileDatasetsArchivesTabOptions
+ * @property {{ name: string }} [actionToInvoke] specification of action to invoke in
+ *   dataset archives tab - see `ArchivesTab.parseOptions` to supported actions
+ */
+
 const mixins = [
   InModalBrowserContainerBase,
 ];
@@ -35,7 +41,10 @@ export default DatasetArchivesBrowser.extend(...mixins, {
    */
   modalBodyId: undefined,
 
-  // FIXME: document type
+  /**
+   * @virtual optional
+   * @type {FileDatasetsArchivesTabOptions}
+   */
   options: undefined,
 
   optionsObserver: observer('options', function optionsObserver() {

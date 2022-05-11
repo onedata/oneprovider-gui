@@ -19,6 +19,7 @@ import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/model
 import { or, not, conditional, and, notEmpty, promise, bool, raw } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
+import sleep from 'onedata-gui-common/utils/sleep';
 
 export default Component.extend(I18n, {
   // file-datasets is mainly used inside modal, but we cannot use element tag as a parent
@@ -104,7 +105,11 @@ export default Component.extend(I18n, {
    */
   activeTab: 'settings',
 
-  // FIXME: jsdoc
+  /**
+   * Passes down options for tab components.
+   * Currently only archives tab have options.
+   * @type {{ archives: FileDatasetsArchivesTabOptions }}
+   */
   tabOptions: computed(function tabOptions() {
     return {
       archives: {},

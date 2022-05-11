@@ -38,12 +38,10 @@
       }}
     {{else}}
       {{#if (eq activeTab "settings")}}
-        {{!-- FIXME: clean up togglesReadonlyMessage --}}
         {{file-datasets/direct-dataset-control
           file=file
           spacePrivileges=space.privileges
           directDatasetProxy=directDatasetProxy
-          togglesReadonlyMessage=insufficientEditPrivilegesMessage
           onOpenCreateArchive=(action "openCreateArchive")
           onEstablishDirectDataset=(action "establishDataset")
         }}
