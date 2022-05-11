@@ -145,12 +145,18 @@ export default Service.extend({
    */
   async toggleDatasetAttachment(dataset, attach) {
     set(dataset, 'state', attach ? 'attached' : 'detached');
-    await dataset.save();
-    const fileRelation = dataset.belongsTo('rootFile');
-    if (fileRelation && fileRelation.id()) {
-      const file = await fileRelation.load();
-      if (file) {
-        await this.updateFileDatasetsData(file);
+    try {
+      await dataset.save();
+    } catch (error) {
+      dataset.rollbackAttributes();
+      throw error;
+    } finally {
+      const fileRelation = dataset.belongsTo('rootFile');
+      if (fileRelation && fileRelation.id()) {
+        const file = await fileRelation.load();
+        if (file) {
+          await this.updateFileDatasetsData(file);
+        }
       }
     }
     return dataset;
