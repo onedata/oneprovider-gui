@@ -11,71 +11,87 @@ import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-compon
 import { inject as service } from '@ember/service';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import { promise } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
+import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 
-export default OneEmbeddedComponent.extend(I18n, ContentSpaceBaseMixin, {
-  classNames: ['content-space-config'],
+export default OneEmbeddedComponent.extend(
+  I18n,
+  ContentSpaceBaseMixin,
+  createDataProxyMixin('dirSizeStatsConfig'), {
+    classNames: ['content-space-config'],
 
-  store: service(),
-  spaceManager: service(),
+    store: service(),
+    spaceManager: service(),
+    globalNotify: service(),
 
-  /**
-   * @override
-   */
-  i18nPrefix: 'components.contentSpaceConfig',
+    /**
+     * @override
+     */
+    i18nPrefix: 'components.contentSpaceConfig',
 
-  /**
-   * @override
-   */
-  iframeInjectedProperties: Object.freeze([
-    'spaceEntityId',
-  ]),
+    /**
+     * @override
+     */
+    iframeInjectedProperties: Object.freeze([
+      'spaceEntityId',
+    ]),
 
-  /**
-   * @virtual
-   * @type {Promise<DirSizeStatsConfig>}
-   */
-  dirSizeStatsConfigProxy: promise.object(computed(
-    'spaceEntityId',
-    function dirSizeStatsConfigProxy() {
+    /**
+     * One of `enabled`, `disabled`, `stopping`, `initializing`
+     * @type {ComputedProperty<String>}
+     */
+    statsCollectionStatus: reads('dirSizeStatsConfigProxy.content.statsCollectionStatus'),
+
+    /**
+     * @type {ComputedProperty<Boolean>}
+     */
+    isSpaceStatisticCount: computed(
+      'statsCollectionStatus',
+      function isSpaceStatisticCount() {
+        const statsCollectionStatus = this.get('statsCollectionStatus');
+        return ['enabled', 'initializing'].includes(statsCollectionStatus);
+      }
+    ),
+
+    init() {
+      this._super(...arguments);
+      this.updateDirSizeStatsConfigProxy();
+    },
+
+    /**
+     * @returns {Promise<DirSizeStatsConfig>}
+     */
+    fetchDirSizeStatsConfig() {
       const {
         spaceManager,
         spaceEntityId,
       } = this.getProperties('spaceManager', 'spaceEntityId');
       return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
-    }
-  )),
-
-  /**
-   * One of `enabled`, `disabled`, `stopping`, `initializing`
-   * @type {ComputedProperty<String>}
-   */
-  statsCollectionStatus: reads('dirSizeStatsConfigProxy.content.statsCollectionStatus'),
-
-  /**
-   * @type {ComputedProperty<Boolean>}
-   */
-  isSpaceStatisticCount: computed(
-    'statsCollectionStatus',
-    function isSpaceStatisticCount() {
-      const statsCollectionStatus = this.get('statsCollectionStatus');
-      return ['enabled', 'initializing'].includes(statsCollectionStatus);
-    }
-  ),
-
-  actions: {
-    changeStatisticCount(enabled) {
-      const {
-        spaceManager,
-        spaceEntityId,
-      } = this.getProperties('spaceManager', 'spaceEntityId');
-      const dirSizeStatsConfig = {
-        statsCollectionEnabled: enabled,
-      };
-      this.set('isSpaceStatisticCount', enabled);
-      spaceManager.saveDirSizeStatsConfig(spaceEntityId, dirSizeStatsConfig);
     },
-  },
-});
+
+    actions: {
+      /**
+       * @param {boolean} enabled
+       * @returns {Promise<any>}
+       */
+      changeStatisticCount(enabled) {
+        const {
+          spaceManager,
+          spaceEntityId,
+        } = this.getProperties('spaceManager', 'spaceEntityId');
+        const dirSizeStatsConfig = {
+          statsCollectionEnabled: enabled,
+        };
+        return spaceManager.saveDirSizeStatsConfig(spaceEntityId, dirSizeStatsConfig)
+          .then(() => this.updateDirSizeStatsConfigProxy())
+          .catch(error => {
+            this.get('globalNotify').backendError(
+              this.t('configuringDirSizeStats'),
+              error
+            );
+            throw error;
+          });
+      },
+    },
+  });

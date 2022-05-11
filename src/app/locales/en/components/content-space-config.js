@@ -1,5 +1,6 @@
 export default {
-  title: 'Configuration',
-  text: 'Directory size statistics gathering such information like total count of files and total size of the information contained in directory and its subdirectories. These statistics are collected independently by each Oneprovider supporting the space.',
+  title: 'Settings',
+  text: 'If enabled, directory size statistics will be collected for each directory in this space. They include metrics with file count, logical byte size and physical byte size and track their changes in time. The statistics can be viewed using the <em>Information</em> directory context action.',
   toggle: 'Directory size statistics',
+  configuringDirSizeStats: 'configuring directory size statistics',
 };
