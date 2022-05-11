@@ -2,7 +2,7 @@ import { fileType } from '../dataset-protection/-common';
 
 export default {
   fileType,
-  establishDatasetHere: 'Establish dataset here',
+  establishDatasetHere: 'Establish dataset',
   actionsButton: 'Actions',
   statusText: {
     notEstablished: 'No dataset has been established on this {{fileType}}.',
