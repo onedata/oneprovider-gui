@@ -10,9 +10,7 @@
       icon=statusIcon
     }}
     <div class="direct-dataset-col-text">
-      {{#truncated-string class="status-text"}}
-        {{statusText}}
-      {{/truncated-string}}
+      <span class="status-text">{{statusText}}</span>
       {{#if statusTip}}
         <div class="status-tip-container">
           {{one-label-tip title=statusTip tooltipClass="tooltip-lg tooltip-text-left"}}

@@ -19,6 +19,8 @@
       min-width: 0;
       margin-left: $horizontal-element-margin;
       .status-tip-container {
+        display: flex;
+        align-items: center;
         margin-left: $horizontal-element-margin;
         margin-right: $horizontal-element-margin;
       }
