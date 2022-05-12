@@ -1,7 +1,6 @@
 /**
- * Control of dataset estabilished directly for some file/directory
+ * Shows status and operations on direct dataset for file.
  *
- * @module components/file-dataset/direct-dataset-control
  * @author Jakub Liput
  * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -49,7 +48,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {ComputedProperty<SpacePrivileges>}
+   * @type {SpacePrivileges}
    */
   spacePrivileges: undefined,
 
@@ -118,7 +117,7 @@ export default Component.extend(I18n, {
 
   statusIcon: or(
     getBy('statusIconMapping', 'status'),
-    raw('x'),
+    raw('browser-info'),
   ),
 
   /**
@@ -162,7 +161,7 @@ export default Component.extend(I18n, {
    */
   establishButtonDisabledTip: computed(
     'spacePrivileges.manageDatasets',
-    function insufficientEditPrivilegesMessage() {
+    function establishButtonDisabledTip() {
       if (this.get('spacePrivileges.manageDatasets')) {
         return null;
       }

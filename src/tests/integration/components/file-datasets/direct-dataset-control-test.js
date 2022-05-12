@@ -1,11 +1,3 @@
-/**
- * Shows status and operations on direct dataset for file.
- *
- * @author Jakub Liput
- * @copyright (C) 2022 ACK CYFRONET AGH
- * @license This software is released under the MIT license cited in 'LICENSE.txt'.
- */
-
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupComponentTest } from 'ember-mocha';

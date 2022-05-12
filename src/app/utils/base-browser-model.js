@@ -327,7 +327,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
     const specType = typeOf(fileActionSpec);
     switch (specType) {
       case 'object':
-        return Object.assign(fileActionSpec, {
+        return Object.assign({}, fileActionSpec, {
           icon: icon || `browser-${dasherize(id)}`,
           title: title || this.t(`fileActions.${id}`),
           disabled: disabled === undefined ? false : disabled,

@@ -325,9 +325,7 @@ export default Component.extend(I18n, {
       const directDataset = await directDatasetProxy;
       if (directDataset) {
         const datasetId = get(directDataset, 'entityId');
-        const parentId = directDataset.relationEntityId('parent');
         const options = {
-          datasetId: parentId,
           selectedDatasets: [datasetId],
           attachmentState: get(directDataset, 'state'),
         };

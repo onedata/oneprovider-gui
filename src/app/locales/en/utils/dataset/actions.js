@@ -50,12 +50,12 @@ export default {
       },
       intro: {
         attach: {
-          single: 'You are about to reattach <strong>{{name}}</strong> dataset to its original root {{fileType}} at <code class="inline-file-path">{{path}}</code>.',
-          multi: 'You are about to reattach <strong>{{count}}</strong> selected datasets to their original root directories/files',
+          single: 'You are about to reattach <strong>"{{name}}"</strong> dataset to its original root {{fileType}} at <code class="inline-file-path">{{path}}</code>.',
+          multi: 'You are about to reattach <strong>{{count}} selected</strong> datasets to their original root directories/files',
         },
         detach: {
-          single: 'You are about to detach <strong>{{name}}</strong> dataset from its root {{fileType}} (<code class="inline-file-path">{{path}}</code>).',
-          multi: 'You are about to detach <strong>{{count}}</strong> selected datasets from their root directories/files.',
+          single: 'You are about to detach <strong>"{{name}}"</strong> dataset from its root {{fileType}} (<code class="inline-file-path">{{path}}</code>).',
+          multi: 'You are about to detach <strong>{{count}} selected</strong> datasets from their root directories/files.',
         },
       },
       generalInfo: {

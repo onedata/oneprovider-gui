@@ -121,7 +121,7 @@ describe('Integration | Component | file datasets', function () {
       const contentInfoNoDataset = find('.content-info-no-dataset');
       expect(contentInfoNoDataset).to.exist;
       expect(contentInfoNoDataset.textContent).to.contain('This file does not belong to any dataset');
-      const establishButton = find('.establish-first-dataset-btn');
+      const establishButton = find('.establish-dataset-btn');
       expect(establishButton).to.exist;
       expect(establishButton.getAttribute('disabled')).to.not.exist;
       expect(establishButton.textContent).to.contain('Establish dataset');
@@ -137,7 +137,7 @@ describe('Integration | Component | file datasets', function () {
 
       await render(this);
 
-      const establishButton = find('.establish-first-dataset-btn');
+      const establishButton = find('.establish-dataset-btn');
       expect(establishButton).to.exist;
       expect(establishButton.getAttribute('disabled')).to.exist;
     }
@@ -158,7 +158,7 @@ describe('Integration | Component | file datasets', function () {
       );
 
       await render(this);
-      await click('.establish-first-dataset-btn');
+      await click('.establish-dataset-btn');
 
       expect(establishDatasetSpy).to.have.been.calledOnce;
     }
