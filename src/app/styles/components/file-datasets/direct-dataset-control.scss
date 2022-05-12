@@ -10,24 +10,24 @@
     font-weight: normal;
   }
   .direct-dataset-control-inner {
-    $vertical-element-margin: 8px;
+    $horizontal-element-margin: 8px;
     display: flex;
     align-items: center;
     .direct-dataset-col-text {
       display: flex;
       flex-grow: 1;
       min-width: 0;
-      margin-left: $vertical-element-margin;
+      margin-left: $horizontal-element-margin;
       .status-tip-container {
-        margin-left: $vertical-element-margin;
-        margin-right: $vertical-element-margin;
+        margin-left: $horizontal-element-margin;
+        margin-right: $horizontal-element-margin;
       }
     }
     .direct-dataset-col-icon {
       font-size: $dataset-table-item-icon-size;
     }
     .direct-dataset-col-label-action-trigger {
-      margin-left: $vertical-element-margin;
+      margin-left: $horizontal-element-margin;
     }
   }
   .direct-dataset-actions-trigger {
