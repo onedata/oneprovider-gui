@@ -30,6 +30,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
   });
 
   it('renders icon and text proper for "not established" direct dataset for file', async function () {
+    await this.helper.givenDirectDataset(null);
     await this.helper.renderComponent();
 
     const directDatasetControl = find('.direct-dataset-control');
@@ -77,6 +78,7 @@ describe('Integration | Component | file datasets/direct dataset control', funct
   });
 
   it('renders "establish" button with proper action if direct dataset is not established', async function () {
+    await this.helper.givenDirectDataset(null);
     const onEstablishDirectDataset = sinon.stub();
     onEstablishDirectDataset.resolves();
     this.set('onEstablishDirectDataset', onEstablishDirectDataset);
@@ -155,16 +157,19 @@ class DirectDatsetControlHelper {
     await run(async () => file.save());
     return this.testCase.set('file', file);
   }
-  async givenDirectDataset(data = {}) {
-    const dataset = run(() =>
+  async givenDirectDataset(data = null) {
+    const dataset = data && run(() =>
       this.store.createRecord('dataset', Object.assign({}, data))
     );
-    await run(async () => dataset.save());
+    if (dataset) {
+      await run(async () => dataset.save());
+    }
     this.testCase.set('directDataset', dataset);
     this.testCase.set('directDatasetProxy', promiseObject(resolve(dataset)));
     return dataset;
   }
   async renderComponent() {
+    await this.testCase.get('directDatasetProxy');
     this.testCase.render(hbs `
       {{file-datasets/direct-dataset-control
         file=file
