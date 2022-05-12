@@ -21,10 +21,10 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 import { conditional } from 'ember-awesome-macros';
 import {
-  CopyDatasetId,
-  CreateArchive,
-  ChangeState,
-  Remove,
+  CopyDatasetIdAction,
+  CreateArchiveAction,
+  ChangeStateAction,
+  RemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
 
 const allButtonNames = Object.freeze([
@@ -166,7 +166,7 @@ export default BaseBrowserModel.extend(I18n, {
   //#region Action buttons
 
   btnCopyId: computed(function btnCopyId() {
-    return this.createFileAction(CopyDatasetId);
+    return this.createFileAction(CopyDatasetIdAction);
   }),
 
   btnShowFile: computed('selectionContext', function btnShowFile() {
@@ -189,7 +189,7 @@ export default BaseBrowserModel.extend(I18n, {
 
   btnCreateArchive: computed('spacePrivileges', function btnCreateArchive() {
     const spacePrivileges = this.get('spacePrivileges');
-    return this.createFileAction(CreateArchive, {
+    return this.createFileAction(CreateArchiveAction, {
       onOpenCreateArchive: this.openCreateArchiveModal.bind(this),
       spacePrivileges,
     });
@@ -206,7 +206,7 @@ export default BaseBrowserModel.extend(I18n, {
         'attachmentState',
         'spacePrivileges',
       );
-      return this.createFileAction(ChangeState, {
+      return this.createFileAction(ChangeStateAction, {
         attachmentState,
         spacePrivileges,
         onStateChanged: this.refresh.bind(this),
@@ -216,7 +216,7 @@ export default BaseBrowserModel.extend(I18n, {
 
   btnRemove: computed(function btnRemove() {
     const spacePrivileges = this.get('spacePrivileges');
-    return this.createFileAction(Remove, {
+    return this.createFileAction(RemoveAction, {
       spacePrivileges,
       onRemoved: this.refresh.bind(this),
     });

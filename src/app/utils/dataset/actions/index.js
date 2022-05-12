@@ -6,14 +6,14 @@
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import CopyDatasetId from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id';
-import CreateArchive from 'oneprovider-gui/utils/dataset/actions/create-archive';
-import ChangeState from 'oneprovider-gui/utils/dataset/actions/change-state';
-import Remove from 'oneprovider-gui/utils/dataset/actions/remove';
+import CopyDatasetIdAction from 'oneprovider-gui/utils/dataset/actions/copy-dataset-id-action';
+import CreateArchiveAction from 'oneprovider-gui/utils/dataset/actions/create-archive-action';
+import ChangeStateAction from 'oneprovider-gui/utils/dataset/actions/change-state-action';
+import RemoveAction from 'oneprovider-gui/utils/dataset/actions/remove-action';
 
 export {
-  CopyDatasetId,
-  CreateArchive,
-  ChangeState,
-  Remove,
+  CopyDatasetIdAction,
+  CreateArchiveAction,
+  ChangeStateAction,
+  RemoveAction,
 };

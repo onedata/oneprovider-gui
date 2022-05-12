@@ -17,10 +17,10 @@ import { dateFormat } from 'onedata-gui-common/helpers/date-format';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import {
-  CopyDatasetId,
-  CreateArchive,
-  ChangeState,
-  Remove,
+  CopyDatasetIdAction,
+  CreateArchiveAction,
+  ChangeStateAction,
+  RemoveAction,
 } from 'oneprovider-gui/utils/dataset/actions';
 
 /**
@@ -177,7 +177,7 @@ export default Component.extend(I18n, {
     'directDataset',
     // spacePrivileges are not needed
     function btnCopyId() {
-      return this.createButton(CopyDatasetId);
+      return this.createButton(CopyDatasetIdAction);
     }
   ),
 
@@ -186,7 +186,7 @@ export default Component.extend(I18n, {
     'spacePrivileges',
     'onOpenCreateArchive',
     function btnCreateArchive() {
-      return this.createButton(CreateArchive, {
+      return this.createButton(CreateArchiveAction, {
         onOpenCreateArchive: this.get('onOpenCreateArchive'),
       });
     }
@@ -196,7 +196,7 @@ export default Component.extend(I18n, {
     'directDataset',
     'spacePrivileges',
     function btnChangeState() {
-      return this.createButton(ChangeState);
+      return this.createButton(ChangeStateAction);
     }
   ),
 
@@ -204,7 +204,7 @@ export default Component.extend(I18n, {
     'directDataset',
     'spacePrivileges',
     function btnRemove() {
-      return this.createButton(Remove);
+      return this.createButton(RemoveAction);
     }
   ),
 
