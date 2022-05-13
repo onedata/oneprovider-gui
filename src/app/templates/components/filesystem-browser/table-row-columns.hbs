@@ -14,13 +14,18 @@
       {{else}}
         {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
       {{/if}}
-    {{else if (and (eq file.type "dir") (gt file.effFile.size 0) (not previewMode))}}
+    {{else if (and (eq file.type "dir") (not-eq file.effFile.size null) (not previewMode) isDirSizeStatsStarted)}}
       <div 
         class="dir-size-container" 
         onclick={{action "invokeFileAction" file "info" "size"}}
       >
         <span class="dir-size-value">
           {{bytes-to-string file.effFile.size}}
+          {{#if (eq dirSizeStatsConfig.statsCollectionStatus "initializing")}}
+            {{one-tooltip
+              title=(tt this "initializingSizeInfo")
+            }}
+          {{/if}}
         </span>
         {{one-icon 
           icon="overview" 
@@ -37,7 +42,7 @@
       {{one-tooltip
         title=(
           tt this (if isDirSizeStatsStarted 
-          "initializingSizeInfo" 
+          "initializingStatsInfo" 
           "noSizeInfo")
         )
       }}

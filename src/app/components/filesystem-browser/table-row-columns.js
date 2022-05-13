@@ -35,7 +35,7 @@ export default FbTableRowColumns.extend({
   dirSizeStatsConfig: undefined,
 
   /**
-   * @type {boolean}
+   * @type {ComputedProperty<boolean>}
    */
   isDirSizeStatsStarted: array.includes(
     raw(['enabled', 'initializing']),

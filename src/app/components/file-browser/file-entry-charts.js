@@ -518,27 +518,29 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       .filter(name => name.startsWith(dynamicSeriesName))
       .map(async (tsName) => {
         const storageId = tsName.replace(dynamicSeriesName, '');
-        let storage_name;
+        let storageName;
         let groupId;
         try {
           const storage = await storageManager.getStorageById(storageId, {
             throughSpaceId: spaceId,
             backgroundReload: false,
           });
-          storage_name = storage.get('name');
+          storageName = storage.get('name');
           groupId = `provider_${storage.relationEntityId('provider')}`;
         } catch (error) {
           console.error(
             `component:file-browser/file-entry-charts#fetchDynamicSeriesConfigs: cannot load storage with ID "${storageId}"`,
             error
           );
-          storage_name = 'Storage#' + storageId.slice(0, 6);
+          storageName = String(this.t('unknownStorage', {
+            id: storageId.slice(0, 6),
+          }));
           groupId = 'provider_unknown';
         }
         return {
           id: storageId,
-          name: storage_name,
-          groupId: groupId,
+          name: storageName,
+          groupId,
           color: colorGenerator.generateColorForKey(storageId),
           pointsSource: {
             externalSourceName: 'dirStatisticsData',
@@ -609,7 +611,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       },
       {
         id: 'provider_unknown',
-        name: 'Unknown provider',
+        name: this.t('unknownProvider'),
       },
     ];
   },
