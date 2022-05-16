@@ -1,23 +1,39 @@
 /**
- * Control of dataset estabilished directly for some file/directory 
+ * Shows status and operations on direct dataset for file.
  *
- * @module components/file-dataset/direct-dataset-control
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { computed } from '@ember/object';
 import { equal, reads } from '@ember/object/computed';
-import { tag } from 'ember-awesome-macros';
+import { or, raw, getBy, tag, collect, conditional } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
+import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
+import { dateFormat } from 'onedata-gui-common/helpers/date-format';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import {
+  CopyDatasetIdAction,
+  CreateArchiveAction,
+  ChangeStateAction,
+  RemoveAction,
+} from 'oneprovider-gui/utils/dataset/actions';
+
+/**
+ * @typedef {'notEstablished'|'attached'|'detached'} DirectDatasetControlStatus
+ */
 
 export default Component.extend(I18n, {
-  classNames: ['direct-dataset-control'],
+  classNames: ['direct-dataset-control', 'alert'],
+  classNameBindings: ['alertClass'],
 
   datasetManager: service(),
   globalNotify: service(),
+  i18n: service(),
 
   /**
    * @override
@@ -32,21 +48,36 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {SpacePrivileges}
+   */
+  spacePrivileges: undefined,
+
+  /**
+   * @virtual
+   * @type {(dataset: Utils.BrowsableDataset) => void}
+   */
+  onOpenCreateArchive: notImplementedThrow,
+
+  /**
+   * @virtual
    * @type {PromiseObject<Models.Dataset>}
    */
   directDatasetProxy: undefined,
 
   /**
-   * @virtual optional
-   * @type {Boolean}
+   * @virtual
+   * @type {() => Promise<void>}
    */
-  readonly: false,
+  onEstablishDirectDataset: notImplementedReject,
+
+  //#region state
 
   /**
-   * @virtual optional
-   * @type {SafeString}
+   * @type {boolean}
    */
-  readonlyMessage: undefined,
+  areActionsOpened: false,
+
+  //#endregion
 
   /**
    * @type {ComputedProperty<Models.Dataset>}
@@ -59,34 +90,169 @@ export default Component.extend(I18n, {
    */
   isDatasetAttached: equal('directDataset.state', 'attached'),
 
-  toggleId: tag `${'elementId'}-direct-dataset-attached-toggle`,
+  /**
+   * @type {ComputedProperty<DirectDatasetControlStatus>}
+   */
+  status: or(
+    'directDataset.state',
+    raw('notEstablished'),
+  ),
 
-  async establishDirectDataset() {
-    const {
-      file,
-      datasetManager,
-      globalNotify,
-    } = this.getProperties('file', 'datasetManager', 'globalNotify');
-    try {
-      return await datasetManager.establishDataset(file);
-    } catch (error) {
-      globalNotify.backendError(this.t('establishingDataset'), error);
+  alertClassMapping: Object.freeze({
+    notEstablished: 'alert-light',
+    attached: 'alert-info',
+    detached: 'alert-warning',
+  }),
+
+  statusIconMapping: Object.freeze({
+    notEstablished: 'browser-info',
+    attached: 'checkbox-filled',
+    detached: 'plug-out',
+  }),
+
+  alertClass: or(
+    getBy('alertClassMapping', 'status'),
+    raw('alert-light'),
+  ),
+
+  statusIcon: or(
+    getBy('statusIconMapping', 'status'),
+    raw('browser-info'),
+  ),
+
+  /**
+   * @type {SafeString}
+   */
+  statusText: computed(
+    'status',
+    'file.type',
+    'directDataset.creationTime',
+    function statusText() {
+      const status = this.get('status');
+      const fileType = this.get('file.type');
+      const creationTime = this.get('directDataset.creationTime');
+      const fileTypeText = this.t(`fileType.${fileType}`);
+      const creationTimeText = dateFormat([creationTime], {
+        format: 'dateWithMinutes',
+        blank: '—',
+      });
+      return this.t(`statusText.${status}`, {
+        fileType: fileTypeText,
+        creationTime: creationTimeText,
+      }, {
+        defaultValue: '',
+      });
     }
+  ),
+
+  statusTip: conditional(
+    equal('status', 'detached'),
+    computed(function statusTip() {
+      const fileTypeText = this.t(`fileType.${this.get('file.type')}`);
+      return this.t('statusTip.detached', {
+        fileType: fileTypeText,
+      });
+    }),
+    raw(null),
+  ),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  establishButtonDisabledTip: computed(
+    'spacePrivileges.manageDatasets',
+    function establishButtonDisabledTip() {
+      if (this.get('spacePrivileges.manageDatasets')) {
+        return null;
+      }
+      return insufficientPrivilegesMessage({
+        i18n: this.get('i18n'),
+        modelName: 'space',
+        privilegeFlag: 'space_manage_datasets',
+      });
+    }
+  ),
+
+  btnCopyId: computed(
+    'directDataset',
+    // spacePrivileges are not needed
+    function btnCopyId() {
+      return this.createButton(CopyDatasetIdAction);
+    }
+  ),
+
+  btnCreateArchive: computed(
+    'directDataset',
+    'spacePrivileges',
+    'onOpenCreateArchive',
+    function btnCreateArchive() {
+      return this.createButton(CreateArchiveAction, {
+        onOpenCreateArchive: this.get('onOpenCreateArchive'),
+      });
+    }
+  ),
+
+  btnChangeState: computed(
+    'directDataset',
+    'spacePrivileges',
+    function btnChangeState() {
+      return this.createButton(ChangeStateAction);
+    }
+  ),
+
+  btnRemove: computed(
+    'directDataset',
+    'spacePrivileges',
+    function btnRemove() {
+      return this.createButton(RemoveAction);
+    }
+  ),
+
+  /**
+   * @type {Utils.Action}
+   */
+  directDatasetActions: collect(
+    'btnCopyId',
+    'btnCreateArchive',
+    'btnChangeState',
+    'btnRemove',
+  ),
+
+  actionsTriggerClass: 'direct-dataset-actions-trigger',
+
+  actionsTriggerSelector: tag `#${'elementId'} .${'actionsTriggerClass'} .menu-trigger-arrow`,
+
+  createButton(buttonClass, properties = {}) {
+    const {
+      directDataset,
+      spacePrivileges,
+    } = this.getProperties(
+      'directDataset',
+      'spacePrivileges',
+    );
+    if (!directDataset) {
+      return;
+    }
+    return buttonClass.create({
+      ownerSource: this,
+      spacePrivileges,
+      context: {
+        selectedItems: [directDataset],
+      },
+    }, properties);
   },
 
   actions: {
-    async toggleDatasetAttachment(state) {
-      const {
-        directDataset,
-        datasetManager,
-      } = this.getProperties('directDataset', 'datasetManager');
-      if (directDataset) {
-        return await datasetManager.toggleDatasetAttachment(directDataset, state);
-      } else if (state) {
-        return await this.establishDirectDataset();
-      } else {
-        return null;
+    async establishDirectDataset() {
+      return await this.get('onEstablishDirectDataset')();
+    },
+    toggleActionsOpen(state) {
+      let effState = state;
+      if (typeof effState !== 'boolean') {
+        effState = !this.get('areActionsOpened');
       }
+      effState = Boolean(effState);
+      this.set('areActionsOpened', effState);
     },
   },
 });

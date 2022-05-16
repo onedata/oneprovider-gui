@@ -53,6 +53,7 @@ import workflowActions from './utils/workflow-actions';
 import workflowVisualiser from './utils/workflow-visualiser';
 import archiveFormBaseModel from './utils/archive-form/-base-model';
 import archiveFormViewModel from './utils/archive-form/view-model';
+import datasetActions from './utils/dataset/actions';
 
 const translations = {
   components: {
@@ -111,6 +112,9 @@ const translations = {
     archiveForm: {
       baseModel: archiveFormBaseModel,
       viewModel: archiveFormViewModel,
+    },
+    dataset: {
+      actions: datasetActions,
     },
   },
 };

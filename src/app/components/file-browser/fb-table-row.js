@@ -172,7 +172,7 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {SpacePrivileges}
    */
   spacePrivileges: undefined,
 

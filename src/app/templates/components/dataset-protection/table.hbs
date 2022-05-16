@@ -6,13 +6,12 @@
 }}
   <table class="table datasets-table {{unless media.isMobile "table-striped"}}">
     <thead class="datasets-table-head">
-      {{#if hasBlock}}
-        <th class="col-dataset-info">
-          {{yield}}
-        </th>
-      {{else}}
-        <th></th>
-      {{/if}}
+      <th class="col-dataset-info">
+        <div class="table-header-content">
+          {{one-icon icon="inheritance"}}
+          <span class="table-header-text">{{tt this "hierarchy"}}</span>
+        </div>
+      </th>
       {{#each (array "data" "metadata") as |protectionType|}}
         <th class="col-dataset-protection col-dataset-protection-{{protectionType}}">
           <span class="protection-header-label">
@@ -35,24 +34,31 @@
         </th>
       {{/each}}
     </thead>
-    {{dataset-protection/ancestor-datasets
-      ancestorDatasetsProxy=ancestorDatasetsProxy
-      readonly=(not editPrivilege)
-      mode=mode
-      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-      fileType=file.type
-      close=(action close)
-      getDataUrl=(action getDataUrl)
-      getDatasetsUrl=(action getDatasetsUrl)
-      updateOpenedFileData=(action "updateOpenedFileData")
-    }}
-    {{dataset-protection/direct-dataset
-      file=file
-      directDatasetProxy=directDatasetProxy
-      readonly=(not editPrivilege)
-      showBrowseDatasetsLink=showBrowseDatasetsLink
-      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-      getDatasetsUrl=getDatasetsUrl
-    }}
+    {{#unless directDatasetProxy.isPending}}
+      {{dataset-protection/ancestor-datasets
+        ancestorDatasetsProxy=ancestorDatasetsProxy
+        readonly=(not editPrivilege)
+        mode=mode
+        insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+        fileType=file.type
+        close=(action close)
+        getDataUrl=(action getDataUrl)
+        getDatasetsUrl=(action getDatasetsUrl)
+        updateOpenedFileData=(action "updateOpenedFileData")
+        ancestorsInitiallyCollapsed=(bool directDataset)
+      }}
+    {{/unless}}
+    {{#promise-proxy-container sizeClass="sm" proxy=directDatasetProxy}}
+      {{#if directDataset}}
+        {{dataset-protection/direct-dataset
+          file=file
+          mode=mode
+          directDatasetProxy=directDatasetProxy
+          readonly=(not editPrivilege)
+          insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+          getDatasetsUrl=getDatasetsUrl
+        }}
+      {{/if}}
+    {{/promise-proxy-container}}
   </table>
 {{/promise-proxy-container}}

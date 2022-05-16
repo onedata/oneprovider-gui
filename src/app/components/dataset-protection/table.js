@@ -6,15 +6,14 @@
  *
  * @module components/dataset-protection/table
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
-import { computed, get } from '@ember/object';
-import { promise } from 'ember-awesome-macros';
+import { get } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { all as allFulfilled } from 'rsvp';
 
@@ -43,6 +42,12 @@ export default Component.extend(I18n, {
   directDatasetProxy: undefined,
 
   /**
+   * @virtual
+   * @type {PromiseArray<Models.Dataset>}
+   */
+  ancestorDatasetsProxy: undefined,
+
+  /**
    * Selected file in file mode or `rootDir` of selected dataset in dataset mode.
    * @virtual
    * @type {Models.File}
@@ -58,6 +63,7 @@ export default Component.extend(I18n, {
   /**
    * Text displayed in various places when settings cannot be edited due to lack of
    * privileges.
+   * @virtual
    * @type {ComputedProperty<SafeString>}
    */
   insufficientEditPrivilegesMessage: undefined,
@@ -79,31 +85,15 @@ export default Component.extend(I18n, {
    */
   mode: undefined,
 
-  getDataUrl: undefined,
-
-  getDatasetsUrl: undefined,
-
-  /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  showBrowseDatasetsLink: true,
-
-  /**
-   * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
-   */
-  ancestorDatasetsProxy: promise.array(computed(
-    'fileDatasetSummaryProxy',
-    async function ancestorDatasetsProxy() {
-      const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
-      return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
-    }
-  )),
-
   /**
    * @type {ComputedProperty<Models.Dataset>}
    */
   ancestorDatasets: reads('ancestorDatasetsProxy.content'),
+
+  /**
+   * @type {ComputedProperty<Models.Dataset>}
+   */
+  directDataset: reads('directDatasetProxy.content'),
 
   actions: {
     /**

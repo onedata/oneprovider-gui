@@ -142,6 +142,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {SpacePrivileges}
    */
   spacePrivileges: Object.freeze({}),
 
