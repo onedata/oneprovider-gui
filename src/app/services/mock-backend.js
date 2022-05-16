@@ -296,11 +296,11 @@ export default Service.extend({
     const file1 = files[1];
     setProperties(file0, {
       name: 'hello@abc100',
-      index: 'hello',
+      conflictingName: 'hello',
     });
     setProperties(file1, {
       name: 'hello',
-      index: 'hello',
+      conflictingName: 'hello',
     });
     return allFulfilled([file0.save(), file1.save()]);
   },
@@ -926,7 +926,10 @@ export default Service.extend({
     const archiveDir = await store.createRecord('file', {
       id,
       name,
-      index: name,
+      // In real backend, the index is completely transparent for frontend.
+      // This index is created as some kind of "random" string that should never
+      // be interpreted.
+      index: window.btoa(name),
       type: 'dir',
       mtime: timestamp,
       posixPermissions: '777',

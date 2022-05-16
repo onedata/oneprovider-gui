@@ -279,6 +279,22 @@ export default Model.extend(
     hardlinksCount: attr('number', { defaultValue: 1 }),
 
     /**
+     * If there is a filename conflict between providers (two files with the same name,
+     * but created on different providers) this property contains a base of file name.
+     * Eg. we have two files with the same name created on providers with ids "a123" and
+     * "b456":
+     *
+     * ```
+     * { name: 'hello@a123', conflictingName: 'hello' }
+     * { name: 'hello@b456', conflictingName: 'hello' }
+     * ```
+     *
+     * If there is no naming conflict, the `name` is without suffix and this property
+     * is not provided (empty).
+     */
+    conflictingName: attr('string'),
+
+    /**
      * Not empty only for symlinks. Contains target path. May contain any string,
      * but in general it may look like this (relative path):
      * `../some/file`

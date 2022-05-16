@@ -1,13 +1,13 @@
 /**
  * Splits file name and suffix if there is a file name conflict
- * 
+ *
  * @module utils/file-name-parser
  * @author Jakub Liput
  * @copyright (C) 2020-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import EmberObject, { computed, getProperties } from '@ember/object';
+import EmberObject, { computed, get, getProperties } from '@ember/object';
 
 export default EmberObject.extend({
   /**
@@ -19,20 +19,20 @@ export default EmberObject.extend({
   /**
    * An original file name without prefix.
    * Eg. 'hello.txt'
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
-  base: computed('file.{name,index}', function base() {
+  base: computed('file.{name,conflictingName}', function base() {
     const file = this.get('file');
     if (!file) {
       return '';
     }
     const {
       name,
-      index,
-    } = getProperties(file, 'name', 'index');
+      conflictingName,
+    } = getProperties(file, 'name', 'conflictingName');
 
-    if (name && name.startsWith && name.startsWith(index)) {
-      return index;
+    if (conflictingName && name && name.startsWith && name.startsWith(conflictingName)) {
+      return conflictingName;
     } else {
       return name || '';
     }
@@ -41,21 +41,26 @@ export default EmberObject.extend({
   /**
    * A conflict suffix of name, if file has one.
    * Eg. '@a1b2c3'
-   * @type {ComputedProperty<String>}
+   * @type {ComputedProperty<string>}
    */
-  suffix: computed('file.{name,index}', function fileNameSuffix() {
+  suffix: computed('file.{name,conflictingName}', function suffix() {
     const file = this.get('file');
     if (!file) {
       return null;
     }
-    const {
-      name,
-      index,
-    } = getProperties(file, 'name', 'index');
-    if (name === index || name && name.startsWith && !name.startsWith(index)) {
+    const conflictingName = get(file, 'conflictingName');
+    if (!conflictingName) {
+      return null;
+    }
+    const name = get(file, 'name');
+
+    if (
+      name === conflictingName ||
+      name && name.startsWith && !name.startsWith(conflictingName)
+    ) {
       return null;
     } else {
-      return name ? name.split(index)[1] : null;
+      return name ? name.split(conflictingName)[1] : null;
     }
   }),
 });
