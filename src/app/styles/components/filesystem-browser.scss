@@ -4,12 +4,16 @@
     width: 150px;
     text-align: center;
 
-    .dir-size-container:hover {
+    .dir-size-container.active:hover {
       text-decoration: underline;
       .oneicon-overview {
         color: $color-one-mint;
         opacity: 1;
       }
+    }
+
+    .dir-size-container.disabled {
+      cursor: default !important;
     }
 
     .dir-size-value {

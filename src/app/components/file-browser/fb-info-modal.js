@@ -198,16 +198,31 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   statsCollectionStatus: reads('dirSizeStatsConfig.statsCollectionStatus'),
 
   /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSizeTabDisabled: computed(
+    'statsCollectionStatus',
+    'itemType',
+    function isSizeTabDisabled() {
+      const {
+        statsCollectionStatus,
+        itemType,
+      } = this.getProperties('statsCollectionStatus', 'itemType');
+      return ['disabled', 'stopping'].includes(statsCollectionStatus) ||
+        itemType === 'symlink';
+    }
+  ),
+
+  /**
    * @type {ComputedProperty<Boolean>}
    */
   showSizeTab: computed(
-    'statsCollectionStatus',
+    'previewMode',
     'file.effFile.type',
     function showSizeTab() {
-      const statsCollectionStatus = this.get('statsCollectionStatus');
+      const previewMode = this.get('previewMode');
       const effItemType = this.get('file.effFile.type');
-      return ['enabled', 'initializing'].includes(statsCollectionStatus) &&
-        effItemType !== 'file';
+      return !previewMode && effItemType !== 'file';
     }
   ),
 

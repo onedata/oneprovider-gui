@@ -9,6 +9,7 @@
 
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
 import { raw, array } from 'ember-awesome-macros';
+import { computed } from '@ember/object';
 
 export default FbTableRowColumns.extend({
   /**
@@ -40,6 +41,17 @@ export default FbTableRowColumns.extend({
   isDirSizeStatsStarted: array.includes(
     raw(['enabled', 'initializing']),
     'dirSizeStatsConfig.statsCollectionStatus'
+  ),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  tooltipText: computed(
+    'dirSizeStatsConfig.statsCollectionStatus',
+    function tooltipText() {
+      const statsCollectionStatus = this.get('dirSizeStatsConfig.statsCollectionStatus');
+      return this.t(statsCollectionStatus + 'StatsInfo');
+    }
   ),
 
   actions: {

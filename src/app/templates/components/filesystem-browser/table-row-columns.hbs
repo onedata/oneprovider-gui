@@ -14,17 +14,25 @@
       {{else}}
         {{spin-spinner-block sizeClass="xs" class="absolute-middle-centered"}}
       {{/if}}
-    {{else if (and (eq file.type "dir") (not-eq file.effFile.size null) (not previewMode) isDirSizeStatsStarted)}}
+    {{else if (or previewMode (eq file.type "symlink"))}}
+      {{#if (not-eq file.effFile.size null)}}
+        {{bytes-to-string file.effFile.size}}
+      {{else}}
+        —
+      {{/if}}
+    {{else}}
       <div 
-        class="dir-size-container" 
-        onclick={{action "invokeFileAction" file "info" "size"}}
+        class={{concat-classes
+          "dir-size-container"
+          (if isDirSizeStatsStarted "active" "disabled")
+        }}
+        onclick={{if isDirSizeStatsStarted (action "invokeFileAction" file "info" "size")}}
       >
         <span class="dir-size-value">
-          {{bytes-to-string file.effFile.size}}
-          {{#if (eq dirSizeStatsConfig.statsCollectionStatus "initializing")}}
-            {{one-tooltip
-              title=(tt this "initializingSizeInfo")
-            }}
+          {{#if (not-eq file.effFile.size null)}}
+            {{bytes-to-string file.effFile.size}}
+          {{else}}
+            —
           {{/if}}
         </span>
         {{one-icon 
@@ -33,18 +41,7 @@
         }}
       </div>
       {{one-tooltip
-        title=(tt this "sizeInfo")
-      }}
-    {{else if (not-eq file.effFile.size null)}}
-      {{bytes-to-string file.effFile.size}}
-    {{else}}
-      —
-      {{one-tooltip
-        title=(
-          tt this (if isDirSizeStatsStarted 
-          "initializingStatsInfo" 
-          "noSizeInfo")
-        )
+        title=tooltipText
       }}
     {{/if}}
   </span>

@@ -61,7 +61,7 @@
         {{#if showSizeTab}}
           {{#nav.item
             active=(eq tab.activeId "size")
-            disabled=(eq itemType "symlink")
+            disabled=isSizeTabDisabled
           }}
             <a class={{concat-classes 
                 "nav-link nav-link-metadata-type nav-link-size" 
@@ -74,8 +74,14 @@
                {{tt this "tabs.size.tabTitle"}}
               </div>
             </a>
-            {{#if (eq itemType "symlink")}}
-              {{one-tooltip title=(tt this "tabs.size.disabledTip")}}
+            {{#if isSizeTabDisabled}}
+              {{one-tooltip 
+                title=(tt this (if 
+                  (eq itemType "symlink")
+                  "tabs.size.disabledTip"
+                  "tabs.size.turnOffTip"
+                ))
+              }}
             {{/if}}
           {{/nav.item}}
         {{/if}}
