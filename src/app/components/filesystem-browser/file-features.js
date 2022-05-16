@@ -78,7 +78,7 @@ export default Component.extend(I18n, {
   file: reads('item'),
 
   /**
-   * @type {ComputedProperty<Object>}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: reads('browserModel.spacePrivileges'),
 

@@ -6,6 +6,8 @@ $dataset-write-unprotected-color-bg: #E6E9F0;
 $dataset-write-unprotected-color-border: #B1BACF;
 $dataset-write-unprotected-color: #596E99;
 
+$dataset-table-item-text-left-margin: 8px;
+
 .dataset-protection-part {
   .table.datasets-table {
     > tbody + tbody {
@@ -13,6 +15,21 @@ $dataset-write-unprotected-color: #596E99;
     }
     tbody > tr > td {
       border-top: 0;
+    }
+  }
+}
+
+.datasets-table {
+  th.col-dataset-info {
+    .table-header-content {
+      display: flex;
+      align-items: center;
+      .table-header-text {
+        margin-left: $dataset-table-item-text-left-margin;
+      }
+      .one-icon {
+        font-size: $dataset-table-item-icon-size;
+      }
     }
   }
 }
@@ -37,6 +54,8 @@ $dataset-write-unprotected-color: #596E99;
   }
   .table.datasets-table {
     table-layout: fixed;
+    $header-padding-vertical: 2em;
+    $header-padding-horizontal: 1em;
     &.table-striped {
       $row-bg-lighter: lighten($table-bg-accent, 1%);
       $row-bg-darker: darken($table-bg-accent, 1%);
@@ -54,20 +73,21 @@ $dataset-write-unprotected-color: #596E99;
         }
       }
     }
+    th {
+      padding: $header-padding-horizontal $header-padding-vertical;
+    }
     th.col-dataset-protection {
-      $padding-bottom: 1em;
       position: relative;
       width: 12em;
-      padding-top: 2em;
-      padding-bottom: $padding-bottom;
-      padding-left: 2em;
-      padding-right: 2em;
       text-align: center;
       .protection-label-hint-trigger {
         position: absolute;
         right: 0.3em;
-        bottom: calc(#{$padding-bottom} + 0.2em);
+        bottom: calc(#{$header-padding-horizontal} + 0.2em);
       }
+    }
+    th.col-dataset-info {
+      padding-left: $first-table-column-padding-left;
     }
     td {
       border-right: 1px solid $table-border-color;
@@ -76,9 +96,6 @@ $dataset-write-unprotected-color: #596E99;
 }
 
 @media (max-width: $screen-xs-max) {
-  .datasets-table-head .col-dataset-info {
-    padding-top: 1em;
-  }
   .table.datasets-table {
     display: block;
     thead, tbody, th, td, tr {
@@ -89,6 +106,9 @@ $dataset-write-unprotected-color: #596E99;
       th.col-dataset-protection {
         display: none;
       }
+    }
+    th.col-dataset-info {
+      margin-top: 2em;
     }
   }
   .dataset-protection-summary-header {

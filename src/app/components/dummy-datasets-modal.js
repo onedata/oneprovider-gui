@@ -3,7 +3,7 @@
  *
  * @module components/dummy-datasets-modal
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -19,6 +19,8 @@ export default Component.extend({
   mockBackend: service(),
 
   files: collect(
+    // use/uncomment for no dataset
+    // 'mockBackend.entityRecords.dir.1',
     // use/uncomment for dataset with ancestors
     // 'mockBackend.entityRecords.chainDir.2',
     // use/uncomment for dataset with archives
@@ -42,6 +44,10 @@ export default Component.extend({
 
   getDataUrl(data) {
     return `http://example.com/${data.fileId}?selected=${data.selected.join(',')}`;
+  },
+
+  getDatasetsUrl() {
+    return 'http://example.com/datasets_url';
   },
 
   actions: {
