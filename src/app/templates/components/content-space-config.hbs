@@ -1,26 +1,26 @@
-  <div class="row content-row no-border">
-    <h1>{{tt this "title"}}</h1>
-    <div class="inner-row-content">
-      <div class="subheader-text space-settings-info">
-        {{tt this "settingsDescription" space=spaceName provider=providerName}}
-      </div>
-      {{#promise-proxy-container 
-        proxy=dirSizeStatsConfigProxy 
-        spinnerBlockClass="absolute-middle-centered"
-      }}
-        <label for="dir-size-stats-config" class="inline-label dir-size-stats-config-label">
-          {{tt this "toggleDescription"}}
-        </label>
-        {{one-way-toggle
-          class=(concat "form-control toggle-field-dir-size-stats-config")
-          inputId="dir-size-stats-config"
-          checked=isDirStatsCount
-          spinnerSide=(if media.isMobile "left" "right")
-          update=(action "changeStatsCount")
-        }}
-        <div class="subheader-text dir-size-stats-config-info">
-          {{tt this "dirSizeStatsDescription"}}
-        </div>
-      {{/promise-proxy-container}}
+<div class="row content-row no-border">
+  <h1>{{tt this "title"}}</h1>
+  <div class="inner-row-content">
+    <div class="subheader-text space-settings-info">
+      {{tt this "settingsDescription" space=spaceName provider=providerName}}
     </div>
+    {{#promise-proxy-container 
+      proxy=dirSizeStatsConfigProxy 
+      spinnerBlockClass="absolute-middle-centered"
+    }}
+      <label for="dir-size-stats-config" class="inline-label dir-size-stats-config-label">
+        {{tt this "toggleDescription"}}
+      </label>
+      {{one-way-toggle
+        class=(concat "form-control toggle-field-dir-size-stats-config")
+        inputId="dir-size-stats-config"
+        checked=isDirStatsCount
+        spinnerSide=(if media.isMobile "left" "right")
+        update=(action "changeStatsCount")
+      }}
+      <div class="subheader-text dir-size-stats-config-info">
+        {{tt this "dirSizeStatsDescription"}}
+      </div>
+    {{/promise-proxy-container}}
   </div>
+</div>

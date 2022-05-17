@@ -15,104 +15,107 @@ import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { promise } from 'ember-awesome-macros';
 
-export default OneEmbeddedComponent.extend(
+const mixins = [
   I18n,
-  createDataProxyMixin('dirSizeStatsConfig'), {
-    classNames: ['content-space-config'],
+  createDataProxyMixin('dirSizeStatsConfig'),
+];
 
-    store: service(),
-    spaceManager: service(),
-    globalNotify: service(),
+export default OneEmbeddedComponent.extend(...mixins, {
+  classNames: ['content-space-config'],
 
+  store: service(),
+  spaceManager: service(),
+  globalNotify: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.contentSpaceConfig',
+
+  /**
+   * @override
+   */
+  iframeInjectedProperties: Object.freeze([
+    'spaceEntityId',
+    'oneprovider',
+  ]),
+
+  /**
+   * @type {ComputedProperty<'enabled'|'disabled'|'stopping'|'initializing'>}
+   */
+  statsCollectionStatus: reads('dirSizeStatsConfigProxy.content.statsCollectionStatus'),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  isDirStatsCount: computed(
+    'statsCollectionStatus',
+    function isDirStatsCount() {
+      const statsCollectionStatus = this.get('statsCollectionStatus');
+      return ['enabled', 'initializing'].includes(statsCollectionStatus);
+    }
+  ),
+
+  /**
+   * @type {PromiseObject<Models.Space>}
+   */
+  spaceProxy: promise.object(computed('spaceEntityId', function spaceProxy() {
+    const {
+      spaceManager,
+      spaceEntityId,
+    } = this.getProperties('spaceManager', 'spaceEntityId');
+    return spaceManager.getSpace(spaceEntityId);
+  })),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  spaceName: reads('spaceProxy.content.name'),
+
+  /**
+   * @type {ComputedProperty<String>}
+   */
+  providerName: reads('oneprovider.name'),
+
+  init() {
+    this._super(...arguments);
+    this.updateDirSizeStatsConfigProxy();
+  },
+
+  /**
+   * @override
+   * @returns {Promise<DirSizeStatsConfig>}
+   */
+  fetchDirSizeStatsConfig() {
+    const {
+      spaceManager,
+      spaceEntityId,
+    } = this.getProperties('spaceManager', 'spaceEntityId');
+    return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
+  },
+
+  actions: {
     /**
-     * @override
+     * @param {boolean} enabled
+     * @returns {Promise<any>}
      */
-    i18nPrefix: 'components.contentSpaceConfig',
-
-    /**
-     * @override
-     */
-    iframeInjectedProperties: Object.freeze([
-      'spaceEntityId',
-      'oneprovider',
-    ]),
-
-    /**
-     * One of `enabled`, `disabled`, `stopping`, `initializing`
-     * @type {ComputedProperty<String>}
-     */
-    statsCollectionStatus: reads('dirSizeStatsConfigProxy.content.statsCollectionStatus'),
-
-    /**
-     * @type {ComputedProperty<Boolean>}
-     */
-    isDirStatsCount: computed(
-      'statsCollectionStatus',
-      function isDirStatsCount() {
-        const statsCollectionStatus = this.get('statsCollectionStatus');
-        return ['enabled', 'initializing'].includes(statsCollectionStatus);
-      }
-    ),
-
-    /**
-     * @type {PromiseObject<Models.Space>}
-     */
-    spaceProxy: promise.object(computed('spaceEntityId', function spaceProxy() {
+    changeStatsCount(enabled) {
       const {
         spaceManager,
         spaceEntityId,
       } = this.getProperties('spaceManager', 'spaceEntityId');
-      return spaceManager.getSpace(spaceEntityId);
-    })),
-
-    /**
-     * @type {ComputedProperty<String>}
-     */
-    spaceName: reads('spaceProxy.content.name'),
-
-    /**
-     * @type {ComputedProperty<String>}
-     */
-    providerName: reads('oneprovider.name'),
-
-    init() {
-      this._super(...arguments);
-      this.updateDirSizeStatsConfigProxy();
+      const dirSizeStatsConfig = {
+        statsCollectionEnabled: enabled,
+      };
+      return spaceManager.saveDirSizeStatsConfig(spaceEntityId, dirSizeStatsConfig)
+        .then(() => this.updateDirSizeStatsConfigProxy())
+        .catch(error => {
+          this.get('globalNotify').backendError(
+            this.t('configuringDirSizeStats'),
+            error
+          );
+          throw error;
+        });
     },
-
-    /**
-     * @returns {Promise<DirSizeStatsConfig>}
-     */
-    fetchDirSizeStatsConfig() {
-      const {
-        spaceManager,
-        spaceEntityId,
-      } = this.getProperties('spaceManager', 'spaceEntityId');
-      return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
-    },
-
-    actions: {
-      /**
-       * @param {boolean} enabled
-       * @returns {Promise<any>}
-       */
-      changeStatsCount(enabled) {
-        const {
-          spaceManager,
-          spaceEntityId,
-        } = this.getProperties('spaceManager', 'spaceEntityId');
-        const dirSizeStatsConfig = {
-          statsCollectionEnabled: enabled,
-        };
-        return spaceManager.saveDirSizeStatsConfig(spaceEntityId, dirSizeStatsConfig)
-          .then(() => this.updateDirSizeStatsConfigProxy())
-          .catch(error => {
-            this.get('globalNotify').backendError(
-              this.t('configuringDirSizeStats'),
-              error
-            );
-            throw error;
-          });
-      },
-    },
-  });
+  },
+});

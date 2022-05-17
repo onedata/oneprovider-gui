@@ -158,7 +158,7 @@ export default Service.extend({
 
   /**
    * @param {String} spaceId
-   * @param {Object} dirSizeStatsConfig { statsCollectionEnabled: boolean }
+   * @param {{ statsCollectionEnabled: boolean }} dirSizeStatsConfig
    * @returns {Promise<Object>}
    */
   saveDirSizeStatsConfig(spaceId, dirSizeStatsConfig) {
