@@ -1,6 +1,6 @@
 /**
  * Modal for renaming file/directory
- * 
+ *
  * @module components/file-browser/fb-rename-modal
  * @author Jakub Liput
  * @copyright (C) 2019 ACK CYFRONET AGH
@@ -36,7 +36,7 @@ export default FbSetNameModal.extend(I18n, {
   onShow() {
     this._super(...arguments);
     const input = this.getInputElement();
-    input.value = this.get('file.index');
+    input.value = this.get('file.conflictingName') || this.get('file.name');
     input.select();
   },
 
