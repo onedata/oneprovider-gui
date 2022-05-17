@@ -6,4 +6,16 @@
     padding: 17px 0px;
     font-weight: bold;
   }
+
+  .space-settings-info {
+    padding-bottom: 36px;
+  }
+
+  .dir-size-stats-config-info { 
+    padding-top: 9px;
+  }
+
+  .dir-size-stats-config-label {
+    @include font-semibold;
+  }
 }

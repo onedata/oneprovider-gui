@@ -1,14 +1,14 @@
   <div class="row content-row no-border">
     <h1>{{tt this "title"}}</h1>
     <div class="inner-row-content">
-      <div class="subheader-text dir-size-stats-config-info">
-        {{tt this "description"}}
+      <div class="subheader-text space-settings-info">
+        {{tt this "settingsDescription" space=spaceName provider=providerName}}
       </div>
       {{#promise-proxy-container 
         proxy=dirSizeStatsConfigProxy 
         spinnerBlockClass="absolute-middle-centered"
       }}
-        <label for="dir-size-stats-config" class="inline-label">
+        <label for="dir-size-stats-config" class="inline-label dir-size-stats-config-label">
           {{tt this "toggleDescription"}}
         </label>
         {{one-way-toggle
@@ -18,6 +18,9 @@
           spinnerSide=(if media.isMobile "left" "right")
           update=(action "changeStatsCount")
         }}
+        <div class="subheader-text dir-size-stats-config-info">
+          {{tt this "dirSizeStatsDescription"}}
+        </div>
       {{/promise-proxy-container}}
     </div>
   </div>

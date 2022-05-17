@@ -13,6 +13,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
+import { promise } from 'ember-awesome-macros';
 
 export default OneEmbeddedComponent.extend(
   I18n,
@@ -33,6 +34,7 @@ export default OneEmbeddedComponent.extend(
      */
     iframeInjectedProperties: Object.freeze([
       'spaceEntityId',
+      'oneprovider',
     ]),
 
     /**
@@ -51,6 +53,27 @@ export default OneEmbeddedComponent.extend(
         return ['enabled', 'initializing'].includes(statsCollectionStatus);
       }
     ),
+
+    /**
+     * @type {PromiseObject<Models.Space>}
+     */
+    spaceProxy: promise.object(computed('spaceEntityId', function spaceProxy() {
+      const {
+        spaceManager,
+        spaceEntityId,
+      } = this.getProperties('spaceManager', 'spaceEntityId');
+      return spaceManager.getSpace(spaceEntityId);
+    })),
+
+    /**
+     * @type {ComputedProperty<String>}
+     */
+    spaceName: reads('spaceProxy.content.name'),
+
+    /**
+     * @type {ComputedProperty<String>}
+     */
+    providerName: reads('oneprovider.name'),
 
     init() {
       this._super(...arguments);
