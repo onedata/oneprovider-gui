@@ -101,6 +101,12 @@ export const RuntimeProperties = Mixin.create({
   isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
 
   /**
+   * Name of file ignoring naming conflict.
+   * @type {ComputedProperty<string>}
+   */
+  originalName: or('conflictingName', 'name'),
+
+  /**
    * When file is a symlink, then `effFile` is the file pointed
    * by the symlink (so can be empty). For other types of files it points to
    * the same file (as normal file can be treated as a "symlink to itself").
