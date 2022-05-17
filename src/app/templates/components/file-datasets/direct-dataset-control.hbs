@@ -1,41 +1,68 @@
-{{#if directDatasetProxy.isRejected}}
-  {{resource-load-error
-    message=(tt this "cannotLoadDirectDataset")
-    reason=directDatasetProxy.reason
-  }}
-{{else}}
-  <h2 class="toggle-header {{if directDatasetProxy.isPending "loading"}}">
-    <div class="attach-dataset-label-section">
-      <label
-        class="direct-dataset-attached-label"
-        for={{toggleId}}
-      >
-        {{tt this "markAsDataset" fileType=(tt this (concat "fileType." file.type))}}
-      </label>
-      {{#one-icon
-        icon="sign-question-rounded"
-        class="hint-trigger attach-dataset-hint-trigger clickable"
-      }}
-        {{one-tooltip
-          class="tooltip-lg"
-          title=(tt this "attachToggleTip"
-            fileType=(tt this (concat "fileType." file.type))
-          )
-        }}
-      {{/one-icon}}
+{{#promise-proxy-container
+  proxy=directDatasetProxy
+  spinnerBlockClass="direct-dataset-spinner-block"
+  absoluteCentered=false
+  sizeClass="xs"
+}}
+  <div class="direct-dataset-control-inner">
+    {{one-icon
+      class="direct-dataset-col-icon"
+      icon=statusIcon
+    }}
+    <div class="direct-dataset-col-text">
+      <span class="status-text">{{statusText}}</span>
+      {{#if statusTip}}
+        <div class="status-tip-container">
+          {{one-label-tip title=statusTip tooltipClass="tooltip-lg tooltip-text-left"}}
+        </div>
+      {{/if}}
     </div>
-    {{#if directDatasetProxy.isFulfilled}}
-      {{one-way-toggle
-        inputId=toggleId
-        class="direct-dataset-attached-toggle"
-        checked=isDatasetAttached
-        spinnerSide=(if media.isMobile "left" "right")
-        isReadOnly=readonly
-        lockHint=readonlyMessage
-        update=(action "toggleDatasetAttachment")
-      }}
-    {{else if directDatasetProxy.isPending}}
-      {{spin-spinner-block class="direct-dataset-toggle-spinner" sizeClass="xs"}}
-    {{/if}}
-  </h2>
-{{/if}}
+    <div class="direct-dataset-col-label-action-trigger">
+      {{#if (eq status "notEstablished")}}
+        <div class="btn-tooltip-container">
+          {{#one-button
+            class="btn-sm establish-btn"
+            type="primary"
+            disabled=(bool establishButtonDisabledTip)
+            onClick=(action "establishDirectDataset")
+          }}
+            {{tt this "establishDatasetHere"}}
+          {{/one-button}}
+          {{#if establishButtonDisabledTip}}
+            {{one-tooltip title=establishButtonDisabledTip}}
+          {{/if}}
+        </div>
+      {{else}}
+        {{#one-button
+          class="btn-sm direct-dataset-actions-trigger"
+          onClick=(action "toggleActionsOpen")
+        }}
+          {{one-icon icon="settings"}}
+          <span class="text">{{tt this "actionsButton"}}</span>
+          {{one-icon class="menu-trigger-arrow" icon="arrow-down"}}
+        {{/one-button}}
+        {{#render-later triggerRender=areActionsOpened}}
+          {{#one-webui-popover
+            class="direct-dataset-actions"
+            padding=false
+            popoverStyle="with-dropdown"
+            triggerSelector=actionsTriggerSelector
+            open=areActionsOpened
+            as |popover|
+          }}
+            {{#click-outside
+              action=(action "toggleActionsOpen" false)
+              except-selector=actionsTriggerSelector
+            }}
+              {{actions-popover-content
+                actionsArray=directDatasetActions
+                actionsArg=(array directDataset)
+                actionClicked=(action "toggleActionsOpen" false)
+              }}
+            {{/click-outside}}
+          {{/one-webui-popover}}
+        {{/render-later}}
+      {{/if}}
+    </div>
+  </div>
+{{/promise-proxy-container}}

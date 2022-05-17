@@ -6,6 +6,8 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8914 Redesigned datasets panel for file
+* VFS-9397 Better presentation of time series measurements in automation store browser
 * VFS-9332 Added handling time series measurements in all types of stores
 * VFS-9021 Added recall process error log
 * VFS-9270 Added task time series store

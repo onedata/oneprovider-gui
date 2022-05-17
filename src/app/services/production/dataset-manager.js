@@ -3,7 +3,7 @@
  *
  * @module services/dataset-manager
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -94,7 +94,21 @@ export default Service.extend({
         },
       },
     });
-    await dataset.save();
+    try {
+      await dataset.save();
+    } catch (error) {
+      // A special workaround for creating a dataset that was destroyed in the same
+      // session, because of this bug: https://github.com/emberjs/data/issues/5014
+      // The workaround should work at least until Ember Data version 4.4, because
+      // error message should be the same.
+      if (
+        !error ||
+        !error.message ||
+        !error.message.includes('response returned the new id')
+      ) {
+        throw error;
+      }
+    }
     await this.updateFileDatasetsData(file);
     return dataset;
   },
@@ -106,6 +120,7 @@ export default Service.extend({
     const isAttached = get(dataset, 'state') === 'attached';
     const fileRelation = isAttached ? dataset.belongsTo('rootFile') : null;
     await dataset.destroyRecord();
+    dataset.unloadRecord();
     // if file is not attached, updating file is redundant (and causes problems when
     // source file has been deleted)
     if (isAttached && fileRelation && fileRelation.id()) {
@@ -130,12 +145,18 @@ export default Service.extend({
    */
   async toggleDatasetAttachment(dataset, attach) {
     set(dataset, 'state', attach ? 'attached' : 'detached');
-    await dataset.save();
-    const fileRelation = dataset.belongsTo('rootFile');
-    if (fileRelation && fileRelation.id()) {
-      const file = await fileRelation.load();
-      if (file) {
-        await this.updateFileDatasetsData(file);
+    try {
+      await dataset.save();
+    } catch (error) {
+      dataset.rollbackAttributes();
+      throw error;
+    } finally {
+      const fileRelation = dataset.belongsTo('rootFile');
+      if (fileRelation && fileRelation.id()) {
+        const file = await fileRelation.load();
+        if (file) {
+          await this.updateFileDatasetsData(file);
+        }
       }
     }
     return dataset;

@@ -3,24 +3,21 @@
  *
  * @module components/dataset-protection/direct-dataset
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
 import Component from '@ember/component';
-import { get, computed } from '@ember/object';
 import { reads, equal } from '@ember/object/computed';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
-import { raw, conditional, promise } from 'ember-awesome-macros';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import { raw, conditional } from 'ember-awesome-macros';
 
 export default Component.extend(I18n, {
   tagName: 'tbody',
   classNames: ['dataset-protection-direct-dataset', 'datasets-table-tbody'],
 
   i18n: service(),
-  parentAppNavigation: service(),
 
   /**
    * @override
@@ -46,18 +43,9 @@ export default Component.extend(I18n, {
   file: undefined,
 
   /**
-   * @virtual
-   * @type {Function}
+   * @type {'file'|'dataset'}
    */
-  getDatasetsUrl: notImplementedIgnore,
-
-  /**
-   * @virtual optional
-   * @type {Boolean}
-   */
-  showBrowseDatasetsLink: true,
-
-  navigateTarget: reads('parentAppNavigation.navigateTarget'),
+  mode: 'dataset',
 
   /**
    * Displayed name of dataset item
@@ -75,7 +63,7 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<String>}
    */
   directDatasetRowIcon: conditional(
-    'directDataset.isAttached',
+    equal('mode', 'dataset'),
     conditional(
       equal('file.type', 'file'),
       raw('browser-dataset-file'),
@@ -87,27 +75,4 @@ export default Component.extend(I18n, {
       raw('browser-directory'),
     ),
   ),
-
-  /**
-   * Link on item text, if it has a dataset established.
-   * @type {ComputedProperty<String>}
-   */
-  datasetLinkProxy: promise.object(computed(
-    'directDatasetProxy.content.{parent,state}',
-    async function datasetLinkProxy() {
-      const directDataset = await this.get('directDatasetProxy');
-      if (directDataset) {
-        const datasetId = get(directDataset, 'entityId');
-        const parentId = directDataset.relationEntityId('parent');
-        const options = {
-          datasetId: parentId,
-          selectedDatasets: [datasetId],
-          attachmentState: get(directDataset, 'state'),
-        };
-        return this.get('getDatasetsUrl')(options);
-      }
-    }
-  )),
-
-  datasetLink: reads('datasetLinkProxy.content'),
 });

@@ -4,7 +4,7 @@
  *
  * @module components/file-datasets
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -16,7 +16,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import { computedRelationProxy } from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
-import { or, not, conditional, and, notEmpty, promise } from 'ember-awesome-macros';
+import { or, not, conditional, and, notEmpty, promise, bool, raw } from 'ember-awesome-macros';
 import { guidFor } from '@ember/object/internals';
 import computedT from 'onedata-gui-common/utils/computed-t';
 
@@ -29,6 +29,8 @@ export default Component.extend(I18n, {
   datasetManager: service(),
   fileManager: service(),
   globalNotify: service(),
+  parentAppNavigation: service(),
+  appProxy: service(),
 
   /**
    * @override
@@ -101,6 +103,19 @@ export default Component.extend(I18n, {
    * @type {String}
    */
   activeTab: 'settings',
+
+  /**
+   * Passes down options for tab components.
+   * Currently only archives tab have options.
+   * @type {{ archives: FileDatasetsArchivesTabOptions }}
+   */
+  tabOptions: computed(function tabOptions() {
+    return {
+      archives: {},
+    };
+  }),
+
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   modalBodyId: computed(function modalBodyId() {
     return `${guidFor(this)}-body`;
@@ -191,10 +206,43 @@ export default Component.extend(I18n, {
     }
   ),
 
+  establishButtonDisabledTip: conditional(
+    not('space.privileges.manageDatasets'),
+    'insufficientEditPrivilegesMessage',
+    raw(null),
+  ),
+
+  establishButtonDisabled: bool('establishButtonDisabledTip'),
+
+  /**
+   * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
+   */
+  ancestorDatasetsProxy: promise.array(computed(
+    'fileDatasetSummaryProxy',
+    async function ancestorDatasetsProxy() {
+      const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
+      return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
+    }
+  )),
+
   archivesTabDisabled: or(
     not('fileDatasetSummaryProxy.isFulfilled'),
     not('hasDirectDatasetEstablished'),
   ),
+
+  belongsToSomeDatasetProxy: promise.object(computed(
+    'hasDirectDatasetEstablished',
+    'ancestorDatasetsProxy',
+    async function belongsToSomeDatasetProxy() {
+      if (this.get('hasDirectDatasetEstablished')) {
+        return true;
+      }
+      const ancestorDatasets = await this.get('ancestorDatasetsProxy');
+      return Boolean(get(ancestorDatasets, 'length'));
+    }
+  )),
+
+  belongsToSomeDataset: reads('belongsToSomeDatasetProxy.content'),
 
   tabsSpec: computed(function tabSpecs() {
     const {
@@ -260,15 +308,70 @@ export default Component.extend(I18n, {
 
   fileTypeText: computed('fileType', function fileTypeText() {
     const fileType = this.get('fileType');
-    return this.t(`fileType.${fileType}`);
+    return this.t(`fileType.${fileType || 'file'}`);
   }),
 
-  actions: {
-    changeActiveTab(chosenTabId) {
-      const tabSpec = this.get('tabsSpec').findBy('id', chosenTabId);
-      if (tabSpec && !get(tabSpec, 'disabled')) {
-        this.set('activeTab', chosenTabId);
+  /**
+   * Link on item text, if it has a dataset established.
+   * @type {ComputedProperty<String>}
+   */
+  datasetLinkProxy: promise.object(computed(
+    'directDatasetProxy.content.{parent,state}',
+    async function datasetLinkProxy() {
+      const {
+        getDatasetsUrl,
+        directDatasetProxy,
+      } = this.getProperties('getDatasetsUrl', 'directDatasetProxy');
+      const directDataset = await directDatasetProxy;
+      if (directDataset) {
+        const datasetId = get(directDataset, 'entityId');
+        const options = {
+          selectedDatasets: [datasetId],
+          attachmentState: get(directDataset, 'state'),
+        };
+        return getDatasetsUrl && getDatasetsUrl(options);
       }
+    }
+  )),
+
+  datasetLink: reads('datasetLinkProxy.content'),
+
+  renderFooter: bool('datasetLink'),
+
+  async establishDirectDataset() {
+    const {
+      file,
+      datasetManager,
+      globalNotify,
+    } = this.getProperties('file', 'datasetManager', 'globalNotify');
+    try {
+      return await datasetManager.establishDataset(file);
+    } catch (error) {
+      globalNotify.backendError(this.t('establishingDataset'), error);
+    }
+  },
+
+  changeActiveTab(chosenTabId, tabOptions = {}) {
+    const tabSpec = this.get('tabsSpec').findBy('id', chosenTabId);
+    if (tabSpec && !get(tabSpec, 'disabled')) {
+      this.set('activeTab', chosenTabId);
+      this.set(`tabOptions.${chosenTabId}`, tabOptions);
+    }
+  },
+
+  actions: {
+    changeActiveTab() {
+      return this.changeActiveTab(...arguments);
+    },
+    establishDataset() {
+      return this.establishDirectDataset();
+    },
+    openCreateArchive() {
+      this.changeActiveTab('archives', {
+        actionToInvoke: {
+          name: 'createArchive',
+        },
+      });
     },
   },
 });

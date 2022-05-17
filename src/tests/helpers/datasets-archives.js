@@ -134,22 +134,22 @@ export async function getBrowsableDatasetName(testCase) {
   return get(browsableDataset, 'name');
 }
 
-export async function createDataset(testCase) {
+export async function createDataset(testCase, data) {
   const store = lookupService(testCase, 'store');
   const spaceId = 's123';
   const fileName = 'dummy_dataset_root';
-  const datasetRootFile = store.createRecord('file', {
+  const datasetRootFile = run(() => store.createRecord('file', {
     index: fileName,
     name: fileName,
     type: 'dir',
-  });
-  const dataset = store.createRecord('dataset', {
+  }));
+  const dataset = run(() => store.createRecord('dataset', Object.assign({
     index: 'd123',
     spaceId,
     state: 'attached',
     rootFile: datasetRootFile,
     rootFilePath: `/one/two/${fileName}`,
-  });
+  }, data)));
   const records = [
     datasetRootFile,
     dataset,
@@ -158,7 +158,9 @@ export async function createDataset(testCase) {
     datasetRootFile,
     dataset,
   });
-  await allFulfilled(Object.values(records).invoke('save'));
+  await allFulfilled(Object.values(records).map(r => {
+    return run(() => r.save());
+  }));
   return result;
 }
 
@@ -168,7 +170,7 @@ export async function createArchive(testCase) {
   const archiveManager = lookupService(testCase, 'archiveManager');
   const totalFileCount = 100;
   const totalByteSize = 10000;
-  const archive = store.createRecord('archive', {
+  const archive = run(() => store.createRecord('archive', {
     index: '123',
     state: 'preserved',
     creationTime: Date.now() / 1000,
@@ -187,7 +189,7 @@ export async function createArchive(testCase) {
       filesFailed: 0,
     },
     dataset,
-  });
+  }));
   const records = [
     archive,
   ];
@@ -201,10 +203,28 @@ export async function createArchive(testCase) {
 }
 
 /**
- * Legacy helper using non-store mocking - please use store models mocking in new code.
  * @returns {Object} dataset-like
  */
-export function createFileDatasetSummary({
+export async function createFileDatasetSummary({
+  testCase,
+  directDataset = testCase.get('dataset') || null,
+  effAncestorDatasets = [],
+} = {}) {
+  const store = lookupService(testCase, 'store');
+  const record = await run(async () => await store.createRecord('file-dataset-summary', {
+    directDataset,
+    effAncestorDatasets,
+  }).save());
+  testCase.set('fileDatasetSummary', record);
+  return record;
+}
+
+/**
+ * Legacy helper using non-store mocking - please use store models mocking in new code.
+ * @deprecated
+ * @returns {Object} dataset-like
+ */
+export function createMockFileDatasetSummary({
   directDataset = null,
   effAncestorDatasets = [],
 } = {}) {

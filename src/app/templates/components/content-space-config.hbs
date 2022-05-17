@@ -8,18 +8,42 @@
       proxy=dirSizeStatsConfigProxy 
       spinnerBlockClass="absolute-middle-centered"
     }}
-      <label for="dir-size-stats-config" class="inline-label dir-size-stats-config-label">
-        {{tt this "toggleDescription"}}
-      </label>
-      {{one-way-toggle
-        class=(concat "form-control toggle-field-dir-size-stats-config")
-        inputId="dir-size-stats-config"
-        checked=isDirStatsCount
-        spinnerSide=(if media.isMobile "left" "right")
-        update=(action "changeStatsCount")
-      }}
-      <div class="subheader-text dir-size-stats-config-info">
-        {{tt this "dirSizeStatsDescription"}}
+      <div class="iconified-block">
+        <div class="icon-section">
+          {{one-icon icon="overview"}}
+        </div>
+        <div class="dir-size-stats-config content-section">
+          <label 
+            for="dir-size-stats-config" 
+            class="inline-label dir-size-stats-config-label"
+          >
+            {{tt this "toggleDescription"}}
+          </label>
+          {{one-way-toggle
+            class=(concat "form-control toggle-field-dir-size-stats-config")
+            inputId="dir-size-stats-config"
+            checked=isDirStatsCount
+            spinnerSide=(if media.isMobile "left" "right")
+            update=(action "changeStatsCount")
+          }}
+          <div class="subheader-text dir-size-stats-config-info">
+            {{tt this "dirSizeStatsDescription"}} 
+          </div>
+          {{#if (not isDirStatsCount)}}
+            <p>
+              {{one-icon class="dir-size-stats-icon" icon="warning"}}
+              <span class="dir-size-stats-warning">
+                {{tt this "recomputingWarning"}}
+              </span>
+            </p>
+          {{/if}}
+          <p>
+            {{one-icon class="dir-size-stats-icon" icon="warning"}}
+            <span class="dir-size-stats-warning">
+              {{tt this "additionalLoadWarning"}}
+            </span>
+          </p>
+        </div>
       </div>
     {{/promise-proxy-container}}
   </div>
