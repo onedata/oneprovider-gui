@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9393 Fixed ordering of stacked chart series
 * VFS-8914 Redesigned datasets panel for file
 * VFS-9397 Better presentation of time series measurements in automation store browser
 * VFS-9332 Added handling time series measurements in all types of stores
