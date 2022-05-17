@@ -10,8 +10,12 @@
 import FbTableRowColumns from 'oneprovider-gui/components/file-browser/fb-table-row-columns';
 import { raw, array } from 'ember-awesome-macros';
 import { computed } from '@ember/object';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { inject as service } from '@ember/service';
 
-export default FbTableRowColumns.extend({
+export default FbTableRowColumns.extend(I18n, {
+  i18n: service(),
+
   /**
    * @override
    */
