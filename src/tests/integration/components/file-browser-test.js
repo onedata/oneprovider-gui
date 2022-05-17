@@ -633,15 +633,13 @@ function mockFilesTree(testCase, treeSpec) {
   const fileManager = lookupService(testCase, 'fileManager');
   const fetchDirChildrenStub = sinon.stub(fileManager, 'fetchDirChildren');
 
-  const root = {
+  const root = createFile(testCase, {
     entityId: 'root',
     name: 'root name',
-    index: 'root name',
+    index: 'abc123',
     type: 'dir',
-    hasParent: false,
-    parent: resolve(null),
-  };
-  root.effFile = root;
+    parent: null,
+  });
   const elementsMap = {
     root,
   };
@@ -654,15 +652,13 @@ function mockFilesTree(testCase, treeSpec) {
     } = treeElementGeneratorQueue.shift();
     const subtreeElements = Object.keys(subtreeSpec).map(subElementId => {
       const isDir = subtreeSpec[subElementId] !== null;
-      const element = {
+      const element = createFile(testCase, {
         entityId: subElementId,
         name: `${subElementId} name`,
-        index: `${subElementId} name`,
+        index: `abc-${subElementId}`,
         type: isDir ? 'dir' : 'file',
-        hasParent: true,
-        parent: resolve(parent),
-      };
-      element.effFile = element;
+        parent: parent,
+      });
       elementsMap[subElementId] = element;
       if (isDir) {
         treeElementGeneratorQueue.push({
@@ -673,7 +669,7 @@ function mockFilesTree(testCase, treeSpec) {
       return element;
     });
     fetchDirChildrenStub.withArgs(
-      parent.entityId,
+      get(parent, 'entityId'),
       sinon.match.any,
       null,
       sinon.match.any,
@@ -777,7 +773,7 @@ function itHasWorkingClipboardFunction({
 
     await render(this);
 
-    expect(this.$('.fb-table-row')).to.exist;
+    expect(this.$('.fb-table-row'), 'file row').to.exist;
 
     await chooseFileContextMenuAction({ name: 'f1 name' }, contextMenuActionId);
 
@@ -860,4 +856,12 @@ function notStubbed(stubName) {
   return () => {
     throw new Error(`${stubName} is not stubbed`);
   };
+}
+
+function createFile(testCase, data) {
+  if (data.entityId) {
+    data.id = `file.${data.entityId}.instance:private`;
+    delete data.entityId;
+  }
+  return lookupService(testCase, 'store').createRecord('file', data);
 }
