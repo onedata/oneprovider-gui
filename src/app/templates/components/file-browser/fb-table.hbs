@@ -41,7 +41,7 @@
         noItemsActions=noItemsActions
         isSpaceOwned=isSpaceOwned
         spacePrivileges=spacePrivileges
-        nameConflict=(bool file.conflictingName)
+        nameConflict=(contains file.originalName conflictNames)
         fileClipboardMode=(if (contains file fileClipboardFiles) fileClipboardMode null)
         isSelected=(contains file selectedItems)
         isDisabled=(contains file disabledItems)

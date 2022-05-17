@@ -297,6 +297,20 @@ export default Component.extend(I18n, {
     return new ViewTester($contentScroll);
   }),
 
+  /**
+   * @type {ComputedProperty<Array<String>>}
+   */
+  conflictNames: computed('filesArray.sourceArray.@each.originalName', function conflictNames() {
+    const namesCount = _.countBy(
+      this.get('filesArray.sourceArray').mapBy('originalName'),
+      name => name,
+    );
+    const test = Object.entries(namesCount)
+      .filter(([, count]) => count > 1)
+      .map(([name]) => name);
+    return test;
+  }),
+
   // NOTE: not using reads as a workaround to bug in Ember 2.18
   initialLoad: computed('filesArray.initialLoad', function initialLoad() {
     return this.get('filesArray.initialLoad');
