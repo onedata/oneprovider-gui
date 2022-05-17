@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9411 Fixed empty points at the beginning of non-live chart time series
 * VFS-8914 Redesigned datasets panel for file
 * VFS-9397 Better presentation of time series measurements in automation store browser
 * VFS-9332 Added handling time series measurements in all types of stores
