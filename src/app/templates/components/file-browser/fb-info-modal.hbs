@@ -4,10 +4,10 @@
     modalClass
   )
   open=open
-  onHide=(action "close")
   size="xl"
   backdropClose=true
   keyboard=true
+  onHide=(action "close")
   as |modal|
 }}
   {{#modal.header}}
@@ -29,8 +29,10 @@
         {{#nav.item
           active=(eq tab.activeId "general")
         }}
-          <a href="#general"
-            class={{concat "nav-link nav-link-general"}}
+          <a class={{concat-classes 
+              "nav-link nav-link-general" 
+              (if (eq tab.activeId "general") "active")
+            }}
             role="tab"
             {{action (mut activeTab) "general"}}
           >
@@ -41,8 +43,10 @@
           {{#nav.item
             active=(eq tab.activeId "hardlinks")
           }}
-            <a href="#hardlinks"
-              class={{concat "nav-link nav-link-hardlinks"}}
+            <a class={{concat-classes 
+                "nav-link nav-link-hardlinks" 
+                (if (eq tab.activeId "hardlinks") "active")
+              }}
               role="tab"
               {{action (mut activeTab) "hardlinks"}}
             >
@@ -54,18 +58,48 @@
             </a>
           {{/nav.item}}
         {{/if}}
+        {{#if showSizeTab}}
+          {{#nav.item
+            active=(eq tab.activeId "size")
+            disabled=isSizeTabDisabled
+          }}
+            <a class={{concat-classes 
+                "nav-link nav-link-metadata-type nav-link-size" 
+                (if (eq tab.activeId "size") "active")
+              }}
+              role="tab"
+              {{action (mut activeTab) "size"}}
+            > 
+              <div class="tab-label-size">
+               {{tt this "tabs.size.tabTitle"}}
+              </div>
+            </a>
+            {{#if isSizeTabDisabled}}
+              {{one-tooltip 
+                title=(tt this (if 
+                  (eq itemType "symlink")
+                  "tabs.size.disabledTip"
+                  "tabs.size.turnOffTip"
+                ))
+              }}
+            {{/if}}
+          {{/nav.item}}
+        {{/if}}
         {{#if (and showApiSection (not-eq itemType "symlink"))}}
           {{#nav.item
             active=(eq tab.activeId "apiSamples")
           }}
-            <a href="#apiSamples"
-              class="nav-link nav-link-metadata-type nav-link-apiSamples"
+            <a class={{concat-classes 
+                "nav-link nav-link-metadata-type nav-link-apiSamples" 
+                (if (eq tab.activeId "apiSamples") "active")
+              }}
               role="tab"
               {{action (mut activeTab) "apiSamples"}}
             > 
               {{one-icon class="tab-icon" icon="rest"}}
               <div class="tab-label-api-samples">
-               {{tt this "tabs.apiSamples.tabTitle"}}
+                {{tt this "tabs.apiSamples.tabTitle"}}
+                
               </div>
             </a>
           {{/nav.item}}
@@ -228,6 +262,12 @@
           {{/if}}
         </ul>
       {{/promise-proxy-container}}
+    {{else if (eq activeTab "size")}}
+      {{file-browser/file-entry-charts
+        space=space
+        file=file
+        dirSizeStatsConfig=dirSizeStatsConfig
+      }}
     {{else if (eq activeTab "apiSamples")}}
       {{#promise-proxy-container 
         proxy=apiSamplesProxy
