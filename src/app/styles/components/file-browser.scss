@@ -12,12 +12,15 @@
 @import './file-browser/fb-metadata-xattrs';
 @import './file-browser/fb-info-modal';
 
+// FIXME: maybe special class for custom enabling
 .embedded-content {
-  .file-browser-head-container {
+  .fb-table-thead th {
+    position: relative;
     @include before-bottom-shadow;
+    @include content-shadow-leftovers;
   }
   &.on-top {
-    .file-browser-head-container {
+    .fb-table-thead th {
       @include hide-before-shadow;
     }
   }

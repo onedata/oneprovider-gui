@@ -1,16 +1,5 @@
 $open-data-remove-col-width: $content-col-padding;
 
-.embedded-content {
-  .open-data .metadata-header-section {
-    @include before-bottom-shadow;
-  }
-  &.scroll-on-top {
-    .open-data .metadata-header-section {
-      @include hide-before-shadow;
-    }
-  }
-}
-
 .open-data {
   h1 {
     @include font-semibold;

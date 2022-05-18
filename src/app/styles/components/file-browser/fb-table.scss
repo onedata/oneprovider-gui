@@ -115,6 +115,15 @@
   thead > tr > th:first-of-type {
     padding-left: $file-browser-padding-left;
   }
+  .fb-table-thead {
+    position: sticky;
+    top: 56px;
+    // above tbody
+    z-index: 1;
+    th {
+      background-color: white;
+    }
+  }
   .fb-table-thead th:first-of-type {
     text-align: left;
   }
