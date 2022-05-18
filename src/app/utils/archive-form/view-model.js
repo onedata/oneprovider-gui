@@ -65,14 +65,14 @@ export default ArchiveFormBaseModel.extend({
       descriptionField,
       configField,
       preservedCallbackField,
-      purgedCallbackField,
+      deletedCallbackField,
     } = this.getProperties(
       'rootFormGroupClass',
       'archiveIdField',
       'descriptionField',
       'configField',
       'preservedCallbackField',
-      'purgedCallbackField',
+      'deletedCallbackField',
     );
 
     const fieldGroup = rootFormGroupClass
@@ -82,7 +82,7 @@ export default ArchiveFormBaseModel.extend({
           descriptionField,
           configField,
           preservedCallbackField,
-          purgedCallbackField,
+          deletedCallbackField,
         ],
       });
     fieldGroup.changeMode('view');
@@ -153,14 +153,14 @@ export default ArchiveFormBaseModel.extend({
       config: archiveConfig,
       entityId: archiveId,
       preservedCallback,
-      purgedCallback,
+      deletedCallback,
     } = getProperties(
       archive,
       'description',
       'config',
       'entityId',
       'preservedCallback',
-      'purgedCallback',
+      'deletedCallback',
     );
     const formConfig = _.cloneDeep(archiveConfig);
 
@@ -175,7 +175,7 @@ export default ArchiveFormBaseModel.extend({
       description,
       config: formConfig,
       preservedCallback,
-      purgedCallback,
+      deletedCallback,
     };
   }),
 
@@ -193,9 +193,9 @@ export default ArchiveFormBaseModel.extend({
     });
   }),
 
-  purgedCallbackField: computed(function archiveIdField() {
+  deletedCallbackField: computed(function archiveIdField() {
     return CallbackFieldClass.create({
-      name: 'purgedCallback',
+      name: 'deletedCallback',
     });
   }),
 });

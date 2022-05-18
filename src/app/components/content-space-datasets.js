@@ -295,7 +295,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   fileForConfirmDownload: null,
 
-  archivesToPurge: null,
+  archivesToDelete: null,
 
   //#endregion
 

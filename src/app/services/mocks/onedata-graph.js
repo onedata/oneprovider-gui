@@ -375,7 +375,7 @@ const datasetHandlers = {
 };
 
 const archiveHandlers = {
-  purge(operation, entityId) {
+  delete(operation, entityId) {
     if (operation !== 'create') {
       return messageNotSupported;
     }
@@ -1115,7 +1115,7 @@ function archiveRecordToChildData(record) {
     'config',
     'description',
     'preservedCallback',
-    'purgedCallback',
+    'deletedCallback',
   ), {
     dataset: record.belongsTo('dataset').id(),
     rootDir: record.belongsTo('rootDir').id(),

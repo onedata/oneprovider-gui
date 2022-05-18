@@ -77,7 +77,7 @@ export default Model.extend(GraphSingleModelMixin, {
    * URL to which POST will be made by backend when archive finish purging
    * @type {String}
    */
-  purgedCallback: attr('string'),
+  deletedCallback: attr('string'),
 
   /**
    * Object params:
