@@ -22,10 +22,10 @@
           <div class="table-header-status-bar">{{yield}}</div>
         </div>
       </th>
+      {{#unless noItemsActions}}
+        <th class="fb-table-col-actions-menu"></th>
+      {{/unless}}
     {{/if}}
-    {{#unless noItemsActions}}
-      <th class="fb-table-col-actions-menu"></th>
-    {{/unless}}
   </thead>
   <tbody class="fb-table-tbody">
     <tr class="first-row">
