@@ -26,6 +26,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   i18n: service(),
   fileManager: service(),
   errorExtractor: service(),
+  spaceManager: service(),
 
   open: false,
 
@@ -95,7 +96,13 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   initialTab: undefined,
 
   /**
-   * One of: general, hardlinks
+   * @virtual
+   * @type {DirSizeStatsConfig}
+   */
+  dirSizeStatsConfig: undefined,
+
+  /**
+   * One of: general, hardlinks, size, apiSamples
    * @type {String}
    */
   activeTab: 'general',
@@ -184,6 +191,41 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
   fileSize: reads('file.size'),
 
+  /**
+   * One of `enabled`, `disabled`, `stopping`, `initializing`
+   * @type {ComputedProperty<String>}
+   */
+  statsCollectionStatus: reads('dirSizeStatsConfig.statsCollectionStatus'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  isSizeTabDisabled: computed(
+    'statsCollectionStatus',
+    'itemType',
+    function isSizeTabDisabled() {
+      const {
+        statsCollectionStatus,
+        itemType,
+      } = this.getProperties('statsCollectionStatus', 'itemType');
+      return ['disabled', 'stopping'].includes(statsCollectionStatus) ||
+        itemType === 'symlink';
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<Boolean>}
+   */
+  showSizeTab: computed(
+    'previewMode',
+    'file.effFile.type',
+    function showSizeTab() {
+      const previewMode = this.get('previewMode');
+      const effItemType = this.get('file.effFile.type');
+      return !previewMode && effItemType !== 'file';
+    }
+  ),
+
   hardlinksCount: or('file.hardlinksCount', raw(1)),
 
   hardlinksLimitExceeded: gt('hardlinksCount', 'hardlinksLimit'),
@@ -244,7 +286,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
   init() {
     this._super(...arguments);
     const initialTab = this.get('initialTab');
-    if (['general', 'hardlinks', 'restApi'].includes(initialTab)) {
+    if (['general', 'hardlinks', 'size', 'apiSamples'].includes(initialTab)) {
       this.set('activeTab', initialTab);
     }
   },

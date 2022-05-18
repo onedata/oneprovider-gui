@@ -229,6 +229,15 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             name: String(this.t('axes.files')),
             minInterval: 1,
           }],
+          seriesGroups: [{
+            factoryName: 'static',
+            factoryArguments: {
+              seriesGroupTemplate: {
+                id: 'transferredFiles',
+                stack: true,
+              },
+            },
+          }],
           series: [{
             factoryName: 'static',
             factoryArguments: {
@@ -239,22 +248,20 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 type: 'line',
                 yAxisId: 'bytesAxis',
                 data: {
-                  functionName: 'replaceEmpty',
+                  functionName: 'loadSeries',
                   functionArguments: {
-                    data: {
-                      functionName: 'loadSeries',
-                      functionArguments: {
-                        sourceType: 'external',
-                        sourceParameters: {
-                          externalSourceName: 'qosEntryData',
-                          externalSourceParameters: {
-                            collectionId: 'bytes',
-                            seriesId: 'total',
-                          },
-                        },
+                    sourceType: 'external',
+                    sourceParameters: {
+                      externalSourceName: 'qosEntryData',
+                      externalSourceParameters: {
+                        collectionId: 'bytes',
+                        seriesId: 'total',
                       },
                     },
-                    fallbackValue: 0,
+                    replaceEmptyOptions: {
+                      strategy: 'useFallback',
+                      fallbackValue: 0,
+                    },
                   },
                 },
               },
@@ -262,7 +269,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           }, {
             factoryName: 'dynamic',
             factoryArguments: {
-              dynamicSeriesConfigs: {
+              dynamicSeriesConfigsSource: {
                 sourceType: 'external',
                 sourceParameters: {
                   externalSourceName: 'qosEntryData',
@@ -292,23 +299,21 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 },
                 type: 'bar',
                 yAxisId: 'filesAxis',
-                stackId: 'filesStack',
+                groupId: 'transferredFiles',
                 data: {
-                  functionName: 'replaceEmpty',
+                  functionName: 'loadSeries',
                   functionArguments: {
-                    data: {
-                      functionName: 'loadSeries',
+                    sourceType: 'external',
+                    sourceParameters: {
+                      functionName: 'getDynamicSeriesConfigData',
                       functionArguments: {
-                        sourceType: 'external',
-                        sourceParameters: {
-                          functionName: 'getDynamicSeriesConfigData',
-                          functionArguments: {
-                            propertyName: 'pointsSource',
-                          },
-                        },
+                        propertyName: 'pointsSource',
                       },
                     },
-                    fallbackValue: 0,
+                    replaceEmptyOptions: {
+                      strategy: 'useFallback',
+                      fallbackValue: 0,
+                    },
                   },
                 },
               },
@@ -366,10 +371,19 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               },
             },
           }],
+          seriesGroups: [{
+            factoryName: 'static',
+            factoryArguments: {
+              seriesGroupTemplate: {
+                id: 'sentBytes',
+                stack: true,
+              },
+            },
+          }],
           series: [{
             factoryName: 'dynamic',
             factoryArguments: {
-              dynamicSeriesConfigs: {
+              dynamicSeriesConfigsSource: {
                 sourceType: 'external',
                 sourceParameters: {
                   externalSourceName: 'qosEntryData',
@@ -399,23 +413,21 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 },
                 type: 'line',
                 yAxisId: 'bytesAxis',
-                stackId: 'bytesStack',
+                groupId: 'sentBytes',
                 data: {
-                  functionName: 'replaceEmpty',
+                  functionName: 'loadSeries',
                   functionArguments: {
-                    data: {
-                      functionName: 'loadSeries',
+                    sourceType: 'external',
+                    sourceParameters: {
+                      functionName: 'getDynamicSeriesConfigData',
                       functionArguments: {
-                        sourceType: 'external',
-                        sourceParameters: {
-                          functionName: 'getDynamicSeriesConfigData',
-                          functionArguments: {
-                            propertyName: 'pointsSource',
-                          },
-                        },
+                        propertyName: 'pointsSource',
                       },
                     },
-                    fallbackValue: 0,
+                    replaceEmptyOptions: {
+                      strategy: 'useFallback',
+                      fallbackValue: 0,
+                    },
                   },
                 },
               },

@@ -175,6 +175,17 @@ export default OneEmbeddedComponent.extend(
       return spaceManager.getSpace(spaceEntityId);
     })),
 
+    dirSizeStatsConfigProxy: promise.object(computed(
+      'spaceEntityId',
+      function dirSizeStatsConfigProxy() {
+        const {
+          spaceManager,
+          spaceEntityId,
+        } = this.getProperties('spaceManager', 'spaceEntityId');
+        return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
+      }
+    )),
+
     /**
      * NOTE: observing only space, because it should reload initial dir after whole space change
      * @type {PromiseObject<Models.File>}
@@ -192,7 +203,8 @@ export default OneEmbeddedComponent.extend(
       'spaceProxy',
       'initialSelectedItemsForJumpProxy',
       'initialDirProxy',
-      'bagitUploaderLoaderProxy'
+      'bagitUploaderLoaderProxy',
+      'dirSizeStatsConfigProxy'
     )),
 
     selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),
