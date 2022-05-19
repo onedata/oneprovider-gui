@@ -1,6 +1,10 @@
 <th class="fb-table-col-files fb-table-secondary-col">
   <div class="fb-table-first-col-container">
+    {{!-- FIXME: think about structure --}}
     <div class="table-header-text">{{tt this "files"}}</div>
+    <div class="table-header-jump-control">
+      {{file-browser/jump-control}}
+    </div>
     <div class="table-header-status-bar">{{yield}}</div>
   </div>
 </th>

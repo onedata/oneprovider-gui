@@ -130,8 +130,14 @@
   .fb-table-first-col-container {
     display: flex;
     align-items: center;
-    .table-header-text {
+    .table-header-jump-control {
       flex-grow: 1;
+      // FIXME: only if there are elements beside
+      margin-left: 2em;
+      margin-right: 2em;
+      .jump-control {
+        max-width: 18em;
+      }
     }
     .table-header-status-bar {
       display: inline-flex;

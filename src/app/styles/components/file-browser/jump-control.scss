@@ -1,0 +1,20 @@
+.jump-control {
+  display: flex;
+  align-items: center;
+  .search-bar-form-group {
+    flex-grow: 1;
+    margin: 0;
+    // FIXME: maybe fix generic style instead of custom addon-icon for this
+    &.form-group-sm {
+      .input-group.with-icon-addon input:last-child {
+        padding-left: 40px;
+      }
+    }
+    .input-group-addon {
+      color: $input-color-placeholder;
+    }
+    .form-control {
+      @include font-regular;
+    }
+  }
+}
