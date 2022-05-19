@@ -36,6 +36,6 @@ export default {
       multi: 'Delete {{count}} archives',
     },
   },
-  purgingArchives: 'purging some archive',
+  deletingArchives: 'deleting some archive',
   itemsInfo,
 };

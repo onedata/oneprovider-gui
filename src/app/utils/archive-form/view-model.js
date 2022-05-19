@@ -187,13 +187,13 @@ export default ArchiveFormBaseModel.extend({
     });
   }),
 
-  preservedCallbackField: computed(function archiveIdField() {
+  preservedCallbackField: computed(function preservedCallbackField() {
     return CallbackFieldClass.create({
       name: 'preservedCallback',
     });
   }),
 
-  deletedCallbackField: computed(function archiveIdField() {
+  deletedCallbackField: computed(function deletedCallbackField() {
     return CallbackFieldClass.create({
       name: 'deletedCallback',
     });

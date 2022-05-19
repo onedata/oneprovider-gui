@@ -65,7 +65,7 @@
         buttonType="button"
         onClick=(action "delete")
         class="proceed remove-proceed"
-        disabled=deletedDisabled
+        disabled=deleteDisabled
       }}
         {{tt this (concat "footer.deleteSubmit." (if isSingleItem "single" "multi"))
           count=archives.length

@@ -1,5 +1,5 @@
 /**
- * Complete view needing layout (eg. modal) for purging selected archives.
+ * Complete view needing layout (eg. modal) for deleting selected archives.
  *
  * @module components/archives-delete
  * @author Jakub Liput
@@ -94,7 +94,7 @@ export default Component.extend(I18n, {
 
   confirmationTextMatch: equal('confirmationSourceText.string', 'confirmationValue'),
 
-  deletedDisabled: or(not('confirmationTextMatch'), 'processing'),
+  deleteDisabled: or(not('confirmationTextMatch'), 'processing'),
 
   deleteTip: computed('confirmationTextMatch', function deleteTip() {
     if (!this.get('confirmationTextMatch')) {
@@ -154,7 +154,7 @@ export default Component.extend(I18n, {
       this.get('onClose')();
     },
     async delete() {
-      if (this.get('deletedDisabled')) {
+      if (this.get('deleteDisabled')) {
         return;
       }
 
@@ -188,7 +188,7 @@ export default Component.extend(I18n, {
           globalNotify,
           errorExtractor,
           i18n,
-          operationErrorKey: `${i18nPrefix}.purgingArchives`,
+          operationErrorKey: `${i18nPrefix}.deletingArchives`,
         }, async archive => {
           await archiveManager.deleteArchive(archive);
         });

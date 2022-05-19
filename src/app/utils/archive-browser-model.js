@@ -200,7 +200,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isAnySelectedPurging: array.isAny('selectedItems', raw('state'), raw('purging')),
+  isAnySelectedDeleting: array.isAny('selectedItems', raw('state'), raw('deleting')),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -449,21 +449,21 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   btnDelete: computed(
     'areMultipleSelected',
-    'isAnySelectedPurging',
+    'isAnySelectedDeleting',
     'spacePrivileges.removeArchives',
     'isAnySelectedCreating',
     function btnDelete() {
       const {
         isAnySelectedCreating,
         areMultipleSelected,
-        isAnySelectedPurging,
+        isAnySelectedDeleting,
         spacePrivileges,
         i18n,
       } =
       this.getProperties(
         'isAnySelectedCreating',
         'areMultipleSelected',
-        'isAnySelectedPurging',
+        'isAnySelectedDeleting',
         'spacePrivileges',
         'i18n',
       );
@@ -477,8 +477,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           modelName: 'space',
           privilegeFlag: ['space_remove_archives'],
         });
-      } else if (isAnySelectedPurging) {
-        disabledTip = this.t('alreadyPurging');
+      } else if (isAnySelectedDeleting) {
+        disabledTip = this.t('alreadyDeleting');
       }
       return this.createFileAction({
         id: 'delete',

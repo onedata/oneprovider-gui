@@ -384,7 +384,7 @@ const archiveHandlers = {
     if (!archive) {
       return messageNotFound;
     }
-    archive.set('state', 'purging');
+    archive.set('state', 'deleting');
     // it's because we don't support async mock handlers, and saving in the same runloop
     // causes collision with record reload()
     next(() => archive.save());
