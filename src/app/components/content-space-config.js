@@ -14,6 +14,7 @@ import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { promise } from 'ember-awesome-macros';
+import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 
 const mixins = [
   I18n,
@@ -71,6 +72,24 @@ export default OneEmbeddedComponent.extend(...mixins, {
    * @type {ComputedProperty<String>}
    */
   spaceName: reads('spaceProxy.content.name'),
+
+  /**
+   * @type {Ember.ComputedProperty <boolean>}
+   */
+  hasEditPrivilege: reads('spaceProxy.content.privileges.update'),
+
+  /**
+   * @type {ComputedProperty<SafeString>}
+   */
+  insufficientEditPrivilegesMessage: computed(
+    function insufficientEditPrivilegesMessage() {
+      return insufficientPrivilegesMessage({
+        i18n: this.get('i18n'),
+        modelName: 'space',
+        privilegeFlag: 'space_update',
+      });
+    }
+  ),
 
   /**
    * @type {ComputedProperty<String>}

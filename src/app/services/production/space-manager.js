@@ -25,6 +25,13 @@ import { all as allFulfilled } from 'rsvp';
  */
 
 /**
+ * @typedef {Object} DirSizeStatsConfig
+ * @property {string} statsCollectionStatus One of `enabled`, `disabled`, 
+ * `stopping`, `initializing`
+ * @property {number} since
+ */
+
+/**
  * @param {string} spaceId
  * @param {{ aspect: string?, scope: string? }} griOptions
  * @returns {string}

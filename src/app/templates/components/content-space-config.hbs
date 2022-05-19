@@ -25,6 +25,8 @@
             checked=isDirStatsCount
             spinnerSide=(if media.isMobile "left" "right")
             update=(action "changeStatsCount")
+            isReadOnly=(not hasEditPrivilege)
+            lockHint=insufficientEditPrivilegesMessage
           }}
           <div class="subheader-text dir-size-stats-config-info">
             {{tt this "dirSizeStatsDescription"}} 
