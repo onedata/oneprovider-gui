@@ -300,9 +300,9 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Array<String>>}
    */
-  conflictNames: computed('filesArray.sourceArray.@each.index', function conflictNames() {
+  conflictNames: computed('filesArray.sourceArray.@each.originalName', function conflictNames() {
     const namesCount = _.countBy(
-      this.get('filesArray.sourceArray').mapBy('index'),
+      this.get('filesArray.sourceArray').mapBy('originalName'),
       name => name,
     );
     const test = Object.entries(namesCount)
@@ -686,7 +686,7 @@ export default Component.extend(I18n, {
     if (isEmpty(selectedItems)) {
       return;
     }
-    const firstSelected = A(selectedItems).sortBy('index').objectAt(0);
+    const firstSelected = A(selectedItems).sortBy('name').objectAt(0);
     const {
       entityId,
       index,

@@ -1247,7 +1247,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         operationErrorKey: `${i18nPrefix}.linkFailed`,
       },
       async (file) => {
-        await fileManager.createHardlink(get(file, 'index'), dir, file, 50);
+        await fileManager.createHardlink(get(file, 'originalName'), dir, file, 50);
         await throttledRefresh();
       }
     );
@@ -1288,8 +1288,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       i18n,
       operationErrorKey: `${i18nPrefix}.linkFailed`,
     }, async (file) => {
-      const fileName = get(file, 'index');
-      const filePath = stringifyFilePath(await resolveFilePath(file), 'index');
+      const fileName = get(file, 'originalName');
+      const filePath = stringifyFilePath(await resolveFilePath(file), 'originalName');
       await fileManager.createSymlink(fileName, dir, filePath, spaceId, 50);
       await throttledRefresh();
     });
