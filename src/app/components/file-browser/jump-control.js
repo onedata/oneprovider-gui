@@ -12,12 +12,18 @@ import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
 import { cancel, debounce } from '@ember/runloop';
 import { conditional, raw } from 'ember-awesome-macros';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   classNames: ['jump-control'],
 
   fileManager: service(),
   appProxy: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.fileBrowser.jumpControl',
 
   /**
    * Entity ID of items container (directory, dataset directory, etc.)
