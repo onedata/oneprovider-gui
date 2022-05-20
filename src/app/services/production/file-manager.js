@@ -257,6 +257,7 @@ export default Service.extend({
         index,
         limit,
         offset,
+        inclusive: true,
       },
       subscribe: false,
     });
@@ -458,7 +459,10 @@ export default Service.extend({
       offset: 0,
     });
     const children = attrs.children;
-    return children && children.length > 0 && children[0].index === fileName;
+    return children && children.length > 0 && (
+      children[0].name === fileName ||
+      children[0].conflictingName && children[0].conflictingName === fileName
+    );
   },
 
   /**

@@ -5,10 +5,9 @@ import { get, setProperties } from '@ember/object';
 import wait from 'ember-test-helpers/wait';
 
 describe('Unit | Utility | file name parser', function () {
-  it('returns no suffix if name and index are equal', function () {
+  it('returns no suffix if there is no conflicingName', function () {
     const file = {
       name: 'hello',
-      index: 'hello',
     };
 
     const parser = FileNameParser.create({ file });
@@ -17,10 +16,10 @@ describe('Unit | Utility | file name parser', function () {
     expect(get(parser, 'suffix')).to.equal(null);
   });
 
-  it('splits file name into base name and suffix', function () {
+  it('splits file name into base name and suffix when conflictingName is provided', function () {
     const file = {
       name: 'hello@1234',
-      index: 'hello',
+      conflictingName: 'hello',
     };
 
     const parser = FileNameParser.create({ file });
@@ -29,10 +28,10 @@ describe('Unit | Utility | file name parser', function () {
     expect(get(parser, 'suffix')).to.equal('@1234');
   });
 
-  it('changes base and suffix when file name and index changes', function () {
+  it('changes base and suffix when file name and conflictingName changes', function () {
     const file = {
       name: 'hello@1234',
-      index: 'hello',
+      conflictingName: 'hello',
     };
 
     const parser = FileNameParser.create({ file });
@@ -41,7 +40,7 @@ describe('Unit | Utility | file name parser', function () {
     expect(get(parser, 'suffix')).to.equal('@1234');
     setProperties(file, {
       name: 'foo@9876',
-      index: 'foo',
+      conflictingName: 'foo',
     });
     return wait().then(() => {
       expect(get(parser, 'base')).to.equal('foo');
@@ -49,46 +48,21 @@ describe('Unit | Utility | file name parser', function () {
     });
   });
 
-  // this tests case when a file name cannot be included in index,
-  // eg. share root dir name
-  it('has base name equal to file name if index is not a part of name', function () {
-    const file = {
-      name: 'hello',
-      index: '123456789',
-    };
-
-    const parser = FileNameParser.create({ file });
-
-    expect(get(parser, 'base')).to.equal('hello');
-    expect(get(parser, 'suffix')).to.equal(null);
-  });
-
-  it('tolerates lack of file', function () {
+  it('does not crash on lack of file', function () {
     const parser = FileNameParser.create();
 
     expect(get(parser, 'base')).to.equal('');
     expect(get(parser, 'suffix')).to.equal(null);
   });
 
-  it('tolerates lack of file name', function () {
+  it('does not crash on lack of file name', function () {
     const parser = FileNameParser.create({
       file: {
-        index: 'hello.txt',
+        conflictingName: 'hello.txt',
       },
     });
 
     expect(get(parser, 'base')).to.equal('');
-    expect(get(parser, 'suffix')).to.equal(null);
-  });
-
-  it('tolerates lack of file index', function () {
-    const parser = FileNameParser.create({
-      file: {
-        name: 'hello.txt',
-      },
-    });
-
-    expect(get(parser, 'base')).to.equal('hello.txt');
     expect(get(parser, 'suffix')).to.equal(null);
   });
 });
