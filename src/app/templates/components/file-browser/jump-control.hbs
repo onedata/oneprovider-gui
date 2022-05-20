@@ -1,14 +1,13 @@
-<div class="form-group form-group-sm search-bar-form-group">
+<div class="form-group form-group-sm search-bar-form-group {{validationClass}}">
   <div class="input-group with-icon-addon">
     {{!-- FIXME: i18n --}}
     <input
-      class="search-bar form-control {{if jumpInProgress "disabled"}}"
+      class="form-control jump-input"
       placeholder="Type item prefix to jump..."
       type="search"
-      onkeydown={{invoke-on-enter (action "performJump" ospm.close)}}
-      disabled={{bool jumpInProgress}}
+      onkeydown={{invoke-on-enter (action "performJumpImmediately")}}
       vaule={{jumpInputValue}}
-      oninput={{action (mut jumpInputValue) value="target.value"}}
+      oninput={{action "changeValue" value="target.value"}}
     >
     <div class="input-group-addon">
       {{one-icon icon="move-right"}}

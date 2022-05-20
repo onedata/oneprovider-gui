@@ -1,5 +1,6 @@
 /**
- * FIXME: jsdoc
+ * Input box capable to jump to browser item using name prefix (eg. to file in file
+ * browser).
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -9,6 +10,8 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
+import { cancel, debounce } from '@ember/runloop';
+import { conditional, raw } from 'ember-awesome-macros';
 
 export default Component.extend({
   classNames: ['jump-control'],
@@ -24,6 +27,12 @@ export default Component.extend({
    */
   parentDirId: undefined,
 
+  /**
+   * Debounced jump delay in milliseconds.
+   * @type {number}
+   */
+  jumpScheduleDelay: 500,
+
   //#region state
 
   /**
@@ -32,49 +41,95 @@ export default Component.extend({
   inputValue: '',
 
   /**
-   * @virtual
    * @type {boolean}
    */
   isJumpInProgress: false,
 
+  /**
+   * @type {any}
+   */
+  timeoutId: null,
+
+  /**
+   * Is set to true when last jump does not found item with given prefix, but jumped
+   * to next item.
+   * @type {boolean}
+   */
+  isLastJumpFailed: false,
+
   //#endregion
 
-  actions: {
-    async performJump(onPopoverClose) {
-      // FIXME: implement
-      const parentDirId = this.get('parentDirId');
-      const fileManager = this.get('fileManager');
-      const inputValue = this.get('inputValue');
-      const appProxy = this.get('appProxy');
-      if (!inputValue) {
+  validationClass: conditional(
+    'isLastJumpFailed',
+    raw('has-error'),
+    raw(''),
+  ),
+
+  scheduleJump() {
+    const jumpScheduleDelay = this.get('jumpScheduleDelay');
+    const timeoutId = debounce(this, 'performJump', jumpScheduleDelay);
+    this.set('timeoutId', timeoutId);
+  },
+
+  async performJump() {
+    const {
+      fileManager,
+      appProxy,
+      parentDirId,
+      inputValue,
+    } = this.getProperties(
+      'fileManager',
+      'appProxy',
+      'parentDirId',
+      'inputValue',
+    );
+    if (!inputValue) {
+      return;
+    }
+    try {
+      this.set('isJumpInProgress', true);
+      let fileData =
+        await fileManager.getFileDataByName(parentDirId, inputValue);
+      const isLastJumpFailed = !fileData || !fileData.name ||
+        !fileData.name.startsWith(inputValue);
+      this.set('isLastJumpFailed', isLastJumpFailed);
+      if (!fileData) {
+        fileData = await fileManager.getFileDataByName(
+          parentDirId,
+          inputValue, {
+            offset: -1,
+          });
+      }
+      if (!fileData) {
         return;
       }
-      try {
-        this.set('jumpInProgress', true);
-        let fileData =
-          await fileManager.getFileDataByName(parentDirId, inputValue);
-        if (!fileData) {
-          fileData = await fileManager.getFileDataByName(
-            parentDirId,
-            inputValue, {
-              offset: -1,
-            });
-        }
-        if (!fileData) {
-          // FIXME: error handling
-          return;
-        }
-        // FIXME: sytuacja: znaleziono plik, bo jest nowy, ale na naszej liście go nie ma
-        // więc trzeba by odświeżać najpierw listę przed skokiem, a może i odświeżać zawsze
-        const fileId = get(fileData, 'guid');
-        appProxy.callParent('updateSelected', [fileId]);
-      } finally {
-        this.set('jumpInProgress', false);
-      }
-      // FIXME: error handling
-      if (typeof onPopoverClose === 'function') {
-        onPopoverClose();
-      }
+      const fileId = get(fileData, 'guid');
+      appProxy.callParent('updateSelected', [fileId]);
+    } finally {
+      this.set('isJumpInProgress', false);
+    }
+  },
+
+  clearDebounce() {
+    const timeoutId = this.get('timeoutId');
+    if (!timeoutId) {
+      return;
+    }
+    cancel(timeoutId);
+    this.set('timeoutId', null);
+  },
+
+  actions: {
+    async performJumpImmediately() {
+      this.clearDebounce();
+      return this.performJump();
+    },
+    changeValue(value) {
+      this.setProperties({
+        inputValue: value,
+        isLastJumpFailed: false,
+      });
+      this.scheduleJump();
     },
   },
 });
