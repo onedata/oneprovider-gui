@@ -507,6 +507,7 @@ export default Service.extend({
           currentUserIsOwner: false,
           currentUserEffPrivileges: [
             'space_view',
+            'space_update',
             'space_view_qos',
             'space_view_transfers',
             'space_read_data',

@@ -1,13 +1,13 @@
 .content-space-config {
   .space-settings-info {
-    padding-bottom: 18px;
+    margin-bottom: $padding-large-vertical;
   }
 
   .dir-size-stats-config-info { 
-    padding-top: 18px;
+    margin-top: $padding-large-vertical;
   }
 
-  .dir-size-stats-config-label, .tmp {
+  .dir-size-stats-config-label {
     @include font-semibold;
   }
 
@@ -18,7 +18,7 @@
   }
 
   .dir-size-stats-warning {
-    padding-left: 28px;
+    margin-left: 28px;
   }
 
   .dir-size-stats-config.content-section {
@@ -29,7 +29,7 @@
     font-size: 100%;
     text-transform: uppercase;
     margin: 0;
-    padding: 17px 0px;
+    margin: $padding-large-vertical 0px;
     font-weight: bold;
   }
 }

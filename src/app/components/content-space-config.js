@@ -15,17 +15,20 @@ import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { promise } from 'ember-awesome-macros';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 
 const mixins = [
   I18n,
+  ContentSpaceBaseMixin,
   createDataProxyMixin('dirSizeStatsConfig'),
 ];
 
 export default OneEmbeddedComponent.extend(...mixins, {
-  classNames: ['content-space-config'],
+  classNames: ['content-space-config', 'row', 'content-row', 'no-border'],
 
   store: service(),
   spaceManager: service(),
+  providerManager: service(),
   globalNotify: service(),
 
   /**
@@ -38,7 +41,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
    */
   iframeInjectedProperties: Object.freeze([
     'spaceEntityId',
-    'oneprovider',
   ]),
 
   /**
@@ -56,17 +58,6 @@ export default OneEmbeddedComponent.extend(...mixins, {
       return ['enabled', 'initializing'].includes(statsCollectionStatus);
     }
   ),
-
-  /**
-   * @type {PromiseObject<Models.Space>}
-   */
-  spaceProxy: promise.object(computed('spaceEntityId', function spaceProxy() {
-    const {
-      spaceManager,
-      spaceEntityId,
-    } = this.getProperties('spaceManager', 'spaceEntityId');
-    return spaceManager.getSpace(spaceEntityId);
-  })),
 
   /**
    * @type {ComputedProperty<String>}
@@ -94,7 +85,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
   /**
    * @type {ComputedProperty<String>}
    */
-  providerName: reads('oneprovider.name'),
+  providerName: reads('providerProxy.content.name'),
+
+  /**
+   * @type {PromiseObject<Models.Space>}
+   */
+  providerProxy: promise.object(computed(function providerProxy() {
+    return this.get('providerManager').getCurrentProvider();
+  })),
+
+  /**
+   * @type {ComputedProperty<PromiseObject>}
+   */
+  requiredDataProxy: promise.object(promise.all('spaceProxy', 'providerProxy')),
 
   init() {
     this._super(...arguments);
