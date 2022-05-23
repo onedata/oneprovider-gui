@@ -70,7 +70,7 @@ describe('Integration | Component | modal file subheader', function () {
     this.set('files', [{
       type: 'file',
       name: 'hello@1234',
-      index: 'hello',
+      conflictingName: 'hello',
     }]);
     this.render(hbs `{{modal-file-subheader files=files}}`);
     expect(this.$('.file-base-name').text()).to.match(/^\S*hello\S*$/);

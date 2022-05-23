@@ -1,6 +1,6 @@
 /**
  * Modal which can create a share or show link to it
- * 
+ *
  * @module components/file-browser/fb-share-modal
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -204,7 +204,7 @@ export default Component.extend(
     },
 
     setInitialShareName() {
-      const fileName = this.get('file.name');
+      const fileName = this.get('file.originalName');
       this.set('newShareName', backendifyName(fileName));
     },
 
