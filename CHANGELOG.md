@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9411 Fixed empty points at the beginning of non-live chart time series
 * VFS-9205 Using new file listing API
 * VFS-9121 Added statistics for disk usage in directories
 * VFS-8914 Redesigned datasets panel for file
