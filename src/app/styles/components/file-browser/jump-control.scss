@@ -10,8 +10,11 @@
         padding-left: 40px;
       }
     }
-    .input-group-addon {
+    .input-group-addon.info-input-group-addon {
       color: $input-color-placeholder;
+      .one-icon {
+        font-weight: normal;
+      }
     }
     .form-control {
       @include font-regular;

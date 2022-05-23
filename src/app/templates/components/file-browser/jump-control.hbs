@@ -1,8 +1,5 @@
 <div class="form-group form-group-sm search-bar-form-group {{validationClass}}">
   <div class="input-group with-icon-addon">
-    <div class="input-group-addon">
-      {{one-icon icon="prefix"}}
-    </div>
     <input
       class="form-control jump-input"
       placeholder={{tt this "jumpToPrefix"}}
@@ -11,5 +8,9 @@
       vaule={{jumpInputValue}}
       oninput={{action "changeValue" value="target.value"}}
     >
+    <div class="input-group-addon info-input-group-addon">
+      {{one-icon icon="browser-info"}}
+      {{one-tooltip title=(tt this "tip")}}
+    </div>
   </div>
 </div>
