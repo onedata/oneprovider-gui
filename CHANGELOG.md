@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9355 Added more possible units to time series charts
 * VFS-9205 Using new file listing API
 * VFS-9121 Added statistics for disk usage in directories
 * VFS-8914 Redesigned datasets panel for file

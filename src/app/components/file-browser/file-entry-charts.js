@@ -297,8 +297,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             color: this.get('seriesColorsConfig.bytesColor'),
             minInterval: 1,
             valueFormatter: {
-              functionName: 'asBytes',
+              functionName: 'formatWithUnit',
               functionArguments: {
+                unitName: 'bytes',
                 data: {
                   functionName: 'supplyValue',
                 },
