@@ -40,9 +40,11 @@
           class="inline-icon-container"
         }}
       </div>
-      {{one-tooltip
-        title=tooltipText
-      }}
+      {{#if tooltipText}}
+        {{one-tooltip
+          title=tooltipText
+        }}
+      {{/if}}
     {{/if}}
   </span>
 </td>

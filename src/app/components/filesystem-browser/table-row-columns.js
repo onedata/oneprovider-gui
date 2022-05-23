@@ -53,8 +53,11 @@ export default FbTableRowColumns.extend(I18n, {
   tooltipText: computed(
     'dirSizeStatsConfig.statsCollectionStatus',
     function tooltipText() {
-      const statsCollectionStatus = this.get('dirSizeStatsConfig.statsCollectionStatus');
-      return this.t(statsCollectionStatus + 'StatsInfo');
+      let statsCollectionStatus = this.get('dirSizeStatsConfig.statsCollectionStatus');
+      if (statsCollectionStatus === 'stopping') {
+        statsCollectionStatus = 'disabled';
+      }
+      return this.t(statsCollectionStatus + 'StatsInfo', {}, { defaultValue: '' });
     }
   ),
 
