@@ -117,11 +117,14 @@
   }
   .fb-table-thead {
     position: sticky;
-    top: 56px;
-    // above tbody
+    top: $fb-table-margin-top;
+    // FIXME: use $fb-table-margin-top-mobile
+    // FIXME: above tbody, should be adjusted to be as highest as possible
     z-index: 1;
     th {
       background-color: white;
+      vertical-align: middle;
+      padding-top: $table-cell-padding / 2;
     }
   }
   .fb-table-thead th:first-of-type {

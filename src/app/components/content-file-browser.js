@@ -29,7 +29,11 @@ export default OneEmbeddedComponent.extend(
   I18n,
   ContentSpaceBaseMixin,
   ItemBrowserContainerBase, {
-    classNames: ['content-file-browser', 'upload-drop-zone-container'],
+    classNames: [
+      'content-file-browser',
+      'content-items-browser',
+      'upload-drop-zone-container',
+    ],
 
     /**
      * @override

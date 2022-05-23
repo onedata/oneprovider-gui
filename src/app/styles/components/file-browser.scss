@@ -42,13 +42,13 @@
   }
   .file-browser-head-container {
     position: fixed;
-    padding-top: 4px;
     padding-left: $content-col-padding + $file-browser-padding-left;
     padding-right: $content-col-padding + $file-browser-padding-right;
     top: 0;
     left: 0;
     right: 0;
     line-height: $file-browser-header-height;
+    height: $file-browser-header-height;
     background-color: $color-one-white;
     .fb-head-inner {
       display: flex;

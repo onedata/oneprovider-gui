@@ -78,7 +78,7 @@ const mixins = [
 ];
 
 export default OneEmbeddedComponent.extend(...mixins, {
-  classNames: ['content-space-datasets'],
+  classNames: ['content-space-datasets', 'content-items-browser'],
   classNameBindings: ['noViewArchivesPrivilege:no-archives-view'],
 
   /**
