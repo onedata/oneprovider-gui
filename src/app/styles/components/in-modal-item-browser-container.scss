@@ -23,3 +23,23 @@
     }
   }
 }
+
+.bs-modal-body-scroll {
+  .in-modal-item-browser-container {
+    .fb-table-thead th {
+      $parent-margin-sum: "#{$modal-content-horizontal-padding} + #{$modal-inner-padding}";
+      $negative-parent-margin: calc(-1 * (#{$parent-margin-sum}));
+
+      position: relative;
+      @include before-bottom-shadow;
+      @include content-shadow-leftovers($negative-parent-margin);
+    }
+  }
+  &.on-top {
+    .in-modal-item-browser-container {
+      .fb-table-thead th {
+        @include hide-before-shadow;
+      }
+    }
+  }
+}
