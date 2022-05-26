@@ -24,11 +24,11 @@ export const validArchiveStates = Object.freeze([
   'preserved',
   'verification_failed',
   'failed',
-  'purging',
+  'deleting',
 ]);
 
 /**
- * @typedef {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'purging'} ArchiveState
+ * @typedef {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'deleting'} ArchiveState
  */
 
 /**
@@ -39,7 +39,7 @@ export default Model.extend(GraphSingleModelMixin, {
   index: attr('string'),
 
   /**
-   * @type {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'purging'}
+   * @type {'pending'|'building'|'verifying'|'preserved'|'verification_failed'|'failed'|'deleting'}
    */
   state: attr('string'),
 
@@ -74,10 +74,10 @@ export default Model.extend(GraphSingleModelMixin, {
   preservedCallback: attr('string'),
 
   /**
-   * URL to which POST will be made by backend when archive finish purging
+   * URL to which POST will be made by backend when archive finish deleting
    * @type {String}
    */
-  purgedCallback: attr('string'),
+  deletedCallback: attr('string'),
 
   /**
    * Object params:
@@ -139,7 +139,7 @@ export default Model.extend(GraphSingleModelMixin, {
       case 'verification_failed':
       case 'failed':
         return 'failed';
-      case 'purging':
+      case 'deleting':
         return 'destroying';
       default:
         return 'unknown';

@@ -87,11 +87,11 @@
   onHide=(action closeConfirmFileDownload)
 }}
 
-{{#if archivesToPurge}}
-  {{archives-purge-modal
+{{#if archivesToDelete}}
+  {{archives-delete-modal
     open=true
-    archives=archivesToPurge
-    onHide=(action closeArchivesPurgeModal)
+    archives=archivesToDelete
+    onHide=(action closeArchivesDeleteModal)
   }}
 {{/if}}
 

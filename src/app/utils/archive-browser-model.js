@@ -36,7 +36,7 @@ const allButtonNames = Object.freeze([
   'btnRecall',
   'btnDownloadTar',
   'btnBrowseDip',
-  'btnPurge',
+  'btnDelete',
 ]);
 
 export default BaseBrowserModel.extend(DownloadInBrowser, {
@@ -90,7 +90,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @virtual
    * @type {(archives: Array<Utils.BrowsableArchive>) => any}
    */
-  openPurgeModal: notImplementedThrow,
+  openDeleteModal: notImplementedThrow,
 
   /**
    * @virtual
@@ -200,7 +200,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   /**
    * @type {ComputedProperty<Boolean>}
    */
-  isAnySelectedPurging: array.isAny('selectedItems', raw('state'), raw('purging')),
+  isAnySelectedDeleting: array.isAny('selectedItems', raw('state'), raw('deleting')),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -409,7 +409,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   btnRecall: computed(
     'spacePrivileges.recallArchives',
     'isAnySelectedCreating',
-    function btnPurge() {
+    function btnDelete() {
       const {
         isAnySelectedCreating,
         spacePrivileges,
@@ -447,23 +447,23 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
     }
   ),
 
-  btnPurge: computed(
+  btnDelete: computed(
     'areMultipleSelected',
-    'isAnySelectedPurging',
+    'isAnySelectedDeleting',
     'spacePrivileges.removeArchives',
     'isAnySelectedCreating',
-    function btnPurge() {
+    function btnDelete() {
       const {
         isAnySelectedCreating,
         areMultipleSelected,
-        isAnySelectedPurging,
+        isAnySelectedDeleting,
         spacePrivileges,
         i18n,
       } =
       this.getProperties(
         'isAnySelectedCreating',
         'areMultipleSelected',
-        'isAnySelectedPurging',
+        'isAnySelectedDeleting',
         'spacePrivileges',
         'i18n',
       );
@@ -477,17 +477,17 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
           modelName: 'space',
           privilegeFlag: ['space_remove_archives'],
         });
-      } else if (isAnySelectedPurging) {
-        disabledTip = this.t('alreadyPurging');
+      } else if (isAnySelectedDeleting) {
+        disabledTip = this.t('alreadyDeleting');
       }
       return this.createFileAction({
-        id: 'purge',
+        id: 'delete',
         icon: 'browser-delete',
-        title: this.t(`fileActions.purge.${areMultipleSelected ? 'multi' : 'single'}`),
+        title: this.t(`fileActions.delete.${areMultipleSelected ? 'multi' : 'single'}`),
         tip: disabledTip,
         disabled: Boolean(disabledTip),
         action: (archives) => {
-          return this.openPurgeModal(archives);
+          return this.openDeleteModal(archives);
         },
         showIn: [
           ...anySelectedContexts,
