@@ -413,9 +413,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
           dirStatisticsData: {
             fetchSeries: (...args) => this.fetchSeries(...args),
             fetchDynamicSeriesGroupConfigs: (...args) =>
-              this.fetchDynamicSeriesGroupConfigs(...args),
+              this.fetchFileSizeDynamicSeriesGroupConfigs(...args),
             fetchDynamicSeriesConfigs: (...args) =>
-              this.fetchDynamicSeriesConfigs(...args),
+              this.fetchFileSizeDynamicSeriesConfigs(...args),
           },
         },
       });
@@ -513,17 +513,18 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   /**
    * @returns {Promise<Array<{ id: string, name: string, color: string, pointsSource: OTSCExternalDataSourceRefParameters }>>}
    */
-  async fetchDynamicSeriesConfigs() {
+  async fetchFileSizeDynamicSeriesConfigs() {
     const colorGenerator = this.get('colorGenerator');
     const storageManager = this.get('storageManager');
     const spaceId = this.get('space.entityId');
     const dynamicSeriesName = 'storage_use_';
     const tsCollections = await this.getTsCollections();
-    return await allFulfilled(Object.keys(tsCollections)
+    const dynamicSeries = await allFulfilled(Object.keys(tsCollections)
       .filter(name => name.startsWith(dynamicSeriesName))
       .map(async (tsName) => {
         const storageId = tsName.replace(dynamicSeriesName, '');
-        let storageName;
+        let storageName = '';
+        let providerName = '';
         let groupId;
         try {
           const storage = await storageManager.getStorageById(storageId, {
@@ -531,21 +532,24 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             backgroundReload: false,
           });
           storageName = storage.get('name');
+          // Fetching provider record instead of just taking `entityId` from
+          // model relation to ensure, that provider is fetchable (and so
+          // calculated group_id will exist).
           const provider = await get(storage, 'provider');
           groupId = `provider_${get(provider, 'entityId')}`;
+          providerName = get(provider, 'name');
         } catch (error) {
           console.error(
             `component:file-browser/file-entry-charts#fetchDynamicSeriesConfigs: cannot load storage with ID "${storageId}"`,
             error
           );
-          storageName = storageName || String(this.t('unknownStorage', {
-            id: storageId.slice(0, 6),
-          }));
           groupId = 'provider_unknown';
         }
         return {
           id: storageId,
-          name: storageName,
+          name: storageName || String(this.t('unknownStorage', {
+            id: storageId.slice(0, 6),
+          })),
           groupId,
           color: colorGenerator.generateColorForKey(storageId),
           pointsSource: {
@@ -554,9 +558,13 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
               seriesId: tsName,
             },
           },
+          // Preparing sorting key in a way, that will move unknown providers at the end
+          // of series list and unknown storages at the end of provider series.
+          sortKey: `${providerName ? '\t' + providerName : '\n'}${storageName ? '\t' + storageName : '\n'}`,
         };
       })
     );
+    return dynamicSeries.sortBy('sortKey');
   },
 
   /**
@@ -594,7 +602,7 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
   /**
    * @returns {Promise<Array<{ id: string, name: string }>>}
    */
-  async fetchDynamicSeriesGroupConfigs() {
+  async fetchFileSizeDynamicSeriesGroupConfigs() {
     const space = this.get('space');
     const providerList = await get(space, 'providerList');
     const providers = await get(providerList, 'list');
