@@ -263,8 +263,6 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
         externalDataSources: {
           dirStatisticsData: {
             fetchSeries: (...args) => this.fetchSeries(...args),
-            fetchDynamicSeriesConfigs: (...args) =>
-              this.fetchDynamicSeriesConfigs(...args),
           },
         },
       });
@@ -315,20 +313,16 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
                 },
               },
               seriesGroupTemplate: {
-                id: {
-                  functionName: 'getDynamicSeriesGroupConfigData',
-                  functionArguments: {
-                    propertyName: 'id',
-                  },
-                },
-                name: {
-                  functionName: 'getDynamicSeriesGroupConfigData',
-                  functionArguments: {
-                    propertyName: 'name',
-                  },
-                },
+                id: 'totalPhysicalSize',
+                name: String(this.t('seriesGroups.totalPhysicalSize')),
                 stack: true,
                 showSeriesSum: true,
+                subgroups: {
+                  functionName: 'getDynamicSeriesGroupConfigData',
+                  functionArguments: {
+                    propertyName: 'subgroups',
+                  },
+                },
               },
             },
           }],
@@ -336,8 +330,8 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             factoryName: 'static',
             factoryArguments: {
               seriesTemplate: {
-                id: 'totalSize',
-                name: String(this.t('series.totalSize')),
+                id: 'totalLogicalSize',
+                name: String(this.t('series.totalLogicalSize')),
                 type: 'line',
                 yAxisId: 'bytesAxis',
                 data: {
@@ -454,6 +448,17 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
     }
   ),
 
+  init() {
+    this._super();
+    const colorGenerator = this.get('colorGenerator');
+    const colors = {
+      regAndLinksCountColor: colorGenerator.generateColorForKey('regAndLinksCount'),
+      directoriesCountColor: colorGenerator.generateColorForKey('directoriesCount'),
+      bytesColor: colorGenerator.generateColorForKey('bytes'),
+    };
+    this.set('seriesColorsConfig', colors);
+  },
+
   /**
    * @override
    */
@@ -526,13 +531,14 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             backgroundReload: false,
           });
           storageName = storage.get('name');
-          groupId = `provider_${storage.relationEntityId('provider')}`;
+          const provider = await get(storage, 'provider');
+          groupId = `provider_${get(provider, 'entityId')}`;
         } catch (error) {
           console.error(
             `component:file-browser/file-entry-charts#fetchDynamicSeriesConfigs: cannot load storage with ID "${storageId}"`,
             error
           );
-          storageName = String(this.t('unknownStorage', {
+          storageName = storageName || String(this.t('unknownStorage', {
             id: storageId.slice(0, 6),
           }));
           groupId = 'provider_unknown';
@@ -585,34 +591,35 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
     }
   },
 
-  init() {
-    this._super();
-    const colorGenerator = this.get('colorGenerator');
-    const colors = {
-      regAndLinksCountColor: colorGenerator.generateColorForKey('regAndLinksCount'),
-      directoriesCountColor: colorGenerator.generateColorForKey('directoriesCount'),
-      bytesColor: colorGenerator.generateColorForKey('bytes'),
-    };
-    this.set('seriesColorsConfig', colors);
-  },
-
   /**
    * @returns {Promise<Array<{ id: string, name: string }>>}
    */
   async fetchDynamicSeriesGroupConfigs() {
-    const currentProvider = await this.get('providerManager').getCurrentProvider();
-    const {
-      entityId,
-      name,
-    } = getProperties(currentProvider, 'entityId', 'name');
-    return [{
+    const space = this.get('space');
+    const providerList = await get(space, 'providerList');
+    const providers = await get(providerList, 'list');
+    const knownProvidersGroups = providers.sortBy('name').map((provider) => {
+      const {
+        entityId,
+        name,
+      } = getProperties(provider, 'entityId', 'name');
+      return {
         id: `provider_${entityId}`,
         name,
-      },
-      {
-        id: 'provider_unknown',
-        name: this.t('unknownProvider'),
-      },
-    ];
+        showSeriesSum: true,
+      };
+    });
+    const allProvidersGroups = [...knownProvidersGroups, {
+      id: 'provider_unknown',
+      name: this.t('unknownProvider'),
+      showSeriesSum: true,
+    }];
+
+    // There is only one dynamic series group - total physical size. So we don't
+    // have to define all its properties here. Instead, these are placed in
+    // chart configuration.
+    return [{
+      subgroups: allProvidersGroups,
+    }];
   },
 });

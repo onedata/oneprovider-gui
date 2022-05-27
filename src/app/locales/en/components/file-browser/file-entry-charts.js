@@ -20,10 +20,11 @@ export default {
   },
   seriesGroups: {
     totalCount: 'Total',
+    totalPhysicalSize: 'Physical size',
   },
   series: {
     directoriesCount: 'Directories',
     regAndLinksCount: 'Reg. files and links',
-    totalSize: 'Logical size',
+    totalLogicalSize: 'Logical size',
   },
 };

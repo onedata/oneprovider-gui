@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9439 Added subgroups to charts, added showing remote providers in directory size statistics
 * VFS-9163 Added config for space with directory size statistics setting
 * VFS-9393 Fixed ordering of stacked chart series
 * VFS-9411 Fixed empty points at the beginning of non-live chart time series
