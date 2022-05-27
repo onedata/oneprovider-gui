@@ -6,6 +6,7 @@ import aclEditor from './components/acl-editor';
 import editPermissionsModal from './components/edit-permissions-modal';
 import contentFileBrowser from './components/content-file-browser';
 import contentSpaceDatasets from './components/content-space-datasets';
+import contentSpaceConfig from './components/content-space-config';
 import fileBrowser from './components/file-browser';
 import posixPermissionsEditor from './components/posix-permissions-editor';
 import fileDistributionModal from './components/file-distribution-modal';
@@ -29,7 +30,7 @@ import datasetBrowser from './components/dataset-browser';
 import archiveBrowser from './components/archive-browser';
 import archiveProperties from './components/archive-properties';
 import archiveCreate from './components/archive-create';
-import archivesPurge from './components/archives-purge';
+import archivesDelete from './components/archives-delete';
 import itemsSelectBrowser from './components/items-select-browser';
 import datasetProtection from './components/dataset-protection';
 import filePath from './components/file-path';
@@ -62,6 +63,7 @@ const translations = {
     editPermissionsModal,
     contentFileBrowser,
     contentSpaceDatasets,
+    contentSpaceConfig,
     fileBrowser,
     posixPermissionsEditor,
     fileDistributionModal,
@@ -85,7 +87,7 @@ const translations = {
     archiveBrowser,
     archiveProperties,
     archiveCreate,
-    archivesPurge,
+    archivesDelete,
     itemsSelectBrowser,
     datasetProtection,
     filePath,

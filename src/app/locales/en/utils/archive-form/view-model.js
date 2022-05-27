@@ -21,8 +21,8 @@ export default _.merge(_.cloneDeep(BaseModel), {
     label: 'Preserved callback URL',
     tip: callbackTipText('persisting'),
   },
-  purgedCallback: {
-    label: 'Purged callback URL',
+  deletedCallback: {
+    label: 'Deleted callback URL',
     tip: callbackTipText('deleting'),
   },
 });

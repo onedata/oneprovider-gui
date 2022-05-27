@@ -1,15 +1,15 @@
 {{#modal.header}}
-  <div class="archives-purge-part archives-purge-header">
+  <div class="archives-delete-part archives-delete-header">
     <h1>{{tt this (concat "header.headerText." (if isSingleItem "single" "multi"))}}</h1>
   </div>
 {{/modal.header}}
 
 {{#modal.body}}
   {{#promise-proxy-container proxy=datasetNameProxy}}
-    <div class="archives-purge-part archives-purge-body">
-      <p class="purge-text-intro">
+    <div class="archives-delete-part archives-delete-body">
+      <p class="delete-text-intro">
         {{tt this
-          (concat "body.aboutToPurge." (if showArchivesDetails "detailed" "simpleMulti"))
+          (concat "body.aboutToDelete." (if showArchivesDetails "detailed" "simpleMulti"))
           archivesText=(tt this
             (concat "body.archive." (if isSingleItem "single" "multi"))
           )
@@ -19,10 +19,10 @@
       </p>
       {{#if showArchivesDetails}}
         <p>
-          {{archives-purge/items-info items=archives}}
+          {{archives-delete/items-info items=archives}}
         </p>
       {{/if}}
-      <p class="purge-text-irreversible-warning text-danger">
+      <p class="delete-text-irreversible-warning text-danger">
         {{tt this
           "body.irreversibleWarning"
           archivesText=(tt this
@@ -33,10 +33,10 @@
           icon="sign-info-rounded"
         }}
       </p>
-      <p class="purge-text-retype-description">
+      <p class="delete-text-retype-description">
         {{tt this "body.toContinueRetype"}}
       </p>
-      <p class="purge-retype-text">
+      <p class="delete-retype-text">
         <strong>{{confirmationSourceText}}</strong>
       </p>
       <form class="form form-horizontal">
@@ -55,7 +55,7 @@
 {{/modal.body}}
 
 {{#modal.footer}}
-  <div class="archives-purge-part archives-purge-footer">
+  <div class="archives-delete-part archives-delete-footer">
     {{#bs-button disabled=processing onClick=(action "close") class="cancel"}}
       {{tt this "footer.cancel"}}
     {{/bs-button}}
@@ -63,16 +63,16 @@
       {{#one-button
         type="danger"
         buttonType="button"
-        onClick=(action "purge")
+        onClick=(action "delete")
         class="proceed remove-proceed"
-        disabled=purgeDisabled
+        disabled=deleteDisabled
       }}
-        {{tt this (concat "footer.purgeSubmit." (if isSingleItem "single" "multi"))
+        {{tt this (concat "footer.deleteSubmit." (if isSingleItem "single" "multi"))
           count=archives.length
         }}
       {{/one-button}}
-      {{#if purgeTip}}
-        {{one-tooltip title=purgeTip}}
+      {{#if deleteTip}}
+        {{one-tooltip title=deleteTip}}
       {{/if}}
     </div>
   </div>
