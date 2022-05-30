@@ -10,8 +10,7 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get, observer } from '@ember/object';
-import { cancel, debounce } from '@ember/runloop';
-import { conditional, raw } from 'ember-awesome-macros';
+import { cancel, debounce, later } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
@@ -58,33 +57,27 @@ export default Component.extend(I18n, {
   isJumpInProgress: false,
 
   /**
+   * Timeout ID for automatic jump performing after input change.
    * @type {any}
    */
-  timeoutId: null,
+  performJumpTimeoutId: null,
 
   /**
-   * Is set to true when last jump does not found item with given prefix, but jumped
-   * to next item.
-   * @type {boolean}
+   * Timeout ID for hiding "prefix not found" tooltip.
+   * @type {any}
    */
-  isLastJumpFailed: false,
-
-  //#endregion
-
-  validationClass: conditional(
-    'isLastJumpFailed',
-    raw('has-error'),
-    raw(''),
-  ),
+  showNotFoundTooltipTimeoutId: null,
 
   inputValueObserver: observer('inputValue', function inputValueObserver() {
-    this.set('isLastJumpFailed', false);
+    if (!this.get('inputValue')) {
+      this.hideNotFoundTooltip();
+    }
   }),
 
   scheduleJump() {
     const jumpScheduleDelay = this.get('jumpScheduleDelay');
-    const timeoutId = debounce(this, 'performJump', jumpScheduleDelay);
-    this.set('timeoutId', timeoutId);
+    const performJumpTimeoutId = debounce(this, 'performJump', jumpScheduleDelay);
+    this.set('performJumpTimeoutId', performJumpTimeoutId);
   },
 
   async performJump() {
@@ -108,7 +101,6 @@ export default Component.extend(I18n, {
         await fileManager.getFileDataByName(parentDirId, inputValue);
       const isLastJumpFailed = !fileData || !fileData.name ||
         !fileData.name.startsWith(inputValue);
-      this.set('isLastJumpFailed', isLastJumpFailed);
       if (!fileData) {
         fileData = await fileManager.getFileDataByName(
           parentDirId,
@@ -121,18 +113,31 @@ export default Component.extend(I18n, {
       }
       const fileId = get(fileData, 'guid');
       appProxy.callParent('updateSelected', [fileId]);
+      if (isLastJumpFailed) {
+        cancel(this.get('showNotFoundTooltipTimeoutId'));
+        this.set('showNotFoundTooltipTimeoutId', later(() => {
+          this.hideNotFoundTooltip();
+        }, 5000));
+      } else {
+        this.hideNotFoundTooltip();
+      }
     } finally {
       this.set('isJumpInProgress', false);
     }
   },
 
   clearDebounce() {
-    const timeoutId = this.get('timeoutId');
-    if (!timeoutId) {
+    const performJumpTimeoutId = this.get('performJumpTimeoutId');
+    if (!performJumpTimeoutId) {
       return;
     }
-    cancel(timeoutId);
-    this.set('timeoutId', null);
+    cancel(performJumpTimeoutId);
+    this.set('performJumpTimeoutId', null);
+  },
+
+  hideNotFoundTooltip() {
+    cancel(this.get('showNotFoundTooltipTimeoutId'));
+    this.set('showNotFoundTooltipTimeoutId', null);
   },
 
   actions: {
@@ -143,6 +148,9 @@ export default Component.extend(I18n, {
     changeValue(value) {
       this.get('changeInputValue')(value);
       this.scheduleJump();
+    },
+    hideNotFoundTooltip() {
+      this.hideNotFoundTooltip();
     },
   },
 });

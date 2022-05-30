@@ -1,4 +1,4 @@
-<div class="form-group form-group-sm search-bar-form-group {{validationClass}}">
+<div class="form-group form-group-sm search-bar-form-group">
   <div class="input-group with-icon-addon">
     <input
       class="form-control jump-input"
@@ -8,9 +8,22 @@
       value={{inputValue}}
       oninput={{action "changeValue" value="target.value"}}
     >
-    <div class="input-group-addon info-input-group-addon">
+    <div
+      class="input-group-addon info-input-group-addon"
+      onmouseover={{action "hideNotFoundTooltip"}}
+    >
       {{one-icon icon="browser-info"}}
       {{one-tooltip title=(tt this "tip")}}
+      {{#unless media.isMobile}}
+        {{one-tooltip
+          placement="right"
+          visible=showNotFoundTooltipTimeoutId
+          title=(tt this "notFoundTooltip")
+          triggerElement=null
+          triggerEvents=""
+          hideOnScroll=false
+        }}
+      {{/unless}}
     </div>
   </div>
 </div>
