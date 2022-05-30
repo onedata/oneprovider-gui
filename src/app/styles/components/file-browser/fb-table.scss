@@ -1,5 +1,6 @@
 .fb-table {
   $refresh-transition-duration: 300ms;
+  $tbody-z-index: 0;
 
   position: relative;
   height: 100%;
@@ -119,16 +120,20 @@
     position: sticky;
     top: $fb-table-margin-top;
     // FIXME: use $fb-table-margin-top-mobile
-    // FIXME: above tbody, should be adjusted to be as highest as possible
-    z-index: 1;
+    z-index: $tbody-z-index + 1;
     th {
       background-color: white;
       vertical-align: middle;
       padding-top: $table-cell-padding / 2;
+
+      &:first-of-type {
+        text-align: left;
+      }
     }
   }
-  .fb-table-thead th:first-of-type {
-    text-align: left;
+  .fb-table-tbody {
+    position: relative;
+    z-index: $tbody-z-index;
   }
   .fb-table-first-col-container {
     display: flex;
