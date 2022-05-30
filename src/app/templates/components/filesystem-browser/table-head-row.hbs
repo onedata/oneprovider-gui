@@ -5,6 +5,8 @@
     <div class="table-header-jump-control">
       {{file-browser/jump-control
         parentDirId=browserModel.dir.entityId
+        inputValue=jumpControlValue
+        changeInputValue=(action "changeJumpControlValue")
       }}
     </div>
     <div class="table-header-status-bar">{{yield}}</div>

@@ -8,6 +8,7 @@
  */
 
 import FbTableHeadRow from 'oneprovider-gui/components/file-browser/fb-table-head-row';
+import { reads } from '@ember/object/computed';
 
 export default FbTableHeadRow.extend({
   classNames: ['filesystem-table-head-row'],
@@ -16,4 +17,15 @@ export default FbTableHeadRow.extend({
    * @override
    */
   i18nPrefix: 'components.filesystemBrowser.tableHeadRow',
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  jumpControlValue: reads('browserModel.jumpControlValue'),
+
+  actions: {
+    changeJumpControlValue(value) {
+      this.get('browserModel').changeJumpControlValue(value);
+    },
+  },
 });

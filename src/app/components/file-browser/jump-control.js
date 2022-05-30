@@ -9,7 +9,7 @@
 
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
-import { get } from '@ember/object';
+import { get, observer } from '@ember/object';
 import { cancel, debounce } from '@ember/runloop';
 import { conditional, raw } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -32,6 +32,12 @@ export default Component.extend(I18n, {
    * @type {string}
    */
   parentDirId: undefined,
+
+  /**
+   * @virtual
+   * @type {(value: string) => void}
+   */
+  changeInputValue: undefined,
 
   /**
    * Debounced jump delay in milliseconds.
@@ -70,6 +76,10 @@ export default Component.extend(I18n, {
     raw('has-error'),
     raw(''),
   ),
+
+  inputValueObserver: observer('inputValue', function inputValueObserver() {
+    this.set('isLastJumpFailed', false);
+  }),
 
   scheduleJump() {
     const jumpScheduleDelay = this.get('jumpScheduleDelay');
@@ -131,10 +141,7 @@ export default Component.extend(I18n, {
       return this.performJump();
     },
     changeValue(value) {
-      this.setProperties({
-        inputValue: value,
-        isLastJumpFailed: false,
-      });
+      this.get('changeInputValue')(value);
       this.scheduleJump();
     },
   },

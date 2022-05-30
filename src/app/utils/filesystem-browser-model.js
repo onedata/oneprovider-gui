@@ -276,6 +276,16 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   highlightAnimationTimeoutId: null,
 
+  //#region state
+
+  /**
+   * Current value in jump-control input.
+   * @type {string}
+   */
+  jumpControlValue: '',
+
+  //#endregion
+
   // #region Action buttons
 
   btnBagitUpload: computed(
@@ -1014,6 +1024,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   async onChangeDir(targetDir, updateBrowserDir) {
     await updateBrowserDir(targetDir);
+    this.changeJumpControlValue('');
     // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
     // if using selector inside filesystem browser
     this.get('uploadManager').changeTargetDirectory(targetDir);
@@ -1317,5 +1328,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   changeTagHover(tag, isHovered) {
     this.set('hoveredHeaderTag', isHovered ? tag : null);
+  },
+
+  changeJumpControlValue(value) {
+    this.set('jumpControlValue', value);
   },
 });
