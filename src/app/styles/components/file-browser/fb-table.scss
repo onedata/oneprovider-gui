@@ -152,9 +152,11 @@
     // enables text truncate inside
     max-width: 0;
   }
+  .fb-table-col-actions-menu {
+    width: 56px;
+  }
   td.fb-table-col-actions-menu {
     position: relative;
-    width: 56px;
     min-height: 61px;
     padding: 0;
     // TODO: a style bug that is only in Firefox: menu toggle is not 100% height
