@@ -121,6 +121,17 @@ export default Component.extend(I18n, {
       );
       const isLastJumpFailed = !fileData || !fileData.name ||
         !fileData.name.startsWith(inputValue);
+      if (isLastJumpFailed) {
+        const fbTableApi = this.get('browserModel.fbTableApi');
+        const filesArray = fbTableApi.getFilesArray();
+        // when the file is loaded in current list, but in fact it is already deleted
+        // on backend - we should refresh list to show current state
+        const prefixIsOnCurrentList =
+          filesArray.find(f => get(f, 'name').startsWith(inputValue));
+        if (prefixIsOnCurrentList) {
+          await fbTableApi.refresh();
+        }
+      }
       if (!fileData) {
         fileData = await fileManager.getFileDataByName(
           parentDirId,
