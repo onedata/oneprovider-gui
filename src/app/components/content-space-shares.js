@@ -1,7 +1,7 @@
 /**
  * Container for signed-in user shares list and file browser to use in an iframe with
  * injected properties.
- * 
+ *
  * @module component/content-space-share
  * @author Jakub Liput
  * @copyright (C) 2019-2020 ACK CYFRONET AGH
@@ -13,7 +13,7 @@ import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mix
 
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('share'), {
-    classNames: ['content-space-shares'],
+    classNames: ['content-space-shares', 'content-items-browser'],
 
     /**
      * @type {String}
