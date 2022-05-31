@@ -3,7 +3,8 @@
     <input
       class="form-control jump-input"
       placeholder={{tt this "jumpToPrefix"}}
-      type="search"
+      type="text"
+      spellcheck="false"
       onkeydown={{invoke-on-enter (action "performJumpImmediately")}}
       value={{inputValue}}
       oninput={{action "changeValue" value="target.value"}}

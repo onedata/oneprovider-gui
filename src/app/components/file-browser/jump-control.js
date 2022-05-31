@@ -10,6 +10,7 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get, observer } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import { cancel, debounce, later } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
@@ -25,12 +26,10 @@ export default Component.extend(I18n, {
   i18nPrefix: 'components.fileBrowser.jumpControl',
 
   /**
-   * Entity ID of items container (directory, dataset directory, etc.)
-   * to search the item by prefix in.
    * @virtual
-   * @type {string}
+   * @type {Utils.FilesystemBrowserModel}
    */
-  parentDirId: undefined,
+  browserModel: undefined,
 
   /**
    * @virtual
@@ -68,11 +67,28 @@ export default Component.extend(I18n, {
    */
   showNotFoundTooltipTimeoutId: null,
 
+  /**
+   * Entity ID of items container (directory, dataset directory, etc.)
+   * to search the item by prefix in.
+   * @type {string}
+   */
+  parentDirId: reads('browserModel.dir.entityId'),
+
   inputValueObserver: observer('inputValue', function inputValueObserver() {
     if (!this.get('inputValue')) {
       this.hideNotFoundTooltip();
     }
   }),
+
+  /**
+   * @param {File} item
+   * @returns {Promise}
+   */
+  tableSelectAndJump(item) {
+    const tableApi = this.get('browserModel.fbTableApi');
+    return tableApi.forceSelectAndJump([item]);
+    // return this.get('browserModel').changeSelectedItems([item]);
+  },
 
   scheduleJump() {
     const jumpScheduleDelay = this.get('jumpScheduleDelay');
@@ -112,7 +128,8 @@ export default Component.extend(I18n, {
         return;
       }
       const fileId = get(fileData, 'guid');
-      appProxy.callParent('updateSelected', [fileId]);
+      const file = await fileManager.getFileById(fileId);
+      await this.tableSelectAndJump(file);
       if (isLastJumpFailed) {
         cancel(this.get('showNotFoundTooltipTimeoutId'));
         this.set('showNotFoundTooltipTimeoutId', later(() => {

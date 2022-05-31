@@ -4,7 +4,7 @@
     <div class="table-header-text">{{tt this "files"}}</div>
     <div class="table-header-jump-control">
       {{file-browser/jump-control
-        parentDirId=browserModel.dir.entityId
+        browserModel=browserModel
         inputValue=jumpControlValue
         changeInputValue=(action "changeJumpControlValue")
       }}
