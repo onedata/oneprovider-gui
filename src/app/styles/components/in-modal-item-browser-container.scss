@@ -26,6 +26,7 @@
 
 .bs-modal-body-scroll {
   .in-modal-item-browser-container {
+    @include fill-flex-using-column;
     .fb-table-thead th {
       $parent-margin-sum: "#{$modal-content-horizontal-padding} + #{$modal-inner-padding}";
       $negative-parent-margin: calc(-1 * (#{$parent-margin-sum}));
