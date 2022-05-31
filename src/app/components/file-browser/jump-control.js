@@ -18,7 +18,6 @@ export default Component.extend(I18n, {
   classNames: ['jump-control'],
 
   fileManager: service(),
-  appProxy: service(),
 
   /**
    * @override
@@ -67,6 +66,8 @@ export default Component.extend(I18n, {
    */
   showNotFoundTooltipTimeoutId: null,
 
+  parentScope: reads('browserModel.dir.scope'),
+
   /**
    * Entity ID of items container (directory, dataset directory, etc.)
    * to search the item by prefix in.
@@ -87,7 +88,6 @@ export default Component.extend(I18n, {
   tableSelectAndJump(item) {
     const tableApi = this.get('browserModel.fbTableApi');
     return tableApi.forceSelectAndJump([item]);
-    // return this.get('browserModel').changeSelectedItems([item]);
   },
 
   scheduleJump() {
@@ -99,13 +99,13 @@ export default Component.extend(I18n, {
   async performJump() {
     const {
       fileManager,
-      appProxy,
       parentDirId,
+      parentScope,
       inputValue,
     } = this.getProperties(
       'fileManager',
-      'appProxy',
       'parentDirId',
+      'parentScope',
       'inputValue',
     );
     if (!inputValue) {
@@ -113,8 +113,12 @@ export default Component.extend(I18n, {
     }
     try {
       this.set('isJumpInProgress', true);
-      let fileData =
-        await fileManager.getFileDataByName(parentDirId, inputValue);
+      let fileData = await fileManager.getFileDataByName(
+        parentDirId,
+        inputValue, {
+          scope: parentScope,
+        }
+      );
       const isLastJumpFailed = !fileData || !fileData.name ||
         !fileData.name.startsWith(inputValue);
       if (!fileData) {
@@ -122,13 +126,14 @@ export default Component.extend(I18n, {
           parentDirId,
           inputValue, {
             offset: -1,
+            scope: parentScope,
           });
       }
       if (!fileData) {
         return;
       }
       const fileId = get(fileData, 'guid');
-      const file = await fileManager.getFileById(fileId);
+      const file = await fileManager.getFileById(fileId, parentScope);
       await this.tableSelectAndJump(file);
       if (isLastJumpFailed) {
         cancel(this.get('showNotFoundTooltipTimeoutId'));
