@@ -138,13 +138,23 @@
   .fb-table-first-col-container {
     display: flex;
     align-items: center;
+    * + .table-header-jump-control {
+      margin-left: 2em;
+    }
     .table-header-jump-control {
       flex-grow: 1;
-      // FIXME: only if there are elements beside
-      margin-left: 2em;
-      margin-right: 2em;
       .jump-control {
         max-width: 18em;
+      }
+      @media (max-width: $screen-xs-max) {
+        .jump-control {
+          max-width: none;
+        }
+      }
+    }
+    .table-header-jump-control + .table-header-status-bar {
+      .file-status-tag-group:first-child {
+        margin-left: 2em;
       }
     }
     .table-header-status-bar {
@@ -158,7 +168,7 @@
     max-width: 0;
   }
   .fb-table-col-actions-menu {
-    width: 56px;
+    width: 40px;
   }
   td.fb-table-col-actions-menu {
     position: relative;

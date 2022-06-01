@@ -1,4 +1,4 @@
-<div class="form-group form-group-sm search-bar-form-group">
+<div class="form-group form-group-sm jump-bar-form-group">
   <div class="input-group with-icon-addon">
     <input
       class="form-control jump-input"
@@ -14,7 +14,10 @@
       onmouseover={{action "hideNotFoundTooltip"}}
     >
       {{one-icon icon="browser-info"}}
-      {{one-tooltip title=(tt this "tip")}}
+      {{one-tooltip
+        triggerEvents=(if isMobile.any "click" "hover")
+        title=(tt this "tip")
+      }}
       {{#unless media.isMobile}}
         {{one-tooltip
           placement="right"

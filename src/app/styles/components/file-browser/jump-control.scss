@@ -1,10 +1,9 @@
 .jump-control {
   display: flex;
   align-items: center;
-  .search-bar-form-group {
+  .jump-bar-form-group {
     flex-grow: 1;
     margin: 0;
-    // FIXME: maybe fix generic style instead of custom addon-icon for this
     &.form-group-sm {
       .input-group.with-icon-addon input:last-child {
         padding-left: 40px;
@@ -18,6 +17,11 @@
     }
     .form-control {
       @include font-regular;
+    }
+  }
+  @media (max-width: $screen-xs-max) {
+    .jump-bar-form-group {
+
     }
   }
 }

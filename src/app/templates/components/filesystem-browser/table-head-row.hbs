@@ -1,9 +1,9 @@
-<th class="fb-table-col-files">
+<th class="fb-table-col-files" colspan={{if media.isMobile "2" "1"}}>
   <div class="fb-table-first-col-container">
-    {{!-- FIXME: think about structure --}}
     <div class="table-header-text">{{tt this "files"}}</div>
     <div class="table-header-jump-control">
       {{file-browser/jump-control
+        class=(if isJumpControlHidden "hidden")
         browserModel=browserModel
         inputValue=jumpControlValue
         changeInputValue=(action "changeJumpControlValue")
@@ -16,4 +16,5 @@
 <th class="fb-table-col-modification fb-table-secondary-col hidden-xs">
   {{tt this "modification"}}
 </th>
-<th class="fb-table-col-actions-menu"></th>
+{{!-- hide actions th to make space for jump-control (see also colspan in first th) --}}
+<th class="fb-table-col-actions-menu hidden-xs"></th>

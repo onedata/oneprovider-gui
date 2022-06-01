@@ -18,6 +18,7 @@ export default Component.extend(I18n, {
   classNames: ['jump-control'],
 
   fileManager: service(),
+  isMobile: service(),
 
   /**
    * @override
