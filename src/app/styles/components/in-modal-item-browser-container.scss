@@ -31,9 +31,15 @@
       $parent-margin-sum: "#{$modal-content-horizontal-padding} + #{$modal-inner-padding}";
       $negative-parent-margin: calc(-1 * (#{$parent-margin-sum}));
 
+      $parent-margin-sum-mobile: "#{$modal-content-horizontal-padding-mobile} + #{$modal-inner-padding}";
+      $negative-parent-margin-mobile: calc(-1 * (#{$parent-margin-sum-mobile}));
+
       position: relative;
       @include before-bottom-shadow;
-      @include content-shadow-leftovers($negative-parent-margin);
+      @include content-shadow-leftovers(
+        $negative-parent-margin,
+        $negative-parent-margin-mobile
+      );
     }
   }
   &.on-top {
