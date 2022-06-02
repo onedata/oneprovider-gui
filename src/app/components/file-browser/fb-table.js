@@ -492,13 +492,21 @@ export default Component.extend(I18n, {
           scheduleOnce('afterRender', () => {
             safeExec(this, 'set', 'refreshStarted', true);
             const animationPromise = new Promise((resolve) => {
+              const transitionEventHandler = (event) => {
+                if (
+                  event.propertyName === 'opacity' &&
+                  event.target.matches('.fb-files-table')
+                ) {
+                  element.removeEventListener(
+                    'transitionend',
+                    transitionEventHandler,
+                  );
+                  resolve();
+                }
+              };
               element.addEventListener(
                 'transitionend',
-                (event) => {
-                  if (event.propertyName === 'opacity') {
-                    resolve();
-                  }
-                }, { once: true }
+                transitionEventHandler,
               );
             });
             this.refreshFileList()
