@@ -10,7 +10,6 @@
 
 import OneEmbeddedComponent from 'oneprovider-gui/components/one-embedded-component';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { bool } from 'ember-awesome-macros';
 
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('share'), {
