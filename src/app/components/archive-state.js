@@ -56,7 +56,7 @@ export default Component.extend(I18n, {
    */
   hiddenDetailsStates: raw([
     'pending',
-    'purging',
+    'deleting',
   ]),
 
   isStateDetailsHidden: array.includes(

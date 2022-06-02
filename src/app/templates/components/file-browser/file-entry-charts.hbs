@@ -1,0 +1,25 @@
+{{#if (eq dirSizeStatsConfig.statsCollectionStatus "initializing")}}
+  <div class="no-statistics">
+    <div class="no-statistics-message">
+      {{tt this "noStatistics"}}
+    </div>
+  </div>
+{{else}}
+  <div class="charts-header">
+    <div class="title">
+      {{tt this "header"}}
+      <span class="space"></span>
+      {{one-label-tip 
+        title=(tt this "headerTooltip")
+        tooltipClass="tooltip-lg"
+      }}
+    </div>
+    {{one-time-series-chart/toolbar
+      models=(array filesCountChartModel filesSizeChartModel)
+    }}
+  </div>
+  <div class="charts-plots">
+    {{one-time-series-chart/plot model=filesCountChartModel}}
+    {{one-time-series-chart/plot model=filesSizeChartModel}}
+  </div>
+{{/if}}

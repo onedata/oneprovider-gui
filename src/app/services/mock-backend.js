@@ -507,6 +507,7 @@ export default Service.extend({
           currentUserIsOwner: false,
           currentUserEffPrivileges: [
             'space_view',
+            'space_update',
             'space_view_qos',
             'space_view_transfers',
             'space_read_data',
@@ -828,7 +829,7 @@ export default Service.extend({
         },
         description: `My archive number ${i}`,
         preservedCallback: 'http://example.com/preserved',
-        purgedCallback: 'http://example.com/purged',
+        deletedCallback: 'http://example.com/deleted',
         dataset,
         // properties not normally used when create
         id: gri({
@@ -877,7 +878,7 @@ export default Service.extend({
       config: configDip,
       description: get(archive, 'description') + ' (DIP)',
       preservedCallback: get(archive, 'preservedCallback'),
-      purgedCallback: get(archive, 'purgedCallback'),
+      deletedCallback: get(archive, 'deletedCallback'),
       dataset: get(archive, 'dataset'),
       relatedAip: archive,
       relatedDip: null,

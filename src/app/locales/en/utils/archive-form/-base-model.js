@@ -10,8 +10,8 @@ export default {
   preservedCallback: {
     label: '"Preserved" callback URL',
   },
-  purgedCallback: {
-    label: '"Purged" callback URL',
+  deletedCallback: {
+    label: '"Deleted" callback URL',
   },
   config: {
     createNestedArchives: {

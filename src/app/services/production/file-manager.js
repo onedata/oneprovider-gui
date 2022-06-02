@@ -19,6 +19,15 @@ import { later } from '@ember/runloop';
 import createThrottledFunction from 'onedata-gui-common/utils/create-throttled-function';
 
 /**
+ * @typedef {Object} FileEntryTimeSeriesCollections
+ * @param {Array<string>} dir_count
+ * @param {Array<string>} incarnation
+ * @param {Array<string>} reg_file_and_link_count
+ * @param {Array<string>} storage_use_<id>
+ * @param {Array<string>} total_size
+ */
+
+/**
  * @typedef {Object} RecallLogData
  * @property {string} fileId CDMI Object ID of file that message is about
  * @property {string} relativePath relative path to error-affected file from archive
@@ -44,6 +53,7 @@ export default Service.extend({
   store: service(),
   onedataRpc: service(),
   onedataGraph: service(),
+  timeSeriesManager: service(),
   infiniteLogManager: service(),
   apiSamplesManager: service(),
 
@@ -453,7 +463,44 @@ export default Service.extend({
 
   async checkFileNameExists(parentDirId, fileName, scope = 'private') {
     const file = await this.getFileDataByName(parentDirId, fileName, { scope });
-    return file.name === fileName || file.conflictingName === fileName;
+    if (file) {
+      return file.name === fileName || file.conflictingName === fileName;
+    } else {
+      return false;
+    }
+  },
+
+  /**
+   * @param {string} fileId
+   * @param {TimeSeriesMetricsQueryParams} queryParams
+   * @returns {Promise<TimeSeriesMetricsQueryResult>}
+   */
+  async queryTimeSeriesMetrics(
+    fileId,
+    queryParams
+  ) {
+    const requestGri = dirSizeStatsGri(fileId);
+    return this.get('timeSeriesManager')
+      .queryTimeSeriesMetrics(
+        requestGri,
+        Object.assign({}, queryParams, { mode: 'slice' })
+      );
+  },
+
+  /**
+   * @param {string} fileId
+   * @returns {Promise<FileEntryTimeSeriesCollections>}
+   */
+  async getTimeSeriesCollections(fileId) {
+    const requestGri = dirSizeStatsGri(fileId);
+    return this.get('onedataGraph').request({
+      gri: requestGri,
+      operation: 'get',
+      subscribe: false,
+      data: {
+        mode: 'layout',
+      },
+    });
   },
 
   /**
@@ -581,3 +628,16 @@ export default Service.extend({
 
   //#endregion browser component utils
 });
+
+/**
+ * @param {string} fileId
+ * @returns {string}
+ */
+export function dirSizeStatsGri(fileId) {
+  return gri({
+    entityId: fileId,
+    entityType: fileEntityType,
+    aspect: 'dir_size_stats',
+    scope: 'private',
+  });
+}

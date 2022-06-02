@@ -19,6 +19,11 @@ export default {
     general: {
       tabTitle: 'General',
     },
+    size: {
+      tabTitle: 'Size statistics',
+      disabledTip: 'Not available for symbolic links.',
+      turnOffTip: 'Directory size statistics are disabled',
+    },
     hardlinks: {
       tabTitle: 'Hard links ({{hardlinksCount}})',
       showingOnlyNFirst: 'Showing only {{limit}} first hard links.',

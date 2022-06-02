@@ -73,7 +73,7 @@ describe('Integration | Component | archive recall (internal)', function () {
       },
       description: 'Dummy archive',
       preservedCallback: 'http://example.com/preserved',
-      purgedCallback: 'http://example.com/purged',
+      deletedCallback: 'http://example.com/deleted',
       dataset,
       // properties not normally used when create
       id: gri({

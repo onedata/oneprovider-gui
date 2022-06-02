@@ -25,6 +25,13 @@ import { all as allFulfilled } from 'rsvp';
  */
 
 /**
+ * @typedef {Object} DirSizeStatsConfig
+ * @property {string} statsCollectionStatus One of `enabled`, `disabled`, 
+ * `stopping`, `initializing`
+ * @property {number} since
+ */
+
+/**
  * @param {string} spaceId
  * @param {{ aspect: string?, scope: string? }} griOptions
  * @returns {string}
@@ -142,4 +149,45 @@ export default Service.extend({
     return this.evaluateQosExpression(spaceId, 'anyStorage')
       .then(({ matchingStorages }) => matchingStorages);
   },
+
+  /**
+   * @param {String} spaceId
+   * @returns {Promise<DirSizeStatsConfig>}
+   */
+  fetchDirSizeStatsConfig(spaceId) {
+    const requestGri = dirSizeStatsConfigGri(spaceId);
+    return this.get('onedataGraph').request({
+      gri: requestGri,
+      operation: 'get',
+      subscribe: false,
+    });
+  },
+
+  /**
+   * @param {String} spaceId
+   * @param {{ statsCollectionEnabled: boolean }} dirSizeStatsConfig
+   * @returns {Promise<Object>}
+   */
+  saveDirSizeStatsConfig(spaceId, dirSizeStatsConfig) {
+    const requestGri = dirSizeStatsConfigGri(spaceId);
+    return this.get('onedataGraph').request({
+      gri: requestGri,
+      operation: 'update',
+      data: dirSizeStatsConfig,
+      subscribe: false,
+    });
+  },
 });
+
+/**
+ * @param {string} spaceId
+ * @returns {string}
+ */
+export function dirSizeStatsConfigGri(spaceId) {
+  return gri({
+    entityType: spaceEntityType,
+    entityId: spaceId,
+    aspect: 'dir_size_stats_config',
+    scope: 'private',
+  });
+}

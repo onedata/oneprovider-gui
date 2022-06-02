@@ -1,0 +1,35 @@
+.content-space-config {
+  .space-settings-info {
+    margin-bottom: $padding-large-vertical;
+  }
+
+  .dir-size-stats-config-info { 
+    margin-top: $padding-large-vertical;
+  }
+
+  .dir-size-stats-config-label {
+    @include font-semibold;
+  }
+
+  .dir-size-stats-icon {
+    font-size: 1.8em;
+    position: absolute;
+    transform: translateY(-4px);
+  }
+
+  .dir-size-stats-warning {
+    margin-left: 28px;
+  }
+
+  .dir-size-stats-config.content-section {
+    padding-bottom: 2px;
+  }
+
+  h1 {
+    font-size: 100%;
+    text-transform: uppercase;
+    margin: 0;
+    margin: $padding-large-vertical 0px;
+    font-weight: bold;
+  }
+}

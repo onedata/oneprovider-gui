@@ -197,7 +197,7 @@ describe('Integration | Component | file browser (main component)', function () 
   });
 
   it('has blocked hardlink creation for directories', async function () {
-    mockFilesTree(this, {
+    await mockFilesTree(this, {
       f1: {},
     });
 
@@ -629,11 +629,11 @@ describe('Integration | Component | file browser (main component)', function () 
   });
 });
 
-function mockFilesTree(testCase, treeSpec) {
+async function mockFilesTree(testCase, treeSpec) {
   const fileManager = lookupService(testCase, 'fileManager');
   const fetchDirChildrenStub = sinon.stub(fileManager, 'fetchDirChildren');
 
-  const root = createFile(testCase, {
+  const root = await createFile(testCase, {
     entityId: 'root',
     name: 'root name',
     index: 'abc123',
@@ -650,14 +650,15 @@ function mockFilesTree(testCase, treeSpec) {
       parent,
       subtreeSpec,
     } = treeElementGeneratorQueue.shift();
-    const subtreeElements = Object.keys(subtreeSpec).map(subElementId => {
+    const subtreeElements = [];
+    for (const subElementId of Object.keys(subtreeSpec)) {
       const isDir = subtreeSpec[subElementId] !== null;
-      const element = createFile(testCase, {
+      const element = await createFile(testCase, {
         entityId: subElementId,
         name: `${subElementId} name`,
         index: `abc-${subElementId}`,
         type: isDir ? 'dir' : 'file',
-        parent: parent,
+        parent,
       });
       elementsMap[subElementId] = element;
       if (isDir) {
@@ -666,8 +667,8 @@ function mockFilesTree(testCase, treeSpec) {
           subtreeSpec: subtreeSpec[subElementId],
         });
       }
-      return element;
-    });
+      subtreeElements.push(element);
+    }
     fetchDirChildrenStub.withArgs(
       get(parent, 'entityId'),
       sinon.match.any,
@@ -761,7 +762,7 @@ function itHasWorkingClipboardFunction({
   finalExpect,
 }) {
   it(description, async function (done) {
-    mockFilesTree(this, {
+    await mockFilesTree(this, {
       f1: null,
       f2: {
         f3: null,
@@ -858,10 +859,10 @@ function notStubbed(stubName) {
   };
 }
 
-function createFile(testCase, data) {
+async function createFile(testCase, data) {
   if (data.entityId) {
     data.id = `file.${data.entityId}.instance:private`;
     delete data.entityId;
   }
-  return lookupService(testCase, 'store').createRecord('file', data);
+  return await lookupService(testCase, 'store').createRecord('file', data).save();
 }
