@@ -380,23 +380,26 @@ export default Component.extend(I18n, {
    * Currently (as of 2021) not all browsers support scroll anchoring and
    * `perfect-scrollbar` has issues with it (anchoring is disabled), so we need to do
    * scroll correction manually.
-   * @param {Promise} arrayExpandedPromise promise that resolves when files array
+   * @param {Promise} newItemsCount promise that resolves when files array
    *   have new items added and start/end markers are changed
    */
-  async adjustScroll(arrayExpandedPromise) {
-    const additionalFrontSpace = await arrayExpandedPromise;
-    const topDiff = additionalFrontSpace * this.get('rowHeight');
+  async adjustScroll(newItemsCount = 0) {
+    const topDiff = newItemsCount * this.get('rowHeight');
     if (topDiff <= 0) {
       return;
     }
     console.debug(
-      `component:file-browser/fb-table#adjustScrollOnFirstRowChange: adjusting scroll by ${topDiff}`
+      `component:file-browser/fb-table#adjustScroll: adjusting scroll by ${topDiff}`
     );
     this.set('ignoreNextScroll', true);
+    this.scrollTopAfterFrameRender(topDiff, true);
+  },
+
+  async scrollTopAfterFrameRender(value = 0, isDelta = false) {
     scheduleOnce('afterRender', this, () => {
       window.requestAnimationFrame(() => {
         safeExec(this, () => {
-          this.get('containerScrollTop')(topDiff, true);
+          this.get('containerScrollTop')(value, isDelta);
         });
       });
     });
@@ -448,8 +451,18 @@ export default Component.extend(I18n, {
       () => this.onFetchingStateUpdate('next', 'rejected')
     );
     array.on(
-      'willExpandArrayBeginning',
-      (arrayUpdatePromise) => this.adjustScroll(arrayUpdatePromise)
+      'willChangeArrayBeginning',
+      async ({ updatePromise, newItemsCount }) => {
+        await updatePromise;
+        this.adjustScroll(newItemsCount);
+      }
+    );
+    array.on(
+      'willResetArray',
+      async ({ updatePromise }) => {
+        await updatePromise;
+        this.scrollTopAfterFrameRender();
+      }
     );
     return array;
   }),
