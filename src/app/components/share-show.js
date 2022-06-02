@@ -83,12 +83,6 @@ export default Component.extend(...mixins, {
   reloadShareList: notImplementedReject,
 
   /**
-   * @virtual optional
-   * @type {Function}
-   */
-  containerScrollTop: notImplementedIgnore,
-
-  /**
    * Frame name, where Onezone share link should be opened
    * @type {String}
    */

@@ -271,9 +271,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   },
 
   actions: {
-    containerScrollTop() {
-      return this.get('containerScrollTop')(...arguments);
-    },
     fetchShareRootDirChildren(dirId, startIndex, size, offset, array) {
       if (dirId !== shareRootId) {
         return reject('cannot use fetchShareRootDirChildren for non-share-root');

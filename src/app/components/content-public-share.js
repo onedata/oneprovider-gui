@@ -24,12 +24,6 @@ export default OneEmbeddedComponent.extend(
 
     shareManager: service(),
 
-    /**
-     * @virtual optional
-     * @type {Function}
-     */
-    containerScrollTop: notImplementedIgnore,
-
     contentComponentClass: tag `content-${'scope'}-share`,
 
     notImplementedIgnore,
