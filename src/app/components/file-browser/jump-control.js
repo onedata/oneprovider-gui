@@ -67,6 +67,13 @@ export default Component.extend(I18n, {
    */
   showNotFoundTooltipTimeoutId: null,
 
+  /**
+   * @type {SafeString}
+   */
+  notFoundTip: '',
+
+  //#endregion
+
   parentScope: reads('browserModel.dir.scope'),
 
   /**
@@ -120,9 +127,11 @@ export default Component.extend(I18n, {
           scope: parentScope,
         }
       );
+      let notFoundTipType;
       const isLastJumpFailed = !fileData || !fileData.name ||
         !fileData.name.startsWith(inputValue);
       if (isLastJumpFailed) {
+        notFoundTipType = 'next';
         const fbTableApi = this.get('browserModel.fbTableApi');
         const filesArray = fbTableApi.getFilesArray();
         // when the file is loaded in current list, but in fact it is already deleted
@@ -134,6 +143,7 @@ export default Component.extend(I18n, {
         }
       }
       if (!fileData) {
+        notFoundTipType = 'end';
         fileData = await fileManager.getFileDataByName(
           parentDirId,
           inputValue, {
@@ -149,9 +159,14 @@ export default Component.extend(I18n, {
       await this.tableSelectAndJump(file);
       if (isLastJumpFailed) {
         cancel(this.get('showNotFoundTooltipTimeoutId'));
-        this.set('showNotFoundTooltipTimeoutId', later(() => {
+        const showNotFoundTooltipTimeoutId = later(() => {
           this.hideNotFoundTooltip();
-        }, 5000));
+        }, 5000);
+        const notFoundTip = this.t(`notFoundTip.${notFoundTipType}`);
+        this.setProperties({
+          showNotFoundTooltipTimeoutId,
+          notFoundTip,
+        });
       } else {
         this.hideNotFoundTooltip();
       }
@@ -171,7 +186,10 @@ export default Component.extend(I18n, {
 
   hideNotFoundTooltip() {
     cancel(this.get('showNotFoundTooltipTimeoutId'));
-    this.set('showNotFoundTooltipTimeoutId', null);
+    this.setProperties({
+      showNotFoundTooltipTimeoutId: null,
+      notFoundTip: null,
+    });
   },
 
   actions: {
