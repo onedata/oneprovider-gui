@@ -1,7 +1,5 @@
 .in-modal-item-browser-container {
   .file-browser-head-container {
-    // FIXME: experimental sticky + z-index - try to apply this to generic browser styles
-    // and adjust z-index to be highest possible (maybe right below shadows)
     position: sticky;
     z-index: 1;
     padding-left: $file-browser-padding-left;

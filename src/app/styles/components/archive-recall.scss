@@ -12,13 +12,8 @@
     }
   }
   &.archive-recall-modal-body {
-    .bs-modal-body-scroll {
-      @include fill-flex-using-column;
-    }
-    // FIXME: move to html?
-    .archive-recall-browser {
-      @include fill-flex-using-column
-    }
+    .bs-modal-body-scroll,
+    .archive-recall-browser,
     .file-browser {
       @include fill-flex-using-column;
     }

@@ -119,7 +119,6 @@
   .fb-table-thead {
     position: sticky;
     top: $fb-table-margin-top;
-    // FIXME: use $fb-table-margin-top-mobile
     z-index: $tbody-z-index + 1;
     th {
       background-color: white;

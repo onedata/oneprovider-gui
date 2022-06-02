@@ -114,7 +114,6 @@
 
   .split-browser-container {
     @include ignore-horizontal-content-padding;
-    // FIXME: move to html?
     @include fill-flex-using-column;
 
     .ps__rail-x + .ps__rail-y {
@@ -192,8 +191,6 @@
 
     .file-browser {
       height: auto;
-
-      // FIXME: this will probably generic style for file browsers
       .fb-table-container {
         // header is sticky, so we do not need margin
         margin-top: 0;
