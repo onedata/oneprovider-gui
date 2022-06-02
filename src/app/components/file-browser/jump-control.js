@@ -95,7 +95,7 @@ export default Component.extend(I18n, {
    */
   tableSelectAndJump(item) {
     const tableApi = this.get('browserModel.fbTableApi');
-    return tableApi.forceSelectAndJump([item]);
+    return tableApi.jump(item);
   },
 
   scheduleJump() {

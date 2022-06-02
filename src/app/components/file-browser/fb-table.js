@@ -203,7 +203,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<String>}
    */
-  rowFocusAnimationClasses: Object.freeze(['pulse-bg-selected-file-highlight', 'slow']),
+  rowFocusAnimationClasses: Object.freeze(['animate-attention', 'slow']),
 
   /**
    * JS time when context menu was last repositioned
@@ -523,6 +523,9 @@ export default Component.extend(I18n, {
         await this.get('changeSelectedItems')(items);
         return this.jumpToSelection();
       },
+      jump: (item) => {
+        return this.jump(item);
+      },
       recomputeTableItems: async () => {
         await sleep(0);
         this.get('listWatcher').scrollHandler();
@@ -692,29 +695,36 @@ export default Component.extend(I18n, {
   },
 
   async jumpToSelection() {
+    const selectedItems = this.get('selectedItems');
+    return this.jump(selectedItems);
+  },
+
+  /**
+   * @param {Array|Object} items
+   * @returns {Promise}
+   */
+  async jump(items) {
+    const effItem = Array.isArray(items) ? A(items).sortBy('name').objectAt(0) : items;
+    const effItems = Array.isArray(items) ? items : [items];
+
     const {
-      selectedItems,
       filesArray,
-    } = this.getProperties('selectedItems', 'filesArray');
-    if (isEmpty(selectedItems)) {
-      return;
-    }
-    const firstSelected = A(selectedItems).sortBy('name').objectAt(0);
+      listWatcher,
+    } = this.getProperties('filesArray', 'listWatcher');
     const {
       entityId,
       index,
-    } = getProperties(firstSelected, 'entityId', 'index');
+    } = getProperties(effItem, 'entityId', 'index');
 
     // ensure that array is loaded and rendered
     await get(filesArray, 'initialLoad');
     await sleep(0);
 
-    const listWatcher = this.get('listWatcher');
-    if (!filesArray.includes(firstSelected)) {
+    if (!filesArray.includes(effItem)) {
       const jumpResult = await filesArray.scheduleJump(index, 50);
       if (!jumpResult) {
         console.warn(
-          `component:file-browser/fb-table#jumpToSelection: item with index ${index} not found after jump`
+          `component:file-browser/fb-table#jump: item with index ${index} not found after jump`
         );
         return;
       }
@@ -728,7 +738,7 @@ export default Component.extend(I18n, {
     }
 
     this.focusOnRow(entityId, false);
-    this.highlightAnimateRows(selectedItems.mapBy('entityId'));
+    this.highlightAnimateRows(effItems.mapBy('entityId'));
   },
 
   /**
