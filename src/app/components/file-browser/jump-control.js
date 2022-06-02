@@ -68,9 +68,12 @@ export default Component.extend(I18n, {
   showNotFoundTooltipTimeoutId: null,
 
   /**
-   * @type {SafeString}
+   * Type of "not found" text in tooltip:
+   * - next - item for prefix was not found, selected next item
+   * - end - prefix "search" reached end of list - selected last list item
+   * @type {'next'|'end'}
    */
-  notFoundTip: '',
+  notFoundTipType: '',
 
   //#endregion
 
@@ -186,10 +189,8 @@ export default Component.extend(I18n, {
 
   hideNotFoundTooltip() {
     cancel(this.get('showNotFoundTooltipTimeoutId'));
-    this.setProperties({
-      showNotFoundTooltipTimeoutId: null,
-      notFoundTip: null,
-    });
+    // note, that notFoundTip is not cleared, because there is a fade-out animation
+    this.set('showNotFoundTooltipTimeoutId', null);
   },
 
   actions: {
