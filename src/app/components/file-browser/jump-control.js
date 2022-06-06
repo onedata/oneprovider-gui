@@ -88,7 +88,9 @@ export default Component.extend(I18n, {
   parentDirId: reads('browserModel.dir.entityId'),
 
   inputValueObserver: observer('inputValue', function inputValueObserver() {
-    if (!this.get('inputValue')) {
+    if (this.get('inputValue')) {
+      this.scheduleJump();
+    } else {
       this.hideNotFoundTooltip();
     }
   }),
@@ -209,7 +211,6 @@ export default Component.extend(I18n, {
     },
     changeValue(value) {
       this.get('changeInputValue')(value);
-      this.scheduleJump();
     },
     hideNotFoundTooltip() {
       this.hideNotFoundTooltip();
