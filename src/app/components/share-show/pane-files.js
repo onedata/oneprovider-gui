@@ -11,7 +11,6 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import {
   promise,

@@ -93,6 +93,14 @@ export default Component.extend(I18n, {
   }),
 
   /**
+   * @override
+   */
+  willDestroyElement() {
+    this._super(...arguments);
+    this.clearDebounce();
+  },
+
+  /**
    * @param {File} item
    * @returns {Promise}
    */

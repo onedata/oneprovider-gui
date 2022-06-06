@@ -454,14 +454,18 @@ export default Component.extend(I18n, {
       'willChangeArrayBeginning',
       async ({ updatePromise, newItemsCount }) => {
         await updatePromise;
-        this.adjustScroll(newItemsCount);
+        safeExec(this, () => {
+          this.adjustScroll(newItemsCount);
+        });
       }
     );
     array.on(
       'willResetArray',
       async ({ updatePromise }) => {
         await updatePromise;
-        this.scrollTopAfterFrameRender();
+        safeExec(this, () => {
+          this.scrollTopAfterFrameRender();
+        });
       }
     );
     return array;

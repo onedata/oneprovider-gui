@@ -38,8 +38,11 @@
   @include fill-flex-using-column;
   .file-browser-head-container {
     position: sticky;
-    padding-left: $file-browser-padding-left;
-    padding-right: $file-browser-padding-right;
+    // using area of the margin to fallback when legacy browsers does not support sticky
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+    padding-left: $file-browser-padding-left + $content-col-padding;
+    padding-right: $file-browser-padding-right + $content-col-padding;
     top: 0;
     left: 0;
     right: 0;
@@ -52,6 +55,8 @@
       margin-right: -20px;
     }
     @media (max-width: $screen-xs-max) {
+      margin-left: 0;
+      margin-right: 0;
       padding-left: 10px;
       padding-right: 20px;
       padding-top: 0;
