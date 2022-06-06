@@ -13,6 +13,7 @@ import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-res
 import { observer } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
+import { or } from 'ember-awesome-macros';
 
 const mixins = [
   WindowResizeHandler,
@@ -37,9 +38,13 @@ export default FbTableHeadRow.extend(...mixins, {
    * Value controlled by `autoSetHideJumpControl`.
    * @type {boolean}
    */
-  isJumpControlHidden: false,
+  noSpaceForJumpControl: false,
 
   //#endregion
+
+  isShareRoot: reads('browserModel.dir.isShareRoot'),
+
+  effIsJumpControlHidden: or('isShareRoot', 'noSpaceForJumpControl'),
 
   dirObserver: observer('browserModel.dir', async function dirObserver() {
     // let header display feature tags for new dir
@@ -72,7 +77,7 @@ export default FbTableHeadRow.extend(...mixins, {
     if (!jumpControlContainer) {
       return;
     }
-    this.set('isJumpControlHidden', jumpControlContainer.clientWidth < 150);
+    this.set('noSpaceForJumpControl', jumpControlContainer.clientWidth < 150);
   },
 
   actions: {

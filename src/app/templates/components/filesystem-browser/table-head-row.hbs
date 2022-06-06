@@ -6,7 +6,7 @@
       if file-browser/jump-control component is not rendered to keep space
     --}}
     <div class="table-header-jump-control">
-      {{#unless isJumpControlHidden}}
+      {{#unless effIsJumpControlHidden}}
         {{file-browser/jump-control
           browserModel=browserModel
           inputValue=jumpControlValue
