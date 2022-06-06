@@ -13,6 +13,7 @@ import { get, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { cancel, debounce, later } from '@ember/runloop';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 export default Component.extend(I18n, {
   classNames: ['jump-control'],
@@ -174,7 +175,7 @@ export default Component.extend(I18n, {
           this.hideNotFoundTooltip();
         }, 5000);
         const notFoundTip = this.t(`notFoundTip.${notFoundTipType}`);
-        this.setProperties({
+        safeExec(this, 'setProperties', {
           showNotFoundTooltipTimeoutId,
           notFoundTip,
         });
@@ -188,7 +189,7 @@ export default Component.extend(I18n, {
 
   clearDebounce() {
     const performJumpTimeoutId = this.get('performJumpTimeoutId');
-    if (!performJumpTimeoutId) {
+    if (performJumpTimeoutId == null) {
       return;
     }
     cancel(performJumpTimeoutId);

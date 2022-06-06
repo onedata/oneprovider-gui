@@ -251,6 +251,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   infoIconActionName: 'info',
 
   /**
+   * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
+   * context menu.
+   * @type {string}
+   */
+  ignoreCurrentDirContextMenuSelector: '.jump-bar-form-group',
+
+  /**
    * Reference to Document object - can be stubbed for testing purposes.
    * @type {Document}
    */
