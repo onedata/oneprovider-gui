@@ -380,8 +380,8 @@ export default Component.extend(I18n, {
    * Currently (as of 2021) not all browsers support scroll anchoring and
    * `perfect-scrollbar` has issues with it (anchoring is disabled), so we need to do
    * scroll correction manually.
-   * @param {Promise} newItemsCount promise that resolves when files array
-   *   have new items added and start/end markers are changed
+   * @param {Promise} newItemsCount how many items have been added to the beginning
+   *   of the list
    */
   async adjustScroll(newItemsCount = 0) {
     const topDiff = newItemsCount * this.get('rowHeight');

@@ -263,6 +263,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   readonlyFilesystem: false,
 
+  //#region state
+
   /**
    * Name of feature tag in header that is currently hovered.
    * @type {Boolean}
@@ -275,8 +277,6 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Number|null}
    */
   highlightAnimationTimeoutId: null,
-
-  //#region state
 
   /**
    * Current value in jump-control input.

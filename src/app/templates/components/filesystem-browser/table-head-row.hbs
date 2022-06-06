@@ -1,13 +1,18 @@
 <th class="fb-table-col-files" colspan={{if media.isMobile "2" "1"}}>
   <div class="fb-table-first-col-container">
     <div class="table-header-text">{{tt this "files"}}</div>
+    {{!--
+      table-header-jump-control flex element is intentionally left rendered even
+      if file-browser/jump-control component is not rendered to keep space
+    --}}
     <div class="table-header-jump-control">
-      {{file-browser/jump-control
-        class=(if isJumpControlHidden "hidden")
-        browserModel=browserModel
-        inputValue=jumpControlValue
-        changeInputValue=(action "changeJumpControlValue")
-      }}
+      {{#unless isJumpControlHidden}}
+        {{file-browser/jump-control
+          browserModel=browserModel
+          inputValue=jumpControlValue
+          changeInputValue=(action "changeJumpControlValue")
+        }}
+      {{/unless}}
     </div>
     <div class="table-header-status-bar">{{yield}}</div>
   </div>

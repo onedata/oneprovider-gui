@@ -11,7 +11,8 @@ import FbTableHeadRow from 'oneprovider-gui/components/file-browser/fb-table-hea
 import { reads } from '@ember/object/computed';
 import WindowResizeHandler from 'onedata-gui-common/mixins/components/window-resize-handler';
 import { observer } from '@ember/object';
-import sleep from 'onedata-gui-common/utils/sleep';
+import { scheduleOnce } from '@ember/runloop';
+import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 
 const mixins = [
   WindowResizeHandler,
@@ -42,22 +43,18 @@ export default FbTableHeadRow.extend(...mixins, {
 
   dirObserver: observer('browserModel.dir', async function dirObserver() {
     // let header display feature tags for new dir
-    await sleep(0);
-    this.autoSetHideJumpControl();
+    scheduleOnce('afterRender', this, () => {
+      window.requestAnimationFrame(() => {
+        safeExec(this, 'autoSetHideJumpControl');
+      });
+    });
   }),
 
   init() {
     this._super(...arguments);
     // activate dir observer
     this.get('browserModel.dir');
-  },
-
-  /**
-   * @override
-   */
-  didInsertElement() {
-    this._super(...arguments);
-    this.autoSetHideJumpControl();
+    this.dirObserver();
   },
 
   /**
@@ -72,6 +69,9 @@ export default FbTableHeadRow.extend(...mixins, {
     /** @type {HTMLElement} */
     const element = this.get('element');
     const jumpControlContainer = element.querySelector('.table-header-jump-control');
+    if (!jumpControlContainer) {
+      return;
+    }
     this.set('isJumpControlHidden', jumpControlContainer.clientWidth < 150);
   },
 

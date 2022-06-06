@@ -68,12 +68,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   updateDirId: notImplementedThrow,
 
   /**
-   * @virtual optional
-   * @type {Function}
-   */
-  containerScrollTop: notImplementedIgnore,
-
-  /**
    * @virtual
    * @type {Function}
    */
