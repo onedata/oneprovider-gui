@@ -5,6 +5,6 @@ export default {
   preserved: 'Preserved',
   verification_failed: 'Verification&nbsp;failed',
   failed: 'Failed',
-  purging: 'Purging',
+  deleting: 'Deleting',
   unknown: 'Unknown',
 };

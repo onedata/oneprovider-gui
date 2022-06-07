@@ -1,6 +1,6 @@
 /**
  * A stacked line chart component for visualizing all transfers throughput history.
- * 
+ *
  * @module components/space-transfers/throughput-distribution
  * @author Michal Borzecki, Jakub Liput
  * @copyright (C) 2018-2019 ACK CYFRONET AGH
@@ -485,7 +485,7 @@ export default Component.extend(
             high: _chartYMax,
             type: Chartist.FixedScaleAxis,
             labelInterpolationFnc: (value) =>
-              bytesToString(Math.abs(value), { format: 'bit' }) + 'ps',
+              bytesToString(Math.abs(value), { format: 'bitSi' }) + 'ps',
             ticks: _chartYTicks,
             position: 'end',
           },
@@ -914,7 +914,7 @@ export default Component.extend(
         result.push({
           name: providerName,
           valueNumber: providerStats[index],
-          value: bytesToString(providerStats[index], { format: 'bit' }) +
+          value: bytesToString(providerStats[index], { format: 'bitSi' }) +
             'ps',
           boxStyle: htmlSafe(
             'background-color: ' +
@@ -932,7 +932,7 @@ export default Component.extend(
      */
     _generateTooltipItemsSum(items) {
       const bytes = _.sum(items.map(p => p.valueNumber));
-      return bytesToString(bytes, { format: 'bit' }) + 'ps';
+      return bytesToString(bytes, { format: 'bitSi' }) + 'ps';
     },
 
     /**

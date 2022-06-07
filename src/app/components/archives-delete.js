@@ -1,7 +1,7 @@
 /**
- * Complete view needing layout (eg. modal) for purging selected archives. 
+ * Complete view needing layout (eg. modal) for deleting selected archives.
  *
- * @module components/archives-purge
+ * @module components/archives-delete
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -19,7 +19,7 @@ import _ from 'lodash';
 import { all as allFulfilled } from 'rsvp';
 
 export default Component.extend(I18n, {
-  // use 'archives-purge-part' CSS class to style the component
+  // use 'archives-delete-part' CSS class to style the component
   tagName: '',
 
   datasetManager: service(),
@@ -32,7 +32,7 @@ export default Component.extend(I18n, {
   /**
    * @override
    */
-  i18nPrefix: 'components.archivesPurge',
+  i18nPrefix: 'components.archivesDelete',
 
   /**
    * @virtual
@@ -94,9 +94,9 @@ export default Component.extend(I18n, {
 
   confirmationTextMatch: equal('confirmationSourceText.string', 'confirmationValue'),
 
-  purgeDisabled: or(not('confirmationTextMatch'), 'processing'),
+  deleteDisabled: or(not('confirmationTextMatch'), 'processing'),
 
-  purgeTip: computed('confirmationTextMatch', function purgeTip() {
+  deleteTip: computed('confirmationTextMatch', function deleteTip() {
     if (!this.get('confirmationTextMatch')) {
       return this.t('body.confirmationTextNotMatch');
     }
@@ -105,7 +105,7 @@ export default Component.extend(I18n, {
   datasetsIds: array.map('archives', archive => archive.relationEntityId('dataset')),
 
   /**
-   * 
+   *
    * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
    */
   datasetsProxy: promise.array(computed('datasetsIds', function datasetsProxy() {
@@ -153,8 +153,8 @@ export default Component.extend(I18n, {
     close() {
       this.get('onClose')();
     },
-    async purge() {
-      if (this.get('purgeDisabled')) {
+    async delete() {
+      if (this.get('deleteDisabled')) {
         return;
       }
 
@@ -188,9 +188,9 @@ export default Component.extend(I18n, {
           globalNotify,
           errorExtractor,
           i18n,
-          operationErrorKey: `${i18nPrefix}.purgingArchives`,
+          operationErrorKey: `${i18nPrefix}.deletingArchives`,
         }, async archive => {
-          await archiveManager.purgeArchive(archive);
+          await archiveManager.deleteArchive(archive);
         });
         onClose();
       } finally {
@@ -198,7 +198,7 @@ export default Component.extend(I18n, {
         for (const dirId of datasetsIds) {
           fileManager.dirChildrenRefresh(dirId).catch(error => {
             console.error(
-              `service:archive-manager#purgeMultipleArchives: failed to refresh archives list of dataset ${dirId}: ${error}`
+              `components:archives-delete#delete: failed to refresh archives list of dataset ${dirId}: ${error}`
             );
           });
         }

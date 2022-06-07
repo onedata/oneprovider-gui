@@ -443,7 +443,7 @@ export default Component.extend(
           low: 0,
           high: _chartYMax,
           type: Chartist.FixedScaleAxis,
-          labelInterpolationFnc: value => bytesToString(value, { format: 'bit' }) +
+          labelInterpolationFnc: value => bytesToString(value, { format: 'bitSi' }) +
             'ps',
           ticks: _chartYTicks,
         },
@@ -616,7 +616,7 @@ export default Component.extend(
           result.push({
             name: providerName,
             valueNumber: providerStats[index],
-            value: bytesToString(providerStats[index], { format: 'bit' }) +
+            value: bytesToString(providerStats[index], { format: 'bitSi' }) +
               'ps',
             boxStyle: htmlSafe(
               'background-color: ' +
@@ -633,7 +633,7 @@ export default Component.extend(
      */
     _tooltipSum: computed('_tooltipProviders', function _tooltipSum() {
       const bytes = _.sum(this.get('_tooltipProviders').map(p => p.valueNumber));
-      return bytesToString(bytes, { format: 'bit' }) + 'ps';
+      return bytesToString(bytes, { format: 'bitSi' }) + 'ps';
     }),
 
     /**

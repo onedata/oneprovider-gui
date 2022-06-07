@@ -217,8 +217,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             name: String(this.t('axes.bytes')),
             minInterval: 1,
             valueFormatter: {
-              functionName: 'asBytes',
+              functionName: 'formatWithUnit',
               functionArguments: {
+                unitName: 'bytes',
                 data: {
                   functionName: 'supplyValue',
                 },
@@ -363,8 +364,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
             name: String(this.t('axes.bytes')),
             minInterval: 1,
             valueFormatter: {
-              functionName: 'asBytes',
+              functionName: 'formatWithUnit',
               functionArguments: {
+                unitName: 'bytes',
                 data: {
                   functionName: 'supplyValue',
                 },

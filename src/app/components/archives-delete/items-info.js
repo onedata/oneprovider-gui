@@ -1,7 +1,7 @@
 /**
- * Basic stylized information about one or more archives to purge. 
+ * Basic stylized information about one or more archives to delete.
  *
- * @module components/archives-purge/items-info
+ * @module components/archives-delete/items-info
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -13,12 +13,12 @@ import { equal, raw } from 'ember-awesome-macros';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
-  classNames: ['archives-purge-items-info', 'browsable-items-info'],
+  classNames: ['archives-delete-items-info', 'browsable-items-info'],
 
   /**
    * @override
    */
-  i18nPrefix: 'components.archivesPurge.itemsInfo',
+  i18nPrefix: 'components.archivesDelete.itemsInfo',
 
   /**
    * @virtual
