@@ -15,6 +15,7 @@ import $ from 'jquery';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import { mockRootFiles } from '../../helpers/files';
+import { once } from '@ember/runloop';
 import {
   getFileRow,
   doubleClickFile,
@@ -831,6 +832,13 @@ async function render(testCase) {
     openQos: openQos || notStubbed('openQos'),
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
+  testCase.set('changeSelectedItemsImmediately', function (selectedItems) {
+    this.set('selectedItems', selectedItems);
+  });
+  testCase.set('changeSelectedItems', async function (selectedItems) {
+    once(this, 'changeSelectedItemsImmediately', selectedItems);
+    await sleep(0);
+  });
   testCase.render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
     dir=dir
@@ -842,7 +850,7 @@ async function render(testCase) {
     spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
     updateDirEntityId=(action updateDirEntityId)
-    changeSelectedItems=(action (mut selectedItems))
+    changeSelectedItems=(action changeSelectedItems)
   }}</div>`);
   await wait();
 }

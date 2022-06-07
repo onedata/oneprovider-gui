@@ -450,19 +450,24 @@ export default Service.extend({
     }
   },
 
-  async checkFileNameExists(parentDirId, fileName, scope = 'private') {
-    const attrs = await this.fetchChildrenAttrs({
+  async getFileDataByName(parentDirId, fileName, fetchOptions = {}) {
+    const attrs = await this.fetchChildrenAttrs(Object.assign({
       dirId: parentDirId,
-      scope,
+      scope: 'private',
       index: fileName,
       limit: 1,
       offset: 0,
-    });
-    const children = attrs.children;
-    return children && children.length > 0 && (
-      children[0].name === fileName ||
-      children[0].conflictingName && children[0].conflictingName === fileName
-    );
+    }, fetchOptions));
+    return attrs && attrs.children && attrs.children[0] || null;
+  },
+
+  async checkFileNameExists(parentDirId, fileName, scope = 'private') {
+    const file = await this.getFileDataByName(parentDirId, fileName, { scope });
+    if (file) {
+      return file.name === fileName || file.conflictingName === fileName;
+    } else {
+      return false;
+    }
   },
 
   /**
@@ -498,7 +503,7 @@ export default Service.extend({
     });
   },
 
-  /**  
+  /**
    * Begins a procedure of cancelling archive recall process that has root in
    * file with `recallRootId` entity ID.
    * @param {string} recallRootId

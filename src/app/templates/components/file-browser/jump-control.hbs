@@ -1,0 +1,33 @@
+<div class="form-group form-group-sm jump-bar-form-group">
+  <div class="input-group with-icon-addon">
+    <input
+      class="form-control jump-input"
+      placeholder={{tt this "jumpToPrefix"}}
+      type="text"
+      spellcheck="false"
+      onkeydown={{invoke-on-enter (action "performJumpImmediately")}}
+      value={{inputValue}}
+      oninput={{action "changeValue" value="target.value"}}
+    >
+    <div
+      class="input-group-addon info-input-group-addon"
+      onmouseover={{action "hideNotFoundTooltip"}}
+    >
+      {{one-icon icon="browser-info"}}
+      {{one-tooltip
+        triggerEvents=(if isMobile.any "click" "hover")
+        title=(tt this "tip")
+      }}
+      {{#unless media.isMobile}}
+        {{one-tooltip
+          placement="right"
+          visible=showNotFoundTooltipTimeoutId
+          title=notFoundTip
+          triggerElement=null
+          triggerEvents=""
+          hideOnScroll=false
+        }}
+      {{/unless}}
+    </div>
+  </div>
+</div>

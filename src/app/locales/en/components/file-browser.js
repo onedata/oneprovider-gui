@@ -13,6 +13,7 @@ import fbMetadataJson from './file-browser/fb-metadata-json';
 import fbMetadataRdf from './file-browser/fb-metadata-rdf';
 import fbDirLoadError from './file-browser/fb-dir-load-error';
 import itemFeaturesContainer from './file-browser/item-features-container';
+import jumpControl from './file-browser/jump-control';
 import fileEntryCharts from './file-browser/file-entry-charts';
 
 export default {
@@ -32,5 +33,6 @@ export default {
   fbMetadataRdf,
   fbDirLoadError,
   itemFeaturesContainer,
+  jumpControl,
   fileEntryCharts,
 };

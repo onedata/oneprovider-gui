@@ -161,4 +161,11 @@
       font-style: italic;
     }
   }
+
+  &.animate-attention {
+    @extend .pulse-bg-file-highlight;
+    &.file-selected {
+      @extend .pulse-bg-selected-file-highlight;
+    }
+  }
 }

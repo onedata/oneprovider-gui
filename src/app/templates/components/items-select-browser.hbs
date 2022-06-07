@@ -1,4 +1,4 @@
-{{#modal.header class="items-select-browser-part"}}
+{{#modal.header class="items-select-browser-part hide-before-shadow"}}
   {{#items-select-browser/header
     selectorModel=selectorModel
   }}
@@ -8,9 +8,11 @@
 
 {{#modal.body
   id=modalBodyId
-  class="items-select-browser-part upload-drop-zone-container"
+  class="items-select-browser-part upload-drop-zone-container full-width-body"
 }}
-  <div class="items-select-browser-body in-modal-item-browser-container">
+  <div
+    class="items-select-browser-body in-modal-item-browser-container full-width-body-content"
+  >
     {{#promise-proxy-container proxy=initialRequiredDataProxy}}
       {{file-browser
         dir=dir
