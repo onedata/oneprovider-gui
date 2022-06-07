@@ -46,7 +46,7 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
     // overflow cannot be hidden, because of sticky elements inside
     overflow: visible;
   }
-  
+
   @media (max-width: $share-show-tabs-stack-width) {
     .bs-tab-onedata.tab-share-show-mode .nav-tabs.nav > li > a {
       padding: 20px 28px;
@@ -61,14 +61,14 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       }
     }
   }
-  
+
   &.share-show-public {
     padding-top: $share-show-content-header-height-public;
     padding-bottom: 0;
     // Because of footer, we must remove padding added by generic one-embedded-component
     // There is also a 2px embedded iframe bug caused by perfect-scroll usage
     margin-bottom: -$content-col-padding + 2px;
-    
+
     .open-data-preview {
       // restore bottom padding, which was removed in share-show-public for footer
       padding-bottom: $content-col-padding;
@@ -116,7 +116,12 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       }
     }
     .file-browser-head-container {
-      top: $share-show-content-header-height-public;      
+      top: $share-show-content-header-height-public;
+    }
+    .fb-table {
+      .fb-table-thead {
+        top: $share-show-content-header-height-public + $fb-table-margin-top;
+      }
     }
     .share-show-pane-container {
       &.share-show-pane-container-files {
@@ -130,16 +135,21 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
       }
     }
   }
-  
+
   &.share-show-private {
     padding-top: $share-show-content-header-height-private;
     padding-bottom: $content-col-padding;
-    
+
     .share-header-container {
       height: $share-show-content-header-height-private;
     }
     .file-browser-head-container {
       top: $share-show-content-header-height-private;
+    }
+    .fb-table {
+      .fb-table-thead {
+        top: $share-show-content-header-height-private + $fb-table-margin-top;
+      }
     }
     .open-data {
       .metadata-header-section {
@@ -182,4 +192,3 @@ $share-show-metadata-stacked-header-height-empirical: 100px;
 @import './share-show/open-data-editor';
 @import './share-show/open-data-preview';
 @import './share-show/markdown-editor';
-  

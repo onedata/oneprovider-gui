@@ -1,5 +1,6 @@
 .fb-table {
   $refresh-transition-duration: 300ms;
+  $tbody-z-index: 0;
 
   position: relative;
   height: 100%;
@@ -115,14 +116,45 @@
   thead > tr > th:first-of-type {
     padding-left: $file-browser-padding-left;
   }
-  .fb-table-thead th:first-of-type {
-    text-align: left;
+  .fb-table-thead {
+    position: sticky;
+    top: $fb-table-margin-top;
+    z-index: $tbody-z-index + 1;
+    th {
+      background-color: white;
+      vertical-align: middle;
+      padding-top: $table-cell-padding / 2;
+
+      &:first-of-type {
+        text-align: left;
+      }
+    }
+  }
+  .fb-table-tbody {
+    position: relative;
+    z-index: $tbody-z-index;
   }
   .fb-table-first-col-container {
     display: flex;
     align-items: center;
-    .table-header-text {
+    * + .table-header-jump-control {
+      margin-left: 2em;
+    }
+    .table-header-jump-control {
       flex-grow: 1;
+      .jump-control {
+        max-width: 18em;
+      }
+      @media (max-width: $screen-xs-max) {
+        .jump-control {
+          max-width: none;
+        }
+      }
+    }
+    .table-header-jump-control + .table-header-status-bar {
+      .file-status-tag-group:first-child {
+        margin-left: 2em;
+      }
     }
     .table-header-status-bar {
       display: inline-flex;
@@ -134,9 +166,11 @@
     // enables text truncate inside
     max-width: 0;
   }
+  .fb-table-col-actions-menu {
+    width: 40px;
+  }
   td.fb-table-col-actions-menu {
     position: relative;
-    width: 56px;
     min-height: 61px;
     padding: 0;
     // TODO: a style bug that is only in Firefox: menu toggle is not 100% height

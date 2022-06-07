@@ -203,7 +203,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Array<String>}
    */
-  rowFocusAnimationClasses: Object.freeze(['pulse-bg-selected-file-highlight', 'slow']),
+  rowFocusAnimationClasses: Object.freeze(['animate-attention', 'slow']),
 
   /**
    * JS time when context menu was last repositioned
@@ -380,23 +380,26 @@ export default Component.extend(I18n, {
    * Currently (as of 2021) not all browsers support scroll anchoring and
    * `perfect-scrollbar` has issues with it (anchoring is disabled), so we need to do
    * scroll correction manually.
-   * @param {Promise} arrayExpandedPromise promise that resolves when files array
-   *   have new items added and start/end markers are changed
+   * @param {Promise} newItemsCount how many items have been added to the beginning
+   *   of the list
    */
-  async adjustScroll(arrayExpandedPromise) {
-    const additionalFrontSpace = await arrayExpandedPromise;
-    const topDiff = additionalFrontSpace * this.get('rowHeight');
+  async adjustScroll(newItemsCount = 0) {
+    const topDiff = newItemsCount * this.get('rowHeight');
     if (topDiff <= 0) {
       return;
     }
     console.debug(
-      `component:file-browser/fb-table#adjustScrollOnFirstRowChange: adjusting scroll by ${topDiff}`
+      `component:file-browser/fb-table#adjustScroll: adjusting scroll by ${topDiff}`
     );
     this.set('ignoreNextScroll', true);
+    this.scrollTopAfterFrameRender(topDiff, true);
+  },
+
+  async scrollTopAfterFrameRender(value = 0, isDelta = false) {
     scheduleOnce('afterRender', this, () => {
       window.requestAnimationFrame(() => {
         safeExec(this, () => {
-          this.get('containerScrollTop')(topDiff, true);
+          this.get('containerScrollTop')(value, isDelta);
         });
       });
     });
@@ -448,8 +451,22 @@ export default Component.extend(I18n, {
       () => this.onFetchingStateUpdate('next', 'rejected')
     );
     array.on(
-      'willExpandArrayBeginning',
-      (arrayUpdatePromise) => this.adjustScroll(arrayUpdatePromise)
+      'willChangeArrayBeginning',
+      async ({ updatePromise, newItemsCount }) => {
+        await updatePromise;
+        safeExec(this, () => {
+          this.adjustScroll(newItemsCount);
+        });
+      }
+    );
+    array.on(
+      'willResetArray',
+      async ({ updatePromise }) => {
+        await updatePromise;
+        safeExec(this, () => {
+          this.scrollTopAfterFrameRender();
+        });
+      }
     );
     return array;
   }),
@@ -479,13 +496,21 @@ export default Component.extend(I18n, {
           scheduleOnce('afterRender', () => {
             safeExec(this, 'set', 'refreshStarted', true);
             const animationPromise = new Promise((resolve) => {
+              const transitionEventHandler = (event) => {
+                if (
+                  event.propertyName === 'opacity' &&
+                  event.target.matches('.fb-files-table')
+                ) {
+                  element.removeEventListener(
+                    'transitionend',
+                    transitionEventHandler,
+                  );
+                  resolve();
+                }
+              };
               element.addEventListener(
                 'transitionend',
-                (event) => {
-                  if (event.propertyName === 'opacity') {
-                    resolve();
-                  }
-                }, { once: true }
+                transitionEventHandler,
               );
             });
             this.refreshFileList()
@@ -509,6 +534,9 @@ export default Component.extend(I18n, {
       forceSelectAndJump: async (items) => {
         await this.get('changeSelectedItems')(items);
         return this.jumpToSelection();
+      },
+      jump: (item) => {
+        return this.jump(item);
       },
       recomputeTableItems: async () => {
         await sleep(0);
@@ -679,29 +707,36 @@ export default Component.extend(I18n, {
   },
 
   async jumpToSelection() {
+    const selectedItems = this.get('selectedItems');
+    return this.jump(selectedItems);
+  },
+
+  /**
+   * @param {Array|Object} items
+   * @returns {Promise}
+   */
+  async jump(items) {
+    const effItem = Array.isArray(items) ? A(items).sortBy('name').objectAt(0) : items;
+    const effItems = Array.isArray(items) ? items : [items];
+
     const {
-      selectedItems,
       filesArray,
-    } = this.getProperties('selectedItems', 'filesArray');
-    if (isEmpty(selectedItems)) {
-      return;
-    }
-    const firstSelected = A(selectedItems).sortBy('name').objectAt(0);
+      listWatcher,
+    } = this.getProperties('filesArray', 'listWatcher');
     const {
       entityId,
       index,
-    } = getProperties(firstSelected, 'entityId', 'index');
+    } = getProperties(effItem, 'entityId', 'index');
 
     // ensure that array is loaded and rendered
     await get(filesArray, 'initialLoad');
     await sleep(0);
 
-    const listWatcher = this.get('listWatcher');
-    if (!filesArray.includes(firstSelected)) {
+    if (!filesArray.includes(effItem)) {
       const jumpResult = await filesArray.scheduleJump(index, 50);
       if (!jumpResult) {
         console.warn(
-          `component:file-browser/fb-table#jumpToSelection: item with index ${index} not found after jump`
+          `component:file-browser/fb-table#jump: item with index ${index} not found after jump`
         );
         return;
       }
@@ -715,7 +750,7 @@ export default Component.extend(I18n, {
     }
 
     this.focusOnRow(entityId, false);
-    this.highlightAnimateRows(selectedItems.mapBy('entityId'));
+    this.highlightAnimateRows(effItems.mapBy('entityId'));
   },
 
   /**

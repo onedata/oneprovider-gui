@@ -1,0 +1,22 @@
+.jump-control {
+  display: flex;
+  align-items: center;
+  .jump-bar-form-group {
+    flex-grow: 1;
+    margin: 0;
+    &.form-group-sm {
+      .input-group.with-icon-addon input:last-child {
+        padding-left: 40px;
+      }
+    }
+    .input-group-addon.info-input-group-addon {
+      color: $input-color-placeholder;
+      .one-icon {
+        font-weight: normal;
+      }
+    }
+    .form-control {
+      @include font-regular;
+    }
+  }
+}

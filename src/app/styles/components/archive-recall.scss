@@ -11,6 +11,13 @@
       opacity: 0.55;
     }
   }
+  &.archive-recall-modal-body {
+    .bs-modal-body-scroll,
+    .archive-recall-browser,
+    .file-browser {
+      @include fill-flex-using-column;
+    }
+  }
   .archive-recall-header {
     .intro-text {
       margin-top: 2em;

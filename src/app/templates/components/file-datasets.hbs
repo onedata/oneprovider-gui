@@ -1,4 +1,7 @@
-{{#modal.header class="file-datasets-part file-datasets-modal-header"}}
+{{#modal.header class=(concat-classes
+  "file-datasets-part file-datasets-modal-header"
+  (if (eq activeTab "archives") "hide-before-shadow")
+)}}
   {{file-datasets/summary-header
     file=file
     mode="file"
@@ -6,7 +9,7 @@
     editPrivilege=editPrivilege
     insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
   }}
-  <div class="file-datasets-header-lower header-with-tags">
+  <div class="file-datasets-header-lower header-with-tags ">
     {{file-datasets/tab-bar
       activeTab=activeTab
       tabsSpec=tabsSpec
@@ -23,7 +26,10 @@
   </div>
 {{/modal.header}}
 
-{{#modal.body id=modalBodyId class="file-datasets-part file-datasets-modal-body"}}
+{{#modal.body
+  id=modalBodyId
+  class="file-datasets-part file-datasets-modal-body full-width-body"
+}}
   {{#promise-proxy-container proxy=belongsToSomeDatasetProxy}}
     {{#unless belongsToSomeDataset}}
       {{content-info
@@ -38,29 +44,31 @@
       }}
     {{else}}
       {{#if (eq activeTab "settings")}}
-        {{file-datasets/direct-dataset-control
-          file=file
-          spacePrivileges=space.privileges
-          directDatasetProxy=directDatasetProxy
-          onOpenCreateArchive=(action "openCreateArchive")
-          onEstablishDirectDataset=(action "establishDataset")
-        }}
-        {{dataset-protection/table
-          fileDatasetSummaryProxy=fileDatasetSummaryProxy
-          directDatasetProxy=directDatasetProxy
-          ancestorDatasetsProxy=ancestorDatasetsProxy
-          file=file
-          mode="file"
-          editPrivilege=editPrivilege
-          insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-          close=close
-          getDataUrl=getDataUrl
-          getDatasetsUrl=getDatasetsUrl
-        }}
+        <div class="settings-tab full-width-body-content">
+          {{file-datasets/direct-dataset-control
+            file=file
+            spacePrivileges=space.privileges
+            directDatasetProxy=directDatasetProxy
+            onOpenCreateArchive=(action "openCreateArchive")
+            onEstablishDirectDataset=(action "establishDataset")
+          }}
+          {{dataset-protection/table
+            fileDatasetSummaryProxy=fileDatasetSummaryProxy
+            directDatasetProxy=directDatasetProxy
+            ancestorDatasetsProxy=ancestorDatasetsProxy
+            file=file
+            mode="file"
+            editPrivilege=editPrivilege
+            insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+            close=close
+            getDataUrl=getDataUrl
+            getDatasetsUrl=getDatasetsUrl
+          }}
+        </div>
       {{else if (eq activeTab "archives")}}
         {{#promise-proxy-container proxy=browsableDatasetProxy}}
           {{file-datasets/archives-tab
-            class="in-modal-item-browser-container"
+            class="in-modal-item-browser-container full-width-body-content"
             parentModalDialogSelector=parentModalDialogSelector
             space=space
             modalBodyId=modalBodyId

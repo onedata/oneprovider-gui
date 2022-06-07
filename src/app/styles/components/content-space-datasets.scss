@@ -16,8 +16,9 @@
 // scrolled to top in splitted view - see styles for `.split-browser-container`
 .embedded-content {
   &.on-top {
-    .split-browser-container .file-browser-head-container {
+    .split-browser-container .fb-table-thead th {
       @include before-bottom-shadow;
+      @include content-shadow-leftovers;
     }
   }
 }
@@ -112,19 +113,20 @@
   }
 
   .split-browser-container {
-    flex-grow: 1;
-    @include ignore-horizontal-content-padding;;
+    @include ignore-horizontal-content-padding;
+    @include fill-flex-using-column;
 
     .ps__rail-x + .ps__rail-y {
       z-index: $zindex-file-browser-head + 1;
     }
 
-    .file-browser-head-container {
+    .fb-table-thead th {
       @include before-bottom-shadow;
+      @include content-shadow-leftovers;
     }
 
     &.on-top {
-      .file-browser-head-container {
+      .fb-table-thead th {
         @include hide-before-shadow;
       }
     }
@@ -189,7 +191,6 @@
 
     .file-browser {
       height: auto;
-
       .fb-table-container {
         // header is sticky, so we do not need margin
         margin-top: 0;

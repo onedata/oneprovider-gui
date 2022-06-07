@@ -1,4 +1,11 @@
 .filesystem-browser {
+  // special adjustments because of jump-control presence
+  .filesystem-table-head-row {
+    height: 63px;
+    th {
+      padding-bottom: 10px;
+    }
+  }
   .fb-table-col-size {
     position: relative;
     width: 150px;

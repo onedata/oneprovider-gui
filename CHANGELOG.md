@@ -7,6 +7,7 @@ CHANGELOG
 ### Latest changes
 
 * VFS-9439 Added subgroups to charts, added showing remote providers in directory size statistics
+* VFS-9235 Added "jump to file by prefix" feature
 * VFS-9355 Added more possible units to time series charts
 * VFS-9233 Changed naming of "Purge archive" to "Delete"
 * VFS-9163 Added config for space with directory size statistics setting
