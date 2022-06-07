@@ -19,7 +19,6 @@ import FastDoubleClick from 'onedata-gui-common/mixins/components/fast-double-cl
 import notImplementedWarn from 'onedata-gui-common/utils/not-implemented-warn';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
-import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import layout from 'oneprovider-gui/templates/components/file-browser/fb-table-row';
 import { htmlSafe } from '@ember/string';
 
@@ -172,7 +171,7 @@ export default Component.extend(I18n, FastDoubleClick, {
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {SpacePrivileges}
    */
   spacePrivileges: undefined,
 
@@ -230,9 +229,10 @@ export default Component.extend(I18n, FastDoubleClick, {
     'isMobile.any',
     'browserModel.infoIconActionName',
     function infoIconActionName() {
+      const isDisabled = this.get('isDisabled');
       const isMobile = this.get('isMobile.any');
       const actionName = this.get('browserModel.infoIconActionName');
-      if (isMobile) {
+      if (isDisabled || isMobile) {
         return null;
       } else {
         return actionName;
@@ -252,10 +252,6 @@ export default Component.extend(I18n, FastDoubleClick, {
    * @type {ComputedProperty<Boolean>}
    */
   isMuted: or('isDisabled', 'fileCut'),
-
-  fileNameParser: computed('file', function fileNameParser() {
-    return FileNameParser.create({ file: this.get('file') });
-  }),
 
   fileNameBase: reads('file.name'),
 

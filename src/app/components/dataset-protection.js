@@ -4,7 +4,7 @@
  *
  * @module components/dataset-protection
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -108,6 +108,17 @@ export default Component.extend(I18n, {
       computedRelationErrorProperty: 'fileDatasetSummaryLoadError',
     })
   ),
+
+  /**
+   * @type {ComputedProperty<PromiseArray<Models.Dataset>>}
+   */
+  ancestorDatasetsProxy: promise.array(computed(
+    'fileDatasetSummaryProxy',
+    async function ancestorDatasetsProxy() {
+      const fileDatasetSummary = await this.get('fileDatasetSummaryProxy');
+      return await fileDatasetSummary.hasMany('effAncestorDatasets').reload();
+    }
+  )),
 
   /**
    * @type {ComputedProperty<Models.FileDatasetSummary>}

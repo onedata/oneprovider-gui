@@ -142,6 +142,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
+   * @type {SpacePrivileges}
    */
   spacePrivileges: Object.freeze({}),
 
@@ -246,6 +247,17 @@ export default Component.extend(I18n, {
       'showSelectionToolkit.mobile'
     ),
     not('previewMode')
+  ),
+
+  /**
+   * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
+   * context menu.
+   * @virtual optional
+   * @type {String}
+   */
+  ignoreCurrentDirContextMenuSelector: or(
+    'browserModel.ignoreCurrentDirContextMenuSelector',
+    raw('')
   ),
 
   /**
@@ -457,8 +469,10 @@ export default Component.extend(I18n, {
     const openCurrentDirContextMenu = component.get('openCurrentDirContextMenu');
     return function oncontextmenu(contextmenuEvent) {
       component.selectCurrentDir();
-      openCurrentDirContextMenu(contextmenuEvent);
-      contextmenuEvent.preventDefault();
+      const useDefault = Boolean(openCurrentDirContextMenu(contextmenuEvent));
+      if (!useDefault) {
+        contextmenuEvent.preventDefault();
+      }
     };
   }),
 
@@ -502,8 +516,22 @@ export default Component.extend(I18n, {
 
   openCurrentDirContextMenu: computed(function openCurrentDirContextMenu() {
     return (mouseEvent) => {
-      if (!this.get('showCurrentDirActions')) {
+      const {
+        showCurrentDirActions,
+        currentDirActionsOpen,
+        ignoreCurrentDirContextMenuSelector,
+      } = this.getProperties(
+        'showCurrentDirActions',
+        'currentDirActionsOpen',
+        'ignoreCurrentDirContextMenuSelector',
+      );
+
+      if (!showCurrentDirActions) {
         return;
+      }
+
+      if (mouseEvent.target.closest(ignoreCurrentDirContextMenuSelector)) {
+        return true;
       }
 
       const element = this.get('element');
@@ -516,7 +544,7 @@ export default Component.extend(I18n, {
         left,
       });
       // cause popover refresh
-      if (this.get('currentDirActionsOpen')) {
+      if (currentDirActionsOpen) {
         window.dispatchEvent(new Event('resize'));
       }
       this.send('toggleCurrentDirActions', true);

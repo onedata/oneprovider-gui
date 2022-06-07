@@ -61,7 +61,7 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {Object}
+   * @type {SpacePrivileges}
    */
   spacePrivileges: undefined,
 
@@ -185,13 +185,13 @@ export default Component.extend(I18n, {
         config,
         description,
         preservedCallback,
-        purgedCallback,
+        deletedCallback,
       } = getProperties(
         formData,
         'config',
         'description',
         'preservedCallback',
-        'purgedCallback'
+        'deletedCallback'
       );
       // these properties are used in config directly as in form
       const rawConfig = getProperties(
@@ -216,7 +216,7 @@ export default Component.extend(I18n, {
         config: rawConfig,
         description,
         preservedCallback,
-        purgedCallback,
+        deletedCallback,
       };
     } else {
       console.warn(

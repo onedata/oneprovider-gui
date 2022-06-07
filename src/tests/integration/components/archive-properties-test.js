@@ -49,36 +49,36 @@ describe('Integration | Component | archive settings', function () {
     await renderComponent(this);
 
     const preservedField = find('.preservedCallback-field');
-    const purgedField = find('.purgedCallback-field');
+    const deletedField = find('.deletedCallback-field');
     expect(preservedField).to.not.exist;
-    expect(purgedField).to.not.exist;
+    expect(deletedField).to.not.exist;
   });
 
   it('renders callback fields in edit mode when provided', async function () {
     whenInEditMode(this);
     const archive = this.get('archive');
     const preservedValue = 'https://example.org/preserved_archives';
-    const purgedValue = 'https://example.org/purged_archives';
+    const deletedValue = 'https://example.org/deleted_archives';
 
     run(() => {
       archive.setProperties({
         preservedCallback: preservedValue,
-        purgedCallback: purgedValue,
+        deletedCallback: deletedValue,
       });
     });
 
     await renderComponent(this);
 
     const preservedField = find('.preservedCallback-field');
-    const purgedField = find('.purgedCallback-field');
+    const deletedField = find('.deletedCallback-field');
     expect(preservedField).to.exist;
     expect(preservedField.textContent).to.contain('Preserved callback URL');
     expect(preservedField.querySelector('input')).to.exist;
     expect(preservedField.querySelector('input').value).to.equal(preservedValue);
-    expect(purgedField).to.exist;
-    expect(purgedField.textContent).to.contain('Purged callback URL');
-    expect(purgedField.querySelector('input')).to.exist;
-    expect(purgedField.querySelector('input').value).to.equal(purgedValue);
+    expect(deletedField).to.exist;
+    expect(deletedField.textContent).to.contain('Deleted callback URL');
+    expect(deletedField.querySelector('input')).to.exist;
+    expect(deletedField.querySelector('input').value).to.equal(deletedValue);
   });
 });
 

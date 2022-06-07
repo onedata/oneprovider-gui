@@ -101,6 +101,12 @@ export const RuntimeProperties = Mixin.create({
   isShowProgress: array.includes(['copy', 'move'], 'currentOperation'),
 
   /**
+   * Name of file ignoring naming conflict.
+   * @type {ComputedProperty<string>}
+   */
+  originalName: or('conflictingName', 'name'),
+
+  /**
    * When file is a symlink, then `effFile` is the file pointed
    * by the symlink (so can be empty). For other types of files it points to
    * the same file (as normal file can be treated as a "symlink to itself").
@@ -277,6 +283,22 @@ export default Model.extend(
 
     sharesCount: attr('number'),
     hardlinksCount: attr('number', { defaultValue: 1 }),
+
+    /**
+     * If there is a filename conflict between providers (two files with the same name,
+     * but created on different providers) this property contains a base of file name.
+     * Eg. we have two files with the same name created on providers with ids "a123" and
+     * "b456":
+     *
+     * ```
+     * { name: 'hello@a123', conflictingName: 'hello' }
+     * { name: 'hello@b456', conflictingName: 'hello' }
+     * ```
+     *
+     * If there is no naming conflict, the `name` is without suffix and this property
+     * is not provided (empty).
+     */
+    conflictingName: attr('string'),
 
     /**
      * Not empty only for symlinks. Contains target path. May contain any string,

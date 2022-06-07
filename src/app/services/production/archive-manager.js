@@ -85,7 +85,7 @@ export default Service.extend({
    *  config: Object,
    *  description: String,
    *  preservedCallback: String,
-   *  purgedCallback: String
+   *  deletedCallback: String
    * }} data
    * @returns {Promise<Models.Archive>}
    */
@@ -125,7 +125,7 @@ export default Service.extend({
    * @param {{
    *   description: String,
    *   preservedCallback: String,
-   *   purgedCallback: String,
+   *   deletedCallback: String,
    * }} data
    * @returns {Promise<Models.Archive>}
    */
@@ -147,15 +147,15 @@ export default Service.extend({
    * @param {Models.Archive} archive
    * @returns {Promise}
    */
-  async purgeArchive(archive) {
+  async deleteArchive(archive) {
     const onedataGraph = this.get('onedataGraph');
     const parentDatasetRelation = archive.belongsTo('dataset');
-    const purgeResponse = await onedataGraph.request({
+    const deleteResponse = await onedataGraph.request({
       operation: 'create',
       gri: gri({
         entityType: archiveEntityType,
         entityId: get(archive, 'entityId'),
-        aspect: 'purge',
+        aspect: 'delete',
         scope: 'private',
       }),
       subscribe: false,
@@ -163,7 +163,7 @@ export default Service.extend({
     // only a side effect
     parentDatasetRelation.reload().catch(error => {
       console.error(
-        `service:archive-manager#purgeArchive: failed to update dataset ${parentDatasetRelation && parentDatasetRelation.id()}: ${error}`
+        `service:archive-manager#deleteArchive: failed to update dataset ${parentDatasetRelation && parentDatasetRelation.id()}: ${error}`
       );
     });
 
@@ -173,12 +173,12 @@ export default Service.extend({
       console.dir(error);
       if (!error || error && error.id !== 'notFound') {
         console.error(
-          'services:archive-manager#purgeArchive: error updating archive',
+          'services:archive-manager#deleteArchive: error updating archive',
           error
         );
       }
     }
-    return purgeResponse;
+    return deleteResponse;
   },
 
   /**

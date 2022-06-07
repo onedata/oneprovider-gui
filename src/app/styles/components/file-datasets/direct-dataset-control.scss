@@ -1,44 +1,40 @@
 .direct-dataset-control {
-  .direct-dataset-loadable-row.loadable-row {
-    min-height: 2em;
+  &.alert {
+    padding: ($first-table-column-padding-left * 0.75) $first-table-column-padding-left;
   }
-  .toggle-header {
-    transition: transition-ease(opacity);
-    &.loading {
-      opacity: $disabled-opacity;
-    }
-    margin-top: 0;
-    margin-bottom: 0;
-    display: flex;
-    align-items: center;
-    text-transform: none;
-    @include font-semibold;
-    label.direct-dataset-attached-label {
-      margin: 0;
-    }
-    .attach-dataset-label-section {
-      display: flex;
-      align-items: center;
-    }
+  .direct-dataset-spinner-block {
+    height: 2em;
   }
   .alert.alert-promise-error {
     @include font-regular;
-    font-weight: normal;
   }
-  .direct-dataset-attached-toggle {
-    margin-left: 1.5em;
-    font-size: $font-size-base;
-  }
-
-  @media (max-width: $screen-xs-max) {
-    .direct-dataset-attached-label {
-      font-size: 90%;
-    }
-    .attach-dataset-label-section {
+  .direct-dataset-control-inner {
+    $horizontal-element-margin: 8px;
+    display: flex;
+    align-items: center;
+    .direct-dataset-col-text {
+      display: flex;
       flex-grow: 1;
+      min-width: 0;
+      margin-left: $horizontal-element-margin;
+      .status-tip-container {
+        display: flex;
+        align-items: center;
+        margin-left: $horizontal-element-margin;
+        margin-right: $horizontal-element-margin;
+      }
     }
-    .direct-dataset-attached-toggle {
-      margin-left: 0;
+    .direct-dataset-col-icon {
+      font-size: $dataset-table-item-icon-size;
+    }
+    .direct-dataset-col-label-action-trigger {
+      margin-left: $horizontal-element-margin;
+    }
+  }
+  .direct-dataset-actions-trigger {
+    .one-icon.menu-trigger-arrow {
+      left: 0;
+      font-size: 150%;
     }
   }
 }

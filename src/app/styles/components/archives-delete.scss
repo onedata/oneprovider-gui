@@ -1,8 +1,8 @@
-.archives-purge-part {
-  .purge-text-irreversible-warning {
+.archives-delete-part {
+  .delete-text-irreversible-warning {
     @include font-semibold;
   }
-  .purge-retype-text {
+  .delete-retype-text {
     user-select: none;
   }
   .single-file-info {

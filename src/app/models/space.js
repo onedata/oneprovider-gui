@@ -1,7 +1,7 @@
 /**
  * @module models/space
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -13,6 +13,14 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
 import allSpacePrivilegeFlags from 'onedata-gui-websocket-client/utils/space-privileges-flags';
 import { inject as service } from '@ember/service';
 import computedCurrentUserPrivileges from 'onedata-gui-common/utils/computed-current-user-privileges';
+
+/**
+ * An object where keys are camel case names of space privileges without `space_` prefix,
+ * without group division (listed in `utils/space-privileges-flags`). Values are flags
+ * indicating if currently authenticated user have the privilege (when `true`).
+ * For Example: `{ view: true, read: false, viewTransfer: true, ... }`
+ * @typedef {Object} SpacePrivileges
+ */
 
 export const entityType = 'op_space';
 

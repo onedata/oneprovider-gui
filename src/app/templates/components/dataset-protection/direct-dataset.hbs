@@ -29,14 +29,6 @@
       {{#truncated-string class="dataset-label direct-dataset-name"}}
         {{label}}
       {{/truncated-string}}
-      {{#if (and showBrowseDatasetsLink datasetLink)}}
-        <a class="dataset-link azure" href={{datasetLink}} target={{navigateTarget}}>
-          {{tt this "browseDatasets"}}
-          <div class="inline-icon-container">
-            {{one-icon icon="link-external"}}
-          </div>
-        </a>
-      {{/if}}
     </div>
   {{/dataset-protection/dataset-item}}
 {{else}}

@@ -1,15 +1,18 @@
-{{#modal.header class="archive-recall-part archive-recall-modal-header"}}
+{{#modal.header
+  class="archive-recall-part archive-recall-modal-header hide-before-shadow"
+}}
   {{archive-recall/header archive=archive}}
 {{/modal.header}}
 
 {{#modal.body
   id=modalBodyId
   class=(concat-classes
-    "archive-recall-part archive-recall-modal-body upload-drop-zone-container"
+    "archive-recall-part archive-recall-modal-body upload-drop-zone-container full-width-body"
     (if (or disabled isSubmitting) "disabled")
   )
 }}
   {{archive-recall/browser
+    class="full-width-body-content"
     modal=modal
     modalBodyId=modalBodyId
     parentModalDialogSelector=parentModalDialogSelector

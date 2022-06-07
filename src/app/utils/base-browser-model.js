@@ -7,7 +7,7 @@
  *
  * @module utils/base-browser-model
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -22,6 +22,7 @@ import animateCss from 'onedata-gui-common/utils/animate-css';
 import {
   actionContext,
 } from 'oneprovider-gui/components/file-browser';
+import { typeOf } from '@ember/utils';
 
 export default EmberObject.extend(OwnerInjector, I18n, {
   i18n: service(),
@@ -34,9 +35,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   //#region API for file-browser component
 
   /**
-   * @virtual
-   * @type {Components.FileBrowser} browserInstance
-   */
+   * @virtualignoreCurrentDirContextMenuSelector
   browserInstance: undefined,
 
   /**
@@ -124,6 +123,13 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @type {SafeString}
    */
   currentDirTranslation: '',
+
+  /**
+   * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
+   * context menu.
+   * @type {string}
+   */
+  ignoreCurrentDirContextMenuSelector: '',
 
   /**
    * If true, files table will not jump to changed `itemsForJump` if these items are
@@ -286,45 +292,63 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   },
 
   /**
+   * @typedef {Object} BrowserItemActionSpec
+   * @property {string} id the ID of action that is used to generate default values
+   *   of properties, eg. icon name and title i18n key
+   * @property {Function} action
+   * @property {string} [icon] icon name; if not provided will be generated using `id`
+   * @property {string} [title] action title in menu; if not provided will be generated
+   *   using `id`
+   * @property {boolean} [disabled]
+   * @property {Array<Component.FileBrowser.ActionContext>} showIn
+   * @property {string} [class]
+   */
+
+  /**
    * Create button or popover menu item for controlling files.
-   * @param {object} actionProperties properties of action button:
-   *  - id: string
-   *  - action: optional function
-   *  - icon: optional string, if not provided will be generated
-   *  - title: string
-   *  - showIn: array of strings from arrayContext
-   *  - class: string, classes added to element
+   * @param {BrowserItemActionSpec|EmberClass} fileActionSpec
+   * @param {Object} options additional options for object create
    * @returns {EmberObject}
    */
-  createFileAction(actionProperties) {
+  createFileAction(fileActionSpec, options = {}) {
     const {
       id,
-      title,
       icon,
-      showIn,
-      action,
+      title,
       disabled,
       class: elementClass,
+      showIn,
+      action,
     } = getProperties(
-      actionProperties,
+      fileActionSpec,
       'id',
-      'title',
       'icon',
+      'title',
+      'disabled',
+      'class',
       'showIn',
       'action',
-      'disabled',
-      'class'
     );
-    return Object.assign({}, actionProperties, {
-      icon: icon || `browser-${dasherize(id)}`,
-      title: title || this.t(`fileActions.${id}`),
-      showIn: showIn || [],
-      disabled: disabled === undefined ? false : disabled,
-      action: (files, ...args) => {
-        return action(files || this.get('selectedItems'), ...args);
-      },
-      class: `file-action-${id} ${elementClass || ''}`,
-    });
+    const specType = typeOf(fileActionSpec);
+    switch (specType) {
+      case 'object':
+        return Object.assign({}, fileActionSpec, {
+          icon: icon || `browser-${dasherize(id)}`,
+          title: title || this.t(`fileActions.${id}`),
+          disabled: disabled === undefined ? false : disabled,
+          class: `file-action-${id} ${elementClass || ''}`,
+          showIn: showIn || [],
+          action: (files, ...args) => {
+            return action(files || this.get('selectedItems'), ...args);
+          },
+        }, options);
+      case 'class':
+        return fileActionSpec.create({
+          ownerSource: this,
+          context: this,
+        }, options);
+      default:
+        throw new Error(`createFileAction: not supported spec type: ${specType}`);
+    }
   },
-
 });

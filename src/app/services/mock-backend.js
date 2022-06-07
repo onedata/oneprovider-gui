@@ -296,11 +296,11 @@ export default Service.extend({
     const file1 = files[1];
     setProperties(file0, {
       name: 'hello@abc100',
-      index: 'hello',
+      conflictingName: 'hello',
     });
     setProperties(file1, {
       name: 'hello',
-      index: 'hello',
+      conflictingName: 'hello',
     });
     return allFulfilled([file0.save(), file1.save()]);
   },
@@ -507,6 +507,7 @@ export default Service.extend({
           currentUserIsOwner: false,
           currentUserEffPrivileges: [
             'space_view',
+            'space_update',
             'space_view_qos',
             'space_view_transfers',
             'space_read_data',
@@ -828,7 +829,7 @@ export default Service.extend({
         },
         description: `My archive number ${i}`,
         preservedCallback: 'http://example.com/preserved',
-        purgedCallback: 'http://example.com/purged',
+        deletedCallback: 'http://example.com/deleted',
         dataset,
         // properties not normally used when create
         id: gri({
@@ -877,7 +878,7 @@ export default Service.extend({
       config: configDip,
       description: get(archive, 'description') + ' (DIP)',
       preservedCallback: get(archive, 'preservedCallback'),
-      purgedCallback: get(archive, 'purgedCallback'),
+      deletedCallback: get(archive, 'deletedCallback'),
       dataset: get(archive, 'dataset'),
       relatedAip: archive,
       relatedDip: null,
@@ -926,7 +927,10 @@ export default Service.extend({
     const archiveDir = await store.createRecord('file', {
       id,
       name,
-      index: name,
+      // In real backend, the index is completely transparent for frontend.
+      // This index is created as some kind of "random" string that should never
+      // be interpreted.
+      index: window.btoa(name),
       type: 'dir',
       mtime: timestamp,
       posixPermissions: '777',

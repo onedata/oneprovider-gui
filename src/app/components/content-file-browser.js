@@ -29,7 +29,11 @@ export default OneEmbeddedComponent.extend(
   I18n,
   ContentSpaceBaseMixin,
   ItemBrowserContainerBase, {
-    classNames: ['content-file-browser', 'upload-drop-zone-container'],
+    classNames: [
+      'content-file-browser',
+      'content-items-browser',
+      'upload-drop-zone-container',
+    ],
 
     /**
      * @override
@@ -163,7 +167,7 @@ export default OneEmbeddedComponent.extend(
     ),
 
     /**
-     * @type {ComputedProperty<Object>}
+     * @type {ComputedProperty<SpacePrivileges>}
      */
     spacePrivileges: reads('spaceProxy.content.privileges'),
 
@@ -174,6 +178,17 @@ export default OneEmbeddedComponent.extend(
       } = this.getProperties('spaceManager', 'spaceEntityId');
       return spaceManager.getSpace(spaceEntityId);
     })),
+
+    dirSizeStatsConfigProxy: promise.object(computed(
+      'spaceEntityId',
+      function dirSizeStatsConfigProxy() {
+        const {
+          spaceManager,
+          spaceEntityId,
+        } = this.getProperties('spaceManager', 'spaceEntityId');
+        return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
+      }
+    )),
 
     /**
      * NOTE: observing only space, because it should reload initial dir after whole space change
@@ -192,7 +207,8 @@ export default OneEmbeddedComponent.extend(
       'spaceProxy',
       'initialSelectedItemsForJumpProxy',
       'initialDirProxy',
-      'bagitUploaderLoaderProxy'
+      'bagitUploaderLoaderProxy',
+      'dirSizeStatsConfigProxy'
     )),
 
     selectedItemsForJump: reads('selectedItemsForJumpProxy.content'),

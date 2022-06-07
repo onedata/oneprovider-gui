@@ -11,13 +11,16 @@
 @import './file-browser/fb-metadata-modal';
 @import './file-browser/fb-metadata-xattrs';
 @import './file-browser/fb-info-modal';
+@import './file-browser/jump-control';
 
 .embedded-content {
-  .file-browser-head-container {
+  .fb-table-thead th {
+    position: relative;
     @include before-bottom-shadow;
+    @include content-shadow-leftovers;
   }
   &.on-top {
-    .file-browser-head-container {
+    .fb-table-thead th {
       @include hide-before-shadow;
     }
   }
@@ -32,19 +35,19 @@
 }
 
 .file-browser {
-  height: calc(100% - #{$fb-table-margin-top});
-  @media (max-width: $screen-xs-max) {
-    height: calc(100% - #{$fb-table-margin-top-mobile});
-  }
+  @include fill-flex-using-column;
   .file-browser-head-container {
-    position: fixed;
-    padding-top: 4px;
-    padding-left: $content-col-padding + $file-browser-padding-left;
-    padding-right: $content-col-padding + $file-browser-padding-right;
+    position: sticky;
+    // using area of the margin to fallback when legacy browsers does not support sticky
+    margin-left: -$content-col-padding;
+    margin-right: -$content-col-padding;
+    padding-left: $file-browser-padding-left + $content-col-padding;
+    padding-right: $file-browser-padding-right + $content-col-padding;
     top: 0;
     left: 0;
     right: 0;
     line-height: $file-browser-header-height;
+    height: $file-browser-header-height;
     background-color: $color-one-white;
     .fb-head-inner {
       display: flex;
@@ -52,6 +55,8 @@
       margin-right: -20px;
     }
     @media (max-width: $screen-xs-max) {
+      margin-left: 0;
+      margin-right: 0;
       padding-left: 10px;
       padding-right: 20px;
       padding-top: 0;
@@ -76,9 +81,6 @@
 }
 
 .fb-table-container {
-  margin-top: $fb-table-margin-top;
-  height: 100%;
-
   @include fill-flex-using-column;
 }
 

@@ -22,10 +22,10 @@
           <div class="table-header-status-bar">{{yield}}</div>
         </div>
       </th>
+      {{#unless noItemsActions}}
+        <th class="fb-table-col-actions-menu"></th>
+      {{/unless}}
     {{/if}}
-    {{#unless noItemsActions}}
-      <th class="fb-table-col-actions-menu"></th>
-    {{/unless}}
   </thead>
   <tbody class="fb-table-tbody">
     <tr class="first-row">
@@ -38,10 +38,11 @@
         file=file
         browserModel=browserModel
         previewMode=previewMode
+        dirSizeStatsConfig=dirSizeStatsConfig
         noItemsActions=noItemsActions
         isSpaceOwned=isSpaceOwned
         spacePrivileges=spacePrivileges
-        nameConflict=(contains file.index conflictNames)
+        nameConflict=(contains file.originalName conflictNames)
         fileClipboardMode=(if (contains file fileClipboardFiles) fileClipboardMode null)
         isSelected=(contains file selectedItems)
         isDisabled=(contains file disabledItems)

@@ -251,6 +251,13 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
   infoIconActionName: 'info',
 
   /**
+   * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
+   * context menu.
+   * @type {string}
+   */
+  ignoreCurrentDirContextMenuSelector: '.jump-bar-form-group',
+
+  /**
    * Reference to Document object - can be stubbed for testing purposes.
    * @type {Document}
    */
@@ -262,6 +269,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Boolean}
    */
   readonlyFilesystem: false,
+
+  //#region state
 
   /**
    * Name of feature tag in header that is currently hovered.
@@ -275,6 +284,14 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    * @type {Number|null}
    */
   highlightAnimationTimeoutId: null,
+
+  /**
+   * Current value in jump-control input.
+   * @type {string}
+   */
+  jumpControlValue: '',
+
+  //#endregion
 
   // #region Action buttons
 
@@ -1014,6 +1031,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
    */
   async onChangeDir(targetDir, updateBrowserDir) {
     await updateBrowserDir(targetDir);
+    this.changeJumpControlValue('');
     // TODO: VFS-7961 after modification of uploadManager global state, there should be revert
     // if using selector inside filesystem browser
     this.get('uploadManager').changeTargetDirectory(targetDir);
@@ -1247,7 +1265,7 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
         operationErrorKey: `${i18nPrefix}.linkFailed`,
       },
       async (file) => {
-        await fileManager.createHardlink(get(file, 'index'), dir, file, 50);
+        await fileManager.createHardlink(get(file, 'originalName'), dir, file, 50);
         await throttledRefresh();
       }
     );
@@ -1288,8 +1306,8 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
       i18n,
       operationErrorKey: `${i18nPrefix}.linkFailed`,
     }, async (file) => {
-      const fileName = get(file, 'index');
-      const filePath = stringifyFilePath(await resolveFilePath(file), 'index');
+      const fileName = get(file, 'originalName');
+      const filePath = stringifyFilePath(await resolveFilePath(file), 'originalName');
       await fileManager.createSymlink(fileName, dir, filePath, spaceId, 50);
       await throttledRefresh();
     });
@@ -1317,5 +1335,9 @@ export default BaseBrowserModel.extend(DownloadInBrowser, {
 
   changeTagHover(tag, isHovered) {
     this.set('hoveredHeaderTag', isHovered ? tag : null);
+  },
+
+  changeJumpControlValue(value) {
+    this.set('jumpControlValue', value);
   },
 });

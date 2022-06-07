@@ -1,8 +1,39 @@
 .filesystem-browser {
+  // special adjustments because of jump-control presence
+  .filesystem-table-head-row {
+    height: 63px;
+    th {
+      padding-bottom: 10px;
+    }
+  }
   .fb-table-col-size {
     position: relative;
-    width: 120px;
+    width: 150px;
     text-align: center;
+
+    .dir-size-container.active:hover {
+      text-decoration: underline;
+      .oneicon-overview {
+        color: $color-one-mint;
+        opacity: 1;
+      }
+    }
+
+    .dir-size-container.disabled {
+      cursor: default !important;
+    }
+
+    .dir-size-value {
+      text-align: center;
+    }
+
+    .oneicon-overview {
+      position: absolute;
+      font-size: 140%;
+      margin-top: 1px;
+      width: 30px;
+      opacity: 0.4;
+    }
   }
   .fb-table-col-modification {
     width: 200px;

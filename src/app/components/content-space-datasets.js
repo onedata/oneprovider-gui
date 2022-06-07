@@ -3,7 +3,7 @@
  *
  * @module component/content-space-datasets
  * @author Jakub Liput
- * @copyright (C) 2021 ACK CYFRONET AGH
+ * @copyright (C) 2021-2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -78,7 +78,7 @@ const mixins = [
 ];
 
 export default OneEmbeddedComponent.extend(...mixins, {
-  classNames: ['content-space-datasets'],
+  classNames: ['content-space-datasets', 'content-items-browser'],
   classNameBindings: ['noViewArchivesPrivilege:no-archives-view'],
 
   /**
@@ -295,7 +295,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   fileForConfirmDownload: null,
 
-  archivesToPurge: null,
+  archivesToDelete: null,
 
   //#endregion
 
@@ -323,7 +323,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
   space: reads('spaceProxy.content'),
 
   /**
-   * @type {ComputedProperty<Object>}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: reads('space.privileges'),
 

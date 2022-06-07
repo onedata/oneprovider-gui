@@ -11,7 +11,6 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import EmberObject, { computed, get } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import {
   promise,
@@ -66,12 +65,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
    * @type {Function}
    */
   updateDirId: notImplementedThrow,
-
-  /**
-   * @virtual optional
-   * @type {Function}
-   */
-  containerScrollTop: notImplementedIgnore,
 
   /**
    * @virtual
@@ -271,9 +264,6 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
   },
 
   actions: {
-    containerScrollTop() {
-      return this.get('containerScrollTop')(...arguments);
-    },
     fetchShareRootDirChildren(dirId, startIndex, size, offset, array) {
       if (dirId !== shareRootId) {
         return reject('cannot use fetchShareRootDirChildren for non-share-root');

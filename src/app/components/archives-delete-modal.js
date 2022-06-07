@@ -1,8 +1,8 @@
 /**
- * Modal-contained archives-purge component. Used in archives browser to purge selected
+ * Modal-contained archives-delete component. Used in archives browser to delete selected
  * archives.
  *
- * @module components/archives-purge-modal
+ * @module components/archives-delete-modal
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.

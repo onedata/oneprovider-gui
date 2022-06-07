@@ -19,15 +19,10 @@ import { reads } from '@ember/object/computed';
 export default OneEmbeddedComponent.extend(
   createDataProxyMixin('share'),
   createDataProxyMixin('rootDir'), {
+    classNames: ['content-items-browser'],
     classNameBindings: ['contentComponentClass'],
 
     shareManager: service(),
-
-    /**
-     * @virtual optional
-     * @type {Function}
-     */
-    containerScrollTop: notImplementedIgnore,
 
     contentComponentClass: tag `content-${'scope'}-share`,
 

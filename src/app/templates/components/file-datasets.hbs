@@ -1,4 +1,7 @@
-{{#modal.header class="file-datasets-part file-datasets-modal-header"}}
+{{#modal.header class=(concat-classes
+  "file-datasets-part file-datasets-modal-header"
+  (if (eq activeTab "archives") "hide-before-shadow")
+)}}
   {{file-datasets/summary-header
     file=file
     mode="file"
@@ -6,7 +9,7 @@
     editPrivilege=editPrivilege
     insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
   }}
-  <div class="file-datasets-header-lower header-with-tags">
+  <div class="file-datasets-header-lower header-with-tags ">
     {{file-datasets/tab-bar
       activeTab=activeTab
       tabsSpec=tabsSpec
@@ -23,37 +26,67 @@
   </div>
 {{/modal.header}}
 
-{{#modal.body id=modalBodyId class="file-datasets-part file-datasets-modal-body"}}
-  {{#if (eq activeTab "settings")}}
-    {{#dataset-protection/table
-      fileDatasetSummaryProxy=fileDatasetSummaryProxy
-      directDatasetProxy=directDatasetProxy
-      file=file
-      mode="file"
-      editPrivilege=editPrivilege
-      insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
-      showBrowseDatasetsLink=true
-      close=close
-      getDataUrl=getDataUrl
-      getDatasetsUrl=getDatasetsUrl
-    }}
-      {{file-datasets/direct-dataset-control
-        file=file
-        directDatasetProxy=directDatasetProxy
-        readonly=(not editPrivilege)
-        togglesReadonlyMessage=insufficientEditPrivilegesMessage
+{{#modal.body
+  id=modalBodyId
+  class="file-datasets-part file-datasets-modal-body full-width-body"
+}}
+  {{#promise-proxy-container proxy=belongsToSomeDatasetProxy}}
+    {{#unless belongsToSomeDataset}}
+      {{content-info
+        class="scroll-breakpoint-700 fill-flex-using-column content-info-no-dataset"
+        header=(tt this "noDataset.header" fileType=fileTypeText)
+        text=(tt this "noDataset.text" fileType=fileTypeText)
+        buttonAction=(action "establishDataset")
+        buttonLabel=(tt this "noDataset.buttonEstablish")
+        buttonClass="establish-dataset-btn"
+        buttonDisabled=establishButtonDisabled
+        buttonTip=establishButtonDisabledTip
       }}
-    {{/dataset-protection/table}}
-  {{else if (eq activeTab "archives")}}
-    {{#promise-proxy-container proxy=browsableDatasetProxy}}
-      {{file-datasets/archives-tab
-        class="in-modal-item-browser-container"
-        parentModalDialogSelector=parentModalDialogSelector
-        space=space
-        modalBodyId=modalBodyId
-        browsableDataset=browsableDatasetProxy.content
-        onCloseAllModals=onCloseAllModals
-      }}
-    {{/promise-proxy-container}}
-  {{/if}}
+    {{else}}
+      {{#if (eq activeTab "settings")}}
+        <div class="settings-tab full-width-body-content">
+          {{file-datasets/direct-dataset-control
+            file=file
+            spacePrivileges=space.privileges
+            directDatasetProxy=directDatasetProxy
+            onOpenCreateArchive=(action "openCreateArchive")
+            onEstablishDirectDataset=(action "establishDataset")
+          }}
+          {{dataset-protection/table
+            fileDatasetSummaryProxy=fileDatasetSummaryProxy
+            directDatasetProxy=directDatasetProxy
+            ancestorDatasetsProxy=ancestorDatasetsProxy
+            file=file
+            mode="file"
+            editPrivilege=editPrivilege
+            insufficientEditPrivilegesMessage=insufficientEditPrivilegesMessage
+            close=close
+            getDataUrl=getDataUrl
+            getDatasetsUrl=getDatasetsUrl
+          }}
+        </div>
+      {{else if (eq activeTab "archives")}}
+        {{#promise-proxy-container proxy=browsableDatasetProxy}}
+          {{file-datasets/archives-tab
+            class="in-modal-item-browser-container full-width-body-content"
+            parentModalDialogSelector=parentModalDialogSelector
+            space=space
+            modalBodyId=modalBodyId
+            browsableDataset=browsableDatasetProxy.content
+            options=tabOptions.archives
+            onCloseAllModals=onCloseAllModals
+          }}
+        {{/promise-proxy-container}}
+      {{/if}}
+    {{/unless}}
+  {{/promise-proxy-container}}
 {{/modal.body}}
+
+{{#if renderFooter}}
+  {{#modal.footer class="file-datasets-part file-datasets-modal-footer"}}
+    <a class="btn btn-default dataset-link" href={{datasetLink}} target={{navigateTarget}}>
+      <span class="text">{{tt this "showInBrowser"}}</span>
+      {{one-icon icon="link-external"}}
+    </a>
+  {{/modal.footer}}
+{{/if}}

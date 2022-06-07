@@ -310,6 +310,14 @@ const spaceHandlers = {
       isLast: atmWorkflowExecutionSummaries.length < limit,
     };
   },
+  dir_size_stats_config(operation) {
+    if (operation !== 'get') {
+      return messageNotSupported;
+    }
+    return {
+      statsCollectionStatus: 'enabled',
+    };
+  },
 };
 
 const datasetHandlers = {
@@ -367,7 +375,7 @@ const datasetHandlers = {
 };
 
 const archiveHandlers = {
-  purge(operation, entityId) {
+  delete(operation, entityId) {
     if (operation !== 'create') {
       return messageNotSupported;
     }
@@ -376,7 +384,7 @@ const archiveHandlers = {
     if (!archive) {
       return messageNotFound;
     }
-    archive.set('state', 'purging');
+    archive.set('state', 'deleting');
     // it's because we don't support async mock handlers, and saving in the same runloop
     // causes collision with record reload()
     next(() => archive.save());
@@ -1107,7 +1115,7 @@ function archiveRecordToChildData(record) {
     'config',
     'description',
     'preservedCallback',
-    'purgedCallback',
+    'deletedCallback',
   ), {
     dataset: record.belongsTo('dataset').id(),
     rootDir: record.belongsTo('rootDir').id(),

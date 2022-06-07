@@ -233,7 +233,7 @@ export default Component.extend(...mixins, {
   /**
    * @type {Utils.BrowsableArchive}
    */
-  archivesToPurge: null,
+  archivesToDelete: null,
 
   /**
    * @type {Utils.BrowsableArchive}
@@ -245,8 +245,7 @@ export default Component.extend(...mixins, {
   spaceId: reads('space.entityId'),
 
   /**
-   * See `Models.Space#spacePrivileges` object format.
-   * @type {Object}
+   * @type {ComputedProperty<SpacePrivileges>}
    */
   spacePrivileges: reads('space.privileges'),
 
@@ -603,7 +602,7 @@ export default Component.extend(...mixins, {
       spaceDatasetsViewState: this,
       getDatasetsUrl: this.getDatasetsUrl.bind(this),
       openCreateArchiveModal: this.openCreateArchiveModal.bind(this),
-      openPurgeModal: this.openArchivesPurgeModal.bind(this),
+      openDeleteModal: this.openArchivesDeleteModal.bind(this),
       openRecallModal: this.openArchiveRecallModal.bind(this),
       openArchivePropertiesModal: this.openArchivePropertiesModal.bind(this),
       browseArchiveDip: this.browseArchiveDip.bind(this),
@@ -677,12 +676,12 @@ export default Component.extend(...mixins, {
   /**
    * @param {Array<Models.Archive>} archives
    */
-  openArchivesPurgeModal(archives) {
-    this.set('archivesToPurge', archives);
+  openArchivesDeleteModal(archives) {
+    this.set('archivesToDelete', archives);
   },
 
-  closeArchivesPurgeModal() {
-    this.set('archivesToPurge', null);
+  closeArchivesDeleteModal() {
+    this.set('archivesToDelete', null);
   },
 
   openInfoModal(file, activeTab) {

@@ -6,8 +6,7 @@ $file-browser-item-height: 32px;
 $file-browser-padding-left: 12px;
 // light padding at the right to make some space for scrollbar rail
 $file-browser-padding-right: 16px;
-$fb-table-margin-top: 50px;
-$fb-table-margin-top-mobile: 36px;
+$fb-table-margin-top: $file-browser-header-height;
 $zindex-file-browser-head: $zindex-modal-background - 10;
 
 @import 'layout';
@@ -19,6 +18,7 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/content-space-datasets';
 @import 'components/content-space-shares';
 @import 'components/content-public-share';
+@import 'components/content-space-config';
 @import 'components/edit-permissions-modal';
 @import 'components/file-browser';
 @import 'components/bs-modal';
@@ -40,7 +40,7 @@ $zindex-file-browser-head: $zindex-modal-background - 10;
 @import 'components/archive-filesystem-browser';
 @import 'components/dataset-browser';
 @import 'components/archive-browser';
-@import 'components/archives-purge';
+@import 'components/archives-delete';
 @import 'components/space-automation';
 @import 'components/items-select-browser';
 @import 'components/upload-drop-zone';

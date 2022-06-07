@@ -15,6 +15,7 @@ import $ from 'jquery';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import { mockRootFiles } from '../../helpers/files';
+import { once } from '@ember/runloop';
 import {
   getFileRow,
   doubleClickFile,
@@ -197,7 +198,7 @@ describe('Integration | Component | file browser (main component)', function () 
   });
 
   it('has blocked hardlink creation for directories', async function () {
-    mockFilesTree(this, {
+    await mockFilesTree(this, {
       f1: {},
     });
 
@@ -629,19 +630,17 @@ describe('Integration | Component | file browser (main component)', function () 
   });
 });
 
-function mockFilesTree(testCase, treeSpec) {
+async function mockFilesTree(testCase, treeSpec) {
   const fileManager = lookupService(testCase, 'fileManager');
   const fetchDirChildrenStub = sinon.stub(fileManager, 'fetchDirChildren');
 
-  const root = {
+  const root = await createFile(testCase, {
     entityId: 'root',
     name: 'root name',
-    index: 'root name',
+    index: 'abc123',
     type: 'dir',
-    hasParent: false,
-    parent: resolve(null),
-  };
-  root.effFile = root;
+    parent: null,
+  });
   const elementsMap = {
     root,
   };
@@ -652,17 +651,16 @@ function mockFilesTree(testCase, treeSpec) {
       parent,
       subtreeSpec,
     } = treeElementGeneratorQueue.shift();
-    const subtreeElements = Object.keys(subtreeSpec).map(subElementId => {
+    const subtreeElements = [];
+    for (const subElementId of Object.keys(subtreeSpec)) {
       const isDir = subtreeSpec[subElementId] !== null;
-      const element = {
+      const element = await createFile(testCase, {
         entityId: subElementId,
         name: `${subElementId} name`,
-        index: `${subElementId} name`,
+        index: `abc-${subElementId}`,
         type: isDir ? 'dir' : 'file',
-        hasParent: true,
-        parent: resolve(parent),
-      };
-      element.effFile = element;
+        parent,
+      });
       elementsMap[subElementId] = element;
       if (isDir) {
         treeElementGeneratorQueue.push({
@@ -670,10 +668,10 @@ function mockFilesTree(testCase, treeSpec) {
           subtreeSpec: subtreeSpec[subElementId],
         });
       }
-      return element;
-    });
+      subtreeElements.push(element);
+    }
     fetchDirChildrenStub.withArgs(
-      parent.entityId,
+      get(parent, 'entityId'),
       sinon.match.any,
       null,
       sinon.match.any,
@@ -765,7 +763,7 @@ function itHasWorkingClipboardFunction({
   finalExpect,
 }) {
   it(description, async function (done) {
-    mockFilesTree(this, {
+    await mockFilesTree(this, {
       f1: null,
       f2: {
         f3: null,
@@ -777,7 +775,7 @@ function itHasWorkingClipboardFunction({
 
     await render(this);
 
-    expect(this.$('.fb-table-row')).to.exist;
+    expect(this.$('.fb-table-row'), 'file row').to.exist;
 
     await chooseFileContextMenuAction({ name: 'f1 name' }, contextMenuActionId);
 
@@ -834,6 +832,13 @@ async function render(testCase) {
     openQos: openQos || notStubbed('openQos'),
   }));
   setDefaultTestProperty(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
+  testCase.set('changeSelectedItemsImmediately', function (selectedItems) {
+    this.set('selectedItems', selectedItems);
+  });
+  testCase.set('changeSelectedItems', async function (selectedItems) {
+    once(this, 'changeSelectedItemsImmediately', selectedItems);
+    await sleep(0);
+  });
   testCase.render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
     dir=dir
@@ -845,7 +850,7 @@ async function render(testCase) {
     spacePrivileges=spacePrivileges
     handleFileDownloadUrl=handleFileDownloadUrl
     updateDirEntityId=(action updateDirEntityId)
-    changeSelectedItems=(action (mut selectedItems))
+    changeSelectedItems=(action changeSelectedItems)
   }}</div>`);
   await wait();
 }
@@ -860,4 +865,12 @@ function notStubbed(stubName) {
   return () => {
     throw new Error(`${stubName} is not stubbed`);
   };
+}
+
+async function createFile(testCase, data) {
+  if (data.entityId) {
+    data.id = `file.${data.entityId}.instance:private`;
+    delete data.entityId;
+  }
+  return await lookupService(testCase, 'store').createRecord('file', data).save();
 }

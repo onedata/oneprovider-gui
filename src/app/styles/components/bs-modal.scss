@@ -36,22 +36,31 @@
 
 // a full-height modal that looks like content overlay (currently starting from right)
 .modal.modal-content-overlay {
+  .modal-dialog {
+    width: calc(100% - #{$content-col-padding * 2});
+
+    @media (max-width: $screen-xs-max) {
+      width: calc(100% - #{$padding-large-vertical});
+    }
+  }
+
+  .modal-sm {
+    // overlay modal with global modal-sm size is impractical
+    max-width: 640px;
+  }
+
+  .modal-lg {
+    max-width: $modal-lg;
+  }
+
+  .modal-xl {
+    max-width: $modal-xl;
+  }
+
   &.in {
     .modal-dialog {
       transform: none;
       box-shadow: 0px 0px 8px 0px rgb(0 0 0 / 10%);
-      width: calc(100% - #{$content-col-padding * 2});
-
-      &.modal-sm {
-        // overlay modal with global modal-sm size is impractical
-        max-width: 640px;
-      }
-      &.modal-lg {
-        max-width: $modal-lg;
-      }
-      &.modal-xl {
-        max-width: $modal-xl;
-      }
 
       .modal-content {
         height: 100%;
@@ -60,9 +69,6 @@
         flex-grow: 1;
       }
 
-      @media (max-width: $screen-xs-max) {
-        width: calc(100% - #{$padding-large-vertical});
-      }
     }
 
     &.without-footer {

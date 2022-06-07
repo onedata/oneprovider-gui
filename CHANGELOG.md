@@ -6,6 +6,17 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9439 Added subgroups to charts, added showing remote providers in directory size statistics
+* VFS-9235 Added "jump to file by prefix" feature
+* VFS-9355 Added more possible units to time series charts
+* VFS-9233 Changed naming of "Purge archive" to "Delete"
+* VFS-9163 Added config for space with directory size statistics setting
+* VFS-9393 Fixed ordering of stacked chart series
+* VFS-9411 Fixed empty points at the beginning of non-live chart time series
+* VFS-9205 Using new file listing API
+* VFS-9121 Added statistics for disk usage in directories
+* VFS-8914 Redesigned datasets panel for file
+* VFS-9397 Better presentation of time series measurements in automation store browser
 * VFS-9332 Added handling time series measurements in all types of stores
 * VFS-9021 Added recall process error log
 * VFS-9270 Added task time series store
