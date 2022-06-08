@@ -4,7 +4,7 @@
   class="loadable-row dataset-protection-summary-loadable-row"
   customErrorMessage=(tt this "cannotLoadFileDatasetSummary")
 }}
-  <table class="table datasets-table {{unless media.isMobile "table-striped"}}">
+  <table class="table datasets-table {{unless (media "isMobile") "table-striped"}}">
     <thead class="datasets-table-head">
       <th class="col-dataset-info">
         <div class="table-header-content">

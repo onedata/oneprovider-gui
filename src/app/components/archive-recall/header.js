@@ -15,7 +15,6 @@ export default Component.extend(I18n, {
   classNames: ['archive-recall-header'],
 
   i18n: service(),
-  media: service(),
 
   /**
    * @override

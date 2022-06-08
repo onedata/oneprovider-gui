@@ -18,7 +18,7 @@
         triggerEvents=(if isMobile.any "click" "hover")
         title=(tt this "tip")
       }}
-      {{#unless media.isMobile}}
+      {{#unless (media "isMobile")}}
         {{one-tooltip
           placement="right"
           visible=showNotFoundTooltipTimeoutId

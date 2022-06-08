@@ -4,8 +4,8 @@
     <div class="subheader-text space-settings-info">
       {{tt this "settingsDescription" space=spaceName provider=providerName}}
     </div>
-    {{#promise-proxy-container 
-      proxy=dirSizeStatsConfigProxy 
+    {{#promise-proxy-container
+      proxy=dirSizeStatsConfigProxy
       spinnerBlockClass="absolute-middle-centered"
     }}
       <div class="iconified-block">
@@ -13,8 +13,8 @@
           {{one-icon icon="overview"}}
         </div>
         <div class="dir-size-stats-config content-section">
-          <label 
-            for="dir-size-stats-config" 
+          <label
+            for="dir-size-stats-config"
             class="inline-label dir-size-stats-config-label"
           >
             {{tt this "toggleDescription"}}
@@ -23,13 +23,13 @@
             class=(concat "form-control toggle-field-dir-size-stats-config")
             inputId="dir-size-stats-config"
             checked=isDirStatsCount
-            spinnerSide=(if media.isMobile "left" "right")
+            spinnerSide=(if (media "isMobile") "left" "right")
             update=(action "changeStatsCount")
             isReadOnly=(not hasEditPrivilege)
             lockHint=insufficientEditPrivilegesMessage
           }}
           <div class="subheader-text dir-size-stats-config-info">
-            {{tt this "dirSizeStatsDescription"}} 
+            {{tt this "dirSizeStatsDescription"}}
           </div>
           {{#if (not isDirStatsCount)}}
             <p>
