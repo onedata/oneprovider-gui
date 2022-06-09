@@ -11,6 +11,7 @@ import Component from '@ember/component';
 import { emptyValue } from 'oneprovider-gui/components/file-browser/fb-metadata-modal';
 import { conditional, eq, raw } from 'ember-awesome-macros';
 import { computed, observer } from '@ember/object';
+import $ from 'jquery';
 
 export default Component.extend({
   classNames: ['fb-metadata-ace-editor-base'],
@@ -140,7 +141,11 @@ export default Component.extend({
   },
 
   getModalDialog() {
-    return this.get('$modalDialog') || this.$().closest('.modal-dialog');
+    const {
+      $modalDialog,
+      element,
+    } = this.getProperties('$modalDialog', 'element');
+    return $modalDialog || $(element).closest('.modal-dialog');
   },
 
   setupAceEditor(aceEditor) {

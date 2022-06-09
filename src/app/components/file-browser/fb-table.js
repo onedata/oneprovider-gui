@@ -805,10 +805,13 @@ export default Component.extend(I18n, {
    * @returns {{ element: HTMLElement, renderedRowIndex: Number }}
    */
   getFirstVisibleRow() {
-    const viewTester = this.get('viewTester');
+    const {
+      viewTester,
+      element,
+    } = this.getProperties('viewTester', 'element');
     let firstRow;
     let renderedRowIndex;
-    this.$('[data-row-id]').each((index, element) => {
+    $(element).find('[data-row-id]').each((index, element) => {
       if (viewTester.isInView(element)) {
         renderedRowIndex = index;
         firstRow = element;
@@ -829,7 +832,7 @@ export default Component.extend(I18n, {
    * @returns {HTMLElement|null}
    */
   getNthRenderedRow(index) {
-    return this.$('[data-row-id]')[index] || null;
+    return $(this.get('element')).find('[data-row-id]')[index] || null;
   },
 
   /**
@@ -860,13 +863,16 @@ export default Component.extend(I18n, {
       filesArray,
       viewTester,
       containerScrollTop,
+      element,
     } = this.getProperties(
       'dir',
       'filesArray',
       'viewTester',
       'containerScrollTop',
+      'element',
     );
-    const visibleLengthBeforeReload = this.$('.data-row').toArray()
+    const $element = $(element);
+    const visibleLengthBeforeReload = $element.find('.data-row').toArray()
       .filter(row => viewTester.isInView(row)).length;
 
     const promises = [];
@@ -897,13 +903,7 @@ export default Component.extend(I18n, {
             return;
           }
 
-          const $dataRows = this.$('.data-row');
-          // a strange bug - despite of checking if component is destroyed and scheduling
-          // afterRender sometimes this.$() returns null or undefined
-          if (!$dataRows) {
-            return;
-          }
-
+          const $dataRows = $(this.get('element')).find('.data-row');
           const anyRowVisible = $dataRows.toArray()
             .some(row => viewTester.isInView(row));
 
@@ -1189,7 +1189,10 @@ export default Component.extend(I18n, {
       if (isPopoverOpened() || this.isItemDisabled(file)) {
         return;
       }
-      const selectedItems = this.get('selectedItems');
+      const {
+        selectedItems,
+        element,
+      } = this.getProperties('selectedItems', 'element');
       if (get(selectedItems, 'length') === 0 || !selectedItems.includes(file)) {
         this.selectOnlySingleFile(file);
       }
@@ -1205,11 +1208,11 @@ export default Component.extend(I18n, {
         left = mouseEvent.clientX;
         top = mouseEvent.clientY;
       }
-      const $this = this.$();
+      const $this = $(element);
       const tableOffset = $this.offset();
       left = left - tableOffset.left;
       top = top - tableOffset.top;
-      this.$('.file-actions-trigger').css({
+      $this.find('.file-actions-trigger').css({
         top,
         left,
       });

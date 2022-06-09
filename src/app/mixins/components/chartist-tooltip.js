@@ -1,9 +1,9 @@
 /**
  * Adds tooltip to chart.
- * 
+ *
  * To enable, addChartTooltip must be called in chartist eventListener plugin
  * and chartTooltipSelector must be set.
- * 
+ *
  * @module mixins/components/chartist-tooltip
  * @author Michal Borzecki
  * @copyright (C) 2018 ACK CYFRONET AGH
@@ -163,12 +163,15 @@ export default Mixin.create({
       _ctHoveredPointsColumnIndex,
       chartTooltipSelector,
       chartTooltipVerticalAlign,
+      element,
     } = this.getProperties(
       '_ctHoveredPointsColumnIndex',
       'chartTooltipSelector',
-      'chartTooltipVerticalAlign'
+      'chartTooltipVerticalAlign',
+      'element'
     );
-    const tooltip = this.$(chartTooltipSelector);
+    const $element = $(element);
+    const tooltip = $element.find(chartTooltipSelector);
     if (!tooltip.length) {
       return;
     }
@@ -177,7 +180,7 @@ export default Mixin.create({
         _ctPointsColumnXPosition,
         _ctPointsColumnYPosition,
       } = this.getProperties('_ctPointsColumnXPosition', '_ctPointsColumnYPosition');
-      const chartContainer = this.$('.ct-chart');
+      const chartContainer = $element.find('.ct-chart');
       const chartXCenter = chartContainer.width() / 2;
       tooltip.css({
         top: _ctPointsColumnYPosition[_ctHoveredPointsColumnIndex] + 'px',
