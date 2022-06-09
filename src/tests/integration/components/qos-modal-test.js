@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { resolve } from 'rsvp';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
@@ -109,10 +109,10 @@ describe('Integration | Component | qos modal', function () {
 
       await wait();
 
-      expect(this.$('.filename'), 'file name').to.contain(filename);
-      expect(this.$('.qos-entry .replicas-number'), 'replicas number')
-        .to.contain(replicasNum.toString());
-      expect(this.$('.qos-entry').text(), 'qos-entry')
+      expect(find('.filename'), 'file name').to.contain.text(filename);
+      expect(find('.qos-entry .replicas-number'), 'replicas number')
+        .to.contain.text(replicasNum.toString());
+      expect(find('.qos-entry').textContent, 'qos-entry')
         .to.match(/.*storage_type\s*=\s*"dummy".*/);
     });
 });

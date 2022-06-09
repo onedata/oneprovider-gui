@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { createFile, mockRootFiles } from '../../helpers/files';
 import { lookupService } from '../../helpers/stub-service';
@@ -125,7 +125,7 @@ describe('Integration | Component | archive recall (internal)', function () {
 
     await renderComponent();
 
-    expect(this.$('.fb-table-row')).to.have.length(filesCount);
+    expect(findAll('.fb-table-row')).to.have.length(filesCount);
   });
 
   it('invokes recallArchive with selected directory id and target name', async function () {
@@ -147,12 +147,12 @@ describe('Integration | Component | archive recall (internal)', function () {
 
     await renderComponent();
 
-    const row = getFileRow(dir1)[0];
+    const row = getFileRow(dir1);
     await click(row);
     await fillIn('.target-name-input', 'expected_target_name');
-    expect(this.$('.file-selected')).to.have.length(1);
-    expect(this.$('.target-name-input').val()).to.contain('expected_target_name');
-    expect(this.$('.submit-btn')).to.not.have.attr('disabled');
+    expect(findAll('.file-selected')).to.have.length(1);
+    expect(find('.target-name-input').value).to.contain('expected_target_name');
+    expect(find('.submit-btn')).to.not.have.attr('disabled');
     await click('.submit-btn');
     expect(recallArchiveSpy).to.have.been.calledOnce;
     expect(recallArchiveSpy).to.have.been.calledWith(
@@ -168,21 +168,20 @@ describe('Integration | Component | archive recall (internal)', function () {
 
       await renderComponent();
 
-      const $this = this.$();
-      const $submitBtn = this.$('.submit-btn');
-      const $targetNameFormGroup = this.$('.target-name-form');
+      const submitBtn = find('.submit-btn');
+      const targetNameFormGroup = find('.target-name-form');
 
       // right after render - file with initial name does not exist
-      expect($targetNameFormGroup).to.not.have.class('has-error');
-      expect($submitBtn).to.not.have.attr('disabled');
-      expect($this.text()).to.not.contain(this.expectedMessage);
+      expect(targetNameFormGroup).to.not.have.class('has-error');
+      expect(submitBtn).to.not.have.attr('disabled');
+      expect(this.element).to.not.contain.text(this.expectedMessage);
 
       // change name to existing - show validation error
       await fillIn('.target-name-input', this.existingName);
 
-      expect($targetNameFormGroup).to.have.class('has-error');
-      expect($submitBtn).to.have.attr('disabled');
-      expect($this.text()).to.contain(this.expectedMessage);
+      expect(targetNameFormGroup).to.have.class('has-error');
+      expect(submitBtn).to.have.attr('disabled');
+      expect(this.element).to.contain.text(this.expectedMessage);
     }
   );
 });

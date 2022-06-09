@@ -9,12 +9,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, findAll } from '@ember/test-helpers';
 import { click } from 'ember-native-dom-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { resolve } from 'rsvp';
 import EmberPowerSelectHelper from '../../helpers/ember-power-select-helper';
-import $ from 'jquery';
 import sinon from 'sinon';
 
 describe('Integration | Component | acl editor', function () {
@@ -78,8 +77,8 @@ describe('Integration | Component | acl editor', function () {
         acl=acl}}
     `);
 
-    expect(this.$('.ace')).to.not.exist;
-    expect(this.$('.no-ace')).to.exist;
+    expect(find('.ace')).to.not.exist;
+    expect(find('.no-ace')).to.exist;
   });
 
   it('renders passed ACL', async function () {
@@ -110,12 +109,12 @@ describe('Integration | Component | acl editor', function () {
       testPromise = testPromise.then(() =>
         click(selectorPrefix + '.one-collapsible-list-item-header')
       ).then(() => {
-        expect(this.$(selectorPrefix + '.subject-name')).to.contain(name);
+        expect(find(selectorPrefix + '.subject-name')).to.contain.text(name);
         selected.forEach(toggleField => {
-          expect(this.$(selectorPrefix + '.' + toggleField))
+          expect(find(selectorPrefix + '.' + toggleField))
             .to.have.class('checked');
         });
-        expect(this.$(selectorPrefix +
+        expect(findAll(selectorPrefix +
             '.has-checkbox-group .one-tree .one-way-toggle.checked'))
           .to.have.length(selected.length);
       });
@@ -150,8 +149,8 @@ describe('Integration | Component | acl editor', function () {
     const addAceDropdown =
       new EmberPowerSelectHelper('.add-user-group-ace', '.add-user-group-ace-dropdown');
     return addAceDropdown.selectOption(4).then(() => {
-      expect(this.$('.ace')).to.have.length(3);
-      expect(this.$('.ace:nth-child(3) .subject-name')).to.contain('User 2');
+      expect(findAll('.ace')).to.have.length(3);
+      expect(find('.ace:nth-child(3) .subject-name')).to.contain.text('User 2');
       expect(changeSpy).to.be.calledWith(targetAcl);
     });
   });
@@ -173,9 +172,9 @@ describe('Integration | Component | acl editor', function () {
     const targetAcl = [acl[1]];
 
     return click('.one-collapsible-list-item:first-child .btn-menu-toggle')
-      .then(() => click($('body .webui-popover .remove-action')[0]))
+      .then(() => click(document.querySelector('.webui-popover .remove-action')))
       .then(() => {
-        expect(this.$('.ace')).to.have.length(1);
+        expect(findAll('.ace')).to.have.length(1);
         expect(changeSpy).to.be.calledWith(targetAcl);
       });
   });
@@ -197,9 +196,9 @@ describe('Integration | Component | acl editor', function () {
     const targetAcl = [acl[1], acl[0]];
 
     return click('.one-collapsible-list-item:nth-child(2) .btn-menu-toggle')
-      .then(() => click($('body .webui-popover .move-up-action')[0]))
+      .then(() => click(document.querySelector('.webui-popover .move-up-action')))
       .then(() => {
-        expect(this.$('.ace:first-child .subject-name')).to.contain('Group 1');
+        expect(find('.ace:first-child .subject-name')).to.contain.text('Group 1');
         expect(changeSpy).to.be.calledWith(targetAcl);
       });
   });
@@ -221,9 +220,9 @@ describe('Integration | Component | acl editor', function () {
     const targetAcl = [acl[1], acl[0]];
 
     return click('.one-collapsible-list-item:first-child .btn-menu-toggle')
-      .then(() => click($('body .webui-popover .move-down-action')[0]))
+      .then(() => click(document.querySelector('.webui-popover .move-down-action')))
       .then(() => {
-        expect(this.$('.ace:nth-child(2) .subject-name')).to.contain('User 1');
+        expect(find('.ace:nth-child(2) .subject-name')).to.contain.text('User 1');
         expect(changeSpy).to.be.calledWith(targetAcl);
       });
   });

@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import EmberObject, { set } from '@ember/object';
 import sinon from 'sinon';
-import $ from 'jquery';
 import { click } from 'ember-native-dom-helpers';
 import { Promise } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
+import { findByText } from '../../../helpers/find';
 
 /**
  * @param {Object} distributionParams
@@ -92,8 +92,8 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-name:contains("krakow")')).to.exist;
-      expect(this.$('.oneprovider-name:contains("paris")')).to.exist;
+      expect(findByText('krakow', '.oneprovider-name')).to.exist;
+      expect(findByText('paris', '.oneprovider-name')).to.exist;
     });
 
     it('renders percentage and chunks representation', async function () {
@@ -108,13 +108,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       }}
     `);
 
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .chunks-canvas')).to.exist;
-      expect(this.$('.oneprovider-providerkrk .percentage-text')).to.contain('50%');
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-canvas')).to.exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .never-synchronized-background'))
+      expect(find('.oneprovider-providerkrk .never-synchronized-background'))
         .to.not.exist;
     });
 
@@ -130,12 +130,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
+      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
-      expect(this.$('.oneprovider-providerpar .never-synchronized-background')).to
+      expect(find('.oneprovider-providerpar .never-synchronized-background')).to
         .exist;
-      expect(this.$('.oneprovider-providerpar .percentage-text')).to.contain('n/a');
-      expect(this.$('.oneprovider-providerpar .chunks-canvas')).to.not.exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerpar .chunks-canvas')).to.not.exist;
     });
 
     it('renders distribution for single file', async function () {
@@ -150,11 +150,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .percentage-text')).to.contain('50%');
-      expect(this.$('.oneprovider-providerkrk .upper-size')).to.contain('1 KiB');
-      expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('1 KiB');
+      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
     });
 
@@ -173,11 +173,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .percentage-text')).to.contain('75%');
-      expect(this.$('.oneprovider-providerkrk .upper-size')).to.contain('2 KiB');
-      expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('75%');
+      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('2 KiB');
+      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
     });
 
@@ -196,11 +196,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .percentage-text')).to.contain('50%');
-      expect(this.$('.oneprovider-providerkrk .upper-size')).to.contain('1 KiB');
-      expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('1 KiB');
+      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
     });
 
@@ -225,11 +225,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+      expect(find('.oneprovider-providerpar .replication-status-icon'))
         .to.have.class('in-progress');
-      expect(this.$('.oneprovider-providerpar .migration-status-icon'))
+      expect(find('.oneprovider-providerpar .migration-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerpar .eviction-status-icon'))
+      expect(find('.oneprovider-providerpar .eviction-status-icon'))
         .to.not.have.class('in-progress');
     });
 
@@ -254,13 +254,13 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+      expect(find('.oneprovider-providerpar .replication-status-icon'))
         .to.have.class('in-progress');
-      expect(this.$('.oneprovider-providerpar .migration-status-icon'))
+      expect(find('.oneprovider-providerpar .migration-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerpar .eviction-status-icon'))
+      expect(find('.oneprovider-providerpar .eviction-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+      expect(find('.oneprovider-providerkrk .migration-status-icon'))
         .to.have.class('in-progress');
     });
 
@@ -285,11 +285,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerkrk .replication-status-icon'))
+      expect(find('.oneprovider-providerkrk .replication-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+      expect(find('.oneprovider-providerkrk .migration-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
+      expect(find('.oneprovider-providerkrk .eviction-status-icon'))
         .to.have.class('in-progress');
     });
 
@@ -349,10 +349,10 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           `);
 
           return wait().then(() => {
-            expect(this.$('.link-to-transfers'), 'link').to.exist;
+            expect(find('.link-to-transfers'), 'link').to.exist;
             expect(getTransfersUrl).to.have.been.calledWith(expectedArgs);
-            expect(this.$('.link-to-transfers').attr('href'), 'href')
-              .to.equal(generatedHref);
+            expect(find('.link-to-transfers'))
+              .to.have.attr('href', generatedHref);
           });
         }
       );
@@ -390,16 +390,18 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           `);
 
         return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
-          .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
+          .then(() => click(
+            document.querySelector('.webui-popover .replicate-here-action-trigger')
+          ))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
-            expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+            expect(find('.oneprovider-providerpar .replication-status-icon'))
               .to.have.class('in-progress');
             return resolveStartAction();
           })
           .then(() => wait())
           .then(() =>
-            expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+            expect(find('.oneprovider-providerpar .replication-status-icon'))
             .to.not.have.class('in-progress')
           );
       });
@@ -420,17 +422,19 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           `);
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
-          .then(() => click($('body .webui-popover .migrate-action-trigger')[0]))
+          .then(() => click(
+            document.querySelector('.webui-popover .migrate-action-trigger')
+          ))
           .then(() => click('.start-migration'))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
-            expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+            expect(find('.oneprovider-providerkrk .migration-status-icon'))
               .to.have.class('in-progress');
             return resolveStartAction();
           })
           .then(() => wait())
           .then(() =>
-            expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+            expect(find('.oneprovider-providerkrk .migration-status-icon'))
             .to.not.have.class('in-progress')
           );
       });
@@ -454,16 +458,18 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           `);
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
-          .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
+          .then(() => click(
+            document.querySelector('.webui-popover .evict-action-trigger')
+          ))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
-            expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
+            expect(find('.oneprovider-providerkrk .eviction-status-icon'))
               .to.have.class('in-progress');
             return resolveStartAction();
           })
           .then(() => wait())
           .then(() =>
-            expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
+            expect(find('.oneprovider-providerkrk .eviction-status-icon'))
             .to.not.have.class('in-progress')
           );
       });
@@ -483,7 +489,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             `);
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
-            .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
+            .then(() => click(
+              document.querySelector('.webui-popover .replicate-here-action-trigger')
+            ))
             .then(() => {
               expect(startActionStub).to.have.not.been.called;
             });
@@ -509,7 +517,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             `);
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
-            .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
+            .then(() => click(
+              document.querySelector('.webui-popover .evict-action-trigger')
+            ))
             .then(() => {
               expect(startActionStub).to.have.not.been.called;
             });
@@ -536,11 +546,14 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
             return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
               .then(() => {
-                const $trigger = $('body .webui-popover .migrate-action-trigger');
-                expect($trigger.parent()).to.have.class('disabled');
-                return click($trigger[0]);
+                const trigger =
+                  document.querySelector('.webui-popover .migrate-action-trigger');
+                expect(trigger.parentElement).to.have.class('disabled');
+                return click(trigger);
               })
-              .then(() => expect($('.destination-oneprovider-selector')).to.not.exist);
+              .then(() => expect(
+                document.querySelector('.destination-oneprovider-selector')
+              ).to.not.exist);
           }
         );
       });

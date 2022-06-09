@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import Service from '@ember/service';
 import { registerService, lookupService } from '../../../helpers/stub-service';
@@ -66,17 +66,14 @@ describe(
     }}`);
 
       return wait().then(() => {
-        expect(this.$('.ember-power-select-selected-item').text()).to.contain(
+        expect(find('.ember-power-select-selected-item')).to.contain.text(
           'All Oneproviders'
         );
         const select = new ProviderSelectHelper();
         // option 3 should be Provider Z
         return select.selectOption(3, () => {
-          expect(
-            this.$(
-              '.chart-selectors .ember-power-select-selected-item'
-            ).text()
-          ).to.contain(providerZ.name);
+          expect(find('.chart-selectors .ember-power-select-selected-item'))
+            .to.contain.text(providerZ.name);
         });
       });
     });
@@ -116,14 +113,14 @@ describe(
     }}`);
 
       return wait().then(() => {
-          expect(this.$('.ember-power-select-selected-item').text()).to.contain(
+          expect(find('.ember-power-select-selected-item')).to.contain.text(
             'All Oneproviders'
           );
           this.set('timeUnit', 'hour');
           return wait();
         })
         .then(() => {
-          expect(this.$('.ember-power-select-selected-item').text()).to.contain(
+          expect(find('.ember-power-select-selected-item')).to.contain.text(
             'All Oneproviders'
           );
         });

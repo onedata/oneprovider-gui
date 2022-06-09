@@ -95,11 +95,11 @@ describe('Integration | Component | file datasets/archives tab', function () {
 
     const archiveRow = find('.fb-table-row');
     await doubleClick(archiveRow);
-    const $visibleDipButtons = this.$('.select-archive-dip-btn:visible');
-    expect($visibleDipButtons).to.have.lengthOf(1);
-    expect($visibleDipButtons).to.be.not.disabled;
-    expect($visibleDipButtons.text()).to.match(/^\s*DIP\s*$/);
-    await click($visibleDipButtons[0]);
+    const visibleDipButtons = findAll('.select-archive-dip-btn');
+    expect(visibleDipButtons).to.have.lengthOf(1);
+    expect(visibleDipButtons[0]).to.not.have.attr('disabled');
+    expect(visibleDipButtons[0].textContent).to.match(/^\s*DIP\s*$/);
+    await click(visibleDipButtons[0]);
 
     const fileName = find('.fb-table-row .file-base-name').textContent;
     expect(fileName).to.match(/-dip\s*$/);

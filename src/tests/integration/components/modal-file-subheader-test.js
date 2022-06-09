@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
 describe('Integration | Component | modal file subheader', function () {
@@ -14,7 +14,7 @@ describe('Integration | Component | modal file subheader', function () {
       name: 'hello.txt',
     }]);
     await render(hbs `{{modal-file-subheader files=files}}`);
-    expect(this.$().text()).to.contain('hello.txt');
+    expect(this.element).to.contain.text('hello.txt');
   });
 
   it('renders file icon for single file', async function () {
@@ -24,7 +24,7 @@ describe('Integration | Component | modal file subheader', function () {
       name: 'hello.txt',
     }]);
     await render(hbs `{{modal-file-subheader files=files}}`);
-    expect(this.$('.file-item-icon')).to.have.class('oneicon-browser-file');
+    expect(find('.file-item-icon')).to.have.class('oneicon-browser-file');
   });
 
   it('renders directory icon for single directory', async function () {
@@ -34,7 +34,7 @@ describe('Integration | Component | modal file subheader', function () {
       name: 'hello',
     }]);
     await render(hbs `{{modal-file-subheader files=files}}`);
-    expect(this.$('.file-item-icon')).to.have.class('oneicon-browser-directory');
+    expect(find('.file-item-icon')).to.have.class('oneicon-browser-directory');
   });
 
   it('does not render icon for multiple items', async function () {
@@ -48,7 +48,7 @@ describe('Integration | Component | modal file subheader', function () {
       index: 'hello2.txt',
     }]);
     await render(hbs `{{modal-file-subheader files=files}}`);
-    expect(this.$('.file-item-icon')).to.not.exist;
+    expect(find('.file-item-icon')).to.not.exist;
   });
 
   it('renders items count for multiple items', async function () {
@@ -62,7 +62,7 @@ describe('Integration | Component | modal file subheader', function () {
       index: 'hello2.txt',
     }]);
     await render(hbs `{{modal-file-subheader files=files}}`);
-    expect(this.$().text()).to.contain('2');
+    expect(this.element).to.contain.text('2');
   });
 
   it('renders file name and suffix separately if file name conflicts', async function () {
@@ -72,7 +72,7 @@ describe('Integration | Component | modal file subheader', function () {
       conflictingName: 'hello',
     }]);
     await render(hbs `{{modal-file-subheader files=files}}`);
-    expect(this.$('.file-base-name').text()).to.match(/^\S*hello\S*$/);
-    expect(this.$('.file-suffix').text()).to.match(/^\S*@1234\S*$/);
+    expect(find('.file-base-name').textContent).to.match(/^\S*hello\S*$/);
+    expect(find('.file-suffix').textContent).to.match(/^\S*@1234\S*$/);
   });
 });

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
@@ -18,8 +18,8 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('has class "pods-table-pod-row"', async function () {
     await renderComponent();
 
-    expect(this.$().children()).to.have.class('pods-table-pod-row')
-      .and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('pods-table-pod-row');
   });
 
   it('has "data-pod-id" attribute equal to pod id', async function () {
@@ -27,7 +27,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
     await renderComponent();
 
-    expect(this.$('.pods-table-pod-row')).to.have.attr('data-pod-id', podId);
+    expect(find('.pods-table-pod-row')).to.have.attr('data-pod-id', podId);
   });
 
   it('shows pod activity info', async function () {
@@ -44,11 +44,11 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     });
     await renderComponent();
 
-    expect(this.$('.pod-id').text().trim()).to.equal(podId);
-    expect(this.$('.pod-readiness').text().trim())
-      .to.equal(podActivity.currentContainersReadiness);
-    expect(this.$('.pod-status').text().trim()).to.equal(podActivity.currentStatus);
-    expect(this.$('.pod-status-since').text().trim()).to.equal(
+    expect(find('.pod-id')).to.have.trimmed.text(podId);
+    expect(find('.pod-readiness'))
+      .to.have.trimmed.text(podActivity.currentContainersReadiness);
+    expect(find('.pod-status')).to.have.trimmed.text(podActivity.currentStatus);
+    expect(find('.pod-status-since')).to.have.trimmed.text(
       moment(podActivity.lastStatusChangeTimestamp).format('D MMM YYYY H:mm:ss')
     );
   });
@@ -68,11 +68,11 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
     this.set('isSelected', false);
     await wait();
-    expect(this.$('.pods-table-pod-row')).to.not.have.class('is-selected');
+    expect(find('.pods-table-pod-row')).to.not.have.class('is-selected');
 
     this.set('isSelected', true);
     await wait();
-    expect(this.$('.pods-table-pod-row')).to.have.class('is-selected');
+    expect(find('.pods-table-pod-row')).to.have.class('is-selected');
   });
 });
 

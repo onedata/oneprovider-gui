@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { next } from '@ember/runloop';
@@ -42,9 +42,9 @@ describe('Integration | Component | one embedded component', function () {
       _window.frameElement.appProxy.data.iprop = 'world';
       _window.frameElement.appProxy.propertyChanged('iprop');
     });
-    expect(this.$('#iprop-val')).to.contain('hello');
+    expect(find('#iprop-val')).to.contain.text('hello');
     return wait().then(() => {
-      expect(this.$('#iprop-val')).to.contain('world');
+      expect(find('#iprop-val')).to.contain.text('world');
     });
   });
 });

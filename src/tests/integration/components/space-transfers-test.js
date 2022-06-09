@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import Service from '@ember/service';
@@ -148,7 +148,7 @@ describe('Integration | Component | space transfers', function () {
 
     return wait()
       .then(() => {
-        expect(this.$('.row-transfers-tables'), '.row-transfers-tables').to
+        expect(find('.row-transfers-tables'), '.row-transfers-tables').to
           .exist;
         expect(findRecord).to.have.been.calledOnce;
         expect(findRecord).to.have.been.calledWith('file', expectedFileGri);
@@ -188,7 +188,7 @@ describe('Integration | Component | space transfers', function () {
 
       return wait()
         .then(() => {
-          expect(this.$('.nav-link-file'), '.nav-link-file').to.not.exist;
+          expect(find('.nav-link-file'), '.nav-link-file').to.not.exist;
         });
     });
 
@@ -225,9 +225,9 @@ describe('Integration | Component | space transfers', function () {
 
       return wait()
         .then(() => {
-          const navLinkFile = this.$('.nav-link-file');
+          const navLinkFile = find('.nav-link-file');
           expect(navLinkFile, '.nav-link-file').to.exist;
-          expect(navLinkFile.text().trim()).to.equal(file.name);
+          expect(navLinkFile).to.have.trimmed.text(file.name);
         });
     });
 });

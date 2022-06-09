@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../../helpers/stub-service';
 import {
@@ -13,7 +13,6 @@ import sinon from 'sinon';
 import { Promise } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import { click } from 'ember-native-dom-helpers';
-import $ from 'jquery';
 
 describe('Integration | Component | modals/atm task execution pods activity modal', function () {
   setupRenderingTest();
@@ -41,21 +40,21 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('renders modal with class "atm-task-execution-pods-activity-modal"', async function () {
     await showModal(this);
 
-    expect($(getModal())).to.have.class('atm-task-execution-pods-activity-modal');
+    expect(getModal()).to.have.class('atm-task-execution-pods-activity-modal');
   });
 
   it('has correct modal header', async function () {
     await showModal(this);
 
-    expect($(getModalHeader()).text()).to.contain('Function pods activity');
+    expect(getModalHeader()).to.contain.text('Function pods activity');
   });
 
   it('shows spinner when pods table is being loaded', async function () {
     this.get('getOpenfaasRegistryMock').returns(new Promise(() => {}));
     await showModal(this);
 
-    const $modalBody = $(getModalBody());
-    expect($modalBody.find('.spin-spinner')).to.exist;
+    const modalBody = getModalBody();
+    expect(modalBody.querySelector('.spin-spinner')).to.exist;
   });
 
   it('shows error when pods table cannot be loaded', async function () {
@@ -67,8 +66,8 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     rejectRequest();
     await wait();
 
-    const $modalBody = $(getModalBody());
-    expect($modalBody.find('.resource-load-error')).to.exist;
+    const modalBody = getModalBody();
+    expect(modalBody.querySelector('.resource-load-error')).to.exist;
   });
 
   it('shows pods table', async function () {
@@ -76,10 +75,10 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
     await showModal(this);
 
-    const $podsRows = $(getModalBody()).find('.pods-table-pod-row');
-    expect($podsRows).to.have.length(2);
-    expect($podsRows.eq(0).text()).to.contain('pod3');
-    expect($podsRows.eq(1).text()).to.contain('pod2');
+    const podsRows = getModalBody().querySelectorAll('.pods-table-pod-row');
+    expect(podsRows).to.have.length(2);
+    expect(podsRows[0]).to.contain.text('pod3');
+    expect(podsRows[1]).to.contain.text('pod2');
   });
 
   it('allows selecting pod', async function () {
@@ -88,17 +87,17 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
     await click('[data-pod-id="pod2"]');
 
-    const $selectedPodRow = this.$('.pods-table-pod-row.is-selected');
-    expect($selectedPodRow).to.have.length(1);
-    expect($selectedPodRow.text()).to.contain('pod2');
+    const selectedPodRow = findAll('.pods-table-pod-row.is-selected');
+    expect(selectedPodRow).to.have.length(1);
+    expect(selectedPodRow[0]).to.contain.text('pod2');
   });
 
   it('shows empty events section when no pod is selected', async function () {
     setupPods(this, ['Running']);
     await showModal(this);
 
-    expect($(getModalBody()).find('.events-table-section').text())
-      .to.contain('Select pod to see events');
+    expect(getModalBody().querySelector('.events-table-section'))
+      .to.contain.text('Select pod to see events');
   });
 });
 

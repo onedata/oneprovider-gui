@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, findAll, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
@@ -57,12 +57,12 @@ describe('Integration | Component | file path', function () {
 
     await renderComponent();
 
-    const $anchorPath = this.$('a.path');
+    const anchorPath = findAll('a.path');
 
-    expect($anchorPath).to.have.length(1);
+    expect(anchorPath).to.have.length(1);
 
-    expect($anchorPath).to.have.attr('href');
-    expect($anchorPath).to.have.attr('target');
+    expect(anchorPath[0]).to.have.attr('href');
+    expect(anchorPath[0]).to.have.attr('target');
   });
 
   it('renders HTML A element with onclick event listener', async function () {
@@ -87,8 +87,8 @@ describe('Integration | Component | file path', function () {
     }}`);
     await wait();
 
-    const $anchorPath = this.$('a.path');
-    await click($anchorPath[0]);
+    const anchorPath = find('a.path');
+    await click(anchorPath);
     expect(onLinkClicked).to.have.been.calledOnce;
   });
 
@@ -112,13 +112,13 @@ describe('Integration | Component | file path', function () {
     }}`);
     await wait();
 
-    expect(this.$('a.path')).to.not.exist;
-    const $spanPath = this.$('span.path');
-    expect($spanPath).to.have.length(1);
-    expect($spanPath).to.not.have.attr('onkeydown');
-    expect($spanPath).to.not.have.attr('onclick');
-    expect($spanPath).to.not.have.attr('href');
-    expect($spanPath).to.not.have.attr('target');
+    expect(find('a.path')).to.not.exist;
+    const spanPath = findAll('span.path');
+    expect(spanPath).to.have.length(1);
+    expect(spanPath[0]).to.not.have.attr('onkeydown');
+    expect(spanPath[0]).to.not.have.attr('onclick');
+    expect(spanPath[0]).to.not.have.attr('href');
+    expect(spanPath[0]).to.not.have.attr('target');
   });
 
   it('renders text of path to file in space', async function () {
@@ -136,7 +136,7 @@ describe('Integration | Component | file path', function () {
 
     await renderComponent();
 
-    expect(this.$().text()).to.match(
+    expect(this.element.textContent).to.match(
       /space root\s*\/\s*one\s*\/\s*two\s*\/\s*three\s*\/\s*file is here\s*/
     );
   });
@@ -155,8 +155,8 @@ describe('Integration | Component | file path', function () {
     await render(hbs `{{file-path file=file}}`);
     await wait();
 
-    expect(this.$('.path-icon-container .oneicon-space')).to.have.length(1);
-    expect(this.$('.path-icon-container + .path-item.path-label').text())
+    expect(findAll('.path-icon-container .oneicon-space')).to.have.length(1);
+    expect(find('.path-icon-container + .path-item.path-label').textContent)
       .to.match(/^\s*space root\s*$/);
   });
 
@@ -190,18 +190,18 @@ describe('Integration | Component | file path', function () {
 
     await renderComponent();
 
-    const $datasetIcon =
-      this.$('.path-item.path-icon-container .oneicon-browser-dataset');
-    expect($datasetIcon).to.have.length(1);
-    const $datasetIconContainer = $datasetIcon.closest('.path-icon-container.path-item');
-    const $datasetIconLabel = $datasetIconContainer.next('.path-item.path-label');
-    expect($datasetIconLabel.text()).to.contain(browsableDatasetName);
-    const $archiveIcon =
-      this.$('.path-item.path-icon-container .oneicon-browser-archive');
-    expect($archiveIcon).to.have.length(1);
-    const $archiveIconContainer = $archiveIcon.closest('.path-icon-container.path-item');
-    const $archiveIconLabel = $archiveIconContainer.next('.path-item.path-label');
-    expect($archiveIconLabel.text()).to.contain(browsableArchiveName);
+    const datasetIcon =
+      findAll('.path-item.path-icon-container .oneicon-browser-dataset');
+    expect(datasetIcon).to.have.length(1);
+    const datasetIconContainer = datasetIcon[0].closest('.path-icon-container.path-item');
+    const datasetIconLabel = datasetIconContainer.nextElementSibling;
+    expect(datasetIconLabel).to.contain.text(browsableDatasetName);
+    const archiveIcon =
+      findAll('.path-item.path-icon-container .oneicon-browser-archive');
+    expect(archiveIcon).to.have.length(1);
+    const archiveIconContainer = archiveIcon[0].closest('.path-icon-container.path-item');
+    const archiveIconLabel = archiveIconContainer.nextElementSibling;
+    expect(archiveIconLabel).to.contain.text(browsableArchiveName);
   });
 
   it('renders ellipsis in place of central items if container is too small', async function () {
@@ -219,7 +219,7 @@ describe('Integration | Component | file path', function () {
 
     await renderInSmallContainer(this);
 
-    expect(this.$().text()).to.match(
+    expect(this.element.textContent).to.match(
       /space root\s*\/\s*one\s*\/\s*\.\.\.\s*\/\s*file\s*/
     );
   });
@@ -320,8 +320,8 @@ describe('Integration | Component | file path', function () {
 
     await renderComponent();
 
-    expect(this.$('.file-path .path-loading')).to.exist;
-    expect(this.$('.file-path').text()).to.match(/Loading path.../);
+    expect(find('.file-path .path-loading')).to.exist;
+    expect(find('.file-path').textContent).to.match(/Loading path.../);
   });
 
   it('shows error text when path resolving failed', async function () {
@@ -340,8 +340,8 @@ describe('Integration | Component | file path', function () {
 
     await renderComponent();
 
-    expect(this.$('.file-path .path-error')).to.exist;
-    expect(this.$('.file-path').text()).to.match(/Path loading failed!/);
+    expect(find('.file-path .path-error')).to.exist;
+    expect(find('.file-path').textContent).to.match(/Path loading failed!/);
   });
 
   it('changes text of path when injected file is replaced', async function () {
@@ -363,10 +363,10 @@ describe('Integration | Component | file path', function () {
 
     await renderComponent();
 
-    expect(this.$().text()).to.match(/space root\s*\/\s*hello\s*\/\s*world\s*/);
+    expect(this.element.textContent).to.match(/space root\s*\/\s*hello\s*\/\s*world\s*/);
     this.set('file', file2);
     await wait();
-    expect(this.$().text()).to.match(/space root\s*\/\s*foo\s*\/\s*bar\s*/);
+    expect(this.element.textContent).to.match(/space root\s*\/\s*foo\s*\/\s*bar\s*/);
   });
 
   it('adds "path-item-last" class to last path item', async function () {
@@ -383,10 +383,10 @@ describe('Integration | Component | file path', function () {
 
     await renderComponent();
 
-    expect(this.$('.path-item-last.path-separator'), 'separator').to.have.lengthOf(1);
-    expect(this.$('.path-item-last.path-label'), 'label').to.have.lengthOf(1);
-    expect(this.$('.path-item.path-label.path-item-last').text().trim())
-      .to.equal('three');
+    expect(findAll('.path-item-last.path-separator'), 'separator').to.have.lengthOf(1);
+    expect(findAll('.path-item-last.path-label'), 'label').to.have.lengthOf(1);
+    expect(find('.path-item.path-label.path-item-last'))
+      .to.have.trimmed.text('three');
   });
 
   it('adds "path-item-first" class to first path item', async function () {
@@ -403,10 +403,10 @@ describe('Integration | Component | file path', function () {
 
     await renderComponent();
 
-    expect(this.$('.path-item-first.path-icon-container'), 'icon').to.have.lengthOf(1);
-    expect(this.$('.path-item-first.path-label'), 'label').to.have.lengthOf(1);
-    expect(this.$('.path-item.path-label.path-item-first').text().trim())
-      .to.equal('root');
+    expect(findAll('.path-item-first.path-icon-container'), 'icon').to.have.lengthOf(1);
+    expect(findAll('.path-item-first.path-label'), 'label').to.have.lengthOf(1);
+    expect(find('.path-item.path-label.path-item-first'))
+      .to.have.trimmed.text('root');
   });
 });
 

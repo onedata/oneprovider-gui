@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, before, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import OneTooltipHelper from '../../../../helpers/one-tooltip';
@@ -9,7 +9,6 @@ import sinon from 'sinon';
 import { click } from 'ember-native-dom-helpers';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
-import $ from 'jquery';
 import CopyRecordIdAction from 'onedata-gui-common/utils/clipboard-actions/copy-record-id-action';
 
 const columns = [{
@@ -116,8 +115,8 @@ describe('Integration | Component | space automation/atm workflow executions tab
   it('has class "workflow-row"', async function () {
     await renderComponent();
 
-    expect(this.$().children()).to.have.class('workflow-row')
-      .and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('workflow-row');
   });
 
   columns.forEach(({ name }) => {
@@ -128,10 +127,10 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
         await renderComponent();
 
-        const $cells = this.$('.workflow-row-cell');
-        expect($cells).to.have.length(otherColumns.length);
+        const cells = findAll('.workflow-row-cell');
+        expect(cells).to.have.length(otherColumns.length);
         otherColumns.forEach(({ name }, idx) =>
-          expect($cells.eq(idx)).to.have.class(`cell-${name}`)
+          expect(cells[idx]).to.have.class(`cell-${name}`)
         );
       });
   });
@@ -141,7 +140,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
     await renderComponent();
 
-    expect(this.$('.cell-name').text().trim()).to.equal('workflow1');
+    expect(find('.cell-name')).to.have.trimmed.text('workflow1');
   });
 
   it('shows inventory name in "inventory" column', async function () {
@@ -149,7 +148,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
     await renderComponent();
 
-    expect(this.$('.cell-inventory').text().trim()).to.equal('inv1');
+    expect(find('.cell-inventory')).to.have.trimmed.text('inv1');
   });
 
   it('shows "unknown" as inventory name in "inventory" column when inventory is not available',
@@ -159,7 +158,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
       await renderComponent();
 
-      expect(this.$('.cell-inventory').text().trim()).to.equal('Unknown');
+      expect(find('.cell-inventory')).to.have.trimmed.text('Unknown');
     });
 
   [
@@ -172,7 +171,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
       await renderComponent();
 
-      expect(this.$(`.cell-${colName}`).text().trim()).to.equal(time.format(timeFormat));
+      expect(find(`.cell-${colName}`)).to.have.trimmed.text(time.format(timeFormat));
     });
   });
 
@@ -183,7 +182,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
       await renderComponent();
 
-      expect(this.$('.cell-status .one-icon')).to.have.class(`oneicon-${icon}`);
+      expect(find('.cell-status .one-icon')).to.have.class(`oneicon-${icon}`);
       expect(await new OneTooltipHelper('.cell-status .one-icon').getText())
         .to.equal(tooltip);
     });
@@ -194,19 +193,20 @@ describe('Integration | Component | space automation/atm workflow executions tab
 
     await renderComponent();
 
-    const $actionsTrigger =
-      this.$('.cell-actions .atm-workflow-execution-actions-trigger');
-    expect($actionsTrigger).to.exist;
+    const actionsTrigger =
+      find('.cell-actions .atm-workflow-execution-actions-trigger');
+    expect(actionsTrigger).to.exist;
 
-    await click($actionsTrigger[0]);
+    await click(actionsTrigger);
 
-    const $actions = $('body .webui-popover.in .actions-popover-content a');
-    expect($actions).to.have.length(executionActionsSpec.length);
+    const actions =
+      document.querySelectorAll('.webui-popover.in .actions-popover-content a');
+    expect(actions).to.have.length(executionActionsSpec.length);
     executionActionsSpec.forEach(({ className, label, icon }, index) => {
-      const $action = $actions.eq(index);
-      expect($action).to.have.class(className);
-      expect($action.text().trim()).to.equal(label);
-      expect($action.find('.one-icon')).to.have.class(`oneicon-${icon}`);
+      const action = actions[index];
+      expect(action).to.have.class(className);
+      expect(action).to.have.trimmed.text(label);
+      expect(action.querySelector('.one-icon')).to.have.class(`oneicon-${icon}`);
     });
   });
 
@@ -224,7 +224,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
     await renderComponent();
     await click('.atm-workflow-execution-actions-trigger');
     await click(
-      $('body .webui-popover.in .copy-record-id-action-trigger')[0]
+      document.querySelector('.webui-popover.in .copy-record-id-action-trigger')
     );
 
     expect(executeStub).to.be.calledOnce;

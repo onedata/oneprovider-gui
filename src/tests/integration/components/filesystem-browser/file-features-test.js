@@ -372,7 +372,7 @@ describe('Integration | Component | filesystem browser/file features', function 
     }}`);
     await wait();
 
-    const tagProgress = this.$('.file-status-recalling .tag-progress')[0];
+    const tagProgress = find('.file-status-recalling .tag-progress');
     expect(tagProgress.style.width).to.equal('50%');
   });
 
