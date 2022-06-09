@@ -192,7 +192,9 @@
             <tr class="file-info-row-size">
               <td class="property-name">{{tt this "size"}}</td>
               <td class="property-value">
-                {{bytes-to-string fileSize}}
+                {{#truncated-string}}
+                  {{bytes-to-string fileSize}} <span class="file-info-detail-size">({{fileSize}} B)</span>
+                {{/truncated-string}}
               </td>
             </tr>
           {{/if}}

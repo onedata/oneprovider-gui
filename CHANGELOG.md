@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9202 Showed size of file in details
 * VFS-9355 Added more possible units to time series charts
 * VFS-9233 Changed naming of "Purge archive" to "Delete"
 * VFS-9163 Added config for space with directory size statistics setting
