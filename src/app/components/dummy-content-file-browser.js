@@ -50,10 +50,13 @@ export default Component.extend({
       .then(list => list.objectAt(0));
   })),
 
-  dirProxy: promise.object(computed(function dirProxy() {
-    return this.get('spaceProxy').then(space => get(space, 'rootDir'));
+  dirProxy: promise.object(computed(async function dirProxy() {
+    // uncomment for space 0 root dir - rich features presentation
+    return this.get('mockBackend.entityRecords.space.0.rootDir');
     // uncomment for simulating nested directory
-    // return resolve(this.get('mockBackend.entityRecords.chainDir.2'));
+    // return this.get('mockBackend.entityRecords.chainDir.2');
+    // uncomment for empty dir
+    // return this.get('mockBackend.entityRecords.dir.2');
   })),
 
   init() {

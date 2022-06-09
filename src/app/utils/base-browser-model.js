@@ -35,9 +35,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   //#region API for file-browser component
 
   /**
-   * @virtual
-   * @type {Components.FileBrowser} browserInstance
-   */
+   * @virtualignoreCurrentDirContextMenuSelector
   browserInstance: undefined,
 
   /**
@@ -125,6 +123,13 @@ export default EmberObject.extend(OwnerInjector, I18n, {
    * @type {SafeString}
    */
   currentDirTranslation: '',
+
+  /**
+   * CSS selector of element(s) which right click on SHOULD NOT cause opening current dir
+   * context menu.
+   * @type {string}
+   */
+  ignoreCurrentDirContextMenuSelector: '',
 
   /**
    * If true, files table will not jump to changed `itemsForJump` if these items are

@@ -15,7 +15,6 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { computed, get, observer } from '@ember/object';
 import { reads, equal } from '@ember/object/computed';
-import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -81,12 +80,6 @@ export default Component.extend(...mixins, {
    * @type {Function}
    */
   reloadShareList: notImplementedReject,
-
-  /**
-   * @virtual optional
-   * @type {Function}
-   */
-  containerScrollTop: notImplementedIgnore,
 
   /**
    * Frame name, where Onezone share link should be opened

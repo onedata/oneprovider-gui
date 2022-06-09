@@ -229,9 +229,10 @@ export default Component.extend(I18n, FastDoubleClick, {
     'isMobile.any',
     'browserModel.infoIconActionName',
     function infoIconActionName() {
+      const isDisabled = this.get('isDisabled');
       const isMobile = this.get('isMobile.any');
       const actionName = this.get('browserModel.infoIconActionName');
-      if (isMobile) {
+      if (isDisabled || isMobile) {
         return null;
       } else {
         return actionName;
