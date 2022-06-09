@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import I18nStub from '../../../helpers/i18n-stub';
 import { registerService } from '../../../helpers/stub-service';
@@ -8,18 +9,16 @@ import sinon from 'sinon';
 import { fillIn } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | share show/markdown editor', function () {
-  setupComponentTest('share-show/markdown-editor', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'i18n', I18nStub);
   });
 
-  it('renders HTML generated from Markdown source in "visual" mode', function () {
+  it('renders HTML generated from Markdown source in "visual" mode', async function () {
     this.set('markdown', '# hello world');
 
-    this.render(hbs `{{share-show/markdown-editor
+    await render(hbs `{{share-show/markdown-editor
       markdown=markdown
       mode="visual"
     }}`);
@@ -31,10 +30,10 @@ describe('Integration | Component | share show/markdown editor', function () {
     expect($h1.text().trim()).to.equal('hello world');
   });
 
-  it('renders textarea that render Markdown source in "markdown" mode', function () {
+  it('renders textarea that render Markdown source in "markdown" mode', async function () {
     this.set('markdown', '# hello world');
 
-    this.render(hbs `{{share-show/markdown-editor
+    await render(hbs `{{share-show/markdown-editor
       markdown=markdown
       mode="markdown"
     }}`);
@@ -46,10 +45,10 @@ describe('Integration | Component | share show/markdown editor', function () {
 
   it('renders textarea that emits edited code in "markdown" mode on change', async function () {
     const onMarkdownChangeSpy = sinon.spy();
-    this.on('onMarkdownChange', onMarkdownChangeSpy);
-    this.render(hbs `{{share-show/markdown-editor
+    this.set('onMarkdownChange', onMarkdownChangeSpy);
+    await render(hbs `{{share-show/markdown-editor
       markdown=""
-      onMarkdownChange=(action "onMarkdownChange")
+      onMarkdownChange=(action onMarkdownChange)
       mode="markdown"
     }}`);
 

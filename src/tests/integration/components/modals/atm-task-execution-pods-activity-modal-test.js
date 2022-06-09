@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../../helpers/stub-service';
 import {
@@ -12,11 +13,10 @@ import sinon from 'sinon';
 import { Promise } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import { click } from 'ember-native-dom-helpers';
+import $ from 'jquery';
 
 describe('Integration | Component | modals/atm task execution pods activity modal', function () {
-  setupComponentTest('modals/atm-task-execution-pods-activity-modal', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const atmTaskName = 'task1';
@@ -41,20 +41,20 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('renders modal with class "atm-task-execution-pods-activity-modal"', async function () {
     await showModal(this);
 
-    expect(getModal()).to.have.class('atm-task-execution-pods-activity-modal');
+    expect($(getModal())).to.have.class('atm-task-execution-pods-activity-modal');
   });
 
   it('has correct modal header', async function () {
     await showModal(this);
 
-    expect(getModalHeader().text()).to.contain('Function pods activity');
+    expect($(getModalHeader()).text()).to.contain('Function pods activity');
   });
 
   it('shows spinner when pods table is being loaded', async function () {
     this.get('getOpenfaasRegistryMock').returns(new Promise(() => {}));
     await showModal(this);
 
-    const $modalBody = getModalBody();
+    const $modalBody = $(getModalBody());
     expect($modalBody.find('.spin-spinner')).to.exist;
   });
 
@@ -67,7 +67,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     rejectRequest();
     await wait();
 
-    const $modalBody = getModalBody();
+    const $modalBody = $(getModalBody());
     expect($modalBody.find('.resource-load-error')).to.exist;
   });
 
@@ -76,7 +76,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
     await showModal(this);
 
-    const $podsRows = getModalBody().find('.pods-table-pod-row');
+    const $podsRows = $(getModalBody()).find('.pods-table-pod-row');
     expect($podsRows).to.have.length(2);
     expect($podsRows.eq(0).text()).to.contain('pod3');
     expect($podsRows.eq(1).text()).to.contain('pod2');
@@ -97,7 +97,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     setupPods(this, ['Running']);
     await showModal(this);
 
-    expect(getModalBody().find('.events-table-section').text())
+    expect($(getModalBody()).find('.events-table-section').text())
       .to.contain('Select pod to see events');
   });
 });
@@ -108,7 +108,7 @@ async function showModal(testCase) {
     modalOptions,
   } = testCase.getProperties('modalManager', 'modalOptions');
 
-  testCase.render(hbs `{{global-modal-mounter}}`);
+  await render(hbs `{{global-modal-mounter}}`);
 
   await modalManager
     .show('atm-task-execution-pods-activity-modal', modalOptions)

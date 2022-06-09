@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { next } from '@ember/runloop';
@@ -9,11 +10,9 @@ import { lookupService } from '../../helpers/stub-service';
 import { set } from '@ember/object';
 
 describe('Integration | Component | one embedded component', function () {
-  setupComponentTest('one-embedded-component', {
-    integration: true,
-  });
+  setupRenderingTest();
 
-  it('exposes updated injected properties', function () {
+  it('exposes updated injected properties', async function () {
     const callParent = sinon.spy();
     const appProxyService = lookupService(this, 'app-proxy');
     const _window = {
@@ -31,7 +30,7 @@ describe('Integration | Component | one embedded component', function () {
     set(appProxyService, '_window', _window);
 
     this.set('_window', _window);
-    this.render(hbs `{{#one-embedded-component
+    await render(hbs `{{#one-embedded-component
       _window=_window
       iframeInjectedProperties=(array "iprop")
       as |component|

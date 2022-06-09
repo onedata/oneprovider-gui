@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -13,26 +14,26 @@ const FileManager = Service.extend(Evented, {
   async fetchDirChildren() {
     return [];
   },
+  registerRefreshHandler() {},
+  deregisterRefreshHandler() {},
 });
 
 describe('Integration | Component | items select browser', function () {
-  setupComponentTest('items-select-browser', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'fileManager', FileManager);
   });
 
-  it('renders header, body and footer in modal', function () {
-    render(this);
+  it('renders header, body and footer in modal', async function () {
+    await renderComponent(this);
     expect(this.$('.items-select-browser-header')).to.exist;
     expect(this.$('.items-select-browser-body')).to.exist;
     expect(this.$('.items-select-browser-footer')).to.exist;
   });
 });
 
-function render(testCase) {
+async function renderComponent(testCase) {
   if (!testCase.get('selectorModel')) {
     const space = {
       rootDir: promiseObject(resolve({
@@ -42,7 +43,7 @@ function render(testCase) {
       })),
     };
     const selectorModel = FilesystemModel.create({
-      ownerSource: testCase,
+      ownerSource: testCase.owner,
       constraintSpec: {
         allowedFileTypes: ['file', 'dir'],
       },
@@ -50,7 +51,7 @@ function render(testCase) {
     });
     testCase.set('selectorModel', selectorModel);
   }
-  testCase.render(hbs `
+  await render(hbs `
     {{#one-pseudo-modal as |modal|}}
       {{items-select-browser
         modal=modal

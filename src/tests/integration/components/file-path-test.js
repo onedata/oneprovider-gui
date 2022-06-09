@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
@@ -29,9 +30,7 @@ const ArchiveManager = Service.extend({
 });
 
 describe('Integration | Component | file path', function () {
-  setupComponentTest('file-path', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const getDataUrl = ({ selected: [firstSelected] }) => `link-${firstSelected}`;
@@ -56,7 +55,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await render(this);
+    await renderComponent();
 
     const $anchorPath = this.$('a.path');
 
@@ -81,7 +80,7 @@ describe('Integration | Component | file path', function () {
       onLinkClicked,
     });
 
-    this.render(hbs `{{file-path
+    await render(hbs `{{file-path
       file=file
       onLinkClicked=onLinkClicked
       onLinkKeydown=onLinkKeydown
@@ -107,7 +106,7 @@ describe('Integration | Component | file path', function () {
 
     // not using internalTagName in generic render, because it would override default
     // internalTagName
-    this.render(hbs `{{file-path
+    await render(hbs `{{file-path
       file=file
       internalTagName=internalTagName
     }}`);
@@ -135,7 +134,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$().text()).to.match(
       /space root\s*\/\s*one\s*\/\s*two\s*\/\s*three\s*\/\s*file is here\s*/
@@ -153,7 +152,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    this.render(hbs `{{file-path file=file}}`);
+    await render(hbs `{{file-path file=file}}`);
     await wait();
 
     expect(this.$('.path-icon-container .oneicon-space')).to.have.length(1);
@@ -189,7 +188,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await render(this);
+    await renderComponent();
 
     const $datasetIcon =
       this.$('.path-item.path-icon-container .oneicon-browser-dataset');
@@ -257,7 +256,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await render(this);
+    await renderComponent();
     const tooltip = new OneTooltipHelper('.path');
 
     expect(await tooltip.hasTooltip()).to.be.false;
@@ -299,7 +298,7 @@ describe('Integration | Component | file path', function () {
       customTip,
     });
 
-    await render(this);
+    await renderComponent();
     const tooltip = new OneTooltipHelper('.path');
 
     expect(await tooltip.hasTooltip()).to.be.false;
@@ -319,7 +318,7 @@ describe('Integration | Component | file path', function () {
     });
     set(file, 'parent', promiseObject(new Promise(() => {})));
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.file-path .path-loading')).to.exist;
     expect(this.$('.file-path').text()).to.match(/Loading path.../);
@@ -339,7 +338,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.file-path .path-error')).to.exist;
     expect(this.$('.file-path').text()).to.match(/Path loading failed!/);
@@ -362,7 +361,7 @@ describe('Integration | Component | file path', function () {
       file: file1,
     });
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$().text()).to.match(/space root\s*\/\s*hello\s*\/\s*world\s*/);
     this.set('file', file2);
@@ -382,7 +381,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.path-item-last.path-separator'), 'separator').to.have.lengthOf(1);
     expect(this.$('.path-item-last.path-label'), 'label').to.have.lengthOf(1);
@@ -402,7 +401,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.path-item-first.path-icon-container'), 'icon').to.have.lengthOf(1);
     expect(this.$('.path-item-first.path-label'), 'label').to.have.lengthOf(1);
@@ -411,9 +410,8 @@ describe('Integration | Component | file path', function () {
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `{{file-path file=file customTip=customTip}}`);
-  await wait();
+async function renderComponent() {
+  await render(hbs `{{file-path file=file customTip=customTip}}`);
 }
 
 async function renderInSmallContainer(testCase) {

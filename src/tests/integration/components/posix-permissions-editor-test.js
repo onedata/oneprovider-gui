@@ -1,17 +1,16 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { click, fillIn, keyEvent } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | posix permissions editor', function () {
-  setupComponentTest('posix-permissions-editor', {
-    integration: true,
-  });
+  setupRenderingTest();
 
-  it('show initial posix value', function () {
-    this.render(hbs `{{posix-permissions-editor initialPermissions="432"}}`);
+  it('show initial posix value', async function () {
+    await render(hbs `{{posix-permissions-editor initialPermissions="432"}}`);
 
     expect(this.$('.permissions-octal').val()).to.equal('432');
     expect(this.$('.permissions-string-container')).to.contain('r-- -wx -w-');
@@ -30,13 +29,13 @@ describe('Integration | Component | posix permissions editor', function () {
     expect(this.$()).to.have.length(1);
   });
 
-  it('modifies value with input', function () {
+  it('modifies value with input', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{posix-permissions-editor
         initialPermissions="000"
-        onChange=(action "change")}}
+        onChange=(action change)}}
     `);
 
     return fillIn('.permissions-octal', '040')
@@ -48,13 +47,13 @@ describe('Integration | Component | posix permissions editor', function () {
       });
   });
 
-  it('modifies value with checkbox', function () {
+  it('modifies value with checkbox', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{posix-permissions-editor
         initialPermissions="000"
-        onChange=(action "change")}}
+        onChange=(action change)}}
     `);
 
     return click('.user-read-checkbox')
@@ -65,13 +64,13 @@ describe('Integration | Component | posix permissions editor', function () {
       });
   });
 
-  it('saves value on Enter press inside input', function () {
+  it('saves value on Enter press inside input', async function () {
     const saveSpy = sinon.spy();
-    this.on('save', saveSpy);
-    this.render(hbs `
+    this.set('save', saveSpy);
+    await render(hbs `
       {{posix-permissions-editor
         initialPermissions="000"
-        onSave=(action "save")}}
+        onSave=(action save)}}
     `);
 
     // 13 is Enter
@@ -79,13 +78,13 @@ describe('Integration | Component | posix permissions editor', function () {
       .then(() => expect(saveSpy).to.be.calledOnce);
   });
 
-  it('detects incorrect octal value in input', function () {
+  it('detects incorrect octal value in input', async function () {
     const changeSpy = sinon.spy();
-    this.on('change', changeSpy);
-    this.render(hbs `
+    this.set('change', changeSpy);
+    await render(hbs `
       {{posix-permissions-editor
         initialPermissions="000"
-        onChange=(action "change")}}
+        onChange=(action change)}}
     `);
 
     return fillIn('.permissions-octal', '778')

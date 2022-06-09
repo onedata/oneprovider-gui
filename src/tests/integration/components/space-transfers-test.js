@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import Service from '@ember/service';
@@ -34,9 +35,7 @@ const ErrorExtractor = Service.extend({
 });
 
 describe('Integration | Component | space transfers', function () {
-  setupComponentTest('space-transfers', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const spaceId = 'dummySpaceId';
@@ -48,9 +47,9 @@ describe('Integration | Component | space transfers', function () {
     const resetQueryParams = spy();
     const changeListTab = spy();
     const closeFileTab = spy();
-    this.on('resetQueryParams', resetQueryParams);
-    this.on('changeListTab', changeListTab);
-    this.on('closeFileTab', closeFileTab);
+    this.set('resetQueryParams', resetQueryParams);
+    this.set('changeListTab', changeListTab);
+    this.set('closeFileTab', closeFileTab);
     const providerListProxy = promiseObject(resolve({
       list: promiseArray(resolve(providers)),
     }));
@@ -84,7 +83,7 @@ describe('Integration | Component | space transfers', function () {
     });
   });
 
-  it('does not call getTransfersForFile if fileId is not injected', function () {
+  it('does not call getTransfersForFile if fileId is not injected', async function () {
     const transferManager = this.get('transferManager');
     const getTransfersForFile =
       stub(transferManager, 'getTransfersForFile').resolves([]);
@@ -96,14 +95,14 @@ describe('Integration | Component | space transfers', function () {
       timestamp: 0,
     });
 
-    this.render(hbs `<div id="content-scroll">{{space-transfers
+    await render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=undefined
       defaultTab=defaultTab
       providerId=providerId
-      resetQueryParams=(action "resetQueryParams")
-      changeListTab=(action "changeListTab")
-      closeFileTab=(action "closeFileTab")
+      resetQueryParams=(action resetQueryParams)
+      changeListTab=(action changeListTab)
+      closeFileTab=(action closeFileTab)
     }}</div>`);
 
     return wait().then(() => {
@@ -111,7 +110,7 @@ describe('Integration | Component | space transfers', function () {
     });
   });
 
-  it('calls getTransfersForFile if fileId is injected', function () {
+  it('calls getTransfersForFile if fileId is injected', async function () {
     const fileId = this.get('fileId');
     const file = {
       entityId: fileId,
@@ -137,14 +136,14 @@ describe('Integration | Component | space transfers', function () {
     findRecord.withArgs('file', expectedFileGri).resolves(file);
     this.set('tab', 'file');
 
-    this.render(hbs `<div id="content-scroll">{{space-transfers
+    await render(hbs `<div id="content-scroll">{{space-transfers
       space=space
       fileId=fileId
       tab=tab
       providerId=providerId
-      resetQueryParams=(action "resetQueryParams")
-      changeListTab=(action "changeListTab")
-      closeFileTab=(action "closeFileTab")
+      resetQueryParams=(action resetQueryParams)
+      changeListTab=(action changeListTab)
+      closeFileTab=(action closeFileTab)
     }}</div>`);
 
     return wait()
@@ -158,7 +157,7 @@ describe('Integration | Component | space transfers', function () {
   });
 
   it('does not render tab link for file tab if fileId is not provided',
-    function () {
+    async function () {
       const fileId = this.get('fileId');
       const file = {
         entityId: fileId,
@@ -178,13 +177,13 @@ describe('Integration | Component | space transfers', function () {
       findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      this.render(hbs `<div id="content-scroll">{{space-transfers
+      await render(hbs `<div id="content-scroll">{{space-transfers
         space=space
         defaultTab=defaultTab
         providerId=providerId
-        resetQueryParams=(action "resetQueryParams")
-        changeListTab=(action "changeListTab")
-        closeFileTab=(action "closeFileTab")
+        resetQueryParams=(action resetQueryParams)
+        changeListTab=(action changeListTab)
+        closeFileTab=(action closeFileTab)
       }}</div>`);
 
       return wait()
@@ -194,7 +193,7 @@ describe('Integration | Component | space transfers', function () {
     });
 
   it('renders tab link for file tab with file name if fileId is provided',
-    function () {
+    async function () {
       const fileId = this.get('fileId');
       const file = {
         entityId: fileId,
@@ -214,14 +213,14 @@ describe('Integration | Component | space transfers', function () {
       findRecord.withArgs('file', `file.${fileId}.instance:private`)
         .resolves(file);
 
-      this.render(hbs `<div id="content-scroll">{{space-transfers
+      await render(hbs `<div id="content-scroll">{{space-transfers
         space=space
         defaultTab=defaultTab
         fileId=fileId
         providerId=providerId
-        resetQueryParams=(action "resetQueryParams")
-        changeListTab=(action "changeListTab")
-        closeFileTab=(action "closeFileTab")
+        resetQueryParams=(action resetQueryParams)
+        changeListTab=(action changeListTab)
+        closeFileTab=(action closeFileTab)
       }}</div>`);
 
       return wait()

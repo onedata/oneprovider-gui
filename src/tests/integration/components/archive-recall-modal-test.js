@@ -9,7 +9,8 @@
 
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import Evented from '@ember/object/evented';
 import Service from '@ember/service';
@@ -39,9 +40,7 @@ const FileManager = Service.extend(Evented, {
 
 // TODO: VFS-8878 speed-up animations of overlay-modals in test environment
 describe('Integration | Component | archive recall modal', function () {
-  setupComponentTest('archive-recall-modal', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'fileManager', FileManager);
@@ -96,7 +95,7 @@ describe('Integration | Component | archive recall modal', function () {
       onArchiveRecallStarted: sinon.spy(),
     });
 
-    await render(this);
+    await renderComponent();
 
     expect($('.archive-recall-modal.in'), 'opened modal').to.exist;
     expect($('.archive-recall-modal.in .archive-recall-modal-header'), 'header').to.exist;
@@ -117,7 +116,7 @@ describe('Integration | Component | archive recall modal', function () {
       onArchiveRecallStarted,
     });
 
-    await render(this);
+    await renderComponent();
 
     await click('.archive-recall-modal-footer .submit-btn');
     await wait();
@@ -126,8 +125,8 @@ describe('Integration | Component | archive recall modal', function () {
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `
+async function renderComponent() {
+  await render(hbs `
     {{archive-recall-modal
       open=open
       space=space
@@ -136,5 +135,4 @@ async function render(testCase) {
       onArchiveRecallStarted=(action onArchiveRecallStarted)
     }}
   `);
-  await wait();
 }

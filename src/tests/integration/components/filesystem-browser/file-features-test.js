@@ -1,10 +1,11 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, afterEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { describe, it, beforeEach } from 'mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { click, find, findAll } from 'ember-native-dom-helpers';
-import { createArchiveRecallData } from '../../../helpers/datasets-archives';
+import { createArchiveRecallData, whenOnLocalProvider } from '../../../helpers/datasets-archives';
 import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -15,9 +16,7 @@ import { set } from '@ember/object';
 import ArchiveFilesystemBrowserModel from 'oneprovider-gui/utils/archive-filesystem-browser-model';
 
 describe('Integration | Component | filesystem browser/file features', function () {
-  setupComponentTest('filesystem-browser/file-features', {
-    integration: true,
-  });
+  const { afterEach } = setupRenderingTest();
 
   beforeEach(function () {
     this.createItem = (...args) => createFileItem(this, ...args);
@@ -48,7 +47,7 @@ describe('Integration | Component | filesystem browser/file features', function 
           recallingMembershipProxy: promiseObject(resolve(membership)),
         });
 
-        this.render(hbs `{{filesystem-browser/file-features
+        await render(hbs `{{filesystem-browser/file-features
           item=item
           initiallyExpanded=false
         }}`);
@@ -73,7 +72,7 @@ describe('Integration | Component | filesystem browser/file features', function 
             [feature]: membership,
           });
 
-          this.render(hbs `{{filesystem-browser/file-features
+          await render(hbs `{{filesystem-browser/file-features
             item=item
             browserModel=browserModel
             initiallyExpanded=false
@@ -93,7 +92,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       recallingMembership: 'direct',
     });
 
-    this.render(hbs `{{filesystem-browser/file-features
+    await render(hbs `{{filesystem-browser/file-features
       item=item
       browserModel=browserModel
       initiallyExpanded=true
@@ -112,7 +111,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         recallingMembership: membership,
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=false
@@ -132,7 +131,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         effQosMembership: 'directAndAncestor',
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=false
@@ -157,7 +156,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         effQosMembership: 'directAndAncestor',
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=true
@@ -185,7 +184,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         recallingMembership: 'ancestor',
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=true
@@ -226,7 +225,7 @@ describe('Integration | Component | filesystem browser/file features', function 
           spacePrivileges,
         });
 
-        this.render(hbs `{{filesystem-browser/file-features
+        await render(hbs `{{filesystem-browser/file-features
           item=item
           browserModel=browserModel
           initiallyExpanded=false
@@ -262,7 +261,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         onInvokeItemAction,
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=false
@@ -282,7 +281,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       effQosMembership: 'directAndAncestor',
     });
 
-    this.render(hbs `{{filesystem-browser/file-features
+    await render(hbs `{{filesystem-browser/file-features
       item=item
       browserModel=browserModel
       initiallyExpanded=false
@@ -306,7 +305,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         effDatasetMembership: 'ancestor',
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=false
@@ -325,6 +324,7 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   it('displays percentage progress of archive recalling in recalling tag', async function () {
     await createArchiveRecallData(this);
+    whenOnLocalProvider(this);
     const targetFile = this.get('targetFile');
     this.set(
       'archiveRecallState.bytesCopied',
@@ -336,7 +336,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       onInvokeItemAction,
     });
 
-    this.render(hbs `{{filesystem-browser/file-features
+    await render(hbs `{{filesystem-browser/file-features
       item=item
       browserModel=browserModel
       initiallyExpanded=false
@@ -352,6 +352,7 @@ describe('Integration | Component | filesystem browser/file features', function 
 
   it('has percentage width style applied to progress element in recalling tag', async function () {
     await createArchiveRecallData(this);
+    whenOnLocalProvider(this);
     const targetFile = this.get('targetFile');
     this.set(
       'archiveRecallState.bytesCopied',
@@ -363,7 +364,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       onInvokeItemAction,
     });
 
-    this.render(hbs `{{filesystem-browser/file-features
+    await render(hbs `{{filesystem-browser/file-features
       item=item
       browserModel=browserModel
       initiallyExpanded=false
@@ -389,7 +390,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         await this.createItem();
         await whenUsedInArchiveFilesystemBrowser(this, { archiveState: spec.state });
 
-        this.render(hbs `{{filesystem-browser/file-features
+        await render(hbs `{{filesystem-browser/file-features
           item=item
           browserModel=browserModel
           initiallyExpanded=true
@@ -409,7 +410,7 @@ describe('Integration | Component | filesystem browser/file features', function 
       await this.createItem();
       await whenUsedInArchiveFilesystemBrowser(this, { archiveState: 'preserved' });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=true
@@ -429,7 +430,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         await this.createItem();
         await whenUsedInArchiveFilesystemBrowser(this, { archiveState: spec.state });
 
-        this.render(hbs `{{filesystem-browser/file-features
+        await render(hbs `{{filesystem-browser/file-features
           item=item
           browserModel=browserModel
           initiallyExpanded=true
@@ -451,7 +452,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         archiveRootDir: null,
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=true
@@ -472,7 +473,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         archiveRootDir: null,
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=true
@@ -495,7 +496,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         archiveRootDir: null,
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=false
@@ -520,7 +521,7 @@ describe('Integration | Component | filesystem browser/file features', function 
         archiveRootDir: null,
       });
 
-      this.render(hbs `{{filesystem-browser/file-features
+      await render(hbs `{{filesystem-browser/file-features
         item=item
         browserModel=browserModel
         initiallyExpanded=false
@@ -565,7 +566,7 @@ function whenUsedInArchiveFilesystemBrowser(
     archive = createArchiveForBrowser(testCase, archiveRootDir);
   });
   const browserModel = ArchiveFilesystemBrowserModel.create({
-    ownerSource: testCase,
+    ownerSource: testCase.owner,
     archive,
   });
   testCase.set('browserModel', browserModel);

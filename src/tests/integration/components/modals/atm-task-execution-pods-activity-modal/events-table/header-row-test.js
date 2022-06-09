@@ -1,24 +1,22 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/events table/header row',
   function () {
-    setupComponentTest('modals/atm-task-execution-pods-activity-modal/events-table/header-row', {
-      integration: true,
-    });
+    setupRenderingTest();
 
     it('has class "events-table-header-row"', async function () {
-      await render(this);
+      await renderComponent();
 
       expect(this.$().children()).to.have.class('events-table-header-row')
         .and.to.have.length(1);
     });
 
     it('shows labels of columns', async function () {
-      await render(this);
+      await renderComponent();
 
       const $labels = this.$('.column-label');
       [
@@ -32,7 +30,6 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     });
   });
 
-async function render(testCase) {
-  testCase.render(hbs `{{modals/atm-task-execution-pods-activity-modal/events-table/header-row}}`);
-  await wait();
+async function renderComponent() {
+  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/events-table/header-row}}`);
 }

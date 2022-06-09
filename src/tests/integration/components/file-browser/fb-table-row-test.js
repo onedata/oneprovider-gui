@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import Service from '@ember/service';
@@ -22,40 +23,38 @@ const currentUser = Service.extend({
 const FileMock = EmberObject.extend(FileRuntimeProperties);
 
 describe('Integration | Component | file browser/fb table row', function () {
-  setupComponentTest('file-browser/fb-table-row', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'currentUser', currentUser);
     this.set('browserModel', FilesystemBrowserModel.create({
-      ownerSource: this,
+      ownerSource: this.owner,
     }));
     this.set('spacePrivileges', { view: true });
   });
 
-  it('renders modification date', function () {
+  it('renders modification date', async function () {
     const date = moment('2022-05-18T08:50:00+00:00').unix();
     const dateReadable = /18 May 2022 \d+:50/;
     this.set('file', createFile({ modificationTime: date }));
 
-    render(this);
+    await renderComponent(this);
 
     expect(this.$('.fb-table-col-modification').text()).to.match(dateReadable);
   });
 
-  it('does not render "hard links" file tag, when hardlinks count equals 1', function () {
+  it('does not render "hard links" file tag, when hardlinks count equals 1', async function () {
     this.set('file', createFile({ hardlinksCount: 1 }));
 
-    render(this);
+    await renderComponent(this);
 
     expect(this.$('.file-status-hardlinks'), 'refs tag').to.not.exist;
   });
 
-  it('renders "hard links" file tag, when hardlinks count equals 2', function () {
+  it('renders "hard links" file tag, when hardlinks count equals 2', async function () {
     this.set('file', createFile({ hardlinksCount: 2 }));
 
-    render(this);
+    await renderComponent(this);
 
     const $tag = this.$('.file-status-hardlinks');
     expect($tag, 'hard links tag').to.exist;
@@ -110,7 +109,7 @@ describe('Integration | Component | file browser/fb table row', function () {
         effQosMembership: 'ancestor',
       }));
 
-      render(this);
+      await renderComponent(this);
       await expandInheritanceTag(this);
 
       expect(this.$('.qos-inherited-icon')).to.exist;
@@ -123,7 +122,7 @@ describe('Integration | Component | file browser/fb table row', function () {
         effDatasetMembership: 'ancestor',
       }));
 
-      render(this);
+      await renderComponent(this);
       await expandInheritanceTag(this);
 
       expect(this.$('.file-status-dataset'), 'file-status-dataset').to.exist;
@@ -131,63 +130,65 @@ describe('Integration | Component | file browser/fb table row', function () {
     }
   );
 
-  it('renders dataset tag without inherited icon if file has direct dataset', function () {
+  it('renders dataset tag without inherited icon if file has direct dataset', async function () {
     this.set('file', createFile({
       effDatasetMembership: 'direct',
     }));
 
-    render(this);
+    await renderComponent(this);
 
     expect(this.$('.file-status-dataset'), 'file-status-dataset').to.exist;
     expect(this.$('.dataset-inherited-icon'), 'inherited icon').to.not.exist;
   });
 
-  it('renders dataset tag as disabled if file has dataset, but not having space_view privileges', function () {
-    this.set('spacePrivileges.view', false);
-    this.set('file', createFile({
-      effDatasetMembership: 'direct',
-    }));
+  it('renders dataset tag as disabled if file has dataset, but not having space_view privileges',
+    async function () {
+      this.set('spacePrivileges.view', false);
+      this.set('file', createFile({
+        effDatasetMembership: 'direct',
+      }));
 
-    render(this);
+      await renderComponent(this);
 
-    const $tag = this.$('.file-status-dataset');
-    expect($tag, 'file-status-dataset').to.exist;
-    expect($tag).to.have.class('file-status-tag-disabled');
-  });
+      const $tag = this.$('.file-status-dataset');
+      expect($tag, 'file-status-dataset').to.exist;
+      expect($tag).to.have.class('file-status-tag-disabled');
+    });
 
-  it('renders dataset tag as enabled if file has dataset and has space_view privileges', function () {
+  it('renders dataset tag as enabled if file has dataset and has space_view privileges', async function () {
     this.set('spacePrivileges.view', true);
     this.set('file', createFile({
       effDatasetMembership: 'direct',
     }));
 
-    render(this);
+    await renderComponent(this);
 
     const $tag = this.$('.file-status-dataset');
     expect($tag, 'file-status-dataset').to.exist;
     expect($tag).to.not.have.class('file-status-tag-disabled');
   });
 
-  it('renders qos tag as disabled if file has direct qos, but not having space_view_qos privileges', function () {
-    this.set('spacePrivileges.viewQos', false);
-    this.set('file', createFile({
-      effQosMembership: 'direct',
-    }));
+  it('renders qos tag as disabled if file has direct qos, but not having space_view_qos privileges',
+    async function () {
+      this.set('spacePrivileges.viewQos', false);
+      this.set('file', createFile({
+        effQosMembership: 'direct',
+      }));
 
-    render(this);
+      await renderComponent(this);
 
-    const $tag = this.$('.file-status-qos');
-    expect($tag, 'file-status-qos').to.exist;
-    expect($tag).to.have.class('file-status-tag-disabled');
-  });
+      const $tag = this.$('.file-status-qos');
+      expect($tag, 'file-status-qos').to.exist;
+      expect($tag).to.have.class('file-status-tag-disabled');
+    });
 
-  it('renders qos tag as enabled if file has direct qos and has space_view_qos privileges', function () {
+  it('renders qos tag as enabled if file has direct qos and has space_view_qos privileges', async function () {
     this.set('spacePrivileges.viewQos', true);
     this.set('file', createFile({
       effQosMembership: 'direct',
     }));
 
-    render(this);
+    await renderComponent(this);
 
     const $tag = this.$('.file-status-qos');
     expect($tag, 'file-status-qos').to.exist;
@@ -252,7 +253,7 @@ function testProtectedFlag(flagTypes) {
       createFile({ effProtectionFlags, effDatasetMembership: 'ancestor' })
     );
 
-    render(this);
+    await renderComponent(this);
     await expandInheritanceTag(this);
 
     expect(this.$('.file-protected-icon')).to.have.length(effProtectionFlags.length);
@@ -270,7 +271,7 @@ function testShowsTooltip(elementDescription, text, selector, contextData) {
   it(`shows tooltip containing "${text}" when hovering ${elementDescription}`, async function (done) {
     this.setProperties(contextData);
 
-    render(this);
+    await renderComponent(this);
     await expandInheritanceTag(this);
     await triggerEvent(selector, 'mouseenter');
 
@@ -283,10 +284,10 @@ function testShowsTooltip(elementDescription, text, selector, contextData) {
 }
 
 function checkNoAccessTag({ renders, description, properties }) {
-  it(description, function () {
+  it(description, async function () {
     this.setProperties(properties);
 
-    render(this);
+    await renderComponent(this);
 
     const expector = expect(this.$('.file-status-forbidden'), 'forbidden tag');
     if (renders) {
@@ -318,9 +319,9 @@ function createFile(override = {}, ownerGri = userGri) {
   return file;
 }
 
-function render(testCase) {
+async function renderComponent(testCase) {
   testCase.set('browserModel.spacePrivileges', testCase.get('spacePrivileges'));
-  testCase.render(hbs `{{file-browser/fb-table-row
+  await render(hbs `{{file-browser/fb-table-row
     file=file
     browserModel=browserModel
     previewMode=previewMode

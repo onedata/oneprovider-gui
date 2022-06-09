@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach, context } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import Service from '@ember/service';
@@ -41,9 +42,7 @@ const FileManager = Service.extend(Evented, {
 });
 
 describe('Integration | Component | file browser (main component)', function () {
-  setupComponentTest('file-browser', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'uploadManager', UploadManager);
@@ -66,7 +65,7 @@ describe('Integration | Component | file browser (main component)', function () 
       filesCount,
     });
 
-    await render(this);
+    await renderComponent(this);
 
     expect(this.$('.fb-table-row')).to.have.length(filesCount);
   });
@@ -121,7 +120,7 @@ describe('Integration | Component | file browser (main component)', function () 
     }
     fetchDirChildren.resolves({ isLast: true, childrenRecords: [] });
 
-    await render(this);
+    await renderComponent(this);
 
     let clickCount = numberOfDirs - 2;
     const enterDir = async () => {
@@ -202,7 +201,7 @@ describe('Integration | Component | file browser (main component)', function () 
       f1: {},
     });
 
-    await render(this);
+    await renderComponent(this);
 
     expect(this.$('.fb-table-row')).to.exist;
 
@@ -233,7 +232,7 @@ describe('Integration | Component | file browser (main component)', function () 
       selectedItems: [],
     });
 
-    await render(this);
+    await renderComponent(this);
 
     expect(fetchDirChildren).to.have.been.called;
     await wait();
@@ -277,7 +276,7 @@ describe('Integration | Component | file browser (main component)', function () 
     const fetchDirChildren = sinon.stub(fileManager, 'fetchDirChildren')
       .resolves({ childrenRecords: files, isLast: true });
 
-    await render(this);
+    await renderComponent(this);
 
     expect(fetchDirChildren).to.have.been.called;
     await wait();
@@ -297,7 +296,7 @@ describe('Integration | Component | file browser (main component)', function () 
 
       const dirs = [dir];
 
-      this.on('updateDirEntityId', function updateDirEntityId(id) {
+      this.set('updateDirEntityId', function updateDirEntityId(id) {
         this.set('dir', dirs.findBy('entityId', id));
       });
 
@@ -316,7 +315,7 @@ describe('Integration | Component | file browser (main component)', function () 
         isLast: true,
       });
 
-      await render(this);
+      await renderComponent(this);
 
       expect(fetchDirChildren).to.be.called;
       fetchDirChildren.resetHistory();
@@ -367,7 +366,7 @@ describe('Integration | Component | file browser (main component)', function () 
       // default
       fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
-      await render(this);
+      await renderComponent(this);
 
       expect(fetchDirChildren).to.have.been.calledWith(
         entityId,
@@ -427,7 +426,7 @@ describe('Integration | Component | file browser (main component)', function () 
       // default
       fetchDirChildren.resolves({ childrenRecords: [], isLast: true });
 
-      await render(this);
+      await renderComponent(this);
 
       expect(fetchDirChildren).to.have.been.calledWith(
         entityId,
@@ -502,7 +501,7 @@ describe('Integration | Component | file browser (main component)', function () 
               const openQos = sinon.spy();
               this.set('openQos', openQos);
 
-              await render(this);
+              await renderComponent(this);
               expect(openQos).to.have.not.been.called;
 
               const $headStatusBar = this.$('.filesystem-table-head-status-bar');
@@ -526,7 +525,7 @@ describe('Integration | Component | file browser (main component)', function () 
           async function (done) {
             this.set('dir.effQosMembership', 'none');
 
-            await render(this);
+            await renderComponent(this);
 
             const $headStatusBar = this.$('.filesystem-table-head-status-bar');
             const $qosTag = $headStatusBar.find('.file-status-qos');
@@ -542,7 +541,7 @@ describe('Integration | Component | file browser (main component)', function () 
             const openDatasets = sinon.spy();
             this.set('openDatasets', openDatasets);
 
-            await render(this);
+            await renderComponent(this);
             expect(openDatasets).to.have.not.been.called;
 
             const $headStatusBar = this.$('.filesystem-table-head-status-bar');
@@ -562,7 +561,7 @@ describe('Integration | Component | file browser (main component)', function () 
             const openDatasets = sinon.spy();
             this.set('openDatasets', openDatasets);
 
-            await render(this);
+            await renderComponent(this);
             expect(openDatasets).to.have.not.been.called;
 
             const $headStatusBar = this.$('.filesystem-table-head-status-bar');
@@ -574,7 +573,7 @@ describe('Integration | Component | file browser (main component)', function () 
         );
 
         it('has enabled datasets item in context menu', async function (done) {
-          await render(this);
+          await renderComponent(this);
           const $menu = await openFileContextMenu({ entityId: 'i1' });
           expect(
             $menu.find('li:not(.disabled) .file-action-datasets'),
@@ -605,7 +604,7 @@ describe('Integration | Component | file browser (main component)', function () 
         });
 
         it('has disabled datasets item in context menu', async function (done) {
-          await render(this);
+          await renderComponent(this);
           const $menu = await openFileContextMenu({ entityId: 'i1' });
           expect($menu.find('li.disabled .file-action-datasets')).to.exist;
 
@@ -697,7 +696,7 @@ function testOpenDatasetsModal(openDescription, openFunction) {
     this.set('openDatasets', openDatasets);
     this.set('item1.effDatasetMembership', 'direct');
 
-    await render(this);
+    await renderComponent(this);
 
     expect(openDatasets).to.have.not.been.called;
     await openFunction.call(this);
@@ -739,7 +738,7 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
     sleeper,
   } = prepareDownload(testCase);
 
-  await render(testCase);
+  await renderComponent(testCase);
   const $row = getFileRow({ entityId: fileId });
 
   expect($row.find('.on-icon-loading-spinner'), 'spinner').to.not.exist;
@@ -773,7 +772,7 @@ function itHasWorkingClipboardFunction({
 
     this.set('spaceId', 'myspaceid');
 
-    await render(this);
+    await renderComponent(this);
 
     expect(this.$('.fb-table-row'), 'file row').to.exist;
 
@@ -816,7 +815,7 @@ function stubSimpleFetch(testCase, dir, childrenRecords) {
   return fetchDirChildren;
 }
 
-async function render(testCase) {
+async function renderComponent(testCase) {
   const {
     openCreateNewDirectory,
     openDatasets,
@@ -825,7 +824,7 @@ async function render(testCase) {
   setDefaultTestProperty(testCase, 'spacePrivileges', {});
   setDefaultTestProperty(testCase, 'spaceId', 'some_space_id');
   setDefaultTestProperty(testCase, 'browserModel', FilesystemBrowserModel.create({
-    ownerSource: testCase,
+    ownerSource: testCase.owner,
     openCreateNewDirectory: openCreateNewDirectory ||
       notStubbed('openCreateNewDirectory'),
     openDatasets: openDatasets || notStubbed('openDatasets'),
@@ -839,7 +838,7 @@ async function render(testCase) {
     once(this, 'changeSelectedItemsImmediately', selectedItems);
     await sleep(0);
   });
-  testCase.render(hbs `<div id="content-scroll">{{file-browser
+  await render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
     dir=dir
     spaceId=spaceId
@@ -852,7 +851,6 @@ async function render(testCase) {
     updateDirEntityId=(action updateDirEntityId)
     changeSelectedItems=(action changeSelectedItems)
   }}</div>`);
-  await wait();
 }
 
 function setDefaultTestProperty(testCase, propertyName, defaultValue) {

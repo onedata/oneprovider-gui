@@ -1,25 +1,23 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/pods table', function () {
-  setupComponentTest('modals/atm-task-execution-pods-activity-modal/pods-table', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   it('has class "pods-table"', async function () {
-    await render(this);
+    await renderComponent();
 
     expect(this.$().children()).to.have.class('pods-table').and.to.have.length(1);
   });
 
   it('shows header and pods with filter set to "current" on init', async function () {
     this.set('activityRegistry', generateActivityRegistry());
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.pods-table-header-row')).to.exist;
     expect(this.$('.filter-current')).to.have.class('active');
@@ -31,7 +29,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
   it('allows changing pods filter to "all"', async function () {
     this.set('activityRegistry', generateActivityRegistry());
-    await render(this);
+    await renderComponent();
 
     await click('.filter-all');
 
@@ -46,7 +44,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('automatically changes pods filter to "all" on init when there are no pods in "current" but are some in "all"',
     async function () {
       this.set('activityRegistry', generateActivityRegistry(['Terminated', 'Terminated']));
-      await render(this);
+      await renderComponent();
 
       expect(this.$('.filter-all')).to.have.class('active');
       expect(this.$('.pods-table-pod-row')).to.have.length(2);
@@ -55,7 +53,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('shows table with pods filter equal to "current" when there are no pods',
     async function () {
       this.set('activityRegistry', generateActivityRegistry([]));
-      await render(this);
+      await renderComponent();
 
       expect(this.$('.filter-current')).to.have.class('active');
       expect(this.$('.pods-table-pod-row')).to.have.length(0);
@@ -66,7 +64,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
       activityRegistry: generateActivityRegistry(),
       selectedPodId: 'pod2',
     });
-    await render(this);
+    await renderComponent();
 
     expect(this.$('[data-pod-id="pod2"]')).to.have.class('is-selected');
   });
@@ -76,7 +74,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
       activityRegistry: generateActivityRegistry(),
       onPodSelect: sinon.spy(),
     });
-    await render(this);
+    await renderComponent();
     expect(onPodSelect).to.be.not.called;
 
     await click('[data-pod-id="pod2"]');
@@ -84,14 +82,14 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('shows info that there are no current pods to show', async function () {
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.pods-table-no-pods-row').text().trim())
       .to.equal('There are no current pods.');
   });
 
   it('shows info that there are no pods to show', async function () {
-    await render(this);
+    await renderComponent();
     await click('.filter-all');
 
     expect(this.$('.pods-table-no-pods-row').text().trim())
@@ -99,13 +97,12 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
+async function renderComponent() {
+  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
     activityRegistry=activityRegistry
     selectedPodId=selectedPodId
     onPodSelect=onPodSelect
   }}`);
-  await wait();
 }
 
 function generateActivityRegistry(statuses = ['Terminated', 'Pending', 'Running']) {

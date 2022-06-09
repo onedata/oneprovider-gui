@@ -1,19 +1,17 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
-import wait from 'ember-test-helpers/wait';
 import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/events table/event row', function () {
-  setupComponentTest('modals/atm-task-execution-pods-activity-modal/events-table/event-row', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   it('has class "events-table-event-row"', async function () {
-    await render(this);
+    await renderComponent();
 
     expect(this.$().children()).to.have.class('events-table-event-row')
       .and.to.have.length(1);
@@ -31,7 +29,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
         message: 'some message',
       },
     });
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.event-time').text().trim()).to.equal(
       moment(timestamp).format('D MMM YYYY H:mm:ss')
@@ -42,7 +40,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('is collapsed by default', async function () {
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.events-table-event-row')).to.not.have.class('is-expanded');
     expect(this.$('.events-table-expanded-event-row')).to.not.exist;
@@ -62,7 +60,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
       }),
     });
     this.set('isExpanded', false);
-    await render(this);
+    await renderComponent();
     expect(onToggleExpand).to.be.not.called;
 
     await click('.events-table-event-row');
@@ -78,11 +76,10 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `{{modals/atm-task-execution-pods-activity-modal/events-table/event-row
+async function renderComponent() {
+  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/events-table/event-row
     eventEntry=eventEntry
     isExpanded=isExpanded
     onToggleExpand=onToggleExpand
   }}`);
-  await wait();
 }
