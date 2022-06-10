@@ -6,7 +6,6 @@ import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import Service from '@ember/service';
 import { registerService, lookupService } from '../../helpers/stub-service';
-import wait from 'ember-test-helpers/wait';
 import { resolve } from 'rsvp';
 import { set } from '@ember/object';
 
@@ -127,15 +126,12 @@ describe('Integration | Component | content space transfers', function () {
         </div>
       `);
 
-      return wait()
-        .then(() => {
-          expect(find('.space-transfers'), 'space-transfers').to.exist;
-          expect(find('.transfers-overview'), 'transfers-overview').to.exist;
-          expect(find('.tables-container'), 'tables-container').to.exist;
-          expect(find('.providers-map'), 'providers-map').to.exist;
-          expect(find('.transfers-table'), 'transfers-table')
-            .to.contain.text('onefile');
-        });
+      expect(find('.space-transfers'), 'space-transfers').to.exist;
+      expect(find('.transfers-overview'), 'transfers-overview').to.exist;
+      expect(find('.tables-container'), 'tables-container').to.exist;
+      expect(find('.providers-map'), 'providers-map').to.exist;
+      expect(find('.transfers-table'), 'transfers-table')
+        .to.contain.text('onefile');
     });
 
     it('with forbidden message if user has no viewTransfers privilege', async function () {
@@ -180,13 +176,10 @@ describe('Integration | Component | content space transfers', function () {
         </div>
       `);
 
-      return wait()
-        .then(() => {
-          expect(
-            find('.no-permissions-space-transfers'),
-            'no-permissions-space-transfers'
-          ).to.exist;
-        });
+      expect(
+        find('.no-permissions-space-transfers'),
+        'no-permissions-space-transfers'
+      ).to.exist;
     });
   });
 });

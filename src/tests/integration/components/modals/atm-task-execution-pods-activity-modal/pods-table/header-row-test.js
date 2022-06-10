@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll, click } from '@ember/test-helpers';
+import { render, find, findAll, click, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/pods table/header row', function () {
@@ -50,11 +49,11 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     );
 
     this.set('podsFilter', 'current');
-    await wait();
+    await settled();
     expect(find('.filter-current')).to.have.class('active');
 
     this.set('podsFilter', 'all');
-    await wait();
+    await settled();
     expect(find('.filter-all')).to.have.class('active');
   });
 

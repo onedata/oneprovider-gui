@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, findAll, click } from '@ember/test-helpers';
+import { render, findAll, click, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../../helpers/stub-service';
 import {
@@ -11,7 +11,6 @@ import {
 } from '../../../helpers/modal';
 import sinon from 'sinon';
 import { Promise } from 'rsvp';
-import wait from 'ember-test-helpers/wait';
 
 describe('Integration | Component | modals/atm task execution pods activity modal', function () {
   setupRenderingTest();
@@ -63,7 +62,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     );
     await showModal(this);
     rejectRequest();
-    await wait();
+    await settled();
 
     const modalBody = getModalBody();
     expect(modalBody.querySelector('.resource-load-error')).to.exist;

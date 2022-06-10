@@ -3,7 +3,6 @@ import { describe, it, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 
 describe('Integration | Component | one markdown to html', function () {
   setupRenderingTest();
@@ -118,8 +117,6 @@ Some text
       );
 
       await render(hbs `{{one-markdown-to-html markdown=markdown}}`);
-
-      await wait();
 
       const html = this.element.innerHTML;
       expect(window[propertyName], `window.${propertyName}`).to.be.undefined;

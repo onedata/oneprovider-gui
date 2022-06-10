@@ -6,7 +6,6 @@ import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import Service from '@ember/service';
 import { registerService, lookupService } from '../../helpers/stub-service';
-import wait from 'ember-test-helpers/wait';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -105,9 +104,7 @@ describe('Integration | Component | space transfers', function () {
       closeFileTab=(action closeFileTab)
     }}</div>`);
 
-    return wait().then(() => {
-      expect(getTransfersForFile).to.have.not.been.called;
-    });
+    expect(getTransfersForFile).to.have.not.been.called;
   });
 
   it('calls getTransfersForFile if fileId is injected', async function () {
@@ -146,14 +143,11 @@ describe('Integration | Component | space transfers', function () {
       closeFileTab=(action closeFileTab)
     }}</div>`);
 
-    return wait()
-      .then(() => {
-        expect(find('.row-transfers-tables'), '.row-transfers-tables').to
-          .exist;
-        expect(findRecord).to.have.been.calledOnce;
-        expect(findRecord).to.have.been.calledWith('file', expectedFileGri);
-        expect(getTransfersForFile).to.have.been.calledWith(file, true);
-      });
+    expect(find('.row-transfers-tables'), '.row-transfers-tables').to
+      .exist;
+    expect(findRecord).to.have.been.calledOnce;
+    expect(findRecord).to.have.been.calledWith('file', expectedFileGri);
+    expect(getTransfersForFile).to.have.been.calledWith(file, true);
   });
 
   it('does not render tab link for file tab if fileId is not provided',
@@ -186,10 +180,7 @@ describe('Integration | Component | space transfers', function () {
         closeFileTab=(action closeFileTab)
       }}</div>`);
 
-      return wait()
-        .then(() => {
-          expect(find('.nav-link-file'), '.nav-link-file').to.not.exist;
-        });
+      expect(find('.nav-link-file'), '.nav-link-file').to.not.exist;
     });
 
   it('renders tab link for file tab with file name if fileId is provided',
@@ -223,11 +214,8 @@ describe('Integration | Component | space transfers', function () {
         closeFileTab=(action closeFileTab)
       }}</div>`);
 
-      return wait()
-        .then(() => {
-          const navLinkFile = find('.nav-link-file');
-          expect(navLinkFile, '.nav-link-file').to.exist;
-          expect(navLinkFile).to.have.trimmed.text(file.name);
-        });
+      const navLinkFile = find('.nav-link-file');
+      expect(navLinkFile, '.nav-link-file').to.exist;
+      expect(navLinkFile).to.have.trimmed.text(file.name);
     });
 });

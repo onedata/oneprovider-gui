@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, context, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, click, find, findAll } from '@ember/test-helpers';
+import { render, click, find, findAll, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import {
   file1,
@@ -9,7 +9,6 @@ import {
   exampleCdmiObjectId,
 } from 'oneprovider-gui/components/dummy-file-info';
 import { lookupService } from '../../../helpers/stub-service';
-import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
 import { selectChoose, clickTrigger } from 'ember-power-select/test-support/helpers';
@@ -68,7 +67,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     expect(find('.loading-file-path'), 'loading-file-path').to.exist;
     resolveParent(parent);
-    await wait();
+    await settled();
     expect(find('.loading-file-path'), 'loading-file-path').to.not.exist;
     expect(
       find('.file-info-row-path .property-value .clipboard-input').value
@@ -85,7 +84,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     expect(find('.loading-owner-full-name'), 'loading-owner-full-name').to.exist;
     resolveOwner(owner);
-    await wait();
+    await settled();
     expect(find('.loading-owner-full-name'), 'loading-owner-full-name')
       .to.not.exist;
     expect(
@@ -180,7 +179,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     await renderComponent();
-    await wait();
+
     expect(find('.nav-tabs').textContent).to.not.contain('Hard links (1)');
   });
 
@@ -191,7 +190,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     await renderComponent();
-    await wait();
 
     expect(find('.nav-tabs').textContent).to.contain('Hard links (2)');
   });
@@ -203,8 +201,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('previewMode', true);
 
     await renderComponent();
-    await wait();
-
     expect(find('.nav-tabs').textContent).to.contain('API');
   });
 
@@ -215,7 +211,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('previewMode', true);
 
     await renderComponent();
-    await wait();
 
     expect(find('.nav-tabs').textContent).to.not.contain('API');
   });
@@ -227,7 +222,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('previewMode', false);
 
     await renderComponent();
-    await wait();
 
     expect(find('.nav-tabs').textContent).to.not.contain('API');
   });
@@ -251,9 +245,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await renderComponent();
 
-    await wait();
     await click(findByText('Hard links', '.nav-link'));
-    await wait();
 
     const fileHardlinks = findAll('.file-hardlink');
     expect(fileHardlinks).to.have.length(2);
@@ -294,7 +286,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await renderComponent();
 
-    await wait();
     await click(findByText('Hard links', '.nav-link'));
 
     const fileHardlinks = findAll('.file-hardlink');
@@ -325,7 +316,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await renderComponent();
 
-    await wait();
     await click(findByText('Hard links', '.nav-link'));
 
     const fileHardlinks = findAll('.file-hardlink');
@@ -348,7 +338,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
       this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
 
       await renderComponent();
-      await wait();
 
       expect(
         find('.file-info-row-size .property-value').textContent
@@ -358,7 +347,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     it('renders name', async function (done) {
       await renderComponent();
-      await wait();
 
       expect(
         find('.file-info-row-name .property-value .clipboard-input').value
@@ -403,7 +391,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
         fileApiSamples,
       });
       await renderComponent();
-      await wait();
       await click(findByText('API', '.nav-link'));
     });
 

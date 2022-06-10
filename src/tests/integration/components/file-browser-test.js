@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, findAll, find, doubleClick, click } from '@ember/test-helpers';
+import { render, findAll, find, doubleClick, click, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import Service from '@ember/service';
@@ -9,7 +9,6 @@ import sinon from 'sinon';
 import { get } from '@ember/object';
 import Evented from '@ember/object/evented';
 import { resolve } from 'rsvp';
-import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
@@ -123,7 +122,6 @@ describe('Integration | Component | file browser (main component)', function () 
     let clickCount = numberOfDirs - 2;
     const enterDir = async () => {
       await doubleClick('.fb-table-row');
-      await wait();
       if (clickCount > 0) {
         clickCount = clickCount - 1;
         return enterDir();
@@ -231,7 +229,6 @@ describe('Integration | Component | file browser (main component)', function () 
     await renderComponent(this);
 
     expect(fetchDirChildren).to.have.been.called;
-    await wait();
     expect(find('.fb-table-row')).to.not.exist;
     expect(find('.empty-dir')).to.exist;
     await click('.empty-dir-new-directory-action');
@@ -275,7 +272,6 @@ describe('Integration | Component | file browser (main component)', function () 
     await renderComponent(this);
 
     expect(fetchDirChildren).to.have.been.called;
-    await wait();
     expect(find('.fb-table-row')).to.have.class('file-cut');
   });
 
@@ -371,7 +367,6 @@ describe('Integration | Component | file browser (main component)', function () 
         sinon.match.any,
         sinon.match.any
       );
-      await wait();
       const fileSelected = findAll('.file-selected');
       expect(fileSelected, 'selected file row').to.have.lengthOf(1);
       expect(fileSelected[0]).to.have.attr('data-row-id', selectedFile.id);
@@ -745,7 +740,7 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
   expect(getFileDownloadUrl).to.be.calledWith([fileId]);
   testCase.get('clock').tick(1000);
   await sleeper;
-  await wait();
+  await settled();
   expect(row.querySelector('.on-icon-loading-spinner'), 'spinner').to.not.exist;
 
   done();

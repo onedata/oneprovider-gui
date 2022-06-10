@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, findAll, find, click } from '@ember/test-helpers';
+import { render, findAll, find, click, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
-import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
 import { set } from '@ember/object';
 import { Promise, reject } from 'rsvp';
@@ -84,7 +83,6 @@ describe('Integration | Component | file path', function () {
       onLinkClicked=onLinkClicked
       onLinkKeydown=onLinkKeydown
     }}`);
-    await wait();
 
     const anchorPath = find('a.path');
     await click(anchorPath);
@@ -109,7 +107,6 @@ describe('Integration | Component | file path', function () {
       file=file
       internalTagName=internalTagName
     }}`);
-    await wait();
 
     expect(find('a.path')).to.not.exist;
     const spanPath = findAll('span.path');
@@ -152,7 +149,6 @@ describe('Integration | Component | file path', function () {
     });
 
     await render(hbs `{{file-path file=file}}`);
-    await wait();
 
     expect(findAll('.path-icon-container .oneicon-space')).to.have.length(1);
     expect(find('.path-icon-container + .path-item.path-label').textContent)
@@ -216,7 +212,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await renderInSmallContainer(this);
+    await renderInSmallContainer();
 
     expect(this.element.textContent).to.match(
       /space root\s*\/\s*one\s*\/\s*\.\.\.\s*\/\s*file\s*/
@@ -236,7 +232,7 @@ describe('Integration | Component | file path', function () {
       file,
     });
 
-    await renderInSmallContainer(this);
+    await renderInSmallContainer();
     const tooltip = new OneTooltipHelper('.path');
 
     expect(await tooltip.getText()).to.contain('/space root/one/two/three/file');
@@ -276,7 +272,7 @@ describe('Integration | Component | file path', function () {
       customTip,
     });
 
-    await renderInSmallContainer(this);
+    await renderInSmallContainer();
     const tooltip = new OneTooltipHelper('.path');
 
     expect(await tooltip.getText()).to.contain(customTip);
@@ -364,7 +360,7 @@ describe('Integration | Component | file path', function () {
 
     expect(this.element.textContent).to.match(/space root\s*\/\s*hello\s*\/\s*world\s*/);
     this.set('file', file2);
-    await wait();
+    await settled();
     expect(this.element.textContent).to.match(/space root\s*\/\s*foo\s*\/\s*bar\s*/);
   });
 
@@ -413,12 +409,11 @@ async function renderComponent() {
   await render(hbs `{{file-path file=file customTip=customTip}}`);
 }
 
-async function renderInSmallContainer(testCase) {
-  testCase.render(hbs `<div
+async function renderInSmallContainer() {
+  await render(hbs `<div
     class="test-path-container"
     style="width: 200px;"
   >
     {{file-path file=file customTip=customTip}}
   </div>`);
-  await wait();
 }

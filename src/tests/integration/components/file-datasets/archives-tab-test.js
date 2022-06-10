@@ -6,7 +6,6 @@ import hbs from 'htmlbars-inline-precompile';
 import { get, set } from '@ember/object';
 import { registerService, lookupService } from '../../../helpers/stub-service';
 import _ from 'lodash';
-import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
 import sleep from 'onedata-gui-common/utils/sleep';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
@@ -405,5 +404,4 @@ async function doubleClick(element) {
   click(element);
   await sleep(1);
   await click(element);
-  await wait();
 }

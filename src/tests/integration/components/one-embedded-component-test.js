@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find } from '@ember/test-helpers';
+import { render, find, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import { next } from '@ember/runloop';
-import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../helpers/stub-service';
 import { set } from '@ember/object';
 
@@ -43,8 +42,7 @@ describe('Integration | Component | one embedded component', function () {
       _window.frameElement.appProxy.propertyChanged('iprop');
     });
     expect(find('#iprop-val')).to.contain.text('hello');
-    return wait().then(() => {
-      expect(find('#iprop-val')).to.contain.text('world');
-    });
+    await settled();
+    expect(find('#iprop-val')).to.contain.text('world');
   });
 });

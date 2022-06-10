@@ -6,7 +6,6 @@ import hbs from 'htmlbars-inline-precompile';
 import { resolve } from 'rsvp';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
-import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
 
@@ -106,8 +105,6 @@ describe('Integration | Component | qos modal', function () {
         updateInterval=null
         getDataUrl=(action getDataUrl)
       }}`);
-
-      await wait();
 
       expect(find('.filename'), 'file name').to.contain.text(filename);
       expect(find('.qos-entry .replicas-number'), 'replicas number')

@@ -1,7 +1,6 @@
-import { click, findAll } from '@ember/test-helpers';
+import { click, findAll, settled } from '@ember/test-helpers';
 import { expect } from 'chai';
 import sleep from 'onedata-gui-common/utils/sleep';
-import wait from 'ember-test-helpers/wait';
 import { findAllByText } from './find';
 
 export function getFileRow({ entityId, name }) {
@@ -25,7 +24,7 @@ export async function doubleClickFile(file) {
 export async function openFileContextMenu(file) {
   const row = getFileRow(file);
   row.dispatchEvent(new Event('contextmenu'));
-  await wait();
+  await settled();
   const fileActions = document.querySelectorAll('.file-actions');
   expect(fileActions, 'file-actions').to.have.length(1);
   return fileActions[0];

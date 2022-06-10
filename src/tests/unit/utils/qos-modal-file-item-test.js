@@ -3,12 +3,12 @@ import { describe, it } from 'mocha';
 import QosModalFileItem from 'oneprovider-gui/utils/qos-modal-file-item';
 import sinon from 'sinon';
 import { get } from '@ember/object';
-import wait from 'ember-test-helpers/wait';
 import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
+import { settled } from '@ember/test-helpers';
 
 describe('Unit | Utility | qos modal file item', function () {
-  it('has status empty when qos items load and are empty', function () {
+  it('has status empty when qos items load and are empty', async function () {
     const fetchFileQosSummary = sinon.stub().resolves({
       fulfilled: true,
     });
@@ -19,9 +19,8 @@ describe('Unit | Utility | qos modal file item', function () {
       fetchQosItems,
     });
     expect(get(item, 'fileQosStatus')).to.equal('loading');
-    return wait().then(() => {
-      expect(get(item, 'fileQosStatus')).to.equal('empty');
-    });
+    await settled();
+    expect(get(item, 'fileQosStatus')).to.equal('empty');
   });
 
   it('has status fulfilled when qosSummary loads and has fulfilled status ', function () {

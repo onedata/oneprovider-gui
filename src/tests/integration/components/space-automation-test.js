@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll, click, fillIn } from '@ember/test-helpers';
+import { render, find, findAll, click, fillIn, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
@@ -170,7 +169,7 @@ describe('Integration | Component | space automation', function () {
 
         await renderComponent();
         rejectPromise();
-        await wait();
+        await settled();
 
         const previewNavItem = find('.nav-item-preview');
         expect(previewNavItem).to.have.class('active');

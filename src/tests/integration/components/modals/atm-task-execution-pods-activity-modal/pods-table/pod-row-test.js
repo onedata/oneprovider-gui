@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, click } from '@ember/test-helpers';
+import { render, find, click, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import moment from 'moment';
 
@@ -66,11 +65,11 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     await renderComponent();
 
     this.set('isSelected', false);
-    await wait();
+    await settled();
     expect(find('.pods-table-pod-row')).to.not.have.class('is-selected');
 
     this.set('isSelected', true);
-    await wait();
+    await settled();
     expect(find('.pods-table-pod-row')).to.have.class('is-selected');
   });
 });

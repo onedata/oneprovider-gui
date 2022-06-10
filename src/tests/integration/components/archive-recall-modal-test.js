@@ -16,7 +16,6 @@ import Evented from '@ember/object/evented';
 import Service from '@ember/service';
 import { registerService } from '../../helpers/stub-service';
 import sinon from 'sinon';
-import wait from 'ember-test-helpers/wait';
 import { mockRootFiles } from '../../helpers/files';
 import { resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -119,7 +118,6 @@ describe('Integration | Component | archive recall modal', function () {
     await renderComponent();
 
     await click('.archive-recall-modal-footer .submit-btn');
-    await wait();
     expect(onArchiveRecallStarted, 'started').to.have.been.calledOnce;
     expect(onHide, 'hide').to.have.been.calledOnce;
   });

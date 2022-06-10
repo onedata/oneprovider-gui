@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, click, fillIn } from '@ember/test-helpers';
+import { render, click, fillIn, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../../helpers/stub-service';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve, Promise } from 'rsvp';
-import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import { isSlideActive, getSlide } from '../../../helpers/one-carousel';
 
@@ -204,7 +203,7 @@ describe('Integration | Component | space automation/run workflow creator', func
       await fillIn(inputStoresSlide.querySelector('.form-control'), '10');
       await click(inputStoresSlide.querySelector('.btn-submit'));
       rejectPromise();
-      await wait();
+      await settled();
 
       expect(workflowStartedSpy).to.not.be.called;
       expect(isSlideActive('inputStores')).to.be.true;

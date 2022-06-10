@@ -3,7 +3,6 @@ import { describe, it, context, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { selectChoose, clickTrigger } from '../../../helpers/ember-power-select';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve, reject } from 'rsvp';
@@ -127,7 +126,6 @@ describe('Integration | Component | share show/public url viewer', function () {
         this.set('selectedUrlType', 'handle');
 
         await renderComponent();
-        await wait();
 
         expect(
             document.querySelector('.input-handle-service-name'),
@@ -203,7 +201,6 @@ describe('Integration | Component | share show/public url viewer', function () {
         this.set('selectedUrlType', 'handle');
 
         await renderComponent();
-        await wait();
 
         expect(
           document.querySelector('.input-handle-service-name'),
@@ -324,7 +321,6 @@ function testClipboardInput(type, evaluateValue) {
     this.set('selectedUrlType', type);
 
     await renderComponent();
-    await wait();
 
     const input = find('.clipboard-line-public-url-input');
     expect(input, 'clipboard-line-public-url-input').to.exist;
@@ -389,7 +385,6 @@ function testShowsUrlTypeInformationInPopover(type, informationOptions = {}) {
     this.set('selectedUrlType', type);
 
     await renderComponent();
-    await wait();
     await click('.url-type-info-trigger');
 
     expect(

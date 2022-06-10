@@ -13,7 +13,6 @@ import { setupRenderingTest } from 'ember-mocha';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
-import wait from 'ember-test-helpers/wait';
 import { createMockFileDatasetSummary } from '../../helpers/datasets-archives';
 import { closeModalUsingBackground } from '../../helpers/modal';
 
@@ -35,7 +34,7 @@ describe('Integration | Component | datasets modal', function () {
       onHide: sinon.spy(),
     });
     await render(hbs `{{datasets-modal open=open files=files onHide=onHide}}`);
-    await wait();
+
     const modal = document.querySelector('.datasets-modal.in');
     expect(modal).to.exist;
     expect(modal.querySelector('.file-datasets-modal-header')).to.exist;

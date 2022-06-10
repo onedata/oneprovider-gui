@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, click } from '@ember/test-helpers';
+import { render, find, click, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import EmberObject, { set } from '@ember/object';
 import sinon from 'sinon';
 import { Promise } from 'rsvp';
-import wait from 'ember-test-helpers/wait';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { findByText } from '../../../helpers/find';
 
@@ -347,12 +346,10 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             }}
           `);
 
-          return wait().then(() => {
-            expect(find('.link-to-transfers'), 'link').to.exist;
-            expect(getTransfersUrl).to.have.been.calledWith(expectedArgs);
-            expect(find('.link-to-transfers'))
-              .to.have.attr('href', generatedHref);
-          });
+          expect(find('.link-to-transfers'), 'link').to.exist;
+          expect(getTransfersUrl).to.have.been.calledWith(expectedArgs);
+          expect(find('.link-to-transfers'))
+            .to.have.attr('href', generatedHref);
         }
       );
     });
@@ -396,9 +393,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             expect(startActionStub).to.have.been.calledOnce;
             expect(find('.oneprovider-providerpar .replication-status-icon'))
               .to.have.class('in-progress');
-            return resolveStartAction();
+            resolveStartAction();
+            return settled();
           })
-          .then(() => wait())
           .then(() =>
             expect(find('.oneprovider-providerpar .replication-status-icon'))
             .to.not.have.class('in-progress')
@@ -429,9 +426,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             expect(startActionStub).to.have.been.calledOnce;
             expect(find('.oneprovider-providerkrk .migration-status-icon'))
               .to.have.class('in-progress');
-            return resolveStartAction();
+            resolveStartAction();
+            return settled();
           })
-          .then(() => wait())
           .then(() =>
             expect(find('.oneprovider-providerkrk .migration-status-icon'))
             .to.not.have.class('in-progress')
@@ -464,9 +461,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             expect(startActionStub).to.have.been.calledOnce;
             expect(find('.oneprovider-providerkrk .eviction-status-icon'))
               .to.have.class('in-progress');
-            return resolveStartAction();
+            resolveStartAction();
+            return settled();
           })
-          .then(() => wait())
           .then(() =>
             expect(find('.oneprovider-providerkrk .eviction-status-icon'))
             .to.not.have.class('in-progress')
