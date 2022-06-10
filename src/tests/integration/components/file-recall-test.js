@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import {
   createArchiveRecallData,
@@ -13,7 +13,6 @@ import {
 } from '../../helpers/datasets-archives';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
-import { click, find } from 'ember-native-dom-helpers';
 import { findByText } from '../../helpers/find';
 
 const errorLogTabName = 'Error log';

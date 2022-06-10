@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, findAll } from '@ember/test-helpers';
+import { render, findAll, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import I18nStub from '../../../helpers/i18n-stub';
 import { registerService } from '../../../helpers/stub-service';
 import sinon from 'sinon';
-import { fillIn } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | share show/markdown editor', function () {
   setupRenderingTest();

@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, before, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll } from '@ember/test-helpers';
+import { render, find, findAll, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import OneTooltipHelper from '../../../../helpers/one-tooltip';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import CopyRecordIdAction from 'onedata-gui-common/utils/clipboard-actions/copy-record-id-action';

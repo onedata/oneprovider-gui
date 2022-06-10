@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../../helpers/stub-service';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
@@ -9,7 +9,6 @@ import { resolve, Promise } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import { isSlideActive, getSlide } from '../../../helpers/one-carousel';
-import { click, fillIn } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | space automation/run workflow creator', function () {
   setupRenderingTest();

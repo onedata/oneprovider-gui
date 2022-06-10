@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, context, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import {
   file1,
@@ -11,10 +11,8 @@ import {
 import { lookupService } from '../../../helpers/stub-service';
 import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
-import { find, findAll } from 'ember-native-dom-helpers';
-import { clickTrigger } from '../../../helpers/ember-power-select';
+import { selectChoose, clickTrigger } from 'ember-power-select/test-support/helpers';
 import { Promise } from 'rsvp';
 import { findByText } from '../../../helpers/find';
 
@@ -407,10 +405,10 @@ describe('Integration | Component | file browser/fb info modal', function () {
       await renderComponent();
       await wait();
       await click(findByText('API', '.nav-link'));
-      await clickTrigger('.api-operation-row');
     });
 
     it('shows API operations provided by fileManager', async function (done) {
+      await clickTrigger('.api-operation-row');
       const options = findAll('li.ember-power-select-option');
       expect(options).to.have.length(2);
       const optionTitles = options
@@ -422,7 +420,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     it('shows type, description and clipboard for selected REST operation', async function (done) {
-      await click(findByText('get test data', 'li.ember-power-select-option'));
+      await selectChoose('.api-operation-row', 'Get test data');
       expect(find('.item-info-row-type-api-command .api-tag-label'))
         .to.contain.text('REST');
       expect(find('.item-info-row-description .description-value'))
@@ -436,8 +434,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     it('shows type, description and clipboard for selected xrootd operation',
       async function (done) {
-        await click(findByText('Test xrootd command', '.api-command-title'));
-        await wait();
+        await selectChoose('.api-operation-row', 'Test xrootd command');
         expect(find('.item-info-row-type-api-command .api-tag-label'))
           .to.contain.text('XRootD');
         expect(find('.item-info-row-description .description-value'))

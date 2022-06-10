@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find } from '@ember/test-helpers';
+import { render, find, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import EmberObject, { set } from '@ember/object';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 import { Promise } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';

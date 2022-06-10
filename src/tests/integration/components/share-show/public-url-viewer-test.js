@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, context, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find } from '@ember/test-helpers';
+import { render, find, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { click } from 'ember-native-dom-helpers';
 import wait from 'ember-test-helpers/wait';
 import { selectChoose, clickTrigger } from '../../../helpers/ember-power-select';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';

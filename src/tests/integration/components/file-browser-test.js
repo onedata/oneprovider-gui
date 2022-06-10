@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, findAll, find, doubleClick } from '@ember/test-helpers';
+import { render, findAll, find, doubleClick, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import Service from '@ember/service';
@@ -11,7 +11,6 @@ import Evented from '@ember/object/evented';
 import { resolve } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
 import _ from 'lodash';
-import { click } from 'ember-native-dom-helpers';
 import sleep from 'onedata-gui-common/utils/sleep';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
 import { mockRootFiles } from '../../helpers/files';
@@ -834,7 +833,6 @@ async function renderComponent(testCase) {
   });
   testCase.set('changeSelectedItems', async function (selectedItems) {
     once(this, 'changeSelectedItemsImmediately', selectedItems);
-    await sleep(0);
   });
   await render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel

@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll } from '@ember/test-helpers';
+import { render, find, findAll, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/pods table/header row', function () {
   setupRenderingTest();

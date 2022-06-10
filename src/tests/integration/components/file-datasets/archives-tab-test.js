@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { get, set } from '@ember/object';
 import { registerService, lookupService } from '../../../helpers/stub-service';
@@ -9,7 +9,6 @@ import _ from 'lodash';
 import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
 import sleep from 'onedata-gui-common/utils/sleep';
-import { click, find, findAll } from 'ember-native-dom-helpers';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, before } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -11,7 +11,6 @@ import { createFileDatasetSummary, createDataset } from '../../helpers/datasets-
 import { setProperties } from '@ember/object';
 import Service from '@ember/service';
 import { lookupService, registerService } from '../../helpers/stub-service';
-import { click, find } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 
 const userId = 'current_user_id';

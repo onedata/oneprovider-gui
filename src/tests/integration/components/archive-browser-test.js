@@ -1,16 +1,14 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import { get, setProperties } from '@ember/object';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import _ from 'lodash';
 import Service from '@ember/service';
-import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
-import { findAll } from 'ember-native-dom-helpers';
 import { openFileContextMenu } from '../../helpers/item-browser';
 
 const ArchiveManager = Service.extend({

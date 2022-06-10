@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, findAll } from '@ember/test-helpers';
+import { render, findAll, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../../helpers/stub-service';
 import {
@@ -12,7 +12,6 @@ import {
 import sinon from 'sinon';
 import { Promise } from 'rsvp';
 import wait from 'ember-test-helpers/wait';
-import { click } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | modals/atm task execution pods activity modal', function () {
   setupRenderingTest();

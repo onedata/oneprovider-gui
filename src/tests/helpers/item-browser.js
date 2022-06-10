@@ -1,5 +1,5 @@
+import { click, findAll } from '@ember/test-helpers';
 import { expect } from 'chai';
-import { click, findAll } from 'ember-native-dom-helpers';
 import sleep from 'onedata-gui-common/utils/sleep';
 import wait from 'ember-test-helpers/wait';
 import { findAllByText } from './find';

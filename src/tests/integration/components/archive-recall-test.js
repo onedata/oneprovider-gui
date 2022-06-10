@@ -1,14 +1,13 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll } from '@ember/test-helpers';
+import { render, find, findAll, click, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { createFile, mockRootFiles } from '../../helpers/files';
 import { lookupService } from '../../helpers/stub-service';
 import {
   getFileRow,
 } from '../../helpers/item-browser';
-import { click, fillIn } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 import { entityType as archiveEntityType } from 'oneprovider-gui/models/archive';
 import gri from 'onedata-gui-websocket-client/utils/gri';

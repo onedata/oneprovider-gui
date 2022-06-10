@@ -1,16 +1,14 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll } from '@ember/test-helpers';
+import { render, find, findAll, triggerEvent, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import Service from '@ember/service';
 import { registerService } from '../../../helpers/stub-service';
-import { triggerEvent } from 'ember-native-dom-helpers';
 import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/models/file';
 import EmberObject, { set } from '@ember/object';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
-import { click } from 'ember-native-dom-helpers';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;

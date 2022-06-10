@@ -1,10 +1,9 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
-import { click, find, findAll } from 'ember-native-dom-helpers';
 import { createArchiveRecallData, whenOnLocalProvider } from '../../../helpers/datasets-archives';
 import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../../helpers/stub-service';

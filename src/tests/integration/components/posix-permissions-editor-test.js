@@ -1,10 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find, findAll } from '@ember/test-helpers';
+import { render, find, findAll, click, fillIn, triggerKeyEvent } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
-import { click, fillIn, keyEvent } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | posix permissions editor', function () {
   setupRenderingTest();
@@ -74,7 +73,7 @@ describe('Integration | Component | posix permissions editor', function () {
     `);
 
     // 13 is Enter
-    return keyEvent('.permissions-octal', 'keydown', 13)
+    return triggerKeyEvent('.permissions-octal', 'keydown', 13)
       .then(() => expect(saveSpy).to.be.calledOnce);
   });
 

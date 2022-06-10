@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, findAll } from '@ember/test-helpers';
+import { render, findAll, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
 import { resolve } from 'rsvp';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 import { lookupService } from '../../../helpers/stub-service';
 
 describe('Integration | Component | space automation/atm workflow schemas list', function () {
