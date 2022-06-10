@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9501 Fixed broken directory size charts in archive browser
 * VFS-9502 Fixed hanging spinner after reloading empty directory
 * VFS-9202 Added byte size of file in file details modal
 * VFS-9439 Added subgroups to charts, added showing remote providers in directory size statistics
