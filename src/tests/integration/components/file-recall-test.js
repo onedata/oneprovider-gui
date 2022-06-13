@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import {
   createArchiveRecallData,
   getBrowsableArchiveName,
@@ -19,9 +19,7 @@ import { findByText } from '../../helpers/find';
 const errorLogTabName = 'Error log';
 
 describe('Integration | Component | file recall', function () {
-  setupComponentTest('file-recall', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(async function () {
     await createArchiveRecallData(this);
@@ -39,7 +37,7 @@ describe('Integration | Component | file recall', function () {
     this.set('archiveRecallInfo.totalByteSize', 1024);
     this.set('archiveRecallState.bytesCopied', 200);
 
-    await render(this);
+    await renderComponent();
 
     const $fileRecall = this.$('.file-recall-info-table');
     const text = $fileRecall.text();
@@ -51,7 +49,7 @@ describe('Integration | Component | file recall', function () {
   it('renders dataset name', async function () {
     const browsableDatasetName = await getBrowsableDatasetName(this);
 
-    await render(this);
+    await renderComponent();
 
     const $row = this.$('.recall-info-row-dataset');
     expect(browsableDatasetName).to.be.not.empty;
@@ -59,7 +57,7 @@ describe('Integration | Component | file recall', function () {
   });
 
   it('renders path to recall root', async function () {
-    await render(this);
+    await renderComponent();
 
     const $value = this.$('.recall-info-row-target-path .property-value .file-path');
     expect($value.text()).to.match(
@@ -70,7 +68,7 @@ describe('Integration | Component | file recall', function () {
   it('renders number of failed files', async function () {
     this.set('archiveRecallState.filesFailed', 2);
 
-    await render(this);
+    await renderComponent();
 
     const $value = this.$('.recall-info-row-files-failed .property-value');
     expect($value.text()).to.contain('2');
@@ -79,7 +77,7 @@ describe('Integration | Component | file recall', function () {
   it('renders formatted start time if provided', async function () {
     const timestamp = Date.parse('Thu Jan 27 2022 16:42:11');
     this.set('archiveRecallInfo.startTime', timestamp);
-    await render(this);
+    await renderComponent();
 
     const $value = this.$('.recall-info-row-started-at .property-value');
     expect($value.text()).to.contain('27 Jan 2022 16:42:11');
@@ -89,7 +87,7 @@ describe('Integration | Component | file recall', function () {
     const timestamp = Date.parse('Thu Jan 27 2022 16:42:11');
     this.set('archiveRecallInfo.finishTime', timestamp);
 
-    await render(this);
+    await renderComponent();
 
     const $value = this.$('.recall-info-row-finished-at .property-value');
     expect($value.text()).to.contain('27 Jan 2022 16:42:11');
@@ -99,7 +97,7 @@ describe('Integration | Component | file recall', function () {
     const timestamp = Date.parse('Thu Jan 27 2022 16:42:11');
     this.set('archiveRecallInfo.cancelTime', timestamp);
 
-    await render(this);
+    await renderComponent();
 
     const $value = this.$('.recall-info-row-cancelled-at .property-value');
     expect($value.text()).to.contain('27 Jan 2022 16:42:11');
@@ -108,7 +106,7 @@ describe('Integration | Component | file recall', function () {
   it('does not render finish time row if not finished', async function () {
     this.set('archiveRecallInfo.finishTime', null);
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.recall-info-row-finished-at')).to.not.exist;
   });
@@ -116,7 +114,7 @@ describe('Integration | Component | file recall', function () {
   it('has "scheduled" status text if recall does not started', async function () {
     this.set('archiveRecallInfo.startTime', null);
 
-    await render(this);
+    await renderComponent();
 
     expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.contain('Scheduled');
@@ -129,7 +127,7 @@ describe('Integration | Component | file recall', function () {
       this.get('archiveRecallInfo.totalByteSize') / 2
     );
 
-    await render(this);
+    await renderComponent();
 
     expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.match(/Ongoing\s*\(recall progress: 50%\)/);
@@ -147,7 +145,7 @@ describe('Integration | Component | file recall', function () {
       this.get('archiveRecallInfo.totalFileCount')
     );
 
-    await render(this);
+    await renderComponent();
 
     expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.contain('Finished successfully');
@@ -174,7 +172,7 @@ describe('Integration | Component | file recall', function () {
       this.set('archiveRecallState.filesFailed', filesToFail);
       this.set('archiveRecallState.lastError', lastError);
 
-      await render(this);
+      await renderComponent();
 
       expect(find('.recall-info-row-process-status .property-value').textContent)
         .to.match(/Finished with errors\s+\(recall progress: 20%\)/);
@@ -184,7 +182,7 @@ describe('Integration | Component | file recall', function () {
   it('has "cancelling" status text with percentage done while recall is cancelling', async function () {
     whenRecallIsCancelling(this);
 
-    await render(this);
+    await renderComponent();
 
     expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.match(/Cancelling\s*\(recall progress: 50%\)/);
@@ -194,7 +192,7 @@ describe('Integration | Component | file recall', function () {
   it('has "cancelled" status text with percentage done if recall is cancelled', async function () {
     whenRecallIsCancelled(this);
 
-    await render(this);
+    await renderComponent();
 
     expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.match(/Cancelled\s*\(recall progress: 50%\)/);
@@ -217,7 +215,7 @@ describe('Integration | Component | file recall', function () {
       })
     ).returns(correctUrl);
 
-    await render(this);
+    await renderComponent();
 
     const $archiveLink = this.$('.archive-link');
     expect($archiveLink).to.have.attr('href', correctUrl);
@@ -237,7 +235,7 @@ describe('Integration | Component | file recall', function () {
       })
     ).returns(correctUrl);
 
-    await render(this);
+    await renderComponent();
 
     const $datasetLink = this.$('.dataset-link');
     expect($datasetLink).to.have.attr('href', correctUrl);
@@ -246,7 +244,7 @@ describe('Integration | Component | file recall', function () {
   it('has "Cancel recall" button which clicked opens recall modal', async function () {
     whenRecallIsPending(this);
 
-    await render(this);
+    await renderComponent();
 
     const $cancelRecallBtn = this.$('.cancel-recall-btn');
 
@@ -260,7 +258,7 @@ describe('Integration | Component | file recall', function () {
   it('has "Cancelling recall..." disabled button when recall is being cancelled', async function () {
     whenRecallIsCancelling(this);
 
-    await render(this);
+    await renderComponent();
 
     const $cancelRecallBtn = this.$('.cancel-recall-btn');
 
@@ -274,7 +272,7 @@ describe('Integration | Component | file recall', function () {
   it('has error log tab disabled when on remote provider', async function () {
     whenOnRemoteProvider(this);
 
-    await render(this);
+    await renderComponent();
 
     const errorLogTab = findByText(errorLogTabName, '.nav-tab');
     expect(errorLogTab).to.exist;
@@ -284,7 +282,7 @@ describe('Integration | Component | file recall', function () {
   it('allows to switch to logs tab with logs view when on local provider', async function () {
     stubEmptyRecallLogs(this);
 
-    await render(this);
+    await renderComponent();
 
     const logsTab = findByText(errorLogTabName, '.main-recall-tab-bar .nav-link');
     expect(logsTab, 'logs tab').to.exist;
@@ -296,8 +294,8 @@ describe('Integration | Component | file recall', function () {
 /**
  * @param {Mocha.Context} testCase
  */
-async function render(testCase) {
-  testCase.render(hbs `
+async function renderComponent() {
+  await render(hbs `
   {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
     {{file-recall
       modal=modal
@@ -306,7 +304,6 @@ async function render(testCase) {
     }}
   {{/one-pseudo-modal}}
   `);
-  await wait();
 }
 
 /**

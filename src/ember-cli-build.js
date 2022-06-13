@@ -15,6 +15,8 @@ const dynamicLibraries = require('./lib/onedata-gui-common/config/dynamic-librar
 
 const sass = require('sass');
 
+const environment = EmberApp.env();
+
 module.exports = function (defaults) {
   const app = new EmberApp(defaults, {
     'fingerprint': {
@@ -82,6 +84,9 @@ module.exports = function (defaults) {
       exts: ['searchbox'],
       workerPath: './assets/ace',
     },
+    'autoImport': {
+      publicAssetURL: environment === 'test' ? '/assets/' : './assets/',
+    },
   });
 
   defineSassColors(app, colors);
@@ -107,6 +112,8 @@ module.exports = function (defaults) {
     'perfect-scrollbar/css/perfect-scrollbar.css',
     'webui-popover/dist/jquery.webui-popover.css',
     'webui-popover/dist/jquery.webui-popover.js',
+    'jquery-datetimepicker/build/jquery.datetimepicker.min.css',
+    'jquery-datetimepicker/build/jquery.datetimepicker.full.js',
   ];
 
   NODE_ASSETS.forEach(path => app.import(`node_modules/${path}`));

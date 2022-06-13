@@ -13,7 +13,7 @@
         {{#truncated-string tagName="span" class="header-text"}}
           {{tt this
             (concat (if isAddMode
-              (if media.isMobile "headerAddMobile" "headerAdd")
+              (if (media "isMobile") "headerAddMobile" "headerAdd")
               "headerShow"
             ))
           }}

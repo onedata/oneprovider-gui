@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
@@ -8,16 +9,14 @@ import { click } from 'ember-native-dom-helpers';
 import moment from 'moment';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/pods table/pod row', function () {
-  setupComponentTest('modals/atm-task-execution-pods-activity-modal/pods-table/pod-row', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     this.set('onSelect', sinon.spy());
   });
 
   it('has class "pods-table-pod-row"', async function () {
-    await render(this);
+    await renderComponent();
 
     expect(this.$().children()).to.have.class('pods-table-pod-row')
       .and.to.have.length(1);
@@ -26,7 +25,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('has "data-pod-id" attribute equal to pod id', async function () {
     const podId = this.set('podId', 'abcd');
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.pods-table-pod-row')).to.have.attr('data-pod-id', podId);
   });
@@ -43,7 +42,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
         lastStatusChangeTimestamp: 1638360000 * 1000, // 12:00:00 01.12.2021
       },
     });
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.pod-id').text().trim()).to.equal(podId);
     expect(this.$('.pod-readiness').text().trim())
@@ -57,7 +56,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('notifies about selection after click', async function () {
     const onSelect = this.get('onSelect');
     const podId = this.set('podId', 'abcd');
-    await render(this);
+    await renderComponent();
     expect(onSelect).to.be.not.called;
 
     await click('.pods-table-pod-row');
@@ -65,7 +64,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('shows state of selection using "is-selected" class', async function () {
-    await render(this);
+    await renderComponent();
 
     this.set('isSelected', false);
     await wait();
@@ -77,12 +76,11 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table/pod-row
+async function renderComponent() {
+  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table/pod-row
     podId=podId
     podActivity=podActivity
     isSelected=isSelected
     onSelect=onSelect
   }}`);
-  await wait();
 }

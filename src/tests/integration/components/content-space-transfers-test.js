@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 import Service from '@ember/service';
@@ -26,9 +27,7 @@ const FilesViewResolver = Service.extend({
 });
 
 describe('Integration | Component | content space transfers', function () {
-  setupComponentTest('content-space-transfers', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function beforeEach() {
     registerService(this, 'store', Store);
@@ -59,7 +58,7 @@ describe('Integration | Component | content space transfers', function () {
       this.set('_window', _window);
     });
 
-    it('with internal components and transfer row', function () {
+    it('with internal components and transfer row', async function () {
       const transfersActiveChannels = {};
       const provider1 = {
         entityId: 'p1',
@@ -122,7 +121,7 @@ describe('Integration | Component | content space transfers', function () {
           timestamp: 0,
         });
       guiContext.clusterId = provider1.entityId;
-      this.render(hbs `
+      await render(hbs `
         <div id="content-scroll">
           {{content-space-transfers _window=_window}}
         </div>
@@ -140,7 +139,7 @@ describe('Integration | Component | content space transfers', function () {
         });
     });
 
-    it('with forbidden message if user has no viewTransfers privilege', function () {
+    it('with forbidden message if user has no viewTransfers privilege', async function () {
       const spaceEntityId = 'seid';
       const provider1 = {
         entityId: 'p1',
@@ -176,7 +175,7 @@ describe('Integration | Component | content space transfers', function () {
         .withArgs('space', sinon.match(new RegExp(spaceEntityId)))
         .resolves(space);
       guiContext.clusterId = provider1.entityId;
-      this.render(hbs `
+      await render(hbs `
         <div id="content-scroll">
           {{content-space-transfers _window=_window}}
         </div>

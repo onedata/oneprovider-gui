@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import Service from '@ember/service';
 import { registerService, lookupService } from '../../../helpers/stub-service';
@@ -21,15 +22,13 @@ class ProviderSelectHelper extends EmberPowerSelectHelper {
 describe(
   'Integration | Component | space transfers/throughput distribution',
   function () {
-    setupComponentTest('space-transfers/throughput-distribution', {
-      integration: true,
-    });
+    setupRenderingTest();
 
     beforeEach(function () {
       registerService(this, 'transferManager', TransferManager);
     });
 
-    it('selects all oneproviders by default and allows to change it', function () {
+    it('selects all oneproviders by default and allows to change it', async function () {
       const providerZ = {
         entityId: 'p1',
         name: 'Provider Z',
@@ -57,7 +56,7 @@ describe(
         undefined,
       ).resolves({});
 
-      this.render(hbs `{{space-transfers/throughput-distribution
+      await render(hbs `{{space-transfers/throughput-distribution
       space=space
       providers=providers
       providersColors=providersColors
@@ -82,7 +81,7 @@ describe(
       });
     });
 
-    it('preserves selection of all oneproviders when changing timespan', function () {
+    it('preserves selection of all oneproviders when changing timespan', async function () {
       const providerZ = {
         entityId: 'p1',
         name: 'Provider Z',
@@ -107,7 +106,7 @@ describe(
         undefined,
       ).resolves({});
 
-      this.render(hbs `{{space-transfers/throughput-distribution
+      await render(hbs `{{space-transfers/throughput-distribution
       space=space
       providers=providers
       providersColors=providersColors

@@ -68,7 +68,7 @@
           placement="bottom"
           as |popover|
         }}
-          {{#click-outside action=(action "toggleDirActions" false)}}
+          {{#click-outside onClickOutside=(action "toggleDirActions" false)}}
             {{#popover-content-limit opened=popover.visible}}
               {{actions-popover-content
                 actionsArray=menuButtons

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { lookupService } from '../../../helpers/stub-service';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
@@ -12,9 +13,7 @@ import { click, fillIn } from 'ember-native-dom-helpers';
 import $ from 'jquery';
 
 describe('Integration | Component | space automation/run workflow creator', function () {
-  setupComponentTest('space-automation/run-workflow-creator', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const atmWorkflowSchemas = [{
@@ -80,14 +79,14 @@ describe('Integration | Component | space automation/run workflow creator', func
   });
 
   it('has class "run-workflow-creator"', async function () {
-    await render(this);
+    await renderComponent();
 
     expect(this.$().children()).to.have.class('run-workflow-creator')
       .and.to.have.length(1);
   });
 
   it('has slides "list" and "inputStores"', async function () {
-    await render(this);
+    await renderComponent();
 
     expect(getSlide('list')).to.exist;
     expect(getSlide('inputStores')).to.exist;
@@ -95,7 +94,7 @@ describe('Integration | Component | space automation/run workflow creator', func
 
   it('has active slide "list" on init, which shows list of user workflow schemas',
     async function () {
-      await render(this);
+      await renderComponent();
 
       expect(isSlideActive('list')).to.be.true;
       const listSlide = getSlide('list');
@@ -108,7 +107,7 @@ describe('Integration | Component | space automation/run workflow creator', func
     });
 
   it('shows "inputStores" slide after workflow schema selection', async function () {
-    await render(this);
+    await renderComponent();
 
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
@@ -130,7 +129,7 @@ describe('Integration | Component | space automation/run workflow creator', func
   });
 
   it('disables submit button when input store value is invalid', async function () {
-    await render(this);
+    await renderComponent();
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
     await fillIn(getSlide('inputStores').querySelector('.form-control'), 'abc');
@@ -139,7 +138,7 @@ describe('Integration | Component | space automation/run workflow creator', func
   });
 
   it('enables submit button when input store value is valid', async function () {
-    await render(this);
+    await renderComponent();
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
     await fillIn(getSlide('inputStores').querySelector('.form-control'), '10');
@@ -151,7 +150,7 @@ describe('Integration | Component | space automation/run workflow creator', func
     async function () {
       this.get('atmWorkflowSchemas.0.revisionRegistry.1.stores')
         .setEach('requiresInitialContent', false);
-      await render(this);
+      await renderComponent();
 
       await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
 
@@ -171,7 +170,7 @@ describe('Integration | Component | space automation/run workflow creator', func
       } = this.getProperties('workflowStartedSpy', 'runWorkflowStub');
       const atmWorkflowExecution = {};
       runWorkflowStub.resolves(atmWorkflowExecution);
-      await render(this);
+      await renderComponent();
 
       expect(runWorkflowStub).to.be.not.called;
       expect(workflowStartedSpy).to.be.not.called;
@@ -198,7 +197,7 @@ describe('Integration | Component | space automation/run workflow creator', func
       } = this.getProperties('workflowStartedSpy', 'runWorkflowStub');
       let rejectPromise;
       runWorkflowStub.returns(new Promise((resolve, reject) => rejectPromise = reject));
-      await render(this);
+      await renderComponent();
 
       const listSlide = getSlide('list');
       const inputStoresSlide = getSlide('inputStores');
@@ -214,7 +213,7 @@ describe('Integration | Component | space automation/run workflow creator', func
 
   it('blocks all controls during workflow start process', async function () {
     this.get('runWorkflowStub').returns(new Promise(() => {}));
-    await render(this);
+    await renderComponent();
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
     const inputStoresSlide = getSlide('inputStores');
     await fillIn(inputStoresSlide.querySelector('.form-control'), '10');
@@ -229,7 +228,7 @@ describe('Integration | Component | space automation/run workflow creator', func
 
   it('allows to go back to "list" slide on "Back" click on "inputStores" slide and select another workflow schema',
     async function () {
-      await render(this);
+      await renderComponent();
 
       await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
       await click(getSlide('inputStores').querySelector('.btn-back'));
@@ -242,13 +241,12 @@ describe('Integration | Component | space automation/run workflow creator', func
     });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `{{space-automation/run-workflow-creator
+async function renderComponent() {
+  await render(hbs `{{space-automation/run-workflow-creator
     space=space
     onWorkflowStarted=workflowStartedSpy
     chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
     atmWorkflowSchemaId=atmWorkflowSchemaId
     atmWorkflowSchemaRevisionNumber=atmWorkflowSchemaRevisionNumber
   }}`);
-  await wait();
 }

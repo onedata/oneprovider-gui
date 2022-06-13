@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import EmberObject, { set } from '@ember/object';
 import sinon from 'sinon';
@@ -57,9 +58,7 @@ const oneproviderParis = Object.freeze({
 
 describe('Integration | Component | file distribution modal/oneproviders distribution',
   function () {
-    setupComponentTest('file-distribution-modal/oneproviders-distribution', {
-      integration: true,
-    });
+    setupRenderingTest();
 
     beforeEach(function () {
       const oneproviders = [
@@ -81,11 +80,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       });
     });
 
-    it('renders all oneproviders', function () {
+    it('renders all oneproviders', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -97,11 +96,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       expect(this.$('.oneprovider-name:contains("paris")')).to.exist;
     });
 
-    it('renders percentage and chunks representation', function () {
+    it('renders percentage and chunks representation', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
       {{file-distribution-modal/oneproviders-distribution
         oneproviders=oneproviders
         fileDistributionData=fileDistributionData
@@ -119,11 +118,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         .to.not.exist;
     });
 
-    it('renders never-synchronized info', function () {
+    it('renders never-synchronized info', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -139,11 +138,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       expect(this.$('.oneprovider-providerpar .chunks-canvas')).to.not.exist;
     });
 
-    it('renders distribution for single file', function () {
+    it('renders distribution for single file', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -159,14 +158,14 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         .to.exist;
     });
 
-    it('renders distribution for two files', function () {
+    it('renders distribution for two files', async function () {
       const fileDistributionData = [
         createFileDistributionContainerStub(),
         createFileDistributionContainerStub({ onKrakow: 100 }),
       ];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -182,14 +181,14 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         .to.exist;
     });
 
-    it('renders distribution for single file and single dir', function () {
+    it('renders distribution for single file and single dir', async function () {
       const fileDistributionData = [
         createFileDistributionContainerStub(),
         createFileDistributionContainerStub({ type: 'dir' }),
       ];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -205,7 +204,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         .to.exist;
     });
 
-    it('shows that replication is in progress', function () {
+    it('shows that replication is in progress', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
       set(fileDistributionData[0], 'activeTransfers', [{
         belongsTo(relation) {
@@ -218,7 +217,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       }]);
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -234,7 +233,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         .to.not.have.class('in-progress');
     });
 
-    it('shows that migration is in progress', function () {
+    it('shows that migration is in progress', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
       set(fileDistributionData[0], 'activeTransfers', [{
         belongsTo(relation) {
@@ -247,7 +246,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       }]);
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -265,7 +264,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         .to.have.class('in-progress');
     });
 
-    it('shows that eviction is in progress', function () {
+    it('shows that eviction is in progress', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
       set(fileDistributionData[0], 'activeTransfers', [{
         belongsTo(relation) {
@@ -278,7 +277,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       }]);
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -296,7 +295,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
     ['ongoing', 'ended'].forEach((transferStatus) => {
       it('renders link to transfers using external function if have active transfers',
-        function () {
+        async function () {
           const transfersActive = transferStatus === 'ongoing';
           const fileId = 'someFileId';
           const file = EmberObject.create({
@@ -337,15 +336,15 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           });
           getTransfersUrl.returns('invalidGeneratedHref');
           getTransfersUrl.withArgs(expectedArgs).returns(generatedHref);
-          this.on('getTransfersUrl', getTransfersUrl);
+          this.set('getTransfersUrl', getTransfersUrl);
 
           this.set('fileDistributionData', fileDistributionData);
-          this.render(hbs `
+          await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              getTransfersUrl=(action "getTransfersUrl")
+              getTransfersUrl=(action getTransfersUrl)
             }}
           `);
 
@@ -369,24 +368,24 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           resolveStartAction = resolve;
         }));
 
-        this.on('startAction', startActionStub);
+        this.set('startAction', startActionStub);
         this.set('startActionStub', startActionStub);
         this.set('resolveStartAction', resolveStartAction);
         this.set('fileDistributionData', fileDistributionData);
       });
 
-      it('allows to start replication', function () {
+      it('allows to start replication', async function () {
         const {
           startActionStub,
           resolveStartAction,
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
-        this.render(hbs `
+        await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              onReplicate=(action "startAction")
+              onReplicate=(action startAction)
             }}
           `);
 
@@ -405,18 +404,18 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           );
       });
 
-      it('allows to start migration', function () {
+      it('allows to start migration', async function () {
         const {
           startActionStub,
           resolveStartAction,
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
-        this.render(hbs `
+        await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              onMigrate=(action "startAction")
+              onMigrate=(action startAction)
             }}
           `);
 
@@ -436,7 +435,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           );
       });
 
-      it('allows to start eviction', function () {
+      it('allows to start eviction', async function () {
         const {
           startActionStub,
           resolveStartAction,
@@ -445,12 +444,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           createFileDistributionContainerStub({ onParis: 100 }),
         ]);
 
-        this.render(hbs `
+        await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              onEvict=(action "startAction")
+              onEvict=(action startAction)
             }}
           `);
 
@@ -470,16 +469,16 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       });
 
       it('does not allow to start replication without scheduleReplication privilege',
-        function () {
+        async function () {
           const startActionStub = this.get('startActionStub');
           this.set('space.privileges.scheduleReplication', false);
 
-          this.render(hbs `
+          await render(hbs `
               {{file-distribution-modal/oneproviders-distribution
                 oneproviders=oneproviders
                 fileDistributionData=fileDistributionData
                 space=space
-                onReplicate=(action "startAction")
+                onReplicate=(action startAction)
               }}
             `);
 
@@ -492,7 +491,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       );
 
       it('does not allow to start eviction without scheduleEviction privilege',
-        function () {
+        async function () {
           const startActionStub = this.get('startActionStub');
           this.set('space.privileges.scheduleEviction', false);
 
@@ -500,12 +499,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             createFileDistributionContainerStub({ onParis: 100 }),
           ]);
 
-          this.render(hbs `
+          await render(hbs `
               {{file-distribution-modal/oneproviders-distribution
                 oneproviders=oneproviders
                 fileDistributionData=fileDistributionData
                 space=space
-                onEvict=(action "startAction")
+                onEvict=(action startAction)
               }}
             `);
 
@@ -519,19 +518,19 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       ['scheduleEviction', 'scheduleReplication'].forEach(flag => {
         it(`does not allow to start migration without ${flag} privilege`,
-          function () {
+          async function () {
             this.set(`space.privileges.${flag}`, false);
 
             this.set('fileDistributionData', [
               createFileDistributionContainerStub({ onParis: 100 }),
             ]);
 
-            this.render(hbs `
+            await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              onMigrate=(action "startAction")
+              onMigrate=(action startAction)
             }}
           `);
 

@@ -1,15 +1,13 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { find } from 'ember-native-dom-helpers';
 import { lookupService } from '../../helpers/stub-service';
 
 describe('Integration | Component | archive content count', function () {
-  setupComponentTest('archive-content-count', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   it('renders "unknown number of files" text, when files count is not provided', async function () {
     this.set('archive', {
@@ -18,7 +16,7 @@ describe('Integration | Component | archive content count', function () {
       },
     });
 
-    await renderComponent(this);
+    await renderComponent();
 
     const archiveContentCount = find('.archive-content-count');
     expect(archiveContentCount.textContent).to.contain('unknown number of files');
@@ -31,7 +29,7 @@ describe('Integration | Component | archive content count', function () {
       },
     });
 
-    await renderComponent(this);
+    await renderComponent();
 
     const archiveContentCount = find('.archive-content-count');
     expect(archiveContentCount.textContent).to.contain('unknown size');
@@ -40,7 +38,7 @@ describe('Integration | Component | archive content count', function () {
   it('renders a dash only, when archive is not provided', async function () {
     this.set('archive', null);
 
-    await renderComponent(this);
+    await renderComponent();
 
     const archiveContentCount = find('.archive-content-count');
     expect(archiveContentCount.textContent).to.match(/^\s*–\s*$/);
@@ -54,7 +52,7 @@ describe('Integration | Component | archive content count', function () {
       },
     });
 
-    await renderComponent(this);
+    await renderComponent();
 
     const archiveContentCount = find('.archive-content-count');
     expect(archiveContentCount.textContent).to.match(/^.*1 file($|[^s])/);
@@ -70,7 +68,7 @@ describe('Integration | Component | archive content count', function () {
       },
     });
 
-    await renderComponent(this);
+    await renderComponent();
 
     const archiveContentCount = find('.archive-content-count');
     expect(archiveContentCount.textContent).to.contain('10 files');
@@ -84,7 +82,7 @@ describe('Integration | Component | archive content count', function () {
       },
     });
 
-    await renderComponent(this);
+    await renderComponent();
 
     const archiveContentCount = find('.archive-content-count');
     expect(archiveContentCount.textContent).to.contain('1 GiB');
@@ -100,16 +98,15 @@ describe('Integration | Component | archive content count', function () {
       },
     });
 
-    await renderComponent(this);
+    await renderComponent();
 
     const archiveContentCount = find('.archive-content-count');
     expect(archiveContentCount.textContent).to.contain('10 files, 1 GiB');
   });
 });
 
-async function renderComponent(testCase) {
-  testCase.render(hbs `{{archive-content-count archive=archive}}`);
-  await wait();
+async function renderComponent() {
+  await render(hbs `{{archive-content-count archive=archive}}`);
 }
 
 function createArchive(testCase, data) {

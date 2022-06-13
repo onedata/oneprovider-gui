@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, context, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import {
   file1,
@@ -15,11 +16,10 @@ import OneTooltipHelper from '../../../helpers/one-tooltip';
 import { find, findAll } from 'ember-native-dom-helpers';
 import { clickTrigger } from '../../../helpers/ember-power-select';
 import $ from 'jquery';
+import { Promise } from 'rsvp';
 
 describe('Integration | Component | file browser/fb info modal', function () {
-  setupComponentTest('file-browser/fb-info-modal', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   const apiSamples = [{
     apiRoot: 'https://dev-onezone.default.svc.cluster.local/api/v3/onezone',
@@ -60,35 +60,39 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
   // NOTE: context is not used for async render tests, because mocha's context is buggy
 
-  it('renders file path asynchronously', async function (done) {
-    this.set('file', file1);
+  it('renders file path asynchronously', async function () {
+    const file = this.set('file', file1);
+    const parent = file.parent;
+    let resolveParent;
+    file.parent = new Promise((resolve) => resolveParent = resolve);
 
-    render(this);
+    await renderComponent();
 
     expect(find('.loading-file-path'), 'loading-file-path').to.exist;
+    resolveParent(parent);
     await wait();
     expect(find('.loading-file-path'), 'loading-file-path').to.not.exist;
     expect(
       find('.file-info-row-path .property-value .clipboard-input').value
     ).to.contain(file1.name);
-
-    done();
   });
 
-  it('renders owner full name asynchronously', async function (done) {
-    this.set('file', file1);
+  it('renders owner full name asynchronously', async function () {
+    const file = this.set('file', file1);
+    const owner = file.owner;
+    let resolveOwner;
+    file.owner = new Promise((resolve) => resolveOwner = resolve);
 
-    render(this);
+    await renderComponent();
 
     expect(find('.loading-owner-full-name'), 'loading-owner-full-name').to.exist;
+    resolveOwner(owner);
     await wait();
     expect(find('.loading-owner-full-name'), 'loading-owner-full-name')
       .to.not.exist;
     expect(
       find('.file-info-row-owner .property-value').textContent
     ).to.contain(owner1.fullName);
-
-    done();
   });
 
   it('does not render symlink target path when file is not symlink', async function () {
@@ -97,7 +101,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       targetPath: 'some/path',
     });
 
-    await render(this);
+    await renderComponent();
 
     expect(find('.file-info-row-target-path')).to.not.exist;
   });
@@ -108,7 +112,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       targetPath: 'some/path',
     });
 
-    await render(this);
+    await renderComponent();
 
     expect(find('.file-info-row-target-path .property-value .clipboard-input').value)
       .to.equal('some/path');
@@ -127,7 +131,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         },
       });
 
-      await render(this);
+      await renderComponent();
 
       expect(find('.file-info-row-target-path .property-value .clipboard-input').value)
         .to.equal('/space 1/some/path');
@@ -147,7 +151,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         },
       });
 
-      await render(this);
+      await renderComponent();
 
       expect(find('.file-info-row-target-path .property-value .clipboard-input').value)
         .to.equal('/<unknown space>/some/path');
@@ -164,7 +168,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         space: undefined,
       });
 
-      await render(this);
+      await renderComponent();
 
       expect(find('.file-info-row-target-path .property-value .clipboard-input').value)
         .to.equal('/<unknown space>/some/path');
@@ -177,7 +181,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       hardlinksCount: 1,
     });
 
-    await render(this);
+    await renderComponent();
     await wait();
     expect(find('.nav-tabs').textContent).to.not.contain('Hard links (1)');
   });
@@ -188,7 +192,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       hardlinksCount: 2,
     });
 
-    await render(this);
+    await renderComponent();
     await wait();
 
     expect(find('.nav-tabs').textContent).to.contain('Hard links (2)');
@@ -200,7 +204,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
     this.set('previewMode', true);
 
-    await render(this);
+    await renderComponent();
     await wait();
 
     expect(find('.nav-tabs').textContent).to.contain('API');
@@ -212,7 +216,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
     this.set('previewMode', true);
 
-    await render(this);
+    await renderComponent();
     await wait();
 
     expect(find('.nav-tabs').textContent).to.not.contain('API');
@@ -224,7 +228,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
     this.set('previewMode', false);
 
-    await render(this);
+    await renderComponent();
     await wait();
 
     expect(find('.nav-tabs').textContent).to.not.contain('API');
@@ -247,7 +251,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       errors: [],
     });
 
-    await render(this);
+    await renderComponent();
 
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
@@ -285,7 +289,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       }],
     });
 
-    await render(this);
+    await renderComponent();
 
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
@@ -316,7 +320,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       }],
     });
 
-    await render(this);
+    await renderComponent();
 
     await wait();
     await click(this.$('.nav-link:contains("Hard links")')[0]);
@@ -340,7 +344,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     it('renders size', async function (done) {
       this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
 
-      await render(this);
+      await renderComponent();
       await wait();
 
       expect(
@@ -350,7 +354,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     it('renders name', async function (done) {
-      await render(this);
+      await renderComponent();
       await wait();
 
       expect(
@@ -364,7 +368,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
       const spaceEntityId = 's893y37439';
       this.set('space', { entityId: spaceEntityId });
 
-      await render(this);
+      await renderComponent();
 
       expect(
         find('.file-info-row-space-id .property-value .clipboard-input').value
@@ -374,7 +378,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     it('renders cdmi object id', async function (done) {
-      await render(this);
+      await renderComponent();
 
       expect(
         find('.file-info-row-cdmi-object-id .property-value .clipboard-input')
@@ -395,7 +399,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
         previewMode: true,
         fileApiSamples,
       });
-      await render(this);
+      await renderComponent();
       await wait();
       await click($(find()).find('.nav-link:contains("API")')[0]);
       await clickTrigger('.api-operation-row');
@@ -441,8 +445,8 @@ describe('Integration | Component | file browser/fb info modal', function () {
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `{{file-browser/fb-info-modal
+async function renderComponent() {
+  await render(hbs `{{file-browser/fb-info-modal
     open=true
     file=file
     previewMode=previewMode
@@ -451,5 +455,4 @@ async function render(testCase) {
     selectedRestUrlType=selectedRestUrlType
     getDataUrl=getDataUrl
   }}`);
-  await wait();
 }

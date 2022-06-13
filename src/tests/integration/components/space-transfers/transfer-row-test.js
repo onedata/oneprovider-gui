@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import TransferTableRecord from 'oneprovider-gui/utils/transfer-table-record';
 import { registerService, lookupService } from '../../../helpers/stub-service';
 import Service from '@ember/service';
-import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -38,9 +38,7 @@ const ArchiveManager = Service.extend({
 });
 
 describe('Integration | Component | space transfers/transfer row', function () {
-  setupComponentTest('space-transfers/transfer-row', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     generateTestData(this);
@@ -53,7 +51,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
   it('renders file name', async function () {
     this.set('record.transfer.dataSourceName', '/space_name/onedir/onefile_txt');
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.transfer-file-name').text()).to.match(/^\s*onefile_txt\s*$/);
   });
@@ -62,7 +60,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
     const path = '/space_name/onedir/onefile_txt';
     this.set('record.transfer.dataSourceName', path);
 
-    await render(this);
+    await renderComponent();
 
     expect(await new OneTooltipHelper('.transfer-file-name').getText())
       .to.match(new RegExp(`^File:\\s+${path}`));
@@ -81,7 +79,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
       name: 'archive_name',
     });
 
-    await render(this);
+    await renderComponent();
 
     const tooltipText = await new OneTooltipHelper('.transfer-file-name').getText();
     expect(tooltipText).to.match(new RegExp('Dataset:\\s+dataset_name'));
@@ -109,7 +107,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
         },
       });
 
-      await render(this);
+      await renderComponent();
 
       const tooltipText = await new OneTooltipHelper('.transfer-file-name').getText();
       expect(tooltipText).to.match(new RegExp('Dataset:\\s+ds123'));
@@ -135,7 +133,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
         },
       });
 
-      await render(this);
+      await renderComponent();
 
       const tooltipText = await new OneTooltipHelper('.transfer-file-name').getText();
       expect(tooltipText).to.match(new RegExp('Dataset:\\s+dataset_name'));
@@ -149,7 +147,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
     this.set('record.transfer.dataSourceType', 'view');
     this.set('record.transfer.dataSourceName', dbIndexName);
 
-    await render(this);
+    await renderComponent();
 
     expect(await new OneTooltipHelper('.transfer-db-index-name').getText())
       .to.match(new RegExp(`^View:\\s+${dbIndexName}`));
@@ -172,7 +170,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
           evictedFiles: 0,
         })));
 
-        await render(this);
+        await renderComponent();
 
         expect(await new OneTooltipHelper('.transfer-data-name').getText())
           .to.match(new RegExp(`^${isDir ? 'Directory' : 'File'}:\\s+${path}\\s+.*deleted`));
@@ -213,8 +211,8 @@ function generateTestData(testCase) {
   });
 }
 
-async function render(testCase) {
-  testCase.render(hbs `{{space-transfers/transfer-row
+async function renderComponent() {
+  await render(hbs `{{space-transfers/transfer-row
     record=record
     columns=columns
     transfersTable=transfersTable
@@ -222,5 +220,4 @@ async function render(testCase) {
     transferActions=transferActions
     openDbViewModal=openDbViewModal
   }}`);
-  await wait();
 }

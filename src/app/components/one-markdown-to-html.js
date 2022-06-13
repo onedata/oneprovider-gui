@@ -1,17 +1,17 @@
 /**
  * Wrapper component for showdown.js Markdown to HTML converter with DOMPurify sanitizer
- * 
+ *
  * @module components/one-markdown-to-html
  * @author Jakub Liput
  * @copyright (C) 2020-2021 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
-import showdown from 'npm:showdown';
+import showdown from 'showdown';
 import Component from '@ember/component';
 import { htmlSafe } from '@ember/string';
 import { computed } from '@ember/object';
-import DOMPurify from 'npm:dompurify';
+import DOMPurify from 'dompurify';
 
 export const defaultOptions = Object.freeze({
   tables: true,
@@ -70,7 +70,7 @@ export default Component.extend({
 /**
  * From example:
  * https://github.com/cure53/DOMPurify/blob/main/demos/README.md#hook-to-open-all-links-in-a-new-window-link
- * 
+ *
  * @param {HTMLElement} node
  */
 function sanitizeLinksTarget(node) {

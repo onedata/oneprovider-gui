@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, before, beforeEach, afterEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import moment from 'moment';
 import OneTooltipHelper from '../../../../helpers/one-tooltip';
 import sinon from 'sinon';
@@ -80,9 +80,7 @@ const finishTime = moment().add(2, 'h');
 const timeFormat = 'D MMM YYYY H:mm:ss';
 
 describe('Integration | Component | space automation/atm workflow executions table/workflow row', function () {
-  setupComponentTest('space-automation/atm-workflow-executions-table/workflow-row', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   before(function () {
     // Instatiate Action class to make its `prototype.execute` available for
@@ -116,7 +114,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
   });
 
   it('has class "workflow-row"', async function () {
-    await render(this);
+    await renderComponent();
 
     expect(this.$().children()).to.have.class('workflow-row')
       .and.to.have.length(1);
@@ -128,7 +126,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
         const otherColumns = columns.rejectBy('name', name);
         this.set('columnNames', otherColumns.mapBy('name'));
 
-        await render(this);
+        await renderComponent();
 
         const $cells = this.$('.workflow-row-cell');
         expect($cells).to.have.length(otherColumns.length);
@@ -141,7 +139,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
   it('shows workflow name in "name" column', async function () {
     this.set('columnNames', ['name']);
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.cell-name').text().trim()).to.equal('workflow1');
   });
@@ -149,7 +147,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
   it('shows inventory name in "inventory" column', async function () {
     this.set('columnNames', ['inventory']);
 
-    await render(this);
+    await renderComponent();
 
     expect(this.$('.cell-inventory').text().trim()).to.equal('inv1');
   });
@@ -159,7 +157,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
       this.set('atmWorkflowExecutionSummary.atmInventory', promiseObject(resolve(null)));
       this.set('columnNames', ['inventory']);
 
-      await render(this);
+      await renderComponent();
 
       expect(this.$('.cell-inventory').text().trim()).to.equal('Unknown');
     });
@@ -172,7 +170,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
     it(`shows workflow ${colDescription} in "${colName}" column`, async function () {
       this.set('columnNames', [colName]);
 
-      await render(this);
+      await renderComponent();
 
       expect(this.$(`.cell-${colName}`).text().trim()).to.equal(time.format(timeFormat));
     });
@@ -183,7 +181,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
       this.set('atmWorkflowExecutionSummary.status', name);
       this.set('columnNames', ['status']);
 
-      await render(this);
+      await renderComponent();
 
       expect(this.$('.cell-status .one-icon')).to.have.class(`oneicon-${icon}`);
       expect(await new OneTooltipHelper('.cell-status .one-icon').getText())
@@ -194,7 +192,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
   it('allows to choose from workflow execution actions in actions column', async function () {
     this.set('columnNames', ['actions']);
 
-    await render(this);
+    await renderComponent();
 
     const $actionsTrigger =
       this.$('.cell-actions .atm-workflow-execution-actions-trigger');
@@ -223,7 +221,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
       return resolve({ status: 'done' });
     });
 
-    await render(this);
+    await renderComponent();
     await click('.atm-workflow-execution-actions-trigger');
     await click(
       $('body .webui-popover.in .copy-record-id-action-trigger')[0]
@@ -237,7 +235,7 @@ describe('Integration | Component | space automation/atm workflow executions tab
       selectSpy,
       atmWorkflowExecutionSummary,
     } = this.getProperties('selectSpy', 'atmWorkflowExecutionSummary');
-    await render(this);
+    await renderComponent();
 
     expect(selectSpy).to.be.not.called;
     await click('.workflow-row');
@@ -247,12 +245,11 @@ describe('Integration | Component | space automation/atm workflow executions tab
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `
+async function renderComponent() {
+  await render(hbs `
   {{space-automation/atm-workflow-executions-table/workflow-row
     atmWorkflowExecutionSummary=atmWorkflowExecutionSummary
     columns=columnNames
     onSelect=selectSpy
   }}`);
-  await wait();
 }

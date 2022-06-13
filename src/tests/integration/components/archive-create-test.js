@@ -1,16 +1,14 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { find, click, fillIn } from 'ember-native-dom-helpers';
 import { getBrowsableDatasetName, createDataset } from '../../helpers/datasets-archives';
 import sinon from 'sinon';
 
 describe('Integration | Component | archive create', function () {
-  setupComponentTest('archive-create', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(async function () {
     this.set('onClose', function () {});
@@ -106,7 +104,7 @@ async function renderComponent(testCase) {
       viewArchives: true,
     });
   }
-  testCase.render(hbs `
+  await render(hbs `
     {{#one-pseudo-modal id="pseudo-modal-id" as |modal|}}
       {{archive-create
         dataset=dataset
@@ -118,5 +116,4 @@ async function renderComponent(testCase) {
       }}
     {{/one-pseudo-modal}}
   `);
-  await wait();
 }

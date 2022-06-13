@@ -1,6 +1,7 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, afterEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { describe, it, beforeEach } from 'mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { settled } from '@ember/test-helpers';
 import ArchiveRecallStateWatcher from 'oneprovider-gui/utils/archive-recall-state-watcher';
 import { get } from '@ember/object';
 import sinon from 'sinon';
@@ -11,9 +12,7 @@ import {
 } from '../../helpers/datasets-archives';
 
 describe('Integration | Utility | archive recall state watcher', function () {
-  setupComponentTest('test-component', {
-    integration: true,
-  });
+  const { afterEach } = setupRenderingTest();
 
   beforeEach(async function () {
     this.clock = sinon.useFakeTimers({
@@ -43,6 +42,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
 
     expect(getInfoSpy).to.been.calledOnce;
     expect(reloadStateSpy).to.have.not.been.called;
@@ -62,20 +62,25 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
     expect(reloadStateSpy).to.have.been.calledOnce;
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadStateSpy).to.have.been.calledTwice;
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadStateSpy).to.have.been.calledThrice;
     this.set(
       'archiveRecallState.filesCopied',
       this.get('archiveRecallInfo.totalFileCount')
     );
     this.clock.tick(interval + 1);
+    await settled();
     expect(stopSpy).to.have.been.calledOnce;
     expect(get(this.watcher, 'isPolling')).to.equal(false);
-    reloadStateSpy.reset();
+    reloadStateSpy.resetHistory();
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadStateSpy).to.have.not.been.called;
   });
 
@@ -95,9 +100,12 @@ describe('Integration | Utility | archive recall state watcher', function () {
     );
 
     this.watcher.start();
-    this.clock.tick(interval);
-    this.clock.tick(interval);
-    this.clock.tick(interval);
+    this.clock.tick(interval + 1);
+    await settled();
+    this.clock.tick(interval + 1);
+    await settled();
+    this.clock.tick(interval + 1);
+    await settled();
     this.watcher.stop();
 
     expect(reloadInfoSpy).to.have.not.been.called;
@@ -119,6 +127,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
 
     expect(reloadInfoSpy).to.have.been.calledOnce;
   });
@@ -132,6 +141,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
     expect(get(this.watcher, 'looper')).to.be.not.null;
     const looperDestroySpy = sinon.spy(get(this.watcher, 'looper'), 'destroy');
     this.set(
@@ -143,6 +153,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
       this.get('archiveRecallInfo.totalFileCount')
     );
     this.clock.tick(interval + 1);
+    await settled();
     expect(stopSpy).to.have.been.calledOnce;
     expect(get(this.watcher, 'isPolling')).to.be.false;
     expect(get(this.watcher, 'looper')).to.be.null;
@@ -161,17 +172,21 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
       this.watcher.start();
       this.clock.tick(1);
+      await settled();
       expect(reloadInfoStub).to.have.been.calledOnce;
       expect(reloadStateStub).to.have.been.calledOnce;
 
       this.clock.tick(interval + 1);
+      await settled();
       expect(reloadInfoStub).to.have.been.calledTwice;
       this.clock.tick(interval);
+      await settled();
       expect(reloadInfoStub).to.have.been.calledThrice;
       expect(reloadStateStub).to.have.been.calledOnce;
       expect(get(this.watcher, 'isPolling')).to.be.true;
       this.set('archiveRecallInfo.finishTime', 2000);
       this.clock.tick(interval);
+      await settled();
       expect(get(this.watcher, 'isPolling')).to.be.false;
       this.watcher.destroy();
     }
@@ -186,6 +201,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
 
     expect(getInfoStub).to.have.been.calledOnce;
     expect(get(this.watcher, 'isPolling')).to.be.false;
@@ -208,6 +224,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
 
     expect(reloadInfoStub).to.have.been.calledOnce;
     expect(get(this.watcher, 'isPolling')).to.be.false;
@@ -228,6 +245,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
       this.watcher.start();
       this.clock.tick(1);
+      await settled();
 
       expect(reloadInfoSpy).to.have.been.calledOnce;
     }
@@ -245,6 +263,7 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
 
     expect(reloadStateSpy).to.have.not.been.called;
   });
@@ -263,16 +282,20 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
     expect(reloadInfoSpy).to.have.callCount(0);
     expect(reloadStateSpy).to.have.callCount(1);
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadInfoSpy).to.have.callCount(0);
     expect(reloadStateSpy).to.have.callCount(2);
     this.set('archiveRecallInfo.cancelTime', 2000);
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadInfoSpy).to.to.have.callCount(1);
     expect(reloadStateSpy).to.have.callCount(3);
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadInfoSpy).to.to.have.callCount(2);
     expect(reloadStateSpy).to.have.callCount(4);
     this.set(
@@ -280,11 +303,13 @@ describe('Integration | Utility | archive recall state watcher', function () {
       this.get('archiveRecallInfo.totalFileCount')
     );
     this.clock.tick(interval + 1);
+    await settled();
     expect(stopSpy).to.have.been.calledOnce;
     expect(get(this.watcher, 'isPolling')).to.equal(false);
-    reloadInfoSpy.reset();
-    reloadStateSpy.reset();
+    reloadInfoSpy.resetHistory();
+    reloadStateSpy.resetHistory();
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadInfoSpy).to.have.not.been.called;
     expect(reloadStateSpy).to.have.not.been.called;
   });
@@ -303,16 +328,20 @@ describe('Integration | Utility | archive recall state watcher', function () {
 
     this.watcher.start();
     this.clock.tick(1);
+    await settled();
     expect(reloadInfoSpy).to.have.callCount(1);
     expect(reloadStateSpy).to.have.callCount(0);
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadInfoSpy).to.have.callCount(2);
     expect(reloadStateSpy).to.have.callCount(0);
     this.set('archiveRecallInfo.cancelTime', 2000);
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadInfoSpy).to.to.have.callCount(3);
     expect(reloadStateSpy).to.have.callCount(0);
     this.clock.tick(interval + 1);
+    await settled();
     expect(reloadInfoSpy).to.to.have.callCount(4);
     expect(reloadStateSpy).to.have.callCount(0);
   });
@@ -322,6 +351,6 @@ function createWatcher(testCase, options = {}) {
   return ArchiveRecallStateWatcher.create(Object.assign({
     interval: 1000,
     targetFile: testCase.get('targetFile'),
-    ownerSource: testCase,
+    ownerSource: testCase.owner,
   }, options));
 }
