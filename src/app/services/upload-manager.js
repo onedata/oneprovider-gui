@@ -11,7 +11,7 @@
 import Service, { inject as service } from '@ember/service';
 import { computed, observer, get, getProperties } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import Resumable from 'npm:resumablejs';
+import Resumable from 'resumablejs';
 import { Promise, resolve } from 'rsvp';
 import getGuiAuthToken from 'onedata-gui-websocket-client/utils/get-gui-auth-token';
 import PromiseObject from 'onedata-gui-common/utils/ember/promise-object';
