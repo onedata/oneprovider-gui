@@ -17,6 +17,7 @@
     customFetchDirChildren=(action "fetchChildren")
     changeSelectedItems=(action "changeSelectedItems")
     updateDirEntityId=(action "updateDirEntityId")
+    dirSizeStatsConfig=dirSizeStatsConfigProxy.content
   }}
 {{/promise-proxy-container}}
 
@@ -25,7 +26,9 @@
     open=true
     file=fileToShowInfo
     initialTab=showInfoInitialTab
+    space=space
     showApiSection=false
+    dirSizeStatsConfig=dirSizeStatsConfigProxy.content
     getDataUrl=(action "getFileUrl")
     onHide=(action closeInfoModal)
   }}
