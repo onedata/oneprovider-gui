@@ -15,6 +15,8 @@ const dynamicLibraries = require('./lib/onedata-gui-common/config/dynamic-librar
 
 const sass = require('sass');
 
+const environment = EmberApp.env();
+
 module.exports = function (defaults) {
   const app = new EmberApp(defaults, {
     'fingerprint': {
@@ -81,6 +83,9 @@ module.exports = function (defaults) {
       workers: ['json', 'xml'],
       exts: ['searchbox'],
       workerPath: './assets/ace',
+    },
+    'autoImport': {
+      publicAssetURL: environment === 'test' ? '/assets/' : './assets/',
     },
   });
 
