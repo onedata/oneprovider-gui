@@ -171,8 +171,10 @@ Build and publish:
   artifacts:
   - &art-item-build
     name: docker-build-list.json
-    pattern: docker-build-list.json
     location: oneprovider-gui
+    pattern: docker-build-list.json
+    shared: true
+    required: true
   - <<: *art-item-build
     name: docker-build-report.txt
     pattern: docker-build-report.txt
