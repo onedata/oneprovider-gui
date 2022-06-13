@@ -9,8 +9,9 @@
     </div>
     <div class="chunks-background never-synchronized-background"></div>
     {{one-tooltip title=(tt this "neverSynchronizedTip")}}
+    {{!-- {{one-tooltip title="Directory size statistics are turn off for this provider"}} --}}
   {{else}}
-    <canvas width={{chunksRange}} height="18" class="chunks-canvas"></canvas>
+    <div class="progress-bar bar" style={{_occupiedSpaceBarStyle}}></div>
   {{/if}}
 </div>
   <div class="percentage-text">

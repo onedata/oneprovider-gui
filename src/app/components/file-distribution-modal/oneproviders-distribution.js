@@ -256,6 +256,21 @@ export default Component.extend(I18n, {
     });
   }),
 
+  storageList: computed('fileDistributionData', 'oneproviders', function storageList() {
+    const fileDistributionData = this.get('fileDistributionData');
+    const oneproviders = this.get('oneproviders');
+    const storagesForProviders = {};
+    fileDistributionData.forEach(fileDistributionContainer => {
+      oneproviders.forEach(oneprovider => {
+        fileDistributionContainer.getStoragesForOneprovider(oneprovider).forEach(storage => {
+          storagesForProviders[storage] = oneprovider;
+        });
+      });
+
+    });
+    return storagesForProviders;
+  }),
+
   init() {
     this._super(...arguments);
 

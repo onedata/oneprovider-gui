@@ -77,24 +77,15 @@ export default EmberObject.extend(
     fileType: reads('file.type'),
 
     /**
-     * File size. If file is a directory, then size is 0.
+     * File size. If file is a directory and statistics are turn off, then size is null.
      * @type {Ember.ComputedProperty<number>}
      */
-    fileSize: conditional(
-      equal('fileType', raw('file')),
-      'file.size',
-      raw(0)
-    ),
+    fileSize: reads('file.size'),
 
     /**
      * @type {Ember.ComputedProperty<boolean>}
      */
-    isFileDistributionLoaded: conditional(
-      equal('fileType', raw('file')),
-      notEmpty('fileDistributionModelProxy.content'),
-      // directories does not have file distribution
-      raw(false),
-    ),
+    isFileDistributionLoaded: notEmpty('fileDistributionModelProxy.content'),
 
     /**
      * @type {Ember.ComputedProperty<boolean>}
@@ -119,7 +110,11 @@ export default EmberObject.extend(
      * distribution has been successfully loaded. Is empty for directories.
      * @type {Ember.ComputedProperty<OneproviderDistribution>}
      */
-    fileDistribution: reads('fileDistributionModel.distributionPerProvider'),
+    fileDistribution: conditional(
+      equal('fileType', raw('file')),
+      'fileDistributionModel.distribution',
+      'fileDistributionModel.distributionPerProvider',
+    ),
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
@@ -180,21 +175,18 @@ export default EmberObject.extend(
       const file = this.get('file');
       const distributionLoadError = get(file, 'distributionLoadError');
 
-      if (this.get('file.type') === 'file') {
-        if (distributionLoadError) {
-          // If earlier fetching of distribution ended with error, then just
-          // rethrow it. We can't try to reload distribution model because
-          // rejected belongsTo relation cannot be reloaded (a bug in Ember).
-          return reject(distributionLoadError);
-        } else {
-          return file.belongsTo('distribution').reload()
-            .catch(reloadError => {
-              set(file, 'distributionLoadError', reloadError);
-              throw reloadError;
-            });
-        }
+      // TODO tutaj warunek że jak nie włączone to nic nie zwracać?
+      if (distributionLoadError) {
+        // If earlier fetching of distribution ended with error, then just
+        // rethrow it. We can't try to reload distribution model because
+        // rejected belongsTo relation cannot be reloaded (a bug in Ember).
+        return reject(distributionLoadError);
       } else {
-        return resolve();
+        return file.belongsTo('distribution').reload()
+          .catch(reloadError => {
+            set(file, 'distributionLoadError', reloadError);
+            throw reloadError;
+          });
       }
     },
 
@@ -264,6 +256,42 @@ export default EmberObject.extend(
       if (isFileDistributionLoaded) {
         const oneproviderEntityId = get(oneprovider, 'entityId');
         return get(fileDistribution, oneproviderEntityId);
+      } else {
+        return {};
+      }
+    },
+
+    /**
+     * Returns distribution information for given Oneprovider
+     * @param {Models.Provider} oneprovider
+     * @returns {OneproviderDistribution}
+     */
+    getStoragesForOneprovider(oneprovider) {
+      const {
+        isFileDistributionLoaded,
+        fileDistribution,
+      } = this.getProperties('isFileDistributionLoaded', 'fileDistribution');
+
+      if (isFileDistributionLoaded) {
+        console.log('co tam jest', fileDistribution);
+        const oneproviderEntityId = get(oneprovider, 'entityId');
+        const oneproviderData = get(fileDistribution, oneproviderEntityId);
+        return Object.keys(get(oneproviderData, 'distributionPerStorage'));
+      } else {
+        return {};
+      }
+    },
+
+    /**
+     * Returns distribution information for given Storage
+     * @param {Models.Provider} oneprovider
+     * @returns {OneproviderDistribution}
+     */
+    getDistributionForStorage(oneprovider, storage) {
+      const distributionForProvider = this.getDistributionForOneprovider(oneprovider);
+      if (distributionForProvider) {
+        const storagesForProvider = get(distributionForProvider, 'distributionPerStorage');
+        return get(storagesForProvider, storage);
       } else {
         return {};
       }

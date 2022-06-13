@@ -19,7 +19,7 @@
   {{/if}}
   <div class="{{if (or isMigrationDestinationSelectorVisible isStartSubsequentTransferConfirmationVisible) "hidden"}}">
     <ul>
-      {{#each oneprovidersSorted key="id" as |oneprovider|}}
+      {{#each-in storageList as |storage oneprovider|}}
         {{file-distribution-modal/oneproviders-distribution-item
           class=(concat "oneprovider-" oneprovider.entityId)
           oneprovider=oneprovider
@@ -34,8 +34,10 @@
           onReplicate=(action "tryStartReplication" oneprovider)
           onMigrate=(action "selectMigrationDestination" oneprovider)
           onEvict=(action "tryStartEviction" oneprovider)
+          storage=storage
+          space=space
         }}
-      {{/each}}
+      {{/each-in}}
       {{#unless batchMode}}
         <p class="transfers-counter-info">
           {{#promise-proxy-container

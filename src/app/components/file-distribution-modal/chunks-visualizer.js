@@ -43,13 +43,6 @@ export default Component.extend(I18n, {
   percentage: undefined,
 
   /**
-   * One of 'file', 'dir'
-   * @virtual
-   * @type {string}
-   */
-  fileType: undefined,
-
-  /**
    * @virtual
    * @type {number}
    */

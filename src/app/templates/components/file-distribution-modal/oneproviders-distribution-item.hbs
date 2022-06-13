@@ -1,5 +1,5 @@
 <div class="name-section">
-  {{#truncated-string class="oneprovider-name"}}{{oneprovider.name}}{{/truncated-string}}
+  {{#truncated-string class="oneprovider-name"}}{{storageName.name}} @ {{oneprovider.name}}{{/truncated-string}}
 </div>
 {{#one-pill-button
   menuItems=actionsArray
@@ -34,12 +34,19 @@
     }}
   {{/status-toolbar}}
 {{/one-pill-button}}
-{{file-distribution-modal/chunks-visualizer
-  neverSynchronized=neverSynchronized
-  fileType=(if hasOnlyDirs "dir" "file")
-  fileSize=filesSize
-  chunks=chunksBarData
-  percentage=percentage
-  chunksRange=chunksRange
-}}
+{{#if (and hasSingleFile hasOnlyFiles)}}
+  {{file-distribution-modal/chunks-visualizer
+    neverSynchronized=neverSynchronized
+    fileSize=filesSize
+    chunks=chunksBarData
+    percentage=percentage
+    chunksRange=chunksRange
+  }}
+{{else}}
+  {{file-distribution-modal/progress-bar-visualizer
+    neverSynchronized=neverSynchronized
+    fileSize=filesSize
+    percentage=percentage
+  }}
+{{/if}}
 <div class="first-line-breaker"></div>

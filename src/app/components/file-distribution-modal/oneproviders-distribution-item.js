@@ -19,6 +19,7 @@ import _ from 'lodash';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { inject as service } from '@ember/service';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
+import { reads } from '@ember/object/computed';
 
 const emptyChunksBarData = { 0: 0 };
 
@@ -27,6 +28,7 @@ export default Component.extend(I18n, {
   classNames: ['oneproviders-distribution-item'],
 
   i18n: service(),
+  storageManager: service(),
 
   /**
    * @override
@@ -105,42 +107,49 @@ export default Component.extend(I18n, {
   evictionInvoked: false,
 
   /**
-   * Describes max index of chunk, that can be reseived from backend
+   * Describes max index of chunk, that can be received from backend
    * @type {number}
    */
   chunksRange: 320,
+
+  storage: undefined,
+
+  storageName: computed('storage', 'storageManager', function storageName() {
+    const storageId = this.get('storage');
+    const storageManager = this.get('storageManager');
+    const spaceId = this.get('spaceId');
+    return storageManager.getStorageById(storageId, {
+      throughSpaceId: spaceId,
+      backgroundReload: false,
+    });
+  }),
+
+  space: undefined,
+
+  spaceId: reads('space.entityId'),
 
   /**
    * @type {String}
    */
   statusIconActiveClasses: 'in-progress animated infinite semi-hinge',
 
-  /**
-   * `fileDistributionData` narrowed to files only
-   * @type {Array<Utils.FileDistributionDataContainer>}
-   */
-  filesOnlyDistributionData: array.filterBy(
-    'fileDistributionData',
-    raw('fileType'),
-    raw('file')
-  ),
-
   allFilesDistributionsLoaded: array.isEvery(
-    'filesOnlyDistributionData',
+    'fileDistributionData',
     raw('isFileDistributionLoaded')
   ),
 
   neverSynchronized: computed(
-    'filesOnlyDistributionData.@each.fileDistribution',
+    'fileDistributionData.@each.fileDistribution',
     'oneprovider',
     function neverSynchronized() {
       const {
-        filesOnlyDistributionData,
+        fileDistributionData,
         oneprovider,
-      } = this.getProperties('filesOnlyDistributionData', 'oneprovider');
-      const distributions = filesOnlyDistributionData
+        storage,
+      } = this.getProperties('fileDistributionData', 'oneprovider', 'storage');
+      const distributions = fileDistributionData
         .map(fileDistDataContainer =>
-          fileDistDataContainer.getDistributionForOneprovider(oneprovider)
+          fileDistDataContainer.getDistributionForStorage(oneprovider, storage)
         )
         .compact();
       return get(distributions, 'length') === 0;
@@ -155,12 +164,17 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<number>}
    */
-  filesSize: sum(array.mapBy('filesOnlyDistributionData', raw('fileSize'))),
+  filesSize: sum(array.mapBy('fileDistributionData', raw('fileSize'))),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  hasOnlyDirs: array.isEvery('filesOnlyDistributionData', raw('fileType'), raw('dir')),
+  hasOnlyDirs: array.isEvery('fileDistributionData', raw('fileType'), raw('dir')),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  hasOnlyFiles: array.isEvery('fileDistributionData', raw('fileType'), raw('file')),
 
   /**
    * @type {Ember.ComputedProperty<number>}
@@ -168,30 +182,37 @@ export default Component.extend(I18n, {
   percentage: computed(
     'allFilesDistributionsLoaded',
     'filesSize',
-    'filesOnlyDistributionData.@each.{fileSize,fileDistribution}',
+    'fileDistributionData.@each.{fileSize,fileDistribution}',
     'oneprovider',
     function () {
       const {
         filesSize,
-        filesOnlyDistributionData,
+        fileDistributionData,
         allFilesDistributionsLoaded,
         oneprovider,
+        storage,
       } = this.getProperties(
         'filesSize',
-        'filesOnlyDistributionData',
+        'fileDistributionData',
         'allFilesDistributionsLoaded',
-        'oneprovider'
+        'oneprovider',
+        'storage'
       );
 
       if (allFilesDistributionsLoaded && filesSize) {
         let availableBytes = 0;
-        filesOnlyDistributionData.forEach(fileDistDataContainer => {
+        fileDistributionData.forEach(fileDistDataContainer => {
           const fileSize = get(fileDistDataContainer, 'fileSize');
+          const fileType = get(fileDistDataContainer, 'fileType');
           const fileDistribution =
-            fileDistDataContainer.getDistributionForOneprovider(oneprovider);
+            fileDistDataContainer.getDistributionForStorage(oneprovider, storage);
           if (fileDistribution) {
-            const blocksPercentage = get(fileDistribution, 'blocksPercentage');
-            availableBytes += fileSize * ((blocksPercentage || 0) / 100);
+            if (fileType === 'file') {
+              const blocksPercentage = get(fileDistribution, 'blocksPercentage');
+              availableBytes += fileSize * ((blocksPercentage || 0) / 100);
+            } else {
+              availableBytes += fileDistribution;
+            }
           }
         });
 
@@ -211,54 +232,63 @@ export default Component.extend(I18n, {
   chunksBarData: computed(
     'allFilesDistributionsLoaded',
     'filesSize',
-    'filesOnlyDistributionData.@each.{fileSize,fileDistribution}',
+    'fileDistributionData.@each.{fileSize,fileDistribution}',
     'hasSingleFile',
     'oneprovider',
     'chunksRange',
+    'percentage',
+    'hasOnlyFiles',
     function chunksBarData() {
       const {
-        filesOnlyDistributionData,
+        fileDistributionData,
         filesSize,
         allFilesDistributionsLoaded,
         hasSingleFile,
         oneprovider,
         chunksRange,
+        storage,
+        hasOnlyFiles,
       } = this.getProperties(
-        'filesOnlyDistributionData',
+        'fileDistributionData',
         'filesSize',
         'allFilesDistributionsLoaded',
         'hasSingleFile',
         'oneprovider',
-        'chunksRange'
+        'chunksRange',
+        'storage',
+        'hasOnlyFiles',
       );
-
       if (!allFilesDistributionsLoaded || !filesSize) {
         return emptyChunksBarData;
-      } else if (hasSingleFile) {
-        const fileDistribution =
-          filesOnlyDistributionData[0].getDistributionForOneprovider(oneprovider);
-        return (fileDistribution && get(fileDistribution, 'chunksBarData')) ||
-          emptyChunksBarData;
+      } else if (hasSingleFile && hasOnlyFiles) {
+        if (hasSingleFile) {
+          const fileDistribution =
+            fileDistributionData[0].getDistributionForStorage(oneprovider, storage);
+          return (fileDistribution && get(fileDistribution, 'chunksBarData')) ||
+            emptyChunksBarData;
+        } else {
+          const chunks = {};
+          let chunksOffset = 0;
+          fileDistributionData.forEach(fileDistDataContainer => {
+            const fileSize = get(fileDistDataContainer, 'fileSize');
+            if (fileSize) {
+              const fileShare = fileSize / filesSize;
+              const fileDistribution =
+                fileDistDataContainer.getDistributionForStorage(oneprovider, storage);
+              const chunksBarData =
+                (fileDistribution && get(fileDistribution, 'chunksBarData')) ||
+                emptyChunksBarData;
+              Object.keys(chunksBarData).forEach(key => {
+                chunks[Number(key) * fileShare + chunksOffset] =
+                  get(chunksBarData, key);
+              });
+              chunksOffset += fileShare * chunksRange;
+            }
+          });
+          return chunks;
+        }
       } else {
-        const chunks = {};
-        let chunksOffset = 0;
-        filesOnlyDistributionData.forEach(fileDistDataContainer => {
-          const fileSize = get(fileDistDataContainer, 'fileSize');
-          if (fileSize) {
-            const fileShare = fileSize / filesSize;
-            const fileDistribution =
-              fileDistDataContainer.getDistributionForOneprovider(oneprovider);
-            const chunksBarData =
-              (fileDistribution && get(fileDistribution, 'chunksBarData')) ||
-              emptyChunksBarData;
-            Object.keys(chunksBarData).forEach(key => {
-              chunks[Number(key) * fileShare + chunksOffset] =
-                get(chunksBarData, key);
-            });
-            chunksOffset += fileShare * chunksRange;
-          }
-        });
-        return chunks;
+        return emptyChunksBarData;
       }
     }
   ),
@@ -357,6 +387,7 @@ export default Component.extend(I18n, {
         replicationForbidden,
         percentage,
         oneprovider,
+        storage,
       } = this.getProperties(
         'i18n',
         'hasReadonlySupport',
@@ -365,13 +396,14 @@ export default Component.extend(I18n, {
         'replicationForbidden',
         'percentage',
         'oneprovider',
+        'storage',
       );
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
 
       const someNeverSynchronized = hasDirs ? true : fileDistributionData
         .map(fileDistDataContainer =>
-          fileDistDataContainer.getDistributionForOneprovider(oneprovider)
+          fileDistDataContainer.getDistributionForStorage(oneprovider, storage)
         )
         .includes(undefined);
 

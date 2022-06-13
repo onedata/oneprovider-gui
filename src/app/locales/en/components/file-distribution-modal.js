@@ -14,10 +14,16 @@ export default {
   startingMigration: 'starting migration',
   startingReplication: 'starting replication',
   startingEviction: 'starting eviction',
-  filesBatchDescription: 'Summarized data distribution of {{filesNumber}} {{fileNoun}} ({{filesSize}})',
+  filesBatchDescription: 'Summarized data distribution of {{filesNumber}} {{fileNoun}} ({{filesSize}}).',
   filesAndDirectioriesBatchDescriptionSuffix: ' - directories are omitted.',
   onlyDirectoriesDescription: dirsDontHaveDistributionTip,
   chunksVisualizer: {
+    na: 'n/a',
+    neverSynchronized: 'Never synchronized',
+    neverSynchronizedTip: 'This file was never read or modified on selected Oneprovider. File blocks will be synchronized when needed. You can also manually replicate the file to selected Oneprovider.',
+    dirsDontHaveDistributionTip,
+  },
+  progressBarVisualizer: {
     na: 'n/a',
     neverSynchronized: 'Never synchronized',
     neverSynchronizedTip: 'This file was never read or modified on selected Oneprovider. File blocks will be synchronized when needed. You can also manually replicate the file to selected Oneprovider.',

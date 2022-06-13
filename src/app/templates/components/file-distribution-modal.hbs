@@ -28,10 +28,10 @@
               fileNoun=(tt this (if (gt filesNumber 1) "files" "file"))
               filesSize=(bytes-to-string filesSize)
             }}{{if (not directoriesNumber) "."}}
-            {{#if directoriesNumber}}
+            {{!-- {{#if directoriesNumber}}
               {{tt this "filesAndDirectioriesBatchDescriptionSuffix"}}
               {{one-label-tip title=(tt this "onlyDirectoriesDescription")}}
-            {{/if}}
+            {{/if}} --}}
           {{else}}
             {{tt this "onlyDirectoriesDescription"}}
           {{/if}}
