@@ -63,6 +63,9 @@ export default Component.extend(I18n, {
   actionsOpened: false,
 
   /**
+   * The last calculated menu actions for specific arguments. Allows to reuse
+   * the already calculated actions in case of no real change in the component
+   * properties.
    * @type {{memoArgs: Array<unknown>, actions: Ember.A<Utils.Action>}|null}
    */
   memoizedMenuActions: null,
@@ -146,7 +149,8 @@ export default Component.extend(I18n, {
     }
 
     if (transferActions) {
-      const actions = A(transferActions
+      const actions = A(
+        transferActions
         .filter(({ id }) => !this.isActionInvisible(id))
         .map(({ id, action }) => {
           const forbiddenTip = this.actionForbiddenTip(id);
@@ -158,7 +162,8 @@ export default Component.extend(I18n, {
             disabled: isDisabled || Boolean(forbiddenTip),
             tip: (forbiddenTip && !isDisabled) ? forbiddenTip : undefined,
           });
-        }));
+        })
+      );
       this.set('memoizedMenuActions', {
         memoArgs,
         actions,
