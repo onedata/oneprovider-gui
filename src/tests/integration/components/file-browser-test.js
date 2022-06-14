@@ -506,6 +506,7 @@ describe('Integration | Component | file browser (main component)', function () 
                 expect(inheritanceIcon, 'inheritance icon').to.have.length(1);
               }
               await click(qosTagGroup[0].querySelector('.file-status-qos'));
+              await settled();
               expect(openQos).to.have.been.calledOnce;
               expect(openQos).to.have.been.calledWith([this.get('dir')]);
               done();
@@ -542,6 +543,7 @@ describe('Integration | Component | file browser (main component)', function () 
             expect(datasetTag, 'dataset tag').to.have.length(1);
             expect(datasetTag[0]).to.contain.text('Dataset');
             await click(datasetTag[0]);
+            await settled();
             expect(openDatasets).to.have.been.calledOnce;
             done();
           }
@@ -828,6 +830,7 @@ async function renderComponent(testCase) {
   });
   testCase.set('changeSelectedItems', async function (selectedItems) {
     once(this, 'changeSelectedItemsImmediately', selectedItems);
+    await sleep(0);
   });
   await render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
