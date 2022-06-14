@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, findAll, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import I18nStub from '../../../helpers/i18n-stub';
 import { registerService } from '../../../helpers/stub-service';
 import sinon from 'sinon';
-import { fillIn } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | share show/markdown editor', function () {
   setupRenderingTest();
@@ -23,11 +22,11 @@ describe('Integration | Component | share show/markdown editor', function () {
       mode="visual"
     }}`);
 
-    const $markdownToHtml = this.$('.one-markdown-to-html');
-    expect($markdownToHtml).to.have.length(1);
-    const $h1 = $markdownToHtml.find('h1');
-    expect($h1).to.have.length(1);
-    expect($h1.text().trim()).to.equal('hello world');
+    const markdownToHtml = findAll('.one-markdown-to-html');
+    expect(markdownToHtml).to.have.length(1);
+    const h1 = markdownToHtml[0].querySelectorAll('h1');
+    expect(h1).to.have.length(1);
+    expect(h1[0]).to.have.trimmed.text('hello world');
   });
 
   it('renders textarea that render Markdown source in "markdown" mode', async function () {
@@ -38,9 +37,9 @@ describe('Integration | Component | share show/markdown editor', function () {
       mode="markdown"
     }}`);
 
-    const $textarea = this.$('textarea.textarea-source-editor');
-    expect($textarea).to.have.length(1);
-    expect($textarea.val()).to.equal(this.get('markdown'));
+    const textarea = findAll('textarea.textarea-source-editor');
+    expect(textarea).to.have.length(1);
+    expect(textarea[0]).to.have.value(this.get('markdown'));
   });
 
   it('renders textarea that emits edited code in "markdown" mode on change', async function () {

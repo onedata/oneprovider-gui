@@ -1,12 +1,9 @@
 import { expect } from 'chai';
 import { describe, it, context, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, find } from '@ember/test-helpers';
+import { render, find, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { click } from 'ember-native-dom-helpers';
-import wait from 'ember-test-helpers/wait';
-import { selectChoose, clickTrigger } from '../../../helpers/ember-power-select';
-import $ from 'jquery';
+import { clickTrigger, selectChoose } from 'ember-power-select/test-support/helpers';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve, reject } from 'rsvp';
 import { get } from '@ember/object';
@@ -84,9 +81,10 @@ describe('Integration | Component | share show/public url viewer', function () {
         await renderComponent();
         await clickTrigger('.col-key');
 
-        const $options = $('li.ember-power-select-option');
-        checkUrlTypeOptions($options, ['share', 'rest']);
-        expect($('.public-url-viewer-share'), 'share mode fallback').to.exist;
+        const options = document.querySelectorAll('li.ember-power-select-option');
+        checkUrlTypeOptions(options, ['share', 'rest']);
+        expect(document.querySelector('.public-url-viewer-share'), 'share mode fallback')
+          .to.exist;
         done();
       }
     );
@@ -112,9 +110,10 @@ describe('Integration | Component | share show/public url viewer', function () {
           await renderComponent();
           await clickTrigger('.col-key');
 
-          const $options = $('li.ember-power-select-option');
-          checkUrlTypeOptions($options, ['share', 'handle', 'rest']);
-          expect($('.public-url-viewer-handle'), 'handle mode').to.exist;
+          const options = document.querySelectorAll('li.ember-power-select-option');
+          checkUrlTypeOptions(options, ['share', 'handle', 'rest']);
+          expect(document.querySelector('.public-url-viewer-handle'), 'handle mode')
+            .to.exist;
           done();
         }
       );
@@ -127,10 +126,13 @@ describe('Integration | Component | share show/public url viewer', function () {
         this.set('selectedUrlType', 'handle');
 
         await renderComponent();
-        await wait();
 
-        expect($('.input-handle-service-name'), 'handle service name').to.exist;
-        expect($('.input-handle-service-name').text()).to.contain(handleService.name);
+        expect(
+            document.querySelector('.input-handle-service-name'),
+            'handle service name')
+          .to.exist;
+        expect(document.querySelector('.input-handle-service-name'))
+          .to.contain.text(handleService.name);
         done();
       }
     );
@@ -153,8 +155,13 @@ describe('Integration | Component | share show/public url viewer', function () {
         await renderComponent();
         await clickTrigger('.col-key');
 
-        expect($('.input-handle-service-name'), 'handle service name').to.not.exist;
-        expect($('.url-type-info-trigger.input-group-addon-icon .oneicon')).to.exist;
+        expect(
+          document.querySelector('.input-handle-service-name'),
+          'handle service name'
+        ).to.not.exist;
+        expect(
+          document.querySelector('.url-type-info-trigger.input-group-addon-icon .oneicon')
+        ).to.exist;
         done();
       }
     );
@@ -194,10 +201,14 @@ describe('Integration | Component | share show/public url viewer', function () {
         this.set('selectedUrlType', 'handle');
 
         await renderComponent();
-        await wait();
 
-        expect($('.input-handle-service-name'), 'handle service name').to.not.exist;
-        expect($('.url-type-info-trigger.input-group-addon-icon .oneicon')).to.exist;
+        expect(
+          document.querySelector('.input-handle-service-name'),
+          'handle service name'
+        ).to.not.exist;
+        expect(
+          document.querySelector('.url-type-info-trigger.input-group-addon-icon .oneicon')
+        ).to.exist;
         done();
       });
 
@@ -206,8 +217,9 @@ describe('Integration | Component | share show/public url viewer', function () {
 
         await click('.url-type-selector-trigger');
 
-        const $options = $('.compact-url-type-selector-actions li');
-        checkUrlTypeOptions($options, ['share', 'handle', 'rest']);
+        const options =
+          document.querySelectorAll('.compact-url-type-selector-actions li');
+        checkUrlTypeOptions(options, ['share', 'handle', 'rest']);
         done();
       });
 
@@ -222,9 +234,10 @@ describe('Integration | Component | share show/public url viewer', function () {
           await renderComponent();
           await click('.url-type-selector-trigger');
 
-          const $options = $('.compact-url-type-selector-actions li');
-          checkUrlTypeOptions($options, ['share', 'rest']);
-          expect($('.public-url-viewer-share')).to.exist;
+          const options =
+            document.querySelectorAll('.compact-url-type-selector-actions li');
+          checkUrlTypeOptions(options, ['share', 'rest']);
+          expect(document.querySelector('.public-url-viewer-share')).to.exist;
           done();
         }
       );
@@ -243,8 +256,9 @@ describe('Integration | Component | share show/public url viewer', function () {
 
         await click('.url-type-selector-trigger');
 
-        const $options = $('.compact-url-type-selector-actions li');
-        checkUrlTypeOptions($options, ['share', 'rest']);
+        const options =
+          document.querySelectorAll('.compact-url-type-selector-actions li');
+        checkUrlTypeOptions(options, ['share', 'rest']);
         done();
       });
     });
@@ -307,11 +321,10 @@ function testClipboardInput(type, evaluateValue) {
     this.set('selectedUrlType', type);
 
     await renderComponent();
-    await wait();
 
-    const $input = this.$('.clipboard-line-public-url-input');
-    expect($input, 'clipboard-line-public-url-input').to.exist;
-    expect($input.val()).to.equal(evaluateValue(this));
+    const input = find('.clipboard-line-public-url-input');
+    expect(input, 'clipboard-line-public-url-input').to.exist;
+    expect(input).to.have.value(evaluateValue(this));
     done();
   });
 }
@@ -322,7 +335,7 @@ function testChangeSelectedUrlTypeCompact(type) {
     await click('.url-type-selector-trigger');
     await click(`.option-${type}-link`);
 
-    expect(this.$(`.public-url-viewer-${type}`), `.public-url-viewer-${type} (compact)`)
+    expect(find(`.public-url-viewer-${type}`), `.public-url-viewer-${type} (compact)`)
       .to.exist;
     done();
   });
@@ -333,23 +346,30 @@ function testChangeSelectedUrlTypePowerSelect(type) {
     await renderComponent();
     await selectChoose('.col-key', urlTypeTranslations[type]);
 
-    expect(this.$(`.public-url-viewer-${type}`), `.public-url-viewer-${type}`).to.exist;
+    expect(find(`.public-url-viewer-${type}`), `.public-url-viewer-${type}`).to.exist;
     done();
   });
 }
 
 const urlTypeInfoChecks = {
   handle({ rejectedHandleService = false } = {}) {
-    expect($('.handle-id-clipboard-line .clipboard-input'), 'handle clipboard');
-    expect($('.handle-id-clipboard-line .clipboard-input').val()).to.equal(handleId);
     expect(
-      $('.handle-service-id-clipboard-line .clipboard-input'),
+      document.querySelector('.handle-id-clipboard-line .clipboard-input'),
+      'handle clipboard'
+    ).to.exist;
+    expect(
+      document.querySelector('.handle-id-clipboard-line .clipboard-input')
+    ).to.have.value(handleId);
+    expect(
+      document.querySelectorAll('.handle-service-id-clipboard-line .clipboard-input'),
       'handle service clipboard'
     ).to.have.length(rejectedHandleService ? 0 : 1);
-    expect($('.handle-service-name')).to.have.length(rejectedHandleService ? 0 : 1);
+    expect(document.querySelectorAll('.handle-service-name'))
+      .to.have.length(rejectedHandleService ? 0 : 1);
     if (!rejectedHandleService) {
-      expect($('.handle-service-id-clipboard-line .clipboard-input').val())
-        .to.equal(handleService.entityId);
+      expect(
+        document.querySelector('.handle-service-id-clipboard-line .clipboard-input')
+      ).to.have.value(handleService.entityId);
     }
   },
   share() {},
@@ -365,11 +385,16 @@ function testShowsUrlTypeInformationInPopover(type, informationOptions = {}) {
     this.set('selectedUrlType', type);
 
     await renderComponent();
-    await wait();
     await click('.url-type-info-trigger');
 
-    expect($(`.url-type-info-content-${type}`), 'url-type-info-content').to.exist;
-    expect($('.webui-popover-url-type-info.in'), 'webui-popover-url-type-info').to.exist;
+    expect(
+      document.querySelector(`.url-type-info-content-${type}`),
+      'url-type-info-content'
+    ).to.exist;
+    expect(
+      document.querySelector('.webui-popover-url-type-info.in'),
+      'webui-popover-url-type-info'
+    ).to.exist;
     urlTypeInfoChecks[type](informationOptions);
     done();
   });
@@ -390,9 +415,9 @@ function getComponent() {
   return find('.public-url-viewer').componentInstance;
 }
 
-function checkUrlTypeOptions($options, urlTypes) {
-  expect($options).to.have.length(urlTypes.length);
+function checkUrlTypeOptions(options, urlTypes) {
+  expect(options).to.have.length(urlTypes.length);
   for (let i = 0; i < urlTypes.length; ++i) {
-    expect($options.eq(i).text()).to.contain(urlTypeTranslations[urlTypes[i]]);
+    expect(options[i]).to.contain.text(urlTypeTranslations[urlTypes[i]]);
   }
 }

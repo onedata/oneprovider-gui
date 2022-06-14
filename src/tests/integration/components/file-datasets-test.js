@@ -1,10 +1,9 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, before } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
-import $ from 'jquery';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import ToggleHelper from '../../helpers/toggle';
@@ -12,7 +11,6 @@ import { createFileDatasetSummary, createDataset } from '../../helpers/datasets-
 import { setProperties } from '@ember/object';
 import Service from '@ember/service';
 import { lookupService, registerService } from '../../helpers/stub-service';
-import { click, find } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 
 const userId = 'current_user_id';
@@ -44,7 +42,8 @@ describe('Integration | Component | file datasets', function () {
 
     await renderComponent(this);
 
-    expect($('.modal-file-subheader .file-name').text()).to.contain('hello world');
+    expect(document.querySelector('.modal-file-subheader .file-name'))
+      .to.contain.text('hello world');
   });
 
   [
@@ -70,7 +69,7 @@ describe('Integration | Component | file datasets', function () {
 
       await renderComponent(this);
 
-      expect(this.$('.nav-item-archives'), 'archives nav item')
+      expect(find('.nav-item-archives'), 'archives nav item')
         .to.have.class('disabled');
     }
   );
@@ -83,10 +82,10 @@ describe('Integration | Component | file datasets', function () {
 
     await renderComponent(this);
 
-    const $navItemArchives = this.$('.nav-item-archives');
-    expect($navItemArchives, 'archives nav item')
+    const navItemArchives = find('.nav-item-archives');
+    expect(navItemArchives, 'archives nav item')
       .to.exist;
-    expect($navItemArchives.text()).to.match(/Archives\s*$/);
+    expect(navItemArchives.textContent).to.match(/Archives\s*$/);
   });
 
   testArchivesTabCount({ archiveCount: 0 });
@@ -219,15 +218,15 @@ function testDirectDatasetProtection(flags, attached = true) {
 
     await renderComponent(this);
 
-    const $directDatasetItem = this.$('.direct-dataset-item');
-    expect($directDatasetItem, 'direct dataset item').to.exist;
+    const directDatasetItem = find('.direct-dataset-item');
+    expect(directDatasetItem, 'direct dataset item').to.exist;
     availableShortFlags.forEach(flag => {
       // if dataset is detached, all flags should be presented as false!
       const shouldToggleBeEnabled = attached && shortFlags.includes(flag);
       const selector = `.${flag}-flag-toggle`;
-      const $toggle = $directDatasetItem.find(selector);
-      expect($toggle, `${selector} for direct dataset`).to.exist;
-      const toggleHelper = new ToggleHelper($toggle[0]);
+      const toggle = directDatasetItem.querySelector(selector);
+      expect(toggle, `${selector} for direct dataset`).to.exist;
+      const toggleHelper = new ToggleHelper(toggle);
       expect(toggleHelper.isChecked(), flag).to.equal(shouldToggleBeEnabled);
     });
   });
@@ -250,14 +249,14 @@ function testEffectiveProtectionInfo(flags) {
 
       await renderComponent(this);
 
-      const $protectionInfo = this.$('.datasets-effective-protection-info');
-      expect($protectionInfo, 'protection info container').to.exist;
+      const protectionInfo = find('.datasets-effective-protection-info');
+      expect(protectionInfo, 'protection info container').to.exist;
       availableShortFlags.forEach(flag => {
         const isEnabled = shortFlags.includes(flag);
         const tagSelector = `.${flag}-protected-tag`;
-        const $tag = $protectionInfo.find(tagSelector);
-        expect($tag, tagSelector).to.exist;
-        expect($tag, tagSelector)
+        const tag = protectionInfo.querySelector(tagSelector);
+        expect(tag, tagSelector).to.exist;
+        expect(tag, tagSelector)
           .to.have.class(`protected-tag-${isEnabled ? 'enabled' : 'disabled'}`);
       });
     }
@@ -306,7 +305,7 @@ function testHasArchivesTabEnabled({ datasetState }) {
 
     await renderComponent(this);
 
-    expect(this.$('.nav-item-archives'), 'archives nav item')
+    expect(find('.nav-item-archives'), 'archives nav item')
       .to.not.have.class('disabled');
   });
 }
@@ -327,10 +326,10 @@ function testArchivesTabCount({ archiveCount }) {
 
     await renderComponent(this);
 
-    const $navItemArchives = this.$('.nav-item-archives');
-    expect($navItemArchives, 'archives nav item')
+    const navItemArchives = find('.nav-item-archives');
+    expect(navItemArchives, 'archives nav item')
       .to.exist;
-    expect($navItemArchives.text())
+    expect(navItemArchives.textContent)
       .to.match(new RegExp(`Archives\\s+\\(${archiveCount}\\)`));
   });
 }

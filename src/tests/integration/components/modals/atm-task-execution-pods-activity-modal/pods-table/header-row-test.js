@@ -1,11 +1,9 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, findAll, click, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/pods table/header row', function () {
   setupRenderingTest();
@@ -18,21 +16,21 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('has class "pods-table-header-row"', async function () {
     await renderComponent();
 
-    expect(this.$().children()).to.have.class('pods-table-header-row')
-      .and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('pods-table-header-row');
   });
 
   it('shows labels of columns', async function () {
     await renderComponent();
 
-    const $labels = this.$('.column-label-text');
+    const labels = findAll('.column-label-text');
     [
       'Pod name',
       'Readiness',
       'Status',
       'Status since',
     ].forEach((colLabel, idx) =>
-      expect($labels.eq(idx).text().trim()).to.equal(colLabel)
+      expect(labels[idx]).to.have.trimmed.text(colLabel)
     );
   });
 
@@ -47,16 +45,16 @@ describe('Integration | Component | modals/atm task execution pods activity moda
       { name: 'current', label: 'Current (2)' },
       { name: 'all', label: 'All (3)' },
     ].forEach(({ name, label }) =>
-      expect(this.$(`.filter-${name}`).text().trim()).to.equal(label)
+      expect(find(`.filter-${name}`)).to.have.trimmed.text(label)
     );
 
     this.set('podsFilter', 'current');
-    await wait();
-    expect(this.$('.filter-current')).to.have.class('active');
+    await settled();
+    expect(find('.filter-current')).to.have.class('active');
 
     this.set('podsFilter', 'all');
-    await wait();
-    expect(this.$('.filter-all')).to.have.class('active');
+    await settled();
+    expect(find('.filter-all')).to.have.class('active');
   });
 
   it('allows changing filter', async function () {

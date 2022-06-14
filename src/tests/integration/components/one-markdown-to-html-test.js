@@ -1,10 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
-import { click } from 'ember-native-dom-helpers';
 
 describe('Integration | Component | one markdown to html', function () {
   setupRenderingTest();
@@ -24,7 +22,7 @@ Some text
 
       await render(hbs `{{one-markdown-to-html markdown=markdown}}`);
 
-      const html = this.$().html();
+      const html = this.element.innerHTML;
       expect(html).to.match(/<h1.*?>\s*Header\s*<\/h1>/);
       expect(html).to.match(/<h2.*?>\s*Second level\s*<\/h2>/);
       expect(html).to.match(/<a.+?href="https:\/\/onedata\.org".*?>\s*Link1\s*<\/a>/);
@@ -37,7 +35,7 @@ Some text
 
       await render(hbs `{{one-markdown-to-html markdown=markdown}}`);
 
-      const html = this.$().html();
+      const html = this.element.innerHTML;
       expect(html).to.contain('target="_blank"');
     });
 
@@ -46,7 +44,7 @@ Some text
 
       await render(hbs `{{one-markdown-to-html markdown=markdown}}`);
 
-      const html = this.$().html();
+      const html = this.element.innerHTML;
       expect(html).to.contain('target="_blank"');
     });
 
@@ -55,7 +53,7 @@ Some text
 
       await render(hbs `{{one-markdown-to-html markdown=markdown}}`);
 
-      const html = this.$().html();
+      const html = this.element.innerHTML;
       expect(html).to.contain('href="https://onedata.org"');
     });
 
@@ -64,7 +62,7 @@ Some text
 
       await render(hbs `{{one-markdown-to-html markdown=markdown}}`);
 
-      const html = this.$().html();
+      const html = this.element.innerHTML;
       expect(html).to.contain('<del>cancel</del>');
     });
   });
@@ -93,7 +91,7 @@ Some text
 
       await click('a');
 
-      const html = this.$().html();
+      const html = this.element.innerHTML;
       expect(window[propertyName], `window.${propertyName}`).to.be.undefined;
       expect(html).to.not.contain(js);
     });
@@ -106,7 +104,7 @@ Some text
 
       await click('a');
 
-      const html = this.$().html();
+      const html = this.element.innerHTML;
       expect(window[propertyName], `window.${propertyName}`).to.be.undefined;
       expect(html).to.not.contain(js);
     });
@@ -120,9 +118,7 @@ Some text
 
       await render(hbs `{{one-markdown-to-html markdown=markdown}}`);
 
-      await wait();
-
-      const html = this.$().html();
+      const html = this.element.innerHTML;
       expect(window[propertyName], `window.${propertyName}`).to.be.undefined;
       expect(html).to.not.contain(js);
     });

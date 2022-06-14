@@ -1,10 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, findAll, click, fillIn, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
-import { click, fillIn } from 'ember-native-dom-helpers';
 import { lookupService } from '../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
@@ -103,25 +101,25 @@ describe('Integration | Component | space automation', function () {
   it('has class "run-workflow-creator"', async function () {
     await renderComponent();
 
-    expect(this.$().children()).to.have.class('space-automation')
-      .and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('space-automation');
   });
 
   it('renders tabs: "waiting", "ongoing", "ended" and "run workflow"',
     async function () {
       await renderComponent();
 
-      const $tabLinks = this.$('.nav-tabs .nav-link');
-      expect($tabLinks).to.have.length(4);
+      const tabLinks = findAll('.nav-tabs .nav-link');
+      expect(tabLinks).to.have.length(4);
       ['Waiting', 'Ongoing', 'Ended', 'Run workflow'].forEach((label, idx) => {
-        expect($tabLinks.eq(idx).text().trim()).to.equal(label);
+        expect(tabLinks[idx]).to.have.trimmed.text(label);
       });
     });
 
   it('has active "waiting" tab on init', async function () {
     await renderComponent();
 
-    expect(this.$('.nav-item-waiting')).to.have.class('active');
+    expect(find('.nav-item-waiting')).to.have.class('active');
   });
 
   it('allows to run new workflow', async function () {
@@ -133,16 +131,16 @@ describe('Integration | Component | space automation', function () {
 
     await click('.nav-link-create');
 
-    expect(this.$('.nav-item-create')).to.have.class('active');
-    const $createTabPane = this.$('#create.tab-pane');
-    expect($createTabPane).to.have.class('active');
-    expect($createTabPane.find('.run-workflow-creator')).to.exist;
+    expect(find('.nav-item-create')).to.have.class('active');
+    const createTabPane = find('#create.tab-pane');
+    expect(createTabPane).to.have.class('active');
+    expect(createTabPane.querySelector('.run-workflow-creator')).to.exist;
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
     await fillIn(getSlide('inputStores').querySelector('.form-control'), '10');
     await click(getSlide('inputStores').querySelector('.btn-submit'));
     expect(runWorkflowStub).to.be.calledOnce
       .and.to.be.calledWith('workflow1', 1, 'space1', sinon.match.any);
-    expect(this.$('.nav-item-preview')).to.have.class('active');
+    expect(find('.nav-item-preview')).to.have.class('active');
   });
 
   context('when tab is "preview"', function () {
@@ -156,9 +154,9 @@ describe('Integration | Component | space automation', function () {
 
         await renderComponent();
 
-        const $previewNavItem = this.$('.nav-item-preview');
-        expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('workflow 1 (rev. 1)');
+        const previewNavItem = find('.nav-item-preview');
+        expect(previewNavItem).to.have.class('active');
+        expect(previewNavItem).to.have.trimmed.text('workflow 1 (rev. 1)');
       });
 
     it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to a non-existing execution',
@@ -171,11 +169,11 @@ describe('Integration | Component | space automation', function () {
 
         await renderComponent();
         rejectPromise();
-        await wait();
+        await settled();
 
-        const $previewNavItem = this.$('.nav-item-preview');
-        expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('Cannot load');
+        const previewNavItem = find('.nav-item-preview');
+        expect(previewNavItem).to.have.class('active');
+        expect(previewNavItem).to.have.trimmed.text('Cannot load');
       });
 
     it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to an execution from another space',
@@ -188,9 +186,9 @@ describe('Integration | Component | space automation', function () {
 
         await renderComponent();
 
-        const $previewNavItem = this.$('.nav-item-preview');
-        expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('Cannot load');
+        const previewNavItem = find('.nav-item-preview');
+        expect(previewNavItem).to.have.class('active');
+        expect(previewNavItem).to.have.trimmed.text('Cannot load');
         done();
       });
 
@@ -201,9 +199,9 @@ describe('Integration | Component | space automation', function () {
 
         await renderComponent();
 
-        const $previewNavItem = this.$('.nav-item-preview');
-        expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('Loading...');
+        const previewNavItem = find('.nav-item-preview');
+        expect(previewNavItem).to.have.class('active');
+        expect(previewNavItem).to.have.trimmed.text('Loading...');
       });
 
     it('calls "closePreviewTab" on init, when "atmWorkflowExecutionId" param is empty',
@@ -211,7 +209,7 @@ describe('Integration | Component | space automation', function () {
         await renderComponent();
 
         expect(this.get('closePreviewTabStub')).to.be.calledOnce;
-        expect(this.$('.nav-item-waiting')).to.have.class('active');
+        expect(find('.nav-item-waiting')).to.have.class('active');
       });
   });
 });

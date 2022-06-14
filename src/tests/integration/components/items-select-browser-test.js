@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import FilesystemModel from 'oneprovider-gui/utils/items-select-browser/filesystem-model';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -27,9 +27,9 @@ describe('Integration | Component | items select browser', function () {
 
   it('renders header, body and footer in modal', async function () {
     await renderComponent(this);
-    expect(this.$('.items-select-browser-header')).to.exist;
-    expect(this.$('.items-select-browser-body')).to.exist;
-    expect(this.$('.items-select-browser-footer')).to.exist;
+    expect(find('.items-select-browser-header')).to.exist;
+    expect(find('.items-select-browser-body')).to.exist;
+    expect(find('.items-select-browser-footer')).to.exist;
   });
 });
 

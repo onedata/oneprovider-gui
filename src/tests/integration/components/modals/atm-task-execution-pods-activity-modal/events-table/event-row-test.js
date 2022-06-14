@@ -1,10 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
-import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 
 describe('Integration | Component | modals/atm task execution pods activity modal/events table/event row', function () {
@@ -13,8 +12,8 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('has class "events-table-event-row"', async function () {
     await renderComponent();
 
-    expect(this.$().children()).to.have.class('events-table-event-row')
-      .and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('events-table-event-row');
   });
 
   it('shows event info', async function () {
@@ -31,19 +30,19 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     });
     await renderComponent();
 
-    expect(this.$('.event-time').text().trim()).to.equal(
+    expect(find('.event-time')).to.have.trimmed.text(
       moment(timestamp).format('D MMM YYYY H:mm:ss')
     );
-    expect(this.$('.event-type').text().trim()).to.equal(type);
-    expect(this.$('.event-reason').text().trim()).to.equal(reason);
-    expect(this.$('.event-message').text().trim()).to.equal(message);
+    expect(find('.event-type')).to.have.trimmed.text(type);
+    expect(find('.event-reason')).to.have.trimmed.text(reason);
+    expect(find('.event-message')).to.have.trimmed.text(message);
   });
 
   it('is collapsed by default', async function () {
     await renderComponent();
 
-    expect(this.$('.events-table-event-row')).to.not.have.class('is-expanded');
-    expect(this.$('.events-table-expanded-event-row')).to.not.exist;
+    expect(find('.events-table-event-row')).to.not.have.class('is-expanded');
+    expect(find('.events-table-expanded-event-row')).to.not.exist;
   });
 
   it('can be expanded and collapsed', async function () {
@@ -64,14 +63,14 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     expect(onToggleExpand).to.be.not.called;
 
     await click('.events-table-event-row');
-    expect(this.$('.events-table-event-row')).to.have.class('is-expanded');
-    expect(this.$('.events-table-expanded-event-row')).to.exist;
+    expect(find('.events-table-event-row')).to.have.class('is-expanded');
+    expect(find('.events-table-expanded-event-row')).to.exist;
     expect(onToggleExpand).to.be.calledOnce.and.to.be.calledWith(index);
     onToggleExpand.resetHistory();
 
     await click('.events-table-event-row');
-    expect(this.$('.events-table-event-row')).to.not.have.class('is-expanded');
-    expect(this.$('.events-table-expanded-event-row')).to.not.exist;
+    expect(find('.events-table-event-row')).to.not.have.class('is-expanded');
+    expect(find('.events-table-expanded-event-row')).to.not.exist;
     expect(onToggleExpand).to.be.calledOnce.and.to.be.calledWith(index);
   });
 });

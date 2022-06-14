@@ -1,17 +1,14 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, findAll, triggerEvent, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 import Service from '@ember/service';
 import { registerService } from '../../../helpers/stub-service';
-import { triggerEvent } from 'ember-native-dom-helpers';
-import $ from 'jquery';
 import { RuntimeProperties as FileRuntimeProperties } from 'oneprovider-gui/models/file';
 import EmberObject, { set } from '@ember/object';
 import FilesystemBrowserModel from 'oneprovider-gui/utils/filesystem-browser-model';
-import { click } from 'ember-native-dom-helpers';
 
 const userId = 'current_user_id';
 const userGri = `user.${userId}.instance:private`;
@@ -40,7 +37,7 @@ describe('Integration | Component | file browser/fb table row', function () {
 
     await renderComponent(this);
 
-    expect(this.$('.fb-table-col-modification').text()).to.match(dateReadable);
+    expect(find('.fb-table-col-modification').textContent).to.match(dateReadable);
   });
 
   it('does not render "hard links" file tag, when hardlinks count equals 1', async function () {
@@ -48,7 +45,7 @@ describe('Integration | Component | file browser/fb table row', function () {
 
     await renderComponent(this);
 
-    expect(this.$('.file-status-hardlinks'), 'refs tag').to.not.exist;
+    expect(find('.file-status-hardlinks'), 'refs tag').to.not.exist;
   });
 
   it('renders "hard links" file tag, when hardlinks count equals 2', async function () {
@@ -56,9 +53,9 @@ describe('Integration | Component | file browser/fb table row', function () {
 
     await renderComponent(this);
 
-    const $tag = this.$('.file-status-hardlinks');
-    expect($tag, 'hard links tag').to.exist;
-    expect($tag.text().trim()).to.equal('2 hard links');
+    const tag = find('.file-status-hardlinks');
+    expect(tag, 'hard links tag').to.exist;
+    expect(tag).to.have.trimmed.text('2 hard links');
   });
 
   describe('renders "no access" file tag when', function () {
@@ -110,9 +107,9 @@ describe('Integration | Component | file browser/fb table row', function () {
       }));
 
       await renderComponent(this);
-      await expandInheritanceTag(this);
+      await expandInheritanceTag();
 
-      expect(this.$('.qos-inherited-icon')).to.exist;
+      expect(find('.qos-inherited-icon')).to.exist;
     }
   );
 
@@ -123,10 +120,10 @@ describe('Integration | Component | file browser/fb table row', function () {
       }));
 
       await renderComponent(this);
-      await expandInheritanceTag(this);
+      await expandInheritanceTag();
 
-      expect(this.$('.file-status-dataset'), 'file-status-dataset').to.exist;
-      expect(this.$('.dataset-inherited-icon'), 'inherited icon').to.exist;
+      expect(find('.file-status-dataset'), 'file-status-dataset').to.exist;
+      expect(find('.dataset-inherited-icon'), 'inherited icon').to.exist;
     }
   );
 
@@ -137,8 +134,8 @@ describe('Integration | Component | file browser/fb table row', function () {
 
     await renderComponent(this);
 
-    expect(this.$('.file-status-dataset'), 'file-status-dataset').to.exist;
-    expect(this.$('.dataset-inherited-icon'), 'inherited icon').to.not.exist;
+    expect(find('.file-status-dataset'), 'file-status-dataset').to.exist;
+    expect(find('.dataset-inherited-icon'), 'inherited icon').to.not.exist;
   });
 
   it('renders dataset tag as disabled if file has dataset, but not having space_view privileges',
@@ -150,9 +147,9 @@ describe('Integration | Component | file browser/fb table row', function () {
 
       await renderComponent(this);
 
-      const $tag = this.$('.file-status-dataset');
-      expect($tag, 'file-status-dataset').to.exist;
-      expect($tag).to.have.class('file-status-tag-disabled');
+      const tag = find('.file-status-dataset');
+      expect(tag, 'file-status-dataset').to.exist;
+      expect(tag).to.have.class('file-status-tag-disabled');
     });
 
   it('renders dataset tag as enabled if file has dataset and has space_view privileges', async function () {
@@ -163,9 +160,9 @@ describe('Integration | Component | file browser/fb table row', function () {
 
     await renderComponent(this);
 
-    const $tag = this.$('.file-status-dataset');
-    expect($tag, 'file-status-dataset').to.exist;
-    expect($tag).to.not.have.class('file-status-tag-disabled');
+    const tag = find('.file-status-dataset');
+    expect(tag, 'file-status-dataset').to.exist;
+    expect(tag).to.not.have.class('file-status-tag-disabled');
   });
 
   it('renders qos tag as disabled if file has direct qos, but not having space_view_qos privileges',
@@ -177,9 +174,9 @@ describe('Integration | Component | file browser/fb table row', function () {
 
       await renderComponent(this);
 
-      const $tag = this.$('.file-status-qos');
-      expect($tag, 'file-status-qos').to.exist;
-      expect($tag).to.have.class('file-status-tag-disabled');
+      const tag = find('.file-status-qos');
+      expect(tag, 'file-status-qos').to.exist;
+      expect(tag).to.have.class('file-status-tag-disabled');
     });
 
   it('renders qos tag as enabled if file has direct qos and has space_view_qos privileges', async function () {
@@ -190,9 +187,9 @@ describe('Integration | Component | file browser/fb table row', function () {
 
     await renderComponent(this);
 
-    const $tag = this.$('.file-status-qos');
-    expect($tag, 'file-status-qos').to.exist;
-    expect($tag).to.not.have.class('file-status-tag-disabled');
+    const tag = find('.file-status-qos');
+    expect(tag, 'file-status-qos').to.exist;
+    expect(tag).to.not.have.class('file-status-tag-disabled');
   });
 
   testProtectedFlag(['data']);
@@ -254,11 +251,11 @@ function testProtectedFlag(flagTypes) {
     );
 
     await renderComponent(this);
-    await expandInheritanceTag(this);
+    await expandInheritanceTag();
 
-    expect(this.$('.file-protected-icon')).to.have.length(effProtectionFlags.length);
+    expect(findAll('.file-protected-icon')).to.have.length(effProtectionFlags.length);
     flagTypes.forEach(type => {
-      expect(this.$(
+      expect(findAll(
         `.dataset-file-status-tag-group .file-status-protected .file-${type}-protected-icon`
       )).to.have.length(1);
     });
@@ -272,12 +269,12 @@ function testShowsTooltip(elementDescription, text, selector, contextData) {
     this.setProperties(contextData);
 
     await renderComponent(this);
-    await expandInheritanceTag(this);
+    await expandInheritanceTag();
     await triggerEvent(selector, 'mouseenter');
 
-    const $tooltip = $('.tooltip.in');
-    expect($tooltip, 'opened tooltip').to.have.length(1);
-    expect($tooltip.text()).to.contain(text);
+    const tooltip = document.querySelectorAll('.tooltip.in');
+    expect(tooltip, 'opened tooltip').to.have.length(1);
+    expect(tooltip[0]).to.contain.text(text);
 
     done();
   });
@@ -289,7 +286,7 @@ function checkNoAccessTag({ renders, description, properties }) {
 
     await renderComponent(this);
 
-    const expector = expect(this.$('.file-status-forbidden'), 'forbidden tag');
+    const expector = expect(find('.file-status-forbidden'), 'forbidden tag');
     if (renders) {
       expector.to.exist;
     } else {
@@ -330,7 +327,7 @@ async function renderComponent(testCase) {
   }}`);
 }
 
-async function expandInheritanceTag(testCase) {
-  const $inheritanceTag = testCase.$('.file-status-inherited');
-  await click($inheritanceTag[0]);
+async function expandInheritanceTag() {
+  const inheritanceTag = find('.file-status-inherited');
+  await click(inheritanceTag);
 }

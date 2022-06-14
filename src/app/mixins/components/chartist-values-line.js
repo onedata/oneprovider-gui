@@ -1,8 +1,8 @@
 /**
  * Adds vertical values line to chart.
- * 
+ *
  * To enable, addChartValuesLine must be called in chartist eventListener plugin.
- * 
+ *
  * @module mixins/components/chartist-values-line
  * @author Michal Borzecki
  * @copyright (C) 2018 ACK CYFRONET AGH
@@ -85,7 +85,7 @@ export default Mixin.create({
    * @param {object} chart chart object
    */
   _cvlAddValuesLineToChart(chart) {
-    const verticalGrid = this.$('.ct-grid.ct-vertical');
+    const verticalGrid = $(this.get('element')).find('.ct-grid.ct-vertical');
     const highestLineY = parseFloat(verticalGrid.last().attr('y1'));
     const lowestLineY = parseFloat(verticalGrid.first().attr('y1'));
     const valuesLineGroup = chart.svg.elem('g', { class: 'ct-values-line-group' });
@@ -126,18 +126,19 @@ export default Mixin.create({
    * Shows/hides value line
    */
   _cvlShowValuesLineIfNeeded() {
-    const line = this.$('.ct-values-line');
+    const $element = $(this.get('element'));
+    const line = $element.find('.ct-values-line');
     if (!line.length) {
       return;
     }
     const _hoveredPointsColumnIndex = this.get('_cvlHoveredPointsColumnIndex');
-    this.$('.ct-point.ct-point-active').removeClass('ct-point-active');
+    $element.find('.ct-point.ct-point-active').removeClass('ct-point-active');
     if (_hoveredPointsColumnIndex !== -1) {
       const x = this.get('_cvlPointsColumnXPosition')[_hoveredPointsColumnIndex];
       line.addClass('ct-values-line-active');
       line.attr('x1', x);
       line.attr('x2', x);
-      this.$('.ct-series').each(function () {
+      $element.find('.ct-series').each(function () {
         const point = $(this).find('.ct-point').get(_hoveredPointsColumnIndex);
         $(point).addClass('ct-point-active');
       });

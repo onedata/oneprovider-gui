@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, findAll, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { fillIn } from 'ember-native-dom-helpers';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
 import sinon from 'sinon';
 import guidToCdmiObjectId from 'oneprovider-gui/utils/guid-to-cdmi-object-id';
@@ -246,28 +245,28 @@ describe('Integration | Component | space automation/input stores form', functio
   it('has class "input-stores-form"', async function () {
     await renderComponent();
 
-    expect(this.$().children()).to.have.class('input-stores-form')
-      .and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('input-stores-form');
   });
 
   it('shows stores, that require initial value', async function () {
     await renderComponent();
 
-    const $inputStores = this.$('.inputStore-field');
-    expect($inputStores).to.have.length(2);
-    expect($inputStores.eq(0).text()).to.contain('singleValueIntegerStore');
-    expect($inputStores.eq(1).text()).to.contain('listStringStore');
+    const inputStores = findAll('.inputStore-field');
+    expect(inputStores).to.have.length(2);
+    expect(inputStores[0]).to.contain.text('singleValueIntegerStore');
+    expect(inputStores[1]).to.contain.text('listStringStore');
   });
 
   it('shows store description as field tooltip', async function () {
     await renderComponent();
 
-    const $inputStores = this.$('.inputStore-field');
-    const $tooltip1Trigger = $inputStores.eq(0).find('.one-label-tip .one-icon');
-    const $tooltip2Trigger = $inputStores.eq(1).find('.one-label-tip .one-icon');
-    expect(await new OneTooltipHelper($tooltip1Trigger[0]).getText())
+    const inputStores = findAll('.inputStore-field');
+    const tooltip1Trigger = inputStores[0].querySelector('.one-label-tip .one-icon');
+    const tooltip2Trigger = inputStores[1].querySelector('.one-label-tip .one-icon');
+    expect(await new OneTooltipHelper(tooltip1Trigger).getText())
       .to.equal('single value integer store');
-    expect(await new OneTooltipHelper($tooltip2Trigger[0]).getText())
+    expect(await new OneTooltipHelper(tooltip2Trigger).getText())
       .to.equal('list string store');
   });
 
@@ -277,7 +276,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
       await renderComponent();
 
-      expect(this.$('.one-label-tip')).to.not.exist;
+      expect(find('.one-label-tip')).to.not.exist;
     });
 
   storeTypesArray.forEach(({
@@ -311,9 +310,9 @@ describe('Integration | Component | space automation/input stores form', functio
         it(`shows ${editor} value editor`, async function () {
           await renderComponent();
 
-          expect(this.$(`.${editor}-field`)).to.exist;
+          expect(find(`.${editor}-field`)).to.exist;
           incorrectEditors.forEach(incorrectEditor =>
-            expect(this.$(`.${incorrectEditor}-field`)).to.not.exist
+            expect(find(`.${incorrectEditor}-field`)).to.not.exist
           );
         });
 
@@ -328,7 +327,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
               await fillIn(`.${editor}-field .form-control`, initialContent);
 
-              expect(this.$(`.${editor}-field`)).to.not.have.class('.has-error');
+              expect(find(`.${editor}-field`)).to.not.have.class('.has-error');
               expect(changeSpy).to.be.calledWith({
                 data: {
                   s1: JSON.parse(initialContent),
@@ -345,7 +344,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
               await fillIn(`.${editor}-field .form-control`, initialContent);
 
-              expect(this.$(`.${editor}-field`)).to.have.class('has-error');
+              expect(find(`.${editor}-field`)).to.have.class('has-error');
               expect(changeSpy).to.be.calledWith({
                 data: {
                   s1: JSON.parse(initialContent),
@@ -361,7 +360,7 @@ describe('Integration | Component | space automation/input stores form', functio
 
             await renderComponent();
 
-            expect(this.$(`.${editor}-field .form-control`))
+            expect(find(`.${editor}-field .form-control`))
               .to.have.value(JSON.stringify(rawValue, null, 2));
           });
         }
@@ -377,8 +376,8 @@ describe('Integration | Component | space automation/input stores form', functio
 
             await renderComponent();
 
-            expect(this.$(`.${editor}-field .form-control`).text())
-              .to.include(isArchive ? '2021' : 'someName');
+            expect(find(`.${editor}-field .form-control`))
+              .to.contain.text(isArchive ? '2021' : 'someName');
           });
 
           it('fills initial value with an element, that cannot be loaded',
@@ -390,8 +389,8 @@ describe('Integration | Component | space automation/input stores form', functio
 
               await renderComponent();
 
-              expect(this.$(`.${editor}-field .form-control`).text())
-                .to.include('Unknown');
+              expect(find(`.${editor}-field .form-control`))
+                .to.contain.text('Unknown');
             });
         }
       });
@@ -401,9 +400,9 @@ describe('Integration | Component | space automation/input stores form', functio
   it('has all fields enabled by default', async function () {
     await renderComponent();
 
-    expect(this.$('.input-stores-form')).to.have.class('form-enabled')
+    expect(find('.input-stores-form')).to.have.class('form-enabled')
       .and.to.not.have.class('form-disabled');
-    expect(this.$('.field-disabled')).to.not.exist;
+    expect(find('.field-disabled')).to.not.exist;
   });
 
   it('allows to disable all fields', async function () {
@@ -411,9 +410,9 @@ describe('Integration | Component | space automation/input stores form', functio
 
     await renderComponent();
 
-    expect(this.$('.input-stores-form')).to.have.class('form-disabled')
+    expect(find('.input-stores-form')).to.have.class('form-disabled')
       .and.to.not.have.class('form-enabled');
-    expect(this.$('.field-enabled')).to.not.exist;
+    expect(find('.field-enabled')).to.not.exist;
   });
 });
 

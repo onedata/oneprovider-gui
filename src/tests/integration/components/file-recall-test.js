@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import {
   createArchiveRecallData,
@@ -13,7 +13,6 @@ import {
 } from '../../helpers/datasets-archives';
 import { lookupService } from '../../helpers/stub-service';
 import sinon from 'sinon';
-import { click, find } from 'ember-native-dom-helpers';
 import { findByText } from '../../helpers/find';
 
 const errorLogTabName = 'Error log';
@@ -39,8 +38,8 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $fileRecall = this.$('.file-recall-info-table');
-    const text = $fileRecall.text();
+    const fileRecall = find('.file-recall-info-table');
+    const text = fileRecall.textContent;
     expect(text).to.contain(browsableArchiveName);
     expect(text).to.match(/20\s+\/\s+100/);
     expect(text).to.match(/200 B\s+\/\s+1 KiB/);
@@ -51,16 +50,16 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $row = this.$('.recall-info-row-dataset');
+    const row = find('.recall-info-row-dataset');
     expect(browsableDatasetName).to.be.not.empty;
-    expect($row.text()).to.contain(browsableDatasetName);
+    expect(row).to.contain.text(browsableDatasetName);
   });
 
   it('renders path to recall root', async function () {
     await renderComponent();
 
-    const $value = this.$('.recall-info-row-target-path .property-value .file-path');
-    expect($value.text()).to.match(
+    const value = find('.recall-info-row-target-path .property-value .file-path');
+    expect(value.textContent).to.match(
       /parent1\s*\/\s*parent2\s*\/\s*parent3\s*\/\s*test_file/
     );
   });
@@ -70,8 +69,8 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $value = this.$('.recall-info-row-files-failed .property-value');
-    expect($value.text()).to.contain('2');
+    const value = find('.recall-info-row-files-failed .property-value');
+    expect(value.textContent).to.contain('2');
   });
 
   it('renders formatted start time if provided', async function () {
@@ -79,8 +78,8 @@ describe('Integration | Component | file recall', function () {
     this.set('archiveRecallInfo.startTime', timestamp);
     await renderComponent();
 
-    const $value = this.$('.recall-info-row-started-at .property-value');
-    expect($value.text()).to.contain('27 Jan 2022 16:42:11');
+    const value = find('.recall-info-row-started-at .property-value');
+    expect(value).to.contain.text('27 Jan 2022 16:42:11');
   });
 
   it('renders formatted finish time if provided', async function () {
@@ -89,8 +88,8 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $value = this.$('.recall-info-row-finished-at .property-value');
-    expect($value.text()).to.contain('27 Jan 2022 16:42:11');
+    const value = find('.recall-info-row-finished-at .property-value');
+    expect(value).to.contain.text('27 Jan 2022 16:42:11');
   });
 
   it('renders formatted cancel time if provided', async function () {
@@ -99,8 +98,8 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $value = this.$('.recall-info-row-cancelled-at .property-value');
-    expect($value.text()).to.contain('27 Jan 2022 16:42:11');
+    const value = find('.recall-info-row-cancelled-at .property-value');
+    expect(value).to.contain.text('27 Jan 2022 16:42:11');
   });
 
   it('does not render finish time row if not finished', async function () {
@@ -108,7 +107,7 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    expect(this.$('.recall-info-row-finished-at')).to.not.exist;
+    expect(find('.recall-info-row-finished-at')).to.not.exist;
   });
 
   it('has "scheduled" status text if recall does not started', async function () {
@@ -186,7 +185,7 @@ describe('Integration | Component | file recall', function () {
 
     expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.match(/Cancelling\s*\(recall progress: 50%\)/);
-    expect(this.$('.recall-info-row-process-status')).to.have.class('text-warning');
+    expect(find('.recall-info-row-process-status')).to.have.class('text-warning');
   });
 
   it('has "cancelled" status text with percentage done if recall is cancelled', async function () {
@@ -196,7 +195,7 @@ describe('Integration | Component | file recall', function () {
 
     expect(find('.recall-info-row-process-status .property-value').textContent)
       .to.match(/Cancelled\s*\(recall progress: 50%\)/);
-    expect(this.$('.recall-info-row-process-status')).to.have.class('text-warning');
+    expect(find('.recall-info-row-process-status')).to.have.class('text-warning');
   });
 
   it('has href to archive on archive name link', async function () {
@@ -217,8 +216,8 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $archiveLink = this.$('.archive-link');
-    expect($archiveLink).to.have.attr('href', correctUrl);
+    const archiveLink = find('.archive-link');
+    expect(archiveLink).to.have.attr('href', correctUrl);
   });
 
   it('has href to dataset on dataset name link', async function () {
@@ -237,8 +236,8 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $datasetLink = this.$('.dataset-link');
-    expect($datasetLink).to.have.attr('href', correctUrl);
+    const datasetLink = find('.dataset-link');
+    expect(datasetLink).to.have.attr('href', correctUrl);
   });
 
   it('has "Cancel recall" button which clicked opens recall modal', async function () {
@@ -246,13 +245,13 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $cancelRecallBtn = this.$('.cancel-recall-btn');
+    const cancelRecallBtn = find('.cancel-recall-btn');
 
-    expect($cancelRecallBtn).to.exist;
-    expect($cancelRecallBtn.text()).to.contain('Cancel recall');
-    expect(this.$('.cancel-recall-modal')).to.not.exist;
-    await click($cancelRecallBtn[0]);
-    expect(this.$('.cancel-recall-modal')).to.exist;
+    expect(cancelRecallBtn).to.exist;
+    expect(cancelRecallBtn).to.contain.text('Cancel recall');
+    expect(find('.cancel-recall-modal')).to.not.exist;
+    await click(cancelRecallBtn);
+    expect(find('.cancel-recall-modal')).to.exist;
   });
 
   it('has "Cancelling recall..." disabled button when recall is being cancelled', async function () {
@@ -260,13 +259,13 @@ describe('Integration | Component | file recall', function () {
 
     await renderComponent();
 
-    const $cancelRecallBtn = this.$('.cancel-recall-btn');
+    const cancelRecallBtn = find('.cancel-recall-btn');
 
-    expect($cancelRecallBtn).to.exist;
-    expect($cancelRecallBtn.text()).to.contain('Cancelling recall...');
-    expect($cancelRecallBtn).to.be.disabled;
-    await click($cancelRecallBtn[0]);
-    expect(this.$('.cancel-recall-modal')).to.not.exist;
+    expect(cancelRecallBtn).to.exist;
+    expect(cancelRecallBtn).to.contain.text('Cancelling recall...');
+    expect(cancelRecallBtn).to.have.attr('disabled');
+    await click(cancelRecallBtn);
+    expect(find('.cancel-recall-modal')).to.not.exist;
   });
 
   it('has error log tab disabled when on remote provider', async function () {
@@ -276,7 +275,7 @@ describe('Integration | Component | file recall', function () {
 
     const errorLogTab = findByText(errorLogTabName, '.nav-tab');
     expect(errorLogTab).to.exist;
-    expect([...errorLogTab.classList]).to.contain('disabled');
+    expect(errorLogTab).to.have.class('disabled');
   });
 
   it('allows to switch to logs tab with logs view when on local provider', async function () {

@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import InfiniteScrollFetchingStatus from 'oneprovider-gui/utils/infinite-scroll/fetching-status';
-import wait from 'ember-test-helpers/wait';
 import { get } from '@ember/object';
 import { createMockReplacingChunksArray } from '../../../helpers/replacing-chunks-array';
+import { settled } from '@ember/test-helpers';
 
 describe('Unit | Utility | infinite scroll/fetching status', function () {
   it('sets isFetchingNext when fetch next started and not resolved yet', async function () {
@@ -15,7 +15,7 @@ describe('Unit | Utility | infinite scroll/fetching status', function () {
     const fetchingStatus = InfiniteScrollFetchingStatus.create({
       entries,
     });
-    await wait();
+    await settled();
     expect(get(fetchingStatus, 'isFetchingNext')).to.be.false;
 
     entries.setProperties({
@@ -34,7 +34,7 @@ describe('Unit | Utility | infinite scroll/fetching status', function () {
     const fetchingStatus = InfiniteScrollFetchingStatus.create({
       entries,
     });
-    await wait();
+    await settled();
     expect(get(fetchingStatus, 'isFetchingNext')).to.be.false;
     fetchingStatus.unbindLoadingStateNotifications();
 

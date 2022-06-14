@@ -1,6 +1,6 @@
 /**
  * Form for creating new QoS record
- * 
+ *
  * @module components/qos-modal/qos-add
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
@@ -288,9 +288,6 @@ export default Component.extend(...mixins, {
     },
     refreshQueryProperties() {
       return this.get('refreshQueryProperties')();
-    },
-    copyExpression() {
-      this.$('.expression-clipboard-btn').trigger('click');
     },
     enterTextClicked() {
       this.setProperties({

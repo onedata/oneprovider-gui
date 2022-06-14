@@ -535,11 +535,11 @@ export default Component.extend(I18n, {
       }
 
       const element = this.get('element');
-      const $this = this.$();
+      const $this = $(element);
       const tableOffset = $this.offset();
       const left = mouseEvent.clientX - tableOffset.left + element.offsetLeft;
       const top = mouseEvent.clientY - tableOffset.top + element.offsetTop;
-      this.$('.current-dir-actions-trigger').css({
+      $this.find('.current-dir-actions-trigger').css({
         top,
         left,
       });

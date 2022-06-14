@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, context, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find, findAll, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import {
   file1,
@@ -9,14 +9,11 @@ import {
   exampleCdmiObjectId,
 } from 'oneprovider-gui/components/dummy-file-info';
 import { lookupService } from '../../../helpers/stub-service';
-import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
 import OneTooltipHelper from '../../../helpers/one-tooltip';
-import { find, findAll } from 'ember-native-dom-helpers';
-import { clickTrigger } from '../../../helpers/ember-power-select';
-import $ from 'jquery';
+import { selectChoose, clickTrigger } from 'ember-power-select/test-support/helpers';
 import { Promise } from 'rsvp';
+import { findByText } from '../../../helpers/find';
 
 describe('Integration | Component | file browser/fb info modal', function () {
   setupRenderingTest();
@@ -70,7 +67,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     expect(find('.loading-file-path'), 'loading-file-path').to.exist;
     resolveParent(parent);
-    await wait();
+    await settled();
     expect(find('.loading-file-path'), 'loading-file-path').to.not.exist;
     expect(
       find('.file-info-row-path .property-value .clipboard-input').value
@@ -87,7 +84,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     expect(find('.loading-owner-full-name'), 'loading-owner-full-name').to.exist;
     resolveOwner(owner);
-    await wait();
+    await settled();
     expect(find('.loading-owner-full-name'), 'loading-owner-full-name')
       .to.not.exist;
     expect(
@@ -182,7 +179,7 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     await renderComponent();
-    await wait();
+
     expect(find('.nav-tabs').textContent).to.not.contain('Hard links (1)');
   });
 
@@ -193,7 +190,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     await renderComponent();
-    await wait();
 
     expect(find('.nav-tabs').textContent).to.contain('Hard links (2)');
   });
@@ -205,8 +201,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('previewMode', true);
 
     await renderComponent();
-    await wait();
-
     expect(find('.nav-tabs').textContent).to.contain('API');
   });
 
@@ -217,7 +211,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('previewMode', true);
 
     await renderComponent();
-    await wait();
 
     expect(find('.nav-tabs').textContent).to.not.contain('API');
   });
@@ -229,7 +222,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
     this.set('previewMode', false);
 
     await renderComponent();
-    await wait();
 
     expect(find('.nav-tabs').textContent).to.not.contain('API');
   });
@@ -253,20 +245,23 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await renderComponent();
 
-    await wait();
-    await click(this.$('.nav-link:contains("Hard links")')[0]);
-    await wait();
+    await click(findByText('Hard links', '.nav-link'));
 
-    const $fileHardlinks = this.$('.file-hardlink');
-    expect($fileHardlinks).to.have.length(2);
-    expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
-    expect($fileHardlinks.eq(0).find('.file-path').text().trim()).to.match(/Path:\s*\/\s*abc/);
-    expect($fileHardlinks.eq(0).find('.file-path a')).to.exist;
-    expect($fileHardlinks.eq(0).find('.file-path a')).to.have.attr('href', 'link-f1');
-    expect($fileHardlinks.eq(1).find('.file-name').text().trim()).to.equal('def');
-    expect($fileHardlinks.eq(1).find('.file-path').text().trim()).to.match(/Path:\s*\/\s*def/);
-    expect($fileHardlinks.eq(1).find('.file-path a')).to.have.attr('href', 'link-f2');
-    expect($fileHardlinks.find('.file-type-icon.oneicon-browser-file')).to.have.length(2);
+    const fileHardlinks = findAll('.file-hardlink');
+    expect(fileHardlinks).to.have.length(2);
+    expect(fileHardlinks[0].querySelector('.file-name')).to.have.trimmed.text('abc');
+    expect(fileHardlinks[0].querySelector('.file-path').textContent)
+      .to.match(/Path:\s*\/\s*abc/);
+    expect(fileHardlinks[0].querySelector('.file-path a')).to.exist;
+    expect(fileHardlinks[0].querySelector('.file-path a'))
+      .to.have.attr('href', 'link-f1');
+    expect(fileHardlinks[1].querySelector('.file-name')).to.have.trimmed.text('def');
+    expect(fileHardlinks[1].querySelector('.file-path').textContent)
+      .to.match(/Path:\s*\/\s*def/);
+    expect(fileHardlinks[1].querySelector('.file-path a'))
+      .to.have.attr('href', 'link-f2');
+    expect(findAll('.file-hardlink .file-type-icon.oneicon-browser-file'))
+      .to.have.length(2);
   });
 
   it('shows hardlinks partial fetch error', async function () {
@@ -291,15 +286,14 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await renderComponent();
 
-    await wait();
-    await click(this.$('.nav-link:contains("Hard links")')[0]);
+    await click(findByText('Hard links', '.nav-link'));
 
-    const $fileHardlinks = this.$('.file-hardlink');
-    expect($fileHardlinks).to.have.length(2);
-    expect($fileHardlinks.eq(0).find('.file-name').text().trim()).to.equal('abc');
-    expect($fileHardlinks.eq(1).text().trim()).to.equal('And 3 more that you cannot access.');
+    const fileHardlinks = findAll('.file-hardlink');
+    expect(fileHardlinks).to.have.length(2);
+    expect(fileHardlinks[0].querySelector('.file-name')).to.have.trimmed.text('abc');
+    expect(fileHardlinks[1]).to.have.trimmed.text('And 3 more that you cannot access.');
     const tooltipText =
-      await new OneTooltipHelper($fileHardlinks.eq(1).find('.one-icon')[0]).getText();
+      await new OneTooltipHelper(fileHardlinks[1].querySelector('.one-icon')).getText();
     expect(tooltipText).to.equal(
       'Cannot load files due to error: "You are not authorized to perform this operation (insufficient privileges?)." and 1 more errors.'
     );
@@ -322,15 +316,14 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     await renderComponent();
 
-    await wait();
-    await click(this.$('.nav-link:contains("Hard links")')[0]);
+    await click(findByText('Hard links', '.nav-link'));
 
-    const $fileHardlinks = this.$('.file-hardlink');
-    expect($fileHardlinks).to.have.length(1);
-    expect($fileHardlinks.eq(0).text().trim())
-      .to.equal('You do not have access to the hard links of this file.');
+    const fileHardlinks = findAll('.file-hardlink');
+    expect(fileHardlinks).to.have.length(1);
+    expect(fileHardlinks[0])
+      .to.have.trimmed.text('You do not have access to the hard links of this file.');
     const tooltipText =
-      await new OneTooltipHelper($fileHardlinks.eq(0).find('.one-icon')[0]).getText();
+      await new OneTooltipHelper(fileHardlinks[0].querySelector('.one-icon')).getText();
     expect(tooltipText).to.equal(
       'Cannot load files due to error: "You must authenticate yourself to perform this operation.".'
     );
@@ -345,7 +338,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
       this.set('file', Object.assign({}, file1, { size: Math.pow(1024, 3) }));
 
       await renderComponent();
-      await wait();
 
       expect(
         find('.file-info-row-size .property-value').textContent
@@ -355,7 +347,6 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     it('renders name', async function (done) {
       await renderComponent();
-      await wait();
 
       expect(
         find('.file-info-row-name .property-value .clipboard-input').value
@@ -400,16 +391,15 @@ describe('Integration | Component | file browser/fb info modal', function () {
         fileApiSamples,
       });
       await renderComponent();
-      await wait();
-      await click($(find()).find('.nav-link:contains("API")')[0]);
-      await clickTrigger('.api-operation-row');
+      await click(findByText('API', '.nav-link'));
     });
 
     it('shows API operations provided by fileManager', async function (done) {
-      const $options = findAll('li.ember-power-select-option');
-      expect($options).to.have.length(2);
-      const optionTitles = $options
-        .map(opt => find(opt, '.api-command-title').textContent.trim());
+      await clickTrigger('.api-operation-row');
+      const options = findAll('li.ember-power-select-option');
+      expect(options).to.have.length(2);
+      const optionTitles = options
+        .map(opt => opt.querySelector('.api-command-title').textContent.trim());
       const fullOptionsString = optionTitles.join(',');
       expect(fullOptionsString).to.contain('Get test data');
       expect(fullOptionsString).to.contain('Test xrootd command');
@@ -417,13 +407,13 @@ describe('Integration | Component | file browser/fb info modal', function () {
     });
 
     it('shows type, description and clipboard for selected REST operation', async function (done) {
-      await click(this.$('li.ember-power-select-option:contains("get test data")')[0]);
-      expect(find('.item-info-row-type-api-command .api-tag-label').textContent.trim())
-        .to.contain('REST');
-      expect(find('.item-info-row-description .description-value').textContent.trim())
-        .to.contain('Return test data.');
-      expect(find('.item-info-row-api-command .clipboard-input').textContent.trim())
-        .to.contain(
+      await selectChoose('.api-operation-row', 'Get test data');
+      expect(find('.item-info-row-type-api-command .api-tag-label'))
+        .to.contain.text('REST');
+      expect(find('.item-info-row-description .description-value'))
+        .to.contain.text('Return test data.');
+      expect(find('.item-info-row-api-command .clipboard-input'))
+        .to.contain.text(
           'curl -L -X GET \'https://dev-onezone.default.svc.cluster.local/api/v3/onezone/test/path/to/data\''
         );
       done();
@@ -431,15 +421,13 @@ describe('Integration | Component | file browser/fb info modal', function () {
 
     it('shows type, description and clipboard for selected xrootd operation',
       async function (done) {
-        await click($(
-          '.api-command-title:contains("Test xrootd command")')[0]);
-        await wait();
-        expect(find('.item-info-row-type-api-command .api-tag-label').textContent.trim())
-          .to.contain('XRootD');
-        expect(find('.item-info-row-description .description-value').textContent.trim())
-          .to.contain('Test xrootd.');
-        expect(find('.item-info-row-api-command .clipboard-input').textContent.trim())
-          .to.contain('xrdcp -r \'root://root.example.com//data/test\' \'.\'');
+        await selectChoose('.api-operation-row', 'Test xrootd command');
+        expect(find('.item-info-row-type-api-command .api-tag-label'))
+          .to.contain.text('XRootD');
+        expect(find('.item-info-row-description .description-value'))
+          .to.contain.text('Test xrootd.');
+        expect(find('.item-info-row-api-command .clipboard-input'))
+          .to.contain.text('xrdcp -r \'root://root.example.com//data/test\' \'.\'');
         done();
       });
   });

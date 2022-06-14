@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find, click, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { find, click, fillIn } from 'ember-native-dom-helpers';
 import { getBrowsableDatasetName, createDataset } from '../../helpers/datasets-archives';
 import sinon from 'sinon';
 

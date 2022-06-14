@@ -10,15 +10,12 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import Evented from '@ember/object/evented';
 import Service from '@ember/service';
 import { registerService } from '../../helpers/stub-service';
-import $ from 'jquery';
 import sinon from 'sinon';
-import { click } from 'ember-native-dom-helpers';
-import wait from 'ember-test-helpers/wait';
 import { mockRootFiles } from '../../helpers/files';
 import { resolve } from 'rsvp';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
@@ -97,12 +94,14 @@ describe('Integration | Component | archive recall modal', function () {
 
     await renderComponent();
 
-    expect($('.archive-recall-modal.in'), 'opened modal').to.exist;
-    expect($('.archive-recall-modal.in .archive-recall-modal-header'), 'header').to.exist;
-    expect($('.archive-recall-header .header-text').text())
-      .to.contain('Recall archive');
-    expect($('.modal-archive-subheader .file-name')).to.exist;
-    expect($('.modal-archive-subheader .file-name').text()).to.contain('My archive name');
+    const modal = document.querySelector('.archive-recall-modal.in');
+    expect(modal, 'opened modal').to.exist;
+    expect(modal.querySelector('.archive-recall-modal-header'), 'header').to.exist;
+    expect(modal.querySelector('.archive-recall-header .header-text'))
+      .to.contain.text('Recall archive');
+    expect(modal.querySelector('.modal-archive-subheader .file-name')).to.exist;
+    expect(modal.querySelector('.modal-archive-subheader .file-name'))
+      .to.contain.text('My archive name');
     expect(this.get('onHide')).to.have.not.been.called;
     await click('.archive-recall-modal-footer .cancel-btn');
     expect(this.get('onHide')).to.have.been.calledOnce;
@@ -119,7 +118,6 @@ describe('Integration | Component | archive recall modal', function () {
     await renderComponent();
 
     await click('.archive-recall-modal-footer .submit-btn');
-    await wait();
     expect(onArchiveRecallStarted, 'started').to.have.been.calledOnce;
     expect(onHide, 'hide').to.have.been.calledOnce;
   });

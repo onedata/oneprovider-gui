@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import FileNameParser from 'oneprovider-gui/utils/file-name-parser';
 import { get, setProperties } from '@ember/object';
-import wait from 'ember-test-helpers/wait';
 
 describe('Unit | Utility | file name parser', function () {
   it('returns no suffix if there is no conflicingName', function () {
@@ -42,10 +41,8 @@ describe('Unit | Utility | file name parser', function () {
       name: 'foo@9876',
       conflictingName: 'foo',
     });
-    return wait().then(() => {
-      expect(get(parser, 'base')).to.equal('foo');
-      expect(get(parser, 'suffix')).to.equal('@9876');
-    });
+    expect(get(parser, 'base')).to.equal('foo');
+    expect(get(parser, 'suffix')).to.equal('@9876');
   });
 
   it('does not crash on lack of file', function () {

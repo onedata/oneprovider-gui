@@ -1,12 +1,10 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, click, find, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
-import { click, find, findAll } from 'ember-native-dom-helpers';
 import { createArchiveRecallData, whenOnLocalProvider } from '../../../helpers/datasets-archives';
-import wait from 'ember-test-helpers/wait';
 import { lookupService } from '../../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
@@ -77,7 +75,6 @@ describe('Integration | Component | filesystem browser/file features', function 
             browserModel=browserModel
             initiallyExpanded=false
           }}`);
-          await wait();
 
           expect(find('.file-status-inherited-collapsed')).to.exist;
         }
@@ -310,7 +307,6 @@ describe('Integration | Component | filesystem browser/file features', function 
         browserModel=browserModel
         initiallyExpanded=false
       }}`);
-      await wait();
 
       const collapsedElementClasses = [
         ...find('.file-status-inherited-collapsed').classList,
@@ -342,7 +338,6 @@ describe('Integration | Component | filesystem browser/file features', function 
       initiallyExpanded=false
       onInvokeItemAction=onInvokeItemAction
     }}`);
-    await wait();
 
     const tagElement = find('.file-status-recalling');
     expect(tagElement).to.exist;
@@ -370,9 +365,8 @@ describe('Integration | Component | filesystem browser/file features', function 
       initiallyExpanded=false
       onInvokeItemAction=onInvokeItemAction
     }}`);
-    await wait();
 
-    const tagProgress = this.$('.file-status-recalling .tag-progress')[0];
+    const tagProgress = find('.file-status-recalling .tag-progress');
     expect(tagProgress.style.width).to.equal('50%');
   });
 
@@ -501,7 +495,6 @@ describe('Integration | Component | filesystem browser/file features', function 
         browserModel=browserModel
         initiallyExpanded=false
       }}`);
-      await wait();
 
       const collapsedElementClasses = [
         ...find('.file-status-inherited-collapsed').classList,
@@ -526,7 +519,6 @@ describe('Integration | Component | filesystem browser/file features', function 
         browserModel=browserModel
         initiallyExpanded=false
       }}`);
-      await wait();
 
       const collapsedElementClasses = [
         ...find('.file-status-inherited-collapsed').classList,

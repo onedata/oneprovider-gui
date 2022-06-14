@@ -13,8 +13,6 @@ import { setupRenderingTest } from 'ember-mocha';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
-import wait from 'ember-test-helpers/wait';
-import $ from 'jquery';
 import { createMockFileDatasetSummary } from '../../helpers/datasets-archives';
 import { closeModalUsingBackground } from '../../helpers/modal';
 
@@ -36,10 +34,12 @@ describe('Integration | Component | datasets modal', function () {
       onHide: sinon.spy(),
     });
     await render(hbs `{{datasets-modal open=open files=files onHide=onHide}}`);
-    await wait();
-    expect($('.datasets-modal.in')).to.exist;
-    expect($('.datasets-modal.in .file-datasets-modal-header')).to.exist;
-    expect($('.modal-file-subheader .file-name')).to.contain('test-file.txt');
+
+    const modal = document.querySelector('.datasets-modal.in');
+    expect(modal).to.exist;
+    expect(modal.querySelector('.file-datasets-modal-header')).to.exist;
+    expect(modal.querySelector('.modal-file-subheader .file-name'))
+      .to.contain.text('test-file.txt');
     expect(this.get('onHide')).to.have.not.been.called;
     await closeModalUsingBackground();
     expect(this.get('onHide')).to.have.been.calledOnce;

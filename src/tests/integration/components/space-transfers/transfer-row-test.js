@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import TransferTableRecord from 'oneprovider-gui/utils/transfer-table-record';
 import { registerService, lookupService } from '../../../helpers/stub-service';
@@ -53,7 +53,7 @@ describe('Integration | Component | space transfers/transfer row', function () {
 
     await renderComponent();
 
-    expect(this.$('.transfer-file-name').text()).to.match(/^\s*onefile_txt\s*$/);
+    expect(find('.transfer-file-name').textContent).to.match(/^\s*onefile_txt\s*$/);
   });
 
   it('renders tooltip with file path on link hover', async function () {
