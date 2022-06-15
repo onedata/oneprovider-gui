@@ -62,6 +62,8 @@ p.last {
   padding-top: 0;
 }
 
+// FIXME: move event-log-table common styles to separate file
+
 .table.event-log-table {
   $row-height: 44px;
   $cell-padding: 0.5em;

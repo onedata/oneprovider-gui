@@ -1,8 +1,5 @@
-// FIXME: copied from recall event log
-
 .qos-audit-log {
   min-height: 0;
-  // FIXME: special class for sticky header
   .event-log-table {
     .severity-icon {
       margin-left: -0.15em;
@@ -14,9 +11,9 @@
     max-width: 100%;
     .severity-icon {
       font-size: 200%;
-      + .message-text {
-        margin-left: 0.5em;
-      }
+      margin-right: 0.1em;
+      // custom alignment to left, because of icon internal padding
+      margin-left: -0.15em;
     }
   }
 }

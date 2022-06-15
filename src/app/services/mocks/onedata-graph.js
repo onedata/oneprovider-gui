@@ -770,11 +770,18 @@ const qosRequirementHandlers = {
           fileId,
         },
       }, {
-        status: 'synchronization failed',
-        severity: 'error',
-        fileId,
-        reason: {
-          // FIXME: real error
+        timestamp: 1655137705932,
+        index: '2',
+        content: {
+          status: 'synchronization failed',
+          severity: 'error',
+          fileId,
+          reason: {
+            id: 'posix',
+            details: {
+              errno: 'enospc',
+            },
+          },
         },
       }],
       isLast: true,

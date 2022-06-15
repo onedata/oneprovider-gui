@@ -4,7 +4,7 @@ import { inject as service } from '@ember/service';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
-import { promise } from 'ember-awesome-macros';
+import { promise, tag } from 'ember-awesome-macros';
 import { and } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
@@ -12,6 +12,7 @@ import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-pro
 export default Component.extend({
   tagName: 'tr',
   classNames: ['entry-row', 'data-row'],
+  classNameBindings: ['severityClass'],
   attributeBindings: ['entry.index:data-row-id'],
 
   fileManager: service(),
@@ -45,6 +46,11 @@ export default Component.extend({
   severity: reads('entry.content.severity'),
 
   // FIXME: file handling is done in the same way as in recall modal log entries
+
+  severityClass: and(
+    'severity',
+    tag `auditlog-severity-${'severity'}`,
+  ),
 
   fileId: and(
     'fileCdmiObjectId',
