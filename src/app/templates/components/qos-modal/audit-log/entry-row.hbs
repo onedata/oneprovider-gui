@@ -1,0 +1,33 @@
+<td class="table-data-cell column-timestamp">
+  <div class="table-data-cell-content">
+    {{date-format timestamp format="report" blank="—"}}
+  </div>
+</td>
+{{#if showFileColumn}}
+  <td class="table-data-cell column-file">
+    <div class="table-data-cell-content">
+      {{#if fileHref}}
+        <a
+          class="source-file navy underlined truncate"
+          target={{navigateTarget}}
+          href={{fileHref}}
+        >
+          <span class="file-name">{{fileName}}</span>
+        </a>
+      {{else}}
+        <div class="source-file truncate">
+          <span class="file-name">{{fileName}}</span>
+        </div>
+      {{/if}}
+    </div>
+  </td>
+{{/if}}
+<td class="table-data-cell column-event">
+  <div class="table-data-cell-content">
+    {{qos-modal/audit-log/cell-content-message
+      qosLogReason=reason
+      qosLogStatus=status
+      qosLogSeverity=severity
+    }}
+  </div>
+</td>

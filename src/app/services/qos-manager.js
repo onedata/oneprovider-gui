@@ -19,7 +19,47 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  * @param {Array<string>} files
  */
 
+/**
+ * @type {'synchronization started'|'synchronization skipped'|'synchronization failed'|'synchronized'} QosLogStatus
+ */
+
+/**
+ * @type {'file deleted'|'file already replicated'} QosLogNotDoneReason
+ */
+
+/**
+ * @type {'info'|'error'} QosLogSeverity
+ */
+
+/**
+ * @type {QosLogNotDoneReason|Object} QosLogReason
+ */
+
+/**
+ * @typedef {Object} QosLogData
+ * @param {QosLogStatus} status
+ * @param {QosLogSeverity} severity
+ * @param {string} fileId CDMI Object ID of the file that the event is about
+ * @param {QosLogReason} [reason] only if status is skipped or failed
+ */
+
+/**
+ * @typedef {JsonInfiniteLogEntry<QosLogData>} QosLogEntry
+ */
+
 const auditLogAspect = 'audit_log';
+
+export const QosLogStatusEnum = Object.freeze({
+  started: 'synchronization started',
+  skipped: 'synchronization skipped',
+  failed: 'synchronization failed',
+  done: 'synchronized',
+});
+
+export const QosNotDoneReasonEnum = Object.freeze({
+  deleted: 'file deleted',
+  alreadyReplicated: 'file already replicated',
+});
 
 /**
  * @param {string} qosId
@@ -107,7 +147,7 @@ export default Service.extend({
   /**
    * @param {string} qosRequirementId
    * @param {JsonInfiniteLogPagingParams} pagingParams
-   * @returns {Promise<JsonInfiniteLogPage<QosLogEntry>>}
+   * @returns {Promise<JsonInfiniteLogPage<QosLogData>>}
    */
   async getAuditLog(qosRequirementId, pagingParams) {
     const infiniteLogManager = this.get('infiniteLogManager');

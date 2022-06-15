@@ -1,0 +1,89 @@
+import Component from '@ember/component';
+import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
+import { inject as service } from '@ember/service';
+import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
+import { reads } from '@ember/object/computed';
+import { get, computed } from '@ember/object';
+import { promise } from 'ember-awesome-macros';
+import { and } from 'ember-awesome-macros';
+import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
+import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+
+export default Component.extend({
+  tagName: 'tr',
+  classNames: ['entry-row', 'data-row'],
+  attributeBindings: ['entry.index:data-row-id'],
+
+  fileManager: service(),
+  errorExtractor: service(),
+  parentAppNavigation: service(),
+  appProxy: service(),
+
+  /**
+   * @virtual
+   * @type {QosLogEntry}
+   */
+  entry: undefined,
+
+  /**
+   * @virtual
+   * @type {boolean}
+   */
+  showFileColumn: undefined,
+
+  /**
+   * Should generate a full file URL.
+   * @virtual
+   * @type {(fileId: string) => string}
+   */
+  onGenerateFileUrl: notImplementedIgnore,
+
+  navigateTarget: reads('parentAppNavigation.navigateTarget'),
+
+  fileCdmiObjectId: reads('entry.content.fileId'),
+
+  severity: reads('entry.content.severity'),
+
+  // FIXME: file handling is done in the same way as in recall modal log entries
+
+  fileId: and(
+    'fileCdmiObjectId',
+    computedPipe('fileCdmiObjectId', cdmiObjectIdToGuid)
+  ),
+
+  /**
+   * Note: does not depend on fileId changes to prevent recomputations
+   * @type {ComputedProperty<PromiseObject<Models.File>>}
+   */
+  fileProxy: promise.object(computed(async function fileProxy() {
+    const {
+      fileManager,
+      fileId,
+    } = this.getProperties('fileManager', 'fileId');
+    return fileManager.getFileById(fileId);
+  })),
+
+  fileNameProxy: promise.object(computed(
+    'fileProxy.name',
+    async function fileNameProxy() {
+      const fileProxy = this.get('fileProxy');
+      return get(await fileProxy, 'name');
+    }
+  )),
+
+  fileName: computedLastProxyContent('fileNameProxy'),
+
+  fileHref: computedPipe('fileId', 'onGenerateFileUrl'),
+
+  /**
+   * @type {ComputedProperty<number>}
+   */
+  timestamp: computed('entry.timestamp', function timestamp() {
+    const timestampMs = this.get('entry.timestamp');
+    return Number.isInteger(timestampMs) ? timestampMs / 1000 : null;
+  }),
+
+  status: reads('entry.content.status'),
+
+  reason: reads('entry.content.reason'),
+});

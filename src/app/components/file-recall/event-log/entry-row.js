@@ -22,7 +22,6 @@ export default Component.extend({
   classNames: ['entry-row', 'data-row'],
   attributeBindings: ['entry.index:data-row-id'],
 
-  fileManager: service(),
   errorExtractor: service(),
   parentAppNavigation: service(),
   appProxy: service(),
@@ -45,19 +44,6 @@ export default Component.extend({
   fileCdmiObjectId: reads('entry.content.fileId'),
 
   fileId: computedPipe('fileCdmiObjectId', cdmiObjectIdToGuid),
-
-  fileProxy: promise.object(computed('fileId', async function fileProxy() {
-    const {
-      fileManager,
-      fileId,
-    } = this.getProperties('fileManager', 'fileId');
-    return fileManager.getFileById(fileId);
-  })),
-
-  fileNameProxy: promise.object(computed('fileProxy.name', async function fileProxy() {
-    const fileProxy = this.get('fileProxy');
-    return get(await fileProxy, 'name');
-  })),
 
   fileName: computed('filePath', function fileName() {
     const filePath = this.get('filePath');

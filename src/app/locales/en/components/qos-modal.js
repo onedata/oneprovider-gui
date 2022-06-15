@@ -3,6 +3,7 @@ import fileEntry from './qos-modal/file-entry';
 import qosEntry from './qos-modal/qos-entry';
 import qosEntryCharts from './qos-modal/qos-entry-charts';
 import qosAdd from './qos-modal/qos-add';
+import auditLog from './qos-modal/audit-log';
 
 export default {
   headerShow: 'Quality of Service',
@@ -42,4 +43,5 @@ export default {
   qosEntry,
   qosEntryCharts,
   qosAdd,
+  auditLog,
 };

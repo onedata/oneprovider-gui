@@ -126,14 +126,21 @@
     {{tt this (if isChartsSectionExpanded "hideStatistics" "showStatistics")}}
   </span>
 </div>
-{{#one-collapse collapsed=(not isChartsSectionExpanded) onHidden=(action "chartsHidden")}}
+{{!-- FIXME: development --}}
+{{!-- {{#one-collapse collapsed=(not isChartsSectionExpanded) onHidden=(action "chartsHidden")}}
   {{#if areChartsRendered}}
     {{qos-modal/qos-entry-charts
       spaceId=qosItem.qosSourceFile.spaceEntityId
       qosRequirementId=qosId
     }}
   {{/if}}
-{{/one-collapse}}
+{{/one-collapse}} --}}
+<div class="dev-logs-container">
+  {{qos-modal/audit-log
+    qosRequirementId=qosId
+    fileType=qosItem.qosSourceFile.type
+  }}
+</div>
 <input
   type="text"
   value={{rawExpressionInfix}}
