@@ -10,11 +10,11 @@
   {{/modal.header}}
 
   {{#modal.body}}
-    {{#promise-proxy-container proxy=podsActivityRegistryProxy}}
+    {{#promise-proxy-container proxy=podsStatusRegistryProxy}}
       <div class="pods-table-section fill-flex-using-column">
         {{modals/atm-task-execution-pods-activity-modal/pods-table
           class="fill-flex-using-column"
-          activityRegistry=podsActivityRegistryProxy.registry
+          statusRegistry=podsStatusRegistryProxy.registry
           selectedPodId=selectedPodId
           onPodSelect=(action "podSelected")
         }}

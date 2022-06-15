@@ -21,7 +21,7 @@ import { next } from '@ember/runloop';
 
 const mixins = [
   I18n,
-  createDataProxyMixin('podsActivityRegistry'),
+  createDataProxyMixin('podsStatusRegistry'),
 ];
 
 export default Component.extend(...mixins, {
@@ -94,7 +94,7 @@ export default Component.extend(...mixins, {
   /**
    * @override
    */
-  async fetchPodsActivityRegistry() {
+  async fetchPodsStatusRegistry() {
     const {
       atmTaskExecutionId,
       workflowManager,
@@ -105,7 +105,7 @@ export default Component.extend(...mixins, {
     }
 
     return await workflowManager
-      .getAtmTaskExecutionOpenfaasActivityRegistry(atmTaskExecutionId, { reload: true });
+      .getAtmTaskExecutionOpenfaasPodStatusRegistry(atmTaskExecutionId, { reload: true });
   },
 
   startUpdater() {
@@ -114,7 +114,7 @@ export default Component.extend(...mixins, {
       interval: this.get('updateInterval'),
     });
     updater.on('tick', () => {
-      this.updatePodsActivityRegistry();
+      this.updatePodsStatusRegistry();
     });
     this.set('updater', updater);
   },
@@ -124,11 +124,11 @@ export default Component.extend(...mixins, {
     updater && safeExec(updater, () => updater.destroy());
   },
 
-  async updatePodsActivityRegistry() {
-    await this.updatePodsActivityRegistryProxy({ replace: true });
+  async updatePodsStatusRegistry() {
+    await this.updatePodsStatusRegistryProxy({ replace: true });
     safeExec(this, () => {
       const selectedPodId = this.get('selectedPodId');
-      const registry = this.get('podsActivityRegistry.registry');
+      const registry = this.get('podsStatusRegistry.registry');
       if (selectedPodId && (!registry || !registry[selectedPodId])) {
         this.set('selectedPodId', undefined);
       }
