@@ -168,13 +168,7 @@
   // FIXME: devlopement
   .dev-logs-container {
     height: 200px;
-    background-color: lightgray;
     overflow: auto;
     position: relative;
-    .box {
-      margin: 10px;
-      height: 400px;
-      background-color: blue;
-    }
   }
 }

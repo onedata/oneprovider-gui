@@ -12,12 +12,14 @@
           target={{navigateTarget}}
           href={{fileHref}}
         >
-          <span class="file-name">{{fileName}}</span>
+          {{#truncated-string class="file-name"}}
+            {{fileName}}
+          {{/truncated-string}}
         </a>
       {{else}}
-        <div class="source-file truncate">
-          <span class="file-name">{{fileName}}</span>
-        </div>
+        {{#truncated-string class="file-name"}}
+          {{fileName}}
+        {{/truncated-string}}
       {{/if}}
     </div>
   </td>
