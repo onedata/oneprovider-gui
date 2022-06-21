@@ -181,5 +181,27 @@
       // probably caused by rendering rounded corner of container
       top: -1px;
     }
+    .event-log-table-container.on-bottom + .bottom-shadow-keeper {
+      @include hide-before-shadow;
+    }
+  }
+
+  // make a pseudo-shadow on bottom of the above container
+  .bottom-shadow-keeper {
+    position: relative;
+    width: 100%;
+    @include before-top-shadow;
+
+    &::before {
+      bottom: calc(100% + 1px);
+      width: calc(100% - 2px);
+      left: 1px;
+      border-radius: $border-radius-base;
+    }
+  }
+
+  // this rule should be declared after bottom-shadow-keeper overrides
+  .qos-entry-logs-container.on-bottom + .bottom-shadow-keeper {
+    @include hide-before-shadow;
   }
 }

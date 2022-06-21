@@ -68,6 +68,16 @@ p.last {
   .ps__rail-y {
     z-index: 2;
   }
+
+  .event-log-thead tr th {
+    @include before-bottom-shadow;
+  }
+
+  &.on-top {
+    .event-log-thead tr th {
+      @include hide-before-shadow;
+    }
+  }
 }
 
 .table.event-log-table {
@@ -89,6 +99,8 @@ p.last {
   }
   thead {
     th {
+      // needed to hold the shadows
+      position: relative;
       vertical-align: bottom;
       text-align: left;
       background-color: $color-one-white;
