@@ -126,21 +126,33 @@
     {{tt this (if isChartsSectionExpanded "hideStatistics" "showStatistics")}}
   </span>
 </div>
-{{!-- FIXME: development --}}
-{{!-- {{#one-collapse collapsed=(not isChartsSectionExpanded) onHidden=(action "chartsHidden")}}
+{{#one-collapse collapsed=(not isChartsSectionExpanded) onHidden=(action "chartsHidden")}}
   {{#if areChartsRendered}}
     {{qos-modal/qos-entry-charts
       spaceId=qosItem.qosSourceFile.spaceEntityId
       qosRequirementId=qosId
     }}
   {{/if}}
-{{/one-collapse}} --}}
-{{#perfect-scrollbar-element class="dev-logs-container event-log-table-container"}}
-  {{qos-modal/audit-log
-    qosRequirementId=qosId
-    fileType=qosItem.qosSourceFile.type
+{{/one-collapse}}
+{{!-- FIXME: structure of template --}}
+{{#one-collapse collapsed=false onHidden=(action "chartsHidden")}}
+  {{#perfect-scrollbar-element
+    class="qos-entry-logs-container event-log-table-container qos-entry-info-block"
   }}
-{{/perfect-scrollbar-element}}
+    <div class="charts-header">
+      <div class="title">
+        {{!-- FIXME: i18n and tooltip --}}
+        Synchronization audit log
+        <span class="space"></span>
+        {{one-label-tip title=headerTooltip tooltipClass="tooltip-lg"}}
+      </div>
+    </div>
+    {{qos-modal/audit-log
+      qosRequirementId=qosId
+      fileType=qosItem.qosSourceFile.type
+    }}
+  {{/perfect-scrollbar-element}}
+{{/one-collapse}}
 <input
   type="text"
   value={{rawExpressionInfix}}
