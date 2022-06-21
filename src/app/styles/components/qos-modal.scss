@@ -117,7 +117,7 @@
     }
   }
 
-  .qos-expression-info-subheader {
+  .qos-info-subheader {
     display: flex;
     align-items: center;
     .qos-evaluation-info {
@@ -191,5 +191,9 @@
         padding-right: 0.2em;
       }
     }
+  }
+
+  .qos-info-selector-label {
+    margin-right: 1em;
   }
 }

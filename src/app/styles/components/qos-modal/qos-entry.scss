@@ -104,7 +104,7 @@
       width: 100%;
     }
   }
-  .qos-expression-info-subheader {
+  .qos-info-subheader {
     // adjust icons manually because of their internal SVG padding
     .oneicon-support {
       left: -0.05em;
@@ -175,6 +175,11 @@
       th {
         background-color: $color-qos-entry-info-block-bg;
       }
+    }
+    .table.event-log-table.with-sticky-header thead {
+      // a hack to prevent rendering issues (transparent 1px line on top of sticky header)
+      // probably caused by rendering rounded corner of container
+      top: -1px;
     }
   }
 }
