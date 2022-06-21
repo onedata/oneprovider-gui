@@ -73,10 +73,18 @@ export default Service.extend({
    * @param {String} scope one of: private, public
    * @returns {Promise<Models.File>}
    */
-  getFileById(fileId, scope = 'private') {
+  async getFileById(fileId, scope = 'private') {
+    const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
-    return this.get('store').findRecord(fileModelName, fileGri)
-      .then(file => this.resolveSymlinks([file], scope).then(() => file));
+    const file = await store.findRecord(
+      fileModelName,
+      fileGri, {
+        // FIXME: experimental change, try "getFileById" invocations
+        backgroundReload: false,
+      }
+    );
+    await this.resolveSymlinks([file], scope);
+    return file;
   },
 
   /**

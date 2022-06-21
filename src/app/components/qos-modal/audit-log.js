@@ -8,6 +8,7 @@
 
 import Component from '@ember/component';
 import { get, computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 import ReplacingChunksArray from 'onedata-gui-common/utils/replacing-chunks-array';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { inject as service } from '@ember/service';
@@ -57,6 +58,8 @@ export default Component.extend(I18n, {
   infiniteScroll: undefined,
 
   //#endregion
+
+  firstRowModel: reads('infiniteScroll.firstRowModel'),
 
   entries: computed(function entries() {
     return ReplacingChunksArray.create({

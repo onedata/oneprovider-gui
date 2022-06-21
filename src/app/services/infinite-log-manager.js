@@ -14,6 +14,8 @@ import Service, { inject as service } from '@ember/service';
  * @property {string|null} index
  * @property {number} limit
  * @property {number} offset
+ * @property {'backward_from_newest'|'forward_from_oldest'} [direction] if there flag is
+ *   not present, backend uses "backward_from_newest" by default
  */
 
 /**

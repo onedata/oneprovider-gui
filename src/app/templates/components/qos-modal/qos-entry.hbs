@@ -135,12 +135,12 @@
     }}
   {{/if}}
 {{/one-collapse}} --}}
-<div class="dev-logs-container">
+{{#perfect-scrollbar-element class="dev-logs-container event-log-table-container"}}
   {{qos-modal/audit-log
     qosRequirementId=qosId
     fileType=qosItem.qosSourceFile.type
   }}
-</div>
+{{/perfect-scrollbar-element}}
 <input
   type="text"
   value={{rawExpressionInfix}}
