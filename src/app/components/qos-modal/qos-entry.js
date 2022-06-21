@@ -231,6 +231,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
     if (this.get('areChartsInitiallyVisible')) {
       this.set('detailsType', 'charts');
     }
+    this.detailsTypeObserver();
   },
 
   /**
