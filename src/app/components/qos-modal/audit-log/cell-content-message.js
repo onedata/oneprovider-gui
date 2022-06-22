@@ -1,6 +1,5 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
-import { QosNotDoneReasonEnum, QosLogStatusEnum } from 'oneprovider-gui/services/qos-manager';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import _ from 'lodash';
 // FIXME: rename/refactor the util
@@ -8,9 +7,13 @@ import parseLogError from 'oneprovider-gui/utils/parse-recall-error';
 import { inject as service } from '@ember/service';
 import { or, getBy, raw } from 'ember-awesome-macros';
 
+const QosNotDoneReasonEnum = Object.freeze({
+  deleted: 'file deleted',
+  alreadyReplicated: 'file already replicated',
+});
+
 export default Component.extend(I18n, {
   classNames: ['cell-content-message'],
-  classNameBindings: ['severityClass'],
 
   errorExtractor: service(),
 
@@ -33,14 +36,14 @@ export default Component.extend(I18n, {
 
   /**
    * @virtual
-   * @type {QosLogSeverity}
+   * @type {QosLogEntryType}
    */
-  qosLogSeverity: 'info',
+  entryType: 'unknown',
 
   /**
    * @type {ComputedProperty<SafeString>}
    */
-  displayedMessage: computed('qosLogReason', 'reasonId', function displayedMessage() {
+  displayedMessage: computed('qosLogReason', function displayedMessage() {
     const {
       qosLogStatus,
       qosLogReason,
@@ -87,25 +90,23 @@ export default Component.extend(I18n, {
     return parseLogError(qosLogReason, errorExtractor);
   }),
 
-  severityIcon: or(
+  icon: or(
     getBy(
       raw({
-        info: 'browser-info',
-        error: 'checkbox-filled-x',
+        started: 'checkbox-pending',
+        skipped: 'skipped',
+        done: 'checkbox-filled',
+        failed: 'checkbox-filled-x',
       }),
-      'qosLogSeverity',
+      'entryType',
     ),
     raw('browser-info')
   ),
 
-  // FIXME: maybe to remove ids
+  // FIXME: maybe to remove reason id
 
   reasonId: computed('qosLogReason', function reasonId() {
     return this.findReasonId(this.get('qosLogReason'));
-  }),
-
-  statusId: computed('qosLogStatus', function statusId() {
-    return this.findStatusId(this.get('qosLogStatus'));
   }),
 
   /**
@@ -120,23 +121,6 @@ export default Component.extend(I18n, {
     for (const reasonId in QosNotDoneReasonEnum) {
       if (QosNotDoneReasonEnum[reasonId] === reason) {
         return reasonId;
-      }
-    }
-    return null;
-  },
-
-  /**
-   *
-   * @param {QosLogStatus} status
-   * @returns {string|null} id of known status or null
-   */
-  findStatusId(status) {
-    if (!status) {
-      return null;
-    }
-    for (const statusId in QosLogStatusEnum) {
-      if (QosLogStatusEnum[statusId] === status) {
-        return statusId;
       }
     }
     return null;

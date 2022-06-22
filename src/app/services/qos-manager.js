@@ -49,18 +49,6 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
 
 const auditLogAspect = 'audit_log';
 
-export const QosLogStatusEnum = Object.freeze({
-  started: 'synchronization started',
-  skipped: 'synchronization skipped',
-  failed: 'synchronization failed',
-  done: 'synchronized',
-});
-
-export const QosNotDoneReasonEnum = Object.freeze({
-  deleted: 'file deleted',
-  alreadyReplicated: 'file already replicated',
-});
-
 /**
  * @param {string} qosId
  * @param {{ aspect: string?, scope: string? }} griOptions

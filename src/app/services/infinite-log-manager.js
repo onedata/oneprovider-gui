@@ -31,6 +31,17 @@ import Service, { inject as service } from '@ember/service';
  * @property {T} content
  */
 
+/**
+ * Known severity types of infinite log entries from backend.
+ * @typedef {'debug'|'info'|'notice'|'warning'|'alert'|'error'|'critical'|'emergency'} JsonInfiniteLogSeverity
+ */
+
+/**
+ * Supported severity types of infinite log entries used in frontend.
+ * Adds some computed types that improves UX in addition to backend severity types.
+ * @typedef {JsonInfiniteLogSeverity|'success'} FrontendInfiniteLogSeverity
+ */
+
 export default Service.extend({
   onedataGraph: service(),
 
