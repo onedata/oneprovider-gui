@@ -117,32 +117,10 @@
 {{/unless}}
 <div class="qos-subheader qos-info-subheader with-icon-left">
   {{qos-evaluation-info qosEvaluationProxy=qosEvaluationProxy}}
-  {{!-- FIXME: i18n --}}
-  <div class="qos-info-selector-label">
-    Show details:
-  </div>
-  {{#bs-button-group
-    class="qos-info-selector"
+  {{qos-modal/qos-entry-info-switch
     value=detailsType
-    type="radio"
     onChange=(action "changeDetailsType")
-    as |bg|
   }}
-    {{#bg.button
-      type="default"
-      class="btn-sm qos-details-type-charts"
-      value="charts"
-    }}
-      Transfer statistics
-    {{/bg.button}}
-    {{#bg.button
-      type="default"
-      class="btn-sm qos-details-type-logs"
-      value="logs"
-    }}
-      Audit log
-    {{/bg.button}}
-  {{/bs-button-group}}
 </div>
 {{#one-collapse
   collapsed=(not-eq detailsType "charts")
@@ -159,25 +137,12 @@
   collapsed=(not-eq detailsType "logs")
   onHidden=(action "hideLogs")
 }}
-  {{#perfect-scrollbar-element
-    class="qos-entry-logs-container event-log-table-container qos-entry-info-block"
+  {{qos-modal/qos-entry-logs
+    qosRequirementId=qosId
+    fileType=qosItem.qosSourceFile.type
+    spaceId=qosItem.qosSourceFile.spaceEntityId
+    isRendered=areLogsRendered
   }}
-    <div class="charts-header">
-      <div class="title">
-        {{!-- FIXME: i18n and tooltip --}}
-        Synchronization audit log
-        <span class="space"></span>
-        {{one-label-tip title=headerTooltip tooltipClass="tooltip-lg"}}
-      </div>
-    </div>
-    {{#if areLogsRendered}}
-      {{qos-modal/audit-log
-        qosRequirementId=qosId
-        fileType=qosItem.qosSourceFile.type
-      }}
-    {{/if}}
-  {{/perfect-scrollbar-element}}
-  <div class="bottom-shadow-keeper"></div>
 {{/one-collapse}}
 <input
   type="text"

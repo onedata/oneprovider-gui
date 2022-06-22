@@ -1,0 +1,21 @@
+{{#perfect-scrollbar-element
+  class="qos-entry-logs event-log-table-container qos-entry-info-block"
+}}
+  <div class="charts-header">
+    <div class="title">
+      {{tt this "header"}}
+      <span class="space"></span>
+      {{one-label-tip
+        title=headerTooltip
+        tooltipClass="tooltip-lg tooltip-text-left"
+      }}
+    </div>
+  </div>
+  {{#if isRendered}}
+    {{qos-modal/audit-log
+      qosRequirementId=qosRequirementId
+      fileType=fileType
+    }}
+  {{/if}}
+{{/perfect-scrollbar-element}}
+<div class="bottom-shadow-keeper"></div>

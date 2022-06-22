@@ -82,7 +82,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   copyAnimationEndTimer: undefined,
 
   /**
-   * @type {'charts'|'logs'|null}
+   * @type {QosEntryInfoType}
    */
   detailsType: null,
 
@@ -283,6 +283,10 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
     hideLogs() {
       this.set('areLogsRendered', false);
     },
+    /**
+     *
+     * @param {QosEntryInfoType} newDetailsType
+     */
     changeDetailsType(newDetailsType) {
       const currentDetailsType = this.get('detailsType');
       this.set(

@@ -1,0 +1,25 @@
+<div class="qos-info-selector-label">
+  Show details:
+</div>
+{{#bs-button-group
+  class="qos-info-selector"
+  value=value
+  type="radio"
+  onChange=(action "change")
+  as |bg|
+}}
+  {{#bg.button
+    type="default"
+    class="btn-sm qos-details-type-charts"
+    value="charts"
+  }}
+    {{tt this "charts"}}
+  {{/bg.button}}
+  {{#bg.button
+    type="default"
+    class="btn-sm qos-details-type-logs"
+    value="logs"
+  }}
+    {{tt this "logs"}}
+  {{/bg.button}}
+{{/bs-button-group}}

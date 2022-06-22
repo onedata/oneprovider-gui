@@ -120,6 +120,11 @@
   $color-qos-entry-info-block-bg: rgba(0, 0, 0, 0.02);
   $color-qos-entry-info-block-border: rgba(0, 0, 0, 0.1);
 
+  .qos-entry-info-switch {
+    display: flex;
+    align-items: center;
+  }
+
   .qos-entry-info-block {
     margin-top: 0.8em;
     background-color: $color-qos-entry-info-block-bg;
@@ -168,7 +173,7 @@
     border-radius: $border-radius-base;
   }
 
-  .qos-entry-logs-container {
+  .qos-entry-logs {
     height: 280px;
     position: relative;
     .event-log-thead {
@@ -201,7 +206,7 @@
   }
 
   // this rule should be declared after bottom-shadow-keeper overrides
-  .qos-entry-logs-container.on-bottom + .bottom-shadow-keeper {
+  .qos-entry-logs.on-bottom + .bottom-shadow-keeper {
     @include hide-before-shadow;
   }
 }

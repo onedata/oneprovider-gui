@@ -1,5 +1,5 @@
 export default {
-  noEntries: 'No log entries.',
+  noEntries: 'No log entries on currently selected Oneprovider.',
   headerRow: {
     columnLabel: {
       timestamp: 'Time',
@@ -9,10 +9,5 @@ export default {
   },
   cellContentMessage: {
     unknown: 'unknown reason',
-    // FIXME: maybe to remove reasons
-    reasons: {
-      alreadyReplicated: 'File already replicated.',
-      deleted: 'File deleted.',
-    },
   },
 };

@@ -1,0 +1,42 @@
+/**
+ * Button group for switching between detailed views of QoS requirement entry.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
+import Component from '@ember/component';
+import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
+
+/**
+ * @typedef {'charts'|'logs'|null} QosEntryInfoType
+ */
+
+export default Component.extend(I18n, {
+  classNames: ['qos-entry-info-switch'],
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.qosModal.qosEntryInfoSwitch',
+
+  /**
+   * @virtual
+   * @type {QosEntryInfoType}
+   */
+  value: null,
+
+  /**
+   * @virtual
+   * @type {(value: QosEntryInfoType) => void}
+   */
+  onChange: notImplementedThrow,
+
+  actions: {
+    change(value) {
+      return this.get('onChange')(value);
+    },
+  },
+});
