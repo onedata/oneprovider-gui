@@ -16,14 +16,14 @@ import { inject as service } from '@ember/service';
  */
 
 export default Component.extend(I18n, {
-  classNames: ['qos-entry-info-switch'],
+  classNames: ['qos-entry-details-switch'],
 
   i18n: service(),
 
   /**
    * @override
    */
-  i18nPrefix: 'components.qosModal.qosEntryInfoSwitch',
+  i18nPrefix: 'components.qosModal.qosEntryDetailsSwitch',
 
   /**
    * @virtual

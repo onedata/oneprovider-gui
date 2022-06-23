@@ -1,7 +1,7 @@
 import fileQosSummary from './qos-modal/file-qos-summary';
 import fileEntry from './qos-modal/file-entry';
 import qosEntry from './qos-modal/qos-entry';
-import qosEntryInfoSwitch from './qos-modal/qos-entry-info-switch';
+import qosEntryDetailsSwitch from './qos-modal/qos-entry-details-switch';
 import qosEntryCharts from './qos-modal/qos-entry-charts';
 import qosEntryLogs from './qos-modal/qos-entry-logs';
 import qosAdd from './qos-modal/qos-add';
@@ -43,7 +43,7 @@ export default {
   fileQosSummary,
   fileEntry,
   qosEntry,
-  qosEntryInfoSwitch,
+  qosEntryDetailsSwitch,
   qosEntryCharts,
   qosAdd,
   auditLog,

@@ -120,7 +120,7 @@
   $color-qos-entry-info-block-bg: rgba(0, 0, 0, 0.02);
   $color-qos-entry-info-block-border: rgba(0, 0, 0, 0.1);
 
-  .qos-entry-info-switch {
+  .qos-entry-details-switch {
     display: flex;
     align-items: center;
   }
@@ -131,7 +131,7 @@
       flex-direction: column;
       align-items: flex-start;
     }
-    .qos-entry-info-switch {
+    .qos-entry-details-switch {
       align-self: flex-end;
       margin-top: 0.5em;
     }
