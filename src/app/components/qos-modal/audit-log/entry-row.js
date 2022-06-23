@@ -1,3 +1,11 @@
+/**
+ * Row of QoS audit log infinite scroll table.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import cdmiObjectIdToGuid from 'onedata-gui-common/utils/cdmi-object-id-to-guid';
 import { inject as service } from '@ember/service';
@@ -19,7 +27,6 @@ export default Component.extend(I18n, {
   fileManager: service(),
   errorExtractor: service(),
   parentAppNavigation: service(),
-  appProxy: service(),
 
   /**
    * @override

@@ -1,3 +1,11 @@
+/**
+ * Content of table cell in entry-row with message from QoS audit log.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
@@ -27,6 +35,20 @@ export default Component.extend(I18n, {
    * @type {QosLogErrorReason}
    */
   reason: undefined,
+
+  /**
+   * Description from log entry.
+   * @virtual
+   * @type {string}
+   */
+  description: undefined,
+
+  statusToIconMapping: Object.freeze({
+    scheduled: 'checkbox-pending',
+    skipped: 'browser-info',
+    completed: 'checkbox-filled',
+    failed: 'checkbox-filled-x',
+  }),
 
   /**
    * @type {ComputedProperty<SafeString>}
@@ -60,15 +82,7 @@ export default Component.extend(I18n, {
   }),
 
   icon: or(
-    getBy(
-      raw({
-        scheduled: 'checkbox-pending',
-        skipped: 'browser-info',
-        completed: 'checkbox-filled',
-        failed: 'checkbox-filled-x',
-      }),
-      'status',
-    ),
+    getBy('statusToIconMapping', 'status'),
     raw('browser-info')
   ),
 });

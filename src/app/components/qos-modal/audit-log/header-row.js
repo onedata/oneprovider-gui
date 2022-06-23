@@ -1,3 +1,11 @@
+/**
+ * A table header for QoS audit log table.
+ *
+ * @author Jakub Liput
+ * @copyright (C) 2022 ACK CYFRONET AGH
+ * @license This software is released under the MIT license cited in 'LICENSE.txt'.
+ */
+
 import Component from '@ember/component';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { conditional, raw } from 'ember-awesome-macros';
