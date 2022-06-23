@@ -64,9 +64,9 @@ export default Component.extend(I18n, {
   icon: or(
     getBy(
       raw({
-        started: 'checkbox-pending',
+        scheduled: 'checkbox-pending',
         skipped: 'browser-info',
-        done: 'checkbox-filled',
+        completed: 'checkbox-filled',
         failed: 'checkbox-filled-x',
       }),
       'status',
