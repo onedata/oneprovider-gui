@@ -70,13 +70,14 @@ export default Service.extend({
 
   /**
    * @param {String} fileId
-   * @param {String} scope one of: private, public
-   * @param {Object} fetchOptions
-   * @param {Boolean} [fetchOptions.reload=false]
-   * @param {Boolean} [fetchOptions.backgroundReload=false]
+   * @param {Object} options
+   * @param {'private'|'public'} [options.scope='private']
+   * @param {Boolean} [options.reload=false] a `findRecord` option
+   * @param {Boolean} [options.backgroundReload=false] a `findRecord` option
    * @returns {Promise<Models.File>}
    */
-  async getFileById(fileId, scope = 'private', {
+  async getFileById(fileId, {
+    scope = 'private',
     reload = false,
     backgroundReload = false,
   } = {}) {

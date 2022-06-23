@@ -607,7 +607,7 @@ export default Component.extend(...mixins, {
     if (!fileId || fileId === archiveRootDirId) {
       return this.get('archiveRootDirProxy');
     } else {
-      return fileManager.getFileById(fileId, 'private');
+      return fileManager.getFileById(fileId, { scope: 'private' });
     }
   },
 
@@ -921,7 +921,7 @@ export default Component.extend(...mixins, {
   },
 
   getItemById(itemId) {
-    return this.get('fileManager').getFileById(itemId, 'private');
+    return this.get('fileManager').getFileById(itemId, { scope: 'private' });
   },
 
   //#region URL generating methods

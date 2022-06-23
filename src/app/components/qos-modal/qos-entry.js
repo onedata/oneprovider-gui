@@ -212,11 +212,7 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   detailsTypeObserver: observer(
     'detailsType',
     function detailsTypeObserver() {
-      const {
-        detailsType,
-      } = this.getProperties(
-        'detailsType',
-      );
+      const detailsType = this.get('detailsType');
       const types = ['charts', 'logs'];
       if (types.includes(detailsType)) {
         const showMethod = camelize(`show-${detailsType}`);
