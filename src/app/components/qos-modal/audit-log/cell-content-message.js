@@ -1,16 +1,11 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-import _ from 'lodash';
 // FIXME: rename/refactor the util
 import parseLogError from 'oneprovider-gui/utils/parse-recall-error';
 import { inject as service } from '@ember/service';
-import { or, getBy, raw } from 'ember-awesome-macros';
-
-const QosNotDoneReasonEnum = Object.freeze({
-  deleted: 'file deleted',
-  alreadyReplicated: 'file already replicated',
-});
+import { or, getBy, raw, eq, conditional } from 'ember-awesome-macros';
+import _ from 'lodash';
 
 export default Component.extend(I18n, {
   classNames: ['cell-content-message'],
@@ -26,103 +21,56 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {QosLogStatus}
    */
-  qosLogStatus: undefined,
+  status: undefined,
 
   /**
    * @virtual
-   * @type {QosLogReason}
+   * @type {QosLogErrorReason}
    */
-  qosLogReason: undefined,
-
-  /**
-   * @virtual
-   * @type {QosLogEntryType}
-   */
-  entryType: 'unknown',
+  reason: undefined,
 
   /**
    * @type {ComputedProperty<SafeString>}
    */
-  displayedMessage: computed('qosLogReason', function displayedMessage() {
-    const {
-      qosLogStatus,
-      qosLogReason,
-      errorInfo,
-    } = this.getProperties(
-      'qosLogStatus',
-      'qosLogReason',
-      'errorInfo',
-    );
-    let text = '';
-    if (qosLogStatus) {
-      text = qosLogStatus;
-    }
-    if (qosLogReason) {
-      let reasonMessage;
-      if (typeof qosLogReason === 'string') {
-        reasonMessage = qosLogReason;
-      } else {
-        reasonMessage = errorInfo.message || this.t('unknown');
+  displayedMessage: conditional(
+    eq('status', raw('failed')),
+    computed('errorInfo', function displayedMessage() {
+      const errorInfo = this.get('errorInfo');
+      const errorInfoText = _.lowerFirst(errorInfo.message || this.t('unknownReason'));
+      let text = `${this.t('failed')} ${errorInfoText}`;
+      if (!text.endsWith('.')) {
+        text += '.';
       }
-      if (text) {
-        text = `${text}: ${_.lowerFirst(reasonMessage)}`;
-      } else {
-        text = reasonMessage;
-      }
-    }
-    if (text) {
-      text = _.upperFirst(text);
-    }
-    return text || '–';
-  }),
+      return text;
+    }),
+    'description',
+  ),
 
+  // FIXME: change type after refactor
   /**
    * @type {ComputedProperty<RecallInfoError|null>}
    */
-  errorInfo: computed('qosLogReason', function errorInfo() {
+  errorInfo: computed('reason', function errorInfo() {
     const {
-      qosLogReason,
+      reason,
       errorExtractor,
-    } = this.getProperties('qosLogReason', 'errorExtractor');
-    if (!qosLogReason || typeof qosLogReason === 'string') {
+    } = this.getProperties('reason', 'errorExtractor');
+    if (!reason || typeof reason === 'string') {
       return null;
     }
-    return parseLogError(qosLogReason, errorExtractor);
+    return parseLogError(reason, errorExtractor);
   }),
 
   icon: or(
     getBy(
       raw({
         started: 'checkbox-pending',
-        skipped: 'skipped',
+        skipped: 'browser-info',
         done: 'checkbox-filled',
         failed: 'checkbox-filled-x',
       }),
-      'entryType',
+      'status',
     ),
     raw('browser-info')
   ),
-
-  // FIXME: maybe to remove reason id
-
-  reasonId: computed('qosLogReason', function reasonId() {
-    return this.findReasonId(this.get('qosLogReason'));
-  }),
-
-  /**
-   *
-   * @param {QosLogReason} reason
-   * @returns {string|null} id of known reason or null
-   */
-  findReasonId(reason) {
-    if (!reason) {
-      return null;
-    }
-    for (const reasonId in QosNotDoneReasonEnum) {
-      if (QosNotDoneReasonEnum[reasonId] === reason) {
-        return reasonId;
-      }
-    }
-    return null;
-  },
 });

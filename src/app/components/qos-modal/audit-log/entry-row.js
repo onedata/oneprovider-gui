@@ -9,10 +9,6 @@ import { and, or, getBy, raw } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
 
-/**
- * @typedef {'started'|'skipped'|'done'|'failed'|'uknown'} QosLogEntryType
- */
-
 export default Component.extend({
   tagName: 'tr',
   classNames: ['entry-row', 'data-row'],
@@ -44,60 +40,49 @@ export default Component.extend({
   onGenerateFileUrl: notImplementedIgnore,
 
   /**
-   * @type {Object<QosLogEntryType, QosLogStatus>}
+   * @type {Object<QosLogEntryType, FrontendInfiniteLogSeverity>}
    */
-  qosLogStatusEnum: Object.freeze({
-    started: 'synchronization started',
-    skipped: 'synchronization skipped',
-    failed: 'synchronization failed',
-    done: 'synchronized',
-  }),
-
-  statusEntryTypeMapping: Object.freeze({
-    'synchronization started': 'started',
-    'synchronization skipped': 'skipped',
-    'synchronization failed': 'failed',
-    'synchronized': 'done',
+  statusToSeverityMapping: Object.freeze({
+    scheduled: 'debug',
+    skipped: 'info',
+    completed: 'success',
+    failed: 'error',
   }),
 
   /**
-   * @type {Object<QosLogEntryType, FrontendInfiniteLogSeverity>}
+   * @type {ComputedProperty<QosLogSeverity>}
    */
-  severityMapping: Object.freeze({
-    started: 'debug',
-    skipped: 'info',
-    done: 'success',
-    failed: 'error',
-    unknown: 'info',
-  }),
-
   qosLogSeverity: reads('entry.content.severity'),
 
+  /**
+   * @type {ComputedProperty<QosLogStatus>}
+   */
   qosLogStatus: reads('entry.content.status'),
 
+  /**
+   * @type {ComputedProperty<QosLogErrorReason>}
+   */
   qosLogReason: reads('entry.content.reason'),
+
+  /**
+   * @type {ComputedProperty<string>}
+   */
+  qosLogDescription: reads('entry.content.description'),
 
   navigateTarget: reads('parentAppNavigation.navigateTarget'),
 
   fileCdmiObjectId: reads('entry.content.fileId'),
 
   /**
-   * @type {ComputedProperty<QosLogEntryType>}
-   */
-  entryType: or(
-    getBy('statusEntryTypeMapping', 'qosLogStatus'),
-    raw('unknown')
-  ),
-
-  /**
+   * Overriden severity of log entry to enable context-colorizing.
    * @type {ComputedProperty<FrontendInfiniteLogSeverity>}
    */
-  severity: or(
-    getBy('severityMapping', 'entryType'),
+  entrySeverity: or(
+    getBy('statusToSeverityMapping', 'qosLogStatus'),
     raw('info')
   ),
 
-  severityClass: tag `auditlog-severity-${'severity'}`,
+  severityClass: tag `auditlog-severity-${'entrySeverity'}`,
 
   fileId: and(
     'fileCdmiObjectId',

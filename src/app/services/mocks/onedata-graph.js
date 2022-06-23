@@ -719,8 +719,6 @@ const qosRequirementHandlers = {
 
     const {
       index,
-      limit,
-      offset,
     } = data;
 
     const file = this.get('mockBackend.entityRecords.file.0');
@@ -739,43 +737,46 @@ const qosRequirementHandlers = {
         timestamp: 1655137705791,
         index: '0',
         content: {
-          status: 'synchronization started',
+          status: 'scheduled',
           severity: 'info',
+          description: 'Remote replica differs, reconciliation started.',
           fileId,
         },
       }, {
         timestamp: 1655137705818,
         index: '1',
         content: {
-          status: 'synchronization skipped',
+          status: 'skipped',
           severity: 'info',
-          reason: 'file already replicated',
+          description: 'Remote replica differs, reconciliation already in progress.',
           fileId,
         },
       }, {
         timestamp: 1655137705818,
         index: '1b',
         content: {
-          status: 'synchronization skipped',
+          status: 'skipped',
           severity: 'info',
-          reason: 'file deleted',
+          description: 'Remote replica differs, ignoring since the file has been deleted locally.',
           fileId,
         },
       }, {
         timestamp: 1655137705932,
         index: '2',
         content: {
-          status: 'synchronized',
+          status: 'completed',
           severity: 'info',
+          description: 'Local replica reconciled.',
           fileId,
         },
       }, {
         timestamp: 1655137705932,
         index: '2',
         content: {
-          status: 'synchronization failed',
+          status: 'failed',
           severity: 'error',
           fileId,
+          description: 'Failed to reconcile local replica: no space left on device.',
           reason: {
             id: 'posix',
             details: {

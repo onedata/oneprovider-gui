@@ -8,6 +8,7 @@ export default {
     },
   },
   cellContentMessage: {
-    unknown: 'unknown reason',
+    unknownReason: 'unknown reason',
+    failed: 'Failed to reconcile local replica:',
   },
 };

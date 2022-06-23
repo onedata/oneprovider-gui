@@ -20,11 +20,7 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  */
 
 /**
- * @type {'synchronization started'|'synchronization skipped'|'synchronization failed'|'synchronized'} QosLogStatus
- */
-
-/**
- * @type {'file deleted'|'file already replicated'} QosLogNotDoneReason
+ * @type {'scheduled'|'skipped'|'completed'|'failed'} QosLogStatus
  */
 
 /**
@@ -32,7 +28,7 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  */
 
 /**
- * @type {QosLogNotDoneReason|Object} QosLogReason
+ * @type {Object} QosLogErrorReason
  */
 
 /**
@@ -40,7 +36,8 @@ import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/q
  * @param {QosLogStatus} status
  * @param {QosLogSeverity} severity
  * @param {string} fileId CDMI Object ID of the file that the event is about
- * @param {QosLogReason} [reason] only if status is skipped or failed
+ * @param {string} description a human-readable description of event
+ * @param {QosLogErrorReason} [reason] error object - only if status is failed
  */
 
 /**
@@ -147,3 +144,12 @@ export default Service.extend({
     return await infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
   },
 });
+
+export function isValidQosLogStatus(status) {
+  return [
+    'scheduled',
+    'skipped',
+    'completed',
+    'failed',
+  ].includes(status);
+}
