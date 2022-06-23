@@ -15,11 +15,10 @@ import { inject as service } from '@ember/service';
 export default Component.extend({
   mockBackend: service(),
 
-  // FIXME: development changes
   files: collect(
     'mockBackend.entityRecords.chainDir.2',
-    // 'mockBackend.entityRecords.chainDir.3',
-    // 'mockBackend.entityRecords.chainDir.4',
+    'mockBackend.entityRecords.chainDir.3',
+    'mockBackend.entityRecords.chainDir.4',
   ),
 
   space: reads('mockBackend.entityRecords.space.0'),

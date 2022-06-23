@@ -1,8 +1,7 @@
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
-// FIXME: rename/refactor the util
-import parseLogError from 'oneprovider-gui/utils/parse-recall-error';
+import parseLogError from 'oneprovider-gui/utils/create-error-message-spec';
 import { inject as service } from '@ember/service';
 import { or, getBy, raw, eq, conditional } from 'ember-awesome-macros';
 import _ from 'lodash';
@@ -46,9 +45,8 @@ export default Component.extend(I18n, {
     'description',
   ),
 
-  // FIXME: change type after refactor
   /**
-   * @type {ComputedProperty<RecallInfoError|null>}
+   * @type {ComputedProperty<ErrorMessageSpec|null>}
    */
   errorInfo: computed('reason', function errorInfo() {
     const {

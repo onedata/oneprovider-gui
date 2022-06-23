@@ -114,8 +114,6 @@ export default Component.extend(I18n, {
     }
   },
 
-  // FIXME: maybe some DRY with recall log
-
   handleTableScroll({ headerVisible }) {
     const {
       infiniteScroll,

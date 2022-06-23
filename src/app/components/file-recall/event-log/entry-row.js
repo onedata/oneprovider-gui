@@ -12,8 +12,7 @@ import { inject as service } from '@ember/service';
 import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import { reads } from '@ember/object/computed';
 import { get, computed } from '@ember/object';
-import { promise } from 'ember-awesome-macros';
-import parseRecallError from 'oneprovider-gui/utils/parse-recall-error';
+import createErrorMessageSpec from 'oneprovider-gui/utils/create-error-message-spec';
 import { equal, raw, or, and } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 
@@ -65,7 +64,7 @@ export default Component.extend({
   }),
 
   /**
-   * @type {ComputedProperty<RecallInfoError>}
+   * @type {ComputedProperty<ErrorMessageSpec>}
    */
   errorInfo: computed('entry.content.reason', function errorInfo() {
     const {
@@ -73,7 +72,7 @@ export default Component.extend({
       errorExtractor,
     } = this.getProperties('entry', 'errorExtractor');
     const reason = get(entry, 'content.reason');
-    return parseRecallError(reason, errorExtractor);
+    return createErrorMessageSpec(reason, errorExtractor);
   }),
 
   /**

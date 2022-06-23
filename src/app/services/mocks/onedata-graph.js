@@ -731,7 +731,6 @@ const qosRequirementHandlers = {
       };
     }
 
-    // FIXME: use generateJsonInfiniteLogEntries()
     return {
       logEntries: [{
         timestamp: 1655137705791,
@@ -1284,35 +1283,6 @@ function generateJsonInfiniteLogEntry({ index, timestamp, type, extraData }) {
     // infinite log timestamps are in milliseconds
     timestamp: timestamp * 1000,
   };
-  switch (type) {
-    case 'openfaasActivity': {
-      const podId = extraData && extraData.podId;
-      if (!podId) {
-        throw new Error('Pod ID not specified!');
-      }
-      entry.content = {
-        type: 'Normal',
-        reason: 'Completed',
-        message: `Message of event at ${timestamp} (${podId}) (index: #${index})`,
-      };
-    }
-    break;
-    // FIXME: use or remove
-    case 'qosEvent': {
-      const status = extraData.status || 'synchronization failed';
-      const severity = extraData.severity || 'error';
-      const fileId = extraData.fileId ||
-        '000000000052F25C67756964233662656232653661323663386634346262313338343937386631623463393961636833363663236234633539626262623338366462613164303637326630366265353331373661636839613661';
-      entry.content = {
-        status,
-        severity,
-        fileId,
-      };
-    }
-    break;
-    default:
-      break;
-  }
   if (type === 'openfaasActivity') {
     const podId = extraData && extraData.podId;
     if (!podId) {
