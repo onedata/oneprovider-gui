@@ -18,6 +18,7 @@ export default Component.extend(I18n, {
 
   spaceManager: service(),
   providerManager: service(),
+  i18n: service(),
 
   /**
    * @override

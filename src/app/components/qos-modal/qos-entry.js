@@ -23,9 +23,12 @@ import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import _ from 'lodash';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item'],
+
+  i18n: service(),
 
   /**
    * @override

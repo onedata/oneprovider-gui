@@ -9,6 +9,7 @@
 import Component from '@ember/component';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
+import { inject as service } from '@ember/service';
 
 /**
  * @typedef {'charts'|'logs'|null} QosEntryInfoType
@@ -16,6 +17,8 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 
 export default Component.extend(I18n, {
   classNames: ['qos-entry-info-switch'],
+
+  i18n: service(),
 
   /**
    * @override
