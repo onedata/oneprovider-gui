@@ -8,8 +8,9 @@ import { promise, tag } from 'ember-awesome-macros';
 import { and, or, getBy, raw } from 'ember-awesome-macros';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import computedLastProxyContent from 'onedata-gui-common/utils/computed-last-proxy-content';
+import I18n from 'onedata-gui-common/mixins/components/i18n';
 
-export default Component.extend({
+export default Component.extend(I18n, {
   tagName: 'tr',
   classNames: ['entry-row', 'data-row'],
   classNameBindings: ['severityClass'],
@@ -19,6 +20,11 @@ export default Component.extend({
   errorExtractor: service(),
   parentAppNavigation: service(),
   appProxy: service(),
+
+  /**
+   * @override
+   */
+  i18nPrefix: 'components.qosModal.auditLog.entryRow',
 
   /**
    * @virtual
@@ -82,7 +88,7 @@ export default Component.extend({
     raw('info')
   ),
 
-  severityClass: tag `auditlog-severity-${'entrySeverity'}`,
+  severityClass: tag`auditlog-severity-${'entrySeverity'}`,
 
   fileId: and(
     'fileCdmiObjectId',
@@ -101,17 +107,43 @@ export default Component.extend({
     return fileManager.getFileById(fileId);
   })),
 
-  fileNameProxy: promise.object(computed(
+  fileInfoProxy: promise.object(computed(
+    'fileId',
     'fileProxy.name',
     async function fileNameProxy() {
-      const fileProxy = this.get('fileProxy');
-      return get(await fileProxy, 'name');
+      const {
+        fileProxy,
+        fileId,
+        onGenerateFileUrl,
+      } = this.getProperties(
+        'fileProxy',
+        'fileId',
+        'onGenerateFileUrl',
+      );
+      let name;
+      let href;
+      let className;
+      try {
+        const file = await fileProxy;
+        name = get(file, 'name');
+        try {
+          href = onGenerateFileUrl(fileId);
+        } catch (error) {
+          href = null;
+        }
+      } catch (error) {
+        name = this.t('fileNotAvailable');
+        className = 'file-not-available';
+      }
+      return {
+        name,
+        href,
+        className,
+      };
     }
   )),
 
-  fileName: computedLastProxyContent('fileNameProxy'),
-
-  fileHref: computedPipe('fileId', 'onGenerateFileUrl'),
+  fileInfo: computedLastProxyContent('fileInfoProxy'),
 
   /**
    * @type {ComputedProperty<number>}

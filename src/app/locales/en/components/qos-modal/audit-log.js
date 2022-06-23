@@ -7,6 +7,9 @@ export default {
       event: 'Event',
     },
   },
+  entryRow: {
+    fileNotAvailable: 'Not available',
+  },
   cellContentMessage: {
     unknownReason: 'unknown reason',
     failed: 'Failed to reconcile local replica:',

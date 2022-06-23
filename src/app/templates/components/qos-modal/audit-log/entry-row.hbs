@@ -6,19 +6,19 @@
 {{#if showFileColumn}}
   <td class="table-data-cell column-file">
     <div class="table-data-cell-content">
-      {{#if fileHref}}
+      {{#if fileInfo.href}}
         <a
-          class="source-file navy underlined truncate"
+          class="navy underlined truncate"
           target={{navigateTarget}}
-          href={{fileHref}}
+          href={{fileInfo.href}}
         >
-          {{#truncated-string class="file-name"}}
-            {{fileName}}
+          {{#truncated-string class=(concat-classes "file-name" fileInfo.className)}}
+            {{fileInfo.name}}
           {{/truncated-string}}
         </a>
       {{else}}
-        {{#truncated-string class="file-name"}}
-          {{fileName}}
+        {{#truncated-string class=(concat-classes "file-name" fileInfo.className)}}
+          {{fileInfo.name}}
         {{/truncated-string}}
       {{/if}}
     </div>
