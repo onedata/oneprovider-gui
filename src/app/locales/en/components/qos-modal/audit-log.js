@@ -1,5 +1,5 @@
 export default {
-  noEntries: 'No log entries on currently selected Oneprovider.',
+  noEntries: 'No system events concerning replica reconciliation have occurred for this Oneprovider.',
   headerRow: {
     columnLabel: {
       timestamp: 'Time',

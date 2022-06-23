@@ -1,10 +1,10 @@
 const headerTooltipBeginning =
-  '<p>Transfer events triggered by the QoS requirement from the point of view of current Oneprovider (<strong>{{currentProviderName}}</strong>). The log entries are collected independently by each Oneprovider supporting the space and concern only <strong>incoming</strong> data transfers.</p>';
+  '<p>A log of system events concerning replica reconciliation in the context of this QoS requirement. These logs are collected independently by each Oneprovider supporting the space and involve only its local replicas.</p>';
 
 export default {
-  header: 'Synchronization audit log',
+  header: 'Audit log',
   headerTooltip: {
     singleProvider: headerTooltipBeginning,
-    manyProviders: `${headerTooltipBeginning}<p>In order to view audit log for a different Oneprovider, switch to a different one in top menu of the Data view.</p>`,
+    manyProviders: `${headerTooltipBeginning}<p>In order to view the audit log for a different Oneprovider, switch to a different one in the top menu of the Data view.</p>`,
   },
 };

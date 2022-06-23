@@ -17,7 +17,6 @@ export default Component.extend(I18n, {
   tagName: '',
 
   spaceManager: service(),
-  providerManager: service(),
   i18n: service(),
 
   /**
@@ -52,35 +51,21 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<PromiseObject<{ current: Model.Provider, all: Array<Model.Provider>}>>}
    */
-  spaceProvidersProxy: promise.object(computed(
+  allSpaceProvidersProxy: promise.object(computed(
     'spaceId',
     async function spaceProvidersProxy() {
       const {
         spaceId,
         spaceManager,
-        providerManager,
-      } = this.getProperties('spaceId', 'spaceManager', 'providerManager');
+      } = this.getProperties('spaceId', 'spaceManager');
 
       const space = await spaceManager.getSpace(spaceId);
-      const providerList = (await get(await get(space, 'providerList'), 'list')).toArray();
+      const providerList = (await get(await get(space, 'providerList'), 'list'))
+        .toArray();
 
-      const currentProviderId = providerManager.getCurrentProviderId();
-      const currentProvider = providerList.findBy('entityId', currentProviderId);
-      if (!currentProvider) {
-        throw { id: 'notFound' };
-      }
-
-      return {
-        current: currentProvider,
-        all: providerList,
-      };
+      return providerList;
     }
   )),
-
-  /**
-   * @type {ComputedProperty<string>}
-   */
-  currentProviderName: reads('spaceProvidersProxy.content.current.name'),
 
   /**
    * @type {ComputedProperty<number>}
@@ -91,17 +76,13 @@ export default Component.extend(I18n, {
    * @type {ComputedProperty<SafeString>}
    */
   headerTooltip: computed(
-    'currentProviderName',
     'spaceProvidersCount',
     function headerTooltip() {
-      const {
-        currentProviderName,
-        spaceProvidersCount,
-      } = this.getProperties('currentProviderName', 'spaceProvidersCount');
+      const spaceProvidersCount = this.get('spaceProvidersCount');
 
       const translationKey = 'headerTooltip.' +
         (spaceProvidersCount > 1 ? 'manyProviders' : 'singleProvider');
-      return this.t(translationKey, { currentProviderName });
+      return this.t(translationKey);
     }
   ),
 });
