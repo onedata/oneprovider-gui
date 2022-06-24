@@ -129,7 +129,7 @@ $color-qos-entry-info-block-bg-level-2: #f2f2f2;
   }
 
   // empirical value when there is no space left for switcher with its label
-  @media (max-width: 570px) {
+  @media (max-width: 580px) {
     .qos-info-subheader {
       flex-direction: column;
       align-items: flex-start;
@@ -139,7 +139,7 @@ $color-qos-entry-info-block-bg-level-2: #f2f2f2;
       margin-top: 0.5em;
     }
   }
-  @media (max-width: 370px) {
+  @media (max-width: 420px) {
     .qos-info-selector-label {
       display: none;
     }
@@ -198,8 +198,13 @@ $color-qos-entry-info-block-bg-level-2: #f2f2f2;
   }
 
   .qos-entry-logs {
-    height: 280px;
-    position: relative;
+    min-height: 320px;
+    // standard size for multiple-file or multiple-entries qos-modal
+    height: 50vh;
+    .event-log-table-container {
+      height: 100%;
+      position: relative;
+    }
     .table.event-log-table.with-sticky-header thead {
       // a hack to prevent rendering issues (transparent 1px line on top of sticky header)
       // probably caused by rendering rounded corner of container

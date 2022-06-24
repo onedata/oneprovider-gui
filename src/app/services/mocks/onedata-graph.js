@@ -731,7 +731,24 @@ const qosRequirementHandlers = {
       };
     }
 
-    return {
+    const errorMessage = {
+      timestamp: 1655137705932,
+      index: '2',
+      content: {
+        status: 'failed',
+        severity: 'error',
+        fileId,
+        description: 'Failed to reconcile local replica: no space left on device.',
+        reason: {
+          id: 'posix',
+          details: {
+            errno: 'enospc',
+          },
+        },
+      },
+    };
+
+    const result = {
       logEntries: [{
         timestamp: 1655137705791,
         index: '0',
@@ -768,24 +785,13 @@ const qosRequirementHandlers = {
           description: 'Local replica reconciled.',
           fileId,
         },
-      }, {
-        timestamp: 1655137705932,
-        index: '2',
-        content: {
-          status: 'failed',
-          severity: 'error',
-          fileId,
-          description: 'Failed to reconcile local replica: no space left on device.',
-          reason: {
-            id: 'posix',
-            details: {
-              errno: 'enospc',
-            },
-          },
-        },
       }],
       isLast: true,
     };
+    for (let i = 0; i < 25; ++i) {
+      result.logEntries.push(errorMessage);
+    }
+    return result;
   },
 };
 

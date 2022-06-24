@@ -14,7 +14,7 @@ import { promise } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, {
-  tagName: '',
+  classNames: ['qos-entry-logs'],
 
   spaceManager: service(),
   i18n: service(),

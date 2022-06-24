@@ -105,6 +105,7 @@ p.last {
       text-align: left;
       padding-left: $cell-padding;
       padding-right: $cell-padding;
+      padding-top: $cell-padding * 2;
       padding-bottom: $cell-padding * 2;
       &:first-child {
         padding-left: $first-table-column-padding-left;
@@ -146,11 +147,20 @@ p.last {
   // commonly used column class
   .column-timestamp {
     width: 12em;
+    &.column-timestamp-with-ms {
+      width: 8em;
+    }
     @media (max-width: $screen-xs-max) {
       width: 7em;
+      &.column-timestamp-with-ms {
+        width: 8em;
+      }
     }
   }
   td.column-timestamp {
+    &.column-timestamp-with-ms {
+      font-size: 90%;
+    }
     @media (max-width: $screen-xs-max) {
       font-size: 90%;
     }

@@ -1,5 +1,7 @@
 {{#each columnIds as |columnId|}}
-  <th class="column-label column-{{columnId}}">
+  <th
+    class="column-label column-{{columnId}} {{if (eq columnId "timestamp") "column-timestamp-with-ms"}}"
+  >
     <span class="column-label-text">
       {{tt this (concat "columnLabel." columnId)}}
     </span>
