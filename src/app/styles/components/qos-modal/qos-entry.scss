@@ -1,3 +1,9 @@
+$color-qos-entry-info-block-border: rgba(0, 0, 0, 0.1);
+
+// using fixed colors because sticky header should cover the content (no transparency)
+$color-qos-entry-info-block-bg-level-1: #fafafa;
+$color-qos-entry-info-block-bg-level-2: #f2f2f2;
+
 .qos-entry {
   padding: $padding-large-vertical 0;
   padding-top: 1em;
@@ -117,9 +123,6 @@
     }
   }
 
-  $color-qos-entry-info-block-bg: rgba(0, 0, 0, 0.02);
-  $color-qos-entry-info-block-border: rgba(0, 0, 0, 0.1);
-
   .qos-entry-details-switch {
     display: flex;
     align-items: center;
@@ -144,9 +147,13 @@
 
   .qos-entry-info-block {
     margin-top: 0.8em;
-    background-color: $color-qos-entry-info-block-bg;
+    background-color: $color-qos-entry-info-block-bg-level-1;
     border: 1px solid $color-qos-entry-info-block-border;
     border-radius: $border-radius-base;
+
+    .qos-entry-logs .table.event-log-table.with-sticky-header thead {
+      background-color: $color-qos-entry-info-block-bg-level-1;
+    }
   }
 
   .info-block-header {
@@ -193,15 +200,11 @@
   .qos-entry-logs {
     height: 280px;
     position: relative;
-    .event-log-thead {
-      th {
-        background-color: $color-qos-entry-info-block-bg;
-      }
-    }
     .table.event-log-table.with-sticky-header thead {
       // a hack to prevent rendering issues (transparent 1px line on top of sticky header)
       // probably caused by rendering rounded corner of container
       top: -1px;
+      background-color: $color-qos-entry-info-block-bg-level-1;
     }
     .event-log-table-container.on-bottom + .bottom-shadow-keeper {
       @include hide-before-shadow;
@@ -225,5 +228,15 @@
   // this rule should be declared after bottom-shadow-keeper overrides
   .qos-entry-logs.on-bottom + .bottom-shadow-keeper {
     @include hide-before-shadow;
+  }
+}
+
+.one-collapsible-list-item-content {
+  .qos-entry-info-block {
+    background-color: $color-qos-entry-info-block-bg-level-2;
+  }
+
+  .qos-entry-logs .table.event-log-table.with-sticky-header thead {
+    background-color: $color-qos-entry-info-block-bg-level-2;
   }
 }

@@ -89,6 +89,8 @@ p.last {
       position: sticky;
       top: 0;
       z-index: 1;
+      // default background for covering content of table with sticky header
+      // it should overriden
       background-color: $color-one-white;
     }
   }
@@ -101,7 +103,6 @@ p.last {
       position: relative;
       vertical-align: bottom;
       text-align: left;
-      background-color: $color-one-white;
       padding-left: $cell-padding;
       padding-right: $cell-padding;
       padding-bottom: $cell-padding * 2;
