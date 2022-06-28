@@ -42,7 +42,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {Object<OpenfaasPodId,OpenfaasPodActivity>}
    */
-  activityRegistry: undefined,
+  statusRegistry: undefined,
 
   /**
    * @virtual
@@ -74,19 +74,19 @@ export default Component.extend(I18n, {
   /**
    * @type {ComputedProperty<Array<{ podId: OpenfaasPodId, podActivity: OpenfaasPodActivity }>>}
    */
-  podRows: computed('activityRegistry', function podRows() {
-    const activityRegistry = this.get('activityRegistry');
-    if (!activityRegistry) {
+  podRows: computed('statusRegistry', function podRows() {
+    const statusRegistry = this.get('statusRegistry');
+    if (!statusRegistry) {
       return [];
     }
-    const podsIds = Object.keys(activityRegistry);
+    const podsIds = Object.keys(statusRegistry);
     // Generating sorting keys for each pod. Sorting key consists of two elements:
     // - position of pod status in `statusesOrder` array,
     // - pod ID.
     // Example generated key: `'0002#some_pod_id'`
     const sortKeyToPodId = podsIds.reduce((acc, podId) => {
       let statusIdx = statusesOrder.indexOf(
-        (activityRegistry[podId].currentStatus || '').toLowerCase()
+        (statusRegistry[podId].currentStatus || '').toLowerCase()
       );
       if (statusIdx === -1) {
         statusIdx = statusesOrder.length;
@@ -105,7 +105,7 @@ export default Component.extend(I18n, {
       const podId = sortKeyToPodId[sortKey];
       return {
         podId,
-        podActivity: activityRegistry[podId],
+        podActivity: statusRegistry[podId],
       };
     });
   }),

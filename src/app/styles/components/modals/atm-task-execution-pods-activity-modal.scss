@@ -3,7 +3,7 @@
   $entry-danger-bg: lighten($color-one-danger, 35%);
   $entry-selected-hovered-bg: darken($color-file-selected, 3%);
 
-  .bs-modal-body-scroll {
+  &.in .modal-dialog .modal-body .bs-modal-body-scroll {
     display: grid;
     grid-template-rows: 1fr 10px 1fr;
     grid-template-columns: 100%;
