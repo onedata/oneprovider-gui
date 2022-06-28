@@ -11,6 +11,7 @@ import Component from '@ember/component';
 import { tag, getBy, raw } from 'ember-awesome-macros';
 import { reads } from '@ember/object/computed';
 import { get, computed, observer } from '@ember/object';
+import { camelize } from '@ember/string';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import notImplementedReject from 'onedata-gui-common/utils/not-implemented-reject';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -21,9 +22,13 @@ import { qosRpnToInfix } from 'oneprovider-gui/utils/qos-expression-converters';
 import { qosStatusIcons } from 'oneprovider-gui/components/qos-modal';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
+import _ from 'lodash';
+import { inject as service } from '@ember/service';
 
 export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   classNames: ['qos-entry', 'qos-entry-saved', 'list-item'],
+
+  i18n: service(),
 
   /**
    * @override
@@ -78,6 +83,31 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
   areChartsInitiallyVisible: false,
 
   copyAnimationEndTimer: undefined,
+
+  /**
+   * @type {QosEntryInfoType}
+   */
+  detailsType: null,
+
+  /**
+   * @type {boolean}
+   */
+  isChartsSectionExpanded: false,
+
+  /**
+   * @type {boolean}
+   */
+  isLogsSectionExpanded: false,
+
+  /**
+   * @type {boolean}
+   */
+  areChartsRendered: false,
+
+  /**
+   * @type {boolean}
+   */
+  areLogsRendered: false,
 
   navigateDataTarget: '_top',
 
@@ -179,11 +209,28 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
     }
   ),
 
+  detailsTypeObserver: observer(
+    'detailsType',
+    function detailsTypeObserver() {
+      const detailsType = this.get('detailsType');
+      const types = ['charts', 'logs'];
+      if (types.includes(detailsType)) {
+        const showMethod = camelize(`show-${detailsType}`);
+        this[showMethod]();
+      }
+      _.without(types, detailsType).forEach(detailsToHide => {
+        const hideMethod = camelize(`hide-${detailsToHide}`);
+        this[hideMethod]();
+      });
+    }
+  ),
+
   init() {
     this._super(...arguments);
     if (this.get('areChartsInitiallyVisible')) {
-      this.showCharts();
+      this.set('detailsType', 'charts');
     }
+    this.detailsTypeObserver();
   },
 
   /**
@@ -204,12 +251,15 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
     this.set('isChartsSectionExpanded', false);
   },
 
-  toggleCharts() {
-    if (this.get('isChartsSectionExpanded')) {
-      this.hideCharts();
-    } else {
-      this.showCharts();
-    }
+  showLogs() {
+    this.setProperties({
+      isLogsSectionExpanded: true,
+      areLogsRendered: true,
+    });
+  },
+
+  hideLogs() {
+    this.set('isLogsSectionExpanded', false);
   },
 
   actions: {
@@ -226,11 +276,22 @@ export default Component.extend(I18n, createDataProxyMixin('qosEvaluation'), {
       }
       event.stopPropagation();
     },
-    toggleCharts() {
-      this.toggleCharts();
-    },
-    chartsHidden() {
+    hideCharts() {
       this.set('areChartsRendered', false);
+    },
+    hideLogs() {
+      this.set('areLogsRendered', false);
+    },
+    /**
+     *
+     * @param {QosEntryInfoType} newDetailsType
+     */
+    changeDetailsType(newDetailsType) {
+      const currentDetailsType = this.get('detailsType');
+      this.set(
+        'detailsType',
+        newDetailsType !== currentDetailsType ? newDetailsType : null
+      );
     },
   },
 });

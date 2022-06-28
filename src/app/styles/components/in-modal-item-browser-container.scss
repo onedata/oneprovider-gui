@@ -2,7 +2,7 @@
   .file-browser-head-container {
     position: sticky;
     z-index: 1;
-    padding-left: $file-browser-padding-left;
+    padding-left: $content-col-padding + $file-browser-padding-left;
     padding-right: $content-col-padding;
     padding-top: 0;
   }

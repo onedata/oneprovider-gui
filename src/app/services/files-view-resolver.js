@@ -73,7 +73,7 @@ export default Service.extend({
     fallbackDir = null,
   }) {
     const fileManager = this.get('fileManager');
-    const file = dirId && await fileManager.getFileById(dirId, scope);
+    const file = dirId && await fileManager.getFileById(dirId, { scope });
     if (file) {
       let dir;
       const fileType = get(file, 'type');
@@ -105,7 +105,8 @@ export default Service.extend({
         return this.generateFallbackResponse(fallbackDir);
       } else {
         try {
-          const firstSelectedFile = await fileManager.getFileById(selectedIds[0], scope);
+          const firstSelectedFile =
+            await fileManager.getFileById(selectedIds[0], { scope });
           const parent = await get(firstSelectedFile, 'parent');
           if (!parent) {
             return this.generateFallbackResponse(fallbackDir);

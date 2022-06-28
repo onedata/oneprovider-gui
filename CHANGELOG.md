@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-8045 Added QoS audit log
 * VFS-9499 Fixed too many rerendering cycles of the transfer menu
 * VFS-9501 Fixed broken directory size charts in archive browser
 * VFS-9502 Fixed hanging spinner after reloading empty directory

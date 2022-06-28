@@ -1,12 +1,14 @@
 {{#loading-container isLoading=entries.isLoading sizeClass="sm"}}
-  <table class="table one-infinite-list event-log-table">
-    <thead>
-      {{file-recall/event-log/header-row}}
+  <table class="table one-infinite-list event-log-table with-sticky-header">
+    <thead class="event-log-thead">
+      {{qos-modal/audit-log/header-row
+        showFileColumn=showFileColumn
+      }}
     </thead>
     <tbody>
       <tr class="table-start-row"></tr>
       <tr class="first-row">
-        <td colspan={{columnsCount}} style={{infiniteScroll.firstRowStyle}}></td>
+        <td colspan={{columnsCount}} style={{firstRowModel.style}}></td>
       </tr>
       {{#if noEntries}}
         <tr class="table-is-empty-row">
@@ -15,11 +17,7 @@
           </td>
         </tr>
       {{else}}
-        {{#if (and
-          entries.initialLoad.isSettled
-          infiniteScroll.fetchingStatus.isFetchingPrev
-          tableTopVisible
-        )}}
+        {{#if (and entries.initialLoad.isSettled fetchingStatus.prev tableTopVisible)}}
           <tr class="loading-row">
             <td colspan={{columnsCount}} class="loading-row-cell">
               {{spin-spinner-block
@@ -31,16 +29,14 @@
         {{/if}}
 
         {{#each entries key="index" as |entry|}}
-          {{file-recall/event-log/entry-row
+          {{qos-modal/audit-log/entry-row
+            showFileColumn=showFileColumn
             entry=entry
-            onGenerateSourceFileUrl=(action "generateSourceFileUrl")
+            onGenerateFileUrl=(action "generateFileUrl")
           }}
         {{/each}}
 
-        {{#if (and
-          entries.initialLoad.isSettled
-          infiniteScroll.fetchingStatus.isFetchingNext
-        )}}
+        {{#if (and entries.initialLoad.isSettled fetchingStatus.next)}}
           <tr class="loading-row">
             <td colspan={{columnsCount}} class="loading-row-cell">
               {{spin-spinner-block
