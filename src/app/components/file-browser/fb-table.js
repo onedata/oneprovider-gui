@@ -480,6 +480,7 @@ export default Component.extend(I18n, {
   api: computed(function api() {
     return {
       refresh: (animated = true) => {
+        const fallbackTimeoutMs = 300;
         const {
           refreshStarted,
           element,
@@ -496,6 +497,16 @@ export default Component.extend(I18n, {
           scheduleOnce('afterRender', () => {
             safeExec(this, 'set', 'refreshStarted', true);
             const animationPromise = new Promise((resolve) => {
+              // TODO: VFS-9503 handle edge-cases of refresh animation
+
+              // If special view is visible, then table is hidden with `display: none`
+              // and there is no `animationend` event after toggling on opacity.
+              // Resolving animation promise after 300ms of "non-existing" animation.
+              if (this.get('specialViewClass')) {
+                sleep(fallbackTimeoutMs).then(() => resolve());
+                return;
+              }
+
               const transitionEventHandler = (event) => {
                 if (
                   event.propertyName === 'opacity' &&
@@ -521,7 +532,7 @@ export default Component.extend(I18n, {
                     if (!this.get('refreshStarted')) {
                       safeExec(this, 'set', 'renderRefreshSpinner', false);
                     }
-                  }, 300);
+                  }, fallbackTimeoutMs);
                 });
               })
               .then(resolve, reject);

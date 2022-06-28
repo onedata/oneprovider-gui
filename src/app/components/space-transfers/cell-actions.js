@@ -1,6 +1,6 @@
 /**
  * A cell component with transfer actions
- * 
+ *
  * @module components/space-transfers/cell-actions
  * @author Michal Borzecki
  * @copyright (C) 2018 ACK CYFRONET AGH
@@ -63,6 +63,14 @@ export default Component.extend(I18n, {
   actionsOpened: false,
 
   /**
+   * The last calculated menu actions for specific arguments. Allows to reuse
+   * the already calculated actions in case of no real change in the component
+   * properties.
+   * @type {{memoArgs: Array<unknown>, actions: Ember.A<Utils.Action>}|null}
+   */
+  memoizedMenuActions: null,
+
+  /**
    * @type {Ember.ComputedProperty<boolean>}
    */
   isCancelling: computed.reads('record.transfer.isCancelling'),
@@ -89,7 +97,7 @@ export default Component.extend(I18n, {
   triggerSelector: tag `.${'triggerClass'}`,
 
   /**
-   * @type {Ember.ComputedProperty<Ember.A<EmberObject>>}
+   * @type {Ember.ComputedProperty<Ember.A<Utils.Action>>}
    */
   menuActions: computed(
     'transferActions',
@@ -98,26 +106,71 @@ export default Component.extend(I18n, {
     'transferFilesDeleted',
     'forbiddenOperations',
     function menuActions() {
-      const transferActions = this.get('transferActions');
-      if (transferActions) {
-        const record = this.get('record');
-        return A(transferActions
-          .filter(({ id }) => !this.isActionInvisible(id))
-          .map(({ id, action }) => {
-            const forbiddenTip = this.actionForbiddenTip(id);
-            const isDisabled = this.isActionDisabled(id);
-            return EmberObject.create({
-              title: this.t(id),
-              action: () => action(record),
-              icon: actionIcons[id],
-              disabled: isDisabled || Boolean(forbiddenTip),
-              tip: (forbiddenTip && !isDisabled) ? forbiddenTip : undefined,
-            });
-          })
-        );
-      }
+      return this.getMenuActions();
     }
   ),
+
+  /**
+   * Generates menu actions. Uses memoization to avoid recalculations.
+   * @returns {Ember.A<Utils.Action>}
+   */
+  getMenuActions() {
+    const {
+      memoizedMenuActions,
+      transferActions,
+      record,
+      isCancelling,
+      transferFilesDeleted,
+      forbiddenOperations,
+    } = this.getProperties(
+      'memoizedMenuActions',
+      'transferActions',
+      'record',
+      'isCancelling',
+      'transferFilesDeleted',
+      'forbiddenOperations',
+    );
+    const isRerunning = this.get('record.isRerunning');
+    const isEnded = this.get('record.transfer.isEnded');
+    const memoArgs = [
+      transferActions,
+      isRerunning,
+      isEnded,
+      isCancelling,
+      transferFilesDeleted,
+      forbiddenOperations,
+    ];
+
+    if (
+      memoizedMenuActions &&
+      memoizedMenuActions.memoArgs.every((arg, idx) => arg === memoArgs[idx])
+    ) {
+      return memoizedMenuActions.actions;
+    }
+
+    if (transferActions) {
+      const actions = A(
+        transferActions
+        .filter(({ id }) => !this.isActionInvisible(id))
+        .map(({ id, action }) => {
+          const forbiddenTip = this.actionForbiddenTip(id);
+          const isDisabled = this.isActionDisabled(id);
+          return EmberObject.create({
+            title: this.t(id),
+            action: () => action(record),
+            icon: actionIcons[id],
+            disabled: isDisabled || Boolean(forbiddenTip),
+            tip: (forbiddenTip && !isDisabled) ? forbiddenTip : undefined,
+          });
+        })
+      );
+      this.set('memoizedMenuActions', {
+        memoArgs,
+        actions,
+      });
+      return actions;
+    }
+  },
 
   /**
    * Returns true if action should be hidden for this transfer

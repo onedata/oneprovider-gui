@@ -14,6 +14,8 @@ import Service, { inject as service } from '@ember/service';
  * @property {string|null} index
  * @property {number} limit
  * @property {number} offset
+ * @property {'backward_from_newest'|'forward_from_oldest'} [direction] if there flag is
+ *   not present, backend uses "backward_from_newest" by default
  */
 
 /**
@@ -27,6 +29,12 @@ import Service, { inject as service } from '@ember/service';
  * @property {string} index
  * @property {number} timestamp milliseconds from Epoch
  * @property {T} content
+ */
+
+/**
+ * Supported severity types of infinite log entries used in frontend.
+ * Adds some computed types that improves UX in addition to backend severity types.
+ * @typedef {'debug'|'info'|'notice'|'warning'|'alert'|'error'|'critical'|'emergency'|'success'} FrontendInfiniteLogSeverity
  */
 
 export default Service.extend({

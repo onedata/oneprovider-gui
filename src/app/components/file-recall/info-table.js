@@ -19,7 +19,7 @@ import computedPipe from 'onedata-gui-common/utils/ember/computed-pipe';
 import isNewTabRequestEvent from 'onedata-gui-common/utils/is-new-tab-request-event';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import { isValidFileRecallProcessStatus } from 'oneprovider-gui/components/file-recall';
-import parseRecallError from 'oneprovider-gui/utils/parse-recall-error';
+import createErrorMessageSpec from 'oneprovider-gui/utils/create-error-message-spec';
 
 export default Component.extend(I18n, {
   tagName: 'table',
@@ -204,14 +204,14 @@ export default Component.extend(I18n, {
   ),
 
   /**
-   * @returns {RecallInfoError}
+   * @returns {ErrorMessageSpec}
    */
   lastErrorParsed: computed('lastError', function lastErrorParsed() {
     const {
       lastError,
       errorExtractor,
     } = this.getProperties('lastError', 'errorExtractor');
-    return parseRecallError(lastError && lastError.reason, errorExtractor);
+    return createErrorMessageSpec(lastError && lastError.reason, errorExtractor);
   }),
 
   filesRecalled: reads('archiveRecallState.filesCopied'),

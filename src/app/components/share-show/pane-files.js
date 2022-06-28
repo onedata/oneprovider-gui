@@ -174,7 +174,7 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
           share,
         } = this.getProperties('fileManager', 'share');
         const fileId = share.relationEntityId('rootFile');
-        await fileManager.getFileById(fileId, 'public');
+        await fileManager.getFileById(fileId, { scope: 'public' });
         return true;
       } catch (error) {
         return false;
@@ -203,7 +203,7 @@ export default Component.extend(I18n, ItemBrowserContainerBase, {
     if (itemId === shareRootId) {
       return this.get('rootDir');
     } else {
-      return this.get('fileManager').getFileById(itemId, 'public');
+      return this.get('fileManager').getFileById(itemId, { scope: 'public' });
     }
   },
 

@@ -1,6 +1,6 @@
 /**
  * Container for development tests of qos-modal
- * 
+ *
  * @module components/dummy-qos-modal
  * @author Jakub Liput
  * @copyright (C) 2020 ACK CYFRONET AGH
