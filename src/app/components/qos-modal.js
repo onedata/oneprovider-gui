@@ -334,8 +334,8 @@ export default Component.extend(...mixins, {
           }
         }
         break;
-      default:
-        break;
+        default:
+          break;
       }
     });
     return allFulfilled(promises).then(() => {

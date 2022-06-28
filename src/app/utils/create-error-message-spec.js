@@ -1,6 +1,6 @@
 /**
- * Simplifies raw recall error object from backend to message object that is used
- * in views.
+ * Simplifies raw error object from backend to message object that is used
+ * in audit-log views.
  *
  * @author Jakub Liput
  * @copyright (C) 2022 ACK CYFRONET AGH
@@ -9,8 +9,8 @@
 
 /**
  * Error in recall process parsed for showing a simple info for user.
- * @typedef {Object} RecallInfoError
- * @property {RecallInfoErrorType} type
+ * @typedef {Object} ErrorMessageSpec
+ * @property {ErrorMessageSpecType} type
  * @property {string} [message]
  */
 
@@ -20,15 +20,15 @@
  * - `raw` - error could not be parsed as known error, the message will contain
  *           a formatted raw JSON
  * - `unknown` - there is not information about error, message will be empty
- * @typedef {'message'|'raw'|'unknown'} RecallInfoErrorType
+ * @typedef {'message'|'raw'|'unknown'} ErrorMessageSpecType
  */
 
 /**
  * @param {RecallError} error
  * @param {Services.ErrorExtractor} errorExtractor
- * @returns {RecallInfoError}
+ * @returns {ErrorMessageSpec}
  */
-export default function parseRecallError(error, errorExtractor) {
+export default function createErrorMessageSpec(error, errorExtractor) {
   if (error) {
     const messageObject = errorExtractor.getMessage(error);
     if (messageObject && messageObject.message) {
