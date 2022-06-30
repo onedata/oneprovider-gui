@@ -479,64 +479,31 @@ export default Component.extend(I18n, {
    */
   api: computed(function api() {
     return {
-      refresh: (animated = true) => {
-        const fallbackTimeoutMs = 300;
-        const {
-          refreshStarted,
-          element,
-        } = this.getProperties('refreshStarted', 'element');
+      refresh: async (animated = true) => {
+        const refreshStarted = this.get('refreshStarted');
+        // should be the same as $refresh-transition-duration in fb-table.scss
+        const fadeTime = 300;
         if (refreshStarted) {
-          return resolve();
+          return;
         }
         if (!animated) {
           return this.refreshFileList();
         }
         this.set('renderRefreshSpinner', true);
-        // wait for refresh spinner to render because it needs to transition
-        return new Promise((resolve, reject) => {
-          scheduleOnce('afterRender', () => {
-            safeExec(this, 'set', 'refreshStarted', true);
-            const animationPromise = new Promise((resolve) => {
-              // TODO: VFS-9503 handle edge-cases of refresh animation
-
-              // If special view is visible, then table is hidden with `display: none`
-              // and there is no `animationend` event after toggling on opacity.
-              // Resolving animation promise after 300ms of "non-existing" animation.
-              if (this.get('specialViewClass')) {
-                sleep(fallbackTimeoutMs).then(() => resolve());
-                return;
+        // wait for refresh spinner to render because it needs parent class to transition
+        scheduleOnce('afterRender', async () => {
+          safeExec(this, 'set', 'refreshStarted', true);
+          try {
+            await sleep(fadeTime);
+            return await this.refreshFileList();
+          } finally {
+            safeExec(this, 'set', 'refreshStarted', false);
+            later(() => {
+              if (!this.get('refreshStarted')) {
+                safeExec(this, 'set', 'renderRefreshSpinner', false);
               }
-
-              const transitionEventHandler = (event) => {
-                if (
-                  event.propertyName === 'opacity' &&
-                  event.target.matches('.fb-files-table')
-                ) {
-                  element.removeEventListener(
-                    'transitionend',
-                    transitionEventHandler,
-                  );
-                  resolve();
-                }
-              };
-              element.addEventListener(
-                'transitionend',
-                transitionEventHandler,
-              );
-            });
-            this.refreshFileList()
-              .finally(() => {
-                animationPromise.finally(() => {
-                  safeExec(this, 'set', 'refreshStarted', false);
-                  later(() => {
-                    if (!this.get('refreshStarted')) {
-                      safeExec(this, 'set', 'renderRefreshSpinner', false);
-                    }
-                  }, fallbackTimeoutMs);
-                });
-              })
-              .then(resolve, reject);
-          });
+            }, fadeTime);
+          }
         });
       },
       getFilesArray: () => {
