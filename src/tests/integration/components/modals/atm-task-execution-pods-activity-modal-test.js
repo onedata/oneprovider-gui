@@ -20,7 +20,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
     const atmTaskExecutionId = 'task1ExecutionId';
     const workflowManager = lookupService(this, 'workflow-manager');
     const getOpenfaasRegistryMock = sinon.stub().resolves({ registry: {} });
-    sinon.stub(workflowManager, 'getAtmTaskExecutionOpenfaasActivityRegistry')
+    sinon.stub(workflowManager, 'getAtmTaskExecutionOpenfaasPodStatusRegistry')
       .withArgs(atmTaskExecutionId, sinon.match.any)
       .callsFake(() => getOpenfaasRegistryMock());
     this.setProperties({

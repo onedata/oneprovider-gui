@@ -1471,7 +1471,7 @@ export default Service.extend({
                     const taskEntityId =
                       generateAtmTaskExecutionEntityId(taskIdx, entityId, runNumber);
                     const podStatusTime = scheduleTime || startTime;
-                    await this.createAtmTaskOpenfaasActivityRegistry(taskEntityId, {
+                    await this.createAtmTaskOpenfaasPodStatusRegistry(taskEntityId, {
                       registry: {
                         'w90b1146c16-s74f09087db-bagit-uploader-validate-69dfc69d872x5jw': {
                           currentStatus: 'Running',
@@ -1598,16 +1598,16 @@ export default Service.extend({
       .save();
   },
 
-  async createAtmTaskOpenfaasActivityRegistry(taskEntityId, data) {
+  async createAtmTaskOpenfaasPodStatusRegistry(taskEntityId, data) {
     const id = gri({
       entityType: atmTaskExecutionEntityType,
       entityId: taskEntityId,
-      aspect: atmTaskExecutionAspects.openfaasFunctionActivityRegistry,
+      aspect: atmTaskExecutionAspects.openfaasFunctionPodStatusRegistry,
       scope: 'private',
     });
 
     return await this.get('store')
-      .createRecord('openfaasFunctionActivityRegistry', Object.assign({ id }, data))
+      .createRecord('openfaasFunctionPodStatusRegistry', Object.assign({ id }, data))
       .save();
   },
 

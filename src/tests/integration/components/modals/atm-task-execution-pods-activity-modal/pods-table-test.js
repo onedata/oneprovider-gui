@@ -16,7 +16,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('shows header and pods with filter set to "current" on init', async function () {
-    this.set('activityRegistry', generateActivityRegistry());
+    this.set('statusRegistry', generateStatusRegistry());
     await renderComponent();
 
     expect(find('.pods-table-header-row')).to.exist;
@@ -28,7 +28,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   });
 
   it('allows changing pods filter to "all"', async function () {
-    this.set('activityRegistry', generateActivityRegistry());
+    this.set('statusRegistry', generateStatusRegistry());
     await renderComponent();
 
     await click('.filter-all');
@@ -43,7 +43,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
   it('automatically changes pods filter to "all" on init when there are no pods in "current" but are some in "all"',
     async function () {
-      this.set('activityRegistry', generateActivityRegistry(['Terminated', 'Terminated']));
+      this.set('statusRegistry', generateStatusRegistry(['Terminated', 'Terminated']));
       await renderComponent();
 
       expect(find('.filter-all')).to.have.class('active');
@@ -52,7 +52,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
   it('shows table with pods filter equal to "current" when there are no pods',
     async function () {
-      this.set('activityRegistry', generateActivityRegistry([]));
+      this.set('statusRegistry', generateStatusRegistry([]));
       await renderComponent();
 
       expect(find('.filter-current')).to.have.class('active');
@@ -61,7 +61,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
   it('shows row selection', async function () {
     this.setProperties({
-      activityRegistry: generateActivityRegistry(),
+      statusRegistry: generateStatusRegistry(),
       selectedPodId: 'pod2',
     });
     await renderComponent();
@@ -71,7 +71,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 
   it('allows selecting row', async function () {
     const { onPodSelect } = this.setProperties({
-      activityRegistry: generateActivityRegistry(),
+      statusRegistry: generateStatusRegistry(),
       onPodSelect: sinon.spy(),
     });
     await renderComponent();
@@ -98,14 +98,14 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 });
 
 async function renderComponent() {
-  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
-    activityRegistry=activityRegistry
+  render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
+    statusRegistry=statusRegistry
     selectedPodId=selectedPodId
     onPodSelect=onPodSelect
   }}`);
 }
 
-function generateActivityRegistry(statuses = ['Terminated', 'Pending', 'Running']) {
+function generateStatusRegistry(statuses = ['Terminated', 'Pending', 'Running']) {
   return statuses.reduce((acc, status, idx) => {
     acc[`pod${idx + 1}`] = {
       currentStatus: status,
