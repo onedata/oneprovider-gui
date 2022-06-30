@@ -28,7 +28,7 @@ export default Component.extend(I18n, {
    * @virtual
    * @type {boolean}
    */
-  neverSynchronized: false,
+  unknownData: false,
 
   /**
    * @virtual
@@ -56,7 +56,6 @@ export default Component.extend(I18n, {
   _occupiedSpaceBarStyle: computed('_barOccupiedPercentsNormalized', function () {
     const _barOccupiedPercentsNormalized =
       this.get('_barOccupiedPercentsNormalized');
-    console.log('_barOccupiedPercentsNormalized', _barOccupiedPercentsNormalized);
     return htmlSafe(
       _barOccupiedPercentsNormalized === undefined ?
       '' : `flex: 0 0 ${_barOccupiedPercentsNormalized}%`

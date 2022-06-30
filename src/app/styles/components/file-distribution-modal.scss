@@ -22,8 +22,16 @@
     }
 
     &:first-child {
-      .chunks-scale-container {
-        top: -14px;
+      .progress-bar-visualizer {
+        .chunks-scale-container {
+          top: 0px;
+        }
+      }
+
+      .chunks-visualizer {
+        .chunks-scale-container {
+          top: -14px;
+        }
       }
 
       .chunks-scale {
@@ -71,6 +79,8 @@
   .transfers-counter-info {
     margin-top: $padding-base-vertical;
     min-height: 1em;
+    display: flex;
+    justify-content: space-between;
   }
 
   .destination-oneprovider-selector {
@@ -226,6 +236,14 @@
 
   .batch-mode-intro {
     margin-bottom: $padding-large-vertical;
+
+    .details-size-info {
+      .one-icon {
+        transform: translateY(-4%);
+        position: absolute;
+        font-size: 150%;
+      }
+    }
   }
 
   .chunks-visualizer, .progress-bar-visualizer {
@@ -233,26 +251,24 @@
     display: flex;
     align-items: center;
 
-    .chunks-text {
+    .chunks-text, .size-label {
       @include absolute-align-middle-center();
+      @include font-semibold;
       white-space: nowrap;
       font-size: 80%;
+      color: #555555;
+      text-shadow:
+        0.2em 0 10px white,
+        0 0.2em 10px white,
+        -0.2em 0 10px white,
+        0 -0.2em 10px white;
     }
 
     .chunks-background {
       flex-grow: 1;
       min-width: 0;
       height: $one-pill-button-height;
-      background-image: linear-gradient(
-        -45deg,
-        $color-one-light-blue 25%,
-        transparent 25%,
-        transparent 50%,
-        $color-one-light-blue 25%,
-        $color-one-light-blue 75%,
-        transparent 75%,
-        transparent
-      );
+      background-color: $color-one-light-blue;
       background-size: 50px 50px;
     }
 
@@ -261,28 +277,24 @@
       display: flex;
       flex-grow: 1;
       min-width: 0;
+      background-color: #F2F4FA;
     }
 
     .progress-bar {
       display: flex;
       min-width: 0;
       height: $one-pill-button-height;
-        // background-color: darken(#4BD187, 15%);
-        background-color: $color-one-blue-gray;
-        &::before {
-          $gradient-size: 8px;
-          content: '';
-          display: block;
-          position: absolute;
-          @include fill-container();
-          background-image: repeating-linear-gradient(
-            45deg,
-            rgba(255, 255, 255, 0.1),
-            rgba(255, 255, 255, 0.1) $gradient-size,
-            transparent $gradient-size,
-            transparent $gradient-size * 2
-          );
-        }
+      width: 0px;
+      background-color: $color-one-azure;
+      $gradient-size: 8px;
+      @include fill-container();
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.1) $gradient-size,
+        transparent $gradient-size,
+        transparent $gradient-size * 2
+      );
     }
 
     .chunks-scale-container {
@@ -312,7 +324,7 @@
       background-color: $color-one-light-blue;
     }
 
-    .percentage-text {
+    .percentage-text, .size-text {
       flex-shrink: 0;
       width: 3em;
       text-align: right;
@@ -360,5 +372,32 @@
     .list-content {
       padding: $padding-large-vertical;
     }
+  }
+
+  .replication-legend {
+    width: 10px;
+    height: 10px;
+    background-color: $color-one-azure;
+    margin-right: 5px;
+    align-self: center;
+  }
+
+  .block-legend {
+    width: 10px;
+    height: 10px;
+    background-color: $color-one-mint;
+    margin-right: 5px;
+    align-self: center;
+    margin-right: 5px;
+    align-self: center;
+  }
+
+  .legend {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .main-legend {
+    flex-grow: 5;
   }
 }

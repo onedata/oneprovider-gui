@@ -22,6 +22,7 @@ import { getOwner } from '@ember/application';
 import { next } from '@ember/runloop';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import $ from 'jquery';
+import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 
 export default Component.extend(
   I18n,
@@ -72,19 +73,43 @@ export default Component.extend(
     ),
 
     /**
-     * @type {Ember.ComputedProperty<number>}
+     * @type {Ember.ComputedProperty<Array<Models.File>>}
      */
-    filesNumber: array.length('files'),
+    filesOfTypeFile: array.filterBy(
+      'files',
+      raw('type'),
+      raw('file')
+    ),
 
     /**
      * @type {Ember.ComputedProperty<number>}
      */
-    directoriesNumber: array.length('filesOfTypeDir'),
+    itemsNumber: array.length('files'),
 
     /**
      * @type {Ember.ComputedProperty<number>}
      */
-    filesSize: sum(array.mapBy('files', raw('size'))),
+    filesNumber: array.length('filesOfTypeFile'),
+
+    /**
+     * @type {Ember.ComputedProperty<number>}
+     */
+    dirsNumber: array.length('filesOfTypeDir'),
+
+    /**
+     * @type {Ember.ComputedProperty<number>}
+     */
+    itemsSize: sum(array.mapBy('files', raw('size'))),
+
+    /**
+     * @type {Ember.ComputedProperty<number>}
+     */
+    filesSize: sum(array.mapBy('filesOfTypeFile', raw('size'))),
+
+    /**
+     * @type {Ember.ComputedProperty<number>}
+     */
+    dirsSize: sum(array.mapBy('filesOfTypeDir', raw('size'))),
 
     /**
      * @type {Ember.ComputedProperty<Array<Utils.FileDistributionDataContainer>>}
@@ -95,6 +120,79 @@ export default Component.extend(
           getOwner(this).ownerInjection(), { file }
         ));
     }),
+
+    /**
+     * @type {ComputedProperty<String>}
+     */
+    summaryText: computed(
+      'itemsNumber',
+      'filesNumber',
+      'dirsNumber',
+      'itemsSize',
+      'dirsSize',
+      function summaryText() {
+        const {
+          itemsNumber,
+          filesNumber,
+          dirsNumber,
+          itemsSize,
+          dirsSize,
+        } = this.getProperties(
+          'itemsNumber',
+          'filesNumber',
+          'dirsNumber',
+          'itemsSize',
+          'dirsSize',
+        );
+        let itemNoun;
+        const itemsSizeText = bytesToString(itemsSize);
+
+        if (dirsSize == null) {
+          return this.t('itemsBatchDescriptionNoStats');
+        }
+        if (filesNumber === itemsNumber) {
+          itemNoun = itemsNumber > 1 ? this.t('files') : this.t('file');
+        } else if (dirsNumber === itemsNumber) {
+          itemNoun = itemsNumber > 1 ? this.t('dirs') : this.t('dir');
+        } else {
+          itemNoun = itemsNumber > 1 ? this.t('items') : this.t('item');
+        }
+
+        return this.t('filesBatchDescription', {
+          itemsNumber: itemsNumber,
+          itemNoun: itemNoun,
+          itemsSize: itemsSizeText,
+        });
+      }),
+
+    filesSizeDetails: computed(
+      'filesNumber',
+      'dirsNumber',
+      'filesSize',
+      'dirsSize',
+      function filesSizeDetails() {
+        const {
+          filesNumber,
+          dirsNumber,
+          filesSize,
+          dirsSize,
+        } = this.getProperties(
+          'filesNumber',
+          'dirsNumber',
+          'filesSize',
+          'dirsSize'
+        );
+        if (filesNumber && dirsNumber && dirsSize != null) {
+          return this.t('sizeDetails', {
+            fileNoun: filesNumber > 1 ? this.t('files') : this.t('file'),
+            filesSize: bytesToString(filesSize),
+            directoryNoun: dirsNumber > 1 ? this.t('dirs') : this.t('dir'),
+            dirsSize: bytesToString(dirsSize),
+          });
+        } else {
+          return '';
+        }
+      }),
 
     /**
      * One of: 'distribution-summary', 'distribution-details'.

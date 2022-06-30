@@ -116,6 +116,9 @@ export default Component.extend(I18n, {
 
   storageName: computed('storage', 'storageManager', function storageName() {
     const storageId = this.get('storage');
+    if (storageId.includes('unknown')) {
+      return { name: 'unknown' };
+    }
     const storageManager = this.get('storageManager');
     const spaceId = this.get('spaceId');
     return storageManager.getStorageById(storageId, {
@@ -138,21 +141,11 @@ export default Component.extend(I18n, {
     raw('isFileDistributionLoaded')
   ),
 
-  neverSynchronized: computed(
-    'fileDistributionData.@each.fileDistribution',
-    'oneprovider',
-    function neverSynchronized() {
-      const {
-        fileDistributionData,
-        oneprovider,
-        storage,
-      } = this.getProperties('fileDistributionData', 'oneprovider', 'storage');
-      const distributions = fileDistributionData
-        .map(fileDistDataContainer =>
-          fileDistDataContainer.getDistributionForStorage(oneprovider, storage)
-        )
-        .compact();
-      return get(distributions, 'length') === 0;
+  unknownData: computed(
+    'storage',
+    function unknownData() {
+      const storage = this.get('storage');
+      return storage.includes('unknown');
     }
   ),
 
@@ -165,6 +158,30 @@ export default Component.extend(I18n, {
    * @type {Ember.ComputedProperty<number>}
    */
   filesSize: sum(array.mapBy('fileDistributionData', raw('fileSize'))),
+
+  fileSizePerProvider: computed(
+    'fileDistributionData',
+    'oneprovider',
+    'storage',
+    function fileSizePerProvider() {
+      const {
+        fileDistributionData,
+        oneprovider,
+        storage,
+      } = this.getProperties('fileDistributionData', 'oneprovider', 'storage');
+      let size = 0;
+      fileDistributionData.forEach(fileDistDataContainer => {
+        const fileDistribution =
+          fileDistDataContainer.getDistributionForStorage(oneprovider, storage);
+        if (get(fileDistribution, 'physicalSize')) {
+          size += fileDistribution.physicalSize;
+        } else {
+          size += fileDistribution;
+        }
+      });
+      return size;
+    }
+  ),
 
   /**
    * @type {Ember.ComputedProperty<boolean>}
@@ -184,6 +201,8 @@ export default Component.extend(I18n, {
     'filesSize',
     'fileDistributionData.@each.{fileSize,fileDistribution}',
     'oneprovider',
+    'storage',
+    'unknownData',
     function () {
       const {
         filesSize,
@@ -191,15 +210,17 @@ export default Component.extend(I18n, {
         allFilesDistributionsLoaded,
         oneprovider,
         storage,
+        unknownData,
       } = this.getProperties(
         'filesSize',
         'fileDistributionData',
         'allFilesDistributionsLoaded',
         'oneprovider',
-        'storage'
+        'storage',
+        'unknownData'
       );
 
-      if (allFilesDistributionsLoaded && filesSize) {
+      if (allFilesDistributionsLoaded && filesSize && !unknownData) {
         let availableBytes = 0;
         fileDistributionData.forEach(fileDistDataContainer => {
           const fileSize = get(fileDistDataContainer, 'fileSize');
@@ -215,7 +236,6 @@ export default Component.extend(I18n, {
             }
           }
         });
-
         const percentage = Math.floor(
           (Math.min(availableBytes, filesSize) / filesSize) * 100
         );
@@ -401,7 +421,7 @@ export default Component.extend(I18n, {
 
       const hasDirs = fileDistributionData.isAny('fileType', 'dir');
 
-      const someNeverSynchronized = hasDirs ? true : fileDistributionData
+      const someNeverSynchronized = fileDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForStorage(oneprovider, storage)
         )
@@ -409,7 +429,6 @@ export default Component.extend(I18n, {
 
       const state = { enabled: false };
       let tooltipI18nKey;
-
       if (replicationForbidden) {
         state.tooltip = insufficientPrivilegesMessage({
           i18n,

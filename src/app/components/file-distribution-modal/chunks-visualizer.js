@@ -12,6 +12,7 @@ import { computed, observer } from '@ember/object';
 import { inject as service } from '@ember/service';
 import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { scheduleOnce } from '@ember/runloop';
+import bytesToString from 'onedata-gui-common/utils/bytes-to-string';
 
 export default Component.extend(I18n, {
   classNames: ['chunks-visualizer'],
@@ -68,6 +69,35 @@ export default Component.extend(I18n, {
     return percentage !== undefined ? `${Math.floor(percentage)}%` : '';
   }),
 
+  /**
+   * @type {Ember.ComputedProperty<number>}
+   */
+  blocksNumber: computed('chunks', function blocksNumber() {
+    const chunks = this.get('chunks');
+    let blocksCount = 0;
+    for (const element in chunks) {
+      if (chunks[element] > 0) {
+        blocksCount++;
+      }
+    }
+    return blocksCount;
+  }),
+
+  /**
+   * @type {Ember.ComputedProperty<string>}
+   */
+  blocksSizeText: computed('fileSize', 'blocksNumber', function blocksSizeText() {
+    const {
+      fileSize,
+      blocksNumber,
+    } = this.getProperties('fileSize', 'blocksNumber');
+    return this.t('blocksSize', {
+      size: fileSize ? bytesToString(fileSize) : bytesToString(0),
+      blocksNumber: blocksNumber,
+      blockNoun: blocksNumber > 1 ? this.t('blocks') : this.t('block'),
+    });
+  }),
+
   canvasRedrawer: observer(
     'neverSynchronized',
     'chunksRange',
@@ -95,12 +125,11 @@ export default Component.extend(I18n, {
     const canvas = this.getCanvas();
     if (!this.get('neverSynchronized') && canvas) {
       const {
-        chunks,
         chunksRange,
         chunksColor,
-      } = this.getProperties('chunks', 'chunksRange', 'chunksColor');
+      } = this.getProperties('chunksRange', 'chunksColor');
+      const chunks = this.get('chunks');
       const context = canvas.getContext('2d');
-
       // Clear canvas
       context.clearRect(0, 0, canvas.width, canvas.height);
 

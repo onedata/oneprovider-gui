@@ -11,7 +11,7 @@
 import Component from '@ember/component';
 import { observer, get, set, getProperties, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
-import { conditional, raw, notEmpty, array } from 'ember-awesome-macros';
+import { conditional, raw, notEmpty, array, equal } from 'ember-awesome-macros';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import safeExec from 'onedata-gui-common/utils/safe-method-execution';
 import { Promise } from 'rsvp';
@@ -260,16 +260,47 @@ export default Component.extend(I18n, {
     const fileDistributionData = this.get('fileDistributionData');
     const oneproviders = this.get('oneproviders');
     const storagesForProviders = {};
+    const storagesPerProvider = {};
+    const providerNames = {};
     fileDistributionData.forEach(fileDistributionContainer => {
       oneproviders.forEach(oneprovider => {
-        fileDistributionContainer.getStoragesForOneprovider(oneprovider).forEach(storage => {
-          storagesForProviders[storage] = oneprovider;
-        });
+        const name = get(oneprovider, 'entityId');
+        providerNames[name] = oneprovider;
+        const storagesForOneprovider = fileDistributionContainer.getStoragesForOneprovider(oneprovider);
+        if (Object.keys(storagesForOneprovider).length > 0) {
+          storagesForOneprovider.forEach(storage => {
+            if (name in storagesPerProvider && 'unknown' in storagesPerProvider[name]) {
+              storagesPerProvider[name].push(storage);
+            } else if (!(name in storagesPerProvider)) {
+              storagesPerProvider[name] = [storage];
+            }
+          });
+        } else {
+          storagesPerProvider[name] = ['unknown'];
+        }
       });
-
     });
+    for (const [providerId, storages] of Object.entries(storagesPerProvider)) {
+      [...new Set(storages)].forEach(storage => {
+        if (storage === 'unknown') {
+          storagesForProviders[storage + providerId] = providerNames[providerId];
+        } else {
+          storagesForProviders[storage] = providerNames[providerId];
+        }
+      });
+    }
     return storagesForProviders;
   }),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  hasSingleFile: equal('fileDistributionData.length', raw(1)),
+
+  /**
+   * @type {Ember.ComputedProperty<boolean>}
+   */
+  hasOnlyFiles: array.isEvery('fileDistributionData', raw('fileType'), raw('file')),
 
   init() {
     this._super(...arguments);

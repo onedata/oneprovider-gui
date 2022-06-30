@@ -57,31 +57,46 @@ export default Component.extend({
           if (relation === 'distribution') {
             return {
               reload: () => resolve({
-                distributionPerProvider: {
+                distribution: {
                   123: {
-                    blocksPercentage: 50,
-                    chunksBarData: {
-                      0: 50,
-                      120: 0,
-                      220: 100,
+                    logicalSize: 1024,
+                    distributionPerStorage: {
+                      storage1: {
+                        physicalSize: 512,
+                        blocksPercentage: 50,
+                        chunksBarData: {
+                          0: 50,
+                          120: 0,
+                          220: 100,
+                        },
+                      },
                     },
-                    neverSynchronized: false,
                   },
                   456: {
-                    blocksPercentage: 50,
-                    chunksBarData: {
-                      0: 50,
-                      120: 0,
-                      220: 100,
+                    logicalSize: 1024,
+                    distributionPerStorage: {
+                      storage2: {
+                        physicalSize: 512,
+                        blocksPercentage: 50,
+                        chunksBarData: {
+                          0: 50,
+                          120: 0,
+                          220: 100,
+                        },
+                      },
                     },
-                    neverSynchronized: false,
                   },
                   789: {
-                    blocksPercentage: 0,
-                    chunksBarData: {
-                      0: 0,
+                    logicalSize: 1024,
+                    distributionPerStorage: {
+                      storage3: {
+                        physicalSize: 0,
+                        blocksPercentage: 0,
+                        chunksBarData: {
+                          0: 0,
+                        },
+                      },
                     },
-                    neverSynchronized: true,
                   },
                 },
               }),
@@ -98,30 +113,74 @@ export default Component.extend({
           if (relation === 'distribution') {
             return {
               reload: () => resolve({
-                distributionPerProvider: {
+                distribution: {
                   123: {
-                    blocksPercentage: 100,
-                    chunksBarData: {
-                      0: 100,
+                    logicalSize: 1024,
+                    distributionPerStorage: {
+                      storage1: {
+                        blocksPercentage: 100,
+                        chunksBarData: {
+                          0: 100,
+                        },
+                      },
                     },
-                    neverSynchronized: false,
                   },
                   456: {
-                    blocksPercentage: 0,
-                    chunksBarData: {
-                      0: 0,
+                    logicalSize: 1024,
+                    distributionPerStorage: {
+                      storage2: {
+                        blocksPercentage: 0,
+                        chunksBarData: {
+                          0: 0,
+                        },
+                      },
                     },
-                    neverSynchronized: true,
                   },
                   789: {
-                    blocksPercentage: 0,
-                    chunksBarData: {
-                      0: 0,
+                    logicalSize: 1024,
+                    distributionPerStorage: {
+                      storage3: {
+                        blocksPercentage: 0,
+                        chunksBarData: {
+                          0: 0,
+                        },
+                      },
                     },
-                    neverSynchronized: false,
                   },
                 },
-
+              }),
+            };
+          }
+        },
+      },
+      {
+        entityId: 'dir1',
+        name: 'dir_name1',
+        size: 1024,
+        type: 'dir',
+        belongsTo(relation) {
+          if (relation === 'distribution') {
+            return {
+              reload: () => resolve({
+                distributionPerProvider: {
+                  123: {
+                    logicalSize: 1024,
+                    distributionPerStorage: {
+                      storage1: 1024,
+                    },
+                  },
+                  456: {
+                    logicalSize: 0,
+                    distributionPerStorage: {
+                      storage2: 0,
+                    },
+                  },
+                  789: {
+                    description: 'Operation failed with POSIX error: enotsup.',
+                    details: { errno: 'enotsup' },
+                    id: 'posix',
+                  },
+                },
               }),
             };
           }

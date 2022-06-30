@@ -31,7 +31,5 @@ export default Model.extend(GraphSingleModelMixin, {
    * Oneprovider. If some Oneprovider is not mentioned in above mapping, then it
    * means that it never synchronized this file.
    */
-  // TODO to dla plików
-  distribution: attr('object'),
   distributionPerProvider: attr('object'),
 }).reopenClass(StaticGraphModelMixin);

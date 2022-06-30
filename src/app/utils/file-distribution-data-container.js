@@ -12,7 +12,7 @@ import EmberObject, { get, set, setProperties, observer } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
 import { resolve, Promise, reject } from 'rsvp';
-import { conditional, equal, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
+import { conditional, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
 
@@ -110,11 +110,7 @@ export default EmberObject.extend(
      * distribution has been successfully loaded. Is empty for directories.
      * @type {Ember.ComputedProperty<OneproviderDistribution>}
      */
-    fileDistribution: conditional(
-      equal('fileType', raw('file')),
-      'fileDistributionModel.distribution',
-      'fileDistributionModel.distributionPerProvider',
-    ),
+    fileDistribution: reads('fileDistributionModel.distributionPerProvider'),
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.Transfer>>}
@@ -271,12 +267,14 @@ export default EmberObject.extend(
         isFileDistributionLoaded,
         fileDistribution,
       } = this.getProperties('isFileDistributionLoaded', 'fileDistribution');
-
       if (isFileDistributionLoaded) {
-        console.log('co tam jest', fileDistribution);
         const oneproviderEntityId = get(oneprovider, 'entityId');
         const oneproviderData = get(fileDistribution, oneproviderEntityId);
-        return Object.keys(get(oneproviderData, 'distributionPerStorage'));
+        if (get(oneproviderData, 'distributionPerStorage')) {
+          return Object.keys(get(oneproviderData, 'distributionPerStorage'));
+        } else {
+          return {};
+        }
       } else {
         return {};
       }
@@ -289,9 +287,15 @@ export default EmberObject.extend(
      */
     getDistributionForStorage(oneprovider, storage) {
       const distributionForProvider = this.getDistributionForOneprovider(oneprovider);
+
       if (distributionForProvider) {
         const storagesForProvider = get(distributionForProvider, 'distributionPerStorage');
-        return get(storagesForProvider, storage);
+        const storageDistribution = get(storagesForProvider, storage);
+        if (storagesForProvider) {
+          return storageDistribution;
+        } else {
+          return {};
+        }
       } else {
         return {};
       }
