@@ -11,6 +11,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
   it('has class "pods-table"', async function () {
     await renderComponent();
 
+    // debugger;
     expect(this.element.children).to.have.length(1);
     expect(this.element.children[0]).to.have.class('pods-table');
   });
@@ -98,7 +99,7 @@ describe('Integration | Component | modals/atm task execution pods activity moda
 });
 
 async function renderComponent() {
-  render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
+  await render(hbs `{{modals/atm-task-execution-pods-activity-modal/pods-table
     statusRegistry=statusRegistry
     selectedPodId=selectedPodId
     onPodSelect=onPodSelect
