@@ -65,11 +65,10 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<number|undefined>}
    */
-  _barOccupiedPercentsNormalized: computed('_barOccupiedPercents', function () {
+  _barOccupiedPercentsNormalized: computed('percentage', function () {
     const percentage = this.get('percentage');
-    const _barOccupiedPercents = percentage;
-    return _barOccupiedPercents === undefined ?
-      undefined : Math.min(_barOccupiedPercents, 100);
+    return percentage === undefined ?
+      undefined : Math.min(percentage, 100);
   }),
 
   didInsertElement() {

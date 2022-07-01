@@ -227,12 +227,11 @@ export default EmberObject.extend(
      */
     updateData() {
       const {
-        fileType,
         isFileDistributionError,
         transfersProxy,
-      } = this.getProperties('fileType', 'isFileDistributionError', 'transfersProxy');
+      } = this.getProperties('isFileDistributionError', 'transfersProxy');
       return Promise.all([
-        !isFileDistributionError && fileType === 'file' ?
+        !isFileDistributionError ?
         this.updateFileDistributionModelProxy({ replace: true }) : resolve(),
         !get(transfersProxy, 'isRejected') ?
         this.updateTransfersProxy({ replace: true }) : resolve(),

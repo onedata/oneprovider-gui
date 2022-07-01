@@ -141,6 +141,23 @@ export default Component.extend(I18n, {
     raw('isFileDistributionLoaded')
   ),
 
+  neverSynchronized: computed(
+    'fileDistributionData.@each.fileDistribution',
+    'oneprovider',
+    function neverSynchronized() {
+      const {
+        fileDistributionData,
+        oneprovider,
+      } = this.getProperties('fileDistributionData', 'oneprovider');
+      const distributions = fileDistributionData
+        .map(fileDistDataContainer =>
+          fileDistDataContainer.getDistributionForOneprovider(oneprovider)
+        )
+        .compact();
+      return get(distributions, 'length') === 0;
+    }
+  ),
+
   unknownData: computed(
     'storage',
     function unknownData() {
@@ -160,7 +177,7 @@ export default Component.extend(I18n, {
   filesSize: sum(array.mapBy('fileDistributionData', raw('fileSize'))),
 
   fileSizePerProvider: computed(
-    'fileDistributionData',
+    'fileDistributionData.@each.{fileDistribution}',
     'oneprovider',
     'storage',
     function fileSizePerProvider() {
@@ -419,8 +436,6 @@ export default Component.extend(I18n, {
         'storage',
       );
 
-      const hasDirs = fileDistributionData.isAny('fileType', 'dir');
-
       const someNeverSynchronized = fileDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForStorage(oneprovider, storage)
@@ -458,7 +473,6 @@ export default Component.extend(I18n, {
    */
   migrateActionState: computed(
     'spaceHasSingleOneprovider',
-    'fileDistributionData.@each.fileType',
     'neverSynchronized',
     'evictionForbidden',
     'replicationForbidden',
@@ -467,7 +481,6 @@ export default Component.extend(I18n, {
       const {
         i18n,
         spaceHasSingleOneprovider,
-        fileDistributionData,
         neverSynchronized,
         percentage,
         evictionForbidden,
@@ -475,14 +488,11 @@ export default Component.extend(I18n, {
       } = this.getProperties(
         'i18n',
         'spaceHasSingleOneprovider',
-        'fileDistributionData',
         'neverSynchronized',
         'percentage',
         'evictionForbidden',
         'replicationForbidden',
       );
-
-      const hasDirs = fileDistributionData.isAny('fileType', 'dir');
 
       const state = { enabled: false };
       let tooltipI18nKey;
@@ -498,7 +508,7 @@ export default Component.extend(I18n, {
         });
       } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledMigrationSingleOneprovider';
-      } else if (!hasDirs && (neverSynchronized || !percentage)) {
+      } else if (neverSynchronized || !percentage) {
         tooltipI18nKey = 'disabledMigrationIsEmpty';
       } else {
         state.enabled = true;
@@ -516,7 +526,6 @@ export default Component.extend(I18n, {
    * @type {Object} {enabled: boolean, tooltip: string}
    */
   evictActionState: computed(
-    'fileDistributionData',
     'spaceHasSingleOneprovider',
     'blocksExistOnOtherOneproviders',
     'percentage',
@@ -524,21 +533,17 @@ export default Component.extend(I18n, {
     function evictActionState() {
       const {
         i18n,
-        fileDistributionData,
         spaceHasSingleOneprovider,
         blocksExistOnOtherOneproviders,
         percentage,
         evictionForbidden,
       } = this.getProperties(
         'i18n',
-        'fileDistributionData',
         'spaceHasSingleOneprovider',
         'blocksExistOnOtherOneproviders',
         'percentage',
         'evictionForbidden',
       );
-
-      const hasDirs = fileDistributionData.isAny('fileType', 'dir');
 
       const state = { enabled: false };
       let tooltipI18nKey;
@@ -551,7 +556,7 @@ export default Component.extend(I18n, {
         });
       } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledEvictionSingleOneprovider';
-      } else if (!blocksExistOnOtherOneproviders || (!percentage && !hasDirs)) {
+      } else if (!blocksExistOnOtherOneproviders || !percentage) {
         tooltipI18nKey = 'disabledEvictionNoBlocks';
       } else {
         state.enabled = true;
