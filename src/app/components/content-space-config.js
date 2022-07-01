@@ -1,7 +1,7 @@
 /**
- * Container for space configuration per provider view to use in an iframe 
+ * Container for space configuration per provider view to use in an iframe
  * with injected properties.
- * 
+ *
  * @author Agnieszka Warchoł
  * @copyright (C) 2022 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
@@ -13,7 +13,7 @@ import I18n from 'onedata-gui-common/mixins/components/i18n';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import createDataProxyMixin from 'onedata-gui-common/utils/create-data-proxy-mixin';
-import { promise } from 'ember-awesome-macros';
+import { promise, or, not } from 'ember-awesome-macros';
 import insufficientPrivilegesMessage from 'onedata-gui-common/utils/i18n/insufficient-privileges-message';
 import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 
@@ -46,16 +46,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
   /**
    * @type {ComputedProperty<'enabled'|'disabled'|'stopping'|'initializing'>}
    */
-  statsCollectionStatus: reads('dirSizeStatsConfigProxy.content.statsCollectionStatus'),
+  dirStatsCollectingStatus: reads('dirSizeStatsConfigProxy.content.dirStatsCollectingStatus'),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  accountingEnabled: reads('dirSizeStatsConfigProxy.content.accountingEnabled'),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
   isDirStatsCount: computed(
-    'statsCollectionStatus',
+    'dirStatsCollectingStatus',
     function isDirStatsCount() {
-      const statsCollectionStatus = this.get('statsCollectionStatus');
-      return ['enabled', 'initializing'].includes(statsCollectionStatus);
+      const dirStatsCollectingStatus = this.get('dirStatsCollectingStatus');
+      return ['enabled', 'initializing'].includes(dirStatsCollectingStatus);
     }
   ),
 
@@ -79,6 +84,36 @@ export default OneEmbeddedComponent.extend(...mixins, {
         modelName: 'space',
         privilegeFlag: 'space_update',
       });
+    }
+  ),
+
+  /**
+   * @type {ComputedProperty<boolean>}
+   */
+  dirStatsToggleDisabled: or(not('hasEditPrivilege'), 'accountingEnabled'),
+
+  /**
+   * @type {ComputedProperty<SafeString|undefined>}
+   */
+  dirStatsToggleLockHint: computed(
+    'hasEditPrivilege',
+    'accountingEnabled',
+    function dirStatsToggleLockHint() {
+      const {
+        hasEditPrivilege,
+        accountingEnabled,
+        insufficientEditPrivilegesMessage,
+      } = this.getProperties(
+        'hasEditPrivilege',
+        'accountingEnabled',
+        'insufficientEditPrivilegesMessage'
+      );
+
+      if (!hasEditPrivilege) {
+        return insufficientEditPrivilegesMessage;
+      } else if (accountingEnabled) {
+        return this.t('toggleDisabledDueAccounting');
+      }
     }
   ),
 
@@ -127,7 +162,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         spaceEntityId,
       } = this.getProperties('spaceManager', 'spaceEntityId');
       const dirSizeStatsConfig = {
-        statsCollectionEnabled: enabled,
+        dirStatsEnabled: enabled,
       };
       return spaceManager.saveDirSizeStatsConfig(spaceEntityId, dirSizeStatsConfig)
         .then(() => this.updateDirSizeStatsConfigProxy())

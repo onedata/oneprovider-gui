@@ -26,8 +26,9 @@ import { all as allFulfilled } from 'rsvp';
 
 /**
  * @typedef {Object} DirSizeStatsConfig
- * @property {string} statsCollectionStatus One of `enabled`, `disabled`, 
+ * @property {string} dirStatsCollectingStatus One of `enabled`, `disabled`,
  * `stopping`, `initializing`
+ * @property {boolean} accountingEnabled
  * @property {number} since
  */
 
@@ -165,7 +166,7 @@ export default Service.extend({
 
   /**
    * @param {String} spaceId
-   * @param {{ statsCollectionEnabled: boolean }} dirSizeStatsConfig
+   * @param {{ dirStatsEnabled: boolean }} dirSizeStatsConfig
    * @returns {Promise<Object>}
    */
   saveDirSizeStatsConfig(spaceId, dirSizeStatsConfig) {
@@ -187,7 +188,7 @@ export function dirSizeStatsConfigGri(spaceId) {
   return gri({
     entityType: spaceEntityType,
     entityId: spaceId,
-    aspect: 'dir_size_stats_config',
+    aspect: 'dir_stats_config',
     scope: 'private',
   });
 }

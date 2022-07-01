@@ -44,20 +44,20 @@ export default FbTableRowColumns.extend(I18n, {
    */
   isDirSizeStatsStarted: array.includes(
     raw(['enabled', 'initializing']),
-    'dirSizeStatsConfig.statsCollectionStatus'
+    'dirSizeStatsConfig.dirStatsCollectingStatus'
   ),
 
   /**
    * @type {ComputedProperty<String>}
    */
   tooltipText: computed(
-    'dirSizeStatsConfig.statsCollectionStatus',
+    'dirSizeStatsConfig.dirStatsCollectingStatus',
     function tooltipText() {
-      let statsCollectionStatus = this.get('dirSizeStatsConfig.statsCollectionStatus');
-      if (statsCollectionStatus === 'stopping') {
-        statsCollectionStatus = 'disabled';
+      let dirStatsCollectingStatus = this.get('dirSizeStatsConfig.dirStatsCollectingStatus');
+      if (dirStatsCollectingStatus === 'stopping') {
+        dirStatsCollectingStatus = 'disabled';
       }
-      return this.t(statsCollectionStatus + 'StatsInfo', {}, { defaultValue: '' });
+      return this.t(dirStatsCollectingStatus + 'StatsInfo', {}, { defaultValue: '' });
     }
   ),
 

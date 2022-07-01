@@ -195,20 +195,20 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    * One of `enabled`, `disabled`, `stopping`, `initializing`
    * @type {ComputedProperty<String>}
    */
-  statsCollectionStatus: reads('dirSizeStatsConfig.statsCollectionStatus'),
+  dirStatsCollectingStatus: reads('dirSizeStatsConfig.dirStatsCollectingStatus'),
 
   /**
    * @type {ComputedProperty<boolean>}
    */
   isSizeTabDisabled: computed(
-    'statsCollectionStatus',
+    'dirStatsCollectingStatus',
     'itemType',
     function isSizeTabDisabled() {
       const {
-        statsCollectionStatus,
+        dirStatsCollectingStatus,
         itemType,
-      } = this.getProperties('statsCollectionStatus', 'itemType');
-      return ['disabled', 'stopping'].includes(statsCollectionStatus) ||
+      } = this.getProperties('dirStatsCollectingStatus', 'itemType');
+      return ['disabled', 'stopping'].includes(dirStatsCollectingStatus) ||
         itemType === 'symlink';
     }
   ),
