@@ -1,10 +1,8 @@
 <div class="chunks-container">
-  <div class="chunks-scale-container">
-
-  </div>
+  <div class="chunks-scale-container"></div>
   {{#if unknownData}}
     <div class="chunks-text never-synchronized-text hidden-xs">
-      n/a
+      {{tt this "na"}}
     </div>
     <div class="chunks-background never-synchronized-background"></div>
     {{one-tooltip title=(tt this "neverSynchronizedTip")}}

@@ -75,8 +75,8 @@ export default Component.extend(I18n, {
   blocksNumber: computed('chunks', function blocksNumber() {
     const chunks = this.get('chunks');
     let blocksCount = 0;
-    for (const element in chunks) {
-      if (chunks[element] > 0) {
+    for (const offset in chunks) {
+      if (chunks[offset] > 0) {
         blocksCount++;
       }
     }
@@ -92,7 +92,7 @@ export default Component.extend(I18n, {
       blocksNumber,
     } = this.getProperties('fileSize', 'blocksNumber');
     return this.t('blocksSize', {
-      size: fileSize ? bytesToString(fileSize) : bytesToString(0),
+      size: bytesToString(fileSize),
       blocksNumber: blocksNumber,
       blockNoun: blocksNumber > 1 ? this.t('blocks') : this.t('block'),
     });
@@ -125,17 +125,19 @@ export default Component.extend(I18n, {
     const canvas = this.getCanvas();
     if (!this.get('neverSynchronized') && canvas) {
       const {
+        chunks,
         chunksRange,
         chunksColor,
-      } = this.getProperties('chunksRange', 'chunksColor');
-      const chunks = this.get('chunks');
+      } = this.getProperties('chunks', 'chunksRange', 'chunksColor');
       const context = canvas.getContext('2d');
+
       // Clear canvas
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       // Calculate start point for each chunk
       const chunkStarts = chunks ? Object.keys(chunks).map(x => parseFloat(x)) : [];
-      chunkStarts.sort((x, y) => x - y);
+      chunkStarts.sort((x, y) =>
+        x - y);
       let chunksNumber = chunkStarts.length;
       if (chunksNumber && chunkStarts[chunksNumber - 1] !== chunksRange) {
         chunkStarts.push(chunksRange);

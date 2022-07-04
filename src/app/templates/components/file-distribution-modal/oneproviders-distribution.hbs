@@ -19,7 +19,7 @@
   {{/if}}
   <div class="{{if (or isMigrationDestinationSelectorVisible isStartSubsequentTransferConfirmationVisible) "hidden"}}">
     <ul>
-      {{#each-in storageList as |storage oneprovider|}}
+      {{#each-in storageList as |storageId oneprovider|}}
         {{file-distribution-modal/oneproviders-distribution-item
           class=(concat "oneprovider-" oneprovider.entityId)
           oneprovider=oneprovider
@@ -34,7 +34,7 @@
           onReplicate=(action "tryStartReplication" oneprovider)
           onMigrate=(action "selectMigrationDestination" oneprovider)
           onEvict=(action "tryStartEviction" oneprovider)
-          storage=storage
+          storageId=storageId
           space=space
         }}
       {{/each-in}}

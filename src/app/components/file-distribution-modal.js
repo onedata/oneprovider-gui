@@ -66,19 +66,19 @@ export default Component.extend(
     /**
      * @type {Ember.ComputedProperty<Array<Models.File>>}
      */
-    filesOfTypeDir: array.filterBy(
+    filesOfTypeFile: array.filterBy(
       'files',
       raw('type'),
-      raw('dir')
+      raw('file')
     ),
 
     /**
      * @type {Ember.ComputedProperty<Array<Models.File>>}
      */
-    filesOfTypeFile: array.filterBy(
+    filesOfTypeDir: array.filterBy(
       'files',
       raw('type'),
-      raw('file')
+      raw('dir')
     ),
 
     /**
@@ -165,6 +165,9 @@ export default Component.extend(
         });
       }),
 
+    /**
+     * @type {ComputedProperty<String>}
+     */
     filesSizeDetails: computed(
       'filesNumber',
       'dirsNumber',

@@ -171,7 +171,6 @@ export default EmberObject.extend(
       const file = this.get('file');
       const distributionLoadError = get(file, 'distributionLoadError');
 
-      // TODO tutaj warunek że jak nie włączone to nic nie zwracać?
       if (distributionLoadError) {
         // If earlier fetching of distribution ended with error, then just
         // rethrow it. We can't try to reload distribution model because
@@ -269,11 +268,7 @@ export default EmberObject.extend(
       if (isFileDistributionLoaded) {
         const oneproviderEntityId = get(oneprovider, 'entityId');
         const oneproviderData = get(fileDistribution, oneproviderEntityId);
-        if (get(oneproviderData, 'distributionPerStorage')) {
-          return Object.keys(get(oneproviderData, 'distributionPerStorage'));
-        } else {
-          return {};
-        }
+        return Object.keys(get(oneproviderData, 'distributionPerStorage'));
       } else {
         return {};
       }
@@ -289,12 +284,7 @@ export default EmberObject.extend(
 
       if (distributionForProvider) {
         const storagesForProvider = get(distributionForProvider, 'distributionPerStorage');
-        const storageDistribution = get(storagesForProvider, storage);
-        if (storagesForProvider) {
-          return storageDistribution;
-        } else {
-          return {};
-        }
+        return get(storagesForProvider, storage);
       } else {
         return {};
       }

@@ -57,7 +57,7 @@ export default Component.extend({
           if (relation === 'distribution') {
             return {
               reload: () => resolve({
-                distribution: {
+                distributionPerProvider: {
                   123: {
                     logicalSize: 1024,
                     distributionPerStorage: {
@@ -113,7 +113,7 @@ export default Component.extend({
           if (relation === 'distribution') {
             return {
               reload: () => resolve({
-                distribution: {
+                distributionPerProvider: {
                   123: {
                     logicalSize: 1024,
                     distributionPerStorage: {

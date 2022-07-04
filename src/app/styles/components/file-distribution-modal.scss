@@ -256,7 +256,7 @@
       @include font-semibold;
       white-space: nowrap;
       font-size: 80%;
-      color: #555555;
+      color: $color-one-dark-gray;
       text-shadow:
         0.2em 0 10px white,
         0 0.2em 10px white,
@@ -277,7 +277,7 @@
       display: flex;
       flex-grow: 1;
       min-width: 0;
-      background-color: #F2F4FA;
+      background-color: $color-one-light-blue;
     }
 
     .progress-bar {

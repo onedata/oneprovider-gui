@@ -1,6 +1,6 @@
 <div class="name-section">
   {{#truncated-string class="oneprovider-name"}}
-    <span class="storage-name">{{storageName.name}}</span> @ <span class="oneprovider-name">{{oneprovider.name}}</span>
+    <span class="storage-name">{{storageName}}</span> @ <span class="oneprovider-name">{{oneprovider.name}}</span>
   {{/truncated-string}}
 </div>
 {{#one-pill-button
@@ -39,7 +39,7 @@
 {{#if (and hasSingleFile hasOnlyFiles)}}
   {{file-distribution-modal/chunks-visualizer
     neverSynchronized=neverSynchronized
-    fileSize=fileSizePerProvider
+    fileSize=filesSizePerProvider
     chunks=chunksBarData
     percentage=percentage
     chunksRange=chunksRange
@@ -47,7 +47,7 @@
 {{else}}
   {{file-distribution-modal/progress-bar-visualizer
     unknownData=unknownData
-    fileSize=fileSizePerProvider
+    fileSize=filesSizePerProvider
     percentage=percentage
   }}
 {{/if}}

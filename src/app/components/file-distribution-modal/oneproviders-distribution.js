@@ -257,39 +257,24 @@ export default Component.extend(I18n, {
   }),
 
   storageList: computed('fileDistributionData', 'oneproviders', function storageList() {
-    const fileDistributionData = this.get('fileDistributionData');
-    const oneproviders = this.get('oneproviders');
-    const storagesForProviders = {};
-    const storagesPerProvider = {};
-    const providerNames = {};
+    const {
+      fileDistributionData,
+      oneproviders,
+    } = this.getProperties('fileDistributionData', 'oneproviders');
+    const storages = {};
+
     fileDistributionData.forEach(fileDistributionContainer => {
       oneproviders.forEach(oneprovider => {
-        const name = get(oneprovider, 'entityId');
-        providerNames[name] = oneprovider;
-        const storagesForOneprovider = fileDistributionContainer.getStoragesForOneprovider(oneprovider);
-        if (Object.keys(storagesForOneprovider).length > 0) {
-          storagesForOneprovider.forEach(storage => {
-            if (name in storagesPerProvider && 'unknown' in storagesPerProvider[name]) {
-              storagesPerProvider[name].push(storage);
-            } else if (!(name in storagesPerProvider)) {
-              storagesPerProvider[name] = [storage];
+        fileDistributionContainer.getStoragesForOneprovider(oneprovider).forEach(
+          storage => {
+            if (!(storage in storages)) {
+              storages[storage] = oneprovider;
             }
-          });
-        } else {
-          storagesPerProvider[name] = ['unknown'];
-        }
+          }
+        );
       });
     });
-    for (const [providerId, storages] of Object.entries(storagesPerProvider)) {
-      [...new Set(storages)].forEach(storage => {
-        if (storage === 'unknown') {
-          storagesForProviders[storage + providerId] = providerNames[providerId];
-        } else {
-          storagesForProviders[storage] = providerNames[providerId];
-        }
-      });
-    }
-    return storagesForProviders;
+    return storages;
   }),
 
   /**
