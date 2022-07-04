@@ -36,7 +36,7 @@ export default EmberObject.extend(OwnerInjector, I18n, {
 
   /**
    * @virtual
-   * @type {Components.FileBrowser} browserInstance
+   * @type {Components.FileBrowser}
    */
   browserInstance: undefined,
 
