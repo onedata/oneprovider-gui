@@ -35,7 +35,9 @@ export default EmberObject.extend(OwnerInjector, I18n, {
   //#region API for file-browser component
 
   /**
-   * @virtualignoreCurrentDirContextMenuSelector
+   * @virtual
+   * @type {Components.FileBrowser} browserInstance
+   */
   browserInstance: undefined,
 
   /**
