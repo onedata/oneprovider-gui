@@ -97,9 +97,9 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
 
   /**
    * @virtual
-   * @type {DirSizeStatsConfig}
+   * @type {DirStatsServiceState}
    */
-  dirSizeStatsConfig: undefined,
+  dirStatsServiceState: undefined,
 
   /**
    * One of: general, hardlinks, size, apiSamples
@@ -195,20 +195,20 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    * One of `enabled`, `disabled`, `stopping`, `initializing`
    * @type {ComputedProperty<String>}
    */
-  dirStatsCollectingStatus: reads('dirSizeStatsConfig.dirStatsCollectingStatus'),
+  dirStatsServiceStatus: reads('dirStatsServiceState.dirStatsServiceStatus'),
 
   /**
    * @type {ComputedProperty<boolean>}
    */
   isSizeTabDisabled: computed(
-    'dirStatsCollectingStatus',
+    'dirStatsServiceStatus',
     'itemType',
     function isSizeTabDisabled() {
       const {
-        dirStatsCollectingStatus,
+        dirStatsServiceStatus,
         itemType,
-      } = this.getProperties('dirStatsCollectingStatus', 'itemType');
-      return ['disabled', 'stopping'].includes(dirStatsCollectingStatus) ||
+      } = this.getProperties('dirStatsServiceStatus', 'itemType');
+      return ['disabled', 'stopping'].includes(dirStatsServiceStatus) ||
         itemType === 'symlink';
     }
   ),

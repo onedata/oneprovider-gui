@@ -20,7 +20,7 @@ import ContentSpaceBaseMixin from 'oneprovider-gui/mixins/content-space-base';
 const mixins = [
   I18n,
   ContentSpaceBaseMixin,
-  createDataProxyMixin('dirSizeStatsConfig'),
+  createDataProxyMixin('dirStatsServiceState'),
 ];
 
 export default OneEmbeddedComponent.extend(...mixins, {
@@ -46,21 +46,21 @@ export default OneEmbeddedComponent.extend(...mixins, {
   /**
    * @type {ComputedProperty<'enabled'|'disabled'|'stopping'|'initializing'>}
    */
-  dirStatsCollectingStatus: reads('dirSizeStatsConfigProxy.content.dirStatsCollectingStatus'),
+  dirStatsServiceStatus: reads('dirStatsServiceStateProxy.content.dirStatsServiceStatus'),
 
   /**
    * @type {ComputedProperty<boolean>}
    */
-  accountingEnabled: reads('dirSizeStatsConfigProxy.content.accountingEnabled'),
+  accountingEnabled: reads('dirStatsServiceStateProxy.content.accountingEnabled'),
 
   /**
    * @type {ComputedProperty<Boolean>}
    */
   isDirStatsCount: computed(
-    'dirStatsCollectingStatus',
+    'dirStatsServiceStatus',
     function isDirStatsCount() {
-      const dirStatsCollectingStatus = this.get('dirStatsCollectingStatus');
-      return ['enabled', 'initializing'].includes(dirStatsCollectingStatus);
+      const dirStatsServiceStatus = this.get('dirStatsServiceStatus');
+      return ['enabled', 'initializing'].includes(dirStatsServiceStatus);
     }
   ),
 
@@ -136,19 +136,19 @@ export default OneEmbeddedComponent.extend(...mixins, {
 
   init() {
     this._super(...arguments);
-    this.updateDirSizeStatsConfigProxy();
+    this.updateDirStatsServiceStateProxy();
   },
 
   /**
    * @override
-   * @returns {Promise<DirSizeStatsConfig>}
+   * @returns {Promise<DirStatsServiceState>}
    */
-  fetchDirSizeStatsConfig() {
+  fetchDirStatsServiceState() {
     const {
       spaceManager,
       spaceEntityId,
     } = this.getProperties('spaceManager', 'spaceEntityId');
-    return spaceManager.fetchDirSizeStatsConfig(spaceEntityId);
+    return spaceManager.fetchDirStatsServiceState(spaceEntityId);
   },
 
   actions: {
@@ -161,11 +161,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
         spaceManager,
         spaceEntityId,
       } = this.getProperties('spaceManager', 'spaceEntityId');
-      const dirSizeStatsConfig = {
-        dirStatsEnabled: enabled,
+      const dirStatsServiceState = {
+        dirStatsServiceEnabled: enabled,
       };
-      return spaceManager.saveDirSizeStatsConfig(spaceEntityId, dirSizeStatsConfig)
-        .then(() => this.updateDirSizeStatsConfigProxy())
+      return spaceManager
+        .saveDirStatsServiceState(spaceEntityId, dirStatsServiceState)
+        .then(() => this.updateDirStatsServiceStateProxy())
         .catch(error => {
           this.get('globalNotify').backendError(
             this.t('configuringDirSizeStats'),

@@ -310,12 +310,13 @@ const spaceHandlers = {
       isLast: atmWorkflowExecutionSummaries.length < limit,
     };
   },
-  dir_stats_config(operation) {
+  dir_stats_service_state(operation) {
     if (operation !== 'get') {
       return messageNotSupported;
     }
     return {
-      dirStatsCollectingStatus: 'enabled',
+      accountingEnabled: false,
+      dirStatsServiceStatus: 'enabled',
     };
   },
 };

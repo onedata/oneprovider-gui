@@ -64,9 +64,9 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
 
   /**
    * @virtual
-   * @type {DirSizeStatsConfig}
+   * @type {DirStatsServiceState}
    */
-  dirSizeStatsConfig: undefined,
+  dirStatsServiceState: undefined,
 
   /**
    * @type {string}
@@ -486,8 +486,8 @@ export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
       timeResolutionSpecs,
       timeSeriesQueryBatcher,
     } = this.getProperties('timeResolutionSpecs', 'timeSeriesQueryBatcher');
-    const dirSizeStatsConfig = this.get('dirSizeStatsConfig');
-    const statisticsStartDate = get(dirSizeStatsConfig, 'since');
+    const dirStatsServiceState = this.get('dirStatsServiceState');
+    const statisticsStartDate = get(dirStatsServiceState, 'since');
     const matchingTimeResolutionSpec = timeResolutionSpecs
       .findBy('timeResolution', seriesParameters.timeResolution);
     const metricId = matchingTimeResolutionSpec ?
