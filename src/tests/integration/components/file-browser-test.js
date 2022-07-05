@@ -309,11 +309,13 @@ describe('Integration | Component | file browser (main component)', function () 
 
       await renderComponent(this);
 
-      expect(fetchDirChildren).to.be.called;
+      expect(fetchDirChildren, 'after init').to.be.called;
       fetchDirChildren.resetHistory();
       expect(find('.file-action-refresh')).to.exist;
       await click('.file-action-refresh');
-      expect(fetchDirChildren).to.be.called;
+      // wait for animation - if fail, check what is animation time of fbTableApi.refresh
+      await sleep(301);
+      expect(fetchDirChildren, 'after refresh').to.be.called;
     }
   );
 
