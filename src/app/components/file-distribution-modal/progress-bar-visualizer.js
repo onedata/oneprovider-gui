@@ -45,7 +45,7 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<string>}
    */
-  percentageText: computed('percentage', function percentageText() {
+  percentageText: computed('percentage', 'unknownData', function percentageText() {
     const percentage = this.get('percentage');
     return percentage !== undefined ? `${Math.floor(percentage)}%` : '';
   }),

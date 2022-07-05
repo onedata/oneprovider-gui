@@ -268,7 +268,11 @@ export default EmberObject.extend(
       if (isFileDistributionLoaded) {
         const oneproviderEntityId = get(oneprovider, 'entityId');
         const oneproviderData = get(fileDistribution, oneproviderEntityId);
-        return Object.keys(get(oneproviderData, 'distributionPerStorage'));
+        if (get(oneproviderData, 'success')) {
+          return Object.keys(get(oneproviderData, 'distributionPerStorage'));
+        } else {
+          return Object.keys(get(oneproviderData, 'perStorage'));
+        }
       } else {
         return {};
       }
@@ -281,8 +285,7 @@ export default EmberObject.extend(
      */
     getDistributionForStorage(oneprovider, storage) {
       const distributionForProvider = this.getDistributionForOneprovider(oneprovider);
-
-      if (distributionForProvider) {
+      if (get(distributionForProvider, 'success')) {
         const storagesForProvider = get(distributionForProvider, 'distributionPerStorage');
         return get(storagesForProvider, storage);
       } else {

@@ -59,6 +59,7 @@ export default Component.extend({
               reload: () => resolve({
                 distributionPerProvider: {
                   123: {
+                    success: true,
                     logicalSize: 1024,
                     distributionPerStorage: {
                       storage1: {
@@ -73,6 +74,7 @@ export default Component.extend({
                     },
                   },
                   456: {
+                    success: true,
                     logicalSize: 1024,
                     distributionPerStorage: {
                       storage2: {
@@ -87,6 +89,7 @@ export default Component.extend({
                     },
                   },
                   789: {
+                    success: true,
                     logicalSize: 1024,
                     distributionPerStorage: {
                       storage3: {
@@ -115,9 +118,11 @@ export default Component.extend({
               reload: () => resolve({
                 distributionPerProvider: {
                   123: {
+                    success: true,
                     logicalSize: 1024,
                     distributionPerStorage: {
                       storage1: {
+                        physicalSize: 1024,
                         blocksPercentage: 100,
                         chunksBarData: {
                           0: 100,
@@ -126,9 +131,11 @@ export default Component.extend({
                     },
                   },
                   456: {
+                    success: true,
                     logicalSize: 1024,
                     distributionPerStorage: {
                       storage2: {
+                        physicalSize: 0,
                         blocksPercentage: 0,
                         chunksBarData: {
                           0: 0,
@@ -137,9 +144,11 @@ export default Component.extend({
                     },
                   },
                   789: {
+                    success: true,
                     logicalSize: 1024,
                     distributionPerStorage: {
                       storage3: {
+                        physicalSize: 0,
                         blocksPercentage: 0,
                         chunksBarData: {
                           0: 0,
@@ -164,21 +173,28 @@ export default Component.extend({
               reload: () => resolve({
                 distributionPerProvider: {
                   123: {
+                    success: true,
                     logicalSize: 1024,
                     distributionPerStorage: {
                       storage1: 1024,
                     },
                   },
                   456: {
+                    success: true,
                     logicalSize: 0,
                     distributionPerStorage: {
                       storage2: 0,
                     },
                   },
                   789: {
-                    description: 'Operation failed with POSIX error: enotsup.',
-                    details: { errno: 'enotsup' },
-                    id: 'posix',
+                    success: false,
+                    perStorage: {
+                      storage3: {
+                        description: 'Directory statistics collection is disabled for this space.',
+                        id: 'dirStatsDisabledForSpace',
+                      },
+                    },
+
                   },
                 },
               }),

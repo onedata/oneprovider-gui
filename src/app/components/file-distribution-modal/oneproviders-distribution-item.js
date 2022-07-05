@@ -194,14 +194,18 @@ export default Component.extend(I18n, {
     'fileDistributionData.@each.{fileDistribution}',
     'oneprovider',
     'storageId',
+    'unknownData',
     function filesSizePerProvider() {
       const {
         fileDistributionData,
         oneprovider,
         storageId,
-      } = this.getProperties('fileDistributionData', 'oneprovider', 'storageId');
+        unknownData,
+      } = this.getProperties('fileDistributionData', 'oneprovider', 'storageId', 'unknownData');
       let size = 0;
-
+      if (unknownData) {
+        return size;
+      }
       fileDistributionData.forEach(fileDistDataContainer => {
         const fileDistribution =
           fileDistDataContainer.getDistributionForStorage(oneprovider, storageId);
@@ -231,21 +235,21 @@ export default Component.extend(I18n, {
   unknownData: computed(
     'fileDistributionData.@each.{fileDistribution}',
     'oneprovider',
-    'storageId',
     function unknownData() {
       const {
         fileDistributionData,
         oneprovider,
-        storageId,
-      } = this.getProperties('fileDistributionData', 'oneprovider', 'storageId');
+      } = this.getProperties('fileDistributionData', 'oneprovider');
+      let noStats = false;
+
       fileDistributionData.forEach(fileDistDataContainer => {
         const fileDistribution =
-          fileDistDataContainer.getDistributionForStorage(oneprovider, storageId);
+          fileDistDataContainer.getDistributionForOneprovider(oneprovider);
         if (!get(fileDistribution, 'success')) {
-          return true;
+          noStats = true;
         }
       });
-      return false;
+      return noStats;
     }),
 
   /**
@@ -255,18 +259,21 @@ export default Component.extend(I18n, {
     'filesSizePerProvider',
     'filesSize',
     'allFilesDistributionsLoaded',
+    'unknownData',
     function () {
       const {
         filesSize,
         filesSizePerProvider,
         allFilesDistributionsLoaded,
+        unknownData,
       } = this.getProperties(
         'filesSize',
         'filesSizePerProvider',
         'allFilesDistributionsLoaded',
+        'unknownData',
       );
 
-      if (allFilesDistributionsLoaded && filesSize) {
+      if (allFilesDistributionsLoaded && filesSize && !unknownData) {
         const percentage = Math.floor(
           (Math.min(filesSizePerProvider, filesSize) / filesSize) * 100
         );
@@ -406,6 +413,8 @@ export default Component.extend(I18n, {
     'oneprovider',
     'replicationForbidden',
     'storageId',
+    'unknownData',
+    'filesSize',
     function replicateHereActionState() {
       const {
         i18n,
@@ -416,6 +425,8 @@ export default Component.extend(I18n, {
         percentage,
         oneprovider,
         storageId,
+        unknownData,
+        filesSize,
       } = this.getProperties(
         'i18n',
         'hasReadonlySupport',
@@ -425,15 +436,21 @@ export default Component.extend(I18n, {
         'percentage',
         'oneprovider',
         'storageId',
+        'unknownData',
+        'filesSize',
       );
+
+      const state = { enabled: false };
+      let tooltipI18nKey;
+      if (unknownData || filesSize === 0) {
+        return state;
+      }
+
       const someNeverSynchronized = fileDistributionData
         .map(fileDistDataContainer =>
           fileDistDataContainer.getDistributionForStorage(oneprovider, storageId)
         )
         .includes(undefined);
-
-      const state = { enabled: false };
-      let tooltipI18nKey;
 
       if (replicationForbidden) {
         state.tooltip = insufficientPrivilegesMessage({
@@ -646,39 +663,49 @@ export default Component.extend(I18n, {
     'spaceHasSingleOneprovider',
     'fileDistributionData.@each.{fileType,fileDistribution}',
     'filesSize',
+    'unknownData',
     function blocksExistOnOtherOneproviders() {
       const {
         fileDistributionData,
         spaceHasSingleOneprovider,
         oneprovider,
         filesSize,
+        unknownData,
       } = this.getProperties(
         'fileDistributionData',
         'spaceHasSingleOneprovider',
         'oneprovider',
-        'filesSize'
+        'filesSize',
+        'unknownData',
       );
       const oneproviderId = get(oneprovider, 'entityId');
-
-      if (spaceHasSingleOneprovider) {
+      if (spaceHasSingleOneprovider || unknownData) {
         return false;
-      } else if (fileDistributionData.isAny('fileType', 'dir')) {
-        return true;
       } else if (!filesSize) {
         return false;
       } else {
         for (let i = 0; i < get(fileDistributionData, 'length'); i++) {
           const singleFileDistribution =
             get(fileDistributionData.objectAt(i), 'fileDistribution');
+          const type = get(fileDistributionData.objectAt(i), 'fileType');
           const oneproviderIds = Object.keys(singleFileDistribution);
           const otherOneproviderIds = oneproviderIds.without(oneproviderId);
           for (let j = 0; j < get(otherOneproviderIds, 'length'); j++) {
-            const blocksPercentage = get(
+            const distributionPerStorage = get(
               singleFileDistribution,
-              `${otherOneproviderIds.objectAt(j)}.blocksPercentage`
+              `${otherOneproviderIds.objectAt(j)}.distributionPerStorage`
             );
-            if (blocksPercentage) {
-              return true;
+            for (const elem in distributionPerStorage) {
+              if (type === 'file') {
+                const blocksPercentage = get(distributionPerStorage[elem], 'blocksPercentage');
+                if (blocksPercentage) {
+                  return true;
+                }
+              } else {
+                if (distributionPerStorage[elem] > 0) {
+                  return true;
+                }
+              }
             }
           }
         }
