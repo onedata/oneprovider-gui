@@ -530,7 +530,10 @@ export default Component.extend(I18n, {
         return;
       }
 
-      if (mouseEvent.target.closest(ignoreCurrentDirContextMenuSelector)) {
+      if (
+        ignoreCurrentDirContextMenuSelector &&
+        mouseEvent.target.closest(ignoreCurrentDirContextMenuSelector)
+      ) {
         return true;
       }
 
