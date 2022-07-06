@@ -256,6 +256,9 @@ export default Component.extend(I18n, {
     });
   }),
 
+  /**
+   * @type {Object}
+   */
   storageList: computed('fileDistributionData', 'oneproviders', function storageList() {
     const {
       fileDistributionData,

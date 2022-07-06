@@ -148,7 +148,7 @@ export default Component.extend(
         const itemsSizeText = bytesToString(itemsSize);
 
         if (dirsSize == null) {
-          return this.t('itemsBatchDescriptionNoStats');
+          return this.t('itemsBatchDescriptionNoStats', { itemsNumber: itemsNumber });
         }
         if (filesNumber === itemsNumber) {
           itemNoun = itemsNumber > 1 ? this.t('files') : this.t('file');

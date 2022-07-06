@@ -11,8 +11,9 @@ import StaticGraphModelMixin from 'onedata-gui-websocket-client/mixins/models/st
 import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/graph-single-model';
 
 /**
- * @typedef {Object} OneproviderDistribution Contains info about distribution of
- *   some file on specified Oneprovider
+ * @typedef {Object} StorageDistribution Contains info about distribution of
+ *   some file on specified Storage
+ * @property {number} physicalSize
  * @property {Object} chunksBarData
  * @property {number} blocksPercentage Possible values: 0-100
  * 
@@ -23,6 +24,15 @@ import GraphSingleModelMixin from 'onedata-gui-websocket-client/mixins/models/gr
  * - first half of the bar will be empty
  * - from the half of the bar, the bar will have 50% opacity
  * - on the end (300-319 pixels) the bar will have 25% opacity
+ */
+
+/**
+ * @typedef {Object} OneproviderDistribution Contains info about distribution of
+ *   some file on specified Oneprovider
+ * @property {number} logicalSize
+ * @property {boolean} success
+ * @property {Object} distributionPerStorage If success is True
+ * @property {Object} perStorage if success is False 
  */
 
 export default Model.extend(GraphSingleModelMixin, {

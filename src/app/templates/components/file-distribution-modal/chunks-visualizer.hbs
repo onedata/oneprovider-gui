@@ -10,9 +10,8 @@
     <div class="chunks-background never-synchronized-background"></div>
     {{one-tooltip title=(tt this "neverSynchronizedTip")}}
   {{else}}
-    <canvas width={{chunksRange}} height="18" class="chunks-canvas">
-    </canvas>
-    <div class="chunks-text hidden-xs">
+    <canvas width={{chunksRange}} height="18" class="chunks-canvas"></canvas>
+    <div class="size-label hidden-xs">
       {{blocksSizeText}}
     </div>
   {{/if}}

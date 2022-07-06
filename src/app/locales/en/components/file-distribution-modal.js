@@ -18,19 +18,17 @@ export default {
   startingEviction: 'starting eviction',
   filesBatchDescription: 'Summarized data distribution of {{itemsNumber}} {{itemNoun}} ({{itemsSize}}).',
   sizeDetails: '{{fileNoun}} – {{filesSize}}<br> {{directoryNoun}} – {{dirsSize}}',
-  itemsBatchDescriptionNoStats: 'Data distribution of the selected 2 items is not available.',
+  itemsBatchDescriptionNoStats: 'Data distribution of the selected {{itemsNumber}} items is not available.',
   chunksVisualizer: {
-    na: 'n/a',
     neverSynchronized: 'Never synchronized',
-    neverSynchronizedTip: 'Directory size statistics are disabled',
+    neverSynchronizedTip: 'This file was never read or modified on selected Oneprovider. File blocks will be synchronized when needed. You can also manually replicate the file to selected Oneprovider.',
     block: 'block',
     blocks: 'blocks',
     blocksSize: '{{size}} in {{blocksNumber}} {{blockNoun}}',
   },
   progressBarVisualizer: {
     na: 'n/a',
-    neverSynchronized: 'Never synchronized',
-    neverSynchronizedTip: 'Directory size statistics are disabled',
+    naTip: 'Directory size statistics are disabled',
   },
   oneprovidersDistribution: {
     file: 'file',
@@ -44,6 +42,8 @@ export default {
     endedTransfersLink: 'see history',
     noTransfersText: 'This {{elementType}} has never been transferred manually.',
     cannotLoadTransfers: 'Cannot load transfers',
+    blockDistributionLegend: 'Block distribution',
+    replicationRatioLegend: 'Replication ratio',
   },
   oneprovidersDistributionItem: {
     replicationInProgress: 'The data is being replicated to this Oneprovider.',

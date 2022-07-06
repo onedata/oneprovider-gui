@@ -125,10 +125,9 @@ export default Component.extend(I18n, {
   chunksRange: 320,
 
   /**
-   * @virtual
    * @type {Models.Storage}
    */
-  storage: computed('storageId', 'storageManager', function storage() {
+  storage: computed('storageId', 'spaceId', function storage() {
     const {
       storageId,
       spaceId,
@@ -201,7 +200,12 @@ export default Component.extend(I18n, {
         oneprovider,
         storageId,
         unknownData,
-      } = this.getProperties('fileDistributionData', 'oneprovider', 'storageId', 'unknownData');
+      } = this.getProperties(
+        'fileDistributionData',
+        'oneprovider',
+        'storageId',
+        'unknownData'
+      );
       let size = 0;
       if (unknownData) {
         return size;
@@ -535,20 +539,20 @@ export default Component.extend(I18n, {
    */
   evictActionState: computed(
     'spaceHasSingleOneprovider',
-    'blocksExistOnOtherOneproviders',
+    'dataExistOnOtherOneproviders',
     'percentage',
     'evictionForbidden',
     function evictActionState() {
       const {
         i18n,
         spaceHasSingleOneprovider,
-        blocksExistOnOtherOneproviders,
+        dataExistOnOtherOneproviders,
         percentage,
         evictionForbidden,
       } = this.getProperties(
         'i18n',
         'spaceHasSingleOneprovider',
-        'blocksExistOnOtherOneproviders',
+        'dataExistOnOtherOneproviders',
         'percentage',
         'evictionForbidden',
       );
@@ -564,7 +568,7 @@ export default Component.extend(I18n, {
         });
       } else if (spaceHasSingleOneprovider) {
         tooltipI18nKey = 'disabledEvictionSingleOneprovider';
-      } else if (!blocksExistOnOtherOneproviders || !percentage) {
+      } else if (!dataExistOnOtherOneproviders || !percentage) {
         tooltipI18nKey = 'disabledEvictionNoBlocks';
       } else {
         state.enabled = true;
@@ -658,13 +662,13 @@ export default Component.extend(I18n, {
   /**
    * @type {Ember.ComputedProperty<boolean>}
    */
-  blocksExistOnOtherOneproviders: computed(
+  dataExistOnOtherOneproviders: computed(
     'oneprovider',
     'spaceHasSingleOneprovider',
     'fileDistributionData.@each.{fileType,fileDistribution}',
     'filesSize',
     'unknownData',
-    function blocksExistOnOtherOneproviders() {
+    function dataExistOnOtherOneproviders() {
       const {
         fileDistributionData,
         spaceHasSingleOneprovider,

@@ -1,15 +1,15 @@
-<div class="chunks-container">
-  <div class="chunks-scale-container"></div>
+<div class="progress-bar-container">
+  <div class="progress-bar-scale-container"></div>
   {{#if unknownData}}
-    <div class="chunks-text never-synchronized-text hidden-xs">
+    <div class="progress-bar-text na-text hidden-xs">
       {{tt this "na"}}
     </div>
-    <div class="chunks-background never-synchronized-background"></div>
-    {{one-tooltip title=(tt this "neverSynchronizedTip")}}
+    <div class="progress-bar-background"></div>
+    {{one-tooltip title=(tt this "naTip")}}
   {{else}}
     <div class="progress-bar bar" style={{_occupiedSpaceBarStyle}}>
       <div class="size-label hidden-xs">
-        <span class="tmp">{{bytes-to-string fileSize}}</span>
+        {{bytes-to-string fileSize}}
       </div>
     </div>
   {{/if}}

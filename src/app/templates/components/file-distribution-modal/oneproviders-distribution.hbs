@@ -73,11 +73,13 @@
           {{/promise-proxy-container}}
         {{/unless}}
         <div class="main-legend">
-          {{#if (and hasSingleFile hasOnlyFiles)}}
-            <div class="legend"><div class="block-legend"></div>Block distribution</div>
-          {{else}}
-            <div class="legend"><div class="replication-legend"></div>Replication ratio</div>
-          {{/if}}
+          <div class="legend">
+            {{#if (and hasSingleFile hasOnlyFiles)}}
+              <div class="block-legend"></div>{{tt this "blockDistributionLegend"}}
+            {{else}}
+              <div class="replication-legend"></div>{{tt this "replicationRatioLegend"}}
+            {{/if}}
+          </div>
         </div>
       </div>
     </ul>

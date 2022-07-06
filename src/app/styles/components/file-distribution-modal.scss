@@ -23,7 +23,7 @@
 
     &:first-child {
       .progress-bar-visualizer {
-        .chunks-scale-container {
+        .progress-bar-scale-container {
           top: 0px;
         }
       }
@@ -47,7 +47,7 @@
       min-width: 0;
     }
 
-    .oneprovider-name {
+    .distribution-row-name {
       flex-grow: 1;
     }
 
@@ -96,7 +96,7 @@
       .oneprovider-icon {
         font-size: 40px;
       }
-      .oneprovider-name {
+      .distribution-row-name {
         font-size: 90%;
         word-break: break-all;
       }
@@ -251,7 +251,7 @@
     display: flex;
     align-items: center;
 
-    .chunks-text, .size-label {
+    .chunks-text, .size-label, .progress-bar-text {
       @include absolute-align-middle-center();
       @include font-semibold;
       white-space: nowrap;
@@ -264,7 +264,7 @@
         0 -0.2em 10px white;
     }
 
-    .chunks-background {
+    .chunks-background, .progress-bar-background {
       flex-grow: 1;
       min-width: 0;
       height: $one-pill-button-height;
@@ -272,7 +272,7 @@
       background-size: 50px 50px;
     }
 
-    .chunks-container {
+    .chunks-container, .progress-bar-container {
       position: relative;
       display: flex;
       flex-grow: 1;
@@ -297,7 +297,7 @@
       );
     }
 
-    .chunks-scale-container {
+    .chunks-scale-container, .progress-bar-scale-container {
       display: flex;
       position: absolute;
       top: -$padding-small-vertical - 2px;
@@ -344,7 +344,7 @@
         order: 3;
         margin-bottom: $padding-small-vertical;
       }
-      .chunks-visualizer {
+      .chunks-visualizer, .progress-bar-visualizer {
         flex-grow: 1;
         order: 4;
         margin: 0;
@@ -374,22 +374,19 @@
     }
   }
 
-  .replication-legend {
+  .replication-legend, .block-legend {
     width: 10px;
     height: 10px;
-    background-color: $color-one-azure;
     margin-right: 5px;
     align-self: center;
   }
 
+  .replication-legend {
+    background-color: $color-one-azure;
+  }
+
   .block-legend {
-    width: 10px;
-    height: 10px;
     background-color: $color-one-mint;
-    margin-right: 5px;
-    align-self: center;
-    margin-right: 5px;
-    align-self: center;
   }
 
   .legend {

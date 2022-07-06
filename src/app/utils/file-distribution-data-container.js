@@ -256,9 +256,9 @@ export default EmberObject.extend(
     },
 
     /**
-     * Returns distribution information for given Oneprovider
+     * Returns list of storages for given Oneprovider
      * @param {Models.Provider} oneprovider
-     * @returns {OneproviderDistribution}
+     * @returns {Array<String>}
      */
     getStoragesForOneprovider(oneprovider) {
       const {
@@ -279,9 +279,11 @@ export default EmberObject.extend(
     },
 
     /**
-     * Returns distribution information for given Storage
+     * Returns distribution information
+     for given Storage on given Oneprovider
      * @param {Models.Provider} oneprovider
-     * @returns {OneproviderDistribution}
+     * @param {String} storage
+     * @returns {StorageDistribution|Number}
      */
     getDistributionForStorage(oneprovider, storage) {
       const distributionForProvider = this.getDistributionForOneprovider(oneprovider);
