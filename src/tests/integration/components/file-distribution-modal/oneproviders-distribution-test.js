@@ -8,6 +8,7 @@ import sinon from 'sinon';
 import { Promise } from 'rsvp';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { findByText } from '../../../helpers/find';
+import { lookupService } from '../../helpers/stub-service';
 
 /**
  * @param {Object} distributionParams
@@ -16,6 +17,7 @@ import { findByText } from '../../../helpers/find';
  */
 function createFileDistributionContainerStub({ type, onKrakow, onParis } = {}) {
   const normalizedOnKrakow = onKrakow || 50;
+  const normalizedOnKrakowDir = onKrakow / 100 * 1024 || 512;
   const normalizedOnParis = onParis || 0;
 
   return EmberObject.create({
@@ -23,21 +25,43 @@ function createFileDistributionContainerStub({ type, onKrakow, onParis } = {}) {
     fileSize: 1024,
     isFileDistributionLoaded: true,
     fileDistribution: {
-      providerkrk: normalizedOnKrakow ? {
-        blocksPercentage: normalizedOnKrakow,
-        chunksBarData: {
-          0: normalizedOnKrakow,
+      providerkrk: {
+        success: true,
+        distributionPerStorage: {
+          storage1: type === 'dir' ? normalizedOnKrakowDir : {
+            blocksPercentage: normalizedOnKrakow,
+            chunksBarData: {
+              0: normalizedOnKrakow,
+            },
+            physicalSize: 1024 * normalizedOnKrakow / 100,
+          },
         },
-      } : undefined,
-      providerpar: normalizedOnParis ? {
-        blocksPercentage: normalizedOnParis,
-        chunksBarData: {
-          0: normalizedOnParis,
+      },
+      providerpar: {
+        success: true,
+        distributionPerStorage: {
+          storage2: type === 'dir' ? normalizedOnParis : {
+            blocksPercentage: normalizedOnParis,
+            chunksBarData: {
+              0: normalizedOnParis,
+            },
+            physicalSize: 1024 * normalizedOnParis / 100,
+          },
         },
-      } : undefined,
+      },
     },
     getDistributionForOneprovider(oneprovider) {
       return this.get(`fileDistribution.${oneprovider.entityId}`);
+    },
+    getStoragesForOneprovider(oneprovider) {
+      if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
+        return Object.keys(this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`));
+      } else {
+        return {};
+      }
+    },
+    getDistributionForStorage(oneprovider, storage) {
+      return this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage.${storage}`);
     },
   });
 }
@@ -72,6 +96,9 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         },
       };
 
+      sinon.stub(lookupService(this, 'storageManager'), 'getStorageById')
+        .returns('storage');
+
       this.setProperties({
         oneproviders,
         space,
@@ -99,25 +126,23 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
-      {{file-distribution-modal/oneproviders-distribution
-        oneproviders=oneproviders
-        fileDistributionData=fileDistributionData
-        space=space
-      }}
-    `);
+        {{file-distribution-modal/oneproviders-distribution
+          oneproviders=oneproviders
+          fileDistributionData=fileDistributionData
+          space=space
+        }}
+      `);
 
       expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
       expect(find('.oneprovider-providerkrk .chunks-canvas')).to.exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
-      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
-        .exist;
       expect(find('.oneprovider-providerkrk .never-synchronized-background'))
         .to.not.exist;
     });
 
-    it('renders never-synchronized info', async function () {
-      const fileDistributionData = [createFileDistributionContainerStub()];
+    it('renders percentage and progress bar representation', async function () {
+      const fileDistributionData = [createFileDistributionContainerStub({ type: 'dir' })];
 
       this.set('fileDistributionData', fileDistributionData);
       await render(hbs `
@@ -128,12 +153,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
-        .to.exist;
-      expect(find('.oneprovider-providerpar .never-synchronized-background')).to
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
         .exist;
-      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
-      expect(find('.oneprovider-providerpar .chunks-canvas')).to.not.exist;
+      expect(find('.oneprovider-providerkrk .progress-bar')).to.exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .never-synchronized-background'))
+        .to.not.exist;
     });
 
     it('renders distribution for single file', async function () {
@@ -151,9 +176,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
-      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('1 KiB');
-      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
-        .to.exist;
+      expect(find('.oneprovider-providerkrk .chunks-text')).to.contain.text('512 B');
+
+      expect(find('.oneprovider-providerpar .chunks-visualizer.synchronized')).to
+        .exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('0%');
+      expect(find('.oneprovider-providerpar .chunks-text')).to.contain.text('0 B');
     });
 
     it('renders distribution for two files', async function () {
@@ -171,35 +199,12 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .progress-bar-visualizer.synchronized')).to
         .exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('75%');
-      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('2 KiB');
-      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
-        .to.exist;
-    });
-
-    it('renders distribution for single file and single dir', async function () {
-      const fileDistributionData = [
-        createFileDistributionContainerStub(),
-        createFileDistributionContainerStub({ type: 'dir' }),
-      ];
-
-      this.set('fileDistributionData', fileDistributionData);
-      await render(hbs `
-        {{file-distribution-modal/oneproviders-distribution
-          oneproviders=oneproviders
-          fileDistributionData=fileDistributionData
-          space=space
-        }}
-      `);
-
-      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
-        .exist;
-      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
-      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('1 KiB');
-      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
-        .to.exist;
+      expect(find('.oneprovider-providerkrk .size-label .tmp')).to.contain.text('1.5 KiB');
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('0%');
+      expect(find('.oneprovider-providerpar .size-label .tmp')).to.contain.text('0 B');
     });
 
     it('shows that replication is in progress', async function () {
@@ -321,11 +326,54 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             };
           }
           const fetchTransfers = sinon.stub().resolves(transfers);
+          const fetchFileDistributionModel = sinon.stub().resolves();
           const fileDistributionData = [FileDistributionDataContainer.create({
             transferManager: null,
             onedataConnection: null,
             fetchTransfers,
             file,
+            fetchFileDistributionModel,
+            fileDistribution: {
+              providerkrk: {
+                success: true,
+                distributionPerStorage: {
+                  storage1: {
+                    blocksPercentage: 50,
+                    chunksBarData: {
+                      0: 50,
+                    },
+                    physicalSize: 1024 * 50 / 100,
+                  },
+                },
+              },
+              providerpar: {
+                success: true,
+                distributionPerStorage: {
+                  storage2: {
+                    blocksPercentage: 50,
+                    chunksBarData: {
+                      0: 50,
+                    },
+                    physicalSize: 1024 * 50 / 100,
+                  },
+                },
+              },
+            },
+            getDistributionForOneprovider(oneprovider) {
+              return this.get(`fileDistribution.${oneprovider.entityId}`);
+            },
+            getStoragesForOneprovider(oneprovider) {
+              if (this.get(`fileDistribution.${oneprovider.entityId}.distributionPerStorage`)) {
+                return Object.keys(this.get(
+                  `fileDistribution.${oneprovider.entityId}.distributionPerStorage`));
+              } else {
+                return {};
+              }
+            },
+            getDistributionForStorage(oneprovider, storage) {
+              return this.get(
+                `fileDistribution.${oneprovider.entityId}.distributionPerStorage.${storage}`);
+            },
           })];
           const generatedHref = 'generatedHref';
           const getTransfersUrl = sinon.stub();
