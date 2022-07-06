@@ -5,13 +5,11 @@ import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
 import { lookupService } from '../../../helpers/stub-service';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
 import { get } from '@ember/object';
 
 describe('Integration | Utility | items select browser/base model', function () {
-  setupComponentTest('test-component', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const space = { name: 'Dummy space' };
@@ -26,7 +24,7 @@ describe('Integration | Utility | items select browser/base model', function () 
       itemsSelectBrowser,
       i18n,
       defaultCreateData: {
-        ownerSource: this,
+        ownerSource: this.owner,
         space,
         constraintSpec: undefined,
         dirProxy: promiseObject(resolve(null)),

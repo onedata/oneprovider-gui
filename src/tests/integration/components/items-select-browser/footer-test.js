@@ -1,38 +1,36 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
 describe('Integration | Component | items select browser/footer', function () {
-  setupComponentTest('items-select-browser/footer', {
-    integration: true,
-  });
+  setupRenderingTest();
 
-  it('displays injected submitLabel', function () {
+  it('displays injected submitLabel', async function () {
     const label = 'Custom button label';
     this.set('submitLabel', label);
 
-    const $footer = render(this);
+    const footer = await renderComponent();
 
-    const $submitButton = $footer.find('.submit-selection-btn');
-    const submitText = $submitButton.text().trim();
+    const submitButton = footer.querySelector('.submit-selection-btn');
 
-    expect(submitText).to.equal(label);
+    expect(submitButton).to.have.trimmed.text(label);
   });
 
-  it('disables submit button when submitDisabled is true', function () {
+  it('disables submit button when submitDisabled is true', async function () {
     this.set('submitDisabled', true);
 
-    const $footer = render(this);
+    const footer = await renderComponent();
 
-    const $submitButton = $footer.find('.submit-selection-btn');
+    const submitButton = footer.querySelector('.submit-selection-btn');
 
-    expect($submitButton).to.have.attr('disabled');
+    expect(submitButton).to.have.attr('disabled');
   });
 });
 
-function render(testCase) {
-  testCase.render(hbs `{{items-select-browser/footer
+async function renderComponent() {
+  await render(hbs `{{items-select-browser/footer
     validationError=validationError
     selectedItems=selectedItems
     submitDisabled=submitDisabled
@@ -40,5 +38,5 @@ function render(testCase) {
     onCancel=onCancel
     onSubmit=onSubmit
   }}`);
-  return testCase.$('.items-select-browser-footer');
+  return find('.items-select-browser-footer');
 }

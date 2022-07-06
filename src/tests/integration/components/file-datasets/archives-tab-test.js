@@ -1,14 +1,13 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, click, find, findAll, waitUntil } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { get, set } from '@ember/object';
 import { registerService, lookupService } from '../../../helpers/stub-service';
 import _ from 'lodash';
-import wait from 'ember-test-helpers/wait';
 import Service from '@ember/service';
 import sleep from 'onedata-gui-common/utils/sleep';
-import { click, find, findAll } from 'ember-native-dom-helpers';
 import BrowsableArchive from 'oneprovider-gui/utils/browsable-archive';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
@@ -36,9 +35,7 @@ const FileManager = Service.extend({
 });
 
 describe('Integration | Component | file datasets/archives tab', function () {
-  setupComponentTest('file-datasets/archives-tab', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'archiveManager', ArchiveManager);
@@ -52,7 +49,7 @@ describe('Integration | Component | file datasets/archives tab', function () {
       itemsCount,
     });
 
-    await render(this);
+    await renderComponent(this);
 
     expect(findAll('.fb-table-row'), 'rows').to.have.length(itemsCount);
   });
@@ -70,7 +67,7 @@ describe('Integration | Component | file datasets/archives tab', function () {
       filesCount,
     });
 
-    await render(this);
+    await renderComponent(this);
     const archiveRow = find('.fb-table-row');
     await doubleClick(archiveRow);
 
@@ -92,15 +89,15 @@ describe('Integration | Component | file datasets/archives tab', function () {
     });
     mockData.mockDipArchive(archive, this);
 
-    await render(this);
+    await renderComponent(this);
 
     const archiveRow = find('.fb-table-row');
     await doubleClick(archiveRow);
-    const $visibleDipButtons = this.$('.select-archive-dip-btn:visible');
-    expect($visibleDipButtons).to.have.lengthOf(1);
-    expect($visibleDipButtons).to.be.not.disabled;
-    expect($visibleDipButtons.text()).to.match(/^\s*DIP\s*$/);
-    await click($visibleDipButtons[0]);
+    const visibleDipButtons = findAll('.select-archive-dip-btn');
+    expect(visibleDipButtons).to.have.lengthOf(1);
+    expect(visibleDipButtons[0]).to.not.have.attr('disabled');
+    expect(visibleDipButtons[0].textContent).to.match(/^\s*DIP\s*$/);
+    await click(visibleDipButtons[0]);
 
     const fileName = find('.fb-table-row .file-base-name').textContent;
     expect(fileName).to.match(/-dip\s*$/);
@@ -116,7 +113,7 @@ describe('Integration | Component | file datasets/archives tab', function () {
       const archiveManager = lookupService(this, 'archiveManager');
       const createArchive = sinon.spy(archiveManager, 'createArchive');
 
-      await render(this);
+      await renderComponent(this);
 
       const createArchiveBtn = find('.empty-archives-create-action');
       expect(createArchiveBtn, 'create archive button').to.exist;
@@ -130,7 +127,7 @@ describe('Integration | Component | file datasets/archives tab', function () {
   );
 });
 
-async function render(testCase) {
+async function renderComponent(testCase, waitForListLoad = true) {
   const defaultBrowsableDataset = {
     name: 'Default dataset',
     entityId: 'default_dataset_id',
@@ -151,12 +148,17 @@ async function render(testCase) {
   });
   setTestPropertyDefault(testCase, 'browsableDataset', defaultBrowsableDataset);
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
-  testCase.render(hbs `{{file-datasets/archives-tab
+  await render(hbs `{{file-datasets/archives-tab
     space=space
     browsableDataset=browsableDataset
     archiveBrowserModelOptions=(hash refreshInterval=0)
   }}`);
-  await wait();
+
+  if (waitForListLoad) {
+    await waitUntil(() => {
+      return !find('.spin-spinner-block');
+    }, { timeout: 3000 });
+  }
 }
 
 function setTestPropertyDefault(testCase, propertyName, defaultValue) {
@@ -408,5 +410,4 @@ async function doubleClick(element) {
   click(element);
   await sleep(1);
   await click(element);
-  await wait();
 }

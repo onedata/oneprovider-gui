@@ -1,17 +1,15 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, click, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import $ from 'jquery';
-import wait from 'ember-test-helpers/wait';
 import ArchiveBrowserModel from 'oneprovider-gui/utils/archive-browser-model';
 import { get, setProperties } from '@ember/object';
 import { registerService, lookupService } from '../../helpers/stub-service';
 import _ from 'lodash';
 import Service from '@ember/service';
-import { click } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
-import { findAll } from 'ember-native-dom-helpers';
+import { openFileContextMenu } from '../../helpers/item-browser';
 
 const ArchiveManager = Service.extend({
   createArchive() {},
@@ -49,9 +47,7 @@ class MockArray {
 }
 
 describe('Integration | Component | archive browser', function () {
-  setupComponentTest('archive-browser', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     registerService(this, 'archiveManager', ArchiveManager);
@@ -64,7 +60,7 @@ describe('Integration | Component | archive browser', function () {
       itemsCount,
     });
 
-    await render(this);
+    await renderComponent(this);
 
     expect(findAll('.fb-table-row')).to.have.length(itemsCount);
   });
@@ -86,7 +82,7 @@ describe('Integration | Component | archive browser', function () {
       },
     });
 
-    await render(this);
+    await renderComponent(this);
 
     const colStates = findAll('.fb-table-row .fb-table-col-state');
     expect(colStates).to.have.length(1);
@@ -111,15 +107,15 @@ describe('Integration | Component | archive browser', function () {
         createArchives: true,
       });
 
-      await render(this);
+      await renderComponent(this);
 
-      const $actions = await openItemContextMenu({ name: firstArchiveName });
-      const $action = $actions.find('.file-action-createIncrementalArchive');
+      const actions = await openFileContextMenu({ name: firstArchiveName });
+      const action = actions.querySelector('.file-action-createIncrementalArchive');
       expect(
-        $action,
+        action,
         'create incremental archive item'
       ).to.exist;
-      await click($action[0]);
+      await click(action);
       expect(openCreateArchiveModal).to.have.been.calledOnce;
       expect(openCreateArchiveModal).to.have.been.calledWith(
         this.get('dataset'), {
@@ -143,16 +139,16 @@ describe('Integration | Component | archive browser', function () {
       writeData: true,
     });
 
-    await render(this);
+    await renderComponent(this);
 
-    const $actions = await openItemContextMenu({ name: firstArchiveName });
-    const $recallAction = $actions.find('.file-action-recall');
+    const actions = await openFileContextMenu({ name: firstArchiveName });
+    const recallAction = actions.querySelectorAll('.file-action-recall');
     expect(
-      $recallAction,
+      recallAction,
       'recall archive menu item'
     ).to.have.length(1);
-    expect($recallAction.text()).exist.to.contain('Recall to...');
-    await click($recallAction[0]);
+    expect(recallAction[0]).exist.to.contain.text('Recall to...');
+    await click(recallAction[0]);
     expect(openRecallModal).to.have.been.calledOnce;
     expect(openRecallModal).to.have.been.calledWith(mockArray.array[0]);
   });
@@ -173,9 +169,9 @@ describe('Integration | Component | archive browser', function () {
       createArchives: true,
     });
 
-    await render(this);
+    await renderComponent(this);
 
-    const actions = (await openItemContextMenu({ name: firstArchiveName }))[0];
+    const actions = await openFileContextMenu({ name: firstArchiveName });
     const action = actions.querySelector('.file-action-archiveProperties');
     expect(
       action,
@@ -187,7 +183,7 @@ describe('Integration | Component | archive browser', function () {
   });
 });
 
-function render(testCase) {
+async function renderComponent(testCase) {
   const {
     refreshInterval,
     openCreateArchiveModal,
@@ -221,7 +217,7 @@ function render(testCase) {
     attachmentState: testCase.get('dataset.state'),
   };
   setTestPropertyDefault(testCase, 'browserModel', ArchiveBrowserModel.create({
-    ownerSource: testCase,
+    ownerSource: testCase.owner,
     spaceDatasetsViewState,
     refreshInterval: refreshInterval || 0,
     openCreateArchiveModal: openCreateArchiveModal ||
@@ -232,7 +228,7 @@ function render(testCase) {
       notStubbed('openArchivePropertiesModal'),
   }));
   setTestPropertyDefault(testCase, 'updateDirEntityId', notStubbed('updateDirEntityId'));
-  testCase.render(hbs `<div id="content-scroll">{{file-browser
+  await render(hbs `<div id="content-scroll">{{file-browser
     browserModel=browserModel
     dir=dataset
     customFetchDirChildren=customFetchDirChildren
@@ -247,30 +243,9 @@ function render(testCase) {
     updateDirEntityId=(action updateDirEntityId)
     changeSelectedItems=(action (mut selectedItems))
   }}</div>`);
-  return wait();
 }
 
 // TODO: VFS-7643 common test utils for browsers
-
-async function openItemContextMenu(item) {
-  const $row = getItemRow(item);
-  $row[0].dispatchEvent(new Event('contextmenu'));
-  await wait();
-  const $fileActions = $('.file-actions');
-  expect($fileActions, 'file-actions').to.have.length(1);
-  return $fileActions;
-}
-
-function getItemRow({ entityId, name }) {
-  let $row;
-  if (entityId) {
-    $row = $(`.fb-table-row[data-row-id=${entityId}]`);
-  } else {
-    $row = $(`.fb-table-row:contains("${name}")`);
-  }
-  expect($row).to.have.length(1);
-  return $row;
-}
 
 function setTestPropertyDefault(testCase, propertyName, defaultValue) {
   if (testCase.get(propertyName) === undefined) {

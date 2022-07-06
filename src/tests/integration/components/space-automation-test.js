@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find, findAll, click, fillIn, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
-import { click, fillIn } from 'ember-native-dom-helpers';
 import { lookupService } from '../../helpers/stub-service';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { promiseArray } from 'onedata-gui-common/utils/ember/promise-array';
@@ -11,13 +10,11 @@ import { resolve, Promise } from 'rsvp';
 import { set } from '@ember/object';
 import { getSlide } from '../../helpers/one-carousel';
 import sinon from 'sinon';
-import suppressRejections from '../../helpers/suppress-rejections';
+import { suppressRejections } from '../../helpers/suppress-rejections';
 import { schedule } from '@ember/runloop';
 
 describe('Integration | Component | space automation', function () {
-  setupComponentTest('space-automation', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   beforeEach(function () {
     const space = {
@@ -100,30 +97,29 @@ describe('Integration | Component | space automation', function () {
       },
     });
   });
-  suppressRejections();
 
   it('has class "run-workflow-creator"', async function () {
-    await render(this);
+    await renderComponent();
 
-    expect(this.$().children()).to.have.class('space-automation')
-      .and.to.have.length(1);
+    expect(this.element.children).to.have.length(1);
+    expect(this.element.children[0]).to.have.class('space-automation');
   });
 
   it('renders tabs: "waiting", "ongoing", "ended" and "run workflow"',
     async function () {
-      await render(this);
+      await renderComponent();
 
-      const $tabLinks = this.$('.nav-tabs .nav-link');
-      expect($tabLinks).to.have.length(4);
+      const tabLinks = findAll('.nav-tabs .nav-link');
+      expect(tabLinks).to.have.length(4);
       ['Waiting', 'Ongoing', 'Ended', 'Run workflow'].forEach((label, idx) => {
-        expect($tabLinks.eq(idx).text().trim()).to.equal(label);
+        expect(tabLinks[idx]).to.have.trimmed.text(label);
       });
     });
 
   it('has active "waiting" tab on init', async function () {
-    await render(this);
+    await renderComponent();
 
-    expect(this.$('.nav-item-waiting')).to.have.class('active');
+    expect(find('.nav-item-waiting')).to.have.class('active');
   });
 
   it('allows to run new workflow', async function () {
@@ -131,20 +127,20 @@ describe('Integration | Component | space automation', function () {
       sinon.stub(lookupService(this, 'workflow-manager'), 'runWorkflow').resolves({
         entityId: 'execution1',
       });
-    await render(this);
+    await renderComponent();
 
     await click('.nav-link-create');
 
-    expect(this.$('.nav-item-create')).to.have.class('active');
-    const $createTabPane = this.$('#create.tab-pane');
-    expect($createTabPane).to.have.class('active');
-    expect($createTabPane.find('.run-workflow-creator')).to.exist;
+    expect(find('.nav-item-create')).to.have.class('active');
+    const createTabPane = find('#create.tab-pane');
+    expect(createTabPane).to.have.class('active');
+    expect(createTabPane.querySelector('.run-workflow-creator')).to.exist;
     await click(getSlide('list').querySelector('.revisions-table-revision-entry'));
     await fillIn(getSlide('inputStores').querySelector('.form-control'), '10');
     await click(getSlide('inputStores').querySelector('.btn-submit'));
     expect(runWorkflowStub).to.be.calledOnce
       .and.to.be.calledWith('workflow1', 1, 'space1', sinon.match.any);
-    expect(this.$('.nav-item-preview')).to.have.class('active');
+    expect(find('.nav-item-preview')).to.have.class('active');
   });
 
   context('when tab is "preview"', function () {
@@ -156,27 +152,28 @@ describe('Integration | Component | space automation', function () {
       async function () {
         this.set('atmWorkflowExecutionId', 'execution1');
 
-        await render(this);
+        await renderComponent();
 
-        const $previewNavItem = this.$('.nav-item-preview');
-        expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('workflow 1 (rev. 1)');
+        const previewNavItem = find('.nav-item-preview');
+        expect(previewNavItem).to.have.class('active');
+        expect(previewNavItem).to.have.trimmed.text('workflow 1 (rev. 1)');
       });
 
     it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to a non-existing execution',
       async function () {
+        suppressRejections();
         let rejectPromise;
         this.get('getAtmWorkflowExecutionByIdStub')
           .returns(new Promise((resolve, reject) => rejectPromise = reject));
         this.set('atmWorkflowExecutionId', 'execution1');
 
-        await render(this);
+        await renderComponent();
         rejectPromise();
-        await wait();
+        await settled();
 
-        const $previewNavItem = this.$('.nav-item-preview');
-        expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('Cannot load');
+        const previewNavItem = find('.nav-item-preview');
+        expect(previewNavItem).to.have.class('active');
+        expect(previewNavItem).to.have.trimmed.text('Cannot load');
       });
 
     it('has active "preview" tab with "Cannot load" label when "atmWorkflowExecutionId" param points to an execution from another space',
@@ -187,11 +184,11 @@ describe('Integration | Component | space automation', function () {
         );
         this.set('atmWorkflowExecutionId', 'execution1');
 
-        await render(this);
+        await renderComponent();
 
-        const $previewNavItem = this.$('.nav-item-preview');
-        expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('Cannot load');
+        const previewNavItem = find('.nav-item-preview');
+        expect(previewNavItem).to.have.class('active');
+        expect(previewNavItem).to.have.trimmed.text('Cannot load');
         done();
       });
 
@@ -200,25 +197,25 @@ describe('Integration | Component | space automation', function () {
         this.get('getAtmWorkflowExecutionByIdStub').returns(new Promise(() => {}));
         this.set('atmWorkflowExecutionId', 'execution1');
 
-        await render(this);
+        await renderComponent();
 
-        const $previewNavItem = this.$('.nav-item-preview');
-        expect($previewNavItem).to.have.class('active');
-        expect($previewNavItem.text().trim()).to.equal('Loading...');
+        const previewNavItem = find('.nav-item-preview');
+        expect(previewNavItem).to.have.class('active');
+        expect(previewNavItem).to.have.trimmed.text('Loading...');
       });
 
     it('calls "closePreviewTab" on init, when "atmWorkflowExecutionId" param is empty',
       async function () {
-        await render(this);
+        await renderComponent();
 
         expect(this.get('closePreviewTabStub')).to.be.calledOnce;
-        expect(this.$('.nav-item-waiting')).to.have.class('active');
+        expect(find('.nav-item-waiting')).to.have.class('active');
       });
   });
 });
 
-async function render(testCase) {
-  testCase.render(hbs `{{space-automation
+async function renderComponent() {
+  await render(hbs `{{space-automation
     space=space
     tab=tab
     atmWorkflowExecutionId=atmWorkflowExecutionId
@@ -229,5 +226,4 @@ async function render(testCase) {
     closePreviewTab=closePreviewTabStub
     chooseWorkflowSchemaToRun=chooseWorkflowSchemaToRun
   }}`);
-  await wait();
 }

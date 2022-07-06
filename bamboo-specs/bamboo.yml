@@ -116,7 +116,11 @@ Run tests:
   - script:
       interpreter: BINSH_OR_CMDEXE
       scripts:
-      - ./make.py -r ${bamboo.agentWorkingDirectory} run_tests_xunit_output
+      - |-
+        ./make.py -r ${bamboo.agentWorkingDirectory} lint
+        LINT_RESULT=$?
+        ./make.py run_tests_xunit_output
+        return `expr $LINT_RESULT + $?`
       working-dir: oneprovider-gui
       description: Run tests
   final-tasks:

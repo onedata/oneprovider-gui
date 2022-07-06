@@ -1,4 +1,4 @@
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, defineProperty } from '@ember/object';
 import { A } from '@ember/array';
 import { resolve } from 'rsvp';
 import FileBreadcrumbsItem from 'oneprovider-gui/utils/file-breadcrumbs-item';
@@ -20,7 +20,12 @@ function generateBreadcrumbsItems(numberOfFiles = 0) {
     id: name + '-id',
   }));
   if (numberOfFiles > 0) {
-    result.files[0].hasParent = false;
+    defineProperty(
+      result.files[0],
+      'hasParent',
+      undefined,
+      false
+    );
   }
   for (let i = 0; i < result.files.length; i += 1) {
     const ic = i;

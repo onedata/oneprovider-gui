@@ -1,14 +1,13 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, context } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, find, click, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import EmberObject, { set } from '@ember/object';
 import sinon from 'sinon';
-import $ from 'jquery';
-import { click } from 'ember-native-dom-helpers';
 import { Promise } from 'rsvp';
-import wait from 'ember-test-helpers/wait';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
+import { findByText } from '../../../helpers/find';
 
 /**
  * @param {Object} distributionParams
@@ -57,9 +56,7 @@ const oneproviderParis = Object.freeze({
 
 describe('Integration | Component | file distribution modal/oneproviders distribution',
   function () {
-    setupComponentTest('file-distribution-modal/oneproviders-distribution', {
-      integration: true,
-    });
+    setupRenderingTest();
 
     beforeEach(function () {
       const oneproviders = [
@@ -81,11 +78,11 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       });
     });
 
-    it('renders all oneproviders', function () {
+    it('renders all oneproviders', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -93,15 +90,15 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-name:contains("krakow")')).to.exist;
-      expect(this.$('.oneprovider-name:contains("paris")')).to.exist;
+      expect(findByText('krakow', '.oneprovider-name')).to.exist;
+      expect(findByText('paris', '.oneprovider-name')).to.exist;
     });
 
-    it('renders percentage and chunks representation', function () {
+    it('renders percentage and chunks representation', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
       {{file-distribution-modal/oneproviders-distribution
         oneproviders=oneproviders
         fileDistributionData=fileDistributionData
@@ -109,21 +106,21 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       }}
     `);
 
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .chunks-canvas')).to.exist;
-      expect(this.$('.oneprovider-providerkrk .percentage-text')).to.contain('50%');
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-canvas')).to.exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .never-synchronized-background'))
+      expect(find('.oneprovider-providerkrk .never-synchronized-background'))
         .to.not.exist;
     });
 
-    it('renders never-synchronized info', function () {
+    it('renders never-synchronized info', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -131,19 +128,19 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
+      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
-      expect(this.$('.oneprovider-providerpar .never-synchronized-background')).to
+      expect(find('.oneprovider-providerpar .never-synchronized-background')).to
         .exist;
-      expect(this.$('.oneprovider-providerpar .percentage-text')).to.contain('n/a');
-      expect(this.$('.oneprovider-providerpar .chunks-canvas')).to.not.exist;
+      expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('n/a');
+      expect(find('.oneprovider-providerpar .chunks-canvas')).to.not.exist;
     });
 
-    it('renders distribution for single file', function () {
+    it('renders distribution for single file', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -151,22 +148,22 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .percentage-text')).to.contain('50%');
-      expect(this.$('.oneprovider-providerkrk .upper-size')).to.contain('1 KiB');
-      expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('1 KiB');
+      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
     });
 
-    it('renders distribution for two files', function () {
+    it('renders distribution for two files', async function () {
       const fileDistributionData = [
         createFileDistributionContainerStub(),
         createFileDistributionContainerStub({ onKrakow: 100 }),
       ];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -174,22 +171,22 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .percentage-text')).to.contain('75%');
-      expect(this.$('.oneprovider-providerkrk .upper-size')).to.contain('2 KiB');
-      expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('75%');
+      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('2 KiB');
+      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
     });
 
-    it('renders distribution for single file and single dir', function () {
+    it('renders distribution for single file and single dir', async function () {
       const fileDistributionData = [
         createFileDistributionContainerStub(),
         createFileDistributionContainerStub({ type: 'dir' }),
       ];
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -197,15 +194,15 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
+      expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
-      expect(this.$('.oneprovider-providerkrk .percentage-text')).to.contain('50%');
-      expect(this.$('.oneprovider-providerkrk .upper-size')).to.contain('1 KiB');
-      expect(this.$('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
+      expect(find('.oneprovider-providerkrk .upper-size')).to.contain.text('1 KiB');
+      expect(find('.oneprovider-providerpar .chunks-visualizer.never-synchronized'))
         .to.exist;
     });
 
-    it('shows that replication is in progress', function () {
+    it('shows that replication is in progress', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
       set(fileDistributionData[0], 'activeTransfers', [{
         belongsTo(relation) {
@@ -218,7 +215,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       }]);
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -226,15 +223,15 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+      expect(find('.oneprovider-providerpar .replication-status-icon'))
         .to.have.class('in-progress');
-      expect(this.$('.oneprovider-providerpar .migration-status-icon'))
+      expect(find('.oneprovider-providerpar .migration-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerpar .eviction-status-icon'))
+      expect(find('.oneprovider-providerpar .eviction-status-icon'))
         .to.not.have.class('in-progress');
     });
 
-    it('shows that migration is in progress', function () {
+    it('shows that migration is in progress', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
       set(fileDistributionData[0], 'activeTransfers', [{
         belongsTo(relation) {
@@ -247,7 +244,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       }]);
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -255,17 +252,17 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+      expect(find('.oneprovider-providerpar .replication-status-icon'))
         .to.have.class('in-progress');
-      expect(this.$('.oneprovider-providerpar .migration-status-icon'))
+      expect(find('.oneprovider-providerpar .migration-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerpar .eviction-status-icon'))
+      expect(find('.oneprovider-providerpar .eviction-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+      expect(find('.oneprovider-providerkrk .migration-status-icon'))
         .to.have.class('in-progress');
     });
 
-    it('shows that eviction is in progress', function () {
+    it('shows that eviction is in progress', async function () {
       const fileDistributionData = [createFileDistributionContainerStub()];
       set(fileDistributionData[0], 'activeTransfers', [{
         belongsTo(relation) {
@@ -278,7 +275,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       }]);
 
       this.set('fileDistributionData', fileDistributionData);
-      this.render(hbs `
+      await render(hbs `
         {{file-distribution-modal/oneproviders-distribution
           oneproviders=oneproviders
           fileDistributionData=fileDistributionData
@@ -286,17 +283,17 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
         }}
       `);
 
-      expect(this.$('.oneprovider-providerkrk .replication-status-icon'))
+      expect(find('.oneprovider-providerkrk .replication-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+      expect(find('.oneprovider-providerkrk .migration-status-icon'))
         .to.not.have.class('in-progress');
-      expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
+      expect(find('.oneprovider-providerkrk .eviction-status-icon'))
         .to.have.class('in-progress');
     });
 
     ['ongoing', 'ended'].forEach((transferStatus) => {
       it('renders link to transfers using external function if have active transfers',
-        function () {
+        async function () {
           const transfersActive = transferStatus === 'ongoing';
           const fileId = 'someFileId';
           const file = EmberObject.create({
@@ -337,24 +334,22 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           });
           getTransfersUrl.returns('invalidGeneratedHref');
           getTransfersUrl.withArgs(expectedArgs).returns(generatedHref);
-          this.on('getTransfersUrl', getTransfersUrl);
+          this.set('getTransfersUrl', getTransfersUrl);
 
           this.set('fileDistributionData', fileDistributionData);
-          this.render(hbs `
+          await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              getTransfersUrl=(action "getTransfersUrl")
+              getTransfersUrl=(action getTransfersUrl)
             }}
           `);
 
-          return wait().then(() => {
-            expect(this.$('.link-to-transfers'), 'link').to.exist;
-            expect(getTransfersUrl).to.have.been.calledWith(expectedArgs);
-            expect(this.$('.link-to-transfers').attr('href'), 'href')
-              .to.equal(generatedHref);
-          });
+          expect(find('.link-to-transfers'), 'link').to.exist;
+          expect(getTransfersUrl).to.have.been.calledWith(expectedArgs);
+          expect(find('.link-to-transfers'))
+            .to.have.attr('href', generatedHref);
         }
       );
     });
@@ -369,74 +364,78 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           resolveStartAction = resolve;
         }));
 
-        this.on('startAction', startActionStub);
+        this.set('startAction', startActionStub);
         this.set('startActionStub', startActionStub);
         this.set('resolveStartAction', resolveStartAction);
         this.set('fileDistributionData', fileDistributionData);
       });
 
-      it('allows to start replication', function () {
+      it('allows to start replication', async function () {
         const {
           startActionStub,
           resolveStartAction,
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
-        this.render(hbs `
+        await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              onReplicate=(action "startAction")
+              onReplicate=(action startAction)
             }}
           `);
 
         return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
-          .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
+          .then(() => click(
+            document.querySelector('.webui-popover .replicate-here-action-trigger')
+          ))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
-            expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+            expect(find('.oneprovider-providerpar .replication-status-icon'))
               .to.have.class('in-progress');
-            return resolveStartAction();
+            resolveStartAction();
+            return settled();
           })
-          .then(() => wait())
           .then(() =>
-            expect(this.$('.oneprovider-providerpar .replication-status-icon'))
+            expect(find('.oneprovider-providerpar .replication-status-icon'))
             .to.not.have.class('in-progress')
           );
       });
 
-      it('allows to start migration', function () {
+      it('allows to start migration', async function () {
         const {
           startActionStub,
           resolveStartAction,
         } = this.getProperties('startActionStub', 'resolveStartAction');
 
-        this.render(hbs `
+        await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              onMigrate=(action "startAction")
+              onMigrate=(action startAction)
             }}
           `);
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
-          .then(() => click($('body .webui-popover .migrate-action-trigger')[0]))
+          .then(() => click(
+            document.querySelector('.webui-popover .migrate-action-trigger')
+          ))
           .then(() => click('.start-migration'))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
-            expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+            expect(find('.oneprovider-providerkrk .migration-status-icon'))
               .to.have.class('in-progress');
-            return resolveStartAction();
+            resolveStartAction();
+            return settled();
           })
-          .then(() => wait())
           .then(() =>
-            expect(this.$('.oneprovider-providerkrk .migration-status-icon'))
+            expect(find('.oneprovider-providerkrk .migration-status-icon'))
             .to.not.have.class('in-progress')
           );
       });
 
-      it('allows to start eviction', function () {
+      it('allows to start eviction', async function () {
         const {
           startActionStub,
           resolveStartAction,
@@ -445,46 +444,50 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
           createFileDistributionContainerStub({ onParis: 100 }),
         ]);
 
-        this.render(hbs `
+        await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              onEvict=(action "startAction")
+              onEvict=(action startAction)
             }}
           `);
 
         return click('.oneprovider-providerkrk .one-pill-button-actions-trigger')
-          .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
+          .then(() => click(
+            document.querySelector('.webui-popover .evict-action-trigger')
+          ))
           .then(() => {
             expect(startActionStub).to.have.been.calledOnce;
-            expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
+            expect(find('.oneprovider-providerkrk .eviction-status-icon'))
               .to.have.class('in-progress');
-            return resolveStartAction();
+            resolveStartAction();
+            return settled();
           })
-          .then(() => wait())
           .then(() =>
-            expect(this.$('.oneprovider-providerkrk .eviction-status-icon'))
+            expect(find('.oneprovider-providerkrk .eviction-status-icon'))
             .to.not.have.class('in-progress')
           );
       });
 
       it('does not allow to start replication without scheduleReplication privilege',
-        function () {
+        async function () {
           const startActionStub = this.get('startActionStub');
           this.set('space.privileges.scheduleReplication', false);
 
-          this.render(hbs `
+          await render(hbs `
               {{file-distribution-modal/oneproviders-distribution
                 oneproviders=oneproviders
                 fileDistributionData=fileDistributionData
                 space=space
-                onReplicate=(action "startAction")
+                onReplicate=(action startAction)
               }}
             `);
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
-            .then(() => click($('body .webui-popover .replicate-here-action-trigger')[0]))
+            .then(() => click(
+              document.querySelector('.webui-popover .replicate-here-action-trigger')
+            ))
             .then(() => {
               expect(startActionStub).to.have.not.been.called;
             });
@@ -492,7 +495,7 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
       );
 
       it('does not allow to start eviction without scheduleEviction privilege',
-        function () {
+        async function () {
           const startActionStub = this.get('startActionStub');
           this.set('space.privileges.scheduleEviction', false);
 
@@ -500,17 +503,19 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
             createFileDistributionContainerStub({ onParis: 100 }),
           ]);
 
-          this.render(hbs `
+          await render(hbs `
               {{file-distribution-modal/oneproviders-distribution
                 oneproviders=oneproviders
                 fileDistributionData=fileDistributionData
                 space=space
-                onEvict=(action "startAction")
+                onEvict=(action startAction)
               }}
             `);
 
           return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
-            .then(() => click($('body .webui-popover .evict-action-trigger')[0]))
+            .then(() => click(
+              document.querySelector('.webui-popover .evict-action-trigger')
+            ))
             .then(() => {
               expect(startActionStub).to.have.not.been.called;
             });
@@ -519,29 +524,32 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       ['scheduleEviction', 'scheduleReplication'].forEach(flag => {
         it(`does not allow to start migration without ${flag} privilege`,
-          function () {
+          async function () {
             this.set(`space.privileges.${flag}`, false);
 
             this.set('fileDistributionData', [
               createFileDistributionContainerStub({ onParis: 100 }),
             ]);
 
-            this.render(hbs `
+            await render(hbs `
             {{file-distribution-modal/oneproviders-distribution
               oneproviders=oneproviders
               fileDistributionData=fileDistributionData
               space=space
-              onMigrate=(action "startAction")
+              onMigrate=(action startAction)
             }}
           `);
 
             return click('.oneprovider-providerpar .one-pill-button-actions-trigger')
               .then(() => {
-                const $trigger = $('body .webui-popover .migrate-action-trigger');
-                expect($trigger.parent()).to.have.class('disabled');
-                return click($trigger[0]);
+                const trigger =
+                  document.querySelector('.webui-popover .migrate-action-trigger');
+                expect(trigger.parentElement).to.have.class('disabled');
+                return click(trigger);
               })
-              .then(() => expect($('.destination-oneprovider-selector')).to.not.exist);
+              .then(() => expect(
+                document.querySelector('.destination-oneprovider-selector')
+              ).to.not.exist);
           }
         );
       });

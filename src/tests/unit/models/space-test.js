@@ -1,21 +1,19 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import { setupModelTest } from 'ember-mocha';
+import { setupTest } from 'ember-mocha';
 import { get } from '@ember/object';
 import { registerService } from '../../helpers/stub-service';
 import Service from '@ember/service';
 
 describe('Unit | Model | space', function () {
-  setupModelTest('space', {
-    needs: [],
-  });
+  setupTest();
 
   beforeEach(function () {
     registerService(this, 'transferManager', Service);
   });
 
   it('computes current user privileges without owner flag', function () {
-    const model = this.subject({
+    const model = this.owner.lookup('service:store').createRecord('space', {
       currentUserEffPrivileges: ['space_view_qos'],
       currentUserIsOwner: false,
     });
@@ -27,7 +25,7 @@ describe('Unit | Model | space', function () {
   });
 
   it('computes current user privileges with owner flag', function () {
-    const model = this.subject({
+    const model = this.owner.lookup('service:store').createRecord('space', {
       currentUserEffPrivileges: [],
       currentUserIsOwner: true,
     });

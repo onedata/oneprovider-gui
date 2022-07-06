@@ -18,7 +18,7 @@ const FileManager = Service.extend({
 });
 
 describe('Unit | Service | files view resolver', function () {
-  setupTest('service:files-view-resolver', {});
+  setupTest();
 
   beforeEach(function () {
     registerService(this, 'appProxy', AppProxy);
@@ -27,7 +27,7 @@ describe('Unit | Service | files view resolver', function () {
 
   it('calls getDatasetsUrl on parent iframe to get URL for archive filesystem view when the view is requested from space filesystem view',
     async function () {
-      const service = this.subject();
+      const service = this.owner.lookup('service:files-view-resolver');
       const fakeUrl = 'fake_url';
       const appProxy = lookupService(this, 'appProxy');
       const fileManager = lookupService(this, 'fileManager');
@@ -92,7 +92,7 @@ describe('Unit | Service | files view resolver', function () {
 
   it('calls getDataUrl on parent iframe to get URL for space filesystem view when the view is requested from archive filesystem view',
     async function () {
-      const service = this.subject();
+      const service = this.owner.lookup('service:files-view-resolver');
       const fakeUrl = 'fake_url';
       const appProxy = lookupService(this, 'appProxy');
       const fileManager = lookupService(this, 'fileManager');
@@ -150,7 +150,7 @@ describe('Unit | Service | files view resolver', function () {
 
   it('returns fallback dir if file fetch returns null',
     async function () {
-      const service = this.subject();
+      const service = this.owner.lookup('service:files-view-resolver');
       const fakeUrl = 'fake_url';
       const appProxy = lookupService(this, 'appProxy');
       const fileManager = lookupService(this, 'fileManager');
@@ -193,7 +193,7 @@ describe('Unit | Service | files view resolver', function () {
 
   it('returns resolved dir if file fetch returns space filesystem dir when in space filesystem view',
     async function () {
-      const service = this.subject();
+      const service = this.owner.lookup('service:files-view-resolver');
       const fakeUrl = 'fake_url';
       const appProxy = lookupService(this, 'appProxy');
       const fileManager = lookupService(this, 'fileManager');
@@ -242,7 +242,7 @@ describe('Unit | Service | files view resolver', function () {
   );
 
   it('resolves parent dir for first selected file ID if dirId is not provided', async function () {
-    const service = this.subject();
+    const service = this.owner.lookup('service:files-view-resolver');
     const fakeUrl = 'fake_url';
     const appProxy = lookupService(this, 'appProxy');
     const fileManager = lookupService(this, 'fileManager');

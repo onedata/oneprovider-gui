@@ -1,7 +1,7 @@
 <div class="metadata-header-section">
   <div class="metadata-header-section-content">
     <h1 class="section-name">
-      {{tt this (if media.isMobile "common.metadataMobile" "common.metadata")}}
+      {{tt this (if (media "isMobile") "common.metadataMobile" "common.metadata")}}
       {{one-label-tip title=(tt this "common.metadataPublicHeaderTip")}}
     </h1>
     {{share-show/open-data-mode-switch mode=mode onModeChange=(action changeMode)}}

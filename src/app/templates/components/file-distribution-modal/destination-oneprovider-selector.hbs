@@ -4,7 +4,7 @@
     {{one-icon icon="provider" class="oneprovider-icon"}}
     <div class="oneprovider-name">{{sourceOneprovider.name}}</div>
   </div>
-  {{#one-arrow direction=(if media.isMobile "down" "right") arrowText=(tt this "migrationArrowText")}}
+  {{#one-arrow direction=(if (media "isMobile") "down" "right") arrowText=(tt this "migrationArrowText")}}
     <div class="transfer-animation-positioner">
       <div class="transfer-animation-container">
         <div class="wind-container">

@@ -11,10 +11,10 @@ class WatcherMock {
 }
 
 describe('Unit | service | archive recall state manager', function () {
-  setupTest('service:archive-recall-state-manager', {});
+  setupTest();
 
   beforeEach(function () {
-    this.service = this.subject();
+    this.service = this.owner.lookup('service:archive-recall-state-manager');
     this.createWatcherObjectStub = sinon.stub(this.service, 'createWatcherObject')
       .returns(new WatcherMock());
   });

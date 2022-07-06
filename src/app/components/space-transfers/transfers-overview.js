@@ -1,6 +1,6 @@
 /**
  * Shows overview data for all transfers for the space
- * 
+ *
  * Automatic sticky on scrolling
  *
  * @module components/space-transfers/transfers-overview
@@ -153,9 +153,10 @@ export default Component.extend(I18n, {
   changeStyle() {
     let style;
     if (this.get('stickyOverview')) {
-      const $rowActiveTransfers = this.$('.row-active-transfers');
+      const $element = $(this.get('element'));
+      const $rowActiveTransfers = $element.find('.row-active-transfers');
       const height = $rowActiveTransfers.outerHeight();
-      const width = this.$().parents('.space-transfers').innerWidth();
+      const width = $element.parents('.space-transfers').innerWidth();
       style = htmlSafe(`height: ${height}px; width: ${width}px;`);
     } else {
       style = htmlSafe();
@@ -169,17 +170,20 @@ export default Component.extend(I18n, {
       const {
         contentScrollTop,
         overviewExpanded,
+        element,
       } = this.getProperties(
         'contentScrollTop',
-        'overviewExpanded'
+        'overviewExpanded',
+        'element'
       );
-      const $rowOverview = this.$('.row-overview');
+      const $element = $(element);
+      const $rowOverview = $element.find('.row-overview');
       const top = (overviewExpanded ?
         contentScrollTop :
         contentScrollTop - $rowOverview.height()
       );
-      const left = this.$().offset().left;
-      const right = window.innerWidth - (left + this.$().width());
+      const left = $element.offset().left;
+      const right = window.innerWidth - (left + $element.width());
       const style = `top: ${top}px; left: ${left}px; right: ${right}px;`;
       stickyOverviewStyle = htmlSafe(style);
     }
@@ -187,7 +191,7 @@ export default Component.extend(I18n, {
   },
 
   initSticky($contentScroll) {
-    const $rowExpandHandler = this.$('.row-expand-handler');
+    const $rowExpandHandler = $(this.get('element')).find('.row-expand-handler');
     if ($rowExpandHandler.length) {
       this.set('initialHandlerTop', $rowExpandHandler.offset().top);
     }
@@ -257,7 +261,7 @@ export default Component.extend(I18n, {
 
     stickyFocused() {
       if (!this.get('stickyOverview')) {
-        this.$()[0].setAttribute('tabindex', 0);
+        this.get('element').setAttribute('tabindex', 0);
       }
     },
   },

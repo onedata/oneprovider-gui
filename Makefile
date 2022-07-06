@@ -2,19 +2,9 @@ SRC_DIR	 ?= src
 REL_DIR	 ?= rel
 XVFB_ARGS ?= --server-args="-screen 0, 1366x768x24"
 
-.PHONY: dev mock rel test test_xunit_output deps build_mock build_dev build_prod clean run_tests run_tests_xunit_output submodules
+.PHONY: deps build_mock build_dev build_prod run_tests run_tests_xunit_output dev mock rel test test_xunit_output clean lint
 
 all: dev
-
-dev: deps build_dev
-
-mock: deps build_mock
-
-rel: deps build_prod
-
-test: deps run_tests
-
-test_xunit_output: deps run_tests_xunit_output
 
 deps:
 	cd $(SRC_DIR) && npm install
@@ -28,14 +18,27 @@ build_dev:
 build_prod:
 	cd $(SRC_DIR) && ember build --environment=production --output-path=../$(REL_DIR)
 
-clean:
-	cd $(SRC_DIR) && rm -rf node_modules dist tmp ../$(REL_DIR)/*
-
 run_tests:
 	cd $(SRC_DIR) && xvfb-run $(XVFB_ARGS) ember test
 
 run_tests_xunit_output:
 	cd $(SRC_DIR) && xvfb-run $(XVFB_ARGS) ember test -r xunit
+
+dev: deps build_dev
+
+mock: deps build_mock
+
+rel: deps build_prod
+
+test: deps run_tests
+
+test_xunit_output: deps run_tests_xunit_output
+
+clean:
+	cd $(SRC_DIR) && npm run clean
+
+lint: src/node_modules
+	cd $(SRC_DIR) && npm run lint
 
 ##
 ## Submodules

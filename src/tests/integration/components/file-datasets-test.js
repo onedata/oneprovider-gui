@@ -1,18 +1,16 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, before } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { setupRenderingTest } from 'ember-mocha';
+import { render, click, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
-import $ from 'jquery';
 import { promiseObject } from 'onedata-gui-common/utils/ember/promise-object';
 import { resolve } from 'rsvp';
-import wait from 'ember-test-helpers/wait';
 import ToggleHelper from '../../helpers/toggle';
 import { createFileDatasetSummary, createDataset } from '../../helpers/datasets-archives';
 import { setProperties } from '@ember/object';
 import Service from '@ember/service';
 import { lookupService, registerService } from '../../helpers/stub-service';
-import { click, find } from 'ember-native-dom-helpers';
 import sinon from 'sinon';
 
 const userId = 'current_user_id';
@@ -25,9 +23,7 @@ const ArchiveManager = Service.extend({
 });
 
 describe('Integration | Component | file datasets', function () {
-  setupComponentTest('file-datasets', {
-    integration: true,
-  });
+  setupRenderingTest();
 
   before(async function () {
     this.createFileDatasetSummary = (options) => createFileDatasetSummary(
@@ -44,9 +40,10 @@ describe('Integration | Component | file datasets', function () {
   it('renders file name of injected file', async function () {
     this.set('file.name', 'hello world');
 
-    await render(this);
+    await renderComponent(this);
 
-    expect($('.modal-file-subheader .file-name').text()).to.contain('hello world');
+    expect(document.querySelector('.modal-file-subheader .file-name'))
+      .to.contain.text('hello world');
   });
 
   [
@@ -70,9 +67,9 @@ describe('Integration | Component | file datasets', function () {
     async function () {
       await this.createFileDatasetSummary({ directDataset: null });
 
-      await render(this);
+      await renderComponent(this);
 
-      expect(this.$('.nav-item-archives'), 'archives nav item')
+      expect(find('.nav-item-archives'), 'archives nav item')
         .to.have.class('disabled');
     }
   );
@@ -83,12 +80,12 @@ describe('Integration | Component | file datasets', function () {
   it('does not render archives count text if dataset is not established', async function () {
     await this.createFileDatasetSummary({ directDataset: null });
 
-    await render(this);
+    await renderComponent(this);
 
-    const $navItemArchives = this.$('.nav-item-archives');
-    expect($navItemArchives, 'archives nav item')
+    const navItemArchives = find('.nav-item-archives');
+    expect(navItemArchives, 'archives nav item')
       .to.exist;
-    expect($navItemArchives.text()).to.match(/Archives\s*$/);
+    expect(navItemArchives.textContent).to.match(/Archives\s*$/);
   });
 
   testArchivesTabCount({ archiveCount: 0 });
@@ -103,7 +100,7 @@ describe('Integration | Component | file datasets', function () {
     });
     await this.createFileDatasetSummary();
 
-    await render(this);
+    await renderComponent(this);
     expect(find('.file-datasets-archives-tab'), 'archives tab content').to.not.exist;
     await click(find('.nav-link-archives'));
 
@@ -116,7 +113,7 @@ describe('Integration | Component | file datasets', function () {
         state: 'attached',
       });
 
-      await render(this);
+      await renderComponent(this);
 
       const contentInfoNoDataset = find('.content-info-no-dataset');
       expect(contentInfoNoDataset).to.exist;
@@ -135,7 +132,7 @@ describe('Integration | Component | file datasets', function () {
       });
       this.set('space.privileges.manageDatasets', false);
 
-      await render(this);
+      await renderComponent(this);
 
       const establishButton = find('.establish-dataset-btn');
       expect(establishButton).to.exist;
@@ -157,7 +154,7 @@ describe('Integration | Component | file datasets', function () {
         'establishDataset'
       );
 
-      await render(this);
+      await renderComponent(this);
       await click('.establish-dataset-btn');
 
       expect(establishDatasetSpy).to.have.been.calledOnce;
@@ -177,7 +174,7 @@ describe('Integration | Component | file datasets', function () {
         effAncestorDatasets: [this.get('dataset')],
       });
 
-      await render(this);
+      await renderComponent(this);
 
       const contentInfoNoDataset = find('.content-info-no-dataset');
       expect(contentInfoNoDataset).to.not.exist;
@@ -194,7 +191,7 @@ describe('Integration | Component | file datasets', function () {
         effAncestorDatasets: [this.get('dataset')],
       });
 
-      await render(this);
+      await renderComponent(this);
 
       const directDatasetControl = find('.direct-dataset-control');
       expect(directDatasetControl).to.exist;
@@ -219,17 +216,17 @@ function testDirectDatasetProtection(flags, attached = true) {
     });
     await this.createFileDatasetSummary();
 
-    await render(this);
+    await renderComponent(this);
 
-    const $directDatasetItem = this.$('.direct-dataset-item');
-    expect($directDatasetItem, 'direct dataset item').to.exist;
+    const directDatasetItem = find('.direct-dataset-item');
+    expect(directDatasetItem, 'direct dataset item').to.exist;
     availableShortFlags.forEach(flag => {
       // if dataset is detached, all flags should be presented as false!
       const shouldToggleBeEnabled = attached && shortFlags.includes(flag);
       const selector = `.${flag}-flag-toggle`;
-      const $toggle = $directDatasetItem.find(selector);
-      expect($toggle, `${selector} for direct dataset`).to.exist;
-      const toggleHelper = new ToggleHelper($toggle);
+      const toggle = directDatasetItem.querySelector(selector);
+      expect(toggle, `${selector} for direct dataset`).to.exist;
+      const toggleHelper = new ToggleHelper(toggle);
       expect(toggleHelper.isChecked(), flag).to.equal(shouldToggleBeEnabled);
     });
   });
@@ -250,32 +247,31 @@ function testEffectiveProtectionInfo(flags) {
       setProperties(fileDatasetSummary, { dataIsProtected, metadataIsProtected });
       setProperties(file, { dataIsProtected, metadataIsProtected });
 
-      await render(this);
+      await renderComponent(this);
 
-      const $protectionInfo = this.$('.datasets-effective-protection-info');
-      expect($protectionInfo, 'protection info container').to.exist;
+      const protectionInfo = find('.datasets-effective-protection-info');
+      expect(protectionInfo, 'protection info container').to.exist;
       availableShortFlags.forEach(flag => {
         const isEnabled = shortFlags.includes(flag);
         const tagSelector = `.${flag}-protected-tag`;
-        const $tag = $protectionInfo.find(tagSelector);
-        expect($tag, tagSelector).to.exist;
-        expect($tag, tagSelector)
+        const tag = protectionInfo.querySelector(tagSelector);
+        expect(tag, tagSelector).to.exist;
+        expect(tag, tagSelector)
           .to.have.class(`protected-tag-${isEnabled ? 'enabled' : 'disabled'}`);
       });
     }
   );
 }
 
-async function render(testCase) {
+async function renderComponent(testCase) {
   testCase.set('files', [testCase.get('file')]);
-  testCase.render(hbs `{{#one-pseudo-modal as |modal|}}
+  await render(hbs `{{#one-pseudo-modal as |modal|}}
     {{file-datasets
       modal=modal
       files=files
       space=space
     }}
   {{/one-pseudo-modal}}`);
-  await wait();
 }
 
 function createFile(override = {}, ownerGri = userGri) {
@@ -307,9 +303,9 @@ function testHasArchivesTabEnabled({ datasetState }) {
     });
     await this.createFileDatasetSummary();
 
-    await render(this);
+    await renderComponent(this);
 
-    expect(this.$('.nav-item-archives'), 'archives nav item')
+    expect(find('.nav-item-archives'), 'archives nav item')
       .to.not.have.class('disabled');
   });
 }
@@ -328,12 +324,12 @@ function testArchivesTabCount({ archiveCount }) {
     });
     await this.createFileDatasetSummary();
 
-    await render(this);
+    await renderComponent(this);
 
-    const $navItemArchives = this.$('.nav-item-archives');
-    expect($navItemArchives, 'archives nav item')
+    const navItemArchives = find('.nav-item-archives');
+    expect(navItemArchives, 'archives nav item')
       .to.exist;
-    expect($navItemArchives.text())
+    expect(navItemArchives.textContent)
       .to.match(new RegExp(`Archives\\s+\\(${archiveCount}\\)`));
   });
 }

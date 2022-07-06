@@ -1,6 +1,6 @@
 /**
  * Selector and copier of public share link type
- * 
+ *
  * @module components/share-show/public-url-viewer
  * @author Jakub Liput
  * @copyright (C) 2021 ACK CYFRONET AGH
@@ -68,6 +68,12 @@ export default Component.extend(I18n, {
    * @type {(selectedUrlType: String) => undefined)}
    */
   changeSelectedUrlType: notImplementedIgnore,
+
+  /**
+   * @virtual
+   * @type {Boolean}
+   */
+  testMode: false,
 
   /**
    * @type {Boolean}
@@ -209,6 +215,22 @@ export default Component.extend(I18n, {
       'urlTypeSelectRestAction'
     ),
   ),
+
+  /**
+   * @override
+   */
+  didInsertElement() {
+    this._super(...arguments);
+
+    const {
+      element,
+      testMode,
+    } = this.getProperties('element', 'testMode');
+
+    if (testMode) {
+      element.componentInstance = this;
+    }
+  },
 });
 
 function createChangeModeAction(urlType) {
