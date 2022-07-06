@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, click, find, findAll, settled } from '@ember/test-helpers';
+import { render, click, find, findAll, waitUntil } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { get, set } from '@ember/object';
 import { registerService, lookupService } from '../../../helpers/stub-service';
@@ -50,7 +50,7 @@ describe('Integration | Component | file datasets/archives tab', function () {
     });
 
     await renderComponent(this);
-    
+
     expect(findAll('.fb-table-row'), 'rows').to.have.length(itemsCount);
   });
 
@@ -155,7 +155,9 @@ async function renderComponent(testCase, waitForListLoad = true) {
   }}`);
 
   if (waitForListLoad) {
-    await settled();
+    await waitUntil(() => {
+      return !find('.spin-spinner-block');
+    }, { timeout: 3000 });
   }
 }
 
