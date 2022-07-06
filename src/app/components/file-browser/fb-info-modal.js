@@ -195,7 +195,7 @@ export default Component.extend(I18n, createDataProxyMixin('fileHardlinks'), {
    * One of `enabled`, `disabled`, `stopping`, `initializing`
    * @type {ComputedProperty<String>}
    */
-  dirStatsServiceStatus: reads('dirStatsServiceState.dirStatsServiceStatus'),
+  dirStatsServiceStatus: reads('dirStatsServiceState.status'),
 
   /**
    * @type {ComputedProperty<boolean>}

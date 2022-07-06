@@ -26,9 +26,8 @@ import { all as allFulfilled } from 'rsvp';
 
 /**
  * @typedef {Object} DirStatsServiceState
- * @property {string} dirStatsServiceStatus One of `enabled`, `disabled`,
- * `stopping`, `initializing`
- * @property {boolean} accountingEnabled
+ * @property {string} status One of `enabled`, `disabled`, `stopping`, `initializing`
+ * @property {boolean} enforcedByAccounting
  * @property {number} since
  */
 
@@ -166,7 +165,7 @@ export default Service.extend({
 
   /**
    * @param {String} spaceId
-   * @param {{ dirStatsServiceEnabled: boolean }} dirStatsServiceState
+   * @param {{ enabled: boolean }} dirStatsServiceState
    * @returns {Promise<Object>}
    */
   saveDirStatsServiceState(spaceId, dirStatsServiceState) {

@@ -46,12 +46,12 @@ export default OneEmbeddedComponent.extend(...mixins, {
   /**
    * @type {ComputedProperty<'enabled'|'disabled'|'stopping'|'initializing'>}
    */
-  dirStatsServiceStatus: reads('dirStatsServiceStateProxy.content.dirStatsServiceStatus'),
+  dirStatsServiceStatus: reads('dirStatsServiceStateProxy.content.status'),
 
   /**
    * @type {ComputedProperty<boolean>}
    */
-  accountingEnabled: reads('dirStatsServiceStateProxy.content.accountingEnabled'),
+  enforcedByAccounting: reads('dirStatsServiceStateProxy.content.enforcedByAccounting'),
 
   /**
    * @type {ComputedProperty<Boolean>}
@@ -90,28 +90,28 @@ export default OneEmbeddedComponent.extend(...mixins, {
   /**
    * @type {ComputedProperty<boolean>}
    */
-  dirStatsToggleDisabled: or(not('hasEditPrivilege'), 'accountingEnabled'),
+  dirStatsToggleDisabled: or(not('hasEditPrivilege'), 'enforcedByAccounting'),
 
   /**
    * @type {ComputedProperty<SafeString|undefined>}
    */
   dirStatsToggleLockHint: computed(
     'hasEditPrivilege',
-    'accountingEnabled',
+    'enforcedByAccounting',
     function dirStatsToggleLockHint() {
       const {
         hasEditPrivilege,
-        accountingEnabled,
+        enforcedByAccounting,
         insufficientEditPrivilegesMessage,
       } = this.getProperties(
         'hasEditPrivilege',
-        'accountingEnabled',
+        'enforcedByAccounting',
         'insufficientEditPrivilegesMessage'
       );
 
       if (!hasEditPrivilege) {
         return insufficientEditPrivilegesMessage;
-      } else if (accountingEnabled) {
+      } else if (enforcedByAccounting) {
         return this.t('toggleDisabledDueAccounting');
       }
     }
@@ -162,7 +162,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         spaceEntityId,
       } = this.getProperties('spaceManager', 'spaceEntityId');
       const dirStatsServiceState = {
-        dirStatsServiceEnabled: enabled,
+        enabled,
       };
       return spaceManager
         .saveDirStatsServiceState(spaceEntityId, dirStatsServiceState)

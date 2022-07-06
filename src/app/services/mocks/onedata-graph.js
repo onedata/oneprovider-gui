@@ -315,8 +315,8 @@ const spaceHandlers = {
       return messageNotSupported;
     }
     return {
-      accountingEnabled: false,
-      dirStatsServiceStatus: 'enabled',
+      enforcedByAccounting: false,
+      status: 'enabled',
     };
   },
 };

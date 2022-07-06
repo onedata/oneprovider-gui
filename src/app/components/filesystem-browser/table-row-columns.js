@@ -44,7 +44,7 @@ export default FbTableRowColumns.extend(I18n, {
    */
   isDirStatsServiceStarted: array.includes(
     raw(['enabled', 'initializing']),
-    'dirStatsServiceState.dirStatsServiceStatus'
+    'dirStatsServiceState.status'
   ),
 
   /**
@@ -53,7 +53,7 @@ export default FbTableRowColumns.extend(I18n, {
   tooltipText: computed(
     'dirStatsServiceState.dirStatsServiceStatus',
     function tooltipText() {
-      let dirStatsServiceStatus = this.get('dirStatsServiceState.dirStatsServiceStatus');
+      let dirStatsServiceStatus = this.get('dirStatsServiceState.status');
       if (dirStatsServiceStatus === 'stopping') {
         dirStatsServiceStatus = 'disabled';
       }
