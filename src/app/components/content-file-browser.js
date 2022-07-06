@@ -293,7 +293,7 @@ export default OneEmbeddedComponent.extend(
     },
 
     getItemById(itemId) {
-      return this.get('fileManager').getFileById(itemId, 'private');
+      return this.get('fileManager').getFileById(itemId, { scope: 'private' });
     },
 
     createBrowserModel() {

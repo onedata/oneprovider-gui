@@ -70,13 +70,28 @@ export default Service.extend({
 
   /**
    * @param {String} fileId
-   * @param {String} scope one of: private, public
+   * @param {Object} options
+   * @param {'private'|'public'} [options.scope='private']
+   * @param {Boolean} [options.reload=false] a `findRecord` option
+   * @param {Boolean} [options.backgroundReload=false] a `findRecord` option
    * @returns {Promise<Models.File>}
    */
-  getFileById(fileId, scope = 'private') {
+  async getFileById(fileId, {
+    scope = 'private',
+    reload = false,
+    backgroundReload = false,
+  } = {}) {
+    const store = this.get('store');
     const fileGri = getFileGri(fileId, scope);
-    return this.get('store').findRecord(fileModelName, fileGri)
-      .then(file => this.resolveSymlinks([file], scope).then(() => file));
+    const file = await store.findRecord(
+      fileModelName,
+      fileGri, {
+        reload,
+        backgroundReload,
+      }
+    );
+    await this.resolveSymlinks([file], scope);
+    return file;
   },
 
   /**

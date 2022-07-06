@@ -309,11 +309,13 @@ describe('Integration | Component | file browser (main component)', function () 
 
       await renderComponent(this);
 
-      expect(fetchDirChildren).to.be.called;
+      expect(fetchDirChildren, 'after init').to.be.called;
       fetchDirChildren.resetHistory();
       expect(find('.file-action-refresh')).to.exist;
       await click('.file-action-refresh');
-      expect(fetchDirChildren).to.be.called;
+      // wait for animation - if fail, check what is animation time of fbTableApi.refresh
+      await sleep(301);
+      expect(fetchDirChildren, 'after refresh').to.be.called;
     }
   );
 
@@ -463,15 +465,10 @@ describe('Integration | Component | file browser (main component)', function () 
 
       this.setProperties({ dir, item1, selectedItems: [] });
       stubSimpleFetch(this, dir, [item1]);
-      const clock = sinon.useFakeTimers({
-        now: Date.now(),
-        shouldAdvanceTime: true,
-      });
-      this.set('clock', clock);
     });
 
     afterEach(function () {
-      this.get('clock').restore();
+      destroyFakeClock(this);
     });
 
     context('when the only item is a file', function () {
@@ -502,7 +499,9 @@ describe('Integration | Component | file browser (main component)', function () 
               expect(qosTagGroup, 'qos tag').to.have.length(1);
               expect(qosTagGroup[0]).to.contain.text('QoS');
               if (['ancestor', 'directAndAncestor'].includes(effQosMembership)) {
-                const inheritanceIcon = qosTagGroup[0].querySelectorAll('.oneicon-inheritance');
+                const inheritanceIcon = qosTagGroup[0].querySelectorAll(
+                  '.oneicon-inheritance'
+                );
                 expect(inheritanceIcon, 'inheritance icon').to.have.length(1);
               }
               await click(qosTagGroup[0].querySelector('.file-status-qos'));
@@ -726,6 +725,7 @@ function testDownloadUsingDoubleClick() {
 }
 
 async function testDownload(testCase, done, invokeDownloadFunction) {
+  const clock = useFakeClock(testCase);
   const {
     fileId,
     getFileDownloadUrl,
@@ -740,7 +740,7 @@ async function testDownload(testCase, done, invokeDownloadFunction) {
   expect(row.querySelector('.on-icon-loading-spinner'), 'spinner').to.exist;
   expect(getFileDownloadUrl).to.be.calledOnce;
   expect(getFileDownloadUrl).to.be.calledWith([fileId]);
-  testCase.get('clock').tick(1000);
+  clock.tick(1000);
   await sleeper;
   await settled();
   expect(row.querySelector('.on-icon-loading-spinner'), 'spinner').to.not.exist;
@@ -865,4 +865,19 @@ async function createFile(testCase, data) {
     delete data.entityId;
   }
   return await lookupService(testCase, 'store').createRecord('file', data).save();
+}
+
+function useFakeClock(testCase) {
+  const clock = sinon.useFakeTimers({
+    now: Date.now(),
+    shouldAdvanceTime: true,
+  });
+  testCase.clock = clock;
+  return clock;
+}
+
+function destroyFakeClock(testCase) {
+  if (testCase.clock) {
+    testCase.clock.restore();
+  }
 }

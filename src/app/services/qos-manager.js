@@ -11,12 +11,40 @@ import Service, { inject as service } from '@ember/service';
 import gri from 'onedata-gui-websocket-client/utils/gri';
 import { entityType as qosEntityType } from 'oneprovider-gui/models/qos-requirement';
 import { get } from '@ember/object';
+import { entityType as qosRequirementEntityType } from 'oneprovider-gui/models/qos-requirement';
 
 /**
  * @typedef {Object} QosEntryTimeSeriesCollections
  * @param {Array<string>} bytes
  * @param {Array<string>} files
  */
+
+/**
+ * @type {'scheduled'|'skipped'|'completed'|'failed'} QosLogStatus
+ */
+
+/**
+ * @type {'info'|'error'} QosLogSeverity
+ */
+
+/**
+ * @type {Object} QosLogErrorReason
+ */
+
+/**
+ * @typedef {Object} QosLogData
+ * @param {QosLogStatus} status
+ * @param {QosLogSeverity} severity
+ * @param {string} fileId CDMI Object ID of the file that the event is about
+ * @param {string} description a human-readable description of event
+ * @param {QosLogErrorReason} [reason] error object - only if status is failed
+ */
+
+/**
+ * @typedef {JsonInfiniteLogEntry<QosLogData>} QosLogEntry
+ */
+
+const auditLogAspect = 'audit_log';
 
 /**
  * @param {string} qosId
@@ -36,6 +64,7 @@ export default Service.extend({
   store: service(),
   onedataGraph: service(),
   timeSeriesManager: service(),
+  infiniteLogManager: service(),
 
   async getRecord(qosGri, reload = false) {
     const cachedRecord = reload ?
@@ -99,4 +128,28 @@ export default Service.extend({
       subscribe: false,
     });
   },
+
+  /**
+   * @param {string} qosRequirementId
+   * @param {JsonInfiniteLogPagingParams} pagingParams
+   * @returns {Promise<JsonInfiniteLogPage<QosLogData>>}
+   */
+  async getAuditLog(qosRequirementId, pagingParams) {
+    const infiniteLogManager = this.get('infiniteLogManager');
+    const requestGri = gri({
+      entityType: qosRequirementEntityType,
+      entityId: qosRequirementId,
+      aspect: auditLogAspect,
+    });
+    return await infiniteLogManager.getJsonInfiniteLogContent(requestGri, pagingParams);
+  },
 });
+
+export function isValidQosLogStatus(status) {
+  return [
+    'scheduled',
+    'skipped',
+    'completed',
+    'failed',
+  ].includes(status);
+}

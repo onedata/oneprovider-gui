@@ -22,7 +22,7 @@ import { htmlSafe, camelize } from '@ember/string';
 import { scheduleOnce, next, later } from '@ember/runloop';
 import { getButtonActions } from 'oneprovider-gui/components/file-browser';
 import { equal, and, not, or, raw, bool } from 'ember-awesome-macros';
-import { resolve, all as allFulfilled, Promise } from 'rsvp';
+import { resolve, all as allFulfilled } from 'rsvp';
 import _ from 'lodash';
 import notImplementedIgnore from 'onedata-gui-common/utils/not-implemented-ignore';
 import notImplementedThrow from 'onedata-gui-common/utils/not-implemented-throw';
@@ -479,53 +479,31 @@ export default Component.extend(I18n, {
    */
   api: computed(function api() {
     return {
-      refresh: (animated = true) => {
-        const {
-          refreshStarted,
-          element,
-        } = this.getProperties('refreshStarted', 'element');
+      refresh: async (animated = true) => {
+        const refreshStarted = this.get('refreshStarted');
+        // should be the same as $refresh-transition-duration in fb-table.scss
+        const fadeTime = 300;
         if (refreshStarted) {
-          return resolve();
+          return;
         }
         if (!animated) {
           return this.refreshFileList();
         }
         this.set('renderRefreshSpinner', true);
-        // wait for refresh spinner to render because it needs to transition
-        return new Promise((resolve, reject) => {
-          scheduleOnce('afterRender', () => {
-            safeExec(this, 'set', 'refreshStarted', true);
-            const animationPromise = new Promise((resolve) => {
-              const transitionEventHandler = (event) => {
-                if (
-                  event.propertyName === 'opacity' &&
-                  event.target.matches('.fb-files-table')
-                ) {
-                  element.removeEventListener(
-                    'transitionend',
-                    transitionEventHandler,
-                  );
-                  resolve();
-                }
-              };
-              element.addEventListener(
-                'transitionend',
-                transitionEventHandler,
-              );
-            });
-            this.refreshFileList()
-              .finally(() => {
-                animationPromise.finally(() => {
-                  safeExec(this, 'set', 'refreshStarted', false);
-                  later(() => {
-                    if (!this.get('refreshStarted')) {
-                      safeExec(this, 'set', 'renderRefreshSpinner', false);
-                    }
-                  }, 300);
-                });
-              })
-              .then(resolve, reject);
-          });
+        // wait for refresh spinner to render because it needs parent class to transition
+        scheduleOnce('afterRender', async () => {
+          safeExec(this, 'set', 'refreshStarted', true);
+          try {
+            await sleep(fadeTime);
+            return await this.refreshFileList();
+          } finally {
+            safeExec(this, 'set', 'refreshStarted', false);
+            later(() => {
+              if (!this.get('refreshStarted')) {
+                safeExec(this, 'set', 'renderRefreshSpinner', false);
+              }
+            }, fadeTime);
+          }
         });
       },
       getFilesArray: () => {

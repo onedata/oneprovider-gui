@@ -1,0 +1,35 @@
+<td class="table-data-cell column-timestamp column-timestamp-with-ms">
+  <div class="table-data-cell-content">
+    {{date-format timestamp format="detailedReport" blank="—"}}
+  </div>
+</td>
+{{#if showFileColumn}}
+  <td class="table-data-cell column-file">
+    <div class="table-data-cell-content">
+      {{#if fileInfo.href}}
+        <a
+          class="navy underlined truncate"
+          target={{navigateTarget}}
+          href={{fileInfo.href}}
+        >
+          {{#truncated-string class=(concat-classes "file-name" fileInfo.className)}}
+            {{fileInfo.name}}
+          {{/truncated-string}}
+        </a>
+      {{else}}
+        {{#truncated-string class=(concat-classes "file-name" fileInfo.className)}}
+          {{fileInfo.name}}
+        {{/truncated-string}}
+      {{/if}}
+    </div>
+  </td>
+{{/if}}
+<td class="table-data-cell column-event">
+  <div class="table-data-cell-content">
+    {{qos-modal/audit-log/cell-content-message
+      reason=qosLogReason
+      status=qosLogStatus
+      description=qosLogDescription
+    }}
+  </div>
+</td>

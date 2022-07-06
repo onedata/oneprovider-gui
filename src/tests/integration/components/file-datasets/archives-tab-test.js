@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
-import { render, click, find, findAll } from '@ember/test-helpers';
+import { render, click, find, findAll, waitUntil } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { get, set } from '@ember/object';
 import { registerService, lookupService } from '../../../helpers/stub-service';
@@ -127,7 +127,7 @@ describe('Integration | Component | file datasets/archives tab', function () {
   );
 });
 
-async function renderComponent(testCase) {
+async function renderComponent(testCase, waitForListLoad = true) {
   const defaultBrowsableDataset = {
     name: 'Default dataset',
     entityId: 'default_dataset_id',
@@ -153,6 +153,12 @@ async function renderComponent(testCase) {
     browsableDataset=browsableDataset
     archiveBrowserModelOptions=(hash refreshInterval=0)
   }}`);
+
+  if (waitForListLoad) {
+    await waitUntil(() => {
+      return !find('.spin-spinner-block');
+    }, { timeout: 3000 });
+  }
 }
 
 function setTestPropertyDefault(testCase, propertyName, defaultValue) {

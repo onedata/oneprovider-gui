@@ -29,7 +29,7 @@ import ColorGenerator from 'onedata-gui-common/utils/color-generator';
  */
 
 export default Component.extend(I18n, createDataProxyMixin('tsCollections'), {
-  classNames: ['qos-entry-charts'],
+  classNames: ['qos-entry-charts', 'qos-entry-info-block'],
 
   i18n: service(),
   onedataConnection: service(),

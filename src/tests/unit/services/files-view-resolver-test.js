@@ -273,9 +273,15 @@ describe('Unit | Service | files view resolver', function () {
     const selectedDir1Id = selectedFile1.entityId;
     const selectedDir2Id = selectedFile2.entityId;
     const getFileById = sinon.stub(fileManager, 'getFileById');
-    getFileById.withArgs(parentDirId, 'private').resolves(parentDir);
-    getFileById.withArgs(selectedDir1Id, 'private').resolves(selectedFile1);
-    getFileById.withArgs(selectedDir2Id, 'private').resolves(selectedFile2);
+    getFileById
+      .withArgs(parentDirId, sinon.match({ scope: 'private' }))
+      .resolves(parentDir);
+    getFileById
+      .withArgs(selectedDir1Id, sinon.match({ scope: 'private' }))
+      .resolves(selectedFile1);
+    getFileById
+      .withArgs(selectedDir2Id, sinon.match({ scope: 'private' }))
+      .resolves(selectedFile2);
     const currentFilesViewContext = FilesViewContext.create({
       file: {},
       spaceId,
@@ -298,7 +304,10 @@ describe('Unit | Service | files view resolver', function () {
     });
 
     expect(callParent).to.have.not.been.called;
-    expect(getFileById).to.have.been.calledWith(selectedDir1Id, 'private');
+    expect(getFileById).to.have.been.calledWith(
+      selectedDir1Id,
+      sinon.match({ scope: 'private' })
+    );
     expect(result.result).to.equal('resolve');
     expect(result.dir).to.equal(parentDir);
     expect(result.filesViewContext).to.be.not.empty;
