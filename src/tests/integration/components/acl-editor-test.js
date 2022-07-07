@@ -1,18 +1,10 @@
-// Execution of this test suite is postponed, hence "postponed-" prefix to move
-// it down in the order of tests execution. When it was executed at the beginning,
-// it caused random failures due to the execution timeout.
-// Probably acl-editor component uses a very specific combination of utils
-// and subcomponents, which causes many loading-related computations. When
-// postponed, then some of the things used by acl-editor are already loaded and
-// tests are not so much biased by the loading time.
-
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { setupRenderingTest } from 'ember-mocha';
 import { render, find, findAll, click } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { resolve } from 'rsvp';
-import EmberPowerSelectHelper from '../../helpers/ember-power-select-helper';
+import { selectChoose } from 'ember-power-select/test-support/helpers';
 import sinon from 'sinon';
 
 describe('Integration | Component | acl editor', function () {
@@ -145,13 +137,10 @@ describe('Integration | Component | acl editor', function () {
       subjectType: 'user',
     }];
 
-    const addAceDropdown =
-      new EmberPowerSelectHelper('.add-user-group-ace', '.add-user-group-ace-dropdown');
-    return addAceDropdown.selectOption(4).then(() => {
-      expect(findAll('.ace')).to.have.length(3);
-      expect(find('.ace:nth-child(3) .subject-name')).to.contain.text('User 2');
-      expect(changeSpy).to.be.calledWith(targetAcl);
-    });
+    await selectChoose('.add-user-group-ace', 'User 2');
+    expect(findAll('.ace')).to.have.length(3);
+    expect(find('.ace:nth-child(3) .subject-name')).to.contain.text('User 2');
+    expect(changeSpy).to.be.calledWith(targetAcl);
   });
 
   it('removes ACE', async function () {
