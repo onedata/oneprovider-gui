@@ -15,6 +15,7 @@ import { resolve, Promise, reject } from 'rsvp';
 import { conditional, raw, gt, and, not, notEmpty } from 'ember-awesome-macros';
 import { inject as service } from '@ember/service';
 import Looper from 'onedata-gui-common/utils/looper';
+import { computed } from '@ember/object';
 
 export default EmberObject.extend(
   createDataProxyMixin('fileDistributionModel'),
@@ -80,7 +81,17 @@ export default EmberObject.extend(
      * File size. If file is a directory and statistics are turn off, then size is null.
      * @type {Ember.ComputedProperty<number>}
      */
-    fileSize: reads('file.size'),
+    fileSize: computed('fileDistribution', function fileSize() {
+      const fileDistribution = this.get('fileDistribution');
+      let fileSizeMax = 0;
+      for(const elem in fileDistribution) {
+        const logicalSize = get(fileDistribution[elem], 'logicalSize');
+        if (logicalSize) {
+          fileSizeMax = Math.max(fileSizeMax, logicalSize);
+        }
+      }
+      return fileSizeMax;
+    }),
 
     /**
      * @type {Ember.ComputedProperty<boolean>}

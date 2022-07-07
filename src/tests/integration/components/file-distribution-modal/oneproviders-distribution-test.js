@@ -8,7 +8,7 @@ import sinon from 'sinon';
 import { Promise } from 'rsvp';
 import FileDistributionDataContainer from 'oneprovider-gui/utils/file-distribution-data-container';
 import { findByText } from '../../../helpers/find';
-import { lookupService } from '../../helpers/stub-service';
+import { lookupService } from '../../../helpers/stub-service';
 
 /**
  * @param {Object} distributionParams
@@ -202,13 +202,14 @@ describe('Integration | Component | file distribution modal/oneproviders distrib
 
       expect(find('.oneprovider-providerkrk .chunks-visualizer.synchronized')).to
         .exist;
+      expect(find('.oneprovider-providerkrk .percentage-text')).to.exist;
       expect(find('.oneprovider-providerkrk .percentage-text')).to.contain.text('50%');
-      expect(find('.oneprovider-providerkrk .chunks-text')).to.contain.text('512 B');
+      expect(find('.oneprovider-providerkrk .size-label')).to.contain.text('512 B');
 
       expect(find('.oneprovider-providerpar .chunks-visualizer.synchronized')).to
         .exist;
       expect(find('.oneprovider-providerpar .percentage-text')).to.contain.text('0%');
-      expect(find('.oneprovider-providerpar .chunks-text')).to.contain.text('0 B');
+      expect(find('.oneprovider-providerpar .size-label')).to.contain.text('0 B');
     });
 
     it('renders distribution for two files', async function () {
