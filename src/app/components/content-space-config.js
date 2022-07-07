@@ -169,7 +169,7 @@ export default OneEmbeddedComponent.extend(...mixins, {
         .then(() => this.updateDirStatsServiceStateProxy())
         .catch(error => {
           this.get('globalNotify').backendError(
-            this.t('configuringDirSizeStats'),
+            this.t('configuringDirStats'),
             error
           );
           throw error;
