@@ -6,6 +6,7 @@ CHANGELOG
 
 ### Latest changes
 
+* VFS-9419 Added locking directory statistics toggle when accounting is enabled
 * VFS-9508 Updated EmberJS to v3.4.8
 * VFS-9567 Fixed opening background-click context menu in archives and datasets browsers
 * VFS-8045 Added QoS audit log

@@ -21,12 +21,12 @@
         —
       {{/if}}
     {{else}}
-      <div 
+      <div
         class={{concat-classes
           "dir-size-container"
-          (if isDirSizeStatsStarted "active" "disabled")
+          (if isDirStatsServiceStarted "active" "disabled")
         }}
-        onclick={{if isDirSizeStatsStarted (action "invokeFileAction" file "info" "size")}}
+        onclick={{if isDirStatsServiceStarted (action "invokeFileAction" file "info" "size")}}
       >
         <span class="dir-size-value">
           {{#if (not-eq file.effFile.size null)}}
@@ -35,8 +35,8 @@
             —
           {{/if}}
         </span>
-        {{one-icon 
-          icon="overview" 
+        {{one-icon
+          icon="overview"
           class="inline-icon-container"
         }}
       </div>

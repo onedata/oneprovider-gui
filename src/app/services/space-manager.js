@@ -25,9 +25,9 @@ import { all as allFulfilled } from 'rsvp';
  */
 
 /**
- * @typedef {Object} DirSizeStatsConfig
- * @property {string} statsCollectionStatus One of `enabled`, `disabled`, 
- * `stopping`, `initializing`
+ * @typedef {Object} DirStatsServiceState
+ * @property {string} status One of `enabled`, `disabled`, `stopping`, `initializing`
+ * @property {boolean} enforcedByAccounting
  * @property {number} since
  */
 
@@ -152,10 +152,10 @@ export default Service.extend({
 
   /**
    * @param {String} spaceId
-   * @returns {Promise<DirSizeStatsConfig>}
+   * @returns {Promise<DirStatsServiceState>}
    */
-  fetchDirSizeStatsConfig(spaceId) {
-    const requestGri = dirSizeStatsConfigGri(spaceId);
+  fetchDirStatsServiceState(spaceId) {
+    const requestGri = dirStatsServiceStateGri(spaceId);
     return this.get('onedataGraph').request({
       gri: requestGri,
       operation: 'get',
@@ -165,15 +165,15 @@ export default Service.extend({
 
   /**
    * @param {String} spaceId
-   * @param {{ statsCollectionEnabled: boolean }} dirSizeStatsConfig
+   * @param {{ enabled: boolean }} dirStatsServiceState
    * @returns {Promise<Object>}
    */
-  saveDirSizeStatsConfig(spaceId, dirSizeStatsConfig) {
-    const requestGri = dirSizeStatsConfigGri(spaceId);
+  saveDirStatsServiceState(spaceId, dirStatsServiceState) {
+    const requestGri = dirStatsServiceStateGri(spaceId);
     return this.get('onedataGraph').request({
       gri: requestGri,
       operation: 'update',
-      data: dirSizeStatsConfig,
+      data: dirStatsServiceState,
       subscribe: false,
     });
   },
@@ -183,11 +183,11 @@ export default Service.extend({
  * @param {string} spaceId
  * @returns {string}
  */
-export function dirSizeStatsConfigGri(spaceId) {
+export function dirStatsServiceStateGri(spaceId) {
   return gri({
     entityType: spaceEntityType,
     entityId: spaceId,
-    aspect: 'dir_size_stats_config',
+    aspect: 'dir_stats_service_state',
     scope: 'private',
   });
 }
