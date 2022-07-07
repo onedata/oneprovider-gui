@@ -6,17 +6,11 @@ import hbs from 'htmlbars-inline-precompile';
 import Service from '@ember/service';
 import { registerService, lookupService } from '../../../helpers/stub-service';
 import sinon from 'sinon';
-import EmberPowerSelectHelper from '../../../helpers/ember-power-select-helper';
+import { selectChoose } from 'ember-power-select/test-support/helpers';
 
 const TransferManager = Service.extend({
   getSpaceTransfersThroughputCharts() {},
 });
-
-class ProviderSelectHelper extends EmberPowerSelectHelper {
-  constructor() {
-    super('.chart-selectors');
-  }
-}
 
 describe('Integration | Component | space transfers/throughput distribution', function () {
   setupRenderingTest();
@@ -65,12 +59,9 @@ describe('Integration | Component | space transfers/throughput distribution', fu
     expect(find('.ember-power-select-selected-item')).to.contain.text(
       'All Oneproviders'
     );
-    const select = new ProviderSelectHelper();
-    // option 3 should be Provider Z
-    return select.selectOption(3, () => {
-      expect(find('.chart-selectors .ember-power-select-selected-item'))
-        .to.contain.text(providerZ.name);
-    });
+    await selectChoose('.chart-selectors', providerZ.name);
+    expect(find('.chart-selectors .ember-power-select-selected-item'))
+      .to.contain.text(providerZ.name);
   });
 
   it('preserves selection of all oneproviders when changing timespan', async function () {
